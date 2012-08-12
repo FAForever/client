@@ -583,10 +583,12 @@ class ClientWindow(FormClass, BaseClass):
         self.send(dict(command="ask_session"))
         while self.session == None :
             QtGui.QApplication.processEvents()  
+       
         return True  
         
     
     def doLogin(self):
+        uniqueId = util.uniqueID(self.login, self.session)
         #Determine if a login wizard needs to be displayed and do so
         if not self.autologin or not self.password or not self.login:        
             import loginwizards
@@ -601,7 +603,7 @@ class ClientWindow(FormClass, BaseClass):
         logger.info("Attempting to login as: " + str(self.login))
         self.state = ClientState.NONE
         
-        uniqueId = util.uniqueID(self.login, self.session)
+        
         
         if not uniqueId :
             QtGui.QMessageBox.warning(QtGui.QApplication.activeWindow(), "Unable to login", "It seems that you miss some important DLL.<br>Please install :<br><a href =\"http://www.microsoft.com/download/en/confirmation.aspx?id=8328\">http://www.microsoft.com/download/en/confirmation.aspx?id=8328</a> and <a href = \"http://www.microsoft.com/en-us/download/details.aspx?id=17851\">http://www.microsoft.com/en-us/download/details.aspx?id=17851</a><br><br>You probably have to restart your computer after installing them.<br><br>Please visit this link in case of problems : <a href=\"http://www.faforever.com/forums/viewforum.php?f=3\">http://www.faforever.com/forums/viewforum.php?f=3</a>", QtGui.QMessageBox.Close)
