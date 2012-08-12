@@ -1,0 +1,334 @@
+from PyQt4 import QtGui, QtCore
+
+
+from chat.irclib import SimpleIRCClient
+import util
+
+import sys
+from chat import logger, user2name
+from chat.channel import Channel
+
+IRC_PORT = 8067
+IRC_SERVER = "faforever.com"
+POLLING_INTERVAL = 300   # milliseconds between irc polls
+
+                
+FormClass, BaseClass = util.loadUiType("chat/chat.ui")
+                
+class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
+    '''
+    This is the chat lobby module for the FAF client. 
+    It manages a list of channels and dispatches IRC events (lobby inherits from irclib's client class
+    '''
+    def __init__(self, client, *args, **kwargs):
+        logger.debug("Lobby instantiating.")
+        BaseClass.__init__(self, *args, **kwargs)
+        SimpleIRCClient.__init__(self)
+
+        self.setupUi(self)
+        
+        # CAVEAT: These will fail if loaded before theming is loaded
+        import json
+        self.OPERATOR_COLORS = json.loads(util.readfile("chat/formatters/operator_colors.json"))
+        
+        self.client = client
+        self.channels = {}
+        
+        #IRC parameters
+        self.ircServer = IRC_SERVER
+        self.ircPort = IRC_PORT
+        self.crucialChannels = ["#aeolus"]
+        self.optionalChannels = []
+
+        # Load colors and styles from theme
+        self.specialUserColors = json.loads(util.readfile("chat/formatters/special_colors.json"))
+        self.a_style = util.readfile("chat/formatters/a_style.qss") 
+        
+        #load UI perform some tweaks
+        self.tabBar().setTabButton(0, 1, None)
+        
+        #add self to client's window
+        self.client.chatTab.layout().addWidget(self)        
+        self.tabCloseRequested.connect(self.closeChannel)
+
+        #Hook with client's connection and autojoin mechanisms
+        self.client.connected.connect(self.connect)
+        self.client.publicBroadcast.connect(self.announce)
+        self.client.autoJoin.connect(self.autoJoin)
+    
+        self.timer = QtCore.QTimer(self)
+        self.timer.timeout.connect(self.poll)
+       
+       
+    @QtCore.pyqtSlot()
+    def poll(self):
+        self.timer.stop()
+        self.once()
+        self.timer.start(POLLING_INTERVAL)
+    
+    
+    def disconnect(self):
+        self.irc_disconnect()
+        self.timer.stop()
+
+
+    @QtCore.pyqtSlot()
+    def connect(self):
+        #Do the actual connecting, join all important channels
+        try:
+            self.irc_connect(self.ircServer, self.ircPort, self.client.login)
+
+            #Perform any pending autojoins (client may have emitted autoJoin signals before we talked to the IRC server)
+            self.autoJoin(self.optionalChannels)
+            self.autoJoin(self.crucialChannels)
+            
+            self.timer.start();
+            
+        except:
+            logger.debug("Unable to connect to IRC server.")
+            self.serverLogArea.appendPlainText("Unable to connect to the chat server, but you should still be able to host and join games.")
+            logger.error("IRC Exception", exc_info=sys.exc_info())
+
+    
+    def finishDownloadAvatar(self, reply):
+        ''' this take care of updating the avatars of players once they are downloaded '''
+        img = QtGui.QImage()
+        img.loadFromData(reply.readAll())
+        pix = util.respix(reply.url().toString())
+        if pix :
+            pix = QtGui.QIcon(QtGui.QPixmap(img))
+        else :
+            util.addrespix(reply.url().toString(), QtGui.QPixmap(img))
+            
+        for player in util.curDownloadAvatar(reply.url().toString()) :
+            for channel in self.channels :
+                if player in self.channels[channel].chatters :
+                    self.channels[channel].chatters[player].avatarItem.setIcon(QtGui.QIcon(util.respix(reply.url().toString())))
+           
+                   
+    def closeChannel(self, index):
+        '''
+        Closes a channel tab.
+        '''
+        channel = self.widget(index)
+        for name in self.channels:
+                if self.channels[name] is channel:
+                    if not self.channels[name].private and self.connection.is_connected():     # Channels must be parted (if still connected)
+                        self.connection.part([name], "tab closed")   
+                    else:
+                        # Queries and disconnected channel windows can just be closed
+                        self.removeTab(index)
+                        del self.channels[name]
+                    
+                    break
+
+    @QtCore.pyqtSlot(str)
+    def announce(self, broadcast):
+        ''' 
+        Notifies all crucial channels about the status of the client.
+        '''        
+        logger.debug("BROADCAST:" + broadcast)
+        for channel in self.crucialChannels:
+            self.sendMsg(channel, broadcast)
+
+
+
+    def sendMsg(self, target, text):
+        if self.connection.is_connected():
+            self.connection.privmsg(target, text)
+            return True
+        else:
+            logger.error("IRC connection lost.")
+            for channel in self.crucialChannels:
+                if channel in self.channels:                
+                    self.channels[channel].printAction("IRC", "was disconnected.")
+            return False            
+
+
+
+    def sendAction(self, target, text):
+        if self.connection.is_connected():
+            self.connection.action(target, text)
+            return True            
+        else:
+            logger.error("IRC connection lost.")
+            for channel in self.crucialChannels:
+                if channel in self.channels:               
+                    self.channels[channel].printAction("IRC", "was disconnected.")            
+            return False            
+
+
+
+    def openQuery(self, name, activate=False):
+        # In developer mode, allow player to talk to self to test chat functions
+        if (name == self.client.login) and not util.developer():
+            return False
+        
+        if name not in self.channels:
+            self.channels[name] = Channel(self, name, True)
+            self.addTab(self.channels[name], user2name(name))
+        
+        if activate:
+            self.setCurrentWidget(self.channels[name])
+            
+        return True
+        
+        
+        
+    @QtCore.pyqtSlot(list)
+    def autoJoin(self, channels):
+            for channel in channels:
+                if (self.connection.is_connected()):
+                    #directly join
+                    self.connection.join(channel)
+                else:
+                    #Note down channels for later.
+                    self.optionalChannels.append(channel)
+       
+       
+#SimpleIRCClient Class Dispatcher Attributes follow here.
+    def on_welcome(self, c, e):
+        self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
+        
+        
+    def on_version(self, c, e):
+        self.irc.privmsg(e.source(), "Forged Alliance Forever " + self.client.VERSION)
+      
+      
+    def on_motd(self, c, e):   
+        self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
+   
+   
+    def on_endofmotd(self, c, e):   
+        self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
+   
+        
+    def on_namreply(self, c, e):        
+        self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
+        channel = e.arguments()[1]
+        listing = e.arguments()[2].split()
+
+        for user in listing:
+            self.channels[channel].addChatter(user)
+            QtGui.QApplication.processEvents()      #Added by thygrrr to improve application responsiveness on large IRC packets
+        
+        logger.debug("Added " + str(len(listing)) + " Chatters")
+
+               
+                    
+    def on_whoisuser(self, c, e):
+        self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
+        
+        
+    def on_join(self, c, e):
+        channel = e.target()
+        
+        # If we're joining, we need to open the channel for us first.
+        if channel not in self.channels:
+            self.channels[channel] = Channel(self, channel)
+            if (channel.lower() in self.crucialChannels):
+                self.insertTab(1, self.channels[channel], channel)    #CAVEAT: This is assumes a server tab exists.                
+                self.client.localBroadcast.connect(self.channels[channel].printRaw)
+
+                self.channels[channel].printAnnouncement("Welcome to Forged Alliance Forever !", "red", "+3") #HACK: Beta message.
+                self.channels[channel].printAnnouncement("The documentation is the wiki. Check the Links menu !", "red", "+1") 
+                self.channels[channel].printAnnouncement("", "black", "+1") 
+                self.channels[channel].printAnnouncement("", "black", "+1") 
+            else:
+                self.addTab(self.channels[channel], channel)
+            
+            
+            if channel.lower() in self.crucialChannels: #Make the crucial channels not closeable, and make the last one the active one
+                self.setCurrentWidget(self.channels[channel])
+                self.tabBar().setTabButton(self.currentIndex(), QtGui.QTabBar.RightSide, None)
+
+        self.channels[channel].addChatter(user2name(e.source()), True)
+
+                
+    def on_part(self, c, e):
+        channel = e.target()
+        name = user2name(e.source())
+        if name == self.client.login:   #We left ourselves.
+            self.removeTab(self.indexOf(self.channels[channel]))
+            del self.channels[channel]
+        else:                           #Someone else left
+            self.channels[channel].removeChatter(name, "left.")
+                
+                
+    def on_quit(self, c, e):
+        name = user2name(e.source())
+        for channel in self.channels:
+            if (not self.channels[channel].private) or (self.channels[channel].name == user2name(name)):
+                self.channels[channel].removeChatter(name, "quit.")
+        
+        
+    def on_nick(self, c, e):
+        self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
+    
+    
+    def on_umode(self, c, e):        
+        self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
+
+
+    def on_notice(self, c, e):
+        self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
+
+
+    def on_currenttopic(self, c, e):
+        channel = e.arguments()[0]
+        if channel in self.channels:
+            self.channels[channel].printMsg(channel, "\n".join(e.arguments()[1:]))        
+
+
+    def on_topicinfo(self, c, e):
+        self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
+                 
+                    
+    def on_list(self, c, e):
+        self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
+
+
+    def on_bannedfromchan(self, c, e):
+        self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
+
+
+    def on_pubmsg(self, c, e):        
+        target = e.target()
+        
+        if target in self.channels:
+            self.channels[target].printMsg(user2name(e.source()), "\n".join(e.arguments()))
+            
+                
+    def on_privnotice(self, c, e):
+        source = user2name(e.source())
+        notice = e.arguments()[0]
+        prefix = notice.split(" ")[0]
+        target = prefix.strip("[]")
+        message = "\n".join(e.arguments()).lstrip(prefix)
+        if target in self.channels:
+            self.channels[target].printMsg(source, message)     
+              
+                                                            
+    def on_privmsg(self, c, e):
+        name = user2name(e.source())
+
+        # Create a Query if it's not open yet, and post to it if it exists.
+        if self.openQuery(name):
+            self.channels[name].printMsg(name, "\n".join(e.arguments()))
+        
+        
+    def on_action(self, c, e):
+        name = user2name(e.source())
+        target = e.target()
+        
+        # Create a Query if it's not an action intended for a channel
+        if target not in self.channels:
+            self.openQuery(name)
+            self.channels[name].printAction(name, "\n".join(e.arguments()))
+        else:
+            self.channels[target].printAction(name, "\n".join(e.arguments()))
+        
+    def on_default(self, c, e):                        
+        self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
+
+

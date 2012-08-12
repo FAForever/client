@@ -1,0 +1,530 @@
+# Developer mode flag
+import sys
+import os
+from ctypes import *
+
+def developer():
+    return sys.executable.endswith("python.exe")
+
+LOGFILE_MAX_SIZE = 256*1024   #256kb should be enough for anyone
+
+#Load build number from version file.
+if not developer():
+    #We must operate from our current directory
+    os.chdir(os.path.dirname(sys.executable))
+    
+    try:
+        VERSION_STRING = open("version").read()
+        VERSION = int(VERSION_STRING.rsplit('.', 1)[1])
+    except:
+        VERSION        = 0
+        VERSION_STRING = "undefined"
+else:
+    VERSION        = 0
+    VERSION_STRING = "development"
+
+
+#These are paths relative to the executable or main.py script
+COMMON_DIR = "_res"
+
+# These directories are in Appdata (e.g. C:\ProgramData on some Win7 versions)
+APPDATA_DIR = os.path.join(os.environ['ALLUSERSPROFILE'], "FAForever")
+
+#This contains the themes
+THEME_DIR = os.path.join(APPDATA_DIR , "themes")
+
+#This contains cached data downloaded while communicating with the lobby - at the moment, mostly map preview pngs.
+CACHE_DIR = os.path.join(APPDATA_DIR , "cache")
+
+#This contains the replays recorded by the local replay server
+REPLAY_DIR = os.path.join(APPDATA_DIR , "replays")
+
+#This contains all Lobby, Chat and Game logs
+LOG_DIR = os.path.join(APPDATA_DIR , "logs")
+LOG_FILE_FAF = os.path.join(LOG_DIR, 'forever.log')
+LOG_FILE_GAME = os.path.join(LOG_DIR, 'game.log')
+LOG_FILE_REPLAY = os.path.join(LOG_DIR, 'replay.log')
+
+#This contains the game binaries (old binFAF folder) and the game mods (.faf files)
+BIN_DIR = os.path.join(APPDATA_DIR , "bin")
+GAMEDATA_DIR = os.path.join(APPDATA_DIR , "gamedata")
+
+DOWNLOADED_RES_PIX = {}
+DOWNLOADING_RES_PIX = {}
+
+# This should be "My Documents" for most users. However, users with accents in their names can't even use these folders in Supcom
+# so we are nice and create a new home for them in the APPDATA_DIR
+try:
+    os.environ['USERNAME'].decode('ascii') # Try to see if the user has a wacky username
+        
+    import ctypes
+    from ctypes.wintypes import MAX_PATH
+
+    dll = ctypes.windll.shell32
+    buf = ctypes.create_unicode_buffer(MAX_PATH + 1)
+    if dll.SHGetSpecialFolderPathW(None, buf, 0x0005, False):
+        PERSONAL_DIR = (buf.value)
+    else:
+        raise StandardError
+except:    
+    PERSONAL_DIR = os.path.join(APPDATA_DIR, "user")
+
+
+#Ensure Application data directories exist
+if not os.path.isdir(APPDATA_DIR):
+    os.makedirs(APPDATA_DIR)
+    
+if not os.path.isdir(PERSONAL_DIR):
+    os.makedirs(PERSONAL_DIR)
+    
+if not os.path.isdir(CACHE_DIR):
+    os.makedirs(CACHE_DIR)
+
+if not os.path.isdir(THEME_DIR):
+    os.makedirs(THEME_DIR)
+    
+if not os.path.isdir(REPLAY_DIR):
+    os.makedirs(REPLAY_DIR)
+    
+if not os.path.isdir(LOG_DIR):
+    os.makedirs(LOG_DIR)
+    
+
+from PyQt4 import QtGui, uic, QtCore
+import shutil
+import hashlib
+import re
+import urllib
+import _winreg
+
+# Dirty log rotation: Get rid of logs if larger than 1 MiB
+try:
+    #HACK: Clean up obsolete logs directory trees
+    if os.path.isfile(os.path.join(LOG_DIR, "faforever.log")):
+            shutil.rmtree(LOG_DIR)
+            os.makedirs(LOG_DIR)
+    
+    if (os.path.isfile(LOG_FILE_FAF)):
+        if os.path.getsize(LOG_FILE_FAF) > LOGFILE_MAX_SIZE:
+            os.remove(LOG_FILE_FAF)        
+except:
+    pass        
+        
+
+
+# Initialize logging system
+import logging
+import traceback
+if not developer():
+    logging.basicConfig(filename=LOG_FILE_FAF, level=logging.INFO, format='%(asctime)s %(levelname)-8s %(name)-20s %(message)s')
+else:
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)-8s %(name)-20s %(message)s')
+
+logger = logging.getLogger("faf.util")
+
+
+
+def startLogging():
+    logger.debug("Logging started.")
+    
+def stopLogging():
+    logger.debug("Logging ended.")
+    logging.shutdown()
+     
+    
+def clearDirectory(directory, confirm = True):
+    if (os.path.isdir(directory)):        
+        if (confirm):
+            result = QtGui.QMessageBox.question(None, "Clear Directory", "Are you sure you wish to clear the following directory:<br/><b>&nbsp;&nbsp;" + directory + "</b>", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+        else:
+            result = QtGui.QMessageBox.Yes
+                        
+        if (result == QtGui.QMessageBox.Yes):
+            shutil.rmtree(directory)
+            return True
+        else:
+            return False
+
+
+# Theme and settings
+__pixmapcache = {}
+__theme = None
+__themedir = None
+
+
+# Public settings object
+settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
+                
+    
+    
+def loadTheme():
+    global __theme
+    global __themedir
+
+    settings.beginGroup("theme")
+    loaded = settings.value("theme/name") 
+    settings.endGroup()
+    logger.debug("Loaded Theme: " + str(loaded))
+    
+    setTheme(loaded, False)
+    
+
+def getTheme():
+    return __theme
+
+    
+def setTheme(theme, restart = True):
+    global __theme
+    global __themedir
+    
+    __theme = None
+    __themedir = None
+            
+    if theme:
+        test_dir = os.path.join(THEME_DIR, theme)
+        if os.path.isdir(test_dir):
+            version_file = os.path.join(THEME_DIR, theme, "version")
+            if developer() or os.path.isfile(version_file) and (VERSION_STRING == open(version_file).read()):
+                logger.info("Using theme: " + theme + " in directory " + test_dir)
+                __themedir = test_dir
+                __theme = theme
+            else:
+                result = QtGui.QMessageBox.question(QtGui.QApplication.activeWindow(), "Incompatible Theme", "The following theme is not the right version:<br/><b>" + theme + "</b><br/><i>Contact the maker of the theme for an update!</i><br/><br/><b>Reset to default, or apply theme anyway?</b>", QtGui.QMessageBox.Apply, QtGui.QMessageBox.Reset)
+                if result == QtGui.QMessageBox.Apply:
+                    logger.info("Using theme: " + theme + " in directory " + test_dir)
+                    __themedir = test_dir
+                    __theme = theme
+                else:
+                    logger.warn("Theme '" + theme + "' does not have the appropriate version string.<br/><b> FAF is reverting to unthemed mode for safety.</b><br/>Check the source where you got the theme for an update.")
+        else:
+            logger.error("Theme not found: " + theme + " in directory " + test_dir)    
+        
+    #Save theme setting
+    settings.beginGroup("theme")
+    settings.setValue("theme/name", __theme)
+    settings.endGroup()
+    settings.sync()
+    
+    if restart:
+        QtGui.QMessageBox.information(None, "Restart Needed", "FAF will quit now.")
+        QtGui.QApplication.quit()
+
+            
+            
+def listThemes():
+    '''
+    Searches the THEME_DIR for all available themes, returning them as Callable Theme objects.
+    '''
+    themes = [None]
+    if (os.path.isdir(THEME_DIR)):
+        for infile in os.listdir(THEME_DIR):
+            if os.path.isdir(os.path.join(THEME_DIR, infile)):
+                themes.append(infile)
+    else:
+        logger.error("No Theme Directory")
+    return themes
+
+
+def curDownloadAvatar(url):
+    if url in DOWNLOADING_RES_PIX :
+        return DOWNLOADING_RES_PIX[url]
+    return None
+
+def removeCurrentDownloadAvatar(url, player, item):
+    if url in DOWNLOADING_RES_PIX :
+         DOWNLOADING_RES_PIX[url].remove(player)
+
+def addcurDownloadAvatar(url, player):
+    if url in DOWNLOADING_RES_PIX :
+        if not player in DOWNLOADING_RES_PIX[url] :
+            DOWNLOADING_RES_PIX[url].append(player)  
+        return False
+    else :
+        DOWNLOADING_RES_PIX[url] = []
+        DOWNLOADING_RES_PIX[url].append(player)
+        return True
+    
+     
+
+def addrespix(url, pixmap):
+    DOWNLOADED_RES_PIX[url] = pixmap
+
+def respix(url):
+    if url in DOWNLOADED_RES_PIX :
+        return DOWNLOADED_RES_PIX[url]
+    return None
+
+def pixmap(filename, themed=True):
+    '''
+    This function loads a pixmap from a themed directory, or anywhere.
+    It also stores them in a cache dictionary (may or may not be necessary depending on how Qt works under the hood)
+    '''
+    try:        
+        return __pixmapcache[filename]
+    except:
+        if themed:
+            if __themedir and os.path.isfile(os.path.join(__themedir, filename)):
+                pix = QtGui.QPixmap(os.path.join(__themedir, filename))
+            else:
+                pix = QtGui.QPixmap(os.path.join(COMMON_DIR, filename))
+        else:
+            pix = QtGui.QPixmap(filename) #Unthemed means this can come from any location
+                            
+        __pixmapcache[filename] = pix
+        return pix
+
+
+
+def loadUi(filename, themed=True):
+    '''
+    Loads and compiles a Qt Ui file via uic.
+    Looks in theme directories first. Nonthemed means the file can come from anywhere.
+    ''' 
+    if themed:
+        if __themedir and os.path.isfile(os.path.join(__themedir, filename)):
+            ui = uic.loadUi(os.path.join(__themedir, filename))
+        else:
+            ui = uic.loadUi(os.path.join(COMMON_DIR, filename))
+    else:
+        ui = uic.loadUi(filename) #Unthemed means this can come from any location
+                            
+    return ui
+
+
+
+def loadUiType(filename, themed=True):
+    '''
+    Loads and compiles a Qt Ui file via uic, and returns the Type and Basetype as a tuple
+    Looks in theme directories first. Nonthemed means the file can come from anywhere.
+    ''' 
+    if themed:
+        if __themedir and os.path.isfile(os.path.join(__themedir, filename)):
+            return uic.loadUiType(os.path.join(__themedir, filename))
+        else:
+            return uic.loadUiType(os.path.join(COMMON_DIR, filename))
+    else:
+        return uic.loadUiType(filename) #Unthemed means this can come from any location
+
+
+
+def readlines(filename, themed = True):
+    '''
+    Reads and returns the contents of a file. It looks in theme folders first.
+    If non-themed, the file can come from anywhere.
+    '''
+    if themed:
+        if __themedir and os.path.isfile(os.path.join(__themedir, filename)):
+            result = open(os.path.join(__themedir, filename))
+            logger.debug(u"Read themed file: " + filename)
+        else:
+            result = open(os.path.join(COMMON_DIR, filename))
+            logger.debug(u"Read common file: " + filename)
+    else:
+        result = open(filename)
+        logger.debug(u"Read unthemed file: " + filename)
+
+    lines = result.readlines()
+    result.close()
+    return lines
+
+
+
+def readstylesheet(filename):
+    if __themedir and os.path.isfile(os.path.join(__themedir, filename)):
+        result = open(os.path.join(__themedir, filename)).read().replace("%THEMEPATH%", __themedir.replace("\\", "/"))
+        logger.info(u"Read themed stylesheet: " + filename)
+    else:
+        result = open(os.path.join(COMMON_DIR, filename)).read()
+        logger.info(u"Read common stylesheet: " + filename)
+        
+    return result
+    
+    
+        
+def themeurl(filename):
+    '''
+    This creates an url to use for a local stylesheet. It's a bit of a hack because Qt has a bug identifying proper localfile QUrls
+    '''
+    if __themedir and os.path.isfile(os.path.join(__themedir, filename)):
+        return QtCore.QUrl("file://" + os.path.join(__themedir, filename).replace("\\", "/"))
+    elif os.path.isfile(os.path.join(COMMON_DIR, filename)):
+        return QtCore.QUrl("file://" + os.path.join(os.getcwd(), COMMON_DIR, filename).replace("\\", "/"))    
+    else:
+        return None 
+    
+    
+    
+def readfile(filename, themed = True):
+    '''
+    Reads and returns the contents of a file. It looks in theme folders first.
+    If non-themed, the file can come from anywhere.
+    '''
+    if themed:
+        if __themedir and os.path.isfile(os.path.join(__themedir, filename)):
+            result = open(os.path.join(__themedir, filename))
+            logger.debug(u"Read themed file: " + filename)
+        else:
+            result = open(os.path.join(COMMON_DIR, filename))
+            logger.debug(u"Read common file: " + filename)
+    else:
+        result = open(filename)
+        logger.debug(u"Read unthemed file: " + filename)
+
+    data = result.read()
+    result.close()
+    return data
+
+
+
+def icon(filename, themed=True, pix = False):
+    '''
+    Convenience method returning an icon from a cached, optionally themed pixmap as returned by the util.pixmap(...) function
+    '''
+    if pix :
+        return pixmap(filename, themed)
+    else :
+        return QtGui.QIcon(pixmap(filename, themed))
+ 
+    
+def sound(filename, themed = True):
+    '''
+    Plays a sound, from one of the themed or fallback folders, or optionally from anywhere if unthemed.
+    '''
+    if themed:
+        if __themedir and os.path.isfile(os.path.join(__themedir, filename)):
+            QtGui.QSound.play(os.path.join(__themedir, filename))
+        else:
+            QtGui.QSound.play(os.path.join(COMMON_DIR, filename))
+    else:
+        QtGui.QSound.play(filename)
+
+
+
+def wait(until):
+    '''
+    Super-simple wait function that takes a callable and waits until the callable returns true or the user aborts.
+    '''
+    progress = QtGui.QProgressDialog()
+    progress.show()
+    
+    while not until() and progress.isVisible():
+        QtGui.QApplication.processEvents()
+        
+    progress.close()
+    
+    return not progress.wasCanceled()
+        
+
+    
+def openInExplorer(location):
+    '''
+    Opens a given location in Windows Explorer
+    '''
+    import subprocess
+    _command = (u'explorer  "%s"' % location).encode(sys.getfilesystemencoding())
+    subprocess.Popen(_command)
+    
+    
+    
+def showInExplorer(location):
+    '''
+    Opens a given location's parent in Windows Explorer and focuses the location in it.
+    '''
+    import subprocess
+    _command = (u'explorer  /select, "%s"' % location).encode(sys.getfilesystemencoding())
+    subprocess.Popen(_command)
+            
+    
+html_escape_table = {
+                     "&": "&amp;",
+                     '"': "&quot;",
+                     "'": "&apos;",
+                     ">": "&gt;",
+                     "<": "&lt;"                     
+                    }
+
+
+
+def html_escape(text):
+    """Produce entities within text."""
+    return "".join(html_escape_table.get(c, c) for c in text)
+
+
+    
+def irc_escape(text, a_style = ""):
+    #first, strip any and all html
+    text = html_escape(text)
+
+    #taken from django and adapted
+    url_re  = re.compile(
+        r'^((https?|faflive|fafgame|fafmap|ftp|ts3server)://)?'  # protocols    
+        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+'  # domain name, then TLDs
+        r'(?:ac|ad|ae|aero|af|ag|ai|al|am|an|ao|aq|ar|arpa|as|asia|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|biz|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cat|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|com|coop|cr|cu|cv|cw|cx|cy|cz|de|dj|dk|dm|do|dz|ec|edu|ee|eg|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gov|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|info|int|io|iq|ir|is|it|je|jm|jo|jobs|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mil|mk|ml|mm|mn|mo|mobi|mp|mq|mr|ms|mt|mu|museum|mv|mw|mx|my|mz|na|name|nc|ne|net|nf|ng|ni|nl|no|np|nr|nu|nz|om|org|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|pro|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|st|su|sv|sx|sy|sz|tc|td|tel|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|travel|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|xxx|ye|yt|za|zm|zw)'
+        r'|localhost'  # localhost...
+        r'|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})' # ...or ip
+        r'(?::\d+)?'  # optional port
+        r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+    
+    #tired of bothering with end-of-word cases in this regex, I'm splitting the whole string and matching each fragment start-to-end as a whole
+    strings = text.split()
+    result = []
+    for fragment in strings:            
+        match = url_re.match(fragment)
+        if match :
+            if "://" in fragment: #slight hack to get those protocol-less URLs on board. Better: With groups!
+                rpl = '<a href="{0}" style="{1}">{0}</a>'.format(fragment, a_style)
+            else:
+                rpl = '<a href="http://{0}" style="{1}">{0}</a>'.format(fragment, a_style)
+        
+            fragment = fragment.replace(match.group(0), rpl)
+        
+        result.append(fragment)
+    return " ".join(result)
+
+
+
+def md5(fileName):
+    '''
+    Compute md5 hash of the specified file.
+    IOErrors raised here are handled in doUpdate.
+    '''
+    m = hashlib.md5()
+    if not os.path.isfile(fileName): return None
+    
+    fd = open(fileName, "rb")
+    while True:
+        #read the file in 1 MiB chunks, this requires less memory in case one day we need to read something big, like textures.scd or units.scd
+        content = fd.read(1024*1024) 
+        if not content: break
+        m.update(content)
+    fd.close()
+        
+    return m.hexdigest()
+
+
+
+# LATER: This needs to go into a secure module, ZeP's on it
+def uniqueID(user, session ):
+    try:
+         mydll = cdll.LoadLibrary("uid.dll")
+         mydll.uid.restype = c_char_p
+     
+         baseString = (mydll.uid(session, str(user)) )
+         DllCanUnloadNow()
+         
+         return baseString
+
+    except:
+        logger.error("UniqueID Failure", exc_info = sys.exc_info())
+        return None
+        
+
+
+
+
+
+
+from crash import CrashDialog
+from report import ReportDialog
+
+        

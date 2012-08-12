@@ -1,0 +1,338 @@
+/*
+Simple UEF (blue) theme by thygrrr
+
+dark dirty blue: #366175
+dark gray: #383838
+medium gray: #606060
+gray: #808080
+*/
+
+QTabWidget #lobbyTab,#gamesTab,#ladderTab,#tournamentTab,#coopTab,#mapsTab,#galacticTab,#replaysTab,#modsTab
+{ /* sets background color for every widget under a tab */
+		background-color: #366175;
+		border-radius: 10px;
+}
+
+QTabWidget#mainTabs::tab-bar
+{
+     left: 25px; /* move to the right by 25px */
+}
+
+
+
+/* Central area background */
+QWidget#centralwidget
+{
+	background-color: #201520;
+}
+
+
+QTabWidget#mainTabs::pane
+{ /* The tab widget frame */
+	background-color: #366175;
+	border-radius: 10px;
+}
+							
+/* Style the tab using the tab sub-control. Note that it reads QTabBar _not_ QTabWidget */	
+QTabWidget#mainTabs > QTabBar::tab
+{
+	background-color: rgb(40, 40, 40);
+	color: silver;
+	min-width: 80px;
+	padding:2px;
+	padding-right: 5px;
+	padding-left: 5px;
+}
+
+								
+QTabWidget#mainTabs > QTabBar::tab:hover 
+{
+	color:white;
+	background-color: #606060;
+}
+
+QTabWidget#mainTabs > QTabBar::tab:selected 
+{
+	color:white;
+	font-weight:bold;
+	background-color: #366175;
+	border-bottom-left-radius: 10px;
+	border-bottom-right-radius: 10px;
+}
+
+
+QTabWidget#mainTabs > QTabBar::tab:!selected 
+{
+	margin-bottom: 8px; /* make non-selected tabs look smaller */
+}
+
+
+
+
+
+
+/* Chat area */
+
+QTabWidget#chatTabs::pane
+{
+	 /* The tab widget frame */
+     border: none;
+	 background-color: #366175;
+ }
+
+
+ QTabWidget#chatTabs::tab-bar
+{
+	top: 0px;
+    left: 25px; /* move to the right by 25px */
+ }
+
+							
+/* Style the tab using the tab sub-control. Note that it reads QTabBar _not_ QTabWidget */	
+QTabWidget#chatTabs > QTabBar::tab 
+{
+	background-color:#383838;
+	color: silver;
+	min-width: 80px;
+	padding:4px;
+}
+
+
+QTabWidget#chatTabs > QTabBar::tab:!selected 
+{
+	margin-top:5px;
+	background-color: #203040;
+}
+
+								
+QTabWidget#chatTabs > QTabBar::tab:hover 
+{
+	color:white;
+	background-color: #606060;
+}
+
+
+QTabWidget#chatTabs > QTabBar::tab:selected 
+{
+	color:white;
+	background-color: #303030;
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
+}
+
+QSplitter::handle 
+{
+     background-color: none;
+}
+
+
+QSplitter::handle:horizontal 
+{
+     width: 8px;
+ }
+
+QSplitter::handle:vertical 
+{
+     height: 8px;
+}
+
+/* strangely, this seems to have no effect :( */
+QSplitter::handle:hover 
+{
+     background-color: #606060;
+ }
+
+
+
+/* Text controls */
+QTextEdit, QPlainTextEdit, QLineEdit, QListWidget, QTableWidget, QTreeWidget, QFrame#rankedFrame
+{
+	border-style:solid;
+	border-width:1px;
+	border-color:#353535;
+	color:silver;
+	padding:5px;
+	background-color:#303038;
+	border-bottom-left-radius : 5px;
+	border-bottom-right-radius : 5px; 	
+}
+
+/* Modlist */
+QFrame#rankedFrame
+{
+	border-style:solid;
+	border-width:1px;
+	border-color:#353535;
+	color:silver;
+	padding:5px;
+	background-color:#303038;
+	border-bottom-left-radius : 5px;
+	border-bottom-right-radius : 5px; 	
+}
+
+
+
+/* Nicklist controls */
+
+QTableWidget::item
+{
+	margin: 0px;
+	border: none;
+	padding:0px;
+}
+
+QTableWidget::item::hover
+{
+	background: #606060;
+	border-radius: 3px;
+}
+
+
+QTableWidget::item:selected, QListWidget::item:previously-selected
+{
+	border: none;
+}
+
+
+
+
+QLineEdit
+{
+	color:orange;
+}
+
+
+QListWidget::item:hover
+{
+	border: none;
+	background: #606060;
+	border-radius: 3px;
+}
+
+QListWidget::item:selected, QTreeWidget::item:previously-selected
+{
+	border: none;
+}
+
+ 
+QTreeWidget::item:hover
+{
+	border: none;
+	background: #606060;
+	border-radius: 3px;
+}
+
+QTreeWidget::item:selected, QTreeWidget::item:previously-selected
+{
+	border: none;
+}
+
+ 
+
+
+
+/* Scrollbars*/
+QScrollBar
+{
+      background-color: #282832;
+      border: 1px solid #282832;
+ 	  border-radius: 4px;
+	  padding:1px;
+}
+
+QScrollBar::handle
+{
+      background-color: #366175;
+}
+
+QScrollBar::handle:hover, QScrollBar::handle:pressed
+{
+      background-color: #606060;
+  }
+
+QScrollBar::add-page, QScrollBar::sub-page
+{
+	background-color:none;
+}
+
+QScrollBar::add-line, QScrollBar::sub-line
+{
+    border: none;
+	background-color:none;
+}
+
+
+QScrollBar:vertical
+{
+      width: 10px;
+	  margin-top:14px;
+ 	  margin-bottom:14px;
+  }
+
+QScrollBar::handle:vertical 
+{
+      min-height: 20px;
+  }
+
+QScrollBar:horizontal
+{
+      height: 10px;
+	  margin-left:14px;
+ 	  margin-right:14px;
+}
+
+QScrollBar::handle:horizontal 
+{
+      min-width: 20px;
+}
+
+
+QLabel#labelJoinGame,#labelHostGame,#labelAutomatch,#labelMyReplays,#labelLiveReplays
+{
+	color:white;
+}
+
+QLabel#labelModHint,#labelMyHint,#labelLiveHint,#labelRankedHint
+{
+	color:#AAAAAA;
+}
+
+
+/* Used for dialogs*/
+QDialog 
+{
+	background-color: #808080;
+}
+
+
+/* Used for Ranked Buttons only at the moment*/
+QToolButton::pressed 
+{
+	border: none;
+
+	color:silver;
+	padding:5px;
+	background-color:#383838;
+	border-radius : 5px;
+}
+
+QToolButton::hover
+{
+	border: none;
+
+	color:silver;
+	padding:5px;
+	background-color:#808080;
+	border-radius : 5px;
+ }
+
+QToolButton::checked
+{
+	border: none;
+	border: 2px solid #353535;
+
+	color:silver;
+	padding:5px;
+	background-color:#C0C0C0;
+	border-radius : 5px;
+ }
