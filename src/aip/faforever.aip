@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <DOCUMENT Type="Advanced Installer" CreateVersion="8.2" version="9.1" Modules="simple" RootPath="." Language="en" Id="{12DBD6A4-B629-4B03-8158-F30A859838A6}">
   <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
+    <ROW Property="AI_DETECTVM_BINARY_ID" MultiBuildValue="DefaultBuild:vmdetect.exe" Type="1" ValueLocId="-"/>
     <ROW Property="AI_MINDOTNETVERSION" MultiBuildValue="DefaultBuild:4.0" ValueLocId="-"/>
     <ROW Property="ALLUSERS" Value="2"/>
     <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
@@ -467,6 +468,7 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiBinaryComponent">
     <ROW Name="aicustact.dll" SourcePath="&lt;AI_CUSTACTS&gt;aicustact.dll"/>
+    <ROW Name="vmdetect.exe" SourcePath="&lt;AI_CUSTACTS&gt;vmdetect.exe"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiControlComponent">
     <ATTRIBUTE name="FixedSizeBitmaps" value="0"/>
@@ -494,6 +496,7 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCustActComponent">
     <ROW Action="AI_DOWNGRADE" Type="19" Target="4010"/>
+    <ROW Action="AI_DetectVM2" Type="1" Source="aicustact.dll" Target="IsRunningOnVM"/>
     <ROW Action="AI_InstallModeCheck" Type="1" Source="aicustact.dll" Target="UpdateInstallMode" WithoutSeq="true"/>
     <ROW Action="AI_LaunchApp" Type="1" Source="aicustact.dll" Target="[#FAForever.exe]"/>
     <ROW Action="AI_PREPARE_UPGRADE" Type="65" Source="aicustact.dll" Target="PrepareUpgrade"/>
@@ -514,14 +517,17 @@
     <ROW Action="AI_ResolveKnownFolders" Sequence="51"/>
     <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="748"/>
     <ROW Action="AI_DOWNGRADE" Condition="AI_NEWERPRODUCTFOUND AND (UILevel &lt;&gt; 5)" Sequence="201"/>
+    <ROW Action="AI_DetectVM2" Condition="1" Sequence="399" Builds="DefaultBuild"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstallUISequenceComponent">
     <ROW Action="AI_ResolveKnownFolders" Sequence="51"/>
     <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="748"/>
+    <ROW Action="AI_DetectVM2" Condition="1" Sequence="399" Builds="DefaultBuild"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiLaunchConditionsComponent">
     <ROW Condition="( Version9X OR VersionNT64 OR ( VersionNT AND ((VersionNT &lt;&gt; 400) OR ((VersionNT = 400) AND (ServicePackLevel &gt;= 1))) AND ((VersionNT &lt;&gt; 400) OR ((VersionNT = 400) AND (ServicePackLevel &lt;&gt; 1))) AND ((VersionNT &lt;&gt; 400) OR ((VersionNT = 400) AND (ServicePackLevel &lt;&gt; 2))) AND ((VersionNT &lt;&gt; 400) OR ((VersionNT = 400) AND (ServicePackLevel &lt;&gt; 3))) AND ((VersionNT &lt;&gt; 400) OR ((VersionNT = 400) AND (ServicePackLevel &lt;&gt; 4))) AND ((VersionNT &lt;&gt; 400) OR ((VersionNT = 400) AND (ServicePackLevel &lt;&gt; 5))) AND ((VersionNT &lt;&gt; 400) OR ((VersionNT = 400) AND (ServicePackLevel &lt;&gt; 6))) AND ((VersionNT &lt;&gt; 500) OR ((VersionNT = 500) AND (ServicePackLevel &gt;= 1))) AND ((VersionNT &lt;&gt; 500) OR ((VersionNT = 500) AND (ServicePackLevel &lt;&gt; 1))) AND ((VersionNT &lt;&gt; 500) OR ((VersionNT = 500) AND (ServicePackLevel &lt;&gt; 2))) AND ((VersionNT &lt;&gt; 500) OR ((VersionNT = 500) AND (ServicePackLevel &lt;&gt; 3))) AND ((VersionNT &lt;&gt; 500) OR ((VersionNT = 500) AND (ServicePackLevel &lt;&gt; 4))) ) )" Description="[ProductName] cannot be installed on the following Windows versions: [WindowsTypeNTDisplay]" DescriptionLocId="AI.LaunchCondition.NoSpecificNT" IsPredefined="true" Builds="DefaultBuild"/>
     <ROW Condition="(AI_DOTNET40_SEARCH = &quot;#1&quot;) OR (AI_DOTNET45_SEARCH &gt;= &quot;4.5&quot;)" Description="[ProductName] cannot be installed on systems with .NET Framework version lower than [AI_MINDOTNETVERSION]" DescriptionLocId="AI.LaunchCondition.DotNET" IsPredefined="true" Builds="DefaultBuild"/>
+    <ROW Condition="NOT AI_INSIDEVM2" Description="[ProductName] cannot be installed on systems running on virtual machines." DescriptionLocId="AI.LaunchCondition.VM" IsPredefined="true" Builds="DefaultBuild"/>
     <ROW Condition="VersionNT" Description="[ProductName] cannot be installed on [WindowsType9XDisplay]" DescriptionLocId="AI.LaunchCondition.No9X" IsPredefined="true" Builds="DefaultBuild"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiRegLocatorComponent">
