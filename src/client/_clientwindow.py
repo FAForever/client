@@ -686,6 +686,17 @@ class ClientWindow(FormClass, BaseClass):
     #Color table used by the following method
     # CAVEAT: This will break if the theme is loaded after the client package is imported
     colors = json.loads(util.readfile("client/colors.json"))
+
+    def getUserLeague(self, name):
+        '''
+        Returns a user's league if any
+        '''        
+        if name in self.players:
+            if "league" in self.players[name] : 
+                return self.players[name]["league"]
+            
+
+        return None
     
     def getUserAvatar(self, name):
         '''

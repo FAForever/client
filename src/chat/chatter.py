@@ -159,17 +159,25 @@ class Chatter(QtGui.QTableWidgetItem):
         #Rating icon choice
         #TODO: These are very basic and primitive
         if rating != None:            
-                self.rankItem.setToolTip("Rating: " + str(int(rating)))            
-                if rating == 0 :
-                    self.rankItem.setIcon(util.icon("chat/rank/newplayer.png"))
-                elif rating < 500 :
-                    self.rankItem.setIcon(util.icon("chat/rank/Aeon_T1.png"))
-                elif rating < 1500 :
-                    self.rankItem.setIcon(util.icon("chat/rank/Aeon_T2.png"))
-                elif rating < 2000 :
-                    self.rankItem.setIcon(util.icon("chat/rank/Aeon_T3.png"))
+                league = self.lobby.client.getUserLeague(self.name)
+                
+                self.rankItem.setToolTip("Global Rating: " + str(int(rating)))  
+                
+                if league != None :        
+                    self.rankItem.setToolTip("Division : " + league["division"]+ "\nGlobal Rating: " + str(int(rating)))
+                    if league["league"] == 1 :
+                        self.rankItem.setIcon(util.icon("chat/rank/Aeon_Scout.png"))
+                    elif league["league"] == 2 :
+                        self.rankItem.setIcon(util.icon("chat/rank/Aeon_T1.png"))
+                    elif league["league"] == 3 :
+                        self.rankItem.setIcon(util.icon("chat/rank/Aeon_T2.png"))
+                    elif league["league"] == 4 :
+                        self.rankItem.setIcon(util.icon("chat/rank/Aeon_T3.png"))
+                    elif league["league"] == 5 :                        
+                        self.rankItem.setIcon(util.icon("chat/rank/Aeon_XP.png"))
                 else :
-                    self.rankItem.setIcon(util.icon("chat/rank/Aeon_XP.png"))
+                    self.rankItem.setIcon(util.icon("chat/rank/newplayer.png"))
+                    
         else:
                 self.rankItem.setIcon(util.icon("chat/rank/civilian.png"))
                 self.rankItem.setToolTip("IRC User")
