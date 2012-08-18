@@ -20,7 +20,7 @@ import replays
 import time
 import os
 
-
+from profile import playerstats
 
 class ClientOutdated(StandardError):
     pass
@@ -46,6 +46,7 @@ class ClientWindow(FormClass, BaseClass):
     gameExit    = QtCore.pyqtSignal()
      
     #These signals propagate important client state changes to other modules
+    statsInfo = QtCore.pyqtSignal(dict)
     tourneyTypesInfo = QtCore.pyqtSignal(dict)
     tourneyInfo = QtCore.pyqtSignal(dict)
     modInfo = QtCore.pyqtSignal(dict)
@@ -87,6 +88,8 @@ class ClientWindow(FormClass, BaseClass):
         self.socket.disconnected.connect(self.disconnectedFromServer)
         self.socket.error.connect(self.socketError)
         self.blockSize = 0
+
+        self.profile = playerstats.Statpage(self)
 
         self.sendFile = False
         self.progress = QtGui.QProgressDialog()
@@ -1070,6 +1073,9 @@ class ClientWindow(FormClass, BaseClass):
         except:
             raise #Pass it on to our caller, Malformed Command
       
+
+    def handle_stats(self, message):       
+        self.statsInfo.emit(message)       
 
     def handle_welcome(self, message):
         

@@ -8,7 +8,7 @@ import util
 
 import fa
 import client
-import profile
+from profile import playerstats
 
 
 class Chatter(QtGui.QTableWidgetItem):
@@ -27,7 +27,7 @@ class Chatter(QtGui.QTableWidgetItem):
         #TODO: for now, userflags and ranks aren't properly interpreted :-/ This is impractical if an operator reconnects too late.
         self.parent = parent
         self.lobby = lobby
-        
+
         if user[0] in self.lobby.OPERATOR_COLORS:
             self.elevation = user[0]
         else:
@@ -323,8 +323,8 @@ class Chatter(QtGui.QTableWidgetItem):
     @QtCore.pyqtSlot()
     def viewStats(self):
         if self.name in self.lobby.client.players :
-            profile.stats.setplayer(self.name, self.lobby.client)
-            profile.stats.show() 
+            self.lobby.client.profile.setplayer(self.name)
+            self.lobby.client.profile.show() 
         
 
     @QtCore.pyqtSlot()

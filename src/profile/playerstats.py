@@ -1,3 +1,8 @@
+''''
+THIS SHOULD BE REFACTORED BIG TIME :(
+
+'''
+
 
 from numpy.random import randn as np
 from matplotlib.mlab import normpdf
@@ -12,6 +17,9 @@ from PyQt4.QtGui import *
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QTAgg as NavigationToolbar
 from matplotlib.figure import Figure
+import matplotlib.dates as mdates
+
+import datetime
 
 from trueSkill.TrueSkill.FactorGraphTrueSkillCalculator import * 
 from trueSkill.Rating import *
@@ -20,35 +28,150 @@ from trueSkill.Teams import *
 
 import client
 
-class AppForm(QMainWindow):
+class Statpage(QMainWindow):
     def __init__(self, parent=None):
         QMainWindow.__init__(self, parent)
-        self.setWindowTitle('Rating analysis')
+        
+        self.parent = parent
+        self.parent.statsInfo.connect(self.processStatsInfos)
+        
+        self.globalname = None
+        self.globalforevername = None
+
+        self.tabs = QTabWidget(self)
+        
+        self.setCentralWidget(self.tabs)
+        
+
+        
+        self.setWindowTitle('Player statistics')
+
 
         self.mu, self.sigma = 1500, 500
         self.playermu, self.playersigma = 1500, 500
         self.name = "none"
         self.create_menu()
-        self.create_main_frame()
+        self.create_global_frame()
+        self.create_global_evolution_frame()
+        self.create_global_evolution_forever_frame()
         #self.create_status_bar()
+
+        self.tabs.currentChanged.connect(self.tabChanged)
 
         self.on_draw()
 
 
-    def setplayer(self, name, client):
-        if name in client.players :
-            self.playername = name
+    def tabChanged(self, tab):
+        
+        
+        if tab == 1 :
+            if self.name != "unknown" and self.globalname != self.name:
+
+                self.parent.send(dict(command="stats", player=self.name, type="global_90_days"))
+                self.evoaxes.clear()
+                self.globalname = self.name
+
+        if tab == 2 :
+            if self.name != "unknown" and self.globalforevername != self.name:
+                self.parent.send(dict(command="stats", player=self.name, type="global_forever"))
+                self.evoaxesforever.clear()
+                self.globalforevername = self.name
+                            
+    def processStatsInfos(self, message):
+
+        name = message['player']
+        type = message['type']
+        values = message['values']
+        if name == self.name :
+
+            if type == "global_forever" :
+
+                xaxis = []
+                ymeanaxis = []
+                ydevminaxis = []
+                ydevmaxaxis = []
+                
+                for val in values :
+                    ymeanaxis.append(val["mean"])
+                    date = val["date"].split('.')
+                    timing = val["time"].split(':')
+ 
+                    ydevminaxis.append(val["mean"] - val["dev"])
+                    ydevmaxaxis.append(val["mean"] + val["dev"])
+                    
+                    date = datetime.datetime(int(date[2]), int(date[1]), int(date[0]), int(timing[0]), int(timing[1]))
+                    xaxis.append(date)
+                
+
+                self.evoaxesforever.clear()
+                self.evoaxesforever.set_ylabel("Skill")
+                self.evoaxesforever.set_xlabel("Time")
+                
+
+                self.evoaxesforever.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m/%y'))
+                self.evoaxesforever.plot(xaxis, ymeanaxis, '-,', linewidth=.5, color='black')
+                self.evoaxesforever.fill_between(xaxis, ymeanaxis, ydevminaxis,  interpolate=True, linewidth=0,  alpha=.5,  facecolor='red')
+                self.evoaxesforever.fill_between(xaxis, ymeanaxis, ydevmaxaxis,  interpolate=True, linewidth=0,  alpha=.5,  facecolor='red') 
+                #plt.fill(xaxis, ydevminaxis, 'r')
+
+                self.evocanvasforever.draw()
+
+            if type == "global_90_days" :
+
+                xaxis = []
+                ymeanaxis = []
+                ydevminaxis = []
+                ydevmaxaxis = []
+                
+                for val in values :
+                    ymeanaxis.append(val["mean"])
+                    date = val["date"].split('.')
+                    timing = val["time"].split(':')
+ 
+                    ydevminaxis.append(val["mean"] - val["dev"])
+                    ydevmaxaxis.append(val["mean"] + val["dev"])
+                    
+                    date = datetime.datetime(int(date[2]), int(date[1]), int(date[0]), int(timing[0]), int(timing[1]))
+                    xaxis.append(date)
+                
+
+                self.evoaxes.clear()
+                self.evoaxes.set_ylabel("Skill")
+                self.evoaxes.set_xlabel("Time")
+                
+
+                self.evoaxes.xaxis.set_major_formatter(mdates.DateFormatter('%d %b'))
+                self.evoaxes.plot(xaxis, ymeanaxis, '-,', linewidth=.5, color='black')
+                self.evoaxes.fill_between(xaxis, ymeanaxis, ydevminaxis,  interpolate=True, linewidth=0,  alpha=.5,  facecolor='red')
+                self.evoaxes.fill_between(xaxis, ymeanaxis, ydevmaxaxis,  interpolate=True, linewidth=0,  alpha=.5,  facecolor='red') 
+                #plt.fill(xaxis, ydevminaxis, 'r')
+
+                self.evocanvas.draw()
+
+                
+
+    def setplayer(self, name):
+        
+        if name in self.parent.players :
+            
+
+            self.evoaxes.clear()
+            self.evoaxesforever.clear()
             self.setWindowTitle('Rating analysis of %s' % name)
             self.name = name
             
-            self.mu = client.players[name]["rating_mean"]
-            self.sigma = client.players[name]["rating_deviation"]
+            self.mu = self.parent.players[name]["rating_mean"]
+            self.sigma = self.parent.players[name]["rating_deviation"]
             
-            self.playermu = client.players[client.login]["rating_mean"]
-            self.playersigma = client.players[client.login]["rating_deviation"]
+            self.playermu = self.parent.players[self.parent.login]["rating_mean"]
+            self.playersigma = self.parent.players[self.parent.login]["rating_deviation"]
 
             self.on_draw()
             
+            if self.tabs.currentIndex() == 1 :
+                self.parent.send(dict(command="stats", player=self.name, type="global_90_days"))
+            if self.tabs.currentIndex() == 2 :
+                self.parent.send(dict(command="stats", player=self.name, type="global_forever"))            
         else :
             self.name = "unknown"
             self.mu = 0
@@ -65,17 +188,6 @@ class AppForm(QMainWindow):
             self.canvas.print_figure(path, dpi=self.dpi)
             self.statusBar().showMessage('Saved to %s' % path, 2000)
     
-    def on_about(self):
-        msg = """ A demo of using PyQt with matplotlib:
-        
-         * Use the matplotlib navigation bar
-         * Add values to the text box and press Enter (or click "Draw")
-         * Show or hide the grid
-         * Drag the slider to modify the width of the bars
-         * Save the plot to a file using the File menu
-         * Click on a bar to receive an informative message
-        """
-        QMessageBox.about(self, "About the demo", msg.strip())
     
     def on_pick(self, event):
 
@@ -118,7 +230,7 @@ class AppForm(QMainWindow):
         
         self.axes.axis([self.mu-4*self.sigma, self.mu+4*self.sigma, 0, (100 + (max(y)*100)*1.5) / 2])
         #self.axes.hist(x, bins, normed=1, facecolor='green',)
-        plot = self.axes.plot(bins, y*100, linewidth=.5, linestyle = 'None', color = 'red', alpha = 1.0) 
+        self.axes.plot(bins, y*100, linewidth=.5, linestyle = 'None', color = 'red', alpha = 1.0) 
         self.axes.fill(bins, y*100, 'r--', linewidth=0,  alpha=.5,  facecolor='red') 
         
         self.axes.annotate(('%s maximum rating (%i)' % (self.name, self.mu)), xy=(self.mu, max(y)*100),  xycoords='data',  xytext=(-50, 30), textcoords='offset points', arrowprops=dict(arrowstyle="wedge", facecolor='red', linewidth=0),  size = 7, alpha = 0.5, backgroundcolor='lightgrey')
@@ -161,9 +273,62 @@ class AppForm(QMainWindow):
             
             
         self.canvas.draw()
-    
-    def create_main_frame(self):
-        self.main_frame = QWidget()
+ 
+
+    def create_global_evolution_forever_frame(self):
+        
+        self.global_evolution_forever = QWidget()
+        
+        self.evoforeverfig = Figure((5.0, 4.0), dpi=self.dpi)
+        self.evocanvasforever = FigureCanvas(self.evoforeverfig)
+        self.evocanvasforever.setParent(self.global_evolution_forever)
+        
+        self.evoaxesforever = self.evoforeverfig.add_subplot(111)
+        
+        self.evotoolbarf = NavigationToolbar(self.evocanvasforever, self.global_evolution_forever)
+        
+        hbox = QHBoxLayout()
+
+        
+        vbox = QVBoxLayout()
+        vbox.addWidget(self.evocanvasforever)
+        vbox.addWidget(self.evotoolbarf)
+        vbox.addLayout(hbox)
+        
+        self.global_evolution_forever.setLayout(vbox)
+        
+        self.tabs.addTab(self.global_evolution_forever, "Global Rating Evolution since forever")
+        
+    def create_global_evolution_frame(self):
+        
+        self.global_evolution = QWidget()
+        
+        self.evofig = Figure((5.0, 4.0), dpi=self.dpi)
+        self.evocanvas = FigureCanvas(self.evofig)
+        self.evocanvas.setParent(self.global_evolution)
+        
+        self.evoaxes = self.evofig.add_subplot(111)
+        
+        self.evotoolbar = NavigationToolbar(self.evocanvas, self.global_evolution)
+
+        hbox = QHBoxLayout()
+#        hbox.addWidget(self.textbox)
+#        hbox.addWidget(self.grid_cb)
+
+        
+        vbox = QVBoxLayout()
+        vbox.addWidget(self.evocanvas)
+        vbox.addWidget(self.evotoolbar)
+        vbox.addLayout(hbox)
+        
+        self.global_evolution.setLayout(vbox)
+
+        
+        self.tabs.addTab(self.global_evolution, "Global Rating Evolution for the last 90 days")
+ 
+    def create_global_frame(self):
+        
+        self.global_frame = QWidget()
         
         # Create the mpl Figure and FigCanvas objects. 
         # 5x4 inches, 100 dots-per-inch
@@ -171,7 +336,7 @@ class AppForm(QMainWindow):
         self.dpi = 100
         self.fig = Figure((5.0, 4.0), dpi=self.dpi)
         self.canvas = FigureCanvas(self.fig)
-        self.canvas.setParent(self.main_frame)
+        self.canvas.setParent(self.global_frame)
         
         # Since we have only one plot, we can use add_axes 
         # instead of add_subplot, but then the subplot
@@ -187,7 +352,7 @@ class AppForm(QMainWindow):
         
         # Create the navigation toolbar, tied to the canvas
         #
-        self.mpl_toolbar = NavigationToolbar(self.canvas, self.main_frame)
+        self.mpl_toolbar = NavigationToolbar(self.canvas, self.global_frame)
         
         # Other GUI controls
         # 
@@ -217,8 +382,12 @@ class AppForm(QMainWindow):
         vbox.addWidget(self.mpl_toolbar)
         vbox.addLayout(hbox)
         
-        self.main_frame.setLayout(vbox)
-        self.setCentralWidget(self.main_frame)
+        self.global_frame.setLayout(vbox)
+        
+        self.tabs.addTab(self.global_frame, "Global rating")
+        
+        
+        
 
     def create_menu(self):        
         self.file_menu = self.menuBar().addMenu("&File")
@@ -232,12 +401,8 @@ class AppForm(QMainWindow):
         self.add_actions(self.file_menu, 
             (load_file_action, None, quit_action))
         
-        self.help_menu = self.menuBar().addMenu("&Help")
-        about_action = self.create_action("&About", 
-            shortcut='F1', slot=self.on_about, 
-            tip='About the demo')
-        
-        self.add_actions(self.help_menu, (about_action,))
+       
+
 
     def add_actions(self, target, actions):
         for action in actions:

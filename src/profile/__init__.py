@@ -2,6 +2,6 @@
 import logging
 logger = logging.getLogger("faf.profile")
 
-from playerstats import AppForm as Statpage
+from playerstats import Statpage
 
-stats = Statpage()
+
