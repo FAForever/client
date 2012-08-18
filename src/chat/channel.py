@@ -8,7 +8,7 @@ import fa
 import json
 
 QUERY_BLINK_SPEED = 250
-            
+CHAT_TEXT_LIMIT = 300
        
 FormClass, BaseClass = util.loadUiType("chat/channel.ui")
 
@@ -40,6 +40,9 @@ class Channel(FormClass, BaseClass):
         
         # Table width of each chatter's name cell...        
         self.maxChatterWidth = 100 # TODO: This might / should auto-adapt
+
+        #count the number of line currently in the chat
+        self.lines = 0
 
         # Perform special setup for public channels as opposed to private ones
         self.name = name
@@ -121,6 +124,7 @@ class Channel(FormClass, BaseClass):
     def pingWindow(self):
         QtGui.QApplication.alert(self.lobby.client)
             
+        
         if not self.isVisible() or QtGui.QApplication.activeWindow() != self.lobby.client:
             if self.oneMinuteOrOlder():
                 if self.lobby.client.soundeffects:
@@ -169,7 +173,17 @@ class Channel(FormClass, BaseClass):
     def printMsg(self, name, text, scroll_forced=False):
         '''
         Print an actual message in the chatArea of the channel
-        '''            
+        '''               
+        if self.lines > CHAT_TEXT_LIMIT :
+            
+            cursor = self.chatArea.textCursor()
+
+            cursor.movePosition(QtGui.QTextCursor.Start)
+            cursor.movePosition(QtGui.QTextCursor.Down)
+            cursor.select(QtGui.QTextCursor.BlockUnderCursor)
+            cursor.removeSelectedText()
+            self.lines = self.lines - 1
+            
         if name.lower() in self.lobby.specialUserColors:
             color = self.lobby.specialUserColors[name.lower()]
         else:
@@ -183,6 +197,7 @@ class Channel(FormClass, BaseClass):
         if self.private and name != self.lobby.client.login:
             self.pingWindow()
 
+
         # scroll if close to the last line of the log
         scroll_current = self.chatArea.verticalScrollBar().value()
         scroll_needed = scroll_forced or ((self.chatArea.verticalScrollBar().maximum() - scroll_current) < 20)
@@ -194,6 +209,7 @@ class Channel(FormClass, BaseClass):
         formatter = self.FORMATTER_MESSAGE
         line = formatter.format(time=self.timestamp(), name=name, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))        
         self.chatArea.insertHtml(line)
+        self.lines = self.lines + 1
         
         if scroll_needed:
             self.chatArea.verticalScrollBar().setValue(self.chatArea.verticalScrollBar().maximum())
@@ -237,7 +253,18 @@ class Channel(FormClass, BaseClass):
     def printRaw(self, name, text, scroll_forced=False):
         '''
         Print an raw message in the chatArea of the channel
-        '''            
+        '''
+        
+        if self.lines > CHAT_TEXT_LIMIT :
+            
+            cursor = self.chatArea.textCursor()
+
+            cursor.movePosition(QtGui.QTextCursor.Start)
+            cursor.movePosition(QtGui.QTextCursor.Down)
+            cursor.select(QtGui.QTextCursor.BlockUnderCursor)
+            cursor.removeSelectedText()
+            self.lines = self.lines - 1
+                    
         if name in self.lobby.specialUserColors:
             color = self.lobby.specialUserColors[name]
         else:
@@ -258,6 +285,8 @@ class Channel(FormClass, BaseClass):
         formatter = self.FORMATTER_RAW
         line = formatter.format(time=self.timestamp(), name=name, color=color, width=self.maxChatterWidth, text=text)
         self.chatArea.insertHtml(line)
+        
+        self.lines = self.lines + 1
 
         if scroll_needed:
             self.chatArea.verticalScrollBar().setValue(self.chatArea.verticalScrollBar().maximum())
