@@ -104,6 +104,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             for channel in self.channels :
                 if player in self.channels[channel].chatters :
                     self.channels[channel].chatters[player].avatarItem.setIcon(QtGui.QIcon(util.respix(reply.url().toString())))
+                    self.channels[channel].chatters[player].avatarItem.setToolTip(self.channels[channel].chatters[player].avatarTip)
            
                    
     def closeChannel(self, index):

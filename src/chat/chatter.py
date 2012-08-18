@@ -110,6 +110,7 @@ class Chatter(QtGui.QTableWidgetItem):
         avatarPix = util.respix(url) 
         if avatarPix :
             self.avatarItem.setIcon(QtGui.QIcon(avatarPix))            
+            self.avatarItem.setToolTip(self.avatarTip)
         else :
             
             if util.addcurDownloadAvatar(url, self.name) :

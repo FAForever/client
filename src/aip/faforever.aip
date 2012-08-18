@@ -2,7 +2,6 @@
 <DOCUMENT Type="Advanced Installer" CreateVersion="8.2" version="9.1" Modules="simple" RootPath="." Language="en" Id="{12DBD6A4-B629-4B03-8158-F30A859838A6}">
   <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
     <ROW Property="AI_DETECTVM_BINARY_ID" MultiBuildValue="DefaultBuild:vmdetect.exe" Type="1" ValueLocId="-"/>
-    <ROW Property="AI_MINDOTNETVERSION" MultiBuildValue="DefaultBuild:4.0" ValueLocId="-"/>
     <ROW Property="ALLUSERS" Value="2"/>
     <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
     <ROW Property="ARPCONTACT" Value="admin@faforever.com"/>
@@ -13,10 +12,10 @@
     <ROW Property="ARPURLUPDATEINFO" Value="http://www.faforever.com/page=2"/>
     <ROW Property="CTRLS" Value="2"/>
     <ROW Property="Manufacturer" Value="FAF Community" ValueLocId="*"/>
-    <ROW Property="ProductCode" Value="1033:{295D8871-E520-4933-8674-C030E2EBB4E6} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{48991B02-B71A-42C9-B113-5A4797C5F322} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Forged Alliance Forever" ValueLocId="*"/>
-    <ROW Property="ProductVersion" Value="240.7.570"/>
+    <ROW Property="ProductVersion" Value="240.7.571"/>
     <ROW Property="REBOOT" MultiBuildValue="DefaultBuild:Suppress"/>
     <ROW Property="RUNAPPLICATION" Value="1" Type="4"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
@@ -130,6 +129,7 @@
     <ROW File="Aeon_T2.png" Component_="Aeon_T1.png" FileName="Aeon_T2.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\rank\Aeon_T2.png" SelfReg="false" NextFile="Aeon_T3.png"/>
     <ROW File="Aeon_T3.png" Component_="Aeon_T1.png" FileName="Aeon_T3.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\rank\Aeon_T3.png" SelfReg="false" NextFile="Aeon_XP.png"/>
     <ROW File="Aeon_XP.png" Component_="Aeon_T1.png" FileName="Aeon_XP.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\rank\Aeon_XP.png" SelfReg="false" NextFile="civilian.png"/>
+    <ROW File="Aeon_scout.png" Component_="Aeon_T1.png" FileName="Aeon_s~1.png|Aeon_scout.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\rank\Aeon_scout.png" SelfReg="false"/>
     <ROW File="COPYRIGHT.TXT" Component_="cmb10.ttf" FileName="COPYRI~1.TXT|COPYRIGHT.TXT" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\ttf\COPYRIGHT.TXT" SelfReg="false" NextFile="LICENSE_STIX"/>
     <ROW File="Courier.afm" Component_="CourierBold.afm" FileName="Courier.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\pdfcorefonts\Courier.afm" SelfReg="false" NextFile="HelveticaBold.afm"/>
     <ROW File="CourierBold.afm" Component_="CourierBold.afm" FileName="Courie~1.afm|Courier-Bold.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\pdfcorefonts\Courier-Bold.afm" SelfReg="false" NextFile="CourierBoldOblique.afm"/>
@@ -425,7 +425,7 @@
     <ROW File="tourney.png" Component_="about.ui" FileName="tourney.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\tourney.png" SelfReg="false" NextFile="tray_icon.png"/>
     <ROW File="tray_icon.png" Component_="about.ui" FileName="tray_i~1.png|tray_icon.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\tray_icon.png" SelfReg="false" NextFile="failure.ui"/>
     <ROW File="uef.png" Component_="aeon.png" FileName="uef.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\automatch\uef.png" SelfReg="false" NextFile="faf.qthtml"/>
-    <ROW File="uid.dll" Component_="uid.dll" FileName="uid.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\uid.dll" SelfReg="false"/>
+    <ROW File="uid.dll" Component_="uid.dll" FileName="uid.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\uid.dll" SelfReg="false" NextFile="Aeon_scout.png"/>
     <ROW File="unicodedata.pyd" Component_="FAForever.lib" FileName="unicod~1.pyd|unicodedata.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\unicodedata.pyd" SelfReg="false" NextFile="w9xpopen.exe"/>
     <ROW File="unknown_map.png" Component_="games.ui" FileName="unknow~1.png|unknown_map.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\unknown_map.png" SelfReg="false" NextFile="broken.png"/>
     <ROW File="updater_icon.png" Component_="failure.ui" FileName="update~1.png|updater_icon.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\fa\updater\updater_icon.png" SelfReg="false" NextFile="cmex10.afm"/>
@@ -462,9 +462,6 @@
     <ROW Fragment="StaticUIStrings.aip" Path="&lt;AI_FRAGS&gt;StaticUIStrings.aip"/>
     <ROW Fragment="UI.aip" Path="&lt;AI_THEMES&gt;classic\fragments\UI.aip"/>
     <ROW Fragment="Validation.aip" Path="&lt;AI_FRAGS&gt;Validation.aip"/>
-  </COMPONENT>
-  <COMPONENT cid="caphyon.advinst.msicomp.MsiAppSearchComponent">
-    <ROW Property="AI_DOTNET40_SEARCH" Signature_="AI_DotNet40SearchSgn" Builds="DefaultBuild"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiBinaryComponent">
     <ROW Name="aicustact.dll" SourcePath="&lt;AI_CUSTACTS&gt;aicustact.dll"/>
@@ -526,12 +523,8 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiLaunchConditionsComponent">
     <ROW Condition="( Version9X OR VersionNT64 OR ( VersionNT AND ((VersionNT &lt;&gt; 400) OR ((VersionNT = 400) AND (ServicePackLevel &gt;= 1))) AND ((VersionNT &lt;&gt; 400) OR ((VersionNT = 400) AND (ServicePackLevel &lt;&gt; 1))) AND ((VersionNT &lt;&gt; 400) OR ((VersionNT = 400) AND (ServicePackLevel &lt;&gt; 2))) AND ((VersionNT &lt;&gt; 400) OR ((VersionNT = 400) AND (ServicePackLevel &lt;&gt; 3))) AND ((VersionNT &lt;&gt; 400) OR ((VersionNT = 400) AND (ServicePackLevel &lt;&gt; 4))) AND ((VersionNT &lt;&gt; 400) OR ((VersionNT = 400) AND (ServicePackLevel &lt;&gt; 5))) AND ((VersionNT &lt;&gt; 400) OR ((VersionNT = 400) AND (ServicePackLevel &lt;&gt; 6))) AND ((VersionNT &lt;&gt; 500) OR ((VersionNT = 500) AND (ServicePackLevel &gt;= 1))) AND ((VersionNT &lt;&gt; 500) OR ((VersionNT = 500) AND (ServicePackLevel &lt;&gt; 1))) AND ((VersionNT &lt;&gt; 500) OR ((VersionNT = 500) AND (ServicePackLevel &lt;&gt; 2))) AND ((VersionNT &lt;&gt; 500) OR ((VersionNT = 500) AND (ServicePackLevel &lt;&gt; 3))) AND ((VersionNT &lt;&gt; 500) OR ((VersionNT = 500) AND (ServicePackLevel &lt;&gt; 4))) ) )" Description="[ProductName] cannot be installed on the following Windows versions: [WindowsTypeNTDisplay]" DescriptionLocId="AI.LaunchCondition.NoSpecificNT" IsPredefined="true" Builds="DefaultBuild"/>
-    <ROW Condition="(AI_DOTNET40_SEARCH = &quot;#1&quot;) OR (AI_DOTNET45_SEARCH &gt;= &quot;4.5&quot;)" Description="[ProductName] cannot be installed on systems with .NET Framework version lower than [AI_MINDOTNETVERSION]" DescriptionLocId="AI.LaunchCondition.DotNET" IsPredefined="true" Builds="DefaultBuild"/>
     <ROW Condition="NOT AI_INSIDEVM2" Description="[ProductName] cannot be installed on systems running on virtual machines." DescriptionLocId="AI.LaunchCondition.VM" IsPredefined="true" Builds="DefaultBuild"/>
     <ROW Condition="VersionNT" Description="[ProductName] cannot be installed on [WindowsType9XDisplay]" DescriptionLocId="AI.LaunchCondition.No9X" IsPredefined="true" Builds="DefaultBuild"/>
-  </COMPONENT>
-  <COMPONENT cid="caphyon.advinst.msicomp.MsiRegLocatorComponent">
-    <ROW Signature_="AI_DotNet40SearchSgn" Root="2" Key="SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full" Name="Install" Type="2"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiRegsComponent">
     <ROW Registry="Replay" Root="0" Key=".fafreplay\shell\Replay" Name="*" Component_="Replay"/>
