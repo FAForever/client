@@ -8,7 +8,7 @@ import fa
 import json
 
 QUERY_BLINK_SPEED = 250
-CHAT_TEXT_LIMIT = 300
+CHAT_TEXT_LIMIT = 400
        
 FormClass, BaseClass = util.loadUiType("chat/channel.ui")
 
@@ -21,7 +21,7 @@ class Channel(FormClass, BaseClass):
         BaseClass.__init__(self, lobby, *args, **kwargs)
 
         self.setupUi(self)
-
+        
         #Special HTML formatter used to layout the chat lines written by people
         self.FORMATTER_ANNOUNCEMENT = unicode(util.readfile("chat/formatters/announcement.qthtml"))
         self.FORMATTER_MESSAGE      = unicode(util.readfile("chat/formatters/message.qthtml"))
@@ -75,8 +75,19 @@ class Channel(FormClass, BaseClass):
         self.chatArea.anchorClicked.connect(self.openUrl)
         self.chatEdit.returnPressed.connect(self.sendLine)
         self.chatEdit.setChatters(self.chatters)
-    
-    
+        self.lobby.client.doneresize.connect(self.resizing)
+
+        
+    def keyReleaseEvent(self, keyevent):
+        '''
+        Allow the ctrl-C event.
+        '''
+        if keyevent.key() == 67 :
+            self.chatArea.copy()
+            
+    def resizing(self):
+        self.chatArea.setLineWrapColumnOrWidth(self.chatArea.size().width()-self.chatArea.tabStopWidth())
+   
     def showEvent(self, event):
         self.stopBlink()
         return BaseClass.showEvent(self, event)

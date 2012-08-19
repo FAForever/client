@@ -234,7 +234,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
                 self.channels[channel].printAnnouncement("Welcome to Forged Alliance Forever !", "red", "+3") #HACK: Beta message.
                 self.channels[channel].printAnnouncement("The documentation is the wiki. Check the Links menu !", "red", "+1") 
                 self.channels[channel].printAnnouncement("", "black", "+1") 
-                self.channels[channel].printAnnouncement("", "black", "+1") 
+                self.channels[channel].printAnnouncement("", "black", "+1")
+                
             else:
                 self.addTab(self.channels[channel], channel)
             
@@ -245,7 +246,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
         self.channels[channel].addChatter(user2name(e.source()), True)
 
-                
+        self.channels[channel].resizing()
+        
     def on_part(self, c, e):
         channel = e.target()
         name = user2name(e.source())

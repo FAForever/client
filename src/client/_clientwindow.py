@@ -38,6 +38,9 @@ class ClientWindow(FormClass, BaseClass):
     connected    = QtCore.pyqtSignal()
     disconnected = QtCore.pyqtSignal()
     
+    #This signal is emitted when the client is done rezising
+    doneresize   = QtCore.pyqtSignal()
+    
     #These signals notify connected modules of game state changes (i.e. reasons why FA is launched)
     viewingReplay = QtCore.pyqtSignal(QtCore.QUrl)
     
@@ -81,7 +84,7 @@ class ClientWindow(FormClass, BaseClass):
         
         # Hook to Qt's application management system
         QtGui.QApplication.instance().aboutToQuit.connect(self.cleanup)
-        
+               
         #Init and wire the TCP Network socket to communicate with faforever.com
         self.socket = QtNetwork.QTcpSocket()
         self.socket.readyRead.connect(self.readFromServer)
@@ -103,7 +106,12 @@ class ClientWindow(FormClass, BaseClass):
         
         self.state = ClientState.NONE
         self.session = None
-        
+
+        #Timer for resize events
+        self.resizeTimer = QtCore.QTimer(self)
+        self.resizeTimer.timeout.connect(self.resized)
+
+               
         #Process used to run Forged Alliance (managed in module fa)
         fa.exe.instance.started.connect(self.startedFA)
         fa.exe.instance.finished.connect(self.finishedFA)
@@ -240,7 +248,14 @@ class ClientWindow(FormClass, BaseClass):
         
         return QtGui.QMainWindow.closeEvent(self, event)
         
+
+    def resizeEvent(self, size):
+        self.resizeTimer.start(200)
         
+    def resized(self):
+        self.resizeTimer.stop()
+        self.doneresize.emit()
+     
     def initMenus(self):
         self.actionLinkTeamspeak.triggered.connect(self.linkTeamspeak)
         self.actionLinkWebsite.triggered.connect(self.linkWebsite)
