@@ -110,7 +110,7 @@ class ClientWindow(FormClass, BaseClass):
         #Timer for resize events
         self.resizeTimer = QtCore.QTimer(self)
         self.resizeTimer.timeout.connect(self.resized)
-
+        self.preferedSize = 0
                
         #Process used to run Forged Alliance (managed in module fa)
         fa.exe.instance.started.connect(self.startedFA)
@@ -250,7 +250,7 @@ class ClientWindow(FormClass, BaseClass):
         
 
     def resizeEvent(self, size):
-        self.resizeTimer.start(200)
+        self.resizeTimer.start(400)
         
     def resized(self):
         self.resizeTimer.stop()

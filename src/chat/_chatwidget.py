@@ -145,7 +145,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
                     self.channels[channel].printAction("IRC", "was disconnected.")
             return False            
 
-
+        
 
     def sendAction(self, target, text):
         if self.connection.is_connected():
@@ -172,6 +172,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         if activate:
             self.setCurrentWidget(self.channels[name])
             
+        self.channels[name].resizing()
         return True
         
         
@@ -245,8 +246,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
                 self.tabBar().setTabButton(self.currentIndex(), QtGui.QTabBar.RightSide, None)
 
         self.channels[channel].addChatter(user2name(e.source()), True)
-
         self.channels[channel].resizing()
+        
         
     def on_part(self, c, e):
         channel = e.target()

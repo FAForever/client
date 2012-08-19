@@ -77,6 +77,9 @@ class Channel(FormClass, BaseClass):
         self.chatEdit.setChatters(self.chatters)
         self.lobby.client.doneresize.connect(self.resizing)
 
+        self.resizeTimer = QtCore.QTimer(self)
+        self.resizeTimer.timeout.connect(self.canresize)
+        
         
     def keyReleaseEvent(self, keyevent):
         '''
@@ -84,9 +87,16 @@ class Channel(FormClass, BaseClass):
         '''
         if keyevent.key() == 67 :
             self.chatArea.copy()
-            
+    
+    def canresize(self):
+        if self.isVisible() :
+            self.chatArea.setLineWrapColumnOrWidth(self.chatArea.size().width()-self.chatArea.tabStopWidth())
+            self.resizeTimer.stop()    
+        
     def resizing(self):
-        self.chatArea.setLineWrapColumnOrWidth(self.chatArea.size().width()-self.chatArea.tabStopWidth())
+        self.resizeTimer.start(10)
+
+            
    
     def showEvent(self, event):
         self.stopBlink()
