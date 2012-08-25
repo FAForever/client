@@ -230,6 +230,19 @@ QTreeWidget::item:selected, QTreeWidget::item:previously-selected
  
 
 
+/* ScrollWidgets*/
+QScrollArea
+{
+	border-style:solid;
+	border-width:1px;
+	border-color:#353535;
+	color:silver;
+	padding:5px;
+	background-color:#303038;
+	border-bottom-left-radius : 5px;
+	border-bottom-right-radius : 5px; 
+}
+
 
 /* Scrollbars*/
 QScrollBar

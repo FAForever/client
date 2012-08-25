@@ -12,10 +12,10 @@
     <ROW Property="ARPURLUPDATEINFO" Value="http://www.faforever.com/page=2"/>
     <ROW Property="CTRLS" Value="2"/>
     <ROW Property="Manufacturer" Value="FAF Community" ValueLocId="*"/>
-    <ROW Property="ProductCode" Value="1033:{FEEB1B13-BC50-4143-908B-A7893FE488FE} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{AC9247C6-7E8F-49F9-9F9D-D38E29ABF959} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Forged Alliance Forever" ValueLocId="*"/>
-    <ROW Property="ProductVersion" Value="240.7.573"/>
+    <ROW Property="ProductVersion" Value="240.7.577"/>
     <ROW Property="REBOOT" MultiBuildValue="DefaultBuild:Suppress"/>
     <ROW Property="RUNAPPLICATION" Value="1" Type="4"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
@@ -35,9 +35,11 @@
     <ROW Directory="automatch_Dir" Directory_Parent="games_Dir" DefaultDir="automa~1|automatch"/>
     <ROW Directory="chat_Dir" Directory_Parent="_res_Dir" DefaultDir="chat"/>
     <ROW Directory="client_Dir" Directory_Parent="_res_Dir" DefaultDir="client"/>
+    <ROW Directory="countries_Dir" Directory_Parent="chat_Dir" DefaultDir="countr~1|countries"/>
     <ROW Directory="fa_Dir" Directory_Parent="_res_Dir" DefaultDir="fa"/>
     <ROW Directory="fonts_Dir" Directory_Parent="mpldata_Dir" DefaultDir="fonts"/>
     <ROW Directory="formatters_1_Dir" Directory_Parent="games_Dir" DefaultDir="format~1|formatters"/>
+    <ROW Directory="formatters_2_Dir" Directory_Parent="tutorials_Dir" DefaultDir="format~1|formatters"/>
     <ROW Directory="formatters_Dir" Directory_Parent="chat_Dir" DefaultDir="format~1|formatters"/>
     <ROW Directory="games_Dir" Directory_Parent="_res_Dir" DefaultDir="games"/>
     <ROW Directory="imageformats_Dir" Directory_Parent="plugins_Dir" DefaultDir="imagef~1|imageformats"/>
@@ -53,6 +55,7 @@
     <ROW Directory="status_Dir" Directory_Parent="chat_Dir" DefaultDir="status"/>
     <ROW Directory="tournaments_Dir" Directory_Parent="_res_Dir" DefaultDir="tourna~1|tournaments"/>
     <ROW Directory="ttf_Dir" Directory_Parent="fonts_Dir" DefaultDir="ttf"/>
+    <ROW Directory="tutorials_Dir" Directory_Parent="_res_Dir" DefaultDir="tutori~1|tutorials"/>
     <ROW Directory="updater_Dir" Directory_Parent="fa_Dir" DefaultDir="updater"/>
     <ROW Directory="vault_Dir" Directory_Parent="_res_Dir" DefaultDir="vault"/>
   </COMPONENT>
@@ -76,6 +79,7 @@
     <ROW Component="__1" ComponentId="{D2CC890F-6634-49ED-A1C2-ECFED6CFBAA7}" Directory_="APPDIR" Attributes="4" KeyPath="__1"/>
     <ROW Component="about.ui" ComponentId="{163CA767-953C-4589-BD82-E8190D727231}" Directory_="client_Dir" Attributes="0" KeyPath="about.ui" Type="0"/>
     <ROW Component="action.qthtml" ComponentId="{C59345DE-20FC-4ED4-80D8-8BA3AF8822C2}" Directory_="formatters_Dir" Attributes="0" KeyPath="action.qthtml" Type="0"/>
+    <ROW Component="ad.png" ComponentId="{7D35C4D6-A81E-40C0-B208-8F9FF2A94715}" Directory_="countries_Dir" Attributes="0" KeyPath="ad.png" Type="0"/>
     <ROW Component="aeon.png" ComponentId="{28E7510E-0AAE-47D9-A2C3-706C84B8FDD2}" Directory_="automatch_Dir" Attributes="0" KeyPath="aeon.png" Type="0"/>
     <ROW Component="army.png" ComponentId="{693183BF-1ADA-4175-B9E6-AFB3C2B47601}" Directory_="map_icons_Dir" Attributes="0" KeyPath="army.png" Type="0"/>
     <ROW Component="back.png" ComponentId="{239D158C-6158-4F59-B9A9-5C3467D3C01A}" Directory_="images_Dir" Attributes="0" KeyPath="back.png" Type="0"/>
@@ -115,12 +119,14 @@
     <ROW Component="qtiff4.dll" ComponentId="{70A3162B-2B4C-467A-8189-77ACED6991A1}" Directory_="APPDIR" Attributes="0" KeyPath="qtiff4.dll"/>
     <ROW Component="qtiff4.dll_1" ComponentId="{65B80032-3E5B-40E7-8866-48F8F2ED7A45}" Directory_="imageformats_Dir" Attributes="0" KeyPath="qtiff4.dll_1"/>
     <ROW Component="shell" ComponentId="{2CB23F7F-792B-4D07-9FCF-636EDC96B2A1}" Directory_="APPDIR" Attributes="4" KeyPath="shell"/>
+    <ROW Component="tutorials.qthtml" ComponentId="{5ECCF10F-5F23-4C53-BFBC-9F4A53E32132}" Directory_="formatters_2_Dir" Attributes="0" KeyPath="tutorials.qthtml" Type="0"/>
+    <ROW Component="tutorials.ui" ComponentId="{E2A320CC-A053-4604-B29A-46AF80C428A1}" Directory_="tutorials_Dir" Attributes="0" KeyPath="tutorials.ui" Type="0"/>
     <ROW Component="uid.dll" ComponentId="{3D228738-75AD-4147-93BF-7B3B8B3E8D9E}" Directory_="APPDIR" Attributes="0" KeyPath="uid.dll"/>
     <ROW Component="w9xpopen.exe" ComponentId="{BE2E42F9-A9D4-4588-B4C8-3B608A7F1B67}" Directory_="APPDIR" Attributes="0" KeyPath="w9xpopen.exe"/>
     <ROW Component="window_icon.png" ComponentId="{B620FB5F-1E8F-4707-8D0A-C58B6FF594BD}" Directory_="_res_Dir" Attributes="0" KeyPath="window_icon.png" Type="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
-    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0" Components="APIMSWinCoreLocalRegistryL110.dll Aeon_T1.png CourierBold.afm FAForever.exe FAForever.lib FreeImage.dll LIBEAY32.dll MPR.dll QtCore4.dll QtGui4.dll QtNetwork4.dll QtWebKit4.dll Replay SHORTCUTDIR SSLEAY32.dll _ __1 about.ui action.qthtml aeon.png army.png back.png blackops.html broken.png channel.ui cmb10.ttf cmex10.afm command faf.qthtml fafreplay failure.ui games.ui host.png host.ui lineprops.glade mfc100u.dll msvcp100.dll msvcr100.dll msvcr90.dll privmsg.wav python27.dll pythoncom27.dll pywintypes27.dll qgif4.dll qgif4.dll_1 qico4.dll qico4.dll_1 qjpeg4.dll qjpeg4.dll_1 qmng4.dll qmng4.dll_1 qsvg4.dll qsvg4.dll_1 qtga4.dll qtga4.dll_1 qtiff4.dll qtiff4.dll_1 shell uid.dll w9xpopen.exe window_icon.png"/>
+    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0" Components="APIMSWinCoreLocalRegistryL110.dll Aeon_T1.png CourierBold.afm FAForever.exe FAForever.lib FreeImage.dll LIBEAY32.dll MPR.dll QtCore4.dll QtGui4.dll QtNetwork4.dll QtWebKit4.dll Replay SHORTCUTDIR SSLEAY32.dll _ __1 about.ui action.qthtml ad.png aeon.png army.png back.png blackops.html broken.png channel.ui cmb10.ttf cmex10.afm command faf.qthtml fafreplay failure.ui games.ui host.png host.ui lineprops.glade mfc100u.dll msvcp100.dll msvcr100.dll msvcr90.dll privmsg.wav python27.dll pythoncom27.dll pywintypes27.dll qgif4.dll qgif4.dll_1 qico4.dll qico4.dll_1 qjpeg4.dll qjpeg4.dll_1 qmng4.dll qmng4.dll_1 qsvg4.dll qsvg4.dll_1 qtga4.dll qtga4.dll_1 qtiff4.dll qtiff4.dll_1 shell tutorials.qthtml tutorials.ui uid.dll w9xpopen.exe window_icon.png"/>
     <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
@@ -129,7 +135,7 @@
     <ROW File="Aeon_T2.png" Component_="Aeon_T1.png" FileName="Aeon_T2.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\rank\Aeon_T2.png" SelfReg="false" NextFile="Aeon_T3.png"/>
     <ROW File="Aeon_T3.png" Component_="Aeon_T1.png" FileName="Aeon_T3.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\rank\Aeon_T3.png" SelfReg="false" NextFile="Aeon_XP.png"/>
     <ROW File="Aeon_XP.png" Component_="Aeon_T1.png" FileName="Aeon_XP.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\rank\Aeon_XP.png" SelfReg="false" NextFile="civilian.png"/>
-    <ROW File="Aeon_scout.png" Component_="Aeon_T1.png" FileName="Aeon_s~1.png|Aeon_scout.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\rank\Aeon_scout.png" SelfReg="false"/>
+    <ROW File="Aeon_scout.png" Component_="Aeon_T1.png" FileName="Aeon_s~1.png|Aeon_scout.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\rank\Aeon_scout.png" SelfReg="false" NextFile="ad.png"/>
     <ROW File="COPYRIGHT.TXT" Component_="cmb10.ttf" FileName="COPYRI~1.TXT|COPYRIGHT.TXT" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\ttf\COPYRIGHT.TXT" SelfReg="false" NextFile="LICENSE_STIX"/>
     <ROW File="Courier.afm" Component_="CourierBold.afm" FileName="Courier.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\pdfcorefonts\Courier.afm" SelfReg="false" NextFile="HelveticaBold.afm"/>
     <ROW File="CourierBold.afm" Component_="CourierBold.afm" FileName="Courie~1.afm|Courier-Bold.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\pdfcorefonts\Courier-Bold.afm" SelfReg="false" NextFile="CourierBoldOblique.afm"/>
@@ -189,6 +195,40 @@
     <ROW File="VeraSe.ttf" Component_="cmb10.ttf" FileName="VeraSe.ttf" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\ttf\VeraSe.ttf" SelfReg="false" NextFile="VeraSeBd.ttf"/>
     <ROW File="VeraSeBd.ttf" Component_="cmb10.ttf" FileName="VeraSeBd.ttf" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\ttf\VeraSeBd.ttf" SelfReg="false" NextFile="back.png"/>
     <ROW File="ZapfDingbats.afm" Component_="CourierBold.afm" FileName="ZapfDi~1.afm|ZapfDingbats.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\pdfcorefonts\ZapfDingbats.afm" SelfReg="false" NextFile="cmb10.ttf"/>
+    <ROW File="_ASEAN.png" Component_="ad.png" FileName="_ASEAN.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\_ASEAN.png" SelfReg="false" NextFile="_BasqueCountry.png"/>
+    <ROW File="_AfricanUnion.png" Component_="ad.png" FileName="_Afric~1.png|_African Union.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\_African Union.png" SelfReg="false" NextFile="_Alderney.png"/>
+    <ROW File="_Alderney.png" Component_="ad.png" FileName="_Alder~1.png|_Alderney.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\_Alderney.png" SelfReg="false" NextFile="_ArabLeague.png"/>
+    <ROW File="_ArabLeague.png" Component_="ad.png" FileName="_ArabL~1.png|_Arab League.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\_Arab League.png" SelfReg="false" NextFile="_ASEAN.png"/>
+    <ROW File="_BasqueCountry.png" Component_="ad.png" FileName="_Basqu~1.png|_Basque Country.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\_Basque Country.png" SelfReg="false" NextFile="_CARICOM.png"/>
+    <ROW File="_CARICOM.png" Component_="ad.png" FileName="_CARICOM.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\_CARICOM.png" SelfReg="false" NextFile="_Catalonia.png"/>
+    <ROW File="_CIS.png" Component_="ad.png" FileName="_CIS.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\_CIS.png" SelfReg="false" NextFile="_Commonwealth.png"/>
+    <ROW File="_Catalonia.png" Component_="ad.png" FileName="_Catal~1.png|_Catalonia.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\_Catalonia.png" SelfReg="false" NextFile="_CIS.png"/>
+    <ROW File="_Commonwealth.png" Component_="ad.png" FileName="_Commo~1.png|_Commonwealth.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\_Commonwealth.png" SelfReg="false" NextFile="_England.png"/>
+    <ROW File="_England.png" Component_="ad.png" FileName="_England.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\_England.png" SelfReg="false" NextFile="_EuropeanUnion.png"/>
+    <ROW File="_EuropeanUnion.png" Component_="ad.png" FileName="_Europ~1.png|_European Union.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\_European Union.png" SelfReg="false" NextFile="_FAO.png"/>
+    <ROW File="_FAO.png" Component_="ad.png" FileName="_FAO.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\_FAO.png" SelfReg="false" NextFile="_Galicia.png"/>
+    <ROW File="_Galicia.png" Component_="ad.png" FileName="_Galicia.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\_Galicia.png" SelfReg="false" NextFile="_IAEA.png"/>
+    <ROW File="_IAEA.png" Component_="ad.png" FileName="_IAEA.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\_IAEA.png" SelfReg="false" NextFile="_IHO.png"/>
+    <ROW File="_IHO.png" Component_="ad.png" FileName="_IHO.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\_IHO.png" SelfReg="false" NextFile="_IslamicConference.png"/>
+    <ROW File="_IslamicConference.png" Component_="ad.png" FileName="_Islam~1.png|_Islamic Conference.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\_Islamic Conference.png" SelfReg="false" NextFile="_Kosovo.png"/>
+    <ROW File="_Kosovo.png" Component_="ad.png" FileName="_Kosovo.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\_Kosovo.png" SelfReg="false" NextFile="_NATO.png"/>
+    <ROW File="_NATO.png" Component_="ad.png" FileName="_NATO.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\_NATO.png" SelfReg="false" NextFile="_NorthernCyprus.png"/>
+    <ROW File="_NorthernCyprus.png" Component_="ad.png" FileName="_North~1.png|_Northern Cyprus.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\_Northern Cyprus.png" SelfReg="false" NextFile="_NorthernIreland.png"/>
+    <ROW File="_NorthernIreland.png" Component_="ad.png" FileName="_North~2.png|_Northern Ireland.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\_Northern Ireland.png" SelfReg="false" NextFile="_OAS.png"/>
+    <ROW File="_OAS.png" Component_="ad.png" FileName="_OAS.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\_OAS.png" SelfReg="false" NextFile="_OECD.png"/>
+    <ROW File="_OECD.png" Component_="ad.png" FileName="_OECD.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\_OECD.png" SelfReg="false" NextFile="_OlimpicMovement.png"/>
+    <ROW File="_OPEC.png" Component_="ad.png" FileName="_OPEC.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\_OPEC.png" SelfReg="false" NextFile="_RedCross.png"/>
+    <ROW File="_OlimpicMovement.png" Component_="ad.png" FileName="_Olimp~1.png|_Olimpic Movement.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\_Olimpic Movement.png" SelfReg="false" NextFile="_OPEC.png"/>
+    <ROW File="_RedCross.png" Component_="ad.png" FileName="_RedCr~1.png|_Red Cross.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\_Red Cross.png" SelfReg="false" NextFile="_Scotland.png"/>
+    <ROW File="_Scotland.png" Component_="ad.png" FileName="_Scotl~1.png|_Scotland.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\_Scotland.png" SelfReg="false" NextFile="_Somaliland.png"/>
+    <ROW File="_Somaliland.png" Component_="ad.png" FileName="_Somal~1.png|_Somaliland.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\_Somaliland.png" SelfReg="false" NextFile="_TristandaCunha.png"/>
+    <ROW File="_TristandaCunha.png" Component_="ad.png" FileName="_Trist~1.png|_Tristan-da-Cunha.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\_Tristan-da-Cunha.png" SelfReg="false" NextFile="_UNESCO.png"/>
+    <ROW File="_UNESCO.png" Component_="ad.png" FileName="_UNESCO.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\_UNESCO.png" SelfReg="false" NextFile="_UNICEF.png"/>
+    <ROW File="_UNICEF.png" Component_="ad.png" FileName="_UNICEF.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\_UNICEF.png" SelfReg="false" NextFile="_UnitedNations.png"/>
+    <ROW File="_UnitedNations.png" Component_="ad.png" FileName="_Unite~1.png|_United Nations.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\_United Nations.png" SelfReg="false" NextFile="_Wales.png"/>
+    <ROW File="_WHO.png" Component_="ad.png" FileName="_WHO.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\_WHO.png" SelfReg="false" NextFile="_WTO.png"/>
+    <ROW File="_WTO.png" Component_="ad.png" FileName="_WTO.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\_WTO.png" SelfReg="false" NextFile="tutorials.png"/>
+    <ROW File="_Wales.png" Component_="ad.png" FileName="_Wales.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\_Wales.png" SelfReg="false" NextFile="_WHO.png"/>
     <ROW File="_ctypes.pyd" Component_="FAForever.lib" FileName="_ctypes.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_ctypes.pyd" SelfReg="false" NextFile="_hashlib.pyd"/>
     <ROW File="_hashlib.pyd" Component_="FAForever.lib" FileName="_hashlib.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_hashlib.pyd" SelfReg="false" NextFile="bz2.pyd"/>
     <ROW File="_imaging.pyd" Component_="FAForever.lib" FileName="_imaging.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_imaging.pyd" SelfReg="false" NextFile="msvcr90.dll"/>
@@ -201,25 +241,72 @@
     <ROW File="account_watermark_input.png" Component_="about.ui" FileName="accoun~2.png|account_watermark_input.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\account_watermark_input.png" SelfReg="false" NextFile="account_watermark_intro.png"/>
     <ROW File="account_watermark_intro.png" Component_="about.ui" FileName="accoun~3.png|account_watermark_intro.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\account_watermark_intro.png" SelfReg="false" NextFile="chat.png"/>
     <ROW File="action.qthtml" Component_="action.qthtml" FileName="action~1.qth|action.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\formatters\action.qthtml" SelfReg="false" NextFile="announcement.qthtml"/>
+    <ROW File="ad.png" Component_="ad.png" FileName="ad.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ad.png" SelfReg="false" NextFile="ae.png"/>
+    <ROW File="ae.png" Component_="ad.png" FileName="ae.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ae.png" SelfReg="false" NextFile="af.png"/>
     <ROW File="aeon.png" Component_="aeon.png" FileName="aeon.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\automatch\aeon.png" SelfReg="false" NextFile="cybran.png"/>
+    <ROW File="af.png" Component_="ad.png" FileName="af.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\af.png" SelfReg="false" NextFile="ag.png"/>
+    <ROW File="ag.png" Component_="ad.png" FileName="ag.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ag.png" SelfReg="false" NextFile="ai.png"/>
+    <ROW File="ai.png" Component_="ad.png" FileName="ai.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ai.png" SelfReg="false" NextFile="al.png"/>
+    <ROW File="al.png" Component_="ad.png" FileName="al.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\al.png" SelfReg="false" NextFile="am.png"/>
+    <ROW File="am.png" Component_="ad.png" FileName="am.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\am.png" SelfReg="false" NextFile="an.png"/>
+    <ROW File="an.png" Component_="ad.png" FileName="an.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\an.png" SelfReg="false" NextFile="ao.png"/>
     <ROW File="announcement.qthtml" Component_="action.qthtml" FileName="announ~1.qth|announcement.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\formatters\announcement.qthtml" SelfReg="false" NextFile="a_style.qss"/>
+    <ROW File="ao.png" Component_="ad.png" FileName="ao.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ao.png" SelfReg="false" NextFile="aq.png"/>
+    <ROW File="aq.png" Component_="ad.png" FileName="aq.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\aq.png" SelfReg="false" NextFile="ar.png"/>
+    <ROW File="ar.png" Component_="ad.png" FileName="ar.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ar.png" SelfReg="false" NextFile="as.png"/>
     <ROW File="army.png" Component_="army.png" FileName="army.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\vault\map_icons\army.png" SelfReg="false" NextFile="hydro.png"/>
+    <ROW File="as.png" Component_="ad.png" FileName="as.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\as.png" SelfReg="false" NextFile="at.png"/>
+    <ROW File="at.png" Component_="ad.png" FileName="at.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\at.png" SelfReg="false" NextFile="au.png"/>
+    <ROW File="au.png" Component_="ad.png" FileName="au.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\au.png" SelfReg="false" NextFile="aw.png"/>
+    <ROW File="aw.png" Component_="ad.png" FileName="aw.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\aw.png" SelfReg="false" NextFile="ax.png"/>
+    <ROW File="ax.png" Component_="ad.png" FileName="ax.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ax.png" SelfReg="false" NextFile="az.png"/>
+    <ROW File="az.png" Component_="ad.png" FileName="az.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\az.png" SelfReg="false" NextFile="ba.png"/>
+    <ROW File="ba.png" Component_="ad.png" FileName="ba.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ba.png" SelfReg="false" NextFile="bb.png"/>
     <ROW File="back.png" Component_="back.png" FileName="back.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\back.png" SelfReg="false" NextFile="back.ppm"/>
     <ROW File="back.ppm" Component_="back.png" FileName="back.ppm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\back.ppm" SelfReg="false" NextFile="back.svg"/>
     <ROW File="back.svg" Component_="back.png" FileName="back.svg" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\back.svg" SelfReg="false" NextFile="back.xpm"/>
     <ROW File="back.xpm" Component_="back.png" FileName="back.xpm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\back.xpm" SelfReg="false" NextFile="filesave.png"/>
+    <ROW File="bb.png" Component_="ad.png" FileName="bb.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\bb.png" SelfReg="false" NextFile="bd.png"/>
+    <ROW File="bd.png" Component_="ad.png" FileName="bd.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\bd.png" SelfReg="false" NextFile="be.png"/>
+    <ROW File="be.png" Component_="ad.png" FileName="be.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\be.png" SelfReg="false" NextFile="bf.png"/>
+    <ROW File="bf.png" Component_="ad.png" FileName="bf.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\bf.png" SelfReg="false" NextFile="bg.png"/>
+    <ROW File="bg.png" Component_="ad.png" FileName="bg.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\bg.png" SelfReg="false" NextFile="bh.png"/>
+    <ROW File="bh.png" Component_="ad.png" FileName="bh.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\bh.png" SelfReg="false" NextFile="bi.png"/>
+    <ROW File="bi.png" Component_="ad.png" FileName="bi.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\bi.png" SelfReg="false" NextFile="bj.png"/>
+    <ROW File="bj.png" Component_="ad.png" FileName="bj.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\bj.png" SelfReg="false" NextFile="bl.png"/>
+    <ROW File="bl.png" Component_="ad.png" FileName="bl.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\bl.png" SelfReg="false" NextFile="bm.png"/>
     <ROW File="blackops.html" Component_="blackops.html" FileName="blacko~1.htm|blackops.html" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\blackops.html" SelfReg="false" NextFile="blackops.png"/>
     <ROW File="blackops.png" Component_="blackops.html" FileName="blackops.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\blackops.png" SelfReg="false" NextFile="diamond.html"/>
+    <ROW File="bm.png" Component_="ad.png" FileName="bm.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\bm.png" SelfReg="false" NextFile="bn.png"/>
+    <ROW File="bn.png" Component_="ad.png" FileName="bn.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\bn.png" SelfReg="false" NextFile="bo.png"/>
+    <ROW File="bo.png" Component_="ad.png" FileName="bo.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\bo.png" SelfReg="false" NextFile="br.png"/>
+    <ROW File="br.png" Component_="ad.png" FileName="br.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\br.png" SelfReg="false" NextFile="bs.png"/>
     <ROW File="broken.png" Component_="broken.png" FileName="broken.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\replays\broken.png" SelfReg="false" NextFile="bucket.png"/>
+    <ROW File="bs.png" Component_="ad.png" FileName="bs.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\bs.png" SelfReg="false" NextFile="bt.png"/>
     <ROW File="bsdiff.pyd" Component_="FAForever.lib" FileName="bsdiff.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\bsdiff.pyd" SelfReg="false" NextFile="_socket.pyd"/>
+    <ROW File="bt.png" Component_="ad.png" FileName="bt.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\bt.png" SelfReg="false" NextFile="bv.png"/>
     <ROW File="bucket.png" Component_="broken.png" FileName="bucket.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\replays\bucket.png" SelfReg="false" NextFile="live.png"/>
+    <ROW File="bv.png" Component_="ad.png" FileName="bv.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\bv.png" SelfReg="false" NextFile="bw.png"/>
+    <ROW File="bw.png" Component_="ad.png" FileName="bw.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\bw.png" SelfReg="false" NextFile="by.png"/>
+    <ROW File="by.png" Component_="ad.png" FileName="by.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\by.png" SelfReg="false" NextFile="bz.png"/>
+    <ROW File="bz.png" Component_="ad.png" FileName="bz.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\bz.png" SelfReg="false" NextFile="ca.png"/>
     <ROW File="bz2.pyd" Component_="FAForever.lib" FileName="bz2.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\bz2.pyd" SelfReg="false" NextFile="select.pyd"/>
+    <ROW File="ca.png" Component_="ad.png" FileName="ca.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ca.png" SelfReg="false" NextFile="cc.png"/>
+    <ROW File="cc.png" Component_="ad.png" FileName="cc.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\cc.png" SelfReg="false" NextFile="cd.png"/>
+    <ROW File="cd.png" Component_="ad.png" FileName="cd.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\cd.png" SelfReg="false" NextFile="cf.png"/>
+    <ROW File="cf.png" Component_="ad.png" FileName="cf.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\cf.png" SelfReg="false" NextFile="cg.png"/>
+    <ROW File="cg.png" Component_="ad.png" FileName="cg.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\cg.png" SelfReg="false" NextFile="ch.png"/>
+    <ROW File="ch.png" Component_="ad.png" FileName="ch.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ch.png" SelfReg="false" NextFile="ci.png"/>
     <ROW File="channel.ui" Component_="channel.ui" FileName="channel.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\channel.ui" SelfReg="false" NextFile="chat.ui"/>
     <ROW File="chat.png" Component_="about.ui" FileName="chat.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\chat.png" SelfReg="false" NextFile="client.css"/>
     <ROW File="chat.ui" Component_="channel.ui" FileName="chat.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\chat.ui" SelfReg="false" NextFile="action.qthtml"/>
+    <ROW File="ci.png" Component_="ad.png" FileName="ci.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ci.png" SelfReg="false" NextFile="ck.png"/>
     <ROW File="civilian.png" Component_="Aeon_T1.png" FileName="civilian.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\rank\civilian.png" SelfReg="false" NextFile="newplayer.png"/>
+    <ROW File="ck.png" Component_="ad.png" FileName="ck.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ck.png" SelfReg="false" NextFile="cl.png"/>
+    <ROW File="cl.png" Component_="ad.png" FileName="cl.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\cl.png" SelfReg="false" NextFile="cm.png"/>
     <ROW File="client.css" Component_="about.ui" FileName="client.css" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\client.css" SelfReg="false" NextFile="client.ui"/>
     <ROW File="client.ui" Component_="about.ui" FileName="client.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\client.ui" SelfReg="false" NextFile="colors.json"/>
+    <ROW File="cm.png" Component_="ad.png" FileName="cm.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\cm.png" SelfReg="false" NextFile="cn.png"/>
     <ROW File="cmb10.ttf" Component_="cmb10.ttf" FileName="cmb10.ttf" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\ttf\cmb10.ttf" SelfReg="false" NextFile="cmex10.ttf"/>
     <ROW File="cmex10.afm" Component_="cmex10.afm" FileName="cmex10.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\afm\cmex10.afm" SelfReg="false" NextFile="cmmi10.afm"/>
     <ROW File="cmex10.ttf" Component_="cmb10.ttf" FileName="cmex10.ttf" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\ttf\cmex10.ttf" SelfReg="false" NextFile="cmmi10.ttf"/>
@@ -232,10 +319,32 @@
     <ROW File="cmsy10.ttf" Component_="cmb10.ttf" FileName="cmsy10.ttf" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\ttf\cmsy10.ttf" SelfReg="false" NextFile="cmtt10.ttf"/>
     <ROW File="cmtt10.afm" Component_="cmex10.afm" FileName="cmtt10.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\afm\cmtt10.afm" SelfReg="false" NextFile="pagd8a.afm"/>
     <ROW File="cmtt10.ttf" Component_="cmb10.ttf" FileName="cmtt10.ttf" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\ttf\cmtt10.ttf" SelfReg="false" NextFile="COPYRIGHT.TXT"/>
+    <ROW File="cn.png" Component_="ad.png" FileName="cn.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\cn.png" SelfReg="false" NextFile="co.png"/>
+    <ROW File="co.png" Component_="ad.png" FileName="co.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\co.png" SelfReg="false" NextFile="cr.png"/>
     <ROW File="colors.json" Component_="about.ui" FileName="colors~1.jso|colors.json" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\colors.json" SelfReg="false" NextFile="games.png"/>
+    <ROW File="cr.png" Component_="ad.png" FileName="cr.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\cr.png" SelfReg="false" NextFile="cu.png"/>
+    <ROW File="cu.png" Component_="ad.png" FileName="cu.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\cu.png" SelfReg="false" NextFile="cv.png"/>
+    <ROW File="cv.png" Component_="ad.png" FileName="cv.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\cv.png" SelfReg="false" NextFile="cw.png"/>
+    <ROW File="cw.png" Component_="ad.png" FileName="cw.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\cw.png" SelfReg="false" NextFile="cx.png"/>
+    <ROW File="cx.png" Component_="ad.png" FileName="cx.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\cx.png" SelfReg="false" NextFile="cy.png"/>
+    <ROW File="cy.png" Component_="ad.png" FileName="cy.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\cy.png" SelfReg="false" NextFile="cz.png"/>
     <ROW File="cybran.png" Component_="aeon.png" FileName="cybran.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\automatch\cybran.png" SelfReg="false" NextFile="seraphim.png"/>
+    <ROW File="cz.png" Component_="ad.png" FileName="cz.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\cz.png" SelfReg="false" NextFile="de.png"/>
+    <ROW File="de.png" Component_="ad.png" FileName="de.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\de.png" SelfReg="false" NextFile="dj.png"/>
     <ROW File="diamond.html" Component_="blackops.html" FileName="diamon~1.htm|diamond.html" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\diamond.html" SelfReg="false" NextFile="diamond.png"/>
     <ROW File="diamond.png" Component_="blackops.html" FileName="diamond.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\diamond.png" SelfReg="false" NextFile="expwars.html"/>
+    <ROW File="dj.png" Component_="ad.png" FileName="dj.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\dj.png" SelfReg="false" NextFile="dk.png"/>
+    <ROW File="dk.png" Component_="ad.png" FileName="dk.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\dk.png" SelfReg="false" NextFile="dm.png"/>
+    <ROW File="dm.png" Component_="ad.png" FileName="dm.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\dm.png" SelfReg="false" NextFile="do.png"/>
+    <ROW File="do.png" Component_="ad.png" FileName="do.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\do.png" SelfReg="false" NextFile="dz.png"/>
+    <ROW File="dz.png" Component_="ad.png" FileName="dz.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\dz.png" SelfReg="false" NextFile="ec.png"/>
+    <ROW File="ec.png" Component_="ad.png" FileName="ec.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ec.png" SelfReg="false" NextFile="ee.png"/>
+    <ROW File="ee.png" Component_="ad.png" FileName="ee.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ee.png" SelfReg="false" NextFile="eg.png"/>
+    <ROW File="eg.png" Component_="ad.png" FileName="eg.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\eg.png" SelfReg="false" NextFile="eh.png"/>
+    <ROW File="eh.png" Component_="ad.png" FileName="eh.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\eh.png" SelfReg="false" NextFile="er.png"/>
+    <ROW File="er.png" Component_="ad.png" FileName="er.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\er.png" SelfReg="false" NextFile="es.png"/>
+    <ROW File="es.png" Component_="ad.png" FileName="es.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\es.png" SelfReg="false" NextFile="et.png"/>
+    <ROW File="et.png" Component_="ad.png" FileName="et.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\et.png" SelfReg="false" NextFile="fi.png"/>
     <ROW File="expwars.html" Component_="blackops.html" FileName="expwar~1.htm|expwars.html" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\expwars.html" SelfReg="false" NextFile="expwars.png"/>
     <ROW File="expwars.png" Component_="blackops.html" FileName="expwars.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\expwars.png" SelfReg="false" NextFile="faf.html"/>
     <ROW File="faf.html" Component_="blackops.html" FileName="faf~1.htm|faf.html" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\faf.html" SelfReg="false" NextFile="faf.png"/>
@@ -243,21 +352,49 @@
     <ROW File="faf.png" Component_="blackops.html" FileName="faf.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\faf.png" SelfReg="false" NextFile="koth.html"/>
     <ROW File="faf.qthtml" Component_="faf.qthtml" FileName="faf~1.qth|faf.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\formatters\faf.qthtml" SelfReg="false" NextFile="mod.qthtml"/>
     <ROW File="failure.ui" Component_="failure.ui" FileName="failure.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\fa\updater\failure.ui" SelfReg="false" NextFile="illegal.ui"/>
+    <ROW File="fi.png" Component_="ad.png" FileName="fi.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\fi.png" SelfReg="false" NextFile="fj.png"/>
     <ROW File="filesave.png" Component_="back.png" FileName="filesave.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\filesave.png" SelfReg="false" NextFile="filesave.ppm"/>
     <ROW File="filesave.ppm" Component_="back.png" FileName="filesave.ppm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\filesave.ppm" SelfReg="false" NextFile="filesave.svg"/>
     <ROW File="filesave.svg" Component_="back.png" FileName="filesave.svg" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\filesave.svg" SelfReg="false" NextFile="filesave.xpm"/>
     <ROW File="filesave.xpm" Component_="back.png" FileName="filesave.xpm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\filesave.xpm" SelfReg="false" NextFile="forward.png"/>
+    <ROW File="fj.png" Component_="ad.png" FileName="fj.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\fj.png" SelfReg="false" NextFile="fk.png"/>
+    <ROW File="fk.png" Component_="ad.png" FileName="fk.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\fk.png" SelfReg="false" NextFile="fm.png"/>
+    <ROW File="fm.png" Component_="ad.png" FileName="fm.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\fm.png" SelfReg="false" NextFile="fo.png"/>
+    <ROW File="fo.png" Component_="ad.png" FileName="fo.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\fo.png" SelfReg="false" NextFile="fr.png"/>
     <ROW File="forward.png" Component_="back.png" FileName="forward.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\forward.png" SelfReg="false" NextFile="forward.ppm"/>
     <ROW File="forward.ppm" Component_="back.png" FileName="forward.ppm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\forward.ppm" SelfReg="false" NextFile="forward.svg"/>
     <ROW File="forward.svg" Component_="back.png" FileName="forward.svg" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\forward.svg" SelfReg="false" NextFile="forward.xpm"/>
     <ROW File="forward.xpm" Component_="back.png" FileName="forward.xpm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\forward.xpm" SelfReg="false" NextFile="hand.png"/>
+    <ROW File="fr.png" Component_="ad.png" FileName="fr.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\fr.png" SelfReg="false" NextFile="ga.png"/>
+    <ROW File="ga.png" Component_="ad.png" FileName="ga.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ga.png" SelfReg="false" NextFile="gb.png"/>
     <ROW File="games.png" Component_="about.ui" FileName="games.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\games.png" SelfReg="false" NextFile="gw.png"/>
     <ROW File="games.ui" Component_="games.ui" FileName="games.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\games.ui" SelfReg="false" NextFile="host.ui"/>
+    <ROW File="gb.png" Component_="ad.png" FileName="gb.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\gb.png" SelfReg="false" NextFile="gd.png"/>
+    <ROW File="gd.png" Component_="ad.png" FileName="gd.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\gd.png" SelfReg="false" NextFile="ge.png"/>
+    <ROW File="ge.png" Component_="ad.png" FileName="ge.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ge.png" SelfReg="false" NextFile="gf.png"/>
+    <ROW File="gf.png" Component_="ad.png" FileName="gf.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\gf.png" SelfReg="false" NextFile="gg.png"/>
+    <ROW File="gg.png" Component_="ad.png" FileName="gg.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\gg.png" SelfReg="false" NextFile="gh.png"/>
+    <ROW File="gh.png" Component_="ad.png" FileName="gh.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\gh.png" SelfReg="false" NextFile="gi.png"/>
+    <ROW File="gi.png" Component_="ad.png" FileName="gi.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\gi.png" SelfReg="false" NextFile="gl.png"/>
+    <ROW File="gl.png" Component_="ad.png" FileName="gl.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\gl.png" SelfReg="false" NextFile="gm.png"/>
+    <ROW File="gm.png" Component_="ad.png" FileName="gm.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\gm.png" SelfReg="false" NextFile="gn.png"/>
+    <ROW File="gn.png" Component_="ad.png" FileName="gn.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\gn.png" SelfReg="false" NextFile="gp.png"/>
+    <ROW File="gp.png" Component_="ad.png" FileName="gp.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\gp.png" SelfReg="false" NextFile="gq.png"/>
+    <ROW File="gq.png" Component_="ad.png" FileName="gq.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\gq.png" SelfReg="false" NextFile="gr.png"/>
+    <ROW File="gr.png" Component_="ad.png" FileName="gr.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\gr.png" SelfReg="false" NextFile="gs.png"/>
+    <ROW File="gs.png" Component_="ad.png" FileName="gs.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\gs.png" SelfReg="false" NextFile="gt.png"/>
+    <ROW File="gt.png" Component_="ad.png" FileName="gt.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\gt.png" SelfReg="false" NextFile="gu.png"/>
+    <ROW File="gu.png" Component_="ad.png" FileName="gu.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\gu.png" SelfReg="false" NextFile="gw.png_1"/>
     <ROW File="gw.png" Component_="about.ui" FileName="gw.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\gw.png" SelfReg="false" NextFile="ladder.png"/>
+    <ROW File="gw.png_1" Component_="ad.png" FileName="gw.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\gw.png" SelfReg="false" NextFile="gy.png"/>
+    <ROW File="gy.png" Component_="ad.png" FileName="gy.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\gy.png" SelfReg="false" NextFile="hk.png"/>
     <ROW File="hand.png" Component_="back.png" FileName="hand.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\hand.png" SelfReg="false" NextFile="hand.ppm"/>
     <ROW File="hand.ppm" Component_="back.png" FileName="hand.ppm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\hand.ppm" SelfReg="false" NextFile="hand.svg"/>
     <ROW File="hand.svg" Component_="back.png" FileName="hand.svg" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\hand.svg" SelfReg="false" NextFile="hand.xpm"/>
     <ROW File="hand.xpm" Component_="back.png" FileName="hand.xpm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\hand.xpm" SelfReg="false" NextFile="home.png"/>
+    <ROW File="hk.png" Component_="ad.png" FileName="hk.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\hk.png" SelfReg="false" NextFile="hm.png"/>
+    <ROW File="hm.png" Component_="ad.png" FileName="hm.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\hm.png" SelfReg="false" NextFile="hn.png"/>
+    <ROW File="hn.png" Component_="ad.png" FileName="hn.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\hn.png" SelfReg="false" NextFile="hr.png"/>
     <ROW File="home.png" Component_="back.png" FileName="home.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\home.png" SelfReg="false" NextFile="home.ppm"/>
     <ROW File="home.ppm" Component_="back.png" FileName="home.ppm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\home.ppm" SelfReg="false" NextFile="home.svg"/>
     <ROW File="home.svg" Component_="back.png" FileName="home.svg" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\home.svg" SelfReg="false" NextFile="home.xpm"/>
@@ -265,17 +402,57 @@
     <ROW File="host.png" Component_="host.png" FileName="host.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\status\host.png" SelfReg="false" NextFile="lobby.png"/>
     <ROW File="host.ui" Component_="games.ui" FileName="host.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\host.ui" SelfReg="false" NextFile="blackops.html"/>
     <ROW File="host.ui_1" Component_="host.ui" FileName="host.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\tournaments\host.ui" SelfReg="false" NextFile="tournaments.ui"/>
+    <ROW File="hr.png" Component_="ad.png" FileName="hr.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\hr.png" SelfReg="false" NextFile="ht.png"/>
+    <ROW File="ht.png" Component_="ad.png" FileName="ht.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ht.png" SelfReg="false" NextFile="hu.png"/>
+    <ROW File="hu.png" Component_="ad.png" FileName="hu.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\hu.png" SelfReg="false" NextFile="id.png"/>
     <ROW File="hydro.png" Component_="army.png" FileName="hydro.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\vault\map_icons\hydro.png" SelfReg="false" NextFile="mass.png"/>
+    <ROW File="id.png" Component_="ad.png" FileName="id.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\id.png" SelfReg="false" NextFile="ie.png"/>
+    <ROW File="ie.png" Component_="ad.png" FileName="ie.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ie.png" SelfReg="false" NextFile="il.png"/>
+    <ROW File="il.png" Component_="ad.png" FileName="il.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\il.png" SelfReg="false" NextFile="im.png"/>
     <ROW File="illegal.ui" Component_="failure.ui" FileName="illegal.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\fa\updater\illegal.ui" SelfReg="false" NextFile="upgrade_watermark.png"/>
+    <ROW File="im.png" Component_="ad.png" FileName="im.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\im.png" SelfReg="false" NextFile="in.png"/>
+    <ROW File="in.png" Component_="ad.png" FileName="in.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\in.png" SelfReg="false" NextFile="io.png"/>
+    <ROW File="io.png" Component_="ad.png" FileName="io.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\io.png" SelfReg="false" NextFile="iq.png"/>
+    <ROW File="iq.png" Component_="ad.png" FileName="iq.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\iq.png" SelfReg="false" NextFile="ir.png"/>
+    <ROW File="ir.png" Component_="ad.png" FileName="ir.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ir.png" SelfReg="false" NextFile="is.png"/>
+    <ROW File="is.png" Component_="ad.png" FileName="is.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\is.png" SelfReg="false" NextFile="it.png"/>
+    <ROW File="it.png" Component_="ad.png" FileName="it.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\it.png" SelfReg="false" NextFile="je.png"/>
+    <ROW File="je.png" Component_="ad.png" FileName="je.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\je.png" SelfReg="false" NextFile="jm.png"/>
+    <ROW File="jm.png" Component_="ad.png" FileName="jm.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\jm.png" SelfReg="false" NextFile="jo.png"/>
+    <ROW File="jo.png" Component_="ad.png" FileName="jo.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\jo.png" SelfReg="false" NextFile="jp.png"/>
+    <ROW File="jp.png" Component_="ad.png" FileName="jp.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\jp.png" SelfReg="false" NextFile="ke.png"/>
+    <ROW File="ke.png" Component_="ad.png" FileName="ke.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ke.png" SelfReg="false" NextFile="kg.png"/>
+    <ROW File="kg.png" Component_="ad.png" FileName="kg.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\kg.png" SelfReg="false" NextFile="kh.png"/>
+    <ROW File="kh.png" Component_="ad.png" FileName="kh.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\kh.png" SelfReg="false" NextFile="ki.png"/>
+    <ROW File="ki.png" Component_="ad.png" FileName="ki.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ki.png" SelfReg="false" NextFile="km.png"/>
+    <ROW File="km.png" Component_="ad.png" FileName="km.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\km.png" SelfReg="false" NextFile="kn.png"/>
+    <ROW File="kn.png" Component_="ad.png" FileName="kn.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\kn.png" SelfReg="false" NextFile="kp.png"/>
     <ROW File="koth.html" Component_="blackops.html" FileName="koth~1.htm|koth.html" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\koth.html" SelfReg="false" NextFile="koth.png"/>
     <ROW File="koth.png" Component_="blackops.html" FileName="koth.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\koth.png" SelfReg="false" NextFile="labwars.html"/>
+    <ROW File="kp.png" Component_="ad.png" FileName="kp.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\kp.png" SelfReg="false" NextFile="kr.png"/>
+    <ROW File="kr.png" Component_="ad.png" FileName="kr.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\kr.png" SelfReg="false" NextFile="kw.png"/>
+    <ROW File="kw.png" Component_="ad.png" FileName="kw.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\kw.png" SelfReg="false" NextFile="ky.png"/>
+    <ROW File="ky.png" Component_="ad.png" FileName="ky.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ky.png" SelfReg="false" NextFile="kz.png"/>
+    <ROW File="kz.png" Component_="ad.png" FileName="kz.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\kz.png" SelfReg="false" NextFile="la.png"/>
+    <ROW File="la.png" Component_="ad.png" FileName="la.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\la.png" SelfReg="false" NextFile="lb.png"/>
     <ROW File="labwars.html" Component_="blackops.html" FileName="labwar~1.htm|labwars.html" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\labwars.html" SelfReg="false" NextFile="labwars.png"/>
     <ROW File="labwars.png" Component_="blackops.html" FileName="labwars.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\labwars.png" SelfReg="false" NextFile="murderparty.html"/>
     <ROW File="ladder.png" Component_="about.ui" FileName="ladder.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\ladder.png" SelfReg="false" NextFile="login_watermark.png"/>
+    <ROW File="lb.png" Component_="ad.png" FileName="lb.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\lb.png" SelfReg="false" NextFile="lc.png"/>
+    <ROW File="lc.png" Component_="ad.png" FileName="lc.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\lc.png" SelfReg="false" NextFile="li.png"/>
+    <ROW File="li.png" Component_="ad.png" FileName="li.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\li.png" SelfReg="false" NextFile="lk.png"/>
     <ROW File="lineprops.glade" Component_="lineprops.glade" FileName="linepr~1.gla|lineprops.glade" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\lineprops.glade" SelfReg="false" NextFile="matplotlib.conf"/>
     <ROW File="live.png" Component_="broken.png" FileName="live.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\replays\live.png" SelfReg="false" NextFile="replay.png"/>
+    <ROW File="lk.png" Component_="ad.png" FileName="lk.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\lk.png" SelfReg="false" NextFile="lr.png"/>
     <ROW File="lobby.png" Component_="host.png" FileName="lobby.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\status\lobby.png" SelfReg="false" NextFile="none.png"/>
     <ROW File="login_watermark.png" Component_="about.ui" FileName="login_~1.png|login_watermark.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\login_watermark.png" SelfReg="false" NextFile="maps.png"/>
+    <ROW File="lr.png" Component_="ad.png" FileName="lr.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\lr.png" SelfReg="false" NextFile="ls.png"/>
+    <ROW File="ls.png" Component_="ad.png" FileName="ls.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ls.png" SelfReg="false" NextFile="lt.png"/>
+    <ROW File="lt.png" Component_="ad.png" FileName="lt.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\lt.png" SelfReg="false" NextFile="lu.png"/>
+    <ROW File="lu.png" Component_="ad.png" FileName="lu.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\lu.png" SelfReg="false" NextFile="lv.png"/>
+    <ROW File="lv.png" Component_="ad.png" FileName="lv.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\lv.png" SelfReg="false" NextFile="ly.png"/>
+    <ROW File="ly.png" Component_="ad.png" FileName="ly.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ly.png" SelfReg="false" NextFile="ma.png"/>
+    <ROW File="ma.png" Component_="ad.png" FileName="ma.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ma.png" SelfReg="false" NextFile="mc.png"/>
     <ROW File="maps.png" Component_="about.ui" FileName="maps.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\maps.png" SelfReg="false" NextFile="replays.png"/>
     <ROW File="mass.png" Component_="army.png" FileName="mass.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\vault\map_icons\mass.png" SelfReg="false" NextFile="window_icon.png"/>
     <ROW File="matplotlib._cntr.pyd" Component_="FAForever.lib" FileName="matplo~8.pyd|matplotlib._cntr.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\matplotlib._cntr.pyd" SelfReg="false" NextFile="matplotlib.ttconv.pyd"/>
@@ -292,25 +469,58 @@
     <ROW File="matplotlib.svg" Component_="back.png" FileName="matplo~1.svg|matplotlib.svg" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\matplotlib.svg" SelfReg="false" NextFile="move.png"/>
     <ROW File="matplotlib.ttconv.pyd" Component_="FAForever.lib" FileName="matplo~9.pyd|matplotlib.ttconv.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\matplotlib.ttconv.pyd" SelfReg="false" NextFile="matplotlib.ft2font.pyd"/>
     <ROW File="matplotlibrc" Component_="lineprops.glade" FileName="matplo~1|matplotlibrc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\matplotlibrc" SelfReg="false" NextFile="matplotlib._png.pyd"/>
+    <ROW File="mc.png" Component_="ad.png" FileName="mc.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\mc.png" SelfReg="false" NextFile="md.png"/>
+    <ROW File="md.png" Component_="ad.png" FileName="md.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\md.png" SelfReg="false" NextFile="me.png"/>
+    <ROW File="me.png" Component_="ad.png" FileName="me.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\me.png" SelfReg="false" NextFile="mf.png"/>
     <ROW File="message.qthtml" Component_="action.qthtml" FileName="messag~1.qth|message.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\formatters\message.qthtml" SelfReg="false" NextFile="nicklist_columns.json"/>
+    <ROW File="mf.png" Component_="ad.png" FileName="mf.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\mf.png" SelfReg="false" NextFile="mg.png"/>
     <ROW File="mfc100u.dll" Component_="mfc100u.dll" FileName="mfc100u.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mfc100u.dll" SelfReg="false" NextFile="msvcp100.dll"/>
+    <ROW File="mg.png" Component_="ad.png" FileName="mg.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\mg.png" SelfReg="false" NextFile="mh.png"/>
+    <ROW File="mh.png" Component_="ad.png" FileName="mh.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\mh.png" SelfReg="false" NextFile="mk.png"/>
+    <ROW File="mk.png" Component_="ad.png" FileName="mk.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\mk.png" SelfReg="false" NextFile="ml.png"/>
+    <ROW File="ml.png" Component_="ad.png" FileName="ml.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ml.png" SelfReg="false" NextFile="mm.png"/>
+    <ROW File="mm.png" Component_="ad.png" FileName="mm.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\mm.png" SelfReg="false" NextFile="mn.png"/>
+    <ROW File="mn.png" Component_="ad.png" FileName="mn.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\mn.png" SelfReg="false" NextFile="mo.png"/>
+    <ROW File="mo.png" Component_="ad.png" FileName="mo.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\mo.png" SelfReg="false" NextFile="mp.png"/>
     <ROW File="mod.qthtml" Component_="faf.qthtml" FileName="mod~1.qth|mod.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\formatters\mod.qthtml" SelfReg="false" NextFile="games.ui"/>
     <ROW File="move.png" Component_="back.png" FileName="move.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\move.png" SelfReg="false" NextFile="move.ppm"/>
     <ROW File="move.ppm" Component_="back.png" FileName="move.ppm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\move.ppm" SelfReg="false" NextFile="move.svg"/>
     <ROW File="move.svg" Component_="back.png" FileName="move.svg" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\move.svg" SelfReg="false" NextFile="move.xpm"/>
     <ROW File="move.xpm" Component_="back.png" FileName="move.xpm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\move.xpm" SelfReg="false" NextFile="qt4_editor_options.png"/>
+    <ROW File="mp.png" Component_="ad.png" FileName="mp.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\mp.png" SelfReg="false" NextFile="mq.png"/>
+    <ROW File="mq.png" Component_="ad.png" FileName="mq.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\mq.png" SelfReg="false" NextFile="mr.png"/>
+    <ROW File="mr.png" Component_="ad.png" FileName="mr.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\mr.png" SelfReg="false" NextFile="ms.png"/>
+    <ROW File="ms.png" Component_="ad.png" FileName="ms.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ms.png" SelfReg="false" NextFile="mt.png"/>
     <ROW File="msvcp100.dll" Component_="msvcp100.dll" FileName="msvcp100.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\msvcp100.dll" SelfReg="false" NextFile="msvcr100.dll"/>
     <ROW File="msvcr100.dll" Component_="msvcr100.dll" FileName="msvcr100.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\msvcr100.dll" SelfReg="false" NextFile="uid.dll"/>
     <ROW File="msvcr90.dll" Component_="msvcr90.dll" FileName="msvcr90.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\msvcr90.dll" SelfReg="false" NextFile="FreeImage.dll"/>
+    <ROW File="mt.png" Component_="ad.png" FileName="mt.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\mt.png" SelfReg="false" NextFile="mu.png"/>
+    <ROW File="mu.png" Component_="ad.png" FileName="mu.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\mu.png" SelfReg="false" NextFile="mv.png"/>
     <ROW File="murderparty.html" Component_="blackops.html" FileName="murder~1.htm|murderparty.html" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\murderparty.html" SelfReg="false" NextFile="murderparty.png"/>
     <ROW File="murderparty.png" Component_="blackops.html" FileName="murder~1.png|murderparty.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\murderparty.png" SelfReg="false" NextFile="nftw.html"/>
+    <ROW File="mv.png" Component_="ad.png" FileName="mv.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\mv.png" SelfReg="false" NextFile="mw.png"/>
+    <ROW File="mw.png" Component_="ad.png" FileName="mw.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\mw.png" SelfReg="false" NextFile="mx.png"/>
+    <ROW File="mx.png" Component_="ad.png" FileName="mx.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\mx.png" SelfReg="false" NextFile="my.png"/>
+    <ROW File="my.png" Component_="ad.png" FileName="my.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\my.png" SelfReg="false" NextFile="mz.png"/>
+    <ROW File="mz.png" Component_="ad.png" FileName="mz.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\mz.png" SelfReg="false" NextFile="na.png"/>
+    <ROW File="na.png" Component_="ad.png" FileName="na.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\na.png" SelfReg="false" NextFile="nc.png"/>
+    <ROW File="nc.png" Component_="ad.png" FileName="nc.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\nc.png" SelfReg="false" NextFile="ne.png"/>
+    <ROW File="ne.png" Component_="ad.png" FileName="ne.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ne.png" SelfReg="false" NextFile="nf.png"/>
     <ROW File="newplayer.png" Component_="Aeon_T1.png" FileName="newpla~1.png|newplayer.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\rank\newplayer.png" SelfReg="false" NextFile="privmsg.wav"/>
+    <ROW File="nf.png" Component_="ad.png" FileName="nf.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\nf.png" SelfReg="false" NextFile="ng.png"/>
     <ROW File="nftw.html" Component_="blackops.html" FileName="nftw~1.htm|nftw.html" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\nftw.html" SelfReg="false" NextFile="nftw.png"/>
     <ROW File="nftw.png" Component_="blackops.html" FileName="nftw.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\nftw.png" SelfReg="false" NextFile="nomads.html"/>
+    <ROW File="ng.png" Component_="ad.png" FileName="ng.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ng.png" SelfReg="false" NextFile="ni.png"/>
+    <ROW File="ni.png" Component_="ad.png" FileName="ni.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ni.png" SelfReg="false" NextFile="nl.png"/>
     <ROW File="nicklist_columns.json" Component_="action.qthtml" FileName="nickli~1.jso|nicklist_columns.json" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\formatters\nicklist_columns.json" SelfReg="false" NextFile="operator_colors.json"/>
+    <ROW File="nl.png" Component_="ad.png" FileName="nl.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\nl.png" SelfReg="false" NextFile="no.png"/>
+    <ROW File="no.png" Component_="ad.png" FileName="no.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\no.png" SelfReg="false" NextFile="np.png"/>
     <ROW File="nomads.html" Component_="blackops.html" FileName="nomads~1.htm|nomads.html" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\nomads.html" SelfReg="false" NextFile="nomads.png"/>
     <ROW File="nomads.png" Component_="blackops.html" FileName="nomads.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\nomads.png" SelfReg="false" NextFile="wyvern.html"/>
     <ROW File="none.png" Component_="host.png" FileName="none.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\status\none.png" SelfReg="false" NextFile="playing.png"/>
+    <ROW File="np.png" Component_="ad.png" FileName="np.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\np.png" SelfReg="false" NextFile="nr.png"/>
+    <ROW File="nr.png" Component_="ad.png" FileName="nr.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\nr.png" SelfReg="false" NextFile="nu.png"/>
+    <ROW File="nu.png" Component_="ad.png" FileName="nu.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\nu.png" SelfReg="false" NextFile="nz.png"/>
     <ROW File="numpy.core._sort.pyd" Component_="FAForever.lib" FileName="numpyc~4.pyd|numpy.core._sort.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\numpy.core._sort.pyd" SelfReg="false" NextFile="host.ui_1"/>
     <ROW File="numpy.core.multiarray.pyd" Component_="FAForever.lib" FileName="numpyc~3.pyd|numpy.core.multiarray.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\numpy.core.multiarray.pyd" SelfReg="false" NextFile="numpy.core._sort.pyd"/>
     <ROW File="numpy.core.scalarmath.pyd" Component_="FAForever.lib" FileName="numpyc~1.pyd|numpy.core.scalarmath.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\numpy.core.scalarmath.pyd" SelfReg="false" NextFile="numpy.core.umath.pyd"/>
@@ -319,7 +529,10 @@
     <ROW File="numpy.lib._compiled_base.pyd" Component_="FAForever.lib" FileName="numpyl~2.pyd|numpy.lib._compiled_base.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\numpy.lib._compiled_base.pyd" SelfReg="false" NextFile="numpy.core.scalarmath.pyd"/>
     <ROW File="numpy.linalg.lapack_lite.pyd" Component_="FAForever.lib" FileName="numpyl~1.pyd|numpy.linalg.lapack_lite.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\numpy.linalg.lapack_lite.pyd" SelfReg="false" NextFile="numpy.fft.fftpack_lite.pyd"/>
     <ROW File="numpy.random.mtrand.pyd" Component_="FAForever.lib" FileName="numpyr~1.pyd|numpy.random.mtrand.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\numpy.random.mtrand.pyd" SelfReg="false" NextFile="numpy.linalg.lapack_lite.pyd"/>
+    <ROW File="nz.png" Component_="ad.png" FileName="nz.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\nz.png" SelfReg="false" NextFile="om.png"/>
+    <ROW File="om.png" Component_="ad.png" FileName="om.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\om.png" SelfReg="false" NextFile="pa.png"/>
     <ROW File="operator_colors.json" Component_="action.qthtml" FileName="operat~1.jso|operator_colors.json" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\formatters\operator_colors.json" SelfReg="false" NextFile="raw.qthtml"/>
+    <ROW File="pa.png" Component_="ad.png" FileName="pa.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\pa.png" SelfReg="false" NextFile="pe.png"/>
     <ROW File="pagd8a.afm" Component_="cmex10.afm" FileName="pagd8a.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\afm\pagd8a.afm" SelfReg="false" NextFile="pagdo8a.afm"/>
     <ROW File="pagdo8a.afm" Component_="cmex10.afm" FileName="pagdo8a.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\afm\pagdo8a.afm" SelfReg="false" NextFile="pagk8a.afm"/>
     <ROW File="pagk8a.afm" Component_="cmex10.afm" FileName="pagk8a.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\afm\pagk8a.afm" SelfReg="false" NextFile="pagko8a.afm"/>
@@ -332,6 +545,10 @@
     <ROW File="pcrbo8a.afm" Component_="cmex10.afm" FileName="pcrbo8a.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\afm\pcrbo8a.afm" SelfReg="false" NextFile="pcrr8a.afm"/>
     <ROW File="pcrr8a.afm" Component_="cmex10.afm" FileName="pcrr8a.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\afm\pcrr8a.afm" SelfReg="false" NextFile="pcrro8a.afm"/>
     <ROW File="pcrro8a.afm" Component_="cmex10.afm" FileName="pcrro8a.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\afm\pcrro8a.afm" SelfReg="false" NextFile="phvb8a.afm"/>
+    <ROW File="pe.png" Component_="ad.png" FileName="pe.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\pe.png" SelfReg="false" NextFile="pf.png"/>
+    <ROW File="pf.png" Component_="ad.png" FileName="pf.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\pf.png" SelfReg="false" NextFile="pg.png"/>
+    <ROW File="pg.png" Component_="ad.png" FileName="pg.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\pg.png" SelfReg="false" NextFile="ph.png"/>
+    <ROW File="ph.png" Component_="ad.png" FileName="ph.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ph.png" SelfReg="false" NextFile="pk.png"/>
     <ROW File="phvb8a.afm" Component_="cmex10.afm" FileName="phvb8a.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\afm\phvb8a.afm" SelfReg="false" NextFile="phvb8an.afm"/>
     <ROW File="phvb8an.afm" Component_="cmex10.afm" FileName="phvb8an.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\afm\phvb8an.afm" SelfReg="false" NextFile="phvbo8a.afm"/>
     <ROW File="phvbo8a.afm" Component_="cmex10.afm" FileName="phvbo8a.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\afm\phvbo8a.afm" SelfReg="false" NextFile="phvbo8an.afm"/>
@@ -342,7 +559,11 @@
     <ROW File="phvr8an.afm" Component_="cmex10.afm" FileName="phvr8an.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\afm\phvr8an.afm" SelfReg="false" NextFile="phvro8a.afm"/>
     <ROW File="phvro8a.afm" Component_="cmex10.afm" FileName="phvro8a.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\afm\phvro8a.afm" SelfReg="false" NextFile="phvro8an.afm"/>
     <ROW File="phvro8an.afm" Component_="cmex10.afm" FileName="phvro8an.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\afm\phvro8an.afm" SelfReg="false" NextFile="pncb8a.afm"/>
+    <ROW File="pk.png" Component_="ad.png" FileName="pk.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\pk.png" SelfReg="false" NextFile="pl.png"/>
+    <ROW File="pl.png" Component_="ad.png" FileName="pl.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\pl.png" SelfReg="false" NextFile="pm.png"/>
     <ROW File="playing.png" Component_="host.png" FileName="playing.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\status\playing.png" SelfReg="false" NextFile="about.ui"/>
+    <ROW File="pm.png" Component_="ad.png" FileName="pm.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\pm.png" SelfReg="false" NextFile="pn.png"/>
+    <ROW File="pn.png" Component_="ad.png" FileName="pn.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\pn.png" SelfReg="false" NextFile="pr.png"/>
     <ROW File="pncb8a.afm" Component_="cmex10.afm" FileName="pncb8a.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\afm\pncb8a.afm" SelfReg="false" NextFile="pncbi8a.afm"/>
     <ROW File="pncbi8a.afm" Component_="cmex10.afm" FileName="pncbi8a.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\afm\pncbi8a.afm" SelfReg="false" NextFile="pncr8a.afm"/>
     <ROW File="pncr8a.afm" Component_="cmex10.afm" FileName="pncr8a.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\afm\pncr8a.afm" SelfReg="false" NextFile="pncri8a.afm"/>
@@ -351,9 +572,12 @@
     <ROW File="pplbi8a.afm" Component_="cmex10.afm" FileName="pplbi8a.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\afm\pplbi8a.afm" SelfReg="false" NextFile="pplr8a.afm"/>
     <ROW File="pplr8a.afm" Component_="cmex10.afm" FileName="pplr8a.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\afm\pplr8a.afm" SelfReg="false" NextFile="pplri8a.afm"/>
     <ROW File="pplri8a.afm" Component_="cmex10.afm" FileName="pplri8a.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\afm\pplri8a.afm" SelfReg="false" NextFile="psyr.afm"/>
+    <ROW File="pr.png" Component_="ad.png" FileName="pr.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\pr.png" SelfReg="false" NextFile="ps.png"/>
     <ROW File="private_game.png" Component_="games.ui" FileName="privat~1.png|private_game.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\private_game.png" SelfReg="false" NextFile="unknown_map.png"/>
     <ROW File="privmsg.wav" Component_="privmsg.wav" FileName="privmsg.wav" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\sfx\privmsg.wav" SelfReg="false" NextFile="query.wav"/>
+    <ROW File="ps.png" Component_="ad.png" FileName="ps.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ps.png" SelfReg="false" NextFile="pt.png"/>
     <ROW File="psyr.afm" Component_="cmex10.afm" FileName="psyr.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\afm\psyr.afm" SelfReg="false" NextFile="ptmb8a.afm"/>
+    <ROW File="pt.png" Component_="ad.png" FileName="pt.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\pt.png" SelfReg="false" NextFile="pw.png"/>
     <ROW File="ptmb8a.afm" Component_="cmex10.afm" FileName="ptmb8a.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\afm\ptmb8a.afm" SelfReg="false" NextFile="ptmbi8a.afm"/>
     <ROW File="ptmbi8a.afm" Component_="cmex10.afm" FileName="ptmbi8a.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\afm\ptmbi8a.afm" SelfReg="false" NextFile="ptmr8a.afm"/>
     <ROW File="ptmr8a.afm" Component_="cmex10.afm" FileName="ptmr8a.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\afm\ptmr8a.afm" SelfReg="false" NextFile="ptmri8a.afm"/>
@@ -362,12 +586,15 @@
     <ROW File="putbi8a.afm" Component_="cmex10.afm" FileName="putbi8a.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\afm\putbi8a.afm" SelfReg="false" NextFile="putr8a.afm"/>
     <ROW File="putr8a.afm" Component_="cmex10.afm" FileName="putr8a.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\afm\putr8a.afm" SelfReg="false" NextFile="putri8a.afm"/>
     <ROW File="putri8a.afm" Component_="cmex10.afm" FileName="putri8a.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\afm\putri8a.afm" SelfReg="false" NextFile="pzcmi8a.afm"/>
+    <ROW File="pw.png" Component_="ad.png" FileName="pw.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\pw.png" SelfReg="false" NextFile="py.png"/>
+    <ROW File="py.png" Component_="ad.png" FileName="py.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\py.png" SelfReg="false" NextFile="qa.png"/>
     <ROW File="pyexpat.pyd" Component_="FAForever.lib" FileName="pyexpat.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\pyexpat.pyd" SelfReg="false" NextFile="_ctypes.pyd"/>
     <ROW File="python27.dll" Component_="python27.dll" FileName="python27.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\python27.dll" SelfReg="false" NextFile="pyexpat.pyd"/>
     <ROW File="pythoncom27.dll" Component_="pythoncom27.dll" FileName="python~1.dll|pythoncom27.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\pythoncom27.dll" SelfReg="false" NextFile="win32api.pyd"/>
     <ROW File="pywintypes27.dll" Component_="pywintypes27.dll" FileName="pywint~1.dll|pywintypes27.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\pywintypes27.dll" SelfReg="false" NextFile="win32ui.pyd"/>
     <ROW File="pzcmi8a.afm" Component_="cmex10.afm" FileName="pzcmi8a.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\afm\pzcmi8a.afm" SelfReg="false" NextFile="pzdr.afm"/>
     <ROW File="pzdr.afm" Component_="cmex10.afm" FileName="pzdr.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\afm\pzdr.afm" SelfReg="false" NextFile="CourierBold.afm"/>
+    <ROW File="qa.png" Component_="ad.png" FileName="qa.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\qa.png" SelfReg="false" NextFile="re.png"/>
     <ROW File="qgif4.dll" Component_="qgif4.dll" FileName="qgif4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\qgif4.dll" SelfReg="false" NextFile="qico4.dll"/>
     <ROW File="qgif4.dll_1" Component_="qgif4.dll_1" FileName="qgif4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\plugins\imageformats\qgif4.dll" SelfReg="false" NextFile="qico4.dll_1"/>
     <ROW File="qico4.dll" Component_="qico4.dll" FileName="qico4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\qico4.dll" SelfReg="false" NextFile="qjpeg4.dll"/>
@@ -387,6 +614,7 @@
     <ROW File="qtiff4.dll_1" Component_="qtiff4.dll_1" FileName="qtiff4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\plugins\imageformats\qtiff4.dll" SelfReg="false" NextFile="qt.conf"/>
     <ROW File="query.wav" Component_="privmsg.wav" FileName="query.wav" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\sfx\query.wav" SelfReg="false" NextFile="host.png"/>
     <ROW File="raw.qthtml" Component_="action.qthtml" FileName="raw~1.qth|raw.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\formatters\raw.qthtml" SelfReg="false" NextFile="readme.txt"/>
+    <ROW File="re.png" Component_="ad.png" FileName="re.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\re.png" SelfReg="false" NextFile="ro.png"/>
     <ROW File="readme.txt" Component_="action.qthtml" FileName="readme.txt" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\formatters\readme.txt" SelfReg="false" NextFile="special_colors.json"/>
     <ROW File="readme.txt_1" Component_="CourierBold.afm" FileName="readme.txt" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\pdfcorefonts\readme.txt" SelfReg="false" NextFile="Symbol.afm"/>
     <ROW File="replay.ico" Component_="FAForever.lib" FileName="replay.ico" Attributes="0" SourcePath="F:\DIST_FAFOREVER\replay.ico" SelfReg="false" NextFile="qgif4.dll"/>
@@ -394,11 +622,32 @@
     <ROW File="replays.png" Component_="about.ui" FileName="replays.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\replays.png" SelfReg="false" NextFile="settings_watermark.png"/>
     <ROW File="replays.ui" Component_="broken.png" FileName="replays.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\replays\replays.ui" SelfReg="false" NextFile="army.png"/>
     <ROW File="replaysvault.png" Component_="about.ui" FileName="replay~1.png|replaysvault.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\replaysvault.png" SelfReg="false" NextFile="mfc100u.dll"/>
+    <ROW File="ro.png" Component_="ad.png" FileName="ro.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ro.png" SelfReg="false" NextFile="rs.png"/>
+    <ROW File="rs.png" Component_="ad.png" FileName="rs.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\rs.png" SelfReg="false" NextFile="ru.png"/>
+    <ROW File="ru.png" Component_="ad.png" FileName="ru.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ru.png" SelfReg="false" NextFile="rw.png"/>
+    <ROW File="rw.png" Component_="ad.png" FileName="rw.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\rw.png" SelfReg="false" NextFile="sa.png"/>
+    <ROW File="sa.png" Component_="ad.png" FileName="sa.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\sa.png" SelfReg="false" NextFile="sb.png"/>
+    <ROW File="sb.png" Component_="ad.png" FileName="sb.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\sb.png" SelfReg="false" NextFile="sc.png"/>
+    <ROW File="sc.png" Component_="ad.png" FileName="sc.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\sc.png" SelfReg="false" NextFile="sd.png"/>
+    <ROW File="sd.png" Component_="ad.png" FileName="sd.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\sd.png" SelfReg="false" NextFile="se.png"/>
+    <ROW File="se.png" Component_="ad.png" FileName="se.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\se.png" SelfReg="false" NextFile="sg.png"/>
     <ROW File="select.pyd" Component_="FAForever.lib" FileName="select.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\select.pyd" SelfReg="false" NextFile="unicodedata.pyd"/>
     <ROW File="seraphim.png" Component_="aeon.png" FileName="seraphim.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\automatch\seraphim.png" SelfReg="false" NextFile="uef.png"/>
     <ROW File="settings_watermark.png" Component_="about.ui" FileName="settin~1.png|settings_watermark.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\settings_watermark.png" SelfReg="false" NextFile="star.png"/>
+    <ROW File="sg.png" Component_="ad.png" FileName="sg.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\sg.png" SelfReg="false" NextFile="sh.png"/>
+    <ROW File="sh.png" Component_="ad.png" FileName="sh.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\sh.png" SelfReg="false" NextFile="si.png"/>
+    <ROW File="si.png" Component_="ad.png" FileName="si.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\si.png" SelfReg="false" NextFile="sj.png"/>
     <ROW File="sip.pyd" Component_="FAForever.lib" FileName="sip.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\sip.pyd" SelfReg="false" NextFile="QtWebKit4.dll"/>
+    <ROW File="sj.png" Component_="ad.png" FileName="sj.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\sj.png" SelfReg="false" NextFile="sk.png"/>
+    <ROW File="sk.png" Component_="ad.png" FileName="sk.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\sk.png" SelfReg="false" NextFile="sl.png"/>
+    <ROW File="sl.png" Component_="ad.png" FileName="sl.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\sl.png" SelfReg="false" NextFile="sm.png"/>
+    <ROW File="sm.png" Component_="ad.png" FileName="sm.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\sm.png" SelfReg="false" NextFile="sn.png"/>
+    <ROW File="sn.png" Component_="ad.png" FileName="sn.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\sn.png" SelfReg="false" NextFile="so.png"/>
+    <ROW File="so.png" Component_="ad.png" FileName="so.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\so.png" SelfReg="false" NextFile="sr.png"/>
     <ROW File="special_colors.json" Component_="action.qthtml" FileName="specia~1.jso|special_colors.json" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\formatters\special_colors.json" SelfReg="false" NextFile="Aeon_T1.png"/>
+    <ROW File="sr.png" Component_="ad.png" FileName="sr.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\sr.png" SelfReg="false" NextFile="ss.png"/>
+    <ROW File="ss.png" Component_="ad.png" FileName="ss.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ss.png" SelfReg="false" NextFile="st.png"/>
+    <ROW File="st.png" Component_="ad.png" FileName="st.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\st.png" SelfReg="false" NextFile="sv.png"/>
     <ROW File="star.png" Component_="about.ui" FileName="star.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\star.png" SelfReg="false" NextFile="tourney.png"/>
     <ROW File="stock_close.ppm" Component_="back.png" FileName="stock_~1.ppm|stock_close.ppm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\stock_close.ppm" SelfReg="false" NextFile="stock_close.xpm"/>
     <ROW File="stock_close.xpm" Component_="back.png" FileName="stock_~1.xpm|stock_close.xpm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\stock_close.xpm" SelfReg="false" NextFile="stock_down.ppm"/>
@@ -421,30 +670,73 @@
     <ROW File="subplots.png" Component_="back.png" FileName="subplots.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\subplots.png" SelfReg="false" NextFile="subplots.ppm"/>
     <ROW File="subplots.ppm" Component_="back.png" FileName="subplots.ppm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\subplots.ppm" SelfReg="false" NextFile="subplots.xpm"/>
     <ROW File="subplots.xpm" Component_="back.png" FileName="subplots.xpm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\subplots.xpm" SelfReg="false" NextFile="zoom_to_rect.png"/>
+    <ROW File="sv.png" Component_="ad.png" FileName="sv.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\sv.png" SelfReg="false" NextFile="sw.png"/>
+    <ROW File="sw.png" Component_="ad.png" FileName="sw.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\sw.png" SelfReg="false" NextFile="sy.png"/>
+    <ROW File="sy.png" Component_="ad.png" FileName="sy.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\sy.png" SelfReg="false" NextFile="sz.png"/>
+    <ROW File="sz.png" Component_="ad.png" FileName="sz.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\sz.png" SelfReg="false" NextFile="tc.png"/>
+    <ROW File="tc.png" Component_="ad.png" FileName="tc.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\tc.png" SelfReg="false" NextFile="td.png"/>
+    <ROW File="td.png" Component_="ad.png" FileName="td.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\td.png" SelfReg="false" NextFile="tf.png"/>
+    <ROW File="tf.png" Component_="ad.png" FileName="tf.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\tf.png" SelfReg="false" NextFile="tg.png"/>
+    <ROW File="tg.png" Component_="ad.png" FileName="tg.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\tg.png" SelfReg="false" NextFile="th.png"/>
+    <ROW File="th.png" Component_="ad.png" FileName="th.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\th.png" SelfReg="false" NextFile="tj.png"/>
+    <ROW File="tj.png" Component_="ad.png" FileName="tj.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\tj.png" SelfReg="false" NextFile="tk.png"/>
+    <ROW File="tk.png" Component_="ad.png" FileName="tk.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\tk.png" SelfReg="false" NextFile="tl.png"/>
+    <ROW File="tl.png" Component_="ad.png" FileName="tl.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\tl.png" SelfReg="false" NextFile="tm.png"/>
+    <ROW File="tm.png" Component_="ad.png" FileName="tm.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\tm.png" SelfReg="false" NextFile="tn.png"/>
+    <ROW File="tn.png" Component_="ad.png" FileName="tn.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\tn.png" SelfReg="false" NextFile="to.png"/>
+    <ROW File="to.png" Component_="ad.png" FileName="to.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\to.png" SelfReg="false" NextFile="tr.png"/>
     <ROW File="tournaments.ui" Component_="host.ui" FileName="tourna~1.ui|tournaments.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\tournaments\tournaments.ui" SelfReg="false" NextFile="replaysvault.png"/>
     <ROW File="tourney.png" Component_="about.ui" FileName="tourney.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\tourney.png" SelfReg="false" NextFile="tray_icon.png"/>
+    <ROW File="tr.png" Component_="ad.png" FileName="tr.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\tr.png" SelfReg="false" NextFile="tt.png"/>
     <ROW File="tray_icon.png" Component_="about.ui" FileName="tray_i~1.png|tray_icon.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\tray_icon.png" SelfReg="false" NextFile="failure.ui"/>
+    <ROW File="tt.png" Component_="ad.png" FileName="tt.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\tt.png" SelfReg="false" NextFile="tv.png"/>
+    <ROW File="tutorials.png" Component_="about.ui" FileName="tutori~1.png|tutorials.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\tutorials.png" SelfReg="false" NextFile="tutorials.qthtml"/>
+    <ROW File="tutorials.qthtml" Component_="tutorials.qthtml" FileName="tutori~1.qth|tutorials.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\tutorials\formatters\tutorials.qthtml" SelfReg="false" NextFile="tutorials.ui"/>
+    <ROW File="tutorials.ui" Component_="tutorials.ui" FileName="tutori~1.ui|tutorials.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\tutorials\tutorials.ui" SelfReg="false"/>
+    <ROW File="tv.png" Component_="ad.png" FileName="tv.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\tv.png" SelfReg="false" NextFile="tw.png"/>
+    <ROW File="tw.png" Component_="ad.png" FileName="tw.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\tw.png" SelfReg="false" NextFile="tz.png"/>
+    <ROW File="tz.png" Component_="ad.png" FileName="tz.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\tz.png" SelfReg="false" NextFile="ua.png"/>
+    <ROW File="ua.png" Component_="ad.png" FileName="ua.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ua.png" SelfReg="false" NextFile="ug.png"/>
     <ROW File="uef.png" Component_="aeon.png" FileName="uef.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\automatch\uef.png" SelfReg="false" NextFile="faf.qthtml"/>
+    <ROW File="ug.png" Component_="ad.png" FileName="ug.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ug.png" SelfReg="false" NextFile="um.png"/>
     <ROW File="uid.dll" Component_="uid.dll" FileName="uid.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\uid.dll" SelfReg="false" NextFile="Aeon_scout.png"/>
+    <ROW File="um.png" Component_="ad.png" FileName="um.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\um.png" SelfReg="false" NextFile="us.png"/>
     <ROW File="unicodedata.pyd" Component_="FAForever.lib" FileName="unicod~1.pyd|unicodedata.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\unicodedata.pyd" SelfReg="false" NextFile="w9xpopen.exe"/>
     <ROW File="unknown_map.png" Component_="games.ui" FileName="unknow~1.png|unknown_map.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\unknown_map.png" SelfReg="false" NextFile="broken.png"/>
     <ROW File="updater_icon.png" Component_="failure.ui" FileName="update~1.png|updater_icon.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\fa\updater\updater_icon.png" SelfReg="false" NextFile="cmex10.afm"/>
     <ROW File="upgrade_watermark.png" Component_="failure.ui" FileName="upgrad~1.png|upgrade_watermark.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\fa\updater\upgrade_watermark.png" SelfReg="false" NextFile="aeon.png"/>
+    <ROW File="us.png" Component_="ad.png" FileName="us.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\us.png" SelfReg="false" NextFile="uy.png"/>
+    <ROW File="uy.png" Component_="ad.png" FileName="uy.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\uy.png" SelfReg="false" NextFile="uz.png"/>
+    <ROW File="uz.png" Component_="ad.png" FileName="uz.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\uz.png" SelfReg="false" NextFile="va.png"/>
+    <ROW File="va.png" Component_="ad.png" FileName="va.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\va.png" SelfReg="false" NextFile="vc.png"/>
+    <ROW File="vc.png" Component_="ad.png" FileName="vc.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\vc.png" SelfReg="false" NextFile="ve.png"/>
+    <ROW File="ve.png" Component_="ad.png" FileName="ve.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ve.png" SelfReg="false" NextFile="vg.png"/>
     <ROW File="version" Component_="FAForever.lib" FileName="version" Attributes="0" SourcePath="F:\DIST_FAFOREVER\version" SelfReg="false" NextFile="faf.ico"/>
+    <ROW File="vg.png" Component_="ad.png" FileName="vg.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\vg.png" SelfReg="false" NextFile="vi.png"/>
+    <ROW File="vi.png" Component_="ad.png" FileName="vi.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\vi.png" SelfReg="false" NextFile="vn.png"/>
+    <ROW File="vn.png" Component_="ad.png" FileName="vn.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\vn.png" SelfReg="false" NextFile="vu.png"/>
+    <ROW File="vu.png" Component_="ad.png" FileName="vu.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\vu.png" SelfReg="false" NextFile="wf.png"/>
     <ROW File="w9xpopen.exe" Component_="w9xpopen.exe" FileName="w9xpopen.exe" Attributes="0" SourcePath="F:\DIST_FAFOREVER\w9xpopen.exe" SelfReg="false" NextFile="pywintypes27.dll"/>
+    <ROW File="wf.png" Component_="ad.png" FileName="wf.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\wf.png" SelfReg="false" NextFile="ws.png"/>
     <ROW File="win32api.pyd" Component_="FAForever.lib" FileName="win32api.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\win32api.pyd" SelfReg="false" NextFile="_win32sysloader.pyd"/>
     <ROW File="win32ui.pyd" Component_="FAForever.lib" FileName="win32ui.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\win32ui.pyd" SelfReg="false" NextFile="pythoncom27.dll"/>
     <ROW File="win32wnet.pyd" Component_="FAForever.lib" FileName="win32w~1.pyd|win32wnet.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\win32wnet.pyd" SelfReg="false" NextFile="qgif4.dll_1"/>
     <ROW File="window_icon.png" Component_="window_icon.png" FileName="window~1.png|window_icon.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\window_icon.png" SelfReg="false" NextFile="replay.ico"/>
     <ROW File="window_icon.png_1" Component_="about.ui" FileName="window~1.png|window_icon.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\window_icon.png" SelfReg="false" NextFile="updater_icon.png"/>
+    <ROW File="ws.png" Component_="ad.png" FileName="ws.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ws.png" SelfReg="false" NextFile="ye.png"/>
     <ROW File="wyvern.html" Component_="blackops.html" FileName="wyvern~1.htm|wyvern.html" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\wyvern.html" SelfReg="false" NextFile="wyvern.png"/>
     <ROW File="wyvern.png" Component_="blackops.html" FileName="wyvern.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\wyvern.png" SelfReg="false" NextFile="xtremewars.html"/>
     <ROW File="xtremewars.html" Component_="blackops.html" FileName="xtreme~1.htm|xtremewars.html" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\xtremewars.html" SelfReg="false" NextFile="xtremewars.png"/>
     <ROW File="xtremewars.png" Component_="blackops.html" FileName="xtreme~1.png|xtremewars.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\xtremewars.png" SelfReg="false" NextFile="private_game.png"/>
+    <ROW File="ye.png" Component_="ad.png" FileName="ye.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ye.png" SelfReg="false" NextFile="yt.png"/>
+    <ROW File="yt.png" Component_="ad.png" FileName="yt.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\yt.png" SelfReg="false" NextFile="za.png"/>
+    <ROW File="za.png" Component_="ad.png" FileName="za.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\za.png" SelfReg="false" NextFile="zm.png"/>
+    <ROW File="zm.png" Component_="ad.png" FileName="zm.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\zm.png" SelfReg="false" NextFile="zw.png"/>
     <ROW File="zoom_to_rect.png" Component_="back.png" FileName="zoom_t~1.png|zoom_to_rect.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\zoom_to_rect.png" SelfReg="false" NextFile="zoom_to_rect.ppm"/>
     <ROW File="zoom_to_rect.ppm" Component_="back.png" FileName="zoom_t~1.ppm|zoom_to_rect.ppm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\zoom_to_rect.ppm" SelfReg="false" NextFile="zoom_to_rect.svg"/>
     <ROW File="zoom_to_rect.svg" Component_="back.png" FileName="zoom_t~1.svg|zoom_to_rect.svg" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\zoom_to_rect.svg" SelfReg="false" NextFile="zoom_to_rect.xpm"/>
     <ROW File="zoom_to_rect.xpm" Component_="back.png" FileName="zoom_t~1.xpm|zoom_to_rect.xpm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\zoom_to_rect.xpm" SelfReg="false" NextFile="lineprops.glade"/>
+    <ROW File="zw.png" Component_="ad.png" FileName="zw.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\zw.png" SelfReg="false" NextFile="_AfricanUnion.png"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
     <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="0" PackageFolder="Setup Files" PackageFileName="FAForeverLobby" Languages="en" InstallationType="4"/>

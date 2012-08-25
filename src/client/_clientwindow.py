@@ -1236,8 +1236,7 @@ class ClientWindow(FormClass, BaseClass):
         
     def handle_player_info(self, message):
         name = message["login"]        
-        self.players[name] = message      
-        print message      
+        self.players[name] = message  
         self.usersUpdated.emit([name])
      
      
