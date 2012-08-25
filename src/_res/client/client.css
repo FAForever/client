@@ -71,9 +71,9 @@ QTabWidget#mainTabs > QTabBar::tab:!selected
 
 
 
-/* Chat area */
+/* Typical widget controls (top tabs, etc) */
 
-QTabWidget#chatTabs::pane
+QTabWidget#topTabs::pane
 {
 	 /* The tab widget frame */
      border: none;
@@ -81,7 +81,7 @@ QTabWidget#chatTabs::pane
  }
 
 
- QTabWidget#chatTabs::tab-bar
+ QTabWidget#topTabs::tab-bar
 {
 	top: 0px;
     left: 25px; /* move to the right by 25px */
@@ -89,7 +89,7 @@ QTabWidget#chatTabs::pane
 
 							
 /* Style the tab using the tab sub-control. Note that it reads QTabBar _not_ QTabWidget */	
-QTabWidget#chatTabs > QTabBar::tab 
+QTabWidget#topTabs > QTabBar::tab 
 {
 	background-color:#383838;
 	color: silver;
@@ -98,21 +98,21 @@ QTabWidget#chatTabs > QTabBar::tab
 }
 
 
-QTabWidget#chatTabs > QTabBar::tab:!selected 
+QTabWidget#topTabs > QTabBar::tab:!selected 
 {
 	margin-top:5px;
 	background-color: #203040;
 }
 
 								
-QTabWidget#chatTabs > QTabBar::tab:hover 
+QTabWidget#topTabs > QTabBar::tab:hover 
 {
 	color:white;
 	background-color: #606060;
 }
 
 
-QTabWidget#chatTabs > QTabBar::tab:selected 
+QTabWidget#topTabs > QTabBar::tab:selected 
 {
 	color:white;
 	background-color: #303030;

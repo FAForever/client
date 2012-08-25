@@ -41,10 +41,27 @@ class ReplaysWidget(BaseClass, FormClass):
         self.games = {}
         
         logger.info("Replays Widget instantiated.")
-        
-        
-        
 
+        # Old replay vault code adapted to this.                
+        self.loaded = False
+        self.client.showReplays.connect(self.reloadView)
+        self.webView.loadFinished.connect(self.webView.show)
+
+        
+    @QtCore.pyqtSlot()
+    def reloadView(self):
+        if (self.loaded):
+            return
+        self.loaded = True
+        
+        #self.webView.setVisible(False)
+
+        #If a local theme CSS exists, skin the WebView with it
+        if util.themeurl("vault/style.css"):
+            self.webView.settings().setUserStyleSheetUrl(util.themeurl("vault/style.css"))
+        self.webView.setUrl(QtCore.QUrl("http://www.faforever.com/webcontent/replayvault?username={user}&pwdhash={pwdhash}".format(user=self.client.login, pwdhash=self.client.password)))
+        
+        
     def focusEvent(self, event):
         self.updatemyTree()
         return BaseClass.focusEvent(self, event)

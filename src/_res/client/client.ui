@@ -149,12 +149,6 @@
         </property>
        </layout>
       </widget>
-      <widget class="QWidget" name="replaysVaultTab">
-       <attribute name="title">
-        <string>Replays Vault</string>
-       </attribute>
-       <layout class="QGridLayout" name="gridLayout_12"/>
-      </widget>
      </widget>
     </item>
    </layout>

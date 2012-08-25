@@ -64,7 +64,7 @@ class ClientWindow(FormClass, BaseClass):
 
 
     #These signals are emitted whenever a certain tab is activated
-    showReplayVault = QtCore.pyqtSignal()
+    showReplays = QtCore.pyqtSignal()
     showMaps = QtCore.pyqtSignal()
     showGames = QtCore.pyqtSignal()
     showTourneys = QtCore.pyqtSignal()
@@ -152,7 +152,6 @@ class ClientWindow(FormClass, BaseClass):
         
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.ladderTab), util.icon("client/ladder.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.tourneyTab), util.icon("client/tourney.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.replaysVaultTab), util.icon("client/replaysvault.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.replaysTab), util.icon("client/replays.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.tutorialsTab), util.icon("client/tutorials.png"))
         
@@ -163,7 +162,6 @@ class ClientWindow(FormClass, BaseClass):
         import tourneys
         import ladder
         import vault
-        import replaysVault
         import games
         import tutorials
         
@@ -176,7 +174,6 @@ class ClientWindow(FormClass, BaseClass):
         self.games = games.Games(self)
         self.tourneys = tourneys.Tourneys(self)
         self.vault = vault.MapVault(self)
-        self.replaysvault = replaysVault.ReplaysVault(self)
         self.replays = replays.Replays(self)
         self.tutorials = tutorials.Tutorials(self)
 
@@ -819,9 +816,8 @@ class ClientWindow(FormClass, BaseClass):
         if new_tab is self.chatTab:
             self.showChat.emit()
 
-        if new_tab is self.replaysVaultTab:
-            self.showReplayVault.emit()
-
+        if new_tab is self.replaysTab:
+            self.showReplays.emit()
 
         if new_tab is self.ladderTab:
             self.showLadder.emit()
