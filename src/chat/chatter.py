@@ -38,6 +38,7 @@ class Chatter(QtGui.QTableWidgetItem):
         self.avatar = None
         self.status = None
         self.rating = None
+        self.country = None
         
         self.setText(self.name)
         self.setFlags(QtCore.Qt.ItemIsEnabled)        
@@ -127,6 +128,12 @@ class Chatter(QtGui.QTableWidgetItem):
         updates the appearance of this chatter in the nicklist according to its lobby and irc states 
         '''        
 
+        country = self.lobby.client.getUserCountry(self.name)
+
+        if  country != None :
+            self.setIcon(util.icon("chat/countries/%s.png" % country))
+            self.setToolTip(country)
+            
         
         if self.lobby.client.getUserAvatar(self.name) != self.avatar :
             

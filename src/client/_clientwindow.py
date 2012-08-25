@@ -51,6 +51,7 @@ class ClientWindow(FormClass, BaseClass):
     #These signals propagate important client state changes to other modules
     statsInfo = QtCore.pyqtSignal(dict)
     tourneyTypesInfo = QtCore.pyqtSignal(dict)
+    tutorialsInfo = QtCore.pyqtSignal(dict)
     tourneyInfo = QtCore.pyqtSignal(dict)
     modInfo = QtCore.pyqtSignal(dict)
     gameInfo = QtCore.pyqtSignal(dict)   
@@ -148,10 +149,12 @@ class ClientWindow(FormClass, BaseClass):
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.chatTab), util.icon("client/chat.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.gamesTab), util.icon("client/games.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.mapsTab), util.icon("client/maps.png"))
+        
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.ladderTab), util.icon("client/ladder.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.tourneyTab), util.icon("client/tourney.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.replaysVaultTab), util.icon("client/replaysvault.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.replaysTab), util.icon("client/replays.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.tutorialsTab), util.icon("client/tutorials.png"))
         
         self.mainTabs.setTabEnabled(self.mainTabs.indexOf(self.tourneyTab), False)
                 
@@ -162,6 +165,7 @@ class ClientWindow(FormClass, BaseClass):
         import vault
         import replaysVault
         import games
+        import tutorials
         
         
         # Initialize chat
@@ -174,6 +178,7 @@ class ClientWindow(FormClass, BaseClass):
         self.vault = vault.MapVault(self)
         self.replaysvault = replaysVault.ReplaysVault(self)
         self.replays = replays.Replays(self)
+        self.tutorials = tutorials.Tutorials(self)
 
 
     @QtCore.pyqtSlot()
@@ -716,6 +721,17 @@ class ClientWindow(FormClass, BaseClass):
 
         return None
     
+    def getUserCountry(self, name):
+        '''
+        Returns a user's country if any
+        '''        
+        if name in self.players:
+            if "country" in self.players[name] : 
+                return self.players[name]["country"]
+            
+
+        return None
+    
     def getUserAvatar(self, name):
         '''
         Returns a user's avatar if any
@@ -1190,6 +1206,9 @@ class ClientWindow(FormClass, BaseClass):
     def handle_tournament_info(self, message):
         self.tourneyInfo.emit(message)
 
+    def handle_tutorials_info(self, message):
+        self.tutorialsInfo.emit(message)
+
     def handle_mod_info(self, message):
         self.modInfo.emit(message)    
 
@@ -1217,7 +1236,8 @@ class ClientWindow(FormClass, BaseClass):
         
     def handle_player_info(self, message):
         name = message["login"]        
-        self.players[name] = message            
+        self.players[name] = message      
+        print message      
         self.usersUpdated.emit([name])
      
      

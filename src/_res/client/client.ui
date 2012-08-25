@@ -103,6 +103,12 @@
         </property>
        </layout>
       </widget>
+      <widget class="QWidget" name="tutorialsTab">
+       <attribute name="title">
+        <string>Tutorials</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_5"/>
+      </widget>
       <widget class="QWidget" name="ladderTab">
        <attribute name="title">
         <string>Leaderboards</string>
