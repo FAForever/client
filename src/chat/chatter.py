@@ -8,7 +8,6 @@ import util
 
 import fa
 import client
-from profile import playerstats
 
 
 class Chatter(QtGui.QTableWidgetItem):
