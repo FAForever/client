@@ -377,8 +377,8 @@ class ClientWindow(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def linkReportBug(self):
-        from util.report import ReportDialog
         QtGui.QDesktopServices.openUrl(QtCore.QUrl(TICKET_URL))
+        #from util.report import ReportDialog
         #ReportDialog(self).show()
 
     @QtCore.pyqtSlot()

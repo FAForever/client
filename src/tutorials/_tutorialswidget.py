@@ -1,4 +1,4 @@
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtCore
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
 import util
 import os
@@ -24,6 +24,8 @@ class tutorialsWidget(FormClass, BaseClass):
 
         self.client.tutorialsInfo.connect(self.processTutorialInfo)
         
+        logger.info("Tutorials instantiated.")
+        
         
     def finishReplay(self, reply):
         filename = os.path.join(util.CACHE_DIR, str("tutorial.fafreplay"))
@@ -47,40 +49,21 @@ class tutorialsWidget(FormClass, BaseClass):
         Sections are defining the differents type of tutorials
         '''
         
+        logger.debug("Processing TutorialInfo")
+        
         if "section" in message :
             section = message["section"]
             desc = message["description"]
-            
-            group = QtGui.QGroupBox(self)
 
+            area = util.loadUi("tutorials/tutorialarea.ui")
+            tabIndex = self.topTabs.addTab(area, section)      
+            self.topTabs.setTabToolTip(tabIndex, desc)
 
-            group.setFont(QtGui.QFont("Segoe UI", 12, QtGui.QFont.Bold))
+            # Set up the List that contains the tutorial items
+            area.listWidget.setItemDelegate(TutorialItemDelegate(self))
+            area.listWidget.itemDoubleClicked.connect(self.tutorialClicked)
             
-            sizePolicy = QtGui.QSizePolicy()
-            sizePolicy.setVerticalPolicy(QtGui.QSizePolicy.MinimumExpanding)
-            sizePolicy.setHorizontalPolicy(QtGui.QSizePolicy.Preferred)
-            group.setSizePolicy(sizePolicy)
-            group.setTitle(section)
-            
-            
-            vbox = QtGui.QVBoxLayout()
-            group.setLayout(vbox)
-            
-            list = QtGui.QListWidget(group)
-            
-            
-            
-            list.setItemDelegate(TutorialItemDelegate(self))
-            list.itemDoubleClicked.connect(self.tutorialClicked)
-            list.setViewMode(0)
-            text = QtGui.QLabel()
-            text.setAlignment(QtCore.Qt.AlignTop)
-            text.setText(desc)
-            vbox.addWidget(text)
-            vbox.addWidget(list)
-            self.verticalLayoutScroll.addWidget(group)
-            
-            self.sections[section] = list
+            self.sections[section] = area.listWidget
             
         elif "tutorial" in message :
             tutorial = message["tutorial"]
@@ -91,5 +74,4 @@ class tutorialsWidget(FormClass, BaseClass):
                 self.tutorials[tutorial].update(message)
                 
                 self.sections[section].addItem(self.tutorials[tutorial]) 
-                self.sections[section].setMinimumHeight(self.sections[section].minimumHeight() + 115)
         
