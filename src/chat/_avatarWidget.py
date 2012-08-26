@@ -42,7 +42,7 @@ class avatarWidget(QtGui.QDialog):
         self.parent.addAvatar(self.user, val)
         self.close()
     
-    def avatarList(self, list):
+    def avatarList(self, avatar_list):
         
         button = QtGui.QPushButton()
         self.group_layout.addWidget(button)
@@ -50,7 +50,7 @@ class avatarWidget(QtGui.QDialog):
         
         button.clicked.connect(self.clicked)
         
-        for avatar in list :
+        for avatar in avatar_list :
             
             avatarPix = util.respix(avatar["url"])
             button = QtGui.QPushButton()
@@ -64,11 +64,9 @@ class avatarWidget(QtGui.QDialog):
                 self.nams[url] = QNetworkAccessManager(button)
                 self.nams[url].finished.connect(self.finishRequest)
                 self.nams[url].get(QNetworkRequest(url))
-            
             else :
-              
-              self.avatars[avatar["url"]].setIcon(QtGui.QIcon(avatarPix))   
-              self.avatars[avatar["url"]].setIconSize(avatarPix.rect().size())           
+                self.avatars[avatar["url"]].setIcon(QtGui.QIcon(avatarPix))   
+                self.avatars[avatar["url"]].setIconSize(avatarPix.rect().size())           
 
         
         
