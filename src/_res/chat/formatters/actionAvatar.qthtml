@@ -1,0 +1,20 @@
+<tr>
+<td width="32">
+<font color="grey">{time}&nbsp;</font>
+</td>
+<td align=right vertical-align:middle;" width="{width}">
+		<table width="{width}">
+		<tr>
+		<td width="26" style=" vertical-align:middle;">
+			<img src="{avatar}" width="26" height="16">
+		</td>
+		<td align="right" style=" vertical-align:middle;">
+			<i><font color="{color}">{name}&nbsp;</i></font>
+		</td>
+		</tr>
+		</table>
+		</td>
+</td>
+<td style=" vertical-align:middle;">
+<i><font color="{color}">{text}</font></i>
+</td></tr>
