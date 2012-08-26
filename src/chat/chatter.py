@@ -106,20 +106,26 @@ class Chatter(QtGui.QTableWidgetItem):
  
     
     def updateAvatar(self):
-        self.avatarTip = self.avatar["tooltip"] 
-        url = self.avatar["url"]
-        avatarPix = util.respix(url) 
-        if avatarPix :
-            self.avatarItem.setIcon(QtGui.QIcon(avatarPix))            
-            self.avatarItem.setToolTip(self.avatarTip)
-        else :
+        #TODO: This has a few rough edges and needs to work with a global QNetworkAccessManager. 
+        if self.avatar:        
             
-            if util.addcurDownloadAvatar(url, self.name) :
-                
-                self.nam = QNetworkAccessManager()
-                self.nam.finished.connect(self.lobby.finishDownloadAvatar)
-                self.nam.get(QNetworkRequest(QtCore.QUrl(url)))            
+            self.avatarTip = self.avatar["tooltip"]
+            
+            url = self.avatar["url"]
+            avatarPix = util.respix(url) 
+                    
+            if avatarPix :
+                self.avatarItem.setIcon(QtGui.QIcon(avatarPix))            
                 self.avatarItem.setToolTip(self.avatarTip)
+            else:                           
+                if util.addcurDownloadAvatar(url, self.name) :                
+                    self.nam = QNetworkAccessManager()
+                    self.nam.finished.connect(self.lobby.finishDownloadAvatar)
+                    self.nam.get(QNetworkRequest(QtCore.QUrl(url)))            
+        else:
+            # No avatar set.
+            self.avatarItem.setIcon(None)            
+            self.avatarItem.setToolTip(None)
             
                         
                             

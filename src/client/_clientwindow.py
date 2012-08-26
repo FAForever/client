@@ -735,7 +735,7 @@ class ClientWindow(FormClass, BaseClass):
         '''        
         if name in self.players:
             return self.players[name]["avatar"]
-        else :
+        else:
             return None
     
     
