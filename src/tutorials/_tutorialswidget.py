@@ -56,8 +56,8 @@ class tutorialsWidget(FormClass, BaseClass):
             desc = message["description"]
 
             area = util.loadUi("tutorials/tutorialarea.ui")
-            tabIndex = self.topTabs.addTab(area, section)      
-            self.topTabs.setTabToolTip(tabIndex, desc)
+            tabIndex = self.addTab(area, section)      
+            self.setTabToolTip(tabIndex, desc)
 
             # Set up the List that contains the tutorial items
             area.listWidget.setItemDelegate(TutorialItemDelegate(self))

@@ -107,7 +107,11 @@
        <attribute name="title">
         <string>Tutorials</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout_5"/>
+       <layout class="QGridLayout" name="gridLayout_5">
+        <property name="margin">
+         <number>6</number>
+        </property>
+       </layout>
       </widget>
       <widget class="QWidget" name="ladderTab">
        <attribute name="title">
