@@ -502,9 +502,8 @@ def md5(fileName):
     return m.hexdigest()
 
 
-
-# LATER: This needs to go into a secure module, ZeP's on it
 def uniqueID(user, session ):
+    ''' This is used to uniquely identify a user's machine to prevent smurfing. '''
     try:
         mydll = cdll.LoadLibrary("uid.dll")
         mydll.uid.restype = c_char_p
