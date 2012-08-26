@@ -39,6 +39,7 @@ class Chatter(QtGui.QTableWidgetItem):
         self.status = None
         self.rating = None
         self.country = None
+        self.league = None
         
         self.setText(self.name)
         self.setFlags(QtCore.Qt.ItemIsEnabled)        
@@ -174,16 +175,22 @@ class Chatter(QtGui.QTableWidgetItem):
                 if league != None :        
                     self.rankItem.setToolTip("Division : " + league["division"]+ "\nGlobal Rating: " + str(int(rating)))
                     if league["league"] == 1 :
+                        self.league = "chat/rank/Aeon_Scout.png"
                         self.rankItem.setIcon(util.icon("chat/rank/Aeon_Scout.png"))
                     elif league["league"] == 2 :
+                        self.league = "chat/rank/Aeon_T1.png"
                         self.rankItem.setIcon(util.icon("chat/rank/Aeon_T1.png"))
                     elif league["league"] == 3 :
+                        self.league = "chat/rank/Aeon_T2.png"
                         self.rankItem.setIcon(util.icon("chat/rank/Aeon_T2.png"))
                     elif league["league"] == 4 :
+                        self.league = "chat/rank/Aeon_T3.png"
                         self.rankItem.setIcon(util.icon("chat/rank/Aeon_T3.png"))
-                    elif league["league"] == 5 :                        
+                    elif league["league"] == 5 :                
+                        self.league = "chat/rank/Aeon_XP.png"        
                         self.rankItem.setIcon(util.icon("chat/rank/Aeon_XP.png"))
                 else :
+                    self.league = "chat/rank/newplayer.png"
                     self.rankItem.setIcon(util.icon("chat/rank/newplayer.png"))
                     
         else:
