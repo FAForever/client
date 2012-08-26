@@ -232,7 +232,7 @@ def curDownloadAvatar(url):
 
 def removeCurrentDownloadAvatar(url, player, item):
     if url in DOWNLOADING_RES_PIX :
-         DOWNLOADING_RES_PIX[url].remove(player)
+        DOWNLOADING_RES_PIX[url].remove(player)
 
 def addcurDownloadAvatar(url, player):
     if url in DOWNLOADING_RES_PIX :
@@ -506,13 +506,13 @@ def md5(fileName):
 # LATER: This needs to go into a secure module, ZeP's on it
 def uniqueID(user, session ):
     try:
-         mydll = cdll.LoadLibrary("uid.dll")
-         mydll.uid.restype = c_char_p
+        mydll = cdll.LoadLibrary("uid.dll")
+        mydll.uid.restype = c_char_p
      
-         baseString = (mydll.uid(session, str(user)) )
-         DllCanUnloadNow()
-         
-         return baseString
+        baseString = (mydll.uid(session, str(user)) )
+        DllCanUnloadNow()
+
+        return baseString
 
     except:
         logger.error("UniqueID Failure", exc_info = sys.exc_info())
