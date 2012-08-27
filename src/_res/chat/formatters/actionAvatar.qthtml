@@ -1,12 +1,15 @@
-<tr padding="0">
-	<td>
+<tr style="width:100%;">
+	<td width="36">
 		<img src="{avatar}" />
 	</td>
 	<td align="right" width="{width}" style="padding-top:3;">
 			<i><font color="{color}">{name}</i></font>
 	</td>
-	<td style="padding-top:3;">
+	<td style="padding-top:3;" width="100%">
 		<i><font color="{color}">{text}</font></i>
+	</td>
+	<td style="padding-top:3;" align="right">
+		<font color="grey">{time}</font>
 	</td>
 </tr>
 

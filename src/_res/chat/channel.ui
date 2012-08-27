@@ -63,10 +63,7 @@
           <set>QTextEdit::AutoNone</set>
          </property>
          <property name="lineWrapMode">
-          <enum>QTextEdit::FixedPixelWidth</enum>
-         </property>
-         <property name="lineWrapColumnOrWidth">
-          <number>200</number>
+          <enum>QTextEdit::WidgetWidth</enum>
          </property>
          <property name="readOnly">
           <bool>true</bool>
@@ -190,7 +187,7 @@ p, li { white-space: pre-wrap; }
          </property>
          <property name="iconSize">
           <size>
-           <width>32</width>
+           <width>40</width>
            <height>20</height>
           </size>
          </property>
@@ -228,7 +225,7 @@ p, li { white-space: pre-wrap; }
           <bool>true</bool>
          </attribute>
          <attribute name="horizontalHeaderDefaultSectionSize">
-          <number>16</number>
+          <number>40</number>
          </attribute>
          <attribute name="horizontalHeaderHighlightSections">
           <bool>false</bool>

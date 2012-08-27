@@ -1,10 +1,13 @@
-<tr padding="0">
-	<td width="42">
+<tr style="width:100%;">
+	<td width="36">
 	</td>
 	<td align=right width="{width}">
 		<font color="{color}">{name}:&nbsp;</font>
 	</td>
-	<td>
+	<td width="100%">
 		<font color="{color}">{text}</font>
+	</td>
+	<td align="right">
+		<font color="grey" >{time}</font>
 	</td>
 </tr>

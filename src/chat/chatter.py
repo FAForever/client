@@ -48,12 +48,10 @@ class Chatter(QtGui.QTableWidgetItem):
         self.parent.insertRow(row)
         
         self.parent.setItem(row, Chatter.SORT_COLUMN, self)
-
         
         self.avatarItem = QtGui.QTableWidgetItem()
         self.avatarItem.setFlags(QtCore.Qt.ItemIsEnabled)
         self.avatarItem.setTextAlignment(QtCore.Qt.AlignHCenter)
-            
         
         self.rankItem = QtGui.QTableWidgetItem()
         self.rankItem.setFlags(QtCore.Qt.ItemIsEnabled)
@@ -111,7 +109,12 @@ class Chatter(QtGui.QTableWidgetItem):
             
             self.avatarTip = self.avatar["tooltip"]
             
+            #if self.name == "thygrrr":
+            #    self.avatar["url"] = "http://thygrrr.de/faf/thygrrr.png"
+
             url = self.avatar["url"]
+            
+            
             avatarPix = util.respix(url) 
                     
             if avatarPix :
@@ -141,8 +144,7 @@ class Chatter(QtGui.QTableWidgetItem):
             self.setToolTip(country)
             
         
-        if self.lobby.client.getUserAvatar(self.name) != self.avatar :
-            
+        if self.lobby.client.getUserAvatar(self.name) != self.avatar:            
             self.avatar = self.lobby.client.getUserAvatar(self.name)
             self.updateAvatar()
 
