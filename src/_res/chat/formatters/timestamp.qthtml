@@ -1,5 +1,5 @@
 <tr padding="0">
-	<td width="32">
-		<font color="grey">{time}&nbsp;</font>
+	<td width="42" align="center">
+		<font color="grey" >{time}&nbsp;</font>
 	</td>
 </tr>
