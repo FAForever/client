@@ -415,8 +415,11 @@ class Updater(QtCore.QObject):
             else :
 
                 #TODO : only FAF supported now
-                if self.version and self.mod == "faf" :
-                    self.writeToServer("PATCH_TO", destination, fileToUpdate, md5File, str(self.version))
+                if self.version :
+                    if  self.mod == "faf" or self.mod == "ladder1v1" :
+                        self.writeToServer("PATCH_TO", destination, fileToUpdate, md5File, str(self.version))
+                    else :
+                        self.writeToServer("UPDATE", destination, fileToUpdate, md5File)
                 else :
                     self.writeToServer("UPDATE", destination, fileToUpdate, md5File)  
           

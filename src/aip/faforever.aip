@@ -12,10 +12,10 @@
     <ROW Property="ARPURLUPDATEINFO" Value="http://www.faforever.com/page=2"/>
     <ROW Property="CTRLS" Value="2"/>
     <ROW Property="Manufacturer" Value="FAF Community" ValueLocId="*"/>
-    <ROW Property="ProductCode" Value="1033:{AC9247C6-7E8F-49F9-9F9D-D38E29ABF959} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{694E2571-BA45-40D5-824B-5E91D94024D7} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Forged Alliance Forever" ValueLocId="*"/>
-    <ROW Property="ProductVersion" Value="240.7.577"/>
+    <ROW Property="ProductVersion" Value="240.7.579"/>
     <ROW Property="REBOOT" MultiBuildValue="DefaultBuild:Suppress"/>
     <ROW Property="RUNAPPLICATION" Value="1" Type="4"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
@@ -33,6 +33,7 @@
     <ROW Directory="_res_Dir" Directory_Parent="APPDIR" DefaultDir="_res"/>
     <ROW Directory="afm_Dir" Directory_Parent="fonts_Dir" DefaultDir="afm"/>
     <ROW Directory="automatch_Dir" Directory_Parent="games_Dir" DefaultDir="automa~1|automatch"/>
+    <ROW Directory="avatar_Dir" Directory_Parent="chat_Dir" DefaultDir="avatar"/>
     <ROW Directory="chat_Dir" Directory_Parent="_res_Dir" DefaultDir="chat"/>
     <ROW Directory="client_Dir" Directory_Parent="_res_Dir" DefaultDir="client"/>
     <ROW Directory="countries_Dir" Directory_Parent="chat_Dir" DefaultDir="countr~1|countries"/>
@@ -82,6 +83,7 @@
     <ROW Component="ad.png" ComponentId="{7D35C4D6-A81E-40C0-B208-8F9FF2A94715}" Directory_="countries_Dir" Attributes="0" KeyPath="ad.png" Type="0"/>
     <ROW Component="aeon.png" ComponentId="{28E7510E-0AAE-47D9-A2C3-706C84B8FDD2}" Directory_="automatch_Dir" Attributes="0" KeyPath="aeon.png" Type="0"/>
     <ROW Component="army.png" ComponentId="{693183BF-1ADA-4175-B9E6-AFB3C2B47601}" Directory_="map_icons_Dir" Attributes="0" KeyPath="army.png" Type="0"/>
+    <ROW Component="avatar_blank.png" ComponentId="{17220D99-61A7-4252-B530-8F1A920E969F}" Directory_="avatar_Dir" Attributes="0" KeyPath="avatar_blank.png" Type="0"/>
     <ROW Component="back.png" ComponentId="{239D158C-6158-4F59-B9A9-5C3467D3C01A}" Directory_="images_Dir" Attributes="0" KeyPath="back.png" Type="0"/>
     <ROW Component="blackops.html" ComponentId="{26F5056F-2936-48C1-94C4-A69F2FC8E189}" Directory_="mods_Dir" Attributes="0" KeyPath="blackops.html" Type="0"/>
     <ROW Component="broken.png" ComponentId="{D351716F-16AB-412D-8005-9D259BAC84E5}" Directory_="replays_Dir" Attributes="0" KeyPath="broken.png" Type="0"/>
@@ -126,7 +128,7 @@
     <ROW Component="window_icon.png" ComponentId="{B620FB5F-1E8F-4707-8D0A-C58B6FF594BD}" Directory_="_res_Dir" Attributes="0" KeyPath="window_icon.png" Type="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
-    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0" Components="APIMSWinCoreLocalRegistryL110.dll Aeon_T1.png CourierBold.afm FAForever.exe FAForever.lib FreeImage.dll LIBEAY32.dll MPR.dll QtCore4.dll QtGui4.dll QtNetwork4.dll QtWebKit4.dll Replay SHORTCUTDIR SSLEAY32.dll _ __1 about.ui action.qthtml ad.png aeon.png army.png back.png blackops.html broken.png channel.ui cmb10.ttf cmex10.afm command faf.qthtml fafreplay failure.ui games.ui host.png host.ui lineprops.glade mfc100u.dll msvcp100.dll msvcr100.dll msvcr90.dll privmsg.wav python27.dll pythoncom27.dll pywintypes27.dll qgif4.dll qgif4.dll_1 qico4.dll qico4.dll_1 qjpeg4.dll qjpeg4.dll_1 qmng4.dll qmng4.dll_1 qsvg4.dll qsvg4.dll_1 qtga4.dll qtga4.dll_1 qtiff4.dll qtiff4.dll_1 shell tutorials.qthtml tutorials.ui uid.dll w9xpopen.exe window_icon.png"/>
+    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0" Components="APIMSWinCoreLocalRegistryL110.dll Aeon_T1.png CourierBold.afm FAForever.exe FAForever.lib FreeImage.dll LIBEAY32.dll MPR.dll QtCore4.dll QtGui4.dll QtNetwork4.dll QtWebKit4.dll Replay SHORTCUTDIR SSLEAY32.dll _ __1 about.ui action.qthtml ad.png aeon.png army.png avatar_blank.png back.png blackops.html broken.png channel.ui cmb10.ttf cmex10.afm command faf.qthtml fafreplay failure.ui games.ui host.png host.ui lineprops.glade mfc100u.dll msvcp100.dll msvcr100.dll msvcr90.dll privmsg.wav python27.dll pythoncom27.dll pywintypes27.dll qgif4.dll qgif4.dll_1 qico4.dll qico4.dll_1 qjpeg4.dll qjpeg4.dll_1 qmng4.dll qmng4.dll_1 qsvg4.dll qsvg4.dll_1 qtga4.dll qtga4.dll_1 qtiff4.dll qtiff4.dll_1 shell tutorials.qthtml tutorials.ui uid.dll w9xpopen.exe window_icon.png"/>
     <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
@@ -150,7 +152,7 @@
     <ROW File="HelveticaOblique.afm" Component_="CourierBold.afm" FileName="Helvet~3.afm|Helvetica-Oblique.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\pdfcorefonts\Helvetica-Oblique.afm" SelfReg="false" NextFile="Helvetica.afm"/>
     <ROW File="LIBEAY32.dll" Component_="LIBEAY32.dll" FileName="LIBEAY32.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\LIBEAY32.dll" SelfReg="false" NextFile="SSLEAY32.dll"/>
     <ROW File="LICENSE_STIX" Component_="cmb10.ttf" FileName="LICENS~1|LICENSE_STIX" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\ttf\LICENSE_STIX" SelfReg="false" NextFile="README.TXT_2"/>
-    <ROW File="MPR.dll" Component_="MPR.dll" FileName="MPR.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\MPR.dll" SelfReg="false" NextFile="window_icon.png_1"/>
+    <ROW File="MPR.dll" Component_="MPR.dll" FileName="MPR.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\MPR.dll" SelfReg="false" NextFile="cmex10.afm"/>
     <ROW File="PyQt4.QtCore.pyd" Component_="FAForever.lib" FileName="PyQt4Q~5.pyd|PyQt4.QtCore.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\PyQt4.QtCore.pyd" SelfReg="false" NextFile="sip.pyd"/>
     <ROW File="PyQt4.QtGui.pyd" Component_="FAForever.lib" FileName="PyQt4Q~4.pyd|PyQt4.QtGui.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\PyQt4.QtGui.pyd" SelfReg="false" NextFile="PyQt4.QtCore.pyd"/>
     <ROW File="PyQt4.QtNetwork.pyd" Component_="FAForever.lib" FileName="PyQt4Q~3.pyd|PyQt4.QtNetwork.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\PyQt4.QtNetwork.pyd" SelfReg="false" NextFile="PyQt4.QtGui.pyd"/>
@@ -241,6 +243,7 @@
     <ROW File="account_watermark_input.png" Component_="about.ui" FileName="accoun~2.png|account_watermark_input.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\account_watermark_input.png" SelfReg="false" NextFile="account_watermark_intro.png"/>
     <ROW File="account_watermark_intro.png" Component_="about.ui" FileName="accoun~3.png|account_watermark_intro.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\account_watermark_intro.png" SelfReg="false" NextFile="chat.png"/>
     <ROW File="action.qthtml" Component_="action.qthtml" FileName="action~1.qth|action.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\formatters\action.qthtml" SelfReg="false" NextFile="announcement.qthtml"/>
+    <ROW File="actionAvatar.qthtml" Component_="action.qthtml" FileName="action~2.qth|actionAvatar.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\formatters\actionAvatar.qthtml" SelfReg="false" NextFile="messageAvatar.qthtml"/>
     <ROW File="ad.png" Component_="ad.png" FileName="ad.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ad.png" SelfReg="false" NextFile="ae.png"/>
     <ROW File="ae.png" Component_="ad.png" FileName="ae.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ae.png" SelfReg="false" NextFile="af.png"/>
     <ROW File="aeon.png" Component_="aeon.png" FileName="aeon.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\automatch\aeon.png" SelfReg="false" NextFile="cybran.png"/>
@@ -258,6 +261,8 @@
     <ROW File="as.png" Component_="ad.png" FileName="as.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\as.png" SelfReg="false" NextFile="at.png"/>
     <ROW File="at.png" Component_="ad.png" FileName="at.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\at.png" SelfReg="false" NextFile="au.png"/>
     <ROW File="au.png" Component_="ad.png" FileName="au.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\au.png" SelfReg="false" NextFile="aw.png"/>
+    <ROW File="avatar_blank.png" Component_="avatar_blank.png" FileName="avatar~1.png|avatar_blank.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\avatar\avatar_blank.png" SelfReg="false" NextFile="avatar_splitter.png"/>
+    <ROW File="avatar_splitter.png" Component_="avatar_blank.png" FileName="avatar~2.png|avatar_splitter.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\avatar\avatar_splitter.png" SelfReg="false" NextFile="channel.ui.autosave"/>
     <ROW File="aw.png" Component_="ad.png" FileName="aw.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\aw.png" SelfReg="false" NextFile="ax.png"/>
     <ROW File="ax.png" Component_="ad.png" FileName="ax.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ax.png" SelfReg="false" NextFile="az.png"/>
     <ROW File="az.png" Component_="ad.png" FileName="az.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\az.png" SelfReg="false" NextFile="ba.png"/>
@@ -298,6 +303,7 @@
     <ROW File="cg.png" Component_="ad.png" FileName="cg.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\cg.png" SelfReg="false" NextFile="ch.png"/>
     <ROW File="ch.png" Component_="ad.png" FileName="ch.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ch.png" SelfReg="false" NextFile="ci.png"/>
     <ROW File="channel.ui" Component_="channel.ui" FileName="channel.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\channel.ui" SelfReg="false" NextFile="chat.ui"/>
+    <ROW File="channel.ui.autosave" Component_="channel.ui" FileName="channe~1.aut|channel.ui.autosave" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\channel.ui.autosave" SelfReg="false" NextFile="actionAvatar.qthtml"/>
     <ROW File="chat.png" Component_="about.ui" FileName="chat.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\chat.png" SelfReg="false" NextFile="client.css"/>
     <ROW File="chat.ui" Component_="channel.ui" FileName="chat.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\chat.ui" SelfReg="false" NextFile="action.qthtml"/>
     <ROW File="ci.png" Component_="ad.png" FileName="ci.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ci.png" SelfReg="false" NextFile="ck.png"/>
@@ -473,6 +479,7 @@
     <ROW File="md.png" Component_="ad.png" FileName="md.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\md.png" SelfReg="false" NextFile="me.png"/>
     <ROW File="me.png" Component_="ad.png" FileName="me.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\me.png" SelfReg="false" NextFile="mf.png"/>
     <ROW File="message.qthtml" Component_="action.qthtml" FileName="messag~1.qth|message.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\formatters\message.qthtml" SelfReg="false" NextFile="nicklist_columns.json"/>
+    <ROW File="messageAvatar.qthtml" Component_="action.qthtml" FileName="messag~2.qth|messageAvatar.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\formatters\messageAvatar.qthtml" SelfReg="false" NextFile="tutorialarea.ui"/>
     <ROW File="mf.png" Component_="ad.png" FileName="mf.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\mf.png" SelfReg="false" NextFile="mg.png"/>
     <ROW File="mfc100u.dll" Component_="mfc100u.dll" FileName="mfc100u.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mfc100u.dll" SelfReg="false" NextFile="msvcp100.dll"/>
     <ROW File="mg.png" Component_="ad.png" FileName="mg.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\mg.png" SelfReg="false" NextFile="mh.png"/>
@@ -621,7 +628,6 @@
     <ROW File="replay.png" Component_="broken.png" FileName="replay.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\replays\replay.png" SelfReg="false" NextFile="replays.ui"/>
     <ROW File="replays.png" Component_="about.ui" FileName="replays.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\replays.png" SelfReg="false" NextFile="settings_watermark.png"/>
     <ROW File="replays.ui" Component_="broken.png" FileName="replays.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\replays\replays.ui" SelfReg="false" NextFile="army.png"/>
-    <ROW File="replaysvault.png" Component_="about.ui" FileName="replay~1.png|replaysvault.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\replaysvault.png" SelfReg="false" NextFile="mfc100u.dll"/>
     <ROW File="ro.png" Component_="ad.png" FileName="ro.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ro.png" SelfReg="false" NextFile="rs.png"/>
     <ROW File="rs.png" Component_="ad.png" FileName="rs.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\rs.png" SelfReg="false" NextFile="ru.png"/>
     <ROW File="ru.png" Component_="ad.png" FileName="ru.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ru.png" SelfReg="false" NextFile="rw.png"/>
@@ -685,14 +691,15 @@
     <ROW File="tm.png" Component_="ad.png" FileName="tm.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\tm.png" SelfReg="false" NextFile="tn.png"/>
     <ROW File="tn.png" Component_="ad.png" FileName="tn.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\tn.png" SelfReg="false" NextFile="to.png"/>
     <ROW File="to.png" Component_="ad.png" FileName="to.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\to.png" SelfReg="false" NextFile="tr.png"/>
-    <ROW File="tournaments.ui" Component_="host.ui" FileName="tourna~1.ui|tournaments.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\tournaments\tournaments.ui" SelfReg="false" NextFile="replaysvault.png"/>
+    <ROW File="tournaments.ui" Component_="host.ui" FileName="tourna~1.ui|tournaments.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\tournaments\tournaments.ui" SelfReg="false" NextFile="mfc100u.dll"/>
     <ROW File="tourney.png" Component_="about.ui" FileName="tourney.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\tourney.png" SelfReg="false" NextFile="tray_icon.png"/>
     <ROW File="tr.png" Component_="ad.png" FileName="tr.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\tr.png" SelfReg="false" NextFile="tt.png"/>
     <ROW File="tray_icon.png" Component_="about.ui" FileName="tray_i~1.png|tray_icon.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\tray_icon.png" SelfReg="false" NextFile="failure.ui"/>
     <ROW File="tt.png" Component_="ad.png" FileName="tt.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\tt.png" SelfReg="false" NextFile="tv.png"/>
+    <ROW File="tutorialarea.ui" Component_="tutorials.ui" FileName="tutori~2.ui|tutorialarea.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\tutorials\tutorialarea.ui" SelfReg="false"/>
     <ROW File="tutorials.png" Component_="about.ui" FileName="tutori~1.png|tutorials.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\tutorials.png" SelfReg="false" NextFile="tutorials.qthtml"/>
     <ROW File="tutorials.qthtml" Component_="tutorials.qthtml" FileName="tutori~1.qth|tutorials.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\tutorials\formatters\tutorials.qthtml" SelfReg="false" NextFile="tutorials.ui"/>
-    <ROW File="tutorials.ui" Component_="tutorials.ui" FileName="tutori~1.ui|tutorials.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\tutorials\tutorials.ui" SelfReg="false"/>
+    <ROW File="tutorials.ui" Component_="tutorials.ui" FileName="tutori~1.ui|tutorials.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\tutorials\tutorials.ui" SelfReg="false" NextFile="avatar_blank.png"/>
     <ROW File="tv.png" Component_="ad.png" FileName="tv.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\tv.png" SelfReg="false" NextFile="tw.png"/>
     <ROW File="tw.png" Component_="ad.png" FileName="tw.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\tw.png" SelfReg="false" NextFile="tz.png"/>
     <ROW File="tz.png" Component_="ad.png" FileName="tz.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\tz.png" SelfReg="false" NextFile="ua.png"/>
@@ -703,7 +710,6 @@
     <ROW File="um.png" Component_="ad.png" FileName="um.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\um.png" SelfReg="false" NextFile="us.png"/>
     <ROW File="unicodedata.pyd" Component_="FAForever.lib" FileName="unicod~1.pyd|unicodedata.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\unicodedata.pyd" SelfReg="false" NextFile="w9xpopen.exe"/>
     <ROW File="unknown_map.png" Component_="games.ui" FileName="unknow~1.png|unknown_map.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\unknown_map.png" SelfReg="false" NextFile="broken.png"/>
-    <ROW File="updater_icon.png" Component_="failure.ui" FileName="update~1.png|updater_icon.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\fa\updater\updater_icon.png" SelfReg="false" NextFile="cmex10.afm"/>
     <ROW File="upgrade_watermark.png" Component_="failure.ui" FileName="upgrad~1.png|upgrade_watermark.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\fa\updater\upgrade_watermark.png" SelfReg="false" NextFile="aeon.png"/>
     <ROW File="us.png" Component_="ad.png" FileName="us.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\us.png" SelfReg="false" NextFile="uy.png"/>
     <ROW File="uy.png" Component_="ad.png" FileName="uy.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\uy.png" SelfReg="false" NextFile="uz.png"/>
@@ -722,7 +728,6 @@
     <ROW File="win32ui.pyd" Component_="FAForever.lib" FileName="win32ui.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\win32ui.pyd" SelfReg="false" NextFile="pythoncom27.dll"/>
     <ROW File="win32wnet.pyd" Component_="FAForever.lib" FileName="win32w~1.pyd|win32wnet.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\win32wnet.pyd" SelfReg="false" NextFile="qgif4.dll_1"/>
     <ROW File="window_icon.png" Component_="window_icon.png" FileName="window~1.png|window_icon.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\window_icon.png" SelfReg="false" NextFile="replay.ico"/>
-    <ROW File="window_icon.png_1" Component_="about.ui" FileName="window~1.png|window_icon.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\window_icon.png" SelfReg="false" NextFile="updater_icon.png"/>
     <ROW File="ws.png" Component_="ad.png" FileName="ws.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ws.png" SelfReg="false" NextFile="ye.png"/>
     <ROW File="wyvern.html" Component_="blackops.html" FileName="wyvern~1.htm|wyvern.html" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\wyvern.html" SelfReg="false" NextFile="wyvern.png"/>
     <ROW File="wyvern.png" Component_="blackops.html" FileName="wyvern.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\wyvern.png" SelfReg="false" NextFile="xtremewars.html"/>
