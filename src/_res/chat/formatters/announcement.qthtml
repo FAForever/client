@@ -1,1 +1,1 @@
-<tr padding=0><td width="32"><font color="grey">{time}&nbsp;</font></td><td width="80"></td><td><font color="{color}" size="{size}">{text}</font></td></tr>
+<tr padding=0><td width="80"></td><td><font color="{color}" size="{size}">{text}</font></td></tr>

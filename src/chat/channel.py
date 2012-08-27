@@ -23,6 +23,7 @@ class Channel(FormClass, BaseClass):
         
         #Special HTML formatter used to layout the chat lines written by people
         self.FORMATTER_ANNOUNCEMENT        = unicode(util.readfile("chat/formatters/announcement.qthtml"))
+        self.FORMATTER_TIMESTAMP           = unicode(util.readfile("chat/formatters/timestamp.qthtml"))
         self.FORMATTER_MESSAGE             = unicode(util.readfile("chat/formatters/message.qthtml"))
         self.FORMATTER_MESSAGE_AVATAR      = unicode(util.readfile("chat/formatters/messageAvatar.qthtml"))
         self.FORMATTER_ACTION              = unicode(util.readfile("chat/formatters/action.qthtml"))
@@ -183,7 +184,7 @@ class Channel(FormClass, BaseClass):
         self.chatArea.setTextCursor(cursor)
 
         formatter = self.FORMATTER_ANNOUNCEMENT        
-        line = formatter.format(time=self.timestamp(), size=size, color=color, text=util.irc_escape(text, self.lobby.a_style))        
+        line = formatter.format(size=size, color=color, text=util.irc_escape(text, self.lobby.a_style))        
         self.chatArea.insertHtml(line)
         
         if scroll_needed:
@@ -224,16 +225,22 @@ class Channel(FormClass, BaseClass):
         cursor.movePosition(QtGui.QTextCursor.End)
         self.chatArea.setTextCursor(cursor)                
         
+        formatter = self.FORMATTER_TIMESTAMP
+        time = self.timestamp()
+        if time:
+            line = formatter.format(time=time)
+            self.chatArea.insertHtml(line)
+                    
         if avatar :
             if not self.chatArea.document().resource(QtGui.QTextDocument.ImageResource, QtCore.QUrl(avatar)):
                 self.chatArea.document().addResource(QtGui.QTextDocument.ImageResource,  QtCore.QUrl(avatar), util.respix(avatar))                        
             
             formatter = self.FORMATTER_MESSAGE_AVATAR
-            line = formatter.format(time=self.timestamp(), avatar=avatar, name=name, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))        
+            line = formatter.format(avatar=avatar, name=name, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))        
         
         else :
             formatter = self.FORMATTER_MESSAGE
-            line = formatter.format(time=self.timestamp(), name=name, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))        
+            line = formatter.format(name=name, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))        
         
         self.chatArea.insertHtml(line)
         
@@ -273,15 +280,20 @@ class Channel(FormClass, BaseClass):
         cursor.movePosition(QtGui.QTextCursor.End)
         self.chatArea.setTextCursor(cursor)
 
+        formatter = self.FORMATTER_TIMESTAMP
+        time = self.timestamp()
+        if time:
+            line = formatter.format(time=time)
+            self.chatArea.insertHtml(line)
+
         if avatar :
             if not self.chatArea.document().resource(QtGui.QTextDocument.ImageResource, QtCore.QUrl(avatar)) :
                 self.chatArea.document().addResource(QtGui.QTextDocument.ImageResource,  QtCore.QUrl(avatar), util.respix(avatar))
             formatter = self.FORMATTER_ACTION_AVATAR
-            line = formatter.format(time=self.timestamp(), avatar=avatar, name=name, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))
-
-        else :            
+            line = formatter.format(avatar=avatar, name=name, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))
+        else:            
             formatter = self.FORMATTER_ACTION
-            line = formatter.format(time=self.timestamp(), name=name, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))
+            line = formatter.format(name=name, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))
         
         self.chatArea.insertHtml(line)
 
@@ -314,8 +326,14 @@ class Channel(FormClass, BaseClass):
         cursor.movePosition(QtGui.QTextCursor.End)
         self.chatArea.setTextCursor(cursor)
             
+        formatter = self.FORMATTER_TIMESTAMP
+        time = self.timestamp()
+        if time:
+            line = formatter.format(time=time)
+            self.chatArea.insertHtml(line)
+            
         formatter = self.FORMATTER_RAW
-        line = formatter.format(time=self.timestamp(), name=name, color=color, width=self.maxChatterWidth, text=text)
+        line = formatter.format(name=name, color=color, width=self.maxChatterWidth, text=text)
         self.chatArea.insertHtml(line)
         
         if scroll_needed:
