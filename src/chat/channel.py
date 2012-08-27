@@ -8,7 +8,6 @@ import fa
 import json
 
 QUERY_BLINK_SPEED = 250
-CHAT_TEXT_LIMIT = 400
        
 FormClass, BaseClass = util.loadUiType("chat/channel.ui")
 
@@ -43,8 +42,6 @@ class Channel(FormClass, BaseClass):
         # Table width of each chatter's name cell...        
         self.maxChatterWidth = 100 # TODO: This might / should auto-adapt
 
-        #count the number of line currently in the chat
-        self.lines = 0
 
         # Perform special setup for public channels as opposed to private ones
         self.name = name
@@ -194,16 +191,6 @@ class Channel(FormClass, BaseClass):
         '''
         Print an actual message in the chatArea of the channel
         '''               
-        if self.lines > CHAT_TEXT_LIMIT :
-            
-            cursor = self.chatArea.textCursor()
-
-            cursor.movePosition(QtGui.QTextCursor.Start)
-            cursor.movePosition(QtGui.QTextCursor.Down)
-            cursor.select(QtGui.QTextCursor.BlockUnderCursor)
-            cursor.removeSelectedText()
-            self.lines = self.lines - 1
-            
         avatar = None
         
         if name.lower() in self.lobby.specialUserColors:
@@ -243,7 +230,6 @@ class Channel(FormClass, BaseClass):
             line = formatter.format(time=self.timestamp(), name=name, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))        
         
         self.chatArea.insertHtml(line)
-        self.lines = self.lines + 1
         
         if scroll_needed:
             self.chatArea.verticalScrollBar().setValue(self.chatArea.verticalScrollBar().maximum())
@@ -282,7 +268,6 @@ class Channel(FormClass, BaseClass):
         self.chatArea.setTextCursor(cursor)
 
         if avatar :
-
             if not self.chatArea.document().resource(QtGui.QTextDocument.ImageResource, QtCore.QUrl(avatar)) :
                 self.chatArea.document().addResource(QtGui.QTextDocument.ImageResource,  QtCore.QUrl(avatar), util.respix(avatar))
             formatter = self.FORMATTER_ACTION_AVATAR
@@ -306,16 +291,6 @@ class Channel(FormClass, BaseClass):
         Print an raw message in the chatArea of the channel
         '''
         
-        if self.lines > CHAT_TEXT_LIMIT :
-            
-            cursor = self.chatArea.textCursor()
-
-            cursor.movePosition(QtGui.QTextCursor.Start)
-            cursor.movePosition(QtGui.QTextCursor.Down)
-            cursor.select(QtGui.QTextCursor.BlockUnderCursor)
-            cursor.removeSelectedText()
-            self.lines = self.lines - 1
-                    
         if name in self.lobby.specialUserColors:
             color = self.lobby.specialUserColors[name]
         else:
@@ -337,8 +312,6 @@ class Channel(FormClass, BaseClass):
         line = formatter.format(time=self.timestamp(), name=name, color=color, width=self.maxChatterWidth, text=text)
         self.chatArea.insertHtml(line)
         
-        self.lines = self.lines + 1
-
         if scroll_needed:
             self.chatArea.verticalScrollBar().setValue(self.chatArea.verticalScrollBar().maximum())
         else:
