@@ -1,5 +1,5 @@
 <tr padding="0">
-	<td width="42" align="center">
+	<td>
 		<img src="{avatar}" />
 	</td>
 	<td align="right" width="{width}" style="padding-top:3;">
