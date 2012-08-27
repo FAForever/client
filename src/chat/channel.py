@@ -42,6 +42,8 @@ class Channel(FormClass, BaseClass):
         # Table width of each chatter's name cell...        
         self.maxChatterWidth = 100 # TODO: This might / should auto-adapt
 
+        # Clear window menu action
+        self.lobby.client.actionClearWindow.triggered.connect(self.clearWindow)
 
         # Perform special setup for public channels as opposed to private ones
         self.name = name
@@ -94,14 +96,18 @@ class Channel(FormClass, BaseClass):
         
     def resizing(self):
         self.resizeTimer.start(10)
-
-            
+    
    
     def showEvent(self, event):
         self.stopBlink()
         return BaseClass.showEvent(self, event)
     
-
+    @QtCore.pyqtSlot()
+    def clearWindow(self):
+        if self.isVisible():
+            self.chatArea.setPlainText("")
+            self.lasttimestamp = 0 
+        
     @QtCore.pyqtSlot()
     def filterNicks(self):
         for chatter in self.chatters.keys():
