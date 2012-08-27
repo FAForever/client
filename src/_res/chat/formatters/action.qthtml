@@ -7,7 +7,7 @@
 	<td width="100%">
 		<i><font color="{color}">{text}</font></i>
 	</td>
-	<td align="right">
+	<td align="right" width="32">
 		<font color="grey" >{time}</font>
 	</td>
 </tr>
