@@ -57,16 +57,11 @@ class GamesWidget(FormClass, BaseClass):
 
         self.modList.itemDoubleClicked.connect(self.hostGameClicked)
 
-        #Load game name from settings (yay, it's persistent!)
-        
+        #Load game name from settings (yay, it's persistent!)        
         self.loadGameName()
         self.loadGameMap()
         self.loadPassword()
         self.options = []
-        #Populate Mods List
-#        for mod in mods:
-#            item = ModItem(mod)
-#            self.modList.addItem(item)
 
     
     
@@ -180,7 +175,7 @@ class GamesWidget(FormClass, BaseClass):
             self.searching = False
         
         self.searchProgress.setVisible(False)
-        self.labelAutomatch.setText("1 VS 1 matchmaker")
+        self.labelAutomatch.setText("1 vs 1 Automatch")
         
         self.disconnectRankedToggles()
         self.rankedAeon.setChecked(False)
@@ -258,10 +253,10 @@ class GamesWidget(FormClass, BaseClass):
         passw = None 
         
         if fa.exe.check(item.mod, item.mapname):
-            if item.access == "password" :
-                
+            if item.access == "password" :                
                 passw, ok = QtGui.QInputDialog.getText(self.client, "Passworded game" , "Enter password :", QtGui.QLineEdit.Normal, "")
-                self.client.send(dict(command="game_join", password=passw, uid=item.uid, gameport=self.client.gamePort))
+                if ok:
+                    self.client.send(dict(command="game_join", password=passw, uid=item.uid, gameport=self.client.gamePort))
             else :
                 self.client.send(dict(command="game_join", uid=item.uid, gameport=self.client.gamePort))
                 

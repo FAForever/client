@@ -212,7 +212,7 @@ class Channel(FormClass, BaseClass):
             if name in self.chatters:
                 chatter = self.chatters[name]                
                 color = chatter.textColor().name()
-                if chatter.avatar :
+                if chatter.avatar:
                     avatar = chatter.avatar["url"] 
                 
             else:
@@ -229,16 +229,11 @@ class Channel(FormClass, BaseClass):
 
         cursor = self.chatArea.textCursor()
         cursor.movePosition(QtGui.QTextCursor.End)
-        self.chatArea.setTextCursor(cursor)
-        
-        
+        self.chatArea.setTextCursor(cursor)                
         
         if avatar :
-
-            if not self.chatArea.document().resource(QtGui.QTextDocument.ImageResource, QtCore.QUrl(avatar)) :
-                self.chatArea.document().addResource(QtGui.QTextDocument.ImageResource,  QtCore.QUrl(avatar), util.respix(avatar))
-            
-            
+            if not self.chatArea.document().resource(QtGui.QTextDocument.ImageResource, QtCore.QUrl(avatar)):
+                self.chatArea.document().addResource(QtGui.QTextDocument.ImageResource,  QtCore.QUrl(avatar), util.respix(avatar))                        
             
             formatter = self.FORMATTER_MESSAGE_AVATAR
             line = formatter.format(time=self.timestamp(), avatar=avatar, name=name, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))        
