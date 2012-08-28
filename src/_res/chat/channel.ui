@@ -63,7 +63,10 @@
           <set>QTextEdit::AutoNone</set>
          </property>
          <property name="lineWrapMode">
-          <enum>QTextEdit::WidgetWidth</enum>
+          <enum>QTextEdit::FixedPixelWidth</enum>
+         </property>
+         <property name="lineWrapColumnOrWidth">
+          <number>800</number>
          </property>
          <property name="readOnly">
           <bool>true</bool>
