@@ -1,1 +1,7 @@
-<tr padding=0><td width="80"></td><td><font color="{color}" size="{size}">{text}</font></td></tr>
+<tr padding="0">
+	<td width="42">
+	</td>
+	<td>
+		<font color="{color}" size="{size}">{text}</font>
+	</td>
+</tr>

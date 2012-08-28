@@ -91,7 +91,7 @@ class Channel(FormClass, BaseClass):
     
     def canresize(self):
         if self.isVisible() :
-            self.chatArea.setLineWrapColumnOrWidth(self.chatArea.size().width())
+            self.chatArea.setLineWrapColumnOrWidth(self.chatArea.size().width() - 20) #Hardcoded, but seems to be enough (tabstop was a bit large)
             self.resizeTimer.stop()    
         
     def resizing(self):
