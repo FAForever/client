@@ -2,8 +2,9 @@ from PyQt4 import QtCore, QtGui, QtWebKit
 import util
 from stats import logger
 import client
-import json
+import time
 
+ANTIFLOOD = 0.5
 
 FormClass, BaseClass = util.loadUiType("stats/stats.ui")
 
@@ -28,18 +29,48 @@ class StatsWidget(BaseClass, FormClass):
         self.client.showLadder.connect(self.updating)
         self.webview.loadFinished.connect(self.webview.show)
         self.leagues.currentChanged.connect(self.leagueUpdate)
-        self.pages = {}
+        self.pagesDivisions = {}
+        self.pagesDivisionsResults = {}
         self.pagesAllLeagues = {}
+        
+        self.floodtimer = time.time()
+        
+        self.currentLeague = 0
+        self.currentDivision = 0
+        
+        self.FORMATTER_LADDER        = unicode(util.readfile("stats/formatters/ladder.qthtml"))
+        self.FORMATTER_LADDER_HEADER = unicode(util.readfile("stats/formatters/ladder_header.qthtml"))
+        self.stylesheet              = util.readstylesheet("stats/formatters/style.css")
+
+        self.leagues.setStyleSheet(self.stylesheet)
     
     @QtCore.pyqtSlot(int)
     def leagueUpdate(self, index):
-        
+        self.currentLeague = index + 1
         leagueTab = self.leagues.widget(index).findChild(QtGui.QTabWidget,"league"+str(index))
         if leagueTab :
             if leagueTab.currentIndex() == 0 :
-                self.client.send(dict(command="stats", type="league_table", league=index+1))
-                
+                if time.time() - self.floodtimer > ANTIFLOOD :
+                    self.floodtimer = time.time() 
+                    self.client.send(dict(command="stats", type="league_table", league=self.currentLeague))
+    
+    @QtCore.pyqtSlot(int)            
+    def divisionsUpdate(self, index):
+        if index == 0 :
+            if time.time() - self.floodtimer > ANTIFLOOD :
+                self.floodtimer = time.time()
+                self.client.send(dict(command="stats", type="league_table", league=self.currentLeague))
         
+        elif index == 1 :            
+            tab =  self.currentLeague-1
+            if not tab in self.pagesDivisions :
+                    self.client.send(dict(command="stats", type="divisions", league=self.currentLeague))
+        
+    @QtCore.pyqtSlot(int)
+    def divisionUpdate(self, index):
+        if time.time() - self.floodtimer > ANTIFLOOD :
+            self.floodtimer = time.time()
+            self.client.send(dict(command="stats", type="division_table", league=self.currentLeague, division=index))           
         
     def createDivisionsTabs(self, divisions):
         userDivision = ""
@@ -47,32 +78,70 @@ class StatsWidget(BaseClass, FormClass):
             userDivision = self.client.getUserLeague(self.client.login)["division"]
        
         pages = QtGui.QTabWidget()
+        
+        pages.currentChanged.connect(self.divisionUpdate)
+        
+        foundDivision = False
+        
         for division in divisions :
             name = division["division"]
             index = division["number"]
-            widget = QtGui.QListView()
+            league = division["league"]
+            widget = QtGui.QTextBrowser()
+            
+            if not league in self.pagesDivisionsResults :
+                self.pagesDivisionsResults[league] = {}
+            
+            self.pagesDivisionsResults[league][index] = widget 
+            
             pages.insertTab(index, widget, name)
+            
             if name == userDivision :
+                foundDivision = True
                 pages.setCurrentIndex(index)
-                league = division["league"]
-                self.client.send(dict(command="stats", type="division_table", league=league, division=division))
-            
-            
+                self.client.send(dict(command="stats", type="division_table", league=league, division=index))
+        
+        if foundDivision == False :
+            self.client.send(dict(command="stats", type="division_table", league=league, division=0))
+        
         return pages
             
     
-    def createResultLeague(self, values):
-        table = QtGui.QTableWidget(len(values), 3)
-        table.verticalHeader().setVisible(0)
-        table.setSelectionMode(0)
-        table.setHorizontalHeaderItem(0, QtGui.QTableWidgetItem("Rank"))
-        table.setHorizontalHeaderItem(1, QtGui.QTableWidgetItem("Name"))
-        table.setHorizontalHeaderItem(2, QtGui.QTableWidgetItem("Score"))
+    def createResults(self, values, table):
+        
+        doc = QtGui.QTextDocument()
+        doc.addResource(3, QtCore.QUrl("style.css"), self.stylesheet )
+        html = ("<html><head><link rel='stylesheet' type='text/css' href='style.css'></head><body><table class='players' cellspacing='0' cellpadding='0' width='100%' height='100%'>")
+
+        formatter = self.FORMATTER_LADDER
+        formatter_header = self.FORMATTER_LADDER_HEADER
+        cursor = table.textCursor()
+        cursor.movePosition(QtGui.QTextCursor.End)
+        table.setTextCursor(cursor) 
+        color = "lime"
+        line = formatter_header.format(rank="rank", name="name", score="score", color=color)
+        html += line
         
         for val in values :
-            table.setItem(val["rank"]-1, 0, QtGui.QTableWidgetItem(str(val["rank"])))
-            table.setItem(val["rank"]-1, 1, QtGui.QTableWidgetItem(val["name"]))
-            table.setItem(val["rank"]-1, 2, QtGui.QTableWidgetItem(str(val["score"])))
+            rank = val["rank"]
+            name = val["name"]
+            if self.client.login == name :
+                line = formatter.format(rank=str(rank), name= name, score=str(val["score"]), type="highlight")
+            elif rank % 2 == 0 :
+                line = formatter.format(rank=str(rank), name= name, score=str(val["score"]), type="even")
+            else :
+                line = formatter.format(rank=str(rank), name= name, score=str(val["score"]), type="")
+            
+            html += line
+
+        html +="</tbody></table></body></body>"
+
+        
+        
+        doc.setHtml(html)
+        table.setDocument(doc)
+        
+        table.verticalScrollBar().setValue(table.verticalScrollBar().minimum())
         return table
         
     
@@ -81,25 +150,36 @@ class StatsWidget(BaseClass, FormClass):
 
         type = message["type"]
         if type == "divisions" :
-#            tab = message["league"]-1
-#            if not tab in self.pages :
-#                self.pages[tab] = self.createDivisionsTabs(message["values"])
-#                leaguesTabs = self.leagues.widget(tab)
-#                leaguesTabs.widget(1).layout().addWidget(self.pages[tab])
-            pass
-        if type == "division_table" :
-            print message
-        if type == "league_table" :
-            league = message["league"]
-            tab = league-1
-            if not tab in self.pagesAllLeagues :
-                self.pagesAllLeagues[tab] = self.createResultLeague(message["values"])
-                leagueTab = self.leagues.widget(tab).findChild(QtGui.QTabWidget,"league"+str(tab))
-                leagueTab.widget(0).layout().addWidget(self.pagesAllLeagues[tab])
-            
-            
+            self.currentLeague = message["league"]
+            tab =  self.currentLeague-1
 
-    
+            if not tab in self.pagesDivisions :
+                self.pagesDivisions[tab] = self.createDivisionsTabs(message["values"])
+                leagueTab = self.leagues.widget(tab).findChild(QtGui.QTabWidget,"league"+str(tab))   
+                leagueTab.widget(1).layout().addWidget(self.pagesDivisions[tab])
+
+
+        if type == "division_table" :
+            self.currentLeague = message["league"]
+            self.currentDivision = message["division"]
+
+            if self.currentLeague in self.pagesDivisionsResults :
+                if self.currentDivision in self.pagesDivisionsResults[self.currentLeague] :
+                    self.createResults(message["values"], self.pagesDivisionsResults[self.currentLeague][self.currentDivision])
+                    
+
+        if type == "league_table" :
+            self.currentLeague = message["league"]
+            tab =  self.currentLeague-1
+            if not tab in self.pagesAllLeagues :
+                table = QtGui.QTextBrowser()
+                self.pagesAllLeagues[tab] = self.createResults(message["values"], table)
+                leagueTab = self.leagues.widget(tab).findChild(QtGui.QTabWidget,"league"+str(tab))
+                leagueTab.currentChanged.connect(self.divisionsUpdate)
+                leagueTab.widget(0).layout().addWidget(self.pagesAllLeagues[tab])
+            else :
+                pass
+
     @QtCore.pyqtSlot()
     def updating(self):
     
@@ -107,11 +187,11 @@ class StatsWidget(BaseClass, FormClass):
             self.leagues.setCurrentIndex(self.client.getUserLeague(self.client.login)["league"]-1)
         else :
             self.leagues.setCurrentIndex(0)
+            self.client.send(dict(command="stats", type="league_table", league=1))
         
         if (self.loaded): 
             return 
-        
-        self.client.send(dict(command="stats", type="league_table", league=1))   
+
  
         self.loaded = True
         

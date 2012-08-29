@@ -49,13 +49,21 @@
            <attribute name="title">
             <string>All</string>
            </attribute>
-           <layout class="QGridLayout" name="gridLayout_8"/>
+           <layout class="QGridLayout" name="gridLayout_8">
+            <property name="margin">
+             <number>0</number>
+            </property>
+           </layout>
           </widget>
           <widget class="QWidget" name="tab_11">
            <attribute name="title">
             <string>Divisions</string>
            </attribute>
-           <layout class="QGridLayout" name="gridLayout_9"/>
+           <layout class="QGridLayout" name="gridLayout_9">
+            <property name="margin">
+             <number>0</number>
+            </property>
+           </layout>
           </widget>
          </widget>
         </item>
@@ -81,13 +89,21 @@
            <attribute name="title">
             <string>All</string>
            </attribute>
-           <layout class="QGridLayout" name="gridLayout_17"/>
+           <layout class="QGridLayout" name="gridLayout_17">
+            <property name="margin">
+             <number>0</number>
+            </property>
+           </layout>
           </widget>
           <widget class="QWidget" name="tab_13">
            <attribute name="title">
             <string>Divisions</string>
            </attribute>
-           <layout class="QGridLayout" name="gridLayout_16"/>
+           <layout class="QGridLayout" name="gridLayout_16">
+            <property name="margin">
+             <number>0</number>
+            </property>
+           </layout>
           </widget>
          </widget>
         </item>
@@ -113,13 +129,21 @@
            <attribute name="title">
             <string>All</string>
            </attribute>
-           <layout class="QGridLayout" name="gridLayout_15"/>
+           <layout class="QGridLayout" name="gridLayout_15">
+            <property name="margin">
+             <number>0</number>
+            </property>
+           </layout>
           </widget>
           <widget class="QWidget" name="tab_15">
            <attribute name="title">
             <string>Divisions</string>
            </attribute>
-           <layout class="QGridLayout" name="gridLayout_14"/>
+           <layout class="QGridLayout" name="gridLayout_14">
+            <property name="margin">
+             <number>0</number>
+            </property>
+           </layout>
           </widget>
          </widget>
         </item>
@@ -145,13 +169,21 @@
            <attribute name="title">
             <string>All</string>
            </attribute>
-           <layout class="QGridLayout" name="gridLayout_13"/>
+           <layout class="QGridLayout" name="gridLayout_13">
+            <property name="margin">
+             <number>0</number>
+            </property>
+           </layout>
           </widget>
           <widget class="QWidget" name="tab_17">
            <attribute name="title">
             <string>Divisions</string>
            </attribute>
-           <layout class="QGridLayout" name="gridLayout_12"/>
+           <layout class="QGridLayout" name="gridLayout_12">
+            <property name="margin">
+             <number>0</number>
+            </property>
+           </layout>
           </widget>
          </widget>
         </item>
@@ -177,13 +209,21 @@
            <attribute name="title">
             <string>All</string>
            </attribute>
-           <layout class="QGridLayout" name="gridLayout_11"/>
+           <layout class="QGridLayout" name="gridLayout_11">
+            <property name="margin">
+             <number>0</number>
+            </property>
+           </layout>
           </widget>
           <widget class="QWidget" name="tab_19">
            <attribute name="title">
             <string>Divisions</string>
            </attribute>
-           <layout class="QGridLayout" name="gridLayout_10"/>
+           <layout class="QGridLayout" name="gridLayout_10">
+            <property name="margin">
+             <number>0</number>
+            </property>
+           </layout>
           </widget>
          </widget>
         </item>

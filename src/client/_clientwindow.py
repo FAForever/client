@@ -265,10 +265,12 @@ class ClientWindow(FormClass, BaseClass):
         self.actionLinkForums.triggered.connect(self.linkForums)
         self.actionLinkUnitDB.triggered.connect(self.linkUnitDB)
 
+        self.actionWiki.triggered.connect(self.linkWiki)
         self.actionReportBug.triggered.connect(self.linkReportBug)
         self.actionShowLogs.triggered.connect(self.linkShowLogs)
         self.actionTechSupport.triggered.connect(self.linkTechSupport)
         self.actionAbout.triggered.connect(self.linkAbout)
+        
         
         self.actionClearCache.triggered.connect(self.clearCache)        
         self.actionClearSettings.triggered.connect(self.clearSettings)        
