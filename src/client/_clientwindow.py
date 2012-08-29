@@ -160,7 +160,7 @@ class ClientWindow(FormClass, BaseClass):
     def setup(self):
         import chat
         import tourneys
-        import ladder
+        import stats
         import vault
         import games
         import tutorials
@@ -170,7 +170,7 @@ class ClientWindow(FormClass, BaseClass):
         self.chat = chat.Lobby(self)
     
         #build main window with the now active client                  
-        self.ladder = ladder.Ladder(self)
+        self.ladder = stats.Stats(self)
         self.games = games.Games(self)
         self.tourneys = tourneys.Tourneys(self)
         self.vault = vault.MapVault(self)
@@ -1101,7 +1101,7 @@ class ClientWindow(FormClass, BaseClass):
             raise #Pass it on to our caller, Malformed Command
       
 
-    def handle_stats(self, message):       
+    def handle_stats(self, message):
         self.statsInfo.emit(message)       
 
     def handle_welcome(self, message):
