@@ -40,6 +40,9 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.crucialChannels = ["#aeolus"]
         self.optionalChannels = []
 
+        #We can't send command until the welcom message is received
+        self.welcomed = False
+
         # Load colors and styles from theme
         self.specialUserColors = json.loads(util.readfile("chat/formatters/special_colors.json"))
         self.a_style = util.readfile("chat/formatters/a_style.qss") 
@@ -77,11 +80,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         #Do the actual connecting, join all important channels
         try:
             self.irc_connect(self.ircServer, self.ircPort, self.client.login, ssl=True)
-
-            #Perform any pending autojoins (client may have emitted autoJoin signals before we talked to the IRC server)
-            self.autoJoin(self.optionalChannels)
-            self.autoJoin(self.crucialChannels)
-            
+           
             self.timer.start();
             
         except:
@@ -180,7 +179,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
     @QtCore.pyqtSlot(list)
     def autoJoin(self, channels):
             for channel in channels:
-                if (self.connection.is_connected()):
+                if (self.connection.is_connected()) and self.welcomed:
                     #directly join
                     self.connection.join(channel)
                 else:
@@ -190,7 +189,12 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
        
 #SimpleIRCClient Class Dispatcher Attributes follow here.
     def on_welcome(self, c, e):
+				
         self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
+        self.welcomed = True
+        #Perform any pending autojoins (client may have emitted autoJoin signals before we talked to the IRC server)
+       	self.autoJoin(self.optionalChannels)
+        self.autoJoin(self.crucialChannels)
         
         
     def on_version(self, c, e):
