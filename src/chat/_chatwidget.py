@@ -8,7 +8,7 @@ import sys
 from chat import logger, user2name
 from chat.channel import Channel
 
-IRC_PORT = 8067
+IRC_PORT = 8167
 IRC_SERVER = "faforever.com"
 POLLING_INTERVAL = 300   # milliseconds between irc polls
 
@@ -76,7 +76,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
     def connect(self):
         #Do the actual connecting, join all important channels
         try:
-            self.irc_connect(self.ircServer, self.ircPort, self.client.login)
+            self.irc_connect(self.ircServer, self.ircPort, self.client.login, ssl=True)
 
             #Perform any pending autojoins (client may have emitted autoJoin signals before we talked to the IRC server)
             self.autoJoin(self.optionalChannels)
