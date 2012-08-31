@@ -204,13 +204,15 @@ class Chatter(QtGui.QTableWidgetItem):
                 self.rankItem.setIcon(util.icon("chat/rank/civilian.png"))
                 self.rankItem.setToolTip("IRC User")
             
+    def joinChannel(self):
+        channel, ok = QtGui.QInputDialog.getText(self.lobby.client, "QInputDialog.getText()", "Channel :", QtGui.QLineEdit.Normal, "#tournament")
+        if ok and channel != '':
+            self.lobby.client.joinChannel(self.name, channel)
+            
 
     def addAvatar(self):
         avatarSelection = avatarWidget(self.lobby.client, self.name)
         avatarSelection.exec_()
-
-        #print self.name
-        #self.lobby.client.addFriend(self.name)
         
     def addFriend(self):
         self.lobby.client.addFriend(self.name)
@@ -285,6 +287,10 @@ class Chatter(QtGui.QTableWidgetItem):
             actionAddAvatar = QtGui.QAction("Assign avatar", menu)
             menu.addAction(actionAddAvatar)
             actionAddAvatar.triggered.connect(self.addAvatar)
+            
+            actionJoinChannel = QtGui.QAction("Join Channel", menu)
+            menu.addAction(actionJoinChannel)
+            actionJoinChannel.triggered.connect(self.joinChannel)
 
             actionKick = QtGui.QAction("Kick", menu)
             menu.addAction(actionKick)

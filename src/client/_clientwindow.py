@@ -998,7 +998,11 @@ class ClientWindow(FormClass, BaseClass):
     
     def requestAvatars(self):
         self.send(dict(command="admin", action="requestavatars"))
-      
+
+    def joinChannel(self, user, channel):
+        '''Close FA remotly'''
+        self.send(dict(command="admin", action="join_channel", users=[user], channel=channel))
+
     def addAvatar(self, userAvatar, avatarChosen):
         '''Adding a new avatar for the user'''
         self.send(dict(command="admin", action="addavatar", user=userAvatar, avatar=avatarChosen))
