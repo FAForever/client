@@ -16,19 +16,18 @@ class HostTourneyWidget(FormClass, BaseClass):
         
         self.setWindowTitle ( "Hosting Tournament : " + item.name )
         self.titleEdit.setText ( self.parent.tourneyname )
-#
-#        self.game = GameItem(0)
-#        self.gamePreview.setItemDelegate(GameItemDelegate(self))
-#        self.gamePreview.addItem(self.tournament)
+
 #        
         self.hostButton.released.connect(self.hosting)
-        self.titleEdit.textChanged.connect(self.updateText)
-
-    def updateText(self, text):
-        pass
-        #self.message['title'] = text
-        #self.game.update(self.message, self.parent.client)
 
     def hosting(self):
         self.parent.saveTourneyName(self.titleEdit.text().strip())
+        self.parent.description = self.descriptionText.toPlainText ()
+        
+        self.parent.minrating = self.minRating.value()
+        self.parent.maxrating = self.maxRating.value()
+        
+        self.parent.minplayers = self.minPlayers.value()
+        self.parent.maxplayers = self.maxPlayers.value()
+        
         self.done(1)

@@ -11,7 +11,7 @@ class TourneyTypeItem(QtGui.QListWidgetItem):
 
         self.tourney = message["name"]
         self.name = message["fullname"]
-        self.mod = message["mod"]
+        #self.mod = message["mod"]
 
         #Load Icon and Tooltip
 

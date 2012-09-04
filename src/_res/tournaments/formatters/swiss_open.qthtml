@@ -1,0 +1,18 @@
+
+<font color="white" size="+2"><b>{title}</b></font><br/>
+<font color="silver"><font size="-1">hosted by</font>&nbsp;<b>{host}</b></font></font>
+<table border="0" cellpadding="0" cellspacing="5" width= "500">
+<tbody>
+<tr>
+<td><font color="white" size="+1">{description}</font>
+</td>
+</tr>
+<tr>
+<td>
+<font color="white">Registered : <br></font>&nbsp;<font color="silver"><b>{playerstring}</b><br/><br/></font>
+</td>
+</tr>
+</tbody>
+</table>
+
+

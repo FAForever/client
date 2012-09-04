@@ -15,7 +15,7 @@ if not util.developer():
 
 # Initialize all important globals
 LOBBY_HOST = 'faforever.com'
-LOBBY_PORT = 8001
+LOBBY_PORT = 8002
 LOCAL_REPLAY_PORT = 15000
 GAME_PORT_DEFAULT = 6112
 

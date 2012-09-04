@@ -155,7 +155,7 @@ class ClientWindow(FormClass, BaseClass):
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.replaysTab), util.icon("client/replays.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.tutorialsTab), util.icon("client/tutorials.png"))
         
-        self.mainTabs.setTabEnabled(self.mainTabs.indexOf(self.tourneyTab), False)
+        #self.mainTabs.setTabEnabled(self.mainTabs.indexOf(self.tourneyTab), False)
                 
     def setup(self):
         import chat

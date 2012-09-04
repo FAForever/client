@@ -2,7 +2,7 @@ from PyQt4 import QtCore, QtGui
 import util
 
 from tourneys import logger
-from tourneys.tourneyitem import TourneyItem, TourneyItemDelegate
+from tourneys.swisstourneyitem import SwissTourneyItem, SwissTourneyItemDelegate
 from tourneys.tourneytypeitem import TourneyTypeItem
 from tourneys.hosttourneywidget import HostTourneyWidget
 import fa
@@ -24,12 +24,22 @@ class TournamentsWidget(FormClass, BaseClass):
         #Dictionary containing our actual tournaments.
         self.tourneys = {}
         
-        self.tourneyList.setItemDelegate(TourneyItemDelegate(self))
+        self.tourneyList.setItemDelegate(SwissTourneyItemDelegate(self))
+        
+        self.tourneyList.itemDoubleClicked.connect(self.tourneyDoubleClicked)
         
         self.client.tourneyTypesInfo.connect(self.processTourneyTypeInfo)
         self.client.tourneyInfo.connect(self.processTourneyInfo)
         
         self.tourneyTypeList.itemDoubleClicked.connect(self.hostTourneyClicked)
+        
+        self.description = ""
+        self.minplayers = 2
+        self.maxplayers = 99
+        
+        self.minrating = 0
+        self.maxrating = 3000
+        
         
         self.loadTourneyName()
 
@@ -42,7 +52,7 @@ class TournamentsWidget(FormClass, BaseClass):
 
         print message
         if uid not in self.tourneys:
-            self.tourneys[uid] = TourneyItem(uid)
+            self.tourneys[uid] = SwissTourneyItem(uid)
             self.tourneyList.addItem(self.tourneys[uid])
             self.tourneys[uid].update(message, self.client)
         else:
@@ -55,6 +65,18 @@ class TournamentsWidget(FormClass, BaseClass):
                 self.gameList.takeItem(self.gameList.row(self.games[uid]))
                 del self.games[uid]    
             return
+        
+    @QtCore.pyqtSlot(QtGui.QListWidgetItem)
+    def tourneyDoubleClicked(self, item):
+        '''
+        Slot that attempts to join or leave a tournament.
+        ''' 
+        if not self.client.login in item.players :
+            
+            self.client.send(dict(command="tournament", action = "join", uid=item.uid, type = item.type))
+        else :
+            self.client.send(dict(command="tournament", action = "leave", uid=item.uid, type = item.type))
+        
         
     @QtCore.pyqtSlot(dict)
     def processTourneyTypeInfo(self, message):
@@ -72,16 +94,12 @@ class TournamentsWidget(FormClass, BaseClass):
         '''
         Hosting a tournament event
         '''
-        if not fa.exe.available():
-            return
-
-        # A simple Hosting dialog.
-        if fa.exe.check(item.mod):     
-            hosttourneywidget = HostTourneyWidget(self, item)
-            
-            if hosttourneywidget.exec_() == 1 :
-                if self.tourneyname:
-                    self.client.send(dict(command="create_tournament", type = item.tourney, name=self.tourneyname, min_players = 2, max_players = 13))
+          
+        hosttourneywidget = HostTourneyWidget(self, item)
+        
+        if hosttourneywidget.exec_() == 1 :
+            if self.tourneyname:
+                self.client.send(dict(command="create_tournament", type = item.tourney, name=self.tourneyname, min_players = self.minplayers, max_players = self.maxplayers, min_rating = self.minrating, max_rating = self.maxrating, description = self.description))
 
     def saveTourneyName(self, name):
         self.tourneyname = name
