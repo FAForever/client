@@ -134,7 +134,7 @@ class StatsWidget(BaseClass, FormClass):
             
             html += line
 
-        html +="</tbody></table></body></body>"
+        html +="</tbody></table></body></html>"
 
         
         

@@ -300,7 +300,7 @@ QScrollBar::handle:horizontal
 }
 
 
-QLabel#labelJoinGame,#labelHostGame,#labelAutomatch,#labelMyReplays,#labelLiveReplays
+QLabel#labelJoinGame,#labelHostGame,#labelAutomatch,#labelMyReplays,#labelLiveReplays,#labelHostTournament,#labelJoinTournament
 {
 	color:white;
 }

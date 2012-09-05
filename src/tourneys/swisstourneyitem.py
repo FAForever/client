@@ -86,30 +86,31 @@ class SwissTourneyItem(QtGui.QListWidgetItem):
         print message
         
         self.client  = client
-
-        self.title      = message['title']
-        self.host       = message['host']
-        self.type       = message['type']
         self.state      = message.get('state', "close")
-        self.description= message.get('description', "")
-        self.minplayers = message.get('min_players', 2) 
-        self.maxplayers = message.get('max_players', 99)
-        self.minrating  = message.get('min_rating', 0)
-        self.maxrating  = message.get('min_rating', 9999)
-        self.players    = message.get('players', [])
         
+        if self.state == 'open' :
+            ''' handling the listing of the tournament '''
+            self.title      = message['title']
+            self.host       = message['host']
+            self.type       = message['type']
         
-        self.description = self.description.replace('\n', '<br>') 
+            self.description= message.get('description', "")
+            self.minplayers = message.get('min_players', 2) 
+            self.maxplayers = message.get('max_players', 99)
+            self.minrating  = message.get('min_rating', 0)
+            self.maxrating  = message.get('min_rating', 9999)
+            self.players    = message.get('players', [])
         
-        
-        oldstate = self.state
-        self.state  = message['state']
 
-        playerstring = "<br/>".join(self.players)
+            self.description = self.description.replace('\n', '<br>') 
+    
+            playerstring = "<br/>".join(self.players)
+    
+            if self.state == "open" :
+                self.setText(self.FORMATTER_SWISS_OPEN.format(title=self.title, host=self.host, description=self.description, playerstring=playerstring))
+            
 
-        if self.state == "open" :
-            self.setText(self.FORMATTER_SWISS_OPEN.format(title=self.title, host=self.host, description=self.description, playerstring=playerstring))
-        
+            
                 
     def pressed(self, item):
         menu = QtGui.QMenu(self.parent)
@@ -117,6 +118,7 @@ class SwissTourneyItem(QtGui.QListWidgetItem):
         
         if self.host == self.client.login :
 
+            actionPreview = QtGui.QAction("Preview brackets", menu)
             actionClose = QtGui.QAction("Close registration", menu)
             actionAddPlayer = QtGui.QAction("Add player", menu)
             actionRemovePlayer = QtGui.QAction("Remove player", menu)
@@ -125,6 +127,7 @@ class SwissTourneyItem(QtGui.QListWidgetItem):
             
             actionDelete = QtGui.QAction("Delete tournament", menu)
             
+            actionPreview.triggered.connect(self.preview)
             actionAddPlayer.triggered.connect(self.addPlayer)
             actionRemovePlayer.triggered.connect(self.removePlayer)
             actionClose.triggered.connect(self.closeTourney)
@@ -132,6 +135,8 @@ class SwissTourneyItem(QtGui.QListWidgetItem):
             actionStart.triggered.connect(self.startTourney)
             actionDelete.triggered.connect(self.deleteTourney)
             
+            menu.addAction(actionPreview)
+            menu.addSeparator()
             menu.addAction(actionClose)
             menu.addSeparator()
             menu.addAction(actionAddPlayer)
@@ -145,10 +150,12 @@ class SwissTourneyItem(QtGui.QListWidgetItem):
             menu.popup(QtGui.QCursor.pos())
 
 
+    def preview(self):
+        self.client.send(dict(command="tournament", action = "preview", uid=self.uid, type = self.type))
+
     def removePlayer(self):
         item, ok = QtGui.QInputDialog.getItem(self.client, "Removing player", "Player to remove:", self.players, 0, False)
         if ok and item:
-            print item
             self.client.send(dict(command="tournament", action = "remove_player", player=item, uid=self.uid, type = self.type))
 
 
