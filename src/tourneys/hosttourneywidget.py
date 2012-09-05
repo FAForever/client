@@ -14,14 +14,19 @@ class HostTourneyWidget(FormClass, BaseClass):
         
         self.setStyleSheet(self.parent.client.styleSheet())
         
-        self.setWindowTitle ( "Hosting Tournament : " + item.name )
-        self.titleEdit.setText ( self.parent.tourneyname )
-
+        self.setWindowTitle ( "Hosting Tournament")
+        self.titleEdit.setText ( self.parent.title )
+        self.descriptionText.setHtml( self.parent.description )
+        self.minRating.setValue ( self.parent.minrating )
+        self.maxRating.setValue ( self.parent.maxrating )
+        self.minPlayers.setValue ( self.parent.minplayers )
+        self.maxPlayers.setValue ( self.parent.maxplayers )
 #        
         self.hostButton.released.connect(self.hosting)
 
     def hosting(self):
-        self.parent.saveTourneyName(self.titleEdit.text().strip())
+        
+        self.parent.title = self.titleEdit.text().strip()
         self.parent.description = self.descriptionText.toPlainText ()
         
         self.parent.minrating = self.minRating.value()
@@ -31,3 +36,4 @@ class HostTourneyWidget(FormClass, BaseClass):
         self.parent.maxplayers = self.maxPlayers.value()
         
         self.done(1)
+        

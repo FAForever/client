@@ -1,4 +1,4 @@
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtCore, QtGui, Qt
 import util
 
 from tourneys import logger
@@ -27,21 +27,28 @@ class TournamentsWidget(FormClass, BaseClass):
         self.tourneyList.setItemDelegate(SwissTourneyItemDelegate(self))
         
         self.tourneyList.itemDoubleClicked.connect(self.tourneyDoubleClicked)
-        
+        self.tourneyList.itemPressed.connect(self.tourneyPressed)
+                
         self.client.tourneyTypesInfo.connect(self.processTourneyTypeInfo)
         self.client.tourneyInfo.connect(self.processTourneyInfo)
         
         self.tourneyTypeList.itemDoubleClicked.connect(self.hostTourneyClicked)
         
+        
+        self.title = ""
         self.description = ""
         self.minplayers = 2
         self.maxplayers = 99
         
         self.minrating = 0
         self.maxrating = 3000
-        
-        
-        self.loadTourneyName()
+
+
+    @QtCore.pyqtSlot(QtGui.QListWidgetItem)
+    def tourneyPressed(self, item):
+        if QtGui.QApplication.mouseButtons() == QtCore.Qt.RightButton:            
+            #Look up the associated chatter object        
+            item.pressed(item)
 
     @QtCore.pyqtSlot(dict)
     def processTourneyInfo(self, message):
@@ -50,9 +57,9 @@ class TournamentsWidget(FormClass, BaseClass):
         '''
         uid = message["uid"]
 
-        print message
+
         if uid not in self.tourneys:
-            self.tourneys[uid] = SwissTourneyItem(uid)
+            self.tourneys[uid] = SwissTourneyItem(self, uid)
             self.tourneyList.addItem(self.tourneys[uid])
             self.tourneys[uid].update(message, self.client)
         else:
@@ -100,23 +107,3 @@ class TournamentsWidget(FormClass, BaseClass):
         if hosttourneywidget.exec_() == 1 :
             if self.tourneyname:
                 self.client.send(dict(command="create_tournament", type = item.tourney, name=self.tourneyname, min_players = self.minplayers, max_players = self.maxplayers, min_rating = self.minrating, max_rating = self.maxrating, description = self.description))
-
-    def saveTourneyName(self, name):
-        self.tourneyname = name
-        
-        util.settings.beginGroup("fa.tournaments")
-        util.settings.setValue("tourneyname", self.tourneyname)        
-        util.settings.endGroup()        
-                
-                
-    def loadTourneyName(self):
-        util.settings.beginGroup("fa.tournaments")
-        self.tourneyname = util.settings.value("tourneyname", None)        
-        util.settings.endGroup()        
-                
-        #Default tourney Name ...
-        if not self.tourneyname:
-            if (self.client.login):
-                self.tourneyname = self.client.login + "'s tournament"
-            else:
-                self.tourneyname = "nobody's tournament"
