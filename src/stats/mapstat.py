@@ -64,15 +64,19 @@ class LadderMapStat(FormClass, BaseClass):
         
         uef_total = values["uef_total"]
         uef_win = values["uef_win"]
+        uef_ignore = values["uef_ignore"]
         
         cybran_total = values["cybran_total"]
         cybran_win = values["cybran_win"]
+        cybran_ignore = values["cybran_ignore"]
         
         aeon_total = values["aeon_total"]
         aeon_win = values["aeon_win"]
+        aeon_ignore = values["aeon_ignore"]
         
         sera_total = values["sera_total"]
         sera_win = values["sera_win"]
+        sera_ignore = values["sera_ignore"]
         
         duration_max = values["duration_max"]
         duration_avg = values["duration_avg"]
@@ -100,22 +104,30 @@ class LadderMapStat(FormClass, BaseClass):
         percentCybran   = round((cybran_total  /  totalFaction) * 100.0, 2)
         percentSera     = round((sera_total    /  totalFaction) * 100.0, 2)
         
-        self.mapstats.insertHtml("<br><font size='+1'>"+str(percentUef)+" % UEF ( in "+str(uef_total)+" games) </font>")
-        self.mapstats.insertHtml("<br><font size='+1'>"+str(percentCybran)+" % Cybran ( in "+str(cybran_total)+" games) </font>")
-        self.mapstats.insertHtml("<br><font size='+1'>"+str(percentAeon)+" % Aeon ( in "+str(aeon_total)+" games) </font>")      
-        self.mapstats.insertHtml("<br><font size='+1'>"+str(percentSera)+" % Seraphim ( in "+str(sera_total)+" games) </font><br>")
+        self.mapstats.insertHtml("<br><font size='+1'>"+str(percentUef)+" % UEF ("+str(uef_total)+" occurrences) </font>")
+        self.mapstats.insertHtml("<br><font size='+1'>"+str(percentCybran)+" % Cybran ("+str(cybran_total)+" occurrences) </font>")
+        self.mapstats.insertHtml("<br><font size='+1'>"+str(percentAeon)+" % Aeon ("+str(aeon_total)+" occurrences) </font>")      
+        self.mapstats.insertHtml("<br><font size='+1'>"+str(percentSera)+" % Seraphim ("+str(sera_total)+" occurrences) </font><br>")
 
+        # if a win was ignored, it's because of a mirror matchup. No win count, but we have to remove 2 times the occurences.
+        # once for each player..
         
-        percentwinUef      = round((uef_win     /  float(uef_total)) * 100.0, 2)
-        percentwinAeon     = round((aeon_win    /  float(aeon_total)) * 100.0, 2)
-        percentwinCybran   = round((cybran_win  /  float(cybran_total)) * 100.0, 2)
-        percentwinSera     = round((sera_win    /  float(sera_total)) * 100.0, 2)
+        uefnomirror = (float(uef_total)-float(uef_ignore)*2)
+        cybrannomirror = (float(cybran_total)-float(cybran_ignore)*2)
+        aeonnomirror = (float(aeon_total)-float(aeon_ignore)*2)
+        seranomirror = (float(sera_total)-float(sera_ignore)*2)
+        
+        
+        percentwinUef      = round((uef_win     /  uefnomirror ) * 100.0, 2)
+        percentwinCybran   = round((cybran_win  /  cybrannomirror ) * 100.0, 2)
+        percentwinAeon     = round((aeon_win    /  aeonnomirror ) * 100.0, 2)
+        percentwinSera     = round((sera_win    /  seranomirror ) * 100.0, 2)
         
         self.mapstats.insertHtml("<br><font size='+1'>Win ratios : </font>")
-        self.mapstats.insertHtml("<br><font size='+1'>UEF : "+str(percentwinUef)+ " % ("+str(uef_win)+" games won)</font>")
-        self.mapstats.insertHtml("<br><font size='+1'>Cybran : "+str(percentwinCybran)+ " % ("+str(cybran_win)+" games won)</font>")
-        self.mapstats.insertHtml("<br><font size='+1'>Aeon : "+str(percentwinAeon)+ " % ("+str(aeon_win)+" games won)</font>")
-        self.mapstats.insertHtml("<br><font size='+1'>Seraphim : "+str(percentwinSera)+ " % ("+str(sera_win)+" games won)</font>")
+        self.mapstats.insertHtml("<br><font size='+1'>UEF : "+str(percentwinUef)+ " % ("+str(uef_win)+" games won in "+str(int(uefnomirror))+" no mirror matchup games)</font>")
+        self.mapstats.insertHtml("<br><font size='+1'>Cybran : "+str(percentwinCybran)+ " % ("+str(cybran_win)+" games won in "+str(int(cybrannomirror))+" no mirror matchup games)</font>")
+        self.mapstats.insertHtml("<br><font size='+1'>Aeon : "+str(percentwinAeon)+ " % ("+str(aeon_win)+" games won in "+str(int(aeonnomirror))+" no mirror matchup games)</font>")
+        self.mapstats.insertHtml("<br><font size='+1'>Seraphim : "+str(percentwinSera)+ " % ("+str(sera_win)+" games won in "+str(int(seranomirror))+" no mirror matchup games)</font>")
 
 
     
