@@ -19,8 +19,10 @@ class LadderMapStat(FormClass, BaseClass):
         self.parent = parent
         self.client = client
         
+        self.mapid = 0
+
         # adding ourself to the stat tab
-                #add self to client's window
+
         self.parent.laddermapTab.layout().addWidget(self)
 
         self.parent.laddermaplist.connect(self.updatemaps)
@@ -53,6 +55,9 @@ class LadderMapStat(FormClass, BaseClass):
     def updatemapstat(self, message):
         ''' fill all the datas for that map'''
 
+        if message["idmap"] != self.mapid :
+            return
+
         values = message["values"]
        
         draws = values["draws"]
@@ -70,23 +75,27 @@ class LadderMapStat(FormClass, BaseClass):
         sera_win = values["sera_win"]
         
         duration_max = values["duration_max"]
-        duration_min = values["duration_min"]
         duration_avg = values["duration_avg"]
+        
+        avgm, avgs = divmod(duration_avg, 60)
+        averagetime = "%02d minutes %02d seconds" % (avgm, avgs)
+
+        maxm, maxs = divmod(duration_max, 60)
+        maxtime = "%02d minutes %02d seconds" % (maxm, maxs)
         
         game_played = values["game_played"]
         
         self.mapstats.insertHtml("<br><font size='+1'>"+str(game_played)+" games played on this map </font><br>")
         
-        self.mapstats.insertHtml("<br><font size='+1'>"+str(round(float(draws)/float(game_played),2))+" of the games end with a draw ("+str(draws)+" games) </font><br>")
+        self.mapstats.insertHtml("<br><font size='+1'>"+str(round(float(draws)/float(game_played),2))+"% of the games end with a draw ("+str(draws)+" games) </font><br>")
 
-        
-        
+        self.mapstats.insertHtml("<br><font size='+1'> Average time for a game : "+ averagetime +"</font><br>")
+        self.mapstats.insertHtml("<br><font size='+1'> Maximum time for a game : "+ maxtime +"</font><br>")
         
         totalFaction = float(uef_total + cybran_total + aeon_total + sera_total) 
         
         percentUef      = round((uef_total     /  totalFaction) * 100.0, 2)
         
-        print totalFaction 
         percentAeon     = round((aeon_total    /  totalFaction) * 100.0, 2)
         percentCybran   = round((cybran_total  /  totalFaction) * 100.0, 2)
         percentSera     = round((sera_total    /  totalFaction) * 100.0, 2)
@@ -113,12 +122,11 @@ class LadderMapStat(FormClass, BaseClass):
     def mapselected(self, item):
         ''' user has selected a map, we send the request to the server'''
         
-        mapid = item.data(32)[0]
-        self.client.send(dict(command="stats", type="ladder_map_stat", mapid = mapid))
+        self.mapid = item.data(32)[0]
+        self.client.send(dict(command="stats", type="ladder_map_stat", mapid = self.mapid))
         self.mapstats.clear()
         
         realmap = item.data(32)[1].split("/")[1].strip(".zip")
-        print realmap
 
         self.mapstats.document().addResource(QtGui.QTextDocument.ImageResource,  QtCore.QUrl("map.png"), maps.preview(realmap, True))
 
