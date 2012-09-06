@@ -1,6 +1,7 @@
 from PyQt4 import QtCore, QtGui, QtWebKit
 import util
 from stats import logger
+from stats import mapstat
 import client
 import time
 
@@ -9,6 +10,10 @@ ANTIFLOOD = 0.5
 FormClass, BaseClass = util.loadUiType("stats/stats.ui")
 
 class StatsWidget(BaseClass, FormClass):
+
+    #signals
+    laddermaplist = QtCore.pyqtSignal(dict)
+    laddermapstat = QtCore.pyqtSignal(dict)
     def __init__(self, client):
         super(BaseClass, self).__init__()
 
@@ -43,6 +48,12 @@ class StatsWidget(BaseClass, FormClass):
         self.stylesheet              = util.readstylesheet("stats/formatters/style.css")
 
         self.leagues.setStyleSheet(self.stylesheet)
+    
+   
+        #setup other tabs
+        self.mapstat = mapstat.LadderMapStat(self.client, self)
+        
+        
     
     @QtCore.pyqtSlot(int)
     def leagueUpdate(self, index):
@@ -159,7 +170,7 @@ class StatsWidget(BaseClass, FormClass):
                 leagueTab.widget(1).layout().addWidget(self.pagesDivisions[tab])
 
 
-        if type == "division_table" :
+        elif type == "division_table" :
             self.currentLeague = message["league"]
             self.currentDivision = message["division"]
 
@@ -168,7 +179,7 @@ class StatsWidget(BaseClass, FormClass):
                     self.createResults(message["values"], self.pagesDivisionsResults[self.currentLeague][self.currentDivision])
                     
 
-        if type == "league_table" :
+        elif type == "league_table" :
             self.currentLeague = message["league"]
             tab =  self.currentLeague-1
             if not tab in self.pagesAllLeagues :
@@ -177,11 +188,18 @@ class StatsWidget(BaseClass, FormClass):
                 leagueTab = self.leagues.widget(tab).findChild(QtGui.QTabWidget,"league"+str(tab))
                 leagueTab.currentChanged.connect(self.divisionsUpdate)
                 leagueTab.widget(0).layout().addWidget(self.pagesAllLeagues[tab])
-            else :
-                pass
+            
+        elif type == "ladder_maps" :
+            self.laddermaplist.emit(message)
+
+        elif type == "ladder_map_stat" :
+            print message
+            self.laddermapstat.emit(message)
 
     @QtCore.pyqtSlot()
     def updating(self):
+    
+        self.client.send(dict(command="stats", type="ladder_maps"))
     
         if  self.client.getUserLeague(self.client.login) :
             self.leagues.setCurrentIndex(self.client.getUserLeague(self.client.login)["league"]-1)

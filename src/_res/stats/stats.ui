@@ -243,6 +243,12 @@
     </property>
    </layout>
   </widget>
+  <widget class="QWidget" name="laddermapTab">
+   <attribute name="title">
+    <string>Ladder maps stats</string>
+   </attribute>
+   <layout class="QGridLayout" name="gridLayout_18"/>
+  </widget>
  </widget>
  <resources/>
  <connections/>
