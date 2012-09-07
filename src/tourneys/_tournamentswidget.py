@@ -39,6 +39,28 @@ class TournamentWidget(QtGui.QWidget):
                 item.pressed(item)
                 
 
+
+    def compute_median_buchholz(self, scores, rounds):
+        
+        results = {}
+        
+        
+        for rnd in rounds :
+            pairings = rounds[rnd]
+            for pair in pairings :
+                if not pair in results :
+                    results[pair] = []
+                
+                if  "result"  in pairings[pair] :
+                    if "against" in pairings[pair] : 
+                        if pairings[pair]["against"] in scores :
+                            results[pair].append(scores[pairings[pair]["against"]])
+                        
+                
+                
+        
+
+
     def displayScores(self,  message):
         self.score.clear()
         text  = ("<table border='1px'><tr><th>Player</th><th>Match W-L-T <br> (wins +1.0, ties +0.5)</th><th>Byes<br>(+1.0)</th><th>Score</th></tr>")
@@ -47,6 +69,7 @@ class TournamentWidget(QtGui.QWidget):
         rounds = infos.get("pairings", {})
 
         results = {}
+
         
         for rnd in rounds :
             pairings = rounds[rnd]
@@ -84,6 +107,7 @@ class TournamentWidget(QtGui.QWidget):
             B = results[result]["Byes"]
             score = W + (float(T)/2.0) 
                         
+                
             text += ("<tr><td align='right'>%s</td><td align='center'>%i-%i-%i</td><td align='center'>%i</td><td align='center'>%i</td></tr>" %(result, W-B,L,T, B, score))
 
         
