@@ -19,8 +19,15 @@ class SwissBracketItemDelegate(QtGui.QStyledItemDelegate):
         html.setTextWidth(html.idealWidth())
        
         
+        if option.state & QtGui.QStyle.State_MouseOver :
+            
+            backColor = QtGui.QColor("#FFFFFF")
+        else :
+            
+            backColor = QtGui.QColor("#888888")
+        
         if option.text.startswith("Round") == False and option.text != "" :
-            painter.fillRect(option.rect.left()+1, option.rect.top()+1, 140, 40, QtGui.QColor("#888888"))
+            painter.fillRect(option.rect.left()+1, option.rect.top()+1, 140, 40, backColor)
             
             painter.fillRect(option.rect.left()+1, option.rect.top()+1, 20, 40, QtGui.QColor("#777777"))
             painter.fillRect(option.rect.left()+120, option.rect.top()+1, 20, 40, QtGui.QColor("#777777"))
@@ -32,6 +39,9 @@ class SwissBracketItemDelegate(QtGui.QStyledItemDelegate):
         
 
         option.text = ""  
+        
+        
+        
         option.widget.style().drawControl(QtGui.QStyle.CE_ItemViewItem, option, painter, option.widget)
 
         painter.translate(option.rect.left(), option.rect.top())
@@ -43,6 +53,9 @@ class SwissBracketItemDelegate(QtGui.QStyledItemDelegate):
   
         painter.restore()
         
+    def createEditor(self, parent, QStyleOptionViewItem, QModelIndex):
+        ''' no edit !'''
+        pass
 
     def sizeHint(self, option, index, *args, **kwargs):
         self.initStyleOption(option, index)
@@ -55,7 +68,60 @@ class SwissBracketItemDelegate(QtGui.QStyledItemDelegate):
 
 
 
+class SwissRoundItem(QtGui.QTableWidgetItem):
+    def __init__(self, parent, tourney, r=1, *args, **kwargs):
+        QtGui.QTableWidgetItem.__init__(self, *args, **kwargs)
+        
+        self.parent = parent
+        self.itemtourney = tourney 
+        self.client = tourney.client
+        self.round  = r
+        
+        text = ("Round %i" % self.round)  
+        
+        self.setText(text)
+   
+    def validate(self):
+        ''' validate the round and proceed to the next one''' 
+        reply = QtGui.QMessageBox.question(self.client, "Round validation",
+                "If you validate this round, you won't be able to modify scores anymore ! Do you want to proceed ?",
+                QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
 
+        if reply == QtGui.QMessageBox.Yes:
+            self.client.send(dict(command="tournament", action = "validate_round", uid=self.itemtourney.uid, type = self.itemtourney.type))
+
+    def finish(self):
+        ''' finish the tournament''' 
+        reply = QtGui.QMessageBox.question(self.client, "Finish the tournament",
+                "If you finish this tournament, you won't be able to modify scores anymore ! Do you want to proceed ?",
+                QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+
+        if reply == QtGui.QMessageBox.Yes:
+            self.client.send(dict(command="tournament", action = "finish", uid=self.itemtourney.uid, type = self.itemtourney.type))
+
+
+    def pressed(self, item):
+        menu = QtGui.QMenu(self.parent)
+
+
+
+        if self.itemtourney.host == self.client.login and self.itemtourney.curRound == self.round and self.itemtourney.state != "open" :
+            
+            if self.round == self.itemtourney.nbRounds :
+                actionFinish = QtGui.QAction("Finish the tournament", menu)
+                actionFinish.triggered.connect(self.finish)
+                menu.addAction(actionFinish)
+                menu.popup(QtGui.QCursor.pos())         
+
+                
+            else :
+            
+                actionValid = QtGui.QAction("Validate round", menu)
+                actionValid.triggered.connect(self.validate)
+                menu.addAction(actionValid)
+                menu.popup(QtGui.QCursor.pos())         
+
+            
 
 class SwissBracketItem(QtGui.QTableWidgetItem):
     TEXTWIDTH = 500
@@ -69,26 +135,51 @@ class SwissBracketItem(QtGui.QTableWidgetItem):
     FORMATTER_SWISS_BRACKET = unicode(util.readfile("tournaments/formatters/swiss_bracket.qthtml"))
 
     
-    def __init__(self, parent, player1, player2, r, *args, **kwargs):
+    def __init__(self, parent, tourney, player1, player2, score1=0, score2=0, r=1, *args, **kwargs):
         QtGui.QTableWidgetItem.__init__(self, *args, **kwargs)
 
         
         
-        self.parent = parent
         
-        self.stylesheet              = util.readstylesheet("tournaments/formatters/style.css")
+        self.parent = parent
+        self.itemtourney = tourney 
+        self.client = tourney.client
+        
         self.player1 = player1    
         self.player2 = player2
         self.round  = r
-        self.score1 = 0
-        self.score2 = 0
+        self.score1 = score1
+        self.score2 = score2
         
         
         
         self.setText(self.FORMATTER_SWISS_BRACKET.format(player1=self.player1, player2=self.player2, score1=self.score1, score2=self.score2))
         
-        #self.setHidden(True)
+            
+    def registerScore(self):
+        item, ok = QtGui.QInputDialog.getItem(self.client, "Register score", "Winner is", [self.player1, self.player2, "Draw"], 0, False)
+        if ok and item:
+            if item == "Draw" :
+                self.client.send(dict(command="tournament", action = "register_score", player=self.player1, score = 0.5, uid=self.itemtourney.uid, type = self.itemtourney.type))
+            else :
+                self.client.send(dict(command="tournament", action = "register_score", player=item, score = 1, uid=self.itemtourney.uid, type = self.itemtourney.type))
+        
 
+    def pressed(self, item):
+        menu = QtGui.QMenu(self.parent)
+        
+        
+        if self.itemtourney.host == self.client.login and self.itemtourney.state != "open" and self.itemtourney.curRound == self.round :
+
+            actionScore = QtGui.QAction("Register score", menu)
+            
+            
+            actionScore.triggered.connect(self.registerScore)
+
+            
+            menu.addAction(actionScore)
+
+            menu.popup(QtGui.QCursor.pos())    
     
     def update(self, message, client):
         '''

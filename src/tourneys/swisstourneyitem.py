@@ -59,6 +59,8 @@ class SwissTourneyItem(QtGui.QListWidgetItem):
 
         self.uid = uid
         
+        
+        
         self.parent = parent
         
         self.type = None    
@@ -72,6 +74,8 @@ class SwissTourneyItem(QtGui.QListWidgetItem):
         self.maxrating = None
 
         self.state  = None
+        
+        self.curRound = None
 
         self.players = []
         
@@ -83,12 +87,10 @@ class SwissTourneyItem(QtGui.QListWidgetItem):
         Updates this item from the message dictionary supplied
         '''
         
-        print message
-        
         self.client  = client
         self.state      = message.get('state', "close")
         
-        if self.state == 'open' :
+        if self.state == 'open' or self.state == 'playing' :
             ''' handling the listing of the tournament '''
             self.title      = message['title']
             self.host       = message['host']
@@ -99,6 +101,8 @@ class SwissTourneyItem(QtGui.QListWidgetItem):
             self.maxplayers = message.get('max_players', 99)
             self.minrating  = message.get('min_rating', 0)
             self.maxrating  = message.get('min_rating', 9999)
+            self.curRound  = message.get('current_round', 1)
+            self.nbRounds  = message.get('rounds', 1)
             self.players    = message.get('players', [])
         
 
@@ -106,7 +110,7 @@ class SwissTourneyItem(QtGui.QListWidgetItem):
     
             playerstring = "<br/>".join(self.players)
     
-            if self.state == "open" :
+            if self.state == "open" or self.state == "playing":
                 self.setText(self.FORMATTER_SWISS_OPEN.format(title=self.title, host=self.host, description=self.description, playerstring=playerstring))
             
 
