@@ -1,0 +1,20 @@
+/* Typical widget controls (top tabs, etc) */
+
+QTableWidget::item
+{
+	margin: 0px;
+	border: none;
+	padding:0px;
+}
+
+QTableWidget::item::hover
+{
+	background: none;
+	border: none;
+}
+
+
+QTableWidget::item:selected, QTableWidget::item:previously-selected
+{
+	border: none;
+}

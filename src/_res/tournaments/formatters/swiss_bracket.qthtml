@@ -1,12 +1,12 @@
 <table width = "140">
 <tr>
 <td width = "20" valign="center">1</td>
-<td width = "100" valign="center">Test</td>
-<td width = "20" valign="center">1</td>
+<td width = "100" valign="center">{player1}</td>
+<td width = "20" valign="center">{score1}</td>
 </tr>
 <tr>
-<td width = "20" valign="center">1</td>
-<td width = "100" valign="center">youpela</td>
 <td width = "20" valign="center">2</td>
+<td width = "100" valign="center">{player2}</td>
+<td width = "20" valign="center">{score2}</td>
 </tr>
 </table>
