@@ -1,5 +1,5 @@
 from PyQt4 import QtGui, QtCore
-
+from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
 
 from chat.irclib import SimpleIRCClient
 import util
@@ -34,6 +34,11 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.client = client
         self.channels = {}
         
+        #avatar downloader
+        self.nam = QNetworkAccessManager()
+        self.nam.finished.connect(self.finishDownloadAvatar)
+                    
+        
         #IRC parameters
         self.ircServer = IRC_SERVER
         self.ircPort = IRC_PORT
@@ -61,8 +66,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
     
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self.poll)
-       
-       
+
+   
     @QtCore.pyqtSlot()
     def poll(self):
         self.timer.stop()
