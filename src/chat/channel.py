@@ -8,7 +8,7 @@ import fa
 import json
 
 QUERY_BLINK_SPEED = 250
-CHAT_TEXT_LIMIT = 300
+CHAT_TEXT_LIMIT = 350
 CHAT_REMOVEBLOCK = 50
 
 FormClass, BaseClass = util.loadUiType("chat/channel.ui")
