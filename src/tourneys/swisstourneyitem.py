@@ -78,6 +78,7 @@ class SwissTourneyItem(QtGui.QListWidgetItem):
         self.curRound = None
 
         self.players = []
+        self.playersname = []
         
         self.setHidden(True)
 
@@ -90,7 +91,7 @@ class SwissTourneyItem(QtGui.QListWidgetItem):
         self.client  = client
         self.state      = message.get('state', "close")
         
-        if self.state == 'open' or self.state == 'playing' :
+        if self.state == 'open' or self.state == 'playing' or self.state == 'finished' :
             ''' handling the listing of the tournament '''
             self.title      = message['title']
             self.host       = message['host']
@@ -104,13 +105,18 @@ class SwissTourneyItem(QtGui.QListWidgetItem):
             self.curRound  = message.get('current_round', 1)
             self.nbRounds  = message.get('rounds', 1)
             self.players    = message.get('players', [])
-        
+            
+            self.playersname = []
+            for player in self.players :
+                self.playersname.append(player["name"])
+                
 
             self.description = self.description.replace('\n', '<br>') 
     
-            playerstring = "<br/>".join(self.players)
+            playerstring = "<br/>"
+            playerstring = "<br/>".join(self.playersname)
     
-            if self.state == "open" or self.state == "playing":
+            if self.state == "open" or self.state == "playing" or self.state == "finished":
                 self.setText(self.FORMATTER_SWISS_OPEN.format(title=self.title, host=self.host, description=self.description, playerstring=playerstring))
             
 
@@ -123,7 +129,6 @@ class SwissTourneyItem(QtGui.QListWidgetItem):
         if self.host == self.client.login :
 
             actionPreview = QtGui.QAction("Preview brackets", menu)
-            actionClose = QtGui.QAction("Close registration", menu)
             actionAddPlayer = QtGui.QAction("Add player", menu)
             actionRemovePlayer = QtGui.QAction("Remove player", menu)
             actionEdit = QtGui.QAction("Edit tournament", menu)
@@ -134,14 +139,12 @@ class SwissTourneyItem(QtGui.QListWidgetItem):
             actionPreview.triggered.connect(self.preview)
             actionAddPlayer.triggered.connect(self.addPlayer)
             actionRemovePlayer.triggered.connect(self.removePlayer)
-            actionClose.triggered.connect(self.closeTourney)
+
             actionEdit.triggered.connect(self.editTourney)
             actionStart.triggered.connect(self.startTourney)
             actionDelete.triggered.connect(self.deleteTourney)
             
             menu.addAction(actionPreview)
-            menu.addSeparator()
-            menu.addAction(actionClose)
             menu.addSeparator()
             menu.addAction(actionAddPlayer)
             menu.addAction(actionRemovePlayer)
@@ -166,11 +169,8 @@ class SwissTourneyItem(QtGui.QListWidgetItem):
     def addPlayer(self):
         player, ok = QtGui.QInputDialog.getText(self.client, "Adding player", "Player name :", QtGui.QLineEdit.Normal, "")
         if ok and player != '':
-            self.client.send(dict(command="tournament", action = "add_player", player=player.lower(), uid=self.uid, type = self.type))
+            self.client.send(dict(command="tournament", action = "add_player", player=player, uid=self.uid, type = self.type))
 
-
-    def closeTourney(self):
-        self.client.send(dict(command="tournament", action = "close", uid=self.uid, type = self.type))
 
     def editTourney(self):
         
@@ -178,13 +178,21 @@ class SwissTourneyItem(QtGui.QListWidgetItem):
         
         
         if hosttourneywidget.exec_() == 1 :
-            self.client.send(dict(command="tournament", action = "edit", uid=self.uid, type=self.type, name=self.tourneyname, min_players = self.minplayers, max_players = self.maxplayers, min_rating = self.minrating, max_rating = self.maxrating, description = self.description))
+            self.client.send(dict(command="tournament", action = "edit", uid=self.uid, type=self.type, name=self.title, min_players = self.minplayers, max_players = self.maxplayers, min_rating = self.minrating, max_rating = self.maxrating, description = self.description))
 
     def startTourney(self):
-        self.client.send(dict(command="tournament", action = "start", uid=self.uid, type = self.type))
+        reply = QtGui.QMessageBox.question(self.client, "Start tournament",
+                "Do you want to start to this tournament ? (nobody can register after that)",
+                QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+        if reply == QtGui.QMessageBox.Yes:
+            self.client.send(dict(command="tournament", action = "start", uid=self.uid, type = self.type))
 
     def deleteTourney(self):
-        self.client.send(dict(command="tournament", action = "delete", uid=self.uid, type = self.type))
+        reply = QtGui.QMessageBox.question(self.client, "Delete tournament",
+            "Do you really want to delete this tournament ?",
+            QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+        if reply == QtGui.QMessageBox.Yes:
+            self.client.send(dict(command="tournament", action = "delete", uid=self.uid, type = self.type))
 
 
 

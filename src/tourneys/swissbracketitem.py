@@ -4,6 +4,48 @@ import util
 import client
 
 
+class SwissRoundItemDelegate(QtGui.QStyledItemDelegate):
+    def __init__(self, *args, **kwargs):
+        QtGui.QStyledItemDelegate.__init__(self, *args, **kwargs)
+        
+    def paint(self, painter, option, index, *args, **kwargs):
+        self.initStyleOption(option, index)
+                
+        painter.save()
+        
+        html = QtGui.QTextDocument()
+        html.setHtml(option.text)
+        html.setTextWidth(html.idealWidth())
+
+
+        option.text = ""  
+        
+        
+        
+        option.widget.style().drawControl(QtGui.QStyle.CE_ItemViewItem, option, painter, option.widget)
+
+        painter.translate(option.rect.left(), option.rect.top())
+        
+        
+        
+        clip = QtCore.QRectF(0, 0, option.rect.width(), option.rect.height())
+        html.drawContents(painter, clip)
+  
+        painter.restore()
+        
+    def createEditor(self, parent, QStyleOptionViewItem, QModelIndex):
+        ''' no edit !'''
+        pass
+
+    def sizeHint(self, option, index, *args, **kwargs):
+        self.initStyleOption(option, index)
+        
+        html = QtGui.QTextDocument()
+        html.setHtml(option.text)
+        html.setTextWidth(html.idealWidth())
+
+        return QtCore.QSize(int(html.size().width())+25, int(html.size().height())+15)  
+    
 class SwissBracketItemDelegate(QtGui.QStyledItemDelegate):
     
     def __init__(self, *args, **kwargs):
@@ -21,23 +63,17 @@ class SwissBracketItemDelegate(QtGui.QStyledItemDelegate):
         
         if option.state & QtGui.QStyle.State_MouseOver :
             
-            backColor = QtGui.QColor("#FFFFFF")
+            backColor = QtGui.QColor("#999999")
         else :
             
-            backColor = QtGui.QColor("#888888")
+            backColor = QtGui.QColor("#777777")
         
         if option.text.startswith("Round") == False and option.text != "" :
             painter.fillRect(option.rect.left()+1, option.rect.top()+1, 140, 40, backColor)
             
-            painter.fillRect(option.rect.left()+1, option.rect.top()+1, 20, 40, QtGui.QColor("#777777"))
-            painter.fillRect(option.rect.left()+120, option.rect.top()+1, 20, 40, QtGui.QColor("#777777"))
+            painter.fillRect(option.rect.left()+1, option.rect.top()+1, 20, 40, QtGui.QColor("#888888"))
+            painter.fillRect(option.rect.left()+120, option.rect.top()+1, 20, 40, QtGui.QColor("#888888"))
             
-            #painter.drawRoundedRect(option.rect.left()+1, option.rect.top()+1, html.size().width()-1, html.size().height()-1, 5, 5)
-            #painter.drawLine(option.rect.left()+1, (option.rect.top() + html.size().height()/2), option.rect.left()+html.size().width(),  (option.rect.top() +  html.size().height()/2))
-            #painter.drawLine(option.rect.left()+20, option.rect.top()+1, option.rect.left()+20, option.rect.top()+html.size().height())
-            #painter.drawLine(option.rect.left()+120, option.rect.top()+1, option.rect.left()+120,  option.rect.top()+html.size().height())
-        
-
         option.text = ""  
         
         
@@ -77,7 +113,7 @@ class SwissRoundItem(QtGui.QTableWidgetItem):
         self.client = tourney.client
         self.round  = r
         
-        text = ("Round %i" % self.round)  
+        text = ("<font size='+1' color='white'><b>Round %i</b></font>" % self.round)  
         
         self.setText(text)
    
@@ -89,6 +125,15 @@ class SwissRoundItem(QtGui.QTableWidgetItem):
 
         if reply == QtGui.QMessageBox.Yes:
             self.client.send(dict(command="tournament", action = "validate_round", uid=self.itemtourney.uid, type = self.itemtourney.type))
+
+    def addRound(self):
+        ''' add a round in the tourney '''
+        reply = QtGui.QMessageBox.question(self.client, "Add a round",
+                "If you add a round, you won't be able to modify this one anymore ! Do you want to proceed ?",
+                QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)        
+        if reply == QtGui.QMessageBox.Yes:
+            self.client.send(dict(command="tournament", action = "add_round", uid=self.itemtourney.uid, type = self.itemtourney.type))
+
 
     def finish(self):
         ''' finish the tournament''' 
@@ -108,9 +153,12 @@ class SwissRoundItem(QtGui.QTableWidgetItem):
         if self.itemtourney.host == self.client.login and self.itemtourney.curRound == self.round and self.itemtourney.state != "open" :
             
             if self.round == self.itemtourney.nbRounds :
-                actionFinish = QtGui.QAction("Finish the tournament", menu)
+                actionFinish    = QtGui.QAction("Finish the tournament", menu)
+                actionAddRound  = QtGui.QAction("Add a extra round", menu)
                 actionFinish.triggered.connect(self.finish)
+                actionAddRound.triggered.connect(self.addRound)
                 menu.addAction(actionFinish)
+                menu.addAction(actionAddRound)
                 menu.popup(QtGui.QCursor.pos())         
 
                 
@@ -135,7 +183,7 @@ class SwissBracketItem(QtGui.QTableWidgetItem):
     FORMATTER_SWISS_BRACKET = unicode(util.readfile("tournaments/formatters/swiss_bracket.qthtml"))
 
     
-    def __init__(self, parent, tourney, player1, player2, score1=0, score2=0, r=1, *args, **kwargs):
+    def __init__(self, parent, tourney, player1, player2, seed1, seed2, score1=0, score2=0, r=1, *args, **kwargs):
         QtGui.QTableWidgetItem.__init__(self, *args, **kwargs)
 
         
@@ -145,6 +193,8 @@ class SwissBracketItem(QtGui.QTableWidgetItem):
         self.itemtourney = tourney 
         self.client = tourney.client
         
+        self.seed1 = seed1
+        self.seed2 = seed2
         self.player1 = player1    
         self.player2 = player2
         self.round  = r
@@ -153,7 +203,7 @@ class SwissBracketItem(QtGui.QTableWidgetItem):
         
         
         
-        self.setText(self.FORMATTER_SWISS_BRACKET.format(player1=self.player1, player2=self.player2, score1=self.score1, score2=self.score2))
+        self.setText(self.FORMATTER_SWISS_BRACKET.format(player1=self.player1, player2=self.player2, seed1=seed1, seed2=seed2, score1=self.score1, score2=self.score2))
         
             
     def registerScore(self):
@@ -185,9 +235,7 @@ class SwissBracketItem(QtGui.QTableWidgetItem):
         '''
         Updates this item from the message dictionary supplied
         '''
-        
-        print message
-        
+       
         self.client  = client
   
 
