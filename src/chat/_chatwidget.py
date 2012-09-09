@@ -240,8 +240,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             if (channel.lower() in self.crucialChannels):
                 self.insertTab(1, self.channels[channel], channel)    #CAVEAT: This is assumes a server tab exists.                
                 self.client.localBroadcast.connect(self.channels[channel].printRaw)
-
-                self.channels[channel].printAnnouncement("Welcome to Forged Alliance Forever !", "red", "+3") #HACK: Beta message.
+                self.channels[channel].printAnnouncement("Welcome to Forged Alliance Forever !", "red", "+3") 
                 self.channels[channel].printAnnouncement("The documentation is the wiki. Check the Links menu !", "red", "+1") 
                 self.channels[channel].printAnnouncement("", "black", "+1") 
                 self.channels[channel].printAnnouncement("", "black", "+1")
