@@ -400,4 +400,4 @@ class TournamentsWidget(FormClass, BaseClass):
         
         if hosttourneywidget.exec_() == 1 :
             if self.title != "":
-                self.client.send(dict(command="create_tournament", type = item.tourney, name=self.title, min_players = self.minplayers, max_players = self.maxplayers, min_rating = self.minrating, max_rating = self.maxrating, description = self.description))
+                self.client.send(dict(command="create_tournament", type = item.tourney, name=self.title, min_players = self.minplayers, max_players = self.maxplayers, min_rating = self.minrating, max_rating = self.maxrating, description = self.description, date = self.date))
