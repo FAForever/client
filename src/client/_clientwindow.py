@@ -93,6 +93,7 @@ class ClientWindow(FormClass, BaseClass):
         self.socket.error.connect(self.socketError)
         self.blockSize = 0
 
+        self.uniqueId = None
         self.profile = playerstats.Statpage(self)
 
         self.sendFile = False
@@ -133,7 +134,7 @@ class ClientWindow(FormClass, BaseClass):
         self.mainTabs.currentChanged.connect(self.mainTabChanged)
         
         #Verrry important step!
-        self.loadSettings()            
+        self.loadSettingsPrelogin()            
 
         self.players = {}       # Player names known to the client, contains the player_info messages sent by the server
         self.urls = {}          # user game location URLs - TODO: Should go in self.players
@@ -447,7 +448,21 @@ class ClientWindow(FormClass, BaseClass):
         util.settings.setValue("joinsparts", self.joinsparts)
         util.settings.endGroup()
         
+    
+    def loadSettingsPrelogin(self):
+
+        util.settings.beginGroup("user")
+        self.login = util.settings.value("user/login")
+        self.password = util.settings.value("user/password")
+        self.remember = (util.settings.value("user/remember") == "true")
         
+        # This is the new way we do things.
+        self.autologin = (util.settings.value("user/autologin") == "true")
+        self.actionSetAutoLogin.setChecked(self.autologin)        
+        util.settings.endGroup()
+        
+        
+       
     def loadSettings(self):
         #Load settings
         fa.loadPath()
@@ -463,16 +478,6 @@ class ClientWindow(FormClass, BaseClass):
         self.useUPnP = (util.settings.value("app/upnp", "false") == "true")
         self.gamelogs = (util.settings.value("app/falogs", "false") == "true")
         self.actionSaveGamelogs.setChecked(self.gamelogs)
-        util.settings.endGroup()
-
-        util.settings.beginGroup("user")
-        self.login = util.settings.value("user/login")
-        self.password = util.settings.value("user/password")
-        self.remember = (util.settings.value("user/remember") == "true")
-        
-        # This is the new way we do things.
-        self.autologin = (util.settings.value("user/autologin") == "true")
-        self.actionSetAutoLogin.setChecked(self.autologin)        
         util.settings.endGroup()
         
         self.loadChat()
@@ -606,11 +611,13 @@ class ClientWindow(FormClass, BaseClass):
         while self.session == None :
             QtGui.QApplication.processEvents()  
        
+        self.uniqueId = util.uniqueID(self.login, self.session)
+        self.loadSettings()
         return True  
         
     
     def doLogin(self):
-        uniqueId = util.uniqueID(self.login, self.session)
+        
         #Determine if a login wizard needs to be displayed and do so
         if not self.autologin or not self.password or not self.login:        
             import loginwizards
@@ -627,11 +634,11 @@ class ClientWindow(FormClass, BaseClass):
         
         
         
-        if not uniqueId :
+        if not self.uniqueId :
             QtGui.QMessageBox.warning(QtGui.QApplication.activeWindow(), "Unable to login", "It seems that you miss some important DLL.<br>Please install :<br><a href =\"http://www.microsoft.com/download/en/confirmation.aspx?id=8328\">http://www.microsoft.com/download/en/confirmation.aspx?id=8328</a> and <a href = \"http://www.microsoft.com/en-us/download/details.aspx?id=17851\">http://www.microsoft.com/en-us/download/details.aspx?id=17851</a><br><br>You probably have to restart your computer after installing them.<br><br>Please visit this link in case of problems : <a href=\"http://www.faforever.com/forums/viewforum.php?f=3\">http://www.faforever.com/forums/viewforum.php?f=3</a>", QtGui.QMessageBox.Close)
             return False
         else :
-            self.send(dict(command="hello", version=util.VERSION, login=self.login, password = self.password, unique_id = uniqueId, local_ip = self.localIP))
+            self.send(dict(command="hello", version=util.VERSION, login=self.login, password = self.password, unique_id = self.uniqueId, local_ip = self.localIP))
         
         while (not self.state) and self.progress.isVisible():
             QtGui.QApplication.processEvents()
@@ -666,6 +673,10 @@ class ClientWindow(FormClass, BaseClass):
             return True            
         elif self.state == ClientState.REJECTED:
             logger.warning("Login rejected.")
+            #seems that there isa bug in a key ..
+            util.settings.beginGroup("window")
+            util.settings.remove("geometry")
+            util.settings.endGroup()        
             self.clearAutologin()
             return self.doLogin()   #Just try to login again, slightly hackish but I can get away with it here, I guess.
         else:
@@ -1116,6 +1127,11 @@ class ClientWindow(FormClass, BaseClass):
             self.session = str(message["session"])
         
         if "update" in message : 
+            
+            # fix a problem with Qt.
+            util.settings.beginGroup("window")
+            util.settings.remove("geometry")
+            util.settings.endGroup()  
             
             if not util.developer():
                 logger.warn("Server says that Updating is needed.")

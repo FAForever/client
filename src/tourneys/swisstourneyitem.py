@@ -90,7 +90,7 @@ class SwissTourneyItem(QtGui.QListWidgetItem):
         
         self.client  = client
         self.state      = message.get('state', "close")
-        
+
         if self.state == 'open' or self.state == 'playing' or self.state == 'finished' :
             ''' handling the listing of the tournament '''
             self.title      = message['title']
@@ -161,7 +161,7 @@ class SwissTourneyItem(QtGui.QListWidgetItem):
         self.client.send(dict(command="tournament", action = "preview", uid=self.uid, type = self.type))
 
     def removePlayer(self):
-        item, ok = QtGui.QInputDialog.getItem(self.client, "Removing player", "Player to remove:", self.players, 0, False)
+        item, ok = QtGui.QInputDialog.getItem(self.client, "Removing player", "Player to remove:", self.playersname, 0, False)
         if ok and item:
             self.client.send(dict(command="tournament", action = "remove_player", player=item, uid=self.uid, type = self.type))
 

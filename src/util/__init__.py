@@ -507,7 +507,6 @@ def uniqueID(user, session ):
     try:
         mydll = cdll.LoadLibrary("uid.dll")
         mydll.uid.restype = c_char_p
-     
         baseString = (mydll.uid(session, str(user)) )
         DllCanUnloadNow()
 

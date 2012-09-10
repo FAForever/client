@@ -365,7 +365,7 @@ class TournamentsWidget(FormClass, BaseClass):
         '''
         Slot that attempts to join or leave a tournament.
         ''' 
-        if not self.client.login in item.players :
+        if not self.client.login in item.playersname :
             reply = QtGui.QMessageBox.question(self.client, "Register",
                 "Do you want to register to this tournament ?",
                 QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)

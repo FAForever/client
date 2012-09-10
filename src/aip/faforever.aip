@@ -12,10 +12,10 @@
     <ROW Property="ARPURLUPDATEINFO" Value="http://www.faforever.com/page=2"/>
     <ROW Property="CTRLS" Value="2"/>
     <ROW Property="Manufacturer" Value="FAF Community" ValueLocId="*"/>
-    <ROW Property="ProductCode" Value="1033:{694E2571-BA45-40D5-824B-5E91D94024D7} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{F7E28C1B-58D3-4535-8AC3-DE5B1A97B13A} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Forged Alliance Forever" ValueLocId="*"/>
-    <ROW Property="ProductVersion" Value="240.7.579"/>
+    <ROW Property="ProductVersion" Value="240.7.583"/>
     <ROW Property="REBOOT" MultiBuildValue="DefaultBuild:Suppress"/>
     <ROW Property="RUNAPPLICATION" Value="1" Type="4"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
@@ -41,6 +41,8 @@
     <ROW Directory="fonts_Dir" Directory_Parent="mpldata_Dir" DefaultDir="fonts"/>
     <ROW Directory="formatters_1_Dir" Directory_Parent="games_Dir" DefaultDir="format~1|formatters"/>
     <ROW Directory="formatters_2_Dir" Directory_Parent="tutorials_Dir" DefaultDir="format~1|formatters"/>
+    <ROW Directory="formatters_3_Dir" Directory_Parent="stats_Dir" DefaultDir="format~1|formatters"/>
+    <ROW Directory="formatters_4_Dir" Directory_Parent="tournaments_Dir" DefaultDir="format~1|formatters"/>
     <ROW Directory="formatters_Dir" Directory_Parent="chat_Dir" DefaultDir="format~1|formatters"/>
     <ROW Directory="games_Dir" Directory_Parent="_res_Dir" DefaultDir="games"/>
     <ROW Directory="imageformats_Dir" Directory_Parent="plugins_Dir" DefaultDir="imagef~1|imageformats"/>
@@ -53,6 +55,7 @@
     <ROW Directory="rank_Dir" Directory_Parent="chat_Dir" DefaultDir="rank"/>
     <ROW Directory="replays_Dir" Directory_Parent="_res_Dir" DefaultDir="replays"/>
     <ROW Directory="sfx_Dir" Directory_Parent="chat_Dir" DefaultDir="sfx"/>
+    <ROW Directory="stats_Dir" Directory_Parent="_res_Dir" DefaultDir="stats"/>
     <ROW Directory="status_Dir" Directory_Parent="chat_Dir" DefaultDir="status"/>
     <ROW Directory="tournaments_Dir" Directory_Parent="_res_Dir" DefaultDir="tourna~1|tournaments"/>
     <ROW Directory="ttf_Dir" Directory_Parent="fonts_Dir" DefaultDir="ttf"/>
@@ -97,7 +100,9 @@
     <ROW Component="games.ui" ComponentId="{EE192359-5527-4B5B-9FF4-EB9CA976B491}" Directory_="games_Dir" Attributes="0" KeyPath="games.ui" Type="0"/>
     <ROW Component="host.png" ComponentId="{FD6C0F08-4FCE-4D8C-B01B-D12EFF855B79}" Directory_="status_Dir" Attributes="0" KeyPath="host.png" Type="0"/>
     <ROW Component="host.ui" ComponentId="{E01ED429-CBD9-440E-9E14-EEE699BDDF2F}" Directory_="tournaments_Dir" Attributes="0" KeyPath="host.ui_1" Type="0"/>
+    <ROW Component="ladder.qthtml" ComponentId="{EA6640B8-3459-40E8-BB18-E6CA9921680E}" Directory_="formatters_3_Dir" Attributes="0" KeyPath="ladder.qthtml" Type="0"/>
     <ROW Component="lineprops.glade" ComponentId="{C8DB36F7-620D-428E-BF2E-FF3806DCC401}" Directory_="mpldata_Dir" Attributes="0" KeyPath="lineprops.glade" Type="0"/>
+    <ROW Component="mapstat.ui" ComponentId="{A02A6421-1481-4525-BEC4-6709CFE0A192}" Directory_="stats_Dir" Attributes="0" KeyPath="mapstat.ui" Type="0"/>
     <ROW Component="mfc100u.dll" ComponentId="{105AC780-0720-40A2-99A4-A4F849F1ED27}" Directory_="APPDIR" Attributes="0" KeyPath="mfc100u.dll"/>
     <ROW Component="msvcp100.dll" ComponentId="{AFE1103F-D496-4044-A7DB-574EF58406EC}" Directory_="APPDIR" Attributes="0" KeyPath="msvcp100.dll"/>
     <ROW Component="msvcr100.dll" ComponentId="{AB2E4715-E168-4064-9524-DF5861304074}" Directory_="APPDIR" Attributes="0" KeyPath="msvcr100.dll"/>
@@ -121,6 +126,7 @@
     <ROW Component="qtiff4.dll" ComponentId="{70A3162B-2B4C-467A-8189-77ACED6991A1}" Directory_="APPDIR" Attributes="0" KeyPath="qtiff4.dll"/>
     <ROW Component="qtiff4.dll_1" ComponentId="{65B80032-3E5B-40E7-8866-48F8F2ED7A45}" Directory_="imageformats_Dir" Attributes="0" KeyPath="qtiff4.dll_1"/>
     <ROW Component="shell" ComponentId="{2CB23F7F-792B-4D07-9FCF-636EDC96B2A1}" Directory_="APPDIR" Attributes="4" KeyPath="shell"/>
+    <ROW Component="style.css" ComponentId="{E6889952-8F2E-401A-8863-6A2F9B687ADA}" Directory_="formatters_4_Dir" Attributes="0" KeyPath="style.css_1" Type="0"/>
     <ROW Component="tutorials.qthtml" ComponentId="{5ECCF10F-5F23-4C53-BFBC-9F4A53E32132}" Directory_="formatters_2_Dir" Attributes="0" KeyPath="tutorials.qthtml" Type="0"/>
     <ROW Component="tutorials.ui" ComponentId="{E2A320CC-A053-4604-B29A-46AF80C428A1}" Directory_="tutorials_Dir" Attributes="0" KeyPath="tutorials.ui" Type="0"/>
     <ROW Component="uid.dll" ComponentId="{3D228738-75AD-4147-93BF-7B3B8B3E8D9E}" Directory_="APPDIR" Attributes="0" KeyPath="uid.dll"/>
@@ -128,7 +134,7 @@
     <ROW Component="window_icon.png" ComponentId="{B620FB5F-1E8F-4707-8D0A-C58B6FF594BD}" Directory_="_res_Dir" Attributes="0" KeyPath="window_icon.png" Type="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
-    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0" Components="APIMSWinCoreLocalRegistryL110.dll Aeon_T1.png CourierBold.afm FAForever.exe FAForever.lib FreeImage.dll LIBEAY32.dll MPR.dll QtCore4.dll QtGui4.dll QtNetwork4.dll QtWebKit4.dll Replay SHORTCUTDIR SSLEAY32.dll _ __1 about.ui action.qthtml ad.png aeon.png army.png avatar_blank.png back.png blackops.html broken.png channel.ui cmb10.ttf cmex10.afm command faf.qthtml fafreplay failure.ui games.ui host.png host.ui lineprops.glade mfc100u.dll msvcp100.dll msvcr100.dll msvcr90.dll privmsg.wav python27.dll pythoncom27.dll pywintypes27.dll qgif4.dll qgif4.dll_1 qico4.dll qico4.dll_1 qjpeg4.dll qjpeg4.dll_1 qmng4.dll qmng4.dll_1 qsvg4.dll qsvg4.dll_1 qtga4.dll qtga4.dll_1 qtiff4.dll qtiff4.dll_1 shell tutorials.qthtml tutorials.ui uid.dll w9xpopen.exe window_icon.png"/>
+    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0" Components="APIMSWinCoreLocalRegistryL110.dll Aeon_T1.png CourierBold.afm FAForever.exe FAForever.lib FreeImage.dll LIBEAY32.dll MPR.dll QtCore4.dll QtGui4.dll QtNetwork4.dll QtWebKit4.dll Replay SHORTCUTDIR SSLEAY32.dll _ __1 about.ui action.qthtml ad.png aeon.png army.png avatar_blank.png back.png blackops.html broken.png channel.ui cmb10.ttf cmex10.afm command faf.qthtml fafreplay failure.ui games.ui host.png host.ui ladder.qthtml lineprops.glade mapstat.ui mfc100u.dll msvcp100.dll msvcr100.dll msvcr90.dll privmsg.wav python27.dll pythoncom27.dll pywintypes27.dll qgif4.dll qgif4.dll_1 qico4.dll qico4.dll_1 qjpeg4.dll qjpeg4.dll_1 qmng4.dll qmng4.dll_1 qsvg4.dll qsvg4.dll_1 qtga4.dll qtga4.dll_1 qtiff4.dll qtiff4.dll_1 shell style.css tutorials.qthtml tutorials.ui uid.dll w9xpopen.exe window_icon.png"/>
     <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
@@ -153,6 +159,7 @@
     <ROW File="LIBEAY32.dll" Component_="LIBEAY32.dll" FileName="LIBEAY32.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\LIBEAY32.dll" SelfReg="false" NextFile="SSLEAY32.dll"/>
     <ROW File="LICENSE_STIX" Component_="cmb10.ttf" FileName="LICENS~1|LICENSE_STIX" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\ttf\LICENSE_STIX" SelfReg="false" NextFile="README.TXT_2"/>
     <ROW File="MPR.dll" Component_="MPR.dll" FileName="MPR.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\MPR.dll" SelfReg="false" NextFile="cmex10.afm"/>
+    <ROW File="PyQt4.Qt.pyd" Component_="FAForever.lib" FileName="PyQt4Q~2.pyd|PyQt4.Qt.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\PyQt4.Qt.pyd" SelfReg="false"/>
     <ROW File="PyQt4.QtCore.pyd" Component_="FAForever.lib" FileName="PyQt4Q~5.pyd|PyQt4.QtCore.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\PyQt4.QtCore.pyd" SelfReg="false" NextFile="sip.pyd"/>
     <ROW File="PyQt4.QtGui.pyd" Component_="FAForever.lib" FileName="PyQt4Q~4.pyd|PyQt4.QtGui.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\PyQt4.QtGui.pyd" SelfReg="false" NextFile="PyQt4.QtCore.pyd"/>
     <ROW File="PyQt4.QtNetwork.pyd" Component_="FAForever.lib" FileName="PyQt4Q~3.pyd|PyQt4.QtNetwork.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\PyQt4.QtNetwork.pyd" SelfReg="false" NextFile="PyQt4.QtGui.pyd"/>
@@ -444,6 +451,8 @@
     <ROW File="labwars.html" Component_="blackops.html" FileName="labwar~1.htm|labwars.html" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\labwars.html" SelfReg="false" NextFile="labwars.png"/>
     <ROW File="labwars.png" Component_="blackops.html" FileName="labwars.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\labwars.png" SelfReg="false" NextFile="murderparty.html"/>
     <ROW File="ladder.png" Component_="about.ui" FileName="ladder.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\ladder.png" SelfReg="false" NextFile="login_watermark.png"/>
+    <ROW File="ladder.qthtml" Component_="ladder.qthtml" FileName="ladder~1.qth|ladder.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\stats\formatters\ladder.qthtml" SelfReg="false" NextFile="ladder_header.qthtml"/>
+    <ROW File="ladder_header.qthtml" Component_="ladder.qthtml" FileName="ladder~2.qth|ladder_header.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\stats\formatters\ladder_header.qthtml" SelfReg="false" NextFile="style.css"/>
     <ROW File="lb.png" Component_="ad.png" FileName="lb.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\lb.png" SelfReg="false" NextFile="lc.png"/>
     <ROW File="lc.png" Component_="ad.png" FileName="lc.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\lc.png" SelfReg="false" NextFile="li.png"/>
     <ROW File="li.png" Component_="ad.png" FileName="li.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\li.png" SelfReg="false" NextFile="lk.png"/>
@@ -460,6 +469,7 @@
     <ROW File="ly.png" Component_="ad.png" FileName="ly.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ly.png" SelfReg="false" NextFile="ma.png"/>
     <ROW File="ma.png" Component_="ad.png" FileName="ma.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ma.png" SelfReg="false" NextFile="mc.png"/>
     <ROW File="maps.png" Component_="about.ui" FileName="maps.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\maps.png" SelfReg="false" NextFile="replays.png"/>
+    <ROW File="mapstat.ui" Component_="mapstat.ui" FileName="mapstat.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\stats\mapstat.ui" SelfReg="false" NextFile="stats.ui"/>
     <ROW File="mass.png" Component_="army.png" FileName="mass.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\vault\map_icons\mass.png" SelfReg="false" NextFile="window_icon.png"/>
     <ROW File="matplotlib._cntr.pyd" Component_="FAForever.lib" FileName="matplo~8.pyd|matplotlib._cntr.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\matplotlib._cntr.pyd" SelfReg="false" NextFile="matplotlib.ttconv.pyd"/>
     <ROW File="matplotlib._delaunay.pyd" Component_="FAForever.lib" FileName="matplo~6.pyd|matplotlib._delaunay.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\matplotlib._delaunay.pyd" SelfReg="false" NextFile="matplotlib.nxutils.pyd"/>
@@ -655,6 +665,7 @@
     <ROW File="ss.png" Component_="ad.png" FileName="ss.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ss.png" SelfReg="false" NextFile="st.png"/>
     <ROW File="st.png" Component_="ad.png" FileName="st.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\st.png" SelfReg="false" NextFile="sv.png"/>
     <ROW File="star.png" Component_="about.ui" FileName="star.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\star.png" SelfReg="false" NextFile="tourney.png"/>
+    <ROW File="stats.ui" Component_="mapstat.ui" FileName="stats.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\stats\stats.ui" SelfReg="false" NextFile="style.css_1"/>
     <ROW File="stock_close.ppm" Component_="back.png" FileName="stock_~1.ppm|stock_close.ppm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\stock_close.ppm" SelfReg="false" NextFile="stock_close.xpm"/>
     <ROW File="stock_close.xpm" Component_="back.png" FileName="stock_~1.xpm|stock_close.xpm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\stock_close.xpm" SelfReg="false" NextFile="stock_down.ppm"/>
     <ROW File="stock_down.ppm" Component_="back.png" FileName="stock_~2.ppm|stock_down.ppm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\stock_down.ppm" SelfReg="false" NextFile="stock_down.xpm"/>
@@ -673,11 +684,16 @@
     <ROW File="stock_zoomin.xpm" Component_="back.png" FileName="stock_~7.xpm|stock_zoom-in.xpm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\stock_zoom-in.xpm" SelfReg="false" NextFile="stock_zoomout.ppm"/>
     <ROW File="stock_zoomout.ppm" Component_="back.png" FileName="stock_~8.ppm|stock_zoom-out.ppm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\stock_zoom-out.ppm" SelfReg="false" NextFile="stock_zoomout.xpm"/>
     <ROW File="stock_zoomout.xpm" Component_="back.png" FileName="stock_~8.xpm|stock_zoom-out.xpm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\stock_zoom-out.xpm" SelfReg="false" NextFile="subplots.png"/>
+    <ROW File="style.css" Component_="ladder.qthtml" FileName="style.css" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\stats\formatters\style.css" SelfReg="false" NextFile="mapstat.ui"/>
+    <ROW File="style.css_1" Component_="style.css" FileName="style.css" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\tournaments\formatters\style.css" SelfReg="false" NextFile="swiss.qthtml"/>
     <ROW File="subplots.png" Component_="back.png" FileName="subplots.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\subplots.png" SelfReg="false" NextFile="subplots.ppm"/>
     <ROW File="subplots.ppm" Component_="back.png" FileName="subplots.ppm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\subplots.ppm" SelfReg="false" NextFile="subplots.xpm"/>
     <ROW File="subplots.xpm" Component_="back.png" FileName="subplots.xpm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\subplots.xpm" SelfReg="false" NextFile="zoom_to_rect.png"/>
     <ROW File="sv.png" Component_="ad.png" FileName="sv.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\sv.png" SelfReg="false" NextFile="sw.png"/>
     <ROW File="sw.png" Component_="ad.png" FileName="sw.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\sw.png" SelfReg="false" NextFile="sy.png"/>
+    <ROW File="swiss.qthtml" Component_="style.css" FileName="swiss~1.qth|swiss.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\tournaments\formatters\swiss.qthtml" SelfReg="false" NextFile="swiss_bracket.qthtml"/>
+    <ROW File="swiss_bracket.qthtml" Component_="style.css" FileName="swiss_~1.qth|swiss_bracket.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\tournaments\formatters\swiss_bracket.qthtml" SelfReg="false" NextFile="swiss_open.qthtml"/>
+    <ROW File="swiss_open.qthtml" Component_="style.css" FileName="swiss_~2.qth|swiss_open.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\tournaments\formatters\swiss_open.qthtml" SelfReg="false" NextFile="PyQt4.Qt.pyd"/>
     <ROW File="sy.png" Component_="ad.png" FileName="sy.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\sy.png" SelfReg="false" NextFile="sz.png"/>
     <ROW File="sz.png" Component_="ad.png" FileName="sz.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\sz.png" SelfReg="false" NextFile="tc.png"/>
     <ROW File="tc.png" Component_="ad.png" FileName="tc.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\tc.png" SelfReg="false" NextFile="td.png"/>
@@ -696,7 +712,7 @@
     <ROW File="tr.png" Component_="ad.png" FileName="tr.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\tr.png" SelfReg="false" NextFile="tt.png"/>
     <ROW File="tray_icon.png" Component_="about.ui" FileName="tray_i~1.png|tray_icon.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\tray_icon.png" SelfReg="false" NextFile="failure.ui"/>
     <ROW File="tt.png" Component_="ad.png" FileName="tt.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\tt.png" SelfReg="false" NextFile="tv.png"/>
-    <ROW File="tutorialarea.ui" Component_="tutorials.ui" FileName="tutori~2.ui|tutorialarea.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\tutorials\tutorialarea.ui" SelfReg="false"/>
+    <ROW File="tutorialarea.ui" Component_="tutorials.ui" FileName="tutori~2.ui|tutorialarea.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\tutorials\tutorialarea.ui" SelfReg="false" NextFile="ladder.qthtml"/>
     <ROW File="tutorials.png" Component_="about.ui" FileName="tutori~1.png|tutorials.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\tutorials.png" SelfReg="false" NextFile="tutorials.qthtml"/>
     <ROW File="tutorials.qthtml" Component_="tutorials.qthtml" FileName="tutori~1.qth|tutorials.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\tutorials\formatters\tutorials.qthtml" SelfReg="false" NextFile="tutorials.ui"/>
     <ROW File="tutorials.ui" Component_="tutorials.ui" FileName="tutori~1.ui|tutorials.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\tutorials\tutorials.ui" SelfReg="false" NextFile="avatar_blank.png"/>
