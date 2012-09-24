@@ -153,10 +153,10 @@
             <bool>true</bool>
            </property>
            <property name="resizeMode">
-            <enum>QListView::Adjust</enum>
+            <enum>QListView::Fixed</enum>
            </property>
            <property name="viewMode">
-            <enum>QListView::IconMode</enum>
+            <enum>QListView::ListMode</enum>
            </property>
            <property name="uniformItemSizes">
             <bool>true</bool>

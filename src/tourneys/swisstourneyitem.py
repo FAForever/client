@@ -38,7 +38,9 @@ class SwissTourneyItemDelegate(QtGui.QStyledItemDelegate):
         
         html = QtGui.QTextDocument()
         html.setHtml(option.text)
-        return QtCore.QSize(int(html.size().width()), int(self.height))  
+        if self.height < html.size().height() :
+            self.height = html.size().height()
+        return QtCore.QSize(int(html.size().width()+15), int(self.height))  
 
 
 
@@ -127,12 +129,12 @@ class SwissTourneyItem(QtGui.QListWidgetItem):
 
             self.description = self.description.replace('\n', '<br>') 
     
-            playerstring = "<br/>"
+            
             playerstring = "<br/>".join(self.playersname)
     
             if self.state == "open" or self.state == "playing" or self.state == "finished":
                 date, year, hour = self.convertTimeToLocal(self.date)
-                self.setText(self.FORMATTER_SWISS_OPEN.format(date=date, year=year, hour=hour, title=self.title, host=self.host, description=self.description, playerstring=playerstring))
+                self.setText(self.FORMATTER_SWISS_OPEN.format(date=date, year=year, hour=hour, title=self.title, host=self.host, description=self.description, numreg=str(len(self.playersname)), playerstring=playerstring))
             
 
             
