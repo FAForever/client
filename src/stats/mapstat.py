@@ -89,6 +89,11 @@ class LadderMapStat(FormClass, BaseClass):
         
         game_played = values["game_played"]
         
+        if game_played == 0 :
+            game_played = 1
+        
+
+        
         self.mapstats.insertHtml("<br><font size='+1'>"+str(game_played)+" games played on this map </font><br>")
         
         self.mapstats.insertHtml("<br><font size='+1'>"+str(round(float(draws)/float(game_played),2))+"% of the games end with a draw ("+str(draws)+" games) </font><br>")
@@ -97,6 +102,8 @@ class LadderMapStat(FormClass, BaseClass):
         self.mapstats.insertHtml("<br><font size='+1'> Maximum time for a game : "+ maxtime +"</font><br>")
         
         totalFaction = float(uef_total + cybran_total + aeon_total + sera_total) 
+        if totalFaction == 0 :
+            totalFaction = 1
         
         percentUef      = round((uef_total     /  totalFaction) * 100.0, 2)
         
@@ -117,6 +124,18 @@ class LadderMapStat(FormClass, BaseClass):
         aeonnomirror = (float(aeon_total)-float(aeon_ignore)*2)
         seranomirror = (float(sera_total)-float(sera_ignore)*2)
         
+        
+        if uefnomirror == 0 :
+            uefnomirror = 1
+
+        if cybrannomirror == 0 :
+            cybrannomirror = 1
+
+        if aeonnomirror == 0 :
+            aeonnomirror = 1
+
+        if seranomirror == 0 :
+            seranomirror = 1
         
         percentwinUef      = round((uef_win     /  uefnomirror ) * 100.0, 2)
         percentwinCybran   = round((cybran_win  /  cybrannomirror ) * 100.0, 2)
