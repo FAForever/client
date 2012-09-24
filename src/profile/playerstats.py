@@ -79,8 +79,8 @@ class Statpage(QMainWindow):
                             
     def processStatsInfos(self, message):
         type = message['type']
-        
-        if not type == "global_forever" or not type == "global_90_days" :
+
+        if not type == "global_forever" and not type == "global_90_days" :
             return
 
         name = message['player']
