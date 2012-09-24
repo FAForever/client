@@ -21,7 +21,7 @@ GAME_PORT_DEFAULT = 6112
 
 # Important URLs
 TEAMSPEAK_URL = "ts3server://faforever.com?port=9987&nickname={login}" #additional teamspeak parameters: &password=serverPassword&channel=MyDefaultChannel &channelpassword=defaultChannelPassword&token=TokenKey&addbookmark=1
-FORUMS_URL = "http://forums.faforever.com"
+FORUMS_URL = "http://faforever.com/forums"
 WEBSITE_URL = "http://www.faforever.com"
 UNITDB_URL = "http://www.faforever.com/faf/unitsDB/"
 WIKI_URL = "http://www.faforever.com/mediawiki/index.php/Main_Page"
