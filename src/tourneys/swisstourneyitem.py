@@ -101,7 +101,6 @@ class SwissTourneyItem(QtGui.QListWidgetItem):
         '''
         Updates this item from the message dictionary supplied
         '''
-
         self.client  = client
         self.state      = message.get('state', "close")
 
