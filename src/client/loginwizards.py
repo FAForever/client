@@ -54,11 +54,11 @@ class LoginWizard(QtGui.QWizard):
 
 
     def accept(self):
-        self.login = self.field("login")
+        self.login = self.field("login").strip()
         if (self.field("password") != "!!!password!!!"): #Not entirely nicely coded, this can go into a lambda function connected to the LineEdit                    
-            self.password = hashlib.sha256(self.field("password").encode("utf-8")).hexdigest()
+            self.password = hashlib.sha256(self.field("password").strip().encode("utf-8")).hexdigest()
 
-        self.client.login = self.field("login")
+        self.client.login = self.field("login").strip()
         self.client.password = self.password    #this is the hash, not the dummy password
         self.client.remember = self.field("remember")
         self.client.autologin = self.field("autologin")
@@ -329,7 +329,7 @@ class AccountCreationPage(QtGui.QWizardPage):
             return False   
         
         # check if the login is okay
-        login = self.loginLineEdit.text()
+        login = self.loginLineEdit.text().strip()
         
         self.client.loginWriteToFaServer("CREATE_ACCOUNT", login, email, password1)
 

@@ -492,7 +492,7 @@ class ClientWindow(FormClass, BaseClass):
         util.settings.endGroup()
 
         util.settings.beginGroup("user")
-        self.login = util.settings.value("user/login")
+        self.login = util.settings.value("user/login").strip()
         self.password = util.settings.value("user/password")
         self.remember = (util.settings.value("user/remember") == "true")
         
