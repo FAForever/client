@@ -367,7 +367,7 @@ class GameSettings(QtGui.QWizardPage):
         self.gamePortSpin.setMaximum(50000) 
         self.gamePortSpin.setValue(6112)
 
-        self.checkUPnP = QtGui.QCheckBox("use UPnP (experimental)")
+        self.checkUPnP = QtGui.QCheckBox("use UPnP")
         self.checkUPnP.setToolTip("FAF can try to open and forward your game port automatically using UPnP.<br/><b>Caution: This doesn't work for all connections, but may help with some routers.</b>")
 
         layout = QtGui.QVBoxLayout()

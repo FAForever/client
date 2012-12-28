@@ -43,7 +43,9 @@ class HostTourneyWidget(FormClass, BaseClass):
         self.maxRating.setValue ( self.parent.maxrating )
         self.minPlayers.setValue ( self.parent.minplayers )
         self.maxPlayers.setValue ( self.parent.maxplayers )
-#        
+        
+        self.dateTimeEdit.setDateTime(QtCore.QDateTime.currentDateTime())       
+ 
         self.hostButton.released.connect(self.hosting)
 
     def hosting(self):
@@ -56,6 +58,8 @@ class HostTourneyWidget(FormClass, BaseClass):
         
         self.parent.minplayers = self.minPlayers.value()
         self.parent.maxplayers = self.maxPlayers.value()
+        
+        self.parent.date = self.dateTimeEdit.dateTime().toUTC().toString("yyyy-MM-dd hh:mm:ss")
         
         self.done(1)
         

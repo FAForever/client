@@ -21,10 +21,10 @@
 
 
 from PyQt4 import QtGui, QtCore
-
+from PyQt4.QtNetwork import QNetworkRequest
 from chat._avatarWidget import avatarWidget
 
-from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
+
 from chat import user2name
 import util
 
@@ -126,7 +126,6 @@ class Chatter(QtGui.QTableWidgetItem):
  
     
     def updateAvatar(self):
-        #TODO: This has a few rough edges and needs to work with a global QNetworkAccessManager. 
         if self.avatar:        
             
             self.avatarTip = self.avatar["tooltip"]           
@@ -140,9 +139,7 @@ class Chatter(QtGui.QTableWidgetItem):
                 self.avatarItem.setToolTip(self.avatarTip)
             else:                           
                 if util.addcurDownloadAvatar(url, self.name) :                
-                    self.nam = QNetworkAccessManager()
-                    self.nam.finished.connect(self.lobby.finishDownloadAvatar)
-                    self.nam.get(QNetworkRequest(QtCore.QUrl(url)))            
+                    self.lobby.nam.get(QNetworkRequest(QtCore.QUrl(url)))            
         else:
             # No avatar set.
             self.avatarItem.setIcon(QtGui.QIcon()) 
