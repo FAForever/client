@@ -478,7 +478,7 @@ class ClientWindow(FormClass, BaseClass):
     def loadSettingsPrelogin(self):
 
         util.settings.beginGroup("user")
-        self.login = util.settings.value("user/login").strip()
+        self.login = util.settings.value("user/login")
         self.password = util.settings.value("user/password")
         self.remember = (util.settings.value("user/remember") == "true")
         
@@ -654,7 +654,7 @@ class ClientWindow(FormClass, BaseClass):
         self.progress.reset()
         self.progress.show()                       
          
-      
+        self.login = self.login.strip()      
         logger.info("Attempting to login as: " + str(self.login))
         self.state = ClientState.NONE
         
