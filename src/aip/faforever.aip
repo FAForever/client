@@ -12,10 +12,10 @@
     <ROW Property="ARPURLUPDATEINFO" Value="http://www.faforever.com/page=2"/>
     <ROW Property="CTRLS" Value="2"/>
     <ROW Property="Manufacturer" Value="FAF Community" ValueLocId="*"/>
-    <ROW Property="ProductCode" Value="1033:{32216DD5-0E95-4B59-9DFB-E0C59233AF67} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{5442A218-5CC5-48EA-83A9-29EEFFD7791F} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Forged Alliance Forever" ValueLocId="*"/>
-    <ROW Property="ProductVersion" Value="240.7.584"/>
+    <ROW Property="ProductVersion" Value="240.7.590"/>
     <ROW Property="REBOOT" MultiBuildValue="DefaultBuild:Suppress"/>
     <ROW Property="RUNAPPLICATION" Value="1" Type="4"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
@@ -159,7 +159,7 @@
     <ROW File="LIBEAY32.dll" Component_="LIBEAY32.dll" FileName="LIBEAY32.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\LIBEAY32.dll" SelfReg="false" NextFile="SSLEAY32.dll"/>
     <ROW File="LICENSE_STIX" Component_="cmb10.ttf" FileName="LICENS~1|LICENSE_STIX" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\ttf\LICENSE_STIX" SelfReg="false" NextFile="README.TXT_2"/>
     <ROW File="MPR.dll" Component_="MPR.dll" FileName="MPR.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\MPR.dll" SelfReg="false" NextFile="cmex10.afm"/>
-    <ROW File="PyQt4.Qt.pyd" Component_="FAForever.lib" FileName="PyQt4Q~2.pyd|PyQt4.Qt.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\PyQt4.Qt.pyd" SelfReg="false"/>
+    <ROW File="PyQt4.Qt.pyd" Component_="FAForever.lib" FileName="PyQt4Q~2.pyd|PyQt4.Qt.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\PyQt4.Qt.pyd" SelfReg="false" NextFile="feed.png"/>
     <ROW File="PyQt4.QtCore.pyd" Component_="FAForever.lib" FileName="PyQt4Q~5.pyd|PyQt4.QtCore.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\PyQt4.QtCore.pyd" SelfReg="false" NextFile="sip.pyd"/>
     <ROW File="PyQt4.QtGui.pyd" Component_="FAForever.lib" FileName="PyQt4Q~4.pyd|PyQt4.QtGui.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\PyQt4.QtGui.pyd" SelfReg="false" NextFile="PyQt4.QtCore.pyd"/>
     <ROW File="PyQt4.QtNetwork.pyd" Component_="FAForever.lib" FileName="PyQt4Q~3.pyd|PyQt4.QtNetwork.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\PyQt4.QtNetwork.pyd" SelfReg="false" NextFile="PyQt4.QtGui.pyd"/>
@@ -365,6 +365,7 @@
     <ROW File="faf.png" Component_="blackops.html" FileName="faf.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\faf.png" SelfReg="false" NextFile="koth.html"/>
     <ROW File="faf.qthtml" Component_="faf.qthtml" FileName="faf~1.qth|faf.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\formatters\faf.qthtml" SelfReg="false" NextFile="mod.qthtml"/>
     <ROW File="failure.ui" Component_="failure.ui" FileName="failure.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\fa\updater\failure.ui" SelfReg="false" NextFile="illegal.ui"/>
+    <ROW File="feed.png" Component_="about.ui" FileName="feed.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\feed.png" SelfReg="false"/>
     <ROW File="fi.png" Component_="ad.png" FileName="fi.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\fi.png" SelfReg="false" NextFile="fj.png"/>
     <ROW File="filesave.png" Component_="back.png" FileName="filesave.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\filesave.png" SelfReg="false" NextFile="filesave.ppm"/>
     <ROW File="filesave.ppm" Component_="back.png" FileName="filesave.ppm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\filesave.ppm" SelfReg="false" NextFile="filesave.svg"/>

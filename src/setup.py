@@ -80,7 +80,7 @@ setup(
       name = "Forged Alliance Forever",
       options = {
                  "py2exe": {
-                            "includes":["sip"], "dll_excludes": ["MSVCP90.dll", "POWRPROF.dll", "API-MS-Win-Core-LocalRegistry-L1-1-0.dll", "MPR.dll"],
+                            "includes":["sip", "PyQt4.QtNetwork"], "dll_excludes": ["MSVCP90.dll", "POWRPROF.dll", "API-MS-Win-Core-LocalRegistry-L1-1-0.dll", "MPR.dll"],
 			    'excludes': ['_gtkagg', '_tkagg'],                          
                            }
                 }, 
