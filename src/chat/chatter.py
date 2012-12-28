@@ -129,9 +129,7 @@ class Chatter(QtGui.QTableWidgetItem):
         #TODO: This has a few rough edges and needs to work with a global QNetworkAccessManager. 
         if self.avatar:        
             
-            self.avatarTip = self.avatar["tooltip"]
-            
-            self.avatarItem.setIcon(QtGui.QIcon())
+            self.avatarTip = self.avatar["tooltip"]           
             url = self.avatar["url"]
             
             
