@@ -22,7 +22,7 @@
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
 
-import base64, zlib
+import base64, zlib, os
 import util
 
 class avatarWidget(QtGui.QDialog):
@@ -69,7 +69,7 @@ class avatarWidget(QtGui.QDialog):
                 "png Files (*.png)", options)
         if fileName:
             ## check the properties of that file
-            pixmap = QtGui.QPixmap (fileName)
+            pixmap = QtGui.QPixmap(fileName)
             if pixmap.height() == 20 and pixmap.width() == 40 :
                 
                 text, ok = QtGui.QInputDialog.getText(self, "Avatar description",
@@ -82,7 +82,7 @@ class avatarWidget(QtGui.QDialog):
                     fileDatas = base64.b64encode(zlib.compress(file.readAll()))
                     file.close()
                 
-                    self.parent.send(dict(command="avatar", action="upload_avatar", description=text, file=fileDatas))
+                    self.parent.send(dict(command="avatar", action="upload_avatar", name=os.path.basename(fileName),description=text, file=fileDatas))
                     
                 
             else :
