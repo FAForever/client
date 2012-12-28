@@ -131,9 +131,7 @@ class Chatter(QtGui.QTableWidgetItem):
             
             self.avatarTip = self.avatar["tooltip"]
             
-            #if self.name == "thygrrr":
-            #    self.avatar["url"] = "http://thygrrr.de/faf/thygrrr.png"
-
+            self.avatarItem.setIcon(QtGui.QIcon())
             url = self.avatar["url"]
             
             
@@ -149,7 +147,7 @@ class Chatter(QtGui.QTableWidgetItem):
                     self.nam.get(QNetworkRequest(QtCore.QUrl(url)))            
         else:
             # No avatar set.
-            self.avatarItem.setIcon(None)            
+            self.avatarItem.setIcon(QtGui.QIcon()) 
             self.avatarItem.setToolTip(None)
             
                         
