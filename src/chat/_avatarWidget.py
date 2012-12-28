@@ -19,9 +19,10 @@
 
 
 
-
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
+
+import base64, zlib
 import util
 
 class avatarWidget(QtGui.QDialog):
@@ -32,15 +33,62 @@ class avatarWidget(QtGui.QDialog):
         self.user = user
         self.parent = parent
         
+        self.setStyleSheet(self.parent.styleSheet())
+        self.setWindowTitle ( "Avatar manager" )
+        
         self.parent.requestAvatars()
-        self.group_layout = QtGui.QVBoxLayout(self)
+        self.group_layout   = QtGui.QVBoxLayout(self)
+        self.listAvatars    = QtGui.QListWidget()
+         
+        self.listAvatars.setWrapping(1)
+        self.listAvatars.setSpacing(5)
+        self.listAvatars.setResizeMode(1)
+
+
+        self.addAvatarButton = QtGui.QPushButton("Add/Edit avatar")
+        self.addAvatarButton.clicked.connect(self.addAvatar)
         
-        
+        self.group_layout.addWidget(self.listAvatars)
+        self.group_layout.addWidget(self.addAvatarButton)
+
+        self.item = []
         self.parent.avatarList.connect(self.avatarList)
     
         self.nams = {}
         self.avatars = {}
         
+
+    def addAvatar(self):
+        
+        options = QtGui.QFileDialog.Options()       
+        options |= QtGui.QFileDialog.DontUseNativeDialog
+        
+        fileName = QtGui.QFileDialog.getOpenFileName(self,
+                "Select the PNG file",
+                "",
+                "png Files (*.png)", options)
+        if fileName:
+            ## check the properties of that file
+            pixmap = QtGui.QPixmap (fileName)
+            if pixmap.height() == 20 and pixmap.width() == 40 :
+                
+                text, ok = QtGui.QInputDialog.getText(self, "Avatar description",
+                "Please enter the tooltip :", QtGui.QLineEdit.Normal, "")
+                
+                if ok and text != '':
+                
+                    file = QtCore.QFile(fileName)
+                    file.open(QtCore.QIODevice.ReadOnly)
+                    fileDatas = base64.b64encode(zlib.compress(file.readAll()))
+                    file.close()
+                
+                    self.parent.send(dict(command="avatar", action="upload_avatar", description=text, file=fileDatas))
+                    
+                
+            else :
+                QtGui.QMessageBox.warning(self, "Bad image", "The image must be in png, format is 40x20 !")      
+        
+            #self.client.send(dict(command="edits", action="submit", file = fileDatas))        
 
     def finishRequest(self, reply):
 
@@ -67,8 +115,16 @@ class avatarWidget(QtGui.QDialog):
     def avatarList(self, avatar_list):
         
         button = QtGui.QPushButton()
-        self.group_layout.addWidget(button)
+        #self.group_layout.addWidget(button)
         self.avatars["None"] = button
+        
+        item = QtGui.QListWidgetItem()
+        item.setSizeHint (QtCore.QSize(40,20))
+
+        self.item.append(item)
+            
+        self.listAvatars.addItem (item )
+        self.listAvatars.setItemWidget ( item, button )
         
         button.clicked.connect(self.clicked)
         
@@ -76,11 +132,21 @@ class avatarWidget(QtGui.QDialog):
             
             avatarPix = util.respix(avatar["url"])
             button = QtGui.QPushButton()
+
             button.clicked.connect(self.create_connect(avatar["url"]))
-            self.group_layout.addWidget(button)
+            
+            item = QtGui.QListWidgetItem()
+            item.setSizeHint (QtCore.QSize(40,20))
+            self.item.append(item)
+            
+            self.listAvatars.addItem (item )
+            
+
             button.setToolTip(avatar["tooltip"])
             url = QtCore.QUrl(avatar["url"])            
             self.avatars[avatar["url"]] = button
+            
+            self.listAvatars.setItemWidget ( item, self.avatars[avatar["url"]] )
             
             if not avatarPix :          
                 self.nams[url] = QNetworkAccessManager(button)
