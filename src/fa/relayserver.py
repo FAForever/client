@@ -180,7 +180,18 @@ class Relayer(QtCore.QObject):
         
         self.knownUdpClients = {}
         
+        self.blockSizeFromServer = 0
+
+        self.headerSizeRead = False
+        self.headerRead = False
+        self.chunkSizeRead = False
+        self.fieldTypeRead = False
+        self.fieldSizeRead = False
         self.blockSize = 0
+        self.fieldSize = 0
+        self.chunkSize = 0
+        self.fieldType = 0
+        self.chunks = []
 
         #self.inputSocket.setSocketOption(QtNetwork.QTcpSocket.KeepAliveOption, 1)
         self.inputSocket.readyRead.connect(self.readDatas)
@@ -255,96 +266,128 @@ class Relayer(QtCore.QObject):
         ins.setVersion(QtCore.QDataStream.Qt_4_2)
         
         while ins.atEnd() == False :
-            if self.blockSize == 0:
+            if self.blockSizeFromServer == 0:
                 if self.relaySocket.bytesAvailable() < 4:
                     return
-                self.blockSize = ins.readUInt32()            
-            if self.relaySocket.bytesAvailable() < self.blockSize:
+                self.blockSizeFromServer = ins.readUInt32()            
+            if self.relaySocket.bytesAvailable() < self.blockSizeFromServer:
                 return
 
             commands = ins.readQString()
+            self.__logger.info("Command received from server : " + commands)
             self.handleAction(json.loads(commands))
-            self.blockSize = 0
+            self.blockSizeFromServer = 0
 
 
 
     def readDatas(self):
-        datas = self.inputSocket.read(self.inputSocket.bytesAvailable())
+        self.__logger.info("reading socket from FA") 
+        if self.inputSocket.bytesAvailable() == 0 :
+            self.__logger.info("data reception read done - too or not enough data")
+            return
         
-                  
+        ins = QtCore.QDataStream(self.inputSocket)
+        ins.setByteOrder(QtCore.QDataStream.LittleEndian)  
+
+        while ins.atEnd() == False :
+            if self.inputSocket.isValid() :
+                if self.headerSizeRead == False :
+                    if self.inputSocket.bytesAvailable() < 4:
+                        return
+                
+                    self.blockSize = ins.readUInt32()
+                    self.headerSizeRead = True
+                    
+                if self.headerRead == False :
+                
+                    if self.inputSocket.bytesAvailable() < self.blockSize :
+                        return
+                
+                    self.action = ins.readRawData(self.blockSize)
+                    self.headerRead = True
+                    
+                if self.chunkSizeRead == False :
+                    if self.inputSocket.bytesAvailable() < 4:
+                        return
+                
+                    self.chunkSize = ins.readInt32()
+                    self.chunks = []
+                    self.chunkSizeRead = True
+                
+                if self.chunkSize > 100 :
+                    self.__logger.info("Big error reading FA datas !")
+                    self.inputSocket.readAll()
+                    self.fieldSize = 0
+                    self.blockSize = 0
+                    self.chunkSize = 0  
+                    self.noSocket = True                         
+                    return
+                
+                for _ in range(len(self.chunks), self.chunkSize):
+                    if self.fieldTypeRead == False :
+                        if self.inputSocket.bytesAvailable() < 1 :
+                            return
+                                
+                        self.fieldType = ins.readBool()
+                        self.fieldTypeRead = True
+                    
+                    if not self.fieldType :
+                     
+                        if self.inputSocket.bytesAvailable() < 4 :
+                            return
+                        number = ins.readInt32()
+                        self.chunks.append(number)
+                        self.fieldTypeRead = False         
+
+                    else :
+                        if self.fieldSizeRead == False :      
+                            if self.inputSocket.bytesAvailable() < 4 :
+                                return  
+                              
+                            self.fieldSize =  ins.readInt32()
+                            self.fieldSizeRead = True
+                
+                        if self.inputSocket.bytesAvailable() < self.fieldSize :
+                            return
+
+                        datastring = ins.readRawData(self.fieldSize)
+                        fixedStr = datastring.replace("/t","\t").replace("/n","\n")
+                        self.chunks.append(fixedStr)               
+                        self.fieldTypeRead = False
+                        self.fieldSizeRead = False  
+      
+                self.sendToServer(self.action, self.chunks)
+                self.action = None
+                self.chunks = []
+                self.headerSizeRead = False
+                self.headerRead = False
+                self.chunkSizeRead = False
+                self.fieldTypeRead = False
+                self.fieldSizeRead = False
+                
+
+                
+    def sendToServer(self, action, chunks):
         # Relay to faforever.com
         if self.relaySocket.isOpen():
-            self.relaySocket.writeData(datas)
+            data = json.dumps(dict(action=action, chuncks=chunks))
+            self.__logger.info("Command received from FA : " + data)
+            
+            block = QtCore.QByteArray()
+            out = QtCore.QDataStream(block, QtCore.QIODevice.ReadWrite)
+            out.setVersion(QtCore.QDataStream.Qt_4_2)
+            out.writeUInt32(0)
+            out.writeQString(data)
+            out.device().seek(0)        
+            out.writeUInt32(block.size() - 4)
+            self.bytesToSend = block.size() - 4
+            self.relaySocket.writeData(block)
 
     def handleAction(self, commands):    
         key = commands["key"]
         acts = commands["commands"]
-
-#        print key
-#        print acts
-#        
-#        if key == "CreateLobby" :
-#            rankedMode = int(acts[0])
-#            login = str(acts[2])
-#            id = int(acts[3])
-#            reply = Packet(key, [rankedMode, int(self.faport), login, id, 1])
-#            self.inputSocket.write(reply.Pack())     
-#        
-#        elif key == "ConnectToPeer" or key == "JoinGame":
-#
-#            socket = None
-#            if not address in self.knownUdpClients :
-#                #we receive datas from an unknown client
-#
-#                for oldaddress in self.knownUdpClients :
-#                    if self.knownUdpClients[oldaddress].host == host :
-#                        #it's probably our guy.
-#
-#                        
-#                        oldPort = self.knownUdpClients[oldaddress].getLocalPort()
-#                        self.knownUdpClients[oldaddress].close()
-#                        socket = UDPRelayer(self, QtNetwork.QHostAddress(host), port, oldPort)
-#                        self.knownUdpClients[address] = socket
-#                        
-#                        break
-#            
-#                if socket == None :
-#                    socket = UDPRelayer(self, QtNetwork.QHostAddress(host), port)
-#                    self.knownUdpClients[address] = socket
-#                    
-#
-#            else :
-#                socket = self.knownUdpClients[address]
-#                
-#            port = socket.getLocalPort()
-#            destAddress = "127.0.0.1:" + str(port) 
-#
-#            #we must alter the address
-#            reply = Packet(key, [destAddress, playerLogin, uuid])
-#            self.inputSocket.write(reply.Pack())            
-#            
-#
-#
-#        
-#        
+  
         if key == "SendNatPacket" :
-#            address = str(acts[0])
-#
-#            #we need to re-write that.
-#            socket = None
-#            if not address in self.knownUdpClients :
-#                host = address.split(":")[0]
-#                port = int(address.split(":")[1])
-#                #we receive datas from an unknown client
-#                #we create a new Udp socket for it
-#                socket = UDPRelayer(self, QtNetwork.QHostAddress(host), port)
-#                self.knownUdpClients[address] = socket
-#            else :
-#                socket = self.knownUdpClients[address]
-#                
-#            port = socket.getLocalPort()
-#            destAddress = "127.0.0.1:" + str(port) 
-#
             reply = Packet(key, acts)
             self.inputSocket.write(reply.PackUdp())
         else :
