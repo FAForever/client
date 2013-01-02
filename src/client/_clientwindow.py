@@ -70,28 +70,31 @@ class ClientWindow(FormClass, BaseClass):
     gameEnter   = QtCore.pyqtSignal()
     gameExit    = QtCore.pyqtSignal()
      
-    #These signals propagate important client state changes to other modules
-    statsInfo = QtCore.pyqtSignal(dict)
-    tourneyTypesInfo = QtCore.pyqtSignal(dict)
-    tutorialsInfo = QtCore.pyqtSignal(dict)
-    tourneyInfo = QtCore.pyqtSignal(dict)
-    modInfo = QtCore.pyqtSignal(dict)
-    gameInfo = QtCore.pyqtSignal(dict)   
-    newGame = QtCore.pyqtSignal(str)
-    avatarList = QtCore.pyqtSignal(list)
-    usersUpdated = QtCore.pyqtSignal(list)
-    localBroadcast = QtCore.pyqtSignal(str, str)
-    publicBroadcast = QtCore.pyqtSignal(str)
-    autoJoin = QtCore.pyqtSignal(list)
 
+     
+    #These signals propagate important client state changes to other modules
+    statsInfo           = QtCore.pyqtSignal(dict)
+    tourneyTypesInfo    = QtCore.pyqtSignal(dict)
+    tutorialsInfo       = QtCore.pyqtSignal(dict)
+    tourneyInfo         = QtCore.pyqtSignal(dict)
+    modInfo             = QtCore.pyqtSignal(dict)
+    gameInfo            = QtCore.pyqtSignal(dict)   
+    newGame             = QtCore.pyqtSignal(str)
+    avatarList          = QtCore.pyqtSignal(list)
+    usersUpdated        = QtCore.pyqtSignal(list)
+    localBroadcast      = QtCore.pyqtSignal(str, str)
+    publicBroadcast     = QtCore.pyqtSignal(str)
+    autoJoin            = QtCore.pyqtSignal(list)
+    featuredModManager  = QtCore.pyqtSignal(str)
+    featuredModManagerInfo = QtCore.pyqtSignal(dict)
 
     #These signals are emitted whenever a certain tab is activated
-    showReplays = QtCore.pyqtSignal()
-    showMaps = QtCore.pyqtSignal()
-    showGames = QtCore.pyqtSignal()
-    showTourneys = QtCore.pyqtSignal()
-    showLadder = QtCore.pyqtSignal()
-    showChat = QtCore.pyqtSignal()    
+    showReplays     = QtCore.pyqtSignal()
+    showMaps        = QtCore.pyqtSignal()
+    showGames       = QtCore.pyqtSignal()
+    showTourneys    = QtCore.pyqtSignal()
+    showLadder      = QtCore.pyqtSignal()
+    showChat        = QtCore.pyqtSignal()    
 
     joinGameFromUser   = QtCore.pyqtSignal(str)
     joinReplayFromUser = QtCore.pyqtSignal(str)
@@ -169,14 +172,14 @@ class ClientWindow(FormClass, BaseClass):
         self.initMenus()
 
         #Load the icons for the tabs
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.whatNewTab), util.icon("client/feed.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.chatTab), util.icon("client/chat.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.gamesTab), util.icon("client/games.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.mapsTab), util.icon("client/maps.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.whatNewTab  ), util.icon("client/feed.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.chatTab     ), util.icon("client/chat.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.gamesTab    ), util.icon("client/games.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.mapsTab     ), util.icon("client/maps.png"))
         
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.ladderTab), util.icon("client/ladder.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.tourneyTab), util.icon("client/tourney.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.replaysTab), util.icon("client/replays.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.ladderTab   ), util.icon("client/ladder.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.tourneyTab  ), util.icon("client/tourney.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.replaysTab  ), util.icon("client/replays.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.tutorialsTab), util.icon("client/tutorials.png"))
         
         QtWebKit.QWebSettings.globalSettings().setAttribute(QtWebKit.QWebSettings.PluginsEnabled, True)
@@ -191,6 +194,7 @@ class ClientWindow(FormClass, BaseClass):
         import vault
         import games
         import tutorials
+        import featuredmods
         
         
         # Initialize chat
@@ -203,6 +207,10 @@ class ClientWindow(FormClass, BaseClass):
         self.vault = vault.MapVault(self)
         self.replays = replays.Replays(self)
         self.tutorials = tutorials.Tutorials(self)
+        
+        # Other windows
+        self.featuredMods = featuredmods.FeaturedMods(self)
+        
 
 
     @QtCore.pyqtSlot()
@@ -1283,6 +1291,25 @@ class ClientWindow(FormClass, BaseClass):
         self.players[name] = message  
         self.usersUpdated.emit([name])
      
+
+    def handle_mod_manager(self, message):
+        action = message["action"]
+        if action == "list" :
+            mods = message["mods"]    
+            modMenu = self.menuBar().addMenu("Featured Mods Manager")
+            for mod in mods :
+                print "mod", mod
+                actionMod = QtGui.QAction(mod, modMenu)
+                actionMod.triggered.connect(lambda: self.featuredMod(mod))
+                modMenu.addAction(actionMod)
+
+    def handle_mod_manager_info(self, message):
+        self.featuredModManagerInfo.emit(message)
+                     
+    def featuredMod(self, action):
+        self.featuredModManager.emit(action)
+        
+                
      
      
     def handle_notice(self, message):

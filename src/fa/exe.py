@@ -58,7 +58,7 @@ instance = Process()
 
 def kill():
     logger.warn("Process forcefully terminated.")
-    instance.terminate()
+    instance.kill()
     
 
 def running():
