@@ -57,7 +57,7 @@
      <property name="handleWidth">
       <number>5</number>
      </property>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="0" column="0">
         <widget class="QLabel" name="label">
@@ -73,21 +73,7 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="0">
-        <widget class="QTableWidget" name="filesTable">
-         <column>
-          <property name="text">
-           <string>filename</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>path</string>
-          </property>
-         </column>
-        </widget>
-       </item>
-       <item row="2" column="0">
+       <item row="3" column="0">
         <widget class="QLabel" name="label_2">
          <property name="text">
           <string>These are the files used by your mods, and the directory where they belong.
@@ -108,9 +94,35 @@ You can click on a filename to see all the versions currently available in the s
          </property>
         </widget>
        </item>
+       <item row="2" column="0">
+        <widget class="QTableWidget" name="filesTable">
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
+         </property>
+         <property name="alternatingRowColors">
+          <bool>false</bool>
+         </property>
+         <property name="selectionMode">
+          <enum>QAbstractItemView::SingleSelection</enum>
+         </property>
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
+         </property>
+         <column>
+          <property name="text">
+           <string>filename</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>path</string>
+          </property>
+         </column>
+        </widget>
+       </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <layout class="QGridLayout" name="gridLayout">
        <item row="0" column="0">
         <widget class="QLabel" name="filelistLabel">
@@ -149,6 +161,15 @@ Because of that, You can't delete or edit an existing file, and only add a non-e
        </item>
        <item row="1" column="0">
         <widget class="QTableWidget" name="versionTable">
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
+         </property>
+         <property name="alternatingRowColors">
+          <bool>false</bool>
+         </property>
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
+         </property>
          <column>
           <property name="text">
            <string>version</string>

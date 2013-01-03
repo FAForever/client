@@ -17,10 +17,14 @@
 #-------------------------------------------------------------------------------
 
 
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtCore, QtGui, QtNetwork
 import util
+import os
+from featuredmods import logger
 
 FormClass, BaseClass = util.loadUiType("featuredmods/featuredmods.ui")
+
+
 
 class FeaturedModsWidget(FormClass, BaseClass):
     def __init__(self, client, *args, **kwargs):
@@ -35,45 +39,186 @@ class FeaturedModsWidget(FormClass, BaseClass):
         self.modFiles       = None
         self.versionFiles   = None
 
+        self.login          = None
+        self.password       = None
+        
+        self.fileToUpload   = None
+        self.currentUid     = None
+        
+        self.ftp = QtNetwork.QFtp(self)
+        self.ftp.commandFinished.connect(self.ftpCommandFinished)
+        self.ftp.listInfo.connect(self.addToList)
+        self.ftp.dataTransferProgress.connect(self.updateDataTransferProgress)
+        self.ftplist = []
+        
+        self.progressDialog = QtGui.QProgressDialog(self)
+        self.progressDialog.canceled.connect(self.cancelUpload)
+        
+        
         
         self.client.featuredModManager.connect(self.manageMod)
         self.client.featuredModManagerInfo.connect(self.manageModInfo)
         
         self.filesTable.cellPressed.connect(self.fileClicked)
+        self.versionTable.cellPressed.connect(self.versionClicked)
         
         self.filesTable.horizontalHeader().setStretchLastSection ( True )
         self.versionTable.horizontalHeader().setStretchLastSection ( True )
         
         self.setStyleSheet(self.client.styleSheet())
         
+    def cancelUpload(self):
+        self.ftp.abort()
+
+    def addToList(self, urlInfo):
+        self.ftplist.append(urlInfo.name())
+
+    def ftpCommandFinished(self, _, error):
+        if self.ftp.currentCommand() == QtNetwork.QFtp.ConnectToHost:
+            if error:
+                QtGui.QMessageBox.information(self, "FTP",
+                        "Unable to connect to the FTP server at faforever.com. ")
+                logger.warn("Cannot connect to FTP")
+                self.ftp.abort()       
+                self.ftp.close()
+                return
+        
+        if self.ftp.currentCommand() == QtNetwork.QFtp.Login:
+            if error :
+                QtGui.QMessageBox.information(self, "FTP",
+                        "Unable to login to the FTP. Please check your login and/or password.")
+                logger.warn("Cannot login to FTP")
+                self.ftp.abort()     
+                self.ftp.close()
+                return
+            
+            self.ftp.list()
+
+        if self.ftp.currentCommand() == QtNetwork.QFtp.Put:
+            if error:
+                QtGui.QMessageBox.information(self, "FTP",
+                        "Canceled upload of %s." % self.fileToUpload.fileName())
+                logger.info("Upload cancelled")
+                self.fileToUpload.close()
+                self.ftp.abort()
+                logger.info("Deleting file")
+                self.ftp.remove(os.path.basename(self.fileToUpload.fileName()))
+                self.ftp.close()
+            else:
+                QtGui.QMessageBox.information(self, "FTP",
+                        "%s uploaded !" % self.fileToUpload.fileName())
+
+                logger.info("Upload done !")
+                self.fileToUpload.close()
+                self.ftp.close()
+
+                self.client.send(dict(command="mod_manager_info", action="added_file", type = self.currentUid, mod=self.currentMod, version=self.version, file=os.path.basename(self.fileToUpload.fileName())))
+
+        if self.ftp.currentCommand() == QtNetwork.QFtp.List:
+            
+            filename = os.path.basename(self.fileToUpload.fileName ())
+            
+            if filename in self.ftplist :
+                QtGui.QMessageBox.information(self, "FTP",
+                        "This file already exists on the server. Please rename it.")
+                logger.warn("file already exists in FTP")
+                self.ftp.abort()  
+                self.ftp.close()
+                return   
+
+            else :
+                if not self.fileToUpload.open(QtCore.QIODevice.ReadWrite):
+                    QtGui.QMessageBox.information(self, "FTP",
+                            "Can't open this file.")
+                    logger.warn("Can't open this file.")
+                    self.ftp.abort() 
+                    self.ftp.close()
+                    return
+                
+                self.ftp.put(self.fileToUpload, filename)
+                self.progressDialog.setLabelText("uploading %s..." % filename)
+                
+                self.progressDialog.show()
+
+
+    def updateDataTransferProgress(self, readBytes, totalBytes):
+        self.progressDialog.setMaximum(totalBytes)
+        self.progressDialog.setValue(readBytes)
+
+    def addVersionFile(self):
+        text, ok = QtGui.QInputDialog.getText(self, "Version number",
+                "Please enter the version number :", QtGui.QLineEdit.Normal, "")
+                
+        if ok and text != '':
+            
+            version = filter(lambda x: x.isdigit(), text)
+            
+            if len(version) != 0 :
+                self.version = int(version)
+                
+                options = QtGui.QFileDialog.Options()       
+                options |= QtGui.QFileDialog.DontUseNativeDialog            
+                
+                fileName = QtGui.QFileDialog.getOpenFileName(self,
+                "Select the file",
+                "",
+                "aLL Files (*.*)", options)
+                
+                if fileName:
+                    
+                    self.fileToUpload = QtCore.QFile(fileName)
+                    self.ftp.connectToHost("faforever.com", 1980)
+                    logger.debug("Connecting to FTP")
+                    self.ftp.login(self.currentMod, self.password)
+                    logger.debug("Logging to FTP")
+                
+
         
     def updateTitle(self):
         self.title.setText("MOD MANAGER : %s" % self.currentMod)
         self.setWindowTitle("MOD MANAGER : %s" % self.currentMod)
 
     
-    
-    def fileClicked(self, row, col):
+    def versionClicked(self, row, col):
         if QtGui.QApplication.mouseButtons() != QtCore.Qt.RightButton:
             return            
         
-        menu = QtGui.QMenu(self.filesTable)
+        menu = QtGui.QMenu(self.versionTable)
         
-        
-        actionView = QtGui.QAction("View Update Files", menu)
         actionAdd = QtGui.QAction("Add File", menu)
         # Adding to menu
-        menu.addAction(actionView)
         menu.addAction(actionAdd)            
         
         # Triggers
-        actionView.triggered.connect(lambda: self.viewUpdatesFiles(row+1))
+        actionAdd.triggered.connect(lambda: self.addVersionFile())
         #actionAdd.triggered.connect()
         
         #Finally: Show the popup
-        menu.popup(QtGui.QCursor.pos())
+        menu.popup(QtGui.QCursor.pos())        
+        
+    
+    def fileClicked(self, row, col):
+#        if QtGui.QApplication.mouseButtons() != QtCore.Qt.RightButton:
+#            return            
+        self.viewUpdatesFiles(row+1)
+#        menu = QtGui.QMenu(self.filesTable)
+#        
+#        
+#        actionView = QtGui.QAction("View Update Files", menu)
+#        actionAdd = QtGui.QAction("Add File", menu)
+#        # Adding to menu
+#        menu.addAction(actionView)
+#        #menu.addAction(actionAdd)            
+#        
+#        # Triggers
+#        actionView.triggered.connect(lambda: self.viewUpdatesFiles(row+1))
+#        #actionAdd.triggered.connect()
+#        
+#        #Finally: Show the popup
+#        menu.popup(QtGui.QCursor.pos())
 
     def viewUpdatesFiles(self, uid):
+        self.currentUid = uid
         self.versionTable.clear()
         self.versionTable.setHorizontalHeaderItem(0, QtGui.QTableWidgetItem("version"))
         self.versionTable.setHorizontalHeaderItem(1, QtGui.QTableWidgetItem("filename"))
@@ -110,13 +255,9 @@ class FeaturedModsWidget(FormClass, BaseClass):
             #self.filesTable.insertRow(uid)
             self.filesTable.setItem ( uid, 0, itemPath )
             self.filesTable.setItem ( uid, 1, itemFile )
-            
-        
-            
-    
+
     
     def manageModInfo(self, message):
-        print message
         self.currentMod = message["mod"]
         self.modFiles       = message["mod_files"]
         self.versionFiles   = message["version_files"] 
@@ -129,5 +270,12 @@ class FeaturedModsWidget(FormClass, BaseClass):
         self.updateTitle()        
         self.show()
         
-        # asking for mod info
-        self.client.send(dict(command="mod_manager_info", action="list", mod=self.currentMod))
+
+        text, ok = QtGui.QInputDialog.getText(self, "Password",
+            "Please enter your password for this mod :", QtGui.QLineEdit.Password, "")
+    
+        if ok and text != '':
+            self.password = text        
+    
+            # asking for mod info
+            self.client.send(dict(command="mod_manager_info", action="list", mod=self.currentMod))
