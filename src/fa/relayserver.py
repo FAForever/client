@@ -193,6 +193,8 @@ class Relayer(QtCore.QObject):
         self.fieldType = 0
         self.chunks = []
 
+        self.pingTimer = None
+
         #self.inputSocket.setSocketOption(QtNetwork.QTcpSocket.KeepAliveOption, 1)
         self.inputSocket.readyRead.connect(self.readDatas)
         self.inputSocket.disconnected.connect(self.inputDisconnected)
@@ -213,7 +215,12 @@ class Relayer(QtCore.QObject):
         self.relaySocket.connectToHost(FAF_SERVER_HOST, FAF_SERVER_PORT)        
         
         if self.relaySocket.waitForConnected(10000): #Maybe make this asynchronous
-            self.__logger.debug("faf server " + self.relaySocket.peerName() + ":" + str(self.relaySocket.peerPort()))  
+            self.__logger.debug("faf server " + self.relaySocket.peerName() + ":" + str(self.relaySocket.peerPort()))
+            self.__logger.debug("Initializing ping timer")
+            self.pingTimer = QtCore.QTimer(self)
+            self.pingTimer.timeout.connect(self.ping)
+            self.pingTimer.start(30000)            
+  
         else:
             self.__logger.error("no connection to internet relay server")
 
@@ -365,13 +372,16 @@ class Relayer(QtCore.QObject):
                 self.fieldTypeRead = False
                 self.fieldSizeRead = False
                 
-
+    def ping(self):
+        self.sendToServer("ping", [])
+        
                 
     def sendToServer(self, action, chunks):
         # Relay to faforever.com
         if self.relaySocket.isOpen():
             data = json.dumps(dict(action=action, chuncks=chunks))
-            self.__logger.info("Command received from FA : " + data)
+            if action != "ping" :
+                self.__logger.info("Command transmitted from FA to server : " + data)
             
             block = QtCore.QByteArray()
             out = QtCore.QDataStream(block, QtCore.QIODevice.ReadWrite)
@@ -382,6 +392,8 @@ class Relayer(QtCore.QObject):
             out.writeUInt32(block.size() - 4)
             self.bytesToSend = block.size() - 4
             self.relaySocket.writeData(block)
+        else :
+            self.__logger.warn("Error transmitting datas to server : " + data)
 
     def handleAction(self, commands):    
         key = commands["key"]
@@ -406,7 +418,11 @@ class Relayer(QtCore.QObject):
         self.__logger.info("FA disconnected locally.")
        
         self.relaySocket.disconnectFromHost()
+        if self.pingTimer :
+            self.pingTimer.stop()
         self.done()
+        
+        
 
 
 
