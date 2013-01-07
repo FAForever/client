@@ -167,7 +167,7 @@ class ClientWindow(FormClass, BaseClass):
         self.friends = []       # names of the client's friends
                 
         self.power = 0          # current user power        
-        
+               
         #Initialize the Menu Bar according to settings etc.
         self.initMenus()
 
@@ -1305,25 +1305,22 @@ class ClientWindow(FormClass, BaseClass):
      
 
     def handle_mod_manager(self, message):
+        import functools
         action = message["action"]
         if action == "list" :
             mods = message["mods"]    
             modMenu = self.menuBar().addMenu("Featured Mods Manager")
-            for mod in mods :
-                print "mod", mod
-                actionMod = QtGui.QAction(mod, modMenu)
-                actionMod.triggered.connect(lambda: self.featuredMod(mod))
-                modMenu.addAction(actionMod)
+            for mod in mods :                
+                action = QtGui.QAction(mod, modMenu)
+                action.triggered.connect(functools.partial(self.featuredMod, mod))
+                modMenu.addAction(action)
 
     def handle_mod_manager_info(self, message):
         self.featuredModManagerInfo.emit(message)
                      
     def featuredMod(self, action):
         self.featuredModManager.emit(action)
-        
-                
-     
-     
+
     def handle_notice(self, message):
         if "text" in message:
             if message["style"] == "error" :
