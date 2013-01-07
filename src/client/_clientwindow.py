@@ -642,9 +642,21 @@ class ClientWindow(FormClass, BaseClass):
 
     def waitSession(self):
         self.send(dict(command="ask_session"))
-        while self.session == None :
-            QtGui.QApplication.processEvents()  
+        start = time.time()
+        while self.session == None and self.progress.isVisible() :
+            QtGui.QApplication.processEvents()
+            if time.time() - start > 5 :
+                break  
        
+       
+        if not self.session :
+            if self.progress.wasCanceled():
+                logger.warn("waitSession() aborted by user.")
+            else :
+                logger.error("waitSession() failed with clientstate " + str(self.state) + ", socket errorstring: " + self.socket.errorString())
+                QtGui.QMessageBox.critical(self, "Notice from Server", "Unable to get a session : <br> Server under maintenance.<br><br>Please retry in some minutes.")
+            return False
+               
         self.uniqueId = util.uniqueID(self.login, self.session)
         self.loadSettings()
         return True  
