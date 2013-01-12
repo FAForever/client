@@ -29,7 +29,7 @@ logger= logging.getLogger("faf.fa")
 logger.setLevel(logging.INFO)
 
 GPGNET_HOST = "faforever.com"
-GPGNET_PORT = 7001
+GPGNET_PORT = 8000
 
 
 class Faction:

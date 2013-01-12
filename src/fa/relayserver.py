@@ -34,7 +34,7 @@ import struct
 
 FAF_SERVER_HOST = "faforever.com"
 #FAF_SERVER_HOST = "localhost"
-FAF_SERVER_PORT = 7001
+FAF_SERVER_PORT = 8000
 
 
 

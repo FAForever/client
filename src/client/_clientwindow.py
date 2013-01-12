@@ -560,7 +560,7 @@ class ClientWindow(FormClass, BaseClass):
         #now we try sending a packet to the server
         #logger.info("sending packet to " + LOBBY_HOST)
 
-        if udpSocket.writeDatagram(self.login, QtNetwork.QHostAddress("91.229.20.50"), 30351) == -1 :
+        if udpSocket.writeDatagram(self.login, QtNetwork.QHostAddress("91.236.254.74"), 30351) == -1 :
             logger.info("Unable to send UDP Packet")
             QtGui.QMessageBox.critical(self, "UDP Packet not sent !", "We are not able to send a UDP packet. <br><br>Possible reasons:<ul><li><b>Your firewall is blocking the UDP port {port}.</b></li><li><b>Your router is blocking or routing port {port} in a wrong way.</b></li></ul><br><font size='+2'>How to fix this : </font> <ul><li>Check your firewall and router. <b>More info in the wiki (Links -> Wiki)</li></b><li>You should also consider using <b>uPnP (Options -> Settings -> Gameport)</b></li><li>You should ask for assistance in the TechQuestions chat and/or in the <b>technical forum (Links -> Forums<b>)</li></ul><br><font size='+1'><b>FA will not be able to perform correctly until this issue is fixed.</b></font>".format(port=self.gamePort))
         
