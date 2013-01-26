@@ -36,7 +36,7 @@ if not util.developer():
 
 
 # Initialize all important globals
-LOBBY_HOST = 'faforever.com'
+LOBBY_HOST = 'direct.faforever.com'
 #LOBBY_HOST = 'localhost'
 LOBBY_PORT = 8001
 LOCAL_REPLAY_PORT = 15000

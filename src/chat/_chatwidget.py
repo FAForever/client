@@ -31,7 +31,7 @@ from chat import logger, user2name
 from chat.channel import Channel
 
 IRC_PORT = 8167
-IRC_SERVER = "faforever.com"
+IRC_SERVER = "direct.faforever.com"
 POLLING_INTERVAL = 300   # milliseconds between irc polls
 
                 
