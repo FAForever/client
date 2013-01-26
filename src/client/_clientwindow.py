@@ -539,7 +539,6 @@ class ClientWindow(FormClass, BaseClass):
         Here, we test with the server if the current game port set is all right.
         If not, we propose alternatives to the user
         '''
-        return True
         if self.useUPnP:
             fa.upnp.createPortMapping(self.localIP, self.gamePort, "UDP")
         

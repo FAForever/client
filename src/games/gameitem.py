@@ -23,6 +23,7 @@
 from PyQt4 import QtCore, QtGui
 from fa import maps
 import util
+import os
 from games.moditem import mod_invisible, mods
 
 from trueSkill.Team import *
@@ -97,25 +98,27 @@ class GameItem(QtGui.QListWidgetItem):
     #DATA_PLAYERS = 32
     
     
-    FORMATTER_FAF = unicode(util.readfile("games/formatters/faf.qthtml"))
-    FORMATTER_MOD = unicode(util.readfile("games/formatters/mod.qthtml"))
+    FORMATTER_FAF       = unicode(util.readfile("games/formatters/faf.qthtml"))
+    FORMATTER_MOD       = unicode(util.readfile("games/formatters/mod.qthtml"))
+    FORMATTER_TOOL      = unicode(util.readfile("games/formatters/tool.qthtml"))
     
     def __init__(self, uid, *args, **kwargs):
         QtGui.QListWidgetItem.__init__(self, *args, **kwargs)
 
-        self.uid = uid
-        self.mapname = None
-        self.mapdisplayname = None      
-        self.client = None
-        self.title  = None
-        self.host   = None
-        self.teams  = None
-        self.access = None
-        self.mod    = None
-        self.moddisplayname  = None
-        self.state  = None
-        self.options = []
-        self.players = []
+        self.uid            = uid
+        self.mapname        = None
+        self.mapdisplayname = None
+        self.client         = None
+        self.title          = None
+        self.host           = None
+        self.teams          = None
+        self.access         = None
+        self.mod            = None
+        self.moddisplayname = None
+        self.state          = None
+        self.nTeams         = 0
+        self.options        = []
+        self.players        = []
         
         self.setHidden(True)
 
@@ -208,6 +211,16 @@ class GameItem(QtGui.QListWidgetItem):
         oldstate = self.state
         self.state  = message['state']
  
+        
+
+        # Assemble a players & teams lists       
+        self.teamlist = []
+        self.observerlist = []
+        self.realPlayers = []
+        self.teamsTrueskill = []
+        self.gamequality = 0
+        self.invalidTS = False
+        self.nTeams = 0
 
         #HACK: Visibility field not supported yet.
         self.private = self.title.lower().find("private") != -1        
@@ -219,6 +232,9 @@ class GameItem(QtGui.QListWidgetItem):
             if player in client.urls:
                 del client.urls[player]
 
+        self.players = []
+        for team in self.teams:
+            self.players.extend(self.teams[team])
 
         # Just jump out if we've left the game, but tell the client that all players need their states updated
         if self.state == "closed":
@@ -253,45 +269,26 @@ class GameItem(QtGui.QListWidgetItem):
                 icon = maps.preview(self.mapname)
                 if not icon:
                     icon = util.icon("games/unknown_map.png")
-                                        
+                             
             self.setIcon(icon)
         
 
         # Used to differentiate between newly added / removed and previously present players            
         oldplayers = set(self.players)
         
-        # Assemble a players & teams lists       
-        self.teamlist = []
-        self.observerlist = []
-        self.players = []
-        self.realPlayers = []
-        self.teamsTrueskill = []
-        self.gamequality = 0
-        self.invalidTS = False
-        
+       
         self.playerIncluded = False
         
-        tooltipstring = ""
+        
         if self.state == "open" :
             if "1" in self.teams and "2" in self.teams and self.client.login != None :
-
                 if len(self.teams["1"]) < len(self.teams["2"]) :
-                    #self.teams["1"].append(self.client.login)
-                    tooltipstring = "You should be in team 1.<br><br>"
+                    self.teams["1"].append(self.client.login)
                     self.playerIncluded = True
 
                 elif len(self.teams["1"]) > len(self.teams["2"]) :
-                    #self.teams["2"].append(self.client.login)
-                    tooltipstring = "You should be in team 2.<br><br>"
+                    self.teams["2"].append(self.client.login)
                     self.playerIncluded = True
-        
-        
-        for team in self.teams:
-            self.players.extend(self.teams[team])
-            if team != "-1" :
-                self.teamlist.append(", ".join(self.teams[team]))
-            else :
-                self.observerlist.append(", ".join(self.teams[team]))
 
         if self.state == "open" and  "1" in self.teams and "2" in self.teams :
             for team in self.teams:
@@ -331,21 +328,21 @@ class GameItem(QtGui.QListWidgetItem):
                     
                 # computing game quality :
                 if len(self.teamsTrueskill) > 1 and self.invalidTS == False :
-                    nTeams = 0
-                    for t in  self.teamlist :
-                        if t != -1 :
-                            nTeams += 1
-                            
-                    realPlayers = len(self.realPlayers) 
-                    if self.playerIncluded :
-                        realPlayers = realPlayers + 1
-                    if realPlayers % nTeams == 0 :
+                    self.nTeams = 0
+                    for t in self.teams :
+                        if int(t) != -1 :
+                            self.nTeams += 1
+
+                    realPlayers = len(self.realPlayers)
+
+                    if realPlayers % self.nTeams == 0 :
+
                         gameInfo = GameInfo()
                         calculator = FactorGraphTrueSkillCalculator()
                         gamequality = calculator.calculateMatchQuality(gameInfo, self.teamsTrueskill)
                         if gamequality < 1 :
                             self.gamequality = round((gamequality * 100), 2)
-                   
+
         strQuality = ""
         
         if self.gamequality == 0 :
@@ -353,35 +350,14 @@ class GameItem(QtGui.QListWidgetItem):
         else :
             strQuality = str(self.gamequality)+" %"
 
-        #bestMatchup = self.getBestMatchup()
 
-        
-        tooltipstring += " vs.<br/>".join(self.teamlist)
-        if len(self.observerlist) != 0 :
-            tooltipstring += "<br/>Observers :<br/>".join(self.observerlist)
-        
-        #tooltipstring += "<br/><br/>Best team composition : <br/>" + bestMatchup
-        
-        if len(self.modoptions)!= 0 and len(self.modoptions) == len(self.options):
-            tooltipstring += "<br/><br/>Options :<br/>"
-            
-            for i in range(len(self.modoptions)) :
-                tooltipstring += self.modoptions[i]
-                if self.options[i] == True :                  
-                    tooltipstring += ": On<br/>"
-                else :
-                    tooltipstring += ": Off<br/>"
- 
-
-        self.setToolTip(tooltipstring)
-                  
         if len(self.players) == 1:
             playerstring = "player"
         else:
             playerstring = "players"
         
-        if self.numplayers == 0 :
-            self.numplayers = len(self.players)
+        
+        self.numplayers = len(self.players)
         
         self.playerIncludedTxt = ""
         if self.playerIncluded :
@@ -393,6 +369,7 @@ class GameItem(QtGui.QListWidgetItem):
         else:
             self.setText(self.FORMATTER_MOD.format(color=color, mapslots = self.slots, mapdisplayname=self.mapdisplayname, title=self.title, host=self.host, players=self.numplayers, playerstring=playerstring, gamequality = strQuality, playerincluded = self.playerIncludedTxt, mod=self.mod))
         
+        self.editTooltip()
                 
         #Spawn announcers: IF we had a gamestate change, show replay and hosting announcements 
         if (oldstate != self.state):            
@@ -410,6 +387,94 @@ class GameItem(QtGui.QListWidgetItem):
         affectedplayers = oldplayers | newplayers
         client.usersUpdated.emit(list(affectedplayers))
         
+        
+    def editTooltip(self):
+        
+        observerlist    = []
+        teamlist        = []
+
+        teams = ""
+
+        i = 0
+        for team in self.teams:
+            
+            if team != "-1" :
+                i = i + 1
+                teamtxt = "<table>"
+
+                    
+                teamDisplay    = []
+                for player in self.teams[team] :
+                    displayPlayer = ""
+                    if player in self.client.players :
+                        
+                        playerStr = player
+                        
+                        if player == self.client.login :
+                            playerStr = ("<b><i>%s</b></i>" % player)
+                            
+                        mean    = self.client.players[player]["rating_mean"]
+                        dev     = self.client.players[player]["rating_deviation"]
+                        if dev < 200 :
+                            rating = int(mean - 3.0 * dev)
+                            playerStr += " ("+str(rating)+")"
+
+                        if i == 1 :
+                            displayPlayer = ("<td align = 'left' valign='center' width = '150'>%s</td>" % playerStr)
+                        elif i == self.nTeams :
+                            displayPlayer = ("<td align = 'right' valign='center' width = '150'>%s</td>" % playerStr)
+                        else :
+                            displayPlayer = ("<td align = 'center' valign='center' width = '150'>%s</td>" % playerStr)
+                        
+                        
+                        country = os.path.join(util.COMMON_DIR, "chat/countries/%s.png" % self.client.players[player]["country"])
+                        
+                        if i == self.nTeams : 
+                            displayPlayer += '<td width="16"><img src = "'+country+'" width="16" height="16"></td>'
+                        else :
+                            displayPlayer = '<td width="16"><img src = "'+country+'" width="16" height="16"></td>' + displayPlayer
+                            
+                    else :
+                        if i == 1 :
+                            displayPlayer = ("<td align = 'left' valign='center' width = '150'>%s</td>" % player)
+                        elif i == self.nTeams :
+                            displayPlayer = ("<td align = 'right' valign='center' width = '150'>%s</td>" % player)
+                        else :
+                            displayPlayer = ("<td align = 'center' valign='center' width = '150'>%s</td>" % player)
+                        
+
+                        
+                    display = ("<tr>%s</tr>" % displayPlayer)
+                    teamDisplay.append(display)
+                        
+                members = "".join(teamDisplay)
+                
+                teamlist.append("<td>" +teamtxt + members + "</table></td>")
+                
+                    
+                
+            else :
+                observerlist.append(",".join(self.teams[team]))
+
+        teams += "<td valign='center' height='100%'><font valign='center' color='black' size='+5'>VS</font></td>".join(teamlist)
+
+        observers = ""
+        if len(observerlist) != 0 :
+            observers = "Observers : "
+            observers += ",".join(observerlist)        
+
+        mods = "" 
+        if len(self.modoptions)!= 0 and len(self.modoptions) == len(self.options):
+            mods  += "<br/>Options :<br/>"
+   
+        for i in range(len(self.modoptions)) :
+            mods += self.modoptions[i]
+            if self.options[i] == True :                  
+                mods += ": On<br/>"
+            else :
+                mods += ": Off<br/>"
+
+        self.setToolTip(self.FORMATTER_TOOL.format(teams = teams, observers=observers, mods = mods)) 
 
     def permutations(self, items):
         """Yields all permutations of the items."""
@@ -459,8 +524,6 @@ class GameItem(QtGui.QListWidgetItem):
         if (len(self.players) / nTeams) == 1 :
             
             return "Only one player per team" 
-
-         #platoon = len(self.players) / nTeams
             
         playerlist =  {}  
         for player in self.players :
@@ -476,10 +539,8 @@ class GameItem(QtGui.QListWidgetItem):
         bestTeams[2] = []
         
         for key, value in sorted(playerlist.iteritems(), key=lambda (k,v): (v,k), reverse=True):
-            print "%s: %s in team %i" % (key, value, self.assignToTeam(i))
             bestTeams[self.assignToTeam(i)].append(key)
             i = i + 1
-        print "---"
 
         msg = ""
 #        i = 0
