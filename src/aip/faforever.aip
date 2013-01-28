@@ -5,16 +5,15 @@
     <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
     <ROW Property="ARPCONTACT" Value="admin@faforever.com"/>
     <ROW Property="ARPHELPLINK" Value="http://www.faforever.com/forums/viewforum.php?f=3"/>
-    <ROW Property="ARPNOMODIFY" MultiBuildValue="DefaultBuild:1"/>
     <ROW Property="ARPPRODUCTICON" Value="faf_1.exe" Type="8"/>
     <ROW Property="ARPURLINFOABOUT" Value="http://www.faforever.com"/>
     <ROW Property="ARPURLUPDATEINFO" Value="http://www.faforever.com/page=2"/>
     <ROW Property="CTRLS" Value="2"/>
     <ROW Property="Manufacturer" Value="FAF Community" ValueLocId="*"/>
-    <ROW Property="ProductCode" Value="1033:{73262082-B007-43CA-B4B3-49C895298B94} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{89880EBD-5D62-4B02-B3BB-1EDBE090C49A} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Forged Alliance Forever" ValueLocId="*"/>
-    <ROW Property="ProductVersion" Value="240.7.598"/>
+    <ROW Property="ProductVersion" Value="240.7.599"/>
     <ROW Property="REBOOT" MultiBuildValue="DefaultBuild:Suppress"/>
     <ROW Property="RUNAPPLICATION" Value="1" Type="4"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>

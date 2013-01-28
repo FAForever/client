@@ -232,15 +232,16 @@ class GameItem(QtGui.QListWidgetItem):
             if player in client.urls:
                 del client.urls[player]
 
-        self.players = []
-        for team in self.teams:
-            self.players.extend(self.teams[team])
 
         # Just jump out if we've left the game, but tell the client that all players need their states updated
         if self.state == "closed":
             client.usersUpdated.emit(self.players)
             return
             
+        self.players = []
+        for team in self.teams:
+            self.players.extend(self.teams[team])
+
 
         # Map preview code
         if self.mapname != message['mapname']:
