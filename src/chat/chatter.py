@@ -223,7 +223,11 @@ class Chatter(QtGui.QTableWidgetItem):
         channel, ok = QtGui.QInputDialog.getText(self.lobby.client, "QInputDialog.getText()", "Channel :", QtGui.QLineEdit.Normal, "#tournament")
         if ok and channel != '':
             self.lobby.client.joinChannel(self.name, channel)
-            
+
+
+    def selectAvatar(self):
+        avatarSelection = avatarWidget(self.lobby.client, self.name, personal = True)
+        avatarSelection.exec_()        
 
     def addAvatar(self):
         avatarSelection = avatarWidget(self.lobby.client, self.name)
@@ -265,19 +269,21 @@ class Chatter(QtGui.QTableWidgetItem):
 
         # Actions for stats
         
-        actionStats = QtGui.QAction("View Player statistics", menu)
+        actionStats         = QtGui.QAction("View Player statistics", menu)
+        
+        actionSelectAvatar  = QtGui.QAction("Select Avatar", menu)
         
         # Actions for Games and Replays
         actionReplay = QtGui.QAction("View Live Replay", menu)
         
         actionJoin = QtGui.QAction("Join in Game", menu)
-        actionInvite = QtGui.QAction("Invite to Game", menu)
+        #actionInvite = QtGui.QAction("Invite to Game", menu)
 
         
         # Default is all disabled, we figure out what we can do after this
         actionReplay.setDisabled(True)
         actionJoin.setDisabled(True)
-        actionInvite.setDisabled(True)
+        #actionInvite.setDisabled(True)
 
                 
         # Don't allow self to be invited to a game, or join one
@@ -292,9 +298,15 @@ class Chatter(QtGui.QTableWidgetItem):
 
         # Triggers
         actionStats.triggered.connect(self.viewStats)
+        actionSelectAvatar.triggered.connect(self.selectAvatar)
         actionReplay.triggered.connect(self.viewReplay)
         actionJoin.triggered.connect(self.joinInGame)
-        actionInvite.triggered.connect(self.invite)
+        #actionInvite.triggered.connect(self.invite)
+        
+        # only for us. Either way, it will display our avatar, not anyone avatar.
+        if self.lobby.client.login == self.name :
+            menu.addAction(actionSelectAvatar)
+            menu.addSeparator()
       
         # power menu
         if self.lobby.client.power > 1 :
@@ -327,10 +339,10 @@ class Chatter(QtGui.QTableWidgetItem):
         
         # Adding to menu
         menu.addAction(actionStats)
+        
         menu.addSeparator()
         menu.addAction(actionReplay)
         menu.addAction(actionJoin)
-        menu.addAction(actionInvite)
         menu.addSeparator()
             
 

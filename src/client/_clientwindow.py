@@ -81,6 +81,7 @@ class ClientWindow(FormClass, BaseClass):
     gameInfo            = QtCore.pyqtSignal(dict)   
     newGame             = QtCore.pyqtSignal(str)
     avatarList          = QtCore.pyqtSignal(list)
+    playerAvatarList    = QtCore.pyqtSignal(dict)
     usersUpdated        = QtCore.pyqtSignal(list)
     localBroadcast      = QtCore.pyqtSignal(str, str)
     publicBroadcast     = QtCore.pyqtSignal(str)
@@ -119,6 +120,7 @@ class ClientWindow(FormClass, BaseClass):
         self.blockSize = 0
 
         self.uniqueId = None
+        self.udpTest = False
         self.profile = playerstats.Statpage(self)
 
         self.sendFile = False
@@ -184,6 +186,9 @@ class ClientWindow(FormClass, BaseClass):
         
         QtWebKit.QWebSettings.globalSettings().setAttribute(QtWebKit.QWebSettings.PluginsEnabled, True)
         
+        
+        #for moderator 
+        self.modMenu = None
         
         #self.mainTabs.setTabEnabled(self.mainTabs.indexOf(self.tourneyTab), False)
                 
@@ -532,7 +537,10 @@ class ClientWindow(FormClass, BaseClass):
             self.actionSetJoinsParts.setChecked(self.joinsparts)
         except:
             pass
-        
+
+     
+    def processTestGameportDatagram(self):
+        self.udpTest = True
         
     def testGamePort(self):
         '''
@@ -545,6 +553,8 @@ class ClientWindow(FormClass, BaseClass):
         #binding the port
         udpSocket =  QtNetwork.QUdpSocket(self)
         udpSocket.bind(self.gamePort)
+        udpSocket.readyRead.connect(self.processTestGameportDatagram)
+        
         if udpSocket.localPort() != self.gamePort :
             logger.error("The game port set (%i) is not available." % self.gamePort)
             answer = QtGui.QMessageBox.warning(None, "Port Occupied", "FAF has detected that the gameport you choose is not available. Possible reasons:<ul><li><b>FAF is already running</b> (most likely)</li><li>another program is listening on port {port}</li></ul><br>If you click Apply, FAF will port {port2} for this session.".format(port=self.gamePort, port2 = udpSocket.localPort()), QtGui.QMessageBox.Apply, QtGui.QMessageBox.Abort)
@@ -563,6 +573,8 @@ class ClientWindow(FormClass, BaseClass):
             logger.info("Unable to send UDP Packet")
             QtGui.QMessageBox.critical(self, "UDP Packet not sent !", "We are not able to send a UDP packet. <br><br>Possible reasons:<ul><li><b>Your firewall is blocking the UDP port {port}.</b></li><li><b>Your router is blocking or routing port {port} in a wrong way.</b></li></ul><br><font size='+2'>How to fix this : </font> <ul><li>Check your firewall and router. <b>More info in the wiki (Links -> Wiki)</li></b><li>You should also consider using <b>uPnP (Options -> Settings -> Gameport)</b></li><li>You should ask for assistance in the TechQuestions chat and/or in the <b>technical forum (Links -> Forums<b>)</li></ul><br><font size='+1'><b>FA will not be able to perform correctly until this issue is fixed.</b></font>".format(port=self.gamePort))
         
+        
+        
         self.progress.setCancelButtonText("Cancel")
         self.progress.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
         self.progress.setAutoClose(False)
@@ -573,13 +585,15 @@ class ClientWindow(FormClass, BaseClass):
         self.progress.show()        
         
         timer = time.time()
+        interval = 1
         
-        aborted = False
-
-        while udpSocket.bytesAvailable() == 0 :
+        while self.udpTest == False :
             QtGui.QApplication.processEvents()
+            if time.time() - timer > interval :
+                udpSocket.writeDatagram(self.login, QtNetwork.QHostAddress("91.236.254.74"), 30351)
+                interval = interval + 1
+
             if time.time() - timer > 10 :
-                aborted = True
                 break
 
         self.progress.close()
@@ -587,10 +601,10 @@ class ClientWindow(FormClass, BaseClass):
         udpSocket.close()
         udpSocket.deleteLater()     
         
-        if aborted == True :
+        if self.udpTest == False :
             logger.info("Unable to receive UDP Packet")
             QtGui.QMessageBox.critical(self, "UDP Packet not received !", "We didn't received any answer from the server. <br><br>Possible reasons:<ul><li><b>Your firewall is blocking the UDP port {port}.</b></li><li><b>Your router is blocking or routing port {port} in a wrong way/to the wrong computer.</b></li></ul><br><font size='+2'>How to fix this : </font> <ul><li>Check your firewall and router. <b>More info in the wiki (Links -> Wiki)</li></b><li>You should also consider using <b>uPnP (Options -> Settings -> Gameport)</b></li><li>You should ask for assistance in the TechQuestions chat and/or in the <b>technical forum (Links -> Forums<b>)</li></ul><br><font size='+1'><b>FA will not be able to perform correctly until this issue is fixed.</b></font>".format(port=self.gamePort))
-           
+        
         return True
     
     def doConnect(self):  
@@ -1051,19 +1065,27 @@ class ClientWindow(FormClass, BaseClass):
     def forwardPublicBroadcast(self, message):
         self.publicBroadcast.emit(message)
     
+
+    def manage_power(self):
+        ''' update the interface accordingly to the power of the user'''
+        if self.power >= 1 :
+            if self.modMenu == None :
+                self.modMenu = self.menuBar().addMenu("Administration")
+                
+            actionAvatar = QtGui.QAction("Avatar manager", self.modMenu)
+            actionAvatar.triggered.connect(self.avatarManager)
+            self.modMenu.addAction(actionAvatar)        
     
-    def requestAvatars(self):
-        self.send(dict(command="admin", action="requestavatars"))
+    def requestAvatars(self, personal):
+        if personal :
+            self.send(dict(command="avatar", action="list_avatar"))
+        else :
+            self.send(dict(command="admin", action="requestavatars"))
 
     def joinChannel(self, user, channel):
         '''Close FA remotly'''
         self.send(dict(command="admin", action="join_channel", users=[user], channel=channel))
-
-    def addAvatar(self, userAvatar, avatarChosen):
-        '''Adding a new avatar for the user'''
-        self.send(dict(command="admin", action="addavatar", user=userAvatar, avatar=avatarChosen))
-    
-    
+   
     def closeFA(self, userToClose):
         '''Close FA remotly'''
         self.send(dict(command="admin", action="closeFA", user=userToClose))
@@ -1162,6 +1184,7 @@ class ClientWindow(FormClass, BaseClass):
         except:
             raise #Pass it on to our caller, Malformed Command
       
+
 
     def handle_stats(self, message):
         self.statsInfo.emit(message)       
@@ -1274,15 +1297,20 @@ class ClientWindow(FormClass, BaseClass):
 
     def handle_mod_info(self, message):
         self.modInfo.emit(message)    
-
     
     def handle_game_info(self, message):
         self.gameInfo.emit(message)                    
     
+    def handle_avatar(self, message):
+        if "avatarlist" in message :
+            self.avatarList.emit(message["avatarlist"])
 
     def handle_admin(self, message):
         if "avatarlist" in message :
             self.avatarList.emit(message["avatarlist"])
+            
+        elif "player_avatar_list" in message :
+            self.playerAvatarList.emit(message)
     
     def handle_social(self, message):
         if "friends" in message:
@@ -1294,9 +1322,8 @@ class ClientWindow(FormClass, BaseClass):
         
         if "power" in message:
             self.power = message["power"]
-            
-        
-        
+            self.manage_power()
+
     def handle_player_info(self, message):
         name = message["login"]        
         self.players[name] = message  
@@ -1316,6 +1343,13 @@ class ClientWindow(FormClass, BaseClass):
 
     def handle_mod_manager_info(self, message):
         self.featuredModManagerInfo.emit(message)
+                 
+    def avatarManager(self):
+        from chat._avatarWidget import avatarWidget
+        avatarSelection = avatarWidget(self, None)
+        avatarSelection.exec_()
+        
+       
                      
     def featuredMod(self, action):
         self.featuredModManager.emit(action)
