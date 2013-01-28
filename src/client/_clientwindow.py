@@ -200,6 +200,7 @@ class ClientWindow(FormClass, BaseClass):
         import games
         import tutorials
         import featuredmods
+        from chat._avatarWidget import avatarWidget
         
         
         # Initialize chat
@@ -215,6 +216,7 @@ class ClientWindow(FormClass, BaseClass):
         
         # Other windows
         self.featuredMods = featuredmods.FeaturedMods(self)
+        self.avatarAdmin  = self.avatarSelection = avatarWidget(self, None)
         
 
 
@@ -1310,6 +1312,7 @@ class ClientWindow(FormClass, BaseClass):
             self.avatarList.emit(message["avatarlist"])
             
         elif "player_avatar_list" in message :
+            print "emitting signal"
             self.playerAvatarList.emit(message)
     
     def handle_social(self, message):
@@ -1345,9 +1348,8 @@ class ClientWindow(FormClass, BaseClass):
         self.featuredModManagerInfo.emit(message)
                  
     def avatarManager(self):
-        from chat._avatarWidget import avatarWidget
-        avatarSelection = avatarWidget(self, None)
-        avatarSelection.exec_()
+        self.requestAvatars(0)
+        self.avatarSelection.show()
         
        
                      

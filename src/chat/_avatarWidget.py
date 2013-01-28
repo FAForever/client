@@ -37,17 +37,28 @@ class playerAvatar(QtGui.QDialog):
         
         self.setStyleSheet(self.parent.styleSheet())
         
-        grid = QtGui.QGridLayout(self)
-        grid.addWidget(self.createUserSelection(), 0, 0)
+        self.grid = QtGui.QGridLayout(self)
+        self.userlist = None
+        #self.grid.addWidget(self.userlist, 0, 0)
         
         self.removeButton = QtGui.QPushButton("&Remove users")
-        grid.addWidget(self.removeButton)
+        self.grid.addWidget(self.removeButton,1,0)
 
         self.removeButton.clicked.connect(self.removeThem)
         
         self.setWindowTitle("Users using this avatar")
         self.resize(480, 320)         
 
+    def processList(self, users, idavatar):
+        self.checkBox = {}
+        self.users = users
+        self.idavatar = idavatar
+        self.userlist = self.createUserSelection()
+        self.grid.addWidget(self.userlist, 0, 0)
+        #self.grid.addWidget()
+
+
+    
     def removeThem(self):
         for user in self.checkBox :
             if self.checkBox[user].checkState() == 2 :
@@ -60,7 +71,6 @@ class playerAvatar(QtGui.QDialog):
         vbox = QtGui.QVBoxLayout()
         
         for user in self.users :
-            print user
             self.checkBox[user["iduser"]] = QtGui.QCheckBox(user["login"])
             vbox.addWidget(self.checkBox[user["iduser"]])
         
@@ -90,22 +100,25 @@ class avatarWidget(QtGui.QDialog):
         self.listAvatars.setSpacing(5)
         self.listAvatars.setResizeMode(1)
 
-
-        self.addAvatarButton = QtGui.QPushButton("Add/Edit avatar")
-        self.addAvatarButton.clicked.connect(self.addAvatar)
-        
         self.group_layout.addWidget(self.listAvatars)
-        self.group_layout.addWidget(self.addAvatarButton)
+
+        if not self.personal : 
+            self.addAvatarButton = QtGui.QPushButton("Add/Edit avatar")
+            self.addAvatarButton.clicked.connect(self.addAvatar)
+            self.group_layout.addWidget(self.addAvatarButton)
 
         self.item = []
         self.parent.avatarList.connect(self.avatarList)
-        self.parent.playerAvatarList.connect(self.playerAvatarList)
+        self.parent.playerAvatarList.connect(self.doPlayerAvatarList)
 
+        self.playerList = playerAvatar(parent = self.parent)
     
         self.nams = {}
         self.avatars = {}
         
+        self.finished.connect(self.cleaning)
 
+    
     def addAvatar(self):
         
         options = QtGui.QFileDialog.Options()       
@@ -160,22 +173,25 @@ class avatarWidget(QtGui.QDialog):
         if self.personal == True :
             self.parent.send(dict(command="avatar", action="select", avatar=val))
             self.close()
+ 
         else :
             if self.user == None :
                 self.parent.send(dict(command="admin", action="list_avatar_users", avatar=val))
             else :
                 self.parent.send(dict(command="admin", action="add_avatar", user=self.user, avatar=val))
+                self.close()
                 
     
     
-    def playerAvatarList(self, message):
+    def doPlayerAvatarList(self, message):
+        self.playerList = playerAvatar(parent = self.parent)
         player_avatar_list  = message["player_avatar_list"]
         idavatar            = message["avatar_id"]
-        playerList = playerAvatar(player_avatar_list, idavatar = idavatar, parent = self.parent)
-        playerList.exec_()
+        self.playerList.processList(player_avatar_list, idavatar)
+        self.playerList.show()
     
     def avatarList(self, avatar_list):
-        
+        self.listAvatars.clear()
         button = QtGui.QPushButton()
         #self.group_layout.addWidget(button)
         self.avatars["None"] = button
@@ -218,6 +234,10 @@ class avatarWidget(QtGui.QDialog):
                 self.avatars[avatar["url"]].setIcon(QtGui.QIcon(avatarPix))   
                 self.avatars[avatar["url"]].setIconSize(avatarPix.rect().size())           
 
-        
+    def cleaning(self):
+        if self != self.parent.avatarAdmin :
+            self.parent.avatarList.disconnect(self.avatarList)
+            self.parent.playerAvatarList.disconnect(self.doPlayerAvatarList)
+
         
         
