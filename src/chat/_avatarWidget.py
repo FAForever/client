@@ -25,6 +25,51 @@ from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
 import base64, zlib, os
 import util
 
+
+class playerAvatar(QtGui.QDialog):
+    def __init__(self, users = [], idavatar = 0, parent=None, *args, **kwargs):
+        QtGui.QDialog.__init__(self, *args, **kwargs)
+        
+        self.parent = parent
+        self.users = users
+        self.checkBox = {}
+        self.idavatar = idavatar
+        
+        self.setStyleSheet(self.parent.styleSheet())
+        
+        grid = QtGui.QGridLayout(self)
+        grid.addWidget(self.createUserSelection(), 0, 0)
+        
+        self.removeButton = QtGui.QPushButton("&Remove users")
+        grid.addWidget(self.removeButton)
+
+        self.removeButton.clicked.connect(self.removeThem)
+        
+        self.setWindowTitle("Users using this avatar")
+        self.resize(480, 320)         
+
+    def removeThem(self):
+        for user in self.checkBox :
+            if self.checkBox[user].checkState() == 2 :
+                self.parent.send(dict(command="admin", action="remove_avatar", iduser = user, idavatar = self.idavatar))
+        self.close()
+            
+
+    def createUserSelection(self):
+        groupBox = QtGui.QGroupBox("Select the users you want to remove this avatar :")
+        vbox = QtGui.QVBoxLayout()
+        
+        for user in self.users :
+            print user
+            self.checkBox[user["iduser"]] = QtGui.QCheckBox(user["login"])
+            vbox.addWidget(self.checkBox[user["iduser"]])
+        
+        vbox.addStretch(1)
+        groupBox.setLayout(vbox)
+
+        return groupBox          
+            
+
 class avatarWidget(QtGui.QDialog):
     def __init__(self, parent, user, personal = False, *args, **kwargs):
         
@@ -35,7 +80,7 @@ class avatarWidget(QtGui.QDialog):
         self.parent = parent
 
         self.setStyleSheet(self.parent.styleSheet())
-        self.setWindowTitle ( "Avatar manager" )
+        self.setWindowTitle ( "Avatar manager")
         
         self.parent.requestAvatars(self.personal)
         self.group_layout   = QtGui.QVBoxLayout(self)
@@ -54,6 +99,8 @@ class avatarWidget(QtGui.QDialog):
 
         self.item = []
         self.parent.avatarList.connect(self.avatarList)
+        self.parent.playerAvatarList.connect(self.playerAvatarList)
+
     
         self.nams = {}
         self.avatars = {}
@@ -111,13 +158,21 @@ class avatarWidget(QtGui.QDialog):
     
     def doit(self, val):
         if self.personal == True :
-            self.parent.selectAvatar(val)
+            self.parent.send(dict(command="avatar", action="select", avatar=val))
+            self.close()
         else :
-            self.parent.addAvatar(self.user, val)
-        self.close()
+            if self.user == None :
+                self.parent.send(dict(command="admin", action="list_avatar_users", avatar=val))
+            else :
+                self.parent.send(dict(command="admin", action="add_avatar", user=self.user, avatar=val))
+                
     
     
-    
+    def playerAvatarList(self, message):
+        player_avatar_list  = message["player_avatar_list"]
+        idavatar            = message["avatar_id"]
+        playerList = playerAvatar(player_avatar_list, idavatar = idavatar, parent = self.parent)
+        playerList.exec_()
     
     def avatarList(self, avatar_list):
         
