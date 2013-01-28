@@ -26,17 +26,18 @@ import base64, zlib, os
 import util
 
 class avatarWidget(QtGui.QDialog):
-    def __init__(self, parent, user, *args, **kwargs):
+    def __init__(self, parent, user, personal = False, *args, **kwargs):
         
         QtGui.QDialog.__init__(self, *args, **kwargs)
         
         self.user = user
+        self.personal = personal
         self.parent = parent
-        
+
         self.setStyleSheet(self.parent.styleSheet())
         self.setWindowTitle ( "Avatar manager" )
         
-        self.parent.requestAvatars()
+        self.parent.requestAvatars(self.personal)
         self.group_layout   = QtGui.QVBoxLayout(self)
         self.listAvatars    = QtGui.QListWidget()
          
@@ -102,15 +103,21 @@ class avatarWidget(QtGui.QDialog):
             util.addrespix(reply.url().toString(), QtGui.QPixmap(img))
     
     def clicked(self):
-        self.parent.addAvatar(self.user, None)
+        self.doit(None)
         self.close()
         
     def create_connect(self, x):
         return lambda: self.doit(x)
     
     def doit(self, val):
-        self.parent.addAvatar(self.user, val)
+        if self.personal == True :
+            self.parent.selectAvatar(val)
+        else :
+            self.parent.addAvatar(self.user, val)
         self.close()
+    
+    
+    
     
     def avatarList(self, avatar_list):
         

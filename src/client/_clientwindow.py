@@ -1052,12 +1052,20 @@ class ClientWindow(FormClass, BaseClass):
         self.publicBroadcast.emit(message)
     
     
-    def requestAvatars(self):
-        self.send(dict(command="admin", action="requestavatars"))
+    def requestAvatars(self, personal):
+        if personal :
+            self.send(dict(command="avatar", action="list_avatar"))
+        else :
+            self.send(dict(command="admin", action="requestavatars"))
 
     def joinChannel(self, user, channel):
         '''Close FA remotly'''
         self.send(dict(command="admin", action="join_channel", users=[user], channel=channel))
+
+    def selectAvatar(self, avatarChosen):
+        '''select an avatar for the user'''
+        print avatarChosen
+        self.send(dict(command="avatar", action="select", avatar=avatarChosen))
 
     def addAvatar(self, userAvatar, avatarChosen):
         '''Adding a new avatar for the user'''
@@ -1274,11 +1282,13 @@ class ClientWindow(FormClass, BaseClass):
 
     def handle_mod_info(self, message):
         self.modInfo.emit(message)    
-
     
     def handle_game_info(self, message):
         self.gameInfo.emit(message)                    
     
+    def handle_avatar(self, message):
+        if "avatarlist" in message :
+            self.avatarList.emit(message["avatarlist"])
 
     def handle_admin(self, message):
         if "avatarlist" in message :
@@ -1294,8 +1304,6 @@ class ClientWindow(FormClass, BaseClass):
         
         if "power" in message:
             self.power = message["power"]
-            
-        
         
     def handle_player_info(self, message):
         name = message["login"]        
