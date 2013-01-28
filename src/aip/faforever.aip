@@ -11,10 +11,10 @@
     <ROW Property="ARPURLUPDATEINFO" Value="http://www.faforever.com/page=2"/>
     <ROW Property="CTRLS" Value="2"/>
     <ROW Property="Manufacturer" Value="FAF Community" ValueLocId="*"/>
-    <ROW Property="ProductCode" Value="1033:{1E52B6A5-B9BC-4052-8852-50C55B27998E} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{73262082-B007-43CA-B4B3-49C895298B94} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Forged Alliance Forever" ValueLocId="*"/>
-    <ROW Property="ProductVersion" Value="240.7.595"/>
+    <ROW Property="ProductVersion" Value="240.7.598"/>
     <ROW Property="REBOOT" MultiBuildValue="DefaultBuild:Suppress"/>
     <ROW Property="RUNAPPLICATION" Value="1" Type="4"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
@@ -366,7 +366,7 @@
     <ROW File="faf.png" Component_="blackops.html" FileName="faf.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\faf.png" SelfReg="false" NextFile="koth.html"/>
     <ROW File="faf.qthtml" Component_="faf.qthtml" FileName="faf~1.qth|faf.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\formatters\faf.qthtml" SelfReg="false" NextFile="mod.qthtml"/>
     <ROW File="failure.ui" Component_="failure.ui" FileName="failure.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\fa\updater\failure.ui" SelfReg="false" NextFile="illegal.ui"/>
-    <ROW File="featuredmods.ui" Component_="featuredmods.ui" FileName="featur~1.ui|featuredmods.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\featuredmods\featuredmods.ui" SelfReg="false"/>
+    <ROW File="featuredmods.ui" Component_="featuredmods.ui" FileName="featur~1.ui|featuredmods.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\featuredmods\featuredmods.ui" SelfReg="false" NextFile="tool.qthtml"/>
     <ROW File="feed.png" Component_="about.ui" FileName="feed.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\feed.png" SelfReg="false" NextFile="featuredmods.ui"/>
     <ROW File="fi.png" Component_="ad.png" FileName="fi.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\fi.png" SelfReg="false" NextFile="fj.png"/>
     <ROW File="filesave.png" Component_="back.png" FileName="filesave.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\filesave.png" SelfReg="false" NextFile="filesave.ppm"/>
@@ -710,6 +710,7 @@
     <ROW File="tm.png" Component_="ad.png" FileName="tm.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\tm.png" SelfReg="false" NextFile="tn.png"/>
     <ROW File="tn.png" Component_="ad.png" FileName="tn.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\tn.png" SelfReg="false" NextFile="to.png"/>
     <ROW File="to.png" Component_="ad.png" FileName="to.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\to.png" SelfReg="false" NextFile="tr.png"/>
+    <ROW File="tool.qthtml" Component_="faf.qthtml" FileName="tool~1.qth|tool.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\formatters\tool.qthtml" SelfReg="false"/>
     <ROW File="tournaments.ui" Component_="host.ui" FileName="tourna~1.ui|tournaments.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\tournaments\tournaments.ui" SelfReg="false" NextFile="mfc100u.dll"/>
     <ROW File="tourney.png" Component_="about.ui" FileName="tourney.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\tourney.png" SelfReg="false" NextFile="tray_icon.png"/>
     <ROW File="tr.png" Component_="ad.png" FileName="tr.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\tr.png" SelfReg="false" NextFile="tt.png"/>

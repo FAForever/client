@@ -467,12 +467,12 @@ class GameItem(QtGui.QListWidgetItem):
         if len(self.modoptions)!= 0 and len(self.modoptions) == len(self.options):
             mods  += "<br/>Options :<br/>"
    
-        for i in range(len(self.modoptions)) :
-            mods += self.modoptions[i]
-            if self.options[i] == True :                  
-                mods += ": On<br/>"
-            else :
-                mods += ": Off<br/>"
+            for i in range(len(self.modoptions)) :
+                mods += self.modoptions[i]
+                if self.options[i] == True :                  
+                    mods += ": On<br/>"
+                else :
+                    mods += ": Off<br/>"
 
         self.setToolTip(self.FORMATTER_TOOL.format(teams = teams, observers=observers, mods = mods)) 
 

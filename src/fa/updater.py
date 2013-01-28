@@ -47,7 +47,7 @@ import fa
 import tempfile
 
 logger = logging.getLogger("faf.updater")
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 # This contains a complete dump of everything that was supplied to logOutput
 debugLog = []
@@ -350,7 +350,7 @@ class Updater(QtCore.QObject):
             progress.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
             progress.setAutoClose(True)
             progress.setAutoReset(False)
-    
+            
             downloadedfile  = urllib2.urlopen(url)
             meta = downloadedfile.info()
         
