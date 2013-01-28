@@ -585,11 +585,14 @@ class ClientWindow(FormClass, BaseClass):
         self.progress.show()        
         
         timer = time.time()
+        interval = 1
         
-        aborted = False
-
         while self.udpTest == False :
             QtGui.QApplication.processEvents()
+            if time.time() - timer > interval :
+                udpSocket.writeDatagram(self.login, QtNetwork.QHostAddress("91.236.254.74"), 30351)
+                interval = interval + 1
+
             if time.time() - timer > 10 :
                 break
 
