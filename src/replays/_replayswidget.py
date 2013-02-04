@@ -29,6 +29,8 @@ import time
 import client
 import json
 
+from replays.replayitem import ReplayItem, ReplayItemDelegate
+
 # Replays uses the new Inheritance Based UI creation pattern
 # This allows us to do all sorts of awesome stuff by overriding methods etc.
 
@@ -46,7 +48,10 @@ class ReplaysWidget(BaseClass, FormClass):
         client.replaysTab.layout().addWidget(self)
         
         client.gameInfo.connect(self.processGameInfo)
-            
+        client.replayVault.connect(self.replayVault)    
+        
+        self.replays = {}
+        
         self.myTree.itemDoubleClicked.connect(self.myTreeDoubleClicked)
         self.myTree.itemPressed.connect(self.myTreePressed)
         self.myTree.header().setResizeMode(0, QtGui.QHeaderView.ResizeToContents)
@@ -61,29 +66,32 @@ class ReplaysWidget(BaseClass, FormClass):
         self.liveTree.header().setResizeMode(2, QtGui.QHeaderView.ResizeToContents)
         
         self.games = {}
-        
+        self.replayList.setItemDelegate(ReplayItemDelegate(self));
         logger.info("Replays Widget instantiated.")
 
         # Old replay vault code adapted to this.                
         self.loaded = False
         self.client.showReplays.connect(self.reloadView)
-        self.webView.loadFinished.connect(self.webView.show)
-
         
-    @QtCore.pyqtSlot()
+
     def reloadView(self):
-        if (self.loaded):
-            return
-        self.loaded = True
-        
-        #self.webView.setVisible(False)
+        self.client.send(dict(command="replay_vault", action="list"))
 
-        #If a local theme CSS exists, skin the WebView with it
-        if util.themeurl("vault/style.css"):
-            self.webView.settings().setUserStyleSheetUrl(util.themeurl("vault/style.css"))
-        self.webView.setUrl(QtCore.QUrl("http://www.faforever.com/webcontent/replayvault?username={user}&pwdhash={pwdhash}".format(user=self.client.login, pwdhash=self.client.password)))
+    def replayVault(self, message):
+        action = message["action"]
+        if action == "list_recents" :
+            replays = message["replays"]
+            for replay in replays :
+                uid = replay["id"]
         
+                if uid not in self.replays:
+                    self.replays[uid] = ReplayItem(uid)
+                    self.replayList.addItem(self.replays[uid])
+                    self.replays[uid].update(replay, self.client)
+                else:
+                    self.replays[uid].update(replay, self.client)
         
+
     def focusEvent(self, event):
         self.updatemyTree()
         return BaseClass.focusEvent(self, event)

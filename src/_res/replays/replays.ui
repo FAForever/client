@@ -14,7 +14,7 @@
    <string>TabWidget</string>
   </property>
   <property name="currentIndex">
-   <number>0</number>
+   <number>2</number>
   </property>
   <widget class="QWidget" name="liveTab">
    <attribute name="title">
@@ -166,24 +166,11 @@
      <number>0</number>
     </property>
     <item row="0" column="0">
-     <widget class="QWebView" name="webView">
-      <property name="url">
-       <url>
-        <string>about:blank</string>
-       </url>
-      </property>
-     </widget>
+     <widget class="QListWidget" name="replayList"/>
     </item>
    </layout>
   </widget>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>QWebView</class>
-   <extends>QWidget</extends>
-   <header>PyQt4.QtWebKit</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>
