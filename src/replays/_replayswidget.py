@@ -21,6 +21,7 @@
 
 
 from PyQt4 import QtCore, QtGui
+from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
 import util
 from replays import logger
 import os
@@ -51,6 +52,9 @@ class ReplaysWidget(BaseClass, FormClass):
         client.replayVault.connect(self.replayVault)    
         
         self.replays = {}
+        self.replayDownload = QNetworkAccessManager()
+        self.replayDownload.finished.connect(self.finishRequest)
+        
         
         self.myTree.itemDoubleClicked.connect(self.myTreeDoubleClicked)
         self.myTree.itemPressed.connect(self.myTreePressed)
@@ -66,7 +70,9 @@ class ReplaysWidget(BaseClass, FormClass):
         self.liveTree.header().setResizeMode(2, QtGui.QHeaderView.ResizeToContents)
         
         self.games = {}
-        self.replayList.setItemDelegate(ReplayItemDelegate(self));
+        self.replayList.setItemDelegate(ReplayItemDelegate(self))
+        self.replayList.itemDoubleClicked.connect(self.replayDoubleClicked)
+        self.replayList.itemClicked.connect(self.replayClicked)
         logger.info("Replays Widget instantiated.")
 
         # Old replay vault code adapted to this.                
@@ -76,6 +82,22 @@ class ReplaysWidget(BaseClass, FormClass):
 
     def reloadView(self):
         self.client.send(dict(command="replay_vault", action="list"))
+
+    def finishRequest(self, reply):
+        faf_replay = QtCore.QFile(os.path.join(util.CACHE_DIR, "temp.fafreplay"))
+        faf_replay.open(QtCore.QIODevice.WriteOnly | QtCore.QIODevice.Truncate)                
+        faf_replay.write(reply.readAll())
+        faf_replay.flush()
+        faf_replay.close()  
+        fa.exe.replay(os.path.join(util.CACHE_DIR, "temp.fafreplay"))
+
+    def replayClicked(self, item):
+        if item.moreInfo == False :
+            self.client.send(dict(command="replay_vault", action="info_replay", uid = item.uid))
+
+    def replayDoubleClicked(self, item):
+        self.replayDownload.get(QNetworkRequest(QtCore.QUrl(item.url))) 
+
 
     def replayVault(self, message):
         action = message["action"]
@@ -90,7 +112,15 @@ class ReplaysWidget(BaseClass, FormClass):
                     self.replays[uid].update(replay, self.client)
                 else:
                     self.replays[uid].update(replay, self.client)
-        
+        elif action == "info_replay" :
+            uid = message["uid"]
+            if uid in self.replays:
+                self.replays[uid].infoPlayers(message["players"])
+                self.replayList.update()
+                self.replayList.repaint()
+                
+                
+            
 
     def focusEvent(self, event):
         self.updatemyTree()

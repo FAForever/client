@@ -258,7 +258,7 @@ class Updater(QtCore.QObject):
     # Network configuration
     SOCKET  = 9001
     HOST    = "faforever.com"
-    #HOST    = "localhost"
+    HOST    = "91.229.20.50"
     TIMEOUT = 20  #seconds
 
     # Return codes to expect from run()

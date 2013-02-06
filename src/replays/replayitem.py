@@ -1,0 +1,280 @@
+#-------------------------------------------------------------------------------
+# Copyright (c) 2012 Gael Honorez.
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the GNU Public License v3.0
+# which accompanies this distribution, and is available at
+# http://www.gnu.org/licenses/gpl.html
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#-------------------------------------------------------------------------------
+
+
+
+
+
+from PyQt4 import QtCore, QtGui
+from fa import maps
+import util
+import os, time
+from games.moditem import mods
+
+import client
+
+
+class ReplayItemDelegate(QtGui.QStyledItemDelegate):
+    
+    def __init__(self, *args, **kwargs):
+        QtGui.QStyledItemDelegate.__init__(self, *args, **kwargs)
+        
+    def paint(self, painter, option, index, *args, **kwargs):
+        self.initStyleOption(option, index)
+                
+        painter.save()
+        
+        html = QtGui.QTextDocument()
+        html.setHtml(option.text)
+        
+        icon = QtGui.QIcon(option.icon)
+        iconsize = icon.actualSize(option.rect.size())
+        
+        #clear icon and text before letting the control draw itself because we're rendering these parts ourselves
+        option.icon = QtGui.QIcon()        
+        option.text = ""  
+        option.widget.style().drawControl(QtGui.QStyle.CE_ItemViewItem, option, painter, option.widget)
+        
+        #Shadow
+        #painter.fillRect(option.rect.left()+8-1, option.rect.top()+8-1, iconsize.width(), iconsize.height(), QtGui.QColor("#202020"))
+
+        #Icon
+        icon.paint(painter, option.rect.adjusted(5-2, -2, 0, 0), QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
+        
+        #Frame around the icon
+#        pen = QtGui.QPen()
+#        pen.setWidth(1);
+#        pen.setBrush(QtGui.QColor("#303030"));  #FIXME: This needs to come from theme.
+#        pen.setCapStyle(QtCore.Qt.RoundCap);
+#        painter.setPen(pen)
+#        painter.drawRect(option.rect.left()+5-2, option.rect.top()+5-2, iconsize.width(), iconsize.height())
+
+        #Description
+        painter.translate(option.rect.left() + iconsize.width() + 10, option.rect.top()+10)
+        clip = QtCore.QRectF(0, 0, option.rect.width()-iconsize.width() - 10 - 5, option.rect.height())
+        html.drawContents(painter, clip)
+  
+        painter.restore()
+        
+
+    def sizeHint(self, option, index, *args, **kwargs):
+        clip = index.model().data(index, QtCore.Qt.UserRole)
+        self.initStyleOption(option, index)
+        html = QtGui.QTextDocument()
+        html.setHtml(option.text)
+        html.setTextWidth(240)
+        return QtCore.QSize(215, clip.height)
+
+
+
+
+class ReplayItem(QtGui.QListWidgetItem):
+
+    
+    FORMATTER_REPLAY        = unicode(util.readfile("replays/formatters/replay.qthtml"))
+
+    
+    def __init__(self, uid, *args, **kwargs):
+        QtGui.QListWidgetItem.__init__(self, *args, **kwargs)
+
+        self.uid            = uid
+        self.height         = 60
+        self.viewtext       = None
+        self.viewtextPlayer = None
+        self.mapname        = None
+        self.mapdisplayname = None
+        self.client         = None
+        self.title          = None
+        
+        self.moreInfo       = False
+        
+        self.url            = "http://www.faforever.com/faf/replays/%i.fafreplay" % self.uid
+        
+        self.teams          = {}
+        self.access         = None
+        self.mod            = None
+        self.moddisplayname = None
+
+        self.options        = []
+        self.players        = []
+        
+        self.setHidden(True)
+
+    
+    def update(self, message, client):
+        '''
+        Updates this item from the message dictionary supplied
+        '''
+        
+        self.client  = client
+        
+        self.name       = message["name"]
+        self.mapname    = message["map"]
+        self.duration   = time.strftime('%H:%M:%S', time.gmtime(message["duration"]))
+        self.mod        = message["mod"]
+         
+        # Map preview code
+        self.mapdisplayname = maps.getDisplayName(self.mapname)
+      
+        icon = maps.preview(self.mapname)
+        if not icon:
+            icon = util.icon("games/unknown_map.png")
+        
+        self.setIcon(icon)
+        
+        self.moddisplayname = self.mod
+        self.modoptions = []
+
+        if self.mod in mods :
+            self.moddisplayname = mods[self.mod].name 
+
+#        self.title      = message['title']
+#        self.host       = message['host']
+#        self.teams      = message['teams']
+#        self.access     = message.get('access', 'public')
+#        self.mod        = message['featured_mod']
+#        self.options    = message.get('options', [])
+#        self.numplayers = message.get('num_players', 0) 
+#        self.slots      = message.get('max_players',12)
+
+        self.viewtext = (self.FORMATTER_REPLAY.format(name=self.name, map = self.mapdisplayname, duration = self.duration, mod = self.moddisplayname))
+
+    def infoPlayers(self, players):
+        self.moreInfo = True
+        scores = {}
+        
+        for player in players :
+            team            = int(player["team"])
+
+            if team :
+                if "score" in player :
+                    if team in scores :
+                        scores[team] = scores[team] + player["score"]
+                    else :
+                        scores[team] = player["score"]
+                if not team in self.teams :
+                    self.teams[team] = [player]
+                else :
+                    self.teams[team].append(player)
+
+        teamWin = None
+        if len(scores) > 0 :
+            winner = 0
+            for team in scores :
+                if scores[team] > winner :
+                    teamWin = team
+                
+        print teamWin
+
+        observerlist    = []
+        teamlist        = []
+
+        teams = ""
+
+        i = 0
+        for team in self.teams:
+            if team != -1 :
+                i = i + 1
+
+                teamtxt = "<table>"
+
+                teamDisplay    = []
+                if teamWin :
+                    if teamWin == i :
+                        teamDisplay.append("<tr><td align = 'center' valign='center' width = '150'><font size ='+2'>WIN</font><td><tr>")
+                    else :
+                        teamDisplay.append("<tr><td align = 'center' valign='center' width = '150'><font size ='+2'>LOSE</font><td><tr>")
+                for player in self.teams[team] :
+                    displayPlayer = ""
+
+    
+                    playerStr = player["name"]
+                    
+                    if "rating" in player :
+                        playerStr += " ("+str(int(player["rating"]))+")"
+                    
+                    if "after_rating" in player :
+                        playerStr += " to ("+str(int(player["after_rating"]))+")"
+
+
+                    if i == 1 :
+                        displayPlayer = ("<td align = 'left' valign='center' width = '150'>%s</td>" % playerStr)
+                    elif i == len(self.teams) :
+                        displayPlayer = ("<td align = 'right' valign='center' width = '150'>%s</td>" % playerStr)
+                    else :
+                        displayPlayer = ("<td align = 'center' valign='center' width = '150'>%s</td>" % playerStr)
+                    
+
+                        
+                    display = ("<tr>%s</tr>" % displayPlayer)
+                    teamDisplay.append(display)
+                        
+                members = "".join(teamDisplay)
+                
+                teamlist.append("<td>" +teamtxt + members + "</table></td>")
+                
+                    
+                
+            else :
+                observerlist.append(",".join(self.teams[team]))
+
+        teams += "<td valign='center' height='100%'><font valign='center' color='black' size='+5'>VS</font></td>".join(teamlist)
+
+        observers = ""
+        if len(observerlist) != 0 :
+            observers = "Observers : "
+            observers += ",".join(observerlist)    
+
+        self.setToolTip(teams)
+        
+        self.viewtext += "Hover for more infos !"
+
+
+    def display(self):
+        return self.viewtext   
+ 
+    def data(self, role):
+        if role == QtCore.Qt.DisplayRole:
+            return self.display()  
+        elif role == QtCore.Qt.UserRole :
+            return self
+        return super(ReplayItem, self).data(role)
+ 
+    def permutations(self, items):
+        """Yields all permutations of the items."""
+        if items == []:
+            yield []
+        else:
+            for i in range(len(items)):
+                for j in self.permutations(items[:i] + items[i+1:]):
+                    yield [items[i]] + j
+
+    def __ge__(self, other):
+        ''' Comparison operator used for item list sorting '''        
+        return not self.__lt__(other)
+    
+    
+    def __lt__(self, other):
+        ''' Comparison operator used for item list sorting '''        
+        if not self.client: return True # If not initialized...
+        if not other.client: return False;
+        # Default: uid
+        return self.uid < other.uid
+    
+
+

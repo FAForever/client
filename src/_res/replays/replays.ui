@@ -14,7 +14,7 @@
    <string>TabWidget</string>
   </property>
   <property name="currentIndex">
-   <number>2</number>
+   <number>0</number>
   </property>
   <widget class="QWidget" name="liveTab">
    <attribute name="title">
@@ -166,7 +166,14 @@
      <number>0</number>
     </property>
     <item row="0" column="0">
-     <widget class="QListWidget" name="replayList"/>
+     <widget class="QListWidget" name="replayList">
+      <property name="resizeMode">
+       <enum>QListView::Adjust</enum>
+      </property>
+      <property name="sortingEnabled">
+       <bool>true</bool>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
