@@ -78,22 +78,27 @@ class ReplayItemDelegate(QtGui.QStyledItemDelegate):
         html = QtGui.QTextDocument()
         html.setHtml(option.text)
         html.setTextWidth(240)
-        return QtCore.QSize(215, clip.height)
+        if clip :
+            return QtCore.QSize(215, clip.height)
+        else :
+            return QtCore.QSize(215, 35)
 
 
 
 
-class ReplayItem(QtGui.QListWidgetItem):
+class ReplayItem(QtGui.QTreeWidgetItem):
 
     
     FORMATTER_REPLAY        = unicode(util.readfile("replays/formatters/replay.qthtml"))
 
     
-    def __init__(self, uid, *args, **kwargs):
-        QtGui.QListWidgetItem.__init__(self, *args, **kwargs)
+    def __init__(self, uid, parent, *args, **kwargs):
+        QtGui.QTreeWidgetItem.__init__(self, *args, **kwargs)
 
+        
         self.uid            = uid
-        self.height         = 60
+        self.parent         = parent
+        self.height         = 70
         self.viewtext       = None
         self.viewtextPlayer = None
         self.mapname        = None
@@ -101,8 +106,11 @@ class ReplayItem(QtGui.QListWidgetItem):
         self.client         = None
         self.title          = None
         
-        self.moreInfo       = False
+        self.startDate      = None
+        self.duration       = None
         
+        self.moreInfo       = False
+        self.replayInfo     = False
         self.url            = "http://www.faforever.com/faf/replays/%i.fafreplay" % self.uid
         
         self.teams          = {}
@@ -121,21 +129,24 @@ class ReplayItem(QtGui.QListWidgetItem):
         Updates this item from the message dictionary supplied
         '''
         
+        
         self.client  = client
         
         self.name       = message["name"]
         self.mapname    = message["map"]
         self.duration   = time.strftime('%H:%M:%S', time.gmtime(message["duration"]))
+        self.startHour  = time.strftime("%H:%M", time.localtime(message['start']))
+        self.startDate  = time.strftime("%Y-%m-%d", time.localtime(message['start']))
         self.mod        = message["mod"]
          
         # Map preview code
         self.mapdisplayname = maps.getDisplayName(self.mapname)
       
-        icon = maps.preview(self.mapname)
-        if not icon:
-            icon = util.icon("games/unknown_map.png")
+        self.icon = maps.preview(self.mapname)
+        if not self.icon:
+            self.icon = util.icon("games/unknown_map.png")
         
-        self.setIcon(icon)
+        #self.setIcon(0, self.icon)
         
         self.moddisplayname = self.mod
         self.modoptions = []
@@ -152,14 +163,16 @@ class ReplayItem(QtGui.QListWidgetItem):
 #        self.numplayers = message.get('num_players', 0) 
 #        self.slots      = message.get('max_players',12)
 
-        self.viewtext = (self.FORMATTER_REPLAY.format(name=self.name, map = self.mapdisplayname, duration = self.duration, mod = self.moddisplayname))
+        self.viewtext = (self.FORMATTER_REPLAY.format(time=self.startHour, name=self.name, map = self.mapdisplayname, duration = self.duration, mod = self.moddisplayname))
 
     def infoPlayers(self, players):
+        
         self.moreInfo = True
         scores = {}
         
         for player in players :
             team            = int(player["team"])
+            
 
             if team :
                 if "score" in player :
@@ -190,15 +203,14 @@ class ReplayItem(QtGui.QListWidgetItem):
         for team in self.teams:
             if team != -1 :
                 i = i + 1
-
-                teamtxt = "<table>"
+                teamtxt = "<table border=0 width = 100% height = 100%>"
 
                 teamDisplay    = []
                 if teamWin :
                     if teamWin == i :
-                        teamDisplay.append("<tr><td align = 'center' valign='center' width = '150'><font size ='+2'>WIN</font><td><tr>")
+                        teamDisplay.append("<table border=0 width = 100% height = 100%><tr><td align = 'center' valign='center' width =100%><font size ='+2'>WIN</font></td></tr></table>")
                     else :
-                        teamDisplay.append("<tr><td align = 'center' valign='center' width = '150'><font size ='+2'>LOSE</font><td><tr>")
+                        teamDisplay.append("<table border=0 width = 100% height = 100%><tr><td align = 'center' valign='center' width =100%><font size ='+2'>LOSE</font></td></tr></table>")
                 for player in self.teams[team] :
                     displayPlayer = ""
 
@@ -212,21 +224,43 @@ class ReplayItem(QtGui.QListWidgetItem):
                         playerStr += " to ("+str(int(player["after_rating"]))+")"
 
 
-                    if i == 1 :
-                        displayPlayer = ("<td align = 'left' valign='center' width = '150'>%s</td>" % playerStr)
+                    if i == 1 and i != len(self.teams) :
+                        displayPlayer = ("<td align = 'left' valign='center' width=250>%s</td>" % playerStr)
                     elif i == len(self.teams) :
-                        displayPlayer = ("<td align = 'right' valign='center' width = '150'>%s</td>" % playerStr)
+                        displayPlayer = ("<td align = 'right' valign='center' width=250>%s</td>" % playerStr)
                     else :
-                        displayPlayer = ("<td align = 'center' valign='center' width = '150'>%s</td>" % playerStr)
+                        displayPlayer = ("<td align = 'center' valign='center' width=250>%s</td>" % playerStr)
                     
 
-                        
+                    if "faction" in player :
+                       
+                        if player["faction"] == 1 :
+                            faction = "UEF"
+                        elif player["faction"] == 2 :
+                            faction = "Cybran"
+                        elif player["faction"] == 3 :
+                            faction = "Aeon"
+                        elif player["faction"] == 4 :
+                            faction = "Seraphim"                            
+                        elif player["faction"] == 5 :
+                            faction = "Nomads"     
+                        else :
+                            faction = "Broken"
+                            
+                        url = os.path.join(util.COMMON_DIR, "replays/%s.png" % faction)
+ 
+                        if i == len(self.teams) : 
+                            displayPlayer += '<td width="40"><img src = "'+url+'" width="40" height="20"></td>'
+                        else :
+                            displayPlayer = '<td width="40"><img src = "'+url+'" width="40" height="20"></td>' + displayPlayer
+
                     display = ("<tr>%s</tr>" % displayPlayer)
+
                     teamDisplay.append(display)
                         
                 members = "".join(teamDisplay)
                 
-                teamlist.append("<td>" +teamtxt + members + "</table></td>")
+                teamlist.append("<td>" + teamtxt + members + "</table></td>")
                 
                     
                 
@@ -235,25 +269,33 @@ class ReplayItem(QtGui.QListWidgetItem):
 
         teams += "<td valign='center' height='100%'><font valign='center' color='black' size='+5'>VS</font></td>".join(teamlist)
 
+
         observers = ""
         if len(observerlist) != 0 :
             observers = "Observers : "
             observers += ",".join(observerlist)    
 
-        self.setToolTip(teams)
+        #self.setToolTip(teams)
+        self.replayInfo = '<table border="0" cellpadding="0" cellspacing="5"><tbody><tr>'+teams+'</tr></tbody></table>'
         
-        self.viewtext += "Hover for more infos !"
+        
+        if self.isSelected() :
+            self.parent.replayInfos.clear()
+            self.parent.replayInfos.setHtml(self.replayInfo)
 
 
-    def display(self):
-        return self.viewtext   
+    def display(self, column):
+        if column == 0 :
+            return self.viewtext
+        if column == 1 :
+            return self.viewtext   
  
-    def data(self, role):
+    def data(self, column, role):
         if role == QtCore.Qt.DisplayRole:
-            return self.display()  
+            return self.display(column)  
         elif role == QtCore.Qt.UserRole :
             return self
-        return super(ReplayItem, self).data(role)
+        return super(ReplayItem, self).data(column, role)
  
     def permutations(self, items):
         """Yields all permutations of the items."""
