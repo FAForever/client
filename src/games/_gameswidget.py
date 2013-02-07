@@ -28,6 +28,7 @@ from games.moditem import ModItem, mod_invisible, mods
 from games.hostgamewidget import HostgameWidget
 from games import logger
 from fa import Faction
+import random
 import fa
 
 RANKED_SEARCH_EXPANSION_TIME = 10000 #milliseconds before search radius expands
@@ -56,6 +57,8 @@ class GamesWidget(FormClass, BaseClass):
         self.rankedCybran.setIcon(util.icon("games/automatch/cybran.png"))
         self.rankedSeraphim.setIcon(util.icon("games/automatch/seraphim.png"))
         self.rankedUEF.setIcon(util.icon("games/automatch/uef.png"))
+        self.rankedRandom.setIcon(util.icon("games/automatch/random.png"))
+
 
         self.connectRankedToggles()
         self.rankedTimer = QtCore.QTimer()
@@ -92,6 +95,7 @@ class GamesWidget(FormClass, BaseClass):
         self.rankedCybran.toggled.connect(self.toggleCybran)
         self.rankedSeraphim.toggled.connect(self.toggleSeraphim)
         self.rankedUEF.toggled.connect(self.toggleUEF)
+        self.rankedRandom.toggled.connect(self.toggleRandom)
 
 
 
@@ -100,6 +104,7 @@ class GamesWidget(FormClass, BaseClass):
         self.rankedCybran.toggled.disconnect(self.toggleCybran)
         self.rankedSeraphim.toggled.disconnect(self.toggleSeraphim)
         self.rankedUEF.toggled.disconnect(self.toggleUEF)
+        self.rankedRandom.toggled.disconnect(self.toggleRandom)
 
 
     @QtCore.pyqtSlot(dict)
@@ -245,7 +250,27 @@ class GamesWidget(FormClass, BaseClass):
             self.connectRankedToggles()            
         else:
             self.stopSearchRanked()
-    
+
+    @QtCore.pyqtSlot(bool)
+    def toggleRandom(self, state):
+        if (state):
+            faction = random.randint(1,4)
+            if faction == 1 :
+                self.startSearchRanked(Faction.UEF)
+            elif faction == 2 :
+                self.startSearchRanked(Faction.CYBRAN)
+            elif faction == 3 :
+                self.startSearchRanked(Faction.AEON)
+            else :
+                self.startSearchRanked(Faction.SERAPHIM)
+                
+            self.disconnectRankedToggles()
+            self.rankedAeon.setChecked(False)
+            self.rankedCybran.setChecked(False)
+            self.rankedSeraphim.setChecked(False)
+            self.connectRankedToggles()     
+        else:
+            self.stopSearchRanked()                        
             
     @QtCore.pyqtSlot(bool)
     def toggleUEF(self, state):
