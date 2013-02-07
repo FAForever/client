@@ -1374,8 +1374,7 @@ class ClientWindow(FormClass, BaseClass):
                 QtGui.QMessageBox.warning(self, "Warning from Server", message["text"])
             elif message["style"] == "scores":
                 self.tray.showMessage("Scores", message["text"], QtGui.QSystemTrayIcon.Information, 3500)
-                self.localBroadcast.emit("Scores", message["text"])
-                self.localBroadcast.emit("Scores", 'Report incorrect scores here: <a style="color:cornflowerblue" href="http://www.faforever.com/forums/viewtopic.php?f=3&t=664">Score Report Thread</a>')                
+                self.localBroadcast.emit("Scores", message["text"])                                
             else:
                 QtGui.QMessageBox.information(self, "Notice from Server", message["text"])
                 
