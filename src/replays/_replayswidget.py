@@ -22,6 +22,7 @@
 
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
+from games.moditem import mods 
 import util
 from replays import logger
 import os
@@ -55,7 +56,7 @@ class ReplaysWidget(BaseClass, FormClass):
         self.onlineTree.setItemDelegate(ReplayItemDelegate(self))
         self.replayDownload = QNetworkAccessManager()
         self.replayDownload.finished.connect(self.finishRequest)
-        
+        self.searchButton.pressed.connect(self.searchVault)
         
         self.myTree.itemDoubleClicked.connect(self.myTreeDoubleClicked)
         self.myTree.itemPressed.connect(self.myTreePressed)
@@ -77,8 +78,14 @@ class ReplaysWidget(BaseClass, FormClass):
         logger.info("Replays Widget instantiated.")
 
         
+    def searchVault(self):
+        self.client.send(dict(command="replay_vault", action="search", map = self.mapName.text(), player = self.playerName.text(), mod = self.modList.currentText()))
+        self.onlineTree.clear()
 
     def reloadView(self):
+        for mod in mods :
+            self.modList.addItem(mod)
+            
         self.client.send(dict(command="replay_vault", action="list"))
 
     def finishRequest(self, reply):
@@ -97,7 +104,6 @@ class ReplaysWidget(BaseClass, FormClass):
                 self.replayInfos.clear()
                 self.replayInfos.setHtml(item.replayInfo)
                 
-                
     def onlineTreeDoubleClicked(self, item):
         if hasattr(item, "url") :
             self.replayDownload.get(QNetworkRequest(QtCore.QUrl(item.url))) 
@@ -106,6 +112,7 @@ class ReplaysWidget(BaseClass, FormClass):
     def replayVault(self, message):
         action = message["action"]
         if action == "list_recents" :
+            print "list"
             self.onlineReplays = {}
             replays = message["replays"]
             for replay in replays :
@@ -137,6 +144,7 @@ class ReplaysWidget(BaseClass, FormClass):
 
                 
     def updateOnlineTree(self):
+        self.replayInfos.clear()
         self.onlineTree.clear()
         buckets = {}
         for uid in self.onlineReplays :

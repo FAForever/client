@@ -225,11 +225,11 @@ class ReplayItem(QtGui.QTreeWidgetItem):
 
 
                     if i == 1 and i != len(self.teams) :
-                        displayPlayer = ("<td align = 'left' valign='center' width=250>%s</td>" % playerStr)
+                        displayPlayer = ("<td align = 'left' valign='center' width=150>%s</td>" % playerStr)
                     elif i == len(self.teams) :
-                        displayPlayer = ("<td align = 'right' valign='center' width=250>%s</td>" % playerStr)
+                        displayPlayer = ("<td align = 'right' valign='center' width=150>%s</td>" % playerStr)
                     else :
-                        displayPlayer = ("<td align = 'center' valign='center' width=250>%s</td>" % playerStr)
+                        displayPlayer = ("<td align = 'center' valign='center' width=150>%s</td>" % playerStr)
                     
 
                     if "faction" in player :
