@@ -363,8 +363,8 @@ class GameSettings(QtGui.QWizardPage):
         self.labelport.setWordWrap(True)
         
         self.gamePortSpin = QtGui.QSpinBox() 
-        self.gamePortSpin.setMinimum(10)
-        self.gamePortSpin.setMaximum(50000) 
+        self.gamePortSpin.setMinimum(1024)
+        self.gamePortSpin.setMaximum(9999999) 
         self.gamePortSpin.setValue(6112)
 
         self.checkUPnP = QtGui.QCheckBox("use UPnP")

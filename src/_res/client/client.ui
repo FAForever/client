@@ -240,7 +240,6 @@
     <addaction name="actionWiki"/>
     <addaction name="separator"/>
     <addaction name="actionTechSupport"/>
-    <addaction name="actionReportBug"/>
     <addaction name="actionShowLogs"/>
     <addaction name="separator"/>
     <addaction name="actionAbout"/>
@@ -437,7 +436,7 @@
   <customwidget>
    <class>QWebView</class>
    <extends>QWidget</extends>
-   <header>PyQt4.QtWebKit</header>
+   <header>QtWebKit/QWebView</header>
   </customwidget>
  </customwidgets>
  <resources/>
