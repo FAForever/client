@@ -124,6 +124,9 @@ class GamesWidget(FormClass, BaseClass):
         if not message["name"] in mods :
             mods[message["name"]] = item
             
+        
+        self.client.replays.modList.addItem(message["name"])
+            
     @QtCore.pyqtSlot(dict)
     def processGameInfo(self, message):
         '''

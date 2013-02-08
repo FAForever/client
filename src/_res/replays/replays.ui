@@ -222,6 +222,16 @@
       </property>
      </spacer>
     </item>
+    <item row="1" column="1" colspan="2">
+     <widget class="QTextBrowser" name="replayInfos">
+      <property name="textInteractionFlags">
+       <set>Qt::NoTextInteraction</set>
+      </property>
+      <property name="openExternalLinks">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
     <item row="0" column="2">
      <widget class="QGroupBox" name="groupBox">
       <property name="maximumSize">
@@ -237,13 +247,13 @@
        <bool>true</bool>
       </property>
       <layout class="QGridLayout" name="gridLayout_3">
-       <property name="margin">
-        <number>5</number>
+       <property name="horizontalSpacing">
+        <number>6</number>
        </property>
-       <property name="spacing">
-        <number>5</number>
+       <property name="verticalSpacing">
+        <number>2</number>
        </property>
-       <item row="0" column="0">
+       <item row="0" column="0" colspan="2">
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
           <widget class="QLabel" name="label">
@@ -257,7 +267,7 @@
          </item>
         </layout>
        </item>
-       <item row="1" column="0">
+       <item row="1" column="0" colspan="2">
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
           <widget class="QLabel" name="label_2">
@@ -271,7 +281,7 @@
          </item>
         </layout>
        </item>
-       <item row="2" column="0">
+       <item row="2" column="0" colspan="2">
         <layout class="QHBoxLayout" name="horizontalLayout_3">
          <item>
           <widget class="QLabel" name="label_3">
@@ -291,7 +301,28 @@
          </item>
         </layout>
        </item>
-       <item row="3" column="0">
+       <item row="3" column="0" rowspan="2" colspan="2">
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <item>
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>Min rating :</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="minRating">
+           <property name="minimum">
+            <number>-200</number>
+           </property>
+           <property name="maximum">
+            <number>3000</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="5" column="0">
         <widget class="QPushButton" name="searchButton">
          <property name="text">
           <string>Search</string>
@@ -299,16 +330,6 @@
         </widget>
        </item>
       </layout>
-     </widget>
-    </item>
-    <item row="1" column="1" colspan="2">
-     <widget class="QTextBrowser" name="replayInfos">
-      <property name="textInteractionFlags">
-       <set>Qt::NoTextInteraction</set>
-      </property>
-      <property name="openExternalLinks">
-       <bool>true</bool>
-      </property>
      </widget>
     </item>
    </layout>

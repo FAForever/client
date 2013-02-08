@@ -79,13 +79,10 @@ class ReplaysWidget(BaseClass, FormClass):
 
         
     def searchVault(self):
-        self.client.send(dict(command="replay_vault", action="search", map = self.mapName.text(), player = self.playerName.text(), mod = self.modList.currentText()))
+        self.client.send(dict(command="replay_vault", action="search", rating = self.minRating.value(), map = self.mapName.text(), player = self.playerName.text(), mod = self.modList.currentText()))
         self.onlineTree.clear()
 
-    def reloadView(self):
-        for mod in mods :
-            self.modList.addItem(mod)
-            
+    def reloadView(self):         
         self.client.send(dict(command="replay_vault", action="list"))
 
     def finishRequest(self, reply):
@@ -112,7 +109,6 @@ class ReplaysWidget(BaseClass, FormClass):
     def replayVault(self, message):
         action = message["action"]
         if action == "list_recents" :
-            print "list"
             self.onlineReplays = {}
             replays = message["replays"]
             for replay in replays :

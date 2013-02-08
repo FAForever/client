@@ -10,10 +10,10 @@
     <ROW Property="ARPURLUPDATEINFO" Value="http://www.faforever.com/page=2"/>
     <ROW Property="CTRLS" Value="2"/>
     <ROW Property="Manufacturer" Value="FAF Community" ValueLocId="*"/>
-    <ROW Property="ProductCode" Value="1033:{A0ABA2A0-C15C-4C98-8022-63FD0622AED5} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{3999FD73-F71E-4157-928A-6AD51C717C8B} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Forged Alliance Forever" ValueLocId="*"/>
-    <ROW Property="ProductVersion" Value="240.8.2"/>
+    <ROW Property="ProductVersion" Value="240.8.3"/>
     <ROW Property="REBOOT" MultiBuildValue="DefaultBuild:Suppress"/>
     <ROW Property="RUNAPPLICATION" Value="1" Type="4"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
@@ -141,6 +141,7 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
     <ROW File="APIMSWinCoreLocalRegistryL110.dll" Component_="APIMSWinCoreLocalRegistryL110.dll" FileName="API-MS~1.dll|API-MS-Win-Core-LocalRegistry-L1-1-0.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\API-MS-Win-Core-LocalRegistry-L1-1-0.dll" SelfReg="false" NextFile="MPR.dll"/>
+    <ROW File="Aeon.png_1" Component_="broken.png" FileName="Aeon.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\replays\Aeon.png" SelfReg="false" NextFile="Seraphim.png_1"/>
     <ROW File="Aeon_T1.png" Component_="Aeon_T1.png" FileName="Aeon_T1.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\rank\Aeon_T1.png" SelfReg="false" NextFile="Aeon_T2.png"/>
     <ROW File="Aeon_T2.png" Component_="Aeon_T1.png" FileName="Aeon_T2.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\rank\Aeon_T2.png" SelfReg="false" NextFile="Aeon_T3.png"/>
     <ROW File="Aeon_T3.png" Component_="Aeon_T1.png" FileName="Aeon_T3.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\rank\Aeon_T3.png" SelfReg="false" NextFile="Aeon_XP.png"/>
@@ -151,6 +152,7 @@
     <ROW File="CourierBold.afm" Component_="CourierBold.afm" FileName="Courie~1.afm|Courier-Bold.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\pdfcorefonts\Courier-Bold.afm" SelfReg="false" NextFile="CourierBoldOblique.afm"/>
     <ROW File="CourierBoldOblique.afm" Component_="CourierBold.afm" FileName="Courie~2.afm|Courier-BoldOblique.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\pdfcorefonts\Courier-BoldOblique.afm" SelfReg="false" NextFile="CourierOblique.afm"/>
     <ROW File="CourierOblique.afm" Component_="CourierBold.afm" FileName="Courie~3.afm|Courier-Oblique.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\pdfcorefonts\Courier-Oblique.afm" SelfReg="false" NextFile="Courier.afm"/>
+    <ROW File="Cybran.png_1" Component_="broken.png" FileName="Cybran.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\replays\Cybran.png" SelfReg="false" NextFile="UEF.png_1"/>
     <ROW File="FAForever.exe" Component_="FAForever.exe" FileName="FAFore~1.exe|FAForever.exe" Attributes="0" SourcePath="F:\DIST_FAFOREVER\FAForever.exe" SelfReg="false" NextFile="FAForever.lib"/>
     <ROW File="FAForever.lib" Component_="FAForever.lib" FileName="FAFore~1.lib|FAForever.lib" Attributes="0" SourcePath="F:\DIST_FAFOREVER\FAForever.lib" SelfReg="false" NextFile="PyQt4.QtWebKit.pyd"/>
     <ROW File="FreeImage.dll" Component_="FreeImage.dll" FileName="FreeIm~1.dll|FreeImage.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\FreeImage.dll" SelfReg="false" NextFile="version"/>
@@ -161,6 +163,7 @@
     <ROW File="LIBEAY32.dll" Component_="LIBEAY32.dll" FileName="LIBEAY32.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\LIBEAY32.dll" SelfReg="false" NextFile="SSLEAY32.dll"/>
     <ROW File="LICENSE_STIX" Component_="cmb10.ttf" FileName="LICENS~1|LICENSE_STIX" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\ttf\LICENSE_STIX" SelfReg="false" NextFile="README.TXT_2"/>
     <ROW File="MPR.dll" Component_="MPR.dll" FileName="MPR.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\MPR.dll" SelfReg="false" NextFile="cmex10.afm"/>
+    <ROW File="Nomads.png_1" Component_="broken.png" FileName="Nomads.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\replays\Nomads.png" SelfReg="false" NextFile="Aeon.png_1"/>
     <ROW File="PyQt4.Qt.pyd" Component_="FAForever.lib" FileName="PyQt4Q~2.pyd|PyQt4.Qt.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\PyQt4.Qt.pyd" SelfReg="false" NextFile="feed.png"/>
     <ROW File="PyQt4.QtCore.pyd" Component_="FAForever.lib" FileName="PyQt4Q~5.pyd|PyQt4.QtCore.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\PyQt4.QtCore.pyd" SelfReg="false" NextFile="sip.pyd"/>
     <ROW File="PyQt4.QtGui.pyd" Component_="FAForever.lib" FileName="PyQt4Q~4.pyd|PyQt4.QtGui.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\PyQt4.QtGui.pyd" SelfReg="false" NextFile="PyQt4.QtCore.pyd"/>
@@ -190,11 +193,13 @@
     <ROW File="STIXSizThreeSymReg.ttf" Component_="cmb10.ttf" FileName="STIXSi~7.ttf|STIXSizThreeSymReg.ttf" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\ttf\STIXSizThreeSymReg.ttf" SelfReg="false" NextFile="STIXSizTwoSymBol.ttf"/>
     <ROW File="STIXSizTwoSymBol.ttf" Component_="cmb10.ttf" FileName="STIXSi~8.ttf|STIXSizTwoSymBol.ttf" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\ttf\STIXSizTwoSymBol.ttf" SelfReg="false" NextFile="STIXSizTwoSymReg.ttf"/>
     <ROW File="STIXSizTwoSymReg.ttf" Component_="cmb10.ttf" FileName="STIXSi~9.ttf|STIXSizTwoSymReg.ttf" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\ttf\STIXSizTwoSymReg.ttf" SelfReg="false" NextFile="Vera.ttf"/>
+    <ROW File="Seraphim.png_1" Component_="broken.png" FileName="Seraphim.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\replays\Seraphim.png" SelfReg="false" NextFile="Cybran.png_1"/>
     <ROW File="Symbol.afm" Component_="CourierBold.afm" FileName="Symbol.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\pdfcorefonts\Symbol.afm" SelfReg="false" NextFile="TimesBold.afm"/>
     <ROW File="TimesBold.afm" Component_="CourierBold.afm" FileName="Times-~1.afm|Times-Bold.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\pdfcorefonts\Times-Bold.afm" SelfReg="false" NextFile="TimesBoldItalic.afm"/>
     <ROW File="TimesBoldItalic.afm" Component_="CourierBold.afm" FileName="Times-~2.afm|Times-BoldItalic.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\pdfcorefonts\Times-BoldItalic.afm" SelfReg="false" NextFile="TimesItalic.afm"/>
     <ROW File="TimesItalic.afm" Component_="CourierBold.afm" FileName="Times-~3.afm|Times-Italic.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\pdfcorefonts\Times-Italic.afm" SelfReg="false" NextFile="TimesRoman.afm"/>
     <ROW File="TimesRoman.afm" Component_="CourierBold.afm" FileName="Times-~4.afm|Times-Roman.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\pdfcorefonts\Times-Roman.afm" SelfReg="false" NextFile="ZapfDingbats.afm"/>
+    <ROW File="UEF.png_1" Component_="broken.png" FileName="UEF.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\replays\UEF.png" SelfReg="false"/>
     <ROW File="Vera.ttf" Component_="cmb10.ttf" FileName="Vera.ttf" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\ttf\Vera.ttf" SelfReg="false" NextFile="VeraBd.ttf"/>
     <ROW File="VeraBI.ttf" Component_="cmb10.ttf" FileName="VeraBI.ttf" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\ttf\VeraBI.ttf" SelfReg="false" NextFile="VeraIt.ttf"/>
     <ROW File="VeraBd.ttf" Component_="cmb10.ttf" FileName="VeraBd.ttf" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\ttf\VeraBd.ttf" SelfReg="false" NextFile="VeraBI.ttf"/>
@@ -634,13 +639,14 @@
     <ROW File="qtiff4.dll" Component_="qtiff4.dll" FileName="qtiff4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\qtiff4.dll" SelfReg="false" NextFile="APIMSWinCoreLocalRegistryL110.dll"/>
     <ROW File="qtiff4.dll_1" Component_="qtiff4.dll_1" FileName="qtiff4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\plugins\imageformats\qtiff4.dll" SelfReg="false" NextFile="qt.conf"/>
     <ROW File="query.wav" Component_="privmsg.wav" FileName="query.wav" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\sfx\query.wav" SelfReg="false" NextFile="host.png"/>
+    <ROW File="random.png" Component_="aeon.png" FileName="random.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\automatch\random.png" SelfReg="false" NextFile="Nomads.png_1"/>
     <ROW File="raw.qthtml" Component_="action.qthtml" FileName="raw~1.qth|raw.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\formatters\raw.qthtml" SelfReg="false" NextFile="readme.txt"/>
     <ROW File="re.png" Component_="ad.png" FileName="re.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\re.png" SelfReg="false" NextFile="ro.png"/>
     <ROW File="readme.txt" Component_="action.qthtml" FileName="readme.txt" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\formatters\readme.txt" SelfReg="false" NextFile="special_colors.json"/>
     <ROW File="readme.txt_1" Component_="CourierBold.afm" FileName="readme.txt" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\pdfcorefonts\readme.txt" SelfReg="false" NextFile="Symbol.afm"/>
     <ROW File="replay.ico" Component_="FAForever.lib" FileName="replay.ico" Attributes="0" SourcePath="F:\DIST_FAFOREVER\replay.ico" SelfReg="false" NextFile="qgif4.dll"/>
     <ROW File="replay.png" Component_="broken.png" FileName="replay.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\replays\replay.png" SelfReg="false" NextFile="replays.ui"/>
-    <ROW File="replay.qthtml" Component_="replay.qthtml" FileName="replay~1.qth|replay.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\replays\formatters\replay.qthtml" SelfReg="false"/>
+    <ROW File="replay.qthtml" Component_="replay.qthtml" FileName="replay~1.qth|replay.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\replays\formatters\replay.qthtml" SelfReg="false" NextFile="random.png"/>
     <ROW File="replays.png" Component_="about.ui" FileName="replays.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\replays.png" SelfReg="false" NextFile="settings_watermark.png"/>
     <ROW File="replays.ui" Component_="broken.png" FileName="replays.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\replays\replays.ui" SelfReg="false" NextFile="army.png"/>
     <ROW File="ro.png" Component_="ad.png" FileName="ro.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ro.png" SelfReg="false" NextFile="rs.png"/>
