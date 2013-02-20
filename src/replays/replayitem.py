@@ -237,9 +237,9 @@ class ReplayItem(QtGui.QTreeWidgetItem):
                         if player["faction"] == 1 :
                             faction = "UEF"
                         elif player["faction"] == 2 :
-                            faction = "Cybran"
-                        elif player["faction"] == 3 :
                             faction = "Aeon"
+                        elif player["faction"] == 3 :
+                            faction = "Cybran"
                         elif player["faction"] == 4 :
                             faction = "Seraphim"                            
                         elif player["faction"] == 5 :
