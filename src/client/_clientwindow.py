@@ -720,6 +720,11 @@ class ClientWindow(FormClass, BaseClass):
 
         elif self.state == ClientState.ACCEPTED:
             logger.info("Login accepted.")
+           
+           
+            self.whatNewsView.setUrl(QtCore.QUrl("http://www.faforever.com/?page_id=114&username={user}&pwdhash={pwdhash}".format(user=self.login, pwdhash=self.password))) 
+            
+            
             util.report.BUGREPORT_USER = self.login
             util.crash.CRASHREPORT_USER = self.login
 
