@@ -201,6 +201,7 @@ class ClientWindow(FormClass, BaseClass):
         import games
         import tutorials
         import featuredmods
+        import galacticWar
         from chat._avatarWidget import avatarWidget
         
         
@@ -208,16 +209,17 @@ class ClientWindow(FormClass, BaseClass):
         self.chat = chat.Lobby(self)
     
         #build main window with the now active client                  
-        self.ladder = stats.Stats(self)
-        self.games = games.Games(self)
-        self.tourneys = tourneys.Tourneys(self)
-        self.vault = vault.MapVault(self)
-        self.replays = replays.Replays(self)
-        self.tutorials = tutorials.Tutorials(self)
+        self.ladder         = stats.Stats(self)
+        self.games          = games.Games(self)
+        self.tourneys       = tourneys.Tourneys(self)
+        self.vault          = vault.MapVault(self)
+        self.replays        = replays.Replays(self)
+        self.tutorials      = tutorials.Tutorials(self)
+        self.GalacticWar    = galacticWar.Lobby(self)
         
         # Other windows
-        self.featuredMods = featuredmods.FeaturedMods(self)
-        self.avatarAdmin  = self.avatarSelection = avatarWidget(self, None)
+        self.featuredMods   = featuredmods.FeaturedMods(self)
+        self.avatarAdmin    = self.avatarSelection = avatarWidget(self, None)
         
 
 

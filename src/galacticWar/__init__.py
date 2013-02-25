@@ -18,15 +18,16 @@
 
 
 
+# Initialize logging system
+import logging
+logger = logging.getLogger("faf.galacticWar")
+logger.setLevel(logging.DEBUG)
+
+LOBBY_HOST = 'direct.faforever.com'
+LOBBY_PORT = 10001
 
 
-from PyQt4 import QtGui, QtCore
+from _gwlobby import LobbyWidget as Lobby
 
-class GalacticWar(QtCore.QObject):
-    def __init__(self, client, *args, **kwargs):
-        QtCore.QObject.__init__(self, *args, **kwargs)
-        self.ui = QtGui.QGraphicsView()
-        self.ui.setAutoFillBackground(False)
-        self.client = client
-        self.client.galacticTab.layout().addWidget(self.ui)
+
         
