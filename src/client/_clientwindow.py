@@ -244,6 +244,11 @@ class ClientWindow(FormClass, BaseClass):
             self.progress.setLabelText("Closing main connection.")
             self.socket.disconnectFromHost()
             
+        # Terminate tournament connection
+        if self.tourneys :
+            self.progress.setLabelText("Closing tournament connection.")
+            self.tourneys.tournamentSocket.disconnectFromHost()
+        
         # Clear UPnP Mappings...
         if self.useUPnP:
             self.progress.setLabelText("Removing UPnP port mappings")
@@ -721,9 +726,10 @@ class ClientWindow(FormClass, BaseClass):
         elif self.state == ClientState.ACCEPTED:
             logger.info("Login accepted.")
            
-           
+            # update what's new page
             self.whatNewsView.setUrl(QtCore.QUrl("http://www.faforever.com/?page_id=114&username={user}&pwdhash={pwdhash}".format(user=self.login, pwdhash=self.password))) 
-            
+            # update tournament
+            self.tourneys.updateTournaments()
             
             util.report.BUGREPORT_USER = self.login
             util.crash.CRASHREPORT_USER = self.login
