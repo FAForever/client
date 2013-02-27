@@ -201,6 +201,7 @@ class ClientWindow(FormClass, BaseClass):
         import games
         import tutorials
         import featuredmods
+        import mumbleconnector
         from chat._avatarWidget import avatarWidget
         
         
@@ -218,7 +219,9 @@ class ClientWindow(FormClass, BaseClass):
         # Other windows
         self.featuredMods = featuredmods.FeaturedMods(self)
         self.avatarAdmin  = self.avatarSelection = avatarWidget(self, None)
-        
+
+        # Voice connector
+        self.mumbleConnector = mumbleconnector.MumbleConnector(self)
 
 
     @QtCore.pyqtSlot()
