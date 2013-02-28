@@ -1,12 +1,10 @@
 # mumbleconnector for the forged alliance lobby
 # Rien Broekstra <rien@rename-it.nl> 27-02-2013
 #
-#
 # Issues to be fixed:
 #
-# - Connect with mumble_link to transmit PA information in order to
-#   create the correct channel
-#
+
+
 from PyQt4 import QtCore
 
 import os
@@ -41,7 +39,6 @@ class mumbleConnector():
 
     def launch_mumble(self):
         # Launch Mumble
-        # FIXME: Add a config option to disable/enable the mumbleconnector feature, and to find the mumble executable
         url = QtCore.QUrl()
         url.setScheme("mumble")
         url.setHost(self.mumbleHost)
@@ -49,24 +46,39 @@ class mumbleConnector():
         url.addQueryItem("version", "1.2.0")
             
         # Launch mumble, and connect it to the faforever server
-        workingdir = os.path.join('c:', os.sep, 'Program Files (x86)', 'Mumble')
-        executable = os.path.join(workingdir, 'mumble.exe')
-        logger.info("Launching mumble: " + executable + " " + url.toString())
-        
-        # We need to call this via shellexecute, because QProcess and subprocess
-        # will bail out because they cannot auto elevate the process
-        win32api.ShellExecute(0, "open", executable, url.toString(), workingdir, 4) # 4 == SW_SHOWNOACTIVATE == start normal, inactive
+        # FIXME: Should we make the path configurable?
+        workingdir_x86 = os.path.join('c:', os.sep, 'Program Files', 'Mumble')
+        executable_x86 = os.path.join(workingdir_x86, 'mumble.exe')
 
-        # Connect with mumble_link
-        for i in range (1,5):
-            logger.info("Trying to connect link plugin: " + str(i))
-            if mumble_link.setup("faforever", "The Forged Alliance Forever Lobby Channel Placement Plugin"):
-                logger.info("Mumble link established")
-                self.mumbleLinkActive = 1
-                return
-            time.sleep(i)
+        workingdir_x64 = os.path.join('c:', os.sep, 'Program Files (x86)', 'Mumble')
+        executable_x64 = os.path.join(workingdir_x64, 'mumble.exe')
 
-        logger.info("Mumble link failed")
+        if os.path.isfile(executable_x64):
+            workingdir = workingdir_x64
+            executable = executable_x64
+
+        elif os.path.isfile(executable_x86):
+            workingdir = workingdir_x86
+            executable = executable_x86
+            
+        else:
+            executable = None
+            workingdir = None
+            logger.info("Mumble installation not found")
+
+        if executable:
+            logger.info("Launching mumble: " + executable + " " + url.toString())
+            win32api.ShellExecute(0, "open", executable, url.toString(), workingdir, 4) # 4 == SW_SHOWNOACTIVATE == start normal, inactive
+
+            # Connect with mumble_link
+            for i in range (1,5):
+                logger.info("Trying to connect link plugin: " + str(i))
+                if mumble_link.setup("faforever", "The Forged Alliance Forever Lobby Channel Placement Plugin"):
+                    logger.info("Mumble link established")
+                    self.mumbleLinkActive = 1
+                    return
+                time.sleep(i)
+                logger.info("Mumble link failed")
 
     # When we get noticed the user quit FA, check if we are in a voice channel. If so, move us to the (silent) lobby channel
     def processGameExit(self):
