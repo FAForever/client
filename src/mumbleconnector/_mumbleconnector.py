@@ -77,8 +77,6 @@ class mumbleConnector():
             mumble_link.set_identity("0")
                     
     def processGameInfo(self, gameInfo):
-        logger.debug("Received gameInfo signal: " + gameInfo["state"] + " " + str(gameInfo["uid"]))
-
         # Check whether this gameInfo signal is about a game we are in
         for team in gameInfo["teams"]:
             for player in gameInfo['teams'][team]:
@@ -117,7 +115,7 @@ class mumbleConnector():
                 # Ignore 1-person-teams
                 if len(team) < 2:
                     logger.debug("Not putting 1 person team " + team + " in a channel")
-                    #continue
+                    continue
                 
                 for player in gameInfo['teams'][team]:
                     if self.client.login == player:
