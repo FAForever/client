@@ -196,6 +196,8 @@
      <addaction name="actionSetGamePath"/>
      <addaction name="actionSetGamePort"/>
      <addaction name="actionSaveGamelogs"/>
+     <addaction name="separator"/>
+     <addaction name="actionSetMumbleOptions"/>
     </widget>
     <widget class="QMenu" name="menuTheme">
      <property name="title">
@@ -336,6 +338,11 @@
   <action name="actionSetGamePort">
    <property name="text">
     <string>Game Port...</string>
+   </property>
+  </action>
+  <action name="actionSetMumbleOptions">
+   <property name="text">
+    <string>Voice...</string>
    </property>
   </action>
   <action name="actionSetSoundEffects">

@@ -201,7 +201,6 @@ class ClientWindow(FormClass, BaseClass):
         import games
         import tutorials
         import featuredmods
-        import mumbleconnector
         from chat._avatarWidget import avatarWidget
         
         
@@ -220,8 +219,6 @@ class ClientWindow(FormClass, BaseClass):
         self.featuredMods = featuredmods.FeaturedMods(self)
         self.avatarAdmin  = self.avatarSelection = avatarWidget(self, None)
 
-        # Voice connector
-        self.mumbleConnector = mumbleconnector.MumbleConnector(self)
 
 
     @QtCore.pyqtSlot()
@@ -329,6 +326,7 @@ class ClientWindow(FormClass, BaseClass):
 
         self.actionSetGamePath.triggered.connect(self.switchPath)
         self.actionSetGamePort.triggered.connect(self.switchPort)
+        self.actionSetMumbleOptions.triggered.connect(self.setMumbleOptions)
 
 
         #Toggle-Options
@@ -384,6 +382,11 @@ class ClientWindow(FormClass, BaseClass):
     def switchPort(self):
         import loginwizards
         loginwizards.gameSettingsWizard(self).exec_()
+        
+    @QtCore.pyqtSlot()
+    def setMumbleOptions(self):
+        import loginwizards
+        loginwizards.mumbleOptionsWizard(self).exec_()
         
     @QtCore.pyqtSlot()
     def clearSettings(self):
@@ -489,6 +492,13 @@ class ClientWindow(FormClass, BaseClass):
         util.settings.endGroup()
         util.settings.sync()
                 
+    def saveMumble(self):
+        util.settings.beginGroup("Mumble")
+        util.settings.setValue("app/mumble", self.enableMumble)
+        
+        util.settings.endGroup()
+        util.settings.sync()
+                
     @QtCore.pyqtSlot()
     def saveChat(self):        
         util.settings.beginGroup("chat")
@@ -529,6 +539,11 @@ class ClientWindow(FormClass, BaseClass):
         self.gamelogs = (util.settings.value("app/falogs", "false") == "true")
         self.actionSaveGamelogs.setChecked(self.gamelogs)
         util.settings.endGroup()
+
+        util.settings.beginGroup("Mumble")
+        self.enableMumble = (util.settings.value("app/mumble", "false") == "true")
+        util.settings.endGroup()
+        
                
         self.loadChat()
         
@@ -684,6 +699,14 @@ class ClientWindow(FormClass, BaseClass):
                
         self.uniqueId = util.uniqueID(self.login, self.session)
         self.loadSettings()
+
+        #
+        # Voice connector (This isn't supposed to be here, but I need the settings to be loaded before I can determine if we can hook in the mumbleConnector
+        #
+        if self.enableMumble:
+            import mumbleconnector
+            self.mumbleConnector = mumbleconnector.MumbleConnector(self)
+
         return True  
         
     

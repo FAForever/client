@@ -216,10 +216,29 @@ class gameSettingsWizard(QtGui.QWizard):
         self.setWindowTitle("Set Game Port")
 
 
+class mumbleOptionsWizard(QtGui.QWizard):
+    def __init__(self, client, *args, **kwargs):
+        QtGui.QWizard.__init__(self, *args, **kwargs)
+        
+        self.client = client
+
+        self.settings = MumbleSettings()
+        self.settings.checkEnableMumble.setChecked(self.client.enableMumble)
+        self.addPage(self.settings)
+
+        self.setWizardStyle(1)
+
+        self.setPixmap(QtGui.QWizard.BannerPixmap,
+                QtGui.QPixmap('client/banner.png'))
+        self.setPixmap(QtGui.QWizard.BackgroundPixmap,
+                QtGui.QPixmap('client/background.png'))
+
+        self.setWindowTitle("Configure Voice")
+
+
     def accept(self):
-        self.client.gamePort = self.settings.gamePortSpin.value()
-        self.client.useUPnP = self.settings.checkUPnP.isChecked()
-        self.client.savePort()
+        self.client.enableMumble = self.settings.checkEnableMumble.isChecked()
+        self.client.saveMumble()
         QtGui.QWizard.accept(self)
 
 
@@ -344,7 +363,6 @@ class AccountCreationPage(QtGui.QWizardPage):
             self.client.password = password1
             return True  
 
-
 class GameSettings(QtGui.QWizardPage):
     def __init__(self, parent=None):
         super(GameSettings, self).__init__(parent)
@@ -377,6 +395,29 @@ class GameSettings(QtGui.QWizardPage):
         layout.addWidget(self.checkUPnP)
         self.setLayout(layout)
 
+
+    def validatePage(self):        
+        return 1
+
+class MumbleSettings(QtGui.QWizardPage):
+    def __init__(self, parent=None):
+        super(MumbleSettings, self).__init__(parent)
+
+        self.parent = parent
+        self.setTitle("Voice Settings")
+        self.setPixmap(QtGui.QWizard.WatermarkPixmap, util.pixmap("client/settings_watermark.png"))
+        
+        self.label = QtGui.QLabel()
+        self.label.setText('FAF now supports the automatic setup of voice connections between you and your team mates. You can enable the feature here.<br/><br />FAF uses <a href="http://mumble.sourceforge.net/">Mumble</a> for the voice connections. Download and install it. <br/><br/>Once installed, go to "Configure -> Settings", check the "Advanced" checkbox, select "Plugins". Make sure that "Link to Game and Transmit Position" is checked, and that the "Link v1.2.0" plugin is enabled.')
+        self.label.setOpenExternalLinks(True)
+        self.label.setWordWrap(True)
+
+        self.checkEnableMumble = QtGui.QCheckBox("Enable Mumble Connector")
+
+        layout = QtGui.QVBoxLayout()
+        layout.addWidget(self.label)
+        layout.addWidget(self.checkEnableMumble)
+        self.setLayout(layout)
 
     def validatePage(self):        
         return 1
