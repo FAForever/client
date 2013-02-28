@@ -113,7 +113,7 @@ class mumbleConnector():
         
             for team in gameInfo["teams"]:
                 # Ignore 1-person-teams
-                if len(team) < 2:
+                if len(gameInfo['teams'][team]) < 2:
                     logger.debug("Not putting 1 person team " + team + " in a channel")
                     continue
                 
