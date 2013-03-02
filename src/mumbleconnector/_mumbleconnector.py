@@ -28,16 +28,21 @@ class mumbleConnector():
         self.state = "closed"
         self.uid = 0
         
-        # launch Mumble
-        self.launch_mumble()
-        
+        self.link_mumble()
+
         # Add processGameInfo as a handler for the gameInfo signal
         self.client.gameInfo.connect(self.processGameInfo)
         self.client.gameExit.connect(self.processGameExit)
         
         logger.info("MumbleConnector instantiated.")
 
-    def launch_mumble(self):
+    def link_mumble(self):
+        # Check if there already is a mumble link thread running
+        if self.mumbleLinkActive:
+             mumble_link.stop()
+             self.mumbleLinkActive = None
+             logger.info("Resetting Mumble Link")
+                
         # Launch Mumble
         url = QtCore.QUrl()
         url.setScheme("mumble")
@@ -78,7 +83,8 @@ class mumbleConnector():
                     self.mumbleLinkActive = 1
                     return
                 time.sleep(i)
-                logger.info("Mumble link failed")
+
+            logger.info("Mumble link failed")
 
     # When we get noticed the user quit FA, check if we are in a voice channel. If so, move us to the (silent) lobby channel
     def processGameExit(self):
@@ -106,13 +112,26 @@ class mumbleConnector():
 
     def state_open(self, gameInfo):
         if gameInfo["uid"] > self.uid:
+
+            # This regularly puts us in a channel we're not supposed to be in!!
+
             # Player started a new lobby.
             self.state = "open"
             self.uid = gameInfo["uid"]
 
+            logger.debug(str(gameInfo))
+
+            # This is probably a good time to re-check the status of our mumble connection
+            # self.link_mumble()
+
+            # And join to this game's lobby channel
+            # if self.mumbleLinkActive:
+            #   logger.debug("Sending state change to mumble client")
+            #    mumble_link.set_identity(str(gameInfo["uid"]) + "-0")
+
     def state_playing(self, gameInfo):
 
-        # Check if the state has changed (A game is launched)
+        # Check if our game just launched
         if self.state != "playing" and self.uid == gameInfo["uid"]:
             self.state = "playing"
 
@@ -140,7 +159,7 @@ class mumbleConnector():
                     logger.debug("Sending state change to mumble client")
                     mumble_link.set_identity(str(gameInfo["uid"]) + "-" + str(team))
                 else:
-                    logger.debug("No mumble :(")
+                    logger.debug("No mumble")
                 
     def state_closed(self, gameInfo):
         # Check if this is a transistion from playing to clsoed
