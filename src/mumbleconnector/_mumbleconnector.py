@@ -159,19 +159,18 @@ class mumbleConnector():
                 
                 for player in gameInfo['teams'][team]:
                     if self.client.login == player:
-                        myTeam = team
-
-                if self.mumbleLinkActive:
-                    logger.debug("Sending state change to mumble client")
+                        logger.debug(player + " is in team " + str(team))
+                        if self.mumbleLinkActive:
+                            logger.debug("Sending state change to mumble client")
                     
-                    # We use the context-information to transmit the gameuid, and the identity-information to transmid the teamnumber.
-                    # A plugin on the server-side will pick these state changes up, and put us into the correct channel
-                    if myTeam != "0":
-                        mumble_link.set_identity(str(gameInfo["uid"]) + "-" + str(team))
-                    else:
-                        mumble_link.set_identity("0")
-                else:
-                    logger.debug("Mumble is not linked")
+                            # We use the context-information to transmit the gameuid, and the identity-information to transmid the teamnumber.
+                            # A plugin on the server-side will pick these state changes up, and put us into the correct channel
+                            if team != "0":
+                                mumble_link.set_identity(str(gameInfo["uid"]) + "-" + str(team))
+                            else:
+                                mumble_link.set_identity("0")
+                        else:
+                            logger.debug("Mumble is not linked")
                 
     #
     # Process a state transition to state "closed"
