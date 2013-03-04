@@ -32,7 +32,7 @@ from trueSkill.TrueSkill.FactorGraphTrueSkillCalculator import *
 from trueSkill.Rating import *
 
 import client
-
+import copy
 
 class GameItemDelegate(QtGui.QStyledItemDelegate):
     
@@ -196,12 +196,15 @@ class GameItem(QtGui.QListWidgetItem):
         '''
         Updates this item from the message dictionary supplied
         '''
+
+        foo = message
+        message = copy.deepcopy(foo)
         
         self.client  = client
 
         self.title      = message['title']
         self.host       = message['host']
-        self.teams      = dict.copy(message['teams'])
+        self.teams      = message['teams']
         self.access     = message.get('access', 'public')
         self.mod        = message['featured_mod']
         self.options    = message.get('options', [])
