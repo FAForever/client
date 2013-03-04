@@ -37,7 +37,6 @@ class mumbleConnector():
         logger.info("MumbleConnector instantiated.")
 
     def link_mumble(self):
-        # If the link failed, mumble is probably not yet running. Run it.
         url = QtCore.QUrl()
         url.setScheme("mumble")
         url.setHost(self.mumbleHost)
@@ -70,11 +69,13 @@ class mumbleConnector():
             
         # Connect with mumble_link
         for i in range (1,10):
+            logger.info("Trying to connect link plugin: " + str(i))
+
             if mumble_link.setup("faforever", "The Forged Alliance Forever Lobby Channel Placement Plugin"):
-                logger.info("Trying to connect link plugin: " + str(i))
                 logger.info("Mumble link established")
                 self.mumbleLinkActive = 1
                 return
+
             time.sleep(i)
             
         logger.info("Mumble link failed")
@@ -120,19 +121,14 @@ class mumbleConnector():
     def state_open(self, gameInfo):
         if gameInfo["uid"] > self.uid:
 
-            # FIXME: We regularly get gameInfo signal with ourselves in the
-            # teamlist, when we are not in that game! Bug in server?
-
             # Player started a new lobby.
             self.state = "open"
             self.uid = gameInfo["uid"]
 
-
-            # FIXME: Since we get false signals that we entered a lobby, we disable the chat-in-lobby feature
             # And join to this game's lobby channel
-            # if self.mumbleLinkActive:
-            #   logger.debug("Sending state change to mumble client")
-            #    mumble_link.set_identity(str(gameInfo["uid"]) + "-0")
+            if self.mumbleLinkActive:
+                logger.debug("Sending state change to mumble client")
+                mumble_link.set_identity(str(gameInfo["uid"]) + "-0")
 
     #
     # Process a state transition to state "playing"
