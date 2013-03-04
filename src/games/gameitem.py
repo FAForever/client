@@ -201,7 +201,7 @@ class GameItem(QtGui.QListWidgetItem):
 
         self.title      = message['title']
         self.host       = message['host']
-        self.teams      = message['teams']
+        self.teams      = dict.copy(message['teams'])
         self.access     = message.get('access', 'public')
         self.mod        = message['featured_mod']
         self.options    = message.get('options', [])
