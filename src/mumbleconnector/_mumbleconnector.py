@@ -19,8 +19,8 @@ from mumbleconnector import logger
 
 class mumbleConnector():
 
-    mumbleHost = "sinas.rename-it.nl"
-    mumbleChannelRoot = "faforever"
+    mumbleHost = "faforever.com"
+    mumbleChannelRoot = "Games"
     mumbleLinkActive = None
 
     def __init__(self, client):
