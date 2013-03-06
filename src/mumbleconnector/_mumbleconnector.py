@@ -6,6 +6,7 @@
 
 
 from PyQt4 import QtCore
+from PyQt4 import QtGui
 
 import os
 import sys
@@ -22,13 +23,15 @@ class mumbleConnector():
     mumbleHost = "faforever.com"
     mumbleChannelRoot = "Games"
     mumbleLinkActive = None
+    pluginName = "faforever"
+    pluginDescription = "Forged Alliance Forever Mumbleconnector"
+    mumbleSetup = None
+    mumbleIdentity = None
 
     def __init__(self, client):
         self.client = client
         self.state = "closed"
         self.uid = 0
-        
-        self.link_mumble()
 
         # Add processGameInfo as a handler for the gameInfo signal
         self.client.gameInfo.connect(self.processGameInfo)
@@ -36,66 +39,79 @@ class mumbleConnector():
         
         logger.info("MumbleConnector instantiated.")
 
-    def link_mumble(self):
+    #
+    # Launches the Mumble application
+    #
+    def launchMumble(self):
         url = QtCore.QUrl()
         url.setScheme("mumble")
         url.setHost(self.mumbleHost)
         url.setPath(self.mumbleChannelRoot)
+        url.setUserName(self.client.login)
         url.addQueryItem("version", "1.2.0")
+
+        logger.info("Opening " + url.toString())
+        QtGui.QDesktopServices.openUrl(url)
             
-        # FIXME: Should we make the path configurable?
-        workingdir_x86 = os.path.join('c:', os.sep, 'Program Files', 'Mumble')
-        executable_x86 = os.path.join(workingdir_x86, 'mumble.exe')
+    #
+    # Checks and restores the link to mumble
+    #
+    def checkMumble(self):
 
-        workingdir_x64 = os.path.join('c:', os.sep, 'Program Files (x86)', 'Mumble')
-        executable_x64 = os.path.join(workingdir_x64, 'mumble.exe')
+        # Check if mumble was shut down (it resets our shared memory on shutdown)
+        if not self.mumbleSetup:
+            # Mumble link has never been set up
+            logger.debug("Mumble link has never been set up")
+            return self.linkMumble()
 
-        if os.path.isfile(executable_x64):
-            workingdir = workingdir_x64
-            executable = executable_x64
+        elif mumble_link.get_version() == 0:
+            # Mumble was shut down in the meantime
+            logger.debug("Mumble link has been reset")
+            return self.linkMumble()
 
-        elif os.path.isfile(executable_x86):
-            workingdir = workingdir_x86
-            executable = executable_x86
-            
         else:
-            executable = None
-            workingdir = None
-            logger.info("Mumble installation not found")
-            return
-        
-        logger.info("Launching mumble: " + executable + " " + url.toString())
-        win32api.ShellExecute(0, "open", executable, url.toString(), workingdir, 4) # 4 == SW_SHOWNOACTIVATE == start normal, inactive
-            
-        # Connect with mumble_link
-        for i in range (1,10):
-            logger.info("Trying to connect link plugin: " + str(i))
+            # Mumble link is active
+            logger.debug("Mumble link is active")
+            return 1
 
-            if mumble_link.setup("faforever", "The Forged Alliance Forever Lobby Channel Placement Plugin"):
+    def linkMumble(self):
+        # Launch mumble and connect to correct server
+        self.launchMumble()
+
+        # Try to link
+        for i in range (1,10):
+            logger.debug("Trying to connect link plugin: " + str(i))
+
+            if mumble_link.setup(self.pluginName, self.pluginDescription):
                 logger.info("Mumble link established")
-                self.mumbleLinkActive = 1
-                return
+                self.mumbleSetup = 1
+                return 1
 
             time.sleep(i)
             
         logger.info("Mumble link failed")
-                
+        return 0
+
+    #
+    # Writes our mumbleIdentity (channel identifier) into mumble's shared memory
+    #
+    def updateMumbleState(self):
+        if self.mumbleIdentity:
+            if self.checkMumble():
+                logger.debug("Updating mumble state")
+                mumble_link.set_identity(self.mumbleIdentity)
+
     def processGameExit(self):
         self.state = "closed"
-        if self.mumbleLinkActive:
-            logger.debug("Sending state change to mumble client")
-            mumble_link.set_identity("0")
+        self.mumbleIdentity = "0"
+        self.updateMumbleState()
             
     def processGameInfo(self, gameInfo):
         if self.playerInTeam(gameInfo):
             self.functionMapper[gameInfo["state"]](self, gameInfo)
-            return
 
-        # Check whether this gameInfo signal is about the last game we
-        # were known to be in
-        # if gameInfo["uid"] == self.uid:
-        #    self.functionMapper[gameInfo["state"]](self, gameInfo)
-
+        self.updateMumbleState()
+        return
 
     #
     # Helper function to determine if we are in this gameInfo signal's team
@@ -126,9 +142,7 @@ class mumbleConnector():
             self.uid = gameInfo["uid"]
 
             # And join to this game's lobby channel
-            if self.mumbleLinkActive:
-                logger.debug("Sending state change to mumble client")
-                mumble_link.set_identity(str(gameInfo["uid"]) + "-0")
+            self.mumbleIdentity = str(gameInfo["uid"]) + "-0"
 
     #
     # Process a state transition to state "playing"
@@ -151,22 +165,18 @@ class mumbleConnector():
                 # Ignore 1-person-teams
                 if len(gameInfo['teams'][team]) < 2:
                     logger.debug("Not putting 1 person team " + team + " in a channel")
-                    continue
+                    #continue
                 
                 for player in gameInfo['teams'][team]:
                     if self.client.login == player:
                         logger.debug(player + " is in team " + str(team))
-                        if self.mumbleLinkActive:
-                            logger.debug("Sending state change to mumble client")
-                    
-                            # We use the context-information to transmit the gameuid, and the identity-information to transmid the teamnumber.
-                            # A plugin on the server-side will pick these state changes up, and put us into the correct channel
-                            if team != "0":
-                                mumble_link.set_identity(str(gameInfo["uid"]) + "-" + str(team))
-                            else:
-                                mumble_link.set_identity("0")
+                        if team != "0":
+                            self.mumbleIdentity = str(gameInfo["uid"]) + "-" + str(team)
                         else:
-                            logger.debug("Mumble is not linked")
+                            self.mumbleIdentity = "0"
+                            
+                        logger.debug("Set mumbleIdentity: " + self.mumbleIdentity)
+
                 
     #
     # Process a state transition to state "closed"
