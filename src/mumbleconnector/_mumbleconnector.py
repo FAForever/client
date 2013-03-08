@@ -36,6 +36,9 @@ class mumbleConnector():
         # Add processGameInfo as a handler for the gameInfo signal
         self.client.gameInfo.connect(self.processGameInfo)
         self.client.gameExit.connect(self.processGameExit)
+
+        # Start Mumble (Starting it now instead of when faf is launched will make sure mumble's overlay works, and prevent that mumble causes faf to minimize when it pops up
+        self.linkMumble()
         
         logger.info("MumbleConnector instantiated.")
 
