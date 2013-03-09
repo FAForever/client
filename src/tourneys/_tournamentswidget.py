@@ -87,9 +87,6 @@ class TournamentsWidget(FormClass, BaseClass):
             
             self.send(dict(command="get_tournaments"))
         
-    def disconnectFromServer(self):
-        self.tournamentSocket.disconnectFromHost()        
-
        
     @QtCore.pyqtSlot(QtGui.QListWidgetItem)
     def tourneyDoubleClicked(self, item):
@@ -101,7 +98,6 @@ class TournamentsWidget(FormClass, BaseClass):
                 "Do you want to register to this tournament ?",
                 QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
             if reply == QtGui.QMessageBox.Yes:
-                self.connectToServer()
                 self.send(dict(command="add_participant", uid=item.uid, login=self.client.login))
                 self.updateTournaments()
         else :
@@ -109,7 +105,6 @@ class TournamentsWidget(FormClass, BaseClass):
                 "Do you want to leave this tournament ?",
                 QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
             if reply == QtGui.QMessageBox.Yes:   
-                self.connectToServer()
                 self.send(dict(command="remove_participant", uid=item.uid, login=self.client.login)) 
                 self.updateTournaments()       
                 
