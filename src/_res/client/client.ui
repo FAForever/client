@@ -245,7 +245,7 @@
     <property name="title">
      <string>Links</string>
     </property>
-    <addaction name="actionLinkTeamspeak"/>
+    <addaction name="actionLinkMumble"/>
     <addaction name="separator"/>
     <addaction name="actionLinkUnitDB"/>
     <addaction name="separator"/>
@@ -297,9 +297,9 @@
     <string>Tech Support</string>
    </property>
   </action>
-  <action name="actionLinkTeamspeak">
+  <action name="actionLinkMumble">
    <property name="text">
-    <string>Teamspeak</string>
+    <string>Mumble</string>
    </property>
   </action>
   <action name="actionSetAutoLogin">

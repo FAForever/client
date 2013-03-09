@@ -29,7 +29,7 @@ Created on Dec 1, 2011
 from PyQt4 import QtCore, QtGui, QtNetwork, QtWebKit
 from types import IntType, FloatType, ListType, DictType
 
-from client import logger, ClientState, TEAMSPEAK_URL, WEBSITE_URL, WIKI_URL,\
+from client import logger, ClientState, MUMBLE_URL, WEBSITE_URL, WIKI_URL,\
     FORUMS_URL, UNITDB_URL, SUPPORT_URL, TICKET_URL, GAME_PORT_DEFAULT, LOBBY_HOST,\
     LOBBY_PORT, LOCAL_REPLAY_PORT
 
@@ -307,7 +307,7 @@ class ClientWindow(FormClass, BaseClass):
         self.doneresize.emit()
      
     def initMenus(self):
-        self.actionLinkTeamspeak.triggered.connect(self.linkTeamspeak)
+        self.actionLinkMumble.triggered.connect(self.linkMumble)
         self.actionLinkWebsite.triggered.connect(self.linkWebsite)
         self.actionLinkWiki.triggered.connect(self.linkWiki)
         self.actionLinkForums.triggered.connect(self.linkForums)
@@ -412,8 +412,8 @@ class ClientWindow(FormClass, BaseClass):
         
     
     @QtCore.pyqtSlot()
-    def linkTeamspeak(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(TEAMSPEAK_URL.format(login=self.login)))
+    def linkMumble(self):
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(MUMBLE_URL.format(login=self.login)))
 
     @QtCore.pyqtSlot()
     def linkWebsite(self):
@@ -681,6 +681,7 @@ class ClientWindow(FormClass, BaseClass):
 
 
     def waitSession(self):
+        self.progress.setLabelText("Setting up Session...")
         self.send(dict(command="ask_session"))
         start = time.time()
         while self.session == None and self.progress.isVisible() :
@@ -704,9 +705,9 @@ class ClientWindow(FormClass, BaseClass):
         # Voice connector (This isn't supposed to be here, but I need the settings to be loaded before I can determine if we can hook in the mumbleConnector
         #
         if self.enableMumble:
+            self.progress.setLabelText("Setting up Mumble...")
             import mumbleconnector
             self.mumbleConnector = mumbleconnector.MumbleConnector(self)
-
         return True  
         
     
