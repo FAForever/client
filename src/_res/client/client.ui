@@ -205,6 +205,8 @@
      <addaction name="actionSetGamePath"/>
      <addaction name="actionSetGamePort"/>
      <addaction name="actionSaveGamelogs"/>
+     <addaction name="separator"/>
+     <addaction name="actionSetMumbleOptions"/>
     </widget>
     <widget class="QMenu" name="menuTheme">
      <property name="title">
@@ -252,7 +254,7 @@
     <property name="title">
      <string>Links</string>
     </property>
-    <addaction name="actionLinkTeamspeak"/>
+    <addaction name="actionLinkMumble"/>
     <addaction name="separator"/>
     <addaction name="actionLinkUnitDB"/>
     <addaction name="separator"/>
@@ -304,9 +306,9 @@
     <string>Tech Support</string>
    </property>
   </action>
-  <action name="actionLinkTeamspeak">
+  <action name="actionLinkMumble">
    <property name="text">
-    <string>Teamspeak</string>
+    <string>Mumble</string>
    </property>
   </action>
   <action name="actionSetAutoLogin">
@@ -345,6 +347,11 @@
   <action name="actionSetGamePort">
    <property name="text">
     <string>Game Port...</string>
+   </property>
+  </action>
+  <action name="actionSetMumbleOptions">
+   <property name="text">
+    <string>Voice...</string>
    </property>
   </action>
   <action name="actionSetSoundEffects">
@@ -440,7 +447,7 @@
   <customwidget>
    <class>QWebView</class>
    <extends>QWidget</extends>
-   <header>QtWebKit/QWebView</header>
+   <header>PyQt4.QtWebKit</header>
   </customwidget>
  </customwidgets>
  <resources/>

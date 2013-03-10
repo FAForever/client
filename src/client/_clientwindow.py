@@ -29,7 +29,7 @@ Created on Dec 1, 2011
 from PyQt4 import QtCore, QtGui, QtNetwork, QtWebKit
 from types import IntType, FloatType, ListType, DictType
 
-from client import logger, ClientState, TEAMSPEAK_URL, WEBSITE_URL, WIKI_URL,\
+from client import logger, ClientState, MUMBLE_URL, WEBSITE_URL, WIKI_URL,\
     FORUMS_URL, UNITDB_URL, SUPPORT_URL, TICKET_URL, GAME_PORT_DEFAULT, LOBBY_HOST,\
     LOBBY_PORT, LOCAL_REPLAY_PORT
 
@@ -220,7 +220,7 @@ class ClientWindow(FormClass, BaseClass):
         # Other windows
         self.featuredMods   = featuredmods.FeaturedMods(self)
         self.avatarAdmin    = self.avatarSelection = avatarWidget(self, None)
-        
+
 
 
     @QtCore.pyqtSlot()
@@ -246,6 +246,11 @@ class ClientWindow(FormClass, BaseClass):
             self.progress.setLabelText("Closing main connection.")
             self.socket.disconnectFromHost()
             
+        # Terminate tournament connection
+        if self.tourneys :
+            self.progress.setLabelText("Closing tournament connection.")
+            self.tourneys.tournamentSocket.disconnectFromHost()
+        
         # Clear UPnP Mappings...
         if self.useUPnP:
             self.progress.setLabelText("Removing UPnP port mappings")
@@ -304,7 +309,7 @@ class ClientWindow(FormClass, BaseClass):
         self.doneresize.emit()
      
     def initMenus(self):
-        self.actionLinkTeamspeak.triggered.connect(self.linkTeamspeak)
+        self.actionLinkMumble.triggered.connect(self.linkMumble)
         self.actionLinkWebsite.triggered.connect(self.linkWebsite)
         self.actionLinkWiki.triggered.connect(self.linkWiki)
         self.actionLinkForums.triggered.connect(self.linkForums)
@@ -323,6 +328,7 @@ class ClientWindow(FormClass, BaseClass):
 
         self.actionSetGamePath.triggered.connect(self.switchPath)
         self.actionSetGamePort.triggered.connect(self.switchPort)
+        self.actionSetMumbleOptions.triggered.connect(self.setMumbleOptions)
 
 
         #Toggle-Options
@@ -380,6 +386,11 @@ class ClientWindow(FormClass, BaseClass):
         loginwizards.gameSettingsWizard(self).exec_()
         
     @QtCore.pyqtSlot()
+    def setMumbleOptions(self):
+        import loginwizards
+        loginwizards.mumbleOptionsWizard(self).exec_()
+        
+    @QtCore.pyqtSlot()
     def clearSettings(self):
         result = QtGui.QMessageBox.question(None, "Clear Settings", "Are you sure you wish to clear all settings, login info, etc. used by this program?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
         if (result == QtGui.QMessageBox.Yes):
@@ -403,8 +414,8 @@ class ClientWindow(FormClass, BaseClass):
         
     
     @QtCore.pyqtSlot()
-    def linkTeamspeak(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(TEAMSPEAK_URL.format(login=self.login)))
+    def linkMumble(self):
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(MUMBLE_URL.format(login=self.login)))
 
     @QtCore.pyqtSlot()
     def linkWebsite(self):
@@ -483,6 +494,13 @@ class ClientWindow(FormClass, BaseClass):
         util.settings.endGroup()
         util.settings.sync()
                 
+    def saveMumble(self):
+        util.settings.beginGroup("Mumble")
+        util.settings.setValue("app/mumble", self.enableMumble)
+        
+        util.settings.endGroup()
+        util.settings.sync()
+                
     @QtCore.pyqtSlot()
     def saveChat(self):        
         util.settings.beginGroup("chat")
@@ -523,6 +541,11 @@ class ClientWindow(FormClass, BaseClass):
         self.gamelogs = (util.settings.value("app/falogs", "false") == "true")
         self.actionSaveGamelogs.setChecked(self.gamelogs)
         util.settings.endGroup()
+
+        util.settings.beginGroup("Mumble")
+        self.enableMumble = (util.settings.value("app/mumble", "false") == "true")
+        util.settings.endGroup()
+        
                
         self.loadChat()
         
@@ -660,6 +683,7 @@ class ClientWindow(FormClass, BaseClass):
 
 
     def waitSession(self):
+        self.progress.setLabelText("Setting up Session...")
         self.send(dict(command="ask_session"))
         start = time.time()
         while self.session == None and self.progress.isVisible() :
@@ -678,6 +702,14 @@ class ClientWindow(FormClass, BaseClass):
                
         self.uniqueId = util.uniqueID(self.login, self.session)
         self.loadSettings()
+
+        #
+        # Voice connector (This isn't supposed to be here, but I need the settings to be loaded before I can determine if we can hook in the mumbleConnector
+        #
+        if self.enableMumble:
+            self.progress.setLabelText("Setting up Mumble...")
+            import mumbleconnector
+            self.mumbleConnector = mumbleconnector.MumbleConnector(self)
         return True  
         
     
@@ -723,9 +755,10 @@ class ClientWindow(FormClass, BaseClass):
         elif self.state == ClientState.ACCEPTED:
             logger.info("Login accepted.")
            
-           
+            # update what's new page
             self.whatNewsView.setUrl(QtCore.QUrl("http://www.faforever.com/?page_id=114&username={user}&pwdhash={pwdhash}".format(user=self.login, pwdhash=self.password))) 
-            
+            # update tournament
+            self.tourneys.updateTournaments()
             
             util.report.BUGREPORT_USER = self.login
             util.crash.CRASHREPORT_USER = self.login

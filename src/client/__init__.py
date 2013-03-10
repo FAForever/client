@@ -42,7 +42,7 @@ LOCAL_REPLAY_PORT = 15000
 GAME_PORT_DEFAULT = 6112
 
 # Important URLs
-TEAMSPEAK_URL = "ts3server://faforever.com?port=9987&nickname={login}" #additional teamspeak parameters: &password=serverPassword&channel=MyDefaultChannel &channelpassword=defaultChannelPassword&token=TokenKey&addbookmark=1
+MUMBLE_URL = "mumble://{login}@faforever.com/Games?version=1.2.0" 
 FORUMS_URL = "http://faforever.com/forums"
 WEBSITE_URL = "http://www.faforever.com"
 UNITDB_URL = "http://www.faforever.com/faf/unitsDB/"

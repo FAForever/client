@@ -1,17 +1,14 @@
 
 
-<table border="0" cellpadding="0" cellspacing="0" width= 100%>
+<table border="0" cellpadding="0" cellspacing="0" width="500">
 <tbody>
 <tr>
-<td>
-<font color="red" size="+2"><b>{title}</b></font><br/><br/>
-<font color="silver"><font size="-1">hosted by</font>&nbsp;<b>{host}</b></font></font>
-<font color="white" size="+1"><br/><br/>{description}</font></td>
+<td width=400>
+<font color="red" size="+2"><b>{title}</b></font>
+<br/><br/>
+<font color="white" size="+1">{description}</font></td>
 
-<td align = "center">
-<font color="white" size="+2"><b>{date}</b></font><br><font color="white" size="+1">{year}</font><br>
-<font color="white" size="+1"><br>starting at<br><b> {hour}</b><br>(local time)</font>
-<br><br>
+<td align = "center" width=100>
 <font color="white">Registered :<br>{numreg} players<br><br></font><font color="silver"><b>{playerstring}</b><br/><br/></font>
 </td>
 </tr>

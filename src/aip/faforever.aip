@@ -10,10 +10,10 @@
     <ROW Property="ARPURLUPDATEINFO" Value="http://www.faforever.com/page=2"/>
     <ROW Property="CTRLS" Value="2"/>
     <ROW Property="Manufacturer" Value="FAF Community" ValueLocId="*"/>
-    <ROW Property="ProductCode" Value="1033:{88CD2E1E-F0D1-4BFB-9F2F-76C0E586E9C4} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{9717847B-B376-4166-9C8B-A0D361043DC3} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Forged Alliance Forever" ValueLocId="*"/>
-    <ROW Property="ProductVersion" Value="240.8.5"/>
+    <ROW Property="ProductVersion" Value="240.8.11"/>
     <ROW Property="REBOOT" MultiBuildValue="DefaultBuild:Suppress"/>
     <ROW Property="RUNAPPLICATION" Value="1" Type="4"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
@@ -199,7 +199,7 @@
     <ROW File="TimesBoldItalic.afm" Component_="CourierBold.afm" FileName="Times-~2.afm|Times-BoldItalic.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\pdfcorefonts\Times-BoldItalic.afm" SelfReg="false" NextFile="TimesItalic.afm"/>
     <ROW File="TimesItalic.afm" Component_="CourierBold.afm" FileName="Times-~3.afm|Times-Italic.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\pdfcorefonts\Times-Italic.afm" SelfReg="false" NextFile="TimesRoman.afm"/>
     <ROW File="TimesRoman.afm" Component_="CourierBold.afm" FileName="Times-~4.afm|Times-Roman.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\pdfcorefonts\Times-Roman.afm" SelfReg="false" NextFile="ZapfDingbats.afm"/>
-    <ROW File="UEF.png_1" Component_="broken.png" FileName="UEF.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\replays\UEF.png" SelfReg="false"/>
+    <ROW File="UEF.png_1" Component_="broken.png" FileName="UEF.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\replays\UEF.png" SelfReg="false" NextFile="mumble_link.pyd"/>
     <ROW File="Vera.ttf" Component_="cmb10.ttf" FileName="Vera.ttf" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\ttf\Vera.ttf" SelfReg="false" NextFile="VeraBd.ttf"/>
     <ROW File="VeraBI.ttf" Component_="cmb10.ttf" FileName="VeraBI.ttf" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\ttf\VeraBI.ttf" SelfReg="false" NextFile="VeraIt.ttf"/>
     <ROW File="VeraBd.ttf" Component_="cmb10.ttf" FileName="VeraBd.ttf" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\ttf\VeraBd.ttf" SelfReg="false" NextFile="VeraBI.ttf"/>
@@ -522,6 +522,7 @@
     <ROW File="msvcr90.dll" Component_="msvcr90.dll" FileName="msvcr90.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\msvcr90.dll" SelfReg="false" NextFile="FreeImage.dll"/>
     <ROW File="mt.png" Component_="ad.png" FileName="mt.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\mt.png" SelfReg="false" NextFile="mu.png"/>
     <ROW File="mu.png" Component_="ad.png" FileName="mu.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\mu.png" SelfReg="false" NextFile="mv.png"/>
+    <ROW File="mumble_link.pyd" Component_="FAForever.lib" FileName="mumble~1.pyd|mumble_link.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mumble_link.pyd" SelfReg="false"/>
     <ROW File="murderparty.html" Component_="blackops.html" FileName="murder~1.htm|murderparty.html" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\murderparty.html" SelfReg="false" NextFile="murderparty.png"/>
     <ROW File="murderparty.png" Component_="blackops.html" FileName="murder~1.png|murderparty.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\murderparty.png" SelfReg="false" NextFile="nftw.html"/>
     <ROW File="mv.png" Component_="ad.png" FileName="mv.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\mv.png" SelfReg="false" NextFile="mw.png"/>
