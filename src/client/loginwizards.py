@@ -215,6 +215,12 @@ class gameSettingsWizard(QtGui.QWizard):
 
         self.setWindowTitle("Set Game Port")
 
+    def accept(self):
+        self.client.gamePort = self.settings.gamePortSpin.value()
+        self.client.useUPnP = self.settings.checkUPnP.isChecked()
+        self.client.savePort()
+        QtGui.QWizard.accept(self)        
+
 
 class mumbleOptionsWizard(QtGui.QWizard):
     def __init__(self, client, *args, **kwargs):
