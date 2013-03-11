@@ -34,12 +34,17 @@ sip.setapi('QStringList', 2)
 sip.setapi('QList', 2)
 sip.setapi('QProcess', 2)
 
+
+
+from PyQt4 import QtGui
+
+from OpenGL import GL
+from OpenGL import GLU
+
 #Set up a robust logging system
 import util
 util.startLogging()
 
-
-from PyQt4 import QtGui
 
 
 import sys

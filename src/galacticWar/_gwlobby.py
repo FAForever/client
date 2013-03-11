@@ -18,6 +18,8 @@
 
 from PyQt4 import QtGui, QtCore, QtNetwork
 from galacticWar import logger, LOBBY_PORT, LOBBY_HOST 
+from galaxy import Galaxy
+
 from client import ClientState
 import util
 import json
@@ -36,6 +38,7 @@ class LobbyWidget(FormClass, BaseClass):
         
         self.client.galacticwarTab.layout().addWidget(self)
    
+        self.galaxy = Galaxy()
    
         ## Network initialization
         
@@ -50,12 +53,14 @@ class LobbyWidget(FormClass, BaseClass):
         self.progress.setMinimum(0)
         self.progress.setMaximum(0)
 
+        
 #    def focusEvent(self, event):
 #        return BaseClass.focusEvent(self, event)
     
     def showEvent(self, event):
         if self.doConnect() :
-            self.doLogin()
+            if self.doLogin() :
+                self.setup()
             
         return BaseClass.showEvent(self, event)
 
@@ -129,7 +134,8 @@ class LobbyWidget(FormClass, BaseClass):
 
         if self.state == ClientState.ACCEPTED:
             logger.info("Gating accepted.")
-            self.progress.close()                        
+            self.progress.close()
+            return True   
             #self.connected.emit()            
           
         elif self.state == ClientState.REJECTED:
@@ -139,13 +145,25 @@ class LobbyWidget(FormClass, BaseClass):
             # A more profound error has occurrect (cancellation or disconnection)
             return False
 
+    def setup(self):
+        from glDisplay import GLWidget
+        self.OGLdisplay = GLWidget(self)
+        self.galaxyTab.layout().addWidget(self.OGLdisplay)
+
 
     def handle_welcome(self, message):
         self.state = ClientState.ACCEPTED
-        
+
+    def handle_planet_info(self, message):
+        uid = message['uid'] 
+        if not uid in self.galaxy.control_points :
+            x = message['posx']
+            y = message['posx']
+            size = message['size']
+            self.galaxy.addPlanet(uid, x, y, size)      
 
     def process(self, action, stream):
-        logger.debug("Server: " + action)
+        #logger.debug("Server: " + action)
 
         if action == "PING":
             self.writeToServer("PONG")

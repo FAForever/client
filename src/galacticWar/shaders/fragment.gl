@@ -1,0 +1,59 @@
+
+varying vec3 normal, halfVector;
+
+varying mat4 billboard, RotationMatrixDir, RotationMatrixDir2;
+varying float Ratio;
+varying vec4 lightDir;
+uniform sampler2D texture;
+vec4 light0 ()
+{
+
+  vec4 color;
+  
+  vec4 ambient = gl_LightSource[0].ambient * gl_FrontMaterial.ambient;
+  vec4 diffuse = gl_LightSource[0].diffuse * max(dot(normal,gl_LightSource[0].position),0.0) * gl_FrontMaterial.diffuse;
+  color = ambient + diffuse;
+  return color;
+}
+ 
+vec4 light1 ()
+{
+
+  vec4 color;
+  
+  vec4 ambient = gl_LightSource[1].ambient * gl_FrontMaterial.ambient;
+  vec4 diffuse = gl_LightSource[1].diffuse * max(dot(normal,gl_LightSource[1].position),0.0) * gl_FrontMaterial.diffuse;
+  color = ambient + diffuse;
+  return color;
+}
+
+
+void main (void)
+{
+
+	vec4 texture_color = texture2D(texture,vec2(gl_TexCoord[0]));
+
+	float shiny = gl_FrontMaterial.shininess;
+	
+	vec3 N = normalize(normal);
+	
+	float NdotHV = max(0.0,dot( N,(halfVector) ));
+	
+	
+	vec4 spec = gl_LightSource[0].specular * 
+		               gl_FrontMaterial.specular * 
+					    pow( NdotHV , shiny );
+
+   vec4 diffuse_light = (0.0, 0.0, 0.0, 0.0);
+ 
+  if(vec3(gl_LightSource[0].position) != vec3(0.0, 0.0, 0.0))
+    diffuse_light += light0();
+  if(vec3(gl_LightSource[1].position) != vec3(0.0, 0.0, 0.0))
+    diffuse_light += light1();
+ 
+
+	
+	gl_FragColor =  (diffuse_light * texture_color) + spec + (diffuse_light *1.8* Ratio);
+
+	
+}

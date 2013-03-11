@@ -1,0 +1,55 @@
+
+varying vec3 normal, lightDir, eyeVec, halfVector;
+uniform sampler2D texture;
+uniform sampler2D spec_map;
+uniform sampler2D night_map;
+void main (void)
+{
+
+	vec4 texture_color = texture2D(texture,vec2(gl_TexCoord[0]));
+	vec4 night_map = texture2D(night_map,vec2(gl_TexCoord[0]));
+	vec4 specular_map = texture2D(spec_map,vec2(gl_TexCoord[0]));
+	
+	vec4 final_color = texture_color * (gl_FrontLightModelProduct.sceneColor * gl_FrontMaterial.ambient) + (gl_LightSource[0].ambient * gl_FrontMaterial.ambient);
+	
+	vec3 N = normalize(normal);
+	vec3 L = normalize(lightDir);
+	
+	float lambertTerm = dot(N,L);
+	
+	float spec_intensity = max(0.5, specular_map[0] * 2.0);
+	float shiny = max(0.1, specular_map[0]) * gl_FrontMaterial.shininess;
+	
+	
+	if(lambertTerm > 0.0)
+	{
+	
+	vec4 final_tex = (night_map * (1.0-lambertTerm)) + (2.0*texture_color *lambertTerm);
+	
+	final_color += gl_LightSource[0].diffuse * 
+				   gl_FrontMaterial.diffuse * 
+				   final_tex ;
+				   //lambertTerm;
+
+		vec3 E = normalize(eyeVec);
+		vec3 R = reflect(-L, N);
+		
+		float halfV = normalize(halfVector);
+		float NdotHV = max(dot(N,halfV),0.0);
+		
+		float specular = pow( max(NdotHV, 0.0), 
+		                 shiny );
+		final_color += gl_LightSource[0].specular * 
+		               gl_FrontMaterial.specular * 
+					   spec_intensity *
+					   specular;	
+		
+	}
+	else
+	{
+		final_color += night_map * gl_FrontMaterial.diffuse;
+	}
+
+	
+	gl_FragColor = final_color ;	
+}
