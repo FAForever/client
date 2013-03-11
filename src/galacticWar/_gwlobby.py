@@ -140,12 +140,31 @@ class LobbyWidget(FormClass, BaseClass):
             return False
 
 
+    def handle_welcome(self, message):
+        self.state = ClientState.ACCEPTED
+        
+
     def process(self, action, stream):
         logger.debug("Server: " + action)
 
         if action == "PING":
             self.writeToServer("PONG")
-
+        
+        else :
+            self.dispatchJSON(action, stream)
+            
+    
+    def dispatchJSON(self, data_string, stream):
+        '''
+        A fairly pythonic way to process received strings as JSON messages.
+        '''
+        message = json.loads(data_string)
+        cmd = "handle_" + message['command']
+        if hasattr(self, cmd):
+            getattr(self, cmd)(message)  
+        else:
+            logger.error("command unknown : %s", cmd)
+ 
 
     def send(self, message):
         data = json.dumps(message)
