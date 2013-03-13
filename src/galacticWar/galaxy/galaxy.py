@@ -3,7 +3,9 @@ from OpenGL import GL
 import random
 from  voronoi import Site, computeVoronoiDiagram
 import math
+import os
 
+from util import CACHE_DIR
 
 class Galaxy(object):
     def __init__(self):
@@ -175,7 +177,7 @@ class Galaxy(object):
         for uid in self.control_points :
             site = self.control_points[uid]
             texture = random.randint(1,34)
-            site.texture = context.bindTexture(QtGui.QPixmap('textures/%i.png' % texture), GL.GL_TEXTURE_2D)   
+            site.texture = context.bindTexture(QtGui.QPixmap(os.path.join(CACHE_DIR,'textures/%i.png' % texture)), GL.GL_TEXTURE_2D)   
             
             #site.texture = context.bindTexture(QtGui.QPixmap('earth.bmp'), GL.GL_TEXTURE_2D)
             

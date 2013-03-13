@@ -4,6 +4,8 @@ from PyQt4 import QtCore, QtGui, QtOpenGL
 
 import math
 import random
+import os
+from util import CACHE_DIR
 
 class GLWidget(QtOpenGL.QGLWidget):
     xRotationChanged = QtCore.pyqtSignal(int)
@@ -51,7 +53,8 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.lookAt = QtGui.QVector3D(0, 0, 0)
         self.zoomMin = 500
         self.zoomMax = 10
-        self.cameraPos = QtGui.QVector3D(0,0,self.zoomMin)
+        self.cameraPos  = QtGui.QVector3D(0,0,self.zoomMin)
+        self.vectorMove = QtGui.QVector3D(0,0,self.zoomMin)
         
         self.zooming = False
         
@@ -118,23 +121,23 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.textures = []
 
         self.galaxy.bindTextures(self)
-        self.planetTexId        = self.bindTexture(QtGui.QPixmap('planet_Tsu_Ni1200.png'), GL.GL_TEXTURE_2D)           
-        self.backGroundTexId    = self.bindTexture(QtGui.QPixmap('background.png'), GL.GL_TEXTURE_2D)
-        self.starTexId          = self.bindTexture(QtGui.QPixmap('star.png'), GL.GL_TEXTURE_2D)
-        self.starTex2Id          = self.bindTexture(QtGui.QPixmap('star.png'), GL.GL_TEXTURE_2D)
+        self.planetTexId        = self.bindTexture(QtGui.QPixmap(os.path.join(CACHE_DIR,'textures/planet_Tsu_Ni1200.png')), GL.GL_TEXTURE_2D)           
+        self.backGroundTexId    = self.bindTexture(QtGui.QPixmap(os.path.join(CACHE_DIR,'textures/background.png')), GL.GL_TEXTURE_2D)
+        self.starTexId          = self.bindTexture(QtGui.QPixmap(os.path.join(CACHE_DIR,'textures/star.png')), GL.GL_TEXTURE_2D)
+        self.starTex2Id          = self.bindTexture(QtGui.QPixmap(os.path.join(CACHE_DIR,'textures/star.png')), GL.GL_TEXTURE_2D)
 
 
         
         
         self.programConstant = QtOpenGL.QGLShaderProgram(self)
-        self.programConstant.addShaderFromSourceFile(QtOpenGL.QGLShader.Vertex, "/shaders/vertexTranspa.gl")
-        self.programConstant.addShaderFromSourceFile(QtOpenGL.QGLShader.Fragment, "/shaders/fragmentTranspa.gl")  
+        self.programConstant.addShaderFromSourceFile(QtOpenGL.QGLShader.Vertex, os.path.join(CACHE_DIR, "vertexTranspa.gl"))
+        self.programConstant.addShaderFromSourceFile(QtOpenGL.QGLShader.Fragment, os.path.join(CACHE_DIR, "fragmentTranspa.gl"))  
         if not self.programConstant.link() :
             print "constant", self.programConstant.log()  
 
         self.programAtmosphere = QtOpenGL.QGLShaderProgram(self)
-        self.programAtmosphere.addShaderFromSourceFile(QtOpenGL.QGLShader.Fragment, "/shaders/SkyFromSpaceFrag.glsl")
-        self.programAtmosphere.addShaderFromSourceFile(QtOpenGL.QGLShader.Vertex, "/shaders/SkyFromSpaceVert.glsl")
+        self.programAtmosphere.addShaderFromSourceFile(QtOpenGL.QGLShader.Fragment, os.path.join(CACHE_DIR, "SkyFromSpaceFrag.glsl"))
+        self.programAtmosphere.addShaderFromSourceFile(QtOpenGL.QGLShader.Vertex, os.path.join(CACHE_DIR, "SkyFromSpaceVert.glsl"))
         
         if not self.programAtmosphere.link() :
             print "atmo", self.programAtmosphere.log()          
@@ -143,21 +146,21 @@ class GLWidget(QtOpenGL.QGLWidget):
  
 
         self.programStars = QtOpenGL.QGLShaderProgram(self)
-        self.programStars.addShaderFromSourceFile(QtOpenGL.QGLShader.Vertex, "/shaders/vertexBackground.gl")
-        self.programStars.addShaderFromSourceFile(QtOpenGL.QGLShader.Fragment, "/shaders/fragmentStars.gl")  
+        self.programStars.addShaderFromSourceFile(QtOpenGL.QGLShader.Vertex, os.path.join(CACHE_DIR, "vertexBackground.gl"))
+        self.programStars.addShaderFromSourceFile(QtOpenGL.QGLShader.Fragment, os.path.join(CACHE_DIR, "fragmentStars.gl"))
         if not self.programStars.link() :
             print "stars", self.programStars.log()  
 
         self.programBackground = QtOpenGL.QGLShaderProgram(self)
-        self.programBackground.addShaderFromSourceFile(QtOpenGL.QGLShader.Vertex, "/shaders/vertexBackground.gl")
-        self.programBackground.addShaderFromSourceFile(QtOpenGL.QGLShader.Fragment, "/shaders/fragmentBackground.gl")  
+        self.programBackground.addShaderFromSourceFile(QtOpenGL.QGLShader.Vertex, os.path.join(CACHE_DIR, "vertexBackground.gl"))
+        self.programBackground.addShaderFromSourceFile(QtOpenGL.QGLShader.Fragment, os.path.join(CACHE_DIR, "fragmentBackground.gl")) 
         if not self.programBackground.link() :
             print "background", self.programBackground.log()        
         
         
         self.programPlanet = QtOpenGL.QGLShaderProgram(self) 
-        self.programPlanet.addShaderFromSourceFile(QtOpenGL.QGLShader.Vertex, "/shaders/vertex.gl")
-        self.programPlanet.addShaderFromSourceFile(QtOpenGL.QGLShader.Fragment, "/shaders/fragment.gl")
+        self.programPlanet.addShaderFromSourceFile(QtOpenGL.QGLShader.Vertex, os.path.join(CACHE_DIR, "vertex.gl"))
+        self.programPlanet.addShaderFromSourceFile(QtOpenGL.QGLShader.Fragment, os.path.join(CACHE_DIR, "fragment.gl"))
         
         self.programPlanet.bindAttributeLocation('camPos', 10)
         self.programPlanet.bindAttributeLocation('rotation', 11) 
@@ -354,14 +357,6 @@ class GLWidget(QtOpenGL.QGLWidget):
         GL.glClearDepth(1)
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
-      
-        
-
-        
-
-        #self.createSphere(self.averageRadius, self.yRot)
-        
-
         if self.links :
             GL.glPushMatrix()
             GL.glCallList(self.links)
@@ -400,11 +395,6 @@ class GLWidget(QtOpenGL.QGLWidget):
         GL.glPushMatrix()
         GL.glCallList(self.planets)
         GL.glPopMatrix()
-
-#        GL.glPushMatrix()
-#        GL.glCallList(self.planetsAtmosphere)
-#        GL.glPopMatrix() 
-
 
         GL.glPushMatrix()
         GL.glCallList(self.galaxyStarsFront)
@@ -795,8 +785,8 @@ class GLWidget(QtOpenGL.QGLWidget):
                 
                 GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (1,1,1,1))
       
-                GL.glVertex3f(self.galaxy.control_points[orig].x(), self.galaxy.control_points[orig].y(), 0)
-                GL.glVertex3f(self.galaxy.control_points[dest].x(), self.galaxy.control_points[dest].y(), 0)
+                GL.glVertex3f(self.galaxy.control_points[orig].x, self.galaxy.control_points[orig].y, 0)
+                GL.glVertex3f(self.galaxy.control_points[dest].x, self.galaxy.control_points[dest].y, 0)
                 
                 GL.glEnd( ) 
         

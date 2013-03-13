@@ -40,6 +40,8 @@ class LobbyWidget(FormClass, BaseClass):
    
         self.galaxy = Galaxy()
    
+        self.state = ClientState.NONE
+        
         ## Network initialization
         
         self.socket = QtNetwork.QTcpSocket()
@@ -58,9 +60,9 @@ class LobbyWidget(FormClass, BaseClass):
 #        return BaseClass.focusEvent(self, event)
     
     def showEvent(self, event):
-        if self.doConnect() :
-            if self.doLogin() :
-                self.setup()
+        if self.state != ClientState.ACCEPTED :
+            if self.doConnect() :
+                self.doLogin()                    
             
         return BaseClass.showEvent(self, event)
 
@@ -150,6 +152,7 @@ class LobbyWidget(FormClass, BaseClass):
         self.OGLdisplay = GLWidget(self)
         self.galaxyTab.layout().addWidget(self.OGLdisplay)
 
+        
 
     def handle_welcome(self, message):
         self.state = ClientState.ACCEPTED
@@ -158,9 +161,19 @@ class LobbyWidget(FormClass, BaseClass):
         uid = message['uid'] 
         if not uid in self.galaxy.control_points :
             x = message['posx']
-            y = message['posx']
+            y = message['posy']
             size = message['size']
-            self.galaxy.addPlanet(uid, x, y, size)      
+            self.galaxy.addPlanet(uid, x, y, size, init=True) 
+            
+            if not uid in self.galaxy.links :
+                print message['links']
+                self.galaxy.links[uid] = message['links']
+
+    def handle_init_done(self, message):
+        if message['status'] == True :
+            self.galaxy.computeVoronoi()
+            self.setup()
+            
 
     def process(self, action, stream):
         #logger.debug("Server: " + action)
