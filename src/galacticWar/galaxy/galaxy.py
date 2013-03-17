@@ -1,4 +1,4 @@
-from PyQt4 import QtCore, QtGui, QtOpenGL
+from PyQt4 import QtCore, QtGui
 from OpenGL import GL
 import random
 from  voronoi import Site, computeVoronoiDiagram
@@ -9,11 +9,11 @@ from util import CACHE_DIR
 
 class Galaxy(object):
     def __init__(self):
-        num_control = 40
+
         self.space_size = QtGui.QVector3D(400, 200, 0)
 
 
-        self.numStars = 7000
+        self.numStars = 15000
 
         self.star_field = []
         self.control_points = {}

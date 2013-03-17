@@ -28,6 +28,7 @@ class gwSelectFaction(QtGui.QWizard):
         
         super(gwSelectFaction, self).__init__(parent)
 
+        self.parent = parent
         self.client = parent.client
         
         self.selectedFaction = None
@@ -178,6 +179,6 @@ class factionSelected(QtGui.QWizardPage):
             self.setTitle("[Language Not Recognized]<br><br>You can still alter your choice.<br>Once you've clicked finished, there is no going back !")
             self.setPixmap(QtGui.QWizard.WatermarkPixmap, util.pixmap("client/account_seraphim.png"))
 
-    def validatePage(self):       
-        self.parent.client.faction = self.parent.selectedFaction
+    def validatePage(self):    
+        self.parent.parent.faction = self.parent.selectedFaction
         return True 

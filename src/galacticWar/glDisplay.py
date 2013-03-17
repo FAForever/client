@@ -23,15 +23,12 @@ class GLWidget(QtOpenGL.QGLWidget):
 
         self.ctrl       = False
         self.shift      = False
-        self.drawLink   = False
 
         self.zorig = None
         
         self.object = 0
 
         self.yRot = 0
-
-        
         self.averageRadius = 5
         
         self.boundMove =self.galaxy.space_size
@@ -48,7 +45,6 @@ class GLWidget(QtOpenGL.QGLWidget):
 
         
         self.curZone    = None
-        self.dragPlanet = None
         
         self.lookAt = QtGui.QVector3D(0, 0, 0)
         self.zoomMin = 500
@@ -102,14 +98,6 @@ class GLWidget(QtOpenGL.QGLWidget):
         if update :
             self.update()
 
-
-    def magnitude(self, v):
-        return math.sqrt(sum(v[i]*v[i] for i in range(len(v))))
-    
-
-    def normalize(self, v):
-        vmag = self.magnitude(v)
-        return [ v[i]/vmag  for i in range(len(v)) ]
 
     def minimumSizeHint(self):
         return QtCore.QSize(50, 50)
@@ -233,19 +221,16 @@ class GLWidget(QtOpenGL.QGLWidget):
 
 
         for star in self.galaxy.star_field :
-            if side == 0 and star.z < 0 :
+            
+            if side == 0 and star.z() < 0 :
                 continue
-            if side == 1 and star.z > 0 :
+            if side == 1 and star.z() > 0 :
                 continue            
                 
-            #GL.glLoadIdentity()
             GL.glPushMatrix()       
             GL.glTranslatef(star.x(), star.y(), star.z())
-            #GL.glRotatef(0,0,0,0)
             scale = random.randrange(1,10)/10.0
             GL.glScalef(scale,scale,1)  
-            #GL.glActiveTexture(GL.GL_TEXTURE4)
-            #GL.glBindTexture(GL.GL_TEXTURE_2D, self.textures[0])
                  
             GL.glCallList(self.background)       
             GL.glPopMatrix()        
@@ -266,62 +251,61 @@ class GLWidget(QtOpenGL.QGLWidget):
         GL.glNewList(genList, GL.GL_COMPILE)
         GL.glMatrixMode(GL.GL_MODELVIEW)
 
+        ordered = {}
+        
  
         for uid in self.galaxy.control_points :
             point = self.galaxy.control_points[uid]            
             pos = point.pos3d
-            scale = point.size
-
-            
-            self.programPlanet.bind()
-            GL.glBindTexture(GL.GL_TEXTURE_2D, point.texture)
-            self.programPlanet.setUniformValue('texture', 0)         
-            self.programPlanet.setUniformValue('scaling', scale, scale, scale)
-            self.programPlanet.setUniformValue('pos', pos.x(), pos.y(), 0.0)          
-            GL.glCallList(self.object)
-            self.programPlanet.release()
-#            
-            
-            GL.glBindTexture(GL.GL_TEXTURE_2D, self.starTex2Id)
-            self.programAtmosphere.bind()
-            self.programAtmosphere.setUniformValue('texture', 0)
-            self.programAtmosphere.setUniformValue('scaling', scale, scale, scale)
-            self.programAtmosphere.setUniformValue('pos', pos.x(), pos.y(), 0.0)
-            GL.glCallList(self.atmosphere)         
-            self.programAtmosphere.release()
-            
 
 
-        
+            if not pos.y() in ordered :
+                ordered[pos.y()] = [self.galaxy.control_points[uid]]
+            else :
+                ordered[pos.y()].append(self.galaxy.control_points[uid])
             
+        for key in sorted(ordered.iterkeys(), reverse=True):
+            print key
+            for point in ordered[key] : 
+                pos = point.pos3d
+                scale = point.size
+                self.programPlanet.bind()
+                GL.glBindTexture(GL.GL_TEXTURE_2D, point.texture)
+                self.programPlanet.setUniformValue('texture', 0)         
+                self.programPlanet.setUniformValue('scaling', scale, scale, scale)
+                self.programPlanet.setUniformValue('pos', pos.x(), pos.y(), 5.0)          
+                GL.glCallList(self.object)
+                self.programPlanet.release()
+          
+                
+                GL.glBindTexture(GL.GL_TEXTURE_2D, self.starTex2Id)
+                self.programAtmosphere.bind()
+                self.programAtmosphere.setUniformValue('texture', 0)
+                self.programAtmosphere.setUniformValue('scaling', scale, scale, scale)
+                self.programAtmosphere.setUniformValue('pos', pos.x(), pos.y(), 5.0)
+                GL.glCallList(self.atmosphere)         
+                self.programAtmosphere.release()
+                
         GL.glEndList()
         return genList 
     
     
     def paintEvent(self, event):
         
-
-        if self.dragPlanet :
-            pos3d = self.computeCursorPosition(self.lastMouseEventx, self.lastMouseEventy, True)
-            self.galaxy.movePlanet(self.dragPlanet, pos3d.x(), pos3d.y())
-            self.createPlanets()
-
         self.makeCurrent()
+        GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
         GL.glEnable(GL.GL_DEPTH_TEST)
-        GL.glDepthFunc(GL.GL_LEQUAL)
+        #GL.glDepthFunc(GL.GL_LEQUAL)
         
         GL.glEnable( GL.GL_TEXTURE_2D )
         GL.glCullFace(GL.GL_BACK)
         GL.glFrontFace(GL.GL_CCW)
         GL.glEnable(GL.GL_CULL_FACE)
-        
-        GL.glEnable(GL.GL_FOG)
 
         GL.glEnable(GL.GL_LINE_SMOOTH)
         GL.glBlendFunc (GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
         GL.glEnable (GL.GL_BLEND)
        
-
         GL.glLightModelfv(GL.GL_LIGHT_MODEL_AMBIENT, (0.0,0.0,0.0,1.0))
 
 
@@ -354,52 +338,25 @@ class GLWidget(QtOpenGL.QGLWidget):
 #        GL.glMatrixMode(GL.GL_MODELVIEW)
 #        GL.glLoadIdentity()
         
-        GL.glClearDepth(1)
-        GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
+        #GL.glClearDepth(1)
+        
 
         if self.links :
-            GL.glPushMatrix()
+
+
             GL.glCallList(self.links)
-            GL.glPopMatrix()             
 
-        
-        if self.drawLink :
-            GL.glPushMatrix()
-            GL.glLineWidth(3)
-            GL.glBegin(GL.GL_LINES)
-            
-            GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (1,1,1,1))
-
-            GL.glVertex3f(self.drawLink[2], self.drawLink[3], 0)
-            GL.glVertex3f(self.curZone[2], self.curZone[3], 0)
-            
-#            
-            GL.glEnd()
-            GL.glPopMatrix()
-
-
-        GL.glPushMatrix()
         GL.glCallList(self.galaxyBackground)
-        GL.glPopMatrix()
 
-        GL.glPushMatrix()
         GL.glCallList(self.galaxyStarsBack)
-        GL.glPopMatrix() 
-       
-        GL.glPushMatrix()
+
         GL.glCallList(self.zones)        
-        GL.glPopMatrix()        
-
 
         
-        GL.glPushMatrix()
+
         GL.glCallList(self.planets)
-        GL.glPopMatrix()
 
-        GL.glPushMatrix()
         GL.glCallList(self.galaxyStarsFront)
-        GL.glPopMatrix() 
-        
         
 
         painter = QtGui.QPainter(self)
@@ -573,84 +530,20 @@ class GLWidget(QtOpenGL.QGLWidget):
             self.shift = True
         if (event.modifiers() & QtCore.Qt.ControlModifier):
             self.ctrl = True     
-            
-        if event.key() == 68 :
-            self.dumpToSql()
-            
-    
-    def dumpToSql(self):
-        
-        for uid in self.galaxy.control_points :
-            point = self.galaxy.control_points[uid]          
-            pos = point.pos3d
-            scale = point.size
-            links = []
-            if point.sitenum in self.galaxy.links :
-                 
-                links = self.galaxy.links[point.sitenum]
-            
-            
-            pickle.dumps(links, 1)
-            
-            
-            text = "INSERT INTO planets VALUES (%i, GeomFromText('POINT(%i %i)'), %f, '%i', '', %f, %f, %f, %f, '%s');" % (point.sitenum ,pos.x(), pos.y(), scale, point.sitenum, point.uef, point.cybran, point.aeon, point.sera, json.dumps(links))
-            print text
-
-            
 
     def keyReleaseEvent(self, event):
         if not (event.modifiers() & QtCore.Qt.ShiftModifier):
             self.shift = False
         if not (event.modifiers() & QtCore.Qt.ControlModifier):
             self.ctrl = False
-            self.drawLink = None
-            
-        if self.dragPlanet :
-            if self.ctrl == False or self.ctrl == False :
-                self.stopDrag()
-                
-    
-         
 
-        
 
     def mousePressEvent(self, event):
         
         if  event.buttons() & QtCore.Qt.LeftButton :
-            
-            
-            
-            
-            if self.dragPlanet :
-                self.stopDrag()
-            
-            
-            elif self.ctrl and self.shift :
-                 
-                self.dragPlanet = self.galaxy.control_points[self.curZone[0]]
+            pass
 
-                
-            
-            elif self.ctrl :
-                if not self.drawLink :
-                    self.drawLink = self.curZone
-                else :
-                    if not self.drawLink[0] == self.curZone[0] :
-                        self.addLink()
-                        
-                        
-
-            elif self.shift :
-                x = event.x()
-                y = event.y()
-                pos = self.computeCursorPosition(x,y, True)
-                self.galaxy.addPlanet(pos.x(), pos.y())          
-                self.zones      = self.createZones()
-                self.planets    = self.createPlanets()
-        
-        
-        
-        if  event.buttons() & QtCore.Qt.MiddleButton :
+        elif  event.buttons() & QtCore.Qt.MiddleButton :
             x = event.x()
             y = event.y()
             
@@ -761,13 +654,7 @@ class GLWidget(QtOpenGL.QGLWidget):
 
         self.curZone = self.galaxy.closestSite(pos3d.x(), pos3d.y()) 
         
-
-    def stopDrag(self):
-        self.galaxy.computeVoronoi()
-        self.createZones()
-        self.drawLinks()
-        self.dragPlanet = None
-        
+      
 
     def drawLinks(self):
 
@@ -975,7 +862,6 @@ class GLWidget(QtOpenGL.QGLWidget):
         matrix = []
         
         for i in range(0,3) :
-            #print i
             
             for j in range(3) :
 
@@ -985,7 +871,7 @@ class GLWidget(QtOpenGL.QGLWidget):
                 else :
                     modelview[i][j] = 0.0
                     
-        print "----"
+
         for row in modelview :
             for col in row :
                 matrix.append(col)
@@ -1082,10 +968,3 @@ class GLWidget(QtOpenGL.QGLWidget):
         
 
         return genList        
-
-    def normalizeAngle(self, angle):
-        while angle < 0:
-            angle += 360 * 16
-        while angle > 360 * 16:
-            angle -= 360 * 16
-        return angle

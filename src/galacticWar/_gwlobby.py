@@ -17,7 +17,7 @@
 #-------------------------------------------------------------------------------
 
 from PyQt4 import QtGui, QtCore, QtNetwork
-from galacticWar import logger, LOBBY_PORT, LOBBY_HOST 
+from galacticWar import logger, LOBBY_PORT, LOBBY_HOST, UEF_RANKS, CYBRAN_RANKS, AEON_RANKS, SERAPHIM_RANKS
 from galaxy import Galaxy
 
 from client import ClientState
@@ -41,8 +41,9 @@ class LobbyWidget(FormClass, BaseClass):
    
         self.galaxy = Galaxy()
         
-        self.initDone = False
-        self.faction = None
+        self.initDone   = False
+        self.faction    = None
+        self.rank       = None
    
         self.state = ClientState.NONE
         
@@ -163,11 +164,22 @@ class LobbyWidget(FormClass, BaseClass):
             return False
 
     def setup(self):
-        from glDisplay import GLWidget
-        self.OGLdisplay = GLWidget(self)
-        self.galaxyTab.layout().addWidget(self.OGLdisplay)
+        if not self.initDone :
+            self.galaxy.computeVoronoi()
+            from glDisplay import GLWidget
+            self.OGLdisplay = GLWidget(self)
+            self.galaxyTab.layout().addWidget(self.OGLdisplay)
+                
+    def get_rank(self, faction, rank):
 
-        
+        if faction == 0 :
+            return UEF_RANKS[rank]
+        elif faction == 1 :
+            return CYBRAN_RANKS[rank]
+        elif faction == 2 :
+            return AEON_RANKS[rank]        
+        elif faction == 3 :
+            return SERAPHIM_RANKS[rank]
 
     def handle_welcome(self, message):
         self.state = ClientState.ACCEPTED
@@ -181,7 +193,6 @@ class LobbyWidget(FormClass, BaseClass):
             self.galaxy.addPlanet(uid, x, y, size, init=True) 
             
             if not uid in self.galaxy.links :
-                print message['links']
                 self.galaxy.links[uid] = message['links']
 
         
@@ -192,15 +203,24 @@ class LobbyWidget(FormClass, BaseClass):
             accountCreator = loginwizards.gwSelectFaction(self)
             accountCreator.exec_()
             if self.faction != None :
-                self.send(dict(command = "account_creation", faction = self.faction))
+                self.send(dict(command = "account_creation", action = 0, faction = self.faction))
             else :
                 self.client.mainTabs.setCurrentIndex(0)
                 QtGui.QMessageBox.warning(self, "No faction :(", "You need to pledge allegiance to a faction in order to play Galactic War !")
-                
+
+        elif message["action"] == 1 :
+            name = message["name"]
+            self.faction = message["faction"]
+            self.rank = message["rank"]
+            question = QtGui.QMessageBox.question(self, "Avatar name generation", "Your avatar name will be : <br><br>" + self.get_rank(self.faction, self.rank) + " " + name + ".<br><br>Press Reset to generate another, Ok to accept.", QtGui.QMessageBox.Reset, QtGui.QMessageBox.Ok)
+            if question ==  QtGui.QMessageBox.Reset :
+                self.send(dict(command = "account_creation", action = 1))
+            else :
+                self.name = name
+                self.send(dict(command = "account_creation", action = 2))
     
     def handle_init_done(self, message):
         if message['status'] == True :
-            self.galaxy.computeVoronoi()
             self.setup()
         
             self.initDone = True
