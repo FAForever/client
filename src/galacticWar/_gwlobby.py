@@ -25,6 +25,7 @@ import util
 import json
 
 from types import IntType, FloatType, ListType, DictType
+import loginwizards
 
 FormClass, BaseClass = util.loadUiType("galacticwar/galacticwar.ui")
 
@@ -39,6 +40,9 @@ class LobbyWidget(FormClass, BaseClass):
         self.client.galacticwarTab.layout().addWidget(self)
    
         self.galaxy = Galaxy()
+        
+        self.initDone = False
+        self.faction = None
    
         self.state = ClientState.NONE
         
@@ -62,8 +66,19 @@ class LobbyWidget(FormClass, BaseClass):
     def showEvent(self, event):
         if self.state != ClientState.ACCEPTED :
             if self.doConnect() :
+                logger.info("connection not done")
                 self.doLogin()                    
-            
+        
+        else :
+            if not self.initDone :
+                logger.info("init not done")
+                self.doLogin()
+            else :
+                if not self.faction :
+                    logger.info("not faction")
+                    self.doLogin()
+                    
+        
         return BaseClass.showEvent(self, event)
 
     def doConnect(self):
@@ -122,7 +137,7 @@ class LobbyWidget(FormClass, BaseClass):
         logger.info("Attempting to gate as: " + str(self.client.login))
         self.state = ClientState.NONE
 
-        self.send(dict(command="hello", login=self.client.login, session = self.client.session))
+        self.send(dict(command="hello", login=self.client.login, session = self.client.session, init = self.initDone))
         
         while (not self.state) and self.progress.isVisible():
             QtGui.QApplication.processEvents()
@@ -169,10 +184,27 @@ class LobbyWidget(FormClass, BaseClass):
                 print message['links']
                 self.galaxy.links[uid] = message['links']
 
+        
+
+    def handle_create_account(self, message):
+        if message["action"] == 0 :
+            
+            accountCreator = loginwizards.gwSelectFaction(self)
+            accountCreator.exec_()
+            if self.faction != None :
+                self.send(dict(command = "account_creation", faction = self.faction))
+            else :
+                self.client.mainTabs.setCurrentIndex(0)
+                QtGui.QMessageBox.warning(self, "No faction :(", "You need to pledge allegiance to a faction in order to play Galactic War !")
+                
+    
     def handle_init_done(self, message):
         if message['status'] == True :
             self.galaxy.computeVoronoi()
             self.setup()
+        
+            self.initDone = True
+            self.send(dict(command = "init_done", status = True))
             
 
     def process(self, action, stream):
