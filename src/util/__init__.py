@@ -58,6 +58,9 @@ THEME_DIR = os.path.join(APPDATA_DIR , "themes")
 #This contains cached data downloaded while communicating with the lobby - at the moment, mostly map preview pngs.
 CACHE_DIR = os.path.join(APPDATA_DIR , "cache")
 
+#This contains cached data downloaded for galactic war.
+GW_TEXTURE_DIR = os.path.join(APPDATA_DIR , "cache", "galacticwar")
+
 #This contains the replays recorded by the local replay server
 REPLAY_DIR = os.path.join(APPDATA_DIR , "replays")
 
@@ -110,7 +113,9 @@ if not os.path.isdir(REPLAY_DIR):
     
 if not os.path.isdir(LOG_DIR):
     os.makedirs(LOG_DIR)
-    
+
+if not os.path.isdir(GW_TEXTURE_DIR):
+    os.makedirs(GW_TEXTURE_DIR)    
 
 from PyQt4 import QtGui, uic, QtCore
 import shutil

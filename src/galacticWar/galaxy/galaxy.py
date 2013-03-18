@@ -5,7 +5,7 @@ from  voronoi import Site, computeVoronoiDiagram
 import math
 import os
 
-from util import CACHE_DIR
+from util import GW_TEXTURE_DIR
 
 class Galaxy(object):
     def __init__(self):
@@ -176,13 +176,13 @@ class Galaxy(object):
         
         for uid in self.control_points :
             site = self.control_points[uid]
-            texture = random.randint(1,34)
-            site.texture = context.bindTexture(QtGui.QPixmap(os.path.join(CACHE_DIR,'textures/%i.png' % texture)), GL.GL_TEXTURE_2D)   
+            print site.texname
+            site.texture = context.bindTexture(QtGui.QPixmap(os.path.join(GW_TEXTURE_DIR,'%s.png' % site.texname)), GL.GL_TEXTURE_2D)   
             
             #site.texture = context.bindTexture(QtGui.QPixmap('earth.bmp'), GL.GL_TEXTURE_2D)
             
     
-    def addPlanet(self, uid, x, y, size, init = False):
+    def addPlanet(self, uid, x, y, size, texture = 1, init = False):
         
         x = round(x)
         y = round(y)
@@ -213,7 +213,7 @@ class Galaxy(object):
                 sera = 1.0               
         
         
-        self.control_points[uid]=(Site(x, y, color = color, size = size, sitenum = uid, aeon = aeon, uef = uef, cybran = cybran, sera = sera))
+        self.control_points[uid]=(Site(x, y, color = color, size = size, sitenum = uid, aeon = aeon, uef = uef, cybran = cybran, sera = sera, texture = texture))
         if not init :
             self.computeVoronoi()
      

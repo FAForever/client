@@ -17,12 +17,15 @@
 #-------------------------------------------------------------------------------
 
 from PyQt4 import QtGui, QtCore, QtNetwork
-from galacticWar import logger, LOBBY_PORT, LOBBY_HOST, UEF_RANKS, CYBRAN_RANKS, AEON_RANKS, SERAPHIM_RANKS
+from galacticWar import logger, LOBBY_PORT, LOBBY_HOST, TEXTURE_SERVER, UEF_RANKS, CYBRAN_RANKS, AEON_RANKS, SERAPHIM_RANKS
 from galaxy import Galaxy
+from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
 
 from client import ClientState
 import util
+from util import GW_TEXTURE_DIR
 import json
+import os
 
 from types import IntType, FloatType, ListType, DictType
 import loginwizards
@@ -39,7 +42,13 @@ class LobbyWidget(FormClass, BaseClass):
         
         self.client.galacticwarTab.layout().addWidget(self)
    
-        self.shaderlist =   []
+   
+        self.downloader     = QNetworkAccessManager(self)
+        self.downloader.finished.connect(self.finishRequest)
+        
+        self.shaderlist     =   []
+        self.texturelist    =   {}
+        
         self.shaders    =   {}
         self.galaxy     = Galaxy()
         
@@ -84,6 +93,26 @@ class LobbyWidget(FormClass, BaseClass):
                     
         
         return BaseClass.showEvent(self, event)
+
+    def finishRequest(self, reply):
+        filename = reply.url().toString().rsplit('/',1)[1]
+        root, ext = os.path.splitext(filename)
+        
+        toFile = os.path.join(GW_TEXTURE_DIR, filename)
+        writeFile = QtCore.QFile(toFile)
+        if(writeFile.open(QtCore.QIODevice.WriteOnly)) :
+                writeFile.write(reply.readAll())
+                writeFile.close()                
+        else:
+            logger.warn("%s is not writeable in in %s. Skipping." % (filename, GW_TEXTURE_DIR))
+
+        if root in self.texturelist :
+            del self.texturelist[root]
+            
+        if len(self.texturelist) == 0 :
+            self.setup()
+            self.progress.close()
+
 
     def doConnect(self):
         logger.debug("Connecting to server")
@@ -190,9 +219,15 @@ class LobbyWidget(FormClass, BaseClass):
     def handle_welcome(self, message):
         self.state = ClientState.ACCEPTED
 
-    def handle_shader_required(self, message):
-        self.shaderlist = message["action"]
-        self.send(dict(command = "request", action ="shaders"))
+    def handle_ressource_required(self, message):
+        if message["action"] == "shaders" :
+            self.shaderlist = message["data"]
+            self.send(dict(command = "request", action ="shaders"))
+        elif message["action"] == "textures" :
+            for tex in message["data"] :
+                if not tex in self.texturelist :
+                    self.texturelist[tex] = message["data"][tex]
+
         
 
     def handle_shader(self, message):
@@ -210,19 +245,54 @@ class LobbyWidget(FormClass, BaseClass):
             
             #we have all our shader.
             
+    
+    def get_texture_name(self, tex):
+        return os.path.join(GW_TEXTURE_DIR, tex + ".png")
+    
+    def download_textures(self):
+        self.progress.show()
+        self.progress.setLabelText("Downloading ressources ...")
+        
+        textInCache = []
+        
+        for tex in self.texturelist : 
+            if os.path.exists(self.get_texture_name(tex)) :
+                if util.md5(self.get_texture_name(tex)) == self.texturelist[tex] :
+                    logger.debug(tex + ".png in cache.")
+                    textInCache.append(tex)
+                    continue
+            logger.debug("Downloading " + tex + ".png")
+            self.downloader.get(QNetworkRequest(QtCore.QUrl(TEXTURE_SERVER + tex + ".png")))    
+        
+        for tex in textInCache :
+            del self.texturelist[tex]
+        
+        if len(self.texturelist) == 0 :
+            self.progress.close()
+            self.setup()
+             
+        
+
+    
     def check_ressources(self):
         '''checking if we have everything we need'''
         if len(self.shaderlist) == 0 and self.initDone :
-            self.setup()
+            self.download_textures()
             
         
     def handle_planet_info(self, message):
         uid = message['uid'] 
         if not uid in self.galaxy.control_points :
-            x = message['posx']
-            y = message['posy']
-            size = message['size']
-            self.galaxy.addPlanet(uid, x, y, size, init=True) 
+            x           = message['posx']
+            y           = message['posy']
+            size        = message['size']
+            texture     = message['texture']
+            textureMd5  = message['md5tex']
+            
+            if not texture in self.texturelist :
+                self.texturelist[texture] = textureMd5 
+            
+            self.galaxy.addPlanet(uid, x, y, size, texture = texture, init=True) 
             
             if not uid in self.galaxy.links :
                 self.galaxy.links[uid] = message['links']

@@ -700,19 +700,22 @@ class PriorityQueue(object):
         return curr
 
 class Site(object):
-    def __init__(self, x=0.0, y=0.0, color = (0,0,0,0), sitenum=0, size = 1, aeon = 0, cybran = 0, uef = 0, sera = 0):
+    def __init__(self, x=0.0, y=0.0, color = (0,0,0,0), sitenum=0, size = 1, aeon = 0, cybran = 0, uef = 0, sera = 0, texture = 1):
         self.x = x
         self.y = y
         self.color = color
         self.sitenum = sitenum
         self.size = size
         self.texture = None
+        self.texname = texture
         self.pos3d = QtGui.QVector3D(self.x, self.y, 0.0)
         
         self.aeon   = aeon
         self.cybran = cybran
         self.uef    = uef
         self.sera   = sera
+        
+
 
 
     def dump(self):

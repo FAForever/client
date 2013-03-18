@@ -26,6 +26,8 @@ logger.setLevel(logging.DEBUG)
 LOBBY_HOST = 'direct.faforever.com'
 LOBBY_PORT = 10001
 
+TEXTURE_SERVER = "http://www.faforever.com/faf/images/"
+
 UEF_RANKS = ["Private", "Corporal", "Sergeant", "Captain", "Major", "Colonel", "General", "Supreme Commander"]
 CYBRAN_RANKS = ["Ensign", "Drone", "Agent", "Inspector", "Starshina", "Commandarm" ,"Elite Commander", "Supreme Commander"]
 AEON_RANKS = ["Crusader", "Legate", "Avatar-of-War", "Priest", "Centurion", "Executor", "Evaluator", "Supreme Commander"]
