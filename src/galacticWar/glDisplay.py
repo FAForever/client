@@ -118,14 +118,14 @@ class GLWidget(QtOpenGL.QGLWidget):
         
         
         self.programConstant = QtOpenGL.QGLShaderProgram(self)
-        self.programConstant.addShaderFromSourceFile(QtOpenGL.QGLShader.Vertex, os.path.join(CACHE_DIR, "vertexTranspa.gl"))
-        self.programConstant.addShaderFromSourceFile(QtOpenGL.QGLShader.Fragment, os.path.join(CACHE_DIR, "fragmentTranspa.gl"))  
+        self.programConstant.addShaderFromSourceCode(QtOpenGL.QGLShader.Vertex, self.parent.shaders["constant"]["vertex"])
+        self.programConstant.addShaderFromSourceCode(QtOpenGL.QGLShader.Fragment, self.parent.shaders["constant"]["fragment"])  
         if not self.programConstant.link() :
             print "constant", self.programConstant.log()  
 
-        self.programAtmosphere = QtOpenGL.QGLShaderProgram(self)
-        self.programAtmosphere.addShaderFromSourceFile(QtOpenGL.QGLShader.Fragment, os.path.join(CACHE_DIR, "SkyFromSpaceFrag.glsl"))
-        self.programAtmosphere.addShaderFromSourceFile(QtOpenGL.QGLShader.Vertex, os.path.join(CACHE_DIR, "SkyFromSpaceVert.glsl"))
+        self.programAtmosphere = QtOpenGL.QGLShaderProgram(self)        
+        self.programAtmosphere.addShaderFromSourceCode(QtOpenGL.QGLShader.Vertex, self.parent.shaders["atmosphere"]["vertex"])
+        self.programAtmosphere.addShaderFromSourceCode(QtOpenGL.QGLShader.Fragment, self.parent.shaders["atmosphere"]["fragment"])
         
         if not self.programAtmosphere.link() :
             print "atmo", self.programAtmosphere.log()          
@@ -134,21 +134,21 @@ class GLWidget(QtOpenGL.QGLWidget):
  
 
         self.programStars = QtOpenGL.QGLShaderProgram(self)
-        self.programStars.addShaderFromSourceFile(QtOpenGL.QGLShader.Vertex, os.path.join(CACHE_DIR, "vertexBackground.gl"))
-        self.programStars.addShaderFromSourceFile(QtOpenGL.QGLShader.Fragment, os.path.join(CACHE_DIR, "fragmentStars.gl"))
+        self.programStars.addShaderFromSourceCode(QtOpenGL.QGLShader.Vertex, self.parent.shaders["stars"]["vertex"])
+        self.programStars.addShaderFromSourceCode(QtOpenGL.QGLShader.Fragment, self.parent.shaders["stars"]["fragment"])
         if not self.programStars.link() :
             print "stars", self.programStars.log()  
 
         self.programBackground = QtOpenGL.QGLShaderProgram(self)
-        self.programBackground.addShaderFromSourceFile(QtOpenGL.QGLShader.Vertex, os.path.join(CACHE_DIR, "vertexBackground.gl"))
-        self.programBackground.addShaderFromSourceFile(QtOpenGL.QGLShader.Fragment, os.path.join(CACHE_DIR, "fragmentBackground.gl")) 
+        self.programBackground.addShaderFromSourceCode(QtOpenGL.QGLShader.Vertex, self.parent.shaders["background"]["vertex"])
+        self.programBackground.addShaderFromSourceCode(QtOpenGL.QGLShader.Fragment, self.parent.shaders["background"]["fragment"]) 
         if not self.programBackground.link() :
             print "background", self.programBackground.log()        
         
         
         self.programPlanet = QtOpenGL.QGLShaderProgram(self) 
-        self.programPlanet.addShaderFromSourceFile(QtOpenGL.QGLShader.Vertex, os.path.join(CACHE_DIR, "vertex.gl"))
-        self.programPlanet.addShaderFromSourceFile(QtOpenGL.QGLShader.Fragment, os.path.join(CACHE_DIR, "fragment.gl"))
+        self.programPlanet.addShaderFromSourceCode(QtOpenGL.QGLShader.Vertex, self.parent.shaders["planet"]["vertex"])
+        self.programPlanet.addShaderFromSourceCode(QtOpenGL.QGLShader.Fragment, self.parent.shaders["planet"]["fragment"])
         
         self.programPlanet.bindAttributeLocation('camPos', 10)
         self.programPlanet.bindAttributeLocation('rotation', 11) 
@@ -265,7 +265,6 @@ class GLWidget(QtOpenGL.QGLWidget):
                 ordered[pos.y()].append(self.galaxy.control_points[uid])
             
         for key in sorted(ordered.iterkeys(), reverse=True):
-            print key
             for point in ordered[key] : 
                 pos = point.pos3d
                 scale = point.size

@@ -26,7 +26,7 @@ logger.setLevel(logging.DEBUG)
 LOBBY_HOST = 'direct.faforever.com'
 LOBBY_PORT = 10001
 
-UEF_RANKS = ["Private", "Corporal", "Sergeant", "Captain", "Major", "Lieutenant", "General", "Supreme Commander"]
+UEF_RANKS = ["Private", "Corporal", "Sergeant", "Captain", "Major", "Colonel", "General", "Supreme Commander"]
 CYBRAN_RANKS = ["Ensign", "Drone", "Agent", "Inspector", "Starshina", "Commandarm" ,"Elite Commander", "Supreme Commander"]
 AEON_RANKS = ["Crusader", "Legate", "Avatar-of-War", "Priest", "Centurion", "Executor", "Evaluator", "Supreme Commander"]
 SERAPHIM_RANKS = ["SouIstle", "Sou", "SouThuum", "YthiIstle", "Ythi", "YthiThuum", "Azeel", "Supreme Commander"]

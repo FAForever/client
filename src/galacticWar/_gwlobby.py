@@ -39,7 +39,10 @@ class LobbyWidget(FormClass, BaseClass):
         
         self.client.galacticwarTab.layout().addWidget(self)
    
-        self.galaxy = Galaxy()
+        self.shaderlist =   []
+        self.shaders    =   {}
+        self.galaxy     = Galaxy()
+        
         
         self.initDone   = False
         self.faction    = None
@@ -163,12 +166,15 @@ class LobbyWidget(FormClass, BaseClass):
             # A more profound error has occurrect (cancellation or disconnection)
             return False
 
+
+
     def setup(self):
-        if not self.initDone :
-            self.galaxy.computeVoronoi()
-            from glDisplay import GLWidget
-            self.OGLdisplay = GLWidget(self)
-            self.galaxyTab.layout().addWidget(self.OGLdisplay)
+        self.galaxy.computeVoronoi()
+        from glDisplay import GLWidget
+        self.OGLdisplay = GLWidget(self)
+        self.galaxyTab.layout().addWidget(self.OGLdisplay)
+        
+        self.send(dict(command = "init_done", status = True))
                 
     def get_rank(self, faction, rank):
 
@@ -184,6 +190,32 @@ class LobbyWidget(FormClass, BaseClass):
     def handle_welcome(self, message):
         self.state = ClientState.ACCEPTED
 
+    def handle_shader_required(self, message):
+        self.shaderlist = message["action"]
+        self.send(dict(command = "request", action ="shaders"))
+        
+
+    def handle_shader(self, message):
+        name             = message["name"]
+        shader_fragment  = message["shader_fragment"]
+        shader_vertex    = message["shader_vertex"]
+        if not name in self.shaders :
+            self.shaders[name] = {}
+            self.shaders[name]["fragment"]  = shader_fragment
+            self.shaders[name]["vertex"]    = shader_vertex
+        
+        if name in self.shaderlist :
+            self.shaderlist.remove(name)
+        self.check_ressources()
+            
+            #we have all our shader.
+            
+    def check_ressources(self):
+        '''checking if we have everything we need'''
+        if len(self.shaderlist) == 0 and self.initDone :
+            self.setup()
+            
+        
     def handle_planet_info(self, message):
         uid = message['uid'] 
         if not uid in self.galaxy.control_points :
@@ -221,10 +253,9 @@ class LobbyWidget(FormClass, BaseClass):
     
     def handle_init_done(self, message):
         if message['status'] == True :
-            self.setup()
-        
             self.initDone = True
-            self.send(dict(command = "init_done", status = True))
+            self.check_ressources()
+            
             
 
     def process(self, action, stream):
