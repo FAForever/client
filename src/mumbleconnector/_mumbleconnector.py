@@ -3,7 +3,11 @@
 #
 # Issues to be fixed:
 #
-
+# - Start mumble minimized in tray
+# - Move users back where they came from instead of back to games
+# - Surpress all users on "Games"-channel
+# - Add decent motd with explanation to murmur server
+# - Enable voice connector default?
 
 from PyQt4 import QtCore
 from PyQt4 import QtGui
@@ -12,6 +16,7 @@ import os
 import sys
 import win32api
 import time
+import _winreg
 
 # Link-dll to interface with the mumble client
 import mumble_link
@@ -27,7 +32,7 @@ class mumbleConnector():
     pluginDescription = "Forged Alliance Forever Mumbleconnector"
     mumbleSetup = None
     mumbleIdentity = None
-
+    
     def __init__(self, client):
         self.client = client
         self.state = "closed"
@@ -36,6 +41,17 @@ class mumbleConnector():
         # Add processGameInfo as a handler for the gameInfo signal
         self.client.gameInfo.connect(self.processGameInfo)
         self.client.gameExit.connect(self.processGameExit)
+
+        # Update registry settings for Mumble
+        # For the mumbleconnector to work, mumble needs positional audio enabled, and link-to-games enabled. We also need the link 1.20 dll enabled,
+        # but that cannot be set in registry and is also the default
+        try:
+            key = _winreg.OpenKey(_winreg.HKEY_CURRENT_USER, "Software\\Mumble\\Mumble\\audio", 0, _winreg.KEY_ALL_ACCESS)
+            _winreg.SetValueEx(key, "postransmit", 0, _winreg.REG_SZ, "true")
+            _winreg.SetValueEx(key, "positional", 0, _winreg.REG_SZ, "true")
+            _winreg.CloseKey(key)
+        except:
+            logger.info("Updating Mumble registry settings failed.")
 
         # Start Mumble (Starting it now instead of when faf is launched will make sure mumble's overlay works, and prevent that mumble causes faf to minimize when it pops up
         self.linkMumble()
