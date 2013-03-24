@@ -97,8 +97,8 @@ class mumbleConnector():
         # Launch mumble and connect to correct server
         self.launchMumble()
 
-        # Try to link
-        for i in range (1,10):
+        # Try to link. This may take up to 40 seconds until we bail out
+        for i in range (1,8):
             logger.debug("Trying to connect link plugin: " + str(i))
 
             if mumble_link.setup(self.pluginName, self.pluginDescription):
