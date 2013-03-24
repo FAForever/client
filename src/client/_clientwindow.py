@@ -541,6 +541,14 @@ class ClientWindow(FormClass, BaseClass):
         util.settings.endGroup()
 
         util.settings.beginGroup("Mumble")
+
+        if util.settings.value("app/mumble", "firsttime") == "firsttime":
+            # The user has never configured mumble before. Be a little intrusive and ask him if he wants to use it.
+            if QtGui.QMessageBox.question(self, "Enable Voice Connector?", "FA Forever can connect with <a href=\"http://mumble.sourceforge.net/\">Mumble</a> to support the automatic setup of voice connections between you and your team mates. Would you like to enable this feature? You can change the setting at any time by going to options -> settings -> Voice", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No) == QtGui.QMessageBox.Yes:
+                util.settings.setValue("app/mumble", "true")
+            else:
+                util.settings.setValue("app/mumble", "false")
+
         self.enableMumble = (util.settings.value("app/mumble", "false") == "true")
         util.settings.endGroup()
         
