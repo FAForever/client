@@ -1284,6 +1284,18 @@ class ClientWindow(FormClass, BaseClass):
         # HACK: Ideally, this comes from the server, too. LATER: search_ranked message
         if message[modkey] == "ladder1v1":
             arguments.append(self.games.race)
+            #Player 1v1 rating
+            arguments.append('/mean')        
+            arguments.append(str(self.players[self.login]["ladder_rating_mean"]))    
+            arguments.append('/deviation')        
+            arguments.append(str(self.players[self.login]["ladder_rating_deviation"]))            
+
+        else :
+            #Player global rating
+            arguments.append('/mean')        
+            arguments.append(str(self.players[self.login]["rating_mean"]))    
+            arguments.append('/deviation')        
+            arguments.append(str(self.players[self.login]["rating_deviation"]))            
         
         # Ensure we have the map
         if "mapname" in message:
@@ -1316,11 +1328,7 @@ class ClientWindow(FormClass, BaseClass):
             options.write(" }")
             
             options.close()
-        #Player rating
-        arguments.append('/mean')        
-        arguments.append(str(self.players[self.login]["rating_mean"]))    
-        arguments.append('/deviation')        
-        arguments.append(str(self.players[self.login]["rating_deviation"]))
+
 
         #Experimental UPnP Mapper - mappings are removed on app exit
         if self.useUPnP:
