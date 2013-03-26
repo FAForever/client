@@ -319,8 +319,11 @@ class GameItem(QtGui.QListWidgetItem):
                             if self.client.login in self.client.players :
                                 curTeam.addPlayer(self.client.login, Rating(self.client.players[self.client.login]["rating_mean"], self.client.players[self.client.login]["rating_deviation"]))
 
+
                         for player in self.teams[team] :          
                             if player in self.client.players :
+                                if self.client.isFoe(player) :
+                                    self.hasFoe = True
                                 mean = self.client.players[player]["rating_mean"]
                                 dev = self.client.players[player]["rating_deviation"]
                                 curTeam.addPlayer(player, Rating(mean, dev))
@@ -367,7 +370,12 @@ class GameItem(QtGui.QListWidgetItem):
         if self.playerIncluded :
             self.playerIncludedTxt = "(with you)"
             
-        color = client.getUserColor(self.host)              
+        color = client.getUserColor(self.host)
+        
+        for player in self.players :
+            if self.client.isFoe(player) :
+                color = client.getUserColor(player)
+
         if self.mod == "faf":
             self.setText(self.FORMATTER_FAF.format(color=color, mapslots = self.slots, mapdisplayname=self.mapdisplayname, title=self.title, host=self.host, players=self.numplayers, playerstring=playerstring, gamequality = strQuality, playerincluded = self.playerIncludedTxt))
         else:

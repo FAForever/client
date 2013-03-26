@@ -217,7 +217,15 @@ class Channel(FormClass, BaseClass):
             self.chatArea.verticalScrollBar().setValue(self.chatArea.verticalScrollBar().maximum())
         else:
             self.chatArea.verticalScrollBar().setValue(scroll_current)
-    
+
+    def quackerize(self, text):
+        line = []
+        words = text.split()
+        
+        for word in words :
+            line.append("qu"+ "a" * min(7,len(word))+ "ck")
+             
+        return (" ").join(line)    
  
     @QtCore.pyqtSlot(str, str)
     def printMsg(self, name, text, scroll_forced=False):
@@ -232,6 +240,9 @@ class Channel(FormClass, BaseClass):
             self.lines = self.lines - CHAT_REMOVEBLOCK
         
         avatar = None
+        
+        if self.lobby.client.isFoe(name) :
+            text = self.quackerize(text)
         
         if name.lower() in self.lobby.specialUserColors:
             color = self.lobby.specialUserColors[name.lower()]

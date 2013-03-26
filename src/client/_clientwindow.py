@@ -168,6 +168,7 @@ class ClientWindow(FormClass, BaseClass):
         self.urls = {}          # user game location URLs - TODO: Should go in self.players
         
         self.friends = []       # names of the client's friends
+        self.foes    = []       # names of the client's foes
                 
         self.power = 0          # current user power        
                
@@ -815,7 +816,12 @@ class ClientWindow(FormClass, BaseClass):
         '''
         return name in self.friends
 
-
+    
+    def isFoe(self, name):
+        '''
+        Convenience function for other modules to inquire about a user's foeliness.
+        '''
+        return name in self.foes
 
     def isPlayer(self, name):
         '''
@@ -869,6 +875,8 @@ class ClientWindow(FormClass, BaseClass):
             return self.getColor("self")
         elif name in self.friends:
             return self.getColor("friend")
+        elif name in self.foes:
+            return self.getColor("foe")
         elif name in self.players:
             return self.getColor("player")
         else:
@@ -1144,7 +1152,6 @@ class ClientWindow(FormClass, BaseClass):
         '''Close lobby remotly'''
         self.send(dict(command="admin", action="closelobby", user=userToClose))
         
-    
     def addFriend(self, friend):
         '''Adding a new friend by user'''
         self.friends.append(friend)
@@ -1152,7 +1159,12 @@ class ClientWindow(FormClass, BaseClass):
         #self.writeToServer("ADD_FRIEND", friend)
         self.usersUpdated.emit([friend])
 
-
+    def addFoe(self, foe):
+        '''Adding a new foe by user'''
+        self.foes.append(foe)
+        self.send(dict(command="social", foes=self.foes)) #LATER: Use this line instead
+        #self.writeToServer("ADD_FRIEND", friend)
+        self.usersUpdated.emit([foe])
 
     def remFriend(self, friend):
         '''Removal of a friend by user'''
@@ -1161,6 +1173,12 @@ class ClientWindow(FormClass, BaseClass):
         self.send(dict(command="social", friends=self.friends)) #LATER: Use this line instead
         self.usersUpdated.emit([friend])
 
+    def remFoe(self, foe):
+        '''Removal of a foe by user'''
+        self.foes.remove(foe)
+        #self.writeToServer("REMOVE_FRIEND", friend)
+        self.send(dict(command="social", foes=self.foes)) #LATER: Use this line instead
+        self.usersUpdated.emit([foe])
 
                     
     def process(self, action, stream):
@@ -1379,6 +1397,10 @@ class ClientWindow(FormClass, BaseClass):
             self.friends = message["friends"]
             self.usersUpdated.emit(self.players.keys())
         
+        if "foes" in message:
+            self.foes = message["foes"]
+            self.usersUpdated.emit(self.players.keys())
+       
         if "autojoin" in message:
             self.autoJoin.emit(message["autojoin"])
         

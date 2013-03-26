@@ -111,9 +111,11 @@ class Chatter(QtGui.QTableWidgetItem):
         if self.elevation and not other.elevation: return True
         if not self.elevation and other.elevation: return False
         
-        # Non-Operators will be compared for friendship and actual player (not civilian) status
+        # Non-Operators will be compared for friendship, foeness, and actual player (not civilian) status
         if self.lobby.client.isFriend(self.name) and not self.lobby.client.isFriend(other.name): return True
         if not self.lobby.client.isFriend(self.name) and self.lobby.client.isFriend(other.name): return False
+        if self.lobby.client.isFoe(self.name) and not self.lobby.client.isFoe(other.name): return True 
+        if not self.lobby.client.isFoe(self.name) and self.lobby.client.isFoe(other.name): return False        
         if self.lobby.client.isPlayer(self.name) and not self.lobby.client.isPlayer(other.name): return True 
         if not self.lobby.client.isPlayer(self.name) and self.lobby.client.isPlayer(other.name): return False
         
@@ -239,6 +241,13 @@ class Chatter(QtGui.QTableWidgetItem):
         
     def remFriend(self):
         self.lobby.client.remFriend(self.name)
+
+    def addFoe(self):
+        self.lobby.client.addFoe(self.name)
+        
+        
+    def remFoe(self):
+        self.lobby.client.remFoe(self.name)
    
     def kick(self):
         pass
@@ -347,28 +356,49 @@ class Chatter(QtGui.QTableWidgetItem):
             
 
         
-        # Actions for the Friend List
+        # Actions for the Friends List
         actionAddFriend = QtGui.QAction("Add friend", menu)
         actionRemFriend = QtGui.QAction("Remove friend", menu)
+
+        # Actions for the Foes List
+        actionAddFoe = QtGui.QAction("Add foe", menu)
+        actionRemFoe = QtGui.QAction("Remove foe", menu)
         
-        # Don't allow self to be added or removed from friends
+        # Don't allow self to be added or removed from friends or foes
         if self.lobby.client.login == self.name:
             actionAddFriend.setDisabled(1)
             actionRemFriend.setDisabled(1)
+            actionAddFoe.setDisabled(1)
+            actionRemFoe.setDisabled(1)
               
         # Enable / Disable actions according to friend status  
         if self.lobby.client.isFriend(self.name):
             actionAddFriend.setDisabled(1)
+            actionRemFoe.setDisabled(1)
+            actionAddFoe.setDisabled(1)
         else :
             actionRemFriend.setDisabled(1)
+
+        if self.lobby.client.isFoe(self.name):
+            actionAddFoe.setDisabled(1)
+            actionAddFriend.setDisabled(1)
+            actionRemFriend.setDisabled(1)
+
+        else :
+            actionRemFoe.setDisabled(1)
                                       
         # Triggers
         actionAddFriend.triggered.connect(self.addFriend)
         actionRemFriend.triggered.connect(self.remFriend)
+        actionAddFoe.triggered.connect(self.addFoe)
+        actionRemFoe.triggered.connect(self.remFoe)
       
         # Adding to menu
         menu.addAction(actionAddFriend)
         menu.addAction(actionRemFriend)
+        menu.addSeparator()
+        menu.addAction(actionAddFoe)
+        menu.addAction(actionRemFoe)
 
 
         #Finally: Show the popup
