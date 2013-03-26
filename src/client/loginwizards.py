@@ -414,7 +414,7 @@ class MumbleSettings(QtGui.QWizardPage):
         self.setPixmap(QtGui.QWizard.WatermarkPixmap, util.pixmap("client/settings_watermark.png"))
         
         self.label = QtGui.QLabel()
-        self.label.setText('FAF now supports the automatic setup of voice connections between you and your team mates. You can enable the feature here.<br/><br />FAF uses <a href="http://mumble.sourceforge.net/">Mumble</a> for the voice connections. Download and install it. <br/><br/>Once installed, go to "Configure -> Settings", check the "Advanced" checkbox, select "Plugins". Make sure that "Link to Game and Transmit Position" is checked, and that the "Link v1.2.0" plugin is enabled.')
+        self.label.setText('FAF supports the automatic setup of voice connections between you and your team mates. It will automatically move you into a channel with your team mates anytime you enter a game lobby or start a game. To enable, download and install <a href="http://mumble.sourceforge.net/">Mumble</a> and tick the checkbox below.')
         self.label.setOpenExternalLinks(True)
         self.label.setWordWrap(True)
 
