@@ -4,10 +4,6 @@
 # Issues to be fixed:
 #
 # - Start mumble minimized in tray
-# - Move users back where they came from instead of back to games
-# - Surpress all users on "Games"-channel
-# - Add decent motd with explanation to murmur server
-# - Enable voice connector default?
 
 from PyQt4 import QtCore
 from PyQt4 import QtGui
@@ -31,6 +27,7 @@ class mumbleConnector():
     pluginName = "faforever"
     pluginDescription = "Forged Alliance Forever Mumbleconnector"
     mumbleSetup = None
+    mumbleFailed = None
     mumbleIdentity = None
     
     def __init__(self, client):
@@ -70,15 +67,26 @@ class mumbleConnector():
         url.addQueryItem("version", "1.2.0")
 
         logger.info("Opening " + url.toString())
-        QtGui.QDesktopServices.openUrl(url)
+        
+        if QtGui.QDesktopServices.openUrl(url):
+            logger.debug("Lauching Mumble successful")
+            return 1
+
+        logger.debug("Lauching Mumble failed")
+        return 0
+        
             
     #
     # Checks and restores the link to mumble
     #
     def checkMumble(self):
 
-        # Check if mumble was shut down (it resets our shared memory on shutdown)
-        if not self.mumbleSetup:
+        if self.mumbleFailed:
+            # If there was a failure linking to mumble before, don't bother anymore.
+            logger.debug("Mumble link failed permanently")
+            return 0
+        
+        elif not self.mumbleSetup:
             # Mumble link has never been set up
             logger.debug("Mumble link has never been set up")
             return self.linkMumble()
@@ -94,8 +102,11 @@ class mumbleConnector():
             return 1
 
     def linkMumble(self):
+        
         # Launch mumble and connect to correct server
-        self.launchMumble()
+        if not self.launchMumble():
+            self.mumbleFailed = 1
+            return 0
 
         # Try to link. This may take up to 40 seconds until we bail out
         for i in range (1,8):
@@ -109,6 +120,7 @@ class mumbleConnector():
             time.sleep(i)
             
         logger.info("Mumble link failed")
+        self.mumbleFailed = 1
         return 0
 
     #
