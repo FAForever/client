@@ -145,8 +145,7 @@ class mumbleConnector():
     def processGameInfo(self, gameInfo):
         if self.playerInTeam(gameInfo):
             self.functionMapper[gameInfo["state"]](self, gameInfo)
-
-        self.updateMumbleState()
+            self.updateMumbleState()
             
         return
 
