@@ -133,8 +133,11 @@ class mumbleConnector():
     def updateMumbleState(self):
         if self.mumbleIdentity:
             if self.checkMumble():
-                logger.debug("Updating mumble state")
-                mumble_link.set_identity(self.mumbleIdentity)
+                if self.client.activateMumbleSwitching:
+                    logger.debug("Updating mumble state")
+                    mumble_link.set_identity(self.mumbleIdentity)
+                else:
+                    logger.debug("Automatic channel switching disabled")
 
     def processGameExit(self):
         logger.debug("gameExit signal")

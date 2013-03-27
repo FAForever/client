@@ -337,6 +337,7 @@ class ClientWindow(FormClass, BaseClass):
         self.actionSetJoinsParts.triggered.connect(self.updateOptions)
         self.actionSetLiveReplays.triggered.connect(self.updateOptions)
         self.actionSaveGamelogs.triggered.connect(self.updateOptions)
+        self.actionActivateMumbleSwitching.triggered.connect(self.saveMumbleSwitching)
         
         
         #Init themes as actions.
@@ -388,7 +389,7 @@ class ClientWindow(FormClass, BaseClass):
     def setMumbleOptions(self):
         import loginwizards
         loginwizards.mumbleOptionsWizard(self).exec_()
-        
+                
     @QtCore.pyqtSlot()
     def clearSettings(self):
         result = QtGui.QMessageBox.question(None, "Clear Settings", "Are you sure you wish to clear all settings, login info, etc. used by this program?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
@@ -496,10 +497,17 @@ class ClientWindow(FormClass, BaseClass):
     def saveMumble(self):
         util.settings.beginGroup("Mumble")
         util.settings.setValue("app/mumble", self.enableMumble)
-        
         util.settings.endGroup()
         util.settings.sync()
-                
+
+    def saveMumbleSwitching(self):
+        self.activateMumbleSwitching = self.actionActivateMumbleSwitching.isChecked()
+
+        util.settings.beginGroup("Mumble")
+        util.settings.setValue("app/activateMumbleSwitching", self.activateMumbleSwitching)
+        util.settings.endGroup()
+        util.settings.sync()
+
     @QtCore.pyqtSlot()
     def saveChat(self):        
         util.settings.beginGroup("chat")
@@ -550,9 +558,14 @@ class ClientWindow(FormClass, BaseClass):
             else:
                 util.settings.setValue("app/mumble", "false")
 
+        if util.settings.value("app/activateMumbleSwitching", "firsttime") == "firsttime":
+            util.settings.setValue("app/activateMumbleSwitching", "true")
+
         self.enableMumble = (util.settings.value("app/mumble", "false") == "true")
+        self.activateMumbleSwitching = (util.settings.value("app/activateMumbleSwitching", "false") == "true")
         util.settings.endGroup()
-        
+
+        self.actionActivateMumbleSwitching.setChecked(self.activateMumbleSwitching)
                
         self.loadChat()
         
@@ -954,10 +967,6 @@ class ClientWindow(FormClass, BaseClass):
 
         if new_tab is self.tourneyTab:
             self.showTourneys.emit()
-
-
-
-
 
     def joinGameFromURL(self, url):
         '''
