@@ -12,6 +12,7 @@ import os
 import sys
 import win32api
 import time
+import re
 import _winreg
 
 # Link-dll to interface with the mumble client
@@ -35,9 +36,10 @@ class mumbleConnector():
         self.state = "closed"
         self.uid = 0
 
-        # Add processGameInfo as a handler for the gameInfo signal
+        # Add signal handlers
         self.client.gameInfo.connect(self.processGameInfo)
         self.client.gameExit.connect(self.processGameExit)
+        self.client.viewingReplay.connect(self.processViewingReplay)
 
         # Update registry settings for Mumble
         # For the mumbleconnector to work, mumble needs positional audio enabled, and link-to-games enabled. We also need the link 1.20 dll enabled,
@@ -117,7 +119,9 @@ class mumbleConnector():
                 self.mumbleSetup = 1
                 return 1
 
+            # FIXME: Replace with QtCore.QTimer.singleShot ?
             time.sleep(i)
+            
             
         logger.info("Mumble link failed")
         self.mumbleFailed = 1
@@ -133,6 +137,7 @@ class mumbleConnector():
                 mumble_link.set_identity(self.mumbleIdentity)
 
     def processGameExit(self):
+        logger.debug("gameExit signal")
         self.state = "closed"
         self.mumbleIdentity = "0"
         self.updateMumbleState()
@@ -142,8 +147,21 @@ class mumbleConnector():
             self.functionMapper[gameInfo["state"]](self, gameInfo)
 
         self.updateMumbleState()
+            
         return
 
+    def processViewingReplay(self, url):
+        logger.debug("viewingReplay message: " + str(url.path()))
+
+        match = re.match('^([0-9]+)/', str(url.path()))
+
+        if match:
+            logger.info("Watching livereplay: " + match.group(1))
+            self.mumbleIdentity = match.group(1) + "--2"
+            self.updateMumbleState()
+
+        return
+    
     #
     # Helper function to determine if we are in this gameInfo signal's team
     #
