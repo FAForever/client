@@ -119,7 +119,7 @@ class mumbleConnector():
                 self.mumbleSetup = 1
                 return 1
 
-            # FIXME: Replace with QtCore.QTimer.singleShot ?
+            # FIXME: Replace with something nonblocking?
             time.sleep(i)
             
             
@@ -189,8 +189,8 @@ class mumbleConnector():
             self.state = "open"
             self.uid = gameInfo["uid"]
 
-            # And join to this game's lobby channel
-            self.mumbleIdentity = str(gameInfo["uid"]) + "-0"
+            # And join to this game's lobby channel (turned out to be annoying, so, don't)
+            # self.mumbleIdentity = str(gameInfo["uid"]) + "-0"
 
     #
     # Process a state transition to state "playing"
@@ -207,8 +207,6 @@ class mumbleConnector():
             # Team -1 is observers, team 0 is "team unset", and the rest is the team number
             # Our default team is unset. If we find ourselves in a different team, we set
             # it below
-            myTeam = "0"
-        
             for team in gameInfo["teams"]:
                 # Ignore 1-person-teams
                 if len(gameInfo['teams'][team]) < 2:
