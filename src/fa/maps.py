@@ -589,7 +589,7 @@ def processMapFolderForUpload(mapDir, positions):
 
     #making sure we pack only necessary files and not random garbage
     for filename in os.listdir(mapDir):
-        if filename.endswith(".lua") or filename.endswith("preview.jpg") or filename.endswith(".scmap"):
+        if filename.endswith(".lua") or filename.endswith("preview.jpg") or filename.endswith(".scmap") or filename.endswith(".dds"):
             files.append(os.path.join(mapDir, filename))
     
     temp = tempfile.NamedTemporaryFile(mode='w+b', suffix=".zip", delete=False)
