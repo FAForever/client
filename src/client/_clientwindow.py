@@ -153,6 +153,9 @@ class ClientWindow(FormClass, BaseClass):
         #Local Relay Server
         self.relayServer = fa.relayserver.RelayServer(self)
         
+        #Local proxy servers
+        self.proxyServer = fa.proxies.proxies(self)
+        
         #create user interface (main window) and load theme
         self.setupUi(self)
         self.setStyleSheet(util.readstylesheet("client/client.css"))
