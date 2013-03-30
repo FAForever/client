@@ -144,7 +144,7 @@ class proxies(QtCore.QObject):
     def processPendingDatagrams(self, i):
         udpSocket = self.proxies[i]
         while udpSocket.hasPendingDatagrams():
-            datagram, _, _ = self.udpSocket.readDatagram(self.udpSocket.pendingDatagramSize())
+            datagram, _, _ = udpSocket.readDatagram(udpSocket.pendingDatagramSize())
             self.__logger.debug("sending data")
             print i
             print self.proxiesDestination[i]
