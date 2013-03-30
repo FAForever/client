@@ -109,7 +109,7 @@ class proxies(QtCore.QObject):
 
                     else :
                         return  
-                    port = ins.readUInt8()
+                    port = int(ins.readUInt8())
                     packet  = ins.readQVariant()
                     
                     self.tranfertToUdp(port, packet)
@@ -127,7 +127,7 @@ class proxies(QtCore.QObject):
         stream.writeUInt32(0)
         
 
-        stream.writeUInt8(port)
+        stream.writeUInt8(str(port))
         stream.writeQString(address)
         
         stream.writeQVariant(packet)
