@@ -88,7 +88,7 @@ class proxies(QtCore.QObject):
 
     def readData(self):
         if self.proxySocket.isValid() :           
-            if self.socket.bytesAvailable() == 0 :
+            if self.proxySocket.bytesAvailable() == 0 :
                 return
             ins = QtCore.QDataStream(self.proxySocket)
             ins.setVersion(QtCore.QDataStream.Qt_4_2)
