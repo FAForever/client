@@ -44,10 +44,11 @@ class proxies(QtCore.QObject):
 
         self.proxies = {}
         self.proxiesDestination = {}
-
+        port = 12000
         for i in range(11) :
+            port = port + i
             self.proxies[i] = QtNetwork.QUdpSocket(self)
-            if not self.proxies[i].bind(QtNetwork.QHostAddress.LocalHost, 0) :
+            if not self.proxies[i].bind(QtNetwork.QHostAddress.LocalHost, port) :
                 self.__logger.warn("Can't bind socket %i" % i)
             else :
                 self.__logger.info("binding socket %i on port %i" % (i, self.proxies[i].localPort()))
@@ -143,6 +144,10 @@ class proxies(QtCore.QObject):
     def processPendingDatagrams(self, i):
         udpSocket = self.proxies[i]
         while udpSocket.hasPendingDatagrams():
-            pass
+            datagram, _, _ = self.udpSocket.readDatagram(self.udpSocket.pendingDatagramSize())
+            self.__logger.debug("sending data")
+            print i
+            print self.proxiesDestination[i]
+            self.sendReply(i, self.proxiesDestination[i], datagram)
 
             

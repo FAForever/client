@@ -308,7 +308,7 @@ class Relayer(QtCore.QObject):
                 address = acts[1]
                 login   = acts[2]
                 uid     = acts[3]
-
+                print port
                 udpport = self.client.proxyServer.bindSocket(port, address)
                 
                 newActs = [("127.0.0.1:%i" % udpport), login, uid]
@@ -321,7 +321,7 @@ class Relayer(QtCore.QObject):
                 address = acts[1]
                 login   = acts[2]
                 uid     = acts[3]
-
+                print port
                 udpport = self.client.proxyServer.bindSocket(port, address)
                 
                 newActs = [("127.0.0.1:%i" % udpport), login, uid]
