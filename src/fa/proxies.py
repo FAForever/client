@@ -75,11 +75,14 @@ class proxies(QtCore.QObject):
         self.proxiesDestination[port] = address
         if not self.proxySocket.state() == QtNetwork.QAbstractSocket.ConnectedState :
             self.connectToProxy()
+        return self.proxies[port].localPort()
         
     def releaseSocket(self, port):
         self.proxiesDestination[port] = None
 
     def tranfertToUdp(self, port, packet):
+        print "sending packet to", port
+        print packet
         self.proxies[port].writeDatagram(packet, QtNetwork.QHostAddress.LocalHost, self.client.gamePort)
 
     def readData(self):
@@ -133,6 +136,8 @@ class proxies(QtCore.QObject):
         stream.writeUInt32(reply.size() - 4)
 
         if self.proxySocket.write(reply) == -1 :
+            print "sending packet"
+            print packet
             self.__logger.debug("error socket write")
 
     def processPendingDatagrams(self, i):

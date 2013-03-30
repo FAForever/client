@@ -309,9 +309,9 @@ class Relayer(QtCore.QObject):
                 login   = acts[2]
                 uid     = acts[3]
 
-                self.client.proxyServer.bindSocket(port, address)
+                udpport = self.client.proxyServer.bindSocket(port, address)
                 
-                newActs = [("127.0.0.1:%i" % port), login, uid]
+                newActs = [("127.0.0.1:%i" % udpport), login, uid]
                 
                 reply = Packet("ConnectToPeer", newActs)
                 self.inputSocket.write(reply.Pack())
@@ -322,9 +322,9 @@ class Relayer(QtCore.QObject):
                 login   = acts[2]
                 uid     = acts[3]
 
-                self.client.proxyServer.bindSocket(port, address)
+                udpport = self.client.proxyServer.bindSocket(port, address)
                 
-                newActs = [("127.0.0.1:%i" % port), login, uid]
+                newActs = [("127.0.0.1:%i" % udpport), login, uid]
                 
                 reply = Packet("JoinGame", newActs)
                 self.inputSocket.write(reply.Pack())                
