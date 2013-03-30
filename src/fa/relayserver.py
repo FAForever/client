@@ -313,8 +313,21 @@ class Relayer(QtCore.QObject):
                 
                 newActs = [("127.0.0.1:%i" % port), login, uid]
                 
-                reply = Packet(key, newActs)
+                reply = Packet("ConnectToPeer", newActs)
                 self.inputSocket.write(reply.Pack())
+                
+            elif key == "JoinProxy" :
+                port = acts[0]
+                address = acts[1]
+                login   = acts[2]
+                uid     = acts[3]
+
+                self.client.proxyServer.bindSocket(port, address)
+                
+                newActs = [("127.0.0.1:%i" % port), login, uid]
+                
+                reply = Packet("JoinGame", newActs)
+                self.inputSocket.write(reply.Pack())                
                 
             else :
                 reply = Packet(key, acts)
