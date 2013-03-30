@@ -87,24 +87,24 @@ class proxies(QtCore.QObject):
         self.proxies[port].writeDatagram(packet, QtNetwork.QHostAddress.LocalHost, self.client.gamePort)
 
     def readData(self):
-        if self.socket.isValid() :           
+        if self.proxySocket.isValid() :           
             if self.socket.bytesAvailable() == 0 :
                 return
             ins = QtCore.QDataStream(self.proxySocket)
             ins.setVersion(QtCore.QDataStream.Qt_4_2)
             while ins.atEnd() == False :                             
-                if self.socket.isValid() :
+                if self.proxySocket.isValid() :
                     if self.blockSize == 0:
-                        if self.socket.isValid() :
-                            if self.socket.bytesAvailable() < 4:
+                        if self.proxySocket.isValid() :
+                            if self.proxySocket.bytesAvailable() < 4:
                                 return
 
                             self.blockSize = ins.readUInt32()
                         else :
                             return
         
-                    if self.socket.isValid() :
-                        if self.socket.bytesAvailable() < self.blockSize:
+                    if self.proxySocket.isValid() :
+                        if self.proxySocket.bytesAvailable() < self.blockSize:
                             return
 
                     else :
