@@ -342,7 +342,7 @@ class Relayer(QtCore.QObject):
     @QtCore.pyqtSlot()
     def inputDisconnected(self):
         self.__logger.info("FA disconnected locally.")
-       
+        self.client.proxyServer.closeSocket()
         self.relaySocket.disconnectFromHost()
         if self.pingTimer :
             self.pingTimer.stop()

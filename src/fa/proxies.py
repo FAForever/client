@@ -68,7 +68,7 @@ class proxies(QtCore.QObject):
     def connectToProxy(self):
         self.proxySocket.connectToHost(FAF_PROXY_HOST, FAF_PROXY_PORT)
         if self.proxySocket.waitForConnected(10000):
-            self.__logger.debug("faf server " + self.proxySocket.peerName() + ":" + str(self.proxySocket.peerPort()))
+            self.__logger.info("Connected to proxy server " + self.proxySocket.peerName() + ":" + str(self.proxySocket.peerPort()))
 
     def bindSocket(self, port, address):
         self.proxiesDestination[port] = address
@@ -131,8 +131,13 @@ class proxies(QtCore.QObject):
         stream.writeUInt32(reply.size() - 4)
 
         if self.proxySocket.write(reply) == -1 :
-            self.__logger.debug("error socket write")
+            self.__logger.warn("error writing to proxy server !")
 
+    def closeSocket(self):
+        if self.proxySocket.state() == QtNetwork.QAbstractSocket.ConnectedState :
+            self.__logger.info("disconnecting from proxy server")
+            self.proxySocket.disconnectFromHost()
+    
     def processPendingDatagrams(self, i):
         udpSocket = self.proxies[i]
         while udpSocket.hasPendingDatagrams():
