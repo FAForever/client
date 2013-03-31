@@ -25,10 +25,8 @@ from PyQt4 import QtCore, QtNetwork
 import functools
 
 import logging
-import json
 
 FAF_PROXY_HOST = "direct.faforever.com"
-#FAF_PROXY_HOST = "localhost"
 FAF_PROXY_PORT = 9123
 
 UNIT16 = 8
@@ -82,8 +80,6 @@ class proxies(QtCore.QObject):
         self.proxiesDestination[port] = None
 
     def tranfertToUdp(self, port, packet):
-        print "sending packet to", port
-        print packet
         self.proxies[port].writeDatagram(packet, QtNetwork.QHostAddress.LocalHost, self.client.gamePort)
 
     def readData(self):
@@ -128,26 +124,19 @@ class proxies(QtCore.QObject):
         
 
         stream.writeUInt8(str(port))
-        stream.writeQString(address)
-        
+        stream.writeQString(address)        
         stream.writeQVariant(packet)
-
         stream.device().seek(0)
         
         stream.writeUInt32(reply.size() - 4)
 
         if self.proxySocket.write(reply) == -1 :
-            print "sending packet"
-            print packet
             self.__logger.debug("error socket write")
 
     def processPendingDatagrams(self, i):
         udpSocket = self.proxies[i]
         while udpSocket.hasPendingDatagrams():
             datagram, _, _ = udpSocket.readDatagram(udpSocket.pendingDatagramSize())
-            self.__logger.debug("sending data")
-            print i
-            print self.proxiesDestination[i]
-            self.sendReply(i, self.proxiesDestination[i], datagram)
+            self.sendReply(i, self.proxiesDestination[i], QtCore.QByteArray(datagram))
 
             
