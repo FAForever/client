@@ -55,6 +55,7 @@ class LobbyWidget(FormClass, BaseClass):
         
         self.initDone   = False
         self.faction    = None
+        self.name       = None
         self.rank       = None
    
         self.state = ClientState.NONE
@@ -96,7 +97,7 @@ class LobbyWidget(FormClass, BaseClass):
 
     def finishRequest(self, reply):
         filename = reply.url().toString().rsplit('/',1)[1]
-        root, ext = os.path.splitext(filename)
+        root, _ = os.path.splitext(filename)
         
         toFile = os.path.join(GW_TEXTURE_DIR, filename)
         writeFile = QtCore.QFile(toFile)
@@ -297,7 +298,10 @@ class LobbyWidget(FormClass, BaseClass):
             if not uid in self.galaxy.links :
                 self.galaxy.links[uid] = message['links']
 
-        
+    def handle_logged_in(self, message):
+        self.faction    = message["faction"]
+        self.name       = message["name"]        
+        self.rank       = message["rank"]
 
     def handle_create_account(self, message):
         if message["action"] == 0 :
@@ -313,6 +317,7 @@ class LobbyWidget(FormClass, BaseClass):
         elif message["action"] == 1 :
             name = message["name"]
             self.faction = message["faction"]
+
             self.rank = message["rank"]
             question = QtGui.QMessageBox.question(self, "Avatar name generation", "Your avatar name will be : <br><br>" + self.get_rank(self.faction, self.rank) + " " + name + ".<br><br>Press Reset to generate another, Ok to accept.", QtGui.QMessageBox.Reset, QtGui.QMessageBox.Ok)
             if question ==  QtGui.QMessageBox.Reset :
@@ -325,15 +330,10 @@ class LobbyWidget(FormClass, BaseClass):
         if message['status'] == True :
             self.initDone = True
             self.check_ressources()
-            
-            
 
     def process(self, action, stream):
-        #logger.debug("Server: " + action)
-
         if action == "PING":
             self.writeToServer("PONG")
-        
         else :
             self.dispatchJSON(action, stream)
             

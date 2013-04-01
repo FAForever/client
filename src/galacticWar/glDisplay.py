@@ -7,6 +7,15 @@ import random
 import os
 from util import GW_TEXTURE_DIR
 
+
+class GraphicView(QtGui.QGraphicsView):
+    def __init__(self, parent=None):
+        super(GraphicView, self).__init__(parent)    
+
+    def setupViewport(self, viewport):
+        "print setup"
+        viewport.updateGL()
+
 class GLWidget(QtOpenGL.QGLWidget):
     xRotationChanged = QtCore.pyqtSignal(int)
     yRotationChanged = QtCore.pyqtSignal(int)
@@ -44,7 +53,8 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.numPlanets = len(self.galaxy.star_field)
 
         
-        self.curZone    = None
+        self.curZone        = None
+        self.overlayPlanet  = False
         
         self.lookAt = QtGui.QVector3D(0, 0, 0)
         self.zoomMin = 500
@@ -360,10 +370,29 @@ class GLWidget(QtOpenGL.QGLWidget):
         painter = QtGui.QPainter(self)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
 
-        self.drawPlanetName(painter)
+        
+        if self.overlayPlanet :
+            GL.glDisable(GL.GL_DEPTH_TEST)
+            GL.glDisable( GL.GL_TEXTURE_2D )
+            GL.glDisable(GL.GL_CULL_FACE)
+            GL.glDisable(GL.GL_LINE_SMOOTH)
+            GL.glDisable (GL.GL_BLEND)            
+            self.drawPlanetOverlay(painter)
+        else :
+            self.drawPlanetName(painter)
         #self.drawInstructions(painter)
         painter.end()
     
+    
+    def drawPlanetOverlay(self, painter):
+        painter.setOpacity(1)
+        site = self.curZone[0]
+        painter.setPen(QtCore.Qt.white)
+        #painter.drawRect(, 200, 255)
+        painter.fillRect((self.width() / 3) + 3, (self.height() / 3) + 3, 203, 303, QtGui.QColor(0, 0, 0, 50))
+        painter.fillRect(self.width() / 3, self.height() / 3, 200, 300, QtGui.QColor(36, 61, 75, 250))
+        
+
 
     def drawPlanetName(self, painter):
         
@@ -374,9 +403,7 @@ class GLWidget(QtOpenGL.QGLWidget):
             y = self.curZone[3]
 
             pos = self.computeWorldPosition(x, y)
-            
-            
-        
+
             text = ("Planet number %i" % site)
             metrics = QtGui.QFontMetrics(self.font())
             border = max(4, metrics.leading())
@@ -394,10 +421,6 @@ class GLWidget(QtOpenGL.QGLWidget):
             
     
     def createCamera(self, init = False):
-#        if self.animCam.currentTime ()> 20 :
-        #self.createPlanets()
-        
-        
         
         if init == True :
             GL.glMatrixMode(GL.GL_PROJECTION)
@@ -448,6 +471,9 @@ class GLWidget(QtOpenGL.QGLWidget):
 
     def wheelEvent(self, event):
         ''' when we move the wheel '''
+        
+        if self.overlayPlanet == True :
+            return
 
         self.timerRotate.stop()
         self.animCam.stop()
@@ -539,9 +565,14 @@ class GLWidget(QtOpenGL.QGLWidget):
     def mousePressEvent(self, event):
         
         if  event.buttons() & QtCore.Qt.LeftButton :
-            pass
+            
+            self.overlayPlanet = not self.overlayPlanet
 
         elif  event.buttons() & QtCore.Qt.MiddleButton :
+            
+            if self.overlayPlanet == True :
+                return
+            
             x = event.x()
             y = event.y()
             
