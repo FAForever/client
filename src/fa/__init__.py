@@ -82,5 +82,6 @@ import exe
 import maps
 import replayserver
 import relayserver
+import proxies
 import updater
 import upnp

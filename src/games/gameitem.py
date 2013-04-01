@@ -319,8 +319,11 @@ class GameItem(QtGui.QListWidgetItem):
                             if self.client.login in self.client.players :
                                 curTeam.addPlayer(self.client.login, Rating(self.client.players[self.client.login]["rating_mean"], self.client.players[self.client.login]["rating_deviation"]))
 
+
                         for player in self.teams[team] :          
                             if player in self.client.players :
+                                if self.client.isFoe(player) :
+                                    self.hasFoe = True
                                 mean = self.client.players[player]["rating_mean"]
                                 dev = self.client.players[player]["rating_deviation"]
                                 curTeam.addPlayer(player, Rating(mean, dev))
@@ -367,13 +370,22 @@ class GameItem(QtGui.QListWidgetItem):
         if self.playerIncluded :
             self.playerIncludedTxt = "(with you)"
             
-        color = client.getUserColor(self.host)              
+        color = client.getUserColor(self.host)
+        
+        for player in self.players :
+            if self.client.isFoe(player) :
+                color = client.getUserColor(player)
+
+        self.editTooltip()
+        
+        
+
         if self.mod == "faf":
             self.setText(self.FORMATTER_FAF.format(color=color, mapslots = self.slots, mapdisplayname=self.mapdisplayname, title=self.title, host=self.host, players=self.numplayers, playerstring=playerstring, gamequality = strQuality, playerincluded = self.playerIncludedTxt))
         else:
             self.setText(self.FORMATTER_MOD.format(color=color, mapslots = self.slots, mapdisplayname=self.mapdisplayname, title=self.title, host=self.host, players=self.numplayers, playerstring=playerstring, gamequality = strQuality, playerincluded = self.playerIncludedTxt, mod=self.mod))
         
-        self.editTooltip()
+        
                 
         #Spawn announcers: IF we had a gamestate change, show replay and hosting announcements 
         if (oldstate != self.state):            
@@ -461,6 +473,8 @@ class GameItem(QtGui.QListWidgetItem):
                 observerlist.append(",".join(self.teams[team]))
 
         teams += "<td valign='center' height='100%'><font valign='center' color='black' size='+5'>VS</font></td>".join(teamlist)
+
+        self.numplayers = self.numplayers - len(observerlist)
 
         observers = ""
         if len(observerlist) != 0 :

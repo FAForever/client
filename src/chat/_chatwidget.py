@@ -191,6 +191,10 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         if (name == self.client.login) and not util.developer():
             return False
         
+        #not allowing foes to talk to us.
+        if (self.client.isFoe(name)) :
+            return False
+        
         if name not in self.channels:
             self.channels[name] = Channel(self, name, True)
             self.addTab(self.channels[name], user2name(name))
@@ -345,7 +349,9 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
                                                             
     def on_privmsg(self, c, e):
         name = user2name(e.source())
-
+        
+        if self.client.isFoe(name) :
+            return
         # Create a Query if it's not open yet, and post to it if it exists.
         if self.openQuery(name):
             self.channels[name].printMsg(name, "\n".join(e.arguments()))
@@ -354,6 +360,9 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
     def on_action(self, c, e):
         name = user2name(e.source())
         target = e.target()
+
+        if self.client.isFoe(name) :
+            return
         
         # Create a Query if it's not an action intended for a channel
         if target not in self.channels:

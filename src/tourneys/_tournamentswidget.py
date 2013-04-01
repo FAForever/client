@@ -137,7 +137,7 @@ class TournamentsWidget(FormClass, BaseClass):
 
     def send(self, message):
         data = json.dumps(message)
-        logger.info("Outgoing JSON Message: " + data)
+        logger.debug("Outgoing JSON Message: " + data)
         self.writeToServer(data)
 
     @QtCore.pyqtSlot()

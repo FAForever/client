@@ -531,37 +531,37 @@ class Updater(QtCore.QObject):
     def doUpdate(self):
         ''' The core function that does most of the actual update work.'''
 
-        if self.legalFAVersion():
-            try:
-                #Prepare FAF directory & all necessary files
-                self.prepareBinFAF()
-            
-                #Update the mod if it's requested
-                if (self.mod == "faf" or self.mod == "ladder1v1"):   #HACK - ladder1v1 "is" FAF. :-)
-                    self.updateFiles("bin", "FAF")
-                    self.updateFiles("gamedata", "FAFGAMEDATA")
-                else:
-                    self.updateFiles("bin", "FAF")
-                    self.updateFiles("gamedata", "FAFGAMEDATA")
-                    self.updateFiles("bin", self.mod)
-                    self.updateFiles("gamedata", self.mod + "Gamedata")
-                
-            except UpdaterTimeout, et:
-                log("TIMEOUT: %s(%s)" % (et.__class__.__name__, str(et.args)))
-                self.result = self.RESULT_FAILURE
-            except UpdaterCancellation, ec:
-                log("CANCELLED: %s(%s)" % (ec.__class__.__name__, str(ec.args)))
-                self.result = self.RESULT_CANCEL
-            except Exception, e:
-                log("EXCEPTION: %s(%s)" % (e.__class__.__name__, str(e.args)))
-                self.result = self.RESULT_FAILURE
+#        if self.legalFAVersion():
+        try:
+            #Prepare FAF directory & all necessary files
+            self.prepareBinFAF()
+        
+            #Update the mod if it's requested
+            if (self.mod == "faf" or self.mod == "ladder1v1"):   #HACK - ladder1v1 "is" FAF. :-)
+                self.updateFiles("bin", "FAF")
+                self.updateFiles("gamedata", "FAFGAMEDATA")
             else:
-                self.result = self.RESULT_SUCCESS
-            finally:
-                self.updateSocket.close()
+                self.updateFiles("bin", "FAF")
+                self.updateFiles("gamedata", "FAFGAMEDATA")
+                self.updateFiles("bin", self.mod)
+                self.updateFiles("gamedata", self.mod + "Gamedata")
+            
+        except UpdaterTimeout, et:
+            log("TIMEOUT: %s(%s)" % (et.__class__.__name__, str(et.args)))
+            self.result = self.RESULT_FAILURE
+        except UpdaterCancellation, ec:
+            log("CANCELLED: %s(%s)" % (ec.__class__.__name__, str(ec.args)))
+            self.result = self.RESULT_CANCEL
+        except Exception, e:
+            log("EXCEPTION: %s(%s)" % (e.__class__.__name__, str(e.args)))
+            self.result = self.RESULT_FAILURE
         else:
-            log("Incompatible game version.")
-            self.result = self.RESULT_ILLEGAL
+            self.result = self.RESULT_SUCCESS
+        finally:
+            self.updateSocket.close()
+#        else:
+#            log("Incompatible game version.")
+#            self.result = self.RESULT_ILLEGAL
 
         #Hide progress dialog if it's still showing.
         self.progress.close()
@@ -890,7 +890,7 @@ class UpgradePage(QtGui.QWizardPage):
 
         layout = QtGui.QVBoxLayout()
         
-        self.label = QtGui.QLabel("FAF needs a version of Supreme Commander: Forged Alliance to launch games and replays. <br/><br/><b>Please choose the installation you wish to use.</b><br/><br/>The following versions are <u>equally</u> supported:<ul><li>3599 (Retail patch)</li><li>3603beta (GPGnet beta patch)</li><li>1.6.6 (Steam Version)</li></ul>FAF doesn't modify your existing files.<br/><br/>Select folder:")        
+        self.label = QtGui.QLabel("FAF needs a version of Supreme Commander: Forged Alliance to launch games and replays. <br/><br/><b>Please choose the installation you wish to use.</b><br/><br/>The following versions are <u>equally</u> supported:<ul><li>3596(Retail version)</li><li>3599 (Retail patch)</li><li>3603beta (GPGnet beta patch)</li><li>1.6.6 (Steam Version)</li></ul>FAF doesn't modify your existing files.<br/><br/>Select folder:")        
         self.label.setWordWrap(True)
         layout.addWidget(self.label)
 

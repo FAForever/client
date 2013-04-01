@@ -3,7 +3,7 @@
 #
 # Issues to be fixed:
 #
-
+# - Start mumble minimized in tray
 
 from PyQt4 import QtCore
 from PyQt4 import QtGui
@@ -12,6 +12,8 @@ import os
 import sys
 import win32api
 import time
+import re
+import _winreg
 
 # Link-dll to interface with the mumble client
 import mumble_link
@@ -26,16 +28,29 @@ class mumbleConnector():
     pluginName = "faforever"
     pluginDescription = "Forged Alliance Forever Mumbleconnector"
     mumbleSetup = None
+    mumbleFailed = None
     mumbleIdentity = None
-
+    
     def __init__(self, client):
         self.client = client
         self.state = "closed"
         self.uid = 0
 
-        # Add processGameInfo as a handler for the gameInfo signal
+        # Add signal handlers
         self.client.gameInfo.connect(self.processGameInfo)
         self.client.gameExit.connect(self.processGameExit)
+        self.client.viewingReplay.connect(self.processViewingReplay)
+
+        # Update registry settings for Mumble
+        # For the mumbleconnector to work, mumble needs positional audio enabled, and link-to-games enabled. We also need the link 1.20 dll enabled,
+        # but that cannot be set in registry and is also the default
+        try:
+            key = _winreg.OpenKey(_winreg.HKEY_CURRENT_USER, "Software\\Mumble\\Mumble\\audio", 0, _winreg.KEY_ALL_ACCESS)
+            _winreg.SetValueEx(key, "postransmit", 0, _winreg.REG_SZ, "true")
+            _winreg.SetValueEx(key, "positional", 0, _winreg.REG_SZ, "true")
+            _winreg.CloseKey(key)
+        except:
+            logger.info("Updating Mumble registry settings failed.")
 
         # Start Mumble (Starting it now instead of when faf is launched will make sure mumble's overlay works, and prevent that mumble causes faf to minimize when it pops up
         self.linkMumble()
@@ -54,15 +69,26 @@ class mumbleConnector():
         url.addQueryItem("version", "1.2.0")
 
         logger.info("Opening " + url.toString())
-        QtGui.QDesktopServices.openUrl(url)
+        
+        if QtGui.QDesktopServices.openUrl(url):
+            logger.debug("Lauching Mumble successful")
+            return 1
+
+        logger.debug("Lauching Mumble failed")
+        return 0
+        
             
     #
     # Checks and restores the link to mumble
     #
     def checkMumble(self):
 
-        # Check if mumble was shut down (it resets our shared memory on shutdown)
-        if not self.mumbleSetup:
+        if self.mumbleFailed:
+            # If there was a failure linking to mumble before, don't bother anymore.
+            logger.debug("Mumble link failed permanently")
+            return 0
+        
+        elif not self.mumbleSetup:
             # Mumble link has never been set up
             logger.debug("Mumble link has never been set up")
             return self.linkMumble()
@@ -78,11 +104,14 @@ class mumbleConnector():
             return 1
 
     def linkMumble(self):
+        
         # Launch mumble and connect to correct server
-        self.launchMumble()
+        if not self.launchMumble():
+            self.mumbleFailed = 1
+            return 0
 
-        # Try to link
-        for i in range (1,10):
+        # Try to link. This may take up to 40 seconds until we bail out
+        for i in range (1,8):
             logger.debug("Trying to connect link plugin: " + str(i))
 
             if mumble_link.setup(self.pluginName, self.pluginDescription):
@@ -90,9 +119,12 @@ class mumbleConnector():
                 self.mumbleSetup = 1
                 return 1
 
+            # FIXME: Replace with something nonblocking?
             time.sleep(i)
             
+            
         logger.info("Mumble link failed")
+        self.mumbleFailed = 1
         return 0
 
     #
@@ -101,10 +133,14 @@ class mumbleConnector():
     def updateMumbleState(self):
         if self.mumbleIdentity:
             if self.checkMumble():
-                logger.debug("Updating mumble state")
-                mumble_link.set_identity(self.mumbleIdentity)
+                if self.client.activateMumbleSwitching:
+                    logger.debug("Updating mumble state")
+                    mumble_link.set_identity(self.mumbleIdentity)
+                else:
+                    logger.debug("Automatic channel switching disabled")
 
     def processGameExit(self):
+        logger.debug("gameExit signal")
         self.state = "closed"
         self.mumbleIdentity = "0"
         self.updateMumbleState()
@@ -112,10 +148,22 @@ class mumbleConnector():
     def processGameInfo(self, gameInfo):
         if self.playerInTeam(gameInfo):
             self.functionMapper[gameInfo["state"]](self, gameInfo)
-
-        self.updateMumbleState()
+            self.updateMumbleState()
+            
         return
 
+    def processViewingReplay(self, url):
+        logger.debug("viewingReplay message: " + str(url.path()))
+
+        match = re.match('^([0-9]+)/', str(url.path()))
+
+        if match:
+            logger.info("Watching livereplay: " + match.group(1))
+            self.mumbleIdentity = match.group(1) + "--2"
+            self.updateMumbleState()
+
+        return
+    
     #
     # Helper function to determine if we are in this gameInfo signal's team
     #
@@ -144,8 +192,8 @@ class mumbleConnector():
             self.state = "open"
             self.uid = gameInfo["uid"]
 
-            # And join to this game's lobby channel
-            self.mumbleIdentity = str(gameInfo["uid"]) + "-0"
+            # And join to this game's lobby channel (turned out to be annoying, so, don't)
+            # self.mumbleIdentity = str(gameInfo["uid"]) + "-0"
 
     #
     # Process a state transition to state "playing"
@@ -162,13 +210,11 @@ class mumbleConnector():
             # Team -1 is observers, team 0 is "team unset", and the rest is the team number
             # Our default team is unset. If we find ourselves in a different team, we set
             # it below
-            myTeam = "0"
-        
             for team in gameInfo["teams"]:
                 # Ignore 1-person-teams
                 if len(gameInfo['teams'][team]) < 2:
                     logger.debug("Not putting 1 person team " + team + " in a channel")
-                    #continue
+                    continue
                 
                 for player in gameInfo['teams'][team]:
                     if self.client.login == player:

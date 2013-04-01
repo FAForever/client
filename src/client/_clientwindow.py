@@ -153,6 +153,9 @@ class ClientWindow(FormClass, BaseClass):
         #Local Relay Server
         self.relayServer = fa.relayserver.RelayServer(self)
         
+        #Local proxy servers
+        self.proxyServer = fa.proxies.proxies(self)
+        
         #create user interface (main window) and load theme
         self.setupUi(self)
         self.setStyleSheet(util.readstylesheet("client/client.css"))
@@ -168,6 +171,7 @@ class ClientWindow(FormClass, BaseClass):
         self.urls = {}          # user game location URLs - TODO: Should go in self.players
         
         self.friends = []       # names of the client's friends
+        self.foes    = []       # names of the client's foes
                 
         self.power = 0          # current user power        
                
@@ -338,6 +342,7 @@ class ClientWindow(FormClass, BaseClass):
         self.actionSetJoinsParts.triggered.connect(self.updateOptions)
         self.actionSetLiveReplays.triggered.connect(self.updateOptions)
         self.actionSaveGamelogs.triggered.connect(self.updateOptions)
+        self.actionActivateMumbleSwitching.triggered.connect(self.saveMumbleSwitching)
         
         
         #Init themes as actions.
@@ -389,7 +394,7 @@ class ClientWindow(FormClass, BaseClass):
     def setMumbleOptions(self):
         import loginwizards
         loginwizards.mumbleOptionsWizard(self).exec_()
-        
+                
     @QtCore.pyqtSlot()
     def clearSettings(self):
         result = QtGui.QMessageBox.question(None, "Clear Settings", "Are you sure you wish to clear all settings, login info, etc. used by this program?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
@@ -497,10 +502,17 @@ class ClientWindow(FormClass, BaseClass):
     def saveMumble(self):
         util.settings.beginGroup("Mumble")
         util.settings.setValue("app/mumble", self.enableMumble)
-        
         util.settings.endGroup()
         util.settings.sync()
-                
+
+    def saveMumbleSwitching(self):
+        self.activateMumbleSwitching = self.actionActivateMumbleSwitching.isChecked()
+
+        util.settings.beginGroup("Mumble")
+        util.settings.setValue("app/activateMumbleSwitching", self.activateMumbleSwitching)
+        util.settings.endGroup()
+        util.settings.sync()
+
     @QtCore.pyqtSlot()
     def saveChat(self):        
         util.settings.beginGroup("chat")
@@ -543,9 +555,22 @@ class ClientWindow(FormClass, BaseClass):
         util.settings.endGroup()
 
         util.settings.beginGroup("Mumble")
+
+        if util.settings.value("app/mumble", "firsttime") == "firsttime":
+            # The user has never configured mumble before. Be a little intrusive and ask him if he wants to use it.
+            if QtGui.QMessageBox.question(self, "Enable Voice Connector?", "FA Forever can connect with <a href=\"http://mumble.sourceforge.net/\">Mumble</a> to support the automatic setup of voice connections between you and your team mates. Would you like to enable this feature? You can change the setting at any time by going to options -> settings -> Voice", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No) == QtGui.QMessageBox.Yes:
+                util.settings.setValue("app/mumble", "true")
+            else:
+                util.settings.setValue("app/mumble", "false")
+
+        if util.settings.value("app/activateMumbleSwitching", "firsttime") == "firsttime":
+            util.settings.setValue("app/activateMumbleSwitching", "true")
+
         self.enableMumble = (util.settings.value("app/mumble", "false") == "true")
+        self.activateMumbleSwitching = (util.settings.value("app/activateMumbleSwitching", "false") == "true")
         util.settings.endGroup()
-        
+
+        self.actionActivateMumbleSwitching.setChecked(self.activateMumbleSwitching)
                
         self.loadChat()
         
@@ -809,7 +834,12 @@ class ClientWindow(FormClass, BaseClass):
         '''
         return name in self.friends
 
-
+    
+    def isFoe(self, name):
+        '''
+        Convenience function for other modules to inquire about a user's foeliness.
+        '''
+        return name in self.foes
 
     def isPlayer(self, name):
         '''
@@ -863,6 +893,8 @@ class ClientWindow(FormClass, BaseClass):
             return self.getColor("self")
         elif name in self.friends:
             return self.getColor("friend")
+        elif name in self.foes:
+            return self.getColor("foe")
         elif name in self.players:
             return self.getColor("player")
         else:
@@ -940,10 +972,6 @@ class ClientWindow(FormClass, BaseClass):
 
         if new_tab is self.tourneyTab:
             self.showTourneys.emit()
-
-
-
-
 
     def joinGameFromURL(self, url):
         '''
@@ -1138,7 +1166,6 @@ class ClientWindow(FormClass, BaseClass):
         '''Close lobby remotly'''
         self.send(dict(command="admin", action="closelobby", user=userToClose))
         
-    
     def addFriend(self, friend):
         '''Adding a new friend by user'''
         self.friends.append(friend)
@@ -1146,7 +1173,12 @@ class ClientWindow(FormClass, BaseClass):
         #self.writeToServer("ADD_FRIEND", friend)
         self.usersUpdated.emit([friend])
 
-
+    def addFoe(self, foe):
+        '''Adding a new foe by user'''
+        self.foes.append(foe)
+        self.send(dict(command="social", foes=self.foes)) #LATER: Use this line instead
+        #self.writeToServer("ADD_FRIEND", friend)
+        self.usersUpdated.emit([foe])
 
     def remFriend(self, friend):
         '''Removal of a friend by user'''
@@ -1155,6 +1187,12 @@ class ClientWindow(FormClass, BaseClass):
         self.send(dict(command="social", friends=self.friends)) #LATER: Use this line instead
         self.usersUpdated.emit([friend])
 
+    def remFoe(self, foe):
+        '''Removal of a foe by user'''
+        self.foes.remove(foe)
+        #self.writeToServer("REMOVE_FRIEND", friend)
+        self.send(dict(command="social", foes=self.foes)) #LATER: Use this line instead
+        self.usersUpdated.emit([foe])
 
                     
     def process(self, action, stream):
@@ -1278,6 +1316,18 @@ class ClientWindow(FormClass, BaseClass):
         # HACK: Ideally, this comes from the server, too. LATER: search_ranked message
         if message[modkey] == "ladder1v1":
             arguments.append(self.games.race)
+            #Player 1v1 rating
+            arguments.append('/mean')        
+            arguments.append(str(self.players[self.login]["ladder_rating_mean"]))    
+            arguments.append('/deviation')        
+            arguments.append(str(self.players[self.login]["ladder_rating_deviation"]))            
+
+        else :
+            #Player global rating
+            arguments.append('/mean')        
+            arguments.append(str(self.players[self.login]["rating_mean"]))    
+            arguments.append('/deviation')        
+            arguments.append(str(self.players[self.login]["rating_deviation"]))            
         
         # Ensure we have the map
         if "mapname" in message:
@@ -1310,11 +1360,7 @@ class ClientWindow(FormClass, BaseClass):
             options.write(" }")
             
             options.close()
-        #Player rating
-        arguments.append('/mean')        
-        arguments.append(str(self.players[self.login]["rating_mean"]))    
-        arguments.append('/deviation')        
-        arguments.append(str(self.players[self.login]["rating_deviation"]))
+
 
         #Experimental UPnP Mapper - mappings are removed on app exit
         if self.useUPnP:
@@ -1365,6 +1411,10 @@ class ClientWindow(FormClass, BaseClass):
             self.friends = message["friends"]
             self.usersUpdated.emit(self.players.keys())
         
+        if "foes" in message:
+            self.foes = message["foes"]
+            self.usersUpdated.emit(self.players.keys())
+       
         if "autojoin" in message:
             self.autoJoin.emit(message["autojoin"])
         

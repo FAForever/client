@@ -441,6 +441,8 @@ class ReplaysWidget(BaseClass, FormClass):
             return
         
         if self.liveTree.indexOfTopLevelItem(item) == -1:
+            # Notify other modules that we're watching a replay
+            self.client.viewingReplay.emit(item.url)
             fa.exe.replay(item.url)
             
     

@@ -205,13 +205,18 @@
      <addaction name="actionSetGamePath"/>
      <addaction name="actionSetGamePort"/>
      <addaction name="actionSaveGamelogs"/>
-     <addaction name="separator"/>
-     <addaction name="actionSetMumbleOptions"/>
     </widget>
     <widget class="QMenu" name="menuTheme">
      <property name="title">
       <string>Theme...</string>
      </property>
+    </widget>
+    <widget class="QMenu" name="menuVoice">
+     <property name="title">
+      <string>Voice...</string>
+     </property>
+     <addaction name="actionActivateMumbleSwitching"/>
+     <addaction name="actionSetMumbleOptions"/>
     </widget>
     <widget class="QMenu" name="menuClear">
      <property name="title">
@@ -236,6 +241,7 @@
     <addaction name="menuSettings"/>
     <addaction name="menuChat"/>
     <addaction name="menuTheme"/>
+    <addaction name="menuVoice"/>
     <addaction name="separator"/>
     <addaction name="menuClear"/>
    </widget>
@@ -351,7 +357,15 @@
   </action>
   <action name="actionSetMumbleOptions">
    <property name="text">
-    <string>Voice...</string>
+    <string>Mumble Options</string>
+   </property>
+  </action>
+  <action name="actionActivateMumbleSwitching">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Automatic channel switching</string>
    </property>
   </action>
   <action name="actionSetSoundEffects">

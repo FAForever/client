@@ -107,54 +107,6 @@ class Packet():
                 i = 1
         return data
 
-class UDPRelayer(QtCore.QObject): 
-    '''
-    This is a simple class that takes all the UDP FA data 
-    and send them to a distant client.
-    '''
-    __logger = logging.getLogger("faf.fa.udprelayer")
-    __logger.setLevel(logging.DEBUG)
-    
-    def __init__(self, parent, host, port, localport = None, *args, **kwargs):
-        QtCore.QObject.__init__(self, *args, **kwargs)
-        self.parent = parent       
-        
-        self.host = host
-        self.port = port
-        self.foreignAddress  =  host.toString() + ":" + str(port)
-        
-        self.udpSocket =  QtNetwork.QUdpSocket(self)
-
-        if localport == None :
-            self.udpSocket.bind(QtNetwork.QHostAddress.LocalHost, 0)
-        else :
-            self.udpSocket.bind(QtNetwork.QHostAddress.LocalHost, localport)
-        self.localPort = self.udpSocket.localPort()
-        self.udpSocket.readyRead.connect(self.processPendingDatam)          
-        
-        self.__logger.info("External address %s mapped to local port %i" % (self.foreignAddress, self.localPort))
-        
-    def getLocalPort(self):
-        return self.localPort
-    
-    def close(self):
-        self.udpSocket.close()
-        #self.udpSocket.deleteLater()
-    
-    def processPendingDatam(self):
-        # we receive datas from FA
-
-        while self.udpSocket.hasPendingDatagrams():
-            datagram, host, port = self.udpSocket.readDatagram(self.udpSocket.pendingDatagramSize())
-            #we now have to relay them to the correct client !
-            self.parent.udpSocket.writeDatagram(datagram, self.host, self.port)
-
-    def write(self, datagram) :
-
-        
-        self.udpSocket.writeDatagram(datagram, QtNetwork.QHostAddress.LocalHost, self.parent.faport)
-        
-    
 
 class Relayer(QtCore.QObject): 
     '''
@@ -169,17 +121,7 @@ class Relayer(QtCore.QObject):
         self.parent = parent
         self.inputSocket = local_socket
         self.client = client
-        
-        self.faport = 0
-        #generate a random FA port
-        fasocket = QtNetwork.QUdpSocket(self)
-        fasocket.bind(0)
-        self.faport = fasocket.localPort()
-        fasocket.close()
-        fasocket.deleteLater()
-        
-        self.knownUdpClients = {}
-        
+
         self.blockSizeFromServer = 0
 
         self.headerSizeRead = False
@@ -194,20 +136,13 @@ class Relayer(QtCore.QObject):
         self.chunks = []
 
         self.pingTimer = None
-
+        
+        
         #self.inputSocket.setSocketOption(QtNetwork.QTcpSocket.KeepAliveOption, 1)
         self.inputSocket.readyRead.connect(self.readDatas)
         self.inputSocket.disconnected.connect(self.inputDisconnected)
         self.__logger.info("FA connected locally.")  
         
-        
-#        self.udpSocket =  QtNetwork.QUdpSocket(self)
-#        self.udpSocket.bind(self.client.gamePort)
-
-        self.__logger.info("FA will use local port %i", self.faport)  
-        self.__logger.info("UDP relay port %i", self.client.gamePort)
-        
-#        self.udpSocket.readyRead.connect(self.processPendingDatam)
 
         # Open the relay socket to our server
         self.relaySocket = QtNetwork.QTcpSocket(self.parent)        
@@ -232,41 +167,6 @@ class Relayer(QtCore.QObject):
         self.relaySocket.deleteLater()
         self.__logger.debug("destructor called")        
            
-           
-    def processPendingDatam(self):
-        while self.udpSocket.hasPendingDatagrams():
-            datagram, host, port = self.udpSocket.readDatagram(self.udpSocket.pendingDatagramSize())
-            address = host.toString() + ":" + str(port)
-            socket = None
-            if not address in self.knownUdpClients :
-                #we receive datas from an unknown client
-
-                for oldaddress in self.knownUdpClients :
-                    if self.knownUdpClients[oldaddress].host == host :
-                        #it's probably our guy.
-
-                        
-                        oldPort = self.knownUdpClients[oldaddress].getLocalPort()
-                        self.knownUdpClients[oldaddress].close()
-                        socket = UDPRelayer(self, QtNetwork.QHostAddress(host), port, oldPort)
-                        self.knownUdpClients[address] = socket
-                        
-                        break
-            
-                if socket == None :
-                    socket = UDPRelayer(self, QtNetwork.QHostAddress(host), port)
-                    self.knownUdpClients[address] = socket
-                    
-
-            else :
-                socket = self.knownUdpClients[address]
-            
-            if socket != None :
-                socket.write(datagram)
-            else :
-                self.__logger.debug("no socket found") 
-                
-
 
     def readDatasFromServer(self):
         ins = QtCore.QDataStream(self.relaySocket)        
@@ -398,14 +298,40 @@ class Relayer(QtCore.QObject):
     def handleAction(self, commands):    
         key = commands["key"]
         acts = commands["commands"]
-  
         if key == "SendNatPacket" :
             reply = Packet(key, acts)
             self.inputSocket.write(reply.PackUdp())
         else :
-
-            reply = Packet(key, acts)
-            self.inputSocket.write(reply.Pack())
+            
+            if key == "ConnectToProxy" :
+                port = acts[0]
+                address = acts[1]
+                login   = acts[2]
+                uid     = acts[3]
+                print port
+                udpport = self.client.proxyServer.bindSocket(port, address)
+                
+                newActs = [("127.0.0.1:%i" % udpport), login, uid]
+                
+                reply = Packet("ConnectToPeer", newActs)
+                self.inputSocket.write(reply.Pack())
+                
+            elif key == "JoinProxy" :
+                port = acts[0]
+                address = acts[1]
+                login   = acts[2]
+                uid     = acts[3]
+                print port
+                udpport = self.client.proxyServer.bindSocket(port, address)
+                
+                newActs = [("127.0.0.1:%i" % udpport), login, uid]
+                
+                reply = Packet("JoinGame", newActs)
+                self.inputSocket.write(reply.Pack())                
+                
+            else :
+                reply = Packet(key, acts)
+                self.inputSocket.write(reply.Pack())
 
 
     def done(self):
@@ -416,7 +342,7 @@ class Relayer(QtCore.QObject):
     @QtCore.pyqtSlot()
     def inputDisconnected(self):
         self.__logger.info("FA disconnected locally.")
-       
+        self.client.proxyServer.closeSocket()
         self.relaySocket.disconnectFromHost()
         if self.pingTimer :
             self.pingTimer.stop()
@@ -428,7 +354,7 @@ class Relayer(QtCore.QObject):
 
 class RelayServer(QtNetwork.QTcpServer):
     ''' 
-    This is a local listening server that FA can send its replay data to.
+    This is a local listening server that FA can send its data to.
     It will instantiate a fresh ReplayRecorder for each FA instance that launches.
     '''
     __logger = logging.getLogger("faf.fa.relayserver")
@@ -456,15 +382,7 @@ class RelayServer(QtNetwork.QTcpServer):
         return True
               
     def removeRelay(self, relay):
-#        if relay in self.relayers:
-#            relay.udpSocket.close()
-#            relay.udpSocket.deleteLater()
-#            
-#            for socket in relay.knownUdpClients :
-#                relay.knownUdpClients[socket].udpSocket.close()
-#                relay.knownUdpClients[socket].udpSocket.deleteLater()
-            
-            self.relayers.remove(relay)
+        self.relayers.remove(relay)
             
             
     @QtCore.pyqtSlot()       
