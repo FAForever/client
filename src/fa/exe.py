@@ -25,6 +25,7 @@ import os
 import util
 import fa
 
+import client # Xinnony & Vicarian
 
 from fa import logger, writeFAPathLua, savePath
 from replayparser import replayParser
@@ -264,8 +265,10 @@ def play(info, port, log = False, arguments = None):
         
     #gpg server
     arguments.append('/gpgnet 127.0.0.1:' + str(port))
-        
-                    
+    
+    country = self.lobby.client.getUserCountry(self.name)
+    arguments.append('/country ' + country) # Xinnony & Vicarian
+    
     return __run(info, arguments)
         
 
