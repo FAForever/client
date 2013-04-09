@@ -285,7 +285,7 @@ class GameItem(QtGui.QListWidgetItem):
         
         
         if self.state == "open" :
-            if "1" in self.teams and "2" in self.teams and self.client.login != None :
+            if "1" in self.teams and "2" in self.teams and self.client.login != None and self.client.login not in self.teams["1"] and self.client.login not in self.teams["2"] :
                 if len(self.teams["1"]) < len(self.teams["2"]) :
                     self.teams["1"].append(self.client.login)
                     self.playerIncluded = True
