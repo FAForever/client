@@ -33,7 +33,6 @@ from trueSkill.Rating import *
 
 import client
 import copy
-from msilib.schema import SelfReg
 
 class GameItemDelegate(QtGui.QStyledItemDelegate):
     
