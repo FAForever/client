@@ -8,13 +8,6 @@ import os
 from util import GW_TEXTURE_DIR
 
 
-class GraphicView(QtGui.QGraphicsView):
-    def __init__(self, parent=None):
-        super(GraphicView, self).__init__(parent)    
-
-    def setupViewport(self, viewport):
-        "print setup"
-        viewport.updateGL()
 
 class GLWidget(QtOpenGL.QGLWidget):
     xRotationChanged = QtCore.pyqtSignal(int)
@@ -55,6 +48,8 @@ class GLWidget(QtOpenGL.QGLWidget):
         
         self.curZone        = None
         self.overlayPlanet  = False
+        self.attackVector   = None
+        self.animAttackVector = 0
         
         self.lookAt = QtGui.QVector3D(0, 0, 0)
         self.zoomMin = 500
@@ -121,7 +116,8 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.galaxy.bindTextures(self)                   
         self.backGroundTexId    = self.bindTexture(QtGui.QPixmap(os.path.join(GW_TEXTURE_DIR,'background.png')), GL.GL_TEXTURE_2D)
         self.starTexId          = self.bindTexture(QtGui.QPixmap(os.path.join(GW_TEXTURE_DIR,'star.png')), GL.GL_TEXTURE_2D)
-        self.starTex2Id          = self.bindTexture(QtGui.QPixmap(os.path.join(GW_TEXTURE_DIR,'star.png')), GL.GL_TEXTURE_2D)
+        self.starTex2Id         = self.bindTexture(QtGui.QPixmap(os.path.join(GW_TEXTURE_DIR,'star.png')), GL.GL_TEXTURE_2D)        
+        self.attackId           = self.bindTexture(QtGui.QPixmap(os.path.join(GW_TEXTURE_DIR,'attack.png')), GL.GL_TEXTURE_2D)
 
 
         
@@ -298,6 +294,41 @@ class GLWidget(QtOpenGL.QGLWidget):
         return genList 
     
     
+    def drawAttackVector(self):
+        GL.glBindTexture(GL.GL_TEXTURE_2D, self.attackId)
+        GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (0.4,.6,.9, 1))
+        self.programStars.bind()
+        self.programStars.setUniformValue('texture', 0)
+
+        orig = self.galaxy.control_points[self.attackVector[0]].pos3d
+        dest = self.galaxy.control_points[self.attackVector[1]].pos3d
+
+        
+        animVector = orig - dest
+        
+        for i in range(11) :
+            pos = i / 10.0
+            GL.glPushMatrix()
+                   
+            GL.glTranslatef( dest.x() + animVector.x() * pos, dest.y() + animVector.y() * pos, 10.0 + pos)
+            
+            GL.glScalef(10,10,10)  
+            GL.glRotatef(self.animAttackVector + i * 20, 0, 0, 1)     
+            GL.glCallList(self.background)       
+            GL.glPopMatrix()        
+
+        
+        
+        self.animAttackVector = self.animAttackVector + 30 
+        if self.animAttackVector > 360 :
+            self.animAttackVector = 0
+        
+        
+ 
+        self.programStars.release()
+        
+        
+    
     def paintEvent(self, event):
         
         self.makeCurrent()
@@ -351,7 +382,7 @@ class GLWidget(QtOpenGL.QGLWidget):
 
         if self.links :
 
-
+            GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (1,1,1,1))
             GL.glCallList(self.links)
 
         GL.glCallList(self.galaxyBackground)
@@ -366,6 +397,9 @@ class GLWidget(QtOpenGL.QGLWidget):
 
         GL.glCallList(self.galaxyStarsFront)
         
+        
+        if self.attackVector :
+            self.drawAttackVector()
 
         painter = QtGui.QPainter(self)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
@@ -565,8 +599,11 @@ class GLWidget(QtOpenGL.QGLWidget):
     def mousePressEvent(self, event):
         
         if  event.buttons() & QtCore.Qt.LeftButton :
-            
             self.overlayPlanet = not self.overlayPlanet
+            if self.overlayPlanet :
+                self.attackable()
+            else :
+                self.attackVector = None
 
         elif  event.buttons() & QtCore.Qt.MiddleButton :
             
@@ -684,6 +721,23 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.curZone = self.galaxy.closestSite(pos3d.x(), pos3d.y()) 
         
       
+    def attackable(self):
+        faction = self.parent.faction
+        if not faction :
+            return
+        
+        
+        if self.galaxy.control_points[self.curZone[0]].occupation(faction) > 0.9 :
+            return
+        
+        for site in self.galaxy.getLinkedPlanets(self.curZone[0]) :
+            if self.galaxy.control_points[site].occupation(faction) > 0.5 :
+                
+                self.attackVector = (self.curZone[0], site)
+                print self.attackVector 
+                return
+                
+        
 
     def drawLinks(self):
 
@@ -691,6 +745,7 @@ class GLWidget(QtOpenGL.QGLWidget):
             GL.glDeleteLists(self.links, 1)
         
         genList = GL.glGenLists(1)
+        
         GL.glNewList(genList, GL.GL_COMPILE)
         self.programConstant.bind()
         GL.glLineWidth(2)
@@ -698,8 +753,6 @@ class GLWidget(QtOpenGL.QGLWidget):
             dests = self.galaxy.links[orig]
             for dest in dests :
                 GL.glBegin(GL.GL_LINES)
-                
-                GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (1,1,1,1))
       
                 GL.glVertex3f(self.galaxy.control_points[orig].x, self.galaxy.control_points[orig].y, 0)
                 GL.glVertex3f(self.galaxy.control_points[dest].x, self.galaxy.control_points[dest].y, 0)

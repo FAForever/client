@@ -715,8 +715,16 @@ class Site(object):
         self.uef    = uef
         self.sera   = sera
         
-
-
+    
+    def occupation(self, faction):
+        if faction == 0 :
+            return self.uef
+        elif faction == 1 :
+            return self.cybran
+        elif faction == 2 :
+            return self.aeon
+        elif faction == 3 :
+            return self.sera
 
     def dump(self):
         print "Site #%d (%g, %g)" % (self.sitenum, self.x, self.y)

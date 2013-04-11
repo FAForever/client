@@ -4,6 +4,7 @@ import random
 from  voronoi import Site, computeVoronoiDiagram
 import math
 import os
+import copy
 
 from util import GW_TEXTURE_DIR
 
@@ -151,6 +152,20 @@ class Galaxy(object):
                     numLinks = numLinks + 1
 
         return numLinks
+        
+    def getLinkedPlanets(self, site):
+        planets = []
+        
+        if site in self.links :
+            
+            planets = copy.deepcopy(self.links[site])
+            
+        for link in self.links :
+            if link != site :
+                if site in self.links[link] :
+                    planets.append(link)
+        
+        return planets            
         
     
     def computeVoronoi(self):
