@@ -21,6 +21,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         super(GLWidget, self).__init__(QtOpenGL.QGLFormat(QtOpenGL.QGL.SampleBuffers), parent)
 
         self.parent = parent
+        self.setMinimumWidth((self.parent.width()/100)*70)
         self.galaxy = self.parent.galaxy
 
         self.ctrl       = False
@@ -117,6 +118,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.backGroundTexId    = self.bindTexture(QtGui.QPixmap(os.path.join(GW_TEXTURE_DIR,'background.png')), GL.GL_TEXTURE_2D)
         self.starTexId          = self.bindTexture(QtGui.QPixmap(os.path.join(GW_TEXTURE_DIR,'star.png')), GL.GL_TEXTURE_2D)
         self.starTex2Id         = self.bindTexture(QtGui.QPixmap(os.path.join(GW_TEXTURE_DIR,'star.png')), GL.GL_TEXTURE_2D)        
+        self.selectionId        = self.bindTexture(QtGui.QPixmap(os.path.join(GW_TEXTURE_DIR,'star.png')), GL.GL_TEXTURE_2D)
         self.attackId           = self.bindTexture(QtGui.QPixmap(os.path.join(GW_TEXTURE_DIR,'attack.png')), GL.GL_TEXTURE_2D)
 
 
@@ -136,7 +138,19 @@ class GLWidget(QtOpenGL.QGLWidget):
             print "atmo", self.programAtmosphere.log()          
     
         self.programAtmosphere.bindAttributeLocation('camPos', 10)
- 
+        
+
+        self.programSelection = QtOpenGL.QGLShaderProgram(self)        
+        self.programSelection.addShaderFromSourceCode(QtOpenGL.QGLShader.Vertex, self.parent.shaders["selection"]["vertex"])
+        self.programSelection.addShaderFromSourceCode(QtOpenGL.QGLShader.Fragment, self.parent.shaders["selection"]["fragment"])
+        
+        if not self.programSelection.link() :
+            print "selection", self.programSelection.log()      
+        self.programSelection.bindAttributeLocation('camPos', 10)
+        self.programSelection.bindAttributeLocation('pos', 11)        
+        self.programSelection.bindAttributeLocation('scaling', 12)
+        
+
 
         self.programStars = QtOpenGL.QGLShaderProgram(self)
         self.programStars.addShaderFromSourceCode(QtOpenGL.QGLShader.Vertex, self.parent.shaders["stars"]["vertex"])
@@ -167,11 +181,13 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.planetsAtmosphere = None
         self.atmosphere = None
         self.object = None
+        self.selection = None
         self.createAtmosphere(self.averageRadius+2)
         self.object     = self.createSphere(self.averageRadius,0)
         self.background = self.createBackground()
         self.zones      = self.createZones()
         self.planets    = self.createPlanets()
+        self.selection  = self.selectedPlanetOverlay()
         self.galaxyBackground = self.drawGalaxy()
         self.galaxyStarsFront      = self.drawStars(0)
         self.galaxyStarsBack      = self.drawStars(1)
@@ -303,17 +319,24 @@ class GLWidget(QtOpenGL.QGLWidget):
         orig = self.galaxy.control_points[self.attackVector[0]].pos3d
         dest = self.galaxy.control_points[self.attackVector[1]].pos3d
 
+        destScale = self.galaxy.control_points[self.attackVector[0]].size
+        origScale = self.galaxy.control_points[self.attackVector[1]].size
         
         animVector = orig - dest
         
-        for i in range(11) :
-            pos = i / 10.0
+        for i in range(21) :
+            pos = i / 20.0
             GL.glPushMatrix()
-                   
-            GL.glTranslatef( dest.x() + animVector.x() * pos, dest.y() + animVector.y() * pos, 10.0 + pos)
             
-            GL.glScalef(10,10,10)  
-            GL.glRotatef(self.animAttackVector + i * 20, 0, 0, 1)     
+            scale = (origScale + pos * (destScale - origScale)) * 5
+            
+            GL.glTranslatef( dest.x() + animVector.x() * pos, dest.y() + animVector.y() * pos, scale + 5 + (pos * 10))
+            
+            
+            
+            
+            GL.glScalef(scale,scale,scale)  
+            GL.glRotatef(self.animAttackVector - i * 20, 0, 0, 1)     
             GL.glCallList(self.background)       
             GL.glPopMatrix()        
 
@@ -395,6 +418,16 @@ class GLWidget(QtOpenGL.QGLWidget):
 
         GL.glCallList(self.planets)
 
+        if self.curZone and not self.overlayPlanet :
+            pos = self.galaxy.control_points[self.curZone[0]].pos3d
+            scale  = self.galaxy.control_points[self.curZone[0]].size + 0.5
+            self.selectedPlanetOverlay(pos, scale)
+            
+            
+            GL.glCallList(self.selection)
+            
+          
+
         GL.glCallList(self.galaxyStarsFront)
         
         
@@ -404,27 +437,56 @@ class GLWidget(QtOpenGL.QGLWidget):
         painter = QtGui.QPainter(self)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
 
+
+#        
+#        if self.overlayPlanet :
+#            GL.glDisable(GL.GL_DEPTH_TEST)
+#            GL.glDisable( GL.GL_TEXTURE_2D )
+#            GL.glDisable(GL.GL_CULL_FACE)
+#            GL.glDisable(GL.GL_LINE_SMOOTH)
+#            GL.glDisable (GL.GL_BLEND)            
+#            self.drawPlanetOverlay(painter)
+#        else :
+        self.drawPlanetName(painter)
+
+
         
-        if self.overlayPlanet :
-            GL.glDisable(GL.GL_DEPTH_TEST)
-            GL.glDisable( GL.GL_TEXTURE_2D )
-            GL.glDisable(GL.GL_CULL_FACE)
-            GL.glDisable(GL.GL_LINE_SMOOTH)
-            GL.glDisable (GL.GL_BLEND)            
-            self.drawPlanetOverlay(painter)
-        else :
-            self.drawPlanetName(painter)
-        #self.drawInstructions(painter)
         painter.end()
     
     
+    def selectedPlanetOverlay(self, pos = None, scale = None):
+        if self.selection :
+            GL.glDeleteLists(self.selection, 1)
+        
+        genList = GL.glGenLists(1)
+        GL.glNewList(genList, GL.GL_COMPILE)
+        GL.glMatrixMode(GL.GL_MODELVIEW)
+
+        GL.glBindTexture(GL.GL_TEXTURE_2D, self.selectionId)
+        self.programSelection.bind()
+        if pos :
+            self.programSelection.setAttributeValue(11, pos.x(), pos.y(), 5.1)
+        if scale :
+
+            self.programSelection.setAttributeValue(12, scale, scale, scale )
+            
+        
+        self.programSelection.setUniformValue('texture', 0)
+        GL.glCallList(self.atmosphere)         
+        
+        self.programSelection.release()        
+        
+        GL.glEndList()
+        return genList    
+    
     def drawPlanetOverlay(self, painter):
-        painter.setOpacity(1)
-        site = self.curZone[0]
-        painter.setPen(QtCore.Qt.white)
-        #painter.drawRect(, 200, 255)
-        painter.fillRect((self.width() / 3) + 3, (self.height() / 3) + 3, 203, 303, QtGui.QColor(0, 0, 0, 50))
-        painter.fillRect(self.width() / 3, self.height() / 3, 200, 300, QtGui.QColor(36, 61, 75, 250))
+        if self.curZone :
+            painter.setOpacity(1)
+            site = self.curZone[0]
+            painter.setPen(QtCore.Qt.white)
+            #painter.drawRect(, 200, 255)
+            painter.fillRect((self.width() / 3) + 3, (self.height() / 3) + 3, 203, 303, QtGui.QColor(0, 0, 0, 50))
+            painter.fillRect(self.width() / 3, self.height() / 3, 200, 300, QtGui.QColor(36, 61, 75, 250))
         
 
 
@@ -485,6 +547,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         
         self.programPlanet.setAttributeValue(10, self.cameraPos.x(), self.cameraPos.y(), self.cameraPos.z())
         self.programAtmosphere.setAttributeValue(10, self.cameraPos.x(), self.cameraPos.y(), self.cameraPos.z())
+        self.programSelection.setAttributeValue(10, self.cameraPos.x(), self.cameraPos.y(), self.cameraPos.z())
 
         self.repaint()
          
@@ -734,7 +797,6 @@ class GLWidget(QtOpenGL.QGLWidget):
             if self.galaxy.control_points[site].occupation(faction) > 0.5 :
                 
                 self.attackVector = (self.curZone[0], site)
-                print self.attackVector 
                 return
                 
         
@@ -937,51 +999,15 @@ class GLWidget(QtOpenGL.QGLWidget):
         return genList            
         
     
-    def billBoardingBegin(self):
-        GL.glPushMatrix()
-        modelview = GL.glGetFloatv(GL.GL_MODELVIEW_MATRIX)
-        
-        matrix = []
-        
-        for i in range(0,3) :
-            
-            for j in range(3) :
 
-                if i == j :
-                    
-                    modelview[i][j] = 1.0
-                else :
-                    modelview[i][j] = 0.0
-                    
-
-        for row in modelview :
-            for col in row :
-                matrix.append(col)
-        
-        modelMatrix = QtGui.QMatrix4x4(matrix)
-        #print modelMatrix        
-            
-        GL.glLoadMatrixf(modelview)
-        
-    def billBoardingEnd(self):
-        GL.glPopMatrix()
-    
     def createAtmosphere(self, R):
         if self.atmosphere :
             GL.glDeleteLists(self.atmosphere,1)        
         
         R = R * 1.1
         genList = GL.glGenLists(1)
-        
 
         GL.glNewList(genList, GL.GL_COMPILE)        
-        #GL.glBindTexture(GL.GL_TEXTURE_2D, self.starTexId)
-        
-#        matrix1 = QtGui.QMatrix4x4()
-#        matrix1.setToIdentity()
-        #matrix1.rotate(90, 0, 1, 0)
-        #GL.glMultMatrixf((matrix1).data())
-
         GL.glBegin(GL.GL_QUAD_STRIP)
 
         GL.glNormal3f(0, 1, 0)       
@@ -997,9 +1023,6 @@ class GLWidget(QtOpenGL.QGLWidget):
         
 
         GL.glEnd()
-        
-        #GL.glActiveTexture(GL.GL_TEXTURE3)
-
 
         GL.glEndList()
 

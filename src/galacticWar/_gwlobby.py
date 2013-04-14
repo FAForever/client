@@ -22,6 +22,7 @@ from galaxy import Galaxy
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
 
 from client import ClientState
+from gwchannel import gwChannel
 import util
 from util import GW_TEXTURE_DIR
 import json
@@ -42,21 +43,22 @@ class LobbyWidget(FormClass, BaseClass):
         
         self.client.galacticwarTab.layout().addWidget(self)
    
-   
         self.downloader     = QNetworkAccessManager(self)
         self.downloader.finished.connect(self.finishRequest)
         
         self.shaderlist     =   []
-        self.texturelist    =   {}
-        
+        self.texturelist    =   {}        
         self.shaders    =   {}
-        self.galaxy     = Galaxy()
         
+        self.galaxy     = Galaxy()
+        self.channel    = None
+        self.scroller = QtGui.QLabel(self)
         
         self.initDone   = False
         self.faction    = None
         self.name       = None
         self.rank       = None
+        
    
         self.state = ClientState.NONE
         
@@ -91,9 +93,11 @@ class LobbyWidget(FormClass, BaseClass):
                 if not self.faction :
                     logger.info("not faction")
                     self.doLogin()
-                    
-        
+
         return BaseClass.showEvent(self, event)
+
+    def createChannel(self, chat, name):
+        self.channel = gwChannel(chat, name, True)        
 
     def finishRequest(self, reply):
         filename = reply.url().toString().rsplit('/',1)[1]
@@ -202,7 +206,9 @@ class LobbyWidget(FormClass, BaseClass):
         self.galaxy.computeVoronoi()
         from glDisplay import GLWidget
         self.OGLdisplay = GLWidget(self)
-        self.galaxyTab.layout().addWidget(self.OGLdisplay)
+        self.galaxyLayout.addWidget(self.OGLdisplay)
+        self.galaxyLayout.addWidget(self.scroller)
+        self.scroller.setMaximumHeight(20)
         
         self.send(dict(command = "init_done", status = True))
                 
@@ -211,9 +217,9 @@ class LobbyWidget(FormClass, BaseClass):
         if faction == 0 :
             return UEF_RANKS[rank]
         elif faction == 1 :
-            return CYBRAN_RANKS[rank]
+            return AEON_RANKS[rank]  
         elif faction == 2 :
-            return AEON_RANKS[rank]        
+            return CYBRAN_RANKS[rank]     
         elif faction == 3 :
             return SERAPHIM_RANKS[rank]
 
@@ -330,6 +336,20 @@ class LobbyWidget(FormClass, BaseClass):
         if message['status'] == True :
             self.initDone = True
             self.check_ressources()
+
+    def handle_social(self, message):      
+        if "autojoin" in message :
+            if message["autojoin"] == 0 :
+                self.client.autoJoin.emit(["#UEF"])
+                
+            elif message["autojoin"] == 1 :         
+                self.client.autoJoin.emit(["#Aeon"])
+            elif message["autojoin"] == 2 :
+                self.client.autoJoin.emit(["#Cybran"])
+            elif message["autojoin"] == 4 :
+                self.client.autoJoin.emit(["#Seraphim"])
+
+
 
     def process(self, action, stream):
         if action == "PING":

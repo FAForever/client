@@ -191,7 +191,6 @@ class Galaxy(object):
         
         for uid in self.control_points :
             site = self.control_points[uid]
-            print site.texname
             site.texture = context.bindTexture(QtGui.QPixmap(os.path.join(GW_TEXTURE_DIR,'%s.png' % site.texname)), GL.GL_TEXTURE_2D)   
             
             #site.texture = context.bindTexture(QtGui.QPixmap('earth.bmp'), GL.GL_TEXTURE_2D)
@@ -506,6 +505,4 @@ class Galaxy(object):
                         self.finalPolys[name].append((-self.space_size.x()-50, self.space_size.y()+50))
                     elif pointOrigin.y() == -self.space_size.y() :
                         self.finalPolys[name].append((-self.space_size.x()-50, -self.space_size.y()-50))                    
-#            print "--"
-                #poly = QtGui.QPolygonF(points)
 

@@ -120,13 +120,13 @@ class selectFactionPage(QtGui.QWizardPage):
         UEF.setIcon(util.icon("games/automatch/uef.png"))
             
         layoutFactions.addWidget(UEF)
-        layoutFactions.addWidget(Cybran)
         layoutFactions.addWidget(Aeon)
+        layoutFactions.addWidget(Cybran)        
         layoutFactions.addWidget(Seraphim)
         
         UEF.pressed.connect(self.uef)
-        Cybran.pressed.connect(self.cybran)
         Aeon.pressed.connect(self.aeon)
+        Cybran.pressed.connect(self.cybran)
         Seraphim.pressed.connect(self.seraphim)
 
         label2 = QtGui.QLabel("Be careful ! Once you have confirmed your allegiance to a faction, you won't be able to change it !")
@@ -141,14 +141,15 @@ class selectFactionPage(QtGui.QWizardPage):
         self.parent.selectedFaction = 0
         self.parent.next()
 
-    def cybran(self):
+    def aeon(self):
         self.parent.selectedFaction = 1
         self.parent.next()
         
-    def aeon(self):
+    def cybran(self):
         self.parent.selectedFaction = 2
         self.parent.next()
-        
+       
+       
     def seraphim(self):
         self.parent.selectedFaction = 3
         self.parent.next()        
@@ -170,11 +171,11 @@ class factionSelected(QtGui.QWizardPage):
             self.setTitle("Welcome to the United Earth Federation Army !<br><br>You can still alter your choice.<br>Once you've clicked finished, there is no going back !")
             self.setPixmap(QtGui.QWizard.WatermarkPixmap, util.pixmap("client/account_watermark_intro.png"))
         elif self.parent.selectedFaction == 1 :
-            self.setTitle("You have been integrated to the symbiont network.<br><br>You can still alter your choice.<br>Once you've clicked finished, there is no going back !")
-            self.setPixmap(QtGui.QWizard.WatermarkPixmap, util.pixmap("client/account_watermark_input.png"))
-        elif self.parent.selectedFaction == 2 :
             self.setTitle("You have embraced the Way.<br><br>You can still alter your choice.<br>Once you've clicked finished, there is no going back !")
             self.setPixmap(QtGui.QWizard.WatermarkPixmap, util.pixmap("client/account_watermark_created.png"))
+        elif self.parent.selectedFaction == 2 :
+            self.setTitle("You have been integrated to the symbiont network.<br><br>You can still alter your choice.<br>Once you've clicked finished, there is no going back !")
+            self.setPixmap(QtGui.QWizard.WatermarkPixmap, util.pixmap("client/account_watermark_input.png"))
         elif self.parent.selectedFaction == 3 :
             self.setTitle("[Language Not Recognized]<br><br>You can still alter your choice.<br>Once you've clicked finished, there is no going back !")
             self.setPixmap(QtGui.QWizard.WatermarkPixmap, util.pixmap("client/account_seraphim.png"))

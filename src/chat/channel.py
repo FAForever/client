@@ -75,7 +75,12 @@ class Channel(FormClass, BaseClass):
         # Perform special setup for public channels as opposed to private ones
         self.name = name
         self.private = private
-        if not private:
+        
+        self.setup()
+        
+        
+    def setup(self):
+        if not self.private:
             # Non-query channels have a sorted nicklist
             self.nickList.sortItems(Chatter.SORT_COLUMN)
             

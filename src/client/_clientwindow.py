@@ -96,7 +96,8 @@ class ClientWindow(FormClass, BaseClass):
     showGames       = QtCore.pyqtSignal()
     showTourneys    = QtCore.pyqtSignal()
     showLadder      = QtCore.pyqtSignal()
-    showChat        = QtCore.pyqtSignal()    
+    showChat        = QtCore.pyqtSignal()
+    showGalaxyWar   = QtCore.pyqtSignal()
 
     joinGameFromUser   = QtCore.pyqtSignal(str)
     joinReplayFromUser = QtCore.pyqtSignal(str)
@@ -972,6 +973,9 @@ class ClientWindow(FormClass, BaseClass):
 
         if new_tab is self.tourneyTab:
             self.showTourneys.emit()
+
+        if new_tab is self.galacticwarTab:
+            self.showGalaxyWar.emit()
 
     def joinGameFromURL(self, url):
         '''

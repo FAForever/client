@@ -720,9 +720,9 @@ class Site(object):
         if faction == 0 :
             return self.uef
         elif faction == 1 :
-            return self.cybran
+            return self.aeon       
         elif faction == 2 :
-            return self.aeon
+            return self.cybran
         elif faction == 3 :
             return self.sera
 
