@@ -42,8 +42,7 @@ class LobbyWidget(FormClass, BaseClass):
         
         
         self.client = client
-        self.setStyleSheet(util.readstylesheet("galacticwar/galacticwar.css"))
-        
+        self.client.galacticwarTab.setStyleSheet(util.readstylesheet("galacticwar/galacticwar.css"))        
         self.client.galacticwarTab.layout().addWidget(self)
    
         self.downloader     = QNetworkAccessManager(self)
@@ -61,7 +60,8 @@ class LobbyWidget(FormClass, BaseClass):
         self.faction    = None
         self.name       = None
         self.rank       = None
-        
+        self.credits    = 0
+        self.victories  = 0
    
         self.state = ClientState.NONE
         
@@ -288,7 +288,15 @@ class LobbyWidget(FormClass, BaseClass):
         '''checking if we have everything we need'''
         if len(self.shaderlist) == 0 and self.initDone :
             self.download_textures()
-            
+    
+    
+    def handle_player_info(self, message):
+        self.faction    = message["faction"]
+        self.name       = message["name"]        
+        self.rank       = message["rank"]
+        self.credits    = message["credits"]
+        self.victories  = message["victories"]        
+               
         
     def handle_planet_info(self, message):
         uid = message['uid'] 
@@ -311,6 +319,11 @@ class LobbyWidget(FormClass, BaseClass):
         self.faction    = message["faction"]
         self.name       = message["name"]        
         self.rank       = message["rank"]
+        self.credits    = message["credits"]
+        self.victories  = message["victories"]
+        
+        if self.faction :
+            self.setStyleSheet(util.readstylesheet("galacticwar/galacticwar.css"))
 
     def handle_create_account(self, message):
         if message["action"] == 0 :

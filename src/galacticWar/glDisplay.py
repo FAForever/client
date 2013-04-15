@@ -115,7 +115,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.textures = []
 
         self.galaxy.bindTextures(self)                   
-        self.backGroundTexId    = self.bindTexture(QtGui.QPixmap(os.path.join(GW_TEXTURE_DIR,'background.png')), GL.GL_TEXTURE_2D)
+        self.backGroundTexId    = self.bindTexture(QtGui.QPixmap(os.path.join(GW_TEXTURE_DIR,'background.jpg')), GL.GL_TEXTURE_2D)
         self.starTexId          = self.bindTexture(QtGui.QPixmap(os.path.join(GW_TEXTURE_DIR,'star.png')), GL.GL_TEXTURE_2D)
         self.starTex2Id         = self.bindTexture(QtGui.QPixmap(os.path.join(GW_TEXTURE_DIR,'star.png')), GL.GL_TEXTURE_2D)        
         self.selectionId        = self.bindTexture(QtGui.QPixmap(os.path.join(GW_TEXTURE_DIR,'star.png')), GL.GL_TEXTURE_2D)
@@ -330,12 +330,13 @@ class GLWidget(QtOpenGL.QGLWidget):
             
             scale = (origScale + pos * (destScale - origScale)) * 5
             
-            GL.glTranslatef( dest.x() + animVector.x() * pos, dest.y() + animVector.y() * pos, scale + 5 + (pos * 10))
+            GL.glTranslatef( dest.x() + animVector.x() * pos, dest.y() + animVector.y() * pos, scale + 5)
             
             
             
             
-            GL.glScalef(scale,scale,scale)  
+            GL.glScalef(scale,scale,scale)
+            GL.glRotatef(20, 0, 1, 0)   
             GL.glRotatef(self.animAttackVector - i * 20, 0, 0, 1)     
             GL.glCallList(self.background)       
             GL.glPopMatrix()        

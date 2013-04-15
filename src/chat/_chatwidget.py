@@ -284,10 +284,10 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             else:
                 if channel.lower() == "#uef" or channel.lower() == "#aeon" or channel.lower() == "#cybran" or channel.lower() == "#seraphim" :
                     self.client.GalacticWar.createChannel(self, channel)
-                    self.client.GalacticWar.networkChat.addWidget(self.client.GalacticWar.channel) 
+                    self.client.GalacticWar.network_Chat.layout().addWidget(self.client.GalacticWar.channel) 
                     self.client.GalacticWar.channel.addChatter(user2name(e.source()), True)
                     self.client.GalacticWar.channel.resizing()
-                    
+
                 self.addTab(self.channels[channel], channel)
             
             
