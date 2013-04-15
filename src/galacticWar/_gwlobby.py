@@ -39,7 +39,10 @@ class LobbyWidget(FormClass, BaseClass):
         BaseClass.__init__(self, *args, **kwargs)
         
         self.setupUi(self)
+        
+        
         self.client = client
+        self.setStyleSheet(util.readstylesheet("galacticwar/galacticwar.css"))
         
         self.client.galacticwarTab.layout().addWidget(self)
    

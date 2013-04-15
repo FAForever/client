@@ -358,10 +358,12 @@ def readlines(filename, themed = True):
 
 def readstylesheet(filename):
     if __themedir and os.path.isfile(os.path.join(__themedir, filename)):
+        print __themedir
         result = open(os.path.join(__themedir, filename)).read().replace("%THEMEPATH%", __themedir.replace("\\", "/"))
         logger.info(u"Read themed stylesheet: " + filename)
     else:
-        result = open(os.path.join(COMMON_DIR, filename)).read()
+        baseDir = os.path.join(COMMON_DIR, os.path.dirname(filename))
+        result = open(os.path.join(COMMON_DIR, filename)).read().replace("%THEMEPATH%", baseDir.replace("\\", "/"))
         logger.info(u"Read common stylesheet: " + filename)
         
     return result
