@@ -428,7 +428,6 @@ class Updater(QtCore.QObject):
         for fileToUpdate in self.filesToUpdate :
             md5File = util.md5(os.path.join(util.APPDATA_DIR, destination, fileToUpdate))              
             if md5File == None :
-                #TODO : only FAF supported now
                 if self.version :
                     if self.mod == "faf" or self.mod == "ladder1v1" or filegroup == "FAF" or filegroup == "FAFGAMEDATA" :
                         self.writeToServer("REQUEST_VERSION", destination, fileToUpdate, str(self.version))

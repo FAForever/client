@@ -22,7 +22,6 @@
 
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
-from games.moditem import mods 
 import util
 from replays import logger
 import os
@@ -74,7 +73,7 @@ class ReplaysWidget(BaseClass, FormClass):
         self.games = {}
         
         self.onlineTree.itemDoubleClicked.connect(self.onlineTreeDoubleClicked)
-        self.onlineTree.itemClicked.connect(self.onlineTreeClicked)
+        self.onlineTree.itemPressed.connect(self.onlineTreeClicked)
         logger.info("Replays Widget instantiated.")
 
         
@@ -94,12 +93,15 @@ class ReplaysWidget(BaseClass, FormClass):
         fa.exe.replay(os.path.join(util.CACHE_DIR, "temp.fafreplay"))
 
     def onlineTreeClicked(self, item):
-        if hasattr(item, "moreInfo") :
-            if item.moreInfo == False :
-                self.client.send(dict(command="replay_vault", action="info_replay", uid = item.uid))
-            else :
-                self.replayInfos.clear()
-                self.replayInfos.setHtml(item.replayInfo)
+        if QtGui.QApplication.mouseButtons() == QtCore.Qt.RightButton :
+            item.pressed(item)           
+        else :
+            if hasattr(item, "moreInfo") :
+                if item.moreInfo == False :
+                    self.client.send(dict(command="replay_vault", action="info_replay", uid = item.uid))
+                else :
+                    self.replayInfos.clear()
+                    self.replayInfos.setHtml(item.replayInfo)
                 
     def onlineTreeDoubleClicked(self, item):
         if hasattr(item, "url") :
