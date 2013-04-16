@@ -221,7 +221,7 @@ def replay(source, detach = False):
         arguments.append('"' + util.LOG_FILE_REPLAY + '"')
 
         # Update the game appropriately
-        if not check(mod, mapname, version):
+        if not check(mod, mapname, version, info.get('featured_mod_versions', None)):
             logger.error("Can't watch replays without an updated Forged Alliance game!")
             return False        
 
@@ -294,7 +294,7 @@ def checkMap(mapname, force = False):
     
 
     
-def check(mod, mapname = None, version = None):
+def check(mod, mapname = None, version = None, modVersions = None):
     '''
     This checks whether the game is properly updated and has the correct map.
     '''
@@ -318,7 +318,7 @@ def check(mod, mapname = None, version = None):
     logger.info("Updating FA for mod: " + str(mod) + ", version " + str(version))
 
     # Spawn an update for the required mod
-    updater = fa.updater.Updater(mod, version)
+    updater = fa.updater.Updater(mod, version, modVersions)
             
     result = updater.run()
 

@@ -111,7 +111,7 @@ class ReplayItem(QtGui.QTreeWidgetItem):
         
         self.moreInfo       = False
         self.replayInfo     = False
-        self.url            = "http://direct.faforever.com/faf/replays/%i.fafreplay" % self.uid
+        self.url            = "http://faforever.com/faf/vault/replay_vault/replay.php?id=%i" % self.uid
         
         self.teams          = {}
         self.access         = None
@@ -192,8 +192,6 @@ class ReplayItem(QtGui.QTreeWidgetItem):
                 if scores[team] > winner :
                     teamWin = team
                 
-        print teamWin
-
         observerlist    = []
         teamlist        = []
 
@@ -206,7 +204,7 @@ class ReplayItem(QtGui.QTreeWidgetItem):
                 teamtxt = "<table border=0 width = 100% height = 100%>"
 
                 teamDisplay    = []
-                if teamWin :
+                if teamWin and self.parent.spoilerCheckbox.isChecked() == False :
                     if teamWin == i :
                         teamDisplay.append("<table border=0 width = 100% height = 100%><tr><td align = 'center' valign='center' width =100%><font size ='+2'>WIN</font></td></tr></table>")
                     else :
@@ -220,7 +218,7 @@ class ReplayItem(QtGui.QTreeWidgetItem):
                     if "rating" in player :
                         playerStr += " ("+str(int(player["rating"]))+")"
                     
-                    if "after_rating" in player :
+                    if "after_rating" in player and self.parent.spoilerCheckbox.isChecked() == False :
                         playerStr += " to ("+str(int(player["after_rating"]))+")"
 
 
@@ -276,13 +274,23 @@ class ReplayItem(QtGui.QTreeWidgetItem):
             observers += ",".join(observerlist)    
 
         #self.setToolTip(teams)
-        self.replayInfo = '<table border="0" cellpadding="0" cellspacing="5"><tbody><tr>'+teams+'</tr></tbody></table>'
+        self.replayInfo = ('<h2>Replay UID : %i</h2></br></br><table border="0" cellpadding="0" cellspacing="5"><tbody><tr>%s</tr></tbody></table>') % (self.uid, teams)
         
         
         if self.isSelected() :
             self.parent.replayInfos.clear()
             self.parent.replayInfos.setHtml(self.replayInfo)
 
+
+    def pressed(self, item):
+        menu = QtGui.QMenu(self.parent)
+        actionDownload = QtGui.QAction("Download replay", menu)
+        actionDownload.triggered.connect(self.downloadReplay)
+        menu.addAction(actionDownload)
+        menu.popup(QtGui.QCursor.pos())
+        
+    def downloadReplay(self):
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(self.url))
 
     def display(self, column):
         if column == 0 :

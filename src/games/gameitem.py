@@ -207,6 +207,7 @@ class GameItem(QtGui.QListWidgetItem):
         self.teams      = dict.copy(message['teams'])
         self.access     = message.get('access', 'public')
         self.mod        = message['featured_mod']
+        self.modVersion = message.get('featured_mod_versions', [])
         self.options    = message.get('options', [])
         self.numplayers = message.get('num_players', 0) 
         self.slots      = message.get('max_players',12)
@@ -285,7 +286,7 @@ class GameItem(QtGui.QListWidgetItem):
         
         
         if self.state == "open" :
-            if "1" in self.teams and "2" in self.teams and self.client.login != None :
+            if "1" in self.teams and "2" in self.teams and self.client.login != None and self.client.login not in self.teams["1"] and self.client.login not in self.teams["2"] :
                 if len(self.teams["1"]) < len(self.teams["2"]) :
                     self.teams["1"].append(self.client.login)
                     self.playerIncluded = True
@@ -625,8 +626,8 @@ class GameItem(QtGui.QListWidgetItem):
         if (not self.private and other.private): return True;
         if (self.private and not other.private): return False;
         
-        # Default: Alphabetical
-        return self.title.lower() < other.title.lower()
+        # Default: by UID.
+        return self.uid < other.uid
     
 
 

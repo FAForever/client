@@ -1332,7 +1332,10 @@ class ClientWindow(FormClass, BaseClass):
             arguments.append(str(self.players[self.login]["rating_mean"]))    
             arguments.append('/deviation')        
             arguments.append(str(self.players[self.login]["rating_deviation"]))            
-        
+            arguments.append('/country ') #Add country command line argument - Vicarian
+            country = self.getUserCountry(self.login) #Add country command line argument - Vicarian
+            arguments.append(str(country)) #Add country command line argument - Vicarian
+            
         # Ensure we have the map
         if "mapname" in message:
             fa.exe.checkMap(message['mapname'], True)
