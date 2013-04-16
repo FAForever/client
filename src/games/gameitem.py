@@ -625,8 +625,8 @@ class GameItem(QtGui.QListWidgetItem):
         if (not self.private and other.private): return True;
         if (self.private and not other.private): return False;
         
-        # Default: Alphabetical
-        return self.title.lower() < other.title.lower()
+        # Default: by UID.
+        return self.uid < other.uid
     
 
 
