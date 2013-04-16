@@ -45,6 +45,7 @@ import urllib2
 import sys
 import fa
 import tempfile
+import json
 
 logger = logging.getLogger("faf.updater")
 logger.setLevel(logging.DEBUG)
@@ -270,7 +271,7 @@ class Updater(QtCore.QObject):
     RESULT_PASS = 5         #User refuses to update by canceling the wizard
     
     
-    def __init__(self, mod, version = None, *args, **kwargs):
+    def __init__(self, mod, version = None, modversions = None, *args, **kwargs):
         '''
         Constructor
         '''
@@ -282,9 +283,9 @@ class Updater(QtCore.QObject):
 
         self.lastData = time.time()
                 
-        self.mod = mod
-        
-        self.version = version
+        self.mod            = mod        
+        self.version        = version
+        self.modversions    = modversions
         
         self.blockSize = 0
         self.updateSocket = QtNetwork.QTcpSocket()
@@ -428,19 +429,21 @@ class Updater(QtCore.QObject):
             md5File = util.md5(os.path.join(util.APPDATA_DIR, destination, fileToUpdate))              
             if md5File == None :
                 #TODO : only FAF supported now
-
-                if self.version and self.mod == "faf" :
-                    self.writeToServer("REQUEST_VERSION", destination, fileToUpdate, str(self.version))
+                if self.version :
+                    if self.mod == "faf" or self.mod == "ladder1v1" or filegroup == "FAF" or filegroup == "FAFGAMEDATA" :
+                        self.writeToServer("REQUEST_VERSION", destination, fileToUpdate, str(self.version))
+                    else :
+                        self.writeToServer("REQUEST_MOD_VERSION", destination, fileToUpdate, json.dumps(self.modversions))
                 else :
+                    
                     self.writeToServer("REQUEST_PATH", destination, fileToUpdate)
             else :
-
-                #TODO : only FAF supported now
                 if self.version :
-                    if  self.mod == "faf" or self.mod == "ladder1v1" :
+                    if self.mod == "faf" or self.mod == "ladder1v1" or filegroup == "FAF" or filegroup == "FAFGAMEDATA" :
                         self.writeToServer("PATCH_TO", destination, fileToUpdate, md5File, str(self.version))
                     else :
-                        self.writeToServer("UPDATE", destination, fileToUpdate, md5File)
+                        
+                        self.writeToServer("MOD_PATCH_TO", destination, fileToUpdate, md5File, json.dumps(self.modversions))
                 else :
                     self.writeToServer("UPDATE", destination, fileToUpdate, md5File)  
           
