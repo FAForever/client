@@ -136,6 +136,7 @@ def replay(source, detach = False):
     
     if (available()):
         version = None
+        featured_mod_versions = None
         arg_string = None
         # Convert strings to URLs
         if isinstance(source, basestring):
@@ -143,6 +144,7 @@ def replay(source, detach = False):
                 if source.endswith(".fafreplay"):   # the new way of doing things
                     replay = open(source, "rt")
                     info = json.loads(replay.readline())
+                    
                     binary = QtCore.qUncompress(QtCore.QByteArray.fromBase64(replay.read()))
                     logger.info("Extracted " + str(binary.size()) + " bytes of binary data from .fafreplay.")
                     replay.close()
@@ -154,7 +156,8 @@ def replay(source, detach = False):
                     scfa_replay.close()                    
                                 
                     mapname = info.get('mapname', None)
-                    mod = info['featured_mod']                        
+                    mod = info['featured_mod']        
+                    featured_mod_versions = info.get('featured_mod_versions', None)
                     arg_string = scfa_replay.fileName()
                     
                     parser = replayParser(arg_string)
@@ -169,10 +172,10 @@ def replay(source, detach = False):
                         mod = "faf" #TODO: maybe offer a list of mods for the user.
                         logger.warn("no mod could be guessed, using fallback ('faf') ")
                                     
-                    mapname = None                        
+                    mapname = None
                     arg_string = source
                     parser = replayParser(arg_string)
-                    version = parser.getVersion() 
+                    version = parser.getVersion()
                 else:
                     QtGui.QMessageBox.critical(None, "FA Forever Replay", "Sorry, FAF has no idea how to replay this file:<br/><b>" + source + "</b>")        
                 
@@ -185,8 +188,7 @@ def replay(source, detach = False):
             #Determine if it's a faflive url
             if url.scheme() == "faflive":
                 mod = url.queryItemValue("mod")
-                mapname = url.queryItemValue("map")
-
+                mapname = url.queryItemValue("map")                
                 # whip the URL into shape so ForgedAlliance.exe understands it
                 arg_url = QtCore.QUrl(url)
                 arg_url.setScheme("gpgnet")
@@ -221,7 +223,7 @@ def replay(source, detach = False):
         arguments.append('"' + util.LOG_FILE_REPLAY + '"')
 
         # Update the game appropriately
-        if not check(mod, mapname, version, info.get('featured_mod_versions', None)):
+        if not check(mod, mapname, version, featured_mod_versions):
             logger.error("Can't watch replays without an updated Forged Alliance game!")
             return False        
 
