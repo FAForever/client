@@ -811,7 +811,7 @@ class GLWidget(QtOpenGL.QGLWidget):
       
     def attackable(self):
         faction = self.parent.faction
-        if not faction :
+        if faction == None :
             return
         
         

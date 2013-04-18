@@ -50,7 +50,7 @@ class InfoPanelWidget(FormClass, BaseClass):
         self.attackButton.hide()
 
         faction = self.parent.faction
-        if not faction :
+        if faction == None :
             self.planet = None
             return
         
