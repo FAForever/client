@@ -280,7 +280,7 @@ class Relayer(QtCore.QObject):
         # Relay to faforever.com
         if self.relaySocket.isOpen():
             data = json.dumps(dict(action=action, chuncks=chunks))
-            if action != "ping" :
+            if action != "ping" and action != "pong" :
                 self.__logger.info("Command transmitted from FA to server : " + data)
             
             block = QtCore.QByteArray()
@@ -298,12 +298,16 @@ class Relayer(QtCore.QObject):
     def handleAction(self, commands):    
         key = commands["key"]
         acts = commands["commands"]
-        if key == "SendNatPacket" :
+        
+        if key == "ping" :
+            self.sendToServer("pong", [])
+            
+        elif key == "SendNatPacket" :
             reply = Packet(key, acts)
             self.inputSocket.write(reply.PackUdp())
-        else :
+
             
-            if key == "ConnectToProxy" :
+        elif key == "ConnectToProxy" :
                 port = acts[0]
                 address = acts[1]
                 login   = acts[2]
@@ -316,22 +320,22 @@ class Relayer(QtCore.QObject):
                 reply = Packet("ConnectToPeer", newActs)
                 self.inputSocket.write(reply.Pack())
                 
-            elif key == "JoinProxy" :
-                port = acts[0]
-                address = acts[1]
-                login   = acts[2]
-                uid     = acts[3]
-                print port
-                udpport = self.client.proxyServer.bindSocket(port, address)
-                
-                newActs = [("127.0.0.1:%i" % udpport), login, uid]
-                
-                reply = Packet("JoinGame", newActs)
-                self.inputSocket.write(reply.Pack())                
-                
-            else :
-                reply = Packet(key, acts)
-                self.inputSocket.write(reply.Pack())
+        elif key == "JoinProxy" :
+            port = acts[0]
+            address = acts[1]
+            login   = acts[2]
+            uid     = acts[3]
+            print port
+            udpport = self.client.proxyServer.bindSocket(port, address)
+            
+            newActs = [("127.0.0.1:%i" % udpport), login, uid]
+            
+            reply = Packet("JoinGame", newActs)
+            self.inputSocket.write(reply.Pack())                
+            
+        else :
+            reply = Packet(key, acts)
+            self.inputSocket.write(reply.Pack())
 
 
     def done(self):
