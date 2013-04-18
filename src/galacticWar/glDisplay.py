@@ -2,6 +2,8 @@ from OpenGL import GL
 from OpenGL import GLU
 from PyQt4 import QtCore, QtGui, QtOpenGL
 
+from galacticWar import FACTIONS, COLOR_FACTIONS
+
 import math
 import random
 import os
@@ -15,7 +17,6 @@ class GLWidget(QtOpenGL.QGLWidget):
     zRotationChanged = QtCore.pyqtSignal(int)
     
     UPDATE_ROTATION = 22
-
 
     def __init__(self, parent=None):
         super(GLWidget, self).__init__(QtOpenGL.QGLFormat(QtOpenGL.QGL.SampleBuffers), parent)
@@ -324,19 +325,17 @@ class GLWidget(QtOpenGL.QGLWidget):
         
         animVector = orig - dest
         
-        for i in range(21) :
-            pos = i / 20.0
+        steps = int(animVector.length() / 2) 
+        
+        for i in range(steps + 1) :
+            pos = i / float(steps)
             GL.glPushMatrix()
             
             scale = (origScale + pos * (destScale - origScale)) * 5
             
-            GL.glTranslatef( dest.x() + animVector.x() * pos, dest.y() + animVector.y() * pos, scale + 5)
-            
-            
-            
-            
+            GL.glTranslatef( dest.x() + animVector.x() * pos, dest.y() + animVector.y() * pos, 5+(scale) + (3*pos))
+
             GL.glScalef(scale,scale,scale)
-            GL.glRotatef(20, 0, 1, 0)   
             GL.glRotatef(self.animAttackVector - i * 20, 0, 0, 1)     
             GL.glCallList(self.background)       
             GL.glPopMatrix()        
@@ -419,7 +418,7 @@ class GLWidget(QtOpenGL.QGLWidget):
 
         GL.glCallList(self.planets)
 
-        if self.curZone and not self.overlayPlanet :
+        if self.curZone :
             pos = self.galaxy.control_points[self.curZone[0]].pos3d
             scale  = self.galaxy.control_points[self.curZone[0]].size + 0.5
             self.selectedPlanetOverlay(pos, scale)
@@ -441,11 +440,11 @@ class GLWidget(QtOpenGL.QGLWidget):
 
 #        
 #        if self.overlayPlanet :
-#            GL.glDisable(GL.GL_DEPTH_TEST)
-#            GL.glDisable( GL.GL_TEXTURE_2D )
-#            GL.glDisable(GL.GL_CULL_FACE)
-#            GL.glDisable(GL.GL_LINE_SMOOTH)
-#            GL.glDisable (GL.GL_BLEND)            
+        GL.glDisable(GL.GL_DEPTH_TEST)
+        GL.glDisable( GL.GL_TEXTURE_2D )
+        GL.glDisable(GL.GL_CULL_FACE)
+        GL.glDisable(GL.GL_LINE_SMOOTH)
+        GL.glDisable (GL.GL_BLEND)            
 #            self.drawPlanetOverlay(painter)
 #        else :
         self.drawPlanetName(painter)
@@ -482,7 +481,7 @@ class GLWidget(QtOpenGL.QGLWidget):
     
     def drawPlanetOverlay(self, painter):
         if self.curZone :
-            painter.setOpacity(1)
+            
             site = self.curZone[0]
             painter.setPen(QtCore.Qt.white)
             #painter.drawRect(, 200, 255)
@@ -494,6 +493,7 @@ class GLWidget(QtOpenGL.QGLWidget):
     def drawPlanetName(self, painter):
         
         if self.curZone :
+            painter.setOpacity(1)
             site = self.curZone[0]
 
             x = self.curZone[2]
@@ -501,20 +501,42 @@ class GLWidget(QtOpenGL.QGLWidget):
 
             pos = self.computeWorldPosition(x, y)
 
-            text = ("Planet number %i" % site)
-            metrics = QtGui.QFontMetrics(self.font())
-            border = max(4, metrics.leading())
-    
-            rect = metrics.boundingRect(0, 0, self.width() - 2*border,
-                    int(self.height()*0.125),
-                    QtCore.Qt.AlignCenter | QtCore.Qt.TextWordWrap, text)
-            painter.setRenderHint(QtGui.QPainter.TextAntialiasing)
-#            painter.fillRect(QtCore.QRect(0, 0, self.width(), rect.height() + 2*border), QtGui.QColor(0, 0, 0, 127))
+            planet = self.galaxy.control_points[site]
+            
+            height = 100
+
+            text = "<font color='silver'><h2>Planet name %i</h2><h4>Occupation:</h4></font><ul>" % (site)
+            
+            
+            for i in range(4) :
+                occupation = planet.occupation(i)
+                if occupation != 0 :
+                    occupation = occupation*100
+                    if abs(occupation-round(occupation)) < 0.01 :
+                        text += "<li><font color='%s'>%s</font> : %i &#37;</li>" % (COLOR_FACTIONS[i].name(), FACTIONS[i], int(occupation))
+                    else :
+                        text += "<li><font color='%s'>%s</font> : %.1f &#37;</li>" % (COLOR_FACTIONS[i].name(), FACTIONS[i], occupation)
+                    height = height + 50
+                    
+            text += "</ul>"
+            painter.save()
+            html = QtGui.QTextDocument()
+            html.setHtml(text)
+                    
+                    
+#            metrics = QtGui.QFontMetrics(self.font())
+#            border = max(4, metrics.leading())
+
             painter.setPen(QtCore.Qt.white)
-#            painter.fillRect(QtCore.QRect(0, 0, self.width(), rect.height() + 2*border), QtGui.QColor(0, 0, 0, 127))
-            painter.drawText(pos[0], pos[1], rect.width(),
-                    rect.height(), QtCore.Qt.AlignCenter | QtCore.Qt.TextWordWrap,
-                    text)
+            
+            painter.translate(pos[0]+20, pos[1]+20)
+            painter.fillRect(QtCore.QRect(0, 0, 250, height), QtGui.QColor(36, 61, 75, 150))
+            clip = QtCore.QRectF(0, 0, 250, height)
+            html.drawContents(painter, clip)
+#            painter.drawText(pos[0], pos[1], rect.width(),
+#                    rect.height(), QtCore.Qt.AlignCenter | QtCore.Qt.TextWordWrap,
+#                    text)
+            painter.restore()
             
     
     def createCamera(self, init = False):
@@ -665,8 +687,10 @@ class GLWidget(QtOpenGL.QGLWidget):
         if  event.buttons() & QtCore.Qt.LeftButton :
             self.overlayPlanet = not self.overlayPlanet
             if self.overlayPlanet :
+                self.parent.planetClicked.emit(self.curZone[0])
                 self.attackable()
             else :
+                self.parent.hovering.emit()
                 self.attackVector = None
 
         elif  event.buttons() & QtCore.Qt.MiddleButton :
@@ -781,8 +805,8 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.computeZoomPosition(x, y)
         
         pos3d = self.computeCursorPosition(x,y, True)
-
-        self.curZone = self.galaxy.closestSite(pos3d.x(), pos3d.y()) 
+        if not self.overlayPlanet :
+            self.curZone = self.galaxy.closestSite(pos3d.x(), pos3d.y()) 
         
       
     def attackable(self):

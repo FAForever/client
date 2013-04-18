@@ -17,7 +17,7 @@
 #-------------------------------------------------------------------------------
 
 from PyQt4 import QtGui, QtCore, QtNetwork
-from galacticWar import logger, LOBBY_PORT, LOBBY_HOST, TEXTURE_SERVER, UEF_RANKS, CYBRAN_RANKS, AEON_RANKS, SERAPHIM_RANKS
+from galacticWar import logger, LOBBY_PORT, LOBBY_HOST, TEXTURE_SERVER, RANKS, FACTIONS
 from galaxy import Galaxy
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
 
@@ -34,6 +34,13 @@ import loginwizards
 FormClass, BaseClass = util.loadUiType("galacticwar/galacticwar.ui")
 
 class LobbyWidget(FormClass, BaseClass):
+    planetClicked       = QtCore.pyqtSignal(int)
+    hovering            = QtCore.pyqtSignal()
+    creditsUpdated      = QtCore.pyqtSignal(int)
+    rankUpdated         = QtCore.pyqtSignal(int)
+    creditsUpdated      = QtCore.pyqtSignal(int)
+    victoriesUpdated    = QtCore.pyqtSignal(int)
+    
     def __init__(self, client, *args, **kwargs):
         logger.debug("Lobby instantiating.")
         BaseClass.__init__(self, *args, **kwargs)
@@ -42,7 +49,7 @@ class LobbyWidget(FormClass, BaseClass):
         
         
         self.client = client
-        self.client.galacticwarTab.setStyleSheet(util.readstylesheet("galacticwar/galacticwar.css"))        
+        #self.client.galacticwarTab.setStyleSheet(util.readstylesheet("galacticwar/galacticwar.css"))        
         self.client.galacticwarTab.layout().addWidget(self)
    
         self.downloader     = QNetworkAccessManager(self)
@@ -51,6 +58,8 @@ class LobbyWidget(FormClass, BaseClass):
         self.shaderlist     =   []
         self.texturelist    =   {}        
         self.shaders    =   {}
+        
+        self.infoPanel  = None
         
         self.galaxy     = Galaxy()
         self.channel    = None
@@ -208,23 +217,19 @@ class LobbyWidget(FormClass, BaseClass):
     def setup(self):
         self.galaxy.computeVoronoi()
         from glDisplay import GLWidget
+        from infopanel import InfoPanelWidget
         self.OGLdisplay = GLWidget(self)
         self.galaxyLayout.addWidget(self.OGLdisplay)
         self.galaxyLayout.addWidget(self.scroller)
         self.scroller.setMaximumHeight(20)
-        
+        self.infoPanel = InfoPanelWidget(self)
+        self.info_Panel.layout().addWidget(self.infoPanel)
+
         self.send(dict(command = "init_done", status = True))
                 
     def get_rank(self, faction, rank):
+        return RANKS[faction][rank]
 
-        if faction == 0 :
-            return UEF_RANKS[rank]
-        elif faction == 1 :
-            return AEON_RANKS[rank]  
-        elif faction == 2 :
-            return CYBRAN_RANKS[rank]     
-        elif faction == 3 :
-            return SERAPHIM_RANKS[rank]
 
     def handle_welcome(self, message):
         self.state = ClientState.ACCEPTED
@@ -291,12 +296,18 @@ class LobbyWidget(FormClass, BaseClass):
     
     
     def handle_player_info(self, message):
+        ''' Update Player stats '''
         self.faction    = message["faction"]
         self.name       = message["name"]        
         self.rank       = message["rank"]
         self.credits    = message["credits"]
         self.victories  = message["victories"]        
-               
+        
+        print message
+        
+        self.rankUpdated.emit(self.rank)
+        self.creditsUpdated.emit(self.credits)
+        self.victoriesUpdated.emit(self.victories)
         
     def handle_planet_info(self, message):
         uid = message['uid'] 
@@ -322,8 +333,11 @@ class LobbyWidget(FormClass, BaseClass):
         self.credits    = message["credits"]
         self.victories  = message["victories"]
         
+        self.handle_player_info(message)
+        
         if self.faction :
-            self.setStyleSheet(util.readstylesheet("galacticwar/galacticwar.css"))
+            self.client.galacticwarTab.setStyleSheet(util.readstylesheet("galacticwar/galacticwar.css").replace("%FACTION%", FACTIONS[self.faction]))   
+            
 
     def handle_create_account(self, message):
         if message["action"] == 0 :
@@ -357,7 +371,6 @@ class LobbyWidget(FormClass, BaseClass):
         if "autojoin" in message :
             if message["autojoin"] == 0 :
                 self.client.autoJoin.emit(["#UEF"])
-                
             elif message["autojoin"] == 1 :         
                 self.client.autoJoin.emit(["#Aeon"])
             elif message["autojoin"] == 2 :
@@ -366,6 +379,9 @@ class LobbyWidget(FormClass, BaseClass):
                 self.client.autoJoin.emit(["#Seraphim"])
 
 
+    def handle_notice(self, message):
+        self.client.handle_notice(message)
+        
 
     def process(self, action, stream):
         if action == "PING":
@@ -487,7 +503,6 @@ class LobbyWidget(FormClass, BaseClass):
         self.bytesToSend = block.size() - 4
     
         self.socket.write(block)
-
 
     @QtCore.pyqtSlot(QtNetwork.QAbstractSocket.SocketError)
     def socketError(self, error):

@@ -20,6 +20,7 @@
 
 # Initialize logging system
 import logging
+from PyQt4 import QtGui
 logger = logging.getLogger("faf.galacticWar")
 logger.setLevel(logging.DEBUG)
 
@@ -28,10 +29,14 @@ LOBBY_PORT = 10001
 
 TEXTURE_SERVER = "http://direct.faforever.com/faf/images/"
 
-UEF_RANKS = ["Private", "Corporal", "Sergeant", "Captain", "Major", "Colonel", "General", "Supreme Commander"]
-CYBRAN_RANKS = ["Ensign", "Drone", "Agent", "Inspector", "Starshina", "Commandarm" ,"Elite Commander", "Supreme Commander"]
-AEON_RANKS = ["Crusader", "Legate", "Avatar-of-War", "Priest", "Centurion", "Executor", "Evaluator", "Supreme Commander"]
-SERAPHIM_RANKS = ["SouIstle", "Sou", "SouThuum", "YthiIstle", "Ythi", "YthiThuum", "Azeel", "Supreme Commander"]
+RANKS = {0:["Private", "Corporal", "Sergeant", "Captain", "Major", "Colonel", "General", "Supreme Commander"],
+         1:["Crusader", "Legate", "Avatar-of-War", "Priest", "Centurion", "Executor", "Evaluator", "Supreme Commander"],
+         2:["Ensign", "Drone", "Agent", "Inspector", "Starshina", "Commandarm" ,"Elite Commander", "Supreme Commander"],
+         3:["SouIstle", "Sou", "SouThuum", "YthiIstle", "Ythi", "YthiThuum", "Azeel", "Supreme Commander"]
+         }
+
+FACTIONS = {0:"UEF", 1:"Aeon",2:"Cybran",3:"Seraphim"}
+COLOR_FACTIONS = {0:QtGui.QColor(0,0,255), 1:QtGui.QColor(0,255,0),2:QtGui.QColor(255,0,0),3:QtGui.QColor(255,255,0)}
 
 from _gwlobby import LobbyWidget as Lobby
 

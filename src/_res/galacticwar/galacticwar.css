@@ -1,19 +1,19 @@
 
 /* Central area background */
 
-QWidget
+QWidget#galacticwarTab
 {
-	background-image: url('%THEMEPATH%/bg.png');
+	background-image: url('%THEMEPATH%/%FACTION%/bg.png');
 }
 
 QWidget#galaxyTab
 {
-	background-image: url('%THEMEPATH%/bg.png');
+	background-image: url('%THEMEPATH%/%FACTION%/bg.png');
 }
 
 QFrame#info_Panel
 {
-border-image: url('%THEMEPATH%/aeon-logo.png');
+border-image: url('%THEMEPATH%/%FACTION%/logo.png');
 }
 
 
@@ -21,7 +21,7 @@ QTabWidget#chatTabs::pane
 {
 	 /* The tab widget frame */
      border: none;
-	 background-image: url('%THEMEPATH%/bg.png');
+	 background-image: url('%THEMEPATH%/%FACTION%/bg.png');
 
  }
 
@@ -57,10 +57,14 @@ QTabWidget#topTabs > QTabBar::tab:hover
 QTabWidget#topTabs > QTabBar::tab:selected 
 {
 	color:white;
-		background-image: url('%THEMEPATH%/top_menu_active.png');
+		background-image: url('%THEMEPATH%/%FACTION%/top_menu_active.png');
 	background-repeat: no-repeat;
 }
- 
+
+ QLabel
+ {
+	color:silver;
+ }
  /********************** CHAT ********************/
  QTextEdit
 {
