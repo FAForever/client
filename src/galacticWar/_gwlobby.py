@@ -102,7 +102,7 @@ class LobbyWidget(FormClass, BaseClass):
                 logger.info("init not done")
                 self.doLogin()
             else :
-                if not self.faction :
+                if self.faction == None :
                     logger.info("not faction")
                     self.doLogin()
 
@@ -334,8 +334,7 @@ class LobbyWidget(FormClass, BaseClass):
         self.victories  = message["victories"]
         
         self.handle_player_info(message)
-        
-        if self.faction :
+        if self.faction != None :
             self.client.galacticwarTab.setStyleSheet(util.readstylesheet("galacticwar/galacticwar.css").replace("%FACTION%", FACTIONS[self.faction]))   
             
 

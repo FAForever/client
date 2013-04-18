@@ -34,7 +34,8 @@ sip.setapi('QStringList', 2)
 sip.setapi('QList', 2)
 sip.setapi('QProcess', 2)
 
-
+import sys
+sys.path += ['.']
 
 from PyQt4 import QtGui
 
@@ -47,7 +48,7 @@ util.startLogging()
 
 
 
-import sys
+
 excepthook_original = sys.excepthook
 def excepthook(excType, excValue, tracebackobj): 
     '''
