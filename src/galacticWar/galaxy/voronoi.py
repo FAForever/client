@@ -715,6 +715,8 @@ class Site(object):
         self.uef    = uef
         self.sera   = sera
         
+    def get_name(self):
+        return "planet %i" % (self.sitenum)
     
     def occupation(self, faction):
         if faction == 0 :

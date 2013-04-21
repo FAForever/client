@@ -35,15 +35,14 @@ sip.setapi('QList', 2)
 sip.setapi('QProcess', 2)
 
 import sys
-sys.path += ['.']
-
 from PyQt4 import QtGui
 
-from OpenGL import GL
-from OpenGL import GLU
+
 
 #Set up a robust logging system
+
 import util
+
 util.startLogging()
 
 
@@ -113,7 +112,8 @@ if __name__ == '__main__':
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
     if len(sys.argv) == 1:
-        #Do the magic    
+        #Do the magic   
+        sys.path += ['.'] 
         runFAF()
     else:  
         #Try to interpret the argument as a replay.

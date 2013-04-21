@@ -94,7 +94,6 @@ try:
 except:    
     PERSONAL_DIR = os.path.join(APPDATA_DIR, "user")
 
-
 #Ensure Application data directories exist
 if not os.path.isdir(APPDATA_DIR):
     os.makedirs(APPDATA_DIR)
@@ -124,6 +123,7 @@ import re
 import urllib
 import _winreg
 
+
 # Dirty log rotation: Get rid of logs if larger than 1 MiB
 try:
     #HACK: Clean up obsolete logs directory trees
@@ -137,8 +137,6 @@ try:
 except:
     pass        
         
-
-
 # Initialize logging system
 import logging
 import traceback
@@ -158,6 +156,7 @@ def stopLogging():
     logger.debug("Logging ended.")
     logging.shutdown()
      
+
     
 def clearDirectory(directory, confirm = True):
     if (os.path.isdir(directory)):        

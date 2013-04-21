@@ -1,6 +1,14 @@
+
+from galacticWar import logger
+import logging
+
+from PyQt4 import QtCore, QtGui, QtOpenGL
+
+logger = logging.getLogger("faf.galacticWar")
+logger.setLevel(logging.CRITICAL)
 from OpenGL import GL
 from OpenGL import GLU
-from PyQt4 import QtCore, QtGui, QtOpenGL
+
 
 from galacticWar import FACTIONS, COLOR_FACTIONS
 
@@ -8,8 +16,6 @@ import math
 import random
 import os
 from util import GW_TEXTURE_DIR
-
-
 
 class GLWidget(QtOpenGL.QGLWidget):
     xRotationChanged = QtCore.pyqtSignal(int)
@@ -53,7 +59,6 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.attackVector   = None
         self.animAttackVector = 0
         
-        self.lookAt = QtGui.QVector3D(0, 0, 0)
         self.zoomMin = 500
         self.zoomMax = 10
         self.cameraPos  = QtGui.QVector3D(0,0,self.zoomMin)
@@ -86,6 +91,8 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.animCam.valueChanged.connect(self.scalingTime)
         self.animCam.finished.connect(self.animFinished)
         
+        self.parent.attacksUpdated.connect(self.planetsUnderAttack)
+        
         self.setMouseTracking(1)
         self.setAutoFillBackground(False)
         
@@ -97,11 +104,14 @@ class GLWidget(QtOpenGL.QGLWidget):
         else :
             self.yRot = self.yRot + math.radians(self.UPDATE_ROTATION*0.04 * 2)
         if self.yRot >= math.radians(360) :
-            self.yRot = 0
+            self.yRot = 0.0
         
-#        self.yRotationChanged.emit(self.yRot + 5)
-
         self.programPlanet.setAttributeValue(11, self.yRot)
+        
+        self.programSwirl.setAttributeValue(self.programSwirl.attributeLocation("rotation_plane"), self.yRot * 10)
+        
+        
+        
         if update :
             self.update()
 
@@ -114,8 +124,13 @@ class GLWidget(QtOpenGL.QGLWidget):
 
     def initializeGL(self):
         self.textures = []
+            
 
-        self.galaxy.bindTextures(self)                   
+        for uid in self.galaxy.control_points :
+            site = self.galaxy.control_points[uid]
+            site.texture = self.bindTexture(QtGui.QPixmap(os.path.join(GW_TEXTURE_DIR,'%s.png' % site.texname)), GL.GL_TEXTURE_2D)   
+
+        
         self.backGroundTexId    = self.bindTexture(QtGui.QPixmap(os.path.join(GW_TEXTURE_DIR,'background.png')), GL.GL_TEXTURE_2D)
         self.starTexId          = self.bindTexture(QtGui.QPixmap(os.path.join(GW_TEXTURE_DIR,'star.png')), GL.GL_TEXTURE_2D)
         self.starTex2Id         = self.bindTexture(QtGui.QPixmap(os.path.join(GW_TEXTURE_DIR,'star.png')), GL.GL_TEXTURE_2D)        
@@ -141,18 +156,6 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.programAtmosphere.bindAttributeLocation('camPos', 10)
         
 
-        self.programSelection = QtOpenGL.QGLShaderProgram(self)        
-        self.programSelection.addShaderFromSourceCode(QtOpenGL.QGLShader.Vertex, self.parent.shaders["selection"]["vertex"])
-        self.programSelection.addShaderFromSourceCode(QtOpenGL.QGLShader.Fragment, self.parent.shaders["selection"]["fragment"])
-        
-        if not self.programSelection.link() :
-            print "selection", self.programSelection.log()      
-        self.programSelection.bindAttributeLocation('camPos', 10)
-        self.programSelection.bindAttributeLocation('pos', 11)        
-        self.programSelection.bindAttributeLocation('scaling', 12)
-        
-
-
         self.programStars = QtOpenGL.QGLShaderProgram(self)
         self.programStars.addShaderFromSourceCode(QtOpenGL.QGLShader.Vertex, self.parent.shaders["stars"]["vertex"])
         self.programStars.addShaderFromSourceCode(QtOpenGL.QGLShader.Fragment, self.parent.shaders["stars"]["fragment"])
@@ -169,27 +172,53 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.programPlanet = QtOpenGL.QGLShaderProgram(self) 
         self.programPlanet.addShaderFromSourceCode(QtOpenGL.QGLShader.Vertex, self.parent.shaders["planet"]["vertex"])
         self.programPlanet.addShaderFromSourceCode(QtOpenGL.QGLShader.Fragment, self.parent.shaders["planet"]["fragment"])
-        
+
         self.programPlanet.bindAttributeLocation('camPos', 10)
         self.programPlanet.bindAttributeLocation('rotation', 11) 
-        
-        
+
         if not self.programPlanet.link() :
-            print "planet", self.programPlanet.log()  
-#       
+            print "planet", self.programPlanet.log()          
         
-             
+
+        
+        self.programSelection = QtOpenGL.QGLShaderProgram(self)        
+        self.programSelection.addShaderFromSourceCode(QtOpenGL.QGLShader.Vertex, self.parent.shaders["selection"]["vertex"])
+        self.programSelection.addShaderFromSourceCode(QtOpenGL.QGLShader.Fragment, self.parent.shaders["selection"]["fragment"])
+
+        self.programSelection.bindAttributeLocation('camPos', 10)
+        self.programSelection.bindAttributeLocation('pos', 12)        
+        self.programSelection.bindAttributeLocation('scaling', 13)
+        
+        if not self.programSelection.link() :
+            print "selection", self.programSelection.log()
+
+        self.programSwirl = QtOpenGL.QGLShaderProgram(self)        
+        self.programSwirl.addShaderFromSourceCode(QtOpenGL.QGLShader.Vertex, self.parent.shaders["swirl"]["vertex"])
+        self.programSwirl.addShaderFromSourceCode(QtOpenGL.QGLShader.Fragment, self.parent.shaders["swirl"]["fragment"])
+
+        self.programSwirl.bindAttributeLocation('rotation_plane', 14)        
+
+        
+        if not self.programSwirl.link() :
+            print "swirl", self.programSwirl.log() 
+
+
         self.planetsAtmosphere = None
         self.atmosphere = None
         self.object = None
         self.selection = None
+        self.underAttack = None        
+        self.attackVectorGl = None
+        
         self.createAtmosphere(self.averageRadius+2)
         self.object     = self.createSphere(self.averageRadius,0)
         self.background = self.createBackground()
+        self.plane      = self.createPlane()
         self.zones      = self.createZones()
         self.planets    = self.createPlanets()
-        self.selection  = self.selectedPlanetOverlay()
+        self.selection  = self.createPlanetOverlay()
         self.galaxyBackground = self.drawGalaxy()
+        self.underAttack      = self.planetsUnderAttack()
         self.galaxyStarsFront      = self.drawStars(0)
         self.galaxyStarsBack      = self.drawStars(1)
         
@@ -311,7 +340,102 @@ class GLWidget(QtOpenGL.QGLWidget):
         return genList 
     
     
+    def planetsUnderAttack(self):
+        if len(self.parent.attacks) == 0 :
+            return None
+        
+        if self.underAttack :
+            GL.glDeleteLists(self.underAttack, 1)
+
+        genList = GL.glGenLists(1)
+        GL.glNewList(genList, GL.GL_COMPILE)
+        GL.glMatrixMode(GL.GL_MODELVIEW)        
+        
+
+        for useruid in self.parent.attacks :
+            for planetuid in self.parent.attacks[useruid] :
+                uid = int(planetuid)
+                
+                if uid in self.galaxy.control_points :
+                    color  = COLOR_FACTIONS[int(self.parent.attacks[useruid][planetuid]["faction"])]
+                    self.programSwirl.bind()
+                    GL.glBindTexture(GL.GL_TEXTURE_2D, self.attackId)
+                    GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (color.redF(),color.greenF(),color.blueF(), 1))
+                    self.programSwirl.setUniformValue('texture', 0)
+                    
+                    site = self.galaxy.control_points[uid]
+                    pos = site.pos3d
+                    scale = site.size * 10
+                    self.programSwirl.setUniformValue('rotation', 1.0, 0, 0)
+                    self.programSwirl.setUniformValue('scaling', scale, scale, scale)
+                    self.programSwirl.setUniformValue('pos', pos.x(), pos.y(), scale+5.0)
+                    
+                    
+                     
+
+                    GL.glCallList(self.plane)
+
+        
+                    self.programSwirl.release()
+        
+        GL.glEndList()
+        return genList 
+    
+    def createAttackVector(self):
+        
+        if self.attackVectorGl :
+            GL.glDeleteLists(self.attackVectorGl, 1)        
+
+        genList = GL.glGenLists(1)
+        GL.glNewList(genList, GL.GL_COMPILE)
+        GL.glMatrixMode(GL.GL_MODELVIEW)        
+        
+        rot = 0
+        if self.galaxy.control_points[self.attackVector[1]].pos3d.y() < self.galaxy.control_points[self.attackVector[0]].pos3d.y() :
+            orig = self.galaxy.control_points[self.attackVector[1]].pos3d
+            dest = self.galaxy.control_points[self.attackVector[0]].pos3d
+
+            destScale = self.galaxy.control_points[self.attackVector[1]].size
+            origScale = self.galaxy.control_points[self.attackVector[0]].size
+            rot = 20
+        else :
+            orig = self.galaxy.control_points[self.attackVector[0]].pos3d
+            dest = self.galaxy.control_points[self.attackVector[1]].pos3d
+
+            destScale = self.galaxy.control_points[self.attackVector[0]].size
+            origScale = self.galaxy.control_points[self.attackVector[1]].size
+            rot = -20
+            
+            
+        
+        animVector = orig - dest
+        
+        steps = int(animVector.length() / 2) 
+        
+        for i in range(steps + 1) :
+            pos = i / float(steps)
+            
+            self.programSwirl.bind()
+            GL.glBindTexture(GL.GL_TEXTURE_2D, self.attackId)
+            GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (0.4,.6,.9, 1))
+            self.programSwirl.setUniformValue('texture', 0)  
+            
+            scale = (origScale + pos * (destScale - origScale)) * 5
+
+            self.programSwirl.setUniformValue('scaling', scale, scale, scale)
+            self.programSwirl.setUniformValue('pos', dest.x() + animVector.x() * pos, dest.y() + animVector.y() * pos, 5+(scale) + (3*pos))
+            self.programSwirl.setUniformValue('rotation', math.radians(i * rot),0,0)
+            GL.glCallList(self.background)
+            self.programSwirl.release()
+
+        
+        GL.glEndList()
+        return genList         
+    
     def drawAttackVector(self):
+        
+        
+        
         GL.glBindTexture(GL.GL_TEXTURE_2D, self.attackId)
         GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (0.4,.6,.9, 1))
         self.programStars.bind()
@@ -353,21 +477,23 @@ class GLWidget(QtOpenGL.QGLWidget):
         
     
     def paintEvent(self, event):
-        
+
         self.makeCurrent()
-        GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
         GL.glEnable(GL.GL_DEPTH_TEST)
-        #GL.glDepthFunc(GL.GL_LEQUAL)
+        GL.glDepthFunc(GL.GL_LEQUAL)
         
         GL.glEnable( GL.GL_TEXTURE_2D )
         GL.glCullFace(GL.GL_BACK)
         GL.glFrontFace(GL.GL_CCW)
         GL.glEnable(GL.GL_CULL_FACE)
+        
+        GL.glEnable(GL.GL_FOG)
 
         GL.glEnable(GL.GL_LINE_SMOOTH)
         GL.glBlendFunc (GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
         GL.glEnable (GL.GL_BLEND)
        
+
         GL.glLightModelfv(GL.GL_LIGHT_MODEL_AMBIENT, (0.0,0.0,0.0,1.0))
 
 
@@ -382,8 +508,6 @@ class GLWidget(QtOpenGL.QGLWidget):
         light_Kd  = (1.1, 0.9, 0.8, 1.0)
         light_Ks  = (1.1, 1.0, 0.9, 1.0)
 
-
-        #
         GL.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, self.light_pos)    
         GL.glLightfv(GL.GL_LIGHT0, GL.GL_AMBIENT, light_Ka);
         GL.glLightfv(GL.GL_LIGHT0, GL.GL_DIFFUSE, light_Kd);
@@ -396,15 +520,11 @@ class GLWidget(QtOpenGL.QGLWidget):
         GL.glLightfv(GL.GL_LIGHT1, GL.GL_DIFFUSE, (.1, 0.1, .15, 1.0));
         GL.glLightfv(GL.GL_LIGHT1, GL.GL_SPECULAR, light_Ks);
 
-
-#        GL.glMatrixMode(GL.GL_MODELVIEW)
-#        GL.glLoadIdentity()
         
-        #GL.glClearDepth(1)
-        
+        GL.glClearDepth(1)
+        GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
         if self.links :
-
             GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (1,1,1,1))
             GL.glCallList(self.links)
 
@@ -412,41 +532,33 @@ class GLWidget(QtOpenGL.QGLWidget):
 
         GL.glCallList(self.galaxyStarsBack)
 
-        GL.glCallList(self.zones)        
-
-        
+        GL.glCallList(self.zones)
 
         GL.glCallList(self.planets)
 
-        if self.curZone :
-            pos = self.galaxy.control_points[self.curZone[0]].pos3d
-            scale  = self.galaxy.control_points[self.curZone[0]].size + 0.5
-            self.selectedPlanetOverlay(pos, scale)
-            
-            
+
+        if self.curZone :                       
+
             GL.glCallList(self.selection)
-            
-          
 
         GL.glCallList(self.galaxyStarsFront)
-        
-        
-        if self.attackVector :
-            self.drawAttackVector()
+
+     
+        if self.attackVectorGl :
+            GL.glCallList(self.attackVectorGl)
+
+        if self.underAttack :
+            GL.glCallList(self.underAttack)
 
         painter = QtGui.QPainter(self)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
 
-
-#        
-#        if self.overlayPlanet :
         GL.glDisable(GL.GL_DEPTH_TEST)
         GL.glDisable( GL.GL_TEXTURE_2D )
         GL.glDisable(GL.GL_CULL_FACE)
         GL.glDisable(GL.GL_LINE_SMOOTH)
         GL.glDisable (GL.GL_BLEND)            
-#            self.drawPlanetOverlay(painter)
-#        else :
+
         self.drawPlanetName(painter)
 
 
@@ -454,44 +566,29 @@ class GLWidget(QtOpenGL.QGLWidget):
         painter.end()
     
     
-    def selectedPlanetOverlay(self, pos = None, scale = None):
+    def createPlanetOverlay(self):
         if self.selection :
             GL.glDeleteLists(self.selection, 1)
-        
+            
         genList = GL.glGenLists(1)
         GL.glNewList(genList, GL.GL_COMPILE)
         GL.glMatrixMode(GL.GL_MODELVIEW)
 
-        GL.glBindTexture(GL.GL_TEXTURE_2D, self.selectionId)
         self.programSelection.bind()
-        if pos :
-            self.programSelection.setAttributeValue(11, pos.x(), pos.y(), 5.1)
-        if scale :
-
-            self.programSelection.setAttributeValue(12, scale, scale, scale )
-            
-        
+        GL.glBindTexture(GL.GL_TEXTURE_2D, self.selectionId)
         self.programSelection.setUniformValue('texture', 0)
-        GL.glCallList(self.atmosphere)         
-        
-        self.programSelection.release()        
-        
-        GL.glEndList()
-        return genList    
-    
-    def drawPlanetOverlay(self, painter):
-        if self.curZone :
+        if self.curZone : 
+            pos = self.galaxy.control_points[self.curZone[0]].pos3d
+            scale  = self.galaxy.control_points[self.curZone[0]].size + 0.5
+            self.programSelection.setAttributeValue(12, pos.x(), pos.y(), 5.1)
+            self.programSelection.setAttributeValue(13, scale, scale, scale )
             
-            site = self.curZone[0]
-            painter.setPen(QtCore.Qt.white)
-            #painter.drawRect(, 200, 255)
-            painter.fillRect((self.width() / 3) + 3, (self.height() / 3) + 3, 203, 303, QtGui.QColor(0, 0, 0, 50))
-            painter.fillRect(self.width() / 3, self.height() / 3, 200, 300, QtGui.QColor(36, 61, 75, 250))
-        
-
-
+        GL.glCallList(self.background)         
+        self.programSelection.release()        
+        GL.glEndList()
+        return genList               
+    
     def drawPlanetName(self, painter):
-        
         if self.curZone :
             painter.setOpacity(1)
             site = self.curZone[0]
@@ -513,15 +610,25 @@ class GLWidget(QtOpenGL.QGLWidget):
                 if occupation != 0 :
                     occupation = occupation*100
                     if abs(occupation-round(occupation)) < 0.01 :
-                        text += "<li><font color='%s'>%s</font> : %i &#37;</li>" % (COLOR_FACTIONS[i].name(), FACTIONS[i], int(occupation))
+                        text += "<li><font color='%s'>%s</font><font color='silver'> : %i &#37;</font></li>" % (COLOR_FACTIONS[i].name(), FACTIONS[i], int(occupation))
                     else :
-                        text += "<li><font color='%s'>%s</font> : %.1f &#37;</li>" % (COLOR_FACTIONS[i].name(), FACTIONS[i], occupation)
+                        text += "<li><font color='%s'>%s</font><font color='silver'> : %.1f &#37;</font></li>" % (COLOR_FACTIONS[i].name(), FACTIONS[i], occupation)
                     height = height + 50
                     
             text += "</ul>"
+
+            for useruid in self.parent.attacks :
+                for planetuid in self.parent.attacks[useruid] :
+                    uid = int(planetuid)
+                    if uid == site :
+                        text += "<font color='red'><h2>Planet Under %s Attack!</font></h2>" % (FACTIONS[int(self.parent.attacks[useruid][planetuid]["faction"])])
+          
+            
             painter.save()
             html = QtGui.QTextDocument()
             html.setHtml(text)
+
+        
                     
                     
 #            metrics = QtGui.QFontMetrics(self.font())
@@ -545,16 +652,16 @@ class GLWidget(QtOpenGL.QGLWidget):
             GL.glMatrixMode(GL.GL_PROJECTION)
             GL.glLoadIdentity()
             GLU.gluPerspective(40, float(self.width()) / float(self.height()), 1, self.backgroundDepth)
-            
-            
+        
+                    
         self.r = (self.cameraPos.z())/ (self.zoomMin - self.zoomMax)
-        self.ir = 1-self.r
+        self.ir = 1.0-self.r
 
         self.moveBoundaries()
         
         
         orig = QtGui.QVector3D(self.cameraPos.x(), self.cameraPos.y(), self.cameraPos.z())
-        orig.setZ(orig.z() - 1) 
+        orig.setZ(orig.z() - 1.0) 
         orig.setY(orig.y() + pow(self.ir, 5.0))  
         
         
@@ -563,15 +670,11 @@ class GLWidget(QtOpenGL.QGLWidget):
         GLU.gluLookAt(
             self.cameraPos.x(), self.cameraPos.y(), self.cameraPos.z() ,
             self.cameraPos.x(), orig.y() ,orig.z() ,
-            0.0, 1.0, 0.0)
-
-        self.lookAt = QtGui.QVector3D(self.cameraPos.x(), orig.y() ,orig.z())
-        
+            0.0, 1.0, 0.0)      
         
         self.programPlanet.setAttributeValue(10, self.cameraPos.x(), self.cameraPos.y(), self.cameraPos.z())
         self.programAtmosphere.setAttributeValue(10, self.cameraPos.x(), self.cameraPos.y(), self.cameraPos.z())
         self.programSelection.setAttributeValue(10, self.cameraPos.x(), self.cameraPos.y(), self.cameraPos.z())
-
         self.repaint()
          
 
@@ -692,6 +795,7 @@ class GLWidget(QtOpenGL.QGLWidget):
             else :
                 self.parent.hovering.emit()
                 self.attackVector = None
+                self.attackVectorGl = None
 
         elif  event.buttons() & QtCore.Qt.MiddleButton :
             
@@ -795,6 +899,7 @@ class GLWidget(QtOpenGL.QGLWidget):
             self.cameraPos.setY(self.cameraPos.y() + deltaY)
             
             self.createCamera() 
+        
             
         x = event.x()
         y = event.y()
@@ -802,12 +907,14 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.lastMouseEventx = x
         self.lastMouseEventy = y
 
-        self.computeZoomPosition(x, y)
+        if self.mouseMode == 0 :
+            self.computeZoomPosition(x, y)
         
         pos3d = self.computeCursorPosition(x,y, True)
         if not self.overlayPlanet :
-            self.curZone = self.galaxy.closestSite(pos3d.x(), pos3d.y()) 
-        
+            self.curZone = self.galaxy.closestSite(pos3d.x(), pos3d.y())
+            if self.curZone : 
+                self.selection = self.createPlanetOverlay()
       
     def attackable(self):
         faction = self.parent.faction
@@ -822,6 +929,7 @@ class GLWidget(QtOpenGL.QGLWidget):
             if self.galaxy.control_points[site].occupation(faction) > 0.5 :
                 
                 self.attackVector = (self.curZone[0], site)
+                self.attackVectorGl = self.createAttackVector()
                 return
                 
         
@@ -991,6 +1099,33 @@ class GLWidget(QtOpenGL.QGLWidget):
         
         GL.glEndList()
         return genList
+
+    def createPlane(self):
+        
+        
+        genList = GL.glGenLists(1)
+        
+        GL.glNewList(genList, GL.GL_COMPILE)
+        
+        GL.glBegin(GL.GL_QUAD_STRIP)
+
+        GL.glNormal3f(0, 1, 0)       
+
+        GL.glTexCoord2f(0, 1)
+        GL.glVertex3f(-1.0, 1.0, 0.0)
+        GL.glTexCoord2f(0, 0)
+        GL.glVertex3f(-1.0, -1.0, 0.0)
+        GL.glTexCoord2f(1, 1)
+        GL.glVertex3f(1.0, 1.0, 0.0) 
+        GL.glTexCoord2f(1, 0)
+        GL.glVertex3f(1.0, -1.0, 0.0)
+
+        GL.glEnd()
+        
+        GL.glEndList()
+
+        return genList   
+    
     def createBackground(self):
         
         

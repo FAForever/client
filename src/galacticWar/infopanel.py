@@ -24,12 +24,25 @@ class InfoPanelWidget(FormClass, BaseClass):
         
         self.parent.planetClicked.connect(self.planetClicked)
         self.parent.hovering.connect(self.setup)
+        self.parent.attacksUpdated.connect(self.updateAttacks)
         
         self.attackButton.clicked.connect(self.attack)
                 
     def setup(self):
         self.attackButton.hide()
         self.attackListWidget.hide()
+        
+    def updateAttacks(self):
+        print self.parent.uid
+        print self.parent.attacks
+        if self.parent.uid in self.parent.attacks :
+            print "ooooh yes"
+            self.attackListWidget.show()
+            for uid in self.parent.attacks[self.parent.uid] :
+                self.attackListWidget.addItem(self.parent.galaxy.get_name(uid))
+        else :
+            self.attackListWidget.hide()
+        
     
     def attack(self):
         self.parent.send(dict(command="attack_command", uid=self.planet))

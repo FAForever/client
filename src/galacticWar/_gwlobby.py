@@ -40,7 +40,8 @@ class LobbyWidget(FormClass, BaseClass):
     rankUpdated         = QtCore.pyqtSignal(int)
     creditsUpdated      = QtCore.pyqtSignal(int)
     victoriesUpdated    = QtCore.pyqtSignal(int)
-    
+    attacksUpdated      = QtCore.pyqtSignal()
+
     def __init__(self, client, *args, **kwargs):
         logger.debug("Lobby instantiating.")
         BaseClass.__init__(self, *args, **kwargs)
@@ -60,17 +61,22 @@ class LobbyWidget(FormClass, BaseClass):
         self.shaders    =   {}
         
         self.infoPanel  = None
+        self.OGLdisplay = None
         
         self.galaxy     = Galaxy()
         self.channel    = None
         self.scroller = QtGui.QLabel(self)
         
         self.initDone   = False
+        
+        self.uid        = None
         self.faction    = None
         self.name       = None
         self.rank       = None
         self.credits    = 0
         self.victories  = 0
+   
+        self.attacks = {}
    
         self.state = ClientState.NONE
         
@@ -297,18 +303,34 @@ class LobbyWidget(FormClass, BaseClass):
     
     def handle_player_info(self, message):
         ''' Update Player stats '''
+        self.uid        = int(message["uid"])
         self.faction    = message["faction"]
         self.name       = message["name"]        
         self.rank       = message["rank"]
         self.credits    = message["credits"]
         self.victories  = message["victories"]        
         
-        print message
-        
+       
         self.rankUpdated.emit(self.rank)
         self.creditsUpdated.emit(self.credits)
         self.victoriesUpdated.emit(self.victories)
         
+    
+    def handle_attacks_info(self, message):
+        attacks = message["attacks"]
+        for playeruid in attacks :
+            playeruid_int = int(playeruid)
+            if not playeruid_int in self.attacks :
+                self.attacks[playeruid_int] = {}
+            
+            for planetuid in attacks[playeruid] :
+                planetuid_int = int(planetuid)
+                self.attacks[playeruid_int][planetuid_int] = attacks[playeruid][planetuid]
+
+            
+        self.attacksUpdated.emit()
+        
+    
     def handle_planet_info(self, message):
         uid = message['uid'] 
         if not uid in self.galaxy.control_points :
@@ -327,16 +349,12 @@ class LobbyWidget(FormClass, BaseClass):
                 self.galaxy.links[uid] = message['links']
 
     def handle_logged_in(self, message):
-        self.faction    = message["faction"]
-        self.name       = message["name"]        
-        self.rank       = message["rank"]
-        self.credits    = message["credits"]
-        self.victories  = message["victories"]
-        
+       
         self.handle_player_info(message)
         if self.faction != None :
             self.client.galacticwarTab.setStyleSheet(util.readstylesheet("galacticwar/galacticwar.css").replace("%FACTION%", FACTIONS[self.faction]))   
             
+        self.attacksUpdated.emit()
 
     def handle_create_account(self, message):
         if message["action"] == 0 :

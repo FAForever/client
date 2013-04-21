@@ -1,12 +1,9 @@
+
 from PyQt4 import QtCore, QtGui
-from OpenGL import GL
 import random
 from  voronoi import Site, computeVoronoiDiagram
 import math
-import os
 import copy
-
-from util import GW_TEXTURE_DIR
 
 class Galaxy(object):
     def __init__(self):
@@ -41,7 +38,13 @@ class Galaxy(object):
 #        self.computeVoronoi()
 #        self.createNetwork()
      
-                
+    def get_name(self, uid):
+        if uid in self.control_points :
+            return self.control_points[uid].get_name()
+        else :
+            return "unknown"
+        
+    
     def monotone_chain(self, points):
         '''Returns a convex hull for an unordered group of 2D points.
         Uses Andrew's Monotone Chain Convex Hull algorithm.'''
@@ -186,15 +189,6 @@ class Galaxy(object):
         site.pos3d.setX(site.x)
         site.pos3d.setY(site.y)
         
-
-    def bindTextures(self, context):
-        
-        for uid in self.control_points :
-            site = self.control_points[uid]
-            site.texture = context.bindTexture(QtGui.QPixmap(os.path.join(GW_TEXTURE_DIR,'%s.png' % site.texname)), GL.GL_TEXTURE_2D)   
-            
-            #site.texture = context.bindTexture(QtGui.QPixmap('earth.bmp'), GL.GL_TEXTURE_2D)
-            
     
     def addPlanet(self, uid, x, y, size, texture = 1, init = False):
         
@@ -246,7 +240,7 @@ class Galaxy(object):
             py = pt.y
             d = math.hypot(px - x, py - y)
             if d == 0:
-                return i, 0, x, y
+                return _, 0, x, y
             
             if d < distance or not distance :
                 
