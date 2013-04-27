@@ -1,8 +1,13 @@
 from PyQt4 import QtGui, QtCore
 import util
 from galacticWar import logger
+from attackitem import AttackItem
 
 FormClass, BaseClass = util.loadUiType("galacticwar/infopanel.ui")
+
+
+
+
 
 class InfoPanelWidget(FormClass, BaseClass):
     def __init__(self, parent, *args, **kwargs):
@@ -17,6 +22,9 @@ class InfoPanelWidget(FormClass, BaseClass):
         self.attackListWidget.hide()
         
         self.planet = None
+        
+        
+        self.myAttacks = {}
         
         # Updating stats
         self.parent.creditsUpdated.connect(self.updateCredit)
@@ -37,11 +45,27 @@ class InfoPanelWidget(FormClass, BaseClass):
         
         if self.parent.uid in self.parent.attacks :
             self.attackListWidget.show()
+            
+            # clearing stuff
+            for uid in self.myAttacks :
+                self.myAttacks[uid].updateTimer.stop()
+            self.myAttacks = {}
             self.attackListWidget.clear()
+            
             for uid in self.parent.attacks[self.parent.uid] :
-                self.attackListWidget.addItem(self.parent.galaxy.get_name(uid))
+                if not uid in self.myAttacks :
+                    self.myAttacks[uid] = AttackItem(uid)
+                    self.attackListWidget.addItem(self.myAttacks[uid])
+                
+                self.myAttacks[uid].update(self.parent.attacks[self.parent.uid][uid], self)
+                
         else :
             self.attackListWidget.hide()
+            if len(self.myAttacks) != 0 :
+                for uid in self.myAttacks :
+                    self.myAttacks[uid].updateTimer.stop()
+                self.myAttacks = {}
+                self.attackListWidget.clear()                
         
     
     def attack(self):
