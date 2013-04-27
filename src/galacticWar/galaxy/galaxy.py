@@ -17,10 +17,7 @@ class Galaxy(object):
         self.control_points = {}
         self.links = {}
 
-        self.colorCybran = (1,0,0,0)
-        self.colorUEF = (0,0,1,0)
-        self.colorAeon = (0,1,0,0)
-        self.colorSera = (1,1,0,0)
+
 
         p1 = QtCore.QPointF(-self.space_size.x()-50, -self.space_size.y()-50)
         p2 = QtCore.QPointF(-self.space_size.x()-50, self.space_size.y()+50) 
@@ -38,6 +35,17 @@ class Galaxy(object):
 #        self.computeVoronoi()
 #        self.createNetwork()
      
+     
+    def update(self, message):
+        uid = message["uid"]
+        if uid in self.control_points :
+            self.control_points[uid].setOccupation(0, message['uef'])
+            self.control_points[uid].setOccupation(1, message['aeon'])
+            self.control_points[uid].setOccupation(2, message['cybran'])
+            self.control_points[uid].setOccupation(3, message['seraphim'])
+            
+            self.control_points[uid].computeColor()
+    
     def get_name(self, uid):
         if uid in self.control_points :
             return self.control_points[uid].get_name()
@@ -204,24 +212,24 @@ class Galaxy(object):
             return
 
 
-        color = (random.uniform(0,1), random.uniform(0,1), random.uniform(0,1), 1.0)
-        if x > 0 :
-            if y > 0 :
-                color = self.colorCybran
-                cybran  = 1.0
-            else :
-                color = self.colorUEF
-                uef  = 1.0
-        else :
-            if y > 0 :
-                color = self.colorAeon
-                aeon = 1.0
-            else :
-                color = self.colorSera
-                sera = 1.0               
+#        color = (random.uniform(0,1), random.uniform(0,1), random.uniform(0,1), 1.0)
+#        if x > 0 :
+#            if y > 0 :
+#                color = self.colorCybran
+#                cybran  = 1.0
+#            else :
+#                color = self.colorUEF
+#                uef  = 1.0
+#        else :
+#            if y > 0 :
+#                color = self.colorAeon
+#                aeon = 1.0
+#            else :
+#                color = self.colorSera
+#                sera = 1.0               
         
         
-        self.control_points[uid]=(Site(x, y, color = color, size = size, sitenum = uid, aeon = aeon, uef = uef, cybran = cybran, sera = sera, texture = texture))
+        self.control_points[uid]=(Site(x, y, size = size, sitenum = uid, aeon = aeon, uef = uef, cybran = cybran, sera = sera, texture = texture))
         if not init :
             self.computeVoronoi()
      

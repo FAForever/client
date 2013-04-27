@@ -92,6 +92,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.animCam.finished.connect(self.animFinished)
         
         self.parent.attacksUpdated.connect(self.planetsUnderAttack)
+        self.parent.planetUpdated.connect(self.planetUpdate)
         
         self.setMouseTracking(1)
         self.setAutoFillBackground(False)
@@ -266,6 +267,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         
         genList = GL.glGenLists(1)
         GL.glNewList(genList, GL.GL_COMPILE)
+        GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (1,1,1,1))
         GL.glBindTexture(GL.GL_TEXTURE_2D, self.starTexId)
         self.programStars.bind()
         self.programStars.setUniformValue('texture', 0)
@@ -278,7 +280,8 @@ class GLWidget(QtOpenGL.QGLWidget):
             if side == 1 and star.z() > 0 :
                 continue            
                 
-            GL.glPushMatrix()       
+            GL.glPushMatrix()
+                   
             GL.glTranslatef(star.x(), star.y(), star.z())
             scale = random.randrange(1,10)/10.0
             GL.glScalef(scale,scale,1)  
@@ -339,6 +342,8 @@ class GLWidget(QtOpenGL.QGLWidget):
         GL.glEndList()
         return genList 
     
+    def planetUpdate(self):
+        self.zones = self.createZones()
     
     def planetsUnderAttack(self):
         if not hasattr(self, "underAttack") :
@@ -798,7 +803,7 @@ class GLWidget(QtOpenGL.QGLWidget):
                 self.attackVectorGl = None
 
         elif  event.buttons() & QtCore.Qt.MiddleButton :
-            
+            self.animCam.stop()
             if self.overlayPlanet == True :
                 return
             
@@ -1021,7 +1026,8 @@ class GLWidget(QtOpenGL.QGLWidget):
             site  = self.galaxy.closest(float(poly.split()[0]), float(poly.split()[1]))
             center = QtGui.QVector3D(float(poly.split()[0]), float(poly.split()[1]), 0)
             color  = self.galaxy.control_points[site[0]].color
-            GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (color[0],color[1],color[2], opacity))            
+            
+            GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (color.redF(),color.greenF(),color.blueF(), opacity))            
             points = self.galaxy.finalPolys[poly]
             hull = self.galaxy.monotone_chain(points)
             GL.glBegin(GL.GL_POLYGON)
@@ -1036,7 +1042,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         for poly in  polyBorders :
             site  = self.galaxy.closest(float(poly.split()[0]), float(poly.split()[1]))
             color  = self.galaxy.control_points[site[0]].color
-            GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (color[0],color[1],color[2], opacity * 1.5))
+            GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (color.redF(),color.greenF(),color.blueF(), opacity * 1.5))
             GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (.2,.2,.2, 1))
             center = QtGui.QVector3D(float(poly.split()[0]), float(poly.split()[1]), 0)
             polyBorder = polyBorders[poly]
@@ -1068,7 +1074,7 @@ class GLWidget(QtOpenGL.QGLWidget):
             site  = self.galaxy.closest(float(poly.split()[0]), float(poly.split()[1]))
             center = QtGui.QVector3D(float(poly.split()[0]), float(poly.split()[1]), 0)
             color  = self.galaxy.control_points[site[0]].color
-            GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (color[0],color[1],color[2], opacity))
+            GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (color.redF(),color.greenF(),color.blueF(), opacity))
             points = self.galaxy.finalPolys[poly]
             hull = self.galaxy.monotone_chain(points)
             

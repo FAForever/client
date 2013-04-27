@@ -30,6 +30,8 @@
 
 from PyQt4 import QtCore, QtGui
 
+from galacticWar import FACTIONS, COLOR_FACTIONS
+
 def usage():
     print """
 voronoi - compute Voronoi diagram or Delaunay triangulation
@@ -700,10 +702,9 @@ class PriorityQueue(object):
         return curr
 
 class Site(object):
-    def __init__(self, x=0.0, y=0.0, color = (0,0,0,0), sitenum=0, size = 1, aeon = 0, cybran = 0, uef = 0, sera = 0, texture = 1):
+    def __init__(self, x=0.0, y=0.0, sitenum=0, size = 1, aeon = 0, cybran = 0, uef = 0, sera = 0, texture = 1):
         self.x = x
         self.y = y
-        self.color = color
         self.sitenum = sitenum
         self.size = size
         self.texture = None
@@ -715,8 +716,40 @@ class Site(object):
         self.uef    = uef
         self.sera   = sera
         
+        self.color = QtGui.QColor(0,0,0)
+        
     def get_name(self):
         return "planet %i" % (self.sitenum)
+    
+    def computeColor(self):
+        r = (COLOR_FACTIONS[0].redF() * self.uef + COLOR_FACTIONS[1].redF() * self.aeon + COLOR_FACTIONS[2].redF() * self.cybran + COLOR_FACTIONS[3].redF() * self.sera) 
+        g = (COLOR_FACTIONS[0].greenF() * self.uef + COLOR_FACTIONS[1].greenF() * self.aeon + COLOR_FACTIONS[2].greenF()* self.cybran + COLOR_FACTIONS[3].greenF()* self.sera)
+        b = (COLOR_FACTIONS[0].blueF() * self.uef + COLOR_FACTIONS[1].blueF() * self.aeon + COLOR_FACTIONS[2].blueF() * self.cybran+ COLOR_FACTIONS[3].blueF()* self.sera)
+        
+        if r > 1 or g > 1 or b > 1 :
+            vectorRGB = QtGui.QVector3D(r,b,g)
+            vectorRGB.normalize()
+            
+            r = vectorRGB.x()
+            g = vectorRGB.y()
+            b = vectorRGB.z()
+
+        self.color.setRedF(r)
+        self.color.setGreenF(g)
+        self.color.setBlueF(b)
+       
+    
+    def setOccupation(self, faction, occupation):
+        if faction == 0 :
+            self.uef = occupation
+        elif faction == 1 :
+            self.aeon = occupation       
+        elif faction == 2 :
+            self.cybran = occupation
+        elif faction == 3 :
+            self.sera = occupation
+            
+        
     
     def occupation(self, faction):
         if faction == 0 :
