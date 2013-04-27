@@ -60,9 +60,7 @@ class LobbyWidget(FormClass, BaseClass):
         self.shaderlist     =   []
         self.texturelist    =   {}        
         self.shaders    =   {}
-        
-        self.attackPeriod = 0
-        
+
         self.infoPanel  = None
         self.OGLdisplay = None
         
@@ -390,10 +388,6 @@ class LobbyWidget(FormClass, BaseClass):
         if message['status'] == True :
             self.initDone = True
             self.check_ressources()
-
-    def handle_game_infos(self, message):
-        if "attackPeriod" in message :
-            self.attackPeriod = message["attackPeriod"]
 
     def handle_social(self, message):      
         if "autojoin" in message :

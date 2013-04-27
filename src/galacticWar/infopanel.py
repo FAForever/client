@@ -36,9 +36,11 @@ class InfoPanelWidget(FormClass, BaseClass):
         self.parent.attacksUpdated.connect(self.updateAttacks)
         
         self.attackButton.clicked.connect(self.attack)
+        self.defenseButton.clicked.connect(self.defend)
                 
     def setup(self):
         self.attackButton.hide()
+        self.defenseButton.hide()
         
         
     def updateAttacks(self):
@@ -66,7 +68,9 @@ class InfoPanelWidget(FormClass, BaseClass):
                     self.myAttacks[uid].updateTimer.stop()
                 self.myAttacks = {}
                 self.attackListWidget.clear()                
-        
+
+    def defend(self):
+        self.parent.send(dict(command="defense_command", uid=self.planet))        
     
     def attack(self):
         self.parent.send(dict(command="attack_command", uid=self.planet))
@@ -85,11 +89,22 @@ class InfoPanelWidget(FormClass, BaseClass):
         ''' When the user click a planet on the map'''
 
         self.attackButton.hide()
-
+        self.defenseButton.hide()
+        
         faction = self.parent.faction
         if faction == None :
             self.planet = None
             return
+        
+        for uid in self.parent.attacks :
+            for planetuid in self.parent.attacks[uid] :
+                if planetId == planetuid :
+                    if self.galaxy.control_points[planetuid].occupation(faction) > 0.5 and self.parent.attacks[uid][planetuid]["faction"] != faction :
+                        for site in self.galaxy.getLinkedPlanets(planetId) :
+                            if self.galaxy.control_points[site].occupation(faction) > 0.5 :
+                                self.defenseButton.show()
+                                self.planet = planetId
+                                return                         
         
         if self.galaxy.control_points[planetId].occupation(faction) > 0.9 :
             self.planet = None
@@ -100,5 +115,6 @@ class InfoPanelWidget(FormClass, BaseClass):
                 self.attackButton.show()
                 self.planet = planetId
                 return
+
 
     
