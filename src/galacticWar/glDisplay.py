@@ -341,9 +341,9 @@ class GLWidget(QtOpenGL.QGLWidget):
     
     
     def planetsUnderAttack(self):
-        if len(self.parent.attacks) == 0 :
-            return None
-        
+        if not hasattr(self, "underAttack") :
+            return
+       
         if self.underAttack :
             GL.glDeleteLists(self.underAttack, 1)
 
@@ -357,6 +357,7 @@ class GLWidget(QtOpenGL.QGLWidget):
                 uid = int(planetuid)
                 
                 if uid in self.galaxy.control_points :
+                    
                     color  = COLOR_FACTIONS[int(self.parent.attacks[useruid][planetuid]["faction"])]
                     self.programSwirl.bind()
                     GL.glBindTexture(GL.GL_TEXTURE_2D, self.attackId)
@@ -368,17 +369,15 @@ class GLWidget(QtOpenGL.QGLWidget):
                     scale = site.size * 10
                     self.programSwirl.setUniformValue('rotation', 1.0, 0, 0)
                     self.programSwirl.setUniformValue('scaling', scale, scale, scale)
-                    self.programSwirl.setUniformValue('pos', pos.x(), pos.y(), scale+5.0)
+                    self.programSwirl.setUniformValue('pos', pos.x(), pos.y(), scale)
                     
-                    
-                     
-
                     GL.glCallList(self.plane)
 
         
                     self.programSwirl.release()
         
         GL.glEndList()
+        self.underAttack = genList 
         return genList 
     
     def createAttackVector(self):
@@ -540,14 +539,16 @@ class GLWidget(QtOpenGL.QGLWidget):
         if self.curZone :                       
             GL.glCallList(self.selection)
 
-        GL.glCallList(self.galaxyStarsFront)
+        
 
+        if self.underAttack :
+            GL.glCallList(self.underAttack)
      
         if self.attackVectorGl :
             GL.glCallList(self.attackVectorGl)
 
-        if self.underAttack :
-            GL.glCallList(self.underAttack)
+
+        GL.glCallList(self.galaxyStarsFront)
 
         painter = QtGui.QPainter(self)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
