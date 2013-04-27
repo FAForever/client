@@ -632,6 +632,12 @@ class Updater(QtCore.QObject):
             log("Error: Patch version %s not found for %s." % (self.version, response))
             self.writeToServer("REQUEST_VERSION", self.destination, response, self.version)
             return
+
+        elif action == "VERSION_MOD_PATCH_NOT_FOUND" :
+            response = stream.readQString()
+            log("Error: Patch version %s not found for %s." % (str(self.modversions), response))
+            self.writeToServer("REQUEST_MOD_VERSION", self.destination, response, json.dumps(self.modversions))
+            return
         
         elif action == "PATCH_NOT_FOUND" :
             response = stream.readQString()
