@@ -41,4 +41,9 @@ class AttackItem(QtGui.QListWidgetItem):
         self.timeAttack    = time.time() + attack["timeAttack"]        
 
     def updateText(self):
-        self.setText("%s [Attack in %i seconds]" % (self.parent.parent.galaxy.get_name(self.uid), (max(0,self.timeAttack - time.time()))))
+        remaining = (max(0,self.timeAttack - time.time()))
+        if remaining < 240 :
+            self.setText("%s [Attack in %i seconds]" % (self.parent.parent.galaxy.get_name(self.uid), remaining))
+        else :
+            remaining = int(remaining / 60)
+            self.setText("%s [Attack in %i minutes]" % (self.parent.parent.galaxy.get_name(self.uid), remaining))
