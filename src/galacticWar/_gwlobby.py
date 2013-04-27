@@ -392,7 +392,7 @@ class LobbyWidget(FormClass, BaseClass):
                 self.client.autoJoin.emit(["#Aeon"])
             elif message["autojoin"] == 2 :
                 self.client.autoJoin.emit(["#Cybran"])
-            elif message["autojoin"] == 4 :
+            elif message["autojoin"] == 3 :
                 self.client.autoJoin.emit(["#Seraphim"])
 
 

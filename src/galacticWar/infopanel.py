@@ -14,7 +14,8 @@ class InfoPanelWidget(FormClass, BaseClass):
         self.galaxy = self.parent.galaxy
         
         self.setup()
-
+        self.attackListWidget.hide()
+        
         self.planet = None
         
         # Updating stats
@@ -30,14 +31,13 @@ class InfoPanelWidget(FormClass, BaseClass):
                 
     def setup(self):
         self.attackButton.hide()
-        self.attackListWidget.hide()
+        
         
     def updateAttacks(self):
-        print self.parent.uid
-        print self.parent.attacks
+        
         if self.parent.uid in self.parent.attacks :
-            print "ooooh yes"
             self.attackListWidget.show()
+            self.attackListWidget.clear()
             for uid in self.parent.attacks[self.parent.uid] :
                 self.attackListWidget.addItem(self.parent.galaxy.get_name(uid))
         else :

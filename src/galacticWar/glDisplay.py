@@ -538,7 +538,6 @@ class GLWidget(QtOpenGL.QGLWidget):
 
 
         if self.curZone :                       
-
             GL.glCallList(self.selection)
 
         GL.glCallList(self.galaxyStarsFront)
@@ -569,7 +568,7 @@ class GLWidget(QtOpenGL.QGLWidget):
     def createPlanetOverlay(self):
         if self.selection :
             GL.glDeleteLists(self.selection, 1)
-            
+
         genList = GL.glGenLists(1)
         GL.glNewList(genList, GL.GL_COMPILE)
         GL.glMatrixMode(GL.GL_MODELVIEW)
@@ -579,7 +578,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.programSelection.setUniformValue('texture', 0)
         if self.curZone : 
             pos = self.galaxy.control_points[self.curZone[0]].pos3d
-            scale  = self.galaxy.control_points[self.curZone[0]].size + 0.5
+            scale  = self.galaxy.control_points[self.curZone[0]].size * 10
             self.programSelection.setAttributeValue(12, pos.x(), pos.y(), 5.1)
             self.programSelection.setAttributeValue(13, scale, scale, scale )
             
@@ -621,7 +620,7 @@ class GLWidget(QtOpenGL.QGLWidget):
                 for planetuid in self.parent.attacks[useruid] :
                     uid = int(planetuid)
                     if uid == site :
-                        text += "<font color='red'><h2>Planet Under %s Attack!</font></h2>" % (FACTIONS[int(self.parent.attacks[useruid][planetuid]["faction"])])
+                        text += "<font color='red'><h2>Under %s Attack!</font></h2>" % (FACTIONS[int(self.parent.attacks[useruid][planetuid]["faction"])])
           
             
             painter.save()
