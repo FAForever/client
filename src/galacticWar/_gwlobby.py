@@ -41,6 +41,7 @@ class LobbyWidget(FormClass, BaseClass):
     creditsUpdated      = QtCore.pyqtSignal(int)
     victoriesUpdated    = QtCore.pyqtSignal(int)
     attacksUpdated      = QtCore.pyqtSignal()
+    planetUpdated       = QtCore.pyqtSignal()
 
     def __init__(self, client, *args, **kwargs):
         logger.debug("Lobby instantiating.")
@@ -59,6 +60,8 @@ class LobbyWidget(FormClass, BaseClass):
         self.shaderlist     =   []
         self.texturelist    =   {}        
         self.shaders    =   {}
+        
+        self.attackPeriod = 0
         
         self.infoPanel  = None
         self.OGLdisplay = None
@@ -318,6 +321,7 @@ class LobbyWidget(FormClass, BaseClass):
     
     def handle_attacks_info(self, message):
         attacks = message["attacks"]
+        self.attacks = {}
         for playeruid in attacks :
             playeruid_int = int(playeruid)
             if not playeruid_int in self.attacks :
@@ -327,7 +331,6 @@ class LobbyWidget(FormClass, BaseClass):
                 planetuid_int = int(planetuid)
                 self.attacks[playeruid_int][planetuid_int] = attacks[playeruid][planetuid]
 
-            
         self.attacksUpdated.emit()
         
     
@@ -344,9 +347,13 @@ class LobbyWidget(FormClass, BaseClass):
                 self.texturelist[texture] = textureMd5 
             
             self.galaxy.addPlanet(uid, x, y, size, texture = texture, init=True) 
+            self.galaxy.update(message)
             
             if not uid in self.galaxy.links :
                 self.galaxy.links[uid] = message['links']
+        else :
+            self.galaxy.update(message)
+            self.planetUpdated.emit()
 
     def handle_logged_in(self, message):
        
@@ -383,6 +390,10 @@ class LobbyWidget(FormClass, BaseClass):
         if message['status'] == True :
             self.initDone = True
             self.check_ressources()
+
+    def handle_game_infos(self, message):
+        if "attackPeriod" in message :
+            self.attackPeriod = message["attackPeriod"]
 
     def handle_social(self, message):      
         if "autojoin" in message :
