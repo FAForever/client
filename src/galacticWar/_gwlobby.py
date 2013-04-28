@@ -273,7 +273,7 @@ class LobbyWidget(FormClass, BaseClass):
     
     def download_textures(self):
         self.progress.show()
-        self.progress.setLabelText("Downloading ressources ...")
+        self.progress.setLabelText("Downloading resources ...")
         
         textInCache = []
         
@@ -453,20 +453,11 @@ class LobbyWidget(FormClass, BaseClass):
 
         if self.state == ClientState.ACCEPTED:
             QtGui.QMessageBox.warning(QtGui.QApplication.activeWindow(), "Disconnected from Galactic War", "The lobby lost the connection to the Galactic War server.<br/><b>You might still be able to chat.<br/>To play, try reconnecting a little later!</b>", QtGui.QMessageBox.Close)
-        
-            #Clear the online users lists
-            oldplayers = self.players.keys()
-            self.players = {}
-            self.urls = {}
-            self.usersUpdated.emit(oldplayers)
-            
-            self.disconnected.emit()            
-            
-            self.mainTabs.setCurrentIndex(0)
-            
-            for i in range(1, self.mainTabs.count()):
-                self.mainTabs.setTabEnabled(i, False)
-                self.mainTabs.setTabText(i, "offline")
+                            
+            self.client.mainTabs.setCurrentIndex(0)
+
+            self.client.mainTabs.setTabEnabled(self.client.mainTabs.indexOf(self.client.galacticwarTab  ), False)
+            self.client.mainTabs.setTabText(self.client.mainTabs.indexOf(self.client.galacticwarTab  ), "offline")
                 
         self.state = ClientState.DROPPED             
             

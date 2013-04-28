@@ -1246,7 +1246,10 @@ class ClientWindow(FormClass, BaseClass):
     #
     def send(self, message):
         data = json.dumps(message)
-        logger.info("Outgoing JSON Message: " + data)
+        if message["command"] == "hello" :
+            logger.info("Outgoing JSON Message: login." )
+        else :
+            logger.info("Outgoing JSON Message: " + data)
         self.writeToServer(data)
         
         

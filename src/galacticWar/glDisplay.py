@@ -365,8 +365,14 @@ class GLWidget(QtOpenGL.QGLWidget):
                     
                     color  = COLOR_FACTIONS[int(self.parent.attacks[useruid][planetuid]["faction"])]
                     self.programSwirl.bind()
-                    GL.glBindTexture(GL.GL_TEXTURE_2D, self.attackId)
-                    GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (color.redF(),color.greenF(),color.blueF(), 1))
+                    
+                    if self.parent.attacks[useruid][planetuid]["defended"] :
+                        GL.glBindTexture(GL.GL_TEXTURE_2D, self.selectionId)
+                        GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (color.redF(),color.greenF(),color.blueF(), .6))
+                    else :
+                        GL.glBindTexture(GL.GL_TEXTURE_2D, self.attackId)
+                        GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (color.redF(),color.greenF(),color.blueF(), 1))
+                        
                     self.programSwirl.setUniformValue('texture', 0)
                     
                     site = self.galaxy.control_points[uid]
@@ -414,7 +420,9 @@ class GLWidget(QtOpenGL.QGLWidget):
         
         animVector = orig - dest
         
-        steps = int(animVector.length() / 2) 
+        steps = int(animVector.length() / 2)
+        if steps == 0 :
+            steps = 2
         
         for i in range(steps + 1) :
             pos = i / float(steps)
@@ -627,7 +635,8 @@ class GLWidget(QtOpenGL.QGLWidget):
                     uid = int(planetuid)
                     if uid == site :
                         text += "<font color='red'><h2>Under %s Attack!</font></h2>" % (FACTIONS[int(self.parent.attacks[useruid][planetuid]["faction"])])
-          
+                        if self.parent.attacks[useruid][planetuid]["defended"] :
+                            text += "<font color='green'><h2>And currently defended!</font></h2>"
             
             painter.save()
             html = QtGui.QTextDocument()
@@ -804,6 +813,7 @@ class GLWidget(QtOpenGL.QGLWidget):
 
         elif  event.buttons() & QtCore.Qt.MiddleButton :
             self.animCam.stop()
+            self.timerRotate.start(self.UPDATE_ROTATION)
             if self.overlayPlanet == True :
                 return
             
