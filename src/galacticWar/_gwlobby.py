@@ -241,7 +241,7 @@ class LobbyWidget(FormClass, BaseClass):
     def handle_welcome(self, message):
         self.state = ClientState.ACCEPTED
 
-    def handle_ressource_required(self, message):
+    def handle_resource_required(self, message):
         if message["action"] == "shaders" :
             self.shaderlist = message["data"]
             self.send(dict(command = "request", action ="shaders"))
@@ -263,7 +263,7 @@ class LobbyWidget(FormClass, BaseClass):
         
         if name in self.shaderlist :
             self.shaderlist.remove(name)
-        self.check_ressources()
+        self.check_resources()
             
             #we have all our shader.
             
@@ -296,7 +296,7 @@ class LobbyWidget(FormClass, BaseClass):
         
 
     
-    def check_ressources(self):
+    def check_resources(self):
         '''checking if we have everything we need'''
         if len(self.shaderlist) == 0 and self.initDone :
             self.download_textures()
@@ -387,7 +387,7 @@ class LobbyWidget(FormClass, BaseClass):
     def handle_init_done(self, message):
         if message['status'] == True :
             self.initDone = True
-            self.check_ressources()
+            self.check_resources()
 
     def handle_social(self, message):      
         if "autojoin" in message :
@@ -400,6 +400,10 @@ class LobbyWidget(FormClass, BaseClass):
             elif message["autojoin"] == 3 :
                 self.client.autoJoin.emit(["#Seraphim"])
 
+    def handle_searching(self, message):
+        text = message["text"]
+        self.progress.show()
+        self.progress.setLabelText(text)        
 
     def handle_notice(self, message):
         self.client.handle_notice(message)
