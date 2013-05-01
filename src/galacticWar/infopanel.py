@@ -3,6 +3,8 @@ import util
 from galacticWar import logger
 from attackitem import AttackItem
 
+import time
+
 FormClass, BaseClass = util.loadUiType("galacticwar/infopanel.ui")
 
 
@@ -24,23 +26,50 @@ class InfoPanelWidget(FormClass, BaseClass):
         self.planet = None
         
         
-        self.myAttacks = {}
+        self.myAttacks      = {}
+        self.attackProposal = {}
         
         # Updating stats
         self.parent.creditsUpdated.connect(self.updateCredit)
         self.parent.rankUpdated.connect(self.updateRank)
         self.parent.victoriesUpdated.connect(self.updateVictories)
         
+        
         self.parent.planetClicked.connect(self.planetClicked)
         self.parent.hovering.connect(self.setup)
         self.parent.attacksUpdated.connect(self.updateAttacks)
         
+        self.parent.attackProposalUpdated.connect(self.updateAttacksProposal)
+        
         self.attackButton.clicked.connect(self.attack)
         self.defenseButton.clicked.connect(self.defend)
-                
+        
+        self.attackProposalListWidget.itemDoubleClicked.connect(self.attackProposalAccepted)
+        
     def setup(self):
         self.attackButton.hide()
         self.defenseButton.hide()
+        self.attackBox.hide()
+        
+    def attackProposalAccepted(self, item):
+        question = QtGui.QMessageBox.question(self, "You are going to attack this planet. Do you want to proceed ?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+        
+        if question == QtGui.QMessageBox.Yes :
+            planetuid = item.uid
+            self.parent.send(dict(command="accept_proposal", uid=planetuid))
+            
+        
+    
+    def updateAttacksProposal(self, planetuid):
+        if planetuid in self.attackProposal :
+            return
+        
+        self.attackBox.show()
+        if not planetuid in self.attackProposal :
+            self.attackProposal[planetuid] = AttackItem(planetuid)
+            self.attackProposalListWidget.addItem(self.attackProposal[planetuid])
+            
+            self.attackProposal[planetuid].update(dict(timeAttack=time.time()+60*5), self)
         
         
     def updateAttacks(self):
@@ -75,6 +104,16 @@ class InfoPanelWidget(FormClass, BaseClass):
     def attack(self):
         self.parent.send(dict(command="attack_command", uid=self.planet))
     
+    def timeOut(self, uid):
+        if uid in self.attackProposal :
+            item = self.attackProposal[uid]
+            item.updateTimer.stop()
+            self.attackProposalListWidget.removeItemWidget(item)
+            del self.attackProposal[uid]
+            
+        if len(self.attackProposal) == 0 :
+            self.attackBox.hide()           
+
     def updateRank(self, rank):
         rankName = self.parent.get_rank(self.parent.faction, rank)
         self.nameLabel.setText("%s %s" %(rankName,self.parent.name))

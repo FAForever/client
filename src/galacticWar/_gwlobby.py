@@ -34,14 +34,15 @@ import loginwizards
 FormClass, BaseClass = util.loadUiType("galacticwar/galacticwar.ui")
 
 class LobbyWidget(FormClass, BaseClass):
-    planetClicked       = QtCore.pyqtSignal(int)
-    hovering            = QtCore.pyqtSignal()
-    creditsUpdated      = QtCore.pyqtSignal(int)
-    rankUpdated         = QtCore.pyqtSignal(int)
-    creditsUpdated      = QtCore.pyqtSignal(int)
-    victoriesUpdated    = QtCore.pyqtSignal(int)
-    attacksUpdated      = QtCore.pyqtSignal()
-    planetUpdated       = QtCore.pyqtSignal()
+    planetClicked           = QtCore.pyqtSignal(int)
+    hovering                = QtCore.pyqtSignal()
+    creditsUpdated          = QtCore.pyqtSignal(int)
+    rankUpdated             = QtCore.pyqtSignal(int)
+    creditsUpdated          = QtCore.pyqtSignal(int)
+    victoriesUpdated        = QtCore.pyqtSignal(int)
+    attacksUpdated          = QtCore.pyqtSignal()
+    planetUpdated           = QtCore.pyqtSignal()
+    attackProposalUpdated   = QtCore.pyqtSignal(int)
 
     def __init__(self, client, *args, **kwargs):
         logger.debug("Lobby instantiating.")
@@ -316,6 +317,15 @@ class LobbyWidget(FormClass, BaseClass):
         self.creditsUpdated.emit(self.credits)
         self.victoriesUpdated.emit(self.victories)
         
+    def handle_attack_result(self, message):
+        self.progress.close()
+        result = message["result"]
+        if result == "won" :
+            QtGui.QMessageBox.info(QtGui.QApplication.activeWindow(), "You win !" , QtGui.QMessageBox.Close)
+        
+    def handle_attack_proposal(self, message):
+        planetuid = message["planetuid"]
+        self.attackProposalUpdated.emit(planetuid)
     
     def handle_attacks_info(self, message):
         attacks = message["attacks"]
@@ -377,6 +387,7 @@ class LobbyWidget(FormClass, BaseClass):
             self.faction = message["faction"]
 
             self.rank = message["rank"]
+            
             question = QtGui.QMessageBox.question(self, "Avatar name generation", "Your avatar name will be : <br><br>" + self.get_rank(self.faction, self.rank) + " " + name + ".<br><br>Press Reset to generate another, Ok to accept.", QtGui.QMessageBox.Reset, QtGui.QMessageBox.Ok)
             if question ==  QtGui.QMessageBox.Reset :
                 self.send(dict(command = "account_creation", action = 1))
