@@ -1313,12 +1313,21 @@ class ClientWindow(FormClass, BaseClass):
             arguments = message['args']
         else:
             arguments = []
+        
             
+        
         # Important: This is the race parameter used by ladder search.
         if 'mod' in message:
             modkey = 'mod'
         else:
             modkey = 'featured_mod'
+
+        # Do some special things depending of the reason of the game launch.
+        if 'reason' in message:
+            if message['reason'] == 'gw' :
+                if (not fa.exe.check(message[modkey])):
+                    logger.error("Can't play %s without successfully updating Forged Alliance." % message[modkey])
+                    return  
             
         # HACK: Ideally, this comes from the server, too. LATER: search_ranked message
         if message[modkey] == "ladder1v1":
