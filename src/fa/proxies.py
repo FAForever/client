@@ -123,7 +123,7 @@ class proxies(QtCore.QObject):
         stream.writeUInt32(0)
         
 
-        stream.writeUInt8(str(port))
+        stream.writeInt(int(port))
         stream.writeQString(address)        
         stream.writeQVariant(packet)
         stream.device().seek(0)
