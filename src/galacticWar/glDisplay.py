@@ -5,7 +5,7 @@ import logging
 from PyQt4 import QtCore, QtGui, QtOpenGL
 
 logger = logging.getLogger("faf.galacticWar")
-logger.setLevel(logging.CRITICAL)
+logger.setLevel(logging.DEBUG)
 from OpenGL import GL
 from OpenGL import GLU
 
@@ -145,14 +145,20 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.programConstant.addShaderFromSourceCode(QtOpenGL.QGLShader.Vertex, self.parent.shaders["constant"]["vertex"])
         self.programConstant.addShaderFromSourceCode(QtOpenGL.QGLShader.Fragment, self.parent.shaders["constant"]["fragment"])  
         if not self.programConstant.link() :
-            print "constant", self.programConstant.log()  
+            logger.error("Cannot link constant shader : %s " % self.programConstant.log())
+        else :
+            logger.info("constant shader linked.")
+ 
 
         self.programAtmosphere = QtOpenGL.QGLShaderProgram(self)        
         self.programAtmosphere.addShaderFromSourceCode(QtOpenGL.QGLShader.Vertex, self.parent.shaders["atmosphere"]["vertex"])
         self.programAtmosphere.addShaderFromSourceCode(QtOpenGL.QGLShader.Fragment, self.parent.shaders["atmosphere"]["fragment"])
         
         if not self.programAtmosphere.link() :
-            print "atmo", self.programAtmosphere.log()          
+            logger.error("Cannot link atmosphere shader : %s " % self.programAtmosphere.log())
+        else :
+            logger.info("atmosphere shader linked.")
+          
     
         self.programAtmosphere.bindAttributeLocation('camPos', 10)
         
@@ -161,13 +167,17 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.programStars.addShaderFromSourceCode(QtOpenGL.QGLShader.Vertex, self.parent.shaders["stars"]["vertex"])
         self.programStars.addShaderFromSourceCode(QtOpenGL.QGLShader.Fragment, self.parent.shaders["stars"]["fragment"])
         if not self.programStars.link() :
-            print "stars", self.programStars.log()  
+            logger.error("Cannot link star shader : %s " % self.programStars.log())
+        else :
+            logger.info("star shader linked.")
 
         self.programBackground = QtOpenGL.QGLShaderProgram(self)
         self.programBackground.addShaderFromSourceCode(QtOpenGL.QGLShader.Vertex, self.parent.shaders["background"]["vertex"])
         self.programBackground.addShaderFromSourceCode(QtOpenGL.QGLShader.Fragment, self.parent.shaders["background"]["fragment"]) 
         if not self.programBackground.link() :
-            print "background", self.programBackground.log()        
+            logger.error("Cannot link background shader : %s " % self.programBackground.log())
+        else :
+            logger.info("background shader linked.")       
         
         
         self.programPlanet = QtOpenGL.QGLShaderProgram(self) 
@@ -178,7 +188,9 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.programPlanet.bindAttributeLocation('rotation', 11) 
 
         if not self.programPlanet.link() :
-            print "planet", self.programPlanet.log()          
+            logger.error("Cannot link planet shader : %s " % self.programPlanet.log())
+        else :
+            logger.info("planet shader linked.")   
         
 
         
@@ -191,7 +203,9 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.programSelection.bindAttributeLocation('scaling', 13)
         
         if not self.programSelection.link() :
-            print "selection", self.programSelection.log()
+            logger.error("Cannot link selection shader : %s " % self.programSelection.log())
+        else :
+            logger.info("selection shader linked.")            
 
         self.programSwirl = QtOpenGL.QGLShaderProgram(self)        
         self.programSwirl.addShaderFromSourceCode(QtOpenGL.QGLShader.Vertex, self.parent.shaders["swirl"]["vertex"])
@@ -201,7 +215,9 @@ class GLWidget(QtOpenGL.QGLWidget):
 
         
         if not self.programSwirl.link() :
-            print "swirl", self.programSwirl.log() 
+            logger.error("Cannot link swirl shader : %s " % self.programSwirl.log())
+        else :
+            logger.info("swirl shader linked.")            
 
 
         self.planetsAtmosphere = None
@@ -298,6 +314,8 @@ class GLWidget(QtOpenGL.QGLWidget):
 
     #
     def createPlanets(self):
+        logger.info("Creating planets")
+        
         if self.planets :
             GL.glDeleteLists(self.planets, 1)
 
