@@ -25,6 +25,7 @@ from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
 
 from chat.irclib import SimpleIRCClient
 import util
+import fa
 
 import sys
 from chat import logger, user2name
@@ -80,6 +81,9 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         #add self to client's window
         self.client.chatTab.layout().addWidget(self)        
         self.tabCloseRequested.connect(self.closeChannel)
+
+        #add signal handler for game exit
+        self.client.gameExit.connect(self.processGameExit)
 
         #Hook with client's connection and autojoin mechanisms
         self.client.connected.connect(self.connect)
@@ -216,8 +220,16 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
                 else:
                     #Note down channels for later.
                     self.optionalChannels.append(channel)
-       
-       
+
+    def processGameExit(self):
+        logger.info("Joining post-game channel.")
+        self.replayInfo = fa.exe.instance.info
+        postGameChannel = "#game-" + str(self.replayInfo['uid'])
+        if (self.connection.is_connected()):
+            self.connection.join(postGameChannel)
+        
+        
+        
 #SimpleIRCClient Class Dispatcher Attributes follow here.
     def on_welcome(self, c, e):
 				
