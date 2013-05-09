@@ -63,7 +63,7 @@ class LobbyWidget(FormClass, BaseClass):
         self.shaderlist     =   []
         self.texturelist    =   {}        
         self.shaders    =   {}
-
+        
         self.infoPanel  = None
         self.OGLdisplay = None
         
@@ -323,7 +323,7 @@ class LobbyWidget(FormClass, BaseClass):
         self.progress.close()
         result = message["result"]
         if result == "won" :
-            QtGui.QMessageBox.information(QtGui.QApplication.activeWindow(), "You win !" , QtGui.QMessageBox.Close)
+            QtGui.QMessageBox.information(self, "War report", "You win !" , QtGui.QMessageBox.Close)
             
             
     def handle_attack_proposal(self, message):
@@ -415,9 +415,13 @@ class LobbyWidget(FormClass, BaseClass):
                 self.client.autoJoin.emit(["#Seraphim"])
 
     def handle_searching(self, message):
-        text = message["text"]
-        self.progress.show()
-        self.progress.setLabelText(text)        
+        state = message["state"]
+        if state == "on" :
+            text = message["text"]
+            self.progress.show()
+            self.progress.setLabelText(text)
+        else :
+            self.progress.hide()
 
     def handle_notice(self, message):
         self.client.handle_notice(message)
