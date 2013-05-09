@@ -24,6 +24,8 @@ from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
 from client import ClientState
 from gwchannel import gwChannel
 import util
+import fa
+
 from util import GW_TEXTURE_DIR
 import json
 import os
@@ -420,6 +422,14 @@ class LobbyWidget(FormClass, BaseClass):
     def handle_notice(self, message):
         self.client.handle_notice(message)
         
+
+    def handle_update(self, message):
+        update = message["update"]
+        if not util.developer():
+            logger.warn("Server says that Updating is needed.")
+            self.progress.close()
+            self.state = ClientState.OUTDATED
+            fa.updater.fetchClientUpdate(update)        
 
     def process(self, action, stream):
         if action == "PING":
