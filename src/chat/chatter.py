@@ -62,6 +62,9 @@ class Chatter(QtGui.QTableWidgetItem):
         self.country = None
         self.league = None
         
+        self.setup()
+    
+    def setup(self):
         self.setText(self.name)
         self.setFlags(QtCore.Qt.ItemIsEnabled)        
         self.setTextAlignment(QtCore.Qt.AlignLeft)
@@ -90,6 +93,8 @@ class Chatter(QtGui.QTableWidgetItem):
 
         self.update()        
 
+
+    
 
     def setVisible(self, visible):        
         if visible:

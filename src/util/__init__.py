@@ -58,6 +58,9 @@ THEME_DIR = os.path.join(APPDATA_DIR , "themes")
 #This contains cached data downloaded while communicating with the lobby - at the moment, mostly map preview pngs.
 CACHE_DIR = os.path.join(APPDATA_DIR , "cache")
 
+#This contains cached data downloaded for galactic war.
+GW_TEXTURE_DIR = os.path.join(APPDATA_DIR , "cache", "galacticwar")
+
 #This contains the replays recorded by the local replay server
 REPLAY_DIR = os.path.join(APPDATA_DIR , "replays")
 
@@ -91,7 +94,6 @@ try:
 except:    
     PERSONAL_DIR = os.path.join(APPDATA_DIR, "user")
 
-
 #Ensure Application data directories exist
 if not os.path.isdir(APPDATA_DIR):
     os.makedirs(APPDATA_DIR)
@@ -110,7 +112,9 @@ if not os.path.isdir(REPLAY_DIR):
     
 if not os.path.isdir(LOG_DIR):
     os.makedirs(LOG_DIR)
-    
+
+if not os.path.isdir(GW_TEXTURE_DIR):
+    os.makedirs(GW_TEXTURE_DIR)    
 
 from PyQt4 import QtGui, uic, QtCore
 import shutil
@@ -118,6 +122,7 @@ import hashlib
 import re
 import urllib
 import _winreg
+
 
 # Dirty log rotation: Get rid of logs if larger than 1 MiB
 try:
@@ -132,8 +137,6 @@ try:
 except:
     pass        
         
-
-
 # Initialize logging system
 import logging
 import traceback
@@ -153,6 +156,7 @@ def stopLogging():
     logger.debug("Logging ended.")
     logging.shutdown()
      
+
     
 def clearDirectory(directory, confirm = True):
     if (os.path.isdir(directory)):        
@@ -353,10 +357,12 @@ def readlines(filename, themed = True):
 
 def readstylesheet(filename):
     if __themedir and os.path.isfile(os.path.join(__themedir, filename)):
+        print __themedir
         result = open(os.path.join(__themedir, filename)).read().replace("%THEMEPATH%", __themedir.replace("\\", "/"))
         logger.info(u"Read themed stylesheet: " + filename)
     else:
-        result = open(os.path.join(COMMON_DIR, filename)).read()
+        baseDir = os.path.join(COMMON_DIR, os.path.dirname(filename))
+        result = open(os.path.join(COMMON_DIR, filename)).read().replace("%THEMEPATH%", baseDir.replace("\\", "/"))
         logger.info(u"Read common stylesheet: " + filename)
         
     return result

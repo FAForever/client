@@ -92,7 +92,7 @@ class avatarWidget(QtGui.QDialog):
         self.setStyleSheet(self.parent.styleSheet())
         self.setWindowTitle ( "Avatar manager")
         
-        self.parent.requestAvatars(self.personal)
+        
         self.group_layout   = QtGui.QVBoxLayout(self)
         self.listAvatars    = QtGui.QListWidget()
          
@@ -117,6 +117,9 @@ class avatarWidget(QtGui.QDialog):
         self.avatars = {}
         
         self.finished.connect(self.cleaning)
+
+    def showEvent(self, event):
+        self.parent.requestAvatars(self.personal)
 
     
     def addAvatar(self):

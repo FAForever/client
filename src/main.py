@@ -34,15 +34,20 @@ sip.setapi('QStringList', 2)
 sip.setapi('QList', 2)
 sip.setapi('QProcess', 2)
 
-#Set up a robust logging system
-import util
-util.startLogging()
-
-
+import sys
 from PyQt4 import QtGui
 
 
-import sys
+
+#Set up a robust logging system
+
+import util
+
+util.startLogging()
+
+
+
+
 excepthook_original = sys.excepthook
 def excepthook(excType, excValue, tracebackobj): 
     '''
@@ -107,7 +112,8 @@ if __name__ == '__main__':
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
     if len(sys.argv) == 1:
-        #Do the magic    
+        #Do the magic   
+        sys.path += ['.'] 
         runFAF()
     else:  
         #Try to interpret the argument as a replay.

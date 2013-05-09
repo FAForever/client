@@ -81,7 +81,7 @@ setup(
       options = {
                  "py2exe": {
                             "includes":["sip", "PyQt4.QtNetwork"], "dll_excludes": ["MSVCP90.dll", "POWRPROF.dll", "API-MS-Win-Core-LocalRegistry-L1-1-0.dll", "MPR.dll"],
-			    'excludes': ['_gtkagg', '_tkagg'],                          
+			    'excludes': ['_gtkagg', '_tkagg',"OpenGL", "PySide"],                          
                            }
                 }, 
       data_files=matplotlib.get_py2exe_datafiles(),
