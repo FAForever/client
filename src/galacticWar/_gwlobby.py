@@ -195,7 +195,7 @@ class LobbyWidget(FormClass, BaseClass):
         logger.info("Attempting to gate as: " + str(self.client.login))
         self.state = ClientState.NONE
 
-        self.send(dict(command="hello", login=self.client.login, session = self.client.session, init = self.initDone))
+        self.send(dict(command="hello", version=util.VERSION_STRING, login=self.client.login, session = self.client.session, init = self.initDone))
         
         while (not self.state) and self.progress.isVisible():
             QtGui.QApplication.processEvents()
