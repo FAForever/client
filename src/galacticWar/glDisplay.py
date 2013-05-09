@@ -76,7 +76,8 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.r = 0
         self.ir = 0
 
-        self._numScheduledScalings = 0;
+        self._numScheduledScalings = 0
+        self.currentStep = 0.001
 
         
         self.lastPos = QtCore.QPoint()

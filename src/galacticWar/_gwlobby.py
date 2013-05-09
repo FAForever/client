@@ -321,8 +321,9 @@ class LobbyWidget(FormClass, BaseClass):
         self.progress.close()
         result = message["result"]
         if result == "won" :
-            QtGui.QMessageBox.info(QtGui.QApplication.activeWindow(), "You win !" , QtGui.QMessageBox.Close)
-        
+            QtGui.QMessageBox.information(QtGui.QApplication.activeWindow(), "You win !" , QtGui.QMessageBox.Close)
+            
+            
     def handle_attack_proposal(self, message):
         planetuid = message["planetuid"]
         self.attackProposalUpdated.emit(planetuid)

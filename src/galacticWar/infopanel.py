@@ -19,6 +19,7 @@ class InfoPanelWidget(FormClass, BaseClass):
         self.setupUi(self)
         self.parent = parent
         self.galaxy = self.parent.galaxy
+            
         
         self.setup()
         self.attackListWidget.hide()
@@ -52,7 +53,7 @@ class InfoPanelWidget(FormClass, BaseClass):
         self.attackBox.hide()
         
     def attackProposalAccepted(self, item):
-        question = QtGui.QMessageBox.question(self, "You are going to attack this planet. Do you want to proceed ?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+        question = QtGui.QMessageBox.question(self, "Second in command", "You are going to attack this planet. Do you want to proceed ?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
         
         if question == QtGui.QMessageBox.Yes :
             planetuid = item.uid
