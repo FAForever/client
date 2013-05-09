@@ -1323,14 +1323,21 @@ class ClientWindow(FormClass, BaseClass):
             modkey = 'featured_mod'
 
         # Do some special things depending of the reason of the game launch.
+        rank = False
+        
         if 'reason' in message:
             if message['reason'] == 'gw' :
+                rank = True
                 if (not fa.exe.check(message[modkey])):
                     logger.error("Can't play %s without successfully updating Forged Alliance." % message[modkey])
                     return  
             
         # HACK: Ideally, this comes from the server, too. LATER: search_ranked message
-        if message[modkey] == "ladder1v1":
+        if rank :
+            arguments.append('/rank')
+            arguments.append(str(self.GalacticWar.rank))
+            
+        elif message[modkey] == "ladder1v1":
             arguments.append(self.games.race)
             #Player 1v1 rating
             arguments.append('/mean')        
