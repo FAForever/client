@@ -719,6 +719,9 @@ class Site(object):
         self.sera   = sera
         
         self.color = QtGui.QColor(0,0,0)
+
+    def get_description(self):
+        return self.description
         
     def get_name(self):
         return self.name

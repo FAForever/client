@@ -51,7 +51,12 @@ class Galaxy(object):
             return self.control_points[uid].get_name()
         else :
             return "unknown"
-        
+
+    def get_description(self, uid):
+        if uid in self.control_points :
+            return self.control_points[uid].get_description()
+        else :
+            return "unknown"        
     
     def monotone_chain(self, points):
         '''Returns a convex hull for an unordered group of 2D points.

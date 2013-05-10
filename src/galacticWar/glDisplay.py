@@ -622,6 +622,7 @@ class GLWidget(QtOpenGL.QGLWidget):
     
     def drawPlanetName(self, painter):
         if self.curZone :
+            width = 300
             painter.setOpacity(1)
             site = self.curZone[0]
 
@@ -632,9 +633,9 @@ class GLWidget(QtOpenGL.QGLWidget):
 
             planet = self.galaxy.control_points[site]
             
-            height = 100
-
-            text = "<font color='silver'><h2>%s</h2><h4>Occupation:</h4></font><ul>" % (self.galaxy.get_name(site))
+            
+            text = "<font color='silver'><h2>%s</h2><table width='%i'><tr><td><p align='justify'><font color='silver' size='7pt'>%s</font</p></tr></td></table><font color='silver'><h4>Occupation:</h4></font><ul>" % (self.galaxy.get_name(site), width-5, self.galaxy.get_description(site))
+            
             
             
             for i in range(4) :
@@ -645,7 +646,7 @@ class GLWidget(QtOpenGL.QGLWidget):
                         text += "<li><font color='%s'>%s</font><font color='silver'> : %i &#37;</font></li>" % (COLOR_FACTIONS[i].name(), FACTIONS[i], int(occupation))
                     else :
                         text += "<li><font color='%s'>%s</font><font color='silver'> : %.1f &#37;</font></li>" % (COLOR_FACTIONS[i].name(), FACTIONS[i], occupation)
-                    height = height + 50
+
                     
             text += "</ul>"
 
@@ -660,6 +661,8 @@ class GLWidget(QtOpenGL.QGLWidget):
             painter.save()
             html = QtGui.QTextDocument()
             html.setHtml(text)
+            html.setTextWidth(width)
+            height = html.size().height() + 10
 
         
                     
@@ -670,8 +673,8 @@ class GLWidget(QtOpenGL.QGLWidget):
             painter.setPen(QtCore.Qt.white)
             
             painter.translate(pos[0]+20, pos[1]+20)
-            painter.fillRect(QtCore.QRect(0, 0, 250, height), QtGui.QColor(36, 61, 75, 150))
-            clip = QtCore.QRectF(0, 0, 250, height)
+            painter.fillRect(QtCore.QRect(0, 0, width+5, height), QtGui.QColor(36, 61, 75, 150))
+            clip = QtCore.QRectF(0, 0, width, height)
             html.drawContents(painter, clip)
 #            painter.drawText(pos[0], pos[1], rect.width(),
 #                    rect.height(), QtCore.Qt.AlignCenter | QtCore.Qt.TextWordWrap,

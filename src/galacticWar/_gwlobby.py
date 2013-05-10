@@ -347,7 +347,6 @@ class LobbyWidget(FormClass, BaseClass):
     
     def handle_planet_info(self, message):
         uid = message['uid'] 
-        print uid
         if not uid in self.galaxy.control_points :
             x           = message['posx']
             y           = message['posy']
