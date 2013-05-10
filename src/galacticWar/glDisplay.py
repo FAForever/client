@@ -731,9 +731,6 @@ class GLWidget(QtOpenGL.QGLWidget):
     def wheelEvent(self, event):
         ''' when we move the wheel '''
         
-        if self.overlayPlanet == True :
-            return
-
         self.timerRotate.stop()
         self.animCam.stop()
         numDegrees = int(event.delta() / 8)
@@ -836,8 +833,6 @@ class GLWidget(QtOpenGL.QGLWidget):
         elif  event.buttons() & QtCore.Qt.MiddleButton :
             self.animCam.stop()
             self.timerRotate.start(self.UPDATE_ROTATION)
-            if self.overlayPlanet == True :
-                return
             
             x = event.x()
             y = event.y()
