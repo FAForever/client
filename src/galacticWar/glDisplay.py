@@ -591,9 +591,13 @@ class GLWidget(QtOpenGL.QGLWidget):
         GL.glDisable(GL.GL_LINE_SMOOTH)
         GL.glDisable (GL.GL_BLEND)            
 
-        self.drawPlanetName(painter)
 
+        if QtGui.QApplication.keyboardModifiers() == QtCore.Qt.ShiftModifier :
+            self.drawAllPlanetName(painter)
+        else :
+            self.drawPlanetName(painter)
 
+        
         
         painter.end()
     
@@ -619,6 +623,39 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.programSelection.release()        
         GL.glEndList()
         return genList               
+
+    def drawAllPlanetName(self, painter):
+        ''' paint all planet name in overlay '''
+
+        painter.setOpacity(1)
+        
+        for site in self.galaxy.control_points :
+
+            painter.save()
+
+            x = self.galaxy.control_points[site].x
+            y = self.galaxy.control_points[site].y
+
+            pos = self.computeWorldPosition(x, y)
+        
+        
+            text = "<font color='silver'>%s</font>" % (self.galaxy.get_name(site))
+            
+            
+            html = QtGui.QTextDocument()
+            html.setHtml(text)
+            width = html.size().width()
+            height = html.size().height()
+
+
+            painter.setPen(QtCore.Qt.white)
+            
+            painter.translate(pos[0]+20, pos[1]+20)
+            painter.fillRect(QtCore.QRect(0, 0, width+5, height), QtGui.QColor(36, 61, 75, 150))
+            clip = QtCore.QRectF(0, 0, width, height)
+            html.drawContents(painter, clip)
+
+            painter.restore()
     
     def drawPlanetName(self, painter):
         if self.curZone :
@@ -664,11 +701,6 @@ class GLWidget(QtOpenGL.QGLWidget):
             html.setTextWidth(width)
             height = html.size().height() + 10
 
-        
-                    
-                    
-#            metrics = QtGui.QFontMetrics(self.font())
-#            border = max(4, metrics.leading())
 
             painter.setPen(QtCore.Qt.white)
             
@@ -676,9 +708,7 @@ class GLWidget(QtOpenGL.QGLWidget):
             painter.fillRect(QtCore.QRect(0, 0, width+5, height), QtGui.QColor(36, 61, 75, 150))
             clip = QtCore.QRectF(0, 0, width, height)
             html.drawContents(painter, clip)
-#            painter.drawText(pos[0], pos[1], rect.width(),
-#                    rect.height(), QtCore.Qt.AlignCenter | QtCore.Qt.TextWordWrap,
-#                    text)
+
             painter.restore()
             
     
@@ -804,12 +834,15 @@ class GLWidget(QtOpenGL.QGLWidget):
             self.cameraPos.setY(-self.boundMove.y())        
     
     def keyPressEvent(self, event):
+
         self.shift = False
         self.ctrl = False
         if (event.modifiers() & QtCore.Qt.ShiftModifier):
             self.shift = True
         if (event.modifiers() & QtCore.Qt.ControlModifier):
-            self.ctrl = True     
+            self.ctrl = True 
+
+            
 
     def keyReleaseEvent(self, event):
         if not (event.modifiers() & QtCore.Qt.ShiftModifier):
