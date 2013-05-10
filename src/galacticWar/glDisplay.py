@@ -59,7 +59,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.attackVector   = None
         self.animAttackVector = 0
         
-        self.zoomMin = 500
+        self.zoomMin = 1000
         self.zoomMax = 10
         self.cameraPos  = QtGui.QVector3D(0,0,self.zoomMin)
         self.vectorMove = QtGui.QVector3D(0,0,self.zoomMin)
@@ -591,9 +591,13 @@ class GLWidget(QtOpenGL.QGLWidget):
         GL.glDisable(GL.GL_LINE_SMOOTH)
         GL.glDisable (GL.GL_BLEND)            
 
-        self.drawPlanetName(painter)
 
+        if QtGui.QApplication.keyboardModifiers() == QtCore.Qt.ShiftModifier :
+            self.drawAllPlanetName(painter)
+        else :
+            self.drawPlanetName(painter)
 
+        
         
         painter.end()
     
@@ -619,9 +623,43 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.programSelection.release()        
         GL.glEndList()
         return genList               
+
+    def drawAllPlanetName(self, painter):
+        ''' paint all planet name in overlay '''
+
+        painter.setOpacity(1)
+        
+        for site in self.galaxy.control_points :
+
+            painter.save()
+
+            x = self.galaxy.control_points[site].x
+            y = self.galaxy.control_points[site].y
+
+            pos = self.computeWorldPosition(x, y)
+        
+        
+            text = "<font color='silver'>%s</font>" % (self.galaxy.get_name(site))
+            
+            
+            html = QtGui.QTextDocument()
+            html.setHtml(text)
+            width = html.size().width()
+            height = html.size().height()
+
+
+            painter.setPen(QtCore.Qt.white)
+            
+            painter.translate(pos[0]+20, pos[1]+20)
+            painter.fillRect(QtCore.QRect(0, 0, width+5, height), QtGui.QColor(36, 61, 75, 150))
+            clip = QtCore.QRectF(0, 0, width, height)
+            html.drawContents(painter, clip)
+
+            painter.restore()
     
     def drawPlanetName(self, painter):
         if self.curZone :
+            width = 300
             painter.setOpacity(1)
             site = self.curZone[0]
 
@@ -632,9 +670,9 @@ class GLWidget(QtOpenGL.QGLWidget):
 
             planet = self.galaxy.control_points[site]
             
-            height = 100
-
-            text = "<font color='silver'><h2>Planet name %i</h2><h4>Occupation:</h4></font><ul>" % (site)
+            
+            text = "<font color='silver'><h2>%s</h2><table width='%i'><tr><td><p align='justify'><font color='silver' size='7pt'>%s</font</p></tr></td></table><font color='silver'><h4>Occupation:</h4></font><ul>" % (self.galaxy.get_name(site), width-5, self.galaxy.get_description(site))
+            
             
             
             for i in range(4) :
@@ -645,7 +683,7 @@ class GLWidget(QtOpenGL.QGLWidget):
                         text += "<li><font color='%s'>%s</font><font color='silver'> : %i &#37;</font></li>" % (COLOR_FACTIONS[i].name(), FACTIONS[i], int(occupation))
                     else :
                         text += "<li><font color='%s'>%s</font><font color='silver'> : %.1f &#37;</font></li>" % (COLOR_FACTIONS[i].name(), FACTIONS[i], occupation)
-                    height = height + 50
+
                     
             text += "</ul>"
 
@@ -660,22 +698,17 @@ class GLWidget(QtOpenGL.QGLWidget):
             painter.save()
             html = QtGui.QTextDocument()
             html.setHtml(text)
+            html.setTextWidth(width)
+            height = html.size().height() + 10
 
-        
-                    
-                    
-#            metrics = QtGui.QFontMetrics(self.font())
-#            border = max(4, metrics.leading())
 
             painter.setPen(QtCore.Qt.white)
             
             painter.translate(pos[0]+20, pos[1]+20)
-            painter.fillRect(QtCore.QRect(0, 0, 250, height), QtGui.QColor(36, 61, 75, 150))
-            clip = QtCore.QRectF(0, 0, 250, height)
+            painter.fillRect(QtCore.QRect(0, 0, width+5, height), QtGui.QColor(36, 61, 75, 150))
+            clip = QtCore.QRectF(0, 0, width, height)
             html.drawContents(painter, clip)
-#            painter.drawText(pos[0], pos[1], rect.width(),
-#                    rect.height(), QtCore.Qt.AlignCenter | QtCore.Qt.TextWordWrap,
-#                    text)
+
             painter.restore()
             
     
@@ -728,9 +761,6 @@ class GLWidget(QtOpenGL.QGLWidget):
     def wheelEvent(self, event):
         ''' when we move the wheel '''
         
-        if self.overlayPlanet == True :
-            return
-
         self.timerRotate.stop()
         self.animCam.stop()
         numDegrees = int(event.delta() / 8)
@@ -804,12 +834,15 @@ class GLWidget(QtOpenGL.QGLWidget):
             self.cameraPos.setY(-self.boundMove.y())        
     
     def keyPressEvent(self, event):
+
         self.shift = False
         self.ctrl = False
         if (event.modifiers() & QtCore.Qt.ShiftModifier):
             self.shift = True
         if (event.modifiers() & QtCore.Qt.ControlModifier):
-            self.ctrl = True     
+            self.ctrl = True 
+
+            
 
     def keyReleaseEvent(self, event):
         if not (event.modifiers() & QtCore.Qt.ShiftModifier):
@@ -833,8 +866,6 @@ class GLWidget(QtOpenGL.QGLWidget):
         elif  event.buttons() & QtCore.Qt.MiddleButton :
             self.animCam.stop()
             self.timerRotate.start(self.UPDATE_ROTATION)
-            if self.overlayPlanet == True :
-                return
             
             x = event.x()
             y = event.y()

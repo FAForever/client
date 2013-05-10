@@ -353,11 +353,13 @@ class LobbyWidget(FormClass, BaseClass):
             size        = message['size']
             texture     = message['texture']
             textureMd5  = message['md5tex']
+            name        = message['name']
+            desc        = message['desc']
             
             if not texture in self.texturelist :
                 self.texturelist[texture] = textureMd5 
             
-            self.galaxy.addPlanet(uid, x, y, size, texture = texture, init=True) 
+            self.galaxy.addPlanet(uid, name, desc, x, y, size, texture = texture, init=True) 
             self.galaxy.update(message)
             
             if not uid in self.galaxy.links :
