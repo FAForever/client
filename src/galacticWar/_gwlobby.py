@@ -350,6 +350,8 @@ class LobbyWidget(FormClass, BaseClass):
             size        = message['size']
             texture     = message['texture']
             textureMd5  = message['md5tex']
+            name        = message['name']
+            desc        = message['desc']
             
             if not texture in self.texturelist :
                 self.texturelist[texture] = textureMd5 
