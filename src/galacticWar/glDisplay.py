@@ -59,7 +59,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.attackVector   = None
         self.animAttackVector = 0
         
-        self.zoomMin = 500
+        self.zoomMin = 1000
         self.zoomMax = 10
         self.cameraPos  = QtGui.QVector3D(0,0,self.zoomMin)
         self.vectorMove = QtGui.QVector3D(0,0,self.zoomMin)
@@ -634,7 +634,7 @@ class GLWidget(QtOpenGL.QGLWidget):
             
             height = 100
 
-            text = "<font color='silver'><h2>Planet name %i</h2><h4>Occupation:</h4></font><ul>" % (site)
+            text = "<font color='silver'><h2>%s</h2><h4>Occupation:</h4></font><ul>" % (self.galaxy.get_name(site))
             
             
             for i in range(4) :

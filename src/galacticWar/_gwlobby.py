@@ -347,6 +347,7 @@ class LobbyWidget(FormClass, BaseClass):
     
     def handle_planet_info(self, message):
         uid = message['uid'] 
+        print uid
         if not uid in self.galaxy.control_points :
             x           = message['posx']
             y           = message['posy']
@@ -359,7 +360,7 @@ class LobbyWidget(FormClass, BaseClass):
             if not texture in self.texturelist :
                 self.texturelist[texture] = textureMd5 
             
-            self.galaxy.addPlanet(uid, x, y, size, texture = texture, init=True) 
+            self.galaxy.addPlanet(uid, name, desc, x, y, size, texture = texture, init=True) 
             self.galaxy.update(message)
             
             if not uid in self.galaxy.links :

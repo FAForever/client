@@ -198,7 +198,7 @@ class Galaxy(object):
         site.pos3d.setY(site.y)
         
     
-    def addPlanet(self, uid, x, y, size, texture = 1, init = False):
+    def addPlanet(self, uid, name, desc, x, y, size, texture = 1, init = False):
         
         x = round(x)
         y = round(y)
@@ -211,25 +211,8 @@ class Galaxy(object):
         if x > self.space_size.x() or x < -self.space_size.x() or y > self.space_size.y() or y < -self.space_size.y() :
             return
 
-
-#        color = (random.uniform(0,1), random.uniform(0,1), random.uniform(0,1), 1.0)
-#        if x > 0 :
-#            if y > 0 :
-#                color = self.colorCybran
-#                cybran  = 1.0
-#            else :
-#                color = self.colorUEF
-#                uef  = 1.0
-#        else :
-#            if y > 0 :
-#                color = self.colorAeon
-#                aeon = 1.0
-#            else :
-#                color = self.colorSera
-#                sera = 1.0               
         
-        
-        self.control_points[uid]=(Site(x, y, size = size, sitenum = uid, aeon = aeon, uef = uef, cybran = cybran, sera = sera, texture = texture))
+        self.control_points[uid]=(Site(x, y, size = size, sitenum = uid, name=name, desc=desc, aeon = aeon, uef = uef, cybran = cybran, sera = sera, texture = texture))
         if not init :
             self.computeVoronoi()
      
