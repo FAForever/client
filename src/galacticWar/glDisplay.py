@@ -643,14 +643,17 @@ class GLWidget(QtOpenGL.QGLWidget):
         
         for site in self.galaxy.control_points :
 
-            painter.save()
+            
 
             x = self.galaxy.control_points[site].x
             y = self.galaxy.control_points[site].y
 
             pos = self.computeWorldPosition(x, y)
         
+            if pos[0] < 0 or pos[1] < 0 or pos[0] > self.width() or pos[1] > self.height() :
+                continue
         
+            painter.save()
             text = "<font color='silver'>%s</font>" % (self.galaxy.get_name(site))
             
             
@@ -662,7 +665,7 @@ class GLWidget(QtOpenGL.QGLWidget):
 
             painter.setPen(QtCore.Qt.white)
             
-            painter.translate(pos[0]+20, pos[1]+20)
+            painter.translate(pos[0] - width/2, pos[1] - height/2)
             painter.fillRect(QtCore.QRect(0, 0, width+5, height), QtGui.QColor(36, 61, 75, 150))
             clip = QtCore.QRectF(0, 0, width, height)
             html.drawContents(painter, clip)
