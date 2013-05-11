@@ -1052,7 +1052,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         genList = GL.glGenLists(1)
         GL.glNewList(genList, GL.GL_COMPILE)
         
-        bevel = 2.0
+        bevel = 0.1
         opacity = 0.1
         extrude = -7
         origin  = -5
