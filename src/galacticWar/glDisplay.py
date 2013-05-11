@@ -1022,8 +1022,9 @@ class GLWidget(QtOpenGL.QGLWidget):
         genList = GL.glGenLists(1)
         
         GL.glNewList(genList, GL.GL_COMPILE)
+        GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (0.7,.7,.7, 1))
         self.programConstant.bind()
-        GL.glLineWidth(2)
+        GL.glLineWidth(1)
         for orig in self.galaxy.links :
             dests = self.galaxy.links[orig]
             for dest in dests :
