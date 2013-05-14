@@ -59,7 +59,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.attackVector   = None
         self.animAttackVector = 0
         
-        self.zoomMin = 1000
+        self.zoomMin = 1500
         self.zoomMax = 10
         self.cameraPos  = QtGui.QVector3D(0,0,self.zoomMin)
         self.vectorMove = QtGui.QVector3D(0,0,self.zoomMin)

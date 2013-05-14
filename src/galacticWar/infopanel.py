@@ -74,7 +74,7 @@ class InfoPanelWidget(FormClass, BaseClass):
         
         
     def updateAttacks(self):
-        
+        logger.debug("updating attacks")
         if self.parent.uid in self.parent.attacks :
             self.attackListWidget.show()
             
@@ -116,13 +116,16 @@ class InfoPanelWidget(FormClass, BaseClass):
             self.attackBox.hide()           
 
     def updateRank(self, rank):
+        logger.debug("updating rank interface")
         rankName = self.parent.get_rank(self.parent.faction, rank)
         self.nameLabel.setText("%s %s" %(rankName,self.parent.name))
     
     def updateVictories(self, victories):
+        logger.debug("updating victories interface")
         self.victoriesLabel.setText("%i" % victories)
     
     def updateCredit(self, credits):
+        logger.debug("updating credit interface")
         self.creditsLabel.setText("%i / %i" % (credits, (1000+ 1000*self.parent.rank)))
     
     def planetClicked(self, planetId):

@@ -307,6 +307,7 @@ class LobbyWidget(FormClass, BaseClass):
     
     def handle_player_info(self, message):
         ''' Update Player stats '''
+        
         self.uid        = int(message["uid"])
         self.faction    = message["faction"]
         self.name       = message["name"]        
@@ -314,6 +315,7 @@ class LobbyWidget(FormClass, BaseClass):
         self.credits    = message["credits"]
         self.victories  = message["victories"]        
         
+        logger.debug("Received player info : victories %i, credits %i" % (self.victories, self.credits))
        
         self.rankUpdated.emit(self.rank)
         self.creditsUpdated.emit(self.credits)
@@ -331,8 +333,10 @@ class LobbyWidget(FormClass, BaseClass):
         self.attackProposalUpdated.emit(planetuid)
     
     def handle_attacks_info(self, message):
+        logger.debug("updating attacks infos")
         attacks = message["attacks"]
         self.attacks = {}
+        
         for playeruid in attacks :
             playeruid_int = int(playeruid)
             if not playeruid_int in self.attacks :
@@ -342,10 +346,13 @@ class LobbyWidget(FormClass, BaseClass):
                 planetuid_int = int(planetuid)
                 self.attacks[playeruid_int][planetuid_int] = attacks[playeruid][planetuid]
 
+
+
         self.attacksUpdated.emit()
         
     
     def handle_planet_info(self, message):
+        logger.debug("updating planet infos")
         uid = message['uid'] 
         if not uid in self.galaxy.control_points :
             x           = message['posx']
@@ -450,6 +457,7 @@ class LobbyWidget(FormClass, BaseClass):
         '''
         message = json.loads(data_string)
         cmd = "handle_" + message['command']
+        logger.debug("Incoming JSON Message: " + message)
         if hasattr(self, cmd):
             getattr(self, cmd)(message)  
         else:
