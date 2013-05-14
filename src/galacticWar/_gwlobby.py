@@ -457,7 +457,7 @@ class LobbyWidget(FormClass, BaseClass):
         '''
         message = json.loads(data_string)
         cmd = "handle_" + message['command']
-        logger.debug("Incoming JSON Message: " + message)
+        logger.debug("Incoming JSON Message: " + data_string)
         if hasattr(self, cmd):
             getattr(self, cmd)(message)  
         else:
