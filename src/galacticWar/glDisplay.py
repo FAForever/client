@@ -143,8 +143,10 @@ class GLWidget(QtOpenGL.QGLWidget):
         
         
         self.programConstant = QtOpenGL.QGLShaderProgram(self)
-        self.programConstant.addShaderFromSourceCode(QtOpenGL.QGLShader.Vertex, self.parent.shaders["constant"]["vertex"])
-        self.programConstant.addShaderFromSourceCode(QtOpenGL.QGLShader.Fragment, self.parent.shaders["constant"]["fragment"])  
+        if not self.programConstant.addShaderFromSourceCode(QtOpenGL.QGLShader.Vertex, self.parent.shaders["constant"]["vertex"]) :
+            logger.error("Cannot compile constant vertex shader : %s " % self.programConstant.log())
+        if not self.programConstant.addShaderFromSourceCode(QtOpenGL.QGLShader.Fragment, self.parent.shaders["constant"]["fragment"]) :
+            logger.error("Cannot compile constant fragment shader : %s " % self.programConstant.log())  
         if not self.programConstant.link() :
             logger.error("Cannot link constant shader : %s " % self.programConstant.log())
         else :
@@ -152,8 +154,10 @@ class GLWidget(QtOpenGL.QGLWidget):
  
 
         self.programAtmosphere = QtOpenGL.QGLShaderProgram(self)        
-        self.programAtmosphere.addShaderFromSourceCode(QtOpenGL.QGLShader.Vertex, self.parent.shaders["atmosphere"]["vertex"])
-        self.programAtmosphere.addShaderFromSourceCode(QtOpenGL.QGLShader.Fragment, self.parent.shaders["atmosphere"]["fragment"])
+        if not self.programAtmosphere.addShaderFromSourceCode(QtOpenGL.QGLShader.Vertex, self.parent.shaders["atmosphere"]["vertex"]) :
+            logger.error("Cannot compile atmosphere vertex shader : %s " % self.programAtmosphere.log())
+        if not self.programAtmosphere.addShaderFromSourceCode(QtOpenGL.QGLShader.Fragment, self.parent.shaders["atmosphere"]["fragment"]) :
+            logger.error("Cannot compile atmosphere fragment shader : %s " % self.programAtmosphere.log())
         
         if not self.programAtmosphere.link() :
             logger.error("Cannot link atmosphere shader : %s " % self.programAtmosphere.log())
@@ -165,16 +169,20 @@ class GLWidget(QtOpenGL.QGLWidget):
         
 
         self.programStars = QtOpenGL.QGLShaderProgram(self)
-        self.programStars.addShaderFromSourceCode(QtOpenGL.QGLShader.Vertex, self.parent.shaders["stars"]["vertex"])
-        self.programStars.addShaderFromSourceCode(QtOpenGL.QGLShader.Fragment, self.parent.shaders["stars"]["fragment"])
+        if not self.programStars.addShaderFromSourceCode(QtOpenGL.QGLShader.Vertex, self.parent.shaders["stars"]["vertex"]) :
+            logger.error("Cannot compile star vertex shader : %s " % self.programStars.log())
+        if not self.programStars.addShaderFromSourceCode(QtOpenGL.QGLShader.Fragment, self.parent.shaders["stars"]["fragment"]) :
+            logger.error("Cannot compile star fragment shader : %s " % self.programStars.log())
         if not self.programStars.link() :
             logger.error("Cannot link star shader : %s " % self.programStars.log())
         else :
             logger.info("star shader linked.")
 
         self.programBackground = QtOpenGL.QGLShaderProgram(self)
-        self.programBackground.addShaderFromSourceCode(QtOpenGL.QGLShader.Vertex, self.parent.shaders["background"]["vertex"])
-        self.programBackground.addShaderFromSourceCode(QtOpenGL.QGLShader.Fragment, self.parent.shaders["background"]["fragment"]) 
+        if not self.programBackground.addShaderFromSourceCode(QtOpenGL.QGLShader.Vertex, self.parent.shaders["background"]["vertex"]) :
+            logger.error("Cannot compile background vertex shader : %s " % self.programBackground.log())
+        if not self.programBackground.addShaderFromSourceCode(QtOpenGL.QGLShader.Fragment, self.parent.shaders["background"]["fragment"]) :
+            logger.error("Cannot compile background fragment shader : %s " % self.programBackground.log()) 
         if not self.programBackground.link() :
             logger.error("Cannot link background shader : %s " % self.programBackground.log())
         else :
@@ -182,9 +190,10 @@ class GLWidget(QtOpenGL.QGLWidget):
         
         
         self.programPlanet = QtOpenGL.QGLShaderProgram(self) 
-        self.programPlanet.addShaderFromSourceCode(QtOpenGL.QGLShader.Vertex, self.parent.shaders["planet"]["vertex"])
-        self.programPlanet.addShaderFromSourceCode(QtOpenGL.QGLShader.Fragment, self.parent.shaders["planet"]["fragment"])
-
+        if not self.programPlanet.addShaderFromSourceCode(QtOpenGL.QGLShader.Vertex, self.parent.shaders["planet"]["vertex"]) :
+            logger.error("Cannot compile planet vertex shader : %s " % self.programPlanet.log())
+        if not self.programPlanet.addShaderFromSourceCode(QtOpenGL.QGLShader.Fragment, self.parent.shaders["planet"]["fragment"]) :
+            logger.error("Cannot compile planet fragment shader : %s " % self.programPlanet.log())
         self.programPlanet.bindAttributeLocation('camPos', 10)
         self.programPlanet.bindAttributeLocation('rotation', 11) 
 
@@ -196,9 +205,11 @@ class GLWidget(QtOpenGL.QGLWidget):
 
         
         self.programSelection = QtOpenGL.QGLShaderProgram(self)        
-        self.programSelection.addShaderFromSourceCode(QtOpenGL.QGLShader.Vertex, self.parent.shaders["selection"]["vertex"])
-        self.programSelection.addShaderFromSourceCode(QtOpenGL.QGLShader.Fragment, self.parent.shaders["selection"]["fragment"])
-
+        if not self.programSelection.addShaderFromSourceCode(QtOpenGL.QGLShader.Vertex, self.parent.shaders["selection"]["vertex"]) :
+            logger.error("Cannot compile selection vertex shader : %s " % self.programSelection.log())
+        if not self.programSelection.addShaderFromSourceCode(QtOpenGL.QGLShader.Fragment, self.parent.shaders["selection"]["fragment"]) :
+            logger.error("Cannot compile selection fragment shader : %s " % self.programSelection.log())
+            
         self.programSelection.bindAttributeLocation('camPos', 10)
         self.programSelection.bindAttributeLocation('pos', 12)        
         self.programSelection.bindAttributeLocation('scaling', 13)
@@ -209,9 +220,10 @@ class GLWidget(QtOpenGL.QGLWidget):
             logger.info("selection shader linked.")            
 
         self.programSwirl = QtOpenGL.QGLShaderProgram(self)        
-        self.programSwirl.addShaderFromSourceCode(QtOpenGL.QGLShader.Vertex, self.parent.shaders["swirl"]["vertex"])
-        self.programSwirl.addShaderFromSourceCode(QtOpenGL.QGLShader.Fragment, self.parent.shaders["swirl"]["fragment"])
-
+        if not self.programSwirl.addShaderFromSourceCode(QtOpenGL.QGLShader.Vertex, self.parent.shaders["swirl"]["vertex"]) :
+            logger.error("Cannot compile swirl vertex shader : %s " % self.programSwirl.log())
+        if not self.programSwirl.addShaderFromSourceCode(QtOpenGL.QGLShader.Fragment, self.parent.shaders["swirl"]["fragment"]) :
+            logger.error("Cannot compile swirl fraglent shader : %s " % self.programSwirl.log())
         self.programSwirl.bindAttributeLocation('rotation_plane', 14)        
 
         
@@ -631,14 +643,17 @@ class GLWidget(QtOpenGL.QGLWidget):
         
         for site in self.galaxy.control_points :
 
-            painter.save()
+            
 
             x = self.galaxy.control_points[site].x
             y = self.galaxy.control_points[site].y
 
             pos = self.computeWorldPosition(x, y)
         
+            if pos[0] < 0 or pos[1] < 0 or pos[0] > self.width() or pos[1] > self.height() :
+                continue
         
+            painter.save()
             text = "<font color='silver'>%s</font>" % (self.galaxy.get_name(site))
             
             
@@ -650,7 +665,7 @@ class GLWidget(QtOpenGL.QGLWidget):
 
             painter.setPen(QtCore.Qt.white)
             
-            painter.translate(pos[0]+20, pos[1]+20)
+            painter.translate(pos[0] - width/2, pos[1] - height/2)
             painter.fillRect(QtCore.QRect(0, 0, width+5, height), QtGui.QColor(36, 61, 75, 150))
             clip = QtCore.QRectF(0, 0, width, height)
             html.drawContents(painter, clip)
@@ -1007,8 +1022,9 @@ class GLWidget(QtOpenGL.QGLWidget):
         genList = GL.glGenLists(1)
         
         GL.glNewList(genList, GL.GL_COMPILE)
+        GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (0.7,.7,.7, 1))
         self.programConstant.bind()
-        GL.glLineWidth(2)
+        GL.glLineWidth(1)
         for orig in self.galaxy.links :
             dests = self.galaxy.links[orig]
             for dest in dests :
@@ -1037,7 +1053,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         genList = GL.glGenLists(1)
         GL.glNewList(genList, GL.GL_COMPILE)
         
-        bevel = 2.0
+        bevel = 0.1
         opacity = 0.1
         extrude = -7
         origin  = -5
