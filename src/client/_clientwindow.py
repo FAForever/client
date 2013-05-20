@@ -96,7 +96,8 @@ class ClientWindow(FormClass, BaseClass):
     showGames       = QtCore.pyqtSignal()
     showTourneys    = QtCore.pyqtSignal()
     showLadder      = QtCore.pyqtSignal()
-    showChat        = QtCore.pyqtSignal()    
+    showChat        = QtCore.pyqtSignal()
+    showGalaxyWar   = QtCore.pyqtSignal()
 
     joinGameFromUser   = QtCore.pyqtSignal(str)
     joinReplayFromUser = QtCore.pyqtSignal(str)
@@ -179,15 +180,15 @@ class ClientWindow(FormClass, BaseClass):
         self.initMenus()
 
         #Load the icons for the tabs
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.whatNewTab  ), util.icon("client/feed.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.chatTab     ), util.icon("client/chat.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.gamesTab    ), util.icon("client/games.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.mapsTab     ), util.icon("client/maps.png"))
-        
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.ladderTab   ), util.icon("client/ladder.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.tourneyTab  ), util.icon("client/tourney.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.replaysTab  ), util.icon("client/replays.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.tutorialsTab), util.icon("client/tutorials.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.whatNewTab      ), util.icon("client/feed.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.chatTab         ), util.icon("client/chat.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.gamesTab        ), util.icon("client/games.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.mapsTab         ), util.icon("client/maps.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.galacticwarTab  ), util.icon("client/gw.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.ladderTab       ), util.icon("client/ladder.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.tourneyTab      ), util.icon("client/tourney.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.replaysTab      ), util.icon("client/replays.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.tutorialsTab    ), util.icon("client/tutorials.png"))
         
         QtWebKit.QWebSettings.globalSettings().setAttribute(QtWebKit.QWebSettings.PluginsEnabled, True)
         
@@ -205,6 +206,7 @@ class ClientWindow(FormClass, BaseClass):
         import games
         import tutorials
         import featuredmods
+        import galacticWar
         from chat._avatarWidget import avatarWidget
         
         
@@ -212,16 +214,17 @@ class ClientWindow(FormClass, BaseClass):
         self.chat = chat.Lobby(self)
     
         #build main window with the now active client                  
-        self.ladder = stats.Stats(self)
-        self.games = games.Games(self)
-        self.tourneys = tourneys.Tourneys(self)
-        self.vault = vault.MapVault(self)
-        self.replays = replays.Replays(self)
-        self.tutorials = tutorials.Tutorials(self)
+        self.ladder         = stats.Stats(self)
+        self.games          = games.Games(self)
+        self.tourneys       = tourneys.Tourneys(self)
+        self.vault          = vault.MapVault(self)
+        self.replays        = replays.Replays(self)
+        self.tutorials      = tutorials.Tutorials(self)
+        self.GalacticWar    = galacticWar.Lobby(self)
         
         # Other windows
-        self.featuredMods = featuredmods.FeaturedMods(self)
-        self.avatarAdmin  = self.avatarSelection = avatarWidget(self, None)
+        self.featuredMods   = featuredmods.FeaturedMods(self)
+        self.avatarAdmin    = self.avatarSelection = avatarWidget(self, None)
 
 
 
@@ -971,6 +974,9 @@ class ClientWindow(FormClass, BaseClass):
         if new_tab is self.tourneyTab:
             self.showTourneys.emit()
 
+        if new_tab is self.galacticwarTab:
+            self.showGalaxyWar.emit()
+
     def joinGameFromURL(self, url):
         '''
         Tries to join the game at the given URL
@@ -1240,7 +1246,10 @@ class ClientWindow(FormClass, BaseClass):
     #
     def send(self, message):
         data = json.dumps(message)
-        logger.info("Outgoing JSON Message: " + data)
+        if message["command"] == "hello" :
+            logger.info("Outgoing JSON Message: login." )
+        else :
+            logger.info("Outgoing JSON Message: " + data)
         self.writeToServer(data)
         
         
@@ -1304,15 +1313,31 @@ class ClientWindow(FormClass, BaseClass):
             arguments = message['args']
         else:
             arguments = []
+        
             
+        
         # Important: This is the race parameter used by ladder search.
         if 'mod' in message:
             modkey = 'mod'
         else:
             modkey = 'featured_mod'
+
+        # Do some special things depending of the reason of the game launch.
+        rank = False
+        
+        if 'reason' in message:
+            if message['reason'] == 'gw' :
+                rank = True
+                if (not fa.exe.check(message[modkey])):
+                    logger.error("Can't play %s without successfully updating Forged Alliance." % message[modkey])
+                    return  
             
         # HACK: Ideally, this comes from the server, too. LATER: search_ranked message
-        if message[modkey] == "ladder1v1":
+        if rank :
+            arguments.append('/rank')
+            arguments.append(str(self.GalacticWar.rank))
+            
+        elif message[modkey] == "ladder1v1":
             arguments.append(self.games.race)
             #Player 1v1 rating
             arguments.append('/mean')        
