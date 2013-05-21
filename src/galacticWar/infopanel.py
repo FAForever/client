@@ -111,7 +111,7 @@ class InfoPanelWidget(FormClass, BaseClass):
 
     def rankup(self):
         '''handle ranking up '''
-        self.parent.send(dict(command="rank_up"))
+        self.parent.send(dict(command="ranking_up"))
 
     def defend(self):
         '''handle defense'''
@@ -158,13 +158,19 @@ class InfoPanelWidget(FormClass, BaseClass):
             for planetuid in self.parent.attacks[uid] :
                 if planetId == planetuid :
                     if self.galaxy.control_points[planetuid].occupation(faction) > 0.5 and self.parent.attacks[uid][planetuid]["faction"] != faction :
+                        print type(self.parent.attacks[uid][planetuid]["faction"]), type(faction)
                         for site in self.galaxy.getLinkedPlanets(planetId) :
                             if self.galaxy.control_points[site].occupation(faction) > 0.5 :
                                 self.defenseButton.show()
-                            else :
+                                self.planet = planetId
+                                return
+                    elif self.parent.attacks[uid][planetuid]["faction"] != faction :
+                        for site in self.galaxy.getLinkedPlanets(planetId) :
+                            if self.galaxy.control_points[site].occupation(faction) > 0.5 :
                                 self.attackButton.show()
-                            self.planet = planetId
-                            return                         
+                                self.planet = planetId
+                                return
+                    return                        
         
         if self.galaxy.control_points[planetId].occupation(faction) > 0.9 :
             self.planet = None

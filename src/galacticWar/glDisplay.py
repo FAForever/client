@@ -10,7 +10,7 @@ from OpenGL import GL
 from OpenGL import GLU
 
 
-from galacticWar import FACTIONS, COLOR_FACTIONS
+from galacticWar import FACTIONS, COLOR_FACTIONS, RANKS
 
 import math
 import random
@@ -706,20 +706,47 @@ class GLWidget(QtOpenGL.QGLWidget):
                 for planetuid in self.parent.attacks[useruid] :
                     uid = int(planetuid)
                     if uid == site :
-                        text += "<font color='red'><h2>Under %s Attack!</font></h2>" % (FACTIONS[int(self.parent.attacks[useruid][planetuid]["faction"])])
+                        faction = int(self.parent.attacks[useruid][planetuid]["faction"])
+                        text += "<font color='red'><h2>Under %s Attack !</font></h2>" % (FACTIONS[faction])
+                        
+                        # Handling additional infos about attackers
+                        if len(self.parent.attacks[useruid][planetuid]["attackers"]) > 0 :
+                            text += "<font color='red'>Attackers :</font><br>"
+                            names = []
+                            for player in self.parent.attacks[useruid][planetuid]["attackers"] :
+                                rank = int(player[0])
+                                if player[1] != "Unknown" :
+                                    name = "<font color='red'>%s(%i) %s</font>" % (RANKS[faction][rank], rank+1, player[1])
+                                else :
+                                    name = "<font color='red'>%s(%i)</font>" % (RANKS[faction][rank], rank+1)
+                                names.append(name)
+                            
+                            
+                            text += "<br>".join(names)
+                        
+                        
                         if self.parent.attacks[useruid][planetuid]["defended"] :
-                            text += "<font color='green'><h2>And currently defended!</font></h2>"
+                            text += "<font color='green'><h2>Planet is currently defended!</font></h2>"
             
             painter.save()
             html = QtGui.QTextDocument()
             html.setHtml(text)
             html.setTextWidth(width)
             height = html.size().height() + 10
-
-
+            width = html.size().width()
             painter.setPen(QtCore.Qt.white)
+
+            posx = pos[0]+20
+            posy = pos[1]+20
             
-            painter.translate(pos[0]+20, pos[1]+20)
+            if (posx + height) > self.height() :
+                posx = self.height() - height
+
+            if (posy + width) > self.width() :
+                posy = self.width() - width - 20
+
+            
+            painter.translate(posx, posy)
             painter.fillRect(QtCore.QRect(0, 0, width+5, height), QtGui.QColor(36, 61, 75, 150))
             clip = QtCore.QRectF(0, 0, width, height)
             html.drawContents(painter, clip)
