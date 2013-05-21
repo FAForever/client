@@ -30,9 +30,9 @@ LOBBY_PORT = 10001
 TEXTURE_SERVER = "http://direct.faforever.com/faf/images/"
 
 RANKS = {0:["Private", "Corporal", "Sergeant", "Captain", "Major", "Colonel", "General", "Supreme Commander"],
-         1:["Crusader", "Legate", "Avatar-of-War", "Priest", "Centurion", "Executor", "Evaluator", "Supreme Commander"],
-         2:["Ensign", "Drone", "Agent", "Inspector", "Starshina", "Commandarm" ,"Elite Commander", "Supreme Commander"],
-         3:["SouIstle", "Sou", "SouThuum", "YthiIstle", "Ythi", "YthiThuum", "Azeel", "Supreme Commander"]
+         1:["Paladin", "Legate", "Priest", "Centurion", "Crusader", "Evaluator", "Avatar-of-War", "Champion"],
+         2:["Drone", "Node", "Ensign", "Agent", "Inspector", "Starshina", "Commandarm" ,"Elite Commander"],
+         3:["Su", "Sou", "Soth", "Ithem", "YthiIs", "Ythilsthe", "YthiThuum", "Suythel Cosethuum"]
          }
 
 FACTIONS = {0:"UEF", 1:"Aeon",2:"Cybran",3:"Seraphim"}
