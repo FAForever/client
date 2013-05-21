@@ -105,9 +105,9 @@ class InfoPanelWidget(FormClass, BaseClass):
     def away(self, state):
         '''set the player as away'''
         if state == 0 :
-            self.parent.send(dict(command="away", state=0))
-        else :
             self.parent.send(dict(command="away", state=1))
+        else :
+            self.parent.send(dict(command="away", state=0))
 
     def rankup(self):
         '''handle ranking up '''
@@ -161,8 +161,10 @@ class InfoPanelWidget(FormClass, BaseClass):
                         for site in self.galaxy.getLinkedPlanets(planetId) :
                             if self.galaxy.control_points[site].occupation(faction) > 0.5 :
                                 self.defenseButton.show()
-                                self.planet = planetId
-                                return                         
+                            else :
+                                self.attackButton.show()
+                            self.planet = planetId
+                            return                         
         
         if self.galaxy.control_points[planetId].occupation(faction) > 0.9 :
             self.planet = None
