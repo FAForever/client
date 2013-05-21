@@ -45,6 +45,9 @@ class InfoPanelWidget(FormClass, BaseClass):
         self.attackButton.clicked.connect(self.attack)
         self.defenseButton.clicked.connect(self.defend)
         
+        self.rankUpButton.clicked.connect(self.rankup)
+        self.awayBox.stateChanged.connect(self.away)
+        
         self.attackProposalListWidget.itemDoubleClicked.connect(self.attackProposalAccepted)
         
     def setup(self):
@@ -99,7 +102,19 @@ class InfoPanelWidget(FormClass, BaseClass):
                 self.myAttacks = {}
                 self.attackListWidget.clear()                
 
+    def away(self, state):
+        '''set the player as away'''
+        if state == 0 :
+            self.parent.send(dict(command="away", state=0))
+        else :
+            self.parent.send(dict(command="away", state=1))
+
+    def rankup(self):
+        '''handle ranking up '''
+        self.parent.send(dict(command="rank_up"))
+
     def defend(self):
+        '''handle defense'''
         self.parent.send(dict(command="defense_command", uid=self.planet))        
     
     def attack(self):
