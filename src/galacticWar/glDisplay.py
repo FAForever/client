@@ -1163,12 +1163,12 @@ class GLWidget(QtOpenGL.QGLWidget):
                 GL.glVertex3f(line[0] - vectorOffset.x(), line[1] - vectorOffset.y(), origin)
             GL.glEnd( )         
 
-        GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (.5,.5,.6, .5))
+        GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (.0,.0,.0, 1.0))
         GL.glBegin(GL.GL_POLYGON)
-        GL.glVertex3f(self.galaxy.space_size.x()+50, -self.galaxy.space_size.y()-50, extrude)
-        GL.glVertex3f(self.galaxy.space_size.x()+50, self.galaxy.space_size.y()+50, extrude)
-        GL.glVertex3f(-self.galaxy.space_size.x()-50, self.galaxy.space_size.y()+50, extrude)
-        GL.glVertex3f(-self.galaxy.space_size.x()-50, -self.galaxy.space_size.y()-50, extrude)
+        GL.glVertex3f(self.galaxy.space_size.x()+5000, -self.galaxy.space_size.y()-5000, extrude)
+        GL.glVertex3f(self.galaxy.space_size.x()+5000, self.galaxy.space_size.y()+5000, extrude)
+        GL.glVertex3f(-self.galaxy.space_size.x()-5000, self.galaxy.space_size.y()+5000, extrude)
+        GL.glVertex3f(-self.galaxy.space_size.x()-5000, -self.galaxy.space_size.y()-5000, extrude)
         GL.glEnd( )
 
 
