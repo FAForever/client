@@ -48,6 +48,7 @@ class InfoPanelWidget(FormClass, BaseClass):
         self.rankUpButton.clicked.connect(self.rankup)
         self.awayBox.stateChanged.connect(self.away)
         
+        self.attackListWidget.itemDoubleClicked.connect(self.giveToattackProposal)
         self.attackProposalListWidget.itemDoubleClicked.connect(self.attackProposalAccepted)
         
     def setup(self):
@@ -55,6 +56,16 @@ class InfoPanelWidget(FormClass, BaseClass):
         self.defenseButton.hide()
         self.attackBox.hide()
         
+        
+    def giveToattackProposal(self, item):
+        ''' give this attack to the second in command system '''
+        
+        question = QtGui.QMessageBox.question(self, item.itemText, "You are going to give away this attack. Do you want to proceed ?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+        
+        if question == QtGui.QMessageBox.Yes :
+            planetuid = item.uid
+            self.parent.send(dict(command="send_to_proposal", uid=planetuid))
+    
     def attackProposalAccepted(self, item):
         question = QtGui.QMessageBox.question(self, "Second in command", "You are going to attack this planet. Do you want to proceed ?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
         
