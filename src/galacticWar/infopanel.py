@@ -184,7 +184,6 @@ class InfoPanelWidget(FormClass, BaseClass):
                         return
                     
                     if self.galaxy.control_points[planetuid].occupation(faction) > 0.5 and self.parent.attacks[uid][planetuid]["faction"] != faction :
-                        print type(self.parent.attacks[uid][planetuid]["faction"]), type(faction)
                         for site in self.galaxy.getLinkedPlanets(planetId) :
                             if self.galaxy.control_points[site].occupation(faction) > 0.5 :
                                 self.defenseButton.show()

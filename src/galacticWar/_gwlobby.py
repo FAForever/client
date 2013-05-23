@@ -434,7 +434,7 @@ class LobbyWidget(FormClass, BaseClass):
         if state == "on" :
             text = message["text"]
             self.progress.show()
-            self.progress.setCancelButton(0)
+            self.progress.setCancelButton(None)
             self.progress.setLabelText(text)
         else :
             self.progress.hide()
