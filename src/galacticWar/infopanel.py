@@ -90,20 +90,32 @@ class InfoPanelWidget(FormClass, BaseClass):
     def updateAttacks(self):
         logger.debug("updating attacks")
         if self.parent.uid in self.parent.attacks :
-            self.attackListWidget.show()
             
-            # clearing stuff
-            for uid in self.myAttacks :
-                self.myAttacks[uid].updateTimer.stop()
-            self.myAttacks = {}
-            self.attackListWidget.clear()
+            foundActive = False
             
             for uid in self.parent.attacks[self.parent.uid] :
-                if not uid in self.myAttacks :
-                    self.myAttacks[uid] = AttackItem(uid)
-                    self.attackListWidget.addItem(self.myAttacks[uid])
+                if self.parent.attacks[self.parent.uid][uid]["onHold"] == False :
+                    foundActive = True
+                    break
                 
-                self.myAttacks[uid].update(self.parent.attacks[self.parent.uid][uid], self)
+            if foundActive :
+                self.attackListWidget.show()
+                
+                # clearing stuff
+                for uid in self.myAttacks :
+                    self.myAttacks[uid].updateTimer.stop()
+                self.myAttacks = {}
+                self.attackListWidget.clear()
+                
+                for uid in self.parent.attacks[self.parent.uid] :
+                    if self.parent.attacks[self.parent.uid][uid]["onHold"] == True :
+                        continue
+                    
+                    if not uid in self.myAttacks :
+                        self.myAttacks[uid] = AttackItem(uid)
+                        self.attackListWidget.addItem(self.myAttacks[uid])
+                    
+                    self.myAttacks[uid].update(self.parent.attacks[self.parent.uid][uid], self)
                 
         else :
             self.attackListWidget.hide()
@@ -168,6 +180,9 @@ class InfoPanelWidget(FormClass, BaseClass):
         for uid in self.parent.attacks :
             for planetuid in self.parent.attacks[uid] :
                 if planetId == planetuid :
+                    if self.parent.attacks[self.parent.uid][uid]["onHold"] == True :
+                        return
+                    
                     if self.galaxy.control_points[planetuid].occupation(faction) > 0.5 and self.parent.attacks[uid][planetuid]["faction"] != faction :
                         print type(self.parent.attacks[uid][planetuid]["faction"]), type(faction)
                         for site in self.galaxy.getLinkedPlanets(planetId) :

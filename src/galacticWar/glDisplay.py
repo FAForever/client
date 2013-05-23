@@ -394,7 +394,10 @@ class GLWidget(QtOpenGL.QGLWidget):
                 
                 if uid in self.galaxy.control_points :
                     
-                    color  = COLOR_FACTIONS[int(self.parent.attacks[useruid][planetuid]["faction"])]
+                    if self.parent.attacks[useruid][planetuid]["onHold"] == True :
+                        color  = QtGui.QColor(255,255,255)
+                    else :
+                        color  = COLOR_FACTIONS[int(self.parent.attacks[useruid][planetuid]["faction"])]
                     self.programSwirl.bind()
                     
                     if self.parent.attacks[useruid][planetuid]["defended"] :
@@ -706,27 +709,30 @@ class GLWidget(QtOpenGL.QGLWidget):
                 for planetuid in self.parent.attacks[useruid] :
                     uid = int(planetuid)
                     if uid == site :
-                        faction = int(self.parent.attacks[useruid][planetuid]["faction"])
-                        text += "<font color='red'><h2>Under %s Attack !</font></h2>" % (FACTIONS[faction])
-                        
-                        # Handling additional infos about attackers
-                        if len(self.parent.attacks[useruid][planetuid]["attackers"]) > 0 :
-                            text += "<font color='red'>Attackers :</font><br>"
-                            names = []
-                            for player in self.parent.attacks[useruid][planetuid]["attackers"] :
-                                rank = int(player[0])
-                                if player[1] != "Unknown" :
-                                    name = "<font color='red'>%s(%i) %s</font>" % (RANKS[faction][rank], rank+1, player[1])
-                                else :
-                                    name = "<font color='red'>%s(%i)</font>" % (RANKS[faction][rank], rank+1)
-                                names.append(name)
+                        if self.parent.attacks[useruid][planetuid]["onHold"] == True :
+                            text += "<font color='silver'><h2>Attack on hold.</font></h2>"
+                        else :
+                            faction = int(self.parent.attacks[useruid][planetuid]["faction"])
+                            text += "<font color='red'><h2>Under %s Attack !</font></h2>" % (FACTIONS[faction])
+                            
+                            # Handling additional infos about attackers
+                            if len(self.parent.attacks[useruid][planetuid]["attackers"]) > 0 :
+                                text += "<font color='red'>Attackers :</font><br>"
+                                names = []
+                                for player in self.parent.attacks[useruid][planetuid]["attackers"] :
+                                    rank = int(player[0])
+                                    if player[1] != "Unknown" :
+                                        name = "<font color='red'>%s(%i) %s</font>" % (RANKS[faction][rank], rank+1, player[1])
+                                    else :
+                                        name = "<font color='red'>%s(%i)</font>" % (RANKS[faction][rank], rank+1)
+                                    names.append(name)
+                                
+                                
+                                text += "<br>".join(names)
                             
                             
-                            text += "<br>".join(names)
-                        
-                        
-                        if self.parent.attacks[useruid][planetuid]["defended"] :
-                            text += "<font color='green'><h2>Planet is currently defended!</font></h2>"
+                            if self.parent.attacks[useruid][planetuid]["defended"] :
+                                text += "<font color='green'><h2>Planet is currently defended!</font></h2>"
             
             painter.save()
             html = QtGui.QTextDocument()
