@@ -1,7 +1,7 @@
 from PyQt4 import QtCore, QtGui
 
 import sys
-
+import copy
 
 class NewsTicker(QtGui.QWidget):
     def __init__(self, *args, **kwargs):
@@ -34,7 +34,10 @@ class NewsTicker(QtGui.QWidget):
         painter.setPen(QtGui.QColor("lightGray"))
         
         
-        if len(self.news) == 0 :
+        if len(self.news) == 0  :
+            if len(self.newNews) != 0 :
+                self.news = copy.copy(self.newNews)
+                
             return
         
         x = -self.offset
