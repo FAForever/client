@@ -69,7 +69,6 @@ class LobbyWidget(FormClass, BaseClass):
         
         self.galaxy     = Galaxy()
         self.channel    = None
-        self.scroller = QtGui.QLabel(self)
         
         self.initDone   = False
         
@@ -228,10 +227,13 @@ class LobbyWidget(FormClass, BaseClass):
         self.galaxy.computeVoronoi()
         from glDisplay import GLWidget
         from infopanel import InfoPanelWidget
+        from newsTicker import NewsTicker
         self.OGLdisplay = GLWidget(self)
+        self.newsTicker = NewsTicker(self)
         self.galaxyLayout.addWidget(self.OGLdisplay)
-        self.galaxyLayout.addWidget(self.scroller)
-        self.scroller.setMaximumHeight(20)
+        self.galaxyLayout.addWidget(self.newsTicker)
+        self.newsTicker.setMaximumHeight(20)
+        self.newsTicker.updateText()
         self.infoPanel = InfoPanelWidget(self)
         self.info_Panel.layout().addWidget(self.infoPanel)
 
@@ -304,6 +306,10 @@ class LobbyWidget(FormClass, BaseClass):
         if len(self.shaderlist) == 0 and self.initDone :
             self.download_textures()
     
+    
+    def handle_news_feed(self, message):
+        '''Adding news to news feed'''
+        self.newsTicker.addNews(message["news"])
     
     def handle_player_info(self, message):
         ''' Update Player stats '''
@@ -428,6 +434,7 @@ class LobbyWidget(FormClass, BaseClass):
         if state == "on" :
             text = message["text"]
             self.progress.show()
+            self.progress.setCancelButton(0)
             self.progress.setLabelText(text)
         else :
             self.progress.hide()
