@@ -391,7 +391,7 @@ class GameItem(QtGui.QListWidgetItem):
         #Spawn announcers: IF we had a gamestate change, show replay and hosting announcements 
         if (oldstate != self.state):            
             if (self.state == "playing"):
-                QtCore.QTimer.singleShot(60000, self.announceReplay) #The delay is there because we have a 60 delay in the livereplay server
+                QtCore.QTimer.singleShot(5*60000, self.announceReplay) #The delay is there because we have a 5 minutes delay in the livereplay server
             elif (self.state == "open"):
                 QtCore.QTimer.singleShot(35000, self.announceHosting)   #The delay is there because we currently the host needs time to choose a map
 
