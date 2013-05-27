@@ -84,7 +84,7 @@ class InfoPanelWidget(FormClass, BaseClass):
             self.attackProposal[planetuid] = AttackItem(planetuid)
             self.attackProposalListWidget.addItem(self.attackProposal[planetuid])
             
-            self.attackProposal[planetuid].update(dict(timeAttack=60*5), self)
+            self.attackProposal[planetuid].update(dict(timeAttack=60*10), self)
         
         
     def updateAttacks(self):
