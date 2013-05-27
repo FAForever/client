@@ -230,7 +230,6 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
         self.welcomed = True
         self.nickservIdentify()
-
         
     def nickservIdentify(self):
         if self.identified == False :
@@ -376,19 +375,22 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         notice = e.arguments()[0]
         prefix = notice.split(" ")[0]
         target = prefix.strip("[]")
-               
+        
         if source and source.lower() == 'nickserv':
             
             if e.arguments()[0].find("registered under your account") >= 0:
-                self.nickservIdentify()
+                if self.identified == False :
+                    self.identified = True
+                    self.on_authentified()
                 
             elif e.arguments()[0].find("isn't registered") >= 0:
                 
                 self.nickservRegister()
         
-            elif e.arguments()[0].find("Password accepted") >= 0:
-                self.identified = True
-                self.on_authentified()
+            elif e.arguments()[0].find("Password accepted") :
+                if self.identified == False :
+                    self.identified = True
+                    self.on_authentified()
                         
             elif e.arguments()[0].find("RELEASE") >= 0:
                 self.connection.privmsg('nickserv', 'release %s %s' % (self.client.login, util.md5text(self.client.password)))
