@@ -227,7 +227,6 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
        
 #SimpleIRCClient Class Dispatcher Attributes follow here.
     def on_welcome(self, c, e):
-
         self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
         self.welcomed = True
         self.nickservIdentify()
@@ -237,8 +236,10 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         if self.identified == False :
             self.serverLogArea.appendPlainText("[Identify as : %s]" % (self.client.login))
             self.connection.privmsg('NickServ', 'identify %s %s' % (self.client.login, util.md5text(self.client.password)))
-    
+            
     def on_authentified(self):
+        if self.connection.get_nickname() != self.client.login :
+            self.connection.privmsg('nickserv', 'recover %s %s' % (self.client.login, util.md5text(self.client.password)))
         #Perform any pending autojoins (client may have emitted autoJoin signals before we talked to the IRC server)
         self.autoJoin(self.optionalChannels)
         self.autoJoin(self.crucialChannels)
@@ -375,22 +376,26 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         notice = e.arguments()[0]
         prefix = notice.split(" ")[0]
         target = prefix.strip("[]")
-        
-        print source, notice
-        
+               
         if source and source.lower() == 'nickserv':
             
             if e.arguments()[0].find("registered under your account") >= 0:
                 self.nickservIdentify()
                 
             elif e.arguments()[0].find("isn't registered") >= 0:
+                
                 self.nickservRegister()
         
             elif e.arguments()[0].find("Password accepted") >= 0:
                 self.identified = True
                 self.on_authentified()
                         
-        
+            elif e.arguments()[0].find("RELEASE") >= 0:
+                self.connection.privmsg('nickserv', 'release %s %s' % (self.client.login, util.md5text(self.client.password)))
+
+            elif e.arguments()[0].find("hold on") >= 0:
+                self.connection.nick(self.client.login)
+
         message = "\n".join(e.arguments()).lstrip(prefix)
         if target in self.channels:
             self.channels[target].printMsg(source, message)     
@@ -420,7 +425,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         else:
             self.channels[target].printAction(name, "\n".join(e.arguments()))
         
-    def on_default(self, c, e):                        
+    def on_default(self, c, e):                     
         self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
-
+        if "Nickname is already in use." in "\n".join(e.arguments()) :
+            self.connection.nick(self.client.login + "_")
 
