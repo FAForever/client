@@ -175,7 +175,7 @@ class ClientWindow(FormClass, BaseClass):
         self.foes    = []       # names of the client's foes
                 
         self.power = 0          # current user power        
-               
+        self.email = None
         #Initialize the Menu Bar according to settings etc.
         self.initMenus()
 
@@ -1279,11 +1279,10 @@ class ClientWindow(FormClass, BaseClass):
         self.statsInfo.emit(message)       
 
     def handle_welcome(self, message):
-        
         if "session" in message :
             self.session = str(message["session"])
         
-        if "update" in message : 
+        elif "update" in message : 
             
             # fix a problem with Qt.
             util.settings.beginGroup("window")
@@ -1302,6 +1301,7 @@ class ClientWindow(FormClass, BaseClass):
                 self.state = ClientState.ACCEPTED
                 
         else :
+            self.email = message["email"]
             logger.debug("Login success" )
             self.state = ClientState.ACCEPTED
             

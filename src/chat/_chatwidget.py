@@ -60,6 +60,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.nam = QNetworkAccessManager()
         self.nam.finished.connect(self.finishDownloadAvatar)
                     
+        #nickserv stuff
+        self.identified = False
         
         #IRC parameters
         self.ircServer = IRC_SERVER
@@ -228,13 +230,25 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
         self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
         self.welcomed = True
+        self.nickservIdentify()
+
+        
+    def nickservIdentify(self):
+        if self.identified == False :
+            self.serverLogArea.appendPlainText("[Identify as : %s]" % (self.client.login))
+            self.connection.privmsg('NickServ', 'identify %s %s' % (self.client.login, util.md5text(self.client.password)))
+    
+    def on_authentified(self):
         #Perform any pending autojoins (client may have emitted autoJoin signals before we talked to the IRC server)
         self.autoJoin(self.optionalChannels)
         self.autoJoin(self.crucialChannels)
+    
+    def nickservRegister(self):
+        self.connection.privmsg('NickServ', 'register %s %s' % (util.md5text(self.client.password), self.client.email))
         
         
     def on_version(self, c, e):
-        self.irc.privmsg(e.source(), "Forged Alliance Forever " + self.client.VERSION)
+        self.connection.privmsg(e.source(), "Forged Alliance Forever " + self.client.VERSION)
       
       
     def on_motd(self, c, e):   
@@ -356,11 +370,27 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         if self.client.GalacticWar.channel and target == self.client.GalacticWar.channel.name :
             self.client.GalacticWar.channel.printMsg(user2name(e.source()), "\n".join(e.arguments()))
                         
-    def on_privnotice(self, c, e):
+    def on_privnotice(self, c, e):                            
         source = user2name(e.source())
         notice = e.arguments()[0]
         prefix = notice.split(" ")[0]
         target = prefix.strip("[]")
+        
+        print source, notice
+        
+        if source and source.lower() == 'nickserv':
+            
+            if e.arguments()[0].find("registered under your account") >= 0:
+                self.nickservIdentify()
+                
+            elif e.arguments()[0].find("isn't registered") >= 0:
+                self.nickservRegister()
+        
+            elif e.arguments()[0].find("Password accepted") >= 0:
+                self.identified = True
+                self.on_authentified()
+                        
+        
         message = "\n".join(e.arguments()).lstrip(prefix)
         if target in self.channels:
             self.channels[target].printMsg(source, message)     

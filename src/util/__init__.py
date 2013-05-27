@@ -118,7 +118,7 @@ if not os.path.isdir(GW_TEXTURE_DIR):
 
 from PyQt4 import QtGui, uic, QtCore
 import shutil
-import hashlib
+import hashlib, sha
 import re
 import urllib
 import _winreg
@@ -510,6 +510,10 @@ def irc_escape(text, a_style = ""):
     return " ".join(result)
 
 
+def md5text(text):
+    m = hashlib.md5()
+    m.update(text)
+    return m.hexdigest()
 
 def md5(fileName):
     '''
