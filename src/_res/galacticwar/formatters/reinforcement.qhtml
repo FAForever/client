@@ -1,0 +1,4 @@
+
+<font color="white" size="+2"><b>{description}</b></font><br/>
+<font color="white" size="+1"><b>{price}</b></font><br/>
+<font color="white"><b>activated {activation} seconds into the game</b></font><br/>

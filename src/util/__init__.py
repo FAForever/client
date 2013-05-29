@@ -23,6 +23,7 @@
 # Developer mode flag
 import sys
 import os
+import urllib2
 from ctypes import *
 
 def developer():
@@ -45,6 +46,7 @@ else:
     VERSION        = 0
     VERSION_STRING = "development"
 
+UNITS_PREVIEW_ROOT = "http://www.faforever.com/faf/unitsDB/icons/big/" 
 
 #These are paths relative to the executable or main.py script
 COMMON_DIR = "_res"
@@ -402,6 +404,42 @@ def readfile(filename, themed = True):
     result.close()
     return data
 
+def __downloadPreviewFromWeb(unitname):
+    '''
+    Downloads a preview image from the web for the given unit name
+    '''
+    #This is done so generated previews always have a lower case name. This doesn't solve the underlying problem (case folding Windows vs. Unix vs. FAF)
+    unitname = unitname.lower()
+
+    logger.debug("Searching web preview for: " + unitname)
+        
+
+    req = urllib2.urlopen(UNITS_PREVIEW_ROOT + urllib2.quote(unitname))
+    print req
+    img = os.path.join(CACHE_DIR, unitname)
+    with open(img, 'wb') as fp:
+        shutil.copyfileobj(req, fp)        
+        fp.flush()
+        os.fsync(fp.fileno())       #probably works fine without the flush and fsync
+        fp.close()
+        return img
+
+        
+    logger.debug("Web Preview not found for: " + unitname)
+    return None
+
+def iconUnit(unitname):
+    # Try to load directly from cache
+
+    img = os.path.join(CACHE_DIR, unitname)
+    if os.path.isfile(img):
+        logger.debug("Using cached preview image for: " + unitname)
+        return icon(img, False, pixmap)
+    # Try to download from web
+    img = __downloadPreviewFromWeb(unitname)
+    if img and os.path.isfile(img):
+        logger.debug("Using web preview image for: " + unitname)
+        return icon(img, False, pixmap)
 
 
 def icon(filename, themed=True, pix = False):

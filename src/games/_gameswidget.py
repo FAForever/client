@@ -77,7 +77,7 @@ class GamesWidget(FormClass, BaseClass):
         self.client.gameEnter.connect(self.stopSearchRanked)
         self.client.viewingReplay.connect(self.stopSearchRanked)
         
-        self.gameList.setItemDelegate(GameItemDelegate(self));
+        self.gameList.setItemDelegate(GameItemDelegate(self))
         self.gameList.itemDoubleClicked.connect(self.gameDoubleClicked)
 
         self.modList.itemDoubleClicked.connect(self.hostGameClicked)

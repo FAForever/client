@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2012 Gael Honorez.
+# Copyright (c) 2013 Gael Honorez.
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the GNU Public License v3.0
 # which accompanies this distribution, and is available at
@@ -36,15 +36,16 @@ import loginwizards
 FormClass, BaseClass = util.loadUiType("galacticwar/galacticwar.ui")
 
 class LobbyWidget(FormClass, BaseClass):
-    planetClicked           = QtCore.pyqtSignal(int)
-    hovering                = QtCore.pyqtSignal()
-    creditsUpdated          = QtCore.pyqtSignal(int)
-    rankUpdated             = QtCore.pyqtSignal(int)
-    creditsUpdated          = QtCore.pyqtSignal(int)
-    victoriesUpdated        = QtCore.pyqtSignal(int)
-    attacksUpdated          = QtCore.pyqtSignal()
-    planetUpdated           = QtCore.pyqtSignal()
-    attackProposalUpdated   = QtCore.pyqtSignal(int)
+    planetClicked                   = QtCore.pyqtSignal(int)
+    hovering                        = QtCore.pyqtSignal()
+    creditsUpdated                  = QtCore.pyqtSignal(int)
+    rankUpdated                     = QtCore.pyqtSignal(int)
+    creditsUpdated                  = QtCore.pyqtSignal(int)
+    victoriesUpdated                = QtCore.pyqtSignal(int)
+    attacksUpdated                  = QtCore.pyqtSignal()
+    planetUpdated                   = QtCore.pyqtSignal()
+    attackProposalUpdated           = QtCore.pyqtSignal(int)
+    temporaryReinforcementUpdated   = QtCore.pyqtSignal(dict)
 
     def __init__(self, client, *args, **kwargs):
         logger.debug("Lobby instantiating.")
@@ -135,7 +136,7 @@ class LobbyWidget(FormClass, BaseClass):
         if root in self.texturelist :
             del self.texturelist[root]
             
-        if len(self.texturelist) == 0 :
+        if len(self.texturelist) == 0:
             self.setup()
             self.progress.close()
 
@@ -228,6 +229,9 @@ class LobbyWidget(FormClass, BaseClass):
         from glDisplay import GLWidget
         from infopanel import InfoPanelWidget
         from newsTicker import NewsTicker
+        from reinforcements import TemporaryWidget
+        #items panels
+        self.temporaryItems = TemporaryWidget(self)
         self.OGLdisplay = GLWidget(self)
         self.newsTicker = NewsTicker(self)
         self.galaxyLayout.addWidget(self.OGLdisplay)
@@ -237,7 +241,7 @@ class LobbyWidget(FormClass, BaseClass):
         self.infoPanel = InfoPanelWidget(self)
         self.info_Panel.layout().addWidget(self.infoPanel)
 
-        self.send(dict(command = "init_done", status = True))
+        self.send(dict(command = "init_done", status=True))
                 
     def get_rank(self, faction, rank):
         return RANKS[faction][rank]
@@ -245,6 +249,12 @@ class LobbyWidget(FormClass, BaseClass):
 
     def handle_welcome(self, message):
         self.state = ClientState.ACCEPTED
+
+    def handle_reinforcement_info(self, message):
+        '''populate reinforcement lists'''
+        print message
+        if message["temporary"] is True:
+            self.temporaryReinforcementUpdated.emit(message)
 
     def handle_resource_required(self, message):
         if message["action"] == "shaders" :
@@ -351,12 +361,8 @@ class LobbyWidget(FormClass, BaseClass):
             for planetuid in attacks[playeruid] :
                 planetuid_int = int(planetuid)
                 self.attacks[playeruid_int][planetuid_int] = attacks[playeruid][planetuid]
-
-
-
         self.attacksUpdated.emit()
-        
-    
+
     def handle_planet_info(self, message):
         logger.debug("updating planet infos")
         uid = message['uid'] 

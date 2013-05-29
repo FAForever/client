@@ -235,7 +235,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         if self.identified == False :
             self.serverLogArea.appendPlainText("[Identify as : %s]" % (self.client.login))
             self.connection.privmsg('NickServ', 'identify %s %s' % (self.client.login, util.md5text(self.client.password)))
-            
+            print util.md5text(self.client.password)
     def on_authentified(self):
         if self.connection.get_nickname() != self.client.login :
             self.connection.privmsg('nickserv', 'recover %s %s' % (self.client.login, util.md5text(self.client.password)))

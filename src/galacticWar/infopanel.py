@@ -1,8 +1,26 @@
+#-------------------------------------------------------------------------------
+# Copyright (c) 2013 Gael Honorez.
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the GNU Public License v3.0
+# which accompanies this distribution, and is available at
+# http://www.gnu.org/licenses/gpl.html
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#-------------------------------------------------------------------------------
+
+
 from PyQt4 import QtGui, QtCore
 import util
 from galacticWar import logger
 from attackitem import AttackItem
-
 import time
 
 FormClass, BaseClass = util.loadUiType("galacticwar/infopanel.ui")
@@ -50,12 +68,21 @@ class InfoPanelWidget(FormClass, BaseClass):
         
         self.attackListWidget.itemDoubleClicked.connect(self.giveToattackProposal)
         self.attackProposalListWidget.itemDoubleClicked.connect(self.attackProposalAccepted)
+
+        self.temporaryItemsButton.clicked.connect(self.buyTemporaryItems)
+
         
     def setup(self):
         self.attackButton.hide()
         self.defenseButton.hide()
         self.attackBox.hide()
+        self.temporaryItemsButton.hide()
         
+    def buyTemporaryItems(self):
+        '''Handle buying temporary items'''
+        self.parent.send(dict(command="temporary_items"))
+        self.parent.temporaryItems.show()
+
         
     def giveToattackProposal(self, item):
         ''' give this attack to the second in command system '''
@@ -73,8 +100,6 @@ class InfoPanelWidget(FormClass, BaseClass):
             planetuid = item.uid
             self.parent.send(dict(command="accept_proposal", uid=planetuid))
             
-        
-    
     def updateAttacksProposal(self, planetuid):
         if planetuid in self.attackProposal :
             return
@@ -85,8 +110,7 @@ class InfoPanelWidget(FormClass, BaseClass):
             self.attackProposalListWidget.addItem(self.attackProposal[planetuid])
             
             self.attackProposal[planetuid].update(dict(timeAttack=60*10), self)
-        
-        
+             
     def updateAttacks(self):
         logger.debug("updating attacks")
         if self.parent.uid in self.parent.attacks :
@@ -157,6 +181,8 @@ class InfoPanelWidget(FormClass, BaseClass):
         logger.debug("updating rank interface")
         rankName = self.parent.get_rank(self.parent.faction, rank)
         self.nameLabel.setText("%s %s" %(rankName,self.parent.name))
+        if rank > 0 :
+            self.temporaryItemsButton.show()
     
     def updateVictories(self, victories):
         logger.debug("updating victories interface")
