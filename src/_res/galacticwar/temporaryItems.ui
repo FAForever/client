@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>503</width>
-    <height>640</height>
+    <width>511</width>
+    <height>632</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,9 +21,15 @@
     <rect>
      <x>20</x>
      <y>10</y>
-     <width>471</width>
+     <width>470</width>
      <height>601</height>
     </rect>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>470</width>
+     <height>16777215</height>
+    </size>
    </property>
    <property name="title">
     <string>Building</string>
@@ -47,7 +53,26 @@ p, li { white-space: pre-wrap; }
      </widget>
     </item>
     <item row="1" column="0">
-     <widget class="QListWidget" name="reinforcementListWidget"/>
+     <widget class="QListWidget" name="reinforcementListWidget">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+        <horstretch>45</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>450</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>450</width>
+        <height>16777215</height>
+       </size>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>

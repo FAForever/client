@@ -25,37 +25,25 @@ class ReinforcementDelegate(QtGui.QStyledItemDelegate):
         QtGui.QStyledItemDelegate.__init__(self, *args, **kwargs)
         
     def paint(self, painter, option, index, *args, **kwargs):
-        self.initStyleOption(option, index)
-                
+        self.initStyleOption(option, index)       
         painter.save()
-        
         html = QtGui.QTextDocument()
         html.setHtml(option.text)
         
         icon = QtGui.QIcon(option.icon)
         iconsize = icon.actualSize(option.rect.size())
-        
         #clear icon and text before letting the control draw itself because we're rendering these parts ourselves
         option.icon = QtGui.QIcon()        
         option.text = ""  
         option.widget.style().drawControl(QtGui.QStyle.CE_ItemViewItem, option, painter, option.widget)
         
-        #Shadow
-        painter.fillRect(option.rect.left()+8-1, option.rect.top()+8-1, iconsize.width(), iconsize.height(), QtGui.QColor("#202020"))
-
-        #Icon
-        icon.paint(painter, option.rect.adjusted(5-2, -2, 0, 0), QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
-        
-        #Frame around the icon
-        pen = QtGui.QPen()
-        pen.setWidth(1);
-        pen.setBrush(QtGui.QColor("#303030"));  #FIXME: This needs to come from theme.
-        pen.setCapStyle(QtCore.Qt.RoundCap);
-        painter.setPen(pen)
-        painter.drawRect(option.rect.left()+5-2, option.rect.top()+5-2, iconsize.width(), iconsize.height())
+        if index.model().flags(index) == QtCore.Qt.NoItemFlags:
+            icon.paint(painter, option.rect.adjusted(5-2, -2, 0, 0), QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter, mode=1)
+        else :
+            icon.paint(painter, option.rect.adjusted(5-2, -2, 0, 0), QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
 
         #Description
-        painter.translate(option.rect.left() + iconsize.width() + 10, option.rect.top()+10)
+        painter.translate(option.rect.left() + iconsize.width() + 10, 0)
         clip = QtCore.QRectF(0, 0, option.rect.width()-iconsize.width() - 10 - 5, option.rect.height())
         html.drawContents(painter, clip)
         painter.restore()
@@ -69,8 +57,8 @@ class ReinforcementDelegate(QtGui.QStyledItemDelegate):
         return QtCore.QSize(ReinforcementItem.ICONSIZE + ReinforcementItem.TEXTWIDTH + ReinforcementItem.PADDING, ReinforcementItem.ICONSIZE)  
 
 class ReinforcementItem(QtGui.QListWidgetItem):
-    TEXTWIDTH = 230
-    ICONSIZE = 110
+    TEXTWIDTH = 370
+    ICONSIZE = 64
     PADDING = 10
     WIDTH = ICONSIZE + TEXTWIDTH
 
@@ -84,8 +72,17 @@ class ReinforcementItem(QtGui.QListWidgetItem):
         self.price          = None
         self.activation     = None
         self.description    = None
+        self.owned          = 0
         self.setHidden(True)
 
+    def setEnabled(self):
+        self.setFlags(QtCore.Qt.ItemIsEnabled)
+        self.setText(self.FORMATTER_REINFORCEMENT.format(color="black", description = self.description, activation=self.activation, price=self.price, owned = self.owned))
+
+    def setDisabled(self):
+        self.setFlags(QtCore.Qt.NoItemFlags)
+        self.setText(self.FORMATTER_REINFORCEMENT.format(color="grey", description = self.description, activation=self.activation, price=self.price, owned = self.owned))
+        
     def update(self, message, client):
         '''update this item'''
         self.client = client
@@ -95,11 +92,11 @@ class ReinforcementItem(QtGui.QListWidgetItem):
         self.price          = message['price']
         self.activation     = message['activation']
         self.description    = message["description"]
+        self.owned          = message["amount"]
 
         iconName = "%s_icon.png" % self.structure
-        print iconName
         icon = util.iconUnit(iconName)
         self.setIcon(icon)
         self.setHidden(False)
 
-        self.setText(self.FORMATTER_REINFORCEMENT.format(description = self.description, activation=self.activation, price=self.price))
+        self.setText(self.FORMATTER_REINFORCEMENT.format(color="black", description = self.description, activation=self.activation, price=self.price, owned = self.owned))

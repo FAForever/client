@@ -34,16 +34,36 @@ class TemporaryWidget(FormClass, BaseClass):
 
         self.reinforcementListWidget.setItemDelegate(ReinforcementDelegate(self))
         self.parent.temporaryReinforcementUpdated.connect(self.processReinforcementInfo)
-
+        self.parent.creditsUpdated.connect(self.updateCreditsCheck)
+        
+        self.reinforcementListWidget.itemDoubleClicked.connect(self.buyItem)
+        
         self.reinforcements = {}
 
+    def buyItem(self, item):
+        '''buy an item'''
+        question = QtGui.QMessageBox.question(self,item.description, "Buy this item?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+        if question == QtGui.QMessageBox.Yes :
+            self.parent.send(dict(command="buy_temporary_item", uid=item.uid))        
+
+    def updateCreditsCheck(self, credits):
+        '''disable item we can't buy'''
+        for uid in self.reinforcements:
+            if not self.reinforcements[uid].isHidden():
+                print credits, self.reinforcements[uid].price 
+                if credits < self.reinforcements[uid].price:
+                    self.reinforcements[uid].setDisabled()
+                else:
+                    self.reinforcements[uid].setEnabled()
+
     def processReinforcementInfo(self, message):
-    	'''Handle a reinforcement info message'''
-    	uid = message["uid"]
-    	print message
-    	if uid not in self.reinforcements:
+        '''Handle a reinforcement info message'''
+        uid = message["uid"]
+        if uid not in self.reinforcements:
             self.reinforcements[uid] = ReinforcementItem(uid)
             self.reinforcementListWidget.addItem(self.reinforcements[uid])
             self.reinforcements[uid].update(message, self.parent)
         else:
             self.reinforcements[uid].update(message, self.parent)
+        
+        self.updateCreditsCheck(self.parent.credits)

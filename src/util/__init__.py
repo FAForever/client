@@ -434,12 +434,12 @@ def iconUnit(unitname):
     img = os.path.join(CACHE_DIR, unitname)
     if os.path.isfile(img):
         logger.debug("Using cached preview image for: " + unitname)
-        return icon(img, False, pixmap)
+        return icon(img, False)
     # Try to download from web
     img = __downloadPreviewFromWeb(unitname)
     if img and os.path.isfile(img):
         logger.debug("Using web preview image for: " + unitname)
-        return icon(img, False, pixmap)
+        return icon(img, False)
 
 
 def icon(filename, themed=True, pix = False):
@@ -449,7 +449,9 @@ def icon(filename, themed=True, pix = False):
     if pix :
         return pixmap(filename, themed)
     else :
-        return QtGui.QIcon(pixmap(filename, themed))
+        icon = QtGui.QIcon(pixmap(filename, themed))
+        #icon.addPixmap(pixmap(filename, themed)),QtGui.QIcon.Disabled)
+        return  icon
  
     
 def sound(filename, themed = True):

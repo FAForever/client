@@ -244,6 +244,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.autoJoin(self.crucialChannels)
     
     def nickservRegister(self):
+        print util.md5text(self.client.password)
         self.connection.privmsg('NickServ', 'register %s %s' % (util.md5text(self.client.password), self.client.email))
         
         

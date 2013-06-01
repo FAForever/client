@@ -25,10 +25,6 @@ import time
 
 FormClass, BaseClass = util.loadUiType("galacticwar/infopanel.ui")
 
-
-
-
-
 class InfoPanelWidget(FormClass, BaseClass):
     def __init__(self, parent, *args, **kwargs):
         logger.debug("GW Info panel instantiating.")
@@ -37,8 +33,7 @@ class InfoPanelWidget(FormClass, BaseClass):
         self.setupUi(self)
         self.parent = parent
         self.galaxy = self.parent.galaxy
-            
-        
+
         self.setup()
         self.attackListWidget.hide()
         
@@ -87,14 +82,14 @@ class InfoPanelWidget(FormClass, BaseClass):
     def giveToattackProposal(self, item):
         ''' give this attack to the second in command system '''
         
-        question = QtGui.QMessageBox.question(self, item.itemText, "You are going to give away this attack. Do you want to proceed ?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+        question = QtGui.QMessageBox.question(self, item.itemText, "You are going to give away this attack. Do you want to proceed?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
         
         if question == QtGui.QMessageBox.Yes :
             planetuid = item.uid
             self.parent.send(dict(command="send_to_proposal", uid=planetuid))
     
     def attackProposalAccepted(self, item):
-        question = QtGui.QMessageBox.question(self, "Second in command", "You are going to attack this planet. Do you want to proceed ?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+        question = QtGui.QMessageBox.question(self, "Second in command", "You are going to attack this planet. Do you want to proceed?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
         
         if question == QtGui.QMessageBox.Yes :
             planetuid = item.uid
