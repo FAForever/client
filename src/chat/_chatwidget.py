@@ -229,22 +229,22 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
     def on_welcome(self, c, e):
         self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
         self.welcomed = True
-        self.nickservIdentify()
+        
         
     def nickservIdentify(self):
         if self.identified == False :
             self.serverLogArea.appendPlainText("[Identify as : %s]" % (self.client.login))
             self.connection.privmsg('NickServ', 'identify %s %s' % (self.client.login, util.md5text(self.client.password)))
-            print util.md5text(self.client.password)
+    
     def on_authentified(self):
         if self.connection.get_nickname() != self.client.login :
+            self.serverLogArea.appendPlainText("[Retrieving our nickname : %s]" % (self.client.login))
             self.connection.privmsg('nickserv', 'recover %s %s' % (self.client.login, util.md5text(self.client.password)))
         #Perform any pending autojoins (client may have emitted autoJoin signals before we talked to the IRC server)
         self.autoJoin(self.optionalChannels)
         self.autoJoin(self.crucialChannels)
     
     def nickservRegister(self):
-        print util.md5text(self.client.password)
         self.connection.privmsg('NickServ', 'register %s %s' % (util.md5text(self.client.password), self.client.email))
         
         
@@ -254,7 +254,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
       
     def on_motd(self, c, e):   
         self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
-   
+        self.nickservIdentify()
    
     def on_endofmotd(self, c, e):   
         self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
