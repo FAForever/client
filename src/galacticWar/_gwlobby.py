@@ -24,7 +24,11 @@ from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
 from client import ClientState
 from gwchannel import gwChannel
 import util
+import util.slpp
 import fa
+
+import zipfile
+import StringIO
 
 from util import GW_TEXTURE_DIR
 import json
@@ -97,7 +101,6 @@ class LobbyWidget(FormClass, BaseClass):
         self.progress.setMinimum(0)
         self.progress.setMaximum(0)
 
-        
 #    def focusEvent(self, event):
 #        return BaseClass.focusEvent(self, event)
     
@@ -252,7 +255,6 @@ class LobbyWidget(FormClass, BaseClass):
 
     def handle_reinforcement_info(self, message):
         '''populate reinforcement lists'''
-        print message
         if message["temporary"] is True:
             self.temporaryReinforcementUpdated.emit(message)
 
@@ -336,7 +338,22 @@ class LobbyWidget(FormClass, BaseClass):
         self.rankUpdated.emit(self.rank)
         self.creditsUpdated.emit(self.credits)
         self.victoriesUpdated.emit(self.victories)
-        
+    
+    def handle_game_upgrades(self, message):
+        '''writing reinforcement list'''
+        upgrades = message["upgrades"]
+        destination = os.path.join(util.APPDATA_DIR, "gamedata", "gwReinforcementList.gw")
+        gwFile = QtCore.QFile(destination)
+        gwFile.open(QtCore.QIODevice.WriteOnly)
+        lua = util.slpp.SLPP()
+        s = StringIO.StringIO()  
+        z = zipfile.ZipFile(s, 'w')  
+        z.writestr('gwReinforcementList/gwReinforcementList.lua', str(lua.encodeReinforcements(upgrades))) 
+        z.close()
+        gwFile.write(s.getvalue())
+        gwFile.close()
+        s.close()
+    
     def handle_attack_result(self, message):
         self.progress.close()
         result = message["result"]

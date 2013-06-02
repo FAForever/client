@@ -59,43 +59,45 @@ class SLPP:
         result = self.value()
         return result
 
+    def encodeReinforcements(self, obj):
+        self.depth = 0
+        return self.__encode(obj, start="gwReinforcements = ")
+        
     def encode(self, obj):
         if not obj:
             return
         self.depth = 0
         return self.__encode(obj)
 
-    def __encode(self, obj):
-        s = ''
-        tab = self.tab
-        newline = self.newline
-        tp = type(obj)
-        if tp is str:
-            s += '"%s"' % obj
-        elif tp in [int, float, long, complex]:
+    def __encode(self, obj, start = ""):
+        s = start
+        tab = '\t'
+        newline = '\n'
+        tp = type(obj).__name__
+        if tp == 'str' or tp == 'unicode':
+            s += '"'+obj+'"'
+        elif tp == 'int' or tp == 'float' or tp == 'long' or tp == 'complex':
             s += str(obj)
-        elif tp is bool:
+        elif tp == 'bool':
             s += str(obj).lower()
-        elif tp in [list, tuple, dict]:
+        elif tp == 'list' or tp == 'tuple':
+            s += "{" + newline
             self.depth += 1
-            if len(obj) == 0 or ( tp is not dict and len(filter(
-                    lambda x:  type(x) in (int,  float,  long) \
-                    or (type(x) is str and len(x) < 10),  obj
-                )) == len(obj) ):
-                newline = tab = ''
-            dp = tab * self.depth
-            s += "%s{%s" % (tab * (self.depth - 2), newline)
-            if tp is dict:
-                s += ('%s' % newline).join(
-                    [self.__encode(v) if type(k) is int \
-                        else dp + '%s = %s,' % (k, self.__encode(v)) \
-                        for k, v in obj.iteritems()
-                    ])
-            else:
-                s += (',%s' % newline).join(
-                    [dp + self.__encode(el) for el in obj])
+            for el in obj:
+                s += tab * self.depth + self.__encode(el) + ',' + newline
             self.depth -= 1
-            s += "%s%s}" % (newline, tab * self.depth)
+            s += tab * self.depth + "}"
+        elif tp == 'dict':
+            s += "{" + newline
+            self.depth += 1
+            for key in obj:
+                #TODO: lua cannot into number keys. Add check.
+                if type(key).__name__ == 'int':
+                    s += tab * self.depth + self.__encode(obj[key]) + ',' + newline
+                else:
+                    s += tab * self.depth + key + ' = ' + self.__encode(obj[key]) + ',' + newline
+            self.depth -= 1
+            s += tab * self.depth + "}"
         return s
 
     def white(self):
@@ -266,25 +268,22 @@ class SLPP:
 slpp = SLPP()
 
 
-test = {}
-test["gwReinforcements"] = {}
-test["gwReinforcements"]["periodic"] = []
-player = {}
-player["playername"] = "FunkOff"
-player["period"] = 60
-player["delay"] = 20
-player["unitNames"] = ['URL0103','URL0104']
-test["gwReinforcements"]["periodic"].append(player)
+test = {u'initialStructure': [{u'playername': u'Gwyned Brynmona', u'delay': 0, u'unitNames': [u'uab2101']}]}
 
-test["gwReinforcements"]["initial"] = []
-player = {}
-player["playername"] = "FunkOff"
-player["delay"] = 20
-player["unitNames"] = ['URL0101','URL0101','URL0106','URL0106']
-test["gwReinforcements"]["initial"].append(player)
-print test
 
-lua = SLPP()
-print lua.encode(test)
+#lua = SLPP()
+#print lua.encodeReinforcements(test)
+#
+#
+#import zipfile
+#import StringIO
+#
+#s = StringIO.StringIO()  
+#z = zipfile.ZipFile(s, 'w')  
+#z.write('gwReinforcementList/gwReinforcementList.lua', lua.encode(test)) 
+#z.close() # close the archive
+#
+#print s.getvalue()  # this is the content of the string
+#s.close()  # close the string file-like object
 
 __all__ = ['slpp']

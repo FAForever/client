@@ -66,12 +66,12 @@ class InfoPanelWidget(FormClass, BaseClass):
 
         self.temporaryItemsButton.clicked.connect(self.buyTemporaryItems)
 
+        self.attackBox.hide()
+        self.temporaryItemsButton.hide()
         
     def setup(self):
         self.attackButton.hide()
         self.defenseButton.hide()
-        self.attackBox.hide()
-        self.temporaryItemsButton.hide()
         
     def buyTemporaryItems(self):
         '''Handle buying temporary items'''

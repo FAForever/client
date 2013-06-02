@@ -50,7 +50,6 @@ class TemporaryWidget(FormClass, BaseClass):
         '''disable item we can't buy'''
         for uid in self.reinforcements:
             if not self.reinforcements[uid].isHidden():
-                print credits, self.reinforcements[uid].price 
                 if credits < self.reinforcements[uid].price:
                     self.reinforcements[uid].setDisabled()
                 else:

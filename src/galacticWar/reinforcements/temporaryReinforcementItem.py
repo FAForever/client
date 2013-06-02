@@ -10,7 +10,7 @@
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 # 
-# This program is distributed in the hope that it will be useful,
+# This program is distributed in the hope that i will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
@@ -43,7 +43,7 @@ class ReinforcementDelegate(QtGui.QStyledItemDelegate):
             icon.paint(painter, option.rect.adjusted(5-2, -2, 0, 0), QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
 
         #Description
-        painter.translate(option.rect.left() + iconsize.width() + 10, 0)
+        painter.translate(option.rect.left() + iconsize.width() + 10, option.rect.top())
         clip = QtCore.QRectF(0, 0, option.rect.width()-iconsize.width() - 10 - 5, option.rect.height())
         html.drawContents(painter, clip)
         painter.restore()
@@ -90,7 +90,7 @@ class ReinforcementItem(QtGui.QListWidgetItem):
         self.temporary      = message['temporary']
         self.structure      = message['structure']
         self.price          = message['price']
-        self.activation     = message['activation']
+        self.activation     = "%0.1f" % (message['activation']/60.0)
         self.description    = message["description"]
         self.owned          = message["amount"]
 
@@ -98,5 +98,14 @@ class ReinforcementItem(QtGui.QListWidgetItem):
         icon = util.iconUnit(iconName)
         self.setIcon(icon)
         self.setHidden(False)
-
+        
         self.setText(self.FORMATTER_REINFORCEMENT.format(color="black", description = self.description, activation=self.activation, price=self.price, owned = self.owned))
+        
+    def __ge__(self, other):
+        ''' Comparison operator used for item list sorting '''        
+        return not self.__lt__(other)
+    
+    
+    def __lt__(self, other):
+        ''' Comparison operator used for item list sorting '''        
+        return self.price < other.price

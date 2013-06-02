@@ -359,7 +359,6 @@ def readlines(filename, themed = True):
 
 def readstylesheet(filename):
     if __themedir and os.path.isfile(os.path.join(__themedir, filename)):
-        print __themedir
         result = open(os.path.join(__themedir, filename)).read().replace("%THEMEPATH%", __themedir.replace("\\", "/"))
         logger.info(u"Read themed stylesheet: " + filename)
     else:
@@ -415,7 +414,6 @@ def __downloadPreviewFromWeb(unitname):
         
 
     req = urllib2.urlopen(UNITS_PREVIEW_ROOT + urllib2.quote(unitname))
-    print req
     img = os.path.join(CACHE_DIR, unitname)
     with open(img, 'wb') as fp:
         shutil.copyfileobj(req, fp)        
@@ -597,4 +595,4 @@ def uniqueID(user, session ):
 from crash import CrashDialog
 from report import ReportDialog
 
-        
+    
