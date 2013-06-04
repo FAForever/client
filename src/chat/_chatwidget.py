@@ -50,6 +50,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
         self.setupUi(self)
         
+        
         # CAVEAT: These will fail if loaded before theming is loaded
         import json
         self.OPERATOR_COLORS = json.loads(util.readfile("chat/formatters/operator_colors.json"))
@@ -84,6 +85,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
         #add signal handler for game exit
         self.client.gameExit.connect(self.processGameExit)
+        self.replayInfo = fa.exe.instance.info
+        
 
         #Hook with client's connection and autojoin mechanisms
         self.client.connected.connect(self.connect)
@@ -227,11 +230,17 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
                     self.optionalChannels.append(channel)
 
     def processGameExit(self):
-        logger.info("Joining post-game channel.")
-        self.replayInfo = fa.exe.instance.info
-        postGameChannel = "#game-" + str(self.replayInfo['uid'])
-        if (self.connection.is_connected()):
-            self.connection.join(postGameChannel)
+        self.autopostjoin = util.settings.value("chat/autopostjoin")
+        logger.info("autopostjoin: " + str(self.autopostjoin))
+        if (str(self.autopostjoin) == "true"):
+            self.replayInfo = fa.exe.instance.info
+            self.nrofplayers = int(self.replayInfo['num_players'])
+            logger.info("nr of players: " + str(self.nrofplayers))
+            if (self.nrofplayers > 1):
+                postGameChannel = "#game-" + str(self.replayInfo['uid'])
+                if (self.connection.is_connected()):
+                    logger.info("Joining post-game channel.")
+                    self.connection.join(postGameChannel)
         
         
         

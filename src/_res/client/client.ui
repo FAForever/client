@@ -237,6 +237,7 @@
      <addaction name="actionSetOpenGames"/>
      <addaction name="actionSetLiveReplays"/>
      <addaction name="actionSetSoundEffects"/>
+     <addaction name="actionSetAutoPostJoin"/>
     </widget>
     <addaction name="menuSettings"/>
     <addaction name="menuChat"/>
@@ -456,12 +457,20 @@
     <string>Wiki</string>
    </property>
   </action>
+  <action name="actionSetAutoPostJoin">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Autojoin Post-game chat</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
    <class>QWebView</class>
    <extends>QWidget</extends>
-   <header>PyQt4.QtWebKit</header>
+   <header>QtWebKit/QWebView</header>
   </customwidget>
  </customwidgets>
  <resources/>
