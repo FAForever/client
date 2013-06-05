@@ -341,6 +341,7 @@ class ClientWindow(FormClass, BaseClass):
         self.actionSetSoundEffects.triggered.connect(self.updateOptions)
         self.actionSetOpenGames.triggered.connect(self.updateOptions)
         self.actionSetJoinsParts.triggered.connect(self.updateOptions)
+        self.actionSetAutoPostJoin.triggered.connect(self.updateOptions)
         self.actionSetLiveReplays.triggered.connect(self.updateOptions)
         self.actionSaveGamelogs.triggered.connect(self.updateOptions)
         self.actionActivateMumbleSwitching.triggered.connect(self.saveMumbleSwitching)
@@ -369,6 +370,7 @@ class ClientWindow(FormClass, BaseClass):
         self.soundeffects = self.actionSetSoundEffects.isChecked()
         self.opengames = self.actionSetOpenGames.isChecked()
         self.joinsparts = self.actionSetJoinsParts.isChecked()
+        self.autopostjoin = self.actionSetAutoPostJoin.isChecked()
         self.livereplays = self.actionSetLiveReplays.isChecked()
         self.gamelogs = self.actionSaveGamelogs.isChecked()
                  
@@ -521,6 +523,7 @@ class ClientWindow(FormClass, BaseClass):
         util.settings.setValue("livereplays", self.livereplays)
         util.settings.setValue("opengames", self.opengames)
         util.settings.setValue("joinsparts", self.joinsparts)
+        util.settings.setValue("autopostjoin", self.autopostjoin)
         util.settings.endGroup()
         
     
@@ -583,12 +586,14 @@ class ClientWindow(FormClass, BaseClass):
             self.opengames = (util.settings.value("opengames", "true") == "true")
             self.joinsparts = (util.settings.value("joinsparts", "false") == "true")
             self.livereplays = (util.settings.value("livereplays", "true") == "true")
+            self.autopostjoin = (util.settings.value("autopostjoin", "true") == "true")
             util.settings.endGroup()
 
             self.actionSetSoundEffects.setChecked(self.soundeffects)
             self.actionSetLiveReplays.setChecked(self.livereplays)
             self.actionSetOpenGames.setChecked(self.opengames)
             self.actionSetJoinsParts.setChecked(self.joinsparts)
+            self.actionSetAutoPostJoin.setChecked(self.autopostjoin)
         except:
             pass
 

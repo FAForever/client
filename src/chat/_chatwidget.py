@@ -25,6 +25,7 @@ from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
 
 from chat.irclib import SimpleIRCClient
 import util
+import fa
 
 import sys
 from chat import logger, user2name
@@ -48,6 +49,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         SimpleIRCClient.__init__(self)
 
         self.setupUi(self)
+        
         
         # CAVEAT: These will fail if loaded before theming is loaded
         import json
@@ -82,6 +84,11 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         #add self to client's window
         self.client.chatTab.layout().addWidget(self)        
         self.tabCloseRequested.connect(self.closeChannel)
+
+        #add signal handler for game exit
+        self.client.gameExit.connect(self.processGameExit)
+        self.replayInfo = fa.exe.instance.info
+        
 
         #Hook with client's connection and autojoin mechanisms
         self.client.connected.connect(self.connect)
@@ -223,8 +230,22 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
                 else:
                     #Note down channels for later.
                     self.optionalChannels.append(channel)
-       
-       
+
+    def processGameExit(self):
+        self.autopostjoin = util.settings.value("chat/autopostjoin")
+        logger.info("autopostjoin: " + str(self.autopostjoin))
+        if (str(self.autopostjoin) == "true"):
+            self.replayInfo = fa.exe.instance.info
+            self.nrofplayers = int(self.replayInfo['num_players'])
+            logger.info("nr of players: " + str(self.nrofplayers))
+            if (self.nrofplayers > 1):
+                postGameChannel = "#game-" + str(self.replayInfo['uid'])
+                if (self.connection.is_connected()):
+                    logger.info("Joining post-game channel.")
+                    self.connection.join(postGameChannel)
+        
+        
+        
 #SimpleIRCClient Class Dispatcher Attributes follow here.
     def on_welcome(self, c, e):
         self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
