@@ -268,11 +268,11 @@ class SLPP:
 slpp = SLPP()
 
 
-test = {u'initialStructure': [{u'playername': u'Gwyned Brynmona', u'delay': 0, u'unitNames': [u'uab2101']}]}
+test = {'initialStructure': [{'playerName': 'Demolnw Aeron', 'delay': 0, 'unitNames': ['uab2101']}, {'playerName': 'Demolnw Aeron', 'delay': 0, 'unitNames': ['uab2104']}, {'playerName': 'Demolnw Aeron', 'delay': 0, 'unitNames': ['uab2301']}, {'playerName': 'Demolnw Aeron', 'delay': 480, 'unitNames': ['uab2108']}], 'initialUnit': [], 'periodicUnit': []}
 
 
-#lua = SLPP()
-#print lua.encodeReinforcements(test)
+lua = SLPP()
+print lua.encodeReinforcements(test)
 #
 #
 #import zipfile

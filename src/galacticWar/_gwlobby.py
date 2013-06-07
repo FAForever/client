@@ -349,7 +349,7 @@ class LobbyWidget(FormClass, BaseClass):
         lua = util.slpp.SLPP()
         s = StringIO.StringIO()  
         z = zipfile.ZipFile(s, 'w')  
-        z.writestr('gwReinforcementList/gwReinforcementList.lua', str(lua.encodeReinforcements(upgrades))) 
+        z.writestr('lua/gwReinforcementList.lua', str(lua.encodeReinforcements(upgrades))) 
         z.close()
         gwFile.write(s.getvalue())
         gwFile.close()
