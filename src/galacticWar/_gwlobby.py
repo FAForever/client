@@ -106,9 +106,10 @@ class LobbyWidget(FormClass, BaseClass):
     
     def showEvent(self, event):
         if self.state != ClientState.ACCEPTED :
-            if self.doConnect() :
+            fa.exe.check("gw")
+            if self.doConnect():
                 logger.info("connection not done")
-                self.doLogin()                    
+                self.doLogin()                   
         
         else :
             if not self.initDone :
