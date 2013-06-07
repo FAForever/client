@@ -8,7 +8,7 @@ logger = logging.getLogger("faf.galacticWar")
 logger.setLevel(logging.DEBUG)
 from OpenGL import GL
 from OpenGL import GLU
-
+from fa import maps
 
 from galacticWar import FACTIONS, COLOR_FACTIONS, RANKS
 
@@ -377,7 +377,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.zones = self.createZones()
     
     def planetsUnderAttack(self):
-        if not hasattr(self, "underAttack") :
+        if not hasattr(self, "underAttack"):
             return
        
         if self.underAttack :
@@ -395,9 +395,9 @@ class GLWidget(QtOpenGL.QGLWidget):
                 if uid in self.galaxy.control_points :
                     
                     if self.parent.attacks[useruid][planetuid]["onHold"] == True :
-                        color  = QtGui.QColor(255,255,255)
+                        color = QtGui.QColor(255,255,255)
                     else :
-                        color  = COLOR_FACTIONS[int(self.parent.attacks[useruid][planetuid]["faction"])]
+                        color = COLOR_FACTIONS[int(self.parent.attacks[useruid][planetuid]["faction"])]
                     self.programSwirl.bind()
                     
                     if self.parent.attacks[useruid][planetuid]["defended"] :
@@ -655,7 +655,8 @@ class GLWidget(QtOpenGL.QGLWidget):
         
             if pos[0] < 0 or pos[1] < 0 or pos[0] > self.width() or pos[1] > self.height() :
                 continue
-        
+
+       
             painter.save()
             text = "<font color='silver'>%s</font>" % (self.galaxy.get_name(site))
             
@@ -687,6 +688,9 @@ class GLWidget(QtOpenGL.QGLWidget):
             pos = self.computeWorldPosition(x, y)
 
             planet = self.galaxy.control_points[site]
+
+
+            icon = maps.preview(planet.mapname)
             
             
             text = "<font color='silver'><h2>%s</h2><table width='%i'><tr><td><p align='justify'><font color='silver' size='7pt'>%s</font</p></tr></td></table><font color='silver'><h4>Occupation:</h4></font><ul>" % (self.galaxy.get_name(site), width-5, self.galaxy.get_description(site))
@@ -740,22 +744,31 @@ class GLWidget(QtOpenGL.QGLWidget):
             html.setTextWidth(width)
             height = html.size().height() + 10
             width = html.size().width()
+            #QtCore.Qrect(height, height+icon.)
+            
+
+
             painter.setPen(QtCore.Qt.white)
 
             posx = pos[0]+20
             posy = pos[1]+20
             
-            if (posx + height) > self.height() :
-                posx = self.height() - height
+            if (posx + height+100) > self.height() :
+                posx = self.height() - (height + 100)
 
             if (posy + width) > self.width() :
                 posy = self.width() - width - 20
 
             
             painter.translate(posx, posy)
-            painter.fillRect(QtCore.QRect(0, 0, width+5, height), QtGui.QColor(36, 61, 75, 150))
+            painter.fillRect(QtCore.QRect(0, 0, width+5, height+100), QtGui.QColor(36, 61, 75, 150))
             clip = QtCore.QRectF(0, 0, width, height)
             html.drawContents(painter, clip)
+            if icon :
+                painter.translate(0, height)
+                icon.paint(painter, QtCore.QRect(0, 0, 100, 100), QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
+            else :
+                print planet.mapname
 
             painter.restore()
             

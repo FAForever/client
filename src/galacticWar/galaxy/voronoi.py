@@ -702,7 +702,7 @@ class PriorityQueue(object):
         return curr
 
 class Site(object):
-    def __init__(self, x=0.0, y=0.0, sitenum=0, name = '', desc = '', size = 1, aeon = 0, cybran = 0, uef = 0, sera = 0, texture = 1):
+    def __init__(self, x=0.0, y=0.0, sitenum=0, name = '', desc = '', size = 1, aeon = 0, cybran = 0, uef = 0, sera = 0, texture = 1, mapname=""):
         self.x = x
         self.y = y
         self.sitenum = sitenum
@@ -719,6 +719,8 @@ class Site(object):
         self.sera   = sera
         
         self.color = QtGui.QColor(0,0,0)
+
+        self.mapname = mapname
 
     def get_description(self):
         return self.description

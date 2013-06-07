@@ -268,22 +268,4 @@ class SLPP:
 slpp = SLPP()
 
 
-test = {'initialStructure': [{'playerName': 'Demolnw Aeron', 'delay': 0, 'unitNames': ['uab2101']}, {'playerName': 'Demolnw Aeron', 'delay': 0, 'unitNames': ['uab2104']}, {'playerName': 'Demolnw Aeron', 'delay': 0, 'unitNames': ['uab2301']}, {'playerName': 'Demolnw Aeron', 'delay': 480, 'unitNames': ['uab2108']}], 'initialUnit': [], 'periodicUnit': []}
-
-
-lua = SLPP()
-print lua.encodeReinforcements(test)
-#
-#
-#import zipfile
-#import StringIO
-#
-#s = StringIO.StringIO()  
-#z = zipfile.ZipFile(s, 'w')  
-#z.write('gwReinforcementList/gwReinforcementList.lua', lua.encode(test)) 
-#z.close() # close the archive
-#
-#print s.getvalue()  # this is the content of the string
-#s.close()  # close the string file-like object
-
 __all__ = ['slpp']

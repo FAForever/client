@@ -203,7 +203,7 @@ class Galaxy(object):
         site.pos3d.setY(site.y)
         
     
-    def addPlanet(self, uid, name, desc, x, y, size, texture = 1, init = False):
+    def addPlanet(self, uid, name, desc, x, y, size, texture=1, mapname="", init=False):
         
         x = round(x)
         y = round(y)
@@ -217,7 +217,7 @@ class Galaxy(object):
             return
 
         
-        self.control_points[uid]=(Site(x, y, size = size, sitenum = uid, name=name, desc=desc, aeon = aeon, uef = uef, cybran = cybran, sera = sera, texture = texture))
+        self.control_points[uid]=(Site(x, y, size = size, sitenum = uid, name=name, desc=desc, aeon = aeon, uef = uef, cybran = cybran, sera = sera, texture = texture, mapname=mapname))
         if not init :
             self.computeVoronoi()
      
