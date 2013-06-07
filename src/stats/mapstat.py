@@ -179,7 +179,7 @@ class LadderMapStat(FormClass, BaseClass):
         self.client.send(dict(command="stats", type="ladder_map_stat", mapid = self.mapid))
         self.mapstats.clear()
         
-        realmap = item.data(32)[1].split("/")[1].strip(".zip")
+        realmap = item.data(32)[1].split("/")[1][:-4]
 
         self.mapstats.document().addResource(QtGui.QTextDocument.ImageResource,  QtCore.QUrl("map.png"), maps.preview(realmap, True))
 
