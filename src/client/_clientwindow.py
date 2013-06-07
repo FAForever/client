@@ -934,7 +934,7 @@ class ClientWindow(FormClass, BaseClass):
         It will notify other modules through the signal gameEnter().
         '''
         logger.info("FA has launched in an attached process.")
-        self.send(dict(command="fa_state", state="on")
+        self.send(dict(command="fa_state", state="on"))
         self.gameEnter.emit()
 
 
@@ -948,7 +948,7 @@ class ClientWindow(FormClass, BaseClass):
             logger.info("FA has finished with exit code: " + str(exit_code))
         else:
             logger.warn("FA has finished with exit code: " + str(exit_code))
-        self.send(dict(command="fa_state", state="off")
+        self.send(dict(command="fa_state", state="off"))
         self.gameExit.emit()
 
         
