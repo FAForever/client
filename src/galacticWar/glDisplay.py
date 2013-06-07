@@ -753,11 +753,11 @@ class GLWidget(QtOpenGL.QGLWidget):
             posx = pos[0]+20
             posy = pos[1]+20
             
-            if (posx + height+100) > self.height() :
-                posx = self.height() - (height + 100)
+            if (posy + height+100) > self.height() :
+                posy = self.height() - (height + 100)
 
-            if (posy + width) > self.width() :
-                posy = self.width() - width - 20
+            if (posx + width) > self.width() :
+                posx = self.width() - width - 20
 
             
             painter.translate(posx, posy)
