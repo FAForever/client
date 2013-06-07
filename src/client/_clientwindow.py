@@ -78,7 +78,7 @@ class ClientWindow(FormClass, BaseClass):
     tutorialsInfo       = QtCore.pyqtSignal(dict)
     tourneyInfo         = QtCore.pyqtSignal(dict)
     modInfo             = QtCore.pyqtSignal(dict)
-    gameInfo            = QtCore.pyqtSignal(dict)   
+    gameInfo            = QtCore.pyqtSignal(dict)
     newGame             = QtCore.pyqtSignal(str)
     avatarList          = QtCore.pyqtSignal(list)
     playerAvatarList    = QtCore.pyqtSignal(dict)
@@ -88,7 +88,8 @@ class ClientWindow(FormClass, BaseClass):
     autoJoin            = QtCore.pyqtSignal(list)
     featuredModManager  = QtCore.pyqtSignal(str)
     featuredModManagerInfo = QtCore.pyqtSignal(dict)
-    replayVault         = QtCore.pyqtSignal(dict) 
+    replayVault         = QtCore.pyqtSignal(dict)
+
 
     #These signals are emitted whenever a certain tab is activated
     showReplays     = QtCore.pyqtSignal()
@@ -933,6 +934,7 @@ class ClientWindow(FormClass, BaseClass):
         It will notify other modules through the signal gameEnter().
         '''
         logger.info("FA has launched in an attached process.")
+        self.send(dict(command="fa_state", state="on")
         self.gameEnter.emit()
 
 
@@ -946,8 +948,7 @@ class ClientWindow(FormClass, BaseClass):
             logger.info("FA has finished with exit code: " + str(exit_code))
         else:
             logger.warn("FA has finished with exit code: " + str(exit_code))
-        
-        self.writeToServer("FA_CLOSED")
+        self.send(dict(command="fa_state", state="off")
         self.gameExit.emit()
 
         
