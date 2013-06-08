@@ -202,6 +202,10 @@ class Galaxy(object):
         site.pos3d.setX(site.x)
         site.pos3d.setY(site.y)
         
+    def updateDefenses(self, uid, message):
+        if uid in self.control_points :
+            self.control_points[uid].updateDefenses(message)
+        
     
     def addPlanet(self, uid, name, desc, x, y, size, texture=1, mapname="", init=False):
         

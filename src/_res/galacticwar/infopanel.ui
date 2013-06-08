@@ -175,9 +175,9 @@ Be careful that if you are not available for playing when one of your attack is 
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="temporaryItemsButton">
+      <widget class="QPushButton" name="planetaryDefensesButton">
        <property name="text">
-        <string>Buy temporary items</string>
+        <string>Buy planetary defenses</string>
        </property>
       </widget>
      </item>

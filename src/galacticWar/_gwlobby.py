@@ -50,6 +50,7 @@ class LobbyWidget(FormClass, BaseClass):
     planetUpdated                   = QtCore.pyqtSignal()
     attackProposalUpdated           = QtCore.pyqtSignal(int)
     temporaryReinforcementUpdated   = QtCore.pyqtSignal(dict)
+    planetaryDefenseUpdated         = QtCore.pyqtSignal(dict)
 
     def __init__(self, client, *args, **kwargs):
         logger.debug("Lobby instantiating.")
@@ -254,6 +255,11 @@ class LobbyWidget(FormClass, BaseClass):
     def handle_welcome(self, message):
         self.state = ClientState.ACCEPTED
 
+
+    def handle_planetary_defense_info(self, message):
+        '''populate planetary defense lists'''
+        self.planetaryDefenseUpdated.emit(message)
+            
     def handle_reinforcement_info(self, message):
         '''populate reinforcement lists'''
         if message["temporary"] is True:
@@ -340,6 +346,7 @@ class LobbyWidget(FormClass, BaseClass):
         self.creditsUpdated.emit(self.credits)
         self.victoriesUpdated.emit(self.victories)
     
+       
     def handle_game_upgrades(self, message):
         '''writing reinforcement list'''
         upgrades = message["upgrades"]
@@ -381,6 +388,11 @@ class LobbyWidget(FormClass, BaseClass):
                 self.attacks[playeruid_int][planetuid_int] = attacks[playeruid][planetuid]
         self.attacksUpdated.emit()
 
+    def handle_planet_defense_info(self, message):
+        '''handling defenses for planets'''
+        planetuid = message["planetuid"]
+        self.galaxy.updateDefenses(planetuid, message)
+
     def handle_planet_info(self, message):
         logger.debug("updating planet infos")
         uid = message['uid'] 
@@ -393,6 +405,7 @@ class LobbyWidget(FormClass, BaseClass):
             name        = message['name']
             desc        = message['desc']
             mapname     = message['mapname']
+            
             
             if not texture in self.texturelist :
                 self.texturelist[texture] = textureMd5 

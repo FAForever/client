@@ -67,39 +67,44 @@ class ReinforcementItem(QtGui.QListWidgetItem):
     def __init__(self, uid, *args, **kwargs):
         QtGui.QListWidgetItem.__init__(self, *args, **kwargs)
         self.uid            = uid
-        self.temporary      = None
         self.structure      = None
         self.price          = None
         self.activation     = None
         self.description    = None
-        self.owned          = 0
-        self.setHidden(True)
 
+        self.setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsDropEnabled | QtCore.Qt.ItemIsDragEnabled)
+
+        self.setHidden(True)
+    
+
+    def data(self, role):
+        if role == QtCore.Qt.UserRole :
+            return self.uid
+        return super(ReinforcementItem, self).data(role) 
+    
     def setEnabled(self):
-        self.setFlags(QtCore.Qt.ItemIsEnabled)
-        self.setText(self.FORMATTER_REINFORCEMENT.format(color="black", description = self.description, activation=self.activation, price=self.price, owned = self.owned))
+        self.setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsDropEnabled | QtCore.Qt.ItemIsDragEnabled)
+        self.setText(self.FORMATTER_REINFORCEMENT.format(color="black", description = self.description, activation=self.activation, price=self.price))
 
     def setDisabled(self):
         self.setFlags(QtCore.Qt.NoItemFlags)
-        self.setText(self.FORMATTER_REINFORCEMENT.format(color="grey", description = self.description, activation=self.activation, price=self.price, owned = self.owned))
+        self.setText(self.FORMATTER_REINFORCEMENT.format(color="grey", description = self.description, activation=self.activation, price=self.price))
         
     def update(self, message, client):
         '''update this item'''
         self.client = client
 
-        self.temporary      = message['temporary']
         self.structure      = message['structure']
         self.price          = message['price']
         self.activation     = "%0.1f" % (message['activation']/60.0)
         self.description    = message["description"]
-        self.owned          = message["amount"]
 
         iconName = "%s_icon.png" % self.structure
         icon = util.iconUnit(iconName)
         self.setIcon(icon)
         self.setHidden(False)
         
-        self.setText(self.FORMATTER_REINFORCEMENT.format(color="black", description = self.description, activation=self.activation, price=self.price, owned = self.owned))
+        self.setText(self.FORMATTER_REINFORCEMENT.format(color="black", description = self.description, activation=self.activation, price=self.price))
         
     def __ge__(self, other):
         ''' Comparison operator used for item list sorting '''        

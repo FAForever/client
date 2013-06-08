@@ -183,12 +183,13 @@ class Chatter(QtGui.QTableWidgetItem):
         # Status icon handling
         if self.name in client.instance.urls:
             url = client.instance.urls[self.name]
-            if url.scheme() == "fafgame":
-                self.statusItem.setIcon(util.icon("chat/status/lobby.png"))
-                self.statusItem.setToolTip("In Game Lobby<br/>"+url.toString())
-            elif url.scheme() == "faflive":
-                self.statusItem.setIcon(util.icon("chat/status/playing.png"))
-                self.statusItem.setToolTip("Playing Game<br/>"+url.toString())
+            if url:
+                if url.scheme() == "fafgame":
+                    self.statusItem.setIcon(util.icon("chat/status/lobby.png"))
+                    self.statusItem.setToolTip("In Game Lobby<br/>"+url.toString())
+                elif url.scheme() == "faflive":
+                    self.statusItem.setIcon(util.icon("chat/status/playing.png"))
+                    self.statusItem.setToolTip("Playing Game<br/>"+url.toString())
         else:
                 self.statusItem.setIcon(QtGui.QIcon())
                 self.statusItem.setToolTip("Idle")

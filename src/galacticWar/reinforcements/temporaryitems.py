@@ -21,8 +21,11 @@ from PyQt4 import QtGui, QtCore
 from galacticWar import logger
 import util
 from temporaryReinforcementItem import ReinforcementItem, ReinforcementDelegate
+import cPickle
 
 FormClass, BaseClass = util.loadUiType("galacticwar/temporaryItems.ui")
+
+
 
 class TemporaryWidget(FormClass, BaseClass):
     def __init__(self, parent, *args, **kwargs):
@@ -33,12 +36,37 @@ class TemporaryWidget(FormClass, BaseClass):
         self.parent = parent
 
         self.reinforcementListWidget.setItemDelegate(ReinforcementDelegate(self))
-        self.parent.temporaryReinforcementUpdated.connect(self.processReinforcementInfo)
+        self.parent.planetaryDefenseUpdated.connect(self.processReinforcementInfo)
         self.parent.creditsUpdated.connect(self.updateCreditsCheck)
         
-        self.reinforcementListWidget.itemDoubleClicked.connect(self.buyItem)
-        
+        #self.reinforcementListWidget.itemDoubleClicked.connect(self.buyItem)
+        self.reinforcementListWidget.mouseMoveEvent = self.mouseMove
         self.reinforcements = {}
+
+    def startDrag(self, event):
+        ''' Draging building'''
+        index = self.reinforcementListWidget.indexAt(event.pos())
+        if not index.isValid():
+            return
+
+        ## selected is the relevant person object
+        selected = self.reinforcementListWidget.model().data(index, QtCore.Qt.UserRole)   
+        
+        bstream = cPickle.dumps(selected)
+        mimeData = QtCore.QMimeData()
+        mimeData.setData("application/x-building-reinforcement", bstream)
+
+        drag = QtGui.QDrag(self)
+        drag.setMimeData(mimeData)
+        
+        drag.setPixmap(self.reinforcementListWidget.itemAt(event.pos()).icon().pixmap(50,50))
+        
+        drag.setHotSpot(QtCore.QPoint(0,0))
+        drag.start(QtCore.Qt.MoveAction) 
+
+    def mouseMove(self, event):
+        ''' moving items'''
+        self.startDrag(event)
 
     def buyItem(self, item):
         '''buy an item'''

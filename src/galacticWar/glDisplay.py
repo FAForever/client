@@ -15,7 +15,9 @@ from galacticWar import FACTIONS, COLOR_FACTIONS, RANKS
 import math
 import random
 import os
+import util
 from util import GW_TEXTURE_DIR
+import pickle
 
 class GLWidget(QtOpenGL.QGLWidget):
     xRotationChanged = QtCore.pyqtSignal(int)
@@ -97,6 +99,8 @@ class GLWidget(QtOpenGL.QGLWidget):
         
         self.setMouseTracking(1)
         self.setAutoFillBackground(False)
+        
+        self.setAcceptDrops(True)
         
 
     def rotateOneStep(self, update = True):
@@ -691,8 +695,7 @@ class GLWidget(QtOpenGL.QGLWidget):
 
 
             icon = maps.preview(planet.mapname)
-            
-            
+
             text = "<font color='silver'><h2>%s</h2><table width='%i'><tr><td><p align='justify'><font color='silver' size='7pt'>%s</font</p></tr></td></table><font color='silver'><h4>Occupation:</h4></font><ul>" % (self.galaxy.get_name(site), width-5, self.galaxy.get_description(site))
             
             
@@ -759,17 +762,36 @@ class GLWidget(QtOpenGL.QGLWidget):
             if (posx + width) > self.width() :
                 posx = self.width() - width - 20
 
-            
+            mapSize = 100
             painter.translate(posx, posy)
-            painter.fillRect(QtCore.QRect(0, 0, width+5, height+100), QtGui.QColor(36, 61, 75, 150))
+            painter.fillRect(QtCore.QRect(0, 0, width+5, height+mapSize), QtGui.QColor(36, 61, 75, 150))
             clip = QtCore.QRectF(0, 0, width, height)
             html.drawContents(painter, clip)
             if icon :
                 painter.translate(0, height)
-                icon.paint(painter, QtCore.QRect(0, 0, 100, 100), QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
-            else :
-                print planet.mapname
+                icon.paint(painter, QtCore.QRect(0, 0, mapSize, mapSize), QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
 
+             
+            startItems = mapSize + 5
+            painter.translate(startItems, 0)
+            defenses = planet.getDefenses()
+            itemsWidth = 0
+            itemSize = 35
+            for uid in defenses :
+                item = defenses[uid]
+                amount = item.amount
+                structure = item.structure
+                iconName = "%s_icon.png" % structure
+                
+                iconStructure = util.iconUnit(iconName)
+                iconStructure.paint(painter, QtCore.QRect(0, 0, itemSize, itemSize), QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
+                painter.drawText(QtCore.QPoint(itemSize-5,itemSize-5), "%iX" % amount)
+                itemsWidth = itemsWidth + itemSize
+                
+                if itemsWidth + itemSize + startItems > width:
+                    painter.translate(-itemsWidth, itemSize)
+                painter.translate(itemSize, 0)
+                
             painter.restore()
             
     
@@ -893,6 +915,56 @@ class GLWidget(QtOpenGL.QGLWidget):
             self.cameraPos.setY(self.boundMove.y())
         elif self.cameraPos.y() < -self.boundMove.y() :
             self.cameraPos.setY(-self.boundMove.y())        
+    
+    
+    def dropEvent(self, event):
+        data = event.mimeData()
+        bstream = data.retrieveData("application/x-building-reinforcement", QtCore.QVariant.ByteArray)
+        selected = int(pickle.loads(bstream))
+        
+        if self.curZone :
+            site = self.curZone[0]
+            planet = self.galaxy.control_points[site]
+        
+            if selected in self.parent.temporaryItems.reinforcements:
+                item = self.parent.temporaryItems.reinforcements[selected]
+            
+                question = QtGui.QMessageBox.question(self,"Defense system", "Build %s on %s ?" % (item.description, planet.name), QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+                if question == QtGui.QMessageBox.Yes :
+                    self.parent.send(dict(command="buy_building", planetuid=site, uid=item.uid))        
+
+        
+        
+        event.accept()
+        
+    def dragEnterEvent(self, event) :
+        if event.mimeData().hasFormat("application/x-building-reinforcement"):
+            event.accept()
+        else:
+            event.ignore()
+        
+    def dragMoveEvent(self, event):
+        if event.mimeData().hasFormat("application/x-building-reinforcement"):
+            event.setDropAction(QtCore.Qt.MoveAction)
+
+            x = event.pos().x()
+            y = event.pos().y()
+            if self.mouseMode == 0 :
+                self.computeZoomPosition(x, y)
+            
+            pos3d = self.computeCursorPosition(x,y, True)
+            if not self.overlayPlanet :
+                self.curZone = self.galaxy.closestSite(pos3d.x(), pos3d.y())
+                if self.curZone : 
+                    self.selection = self.createPlanetOverlay()            
+            
+            event.accept()
+        else:
+            event.ignore()
+ 
+
+                        
+
     
     def keyPressEvent(self, event):
 

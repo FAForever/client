@@ -701,6 +701,19 @@ class PriorityQueue(object):
         self.count -= 1
         return curr
 
+class defense(object):
+    ''' class object for defense buildings'''
+    def __init__(self, itemuid, parent=None):
+        self.uid = itemuid
+        self.amount = 0
+        self.description = ""
+        self.structure = ""
+        
+    def update(self, amount, description, structure):
+        self.amount = amount
+        self.description = description
+        self.structure = structure
+
 class Site(object):
     def __init__(self, x=0.0, y=0.0, sitenum=0, name = '', desc = '', size = 1, aeon = 0, cybran = 0, uef = 0, sera = 0, texture = 1, mapname=""):
         self.x = x
@@ -721,6 +734,27 @@ class Site(object):
         self.color = QtGui.QColor(0,0,0)
 
         self.mapname = mapname
+        
+        self.defenses = {}
+
+    def updateDefenses(self, message):
+        '''update this planet defenses list'''
+        itemuid = message["itemuid"]
+        description= message["description"]
+        structure= message["structure"]
+        amount= message["amount"]
+        
+        if amount == 0 and itemuid in self.defenses:
+            del self.defenses[itemuid]
+            return
+        
+        if not itemuid in self.defenses:
+            self.defenses[itemuid] = defense(itemuid, self)
+        
+        self.defenses[itemuid].update(amount, description, structure)
+        
+    def getDefenses(self):
+        return self.defenses
 
     def get_description(self):
         return self.description

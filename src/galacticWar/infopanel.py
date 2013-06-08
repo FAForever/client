@@ -64,18 +64,18 @@ class InfoPanelWidget(FormClass, BaseClass):
         self.attackListWidget.itemDoubleClicked.connect(self.giveToattackProposal)
         self.attackProposalListWidget.itemDoubleClicked.connect(self.attackProposalAccepted)
 
-        self.temporaryItemsButton.clicked.connect(self.buyTemporaryItems)
+        self.planetaryDefensesButton.clicked.connect(self.buyPlanetaryDefensesItems)
 
         self.attackBox.hide()
-        self.temporaryItemsButton.hide()
+        self.planetaryDefensesButton.hide()
         
     def setup(self):
         self.attackButton.hide()
         self.defenseButton.hide()
         
-    def buyTemporaryItems(self):
-        '''Handle buying temporary items'''
-        self.parent.send(dict(command="temporary_items"))
+    def buyPlanetaryDefensesItems(self):
+        '''Handle buying planetary defense items'''
+        self.parent.send(dict(command="planetary_defense_items"))
         self.parent.temporaryItems.show()
 
         
@@ -177,7 +177,7 @@ class InfoPanelWidget(FormClass, BaseClass):
         rankName = self.parent.get_rank(self.parent.faction, rank)
         self.nameLabel.setText("%s %s" %(rankName,self.parent.name))
         if rank > 0 :
-            self.temporaryItemsButton.show()
+            self.planetaryDefensesButton.show()
     
     def updateVictories(self, victories):
         logger.debug("updating victories interface")
