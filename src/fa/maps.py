@@ -545,7 +545,7 @@ def downloadMap(name):
 
     except:
         logger.warn("Map download or extraction failed for: " + url)        
-        if sys.exc_type is HTTPError:            
+        if sys.exc_type is HTTPError:
             logger.warning("Vault download failed with HTTPError, map probably not in vault (or broken).")
             QtGui.QMessageBox.information(None, "Map not downloadable", "<b>This map was not found in the vault (or is broken).</b><br/>You need to get it from somewhere else in order to use it." )
         else:                

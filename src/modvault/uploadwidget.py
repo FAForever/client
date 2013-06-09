@@ -25,8 +25,8 @@ import zipfile
 from PyQt4 import QtCore, QtGui
 
 import modvault
-from modvault import datetostr,strtodate,now
-
+from util import datetostr,strtodate,now
+import util
 
 FormClass, BaseClass = util.loadUiType("modvault/upload.ui")
 
@@ -49,20 +49,28 @@ class UploadModWidget(FormClass, BaseClass):
         self.Version.setText(str(modinfo["version"]))
         self.UIOnly.setChecked(modinfo["ui_only"] == "true")
         self.UID.setText(modinfo["uid"])
-        self.Description.setText(modinfo["description"])
-        self.Thumbnail.setPixmap(util.icon("games/unknown_map.png"))
+        self.Description.setPlainText(modinfo["description"])
+        self.Thumbnail.setPixmap(util.pixmap("games/unknown_map.png"))
 
         self.IconURI.returnPressed.connect(self.updateThumbnail)
         self.UploadButton.pressed.connect(self.upload)
         self.IconDialogButton.pressed.connect(self.openicondialog)
 
     @QtCore.pyqtSlot()
-    def upload(self): #currently doesn't check if a mod with the same name is already on the vault.
+    def upload(self):
         n = self.Name.text()
         if ('"' in n or '<' in n or '*' in n or '>' in n or '|' in n or '?' in n
             or '/' in n or '\\' in n or ':' in n):
             QtGui.QMessageBox.information(self.client,"Invalid Name",
                         "The mod name contains invalid characters: /\\<>|?:\"")
+            return
+        if n in [m.title for  m in self.parent.mods]:
+            QtGui.QMessageBox.information(self.client,"Name in Use",
+                        "There is already a mod with this name")
+            return
+        if self.UID.text() in [m.uid for m in self.parent.mods]:
+            QtGui.QMessageBox.information(self.client,"UID in Use",
+                        "There is already a mod with this UID")
             return
         try:
             temp = tempfile.NamedTemporaryFile(mode='w+b', suffix=".zip", delete=False)
@@ -78,13 +86,14 @@ class UploadModWidget(FormClass, BaseClass):
         self.modinfo["small"] = (self.SizeType.getIndex() == 2)
         self.modinfo["date"] = datetostr(now())
         self.modinfo["last_updated"] = self.modinfo["date"]
+        #The server should check again if there is already a mod with this name.
         self.client.writeToServer("UPLOAD_MOD", self.modinfo["name"] + ".zip", self.modinfo, qfile)
         
     
     @QtCore.pyqtSlot()
     def openicondialog(self):
-        iconfilename = QtGui.QFileDialog.getExistingFile(self.client, "Select an icon file", self.modDir,"*.png|*.jpg|*jpeg")
-        if iconfilename = "": return
+        iconfilename = QtGui.QFileDialog.getOpenFileName(self.client, "Select an icon file", self.modDir,"Image files (*.png|*.jpg|*jpeg)")
+        if iconfilename == "": return
         try:
             self.Thumbnail.setPixmap(util.icon(iconfilename))
         except:

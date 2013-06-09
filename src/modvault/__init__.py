@@ -31,31 +31,19 @@ Can also send a UPLOAD_MOD command directly using writeToServer
 """
 
 import os
-import datetime
 import zipfile
 
 from PyQt4 import QtCore, QtGui
 
-import util
-import logging
-from vault import luaparser
+from modvault.utils import *
 from modwidget import ModWidget
 from uploadwidget import UploadModWidget
 
+import util
+import logging
+
 logger = logging.getLogger("faf.modvault")
 logger.setLevel(logging.DEBUG)
-
-dateDummy = datetime.datetime(2013,5,27)
-
-def strtodate(s):
-    return dateDummy.strptime(s,"%Y-%m-%d %H:%M:%S")
-def datetostr(d):
-    return str(d)[:-7]
-def now():
-    return dateDummy.now()
-
-MODFOLDER = os.path.join(util.PERSONAL_DIR, "My Games", "Gas Powered Games", "Supreme Commander Forged Alliance", "Mods")
-MODVAULT_DOWNLOAD_ROOT = "http://www.faforever.com/faf/modvault/"
 
 FormClass, BaseClass = util.loadUiType("modvault/modvault.ui")
 
@@ -79,10 +67,6 @@ class ModVault(FormClass, BaseClass):
 
         self.SortType.currentIndexChanged.connect(self.sortChanged)
         self.ShowType.currentIndexChanged.connect(self.showChanged)
-        self.toggleUIButton.toggled.connect(self.toggleUI)
-        self.toggleBigButton.toggled.connect(self.toggleBig)
-        self.toggleSmallButton.toggled.connect(self.toggleSmall)
-        self.toggleYoursButton.toggled.connect(self.toggleYours)
 
         self.client.showMods.connect(self.tabOpened)
         self.client.modvaultInfo.connect(self.modInfo)
@@ -92,7 +76,7 @@ class ModVault(FormClass, BaseClass):
         self.searchString = ""
 
         self.mods = []
-        self.installedMods = self.getInstalledMods()
+        self.installedMods = getInstalledMods()
 
     @QtCore.pyqtSlot(dict)
     def modInfo(self, message): #this is called when the database has send a mod to us
@@ -139,7 +123,7 @@ class ModVault(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def search(self):
-        self.searchString = searchInput.text().lower()
+        self.searchString = self.searchInput.text().lower()
         self.updateVisibilities()
     
     @QtCore.pyqtSlot()
@@ -148,11 +132,8 @@ class ModVault(FormClass, BaseClass):
         logger.debug("Uploading mod from: " + modDir)
         if modDir != "":
             if isModFolderValid(modDir):
-                os.chmod(mapDir, S_IWRITE)
-                modinfofile = luaparser.luaParser(os.path.join(modDir,"mod_info.lua"))
-                modinfo = modinfofile.parse({"name":"name","uid":"uid","version":"version","description":"description","ui_only":"ui_only"},
-                                            {"version":1,"ui_only":"false","description":""})
-                
+                #os.chmod(modDir, S_IWRITE) Don't need this at the moment
+                modinfofile, modinfo = parseModInfo(modDir)
                 if modinfofile.error:
                     logger.debug("There were " + str(modinfofile.errors) + " errors and " + str(modinfofile.warnings) + " warnings.")
                     logger.debug(modinfofile.errorMsg)
@@ -165,24 +146,18 @@ class ModVault(FormClass, BaseClass):
                     if uploadmod == QtGui.QMessageBox.Yes:
                         modinfo["author"] = self.client.login
                         dialog = UploadModWidget(self, modDir, modinfo)
-                        dialog._exec()
+                        dialog.exec_()
             else :
                 QtGui.QMessageBox.information(self.client,"Mod selection",
                         "This folder doesn't contain a mod_info.lua file")
 
-    @QtCorwe.pyqtSlot()
+    @QtCore.pyqtSlot()
     def tabOpened(self):
         self.client.send(dict(command="modvault",type="start"))
 
     def updateVisibilities(self):
-        for mod in mods:
+        for mod in self.mods:
             mod.updateVisibility()
-
-    def getInstalledMods(self): #returns a list of names of installed mods
-        mods = []
-        if os.path.isdir(MODFOLDER) :
-            mods = os.listdir(MODFOLDER)
-        return mods
 
     def downloadMod(self, mod): #most of this function is stolen from maps.downloadMap
         link = mod.link
@@ -407,9 +382,4 @@ class ModItem(QtGui.QListWidgetItem):
             if self.date == other.date:
                 return (self.title.lower() < other.title.lower())
             return (self.date < other.date)
-        
-def modToFilename(mod):
-    return os.path.join(MODFOLDER, mod.name)
 
-def isModFolderValid(folder):
-    return os.path.exists(os.path.join(folder,"mod_info.lua"))

@@ -545,8 +545,15 @@ def uniqueID(user, session ):
         return None
         
 
+import datetime
+_dateDummy = datetime.datetime(2013,5,27)
 
-
+def strtodate(s):
+    return _dateDummy.strptime(s,"%Y-%m-%d %H:%M:%S")
+def datetostr(d):
+    return str(d)[:-7]
+def now():
+    return _dateDummy.now()
 
 
 

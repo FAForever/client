@@ -18,14 +18,18 @@
 
 
 
-
+import os
 
 from PyQt4 import QtCore, QtGui
 from games.gameitem import GameItem, GameItemDelegate
+import modvault
 
 from fa import maps
 import util
 
+import logging
+logger = logging.getLogger("faf.hostgamewidget")
+logger.setLevel(logging.DEBUG)
 
 RANKED_SEARCH_EXPANSION_TIME = 10000 #milliseconds before search radius expands
 
@@ -57,7 +61,7 @@ class HostgameWidget(FormClass, BaseClass):
                 group_layout.addWidget(checkBox)
                 self.parent.options.append(checkBox)
         
-        
+        self.modList.setItemDelegate(ModItemDelegate(self))
         self.setStyleSheet(self.parent.client.styleSheet())
         
         self.setWindowTitle ( "Hosting Game : " + item.name )
@@ -101,11 +105,27 @@ class HostgameWidget(FormClass, BaseClass):
         if not icon:
             icon = util.icon("games/unknown_map.png", False, True)
 
+        self.mods = []
+        #this makes it so you can select every non-ui_only mod
+        for mod in modvault.getInstalledMods(): #list of strings
+            d = modvault.getModfromName(mod)
+            if d == None or d["ui_only"]:
+                continue
+            m = ModItem(mod, d)
+            self.modList.addItem(m)
+            self.mods.append(m) # for easier manipulation of the items
+
+        uids = [mod['name'] for mod in modvault.getActiveMods(uimods=False)]
+        for m in self.mods:
+            if m.uid in uids:
+                m.setSelected(True)
+
         #self.mapPreview.setPixmap(icon)
         
         self.mapList.currentIndexChanged.connect(self.mapChanged)
         self.hostButton.released.connect(self.hosting)
         self.titleEdit.textChanged.connect(self.updateText)
+        self.modList.itemClicked.connect(self.modclicked)
         
     def updateText(self, text):
         self.message['title'] = text
@@ -130,4 +150,54 @@ class HostgameWidget(FormClass, BaseClass):
         self.message['mapname'] = self.parent.gamemap
         self.game.update(self.message, self.parent.client)
 
+    @QtCore.pyqtSlot(QtGui.QListWidgetItem)
+    def modclicked(self, item):
+        item.setSelected(not item.isSelected())
+        logger.debug("mod %s clicked" % item.name)
 
+class ModItemDelegate(QtGui.QStyledItemDelegate):
+    def __init__(self, *args, **kwargs):
+        QtGui.QStyledItemDelegate.__init__(self, *args, **kwargs)
+
+    def paint(self, painter, option, index, *args, **kwargs):
+        self.initStyleOption(option, index)
+                
+        painter.save()
+        
+        html = QtGui.QTextDocument()
+        html.setHtml(option.text)
+        
+        #Description
+        painter.translate(option.rect.left() + 2, option.rect.top()+1)
+        clip = QtCore.QRectF(0, 0, option.rect.width() - 8, option.rect.height())
+        html.drawContents(painter, clip)
+  
+        painter.restore()
+        
+
+    def sizeHint(self, option, index, *args, **kwargs):
+        self.initStyleOption(option, index)
+        
+        html = QtGui.QTextDocument()
+        html.setHtml(option.text)
+        html.setTextWidth(300)
+        return QtCore.QSize(300, 20)  
+
+        
+
+class ModItem(QtGui.QListWidgetItem):
+    def __init__(self, modstr, info, *args, **kwargs):
+        QtGui.QListWidgetItem.__init__(self, *args, **kwargs)
+
+        self.modstr = modstr
+        self.__dict__.update(info)
+
+        self.setText(self.modstr)
+        self.setToolTip(self.description)
+        self.setHidden(False)
+
+    def __ge__(self, other):
+        return not self.__lt__(self, other)
+
+    def __lt__(self, other):
+        return self.modstr.lower() < other.modstr.lower()

@@ -23,8 +23,8 @@ import urllib2
 from PyQt4 import QtCore, QtGui
 
 import modvault
-from modvault import datetostr,strtodate,now
-
+from util import strtodate, datetostr, now
+import util
 
 FormClass, BaseClass = util.loadUiType("modvault/mod.ui")
 
@@ -80,7 +80,7 @@ class ModWidget(FormClass, BaseClass):
     @QtCore.pyqtSlot()
     def addComment(self):
         comment = {"author":self.parent.client.login, "text":self.LineComment.text(),
-                   "date":datetostr(now()), "uid":"%d00%d" % (self.mod.uid, len(self.mod.bugReports)+len(self.mod.comments)))}
+                   "date":datetostr(now()), "uid":"%d00%d" % (self.mod.uid, len(self.mod.bugReports)+len(self.mod.comments))}
         
         self.parent.client.send(dict(command="modvault",type="addcomment",comment=comment))
         c = CommentItem(self, comment["uid"])
@@ -91,7 +91,7 @@ class ModWidget(FormClass, BaseClass):
     @QtCore.pyqtSlot()
     def addBugReport(self):
         bugreport = {"author":self.parent.client.login, "text":self.LineComment.text(),
-                   "date":datetostr(now()), "uid":int("%d00%d" % (self.mod.uid, len(self.mod.bugReports) + +len(self.mod.comments)))}
+                   "date":datetostr(now()), "uid":"%d00%d" % (self.mod.uid, len(self.mod.bugReports) + +len(self.mod.comments))}
         
         self.parent.client.send(dict(command="modvault",type="addbugreport",bugreport=bugreport))
         c = CommentItem(self, bugreport["uid"])

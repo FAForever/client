@@ -208,6 +208,7 @@ class GameItem(QtGui.QListWidgetItem):
         self.access     = message.get('access', 'public')
         self.mod        = message['featured_mod']
         self.modVersion = message.get('featured_mod_versions', [])
+        self.mods       = message.get('mods',[])
         self.options    = message.get('options', [])
         self.numplayers = message.get('num_players', 0) 
         self.slots      = message.get('max_players',12)

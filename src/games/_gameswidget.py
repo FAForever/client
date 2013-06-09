@@ -77,7 +77,7 @@ class GamesWidget(FormClass, BaseClass):
         self.client.gameEnter.connect(self.stopSearchRanked)
         self.client.viewingReplay.connect(self.stopSearchRanked)
         
-        self.gameList.setItemDelegate(GameItemDelegate(self));
+        self.gameList.setItemDelegate(GameItemDelegate(self))
         self.gameList.itemDoubleClicked.connect(self.gameDoubleClicked)
 
         self.modList.itemDoubleClicked.connect(self.hostGameClicked)
@@ -342,12 +342,13 @@ class GamesWidget(FormClass, BaseClass):
             
                         if oneChecked == False :
                             QtGui.QMessageBox.warning(None, "No option checked !", "You have to check at least one option !")
-                            return 
+                            return
+                    mods = [mod.modstr for mod in hostgamewidget.modList.getSelected()]
 #                #Send a message to the server with our intent.
                     if self.ispassworded :
-                        self.client.send(dict(command="game_host", access="password", password = self.gamepassword, mod=item.mod, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort, options = gameoptions))
+                        self.client.send(dict(command="game_host", access="password", password = self.gamepassword, mod=item.mod, mods=mods, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort, options = gameoptions))
                     else :
-                        self.client.send(dict(command="game_host", access="public", mod=item.mod, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort, options = gameoptions))
+                        self.client.send(dict(command="game_host", access="public", mod=item.mod, mods=mods, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort, options = gameoptions))
 #
 
     def savePassword(self, password):
