@@ -236,14 +236,15 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         logger.info("autopostjoin: " + str(self.autopostjoin))
         if (str(self.autopostjoin) == "true"):
             self.replayInfo = fa.exe.instance.info
-            if 'num_players' in self.replayInfo:
-                self.nrofplayers = int(self.replayInfo['num_players'])
-                logger.info("nr of players: " + str(self.nrofplayers))
-                if (self.nrofplayers > 1):
-                    postGameChannel = "#game-" + str(self.replayInfo['uid'])
-                    if (self.connection.is_connected()):
-                        logger.info("Joining post-game channel.")
-                        self.connection.join(postGameChannel)
+            if self.replayInfo:
+                if 'num_players' in self.replayInfo:
+                    self.nrofplayers = int(self.replayInfo['num_players'])
+                    logger.info("nr of players: " + str(self.nrofplayers))
+                    if (self.nrofplayers > 1):
+                        postGameChannel = "#game-" + str(self.replayInfo['uid'])
+                        if (self.connection.is_connected()):
+                            logger.info("Joining post-game channel.")
+                            self.connection.join(postGameChannel)
         
         
         
