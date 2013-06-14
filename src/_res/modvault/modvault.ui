@@ -176,6 +176,13 @@
              </property>
             </spacer>
            </item>
+           <item>
+            <widget class="QPushButton" name="UIButton">
+             <property name="text">
+              <string>Manage UI Mods</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </item>
         </layout>

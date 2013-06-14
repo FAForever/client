@@ -20,14 +20,39 @@
 Modvault database documentation:
 command = "mapvault"
 possible commands:
-    start: <no args>
-    download_inc: uid
-    addcomment: {"name","uid","date","text"}
-    addbugreport: {"name","uid","date","text"}
+    start: <no args> - given when the tab is opened. Signals that the server should send the possible mods.
+    addcomment: moduid=<uid of the mod the comment belongs to>, comment={"author","uid","date","text"} 
+    addbugreport: moduid=<uid of the mod the comment belongs to>, comment={"author","uid","date","text"}
 
 
 Can also send a UPLOAD_MOD command directly using writeToServer
 "UPLOAD_MOD","modname.zip",{mod info}, qfile
+
+modInfo function is called when the client recieves a modvault_info command.
+It should have a message dict with the following keys:
+uid         - Unique identifier for a mod. Also needed ingame.
+name        - Name of the mod. Also the name of the folder the mod will be located in.
+description - A general description of the mod. As seen ingame
+author      - The FAF username of the person that uploaded the mod.
+downloads   - An integer containing the amount of downloads of this mod
+likes       - An integer containing the amount of likes the mod has recieved. #TODO: Actually implement an inteface for this.
+comments    - A python list containing dictionaries containing the keys as described above.
+bugreports  - A python list containing dictionaries containing the keys as described above.
+date        - A string describing the date the mod was uploaded. Format: "%Y-%m-%d %H:%M:%S" eg: 2012-10-28 16:50:28
+ui          - A boolean describing if it is a ui mod yay or nay.
+big         - A boolean describing if this mod is to be considered a big mod. Chosen by the uploader for better filtering
+small       - A boolean describing if this mod is to be considered a small mod. It could be that both big and small are false.
+link        - Direct link to the zip file containing the mod.
+thumbnail   - Not sure what to do with this. Will probably be a direct link to the thumbnail file.
+
+Additional stuff:
+fa.exe now has a CheckMods method, which is used in fa.exe.check
+check has a new argument 'additional_mods' for this.
+In client._clientwindow joinGameFromURL is changed. The url should have a
+queryItemValue called 'mods' which with json can be translated in a list of modnames
+so that it can be checked with checkMods.
+handle_game_launch should have a new key in the form of mods, which is a list of modnames
+to be checked with checkMods.
 """
 
 import os
@@ -38,12 +63,24 @@ from PyQt4 import QtCore, QtGui
 from modvault.utils import *
 from modwidget import ModWidget
 from uploadwidget import UploadModWidget
+from uimodwidget import UIModWidget
 
 import util
 import logging
 
 logger = logging.getLogger("faf.modvault")
 logger.setLevel(logging.DEBUG)
+
+d = datetostr(now())
+
+tempmod1 = dict(uid=1,name='Mod1', comments=[],bugreports=[], date = d,
+                ui=True, big=False,small=False, downloads=0, likes=0,
+                thumbnail=None,link="test.com",author='johnie102',
+                description="""Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam egestas enim mi, sed sagittis augue posuere non. Phasellus pharetra tempor cursus. Quisque purus urna, ornare imperdiet magna et, accumsan rutrum turpis. Sed ac magna ullamcorper, facilisis nisi ac, cursus arcu. Donec cursus, diam eu iaculis lobortis, nunc leo tristique enim, nec lacinia quam dolor sed leo. Proin orci felis, tincidunt ut purus ac, sagittis convallis lectus. Vestibulum tincidunt pulvinar felis. Nunc sed ligula urna.
+
+Duis imperdiet felis eu commodo iaculis. Donec varius nisl viverra, iaculis erat quis, gravida ligula. Duis eleifend blandit blandit. Aliquam sit amet vehicula lectus, id scelerisque tellus. Nunc vitae augue et sapien tempus tempor. Vivamus convallis adipiscing auctor. Duis a neque ac felis ullamcorper hendrerit sit amet quis erat. Sed varius, nibh tempus posuere viverra, mi lacus imperdiet diam, ut commodo ante mi a lorem. Fusce quis dolor arcu. Maecenas imperdiet elementum pulvinar. Pellentesque pellentesque nibh sed pellentesque semper. Nullam hendrerit enim adipiscing erat pellentesque sollicitudin.""",)
+
+
 
 FormClass, BaseClass = util.loadUiType("modvault/modvault.ui")
 
@@ -64,6 +101,7 @@ class ModVault(FormClass, BaseClass):
         self.searchButton.clicked.connect(self.search)
         self.searchInput.returnPressed.connect(self.search)
         self.uploadButton.clicked.connect(self.openUploadForm)
+        self.UIButton.clicked.connect(self.openUIModForm)
 
         self.SortType.currentIndexChanged.connect(self.sortChanged)
         self.ShowType.currentIndexChanged.connect(self.showChanged)
@@ -78,16 +116,18 @@ class ModVault(FormClass, BaseClass):
         self.mods = []
         self.installedMods = getInstalledMods()
 
+        self.modInfo(tempmod1)
+
     @QtCore.pyqtSlot(dict)
     def modInfo(self, message): #this is called when the database has send a mod to us
         """
-        message should have the following keys:
-        
+        See above for the keys neccessary in message.
         """
         uid = message["uid"]
         mod = ModItem(self, uid)
         mod.update(message)
         self.mods.append(mod)
+        self.modList.addItem(mod)
 
     @QtCore.pyqtSlot(int)
     def sortChanged(self, index):
@@ -125,6 +165,11 @@ class ModVault(FormClass, BaseClass):
     def search(self):
         self.searchString = self.searchInput.text().lower()
         self.updateVisibilities()
+
+    @QtCore.pyqtSlot()
+    def openUIModForm(self):
+        dialog = UIModWidget(self)
+        dialog.exec_()
     
     @QtCore.pyqtSlot()
     def openUploadForm(self):
@@ -159,67 +204,11 @@ class ModVault(FormClass, BaseClass):
         for mod in self.mods:
             mod.updateVisibility()
 
-    def downloadMod(self, mod): #most of this function is stolen from maps.downloadMap
-        link = mod.link
-        url = MODVAULT_DOWNLOAD_ROOT + link
-        logger.debug("Getting mod from: " + url)
-
-        progress = QtGui.QProgressDialog()
-        progress.setCancelButtonText("Cancel")
-        progress.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
-        progress.setAutoClose(False)
-        progress.setAutoReset(False)
-        
-        try:
-            zipwebfile  = urllib2.urlopen(url)
-            meta = zipwebfile.info()
-            file_size = int(meta.getheaders("Content-Length")[0])
-
-            progress.setMinimum(0)
-            progress.setMaximum(file_size)
-            progress.setModal(1)
-            progress.setWindowTitle("Downloading Map")
-            progress.setLabelText(name)
-        
-            progress.show()
-        
-            #Download the file as a series of 8 KiB chunks, then uncompress it.
-            output = cStringIO.StringIO()
-            file_size_dl = 0
-            block_sz = 8192       
-
-            while progress.isVisible():
-                read_buffer = zipwebfile.read(block_sz)
-                if not read_buffer:
-                    break
-                file_size_dl += len(read_buffer)
-                output.write(read_buffer)
-                progress.setValue(file_size_dl)
-        
-            progress.close()
-            
-            if file_size_dl == file_size:
-                zfile = zipfile.ZipFile(output)
-                zfile.extractall(MODFOLDER)
-                logger.debug("Successfully downloaded and extracted mod from: " + url)
-            else:    
-                logger.warn("Mod download cancelled for: " + url)        
-                return False
-
-        except:
-            logger.warn("Mod download or extraction failed for: " + url)        
-            if sys.exc_type is HTTPError:
-                logger.warning("ModVault download failed with HTTPError, mod probably not in vault (or broken).")
-                QtGui.QMessageBox.information(None, "Mod not downloadable", "<b>This mod was not found in the vault (or is broken).</b><br/>You need to get it from somewhere else in order to use it." )
-            else:                
-                logger.error("Download Exception", exc_info=sys.exc_info())
-                QtGui.QMessageBox.information(None, "Mod installation failed", "<b>This mod could not be installed (please report this map or bug).</b>")
-            return False
-
-        #Count the map downloads
-        self.client.send(dict(command="modvault", type="download_inc", uid=mod.uid))
-        self.installedMods.append(mod.name)
-        return True
+    def downloadMod(self, mod):
+        if downloadMod(mod.name):
+            self.installedMods.append(mod.name)
+            return True
+        else: return False
         
 
 #the drawing helper function for the modlist
@@ -256,10 +245,10 @@ class ModItemDelegate(QtGui.QStyledItemDelegate):
         pen.setBrush(QtGui.QColor("#303030"));  #FIXME: This needs to come from theme.
         pen.setCapStyle(QtCore.Qt.RoundCap);
         painter.setPen(pen)
-        painter.drawRect(option.rect.left()+5-2, option.rect.top()+5-2, iconsize.width(), iconsize.height())
+        painter.drawRect(option.rect.left()+5-2, option.rect.top()+3, iconsize.width(), iconsize.height())
 
         #Description
-        painter.translate(option.rect.left() + iconsize.width() + 10, option.rect.top()+10)
+        painter.translate(option.rect.left() + iconsize.width() + 10, option.rect.top()+4)
         clip = QtCore.QRectF(0, 0, option.rect.width()-iconsize.width() - 10 - 5, option.rect.height())
         html.drawContents(painter, clip)
   
@@ -272,7 +261,7 @@ class ModItemDelegate(QtGui.QStyledItemDelegate):
         html = QtGui.QTextDocument()
         html.setHtml(option.text)
         html.setTextWidth(ModItem.TEXTWIDTH)
-        return QtCore.QSize(ModItem.ICONSIZE + ModItem.TEXTWIDTH + ModItem.PADDING, ModItem.ICONSIZE)  
+        return QtCore.QSize(ModItem.ICONSIZE + ModItem.TEXTWIDTH + ModItem.PADDING, ModItem.ICONSIZE + ModItem.PADDING)  
 
 
 class ModItem(QtGui.QListWidgetItem):
@@ -291,7 +280,7 @@ class ModItem(QtGui.QListWidgetItem):
 
         self.parent = parent
         self.uid = uid
-        self.title = ""
+        self.name = ""
         self.description = ""
         self.author = ""
         self.downloads = 0
@@ -309,7 +298,7 @@ class ModItem(QtGui.QListWidgetItem):
         self.setHidden(True)
 
     def update(self, dic):
-        self.title = dic["title"]
+        self.name = dic["name"]
         self.description = dic["description"]
         self.author = dic["author"]
         self.downloads = dic["downloads"]
@@ -317,12 +306,12 @@ class ModItem(QtGui.QListWidgetItem):
         self.comments = dic["comments"]
         self.bugreports = dic["bugreports"]
         self.date = strtodate(dic["date"])
-        self.last_updated = strtodate(dic["last_updated"])
         self.isuimod = dic["ui"]
         self.isbigmod = dic["big"]
         self.issmallmod = dic["small"]
         self.link = dic["link"] #Direct link to the zip file.
-        self.thumbnail = dic["tumbnail"] # should be a thing that can be passed to setIcon or None
+        #TODO: Fix thumbnail loading
+        self.thumbnail = dic["thumbnail"] # should be a thing that can be passed to setIcon or None
         self.uploadedbyuser = (self.author == self.parent.client.login)
 
         if self.thumbnail == None:
@@ -334,42 +323,49 @@ class ModItem(QtGui.QListWidgetItem):
             descr = self.description
         else:
             descr = self.description[:197] + "..."
-        
-        if self.title in self.parent.installedMods: color="green"
+
+        modtype = ""
+        if self.isuimod: modtype ="UI mod"
+        elif self.isbigmod: modtype="big mod"
+        elif self.issmallmod: modtype="small mod"
+        if self.name in self.parent.installedMods: color="green"
         else: color="white"
-        self.setText(self.FORMATTER_MOD.format(color=color,title=self.title,
+        self.setText(self.FORMATTER_MOD.format(color=color,title=self.name,
             description=descr, author=self.author,downloads=str(self.downloads),
-            likes=str(self.likes),date=str(self.date.date())))
+            likes=str(self.likes),date=str(self.date.date()),modtype=modtype))
 
         self.setToolTip('<p width="230">%s</p>' % self.description)
-        self.setHidden(self.shouldBeVisible())
+        self.updateVisibility()
 
     def shouldBeVisible(self):
         p = self.parent
         if p.searchString != "":
-            if not (self.author.lower().find(p.searchString) != -1 or  self.title.lower().find(p.searchString) != -1):
+            if not (self.author.lower().find(p.searchString) != -1 or  self.name.lower().find(p.searchString) != -1):
                 return False
         if p.showType == "all":
             return True
-        if p.showType == "ui":
+        elif p.showType == "ui":
             return self.isuimod
-        if p.showTYpe == "big":
+        elif p.showType == "big":
             return self.isbigmod
-        if p.showType == "small":
+        elif p.showType == "small":
             return self.issmallmod
-        if p.showType == "yours":
+        elif p.showType == "yours":
             return self.uploadedbyuser
         else: #shouldn't happen
             return True
+
+    def updateVisibility(self):
+        self.setHidden(not self.shouldBeVisible())
 
     def __ge__(self, other):
         return not self.__lt__(self, other)
 
     def __lt__(self, other):
         if self.parent.sortType == "alphabetic":
-            if self.title.lower() == other.title.lower():
+            if self.name.lower() == other.name.lower():
                 return (self.uid < other.uid)
-            return (self.title.lower() > other.title.lower())
+            return (self.name.lower() > other.name.lower())
         elif self.parent.sortType == "rating":
             if self.rating == other.rating:
                 return (self.downloads < other.downloads)
@@ -380,6 +376,6 @@ class ModItem(QtGui.QListWidgetItem):
             return (self.downloads < other.downloads)
         elif self.parent.sortType == "date":
             if self.date == other.date:
-                return (self.title.lower() < other.title.lower())
+                return (self.name.lower() < other.name.lower())
             return (self.date < other.date)
 

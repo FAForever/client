@@ -36,21 +36,24 @@ class ModWidget(FormClass, BaseClass):
         self.setupUi(self)
         self.parent = parent
         
-        
         self.setStyleSheet(self.parent.client.styleSheet())
         
         self.setWindowTitle(mod.name)
         self.Title.setText(mod.name)
         self.Description.setText(mod.description)
-        self.Info.setText("By %s. Uploaded %s. Last updated %s" % (mod.author,
-                                    str(mod.date), str(mod.last_updated)))
+        modtext = ""
+        if mod.isuimod: modtext = "UI mod\n"
+        elif mod.isbigmod: modtext = "Big mod\n"
+        elif mod.issmallmod: modtext = "Small mod\n"
+        self.Info.setText(modtext + "By %s\nUploaded %s" % (mod.author,
+                                    str(mod.date)))
         if mod.thumbnail == None:
-            self.Picture.setPixmap(util.icon("games/unknown_map.png"))
+            self.Picture.setPixmap(util.pixmap("games/unknown_map.png"))
         else:
             self.Picture.setPixmap(mod.thumbnail)
 
         self.Comments.setItemDelegate(CommentItemDelegate(self))
-        self.BugReports.setItemDelegate(CommentsItemDelegate(self))
+        self.BugReports.setItemDelegate(CommentItemDelegate(self))
         
         self.DownloadButton.clicked.connect(self.download)
         self.LineComment.returnPressed.connect(self.addComment)
@@ -60,7 +63,7 @@ class ModWidget(FormClass, BaseClass):
             comment = CommentItem(self,item["uid"])
             comment.update(item)
             self.Comments.addItem(comment)
-        for item in mod.bugReports:
+        for item in mod.bugreports:
             comment = CommentItem(self,item["uid"])
             comment.update(item)
             self.BugReports.addItem(comment)
@@ -69,9 +72,8 @@ class ModWidget(FormClass, BaseClass):
         
     @QtCore.pyqtSlot()
     def download(self):
-        link = urllib2.unquote(mod.link)
-        if not mod.name in self.parent.installedMods:
-            self.parent.downloadMod(mod)
+        if not self.mod.name in self.parent.installedMods:
+            self.parent.downloadMod(self.mod)
         else:
             show = QtGui.QMessageBox.question(self.client, "Already got the Mod", "Seems like you already have that mod!<br/><b>Would you like to see it?</b>", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
             if show == QtGui.QMessageBox.Yes:
@@ -79,29 +81,33 @@ class ModWidget(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def addComment(self):
+        if self.LineComment.text() == "": return
         comment = {"author":self.parent.client.login, "text":self.LineComment.text(),
-                   "date":datetostr(now()), "uid":"%d00%d" % (self.mod.uid, len(self.mod.bugReports)+len(self.mod.comments))}
+                   "date":datetostr(now()), "uid":"%s-%s" % (self.mod.uid, str(len(self.mod.bugreports)+len(self.mod.comments)).zfill(3))}
         
-        self.parent.client.send(dict(command="modvault",type="addcomment",comment=comment))
+        self.parent.client.send(dict(command="modvault",type="addcomment",moduid=self.mod.uid,comment=comment))
         c = CommentItem(self, comment["uid"])
         c.update(comment)
         self.Comments.addItem(c)
         self.mod.comments.append(comment)
+        self.LineComment.setText("")
 
     @QtCore.pyqtSlot()
     def addBugReport(self):
-        bugreport = {"author":self.parent.client.login, "text":self.LineComment.text(),
-                   "date":datetostr(now()), "uid":"%d00%d" % (self.mod.uid, len(self.mod.bugReports) + +len(self.mod.comments))}
+        if self.LineBugReport.text() == "": return
+        bugreport = {"author":self.parent.client.login, "text":self.LineBugReport.text(),
+                   "date":datetostr(now()), "uid":"%s-%s" % (self.mod.uid, str(len(self.mod.bugreports) + +len(self.mod.comments)).zfill(3))}
         
-        self.parent.client.send(dict(command="modvault",type="addbugreport",bugreport=bugreport))
+        self.parent.client.send(dict(command="modvault",type="addbugreport",moduid=self.mod.uid,bugreport=bugreport))
         c = CommentItem(self, bugreport["uid"])
         c.update(bugreport)
         self.BugReports.addItem(c)
-        self.mod.bugReports.append(bugreport)
+        self.mod.bugreports.append(bugreport)
+        self.LineBugReport.setText("")
 
 class CommentItemDelegate(QtGui.QStyledItemDelegate):
     TEXTWIDTH = 350
-    TEXTHEIGHT = 50
+    TEXTHEIGHT = 60
     def __init__(self, *args, **kwargs):
         QtGui.QStyledItemDelegate.__init__(self, *args, **kwargs)
         
@@ -118,7 +124,7 @@ class CommentItemDelegate(QtGui.QStyledItemDelegate):
         
 
         #Description
-        painter.translate(option.rect.left() + iconsize.width() + 10, option.rect.top()+10)
+        painter.translate(option.rect.left() + 10, option.rect.top()+10)
         clip = QtCore.QRectF(0, 0, option.rect.width(), option.rect.height())
         html.drawContents(painter, clip)
   
@@ -131,7 +137,7 @@ class CommentItemDelegate(QtGui.QStyledItemDelegate):
         html = QtGui.QTextDocument()
         html.setHtml(option.text)
         html.setTextWidth(self.TEXTWIDTH)
-        return QtCore.QSize(self.TEXTWIDTH, self.TEXTHEIGHT)  
+        return QtCore.QSize(self.TEXTWIDTH, self.TEXTHEIGHT)
 
 class CommentItem(QtGui.QListWidgetItem):
     FORMATTER_COMMENT = unicode(util.readfile("modvault/comment.qthtml"))

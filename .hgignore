@@ -20,3 +20,4 @@ src/aip/Setup Files
 *.orig
 src/aip/faforever-cache
 *.dll
+src/bsdiff.pyd

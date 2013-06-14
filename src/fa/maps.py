@@ -447,7 +447,7 @@ def __downloadPreviewFromWeb(name):
             req = urllib2.urlopen(VAULT_PREVIEW_ROOT + urllib2.quote(name) + "." + extension)
             img = os.path.join(util.CACHE_DIR, name + "." + extension)
             with open(img, 'wb') as fp:
-                shutil.copyfileobj(req, fp)        
+                shutil.copyfileobj(req, fp)
                 fp.flush()
                 os.fsync(fp.fileno())       #probably works fine without the flush and fsync
                 fp.close()
@@ -497,7 +497,7 @@ def downloadMap(name):
     Download a map from the vault with the given name
     LATER: This type of method is so common, it could be put into a nice util method.
     '''
-    link = name2link(name)    
+    link = name2link(name)
     url = VAULT_DOWNLOAD_ROOT + link
     logger.debug("Getting map from: " + url)
 

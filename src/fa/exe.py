@@ -24,6 +24,7 @@ from PyQt4 import QtCore, QtGui
 import os
 import util
 import fa
+import modvault
 
 
 from fa import logger, writeFAPathLua, savePath
@@ -293,10 +294,40 @@ def checkMap(mapname, force = False):
         return False
     
     return True
-    
 
+def checkMods(mods): #mods is a list of strings (mod names)
+    '''
+    Assures that the specified mods are available in FA, or returns False.
+    Also sets the correct active mods in the ingame mod manager.
+    '''
+    logger.info("Updating FA for mods %s" % ", ".join(mods))
+    to_download = []
+    inst = modvault.getInstalledMods()
+    for mod in mods:
+        if mod not in inst:
+            to_download.append(mod)
+
+    for mod in to_download:
+        result = QtGui.QMessageBox.question(None, "Download Mod", "Seems that you don't have this mod. Do you want to download it?<br/><b>" + mod + "</b>", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+        if result == QtGui.QMessageBox.Yes:
+            if not modvault.downloadMod(mod):
+                return False
+        else:
+            return False
+
+    actual_mods = []
+    for m in mods:
+        mod = modvault.getModFromName(m)
+        if mod == None:
+            continue
+        actual_mods.append(mod)
+    if not modvault.setActiveMods(actual_mods):
+        logger.info("Couldn't set the active mods in the game.prefs file")
+        return False
+
+    return True
     
-def check(mod, mapname = None, version = None, modVersions = None):
+def check(mod, mapname = None, version = None, modVersions = None, additional_mods = None):
     '''
     This checks whether the game is properly updated and has the correct map.
     '''
@@ -340,7 +371,11 @@ def check(mod, mapname = None, version = None, modVersions = None):
 
     # Now it's down to having the right map
     if mapname:
-        return checkMap(mapname)
+        if not checkMap(mapname):
+            return False
+
+    if additional_mods:
+        return checkMods(additional_mods)
         
     return True #FA is checked and ready
         

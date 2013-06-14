@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>490</width>
+    <width>712</width>
     <height>408</height>
    </rect>
   </property>
@@ -17,20 +17,20 @@
    <item row="0" column="0">
     <layout class="QVBoxLayout" name="verticalLayout">
      <property name="spacing">
-      <number>10</number>
+      <number>4</number>
      </property>
      <property name="bottomMargin">
-      <number>5</number>
+      <number>0</number>
      </property>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <property name="topMargin">
-        <number>5</number>
+        <number>0</number>
        </property>
        <property name="bottomMargin">
-        <number>5</number>
+        <number>0</number>
        </property>
-       <item alignment="Qt::AlignTop">
+       <item alignment="Qt::AlignLeft|Qt::AlignTop">
         <widget class="QLabel" name="Picture">
          <property name="minimumSize">
           <size>
@@ -59,7 +59,7 @@
            <property name="maximumSize">
             <size>
              <width>5000</width>
-             <height>30</height>
+             <height>25</height>
             </size>
            </property>
            <property name="font">
@@ -83,17 +83,21 @@
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>60</height>
             </size>
            </property>
            <property name="font">
             <font>
              <family>Segoe UI</family>
-             <pointsize>10</pointsize>
+             <pointsize>9</pointsize>
+             <italic>true</italic>
             </font>
            </property>
            <property name="text">
             <string>Extra info</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
            </property>
           </widget>
          </item>
@@ -108,7 +112,7 @@
            <property name="font">
             <font>
              <family>Segoe UI</family>
-             <pointsize>9</pointsize>
+             <pointsize>10</pointsize>
              <italic>true</italic>
             </font>
            </property>
@@ -137,15 +141,11 @@
            <height>16777215</height>
           </size>
          </property>
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
          <property name="text">
           <string>Download Mod</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="DownloadLabel">
-         <property name="text">
-          <string>Click to download the latest version of this mod.</string>
          </property>
         </widget>
        </item>
@@ -161,14 +161,32 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>0</width>
+         <width>700</width>
          <height>200</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>700</width>
+         <height>400</height>
         </size>
        </property>
        <property name="currentIndex">
         <number>0</number>
        </property>
        <widget class="QWidget" name="CommentsTab">
+        <property name="minimumSize">
+         <size>
+          <width>400</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>700</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <attribute name="title">
          <string>Comments</string>
         </attribute>
@@ -177,16 +195,25 @@
           <rect>
            <x>-1</x>
            <y>-1</y>
-           <width>461</width>
+           <width>702</width>
            <height>141</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_3">
+          <property name="spacing">
+           <number>6</number>
+          </property>
           <property name="bottomMargin">
-           <number>10</number>
+           <number>0</number>
           </property>
           <item>
            <widget class="QListWidget" name="Comments">
+            <property name="minimumSize">
+             <size>
+              <width>690</width>
+              <height>0</height>
+             </size>
+            </property>
             <property name="verticalScrollMode">
              <enum>QAbstractItemView::ScrollPerPixel</enum>
             </property>
@@ -199,6 +226,18 @@
         </widget>
        </widget>
        <widget class="QWidget" name="BrokenTab">
+        <property name="minimumSize">
+         <size>
+          <width>400</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>700</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <attribute name="title">
          <string>Bug Reports</string>
         </attribute>
@@ -207,16 +246,22 @@
           <rect>
            <x>-1</x>
            <y>9</y>
-           <width>461</width>
+           <width>692</width>
            <height>141</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_4">
           <property name="bottomMargin">
-           <number>10</number>
+           <number>0</number>
           </property>
           <item>
            <widget class="QListWidget" name="BugReports">
+            <property name="minimumSize">
+             <size>
+              <width>690</width>
+              <height>0</height>
+             </size>
+            </property>
             <property name="selectionMode">
              <enum>QAbstractItemView::NoSelection</enum>
             </property>

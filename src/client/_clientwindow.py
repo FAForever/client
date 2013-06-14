@@ -991,7 +991,13 @@ class ClientWindow(FormClass, BaseClass):
         '''
         logger.debug("joinGameFromURL: " + url.toString())
         if (fa.exe.available()):
-            if fa.exe.check(url.queryItemValue("mod"), url.queryItemValue("map")):
+            add_mods = []
+            try:
+                modstr = url.queryItemValue("mods")
+                add_mods = json.loads(modstr) # should be a list
+            except:
+                logger.info("Couldn't load urlquery value 'mods'")
+            if fa.exe.check(url.queryItemValue("mod"), url.queryItemValue("map"), additional_mods = add_mods):
                 self.send(dict(command="game_join", uid=int(url.queryItemValue("uid")), gameport=self.gamePort))
     
 
@@ -1366,6 +1372,9 @@ class ClientWindow(FormClass, BaseClass):
         # Ensure we have the map
         if "mapname" in message:
             fa.exe.checkMap(message['mapname'], True)
+
+        if "mods" in message:
+            fa.exe.checkMods(message['mods'])
 
         # Writing a file for options
         if "options" in message:
