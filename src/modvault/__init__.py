@@ -18,12 +18,12 @@
 
 """
 Modvault database documentation:
-command = "mapvault"
-possible commands:
+command = "modvault"
+possible commands (value for the 'type' key):
     start: <no args> - given when the tab is opened. Signals that the server should send the possible mods.
     addcomment: moduid=<uid of the mod the comment belongs to>, comment={"author","uid","date","text"} 
     addbugreport: moduid=<uid of the mod the comment belongs to>, comment={"author","uid","date","text"}
-
+    like: uid-<the uid of the mod that was liked>
 
 Can also send a UPLOAD_MOD command directly using writeToServer
 "UPLOAD_MOD","modname.zip",{mod info}, qfile
@@ -43,7 +43,7 @@ ui          - A boolean describing if it is a ui mod yay or nay.
 big         - A boolean describing if this mod is to be considered a big mod. Chosen by the uploader for better filtering
 small       - A boolean describing if this mod is to be considered a small mod. It could be that both big and small are false.
 link        - Direct link to the zip file containing the mod.
-thumbnail   - Not sure what to do with this. Will probably be a direct link to the thumbnail file.
+thumbnail   - A direct link to the thumbnail file. Should be something suitable for util.icon(). Not yet tested if this works correctly
 
 Additional stuff:
 fa.exe now has a CheckMods method, which is used in fa.exe.check
@@ -53,6 +53,13 @@ queryItemValue called 'mods' which with json can be translated in a list of modn
 so that it can be checked with checkMods.
 handle_game_launch should have a new key in the form of mods, which is a list of modnames
 to be checked with checkMods.
+
+Stuff to be removed:
+In _gameswidget.py in hostGameCLicked setActiveMods is called.
+This should be done in the faf.exe.check function or in the lobby code.
+It is here because the server doesn't yet send the mods info.
+
+The tempAddMods function should be removed after the server can return mods in the modvault.
 """
 
 import os
@@ -72,14 +79,20 @@ logger = logging.getLogger("faf.modvault")
 logger.setLevel(logging.DEBUG)
 
 d = datetostr(now())
-
+'''
 tempmod1 = dict(uid=1,name='Mod1', comments=[],bugreports=[], date = d,
                 ui=True, big=False,small=False, downloads=0, likes=0,
-                thumbnail=None,link="test.com",author='johnie102',
+                thumbnail="",author='johnie102',
                 description="""Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam egestas enim mi, sed sagittis augue posuere non. Phasellus pharetra tempor cursus. Quisque purus urna, ornare imperdiet magna et, accumsan rutrum turpis. Sed ac magna ullamcorper, facilisis nisi ac, cursus arcu. Donec cursus, diam eu iaculis lobortis, nunc leo tristique enim, nec lacinia quam dolor sed leo. Proin orci felis, tincidunt ut purus ac, sagittis convallis lectus. Vestibulum tincidunt pulvinar felis. Nunc sed ligula urna.
 
 Duis imperdiet felis eu commodo iaculis. Donec varius nisl viverra, iaculis erat quis, gravida ligula. Duis eleifend blandit blandit. Aliquam sit amet vehicula lectus, id scelerisque tellus. Nunc vitae augue et sapien tempus tempor. Vivamus convallis adipiscing auctor. Duis a neque ac felis ullamcorper hendrerit sit amet quis erat. Sed varius, nibh tempus posuere viverra, mi lacus imperdiet diam, ut commodo ante mi a lorem. Fusce quis dolor arcu. Maecenas imperdiet elementum pulvinar. Pellentesque pellentesque nibh sed pellentesque semper. Nullam hendrerit enim adipiscing erat pellentesque sollicitudin.""",)
-
+'''
+def tempAddMods(self):
+    mods = [getModfromName(modname) for modname in getInstalledMods()]
+    for mod in mods:
+        info = dict(uid=mod['uid'],name=mod['name'],ui=mod['ui_only'],author=mod['author'],description=mod['description'],
+                    comments=[],bugreports=[],date=d, big=False, small=False, downloads=0, likes=0,thumbnail="", link="")
+        self.modInfo(info)
 
 
 FormClass, BaseClass = util.loadUiType("modvault/modvault.ui")
@@ -116,7 +129,7 @@ class ModVault(FormClass, BaseClass):
         self.mods = []
         self.installedMods = getInstalledMods()
 
-        self.modInfo(tempmod1)
+        tempAddMods(self)
 
     @QtCore.pyqtSlot(dict)
     def modInfo(self, message): #this is called when the database has send a mod to us
@@ -263,6 +276,30 @@ class ModItemDelegate(QtGui.QStyledItemDelegate):
         html.setTextWidth(ModItem.TEXTWIDTH)
         return QtCore.QSize(ModItem.ICONSIZE + ModItem.TEXTWIDTH + ModItem.PADDING, ModItem.ICONSIZE + ModItem.PADDING)  
 
+class ThumbnailDownloader(QtCore.QThread):
+    def __init__(self, url, moditem):
+        self.url = url
+        self.moditem = moditem
+        QtCore.QThread.__init__(self)
+
+    def run(self):
+        req = urllib2.urlopen(self.url)
+        fname = os.path.join(util.CACHE_DIR, os.path.split(self.url)[1])
+        with open(fname, 'wb') as fp:
+            shutil.copyfileobj(req, fp)
+            fp.flush()
+            os.fsync(fp.fileno())       #probably works fine without the flush and fsync
+            fp.close()
+            
+            #Create alpha-mapped preview image
+            f = FIPY.Image(fname)
+            f.setSize((100,100))
+            f.save(fname)
+            logger.debug("Wod Preview downloaded from %s" % self.url)
+
+        self.moditem.thumbnail = util.icon(fname, False)
+        self.moditem.setIcon(self.moditem.thumbnail)
+        
 
 class ModItem(QtGui.QListWidgetItem):
     TEXTWIDTH = 230
@@ -295,6 +332,7 @@ class ModItem(QtGui.QListWidgetItem):
 
         self.thumbnail = None
         self.link = ""
+        self.loadThread = None
         self.setHidden(True)
 
     def update(self, dic):
@@ -310,14 +348,14 @@ class ModItem(QtGui.QListWidgetItem):
         self.isbigmod = dic["big"]
         self.issmallmod = dic["small"]
         self.link = dic["link"] #Direct link to the zip file.
-        #TODO: Fix thumbnail loading
-        self.thumbnail = dic["thumbnail"] # should be a thing that can be passed to setIcon or None
+        self.thumbstr = dic["thumbnail"] # direct url to the thumbnail file.
         self.uploadedbyuser = (self.author == self.parent.client.login)
 
-        if self.thumbnail == None:
+        self.thumbnail = None
+        if self.thumbstr == "":
             self.setIcon(util.icon("games/unknown_map.png"))
         else:
-            self.setIcon(self.tumbnail)
+            self.loadThread = ThumbnailDownloader(self.thumbstr, self)
 
         if len(self.description) < 200:
             descr = self.description
@@ -362,7 +400,7 @@ class ModItem(QtGui.QListWidgetItem):
         return not self.__lt__(self, other)
 
     def __lt__(self, other):
-        if self.parent.sortType == "alphabetic":
+        if self.parent.sortType == "alphabetical":
             if self.name.lower() == other.name.lower():
                 return (self.uid < other.uid)
             return (self.name.lower() > other.name.lower())

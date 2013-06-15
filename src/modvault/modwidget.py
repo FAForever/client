@@ -39,6 +39,9 @@ class ModWidget(FormClass, BaseClass):
         self.setStyleSheet(self.parent.client.styleSheet())
         
         self.setWindowTitle(mod.name)
+
+        self.mod = mod
+        
         self.Title.setText(mod.name)
         self.Description.setText(mod.description)
         modtext = ""
@@ -54,8 +57,11 @@ class ModWidget(FormClass, BaseClass):
 
         self.Comments.setItemDelegate(CommentItemDelegate(self))
         self.BugReports.setItemDelegate(CommentItemDelegate(self))
-        
+
+        if self.mod.name in self.parent.installedMods:
+            self.DownloadButton.setText("Remove Mod")
         self.DownloadButton.clicked.connect(self.download)
+        self.likeButton.clicked.connect(self.like)
         self.LineComment.returnPressed.connect(self.addComment)
         self.LineBugReport.returnPressed.connect(self.addBugReport)
 
@@ -67,17 +73,17 @@ class ModWidget(FormClass, BaseClass):
             comment = CommentItem(self,item["uid"])
             comment.update(item)
             self.BugReports.addItem(comment)
-
-        self.mod = mod
         
     @QtCore.pyqtSlot()
     def download(self):
         if not self.mod.name in self.parent.installedMods:
             self.parent.downloadMod(self.mod)
         else:
-            show = QtGui.QMessageBox.question(self.client, "Already got the Mod", "Seems like you already have that mod!<br/><b>Would you like to see it?</b>", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+            show = QtGui.QMessageBox.question(self.parent.client, "Delete Mod", "Are you sure you want to delete this mod?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
             if show == QtGui.QMessageBox.Yes:
-                util.showInExplorer(modvault.modToFilename(mod))
+                modvault.removeMod(self.mod)
+                self.parent.installedMods.remove(self.mod.name)
+                self.done(1)
 
     @QtCore.pyqtSlot()
     def addComment(self):
@@ -104,6 +110,11 @@ class ModWidget(FormClass, BaseClass):
         self.BugReports.addItem(c)
         self.mod.bugreports.append(bugreport)
         self.LineBugReport.setText("")
+
+    @QtCore.pyqtSlot()
+    def like(self): #the server should determine if the user hasn't already clicked the like button for this mod.
+        self.parent.client.send(dict(command="modvault",type="like", uid=self.mod.uid))
+        self.likeButton.setEnabled(False)
 
 class CommentItemDelegate(QtGui.QStyledItemDelegate):
     TEXTWIDTH = 350

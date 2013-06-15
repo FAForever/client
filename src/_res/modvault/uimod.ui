@@ -90,6 +90,12 @@
              <height>300</height>
             </size>
            </property>
+           <property name="maximumSize">
+            <size>
+             <width>350</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <property name="font">
             <font>
              <family>Segoe UI</family>
@@ -98,6 +104,12 @@
            </property>
            <property name="text">
             <string>No UI Mods installed.</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
            </property>
           </widget>
          </item>

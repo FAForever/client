@@ -56,18 +56,19 @@ class UIModWidget(FormClass, BaseClass):
             if l: l[0].setSelected(True)
 
         if len(self.uimods) != 0:
-            self.hoverOver(self.modList.itemFromIndex(0))
+            self.hoverOver(self.modList.item(0))
 
     @QtCore.pyqtSlot()
     def doneClicked(self):
         selected_mods = [self.uimods[str(mod.text())] for mod in self.modList.selectedItems()]
-        modvault.setActiveMods(selected_mods, False)
-        QtGui.QMessageBox.information(None, "Error", "Could not set the active UI mods. Maybe something is wrong with your game.prefs file. Please send your log.")
+        succes = modvault.setActiveMods(selected_mods, False)
+        if not succes:
+            QtGui.QMessageBox.information(None, "Error", "Could not set the active UI mods. Maybe something is wrong with your game.prefs file. Please send your log.")
         self.done(1)
 
     @QtCore.pyqtSlot(QtGui.QListWidgetItem)
     def hoverOver(self, item):
         mod = self.uimods[str(item.text())]
-        self.modInfo.setText(FORMATTER_UIMOD.format(name=mod["name"], description=mod["description"]))
+        self.modInfo.setText(self.FORMATTER_UIMOD.format(name=mod["name"], description=mod["description"]))
         
     

@@ -146,7 +146,7 @@ class HostgameWidget(FormClass, BaseClass):
         icon = maps.preview(self.parent.gamemap, True)
         if not icon:
             icon = util.icon("games/unknown_map.png", False, True)
-        #self.mapPreview.setPixmap(icon)        
+        #self.mapPreview.setPixmap(icon)
         self.message['mapname'] = self.parent.gamemap
         self.game.update(self.message, self.parent.client)
 

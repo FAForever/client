@@ -20,10 +20,11 @@ import os
 import sys
 import urllib2
 import re
+import shutil
 
 from PyQt4 import QtCore, QtGui
 
-from util import strtodate, datetostr, now
+from util import strtodate, datetostr, now, PREFSFILENAME
 import util
 import logging
 from vault import luaparser
@@ -34,9 +35,6 @@ logger.setLevel(logging.DEBUG)
 
 MODFOLDER = os.path.join(util.PERSONAL_DIR, "My Games", "Gas Powered Games", "Supreme Commander Forged Alliance", "Mods")
 MODVAULT_DOWNLOAD_ROOT = "http://www.faforever.com/faf/modvault/"
-LOCALFOLDER = os.path.join(*os.path.split(os.path.expandvars("%APPDATA%"))[:-1])
-LOCALFOLDER = os.path.join(LOCALFOLDER, "Local","Gas Powered Games","Supreme Commander Forged Alliance")
-PREFSFILENAME = os.path.join(LOCALFOLDER, "game.prefs")
 
 MODVAULT_COUNTER_ROOT = "http://www.faforever.com/faf/vault/mod_vault/inc_downloads.php"
         
@@ -65,10 +63,10 @@ def parseModInfo(folder):
     if not isModFolderValid(folder):
         return None
     modinfofile = luaparser.luaParser(os.path.join(folder,"mod_info.lua"))
-    modinfo = modinfofile.parse({"name":"name","uid":"uid","version":"version",
+    modinfo = modinfofile.parse({"name":"name","uid":"uid","version":"version","author":"author",
                                  "description":"description","ui_only":"ui_only",
                                  "icon":"icon"},
-                                {"version":1,"ui_only":'false',"description":"","icon":""})
+                                {"version":"1","ui_only":"false","description":"","icon":"","author":"author"})
     modinfo["ui_only"] = (modinfo["ui_only"] == 'true')
     return (modinfofile, modinfo)
 
@@ -279,4 +277,9 @@ def downloadMod(modname): #most of this function is stolen from fa.maps.download
         logger.error("Download Count Exception", exc_info=sys.exc_info())
 
     return True
+    
+
+def removeMod(mod):
+    folder = modToFilename(mod)
+    shutil.rmtree(folder)
     

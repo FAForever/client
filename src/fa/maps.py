@@ -604,5 +604,3 @@ def processMapFolderForUpload(mapDir, positions):
     
     return temp
 
-
-

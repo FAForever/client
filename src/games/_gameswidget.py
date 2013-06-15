@@ -347,7 +347,7 @@ class GamesWidget(FormClass, BaseClass):
                     mods = [str(moditem.text()) for moditem in hostgamewidget.modList.selectedItems()]
                     modvault.setActiveMods([hostgamewidget.mods[modstr] for modstr in mods], True) #should be removed later as it should be managed by the server.
 #                #Send a message to the server with our intent.
-                    if self.ispassworded :
+                    if self.ispassworded:
                         self.client.send(dict(command="game_host", access="password", password = self.gamepassword, mod=item.mod, mods=mods, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort, options = gameoptions))
                     else :
                         self.client.send(dict(command="game_host", access="public", mod=item.mod, mods=mods, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort, options = gameoptions))
