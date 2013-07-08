@@ -290,7 +290,7 @@ class Chatter(QtGui.QTableWidgetItem):
         
         # Actions for Games and Replays
         actionReplay = QtGui.QAction("View Live Replay", menu)
-        
+        actionVaultReplay = QtGui.QAction("View Replays in Vault", menu)
         actionJoin = QtGui.QAction("Join in Game", menu)
         #actionInvite = QtGui.QAction("Invite to Game", menu)
 
@@ -315,6 +315,7 @@ class Chatter(QtGui.QTableWidgetItem):
         actionStats.triggered.connect(self.viewStats)
         actionSelectAvatar.triggered.connect(self.selectAvatar)
         actionReplay.triggered.connect(self.viewReplay)
+        actionVaultReplay.triggered.connect(self.viewVaultReplay)
         actionJoin.triggered.connect(self.joinInGame)
         #actionInvite.triggered.connect(self.invite)
         
@@ -357,6 +358,7 @@ class Chatter(QtGui.QTableWidgetItem):
         
         menu.addSeparator()
         menu.addAction(actionReplay)
+        menu.addAction(actionVaultReplay)
         menu.addAction(actionJoin)
         menu.addSeparator()
             
@@ -422,7 +424,14 @@ class Chatter(QtGui.QTableWidgetItem):
         if self.name in client.instance.urls:
             fa.exe.replay(client.instance.urls[self.name])
 
-    
+    @QtCore.pyqtSlot()
+    def viewVaultReplay(self):
+        self.lobby.client.mainTabs.setCurrentIndex(7)
+        #self.client.send(dict(command="replay_vault", action="search", rating = self.minRating.value(), map = self.mapName.text(), player = client.instance.urls[self.name], mod = self.modList.currentText()))
+        self.lobby.client.send(dict(command="replay_vault", action="search", player = self.name, map="", rating="0", mod="All"))
+        
+            
+
     @QtCore.pyqtSlot()
     def joinInGame(self):
         if self.name in client.instance.urls:
