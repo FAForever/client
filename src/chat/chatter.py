@@ -426,7 +426,7 @@ class Chatter(QtGui.QTableWidgetItem):
 
     @QtCore.pyqtSlot()
     def viewVaultReplay(self):
-        self.lobby.client.mainTabs.setCurrentIndex(7)
+        self.lobby.client.mainTabs.setCurrentIndex(8)
         #self.client.send(dict(command="replay_vault", action="search", rating = self.minRating.value(), map = self.mapName.text(), player = client.instance.urls[self.name], mod = self.modList.currentText()))
         self.lobby.client.send(dict(command="replay_vault", action="search", player = self.name, map="", rating="0", mod="All"))
         
