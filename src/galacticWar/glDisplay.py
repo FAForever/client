@@ -9,6 +9,7 @@ logger.setLevel(logging.DEBUG)
 from OpenGL import GL
 from OpenGL import GLU
 from fa import maps
+import fa
 
 from galacticWar import FACTIONS, COLOR_FACTIONS, RANKS
 
@@ -103,8 +104,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.setAcceptDrops(True)
         
 
-    def rotateOneStep(self, update = True):
-        
+    def rotateOneStep(self, update = True): 
         if not update :
             self.yRot = self.yRot + math.radians(self.UPDATE_ROTATION*0.04)
         else :
@@ -527,7 +527,8 @@ class GLWidget(QtOpenGL.QGLWidget):
         
     
     def paintEvent(self, event):
-
+        if fa.exe.running():
+            return
         self.makeCurrent()
         GL.glEnable(GL.GL_DEPTH_TEST)
         GL.glDepthFunc(GL.GL_LEQUAL)

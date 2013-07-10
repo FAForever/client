@@ -19,7 +19,7 @@
 from PyQt4 import QtCore, QtGui
 import util
 
-class ReinforcementDelegate(QtGui.QStyledItemDelegate):
+class PlanetaryReinforcementDelegate(QtGui.QStyledItemDelegate):
     
     def __init__(self, *args, **kwargs):
         QtGui.QStyledItemDelegate.__init__(self, *args, **kwargs)
@@ -53,16 +53,16 @@ class ReinforcementDelegate(QtGui.QStyledItemDelegate):
         self.initStyleOption(option, index)        
         html = QtGui.QTextDocument()
         html.setHtml(option.text)
-        html.setTextWidth(ReinforcementItem.TEXTWIDTH)
-        return QtCore.QSize(ReinforcementItem.ICONSIZE + ReinforcementItem.TEXTWIDTH + ReinforcementItem.PADDING, ReinforcementItem.ICONSIZE)  
+        html.setTextWidth(PlanetaryItem.TEXTWIDTH)
+        return QtCore.QSize(PlanetaryItem.ICONSIZE + PlanetaryItem.TEXTWIDTH + PlanetaryItem.PADDING, PlanetaryItem.ICONSIZE)  
 
-class ReinforcementItem(QtGui.QListWidgetItem):
+class PlanetaryItem(QtGui.QListWidgetItem):
     TEXTWIDTH = 370
     ICONSIZE = 64
     PADDING = 10
     WIDTH = ICONSIZE + TEXTWIDTH
 
-    FORMATTER_REINFORCEMENT       = unicode(util.readfile("galacticwar/formatters/reinforcement.qthtml"))   
+    FORMATTER_REINFORCEMENT       = unicode(util.readfile("galacticwar/formatters/planetarydefenses.qthtml"))   
     
     def __init__(self, uid, *args, **kwargs):
         QtGui.QListWidgetItem.__init__(self, *args, **kwargs)
@@ -80,7 +80,7 @@ class ReinforcementItem(QtGui.QListWidgetItem):
     def data(self, role):
         if role == QtCore.Qt.UserRole :
             return self.uid
-        return super(ReinforcementItem, self).data(role) 
+        return super(PlanetaryItem, self).data(role) 
     
     def setEnabled(self):
         self.setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsDropEnabled | QtCore.Qt.ItemIsDragEnabled)

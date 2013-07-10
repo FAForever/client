@@ -20,14 +20,14 @@
 from PyQt4 import QtGui, QtCore
 from galacticWar import logger
 import util
-from temporaryReinforcementItem import ReinforcementItem, ReinforcementDelegate
+from planetaryReinforcementItem import PlanetaryItem, PlanetaryReinforcementDelegate
 import cPickle
 
-FormClass, BaseClass = util.loadUiType("galacticwar/temporaryItems.ui")
+FormClass, BaseClass = util.loadUiType("galacticwar/planetaryItems.ui")
 
 
 
-class TemporaryWidget(FormClass, BaseClass):
+class PlanetaryWidget(FormClass, BaseClass):
     def __init__(self, parent, *args, **kwargs):
         logger.debug("GW Temporary item instantiating.")
         BaseClass.__init__(self, *args, **kwargs)
@@ -35,22 +35,22 @@ class TemporaryWidget(FormClass, BaseClass):
         self.setupUi(self)
         self.parent = parent
 
-        self.reinforcementListWidget.setItemDelegate(ReinforcementDelegate(self))
+        self.planetaryDefenseListWidget.setItemDelegate(PlanetaryReinforcementDelegate(self))
         self.parent.planetaryDefenseUpdated.connect(self.processReinforcementInfo)
         self.parent.creditsUpdated.connect(self.updateCreditsCheck)
         
         #self.reinforcementListWidget.itemDoubleClicked.connect(self.buyItem)
-        self.reinforcementListWidget.mouseMoveEvent = self.mouseMove
-        self.reinforcements = {}
+        self.planetaryDefenseListWidget.mouseMoveEvent = self.mouseMove
+        self.planetaryReinforcements = {}
 
     def startDrag(self, event):
         ''' Draging building'''
-        index = self.reinforcementListWidget.indexAt(event.pos())
+        index = self.planetaryDefenseListWidget.indexAt(event.pos())
         if not index.isValid():
             return
 
         ## selected is the relevant person object
-        selected = self.reinforcementListWidget.model().data(index, QtCore.Qt.UserRole)   
+        selected = self.planetaryDefenseListWidget.model().data(index, QtCore.Qt.UserRole)   
         
         bstream = cPickle.dumps(selected)
         mimeData = QtCore.QMimeData()
@@ -59,7 +59,7 @@ class TemporaryWidget(FormClass, BaseClass):
         drag = QtGui.QDrag(self)
         drag.setMimeData(mimeData)
         
-        drag.setPixmap(self.reinforcementListWidget.itemAt(event.pos()).icon().pixmap(50,50))
+        drag.setPixmap(self.planetaryDefenseListWidget.itemAt(event.pos()).icon().pixmap(50,50))
         
         drag.setHotSpot(QtCore.QPoint(0,0))
         drag.start(QtCore.Qt.MoveAction) 
@@ -76,21 +76,21 @@ class TemporaryWidget(FormClass, BaseClass):
 
     def updateCreditsCheck(self, credits):
         '''disable item we can't buy'''
-        for uid in self.reinforcements:
-            if not self.reinforcements[uid].isHidden():
-                if credits < self.reinforcements[uid].price:
-                    self.reinforcements[uid].setDisabled()
+        for uid in self.planetaryReinforcements:
+            if not self.planetaryReinforcements[uid].isHidden():
+                if credits < self.planetaryReinforcements[uid].price:
+                    self.planetaryReinforcements[uid].setDisabled()
                 else:
-                    self.reinforcements[uid].setEnabled()
+                    self.planetaryReinforcements[uid].setEnabled()
 
     def processReinforcementInfo(self, message):
         '''Handle a reinforcement info message'''
         uid = message["uid"]
-        if uid not in self.reinforcements:
-            self.reinforcements[uid] = ReinforcementItem(uid)
-            self.reinforcementListWidget.addItem(self.reinforcements[uid])
-            self.reinforcements[uid].update(message, self.parent)
+        if uid not in self.planetaryReinforcements:
+            self.planetaryReinforcements[uid] = PlanetaryItem(uid)
+            self.planetaryDefenseListWidget.addItem(self.planetaryReinforcements[uid])
+            self.planetaryReinforcements[uid].update(message, self.parent)
         else:
-            self.reinforcements[uid].update(message, self.parent)
+            self.planetaryReinforcements[uid].update(message, self.parent)
         
         self.updateCreditsCheck(self.parent.credits)

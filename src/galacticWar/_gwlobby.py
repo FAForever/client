@@ -49,7 +49,7 @@ class LobbyWidget(FormClass, BaseClass):
     attacksUpdated                  = QtCore.pyqtSignal()
     planetUpdated                   = QtCore.pyqtSignal()
     attackProposalUpdated           = QtCore.pyqtSignal(int)
-    temporaryReinforcementUpdated   = QtCore.pyqtSignal(dict)
+    ReinforcementUpdated            = QtCore.pyqtSignal(dict)
     planetaryDefenseUpdated         = QtCore.pyqtSignal(dict)
 
     def __init__(self, client, *args, **kwargs):
@@ -122,7 +122,7 @@ class LobbyWidget(FormClass, BaseClass):
                     self.doLogin()
 
         return BaseClass.showEvent(self, event)
-
+    
     def createChannel(self, chat, name):
         self.channel = gwChannel(chat, name, True)        
 
@@ -165,7 +165,6 @@ class LobbyWidget(FormClass, BaseClass):
             self.state = ClientState.NONE
 
             # Begin connecting.        
-            self.socket.setSocketOption(QtNetwork.QTcpSocket.KeepAliveOption, 1)
             self.socket.connectToHost(LOBBY_HOST, LOBBY_PORT)
             
             
@@ -234,9 +233,11 @@ class LobbyWidget(FormClass, BaseClass):
         from glDisplay import GLWidget
         from infopanel import InfoPanelWidget
         from newsTicker import NewsTicker
-        from reinforcements import TemporaryWidget
+        from reinforcements import PlanetaryWidget
+        from reinforcements import ReinforcementWidget
         #items panels
-        self.temporaryItems = TemporaryWidget(self)
+        self.planetaryItems = PlanetaryWidget(self)
+        self.reinforcementItems = ReinforcementWidget(self)
         self.OGLdisplay = GLWidget(self)
         self.newsTicker = NewsTicker(self)
         self.galaxyLayout.addWidget(self.OGLdisplay)
@@ -255,15 +256,13 @@ class LobbyWidget(FormClass, BaseClass):
     def handle_welcome(self, message):
         self.state = ClientState.ACCEPTED
 
-
     def handle_planetary_defense_info(self, message):
         '''populate planetary defense lists'''
         self.planetaryDefenseUpdated.emit(message)
             
-    def handle_reinforcement_info(self, message):
+    def handle_reinforcement_item_info(self, message):
         '''populate reinforcement lists'''
-        if message["temporary"] is True:
-            self.temporaryReinforcementUpdated.emit(message)
+        self.ReinforcementUpdated.emit(message)
 
     def handle_resource_required(self, message):
         if message["action"] == "shaders" :

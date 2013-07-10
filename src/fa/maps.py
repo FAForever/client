@@ -41,6 +41,7 @@ import shutil
 import urllib2
 import zipfile
 import tempfile
+import re
 
 
 VAULT_PREVIEW_ROOT = "http://www.faforever.com/faf/vault/map_previews/small/" 
@@ -106,6 +107,41 @@ maps = { # A Lookup table for info (names, sizes, players) of the official Forge
                  }
 
 __exist_maps = None
+
+def gwmap(mapname):
+    folder = folderForMap(mapname)
+    if folder:
+        scenario = getScenarioFile(folder)
+        if scenario:
+            if not os.path.isdir(os.path.join(getUserMapsFolder(), "gwScenario")):
+                os.makedirs(os.path.join(getUserMapsFolder(), "gwScenario"))                        
+            save = os.path.join(getUserMapsFolder(), "gwScenario", "gw_scenario.lua")
+
+            fopen = open(scenario, 'r')
+            temp = []
+            for line in fopen:
+                temp.append(line.rstrip())                
+            text = " ".join(temp)
+            
+            pattern = re.compile("customprops.*?=.*?({.*?}),")
+            match = re.search(pattern, text)
+            if match:
+                pattern2 = re.compile("'*ExtraArmies'*.*?[\"'](.*)[\"']")
+                match2 = re.search(pattern2, match.group(1))
+                if match2 :
+                    text = text.replace(match2.group(1), "SUPPORT_1 SUPPORT_2 " + match2.group(1))
+                else:
+                    text = text.replace(match.group(1), "{ ExtraArmies=\" SUPPORT_1 SUPPORT_2\" }")
+            
+            fopen.close()
+            f  = open(save, 'w')
+            f.write(text)
+            f.close() 
+            return True
+            
+    return False
+            
+        
 
 def isBase(mapname):
     '''
@@ -210,6 +246,7 @@ def existMaps(force = False):
                 __exist_maps.extend(os.listdir(getBaseMapsFolder()))
     return __exist_maps        
     
+
 
 def isMapAvailable(mapname):
     '''

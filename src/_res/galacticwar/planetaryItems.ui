@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Temporary Items Shop</string>
+   <string>Planetary Defenses Shop</string>
   </property>
   <property name="styleSheet">
    <string notr="true"/>
@@ -54,7 +54,7 @@ p, li { white-space: pre-wrap; }
      </widget>
     </item>
     <item row="1" column="0">
-     <widget class="QListWidget" name="reinforcementListWidget">
+     <widget class="QListWidget" name="planetaryDefenseListWidget">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
         <horstretch>45</horstretch>

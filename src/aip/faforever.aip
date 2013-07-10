@@ -10,10 +10,10 @@
     <ROW Property="ARPURLUPDATEINFO" Value="http://www.faforever.com/page=2"/>
     <ROW Property="CTRLS" Value="2"/>
     <ROW Property="Manufacturer" Value="FAF Community" ValueLocId="*"/>
-    <ROW Property="ProductCode" Value="1033:{179D2C84-DC54-4215-8E19-5BA4F6C51168} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{C662EBAD-0606-414B-8D1A-B0D4C435D78A} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Forged Alliance Forever" ValueLocId="*"/>
-    <ROW Property="ProductVersion" Value="240.8.48"/>
+    <ROW Property="ProductVersion" Value="240.8.53"/>
     <ROW Property="REBOOT" MultiBuildValue="DefaultBuild:Suppress"/>
     <ROW Property="RUNAPPLICATION" Value="1" Type="4"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
