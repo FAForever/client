@@ -10,10 +10,10 @@
     <ROW Property="ARPURLUPDATEINFO" Value="http://www.faforever.com/page=2"/>
     <ROW Property="CTRLS" Value="2"/>
     <ROW Property="Manufacturer" Value="FAF Community" ValueLocId="*"/>
-    <ROW Property="ProductCode" Value="1033:{C662EBAD-0606-414B-8D1A-B0D4C435D78A} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{5A4EB1DF-878E-4C27-AB67-0776B3C379B8} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Forged Alliance Forever" ValueLocId="*"/>
-    <ROW Property="ProductVersion" Value="240.8.53"/>
+    <ROW Property="ProductVersion" Value="240.8.54"/>
     <ROW Property="REBOOT" MultiBuildValue="DefaultBuild:Suppress"/>
     <ROW Property="RUNAPPLICATION" Value="1" Type="4"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
@@ -190,11 +190,11 @@
     <ROW Component="avatar_blank.png" ComponentId="{17220D99-61A7-4252-B530-8F1A920E969F}" Directory_="avatar_Dir" Attributes="0" KeyPath="avatar_blank.png" Type="0"/>
     <ROW Component="back.png" ComponentId="{239D158C-6158-4F59-B9A9-5C3467D3C01A}" Directory_="images_Dir" Attributes="0" KeyPath="back.png" Type="0"/>
     <ROW Component="baseplatform.pyc" ComponentId="{D6D8E6F4-4D3E-40EE-9CB2-5B125AE6F0D5}" Directory_="platform_Dir" Attributes="0" KeyPath="baseplatform.pyc" Type="0"/>
-    <ROW Component="bg.png" ComponentId="{BC0CA878-B78B-4CFC-A9E4-C8DFF9AAA77C}" Directory_="aeon_Dir" Attributes="0" KeyPath="bg.png_1" Type="0"/>
-    <ROW Component="bg.png_1" ComponentId="{4AC0FEA8-BCF8-4ECC-A4BB-8242E82442E0}" Directory_="cybran_Dir" Attributes="0" KeyPath="bg.png_2" Type="0"/>
-    <ROW Component="bg.png_2" ComponentId="{FEFD03F3-5C38-4F9B-AA7A-B48D05222DB3}" Directory_="seraphim_Dir" Attributes="0" KeyPath="bg.png_3" Type="0"/>
-    <ROW Component="bg.png_3" ComponentId="{C36FFD0B-651D-4778-82F4-3B68A0D4D1D9}" Directory_="uef_Dir" Attributes="0" KeyPath="bg.png_4" Type="0"/>
-    <ROW Component="bg_chat.jpg" ComponentId="{4AA78E5B-4A4F-4955-A233-5CD2BA943AC0}" Directory_="galacticwar_Dir" Attributes="0" KeyPath="bg_chat.jpg" Type="0"/>
+    <ROW Component="bg.png" ComponentId="{6C8B7AAC-1C9E-44DA-8FF2-30BD79E539ED}" Directory_="aeon_Dir" Attributes="0" KeyPath="bg.png_1" Type="0"/>
+    <ROW Component="bg.png_1" ComponentId="{8D4B3E19-A6D9-467C-855B-7500656129C2}" Directory_="cybran_Dir" Attributes="0" KeyPath="bg.png_2" Type="0"/>
+    <ROW Component="bg.png_2" ComponentId="{1E85E10F-5A1E-46BD-A670-1434FFA24C1E}" Directory_="seraphim_Dir" Attributes="0" KeyPath="bg.png_3" Type="0"/>
+    <ROW Component="bg.png_3" ComponentId="{3F15FD9F-8E69-417D-B365-1B3AA443FC38}" Directory_="uef_Dir" Attributes="0" KeyPath="bg.png_4" Type="0"/>
+    <ROW Component="bg_chat.jpg" ComponentId="{8755DD6F-CBB7-4FB0-9F92-4DC03576A27B}" Directory_="galacticwar_Dir" Attributes="0" KeyPath="bg_chat.jpg" Type="0"/>
     <ROW Component="bindless_texture.pyc" ComponentId="{5AA845A5-0683-4BAD-814D-F623C05EC61F}" Directory_="NV_Dir" Attributes="0" KeyPath="bindless_texture.pyc" Type="0"/>
     <ROW Component="bindless_texture.pyc_1" ComponentId="{41B19FE3-CDD5-465B-88EA-927F776BDFFC}" Directory_="NV_1_Dir" Attributes="0" KeyPath="bindless_texture.pyc_1" Type="0"/>
     <ROW Component="blackops.html" ComponentId="{26F5056F-2936-48C1-94C4-A69F2FC8E189}" Directory_="mods_Dir" Attributes="0" KeyPath="blackops.html" Type="0"/>
@@ -256,6 +256,7 @@
     <ROW Component="parallel_arrays.pyc_1" ComponentId="{245A8AB8-B0AB-4362-B302-D575BBDB361B}" Directory_="INTEL_1_Dir" Attributes="0" KeyPath="parallel_arrays.pyc_1" Type="0"/>
     <ROW Component="phong_shading.pyc" ComponentId="{773F9FD9-5731-4DEB-9B79-E9DD576D2A71}" Directory_="WIN_Dir" Attributes="0" KeyPath="phong_shading.pyc" Type="0"/>
     <ROW Component="phong_shading.pyc_1" ComponentId="{AB8FEF7B-64EF-41D2-A3E3-B87887717BBC}" Directory_="WIN_1_Dir" Attributes="0" KeyPath="phong_shading.pyc_1" Type="0"/>
+    <ROW Component="planetarydefenses.qthtml" ComponentId="{4FF4F9E6-E94D-44BE-B8FA-7388273D4CD7}" Directory_="formatters_6_Dir" Attributes="0" KeyPath="planetarydefenses.qthtml" Type="0"/>
     <ROW Component="privmsg.wav" ComponentId="{D985D638-6E4B-426F-A331-6B150532E960}" Directory_="sfx_Dir" Attributes="0" KeyPath="privmsg.wav" Type="0"/>
     <ROW Component="python27.dll" ComponentId="{FF6A6D4C-BB4F-499F-8B6C-F708C4CCB9FE}" Directory_="APPDIR" Attributes="0" KeyPath="python27.dll"/>
     <ROW Component="pythoncom27.dll" ComponentId="{19D8E53C-940D-4AA0-B176-0B8D1CBCD0AF}" Directory_="APPDIR" Attributes="0" KeyPath="pythoncom27.dll"/>
@@ -276,7 +277,6 @@
     <ROW Component="qtiff4.dll_1" ComponentId="{65B80032-3E5B-40E7-8866-48F8F2ED7A45}" Directory_="imageformats_Dir" Attributes="0" KeyPath="qtiff4.dll_1"/>
     <ROW Component="read_format.pyc" ComponentId="{C3C21AA1-93F6-41EA-8726-19E363004856}" Directory_="OES_Dir" Attributes="0" KeyPath="read_format.pyc" Type="0"/>
     <ROW Component="read_format.pyc_1" ComponentId="{5BC8F679-76ED-4402-95A9-50E8178CB818}" Directory_="OES_1_Dir" Attributes="0" KeyPath="read_format.pyc_1" Type="0"/>
-    <ROW Component="reinforcement.qthtml" ComponentId="{39388A69-BF5C-4FC3-9998-C11EF3D2B5C4}" Directory_="formatters_6_Dir" Attributes="0" KeyPath="reinforcement.qthtml" Type="0"/>
     <ROW Component="replay.qthtml" ComponentId="{D822E1B9-3588-423F-A7AE-CA1FD58CA0F7}" Directory_="formatters_5_Dir" Attributes="0" KeyPath="replay.qthtml" Type="0"/>
     <ROW Component="s3tc.pyc" ComponentId="{3A6E6740-EF54-44F7-B99C-9F22C5E428CF}" Directory_="S3_Dir" Attributes="0" KeyPath="s3tc.pyc" Type="0"/>
     <ROW Component="s3tc.pyc_1" ComponentId="{1E0D821B-9DCF-4BF7-BDCB-A2A63347CCBF}" Directory_="S3_1_Dir" Attributes="0" KeyPath="s3tc.pyc_1" Type="0"/>
@@ -293,7 +293,7 @@
     <ROW Component="window_icon.png" ComponentId="{B620FB5F-1E8F-4707-8D0A-C58B6FF594BD}" Directory_="_res_Dir" Attributes="0" KeyPath="window_icon.png" Type="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
-    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0" Components="APIMSWinCoreLocalRegistryL110.dll Aeon_T1.png CourierBold.afm FAForever.exe FAForever.lib FreeImage.dll GLX.pyc GL_1_1.pyc GL_1_1.pyc_1 GL_64_TYPES_DEFINED.pyc LIBEAY32.dll MPR.dll QtCore4.dll QtGui4.dll QtNetwork4.dll QtOpenGL4.dll QtWebKit4.dll Replay SHORTCUTDIR SSLEAY32.dll _ __1 __init__.pyc __init__.pyc_1 __init__.pyc_2 __init__.pyc_3 __init__.pyc_4 _pixels.pyc _pixels.pyc_1 about.ui acceleratesupport.pyc action.qthtml ad.png aeon.png annotations.pyc annotations.pyc_1 annotations.pyc_2 army.png arraydatatype.pyc arrays_of_arrays.pyc arrays_of_arrays.pyc_1 async.pyc async.pyc_1 aux_depth_stencil.pyc aux_depth_stencil.pyc_1 avatar_blank.png back.png baseplatform.pyc bg.png bg.png_1 bg.png_2 bg.png_3 bg_chat.jpg bindless_texture.pyc bindless_texture.pyc_1 blackops.html blend_func_separate.pyc blend_func_separate.pyc_1 blend_minmax_factor.pyc blend_minmax_factor.pyc_1 broken.png channel.ui cmb10.ttf cmex10.afm color_matrix.pyc color_matrix.pyc_1 command constant_data.pyc constant_data.pyc_1 convolution_border_modes.pyc convolution_border_modes.pyc_1 convolution_border_modes.pyc_2 convolution_border_modes.pyc_3 cull_vertex.pyc cull_vertex.pyc_1 debug.pyc debug.pyc_1 detail_texture.pyc detail_texture.pyc_1 draw_buffers.pyc draw_buffers.pyc_1 exceptional.pyc exceptional.pyc_1 faf.qthtml fafreplay failure.ui featuredmods.ui fonts.pyc frame_terminator.pyc frame_terminator.pyc_1 games.ui glunurbs.pyc host.png host.ui interlace.pyc interlace.pyc_1 ladder.qthtml lineprops.glade mapstat.ui mfc100u.dll misc_hints.pyc misc_hints.pyc_1 msvcp100.dll msvcr100.dll msvcr90.dll multisample.pyc multisample.pyc_1 nurbs_tessellator.pyc pack_invert.pyc pack_invert.pyc_1 parallel_arrays.pyc parallel_arrays.pyc_1 phong_shading.pyc phong_shading.pyc_1 privmsg.wav python27.dll pythoncom27.dll pywintypes27.dll qgif4.dll qgif4.dll_1 qico4.dll qico4.dll_1 qjpeg4.dll qjpeg4.dll_1 qmng4.dll qmng4.dll_1 qsvg4.dll qsvg4.dll_1 qtga4.dll qtga4.dll_1 qtiff4.dll qtiff4.dll_1 read_format.pyc read_format.pyc_1 reinforcement.qthtml replay.qthtml s3tc.pyc s3tc.pyc_1 screen_coordinates.pyc screen_coordinates.pyc_1 shell style.css texture_stack.pyc texture_stack.pyc_1 tutorials.qthtml tutorials.ui uid.dll w9xpopen.exe window_icon.png"/>
+    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0" Components="APIMSWinCoreLocalRegistryL110.dll Aeon_T1.png CourierBold.afm FAForever.exe FAForever.lib FreeImage.dll GLX.pyc GL_1_1.pyc GL_1_1.pyc_1 GL_64_TYPES_DEFINED.pyc LIBEAY32.dll MPR.dll QtCore4.dll QtGui4.dll QtNetwork4.dll QtOpenGL4.dll QtWebKit4.dll Replay SHORTCUTDIR SSLEAY32.dll _ __1 __init__.pyc __init__.pyc_1 __init__.pyc_2 __init__.pyc_3 __init__.pyc_4 _pixels.pyc _pixels.pyc_1 about.ui acceleratesupport.pyc action.qthtml ad.png aeon.png annotations.pyc annotations.pyc_1 annotations.pyc_2 army.png arraydatatype.pyc arrays_of_arrays.pyc arrays_of_arrays.pyc_1 async.pyc async.pyc_1 aux_depth_stencil.pyc aux_depth_stencil.pyc_1 avatar_blank.png back.png baseplatform.pyc bg.png bg.png_1 bg.png_2 bg.png_3 bg_chat.jpg bindless_texture.pyc bindless_texture.pyc_1 blackops.html blend_func_separate.pyc blend_func_separate.pyc_1 blend_minmax_factor.pyc blend_minmax_factor.pyc_1 broken.png channel.ui cmb10.ttf cmex10.afm color_matrix.pyc color_matrix.pyc_1 command constant_data.pyc constant_data.pyc_1 convolution_border_modes.pyc convolution_border_modes.pyc_1 convolution_border_modes.pyc_2 convolution_border_modes.pyc_3 cull_vertex.pyc cull_vertex.pyc_1 debug.pyc debug.pyc_1 detail_texture.pyc detail_texture.pyc_1 draw_buffers.pyc draw_buffers.pyc_1 exceptional.pyc exceptional.pyc_1 faf.qthtml fafreplay failure.ui featuredmods.ui fonts.pyc frame_terminator.pyc frame_terminator.pyc_1 games.ui glunurbs.pyc host.png host.ui interlace.pyc interlace.pyc_1 ladder.qthtml lineprops.glade mapstat.ui mfc100u.dll misc_hints.pyc misc_hints.pyc_1 msvcp100.dll msvcr100.dll msvcr90.dll multisample.pyc multisample.pyc_1 nurbs_tessellator.pyc pack_invert.pyc pack_invert.pyc_1 parallel_arrays.pyc parallel_arrays.pyc_1 phong_shading.pyc phong_shading.pyc_1 planetarydefenses.qthtml privmsg.wav python27.dll pythoncom27.dll pywintypes27.dll qgif4.dll qgif4.dll_1 qico4.dll qico4.dll_1 qjpeg4.dll qjpeg4.dll_1 qmng4.dll qmng4.dll_1 qsvg4.dll qsvg4.dll_1 qtga4.dll qtga4.dll_1 qtiff4.dll qtiff4.dll_1 read_format.pyc read_format.pyc_1 replay.qthtml s3tc.pyc s3tc.pyc_1 screen_coordinates.pyc screen_coordinates.pyc_1 shell style.css texture_stack.pyc texture_stack.pyc_1 tutorials.qthtml tutorials.ui uid.dll w9xpopen.exe window_icon.png"/>
     <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
@@ -386,7 +386,7 @@
     <ROW File="QtCore4.dll" Component_="QtCore4.dll" FileName="QtCore4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\QtCore4.dll" SelfReg="false" NextFile="LIBEAY32.dll"/>
     <ROW File="QtGui4.dll" Component_="QtGui4.dll" FileName="QtGui4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\QtGui4.dll" SelfReg="false" NextFile="QtNetwork4.dll"/>
     <ROW File="QtNetwork4.dll" Component_="QtNetwork4.dll" FileName="QtNetw~1.dll|QtNetwork4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\QtNetwork4.dll" SelfReg="false" NextFile="QtCore4.dll"/>
-    <ROW File="QtOpenGL4.dll" Component_="QtOpenGL4.dll" FileName="QtOpen~1.dll|QtOpenGL4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\QtOpenGL4.dll" SelfReg="false" NextFile="bg.png_1"/>
+    <ROW File="QtOpenGL4.dll" Component_="QtOpenGL4.dll" FileName="QtOpen~1.dll|QtOpenGL4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\QtOpenGL4.dll" SelfReg="false" NextFile="acceleratesupport.pyc"/>
     <ROW File="QtWebKit4.dll" Component_="QtWebKit4.dll" FileName="QtWebK~1.dll|QtWebKit4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\QtWebKit4.dll" SelfReg="false" NextFile="QtGui4.dll"/>
     <ROW File="README.TXT_2" Component_="cmb10.ttf" FileName="README.TXT" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\ttf\README.TXT" SelfReg="false" NextFile="RELEASENOTES.TXT"/>
     <ROW File="RELEASENOTES.TXT" Component_="cmb10.ttf" FileName="RELEAS~1.TXT|RELEASENOTES.TXT" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\ttf\RELEASENOTES.TXT" SelfReg="false" NextFile="STIXGeneral.ttf"/>
@@ -536,7 +536,7 @@
     <ROW File="__init__.pyc_69" Component_="__init__.pyc_3" FileName="__init__.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\Tk\__init__.pyc" SelfReg="false" NextFile="version.pyc"/>
     <ROW File="__init__.pyc_7" Component_="_pixels.pyc" FileName="__init__.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\EXT\__init__.pyc" SelfReg="false" NextFile="feedback.pyc"/>
     <ROW File="__init__.pyc_70" Component_="__init__.pyc_4" FileName="__init__.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\WGL\__init__.pyc" SelfReg="false" NextFile="wrapper.pyc"/>
-    <ROW File="__init__.pyc_71" Component_="acceleratesupport.pyc" FileName="__init__.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\__init__.pyc" SelfReg="false" NextFile="reinforcement.qthtml"/>
+    <ROW File="__init__.pyc_71" Component_="acceleratesupport.pyc" FileName="__init__.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\__init__.pyc" SelfReg="false" NextFile="twitch.png"/>
     <ROW File="__init__.pyc_8" Component_="frame_terminator.pyc" FileName="__init__.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\GREMEDY\__init__.pyc" SelfReg="false" NextFile="convolution_border_modes.pyc"/>
     <ROW File="__init__.pyc_9" Component_="convolution_border_modes.pyc" FileName="__init__.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\HP\__init__.pyc" SelfReg="false" NextFile="cull_vertex.pyc_1"/>
     <ROW File="_buffers.pyc" Component_="arraydatatype.pyc" FileName="_buffers.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\arrays\_buffers.pyc" SelfReg="false" NextFile="_numeric.pyc"/>
@@ -972,8 +972,7 @@
     <ROW File="freeglut.pyc" Component_="fonts.pyc" FileName="freeglut.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GLUT\freeglut.pyc" SelfReg="false" NextFile="osx.pyc"/>
     <ROW File="ga.png" Component_="ad.png" FileName="ga.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ga.png" SelfReg="false" NextFile="gb.png"/>
     <ROW File="galacticwar.css" Component_="bg_chat.jpg" FileName="galact~1.css|galacticwar.css" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\galacticwar.css" SelfReg="false" NextFile="galacticwar.ui"/>
-    <ROW File="galacticwar.ui" Component_="bg_chat.jpg" FileName="galact~1.ui|galacticwar.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\galacticwar.ui" SelfReg="false" NextFile="galacticwar.ui.autosave"/>
-    <ROW File="galacticwar.ui.autosave" Component_="bg_chat.jpg" FileName="galact~1.aut|galacticwar.ui.autosave" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\galacticwar.ui.autosave" SelfReg="false" NextFile="infopanel.ui"/>
+    <ROW File="galacticwar.ui" Component_="bg_chat.jpg" FileName="galact~1.ui|galacticwar.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\galacticwar.ui" SelfReg="false" NextFile="infopanel.ui"/>
     <ROW File="games.png" Component_="about.ui" FileName="games.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\games.png" SelfReg="false" NextFile="gw.png"/>
     <ROW File="games.ui" Component_="games.ui" FileName="games.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\games.ui" SelfReg="false" NextFile="host.ui"/>
     <ROW File="gb.png" Component_="ad.png" FileName="gb.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\gb.png" SelfReg="false" NextFile="gd.png"/>
@@ -1189,7 +1188,7 @@
     <ROW File="mesh_array.pyc_1" Component_="convolution_border_modes.pyc_3" FileName="mesh_a~1.pyc|mesh_array.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\SUN\mesh_array.pyc" SelfReg="false" NextFile="slice_accum.pyc_1"/>
     <ROW File="message.qthtml" Component_="action.qthtml" FileName="messag~1.qth|message.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\formatters\message.qthtml" SelfReg="false" NextFile="nicklist_columns.json"/>
     <ROW File="messageAvatar.qthtml" Component_="action.qthtml" FileName="messag~2.qth|messageAvatar.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\formatters\messageAvatar.qthtml" SelfReg="false" NextFile="tutorialarea.ui"/>
-    <ROW File="metal_bg.png" Component_="bg_chat.jpg" FileName="metal_bg.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\metal_bg.png" SelfReg="false" NextFile="bg.png_3"/>
+    <ROW File="metal_bg.png" Component_="bg_chat.jpg" FileName="metal_bg.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\metal_bg.png" SelfReg="false" NextFile="planetaryItems.ui"/>
     <ROW File="mf.png" Component_="ad.png" FileName="mf.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\mf.png" SelfReg="false" NextFile="mg.png"/>
     <ROW File="mfc100u.dll" Component_="mfc100u.dll" FileName="mfc100u.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mfc100u.dll" SelfReg="false" NextFile="msvcp100.dll"/>
     <ROW File="mg.png" Component_="ad.png" FileName="mg.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\mg.png" SelfReg="false" NextFile="mh.png"/>
@@ -1372,6 +1371,8 @@
     <ROW File="pixel_transform_color_table.pyc_1" Component_="_pixels.pyc_1" FileName="pixel_~3.pyc|pixel_transform_color_table.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\EXT\pixel_transform_color_table.pyc" SelfReg="false" NextFile="point_parameters.pyc_4"/>
     <ROW File="pk.png" Component_="ad.png" FileName="pk.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\pk.png" SelfReg="false" NextFile="pl.png"/>
     <ROW File="pl.png" Component_="ad.png" FileName="pl.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\pl.png" SelfReg="false" NextFile="pm.png"/>
+    <ROW File="planetaryItems.ui" Component_="bg_chat.jpg" FileName="planet~1.ui|planetaryItems.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\planetaryItems.ui" SelfReg="false" NextFile="reinforcementItems.ui"/>
+    <ROW File="planetarydefenses.qthtml" Component_="planetarydefenses.qthtml" FileName="planet~1.qth|planetarydefenses.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\formatters\planetarydefenses.qthtml" SelfReg="false" NextFile="reinforcement.qthtml"/>
     <ROW File="playing.png" Component_="host.png" FileName="playing.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\status\playing.png" SelfReg="false" NextFile="about.ui"/>
     <ROW File="plugins.pyc" Component_="acceleratesupport.pyc" FileName="plugins.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\plugins.pyc" SelfReg="false" NextFile="blend_minmax_factor.pyc_1"/>
     <ROW File="pm.png" Component_="ad.png" FileName="pm.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\pm.png" SelfReg="false" NextFile="pn.png"/>
@@ -1473,7 +1474,8 @@
     <ROW File="register_combiners.pyc_1" Component_="bindless_texture.pyc_1" FileName="regist~1.pyc|register_combiners.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\NV\register_combiners.pyc" SelfReg="false" NextFile="register_combiners2.pyc_1"/>
     <ROW File="register_combiners2.pyc" Component_="bindless_texture.pyc" FileName="regist~2.pyc|register_combiners2.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\NV\register_combiners2.pyc" SelfReg="false" NextFile="shader_atomic_float.pyc"/>
     <ROW File="register_combiners2.pyc_1" Component_="bindless_texture.pyc_1" FileName="regist~2.pyc|register_combiners2.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\NV\register_combiners2.pyc" SelfReg="false" NextFile="shader_atomic_float.pyc_1"/>
-    <ROW File="reinforcement.qthtml" Component_="reinforcement.qthtml" FileName="reinfo~1.qth|reinforcement.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\formatters\reinforcement.qthtml" SelfReg="false" NextFile="temporaryItems.ui"/>
+    <ROW File="reinforcement.qthtml" Component_="planetarydefenses.qthtml" FileName="reinfo~1.qth|reinforcement.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\formatters\reinforcement.qthtml" SelfReg="false" NextFile="galacticwar.css"/>
+    <ROW File="reinforcementItems.ui" Component_="bg_chat.jpg" FileName="reinfo~1.ui|reinforcementItems.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\reinforcementItems.ui" SelfReg="false" NextFile="bg.png_3"/>
     <ROW File="replay.ico" Component_="FAForever.lib" FileName="replay.ico" Attributes="0" SourcePath="F:\DIST_FAFOREVER\replay.ico" SelfReg="false" NextFile="qgif4.dll"/>
     <ROW File="replay.png" Component_="broken.png" FileName="replay.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\replays\replay.png" SelfReg="false" NextFile="replays.ui"/>
     <ROW File="replay.qthtml" Component_="replay.qthtml" FileName="replay~1.qth|replay.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\replays\formatters\replay.qthtml" SelfReg="false" NextFile="random.png"/>
@@ -1673,7 +1675,6 @@
     <ROW File="tbuffer.pyc_1" Component_="multisample.pyc_1" FileName="tbuffer.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\DFX\tbuffer.pyc" SelfReg="false" NextFile="texture_compression_FXT1.pyc_1"/>
     <ROW File="tc.png" Component_="ad.png" FileName="tc.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\tc.png" SelfReg="false" NextFile="td.png"/>
     <ROW File="td.png" Component_="ad.png" FileName="td.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\td.png" SelfReg="false" NextFile="tf.png"/>
-    <ROW File="temporaryItems.ui" Component_="bg_chat.jpg" FileName="tempor~1.ui|temporaryItems.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\temporaryItems.ui" SelfReg="false"/>
     <ROW File="tess.pyc" Component_="glunurbs.pyc" FileName="tess.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GLU\tess.pyc" SelfReg="false" NextFile="__init__.pyc_32"/>
     <ROW File="tessellation_program5.pyc" Component_="bindless_texture.pyc" FileName="tessel~1.pyc|tessellation_program5.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\NV\tessellation_program5.pyc" SelfReg="false" NextFile="texgen_emboss.pyc"/>
     <ROW File="tessellation_program5.pyc_1" Component_="bindless_texture.pyc_1" FileName="tessel~1.pyc|tessellation_program5.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\NV\tessellation_program5.pyc" SelfReg="false" NextFile="texgen_emboss.pyc_1"/>
@@ -1867,9 +1868,9 @@
     <ROW File="tool.qthtml" Component_="faf.qthtml" FileName="tool~1.qth|tool.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\formatters\tool.qthtml" SelfReg="false" NextFile="replay.qthtml"/>
     <ROW File="top_menu.png" Component_="bg_chat.jpg" FileName="top_menu.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\top_menu.png" SelfReg="false" NextFile="top_menu_over.png"/>
     <ROW File="top_menu_active.png" Component_="bg.png" FileName="top_me~1.png|top_menu_active.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\aeon\top_menu_active.png" SelfReg="false" NextFile="bg_chat.jpg"/>
-    <ROW File="top_menu_active.png_1" Component_="bg.png_1" FileName="top_me~1.png|top_menu_active.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\cybran\top_menu_active.png" SelfReg="false" NextFile="galacticwar.css"/>
+    <ROW File="top_menu_active.png_1" Component_="bg.png_1" FileName="top_me~1.png|top_menu_active.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\cybran\top_menu_active.png" SelfReg="false" NextFile="planetarydefenses.qthtml"/>
     <ROW File="top_menu_active.png_2" Component_="bg.png_2" FileName="top_me~1.png|top_menu_active.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\seraphim\top_menu_active.png" SelfReg="false" NextFile="top_menu.png"/>
-    <ROW File="top_menu_active.png_3" Component_="bg.png_3" FileName="top_me~1.png|top_menu_active.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\uef\top_menu_active.png" SelfReg="false" NextFile="acceleratesupport.pyc"/>
+    <ROW File="top_menu_active.png_3" Component_="bg.png_3" FileName="top_me~1.png|top_menu_active.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\uef\top_menu_active.png" SelfReg="false"/>
     <ROW File="top_menu_over.png" Component_="bg_chat.jpg" FileName="top_me~1.png|top_menu_over.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\top_menu_over.png" SelfReg="false" NextFile="bg.png_4"/>
     <ROW File="tournaments.ui" Component_="host.ui" FileName="tourna~1.ui|tournaments.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\tournaments\tournaments.ui" SelfReg="false" NextFile="mfc100u.dll"/>
     <ROW File="tourney.png" Component_="about.ui" FileName="tourney.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\tourney.png" SelfReg="false" NextFile="tray_icon.png"/>
@@ -1902,6 +1903,7 @@
     <ROW File="tutorials.ui" Component_="tutorials.ui" FileName="tutori~1.ui|tutorials.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\tutorials\tutorials.ui" SelfReg="false" NextFile="avatar_blank.png"/>
     <ROW File="tv.png" Component_="ad.png" FileName="tv.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\tv.png" SelfReg="false" NextFile="tw.png"/>
     <ROW File="tw.png" Component_="ad.png" FileName="tw.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\tw.png" SelfReg="false" NextFile="tz.png"/>
+    <ROW File="twitch.png" Component_="about.ui" FileName="twitch.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\twitch.png" SelfReg="false" NextFile="bg.png_1"/>
     <ROW File="tz.png" Component_="ad.png" FileName="tz.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\tz.png" SelfReg="false" NextFile="ua.png"/>
     <ROW File="ua.png" Component_="ad.png" FileName="ua.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ua.png" SelfReg="false" NextFile="ug.png"/>
     <ROW File="uef.png" Component_="aeon.png" FileName="uef.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\automatch\uef.png" SelfReg="false" NextFile="faf.qthtml"/>
