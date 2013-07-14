@@ -78,7 +78,8 @@ class InfoPanelWidget(FormClass, BaseClass):
     def buyReinforcementsItems(self):
         '''Handle buying reinforcements items'''
         self.parent.send(dict(command="reinforcements_items"))
-        self.parent.reinforcementItems.show()        
+        self.parent.reinforcementItems.show()   
+        
         
     def buyPlanetaryDefensesItems(self):
         '''Handle buying planetary defense items'''

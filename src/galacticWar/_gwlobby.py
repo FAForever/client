@@ -51,6 +51,7 @@ class LobbyWidget(FormClass, BaseClass):
     attackProposalUpdated           = QtCore.pyqtSignal(int)
     ReinforcementUpdated            = QtCore.pyqtSignal(dict)
     planetaryDefenseUpdated         = QtCore.pyqtSignal(dict)
+    ReinforcementsGroupUpdated      = QtCore.pyqtSignal(dict)
 
     def __init__(self, client, *args, **kwargs):
         logger.debug("Lobby instantiating.")
@@ -122,6 +123,10 @@ class LobbyWidget(FormClass, BaseClass):
                     self.doLogin()
 
         return BaseClass.showEvent(self, event)
+    
+    def updateOptions(self):
+        ''' settings galactic wars options'''
+        
     
     def createChannel(self, chat, name):
         self.channel = gwChannel(chat, name, True)        
@@ -260,6 +265,10 @@ class LobbyWidget(FormClass, BaseClass):
         '''populate planetary defense lists'''
         self.planetaryDefenseUpdated.emit(message)
             
+    def handle_group_reinforcements_info(self, message):
+        '''populate current group reinforcements '''
+        self.ReinforcementsGroupUpdated.emit(message)            
+    
     def handle_reinforcement_item_info(self, message):
         '''populate reinforcement lists'''
         self.ReinforcementUpdated.emit(message)
@@ -360,6 +369,9 @@ class LobbyWidget(FormClass, BaseClass):
         gwFile.write(s.getvalue())
         gwFile.close()
         s.close()
+    
+        # and we empty the unit reinforcement list
+        self.reinforcementItems.reset()
     
     def handle_attack_result(self, message):
         self.progress.close()
@@ -606,4 +618,3 @@ class LobbyWidget(FormClass, BaseClass):
         logger.error("TCP Socket Error: " + self.socket.errorString())
         if self.state > ClientState.NONE:   # Positive client states deserve user notification.
             QtGui.QMessageBox.critical(None, "TCP Error", "A TCP Connection Error has occurred:<br/><br/><b>" + self.socket.errorString()+"</b>", QtGui.QMessageBox.Close)        
-    

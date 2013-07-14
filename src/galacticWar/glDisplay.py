@@ -927,8 +927,8 @@ class GLWidget(QtOpenGL.QGLWidget):
             site = self.curZone[0]
             planet = self.galaxy.control_points[site]
         
-            if selected in self.parent.temporaryItems.reinforcements:
-                item = self.parent.temporaryItems.reinforcements[selected]
+            if selected in self.parent.planetaryItems.reinforcements:
+                item = self.parent.planetaryItems.reinforcements[selected]
             
                 question = QtGui.QMessageBox.question(self,"Defense system", "Build %s on %s ?" % (item.description, planet.name), QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
                 if question == QtGui.QMessageBox.Yes :

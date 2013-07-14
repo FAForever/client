@@ -230,6 +230,8 @@
      <addaction name="actionSetGamePath"/>
      <addaction name="actionSetGamePort"/>
      <addaction name="actionSaveGamelogs"/>
+     <addaction name="separator"/>
+     <addaction name="actionGalacticWar"/>
     </widget>
     <widget class="QMenu" name="menuTheme">
      <property name="title">
@@ -490,12 +492,22 @@
     <string>Autojoin Post-game chat</string>
    </property>
   </action>
+  <action name="actionGalactic_War">
+   <property name="text">
+    <string>Galactic War...</string>
+   </property>
+  </action>
+  <action name="actionGalacticWar">
+   <property name="text">
+    <string>Galactic War...</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
    <class>QWebView</class>
    <extends>QWidget</extends>
-   <header>PyQt4.QtWebKit</header>
+   <header>QtWebKit/QWebView</header>
   </customwidget>
  </customwidgets>
  <resources/>
