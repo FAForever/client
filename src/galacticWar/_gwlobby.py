@@ -22,6 +22,7 @@ from galaxy import Galaxy
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
 
 from client import ClientState
+from options import GWOptions
 from gwchannel import gwChannel
 import util
 import util.slpp
@@ -61,7 +62,17 @@ class LobbyWidget(FormClass, BaseClass):
         
         
         self.client = client
-        #self.client.galacticwarTab.setStyleSheet(util.readstylesheet("galacticwar/galacticwar.css"))        
+        #self.client.galacticwarTab.setStyleSheet(util.readstylesheet("galacticwar/galacticwar.css"))
+        
+        self.COLOR_FACTIONS = {}
+        self.mapTransparency = 10
+        self.AA = True
+        self.rotation = True
+        self.stars = 25
+        
+        self.GWOptions = GWOptions(self)
+        self.GWOptions.loadSettings()                     
+                
         self.client.galacticwarTab.layout().addWidget(self)
    
         self.downloader     = QNetworkAccessManager(self)
@@ -71,10 +82,12 @@ class LobbyWidget(FormClass, BaseClass):
         self.texturelist    =   {}        
         self.shaders    =   {}
         
+        
+        
         self.infoPanel  = None
         self.OGLdisplay = None
         
-        self.galaxy     = Galaxy()
+        self.galaxy     = Galaxy(self)
         self.channel    = None
         
         self.initDone   = False
@@ -126,6 +139,7 @@ class LobbyWidget(FormClass, BaseClass):
     
     def updateOptions(self):
         ''' settings galactic wars options'''
+        self.GWOptions.show()
         
     
     def createChannel(self, chat, name):
@@ -221,6 +235,8 @@ class LobbyWidget(FormClass, BaseClass):
         if self.state == ClientState.ACCEPTED:
             logger.info("Gating accepted.")
             self.progress.close()
+            self.client.actionGalacticWar.triggered.connect(self.updateOptions)
+            self.client.actionGalacticWar.setEnabled(True)
             return True   
             #self.connected.emit()            
           
@@ -240,7 +256,8 @@ class LobbyWidget(FormClass, BaseClass):
         from newsTicker import NewsTicker
         from reinforcements import PlanetaryWidget
         from reinforcements import ReinforcementWidget
-        #items panels
+
+        #items panels 
         self.planetaryItems = PlanetaryWidget(self)
         self.reinforcementItems = ReinforcementWidget(self)
         self.OGLdisplay = GLWidget(self)

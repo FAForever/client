@@ -30,7 +30,7 @@
 
 from PyQt4 import QtCore, QtGui
 
-from galacticWar import FACTIONS, COLOR_FACTIONS
+from galacticWar import FACTIONS
 
 def usage():
     print """
@@ -715,7 +715,8 @@ class defense(object):
         self.structure = structure
 
 class Site(object):
-    def __init__(self, x=0.0, y=0.0, sitenum=0, name = '', desc = '', size = 1, aeon = 0, cybran = 0, uef = 0, sera = 0, texture = 1, mapname=""):
+    def __init__(self, x=0.0, y=0.0, parent=None, sitenum=0, name = '', desc = '', size = 1, aeon = 0, cybran = 0, uef = 0, sera = 0, texture = 1, mapname=""):
+        self.parent = parent
         self.x = x
         self.y = y
         self.sitenum = sitenum
@@ -763,9 +764,9 @@ class Site(object):
         return self.name
     
     def computeColor(self):
-        r = (COLOR_FACTIONS[0].redF() * self.uef + COLOR_FACTIONS[1].redF() * self.aeon + COLOR_FACTIONS[2].redF() * self.cybran + COLOR_FACTIONS[3].redF() * self.sera) 
-        g = (COLOR_FACTIONS[0].greenF() * self.uef + COLOR_FACTIONS[1].greenF() * self.aeon + COLOR_FACTIONS[2].greenF()* self.cybran + COLOR_FACTIONS[3].greenF()* self.sera)
-        b = (COLOR_FACTIONS[0].blueF() * self.uef + COLOR_FACTIONS[1].blueF() * self.aeon + COLOR_FACTIONS[2].blueF() * self.cybran+ COLOR_FACTIONS[3].blueF()* self.sera)
+        r = (self.parent.COLOR_FACTIONS[0].redF() * self.uef + self.parent.COLOR_FACTIONS[1].redF() * self.aeon + self.parent.COLOR_FACTIONS[2].redF() * self.cybran + self.parent.COLOR_FACTIONS[3].redF() * self.sera) 
+        g = (self.parent.COLOR_FACTIONS[0].greenF() * self.uef + self.parent.COLOR_FACTIONS[1].greenF() * self.aeon + self.parent.COLOR_FACTIONS[2].greenF()* self.cybran + self.parent.COLOR_FACTIONS[3].greenF()* self.sera)
+        b = (self.parent.COLOR_FACTIONS[0].blueF() * self.uef + self.parent.COLOR_FACTIONS[1].blueF() * self.aeon + self.parent.COLOR_FACTIONS[2].blueF() * self.cybran+ self.parent.COLOR_FACTIONS[3].blueF()* self.sera)
         
         if r > 1 or g > 1 or b > 1 :
             vectorRGB = QtGui.QVector3D(r,b,g)

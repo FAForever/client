@@ -11,7 +11,7 @@ from OpenGL import GLU
 from fa import maps
 import fa
 
-from galacticWar import FACTIONS, COLOR_FACTIONS, RANKS
+from galacticWar import FACTIONS, RANKS
 
 import math
 import random
@@ -28,11 +28,18 @@ class GLWidget(QtOpenGL.QGLWidget):
     UPDATE_ROTATION = 22
 
     def __init__(self, parent=None):
-        super(GLWidget, self).__init__(QtOpenGL.QGLFormat(QtOpenGL.QGL.SampleBuffers), parent)
-
+        print parent.AA
+        if parent.AA:
+            super(GLWidget, self).__init__(QtOpenGL.QGLFormat(QtOpenGL.QGL.SampleBuffers), parent)
+        else:
+            super(GLWidget, self).__init__(parent)
+        
         self.parent = parent
         self.setMinimumWidth((self.parent.width()/100)*70)
         self.galaxy = self.parent.galaxy
+            
+        
+        self.COLOR_FACTIONS = self.parent.COLOR_FACTIONS
 
         self.ctrl       = False
         self.shift      = False
@@ -56,6 +63,8 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.links      = None
         self.numPlanets = len(self.galaxy.star_field)
 
+        self.galaxyStarsFront      = None
+        self.galaxyStarsBack      = None
         
         self.curZone        = None
         self.overlayPlanet  = False
@@ -69,7 +78,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         
         self.zooming = False
         
-        self.galaxy.generate_star_field(self.zoomMin, self.backgroundDepth)
+        self.starField()
 
         
         
@@ -102,6 +111,9 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.setAutoFillBackground(False)
         
         self.setAcceptDrops(True)
+    
+    def starField(self):
+        self.galaxy.generate_star_field(self.zoomMin, -self.zoomMin)
         
 
     def rotateOneStep(self, update = True): 
@@ -260,8 +272,8 @@ class GLWidget(QtOpenGL.QGLWidget):
 
         self.drawLinks()
         self.createCamera(init=True)
-        
-        self.timerRotate.start(self.UPDATE_ROTATION)
+        if self.parent.rotation:
+            self.timerRotate.start(self.UPDATE_ROTATION)
 
     def drawGalaxy(self):
         ## BACKGROUND
@@ -297,6 +309,13 @@ class GLWidget(QtOpenGL.QGLWidget):
     
     def drawStars(self, side):
         ## STARS
+       
+        if side == 0:
+            if self.galaxyStarsFront :
+                GL.glDeleteLists(self.galaxyStarsFront, 1)
+        else:
+            if self.galaxyStarsBack :
+                GL.glDeleteLists(self.galaxyStarsBack, 1)
         
         genList = GL.glGenLists(1)
         GL.glNewList(genList, GL.GL_COMPILE)
@@ -401,7 +420,7 @@ class GLWidget(QtOpenGL.QGLWidget):
                     if self.parent.attacks[useruid][planetuid]["onHold"] == True :
                         color = QtGui.QColor(255,255,255)
                     else :
-                        color = COLOR_FACTIONS[int(self.parent.attacks[useruid][planetuid]["faction"])]
+                        color = self.COLOR_FACTIONS[int(self.parent.attacks[useruid][planetuid]["faction"])]
                     self.programSwirl.bind()
                     
                     if self.parent.attacks[useruid][planetuid]["defended"] :
@@ -706,9 +725,9 @@ class GLWidget(QtOpenGL.QGLWidget):
                 if occupation != 0 :
                     occupation = occupation*100
                     if abs(occupation-round(occupation)) < 0.01 :
-                        text += "<li><font color='%s'>%s</font><font color='silver'> : %i &#37;</font></li>" % (COLOR_FACTIONS[i].name(), FACTIONS[i], int(occupation))
+                        text += "<li><font color='%s'>%s</font><font color='silver'> : %i &#37;</font></li>" % (self.COLOR_FACTIONS[i].name(), FACTIONS[i], int(occupation))
                     else :
-                        text += "<li><font color='%s'>%s</font><font color='silver'> : %.1f &#37;</font></li>" % (COLOR_FACTIONS[i].name(), FACTIONS[i], occupation)
+                        text += "<li><font color='%s'>%s</font><font color='silver'> : %.1f &#37;</font></li>" % (self.COLOR_FACTIONS[i].name(), FACTIONS[i], occupation)
 
                     
             text += "</ul>"
@@ -895,7 +914,8 @@ class GLWidget(QtOpenGL.QGLWidget):
             self._numScheduledScalings = self._numScheduledScalings - 1
         else :
             self._numScheduledScalings = self._numScheduledScalings + 1
-        self.timerRotate.start(self.UPDATE_ROTATION)
+        if self.parent.rotation:
+            self.timerRotate.start(self.UPDATE_ROTATION)
 
     
     def moveBoundaries(self):
@@ -999,7 +1019,8 @@ class GLWidget(QtOpenGL.QGLWidget):
 
         elif  event.buttons() & QtCore.Qt.MiddleButton :
             self.animCam.stop()
-            self.timerRotate.start(self.UPDATE_ROTATION)
+            if self.parent.rotation:
+                self.timerRotate.start(self.UPDATE_ROTATION)
             
             x = event.x()
             y = event.y()
@@ -1114,6 +1135,9 @@ class GLWidget(QtOpenGL.QGLWidget):
             self.curZone = self.galaxy.closestSite(pos3d.x(), pos3d.y())
             if self.curZone : 
                 self.selection = self.createPlanetOverlay()
+        
+        if not self.parent.rotation:
+            self.update()
       
     def attackable(self):
         faction = self.parent.faction
@@ -1173,7 +1197,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         GL.glNewList(genList, GL.GL_COMPILE)
         
         bevel = 0.1
-        opacity = 0.1
+        opacity = float(self.parent.mapTransparency) / 100.0
         extrude = -7
         origin  = -5
         polyBorders = {}
