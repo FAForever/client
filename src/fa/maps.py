@@ -117,7 +117,7 @@ def gwmap(mapname):
                 os.makedirs(os.path.join(getUserMapsFolder(), "gwScenario"))                        
             save = os.path.join(getUserMapsFolder(), "gwScenario", "gw_scenario.lua")
 
-            fopen = open(scenario, 'r')
+            fopen = open(os.path.join(folder, scenario), 'r')
             temp = []
             for line in fopen:
                 temp.append(line.rstrip())                
