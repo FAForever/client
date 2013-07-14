@@ -10,10 +10,10 @@
     <ROW Property="ARPURLUPDATEINFO" Value="http://www.faforever.com/page=2"/>
     <ROW Property="CTRLS" Value="2"/>
     <ROW Property="Manufacturer" Value="FAF Community" ValueLocId="*"/>
-    <ROW Property="ProductCode" Value="1033:{5A4EB1DF-878E-4C27-AB67-0776B3C379B8} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{B587BF5C-5905-46D9-B63B-55AA3FFE69D0} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Forged Alliance Forever" ValueLocId="*"/>
-    <ROW Property="ProductVersion" Value="240.8.54"/>
+    <ROW Property="ProductVersion" Value="240.8.55"/>
     <ROW Property="REBOOT" MultiBuildValue="DefaultBuild:Suppress"/>
     <ROW Property="RUNAPPLICATION" Value="1" Type="4"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
@@ -1294,6 +1294,7 @@
     <ROW File="occlusion_test.pyc_1" Component_="convolution_border_modes.pyc_2" FileName="occlus~1.pyc|occlusion_test.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\HP\occlusion_test.pyc" SelfReg="false" NextFile="texture_lighting.pyc_1"/>
     <ROW File="om.png" Component_="ad.png" FileName="om.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\om.png" SelfReg="false" NextFile="pa.png"/>
     <ROW File="operator_colors.json" Component_="action.qthtml" FileName="operat~1.jso|operator_colors.json" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\formatters\operator_colors.json" SelfReg="false" NextFile="raw.qthtml"/>
+    <ROW File="options.ui" Component_="bg_chat.jpg" FileName="options.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\options.ui" SelfReg="false"/>
     <ROW File="osmesa.pyc" Component_="baseplatform.pyc" FileName="osmesa.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\platform\osmesa.pyc" SelfReg="false" NextFile="win32.pyc"/>
     <ROW File="osx.pyc" Component_="fonts.pyc" FileName="osx.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GLUT\osx.pyc" SelfReg="false" NextFile="special.pyc"/>
     <ROW File="pa.png" Component_="ad.png" FileName="pa.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\pa.png" SelfReg="false" NextFile="pe.png"/>
@@ -1870,7 +1871,7 @@
     <ROW File="top_menu_active.png" Component_="bg.png" FileName="top_me~1.png|top_menu_active.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\aeon\top_menu_active.png" SelfReg="false" NextFile="bg_chat.jpg"/>
     <ROW File="top_menu_active.png_1" Component_="bg.png_1" FileName="top_me~1.png|top_menu_active.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\cybran\top_menu_active.png" SelfReg="false" NextFile="planetarydefenses.qthtml"/>
     <ROW File="top_menu_active.png_2" Component_="bg.png_2" FileName="top_me~1.png|top_menu_active.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\seraphim\top_menu_active.png" SelfReg="false" NextFile="top_menu.png"/>
-    <ROW File="top_menu_active.png_3" Component_="bg.png_3" FileName="top_me~1.png|top_menu_active.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\uef\top_menu_active.png" SelfReg="false"/>
+    <ROW File="top_menu_active.png_3" Component_="bg.png_3" FileName="top_me~1.png|top_menu_active.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\uef\top_menu_active.png" SelfReg="false" NextFile="options.ui"/>
     <ROW File="top_menu_over.png" Component_="bg_chat.jpg" FileName="top_me~1.png|top_menu_over.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\top_menu_over.png" SelfReg="false" NextFile="bg.png_4"/>
     <ROW File="tournaments.ui" Component_="host.ui" FileName="tourna~1.ui|tournaments.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\tournaments\tournaments.ui" SelfReg="false" NextFile="mfc100u.dll"/>
     <ROW File="tourney.png" Component_="about.ui" FileName="tourney.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\tourney.png" SelfReg="false" NextFile="tray_icon.png"/>
