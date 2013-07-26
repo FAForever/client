@@ -545,7 +545,8 @@ def downloadMap(name):
     progress.setAutoReset(False)
     
     try:
-        zipwebfile  = urllib2.urlopen(url)
+        req = urllib2.Request(url, headers={'User-Agent' : "FAF Client"})         
+        zipwebfile  = urllib2.urlopen(req)
         meta = zipwebfile.info()
         file_size = int(meta.getheaders("Content-Length")[0])
 
