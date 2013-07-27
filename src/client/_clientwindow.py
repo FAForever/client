@@ -1454,6 +1454,7 @@ class ClientWindow(FormClass, BaseClass):
         self.gameInfo.emit(message)                    
 
     def handle_modvault_info(self, message):
+        print message
         self.modVaultInfo.emit(message)
     
     def handle_replay_vault(self, message):
