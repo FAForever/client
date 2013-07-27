@@ -79,6 +79,7 @@ class ClientWindow(FormClass, BaseClass):
     tourneyInfo         = QtCore.pyqtSignal(dict)
     modInfo             = QtCore.pyqtSignal(dict)
     gameInfo            = QtCore.pyqtSignal(dict)
+    modvaultInfo        = QtCore.pyqtSignal(dict)
     newGame             = QtCore.pyqtSignal(str)
     avatarList          = QtCore.pyqtSignal(list)
     playerAvatarList    = QtCore.pyqtSignal(dict)
@@ -99,6 +100,7 @@ class ClientWindow(FormClass, BaseClass):
     showLadder      = QtCore.pyqtSignal()
     showChat        = QtCore.pyqtSignal()
     showGalaxyWar   = QtCore.pyqtSignal()
+    showMods        = QtCore.pyqtSignal()
 
     joinGameFromUser   = QtCore.pyqtSignal(str)
     joinReplayFromUser = QtCore.pyqtSignal(str)
@@ -185,6 +187,7 @@ class ClientWindow(FormClass, BaseClass):
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.chatTab         ), util.icon("client/chat.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.gamesTab        ), util.icon("client/games.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.mapsTab         ), util.icon("client/maps.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.modsTab         ), util.icon("client/mods.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.galacticwarTab  ), util.icon("client/gw.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.ladderTab       ), util.icon("client/ladder.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.tourneyTab      ), util.icon("client/tourney.png"))
@@ -209,6 +212,7 @@ class ClientWindow(FormClass, BaseClass):
         import tutorials
         import featuredmods
         import galacticWar
+        import modvault
         from chat._avatarWidget import avatarWidget
         
         
@@ -220,6 +224,7 @@ class ClientWindow(FormClass, BaseClass):
         self.games          = games.Games(self)
         self.tourneys       = tourneys.Tourneys(self)
         self.vault          = vault.MapVault(self)
+        self.modvault       = modvault.ModVault(self)
         self.replays        = replays.Replays(self)
         self.tutorials      = tutorials.Tutorials(self)
         self.GalacticWar    = galacticWar.Lobby(self)
@@ -988,13 +993,22 @@ class ClientWindow(FormClass, BaseClass):
         if new_tab is self.galacticwarTab:
             self.showGalaxyWar.emit()
 
+        if new_tab is self.modsTab:
+            self.showMods.emit()            
+
     def joinGameFromURL(self, url):
         '''
         Tries to join the game at the given URL
         '''
         logger.debug("joinGameFromURL: " + url.toString())
         if (fa.exe.available()):
-            if fa.exe.check(url.queryItemValue("mod"), url.queryItemValue("map")):
+            add_mods = []
+            try:
+                modstr = url.queryItemValue("mods")
+                add_mods = json.loads(modstr) # should be a list
+            except:
+                logger.info("Couldn't load urlquery value 'mods'")
+            if fa.exe.check(url.queryItemValue("mod"), url.queryItemValue("map"), additional_mods = add_mods):            
                 self.send(dict(command="game_join", uid=int(url.queryItemValue("uid")), gameport=self.gamePort))
     
 
@@ -1376,7 +1390,9 @@ class ClientWindow(FormClass, BaseClass):
                 if not fa.maps.gwmap(message['mapname']):
                     logger.error("You don't have the required map.")
                     return                      
-                
+
+        if "mods" in message:
+            fa.exe.checkMods(message['mods'])                
                 
 
         # Writing a file for options
@@ -1436,6 +1452,9 @@ class ClientWindow(FormClass, BaseClass):
     
     def handle_game_info(self, message):
         self.gameInfo.emit(message)                    
+
+    def handle_modvault_info(self, message):
+        self.modVaultInfo.emit(message)
     
     def handle_replay_vault(self, message):
         self.replayVault.emit(message)
