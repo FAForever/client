@@ -53,7 +53,7 @@ class ModWidget(FormClass, BaseClass):
         if mod.thumbnail == None:
             self.Picture.setPixmap(util.pixmap("games/unknown_map.png"))
         else:
-            self.Picture.setPixmap(mod.thumbnail)
+            self.Picture.setPixmap(mod.thumbnail.pixmap(100,100))
 
         self.Comments.setItemDelegate(CommentItemDelegate(self))
         self.BugReports.setItemDelegate(CommentItemDelegate(self))

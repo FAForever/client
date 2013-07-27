@@ -79,7 +79,7 @@ class ClientWindow(FormClass, BaseClass):
     tourneyInfo         = QtCore.pyqtSignal(dict)
     modInfo             = QtCore.pyqtSignal(dict)
     gameInfo            = QtCore.pyqtSignal(dict)
-    modvaultInfo        = QtCore.pyqtSignal(dict)
+    modVaultInfo        = QtCore.pyqtSignal(dict)
     newGame             = QtCore.pyqtSignal(str)
     avatarList          = QtCore.pyqtSignal(list)
     playerAvatarList    = QtCore.pyqtSignal(dict)
@@ -1454,7 +1454,6 @@ class ClientWindow(FormClass, BaseClass):
         self.gameInfo.emit(message)                    
 
     def handle_modvault_info(self, message):
-        print message
         self.modVaultInfo.emit(message)
     
     def handle_replay_vault(self, message):

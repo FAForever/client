@@ -1,4 +1,4 @@
-<font color="{color}" size="+2"><b>{title}</b></font>
+<font color="{color}" size="+2"><b>{title} V{version}</b></font>
 <font color="silver" size="-1">
 {modtype}
 <p width="230">

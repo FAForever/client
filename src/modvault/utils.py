@@ -30,6 +30,9 @@ import logging
 from vault import luaparser
 import FreeImagePy as FIPY
 
+import cStringIO
+import zipfile
+
 logger = logging.getLogger("faf.modvault")
 logger.setLevel(logging.DEBUG)
 
@@ -209,10 +212,9 @@ def generateThumbnail(sourcename, destname):
     else:
         return False
 
-def downloadMod(modname): #most of this function is stolen from fa.maps.downloadMap
-    link = urllib2.quote("mods/" + modname + ".zip")
-    url = MODVAULT_DOWNLOAD_ROOT + link
-    logger.debug("Getting mod from: " + url)
+def downloadMod(item): #most of this function is stolen from fa.maps.downloadMap
+    link = item.link
+    logger.debug("Getting mod from: " + link)
 
     progress = QtGui.QProgressDialog()
     progress.setCancelButtonText("Cancel")
@@ -221,7 +223,9 @@ def downloadMod(modname): #most of this function is stolen from fa.maps.download
     progress.setAutoReset(False)
     
     try:
-        zipwebfile  = urllib2.urlopen(url)
+        req = urllib2.Request(link, headers={'User-Agent' : "FAF Client"})         
+        zipwebfile  = urllib2.urlopen(req)
+
         meta = zipwebfile.info()
         file_size = int(meta.getheaders("Content-Length")[0])
 
@@ -229,7 +233,7 @@ def downloadMod(modname): #most of this function is stolen from fa.maps.download
         progress.setMaximum(file_size)
         progress.setModal(1)
         progress.setWindowTitle("Downloading Map")
-        progress.setLabelText(name)
+        progress.setLabelText(link)
     
         progress.show()
     
@@ -250,14 +254,15 @@ def downloadMod(modname): #most of this function is stolen from fa.maps.download
         
         if file_size_dl == file_size:
             zfile = zipfile.ZipFile(output)
+            print MODFOLDER
             zfile.extractall(MODFOLDER)
-            logger.debug("Successfully downloaded and extracted mod from: " + url)
+            logger.debug("Successfully downloaded and extracted mod from: " + link)
         else:    
-            logger.warn("Mod download cancelled for: " + url)
+            logger.warn("Mod download cancelled for: " + link)
             return False
 
     except:
-        logger.warn("Mod download or extraction failed for: " + url)        
+        logger.warn("Mod download or extraction failed for: " + link)        
         if sys.exc_type is urllib2.HTTPError:
             logger.warning("ModVault download failed with HTTPError, mod probably not in vault (or broken).")
             QtGui.QMessageBox.information(None, "Mod not downloadable", "<b>This mod was not found in the vault (or is broken).</b><br/>You need to get it from somewhere else in order to use it." )
@@ -265,16 +270,6 @@ def downloadMod(modname): #most of this function is stolen from fa.maps.download
             logger.error("Download Exception", exc_info=sys.exc_info())
             QtGui.QMessageBox.information(None, "Mod installation failed", "<b>This mod could not be installed (please report this map or bug).</b>")
         return False
-
-    #Count the map downloads
-    try:
-        url = MODVAULT_COUNTER_ROOT + "?mod=" + urllib2.quote(link)
-        urllib2.urlopen(url)
-        logger.debug("Successfully sent download counter request for: " + url)        
-        
-    except:
-        logger.warn("Request to mod download counter failed for: " + url)
-        logger.error("Download Count Exception", exc_info=sys.exc_info())
 
     return True
     

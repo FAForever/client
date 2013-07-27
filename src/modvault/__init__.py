@@ -74,7 +74,7 @@ from uimodwidget import UIModWidget
 
 import util
 import logging
-
+import time
 logger = logging.getLogger("faf.modvault")
 logger.setLevel(logging.DEBUG)
 
@@ -119,7 +119,7 @@ class ModVault(FormClass, BaseClass):
         self.ShowType.currentIndexChanged.connect(self.showChanged)
 
         self.client.showMods.connect(self.tabOpened)
-        self.client.modvaultInfo.connect(self.modInfo)
+        self.client.modVaultInfo.connect(self.modInfo)
 
         self.sortType = "alphabetical"
         self.showType = "all"
@@ -217,7 +217,7 @@ class ModVault(FormClass, BaseClass):
             mod.updateVisibility()
 
     def downloadMod(self, mod):
-        if downloadMod(mod.name):
+        if downloadMod(mod):
             self.installedMods.append(mod.name)
             return True
         else: return False
@@ -278,14 +278,19 @@ class ModItemDelegate(QtGui.QStyledItemDelegate):
 class ThumbnailDownloader(QtCore.QThread):
     def __init__(self, url, moditem):
         self.url = url
-        self.moditem = moditem
+        self.moditem = moditem       
         QtCore.QThread.__init__(self)
 
     def run(self):
-        req = urllib2.urlopen(self.url)
+        print self.url
+        req = urllib2.Request(self.url, headers={'User-Agent' : "FAF Client"})
+        thmb = urllib2.urlopen(req)
+        print thmb
+        print self.url
         fname = os.path.join(util.CACHE_DIR, os.path.split(self.url)[1])
+        print fname
         with open(fname, 'wb') as fp:
-            shutil.copyfileobj(req, fp)
+            shutil.copyfileobj(thmb, fp)
             fp.flush()
             os.fsync(fp.fileno())       #probably works fine without the flush and fsync
             fp.close()
@@ -294,7 +299,7 @@ class ThumbnailDownloader(QtCore.QThread):
             f = FIPY.Image(fname)
             f.setSize((100,100))
             f.save(fname)
-            logger.debug("Wod Preview downloaded from %s" % self.url)
+            logger.debug("Mod Preview downloaded from %s" % self.url)
 
         self.moditem.thumbnail = util.icon(fname, False)
         self.moditem.setIcon(self.moditem.thumbnail)
@@ -319,6 +324,7 @@ class ModItem(QtGui.QListWidgetItem):
         self.name = ""
         self.description = ""
         self.author = ""
+        self.version = 0
         self.downloads = 0
         self.likes = 0
         self.comments = [] #every element is a dictionary with a 
@@ -335,19 +341,21 @@ class ModItem(QtGui.QListWidgetItem):
         self.setHidden(True)
 
     def update(self, dic):
+        print dic
         self.name = dic["name"]
         self.description = dic["description"]
+        self.version = dic["version"]
         self.author = dic["author"]
         self.downloads = dic["downloads"]
         self.likes = dic["likes"]
         self.comments = dic["comments"]
         self.bugreports = dic["bugreports"]
-        self.date = strtodate(dic["date"])
+        self.date = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(dic['date']))
         self.isuimod = dic["ui"]
         self.isbigmod = dic["big"]
         self.issmallmod = dic["small"]
         self.link = dic["link"] #Direct link to the zip file.
-        self.thumbstr = dic["thumbnail"] # direct url to the thumbnail file.
+        self.thumbstr = dic["thumbnail"]# direct url to the thumbnail file.
         self.uploadedbyuser = (self.author == self.parent.client.login)
 
         self.thumbnail = None
@@ -355,6 +363,7 @@ class ModItem(QtGui.QListWidgetItem):
             self.setIcon(util.icon("games/unknown_map.png"))
         else:
             self.loadThread = ThumbnailDownloader(self.thumbstr, self)
+            self.loadThread.run()
 
         if len(self.description) < 200:
             descr = self.description
@@ -367,9 +376,9 @@ class ModItem(QtGui.QListWidgetItem):
         elif self.issmallmod: modtype="small mod"
         if self.name in self.parent.installedMods: color="green"
         else: color="white"
-        self.setText(self.FORMATTER_MOD.format(color=color,title=self.name,
+        self.setText(self.FORMATTER_MOD.format(color=color,version=str(self.version),title=self.name,
             description=descr, author=self.author,downloads=str(self.downloads),
-            likes=str(self.likes),date=str(self.date.date()),modtype=modtype))
+            likes=str(self.likes),date=str(self.date),modtype=modtype))
 
         self.setToolTip('<p width="230">%s</p>' % self.description)
         self.updateVisibility()
