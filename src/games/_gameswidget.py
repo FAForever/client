@@ -30,6 +30,7 @@ from games import logger
 from fa import Faction
 import random
 import fa
+import modvault
 
 RANKED_SEARCH_EXPANSION_TIME = 10000 #milliseconds before search radius expands
 
@@ -77,7 +78,7 @@ class GamesWidget(FormClass, BaseClass):
         self.client.gameEnter.connect(self.stopSearchRanked)
         self.client.viewingReplay.connect(self.stopSearchRanked)
         
-        self.gameList.setItemDelegate(GameItemDelegate(self));
+        self.gameList.setItemDelegate(GameItemDelegate(self))
         self.gameList.itemDoubleClicked.connect(self.gameDoubleClicked)
 
         self.modList.itemDoubleClicked.connect(self.hostGameClicked)
@@ -302,8 +303,8 @@ class GamesWidget(FormClass, BaseClass):
 
         passw = None 
         
-        if fa.exe.check(item.mod, item.mapname):
-            if item.access == "password" :                
+        if fa.exe.check(item.mod, item.mapname, None, item.mods):
+            if item.access == "password" : 
                 passw, ok = QtGui.QInputDialog.getText(self.client, "Passworded game" , "Enter password :", QtGui.QLineEdit.Normal, "")
                 if ok:
                     self.client.send(dict(command="game_join", password=passw, uid=item.uid, gameport=self.client.gamePort))
@@ -342,12 +343,14 @@ class GamesWidget(FormClass, BaseClass):
             
                         if oneChecked == False :
                             QtGui.QMessageBox.warning(None, "No option checked !", "You have to check at least one option !")
-                            return 
+                            return
+                    mods = [str(moditem.text()) for moditem in hostgamewidget.modList.selectedItems()]
+                    modvault.setActiveMods([hostgamewidget.mods[modstr] for modstr in mods], True) #should be removed later as it should be managed by the server.
 #                #Send a message to the server with our intent.
-                    if self.ispassworded :
-                        self.client.send(dict(command="game_host", access="password", password = self.gamepassword, mod=item.mod, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort, options = gameoptions))
+                    if self.ispassworded:
+                        self.client.send(dict(command="game_host", access="password", password = self.gamepassword, mod=item.mod, mods=mods, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort, options = gameoptions))
                     else :
-                        self.client.send(dict(command="game_host", access="public", mod=item.mod, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort, options = gameoptions))
+                        self.client.send(dict(command="game_host", access="public", mod=item.mod, mods=mods, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort, options = gameoptions))
 #
 
     def savePassword(self, password):

@@ -14,19 +14,6 @@
    <string>Dialog</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
-   <item row="0" column="0">
-    <widget class="QLabel" name="label">
-     <property name="font">
-      <font>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Game Title</string>
-     </property>
-    </widget>
-   </item>
    <item row="1" column="0" colspan="3">
     <widget class="QLineEdit" name="titleEdit">
      <property name="font">
@@ -39,6 +26,58 @@
      </property>
      <property name="maxLength">
       <number>25</number>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1" colspan="2">
+    <widget class="QLineEdit" name="passEdit">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="text">
+      <string>password</string>
+     </property>
+     <property name="maxLength">
+      <number>25</number>
+     </property>
+     <property name="echoMode">
+      <enum>QLineEdit::PasswordEchoOnEdit</enum>
+     </property>
+     <property name="cursorPosition">
+      <number>8</number>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Lobby Preview</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="3" rowspan="2">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>6</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="2" column="1">
+    <widget class="QCheckBox" name="passCheck">
+     <property name="text">
+      <string>Password</string>
      </property>
     </widget>
    </item>
@@ -79,28 +118,18 @@
      </item>
     </layout>
    </item>
-   <item row="2" column="1">
-    <widget class="QCheckBox" name="passCheck">
-     <property name="text">
-      <string>Password</string>
+   <item row="7" column="0">
+    <widget class="QGroupBox" name="optionGroup">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="title">
+      <string>Options</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="3" rowspan="2">
-    <spacer name="horizontalSpacer">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>6</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="label_3">
+   <item row="0" column="0">
+    <widget class="QLabel" name="label">
      <property name="font">
       <font>
        <weight>75</weight>
@@ -108,26 +137,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Lobby Preview</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="1" colspan="2">
-    <widget class="QLineEdit" name="passEdit">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="text">
-      <string>password</string>
-     </property>
-     <property name="maxLength">
-      <number>25</number>
-     </property>
-     <property name="echoMode">
-      <enum>QLineEdit::PasswordEchoOnEdit</enum>
-     </property>
-     <property name="cursorPosition">
-      <number>8</number>
+      <string>Game Title</string>
      </property>
     </widget>
    </item>
@@ -214,16 +224,6 @@
    <item row="6" column="0">
     <widget class="QComboBox" name="mapList"/>
    </item>
-   <item row="7" column="0">
-    <widget class="QGroupBox" name="optionGroup">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="title">
-      <string>Options</string>
-     </property>
-    </widget>
-   </item>
    <item row="7" column="2">
     <widget class="QPushButton" name="hostButton">
      <property name="text">
@@ -231,38 +231,52 @@
      </property>
     </widget>
    </item>
-   <item row="8" column="0">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
+   <item row="8" column="0" colspan="3">
+    <widget class="QListWidget" name="modList">
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
      </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>231</height>
-      </size>
+     <property name="horizontalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOff</enum>
      </property>
-    </spacer>
+     <property name="editTriggers">
+      <set>QAbstractItemView::SelectedClicked</set>
+     </property>
+     <property name="showDropIndicator" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="dragDropMode">
+      <enum>QAbstractItemView::NoDragDrop</enum>
+     </property>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::MultiSelection</enum>
+     </property>
+     <property name="verticalScrollMode">
+      <enum>QAbstractItemView::ScrollPerPixel</enum>
+     </property>
+     <property name="horizontalScrollMode">
+      <enum>QAbstractItemView::ScrollPerPixel</enum>
+     </property>
+     <property name="movement">
+      <enum>QListView::Snap</enum>
+     </property>
+    </widget>
    </item>
   </layout>
   <zorder>label</zorder>
   <zorder>titleEdit</zorder>
   <zorder>passEdit</zorder>
-  <zorder>radioPublic</zorder>
-  <zorder>radioFriends</zorder>
-  <zorder>radioHidden</zorder>
   <zorder>passCheck</zorder>
   <zorder>mapList</zorder>
   <zorder>label_2</zorder>
   <zorder>label_3</zorder>
-  <zorder>gamePreview</zorder>
   <zorder>optionGroup</zorder>
-  <zorder>horizontalSpacer</zorder>
-  <zorder>gamePreview</zorder>
   <zorder>gamePreview</zorder>
   <zorder>horizontalSpacer</zorder>
-  <zorder>verticalSpacer</zorder>
   <zorder>hostButton</zorder>
+  <zorder>modList</zorder>
  </widget>
  <resources/>
  <connections>

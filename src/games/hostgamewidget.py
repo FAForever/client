@@ -18,14 +18,18 @@
 
 
 
-
+import os
 
 from PyQt4 import QtCore, QtGui
 from games.gameitem import GameItem, GameItemDelegate
+import modvault
 
 from fa import maps
 import util
 
+import logging
+logger = logging.getLogger("faf.hostgamewidget")
+logger.setLevel(logging.DEBUG)
 
 RANKED_SEARCH_EXPANSION_TIME = 10000 #milliseconds before search radius expands
 
@@ -37,7 +41,7 @@ FormClass, BaseClass = util.loadUiType("games/host.ui")
 
 class HostgameWidget(FormClass, BaseClass):
     def __init__(self, parent, item, *args, **kwargs):
-        BaseClass.__init__(self, *args, **kwargs)       
+        BaseClass.__init__(self, *args, **kwargs)
 
         self.setupUi(self)
         self.parent = parent
@@ -56,7 +60,6 @@ class HostgameWidget(FormClass, BaseClass):
                 checkBox.setChecked(True)
                 group_layout.addWidget(checkBox)
                 self.parent.options.append(checkBox)
-        
         
         self.setStyleSheet(self.parent.client.styleSheet())
         
@@ -101,11 +104,28 @@ class HostgameWidget(FormClass, BaseClass):
         if not icon:
             icon = util.icon("games/unknown_map.png", False, True)
 
+        self.mods = {}
+        #this makes it so you can select every non-ui_only mod
+        for mod in modvault.getInstalledMods(): #list of strings
+            d = modvault.getModfromName(mod)
+            if d == None or d["ui_only"]:
+                continue
+            self.mods[d['name']] = d
+            self.modList.addItem(d['name'])
+
+        names = [mod['name'] for mod in modvault.getActiveMods(uimods=False)]
+        logger.debug("Active Mods detected: %s" % str(names))
+        for name in names:
+            l = self.modList.findItems(name, QtCore.Qt.MatchExactly)
+            logger.debug("found item: %s" % l[0].text())
+            if l: l[0].setSelected(True)
+            
         #self.mapPreview.setPixmap(icon)
         
         self.mapList.currentIndexChanged.connect(self.mapChanged)
         self.hostButton.released.connect(self.hosting)
         self.titleEdit.textChanged.connect(self.updateText)
+        self.modList.itemClicked.connect(self.modclicked)
         
     def updateText(self, text):
         self.message['title'] = text
@@ -126,8 +146,11 @@ class HostgameWidget(FormClass, BaseClass):
         icon = maps.preview(self.parent.gamemap, True)
         if not icon:
             icon = util.icon("games/unknown_map.png", False, True)
-        #self.mapPreview.setPixmap(icon)        
+        #self.mapPreview.setPixmap(icon)
         self.message['mapname'] = self.parent.gamemap
         self.game.update(self.message, self.parent.client)
 
-
+    @QtCore.pyqtSlot(QtGui.QListWidgetItem)
+    def modclicked(self, item):
+        #item.setSelected(not item.isSelected())
+        logger.debug("mod %s clicked." % str(item.text()))

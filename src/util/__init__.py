@@ -74,6 +74,10 @@ LOG_FILE_REPLAY = os.path.join(LOG_DIR, 'replay.log')
 BIN_DIR = os.path.join(APPDATA_DIR , "bin")
 GAMEDATA_DIR = os.path.join(APPDATA_DIR , "gamedata")
 
+LOCALFOLDER = os.path.join(*os.path.split(os.path.expandvars("%APPDATA%"))[:-1])
+LOCALFOLDER = os.path.join(LOCALFOLDER, "Local","Gas Powered Games","Supreme Commander Forged Alliance")
+PREFSFILENAME = os.path.join(LOCALFOLDER, "game.prefs")
+
 DOWNLOADED_RES_PIX = {}
 DOWNLOADING_RES_PIX = {}
 
@@ -545,8 +549,15 @@ def uniqueID(user, session ):
         return None
         
 
+import datetime
+_dateDummy = datetime.datetime(2013,5,27)
 
-
+def strtodate(s):
+    return _dateDummy.strptime(s,"%Y-%m-%d %H:%M:%S")
+def datetostr(d):
+    return str(d)[:-7]
+def now():
+    return _dateDummy.now()
 
 
 
