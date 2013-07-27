@@ -83,15 +83,13 @@ d = datetostr(now())
 tempmod1 = dict(uid=1,name='Mod1', comments=[],bugreports=[], date = d,
                 ui=True, big=False,small=False, downloads=0, likes=0,
                 thumbnail="",author='johnie102',
-                description="""Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam egestas enim mi, sed sagittis augue posuere non. Phasellus pharetra tempor cursus. Quisque purus urna, ornare imperdiet magna et, accumsan rutrum turpis. Sed ac magna ullamcorper, facilisis nisi ac, cursus arcu. Donec cursus, diam eu iaculis lobortis, nunc leo tristique enim, nec lacinia quam dolor sed leo. Proin orci felis, tincidunt ut purus ac, sagittis convallis lectus. Vestibulum tincidunt pulvinar felis. Nunc sed ligula urna.
-
-Duis imperdiet felis eu commodo iaculis. Donec varius nisl viverra, iaculis erat quis, gravida ligula. Duis eleifend blandit blandit. Aliquam sit amet vehicula lectus, id scelerisque tellus. Nunc vitae augue et sapien tempus tempor. Vivamus convallis adipiscing auctor. Duis a neque ac felis ullamcorper hendrerit sit amet quis erat. Sed varius, nibh tempus posuere viverra, mi lacus imperdiet diam, ut commodo ante mi a lorem. Fusce quis dolor arcu. Maecenas imperdiet elementum pulvinar. Pellentesque pellentesque nibh sed pellentesque semper. Nullam hendrerit enim adipiscing erat pellentesque sollicitudin.""",)
+                description="""Lorem ipsum dolor sit amet, consectetur adipiscing elit. """,)
 '''
 def tempAddMods(self):
     mods = [getModfromName(modname) for modname in getInstalledMods()]
     for mod in mods:
         if mod :
-            info = dict(uid=mod['uid'],name=mod['name'],ui=mod['ui_only'],author=mod['author'],description=mod['description'],
+            info = dict(version=mod['version'],uid=mod['uid'],name=mod['name'],ui=mod['ui_only'],author=mod['author'],description=mod['description'],
                         comments=[],bugreports=[],date=d, big=False, small=False, downloads=0, likes=0,thumbnail="", link="")
             self.modInfo(info)
 
@@ -130,7 +128,7 @@ class ModVault(FormClass, BaseClass):
         self.mods = []
         self.installedMods = getInstalledMods()
 
-        tempAddMods(self)
+        #tempAddMods(self)
 
     @QtCore.pyqtSlot(dict)
     def modInfo(self, message): #this is called when the database has send a mod to us

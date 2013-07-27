@@ -49,7 +49,7 @@ class UploadModWidget(FormClass, BaseClass):
 
         self.Name.setText(modinfo["name"])
         self.Version.setText(str(modinfo["version"]))
-        self.UIOnly.setChecked(modinfo["ui_only"] == "true")
+        self.UIOnly.setChecked(modinfo["ui_only"])
         self.UID.setText(modinfo["uid"])
         self.Description.setPlainText(modinfo["description"])
         if modinfo["icon"] != "":
@@ -68,16 +68,12 @@ class UploadModWidget(FormClass, BaseClass):
             QtGui.QMessageBox.information(self.client,"Invalid Name",
                         "The mod name contains invalid characters: /\\<>|?:\"")
             return
-        if n in [m.name for  m in self.parent.mods]:
-            QtGui.QMessageBox.information(self.client,"Name in Use",
-                        "There is already a mod with this name")
-            return
-        if self.UID.text() in [m.uid for m in self.parent.mods]:
-            QtGui.QMessageBox.information(self.client,"UID in Use",
-                        "There is already a mod with this UID")
-            return
-        if not self.updateThumbnail():
-            return
+
+
+#        if not self.updateThumbnail():
+#            QtGui.QMessageBox.information(self.client,"No thumbnail",
+#                        "There is no thumbnail attached")
+#            return
 
         self.modinfo["name"] = n
         self.modinfo["uid"] = self.UID.text()
@@ -134,12 +130,11 @@ class UploadModWidget(FormClass, BaseClass):
             return
         qfile =QtCore.QFile(temp.name)
 
-        self.modinfo["big"] = (self.SizeType.getIndex() == 1)
-        self.modinfo["small"] = (self.SizeType.getIndex() == 2)
-        self.modinfo["date"] = datetostr(now())
+        self.modinfo["big"] = (self.SizeType.currentIndex() == 1)
+        self.modinfo["small"] = (self.SizeType.currentIndex() == 2)
         
         #The server should check again if there is already a mod with this name or UID.
-        self.client.writeToServer("UPLOAD_MOD", self.modinfo["name"] + ".zip", self.modinfo, qfile)
+        self.client.writeToServer("UPLOAD_MOD", self.modinfo["name"] +"." + ("%04d" %self.modinfo["version"]) + ".zip", self.modinfo, qfile)
         
     
     @QtCore.pyqtSlot()
