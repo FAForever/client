@@ -21,7 +21,7 @@ Modvault database documentation:
 command = "modvault"
 possible commands (value for the 'type' key):
     start: <no args> - given when the tab is opened. Signals that the server should send the possible mods.
-    addcomment: moduid=<uid of the mod the comment belongs to>, comment={"author","uid","date","text"} 
+    addcomment: moduid=<uid of the mod the comment belongs to>, comment={"or","uid","date","text"} 
     addbugreport: moduid=<uid of the mod the comment belongs to>, comment={"author","uid","date","text"}
     like: uid-<the uid of the mod that was liked>
 
@@ -85,14 +85,6 @@ tempmod1 = dict(uid=1,name='Mod1', comments=[],bugreports=[], date = d,
                 thumbnail="",author='johnie102',
                 description="""Lorem ipsum dolor sit amet, consectetur adipiscing elit. """,)
 '''
-def tempAddMods(self):
-    mods = [getModfromName(modname) for modname in getInstalledMods()]
-    for mod in mods:
-        if mod :
-            info = dict(version=mod['version'],uid=mod['uid'],name=mod['name'],ui=mod['ui_only'],author=mod['author'],description=mod['description'],
-                        comments=[],bugreports=[],date=d, big=False, small=False, downloads=0, likes=0,thumbnail="", link="")
-            self.modInfo(info)
-
 
 FormClass, BaseClass = util.loadUiType("modvault/modvault.ui")
 
@@ -201,7 +193,6 @@ class ModVault(FormClass, BaseClass):
                     else:
                         uploadmod = QtGui.QMessageBox.Yes
                     if uploadmod == QtGui.QMessageBox.Yes:
-                        modinfo["author"] = self.client.login
                         dialog = UploadModWidget(self, modDir, modinfo)
                         dialog.exec_()
             else :
