@@ -90,9 +90,10 @@ Duis imperdiet felis eu commodo iaculis. Donec varius nisl viverra, iaculis erat
 def tempAddMods(self):
     mods = [getModfromName(modname) for modname in getInstalledMods()]
     for mod in mods:
-        info = dict(uid=mod['uid'],name=mod['name'],ui=mod['ui_only'],author=mod['author'],description=mod['description'],
-                    comments=[],bugreports=[],date=d, big=False, small=False, downloads=0, likes=0,thumbnail="", link="")
-        self.modInfo(info)
+        if mod :
+            info = dict(uid=mod['uid'],name=mod['name'],ui=mod['ui_only'],author=mod['author'],description=mod['description'],
+                        comments=[],bugreports=[],date=d, big=False, small=False, downloads=0, likes=0,thumbnail="", link="")
+            self.modInfo(info)
 
 
 FormClass, BaseClass = util.loadUiType("modvault/modvault.ui")

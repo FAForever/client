@@ -81,7 +81,7 @@ def getModfromName(modname): # returns a dict with the relevant mod info
         return None
     f, info = r
     if f.error:
-        logger.debug("Error in parsing %s/mod_info.lua" % mod)
+        logger.debug("Error in parsing %s/mod_info.lua" % modname)
         return None
     modCache[modname] = info
     return info
