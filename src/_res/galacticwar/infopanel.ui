@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>659</width>
-    <height>486</height>
+    <width>821</width>
+    <height>627</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,19 +18,62 @@
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
    <item row="0" column="0" colspan="2">
-    <widget class="QLabel" name="nameLabel">
-     <property name="font">
-      <font>
-       <pointsize>15</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <item>
+      <widget class="QLabel" name="nameLabel">
+       <property name="font">
+        <font>
+         <pointsize>15</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="rankUpButton">
+       <property name="minimumSize">
+        <size>
+         <width>60</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>60</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>Ranking up allows your avatar to have access to new abilities and map intel !</string>
+       </property>
+       <property name="text">
+        <string>Rank up !</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item row="1" column="0">
     <layout class="QVBoxLayout" name="verticalLayout_2">
+     <item>
+      <widget class="QCheckBox" name="awayBox">
+       <property name="toolTip">
+        <string>When unchecked, the game won't throw you in a game.
+Be careful that if you are not available for playing when one of your attack is defended, you will lose it immediatly !</string>
+       </property>
+       <property name="text">
+        <string>Available for playing</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
@@ -132,6 +175,20 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="planetaryDefensesButton">
+       <property name="text">
+        <string>Buy planetary defenses</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="reinforcementButton">
+       <property name="text">
+        <string>Buy Reinforcements</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="verticalSpacer">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
@@ -150,10 +207,16 @@
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
       <widget class="QListWidget" name="attackListWidget">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>120</height>
+        </size>
+       </property>
        <property name="maximumSize">
         <size>
          <width>16777215</width>
-         <height>90</height>
+         <height>120</height>
         </size>
        </property>
       </widget>

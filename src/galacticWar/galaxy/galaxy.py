@@ -6,12 +6,12 @@ import math
 import copy
 
 class Galaxy(object):
-    def __init__(self):
-
+    def __init__(self, parent):
+        self.parent = parent
         self.space_size = QtGui.QVector3D(400, 200, 0)
 
-
-        self.numStars = 15000
+        self.COLOR_FACTIONS = self.parent.COLOR_FACTIONS
+        
 
         self.star_field = []
         self.control_points = {}
@@ -34,8 +34,11 @@ class Galaxy(object):
         self.finalPolys={}
 #        self.computeVoronoi()
 #        self.createNetwork()
-     
-     
+    
+    def updateAllSites(self):
+        for uid in self.control_points :
+            self.control_points[uid].computeColor()
+    
     def update(self, message):
         uid = message["uid"]
         if uid in self.control_points :
@@ -120,9 +123,10 @@ class Galaxy(object):
         return L+U
     
     def generate_star_field(self, minDepth, maxDepth):
-        for i in range(self.numStars) :
-            star = QtGui.QVector3D(random.randrange(-self.space_size.x()*5,self.space_size.y()*5), random.randrange(-self.space_size.x()*5,self.space_size.y()*5), random.randrange(float(-200*5), float(minDepth)))
-            
+        self.star_field = []
+        numStars = int(max(1, 15000 * (float(self.parent.stars) / 100.0)))
+        for _ in range(numStars) :
+            star = QtGui.QVector3D(random.randrange(-self.space_size.x()*2,self.space_size.x()*2), random.randrange(-self.space_size.y()*2,self.space_size.y()*2), random.randrange(float(-200*2), float(minDepth)))            
             self.star_field.append(star)
     
    
@@ -202,8 +206,12 @@ class Galaxy(object):
         site.pos3d.setX(site.x)
         site.pos3d.setY(site.y)
         
+    def updateDefenses(self, uid, message):
+        if uid in self.control_points :
+            self.control_points[uid].updateDefenses(message)
+        
     
-    def addPlanet(self, uid, name, desc, x, y, size, texture = 1, init = False):
+    def addPlanet(self, uid, name, desc, x, y, size, texture=1, mapname="", init=False):
         
         x = round(x)
         y = round(y)
@@ -217,7 +225,7 @@ class Galaxy(object):
             return
 
         
-        self.control_points[uid]=(Site(x, y, size = size, sitenum = uid, name=name, desc=desc, aeon = aeon, uef = uef, cybran = cybran, sera = sera, texture = texture))
+        self.control_points[uid]=(Site(parent=self, x=x, y=y, size = size, sitenum = uid, name=name, desc=desc, aeon = aeon, uef = uef, cybran = cybran, sera = sera, texture = texture, mapname=mapname))
         if not init :
             self.computeVoronoi()
      
@@ -392,9 +400,6 @@ class Galaxy(object):
         
 #        for point in aroundThisPoint :
 #            return 
-        
-        
-
 
     def computePolys(self):
 

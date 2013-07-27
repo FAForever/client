@@ -30,7 +30,7 @@
 
 from PyQt4 import QtCore, QtGui
 
-from galacticWar import FACTIONS, COLOR_FACTIONS
+from galacticWar import FACTIONS
 
 def usage():
     print """
@@ -701,8 +701,22 @@ class PriorityQueue(object):
         self.count -= 1
         return curr
 
+class defense(object):
+    ''' class object for defense buildings'''
+    def __init__(self, itemuid, parent=None):
+        self.uid = itemuid
+        self.amount = 0
+        self.description = ""
+        self.structure = ""
+        
+    def update(self, amount, description, structure):
+        self.amount = amount
+        self.description = description
+        self.structure = structure
+
 class Site(object):
-    def __init__(self, x=0.0, y=0.0, sitenum=0, name = '', desc = '', size = 1, aeon = 0, cybran = 0, uef = 0, sera = 0, texture = 1):
+    def __init__(self, x=0.0, y=0.0, parent=None, sitenum=0, name = '', desc = '', size = 1, aeon = 0, cybran = 0, uef = 0, sera = 0, texture = 1, mapname=""):
+        self.parent = parent
         self.x = x
         self.y = y
         self.sitenum = sitenum
@@ -720,6 +734,29 @@ class Site(object):
         
         self.color = QtGui.QColor(0,0,0)
 
+        self.mapname = mapname
+        
+        self.defenses = {}
+
+    def updateDefenses(self, message):
+        '''update this planet defenses list'''
+        itemuid = message["itemuid"]
+        description= message["description"]
+        structure= message["structure"]
+        amount= message["amount"]
+        
+        if amount == 0 and itemuid in self.defenses:
+            del self.defenses[itemuid]
+            return
+        
+        if not itemuid in self.defenses:
+            self.defenses[itemuid] = defense(itemuid, self)
+        
+        self.defenses[itemuid].update(amount, description, structure)
+        
+    def getDefenses(self):
+        return self.defenses
+
     def get_description(self):
         return self.description
         
@@ -727,9 +764,9 @@ class Site(object):
         return self.name
     
     def computeColor(self):
-        r = (COLOR_FACTIONS[0].redF() * self.uef + COLOR_FACTIONS[1].redF() * self.aeon + COLOR_FACTIONS[2].redF() * self.cybran + COLOR_FACTIONS[3].redF() * self.sera) 
-        g = (COLOR_FACTIONS[0].greenF() * self.uef + COLOR_FACTIONS[1].greenF() * self.aeon + COLOR_FACTIONS[2].greenF()* self.cybran + COLOR_FACTIONS[3].greenF()* self.sera)
-        b = (COLOR_FACTIONS[0].blueF() * self.uef + COLOR_FACTIONS[1].blueF() * self.aeon + COLOR_FACTIONS[2].blueF() * self.cybran+ COLOR_FACTIONS[3].blueF()* self.sera)
+        r = (self.parent.COLOR_FACTIONS[0].redF() * self.uef + self.parent.COLOR_FACTIONS[1].redF() * self.aeon + self.parent.COLOR_FACTIONS[2].redF() * self.cybran + self.parent.COLOR_FACTIONS[3].redF() * self.sera) 
+        g = (self.parent.COLOR_FACTIONS[0].greenF() * self.uef + self.parent.COLOR_FACTIONS[1].greenF() * self.aeon + self.parent.COLOR_FACTIONS[2].greenF()* self.cybran + self.parent.COLOR_FACTIONS[3].greenF()* self.sera)
+        b = (self.parent.COLOR_FACTIONS[0].blueF() * self.uef + self.parent.COLOR_FACTIONS[1].blueF() * self.aeon + self.parent.COLOR_FACTIONS[2].blueF() * self.cybran+ self.parent.COLOR_FACTIONS[3].blueF()* self.sera)
         
         if r > 1 or g > 1 or b > 1 :
             vectorRGB = QtGui.QVector3D(r,b,g)

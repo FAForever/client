@@ -30,6 +30,11 @@ import time
 import client
 import json
 
+
+LIVEREPLAY_DELAY = 5 #livereplay delay in minutes
+LIVEREPLAY_DELAY_TIME = LIVEREPLAY_DELAY * 60 #livereplay delay for time() (in seconds)
+LIVEREPLAY_DELAY_QTIMER = LIVEREPLAY_DELAY * 60000 #livereplay delay for Qtimer (in milliseconds)
+
 from replays.replayitem import ReplayItem, ReplayItemDelegate
 
 # Replays uses the new Inheritance Based UI creation pattern
@@ -267,21 +272,32 @@ class ReplaysWidget(BaseClass, FormClass):
             for replay in buckets[bucket]:
                 bucket_item.addChild(replay)
 
-            
+
+    def displayReplay(self):
+        for uid in self.games :
+            item = self.games[uid]
+            if time.time() - item.info['game_time'] > LIVEREPLAY_DELAY_TIME and item.isHidden():
+                item.setHidden(False)
+
     @QtCore.pyqtSlot(dict)
     def processGameInfo(self, info):
         if info['state'] == "playing":
             if info['uid'] in self.games:
                 # Updating an existing item
                 item = self.games[info['uid']]
+                
                 item.takeChildren()  #Clear the children of this item before we're updating it
             else:
                 # Creating a fresh item
                 item = QtGui.QTreeWidgetItem()
                 self.games[info['uid']] = item
+                
                 self.liveTree.insertTopLevelItem(0, item)
-            
-            
+                
+                if time.time() - info["game_time"] < LIVEREPLAY_DELAY_TIME  :
+                    item.setHidden(True)
+                    QtCore.QTimer.singleShot(LIVEREPLAY_DELAY_QTIMER, self.displayReplay) #The delay is there because we have a delay in the livereplay server
+
             # For debugging purposes, format our tooltip for the top level items
             # so it contains a human-readable representation of the info dictionary
             item.info = info

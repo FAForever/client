@@ -61,6 +61,16 @@ QTabWidget#topTabs > QTabBar::tab:selected
 	background-repeat: no-repeat;
 }
 
+ QGroupBox
+ {
+	color:silver;
+ }
+
+ QCheckBox
+ {
+	color:silver;
+ }
+
  QLabel
  {
 	color:silver;

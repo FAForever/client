@@ -8,14 +8,17 @@ logger = logging.getLogger("faf.galacticWar")
 logger.setLevel(logging.DEBUG)
 from OpenGL import GL
 from OpenGL import GLU
+from fa import maps
+import fa
 
-
-from galacticWar import FACTIONS, COLOR_FACTIONS
+from galacticWar import FACTIONS, RANKS
 
 import math
 import random
 import os
+import util
 from util import GW_TEXTURE_DIR
+import pickle
 
 class GLWidget(QtOpenGL.QGLWidget):
     xRotationChanged = QtCore.pyqtSignal(int)
@@ -25,11 +28,18 @@ class GLWidget(QtOpenGL.QGLWidget):
     UPDATE_ROTATION = 22
 
     def __init__(self, parent=None):
-        super(GLWidget, self).__init__(QtOpenGL.QGLFormat(QtOpenGL.QGL.SampleBuffers), parent)
-
+        print parent.AA
+        if parent.AA:
+            super(GLWidget, self).__init__(QtOpenGL.QGLFormat(QtOpenGL.QGL.SampleBuffers), parent)
+        else:
+            super(GLWidget, self).__init__(parent)
+        
         self.parent = parent
         self.setMinimumWidth((self.parent.width()/100)*70)
         self.galaxy = self.parent.galaxy
+            
+        
+        self.COLOR_FACTIONS = self.parent.COLOR_FACTIONS
 
         self.ctrl       = False
         self.shift      = False
@@ -53,6 +63,8 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.links      = None
         self.numPlanets = len(self.galaxy.star_field)
 
+        self.galaxyStarsFront      = None
+        self.galaxyStarsBack      = None
         
         self.curZone        = None
         self.overlayPlanet  = False
@@ -66,7 +78,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         
         self.zooming = False
         
-        self.galaxy.generate_star_field(self.zoomMin, self.backgroundDepth)
+        self.starField()
 
         
         
@@ -98,9 +110,13 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.setMouseTracking(1)
         self.setAutoFillBackground(False)
         
-
-    def rotateOneStep(self, update = True):
+        self.setAcceptDrops(True)
+    
+    def starField(self):
+        self.galaxy.generate_star_field(self.zoomMin, -self.zoomMin)
         
+
+    def rotateOneStep(self, update = True): 
         if not update :
             self.yRot = self.yRot + math.radians(self.UPDATE_ROTATION*0.04)
         else :
@@ -256,8 +272,8 @@ class GLWidget(QtOpenGL.QGLWidget):
 
         self.drawLinks()
         self.createCamera(init=True)
-        
-        self.timerRotate.start(self.UPDATE_ROTATION)
+        if self.parent.rotation:
+            self.timerRotate.start(self.UPDATE_ROTATION)
 
     def drawGalaxy(self):
         ## BACKGROUND
@@ -293,6 +309,13 @@ class GLWidget(QtOpenGL.QGLWidget):
     
     def drawStars(self, side):
         ## STARS
+       
+        if side == 0:
+            if self.galaxyStarsFront :
+                GL.glDeleteLists(self.galaxyStarsFront, 1)
+        else:
+            if self.galaxyStarsBack :
+                GL.glDeleteLists(self.galaxyStarsBack, 1)
         
         genList = GL.glGenLists(1)
         GL.glNewList(genList, GL.GL_COMPILE)
@@ -377,7 +400,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.zones = self.createZones()
     
     def planetsUnderAttack(self):
-        if not hasattr(self, "underAttack") :
+        if not hasattr(self, "underAttack"):
             return
        
         if self.underAttack :
@@ -394,7 +417,10 @@ class GLWidget(QtOpenGL.QGLWidget):
                 
                 if uid in self.galaxy.control_points :
                     
-                    color  = COLOR_FACTIONS[int(self.parent.attacks[useruid][planetuid]["faction"])]
+                    if self.parent.attacks[useruid][planetuid]["onHold"] == True :
+                        color = QtGui.QColor(255,255,255)
+                    else :
+                        color = self.COLOR_FACTIONS[int(self.parent.attacks[useruid][planetuid]["faction"])]
                     self.programSwirl.bind()
                     
                     if self.parent.attacks[useruid][planetuid]["defended"] :
@@ -520,7 +546,8 @@ class GLWidget(QtOpenGL.QGLWidget):
         
     
     def paintEvent(self, event):
-
+        if fa.exe.running():
+            return
         self.makeCurrent()
         GL.glEnable(GL.GL_DEPTH_TEST)
         GL.glDepthFunc(GL.GL_LEQUAL)
@@ -652,7 +679,8 @@ class GLWidget(QtOpenGL.QGLWidget):
         
             if pos[0] < 0 or pos[1] < 0 or pos[0] > self.width() or pos[1] > self.height() :
                 continue
-        
+
+       
             painter.save()
             text = "<font color='silver'>%s</font>" % (self.galaxy.get_name(site))
             
@@ -684,8 +712,10 @@ class GLWidget(QtOpenGL.QGLWidget):
             pos = self.computeWorldPosition(x, y)
 
             planet = self.galaxy.control_points[site]
-            
-            
+
+
+            icon = maps.preview(planet.mapname)
+
             text = "<font color='silver'><h2>%s</h2><table width='%i'><tr><td><p align='justify'><font color='silver' size='7pt'>%s</font</p></tr></td></table><font color='silver'><h4>Occupation:</h4></font><ul>" % (self.galaxy.get_name(site), width-5, self.galaxy.get_description(site))
             
             
@@ -695,9 +725,9 @@ class GLWidget(QtOpenGL.QGLWidget):
                 if occupation != 0 :
                     occupation = occupation*100
                     if abs(occupation-round(occupation)) < 0.01 :
-                        text += "<li><font color='%s'>%s</font><font color='silver'> : %i &#37;</font></li>" % (COLOR_FACTIONS[i].name(), FACTIONS[i], int(occupation))
+                        text += "<li><font color='%s'>%s</font><font color='silver'> : %i &#37;</font></li>" % (self.COLOR_FACTIONS[i].name(), FACTIONS[i], int(occupation))
                     else :
-                        text += "<li><font color='%s'>%s</font><font color='silver'> : %.1f &#37;</font></li>" % (COLOR_FACTIONS[i].name(), FACTIONS[i], occupation)
+                        text += "<li><font color='%s'>%s</font><font color='silver'> : %.1f &#37;</font></li>" % (self.COLOR_FACTIONS[i].name(), FACTIONS[i], occupation)
 
                     
             text += "</ul>"
@@ -706,24 +736,82 @@ class GLWidget(QtOpenGL.QGLWidget):
                 for planetuid in self.parent.attacks[useruid] :
                     uid = int(planetuid)
                     if uid == site :
-                        text += "<font color='red'><h2>Under %s Attack!</font></h2>" % (FACTIONS[int(self.parent.attacks[useruid][planetuid]["faction"])])
-                        if self.parent.attacks[useruid][planetuid]["defended"] :
-                            text += "<font color='green'><h2>And currently defended!</font></h2>"
+                        if self.parent.attacks[useruid][planetuid]["onHold"] == True :
+                            text += "<font color='silver'><h2>Attack on hold.</font></h2>"
+                        else :
+                            faction = int(self.parent.attacks[useruid][planetuid]["faction"])
+                            text += "<font color='red'><h2>Under %s Attack !</font></h2>" % (FACTIONS[faction])
+                            
+                            # Handling additional infos about attackers
+                            if len(self.parent.attacks[useruid][planetuid]["attackers"]) > 0 :
+                                text += "<font color='red'>Attackers :</font><br>"
+                                names = []
+                                for player in self.parent.attacks[useruid][planetuid]["attackers"] :
+                                    rank = int(player[0])
+                                    if player[1] != "Unknown" :
+                                        name = "<font color='red'>%s(%i) %s</font>" % (RANKS[faction][rank], rank+1, player[1])
+                                    else :
+                                        name = "<font color='red'>%s(%i)</font>" % (RANKS[faction][rank], rank+1)
+                                    names.append(name)
+                                
+                                
+                                text += "<br>".join(names)
+                            
+                            
+                            if self.parent.attacks[useruid][planetuid]["defended"] :
+                                text += "<font color='green'><h2>Planet is currently defended!</font></h2>"
             
             painter.save()
             html = QtGui.QTextDocument()
             html.setHtml(text)
             html.setTextWidth(width)
             height = html.size().height() + 10
+            width = html.size().width()
+            #QtCore.Qrect(height, height+icon.)
+            
 
 
             painter.setPen(QtCore.Qt.white)
+
+            posx = pos[0]+20
+            posy = pos[1]+20
             
-            painter.translate(pos[0]+20, pos[1]+20)
-            painter.fillRect(QtCore.QRect(0, 0, width+5, height), QtGui.QColor(36, 61, 75, 150))
+            if (posy + height+100) > self.height() :
+                posy = self.height() - (height + 100)
+
+            if (posx + width) > self.width() :
+                posx = self.width() - width - 20
+
+            mapSize = 100
+            painter.translate(posx, posy)
+            painter.fillRect(QtCore.QRect(0, 0, width+5, height+mapSize), QtGui.QColor(36, 61, 75, 150))
             clip = QtCore.QRectF(0, 0, width, height)
             html.drawContents(painter, clip)
+            if icon :
+                painter.translate(0, height)
+                icon.paint(painter, QtCore.QRect(0, 0, mapSize, mapSize), QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
 
+             
+            startItems = mapSize + 5
+            painter.translate(startItems, 0)
+            defenses = planet.getDefenses()
+            itemsWidth = 0
+            itemSize = 35
+            for uid in defenses :
+                item = defenses[uid]
+                amount = item.amount
+                structure = item.structure
+                iconName = "%s_icon.png" % structure
+                
+                iconStructure = util.iconUnit(iconName)
+                iconStructure.paint(painter, QtCore.QRect(0, 0, itemSize, itemSize), QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
+                painter.drawText(QtCore.QPoint(itemSize-5,itemSize-5), "%iX" % amount)
+                itemsWidth = itemsWidth + itemSize
+                
+                if itemsWidth + itemSize + startItems > width:
+                    painter.translate(-itemsWidth, itemSize)
+                painter.translate(itemSize, 0)
+                
             painter.restore()
             
     
@@ -826,7 +914,8 @@ class GLWidget(QtOpenGL.QGLWidget):
             self._numScheduledScalings = self._numScheduledScalings - 1
         else :
             self._numScheduledScalings = self._numScheduledScalings + 1
-        self.timerRotate.start(self.UPDATE_ROTATION)
+        if self.parent.rotation:
+            self.timerRotate.start(self.UPDATE_ROTATION)
 
     
     def moveBoundaries(self):
@@ -847,6 +936,56 @@ class GLWidget(QtOpenGL.QGLWidget):
             self.cameraPos.setY(self.boundMove.y())
         elif self.cameraPos.y() < -self.boundMove.y() :
             self.cameraPos.setY(-self.boundMove.y())        
+    
+    
+    def dropEvent(self, event):
+        data = event.mimeData()
+        bstream = data.retrieveData("application/x-building-reinforcement", QtCore.QVariant.ByteArray)
+        selected = int(pickle.loads(bstream))
+        
+        if self.curZone :
+            site = self.curZone[0]
+            planet = self.galaxy.control_points[site]
+        
+            if selected in self.parent.planetaryItems.planetaryReinforcements:
+                item = self.parent.planetaryItems.planetaryReinforcements[selected]
+            
+                question = QtGui.QMessageBox.question(self,"Defense system", "Build %s on %s ?" % (item.description, planet.name), QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+                if question == QtGui.QMessageBox.Yes :
+                    self.parent.send(dict(command="buy_building", planetuid=site, uid=item.uid))        
+
+        
+        
+        event.accept()
+        
+    def dragEnterEvent(self, event) :
+        if event.mimeData().hasFormat("application/x-building-reinforcement"):
+            event.accept()
+        else:
+            event.ignore()
+        
+    def dragMoveEvent(self, event):
+        if event.mimeData().hasFormat("application/x-building-reinforcement"):
+            event.setDropAction(QtCore.Qt.MoveAction)
+
+            x = event.pos().x()
+            y = event.pos().y()
+            if self.mouseMode == 0 :
+                self.computeZoomPosition(x, y)
+            
+            pos3d = self.computeCursorPosition(x,y, True)
+            if not self.overlayPlanet :
+                self.curZone = self.galaxy.closestSite(pos3d.x(), pos3d.y())
+                if self.curZone : 
+                    self.selection = self.createPlanetOverlay()            
+            
+            event.accept()
+        else:
+            event.ignore()
+ 
+
+                        
+
     
     def keyPressEvent(self, event):
 
@@ -880,7 +1019,8 @@ class GLWidget(QtOpenGL.QGLWidget):
 
         elif  event.buttons() & QtCore.Qt.MiddleButton :
             self.animCam.stop()
-            self.timerRotate.start(self.UPDATE_ROTATION)
+            if self.parent.rotation:
+                self.timerRotate.start(self.UPDATE_ROTATION)
             
             x = event.x()
             y = event.y()
@@ -995,6 +1135,9 @@ class GLWidget(QtOpenGL.QGLWidget):
             self.curZone = self.galaxy.closestSite(pos3d.x(), pos3d.y())
             if self.curZone : 
                 self.selection = self.createPlanetOverlay()
+        
+        if not self.parent.rotation:
+            self.update()
       
     def attackable(self):
         faction = self.parent.faction
@@ -1054,7 +1197,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         GL.glNewList(genList, GL.GL_COMPILE)
         
         bevel = 0.1
-        opacity = 0.1
+        opacity = float(self.parent.mapTransparency) / 100.0
         extrude = -7
         origin  = -5
         polyBorders = {}
@@ -1163,12 +1306,12 @@ class GLWidget(QtOpenGL.QGLWidget):
                 GL.glVertex3f(line[0] - vectorOffset.x(), line[1] - vectorOffset.y(), origin)
             GL.glEnd( )         
 
-        GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (.5,.5,.6, .5))
+        GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (.0,.0,.0, 0.0))
         GL.glBegin(GL.GL_POLYGON)
-        GL.glVertex3f(self.galaxy.space_size.x()+50, -self.galaxy.space_size.y()-50, extrude)
-        GL.glVertex3f(self.galaxy.space_size.x()+50, self.galaxy.space_size.y()+50, extrude)
-        GL.glVertex3f(-self.galaxy.space_size.x()-50, self.galaxy.space_size.y()+50, extrude)
-        GL.glVertex3f(-self.galaxy.space_size.x()-50, -self.galaxy.space_size.y()-50, extrude)
+        GL.glVertex3f(self.galaxy.space_size.x()+5000, -self.galaxy.space_size.y()-5000, extrude)
+        GL.glVertex3f(self.galaxy.space_size.x()+5000, self.galaxy.space_size.y()+5000, extrude)
+        GL.glVertex3f(-self.galaxy.space_size.x()-5000, self.galaxy.space_size.y()+5000, extrude)
+        GL.glVertex3f(-self.galaxy.space_size.x()-5000, -self.galaxy.space_size.y()-5000, extrude)
         GL.glEnd( )
 
 

@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2012 Gael Honorez.
+# Copyright (c) 2013 Gael Honorez.
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the GNU Public License v3.0
 # which accompanies this distribution, and is available at
@@ -22,9 +22,14 @@ from galaxy import Galaxy
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
 
 from client import ClientState
+from options import GWOptions
 from gwchannel import gwChannel
 import util
+import util.slpp
 import fa
+
+import zipfile
+import StringIO
 
 from util import GW_TEXTURE_DIR
 import json
@@ -36,15 +41,18 @@ import loginwizards
 FormClass, BaseClass = util.loadUiType("galacticwar/galacticwar.ui")
 
 class LobbyWidget(FormClass, BaseClass):
-    planetClicked           = QtCore.pyqtSignal(int)
-    hovering                = QtCore.pyqtSignal()
-    creditsUpdated          = QtCore.pyqtSignal(int)
-    rankUpdated             = QtCore.pyqtSignal(int)
-    creditsUpdated          = QtCore.pyqtSignal(int)
-    victoriesUpdated        = QtCore.pyqtSignal(int)
-    attacksUpdated          = QtCore.pyqtSignal()
-    planetUpdated           = QtCore.pyqtSignal()
-    attackProposalUpdated   = QtCore.pyqtSignal(int)
+    planetClicked                   = QtCore.pyqtSignal(int)
+    hovering                        = QtCore.pyqtSignal()
+    creditsUpdated                  = QtCore.pyqtSignal(int)
+    rankUpdated                     = QtCore.pyqtSignal(int)
+    creditsUpdated                  = QtCore.pyqtSignal(int)
+    victoriesUpdated                = QtCore.pyqtSignal(int)
+    attacksUpdated                  = QtCore.pyqtSignal()
+    planetUpdated                   = QtCore.pyqtSignal()
+    attackProposalUpdated           = QtCore.pyqtSignal(int)
+    ReinforcementUpdated            = QtCore.pyqtSignal(dict)
+    planetaryDefenseUpdated         = QtCore.pyqtSignal(dict)
+    ReinforcementsGroupUpdated      = QtCore.pyqtSignal(dict)
 
     def __init__(self, client, *args, **kwargs):
         logger.debug("Lobby instantiating.")
@@ -54,7 +62,17 @@ class LobbyWidget(FormClass, BaseClass):
         
         
         self.client = client
-        #self.client.galacticwarTab.setStyleSheet(util.readstylesheet("galacticwar/galacticwar.css"))        
+        #self.client.galacticwarTab.setStyleSheet(util.readstylesheet("galacticwar/galacticwar.css"))
+        
+        self.COLOR_FACTIONS = {}
+        self.mapTransparency = 10
+        self.AA = True
+        self.rotation = True
+        self.stars = 25
+        
+        self.GWOptions = GWOptions(self)
+        self.GWOptions.loadSettings()                     
+                
         self.client.galacticwarTab.layout().addWidget(self)
    
         self.downloader     = QNetworkAccessManager(self)
@@ -64,12 +82,13 @@ class LobbyWidget(FormClass, BaseClass):
         self.texturelist    =   {}        
         self.shaders    =   {}
         
+        
+        
         self.infoPanel  = None
         self.OGLdisplay = None
         
-        self.galaxy     = Galaxy()
+        self.galaxy     = Galaxy(self)
         self.channel    = None
-        self.scroller = QtGui.QLabel(self)
         
         self.initDone   = False
         
@@ -97,15 +116,15 @@ class LobbyWidget(FormClass, BaseClass):
         self.progress.setMinimum(0)
         self.progress.setMaximum(0)
 
-        
 #    def focusEvent(self, event):
 #        return BaseClass.focusEvent(self, event)
     
     def showEvent(self, event):
         if self.state != ClientState.ACCEPTED :
-            if self.doConnect() :
+            fa.exe.check("gw")
+            if self.doConnect():
                 logger.info("connection not done")
-                self.doLogin()                    
+                self.doLogin()                   
         
         else :
             if not self.initDone :
@@ -117,7 +136,12 @@ class LobbyWidget(FormClass, BaseClass):
                     self.doLogin()
 
         return BaseClass.showEvent(self, event)
-
+    
+    def updateOptions(self):
+        ''' settings galactic wars options'''
+        self.GWOptions.show()
+        
+    
     def createChannel(self, chat, name):
         self.channel = gwChannel(chat, name, True)        
 
@@ -136,7 +160,7 @@ class LobbyWidget(FormClass, BaseClass):
         if root in self.texturelist :
             del self.texturelist[root]
             
-        if len(self.texturelist) == 0 :
+        if len(self.texturelist) == 0:
             self.setup()
             self.progress.close()
 
@@ -160,7 +184,6 @@ class LobbyWidget(FormClass, BaseClass):
             self.state = ClientState.NONE
 
             # Begin connecting.        
-            self.socket.setSocketOption(QtNetwork.QTcpSocket.KeepAliveOption, 1)
             self.socket.connectToHost(LOBBY_HOST, LOBBY_PORT)
             
             
@@ -212,6 +235,8 @@ class LobbyWidget(FormClass, BaseClass):
         if self.state == ClientState.ACCEPTED:
             logger.info("Gating accepted.")
             self.progress.close()
+            self.client.actionGalacticWar.triggered.connect(self.updateOptions)
+            self.client.actionGalacticWar.setEnabled(True)
             return True   
             #self.connected.emit()            
           
@@ -228,14 +253,23 @@ class LobbyWidget(FormClass, BaseClass):
         self.galaxy.computeVoronoi()
         from glDisplay import GLWidget
         from infopanel import InfoPanelWidget
+        from newsTicker import NewsTicker
+        from reinforcements import PlanetaryWidget
+        from reinforcements import ReinforcementWidget
+
+        #items panels 
+        self.planetaryItems = PlanetaryWidget(self)
+        self.reinforcementItems = ReinforcementWidget(self)
         self.OGLdisplay = GLWidget(self)
+        self.newsTicker = NewsTicker(self)
         self.galaxyLayout.addWidget(self.OGLdisplay)
-        self.galaxyLayout.addWidget(self.scroller)
-        self.scroller.setMaximumHeight(20)
+        self.galaxyLayout.addWidget(self.newsTicker)
+        self.newsTicker.setMaximumHeight(20)
+        self.newsTicker.updateText()
         self.infoPanel = InfoPanelWidget(self)
         self.info_Panel.layout().addWidget(self.infoPanel)
 
-        self.send(dict(command = "init_done", status = True))
+        self.send(dict(command = "init_done", status=True))
                 
     def get_rank(self, faction, rank):
         return RANKS[faction][rank]
@@ -243,6 +277,18 @@ class LobbyWidget(FormClass, BaseClass):
 
     def handle_welcome(self, message):
         self.state = ClientState.ACCEPTED
+
+    def handle_planetary_defense_info(self, message):
+        '''populate planetary defense lists'''
+        self.planetaryDefenseUpdated.emit(message)
+            
+    def handle_group_reinforcements_info(self, message):
+        '''populate current group reinforcements '''
+        self.ReinforcementsGroupUpdated.emit(message)            
+    
+    def handle_reinforcement_item_info(self, message):
+        '''populate reinforcement lists'''
+        self.ReinforcementUpdated.emit(message)
 
     def handle_resource_required(self, message):
         if message["action"] == "shaders" :
@@ -305,6 +351,10 @@ class LobbyWidget(FormClass, BaseClass):
             self.download_textures()
     
     
+    def handle_news_feed(self, message):
+        '''Adding news to news feed'''
+        self.newsTicker.addNews(message["news"])
+    
     def handle_player_info(self, message):
         ''' Update Player stats '''
         
@@ -320,7 +370,26 @@ class LobbyWidget(FormClass, BaseClass):
         self.rankUpdated.emit(self.rank)
         self.creditsUpdated.emit(self.credits)
         self.victoriesUpdated.emit(self.victories)
-        
+    
+       
+    def handle_game_upgrades(self, message):
+        '''writing reinforcement list'''
+        upgrades = message["upgrades"]
+        destination = os.path.join(util.APPDATA_DIR, "gamedata", "gwReinforcementList.gw")
+        gwFile = QtCore.QFile(destination)
+        gwFile.open(QtCore.QIODevice.WriteOnly)
+        lua = util.slpp.SLPP()
+        s = StringIO.StringIO()  
+        z = zipfile.ZipFile(s, 'w')  
+        z.writestr('lua/gwReinforcementList.lua', str(lua.encodeReinforcements(upgrades))) 
+        z.close()
+        gwFile.write(s.getvalue())
+        gwFile.close()
+        s.close()
+    
+        # and we empty the unit reinforcement list
+        self.reinforcementItems.reset()
+    
     def handle_attack_result(self, message):
         self.progress.close()
         result = message["result"]
@@ -345,12 +414,13 @@ class LobbyWidget(FormClass, BaseClass):
             for planetuid in attacks[playeruid] :
                 planetuid_int = int(planetuid)
                 self.attacks[playeruid_int][planetuid_int] = attacks[playeruid][planetuid]
-
-
-
         self.attacksUpdated.emit()
-        
-    
+
+    def handle_planet_defense_info(self, message):
+        '''handling defenses for planets'''
+        planetuid = message["planetuid"]
+        self.galaxy.updateDefenses(planetuid, message)
+
     def handle_planet_info(self, message):
         logger.debug("updating planet infos")
         uid = message['uid'] 
@@ -362,11 +432,13 @@ class LobbyWidget(FormClass, BaseClass):
             textureMd5  = message['md5tex']
             name        = message['name']
             desc        = message['desc']
+            mapname     = message['mapname']
+            
             
             if not texture in self.texturelist :
                 self.texturelist[texture] = textureMd5 
             
-            self.galaxy.addPlanet(uid, name, desc, x, y, size, texture = texture, init=True) 
+            self.galaxy.addPlanet(uid, name, desc, x, y, size, mapname=mapname,texture = texture, init=True) 
             self.galaxy.update(message)
             
             if not uid in self.galaxy.links :
@@ -428,6 +500,7 @@ class LobbyWidget(FormClass, BaseClass):
         if state == "on" :
             text = message["text"]
             self.progress.show()
+            self.progress.setCancelButton(None)
             self.progress.setLabelText(text)
         else :
             self.progress.hide()
@@ -562,4 +635,3 @@ class LobbyWidget(FormClass, BaseClass):
         logger.error("TCP Socket Error: " + self.socket.errorString())
         if self.state > ClientState.NONE:   # Positive client states deserve user notification.
             QtGui.QMessageBox.critical(None, "TCP Error", "A TCP Connection Error has occurred:<br/><br/><b>" + self.socket.errorString()+"</b>", QtGui.QMessageBox.Close)        
-    
