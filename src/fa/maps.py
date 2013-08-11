@@ -307,6 +307,8 @@ def __exportPreviewFromMap(mapname, positions=None):
     '''
     This method auto-upgrades the maps to have small and large preview images
     '''
+    if mapname == "" or mapname == None:
+        return
     smallExists = False
     largeExists = False
     ddsExists = False

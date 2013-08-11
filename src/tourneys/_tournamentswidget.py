@@ -201,7 +201,7 @@ class TournamentsWidget(FormClass, BaseClass):
 
     def handleServerError(self, socketError):
         if socketError == QtNetwork.QAbstractSocket.RemoteHostClosedError:
-            logger.info("FA Server down: The server is down for maintenance, please try later.")
+            logger.info("Tournament Server down: The server is down for maintenance, please try later.")
 
         elif socketError == QtNetwork.QAbstractSocket.HostNotFoundError:
             logger.info("Connection to Host lost. Please check the host name and port settings.")
