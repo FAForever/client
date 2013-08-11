@@ -269,7 +269,3 @@ slpp = SLPP()
 
 
 __all__ = ['slpp']
-
-
-struct = {"transportedUnits": [{"playerName": "Zane Patience", "delay": 678, "unitNames": ["XEL0305", "UEL0101", "UEL0304", "UEL0303", "UEL0303", "UEL0303", "UEL0303"]}, {"playerName": "Llyneli Eledhan", "delay": 107, "unitNames": ["UAL0304"]}, {"playerName": "Llyneli Eledhan", "delay": 535, "unitNames": ["UAL0303", "UAL0303", "UAL0303", "UAL0303"]}, {"playerName": "Llyneli Eledhan", "delay": 607, "unitNames": ["UAL0201", "UAL0101"]}, {"playerName": "Llyneli Eledhan", "delay": 821, "unitNames": ["UAL0304", "UAL0304"]}], "initialStructure": [], "initialUnitWarp": [], "periodicUnitWarp": [], "builtByEngineerStructure": []}
-print slpp.encodeReinforcements(struct)

@@ -53,6 +53,7 @@ class LobbyWidget(FormClass, BaseClass):
     ReinforcementUpdated            = QtCore.pyqtSignal(dict)
     planetaryDefenseUpdated         = QtCore.pyqtSignal(dict)
     ReinforcementsGroupUpdated      = QtCore.pyqtSignal(dict)
+    dominationUpdated               = QtCore.pyqtSignal(int)
 
     def __init__(self, client, *args, **kwargs):
         logger.debug("Lobby instantiating.")
@@ -98,6 +99,7 @@ class LobbyWidget(FormClass, BaseClass):
         self.rank       = None
         self.credits    = 0
         self.victories  = 0
+        self.enslavedBy = None
    
         self.attacks = {}
    
@@ -390,6 +392,11 @@ class LobbyWidget(FormClass, BaseClass):
         # and we empty the unit reinforcement list
         self.reinforcementItems.reset()
     
+    def handle_domination(self, message):
+        master = message["master"]
+        self.enslavedBy = master
+        self.dominationUpdated.emit(master)
+    
     def handle_attack_result(self, message):
         self.progress.close()
         result = message["result"]
@@ -563,10 +570,10 @@ class LobbyWidget(FormClass, BaseClass):
     @QtCore.pyqtSlot()
     def disconnectedFromServer(self):
         logger.warn("Disconnected from lobby server.")
-
+        
         if self.state == ClientState.ACCEPTED:
             QtGui.QMessageBox.warning(QtGui.QApplication.activeWindow(), "Disconnected from Galactic War", "The lobby lost the connection to the Galactic War server.<br/><b>You might still be able to chat.<br/>To play, try reconnecting a little later!</b>", QtGui.QMessageBox.Close)
-                            
+            self.initDone   = True
             self.client.mainTabs.setCurrentIndex(0)
 
             self.client.mainTabs.setTabEnabled(self.client.mainTabs.indexOf(self.client.galacticwarTab  ), False)

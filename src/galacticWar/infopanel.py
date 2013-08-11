@@ -23,6 +23,8 @@ from galacticWar import logger
 from attackitem import AttackItem
 import time
 
+from galacticWar import FACTIONS
+
 FormClass, BaseClass = util.loadUiType("galacticwar/infopanel.ui")
 
 class InfoPanelWidget(FormClass, BaseClass):
@@ -47,6 +49,7 @@ class InfoPanelWidget(FormClass, BaseClass):
         self.parent.creditsUpdated.connect(self.updateCredit)
         self.parent.rankUpdated.connect(self.updateRank)
         self.parent.victoriesUpdated.connect(self.updateVictories)
+        self.parent.dominationUpdated.connect(self.updateDomination)
         
         
         self.parent.planetClicked.connect(self.planetClicked)
@@ -74,6 +77,7 @@ class InfoPanelWidget(FormClass, BaseClass):
     def setup(self):
         self.attackButton.hide()
         self.defenseButton.hide()
+        self.dominationText.hide()
     
     def buyReinforcementsItems(self):
         '''Handle buying reinforcements items'''
@@ -180,6 +184,10 @@ class InfoPanelWidget(FormClass, BaseClass):
         if len(self.attackProposal) == 0 :
             self.attackBox.hide()           
 
+    def updateDomination(self, master):
+        self.dominationText.setText("You are enslaved by %s and you are fighting for them." % FACTIONS[master])
+        self.dominationText.show()
+
     def updateRank(self, rank):
         logger.debug("updating rank interface")
         rankName = self.parent.get_rank(self.parent.faction, rank)
@@ -203,6 +211,9 @@ class InfoPanelWidget(FormClass, BaseClass):
         self.defenseButton.hide()
         
         faction = self.parent.faction
+        if self.parent.enslavedBy != None:
+            faction = self.parent.enslavedBy
+            
         if faction == None :
             self.planet = None
             return
