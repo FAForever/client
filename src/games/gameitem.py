@@ -386,7 +386,8 @@ class GameItem(QtGui.QListWidgetItem):
         else:
             self.setText(self.FORMATTER_MOD.format(color=color, mapslots = self.slots, mapdisplayname=self.mapdisplayname, title=self.title, host=self.host, players=self.numplayers, playerstring=playerstring, gamequality = strQuality, playerincluded = self.playerIncludedTxt, mod=self.mod))
         
-        
+        if self.uid == 0:
+            return
                 
         #Spawn announcers: IF we had a gamestate change, show replay and hosting announcements 
         if (oldstate != self.state):            
