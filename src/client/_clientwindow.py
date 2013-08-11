@@ -1418,7 +1418,7 @@ class ClientWindow(FormClass, BaseClass):
         info = dict(uid = message['uid'], recorder = self.login, featured_mod = message[modkey], game_time=time.time(), version_info=version_info)
         
         
-        fa.exe.play(info, self.relayServer.serverPort(), self.gamelogs, arguments)
+        fa.exe.play(info, self.relayServer.serverPort(), self.gamelogs, arguments, galacticWar)
 
       
 

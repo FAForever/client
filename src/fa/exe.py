@@ -237,7 +237,7 @@ def replay(source, detach = False):
             
     
     
-def play(info, port, log = False, arguments = None):
+def play(info, port, log = False, arguments = None, gw = False):
     '''
     Launches FA with all necessary arguments.
     '''
@@ -256,9 +256,13 @@ def play(info, port, log = False, arguments = None):
         arguments.append('"' + util.LOG_FILE_GAME + '"')
     
     #live replay
+    
     arguments.append('/savereplay')
-    arguments.append('gpgnet://'+'localhost'+'/' + str(info['uid']) + "/" + str(info['recorder']) + '.SCFAreplay')
-            
+    if gw == False :
+        arguments.append('gpgnet://'+'localhost'+'/' + str(info['uid']) + "/" + str(info['recorder']) + '.SCFAreplay')
+    else :
+        arguments.append('gpgnet://'+'localhost'+'/' + str(info['uid']) + "/" + str(info['recorder']) + '.GWreplay')
+        
     #disable bug reporter
     arguments.append('/nobugreport')
     #arguments.append('/sse2')
