@@ -120,28 +120,7 @@ class CrashDialog(QtGui.QDialog):
     @QtCore.pyqtSlot()
     def postReport(self):
         QtGui.QDesktopServices.openUrl(QtCore.QUrl(TICKET_URL))
-        
-#        try:
-#            self.sendButton.setEnabled(False)
-#            self.sendButton.setText("\nSending...\n")
-#            QtGui.QApplication.processEvents()
-#            
-#            import urllib
-#            import urllib2
-#
-#            #A simple POST forwarder sends these to the REST Api of Bitbucket
-#            url = CRASHREPORT_URL
-#            data = urllib.urlencode({
-#                                        'title': self.title,
-#                                        'content': self.box.toPlainText().encode("utf-8"),
-#                                        'hash' : self.hash
-#                                     })
-#            request = urllib2.Request(url=url, data=data)
-#            urllib2.urlopen(request)
-#            self.sendButton.setText("\nThanks!\n")
-#        except:
-#            self.sendButton.setText("\nFailed. :( Click Help and tell us about it!\n")
-#            pass
+
 
         
     

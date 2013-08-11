@@ -80,7 +80,8 @@ def fetchClientUpdate(url):
             progress.setAutoClose(True)
             progress.setAutoReset(False)
     
-            msifile  = urllib2.urlopen(url)
+            req = urllib2.Request(url, headers={'User-Agent' : "FAF Client"})
+            msifile  = urllib2.urlopen(req)
             meta = msifile.info()
         
             #Fix for #241, sometimes the server sends an error and no content-length.
@@ -351,7 +352,8 @@ class Updater(QtCore.QObject):
             progress.setAutoClose(True)
             progress.setAutoReset(False)
             
-            downloadedfile  = urllib2.urlopen(url)
+            req = urllib2.Request(url, headers={'User-Agent' : "FAF Client"})
+            downloadedfile  = urllib2.urlopen(req)
             meta = downloadedfile.info()
         
             #Fix for #241, sometimes the server sends an error and no content-length.

@@ -483,7 +483,8 @@ def __downloadPreviewFromWeb(name):
         
     for extension in iconExtensions:
         try:
-            req = urllib2.urlopen(VAULT_PREVIEW_ROOT + urllib2.quote(name) + "." + extension)
+            header = urllib2.Request(VAULT_PREVIEW_ROOT + urllib2.quote(name) + "." + extension, headers={'User-Agent' : "FAF Client"})   
+            req = urllib2.urlopen(header)
             img = os.path.join(util.CACHE_DIR, name + "." + extension)
             with open(img, 'wb') as fp:
                 shutil.copyfileobj(req, fp)        
@@ -596,7 +597,8 @@ def downloadMap(name):
     #Count the map downloads
     try:
         url = VAULT_COUNTER_ROOT + "?map=" + urllib2.quote(link)
-        urllib2.urlopen(url)
+        req = urllib2.Request(url, headers={'User-Agent' : "FAF Client"})
+        urllib2.urlopen(req)
         logger.debug("Successfully sent download counter request for: " + url)        
         
     except:

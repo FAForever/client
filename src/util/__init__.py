@@ -412,8 +412,9 @@ def __downloadPreviewFromWeb(unitname):
 
     logger.debug("Searching web preview for: " + unitname)
         
-
-    req = urllib2.urlopen(UNITS_PREVIEW_ROOT + urllib2.quote(unitname))
+    url = UNITS_PREVIEW_ROOT + urllib2.quote(unitname)
+    header = urllib2.Request(url, headers={'User-Agent' : "FAF Client"})         
+    req = urllib2.urlopen(header)
     img = os.path.join(CACHE_DIR, unitname)
     with open(img, 'wb') as fp:
         shutil.copyfileobj(req, fp)        
