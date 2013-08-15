@@ -295,7 +295,7 @@ class Channel(FormClass, BaseClass):
 
 
     @QtCore.pyqtSlot(str, str)
-    def printAction(self, name, text, scroll_forced=False):        
+    def printAction(self, name, text, scroll_forced=False, server_action=False):        
         '''
         Print an actual message in the chatArea of the channel
         '''
@@ -305,8 +305,10 @@ class Channel(FormClass, BaseClass):
             cursor.movePosition(QtGui.QTextCursor.Down, QtGui.QTextCursor.KeepAnchor, CHAT_REMOVEBLOCK)
             cursor.removeSelectedText()
             self.lines = self.lines - CHAT_REMOVEBLOCK        
-                    
-        if name.lower() in self.lobby.specialUserColors:
+        
+        if server_action :
+            color = self.lobby.client.getColor("server")
+        elif name.lower() in self.lobby.specialUserColors:
             color = self.lobby.specialUserColors[name.lower()]
         else:
             color = self.lobby.client.getUserColor(name)
@@ -439,12 +441,13 @@ class Channel(FormClass, BaseClass):
         self.updateUserCount()
         
         if join and self.lobby.client.joinsparts:
-            self.printAction(name, "joined the channel.")
+            self.printAction(name, "joined the channel.", server_action=True)
     
     
     def removeChatter(self, name, action = None):
         if action and (self.lobby.client.joinsparts or self.private):
-            self.printAction(name, action)
+            self.printAction(name, action, server_action=True)
+            self.stopBlink()
 
         if name in self.chatters:
             self.nickList.removeRow(self.chatters[name].row())        

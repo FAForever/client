@@ -176,7 +176,10 @@ class Chatter(QtGui.QTableWidgetItem):
         if self.elevation in self.lobby.OPERATOR_COLORS:            
             self.setTextColor(QtGui.QColor(self.lobby.OPERATOR_COLORS[self.elevation]))
         else:
-            self.setTextColor(QtGui.QColor(self.lobby.client.getUserColor(self.name)))
+            if self.name in self.lobby.client.colors :
+                self.setTextColor(QtGui.QColor(self.lobby.client.getColor(self.name)))
+            else :
+                self.setTextColor(QtGui.QColor(self.lobby.client.getUserColor(self.name)))
 
         rating = self.rating
 
