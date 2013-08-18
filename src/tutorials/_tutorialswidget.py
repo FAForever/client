@@ -93,7 +93,7 @@ class tutorialsWidget(FormClass, BaseClass):
             
             if section in self.sections :
                 self.tutorials[tutorial] = TutorialItem(tutorial)
-                self.tutorials[tutorial].update(message)
+                self.tutorials[tutorial].update(message, self.client)
                 
                 self.sections[section].addItem(self.tutorials[tutorial]) 
         

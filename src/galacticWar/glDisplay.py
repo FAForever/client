@@ -715,6 +715,8 @@ class GLWidget(QtOpenGL.QGLWidget):
 
 
             icon = maps.preview(planet.mapname)
+            if not icon:
+                self.parent.client.downloader.downloadMap(planet.mapname, None)
 
             text = "<font color='silver'><h2>%s</h2><table width='%i'><tr><td><p align='justify'><font color='silver' size='7pt'>%s</font</p></tr></td></table><font color='silver'><h4>Occupation:</h4></font><ul>" % (self.galaxy.get_name(site), width-5, self.galaxy.get_description(site))
             

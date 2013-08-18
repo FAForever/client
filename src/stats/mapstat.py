@@ -181,7 +181,7 @@ class LadderMapStat(FormClass, BaseClass):
         
         realmap = item.data(32)[1].split("/")[1][:-4]
 
-        self.mapstats.document().addResource(QtGui.QTextDocument.ImageResource,  QtCore.QUrl("map.png"), maps.preview(realmap, True))
+        self.mapstats.document().addResource(QtGui.QTextDocument.ImageResource,  QtCore.QUrl("map.png"), maps.preview(realmap, True, force=True))
 
         self.mapstats.insertHtml("<img src=\"map.png\" /><br><font size='+5'>" + item.text() + "</font><br><br>")
         

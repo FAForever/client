@@ -56,6 +56,7 @@ class ClientWindow(FormClass, BaseClass):
     in particular players, games, ranking, etc.
     Its UI also houses all the other UIs for the sub-modules.
     '''
+    
     #These signals are emitted when the client is connected or disconnected from FAF
     connected    = QtCore.pyqtSignal()
     disconnected = QtCore.pyqtSignal()
@@ -157,7 +158,7 @@ class ClientWindow(FormClass, BaseClass):
         
         #Local proxy servers
         self.proxyServer = fa.proxies.proxies(self)
-        
+               
         #create user interface (main window) and load theme
         self.setupUi(self)
         self.setStyleSheet(util.readstylesheet("client/client.css"))
@@ -209,9 +210,12 @@ class ClientWindow(FormClass, BaseClass):
         import tutorials
         import featuredmods
         import galacticWar
+        import downloadManager
         from chat._avatarWidget import avatarWidget
         
-        
+        #download manager
+        self.downloader = downloadManager.downloadManager(self)
+
         # Initialize chat
         self.chat = chat.Lobby(self)
     

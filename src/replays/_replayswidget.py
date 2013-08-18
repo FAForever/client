@@ -241,7 +241,12 @@ class ReplaysWidget(BaseClass, FormClass):
                         
                         bucket = buckets.setdefault(game_date, [])                    
                         
-                        item.setIcon(0, fa.maps.preview(item.info['mapname']))
+                        icon = fa.maps.preview(item.info['mapname'])
+                        if icon:
+                            item.setIcon(0, icon)
+                        else:
+                            self.client.downloader.downloadMap(item.info['mapname'], item, True)
+                            item.setIcon(0,util.icon("games/unknown_map.png"))                                                      
                         item.setToolTip(0, fa.maps.getDisplayName(item.info['mapname']))
                         item.setText(0, game_hour)
                         item.setTextColor(0, QtGui.QColor(client.instance.getColor("default")))
@@ -347,7 +352,8 @@ class ReplaysWidget(BaseClass, FormClass):
             
             icon = fa.maps.preview(info['mapname'])
             item.setToolTip(0, fa.maps.getDisplayName(info['mapname']))
-            if not icon:
+            if not icon:           
+                self.client.downloader.downloadMap(item.info['mapname'], item, True)
                 icon = util.icon("games/unknown_map.png")
 
             item.setText(0,time.strftime("%H:%M", time.localtime(item.info['game_time'])))

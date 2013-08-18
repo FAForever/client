@@ -273,6 +273,7 @@ class GameItem(QtGui.QListWidgetItem):
             else:            
                 icon = maps.preview(self.mapname)
                 if not icon:
+                    self.client.downloader.downloadMap(self.mapname, self)
                     icon = util.icon("games/unknown_map.png")
                              
             self.setIcon(icon)

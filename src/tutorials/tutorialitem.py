@@ -99,13 +99,13 @@ class TutorialItem(QtGui.QListWidgetItem):
         self.client = None
         self.title  = None
    
-    def update(self, message):
+    def update(self, message, client):
         '''
         Updates this item from the message dictionary supplied
         '''
         
         
-
+        self.client = client
         self.tutorial      = message['tutorial']
         self.description   = message['description']
         self.url           = "http://faforever.com/faf/tutorials/" + message['url']
@@ -118,6 +118,7 @@ class TutorialItem(QtGui.QListWidgetItem):
             icon = maps.preview(self.mapname)
             if not icon:
                 icon = util.icon("games/unknown_map.png")
+                self.client.downloader.downloadMap(self.mapname, self)
                                         
             self.setIcon(icon)
 
