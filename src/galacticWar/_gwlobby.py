@@ -377,18 +377,8 @@ class LobbyWidget(FormClass, BaseClass):
     def handle_game_upgrades(self, message):
         '''writing reinforcement list'''
         upgrades = message["upgrades"]
-        destination = os.path.join(util.APPDATA_DIR, "gamedata", "gwReinforcementList.gw")
-        gwFile = QtCore.QFile(destination)
-        gwFile.open(QtCore.QIODevice.WriteOnly)
-        lua = util.slpp.SLPP()
-        s = StringIO.StringIO()  
-        z = zipfile.ZipFile(s, 'w')  
-        z.writestr('lua/gwReinforcementList.lua', str(lua.encodeReinforcements(upgrades))) 
-        z.close()
-        gwFile.write(s.getvalue())
-        gwFile.close()
-        s.close()
-    
+        fa.gwgametable.writeTable(upgrades, "gwReinforcementList.gw")
+   
         # and we empty the unit reinforcement list
         self.reinforcementItems.reset()
     

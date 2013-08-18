@@ -127,7 +127,6 @@ def __run(info, arguments, detach = False):
             QtGui.QMessageBox.warning(None, "ForgedAlliance.exe", "Another instance of FA is already running.")
             return False
 
-
 def replay(source, detach = False):
     '''
     Launches FA streaming the replay from the given location. Source can be a QUrl or a string
@@ -162,6 +161,15 @@ def replay(source, detach = False):
                     
                     parser = replayParser(arg_string)
                     version = parser.getVersion() 
+                    
+                    if mod == "gw":
+                        infoReplayGW = fa.gwreplayinfo.GWReplayInfo(info['uid'])
+                        result = infoReplayGW.run()
+                        if (result != fa.gwreplayinfo.GWReplayInfo.RESULT_SUCCESS):
+                            logger.info("We don't have the info necessary for GW")
+                            return False                  
+
+                        logger.info("Writing GW game table file.")
 
                 elif source.endswith(".scfareplay"):   # compatibility mode
                     filename = os.path.basename(source)
@@ -226,6 +234,12 @@ def replay(source, detach = False):
         if not check(mod, mapname, version, featured_mod_versions):
             logger.error("Can't watch replays without an updated Forged Alliance game!")
             return False        
+
+        if mod == "gw":
+        # in case of GW, we need to alter the scenario for support AIs
+            if not fa.maps.gwmap(info['mapname']):
+                logger.error("You don't have the required map.")
+                return    
 
         # Finally, run executable        
         if __run(None, arguments, detach):

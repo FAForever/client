@@ -815,8 +815,6 @@ class Updater(QtCore.QObject):
             self.progress.setMinimum(0)
             self.progress.setMaximum(0)
 
-
-
     def writeToServer(self, action, *args, **kw):        
         log(("writeToServer(" + action + ", [" + ', '.join(args) + "])"))
         self.lastData = time.time()

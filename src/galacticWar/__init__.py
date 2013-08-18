@@ -41,5 +41,4 @@ COLOR_FACTIONS = {0:QtGui.QColor(0,0,255), 1:QtGui.QColor(0,255,0),2:QtGui.QColo
 from _gwlobby import LobbyWidget as Lobby
 
 
-
     
