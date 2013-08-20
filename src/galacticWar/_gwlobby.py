@@ -54,6 +54,7 @@ class LobbyWidget(FormClass, BaseClass):
     planetaryDefenseUpdated         = QtCore.pyqtSignal(dict)
     ReinforcementsGroupUpdated      = QtCore.pyqtSignal(dict)
     dominationUpdated               = QtCore.pyqtSignal(int)
+    playersListUpdated              = QtCore.pyqtSignal(dict)
 
     def __init__(self, client, *args, **kwargs):
         logger.debug("Lobby instantiating.")
@@ -475,6 +476,10 @@ class LobbyWidget(FormClass, BaseClass):
             else :
                 self.name = name
                 self.send(dict(command = "account_creation", action = 2))
+    
+    def handle_faction_player_list(self, message):
+        '''players online'''
+        self.playersListUpdated.emit(message["players"])
     
     def handle_init_done(self, message):
         if message['status'] == True :

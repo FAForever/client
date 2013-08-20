@@ -116,7 +116,7 @@ class ReinforcementWidget(FormClass, BaseClass):
         
         self.parent.ReinforcementUpdated.connect(self.processReinforcementInfo)
         self.parent.ReinforcementsGroupUpdated.connect(self.processReinforcementGroup)
-        
+        self.parent.playersListUpdated.connect(self.updatePlayerList)
         self.parent.creditsUpdated.connect(self.updateCreditsCheck)
         
         
@@ -127,7 +127,7 @@ class ReinforcementWidget(FormClass, BaseClass):
         
         self.confirmGroupButton.clicked.connect(self.confirmGroup)
         self.buyButton.clicked.connect(self.buyAll)
-        
+        self.offerButton.clicked.connect(self.offer)
         self.groups = groupsReinforcements(self)
         
         self.groupsWidgets.itemPressed.connect(self.myGroupsPressed)
@@ -135,9 +135,34 @@ class ReinforcementWidget(FormClass, BaseClass):
         self.currentMoneyCost = 0
         self.currentGroupMoneyCost = 0
 
+        self.waitingForPlayerList = False
+        
         self.groupDelayText.setText("0")
         self.GroupCostText.setText("0")
         self.CostText.setText("0 minutes")
+
+    def updatePlayerList(self, players):
+        ''' update the player list for offering units'''
+        if self.waitingForPlayerList:
+            player, ok = QtGui.QInputDialog.getItem(self, "Select a player",
+                "Give to:", sorted(players.keys()), 0, False)
+        if ok and player:
+            for group in self.groups.getGroups():
+                if self.groups.isProtected(group):
+                    continue
+    
+                for item in self.groups.getItems(group):
+                    self.parent.send(dict(command="offer_reinforcement_group", giveTo=players[player],groupNumber=group, item=item.getItemForSend()))
+                
+            self.groups.emptyAll()
+            self.groupsWidgets.clear()
+            self.currentMoneyCost = 0
+            self.currentGroupMoneyCost = 0
+            self.groupDelayText.setText("0")
+            self.GroupCostText.setText("0")
+            self.CostText.setText("0 minutes")            
+            
+            self.waitingForPlayerList = False
 
     def reset(self):
         ''' close the panel and reset all units'''
@@ -151,6 +176,12 @@ class ReinforcementWidget(FormClass, BaseClass):
         self.CostText.setText("0 minutes")
         self.close()
 
+    def offer(self):
+        ''' send a message to the server about our nice offer'''
+
+        self.parent.send(dict(command="get_player_list"))
+        self.waitingForPlayerList = True
+
     def buyAll(self):
         ''' send a message to the server about our shopping list'''
 
@@ -162,6 +193,7 @@ class ReinforcementWidget(FormClass, BaseClass):
                 self.parent.send(dict(command="buy_reinforcement_group", groupNumber=group, item=item.getItemForSend()))
             
         self.groups.emptyAll()
+        self.groupsWidgets.clear()
         self.currentMoneyCost = 0
         self.currentGroupMoneyCost = 0
         self.groupDelayText.setText("0")
@@ -231,11 +263,14 @@ class ReinforcementWidget(FormClass, BaseClass):
         self.computeAllCosts()
         self.updateCreditsCheck()
         
-        self.updateGroupTree()
+        self.updateGroupTree(temp=True)
         
-    def updateGroupTree(self):
+    def updateGroupTree(self, temp=False):
         '''Update the group tree'''
-        self.groupsWidgets.clear()
+        if temp:
+            self.groupsWidgets.clear()
+        else:
+            self.groupsOwned.clear()
         if len(self.groups.getGroups()) == 0:
             return
 
@@ -259,7 +294,10 @@ class ReinforcementWidget(FormClass, BaseClass):
             totaldelay = totaldelay + delay 
             group_item.setText(0, "Group %i : %i credits, %0.1f minutes delay (%0.1f minutes in game)" % (groupNumber, price, delay, totaldelay))
             group_item.group = groupNumber
-            self.groupsWidgets.addTopLevelItem(group_item)
+            if temp:
+                self.groupsWidgets.addTopLevelItem(group_item)
+            else:
+                self.groupsOwned.addTopLevelItem(group_item)
             group_item.setExpanded(True)
 
                 
