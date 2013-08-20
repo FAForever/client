@@ -221,8 +221,8 @@ class InfoPanelWidget(FormClass, BaseClass):
         for uid in self.parent.attacks :
             for planetuid in self.parent.attacks[uid] :
                 if planetId == planetuid :
-                    if self.parent.attacks[uid][planetuid]["onHold"] == True :
-                        return
+#                    if self.parent.attacks[uid][planetuid]["onHold"] == True :
+#                        return
                     
                     if self.galaxy.control_points[planetuid].occupation(faction) > 0.5 and self.parent.attacks[uid][planetuid]["faction"] != faction :
                         for site in self.galaxy.getLinkedPlanets(planetId) :
