@@ -17,7 +17,12 @@
 #-------------------------------------------------------------------------------
 
 
-
+import sip
+sip.setapi('QString', 2)
+sip.setapi('QVariant', 2)
+sip.setapi('QStringList', 2)
+sip.setapi('QList', 2)
+sip.setapi('QProcess', 2)
 
 
 import logging
@@ -110,9 +115,10 @@ __exist_maps = None
 
 def gwmap(mapname):
     folder = folderForMap(mapname)
-    if folder:
-        scenario = getScenarioFile(folder)
+    if folder:       
+        scenario = getScenarioFile(folder)        
         if scenario:
+            
             if not os.path.isdir(os.path.join(getUserMapsFolder(), "gwScenario")):
                 os.makedirs(os.path.join(getUserMapsFolder(), "gwScenario"))                        
             save = os.path.join(getUserMapsFolder(), "gwScenario", "gw_scenario.lua")
@@ -190,9 +196,8 @@ def getScenarioFile(folder):
     ''' 
     Return the scenario.lua file
     '''
-    baseName = os.path.basename(folder).split('.')[0]
     for infile in os.listdir(folder) :
-        if infile.lower() == (baseName.lower() + "_scenario.lua") :
+        if infile.lower().endswith("_scenario.lua") :
             return infile 
     return None
 
@@ -200,9 +205,8 @@ def getSaveFile(folder):
     ''' 
     Return the save.lua file
     '''
-    baseName = os.path.basename(folder).split('.')[0]
     for infile in os.listdir(folder) :
-        if infile.lower() == (baseName.lower() + "_save.lua") :
+        if infile.lower().endswith("_save.lua") :
             return infile 
     return None
 
@@ -647,6 +651,3 @@ def processMapFolderForUpload(mapDir, positions):
     temp.flush()
     
     return temp
-
-
-
