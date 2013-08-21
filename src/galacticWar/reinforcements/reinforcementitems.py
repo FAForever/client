@@ -150,10 +150,11 @@ class ReinforcementWidget(FormClass, BaseClass):
             for group in self.groups.getGroups():
                 if self.groups.isProtected(group):
                     continue
-    
+                    
                 for item in self.groups.getItems(group):
-                    self.parent.send(dict(command="offer_reinforcement_group", giveTo=players[player],groupNumber=group, item=item.getItemForSend()))
-                
+                    self.parent.send(dict(command="offer_reinforcement_group", giveTo=players[player], item=item.getItemForSend()))
+
+                    
             self.groups.emptyAll()
             self.groupsWidgets.clear()
             self.currentMoneyCost = 0
@@ -162,12 +163,13 @@ class ReinforcementWidget(FormClass, BaseClass):
             self.GroupCostText.setText("0")
             self.CostText.setText("0 minutes")            
             
-            self.waitingForPlayerList = False
+        self.waitingForPlayerList = False
 
     def reset(self):
         ''' close the panel and reset all units'''
         self.groups.emptyAll()
         self.groupsWidgets.clear()
+        self.groupsOwned.clear()
         self.currentMoneyCost = 0
         self.currentGroupMoneyCost = 0
 
@@ -243,17 +245,17 @@ class ReinforcementWidget(FormClass, BaseClass):
 
     def confirmGroup(self):
         '''add this group'''
-        
+
         group = self.groups.getNextGroupNumber()
-        
+         
         for uid in self.reinforcements:
             if self.reinforcements[uid].owned != 0:
                 self.groups.addGroupItem(group, uid, self.reinforcements[uid].owned)
-                
-        
+           
         if len(self.groups.getGroups()) == 0:
             return
-        
+         
+       
         self.currentMoneyCost = self.currentMoneyCost + self.currentGroupMoneyCost
 
         #clear the current group buy
@@ -271,11 +273,13 @@ class ReinforcementWidget(FormClass, BaseClass):
             self.groupsWidgets.clear()
         else:
             self.groupsOwned.clear()
-        if len(self.groups.getGroups()) == 0:
-            return
+#        if len(self.groups.getGroups()) == 0:
+#            return
 
         totaldelay = 0
         for groupNumber in self.groups.getGroups():
+            if self.groups.isProtected(groupNumber) and temp:
+                continue
             group_item = QtGui.QTreeWidgetItem()
             
             price = 0
