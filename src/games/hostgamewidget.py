@@ -106,14 +106,13 @@ class HostgameWidget(FormClass, BaseClass):
 
         self.mods = {}
         #this makes it so you can select every non-ui_only mod
-        for mod in modvault.getInstalledMods(): #list of strings
-            d = modvault.getModfromName(mod)
-            if d == None or d["ui_only"]:
+        for mod in modvault.getInstalledMods():
+            if mod.ui_only:
                 continue
-            self.mods[d['name']] = d
-            self.modList.addItem(d['name'])
+            self.mods[mod.totalname] = mod
+            self.modList.addItem(mod.totalname)
 
-        names = [mod['name'] for mod in modvault.getActiveMods(uimods=False)]
+        names = [mod.totalname for mod in modvault.getActiveMods(uimods=False)]
         logger.debug("Active Mods detected: %s" % str(names))
         for name in names:
             l = self.modList.findItems(name, QtCore.Qt.MatchExactly)

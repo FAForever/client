@@ -303,8 +303,9 @@ def checkMods(mods): #mods is a list of strings (mod names)
     logger.info("Updating FA for mods %s" % ", ".join(mods))
     to_download = []
     inst = modvault.getInstalledMods()
+    names = [mod.totalname for mod in inst]
     for mod in mods:
-        if mod not in inst:
+        if mod not in names:
             to_download.append(mod)
 
     for mod in to_download:
@@ -316,13 +317,17 @@ def checkMods(mods): #mods is a list of strings (mod names)
             return False
 
     actual_mods = []
+    inst = modvault.getInstalledMods()
+    names = {}
+    for mod in inst:
+        names[mod.totalname] = mod
     for m in mods:
-        mod = modvault.getModFromName(m)
-        if mod == None:
-            continue
-        actual_mods.append(mod)
+        if m not in names:
+            QtGui.QMessageBox.warning(None, "Mod not Found", "%s was apparently not installed correctly. Please check this.")
+            return
+        actual_mods.append(names[m])
     if not modvault.setActiveMods(actual_mods):
-        logger.info("Couldn't set the active mods in the game.prefs file")
+        logger.warn("Couldn't set the active mods in the game.prefs file")
         return False
 
     return True
