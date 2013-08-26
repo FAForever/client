@@ -37,9 +37,9 @@ logger = logging.getLogger("faf.modvault")
 logger.setLevel(logging.DEBUG)
 
 MODFOLDER = os.path.join(util.PERSONAL_DIR, "My Games", "Gas Powered Games", "Supreme Commander Forged Alliance", "Mods")
-MODVAULT_DOWNLOAD_ROOT = "http://www.faforever.com/faf/modvault/"
+MODVAULT_DOWNLOAD_ROOT = "http://www.faforever.com/faf/vault/"
 
-MODVAULT_COUNTER_ROOT = "http://www.faforever.com/faf/vault/mod_vault/inc_downloads.php"
+MODVAULT_COUNTER_ROOT = "http://www.faforever.com/faf/vault/mods/inc_downloads.php"
 
 installedMods = [] # This is a global list that should be kept intact. So it should be cleared using installedMods[:] = []
 
@@ -66,9 +66,10 @@ class ModInfo(object):
             raise TypeError, "version is not an int or float"
 
     def to_dict(self):
-        out = []
+        out = {}
         for k,v in self.__dict__.items():
-            if isinstance(v, [unicode, str, int, float]) and not k[0] == '_':
+            print k,v
+            if isinstance(v, (unicode, str, int, float)) and not k[0] == '_':
                 out[k] = v
         return out
 
@@ -120,6 +121,8 @@ def parseModInfo(folder):
                                  "icon":"icon"},
                                 {"version":"1","ui_only":"false","description":"","icon":"","author":""})
     modinfo["ui_only"] = (modinfo["ui_only"] == 'true')
+    if not "uid" in modinfo:
+        return None
     modinfo["uid"] = modinfo["uid"].lower()
     try:
         modinfo["version"] = int(modinfo["version"])
@@ -268,6 +271,7 @@ def downloadMod(item): #most of this function is stolen from fa.maps.downloadMap
         link = item.link
     logger.debug("Getting mod from: " + link)
 
+    link = urllib2.quote(link, "http://")
     progress = QtGui.QProgressDialog()
     progress.setCancelButtonText("Cancel")
     progress.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
@@ -280,15 +284,16 @@ def downloadMod(item): #most of this function is stolen from fa.maps.downloadMap
 
         meta = zipwebfile.info()
         file_size = int(meta.getheaders("Content-Length")[0])
-
+        print file_size
+        print meta
         progress.setMinimum(0)
         progress.setMaximum(file_size)
         progress.setModal(1)
-        progress.setWindowTitle("Downloading Map")
+        progress.setWindowTitle("Downloading Mod")
         progress.setLabelText(link)
     
         progress.show()
-    
+
         #Download the file as a series of 8 KiB chunks, then uncompress it.
         output = cStringIO.StringIO()
         file_size_dl = 0

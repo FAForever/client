@@ -117,7 +117,7 @@ class ModVault(FormClass, BaseClass):
         self.showType = "all"
         self.searchString = ""
 
-        self.mods = []
+        self.mods = {}
         self.uids = [mod.uid for mod in getInstalledMods()]
 
         #tempAddMods(self)
@@ -128,10 +128,15 @@ class ModVault(FormClass, BaseClass):
         See above for the keys neccessary in message.
         """
         uid = message["uid"]
-        mod = ModItem(self, uid)
+        if not uid in self.mods:
+            mod = ModItem(self, uid)
+            self.mods[uid] = mod
+            self.modList.addItem(mod)
+        else : 
+            mod = self.mods[uid]
         mod.update(message)
-        self.mods.append(mod)
-        self.modList.addItem(mod)
+        
+        
 
     @QtCore.pyqtSlot(int)
     def sortChanged(self, index):
@@ -208,7 +213,7 @@ class ModVault(FormClass, BaseClass):
 
     def updateVisibilities(self):
         for mod in self.mods:
-            mod.updateVisibility()
+            self.mods[mod].updateVisibility()
 
     def downloadMod(self, mod):
         if downloadMod(mod):

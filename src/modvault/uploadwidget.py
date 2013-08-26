@@ -134,7 +134,7 @@ class UploadModWidget(FormClass, BaseClass):
         try:
             temp = tempfile.NamedTemporaryFile(mode='w+b', suffix=".zip", delete=False)
             zipped = zipfile.ZipFile(temp, "w", zipfile.ZIP_DEFLATED)
-            zipdir(self.modDir, zipped, "%s.v%04d" % (self.modinfo.name, self.modinfo.version))
+            zipdir(self.modDir, zipped, os.path.basename(self.modDir))
             zipped.close()
             temp.flush()
         except:
