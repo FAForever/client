@@ -123,7 +123,7 @@ def parseModInfo(folder):
     modinfo["ui_only"] = (modinfo["ui_only"] == 'true')
     if not "uid" in modinfo:
         return None
-    modinfo["uid"] = modinfo["uid"].lower()
+    #modinfo["uid"] = modinfo["uid"].lower()
     try:
         modinfo["version"] = int(modinfo["version"])
     except:
@@ -163,14 +163,14 @@ def getActiveMods(uimods=None): # returns a list of ModInfo's containing informa
     if l.error:
         logger.info("Error in reading the game.prefs file")
         return []
-    uids = [uid.lower() for uid,b in modlist.items() if b == 'true']
+    uids = [uid for uid,b in modlist.items() if b == 'true']
     #logger.debug("Active mods detected: %s" % str(uids))
     
     allmods = []
     for m in installedMods:
         if ((uimods == True and m.ui_only) or (uimods == False and not m.ui_only) or uimods == None):
             allmods.append(m)
-    active_mods = [m for m in allmods if m.uid.lower() in uids]
+    active_mods = [m for m in allmods if m.uid in uids]
     #logger.debug("Allmods uids: %s\n\nActive mods uids: %s\n" % (", ".join([mod.uid for mod in allmods]), ", ".join([mod.uid for mod in allmods])))
     return active_mods
 
@@ -223,6 +223,7 @@ def updateModInfo(mod, info): #should probably not be used.
     Because those files can be random lua this function can fail if the file is complicated enough
     If every value however is on a seperate line, this should work.
     """
+    logger.warn("updateModInfo called. Probably not a good idea")
     fname = mod.mod_info
     try:
         f = open(fname, 'r')
