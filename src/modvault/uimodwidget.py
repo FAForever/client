@@ -31,7 +31,7 @@ FormClass, BaseClass = util.loadUiType("modvault/uimod.ui")
 class UIModWidget(FormClass, BaseClass):
     FORMATTER_UIMOD = unicode(util.readfile("modvault/uimod.qthtml"))
     def __init__(self, parent, *args, **kwargs):
-        BaseClass.__init__(self, *args, **kwargs)       
+        BaseClass.__init__(self, *args, **kwargs)
 
         self.setupUi(self)
         self.parent = parent
@@ -44,13 +44,12 @@ class UIModWidget(FormClass, BaseClass):
         self.modList.itemEntered.connect(self.hoverOver)
         allmods = modvault.getInstalledMods()
         self.uimods = {}
-        for modname in allmods:
-            mod = modvault.getModfromName(modname)
-            if mod!=None and mod["ui_only"]:
-                self.uimods[mod["name"]] = mod
-                self.modList.addItem(mod["name"])
+        for mod in allmods:
+            if mod.ui_only:
+                self.uimods[mod.totalname] = mod
+                self.modList.addItem(mod.totalname)
 
-        names = [mod['name'] for mod in modvault.getActiveMods(uimods=True)]
+        names = [mod.totalname for mod in modvault.getActiveMods(uimods=True)]
         for name in names:
             l = self.modList.findItems(name, QtCore.Qt.MatchExactly)
             if l: l[0].setSelected(True)
@@ -60,7 +59,7 @@ class UIModWidget(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def doneClicked(self):
-        selected_mods = [self.uimods[str(mod.text())] for mod in self.modList.selectedItems()]
+        selected_mods = [self.uimods[str(item.text())] for item in self.modList.selectedItems()]
         succes = modvault.setActiveMods(selected_mods, False)
         if not succes:
             QtGui.QMessageBox.information(None, "Error", "Could not set the active UI mods. Maybe something is wrong with your game.prefs file. Please send your log.")
@@ -69,6 +68,6 @@ class UIModWidget(FormClass, BaseClass):
     @QtCore.pyqtSlot(QtGui.QListWidgetItem)
     def hoverOver(self, item):
         mod = self.uimods[str(item.text())]
-        self.modInfo.setText(self.FORMATTER_UIMOD.format(name=mod["name"], description=mod["description"]))
+        self.modInfo.setText(self.FORMATTER_UIMOD.format(name=mod.totalname, description=mod.description))
         
     

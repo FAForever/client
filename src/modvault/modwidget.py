@@ -58,7 +58,7 @@ class ModWidget(FormClass, BaseClass):
         self.Comments.setItemDelegate(CommentItemDelegate(self))
         self.BugReports.setItemDelegate(CommentItemDelegate(self))
 
-        if self.mod.name in self.parent.installedMods:
+        if self.mod.uid in self.parent.uids:
             self.DownloadButton.setText("Remove Mod")
         self.DownloadButton.clicked.connect(self.download)
         self.likeButton.clicked.connect(self.like)
@@ -76,13 +76,12 @@ class ModWidget(FormClass, BaseClass):
         
     @QtCore.pyqtSlot()
     def download(self):
-        if not self.mod.name in self.parent.installedMods:
+        if not self.mod.uid in self.parent.uids:
             self.parent.downloadMod(self.mod)
         else:
             show = QtGui.QMessageBox.question(self.parent.client, "Delete Mod", "Are you sure you want to delete this mod?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
             if show == QtGui.QMessageBox.Yes:
                 modvault.removeMod(self.mod)
-                self.parent.installedMods.remove(self.mod.name)
                 self.done(1)
 
     @QtCore.pyqtSlot()

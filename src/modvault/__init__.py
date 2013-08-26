@@ -118,7 +118,7 @@ class ModVault(FormClass, BaseClass):
         self.searchString = ""
 
         self.mods = []
-        self.installedMods = getInstalledMods()
+        self.uids = [mod.uid for mod in getInstalledMods()]
 
         #tempAddMods(self)
 
@@ -193,6 +193,9 @@ class ModVault(FormClass, BaseClass):
                     else:
                         uploadmod = QtGui.QMessageBox.Yes
                     if uploadmod == QtGui.QMessageBox.Yes:
+                        modinfo = ModInfo(**modinfo)
+                        modinfo.setFolder(os.path.split(modDir)[1])
+                        modinfo.update()
                         dialog = UploadModWidget(self, modDir, modinfo)
                         dialog.exec_()
             else :
@@ -209,7 +212,7 @@ class ModVault(FormClass, BaseClass):
 
     def downloadMod(self, mod):
         if downloadMod(mod):
-            self.installedMods.append(mod.name)
+            self.uids = [mod.uid for mod in getInstalledMods()]
             return True
         else: return False
         
@@ -365,7 +368,7 @@ class ModItem(QtGui.QListWidgetItem):
         if self.isuimod: modtype ="UI mod"
         elif self.isbigmod: modtype="big mod"
         elif self.issmallmod: modtype="small mod"
-        if self.name in self.parent.installedMods: color="green"
+        if self.uid in self.parent.uids: color="green"
         else: color="white"
         self.setText(self.FORMATTER_MOD.format(color=color,version=str(self.version),title=self.name,
             description=descr, author=self.author,downloads=str(self.downloads),

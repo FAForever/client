@@ -34,32 +34,34 @@ FormClass, BaseClass = util.loadUiType("modvault/upload.ui")
 
 class UploadModWidget(FormClass, BaseClass):
     def __init__(self, parent, modDir, modinfo, *args, **kwargs):
-        BaseClass.__init__(self, *args, **kwargs)       
+        BaseClass.__init__(self, *args, **kwargs)
 
         self.setupUi(self)
         self.parent = parent
         self.client = self.parent.client
         self.modinfo = modinfo
         self.modDir = modDir
-        self.oldname = self.modinfo["name"]
+        #self.oldname = self.modinfo["name"]
         
         self.setStyleSheet(self.parent.client.styleSheet())
         
         self.setWindowTitle("Uploading Mod")
 
-        self.Name.setText(modinfo["name"])
-        self.Version.setText(str(modinfo["version"]))
-        self.UIOnly.setChecked(modinfo["ui_only"])
-        self.UID.setText(modinfo["uid"])
-        self.Description.setPlainText(modinfo["description"])
-        if modinfo["icon"] != "":
-            self.IconURI.setText(modvault.iconPathToFull(modinfo["icon"]))
+        self.Name.setText(modinfo.name)
+        self.Version.setText(str(modinfo.version))
+        if modinfo.ui_only: self.isUILabel.setText("is UI Only")
+        else: self.isUILabel.setText("not UI Only")
+        #self.UIOnly.setChecked(modinfo["ui_only"])
+        self.UID.setText(modinfo.uid)
+        self.Description.setPlainText(modinfo.description)
+        if modinfo.icon != "":
+            self.IconURI.setText(modvault.iconPathToFull(modinfo.icon))
             self.updateThumbnail()
         else:
             self.Thumbnail.setPixmap(util.pixmap("games/unknown_map.png"))
-        self.IconURI.returnPressed.connect(self.updateThumbnail)
+        #self.IconURI.returnPressed.connect(self.updateThumbnail)
         self.UploadButton.pressed.connect(self.upload)
-        self.IconDialogButton.pressed.connect(self.openicondialog)
+        #self.IconDialogButton.pressed.connect(self.openicondialog)
 
     @QtCore.pyqtSlot()
     def upload(self):
@@ -75,17 +77,23 @@ class UploadModWidget(FormClass, BaseClass):
 #                        "There is no thumbnail attached")
 #            return
 
-        self.modinfo["name"] = n
-        self.modinfo["uid"] = self.UID.text()
-        self.modinfo["description"] = self.Description.toPlainText()
-        self.modinfo["version"] = int(self.Version.text())
+        #self.modinfo["name"] = n
+        #self.modinfo["uid"] = self.UID.text()
+        #self.modinfo["description"] = self.Description.toPlainText()
+        #self.modinfo["version"] = int(self.Version.text())
 
-        iconpath = self.IconURI.text()
+        iconpath = modvault.iconPathToFull(self.modinfo.icon)
+        #self.modinfo["name"] = n
+        #self.modinfo["uid"] = self.UID.text()
+        #self.modinfo["description"] = self.Description.toPlainText()
+        #self.modinfo["version"] = int(self.Version.text())
+
+        iconpath = modvault.iconPathToFull(self.modinfo.icon)
         infolder = False
-        if iconpath != "" and os.path.commonprefix([os.path.normcase(modvault.MODFOLDER),os.path.normcase(iconpath)]) == os.path.normcase(modvault.MODFOLDER): #the icon is in the game folder
+        if iconpath != "" and os.path.commonprefix([os.path.normcase(self.modDir),os.path.normcase(iconpath)]) == os.path.normcase(self.modDir): #the icon is in the game folder
             localpath = modvault.fullPathToIcon(iconpath)
             infolder = True
-
+        '''
         if self.oldname.lower() != self.modinfo["name"].lower(): # we need to change the name of the folder correspondingly
             try:
                 os.rename(os.path.join(modvault.MODFOLDER, self.oldname),
@@ -99,8 +107,12 @@ class UploadModWidget(FormClass, BaseClass):
             if infolder == True:
                 iconpath = "/mods/" + self.modinfo["name"] +"/" + "/".join(localpath.split('/')[3:])
             self.modDir = os.path.join(modvault.MODFOLDER, self.modinfo["name"])
-
+        '''
         if iconpath != "" and not infolder:
+            QtGui.QMessageBox.information(self.client,"Invalid Icon File",
+                        "The file %s is not located inside the modfolder. Copy the icon file to your modfolder and change the mod_info.lua accordingly")
+            return
+            '''
             newpath = os.path.join(self.modDir, os.path.split(iconpath)[1])
             f = open(iconpath, 'r')
             data = r.read()
@@ -111,18 +123,18 @@ class UploadModWidget(FormClass, BaseClass):
             iconpath = modvault.fullPathToIcon(newpath)
         elif iconpath != "":
             iconpath = modvault.fullPathToIcon(iconpath)
-
-        self.modinfo["icon"] = iconpath
+        '''
+        #self.modinfo["icon"] = iconpath
             
-        if not modvault.updateModInfo(self.modinfo["name"], self.modinfo):
-            QtGui.QMessageBox.information(self.client,"Error updating Mod Info",
-                        "FAF could not read or write to the mod_info.lua file.")
-            return
+        #if not modvault.updateModInfo(self.modinfo["name"], self.modinfo):
+        #    QtGui.QMessageBox.information(self.client,"Error updating Mod Info",
+        #                "FAF could not read or write to the mod_info.lua file.")
+        #    return
         
         try:
             temp = tempfile.NamedTemporaryFile(mode='w+b', suffix=".zip", delete=False)
             zipped = zipfile.ZipFile(temp, "w", zipfile.ZIP_DEFLATED)
-            zipdir(self.modDir, zipped)
+            zipdir(self.modDir, zipped, "%s.v%04d" % (self.modinfo.name, self.modinfo.version))
             zipped.close()
             temp.flush()
         except:
@@ -130,13 +142,13 @@ class UploadModWidget(FormClass, BaseClass):
             return
         qfile =QtCore.QFile(temp.name)
 
-        self.modinfo["big"] = (self.SizeType.currentIndex() == 1)
-        self.modinfo["small"] = (self.SizeType.currentIndex() == 2)
+        self.modinfo.big = (self.SizeType.currentIndex() == 1)
+        self.modinfo.small = (self.SizeType.currentIndex() == 2)
         
         #The server should check again if there is already a mod with this name or UID.
-        self.client.writeToServer("UPLOAD_MOD", self.modinfo["name"] +"." + ("%04d" %self.modinfo["version"]) + ".zip", self.modinfo, qfile)
+        self.client.writeToServer("UPLOAD_MOD", "%s.v%04d.zip" % (self.modinfo.name, self.modinfo.version), self.modinfo.to_dict(), qfile)
         
-    
+    '''
     @QtCore.pyqtSlot()
     def openicondialog(self):
         iconfilename = QtGui.QFileDialog.getOpenFileName(self.client, "Select an icon file", self.modDir,"Images (*.png *.jpg *.jpeg *.dds)")
@@ -156,12 +168,12 @@ class UploadModWidget(FormClass, BaseClass):
         #                "This was not a valid icon file. Please pick a png, jpeg or dds")
         #    return
         self.IconURI.setText(iconfilename)
-        
+    '''
     @QtCore.pyqtSlot()
     def updateThumbnail(self):
-        iconfilename = self.IconURI.text()
+        iconfilename = modvault.iconPathToFull(self.modinfo.icon)
         if iconfilename == "":
-            return
+            return False
         if os.path.splitext(iconfilename)[1].lower() == ".dds":
             old = iconfilename
             iconfilename = os.path.join(self.modDir, os.path.splitext(os.path.basename(iconfilename))[0] + ".png")
@@ -170,20 +182,30 @@ class UploadModWidget(FormClass, BaseClass):
                 logger.info("Could not write the png file for %s" % old)
                 QtGui.QMessageBox.information(self.client,"Invalid Icon File",
                         "Because FAF can't read DDS files, it tried to convert it to a png. This failed. Try something else")
-                return
+                return False
         try:
             self.Thumbnail.setPixmap(util.pixmap(iconfilename,False))
         except:
             QtGui.QMessageBox.information(self.client,"Invalid Icon File",
                         "This was not a valid icon file. Please pick a png or jpeg")
             return False
+        self.modinfo.thumbnail = modvault.fullPathToIcon(iconfilename)
         self.IconURI.setText(iconfilename)
         return True
     
 
 #from http://stackoverflow.com/questions/1855095/how-to-create-a-zip-archive-of-a-directory-in-python
-def zipdir(path, zipf):
+def zipdir(path, zipf, fname):
+    '''zips the entire directory path to zipf. Every file in the zipfile starts with fname.
+    So if path is "/foo/bar/hello" and fname is "test" then every file in zipf is of the form "/test/*.*"'''
+    path = os.path.normcase(path)
+    if path[-1] in r'\/':
+        path = path[:-1]
+    short = os.path.split(path)[0]
     for root, dirs, files in os.walk(path):
         for f in files:
-            zipf.write(os.path.join(root, f))
+            name = os.path.join(os.path.normcase(root), f)
+            n = name[len(os.path.commonprefix([name,path])):]
+            if n[0] == "\\": n = n[1:]
+            zipf.write(name, os.path.join(fname,n))
 
