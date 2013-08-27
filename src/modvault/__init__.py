@@ -219,6 +219,8 @@ class ModVault(FormClass, BaseClass):
 
     def downloadMod(self, mod):
         if downloadMod(mod):
+            print mod
+            self.client.send(dict(command="modvault",type="download", uid=mod.uid))
             self.uids = [mod.uid for mod in getInstalledMods()]
             return True
         else: return False

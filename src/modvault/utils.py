@@ -39,8 +39,6 @@ logger.setLevel(logging.DEBUG)
 MODFOLDER = os.path.join(util.PERSONAL_DIR, "My Games", "Gas Powered Games", "Supreme Commander Forged Alliance", "Mods")
 MODVAULT_DOWNLOAD_ROOT = "http://www.faforever.com/faf/vault/"
 
-MODVAULT_COUNTER_ROOT = "http://www.faforever.com/faf/vault/mods/inc_downloads.php"
-
 installedMods = [] # This is a global list that should be kept intact. So it should be cleared using installedMods[:] = []
 
 class ModInfo(object):
