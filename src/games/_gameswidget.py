@@ -350,9 +350,9 @@ class GamesWidget(FormClass, BaseClass):
                     modvault.setActiveMods(mods, True) #should be removed later as it should be managed by the server.
 #                #Send a message to the server with our intent.
                     if self.ispassworded:
-                        self.client.send(dict(command="game_host", access="password", password = self.gamepassword, mod=item.modnames, mods=modnames, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort, options = gameoptions))
+                        self.client.send(dict(command="game_host", access="password", password = self.gamepassword, mod=item.modnames, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort, options = gameoptions))
                     else :
-                        self.client.send(dict(command="game_host", access="public", mod=item.mod, mods=modnames, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort, options = gameoptions))
+                        self.client.send(dict(command="game_host", access="public", mod=item.mod, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort, options = gameoptions))
 #
 
     def savePassword(self, password):
