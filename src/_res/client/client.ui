@@ -204,6 +204,16 @@
         </property>
        </layout>
       </widget>
+	  <widget class="QWidget" name="modsTab">
+       <attribute name="title">
+        <string>Mod Vault</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_3">
+        <property name="margin">
+         <number>6</number>
+        </property>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>

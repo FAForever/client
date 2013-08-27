@@ -114,6 +114,7 @@ class GameItem(QtGui.QListWidgetItem):
         self.teams          = None
         self.access         = None
         self.mod            = None
+        self.mods           = None
         self.moddisplayname = None
         self.state          = None
         self.nTeams         = 0
@@ -208,16 +209,16 @@ class GameItem(QtGui.QListWidgetItem):
         self.access     = message.get('access', 'public')
         self.mod        = message['featured_mod']
         self.modVersion = message.get('featured_mod_versions', [])
+        self.mods       = message.get('sim_mods',{})
         self.options    = message.get('options', [])
         self.numplayers = message.get('num_players', 0) 
         self.slots      = message.get('max_players',12)
         
         oldstate = self.state
         self.state  = message['state']
- 
-        
+      
 
-        # Assemble a players & teams lists       
+        # Assemble a players & teams lists
         self.teamlist = []
         self.observerlist = []
         self.realPlayers = []
@@ -382,10 +383,14 @@ class GameItem(QtGui.QListWidgetItem):
         
         
 
-        if self.mod == "faf":
+        if self.mod == "faf" and not self.mods:
             self.setText(self.FORMATTER_FAF.format(color=color, mapslots = self.slots, mapdisplayname=self.mapdisplayname, title=self.title, host=self.host, players=self.numplayers, playerstring=playerstring, gamequality = strQuality, playerincluded = self.playerIncludedTxt))
         else:
-            self.setText(self.FORMATTER_MOD.format(color=color, mapslots = self.slots, mapdisplayname=self.mapdisplayname, title=self.title, host=self.host, players=self.numplayers, playerstring=playerstring, gamequality = strQuality, playerincluded = self.playerIncludedTxt, mod=self.mod))
+            if not self.mods:
+                modstr = self.mod
+            else:
+                modstr = self.mod + " & " + ", ".join(self.mods.values())
+            self.setText(self.FORMATTER_MOD.format(color=color, mapslots = self.slots, mapdisplayname=self.mapdisplayname, title=self.title, host=self.host, players=self.numplayers, playerstring=playerstring, gamequality = strQuality, playerincluded = self.playerIncludedTxt, mod=modstr))
         
         if self.uid == 0:
             return
@@ -494,6 +499,8 @@ class GameItem(QtGui.QListWidgetItem):
                     mods += ": On<br/>"
                 else :
                     mods += ": Off<br/>"
+
+        if self.mods: mods += "<br/><br/>With " + ", ".join(self.mods.values())
 
         self.setToolTip(self.FORMATTER_TOOL.format(teams = teams, observers=observers, mods = mods)) 
 
