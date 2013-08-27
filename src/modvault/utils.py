@@ -313,6 +313,14 @@ def downloadMod(item): #most of this function is stolen from fa.maps.downloadMap
         if file_size_dl == file_size:
             zfile = zipfile.ZipFile(output)
             print MODFOLDER
+            dirname = zfile.namelist()[0].split('/',1)[0]
+            if os.path.exists(os.path.join(MODFOLDER, dirname)):
+                oldmod = getModInfoFromFolder(dirname)
+                result = QtGui.QMessageBox.question(None, "Modfolder already exists",
+                                "The mod is to be downloaded to the folder '%s'. This folder already exists and contains <b>%s</b>. Do you want to overwrite this mod?" % (dirname,oldmod.totalname), QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+                if result == QtGui.QMessageBox.No:
+                    return False
+                removeMod(oldmod)
             zfile.extractall(MODFOLDER)
             logger.debug("Successfully downloaded and extracted mod from: " + link)
         else:    

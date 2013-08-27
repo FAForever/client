@@ -110,7 +110,7 @@ class UploadModWidget(FormClass, BaseClass):
         '''
         if iconpath != "" and not infolder:
             QtGui.QMessageBox.information(self.client,"Invalid Icon File",
-                        "The file %s is not located inside the modfolder. Copy the icon file to your modfolder and change the mod_info.lua accordingly")
+                        "The file %s is not located inside the modfolder. Copy the icon file to your modfolder and change the mod_info.lua accordingly" % iconpath)
             return
             '''
             newpath = os.path.join(self.modDir, os.path.split(iconpath)[1])

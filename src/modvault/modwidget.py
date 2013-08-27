@@ -31,7 +31,7 @@ FormClass, BaseClass = util.loadUiType("modvault/mod.ui")
 
 class ModWidget(FormClass, BaseClass):
     def __init__(self, parent, mod, *args, **kwargs):
-        BaseClass.__init__(self, *args, **kwargs)       
+        BaseClass.__init__(self, *args, **kwargs)
 
         self.setupUi(self)
         self.parent = parent
@@ -78,6 +78,7 @@ class ModWidget(FormClass, BaseClass):
     def download(self):
         if not self.mod.uid in self.parent.uids:
             self.parent.downloadMod(self.mod)
+            self.done(1)
         else:
             show = QtGui.QMessageBox.question(self.parent.client, "Delete Mod", "Are you sure you want to delete this mod?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
             if show == QtGui.QMessageBox.Yes:
