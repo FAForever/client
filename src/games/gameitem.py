@@ -209,7 +209,7 @@ class GameItem(QtGui.QListWidgetItem):
         self.access     = message.get('access', 'public')
         self.mod        = message['featured_mod']
         self.modVersion = message.get('featured_mod_versions', [])
-        self.mods       = message.get('mods',[])
+        self.mods       = message.get('mods',{})
         self.options    = message.get('options', [])
         self.numplayers = message.get('num_players', 0) 
         self.slots      = message.get('max_players',12)
@@ -389,7 +389,7 @@ class GameItem(QtGui.QListWidgetItem):
             if not self.mods:
                 modstr = self.mod
             else:
-                modstr = self.mod + " & " + ", ".join(self.mods)
+                modstr = self.mod + " & " + ", ".join(self.mods.values())
             self.setText(self.FORMATTER_MOD.format(color=color, mapslots = self.slots, mapdisplayname=self.mapdisplayname, title=self.title, host=self.host, players=self.numplayers, playerstring=playerstring, gamequality = strQuality, playerincluded = self.playerIncludedTxt, mod=modstr))
         
         
