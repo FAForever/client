@@ -560,7 +560,9 @@ class Updater(QtCore.QObject):
                 self.writeToServer("REQUEST_SIM_PATH", self.mod)
                 self.waitForSimModPath()
                 if self.result == self.RESULT_SUCCESS:
-                    return modvault.downloadMod(self.modpath)
+                    if modvault.downloadMod(self.modpath):
+                        self.writeToServer("ADD_DOWNLOAD_SIM_MOD", self.mod)
+                        
             else:
                 #Prepare FAF directory & all necessary files
                 self.prepareBinFAF()
