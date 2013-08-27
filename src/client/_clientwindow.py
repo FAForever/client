@@ -214,7 +214,7 @@ class ClientWindow(FormClass, BaseClass):
         import featuredmods
         import galacticWar
         import downloadManager
-		import modvault
+        import modvault
         from chat._avatarWidget import avatarWidget
         
         #download manager
@@ -1395,8 +1395,8 @@ class ClientWindow(FormClass, BaseClass):
                     logger.error("You don't have the required map.")
                     return                      
 
-        if "mods" in message:
-            fa.exe.checkMods(message['mods'])                
+        if "sim_mods" in message:
+            fa.exe.checkMods(message['sim_mods'])                
                 
 
         # Writing a file for options

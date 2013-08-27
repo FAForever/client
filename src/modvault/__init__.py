@@ -283,13 +283,9 @@ class ThumbnailDownloader(QtCore.QThread):
         QtCore.QThread.__init__(self)
 
     def run(self):
-        print self.url
         req = urllib2.Request(self.url, headers={'User-Agent' : "FAF Client"})
         thmb = urllib2.urlopen(req)
-        print thmb
-        print self.url
         fname = os.path.join(util.CACHE_DIR, os.path.split(self.url)[1])
-        print fname
         with open(fname, 'wb') as fp:
             shutil.copyfileobj(thmb, fp)
             fp.flush()

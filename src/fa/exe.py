@@ -324,12 +324,16 @@ def checkMods(mods): #mods is a dictionary of uid-name pairs
     uids = [mod.uid for mod in inst]
     for uid in mods:
         if uid not in uids:
-            to_download.append(mods[uid])
+            to_download.append(uid)
 
-    for modname in to_download:
-        result = QtGui.QMessageBox.question(None, "Download Mod", "Seems that you don't have this mod. Do you want to download it?<br/><b>" + modname + "</b>", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+    for uid in to_download:
+        result = QtGui.QMessageBox.question(None, "Download Mod", "Seems that you don't have this mod. Do you want to download it?<br/><b>" + mods[uid] + "</b>", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
         if result == QtGui.QMessageBox.Yes:
-            if not modvault.downloadMod(modname):
+            # Spawn an update for the required mod
+            updater = fa.updater.Updater(uid, sim=True)
+            result = updater.run()
+            updater = None #Our work here is done
+            if (result != fa.updater.Updater.RESULT_SUCCESS):
                 return False
         else:
             return False

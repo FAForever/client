@@ -267,12 +267,16 @@ def generateThumbnail(sourcename, destname):
 
 def downloadMod(item): #most of this function is stolen from fa.maps.downloadMap
     if isinstance(item,basestring):
-        link = MODVAULT_DOWNLOAD_ROOT + urllib2.quote("mods/" + item + ".zip")
+        link = MODVAULT_DOWNLOAD_ROOT + urllib2.quote(item)
+        logger.debug("Getting mod from: " + link)
     else:
         link = item.link
-    logger.debug("Getting mod from: " + link)
+        logger.debug("Getting mod from: " + link)
+        link = urllib2.quote(link, "http://")
+    
+    
 
-    link = urllib2.quote(link, "http://")
+    
     progress = QtGui.QProgressDialog()
     progress.setCancelButtonText("Cancel")
     progress.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
@@ -323,6 +327,7 @@ def downloadMod(item): #most of this function is stolen from fa.maps.downloadMap
                 removeMod(oldmod)
             zfile.extractall(MODFOLDER)
             logger.debug("Successfully downloaded and extracted mod from: " + link)
+            return True
         else:    
             logger.warn("Mod download cancelled for: " + link)
             return False
