@@ -157,10 +157,12 @@ class ModVault(FormClass, BaseClass):
         elif index == 1:
             self.showType = "ui"
         elif index == 2:
-            self.showType = "big"
+            self.showType = "sim"
         elif index == 3:
-            self.showType = "small"
+            self.showType = "big"
         elif index == 4:
+            self.showType = "small"
+        elif index == 5:
             self.showType = "yours"
         self.updateVisibilities()
     
@@ -391,6 +393,8 @@ class ModItem(QtGui.QListWidgetItem):
             return True
         elif p.showType == "ui":
             return self.isuimod
+        elif p.showType == "sim":
+            return not self.isuimod
         elif p.showType == "big":
             return self.isbigmod
         elif p.showType == "small":

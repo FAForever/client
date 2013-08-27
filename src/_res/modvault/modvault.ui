@@ -148,6 +148,11 @@
              </item>
              <item>
               <property name="text">
+               <string>Sim only</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
                <string>Big Mods</string>
               </property>
              </item>

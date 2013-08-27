@@ -209,15 +209,14 @@ class GameItem(QtGui.QListWidgetItem):
         self.access     = message.get('access', 'public')
         self.mod        = message['featured_mod']
         self.modVersion = message.get('featured_mod_versions', [])
-        self.mods       = message.get('mods',{})
+        self.mods       = message.get('sim_mods',{})
         self.options    = message.get('options', [])
         self.numplayers = message.get('num_players', 0) 
         self.slots      = message.get('max_players',12)
         
         oldstate = self.state
         self.state  = message['state']
- 
-        
+      
 
         # Assemble a players & teams lists
         self.teamlist = []
@@ -499,7 +498,7 @@ class GameItem(QtGui.QListWidgetItem):
                 else :
                     mods += ": Off<br/>"
 
-        if self.mods: mods += "<br/><br/>With " + ", ".join(self.mods)
+        if self.mods: mods += "<br/><br/>With " + ", ".join(self.mods.values())
 
         self.setToolTip(self.FORMATTER_TOOL.format(teams = teams, observers=observers, mods = mods)) 
 
