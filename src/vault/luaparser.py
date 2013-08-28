@@ -79,6 +79,7 @@ class luaParser:
 		self.error = False
 		self.warning = False
 		self.errorMsg = ""
+		self.loweringKeys = True
 	
 	def __checkUninterruptibleStr(self, char):
 		if char == "\"" or char == "'":
@@ -150,7 +151,10 @@ class luaParser:
 					key = str(counter)
 				else:
 					#first is key
-					key = lineArray[0].lower()
+					if self.loweringKeys:
+						key = lineArray[0].lower()
+					else:
+						key = lineArray[0]
 					#get rid of redundant chars in key
 					key = self.__keyFilter.sub("", key).strip()
 					#second is value
