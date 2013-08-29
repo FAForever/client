@@ -103,7 +103,7 @@ class ModVault(FormClass, BaseClass):
         self.modList.setItemDelegate(ModItemDelegate(self))
         self.modList.itemDoubleClicked.connect(self.modClicked)
         self.searchButton.clicked.connect(self.search)
-        self.searchInput.returnPressed.connect(self.search)
+        self.searchInput.textChanged.connect(self.search)
         self.uploadButton.clicked.connect(self.openUploadForm)
         self.UIButton.clicked.connect(self.openUIModForm)
 
@@ -120,8 +120,6 @@ class ModVault(FormClass, BaseClass):
         self.mods = {}
         self.uids = [mod.uid for mod in getInstalledMods()]
 
-        #tempAddMods(self)
-
     @QtCore.pyqtSlot(dict)
     def modInfo(self, message): #this is called when the database has send a mod to us
         """
@@ -135,6 +133,7 @@ class ModVault(FormClass, BaseClass):
         else : 
             mod = self.mods[uid]
         mod.update(message)
+        self.modList.sortItems(1)
         
         
 
@@ -172,8 +171,8 @@ class ModVault(FormClass, BaseClass):
         widget = ModWidget(self, item)
         widget.exec_()
 
-    @QtCore.pyqtSlot()
-    def search(self):
+    @QtCore.pyqtSlot(str)
+    def search(self, text):
         self.searchString = self.searchInput.text().lower()
         self.updateVisibilities()
 
@@ -214,14 +213,17 @@ class ModVault(FormClass, BaseClass):
         self.client.send(dict(command="modvault",type="start"))
 
     def updateVisibilities(self):
+        logger.debug("Updating visibilities with sort '%s' and visibility '%s'" % (self.sortType, self.showType))
         for mod in self.mods:
             self.mods[mod].updateVisibility()
+        self.modList.sortItems(1)
 
     def downloadMod(self, mod):
         if downloadMod(mod):
             print mod
             self.client.send(dict(command="modvault",type="download", uid=mod.uid))
             self.uids = [mod.uid for mod in getInstalledMods()]
+            self.updateVisibilities()
             return True
         else: return False
         
@@ -276,33 +278,7 @@ class ModItemDelegate(QtGui.QStyledItemDelegate):
         html = QtGui.QTextDocument()
         html.setHtml(option.text)
         html.setTextWidth(ModItem.TEXTWIDTH)
-        return QtCore.QSize(ModItem.ICONSIZE + ModItem.TEXTWIDTH + ModItem.PADDING, ModItem.ICONSIZE + ModItem.PADDING)  
-
-class ThumbnailDownloader(QtCore.QThread):
-    def __init__(self, url, moditem):
-        self.url = url
-        self.moditem = moditem       
-        QtCore.QThread.__init__(self)
-
-    def run(self):
-        req = urllib2.Request(self.url, headers={'User-Agent' : "FAF Client"})
-        thmb = urllib2.urlopen(req)
-        fname = os.path.join(util.CACHE_DIR, os.path.split(self.url)[1])
-        with open(fname, 'wb') as fp:
-            shutil.copyfileobj(thmb, fp)
-            fp.flush()
-            os.fsync(fp.fileno())       #probably works fine without the flush and fsync
-            fp.close()
-            
-            #Create alpha-mapped preview image
-            f = FIPY.Image(fname)
-            f.setSize((100,100))
-            f.save(fname)
-            logger.debug("Mod Preview downloaded from %s" % self.url)
-
-        self.moditem.thumbnail = util.icon(fname, False)
-        self.moditem.setIcon(self.moditem.thumbnail)
-        
+        return QtCore.QSize(ModItem.ICONSIZE + ModItem.TEXTWIDTH + ModItem.PADDING, ModItem.ICONSIZE + ModItem.PADDING)   
 
 class ModItem(QtGui.QListWidgetItem):
     TEXTWIDTH = 230
@@ -340,7 +316,7 @@ class ModItem(QtGui.QListWidgetItem):
         self.setHidden(True)
 
     def update(self, dic):
-        print dic
+        #print dic
         self.name = dic["name"]
         self.description = dic["description"]
         self.version = dic["version"]
@@ -361,26 +337,13 @@ class ModItem(QtGui.QListWidgetItem):
         if self.thumbstr == "":
             self.setIcon(util.icon("games/unknown_map.png"))
         else:
-            self.loadThread = ThumbnailDownloader(self.thumbstr, self)
-            self.loadThread.run()
+            self.parent.client.downloader.downloadModPreview(self.thumbstr, self)
 
-        if len(self.description) < 200:
-            descr = self.description
-        else:
-            descr = self.description[:197] + "..."
-
-        modtype = ""
-        if self.isuimod: modtype ="UI mod"
-        elif self.isbigmod: modtype="big mod"
-        elif self.issmallmod: modtype="small mod"
-        if self.uid in self.parent.uids: color="green"
-        else: color="white"
-        self.setText(self.FORMATTER_MOD.format(color=color,version=str(self.version),title=self.name,
-            description=descr, author=self.author,downloads=str(self.downloads),
-            likes=str(self.likes),date=str(self.date),modtype=modtype))
-
-        self.setToolTip('<p width="230">%s</p>' % self.description)
+        
         self.updateVisibility()
+
+    def updateIcon(self):
+        self.setIcon(self.thumbnail)
 
     def shouldBeVisible(self):
         p = self.parent
@@ -404,6 +367,22 @@ class ModItem(QtGui.QListWidgetItem):
 
     def updateVisibility(self):
         self.setHidden(not self.shouldBeVisible())
+        if len(self.description) < 200:
+            descr = self.description
+        else:
+            descr = self.description[:197] + "..."
+
+        modtype = ""
+        if self.isuimod: modtype ="UI mod"
+        elif self.isbigmod: modtype="big mod"
+        elif self.issmallmod: modtype="small mod"
+        if self.uid in self.parent.uids: color="green"
+        else: color="white"
+        self.setText(self.FORMATTER_MOD.format(color=color,version=str(self.version),title=self.name,
+            description=descr, author=self.author,downloads=str(self.downloads),
+            likes=str(self.likes),date=str(self.date),modtype=modtype))
+
+        self.setToolTip('<p width="230">%s</p>' % self.description)
 
     def __ge__(self, other):
         return not self.__lt__(self, other)
@@ -414,9 +393,9 @@ class ModItem(QtGui.QListWidgetItem):
                 return (self.uid < other.uid)
             return (self.name.lower() > other.name.lower())
         elif self.parent.sortType == "rating":
-            if self.rating == other.rating:
+            if self.likes == other.likes:
                 return (self.downloads < other.downloads)
-            return (self.rating < other.rating)
+            return (self.likes < other.likes)
         elif self.parent.sortType == "downloads":
             if self.downloads == other.downloads:
                 return (self.date < other.date)

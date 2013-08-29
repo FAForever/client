@@ -37,14 +37,18 @@ class downloadManager(QtCore.QObject):
         self.nam = QNetworkAccessManager()
         
         self.nam.finished.connect(self.finishedDownload)
-        
+
+        self.modRequests = {}
         self.mapRequests = {}
         self.mapRequestsItem = []
         
     def finishedDownload(self,reply):
         ''' finishing downloads '''
-        urlstring = reply.url().toString() 
-        if urlstring in self.mapRequests:
+        urlstring = reply.url().toString()
+        reqlist = []
+        if urlstring in self.mapRequests: reqlist = self.mapRequests[urlstring]
+        if urlstring in self.modRequests: reqlist = self.modRequests[urlstring]
+        if reqlist:
             #save the map from cache
             name = os.path.basename(reply.url().toString())
             pathimg = os.path.join(util.CACHE_DIR, name)
@@ -61,14 +65,15 @@ class downloadManager(QtCore.QObject):
             except:
                 logger.info("Failed to resize " + name)
             logger.debug("Web Preview used for: " + name)
-            for requester in self.mapRequests[urlstring]:
+            for requester in reqlist:
                 if requester:
                     if requester in self.mapRequestsItem:
                         requester.setIcon(0, util.icon(pathimg, False))
                         self.mapRequestsItem.remove(requester)
                     else:
                         requester.setIcon(util.icon(pathimg, False))
-            del self.mapRequests[urlstring]
+            if urlstring in self.mapRequests: del self.mapRequests[urlstring]
+            if urlstring in self.modRequests: del self.modRequests[urlstring]
             
     def downloadMap(self, name, requester, item=False):
         '''
@@ -91,3 +96,12 @@ class downloadManager(QtCore.QObject):
             self.mapRequests[url.toString()].append(requester)
         if item:
             self.mapRequestsItem.append(requester)
+
+    def downloadModPreview(self, strurl, requester):
+        url = QtCore.QUrl(strurl)
+        if not url.toString() in self.modRequests:
+            logger.debug("Searching mod preview for: " + os.path.basename(strurl).rsplit('.',1)[0])
+            self.modRequests[url.toString()] = []
+            request = QNetworkRequest(url)
+            self.nam.get(request)
+        self.modRequests[url.toString()].append(requester)
