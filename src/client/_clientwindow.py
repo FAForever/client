@@ -1012,7 +1012,7 @@ class ClientWindow(FormClass, BaseClass):
                 add_mods = json.loads(modstr) # should be a list
             except:
                 logger.info("Couldn't load urlquery value 'mods'")
-            if fa.exe.check(url.queryItemValue("mod"), url.queryItemValue("map"), additional_mods = add_mods):            
+            if fa.exe.check(url.queryItemValue("mod"), url.queryItemValue("map"), sim_mods = add_mods):            
                 self.send(dict(command="game_join", uid=int(url.queryItemValue("uid")), gameport=self.gamePort))
     
 
