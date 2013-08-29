@@ -389,7 +389,9 @@ class GameItem(QtGui.QListWidgetItem):
             if not self.mods:
                 modstr = self.mod
             else:
-                modstr = self.mod + " & " + ", ".join(self.mods.values())
+                if self.mod == 'faf': modstr = ", ".join(self.mods.values())
+                else: modstr = self.mod + " & " + ", ".join(self.mods.values())
+                if len(modstr) > 20: modstr = modstr[:15] + "..."
             self.setText(self.FORMATTER_MOD.format(color=color, mapslots = self.slots, mapdisplayname=self.mapdisplayname, title=self.title, host=self.host, players=self.numplayers, playerstring=playerstring, gamequality = strQuality, playerincluded = self.playerIncludedTxt, mod=modstr))
         
         if self.uid == 0:
@@ -500,7 +502,7 @@ class GameItem(QtGui.QListWidgetItem):
                 else :
                     mods += ": Off<br/>"
 
-        if self.mods: mods += "<br/><br/>With " + ", ".join(self.mods.values())
+        if self.mods: mods += "<br/><br/>With " + "<br/>".join(self.mods.values())
 
         self.setToolTip(self.FORMATTER_TOOL.format(teams = teams, observers=observers, mods = mods)) 
 
