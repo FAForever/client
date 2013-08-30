@@ -492,7 +492,7 @@
   </action>
   <action name="actionColoredNicknames">
    <property name="checkable">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="text">
     <string>Colored nicknames</string>

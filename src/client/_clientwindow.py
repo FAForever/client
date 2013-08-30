@@ -538,7 +538,7 @@ class ClientWindow(FormClass, BaseClass):
         util.settings.setValue("opengames", self.opengames)
         util.settings.setValue("joinsparts", self.joinsparts)
         util.settings.setValue("autopostjoin", self.autopostjoin)
-        util.settings.setValue("coloredNicknames", self.autopostjoin)
+        util.settings.setValue("coloredNicknames", self.coloredNicknames)
         util.settings.endGroup()
         
     
@@ -924,7 +924,10 @@ class ClientWindow(FormClass, BaseClass):
         elif name in self.foes:
             return self.getColor("foe")
         elif name in self.players:
-            return self.getColor("player")
+            if self.coloredNicknames:
+                return self.getRandomColor(name)
+            else:
+                return self.getColor("player")
         else:
             if self.coloredNicknames:
                 return self.getRandomColor(name)
