@@ -56,14 +56,16 @@ class downloadManager(QtCore.QObject):
             img.open(QtCore.QIODevice.WriteOnly)
             img.write(reply.readAll())
             img.close()
-                
-            #Create alpha-mapped preview image
-            try:
-                f = FIPY.Image(pathimg)
-                f.setSize((100,100))
-                f.save(pathimg)
-            except:
-                logger.info("Failed to resize " + name)
+            if os.path.exists(pathimg):
+                #Create alpha-mapped preview image
+                try:
+                    f = FIPY.Image(pathimg)
+                    f.setSize((100,100))
+                    f.save(pathimg)
+                except:
+                    logger.info("Failed to resize " + name)
+            else :
+                logger.debug("Web Preview failed for: " + name)
             logger.debug("Web Preview used for: " + name)
             for requester in reqlist:
                 if requester:
