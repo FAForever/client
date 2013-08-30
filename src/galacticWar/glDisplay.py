@@ -1,13 +1,17 @@
 
 from galacticWar import logger
 import logging
-
+import warnings
 from PyQt4 import QtCore, QtGui, QtOpenGL
 
 logger = logging.getLogger("faf.galacticWar")
 logger.setLevel(logging.DEBUG)
-from OpenGL import GL
-from OpenGL import GLU
+try:
+    from OpenGL import GL
+    from OpenGL import GLU
+except:
+    pass
+warnings.simplefilter("error")
 from fa import maps
 import fa
 
@@ -802,6 +806,8 @@ class GLWidget(QtOpenGL.QGLWidget):
             for uid in defenses :
                 item = defenses[uid]
                 amount = item.amount
+                if amount == 0:
+                    continue
                 structure = item.structure
                 iconName = "%s_icon.png" % structure
                 

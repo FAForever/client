@@ -128,7 +128,6 @@ class GWOptions(FormClass, BaseClass):
             util.settings.endGroup()
         
     def loadSettings(self):
-        print "loading settings"
         util.settings.beginGroup("GalacticWar")
         self.parent.mapTransparency = int(util.settings.value("map/transparency", 10))
         self.parent.stars = int(util.settings.value("map/stars", 25))

@@ -26,9 +26,9 @@ class AttackItem(QtGui.QListWidgetItem):
         QtGui.QListWidgetItem.__init__(self, *args, **kwargs)
         
         self.uid            = uid      
-        self.timeAttack     = time.time()
+        self.timeAttack     = 0
         self.itemText        = ""
-       
+        self.startedAt      = time.time()
         self.updateTimer    = QtCore.QTimer()
         self.updateTimer.timeout.connect(self.updateText)
         self.updateTimer.start(1000)        
@@ -38,10 +38,12 @@ class AttackItem(QtGui.QListWidgetItem):
         Updates this item from the message dictionary supplied
         '''
         self.parent        = parent
-        self.timeAttack    = time.time() + attack["timeAttack"]        
-
+        self.timeAttack    = attack["timeAttack"]        
+        self.startedAt     = time.time()
+        
     def updateText(self):
-        timePercent = (time/TIME_CHARGE) * 100.0
+        timeAttack = time.time() - self.startedAt + self.timeAttack
+        timePercent = (timeAttack/TIME_CHARGE) * 100.0
         
         if timePercent >= 100 :
             self.parent.timeOut(self.uid)
