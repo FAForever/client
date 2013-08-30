@@ -41,6 +41,7 @@ import sys
 import replays
 import time
 import os
+import random
 
 from profile import playerstats
 
@@ -355,6 +356,7 @@ class ClientWindow(FormClass, BaseClass):
         self.actionSetAutoPostJoin.triggered.connect(self.updateOptions)
         self.actionSetLiveReplays.triggered.connect(self.updateOptions)
         self.actionSaveGamelogs.triggered.connect(self.updateOptions)
+        self.actionColoredNicknames.triggered.connects(self.updateOptions)
         self.actionActivateMumbleSwitching.triggered.connect(self.saveMumbleSwitching)
         
         
@@ -384,6 +386,7 @@ class ClientWindow(FormClass, BaseClass):
         self.autopostjoin = self.actionSetAutoPostJoin.isChecked()
         self.livereplays = self.actionSetLiveReplays.isChecked()
         self.gamelogs = self.actionSaveGamelogs.isChecked()
+        self.coloredNicknames = self.actionColoredNicknames.isChecked()
                  
         self.saveChat()
         self.saveCredentials()
@@ -535,6 +538,7 @@ class ClientWindow(FormClass, BaseClass):
         util.settings.setValue("opengames", self.opengames)
         util.settings.setValue("joinsparts", self.joinsparts)
         util.settings.setValue("autopostjoin", self.autopostjoin)
+        util.settings.setValue("coloredNicknames", self.autopostjoin)
         util.settings.endGroup()
         
     
@@ -598,8 +602,10 @@ class ClientWindow(FormClass, BaseClass):
             self.joinsparts = (util.settings.value("joinsparts", "false") == "true")
             self.livereplays = (util.settings.value("livereplays", "true") == "true")
             self.autopostjoin = (util.settings.value("autopostjoin", "true") == "true")
+            self.coloredNicknames = (util.settings.value("coloredNicknames", "false") == "true")
+            
             util.settings.endGroup()
-
+            self.actionColoredNicknames.setChecked(self.coloredNicknames)
             self.actionSetSoundEffects.setChecked(self.soundeffects)
             self.actionSetLiveReplays.setChecked(self.livereplays)
             self.actionSetOpenGames.setChecked(self.opengames)
@@ -873,6 +879,7 @@ class ClientWindow(FormClass, BaseClass):
     #Color table used by the following method
     # CAVEAT: This will break if the theme is loaded after the client package is imported
     colors = json.loads(util.readfile("client/colors.json"))
+    randomcolors = json.loads(util.readfile("client/randomcolors.json"))
 
     def getUserLeague(self, name):
         '''
@@ -919,8 +926,16 @@ class ClientWindow(FormClass, BaseClass):
         elif name in self.players:
             return self.getColor("player")
         else:
-            return self.getColor("default")
+            if self.coloredNicknames:
+                return self.getRandomColor(name)
+            else:
+                return self.getColor("default")
 
+
+    def getRandomColor(self, name):
+        '''Generate a random color from a name'''
+        random.seed(name)
+        return random.choice(self.randomcolors)
 
     def getColor(self, name):
         if name in self.colors:
@@ -928,8 +943,8 @@ class ClientWindow(FormClass, BaseClass):
         else:
             return self.colors["default"]
 
-    
-    
+
+
     def getUserRanking(self, name):
         '''
         Returns a user's ranking (trueskill rating) as a float.

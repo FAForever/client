@@ -270,6 +270,8 @@
      </property>
      <addaction name="actionClearWindow"/>
      <addaction name="separator"/>
+	 <addaction name="actionColoredNicknames"/>
+	 <addaction name="separator"/
      <addaction name="actionSetJoinsParts"/>
      <addaction name="actionSetOpenGames"/>
      <addaction name="actionSetLiveReplays"/>
@@ -489,6 +491,12 @@
     <string>Clear Window</string>
    </property>
   </action>
+  <action name="actionColoredNicknames">
+   <property name="checkable">
+    <string>Colored Nicknames</string>
+    <bool>true</bool>
+   </property>
+  </action>  
   <action name="actionWiki">
    <property name="text">
     <string>Wiki</string>
