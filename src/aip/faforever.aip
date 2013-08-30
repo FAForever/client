@@ -10,10 +10,10 @@
     <ROW Property="ARPURLUPDATEINFO" Value="http://www.faforever.com/page=2"/>
     <ROW Property="CTRLS" Value="2"/>
     <ROW Property="Manufacturer" Value="FAF Community" ValueLocId="*"/>
-    <ROW Property="ProductCode" Value="1033:{736C6799-9826-4915-A3F7-D9F4AB5B56C7} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{A7D5F21B-E217-43BC-9A06-0E63E123405D} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Forged Alliance Forever" ValueLocId="*"/>
-    <ROW Property="ProductVersion" Value="240.8.69"/>
+    <ROW Property="ProductVersion" Value="240.8.70"/>
     <ROW Property="REBOOT" MultiBuildValue="DefaultBuild:Suppress"/>
     <ROW Property="RUNAPPLICATION" Value="1" Type="4"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
@@ -1468,6 +1468,7 @@
     <ROW File="query_buffer_object.pyc" Component_="blend_minmax_factor.pyc" FileName="query_~1.pyc|query_buffer_object.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\AMD\query_buffer_object.pyc" SelfReg="false" NextFile="sample_positions.pyc"/>
     <ROW File="query_buffer_object.pyc_1" Component_="blend_minmax_factor.pyc_1" FileName="query_~1.pyc|query_buffer_object.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\AMD\query_buffer_object.pyc" SelfReg="false" NextFile="sample_positions.pyc_1"/>
     <ROW File="random.png" Component_="aeon.png" FileName="random.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\automatch\random.png" SelfReg="false" NextFile="Nomads.png_1"/>
+    <ROW File="randomcolors.json" Component_="about.ui" FileName="random~1.jso|randomcolors.json" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\randomcolors.json" SelfReg="false"/>
     <ROW File="rasterpos_clip.pyc" Component_="cull_vertex.pyc" FileName="raster~1.pyc|rasterpos_clip.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\IBM\rasterpos_clip.pyc" SelfReg="false" NextFile="texture_mirrored_repeat.pyc_1"/>
     <ROW File="rasterpos_clip.pyc_1" Component_="cull_vertex.pyc_1" FileName="raster~1.pyc|rasterpos_clip.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\IBM\rasterpos_clip.pyc" SelfReg="false" NextFile="texture_mirrored_repeat.pyc_3"/>
     <ROW File="raw.qthtml" Component_="action.qthtml" FileName="raw~1.qth|raw.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\formatters\raw.qthtml" SelfReg="false" NextFile="readme.txt"/>
@@ -1925,7 +1926,7 @@
     <ROW File="uniform_buffer_object.pyc_1" Component_="arrays_of_arrays.pyc_1" FileName="unifor~1.pyc|uniform_buffer_object.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\ARB\uniform_buffer_object.pyc" SelfReg="false" NextFile="vertex_array_bgra.pyc_2"/>
     <ROW File="unknown_map.png" Component_="games.ui" FileName="unknow~1.png|unknown_map.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\unknown_map.png" SelfReg="false" NextFile="broken.png"/>
     <ROW File="upgrade_watermark.png" Component_="failure.ui" FileName="upgrad~1.png|upgrade_watermark.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\fa\updater\upgrade_watermark.png" SelfReg="false" NextFile="aeon.png"/>
-    <ROW File="upload.ui" Component_="comment.qthtml" FileName="upload.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\modvault\upload.ui" SelfReg="false"/>
+    <ROW File="upload.ui" Component_="comment.qthtml" FileName="upload.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\modvault\upload.ui" SelfReg="false" NextFile="randomcolors.json"/>
     <ROW File="us.png" Component_="ad.png" FileName="us.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\us.png" SelfReg="false" NextFile="uy.png"/>
     <ROW File="uy.png" Component_="ad.png" FileName="uy.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\uy.png" SelfReg="false" NextFile="uz.png"/>
     <ROW File="uz.png" Component_="ad.png" FileName="uz.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\uz.png" SelfReg="false" NextFile="va.png"/>
