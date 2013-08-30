@@ -356,7 +356,8 @@ class LobbyWidget(FormClass, BaseClass):
     
     def handle_news_feed(self, message):
         '''Adding news to news feed'''
-        self.newsTicker.addNews(message["news"])
+        if self.newsTicker:
+            self.newsTicker.addNews(message["news"])
     
     def handle_player_info(self, message):
         ''' Update Player stats '''

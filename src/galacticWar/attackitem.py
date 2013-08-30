@@ -16,7 +16,7 @@
 # GNU General Public License for more details.
 #-------------------------------------------------------------------------------
 
-
+TIME_CHARGE = 60.0*10.0
 
 from PyQt4 import QtCore, QtGui
 import time
@@ -41,15 +41,12 @@ class AttackItem(QtGui.QListWidgetItem):
         self.timeAttack    = time.time() + attack["timeAttack"]        
 
     def updateText(self):
-        remaining = (max(0,self.timeAttack - time.time()))
+        timePercent = (time/TIME_CHARGE) * 100.0
         
-        if remaining == 0 :
+        if timePercent >= 100 :
             self.parent.timeOut(self.uid)
         
-        if remaining < 240 :
-            self.setText("%s [Attack in %i seconds]" % (self.parent.parent.galaxy.get_name(self.uid), remaining))
-        else :
-            remaining = int(remaining / 60)
-            self.setText("%s [Attack in %i minutes]" % (self.parent.parent.galaxy.get_name(self.uid), remaining))
+
+        self.setText("%s [Charging attack ... %0.2f%%]" % (self.parent.parent.galaxy.get_name(self.uid), timePercent))
         
         
