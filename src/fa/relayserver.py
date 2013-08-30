@@ -122,8 +122,9 @@ class Relayer(QtCore.QObject):
         self.inputSocket = local_socket
         self.client = client
 
-        self.blockSizeFromServer = 0
 
+        # for unpacking FA protocol
+        self.blockSizeFromServer = 0
         self.headerSizeRead = False
         self.headerRead = False
         self.chunkSizeRead = False
@@ -137,9 +138,8 @@ class Relayer(QtCore.QObject):
 
         self.pingTimer = None
         
-        
         #self.inputSocket.setSocketOption(QtNetwork.QTcpSocket.KeepAliveOption, 1)
-        self.inputSocket.readyRead.connect(self.readDatas)
+        self.inputSocket.readyRead.connect(self.readData)
         self.inputSocket.disconnected.connect(self.inputDisconnected)
         self.__logger.info("FA connected locally.")  
         
@@ -159,7 +159,7 @@ class Relayer(QtCore.QObject):
         else:
             self.__logger.error("no connection to internet relay server")
 
-        self.relaySocket.readyRead.connect(self.readDatasFromServer)
+        self.relaySocket.readyRead.connect(self.readDataFromServer)
         
     def __del__(self):
         #Find out whether this really does what it should (according to docs, sockets should be manually deleted to conserver resources)
@@ -168,7 +168,7 @@ class Relayer(QtCore.QObject):
         self.__logger.debug("destructor called")        
            
 
-    def readDatasFromServer(self):
+    def readDataFromServer(self):
         ins = QtCore.QDataStream(self.relaySocket)        
         ins.setVersion(QtCore.QDataStream.Qt_4_2)
         
@@ -187,8 +187,7 @@ class Relayer(QtCore.QObject):
 
 
 
-    def readDatas(self):
-        self.__logger.info("reading socket from FA") 
+    def readData(self):
         if self.inputSocket.bytesAvailable() == 0 :
             self.__logger.info("data reception read done - too or not enough data")
             return
