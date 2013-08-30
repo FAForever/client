@@ -156,6 +156,10 @@ def getActiveMods(uimods=None): # returns a list of ModInfo's containing informa
         True - only return active UI Mods
         False - only return active non-UI Mods
     """
+    if not os.path.exists(PREFSFILENAME):
+        logger.info("No game.prefs file found")
+        return
+    
     l = luaparser.luaParser(PREFSFILENAME)
     l.loweringKeys = False
     modlist = l.parse({"active_mods":"active_mods"},{"active_mods":{}})["active_mods"]

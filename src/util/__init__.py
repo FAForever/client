@@ -77,6 +77,8 @@ BIN_DIR = os.path.join(APPDATA_DIR , "bin")
 GAMEDATA_DIR = os.path.join(APPDATA_DIR , "gamedata")
 
 LOCALFOLDER = os.path.join(os.path.expandvars("%LOCALAPPDATA%"), "Gas Powered Games", "Supreme Commander Forged Alliance")
+if not os.path.exists(LOCALFOLDER):
+    LOCALFOLDER = os.path.join(os.path.expandvars("%USERPROFILE%"), "Local Settings", "Application Data", "Gas Powered Games", "Supreme Commander Forged Alliance")
 PREFSFILENAME = os.path.join(LOCALFOLDER, "game.prefs")
 
 DOWNLOADED_RES_PIX = {}
