@@ -57,10 +57,14 @@ If there is default value for a search entry, error will not be generated. Defau
 	destination - you can specify a dictionary for matched items in the resulting array
 """
 import re
+import zipfile
+import os
 
 class luaParser:
 	
 	def __init__(self, luaPath):
+		self.iszip = False
+		self.zip = None
 		self.__path = luaPath
 		self.__keyFilter = re.compile("[\[\],'\"]")
 		self.__valFilter = re.compile("[\[\]]")
@@ -246,7 +250,21 @@ class luaParser:
         
 	def __parseLua(self):
 		#open file
-		f = open(self.__path, "r")
+		if self.iszip == False:
+			f = open(self.__path, "r")
+		else:
+			if self.zip.testzip() == None :
+				for member in self.zip.namelist() :
+					filename = os.path.basename(member)
+					if not filename:
+						continue
+					if filename == self.__path:
+						f = self.zip.open(member)
+						break
+		if not f :
+			return
+			
+
 		self.__stream = f.readlines()
 		if self.__stream[-1][-1] != "\n": # file doesn't end in a newline
                         self.__stream[-1] += "\n" # needed to prevent a bug happening when a file doesn't end with a newline.

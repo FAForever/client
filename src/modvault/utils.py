@@ -46,7 +46,7 @@ class ModInfo(object):
     def __init__(self, **kwargs):
         self.name = "Not filled in"
         self.version = 0
-        self.localfolder = ""
+        self.folder = ""
         self.__dict__.update(kwargs)
 
     def setFolder(self, localfolder):
@@ -72,7 +72,7 @@ class ModInfo(object):
         return out
 
     def __str__(self):
-        return '%s in "%s"' % (self.totalname, self.folder)
+        return '%s in "%s"' % (self.totalname, self.localfolder)
 
 def getAllModFolders(): #returns a list of names of installed mods
         mods = []
@@ -83,7 +83,10 @@ def getAllModFolders(): #returns a list of names of installed mods
 def getInstalledMods():
     installedMods[:] = []
     for f in getAllModFolders():
-        m = getModInfoFromFolder(f)
+        if os.path.isdir(os.path.join(MODFOLDER,f)):
+            m = getModInfoFromFolder(f)
+        else:
+            m = getModInfoFromZip(f)
         if m:
             installedMods.append(m)
     logger.debug("getting installed mods. Count: %d" % len(installedMods))
@@ -117,16 +120,14 @@ def getIcon(name):
         return img
     return None
 
-def parseModInfo(folder):
-    if not isModFolderValid(folder):
-        return None
-    modinfofile = luaparser.luaParser(os.path.join(folder,"mod_info.lua"))
+def getModInfo(modinfofile):
     modinfo = modinfofile.parse({"name":"name","uid":"uid","version":"version","author":"author",
                                  "description":"description","ui_only":"ui_only",
                                  "icon":"icon"},
                                 {"version":"1","ui_only":"false","description":"","icon":"","author":""})
     modinfo["ui_only"] = (modinfo["ui_only"] == 'true')
     if not "uid" in modinfo:
+        logger.warn("Couldn't find uid for mod %s" % modinfo["name"])
         return None
     #modinfo["uid"] = modinfo["uid"].lower()
     try:
@@ -135,10 +136,50 @@ def parseModInfo(folder):
         try:
             modinfo["version"] = float(modinfo["version"])
         except:
-            logger.warn("Couldn't convert version to int in %s: %s" % (folder, modinfo["version"]))
-    return (modinfofile, modinfo)
+            modinfo["version"] = 0
+            logger.warn("Couldn't find version for mod %s" % modinfo["name"])
+    return (modinfofile, modinfo)    
+
+def parseModInfo(folder):
+    if not isModFolderValid(folder):
+        return None
+    modinfofile = luaparser.luaParser(os.path.join(folder,"mod_info.lua"))
+    return getModInfo(modinfofile)
 
 modCache = {}
+
+def getModInfoFromZip(zfile):
+    '''get the mod info from a zip file'''
+    if zfile in modCache:
+        return modCache[zfile]
+    
+    r = None
+    if zipfile.is_zipfile(os.path.join(MODFOLDER,zfile)) :
+        zip = zipfile.ZipFile(os.path.join(MODFOLDER,zfile), "r", zipfile.ZIP_DEFLATED)
+        if zip.testzip() == None :
+            for member in zip.namelist() :
+                filename = os.path.basename(member)
+                if not filename:
+                    continue
+                if filename == "mod_info.lua":
+                    modinfofile = luaparser.luaParser("mod_info.lua")
+                    modinfofile.iszip = True
+                    modinfofile.zip = zip
+                    r = getModInfo(modinfofile)
+    if r == None:
+        logger.debug("mod_info.lua not found in zip file %s" % zfile)
+        return None
+    f, info = r
+    if f.error:
+        logger.debug("Error in parsing mod_info.lua in %s" % zfile)
+        return None
+    m = ModInfo(**info)
+    print zfile
+    m.setFolder(zfile)
+    m.update()
+    modCache[zfile] = m
+    return m
+
 def getModInfoFromFolder(modfolder): # modfolder must be local to MODFOLDER
     if modfolder in modCache:
         return modCache[modfolder]
