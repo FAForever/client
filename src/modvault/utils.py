@@ -396,10 +396,19 @@ def downloadMod(item): #most of this function is stolen from fa.maps.downloadMap
     
 
 def removeMod(mod):
-    if mod not in installedMods:
-        return
-    shutil.rmtree(mod.absfolder)
-    if mod.localfolder in modCache:
-        del modCache[mod.localfolder]
-    installedMods.remove(mod)
-    
+    logger.debug("removing mod %s" % mod.name)
+    real = None
+    for m in getInstalledMods():
+        if m.uid == mod.uid:
+            real = m
+            break
+    else:
+        logger.debug("Can't remove mod. Mod not found.")
+        return False
+    shutil.rmtree(real.absfolder)
+    if real.localfolder in modCache:
+        del modCache[real.localfolder]
+    installedMods.remove(real)
+    return True
+    #we don't update the installed mods, because the operating system takes
+    #some time registering the deleted folder.

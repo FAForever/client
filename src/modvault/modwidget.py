@@ -82,7 +82,7 @@ class ModWidget(FormClass, BaseClass):
         else:
             show = QtGui.QMessageBox.question(self.parent.client, "Delete Mod", "Are you sure you want to delete this mod?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
             if show == QtGui.QMessageBox.Yes:
-                modvault.removeMod(self.mod)
+                self.parent.removeMod(self.mod)
                 self.done(1)
 
     @QtCore.pyqtSlot()

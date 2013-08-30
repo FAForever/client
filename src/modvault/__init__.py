@@ -164,6 +164,8 @@ class ModVault(FormClass, BaseClass):
             self.showType = "small"
         elif index == 5:
             self.showType = "yours"
+        elif index == 6:
+            self.showType = "installed"
         self.updateVisibilities()
     
 
@@ -226,6 +228,11 @@ class ModVault(FormClass, BaseClass):
             self.updateVisibilities()
             return True
         else: return False
+
+    def removeMod(self, mod):
+        if removeMod(mod):
+            self.uids = [m.uid for m in installedMods]
+            mod.updateVisibility()
         
 
 #the drawing helper function for the modlist
@@ -363,6 +370,8 @@ class ModItem(QtGui.QListWidgetItem):
             return self.issmallmod
         elif p.showType == "yours":
             return self.uploadedbyuser
+        elif p.showType == "installed":
+            return self.uid in self.parent.uids
         else: #shouldn't happen
             return True
 
