@@ -74,6 +74,7 @@ class ReinforcementItem(QtGui.QListWidgetItem):
         self.description    = None
         self.owned          = 0
         self.disabled       = False
+        
 
         self.setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsDropEnabled | QtCore.Qt.ItemIsDragEnabled)
 
@@ -115,8 +116,12 @@ class ReinforcementItem(QtGui.QListWidgetItem):
         iconName = "%s_icon.png" % self.uid
         icon = util.iconUnit(iconName)
         self.setIcon(icon)
-        self.setHidden(False)
         
+        if message["display"] :
+            self.setHidden(False)
+        else:
+            self.setHidden(True)
+            
         self.setText(self.FORMATTER_REINFORCEMENT.format(color="black", owned = 0, name=self.name, description = self.description, activation=self.activation, price=self.price))
         
     def __ge__(self, other):

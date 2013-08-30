@@ -202,8 +202,6 @@ class ReinforcementWidget(FormClass, BaseClass):
         self.GroupCostText.setText("0")
         self.CostText.setText("0 minutes")
         
-                        
-
     def myGroupsPressed(self, item):
         '''Options for existing groups'''
         
