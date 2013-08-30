@@ -32,7 +32,6 @@ class GLWidget(QtOpenGL.QGLWidget):
     UPDATE_ROTATION = 22
 
     def __init__(self, parent=None):
-        print parent.AA
         if parent.AA:
             super(GLWidget, self).__init__(QtOpenGL.QGLFormat(QtOpenGL.QGL.SampleBuffers), parent)
         else:

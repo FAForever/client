@@ -215,7 +215,6 @@ class StatsWidget(BaseClass, FormClass):
             self.laddermaplist.emit(message)
 
         elif type == "ladder_map_stat" :
-            print message
             self.laddermapstat.emit(message)
 
     @QtCore.pyqtSlot()

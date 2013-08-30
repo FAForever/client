@@ -221,7 +221,6 @@ class ModVault(FormClass, BaseClass):
 
     def downloadMod(self, mod):
         if downloadMod(mod):
-            print mod
             self.client.send(dict(command="modvault",type="download", uid=mod.uid))
             self.uids = [mod.uid for mod in getInstalledMods()]
             self.updateVisibilities()
@@ -317,7 +316,6 @@ class ModItem(QtGui.QListWidgetItem):
         self.setHidden(True)
 
     def update(self, dic):
-        #print dic
         self.name = dic["name"]
         self.description = dic["description"]
         self.version = dic["version"]

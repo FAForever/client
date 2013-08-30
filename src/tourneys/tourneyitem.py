@@ -135,8 +135,6 @@ class TourneyItemDelegate(QtGui.QStyledItemDelegate):
         for key in junctionsTo :
             fromLength = len(junctionsFrom[key+1])
             toLength = len(junctionsTo[key])
-            print fromLength
-            print toLength
             if fromLength == toLength : 
                 for i in range(toLength) :         
                     

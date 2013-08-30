@@ -67,7 +67,6 @@ class ModInfo(object):
     def to_dict(self):
         out = {}
         for k,v in self.__dict__.items():
-            print k,v
             if isinstance(v, (unicode, str, int, float)) and not k[0] == '_':
                 out[k] = v
         return out
@@ -302,8 +301,6 @@ def downloadMod(item): #most of this function is stolen from fa.maps.downloadMap
 
         meta = zipwebfile.info()
         file_size = int(meta.getheaders("Content-Length")[0])
-        print file_size
-        print meta
         progress.setMinimum(0)
         progress.setMaximum(file_size)
         progress.setModal(1)
@@ -329,7 +326,6 @@ def downloadMod(item): #most of this function is stolen from fa.maps.downloadMap
         
         if file_size_dl == file_size:
             zfile = zipfile.ZipFile(output)
-            print MODFOLDER
             dirname = zfile.namelist()[0].split('/',1)[0]
             if os.path.exists(os.path.join(MODFOLDER, dirname)):
                 oldmod = getModInfoFromFolder(dirname)

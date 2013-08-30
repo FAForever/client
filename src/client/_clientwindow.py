@@ -356,7 +356,7 @@ class ClientWindow(FormClass, BaseClass):
         self.actionSetAutoPostJoin.triggered.connect(self.updateOptions)
         self.actionSetLiveReplays.triggered.connect(self.updateOptions)
         self.actionSaveGamelogs.triggered.connect(self.updateOptions)
-        self.actionColoredNicknames.triggered.connects(self.updateOptions)
+        self.actionColoredNicknames.triggered.connect(self.updateOptions)
         self.actionActivateMumbleSwitching.triggered.connect(self.saveMumbleSwitching)
         
         
@@ -1487,7 +1487,6 @@ class ClientWindow(FormClass, BaseClass):
             self.avatarList.emit(message["avatarlist"])
             
         elif "player_avatar_list" in message :
-            print "emitting signal"
             self.playerAvatarList.emit(message)
     
     def handle_social(self, message):

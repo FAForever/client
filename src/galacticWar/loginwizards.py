@@ -51,13 +51,6 @@ class gwSelectFaction(QtGui.QWizard):
 
         self.setWindowTitle("Create Account")
 
-#    def cleaningPage(self, id):
-#        if id == 0 :
-#            print "clean"
-#            self.webview.setUrl(QtCore.QUrl(""))
-#            
-
-
 class IntroPage(QtGui.QWizardPage):
     def __init__(self, parent=None):
         super(IntroPage, self).__init__(parent)

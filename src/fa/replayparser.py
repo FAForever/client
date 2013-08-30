@@ -33,7 +33,6 @@ class replayParser:
             char = struct.unpack("s", bin[offset:offset+1])
     
             offset = offset + 1
-            #print char
             if char[0] == '\r' :
                 #offset = offset + 2
                 break
