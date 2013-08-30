@@ -29,6 +29,7 @@ import util
 import logging
 from vault import luaparser
 import FreeImagePy as FIPY
+import warnings
 
 import cStringIO
 import zipfile
@@ -267,9 +268,11 @@ def updateModInfo(mod, info): #should probably not be used.
 def generateThumbnail(sourcename, destname):
     """Given a dds file, generates a png file (or whatever the extension of dest is"""
     logger.debug("Creating png thumnail for %s to %s" % (sourcename, destname))
+    warnings.simplefilter("ignore")
     f = FIPY.Image(sourcename)
     f.setSize((100,100))
     f.save(destname)
+    warnings.simplefilter("error")
     if os.path.isfile(destname):
         return True
     else:

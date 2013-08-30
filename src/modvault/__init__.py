@@ -343,8 +343,6 @@ class ModItem(QtGui.QListWidgetItem):
                 self.setIcon(util.icon(img, False))
             else:
                 self.parent.client.downloader.downloadModPreview(self.thumbstr, self)
-
-        
         self.updateVisibility()
 
     def updateIcon(self):

@@ -23,6 +23,7 @@ import logging
 import os
 import util
 import FreeImagePy as FIPY
+import warnings
 
 logger= logging.getLogger("faf.downloader")
 logger.setLevel(logging.DEBUG)
@@ -59,12 +60,17 @@ class downloadManager(QtCore.QObject):
             if os.path.exists(pathimg):
                 #Create alpha-mapped preview image
                 try:
+                    warnings.simplefilter("ignore")
+                    # check if the image is loadable
                     f = FIPY.Image(pathimg)
                     f.setSize((100,100))
                     f.save(pathimg)
+                    warnings.simplefilter("error")
                 except:
+                    pathimg = "games/unknown_map.png"
                     logger.info("Failed to resize " + name)
             else :
+                pathimg = "games/unknown_map.png"
                 logger.debug("Web Preview failed for: " + name)
             logger.debug("Web Preview used for: " + name)
             for requester in reqlist:

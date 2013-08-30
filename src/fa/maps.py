@@ -42,6 +42,7 @@ import util
 import os, stat
 import struct
 import FreeImagePy as FIPY
+import warnings
 import shutil
 import urllib2
 import zipfile
@@ -410,9 +411,11 @@ def __exportPreviewFromMap(mapname, positions=None):
     
     if not smallExists:
         logger.debug("Making small preview from DDS for: " + mapname)
+        warnings.simplefilter("ignore")
         f = FIPY.Image(previewddsname)
         f.setSize((100,100))
         f.save(previewsmallname)
+        warnings.simplefilter("error")
         #checking if file was created correctly, just in case
         if os.path.isfile(previewsmallname):
             previews["tozip"].append(previewsmallname)
@@ -434,8 +437,10 @@ def __exportPreviewFromMap(mapname, positions=None):
             logger.debug("Icon positions were not passed or they were wrong for: " + mapname)
             return previews
         #convert dds into png
+        warnings.simplefilter("ignore")
         mapimage = FIPY.Image(previewddsname)
         mapimage.save(previewlargename)
+        warnings.simplefilter("error")
         #prepare icons
         mapimage = QtGui.QPixmap(previewlargename)
         armyicon = QtGui.QPixmap(os.path.join(os.getcwd(), ur"_res\vault\map_icons\army.png")).scaled(8, 9, 1, 1)
@@ -497,9 +502,11 @@ def __downloadPreviewFromWeb(name):
                 fp.close()
                 
                 #Create alpha-mapped preview image
+                warnings.simplefilter("ignore")
                 f = FIPY.Image(img)
                 f.setSize((100,100))
                 f.save(img)
+                warnings.simplefilter("error")
                 logger.debug("Web Preview " + extension + " used for: " + name)
                 return img
         except:
