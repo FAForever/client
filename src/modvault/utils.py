@@ -110,6 +110,13 @@ def fullPathToIcon(path):
     p = os.path.normpath(os.path.abspath(path))
     return p[len(MODFOLDER)-5:].replace('\\','/')
 
+def getIcon(name):
+    img = os.path.join(util.CACHE_DIR, name)
+    if os.path.isfile(img):
+        logger.debug("Using cached preview image for: " + name)
+        return img
+    return None
+
 def parseModInfo(folder):
     if not isModFolderValid(folder):
         return None

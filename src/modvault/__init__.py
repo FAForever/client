@@ -77,6 +77,7 @@ import logging
 import time
 logger = logging.getLogger("faf.modvault")
 logger.setLevel(logging.DEBUG)
+import urllib2
 
 d = datetostr(now())
 '''
@@ -337,7 +338,11 @@ class ModItem(QtGui.QListWidgetItem):
         if self.thumbstr == "":
             self.setIcon(util.icon("games/unknown_map.png"))
         else:
-            self.parent.client.downloader.downloadModPreview(self.thumbstr, self)
+            img = getIcon(os.path.basename(urllib2.unquote(self.thumbstr)))
+            if img:
+                self.setIcon(util.icon(img, False))
+            else:
+                self.parent.client.downloader.downloadModPreview(self.thumbstr, self)
 
         
         self.updateVisibility()
