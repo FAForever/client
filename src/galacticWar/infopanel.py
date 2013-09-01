@@ -43,7 +43,6 @@ class InfoPanelWidget(FormClass, BaseClass):
         
         
         self.myAttacks      = {}
-        self.attackProposal = {}
         
         # Updating stats
         self.parent.creditsUpdated.connect(self.updateCredit)
@@ -55,9 +54,7 @@ class InfoPanelWidget(FormClass, BaseClass):
         self.parent.planetClicked.connect(self.planetClicked)
         self.parent.hovering.connect(self.setup)
         self.parent.attacksUpdated.connect(self.updateAttacks)
-        
-        self.parent.attackProposalUpdated.connect(self.updateAttacksProposal)
-        
+               
         self.attackButton.clicked.connect(self.attack)
         self.defenseButton.clicked.connect(self.defend)
         
@@ -65,12 +62,10 @@ class InfoPanelWidget(FormClass, BaseClass):
         self.awayBox.stateChanged.connect(self.away)
         
         self.attackListWidget.itemDoubleClicked.connect(self.giveToattackProposal)
-        self.attackProposalListWidget.itemDoubleClicked.connect(self.attackProposalAccepted)
 
         self.planetaryDefensesButton.clicked.connect(self.buyPlanetaryDefensesItems)
         self.reinforcementButton.clicked.connect(self.buyReinforcementsItems)
 
-        self.attackBox.hide()
         self.planetaryDefensesButton.hide()
         self.reinforcementButton.hide()
         
@@ -99,25 +94,7 @@ class InfoPanelWidget(FormClass, BaseClass):
         if question == QtGui.QMessageBox.Yes :
             planetuid = item.uid
             self.parent.send(dict(command="send_to_proposal", uid=planetuid))
-    
-    def attackProposalAccepted(self, item):
-        question = QtGui.QMessageBox.question(self, "Second in command", "You are going to attack this planet. Do you want to proceed?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
-        
-        if question == QtGui.QMessageBox.Yes :
-            planetuid = item.uid
-            self.parent.send(dict(command="accept_proposal", uid=planetuid))
-            
-    def updateAttacksProposal(self, planetuid):
-        if planetuid in self.attackProposal :
-            return
-        
-        self.attackBox.show()
-        if not planetuid in self.attackProposal :
-            self.attackProposal[planetuid] = AttackItem(planetuid)
-            self.attackProposalListWidget.addItem(self.attackProposal[planetuid])
-            
-            self.attackProposal[planetuid].update(dict(timeAttack=60*10), self)
-             
+                
     def updateAttacks(self):
         logger.debug("updating attacks")
         if self.parent.uid in self.parent.attacks :
@@ -167,17 +144,7 @@ class InfoPanelWidget(FormClass, BaseClass):
         self.parent.send(dict(command="defense_command", uid=self.planet))        
     
     def attack(self):
-        self.parent.send(dict(command="attack_command", uid=self.planet))
-    
-    def timeOut(self, uid):
-        if uid in self.attackProposal :
-            item = self.attackProposal[uid]
-            item.updateTimer.stop()
-            self.attackProposalListWidget.removeItemWidget(item)
-            del self.attackProposal[uid]
-            
-        if len(self.attackProposal) == 0 :
-            self.attackBox.hide()           
+        self.parent.send(dict(command="attack_command", uid=self.planet))      
 
     def updateDomination(self, master):
         self.dominationText.setText("You are enslaved by %s and you are fighting for them." % FACTIONS[master])
