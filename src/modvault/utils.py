@@ -206,7 +206,7 @@ def getActiveMods(uimods=None): # returns a list of ModInfo's containing informa
     """
     if not os.path.exists(PREFSFILENAME):
         logger.info("No game.prefs file found")
-        return
+        return []
     
     l = luaparser.luaParser(PREFSFILENAME)
     l.loweringKeys = False
