@@ -146,24 +146,25 @@ class ReinforcementWidget(FormClass, BaseClass):
         if self.waitingForPlayerList:
             player, ok = QtGui.QInputDialog.getItem(self, "Select a player",
                 "Give to:", sorted(players.keys()), 0, False)
-        if ok and player:
-            for group in self.groups.getGroups():
-                if self.groups.isProtected(group):
-                    continue
-                    
-                for item in self.groups.getItems(group):
-                    self.parent.send(dict(command="offer_reinforcement_group", giveTo=players[player], item=item.getItemForSend()))
-
-                    
-            self.groups.emptyAll()
-            self.groupsWidgets.clear()
-            self.currentMoneyCost = 0
-            self.currentGroupMoneyCost = 0
-            self.groupDelayText.setText("0")
-            self.GroupCostText.setText("0")
-            self.CostText.setText("0 minutes")            
             
-        self.waitingForPlayerList = False
+            if ok and player:
+                for group in self.groups.getGroups():
+                    if self.groups.isProtected(group):
+                        continue
+                        
+                    for item in self.groups.getItems(group):
+                        self.parent.send(dict(command="offer_reinforcement_group", giveTo=players[player], item=item.getItemForSend()))
+    
+                        
+                self.groups.emptyAll()
+                self.groupsWidgets.clear()
+                self.currentMoneyCost = 0
+                self.currentGroupMoneyCost = 0
+                self.groupDelayText.setText("0")
+                self.GroupCostText.setText("0")
+                self.CostText.setText("0 minutes")            
+                
+            self.waitingForPlayerList = False
 
     def reset(self):
         ''' close the panel and reset all units'''

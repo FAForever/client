@@ -346,7 +346,6 @@ class GamesWidget(FormClass, BaseClass):
                             return
                     modnames = [str(moditem.text()) for moditem in hostgamewidget.modList.selectedItems()]
                     mods = [hostgamewidget.mods[modstr] for modstr in modnames]
-                    #uids = [mod.uid for mod in mods]
                     modvault.setActiveMods(mods, True) #should be removed later as it should be managed by the server.
 #                #Send a message to the server with our intent.
                     if self.ispassworded:

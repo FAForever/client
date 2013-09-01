@@ -17,11 +17,12 @@
 #-------------------------------------------------------------------------------
 
 
-from PyQt4 import QtGui, QtCore
+from PyQt4 import QtGui
 import util
 from galacticWar import logger
 from attackitem import AttackItem
-import time
+
+from teams.teamswidget import TeamWidget
 
 from galacticWar import FACTIONS
 
@@ -43,13 +44,21 @@ class InfoPanelWidget(FormClass, BaseClass):
         
         
         self.myAttacks      = {}
+        self.onlinePlayers    = {}
+        
+        # if we are waiting for the player list...        
+        self.waitingForPlayerList = False
+        self.waitingForTeamMemberList = False
+        self.teamwidget = TeamWidget(self.parent, {})
+        self.squadBox.hide()
         
         # Updating stats
         self.parent.creditsUpdated.connect(self.updateCredit)
         self.parent.rankUpdated.connect(self.updateRank)
         self.parent.victoriesUpdated.connect(self.updateVictories)
         self.parent.dominationUpdated.connect(self.updateDomination)
-        
+        self.parent.playersListUpdated.connect(self.updatePlayerList)
+        self.parent.teamUpdated.connect(self.updateTeam)
         
         self.parent.planetClicked.connect(self.planetClicked)
         self.parent.hovering.connect(self.setup)
@@ -57,6 +66,7 @@ class InfoPanelWidget(FormClass, BaseClass):
                
         self.attackButton.clicked.connect(self.attack)
         self.defenseButton.clicked.connect(self.defend)
+        self.formTeamButton.clicked.connect(self.formTeam)
         
         self.rankUpButton.clicked.connect(self.rankup)
         self.awayBox.stateChanged.connect(self.away)
@@ -65,6 +75,8 @@ class InfoPanelWidget(FormClass, BaseClass):
 
         self.planetaryDefensesButton.clicked.connect(self.buyPlanetaryDefensesItems)
         self.reinforcementButton.clicked.connect(self.buyReinforcementsItems)
+        
+        self.quitSquadButton.clicked.connect(self.quitSquad)
 
         self.planetaryDefensesButton.hide()
         self.reinforcementButton.hide()
@@ -73,6 +85,76 @@ class InfoPanelWidget(FormClass, BaseClass):
         self.attackButton.hide()
         self.defenseButton.hide()
         self.dominationText.hide()
+    
+    def quitSquad(self):
+        ''' quit a squad '''
+        self.parent.send(dict(command="quit_squad"))
+    
+    def displaySquad(self):
+        ''' display squad infos '''
+        
+        self.leader.setText("Leader : %s" % self.parent.teams.getLeaderName())
+        self.squadMemberList.clear()
+        self.squadMemberList.addItems(self.parent.teams.getMemberNames())
+        self.squadBox.show()         
+        
+        if self.parent.teams.getLeaderName() != self.parent.client.login:
+            self.formTeamButton.hide()
+
+    
+    def updatePlayerList(self, players):
+        ''' Triggered when the server sent us the player list '''
+        self.onlinePlayers = players
+        if self.waitingForPlayerList:
+            self.teamwidget.update(players)
+            self.teamwidget.show()
+            self.waitingForPlayerList = False
+        
+        if self.waitingForTeamMemberList :
+            self.parent.teams.getNames(players)
+            self.displaySquad()
+            self.waitingForTeamMemberList = False
+            
+        
+            
+    def updateTeam(self, message):
+        ''' Update teams info'''
+        leader = message["leader"]
+        members = message["members"]
+        hasToRequest = False
+        self.parent.teams.clearMembers()
+        
+        if leader == None or members == []:
+            self.squadBox.hide()
+            self.formTeamButton.show()
+            return
+
+        if not leader in self.onlinePlayers.values():
+            hasToRequest = True
+            self.parent.teams.setLeader(leader, None)
+        for uid in members :
+            if not uid in self.onlinePlayers.values():
+                self.parent.teams.addMember(uid, None)
+                hasToRequest = True
+
+        if hasToRequest:
+            self.squadBox.hide()
+            self.waitingForTeamMemberList = True
+            self.parent.send(dict(command="get_player_list"))
+    
+        else:
+            self.parent.teams.setLeader(leader, self.onlinePlayers.keys()[self.onlinePlayers.values().index(leader)])
+            for uid in members:
+                self.parent.teams.addMember(uid, self.onlinePlayers.keys()[self.onlinePlayers.values().index(uid)])
+            
+            self.displaySquad()
+    
+    def formTeam(self):
+        '''Open a request windows to form a team'''
+        # asking for player list first.
+        self.parent.send(dict(command="get_player_list"))
+        self.waitingForPlayerList = True
+        
     
     def buyReinforcementsItems(self):
         '''Handle buying reinforcements items'''

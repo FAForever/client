@@ -10,10 +10,10 @@
     <ROW Property="ARPURLUPDATEINFO" Value="http://www.faforever.com/page=2"/>
     <ROW Property="CTRLS" Value="2"/>
     <ROW Property="Manufacturer" Value="FAF Community" ValueLocId="*"/>
-    <ROW Property="ProductCode" Value="1033:{A7D5F21B-E217-43BC-9A06-0E63E123405D} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{3757D148-56C0-4814-87D9-54F31B64503C} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Forged Alliance Forever" ValueLocId="*"/>
-    <ROW Property="ProductVersion" Value="240.8.70"/>
+    <ROW Property="ProductVersion" Value="240.8.71"/>
     <ROW Property="REBOOT" MultiBuildValue="DefaultBuild:Suppress"/>
     <ROW Property="RUNAPPLICATION" Value="1" Type="4"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
@@ -1468,7 +1468,7 @@
     <ROW File="query_buffer_object.pyc" Component_="blend_minmax_factor.pyc" FileName="query_~1.pyc|query_buffer_object.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\AMD\query_buffer_object.pyc" SelfReg="false" NextFile="sample_positions.pyc"/>
     <ROW File="query_buffer_object.pyc_1" Component_="blend_minmax_factor.pyc_1" FileName="query_~1.pyc|query_buffer_object.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\AMD\query_buffer_object.pyc" SelfReg="false" NextFile="sample_positions.pyc_1"/>
     <ROW File="random.png" Component_="aeon.png" FileName="random.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\automatch\random.png" SelfReg="false" NextFile="Nomads.png_1"/>
-    <ROW File="randomcolors.json" Component_="about.ui" FileName="random~1.jso|randomcolors.json" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\randomcolors.json" SelfReg="false"/>
+    <ROW File="randomcolors.json" Component_="about.ui" FileName="random~1.jso|randomcolors.json" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\randomcolors.json" SelfReg="false" NextFile="teams.ui"/>
     <ROW File="rasterpos_clip.pyc" Component_="cull_vertex.pyc" FileName="raster~1.pyc|rasterpos_clip.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\IBM\rasterpos_clip.pyc" SelfReg="false" NextFile="texture_mirrored_repeat.pyc_1"/>
     <ROW File="rasterpos_clip.pyc_1" Component_="cull_vertex.pyc_1" FileName="raster~1.pyc|rasterpos_clip.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\IBM\rasterpos_clip.pyc" SelfReg="false" NextFile="texture_mirrored_repeat.pyc_3"/>
     <ROW File="raw.qthtml" Component_="action.qthtml" FileName="raw~1.qth|raw.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\formatters\raw.qthtml" SelfReg="false" NextFile="readme.txt"/>
@@ -1684,6 +1684,7 @@
     <ROW File="tbuffer.pyc_1" Component_="multisample.pyc_1" FileName="tbuffer.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\DFX\tbuffer.pyc" SelfReg="false" NextFile="texture_compression_FXT1.pyc_1"/>
     <ROW File="tc.png" Component_="ad.png" FileName="tc.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\tc.png" SelfReg="false" NextFile="td.png"/>
     <ROW File="td.png" Component_="ad.png" FileName="td.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\td.png" SelfReg="false" NextFile="tf.png"/>
+    <ROW File="teams.ui" Component_="bg_chat.jpg" FileName="teams.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\teams.ui" SelfReg="false"/>
     <ROW File="tess.pyc" Component_="glunurbs.pyc" FileName="tess.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GLU\tess.pyc" SelfReg="false" NextFile="__init__.pyc_32"/>
     <ROW File="tessellation_program5.pyc" Component_="bindless_texture.pyc" FileName="tessel~1.pyc|tessellation_program5.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\NV\tessellation_program5.pyc" SelfReg="false" NextFile="texgen_emboss.pyc"/>
     <ROW File="tessellation_program5.pyc_1" Component_="bindless_texture.pyc_1" FileName="tessel~1.pyc|tessellation_program5.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\NV\tessellation_program5.pyc" SelfReg="false" NextFile="texgen_emboss.pyc_1"/>

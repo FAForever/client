@@ -24,6 +24,7 @@ from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
 from client import ClientState
 from options import GWOptions
 from gwchannel import gwChannel
+from teams.teams import Teams
 import util
 import util.slpp
 import fa
@@ -55,6 +56,7 @@ class LobbyWidget(FormClass, BaseClass):
     ReinforcementsGroupUpdated      = QtCore.pyqtSignal(dict)
     dominationUpdated               = QtCore.pyqtSignal(int)
     playersListUpdated              = QtCore.pyqtSignal(dict)
+    teamUpdated                     = QtCore.pyqtSignal(dict)
 
     def __init__(self, client, *args, **kwargs):
         logger.debug("Lobby instantiating.")
@@ -261,6 +263,7 @@ class LobbyWidget(FormClass, BaseClass):
         from reinforcements import ReinforcementWidget
 
         #items panels 
+        self.teams = Teams(self)
         self.planetaryItems = PlanetaryWidget(self)
         self.reinforcementItems = ReinforcementWidget(self)
         self.OGLdisplay = GLWidget(self)
@@ -345,19 +348,31 @@ class LobbyWidget(FormClass, BaseClass):
             self.progress.close()
             self.setup()
              
-        
 
-    
     def check_resources(self):
         '''checking if we have everything we need'''
         if len(self.shaderlist) == 0 and self.initDone :
             self.download_textures()
     
+    def handle_remove_team(self):
+        self.teamUpdated.emit(dict(leader=None, members=[]))
+    
+    def handle_team(self, message):
+        self.teamUpdated.emit(message)
+    
+    def handle_request_team(self, message):
+        ''' We have a team invitation from someone '''
+        who = message["who"]
+        uid = message["uid"]
+        question = QtGui.QMessageBox.question(self,"Squad proposal from %s" % who, "This team leader want you in his squad, do you want to be in?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+        if question == QtGui.QMessageBox.Yes :
+            self.send(dict(command="accept_team_proposal", uid=uid))    
     
     def handle_news_feed(self, message):
         '''Adding news to news feed'''
-        if self.newsTicker:
-            self.newsTicker.addNews(message["news"])
+        if hasattr(self, "newTicker"):
+            if self.newsTicker:
+                self.newsTicker.addNews(message["news"])
     
     def handle_player_info(self, message):
         ''' Update Player stats '''

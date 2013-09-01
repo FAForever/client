@@ -45,10 +45,6 @@ class AttackItem(QtGui.QListWidgetItem):
         timeAttack = time.time() - self.startedAt + self.timeAttack
         timePercent = (timeAttack/TIME_CHARGE) * 100.0
         
-        if timePercent >= 100 :
-            self.parent.timeOut(self.uid)
-        
-
         self.setText("%s [Charging attack ... %0.2f%%]" % (self.parent.parent.galaxy.get_name(self.uid), timePercent))
         
         
