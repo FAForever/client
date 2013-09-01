@@ -129,7 +129,7 @@ class ClientWindow(FormClass, BaseClass):
         self.uniqueId = None
         self.udpTest = False
         self.profile = playerstats.Statpage(self)
-
+        
         self.sendFile = False
         self.progress = QtGui.QProgressDialog()
         self.progress.setMinimum(0)
@@ -181,6 +181,7 @@ class ClientWindow(FormClass, BaseClass):
                 
         self.power = 0          # current user power        
         self.email = None
+        self.coloredNicknames = False
         #Initialize the Menu Bar according to settings etc.
         self.initMenus()
 
