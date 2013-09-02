@@ -305,6 +305,8 @@ def pixmap(filename, themed=True):
                             
         __pixmapcache[filename] = pix
         return pix
+    return None
+    
 
 
 
@@ -453,8 +455,22 @@ def icon(filename, themed=True, pix = False):
     if pix :
         return pixmap(filename, themed)
     else :
-        icon = QtGui.QIcon(pixmap(filename, themed))
-        #icon.addPixmap(pixmap(filename, themed)),QtGui.QIcon.Disabled)
+        icon = QtGui.QIcon()
+        icon.addPixmap(pixmap(filename, themed), QtGui.QIcon.Normal)
+        splitExt = os.path.splitext(filename)
+        if len(splitExt) == 2:
+            pixDisabled = pixmap(splitExt[0] + "_disabled" + splitExt[1], themed) 
+            if  pixDisabled != None:
+                icon.addPixmap(pixDisabled,QtGui.QIcon.Disabled)
+            
+            pixActive = pixmap(splitExt[0] + "_active" + splitExt[1], themed)
+            if  pixActive != None:
+                icon.addPixmap(pixActive,QtGui.QIcon.Active)        
+            
+            pixSelected = pixmap(splitExt[0] + "_selected" + splitExt[1], themed)
+            if  pixActive != None:
+                icon.addPixmap(pixSelected,QtGui.QIcon.Selected)   
+        
         return  icon
  
     
