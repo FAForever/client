@@ -1361,7 +1361,9 @@ class ClientWindow(FormClass, BaseClass):
                 
         
     def handle_game_launch(self, message):
+        
         logger.info("Handling game_launch via JSON " + str(message))
+        silent = False
         if 'args' in message:            
             arguments = message['args']
         else:
@@ -1383,7 +1385,8 @@ class ClientWindow(FormClass, BaseClass):
             if message['reason'] == 'gw' :
                 rank = True
                 galacticWar = True
-                if (not fa.exe.check(message[modkey])):
+                silent = True
+                if (not fa.exe.check(message[modkey], silent)):
                     logger.error("Can't play %s without successfully updating Forged Alliance." % message[modkey])
                     return  
             
@@ -1412,7 +1415,8 @@ class ClientWindow(FormClass, BaseClass):
             
         # Ensure we have the map
         if "mapname" in message:
-            fa.exe.checkMap(message['mapname'], True)
+
+            fa.exe.checkMap(message['mapname'], True, silent)
             if galacticWar:
                 # in case of GW, we need to alter the scenario for support AIs
                 if not fa.maps.gwmap(message['mapname']):

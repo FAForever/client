@@ -545,7 +545,7 @@ def preview(mapname, pixmap = False, force=False):
 
 
 
-def downloadMap(name):
+def downloadMap(name, silent=False):
     ''' 
     Download a map from the vault with the given name
     LATER: This type of method is so common, it could be put into a nice util method.
@@ -566,13 +566,13 @@ def downloadMap(name):
         meta = zipwebfile.info()
         file_size = int(meta.getheaders("Content-Length")[0])
 
-        progress.setMinimum(0)
-        progress.setMaximum(file_size)
-        progress.setModal(1)
-        progress.setWindowTitle("Downloading Map")
-        progress.setLabelText(name)
-    
-        progress.show()
+        if not silent:
+            progress.setMinimum(0)
+            progress.setMaximum(file_size)
+            progress.setModal(1)
+            progress.setWindowTitle("Downloading Map")
+            progress.setLabelText(name)
+            progress.show()
     
         #Download the file as a series of 8 KiB chunks, then uncompress it.
         output = cStringIO.StringIO()

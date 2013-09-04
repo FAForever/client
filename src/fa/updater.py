@@ -272,7 +272,7 @@ class Updater(QtCore.QObject):
     RESULT_PASS = 5         #User refuses to update by canceling the wizard
     
     
-    def __init__(self, mod, version = None, modversions = None, sim = False, *args, **kwargs):
+    def __init__(self, mod, version = None, modversions = None, sim = False, silent = False, *args, **kwargs):
         '''
         Constructor
         '''
@@ -301,8 +301,12 @@ class Updater(QtCore.QObject):
         
         self.destination = None
         
-        self.progress = QtGui.QProgressDialog()        
-        self.progress.setCancelButtonText("Cancel")
+        self.silent = silent
+        self.progress = QtGui.QProgressDialog()
+        if self.silent:
+            self.progress.setCancelButtonText(0)
+        else:
+            self.progress.setCancelButtonText("Cancel")
         self.progress.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
         self.progress.setAutoClose(False)
         self.progress.setAutoReset(False)

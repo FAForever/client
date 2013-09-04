@@ -291,7 +291,7 @@ def play(info, port, log = False, arguments = None, gw = False):
         
 
 
-def checkMap(mapname, force = False):
+def checkMap(mapname, force = False, silent=False):
     '''
     Assures that the map is available in FA, or returns false.
     '''
@@ -302,11 +302,11 @@ def checkMap(mapname, force = False):
         return True
     
     if force:        
-        return fa.maps.downloadMap(mapname)
+        return fa.maps.downloadMap(mapname, silent)
         
     result = QtGui.QMessageBox.question(None, "Download Map", "Seems that you don't have the map. Do you want to download it?<br/><b>" + mapname + "</b>", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
     if result == QtGui.QMessageBox.Yes :
-        if not fa.maps.downloadMap(mapname):
+        if not fa.maps.downloadMap(mapname, silent):
             return False
     else:
         return False
@@ -354,7 +354,7 @@ def checkMods(mods): #mods is a dictionary of uid-name pairs
 
     return True
     
-def check(mod, mapname = None, version = None, modVersions = None, sim_mods = None):
+def check(mod, mapname = None, version = None, modVersions = None, sim_mods = None, silent=False):
     '''
     This checks whether the game is properly updated and has the correct map.
     '''
@@ -378,7 +378,7 @@ def check(mod, mapname = None, version = None, modVersions = None, sim_mods = No
     logger.info("Updating FA for mod: " + str(mod) + ", version " + str(version))
 
     # Spawn an update for the required mod
-    updater = fa.updater.Updater(mod, version, modVersions)
+    updater = fa.updater.Updater(mod, version, modVersions, silent)
             
     result = updater.run()
 
