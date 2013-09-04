@@ -31,7 +31,7 @@ from types import IntType, FloatType, ListType, DictType
 
 from client import logger, ClientState, MUMBLE_URL, WEBSITE_URL, WIKI_URL,\
     FORUMS_URL, UNITDB_URL, SUPPORT_URL, TICKET_URL, GAME_PORT_DEFAULT, LOBBY_HOST,\
-    LOBBY_PORT, LOCAL_REPLAY_PORT
+    LOBBY_PORT, LOCAL_REPLAY_PORT, STEAMLINK_URL
 
 import util
 import fa
@@ -328,6 +328,7 @@ class ClientWindow(FormClass, BaseClass):
      
     def initMenus(self):
         self.actionLinkMumble.triggered.connect(self.linkMumble)
+        self.actionLink_account_to_Steam.connect(self.linkToSteam)
         self.actionLinkWebsite.triggered.connect(self.linkWebsite)
         self.actionLinkWiki.triggered.connect(self.linkWiki)
         self.actionLinkForums.triggered.connect(self.linkForums)
@@ -407,6 +408,10 @@ class ClientWindow(FormClass, BaseClass):
     def switchPort(self):
         import loginwizards
         loginwizards.gameSettingsWizard(self).exec_()
+
+    @QtCore.pyqtSlot()
+    def linkToSteam(self):
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(STEAMLINK_URL))
         
     @QtCore.pyqtSlot()
     def setMumbleOptions(self):

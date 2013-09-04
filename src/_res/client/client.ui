@@ -204,7 +204,7 @@
         </property>
        </layout>
       </widget>
-	  <widget class="QWidget" name="modsTab">
+      <widget class="QWidget" name="modsTab">
        <attribute name="title">
         <string>Mod Vault</string>
        </attribute>
@@ -236,6 +236,8 @@
       <string>Settings...</string>
      </property>
      <addaction name="actionSetAutoLogin"/>
+     <addaction name="separator"/>
+     <addaction name="actionLink_account_to_Steam"/>
      <addaction name="separator"/>
      <addaction name="actionSetGamePath"/>
      <addaction name="actionSetGamePort"/>
@@ -497,7 +499,7 @@
    <property name="text">
     <string>Colored nicknames</string>
    </property>
-   </action>  
+  </action>
   <action name="actionWiki">
    <property name="text">
     <string>Wiki</string>
@@ -522,6 +524,11 @@
    </property>
    <property name="text">
     <string>Galactic War...</string>
+   </property>
+  </action>
+  <action name="actionLink_account_to_Steam">
+   <property name="text">
+    <string>Link account to Steam</string>
    </property>
   </action>
  </widget>
