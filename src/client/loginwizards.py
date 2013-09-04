@@ -29,6 +29,7 @@ import hashlib
 from client import ClientState, logger
 
 PASSWORD_RECOVERY_URL = "http://www.faforever.com/faf/forgotPass.php"
+NAME_CHANGE_URL = "http://www.faforever.com/faf/userName.php"
 
 class LoginWizard(QtGui.QWizard):
     def __init__(self, client):
@@ -115,10 +116,12 @@ class loginPage(QtGui.QWizardPage):
         self.rememberCheckBox.clicked.connect(self.autologinCheckBox.setEnabled)
         
         self.createAccountBtn = QtGui.QPushButton("Create new Account")
+        self.renameAccountBtn = QtGui.QPushButton("Rename your account")
         self.forgotPasswordBtn = QtGui.QPushButton("Forgot Login or Password")
         self.reportBugBtn = QtGui.QPushButton("Report a Bug")
 
         self.createAccountBtn.released.connect(self.createAccount)
+        self.renameAccountBtn.released.connect(self.renameAccount)
         self.forgotPasswordBtn.released.connect(self.forgotPassword)
         self.reportBugBtn.released.connect(self.reportBug)
 
@@ -158,7 +161,10 @@ class loginPage(QtGui.QWizardPage):
             self.loginLineEdit.setText(self.client.login)
             self.setField('password', "!!!password!!!")
             self.parent.password = self.client.password # This is needed because we're writing the field in accept()
-        
+
+    @QtCore.pyqtSlot()
+    def renameAccount(self):
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(NAME_CHANGE_URL))
         
     @QtCore.pyqtSlot()
     def forgotPassword(self):

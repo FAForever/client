@@ -21,7 +21,7 @@
 
 
 import fa
-BUGREPORT_URL = 'http://thygrrr.de/faforward.php'
+#BUGREPORT_URL = 'http://thygrrr.de/faforward.php'
 BUGREPORT_USER = 'pre-login'
 
 from util import VERSION_STRING, APPDATA_DIR, PERSONAL_DIR, LOG_FILE_GAME, LOG_FILE_FAF, readfile,\
@@ -32,7 +32,7 @@ import sys
 from util import logger
 
 HELP_URL = "http://www.faforever.com/forums/viewforum.php?f=3"
-TICKET_URL = "http://bitbucket.org/thepilot/falobby/issues"
+TICKET_URL = "http://bitbucket.org/thepilot/modular-client/issues"
 
 class ReportDialog(QtGui.QDialog):
     def __init__(self, *args, **kwargs):
@@ -50,18 +50,18 @@ class ReportDialog(QtGui.QDialog):
         label.setWordWrap(True)
         dialog.layout().addWidget(label)
 
-        label = QtGui.QLabel()
-        label.setText("<b>This is what happened</b> (explain what happened, and how)")
-        label.setWordWrap(False)
-        dialog.layout().addWidget(label)
+#        label = QtGui.QLabel()
+#        label.setText("<b>This is what happened</b> (explain what happened, and how)")
+#        label.setWordWrap(False)
+#        dialog.layout().addWidget(label)
 
-        self.report = QtGui.QTextEdit()
-        report = self.report
-        report.append("type here")
-        dialog.layout().addWidget(report)
+#        self.report = QtGui.QTextEdit()
+#        report = self.report
+#        report.append("type here")
+#        dialog.layout().addWidget(report)
         
         label = QtGui.QLabel()
-        label.setText("<b>These are the logs that will be sent</b>")
+        label.setText("<b>These are the partial logs</b>")
         label.setWordWrap(False)
         dialog.layout().addWidget(label)
         self.box = QtGui.QTextEdit()
@@ -99,7 +99,7 @@ class ReportDialog(QtGui.QDialog):
             pass
 
         dialog.layout().addWidget(box)
-        self.sendButton = QtGui.QPushButton("\nSend This Report\n")
+        self.sendButton = QtGui.QPushButton("\nReport this error\n")
         self.sendButton.pressed.connect(self.postReport) 
         dialog.layout().addWidget(self.sendButton)
         
@@ -127,29 +127,29 @@ class ReportDialog(QtGui.QDialog):
 
     @QtCore.pyqtSlot()
     def postReport(self):
-        try:
-            self.sendButton.setEnabled(False)
-            self.sendButton.setText("\nSending...\n")
-            QtGui.QApplication.processEvents()
-            
-            import urllib
-            import urllib2
-
-            #A simple POST forwarder sends these to the REST Api of Bitbucket
-            url = BUGREPORT_URL
-            
-            content = self.report.toPlainText() + u'\n\n\n' + self.box.toPlainText()
-            data = urllib.urlencode({
-                                        'title': self.title.encode("utf-8"),
-                                        'content': content.encode("utf-8"),
-                                        'hash' : self.hash
-                                     })
-            request = urllib2.Request(url=url, data=data)
-            urllib2.urlopen(request)
-            self.sendButton.setText("\nThanks!\n")
-        except:
-            logger.error("Error sending bug report!", exc_info = sys.exc_info())
-            self.sendButton.setText("\nFailed. :( Click Help and tell us about it!\n")
-            pass
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(HELP_URL))
+#            self.sendButton.setEnabled(False)
+#            self.sendButton.setText("\nSending...\n")
+#            QtGui.QApplication.processEvents()
+#            
+#            import urllib
+#            import urllib2
+#
+#            #A simple POST forwarder sends these to the REST Api of Bitbucket
+#            url = BUGREPORT_URL
+#            
+#            content = self.report.toPlainText() + u'\n\n\n' + self.box.toPlainText()
+#            data = urllib.urlencode({
+#                                        'title': self.title.encode("utf-8"),
+#                                        'content': content.encode("utf-8"),
+#                                        'hash' : self.hash
+#                                     })
+#            request = urllib2.Request(url=url, data=data)
+#            urllib2.urlopen(request)
+#            self.sendButton.setText("\nThanks!\n")
+#        except:
+#            logger.error("Error sending bug report!", exc_info = sys.exc_info())
+#            self.sendButton.setText("\nFailed. :( Click Help and tell us about it!\n")
+#            pass
 
         
