@@ -259,7 +259,7 @@ class InfoPanelWidget(FormClass, BaseClass):
 
         if self.parent.enslavedBy != None:
             faction = self.parent.enslavedBy
-            
+
         if faction == None :
             self.planet = None
             return

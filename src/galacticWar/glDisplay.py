@@ -1144,7 +1144,10 @@ class GLWidget(QtOpenGL.QGLWidget):
             self.update()
       
     def attackable(self):
+        
         faction = self.parent.faction
+        if  self.parent.enslavedBy != None:
+            faction = self.parent.enslavedBy 
         if faction == None :
             return
         
