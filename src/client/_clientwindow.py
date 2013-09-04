@@ -328,7 +328,7 @@ class ClientWindow(FormClass, BaseClass):
      
     def initMenus(self):
         self.actionLinkMumble.triggered.connect(self.linkMumble)
-        self.actionLink_account_to_Steam.connect(self.linkToSteam)
+        self.actionLink_account_to_Steam.triggered.connect(self.linkToSteam)
         self.actionLinkWebsite.triggered.connect(self.linkWebsite)
         self.actionLinkWiki.triggered.connect(self.linkWiki)
         self.actionLinkForums.triggered.connect(self.linkForums)

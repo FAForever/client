@@ -30,6 +30,7 @@ from client import ClientState, logger
 
 PASSWORD_RECOVERY_URL = "http://www.faforever.com/faf/forgotPass.php"
 NAME_CHANGE_URL = "http://www.faforever.com/faf/userName.php"
+STEAM_LINK_URL = "http://www.faforever.com/faf/steam.php"
 
 class LoginWizard(QtGui.QWizard):
     def __init__(self, client):
@@ -117,11 +118,13 @@ class loginPage(QtGui.QWizardPage):
         
         self.createAccountBtn = QtGui.QPushButton("Create new Account")
         self.renameAccountBtn = QtGui.QPushButton("Rename your account")
+        self.linkAccountBtn = QtGui.QPushButton("Link your account to Steam")
         self.forgotPasswordBtn = QtGui.QPushButton("Forgot Login or Password")
         self.reportBugBtn = QtGui.QPushButton("Report a Bug")
 
         self.createAccountBtn.released.connect(self.createAccount)
         self.renameAccountBtn.released.connect(self.renameAccount)
+        self.linkAccountBtn.released.connect(self.linkAccount)
         self.forgotPasswordBtn.released.connect(self.forgotPassword)
         self.reportBugBtn.released.connect(self.reportBug)
 
@@ -142,8 +145,11 @@ class loginPage(QtGui.QWizardPage):
         layout.addWidget(self.rememberCheckBox, 3, 0, 1, 3)
         layout.addWidget(self.autologinCheckBox, 4, 0, 1, 3)
         layout.addWidget(self.createAccountBtn, 5, 0, 1, 3)
-        layout.addWidget(self.forgotPasswordBtn, 6, 0, 1, 3)
-        layout.addWidget(self.reportBugBtn, 8, 0, 1, 3)
+        layout.addWidget(self.renameAccountBtn, 6, 0, 1, 3)
+        layout.addWidget(self.linkAccountBtn, 7, 0, 1, 3)
+        layout.addWidget(self.forgotPasswordBtn, 8, 0, 1, 3)
+
+        layout.addWidget(self.reportBugBtn, 10, 0, 1, 3)
 
         self.setLayout(layout)
 
@@ -162,6 +168,10 @@ class loginPage(QtGui.QWizardPage):
             self.setField('password', "!!!password!!!")
             self.parent.password = self.client.password # This is needed because we're writing the field in accept()
 
+    @QtCore.pyqtSlot()
+    def linkAccount(self):
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(STEAM_LINK_URL))
+        
     @QtCore.pyqtSlot()
     def renameAccount(self):
         QtGui.QDesktopServices.openUrl(QtCore.QUrl(NAME_CHANGE_URL))
