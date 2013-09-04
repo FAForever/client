@@ -61,6 +61,7 @@ class Chatter(QtGui.QTableWidgetItem):
         self.rating = None
         self.country = None
         self.league = None
+        self.avatarTip = ""
         
         self.setup()
     
