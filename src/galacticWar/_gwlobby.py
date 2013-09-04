@@ -515,13 +515,13 @@ class LobbyWidget(FormClass, BaseClass):
 
     def handle_searching(self, message):
         state = message["state"]
-        if state == "on" :
-            text = message["text"]
-            self.progress.show()
-            self.progress.setCancelButton(None)
-            self.progress.setLabelText(text)
-        else :
-            self.progress.hide()
+#        if state == "on" :
+#            text = message["text"]
+#            self.progress.show()
+#            self.progress.setCancelButton(None)
+#            self.progress.setLabelText(text)
+#        else :
+#            self.progress.hide()
 
     def handle_notice(self, message):
         self.client.handle_notice(message)
