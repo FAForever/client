@@ -57,6 +57,7 @@ class LobbyWidget(FormClass, BaseClass):
     dominationUpdated               = QtCore.pyqtSignal(int)
     playersListUpdated              = QtCore.pyqtSignal(dict)
     teamUpdated                     = QtCore.pyqtSignal(dict)
+    searchingUpdated                = QtCore.pyqtSignal(bool)
 
     def __init__(self, client, *args, **kwargs):
         logger.debug("Lobby instantiating.")
@@ -515,7 +516,13 @@ class LobbyWidget(FormClass, BaseClass):
 
     def handle_searching(self, message):
         state = message["state"]
+        if state == "on":
+            self.searchingUpdated.emit(True)
+        else:
+            self.searchingUpdated.emit(False)
+#        
 #        if state == "on" :
+#            
 #            text = message["text"]
 #            self.progress.show()
 #            self.progress.setCancelButton(None)

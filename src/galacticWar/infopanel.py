@@ -59,6 +59,7 @@ class InfoPanelWidget(FormClass, BaseClass):
         self.parent.dominationUpdated.connect(self.updateDomination)
         self.parent.playersListUpdated.connect(self.updatePlayerList)
         self.parent.teamUpdated.connect(self.updateTeam)
+        self.parent.searchingUpdated(self.updateSearch)
         
         self.parent.planetClicked.connect(self.planetClicked)
         self.parent.hovering.connect(self.setup)
@@ -81,10 +82,18 @@ class InfoPanelWidget(FormClass, BaseClass):
         self.planetaryDefensesButton.hide()
         self.reinforcementButton.hide()
         self.dominationText.hide()
+        self.searchProgress.hide()
         
     def setup(self):
         self.attackButton.hide()
         self.defenseButton.hide()
+        
+    
+    def updateSearch(self, state):
+        if state == True:
+            self.searchProgress.show()
+        else:
+            self.searchProgress.hide()
         
     
     def quitSquad(self):
