@@ -398,7 +398,7 @@ def check(mod, mapname = None, version = None, modVersions = None, sim_mods = No
 
     # Now it's down to having the right map
     if mapname:
-        if not checkMap(mapname):
+        if not checkMap(mapname, silent=silent):
             return False
 
     if sim_mods:

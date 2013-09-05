@@ -1386,7 +1386,7 @@ class ClientWindow(FormClass, BaseClass):
                 rank = True
                 galacticWar = True
                 silent = True
-                if (not fa.exe.check(message[modkey], silent)):
+                if (not fa.exe.check(message[modkey], silent=silent)):
                     logger.error("Can't play %s without successfully updating Forged Alliance." % message[modkey])
                     return  
             
@@ -1416,7 +1416,7 @@ class ClientWindow(FormClass, BaseClass):
         # Ensure we have the map
         if "mapname" in message:
 
-            fa.exe.checkMap(message['mapname'], True, silent)
+            fa.exe.checkMap(message['mapname'], force=True, silent=silent)
             if galacticWar:
                 # in case of GW, we need to alter the scenario for support AIs
                 if not fa.maps.gwmap(message['mapname']):
