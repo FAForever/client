@@ -4,7 +4,7 @@ QTabWidget::pane
 {
 	 /* The tab widget frame */
      border: none;
-	 background-color: #366175;
+	 background-color: #2f2f2f;
  }
 
 
@@ -46,7 +46,7 @@ QTabWidget > QTabBar::tab:selected
 }
 
 /* tables */
-body {background-color: rgb(54, 97, 117); overflow: hidden;}
+body {background-color: #2f2f2f; overflow: hidden;}
 
 .ladder_switch {float: right;}
 .ladder_wrap {float: right; border: 1px solid black; margin-left: 3px;}

@@ -1,7 +1,7 @@
 /*
 Simple UEF (blue) theme by thygrrr
 
-dark dirty blue: #366175
+dark dirty blue: #2f2f2f
 dark gray: #383838
 medium gray: #606060
 gray: #808080
@@ -9,8 +9,9 @@ gray: #808080
 
 QTabWidget #lobbyTab,#gamesTab,#ladderTab,#tournamentTab,#coopTab,#mapsTab,#galacticTab,#replaysTab,#modsTab
 { /* sets background color for every widget under a tab */
-		background-color: #366175;
+		background-color: #2f2f2f;
 		border-radius: 10px;
+		
 }
 
 QTabWidget#mainTabs::tab-bar
@@ -23,20 +24,22 @@ QTabWidget#mainTabs::tab-bar
 /* Central area background */
 QWidget#centralwidget
 {
-	background-color: #201520;
+	background-color: #1f1f1f;
+	
 }
 
 
 QTabWidget#mainTabs::pane
 { /* The tab widget frame */
-	background-color: #366175;
-	border-radius: 10px;
+	background-color: #2f2f2f;
+	border-radius: 5px;
+	
 }
 							
 /* Style the tab using the tab sub-control. Note that it reads QTabBar _not_ QTabWidget */	
 QTabWidget#mainTabs > QTabBar::tab
 {
-	background-color: rgb(40, 40, 40);
+	background-color: #444444;
 	color: silver;
 	min-width: 80px;
 	padding:2px;
@@ -47,17 +50,17 @@ QTabWidget#mainTabs > QTabBar::tab
 								
 QTabWidget#mainTabs > QTabBar::tab:hover 
 {
-	color:white;
+	color:#66b9fa;
 	background-color: #606060;
 }
 
 QTabWidget#mainTabs > QTabBar::tab:selected 
 {
-	color:white;
+	color:#000000;
 	font-weight:bold;
-	background-color: #366175;
-	border-bottom-left-radius: 10px;
-	border-bottom-right-radius: 10px;
+	background-color: #adadad;
+	border-bottom-left-radius: 5px;
+	border-bottom-right-radius: 5px;
 }
 
 
@@ -77,7 +80,7 @@ QTabWidget#topTabs::pane
 {
 	 /* The tab widget frame */
      border: none;
-	 background-color: #366175;
+	 background-color: #2f2f2f;
  }
 
 
@@ -101,7 +104,8 @@ QTabWidget#topTabs > QTabBar::tab
 QTabWidget#topTabs > QTabBar::tab:!selected 
 {
 	margin-top:5px;
-	background-color: #203040;
+	background-color: #414b55;
+	
 }
 
 								
@@ -109,15 +113,19 @@ QTabWidget#topTabs > QTabBar::tab:hover
 {
 	color:white;
 	background-color: #606060;
+	
 }
 
 
 QTabWidget#topTabs > QTabBar::tab:selected 
 {
 	color:white;
-	background-color: #303030;
+	background-color: #758fa0;
 	border-top-left-radius: 5px;
 	border-top-right-radius: 5px;
+	border-style:solid;
+	border-width:1px;
+	border-color:#353535;	
 }
 
 QSplitter::handle 
@@ -152,11 +160,12 @@ QTextEdit, QPlainTextEdit, QLineEdit, QListWidget, QTableWidget, QTreeWidget, QF
 	border-color:#353535;
 	color:silver;
 	padding:5px;
-	background-color:#303038;
+	background-color:#202025;
 	border-top-right-radius : 5px;
 	border-top-left-radius : 5px; 	
 	border-bottom-left-radius : 5px;
 	border-bottom-right-radius : 5px; 	
+
 }
 
 /* Modlist */
@@ -255,20 +264,20 @@ QScrollArea
 /* Scrollbars*/
 QScrollBar
 {
-      background-color: #282832;
-      border: 1px solid #282832;
- 	  border-radius: 4px;
+      background-color: #202221;
+      border: 1px solid #7c858c;
+ 	  border-radius: 0px;
 	  padding:1px;
 }
 
 QScrollBar::handle
 {
-      background-color: #366175;
+      background-color: #414b55;
 }
 
 QScrollBar::handle:hover, QScrollBar::handle:pressed
 {
-      background-color: #606060;
+      background-color: #657f98;
   }
 
 QScrollBar::add-page, QScrollBar::sub-page
@@ -318,6 +327,11 @@ QLabel#labelModHint,#labelMyHint,#labelLiveHint,#labelRankedHint
 	color:#AAAAAA;
 }
 
+QGroupBox
+{
+	color:orange;
+	background-color: grey;
+}
 
 /* Used for dialogs*/
 QDialog 
@@ -325,6 +339,10 @@ QDialog
 	background-color: #808080;
 }
 
+QCheckBox#spoilerCheckbox
+{
+	color: white;
+}
 
 /* Used for Ranked Buttons only at the moment*/
 QToolButton::pressed 
