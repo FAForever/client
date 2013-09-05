@@ -277,6 +277,7 @@ class LobbyWidget(FormClass, BaseClass):
         self.info_Panel.layout().addWidget(self.infoPanel)
 
         self.send(dict(command = "init_done", status=True))
+        
                 
     def get_rank(self, faction, rank):
         return RANKS[faction][rank]
@@ -288,7 +289,7 @@ class LobbyWidget(FormClass, BaseClass):
     def handle_planetary_defense_info(self, message):
         '''populate planetary defense lists'''
         self.planetaryDefenseUpdated.emit(message)
-            
+        
     def handle_group_reinforcements_info(self, message):
         '''populate current group reinforcements '''
         self.ReinforcementsGroupUpdated.emit(message)            
@@ -365,9 +366,19 @@ class LobbyWidget(FormClass, BaseClass):
         ''' We have a team invitation from someone '''
         who = message["who"]
         uid = message["uid"]
-        question = QtGui.QMessageBox.question(self,"Squad proposal from %s" % who, "This team leader want you in his squad, do you want to be in?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
-        if question == QtGui.QMessageBox.Yes :
-            self.send(dict(command="accept_team_proposal", uid=uid))    
+
+        question = QtGui.QMessageBox(self)
+        question.setWindowModality(0)
+        question.setText("This team leader want you in his squad, do you want to be in?")
+        question.setWindowTitle("Squad proposal from %s" % who)
+        question.setStandardButtons(QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+        question.show()
+        while question.result() == 0:
+            QtGui.QApplication.processEvents()
+
+        if question.result() == QtGui.QMessageBox.Yes :
+            self.send(dict(command="accept_team_proposal", uid=uid))
+
     
     def handle_news_feed(self, message):
         '''Adding news to news feed'''
@@ -520,19 +531,10 @@ class LobbyWidget(FormClass, BaseClass):
             self.searchingUpdated.emit(True)
         else:
             self.searchingUpdated.emit(False)
-#        
-#        if state == "on" :
-#            
-#            text = message["text"]
-#            self.progress.show()
-#            self.progress.setCancelButton(None)
-#            self.progress.setLabelText(text)
-#        else :
-#            self.progress.hide()
 
     def handle_notice(self, message):
         self.client.handle_notice(message)
-        
+       
 
     def handle_update(self, message):
         update = message["update"]

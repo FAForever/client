@@ -59,7 +59,7 @@ class InfoPanelWidget(FormClass, BaseClass):
         self.parent.dominationUpdated.connect(self.updateDomination)
         self.parent.playersListUpdated.connect(self.updatePlayerList)
         self.parent.teamUpdated.connect(self.updateTeam)
-        self.parent.searchingUpdated(self.updateSearch)
+        self.parent.searchingUpdated.connect(self.updateSearch)
         
         self.parent.planetClicked.connect(self.planetClicked)
         self.parent.hovering.connect(self.setup)
