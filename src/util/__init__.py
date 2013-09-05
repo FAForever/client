@@ -461,15 +461,15 @@ def icon(filename, themed=True, pix = False):
         if len(splitExt) == 2:
             pixDisabled = pixmap(splitExt[0] + "_disabled" + splitExt[1], themed) 
             if  pixDisabled != None:
-                icon.addPixmap(pixDisabled,QtGui.QIcon.Disabled)
+                icon.addPixmap(pixDisabled,QtGui.QIcon.Disabled, QtGui.QIcon.On)
             
             pixActive = pixmap(splitExt[0] + "_active" + splitExt[1], themed)
             if  pixActive != None:
-                icon.addPixmap(pixActive,QtGui.QIcon.Active)        
+                icon.addPixmap(pixActive,QtGui.QIcon.Active, QtGui.QIcon.On)        
             
             pixSelected = pixmap(splitExt[0] + "_selected" + splitExt[1], themed)
-            if  pixActive != None:
-                icon.addPixmap(pixSelected,QtGui.QIcon.Selected)   
+            if  pixSelected != None:
+                icon.addPixmap(pixSelected,QtGui.QIcon.Selected, QtGui.QIcon.On)   
         
         return  icon
  
