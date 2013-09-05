@@ -129,7 +129,7 @@ class LobbyWidget(FormClass, BaseClass):
         if self.state != ClientState.ACCEPTED :
             fa.exe.check("gw")
             if self.doConnect():
-                logger.info("connection not done")
+                logger.info("connection done")
                 self.doLogin()                   
         
         else :
@@ -197,8 +197,6 @@ class LobbyWidget(FormClass, BaseClass):
             while (self.socket.state() != QtNetwork.QAbstractSocket.ConnectedState) and self.progress.isVisible():
                 QtGui.QApplication.processEvents()                                        
     
-            self.state = ClientState.NONE    
-
     #        #Perform Version Check first        
             if not self.socket.state() == QtNetwork.QAbstractSocket.ConnectedState:
                 
@@ -226,7 +224,7 @@ class LobbyWidget(FormClass, BaseClass):
         logger.info("Attempting to gate as: " + str(self.client.login))
         self.state = ClientState.NONE
 
-        self.send(dict(command="hello", version=util.VERSION_STRING, port= self.client.gamePort, login=self.client.login, session = self.client.session, init = self.initDone))
+        self.send(dict(command="hello", version=util.VERSION_STRING, port= self.client.gamePort, login=self.client.login, session = self.client.session))
         
         while (not self.state) and self.progress.isVisible():
             QtGui.QApplication.processEvents()
@@ -277,7 +275,6 @@ class LobbyWidget(FormClass, BaseClass):
         self.info_Panel.layout().addWidget(self.infoPanel)
 
         self.send(dict(command = "init_done", status=True))
-        
                 
     def get_rank(self, faction, rank):
         return RANKS[faction][rank]
@@ -382,7 +379,7 @@ class LobbyWidget(FormClass, BaseClass):
     
     def handle_news_feed(self, message):
         '''Adding news to news feed'''
-        if hasattr(self, "newTicker"):
+        if hasattr(self, "newsTicker"):
             if self.newsTicker:
                 self.newsTicker.addNews(message["news"])
     
@@ -428,7 +425,9 @@ class LobbyWidget(FormClass, BaseClass):
         self.attackProposalUpdated.emit(planetuid)
     
     def handle_attacks_info(self, message):
-        logger.debug("updating attacks infos")
+        if self.OGLdisplay == None:
+            return
+        
         attacks = message["attacks"]
         self.attacks = {}
         
@@ -593,7 +592,7 @@ class LobbyWidget(FormClass, BaseClass):
         
         if self.state == ClientState.ACCEPTED:
             QtGui.QMessageBox.warning(QtGui.QApplication.activeWindow(), "Disconnected from Galactic War", "The lobby lost the connection to the Galactic War server.<br/><b>You might still be able to chat.<br/>To play, try reconnecting a little later!</b>", QtGui.QMessageBox.Close)
-            self.initDone   = True
+            self.initDone   = False
             self.client.mainTabs.setCurrentIndex(0)
 
             self.client.mainTabs.setTabEnabled(self.client.mainTabs.indexOf(self.client.galacticwarTab  ), False)
