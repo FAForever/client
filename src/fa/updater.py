@@ -304,7 +304,7 @@ class Updater(QtCore.QObject):
         self.silent = silent
         self.progress = QtGui.QProgressDialog()
         if self.silent:
-            self.progress.setCancelButtonText(0)
+            self.progress.setCancelButton(None)
         else:
             self.progress.setCancelButtonText("Cancel")
         self.progress.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)

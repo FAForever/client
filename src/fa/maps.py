@@ -558,7 +558,7 @@ def downloadMap(name, silent=False):
     if not silent:
         progress.setCancelButtonText("Cancel")
     else:
-        progress.setCancelButtonText(0)
+        progress.setCancelButton(None)
         
     progress.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
     progress.setAutoClose(False)
