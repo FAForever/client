@@ -1386,6 +1386,8 @@ class ClientWindow(FormClass, BaseClass):
                 rank = True
                 galacticWar = True
                 silent = True
+                if "luatable" in message:
+                    fa.gwgametable.writeTable(message["luatable"], "gwReinforcementList.gw")
                 if (not fa.exe.check(message[modkey], silent=silent)):
                     logger.error("Can't play %s without successfully updating Forged Alliance." % message[modkey])
                     return  

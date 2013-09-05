@@ -555,10 +555,15 @@ def downloadMap(name, silent=False):
     logger.debug("Getting map from: " + url)
 
     progress = QtGui.QProgressDialog()
-    progress.setCancelButtonText("Cancel")
+    if not silent:
+        progress.setCancelButtonText("Cancel")
+    else:
+        progress.setCancelButtonText(0)
+        
     progress.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
     progress.setAutoClose(False)
     progress.setAutoReset(False)
+       
     
     try:
         req = urllib2.Request(url, headers={'User-Agent' : "FAF Client"})         
@@ -566,13 +571,13 @@ def downloadMap(name, silent=False):
         meta = zipwebfile.info()
         file_size = int(meta.getheaders("Content-Length")[0])
 
-        if not silent:
-            progress.setMinimum(0)
-            progress.setMaximum(file_size)
-            progress.setModal(1)
-            progress.setWindowTitle("Downloading Map")
-            progress.setLabelText(name)
-            progress.show()
+        
+        progress.setMinimum(0)
+        progress.setMaximum(file_size)
+        progress.setModal(1)
+        progress.setWindowTitle("Downloading Map")
+        progress.setLabelText(name)
+        progress.show()
     
         #Download the file as a series of 8 KiB chunks, then uncompress it.
         output = cStringIO.StringIO()

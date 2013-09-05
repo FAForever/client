@@ -302,11 +302,11 @@ def checkMap(mapname, force = False, silent=False):
         return True
     
     if force:        
-        return fa.maps.downloadMap(mapname, silent)
+        return fa.maps.downloadMap(mapname, silent=silent)
         
     result = QtGui.QMessageBox.question(None, "Download Map", "Seems that you don't have the map. Do you want to download it?<br/><b>" + mapname + "</b>", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
     if result == QtGui.QMessageBox.Yes :
-        if not fa.maps.downloadMap(mapname, silent):
+        if not fa.maps.downloadMap(mapname, silent=silent):
             return False
     else:
         return False
@@ -378,7 +378,7 @@ def check(mod, mapname = None, version = None, modVersions = None, sim_mods = No
     logger.info("Updating FA for mod: " + str(mod) + ", version " + str(version))
 
     # Spawn an update for the required mod
-    updater = fa.updater.Updater(mod, version, modVersions, silent)
+    updater = fa.updater.Updater(mod, version, modVersions, silent=silent)
             
     result = updater.run()
 
