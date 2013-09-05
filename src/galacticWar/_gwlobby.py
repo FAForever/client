@@ -354,7 +354,7 @@ class LobbyWidget(FormClass, BaseClass):
         if len(self.shaderlist) == 0 and self.initDone :
             self.download_textures()
     
-    def handle_remove_team(self):
+    def handle_remove_team(self, message):
         self.teamUpdated.emit(dict(leader=None, members=[]))
     
     def handle_team(self, message):
