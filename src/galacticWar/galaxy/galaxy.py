@@ -318,8 +318,18 @@ class Galaxy(object):
                     connections.append(otherSite)
         return connections
 
-        
-
+    def computeDistance(self, siteIdx, otherSiteIdx, numConn = 0, previous=[]):
+        '''compute the number of links between two planets'''
+        numConn = numConn+1 
+        previous.append(siteIdx)
+        for idx in self.getConnected(siteIdx) :
+            if otherSiteIdx == idx:
+                return numConn 
+            else:
+                if not idx in previous:
+                    return self.computeDistance(idx, otherSiteIdx, numConn, previous)
+              
+                
     def isLooping(self, siteIdx):
         ''' This compute if the current site is forming a triangle'''
         
