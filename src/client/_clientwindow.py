@@ -169,6 +169,7 @@ class ClientWindow(FormClass, BaseClass):
 
         #Wire all important signals
         self.mainTabs.currentChanged.connect(self.mainTabChanged)
+        self.topTabs.currentChanged.connect(self.vaultTabChanged)
         
         #Verrry important step!
         self.loadSettingsPrelogin()            
@@ -189,8 +190,7 @@ class ClientWindow(FormClass, BaseClass):
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.whatNewTab      ), util.icon("client/feed.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.chatTab         ), util.icon("client/chat.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.gamesTab        ), util.icon("client/games.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.mapsTab         ), util.icon("client/maps.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.modsTab         ), util.icon("client/mods.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.vaultsTab       ), util.icon("client/mods.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.galacticwarTab  ), util.icon("client/gw.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.ladderTab       ), util.icon("client/ladder.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.tourneyTab      ), util.icon("client/tourney.png"))
@@ -1003,9 +1003,6 @@ class ClientWindow(FormClass, BaseClass):
         if new_tab is self.gamesTab:
             self.showGames.emit()
 
-        if new_tab is self.mapsTab:
-            self.showMaps.emit()
-
         if new_tab is self.chatTab:
             self.showChat.emit()
 
@@ -1019,10 +1016,18 @@ class ClientWindow(FormClass, BaseClass):
             self.showTourneys.emit()
 
         if new_tab is self.galacticwarTab:
-            self.showGalaxyWar.emit()
+            self.showGalaxyWar.emit()         
 
+    @QtCore.pyqtSlot(int)
+    def vaultTabChanged(self, index):
+        new_tab = self.topTabs.widget(index)
+
+        if new_tab is self.mapsTab:
+            self.showMaps.emit()
+        
         if new_tab is self.modsTab:
-            self.showMods.emit()            
+            self.showMods.emit()
+    
 
     def joinGameFromURL(self, url):
         '''

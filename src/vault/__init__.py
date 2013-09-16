@@ -51,7 +51,7 @@ class MapVault(QtCore.QObject):
         self.loaded = False
         self.client.showMaps.connect(self.reloadView)
         self.ui.loadFinished.connect(self.ui.show)
-
+        self.reloadView()
         
     @QtCore.pyqtSlot()
     def reloadView(self):

@@ -7,7 +7,7 @@ medium gray: #606060
 gray: #808080
 */
 
-QTabWidget #lobbyTab,#gamesTab,#ladderTab,#tournamentTab,#coopTab,#mapsTab,#galacticTab,#replaysTab,#modsTab
+QTabWidget #lobbyTab,#gamesTab,#ladderTab,#tournamentTab,#coopTab,#galacticTab,#replaysTab,#vaultsTab,#mapsTab,#modsTab
 { /* sets background color for every widget under a tab */
 		background-color: #2f2f2f;
 		border-radius: 10px;
