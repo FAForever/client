@@ -72,8 +72,8 @@ class TournamentsWidget(FormClass, BaseClass):
         
         self.tourneysTab = {}
 
-        #Special stylesheet for brackets
-        self.stylesheet              = util.readstylesheet("tournaments/formatters/style.css")
+        #Special stylesheet       
+        self.setStyleSheet(util.readstylesheet("tournaments/formatters/style.css"))
 
     
     def showEvent(self, event):

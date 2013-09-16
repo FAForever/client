@@ -62,21 +62,30 @@
             <enum>QAbstractItemView::ScrollPerPixel</enum>
            </property>
            <property name="movement">
-            <enum>QListView::Static</enum>
+            <enum>QListView::Free</enum>
            </property>
            <property name="flow">
             <enum>QListView::LeftToRight</enum>
            </property>
            <property name="isWrapping" stdset="0">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
            <property name="resizeMode">
-            <enum>QListView::Fixed</enum>
+            <enum>QListView::Adjust</enum>
+           </property>
+           <property name="layoutMode">
+            <enum>QListView::Batched</enum>
+           </property>
+           <property name="spacing">
+            <number>10</number>
            </property>
            <property name="viewMode">
-            <enum>QListView::ListMode</enum>
+            <enum>QListView::IconMode</enum>
            </property>
            <property name="uniformItemSizes">
+            <bool>false</bool>
+           </property>
+           <property name="wordWrap">
             <bool>true</bool>
            </property>
            <property name="sortingEnabled">

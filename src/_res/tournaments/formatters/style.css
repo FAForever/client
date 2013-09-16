@@ -1,20 +1,16 @@
 /* Typical widget controls (top tabs, etc) */
 
-QTableWidget::item
+QListWidget::item
 {
 	margin: 0px;
-	border: none;
+	border: 2px;
 	padding:0px;
+	background-color: #111111;
 }
 
-QTableWidget::item::hover
+
+QListWidget::item::hover
 {
-	background: none;
-	border: none;
+	background-color: #555555;
 }
 
-
-QTableWidget::item:selected, QTableWidget::item:previously-selected
-{
-	border: none;
-}

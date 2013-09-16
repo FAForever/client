@@ -24,9 +24,10 @@ from PyQt4 import QtCore, QtGui, QtWebKit
 import util
 from tourneys.hosttourneywidget import HostTourneyWidget
 import client
-
+import json
 
 class SwissTourneyItemDelegate(QtGui.QStyledItemDelegate):
+    #colors = json.loads(util.readfile("client/colors.json"))
     
     def __init__(self, *args, **kwargs):
         QtGui.QStyledItemDelegate.__init__(self, *args, **kwargs)
@@ -47,19 +48,18 @@ class SwissTourneyItemDelegate(QtGui.QStyledItemDelegate):
         option.widget.style().drawControl(QtGui.QStyle.CE_ItemViewItem, option, painter, option.widget)
         
         #Description
-        painter.translate(option.rect.left() + 10, option.rect.top()+10)
-        clip = QtCore.QRectF(0, 0, option.rect.width() - 10 - 5, option.rect.height())
+        painter.translate(option.rect.left(), option.rect.top())
+        #painter.fillRect(QtCore.QRect(0, 0, option.rect.width(), option.rect.height()), QtGui.QColor(36, 61, 75, 150))
+        clip = QtCore.QRectF(0, 0, option.rect.width(), option.rect.height())
         html.drawContents(painter, clip)
-  
-        painter.restore()
         
+        painter.restore()
 
     def sizeHint(self, option, index, *args, **kwargs):
         self.initStyleOption(option, index)
-        item = index.model().data(index, QtCore.Qt.UserRole)
         html = QtGui.QTextDocument()
         html.setHtml(option.text)
-        return QtCore.QSize(500, int(html.size().height()))
+        return QtCore.QSize(int(html.size().width()), int(html.size().height()))
 
 class SwissTourneyItem(QtGui.QListWidgetItem):
     FORMATTER_SWISS_OPEN = unicode(util.readfile("tournaments/formatters/swiss_open.qthtml"))
@@ -69,9 +69,7 @@ class SwissTourneyItem(QtGui.QListWidgetItem):
         QtGui.QListWidgetItem.__init__(self, *args, **kwargs)
 
         self.uid = int(uid)
-        
-        
-        
+
         self.parent = parent
         
         self.type = None    
