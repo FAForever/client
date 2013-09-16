@@ -71,27 +71,26 @@ class ClientWindow(FormClass, BaseClass):
     #Game state controls
     gameEnter   = QtCore.pyqtSignal()
     gameExit    = QtCore.pyqtSignal()
-     
 
-     
     #These signals propagate important client state changes to other modules
-    statsInfo           = QtCore.pyqtSignal(dict)
-    tourneyTypesInfo    = QtCore.pyqtSignal(dict)
-    tutorialsInfo       = QtCore.pyqtSignal(dict)
-    tourneyInfo         = QtCore.pyqtSignal(dict)
-    modInfo             = QtCore.pyqtSignal(dict)
-    gameInfo            = QtCore.pyqtSignal(dict)
-    modVaultInfo        = QtCore.pyqtSignal(dict)
-    newGame             = QtCore.pyqtSignal(str)
-    avatarList          = QtCore.pyqtSignal(list)
-    playerAvatarList    = QtCore.pyqtSignal(dict)
-    usersUpdated        = QtCore.pyqtSignal(list)
-    localBroadcast      = QtCore.pyqtSignal(str, str)
-    publicBroadcast     = QtCore.pyqtSignal(str)
-    autoJoin            = QtCore.pyqtSignal(list)
-    featuredModManager  = QtCore.pyqtSignal(str)
-    featuredModManagerInfo = QtCore.pyqtSignal(dict)
-    replayVault         = QtCore.pyqtSignal(dict)
+    statsInfo               = QtCore.pyqtSignal(dict)
+    tourneyTypesInfo        = QtCore.pyqtSignal(dict)
+    tutorialsInfo           = QtCore.pyqtSignal(dict)
+    tourneyInfo             = QtCore.pyqtSignal(dict)
+    modInfo                 = QtCore.pyqtSignal(dict)
+    gameInfo                = QtCore.pyqtSignal(dict)
+    modVaultInfo            = QtCore.pyqtSignal(dict)
+    coopInfo                = QtCore.pyqtSignal(dict)
+    newGame                 = QtCore.pyqtSignal(str)
+    avatarList              = QtCore.pyqtSignal(list)
+    playerAvatarList        = QtCore.pyqtSignal(dict)
+    usersUpdated            = QtCore.pyqtSignal(list)
+    localBroadcast          = QtCore.pyqtSignal(str, str)
+    publicBroadcast         = QtCore.pyqtSignal(str)
+    autoJoin                = QtCore.pyqtSignal(list)
+    featuredModManager      = QtCore.pyqtSignal(str)
+    featuredModManagerInfo  = QtCore.pyqtSignal(dict)
+    replayVault             = QtCore.pyqtSignal(dict)
 
 
     #These signals are emitted whenever a certain tab is activated
@@ -103,6 +102,7 @@ class ClientWindow(FormClass, BaseClass):
     showChat        = QtCore.pyqtSignal()
     showGalaxyWar   = QtCore.pyqtSignal()
     showMods        = QtCore.pyqtSignal()
+    showCoop        = QtCore.pyqtSignal()
 
     joinGameFromUser   = QtCore.pyqtSignal(str)
     joinReplayFromUser = QtCore.pyqtSignal(str)
@@ -217,6 +217,7 @@ class ClientWindow(FormClass, BaseClass):
         import galacticWar
         import downloadManager
         import modvault
+        import coop
         from chat._avatarWidget import avatarWidget
         
         #download manager
@@ -234,6 +235,7 @@ class ClientWindow(FormClass, BaseClass):
         self.replays        = replays.Replays(self)
         self.tutorials      = tutorials.Tutorials(self)
         self.GalacticWar    = galacticWar.Lobby(self)
+        self.Coop           = coop.Coop(self)
         
         # Other windows
         self.featuredMods   = featuredmods.FeaturedMods(self)
@@ -1016,7 +1018,10 @@ class ClientWindow(FormClass, BaseClass):
             self.showTourneys.emit()
 
         if new_tab is self.galacticwarTab:
-            self.showGalaxyWar.emit()         
+            self.showGalaxyWar.emit()  
+            
+        if new_tab is self.coopTab:
+            self.showCoop.emit()       
 
     @QtCore.pyqtSlot(int)
     def vaultTabChanged(self, index):
@@ -1475,7 +1480,8 @@ class ClientWindow(FormClass, BaseClass):
         
         fa.exe.play(info, self.relayServer.serverPort(), self.gamelogs, arguments, galacticWar)
 
-      
+    def handle_coop_info(self, message):
+        self.coopInfo.emit(message)      
 
     def handle_tournament_types_info(self, message):
         self.tourneyTypesInfo.emit(message)

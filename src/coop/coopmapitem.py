@@ -1,0 +1,156 @@
+#-------------------------------------------------------------------------------
+# Copyright (c) 2012 Gael Honorez.
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the GNU Public License v3.0
+# which accompanies this distribution, and is available at
+# http://www.gnu.org/licenses/gpl.html
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#-------------------------------------------------------------------------------
+
+
+
+
+
+from PyQt4 import QtCore, QtGui
+from fa import maps
+import util
+import os
+import client
+
+
+class CoopMapItemDelegate(QtGui.QStyledItemDelegate):
+    
+    def __init__(self, *args, **kwargs):
+        QtGui.QStyledItemDelegate.__init__(self, *args, **kwargs)
+        
+    def paint(self, painter, option, index, *args, **kwargs):
+        self.initStyleOption(option, index)
+                
+        painter.save()
+        
+        html = QtGui.QTextDocument()
+        textOption = QtGui.QTextOption()
+        textOption.setWrapMode(QtGui.QTextOption.WordWrap)
+        html.setDefaultTextOption(textOption)
+
+        html.setTextWidth(option.rect.width())
+        html.setHtml(option.text)
+        
+        icon = QtGui.QIcon(option.icon)
+        iconsize = icon.actualSize(option.rect.size())
+#        
+#        #clear icon and text before letting the control draw itself because we're rendering these parts ourselves
+#        option.icon = QtGui.QIcon()        
+        option.text = ""  
+        option.widget.style().drawControl(QtGui.QStyle.CE_ItemViewItem, option, painter, option.widget)
+#        
+#        #Icon
+#        icon.paint(painter, option.rect.adjusted(5-2, -2, 0, 0), QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
+#        
+#
+#        #Description
+        painter.translate(option.rect.left() , option.rect.top())
+        clip = QtCore.QRectF(0, 0, option.rect.width(), option.rect.height())
+        html.drawContents(painter, clip)
+  
+        painter.restore()
+        
+
+    def sizeHint(self, option, index, *args, **kwargs):
+        self.initStyleOption(option, index)
+        html = QtGui.QTextDocument()
+        textOption = QtGui.QTextOption()
+        textOption.setWrapMode(QtGui.QTextOption.WordWrap)
+        html.setTextWidth(option.rect.width())
+        html.setDefaultTextOption(textOption)
+        html.setHtml(option.text)
+        
+        return QtCore.QSize(int(html.size().width()) + 10, int(html.size().height() + 10))        
+        
+
+
+class CoopMapItem(QtGui.QTreeWidgetItem):
+
+    
+    FORMATTER_COOP        = unicode(util.readfile("coop/formatters/coop.qthtml"))
+
+    
+    def __init__(self, uid, parent, *args, **kwargs):
+        QtGui.QTreeWidgetItem.__init__(self, *args, **kwargs)
+
+        
+        self.uid            = uid
+        self.parent         = parent
+
+        self.title          = None
+        self.description    = None
+        self.mapUrl         = None
+
+        
+        self.setHidden(True)
+
+    
+    def update(self, message):
+        '''
+        Updates this item from the message dictionary supplied
+        '''
+
+        self.name           = message["name"]
+        self.mapUrl         = message["filename"]
+        self.description    = message["description"]
+      
+#        self.icon = maps.preview(self.mapname)
+#        if not self.icon:
+#            self.client.downloader.downloadMap(self.mapname, self, True)
+#            self.icon = util.icon("games/unknown_map.png")        
+        #self.setIcon(0, self.icon)
+        
+
+        self.viewtext = (self.FORMATTER_COOP.format(name=self.name, description=self.description))
+        
+
+    def display(self, column):
+        if column == 0 :
+            return self.viewtext
+        if column == 1 :
+            return self.viewtext   
+ 
+    def data(self, column, role):
+        if role == QtCore.Qt.DisplayRole:
+            return self.display(column)  
+        elif role == QtCore.Qt.UserRole :
+            return self
+        return super(CoopMapItem, self).data(column, role)
+ 
+    def permutations(self, items):
+        """Yields all permutations of the items."""
+        if items == []:
+            yield []
+        else:
+            for i in range(len(items)):
+                for j in self.permutations(items[:i] + items[i+1:]):
+                    yield [items[i]] + j
+
+    def __ge__(self, other):
+        ''' Comparison operator used for item list sorting '''        
+        return not self.__lt__(other)
+    
+    
+    def __lt__(self, other):
+        ''' Comparison operator used for item list sorting '''        
+        if not self.client: return True # If not initialized...
+        if not other.client: return False;
+        # Default: uid
+        return self.uid < other.uid
+    
+
+
