@@ -369,7 +369,7 @@ def readstylesheet(filename):
         result = open(os.path.join(__themedir, filename)).read().replace("%THEMEPATH%", __themedir.replace("\\", "/"))
         logger.info(u"Read themed stylesheet: " + filename)
     else:
-        baseDir = os.path.join(COMMON_DIR, os.path.dirname(filename))
+        baseDir = os.path.join(COMMON_DIR, os.path.dirname(filename))        
         result = open(os.path.join(COMMON_DIR, filename)).read().replace("%THEMEPATH%", baseDir.replace("\\", "/"))
         logger.info(u"Read common stylesheet: " + filename)
         

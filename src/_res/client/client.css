@@ -9,9 +9,8 @@ gray: #808080
 
 QTabWidget #lobbyTab,#gamesTab,#ladderTab,#tournamentTab,#coopTab,#galacticTab,#replaysTab,#vaultsTab,#mapsTab,#modsTab
 { /* sets background color for every widget under a tab */
-		background-color: #2f2f2f;
+		background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(15, 15, 15, 200), stop:1 #2f2f2f);
 		border-radius: 10px;
-		
 }
 
 QTabWidget#mainTabs::tab-bar
@@ -24,14 +23,18 @@ QTabWidget#mainTabs::tab-bar
 /* Central area background */
 QWidget#centralwidget
 {
-	background-color: #1f1f1f;
 	
+	background-image: url('%THEMEPATH%/background5.png');
+	background-position: top left;
+	background-repeat:repeat-x;
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #000000, stop:1 #1F1F1F);
 }
 
 
 QTabWidget#mainTabs::pane
 { /* The tab widget frame */
-	background-color: #2f2f2f;
+
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(15, 15, 15, 200), stop:1 #2f2f2f);
 	border-radius: 5px;
 	
 }
@@ -39,7 +42,7 @@ QTabWidget#mainTabs::pane
 /* Style the tab using the tab sub-control. Note that it reads QTabBar _not_ QTabWidget */	
 QTabWidget#mainTabs > QTabBar::tab
 {
-	background-color: #444444;
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:1 #555555, stop:0 #333333);
 	color: silver;
 	min-width: 80px;
 	padding:2px;
@@ -68,11 +71,6 @@ QTabWidget#mainTabs > QTabBar::tab:!selected
 {
 	margin-bottom: 8px; /* make non-selected tabs look smaller */
 }
-
-
-
-
-
 
 /* Typical widget controls (top tabs, etc) */
 
@@ -123,14 +121,12 @@ QTabWidget#topTabs > QTabBar::tab:selected
 	background-color: #758fa0;
 	border-top-left-radius: 5px;
 	border-top-right-radius: 5px;
-	border-style:solid;
-	border-width:1px;
-	border-color:#353535;	
+
 }
 
 QSplitter::handle 
 {
-     background-color: none;
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #0F0F0F, stop:1 #2f2f2f);
 }
 
 
@@ -213,6 +209,7 @@ QLineEdit
 }
 
 
+
 QListWidget::item:hover
 {
 	border: none;
@@ -231,6 +228,24 @@ QListWidget#modList::item:selected
 	color: #20A080;
 }
 
+/* for tournament*/
+QListWidget#tourneyList
+{
+	background-image: url('%THEMEPATH%/background5.png');
+	background-position: top left;
+	background-repeat:repeat-x;
+	
+	border-style:solid;
+	border-width:1px;
+	border-color:#353535;
+	color:silver;
+	padding:5px;
+	background-color:#0F0F0F;
+	border-top-right-radius : 5px;
+	border-top-left-radius : 5px; 	
+	border-bottom-left-radius : 5px;
+	border-bottom-right-radius : 5px; 
+}
  
 QTreeWidget::item:hover
 {
@@ -262,58 +277,68 @@ QScrollArea
 
 
 /* Scrollbars*/
-QScrollBar
-{
-      background-color: #202221;
-      border: 1px solid #7c858c;
- 	  border-radius: 0px;
-	  padding:1px;
+QScrollBar {
+	
+	background-color: grey;
+	width: 15px;
+	margin: 16px 0;
+}
+QScrollBar::handle {
+	background-image: url('%THEMEPATH%/drag3.png');
+	background-position: center center;
+	background-repeat:no-repeat;
+	background-color: #2e2d2d;
+	min-height: 24px;
+	border-radius : 2px;
 }
 
-QScrollBar::handle
-{
-      background-color: #414b55;
+QScrollBar::handle:hover {
+	border-radius : 2px;
+	background-image: url('%THEMEPATH%/drag2.png');
+	background-color: #d5d6d6;
+	min-height: 24px;
 }
 
-QScrollBar::handle:hover, QScrollBar::handle:pressed
-{
-      background-color: #657f98;
-  }
-
-QScrollBar::add-page, QScrollBar::sub-page
-{
-	background-color:none;
+QScrollBar::sub-line {
+	border-top-left-radius: 3px;
+	border-top-right-radius: 3px;
+	background: #2f2f2f;
+	height: 15px;
+	subcontrol-position: top;
+	subcontrol-origin: margin;
+}
+QScrollBar::add-line  {
+	
+	border-bottom-left-radius: 3px;
+	border-bottom-right-radius: 3px;
+	background: #2f2f2f;
+	height: 15px;
+	subcontrol-position: bottom;
+	subcontrol-origin: margin;
 }
 
-QScrollBar::add-line, QScrollBar::sub-line
+QScrollBar:down-arrow {
+	background-image: url('%THEMEPATH%/scrollDown.png');
+	background-position: center center;
+	background-repeat:no-repeat;     
+ }
+
+ QScrollBar:up-arrow {
+	background-image: url('%THEMEPATH%/scrollUp.png');
+	background-position: center center;
+	background-repeat:no-repeat;     
+
+ }
+
+
+QScrollBar::add-page
 {
-    border: none;
-	background-color:none;
+	background-color: #1f1f1f;
 }
 
-
-QScrollBar:vertical
+QScrollBar::sub-page
 {
-      width: 15px;
-	  margin-top:14px;
- 	  margin-bottom:14px;
-  }
-
-QScrollBar::handle:vertical 
-{
-      min-height: 20px;
-  }
-
-QScrollBar:horizontal
-{
-      height: 10px;
-	  margin-left:14px;
- 	  margin-right:14px;
-}
-
-QScrollBar::handle:horizontal 
-{
-      min-width: 20px;
+	background-color: #1f1f1f;
 }
 
 
