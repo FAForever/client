@@ -75,7 +75,7 @@ class HostgameWidget(FormClass, BaseClass):
         self.message['host'] = self.parent.client.login
         self.message['teams'] = {1:[self.parent.client.login]}
 #        self.message.get('access', 'public')
-        self.message['featured_mod'] = item.mod
+        self.message['featured_mod'] = "faf"
         self.message['mapname'] = self.parent.gamemap
         self.message['state'] = "open"
         
@@ -103,6 +103,7 @@ class HostgameWidget(FormClass, BaseClass):
             self.mapList.hide()
             
         icon = maps.preview(self.parent.gamemap, True)
+
         if not icon:
             icon = util.icon("games/unknown_map.png", False, True)
                 

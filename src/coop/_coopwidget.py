@@ -62,7 +62,7 @@ class CoopWidget(FormClass, BaseClass):
         
         self.client.showCoop.connect(self.coopChanged)
         self.client.coopInfo.connect(self.processCoopInfo)
-        #self.client.gameInfo.connect(self.processGameInfo)
+        self.client.gameInfo.connect(self.processGameInfo)
         self.coopList.header().setResizeMode(0, QtGui.QHeaderView.ResizeToContents)
         self.coopList.setItemDelegate(CoopMapItemDelegate(self))
         
@@ -162,21 +162,30 @@ class CoopWidget(FormClass, BaseClass):
         Slot that interprets and propagates game_info messages into GameItems 
         '''
         uid = message["uid"]
+        if message["featured_mod"] == "coop":
+            if 'max_players' in  message:
+                message["max_players"] = 4
+            
+            
+            
+            if uid not in self.games:
+                self.games[uid] = GameItem(uid)
+                self.gameList.addItem(self.games[uid])
+                self.games[uid].update(message, self.client)
+            else:
+                self.games[uid].update(message, self.client)
 
-        if uid not in self.games:
-            self.games[uid] = GameItem(uid)
-            self.gameList.addItem(self.games[uid])
-            self.games[uid].update(message, self.client)
-        else:
-            self.games[uid].update(message, self.client)
-
-
+            if message['state'] == "open":
+                # force the display.
+                self.games[uid].setHidden(False)    
+    
         #Special case: removal of a game that has ended         
         if message['state'] == "closed":
             if uid in self.games:
                 self.gameList.takeItem(self.gameList.row(self.games[uid]))
                 del self.games[uid]    
             return
+
         
     
     @QtCore.pyqtSlot(QtGui.QListWidgetItem)

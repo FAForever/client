@@ -117,7 +117,7 @@
       </widget>
       <widget class="QWidget" name="coopTab">
        <attribute name="title">
-        <string>Coop Campaigns</string>
+        <string>Coop Missions</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_14"/>
       </widget>
@@ -562,7 +562,7 @@
   <customwidget>
    <class>QWebView</class>
    <extends>QWidget</extends>
-   <header>QtWebKit/QWebView</header>
+   <header>PyQt4.QtWebKit</header>
   </customwidget>
  </customwidgets>
  <resources/>

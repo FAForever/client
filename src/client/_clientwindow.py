@@ -194,6 +194,7 @@ class ClientWindow(FormClass, BaseClass):
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.whatNewTab      ), util.icon("client/feed.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.chatTab         ), util.icon("client/chat.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.gamesTab        ), util.icon("client/games.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.coopTab         ), util.icon("client/coop.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.vaultsTab       ), util.icon("client/mods.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.galacticwarTab  ), util.icon("client/gw.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.ladderTab       ), util.icon("client/ladder.png"))
