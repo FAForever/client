@@ -48,7 +48,7 @@ from trueSkill.Rating import *
 from trueSkill.Team import *
 from trueSkill.Teams import *
 
-import client
+import client, stats
 
 class Statpage(QMainWindow):
     def __init__(self, parent=None):
@@ -57,14 +57,13 @@ class Statpage(QMainWindow):
         self.parent = parent
         self.parent.statsInfo.connect(self.processStatsInfos)
         
+        
         self.globalname = None
         self.globalforevername = None
 
         self.tabs = QTabWidget(self)
         
         self.setCentralWidget(self.tabs)
-        
-
         
         self.setWindowTitle('Player statistics')
 
@@ -88,14 +87,14 @@ class Statpage(QMainWindow):
         
         if tab == 1 :
             if self.name != "unknown" and self.globalname != self.name:
-
-                self.parent.send(dict(command="stats", player=self.name, type="global_90_days"))
+                self.parent.statsServer.send(dict(command="stats", player=self.name, type="global_90_days"))
+                #self.parent.send()
                 self.evoaxes.clear()
                 self.globalname = self.name
 
         if tab == 2 :
             if self.name != "unknown" and self.globalforevername != self.name:
-                self.parent.send(dict(command="stats", player=self.name, type="global_forever"))
+                self.parent.statsServer.send(dict(command="stats", player=self.name, type="global_90_days"))
                 self.evoaxesforever.clear()
                 self.globalforevername = self.name
                             

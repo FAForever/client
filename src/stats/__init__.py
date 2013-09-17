@@ -30,4 +30,4 @@ logger = logging.getLogger("faf.ladder")
 logger.setLevel(logging.DEBUG)
 
 from _statswidget import StatsWidget as Stats
-
+from statserver import StatServer

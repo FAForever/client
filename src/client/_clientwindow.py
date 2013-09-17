@@ -35,6 +35,7 @@ from client import logger, ClientState, MUMBLE_URL, WEBSITE_URL, WIKI_URL,\
 
 import util
 import fa
+import stats
 
 import json
 import sys
@@ -161,6 +162,9 @@ class ClientWindow(FormClass, BaseClass):
         
         #Local proxy servers
         self.proxyServer = fa.proxies.proxies(self)
+               
+        #stat server
+        self.statsServer = stats.StatServer(self)
                
         #create user interface (main window) and load theme
         self.setupUi(self)

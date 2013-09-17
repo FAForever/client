@@ -27,7 +27,7 @@ from stats import mapstat
 import client
 import time
 
-ANTIFLOOD = 0.5
+ANTIFLOOD = 0.1
 
 FormClass, BaseClass = util.loadUiType("stats/stats.ui")
 
@@ -85,25 +85,25 @@ class StatsWidget(BaseClass, FormClass):
             if leagueTab.currentIndex() == 0 :
                 if time.time() - self.floodtimer > ANTIFLOOD :
                     self.floodtimer = time.time() 
-                    self.client.send(dict(command="stats", type="league_table", league=self.currentLeague))
+                    self.client.statsServer.send(dict(command="stats", type="league_table", league=self.currentLeague))
     
     @QtCore.pyqtSlot(int)            
     def divisionsUpdate(self, index):
         if index == 0 :
             if time.time() - self.floodtimer > ANTIFLOOD :
                 self.floodtimer = time.time()
-                self.client.send(dict(command="stats", type="league_table", league=self.currentLeague))
+                self.client.statsServer.send(dict(command="stats", type="league_table", league=self.currentLeague))
         
         elif index == 1 :            
             tab =  self.currentLeague-1
             if not tab in self.pagesDivisions :
-                    self.client.send(dict(command="stats", type="divisions", league=self.currentLeague))
+                    self.client.statsServer.send(dict(command="stats", type="divisions", league=self.currentLeague))
         
     @QtCore.pyqtSlot(int)
     def divisionUpdate(self, index):
         if time.time() - self.floodtimer > ANTIFLOOD :
             self.floodtimer = time.time()
-            self.client.send(dict(command="stats", type="division_table", league=self.currentLeague, division=index))           
+            self.client.statsServer.send(dict(command="stats", type="division_table", league=self.currentLeague, division=index))           
         
     def createDivisionsTabs(self, divisions):
         userDivision = ""
@@ -132,10 +132,10 @@ class StatsWidget(BaseClass, FormClass):
             if name == userDivision :
                 foundDivision = True
                 pages.setCurrentIndex(index)
-                self.client.send(dict(command="stats", type="division_table", league=league, division=index))
+                self.client.statsServer.send(dict(command="stats", type="division_table", league=league, division=index))
         
         if foundDivision == False :
-            self.client.send(dict(command="stats", type="division_table", league=league, division=0))
+            self.client.statsServer.send(dict(command="stats", type="division_table", league=league, division=0))
         
         return pages
             
@@ -169,8 +169,6 @@ class StatsWidget(BaseClass, FormClass):
 
         html +="</tbody></table></body></html>"
 
-        
-        
         doc.setHtml(html)
         table.setDocument(doc)
         
@@ -181,8 +179,8 @@ class StatsWidget(BaseClass, FormClass):
     @QtCore.pyqtSlot(dict)
     def processStatsInfos(self, message):
 
-        type = message["type"]
-        if type == "divisions" :
+        typeStat = message["type"]
+        if typeStat == "divisions" :
             self.currentLeague = message["league"]
             tab =  self.currentLeague-1
 
@@ -192,7 +190,7 @@ class StatsWidget(BaseClass, FormClass):
                 leagueTab.widget(1).layout().addWidget(self.pagesDivisions[tab])
 
 
-        elif type == "division_table" :
+        elif typeStat == "division_table" :
             self.currentLeague = message["league"]
             self.currentDivision = message["division"]
 
@@ -201,7 +199,7 @@ class StatsWidget(BaseClass, FormClass):
                     self.createResults(message["values"], self.pagesDivisionsResults[self.currentLeague][self.currentDivision])
                     
 
-        elif type == "league_table" :
+        elif typeStat == "league_table" :
             self.currentLeague = message["league"]
             tab =  self.currentLeague-1
             if not tab in self.pagesAllLeagues :
@@ -211,22 +209,22 @@ class StatsWidget(BaseClass, FormClass):
                 leagueTab.currentChanged.connect(self.divisionsUpdate)
                 leagueTab.widget(0).layout().addWidget(self.pagesAllLeagues[tab])
             
-        elif type == "ladder_maps" :
+        elif typeStat == "ladder_maps" :
             self.laddermaplist.emit(message)
 
-        elif type == "ladder_map_stat" :
+        elif typeStat == "ladder_map_stat" :
             self.laddermapstat.emit(message)
 
     @QtCore.pyqtSlot()
     def updating(self):
     
-        self.client.send(dict(command="stats", type="ladder_maps"))
+        self.client.statsServer.send(dict(command="stats", type="ladder_maps"))
     
         if  self.client.getUserLeague(self.client.login) :
             self.leagues.setCurrentIndex(self.client.getUserLeague(self.client.login)["league"]-1)
         else :
             self.leagues.setCurrentIndex(0)
-            self.client.send(dict(command="stats", type="league_table", league=1))
+            self.client.statsServer.send(dict(command="stats", type="league_table", league=1))
         
         if (self.loaded): 
             return 
