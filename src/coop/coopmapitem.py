@@ -16,10 +16,6 @@
 # GNU General Public License for more details.
 #-------------------------------------------------------------------------------
 
-
-
-
-
 from PyQt4 import QtCore, QtGui
 from fa import maps
 import util
@@ -94,6 +90,8 @@ class CoopMapItem(QtGui.QTreeWidgetItem):
         self.title          = None
         self.description    = None
         self.mapUrl         = None
+        self.options        = []
+
 
         
         self.setHidden(True)
@@ -107,6 +105,7 @@ class CoopMapItem(QtGui.QTreeWidgetItem):
         self.name           = message["name"]
         self.mapUrl         = message["filename"]
         self.description    = message["description"]
+        self.mod            = message["featured_mod"]
       
 #        self.icon = maps.preview(self.mapname)
 #        if not self.icon:

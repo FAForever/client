@@ -83,26 +83,29 @@ class HostgameWidget(FormClass, BaseClass):
         
         i = 0
         index = 0
-        
-        for map in maps.maps :
-            name = maps.getDisplayName(map)
-            if map == self.parent.gamemap :
-                index = i
-            self.mapList.addItem(name, map)
-            i = i + 1
-
-        for map in maps.getUserMaps() :
-            name = maps.getDisplayName(map)
-            if map == self.parent.gamemap :
-                index = i
-            self.mapList.addItem(name, map)
-            i = i + 1
-        
-        self.mapList.setCurrentIndex(index)
-        
+        if self.parent.canChooseMap == True:
+            for map in maps.maps :
+                name = maps.getDisplayName(map)
+                if map == self.parent.gamemap :
+                    index = i
+                self.mapList.addItem(name, map)
+                i = i + 1
+    
+            for map in maps.getUserMaps() :
+                name = maps.getDisplayName(map)
+                if map == self.parent.gamemap :
+                    index = i
+                self.mapList.addItem(name, map)
+                i = i + 1
+            
+            self.mapList.setCurrentIndex(index)
+        else:
+            self.mapList.hide()
+            
         icon = maps.preview(self.parent.gamemap, True)
         if not icon:
             icon = util.icon("games/unknown_map.png", False, True)
+                
 
         self.mods = {}
         #this makes it so you can select every non-ui_only mod

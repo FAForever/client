@@ -71,6 +71,7 @@ class GamesWidget(FormClass, BaseClass):
         self.radius = 0
         self.race = None
         self.ispassworded = False
+        self.canChooseMap = True
         
         self.client.modInfo.connect(self.processModInfo)
         self.client.gameInfo.connect(self.processGameInfo)

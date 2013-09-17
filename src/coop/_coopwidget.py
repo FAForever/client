@@ -57,6 +57,9 @@ class CoopWidget(FormClass, BaseClass):
         self.coop = {}
         self.cooptypes = {}
         
+        self.canChooseMap = False
+        self.options = []
+        
         self.client.showCoop.connect(self.coopChanged)
         self.client.coopInfo.connect(self.processCoopInfo)
         #self.client.gameInfo.connect(self.processGameInfo)
@@ -67,11 +70,10 @@ class CoopWidget(FormClass, BaseClass):
         self.gameList.setItemDelegate(GameItemDelegate(self))
         self.gameList.itemDoubleClicked.connect(self.gameDoubleClicked)
 
-        #self.modList.itemDoubleClicked.connect(self.hostGameClicked)
-
+        self.coopList.itemDoubleClicked.connect(self.coopListDoubleClicked)
+        
         #Load game name from settings (yay, it's persistent!)        
         self.loadGameName()
-        self.loadGameMap()
         self.loadPassword()
 
 
@@ -81,6 +83,49 @@ class CoopWidget(FormClass, BaseClass):
         if not self.loaded:
             self.client.send(dict(command="coop_list"))
             self.loaded = True
+
+
+    def coopListDoubleClicked(self, item):
+        '''
+        Hosting a coop event
+        '''
+        if not hasattr(item, "mapUrl") :
+            return
+        
+        if not fa.exe.available():
+            return
+            
+        self.client.games.stopSearchRanked()
+        self.gamemap = fa.maps.link2name(item.mapUrl)
+        
+        fa.exe.checkMap(self.gamemap, force=True)
+        
+        # A simple Hosting dialog.
+        if fa.exe.check("coop"):     
+            hostgamewidget = HostgameWidget(self, item)
+            
+            if hostgamewidget.exec_() == 1 :
+                if self.gamename:
+                    gameoptions = []
+                    
+                    if len(self.options) != 0 :
+                        oneChecked = False
+                        for option in self.options :
+                            if option.isChecked() :
+                                oneChecked = True
+                            gameoptions.append(option.isChecked())
+            
+                        if oneChecked == False :
+                            QtGui.QMessageBox.warning(None, "No option checked !", "You have to check at least one option !")
+                            return
+                    modnames = [str(moditem.text()) for moditem in hostgamewidget.modList.selectedItems()]
+                    mods = [hostgamewidget.mods[modstr] for modstr in modnames]
+                    modvault.setActiveMods(mods, True) #should be removed later as it should be managed by the server.
+#                #Send a message to the server with our intent.
+                    if self.ispassworded:
+                        self.client.send(dict(command="game_host", access="password", password = self.gamepassword, mod=item.mod, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort, options = gameoptions))
+                    else :
+                        self.client.send(dict(command="game_host", access="public", mod=item.mod, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort, options = gameoptions))
 
 
     @QtCore.pyqtSlot(dict)
@@ -155,45 +200,6 @@ class CoopWidget(FormClass, BaseClass):
         else:
             pass #checkFA failed and notified the user what was wrong. We won't join now.
 
-
-
-    @QtCore.pyqtSlot(QtGui.QListWidgetItem)
-    def hostGameClicked(self, item):
-        '''
-        Hosting a game event
-        '''
-        if not fa.exe.available():
-            return
-            
-       
-        # A simple Hosting dialog.
-        if fa.exe.check(item.mod):     
-            hostgamewidget = HostgameWidget(self, item)
-            
-            if hostgamewidget.exec_() == 1 :
-                if self.gamename:
-                    gameoptions = []
-                    
-                    if len(self.options) != 0 :
-                        oneChecked = False
-                        for option in self.options :
-                            if option.isChecked() :
-                                oneChecked = True
-                            gameoptions.append(option.isChecked())
-            
-                        if oneChecked == False :
-                            QtGui.QMessageBox.warning(None, "No option checked !", "You have to check at least one option !")
-                            return
-                    modnames = [str(moditem.text()) for moditem in hostgamewidget.modList.selectedItems()]
-                    mods = [hostgamewidget.mods[modstr] for modstr in modnames]
-                    modvault.setActiveMods(mods, True) #should be removed later as it should be managed by the server.
-#                #Send a message to the server with our intent.
-                    if self.ispassworded:
-                        self.client.send(dict(command="game_host", access="password", password = self.gamepassword, mod=item.mod, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort, options = gameoptions))
-                    else :
-                        self.client.send(dict(command="game_host", access="public", mod=item.mod, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort, options = gameoptions))
-#
-
     def savePassword(self, password):
         self.gamepassword = password
         util.settings.beginGroup("fa.games")
@@ -211,21 +217,8 @@ class CoopWidget(FormClass, BaseClass):
             self.gamepassword = "password"
 
     def saveGameMap(self, name):
-        self.gamemap = name
-        util.settings.beginGroup("fa.games")
-        util.settings.setValue("gamemap", self.gamemap)        
-        util.settings.endGroup()        
+        pass
                 
-                
-    def loadGameMap(self):
-        util.settings.beginGroup("fa.games")
-        self.gamemap = util.settings.value("gamemap", None)        
-        util.settings.endGroup()        
-                
-        #Default Game Map ...
-        if not self.gamemap:
-            self.gamemap = "scmp_007"
-
 
     def saveGameName(self, name):
         self.gamename = name
