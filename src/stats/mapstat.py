@@ -175,15 +175,17 @@ class LadderMapStat(FormClass, BaseClass):
     def mapselected(self, item):
         ''' user has selected a map, we send the request to the server'''
         
-        self.mapid = item.data(32)[0]
-        self.client.send(dict(command="stats", type="ladder_map_stat", mapid = self.mapid))
         self.mapstats.clear()
-        
+        self.mapid = item.data(32)[0]
         realmap = item.data(32)[1].split("/")[1][:-4]
 
         self.mapstats.document().addResource(QtGui.QTextDocument.ImageResource,  QtCore.QUrl("map.png"), maps.preview(realmap, True, force=True))
 
         self.mapstats.insertHtml("<img src=\"map.png\" /><br><font size='+5'>" + item.text() + "</font><br><br>")
+        self.client.statsServer.send(dict(command="stats", type="ladder_map_stat", mapid = self.mapid))
+        
+        
+
         
         
     @QtCore.pyqtSlot(dict)

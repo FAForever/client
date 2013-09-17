@@ -278,7 +278,7 @@ class Statpage(QMainWindow):
             #self.axes.fill_between(bins, y2*100 ,0, where=bins>self.playermu+self.playersigma, facecolor='darkblue',  interpolate=True)
             #self.axes.fill_between(bins, y2*100 ,0, where=bins<self.playermu-self.playersigma, facecolor='darkblue', interpolate=True )            
 
-            self.axes.annotate('Your maximum rating (%i)' % int(self.playermu), xy=(self.playermu, max(y2)*100),  xycoords='data',  xytext=(-50, 30), textcoords='offset points', arrowprops=dict(arrowstyle="wedge", facecolor='blue', linewidth=0),  size = 7, alpha = 0.5, backgroundcolor='lightgrey')
+            self.axes.annotate('Your most probable rating (%i)' % int(self.playermu), xy=(self.playermu, max(y2)*100),  xycoords='data',  xytext=(-50, 30), textcoords='offset points', arrowprops=dict(arrowstyle="wedge", facecolor='blue', linewidth=0),  size = 7, alpha = 0.5, backgroundcolor='lightgrey')
             
             text ="This is the potential rating of %s.\n66 percent chances to be between %i and %i. (you : between %i and %i)" % (self.name,int(self.mu-self.sigma), int(self.mu+self.sigma), int(self.playermu-self.playersigma), int(self.playermu+self.playersigma))
             self.textbox.setText(text + "\n%.2f percent chances to be %i (You : \n%.2f percent chances to be %i)" % (round((max(y)*100),2), int(self.mu), round((max(y2)*100),2), int(self.playermu)))
@@ -322,7 +322,7 @@ class Statpage(QMainWindow):
         
         self.global_evolution_forever.setLayout(vbox)
         
-        self.tabs.addTab(self.global_evolution_forever, "Global Rating Evolution since forever")
+        self.tabs.addTab(self.global_evolution_forever, "Global Rating Evolution for a year")
         
     def create_global_evolution_frame(self):
         
