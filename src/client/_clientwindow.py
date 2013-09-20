@@ -169,7 +169,62 @@ class ClientWindow(FormClass, BaseClass):
         #create user interface (main window) and load theme
         self.setupUi(self)
         self.setStyleSheet(util.readstylesheet("client/client.css"))
+
+        self.windowsTitleLabel=QtGui.QLabel(self)
+        self.windowsTitleLabel.setText("FA Forever " + util.VERSION_STRING)
+        self.windowsTitleLabel.setProperty("titleLabel", True)
+        
         self.setWindowTitle("FA Forever " + util.VERSION_STRING)
+
+        # Frameless
+        self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+
+        
+        self.minimize = QtGui.QToolButton(self)
+        self.minimize.setIcon(util.icon("client/minimize-button.png"))
+
+        self.maximize = QtGui.QToolButton(self)
+        self.maximize.setIcon(util.icon("client/maximize-button.png"))
+
+        close = QtGui.QToolButton(self)
+        close.setIcon(util.icon("client/close-button.png"))
+        
+        self.minimize.setMinimumHeight(10)
+        close.setMinimumHeight(10)
+        self.maximize.setMinimumHeight(10)       
+
+        close.setIconSize(QtCore.QSize(22,22))
+        self.minimize.setIconSize(QtCore.QSize(22,22))
+        self.maximize.setIconSize(QtCore.QSize(22,22))
+
+        close.setProperty("windowControlBtn", True)
+        self.maximize.setProperty("windowControlBtn", True)
+        self.minimize.setProperty("windowControlBtn", True)
+        
+        self.menu = self.menuBar()
+        self.topLayout.addWidget(self.menu)
+        self.topLayout.addWidget(self.windowsTitleLabel)
+        self.topLayout.addWidget(self.minimize)
+        self.topLayout.addWidget(self.maximize)
+        self.topLayout.addWidget(close)
+        self.topLayout.insertStretch(1,500)
+        self.topLayout.setSpacing(0)
+        self.setSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Fixed)
+        self.maxNormal=False
+
+        close.clicked.connect(self.close);
+        self.minimize.clicked.connect(self.showSmall)
+        self.maximize.clicked.connect(self.showMaxRestore)
+
+        #sizeGrip1 = QtGui.QSizeGrip(self)
+        #sizeGrip2 = QtGui.QSizeGrip(self)
+        sizeGrip3 = QtGui.QSizeGrip(self)
+        #sizeGrip4 = QtGui.QSizeGrip(self)
+        
+        #self.mainGridLayout.addWidget(sizeGrip1, 0, 0)
+        #self.mainGridLayout.addWidget(sizeGrip2, 0, 2)
+        self.mainGridLayout.addWidget(sizeGrip3, 2, 2)
+        #self.mainGridLayout.addWidget(sizeGrip4, 2, 0)        
 
         #Wire all important signals
         self.mainTabs.currentChanged.connect(self.mainTabChanged)
@@ -210,6 +265,27 @@ class ClientWindow(FormClass, BaseClass):
         self.modMenu = None
         
         #self.mainTabs.setTabEnabled(self.mainTabs.indexOf(self.tourneyTab), False)
+                
+    def showSmall(self):
+        self.showMinimized()
+
+    def showMaxRestore(self):
+        if(self.maxNormal):
+            self.showNormal()
+            self.maxNormal= False
+
+        else:
+            self.showMaximized()
+            self.maxNormal=  True           
+
+    def mousePressEvent(self,event):
+        if event.button() == QtCore.Qt.LeftButton:
+            self.moving = True
+            self.offset = event.pos()
+
+    def mouseMoveEvent(self,event):
+        if self.moving: 
+            self.move(event.globalPos()-self.offset)
                 
     def setup(self):
         import chat
@@ -1214,7 +1290,7 @@ class ClientWindow(FormClass, BaseClass):
         ''' update the interface accordingly to the power of the user'''
         if self.power >= 1 :
             if self.modMenu == None :
-                self.modMenu = self.menuBar().addMenu("Administration")
+                self.modMenu = self.menu.addMenu("Administration")
                 
             actionAvatar = QtGui.QAction("Avatar manager", self.modMenu)
             actionAvatar.triggered.connect(self.avatarManager)
@@ -1547,7 +1623,7 @@ class ClientWindow(FormClass, BaseClass):
         action = message["action"]
         if action == "list" :
             mods = message["mods"]    
-            modMenu = self.menuBar().addMenu("Featured Mods Manager")
+            modMenu = self.menu.addMenu("Featured Mods Manager")
             for mod in mods :                
                 action = QtGui.QAction(mod, modMenu)
                 action.triggered.connect(functools.partial(self.featuredMod, mod))

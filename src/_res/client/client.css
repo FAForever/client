@@ -7,6 +7,83 @@ medium gray: #606060
 gray: #808080
 */
 
+
+ *[titleLabel="true"]
+{
+	color:lightgrey;
+	font-size:12pt;
+	margin-right: 15px;
+	font-family: Verdana;
+	padding-bottom:5px;
+}
+
+ *[windowControlBtn="true"]
+{
+	background-color: rgba(0,0,0,0);
+	width: 18px;
+	height: 18px;
+	
+}
+
+QMenuBar
+{
+	background-color: rgba(0,0,0,0);
+}
+
+QMenuBar::item
+{
+	background-color: rgba(0,0,0,0);
+	color: white;
+}
+
+ QMenuBar::item:selected { /* when selected using mouse or keyboard */
+     background: #a8a8a8;
+ }
+
+ QMenuBar::item:pressed {
+     background: #888888;
+ }
+
+ 
+ QMenu {
+     background-color: rgb(50,50,50);
+	 color: lightgrey;
+     margin: 2px; /* some spacing around the menu */
+ }
+
+ QMenu::item {
+     padding: 2px 25px 2px 20px;
+     border: 1px solid transparent; /* reserve space for selection border */
+ }
+
+ QMenu::item:selected {
+     background: rgba(150, 150, 150, 150);
+	 border-radius: 2px;
+ }
+
+ QMenu::icon:checked { /* appearance of a 'checked' icon */
+     background: gray;
+     border: 1px inset gray;
+     position: absolute;
+     top: 1px;
+     right: 1px;
+     bottom: 1px;
+     left: 1px;
+ }
+
+ QMenu::separator {
+     height: 1px;
+     background: lightgray;
+     margin-top: 5px;
+     margin-bottom: 5px;
+ }
+
+ QMenu::indicator {
+     width: 13px;
+     height: 13px;
+ }
+
+ 
 QTabWidget #lobbyTab,#gamesTab,#ladderTab,#tournamentTab,#coopTab,#galacticTab,#replaysTab,#vaultsTab,#mapsTab,#modsTab
 { /* sets background color for every widget under a tab */
 		background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(15, 15, 15, 200), stop:1 #2f2f2f);

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1024</width>
-    <height>600</height>
+    <width>1091</width>
+    <height>686</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -44,11 +44,14 @@
      <height>400</height>
     </size>
    </property>
-   <layout class="QGridLayout" name="gridLayout_3">
-    <property name="sizeConstraint">
-     <enum>QLayout::SetMinimumSize</enum>
+   <layout class="QGridLayout" name="mainGridLayout">
+    <property name="margin">
+     <number>9</number>
     </property>
-    <item row="0" column="0">
+    <property name="spacing">
+     <number>0</number>
+    </property>
+    <item row="1" column="0">
      <widget class="QTabWidget" name="mainTabs">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -239,6 +242,13 @@
       </widget>
      </widget>
     </item>
+    <item row="0" column="0">
+     <layout class="QHBoxLayout" name="topLayout">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+     </layout>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -246,7 +256,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1024</width>
+     <width>1091</width>
      <height>21</height>
     </rect>
    </property>
@@ -562,7 +572,7 @@
   <customwidget>
    <class>QWebView</class>
    <extends>QWidget</extends>
-   <header>PyQt4.QtWebKit</header>
+   <header>QtWebKit/QWebView</header>
   </customwidget>
  </customwidgets>
  <resources/>
