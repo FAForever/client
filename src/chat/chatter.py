@@ -435,8 +435,8 @@ class Chatter(QtGui.QTableWidgetItem):
         self.lobby.client.replays.playerName.setText(self.name)
         self.lobby.client.replays.minRating.setValue(0)
         self.lobby.client.replays.searchVault()
-        self.lobby.client.mainTabs.setCurrentIndex(8)
-        #self.lobby.client.replays.send(dict(command="search", player = self.name, map="", rating="0", mod="All"))
+        self.lobby.client.mainTabs.setCurrentIndex(self.lobby.client.mainTabs.indexOf(self.lobby.client.replaysTab))
+
         
             
 
