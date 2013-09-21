@@ -216,15 +216,12 @@ class ClientWindow(FormClass, BaseClass):
         self.minimize.clicked.connect(self.showSmall)
         self.maximize.clicked.connect(self.showMaxRestore)
 
-        #sizeGrip1 = QtGui.QSizeGrip(self)
-        #sizeGrip2 = QtGui.QSizeGrip(self)
-        sizeGrip3 = QtGui.QSizeGrip(self)
-        #sizeGrip4 = QtGui.QSizeGrip(self)
-        
-        #self.mainGridLayout.addWidget(sizeGrip1, 0, 0)
-        #self.mainGridLayout.addWidget(sizeGrip2, 0, 2)
-        self.mainGridLayout.addWidget(sizeGrip3, 2, 2)
-        #self.mainGridLayout.addWidget(sizeGrip4, 2, 0)        
+        self.moving = False
+        self.offset = None
+
+        sizeGrip = QtGui.QSizeGrip(self)
+        self.mainGridLayout.addWidget(sizeGrip, 2, 2)
+                
 
         #Wire all important signals
         self.mainTabs.currentChanged.connect(self.mainTabChanged)
@@ -284,7 +281,7 @@ class ClientWindow(FormClass, BaseClass):
             self.offset = event.pos()
 
     def mouseMoveEvent(self,event):
-        if self.moving: 
+        if self.moving and self.offset != None: 
             self.move(event.globalPos()-self.offset)
                 
     def setup(self):

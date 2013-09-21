@@ -146,10 +146,8 @@ class CoopMapItem(QtGui.QTreeWidgetItem):
     
     def __lt__(self, other):
         ''' Comparison operator used for item list sorting '''        
-        if not self.client: return True # If not initialized...
-        if not other.client: return False;
         # Default: uid
-        return self.uid < other.uid
+        return self.uid > other.uid
     
 
 

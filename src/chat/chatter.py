@@ -436,9 +436,7 @@ class Chatter(QtGui.QTableWidgetItem):
         self.lobby.client.replays.minRating.setValue(0)
         self.lobby.client.replays.searchVault()
         self.lobby.client.mainTabs.setCurrentIndex(self.lobby.client.mainTabs.indexOf(self.lobby.client.replaysTab))
-
-        
-            
+    
 
     @QtCore.pyqtSlot()
     def joinInGame(self):
