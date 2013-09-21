@@ -112,7 +112,7 @@ class StatsWidget(BaseClass, FormClass):
        
         pages = QtGui.QTabWidget()
         
-        pages.currentChanged.connect(self.divisionUpdate)
+        
         
         foundDivision = False
         
@@ -137,6 +137,7 @@ class StatsWidget(BaseClass, FormClass):
         if foundDivision == False :
             self.client.statsServer.send(dict(command="stats", type="division_table", league=league, division=0))
         
+        pages.currentChanged.connect(self.divisionUpdate)
         return pages
             
     
@@ -185,9 +186,11 @@ class StatsWidget(BaseClass, FormClass):
             tab =  self.currentLeague-1
 
             if not tab in self.pagesDivisions :
+                print "no tab in division"
                 self.pagesDivisions[tab] = self.createDivisionsTabs(message["values"])
                 leagueTab = self.leagues.widget(tab).findChild(QtGui.QTabWidget,"league"+str(tab))   
                 leagueTab.widget(1).layout().addWidget(self.pagesDivisions[tab])
+                print "done"
 
 
         elif typeStat == "division_table" :

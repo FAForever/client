@@ -27,7 +27,7 @@ import logging
 import fa
 
 logger = logging.getLogger("faf.statserver")
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 def log(string):
     logger.debug(string)
@@ -69,6 +69,8 @@ class StatServer(QtCore.QObject):
         self.requester      = requester
 
         self.result = self.RESULT_NONE
+        self.command = None
+        self.message = None
         
         self.blockSize = 0
         self.statServerSocket = QtNetwork.QTcpSocket()
@@ -82,8 +84,12 @@ class StatServer(QtCore.QObject):
         
     def send(self, command, *args, **kwargs):
         ''' actually do the settings'''
+                  
         
         self.result = self.RESULT_NONE
+        self.command = None
+        self.message = None
+        
         self.progress = QtGui.QProgressDialog()        
         self.progress.setCancelButtonText("Cancel")
         self.progress.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
@@ -115,9 +121,7 @@ class StatServer(QtCore.QObject):
         ''' The core function that does most of the actual work.'''
         self.sendJson(command)
         self.waitForInfo()
-        
-
-        
+              
     def waitForInfo(self):
         '''
         A simple loop that waits until the server has transmitted our info.
@@ -129,6 +133,11 @@ class StatServer(QtCore.QObject):
             if (self.progress.wasCanceled()) : raise Cancellation("Operation aborted while waiting for info.")
             if (time.time() - self.lastData > self.TIMEOUT) : raise Timeout("Operation timed out while waiting for info.")
             QtGui.QApplication.processEvents()
+        logger.debug("Finishing request")
+        self.result = self.RESULT_NONE
+        
+        if self.command != None and self.message != None:
+            getattr(self.requester, self.command)(self.message)
             
     def sendJson(self, message):
         data = json.dumps(message)
@@ -186,11 +195,17 @@ class StatServer(QtCore.QObject):
         A fairly pythonic way to process received strings as JSON messages.
         '''
         message = json.loads(data_string)
-        cmd = "handle_" + message['command']       
+        cmd = "handle_" + message['command']
+        logger.debug("answering from server :" + str(cmd))
         if hasattr(self.requester, cmd):
-            getattr(self.requester, cmd)(message)
-        self.statServerSocket.abort()
+            self.command = cmd
+            self.message = message
+        
+        self.statServerSocket.abort()        
         self.result = self.RESULT_SUCCESS
+            
+        
+        
 
     @QtCore.pyqtSlot('QAbstractSocket::SocketError')
     def handleServerError(self, socketError):
