@@ -10,10 +10,10 @@
     <ROW Property="ARPURLUPDATEINFO" Value="http://www.faforever.com/page=2"/>
     <ROW Property="CTRLS" Value="2"/>
     <ROW Property="Manufacturer" Value="FAF Community" ValueLocId="*"/>
-    <ROW Property="ProductCode" Value="1033:{AB0F7F2F-006B-4BFB-90AA-91264D6D8438} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{AC031577-A6BC-431D-BFF2-139BF0B0FBCA} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Forged Alliance Forever" ValueLocId="*"/>
-    <ROW Property="ProductVersion" Value="240.8.78"/>
+    <ROW Property="ProductVersion" Value="240.8.79"/>
     <ROW Property="REBOOT" MultiBuildValue="DefaultBuild:Suppress"/>
     <ROW Property="RUNAPPLICATION" Value="1" Type="4"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
@@ -610,7 +610,6 @@
     <ROW File="back.ppm" Component_="back.png" FileName="back.ppm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\back.ppm" SelfReg="false" NextFile="back.svg"/>
     <ROW File="back.svg" Component_="back.png" FileName="back.svg" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\back.svg" SelfReg="false" NextFile="back.xpm"/>
     <ROW File="back.xpm" Component_="back.png" FileName="back.xpm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\back.xpm" SelfReg="false" NextFile="filesave.png"/>
-    <ROW File="background5.png" Component_="about.ui" FileName="backgr~1.png|background5.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\background5.png" SelfReg="false"/>
     <ROW File="base_instance.pyc" Component_="arrays_of_arrays.pyc" FileName="base_i~1.pyc|base_instance.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\ARB\base_instance.pyc" SelfReg="false" NextFile="blend_func_extended.pyc"/>
     <ROW File="base_instance.pyc_1" Component_="arrays_of_arrays.pyc_1" FileName="base_i~1.pyc|base_instance.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\ARB\base_instance.pyc" SelfReg="false" NextFile="blend_func_extended.pyc_1"/>
     <ROW File="baseplatform.pyc" Component_="baseplatform.pyc" FileName="basepl~1.pyc|baseplatform.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\platform\baseplatform.pyc" SelfReg="false" NextFile="ctypesloader.pyc"/>
@@ -701,6 +700,7 @@
     <ROW File="clip_volume_hint.pyc_1" Component_="_pixels.pyc_1" FileName="clip_v~1.pyc|clip_volume_hint.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\EXT\clip_volume_hint.pyc" SelfReg="false" NextFile="cmyka.pyc_1"/>
     <ROW File="clipmap.pyc" Component_="async.pyc" FileName="clipmap.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\SGIX\clipmap.pyc" SelfReg="false" NextFile="convolution_accuracy.pyc"/>
     <ROW File="clipmap.pyc_1" Component_="async.pyc_1" FileName="clipmap.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\SGIX\clipmap.pyc" SelfReg="false" NextFile="convolution_accuracy.pyc_1"/>
+    <ROW File="closebutton.png" Component_="about.ui" FileName="close-~1.png|close-button.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\close-button.png" SelfReg="false"/>
     <ROW File="cm.png" Component_="ad.png" FileName="cm.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\cm.png" SelfReg="false" NextFile="cn.png"/>
     <ROW File="cmb10.ttf" Component_="cmb10.ttf" FileName="cmb10.ttf" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\ttf\cmb10.ttf" SelfReg="false" NextFile="cmex10.ttf"/>
     <ROW File="cmex10.afm" Component_="cmex10.afm" FileName="cmex10.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\afm\cmex10.afm" SelfReg="false" NextFile="cmmi10.afm"/>
@@ -838,7 +838,7 @@
     <ROW File="dk.png" Component_="ad.png" FileName="dk.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\dk.png" SelfReg="false" NextFile="dm.png"/>
     <ROW File="dm.png" Component_="ad.png" FileName="dm.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\dm.png" SelfReg="false" NextFile="do.png"/>
     <ROW File="do.png" Component_="ad.png" FileName="do.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\do.png" SelfReg="false" NextFile="dz.png"/>
-    <ROW File="drag2.png" Component_="about.ui" FileName="drag2.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\drag2.png" SelfReg="false" NextFile="background5.png"/>
+    <ROW File="drag2.png" Component_="about.ui" FileName="drag2.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\drag2.png" SelfReg="false" NextFile="stripe.png"/>
     <ROW File="drag3.png" Component_="about.ui" FileName="drag3.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\drag3.png" SelfReg="false" NextFile="drag2.png"/>
     <ROW File="draw_buffers.pyc" Component_="arrays_of_arrays.pyc" FileName="draw_b~1.pyc|draw_buffers.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\ARB\draw_buffers.pyc" SelfReg="false" NextFile="draw_buffers_blend.pyc_1"/>
     <ROW File="draw_buffers.pyc_1" Component_="draw_buffers.pyc" FileName="draw_b~1.pyc|draw_buffers.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\ATI\draw_buffers.pyc" SelfReg="false" NextFile="element_array.pyc_1"/>
@@ -1192,6 +1192,7 @@
     <ROW File="matplotlibrc" Component_="lineprops.glade" FileName="matplo~1|matplotlibrc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\matplotlibrc" SelfReg="false" NextFile="matplotlib._png.pyd"/>
     <ROW File="matrix_palette.pyc" Component_="arrays_of_arrays.pyc" FileName="matrix~1.pyc|matrix_palette.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\ARB\matrix_palette.pyc" SelfReg="false" NextFile="multisample.pyc"/>
     <ROW File="matrix_palette.pyc_1" Component_="arrays_of_arrays.pyc_1" FileName="matrix~1.pyc|matrix_palette.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\ARB\matrix_palette.pyc" SelfReg="false" NextFile="multisample.pyc_4"/>
+    <ROW File="maximizebutton.png" Component_="about.ui" FileName="maximi~1.png|maximize-button.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\maximize-button.png" SelfReg="false" NextFile="closebutton.png"/>
     <ROW File="mc.png" Component_="ad.png" FileName="mc.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\mc.png" SelfReg="false" NextFile="md.png"/>
     <ROW File="md.png" Component_="ad.png" FileName="md.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\md.png" SelfReg="false" NextFile="me.png"/>
     <ROW File="me.png" Component_="ad.png" FileName="me.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\me.png" SelfReg="false" NextFile="mf.png"/>
@@ -1206,6 +1207,7 @@
     <ROW File="mfc100u.dll" Component_="mfc100u.dll" FileName="mfc100u.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mfc100u.dll" SelfReg="false" NextFile="msvcp100.dll"/>
     <ROW File="mg.png" Component_="ad.png" FileName="mg.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\mg.png" SelfReg="false" NextFile="mh.png"/>
     <ROW File="mh.png" Component_="ad.png" FileName="mh.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\mh.png" SelfReg="false" NextFile="mk.png"/>
+    <ROW File="minimizebutton.png" Component_="about.ui" FileName="minimi~1.png|minimize-button.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\minimize-button.png" SelfReg="false" NextFile="maximizebutton.png"/>
     <ROW File="misc_attribute.pyc" Component_="_pixels.pyc" FileName="misc_a~1.pyc|misc_attribute.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\EXT\misc_attribute.pyc" SelfReg="false" NextFile="multisample.pyc_2"/>
     <ROW File="misc_attribute.pyc_1" Component_="_pixels.pyc_1" FileName="misc_a~1.pyc|misc_attribute.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\EXT\misc_attribute.pyc" SelfReg="false" NextFile="multisample.pyc_6"/>
     <ROW File="misc_hints.pyc" Component_="misc_hints.pyc" FileName="misc_h~1.pyc|misc_hints.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\PGI\misc_hints.pyc" SelfReg="false" NextFile="vertex_hints.pyc"/>
@@ -1670,6 +1672,7 @@
     <ROW File="string_marker.pyc" Component_="frame_terminator.pyc" FileName="string~1.pyc|string_marker.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\GREMEDY\string_marker.pyc" SelfReg="false" NextFile="__init__.pyc_8"/>
     <ROW File="string_marker.pyc_1" Component_="frame_terminator.pyc_1" FileName="string~1.pyc|string_marker.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\GREMEDY\string_marker.pyc" SelfReg="false" NextFile="__init__.pyc_43"/>
     <ROW File="strings.pyc" Component_="arraydatatype.pyc" FileName="strings.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\arrays\strings.pyc" SelfReg="false" NextFile="vbo.pyc"/>
+    <ROW File="stripe.png" Component_="about.ui" FileName="stripe.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\stripe.png" SelfReg="false" NextFile="minimizebutton.png"/>
     <ROW File="style.css" Component_="ladder.qthtml" FileName="style.css" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\stats\formatters\style.css" SelfReg="false" NextFile="mapstat.ui"/>
     <ROW File="style.css_1" Component_="style.css" FileName="style.css" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\tournaments\formatters\style.css" SelfReg="false" NextFile="swiss.qthtml"/>
     <ROW File="subplots.png" Component_="back.png" FileName="subplots.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\subplots.png" SelfReg="false" NextFile="subplots.ppm"/>

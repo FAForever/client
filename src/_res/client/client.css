@@ -101,10 +101,10 @@ QTabWidget#mainTabs::tab-bar
 QWidget#centralwidget
 {
 	
-	background-image: url('%THEMEPATH%/background5.png');
+	background-image: url('%THEMEPATH%/stripe.png');
 	background-position: top left;
 	background-repeat:repeat-x;
-	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #000000, stop:1 #1F1F1F);
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #FFFFFF, stop:0.1 #000000, stop:1 #1F1F1F);
 }
 
 
