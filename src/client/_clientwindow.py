@@ -52,12 +52,48 @@ class ClientOutdated(StandardError):
 
 FormClass, BaseClass = util.loadUiType("client/client.ui")
 
+
+class mousePosition(object):
+    def __init__(self, parent):
+        self.parent = parent
+        self.onLeftEdge = False
+        self.onRightEdge = False
+        self.onTopEdge = False
+        self.onBottomEdge = False
+        self.cursorShapeChange = False
+                
+    def computeMousePosition(self, pos):
+        self.onLeftEdge = pos.x() < 8 
+        self.onRightEdge = pos.x() > self.parent.size().width() - 8
+        self.onTopEdge = pos.y() < 8
+        self.onBottomEdge = pos.y() > self.parent.size().height() - 8
+
+        self.onTopLeftEdge = self.onTopEdge and self.onLeftEdge
+        self.onBottomLeftEdge = self.onBottomEdge and self.onLeftEdge
+        self.onTopRightEdge = self.onTopEdge and self.onRightEdge
+        self.onBottomRightEdge = self.onBottomEdge and self.onRightEdge 
+        
+        self.onEdges = self.onLeftEdge or self.onRightEdge or self.onTopEdge or self.onBottomEdge
+    
+    def resetToFalse(self):
+        self.onLeftEdge = False
+        self.onRightEdge = False
+        self.onTopEdge = False
+        self.onBottomEdge = False
+        self.cursorShapeChange = False        
+    
+    def isOnEdge(self):
+        return self.onEdges        
+
 class ClientWindow(FormClass, BaseClass):
     '''
     This is the main lobby client that manages the FAF-related connection and data,
     in particular players, games, ranking, etc.
     Its UI also houses all the other UIs for the sub-modules.
     '''
+    
+    topWidget = QtGui.QWidget()
+    
     
     #These signals are emitted when the client is connected or disconnected from FAF
     connected    = QtCore.pyqtSignal()
@@ -177,9 +213,15 @@ class ClientWindow(FormClass, BaseClass):
         self.setWindowTitle("FA Forever " + util.VERSION_STRING)
 
         # Frameless
-        self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+        self.setWindowFlags(QtCore.Qt.FramelessWindowHint |  QtCore.Qt.WindowSystemMenuHint | QtCore.Qt.WindowMinimizeButtonHint)
+        
+        
+        self.rubberBand = QtGui.QRubberBand(QtGui.QRubberBand.Rectangle)
 
         
+        self.mousePosition = mousePosition(self)
+        self.installEventFilter(self)
+          
         self.minimize = QtGui.QToolButton(self)
         self.minimize.setIcon(util.icon("client/minimize-button.png"))
 
@@ -217,8 +259,10 @@ class ClientWindow(FormClass, BaseClass):
         self.maximize.clicked.connect(self.showMaxRestore)
 
         self.moving = False
+        self.dragging = False
+        self.draggingHover = False
         self.offset = None
-
+        self.curSize = None
         sizeGrip = QtGui.QSizeGrip(self)
         self.mainGridLayout.addWidget(sizeGrip, 2, 2)
                 
@@ -261,28 +305,150 @@ class ClientWindow(FormClass, BaseClass):
         #for moderator 
         self.modMenu = None
         
+        #self.setMouseTracking(True)
+        
         #self.mainTabs.setTabEnabled(self.mainTabs.indexOf(self.tourneyTab), False)
-                
+
+    def eventFilter(self, obj, event):
+        if (event.type() == QtCore.QEvent.HoverMove):
+            if self.dragging:
+                self.draggingHover = True
+                self.resizeWidget(self.mapToGlobal(event.pos()))
+            else:
+                self.draggingHover = False
+                if self.maxNormal == False:
+                    self.mousePosition.computeMousePosition(event.pos())
+                else:
+                    self.mousePosition.resetToFalse()
+            self.updateCursorShape(event.pos())
+        
+        return False
+
+
+    def updateCursorShape(self, pos):
+        if self.mousePosition.onTopLeftEdge or self.mousePosition.onBottomRightEdge:
+            self.mousePosition.cursorShapeChange = True
+            self.setCursor( QtCore.Qt.SizeFDiagCursor )
+        elif self.mousePosition.onTopRightEdge or self.mousePosition.onBottomLeftEdge:
+            self.setCursor( QtCore.Qt.SizeBDiagCursor )
+            self.mousePosition.cursorShapeChange = True
+        elif self.mousePosition.onLeftEdge or self.mousePosition.onRightEdge:
+            self.setCursor( QtCore.Qt.SizeHorCursor )
+            self.mousePosition.cursorShapeChange = True
+        elif self.mousePosition.onTopEdge or self.mousePosition.onBottomEdge:
+            self.setCursor( QtCore.Qt.SizeVerCursor )
+            self.mousePosition.cursorShapeChange = True
+        else:
+            if self.mousePosition.cursorShapeChange == True:
+                self.unsetCursor()
+                self.mousePosition.cursorShapeChange = False
+
+                            
     def showSmall(self):
         self.showMinimized()
 
     def showMaxRestore(self):
         if(self.maxNormal):
-            self.showNormal()
-            self.maxNormal= False
-
+            self.maxNormal = False
+            if self.curSize:
+                self.setGeometry(self.curSize)
+   
         else:
-            self.showMaximized()
-            self.maxNormal=  True           
+            self.maxNormal =  True
+            self.curSize = self.geometry()
+            self.setGeometry(QtGui.QDesktopWidget().availableGeometry(self))
+                       
+
+    def mouseDoubleClickEvent(self, event):
+        self.showMaxRestore()
+
+    def mouseReleaseEvent(self,event):
+        self.dragging = False
+        self.moving = False
+        if self.rubberBand.isVisible():
+            self.rubberBand.hide()
+            self.maxNormal = False
+            self.showMaxRestore()
 
     def mousePressEvent(self,event):
         if event.button() == QtCore.Qt.LeftButton:
+            if self.mousePosition.isOnEdge() and self.maxNormal == False:
+                self.dragging = True
+                return
+            else :
+                self.dragging = False
+                
             self.moving = True
             self.offset = event.pos()
 
     def mouseMoveEvent(self,event):
-        if self.moving and self.offset != None: 
+        if self.dragging and self.draggingHover == False:
+            self.resizeWidget(event.globalPos())
+
+        elif self.moving and self.offset != None:
+            if event.globalPos().y() == 0:
+                self.rubberBand.setGeometry(QtGui.QDesktopWidget().availableGeometry(self))
+                self.rubberBand.show()
+            else:
+                self.rubberBand.hide()
+                if self.maxNormal == True:
+                    self.showMaxRestore()
+                    
             self.move(event.globalPos()-self.offset)
+
+    def resizeWidget(self, globalMousePos):
+        if globalMousePos.y() == 0:
+                self.rubberBand.setGeometry(QtGui.QDesktopWidget().availableGeometry(self))
+                self.rubberBand.show()
+        else:
+                self.rubberBand.hide()         
+                
+        
+        origRect = self.frameGeometry()
+
+        left, top, right, bottom  = origRect.getCoords()    
+        minWidth = self.minimumWidth()
+        minHeight = self.minimumHeight()
+        if self.mousePosition.onTopLeftEdge:
+            left = globalMousePos.x()
+            top = globalMousePos.y()
+
+        elif self.mousePosition.onBottomLeftEdge:
+            left = globalMousePos.x();
+            bottom = globalMousePos.y();
+        elif self.mousePosition.onTopRightEdge:
+            right = globalMousePos.x()
+            top = globalMousePos.y()
+        elif self.mousePosition.onBottomRightEdge:
+            right = globalMousePos.x()
+            bottom = globalMousePos.y()
+        elif self.mousePosition.onLeftEdge:
+            left = globalMousePos.x()
+        elif self.mousePosition.onRightEdge:
+            right = globalMousePos.x()
+        elif self.mousePosition.onTopEdge:
+            top = globalMousePos.y()
+        elif self.mousePosition.onBottomEdge:
+            bottom = globalMousePos.y()
+        
+        newRect = QtCore.QRect(QtCore.QPoint(left,top), QtCore.QPoint(right,bottom)) 
+        if newRect.isValid():
+            if minWidth > newRect.width():
+                if left != origRect.left() :
+                    newRect.setLeft( origRect.left() )
+                else:
+                    newRect.setRight( origRect.right() )
+            if minHeight > newRect.height() :
+                if top != origRect.top():
+                    newRect.setTop( origRect.top())
+                else:
+                    newRect.setBottom( origRect.bottom() )
+                    
+            print newRect
+            self.setGeometry( newRect )
+        else:
+            print "invalid"
+                  
                 
     def setup(self):
         import chat
