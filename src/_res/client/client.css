@@ -308,7 +308,7 @@ QListWidget#modList::item:selected
 /* for tournament*/
 QListWidget#tourneyList
 {
-	background-image: url('%THEMEPATH%/background5.png');
+	background-image: url('%THEMEPATH%/stripe.png');
 	background-position: top left;
 	background-repeat:repeat-x;
 	

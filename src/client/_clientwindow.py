@@ -263,6 +263,7 @@ class ClientWindow(FormClass, BaseClass):
         self.draggingHover = False
         self.offset = None
         self.curSize = None
+
         sizeGrip = QtGui.QSizeGrip(self)
         self.mainGridLayout.addWidget(sizeGrip, 2, 2)
                 
@@ -300,14 +301,10 @@ class ClientWindow(FormClass, BaseClass):
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.tutorialsTab    ), util.icon("client/tutorials.png"))
         
         QtWebKit.QWebSettings.globalSettings().setAttribute(QtWebKit.QWebSettings.PluginsEnabled, True)
-        
-        
+
         #for moderator 
         self.modMenu = None
-        
-        #self.setMouseTracking(True)
-        
-        #self.mainTabs.setTabEnabled(self.mainTabs.indexOf(self.tourneyTab), False)
+
 
     def eventFilter(self, obj, event):
         if (event.type() == QtCore.QEvent.HoverMove):
@@ -342,7 +339,6 @@ class ClientWindow(FormClass, BaseClass):
             if self.mousePosition.cursorShapeChange == True:
                 self.unsetCursor()
                 self.mousePosition.cursorShapeChange = False
-
                             
     def showSmall(self):
         self.showMinimized()
@@ -366,9 +362,11 @@ class ClientWindow(FormClass, BaseClass):
         self.dragging = False
         self.moving = False
         if self.rubberBand.isVisible():
+            self.maxNormal = True
+            self.curSize = self.geometry()
+            self.setGeometry(self.rubberBand.geometry())
             self.rubberBand.hide()
-            self.maxNormal = False
-            self.showMaxRestore()
+            #self.showMaxRestore()
 
     def mousePressEvent(self,event):
         if event.button() == QtCore.Qt.LeftButton:
@@ -386,9 +384,20 @@ class ClientWindow(FormClass, BaseClass):
             self.resizeWidget(event.globalPos())
 
         elif self.moving and self.offset != None:
+            desktop = QtGui.QDesktopWidget().availableGeometry(self)
             if event.globalPos().y() == 0:
-                self.rubberBand.setGeometry(QtGui.QDesktopWidget().availableGeometry(self))
+                self.rubberBand.setGeometry(desktop)
                 self.rubberBand.show()
+            elif event.globalPos().x() == 0:
+                desktop.setRight(desktop.right()/2.0)
+                self.rubberBand.setGeometry(desktop)
+                self.rubberBand.show()
+            elif event.globalPos().x() == desktop.right():
+                desktop.setRight(desktop.right()/2.0)
+                desktop.moveLeft(desktop.right())
+                self.rubberBand.setGeometry(desktop)
+                self.rubberBand.show()
+            
             else:
                 self.rubberBand.hide()
                 if self.maxNormal == True:
@@ -443,12 +452,9 @@ class ClientWindow(FormClass, BaseClass):
                     newRect.setTop( origRect.top())
                 else:
                     newRect.setBottom( origRect.bottom() )
-                    
-            print newRect
+
             self.setGeometry( newRect )
-        else:
-            print "invalid"
-                  
+                 
                 
     def setup(self):
         import chat
@@ -988,7 +994,7 @@ class ClientWindow(FormClass, BaseClass):
         start = time.time()
         while self.session == None and self.progress.isVisible() :
             QtGui.QApplication.processEvents()
-            if time.time() - start > 5 :
+            if time.time() - start > 15 :
                 break  
        
        
