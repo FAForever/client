@@ -27,7 +27,7 @@ import functools
 import logging
 
 FAF_PROXY_HOST = "direct.faforever.com"
-FAF_PROXY_PORT = 9123
+FAF_PROXY_PORT = 9124
 
 UNIT16 = 8
 
@@ -58,7 +58,11 @@ class proxies(QtCore.QObject):
         self.proxySocket.readyRead.connect(self.readData) 
         
         self.blockSize = 0
-        
+        self.uid = None
+    
+    def setUid(self, uid):
+        self.uid = uid
+    
     def connectedProxy(self):
         ''' Setting the socket option correctly'''
         # we want the low delay for performance.
@@ -69,9 +73,11 @@ class proxies(QtCore.QObject):
         self.proxySocket.connectToHost(FAF_PROXY_HOST, FAF_PROXY_PORT)
         if self.proxySocket.waitForConnected(10000):
             self.__logger.info("Connected to proxy server " + self.proxySocket.peerName() + ":" + str(self.proxySocket.peerPort()))
-
-    def bindSocket(self, port, address):
-        self.proxiesDestination[port] = address
+        
+        self.sendUid()
+            
+    def bindSocket(self, port, uid):
+        self.proxiesDestination[port] = uid
         if not self.proxySocket.state() == QtNetwork.QAbstractSocket.ConnectedState :
             self.connectToProxy()
         return self.proxies[port].localPort()
@@ -116,15 +122,30 @@ class proxies(QtCore.QObject):
                     return    
             return                
 
-    def sendReply(self, port, address, packet, *args, **kwargs) :
+    def sendUid(self, *args, **kwargs) :
+        if self.uid:
+            self.__logger.warn("sending our uid to the server")
+            reply = QtCore.QByteArray()
+            stream = QtCore.QDataStream(reply, QtCore.QIODevice.WriteOnly)
+            stream.setVersion(QtCore.QDataStream.Qt_4_2)
+            stream.writeUInt32(0)           
+                
+            stream.writeUInt16(self.uid)        
+            stream.device().seek(0)
+            
+            stream.writeUInt32(reply.size() - 4)
+    
+            if self.proxySocket.write(reply) == -1 :
+                self.__logger.warn("error writing to proxy server !")
+
+    def sendReply(self, port, uid, packet, *args, **kwargs) :
         reply = QtCore.QByteArray()
         stream = QtCore.QDataStream(reply, QtCore.QIODevice.WriteOnly)
         stream.setVersion(QtCore.QDataStream.Qt_4_2)
-        stream.writeUInt32(0)
-        
-
+        stream.writeUInt32(0)           
+            
         stream.writeUInt16(port)
-        stream.writeQString(address)        
+        stream.writeUInt16(uid)        
         stream.writeQVariant(packet)
         stream.device().seek(0)
         

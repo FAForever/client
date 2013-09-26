@@ -47,11 +47,13 @@ class SLPP:
         self.tab = '\t'
 
     def decode(self, text):
+        
         if not text or type(text) is not str:
             return
         #FIXME: only short comments removed
         reg = re.compile('--.*$', re.M)
         text = reg.sub('', text, 0)
+        
         self.text = text
         self.at, self.ch, self.depth = 0, '', 0
         self.len = len(text)
@@ -269,4 +271,3 @@ slpp = SLPP()
 
 
 __all__ = ['slpp']
-

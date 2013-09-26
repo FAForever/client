@@ -305,13 +305,20 @@ class Relayer(QtCore.QObject):
             reply = Packet(key, acts)
             self.inputSocket.write(reply.PackUdp())
 
+        elif key == "CreateLobby":
+            uid = int(acts[3])     
+            self.client.proxyServer.setUid(uid)
+            self.__logger.info("Setting uid : " + str(uid))
+           
+            self.inputSocket.write(reply.Pack())
+            
             
         elif key == "ConnectToProxy" :
                 port = acts[0]
                 address = acts[1]
                 login   = acts[2]
                 uid     = acts[3]
-                udpport = self.client.proxyServer.bindSocket(port, address)
+                udpport = self.client.proxyServer.bindSocket(port, uid)
                 
                 newActs = [("127.0.0.1:%i" % udpport), login, uid]
                 
@@ -323,7 +330,7 @@ class Relayer(QtCore.QObject):
             address = acts[1]
             login   = acts[2]
             uid     = acts[3]
-            udpport = self.client.proxyServer.bindSocket(port, address)
+            udpport = self.client.proxyServer.bindSocket(port, uid)
             
             newActs = [("127.0.0.1:%i" % udpport), login, uid]
             
