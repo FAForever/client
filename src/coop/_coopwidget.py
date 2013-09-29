@@ -72,12 +72,16 @@ class CoopWidget(FormClass, BaseClass):
 
         self.coopList.itemDoubleClicked.connect(self.coopListDoubleClicked)
         
+        
+        self.linkButton.clicked.connect(self.linkVanilla)
         #Load game name from settings (yay, it's persistent!)        
         self.loadGameName()
         self.loadPassword()
 
-
-
+    
+    @QtCore.pyqtSlot()
+    def linkVanilla(self):    
+        fa.updater.WizardSC(self).exec_()        
 
     def coopChanged(self):
         if not self.loaded:
@@ -144,7 +148,7 @@ class CoopWidget(FormClass, BaseClass):
                 self.coopList.addTopLevelItem(root_item)
                 root_item.setText(0, "<font color='white' size=+3>%s</font>" % typeCoop)
                 self.cooptypes[typeCoop] = root_item
-                root_item.setExpanded(True)
+                root_item.setExpanded(False)
             else:
                 root_item = self.cooptypes[typeCoop] 
             

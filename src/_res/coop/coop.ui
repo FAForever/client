@@ -68,6 +68,13 @@ p, li { white-space: pre-wrap; }
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="linkButton">
+        <property name="text">
+         <string>Link Supreme Commander</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QTreeWidget" name="coopList">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -124,7 +131,7 @@ p, li { white-space: pre-wrap; }
          <bool>false</bool>
         </property>
         <property name="expandsOnDoubleClick">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
         <attribute name="headerVisible">
          <bool>false</bool>

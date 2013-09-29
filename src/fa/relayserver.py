@@ -309,7 +309,7 @@ class Relayer(QtCore.QObject):
             uid = int(acts[3])     
             self.client.proxyServer.setUid(uid)
             self.__logger.info("Setting uid : " + str(uid))
-           
+            reply = Packet(key, acts)
             self.inputSocket.write(reply.Pack())
             
             

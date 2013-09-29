@@ -187,6 +187,27 @@ def getPathFromSettings():
     return path
 
 
+def setPathInSettingsSC(path):
+    '''
+    Stores the new path for Supremene Commander in the app settings
+    '''
+    settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
+    settings.beginGroup("SupremeCommanderVanilla")
+    settings.setValue("app/path", path)
+    settings.endGroup()
+    settings.sync()
+
+
+def getPathFromSettingsSC():    
+    ''' 
+    Retrieves the Path as configured in the settings 
+    ''' 
+    settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
+    settings.beginGroup("SupremeCommanderVanilla")
+    path = unicode(settings.value("app/path"))
+    settings.endGroup()
+    return path
+
 
 def mostProbablePaths():
     '''
@@ -224,6 +245,41 @@ def mostProbablePaths():
     return pathlist
 
 
+def mostProbablePathsSC():
+    '''
+    Returns a list of the most probable paths where Supreme Commander might be installed
+    '''
+    pathlist = []
+    
+    pathlist.append(getPathFromSettingsSC())
+
+    #Retail path
+    pathlist.append(os.path.expandvars("%ProgramFiles%\\THQ\\Gas Powered Games\\Supreme Commander"))
+
+    #Direct2Drive Paths
+    #... allegedly identical to impulse paths - need to confirm this
+
+    #Impulse/GameStop Paths - might need confirmation yet
+    pathlist.append(os.path.expandvars("%ProgramFiles%\\Supreme Commander"))
+    
+    #Steam path   
+    pathlist.append(os.path.expandvars("%ProgramFiles%\\Steam\\steamapps\\common\\supreme commander"))
+
+    #Construe path from registry traces - this is not a very safe method, but it seems to work for plain installs 
+    try :
+        regkey = "SOFTWARE\\Classes\\SCReplayType\\Shell\\Open\\Command"
+        key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, regkey)
+        path = _winreg.QueryValue(key, "")
+        if "SupremeCommander.exe" in path:            
+            path = path[:path.rfind("bin")]
+            path = path.rstrip('"/\\')
+            pathlist.append(os.path.expandvars(path))    
+    except :
+        pass           
+    
+    #CAVEAT: This list is not validated
+    return pathlist
+
 
 def autoDetectPath():
     for path in mostProbablePaths():
@@ -251,6 +307,15 @@ def constructPathChoices(combobox):
     combobox.clear()
     for path in mostProbablePaths():
         validateAndAdd(path, combobox)
+
+def constructPathChoicesSC(combobox):
+    '''
+    Creates a combobox with all potentially valid paths for SC on this system
+    '''
+    combobox.clear()
+    for path in mostProbablePathsSC():
+        validateAndAdd(path, combobox)
+
 
 
 class Updater(QtCore.QObject):
@@ -987,6 +1052,83 @@ class UpgradePage(QtGui.QWizardPage):
             return True
         else :        
             return False
+
+class UpgradePageSC(QtGui.QWizardPage):
+    def __init__(self, parent=None):
+        super(UpgradePageSC, self).__init__(parent)
+
+        self.setTitle("Specify Supreme Commander folder")
+        self.setPixmap(QtGui.QWizard.WatermarkPixmap, util.pixmap("fa/updater/upgrade_watermark.png"))
+
+        layout = QtGui.QVBoxLayout()
+        
+        self.label = QtGui.QLabel("You can use any version of Supreme Commander.<br/><br/>FAF won't modify your existing files.<br/><br/>Select folder:")        
+        self.label.setWordWrap(True)
+        layout.addWidget(self.label)
+
+        self.comboBox = QtGui.QComboBox()       
+        self.comboBox.setEditable(True)
+        constructPathChoicesSC(self.comboBox)
+        self.comboBox.currentIndexChanged.connect(self.comboChanged)
+        self.comboBox.editTextChanged.connect(self.comboChanged)
+        layout.addWidget(self.comboBox)
+        self.setLayout(layout)
+
+        self.browseButton = QtGui.QPushButton()
+        self.browseButton.setText("Browse")       
+        self.browseButton.clicked.connect(self.showChooser)
+        layout.addWidget(self.browseButton )
+
+        self.setLayout(layout)
+
+        self.setCommitPage(True)
+
+    @QtCore.pyqtSlot(int)
+    def comboChanged(self, index):
+        self.completeChanged.emit()        
+
+    @QtCore.pyqtSlot()
+    def showChooser(self):
+        path = QtGui.QFileDialog.getExistingDirectory(self, "Select Supreme Commander folder", self.comboBox.currentText(), QtGui.QFileDialog.DontResolveSymlinks | QtGui.QFileDialog.ShowDirsOnly)
+        if (path):
+            self.comboBox.insertItem(0, path)
+            self.comboBox.setCurrentIndex(0)
+            self.completeChanged.emit()        
+        
+    def isComplete(self, *args, **kwargs):
+        if validatePath(self.comboBox.currentText()):
+            setPathInSettingsSC(self.comboBox.currentText())
+            return True
+        else :        
+            return False
+    
+    def validatePage(self, *args, **kwargs):
+        if validatePath(self.comboBox.currentText()):
+            setPathInSettingsSC(self.comboBox.currentText())
+            return True
+        else :        
+            return False
+
+class WizardSC(QtGui.QWizard):
+    '''
+    The actual Wizard which walks the user through the install.
+    '''             
+    def __init__(self, client, *args, **kwargs):
+        QtGui.QWizard.__init__(self, *args, **kwargs)     
+        self.client = client
+        self.upgrade = UpgradePageSC()
+        self.addPage(self.upgrade)
+        
+        self.setWizardStyle(QtGui.QWizard.ModernStyle)
+        self.setWindowTitle("Supreme Commander Install Wizard")
+        self.setPixmap(QtGui.QWizard.WatermarkPixmap, util.pixmap("fa/updater/upgrade_watermark.png"))
+        
+        self.setOption(QtGui.QWizard.NoBackButtonOnStartPage, True)
+        
+    
+    def accept(self):
+        fa.savePathSC(self.upgrade.comboBox.currentText())        
+        QtGui.QWizard.accept(self)
 
                 
 class Wizard(QtGui.QWizard):

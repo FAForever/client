@@ -43,6 +43,22 @@ class Faction:
 # This is the game path, a string pointing to the player's actual install of Forged Alliance
 gamepath = None
 
+def loadPathSC():
+    global gamepathSC
+    settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
+    settings.beginGroup("SupremeCommanderVanilla")
+    gamepathSC = settings.value("app/path")    
+    settings.endGroup()
+    
+def savePathSC(path):
+    global gamepathSC
+    gamepathSC = path
+    settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
+    settings.beginGroup("SupremeCommanderVanilla")
+    settings.setValue("app/path", gamepath)
+    settings.endGroup()
+    settings.sync()
+
 def loadPath():
     global gamepath
     settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
@@ -66,6 +82,8 @@ def writeFAPathLua():
     '''
     name =  os.path.join(util.APPDATA_DIR, u"fa_path.lua")
     code = u"fa_path = '" + gamepath.replace(u"\\", u"\\\\") + u"'\n"
+    if gamepathSC:
+        code = code + u"sc_path = '" + gamepathSC.replace(u"\\", u"\\\\") + u"'\n"
     if (os.path.isfile(name)):
         os.remove(name)
     lua = open(name, "w")
@@ -77,6 +95,7 @@ def writeFAPathLua():
 
 # Initial Housekeeping
 loadPath()
+loadPathSC()
 
 import exe
 import maps
