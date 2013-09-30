@@ -111,9 +111,7 @@ class StatsWidget(BaseClass, FormClass):
             userDivision = self.client.getUserLeague(self.client.login)["division"]
        
         pages = QtGui.QTabWidget()
-        
-        
-        
+
         foundDivision = False
         
         for division in divisions :

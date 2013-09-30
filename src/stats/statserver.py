@@ -91,7 +91,7 @@ class StatServer(QtCore.QObject):
         self.message = None
         
         self.progress = QtGui.QProgressDialog()        
-        self.progress.setCancelButtonText("Cancel")
+        self.progress.setCancelButtonText(None)
         self.progress.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
         self.progress.setAutoClose(False)
         self.progress.setAutoReset(True)

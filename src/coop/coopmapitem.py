@@ -87,12 +87,10 @@ class CoopMapItem(QtGui.QTreeWidgetItem):
         self.uid            = uid
         self.parent         = parent
 
-        self.title          = None
+        self.name          = None
         self.description    = None
         self.mapUrl         = None
         self.options        = []
-
-
         
         self.setHidden(True)
 

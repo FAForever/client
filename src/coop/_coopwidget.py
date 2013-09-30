@@ -71,13 +71,83 @@ class CoopWidget(FormClass, BaseClass):
         self.gameList.itemDoubleClicked.connect(self.gameDoubleClicked)
 
         self.coopList.itemDoubleClicked.connect(self.coopListDoubleClicked)
+        self.coopList.itemClicked.connect(self.coopListClicked)
         
+        self.client.coopLeaderBoard.connect(self.processLeaderBoardInfos)
+        self.tabLeaderWidget.currentChanged.connect(self.askLeaderBoard)
         
         self.linkButton.clicked.connect(self.linkVanilla)
         #Load game name from settings (yay, it's persistent!)        
         self.loadGameName()
         self.loadPassword()
+        self.leaderBoard.setVisible(0)
+        self.stylesheet              = util.readstylesheet("coop/formatters/style.css")
+        self.FORMATTER_LADDER        = unicode(util.readfile("coop/formatters/ladder.qthtml"))
+        self.FORMATTER_LADDER_HEADER = unicode(util.readfile("coop/formatters/ladder_header.qthtml"))
 
+        self.leaderBoard.setStyleSheet(self.stylesheet)
+
+    
+        self.selectedItem = None
+    
+    def processLeaderBoardInfos(self, message):
+        ''' Process leaderboard'''
+
+        values = message["leaderboard"]
+        table = message["table"]
+        if table == 0:
+            w = self.leaderBoardTextGeneral
+        elif table == 1:
+            w = self.leaderBoardTextOne
+        elif table == 2:
+            w = self.leaderBoardTextTwo
+        elif table == 3:
+            w = self.leaderBoardTextThree
+        elif table == 4:
+            w = self.leaderBoardTextFour
+
+                        
+        doc = QtGui.QTextDocument()
+        doc.addResource(3, QtCore.QUrl("style.css"), self.stylesheet )
+        html = ("<html><head><link rel='stylesheet' type='text/css' href='style.css'></head><body>")
+        
+        if self.selectedItem:
+            html += '<p class="division" align="center">'+self.selectedItem.name+'</p><hr/>'
+        html +="<table class='players' cellspacing='0' cellpadding='0' width='630' height='100%'>"
+
+        formatter = self.FORMATTER_LADDER
+        formatter_header = self.FORMATTER_LADDER_HEADER
+        cursor = w.textCursor()
+        cursor.movePosition(QtGui.QTextCursor.End)
+        w.setTextCursor(cursor) 
+        color = "lime"
+        line = formatter_header.format(rank="rank", names="names", time="time", color=color)
+        html += line
+        rank = 1
+        for val in values :
+            #val = values[uid]
+            players = ", ".join(val["players"]) 
+            numPlayers = str(len(val["players"]))
+            timing = val["time"]
+            if val["secondary"] == 1:
+                secondary = "Yes"
+            else:
+                secondary = "No"
+            if rank % 2 == 0 :
+                line = formatter.format(rank=str(rank), numplayers=numPlayers, players= players, objectives=secondary, timing=timing, type="even")
+            else :
+                line = formatter.format(rank=str(rank), numplayers=numPlayers, players= players, objectives=secondary, timing=timing, type="")
+            
+            rank = rank + 1
+            
+            html += line
+
+        html +="</tbody></table></body></html>"
+
+        doc.setHtml(html)
+        w.setDocument(doc)
+        
+        self.leaderBoard.setVisible(True)
     
     @QtCore.pyqtSlot()
     def linkVanilla(self):    
@@ -88,7 +158,29 @@ class CoopWidget(FormClass, BaseClass):
             self.client.send(dict(command="coop_list"))
             self.loaded = True
 
+    def askLeaderBoard(self):
+        ''' 
+        ask the server for stats
+        '''
+        if self.selectedItem:
+            self.client.statsServer.send(dict(command="coop_stats", mission=self.selectedItem.uid, type=self.tabLeaderWidget.currentIndex()))
 
+    def coopListClicked(self, item):
+        '''
+        Hosting a coop event
+        '''
+        if not hasattr(item, "mapUrl") :
+            if item.isExpanded():
+                item.setExpanded(False)
+            else:
+                item.setExpanded(True)
+            return
+
+        self.selectedItem = item
+        self.client.statsServer.send(dict(command="coop_stats", mission=item.uid, type=self.tabLeaderWidget.currentIndex()))
+        
+        
+        
     def coopListDoubleClicked(self, item):
         '''
         Hosting a coop event

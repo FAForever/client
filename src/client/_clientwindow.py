@@ -128,6 +128,7 @@ class ClientWindow(FormClass, BaseClass):
     featuredModManager      = QtCore.pyqtSignal(str)
     featuredModManagerInfo  = QtCore.pyqtSignal(dict)
     replayVault             = QtCore.pyqtSignal(dict)
+    coopLeaderBoard         = QtCore.pyqtSignal(dict)
 
 
     #These signals are emitted whenever a certain tab is activated
@@ -1753,6 +1754,9 @@ class ClientWindow(FormClass, BaseClass):
     
     def handle_replay_vault(self, message):
         self.replayVault.emit(message)
+
+    def handle_coop_leaderboard(self, message):
+        self.coopLeaderBoard.emit(message)
     
     def handle_avatar(self, message):
         if "avatarlist" in message :

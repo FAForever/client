@@ -1,0 +1,9 @@
+<tbody>
+<tr>
+	<th class="rank" width="50">{rank}</th>
+	<th class="login" width="50">Players</th>
+	<th class="login" width="100%">{names}</th>
+	<th class="login" width="100%">Secondary Objectives</th>
+	<th class="rating" width="60">{time}</th>
+</tr>
+</tbody>
