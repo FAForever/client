@@ -60,6 +60,15 @@ THEME_DIR = os.path.join(APPDATA_DIR , "themes")
 #This contains cached data downloaded while communicating with the lobby - at the moment, mostly map preview pngs.
 CACHE_DIR = os.path.join(APPDATA_DIR , "cache")
 
+#This contains cached data downloaded for FA extras
+EXTRA_DIR = os.path.join(APPDATA_DIR , "extra")
+
+#This contains cached data downloaded for FA sounds
+SOUND_DIR = os.path.join(APPDATA_DIR , EXTRA_DIR, "sounds")
+
+#This contains cached data downloaded for FA voices
+VOICES_DIR = os.path.join(APPDATA_DIR , EXTRA_DIR, SOUND_DIR, "voices", "us")
+
 #This contains cached data downloaded for galactic war.
 GW_TEXTURE_DIR = os.path.join(APPDATA_DIR , "cache", "galacticwar")
 
@@ -122,6 +131,15 @@ if not os.path.isdir(LOG_DIR):
 
 if not os.path.isdir(GW_TEXTURE_DIR):
     os.makedirs(GW_TEXTURE_DIR)    
+
+if not os.path.isdir(EXTRA_DIR):
+    os.makedirs(EXTRA_DIR)   
+
+if not os.path.isdir(SOUND_DIR):
+    os.makedirs(SOUND_DIR)   
+
+if not os.path.isdir(VOICES_DIR):
+    os.makedirs(VOICES_DIR)   
 
 from PyQt4 import QtGui, uic, QtCore
 import shutil
