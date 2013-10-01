@@ -65,7 +65,7 @@ if (os.path.isdir("dist")):
 shutil.copytree("_lib", "dist")             #Lib directory needs to contain MSVCRT90.dll and FreeImage.dll, plus Qt Image format plugins etc.
 shutil.copytree("_res", "dist/_res")
 
-VERSION_STRING = "0.8." + str(BUILD)
+VERSION_STRING = "0.10." + str(BUILD)
 
 versionfile = open("dist/version", "w")
 versionfile.write(VERSION_STRING)

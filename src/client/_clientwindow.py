@@ -129,6 +129,7 @@ class ClientWindow(FormClass, BaseClass):
     featuredModManagerInfo  = QtCore.pyqtSignal(dict)
     replayVault             = QtCore.pyqtSignal(dict)
     coopLeaderBoard         = QtCore.pyqtSignal(dict)
+    
 
 
     #These signals are emitted whenever a certain tab is activated
@@ -147,7 +148,14 @@ class ClientWindow(FormClass, BaseClass):
 
     joinGameFromURL    = QtCore.pyqtSignal(str)
     joinReplayFromURL  = QtCore.pyqtSignal(str)
+
     
+    # for the auto join ranked
+    rankedGameAeon      = QtCore.pyqtSignal(bool)
+    rankedGameCybran    = QtCore.pyqtSignal(bool)
+    rankedGameSeraphim  = QtCore.pyqtSignal(bool)
+    rankedGameUEF       = QtCore.pyqtSignal(bool)
+    rankedGameRandom    = QtCore.pyqtSignal(bool)
     
     def __init__(self, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)        
@@ -267,8 +275,8 @@ class ClientWindow(FormClass, BaseClass):
 
         sizeGrip = QtGui.QSizeGrip(self)
         self.mainGridLayout.addWidget(sizeGrip, 2, 2)
-                
-
+        
+       
         #Wire all important signals
         self.mainTabs.currentChanged.connect(self.mainTabChanged)
         self.topTabs.currentChanged.connect(self.vaultTabChanged)
@@ -306,6 +314,9 @@ class ClientWindow(FormClass, BaseClass):
         #for moderator 
         self.modMenu = None
 
+
+    def joinMatch(self, text):
+        print "joiiiiin", text
 
     def eventFilter(self, obj, event):
         if (event.type() == QtCore.QEvent.HoverMove):
@@ -493,6 +504,82 @@ class ClientWindow(FormClass, BaseClass):
         self.avatarAdmin    = self.avatarSelection = avatarWidget(self, None)
 
 
+        # warning setup
+        self.warning = QtGui.QHBoxLayout()
+        
+        self.warnPlayer = QtGui.QLabel(self)
+        self.warnPlayer.setText("A player of your skill level is currently searching for 1v1 game. Click a faction to join him!")
+        self.warnPlayer.setAlignment(QtCore.Qt.AlignHCenter)
+        self.warnPlayer.setAlignment(QtCore.Qt.AlignVCenter)
+        
+        self.warnPlayer.setProperty("warning", True)
+        
+        self.rankedAeon = QtGui.QToolButton(self)
+        self.rankedCybran = QtGui.QToolButton(self)
+        self.rankedSeraphim = QtGui.QToolButton(self)
+        self.rankedUEF = QtGui.QToolButton(self)
+        self.rankedRandom = QtGui.QToolButton(self)
+        
+#        self.rankedAeon.setAutoRaise(0)
+#        self.rankedCybran.setAutoRaise(0)
+#        self.rankedSeraphim.setAutoRaise(0)
+#        self.rankedUEF.setAutoRaise(0)
+#        self.rankedRandom.setAutoRaise(0)
+        
+        self.rankedAeon.setMaximumSize(25,25)
+        self.rankedCybran.setMaximumSize(25,25)
+        self.rankedSeraphim.setMaximumSize(25,25)
+        self.rankedUEF.setMaximumSize(25,25)
+        self.rankedRandom.setMaximumSize(25,25)
+        
+        self.rankedAeon.setIcon(util.icon("games/automatch/aeon.png"))
+        self.rankedCybran.setIcon(util.icon("games/automatch/cybran.png"))
+        self.rankedSeraphim.setIcon(util.icon("games/automatch/seraphim.png"))
+        self.rankedUEF.setIcon(util.icon("games/automatch/uef.png"))
+        self.rankedRandom.setIcon(util.icon("games/automatch/random.png"))        
+     
+       
+        self.warning.addStretch()
+        self.warning.addWidget(self.warnPlayer)
+        self.warning.addWidget(self.rankedAeon)
+        self.warning.addWidget(self.rankedCybran)
+        self.warning.addWidget(self.rankedSeraphim)
+        self.warning.addWidget(self.rankedUEF)
+        self.warning.addWidget(self.rankedRandom)
+        self.warning.addStretch()
+     
+        self.mainGridLayout.addLayout(self.warning, 2, 0)
+
+        
+        self.rankedAeon.clicked.connect(self.rankedGameAeon)
+        self.rankedCybran.clicked.connect(self.rankedGameCybran)
+        self.rankedSeraphim.clicked.connect(self.rankedGameSeraphim)
+        self.rankedUEF.clicked.connect(self.rankedGameUEF)
+        self.rankedRandom.clicked.connect(self.rankedGameRandom)
+        self.warningHide()
+
+
+    def warningHide(self):
+        '''
+        hide the warning bar for matchmaker
+        '''
+        self.warnPlayer.hide()
+        self.rankedUEF.hide()
+        self.rankedAeon.hide()
+        self.rankedCybran.hide()
+        self.rankedSeraphim.hide()
+        self.rankedRandom.hide()
+        
+    def warningShow(self):
+        '''
+        show the warning bar for matchmaker
+        '''
+        self.warnPlayer.show()
+        self.rankedUEF.show()
+        self.rankedAeon.show()
+        self.rankedCybran.show()
+        self.rankedSeraphim.show()
+        self.rankedRandom.show()        
 
     @QtCore.pyqtSlot()
     def cleanup(self):
@@ -1757,6 +1844,13 @@ class ClientWindow(FormClass, BaseClass):
 
     def handle_coop_leaderboard(self, message):
         self.coopLeaderBoard.emit(message)
+    
+    def handle_matchmaker_info(self, message):
+        if "potential" in message:
+            if message["potential"] :
+                self.warningShow()
+            else:
+                self.warningHide()
     
     def handle_avatar(self, message):
         if "avatarlist" in message :

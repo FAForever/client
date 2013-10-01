@@ -75,7 +75,14 @@ class GamesWidget(FormClass, BaseClass):
         
         self.client.modInfo.connect(self.processModInfo)
         self.client.gameInfo.connect(self.processGameInfo)
-                
+
+        self.client.rankedGameAeon.connect(self.togglingAeon)
+        self.client.rankedGameCybran.connect(self.togglingCybran)
+        self.client.rankedGameSeraphim.connect(self.togglingSeraphim)
+        self.client.rankedGameUEF.connect(self.togglingUEF)
+        self.client.rankedGameRandom.connect(self.togglingRandom)
+
+  
         self.client.gameEnter.connect(self.stopSearchRanked)
         self.client.viewingReplay.connect(self.stopSearchRanked)
         
@@ -215,8 +222,32 @@ class GamesWidget(FormClass, BaseClass):
         self.rankedSeraphim.setChecked(False)
         self.rankedUEF.setChecked(False)
         self.connectRankedToggles()
-        
 
+
+    @QtCore.pyqtSlot(bool)
+    def togglingAeon(self, state):
+        self.client.rankedAeon.setChecked(1)
+        self.toggleAeon(1)
+            
+    @QtCore.pyqtSlot(bool)
+    def togglingCybran(self, state):
+        self.client.rankedCybran.setChecked(1)
+        self.toggleCybran(1)
+            
+            
+    @QtCore.pyqtSlot(bool)
+    def togglingSeraphim(self, state):
+        self.client.rankedSeraphim.setChecked(1)
+        self.toggleSeraphim(1)
+
+    @QtCore.pyqtSlot(bool)
+    def togglingRandom(self, state):
+        self.client.rankedRandom.setChecked(1)
+        self.toggleRandom(1)
+            
+    @QtCore.pyqtSlot(bool)
+    def togglingUEF(self, state):
+        self.client.rankedGameAeon.setChecked(1)
             
     @QtCore.pyqtSlot(bool)
     def toggleAeon(self, state):
