@@ -593,14 +593,30 @@ def downloadMap(name, silent=False):
             progress.setValue(file_size_dl)
     
         progress.close()
-        
         if file_size_dl == file_size:
             zfile = zipfile.ZipFile(output)
-            zfile.extractall(getUserMapsFolder())    
+            zfile.extractall(getUserMapsFolder())
+
+            #check for eventual sound files
+            if folderForMap(name):
+                if "sounds" in os.listdir(folderForMap(name)) :
+                    root_src_dir = os.path.join(folderForMap(name), "sounds")
+                    for src_dir, _, files in os.walk(root_src_dir):
+                        dst_dir = src_dir.replace(root_src_dir, util.SOUND_DIR)
+                        for file_ in files:
+                            src_file = os.path.join(src_dir, file_)
+                            dst_file = os.path.join(dst_dir, file_)
+                            if os.path.exists(dst_file):
+                                os.remove(dst_file)
+                            shutil.move(src_file, dst_dir)
+
+                
             logger.debug("Successfully downloaded and extracted map from: " + url)
         else:    
             logger.warn("Map download cancelled for: " + url)        
             return False
+
+
 
     except:
         logger.warn("Map download or extraction failed for: " + url)        
