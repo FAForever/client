@@ -10,10 +10,10 @@
     <ROW Property="ARPURLUPDATEINFO" Value="http://www.faforever.com/page=2"/>
     <ROW Property="CTRLS" Value="2"/>
     <ROW Property="Manufacturer" Value="FAF Community" ValueLocId="*"/>
-    <ROW Property="ProductCode" Value="1033:{F7BF9636-7EB5-4BA2-8F16-129BBAD4F9B0} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{D2177576-7500-4592-BE2E-EC7BA0973E0B} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Forged Alliance Forever" ValueLocId="*"/>
-    <ROW Property="ProductVersion" Value="240.8.82"/>
+    <ROW Property="ProductVersion" Value="240.8.84"/>
     <ROW Property="REBOOT" MultiBuildValue="DefaultBuild:Suppress"/>
     <ROW Property="RUNAPPLICATION" Value="1" Type="4"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
@@ -700,7 +700,7 @@
     <ROW File="clip_volume_hint.pyc_1" Component_="_pixels.pyc_1" FileName="clip_v~1.pyc|clip_volume_hint.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\EXT\clip_volume_hint.pyc" SelfReg="false" NextFile="cmyka.pyc_1"/>
     <ROW File="clipmap.pyc" Component_="async.pyc" FileName="clipmap.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\SGIX\clipmap.pyc" SelfReg="false" NextFile="convolution_accuracy.pyc"/>
     <ROW File="clipmap.pyc_1" Component_="async.pyc_1" FileName="clipmap.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\SGIX\clipmap.pyc" SelfReg="false" NextFile="convolution_accuracy.pyc_1"/>
-    <ROW File="closebutton.png" Component_="about.ui" FileName="close-~1.png|close-button.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\close-button.png" SelfReg="false"/>
+    <ROW File="closebutton.png" Component_="about.ui" FileName="close-~1.png|close-button.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\close-button.png" SelfReg="false" NextFile="ladder.qthtml_1"/>
     <ROW File="cm.png" Component_="ad.png" FileName="cm.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\cm.png" SelfReg="false" NextFile="cn.png"/>
     <ROW File="cmb10.ttf" Component_="cmb10.ttf" FileName="cmb10.ttf" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\ttf\cmb10.ttf" SelfReg="false" NextFile="cmex10.ttf"/>
     <ROW File="cmex10.afm" Component_="cmex10.afm" FileName="cmex10.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\afm\cmex10.afm" SelfReg="false" NextFile="cmmi10.afm"/>
@@ -1137,7 +1137,9 @@
     <ROW File="labwars.png" Component_="blackops.html" FileName="labwars.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\labwars.png" SelfReg="false" NextFile="murderparty.html"/>
     <ROW File="ladder.png" Component_="about.ui" FileName="ladder.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\ladder.png" SelfReg="false" NextFile="login_watermark.png"/>
     <ROW File="ladder.qthtml" Component_="ladder.qthtml" FileName="ladder~1.qth|ladder.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\stats\formatters\ladder.qthtml" SelfReg="false" NextFile="ladder_header.qthtml"/>
+    <ROW File="ladder.qthtml_1" Component_="coop.qthtml" FileName="ladder~1.qth|ladder.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\coop\formatters\ladder.qthtml" SelfReg="false" NextFile="ladder_header.qthtml_1"/>
     <ROW File="ladder_header.qthtml" Component_="ladder.qthtml" FileName="ladder~2.qth|ladder_header.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\stats\formatters\ladder_header.qthtml" SelfReg="false" NextFile="style.css"/>
+    <ROW File="ladder_header.qthtml_1" Component_="coop.qthtml" FileName="ladder~2.qth|ladder_header.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\coop\formatters\ladder_header.qthtml" SelfReg="false" NextFile="style.css_2"/>
     <ROW File="latebind.pyc" Component_="acceleratesupport.pyc" FileName="latebind.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\latebind.pyc" SelfReg="false" NextFile="lazywrapper.pyc"/>
     <ROW File="lazywrapper.pyc" Component_="acceleratesupport.pyc" FileName="lazywr~1.pyc|lazywrapper.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\lazywrapper.pyc" SelfReg="false" NextFile="logs.pyc"/>
     <ROW File="lb.png" Component_="ad.png" FileName="lb.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\lb.png" SelfReg="false" NextFile="lc.png"/>
@@ -1675,6 +1677,7 @@
     <ROW File="stripe.png" Component_="about.ui" FileName="stripe.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\stripe.png" SelfReg="false" NextFile="minimizebutton.png"/>
     <ROW File="style.css" Component_="ladder.qthtml" FileName="style.css" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\stats\formatters\style.css" SelfReg="false" NextFile="mapstat.ui"/>
     <ROW File="style.css_1" Component_="style.css" FileName="style.css" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\tournaments\formatters\style.css" SelfReg="false" NextFile="swiss.qthtml"/>
+    <ROW File="style.css_2" Component_="coop.qthtml" FileName="style.css" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\coop\formatters\style.css" SelfReg="false"/>
     <ROW File="subplots.png" Component_="back.png" FileName="subplots.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\subplots.png" SelfReg="false" NextFile="subplots.ppm"/>
     <ROW File="subplots.ppm" Component_="back.png" FileName="subplots.ppm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\subplots.ppm" SelfReg="false" NextFile="subplots.xpm"/>
     <ROW File="subplots.xpm" Component_="back.png" FileName="subplots.xpm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\subplots.xpm" SelfReg="false" NextFile="zoom_to_rect.png"/>

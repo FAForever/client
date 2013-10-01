@@ -176,8 +176,9 @@ class CoopWidget(FormClass, BaseClass):
                 item.setExpanded(True)
             return
 
-        self.selectedItem = item
-        self.client.statsServer.send(dict(command="coop_stats", mission=item.uid, type=self.tabLeaderWidget.currentIndex()))
+        if item != self.selectedItem: 
+            self.selectedItem = item
+            self.client.statsServer.send(dict(command="coop_stats", mission=item.uid, type=self.tabLeaderWidget.currentIndex()))
         
         
         
