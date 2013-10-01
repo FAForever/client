@@ -314,10 +314,6 @@ class ClientWindow(FormClass, BaseClass):
         #for moderator 
         self.modMenu = None
 
-
-    def joinMatch(self, text):
-        print "joiiiiin", text
-
     def eventFilter(self, obj, event):
         if (event.type() == QtCore.QEvent.HoverMove):
             if self.dragging:
