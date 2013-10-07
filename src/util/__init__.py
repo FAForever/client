@@ -67,7 +67,7 @@ EXTRA_DIR = os.path.join(APPDATA_DIR , "extra")
 SOUND_DIR = os.path.join(APPDATA_DIR , EXTRA_DIR, "sounds")
 
 #This contains cached data downloaded for FA voices
-VOICES_DIR = os.path.join(APPDATA_DIR , EXTRA_DIR, SOUND_DIR, "voices", "us")
+VOICES_DIR = os.path.join(APPDATA_DIR , EXTRA_DIR, SOUND_DIR, "voice", "us")
 
 #This contains cached data downloaded for galactic war.
 GW_TEXTURE_DIR = os.path.join(APPDATA_DIR , "cache", "galacticwar")
