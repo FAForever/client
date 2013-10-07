@@ -537,10 +537,10 @@ class ClientWindow(FormClass, BaseClass):
        
         self.warning.addStretch()
         self.warning.addWidget(self.warnPlayer)
-        self.warning.addWidget(self.rankedAeon)
-        self.warning.addWidget(self.rankedCybran)
-        self.warning.addWidget(self.rankedSeraphim)
         self.warning.addWidget(self.rankedUEF)
+        self.warning.addWidget(self.rankedCybran)
+        self.warning.addWidget(self.rankedAeon)
+        self.warning.addWidget(self.rankedSeraphim)        
         self.warning.addWidget(self.rankedRandom)
         self.warning.addStretch()
      

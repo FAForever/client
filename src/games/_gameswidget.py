@@ -247,7 +247,20 @@ class GamesWidget(FormClass, BaseClass):
             
     @QtCore.pyqtSlot(bool)
     def togglingUEF(self, state):
-        self.client.rankedGameAeon.setChecked(1)
+        self.client.rankedUEF.setChecked(1)
+        self.toggleUEF(1)
+
+    @QtCore.pyqtSlot(bool)
+    def toggleUEF(self, state):
+        if (state):
+            self.startSearchRanked(Faction.UEF)
+            self.disconnectRankedToggles()
+            self.rankedAeon.setChecked(False)
+            self.rankedCybran.setChecked(False)
+            self.rankedSeraphim.setChecked(False)
+            self.connectRankedToggles()            
+        else:
+            self.stopSearchRanked()
             
     @QtCore.pyqtSlot(bool)
     def toggleAeon(self, state):
@@ -307,21 +320,7 @@ class GamesWidget(FormClass, BaseClass):
             self.connectRankedToggles()     
         else:
             self.stopSearchRanked()                        
-            
-    @QtCore.pyqtSlot(bool)
-    def toggleUEF(self, state):
-        if (state):
-            self.startSearchRanked(Faction.UEF)
-            self.disconnectRankedToggles()
-            self.rankedAeon.setChecked(False)
-            self.rankedCybran.setChecked(False)
-            self.rankedSeraphim.setChecked(False)
-            self.connectRankedToggles()            
-        else:
-            self.stopSearchRanked()
 
-            
-    
     
     @QtCore.pyqtSlot(QtGui.QListWidgetItem)
     def gameDoubleClicked(self, item):
