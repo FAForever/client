@@ -310,6 +310,7 @@ class ClientWindow(FormClass, BaseClass):
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.tutorialsTab    ), util.icon("client/tutorials.png"))
         
         QtWebKit.QWebSettings.globalSettings().setAttribute(QtWebKit.QWebSettings.PluginsEnabled, True)
+        
 
         #for moderator 
         self.modMenu = None
@@ -1147,7 +1148,7 @@ class ClientWindow(FormClass, BaseClass):
            
             # update what's new page
             self.whatNewsView.setUrl(QtCore.QUrl("http://www.faforever.com/?page_id=114&username={user}&pwdhash={pwdhash}".format(user=self.login, pwdhash=self.password))) 
-            
+
             # live streams
             self.LivestreamWebView.setUrl(QtCore.QUrl("http://www.faforever.com/?page_id=974"))
             
@@ -1181,7 +1182,7 @@ class ClientWindow(FormClass, BaseClass):
             return False
 
 
-
+    
 
     def loginCreation(self, result):
         '''

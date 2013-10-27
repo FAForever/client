@@ -104,7 +104,6 @@ if __name__ == '__main__':
     logger.info(">>> --------------------------- Application Launch")    
     app = QtGui.QApplication(sys.argv)
     app.setWindowIcon(util.icon("window_icon.png", True))
-    
     #Set application icon to nicely stack in the system task bar    
     import ctypes    
     if getattr(ctypes.windll.shell32, "SetCurrentProcessExplicitAppUserModelID", None) is not None: 

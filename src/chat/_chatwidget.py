@@ -441,7 +441,6 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         
                
     def on_disconnect(self, c, e):
-        print "we are disconnected"
         if not self.canDisconnect:
             self.identified = False
             self.timer.stop()

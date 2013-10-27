@@ -61,6 +61,13 @@ class SwissTourneyItemDelegate(QtGui.QStyledItemDelegate):
         html.setHtml(option.text)
         return QtCore.QSize(int(html.size().width()), int(html.size().height()))
 
+class QWebPageChrome(QtWebKit.QWebPage):
+    def __init__(self, *args, **kwargs):
+        QtWebKit.QWebPage.__init__(self, *args, **kwargs)
+        
+    def userAgentForUrl(self, url):
+        return "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.121 Safari/535.2"
+
 class SwissTourneyItem(QtGui.QListWidgetItem):
     FORMATTER_SWISS_OPEN = unicode(util.readfile("tournaments/formatters/swiss_open.qthtml"))
 
@@ -101,6 +108,8 @@ class SwissTourneyItem(QtGui.QListWidgetItem):
 
         if old_state != self.state and self.state == "started" :
             widget = QtWebKit.QWebView()
+            webPage = QWebPageChrome()
+            widget.setPage(webPage)
             widget.setUrl(QtCore.QUrl(self.url))
             self.parent.topTabs.addTab(widget, self.title)
 
