@@ -55,10 +55,12 @@ class proxies(QtCore.QObject):
 
         self.proxySocket = QtNetwork.QTcpSocket(self)
         self.proxySocket.connected.connect(self.connectedProxy)
-        self.proxySocket.readyRead.connect(self.readData) 
+        self.proxySocket.readyRead.connect(self.readData)
+        self.proxySocket.disconnected.connect(self.disconnectedFromProxy)
         
         self.blockSize = 0
         self.uid = None
+        self.canClose = False
     
     def setUid(self, uid):
         self.uid = uid
@@ -74,6 +76,7 @@ class proxies(QtCore.QObject):
         if self.proxySocket.waitForConnected(10000):
             self.__logger.info("Connected to proxy server " + self.proxySocket.peerName() + ":" + str(self.proxySocket.peerPort()))
         
+        self.canClose = False
         self.sendUid()
             
     def bindSocket(self, port, uid):
@@ -156,6 +159,7 @@ class proxies(QtCore.QObject):
 
     def closeSocket(self):
         if self.proxySocket.state() == QtNetwork.QAbstractSocket.ConnectedState :
+            self.canClose = True
             self.__logger.info("disconnecting from proxy server")
             self.proxySocket.disconnectFromHost()
     
@@ -165,4 +169,10 @@ class proxies(QtCore.QObject):
             datagram, _, _ = udpSocket.readDatagram(udpSocket.pendingDatagramSize())
             self.sendReply(i, self.proxiesDestination[i], QtCore.QByteArray(datagram))
 
+    def disconnectedFromProxy(self):
+        '''Disconnection'''
+        self.__logger.info("disconnected from proxy server")
+        if self.canClose == False:
+            self.__logger.info("reconnecting to proxy server")
+            self.connectToProxy()
             
