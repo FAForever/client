@@ -433,6 +433,36 @@ class Channel(FormClass, BaseClass):
         
         self.updateUserCount()
         
+    def elevateChatter(self, name, modes):
+        add = re.compile(".*\+([a-z]+)")
+        remove = re.compile(".*\-([a-z]+)")
+        if name in self.chatters:
+            addmatch = re.search(add, modes)
+            if addmatch:
+                modes = addmatch.group(1)
+                mode = ""
+                if "v" in modes:
+                    mode = "+"
+                if "o" in modes:
+                    mode = "@"
+                if "q" in modes:
+                    mode = "~"                    
+                if mode in self.lobby.OPERATOR_COLORS:
+                    self.chatters[name].elevation = mode
+                    self.chatters[name].update()
+            removematch = re.search(remove, modes)
+            if removematch:
+                modes = removematch.group(1)
+                mode = ""
+                if "o" in modes and self.chatters[name].elevation == "@":
+                    self.chatters[name].elevation = None
+                    self.chatters[name].update()
+                if "q" in modes and self.chatters[name].elevation == "~":
+                    self.chatters[name].elevation = None
+                    self.chatters[name].update()
+                if "v" in modes and self.chatters[name].elevation == "+":
+                    self.chatters[name].elevation = None
+                    self.chatters[name].update()
         
     def addChatter(self, user, join = False):
         '''

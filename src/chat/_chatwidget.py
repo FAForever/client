@@ -355,14 +355,16 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             if (not self.channels[channel].private) or (self.channels[channel].name == user2name(name)):
                 self.channels[channel].removeChatter(name, "quit.")
         
-        
     def on_nick(self, c, e):
         self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
-    
+
+    def on_mode(self, c, e):        
+        name = user2name(e.arguments()[1])
+        if e.target() in self.channels:
+            self.channels[e.target()].elevateChatter(name, e.arguments()[0])
     
     def on_umode(self, c, e):        
         self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
-
 
     def on_notice(self, c, e):
         self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
@@ -428,6 +430,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         elif source == "Global":
             for channel in self.channels:
                 self.channels[channel].printAnnouncement(message, "yellow", "+2")  
+
+        
                
               
                                                             
