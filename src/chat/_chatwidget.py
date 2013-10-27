@@ -424,7 +424,11 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
         message = "\n".join(e.arguments()).lstrip(prefix)
         if target in self.channels:
-            self.channels[target].printMsg(source, message)     
+            self.channels[target].printMsg(source, message)  
+        elif source == "Global":
+            for channel in self.channels:
+                self.channels[channel].printAnnouncement(message, "yellow", "+2")  
+               
               
                                                             
     def on_privmsg(self, c, e):
