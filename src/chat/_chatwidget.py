@@ -97,6 +97,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
     
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self.poll)
+        
+        self.canDisconnect = False
 
    
     @QtCore.pyqtSlot()
@@ -107,6 +109,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
     
     
     def disconnect(self):
+        self.canDisconnect = True
         self.irc_disconnect()
         self.timer.stop()
 
@@ -117,7 +120,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         try:
             self.irc_connect(self.ircServer, self.ircPort, self.client.login, ssl=True)
            
-            self.timer.start();
+            self.timer.start()
             
         except:
             logger.debug("Unable to connect to IRC server.")
@@ -437,7 +440,12 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             self.serverLogArea.appendPlainText("%s: %s" % (source, notice))
         
                
-              
+    def on_disconnect(self, c, e):
+        print "we are disconnected"
+        if not self.canDisconnect:
+            self.identified = False
+            self.timer.stop()
+            self.connect()
                                                             
     def on_privmsg(self, c, e):
         name = user2name(e.source())
