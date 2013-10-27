@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1034</width>
+    <width>1222</width>
     <height>649</height>
    </rect>
   </property>
@@ -298,15 +298,21 @@ p, li { white-space: pre-wrap; }
            <widget class="QTextBrowser" name="leaderBoardTextGeneral">
             <property name="minimumSize">
              <size>
-              <width>0</width>
+              <width>525</width>
               <height>0</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>600</width>
+              <width>525</width>
               <height>16777215</height>
              </size>
+            </property>
+            <property name="openExternalLinks">
+             <bool>false</bool>
+            </property>
+            <property name="openLinks">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -321,15 +327,21 @@ p, li { white-space: pre-wrap; }
            <widget class="QTextBrowser" name="leaderBoardTextOne">
             <property name="minimumSize">
              <size>
-              <width>600</width>
+              <width>525</width>
               <height>0</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>600</width>
+              <width>525</width>
               <height>16777215</height>
              </size>
+            </property>
+            <property name="openExternalLinks">
+             <bool>false</bool>
+            </property>
+            <property name="openLinks">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -344,15 +356,21 @@ p, li { white-space: pre-wrap; }
            <widget class="QTextBrowser" name="leaderBoardTextTwo">
             <property name="minimumSize">
              <size>
-              <width>600</width>
+              <width>525</width>
               <height>0</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>600</width>
+              <width>525</width>
               <height>16777215</height>
              </size>
+            </property>
+            <property name="openExternalLinks">
+             <bool>false</bool>
+            </property>
+            <property name="openLinks">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -367,15 +385,21 @@ p, li { white-space: pre-wrap; }
            <widget class="QTextBrowser" name="leaderBoardTextThree">
             <property name="minimumSize">
              <size>
-              <width>600</width>
+              <width>525</width>
               <height>0</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>600</width>
+              <width>525</width>
               <height>16777215</height>
              </size>
+            </property>
+            <property name="openExternalLinks">
+             <bool>false</bool>
+            </property>
+            <property name="openLinks">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -390,15 +414,21 @@ p, li { white-space: pre-wrap; }
            <widget class="QTextBrowser" name="leaderBoardTextFour">
             <property name="minimumSize">
              <size>
-              <width>600</width>
+              <width>525</width>
               <height>0</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>600</width>
+              <width>525</width>
               <height>16777215</height>
              </size>
+            </property>
+            <property name="openExternalLinks">
+             <bool>false</bool>
+            </property>
+            <property name="openLinks">
+             <bool>false</bool>
             </property>
            </widget>
           </item>

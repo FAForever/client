@@ -23,6 +23,8 @@
 from PyQt4 import QtCore, QtGui
 import util
 
+from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
+
 from games.gameitem import GameItem, GameItemDelegate
 from coop.coopmapitem import CoopMapItem, CoopMapItemDelegate
 from games.hostgamewidget import HostgameWidget
@@ -31,6 +33,7 @@ from fa import Faction
 import random
 import fa
 import modvault
+import os
 
 
 
@@ -86,10 +89,31 @@ class CoopWidget(FormClass, BaseClass):
         self.FORMATTER_LADDER_HEADER = unicode(util.readfile("coop/formatters/ladder_header.qthtml"))
 
         self.leaderBoard.setStyleSheet(self.stylesheet)
+        
+        self.leaderBoardTextGeneral.anchorClicked.connect(self.openUrl)
+        self.leaderBoardTextOne.anchorClicked.connect(self.openUrl)
+        self.leaderBoardTextTwo.anchorClicked.connect(self.openUrl)
+        self.leaderBoardTextThree.anchorClicked.connect(self.openUrl)
+        self.leaderBoardTextFour.anchorClicked.connect(self.openUrl)
+
+        self.replayDownload = QNetworkAccessManager()
+        self.replayDownload.finished.connect(self.finishRequest)
 
     
         self.selectedItem = None
-    
+
+    @QtCore.pyqtSlot(QtCore.QUrl)
+    def openUrl(self, url):
+        self.replayDownload.get(QNetworkRequest(url))
+
+    def finishRequest(self, reply):
+        faf_replay = QtCore.QFile(os.path.join(util.CACHE_DIR, "temp.fafreplay"))
+        faf_replay.open(QtCore.QIODevice.WriteOnly | QtCore.QIODevice.Truncate)                
+        faf_replay.write(reply.readAll())
+        faf_replay.flush()
+        faf_replay.close()  
+        fa.exe.replay(os.path.join(util.CACHE_DIR, "temp.fafreplay"))    
+        
     def processLeaderBoardInfos(self, message):
         ''' Process leaderboard'''
 
@@ -129,14 +153,15 @@ class CoopWidget(FormClass, BaseClass):
             players = ", ".join(val["players"]) 
             numPlayers = str(len(val["players"]))
             timing = val["time"]
+            gameuid = str(val["gameuid"])
             if val["secondary"] == 1:
                 secondary = "Yes"
             else:
                 secondary = "No"
             if rank % 2 == 0 :
-                line = formatter.format(rank=str(rank), numplayers=numPlayers, players= players, objectives=secondary, timing=timing, type="even")
+                line = formatter.format(rank=str(rank), numplayers=numPlayers, gameuid=gameuid, players= players, objectives=secondary, timing=timing, type="even")
             else :
-                line = formatter.format(rank=str(rank), numplayers=numPlayers, players= players, objectives=secondary, timing=timing, type="")
+                line = formatter.format(rank=str(rank), numplayers=numPlayers, gameuid=gameuid, players= players, objectives=secondary, timing=timing, type="")
             
             rank = rank + 1
             
