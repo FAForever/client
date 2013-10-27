@@ -256,6 +256,7 @@ class Channel(FormClass, BaseClass):
                 color = chatter.textColor().name()
                 if chatter.avatar:
                     avatar = chatter.avatar["url"] 
+                    avatarTip = chatter.avatarTip or ""
                 
             else:
                 color = self.lobby.client.getUserColor(name) #Fallback and ask the client. We have no Idea who this is.
@@ -263,6 +264,10 @@ class Channel(FormClass, BaseClass):
         # Play a ping sound and flash the title under certain circumstances
         if self.private and name != self.lobby.client.login:
             self.pingWindow()
+
+        if not self.private and text.find(self.lobby.client.login)!=-1:
+            self.pingWindow()
+            color = self.lobby.client.getColor("tous")
 
 
         # scroll if close to the last line of the log
@@ -279,7 +284,7 @@ class Channel(FormClass, BaseClass):
                 if not self.chatArea.document().resource(QtGui.QTextDocument.ImageResource, QtCore.QUrl(avatar)):
                     self.chatArea.document().addResource(QtGui.QTextDocument.ImageResource,  QtCore.QUrl(avatar), pix)                        
                 formatter = self.FORMATTER_MESSAGE_AVATAR
-                line = formatter.format(time=self.timestamp(), avatar=avatar, name=name, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))                 
+                line = formatter.format(time=self.timestamp(), avatar=avatar, name=name, avatarTip=avatarTip, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))                 
             else :
                 formatter = self.FORMATTER_MESSAGE
                 line = formatter.format(time=self.timestamp(), name=name, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))        
@@ -327,6 +332,7 @@ class Channel(FormClass, BaseClass):
             chatter = self.chatters[name]                
             if chatter.avatar :
                 avatar = chatter.avatar["url"] 
+                avatarTip = chatter.avatarTip or ""
             
         # scroll if close to the last line of the log
         scroll_current = self.chatArea.verticalScrollBar().value()
@@ -342,7 +348,7 @@ class Channel(FormClass, BaseClass):
                 if not self.chatArea.document().resource(QtGui.QTextDocument.ImageResource, QtCore.QUrl(avatar)) :
                     self.chatArea.document().addResource(QtGui.QTextDocument.ImageResource,  QtCore.QUrl(avatar), pix)
                 formatter = self.FORMATTER_ACTION_AVATAR
-                line = formatter.format(time=self.timestamp(), avatar=avatar, name=name, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))
+                line = formatter.format(time=self.timestamp(), avatar=avatar, avatarTip=avatarTip, name=name, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))
             else:            
                 formatter = self.FORMATTER_ACTION
                 line = formatter.format(time=self.timestamp(), name=name, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))
@@ -523,6 +529,11 @@ class Channel(FormClass, BaseClass):
                         self.printAction(self.lobby.client.login, text[4:], True)
                     else:
                         self.printAction("IRC", "action not supported", True)
+                elif text.startswith(("/seen ")):
+                    if self.lobby.sendMsg("nickserv", "info %s" % (text[6:])):
+                        self.printAction("IRC", "info requested on %s" % (text[6:]), True)
+                    else:
+                        self.printAction("IRC", "not connected", True)
             else:
                 if self.lobby.sendMsg(target, text):
                     self.printMsg(self.lobby.client.login, text, True)
