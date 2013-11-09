@@ -361,7 +361,9 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
     def on_nick(self, c, e):
         self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
 
-    def on_mode(self, c, e):        
+    def on_mode(self, c, e):  
+        if len(e.arguments()) < 2:
+            return       
         name = user2name(e.arguments()[1])
         if e.target() in self.channels:
             self.channels[e.target()].elevateChatter(name, e.arguments()[0])
