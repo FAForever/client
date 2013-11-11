@@ -82,9 +82,8 @@ class MapItem(QtGui.QListWidgetItem):
         self.mapname        = None
         self.mapdisplayname = None
         self.client         = None
+        self.selected       = False
 
-        self.setHidden(True)
- 
     def update(self, message):  
         self.uid = message["idmap"]
         self.mapname = maps.link2name(message['maprealname'])  
@@ -96,12 +95,18 @@ class MapItem(QtGui.QListWidgetItem):
             self.parent.downloader.downloadMap(self.mapname, self)
             icon = util.icon("games/unknown_map.png")
 
+
+        self.selected = message["selected"]  
+            
+
         self.setIcon(icon)
         text = "<font valign=center><b>%s</b></font>" % self.mapdisplayname
         self.setText(text)
         
-        if message["selected"] == True:
-            self.setSelected(True)
+    def updateSelection(self):
+        if self.selected:
+            self.setSelected(1)
+
 
 class mapSelectWidget(QtGui.QDialog):
     def __init__(self, parent, *args, **kwargs):
@@ -128,7 +133,9 @@ class mapSelectWidget(QtGui.QDialog):
         self.listMaps.setSortingEnabled(1)        
         
         self.listMaps.setItemDelegate(MapItemDelegate(self))
-              
+            
+        self.itemList = []
+        
         label = QtGui.QLabel("Your selection will be validated when you close this window.")
         
         self.group_layout.addWidget(self.listMaps)
@@ -143,15 +150,17 @@ class mapSelectWidget(QtGui.QDialog):
 
     def mapList(self, msg):
         self.listMaps.clear()
-
+        self.itemList = []
         map_list = msg["values"]
         
         for map in map_list :
-            item = MapItem(self.client)
-            self.listMaps.addItem(item)
+            item = MapItem(self.client)            
             item.update(map)
+            self.listMaps.addItem(item)
+            self.itemList.append(item)
             
-
+        for i in self.itemList:
+            i.updateSelection()
     
     def cleaning(self):
         mapSelected = []

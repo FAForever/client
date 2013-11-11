@@ -95,7 +95,10 @@ class GamesWidget(FormClass, BaseClass):
 
         self.modList.itemDoubleClicked.connect(self.hostGameClicked)
         
-        self.mapSelectButton.clicked.connect(self.mapSelectClicked)
+        try:
+            self.mapSelectButton.clicked.connect(self.mapSelectClicked)
+        except:
+            QtGui.QMessageBox.warning(None, "Skin outdated.", "The theme you are using is outdated. Please remove it or the lobby will malfunction.")
 
         #Load game name from settings (yay, it's persistent!)        
         self.loadGameName()
