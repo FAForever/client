@@ -151,6 +151,7 @@ def replay(source, detach = False):
                     
                     if binary.size() == 0:
                         logger.info("Invalid replay")
+                        QtGui.QMessageBox.critical(None, "FA Forever Replay", "Sorry, this replay is corrupted.")
                         return False
                         
                     scfa_replay = QtCore.QFile(os.path.join(util.CACHE_DIR, "temp.scfareplay"))

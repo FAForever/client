@@ -93,7 +93,7 @@ class MapItem(QtGui.QListWidgetItem):
         self.mapdisplayname = maps.getDisplayName(self.mapname)
         icon = maps.preview(self.mapname)
         if not icon:
-            self.client.downloader.downloadMap(self.mapname, self)
+            self.parent.downloader.downloadMap(self.mapname, self)
             icon = util.icon("games/unknown_map.png")
 
         self.setIcon(icon)
@@ -113,6 +113,8 @@ class mapSelectWidget(QtGui.QDialog):
         
         self.setMinimumSize(640, 480)
         
+        self.setWindowFlags( self.windowFlags() | QtCore.Qt.WindowMaximizeButtonHint )
+        
         self.setWindowTitle ( "Selection of maps for the Matchmaker")
         
         
@@ -127,8 +129,10 @@ class mapSelectWidget(QtGui.QDialog):
         
         self.listMaps.setItemDelegate(MapItemDelegate(self))
               
-
+        label = QtGui.QLabel("Your selection will be validated when you close this window.")
+        
         self.group_layout.addWidget(self.listMaps)
+        self.group_layout.addWidget(label)
         
         self.client.ladderMapsList.connect(self.mapList)
         self.setStyleSheet(self.parent.styleSheet())
@@ -143,7 +147,7 @@ class mapSelectWidget(QtGui.QDialog):
         map_list = msg["values"]
         
         for map in map_list :
-            item = MapItem(self.listMaps)
+            item = MapItem(self.client)
             self.listMaps.addItem(item)
             item.update(map)
             
