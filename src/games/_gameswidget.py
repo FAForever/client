@@ -26,11 +26,15 @@ import util
 from games.gameitem import GameItem, GameItemDelegate
 from games.moditem import ModItem, mod_invisible, mods
 from games.hostgamewidget import HostgameWidget
+
+from games._mapSelectWidget import mapSelectWidget
 from games import logger
 from fa import Faction
 import random
 import fa
 import modvault
+
+
 
 RANKED_SEARCH_EXPANSION_TIME = 10000 #milliseconds before search radius expands
 
@@ -90,6 +94,8 @@ class GamesWidget(FormClass, BaseClass):
         self.gameList.itemDoubleClicked.connect(self.gameDoubleClicked)
 
         self.modList.itemDoubleClicked.connect(self.hostGameClicked)
+        
+        self.mapSelectButton.clicked.connect(self.mapSelectClicked)
 
         #Load game name from settings (yay, it's persistent!)        
         self.loadGameName()
@@ -115,6 +121,12 @@ class GamesWidget(FormClass, BaseClass):
         self.rankedUEF.toggled.disconnect(self.toggleUEF)
         self.rankedRandom.toggled.disconnect(self.toggleRandom)
 
+
+    def mapSelectClicked(self):
+        ''' This is for handling map selector'''
+        mapSelection = mapSelectWidget(self)
+        mapSelection.exec_()        
+        
 
     @QtCore.pyqtSlot(dict)
     def processModInfo(self, message): 

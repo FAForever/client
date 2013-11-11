@@ -129,9 +129,8 @@ class ClientWindow(FormClass, BaseClass):
     featuredModManagerInfo  = QtCore.pyqtSignal(dict)
     replayVault             = QtCore.pyqtSignal(dict)
     coopLeaderBoard         = QtCore.pyqtSignal(dict)
+    ladderMapsList          = QtCore.pyqtSignal(dict)
     
-
-
     #These signals are emitted whenever a certain tab is activated
     showReplays     = QtCore.pyqtSignal()
     showMaps        = QtCore.pyqtSignal()
@@ -308,7 +307,7 @@ class ClientWindow(FormClass, BaseClass):
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.livestreamTab   ), util.icon("client/twitch.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.replaysTab      ), util.icon("client/replays.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.tutorialsTab    ), util.icon("client/tutorials.png"))
-        
+               
         QtWebKit.QWebSettings.globalSettings().setAttribute(QtWebKit.QWebSettings.PluginsEnabled, True)
         
 
@@ -1841,6 +1840,9 @@ class ClientWindow(FormClass, BaseClass):
 
     def handle_coop_leaderboard(self, message):
         self.coopLeaderBoard.emit(message)
+    
+    def handle_ladder_maps(self, message):
+        self.ladderMapsList.emit(message)
     
     def handle_matchmaker_info(self, message):
         if "potential" in message:
