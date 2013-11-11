@@ -149,6 +149,10 @@ def replay(source, detach = False):
                     logger.info("Extracted " + str(binary.size()) + " bytes of binary data from .fafreplay.")
                     replay.close()
                     
+                    if binary.size() == 0:
+                        logger.info("Invalid replay")
+                        return False
+                        
                     scfa_replay = QtCore.QFile(os.path.join(util.CACHE_DIR, "temp.scfareplay"))
                     scfa_replay.open(QtCore.QIODevice.WriteOnly | QtCore.QIODevice.Truncate)                
                     scfa_replay.write(binary)

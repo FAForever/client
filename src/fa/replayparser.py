@@ -52,4 +52,4 @@ class replayParser:
         if (supcomVersion.startswith("Supreme Commander v1") == False) :     
             return None
         else :
-             return supcomVersion.split(".")[-1]
+            return supcomVersion.split(".")[-1]
