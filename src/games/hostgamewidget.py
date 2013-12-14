@@ -84,20 +84,14 @@ class HostgameWidget(FormClass, BaseClass):
         i = 0
         index = 0
         if self.parent.canChooseMap == True:
-            for map in maps.maps :
-                name = maps.getDisplayName(map)
+            allmaps = dict()
+            for map in maps.maps.keys() + maps.getUserMaps():
+                allmaps[map] = maps.getDisplayName(map)
+            for (map, name) in sorted(allmaps.iteritems(), key=lambda x: x[1]):
                 if map == self.parent.gamemap :
                     index = i
                 self.mapList.addItem(name, map)
                 i = i + 1
-    
-            for map in maps.getUserMaps() :
-                name = maps.getDisplayName(map)
-                if map == self.parent.gamemap :
-                    index = i
-                self.mapList.addItem(name, map)
-                i = i + 1
-            
             self.mapList.setCurrentIndex(index)
         else:
             self.mapList.hide()
