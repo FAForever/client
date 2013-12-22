@@ -49,6 +49,36 @@
         <number>0</number>
        </property>
        <item>
+        <widget class="QLabel" name="announceLine">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+         <property name="toolTip">
+          <string>Channel's topic</string>
+         </property>
+		 <property name="WordWrap">
+          <bool>true</bool>
+         </property>
+		 <property name="textInteractionFlags">
+          <set>Qt::TextBrowserInteraction</set>
+         </property>
+		 <property name="margin">
+          <number>2</number>
+         </property>
+		 <property name="openExternalLinks">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QTextBrowser" name="chatArea">
          <property name="font">
           <font>
