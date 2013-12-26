@@ -44,7 +44,7 @@ class TeamWidget(FormClass, BaseClass):
         self.proposalBox.setVisible(0)
         
         self.proposals = {}
-        self.addProposal("test",5)
+
     def update(self, players):
         ''' update the player list '''
         self.players = copy.deepcopy(players)
