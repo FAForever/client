@@ -103,6 +103,7 @@ class Channel(FormClass, BaseClass):
             self.lobby.client.usersUpdated.connect(self.updateChatters)
         else:
             self.nickFrame.hide()
+            self.announceLine.hide()
 
         self.chatArea.anchorClicked.connect(self.openUrl)
         self.chatEdit.returnPressed.connect(self.sendLine)
@@ -501,7 +502,10 @@ class Channel(FormClass, BaseClass):
         self.updateUserCount()
 
 
-    
+    def setAnnounceText(self,text):
+        self.announceLine.clear()
+        self.announceLine.setText("<style>a{color:cornflowerblue}</style><b><font color=white>" + util.irc_escape(text) + "</font></b>")
+
     
     @QtCore.pyqtSlot()
     def sendLine(self, target=None):
@@ -524,7 +528,9 @@ class Channel(FormClass, BaseClass):
                 
             # System commands        
             if text[0] == "/":
-                if text.startswith(("/me ")):            
+                if text.startswith(("/topic ")):
+                    self.lobby.setTopic(self.name,text[7:])
+                elif text.startswith(("/me ")):
                     if self.lobby.sendAction(target, text[4:]):
                         self.printAction(self.lobby.client.login, text[4:], True)
                     else:

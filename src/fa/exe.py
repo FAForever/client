@@ -138,6 +138,7 @@ def replay(source, detach = False):
         version = None
         featured_mod_versions = None
         arg_string = None
+        replay_id = None
         # Convert strings to URLs
         if isinstance(source, basestring):
             if os.path.isfile(source):
@@ -162,6 +163,7 @@ def replay(source, detach = False):
                                 
                     mapname = info.get('mapname', None)
                     mod = info['featured_mod']        
+                    replay_id = info['uid']
                     featured_mod_versions = info.get('featured_mod_versions', None)
                     arg_string = scfa_replay.fileName()
                     
@@ -203,6 +205,7 @@ def replay(source, detach = False):
             if url.scheme() == "faflive":
                 mod = url.queryItemValue("mod")
                 mapname = url.queryItemValue("map")                
+                replay_id = url.path().split("/")[0]
                 # whip the URL into shape so ForgedAlliance.exe understands it
                 arg_url = QtCore.QUrl(url)
                 arg_url.setScheme("gpgnet")
@@ -235,6 +238,9 @@ def replay(source, detach = False):
         #log file
         arguments.append("/log")
         arguments.append('"' + util.LOG_FILE_REPLAY + '"')
+
+        if replay_id:
+            arguments.append("/replayid " + str(replay_id))
 
         # Update the game appropriately
         if not check(mod, mapname, version, featured_mod_versions):

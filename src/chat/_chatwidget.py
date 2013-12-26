@@ -175,7 +175,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         for channel in self.crucialChannels:
             self.sendMsg(channel, broadcast)
 
-
+    def setTopic(self,chan,topic):
+        self.connection.topic(chan,topic)
 
     def sendMsg(self, target, text):
         if self.connection.is_connected():
@@ -374,11 +375,15 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
     def on_notice(self, c, e):
         self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
 
+    def on_topic(self, c, e):
+        channel = e.target()
+        if channel in self.channels:
+            self.channels[channel].setAnnounceText(" ".join(e.arguments()))
 
     def on_currenttopic(self, c, e):
         channel = e.arguments()[0]
         if channel in self.channels:
-            self.channels[channel].printMsg(channel, "\n".join(e.arguments()[1:]))        
+            self.channels[channel].setAnnounceText(" ".join(e.arguments()[1:]))
 
 
     def on_topicinfo(self, c, e):
