@@ -1742,7 +1742,6 @@ class ClientWindow(FormClass, BaseClass):
             arguments.append(str(self.GalacticWar.rank))
             
         elif message[modkey] == "ladder1v1":
-            self.tray.showMessage("Game", "on map " + fa.maps.getDisplayName(message['mapname']), QtGui.QSystemTrayIcon.Information, 2000)
             arguments.append(self.games.race)
             #Player 1v1 rating
             arguments.append('/mean')        
