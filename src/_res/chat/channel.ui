@@ -64,16 +64,22 @@
          <property name="toolTip">
           <string>Channel's topic</string>
          </property>
-		 <property name="WordWrap">
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+         <property name="wordWrap">
           <bool>true</bool>
          </property>
-		 <property name="textInteractionFlags">
-          <set>Qt::TextBrowserInteraction</set>
-         </property>
-		 <property name="margin">
+         <property name="margin">
           <number>2</number>
          </property>
-		 <property name="openExternalLinks">
+         <property name="openExternalLinks">
+          <bool>true</bool>
+         </property>
+         <property name="textInteractionFlags">
+          <set>Qt::TextBrowserInteraction</set>
+         </property>
+         <property name="WordWrap" stdset="0">
           <bool>true</bool>
          </property>
         </widget>
