@@ -365,18 +365,8 @@ class LobbyWidget(FormClass, BaseClass):
         who = message["who"]
         uid = message["uid"]
 
-        question = QtGui.QMessageBox(self)
-        question.setWindowModality(0)
-        question.setText("This team leader want you in his squad, do you want to be in?")
-        question.setWindowTitle("Squad proposal from %s" % who)
-        question.setStandardButtons(QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-        question.show()
-        while question.result() == 0:
-            QtGui.QApplication.processEvents()
-
-        if question.result() == QtGui.QMessageBox.Yes :
-            self.send(dict(command="accept_team_proposal", uid=uid))
-
+        self.infoPanel.formTeam()
+        self.infoPanel.teamwidget.addProposal(who, uid)
     
     def handle_news_feed(self, message):
         '''Adding news to news feed'''

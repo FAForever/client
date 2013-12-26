@@ -37,8 +37,14 @@ class TeamWidget(FormClass, BaseClass):
         
         self.playerList.clear()
         self.playerList.itemDoubleClicked.connect(self.proposeTeam)
+        self.proposalsList.itemDoubleClicked.connect(self.acceptProposal)
+       
         self.client.teamUpdated.connect(self.updateStatus)
         
+        self.proposalBox.setVisible(0)
+        
+        self.proposals = {}
+        self.addProposal("test",5)
     def update(self, players):
         ''' update the player list '''
         self.players = copy.deepcopy(players)
@@ -69,5 +75,36 @@ class TeamWidget(FormClass, BaseClass):
             #self.client.send(dict(command="request_team", uid=5))
             self.client.send(dict(command="request_team", uid=self.players[item.text()]))
             
-        
+    def addProposal(self, who, uid):
+        ''' add a team proposal to the list '''
+        if not who in self.proposals:
+            self.proposals[who] = uid  
+            self.updateProposals()
+
+     
+    def updateProposals(self):
+        ''' update the team proposal list '''
+        self.proposalsList.clear()
+        if len(self.proposals) > 0:
+            self.proposalBox.setVisible(1)
+            self.proposalsList.addItems(self.proposals.keys())
+        else:
+            self.proposalBox.setVisible(0)
+
+    def acceptProposal(self, item):
+        ''' accept a proposal '''
+        if item.text() in self.proposals:
+            question = QtGui.QMessageBox(self)
+            
+            question.setText("This team leader want you in his squad, do you want to be in?")
+            question.setWindowTitle("Squad proposal from %s" % item.text())
+            question.setStandardButtons(QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+            question.show()
+            
+            if question.result() == QtGui.QMessageBox.Yes :
+                self.client.send(dict(command="accept_team_proposal", uid=self.proposals[item.text()]))
+            
+            del self.proposals[item.text()]
+            self.updateProposals()
+    
                 
