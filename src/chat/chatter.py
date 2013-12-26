@@ -270,8 +270,12 @@ class Chatter(QtGui.QTableWidgetItem):
     
     def doubleClicked(self, item):
         # Chatter name clicked
-        if item == self:      
-            self.lobby.openQuery(self.name, True) #open and activate query window        
+        if item == self:
+            if self.lobby.client.login != self.name:
+                if "Ze_PilOt" in self.name :
+                    QtGui.QMessageBox.critical(None, "Message to the admin", "You are going to send a private message to the admin.<br><br>Be aware that :<ul><li><b>The admin is not a moderator.</b> Send a message to another 'white nickname' or send a message to the moderator group in the forum.</li><li>The admin <b>is not an online (technical) support</b>. If you have question or a problem, ask in the chat.</li><li><b>Reporting a problem to the admin in the chat is useless</b>. The admin won't necessary read them, and as the messages are not kept, problems are forgotten.</li></ul><br><b>If you need to report something, go to the HELP menu then Tech Support.</b><br>Be sure to read the red wall of text first.<br><br>The admin is usually receiving a lot of private message when online. That can be overwhelming or even irritating (<b>the admin goes to the chat for chilling</b> or debugging).<br><br>If your message doesn't fit in the previous categories, you may proceed.<br>You can also send him a PM in the forum!<br><br>Thanks for your understanding.", QtGui.QMessageBox.Close)
+                self.lobby.openQuery(self.name, True) #open and activate query window        
+
         elif item == self.statusItem:                                          
             if self.lobby.client.login != self.name:
                 if self.name in client.instance.urls:
