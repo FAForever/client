@@ -43,16 +43,21 @@ class proxies(QtCore.QObject):
         self.proxies = {}
         self.proxiesDestination = {}
         port = 12000
+        errored = False
         for i in range(11) :
             port = port + 1
             self.proxies[i] = QtNetwork.QUdpSocket(self)
             if not self.proxies[i].bind(QtNetwork.QHostAddress.LocalHost, port) :
                 self.__logger.warn("Can't bind socket %i" % i)
+                errored = True
             else :
                 self.__logger.info("binding socket %i on port %i" % (i, self.proxies[i].localPort()))
                 self.proxies[i].readyRead.connect(functools.partial(self.processPendingDatagrams, i))
                 self.proxiesDestination[i] = None
 
+        if errored:
+            QtGui.QMessageBox.warning(self, "Cannot use proxy server", "FAF is unable to bind the port <b>12000 to 12011 on TCP</b>.<br>Please check your firewall settings.<br><b>You may experience connections problems until it's fixed.</b>")
+            
         self.proxySocket = QtNetwork.QTcpSocket(self)
         self.proxySocket.connected.connect(self.connectedProxy)
         self.proxySocket.readyRead.connect(self.readData)
