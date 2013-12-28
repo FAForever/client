@@ -17,7 +17,7 @@
 #-------------------------------------------------------------------------------
 
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
-from PyQt4 import QtCore
+from PyQt4 import QtGui, QtCore
 import urllib2
 import logging
 import os
@@ -60,12 +60,9 @@ class downloadManager(QtCore.QObject):
             if os.path.exists(pathimg):
                 #Create alpha-mapped preview image
                 try:
-                    warnings.simplefilter("ignore")
-                    # check if the image is loadable
-                    f = FIPY.Image(pathimg)
-                    f.setSize((100,100))
-                    f.save(pathimg)
-                    warnings.simplefilter("error")
+                    pass # the server already sends 100x100 pic
+#                    img = QtGui.QImage(pathimg).scaled(100,100)
+#                    img.save(pathimg)
                 except:
                     pathimg = "games/unknown_map.png"
                     logger.info("Failed to resize " + name)
