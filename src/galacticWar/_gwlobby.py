@@ -335,10 +335,10 @@ class LobbyWidget(FormClass, BaseClass):
         for tex in self.texturelist : 
             if os.path.exists(self.get_texture_name(tex)) :
                 if util.md5(self.get_texture_name(tex)) == self.texturelist[tex] :
-                    logger.debug(tex + ".png in cache.")
+                    #logger.debug(tex + ".png in cache.")
                     textInCache.append(tex)
                     continue
-            logger.debug("Downloading " + tex + ".png")
+            #logger.debug("Downloading " + tex + ".png")
             self.downloader.get(QNetworkRequest(QtCore.QUrl(TEXTURE_SERVER + tex + ".png")))    
         
         for tex in textInCache :
@@ -438,7 +438,7 @@ class LobbyWidget(FormClass, BaseClass):
         self.galaxy.updateDefenses(planetuid, message)
 
     def handle_planet_info(self, message):
-        logger.debug("updating planet infos")
+        #logger.debug("updating planet infos")
         uid = message['uid'] 
         if not uid in self.galaxy.control_points :
             x           = message['posx']
@@ -547,7 +547,7 @@ class LobbyWidget(FormClass, BaseClass):
         '''
         message = json.loads(data_string)
         cmd = "handle_" + message['command']
-        logger.debug("Incoming JSON Message: " + data_string)
+        #logger.debug("Incoming JSON Command: " + data_string)
         if hasattr(self, cmd):
             getattr(self, cmd)(message)  
         else:

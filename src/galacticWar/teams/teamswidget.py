@@ -74,6 +74,7 @@ class TeamWidget(FormClass, BaseClass):
         if item.text() in self.players:
             #self.client.send(dict(command="request_team", uid=5))
             self.client.send(dict(command="request_team", uid=self.players[item.text()]))
+            item.setForeground(QtCore.Qt.darkCyan)
             
     def addProposal(self, who, uid):
         ''' add a team proposal to the list '''
@@ -94,14 +95,10 @@ class TeamWidget(FormClass, BaseClass):
     def acceptProposal(self, item):
         ''' accept a proposal '''
         if item.text() in self.proposals:
-            question = QtGui.QMessageBox(self)
-            
-            question.setText("This team leader want you in his squad, do you want to be in?")
-            question.setWindowTitle("Squad proposal from %s" % item.text())
-            question.setStandardButtons(QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-            question.show()
-            
-            if question.result() == QtGui.QMessageBox.Yes :
+
+            question = QtGui.QMessageBox.question(self, "Squad proposal from %s" % item.text(), "This team leader want you in his squad, do you want to be in?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+
+            if question == QtGui.QMessageBox.Yes :
                 self.client.send(dict(command="accept_team_proposal", uid=self.proposals[item.text()]))
             
             del self.proposals[item.text()]

@@ -50,7 +50,7 @@ class InfoPanelWidget(FormClass, BaseClass):
         self.waitingForPlayerList = False
         self.waitingForTeamMemberList = False
         self.teamwidget = TeamWidget(self.parent, {})
-        self.squadBox.hide()
+        
         
         # Updating stats
         self.parent.creditsUpdated.connect(self.updateCredit)
@@ -79,6 +79,7 @@ class InfoPanelWidget(FormClass, BaseClass):
         
         self.quitSquadButton.clicked.connect(self.quitSquad)
 
+        self.squadBox.hide()
         self.planetaryDefensesButton.hide()
         self.reinforcementButton.hide()
         self.dominationText.hide()
@@ -131,6 +132,7 @@ class InfoPanelWidget(FormClass, BaseClass):
         ''' Update teams info'''
         leader = message["leader"]
         members = message["members"]
+       
         hasToRequest = False
         self.parent.teams.clearMembers()
         
@@ -146,7 +148,9 @@ class InfoPanelWidget(FormClass, BaseClass):
             if not uid in self.onlinePlayers.values():
                 self.parent.teams.addMember(uid, None)
                 hasToRequest = True
-
+        
+        self.teamwidget.updateStatus(message)
+        
         if hasToRequest:
             self.squadBox.hide()
             self.waitingForTeamMemberList = True
