@@ -308,6 +308,28 @@ def getUserMapsFolder():
     return os.path.join(util.PERSONAL_DIR, "My Games", "Gas Powered Games", "Supreme Commander Forged Alliance", "Maps") 
 
 
+def genPrevFromDDS(sourcename, destname,small=False):
+    '''
+    this opens supcom's dds file (format: bgra8888) and saves to png
+    '''
+    try:
+        img = bytearray()
+        buf = bytearray(16)
+        file = open(sourcename,"rb")
+        file.seek(128) # skip header
+        while file.readinto(buf):
+            img += buf[:3] + buf[4:7] + buf[8:11] + buf[12:15]
+        file.close()
+
+        size = int((len(img)/3) ** (1.0/2))
+        if small:
+            imageFile = QtGui.QImage(img,size,size,QtGui.QImage.Format_RGB888).rgbSwapped().scaled(100,100,transformMode = QtCore.Qt.SmoothTransformation)
+        else:
+            imageFile = QtGui.QImage(img,size,size,QtGui.QImage.Format_RGB888).rgbSwapped()
+        imageFile.save(destname)
+    except IOError:
+        pass # cant open the
+
 def __exportPreviewFromMap(mapname, positions=None):
     '''
     This method auto-upgrades the maps to have small and large preview images
@@ -398,25 +420,23 @@ def __exportPreviewFromMap(mapname, positions=None):
         #version_minor = struct.unpack('i', mapfile.read(4))[0]   
         mapfile.close()
         #logger.debug("SCMAP version %i.%i" % (version_major, version_minor))
-        
-        previewfile = open(previewddsname, "wb")
-        previewfile.write(data)
-        previewfile.close()
-        #checking if file was created correctly, just in case
-        if os.path.isfile(previewddsname):
-            previews["tozip"].append(previewddsname)
-        else:
-            logger.debug("Failed to make DDS for: " + mapname)
-            return previews
+
+        try:
+            with open(previewddsname, "wb") as previewfile:
+                previewfile.write(data)
+
+                #checking if file was created correctly, just in case
+                if os.path.isfile(previewddsname):
+                    previews["tozip"].append(previewddsname)
+                else:
+                    logger.debug("Failed to make DDS for: " + mapname)
+                    return previews
+        except IOError:
+            pass
     
     if not smallExists:
         logger.debug("Making small preview from DDS for: " + mapname)
-        warnings.simplefilter("ignore")
-        f = FIPY.Image(previewddsname)
-        f.setSize((100,100))
-        f.save(previewsmallname)
-        warnings.simplefilter("error")
-        #checking if file was created correctly, just in case
+        genPrevFromDDS(previewddsname,previewsmallname,small=True)
         if os.path.isfile(previewsmallname):
             previews["tozip"].append(previewsmallname)
         else:
@@ -436,12 +456,7 @@ def __exportPreviewFromMap(mapname, positions=None):
         if not isinstance(positions, dict):
             logger.debug("Icon positions were not passed or they were wrong for: " + mapname)
             return previews
-        #convert dds into png
-        warnings.simplefilter("ignore")
-        mapimage = FIPY.Image(previewddsname)
-        mapimage.save(previewlargename)
-        warnings.simplefilter("error")
-        #prepare icons
+        genPrevFromDDS(previewddsname,previewlargename,small=False)
         mapimage = QtGui.QPixmap(previewlargename)
         armyicon = QtGui.QPixmap(os.path.join(os.getcwd(), ur"_res\vault\map_icons\army.png")).scaled(8, 9, 1, 1)
         massicon = QtGui.QPixmap(os.path.join(os.getcwd(), ur"_res\vault\map_icons\mass.png")).scaled(8, 8, 1, 1)
@@ -502,11 +517,8 @@ def __downloadPreviewFromWeb(name):
                 fp.close()
                 
                 #Create alpha-mapped preview image
-                warnings.simplefilter("ignore")
-                f = FIPY.Image(img)
-                f.setSize((100,100))
-                f.save(img)
-                warnings.simplefilter("error")
+                im = QtGui.QImage(img) #.scaled(100,100)
+                im.save(img)
                 logger.debug("Web Preview " + extension + " used for: " + name)
                 return img
         except:

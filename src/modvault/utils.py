@@ -308,11 +308,22 @@ def updateModInfo(mod, info): #should probably not be used.
 def generateThumbnail(sourcename, destname):
     """Given a dds file, generates a png file (or whatever the extension of dest is"""
     logger.debug("Creating png thumnail for %s to %s" % (sourcename, destname))
-    warnings.simplefilter("ignore")
-    f = FIPY.Image(sourcename)
-    f.setSize((100,100))
-    f.save(destname)
-    warnings.simplefilter("error")
+
+    try:
+        img = bytearray()
+        buf = bytearray(16)
+        file = open(sourcename,"rb")
+        file.seek(128) # skip header
+        while file.readinto(buf):
+            img += buf[:3] + buf[4:7] + buf[8:11] + buf[12:15]
+        file.close()
+
+        size = int((len(img)/3) ** (1.0/2))
+        imageFile = QtGui.QImage(img,size,size,QtGui.QImage.Format_RGB888).rgbSwapped().scaled(100,100,transformMode = QtCore.Qt.SmoothTransformation)
+        imageFile.save(destname)
+    except IOError:
+        return False
+
     if os.path.isfile(destname):
         return True
     else:
