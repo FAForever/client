@@ -163,7 +163,7 @@ class Chatter(QtGui.QTableWidgetItem):
         country = self.lobby.client.getUserCountry(self.name)
 
         if  country != None :
-            self.setIcon(util.icon("chat/countries/%s.png" % country))
+            self.setIcon(util.icon("chat/countries/%s.png" % country.lower()))
             self.setToolTip(country)
             
         
