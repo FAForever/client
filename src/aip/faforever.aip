@@ -10,10 +10,10 @@
     <ROW Property="ARPURLUPDATEINFO" Value="http://www.faforever.com/page=2"/>
     <ROW Property="CTRLS" Value="2"/>
     <ROW Property="Manufacturer" Value="FAF Community" ValueLocId="*"/>
-    <ROW Property="ProductCode" Value="1033:{305E51E0-CFD8-466F-8969-BD95222FE1D3} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{B0221F91-A689-40FD-9E19-7C5192B529D8} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Forged Alliance Forever" ValueLocId="*"/>
-    <ROW Property="ProductVersion" Value="240.10.97"/>
+    <ROW Property="ProductVersion" Value="240.10.98"/>
     <ROW Property="REBOOT" MultiBuildValue="DefaultBuild:Suppress"/>
     <ROW Property="RUNAPPLICATION" Value="1" Type="4"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
@@ -73,6 +73,7 @@
     <ROW Directory="OML_1_Dir" Directory_Parent="GL_1_Dir" DefaultDir="OML"/>
     <ROW Directory="OML_Dir" Directory_Parent="GL_Dir" DefaultDir="OML"/>
     <ROW Directory="OpenGL_Dir" Directory_Parent="APPDIR" DefaultDir="OpenGL"/>
+    <ROW Directory="OpenGL_accelerate_Dir" Directory_Parent="APPDIR" DefaultDir="OpenGL~1|OpenGL_accelerate"/>
     <ROW Directory="PGI_1_Dir" Directory_Parent="GL_1_Dir" DefaultDir="PGI"/>
     <ROW Directory="PGI_Dir" Directory_Parent="GL_Dir" DefaultDir="PGI"/>
     <ROW Directory="REND_1_Dir" Directory_Parent="GL_1_Dir" DefaultDir="REND"/>
@@ -145,25 +146,23 @@
     <ROW Directory="vault_Dir" Directory_Parent="_res_Dir" DefaultDir="vault"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
-    <ROW Component="APIMSWinCoreLocalRegistryL110.dll" ComponentId="{3E3ED6A3-B588-435E-A68E-91D61802BA96}" Directory_="APPDIR" Attributes="0" KeyPath="APIMSWinCoreLocalRegistryL110.dll"/>
     <ROW Component="Aeon_T1.png" ComponentId="{8DBFD6B3-42A6-430D-92AF-AED50C04275E}" Directory_="rank_Dir" Attributes="0" KeyPath="Aeon_T1.png" Type="0"/>
     <ROW Component="CourierBold.afm" ComponentId="{3FFDEEE3-2EFF-4398-91CC-08A1D2F2A081}" Directory_="pdfcorefonts_Dir" Attributes="0" KeyPath="CourierBold.afm" Type="0"/>
     <ROW Component="FAForever.exe" ComponentId="{26DFA4F1-1D68-4FF7-A8AC-E5B72715D114}" Directory_="APPDIR" Attributes="0" KeyPath="FAForever.exe"/>
-    <ROW Component="FAForever.lib" ComponentId="{791E1E0F-1A52-42F1-B966-3058CD7288F9}" Directory_="APPDIR" Attributes="0" KeyPath="FAForever.lib" Type="0"/>
+    <ROW Component="FAForever.lib" ComponentId="{791E1E0F-1A52-42F1-B966-3058CD7288F9}" Directory_="APPDIR" Attributes="0" KeyPath="replay.ico" Type="0"/>
     <ROW Component="GLX.pyc" ComponentId="{8D9110C9-9A05-4B71-908D-8AF9D1E2CC80}" Directory_="raw_Dir" Attributes="0" KeyPath="GLX.pyc_1" Type="0"/>
     <ROW Component="GL_1_1.pyc" ComponentId="{2DAAFB2D-E1A8-437A-8E31-8CB1514D7E73}" Directory_="VERSION_Dir" Attributes="0" KeyPath="GL_1_1.pyc" Type="0"/>
     <ROW Component="GL_1_1.pyc_1" ComponentId="{A21C5564-8E9F-4BA2-B3CF-C9B39270758E}" Directory_="VERSION_1_Dir" Attributes="0" KeyPath="GL_1_1.pyc_1" Type="0"/>
     <ROW Component="GL_64_TYPES_DEFINED.pyc" ComponentId="{B087CE9C-4A4D-4E61-A186-E002C77A0CBD}" Directory_="GLEXT_Dir" Attributes="0" KeyPath="GL_64_TYPES_DEFINED.pyc" Type="0"/>
-    <ROW Component="LIBEAY32.dll" ComponentId="{7E0599BC-7458-40FD-BE51-9F1CC3BA22B0}" Directory_="APPDIR" Attributes="0" KeyPath="LIBEAY32.dll"/>
-    <ROW Component="MPR.dll" ComponentId="{0F54DD99-0A63-41CE-8178-43033FD4920F}" Directory_="APPDIR" Attributes="0" KeyPath="MPR.dll"/>
-    <ROW Component="QtCore4.dll" ComponentId="{34ED848B-2055-4E29-8D05-E3146AD8C017}" Directory_="APPDIR" Attributes="0" KeyPath="QtCore4.dll"/>
-    <ROW Component="QtGui4.dll" ComponentId="{E1CFD013-DF6A-4852-8979-B2953C6B3BDE}" Directory_="APPDIR" Attributes="0" KeyPath="QtGui4.dll"/>
-    <ROW Component="QtNetwork4.dll" ComponentId="{CA0CF395-C548-44F7-9635-257AD28672E7}" Directory_="APPDIR" Attributes="0" KeyPath="QtNetwork4.dll"/>
-    <ROW Component="QtOpenGL4.dll" ComponentId="{6676FBD2-B296-45A9-8729-D1731773C177}" Directory_="APPDIR" Attributes="0" KeyPath="QtOpenGL4.dll"/>
-    <ROW Component="QtWebKit4.dll" ComponentId="{C8113395-63DA-48AC-B06D-D290ABFB2E64}" Directory_="APPDIR" Attributes="0" KeyPath="QtWebKit4.dll"/>
+    <ROW Component="LIBEAY32.dll" ComponentId="{8F2248B8-8DD5-4371-B11F-2B67F69F0308}" Directory_="APPDIR" Attributes="0" KeyPath="LIBEAY32.dll"/>
+    <ROW Component="QtCore4.dll" ComponentId="{821AE655-CF52-4E3D-8057-D54C75596DED}" Directory_="APPDIR" Attributes="0" KeyPath="QtCore4.dll"/>
+    <ROW Component="QtGui4.dll" ComponentId="{C935DC21-B724-479D-A508-CA896D96935D}" Directory_="APPDIR" Attributes="0" KeyPath="QtGui4.dll"/>
+    <ROW Component="QtNetwork4.dll" ComponentId="{536622F0-EDCE-4024-BA9B-927B791E30E5}" Directory_="APPDIR" Attributes="0" KeyPath="QtNetwork4.dll"/>
+    <ROW Component="QtOpenGL4.dll" ComponentId="{ADB313C5-F285-4777-A397-D88F7050C9E5}" Directory_="APPDIR" Attributes="0" KeyPath="QtOpenGL4.dll"/>
+    <ROW Component="QtWebKit4.dll" ComponentId="{996DDD67-8087-4E39-9C77-29ADEAB50F53}" Directory_="APPDIR" Attributes="0" KeyPath="QtWebKit4.dll"/>
     <ROW Component="Replay" ComponentId="{BEFADFDE-44E2-46EF-A7C6-26E804874117}" Directory_="APPDIR" Attributes="4" KeyPath="Replay"/>
     <ROW Component="SHORTCUTDIR" ComponentId="{7F2D847A-B1B1-4E59-8526-0C9DFB6A0F8A}" Directory_="SHORTCUTDIR" Attributes="0"/>
-    <ROW Component="SSLEAY32.dll" ComponentId="{525EC090-910E-4686-83D0-F05024B996C0}" Directory_="APPDIR" Attributes="0" KeyPath="SSLEAY32.dll"/>
+    <ROW Component="SSLEAY32.dll" ComponentId="{047C2F7B-91BE-43A1-BD46-53DDED7127D4}" Directory_="APPDIR" Attributes="0" KeyPath="SSLEAY32.dll"/>
     <ROW Component="_" ComponentId="{B1456629-D3AF-4A6C-A270-E44B144750A5}" Directory_="APPDIR" Attributes="4" KeyPath="_"/>
     <ROW Component="__1" ComponentId="{D2CC890F-6634-49ED-A1C2-ECFED6CFBAA7}" Directory_="APPDIR" Attributes="4" KeyPath="__1"/>
     <ROW Component="__init__.pyc" ComponentId="{96E09A99-FC52-4C01-9CE5-2C2D0B55C0D6}" Directory_="AGL_Dir" Attributes="0" KeyPath="__init__.pyc" Type="0"/>
@@ -183,6 +182,7 @@
     <ROW Component="annotations.pyc_2" ComponentId="{7C051E65-1750-430F-9331-640BBF9C0215}" Directory_="GLUT_1_Dir" Attributes="0" KeyPath="annotations.pyc_2" Type="0"/>
     <ROW Component="army.png" ComponentId="{693183BF-1ADA-4175-B9E6-AFB3C2B47601}" Directory_="map_icons_Dir" Attributes="0" KeyPath="army.png" Type="0"/>
     <ROW Component="arraydatatype.pyc" ComponentId="{9B6F3178-9AC5-48DA-BE59-E8DE0CA9F6E9}" Directory_="arrays_Dir" Attributes="0" KeyPath="arraydatatype.pyc" Type="0"/>
+    <ROW Component="arraydatatype.pyd" ComponentId="{D0062D9D-4060-4E7E-A8B3-B8D76E5DE3E9}" Directory_="OpenGL_accelerate_Dir" Attributes="0" KeyPath="arraydatatype.pyd" Type="0"/>
     <ROW Component="arrays_of_arrays.pyc" ComponentId="{74B87EC7-B9A1-4D16-BE8B-BD3164ECF560}" Directory_="ARB_Dir" Attributes="0" KeyPath="arrays_of_arrays.pyc" Type="0"/>
     <ROW Component="arrays_of_arrays.pyc_1" ComponentId="{4470D976-1FB7-4E1E-96C1-7F5D9290DFDF}" Directory_="ARB_1_Dir" Attributes="0" KeyPath="arrays_of_arrays.pyc_1" Type="0"/>
     <ROW Component="async.pyc" ComponentId="{02F1ECE6-811E-4D81-9546-04B26DFF9497}" Directory_="SGIX_Dir" Attributes="0" KeyPath="async.pyc" Type="0"/>
@@ -246,12 +246,9 @@
     <ROW Component="ladder.qthtml" ComponentId="{EA6640B8-3459-40E8-BB18-E6CA9921680E}" Directory_="formatters_3_Dir" Attributes="0" KeyPath="ladder.qthtml" Type="0"/>
     <ROW Component="lineprops.glade" ComponentId="{C8DB36F7-620D-428E-BF2E-FF3806DCC401}" Directory_="mpldata_Dir" Attributes="0" KeyPath="lineprops.glade" Type="0"/>
     <ROW Component="mapstat.ui" ComponentId="{A02A6421-1481-4525-BEC4-6709CFE0A192}" Directory_="stats_Dir" Attributes="0" KeyPath="mapstat.ui" Type="0"/>
-    <ROW Component="mfc100u.dll" ComponentId="{105AC780-0720-40A2-99A4-A4F849F1ED27}" Directory_="APPDIR" Attributes="0" KeyPath="mfc100u.dll"/>
     <ROW Component="misc_hints.pyc" ComponentId="{B35B3297-9DC4-4B2B-9DD7-D3A005CFF92E}" Directory_="PGI_Dir" Attributes="0" KeyPath="misc_hints.pyc" Type="0"/>
     <ROW Component="misc_hints.pyc_1" ComponentId="{1A0F4BE0-A8DE-4E2C-96CA-1102CCCF2EB2}" Directory_="PGI_1_Dir" Attributes="0" KeyPath="misc_hints.pyc_1" Type="0"/>
-    <ROW Component="msvcp100.dll" ComponentId="{AFE1103F-D496-4044-A7DB-574EF58406EC}" Directory_="APPDIR" Attributes="0" KeyPath="msvcp100.dll"/>
-    <ROW Component="msvcr100.dll" ComponentId="{AB2E4715-E168-4064-9524-DF5861304074}" Directory_="APPDIR" Attributes="0" KeyPath="msvcr100.dll"/>
-    <ROW Component="msvcr90.dll" ComponentId="{C752A7B7-D084-48A4-BFDA-69FD58087009}" Directory_="APPDIR" Attributes="0" KeyPath="msvcr90.dll"/>
+    <ROW Component="msvcr90.dll" ComponentId="{DB444924-C4FD-4E10-971D-467FAB9CCB94}" Directory_="APPDIR" Attributes="0" KeyPath="msvcr90.dll"/>
     <ROW Component="multisample.pyc" ComponentId="{561EF7A7-81A0-4CFD-8700-947CB6A2EBEC}" Directory_="DFX_Dir" Attributes="0" KeyPath="multisample.pyc_1" Type="0"/>
     <ROW Component="multisample.pyc_1" ComponentId="{B41BD654-0510-4ABE-915A-8E8EFD489280}" Directory_="DFX_1_Dir" Attributes="0" KeyPath="multisample.pyc_5" Type="0"/>
     <ROW Component="nurbs_tessellator.pyc" ComponentId="{D90352E7-51C7-4E2E-9F95-94BFD5E26215}" Directory_="EXT_1_Dir" Attributes="0" KeyPath="nurbs_tessellator.pyc" Type="0"/>
@@ -263,22 +260,15 @@
     <ROW Component="phong_shading.pyc_1" ComponentId="{AB8FEF7B-64EF-41D2-A3E3-B87887717BBC}" Directory_="WIN_1_Dir" Attributes="0" KeyPath="phong_shading.pyc_1" Type="0"/>
     <ROW Component="planetarydefenses.qthtml" ComponentId="{4FF4F9E6-E94D-44BE-B8FA-7388273D4CD7}" Directory_="formatters_6_Dir" Attributes="0" KeyPath="planetarydefenses.qthtml" Type="0"/>
     <ROW Component="privmsg.wav" ComponentId="{D985D638-6E4B-426F-A331-6B150532E960}" Directory_="sfx_Dir" Attributes="0" KeyPath="privmsg.wav" Type="0"/>
-    <ROW Component="python27.dll" ComponentId="{FF6A6D4C-BB4F-499F-8B6C-F708C4CCB9FE}" Directory_="APPDIR" Attributes="0" KeyPath="python27.dll"/>
-    <ROW Component="pythoncom27.dll" ComponentId="{19D8E53C-940D-4AA0-B176-0B8D1CBCD0AF}" Directory_="APPDIR" Attributes="0" KeyPath="pythoncom27.dll"/>
-    <ROW Component="pywintypes27.dll" ComponentId="{A2143207-02EA-46FA-85AF-A69D7221DC9E}" Directory_="APPDIR" Attributes="0" KeyPath="pywintypes27.dll"/>
-    <ROW Component="qgif4.dll" ComponentId="{E119E251-6CEA-4AD5-A8BF-F97A2D82D7F1}" Directory_="APPDIR" Attributes="0" KeyPath="qgif4.dll"/>
+    <ROW Component="python27.dll" ComponentId="{298EA470-24A4-448B-B730-48553E9301E4}" Directory_="APPDIR" Attributes="0" KeyPath="python27.dll"/>
+    <ROW Component="pythoncom27.dll" ComponentId="{1A39F471-222D-4866-A216-78491C0DF358}" Directory_="APPDIR" Attributes="0" KeyPath="pythoncom27.dll"/>
+    <ROW Component="pywintypes27.dll" ComponentId="{49A943D8-827F-4C39-9C10-35D45EA323F0}" Directory_="APPDIR" Attributes="0" KeyPath="pywintypes27.dll"/>
     <ROW Component="qgif4.dll_1" ComponentId="{3753166F-564F-4446-954E-ABFD7DC4F585}" Directory_="imageformats_Dir" Attributes="0" KeyPath="qgif4.dll_1"/>
-    <ROW Component="qico4.dll" ComponentId="{1336CCC4-0141-4365-BD17-EC1FDDC51AB4}" Directory_="APPDIR" Attributes="0" KeyPath="qico4.dll"/>
     <ROW Component="qico4.dll_1" ComponentId="{DA354F9B-803E-4E6D-9BCB-70F712D942F4}" Directory_="imageformats_Dir" Attributes="0" KeyPath="qico4.dll_1"/>
-    <ROW Component="qjpeg4.dll" ComponentId="{02334AC3-6DDF-47D1-89AB-2AACDEFAC186}" Directory_="APPDIR" Attributes="0" KeyPath="qjpeg4.dll"/>
     <ROW Component="qjpeg4.dll_1" ComponentId="{8C34723F-8E19-4441-8C4C-9CB029693154}" Directory_="imageformats_Dir" Attributes="0" KeyPath="qjpeg4.dll_1"/>
-    <ROW Component="qmng4.dll" ComponentId="{56039A84-D28D-4452-A343-EE5F0349A549}" Directory_="APPDIR" Attributes="0" KeyPath="qmng4.dll"/>
     <ROW Component="qmng4.dll_1" ComponentId="{1BABFDD8-9660-4010-9F69-A5F77034FFCB}" Directory_="imageformats_Dir" Attributes="0" KeyPath="qmng4.dll_1"/>
-    <ROW Component="qsvg4.dll" ComponentId="{DC4F9C84-6075-42F8-9A47-D860296C5E02}" Directory_="APPDIR" Attributes="0" KeyPath="qsvg4.dll"/>
     <ROW Component="qsvg4.dll_1" ComponentId="{888FB2BD-52C1-4215-96B6-7302FD044734}" Directory_="imageformats_Dir" Attributes="0" KeyPath="qsvg4.dll_1"/>
-    <ROW Component="qtga4.dll" ComponentId="{89CF5239-F967-40DB-88CD-4BF65639BA3A}" Directory_="APPDIR" Attributes="0" KeyPath="qtga4.dll"/>
     <ROW Component="qtga4.dll_1" ComponentId="{54B375E3-565A-48E8-B20E-09A5F0DD912D}" Directory_="imageformats_Dir" Attributes="0" KeyPath="qtga4.dll_1"/>
-    <ROW Component="qtiff4.dll" ComponentId="{70A3162B-2B4C-467A-8189-77ACED6991A1}" Directory_="APPDIR" Attributes="0" KeyPath="qtiff4.dll"/>
     <ROW Component="qtiff4.dll_1" ComponentId="{65B80032-3E5B-40E7-8866-48F8F2ED7A45}" Directory_="imageformats_Dir" Attributes="0" KeyPath="qtiff4.dll_1"/>
     <ROW Component="read_format.pyc" ComponentId="{C3C21AA1-93F6-41EA-8726-19E363004856}" Directory_="OES_Dir" Attributes="0" KeyPath="read_format.pyc" Type="0"/>
     <ROW Component="read_format.pyc_1" ComponentId="{5BC8F679-76ED-4402-95A9-50E8178CB818}" Directory_="OES_1_Dir" Attributes="0" KeyPath="read_format.pyc_1" Type="0"/>
@@ -289,20 +279,21 @@
     <ROW Component="screen_coordinates.pyc_1" ComponentId="{2B4028CC-9C74-4271-AD87-21073889E040}" Directory_="REND_1_Dir" Attributes="0" KeyPath="screen_coordinates.pyc_1" Type="0"/>
     <ROW Component="shell" ComponentId="{2CB23F7F-792B-4D07-9FCF-636EDC96B2A1}" Directory_="APPDIR" Attributes="4" KeyPath="shell"/>
     <ROW Component="style.css" ComponentId="{E6889952-8F2E-401A-8863-6A2F9B687ADA}" Directory_="formatters_4_Dir" Attributes="0" KeyPath="style.css_1" Type="0"/>
+    <ROW Component="tcl85.dll" ComponentId="{E5112D75-FC23-439E-BF2A-7460F11D3FAF}" Directory_="APPDIR" Attributes="0" KeyPath="tcl85.dll"/>
     <ROW Component="texture_stack.pyc" ComponentId="{8E4EB35F-1F55-4A6D-A195-1FB3DAF9CCBD}" Directory_="MESAX_Dir" Attributes="0" KeyPath="texture_stack.pyc" Type="0"/>
     <ROW Component="texture_stack.pyc_1" ComponentId="{330A1E2D-882E-425D-9F48-6821BD3CF173}" Directory_="MESAX_1_Dir" Attributes="0" KeyPath="texture_stack.pyc_1" Type="0"/>
+    <ROW Component="tk85.dll" ComponentId="{2B69FCC5-3825-40B6-9DDA-BCEA3CA654E9}" Directory_="APPDIR" Attributes="0" KeyPath="tk85.dll"/>
     <ROW Component="tutorials.qthtml" ComponentId="{5ECCF10F-5F23-4C53-BFBC-9F4A53E32132}" Directory_="formatters_2_Dir" Attributes="0" KeyPath="tutorials.qthtml" Type="0"/>
     <ROW Component="tutorials.ui" ComponentId="{E2A320CC-A053-4604-B29A-46AF80C428A1}" Directory_="tutorials_Dir" Attributes="0" KeyPath="tutorials.ui" Type="0"/>
-    <ROW Component="uid.dll" ComponentId="{3D228738-75AD-4147-93BF-7B3B8B3E8D9E}" Directory_="APPDIR" Attributes="0" KeyPath="uid.dll"/>
-    <ROW Component="w9xpopen.exe" ComponentId="{BE2E42F9-A9D4-4588-B4C8-3B608A7F1B67}" Directory_="APPDIR" Attributes="0" KeyPath="w9xpopen.exe"/>
+    <ROW Component="uid.dll" ComponentId="{83DCE60B-A8BB-4B30-BB41-DF6B953693EA}" Directory_="APPDIR" Attributes="0" KeyPath="uid.dll"/>
+    <ROW Component="w9xpopen.exe" ComponentId="{829C7EED-F002-4336-ADE0-4E7842B0A526}" Directory_="APPDIR" Attributes="0" KeyPath="w9xpopen.exe"/>
     <ROW Component="window_icon.png" ComponentId="{B620FB5F-1E8F-4707-8D0A-C58B6FF594BD}" Directory_="_res_Dir" Attributes="0" KeyPath="window_icon.png" Type="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
-    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0" Components="APIMSWinCoreLocalRegistryL110.dll Aeon_T1.png CourierBold.afm FAForever.exe FAForever.lib GLX.pyc GL_1_1.pyc GL_1_1.pyc_1 GL_64_TYPES_DEFINED.pyc LIBEAY32.dll MPR.dll QtCore4.dll QtGui4.dll QtNetwork4.dll QtOpenGL4.dll QtWebKit4.dll Replay SHORTCUTDIR SSLEAY32.dll _ __1 __init__.pyc __init__.pyc_1 __init__.pyc_2 __init__.pyc_3 __init__.pyc_4 _pixels.pyc _pixels.pyc_1 about.ui acceleratesupport.pyc action.qthtml ad.png aeon.png annotations.pyc annotations.pyc_1 annotations.pyc_2 army.png arraydatatype.pyc arrays_of_arrays.pyc arrays_of_arrays.pyc_1 async.pyc async.pyc_1 aux_depth_stencil.pyc aux_depth_stencil.pyc_1 avatar_blank.png back.png baseplatform.pyc bg.png bg.png_1 bg.png_2 bg.png_3 bg_chat.jpg bindless_texture.pyc bindless_texture.pyc_1 blackops.html blend_func_separate.pyc blend_func_separate.pyc_1 blend_minmax_factor.pyc blend_minmax_factor.pyc_1 broken.png channel.ui cmb10.ttf cmex10.afm color_matrix.pyc color_matrix.pyc_1 command comment.qthtml constant_data.pyc constant_data.pyc_1 convolution_border_modes.pyc convolution_border_modes.pyc_1 convolution_border_modes.pyc_2 convolution_border_modes.pyc_3 coop.qthtml coop.ui cull_vertex.pyc cull_vertex.pyc_1 debug.pyc debug.pyc_1 detail_texture.pyc detail_texture.pyc_1 draw_buffers.pyc draw_buffers.pyc_1 exceptional.pyc exceptional.pyc_1 faf.qthtml fafreplay failure.ui featuredmods.ui fonts.pyc frame_terminator.pyc frame_terminator.pyc_1 games.ui glunurbs.pyc host.png host.ui interlace.pyc interlace.pyc_1 ladder.qthtml lineprops.glade mapstat.ui mfc100u.dll misc_hints.pyc misc_hints.pyc_1 msvcp100.dll msvcr100.dll msvcr90.dll multisample.pyc multisample.pyc_1 nurbs_tessellator.pyc pack_invert.pyc pack_invert.pyc_1 parallel_arrays.pyc parallel_arrays.pyc_1 phong_shading.pyc phong_shading.pyc_1 planetarydefenses.qthtml privmsg.wav python27.dll pythoncom27.dll pywintypes27.dll qgif4.dll qgif4.dll_1 qico4.dll qico4.dll_1 qjpeg4.dll qjpeg4.dll_1 qmng4.dll qmng4.dll_1 qsvg4.dll qsvg4.dll_1 qtga4.dll qtga4.dll_1 qtiff4.dll qtiff4.dll_1 read_format.pyc read_format.pyc_1 replay.qthtml s3tc.pyc s3tc.pyc_1 screen_coordinates.pyc screen_coordinates.pyc_1 shell style.css texture_stack.pyc texture_stack.pyc_1 tutorials.qthtml tutorials.ui uid.dll w9xpopen.exe window_icon.png"/>
+    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0" Components="Aeon_T1.png CourierBold.afm FAForever.exe FAForever.lib GLX.pyc GL_1_1.pyc GL_1_1.pyc_1 GL_64_TYPES_DEFINED.pyc LIBEAY32.dll QtCore4.dll QtGui4.dll QtNetwork4.dll QtOpenGL4.dll QtWebKit4.dll Replay SHORTCUTDIR SSLEAY32.dll _ __1 __init__.pyc __init__.pyc_1 __init__.pyc_2 __init__.pyc_3 __init__.pyc_4 _pixels.pyc _pixels.pyc_1 about.ui acceleratesupport.pyc action.qthtml ad.png aeon.png annotations.pyc annotations.pyc_1 annotations.pyc_2 army.png arraydatatype.pyc arraydatatype.pyd arrays_of_arrays.pyc arrays_of_arrays.pyc_1 async.pyc async.pyc_1 aux_depth_stencil.pyc aux_depth_stencil.pyc_1 avatar_blank.png back.png baseplatform.pyc bg.png bg.png_1 bg.png_2 bg.png_3 bg_chat.jpg bindless_texture.pyc bindless_texture.pyc_1 blackops.html blend_func_separate.pyc blend_func_separate.pyc_1 blend_minmax_factor.pyc blend_minmax_factor.pyc_1 broken.png channel.ui cmb10.ttf cmex10.afm color_matrix.pyc color_matrix.pyc_1 command comment.qthtml constant_data.pyc constant_data.pyc_1 convolution_border_modes.pyc convolution_border_modes.pyc_1 convolution_border_modes.pyc_2 convolution_border_modes.pyc_3 coop.qthtml coop.ui cull_vertex.pyc cull_vertex.pyc_1 debug.pyc debug.pyc_1 detail_texture.pyc detail_texture.pyc_1 draw_buffers.pyc draw_buffers.pyc_1 exceptional.pyc exceptional.pyc_1 faf.qthtml fafreplay failure.ui featuredmods.ui fonts.pyc frame_terminator.pyc frame_terminator.pyc_1 games.ui glunurbs.pyc host.png host.ui interlace.pyc interlace.pyc_1 ladder.qthtml lineprops.glade mapstat.ui misc_hints.pyc misc_hints.pyc_1 msvcr90.dll multisample.pyc multisample.pyc_1 nurbs_tessellator.pyc pack_invert.pyc pack_invert.pyc_1 parallel_arrays.pyc parallel_arrays.pyc_1 phong_shading.pyc phong_shading.pyc_1 planetarydefenses.qthtml privmsg.wav python27.dll pythoncom27.dll pywintypes27.dll qgif4.dll_1 qico4.dll_1 qjpeg4.dll_1 qmng4.dll_1 qsvg4.dll_1 qtga4.dll_1 qtiff4.dll_1 read_format.pyc read_format.pyc_1 replay.qthtml s3tc.pyc s3tc.pyc_1 screen_coordinates.pyc screen_coordinates.pyc_1 shell style.css tcl85.dll texture_stack.pyc texture_stack.pyc_1 tk85.dll tutorials.qthtml tutorials.ui uid.dll w9xpopen.exe window_icon.png"/>
     <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
-    <ROW File="APIMSWinCoreLocalRegistryL110.dll" Component_="APIMSWinCoreLocalRegistryL110.dll" FileName="API-MS~1.dll|API-MS-Win-Core-LocalRegistry-L1-1-0.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\API-MS-Win-Core-LocalRegistry-L1-1-0.dll" SelfReg="false" NextFile="MPR.dll"/>
     <ROW File="Aeon.png_1" Component_="broken.png" FileName="Aeon.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\replays\Aeon.png" SelfReg="false" NextFile="Seraphim.png_1"/>
     <ROW File="Aeon_T1.png" Component_="Aeon_T1.png" FileName="Aeon_T1.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\rank\Aeon_T1.png" SelfReg="false" NextFile="Aeon_T2.png"/>
     <ROW File="Aeon_T2.png" Component_="Aeon_T1.png" FileName="Aeon_T2.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\rank\Aeon_T2.png" SelfReg="false" NextFile="Aeon_T3.png"/>
@@ -319,8 +310,8 @@
     <ROW File="ES2_compatibility.pyc_1" Component_="arrays_of_arrays.pyc_1" FileName="ES2_co~1.pyc|ES2_compatibility.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\ARB\ES2_compatibility.pyc" SelfReg="false" NextFile="ES3_compatibility.pyc_1"/>
     <ROW File="ES3_compatibility.pyc" Component_="arrays_of_arrays.pyc" FileName="ES3_co~1.pyc|ES3_compatibility.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\ARB\ES3_compatibility.pyc" SelfReg="false" NextFile="explicit_attrib_location.pyc"/>
     <ROW File="ES3_compatibility.pyc_1" Component_="arrays_of_arrays.pyc_1" FileName="ES3_co~1.pyc|ES3_compatibility.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\ARB\ES3_compatibility.pyc" SelfReg="false" NextFile="explicit_attrib_location.pyc_1"/>
-    <ROW File="FAForever.exe" Component_="FAForever.exe" FileName="FAFore~1.exe|FAForever.exe" Attributes="0" SourcePath="F:\DIST_FAFOREVER\FAForever.exe" SelfReg="false" NextFile="FAForever.lib"/>
-    <ROW File="FAForever.lib" Component_="FAForever.lib" FileName="FAFore~1.lib|FAForever.lib" Attributes="0" SourcePath="F:\DIST_FAFOREVER\FAForever.lib" SelfReg="false" NextFile="PyQt4.QtWebKit.pyd"/>
+    <ROW File="FAForever.exe" Component_="FAForever.exe" FileName="FAFore~1.exe|FAForever.exe" Attributes="0" SourcePath="F:\DIST_FAFOREVER\FAForever.exe" SelfReg="false" NextFile="qgif4.dll_1"/>
+    <ROW File="FAForever.lib" Component_="FAForever.lib" FileName="FAFore~1.lib|FAForever.lib" Attributes="0" SourcePath="F:\DIST_FAFOREVER\FAForever.lib" SelfReg="false" NextFile="version"/>
     <ROW File="FfdMask.pyc" Component_="async.pyc" FileName="FfdMask.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\SGIX\FfdMask.pyc" SelfReg="false" NextFile="flush_raster.pyc"/>
     <ROW File="FfdMask.pyc_1" Component_="async.pyc_1" FileName="FfdMask.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\SGIX\FfdMask.pyc" SelfReg="false" NextFile="flush_raster.pyc_1"/>
     <ROW File="GLX.pyc_1" Component_="GLX.pyc" FileName="GLX.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GLX.pyc" SelfReg="false" NextFile="WGL.pyc"/>
@@ -379,19 +370,18 @@
     <ROW File="HelveticaOblique.afm" Component_="CourierBold.afm" FileName="Helvet~3.afm|Helvetica-Oblique.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\pdfcorefonts\Helvetica-Oblique.afm" SelfReg="false" NextFile="Helvetica.afm"/>
     <ROW File="LIBEAY32.dll" Component_="LIBEAY32.dll" FileName="LIBEAY32.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\LIBEAY32.dll" SelfReg="false" NextFile="SSLEAY32.dll"/>
     <ROW File="LICENSE_STIX" Component_="cmb10.ttf" FileName="LICENS~1|LICENSE_STIX" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\ttf\LICENSE_STIX" SelfReg="false" NextFile="README.TXT_2"/>
-    <ROW File="MPR.dll" Component_="MPR.dll" FileName="MPR.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\MPR.dll" SelfReg="false" NextFile="cmex10.afm"/>
     <ROW File="Nomads.png_1" Component_="broken.png" FileName="Nomads.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\replays\Nomads.png" SelfReg="false" NextFile="Aeon.png_1"/>
-    <ROW File="PyQt4.Qt.pyd" Component_="FAForever.lib" FileName="PyQt4Q~2.pyd|PyQt4.Qt.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\PyQt4.Qt.pyd" SelfReg="false" NextFile="feed.png"/>
+    <ROW File="PIL._imaging.pyd" Component_="FAForever.lib" FileName="PIL_im~1.pyd|PIL._imaging.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\PIL._imaging.pyd" SelfReg="false" NextFile="arraydatatype.pyd"/>
     <ROW File="PyQt4.QtCore.pyd" Component_="FAForever.lib" FileName="PyQt4Q~5.pyd|PyQt4.QtCore.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\PyQt4.QtCore.pyd" SelfReg="false" NextFile="sip.pyd"/>
     <ROW File="PyQt4.QtGui.pyd" Component_="FAForever.lib" FileName="PyQt4Q~4.pyd|PyQt4.QtGui.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\PyQt4.QtGui.pyd" SelfReg="false" NextFile="PyQt4.QtCore.pyd"/>
     <ROW File="PyQt4.QtNetwork.pyd" Component_="FAForever.lib" FileName="PyQt4Q~3.pyd|PyQt4.QtNetwork.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\PyQt4.QtNetwork.pyd" SelfReg="false" NextFile="PyQt4.QtGui.pyd"/>
-    <ROW File="PyQt4.QtOpenGL.pyd" Component_="FAForever.lib" FileName="PyQt4Q~6.pyd|PyQt4.QtOpenGL.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\PyQt4.QtOpenGL.pyd" SelfReg="false" NextFile="QtOpenGL4.dll"/>
-    <ROW File="PyQt4.QtWebKit.pyd" Component_="FAForever.lib" FileName="PyQt4Q~1.pyd|PyQt4.QtWebKit.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\PyQt4.QtWebKit.pyd" SelfReg="false" NextFile="PyQt4.QtNetwork.pyd"/>
-    <ROW File="QtCore4.dll" Component_="QtCore4.dll" FileName="QtCore4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\QtCore4.dll" SelfReg="false" NextFile="LIBEAY32.dll"/>
+    <ROW File="PyQt4.QtOpenGL.pyd" Component_="FAForever.lib" FileName="PyQt4Q~2.pyd|PyQt4.QtOpenGL.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\PyQt4.QtOpenGL.pyd" SelfReg="false" NextFile="PyQt4.QtNetwork.pyd"/>
+    <ROW File="PyQt4.QtWebKit.pyd" Component_="FAForever.lib" FileName="PyQt4Q~1.pyd|PyQt4.QtWebKit.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\PyQt4.QtWebKit.pyd" SelfReg="false" NextFile="PyQt4.QtOpenGL.pyd"/>
+    <ROW File="QtCore4.dll" Component_="QtCore4.dll" FileName="QtCore4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\QtCore4.dll" SelfReg="false" NextFile="uid.dll"/>
     <ROW File="QtGui4.dll" Component_="QtGui4.dll" FileName="QtGui4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\QtGui4.dll" SelfReg="false" NextFile="QtNetwork4.dll"/>
     <ROW File="QtNetwork4.dll" Component_="QtNetwork4.dll" FileName="QtNetw~1.dll|QtNetwork4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\QtNetwork4.dll" SelfReg="false" NextFile="QtCore4.dll"/>
-    <ROW File="QtOpenGL4.dll" Component_="QtOpenGL4.dll" FileName="QtOpen~1.dll|QtOpenGL4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\QtOpenGL4.dll" SelfReg="false" NextFile="acceleratesupport.pyc"/>
-    <ROW File="QtWebKit4.dll" Component_="QtWebKit4.dll" FileName="QtWebK~1.dll|QtWebKit4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\QtWebKit4.dll" SelfReg="false" NextFile="QtGui4.dll"/>
+    <ROW File="QtOpenGL4.dll" Component_="QtOpenGL4.dll" FileName="QtOpen~1.dll|QtOpenGL4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\QtOpenGL4.dll" SelfReg="false" NextFile="QtGui4.dll"/>
+    <ROW File="QtWebKit4.dll" Component_="QtWebKit4.dll" FileName="QtWebK~1.dll|QtWebKit4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\QtWebKit4.dll" SelfReg="false" NextFile="QtOpenGL4.dll"/>
     <ROW File="README.TXT_2" Component_="cmb10.ttf" FileName="README.TXT" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\ttf\README.TXT" SelfReg="false" NextFile="RELEASENOTES.TXT"/>
     <ROW File="RELEASENOTES.TXT" Component_="cmb10.ttf" FileName="RELEAS~1.TXT|RELEASENOTES.TXT" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\ttf\RELEASENOTES.TXT" SelfReg="false" NextFile="STIXGeneral.ttf"/>
     <ROW File="SSLEAY32.dll" Component_="SSLEAY32.dll" FileName="SSLEAY32.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\SSLEAY32.dll" SelfReg="false" NextFile="bsdiff.pyd"/>
@@ -418,7 +408,7 @@
     <ROW File="TimesBoldItalic.afm" Component_="CourierBold.afm" FileName="Times-~2.afm|Times-BoldItalic.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\pdfcorefonts\Times-BoldItalic.afm" SelfReg="false" NextFile="TimesItalic.afm"/>
     <ROW File="TimesItalic.afm" Component_="CourierBold.afm" FileName="Times-~3.afm|Times-Italic.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\pdfcorefonts\Times-Italic.afm" SelfReg="false" NextFile="TimesRoman.afm"/>
     <ROW File="TimesRoman.afm" Component_="CourierBold.afm" FileName="Times-~4.afm|Times-Roman.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\pdfcorefonts\Times-Roman.afm" SelfReg="false" NextFile="ZapfDingbats.afm"/>
-    <ROW File="UEF.png_1" Component_="broken.png" FileName="UEF.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\replays\UEF.png" SelfReg="false" NextFile="mumble_link.pyd"/>
+    <ROW File="UEF.png_1" Component_="broken.png" FileName="UEF.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\replays\UEF.png" SelfReg="false" NextFile="acceleratesupport.pyc"/>
     <ROW File="Vera.ttf" Component_="cmb10.ttf" FileName="Vera.ttf" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\ttf\Vera.ttf" SelfReg="false" NextFile="VeraBd.ttf"/>
     <ROW File="VeraBI.ttf" Component_="cmb10.ttf" FileName="VeraBI.ttf" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\ttf\VeraBI.ttf" SelfReg="false" NextFile="VeraIt.ttf"/>
     <ROW File="VeraBd.ttf" Component_="cmb10.ttf" FileName="VeraBd.ttf" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\ttf\VeraBd.ttf" SelfReg="false" NextFile="VeraBI.ttf"/>
@@ -541,21 +531,24 @@
     <ROW File="__init__.pyc_7" Component_="_pixels.pyc" FileName="__init__.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\EXT\__init__.pyc" SelfReg="false" NextFile="feedback.pyc"/>
     <ROW File="__init__.pyc_70" Component_="__init__.pyc_4" FileName="__init__.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\WGL\__init__.pyc" SelfReg="false" NextFile="wrapper.pyc"/>
     <ROW File="__init__.pyc_71" Component_="acceleratesupport.pyc" FileName="__init__.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\__init__.pyc" SelfReg="false" NextFile="twitch.png"/>
+    <ROW File="__init__.pyc_72" Component_="arraydatatype.pyd" FileName="__init__.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL_accelerate\__init__.pyc" SelfReg="false" NextFile="__init__.pyo"/>
     <ROW File="__init__.pyc_8" Component_="frame_terminator.pyc" FileName="__init__.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\GREMEDY\__init__.pyc" SelfReg="false" NextFile="convolution_border_modes.pyc"/>
     <ROW File="__init__.pyc_9" Component_="convolution_border_modes.pyc" FileName="__init__.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\HP\__init__.pyc" SelfReg="false" NextFile="cull_vertex.pyc_1"/>
+    <ROW File="__init__.pyo" Component_="arraydatatype.pyd" FileName="__init__.pyo" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL_accelerate\__init__.pyo" SelfReg="false"/>
     <ROW File="_buffers.pyc" Component_="arraydatatype.pyc" FileName="_buffers.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\arrays\_buffers.pyc" SelfReg="false" NextFile="_numeric.pyc"/>
     <ROW File="_bytes.pyc" Component_="acceleratesupport.pyc" FileName="_bytes.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\_bytes.pyc" SelfReg="false" NextFile="_configflags.pyc"/>
     <ROW File="_configflags.pyc" Component_="acceleratesupport.pyc" FileName="_confi~1.pyc|_configflags.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\_configflags.pyc" SelfReg="false" NextFile="__init__.pyc_71"/>
     <ROW File="_ctypes.pyd" Component_="FAForever.lib" FileName="_ctypes.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_ctypes.pyd" SelfReg="false" NextFile="_hashlib.pyd"/>
     <ROW File="_hashlib.pyd" Component_="FAForever.lib" FileName="_hashlib.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_hashlib.pyd" SelfReg="false" NextFile="bz2.pyd"/>
-    <ROW File="_imaging.pyd" Component_="FAForever.lib" FileName="_imaging.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_imaging.pyd" SelfReg="false" NextFile="msvcr90.dll"/>
+    <ROW File="_imaging.pyd" Component_="FAForever.lib" FileName="_imaging.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_imaging.pyd" SelfReg="false" NextFile="PIL._imaging.pyd"/>
     <ROW File="_numeric.pyc" Component_="arraydatatype.pyc" FileName="_numeric.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\arrays\_numeric.pyc" SelfReg="false" NextFile="_strings.pyc"/>
     <ROW File="_pixels.pyc" Component_="_pixels.pyc" FileName="422_pi~1.pyc|422_pixels.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\EXT\422_pixels.pyc" SelfReg="false" NextFile="abgr.pyc"/>
     <ROW File="_pixels.pyc_1" Component_="_pixels.pyc_1" FileName="422_pi~1.pyc|422_pixels.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\EXT\422_pixels.pyc" SelfReg="false" NextFile="abgr.pyc_1"/>
     <ROW File="_socket.pyd" Component_="FAForever.lib" FileName="_socket.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_socket.pyd" SelfReg="false" NextFile="_ssl.pyd"/>
     <ROW File="_ssl.pyd" Component_="FAForever.lib" FileName="_ssl.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_ssl.pyd" SelfReg="false" NextFile="python27.dll"/>
     <ROW File="_strings.pyc" Component_="arraydatatype.pyc" FileName="_strings.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\arrays\_strings.pyc" SelfReg="false" NextFile="__init__.pyc_1"/>
-    <ROW File="_win32sysloader.pyd" Component_="FAForever.lib" FileName="_win32~1.pyd|_win32sysloader.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_win32sysloader.pyd" SelfReg="false" NextFile="_imaging.pyd"/>
+    <ROW File="_tkinter.pyd" Component_="FAForever.lib" FileName="_tkinter.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_tkinter.pyd" SelfReg="false" NextFile="unicodedata.pyd"/>
+    <ROW File="_win32sysloader.pyd" Component_="FAForever.lib" FileName="_win32~1.pyd|_win32sysloader.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_win32sysloader.pyd" SelfReg="false" NextFile="win32pipe.pyd"/>
     <ROW File="a_style.qss" Component_="action.qthtml" FileName="a_style.qss" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\formatters\a_style.qss" SelfReg="false" NextFile="message.qthtml"/>
     <ROW File="abgr.pyc" Component_="_pixels.pyc" FileName="abgr.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\EXT\abgr.pyc" SelfReg="false" NextFile="bgra.pyc"/>
     <ROW File="abgr.pyc_1" Component_="_pixels.pyc_1" FileName="abgr.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\EXT\abgr.pyc" SelfReg="false" NextFile="bgra.pyc_1"/>
@@ -584,6 +577,7 @@
     <ROW File="ar.png" Component_="ad.png" FileName="ar.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ar.png" SelfReg="false" NextFile="as.png"/>
     <ROW File="army.png" Component_="army.png" FileName="army.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\vault\map_icons\army.png" SelfReg="false" NextFile="hydro.png"/>
     <ROW File="arraydatatype.pyc" Component_="arraydatatype.pyc" FileName="arrayd~1.pyc|arraydatatype.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\arrays\arraydatatype.pyc" SelfReg="false" NextFile="arrayhelpers.pyc"/>
+    <ROW File="arraydatatype.pyd" Component_="arraydatatype.pyd" FileName="arrayd~1.pyd|arraydatatype.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL_accelerate\arraydatatype.pyd" SelfReg="false" NextFile="errorchecker.pyd"/>
     <ROW File="arrayhelpers.pyc" Component_="arraydatatype.pyc" FileName="arrayh~1.pyc|arrayhelpers.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\arrays\arrayhelpers.pyc" SelfReg="false" NextFile="buffers.pyc"/>
     <ROW File="arrays_of_arrays.pyc" Component_="arrays_of_arrays.pyc" FileName="arrays~1.pyc|arrays_of_arrays.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\ARB\arrays_of_arrays.pyc" SelfReg="false" NextFile="base_instance.pyc"/>
     <ROW File="arrays_of_arrays.pyc_1" Component_="arrays_of_arrays.pyc_1" FileName="arrays~1.pyc|arrays_of_arrays.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\ARB\arrays_of_arrays.pyc" SelfReg="false" NextFile="base_instance.pyc_1"/>
@@ -661,7 +655,7 @@
     <ROW File="br.png" Component_="ad.png" FileName="br.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\br.png" SelfReg="false" NextFile="bs.png"/>
     <ROW File="broken.png" Component_="broken.png" FileName="broken.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\replays\broken.png" SelfReg="false" NextFile="bucket.png"/>
     <ROW File="bs.png" Component_="ad.png" FileName="bs.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\bs.png" SelfReg="false" NextFile="bt.png"/>
-    <ROW File="bsdiff.pyd" Component_="FAForever.lib" FileName="bsdiff.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\bsdiff.pyd" SelfReg="false" NextFile="_socket.pyd"/>
+    <ROW File="bsdiff.pyd" Component_="FAForever.lib" FileName="bsdiff.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\bsdiff.pyd" SelfReg="false" NextFile="w9xpopen.exe"/>
     <ROW File="bt.png" Component_="ad.png" FileName="bt.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\bt.png" SelfReg="false" NextFile="bv.png"/>
     <ROW File="bucket.png" Component_="broken.png" FileName="bucket.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\replays\bucket.png" SelfReg="false" NextFile="live.png"/>
     <ROW File="buffers.pyc" Component_="arraydatatype.pyc" FileName="buffers.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\arrays\buffers.pyc" SelfReg="false" NextFile="ctypesarrays.pyc"/>
@@ -872,6 +866,7 @@
     <ROW File="envmap_bumpmap.pyc_1" Component_="draw_buffers.pyc_1" FileName="envmap~1.pyc|envmap_bumpmap.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\ATI\envmap_bumpmap.pyc" SelfReg="false" NextFile="fragment_shader.pyc_3"/>
     <ROW File="er.png" Component_="ad.png" FileName="er.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\er.png" SelfReg="false" NextFile="es.png"/>
     <ROW File="error.pyc" Component_="acceleratesupport.pyc" FileName="error.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\error.pyc" SelfReg="false" NextFile="extensions.pyc"/>
+    <ROW File="errorchecker.pyd" Component_="arraydatatype.pyd" FileName="errorc~1.pyd|errorchecker.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL_accelerate\errorchecker.pyd" SelfReg="false" NextFile="formathandler.pyd"/>
     <ROW File="es.png" Component_="ad.png" FileName="es.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\es.png" SelfReg="false" NextFile="et.png"/>
     <ROW File="et.png" Component_="ad.png" FileName="et.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\et.png" SelfReg="false" NextFile="fi.png"/>
     <ROW File="evaluators.pyc" Component_="bindless_texture.pyc" FileName="evalua~1.pyc|evaluators.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\NV\evaluators.pyc" SelfReg="false" NextFile="explicit_multisample.pyc"/>
@@ -888,7 +883,7 @@
     <ROW File="expwars.png" Component_="blackops.html" FileName="expwars.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\expwars.png" SelfReg="false" NextFile="faf.html"/>
     <ROW File="extensions.pyc" Component_="acceleratesupport.pyc" FileName="extens~1.pyc|extensions.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\extensions.pyc" SelfReg="false" NextFile="blend_minmax_factor.pyc"/>
     <ROW File="faf.html" Component_="blackops.html" FileName="faf~1.htm|faf.html" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\faf.html" SelfReg="false" NextFile="faf.png"/>
-    <ROW File="faf.ico" Component_="FAForever.lib" FileName="faf.ico" Attributes="0" SourcePath="F:\DIST_FAFOREVER\faf.ico" SelfReg="false" NextFile="win32wnet.pyd"/>
+    <ROW File="faf.ico" Component_="FAForever.lib" FileName="faf.ico" Attributes="0" SourcePath="F:\DIST_FAFOREVER\faf.ico" SelfReg="false" NextFile="mumble_link.pyd"/>
     <ROW File="faf.png" Component_="blackops.html" FileName="faf.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\faf.png" SelfReg="false" NextFile="koth.html"/>
     <ROW File="faf.qthtml" Component_="faf.qthtml" FileName="faf~1.qth|faf.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\formatters\faf.qthtml" SelfReg="false" NextFile="mod.qthtml"/>
     <ROW File="failure.ui" Component_="failure.ui" FileName="failure.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\fa\updater\failure.ui" SelfReg="false" NextFile="illegal.ui"/>
@@ -928,6 +923,7 @@
     <ROW File="fog_scale.pyc_1" Component_="async.pyc_1" FileName="fog_sc~1.pyc|fog_scale.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\SGIX\fog_scale.pyc" SelfReg="false" NextFile="fragment_lighting.pyc_1"/>
     <ROW File="fonts.pyc" Component_="fonts.pyc" FileName="fonts.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GLUT\fonts.pyc" SelfReg="false" NextFile="freeglut.pyc"/>
     <ROW File="formathandler.pyc" Component_="arraydatatype.pyc" FileName="format~1.pyc|formathandler.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\arrays\formathandler.pyc" SelfReg="false" NextFile="lists.pyc"/>
+    <ROW File="formathandler.pyd" Component_="arraydatatype.pyd" FileName="format~1.pyd|formathandler.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL_accelerate\formathandler.pyd" SelfReg="false" NextFile="latebind.pyd"/>
     <ROW File="forward.png" Component_="back.png" FileName="forward.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\forward.png" SelfReg="false" NextFile="forward.ppm"/>
     <ROW File="forward.ppm" Component_="back.png" FileName="forward.ppm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\forward.ppm" SelfReg="false" NextFile="forward.svg"/>
     <ROW File="forward.svg" Component_="back.png" FileName="forward.svg" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\forward.svg" SelfReg="false" NextFile="forward.xpm"/>
@@ -1138,6 +1134,7 @@
     <ROW File="ladder_header.qthtml" Component_="ladder.qthtml" FileName="ladder~2.qth|ladder_header.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\stats\formatters\ladder_header.qthtml" SelfReg="false" NextFile="style.css"/>
     <ROW File="ladder_header.qthtml_1" Component_="coop.qthtml" FileName="ladder~2.qth|ladder_header.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\coop\formatters\ladder_header.qthtml" SelfReg="false" NextFile="style.css_2"/>
     <ROW File="latebind.pyc" Component_="acceleratesupport.pyc" FileName="latebind.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\latebind.pyc" SelfReg="false" NextFile="lazywrapper.pyc"/>
+    <ROW File="latebind.pyd" Component_="arraydatatype.pyd" FileName="latebind.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL_accelerate\latebind.pyd" SelfReg="false" NextFile="nones_formathandler.pyd"/>
     <ROW File="lazywrapper.pyc" Component_="acceleratesupport.pyc" FileName="lazywr~1.pyc|lazywrapper.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\lazywrapper.pyc" SelfReg="false" NextFile="logs.pyc"/>
     <ROW File="lb.png" Component_="ad.png" FileName="lb.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\lb.png" SelfReg="false" NextFile="lc.png"/>
     <ROW File="lc.png" Component_="ad.png" FileName="lc.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\lc.png" SelfReg="false" NextFile="li.png"/>
@@ -1175,20 +1172,19 @@
     <ROW File="maps.png" Component_="about.ui" FileName="maps.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\maps.png" SelfReg="false" NextFile="replays.png"/>
     <ROW File="mapstat.ui" Component_="mapstat.ui" FileName="mapstat.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\stats\mapstat.ui" SelfReg="false" NextFile="stats.ui"/>
     <ROW File="mass.png" Component_="army.png" FileName="mass.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\vault\map_icons\mass.png" SelfReg="false" NextFile="window_icon.png"/>
-    <ROW File="matplotlib._cntr.pyd" Component_="FAForever.lib" FileName="matplo~8.pyd|matplotlib._cntr.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\matplotlib._cntr.pyd" SelfReg="false" NextFile="matplotlib.ttconv.pyd"/>
-    <ROW File="matplotlib._delaunay.pyd" Component_="FAForever.lib" FileName="matplo~6.pyd|matplotlib._delaunay.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\matplotlib._delaunay.pyd" SelfReg="false" NextFile="matplotlib.nxutils.pyd"/>
+    <ROW File="matplotlib._cntr.pyd" Component_="FAForever.lib" FileName="matplo~7.pyd|matplotlib._cntr.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\matplotlib._cntr.pyd" SelfReg="false" NextFile="matplotlib.ttconv.pyd"/>
+    <ROW File="matplotlib._delaunay.pyd" Component_="FAForever.lib" FileName="matplo~6.pyd|matplotlib._delaunay.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\matplotlib._delaunay.pyd" SelfReg="false" NextFile="matplotlib._cntr.pyd"/>
     <ROW File="matplotlib._image.pyd" Component_="FAForever.lib" FileName="matplo~2.pyd|matplotlib._image.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\matplotlib._image.pyd" SelfReg="false" NextFile="matplotlib.backends._backend_agg.pyd"/>
     <ROW File="matplotlib._path.pyd" Component_="FAForever.lib" FileName="matplo~5.pyd|matplotlib._path.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\matplotlib._path.pyd" SelfReg="false" NextFile="matplotlib._delaunay.pyd"/>
     <ROW File="matplotlib._png.pyd" Component_="FAForever.lib" FileName="matplo~1.pyd|matplotlib._png.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\matplotlib._png.pyd" SelfReg="false" NextFile="matplotlib._image.pyd"/>
     <ROW File="matplotlib._tri.pyd" Component_="FAForever.lib" FileName="matplo~4.pyd|matplotlib._tri.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\matplotlib._tri.pyd" SelfReg="false" NextFile="matplotlib._path.pyd"/>
     <ROW File="matplotlib.backends._backend_agg.pyd" Component_="FAForever.lib" FileName="matplo~3.pyd|matplotlib.backends._backend_agg.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\matplotlib.backends._backend_agg.pyd" SelfReg="false" NextFile="matplotlib._tri.pyd"/>
     <ROW File="matplotlib.conf" Component_="lineprops.glade" FileName="matplo~1.con|matplotlib.conf" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\matplotlib.conf" SelfReg="false" NextFile="matplotlibrc"/>
-    <ROW File="matplotlib.ft2font.pyd" Component_="FAForever.lib" FileName="matpl~10.pyd|matplotlib.ft2font.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\matplotlib.ft2font.pyd" SelfReg="false" NextFile="numpy.random.mtrand.pyd"/>
-    <ROW File="matplotlib.nxutils.pyd" Component_="FAForever.lib" FileName="matplo~7.pyd|matplotlib.nxutils.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\matplotlib.nxutils.pyd" SelfReg="false" NextFile="matplotlib._cntr.pyd"/>
+    <ROW File="matplotlib.ft2font.pyd" Component_="FAForever.lib" FileName="matplo~9.pyd|matplotlib.ft2font.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\matplotlib.ft2font.pyd" SelfReg="false" NextFile="qt.conf"/>
     <ROW File="matplotlib.png" Component_="back.png" FileName="matplo~1.png|matplotlib.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\matplotlib.png" SelfReg="false" NextFile="matplotlib.svg"/>
     <ROW File="matplotlib.svg" Component_="back.png" FileName="matplo~1.svg|matplotlib.svg" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\matplotlib.svg" SelfReg="false" NextFile="move.png"/>
-    <ROW File="matplotlib.ttconv.pyd" Component_="FAForever.lib" FileName="matplo~9.pyd|matplotlib.ttconv.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\matplotlib.ttconv.pyd" SelfReg="false" NextFile="matplotlib.ft2font.pyd"/>
-    <ROW File="matplotlibrc" Component_="lineprops.glade" FileName="matplo~1|matplotlibrc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\matplotlibrc" SelfReg="false" NextFile="matplotlib._png.pyd"/>
+    <ROW File="matplotlib.ttconv.pyd" Component_="FAForever.lib" FileName="matplo~8.pyd|matplotlib.ttconv.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\matplotlib.ttconv.pyd" SelfReg="false" NextFile="matplotlib.ft2font.pyd"/>
+    <ROW File="matplotlibrc" Component_="lineprops.glade" FileName="matplo~1|matplotlibrc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\matplotlibrc" SelfReg="false" NextFile="tournaments.ui"/>
     <ROW File="matrix_palette.pyc" Component_="arrays_of_arrays.pyc" FileName="matrix~1.pyc|matrix_palette.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\ARB\matrix_palette.pyc" SelfReg="false" NextFile="multisample.pyc"/>
     <ROW File="matrix_palette.pyc_1" Component_="arrays_of_arrays.pyc_1" FileName="matrix~1.pyc|matrix_palette.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\ARB\matrix_palette.pyc" SelfReg="false" NextFile="multisample.pyc_4"/>
     <ROW File="maximizebutton.png" Component_="about.ui" FileName="maximi~1.png|maximize-button.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\maximize-button.png" SelfReg="false" NextFile="closebutton.png"/>
@@ -1203,7 +1199,6 @@
     <ROW File="messageAvatar.qthtml" Component_="action.qthtml" FileName="messag~2.qth|messageAvatar.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\formatters\messageAvatar.qthtml" SelfReg="false" NextFile="tutorialarea.ui"/>
     <ROW File="metal_bg.png" Component_="bg_chat.jpg" FileName="metal_bg.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\metal_bg.png" SelfReg="false" NextFile="planetaryItems.ui"/>
     <ROW File="mf.png" Component_="ad.png" FileName="mf.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\mf.png" SelfReg="false" NextFile="mg.png"/>
-    <ROW File="mfc100u.dll" Component_="mfc100u.dll" FileName="mfc100u.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mfc100u.dll" SelfReg="false" NextFile="msvcp100.dll"/>
     <ROW File="mg.png" Component_="ad.png" FileName="mg.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\mg.png" SelfReg="false" NextFile="mh.png"/>
     <ROW File="mh.png" Component_="ad.png" FileName="mh.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\mh.png" SelfReg="false" NextFile="mk.png"/>
     <ROW File="minimizebutton.png" Component_="about.ui" FileName="minimi~1.png|minimize-button.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\minimize-button.png" SelfReg="false" NextFile="maximizebutton.png"/>
@@ -1229,9 +1224,7 @@
     <ROW File="mq.png" Component_="ad.png" FileName="mq.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\mq.png" SelfReg="false" NextFile="mr.png"/>
     <ROW File="mr.png" Component_="ad.png" FileName="mr.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\mr.png" SelfReg="false" NextFile="ms.png"/>
     <ROW File="ms.png" Component_="ad.png" FileName="ms.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ms.png" SelfReg="false" NextFile="mt.png"/>
-    <ROW File="msvcp100.dll" Component_="msvcp100.dll" FileName="msvcp100.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\msvcp100.dll" SelfReg="false" NextFile="msvcr100.dll"/>
-    <ROW File="msvcr100.dll" Component_="msvcr100.dll" FileName="msvcr100.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\msvcr100.dll" SelfReg="false" NextFile="uid.dll"/>
-    <ROW File="msvcr90.dll" Component_="msvcr90.dll" FileName="msvcr90.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\msvcr90.dll" SelfReg="false" NextFile="version"/>
+    <ROW File="msvcr90.dll" Component_="msvcr90.dll" FileName="msvcr90.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\msvcr90.dll" SelfReg="false" NextFile="matplotlib._png.pyd"/>
     <ROW File="mt.png" Component_="ad.png" FileName="mt.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\mt.png" SelfReg="false" NextFile="mu.png"/>
     <ROW File="mu.png" Component_="ad.png" FileName="mu.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\mu.png" SelfReg="false" NextFile="mv.png"/>
     <ROW File="multi_draw_arrays.pyc" Component_="_pixels.pyc" FileName="multi_~1.pyc|multi_draw_arrays.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\EXT\multi_draw_arrays.pyc" SelfReg="false" NextFile="packed_depth_stencil.pyc"/>
@@ -1256,7 +1249,7 @@
     <ROW File="multisample_filter_hint.pyc_1" Component_="bindless_texture.pyc_1" FileName="multis~2.pyc|multisample_filter_hint.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\NV\multisample_filter_hint.pyc" SelfReg="false" NextFile="occlusion_query.pyc_3"/>
     <ROW File="multitexture.pyc" Component_="arrays_of_arrays.pyc" FileName="multit~1.pyc|multitexture.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\ARB\multitexture.pyc" SelfReg="false" NextFile="multi_draw_indirect.pyc_1"/>
     <ROW File="multitexture.pyc_1" Component_="arrays_of_arrays.pyc_1" FileName="multit~1.pyc|multitexture.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\ARB\multitexture.pyc" SelfReg="false" NextFile="multi_draw_indirect.pyc_3"/>
-    <ROW File="mumble_link.pyd" Component_="FAForever.lib" FileName="mumble~1.pyd|mumble_link.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mumble_link.pyd" SelfReg="false" NextFile="PyQt4.QtOpenGL.pyd"/>
+    <ROW File="mumble_link.pyd" Component_="FAForever.lib" FileName="mumble~1.pyd|mumble_link.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mumble_link.pyd" SelfReg="false" NextFile="PyQt4.QtWebKit.pyd"/>
     <ROW File="murderparty.html" Component_="blackops.html" FileName="murder~1.htm|murderparty.html" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\murderparty.html" SelfReg="false" NextFile="murderparty.png"/>
     <ROW File="murderparty.png" Component_="blackops.html" FileName="murder~1.png|murderparty.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\murderparty.png" SelfReg="false" NextFile="nftw.html"/>
     <ROW File="mv.png" Component_="ad.png" FileName="mv.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\mv.png" SelfReg="false" NextFile="mw.png"/>
@@ -1282,20 +1275,28 @@
     <ROW File="nomads.png" Component_="blackops.html" FileName="nomads.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\nomads.png" SelfReg="false" NextFile="wyvern.html"/>
     <ROW File="none.png" Component_="host.png" FileName="none.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\status\none.png" SelfReg="false" NextFile="playing.png"/>
     <ROW File="nones.pyc" Component_="arraydatatype.pyc" FileName="nones.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\arrays\nones.pyc" SelfReg="false" NextFile="numbers.pyc"/>
+    <ROW File="nones_formathandler.pyd" Component_="arraydatatype.pyd" FileName="nones_~1.pyd|nones_formathandler.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL_accelerate\nones_formathandler.pyd" SelfReg="false" NextFile="numpy_formathandler.pyd"/>
     <ROW File="np.png" Component_="ad.png" FileName="np.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\np.png" SelfReg="false" NextFile="nr.png"/>
     <ROW File="nr.png" Component_="ad.png" FileName="nr.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\nr.png" SelfReg="false" NextFile="nu.png"/>
     <ROW File="nu.png" Component_="ad.png" FileName="nu.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\nu.png" SelfReg="false" NextFile="nz.png"/>
     <ROW File="numbers.pyc" Component_="arraydatatype.pyc" FileName="numbers.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\arrays\numbers.pyc" SelfReg="false" NextFile="numeric.pyc"/>
     <ROW File="numeric.pyc" Component_="arraydatatype.pyc" FileName="numeric.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\arrays\numeric.pyc" SelfReg="false" NextFile="numericnames.pyc"/>
     <ROW File="numericnames.pyc" Component_="arraydatatype.pyc" FileName="numeri~1.pyc|numericnames.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\arrays\numericnames.pyc" SelfReg="false" NextFile="numpymodule.pyc"/>
-    <ROW File="numpy.core._sort.pyd" Component_="FAForever.lib" FileName="numpyc~4.pyd|numpy.core._sort.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\numpy.core._sort.pyd" SelfReg="false" NextFile="tournaments.ui"/>
-    <ROW File="numpy.core.multiarray.pyd" Component_="FAForever.lib" FileName="numpyc~3.pyd|numpy.core.multiarray.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\numpy.core.multiarray.pyd" SelfReg="false" NextFile="numpy.core._sort.pyd"/>
-    <ROW File="numpy.core.scalarmath.pyd" Component_="FAForever.lib" FileName="numpyc~1.pyd|numpy.core.scalarmath.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\numpy.core.scalarmath.pyd" SelfReg="false" NextFile="numpy.core.umath.pyd"/>
-    <ROW File="numpy.core.umath.pyd" Component_="FAForever.lib" FileName="numpyc~2.pyd|numpy.core.umath.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\numpy.core.umath.pyd" SelfReg="false" NextFile="numpy.core.multiarray.pyd"/>
+    <ROW File="numpy.core._dummy.pyd" Component_="FAForever.lib" FileName="numpyc~9.pyd|numpy.core._dummy.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\numpy.core._dummy.pyd" SelfReg="false" NextFile="faf.ico"/>
+    <ROW File="numpy.core.multiarray.pyd" Component_="FAForever.lib" FileName="numpyc~8.pyd|numpy.core.multiarray.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\numpy.core.multiarray.pyd" SelfReg="false" NextFile="numpy.core._dummy.pyd"/>
+    <ROW File="numpy.core.multiarray_tests.pyd" Component_="FAForever.lib" FileName="numpyc~1.pyd|numpy.core.multiarray_tests.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\numpy.core.multiarray_tests.pyd" SelfReg="false" NextFile="numpy.core.operand_flag_tests.pyd"/>
+    <ROW File="numpy.core.operand_flag_tests.pyd" Component_="FAForever.lib" FileName="numpyc~2.pyd|numpy.core.operand_flag_tests.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\numpy.core.operand_flag_tests.pyd" SelfReg="false" NextFile="numpy.core.struct_ufunc_test.pyd"/>
+    <ROW File="numpy.core.scalarmath.pyd" Component_="FAForever.lib" FileName="numpyc~6.pyd|numpy.core.scalarmath.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\numpy.core.scalarmath.pyd" SelfReg="false" NextFile="numpy.core.umath.pyd"/>
+    <ROW File="numpy.core.struct_ufunc_test.pyd" Component_="FAForever.lib" FileName="numpyc~3.pyd|numpy.core.struct_ufunc_test.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\numpy.core.struct_ufunc_test.pyd" SelfReg="false" NextFile="numpy.core.test_rational.pyd"/>
+    <ROW File="numpy.core.test_rational.pyd" Component_="FAForever.lib" FileName="numpyc~4.pyd|numpy.core.test_rational.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\numpy.core.test_rational.pyd" SelfReg="false" NextFile="numpy.core.umath_tests.pyd"/>
+    <ROW File="numpy.core.umath.pyd" Component_="FAForever.lib" FileName="numpyc~7.pyd|numpy.core.umath.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\numpy.core.umath.pyd" SelfReg="false" NextFile="numpy.core.multiarray.pyd"/>
+    <ROW File="numpy.core.umath_tests.pyd" Component_="FAForever.lib" FileName="numpyc~5.pyd|numpy.core.umath_tests.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\numpy.core.umath_tests.pyd" SelfReg="false" NextFile="numpy.core.scalarmath.pyd"/>
     <ROW File="numpy.fft.fftpack_lite.pyd" Component_="FAForever.lib" FileName="numpyf~1.pyd|numpy.fft.fftpack_lite.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\numpy.fft.fftpack_lite.pyd" SelfReg="false" NextFile="numpy.lib._compiled_base.pyd"/>
-    <ROW File="numpy.lib._compiled_base.pyd" Component_="FAForever.lib" FileName="numpyl~2.pyd|numpy.lib._compiled_base.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\numpy.lib._compiled_base.pyd" SelfReg="false" NextFile="numpy.core.scalarmath.pyd"/>
-    <ROW File="numpy.linalg.lapack_lite.pyd" Component_="FAForever.lib" FileName="numpyl~1.pyd|numpy.linalg.lapack_lite.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\numpy.linalg.lapack_lite.pyd" SelfReg="false" NextFile="numpy.fft.fftpack_lite.pyd"/>
-    <ROW File="numpy.random.mtrand.pyd" Component_="FAForever.lib" FileName="numpyr~1.pyd|numpy.random.mtrand.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\numpy.random.mtrand.pyd" SelfReg="false" NextFile="numpy.linalg.lapack_lite.pyd"/>
+    <ROW File="numpy.lib._compiled_base.pyd" Component_="FAForever.lib" FileName="numpyl~3.pyd|numpy.lib._compiled_base.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\numpy.lib._compiled_base.pyd" SelfReg="false" NextFile="numpy.core.multiarray_tests.pyd"/>
+    <ROW File="numpy.linalg._umath_linalg.pyd" Component_="FAForever.lib" FileName="numpyl~1.pyd|numpy.linalg._umath_linalg.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\numpy.linalg._umath_linalg.pyd" SelfReg="false" NextFile="numpy.linalg.lapack_lite.pyd"/>
+    <ROW File="numpy.linalg.lapack_lite.pyd" Component_="FAForever.lib" FileName="numpyl~2.pyd|numpy.linalg.lapack_lite.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\numpy.linalg.lapack_lite.pyd" SelfReg="false" NextFile="numpy.fft.fftpack_lite.pyd"/>
+    <ROW File="numpy.random.mtrand.pyd" Component_="FAForever.lib" FileName="numpyr~1.pyd|numpy.random.mtrand.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\numpy.random.mtrand.pyd" SelfReg="false" NextFile="numpy.linalg._umath_linalg.pyd"/>
+    <ROW File="numpy_formathandler.pyd" Component_="arraydatatype.pyd" FileName="numpy_~1.pyd|numpy_formathandler.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL_accelerate\numpy_formathandler.pyd" SelfReg="false" NextFile="vbo.pyd"/>
     <ROW File="numpymodule.pyc" Component_="arraydatatype.pyc" FileName="numpym~1.pyc|numpymodule.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\arrays\numpymodule.pyc" SelfReg="false" NextFile="strings.pyc"/>
     <ROW File="nurbs_tessellator.pyc" Component_="nurbs_tessellator.pyc" FileName="nurbs_~1.pyc|nurbs_tessellator.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GLU\EXT\nurbs_tessellator.pyc" SelfReg="false" NextFile="object_space_tess.pyc"/>
     <ROW File="nz.png" Component_="ad.png" FileName="nz.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\nz.png" SelfReg="false" NextFile="om.png"/>
@@ -1311,7 +1312,7 @@
     <ROW File="occlusion_test.pyc" Component_="convolution_border_modes.pyc" FileName="occlus~1.pyc|occlusion_test.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\HP\occlusion_test.pyc" SelfReg="false" NextFile="texture_lighting.pyc"/>
     <ROW File="occlusion_test.pyc_1" Component_="convolution_border_modes.pyc_2" FileName="occlus~1.pyc|occlusion_test.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\HP\occlusion_test.pyc" SelfReg="false" NextFile="texture_lighting.pyc_1"/>
     <ROW File="om.png" Component_="ad.png" FileName="om.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\om.png" SelfReg="false" NextFile="pa.png"/>
-    <ROW File="open.qthtml" Component_="style.css" FileName="open~1.qth|open.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\tournaments\formatters\open.qthtml" SelfReg="false"/>
+    <ROW File="open.qthtml" Component_="style.css" FileName="open~1.qth|open.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\tournaments\formatters\open.qthtml" SelfReg="false" NextFile="FAForever.lib"/>
     <ROW File="operator_colors.json" Component_="action.qthtml" FileName="operat~1.jso|operator_colors.json" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\formatters\operator_colors.json" SelfReg="false" NextFile="raw.qthtml"/>
     <ROW File="options.ui" Component_="bg_chat.jpg" FileName="options.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\options.ui" SelfReg="false" NextFile="mods.png"/>
     <ROW File="osmesa.pyc" Component_="baseplatform.pyc" FileName="osmesa.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\platform\osmesa.pyc" SelfReg="false" NextFile="win32.pyc"/>
@@ -1458,23 +1459,16 @@
     <ROW File="pzcmi8a.afm" Component_="cmex10.afm" FileName="pzcmi8a.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\afm\pzcmi8a.afm" SelfReg="false" NextFile="pzdr.afm"/>
     <ROW File="pzdr.afm" Component_="cmex10.afm" FileName="pzdr.afm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\fonts\afm\pzdr.afm" SelfReg="false" NextFile="CourierBold.afm"/>
     <ROW File="qa.png" Component_="ad.png" FileName="qa.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\qa.png" SelfReg="false" NextFile="re.png"/>
-    <ROW File="qgif4.dll" Component_="qgif4.dll" FileName="qgif4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\qgif4.dll" SelfReg="false" NextFile="qico4.dll"/>
     <ROW File="qgif4.dll_1" Component_="qgif4.dll_1" FileName="qgif4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\plugins\imageformats\qgif4.dll" SelfReg="false" NextFile="qico4.dll_1"/>
-    <ROW File="qico4.dll" Component_="qico4.dll" FileName="qico4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\qico4.dll" SelfReg="false" NextFile="qjpeg4.dll"/>
     <ROW File="qico4.dll_1" Component_="qico4.dll_1" FileName="qico4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\plugins\imageformats\qico4.dll" SelfReg="false" NextFile="qjpeg4.dll_1"/>
-    <ROW File="qjpeg4.dll" Component_="qjpeg4.dll" FileName="qjpeg4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\qjpeg4.dll" SelfReg="false" NextFile="qmng4.dll"/>
     <ROW File="qjpeg4.dll_1" Component_="qjpeg4.dll_1" FileName="qjpeg4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\plugins\imageformats\qjpeg4.dll" SelfReg="false" NextFile="qmng4.dll_1"/>
-    <ROW File="qmng4.dll" Component_="qmng4.dll" FileName="qmng4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\qmng4.dll" SelfReg="false" NextFile="qsvg4.dll"/>
     <ROW File="qmng4.dll_1" Component_="qmng4.dll_1" FileName="qmng4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\plugins\imageformats\qmng4.dll" SelfReg="false" NextFile="qsvg4.dll_1"/>
-    <ROW File="qsvg4.dll" Component_="qsvg4.dll" FileName="qsvg4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\qsvg4.dll" SelfReg="false" NextFile="qtga4.dll"/>
     <ROW File="qsvg4.dll_1" Component_="qsvg4.dll_1" FileName="qsvg4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\plugins\imageformats\qsvg4.dll" SelfReg="false" NextFile="qtga4.dll_1"/>
-    <ROW File="qt.conf" Component_="FAForever.lib" FileName="qt~1.con|qt.conf" Attributes="0" SourcePath="F:\DIST_FAFOREVER\qt.conf" SelfReg="false" NextFile="channel.ui"/>
+    <ROW File="qt.conf" Component_="FAForever.lib" FileName="qt~1.con|qt.conf" Attributes="0" SourcePath="F:\DIST_FAFOREVER\qt.conf" SelfReg="false" NextFile="LIBEAY32.dll"/>
     <ROW File="qt4_editor_options.png" Component_="back.png" FileName="qt4_ed~1.png|qt4_editor_options.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\qt4_editor_options.png" SelfReg="false" NextFile="qt4_editor_options.svg"/>
     <ROW File="qt4_editor_options.svg" Component_="back.png" FileName="qt4_ed~1.svg|qt4_editor_options.svg" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\qt4_editor_options.svg" SelfReg="false" NextFile="stock_close.ppm"/>
-    <ROW File="qtga4.dll" Component_="qtga4.dll" FileName="qtga4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\qtga4.dll" SelfReg="false" NextFile="qtiff4.dll"/>
     <ROW File="qtga4.dll_1" Component_="qtga4.dll_1" FileName="qtga4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\plugins\imageformats\qtga4.dll" SelfReg="false" NextFile="qtiff4.dll_1"/>
-    <ROW File="qtiff4.dll" Component_="qtiff4.dll" FileName="qtiff4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\qtiff4.dll" SelfReg="false" NextFile="APIMSWinCoreLocalRegistryL110.dll"/>
-    <ROW File="qtiff4.dll_1" Component_="qtiff4.dll_1" FileName="qtiff4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\plugins\imageformats\qtiff4.dll" SelfReg="false" NextFile="qt.conf"/>
+    <ROW File="qtiff4.dll_1" Component_="qtiff4.dll_1" FileName="qtiff4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\plugins\imageformats\qtiff4.dll" SelfReg="false" NextFile="channel.ui"/>
     <ROW File="quadrics.pyc" Component_="glunurbs.pyc" FileName="quadrics.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GLU\quadrics.pyc" SelfReg="false" NextFile="tess.pyc"/>
     <ROW File="query.wav" Component_="privmsg.wav" FileName="query.wav" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\sfx\query.wav" SelfReg="false" NextFile="host.png"/>
     <ROW File="query_buffer_object.pyc" Component_="blend_minmax_factor.pyc" FileName="query_~1.pyc|query_buffer_object.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\AMD\query_buffer_object.pyc" SelfReg="false" NextFile="sample_positions.pyc"/>
@@ -1497,7 +1491,7 @@
     <ROW File="register_combiners2.pyc_1" Component_="bindless_texture.pyc_1" FileName="regist~2.pyc|register_combiners2.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\NV\register_combiners2.pyc" SelfReg="false" NextFile="shader_atomic_float.pyc_1"/>
     <ROW File="reinforcement.qthtml" Component_="planetarydefenses.qthtml" FileName="reinfo~1.qth|reinforcement.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\formatters\reinforcement.qthtml" SelfReg="false" NextFile="galacticwar.css"/>
     <ROW File="reinforcementItems.ui" Component_="bg_chat.jpg" FileName="reinfo~1.ui|reinforcementItems.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\reinforcementItems.ui" SelfReg="false" NextFile="bg.png_3"/>
-    <ROW File="replay.ico" Component_="FAForever.lib" FileName="replay.ico" Attributes="0" SourcePath="F:\DIST_FAFOREVER\replay.ico" SelfReg="false" NextFile="qgif4.dll"/>
+    <ROW File="replay.ico" Component_="FAForever.lib" FileName="replay.ico" Attributes="0" SourcePath="F:\DIST_FAFOREVER\replay.ico" SelfReg="false" NextFile="cmex10.afm"/>
     <ROW File="replay.png" Component_="broken.png" FileName="replay.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\replays\replay.png" SelfReg="false" NextFile="replays.ui"/>
     <ROW File="replay.qthtml" Component_="replay.qthtml" FileName="replay~1.qth|replay.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\replays\formatters\replay.qthtml" SelfReg="false" NextFile="random.png"/>
     <ROW File="replays.png" Component_="about.ui" FileName="replays.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\replays.png" SelfReg="false" NextFile="settings_watermark.png"/>
@@ -1549,7 +1543,7 @@
     <ROW File="seamless_cubemap_per_texture.pyc_1" Component_="blend_minmax_factor.pyc_1" FileName="seamle~1.pyc|seamless_cubemap_per_texture.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\AMD\seamless_cubemap_per_texture.pyc" SelfReg="false" NextFile="shader_stencil_export.pyc_2"/>
     <ROW File="secondary_color.pyc" Component_="_pixels.pyc" FileName="second~1.pyc|secondary_color.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\EXT\secondary_color.pyc" SelfReg="false" NextFile="separate_shader_objects.pyc_1"/>
     <ROW File="secondary_color.pyc_1" Component_="_pixels.pyc_1" FileName="second~1.pyc|secondary_color.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\EXT\secondary_color.pyc" SelfReg="false" NextFile="separate_shader_objects.pyc_3"/>
-    <ROW File="select.pyd" Component_="FAForever.lib" FileName="select.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\select.pyd" SelfReg="false" NextFile="unicodedata.pyd"/>
+    <ROW File="select.pyd" Component_="FAForever.lib" FileName="select.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\select.pyd" SelfReg="false" NextFile="_tkinter.pyd"/>
     <ROW File="selection.pyc" Component_="exceptional.pyc" FileName="select~1.pyc|selection.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\selection.pyc" SelfReg="false" NextFile="color_matrix.pyc_1"/>
     <ROW File="separate_shader_objects.pyc" Component_="arrays_of_arrays.pyc" FileName="separa~1.pyc|separate_shader_objects.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\ARB\separate_shader_objects.pyc" SelfReg="false" NextFile="shader_atomic_counters.pyc"/>
     <ROW File="separate_shader_objects.pyc_1" Component_="_pixels.pyc" FileName="separa~1.pyc|separate_shader_objects.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\EXT\separate_shader_objects.pyc" SelfReg="false" NextFile="separate_specular_color.pyc"/>
@@ -1674,7 +1668,7 @@
     <ROW File="strings.pyc" Component_="arraydatatype.pyc" FileName="strings.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\arrays\strings.pyc" SelfReg="false" NextFile="vbo.pyc"/>
     <ROW File="stripe.png" Component_="about.ui" FileName="stripe.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\stripe.png" SelfReg="false" NextFile="minimizebutton.png"/>
     <ROW File="style.css" Component_="ladder.qthtml" FileName="style.css" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\stats\formatters\style.css" SelfReg="false" NextFile="mapstat.ui"/>
-    <ROW File="style.css_1" Component_="style.css" FileName="style.css" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\tournaments\formatters\style.css" SelfReg="false" NextFile="PyQt4.Qt.pyd"/>
+    <ROW File="style.css_1" Component_="style.css" FileName="style.css" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\tournaments\formatters\style.css" SelfReg="false" NextFile="feed.png"/>
     <ROW File="style.css_2" Component_="coop.qthtml" FileName="style.css" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\coop\formatters\style.css" SelfReg="false" NextFile="open.qthtml"/>
     <ROW File="subplots.png" Component_="back.png" FileName="subplots.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\subplots.png" SelfReg="false" NextFile="subplots.ppm"/>
     <ROW File="subplots.ppm" Component_="back.png" FileName="subplots.ppm" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\subplots.ppm" SelfReg="false" NextFile="subplots.xpm"/>
@@ -1696,6 +1690,7 @@
     <ROW File="tbuffer.pyc" Component_="multisample.pyc" FileName="tbuffer.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\DFX\tbuffer.pyc" SelfReg="false" NextFile="texture_compression_FXT1.pyc"/>
     <ROW File="tbuffer.pyc_1" Component_="multisample.pyc_1" FileName="tbuffer.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\DFX\tbuffer.pyc" SelfReg="false" NextFile="texture_compression_FXT1.pyc_1"/>
     <ROW File="tc.png" Component_="ad.png" FileName="tc.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\tc.png" SelfReg="false" NextFile="td.png"/>
+    <ROW File="tcl85.dll" Component_="tcl85.dll" FileName="tcl85.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\tcl85.dll" SelfReg="false" NextFile="_imaging.pyd"/>
     <ROW File="td.png" Component_="ad.png" FileName="td.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\td.png" SelfReg="false" NextFile="tf.png"/>
     <ROW File="teams.ui" Component_="bg_chat.jpg" FileName="teams.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\teams.ui" SelfReg="false" NextFile="coop.ui"/>
     <ROW File="tess.pyc" Component_="glunurbs.pyc" FileName="tess.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GLU\tess.pyc" SelfReg="false" NextFile="__init__.pyc_32"/>
@@ -1884,6 +1879,7 @@
     <ROW File="timer_query.pyc_3" Component_="_pixels.pyc_1" FileName="timer_~1.pyc|timer_query.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\EXT\timer_query.pyc" SelfReg="false" NextFile="transform_feedback.pyc_2"/>
     <ROW File="tj.png" Component_="ad.png" FileName="tj.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\tj.png" SelfReg="false" NextFile="tk.png"/>
     <ROW File="tk.png" Component_="ad.png" FileName="tk.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\tk.png" SelfReg="false" NextFile="tl.png"/>
+    <ROW File="tk85.dll" Component_="tk85.dll" FileName="tk85.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\tk85.dll" SelfReg="false" NextFile="tcl85.dll"/>
     <ROW File="tl.png" Component_="ad.png" FileName="tl.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\tl.png" SelfReg="false" NextFile="tm.png"/>
     <ROW File="tm.png" Component_="ad.png" FileName="tm.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\tm.png" SelfReg="false" NextFile="tn.png"/>
     <ROW File="tn.png" Component_="ad.png" FileName="tn.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\tn.png" SelfReg="false" NextFile="to.png"/>
@@ -1895,7 +1891,7 @@
     <ROW File="top_menu_active.png_2" Component_="bg.png_2" FileName="top_me~1.png|top_menu_active.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\seraphim\top_menu_active.png" SelfReg="false" NextFile="top_menu.png"/>
     <ROW File="top_menu_active.png_3" Component_="bg.png_3" FileName="top_me~1.png|top_menu_active.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\uef\top_menu_active.png" SelfReg="false" NextFile="options.ui"/>
     <ROW File="top_menu_over.png" Component_="bg_chat.jpg" FileName="top_me~1.png|top_menu_over.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\top_menu_over.png" SelfReg="false" NextFile="bg.png_4"/>
-    <ROW File="tournaments.ui" Component_="host.ui" FileName="tourna~1.ui|tournaments.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\tournaments\tournaments.ui" SelfReg="false" NextFile="mfc100u.dll"/>
+    <ROW File="tournaments.ui" Component_="host.ui" FileName="tourna~1.ui|tournaments.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\tournaments\tournaments.ui" SelfReg="false" NextFile="Aeon_scout.png"/>
     <ROW File="tourney.png" Component_="about.ui" FileName="tourney.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\client\tourney.png" SelfReg="false" NextFile="tray_icon.png"/>
     <ROW File="tr.png" Component_="ad.png" FileName="tr.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\tr.png" SelfReg="false" NextFile="tt.png"/>
     <ROW File="transform_feedback.pyc" Component_="_pixels.pyc" FileName="transf~1.pyc|transform_feedback.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\EXT\transform_feedback.pyc" SelfReg="false" NextFile="vertex_array.pyc"/>
@@ -1931,11 +1927,11 @@
     <ROW File="ua.png" Component_="ad.png" FileName="ua.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ua.png" SelfReg="false" NextFile="ug.png"/>
     <ROW File="uef.png" Component_="aeon.png" FileName="uef.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\automatch\uef.png" SelfReg="false" NextFile="faf.qthtml"/>
     <ROW File="ug.png" Component_="ad.png" FileName="ug.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ug.png" SelfReg="false" NextFile="um.png"/>
-    <ROW File="uid.dll" Component_="uid.dll" FileName="uid.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\uid.dll" SelfReg="false" NextFile="Aeon_scout.png"/>
+    <ROW File="uid.dll" Component_="uid.dll" FileName="uid.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\uid.dll" SelfReg="false" NextFile="msvcr90.dll"/>
     <ROW File="uimod.qthtml" Component_="comment.qthtml" FileName="uimod~1.qth|uimod.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\modvault\uimod.qthtml" SelfReg="false" NextFile="uimod.ui"/>
     <ROW File="uimod.ui" Component_="comment.qthtml" FileName="uimod.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\modvault\uimod.ui" SelfReg="false" NextFile="upload.ui"/>
     <ROW File="um.png" Component_="ad.png" FileName="um.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\um.png" SelfReg="false" NextFile="us.png"/>
-    <ROW File="unicodedata.pyd" Component_="FAForever.lib" FileName="unicod~1.pyd|unicodedata.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\unicodedata.pyd" SelfReg="false" NextFile="w9xpopen.exe"/>
+    <ROW File="unicodedata.pyd" Component_="FAForever.lib" FileName="unicod~1.pyd|unicodedata.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\unicodedata.pyd" SelfReg="false" NextFile="pywintypes27.dll"/>
     <ROW File="uniform_buffer_object.pyc" Component_="arrays_of_arrays.pyc" FileName="unifor~1.pyc|uniform_buffer_object.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\ARB\uniform_buffer_object.pyc" SelfReg="false" NextFile="vertex_array_bgra.pyc"/>
     <ROW File="uniform_buffer_object.pyc_1" Component_="arrays_of_arrays.pyc_1" FileName="unifor~1.pyc|uniform_buffer_object.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\ARB\uniform_buffer_object.pyc" SelfReg="false" NextFile="vertex_array_bgra.pyc_2"/>
     <ROW File="unknown_map.png" Component_="games.ui" FileName="unknow~1.png|unknown_map.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\unknown_map.png" SelfReg="false" NextFile="broken.png"/>
@@ -1946,11 +1942,12 @@
     <ROW File="uz.png" Component_="ad.png" FileName="uz.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\uz.png" SelfReg="false" NextFile="va.png"/>
     <ROW File="va.png" Component_="ad.png" FileName="va.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\va.png" SelfReg="false" NextFile="vc.png"/>
     <ROW File="vbo.pyc" Component_="arraydatatype.pyc" FileName="vbo.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\arrays\vbo.pyc" SelfReg="false" NextFile="_buffers.pyc"/>
+    <ROW File="vbo.pyd" Component_="arraydatatype.pyd" FileName="vbo.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL_accelerate\vbo.pyd" SelfReg="false" NextFile="wrapper.pyd"/>
     <ROW File="vc.png" Component_="ad.png" FileName="vc.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\vc.png" SelfReg="false" NextFile="ve.png"/>
     <ROW File="vdpau_interop.pyc" Component_="bindless_texture.pyc" FileName="vdpau_~1.pyc|vdpau_interop.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\NV\vdpau_interop.pyc" SelfReg="false" NextFile="vertex_array_range.pyc_1"/>
     <ROW File="vdpau_interop.pyc_1" Component_="bindless_texture.pyc_1" FileName="vdpau_~1.pyc|vdpau_interop.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\NV\vdpau_interop.pyc" SelfReg="false" NextFile="vertex_array_range.pyc_3"/>
     <ROW File="ve.png" Component_="ad.png" FileName="ve.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ve.png" SelfReg="false" NextFile="vg.png"/>
-    <ROW File="version" Component_="FAForever.lib" FileName="version" Attributes="0" SourcePath="F:\DIST_FAFOREVER\version" SelfReg="false" NextFile="faf.ico"/>
+    <ROW File="version" Component_="FAForever.lib" FileName="version" Attributes="0" SourcePath="F:\DIST_FAFOREVER\version" SelfReg="false" NextFile="numpy.random.mtrand.pyd"/>
     <ROW File="version.pyc" Component_="acceleratesupport.pyc" FileName="version.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\version.pyc" SelfReg="false" NextFile="__init__.pyc_70"/>
     <ROW File="vertex.pyc" Component_="convolution_border_modes.pyc_1" FileName="vertex.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\SUN\vertex.pyc" SelfReg="false" NextFile="__init__.pyc_25"/>
     <ROW File="vertex.pyc_1" Component_="convolution_border_modes.pyc_3" FileName="vertex.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\SUN\vertex.pyc" SelfReg="false" NextFile="__init__.pyc_60"/>
@@ -2034,18 +2031,20 @@
     <ROW File="viewport_array.pyc_1" Component_="arrays_of_arrays.pyc_1" FileName="viewpo~1.pyc|viewport_array.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\ARB\viewport_array.pyc" SelfReg="false" NextFile="window_pos.pyc_2"/>
     <ROW File="vn.png" Component_="ad.png" FileName="vn.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\vn.png" SelfReg="false" NextFile="vu.png"/>
     <ROW File="vu.png" Component_="ad.png" FileName="vu.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\vu.png" SelfReg="false" NextFile="wf.png"/>
-    <ROW File="w9xpopen.exe" Component_="w9xpopen.exe" FileName="w9xpopen.exe" Attributes="0" SourcePath="F:\DIST_FAFOREVER\w9xpopen.exe" SelfReg="false" NextFile="pywintypes27.dll"/>
+    <ROW File="w9xpopen.exe" Component_="w9xpopen.exe" FileName="w9xpopen.exe" Attributes="0" SourcePath="F:\DIST_FAFOREVER\w9xpopen.exe" SelfReg="false" NextFile="_socket.pyd"/>
     <ROW File="wf.png" Component_="ad.png" FileName="wf.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\wf.png" SelfReg="false" NextFile="ws.png"/>
     <ROW File="win32.pyc" Component_="baseplatform.pyc" FileName="win32.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\platform\win32.pyc" SelfReg="false" NextFile="__init__.pyc_35"/>
     <ROW File="win32api.pyd" Component_="FAForever.lib" FileName="win32api.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\win32api.pyd" SelfReg="false" NextFile="_win32sysloader.pyd"/>
+    <ROW File="win32pdh.pyd" Component_="FAForever.lib" FileName="win32pdh.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\win32pdh.pyd" SelfReg="false" NextFile="tk85.dll"/>
+    <ROW File="win32pipe.pyd" Component_="FAForever.lib" FileName="win32p~1.pyd|win32pipe.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\win32pipe.pyd" SelfReg="false" NextFile="win32pdh.pyd"/>
     <ROW File="win32ui.pyd" Component_="FAForever.lib" FileName="win32ui.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\win32ui.pyd" SelfReg="false" NextFile="pythoncom27.dll"/>
-    <ROW File="win32wnet.pyd" Component_="FAForever.lib" FileName="win32w~1.pyd|win32wnet.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\win32wnet.pyd" SelfReg="false" NextFile="qgif4.dll_1"/>
     <ROW File="window_icon.png" Component_="window_icon.png" FileName="window~1.png|window_icon.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\window_icon.png" SelfReg="false" NextFile="replay.ico"/>
     <ROW File="window_pos.pyc" Component_="arrays_of_arrays.pyc" FileName="window~1.pyc|window_pos.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\ARB\window_pos.pyc" SelfReg="false" NextFile="__init__.pyc_4"/>
     <ROW File="window_pos.pyc_1" Component_="pack_invert.pyc" FileName="window~1.pyc|window_pos.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GL\MESA\window_pos.pyc" SelfReg="false" NextFile="ycbcr_texture.pyc"/>
     <ROW File="window_pos.pyc_2" Component_="arrays_of_arrays.pyc_1" FileName="window~1.pyc|window_pos.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\ARB\window_pos.pyc" SelfReg="false" NextFile="__init__.pyc_38"/>
     <ROW File="window_pos.pyc_3" Component_="pack_invert.pyc_1" FileName="window~1.pyc|window_pos.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\MESA\window_pos.pyc" SelfReg="false" NextFile="ycbcr_texture.pyc_1"/>
     <ROW File="wrapper.pyc" Component_="acceleratesupport.pyc" FileName="wrapper.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\wrapper.pyc" SelfReg="false" NextFile="_bytes.pyc"/>
+    <ROW File="wrapper.pyd" Component_="arraydatatype.pyd" FileName="wrapper.pyd" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL_accelerate\wrapper.pyd" SelfReg="false" NextFile="__init__.pyc_72"/>
     <ROW File="ws.png" Component_="ad.png" FileName="ws.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\countries\ws.png" SelfReg="false" NextFile="ye.png"/>
     <ROW File="wyvern.html" Component_="blackops.html" FileName="wyvern~1.htm|wyvern.html" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\wyvern.html" SelfReg="false" NextFile="wyvern.png"/>
     <ROW File="wyvern.png" Component_="blackops.html" FileName="wyvern.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\games\mods\wyvern.png" SelfReg="false" NextFile="xtremewars.html"/>
