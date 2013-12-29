@@ -35,11 +35,12 @@ from client import logger, ClientState, MUMBLE_URL, WEBSITE_URL, WIKI_URL,\
 
 import util
 import fa
-import stats
+import secondaryServer
 
 import json
 import sys
 import replays
+
 import time
 import os
 import random
@@ -208,7 +209,7 @@ class ClientWindow(FormClass, BaseClass):
         self.proxyServer = fa.proxies.proxies(self)
                
         #stat server
-        self.statsServer = stats.StatServer(self)
+        self.statsServer = secondaryServer.SecondaryServer("Statistic", 11002, self)      
                
         #create user interface (main window) and load theme
         self.setupUi(self)
@@ -599,12 +600,7 @@ class ClientWindow(FormClass, BaseClass):
         if self.socket.state() == QtNetwork.QTcpSocket.ConnectedState:
             self.progress.setLabelText("Closing main connection.")
             self.socket.disconnectFromHost()
-            
-        # Terminate tournament connection
-        if self.tourneys :
-            self.progress.setLabelText("Closing tournament connection.")
-            self.tourneys.tournamentSocket.disconnectFromHost()
-        
+                  
         # Clear UPnP Mappings...
         if self.useUPnP:
             self.progress.setLabelText("Removing UPnP port mappings")
@@ -1150,9 +1146,6 @@ class ClientWindow(FormClass, BaseClass):
 
             # live streams
             self.LivestreamWebView.setUrl(QtCore.QUrl("http://www.faforever.com/?page_id=974"))
-            
-            # update tournament
-            self.tourneys.updateTournaments()
             
             util.report.BUGREPORT_USER = self.login
             util.crash.CRASHREPORT_USER = self.login

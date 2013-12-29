@@ -20,236 +20,146 @@
 
 
 
-from PyQt4 import QtCore, QtGui
-
-import math
-
-from fa import maps
+from PyQt4 import QtCore, QtGui, QtWebKit
 import util
-from tourneys.tourneytypeitem import tourneyType
-
-from trueSkill.Team import *
-from trueSkill.Teams import *
-from trueSkill.TrueSkill.FactorGraphTrueSkillCalculator import * 
-from trueSkill.Rating import *
-
-import client
 
 
 class TourneyItemDelegate(QtGui.QStyledItemDelegate):
+    #colors = json.loads(util.readfile("client/colors.json"))
     
     def __init__(self, *args, **kwargs):
         QtGui.QStyledItemDelegate.__init__(self, *args, **kwargs)
+        self.height = 125
         
     def paint(self, painter, option, index, *args, **kwargs):
         self.initStyleOption(option, index)
                 
         painter.save()
-        painter.setRenderHint(8, True)
         
+        html = QtGui.QTextDocument()
+        html.setHtml(option.text)
+        if self.height < html.size().height() :
+            self.height = html.size().height()
         
-        rounds = option.widget.item(index.row()).rounds
-
-    
-        players = option.widget.item(index.row()).maxPlayers
-        numGames = option.widget.item(index.row()).numGames
+       
+        option.text = ""  
+        option.widget.style().drawControl(QtGui.QStyle.CE_ItemViewItem, option, painter, option.widget)
         
-        firstRoundByes = math.pow(2,rounds) - players
+        #Description
+        painter.translate(option.rect.left(), option.rect.top())
+        #painter.fillRect(QtCore.QRect(0, 0, option.rect.width(), option.rect.height()), QtGui.QColor(36, 61, 75, 150))
+        clip = QtCore.QRectF(0, 0, option.rect.width(), option.rect.height())
+        html.drawContents(painter, clip)
         
-        firstRoundGames = int(option.widget.item(index.row()).firstRoundGames)
-        
-        junctionsFrom = {}
-        junctionsTo = {}
-        junctionsGotBye = {}
-        
-        numMatches = 0
-        
-        leftMarging = 5
-        
-        playerNum = players
-        
-        for i in xrange(rounds) :
-
-            offset = 1
-            
-            if i == 0 :
-                offset = 1.1
-                numMatches = firstRoundGames
-            elif i == 1 :
-                numMatches = (float(firstRoundGames) / 2) + (firstRoundByes / 2)
-
-            else :
-                numMatches = numMatches / 2
-
-            
-            topMarging =  ((TourneyItem.HEIGHT * offset) - (numMatches * (TourneyItem.HEIGHTMATCH + TourneyItem.SPACING))) / 2
-            
-            junctionsGotBye[i] = []
-            
-            if i != 0 :
-                junctionsFrom[i] = []
-            if numMatches > 1 :
-                junctionsTo[i] = []
-                
-            for j in xrange(int(numMatches)) :
-
-                painter.fillRect(leftMarging, topMarging, TourneyItem.WIDTHMATCH, TourneyItem.HEIGHTMATCH, QtGui.QColor("#202020"))
-                
-                painter.drawRoundedRect(leftMarging+1, topMarging+1, TourneyItem.WIDTHMATCH-1, (TourneyItem.HEIGHTMATCH/2)-1, 5, 5)
-                painter.drawRoundedRect(leftMarging+1, topMarging+TourneyItem.HEIGHTMATCH/2, TourneyItem.WIDTHMATCH-1, (TourneyItem.HEIGHTMATCH/2)-1, 5, 5)
-                
-                painter.drawLine(leftMarging+1+(TourneyItem.WIDTHMATCH * .1), topMarging+1, leftMarging+1+(TourneyItem.WIDTHMATCH * .1), TourneyItem.HEIGHTMATCH+topMarging-1)
-                
-                if i == 0 :
-                    painter.drawText(leftMarging+1, topMarging+1, (TourneyItem.WIDTHMATCH-1) *.1, (TourneyItem.HEIGHTMATCH/2)-1, QtCore.Qt.AlignCenter, str(playerNum))
-                    playerNum -= 1
-                    painter.drawText(leftMarging+1, topMarging+TourneyItem.HEIGHTMATCH/2, (TourneyItem.WIDTHMATCH-1) *.1, (TourneyItem.HEIGHTMATCH/2)-1, QtCore.Qt.AlignCenter, str(playerNum))
-                    playerNum -= 1
-                elif i == 1 :
-                    if firstRoundByes != 0 and playerNum > 0 :
-                        painter.drawText(leftMarging+1, topMarging+1, (TourneyItem.WIDTHMATCH-1) *.1, (TourneyItem.HEIGHTMATCH/2)-1, QtCore.Qt.AlignCenter, str(playerNum))
-                        playerNum -= 1
-                        junctionsGotBye[i].append(j)
-                        
-                        
-                if i != 0 :
-                    junctionsFrom[i].append( QtCore.QPointF(leftMarging, topMarging+TourneyItem.HEIGHTMATCH/2) )
-                
-                if numMatches > 1 :
-                    junctionsTo[i].append(QtCore.QPointF(leftMarging+TourneyItem.WIDTHMATCH, topMarging+TourneyItem.HEIGHTMATCH/2))
-            
-                            
-                topMarging = topMarging + TourneyItem.SPACING + TourneyItem.HEIGHTMATCH
-                
-
-            
-
-            
-            leftMarging = leftMarging + TourneyItem.WIDTHMATCH + TourneyItem.HSPACING
-        #round 1
-        
-        pen = QtGui.QPen(painter.pen())
-        pen.setWidthF(2)
-        painter.setPen(pen)
-                
-        for key in junctionsTo :
-            fromLength = len(junctionsFrom[key+1])
-            toLength = len(junctionsTo[key])
-            if fromLength == toLength : 
-                for i in range(toLength) :         
-                    
-                    start = junctionsTo[key][i]
-                    end = junctionsFrom[key+1][i]
-                    self.drawLiasion(painter, start, end)
-
-                    
-            elif (toLength / 2) == fromLength :
-                idx = 0
-                for i in range(fromLength) :
-                    end = junctionsFrom[key+1][i]
-                    start = junctionsTo[key][idx]
-                    idx += 1
-                    start2 = junctionsTo[key][idx]
-                    idx += 1
-                    self.drawLiasion(painter, start, end)                       
-                    self.drawLiasion(painter, start2, end)
-                  
-            else :
-                idx = 0
-                for i in range(toLength) :
-
-                    start = junctionsTo[key][i]
-                    end = junctionsFrom[key+1][idx]
-                    
-                    if i in junctionsGotBye[key+1] :
-                        idx += 1
-
-
-                    self.drawLiasion(painter, start, end)
-
-                  
-  
         painter.restore()
-   
-    def drawLiasion(self, painter, start, end):
-        painter.drawLine(start.x(), start.y(), start.x() + TourneyItem.HSPACING / 2, start.y())
-        painter.drawLine(start.x() + TourneyItem.HSPACING / 2, start.y(), end.x()- TourneyItem.HSPACING / 2, end.y())                    
-        painter.drawLine(end.x()- TourneyItem.HSPACING / 2, end.y(), end.x(), end.y())
-
 
     def sizeHint(self, option, index, *args, **kwargs):
         self.initStyleOption(option, index)
+        html = QtGui.QTextDocument()
+        html.setHtml(option.text)
+        return QtCore.QSize(int(html.size().width()), int(html.size().height()))
+
+class QWebPageChrome(QtWebKit.QWebPage):
+    def __init__(self, *args, **kwargs):
+        QtWebKit.QWebPage.__init__(self, *args, **kwargs)
         
-#        html = QtGui.QTextDocument()
-#        html.setHtml(option.text)
-#        html.setTextWidth(TourneyItem.TEXTWIDTH)
-        return QtCore.QSize(option.widget.width(), TourneyItem.HEIGHT)  
-
-
-
-
+    def userAgentForUrl(self, url):
+        return "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.121 Safari/535.2"
 
 class TourneyItem(QtGui.QListWidgetItem):
-    HEIGHT = 500
-    HEIGHTMATCH = 62
-    WIDTHMATCH = 200
-    SPACING = 10
-    HSPACING = 50
-    
+    FORMATTER_SWISS_OPEN = unicode(util.readfile("tournaments/formatters/swiss_open.qthtml"))
 
-    #DATA_PLAYERS = 32
     
-    
-#    FORMATTER_FAF = unicode(util.readfile("games/formatters/faf.qthtml"))
-#    FORMATTER_MOD = unicode(util.readfile("games/formatters/mod.qthtml"))
-    
-    def __init__(self, uid, *args, **kwargs):
+    def __init__(self, parent, uid, *args, **kwargs):
         QtGui.QListWidgetItem.__init__(self, *args, **kwargs)
 
-        self.uid = uid
+        self.uid = int(uid)
+
+        self.parent = parent
+        
+        self.type = None    
         self.client = None
         self.title  = None
-        self.host   = None
-        self.mod    = None
-        self.moddisplayname  = None
+        self.description = None
         self.state  = None
-        self.options = []
         self.players = []
-        self.minPlayers = 2
-        self.maxPlayers = 2
+        self.playersname = []
         
-        self.numGames = self.maxPlayers - 1
-        
-        self.rounds = int(math.ceil(math.log(self.maxPlayers, 2)))
-        self.firstRoundGames = self.maxPlayers - self.next_power_of_2(self.maxPlayers)
-        
+        self.viewtext = ""
+        self.height = 40
         self.setHidden(True)
-        
 
-             
     def update(self, message, client):
         '''
         Updates this item from the message dictionary supplied
         '''
-
         self.client  = client
-        self.title      = message['title']
-        self.minPlayers = message['min_players']
-        self.maxPlayers = message['max_players']
-        self.host       = message['host']
+        old_state       = self.state
+        self.state      = message.get('state', "close")
         
-        
-        oldstate = self.state
-        self.state  = message['state']
-   
-        self.setHidden((self.state != 'open'))       
+        ''' handling the listing of the tournament '''
+        self.title      = message['name']
+        self.type       = message['type']
+        self.url        = message['url']
+        self.description    = message.get('description', "")
+        self.players        = message.get('participants', [])
 
-        self.rounds = int(math.ceil(math.log(self.maxPlayers, 2)))
-        self.numGames = self.maxPlayers - 1
+        if old_state != self.state and self.state == "started" :
+            widget = QtWebKit.QWebView()
+            webPage = QWebPageChrome()
+            widget.setPage(webPage)
+            widget.setUrl(QtCore.QUrl(self.url))
+            self.parent.topTabs.addTab(widget, self.title)
 
-        self.firstRoundGames = self.maxPlayers - self.next_power_of_2(self.maxPlayers)
+        self.playersname= []
+        for player in self.players :
+            self.playersname.append(player["name"])
+            if old_state != self.state and self.state == "started" and player["name"] == self.client.login :
+                channel = "#" + self.title.replace(" ", "_")
+                self.client.autoJoin.emit([channel])
+                QtGui.QMessageBox.information(self.client, "Tournament started !", "Your tournament has started !\nYou have automatically joined the tournament channel.")
+
+        playerstring = "<br/>".join(self.playersname)
+
+        self.viewtext = self.FORMATTER_SWISS_OPEN.format(title=self.title, description=self.description, numreg=str(len(self.players)), playerstring=playerstring)
+        self.setText(self.viewtext)
         
-    def next_power_of_2(self, v):
-        if math.log(v, 2) % 1.0 == 0.0 :
-            v -= 1
-        return pow(2,math.floor(math.log(v) / math.log(2))) 
+
+    def display(self):
+        return self.viewtext
+ 
+ 
+    def data(self, role):
+        if role == QtCore.Qt.DisplayRole:
+            return self.display()  
+        elif role == QtCore.Qt.UserRole :
+            return self
+        return super(TourneyItem, self).data(role)
+
+
+
+    def permutations(self, items):
+        """Yields all permutations of the items."""
+        if items == []:
+            yield []
+        else:
+            for i in range(len(items)):
+                for j in self.permutations(items[:i] + items[i+1:]):
+                    yield [items[i]] + j
+
+    def __ge__(self, other):
+        ''' Comparison operator used for item list sorting '''        
+        return not self.__lt__(other)
+    
+    
+    def __lt__(self, other):
+        ''' Comparison operator used for item list sorting '''        
+        if not self.client: return True # If not initialized...
+        if not other.client: return False;
+        
+        
+        # Default: Alphabetical
+        return self.title.lower() < other.title.lower()
+    
+
+

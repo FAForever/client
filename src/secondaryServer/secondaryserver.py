@@ -21,12 +21,11 @@
 
 from PyQt4 import QtGui, QtCore, QtNetwork
 import time
-#import util
 import json
 import logging
-import fa
 
-logger = logging.getLogger("faf.statserver")
+
+logger = logging.getLogger("faf.secondaryServer")
 logger.setLevel(logging.INFO)
 
 def log(string):
@@ -43,13 +42,10 @@ class Timeout(StandardError):
     pass
     
 
-class StatServer(QtCore.QObject):
-    '''
-    This class is prepared files to see the GW replay correctly.
-    '''
+class SecondaryServer(QtCore.QObject):
+
     # Network configuration
-    SOCKET  = 11002
-    HOST    = "faforever.com"
+    HOST    = "direct.faforever.com"
     TIMEOUT = 20  #seconds
 
     # Return codes to expect from run()
@@ -60,12 +56,18 @@ class StatServer(QtCore.QObject):
     RESULT_BUSY = 4         # Server is currently busy
     RESULT_PASS = 5         # User refuses to update by canceling
     
-    def __init__(self, requester, *args, **kwargs):
+    def __init__(self, name, socket, requester, *args, **kwargs):
         '''
         Constructor
         '''
         QtCore.QObject.__init__(self, *args, **kwargs)
         
+        self.name = name
+        
+        logger = logging.getLogger("faf.secondaryServer.%s" % self.name)
+        logger.info("Instanciating secondary server.")
+        
+        self.socketPort = socket
         self.requester      = requester
 
         self.result = self.RESULT_NONE
@@ -73,15 +75,17 @@ class StatServer(QtCore.QObject):
         self.message = None
         
         self.blockSize = 0
-        self.statServerSocket = QtNetwork.QTcpSocket()
+        self.serverSocket = QtNetwork.QTcpSocket()
 
-        self.statServerSocket.error.connect(self.handleServerError)
-        self.statServerSocket.readyRead.connect(self.readDataFromServer)
-        self.statServerSocket.disconnected.connect(self.disconnected)
-        self.statServerSocket.error.connect(self.errored)
-        
-
-        
+        self.serverSocket.error.connect(self.handleServerError)
+        self.serverSocket.readyRead.connect(self.readDataFromServer)
+        self.serverSocket.disconnected.connect(self.disconnected)
+        self.serverSocket.error.connect(self.errored)
+        self.invisible = False
+            
+    def setInvisible(self):
+        self.invisible = True
+    
     def send(self, command, *args, **kwargs):
         ''' actually do the settings'''
                   
@@ -96,21 +100,23 @@ class StatServer(QtCore.QObject):
         self.progress.setAutoClose(False)
         self.progress.setAutoReset(True)
         self.progress.setModal(1)
-        self.progress.setWindowTitle("Connecting to statistic server")
-                
-        self.progress.show()        
+        self.progress.setWindowTitle("Connecting to %s server" % self.name)
+        if not self.invisible:
+            self.progress.show()
+            self.progress.setLabelText("Connecting to server...")     
+           
         self.lastData = time.time()
-        self.progress.setLabelText("Connecting to server...")
+        
 
-        self.statServerSocket.connectToHost(self.HOST, self.SOCKET)                         
+        self.serverSocket.connectToHost(self.HOST, self.socketPort)                         
 
-        while not (self.statServerSocket.state() == QtNetwork.QAbstractSocket.ConnectedState) and self.progress.isVisible():
+        while not (self.serverSocket.state() == QtNetwork.QAbstractSocket.ConnectedState) and self.progress.isVisible():
             QtGui.QApplication.processEvents()
         
                                      
         if not self.progress.wasCanceled():
             self.doCommand(command)        
-            self.progress.setLabelText("Cleaning up.")                
+            self.progress.setLabelText("Cleaning up.")
             self.progress.close()                
         else:
             self.result = self.RESULT_CANCEL
@@ -130,8 +136,8 @@ class StatServer(QtCore.QObject):
         self.progress.setMinimum(0)
         self.progress.setMaximum(0)
         while self.result == self.RESULT_NONE :
-            if (self.progress.wasCanceled()) : raise Cancellation("Operation aborted while waiting for info.")
-            if (time.time() - self.lastData > self.TIMEOUT) : raise Timeout("Operation timed out while waiting for info.")
+            if (self.progress.wasCanceled()) : logger.error("Operation aborted while waiting for info.")
+            if (time.time() - self.lastData > self.TIMEOUT) : logger.error("Operation timed out while waiting for info.")
             QtGui.QApplication.processEvents()
         logger.debug("Finishing request")
         self.result = self.RESULT_NONE
@@ -146,15 +152,15 @@ class StatServer(QtCore.QObject):
 
     @QtCore.pyqtSlot()
     def readDataFromServer(self):
-        ins = QtCore.QDataStream(self.statServerSocket)        
+        ins = QtCore.QDataStream(self.serverSocket)        
         ins.setVersion(QtCore.QDataStream.Qt_4_2)
         
         while ins.atEnd() == False :
             if self.blockSize == 0:
-                if self.statServerSocket.bytesAvailable() < 4:
+                if self.serverSocket.bytesAvailable() < 4:
                     return
                 self.blockSize = ins.readUInt32()            
-            if self.statServerSocket.bytesAvailable() < self.blockSize:
+            if self.serverSocket.bytesAvailable() < self.blockSize:
                 return
             
             action = ins.readQString()
@@ -184,7 +190,7 @@ class StatServer(QtCore.QObject):
         out.writeUInt32(block.size() - 4)
 
         self.bytesToSend = block.size() - 4        
-        self.statServerSocket.write(block)
+        self.serverSocket.write(block)
 
 
     def process(self, action, stream):
@@ -201,7 +207,7 @@ class StatServer(QtCore.QObject):
             self.command = cmd
             self.message = message
         
-        self.statServerSocket.abort()        
+        self.serverSocket.abort()        
         self.result = self.RESULT_SUCCESS
             
         
@@ -221,7 +227,7 @@ class StatServer(QtCore.QObject):
         elif socketError == QtNetwork.QAbstractSocket.ConnectionRefusedError:
             log("The connection was refused by the peer.")
         else:
-            log("The following error occurred: %s." % self.statServerSocket.errorString())    
+            log("The following error occurred: %s." % self.serverSocket.errorString())    
 
         self.result = self.RESULT_FAILURE  
 
