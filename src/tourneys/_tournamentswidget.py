@@ -58,7 +58,6 @@ class TournamentsWidget(FormClass, BaseClass):
         self.updateTimer.timeout.connect(self.updateTournaments)
         self.updateTimer.start(600000)
         
-        self.updateTournaments()
     
     def showEvent(self, event):
         self.updateTournaments()

@@ -20,7 +20,7 @@
 
 
 
-from PyQt4 import QtCore, QtNetwork
+from PyQt4 import QtCore, QtGui, QtNetwork
 
 import functools
 
@@ -56,7 +56,7 @@ class proxies(QtCore.QObject):
                 self.proxiesDestination[i] = None
 
         if errored:
-            QtGui.QMessageBox.warning(self, "Cannot use proxy server", "FAF is unable to bind the port <b>12000 to 12011 on TCP</b>.<br>Please check your firewall settings.<br><b>You may experience connections problems until it's fixed.</b>")
+            QtGui.QMessageBox.warning(self.client, "Cannot use proxy server", "FAF is unable to bind the port <b>12000 to 12011 on TCP</b>.<br>Please check your firewall settings.<br><b>You may experience connections problems until it's fixed.</b>")
             
         self.proxySocket = QtNetwork.QTcpSocket(self)
         self.proxySocket.connected.connect(self.connectedProxy)
