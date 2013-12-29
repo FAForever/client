@@ -41,8 +41,6 @@ import cStringIO
 import util
 import os, stat
 import struct
-import FreeImagePy as FIPY
-import warnings
 import shutil
 import urllib2
 import zipfile

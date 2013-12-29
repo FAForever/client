@@ -22,7 +22,6 @@ import urllib2
 import logging
 import os
 import util
-import FreeImagePy as FIPY
 import warnings
 
 logger= logging.getLogger("faf.downloader")

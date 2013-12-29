@@ -28,7 +28,6 @@ from util import strtodate, datetostr, now, PREFSFILENAME
 import util
 import logging
 from vault import luaparser
-import FreeImagePy as FIPY
 import warnings
 
 import cStringIO
