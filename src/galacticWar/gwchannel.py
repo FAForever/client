@@ -8,9 +8,9 @@ from chat.chatter import Chatter
 class gwChannel(Channel):
     def __init__(self, lobby, name, private=True, *args, **kwargs):
         super(self.__class__, self).__init__(lobby, name)
-
+        
     def setup(self):
-
+        
         # Non-query channels have a sorted nicklist
         self.nickList.sortItems(Chatter.SORT_COLUMN)
         
@@ -43,3 +43,4 @@ class gwChannel(Channel):
         self.resizeTimer = QtCore.QTimer(self)
         self.resizeTimer.timeout.connect(self.canresize)
         
+        self.gwChannel = True
