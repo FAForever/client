@@ -453,7 +453,7 @@ class GameItem(QtGui.QListWidgetItem):
                             displayPlayer = ("<td align = 'center' valign='center' width = '150'>%s</td>" % playerStr)
                         
                         
-                        country = os.path.join(util.COMMON_DIR, "chat/countries/%s.png" % self.client.players[player]["country"])
+                        country = os.path.join(util.COMMON_DIR, "chat/countries/%s.png" % self.client.players[player]["country"].lower())
                         
                         if i == self.nTeams : 
                             displayPlayer += '<td width="16"><img src = "'+country+'" width="16" height="16"></td>'
