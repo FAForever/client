@@ -37,7 +37,7 @@ import matplotlib
 
 # The targets to build
 BUILD = int(open("build.dat").read())+1
-open("build.dat", "w").write(str(BUILD))
+
 
 print "py2exe version: " + py2exe.__version__
 print "BUILD: " + str(BUILD)
@@ -62,7 +62,7 @@ if (os.path.isdir("\\\\LIBERATOR\\faf\\current-build")):
 if (os.path.isdir("dist")):
     shutil.rmtree("dist")
 
-shutil.copytree("_lib", "dist")             #Lib directory needs to contain MSVCRT90.dll and FreeImage.dll, plus Qt Image format plugins etc.
+shutil.copytree("_lib", "dist")             #Lib directory needs to contain MSVCRT90.dll, plus Qt Image format plugins etc.
 shutil.copytree("_res", "dist/_res")
 
 VERSION_STRING = "0.10." + str(BUILD)
@@ -92,6 +92,7 @@ print "Clearing and copying..."
 if (os.path.isdir("build")):
     shutil.rmtree("build")
 
+open("build.dat", "w").write(str(BUILD))
 
 print "BUILD FINISHED!"
 print "Build no. " + str(BUILD)
