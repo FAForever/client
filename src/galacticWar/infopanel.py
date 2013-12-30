@@ -287,6 +287,9 @@ class InfoPanelWidget(FormClass, BaseClass):
         for uid in self.parent.attacks :
             for planetuid in self.parent.attacks[uid] :
                 if planetId == planetuid :
+                    if self.parent.attacks[uid][planetuid]["defended"] == True :
+                        return
+                         
                     if self.parent.attacks[uid][planetuid]["onHold"] == True :
                         if self.parent.attacks[uid][planetuid]["faction"] == faction :
                             self.attackButton.show()
