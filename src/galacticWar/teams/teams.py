@@ -41,6 +41,9 @@ class Teams(object):
     
     def getMemberNames(self):
         return self.members.values()
+
+    def getMembersUids(self):
+        return self.leader.keys() + self.members.keys() 
     
     def getNames(self, players):
         for name in players:

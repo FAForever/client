@@ -193,36 +193,43 @@ class InfoPanelWidget(FormClass, BaseClass):
                 
     def updateAttacks(self):
         logger.debug("updating attacks")
-        if self.parent.uid in self.parent.attacks :
-            self.attackListWidget.show()
-            
-            # clearing stuff
-            for uid in self.myAttacks :
-                self.myAttacks[uid].updateTimer.stop()
-            self.myAttacks = {}
-            self.attackListWidget.clear()
-            
-            for uid in self.parent.attacks[self.parent.uid] :
-                if self.parent.attacks[self.parent.uid][uid]["onHold"] == True :
-                    continue
-                
-                if not uid in self.myAttacks :
-                    self.myAttacks[uid] = AttackItem(uid)
-                    self.attackListWidget.addItem(self.myAttacks[uid])
-                
-                self.myAttacks[uid].update(self.parent.attacks[self.parent.uid][uid], self)
-                
-            
-            if self.attackListWidget.count() == 0:
-                self.attackListWidget.hide()
         
-        else :
+        membersUids = list(set(self.parent.attacks.keys()).intersection(set(self.parent.teams.getMembersUids() + [self.parent.uid] )))
+        myAttackList = [self.parent.attacks[key] for key in membersUids ]
+
+        # first, clear the attacks that are not in the attacklist
+        
+        for planetuid in set(self.myAttacks.keys()).difference(set([attack.keys()[0] for attack in myAttackList])):
+            self.myAttacks[planetuid].updateTimer.stop()
+            row = self.attackListWidget.row(self.myAttacks[planetuid])
+            if row != None:
+                self.attackListWidget.takeItem(row)
+            del self.myAttacks[planetuid]        
+ 
+        # then update or add attacks
+        for attack in myAttackList : 
+            for planetuid in attack:
+                if attack[planetuid]["onHold"] == True :
+                    if planetuid in self.myAttacks:
+                        self.myAttacks[planetuid].updateTimer.stop()
+                        row = self.attackListWidget.row(self.myAttacks[planetuid])
+                        if row != None:
+                            self.attackListWidget.takeItem(row)
+                        del self.myAttacks[planetuid]
+                    continue
+            
+            
+                if not planetuid in self.myAttacks :
+                    self.myAttacks[planetuid] = AttackItem(planetuid)
+                    self.attackListWidget.addItem(self.myAttacks[planetuid])            
+                
+                self.myAttacks[planetuid].update(attack[planetuid], self)
+
+        if self.attackListWidget.count() == 0:
             self.attackListWidget.hide()
-            if len(self.myAttacks) != 0 :
-                for uid in self.myAttacks :
-                    self.myAttacks[uid].updateTimer.stop()
-                self.myAttacks = {}
-                self.attackListWidget.clear()                
+        else:
+            self.attackListWidget.show()
+           
 
     def away(self, state):
         '''set the player as away'''
