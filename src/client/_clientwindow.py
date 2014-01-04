@@ -197,6 +197,7 @@ class ClientWindow(FormClass, BaseClass):
         #Process used to run Forged Alliance (managed in module fa)
         fa.exe.instance.started.connect(self.startedFA)
         fa.exe.instance.finished.connect(self.finishedFA)
+        fa.exe.instance.error.connect(self.errorFA)
         self.gameInfo.connect(fa.exe.instance.processGameInfo)
         
         #Local Replay Server (and relay)
@@ -1318,7 +1319,23 @@ class ClientWindow(FormClass, BaseClass):
         self.send(dict(command="fa_state", state="off"))
         self.gameExit.emit()
 
-        
+    @QtCore.pyqtSlot(int)
+    def errorFA(self, error_code):
+        '''
+        Slot hooked up to fa.exe.instance when the process has failed to start.
+        '''                
+        if error_code == 0:
+            logger.error("FA has failed to start")
+            QtGui.QMessageBox.critical(self, "Error from FA", "FA has failed to start.")
+        elif error_code == 1:
+            logger.error("FA has crashed after starting")
+            QtGui.QMessageBox.critical(self, "Error from FA", "FA has crashed!")
+        else:
+            text = "FA has failed to start with error code: " + str(error_code)
+            logger.error(text)
+            QtGui.QMessageBox.critical(self, "Error from FA", text)        
+        self.send(dict(command="fa_state", state="off"))
+        self.gameExit.emit()
 
     @QtCore.pyqtSlot(int)
     def mainTabChanged(self, index):

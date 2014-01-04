@@ -108,8 +108,8 @@ def __run(info, arguments, detach = False):
         in an attached process.
         '''        
         #prepare actual command for launching
-        executable = os.path.join(util.BIN_DIR, "ForgedAlliance.exe")
-        command = '"' + executable + '" ' + " ".join(arguments) 
+        executable = os.path.join(util.BIN_DIR, "ForgedAlliance.exe") 
+        command = '"' + executable + '" ' + " ".join(arguments)
         
         logger.info("Running FA with info: " + str(info))
         logger.info("Running FA via command: " + command)
@@ -120,7 +120,7 @@ def __run(info, arguments, detach = False):
             
             instance.setWorkingDirectory(util.BIN_DIR)
             if not detach:
-                instance.start(command)
+                instance.start(command)       
             else:  
                 instance.startDetached(executable, arguments, util.BIN_DIR)
             return True
