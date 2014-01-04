@@ -738,6 +738,10 @@ class Site(object):
         
         self.defenses = {}
 
+    def removeDefenses(self):
+        '''remove this planet defenses list'''
+        self.defenses = {}
+
     def updateDefenses(self, message):
         '''update this planet defenses list'''
         itemuid = message["itemuid"]

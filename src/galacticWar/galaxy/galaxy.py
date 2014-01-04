@@ -210,7 +210,10 @@ class Galaxy(object):
         if uid in self.control_points :
             self.control_points[uid].updateDefenses(message)
         
-    
+    def removeDefenses(self, uid):
+        if uid in self.control_points :
+            self.control_points[uid].removeDefenses()
+        
     def addPlanet(self, uid, name, desc, x, y, size, texture=1, mapname="", init=False):
         
         x = round(x)

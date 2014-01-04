@@ -432,6 +432,11 @@ class LobbyWidget(FormClass, BaseClass):
                 self.attacks[playeruid_int][planetuid_int] = attacks[playeruid][planetuid]
         self.attacksUpdated.emit()
 
+    def planet_defense_remove(self, message):
+        '''handling removing defenses for a planet'''
+        planetuid = message["planetuid"]
+        self.galaxy.removeDefenses(planetuid)
+            
     def handle_planet_defense_info(self, message):
         '''handling defenses for planets'''
         planetuid = message["planetuid"]
