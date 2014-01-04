@@ -110,17 +110,28 @@ class SecondaryServer(QtCore.QObject):
 
         self.serverSocket.connectToHost(self.HOST, self.socketPort)                         
 
-        while not (self.serverSocket.state() == QtNetwork.QAbstractSocket.ConnectedState) and self.progress.isVisible():
-            QtGui.QApplication.processEvents()
-        
-                                     
-        if not self.progress.wasCanceled():
-            self.doCommand(command)        
+        if not self.invisible:
+            while not (self.serverSocket.state() == QtNetwork.QAbstractSocket.ConnectedState) and self.progress.isVisible():                
+                QtGui.QApplication.processEvents()
+            if not self.progress.wasCanceled():
+                self.doCommand(command)                     
+            else:
+                self.result = self.RESULT_CANCEL       
             self.progress.setLabelText("Cleaning up.")
             self.progress.close()                
+                         
         else:
-            self.result = self.RESULT_CANCEL
-        
+            started = time.time()
+            cancelled = False
+            while not (self.serverSocket.state() == QtNetwork.QAbstractSocket.ConnectedState):
+                QtGui.QApplication.processEvents()
+                if time.time() - started > 5:
+                    cancelled = True
+                    self.result = self.RESULT_CANCEL
+                    break
+            if not cancelled:
+                self.doCommand(command)
+
         return self.result  
 
     def doCommand(self, command):
@@ -132,12 +143,14 @@ class SecondaryServer(QtCore.QObject):
         '''
         A simple loop that waits until the server has transmitted our info.
         '''        
-        self.progress.setValue(0)
-        self.progress.setMinimum(0)
-        self.progress.setMaximum(0)
+        if not self.invisible:
+            self.progress.setValue(0)
+            self.progress.setMinimum(0)
+            self.progress.setMaximum(0)
         while self.result == self.RESULT_NONE :
-            if (self.progress.wasCanceled()) : logger.error("Operation aborted while waiting for info.")
-            if (time.time() - self.lastData > self.TIMEOUT) : logger.error("Operation timed out while waiting for info.")
+            if not self.invisible:
+                if (self.progress.wasCanceled()) : logger.error("Operation aborted while waiting for info.")
+                if (time.time() - self.lastData > self.TIMEOUT) : logger.error("Operation timed out while waiting for info.")
             QtGui.QApplication.processEvents()
         logger.debug("Finishing request")
         self.result = self.RESULT_NONE
