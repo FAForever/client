@@ -606,6 +606,7 @@ def downloadMap(name, silent=False):
         if file_size_dl == file_size:
             zfile = zipfile.ZipFile(output)
             zfile.extractall(getUserMapsFolder())
+            zfile.close()
 
             #check for eventual sound files
             if folderForMap(name):

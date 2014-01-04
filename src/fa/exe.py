@@ -240,7 +240,8 @@ def replay(source, detach = False):
         arguments.append('"' + util.LOG_FILE_REPLAY + '"')
 
         if replay_id:
-            arguments.append("/replayid " + str(replay_id))
+            arguments.append("/replayid")
+            arguments.append(str(replay_id))
 
         # Update the game appropriately
         if not check(mod, mapname, version, featured_mod_versions):
