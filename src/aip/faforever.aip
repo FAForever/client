@@ -10,10 +10,10 @@
     <ROW Property="ARPURLUPDATEINFO" Value="http://www.faforever.com/page=2"/>
     <ROW Property="CTRLS" Value="2"/>
     <ROW Property="Manufacturer" Value="FAF Community" ValueLocId="*"/>
-    <ROW Property="ProductCode" Value="1033:{F73250FF-2951-488D-A2A1-2379FE4956A1} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{285B687F-3A83-463F-8B97-5C7A928DEB37} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Forged Alliance Forever" ValueLocId="*"/>
-    <ROW Property="ProductVersion" Value="240.10.99"/>
+    <ROW Property="ProductVersion" Value="240.10.100"/>
     <ROW Property="REBOOT" MultiBuildValue="DefaultBuild:Suppress"/>
     <ROW Property="RUNAPPLICATION" Value="1" Type="4"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
@@ -1492,7 +1492,7 @@
     <ROW File="qt4_editor_options.svg" Component_="back.png" FileName="qt4_ed~1.svg|qt4_editor_options.svg" Attributes="0" SourcePath="F:\DIST_FAFOREVER\mpl-data\images\qt4_editor_options.svg" SelfReg="false" NextFile="stock_close.ppm"/>
     <ROW File="qtga4.dll" Component_="qtga4.dll" FileName="qtga4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\qtga4.dll" SelfReg="false" NextFile="qtiff4.dll"/>
     <ROW File="qtga4.dll_1" Component_="qtga4.dll_1" FileName="qtga4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\plugins\imageformats\qtga4.dll" SelfReg="false" NextFile="qtiff4.dll_1"/>
-    <ROW File="qtiff4.dll" Component_="qtiff4.dll" FileName="qtiff4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\qtiff4.dll" SelfReg="false"/>
+    <ROW File="qtiff4.dll" Component_="qtiff4.dll" FileName="qtiff4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\qtiff4.dll" SelfReg="false" NextFile="reinforcementSmall.qthtml"/>
     <ROW File="qtiff4.dll_1" Component_="qtiff4.dll_1" FileName="qtiff4.dll" Attributes="0" SourcePath="F:\DIST_FAFOREVER\plugins\imageformats\qtiff4.dll" SelfReg="false" NextFile="channel.ui"/>
     <ROW File="quadrics.pyc" Component_="glunurbs.pyc" FileName="quadrics.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\GLU\quadrics.pyc" SelfReg="false" NextFile="tess.pyc"/>
     <ROW File="query.wav" Component_="privmsg.wav" FileName="query.wav" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\chat\sfx\query.wav" SelfReg="false" NextFile="host.png"/>
@@ -1516,6 +1516,7 @@
     <ROW File="register_combiners2.pyc_1" Component_="bindless_texture.pyc_1" FileName="regist~2.pyc|register_combiners2.pyc" Attributes="0" SourcePath="F:\DIST_FAFOREVER\OpenGL\raw\GL\NV\register_combiners2.pyc" SelfReg="false" NextFile="shader_atomic_float.pyc_1"/>
     <ROW File="reinforcement.qthtml" Component_="planetarydefenses.qthtml" FileName="reinfo~1.qth|reinforcement.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\formatters\reinforcement.qthtml" SelfReg="false" NextFile="galacticwar.css"/>
     <ROW File="reinforcementItems.ui" Component_="bg_chat.jpg" FileName="reinfo~1.ui|reinforcementItems.ui" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\reinforcementItems.ui" SelfReg="false" NextFile="bg.png_3"/>
+    <ROW File="reinforcementSmall.qthtml" Component_="planetarydefenses.qthtml" FileName="reinfo~2.qth|reinforcementSmall.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\galacticwar\formatters\reinforcementSmall.qthtml" SelfReg="false"/>
     <ROW File="replay.ico" Component_="FAForever.lib" FileName="replay.ico" Attributes="0" SourcePath="F:\DIST_FAFOREVER\replay.ico" SelfReg="false" NextFile="cmex10.afm"/>
     <ROW File="replay.png" Component_="broken.png" FileName="replay.png" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\replays\replay.png" SelfReg="false" NextFile="replays.ui"/>
     <ROW File="replay.qthtml" Component_="replay.qthtml" FileName="replay~1.qth|replay.qthtml" Attributes="0" SourcePath="F:\DIST_FAFOREVER\_res\replays\formatters\replay.qthtml" SelfReg="false" NextFile="random.png"/>
