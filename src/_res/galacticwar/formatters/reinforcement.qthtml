@@ -8,7 +8,7 @@
 <font color="{color}">Add <b>{activation}</b> minutes delay to the group.</font><br/>
 </td>
 <td>
-<font color="{color}" size="+2">In this group:</font><br/>
+<font color="{color}" size="+2">Amount:</font><br/>
 <font color="{color}" size="+2"><b>{owned}</b></font><br/>
 </td>
 </tr>

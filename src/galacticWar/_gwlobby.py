@@ -54,6 +54,7 @@ class LobbyWidget(FormClass, BaseClass):
     ReinforcementUpdated            = QtCore.pyqtSignal(dict)
     planetaryDefenseUpdated         = QtCore.pyqtSignal(dict)
     ReinforcementsGroupUpdated      = QtCore.pyqtSignal(dict)
+    ReinforcementsGroupDeleted      = QtCore.pyqtSignal(dict)
     dominationUpdated               = QtCore.pyqtSignal(int)
     playersListUpdated              = QtCore.pyqtSignal(dict)
     teamUpdated                     = QtCore.pyqtSignal(dict)
@@ -292,6 +293,9 @@ class LobbyWidget(FormClass, BaseClass):
         '''populate current group reinforcements '''
         self.ReinforcementsGroupUpdated.emit(message)            
     
+    def handle_group_reinforcements_deleted (self, message):
+        self.ReinforcementsGroupDeleted.emit(message)
+        
     def handle_reinforcement_item_info(self, message):
         '''populate reinforcement lists'''
         self.ReinforcementUpdated.emit(message)
@@ -432,7 +436,7 @@ class LobbyWidget(FormClass, BaseClass):
                 self.attacks[playeruid_int][planetuid_int] = attacks[playeruid][planetuid]
         self.attacksUpdated.emit()
 
-    def planet_defense_remove(self, message):
+    def handle_planet_defense_remove(self, message):
         '''handling removing defenses for a planet'''
         planetuid = message["planetuid"]
         self.galaxy.removeDefenses(planetuid)

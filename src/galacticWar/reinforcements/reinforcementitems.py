@@ -20,89 +20,115 @@
 from PyQt4 import QtGui, QtCore
 from galacticWar import logger
 import util
-from reinforcementItem import ReinforcementItem, ReinforcementDelegate
+from reinforcementItem import ReinforcementItem, ReinforcementDelegate, ReinforcementGroupDelegate
+import cPickle
+import pickle
 
 FormClass, BaseClass = util.loadUiType("galacticwar/reinforcementItems.ui")
 
 
-class groupsReinforcements(object):
-    def __init__(self, parent):
+class groupListWidget(QtGui.QListWidget):
+    def __init__(self, parent, group, *args, **kwargs):
+        QtGui.QListWidget.__init__(self, *args, **kwargs)
         self.parent = parent
-        self.reinforcements = self.parent.reinforcements
-        self.groups = {}
-        self.protectedGroups = []
-    
-    def addGroupItem(self, group, uid, amount, protected=False):
-        ''' add an item to a group'''
-        if not group in self.groups:
-            self.groups[group] = []
+        self.group = group
+        self.setMouseTracking(1)
+        self.setAutoFillBackground(False)
+        self.setAcceptDrops(True)
         
-        if not self.itemExistsInGroup(group, uid):
-            self.groups[group].append(groupItem(self, uid, amount))
-            if protected :
-                if not group in self.protectedGroups:
-                    self.protectedGroups.append(group)
-   
-    def itemExistsInGroup(self, group, uid):
-        if group in self.groups:
-            for item in self.getItems(group):
-                if item.uid == uid:
-                    return True
-        return False
-   
-    def getGroups(self):
-        ''' get group numbers'''
-        return self.groups.keys()
-    
-    def getGroupPrice(self, group):
-        ''' return the price of a group'''
-        groupPrice = 0
-        if group in self.groups:
-            for item in self.getItems(group):
-                groupPrice = groupPrice + (item.price * item.amount)
-        return groupPrice
+        self.setItemDelegate(ReinforcementGroupDelegate(self.parent))
+        self.groupUnits = {}
 
-    def getNextGroupNumber(self):
-        if len(self.getGroups()) == 0:
-            return 0 
-        return max(self.getGroups()) + 1
-    
-    def getItems(self, group):
-        ''' return the items in a group '''
-        if group in self.groups:
-            return self.groups[group]
-        return []
+        self.mouseMoveEvent = self.mouseMove
+          
+    def deleteAll(self):
+        self.clear()
+        self.groupUnits = {}      
 
-    def remove(self, group):
-        if group in self.groups:
-            if not self.isProtected(group):
-                del self.groups[group]
+    def startDrag(self, event):
+        ''' Draging owned units'''
+        index = self.indexAt(event.pos())
+        if not index.isValid():
+            return
+
+        ## selected is the relevant person object
+        selected = dict(group = self.group, uid = self.model().data(index, QtCore.Qt.UserRole).uid)
+        bstream = cPickle.dumps(selected)
+        mimeData = QtCore.QMimeData()
+        mimeData.setData("application/x-ownedunit-reinforcement", bstream)
+
+        drag = QtGui.QDrag(self)
+        drag.setMimeData(mimeData)
+        
+        drag.setPixmap(self.itemAt(event.pos()).icon().pixmap(50,50))
+        
+        drag.setHotSpot(QtCore.QPoint(0,0))
+        drag.start(QtCore.Qt.MoveAction) 
+
+    def mouseMove(self, event):
+        ''' moving items'''
+        self.startDrag(event)
+          
+    def dropEvent(self, event):
+        if event.mimeData().hasFormat("application/x-ownedunit-reinforcement"):
+            data = event.mimeData()
+            bstream = data.retrieveData("application/x-ownedunit-reinforcement", QtCore.QVariant.ByteArray)
+
+            message = pickle.loads(bstream)
+            uid         = message["uid"]
+            groupFrom   = message["group"]
             
-    def emptyAll(self):
-        ''' delete everything because it's obselete'''
-        self.groups = {}
-        self.protectedGroups = []        
+            otherGroup = self.parent.unitsGroup[groupFrom]
+            
+            if uid in otherGroup.groupUnits:
+                infos = otherGroup.groupUnits[uid].getInfos()
+                if infos["owned"] == 0:
+                    event.ignore()
+                    return
 
-    def isProtected(self, group):
-        ''' check if a group is read only'''
-        if group in self.protectedGroups:
-            return True
-        return False    
+                elif infos["owned"] != 1:
+                    i, ok = QtGui.QInputDialog.getInteger(self,
+                "Amount", "How many units do you want in this group?", infos["owned"], 1, infos["owned"], 1)
+                    if ok:
+                        infos["owned"] = i
+                
+                otherGroup.groupUnits[uid].remove(infos["owned"])
+                
+                if uid not in self.groupUnits:
+                    self.groupUnits[uid] = ReinforcementItem(uid, small=True)
+                    self.addItem(self.groupUnits[uid])
+                    self.groupUnits[uid].update(infos, self.parent.parent)
+                else:
+                    self.groupUnits[uid].add(infos["owned"])            
+            
+            
+            self.parent.parent.send(dict(command="move_reinforcement_group", origin = groupFrom, destination = self.group, itemuid=uid, amount=infos["owned"]))
+            
+            event.accept()
+            return
+        
+        event.ignore()
+        
+    def dragEnterEvent(self, event) :
+        if event.mimeData().hasFormat("application/x-ownedunit-reinforcement"):
+            data = event.mimeData()
+            bstream = data.retrieveData("application/x-ownedunit-reinforcement", QtCore.QVariant.ByteArray)
+            message = pickle.loads(bstream)
+            if message["group"] != self.group:        
+                event.accept()
+                return
 
-class groupItem(object):
-    def __init__(self, parent, uid, amount, protected=False):
-        ''' init the group with the correct data'''
-        self.parent = parent
-        self.uid=uid
-        self.amount=amount
-        self.name =self.parent.reinforcements[uid].name
-        self.price = self.parent.reinforcements[uid].price
-        self.delay = self.parent.reinforcements[uid].delay
+        event.ignore()
         
-    def getItemForSend(self):
-        '''return a dictionnary compatible with the server format'''
-        return dict(unit=self.uid, amount=self.amount)
-        
+    def dragMoveEvent(self, event):
+        if event.mimeData().hasFormat("application/x-ownedunit-reinforcement"):
+            data = event.mimeData()
+            bstream = data.retrieveData("application/x-ownedunit-reinforcement", QtCore.QVariant.ByteArray)
+            message = pickle.loads(bstream)
+            if message["group"] != self.group:        
+                event.accept()
+                return
+        event.ignore()    
 
 class ReinforcementWidget(FormClass, BaseClass):
     def __init__(self, parent, *args, **kwargs):
@@ -114,32 +140,42 @@ class ReinforcementWidget(FormClass, BaseClass):
 
         self.reinforcementListWidget.setItemDelegate(ReinforcementDelegate(self))
         
+        unitGroupsLayout = {}
+        self.unitsGroup = {}
+
+        unitGroupsLayout[0] = self.ownedGroup.layout()
+        unitGroupsLayout[1] = self.group1.layout() 
+        unitGroupsLayout[2] = self.group2.layout()
+        unitGroupsLayout[3] = self.group3.layout()
+        unitGroupsLayout[4] = self.group4.layout()
+        unitGroupsLayout[5] = self.group5.layout()
+        
+        for i in range(0,6):
+            self.unitsGroup[i] = groupListWidget(self, i)
+            unitGroupsLayout[i].addWidget(self.unitsGroup[i])
+        
+        #self.group1ListWidget.setItemDelegate(ReinforcementGroupDelegate(self))
+        
         self.parent.ReinforcementUpdated.connect(self.processReinforcementInfo)
+        self.parent.ReinforcementsGroupDeleted.connect(self.removeGroup)
         self.parent.ReinforcementsGroupUpdated.connect(self.processReinforcementGroup)
         self.parent.playersListUpdated.connect(self.updatePlayerList)
         self.parent.creditsUpdated.connect(self.updateCreditsCheck)
-        
-        
+
         self.reinforcementListWidget.itemPressed.connect(self.itemPressed)
 
         self.reinforcements = {}
         
+        self.poolOfUnits = {}
         
-        self.confirmGroupButton.clicked.connect(self.confirmGroup)
-        self.buyButton.clicked.connect(self.buyAll)
-        self.offerButton.clicked.connect(self.offer)
-        self.groups = groupsReinforcements(self)
-        
-        self.groupsWidgets.itemPressed.connect(self.myGroupsPressed)
-        
+        #self.confirmGroupButton.clicked.connect(self.confirmGroup)
+        self.buyBtn.clicked.connect(self.buyAll)
+        self.offerBtn.clicked.connect(self.offer)
+                
         self.currentMoneyCost = 0
-        self.currentGroupMoneyCost = 0
 
         self.waitingForPlayerList = False
-        
-        self.groupDelayText.setText("0")
-        self.GroupCostText.setText("0")
-        self.CostText.setText("0 minutes")
+
 
     def updatePlayerList(self, players):
         ''' update the player list for offering units'''
@@ -148,35 +184,17 @@ class ReinforcementWidget(FormClass, BaseClass):
                 "Give to:", sorted(players.keys()), 0, False)
             
             if ok and player:
-                for group in self.groups.getGroups():
-                    if self.groups.isProtected(group):
-                        continue
-                        
-                    for item in self.groups.getItems(group):
-                        self.parent.send(dict(command="offer_reinforcement_group", giveTo=players[player], item=item.getItemForSend()))
-    
-                        
-                self.groups.emptyAll()
-                self.groupsWidgets.clear()
-                self.currentMoneyCost = 0
-                self.currentGroupMoneyCost = 0
-                self.groupDelayText.setText("0")
-                self.GroupCostText.setText("0")
-                self.CostText.setText("0 minutes")            
+                for uid in self.reinforcements:
+                    if self.reinforcements[uid].owned != 0:
+                        item = dict(unit=self.reinforcements[uid].uid, amount=self.reinforcements[uid].owned)
+                        self.parent.send(dict(command="offer_reinforcement_group", giveTo=players[player], item=item))
+                self.currentMoneyCost = 0        
                 
             self.waitingForPlayerList = False
 
     def reset(self):
         ''' close the panel and reset all units'''
-        self.groups.emptyAll()
-        self.groupsWidgets.clear()
-        self.groupsOwned.clear()
         self.currentMoneyCost = 0
-        self.currentGroupMoneyCost = 0
-
-        self.groupDelayText.setText("0")
-        self.GroupCostText.setText("0")
-        self.CostText.setText("0 minutes")
         self.close()
 
     def offer(self):
@@ -188,129 +206,28 @@ class ReinforcementWidget(FormClass, BaseClass):
     def buyAll(self):
         ''' send a message to the server about our shopping list'''
 
-        for group in self.groups.getGroups():
-            if self.groups.isProtected(group):
-                continue
-
-            for item in self.groups.getItems(group):
-                self.parent.send(dict(command="buy_reinforcement_group", groupNumber=group, item=item.getItemForSend()))
-            
-        self.groups.emptyAll()
-        self.groupsWidgets.clear()
-        self.currentMoneyCost = 0
-        self.currentGroupMoneyCost = 0
-        self.groupDelayText.setText("0")
-        self.GroupCostText.setText("0")
-        self.CostText.setText("0 minutes")
-        
-    def myGroupsPressed(self, item):
-        '''Options for existing groups'''
-        
-        if QtGui.QApplication.mouseButtons() != QtCore.Qt.RightButton:
-            return
-        
-        menu = QtGui.QMenu(self.groupsWidgets)
-        
-        # Actions
-        actionDelete = QtGui.QAction("Delete group", menu)
-        menu.addAction(actionDelete)
-        
-        # Triggers
-        actionDelete.triggered.connect(lambda : self.deleteGroup(item.group))
- 
-        # Adding to menu
-        menu.addAction(actionDelete)
-
-        #Finally: Show the popup
-        menu.popup(QtGui.QCursor.pos())        
-        
-    def deleteGroup(self, group):
-        '''Delete a group'''
-
-        if self.groups.isProtected(group):
-            return
-        
-        groupPrice = self.groups.getGroupPrice(group)
-                
-        self.currentMoneyCost = self.currentMoneyCost - groupPrice
-        self.groups.remove(group)
-        
-        
-        # update the interface
-        self.computeAllCosts() 
-        self.updateGroupTree()
-        self.updateCreditsCheck()
-
-
-    def confirmGroup(self):
-        '''add this group'''
-
-        group = self.groups.getNextGroupNumber()
-         
         for uid in self.reinforcements:
             if self.reinforcements[uid].owned != 0:
-                self.groups.addGroupItem(group, uid, self.reinforcements[uid].owned)
-           
-        if len(self.groups.getGroups()) == 0:
-            return
-         
-       
-        self.currentMoneyCost = self.currentMoneyCost + self.currentGroupMoneyCost
-
-        #clear the current group buy
-        for uid in self.reinforcements:
-            self.reinforcements[uid].owned = 0
-        
-        self.computeAllCosts()
-        self.updateCreditsCheck()
-        
-        self.updateGroupTree(temp=True)
-        
-    def updateGroupTree(self, temp=False):
-        '''Update the group tree'''
-        if temp:
-            self.groupsWidgets.clear()
-        else:
-            self.groupsOwned.clear()
-#        if len(self.groups.getGroups()) == 0:
-#            return
-
-        totaldelay = 0
-        for groupNumber in self.groups.getGroups():
-            if self.groups.isProtected(groupNumber) and temp:
-                continue
-            group_item = QtGui.QTreeWidgetItem()
+                item = dict(unit=self.reinforcements[uid].uid, amount=self.reinforcements[uid].owned)
+                self.parent.send(dict(command="buy_reinforcement_group", item=item))
             
-            price = 0
-            delay = 0
-            for item in self.groups.getItems(groupNumber):
-                formation_item = QtGui.QTreeWidgetItem()
-                formation_item.group = groupNumber
-                totPrice = item.price * item.amount
-                formation_item.setText(0,"%s x%i (%i credits)" % (item.name, item.amount, totPrice))
+        self.currentMoneyCost = 0
 
-                price = price + totPrice 
-                delay = delay + item.delay * item.amount
-            
-                group_item.addChild(formation_item)
-
-            totaldelay = totaldelay + delay 
-            group_item.setText(0, "Group %i : %i credits, %0.1f minutes delay (%0.1f minutes in game)" % (groupNumber, price, delay, totaldelay))
-            group_item.group = groupNumber
-            if temp:
-                self.groupsWidgets.addTopLevelItem(group_item)
-            else:
-                self.groupsOwned.addTopLevelItem(group_item)
-            group_item.setExpanded(True)
-
-                
     def itemPressed(self, item):
         '''buy or unbuy an item'''
         if QtGui.QApplication.mouseButtons() == QtCore.Qt.LeftButton:
             if not item.disabled:
-                item.add()
+                if QtGui.QApplication.keyboardModifiers() == QtCore.Qt.ShiftModifier :
+                    if self.currentMoneyCost + (item.price * 5) <= self.parent.credits:
+                        item.add(5)
+                else: 
+                    if self.currentMoneyCost + item.price <= self.parent.credits:
+                        item.add(1)        
         else:
-            item.remove()
+            if QtGui.QApplication.keyboardModifiers() == QtCore.Qt.ShiftModifier :
+                item.remove(5)
+            else: 
+                item.remove(1)              
         
         self.computeAllCosts()
         self.updateCreditsCheck()
@@ -319,25 +236,19 @@ class ReinforcementWidget(FormClass, BaseClass):
         '''disable item we can't buy'''
         for uid in self.reinforcements:
             if not self.reinforcements[uid].isHidden():
-                if self.parent.credits - (self.currentMoneyCost + self.currentGroupMoneyCost) < self.reinforcements[uid].price:
+                if self.parent.credits - (self.currentMoneyCost) < self.reinforcements[uid].price:
                     self.reinforcements[uid].setDisabled()
                 else:
                     self.reinforcements[uid].setEnabled()
                     
     def computeAllCosts(self):
         ''' compute the costs'''
-        self.currentGroupMoneyCost = 0
-        delay = 0.0
+        self.currentMoneyCost = 0
         for uid in self.reinforcements:
             if self.reinforcements[uid].owned != 0:
-                self.currentGroupMoneyCost = self.currentGroupMoneyCost + (self.reinforcements[uid].price * self.reinforcements[uid].owned)  
-                delay = delay + (self.reinforcements[uid].delay * self.reinforcements[uid].owned)
-        
-        currentMoneyCost =  self.currentMoneyCost + self.currentGroupMoneyCost  
-        
-        self.CostText.setText("%i" % currentMoneyCost)
-        self.GroupCostText.setText("%i" % self.currentGroupMoneyCost)
-        self.groupDelayText.setText("%0.1f minutes" % delay)
+                self.currentMoneyCost = self.currentMoneyCost + (self.reinforcements[uid].price * self.reinforcements[uid].owned)  
+
+        self.costText.setText("Cost : %i credits" % self.currentMoneyCost)
     
     def processReinforcementGroup(self, message):
         '''Handle a reinforcementGroup info message'''
@@ -346,12 +257,24 @@ class ReinforcementWidget(FormClass, BaseClass):
         uid = message["unit"]
         amount = message["amount"]
         
-        self.groups.addGroupItem(group, uid, amount, True)
+
+        if uid in self.reinforcements:
+            infos = self.reinforcements[uid].getInfos()
+            infos["owned"] = amount
+   
+        if uid not in self.unitsGroup[group].groupUnits:
+            self.unitsGroup[group].groupUnits[uid] = ReinforcementItem(uid, small=True)
+            self.unitsGroup[group].addItem(self.unitsGroup[group].groupUnits[uid])
+            self.unitsGroup[group].groupUnits[uid].update(infos, self.parent)
+        else:
+            self.unitsGroup[group].groupUnits[uid].update(infos, self.parent)
+  
+    def removeGroup(self, message):
+        ''' remove a whole group'''
+        group = message["group"]
+        self.unitsGroup[group].deleteAll()
         
-        self.updateGroupTree()
         
-        
-    
     def processReinforcementInfo(self, message):
         '''Handle a reinforcement info message'''
         uid = message["uid"]

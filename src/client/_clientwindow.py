@@ -1328,8 +1328,7 @@ class ClientWindow(FormClass, BaseClass):
             logger.error("FA has failed to start")
             QtGui.QMessageBox.critical(self, "Error from FA", "FA has failed to start.")
         elif error_code == 1:
-            logger.error("FA has crashed after starting")
-            QtGui.QMessageBox.critical(self, "Error from FA", "FA has crashed!")
+            logger.error("FA has crashed or killed after starting")
         else:
             text = "FA has failed to start with error code: " + str(error_code)
             logger.error(text)
