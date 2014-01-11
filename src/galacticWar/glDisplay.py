@@ -71,7 +71,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.attackVector   = None
         self.animAttackVector = 0
         
-        self.zoomMin = 1500
+        self.zoomMin = 4500
         self.zoomMax = 10
         self.cameraPos  = QtGui.QVector3D(0,0,self.zoomMin)
         self.vectorMove = QtGui.QVector3D(0,0,self.zoomMin)
@@ -113,7 +113,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.setAcceptDrops(True)
     
     def starField(self):
-        self.galaxy.generate_star_field(self.zoomMin, -self.zoomMin)
+        self.galaxy.generate_star_field(1000, -1000)
         
 
     def rotateOneStep(self, update = True): 
@@ -146,7 +146,8 @@ class GLWidget(QtOpenGL.QGLWidget):
 
         for uid in self.galaxy.control_points :
             site = self.galaxy.control_points[uid]
-            site.texture = self.bindTexture(QtGui.QPixmap(os.path.join(GW_TEXTURE_DIR,'%s.png' % site.texname)), GL.GL_TEXTURE_2D)   
+            if site.isVisible():
+                site.texture = self.bindTexture(QtGui.QPixmap(os.path.join(GW_TEXTURE_DIR,'%s.png' % site.texname)), GL.GL_TEXTURE_2D)   
 
         
         self.backGroundTexId    = self.bindTexture(QtGui.QPixmap(os.path.join(GW_TEXTURE_DIR,'background.png')), GL.GL_TEXTURE_2D)
@@ -335,7 +336,7 @@ class GLWidget(QtOpenGL.QGLWidget):
             GL.glPushMatrix()
                    
             GL.glTranslatef(star.x(), star.y(), star.z())
-            scale = random.randrange(1,10)/10.0
+            scale = random.randrange(5,10)/5.0
             GL.glScalef(scale,scale,1)  
                  
             GL.glCallList(self.background)       
@@ -363,7 +364,8 @@ class GLWidget(QtOpenGL.QGLWidget):
         
  
         for uid in self.galaxy.control_points :
-            point = self.galaxy.control_points[uid]            
+            point = self.galaxy.control_points[uid]
+            if not point.isVisible(): continue            
             pos = point.pos3d
 
 
@@ -607,8 +609,9 @@ class GLWidget(QtOpenGL.QGLWidget):
         GL.glCallList(self.planets)
 
 
-        if self.curZone :                       
-            GL.glCallList(self.selection)
+        if self.curZone :      
+            if self.galaxy.control_points[self.curZone[0]].isVisible():
+                GL.glCallList(self.selection)
 
         
 
@@ -642,6 +645,10 @@ class GLWidget(QtOpenGL.QGLWidget):
     
     
     def createPlanetOverlay(self):
+        if not self.curZone:
+            return
+        if not self.galaxy.control_points[self.curZone[0]].isVisible():
+            return         
         if self.selection :
             GL.glDeleteLists(self.selection, 1)
 
@@ -652,8 +659,9 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.programSelection.bind()
         GL.glBindTexture(GL.GL_TEXTURE_2D, self.selectionId)
         self.programSelection.setUniformValue('texture', 0)
-        if self.curZone : 
+        if self.curZone :
             pos = self.galaxy.control_points[self.curZone[0]].pos3d
+            
             scale  = self.galaxy.control_points[self.curZone[0]].size * 10
             self.programSelection.setAttributeValue(12, pos.x(), pos.y(), 5.1)
             self.programSelection.setAttributeValue(13, scale, scale, scale )
@@ -669,7 +677,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         painter.setOpacity(1)
         
         for site in self.galaxy.control_points :
-
+            if not self.galaxy.control_points[site].isVisible():continue
             
 
             x = self.galaxy.control_points[site].x
@@ -701,7 +709,9 @@ class GLWidget(QtOpenGL.QGLWidget):
             painter.restore()
     
     def drawPlanetName(self, painter):
-        if self.curZone :
+        if not self.curZone :
+            return
+        if self.galaxy.control_points[self.curZone[0]].isVisible():
             width = 300
             painter.setOpacity(1)
             site = self.curZone[0]
@@ -713,6 +723,7 @@ class GLWidget(QtOpenGL.QGLWidget):
 
             planet = self.galaxy.control_points[site]
 
+            if not planet.isVisible():return
 
             icon = maps.preview(planet.mapname)
             if not icon:
@@ -1172,12 +1183,13 @@ class GLWidget(QtOpenGL.QGLWidget):
         genList = GL.glGenLists(1)
         
         GL.glNewList(genList, GL.GL_COMPILE)
-        GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (0.7,.7,.7, 1))
+        GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (0.4,.4,.4, 1))
         self.programConstant.bind()
-        GL.glLineWidth(1)
+        GL.glLineWidth(.5)
         for orig in self.galaxy.links :
             dests = self.galaxy.links[orig]
             for dest in dests :
+                
                 GL.glBegin(GL.GL_LINES)
       
                 GL.glVertex3f(self.galaxy.control_points[orig].x, self.galaxy.control_points[orig].y, 0)
@@ -1248,24 +1260,26 @@ class GLWidget(QtOpenGL.QGLWidget):
 
 
         ## Back faces
-        for poly in self.galaxy.finalPolys :
-            site  = self.galaxy.closest(float(poly.split()[0]), float(poly.split()[1]))
-            center = QtGui.QVector3D(float(poly.split()[0]), float(poly.split()[1]), 0)
-            color  = self.galaxy.control_points[site[0]].color
-            
-            GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (color.redF(),color.greenF(),color.blueF(), opacity))            
-            points = self.galaxy.finalPolys[poly]
-            hull = self.galaxy.monotone_chain(points)
-            GL.glBegin(GL.GL_POLYGON)
-            for line in hull :
-                vectorOffset = QtGui.QVector3D((line[0] - center.x())   , (line[1] - center.y()) , 0)
-                vectorOffset.normalize()
-                vectorOffset = vectorOffset * bevel 
-                GL.glVertex3f(line[0] - vectorOffset.x(), line[1] - vectorOffset.y(), extrude)
-            GL.glEnd( ) 
+#        for poly in self.galaxy.finalPolys :
+#            if self.galaxy.control_points[site[0]].isVisible() == False : continue
+#            site  = self.galaxy.closest(float(poly.split()[0]), float(poly.split()[1]))
+#            center = QtGui.QVector3D(float(poly.split()[0]), float(poly.split()[1]), 0)
+#            color  = self.galaxy.control_points[site[0]].color
+#            
+#            GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (color.redF(),color.greenF(),color.blueF(), opacity))            
+#            points = self.galaxy.finalPolys[poly]
+#            hull = self.galaxy.monotone_chain(points)
+#            GL.glBegin(GL.GL_POLYGON)
+#            for line in hull :
+#                vectorOffset = QtGui.QVector3D((line[0] - center.x())   , (line[1] - center.y()) , 0)
+#                vectorOffset.normalize()
+#                vectorOffset = vectorOffset * bevel 
+#                GL.glVertex3f(line[0] - vectorOffset.x(), line[1] - vectorOffset.y(), extrude)
+#            GL.glEnd( ) 
 
         ## borders
         for poly in  polyBorders :
+            if self.galaxy.control_points[site[0]].isVisible() == False : continue
             site  = self.galaxy.closest(float(poly.split()[0]), float(poly.split()[1]))
             color  = self.galaxy.control_points[site[0]].color
             GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (color.redF(),color.greenF(),color.blueF(), opacity * 1.5))
@@ -1296,8 +1310,10 @@ class GLWidget(QtOpenGL.QGLWidget):
 
         ## Front faces
         for poly in self.galaxy.finalPolys :
-            
             site  = self.galaxy.closest(float(poly.split()[0]), float(poly.split()[1]))
+            
+            if self.galaxy.control_points[site[0]].isVisible() == False : continue
+            
             center = QtGui.QVector3D(float(poly.split()[0]), float(poly.split()[1]), 0)
             color  = self.galaxy.control_points[site[0]].color
             GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (color.redF(),color.greenF(),color.blueF(), opacity))
@@ -1323,12 +1339,7 @@ class GLWidget(QtOpenGL.QGLWidget):
 
 
         self.programConstant.release()
-        
 
-              
-                
-            
-        
         GL.glEndList()
         return genList
 

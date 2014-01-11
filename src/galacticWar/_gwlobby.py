@@ -447,23 +447,25 @@ class LobbyWidget(FormClass, BaseClass):
         self.galaxy.updateDefenses(planetuid, message)
 
     def handle_planet_info(self, message):
-        #logger.debug("updating planet infos")
         uid = message['uid'] 
         if not uid in self.galaxy.control_points :
+            display     = message['visible']
             x           = message['posx']
             y           = message['posy']
             size        = message['size']
-            texture     = message['texture']
             textureMd5  = message['md5tex']
             name        = message['name']
             desc        = message['desc']
-            mapname     = message['mapname']
-            
-            
-            if not texture in self.texturelist :
-                self.texturelist[texture] = textureMd5 
-            
-            self.galaxy.addPlanet(uid, name, desc, x, y, size, mapname=mapname,texture = texture, init=True) 
+            if display:
+                texture     = message['texture']
+                mapname     = message['mapname']
+                if not texture in self.texturelist :
+                    self.texturelist[texture] = textureMd5 
+            else:
+                mapname = ""
+                texture = 0
+
+            self.galaxy.addPlanet(uid, name, desc, x, y, size, mapname=mapname,texture = texture, init=True, display = display) 
             self.galaxy.update(message)
             
             if not uid in self.galaxy.links :

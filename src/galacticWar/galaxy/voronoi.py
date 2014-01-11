@@ -715,7 +715,7 @@ class defense(object):
         self.structure = structure
 
 class Site(object):
-    def __init__(self, x=0.0, y=0.0, parent=None, sitenum=0, name = '', desc = '', size = 1, aeon = 0, cybran = 0, uef = 0, sera = 0, texture = 1, mapname=""):
+    def __init__(self, x=0.0, y=0.0, parent=None, sitenum=0, name = '', desc = '', size = 1, aeon = 0, cybran = 0, uef = 0, sera = 0, texture = 1, mapname="", display = False):
         self.parent = parent
         self.x = x
         self.y = y
@@ -733,10 +733,15 @@ class Site(object):
         self.sera   = sera
         
         self.color = QtGui.QColor(0,0,0)
+        
+        self.display = display
 
         self.mapname = mapname
         
         self.defenses = {}
+
+    def isVisible(self):
+        return self.display
 
     def removeDefenses(self):
         '''remove this planet defenses list'''

@@ -8,7 +8,11 @@ import copy
 class Galaxy(object):
     def __init__(self, parent):
         self.parent = parent
-        self.space_size = QtGui.QVector3D(400, 200, 0)
+
+        sizex = 2000
+        sizey = 2000
+        
+        self.space_size = QtGui.QVector3D(sizex, sizey, 0)
 
         self.COLOR_FACTIONS = self.parent.COLOR_FACTIONS
         
@@ -126,7 +130,7 @@ class Galaxy(object):
         self.star_field = []
         numStars = int(max(1, 15000 * (float(self.parent.stars) / 100.0)))
         for _ in range(numStars) :
-            star = QtGui.QVector3D(random.randrange(-self.space_size.x()*2,self.space_size.x()*2), random.randrange(-self.space_size.y()*2,self.space_size.y()*2), random.randrange(float(-200*2), float(minDepth)))            
+            star = QtGui.QVector3D(random.randrange(-self.space_size.x(),self.space_size.x()), random.randrange(-self.space_size.y(),self.space_size.y()), random.randrange(float(-200*2), float(minDepth)))            
             self.star_field.append(star)
     
    
@@ -214,7 +218,7 @@ class Galaxy(object):
         if uid in self.control_points :
             self.control_points[uid].removeDefenses()
         
-    def addPlanet(self, uid, name, desc, x, y, size, texture=1, mapname="", init=False):
+    def addPlanet(self, uid, name, desc, x, y, size, texture=1, mapname="", init=False, display = False):
         
         x = round(x)
         y = round(y)
@@ -227,8 +231,7 @@ class Galaxy(object):
         if x > self.space_size.x() or x < -self.space_size.x() or y > self.space_size.y() or y < -self.space_size.y() :
             return
 
-        
-        self.control_points[uid]=(Site(parent=self, x=x, y=y, size = size, sitenum = uid, name=name, desc=desc, aeon = aeon, uef = uef, cybran = cybran, sera = sera, texture = texture, mapname=mapname))
+        self.control_points[uid]=(Site(parent=self, x=x, y=y, size = size, sitenum = uid, name=name, desc=desc, aeon = aeon, uef = uef, cybran = cybran, sera = sera, texture = texture, mapname=mapname, display=display))
         if not init :
             self.computeVoronoi()
      
