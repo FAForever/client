@@ -715,7 +715,7 @@ class defense(object):
         self.structure = structure
 
 class Site(object):
-    def __init__(self, x=0.0, y=0.0, parent=None, sitenum=0, name = '', desc = '', size = 1, aeon = 0, cybran = 0, uef = 0, sera = 0, texture = 1, mapname="", display = False):
+    def __init__(self, x=0.0, y=0.0, parent=None, sitenum=0, name = '', desc = '', size = 1, aeon = 0, cybran = 0, uef = 0, sera = 0, texture = 1, mapname="", display = False, maxplayer=0):
         self.parent = parent
         self.x = x
         self.y = y
@@ -737,7 +737,7 @@ class Site(object):
         self.display = display
 
         self.mapname = mapname
-        
+        self.maxplayer = maxplayer
         self.defenses = {}
 
     def isVisible(self):
@@ -769,6 +769,9 @@ class Site(object):
     def get_description(self):
         return self.description
         
+    def get_maxplayer(self):
+        return self.maxplayer
+    
     def get_name(self):
         return self.name
     

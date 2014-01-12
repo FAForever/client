@@ -459,13 +459,15 @@ class LobbyWidget(FormClass, BaseClass):
             if display:
                 texture     = message['texture']
                 mapname     = message['mapname']
+                maxplayer   = message['maxplayer']
                 if not texture in self.texturelist :
                     self.texturelist[texture] = textureMd5 
             else:
                 mapname = ""
                 texture = 0
+                maxplayer = 0
 
-            self.galaxy.addPlanet(uid, name, desc, x, y, size, mapname=mapname,texture = texture, init=True, display = display) 
+            self.galaxy.addPlanet(uid, name, desc, x, y, size, maxplayer=maxplayer, mapname=mapname,texture = texture, init=True, display = display) 
             self.galaxy.update(message)
             
             if not uid in self.galaxy.links :

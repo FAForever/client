@@ -53,6 +53,12 @@ class Galaxy(object):
             
             self.control_points[uid].computeColor()
     
+    def get_maxplayer(self,uid):
+        if uid in self.control_points :
+            return self.control_points[uid].get_maxplayer()
+        else :
+            return 0
+        
     def get_name(self, uid):
         if uid in self.control_points :
             return self.control_points[uid].get_name()
@@ -218,7 +224,7 @@ class Galaxy(object):
         if uid in self.control_points :
             self.control_points[uid].removeDefenses()
         
-    def addPlanet(self, uid, name, desc, x, y, size, texture=1, mapname="", init=False, display = False):
+    def addPlanet(self, uid, name, desc, x, y, size, texture=1, mapname="", init=False, display = False, maxplayer=0):
         
         x = round(x)
         y = round(y)
@@ -231,7 +237,7 @@ class Galaxy(object):
         if x > self.space_size.x() or x < -self.space_size.x() or y > self.space_size.y() or y < -self.space_size.y() :
             return
 
-        self.control_points[uid]=(Site(parent=self, x=x, y=y, size = size, sitenum = uid, name=name, desc=desc, aeon = aeon, uef = uef, cybran = cybran, sera = sera, texture = texture, mapname=mapname, display=display))
+        self.control_points[uid]=(Site(parent=self, x=x, y=y, size = size, sitenum = uid, name=name, desc=desc, aeon = aeon, uef = uef, cybran = cybran, sera = sera, texture = texture, mapname=mapname, display=display, maxplayer=maxplayer))
         if not init :
             self.computeVoronoi()
      

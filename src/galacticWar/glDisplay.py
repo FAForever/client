@@ -795,7 +795,7 @@ class GLWidget(QtOpenGL.QGLWidget):
             if not icon:
                 self.parent.client.downloader.downloadMap(planet.mapname, None)
 
-            text = "<font color='silver'><h2>%s</h2><table width='%i'><tr><td><p align='justify'><font color='silver' size='7pt'>%s</font</p></tr></td></table><font color='silver'><h4>Occupation:</h4></font><ul>" % (self.galaxy.get_name(site), width-5, self.galaxy.get_description(site))
+            text = "<font color='silver'><h2>%s</h2><table width='%i'><tr><td><p align='justify'><font color='silver' size='7pt'>%s</font><br>Max team size : %i</p></tr></td></table><font color='silver'><h4>Occupation:</h4></font><ul>" % (self.galaxy.get_name(site), width-5, self.galaxy.get_description(site), self.galaxy.get_maxplayer(site))
             
             
             
