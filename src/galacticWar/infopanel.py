@@ -222,7 +222,6 @@ class InfoPanelWidget(FormClass, BaseClass):
                 
     def updateAttacks(self):
         ''' updating attacks and doing stuff'''
-        
         # for defense
         
         # cleaning list

@@ -715,7 +715,7 @@ class defense(object):
         self.structure = structure
 
 class Site(object):
-    def __init__(self, x=0.0, y=0.0, parent=None, sitenum=0, name = '', desc = '', size = 1, aeon = 0, cybran = 0, uef = 0, sera = 0, texture = 1, mapname="", display = False, maxplayer=0):
+    def __init__(self, x=0.0, y=0.0, parent=None, sector=0, sitenum=0, name = '', desc = '', size = 1, aeon = 0, cybran = 0, uef = 0, sera = 0, texture = 1, mapname="", display = False, maxplayer=0):
         self.parent = parent
         self.x = x
         self.y = y
@@ -727,6 +727,7 @@ class Site(object):
         self.texname = texture
         self.pos3d = QtGui.QVector3D(self.x, self.y, 0.0)
         
+        self.sector = sector
         self.aeon   = aeon
         self.cybran = cybran
         self.uef    = uef

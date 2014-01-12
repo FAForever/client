@@ -21,6 +21,7 @@ class Galaxy(object):
         self.control_points = {}
         self.links = {}
 
+        self.sectors = {}
 
 
         p1 = QtCore.QPointF(-self.space_size.x()-50, -self.space_size.y()-50)
@@ -223,8 +224,9 @@ class Galaxy(object):
     def removeDefenses(self, uid):
         if uid in self.control_points :
             self.control_points[uid].removeDefenses()
-        
-    def addPlanet(self, uid, name, desc, x, y, size, texture=1, mapname="", init=False, display = False, maxplayer=0):
+    
+    
+    def addPlanet(self, uid, sector, name, desc, x, y, size, texture=1, mapname="", init=False, display = False, maxplayer=0):
         
         x = round(x)
         y = round(y)
@@ -233,11 +235,17 @@ class Galaxy(object):
         cybran  = 0.0
         aeon = 0.0
         sera = 0.0
+        
+        if display:
+            if not sector in self.sectors:
+                self.sectors[sector] = [uid]
+            else:
+                self.sectors[sector].append(uid)            
        
         if x > self.space_size.x() or x < -self.space_size.x() or y > self.space_size.y() or y < -self.space_size.y() :
             return
 
-        self.control_points[uid]=(Site(parent=self, x=x, y=y, size = size, sitenum = uid, name=name, desc=desc, aeon = aeon, uef = uef, cybran = cybran, sera = sera, texture = texture, mapname=mapname, display=display, maxplayer=maxplayer))
+        self.control_points[uid]=(Site(parent=self, sector=sector, x=x, y=y, size = size, sitenum = uid, name=name, desc=desc, aeon = aeon, uef = uef, cybran = cybran, sera = sera, texture = texture, mapname=mapname, display=display, maxplayer=maxplayer))
         if not init :
             self.computeVoronoi()
      
@@ -312,7 +320,7 @@ class Galaxy(object):
 
                 return uid, 0
             if d <= distance + 0.001 :
-                points.append((distance, px, py))
+                points.append((distance, px, py, uid))
          
         return points
 
@@ -450,7 +458,7 @@ class Galaxy(object):
 
             points = self.closest(xcoord, ycoord, self.control_points)
             
-            for _, x, y in points :
+            for _, x, y, name in points :
                 
                 points = [] 
                 pointOrigin = (QtCore.QPointF(x, y))
@@ -499,12 +507,6 @@ class Galaxy(object):
                     if  line1.intersect(line, intersect) == 1 :
                         points.append((intersect.x(),intersect.y()))
                         #break
-
-
-                    
-                name = ("%f %f" % (x, y))
-
-                
 
                 if name in self.finalPolys :
                     for point in points :

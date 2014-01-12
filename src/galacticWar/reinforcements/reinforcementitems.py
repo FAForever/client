@@ -210,12 +210,10 @@ class ReinforcementWidget(FormClass, BaseClass):
             if self.reinforcements[uid].owned != 0:
                 item = dict(unit=self.reinforcements[uid].uid, amount=self.reinforcements[uid].owned)
                 self.parent.send(dict(command="buy_reinforcement_group", item=item))
-                item.setAmount(0)
+                self.reinforcements[uid].setAmount(0)
             
         self.currentMoneyCost = 0
-        
         self.computeAllCosts()
-        
 
     def itemPressed(self, item):
         '''buy or unbuy an item'''

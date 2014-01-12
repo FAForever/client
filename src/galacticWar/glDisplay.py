@@ -58,7 +58,7 @@ class GLWidget(QtOpenGL.QGLWidget):
 
         self.mouseMode = 0
 
-        self.zones      = None
+        self.zones      = {}
         self.planets    = None
         self.links      = None
         self.numPlanets = len(self.galaxy.star_field)
@@ -327,7 +327,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.object     = self.createSphere(self.averageRadius,0)
         self.background = self.createBackground()
         self.plane      = self.createPlane()
-        self.zones      = self.createZones()
+        self.createZones()
         self.planets    = self.createPlanets()
         self.selection  = self.createPlanetOverlay()
         self.galaxyBackground = self.drawGalaxy()
@@ -464,8 +464,8 @@ class GLWidget(QtOpenGL.QGLWidget):
         GL.glEndList()
         return genList 
     
-    def planetUpdate(self):
-        self.zones = self.createZones()
+    def planetUpdate(self, zone):
+        self.createZone(zone)
     
     def planetsUnderAttack(self):
         if not hasattr(self, "underAttack"):
@@ -670,8 +670,7 @@ class GLWidget(QtOpenGL.QGLWidget):
 
         GL.glCallList(self.galaxyStarsBack)
 
-        GL.glCallList(self.zones)
-
+        GL.glCallLists(self.zones.values())            
         GL.glCallList(self.planets)
 
 
@@ -698,18 +697,9 @@ class GLWidget(QtOpenGL.QGLWidget):
         GL.glDisable(GL.GL_CULL_FACE)
         GL.glDisable(GL.GL_LINE_SMOOTH)
         GL.glDisable (GL.GL_BLEND)            
-
-
-        if QtGui.QApplication.keyboardModifiers() == QtCore.Qt.ShiftModifier :
-            self.drawAllPlanetName(painter)
-        else :
-            self.drawPlanetName(painter)
-
-        
-        
+        self.drawPlanetName(painter)
         painter.end()
-    
-    
+
     def createPlanetOverlay(self):
         if not self.curZone:
             return
@@ -737,43 +727,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         GL.glEndList()
         return genList               
 
-    def drawAllPlanetName(self, painter):
-        ''' paint all planet name in overlay '''
-
-        painter.setOpacity(1)
-        
-        for site in self.galaxy.control_points :
-            if not self.galaxy.control_points[site].isVisible():continue
-            
-
-            x = self.galaxy.control_points[site].x
-            y = self.galaxy.control_points[site].y
-
-            pos = self.computeWorldPosition(x, y)
-        
-            if pos[0] < 0 or pos[1] < 0 or pos[0] > self.width() or pos[1] > self.height() :
-                continue
-
-       
-            painter.save()
-            text = "<font color='silver'>%s</font>" % (self.galaxy.get_name(site))
-            
-            
-            html = QtGui.QTextDocument()
-            html.setHtml(text)
-            width = html.size().width()
-            height = html.size().height()
-
-
-            painter.setPen(QtCore.Qt.white)
-            
-            painter.translate(pos[0] - width/2, pos[1] - height/2)
-            painter.fillRect(QtCore.QRect(0, 0, width+5, height), QtGui.QColor(36, 61, 75, 150))
-            clip = QtCore.QRectF(0, 0, width, height)
-            html.drawContents(painter, clip)
-
-            painter.restore()
-    
+  
     def drawPlanetName(self, painter):
         if not self.curZone :
             return
@@ -1277,117 +1231,32 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.drawLinks()
         
 
-
-    def createZones(self):
-        if self.zones :
-            GL.glDeleteLists(self.zones, 1)
+    def createZone(self, sector):
+        if sector in self.zones:
+            GL.glDeleteLists(self.zones[sector], 1)
             
         genList = GL.glGenLists(1)
         GL.glNewList(genList, GL.GL_COMPILE)
-        
-        bevel = 0.1
-        opacity = float(self.parent.mapTransparency) / 100.0
-        extrude = -7
-        origin  = -5
-        polyBorders = {}
-        #Computing borders polygons          
-        for poly in self.galaxy.finalPolys :
-            site  = self.galaxy.closest(float(poly.split()[0]), float(poly.split()[1]))
-            borders = {}
-            points = self.galaxy.finalPolys[poly]
+
+        for uid in self.galaxy.sectors[sector] :
+            site = self.galaxy.control_points[uid]
+            #if site.isVisible() == False : continue
+
+            bevel = 0.1
+            opacity = float(self.parent.mapTransparency) / 100.0
+            origin  = -5
+
+
+            points = self.galaxy.finalPolys[uid]
+
             hull = self.galaxy.monotone_chain(points)
+            center = QtGui.QVector3D(float(site.x), float(site.y), 0)   
+            color  = site.color             
 
+            self.programConstant.bind()
 
- 
-            i = 1
-            border = 0
-            for line in hull :
-                if border in borders :
-                    if len(borders[border]) != 4 :
-                        borders[border].append((line[0], line[1], extrude))
-                        borders[border].append((line[0], line[1], origin))
-
-                        border = border + 1
-                        borders[border] = [(line[0], line[1], origin)]                       
-                        borders[border].append((line[0], line[1], extrude))  
-                       
-
-                        if i == len(hull) :
-                            borders[border].append((hull[0][0], hull[0][1], extrude))
-                            borders[border].append((hull[0][0], hull[0][1], origin))
-                            border = border + 1
-                        
-
-                else :
-                    borders[border] = [(line[0], line[1], origin), (line[0], line[1], extrude)]
-
-                i = i + 1
-
-            polyBorders[poly] = borders
-
-
-        self.programConstant.bind()
-
-
-        ## Back faces
-#        for poly in self.galaxy.finalPolys :
-#            if self.galaxy.control_points[site[0]].isVisible() == False : continue
-#            site  = self.galaxy.closest(float(poly.split()[0]), float(poly.split()[1]))
-#            center = QtGui.QVector3D(float(poly.split()[0]), float(poly.split()[1]), 0)
-#            color  = self.galaxy.control_points[site[0]].color
-#            
-#            GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (color.redF(),color.greenF(),color.blueF(), opacity))            
-#            points = self.galaxy.finalPolys[poly]
-#            hull = self.galaxy.monotone_chain(points)
-#            GL.glBegin(GL.GL_POLYGON)
-#            for line in hull :
-#                vectorOffset = QtGui.QVector3D((line[0] - center.x())   , (line[1] - center.y()) , 0)
-#                vectorOffset.normalize()
-#                vectorOffset = vectorOffset * bevel 
-#                GL.glVertex3f(line[0] - vectorOffset.x(), line[1] - vectorOffset.y(), extrude)
-#            GL.glEnd( ) 
-
-        ## borders
-        for poly in  polyBorders :
-            if self.galaxy.control_points[site[0]].isVisible() == False : continue
-            site  = self.galaxy.closest(float(poly.split()[0]), float(poly.split()[1]))
-            color  = self.galaxy.control_points[site[0]].color
-            GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (color.redF(),color.greenF(),color.blueF(), opacity * 1.5))
-            GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (.2,.2,.2, 1))
-            center = QtGui.QVector3D(float(poly.split()[0]), float(poly.split()[1]), 0)
-            polyBorder = polyBorders[poly]
-            for i in polyBorder :
-                border = polyBorder[i]
-                GL.glBegin(GL.GL_POLYGON)
-                for point in border :
-                    vectorOffset = QtGui.QVector3D((point[0] - center.x()) * bevel  , (point[1] - center.y()) * bevel, 0) 
-                    vectorOffset.normalize()
-                    vectorOffset = vectorOffset * bevel
-                    GL.glVertex3f(point[0]  - vectorOffset.x(), point[1]  - vectorOffset.y(), point[2])
-                GL.glEnd( )
-
-            for i in polyBorder :
-                border = polyBorder[i]
-                border.reverse()
-                GL.glBegin(GL.GL_POLYGON)
-                for point in border :
-                    vectorOffset = QtGui.QVector3D((point[0] - center.x()) * bevel  , (point[1] - center.y()) * bevel, 0) 
-                    vectorOffset.normalize()
-                    vectorOffset = vectorOffset * bevel
-                    GL.glVertex3f(point[0]  - vectorOffset.x(), point[1]  - vectorOffset.y(), point[2])
-                GL.glEnd( )        
-
-
-        ## Front faces
-        for poly in self.galaxy.finalPolys :
-            site  = self.galaxy.closest(float(poly.split()[0]), float(poly.split()[1]))
-            
-            if self.galaxy.control_points[site[0]].isVisible() == False : continue
-            
-            center = QtGui.QVector3D(float(poly.split()[0]), float(poly.split()[1]), 0)
-            color  = self.galaxy.control_points[site[0]].color
             GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (color.redF(),color.greenF(),color.blueF(), opacity))
-            points = self.galaxy.finalPolys[poly]
+
             hull = self.galaxy.monotone_chain(points)
             
             #hull.reverse()
@@ -1399,19 +1268,22 @@ class GLWidget(QtOpenGL.QGLWidget):
                 GL.glVertex3f(line[0] - vectorOffset.x(), line[1] - vectorOffset.y(), origin)
             GL.glEnd( )         
 
-        GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (.0,.0,.0, 0.0))
-        GL.glBegin(GL.GL_POLYGON)
-        GL.glVertex3f(self.galaxy.space_size.x()+5000, -self.galaxy.space_size.y()-5000, extrude)
-        GL.glVertex3f(self.galaxy.space_size.x()+5000, self.galaxy.space_size.y()+5000, extrude)
-        GL.glVertex3f(-self.galaxy.space_size.x()-5000, self.galaxy.space_size.y()+5000, extrude)
-        GL.glVertex3f(-self.galaxy.space_size.x()-5000, -self.galaxy.space_size.y()-5000, extrude)
-        GL.glEnd( )
 
-
-        self.programConstant.release()
-
+            self.programConstant.release()
+   
         GL.glEndList()
-        return genList
+        self.zones[sector] = genList
+        
+        
+
+    def createZones(self):
+        self.zones = {}
+        for sector in self.zones:
+            GL.glDeleteLists(self.zones[sector], 1)
+
+        for sector in self.galaxy.sectors:
+            self.createZone(sector)
+
 
     def createPlane(self):
         

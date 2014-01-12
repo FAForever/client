@@ -49,7 +49,7 @@ class LobbyWidget(FormClass, BaseClass):
     creditsUpdated                  = QtCore.pyqtSignal(int)
     victoriesUpdated                = QtCore.pyqtSignal(int)
     attacksUpdated                  = QtCore.pyqtSignal()
-    planetUpdated                   = QtCore.pyqtSignal()
+    planetUpdated                   = QtCore.pyqtSignal(int)
     attackProposalUpdated           = QtCore.pyqtSignal(int)
     ReinforcementUpdated            = QtCore.pyqtSignal(dict)
     planetaryDefenseUpdated         = QtCore.pyqtSignal(dict)
@@ -456,6 +456,7 @@ class LobbyWidget(FormClass, BaseClass):
             textureMd5  = message['md5tex']
             name        = message['name']
             desc        = message['desc']
+            sector      = message['sector']
             if display:
                 texture     = message['texture']
                 mapname     = message['mapname']
@@ -467,14 +468,14 @@ class LobbyWidget(FormClass, BaseClass):
                 texture = 0
                 maxplayer = 0
 
-            self.galaxy.addPlanet(uid, name, desc, x, y, size, maxplayer=maxplayer, mapname=mapname,texture = texture, init=True, display = display) 
+            self.galaxy.addPlanet(uid, sector, name, desc, x, y, size, maxplayer=maxplayer, mapname=mapname,texture = texture, init=True, display = display) 
             self.galaxy.update(message)
             
             if not uid in self.galaxy.links :
                 self.galaxy.links[uid] = message['links']
         else :
             self.galaxy.update(message)
-            self.planetUpdated.emit()
+            self.planetUpdated.emit(message['sector'])
 
     def handle_logged_in(self, message):
        
