@@ -720,7 +720,7 @@ class Site(object):
         self.x = x
         self.y = y
         self.sitenum = sitenum
-        self.name = name
+        self.name = str(name)
         self.description = desc
         self.size = size
         self.texture = None

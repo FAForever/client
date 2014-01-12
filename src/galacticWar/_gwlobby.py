@@ -276,7 +276,7 @@ class LobbyWidget(FormClass, BaseClass):
         self.info_Panel.layout().addWidget(self.infoPanel)
 
         self.send(dict(command = "init_done", status=True))
-  
+        self.infoPanel.setup()
         
     def get_rank(self, faction, rank):
         return RANKS[faction][rank]

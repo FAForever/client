@@ -39,6 +39,9 @@ class Teams(object):
     def clearMembers(self):
         self.members = {}
     
+    def clearLeader(self):
+        self.leader = {}
+    
     def getMemberNames(self):
         return self.members.values()
 

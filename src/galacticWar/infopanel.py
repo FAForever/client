@@ -17,10 +17,11 @@
 #-------------------------------------------------------------------------------
 
 
-from PyQt4 import QtGui
+from PyQt4 import QtGui, QtCore
 import util
 from galacticWar import logger
 from attackitem import AttackItem
+from defenseitem import DefenseItem
 
 from teams.teamswidget import TeamWidget
 
@@ -37,20 +38,22 @@ class InfoPanelWidget(FormClass, BaseClass):
         self.parent = parent
         self.galaxy = self.parent.galaxy
 
-        self.setup()
+        #self.setup()
         self.attackListWidget.hide()
         
         self.planet = None
         
         
         self.myAttacks      = {}
-        self.onlinePlayers    = {}
+        self.myDefenses     = {}
+        self.onlinePlayers  = {}
         
         # if we are waiting for the player list...        
         self.waitingForPlayerList = False
         self.waitingForTeamMemberList = False
         self.teamwidget = TeamWidget(self.parent, {})
         
+        self.completer= None
         
         # Updating stats
         self.parent.creditsUpdated.connect(self.updateCredit)
@@ -72,6 +75,8 @@ class InfoPanelWidget(FormClass, BaseClass):
         self.rankUpButton.clicked.connect(self.rankup)
         self.awayBox.stateChanged.connect(self.away)
         
+        self.attackListWidget.itemClicked.connect(self.attackClicked)
+        self.defenseListWidget.itemClicked.connect(self.attackClicked)
         self.attackListWidget.itemDoubleClicked.connect(self.giveToattackProposal)
 
         self.planetaryDefensesButton.clicked.connect(self.buyPlanetaryDefensesItems)
@@ -79,6 +84,7 @@ class InfoPanelWidget(FormClass, BaseClass):
         
         self.quitSquadButton.clicked.connect(self.quitSquad)
 
+        self.defenseBox.hide()
         self.squadBox.hide()
         self.planetaryDefensesButton.hide()
         self.reinforcementButton.hide()
@@ -88,7 +94,29 @@ class InfoPanelWidget(FormClass, BaseClass):
     def setup(self):
         self.attackButton.hide()
         self.defenseButton.hide()
+
+        planetList = []
+        for planetuid in self.galaxy.control_points:
+            name = self.galaxy.control_points[planetuid].name
+            if name != None and name != '':
+                planetList.append(name)
+
+        self.completer =  QtGui.QCompleter(sorted(planetList), parent=self)
+        self.completer.setCaseSensitivity(QtCore.Qt.CaseInsensitive)
+
+        self.findPlanet.setCompleter(self.completer) 
         
+        self.findPlanet.textChanged.connect(self.goToPlanet)
+    
+    def attackClicked(self, item):
+        if item.uid in self.galaxy.control_points:
+            self.parent.OGLdisplay.gotoPlanet(item.uid)
+    
+    def goToPlanet(self, text):
+        for planetuid in self.galaxy.control_points:
+            if text == self.galaxy.control_points[planetuid].name:
+                self.parent.OGLdisplay.gotoPlanet(planetuid)
+            
     
     def updateSearch(self, state):
         if state == True:
@@ -137,6 +165,7 @@ class InfoPanelWidget(FormClass, BaseClass):
         self.parent.teams.clearMembers()
         
         if leader == None or members == []:
+            self.parent.teams.clearLeader()
             self.squadBox.hide()
             self.formTeamButton.show()
             return
@@ -192,8 +221,52 @@ class InfoPanelWidget(FormClass, BaseClass):
             self.parent.send(dict(command="send_to_proposal", uid=planetuid))
                 
     def updateAttacks(self):
-        logger.debug("updating attacks")
+        ''' updating attacks and doing stuff'''
         
+        # for defense
+        
+        # cleaning list
+        for planetuid in set(self.myDefenses.keys()):
+            found = False
+            for uid in self.parent.attacks:
+                if planetuid in self.parent.attacks[uid]:
+                    found = True
+                    break
+            if not found:
+                self.myDefenses[planetuid].updateTimer.stop()
+                row = self.defenseListWidget.row(self.myDefenses[planetuid])
+                if row != None:
+                    self.defenseListWidget.takeItem(row)
+                del self.myDefenses[planetuid]
+        
+        faction = self.parent.faction
+        for uid in self.parent.attacks :
+            for planetuid in self.parent.attacks[uid] :
+                if self.parent.attacks[uid][planetuid]["defended"] == True :
+                    continue
+                if self.galaxy.control_points[planetuid].occupation(faction) > 0.5 and self.parent.attacks[uid][planetuid]["faction"] != faction :
+                    for site in self.galaxy.getLinkedPlanets(planetuid) :
+                        if self.galaxy.control_points[site].occupation(faction) > 0.5 :
+                            if not planetuid in self.myDefenses :
+                                self.myDefenses[planetuid] = DefenseItem(planetuid)
+                                self.defenseListWidget.addItem(self.myDefenses[planetuid])            
+                            
+                            self.myDefenses[planetuid].update(self.parent.attacks[uid][planetuid], self)
+                        elif self.parent.attacks[uid][planetuid]["faction"] != faction :
+                            for site in self.galaxy.getLinkedPlanets(planetuid) :
+                                if self.galaxy.control_points[site].occupation(faction) > 0.5 :
+                                    if not planetuid in self.myDefenses :
+                                        self.myDefenses[planetuid] = DefenseItem(planetuid)
+                                        self.defenseListWidget.addItem(self.myDefenses[planetuid])            
+                                    self.myDefenses[planetuid].update(self.parent.attacks[uid][planetuid], self)
+
+
+        if self.defenseListWidget.count() == 0:
+            self.defenseBox.hide()
+        else:
+            self.defenseBox.show()        
+        
+        # for attack
         membersUids = list(set(self.parent.attacks.keys()).intersection(set(self.parent.teams.getMembersUids() + [self.parent.uid] )))
         myAttackList = [self.parent.attacks[key] for key in membersUids ]
 

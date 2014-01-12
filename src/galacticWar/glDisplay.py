@@ -72,7 +72,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.animAttackVector = 0
         
         self.zoomMin = 4500
-        self.zoomMax = 10
+        self.zoomMax = 70
         self.cameraPos  = QtGui.QVector3D(0,0,self.zoomMin)
         self.vectorMove = QtGui.QVector3D(0,0,self.zoomMin)
         
@@ -103,6 +103,11 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.animCam.setUpdateInterval(self.UPDATE_ROTATION/2)
         self.animCam.valueChanged.connect(self.scalingTime)
         self.animCam.finished.connect(self.animFinished)
+
+        self.animCamMove = QtCore.QTimeLine(1000, self)
+        self.animCamMove.setUpdateInterval(self.UPDATE_ROTATION/2)
+        self.animCamMove.valueChanged.connect(self.moveAlongVector)
+        self.animCamMove.finished.connect(self.animMoveFinished)
         
         self.parent.attacksUpdated.connect(self.planetsUnderAttack)
         self.parent.planetUpdated.connect(self.planetUpdate)
@@ -111,6 +116,67 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.setAutoFillBackground(False)
         
         self.setAcceptDrops(True)
+    
+    def  moveAlongVector(self, val):
+        ''' move to a planet '''
+        self.cameraPos.setX((self.camOriginPos.x() ) + (self.vectorMove.x() * val ))
+        self.cameraPos.setY((self.camOriginPos.y() ) + (self.vectorMove.y() * val ))
+        self.cameraPos.setZ((self.camOriginPos.z() ) + (self.vectorMove.z() * val ))
+        self.createCamera()
+    
+    def animMoveFinished(self):
+        self.timerRotate.start()
+        self.cameraPos.setX(self.destination.x() )
+        self.cameraPos.setY(self.destination.y() )
+        self.cameraPos.setZ(self.destination.z() )
+        self.createCamera()
+        self.camOriginPos = QtGui.QVector3D(self.cameraPos.x(),self.cameraPos.y(), self.cameraPos.z())
+        pass
+        
+    
+    
+
+    def rayPlaneIntersect(self, rayorigin, in_raydirection, planeorigin, in_planenormal):  
+        ''''' 
+        @returns: QVector3d, intersectionPoint-rayOrigin
+        http://trevorius.com/scrapbook/python/ray-plane-intersection/ 
+        '''  
+        raydirection = in_raydirection.normalized()  
+        planenormal = in_planenormal.normalized()  
+        
+        distanceToPlane = QtGui.QVector3D.dotProduct(rayorigin-planeorigin, planenormal)
+        triangleHeight = QtGui.QVector3D.dotProduct(raydirection, -planenormal)   
+        if not distanceToPlane:  
+            return rayorigin-planeorigin  
+        if not triangleHeight:  
+            return None #ray is parallel to plane  
+        return (raydirection * distanceToPlane * (1.0/triangleHeight)) 
+    
+    def gotoPlanet(self, uid):
+        if not uid in self.galaxy.control_points:return 
+        if not self.galaxy.control_points[uid].isVisible():return
+        
+        self.timerRotate.stop()
+        self.animCam.stop()
+        self.animCamMove.stop()
+        
+        x = self.galaxy.control_points[uid].x
+        y = self.galaxy.control_points[uid].y
+        
+        self.destination = QtGui.QVector3D(x,y,self.zoomMax)
+
+        # compute camera deviation
+        ir = 1.0 - (self.zoomMax)/ (self.zoomMin - self.zoomMax)       
+        lookat = QtGui.QVector3D(self.destination.x(), self.destination.y(), self.destination.z())
+        lookat.setZ(lookat.z() - 1.0) 
+        lookat.setY(lookat.y() + pow(ir, 5.0))
+
+        inter = self.rayPlaneIntersect(self.destination, self.destination-lookat, QtGui.QVector3D(0,0,0),QtGui.QVector3D(0,0,1))
+        self.destination.setY(self.destination.y() - inter.y())
+        self.camOriginPos = QtGui.QVector3D(self.cameraPos.x(),self.cameraPos.y(), self.cameraPos.z())
+        self.vectorMove = QtGui.QVector3D(self.destination.x() - self.cameraPos.x(), self.destination.y() - self.cameraPos.y(), (self.destination.z() -self.cameraPos.z()) )
+
+        self.animCamMove.start()
     
     def starField(self):
         self.galaxy.generate_star_field(1000, -1000)
@@ -436,10 +502,10 @@ class GLWidget(QtOpenGL.QGLWidget):
                     
                     site = self.galaxy.control_points[uid]
                     pos = site.pos3d
-                    scale = site.size * 10
+                    scale = site.size * 25
                     self.programSwirl.setUniformValue('rotation', 1.0, 0, 0)
                     self.programSwirl.setUniformValue('scaling', scale, scale, scale)
-                    self.programSwirl.setUniformValue('pos', pos.x(), pos.y(), scale)
+                    self.programSwirl.setUniformValue('pos', pos.x(), pos.y(), site.size+30)
                     
                     GL.glCallList(self.plane)
 
@@ -855,6 +921,7 @@ class GLWidget(QtOpenGL.QGLWidget):
             self.cameraPos.x(), self.cameraPos.y(), self.cameraPos.z() ,
             self.cameraPos.x(), orig.y() ,orig.z() ,
             0.0, 1.0, 0.0)      
+
         
         self.programPlanet.setAttributeValue(10, self.cameraPos.x(), self.cameraPos.y(), self.cameraPos.z())
         self.programAtmosphere.setAttributeValue(10, self.cameraPos.x(), self.cameraPos.y(), self.cameraPos.z())
@@ -894,6 +961,7 @@ class GLWidget(QtOpenGL.QGLWidget):
 
 
     def scalingTime(self, val):
+        
         self.rotateOneStep(False)
         factor = 1. - self._numScheduledScalings / 150.0
         self.cameraPos.setZ(self.cameraPos.z() * (factor))
@@ -1021,10 +1089,12 @@ class GLWidget(QtOpenGL.QGLWidget):
 
 
     def mousePressEvent(self, event):
-        
         if  event.buttons() & QtCore.Qt.LeftButton :
             self.overlayPlanet = not self.overlayPlanet
             if self.overlayPlanet :
+                if not self.curZone: return
+                if not self.curZone[0] : return
+                if not self.galaxy.control_points[self.curZone[0]].isVisible(): return
                 self.parent.planetClicked.emit(self.curZone[0])
                 self.attackable()
             else :

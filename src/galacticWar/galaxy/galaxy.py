@@ -176,7 +176,7 @@ class Galaxy(object):
                     numLinks = numLinks + 1
 
         return numLinks
-        
+
     def getLinkedPlanets(self, site):
         planets = []
         
