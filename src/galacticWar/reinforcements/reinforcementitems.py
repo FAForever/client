@@ -48,11 +48,13 @@ class groupListWidget(QtGui.QListWidget):
     def startDrag(self, event):
         ''' Draging owned units'''
         index = self.indexAt(event.pos())
-        if not index.isValid():
-            return
+        if not index.isValid(): return
 
         ## selected is the relevant person object
-        selected = dict(group = self.group, uid = self.model().data(index, QtCore.Qt.UserRole).uid)
+        itemSelected = self.model().data(index, QtCore.Qt.UserRole)
+        if not itemSelected.canmove: return
+        selected = dict(group = self.group, uid = itemSelected.uid)
+        
         bstream = cPickle.dumps(selected)
         mimeData = QtCore.QMimeData()
         mimeData.setData("application/x-ownedunit-reinforcement", bstream)
@@ -187,7 +189,7 @@ class ReinforcementWidget(FormClass, BaseClass):
                 for uid in self.reinforcements:
                     if self.reinforcements[uid].owned != 0:
                         item = dict(unit=self.reinforcements[uid].uid, amount=self.reinforcements[uid].owned)
-                        self.parent.send(dict(command="offer_reinforcement_group", giveTo=players[player], item=item))
+                        self.parent.send(dict(command="offer_reinforcement_group", giveTo=players[player], itemuid=self.reinforcements[uid].uid, amount=self.reinforcements[uid].owned))
                 self.currentMoneyCost = 0        
                 
             self.waitingForPlayerList = False
@@ -208,8 +210,7 @@ class ReinforcementWidget(FormClass, BaseClass):
 
         for uid in self.reinforcements:
             if self.reinforcements[uid].owned != 0:
-                item = dict(unit=self.reinforcements[uid].uid, amount=self.reinforcements[uid].owned)
-                self.parent.send(dict(command="buy_reinforcement_group", item=item))
+                self.parent.send(dict(command="buy_reinforcement_group", itemuid=self.reinforcements[uid].uid, amount=self.reinforcements[uid].owned))
                 self.reinforcements[uid].setAmount(0)
             
         self.currentMoneyCost = 0
@@ -286,5 +287,4 @@ class ReinforcementWidget(FormClass, BaseClass):
             self.reinforcements[uid].update(message, self.parent)
         else:
             self.reinforcements[uid].update(message, self.parent)
-        
         self.updateCreditsCheck()

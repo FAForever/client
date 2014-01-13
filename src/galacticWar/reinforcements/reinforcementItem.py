@@ -116,6 +116,8 @@ class ReinforcementItem(QtGui.QListWidgetItem):
         self.owned          = 0
         self.disabled       = False
         self.small          = small
+        self.reinforcementType = ""
+        self.canmove        = False
         
         if small:
             self.FORMATTER_REINFORCEMENT       = unicode(util.readfile("galacticwar/formatters/reinforcementSmall.qthtml"))
@@ -191,10 +193,13 @@ class ReinforcementItem(QtGui.QListWidgetItem):
         self.activation     = "%0.1f" % (message['activation'])
         self.description    = message["description"]
         self.owned          = message.get("owned", 0)
+        self.reinforcementType = message.get("type", "")
 
-        iconName = "%s_icon.png" % self.uid
-        icon = util.iconUnit(iconName)
-        self.setIcon(icon)
+        if self.tech != 0: 
+            self.canmove = True
+            iconName = "%s_icon.png" % self.uid
+            icon = util.iconUnit(iconName)
+            self.setIcon(icon)
         
         if message["display"] :
             self.setHidden(False)
@@ -216,5 +221,11 @@ class ReinforcementItem(QtGui.QListWidgetItem):
     
     
     def __lt__(self, other):
-        ''' Comparison operator used for item list sorting '''        
-        return self.price <= other.price
+        ''' Comparison operator used for item list sorting ''' 
+        if self.reinforcementType != other.reinforcementType:
+            if self.reinforcementType == "active": return True
+            elif other.reinforcementType == "active": return False
+            return self.reinforcementType > other.reinforcementType
+        elif self.price != other.price:
+            return self.price < other.price
+        else: return self.uid < other.uid
