@@ -79,8 +79,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.zooming = False
         
         self.starField()
-
-        
+     
         
         self.cursor = QtGui.QVector3D(0,0,0)
         self.destination = QtGui.QVector3D(0,0,0)
@@ -111,11 +110,22 @@ class GLWidget(QtOpenGL.QGLWidget):
         
         self.parent.attacksUpdated.connect(self.planetsUnderAttack)
         self.parent.planetUpdated.connect(self.planetUpdate)
+
+        fa.exe.instance.started.connect(self.startedFA)
+        fa.exe.instance.finished.connect(self.finishedFA)
         
         self.setMouseTracking(1)
         self.setAutoFillBackground(False)
         
         self.setAcceptDrops(True)
+    
+    
+    def finishedFA(self):
+        self.timerRotate.stop()
+    
+    def startedFA(self):
+        if self.parent.rotation and self.isVisible():
+            self.timerRotate.start(self.UPDATE_ROTATION)
     
     def  moveAlongVector(self, val):
         ''' move to a planet '''
@@ -125,7 +135,9 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.createCamera()
     
     def animMoveFinished(self):
-        self.timerRotate.start()
+        if self.parent.rotation:
+            self.timerRotate.start()        
+
         self.cameraPos.setX(self.destination.x() )
         self.cameraPos.setY(self.destination.y() )
         self.cameraPos.setZ(self.destination.z() )
@@ -606,16 +618,17 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.animAttackVector = self.animAttackVector + 30 
         if self.animAttackVector > 360 :
             self.animAttackVector = 0
-        
-        
- 
         self.programStars.release()
-        
-        
+
+    def hideEvent(self, event):
+        self.timerRotate.stop()
+    
+    def showEvent(self, event):
+        if self.parent.rotation:
+            self.timerRotate.start(self.UPDATE_ROTATION)
     
     def paintEvent(self, event):
-        if fa.exe.running():
-            return
+        if fa.exe.running() or self.isVisible() == False : return
         self.makeCurrent()
         GL.glEnable(GL.GL_DEPTH_TEST)
         GL.glDepthFunc(GL.GL_LEQUAL)

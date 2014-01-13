@@ -44,6 +44,8 @@ class Galaxy(object):
         for uid in self.control_points :
             self.control_points[uid].computeColor()
     
+    
+    
     def update(self, message):
         uid = message["uid"]
         if uid in self.control_points :
