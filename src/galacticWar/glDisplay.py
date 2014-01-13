@@ -917,7 +917,6 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.animCam.stop()
         numDegrees = int(event.delta() / 8)
         numSteps = int(numDegrees / 15) 
-                
         self._numScheduledScalings += numSteps
         
         if self._numScheduledScalings * numSteps < 0 :
@@ -1286,8 +1285,7 @@ class GLWidget(QtOpenGL.QGLWidget):
    
         GL.glEndList()
         self.zones[sector] = genList
-        
-        
+  
 
     def createZones(self):
         self.zones = {}
@@ -1297,6 +1295,23 @@ class GLWidget(QtOpenGL.QGLWidget):
         for sector in self.galaxy.sectors:
             self.createZone(sector)
 
+        #create the "background"
+        extrude = -7
+        genList = GL.glGenLists(1)
+        GL.glNewList(genList, GL.GL_COMPILE)        
+        GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (.0,.0,.0, 0.0))
+        self.programConstant.bind()
+        GL.glBegin(GL.GL_POLYGON)
+        GL.glVertex3f(self.galaxy.space_size.x()+5000, -self.galaxy.space_size.y()-5000, extrude)
+        GL.glVertex3f(self.galaxy.space_size.x()+5000, self.galaxy.space_size.y()+5000, extrude)
+        GL.glVertex3f(-self.galaxy.space_size.x()-5000, self.galaxy.space_size.y()+5000, extrude)
+        GL.glVertex3f(-self.galaxy.space_size.x()-5000, -self.galaxy.space_size.y()-5000, extrude)
+        
+        GL.glEnd( )        
+        self.programConstant.release()
+        GL.glEndList()
+        
+        self.zones["background"] = genList
 
     def createPlane(self):
         
