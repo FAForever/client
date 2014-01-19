@@ -103,6 +103,8 @@ class Channel(FormClass, BaseClass):
             self.nickFilter.textChanged.connect(self.filterNicks)
             
             self.lobby.client.usersUpdated.connect(self.updateChatters)
+            self.updateChannels()
+            self.channelsComboBox.currentIndexChanged.connect(self.joinChannel)
         else:
             self.nickFrame.hide()
             self.announceLine.hide()
@@ -115,6 +117,17 @@ class Channel(FormClass, BaseClass):
         self.resizeTimer = QtCore.QTimer(self)
         self.resizeTimer.timeout.connect(self.canresize)
                 
+    def joinChannel(self, index):
+        ''' join another channel'''
+        channel = self.channelsComboBox.itemText(index)
+        if channel.startswith('#'):
+            self.lobby.autoJoin([channel])
+        
+    def updateChannels(self):
+        ''' add channel available to join '''
+        
+        self.channelsComboBox.clear()
+        self.channelsComboBox.insertItems(1,[""] + sorted(self.lobby.channelsAvailable))
         
     def keyReleaseEvent(self, keyevent):
         '''

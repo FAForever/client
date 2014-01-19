@@ -16,7 +16,10 @@ class gwChannel(Channel):
         
         self.nickList.hide()
         self.nickFilter.hide()
-        
+
+        self.joinLabel.hide()
+        self.channelsComboBox.hide()
+
         #Properly and snugly snap all the columns
         self.nickList.horizontalHeader().setResizeMode(Chatter.RANK_COLUMN, QtGui.QHeaderView.Fixed)
         self.nickList.horizontalHeader().resizeSection(Chatter.RANK_COLUMN, self.NICKLIST_COLUMNS['RANK'])

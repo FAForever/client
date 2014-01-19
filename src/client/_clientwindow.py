@@ -126,6 +126,7 @@ class ClientWindow(FormClass, BaseClass):
     localBroadcast = QtCore.pyqtSignal(str, str)
     publicBroadcast = QtCore.pyqtSignal(str)
     autoJoin = QtCore.pyqtSignal(list)
+    channelsUpdated = QtCore.pyqtSignal(list)
     featuredModManager = QtCore.pyqtSignal(str)
     featuredModManagerInfo = QtCore.pyqtSignal(dict)
     replayVault = QtCore.pyqtSignal(dict)
@@ -1941,6 +1942,9 @@ class ClientWindow(FormClass, BaseClass):
         if "power" in message:
             self.power = message["power"]
             self.manage_power()
+
+        if "channels" in message:
+            self.channelsUpdated.emit(message["channels"])
 
     def handle_player_info(self, message):
         name = message["login"]        

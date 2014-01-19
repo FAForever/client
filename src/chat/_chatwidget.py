@@ -94,12 +94,18 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.client.connected.connect(self.connect)
         self.client.publicBroadcast.connect(self.announce)
         self.client.autoJoin.connect(self.autoJoin)
-    
+        self.client.channelsUpdated.connect(self.addChannels)
+        self.channelsAvailable = []
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self.poll)
         
         self.canDisconnect = False
 
+    def addChannels(self, channels):
+        ''' add channel available to join '''
+        self.channelsAvailable = self.channelsAvailable + channels
+        for channel in self.channels :
+            self.channels[channel].updateChannels()
    
     @QtCore.pyqtSlot()
     def poll(self):
@@ -228,6 +234,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
     @QtCore.pyqtSlot(list)
     def autoJoin(self, channels):
             for channel in channels:
+                if channel in self.channels:
+                    continue
                 if (self.connection.is_connected()) and self.welcomed:
                     #directly join
                     self.connection.join(channel)
@@ -273,7 +281,6 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
     
     def nickservRegister(self):
         self.connection.privmsg('NickServ', 'register %s %s' % (util.md5text(self.client.password), self.client.email))
-        
         
     def on_version(self, c, e):
         self.connection.privmsg(e.source(), "Forged Alliance Forever " + self.client.VERSION)
@@ -336,13 +343,14 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             if channel.lower() in self.crucialChannels: #Make the crucial channels not closeable, and make the last one the active one
                 self.setCurrentWidget(self.channels[channel])
                 self.tabBar().setTabButton(self.currentIndex(), QtGui.QTabBar.RightSide, None)
+            else:
+                self.channels[channel].joinLabel.hide()
+                self.channels[channel].channelsComboBox.hide()
 
         self.channels[channel].addChatter(user2name(e.source()), True)
         self.channels[channel].resizing()
         
-    
-  
-    
+
     def on_part(self, c, e):
         channel = e.target()
         name = user2name(e.source())
@@ -433,6 +441,9 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
             elif e.arguments()[0].find("hold on") >= 0:
                 self.connection.nick(self.client.login)
+        elif source and source.lower() == 'botserv':
+            print "botserv", notice
+            
 
         message = "\n".join(e.arguments()).lstrip(prefix)
         if target in self.channels:

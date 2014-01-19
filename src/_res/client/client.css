@@ -1,11 +1,3 @@
-/*
-Simple UEF (blue) theme by thygrrr
-
-dark dirty blue: #2f2f2f
-dark gray: #383838
-medium gray: #606060
-gray: #808080
-*/
 
  *[warning="true"]
 {
@@ -425,7 +417,7 @@ QScrollBar::sub-page
 }
 
 
-QLabel#labelJoinGame,#labelHostGame,#labelAutomatch,#labelMyReplays,#labelLiveReplays,#labelHostTournament,#labelJoinTournament
+QLabel#labelJoinGame,#labelHostGame,#labelAutomatch,#labelMyReplays,#labelLiveReplays,#labelHostTournament,#labelJoinTournament,#joinLabel
 {
 	color:white;
 }
@@ -483,3 +475,15 @@ QToolButton::checked
 	background-color:#C0C0C0;
 	border-radius : 5px;
  }
+
+ QComboBox
+ {
+ 	color:orange;
+	background-color: grey;
+ }
+
+QComboBox QAbstractItemView {
+    border: 2px solid darkgray;
+    selection-background-color: grey;
+	background-color: grey;
+}
