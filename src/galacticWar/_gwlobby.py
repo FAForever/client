@@ -271,7 +271,6 @@ class LobbyWidget(FormClass, BaseClass):
         self.galaxyLayout.addWidget(self.OGLdisplay)
         self.galaxyLayout.addWidget(self.newsTicker)
         self.newsTicker.setMaximumHeight(20)
-        self.newsTicker.updateText()
         self.infoPanel = InfoPanelWidget(self)
         self.info_Panel.layout().addWidget(self.infoPanel)
 

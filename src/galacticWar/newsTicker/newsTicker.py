@@ -8,7 +8,6 @@ class NewsTicker(QtGui.QWidget):
         QtGui.QWidget.__init__(self, *args, **kwargs)
         
         self.news = []
-        self.newNews = []
         
         self.myText = ""
         
@@ -22,12 +21,8 @@ class NewsTicker(QtGui.QWidget):
 
     def addNews(self, news):
         for new in news :
-            self.newNews.append(new)
-        self.updateText() 
-    
-    def updateText(self):
-        self.update()
-        self.updateGeometry()
+            if not new in self.news:
+                self.news.append(new)
     
     def paintEvent(self, event):
         painter = QtGui.QPainter(self)
@@ -35,38 +30,28 @@ class NewsTicker(QtGui.QWidget):
         
         
         if len(self.news) == 0  :
-            if len(self.newNews) != 0 :
-                self.news = copy.copy(self.newNews)
-                
             return
-        
-        x = -self.offset
-      
-        loop = False
-        repeat = 0
 
+        if len(self.news) > 20 :
+            toRemoveWidth = self.computeWidth(self.news[0] + " - ")
+            if self.offset >= toRemoveWidth:
+                self.offset = self.offset - toRemoveWidth
+                self.news.pop(0)
+
+        x = -self.offset
         while x < self.width() :
             
-            for news in self.news + self.newNews :
+            for news in self.news :
                 news = news + " - "
                 textWidth = self.fontMetrics().width(news)
+
                 painter.drawText(x, 0, textWidth, self.height(), QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter, news)
                 x = x + textWidth
-            
-            
-            if len(self.newNews) > 0 and x > self.width() and repeat == 0 :
-                for news in self.news :
-                    textWidth = self.fontMetrics().width(news)
-                    if textWidth < self.offset :
-                        self.news.pop(0)
-                        self.news.append(self.newNews[0])
-                        self.newNews.pop(0)
-                        break
 
-            repeat = repeat + 1
-    
-    def computeWidth(self):
-        text = " - ".join(self.news + self.newNews) + " - "
+            
+
+
+    def computeWidth(self, text):
         return self.fontMetrics().width(text)
     
     def showEvent(self, event):
@@ -76,7 +61,7 @@ class NewsTicker(QtGui.QWidget):
         if event.timerId() == self.myTimerId :
             self.offset = self.offset + 1
             
-            if self.offset >= self.computeWidth() :
+            if self.offset >= self.computeWidth(text = " - ".join(self.news) + " - ") :
                 self.offset = 0
             
             self.scroll(-1, 0)
@@ -91,15 +76,7 @@ class NewsTicker(QtGui.QWidget):
          
  
     def sizeHint(self):
-        text = " - ".join(self.news + self.newNews) + " - "
+        text = " - ".join(self.news) + " - "
         return self.fontMetrics().size(0, text)
 
-if __name__ == '__main__':
-
-    app = QtGui.QApplication(sys.argv)
-    window = NewsTicker()
-    window.setMinimumSize(800,20)
-    window.setMaximumSize(300,20)
-    window.show()
-    window.updateText()
-    sys.exit(app.exec_())     
+    
