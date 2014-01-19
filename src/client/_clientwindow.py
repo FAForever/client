@@ -1834,7 +1834,7 @@ class ClientWindow(FormClass, BaseClass):
         '''
         Performs a running of ForgedAlliance.exe for testing that everything is okay
         '''         
-        result = QtGui.QMessageBox.question(None, "Testing Proxies", "This will test if your computer is able to use the proxy server.<br>The proxy server is there to solve connections problems that can't be resolved otherwise.<br>Having it running correctly is extremely important.<br><br>FA will launch AND close automatically.<br><b>Please don't close it yourself.</b><br><br>The test can take up to 60 seconds!<br><br>If all you see when FA is launched is a black screen, you have a incorrect mod. The solution is to check your mods. <br><br>Launch the test?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+        result = QtGui.QMessageBox.question(None, "Testing Proxies", "This will test if your computer is able to use the proxy server.<br>The proxy server is there to solve connections problems that can't be resolved otherwise.<br>Having it running correctly is extremely important.<br><br>FA will launch AND close automatically.<br><b>Please don't close it yourself.</b><br><br>The test can take up to 60 seconds!<br><br>If all you see when FA is launched is a black screen, you have an incorrect mod. The solution is to check your mods. <br><br>Launch the test?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
         if result != QtGui.QMessageBox.Yes:
             return
         
