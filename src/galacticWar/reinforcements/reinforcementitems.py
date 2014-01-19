@@ -265,12 +265,12 @@ class ReinforcementWidget(FormClass, BaseClass):
             infos = self.reinforcements[uid].getInfos()
             infos["owned"] = amount
    
-        if uid not in self.unitsGroup[group].groupUnits:
-            self.unitsGroup[group].groupUnits[uid] = ReinforcementItem(uid, small=True)
-            self.unitsGroup[group].addItem(self.unitsGroup[group].groupUnits[uid])
-            self.unitsGroup[group].groupUnits[uid].update(infos, self.parent)
-        else:
-            self.unitsGroup[group].groupUnits[uid].update(infos, self.parent)
+            if uid not in self.unitsGroup[group].groupUnits:
+                self.unitsGroup[group].groupUnits[uid] = ReinforcementItem(uid, small=True)
+                self.unitsGroup[group].addItem(self.unitsGroup[group].groupUnits[uid])
+                self.unitsGroup[group].groupUnits[uid].update(infos, self.parent)
+            else:
+                self.unitsGroup[group].groupUnits[uid].update(infos, self.parent)
   
     def removeGroup(self, message):
         ''' remove a whole group'''
