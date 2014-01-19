@@ -116,12 +116,12 @@ class Relayer(QtCore.QObject):
     __logger = logging.getLogger("faf.fa.relayer")
     __logger.setLevel(logging.DEBUG)
     
-    def __init__(self, parent, client, local_socket, *args, **kwargs):
+    def __init__(self, parent, client, local_socket, testing, *args, **kwargs):
         QtCore.QObject.__init__(self, *args, **kwargs)
         self.parent = parent
         self.inputSocket = local_socket
         self.client = client
-
+        self.testing = testing
 
         # for unpacking FA protocol
         self.blockSizeFromServer = 0
@@ -167,7 +167,6 @@ class Relayer(QtCore.QObject):
         self.relaySocket.deleteLater()
         self.__logger.debug("destructor called")        
            
-
     def readDataFromServer(self):
         ins = QtCore.QDataStream(self.relaySocket)        
         ins.setVersion(QtCore.QDataStream.Qt_4_2)
@@ -262,7 +261,10 @@ class Relayer(QtCore.QObject):
                         self.fieldTypeRead = False
                         self.fieldSizeRead = False  
       
-                self.sendToServer(self.action, self.chunks)
+                if not self.testing:
+                    self.sendToServer(self.action, self.chunks)
+                else:
+                    self.sendToLocal(self.action, self.chunks)
                 self.action = None
                 self.chunks = []
                 self.headerSizeRead = False
@@ -274,7 +276,27 @@ class Relayer(QtCore.QObject):
     def ping(self):
         self.sendToServer("ping", [])
         
-                
+        
+    def sendToLocal(self, action, chunks):
+        if action == 'GameState':
+            if chunks[0] == 'Idle':
+                self.client.proxyServer.setUid(1)
+                reply = Packet("CreateLobby", [0, 0, "FAF Local Mode", 0, 1])
+                self.inputSocket.write(reply.Pack())
+
+            elif chunks[0] == 'Lobby':
+                reply = Packet("HostGame", ["SCMP_007"])
+                self.inputSocket.write(reply.Pack())
+                if self.testing == True:
+                    self.client.proxyServer.testingProxy()
+                    for i in range(len(self.client.proxyServer.proxies)):
+                        udpport = self.client.proxyServer.bindSocket(i, 1)
+                        self.__logger.info("Asking to send data on proxy port %i" % udpport)
+                        acts = [("127.0.0.1:%i" % udpport), "port %i" % udpport, udpport]
+                        reply = Packet("ConnectToPeer", acts)
+                        self.inputSocket.write(reply.Pack())
+
+                            
     def sendToServer(self, action, chunks):
         data = json.dumps(dict(action=action, chuncks=chunks))
         # Relay to faforever.com
@@ -315,7 +337,6 @@ class Relayer(QtCore.QObject):
             
         elif key == "ConnectToProxy" :
                 port = acts[0]
-                address = acts[1]
                 login   = acts[2]
                 uid     = acts[3]
                 udpport = self.client.proxyServer.bindSocket(port, uid)
@@ -327,7 +348,6 @@ class Relayer(QtCore.QObject):
                 
         elif key == "JoinProxy" :
             port = acts[0]
-            address = acts[1]
             login   = acts[2]
             uid     = acts[3]
             udpport = self.client.proxyServer.bindSocket(port, uid)
@@ -372,10 +392,22 @@ class RelayServer(QtNetwork.QTcpServer):
         QtNetwork.QTcpServer.__init__(self, *args, **kwargs)
         self.relayers = []
         self.client = client
-      
+        self.local = False
+        self.testing = False
+              
         self.__logger.debug("initializing...")
         self.newConnection.connect(self.acceptConnection)
-        
+
+    def stopTesting(self):
+        self.local = False
+        self.testing = False
+
+
+    def testingProxy(self):
+        ''' this method is to test that everything is fine'''
+        self.local = True
+        self.testing = True
+        #launching FA        
         
     def doListen(self):
         while not self.isListening():
@@ -383,8 +415,8 @@ class RelayServer(QtNetwork.QTcpServer):
             if (self.isListening()):
                 self.__logger.info("relay listening on address " + self.serverAddress().toString() + ":" + str(self.serverPort()))
             else:
-                self.__logger.error("cannot listen, port probably used by another application: " + str(local_port))
-                answer = QtGui.QMessageBox.warning(None, "Port Occupied", "FAF couldn't start its local relay server, which is needed to play Forged Alliance online. Possible reasons:<ul><li><b>FAF is already running</b> (most likely)</li><li>another program is listening on port {port}</li></ul>".format(port=local_port), QtGui.QMessageBox.Retry, QtGui.QMessageBox.Abort)
+                self.__logger.error("cannot listen, port probably used by another application: " + str(self.serverPort()))
+                answer = QtGui.QMessageBox.warning(None, "Port Occupied", "FAF couldn't start its local relay server, which is needed to play Forged Alliance online. Possible reasons:<ul><li><b>FAF is already running</b> (most likely)</li><li>another program is listening on port {port}</li></ul>".format(port=str(self.serverPort())), QtGui.QMessageBox.Retry, QtGui.QMessageBox.Abort)
                 if answer == QtGui.QMessageBox.Abort:
                     return False
         return True
@@ -397,6 +429,6 @@ class RelayServer(QtNetwork.QTcpServer):
     def acceptConnection(self):
         socket = self.nextPendingConnection()
         self.__logger.debug("incoming connection to relay server...")
-        self.relayers.append(Relayer(self, self.client, socket))
+        self.relayers.append(Relayer(self, self.client, socket, self.testing))
         pass
 

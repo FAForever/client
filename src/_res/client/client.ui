@@ -272,6 +272,8 @@
      <addaction name="separator"/>
      <addaction name="actionLink_account_to_Steam"/>
      <addaction name="separator"/>
+     <addaction name="actionTestingConnections"/>
+     <addaction name="separator"/>
      <addaction name="actionSetGamePath"/>
      <addaction name="actionSetGamePort"/>
      <addaction name="actionSaveGamelogs"/>
@@ -567,12 +569,17 @@
     <string>Link account to Steam</string>
    </property>
   </action>
+  <action name="actionTestingConnections">
+   <property name="text">
+    <string>Test Proxy Server</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
    <class>QWebView</class>
    <extends>QWidget</extends>
-   <header>PyQt4.QtWebKit</header>
+   <header>QtWebKit/QWebView</header>
   </customwidget>
  </customwidgets>
  <resources/>

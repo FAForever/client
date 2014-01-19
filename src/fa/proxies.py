@@ -66,6 +66,12 @@ class proxies(QtCore.QObject):
         self.blockSize = 0
         self.uid = None
         self.canClose = False
+        self.testedPorts = []
+        self.testedLoopback = []
+        self.testing = False
+        
+    def testingProxy(self):
+        self.testing = True
     
     def setUid(self, uid):
         self.uid = uid
@@ -94,7 +100,16 @@ class proxies(QtCore.QObject):
         self.proxiesDestination[port] = None
 
     def tranfertToUdp(self, port, packet):
-        self.proxies[port].writeDatagram(packet, QtNetwork.QHostAddress.LocalHost, self.client.gamePort)
+        if self.testing:
+            if not port in self.testedLoopback:
+                self.testedLoopback.append(port)
+                self.__logger.info("Testing proxy : Received data from proxy on port %i" % self.proxies[port].localPort())
+                if len(self.testedLoopback) == len(self.proxies):
+                    self.__logger.info("Testing proxy : All ports received data correctly")
+                    self.client.stopTesting(success=True)
+                    self.testing = False
+        else:
+            self.proxies[port].writeDatagram(packet, QtNetwork.QHostAddress.LocalHost, self.client.gamePort)
 
     def readData(self):
         if self.proxySocket.isValid() :           
@@ -172,7 +187,16 @@ class proxies(QtCore.QObject):
         udpSocket = self.proxies[i]
         while udpSocket.hasPendingDatagrams():
             datagram, _, _ = udpSocket.readDatagram(udpSocket.pendingDatagramSize())
-            self.sendReply(i, self.proxiesDestination[i], QtCore.QByteArray(datagram))
+            if self.testing:
+                if not i in self.testedPorts:
+                    self.__logger.info("Testing proxy : Received data from FA on port %i" % self.proxies[i].localPort())
+                    self.testedPorts.append(i)
+                    if len(self.testedPorts) == len(self.proxies):
+                        self.__logger.info("Testing proxy : All ports triggered correctly")
+                    self.sendReply(i, 1, QtCore.QByteArray(datagram))
+                
+            else:
+                self.sendReply(i, self.proxiesDestination[i], QtCore.QByteArray(datagram))
 
     def disconnectedFromProxy(self):
         '''Disconnection'''

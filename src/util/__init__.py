@@ -436,7 +436,7 @@ def __downloadPreviewFromWeb(unitname):
     unitname = unitname.lower()
 
     logger.debug("Searching web preview for: " + unitname)
-        
+    
     url = UNITS_PREVIEW_ROOT + urllib2.quote(unitname)
     header = urllib2.Request(url, headers={'User-Agent' : "FAF Client"})         
     req = urllib2.urlopen(header)

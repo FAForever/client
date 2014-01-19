@@ -100,7 +100,10 @@ def close():
         
         instance.close()    
     
-    
+
+def runTest():
+
+        __run()
     
 def __run(info, arguments, detach = False):
         '''
@@ -283,13 +286,13 @@ def play(info, port, log = False, arguments = None, gw = False):
         arguments.append('"' + util.LOG_FILE_GAME + '"')
     
     #live replay
-    
-    arguments.append('/savereplay')
-    if gw == False :
-        arguments.append('gpgnet://'+'localhost'+'/' + str(info['uid']) + "/" + str(info['recorder']) + '.SCFAreplay')
-    else :
-        arguments.append('gpgnet://'+'localhost'+'/' + str(info['uid']) + "/" + str(info['recorder']) + '.GWreplay')
-        
+    if info['uid'] != -1:
+        arguments.append('/savereplay')
+        if gw == False :
+            arguments.append('gpgnet://'+'localhost'+'/' + str(info['uid']) + "/" + str(info['recorder']) + '.SCFAreplay')
+        else :
+            arguments.append('gpgnet://'+'localhost'+'/' + str(info['uid']) + "/" + str(info['recorder']) + '.GWreplay')
+            
     #disable bug reporter
     arguments.append('/nobugreport')
     #arguments.append('/sse2')

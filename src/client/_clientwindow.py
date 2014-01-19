@@ -29,8 +29,8 @@ Created on Dec 1, 2011
 from PyQt4 import QtCore, QtGui, QtNetwork, QtWebKit
 from types import IntType, FloatType, ListType, DictType
 
-from client import logger, ClientState, MUMBLE_URL, WEBSITE_URL, WIKI_URL,\
-    FORUMS_URL, UNITDB_URL, SUPPORT_URL, TICKET_URL, GAME_PORT_DEFAULT, LOBBY_HOST,\
+from client import logger, ClientState, MUMBLE_URL, WEBSITE_URL, WIKI_URL, \
+    FORUMS_URL, UNITDB_URL, SUPPORT_URL, TICKET_URL, GAME_PORT_DEFAULT, LOBBY_HOST, \
     LOBBY_PORT, LOCAL_REPLAY_PORT, STEAMLINK_URL
 
 import util
@@ -97,65 +97,65 @@ class ClientWindow(FormClass, BaseClass):
     
     
     #These signals are emitted when the client is connected or disconnected from FAF
-    connected    = QtCore.pyqtSignal()
+    connected = QtCore.pyqtSignal()
     disconnected = QtCore.pyqtSignal()
     
     #This signal is emitted when the client is done rezising
-    doneresize   = QtCore.pyqtSignal()
+    doneresize = QtCore.pyqtSignal()
     
     #These signals notify connected modules of game state changes (i.e. reasons why FA is launched)
     viewingReplay = QtCore.pyqtSignal(QtCore.QUrl)
     
     #Game state controls
-    gameEnter   = QtCore.pyqtSignal()
-    gameExit    = QtCore.pyqtSignal()
+    gameEnter = QtCore.pyqtSignal()
+    gameExit = QtCore.pyqtSignal()
 
     #These signals propagate important client state changes to other modules
-    statsInfo               = QtCore.pyqtSignal(dict)
-    tourneyTypesInfo        = QtCore.pyqtSignal(dict)
-    tutorialsInfo           = QtCore.pyqtSignal(dict)
-    tourneyInfo             = QtCore.pyqtSignal(dict)
-    modInfo                 = QtCore.pyqtSignal(dict)
-    gameInfo                = QtCore.pyqtSignal(dict)
-    modVaultInfo            = QtCore.pyqtSignal(dict)
-    coopInfo                = QtCore.pyqtSignal(dict)
-    newGame                 = QtCore.pyqtSignal(str)
-    avatarList              = QtCore.pyqtSignal(list)
-    playerAvatarList        = QtCore.pyqtSignal(dict)
-    usersUpdated            = QtCore.pyqtSignal(list)
-    localBroadcast          = QtCore.pyqtSignal(str, str)
-    publicBroadcast         = QtCore.pyqtSignal(str)
-    autoJoin                = QtCore.pyqtSignal(list)
-    featuredModManager      = QtCore.pyqtSignal(str)
-    featuredModManagerInfo  = QtCore.pyqtSignal(dict)
-    replayVault             = QtCore.pyqtSignal(dict)
-    coopLeaderBoard         = QtCore.pyqtSignal(dict)
-    ladderMapsList          = QtCore.pyqtSignal(dict)
+    statsInfo = QtCore.pyqtSignal(dict)
+    tourneyTypesInfo = QtCore.pyqtSignal(dict)
+    tutorialsInfo = QtCore.pyqtSignal(dict)
+    tourneyInfo = QtCore.pyqtSignal(dict)
+    modInfo = QtCore.pyqtSignal(dict)
+    gameInfo = QtCore.pyqtSignal(dict)
+    modVaultInfo = QtCore.pyqtSignal(dict)
+    coopInfo = QtCore.pyqtSignal(dict)
+    newGame = QtCore.pyqtSignal(str)
+    avatarList = QtCore.pyqtSignal(list)
+    playerAvatarList = QtCore.pyqtSignal(dict)
+    usersUpdated = QtCore.pyqtSignal(list)
+    localBroadcast = QtCore.pyqtSignal(str, str)
+    publicBroadcast = QtCore.pyqtSignal(str)
+    autoJoin = QtCore.pyqtSignal(list)
+    featuredModManager = QtCore.pyqtSignal(str)
+    featuredModManagerInfo = QtCore.pyqtSignal(dict)
+    replayVault = QtCore.pyqtSignal(dict)
+    coopLeaderBoard = QtCore.pyqtSignal(dict)
+    ladderMapsList = QtCore.pyqtSignal(dict)
     
     #These signals are emitted whenever a certain tab is activated
-    showReplays     = QtCore.pyqtSignal()
-    showMaps        = QtCore.pyqtSignal()
-    showGames       = QtCore.pyqtSignal()
-    showTourneys    = QtCore.pyqtSignal()
-    showLadder      = QtCore.pyqtSignal()
-    showChat        = QtCore.pyqtSignal()
-    showGalaxyWar   = QtCore.pyqtSignal()
-    showMods        = QtCore.pyqtSignal()
-    showCoop        = QtCore.pyqtSignal()
+    showReplays = QtCore.pyqtSignal()
+    showMaps = QtCore.pyqtSignal()
+    showGames = QtCore.pyqtSignal()
+    showTourneys = QtCore.pyqtSignal()
+    showLadder = QtCore.pyqtSignal()
+    showChat = QtCore.pyqtSignal()
+    showGalaxyWar = QtCore.pyqtSignal()
+    showMods = QtCore.pyqtSignal()
+    showCoop = QtCore.pyqtSignal()
 
-    joinGameFromUser   = QtCore.pyqtSignal(str)
+    joinGameFromUser = QtCore.pyqtSignal(str)
     joinReplayFromUser = QtCore.pyqtSignal(str)
 
-    joinGameFromURL    = QtCore.pyqtSignal(str)
-    joinReplayFromURL  = QtCore.pyqtSignal(str)
+    joinGameFromURL = QtCore.pyqtSignal(str)
+    joinReplayFromURL = QtCore.pyqtSignal(str)
 
     
     # for the auto join ranked
-    rankedGameAeon      = QtCore.pyqtSignal(bool)
-    rankedGameCybran    = QtCore.pyqtSignal(bool)
-    rankedGameSeraphim  = QtCore.pyqtSignal(bool)
-    rankedGameUEF       = QtCore.pyqtSignal(bool)
-    rankedGameRandom    = QtCore.pyqtSignal(bool)
+    rankedGameAeon = QtCore.pyqtSignal(bool)
+    rankedGameCybran = QtCore.pyqtSignal(bool)
+    rankedGameSeraphim = QtCore.pyqtSignal(bool)
+    rankedGameUEF = QtCore.pyqtSignal(bool)
+    rankedGameRandom = QtCore.pyqtSignal(bool)
     
     def __init__(self, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)        
@@ -216,14 +216,14 @@ class ClientWindow(FormClass, BaseClass):
         self.setupUi(self)
         self.setStyleSheet(util.readstylesheet("client/client.css"))
 
-        self.windowsTitleLabel=QtGui.QLabel(self)
+        self.windowsTitleLabel = QtGui.QLabel(self)
         self.windowsTitleLabel.setText("FA Forever " + util.VERSION_STRING)
         self.windowsTitleLabel.setProperty("titleLabel", True)
         
         self.setWindowTitle("FA Forever " + util.VERSION_STRING)
 
         # Frameless
-        self.setWindowFlags(QtCore.Qt.FramelessWindowHint |  QtCore.Qt.WindowSystemMenuHint | QtCore.Qt.WindowMinimizeButtonHint)
+        self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowSystemMenuHint | QtCore.Qt.WindowMinimizeButtonHint)
         
         
         self.rubberBand = QtGui.QRubberBand(QtGui.QRubberBand.Rectangle)
@@ -245,9 +245,9 @@ class ClientWindow(FormClass, BaseClass):
         close.setMinimumHeight(10)
         self.maximize.setMinimumHeight(10)       
 
-        close.setIconSize(QtCore.QSize(22,22))
-        self.minimize.setIconSize(QtCore.QSize(22,22))
-        self.maximize.setIconSize(QtCore.QSize(22,22))
+        close.setIconSize(QtCore.QSize(22, 22))
+        self.minimize.setIconSize(QtCore.QSize(22, 22))
+        self.maximize.setIconSize(QtCore.QSize(22, 22))
 
         close.setProperty("windowControlBtn", True)
         self.maximize.setProperty("windowControlBtn", True)
@@ -259,10 +259,10 @@ class ClientWindow(FormClass, BaseClass):
         self.topLayout.addWidget(self.minimize)
         self.topLayout.addWidget(self.maximize)
         self.topLayout.addWidget(close)
-        self.topLayout.insertStretch(1,500)
+        self.topLayout.insertStretch(1, 500)
         self.topLayout.setSpacing(0)
-        self.setSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Fixed)
-        self.maxNormal=False
+        self.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
+        self.maxNormal = False
 
         close.clicked.connect(self.close);
         self.minimize.clicked.connect(self.showSmall)
@@ -289,7 +289,7 @@ class ClientWindow(FormClass, BaseClass):
         self.urls = {}          # user game location URLs - TODO: Should go in self.players
         
         self.friends = []       # names of the client's friends
-        self.foes    = []       # names of the client's foes
+        self.foes = []       # names of the client's foes
                 
         self.power = 0          # current user power        
         self.email = None
@@ -298,17 +298,17 @@ class ClientWindow(FormClass, BaseClass):
         self.initMenus()
 
         #Load the icons for the tabs
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.whatNewTab      ), util.icon("client/feed.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.chatTab         ), util.icon("client/chat.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.gamesTab        ), util.icon("client/games.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.coopTab         ), util.icon("client/coop.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.vaultsTab       ), util.icon("client/mods.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.galacticwarTab  ), util.icon("client/gw.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.ladderTab       ), util.icon("client/ladder.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.tourneyTab      ), util.icon("client/tourney.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.livestreamTab   ), util.icon("client/twitch.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.replaysTab      ), util.icon("client/replays.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.tutorialsTab    ), util.icon("client/tutorials.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.whatNewTab), util.icon("client/feed.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.chatTab), util.icon("client/chat.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.gamesTab), util.icon("client/games.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.coopTab), util.icon("client/coop.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.vaultsTab), util.icon("client/mods.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.galacticwarTab), util.icon("client/gw.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.ladderTab), util.icon("client/ladder.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.tourneyTab), util.icon("client/tourney.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.livestreamTab), util.icon("client/twitch.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.replaysTab), util.icon("client/replays.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.tutorialsTab), util.icon("client/tutorials.png"))
                
         QtWebKit.QWebSettings.globalSettings().setAttribute(QtWebKit.QWebSettings.PluginsEnabled, True)
         
@@ -335,15 +335,15 @@ class ClientWindow(FormClass, BaseClass):
     def updateCursorShape(self, pos):
         if self.mousePosition.onTopLeftEdge or self.mousePosition.onBottomRightEdge:
             self.mousePosition.cursorShapeChange = True
-            self.setCursor( QtCore.Qt.SizeFDiagCursor )
+            self.setCursor(QtCore.Qt.SizeFDiagCursor)
         elif self.mousePosition.onTopRightEdge or self.mousePosition.onBottomLeftEdge:
-            self.setCursor( QtCore.Qt.SizeBDiagCursor )
+            self.setCursor(QtCore.Qt.SizeBDiagCursor)
             self.mousePosition.cursorShapeChange = True
         elif self.mousePosition.onLeftEdge or self.mousePosition.onRightEdge:
-            self.setCursor( QtCore.Qt.SizeHorCursor )
+            self.setCursor(QtCore.Qt.SizeHorCursor)
             self.mousePosition.cursorShapeChange = True
         elif self.mousePosition.onTopEdge or self.mousePosition.onBottomEdge:
-            self.setCursor( QtCore.Qt.SizeVerCursor )
+            self.setCursor(QtCore.Qt.SizeVerCursor)
             self.mousePosition.cursorShapeChange = True
         else:
             if self.mousePosition.cursorShapeChange == True:
@@ -360,7 +360,7 @@ class ClientWindow(FormClass, BaseClass):
                 self.setGeometry(self.curSize)
    
         else:
-            self.maxNormal =  True
+            self.maxNormal = True
             self.curSize = self.geometry()
             self.setGeometry(QtGui.QDesktopWidget().availableGeometry(self))
                        
@@ -368,7 +368,7 @@ class ClientWindow(FormClass, BaseClass):
     def mouseDoubleClickEvent(self, event):
         self.showMaxRestore()
 
-    def mouseReleaseEvent(self,event):
+    def mouseReleaseEvent(self, event):
         self.dragging = False
         self.moving = False
         if self.rubberBand.isVisible():
@@ -378,7 +378,7 @@ class ClientWindow(FormClass, BaseClass):
             self.rubberBand.hide()
             #self.showMaxRestore()
 
-    def mousePressEvent(self,event):
+    def mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
             if self.mousePosition.isOnEdge() and self.maxNormal == False:
                 self.dragging = True
@@ -389,7 +389,7 @@ class ClientWindow(FormClass, BaseClass):
             self.moving = True
             self.offset = event.pos()
 
-    def mouseMoveEvent(self,event):
+    def mouseMoveEvent(self, event):
         if self.dragging and self.draggingHover == False:
             self.resizeWidget(event.globalPos())
 
@@ -399,11 +399,11 @@ class ClientWindow(FormClass, BaseClass):
                 self.rubberBand.setGeometry(desktop)
                 self.rubberBand.show()
             elif event.globalPos().x() == 0:
-                desktop.setRight(desktop.right()/2.0)
+                desktop.setRight(desktop.right() / 2.0)
                 self.rubberBand.setGeometry(desktop)
                 self.rubberBand.show()
             elif event.globalPos().x() == desktop.right():
-                desktop.setRight(desktop.right()/2.0)
+                desktop.setRight(desktop.right() / 2.0)
                 desktop.moveLeft(desktop.right())
                 self.rubberBand.setGeometry(desktop)
                 self.rubberBand.show()
@@ -413,7 +413,7 @@ class ClientWindow(FormClass, BaseClass):
                 if self.maxNormal == True:
                     self.showMaxRestore()
                     
-            self.move(event.globalPos()-self.offset)
+            self.move(event.globalPos() - self.offset)
 
     def resizeWidget(self, globalMousePos):
         if globalMousePos.y() == 0:
@@ -425,7 +425,7 @@ class ClientWindow(FormClass, BaseClass):
         
         origRect = self.frameGeometry()
 
-        left, top, right, bottom  = origRect.getCoords()    
+        left, top, right, bottom = origRect.getCoords()    
         minWidth = self.minimumWidth()
         minHeight = self.minimumHeight()
         if self.mousePosition.onTopLeftEdge:
@@ -450,20 +450,20 @@ class ClientWindow(FormClass, BaseClass):
         elif self.mousePosition.onBottomEdge:
             bottom = globalMousePos.y()
         
-        newRect = QtCore.QRect(QtCore.QPoint(left,top), QtCore.QPoint(right,bottom)) 
+        newRect = QtCore.QRect(QtCore.QPoint(left, top), QtCore.QPoint(right, bottom)) 
         if newRect.isValid():
             if minWidth > newRect.width():
                 if left != origRect.left() :
-                    newRect.setLeft( origRect.left() )
+                    newRect.setLeft(origRect.left())
                 else:
-                    newRect.setRight( origRect.right() )
+                    newRect.setRight(origRect.right())
             if minHeight > newRect.height() :
                 if top != origRect.top():
-                    newRect.setTop( origRect.top())
+                    newRect.setTop(origRect.top())
                 else:
-                    newRect.setBottom( origRect.bottom() )
+                    newRect.setBottom(origRect.bottom())
 
-            self.setGeometry( newRect )
+            self.setGeometry(newRect)
                  
                 
     def setup(self):
@@ -487,19 +487,19 @@ class ClientWindow(FormClass, BaseClass):
         self.chat = chat.Lobby(self)
     
         #build main window with the now active client                  
-        self.ladder         = stats.Stats(self)
-        self.games          = games.Games(self)
-        self.tourneys       = tourneys.Tourneys(self)
-        self.vault          = vault.MapVault(self)
-        self.modvault       = modvault.ModVault(self)
-        self.replays        = replays.Replays(self)
-        self.tutorials      = tutorials.Tutorials(self)
-        self.GalacticWar    = galacticWar.Lobby(self)
-        self.Coop           = coop.Coop(self)
+        self.ladder = stats.Stats(self)
+        self.games = games.Games(self)
+        self.tourneys = tourneys.Tourneys(self)
+        self.vault = vault.MapVault(self)
+        self.modvault = modvault.ModVault(self)
+        self.replays = replays.Replays(self)
+        self.tutorials = tutorials.Tutorials(self)
+        self.GalacticWar = galacticWar.Lobby(self)
+        self.Coop = coop.Coop(self)
         
         # Other windows
-        self.featuredMods   = featuredmods.FeaturedMods(self)
-        self.avatarAdmin    = self.avatarSelection = avatarWidget(self, None)
+        self.featuredMods = featuredmods.FeaturedMods(self)
+        self.avatarAdmin = self.avatarSelection = avatarWidget(self, None)
 
 
         # warning setup
@@ -524,11 +524,11 @@ class ClientWindow(FormClass, BaseClass):
 #        self.rankedUEF.setAutoRaise(0)
 #        self.rankedRandom.setAutoRaise(0)
         
-        self.rankedAeon.setMaximumSize(25,25)
-        self.rankedCybran.setMaximumSize(25,25)
-        self.rankedSeraphim.setMaximumSize(25,25)
-        self.rankedUEF.setMaximumSize(25,25)
-        self.rankedRandom.setMaximumSize(25,25)
+        self.rankedAeon.setMaximumSize(25, 25)
+        self.rankedCybran.setMaximumSize(25, 25)
+        self.rankedSeraphim.setMaximumSize(25, 25)
+        self.rankedUEF.setMaximumSize(25, 25)
+        self.rankedRandom.setMaximumSize(25, 25)
         
         self.rankedAeon.setIcon(util.icon("games/automatch/aeon.png"))
         self.rankedCybran.setIcon(util.icon("games/automatch/cybran.png"))
@@ -678,6 +678,7 @@ class ClientWindow(FormClass, BaseClass):
         self.actionClearSettings.triggered.connect(self.clearSettings)        
         self.actionClearGameFiles.triggered.connect(self.clearGameFiles)
 
+        self.actionTestingConnections.triggered.connect(self.runTesting)
         self.actionSetGamePath.triggered.connect(self.switchPath)
         self.actionSetGamePort.triggered.connect(self.switchPort)
         self.actionSetMumbleOptions.triggered.connect(self.setMumbleOptions)
@@ -900,7 +901,7 @@ class ClientWindow(FormClass, BaseClass):
         fa.loadPath()
                 
         util.settings.beginGroup("window")
-        geometry =  util.settings.value("geometry", None)
+        geometry = util.settings.value("geometry", None)
         if geometry:
             self.restoreGeometry(geometry)
         util.settings.endGroup()        
@@ -966,13 +967,13 @@ class ClientWindow(FormClass, BaseClass):
             fa.upnp.createPortMapping(self.localIP, self.gamePort, "UDP")
         
         #binding the port
-        udpSocket =  QtNetwork.QUdpSocket(self)
+        udpSocket = QtNetwork.QUdpSocket(self)
         udpSocket.bind(self.gamePort)
         udpSocket.readyRead.connect(self.processTestGameportDatagram)
         
         if udpSocket.localPort() != self.gamePort :
             logger.error("The game port set (%i) is not available." % self.gamePort)
-            answer = QtGui.QMessageBox.warning(None, "Port Occupied", "FAF has detected that the gameport you choose is not available. Possible reasons:<ul><li><b>FAF is already running</b> (most likely)</li><li>another program is listening on port {port}</li></ul><br>If you click Apply, FAF will port {port2} for this session.".format(port=self.gamePort, port2 = udpSocket.localPort()), QtGui.QMessageBox.Apply, QtGui.QMessageBox.Abort)
+            answer = QtGui.QMessageBox.warning(None, "Port Occupied", "FAF has detected that the gameport you choose is not available. Possible reasons:<ul><li><b>FAF is already running</b> (most likely)</li><li>another program is listening on port {port}</li></ul><br>If you click Apply, FAF will port {port2} for this session.".format(port=self.gamePort, port2=udpSocket.localPort()), QtGui.QMessageBox.Apply, QtGui.QMessageBox.Abort)
             if answer == QtGui.QMessageBox.Apply:
                 self.gamePort = udpSocket.localPort()
                 
@@ -985,7 +986,7 @@ class ClientWindow(FormClass, BaseClass):
         logger.info("sending packet to " + LOBBY_HOST)
 
         
-        if udpSocket.writeDatagram(self.login, QtNetwork.QHostAddress(QtNetwork.QHostInfo.fromName(LOBBY_HOST ).addresses ()[0]), 30351) == -1 :
+        if udpSocket.writeDatagram(self.login, QtNetwork.QHostAddress(QtNetwork.QHostInfo.fromName(LOBBY_HOST).addresses ()[0]), 30351) == -1 :
             logger.info("Unable to send UDP Packet")
             QtGui.QMessageBox.critical(self, "UDP Packet not sent !", "We are not able to send a UDP packet. <br><br>Possible reasons:<ul><li><b>Your firewall is blocking the UDP port {port}.</b></li><li><b>Your router is blocking or routing port {port} in a wrong way.</b></li></ul><br><font size='+2'>How to fix this : </font> <ul><li>Check your firewall and router. <b>More info in the wiki (Links -> Wiki)</li></b><li>You should also consider using <b>uPnP (Options -> Settings -> Gameport)</b></li><li>You should ask for assistance in the TechQuestions chat and/or in the <b>technical forum (Links -> Forums<b>)</li></ul><br><font size='+1'><b>FA will not be able to perform correctly until this issue is fixed.</b></font>".format(port=self.gamePort))
         
@@ -1122,7 +1123,7 @@ class ClientWindow(FormClass, BaseClass):
             QtGui.QMessageBox.warning(QtGui.QApplication.activeWindow(), "Unable to login", "It seems that you miss some important DLL.<br>Please install :<br><a href =\"http://www.microsoft.com/download/en/confirmation.aspx?id=8328\">http://www.microsoft.com/download/en/confirmation.aspx?id=8328</a> and <a href = \"http://www.microsoft.com/en-us/download/details.aspx?id=17851\">http://www.microsoft.com/en-us/download/details.aspx?id=17851</a><br><br>You probably have to restart your computer after installing them.<br><br>Please visit this link in case of problems : <a href=\"http://www.faforever.com/forums/viewforum.php?f=3\">http://www.faforever.com/forums/viewforum.php?f=3</a>", QtGui.QMessageBox.Close)
             return False
         else :
-            self.send(dict(command="hello", version=util.VERSION, login=self.login, password = self.password, unique_id = self.uniqueId, local_ip = self.localIP))
+            self.send(dict(command="hello", version=util.VERSION, login=self.login, password=self.password, unique_id=self.uniqueId, local_ip=self.localIP))
         
         while (not self.state) and self.progress.isVisible():
             QtGui.QApplication.processEvents()
@@ -1289,7 +1290,7 @@ class ClientWindow(FormClass, BaseClass):
         Returns a user's ranking (trueskill rating) as a float.
         '''
         if name in self.players:
-            return self.players[name]["rating_mean"] - 3*self.players[name]["rating_deviation"]
+            return self.players[name]["rating_mean"] - 3 * self.players[name]["rating_deviation"]
         else:
             return None
 
@@ -1389,7 +1390,7 @@ class ClientWindow(FormClass, BaseClass):
                 add_mods = json.loads(modstr) # should be a list
             except:
                 logger.info("Couldn't load urlquery value 'mods'")
-            if fa.exe.check(url.queryItemValue("mod"), url.queryItemValue("map"), sim_mods = add_mods):            
+            if fa.exe.check(url.queryItemValue("mod"), url.queryItemValue("map"), sim_mods=add_mods):            
                 self.send(dict(command="game_join", uid=int(url.queryItemValue("uid")), gameport=self.gamePort))
     
 
@@ -1533,7 +1534,7 @@ class ClientWindow(FormClass, BaseClass):
     def socketError(self, error):
         logger.error("TCP Socket Error: " + self.socket.errorString())
         if self.state > ClientState.NONE:   # Positive client states deserve user notification.
-            QtGui.QMessageBox.critical(None, "TCP Error", "A TCP Connection Error has occurred:<br/><br/><b>" + self.socket.errorString()+"</b>", QtGui.QMessageBox.Close)        
+            QtGui.QMessageBox.critical(None, "TCP Error", "A TCP Connection Error has occurred:<br/><br/><b>" + self.socket.errorString() + "</b>", QtGui.QMessageBox.Close)        
 
 
     
@@ -1622,7 +1623,7 @@ class ClientWindow(FormClass, BaseClass):
             logger.debug("Acknowledged %s bytes" % bytesWritten)
             
             if self.sendFile == True :
-                self.progress.setValue(int(bytesWritten)* 100 / self.bytesToSend)
+                self.progress.setValue(int(bytesWritten) * 100 / self.bytesToSend)
                 if int(bytesWritten) >= self.bytesToSend :
                     self.progress.close()
                     self.sendFile = False                    
@@ -1653,7 +1654,7 @@ class ClientWindow(FormClass, BaseClass):
     def send(self, message):
         data = json.dumps(message)
         if message["command"] == "hello" :
-            logger.info("Outgoing JSON Message: login." )
+            logger.info("Outgoing JSON Message: login.")
         else :
             logger.info("Outgoing JSON Message: " + data)
         self.writeToServer(data)
@@ -1703,12 +1704,12 @@ class ClientWindow(FormClass, BaseClass):
 
             else:
                 logger.debug("Skipping update because this is a developer version.")
-                logger.debug("Login success" )
+                logger.debug("Login success")
                 self.state = ClientState.ACCEPTED
                 
         else :
             self.email = message["email"]
-            logger.debug("Login success" )
+            logger.debug("Login success")
             self.state = ClientState.ACCEPTED
             
                 
@@ -1785,7 +1786,7 @@ class ClientWindow(FormClass, BaseClass):
         # Writing a file for options
         if "options" in message:
             filename = os.path.join(util.CACHE_DIR, "options.lua")
-            options  = QtCore.QFile(filename)
+            options = QtCore.QFile(filename)
             options.open(QtCore.QIODevice.WriteOnly | QtCore.QIODevice.Text)
             numOpt = 0
             
@@ -1818,11 +1819,65 @@ class ClientWindow(FormClass, BaseClass):
         version_info = message.get('version_info', {})
         version_info['lobby'] = util.VERSION_STRING
         
-        info = dict(uid = message['uid'], recorder = self.login, featured_mod = message[modkey], game_time=time.time(), version_info=version_info)
+        info = dict(uid=message['uid'], recorder=self.login, featured_mod=message[modkey], game_time=time.time(), version_info=version_info)
         
         
         fa.exe.play(info, self.relayServer.serverPort(), self.gamelogs, arguments, galacticWar)
 
+    def stopTesting(self, success=False):
+        self.progress.close()
+
+        
+
+    def runTesting(self):
+        '''
+        Performs a running of ForgedAlliance.exe for testing that everything is okay
+        '''         
+        result = QtGui.QMessageBox.question(None, "Testing Proxies", "This will test if your computer is able to use the proxy server.<br>The proxy server is there to solve connections problems that can't be resolved otherwise.<br>Having it running correctly is extremely important.<br><br>FA will launch AND close automatically.<br><b>Please don't close it yourself.</b><br><br>The test can take up to 60 seconds!<br>Launch the test?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+        if result != QtGui.QMessageBox.Yes:
+            return
+        
+        self.progress.setWindowTitle("FAF is testing the proxy server")
+        self.progress.setLabelText("FA will launch and should close shortly after.")
+        self.progress.setMinimum(0)
+        self.progress.setMaximum(0)
+        self.progress.setValue(0)
+        self.progress.setCancelButton(None)
+        self.progress.show()
+                
+        self.relayServer.testingProxy()
+        info = dict(uid= -1, recorder=self.login, featured_mod="faf", game_time=time.time())
+        fa.exe.play(info, self.relayServer.serverPort(), True)        
+        
+        started = time.time()
+        success = True
+        
+        while self.progress.isVisible():
+            QtGui.QApplication.processEvents()
+            if time.time() - started > 25:
+                success = False
+                self.progress.close()
+
+        self.relayServer.stopTesting()
+        fa.exe.kill()
+        
+        if success:
+            QtGui.QMessageBox.information(self, "Testing Proxy", "Proxy Server is running correctly!")
+        else:
+            if len(self.proxyServer.testedPorts) != len(self.proxyServer.proxies):            
+                nonreported = list(set(self.proxyServer.proxies).difference(self.proxyServer.testedPorts))
+                errorport = []
+                for port in nonreported:
+                    errorport.append(self.proxyServer.proxies[port].localPort())
+                QtGui.QMessageBox.warning(self, "Testing Proxy Failed", "FA was unable to communicate locally with these ports :<br><br>" + "<br>".join(str(x) for x in errorport) + "<br><br>This is most likely due to your firewall blocking these port locally.<br>Please allow these UDP ports for IP 127.0.0.1")
+            
+            elif len(self.proxyServer.testedLoopback) != len(self.proxyServer.proxies):
+                nonreported = list(set(self.proxyServer.proxies).difference(self.proxyServer.testedLoopback))
+                errorport = []
+                for port in nonreported:
+                    errorport.append(self.proxyServer.proxies[port].localPort())
+                QtGui.QMessageBox.warning(self, "Testing Proxy Failed", "The lobby didn't received any data from the proxy server for these ports :<br><br>" + "<br>".join(str(x) for x in errorport) + "<br><br>This is most likely due to your firewall blocking the proxy connection, or the proxy is offline.<br>")
+            
     def handle_coop_info(self, message):
         self.coopInfo.emit(message)      
 
