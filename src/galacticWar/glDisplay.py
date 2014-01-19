@@ -20,6 +20,7 @@ import os
 import util
 from util import GW_TEXTURE_DIR
 import pickle
+import types
 
 class GLWidget(QtOpenGL.QGLWidget):
     xRotationChanged = QtCore.pyqtSignal(int)
@@ -1248,6 +1249,9 @@ class GLWidget(QtOpenGL.QGLWidget):
             GL.glDeleteLists(self.zones[sector], 1)
             
         genList = GL.glGenLists(1)
+        if type(genList) != types.LongType:
+            return
+        
         GL.glNewList(genList, GL.GL_COMPILE)
 
         for uid in self.galaxy.sectors[sector] :
