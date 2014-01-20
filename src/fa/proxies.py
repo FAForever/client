@@ -54,7 +54,6 @@ class proxies(QtCore.QObject):
                 self.__logger.info("binding socket %i on port %i" % (i, self.proxies[i].localPort()))
                 self.proxies[i].readyRead.connect(functools.partial(self.processPendingDatagrams, i))
                 self.proxiesDestination[i] = None
-
         if errored:
             QtGui.QMessageBox.warning(self.client, "Cannot use proxy server", "FAF is unable to bind the port <b>12000 to 12011 on TCP</b>.<br>Please check your firewall settings.<br><b>You may experience connections problems until it's fixed.</b>")
             
@@ -72,7 +71,9 @@ class proxies(QtCore.QObject):
         
     def testingProxy(self):
         self.testing = True
-    
+        self.testedPorts = []
+        self.testedLoopback = []
+            
     def setUid(self, uid):
         self.uid = uid
     

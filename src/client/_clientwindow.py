@@ -1855,7 +1855,7 @@ class ClientWindow(FormClass, BaseClass):
         
         while self.progress.isVisible():
             QtGui.QApplication.processEvents()
-            if time.time() - started > 25:
+            if time.time() - started > 60:
                 success = False
                 self.progress.close()
 
@@ -1865,20 +1865,21 @@ class ClientWindow(FormClass, BaseClass):
         if success:
             QtGui.QMessageBox.information(self, "Testing Proxy", "Proxy Server is running correctly!")
         else:
-            if len(self.proxyServer.testedPorts) != len(self.proxyServer.proxies):            
+            if len(self.proxyServer.testedPorts) != 11:            
                 nonreported = list(set(self.proxyServer.proxies).difference(self.proxyServer.testedPorts))
                 errorport = []
                 for port in nonreported:
                     errorport.append(self.proxyServer.proxies[port].localPort())
                 QtGui.QMessageBox.warning(self, "Testing Proxy Failed", "FA was unable to communicate locally with these ports :<br><br>" + "<br>".join(str(x) for x in errorport) + "<br><br>This is most likely due to your firewall blocking these port locally.<br>Please allow these UDP ports for IP 127.0.0.1")
             
-            elif len(self.proxyServer.testedLoopback) != len(self.proxyServer.proxies):
+            elif len(self.proxyServer.testedLoopback) != 11:
                 nonreported = list(set(self.proxyServer.proxies).difference(self.proxyServer.testedLoopback))
                 errorport = []
                 for port in nonreported:
                     errorport.append(self.proxyServer.proxies[port].localPort())
                 QtGui.QMessageBox.warning(self, "Testing Proxy Failed", "The lobby didn't received any data from the proxy server for these ports :<br><br>" + "<br>".join(str(x) for x in errorport) + "<br><br>This is most likely due to your firewall blocking the proxy connection, or the proxy is offline.<br>")
-            
+            else:
+                QtGui.QMessageBox.warning(self, "Testing Proxy Failed", "FA was unable to communicate locally with UDP ports 12001 to 12011.<br><br>This is most likely due to your firewall blocking these port locally.<br>Please allow these UDP ports for IP 127.0.0.1")
     def handle_coop_info(self, message):
         self.coopInfo.emit(message)      
 
