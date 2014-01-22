@@ -65,15 +65,19 @@ class proxies(QtCore.QObject):
         self.blockSize = 0
         self.uid = None
         self.canClose = False
+        self.testedPortsAmount = {}
         self.testedPorts = []
+        self.testedLoopbackAmount = {}
         self.testedLoopback = []
         self.testing = False
         
     def testingProxy(self):
         self.testing = True
+        self.testedPortsAmount = {}
         self.testedPorts = []
+        self.testedLoopbackAmount = {}
         self.testedLoopback = []
-            
+                    
     def setUid(self, uid):
         self.uid = uid
     
@@ -102,13 +106,19 @@ class proxies(QtCore.QObject):
 
     def tranfertToUdp(self, port, packet):
         if self.testing:
-            if not port in self.testedLoopback:
-                self.testedLoopback.append(port)
-                self.__logger.info("Testing proxy : Received data from proxy on port %i" % self.proxies[port].localPort())
-                if len(self.testedLoopback) == len(self.proxies):
-                    self.__logger.info("Testing proxy : All ports received data correctly")
-                    self.client.stopTesting(success=True)
-                    self.testing = False
+            if not port in self.testedLoopbackAmount:
+                self.testedLoopbackAmount[port] = 0
+            if self.testedLoopbackAmount[port] < 10:
+                self.testedLoopbackAmount[port] = self.testedLoopbackAmount[port] + 1
+            else:
+                if not port in self.testedLoopback:
+                    self.__logger.info("Testing proxy : Received data from proxy on port %i" % self.proxies[port].localPort())
+                    self.testedLoopback.append(port)
+                
+            if len(self.testedLoopback) == len(self.proxies):
+                self.__logger.info("Testing proxy : All ports received data correctly")
+                self.client.stopTesting(success=True)
+                self.testing = False
         else:
             self.proxies[port].writeDatagram(packet, QtNetwork.QHostAddress.LocalHost, self.client.gamePort)
 
@@ -189,12 +199,19 @@ class proxies(QtCore.QObject):
         while udpSocket.hasPendingDatagrams():
             datagram, _, _ = udpSocket.readDatagram(udpSocket.pendingDatagramSize())
             if self.testing:
-                if not i in self.testedPorts:
-                    self.__logger.info("Testing proxy : Received data from FA on port %i" % self.proxies[i].localPort())
-                    self.testedPorts.append(i)
-                    if len(self.testedPorts) == len(self.proxies):
-                        self.__logger.info("Testing proxy : All ports triggered correctly")
-                    self.sendReply(i, 1, QtCore.QByteArray(datagram))
+                if not i in self.testedPortsAmount:
+                    self.testedPortsAmount[i] = 0
+                    
+                if self.testedPortsAmount[i] < 10:
+                    self.testedPortsAmount[i] = self.testedPortsAmount[i] + 1
+                else:
+                    if not i in self.testedPorts:
+                        self.__logger.info("Testing proxy : Received data from FA on port %i" % self.proxies[i].localPort())
+                        self.testedPorts.append(i)
+                        
+                if len(self.testedPorts) == len(self.proxies):
+                    self.__logger.info("Testing proxy : All ports triggered correctly")
+                self.sendReply(i, 1, QtCore.QByteArray(datagram))
                 
             else:
                 self.sendReply(i, self.proxiesDestination[i], QtCore.QByteArray(datagram))
