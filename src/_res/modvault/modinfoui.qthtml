@@ -8,7 +8,6 @@
 <tbody>
 <tr><td><i>Author:</i> {author}</td></tr>
 <tr><td><i>Downloads:</i> {downloads}</td></tr>
-<tr><td><i>Played:</i> {played} times</td></tr>
 <tr><td><i>{likes} Liked this</td></tr>
 <tr><td><i>Uploaded {date}</i></td></tr>
 </tbody>

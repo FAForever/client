@@ -313,6 +313,7 @@ class ModItem(QtGui.QListWidgetItem):
     
     
     FORMATTER_MOD = unicode(util.readfile("modvault/modinfo.qthtml"))
+    FORMATTER_MOD_UI = unicode(util.readfile("modvault/modinfoui.qthtml"))
     
     def __init__(self, parent, uid, *args, **kwargs):
         QtGui.QListWidgetItem.__init__(self, *args, **kwargs)
@@ -325,6 +326,7 @@ class ModItem(QtGui.QListWidgetItem):
         self.version = 0
         self.downloads = 0
         self.likes = 0
+        self.played = 0
         self.comments = [] #every element is a dictionary with a 
         self.bugreports = [] #text, author and date key
         self.date = None
@@ -340,6 +342,7 @@ class ModItem(QtGui.QListWidgetItem):
 
     def update(self, dic):
         self.name = dic["name"]
+        self.played = dic["played"]
         self.description = dic["description"]
         self.version = dic["version"]
         self.author = dic["author"]
@@ -404,9 +407,18 @@ class ModItem(QtGui.QListWidgetItem):
         elif self.issmallmod: modtype="small mod"
         if self.uid in self.parent.uids: color="green"
         else: color="white"
-        self.setText(self.FORMATTER_MOD.format(color=color,version=str(self.version),title=self.name,
-            description=descr, author=self.author,downloads=str(self.downloads),
-            likes=str(self.likes),date=str(self.date),modtype=modtype))
+        
+        if self.isuimod:
+            self.setText(self.FORMATTER_MOD_UI.format(color=color,version=str(self.version),title=self.name,
+                description=descr, author=self.author,downloads=str(self.downloads),
+                likes=str(self.likes),date=str(self.date),modtype=modtype))
+        else:
+            self.setText(self.FORMATTER_MOD.format(color=color,version=str(self.version),title=self.name,
+                description=descr, author=self.author,downloads=str(self.downloads),
+                likes=str(self.likes),date=str(self.date),modtype=modtype,played=str(self.played)))
+            
+
+
 
         self.setToolTip('<p width="230">%s</p>' % self.description)
 
