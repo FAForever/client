@@ -1898,6 +1898,12 @@ class ClientWindow(FormClass, BaseClass):
     def handle_game_info(self, message):
         self.gameInfo.emit(message)                    
 
+    def handle_modvault_list_info(self, message):
+        print message
+        modList = message["modList"]
+        for mod in modList:
+            self.handle_modvault_info(mod)
+            
     def handle_modvault_info(self, message):
         self.modVaultInfo.emit(message)
     

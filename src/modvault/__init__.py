@@ -104,7 +104,7 @@ class ModVault(FormClass, BaseClass):
         self.modList.setItemDelegate(ModItemDelegate(self))
         self.modList.itemDoubleClicked.connect(self.modClicked)
         self.searchButton.clicked.connect(self.search)
-        self.searchInput.textChanged.connect(self.search)
+        self.searchInput.textChanged.connect(self.localSearch)
         self.uploadButton.clicked.connect(self.openUploadForm)
         self.UIButton.clicked.connect(self.openUIModForm)
 
@@ -174,10 +174,25 @@ class ModVault(FormClass, BaseClass):
         widget = ModWidget(self, item)
         widget.exec_()
 
+    def search(self):
+        ''' Sending search to mod server'''
+        
+        searchString = self.searchInput.text().lower()
+        index = self.ShowType.currentIndex()
+        typemod = 2
+
+        if index == 1:
+            typemod = 1
+        elif index == 2:
+            typemod = 0
+
+        self.client.statsServer.send(dict(command="modvault_search", typemod=typemod, search=searchString))
+
     @QtCore.pyqtSlot(str)
-    def search(self, text):
+    def localSearch(self, text):
         self.searchString = self.searchInput.text().lower()
         self.updateVisibilities()
+    
 
     @QtCore.pyqtSlot()
     def openUIModForm(self):
@@ -233,6 +248,7 @@ class ModVault(FormClass, BaseClass):
         if removeMod(mod):
             self.uids = [m.uid for m in installedMods]
             mod.updateVisibility()
+    
         
 
 #the drawing helper function for the modlist
@@ -356,7 +372,7 @@ class ModItem(QtGui.QListWidgetItem):
     def shouldBeVisible(self):
         p = self.parent
         if p.searchString != "":
-            if not (self.author.lower().find(p.searchString) != -1 or  self.name.lower().find(p.searchString) != -1):
+            if not (self.author.lower().find(p.searchString) != -1 or self.name.lower().find(p.searchString) != -1 or self.description.lower().find(" " + p.searchString +" ") != -1):
                 return False
         if p.showType == "all":
             return True
