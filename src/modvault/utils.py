@@ -82,10 +82,17 @@ def getAllModFolders(): #returns a list of names of installed mods
 def getInstalledMods():
     installedMods[:] = []
     for f in getAllModFolders():
+        m = None
         if os.path.isdir(os.path.join(MODFOLDER,f)):
-            m = getModInfoFromFolder(f)
+            try:
+                m = getModInfoFromFolder(f)
+            except:
+                continue
         else:
-            m = getModInfoFromZip(f)
+            try:
+                m = getModInfoFromZip(f)
+            except:
+                continue
         if m:
             installedMods.append(m)
     logger.debug("getting installed mods. Count: %d" % len(installedMods))
