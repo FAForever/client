@@ -78,6 +78,13 @@ class proxies(QtCore.QObject):
         self.testedLoopbackAmount = {}
         self.testedLoopback = []
                     
+    def stopTesting(self):
+        self.testing = False
+        self.testedPortsAmount = {}
+        self.testedPorts = []
+        self.testedLoopbackAmount = {}
+        self.testedLoopback = []        
+    
     def setUid(self, uid):
         self.uid = uid
     
@@ -193,6 +200,8 @@ class proxies(QtCore.QObject):
             self.canClose = True
             self.__logger.info("disconnecting from proxy server")
             self.proxySocket.disconnectFromHost()
+            for port in self.proxies:
+                self.releaseSocket(port)
     
     def processPendingDatagrams(self, i):
         udpSocket = self.proxies[i]

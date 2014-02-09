@@ -295,6 +295,8 @@ class Relayer(QtCore.QObject):
                         acts = [("127.0.0.1:%i" % udpport), "port %i" % udpport, udpport]
                         reply = Packet("ConnectToPeer", acts)
                         self.inputSocket.write(reply.Pack())
+                else:
+                    self.client.proxyServer.stopTesting()                    
 
                             
     def sendToServer(self, action, chunks):
@@ -401,13 +403,17 @@ class RelayServer(QtNetwork.QTcpServer):
     def stopTesting(self):
         self.local = False
         self.testing = False
+        for relay in self.relayers:
+            relay.testing = False
 
 
     def testingProxy(self):
         ''' this method is to test that everything is fine'''
         self.local = True
         self.testing = True
-        #launching FA        
+        for relay in self.relayers:
+            relay.testing = True
+
         
     def doListen(self):
         while not self.isListening():
