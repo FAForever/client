@@ -439,11 +439,9 @@ class GameItem(QtGui.QListWidgetItem):
                         if player == self.client.login :
                             playerStr = ("<b><i>%s</b></i>" % player)
                             
-                        mean    = self.client.players[player]["rating_mean"]
                         dev     = self.client.players[player]["rating_deviation"]
                         if dev < 200 :
-                            rating = int(mean - 3.0 * dev)
-                            playerStr += " ("+str(rating)+")"
+                            playerStr += " ("+str(self.client.getUserRanking(player))+")"
 
                         if i == 1 :
                             displayPlayer = ("<td align = 'left' valign='center' width = '150'>%s</td>" % playerStr)

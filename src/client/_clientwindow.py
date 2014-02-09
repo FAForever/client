@@ -40,6 +40,7 @@ import secondaryServer
 import json
 import sys
 import replays
+import math
 
 import time
 import os
@@ -1291,7 +1292,8 @@ class ClientWindow(FormClass, BaseClass):
         Returns a user's ranking (trueskill rating) as a float.
         '''
         if name in self.players:
-            return self.players[name]["rating_mean"] - 3 * self.players[name]["rating_deviation"]
+
+            return int(max(0, round((self.players[name]["rating_mean"] - 3 * self.players[name]["rating_deviation"])/100.0)*100))
         else:
             return None
 
