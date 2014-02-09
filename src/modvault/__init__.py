@@ -350,7 +350,7 @@ class ModItem(QtGui.QListWidgetItem):
         self.likes = dic["likes"]
         self.comments = dic["comments"]
         self.bugreports = dic["bugreports"]
-        self.date = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(dic['date']))
+        self.date = QtCore.QDateTime.fromTime_t(dic['date']).toString("yyyy-MM-dd")
         self.isuimod = dic["ui"]
         self.isbigmod = dic["big"]
         self.issmallmod = dic["small"]
