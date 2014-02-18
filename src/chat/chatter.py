@@ -61,7 +61,7 @@ class Chatter(QtGui.QTableWidgetItem):
         self.rating = None
         self.country = None
         self.league = None
-        self.clan = None
+        self.clan = ""
         self.avatarTip = ""
         
         self.setup()
@@ -96,7 +96,10 @@ class Chatter(QtGui.QTableWidgetItem):
         self.update()        
 
 
-    
+    def isFiltered(self, filter):
+        if filter in self.clan.lower() or filter in self.name.lower():
+            return True
+        return False
 
     def setVisible(self, visible):        
         if visible:

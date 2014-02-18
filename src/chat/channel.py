@@ -158,7 +158,7 @@ class Channel(FormClass, BaseClass):
     @QtCore.pyqtSlot()
     def filterNicks(self):
         for chatter in self.chatters.keys():
-            self.chatters[chatter].setVisible(chatter.lower().find(self.nickFilter.text().lower()) >= 0)
+            self.chatters[chatter].setVisible(self.chatters[chatter].isFiltered(self.nickFilter.text().lower()))
             
     def updateUserCount(self):
         count = len(self.chatters.keys())
