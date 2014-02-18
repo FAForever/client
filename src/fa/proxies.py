@@ -223,7 +223,8 @@ class proxies(QtCore.QObject):
                 self.sendReply(i, 1, QtCore.QByteArray(datagram))
                 
             else:
-                self.sendReply(i, self.proxiesDestination[i], QtCore.QByteArray(datagram))
+                if self.proxiesDestination[i] != None:
+                    self.sendReply(i, self.proxiesDestination[i], QtCore.QByteArray(datagram))
 
     def disconnectedFromProxy(self):
         '''Disconnection'''
