@@ -61,6 +61,7 @@ class Chatter(QtGui.QTableWidgetItem):
         self.rating = None
         self.country = None
         self.league = None
+        self.clan = None
         self.avatarTip = ""
         
         self.setup()
@@ -172,6 +173,10 @@ class Chatter(QtGui.QTableWidgetItem):
             self.updateAvatar()
 
         self.rating = self.lobby.client.getUserRanking(self.name)
+
+        self.clan = self.lobby.client.getUserClan(self.name)
+        if self.clan != "":
+            self.setText("[%s]%s" % (self.clan,self.name))
 
         # Color handling
         if self.elevation in self.lobby.OPERATOR_COLORS:            

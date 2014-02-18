@@ -1220,6 +1220,15 @@ class ClientWindow(FormClass, BaseClass):
     colors = json.loads(util.readfile("client/colors.json"))
     randomcolors = json.loads(util.readfile("client/randomcolors.json"))
 
+    def getUserClan(self, name):
+        '''
+        Returns a user's clan if any
+        '''        
+        if name in self.players:
+            if "clan" in self.players[name]:
+                return self.players[name]["clan"]
+        return ""
+
     def getUserLeague(self, name):
         '''
         Returns a user's league if any
@@ -1956,7 +1965,7 @@ class ClientWindow(FormClass, BaseClass):
             self.channelsUpdated.emit(message["channels"])
 
     def handle_player_info(self, message):
-        name = message["login"]        
+        name = message["login"]  
         self.players[name] = message  
         self.usersUpdated.emit([name])
      

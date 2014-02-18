@@ -261,8 +261,14 @@ class Channel(FormClass, BaseClass):
         
         avatar = None
         
+        displayName = name
+        
         if self.lobby.client.isFoe(name) :
             text = self.quackerize(text)
+        
+        clan = self.lobby.client.getUserClan(name)
+        if clan != "":
+            displayName = "<b>[%s]</b>%s" % (clan, name)
         
         if name.lower() in self.lobby.specialUserColors:
             color = self.lobby.specialUserColors[name.lower()]
@@ -300,14 +306,14 @@ class Channel(FormClass, BaseClass):
                 if not self.chatArea.document().resource(QtGui.QTextDocument.ImageResource, QtCore.QUrl(avatar)):
                     self.chatArea.document().addResource(QtGui.QTextDocument.ImageResource,  QtCore.QUrl(avatar), pix)                        
                 formatter = self.FORMATTER_MESSAGE_AVATAR
-                line = formatter.format(time=self.timestamp(), avatar=avatar, name=name, avatarTip=avatarTip, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))                 
+                line = formatter.format(time=self.timestamp(), avatar=avatar, name=displayName, avatarTip=avatarTip, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))                 
             else :
                 formatter = self.FORMATTER_MESSAGE
-                line = formatter.format(time=self.timestamp(), name=name, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))        
+                line = formatter.format(time=self.timestamp(), name=displayName, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))        
 
         else :
             formatter = self.FORMATTER_MESSAGE
-            line = formatter.format(time=self.timestamp(), name=name, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))        
+            line = formatter.format(time=self.timestamp(), name=displayName, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))        
         
         self.chatArea.insertHtml(line)
         self.lines = self.lines + 1
@@ -341,6 +347,10 @@ class Channel(FormClass, BaseClass):
         if self.private and name != self.lobby.client.login:
             self.pingWindow()
 
+        displayName = name
+        clan = self.lobby.client.getUserClan(name)
+        if clan != "":
+            displayName = "<b>[%s]</b>%s" % (clan, name)
 
         avatar = None
 
@@ -364,13 +374,13 @@ class Channel(FormClass, BaseClass):
                 if not self.chatArea.document().resource(QtGui.QTextDocument.ImageResource, QtCore.QUrl(avatar)) :
                     self.chatArea.document().addResource(QtGui.QTextDocument.ImageResource,  QtCore.QUrl(avatar), pix)
                 formatter = self.FORMATTER_ACTION_AVATAR
-                line = formatter.format(time=self.timestamp(), avatar=avatar, avatarTip=avatarTip, name=name, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))
+                line = formatter.format(time=self.timestamp(), avatar=avatar, avatarTip=avatarTip, name=displayName, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))
             else:            
                 formatter = self.FORMATTER_ACTION
-                line = formatter.format(time=self.timestamp(), name=name, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))
+                line = formatter.format(time=self.timestamp(), name=displayName, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))
         else:            
             formatter = self.FORMATTER_ACTION
-            line = formatter.format(time=self.timestamp(), name=name, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))
+            line = formatter.format(time=self.timestamp(), name=displayName, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))
         
         self.chatArea.insertHtml(line)
         self.lines = self.lines + 1
