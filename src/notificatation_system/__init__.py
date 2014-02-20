@@ -46,8 +46,8 @@ class NotficationDialog(FormClass, BaseClass):
         # bottom right
         self.move(screen.width() - dialog_size.width(), screen.height() - dialog_size.height())
 
-        # Frameless
-        self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowSystemMenuHint | QtCore.Qt.WindowMinimizeButtonHint)
+        # Frameless, always on top, steal no focus & no entry at the taskbar
+        self.setWindowFlags(QtCore.Qt.ToolTip)
 
         #self.setStyleSheet(self.client.styleSheet())
 
