@@ -317,10 +317,18 @@
      <addaction name="actionSetSoundEffects"/>
      <addaction name="actionSetAutoPostJoin"/>
     </widget>
+    <widget class="QMenu" name="menuNotifications">
+     <property name="title">
+      <string>Notifications...</string>
+     </property>
+     <addaction name="actionNsEnabled"/>
+     <addaction name="actionNsSound"/>
+    </widget>
     <addaction name="menuSettings"/>
     <addaction name="menuChat"/>
     <addaction name="menuTheme"/>
     <addaction name="menuVoice"/>
+    <addaction name="menuNotifications"/>
     <addaction name="separator"/>
     <addaction name="menuClear"/>
    </widget>
@@ -347,9 +355,16 @@
     <addaction name="actionLinkForums"/>
     <addaction name="actionLinkWiki"/>
    </widget>
+   <widget class="QMenu" name="menuDragonfire">
+    <property name="title">
+     <string>Dragonfire</string>
+    </property>
+    <addaction name="actionShowDialog"/>
+   </widget>
    <addaction name="menuLinks"/>
    <addaction name="menuOptions"/>
    <addaction name="menuHelp"/>
+   <addaction name="menuDragonfire"/>
   </widget>
   <action name="actionAbout">
    <property name="text">
@@ -574,12 +589,49 @@
     <string>Test Proxy Server</string>
    </property>
   </action>
+  <action name="actionShowDialog">
+   <property name="text">
+    <string>Show Dialog</string>
+   </property>
+  </action>
+  <action name="actionNotifications">
+   <property name="text">
+    <string>Notifications...</string>
+   </property>
+  </action>
+  <action name="actionEnabled">
+   <property name="text">
+    <string>Enabled</string>
+   </property>
+  </action>
+  <action name="actionNsEnabled">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>PopUp</string>
+   </property>
+  </action>
+  <action name="actionNsSound">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Sound</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
    <class>QWebView</class>
    <extends>QWidget</extends>
-   <header>PyQt4.QtWebKit</header>
+   <header>QtWebKit/QWebView</header>
   </customwidget>
  </customwidgets>
  <resources/>
