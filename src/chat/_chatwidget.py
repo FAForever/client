@@ -349,7 +349,9 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
         username = user2name(e.source())
         self.channels[channel].addChatter(username, True)
-        if channel.lower() in self.crucialChannels and username != self.client.login:
+        # Test IRC User
+        #self.client.friends.append('DEV_Dragonfire')
+        if channel.lower() in self.crucialChannels and username != self.client.login and self.client.isFriend(username):
             # TODO: search better solution, that html in nick & channel no rendered
             self.client.notificationSystem.addEvent('<html>%s<br>joined %s</html>' % (username, channel))
         self.channels[channel].resizing()
