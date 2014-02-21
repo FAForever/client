@@ -15,32 +15,38 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #-------------------------------------------------------------------------------
+
+
+
+
+
 '''
 Created on Dec 1, 2011
 
 @author: thygrrr
 '''
 
-import json
-import math
-import os
-from profile import playerstats
-import random
-import sys
-import time
-from types import IntType, FloatType, ListType, DictType
-
 from PyQt4 import QtCore, QtGui, QtNetwork, QtWebKit
+from types import IntType, FloatType, ListType, DictType
 
 from client import logger, ClientState, MUMBLE_URL, WEBSITE_URL, WIKI_URL, \
     FORUMS_URL, UNITDB_URL, SUPPORT_URL, TICKET_URL, GAME_PORT_DEFAULT, LOBBY_HOST, \
     LOBBY_PORT, LOCAL_REPLAY_PORT, STEAMLINK_URL
-import fa
-from notificatation_system import NotficationDialog, NotficationSystem
-import replays
-import secondaryServer
-import util
 
+import util
+import fa
+import secondaryServer
+
+import json
+import sys
+import replays
+
+import time
+import os
+import random
+import notificatation_system as ns
+
+from profile import playerstats
 
 class ClientOutdated(StandardError):
     pass
@@ -492,7 +498,7 @@ class ClientWindow(FormClass, BaseClass):
         self.tutorials = tutorials.Tutorials(self)
         self.GalacticWar = galacticWar.Lobby(self)
         self.Coop = coop.Coop(self)
-        self.notificationSystem = NotficationSystem(self)
+        self.notificationSystem = ns.NotficationSystem(self)
 
         # Other windows
         self.featuredMods = featuredmods.FeaturedMods(self)
