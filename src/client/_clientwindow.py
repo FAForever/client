@@ -815,7 +815,7 @@ class ClientWindow(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def showDialog(self):
-        self.notificationSystem.addEvent("my Event")
+        self.notificationSystem.on_event('da', {'test':'test'})
 
 
 
@@ -1678,6 +1678,9 @@ class ClientWindow(FormClass, BaseClass):
         '''
         A fairly pythonic way to process received strings as JSON messages.
         '''
+        # add a delay to the notification system
+        if 'channels' in message:
+            self.notificationSystem.disabled = False
         try:
             if "debug" in message:
                 logger.info(message['debug'])

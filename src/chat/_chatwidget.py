@@ -30,6 +30,7 @@ import fa
 import sys
 from chat import logger, user2name
 from chat.channel import Channel
+import notificatation_system as ns
 
 IRC_PORT = 8167
 IRC_SERVER = "direct.faforever.com"
@@ -350,10 +351,10 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         username = user2name(e.source())
         self.channels[channel].addChatter(username, True)
         # Test IRC User
-        #self.client.friends.append('DEV_Dragonfire')
+        self.client.friends.append('DEV_Dragonfire')
         if channel.lower() in self.crucialChannels and username != self.client.login and self.client.isFriend(username):
             # TODO: search better solution, that html in nick & channel no rendered
-            self.client.notificationSystem.addEvent('<html>%s<br>joined %s</html>' % (username, channel))
+            self.client.notificationSystem.on_event(ns.NotficationSystem.FRIEND_ONLINE,{'user':username, 'channel':channel})
         self.channels[channel].resizing()
 
 
