@@ -1098,7 +1098,7 @@ class ClientWindow(FormClass, BaseClass):
         #
         # Voice connector (This isn't supposed to be here, but I need the settings to be loaded before I can determine if we can hook in the mumbleConnector
         #
-        if False and self.enableMumble:
+        if self.enableMumble:
             self.progress.setLabelText("Setting up Mumble...")
             import mumbleconnector
             self.mumbleConnector = mumbleconnector.MumbleConnector(self)
