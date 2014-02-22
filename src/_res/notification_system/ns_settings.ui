@@ -89,28 +89,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QTableWidget" name="tableWidget">
-        <column>
-         <property name="text">
-          <string>Type</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>PopUp</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>Sound</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>Settings</string>
-         </property>
-        </column>
-       </widget>
+       <widget class="QTableView" name="tableView"/>
       </item>
      </layout>
     </widget>

@@ -134,8 +134,10 @@ class NsSettingsDialog(FormClass2, BaseClass2):
         # TODO: integrate into client.css
         self.setStyleSheet(self.client.styleSheet())
 
+
+        self.tableView.setModel(NotificationHooks(self))
         # stretch first column
-        self.tableWidget.horizontalHeader().setResizeMode(0, QtGui.QHeaderView.Stretch)
+        self.tableView.horizontalHeader().setResizeMode(0, QtGui.QHeaderView.Stretch)
 
         self.loadSettings()
 
@@ -171,3 +173,28 @@ class NsSettingsDialog(FormClass2, BaseClass2):
     def show(self):
         self.loadSettings()
         super(FormClass2, self).show()
+
+class NotificationHooks(QtCore.QAbstractTableModel):
+    def __init__(self, parent, *args):
+        QtCore.QAbstractTableModel.__init__(self, parent, *args)
+
+        self.hooks = []
+        self.headerdata = ['Type', 'PopUp', 'Sound', 'Settings']
+
+    def rowCount(self, parent):
+        return len(self.hooks)
+
+    def columnCount(self, parent):
+        return len(self.headerdata)
+
+    def data(self, index, role):
+        if not index.isValid():
+            return QtCore.QVariant()
+        elif role != QtCore.Qt.DisplayRole:
+            return QtCore.QVariant()
+        return QtCore.QVariant(self.arraydata[index.row()][index.column()])
+
+    def headerData(self, col, orientation, role):
+        if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
+            return self.headerdata[col]
+        return None
