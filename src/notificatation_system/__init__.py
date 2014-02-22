@@ -5,8 +5,6 @@ from fa import maps
 from games.gameitem import GameItemDelegate
 from multiprocessing import Lock
 
-FormClass, BaseClass = util.loadUiType("notification_system/dialog.ui")
-
 class NotficationSystem():
     FRIEND_ONLINE = 'friend_comes_online'
     NEW_GAME = 'new_game'
@@ -16,13 +14,19 @@ class NotficationSystem():
 
         self.dialog = NotficationDialog(self.client)
         self.events = []
-        self.disabled = True
+        self.disabledStartup = True
         self.lock = Lock()
+
+        self.settings = NsSettingsDialog(self.client)
 
         self.user = util.icon("client/user.png", pix=True)
 
     def isDisabled(self):
-        return self.disabled or not self.client.actionNsEnabled.isChecked()
+        return self.disabledStartup or not self.settings.enabled
+
+    def setNotificationEnabled(self, enabled):
+        self.settings.enabled = enabled
+        self.settings.saveSettings()
 
     @QtCore.pyqtSlot()
     def on_event(self, eventType, data):
@@ -31,6 +35,10 @@ class NotficationSystem():
         self.events.append((eventType, data))
         if self.dialog.isHidden():
             self.showEvent()
+
+    @QtCore.pyqtSlot()
+    def on_showSettings(self):
+        self.settings.show()
 
     def showEvent(self):
         self.lock.acquire()
@@ -47,7 +55,21 @@ class NotficationSystem():
             text = '<html>%s<br><font color="silver" size="-2">joined</font> %s</html>' % (data['user'], data['channel'])
         elif eventType == self.NEW_GAME:
             pixmap = maps.preview(data['mapname'], pixmap=True).scaled(80, 80)
-            text = '<html>%s<br><font color="silver" size="-2">on</font> %s</html>' % (data['title'], maps.getDisplayName(data['mapname']))
+
+            #TODO: outsource as function?
+            mod = None if 'featured_mod' not in data else data['featured_mod']
+            mods = None if 'sim_mods' not in data else data['sim_mods']
+
+            modstr = ''
+            if (mod != 'faf' or mods):
+                modstr = mod
+                if mods:
+                    if mod == 'faf':modstr = ", ".join(mods.values())
+                    else: modstr = mod + " & " + ", ".join(mods.values())
+                    if len(modstr) > 20: modstr = modstr[:15] + "..."
+
+            modhtml = '' if (modstr == '') else '<br><font size="-4"><font color="red">mods</font> %s</font>' % modstr
+            text = '<html>%s<br><font color="silver" size="-2">on</font> %s%s</html>' % (data['title'], maps.getDisplayName(data['mapname']), modhtml)
 
         self.dialog.newEvent(pixmap, text)
 
@@ -56,6 +78,7 @@ class NotficationSystem():
             self.showEvent()
 
 
+FormClass, BaseClass = util.loadUiType("notification_system/dialog.ui")
 class NotficationDialog(FormClass, BaseClass):
     def __init__(self, client, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
@@ -96,3 +119,55 @@ class NotficationDialog(FormClass, BaseClass):
     def hide(self):
         super(FormClass, self).hide()
         self.client.notificationSystem.dialogClosed()
+
+FormClass2, BaseClass2 = util.loadUiType("notification_system/ns_settings.ui")
+class NsSettingsDialog(FormClass2, BaseClass2):
+    def __init__(self, client, *args, **kwargs):
+        BaseClass2.__init__(self, *args, **kwargs)
+
+        self.setupUi(self)
+        self.client = client
+
+        # remove help button
+        self.setWindowFlags(self.windowFlags() & (~QtCore.Qt.WindowContextHelpButtonHint))
+
+        # TODO: integrate into client.css
+        self.setStyleSheet(self.client.styleSheet())
+
+        # stretch first column
+        self.tableWidget.horizontalHeader().setResizeMode(0, QtGui.QHeaderView.Stretch)
+
+        self.loadSettings()
+
+
+    def loadSettings(self):
+        util.settings.beginGroup("notification_system")
+        self.enabled = util.settings.value('enabled', 'true') == 'true'
+        self.popup_lifetime = util.settings.value('popup_lifetime', 5)
+        util.settings.endGroup()
+
+        self.nsEnabled.setChecked(self.enabled)
+        self.nsPopLifetime.setValue(self.popup_lifetime)
+
+
+    def saveSettings(self):
+        util.settings.beginGroup("notification_system")
+        util.settings.setValue('enabled', self.enabled)
+        util.settings.setValue('popup_lifetime', self.popup_lifetime)
+        util.settings.endGroup()
+        util.settings.sync()
+
+        self.client.actionNsEnabled.setChecked(self.enabled)
+
+    @QtCore.pyqtSlot()
+    def on_btnSave_clicked(self):
+        self.enabled = self.nsEnabled.isChecked()
+        self.popup_lifetime = self.nsPopLifetime.value()
+
+        self.saveSettings()
+        self.hide()
+
+    @QtCore.pyqtSlot()
+    def show(self):
+        self.loadSettings()
+        super(FormClass2, self).show()

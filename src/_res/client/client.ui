@@ -323,6 +323,7 @@
      </property>
      <addaction name="actionNsEnabled"/>
      <addaction name="actionNsSound"/>
+     <addaction name="actionNsSettings"/>
     </widget>
     <addaction name="menuSettings"/>
     <addaction name="menuChat"/>
@@ -612,7 +613,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>PopUp</string>
+    <string>Enabled</string>
    </property>
   </action>
   <action name="actionNsSound">
@@ -624,6 +625,11 @@
    </property>
    <property name="text">
     <string>Sound</string>
+   </property>
+  </action>
+  <action name="actionNsSettings">
+   <property name="text">
+    <string>Settings</string>
    </property>
   </action>
  </widget>

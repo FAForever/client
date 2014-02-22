@@ -500,6 +500,9 @@ class ClientWindow(FormClass, BaseClass):
         self.Coop = coop.Coop(self)
         self.notificationSystem = ns.NotficationSystem(self)
 
+        # set menu states
+        self.actionNsEnabled.setChecked(self.notificationSystem.settings.enabled)
+
         # Other windows
         self.featuredMods = featuredmods.FeaturedMods(self)
         self.avatarAdmin = self.avatarSelection = avatarWidget(self, None)
@@ -671,6 +674,8 @@ class ClientWindow(FormClass, BaseClass):
         self.actionLinkUnitDB.triggered.connect(self.linkUnitDB)
 
         self.actionShowDialog.triggered.connect(self.showDialog)
+        self.actionNsSettings.triggered.connect(lambda : self.notificationSystem.on_showSettings())
+        self.actionNsEnabled.triggered.connect(lambda enabled : self.notificationSystem.setNotificationEnabled(enabled))
 
         self.actionWiki.triggered.connect(self.linkWiki)
         self.actionReportBug.triggered.connect(self.linkReportBug)
@@ -1686,7 +1691,7 @@ class ClientWindow(FormClass, BaseClass):
         '''
         # add a delay to the notification system
         if 'channels' in message:
-            self.notificationSystem.disabled = False
+            self.notificationSystem.disabledStartup = False
         try:
             if "debug" in message:
                 logger.info(message['debug'])
