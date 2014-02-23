@@ -43,3 +43,8 @@ class NotficationDialog(FormClass, BaseClass):
     def hide(self):
         super(FormClass, self).hide()
         self.client.notificationSystem.dialogClosed()
+
+    # mouseReleaseEvent sometimes not fired
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.RightButton:
+            self.hide()
