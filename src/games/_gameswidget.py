@@ -165,7 +165,7 @@ class GamesWidget(FormClass, BaseClass):
             self.games[uid].update(message, self.client)
 
             if message['state'] == 'open' and message['access'] == 'public':
-                self.client.notificationSystem.on_event(ns.NotficationSystem.NEW_GAME, message)
+                self.client.notificationSystem.on_event(ns.NotificationSystem.NEW_GAME, message)
         else:
             self.games[uid].update(message, self.client)
 

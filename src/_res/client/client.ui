@@ -322,7 +322,6 @@
       <string>Notifications...</string>
      </property>
      <addaction name="actionNsEnabled"/>
-     <addaction name="actionNsSound"/>
      <addaction name="actionNsSettings"/>
     </widget>
     <addaction name="menuSettings"/>
@@ -614,17 +613,6 @@
    </property>
    <property name="text">
     <string>Enabled</string>
-   </property>
-  </action>
-  <action name="actionNsSound">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Sound</string>
    </property>
   </action>
   <action name="actionNsSettings">

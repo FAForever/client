@@ -498,7 +498,7 @@ class ClientWindow(FormClass, BaseClass):
         self.tutorials = tutorials.Tutorials(self)
         self.GalacticWar = galacticWar.Lobby(self)
         self.Coop = coop.Coop(self)
-        self.notificationSystem = ns.NotficationSystem(self)
+        self.notificationSystem = ns.NotificationSystem(self)
 
         # set menu states
         self.actionNsEnabled.setChecked(self.notificationSystem.settings.enabled)

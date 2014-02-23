@@ -62,7 +62,7 @@
       <item row="0" column="1">
        <widget class="QCheckBox" name="nsEnabled">
         <property name="text">
-         <string>Enable</string>
+         <string>Enable Notifiaction System</string>
         </property>
        </widget>
       </item>
@@ -84,12 +84,22 @@
       <item>
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>Notifications</string>
+         <string>Notifications (If you disable a PopUp, the Sound is also disabled)</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QTableView" name="tableView"/>
+       <widget class="QTableView" name="tableView">
+        <property name="alternatingRowColors">
+         <bool>true</bool>
+        </property>
+        <property name="selectionMode">
+         <enum>QAbstractItemView::SingleSelection</enum>
+        </property>
+        <property name="selectionBehavior">
+         <enum>QAbstractItemView::SelectRows</enum>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
