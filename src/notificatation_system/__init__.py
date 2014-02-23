@@ -54,8 +54,12 @@ class NotificationSystem():
         pixmap = None
         text = str(data)
         if eventType == self.USER_ONLINE:
+            username = data['user']
+            if self.settings.getCustomSetting(eventType, 'mode') == 'friends' and not self.client.isFriend(username):
+                self.dialogClosed()
+                return
             pixmap = self.user
-            text = '<html>%s<br><font color="silver" size="-2">joined</font> %s</html>' % (data['user'], data['channel'])
+            text = '<html>%s<br><font color="silver" size="-2">joined</font> %s</html>' % (username, data['channel'])
         elif eventType == self.NEW_GAME:
             pixmap = maps.preview(data['mapname'], pixmap=True).scaled(80, 80)
 

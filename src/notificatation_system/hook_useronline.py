@@ -1,4 +1,4 @@
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtCore
 import util
 from notificatation_system.ns_hook import NsHook
 import notificatation_system as ns
@@ -8,23 +8,19 @@ class NsHookUserOnline(NsHook):
     def __init__(self):
         NsHook.__init__(self, ns.NotificationSystem.USER_ONLINE)
         self.button.setEnabled(True)
-        self.button.clicked.connect(self.pressMore)
-
-    def pressMore(self):
-        if not hasattr(self, 'dialog'):
-            self.dialog = UserOnlineDialog(self.eventType)
-        self.dialog.show()
+        self.dialog = UserOnlineDialog(self, self.eventType)
+        self.button.clicked.connect(self.dialog.show)
 
 FormClass, BaseClass = util.loadUiType("notification_system/user_online.ui")
 class UserOnlineDialog(FormClass, BaseClass):
-    def __init__(self, eventType):
+    def __init__(self, parent, eventType):
         BaseClass.__init__(self)
+        self.parent = parent
         self.eventType = eventType
         self.setupUi(self)
 
         # remove help button
         self.setWindowFlags(self.windowFlags() & (~QtCore.Qt.WindowContextHelpButtonHint))
-
 
         self.loadSettings()
 
@@ -40,6 +36,7 @@ class UserOnlineDialog(FormClass, BaseClass):
             self.radioButtonFriends.setChecked(True)
         else:
             self.radioButtonAll.setChecked(True)
+        self.parent.mode = self.mode
 
     def saveSettings(self):
         util.settings.beginGroup("notification_system")
@@ -48,6 +45,7 @@ class UserOnlineDialog(FormClass, BaseClass):
         util.settings.endGroup()
         util.settings.endGroup()
         util.settings.sync()
+        self.parent.mode = self.mode
 
     @QtCore.pyqtSlot()
     def on_btnSave_clicked(self):

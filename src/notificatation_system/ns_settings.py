@@ -7,17 +7,15 @@ from notificatation_system.ns_hook import NsHook
 
 FormClass2, BaseClass2 = util.loadUiType("notification_system/ns_settings.ui")
 class NsSettingsDialog(FormClass2, BaseClass2):
-    def __init__(self, client, *args, **kwargs):
-        BaseClass2.__init__(self, *args, **kwargs)
+    def __init__(self, client):
+        BaseClass2.__init__(self)
+        #BaseClass2.__init__(self, client)
 
         self.setupUi(self)
         self.client = client
 
         # remove help button
         self.setWindowFlags(self.windowFlags() & (~QtCore.Qt.WindowContextHelpButtonHint))
-
-        # TODO: integrate into client.css
-        # self.setStyleSheet(self.client.styleSheet())
 
         # init hooks
         self.hooks = {}
@@ -76,6 +74,12 @@ class NsSettingsDialog(FormClass2, BaseClass2):
         if eventType in self.hooks:
             return self.hooks[eventType].soundEnabled()
         return False
+
+    def getCustomSetting(self, eventType, key):
+        if eventType in self.hooks:
+            if hasattr(self.hooks[eventType], key):
+                return getattr(self.hooks[eventType], key)
+        return None
 
 class NotificationHooks(QtCore.QAbstractTableModel):
     POPUP = 1
