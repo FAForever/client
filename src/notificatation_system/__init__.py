@@ -61,6 +61,10 @@ class NotificationSystem():
             pixmap = self.user
             text = '<html>%s<br><font color="silver" size="-2">joined</font> %s</html>' % (username, data['channel'])
         elif eventType == self.NEW_GAME:
+            if self.settings.getCustomSetting(eventType, 'mode') == 'friends' and ('host' not in data or not self.client.isFriend(data['host'])):
+                self.dialogClosed()
+                return
+
             pixmap = maps.preview(data['mapname'], pixmap=True).scaled(80, 80)
 
             #TODO: outsource as function?

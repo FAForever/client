@@ -3,6 +3,7 @@ import util
 import notificatation_system as ns
 from notificatation_system.hook_useronline import NsHookUserOnline
 from notificatation_system.ns_hook import NsHook
+from notificatation_system.hook_newgame import NsHookNewGame
 
 
 FormClass2, BaseClass2 = util.loadUiType("notification_system/ns_settings.ui")
@@ -20,7 +21,7 @@ class NsSettingsDialog(FormClass2, BaseClass2):
         # init hooks
         self.hooks = {}
         self.hooks[ns.NotificationSystem.USER_ONLINE] = NsHookUserOnline()
-        self.hooks[ns.NotificationSystem.NEW_GAME] = NsHook(ns.NotificationSystem.NEW_GAME)
+        self.hooks[ns.NotificationSystem.NEW_GAME] = NsHookNewGame()
 
         model = NotificationHooks(self, self.hooks.values())
         self.tableView.setModel(model)

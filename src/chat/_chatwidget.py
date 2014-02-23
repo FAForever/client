@@ -350,8 +350,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
         username = user2name(e.source())
         self.channels[channel].addChatter(username, True)
-        # Test IRC User
-        self.client.friends.append('DEV_Dragonfire')
+
         if channel.lower() in self.crucialChannels and username != self.client.login:
             # TODO: search better solution, that html in nick & channel no rendered
             self.client.notificationSystem.on_event(ns.NotificationSystem.USER_ONLINE,{'user':username, 'channel':channel})
