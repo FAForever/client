@@ -28,7 +28,7 @@ class NewGameDialog(FormClass, BaseClass):
     def loadSettings(self):
         util.settings.beginGroup("notification_system")
         util.settings.beginGroup(self.eventType)
-        self.mode = util.settings.value('mode', 'all')
+        self.mode = util.settings.value('mode', 'friends')
         util.settings.endGroup()
         util.settings.endGroup()
 
