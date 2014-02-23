@@ -355,16 +355,9 @@
     <addaction name="actionLinkForums"/>
     <addaction name="actionLinkWiki"/>
    </widget>
-   <widget class="QMenu" name="menuDragonfire">
-    <property name="title">
-     <string>Dragonfire</string>
-    </property>
-    <addaction name="actionShowDialog"/>
-   </widget>
    <addaction name="menuLinks"/>
    <addaction name="menuOptions"/>
    <addaction name="menuHelp"/>
-   <addaction name="menuDragonfire"/>
   </widget>
   <action name="actionAbout">
    <property name="text">
@@ -587,11 +580,6 @@
   <action name="actionTestingConnections">
    <property name="text">
     <string>Test Proxy Server</string>
-   </property>
-  </action>
-  <action name="actionShowDialog">
-   <property name="text">
-    <string>Show Dialog</string>
    </property>
   </action>
   <action name="actionNotifications">

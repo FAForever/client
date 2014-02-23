@@ -673,7 +673,6 @@ class ClientWindow(FormClass, BaseClass):
         self.actionLinkForums.triggered.connect(self.linkForums)
         self.actionLinkUnitDB.triggered.connect(self.linkUnitDB)
 
-        self.actionShowDialog.triggered.connect(self.showDialog)
         self.actionNsSettings.triggered.connect(lambda : self.notificationSystem.on_showSettings())
         self.actionNsEnabled.triggered.connect(lambda enabled : self.notificationSystem.setNotificationEnabled(enabled))
 
@@ -823,12 +822,6 @@ class ClientWindow(FormClass, BaseClass):
     def linkAbout(self):
         dialog = util.loadUi("client/about.ui")
         dialog.exec_()
-
-    @QtCore.pyqtSlot()
-    def showDialog(self):
-        self.notificationSystem.on_event('da', {'test':'test'})
-
-
 
     def saveCredentials(self):
         util.settings.beginGroup("user")
