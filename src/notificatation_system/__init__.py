@@ -4,8 +4,8 @@ import util, time
 from fa import maps
 from games.gameitem import GameItemDelegate
 from multiprocessing import Lock
-from notificatation_system.nsdialog import NotficationDialog
-from notificatation_system.nssettings import NsSettingsDialog
+from notificatation_system.ns_dialog import NotficationDialog
+from notificatation_system.ns_settings import NsSettingsDialog
 
 
 class NotificationSystem():

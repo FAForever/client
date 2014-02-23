@@ -1,6 +1,8 @@
 from PyQt4 import QtCore, QtGui
 import util
 import notificatation_system as ns
+from notificatation_system.hook_useronline import NsHookUserOnline
+from notificatation_system.ns_hook import NsHook
 
 
 FormClass2, BaseClass2 = util.loadUiType("notification_system/ns_settings.ui")
@@ -15,17 +17,20 @@ class NsSettingsDialog(FormClass2, BaseClass2):
         self.setWindowFlags(self.windowFlags() & (~QtCore.Qt.WindowContextHelpButtonHint))
 
         # TODO: integrate into client.css
-        self.setStyleSheet(self.client.styleSheet())
-
+        # self.setStyleSheet(self.client.styleSheet())
 
         # init hooks
         self.hooks = {}
-        self.hooks[ns.NotificationSystem.USER_ONLINE] = Hook(ns.NotificationSystem.USER_ONLINE)
-        self.hooks[ns.NotificationSystem.NEW_GAME] = Hook(ns.NotificationSystem.NEW_GAME)
+        self.hooks[ns.NotificationSystem.USER_ONLINE] = NsHookUserOnline()
+        self.hooks[ns.NotificationSystem.NEW_GAME] = NsHook(ns.NotificationSystem.NEW_GAME)
 
-        self.tableView.setModel(NotificationHooks(self, self.hooks.values()))
+        model = NotificationHooks(self, self.hooks.values())
+        self.tableView.setModel(model)
         # stretch first column
         self.tableView.horizontalHeader().setResizeMode(0, QtGui.QHeaderView.Stretch)
+
+        for row in range(0, model.rowCount(None)):
+            self.tableView.setIndexWidget(model.createIndex(row, 3), model.getHook(row).settings())
 
         self.loadSettings()
 
@@ -72,59 +77,23 @@ class NsSettingsDialog(FormClass2, BaseClass2):
             return self.hooks[eventType].soundEnabled()
         return False
 
-class Hook():
-    def __init__(self, eventType):
-        self.eventType = eventType
-        self.loadSettings()
-
-    def loadSettings(self):
-        util.settings.beginGroup("notification_system")
-        util.settings.beginGroup(self.eventType)
-        self.popup = util.settings.value('popup', 'true') == 'true'
-        self.sound = util.settings.value('sound', 'true') == 'true'
-        util.settings.endGroup()
-        util.settings.endGroup()
-
-    def saveSettings(self):
-        util.settings.beginGroup("notification_system")
-        util.settings.beginGroup(self.eventType)
-        util.settings.setValue('popup', self.popup)
-        util.settings.setValue('sound', self.sound)
-        util.settings.endGroup()
-        util.settings.endGroup()
-        util.settings.sync()
-
-    def getEventDisplayName(self):
-        return self.eventType
-
-    def popupEnabled(self):
-        return self.popup
-
-    def switchPopup(self):
-        self.popup = not self.popup
-        self.saveSettings()
-
-    def soundEnabled(self):
-        return self.sound
-
-    def switchSound(self):
-        self.sound = not self.sound
-        self.saveSettings()
-
 class NotificationHooks(QtCore.QAbstractTableModel):
     POPUP = 1
     SOUND = 2
+    SETTINGS = 3
 
     def __init__(self, parent, hooks, *args):
         QtCore.QAbstractTableModel.__init__(self, parent, *args)
         self.da = True
         self.hooks = hooks
-        self.headerdata = ['Type', 'PopUp', 'Sound', 'Settings']
+        self.headerdata = ['Type', 'PopUp', 'Sound', '#']
 
     def flags(self, index):
         flags = super(QtCore.QAbstractTableModel, self).flags(index)
         if index.column() == self.POPUP or index.column() == self.SOUND:
             return  flags | QtCore.Qt.ItemIsUserCheckable
+        if index.column() == self.SETTINGS:
+            return flags | QtCore.Qt.ItemIsEditable
         return flags
 
     def rowCount(self, parent):
@@ -132,6 +101,9 @@ class NotificationHooks(QtCore.QAbstractTableModel):
 
     def columnCount(self, parent):
         return len(self.headerdata)
+
+    def getHook(self, row):
+        return self.hooks[row]
 
     def data(self, index, role = QtCore.Qt.EditRole):
         if not index.isValid():
