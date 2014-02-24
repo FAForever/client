@@ -430,10 +430,12 @@ class Chatter(QtGui.QTableWidgetItem):
             
     @QtCore.pyqtSlot()
     def viewStats(self):
-        if self.name in self.lobby.client.players :
-            self.lobby.client.profile.setplayer(self.name)
-            self.lobby.client.profile.show() 
-        
+        try:
+            if self.name in self.lobby.client.players :
+                self.lobby.client.profile.setplayer(self.name)
+                self.lobby.client.profile.show() 
+        except:
+            pass
 
     @QtCore.pyqtSlot()
     def viewReplay(self):
