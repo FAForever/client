@@ -700,7 +700,7 @@ class Updater(QtCore.QObject):
 
         self.result = self.RESULT_FAILURE                                          
         
-    def applyPatch(original, patch):
+    def applyPatch(self, original, patch):
         toFile = os.path.join(util.CACHE_DIR, "patchedFile")
         #applying delta
         subprocess.call(['xdelta3', '-d','-f', '-s', original, patch, toFile], stdout = subprocess.PIPE)
