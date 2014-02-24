@@ -31,12 +31,13 @@ patched, and all required files for a given mod are installed
 from PyQt4 import QtGui, QtCore, QtNetwork
 
 import _winreg
-import bz2
-import cPickle as pickle
+# import bz2
+# import cPickle as pickle
 import os
 import stat
 import time
-import bsdiff
+import subprocess
+#import bsdiff
 import shutil
 from types import FloatType, IntType, ListType
 import util
@@ -681,8 +682,6 @@ class Updater(QtCore.QObject):
         # If nothing terribly bad happened until now, the operation is a success and/or the client can display what's up.                           
         return self.result
 
-
-
     @QtCore.pyqtSlot('QAbstractSocket::SocketError')
     def handleServerError(self, socketError):
         '''
@@ -701,7 +700,13 @@ class Updater(QtCore.QObject):
 
         self.result = self.RESULT_FAILURE                                          
         
-        
+    def applyPatch(original, patch):
+        toFile = os.path.join(util.CACHE_DIR, "patchedFile")
+        #applying delta
+        subprocess.call(['xdelta3', '-d','-f', '-s', original, patch, toFile], stdout = subprocess.PIPE)
+        shutil.copy(toFile, original) 
+        os.remove(toFile)
+        os.remove(patch)
    
     def handleAction(self, bytecount, action, stream):  
         '''
@@ -810,24 +815,10 @@ class Updater(QtCore.QObject):
             toFile = os.path.join(util.CACHE_DIR, "temp.patch")
             #
             if self.fetchFile(url, toFile) :
-                
-                compressed = bz2.BZ2File(toFile, 'rb')
+                completePath = os.path.join(util.APPDATA_DIR, destination, fileToUpdate)
+                self.applyPatch(completePath ,toFile)
 
-                patch = pickle.loads(compressed.read())
-                completePath = os.path.join(util.APPDATA_DIR, destination, str(fileToUpdate))
-            
-                fd = open(completePath, "rb")
-                data = fd.read()
-                fd.close()
-                
-                fix_data = bsdiff.Patch(data, patch[0], *patch[1])
-    
-                os.chmod(completePath, stat.S_IWRITE)
-                    
-                fd = open(completePath, 'wb')
-                fd.write(fix_data)
-                fd.close()       
-                
+                 
                 log("%s/%s is patched." % (destination, fileToUpdate))             
                 self.filesToUpdate.remove(str(fileToUpdate))
             else :
@@ -839,25 +830,16 @@ class Updater(QtCore.QObject):
             fileToUpdate = str(stream.readQString())
             size = stream.readInt()
 
-            fileDatas = stream.readRawData(size)
+            patchFile = stream.readRawData(size)
+            fd = open(os.path.join(util.CACHE_DIR, "temp.patch"), 'wb')
+            fd.write(patchFile)
+            fd.close()
 
             log("patching %s/%s ..." % (destination, fileToUpdate)) 
-
-            patch = pickle.loads(bz2.decompress(fileDatas))
             
             completePath = os.path.join(util.APPDATA_DIR, destination, str(fileToUpdate))
-            
-            fd = open(completePath, "rb")
-            data = fd.read()
-            fd.close()
-            
-            fix_data = bsdiff.Patch(data, patch[0], *patch[1])
+            self.applyPatch(completePath ,toFile)            
 
-            os.chmod(completePath, stat.S_IWRITE)
-                
-            fd = open(completePath, 'wb')
-            fd.write(fix_data)
-            fd.close()       
             
             log("%s/%s is patched." % (destination, fileToUpdate))             
             self.filesToUpdate.remove(str(fileToUpdate))         
