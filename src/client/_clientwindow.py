@@ -1796,6 +1796,11 @@ class ClientWindow(FormClass, BaseClass):
             country = self.getUserCountry(self.login) #Add country command line argument - Vicarian
             arguments.append(str(country)) #Add country command line argument - Vicarian
 
+        clan = self.getUserClan(self.login)
+        if clan and galacticWar == False:
+            arguments.append('/clan')
+            arguments.append(clan)
+
         # Ensure we have the map
         if "mapname" in message:
 
