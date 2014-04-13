@@ -108,13 +108,15 @@ class ModVault(FormClass, BaseClass):
         self.uploadButton.clicked.connect(self.openUploadForm)
         self.UIButton.clicked.connect(self.openUIModForm)
 
+        self.SortType.setCurrentIndex(2)
         self.SortType.currentIndexChanged.connect(self.sortChanged)
         self.ShowType.currentIndexChanged.connect(self.showChanged)
-
+        
+        
         self.client.showMods.connect(self.tabOpened)
         self.client.modVaultInfo.connect(self.modInfo)
 
-        self.sortType = "alphabetical"
+        self.sortType = "rating"
         self.showType = "all"
         self.searchString = ""
 
