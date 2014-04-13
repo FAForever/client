@@ -65,7 +65,9 @@ class NotificationSystem():
                 self.dialogClosed()
                 return
 
-            pixmap = maps.preview(data['mapname'], pixmap=True).scaled(80, 80)
+            preview = maps.preview(data['mapname'], pixmap=True)
+            if preview:
+                pixmap = preview.scaled(80, 80)
 
             #TODO: outsource as function?
             mod = None if 'featured_mod' not in data else data['featured_mod']
