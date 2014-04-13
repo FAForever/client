@@ -251,7 +251,9 @@ class Channel(FormClass, BaseClass):
     def printMsg(self, name, text, scroll_forced=False):
         '''
         Print an actual message in the chatArea of the channel
-        '''               
+        '''
+        text = text.encode('utf-8')
+        
         if self.lines > CHAT_TEXT_LIMIT :
             cursor = self.chatArea.textCursor()
             cursor.movePosition(QtGui.QTextCursor.Start)
@@ -329,6 +331,8 @@ class Channel(FormClass, BaseClass):
         '''
         Print an actual message in the chatArea of the channel
         '''
+        text = text.encode('utf-8')
+        
         if self.lines > CHAT_TEXT_LIMIT :
             cursor = self.chatArea.textCursor()
             cursor.movePosition(QtGui.QTextCursor.Start)
