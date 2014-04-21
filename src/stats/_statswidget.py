@@ -50,7 +50,7 @@ class StatsWidget(BaseClass, FormClass):
 
         self.webview = QtWebKit.QWebView()
         
-        self.globalTab.layout().addWidget(self.webview)
+        self.LadderRatings.layout().addWidget(self.webview)
         
         self.loaded = False
         self.client.showLadder.connect(self.updating)
@@ -239,7 +239,7 @@ class StatsWidget(BaseClass, FormClass):
         if util.themeurl("ladder/style.css"):
             self.webview.settings().setUserStyleSheetUrl(util.themeurl("ladder/style.css"))
 
-        self.webview.setUrl(QtCore.QUrl("http://faforever.com/faf/leaderboards/read-leader.php?board=global&username=%s" % (self.client.login)))
+        self.webview.setUrl(QtCore.QUrl("http://faforever.com/faf/leaderboards/read-leader.php?board=1v1&username=%s" % (self.client.login)))
         
         
     

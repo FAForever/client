@@ -28,6 +28,7 @@ from chat.chatter import Chatter
 import re          
 import fa
 import json
+import unicodedata
 
 QUERY_BLINK_SPEED = 250
 CHAT_TEXT_LIMIT = 350
@@ -252,181 +253,183 @@ class Channel(FormClass, BaseClass):
         '''
         Print an actual message in the chatArea of the channel
         '''
-        text = text.encode('utf-8')
-        
-        if self.lines > CHAT_TEXT_LIMIT :
-            cursor = self.chatArea.textCursor()
-            cursor.movePosition(QtGui.QTextCursor.Start)
-            cursor.movePosition(QtGui.QTextCursor.Down, QtGui.QTextCursor.KeepAnchor, CHAT_REMOVEBLOCK)
-            cursor.removeSelectedText()
-            self.lines = self.lines - CHAT_REMOVEBLOCK
-        
-        avatar = None
-        
-        displayName = name
-        
-        if self.lobby.client.isFoe(name) :
-            text = self.quackerize(text)
-        
-        clan = self.lobby.client.getUserClan(name)
-        if clan != "":
-            displayName = "<b>[%s]</b>%s" % (clan, name)
-        
-        if name.lower() in self.lobby.specialUserColors:
-            color = self.lobby.specialUserColors[name.lower()]
-        else:
-            if name in self.chatters:
-                chatter = self.chatters[name]                
-                color = chatter.textColor().name()
-                if chatter.avatar:
-                    avatar = chatter.avatar["url"] 
-                    avatarTip = chatter.avatarTip or ""
-                
+        try:
+            if self.lines > CHAT_TEXT_LIMIT :
+                cursor = self.chatArea.textCursor()
+                cursor.movePosition(QtGui.QTextCursor.Start)
+                cursor.movePosition(QtGui.QTextCursor.Down, QtGui.QTextCursor.KeepAnchor, CHAT_REMOVEBLOCK)
+                cursor.removeSelectedText()
+                self.lines = self.lines - CHAT_REMOVEBLOCK
+            
+            avatar = None
+            
+            displayName = name
+            
+            if self.lobby.client.isFoe(name) :
+                text = self.quackerize(text)
+            
+            clan = self.lobby.client.getUserClan(name)
+            if clan != "":
+                displayName = "<b>[%s]</b>%s" % (clan, name)
+            
+            if name.lower() in self.lobby.specialUserColors:
+                color = self.lobby.specialUserColors[name.lower()]
             else:
-                color = self.lobby.client.getUserColor(name) #Fallback and ask the client. We have no Idea who this is.
-
-        # Play a ping sound and flash the title under certain circumstances
-        if self.private and name != self.lobby.client.login:
-            self.pingWindow()
-
-        if not self.private and text.find(self.lobby.client.login)!=-1:
-            self.pingWindow()
-            color = self.lobby.client.getColor("tous")
-
-
-        # scroll if close to the last line of the log
-        scroll_current = self.chatArea.verticalScrollBar().value()
-        scroll_needed = scroll_forced or ((self.chatArea.verticalScrollBar().maximum() - scroll_current) < 20)
-
-        cursor = self.chatArea.textCursor()
-        cursor.movePosition(QtGui.QTextCursor.End)
-        self.chatArea.setTextCursor(cursor)                
-        
-        if avatar :
-            pix = util.respix(avatar)
-            if pix:
-                if not self.chatArea.document().resource(QtGui.QTextDocument.ImageResource, QtCore.QUrl(avatar)):
-                    self.chatArea.document().addResource(QtGui.QTextDocument.ImageResource,  QtCore.QUrl(avatar), pix)                        
-                formatter = self.FORMATTER_MESSAGE_AVATAR
-                line = formatter.format(time=self.timestamp(), avatar=avatar, name=displayName, avatarTip=avatarTip, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))                 
+                if name in self.chatters:
+                    chatter = self.chatters[name]                
+                    color = chatter.textColor().name()
+                    if chatter.avatar:
+                        avatar = chatter.avatar["url"] 
+                        avatarTip = chatter.avatarTip or ""
+                    
+                else:
+                    color = self.lobby.client.getUserColor(name) #Fallback and ask the client. We have no Idea who this is.
+    
+            # Play a ping sound and flash the title under certain circumstances
+            if self.private and name != self.lobby.client.login:
+                self.pingWindow()
+            
+            if not self.private and text.find(self.lobby.client.login)!=-1:
+                self.pingWindow()
+                color = self.lobby.client.getColor("tous")
+    
+    
+            # scroll if close to the last line of the log
+            scroll_current = self.chatArea.verticalScrollBar().value()
+            scroll_needed = scroll_forced or ((self.chatArea.verticalScrollBar().maximum() - scroll_current) < 20)
+    
+            cursor = self.chatArea.textCursor()
+            cursor.movePosition(QtGui.QTextCursor.End)
+            self.chatArea.setTextCursor(cursor)                
+            
+            if avatar :
+                pix = util.respix(avatar)
+                if pix:
+                    if not self.chatArea.document().resource(QtGui.QTextDocument.ImageResource, QtCore.QUrl(avatar)):
+                        self.chatArea.document().addResource(QtGui.QTextDocument.ImageResource,  QtCore.QUrl(avatar), pix)                        
+                    formatter = self.FORMATTER_MESSAGE_AVATAR
+                    line = formatter.format(time=self.timestamp(), avatar=avatar, name=displayName, avatarTip=avatarTip, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))                 
+                else :
+                    formatter = self.FORMATTER_MESSAGE
+                    line = formatter.format(time=self.timestamp(), name=displayName, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))        
+    
             else :
                 formatter = self.FORMATTER_MESSAGE
                 line = formatter.format(time=self.timestamp(), name=displayName, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))        
-
-        else :
-            formatter = self.FORMATTER_MESSAGE
-            line = formatter.format(time=self.timestamp(), name=displayName, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))        
-        
-        self.chatArea.insertHtml(line)
-        self.lines = self.lines + 1
-        
-        if scroll_needed:
-            self.chatArea.verticalScrollBar().setValue(self.chatArea.verticalScrollBar().maximum())
-        else:
-            self.chatArea.verticalScrollBar().setValue(scroll_current)
-
+            
+            self.chatArea.insertHtml(line)
+            self.lines = self.lines + 1
+            
+            if scroll_needed:
+                self.chatArea.verticalScrollBar().setValue(self.chatArea.verticalScrollBar().maximum())
+            else:
+                self.chatArea.verticalScrollBar().setValue(scroll_current)
+        except:
+            pass
 
     @QtCore.pyqtSlot(str, str)
     def printAction(self, name, text, scroll_forced=False, server_action=False):        
         '''
         Print an actual message in the chatArea of the channel
         '''
-        text = text.encode('utf-8')
-        
-        if self.lines > CHAT_TEXT_LIMIT :
+        try:
+            if self.lines > CHAT_TEXT_LIMIT :
+                cursor = self.chatArea.textCursor()
+                cursor.movePosition(QtGui.QTextCursor.Start)
+                cursor.movePosition(QtGui.QTextCursor.Down, QtGui.QTextCursor.KeepAnchor, CHAT_REMOVEBLOCK)
+                cursor.removeSelectedText()
+                self.lines = self.lines - CHAT_REMOVEBLOCK        
+            
+            if server_action :
+                color = self.lobby.client.getColor("server")
+            elif name.lower() in self.lobby.specialUserColors:
+                color = self.lobby.specialUserColors[name.lower()]
+            else:
+                color = self.lobby.client.getUserColor(name)
+                
+            # Play a ping sound
+            if self.private and name != self.lobby.client.login:
+                self.pingWindow()
+    
+            displayName = name
+            clan = self.lobby.client.getUserClan(name)
+            if clan != "":
+                displayName = "<b>[%s]</b>%s" % (clan, name)
+    
+            avatar = None
+    
+            if name in self.chatters:
+                chatter = self.chatters[name]                
+                if chatter.avatar :
+                    avatar = chatter.avatar["url"] 
+                    avatarTip = chatter.avatarTip or ""
+                
+            # scroll if close to the last line of the log
+            scroll_current = self.chatArea.verticalScrollBar().value()
+            scroll_needed = scroll_forced or ((self.chatArea.verticalScrollBar().maximum() - scroll_current) < 20)
+            
             cursor = self.chatArea.textCursor()
-            cursor.movePosition(QtGui.QTextCursor.Start)
-            cursor.movePosition(QtGui.QTextCursor.Down, QtGui.QTextCursor.KeepAnchor, CHAT_REMOVEBLOCK)
-            cursor.removeSelectedText()
-            self.lines = self.lines - CHAT_REMOVEBLOCK        
-        
-        if server_action :
-            color = self.lobby.client.getColor("server")
-        elif name.lower() in self.lobby.specialUserColors:
-            color = self.lobby.specialUserColors[name.lower()]
-        else:
-            color = self.lobby.client.getUserColor(name)
-            
-        # Play a ping sound
-        if self.private and name != self.lobby.client.login:
-            self.pingWindow()
-
-        displayName = name
-        clan = self.lobby.client.getUserClan(name)
-        if clan != "":
-            displayName = "<b>[%s]</b>%s" % (clan, name)
-
-        avatar = None
-
-        if name in self.chatters:
-            chatter = self.chatters[name]                
-            if chatter.avatar :
-                avatar = chatter.avatar["url"] 
-                avatarTip = chatter.avatarTip or ""
-            
-        # scroll if close to the last line of the log
-        scroll_current = self.chatArea.verticalScrollBar().value()
-        scroll_needed = scroll_forced or ((self.chatArea.verticalScrollBar().maximum() - scroll_current) < 20)
-        
-        cursor = self.chatArea.textCursor()
-        cursor.movePosition(QtGui.QTextCursor.End)
-        self.chatArea.setTextCursor(cursor)
-
-        if avatar :
-            pix = util.respix(avatar)
-            if pix:            
-                if not self.chatArea.document().resource(QtGui.QTextDocument.ImageResource, QtCore.QUrl(avatar)) :
-                    self.chatArea.document().addResource(QtGui.QTextDocument.ImageResource,  QtCore.QUrl(avatar), pix)
-                formatter = self.FORMATTER_ACTION_AVATAR
-                line = formatter.format(time=self.timestamp(), avatar=avatar, avatarTip=avatarTip, name=displayName, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))
+            cursor.movePosition(QtGui.QTextCursor.End)
+            self.chatArea.setTextCursor(cursor)
+    
+            if avatar :
+                pix = util.respix(avatar)
+                if pix:            
+                    if not self.chatArea.document().resource(QtGui.QTextDocument.ImageResource, QtCore.QUrl(avatar)) :
+                        self.chatArea.document().addResource(QtGui.QTextDocument.ImageResource,  QtCore.QUrl(avatar), pix)
+                    formatter = self.FORMATTER_ACTION_AVATAR
+                    line = formatter.format(time=self.timestamp(), avatar=avatar, avatarTip=avatarTip, name=displayName, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))
+                else:            
+                    formatter = self.FORMATTER_ACTION
+                    line = formatter.format(time=self.timestamp(), name=displayName, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))
             else:            
                 formatter = self.FORMATTER_ACTION
                 line = formatter.format(time=self.timestamp(), name=displayName, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))
-        else:            
-            formatter = self.FORMATTER_ACTION
-            line = formatter.format(time=self.timestamp(), name=displayName, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))
-        
-        self.chatArea.insertHtml(line)
-        self.lines = self.lines + 1
-
-        if scroll_needed:
-            self.chatArea.verticalScrollBar().setValue(self.chatArea.verticalScrollBar().maximum())
-        else:
-            self.chatArea.verticalScrollBar().setValue(scroll_current)
-        
+            
+            self.chatArea.insertHtml(line)
+            self.lines = self.lines + 1
+    
+            if scroll_needed:
+                self.chatArea.verticalScrollBar().setValue(self.chatArea.verticalScrollBar().maximum())
+            else:
+                self.chatArea.verticalScrollBar().setValue(scroll_current)
+        except:
+            pass
+            
         
     @QtCore.pyqtSlot(str, str)
     def printRaw(self, name, text, scroll_forced=False):
         '''
         Print an raw message in the chatArea of the channel
         '''
-        
-        if name in self.lobby.specialUserColors:
-            color = self.lobby.specialUserColors[name]
-        else:
-            color = self.lobby.client.getUserColor(name)
-            
-        # Play a ping sound
-        if self.private and name != self.lobby.client.login:
-            self.pingWindow()
-            
-        # scroll if close to the last line of the log
-        scroll_current = self.chatArea.verticalScrollBar().value()
-        scroll_needed = scroll_forced or ((self.chatArea.verticalScrollBar().maximum() - scroll_current) < 20)
-        
-        cursor = self.chatArea.textCursor()
-        cursor.movePosition(QtGui.QTextCursor.End)
-        self.chatArea.setTextCursor(cursor)
-                            
-        formatter = self.FORMATTER_RAW
-        line = formatter.format(time=self.timestamp(), name=name, color=color, width=self.maxChatterWidth, text=text)
-        self.chatArea.insertHtml(line)
-        
-        if scroll_needed:
-            self.chatArea.verticalScrollBar().setValue(self.chatArea.verticalScrollBar().maximum())
-        else:
-            self.chatArea.verticalScrollBar().setValue(scroll_current)
+        try:
+            if name in self.lobby.specialUserColors:
+                color = self.lobby.specialUserColors[name]
+            else:
+                color = self.lobby.client.getUserColor(name)
                 
+            # Play a ping sound
+            if self.private and name != self.lobby.client.login:
+                self.pingWindow()
+                
+            # scroll if close to the last line of the log
+            scroll_current = self.chatArea.verticalScrollBar().value()
+            scroll_needed = scroll_forced or ((self.chatArea.verticalScrollBar().maximum() - scroll_current) < 20)
+            
+            cursor = self.chatArea.textCursor()
+            cursor.movePosition(QtGui.QTextCursor.End)
+            self.chatArea.setTextCursor(cursor)
+                                
+            formatter = self.FORMATTER_RAW
+            line = formatter.format(time=self.timestamp(), name=name, color=color, width=self.maxChatterWidth, text=text)
+            self.chatArea.insertHtml(line)
+            
+            if scroll_needed:
+                self.chatArea.verticalScrollBar().setValue(self.chatArea.verticalScrollBar().maximum())
+            else:
+                self.chatArea.verticalScrollBar().setValue(scroll_current)
+        except:
+            pass
         
     def timestamp(self):
         '''returns a fresh timestamp string once every minute, and an empty string otherwise'''
