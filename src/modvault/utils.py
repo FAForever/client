@@ -210,26 +210,31 @@ def getActiveMods(uimods=None): # returns a list of ModInfo's containing informa
         True - only return active UI Mods
         False - only return active non-UI Mods
     """
-    if not os.path.exists(PREFSFILENAME):
-        logger.info("No game.prefs file found")
+    active_mods = []
+    try:
+        if not os.path.exists(PREFSFILENAME):
+            logger.info("No game.prefs file found")
+            return []
+        
+        l = luaparser.luaParser(PREFSFILENAME)
+        l.loweringKeys = False
+        modlist = l.parse({"active_mods":"active_mods"},{"active_mods":{}})["active_mods"]
+        if l.error:
+            logger.info("Error in reading the game.prefs file")
+            return []
+        uids = [uid for uid,b in modlist.items() if b == 'true']
+        #logger.debug("Active mods detected: %s" % str(uids))
+        
+        allmods = []
+        for m in installedMods:
+            if ((uimods == True and m.ui_only) or (uimods == False and not m.ui_only) or uimods == None):
+                allmods.append(m)
+        active_mods = [m for m in allmods if m.uid in uids]
+        #logger.debug("Allmods uids: %s\n\nActive mods uids: %s\n" % (", ".join([mod.uid for mod in allmods]), ", ".join([mod.uid for mod in allmods])))
+        return active_mods
+    except:
         return []
     
-    l = luaparser.luaParser(PREFSFILENAME)
-    l.loweringKeys = False
-    modlist = l.parse({"active_mods":"active_mods"},{"active_mods":{}})["active_mods"]
-    if l.error:
-        logger.info("Error in reading the game.prefs file")
-        return []
-    uids = [uid for uid,b in modlist.items() if b == 'true']
-    #logger.debug("Active mods detected: %s" % str(uids))
-    
-    allmods = []
-    for m in installedMods:
-        if ((uimods == True and m.ui_only) or (uimods == False and not m.ui_only) or uimods == None):
-            allmods.append(m)
-    active_mods = [m for m in allmods if m.uid in uids]
-    #logger.debug("Allmods uids: %s\n\nActive mods uids: %s\n" % (", ".join([mod.uid for mod in allmods]), ", ".join([mod.uid for mod in allmods])))
-    return active_mods
 
 def setActiveMods(mods, keepuimods=True): #uimods works the same as in getActiveMods
     """
