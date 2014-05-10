@@ -162,6 +162,10 @@ class ClientWindow(FormClass, BaseClass):
     rankedGameUEF = QtCore.pyqtSignal(bool)
     rankedGameRandom = QtCore.pyqtSignal(bool)
 
+    # for team management
+    teamInfo = QtCore.pyqtSignal(dict)
+    teamInvitation = QtCore.pyqtSignal(dict)
+
     def __init__(self, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
 
@@ -704,6 +708,7 @@ class ClientWindow(FormClass, BaseClass):
         self.actionSetSoundEffects.triggered.connect(self.updateOptions)
         self.actionSetOpenGames.triggered.connect(self.updateOptions)
         self.actionSetJoinsParts.triggered.connect(self.updateOptions)
+        self.actionTeamSetInvitations.triggered.connect(self.updateOptions)
         self.actionSetAutoPostJoin.triggered.connect(self.updateOptions)
         self.actionSetLiveReplays.triggered.connect(self.updateOptions)
         self.actionSaveGamelogs.triggered.connect(self.updateOptions)
@@ -734,6 +739,7 @@ class ClientWindow(FormClass, BaseClass):
         self.soundeffects = self.actionSetSoundEffects.isChecked()
         self.opengames = self.actionSetOpenGames.isChecked()
         self.joinsparts = self.actionSetJoinsParts.isChecked()
+        self.teaminvitations = self.actionTeamSetInvitations.isChecked()
         self.autopostjoin = self.actionSetAutoPostJoin.isChecked()
         self.livereplays = self.actionSetLiveReplays.isChecked()
         self.gamelogs = self.actionSaveGamelogs.isChecked()
@@ -891,6 +897,7 @@ class ClientWindow(FormClass, BaseClass):
         util.settings.setValue("livereplays", self.livereplays)
         util.settings.setValue("opengames", self.opengames)
         util.settings.setValue("joinsparts", self.joinsparts)
+        util.settings.setValue("teaminvitations", self.teaminvitations)
         util.settings.setValue("autopostjoin", self.autopostjoin)
         util.settings.setValue("coloredNicknames", self.coloredNicknames)
         util.settings.endGroup()
@@ -957,6 +964,7 @@ class ClientWindow(FormClass, BaseClass):
             self.livereplays = (util.settings.value("livereplays", "true") == "true")
             self.autopostjoin = (util.settings.value("autopostjoin", "true") == "true")
             self.coloredNicknames = (util.settings.value("coloredNicknames", "false") == "true")
+            self.teaminvitations = (util.settings.value("teaminvitations", "false") == "true")
 
             util.settings.endGroup()
             self.actionColoredNicknames.setChecked(self.coloredNicknames)
@@ -964,6 +972,7 @@ class ClientWindow(FormClass, BaseClass):
             self.actionSetLiveReplays.setChecked(self.livereplays)
             self.actionSetOpenGames.setChecked(self.opengames)
             self.actionSetJoinsParts.setChecked(self.joinsparts)
+            self.actionTeamSetInvitations.setChecked(self.teamInvitations)
             self.actionSetAutoPostJoin.setChecked(self.autopostjoin)
         except:
             pass
@@ -1601,6 +1610,10 @@ class ClientWindow(FormClass, BaseClass):
         '''Close lobby remotly'''
         self.send(dict(command="admin", action="closelobby", user=userToClose))
 
+    def invite(self, player):
+        ''' Send an invitation to be part of my team'''
+        self.send(dict(command="social", teaminvite=player))
+
     def addFriend(self, friend):
         '''Adding a new friend by user'''
         self.friends.append(friend)
@@ -1963,6 +1976,12 @@ class ClientWindow(FormClass, BaseClass):
 
         elif "player_avatar_list" in message :
             self.playerAvatarList.emit(message)
+
+    def handle_team_info(self, message):
+        self.teamInfo.emit(message)
+
+    def handle_team(self, message):
+        self.teamInvitation.emit(message)
 
     def handle_social(self, message):
         if "friends" in message:

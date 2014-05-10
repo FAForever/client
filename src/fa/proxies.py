@@ -83,11 +83,11 @@ class proxies(QtCore.QObject):
         self.testedPortsAmount = {}
         self.testedPorts = []
         self.testedLoopbackAmount = {}
-        self.testedLoopback = []        
+        self.testedLoopback = []
     
     def setUid(self, uid):
         self.uid = uid
-    
+
     def connectedProxy(self):
         ''' Setting the socket option correctly'''
         # we want the low delay for performance.
@@ -100,10 +100,13 @@ class proxies(QtCore.QObject):
             self.__logger.info("Connected to proxy server " + self.proxySocket.peerName() + ":" + str(self.proxySocket.peerPort()))
         
         self.canClose = False
+        self.testedPorts = []
+        self.testedLoopback = []
         self.sendUid()
             
     def bindSocket(self, port, uid):
         self.proxiesDestination[port] = uid
+        self.__logger.debug("Binding socket "+ str(port) +" (local port : "+ str(self.proxies[port].localPort()) +") for uid "+ str(uid))
         if not self.proxySocket.state() == QtNetwork.QAbstractSocket.ConnectedState :
             self.connectToProxy()
         return self.proxies[port].localPort()
@@ -127,6 +130,10 @@ class proxies(QtCore.QObject):
                 self.client.stopTesting(success=True)
                 self.testing = False
         else:
+            if not port in self.testedPorts:
+                self.testedPorts.append(port)
+                self.__logger.debug("Received data from proxy on port %i" % self.proxies[port].localPort())
+
             self.proxies[port].writeDatagram(packet, QtNetwork.QHostAddress.LocalHost, self.client.gamePort)
 
     def readData(self):
@@ -165,7 +172,7 @@ class proxies(QtCore.QObject):
 
     def sendUid(self, *args, **kwargs) :
         if self.uid:
-            self.__logger.warn("sending our uid to the server")
+            self.__logger.warn("sending our uid (%i) to the server" % self.uid)
             reply = QtCore.QByteArray()
             stream = QtCore.QDataStream(reply, QtCore.QIODevice.WriteOnly)
             stream.setVersion(QtCore.QDataStream.Qt_4_2)
@@ -224,10 +231,15 @@ class proxies(QtCore.QObject):
                 
             else:
                 if self.proxiesDestination[i] != None:
+                    if not i in self.testedLoopback:
+                        self.testedLoopback.append(i)
+                        self.__logger.debug("Received data from FA on port %i" % self.proxies[i].localPort())
                     self.sendReply(i, self.proxiesDestination[i], QtCore.QByteArray(datagram))
 
     def disconnectedFromProxy(self):
         '''Disconnection'''
+        self.testedPorts = []
+        self.testedLoopback = []        
         self.__logger.info("disconnected from proxy server")
         if self.canClose == False:
             self.__logger.info("reconnecting to proxy server")

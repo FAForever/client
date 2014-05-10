@@ -314,8 +314,10 @@
      <addaction name="actionSetJoinsParts"/>
      <addaction name="actionSetOpenGames"/>
      <addaction name="actionSetLiveReplays"/>
+     <addaction name="actionTeamSetInvitations"/>
      <addaction name="actionSetSoundEffects"/>
      <addaction name="actionSetAutoPostJoin"/>
+     <addaction name="separator"/>
     </widget>
     <widget class="QMenu" name="menuNotifications">
      <property name="title">
@@ -606,6 +608,17 @@
   <action name="actionNsSettings">
    <property name="text">
     <string>Settings</string>
+   </property>
+  </action>
+  <action name="actionTeamSetInvitations">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Team Invitations</string>
    </property>
   </action>
  </widget>

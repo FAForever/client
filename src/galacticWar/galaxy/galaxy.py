@@ -222,6 +222,10 @@ class Galaxy(object):
     def updateDefenses(self, uid, message):
         if uid in self.control_points :
             self.control_points[uid].updateDefenses(message)
+
+    def updateDepot(self, uid, message):
+        if uid in self.control_points :
+            self.control_points[uid].updateDepot(message)
         
     def removeDefenses(self, uid):
         if uid in self.control_points :
@@ -326,7 +330,6 @@ class Galaxy(object):
          
         return points
 
-
     def getConnected(self, siteIdx):
         ''' This return all the sites that are linked to the one provided'''
         connections = []
@@ -340,16 +343,44 @@ class Galaxy(object):
                     connections.append(otherSite)
         return connections
 
-    def computeDistance(self, siteIdx, otherSiteIdx, numConn = 0, previous=[]):
-        '''compute the number of links between two planets'''
+    def getPlanetsLinked(self, siteIdx, distance=3, numConn = 0, previous=[]):
+        if numConn == 0:
+            previous = []
+        else:
+            if not siteIdx in previous:
+                previous.append(siteIdx)
+
         numConn = numConn+1 
+        if numConn == distance:
+            return previous
+        
+        for idx in self.getConnected(siteIdx) :
+            if not idx in previous:
+                self.getPlanetsLinked(idx, distance, numConn, previous) 
+        
+        return previous
+
+    def computeDistance(self, siteIdx, otherSiteIdx, maxConn = 5, numConn = 0, previous=[]):
+        '''compute the number of links between two planets'''
+        if numConn == 0:
+            previous = []
+        numConn = numConn+1 
+        if numConn == maxConn:
+            return -1
         previous.append(siteIdx)
+        
+
         for idx in self.getConnected(siteIdx) :
             if otherSiteIdx == idx:
-                return numConn 
+                return numConn
             else:
                 if not idx in previous:
-                    return self.computeDistance(idx, otherSiteIdx, numConn, previous)
+                    result = self.computeDistance(idx, otherSiteIdx, maxConn, numConn, previous) 
+                    if result != -1:
+                        return result
+        return -1
+
+        
               
                 
     def isLooping(self, siteIdx):

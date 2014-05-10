@@ -112,6 +112,8 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.parent.attacksUpdated.connect(self.planetsUnderAttack)
         self.parent.planetUpdated.connect(self.planetUpdate)
 
+        self.parent.depotUpdated.connect(self.depotUpdate)
+
         fa.exe.instance.started.connect(self.startedFA)
         fa.exe.instance.finished.connect(self.finishedFA)
         
@@ -207,7 +209,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         
         self.programSwirl.setAttributeValue(self.programSwirl.attributeLocation("rotation_plane"), self.yRot * 10)
         
-        
+        self.programDepot.setAttributeValue(11, -self.yRot)
         
         if update :
             self.update()
@@ -234,6 +236,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.starTex2Id         = self.bindTexture(QtGui.QPixmap(os.path.join(GW_TEXTURE_DIR,'star.png')), GL.GL_TEXTURE_2D)        
         self.selectionId        = self.bindTexture(QtGui.QPixmap(os.path.join(GW_TEXTURE_DIR,'star.png')), GL.GL_TEXTURE_2D)
         self.attackId           = self.bindTexture(QtGui.QPixmap(os.path.join(GW_TEXTURE_DIR,'attack.png')), GL.GL_TEXTURE_2D)
+        self.depotTexId         = self.bindTexture(QtGui.QPixmap(os.path.join(GW_TEXTURE_DIR,'depot.png')), GL.GL_TEXTURE_2D)
 
 
         
@@ -283,6 +286,19 @@ class GLWidget(QtOpenGL.QGLWidget):
             logger.error("Cannot link background shader : %s " % self.programBackground.log())
         else :
             logger.info("background shader linked.")       
+
+        self.programDepot = QtOpenGL.QGLShaderProgram(self) 
+        if not self.programDepot.addShaderFromSourceCode(QtOpenGL.QGLShader.Vertex, self.parent.shaders["planet"]["vertex"]) :
+            logger.error("Cannot compile depot vertex shader : %s " % self.programDepot.log())
+        if not self.programDepot.addShaderFromSourceCode(QtOpenGL.QGLShader.Fragment, self.parent.shaders["swirl"]["fragment"]) :
+            logger.error("Cannot compile depot fragment shader : %s " % self.programDepot.log())
+        self.programDepot.bindAttributeLocation('camPos', 10)
+        self.programDepot.bindAttributeLocation('rotation', 11) 
+
+        if not self.programDepot.link() :
+            logger.error("Cannot link depot shader : %s " % self.programDepot.log())
+        else :
+            logger.info("depot shader linked.")  
         
         
         self.programPlanet = QtOpenGL.QGLShaderProgram(self) 
@@ -345,6 +361,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.selection  = self.createPlanetOverlay()
         self.galaxyBackground = self.drawGalaxy()
         self.underAttack      = self.planetsUnderAttack()
+        self.depots           = self.depotUpdate()
         self.galaxyStarsFront      = self.drawStars(0)
         self.galaxyStarsBack      = self.drawStars(1)
         
@@ -452,12 +469,14 @@ class GLWidget(QtOpenGL.QGLWidget):
                 ordered[pos.y()] = [self.galaxy.control_points[uid]]
             else :
                 ordered[pos.y()].append(self.galaxy.control_points[uid])
-            
+        material_Kd = (0.8, 0.8, 0.8, 1.0)
         for key in sorted(ordered.iterkeys(), reverse=True):
             for point in ordered[key] : 
                 pos = point.pos3d
                 scale = point.size
                 self.programPlanet.bind()
+                
+                GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, material_Kd)                
                 GL.glBindTexture(GL.GL_TEXTURE_2D, point.texture)
                 self.programPlanet.setUniformValue('texture', 0)         
                 self.programPlanet.setUniformValue('scaling', scale, scale, scale)
@@ -529,6 +548,48 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.underAttack = genList 
         return genList 
     
+    def depotUpdate(self):
+        if not hasattr(self, "depots"):
+            return
+
+        if self.depots :
+            GL.glDeleteLists(self.depots, 1)
+
+        genList = GL.glGenLists(1)
+        GL.glNewList(genList, GL.GL_COMPILE)
+        GL.glMatrixMode(GL.GL_MODELVIEW)        
+        
+        ordered = {}
+        for uid in self.galaxy.control_points :
+            if self.galaxy.control_points[uid].hasDepot():
+                point = self.galaxy.control_points[uid]
+                if not point.isVisible(): continue            
+                pos = point.pos3d
+
+
+                if not pos.y() in ordered :
+                    ordered[pos.y()] = [self.galaxy.control_points[uid]]
+                else :
+                    ordered[pos.y()].append(self.galaxy.control_points[uid])
+            
+        for key in sorted(ordered.iterkeys(), reverse=True):
+
+            for point in ordered[key] : 
+                pos = point.pos3d
+                scale = point.size * 3
+                self.programDepot.bind()
+                GL.glBindTexture(GL.GL_TEXTURE_2D, self.depotTexId)
+                GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (1,0,0, 1))
+                self.programDepot.setUniformValue('texture', 0)         
+                self.programDepot.setUniformValue('scaling', scale, scale, scale)
+                self.programDepot.setUniformValue('pos', pos.x(), pos.y(), 5.0)          
+                GL.glCallList(self.object)                
+                self.programDepot.release()
+
+        GL.glEndList()
+        self.depots = genList 
+        return genList
+
     def createAttackVector(self):
         
         if self.attackVectorGl :
@@ -684,8 +745,12 @@ class GLWidget(QtOpenGL.QGLWidget):
 
         GL.glCallList(self.galaxyStarsBack)
 
+
         GL.glCallLists(self.zones.values())            
         GL.glCallList(self.planets)
+
+        if self.depots:
+            GL.glCallList(self.depots)
 
 
         if self.curZone :      
@@ -699,7 +764,6 @@ class GLWidget(QtOpenGL.QGLWidget):
      
         if self.attackVectorGl :
             GL.glCallList(self.attackVectorGl)
-
 
         GL.glCallList(self.galaxyStarsFront)
 
@@ -1424,13 +1488,12 @@ class GLWidget(QtOpenGL.QGLWidget):
         
 
         material_Ka = (0.5, 0.5, 0.5, 1.0)
-        material_Kd = (0.8, 0.8, 0.8, 1.0)
         material_Ks = (0.3, 0.3, 0.3, 1.0)
         material_Ke = (0.1, 0.0, 0.0, 1.0)
         material_Se = 20.0        
         
         GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_AMBIENT, material_Ka)
-        GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, material_Kd)
+        
         GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_SPECULAR, material_Ks)
         GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_EMISSION, material_Ke)
         GL.glMaterialf(GL.GL_FRONT_AND_BACK, GL.GL_SHININESS, material_Se)      

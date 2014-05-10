@@ -375,11 +375,16 @@ class Chatter(QtGui.QTableWidgetItem):
         menu.addSeparator()
         menu.addAction(actionReplay)
         menu.addAction(actionVaultReplay)
-        menu.addAction(actionJoin)
         menu.addSeparator()
-            
-
+        menu.addAction(actionJoin)
         
+            
+        # Actions for teams
+        actionInviteToTeam = QtGui.QAction("Invite to Team", menu)
+        actionInviteToTeam.triggered.connect(self.invite)
+        menu.addAction(actionInviteToTeam)
+        menu.addSeparator()
+
         # Actions for the Friends List
         actionAddFriend = QtGui.QAction("Add friend", menu)
         actionRemFriend = QtGui.QAction("Remove friend", menu)
@@ -412,6 +417,7 @@ class Chatter(QtGui.QTableWidgetItem):
             actionRemFoe.setDisabled(1)
                                       
         # Triggers
+        
         actionAddFriend.triggered.connect(self.addFriend)
         actionRemFriend.triggered.connect(self.remFriend)
         actionAddFoe.triggered.connect(self.addFoe)
@@ -459,4 +465,5 @@ class Chatter(QtGui.QTableWidgetItem):
     
     @QtCore.pyqtSlot()
     def invite(self):
-        QtGui.QMessageBox.information(None, "Under Construction", "Sorry, this feature is undergoing changes right now. <br/><b>It'll be available soon.</b>")
+        self.lobby.client.invite(self.name)
+

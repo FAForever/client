@@ -62,7 +62,7 @@
       <item row="0" column="1">
        <widget class="QCheckBox" name="nsEnabled">
         <property name="text">
-         <string>Enable Notifiaction System</string>
+         <string>Enable Notification System</string>
         </property>
        </widget>
       </item>

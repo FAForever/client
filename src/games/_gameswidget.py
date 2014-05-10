@@ -78,6 +78,8 @@ class GamesWidget(FormClass, BaseClass):
         self.ispassworded = False
         self.canChooseMap = True
 
+        self.teamInvitations = {}
+
         self.client.modInfo.connect(self.processModInfo)
         self.client.gameInfo.connect(self.processGameInfo)
 
@@ -88,6 +90,10 @@ class GamesWidget(FormClass, BaseClass):
         self.client.rankedGameRandom.connect(self.togglingRandom)
 
 
+        self.client.teamInvitation.connect(self.handleInvitations)
+        self.client.teamInfo.connect(self.handleTeamInfo)
+
+
         self.client.gameEnter.connect(self.stopSearchRanked)
         self.client.viewingReplay.connect(self.stopSearchRanked)
 
@@ -96,8 +102,12 @@ class GamesWidget(FormClass, BaseClass):
 
         self.modList.itemDoubleClicked.connect(self.hostGameClicked)
 
-        try:
-            self.mapSelectButton.clicked.connect(self.mapSelectClicked)
+        self.mapSelectButton.clicked.connect(self.mapSelectClicked)
+
+        try:            
+            self.teamInvitationsListWidget.itemDoubleClicked.connect(self.teamInvitationClicked)
+            self.leaveTeamButton.clicked.connect(self.quitTeam)    
+            self.leaveTeamButton.setVisible(False)
         except:
             QtGui.QMessageBox.warning(None, "Skin outdated.", "The theme you are using is outdated. Please remove it or the lobby will malfunction.")
 
@@ -108,6 +118,56 @@ class GamesWidget(FormClass, BaseClass):
         self.options = []
 
 
+    def handleTeamInfo(self, message):
+        ''' handling team informations '''
+        self.teamManagerListWidget.clear()
+
+        if len(message["members"]) > 0:
+            # cleaning invitations
+            self.teamInvitationsListWidget.clear()
+            self.leaveTeamButton.setVisible(True)
+
+        else:
+            self.leaveTeamButton.setVisible(False)
+
+        for member in message["members"]:
+            self.teamManagerListWidget.addItem(member)
+
+
+    def handleInvitations(self, message):
+        action  = message["action"]
+        who     = message["who"]
+        ''' handling team invitations '''     
+        if action == "teaminvitationremove":
+            if not who in self.teaminvitations:
+                return
+            
+            self.teamInvitationsListWidget.removeItemWidget(self.teaminvitations[who])
+            del self.teaminvitations[who]
+
+        elif action == "teaminvitation":
+            if who in self.teamInvitations:
+                return
+
+            if self.client.teaminvitations :
+                self.client.forwardLocalBroadcast(who, "is inviting you to join his team.")
+
+            self.client.notificationSystem.on_event(ns.NotificationSystem.TEAM_INVITE, "%s is inviting you to join his team." % who)
+
+            item = QtGui.QListWidgetItem(who)
+            
+            self.teamInvitations[who] = item
+            self.teamInvitationsListWidget.addItem(self.teamInvitations[who])
+
+    def quitTeam(self):
+        ''' leave a team '''
+        self.client.send(dict(command="quit_team"))
+
+    def teamInvitationClicked(self, item):
+        ''' invitation acceptation '''
+        who = item.text()
+        self.client.send(dict(command="accept_team_proposal", leader=who))
+
 
     def connectRankedToggles(self):
         self.rankedAeon.toggled.connect(self.toggleAeon)
@@ -115,7 +175,6 @@ class GamesWidget(FormClass, BaseClass):
         self.rankedSeraphim.toggled.connect(self.toggleSeraphim)
         self.rankedUEF.toggled.connect(self.toggleUEF)
         self.rankedRandom.toggled.connect(self.toggleRandom)
-
 
 
     def disconnectRankedToggles(self):

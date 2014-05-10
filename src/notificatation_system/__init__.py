@@ -11,6 +11,7 @@ from notificatation_system.ns_settings import NsSettingsDialog
 class NotificationSystem():
     USER_ONLINE = 'user_online'
     NEW_GAME = 'new_game'
+    TEAM_INVITE = 'team_invite'
 
     def __init__(self, client):
         self.client = client

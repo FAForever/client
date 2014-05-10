@@ -741,8 +741,27 @@ class Site(object):
         self.maxplayer = maxplayer
         self.defenses = {}
 
+        self.depot = False
+        self.money = 0
+        self.influence = 0
+        self.reinforcement = 0
+
     def isVisible(self):
         return self.display
+
+
+    def hasDepot(self):
+        return self.depot
+
+    def updateDepot(self, message):
+        ''' update the depot status of the planet'''
+        self.depot = True
+        self.influence = message["influence"]
+        self.money = message["money"]
+        self.reinforcement = message["reinforcement"]
+
+    def removeDepot(self):
+        self.depot = False
 
     def removeDefenses(self):
         '''remove this planet defenses list'''
@@ -763,7 +782,7 @@ class Site(object):
             self.defenses[itemuid] = defense(itemuid, self)
         
         self.defenses[itemuid].update(amount, description, structure)
-        
+    
     def getDefenses(self):
         return self.defenses
 

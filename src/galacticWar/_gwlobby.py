@@ -49,6 +49,7 @@ class LobbyWidget(FormClass, BaseClass):
     creditsUpdated                  = QtCore.pyqtSignal(int)
     victoriesUpdated                = QtCore.pyqtSignal(int)
     attacksUpdated                  = QtCore.pyqtSignal()
+    depotUpdated                    = QtCore.pyqtSignal()
     planetUpdated                   = QtCore.pyqtSignal(int)
     attackProposalUpdated           = QtCore.pyqtSignal(int)
     ReinforcementUpdated            = QtCore.pyqtSignal(dict)
@@ -275,7 +276,7 @@ class LobbyWidget(FormClass, BaseClass):
         self.info_Panel.layout().addWidget(self.infoPanel)
 
         self.send(dict(command = "init_done", status=True))
-        self.infoPanel.setup()
+        self.infoPanel.setup()    
         
     def get_rank(self, faction, rank):
         return RANKS[faction][rank]
@@ -439,6 +440,13 @@ class LobbyWidget(FormClass, BaseClass):
         '''handling removing defenses for a planet'''
         planetuid = message["planetuid"]
         self.galaxy.removeDefenses(planetuid)
+
+    def handle_planet_depot_info(self, message):
+        '''handling depots'''
+        planetuid = message["planetuid"]
+        self.galaxy.updateDepot(planetuid, message)
+        self.depotUpdated.emit()
+
             
     def handle_planet_defense_info(self, message):
         '''handling defenses for planets'''

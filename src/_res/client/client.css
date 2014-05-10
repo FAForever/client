@@ -417,12 +417,12 @@ QScrollBar::sub-page
 }
 
 
-QLabel#labelJoinGame,#labelHostGame,#labelAutomatch,#labelMyReplays,#labelLiveReplays,#labelHostTournament,#labelJoinTournament,#joinLabel
+QLabel#labelJoinGame,#labelHostGame,#labelAutomatch,#labelMyReplays,#labelLiveReplays,#labelHostTournament,#labelJoinTournament,#joinLabel,#labelTeamManagement
 {
 	color:white;
 }
 
-QLabel#labelModHint,#labelMyHint,#labelLiveHint,#labelRankedHint
+QLabel#labelModHint,#labelMyHint,#labelLiveHint,#labelRankedHint,#labelTeamManagementHint,#labelTeamManagementHint2
 {
 	color:#AAAAAA;
 }
