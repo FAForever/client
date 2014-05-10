@@ -89,6 +89,9 @@ class SecondaryServer(QtCore.QObject):
     def send(self, command, *args, **kwargs):
         ''' actually do the settings'''
                   
+        if self.serverSocket.state() == QtNetwork.QAbstractSocket.ConnectedState:
+            logger.info("A request is pending. Cancelling command")
+            return
         
         self.result = self.RESULT_NONE
         self.command = None

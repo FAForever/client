@@ -78,14 +78,14 @@ class TournamentsWidget(FormClass, BaseClass):
                 QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
             if reply == QtGui.QMessageBox.Yes:
                 self.tourneyServer.send(dict(command="add_participant", uid=item.uid, login=self.client.login))
-                self.updateTournaments()
+
         else :
             reply = QtGui.QMessageBox.question(self.client, "Register",
                 "Do you want to leave this tournament ?",
                 QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
             if reply == QtGui.QMessageBox.Yes:   
                 self.tourneyServer.send(dict(command="remove_participant", uid=item.uid, login=self.client.login)) 
-                self.updateTournaments()       
+    
                 
     def handle_tournaments_info(self, message):
         #self.tourneyList.clear()
