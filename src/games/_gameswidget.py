@@ -328,7 +328,7 @@ class GamesWidget(FormClass, BaseClass):
 
     def startSearchingTeamMatchmaker(self, players):
 
-        self.client.send(dict(command="game_matchmaking", mod="matchmaker", state="askingtostart", players=players, port=self.client.gamePort)))
+        self.client.send(dict(command="game_matchmaking", mod="matchmaker", state="askingtostart", players=players, port=self.client.gamePort))
 
 
     def stopSearchingTeamMatchmaker(self):
