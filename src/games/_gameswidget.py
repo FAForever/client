@@ -153,9 +153,18 @@ class GamesWidget(FormClass, BaseClass):
     def handleMatchmakerInfo(self, message):
         action = message["action"]
         if action == "startSearching":
+            if (not fa.exe.check("matchmaker")):
+                logger.error("Can't play ranked without successfully updating Forged Alliance.")
+                return            
+
+            self.client.send(dict(command="game_matchmaking", mod="matchmaker", state="port", port=self.client.gamePort))
+
+            if self.client.useUPnP:
+                fa.upnp.createPortMapping(self.client.localIP, self.client.gamePort, "UDP")
+
             numplayers = message["players"]
 
-            self.disconnectTeamFactionToggles()
+            self.disconnectTeamSearchToggles()
             for numplayer in self.teamSearchButton:
                 if numplayer != numplayers:
                     self.teamSearchButton[numplayer].setChecked(False)
@@ -220,6 +229,7 @@ class GamesWidget(FormClass, BaseClass):
     def teamInvitationClicked(self, item):
         ''' invitation acceptation '''
         who = item.text()
+        self.client.send(dict(command="game_matchmaking", mod="matchmaker", state="port", port=self.client.gamePort))
         self.client.send(dict(command="accept_team_proposal", leader=who))
 
 
@@ -317,7 +327,8 @@ class GamesWidget(FormClass, BaseClass):
 
 
     def startSearchingTeamMatchmaker(self, players):
-        self.client.send(dict(command="game_matchmaking", mod="matchmaker", state="askingtostart", players=players))
+
+        self.client.send(dict(command="game_matchmaking", mod="matchmaker", state="askingtostart", players=players, port=self.client.gamePort)))
 
 
     def stopSearchingTeamMatchmaker(self):
@@ -443,7 +454,7 @@ class GamesWidget(FormClass, BaseClass):
             self.teamSeraphim.setChecked(False)
             self.teamRandom.setChecked(False)
             self.connectTeamFactionToggles()
-            self.client.send(dict(command="game_matchmaking", state="faction", factionchosen=1))
+            self.client.send(dict(command="game_matchmaking", mod="matchmaker", state="faction", factionchosen=1))
 
     @QtCore.pyqtSlot(bool)
     def toggleTeamAeon(self, state):
@@ -454,7 +465,7 @@ class GamesWidget(FormClass, BaseClass):
             self.teamUEF.setChecked(False)
             self.teamRandom.setChecked(False)
             self.connectTeamFactionToggles()
-            self.client.send(dict(command="game_matchmaking", state="faction", factionchosen=2))
+            self.client.send(dict(command="game_matchmaking", mod="matchmaker", state="faction", factionchosen=2))
 
 
 
@@ -467,7 +478,7 @@ class GamesWidget(FormClass, BaseClass):
             self.teamUEF.setChecked(False)
             self.teamRandom.setChecked(False)
             self.connectTeamFactionToggles()
-            self.client.send(dict(command="game_matchmaking", state="faction", factionchosen=3))
+            self.client.send(dict(command="game_matchmaking", mod="matchmaker", state="faction", factionchosen=3))
 
 
     @QtCore.pyqtSlot(bool)
@@ -479,7 +490,7 @@ class GamesWidget(FormClass, BaseClass):
             self.teamUEF.setChecked(False)
             self.teamRandom.setChecked(False)
             self.connectTeamFactionToggles()
-            self.client.send(dict(command="game_matchmaking", state="faction", factionchosen=4))
+            self.client.send(dict(command="game_matchmaking", mod="matchmaker", state="faction", factionchosen=4))
 
     @QtCore.pyqtSlot(bool)
     def toggleTeamRandom(self, state):
@@ -490,7 +501,7 @@ class GamesWidget(FormClass, BaseClass):
             self.teamSeraphim.setChecked(False)
             self.teamUEF.setChecked(False)
             self.connectTeamFactionToggles()
-            self.client.send(dict(command="game_matchmaking", state="faction", factionchosen=random.randint(1,4)))
+            self.client.send(dict(command="game_matchmaking", mod="matchmaker", state="faction", factionchosen=random.randint(1,4)))
 
     # TEAM MATCHMAKER
     @QtCore.pyqtSlot(bool)
