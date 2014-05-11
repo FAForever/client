@@ -542,10 +542,13 @@ def preview(mapname, pixmap = False, force=False):
                 return util.icon(img, False, pixmap)
     
         # Try to find in local map folder    
-        img = __exportPreviewFromMap(mapname)["cache"]
-        if img and os.path.isfile(img):
-            logger.debug("Using fresh preview image for: " + mapname)
-            return util.icon(img, False, pixmap)
+        img = __exportPreviewFromMap(mapname)
+       
+        if img :
+            img = __exportPreviewFromMap(mapname)["cache"]
+            if img and os.path.isfile(img):
+                logger.debug("Using fresh preview image for: " + mapname)
+                return util.icon(img, False, pixmap)
         
         return None
     except:
