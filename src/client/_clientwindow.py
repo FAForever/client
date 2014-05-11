@@ -166,6 +166,8 @@ class ClientWindow(FormClass, BaseClass):
     teamInfo = QtCore.pyqtSignal(dict)
     teamInvitation = QtCore.pyqtSignal(dict)
 
+    matchmakerInfo = QtCore.pyqtSignal(dict)
+
     def __init__(self, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
 
@@ -1960,7 +1962,10 @@ class ClientWindow(FormClass, BaseClass):
         self.ladderMapsList.emit(message)
 
     def handle_matchmaker_info(self, message):
-        if "potential" in message:
+        if "action" in message:
+            self.matchmakerInfo.emit(message)
+
+        elif "potential" in message:
             if message["potential"] :
                 self.warningShow()
             else:

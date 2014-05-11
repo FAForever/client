@@ -44,6 +44,8 @@ SEARCH_RADIUS_MAX = 0.25
 
 FormClass, BaseClass = util.loadUiType("games/games.ui")
 
+import functools
+
 
 class GamesWidget(FormClass, BaseClass):
     def __init__(self, client, *args, **kwargs):
@@ -65,7 +67,6 @@ class GamesWidget(FormClass, BaseClass):
         self.rankedUEF.setIcon(util.icon("games/automatch/uef.png"))
         self.rankedRandom.setIcon(util.icon("games/automatch/random.png"))
 
-
         self.connectRankedToggles()
         self.rankedTimer = QtCore.QTimer()
         self.rankedTimer.timeout.connect(self.expandSearchRanked)
@@ -77,6 +78,37 @@ class GamesWidget(FormClass, BaseClass):
         self.race = None
         self.ispassworded = False
         self.canChooseMap = True
+
+        # Team search UI
+        self.teamAeon.setIcon(util.icon("games/automatch/aeon.png"))
+        self.teamCybran.setIcon(util.icon("games/automatch/cybran.png"))
+        self.teamSeraphim.setIcon(util.icon("games/automatch/seraphim.png"))
+        self.teamUEF.setIcon(util.icon("games/automatch/uef.png"))
+        self.teamRandom.setIcon(util.icon("games/automatch/random.png"))
+
+        self.teamRandom.setChecked(True)
+
+        self.connectTeamFactionToggles()
+
+        self.teamSearchButton={}
+        self.teamSearchButton[2] = self.players2
+        self.teamSearchButton[3] = self.players3
+        self.teamSearchButton[4] = self.players4
+        self.teamSearchButton[5] = self.players5
+        self.teamSearchButton[6] = self.players6
+
+        self.teamSearchFnc = {}
+
+        self.connectTeamSearchToggles()
+
+        self.teamTimer = QtCore.QTimer()
+        self.teamTimer.timeout.connect(self.expandSearchTeamRanked)
+        self.teamSearchProgress.hide()
+
+        self.client.matchmakerInfo.connect(self.handleMatchmakerInfo)
+
+        # Team search state variables
+        self.teamSearching = False
 
         self.teamInvitations = {}
 
@@ -116,6 +148,28 @@ class GamesWidget(FormClass, BaseClass):
         self.loadGameMap()
         self.loadPassword()
         self.options = []
+
+
+    def handleMatchmakerInfo(self, message):
+        action = message["action"]
+        if action == "startSearching":
+            numplayers = message["players"]
+
+            self.disconnectTeamFactionToggles()
+            for numplayer in self.teamSearchButton:
+                if numplayer != numplayers:
+                    self.teamSearchButton[numplayer].setChecked(False)
+                else:
+                    self.teamSearchButton[numplayer].setChecked(True)
+            self.connectTeamSearchToggles()
+
+            self.teamSearching = True
+            self.teamSearchProgress.show()
+        
+        elif action == "stopSearching":
+            self.teamSearching = False
+            self.teamSearchProgress.hide()
+
 
 
     def handleTeamInfo(self, message):
@@ -168,6 +222,31 @@ class GamesWidget(FormClass, BaseClass):
         who = item.text()
         self.client.send(dict(command="accept_team_proposal", leader=who))
 
+
+    def connectTeamFactionToggles(self):
+        self.teamAeon.toggled.connect(self.togglingTeamAeon)
+        self.teamCybran.toggled.connect(self.togglingTeamCybran)
+        self.teamSeraphim.toggled.connect(self.togglingTeamSeraphim)
+        self.teamUEF.toggled.connect(self.togglingTeamUEF)
+        self.teamRandom.toggled.connect(self.togglingTeamRandom)        
+
+    def disconnectTeamFactionToggles(self):
+        self.teamAeon.toggled.disconnect(self.togglingTeamAeon)
+        self.teamCybran.toggled.disconnect(self.togglingTeamCybran)
+        self.teamSeraphim.toggled.disconnect(self.togglingTeamSeraphim)
+        self.teamUEF.toggled.disconnect(self.togglingTeamUEF)
+        self.teamRandom.toggled.disconnect(self.togglingTeamRandom) 
+
+
+    def connectTeamSearchToggles(self):
+        for numplayers in self.teamSearchButton:
+            self.teamSearchFnc[numplayers] = functools.partial(self.togglingTeams, numplayers)
+            self.teamSearchButton[numplayers].toggled.connect(self.teamSearchFnc[numplayers])
+       
+
+    def disconnectTeamSearchToggles(self):
+        for numplayers in self.teamSearchButton:
+            self.teamSearchButton[numplayers].toggled.disconnect(self.teamSearchFnc[numplayers])
 
     def connectRankedToggles(self):
         self.rankedAeon.toggled.connect(self.toggleAeon)
@@ -237,9 +316,29 @@ class GamesWidget(FormClass, BaseClass):
             return
 
 
+    def startSearchingTeamMatchmaker(self, players):
+        self.client.send(dict(command="game_matchmaking", mod="matchmaker", state="askingtostart", players=players))
+
+
+    def stopSearchingTeamMatchmaker(self):
+        self.client.send(dict(command="game_matchmaking", mod="matchmaker", state="askingtostop"))
+        #self.stopSearchRanked()
+
+        # if (fa.exe.running()):
+        #     QtGui.QMessageBox.information(None, "ForgedAlliance.exe", "FA is already running.")          
+        #     self.stopSearchingTeamMatchmaker()
+        #     return        
+
+        # if (not fa.exe.check("teammatchmaker")):
+        #     self.stopSearchingTeamMatchmaker()
+        #     logger.error("Can't play matchmaker without successfully updating Forged Alliance.")
+        #     return
+
+
 
 
     def startSearchRanked(self, race):
+        self.stopSearchingTeamMatchmaker()
         if (fa.exe.running()):
             QtGui.QMessageBox.information(None, "ForgedAlliance.exe", "FA is already running.")
             self.stopSearchRanked()
@@ -271,12 +370,25 @@ class GamesWidget(FormClass, BaseClass):
 
 
     @QtCore.pyqtSlot()
+    def expandSearchTeamRanked(self):
+        self.radius += SEARCH_RADIUS_INCREMENT
+        if self.radius >= SEARCH_RADIUS_MAX:
+            self.radius = SEARCH_RADIUS_MAX;
+            logger.debug("Search Team Cap reached at " + str(self.radius))
+            self.rankedTimer.stop()
+        else:
+            logger.debug("Expanding teamsearch to " + str(self.radius))
+
+        #self.client.send(dict(command="game_matchmaking", mod="ladder1v1", state="expand", rate=self.radius))
+
+
+    @QtCore.pyqtSlot()
     def expandSearchRanked(self):
         self.radius += SEARCH_RADIUS_INCREMENT
         if self.radius >= SEARCH_RADIUS_MAX:
             self.radius = SEARCH_RADIUS_MAX;
             logger.debug("Search Cap reached at " + str(self.radius))
-            self.rankedTimer.stop()
+            self.teamTimer.stop()
         else:
             logger.debug("Expanding search to " + str(self.radius))
 
@@ -301,6 +413,101 @@ class GamesWidget(FormClass, BaseClass):
         self.rankedUEF.setChecked(False)
         self.connectRankedToggles()
 
+    @QtCore.pyqtSlot(bool)
+    def togglingTeamAeon(self, state):
+        self.toggleTeamAeon(1)
+
+    @QtCore.pyqtSlot(bool)
+    def togglingTeamCybran(self, state):
+        self.toggleTeamCybran(1)
+
+
+    @QtCore.pyqtSlot(bool)
+    def togglingTeamSeraphim(self, state):
+        self.toggleTeamSeraphim(1)
+
+    @QtCore.pyqtSlot(bool)
+    def togglingTeamRandom(self, state):
+        self.toggleTeamRandom(1)
+
+    @QtCore.pyqtSlot(bool)
+    def togglingTeamUEF(self, state):
+        self.toggleTeamUEF(1)
+
+    @QtCore.pyqtSlot(bool)
+    def toggleTeamUEF(self, state):
+        if (state):
+            self.disconnectTeamFactionToggles()
+            self.teamAeon.setChecked(False)
+            self.teamCybran.setChecked(False)
+            self.teamSeraphim.setChecked(False)
+            self.teamRandom.setChecked(False)
+            self.connectTeamFactionToggles()
+            self.client.send(dict(command="game_matchmaking", state="faction", factionchosen=1))
+
+    @QtCore.pyqtSlot(bool)
+    def toggleTeamAeon(self, state):
+        if (state):
+            self.disconnectTeamFactionToggles()
+            self.teamCybran.setChecked(False)
+            self.teamSeraphim.setChecked(False)
+            self.teamUEF.setChecked(False)
+            self.teamRandom.setChecked(False)
+            self.connectTeamFactionToggles()
+            self.client.send(dict(command="game_matchmaking", state="faction", factionchosen=2))
+
+
+
+    @QtCore.pyqtSlot(bool)
+    def toggleTeamCybran(self, state):
+        if (state):
+            self.disconnectTeamFactionToggles()
+            self.teamAeon.setChecked(False)
+            self.teamSeraphim.setChecked(False)
+            self.teamUEF.setChecked(False)
+            self.teamRandom.setChecked(False)
+            self.connectTeamFactionToggles()
+            self.client.send(dict(command="game_matchmaking", state="faction", factionchosen=3))
+
+
+    @QtCore.pyqtSlot(bool)
+    def toggleTeamSeraphim(self, state):
+        if (state):
+            self.disconnectTeamFactionToggles()
+            self.teamAeon.setChecked(False)
+            self.teamCybran.setChecked(False)
+            self.teamUEF.setChecked(False)
+            self.teamRandom.setChecked(False)
+            self.connectTeamFactionToggles()
+            self.client.send(dict(command="game_matchmaking", state="faction", factionchosen=4))
+
+    @QtCore.pyqtSlot(bool)
+    def toggleTeamRandom(self, state):
+        if (state):
+            self.disconnectTeamFactionToggles()
+            self.teamAeon.setChecked(False)
+            self.teamCybran.setChecked(False)
+            self.teamSeraphim.setChecked(False)
+            self.teamUEF.setChecked(False)
+            self.connectTeamFactionToggles()
+            self.client.send(dict(command="game_matchmaking", state="faction", factionchosen=random.randint(1,4)))
+
+    # TEAM MATCHMAKER
+    @QtCore.pyqtSlot(bool)
+    def togglingTeams(self, numplayers, state):
+        if (state):
+            self.startSearchingTeamMatchmaker(numplayers)
+            self.disconnectTeamSearchToggles()
+            for numplayer in self.teamSearchButton:
+                if numplayer != numplayers:
+                    self.teamSearchButton[numplayer].setChecked(False)
+            self.connectTeamSearchToggles()
+            
+        else:
+            self.stopSearchingTeamMatchmaker()
+                                             
+
+    # RANKED
 
     @QtCore.pyqtSlot(bool)
     def togglingAeon(self, state):
@@ -336,6 +543,7 @@ class GamesWidget(FormClass, BaseClass):
             self.rankedAeon.setChecked(False)
             self.rankedCybran.setChecked(False)
             self.rankedSeraphim.setChecked(False)
+            self.rankedRandom.setChecked(False)
             self.connectRankedToggles()
         else:
             self.stopSearchRanked()
@@ -348,6 +556,7 @@ class GamesWidget(FormClass, BaseClass):
             self.rankedCybran.setChecked(False)
             self.rankedSeraphim.setChecked(False)
             self.rankedUEF.setChecked(False)
+            self.rankedRandom.setChecked(False)
             self.connectRankedToggles()
         else:
             self.stopSearchRanked()
@@ -361,6 +570,7 @@ class GamesWidget(FormClass, BaseClass):
             self.rankedAeon.setChecked(False)
             self.rankedSeraphim.setChecked(False)
             self.rankedUEF.setChecked(False)
+            self.rankedRandom.setChecked(False)
             self.connectRankedToggles()
         else:
             self.stopSearchRanked()
@@ -374,6 +584,7 @@ class GamesWidget(FormClass, BaseClass):
             self.rankedAeon.setChecked(False)
             self.rankedCybran.setChecked(False)
             self.rankedUEF.setChecked(False)
+            self.rankedRandom.setChecked(False)
             self.connectRankedToggles()
         else:
             self.stopSearchRanked()
