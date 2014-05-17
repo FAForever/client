@@ -136,6 +136,8 @@ class GamesWidget(FormClass, BaseClass):
 
         self.mapSelectButton.clicked.connect(self.mapSelectClicked)
 
+        self.TeamMapSelectButton.setVisible(False)
+
         try:            
             self.teamInvitationsListWidget.itemDoubleClicked.connect(self.teamInvitationClicked)
             self.leaveTeamButton.clicked.connect(self.quitTeam)    

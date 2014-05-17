@@ -35,6 +35,7 @@ import notificatation_system as ns
 IRC_PORT = 8167
 IRC_SERVER = "direct.faforever.com"
 POLLING_INTERVAL = 300   # milliseconds between irc polls
+PONG_INTERVAL = 100000   # milliseconds between pongs
 
 
 FormClass, BaseClass = util.loadUiType("chat/chat.ui")
@@ -100,7 +101,11 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self.poll)
 
+        # disconnection checks
         self.canDisconnect = False
+        self.heartbeatTimer = QtCore.QTimer(self)
+        self.heartbeatTimer.timeout.connect(self.serverTimeout)
+        self.timeout = 0        
 
     def addChannels(self, channels):
         ''' add channel available to join '''
@@ -128,6 +133,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             self.irc_connect(self.ircServer, self.ircPort, self.client.login, ssl=True)
 
             self.timer.start()
+            self.heartbeatTimer.start(PONG_INTERVAL)
 
         except:
             logger.debug("Unable to connect to IRC server.")
@@ -464,8 +470,13 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             self.serverLogArea.appendPlainText("%s: %s" % (source, notice))
 
 
+    def serverTimeout(self):
+        self.irc_disconnect()
+        
+
     def on_disconnect(self, c, e):
         if not self.canDisconnect:
+            logger.warn("IRC disconnected - reconnecting.")
             self.identified = False
             self.timer.stop()
             self.connect()
@@ -498,4 +509,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
         if "Nickname is already in use." in "\n".join(e.arguments()) :
             self.connection.nick(self.client.login + "_")
+
+    def on_ping(self, c,e):
+        self.heartbeatTimer.start(PONG_INTERVAL)
 

@@ -132,7 +132,7 @@ class proxies(QtCore.QObject):
         else:
             if not port in self.testedPorts:
                 self.testedPorts.append(port)
-                self.__logger.debug("Received data from proxy on port %i" % self.proxies[port].localPort())
+                self.__logger.debug("Received data from proxy on port %i, forwarding to FA" % self.proxies[port].localPort())
 
             self.proxies[port].writeDatagram(packet, QtNetwork.QHostAddress.LocalHost, self.client.gamePort)
 
@@ -230,11 +230,15 @@ class proxies(QtCore.QObject):
                 self.sendReply(i, 1, QtCore.QByteArray(datagram))
                 
             else:
+                if not i in self.testedLoopback:
+                    self.__logger.debug("Received data from FA on port %i" % self.proxies[i].localPort())
                 if self.proxiesDestination[i] != None:
                     if not i in self.testedLoopback:
                         self.testedLoopback.append(i)
-                        self.__logger.debug("Received data from FA on port %i" % self.proxies[i].localPort())
+                        self.__logger.debug("Forwarding packet to proxy.")
                     self.sendReply(i, self.proxiesDestination[i], QtCore.QByteArray(datagram))
+                else:
+                    self.__logger.warn("Unknown destination for forwarding.")
 
     def disconnectedFromProxy(self):
         '''Disconnection'''

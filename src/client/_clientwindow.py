@@ -33,6 +33,8 @@ from client import logger, ClientState, MUMBLE_URL, WEBSITE_URL, WIKI_URL, \
     FORUMS_URL, UNITDB_URL, SUPPORT_URL, TICKET_URL, GAME_PORT_DEFAULT, LOBBY_HOST, \
     LOBBY_PORT, LOCAL_REPLAY_PORT, STEAMLINK_URL
 
+HEARTBEAT = 20000
+
 import util
 import fa
 import secondaryServer
@@ -202,6 +204,13 @@ class ClientWindow(FormClass, BaseClass):
 
         self.state = ClientState.NONE
         self.session = None
+
+        #Timer for checking connection
+        self.heartbeatTimer = QtCore.QTimer(self)
+        self.heartbeatTimer.timeout.connect(self.serverTimeout)
+        self.timeout = 0
+
+        
 
         #Timer for resize events
         self.resizeTimer = QtCore.QTimer(self)
@@ -1090,8 +1099,53 @@ class ClientWindow(FormClass, BaseClass):
                 logger.error("doConnect() failed with clientstate " + str(self.state) + ", socket errorstring: " + self.socket.errorString())
             return False
         else:
-
             return True
+
+    def reconnect(self):
+        ''' try to reconnect to the server'''
+       
+        self.socket.disconnected.disconnect(self.disconnectedFromServer)
+        self.socket.disconnectFromHost()
+        self.socket.disconnected.connect(self.disconnectedFromServer)
+
+        self.progress.setCancelButtonText("Cancel")
+        self.progress.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
+        self.progress.setAutoClose(False)
+        self.progress.setAutoReset(False)
+        self.progress.setModal(1)
+        self.progress.setWindowTitle("Re-connecting...")
+        self.progress.setLabelText("Re-establishing connection ...")
+        self.progress.show()
+
+
+        # Begin connecting.
+        self.socket.setSocketOption(QtNetwork.QTcpSocket.KeepAliveOption, 1)
+        self.socket.connectToHost(LOBBY_HOST, LOBBY_PORT)
+
+
+
+        while (self.socket.state() != QtNetwork.QAbstractSocket.ConnectedState) and self.progress.isVisible():
+            QtGui.QApplication.processEvents()
+
+        self.state = ClientState.NONE
+        self.localIP = str(self.socket.localAddress().toString())
+
+
+#        #Perform Version Check first
+        if not self.socket.state() == QtNetwork.QAbstractSocket.ConnectedState:
+
+            self.progress.close() # in case it was still showing...
+            # We either cancelled or had a TCP error, meaning the connection failed..
+            if self.progress.wasCanceled():
+                logger.warn("doConnect() aborted by user.")
+            else:
+                logger.error("doConnect() failed with clientstate " + str(self.state) + ", socket errorstring: " + self.socket.errorString())
+            return False
+        else:
+            self.send(dict(command="hello", version=util.VERSION, login=self.login, password=self.password, unique_id=self.uniqueId, local_ip=self.localIP, session=self.session))
+            #self.send(dict(command="ask_session"))    
+            return True
+
 
 
 
@@ -1186,6 +1240,9 @@ class ClientWindow(FormClass, BaseClass):
 
             self.progress.close()
             #This is a triumph... I'm making a note here: Huge success!
+            logger.debug("Starting heartbeat timer")
+            self.heartbeatTimer.start(HEARTBEAT)
+            self.timeout = 0            
             self.connected.emit()
             return True
         elif self.state == ClientState.REJECTED:
@@ -1521,9 +1578,23 @@ class ClientWindow(FormClass, BaseClass):
         self.socket.write(block)
 
 
+    def serverTimeout(self):
+        if self.timeout == 0:
+            logger.info("Connection timeout - Checking if server is alive.")
+            self.writeToServer("PING")
+            self.timeout = self.timeout + 1
+        else:
+            self.heartbeatTimer.stop()
+            self.socket.abort()
+            #logger.info("Connection lost - Trying to reconnect.")
+            #if not self.reconnect():
+                #logger.error("Unable to reconnect to the server.")
+                
 
     @QtCore.pyqtSlot()
     def readFromServer(self):
+        self.heartbeatTimer.start(HEARTBEAT)
+        self.timeout = 0
         ins = QtCore.QDataStream(self.socket)
         ins.setVersion(QtCore.QDataStream.Qt_4_2)
 
@@ -1547,6 +1618,8 @@ class ClientWindow(FormClass, BaseClass):
         if self.state == ClientState.ACCEPTED:
             QtGui.QMessageBox.warning(QtGui.QApplication.activeWindow(), "Disconnected from FAF", "The lobby lost the connection to the FAF server.<br/><b>You might still be able to chat.<br/>To play, try reconnecting a little later!</b>", QtGui.QMessageBox.Close)
 
+            # stop hearbeat
+            self.heartbeatTimer.stop()
             #Clear the online users lists
             oldplayers = self.players.keys()
             self.players = {}
@@ -1557,7 +1630,7 @@ class ClientWindow(FormClass, BaseClass):
 
             self.mainTabs.setCurrentIndex(0)
 
-            for i in range(1, self.mainTabs.count()):
+            for i in range(2, self.mainTabs.count()):
                 self.mainTabs.setTabEnabled(i, False)
                 self.mainTabs.setTabText(i, "offline")
 
@@ -1570,6 +1643,7 @@ class ClientWindow(FormClass, BaseClass):
         logger.error("TCP Socket Error: " + self.socket.errorString())
         if self.state > ClientState.NONE:   # Positive client states deserve user notification.
             QtGui.QMessageBox.critical(None, "TCP Error", "A TCP Connection Error has occurred:<br/><br/><b>" + self.socket.errorString() + "</b>", QtGui.QMessageBox.Close)
+            self.progress.cancel()
 
 
 
@@ -1702,7 +1776,8 @@ class ClientWindow(FormClass, BaseClass):
     def dispatch(self, message):
         '''
         A fairly pythonic way to process received strings as JSON messages.
-        '''
+        '''     
+
         # add a delay to the notification system
         if 'channels' in message:
             self.notificationSystem.disabledStartup = False
