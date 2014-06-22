@@ -380,10 +380,10 @@ class Chatter(QtGui.QTableWidgetItem):
         
             
         # Actions for teams
-        actionInviteToTeam = QtGui.QAction("Invite to Team", menu)
-        actionInviteToTeam.triggered.connect(self.invite)
-        menu.addAction(actionInviteToTeam)
-        menu.addSeparator()
+        # actionInviteToTeam = QtGui.QAction("Invite to Team", menu)
+        # actionInviteToTeam.triggered.connect(self.invite)
+        # menu.addAction(actionInviteToTeam)
+        # menu.addSeparator()
 
         # Actions for the Friends List
         actionAddFriend = QtGui.QAction("Add friend", menu)

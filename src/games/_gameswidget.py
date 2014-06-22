@@ -79,38 +79,40 @@ class GamesWidget(FormClass, BaseClass):
         self.ispassworded = False
         self.canChooseMap = True
 
+
+        self.teamFrame.setVisible(False)
         # Team search UI
-        self.teamAeon.setIcon(util.icon("games/automatch/aeon.png"))
-        self.teamCybran.setIcon(util.icon("games/automatch/cybran.png"))
-        self.teamSeraphim.setIcon(util.icon("games/automatch/seraphim.png"))
-        self.teamUEF.setIcon(util.icon("games/automatch/uef.png"))
-        self.teamRandom.setIcon(util.icon("games/automatch/random.png"))
+        # self.teamAeon.setIcon(util.icon("games/automatch/aeon.png"))
+        # self.teamCybran.setIcon(util.icon("games/automatch/cybran.png"))
+        # self.teamSeraphim.setIcon(util.icon("games/automatch/seraphim.png"))
+        # self.teamUEF.setIcon(util.icon("games/automatch/uef.png"))
+        # self.teamRandom.setIcon(util.icon("games/automatch/random.png"))
 
-        self.teamRandom.setChecked(True)
+        #self.teamRandom.setChecked(True)
 
-        self.connectTeamFactionToggles()
+        # self.connectTeamFactionToggles()
 
-        self.teamSearchButton={}
-        self.teamSearchButton[2] = self.players2
-        self.teamSearchButton[3] = self.players3
-        self.teamSearchButton[4] = self.players4
-        self.teamSearchButton[5] = self.players5
-        self.teamSearchButton[6] = self.players6
+        # self.teamSearchButton={}
+        # self.teamSearchButton[2] = self.players2
+        # self.teamSearchButton[3] = self.players3
+        # self.teamSearchButton[4] = self.players4
+        # self.teamSearchButton[5] = self.players5
+        # self.teamSearchButton[6] = self.players6
 
-        self.teamSearchFnc = {}
+        # self.teamSearchFnc = {}
 
-        self.connectTeamSearchToggles()
+        # self.connectTeamSearchToggles()
 
-        self.teamTimer = QtCore.QTimer()
-        self.teamTimer.timeout.connect(self.expandSearchTeamRanked)
-        self.teamSearchProgress.hide()
+        # self.teamTimer = QtCore.QTimer()
+        # self.teamTimer.timeout.connect(self.expandSearchTeamRanked)
+        # self.teamSearchProgress.hide()
 
-        self.client.matchmakerInfo.connect(self.handleMatchmakerInfo)
+        # self.client.matchmakerInfo.connect(self.handleMatchmakerInfo)
 
-        # Team search state variables
-        self.teamSearching = False
+        # # Team search state variables
+        # self.teamSearching = False
 
-        self.teamInvitations = {}
+        # self.teamInvitations = {}
 
         self.client.modInfo.connect(self.processModInfo)
         self.client.gameInfo.connect(self.processGameInfo)
@@ -136,14 +138,14 @@ class GamesWidget(FormClass, BaseClass):
 
         self.mapSelectButton.clicked.connect(self.mapSelectClicked)
 
-        self.TeamMapSelectButton.setVisible(False)
+        #self.TeamMapSelectButton.setVisible(False)
 
-        try:            
-            self.teamInvitationsListWidget.itemDoubleClicked.connect(self.teamInvitationClicked)
-            self.leaveTeamButton.clicked.connect(self.quitTeam)    
-            self.leaveTeamButton.setVisible(False)
-        except:
-            QtGui.QMessageBox.warning(None, "Skin outdated.", "The theme you are using is outdated. Please remove it or the lobby will malfunction.")
+        # try:            
+        #     self.teamInvitationsListWidget.itemDoubleClicked.connect(self.teamInvitationClicked)
+        #     self.leaveTeamButton.clicked.connect(self.quitTeam)    
+        #     self.leaveTeamButton.setVisible(False)
+        # except:
+        #     QtGui.QMessageBox.warning(None, "Skin outdated.", "The theme you are using is outdated. Please remove it or the lobby will malfunction.")
 
         #Load game name from settings (yay, it's persistent!)
         self.loadGameName()

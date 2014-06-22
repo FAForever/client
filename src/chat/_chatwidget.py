@@ -103,9 +103,9 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
         # disconnection checks
         self.canDisconnect = False
-        self.heartbeatTimer = QtCore.QTimer(self)
-        self.heartbeatTimer.timeout.connect(self.serverTimeout)
-        self.timeout = 0        
+        # self.heartbeatTimer = QtCore.QTimer(self)
+        # self.heartbeatTimer.timeout.connect(self.serverTimeout)
+        # self.timeout = 0        
 
     def addChannels(self, channels):
         ''' add channel available to join '''
@@ -131,9 +131,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         #Do the actual connecting, join all important channels
         try:
             self.irc_connect(self.ircServer, self.ircPort, self.client.login, ssl=True)
-
             self.timer.start()
-            self.heartbeatTimer.start(PONG_INTERVAL)
 
         except:
             logger.debug("Unable to connect to IRC server.")
@@ -157,10 +155,10 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
                     self.channels[channel].chatters[player].avatarItem.setIcon(QtGui.QIcon(util.respix(reply.url().toString())))
                     self.channels[channel].chatters[player].avatarItem.setToolTip(self.channels[channel].chatters[player].avatarTip)
 
-            if self.client.GalacticWar.channel != None :
-                if player in self.client.GalacticWar.channel.chatters :
-                    self.client.GalacticWar.channel.chatters[player].avatarItem.setIcon(QtGui.QIcon(util.respix(reply.url().toString())))
-                    self.client.GalacticWar.channel.chatters[player].avatarItem.setToolTip(self.client.GalacticWar.channel.chatters[player].avatarTip)
+            # if self.client.GalacticWar.channel != None :
+            #     if player in self.client.GalacticWar.channel.chatters :
+            #         self.client.GalacticWar.channel.chatters[player].avatarItem.setIcon(QtGui.QIcon(util.respix(reply.url().toString())))
+            #         self.client.GalacticWar.channel.chatters[player].avatarItem.setToolTip(self.client.GalacticWar.channel.chatters[player].avatarTip)
 
 
     def closeChannel(self, index):
@@ -310,8 +308,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             self.channels[channel].addChatter(user)
 
 
-            if self.client.GalacticWar.channel and channel == self.client.GalacticWar.channel.name :
-                self.client.GalacticWar.channel.addChatter(user)
+            # if self.client.GalacticWar.channel and channel == self.client.GalacticWar.channel.name :
+            #     self.client.GalacticWar.channel.addChatter(user)
 
             QtGui.QApplication.processEvents()      #Added by thygrrr to improve application responsiveness on large IRC packets
 
@@ -338,11 +336,11 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
                 self.channels[channel].printAnnouncement("", "black", "+1")
 
             else:
-                if channel.lower() == "#uef" or channel.lower() == "#aeon" or channel.lower() == "#cybran" or channel.lower() == "#seraphim" :
-                    self.client.GalacticWar.createChannel(self, channel)
-                    self.client.GalacticWar.network_Chat.layout().addWidget(self.client.GalacticWar.channel)
-                    self.client.GalacticWar.channel.addChatter(user2name(e.source()), True)
-                    self.client.GalacticWar.channel.resizing()
+            #     if channel.lower() == "#uef" or channel.lower() == "#aeon" or channel.lower() == "#cybran" or channel.lower() == "#seraphim" :
+            #         self.client.GalacticWar.createChannel(self, channel)
+            #         self.client.GalacticWar.network_Chat.layout().addWidget(self.client.GalacticWar.channel)
+            #         self.client.GalacticWar.channel.addChatter(user2name(e.source()), True)
+            #         self.client.GalacticWar.channel.resizing()
 
                 self.addTab(self.channels[channel], channel)
 
@@ -423,8 +421,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
         if target in self.channels:
             self.channels[target].printMsg(user2name(e.source()), "\n".join(e.arguments()))
-        if self.client.GalacticWar.channel and target == self.client.GalacticWar.channel.name :
-            self.client.GalacticWar.channel.printMsg(user2name(e.source()), "\n".join(e.arguments()))
+        # if self.client.GalacticWar.channel and target == self.client.GalacticWar.channel.name :
+        #     self.client.GalacticWar.channel.printMsg(user2name(e.source()), "\n".join(e.arguments()))
 
     def on_privnotice(self, c, e):
         source = user2name(e.source())
@@ -471,7 +469,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
 
     def serverTimeout(self):
-        self.irc_disconnect()
+        pass
         
 
     def on_disconnect(self, c, e):
@@ -510,6 +508,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         if "Nickname is already in use." in "\n".join(e.arguments()) :
             self.connection.nick(self.client.login + "_")
 
-    def on_ping(self, c,e):
-        self.heartbeatTimer.start(PONG_INTERVAL)
+    # def on_ping(self, c,e):
+    #     self.timeout = 0
+    #     self.heartbeatTimer.start(PONG_INTERVAL)
 

@@ -206,9 +206,9 @@ class ClientWindow(FormClass, BaseClass):
         self.session = None
 
         #Timer for checking connection
-        self.heartbeatTimer = QtCore.QTimer(self)
-        self.heartbeatTimer.timeout.connect(self.serverTimeout)
-        self.timeout = 0
+        #self.heartbeatTimer = QtCore.QTimer(self)
+        #self.heartbeatTimer.timeout.connect(self.serverTimeout)
+        #self.timeout = 0
 
         
 
@@ -326,7 +326,7 @@ class ClientWindow(FormClass, BaseClass):
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.gamesTab), util.icon("client/games.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.coopTab), util.icon("client/coop.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.vaultsTab), util.icon("client/mods.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.galacticwarTab), util.icon("client/gw.png"))
+        #self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.galacticwarTab), util.icon("client/gw.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.ladderTab), util.icon("client/ladder.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.tourneyTab), util.icon("client/tourney.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.livestreamTab), util.icon("client/twitch.png"))
@@ -497,7 +497,7 @@ class ClientWindow(FormClass, BaseClass):
         import games
         import tutorials
         import featuredmods
-        import galacticWar
+        #import galacticWar
         import downloadManager
         import modvault
         import coop
@@ -517,7 +517,7 @@ class ClientWindow(FormClass, BaseClass):
         self.modvault = modvault.ModVault(self)
         self.replays = replays.Replays(self)
         self.tutorials = tutorials.Tutorials(self)
-        self.GalacticWar = galacticWar.Lobby(self)
+        #self.GalacticWar = galacticWar.Lobby(self)
         self.Coop = coop.Coop(self)
         self.notificationSystem = ns.NotificationSystem(self)
 
@@ -1240,9 +1240,9 @@ class ClientWindow(FormClass, BaseClass):
 
             self.progress.close()
             #This is a triumph... I'm making a note here: Huge success!
-            logger.debug("Starting heartbeat timer")
-            self.heartbeatTimer.start(HEARTBEAT)
-            self.timeout = 0            
+            #logger.debug("Starting heartbeat timer")
+            #self.heartbeatTimer.start(HEARTBEAT)
+            #self.timeout = 0            
             self.connected.emit()
             return True
         elif self.state == ClientState.REJECTED:
@@ -1453,8 +1453,8 @@ class ClientWindow(FormClass, BaseClass):
         if new_tab is self.tourneyTab:
             self.showTourneys.emit()
 
-        if new_tab is self.galacticwarTab:
-            self.showGalaxyWar.emit()
+        # if new_tab is self.galacticwarTab:
+        #     self.showGalaxyWar.emit()
 
         if new_tab is self.coopTab:
             self.showCoop.emit()
@@ -1584,7 +1584,7 @@ class ClientWindow(FormClass, BaseClass):
             self.writeToServer("PING")
             self.timeout = self.timeout + 1
         else:
-            self.heartbeatTimer.stop()
+            #self.heartbeatTimer.stop()
             self.socket.abort()
             #logger.info("Connection lost - Trying to reconnect.")
             #if not self.reconnect():
@@ -1593,8 +1593,8 @@ class ClientWindow(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def readFromServer(self):
-        self.heartbeatTimer.start(HEARTBEAT)
-        self.timeout = 0
+        #self.heartbeatTimer.start(HEARTBEAT)
+        #self.timeout = 0
         ins = QtCore.QDataStream(self.socket)
         ins.setVersion(QtCore.QDataStream.Qt_4_2)
 
@@ -1619,7 +1619,7 @@ class ClientWindow(FormClass, BaseClass):
             QtGui.QMessageBox.warning(QtGui.QApplication.activeWindow(), "Disconnected from FAF", "The lobby lost the connection to the FAF server.<br/><b>You might still be able to chat.<br/>To play, try reconnecting a little later!</b>", QtGui.QMessageBox.Close)
 
             # stop hearbeat
-            self.heartbeatTimer.stop()
+            #self.heartbeatTimer.stop()
             #Clear the online users lists
             oldplayers = self.players.keys()
             self.players = {}
