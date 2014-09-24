@@ -611,22 +611,6 @@ def md5(fileName):
         
     return m.hexdigest()
 
-
-def uniqueID(user, session ):
-    ''' This is used to uniquely identify a user's machine to prevent smurfing. '''
-    try:
-        mydll = cdll.LoadLibrary("uid.dll")
-        mydll.uid.restype = c_char_p
-        baseString = (mydll.uid(session, os.path.join(LOG_DIR, "uid.log")) )
-        DllCanUnloadNow()
-
-        return baseString
-
-    except:
-        logger.error("UniqueID Failure", exc_info = sys.exc_info())
-        return None
-        
-
 import datetime
 _dateDummy = datetime.datetime(2013,5,27)
 
