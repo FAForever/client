@@ -104,8 +104,6 @@ class Channel(FormClass, BaseClass):
             self.nickFilter.textChanged.connect(self.filterNicks)
             
             self.lobby.client.usersUpdated.connect(self.updateChatters)
-            self.updateChannels()
-            self.channelsComboBox.currentIndexChanged.connect(self.joinChannel)
         else:
             self.nickFrame.hide()
             self.announceLine.hide()
@@ -123,13 +121,7 @@ class Channel(FormClass, BaseClass):
         channel = self.channelsComboBox.itemText(index)
         if channel.startswith('#'):
             self.lobby.autoJoin([channel])
-        
-    def updateChannels(self):
-        ''' add channel available to join '''
-        
-        self.channelsComboBox.clear()
-        self.channelsComboBox.insertItems(1,[""] + sorted(self.lobby.channelsAvailable))
-        
+
     def keyReleaseEvent(self, keyevent):
         '''
         Allow the ctrl-C event.
@@ -559,9 +551,11 @@ class Channel(FormClass, BaseClass):
                 continue
                 
             # System commands        
-            if text[0] == "/":
-                if text.startswith(("/topic ")):
-                    self.lobby.setTopic(self.name,text[7:])
+            if text.startswith("/"):
+                if text.startswith(("/join ")):
+                    self.lobby.join(text[6:])
+                elif text.startswith(("/topic ")):
+                    self.lobby.setTopic(self.name, text[7:])
                 elif text.startswith(("/me ")):
                     if self.lobby.sendAction(target, text[4:]):
                         self.printAction(self.lobby.client.login, text[4:], True)
