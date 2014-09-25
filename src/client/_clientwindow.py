@@ -830,8 +830,6 @@ class ClientWindow(FormClass, BaseClass):
     @QtCore.pyqtSlot()
     def linkReportBug(self):
         QtGui.QDesktopServices.openUrl(QtCore.QUrl(TICKET_URL))
-        #from util.report import ReportDialog
-        #ReportDialog(self).show()
 
     @QtCore.pyqtSlot()
     def linkTechSupport(self):
@@ -1160,8 +1158,7 @@ class ClientWindow(FormClass, BaseClass):
             # live streams
             self.LivestreamWebView.setUrl(QtCore.QUrl("http://www.faforever.com/?page_id=974"))
 
-            util.report.BUGREPORT_USER = self.login
-            util.crash.CRASHREPORT_USER = self.login
+            util.crash.CRASH_REPORT_USER = self.login
 
             if self.useUPnP:
                 fa.upnp.createPortMapping(self.localIP, self.gamePort, "UDP")
