@@ -187,7 +187,6 @@ class ClientWindow(FormClass, BaseClass):
         self.socket.error.connect(self.socketError)
         self.blockSize = 0
 
-        self.uniqueId = None
         self.udpTest = False
         try:
             self.profile = playerstats.Statpage(self)
@@ -1144,7 +1143,7 @@ class ClientWindow(FormClass, BaseClass):
                 logger.error("doConnect() failed with clientstate " + str(self.state) + ", socket errorstring: " + self.socket.errorString())
             return False
         else:
-            self.send(dict(command="hello", version=util.VERSION, login=self.login, password=self.password, unique_id=self.uniqueId, local_ip=self.localIP, session=self.session))
+            self.send(dict(command="hello", version=util.VERSION, login=self.login, password=self.password, local_ip=self.localIP, session=self.session))
             #self.send(dict(command="ask_session"))    
             return True
 
