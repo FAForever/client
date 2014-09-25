@@ -95,7 +95,7 @@ class CrashDialog(QtGui.QDialog):
         dialog.layout().addWidget(self.sendButton)
 
         label = QtGui.QLabel()
-        label.setText("<b></b><br/><i>(please note that the error may be fatal won't work in that case)</i>")
+        label.setText("<b></b><br/><i>(please note that the error may be fatal, proceed at your own risk)</i>")
         label.setWordWrap(False)
         dialog.layout().addWidget(label)
 

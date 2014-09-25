@@ -17,14 +17,11 @@
 #-------------------------------------------------------------------------------
 
 
-
-
-
-'''
+"""
 Created on Dec 1, 2011
 
 @author: thygrrr
-'''
+"""
 
 # CRUCIAL: This must remain on top.
 import sip
@@ -37,32 +34,23 @@ sip.setapi('QProcess', 2)
 import sys
 from PyQt4 import QtGui
 
-
-
-#Set up a robust logging system
-
+# Set up a robust logging system
 import util
-
 util.startLogging()
 
-
-
-
+# Set up crash reporting
 excepthook_original = sys.excepthook
-def excepthook(excType, excValue, tracebackobj): 
-    '''
+
+
+def excepthook(exc_type, exc_value, traceback_object):
+    """
     This exception hook will stop the app if an uncaught error occurred, regardless where in the QApplication.
-    '''
-    logger.error("Uncaught exception", exc_info=(excType, excValue, tracebackobj))
-    dialog = util.CrashDialog((excType, excValue, tracebackobj))
+    """
+    logger.error("Uncaught exception", exc_info=(exc_type, exc_value, traceback_object))
+    dialog = util.CrashDialog((exc_type, exc_value, traceback_object))
     answer = dialog.exec_()
-        
-    if (answer == QtGui.QDialog.Rejected):
-        # Shut it down as nicely as possible.
-        sys.excepthook = excepthook_original
-        QtGui.QApplication.closeAllWindows()
-        util.stopLogging()
-        QtGui.QApplication.quit()
+
+    if answer == QtGui.QDialog.Rejected:
         sys.exit(1)
 
 
@@ -99,13 +87,14 @@ if __name__ == '__main__':
     import logging
     logger = logging.getLogger("faf.main")
     logger.propagate = True
- 
+
     #init application framework    
     logger.info(">>> --------------------------- Application Launch")    
     app = QtGui.QApplication(sys.argv)
     app.setWindowIcon(util.icon("window_icon.png", True))
     #Set application icon to nicely stack in the system task bar    
-    import ctypes    
+
+    import ctypes
     if getattr(ctypes.windll.shell32, "SetCurrentProcessExplicitAppUserModelID", None) is not None: 
         myappid = 'com.faforever.lobby'
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
@@ -115,10 +104,10 @@ if __name__ == '__main__':
         sys.path += ['.'] 
         runFAF()
     else:  
-        #Try to interpret the argument as a replay.
+        # Try to interpret the argument as a replay.
         if sys.argv[1].lower().endswith(".fafreplay") or sys.argv[1].lower().endswith(".scfareplay"):
             import fa
-            fa.exe.replay(sys.argv[1], True) #Launch as detached process
+            fa.exe.replay(sys.argv[1], True)  # Launch as detached process
 
     #End of show
     app.closeAllWindows()    
@@ -128,6 +117,3 @@ if __name__ == '__main__':
     logger.info("<<< --------------------------- Application Shutdown")    
     util.stopLogging()
 
-
-    
-    
