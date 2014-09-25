@@ -33,6 +33,8 @@ from client import logger, ClientState, MUMBLE_URL, WEBSITE_URL, WIKI_URL, \
     FORUMS_URL, UNITDB_URL, SUPPORT_URL, TICKET_URL, GAME_PORT_DEFAULT, LOBBY_HOST, \
     LOBBY_PORT, LOCAL_REPLAY_PORT, STEAMLINK_URL
 
+import struct
+
 HEARTBEAT = 20000
 
 import util
@@ -1150,21 +1152,6 @@ class ClientWindow(FormClass, BaseClass):
 
     def waitSession(self):
         self.progress.setLabelText("Setting up Session...")
-        self.send(dict(command="ask_session"))
-        start = time.time()
-        while self.session == None and self.progress.isVisible() :
-            QtGui.QApplication.processEvents()
-            if time.time() - start > 15 :
-                break
-
-
-        if not self.session :
-            if self.progress.wasCanceled():
-                logger.warn("waitSession() aborted by user.")
-            else :
-                logger.error("waitSession() failed with clientstate " + str(self.state) + ", socket errorstring: " + self.socket.errorString())
-                QtGui.QMessageBox.critical(self, "Notice from Server", "Unable to get a session : <br> Server under maintenance.<br><br>Please retry in some minutes.")
-            return False
 
         self.loadSettings()
 
@@ -1175,7 +1162,35 @@ class ClientWindow(FormClass, BaseClass):
             self.progress.setLabelText("Setting up Mumble...")
             import mumbleconnector
             self.mumbleConnector = mumbleconnector.MumbleConnector(self)
+
         return True
+        # self.send(dict(command="ask_session"))
+        # start = time.time()
+        # while self.session == None and self.progress.isVisible() :
+        #     QtGui.QApplication.processEvents()
+        #     if time.time() - start > 15 :
+        #         break
+        #
+        #
+        # if not self.session :
+        #     if self.progress.wasCanceled():
+        #         logger.warn("waitSession() aborted by user.")
+        #     else :
+        #         logger.error("waitSession() failed with clientstate " + str(self.state) + ", socket errorstring: " + self.socket.errorString())
+        #         QtGui.QMessageBox.critical(self, "Notice from Server", "Unable to get a session : <br> Server under maintenance.<br><br>Please retry in some minutes.")
+        #     return False
+        #
+        # self.uniqueId = util.uniqueID(self.login, self.session)
+        # self.loadSettings()
+        #
+        # #
+        # # Voice connector (This isn't supposed to be here, but I need the settings to be loaded before I can determine if we can hook in the mumbleConnector
+        # #
+        # if self.enableMumble:
+        #     self.progress.setLabelText("Setting up Mumble...")
+        #     import mumbleconnector
+        #     self.mumbleConnector = mumbleconnector.MumbleConnector(self)
+        # return True
 
 
     def doLogin(self):
@@ -1194,7 +1209,17 @@ class ClientWindow(FormClass, BaseClass):
         logger.info("Attempting to login as: " + str(self.login))
         self.state = ClientState.NONE
 
-        self.send(dict(command="hello", version=util.VERSION, login=self.login, password=self.password, local_ip=self.localIP))
+
+
+        # if not self.uniqueId :
+        #     QtGui.QMessageBox.warning(QtGui.QApplication.activeWindow(), "Unable to login", "It seems that you miss some important DLL.<br>Please install :<br><a href =\"http://www.microsoft.com/download/en/confirmation.aspx?id=8328\">http://www.microsoft.com/download/en/confirmation.aspx?id=8328</a> and <a href = \"http://www.microsoft.com/en-us/download/details.aspx?id=17851\">http://www.microsoft.com/en-us/download/details.aspx?id=17851</a><br><br>You probably have to restart your computer after installing them.<br><br>Please visit this link in case of problems : <a href=\"http://www.faforever.com/forums/viewforum.php?f=3\">http://www.faforever.com/forums/viewforum.php?f=3</a>", QtGui.QMessageBox.Close)
+        #     return False
+        # else :
+        #    self.send(dict(command="hello", version=util.VERSION, login=self.login, password=self.password, unique_id=self.uniqueId, local_ip=self.localIP))
+
+        self.send('handshake', {'server_address':LOBBY_HOST,'protocol_version':0})
+
+        self.send('login', {'username': self.login,'password': self.password})
 
         while (not self.state) and self.progress.isVisible():
             QtGui.QApplication.processEvents()
@@ -1512,63 +1537,6 @@ class ClientWindow(FormClass, BaseClass):
         self.socket.write(block)
         QtGui.QApplication.processEvents()
 
-    def writeToServer(self, action, *args, **kw):
-        '''
-        This method is the workhorse of the client, and is used to send messages, queries and commands to the server.
-        '''
-        logger.debug("Client: " + action)
-
-        block = QtCore.QByteArray()
-        out = QtCore.QDataStream(block, QtCore.QIODevice.ReadWrite)
-        out.setVersion(QtCore.QDataStream.Qt_4_2)
-
-        out.writeUInt32(0)
-        out.writeQString(action)
-        out.writeQString(self.login)
-        out.writeQString(self.session)
-
-        for arg in args :
-            if type(arg) is IntType:
-                out.writeInt(arg)
-            elif isinstance(arg, basestring):
-                out.writeQString(arg)
-            elif type(arg) is FloatType:
-                out.writeFloat(arg)
-            elif type(arg) is ListType:
-                out.writeQVariantList(arg)
-            elif type(arg) is DictType:
-                out.writeQString(json.dumps(arg))
-            elif type(arg) is QtCore.QFile :
-                arg.open(QtCore.QIODevice.ReadOnly)
-                fileDatas = QtCore.QByteArray(arg.readAll())
-                #seems that that logger doesn't work
-                #logger.debug("file size ", int(fileDatas.size()))
-                out.writeInt(fileDatas.size())
-                out.writeRawData(fileDatas)
-
-                # This may take a while. We display the progress bar so the user get a feedback
-                self.sendFile = True
-                self.progress.setLabelText("Sending file to server")
-                self.progress.setCancelButton(None)
-                self.progress.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
-                self.progress.setAutoClose(True)
-                self.progress.setMinimum(0)
-                self.progress.setMaximum(100)
-                self.progress.setModal(1)
-                self.progress.setWindowTitle("Uploading in progress")
-
-                self.progress.show()
-                arg.close()
-            else:
-                logger.warn("Uninterpreted Data Type: " + str(type(arg)) + " sent as str: " + str(arg))
-                out.writeQString(str(arg))
-
-        out.device().seek(0)
-        out.writeUInt32(block.size() - 4)
-        self.bytesToSend = block.size() - 4
-
-        self.socket.write(block)
-
 
     def serverTimeout(self):
         if self.timeout == 0:
@@ -1587,20 +1555,17 @@ class ClientWindow(FormClass, BaseClass):
     def readFromServer(self):
         #self.heartbeatTimer.start(HEARTBEAT)
         #self.timeout = 0
-        ins = QtCore.QDataStream(self.socket)
-        ins.setVersion(QtCore.QDataStream.Qt_4_2)
 
-        while ins.atEnd() == False :
-            if self.blockSize == 0:
-                if self.socket.bytesAvailable() < 4:
-                    return
-                self.blockSize = ins.readUInt32()
-            if self.socket.bytesAvailable() < self.blockSize:
+        while self.socket.bytesAvailable() >= 4:
+            size, = struct.unpack('=l', self.socket.peek(4))
+
+            if self.socket.bytesAvailable() < size+4:
                 return
 
-            action = ins.readQString()
-            self.process(action, ins)
-            self.blockSize = 0
+            self.socket.read(4)
+            msg = json.loads(self.socket.read(size).decode())
+
+            self.dispatch(msg['id'], msg['data'])
 
 
     @QtCore.pyqtSlot()
@@ -1756,36 +1721,37 @@ class ClientWindow(FormClass, BaseClass):
     #
     # JSON Protocol v2 Implementation below here
     #
-    def send(self, message):
-        data = json.dumps(message)
-        if message["command"] == "hello" :
-            logger.info("Outgoing JSON Message: login.")
-        else :
-            logger.info("Outgoing JSON Message: " + data)
-        self.writeToServer(data)
+    def send(self, command, message):
+
+        assert isinstance(command, basestring)
+
+        data = json.dumps({'id':command, 'data': message})
+
+        logger.info("Outgoing JSON Message: " + command + ", " + data)
+
+        data = data.encode()
+        self.socket.write(struct.pack('=l', len(data)))
+        self.socket.write(data)
 
 
-    def dispatch(self, message):
+    def dispatch(self, command, args):
         '''
         A fairly pythonic way to process received strings as JSON messages.
         '''     
 
         # add a delay to the notification system
-        if 'channels' in message:
-            self.notificationSystem.disabledStartup = False
+        # if 'channels' in message:
+        #     self.notificationSystem.disabledStartup = False
         try:
-            if "debug" in message:
-                logger.info(message['debug'])
+            # if "debug" in message:
+            #     logger.info(message['debug'])
 
-            if "command" in message:
-                cmd = "handle_" + message['command']
-                if hasattr(self, cmd):
-                    getattr(self, cmd)(message)
-                else:
-                    logger.error("Unknown command for JSON." + message['command'])
-                    raise "StandardError"
+            cmd = "handle_" + command
+            if hasattr(self, cmd):
+                getattr(self, cmd)(args)
             else:
-                logger.debug("No command in message.")
+                logger.error("Unknown command for JSON." + command)
+                raise "StandardError"
         except:
             raise #Pass it on to our caller, Malformed Command
 
@@ -1794,7 +1760,10 @@ class ClientWindow(FormClass, BaseClass):
     def handle_stats(self, message):
         self.statsInfo.emit(message)
 
-    def handle_welcome(self, message):
+    def handle_handshake_resp(self, message):
+        pass
+
+    def handle_login_resp(self, message):
         if "session" in message :
             self.session = str(message["session"])
 
@@ -1817,7 +1786,7 @@ class ClientWindow(FormClass, BaseClass):
                 self.state = ClientState.ACCEPTED
 
         else :
-            self.email = message["email"]
+            #self.email = message["email"]
             logger.debug("Login success")
             self.state = ClientState.ACCEPTED
 
