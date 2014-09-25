@@ -27,7 +27,8 @@ import urllib2
 from ctypes import *
 
 def developer():
-    return sys.executable.endswith("python.exe")
+    s = sys.executable
+    return s[s.rfind('/')+1:].startswith('python')
 
 LOGFILE_MAX_SIZE = 256*1024   #256kb should be enough for anyone
 
@@ -146,7 +147,6 @@ import shutil
 import hashlib, sha
 import re
 import urllib
-import _winreg
 
 
 # Dirty log rotation: Get rid of logs if larger than 1 MiB
@@ -349,7 +349,7 @@ def loadUiType(filename, themed=True):
     '''
     Loads and compiles a Qt Ui file via uic, and returns the Type and Basetype as a tuple
     Looks in theme directories first. Nonthemed means the file can come from anywhere.
-    ''' 
+    '''
     if themed:
         if __themedir and os.path.isfile(os.path.join(__themedir, filename)):
             return uic.loadUiType(os.path.join(__themedir, filename))
