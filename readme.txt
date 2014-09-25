@@ -30,6 +30,8 @@ Pre-requisites are :
 - Python matplotlib
 - FreeImagePy
 - bsdiff
+- python-dateutil
+- six
 
 If you want to contribute back to the project, please make a fork and create pull-Requests of your changes.
 
