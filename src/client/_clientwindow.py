@@ -205,13 +205,6 @@ class ClientWindow(FormClass, BaseClass):
         self.state = ClientState.NONE
         self.session = None
 
-        #Timer for checking connection
-        #self.heartbeatTimer = QtCore.QTimer(self)
-        #self.heartbeatTimer.timeout.connect(self.serverTimeout)
-        #self.timeout = 0
-
-        
-
         #Timer for resize events
         self.resizeTimer = QtCore.QTimer(self)
         self.resizeTimer.timeout.connect(self.resized)
