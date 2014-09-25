@@ -36,7 +36,7 @@ import os
 import matplotlib
 
 # The targets to build
-BUILD = int(open("build.dat").read())+1
+BUILD = int(open("build.dat").read()) + 1
 
 
 print "py2exe version: " + py2exe.__version__
@@ -80,12 +80,12 @@ setup(
       name = "Forged Alliance Forever",
       options = {
                  "py2exe": {
-                            "includes":["ctypes.util", "sip", "PyQt4.QtNetwork"], "dll_excludes": ["MSVCP90.dll", "POWRPROF.dll", "API-MS-Win-Core-LocalRegistry-L1-1-0.dll", "MPR.dll"],
-			    'excludes': ['_gtkagg', '_tkagg',"OpenGL", "PySide"],                          
+                            "includes":["ctypes.util", "sip", "PyQt4"], "dll_excludes": ["MSVCP90.dll", "POWRPROF.dll", "API-MS-Win-Core-LocalRegistry-L1-1-0.dll", "MPR.dll"],
+			    'excludes': ['_gtkagg', '_tkagg', "OpenGL"],
                            }
                 }, 
       data_files=matplotlib.get_py2exe_datafiles(),
-      zipfile = "FAForever.lib"
+      zipfile = "FAForever.lib", requires=['sip']
     )
 
 print "Clearing and copying..."

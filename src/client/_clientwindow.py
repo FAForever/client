@@ -185,6 +185,7 @@ class ClientWindow(FormClass, BaseClass):
         self.socket.error.connect(self.socketError)
         self.blockSize = 0
 
+        self.uniqueId = None
         self.udpTest = False
         try:
             self.profile = playerstats.Statpage(self)
@@ -829,8 +830,6 @@ class ClientWindow(FormClass, BaseClass):
     @QtCore.pyqtSlot()
     def linkReportBug(self):
         QtGui.QDesktopServices.openUrl(QtCore.QUrl(TICKET_URL))
-        #from util.report import ReportDialog
-        #ReportDialog(self).show()
 
     @QtCore.pyqtSlot()
     def linkTechSupport(self):
@@ -1141,7 +1140,7 @@ class ClientWindow(FormClass, BaseClass):
                 logger.error("doConnect() failed with clientstate " + str(self.state) + ", socket errorstring: " + self.socket.errorString())
             return False
         else:
-            self.send(dict(command="hello", version=util.VERSION, login=self.login, password=self.password, local_ip=self.localIP, session=self.session))
+            self.send(dict(command="hello", version=util.VERSION, login=self.login, password=self.password, unique_id=self.uniqueId, local_ip=self.localIP, session=self.session))
             #self.send(dict(command="ask_session"))    
             return True
 
@@ -1166,6 +1165,7 @@ class ClientWindow(FormClass, BaseClass):
                 QtGui.QMessageBox.critical(self, "Notice from Server", "Unable to get a session : <br> Server under maintenance.<br><br>Please retry in some minutes.")
             return False
 
+        self.uniqueId = util.uniqueID(self.login, self.session)
         self.loadSettings()
 
         #
@@ -1194,7 +1194,13 @@ class ClientWindow(FormClass, BaseClass):
         logger.info("Attempting to login as: " + str(self.login))
         self.state = ClientState.NONE
 
-        self.send(dict(command="hello", version=util.VERSION, login=self.login, password=self.password, local_ip=self.localIP))
+
+
+        if not self.uniqueId :
+            QtGui.QMessageBox.warning(QtGui.QApplication.activeWindow(), "Unable to login", "It seems that you miss some important DLL.<br>Please install :<br><a href =\"http://www.microsoft.com/download/en/confirmation.aspx?id=8328\">http://www.microsoft.com/download/en/confirmation.aspx?id=8328</a> and <a href = \"http://www.microsoft.com/en-us/download/details.aspx?id=17851\">http://www.microsoft.com/en-us/download/details.aspx?id=17851</a><br><br>You probably have to restart your computer after installing them.<br><br>Please visit this link in case of problems : <a href=\"http://www.faforever.com/forums/viewforum.php?f=3\">http://www.faforever.com/forums/viewforum.php?f=3</a>", QtGui.QMessageBox.Close)
+            return False
+        else :
+            self.send(dict(command="hello", version=util.VERSION, login=self.login, password=self.password, unique_id=self.uniqueId, local_ip=self.localIP))
 
         while (not self.state) and self.progress.isVisible():
             QtGui.QApplication.processEvents()
@@ -1220,8 +1226,7 @@ class ClientWindow(FormClass, BaseClass):
             # live streams
             self.LivestreamWebView.setUrl(QtCore.QUrl("http://www.faforever.com/?page_id=974"))
 
-            util.report.BUGREPORT_USER = self.login
-            util.crash.CRASHREPORT_USER = self.login
+            util.crash.CRASH_REPORT_USER = self.login
 
             if not self.testGamePort() :
                 return False

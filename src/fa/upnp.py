@@ -63,7 +63,7 @@ def createPortMapping(ip, port, protocol="UDP"):
             logger.error("Couldn't get StaticPortMappingCollection")
     except:
         logger.error("Exception in UPnP createPortMapping.", exc_info=sys.exc_info())
-        #util.CrashDialog(sys.exc_info()).exec_()
+        util.CrashDialog(sys.exc_info()).exec_()
         
         
 
@@ -87,4 +87,4 @@ def removePortMappings():
             logger.error("Couldn't get StaticPortMappingCollection")
     except:
         logger.error("Exception in UPnP removePortMappings.", exc_info=sys.exc_info())
-        #util.CrashDialog(sys.exc_info()).exec_()
+        util.CrashDialog(sys.exc_info()).exec_()
