@@ -96,7 +96,6 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.client.connected.connect(self.connect)
         self.client.publicBroadcast.connect(self.announce)
         self.client.autoJoin.connect(self.autoJoin)
-        self.client.channelsUpdated.connect(self.addChannels)
         self.channelsAvailable = []
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self.poll)
@@ -107,11 +106,6 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         # self.heartbeatTimer.timeout.connect(self.serverTimeout)
         # self.timeout = 0        
 
-    def addChannels(self, channels):
-        ''' add channel available to join '''
-        self.channelsAvailable = self.channelsAvailable + channels
-        for channel in self.channels :
-            self.channels[channel].updateChannels()
 
     @QtCore.pyqtSlot()
     def poll(self):
@@ -248,6 +242,10 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
                     #Note down channels for later.
                     self.optionalChannels.append(channel)
 
+    def join(self, channel):
+        if channel not in self.channels:
+            self.connection.join(channel)
+
     def processGameExit(self):
         self.autopostjoin = util.settings.value("chat/autopostjoin")
         logger.info("autopostjoin: " + str(self.autopostjoin))
@@ -348,9 +346,6 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             if channel.lower() in self.crucialChannels: #Make the crucial channels not closeable, and make the last one the active one
                 self.setCurrentWidget(self.channels[channel])
                 self.tabBar().setTabButton(self.currentIndex(), QtGui.QTabBar.RightSide, None)
-            else:
-                self.channels[channel].joinLabel.hide()
-                self.channels[channel].channelsComboBox.hide()
 
         username = user2name(e.source())
         self.channels[channel].addChatter(username, True)
