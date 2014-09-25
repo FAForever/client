@@ -27,8 +27,7 @@ import urllib2
 from ctypes import *
 
 def developer():
-    s = sys.executable
-    return s[s.rfind('/')+1:].startswith('python')
+    return os.path.basename(sys.executable).startswith('python')
 
 LOGFILE_MAX_SIZE = 256*1024   #256kb should be enough for anyone
 
