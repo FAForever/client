@@ -155,7 +155,7 @@ class Channel(FormClass, BaseClass):
             
     def updateUserCount(self):
         count = len(self.chatters.keys())
-        self.nickFilter.setPlaceholderText(str(count) + " users... (type to search)")
+        self.nickFilter.setPlaceholderText(str(count) + " users... (type to filter)")
             
         if self.nickFilter.text():
             self.filterNicks()
