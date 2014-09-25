@@ -30,7 +30,7 @@ patched, and all required files for a given mod are installed
 '''
 from PyQt4 import QtGui, QtCore, QtNetwork
 
-#import _winreg
+import _winreg
 # import bz2
 # import cPickle as pickle
 import os

@@ -27,7 +27,7 @@ import urllib2
 from ctypes import *
 
 def developer():
-    return os.path.basename(sys.executable).startswith('python')
+    return sys.executable.endswith("python.exe")
 
 LOGFILE_MAX_SIZE = 256*1024   #256kb should be enough for anyone
 
@@ -146,6 +146,7 @@ import shutil
 import hashlib, sha
 import re
 import urllib
+import _winreg
 
 
 # Dirty log rotation: Get rid of logs if larger than 1 MiB
@@ -348,7 +349,7 @@ def loadUiType(filename, themed=True):
     '''
     Loads and compiles a Qt Ui file via uic, and returns the Type and Basetype as a tuple
     Looks in theme directories first. Nonthemed means the file can come from anywhere.
-    '''
+    ''' 
     if themed:
         if __themedir and os.path.isfile(os.path.join(__themedir, filename)):
             return uic.loadUiType(os.path.join(__themedir, filename))
@@ -609,6 +610,22 @@ def md5(fileName):
     fd.close()
         
     return m.hexdigest()
+
+
+def uniqueID(user, session ):
+    ''' This is used to uniquely identify a user's machine to prevent smurfing. '''
+    try:
+        mydll = cdll.LoadLibrary("uid.dll")
+        mydll.uid.restype = c_char_p
+        baseString = (mydll.uid(session, os.path.join(LOG_DIR, "uid.log")) )
+        DllCanUnloadNow()
+
+        return baseString
+
+    except:
+        logger.error("UniqueID Failure", exc_info = sys.exc_info())
+        return None
+        
 
 import datetime
 _dateDummy = datetime.datetime(2013,5,27)

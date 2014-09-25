@@ -85,9 +85,9 @@ def runFAF():
         if faf_client.waitSession() :
             if faf_client.doLogin():    
                 #Done setting things up, show the window to the user.
-                faf_client.show()
-
-                #Main update loop
+                faf_client.show()                    
+                
+                #Main update loop    
                 QtGui.QApplication.exec_()
 
     
@@ -106,9 +106,9 @@ if __name__ == '__main__':
     app.setWindowIcon(util.icon("window_icon.png", True))
     #Set application icon to nicely stack in the system task bar    
     import ctypes    
-    # if getattr(ctypes.windll.shell32, "SetCurrentProcessExplicitAppUserModelID", None) is not None:
-    #     myappid = 'com.faforever.lobby'
-    #     ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+    if getattr(ctypes.windll.shell32, "SetCurrentProcessExplicitAppUserModelID", None) is not None: 
+        myappid = 'com.faforever.lobby'
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
     if len(sys.argv) == 1:
         #Do the magic   
