@@ -1,0 +1,7 @@
+<tbody>
+<tr>
+	<th class="rank" width="50">{rank}</th>
+	<th class="login" width="100%">{name}</th>
+	<th class="rating" width="50">{score}</th>
+</tr>
+</tbody>
