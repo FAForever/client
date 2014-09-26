@@ -9,9 +9,6 @@
 *.external*
 *.pydev*
 *.vcproj
-tests.py
-faLobby.lib
-lib/
 Thumbs.db
 build/
 dist/
