@@ -1,9 +1,0 @@
-<table border="0" cellpadding="0" cellspacing="5">
-<tbody>
-<tr>
-{teams}
-</tr>
-</tbody>
-</table>
-{observers}
-{mods}

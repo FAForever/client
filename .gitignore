@@ -11,13 +11,14 @@
 *.vcproj
 tests.py
 faLobby.lib
-src/msvcr90.dll
+lib/
 Thumbs.db
-src/build/
-src/dist/
-src/_cache/
+build/
+dist/
+_cache/
 src/aip/Setup Files
 *.orig
 src/aip/faforever-cache
 *.dll
 src/bsdiff.pyd
+.idea/

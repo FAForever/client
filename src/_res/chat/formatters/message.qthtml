@@ -1,1 +1,0 @@
-<tr style="width:100%;"><td width="42"></td><td align=right width="{width}"><font color="{color}">{name}:&nbsp;</font></td><td width="100%"><font color="{color}">{text}</font></td><td align="right" width="32"><font color="grey" >{time}</font></td></tr>
