@@ -38,7 +38,7 @@ import sys
 
 
 # The targets to build
-if os.path.isfile(build.dat):
+if os.path.isfile("build.dat"):
     with open("build.dat") as f:
         BUILD = int(f.read()) + 1
 else:
