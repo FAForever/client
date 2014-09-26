@@ -31,6 +31,7 @@ from client import ClientState, logger
 PASSWORD_RECOVERY_URL = "http://www.faforever.com/faf/forgotPass.php"
 NAME_CHANGE_URL = "http://www.faforever.com/faf/userName.php"
 STEAM_LINK_URL = "http://www.faforever.com/faf/steam.php"
+TICKET_URL = "http://www.faforever.com/forums/viewforum.php?f=3"
 
 class LoginWizard(QtGui.QWizard):
     def __init__(self, client):
@@ -183,7 +184,7 @@ class loginPage(QtGui.QWizardPage):
 
     @QtCore.pyqtSlot()
     def reportBug(self):
-        util.ReportDialog().exec_()
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(TICKET_URL))
 
 
 
