@@ -30,23 +30,16 @@ from ctypes import *
 def developer():
     return sys.executable.endswith("python.exe")
 
+try:
+    with open("version", "r") as version_file:
+            VERSION_STRING = version_file.read
+            VERSION = int(VERSION_STRING.rsplit('.', 1)[1])
+except (BaseException, IOError), e:
+    VERSION = 0
+    VERSION_STRING = "undefined"
 
 LOGFILE_MAX_SIZE = 256 * 1024  #256kb should be enough for anyone
 
-#Load build number from version file.
-if not developer():
-    #We must operate from our current directory
-    os.chdir(os.path.dirname(sys.executable))
-
-    try:
-        VERSION_STRING = open("version").read()
-        VERSION = int(VERSION_STRING.rsplit('.', 1)[1])
-    except:
-        VERSION = 0
-        VERSION_STRING = "undefined"
-else:
-    VERSION = 0
-    VERSION_STRING = "development"
 
 UNITS_PREVIEW_ROOT = "http://www.faforever.com/faf/unitsDB/icons/big/"
 
