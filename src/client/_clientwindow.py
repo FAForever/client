@@ -15,10 +15,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #-------------------------------------------------------------------------------
-
-
-
-
+from client.updater import fetchClientUpdate
 
 '''
 Created on Dec 1, 2011
@@ -577,6 +574,7 @@ class ClientWindow(FormClass, BaseClass):
         self.warningHide()
 
 
+
     def warningHide(self):
         '''
         hide the warning bar for matchmaker
@@ -1133,7 +1131,7 @@ class ClientWindow(FormClass, BaseClass):
                 logger.error("doConnect() failed with clientstate " + str(self.state) + ", socket errorstring: " + self.socket.errorString())
             return False
         else:
-            self.send(dict(command="hello", version=util.VERSION, login=self.login, password=self.password, unique_id=self.uniqueId, local_ip=self.localIP, session=self.session))
+            self.send(dict(command="hello", version=0, login=self.login, password=self.password, unique_id=self.uniqueId, local_ip=self.localIP, session=self.session))
             #self.send(dict(command="ask_session"))    
             return True
 
@@ -1193,7 +1191,7 @@ class ClientWindow(FormClass, BaseClass):
             QtGui.QMessageBox.warning(QtGui.QApplication.activeWindow(), "Unable to login", "It seems that you miss some important DLL.<br>Please install :<br><a href =\"http://www.microsoft.com/download/en/confirmation.aspx?id=8328\">http://www.microsoft.com/download/en/confirmation.aspx?id=8328</a> and <a href = \"http://www.microsoft.com/en-us/download/details.aspx?id=17851\">http://www.microsoft.com/en-us/download/details.aspx?id=17851</a><br><br>You probably have to restart your computer after installing them.<br><br>Please visit this link in case of problems : <a href=\"http://www.faforever.com/forums/viewforum.php?f=3\">http://www.faforever.com/forums/viewforum.php?f=3</a>", QtGui.QMessageBox.Close)
             return False
         else :
-            self.send(dict(command="hello", version=util.VERSION, login=self.login, password=self.password, unique_id=self.uniqueId, local_ip=self.localIP))
+            self.send(dict(command="hello", version=0, login=self.login, password=self.password, unique_id=self.uniqueId, local_ip=self.localIP))
 
         while (not self.state) and self.progress.isVisible():
             QtGui.QApplication.processEvents()
@@ -2057,6 +2055,7 @@ class ClientWindow(FormClass, BaseClass):
         if "friends" in message:
             self.friends = message["friends"]
             self.usersUpdated.emit(self.players.keys())
+            self.friendList.updateFriendList()
 
         if "foes" in message:
             self.foes = message["foes"]

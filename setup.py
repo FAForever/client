@@ -16,80 +16,78 @@
 # GNU General Public License for more details.
 #-------------------------------------------------------------------------------
 
-
-
-
-
-# A simple setup script to create various executables with 
-# different User Access Control flags in the manifest.
-
-# Run the build process by entering 'setup.py py2exe' or
-# 'python setup.py py2exe' in a console prompt.
-#
-# If everything works well, you should find a subdirectory named 'dist'
-# containing lots of executables
-
-from distutils.core import setup
-import py2exe
 import shutil
 import os
-import matplotlib
 import sys
+from cx_Freeze import setup, Executable
 
+company_name = 'FAF Community'
+product_name = 'Forged Alliance Forever'
 
-# The targets to build
-if os.path.isfile("build.dat"):
-    with open("build.dat") as f:
-        BUILD = int(f.read()) + 1
-else:
-    BUILD = 1
+import version
+git_version = version.get_git_version()
+msi_version = version.msi_version(git_version)
+version_file = version.write_release_version(git_version)
 
-print "py2exe version: " + py2exe.__version__
-print "BUILD: " + str(BUILD)
-# create a target that says nothing about UAC - On Python 2.6+, this
-# should be identical to "asInvoker" below.  However, for 2.5 and
-# earlier it will force the app into compatibility mode (as no
-# manifest will exist at all in the target.)
+print('Build version:', git_version, 'MSI version:', msi_version)
 
-t1 = {
-    "script": "src/__main__.py",
-    "dest_base": "FAForever",
-    "icon_resources": [(0, "res/faf.ico")]
+# Dependencies are automatically detected, but it might need fine tuning.
+build_exe_options = {
+    'include_files': ['res', (version_file.name, 'RELEASE-VERSION'), ('lib/uid.dll', 'uid.dll')],
+    'icon': 'res/faf.ico',
+    'include_msvcr': True,
+    'packages': ['util']
 }
 
-print "BUILD BEGINS."
+shortcut_table = [
+    ('DesktopShortcut',          # Shortcut
+     'DesktopFolder',            # Directory_
+     'FA Forever',               # Name
+     'TARGETDIR',                # Component_
+     '[TARGETDIR]FAForever.exe', # Target
+     None,                       # Arguments
+     None,                       # Description
+     None,                       # Hotkey
+     None,                       # Icon
+     None,                       # IconIndex
+     None,                       # ShowCmd
+     'TARGETDIR'                 # WkDir
+     )
+]
 
-if (os.path.isdir("dist")):
-    shutil.rmtree("dist")
+bdist_msi_options = {
+    'upgrade_code': '{ADE2A55B-834C-4D8D-A071-7A91A3A266B7}',
+    'initial_target_dir': r'[ProgramFilesFolder][ProductName]',
+    'add_to_path': False,
+    'data': {'Shortcut': shortcut_table},
+}
 
-shutil.copytree("lib", "dist")  #Lib directory needs to contain MSVCRT90.dll, plus Qt Image format plugins etc.
-shutil.copytree("res", "dist/res")
+# GUI applications require a different base on Windows (the default is for a
+# console application).
+base = None
+if sys.platform == 'win32':
+    base = 'Win32GUI'
 
-VERSION_STRING = "0.10." + str(BUILD)
-
-versionfile = open("dist/version", "w")
-versionfile.write(VERSION_STRING)
-versionfile.flush()
-os.fsync(versionfile.fileno())
-versionfile.close()
-
-setup(
-    windows=[t1],  # targets to build
-    version=VERSION_STRING,
-    description="Forged Alliance Forever",
-    name="Forged Alliance Forever",
-    options={
-        "py2exe": {
-            "includes": ["ctypes.util", "sip", "PyQt4"],
-            "dll_excludes": ["MSVCP90.dll", "POWRPROF.dll", "API-MS-Win-Core-LocalRegistry-L1-1-0.dll", "MPR.dll"],
-            'excludes': ['_gtkagg', '_tkagg', "OpenGL"],
-        }
-    },
-    data_files=matplotlib.get_py2exe_datafiles(),
-    zipfile="FAForever.lib", requires=['sip']
+exe = Executable(
+    'src/__main__.py',
+    base=base,
+    targetName='FAForever.exe',
+    icon='res/faf.ico',
 )
 
-open("build.dat", "w").write(str(BUILD))
+setup(
+    name=product_name,
+    version=msi_version,
+    description='Forged Alliance Forever - Lobby Client',
+    long_description='FA Forever is a community project that allows you to play Supreme Commander and Supreme Commander: Forged Alliance online with people across the globe. Provides new game play modes, including cooperative play, ranked ladder play, and featured mods.',
+    author='FA Forever Community',
+    maintainer='Thygrrr',
+    url='http://faforever.com',
+    license='GNU General Public License, Version 3',
+    options={'build_exe': build_exe_options, 'bdist_msi': bdist_msi_options},
+    executables=[exe]
+)
 
-print "BUILD FINISHED!"
-print "Build no. " + str(BUILD)
+# Clean Up Temporary Files
+import os
+os.remove(version_file.name)
