@@ -321,6 +321,7 @@
     <addaction name="menuTheme"/>
     <addaction name="menuVoice"/>
     <addaction name="menuNotifications"/>
+    <addaction name="actionFriendlist"/>
     <addaction name="separator"/>
     <addaction name="menuClear"/>
    </widget>
@@ -609,6 +610,17 @@
    </property>
    <property name="text">
     <string>Team Invitations</string>
+   </property>
+  </action>
+  <action name="actionFriendlist">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Friendlist</string>
    </property>
   </action>
  </widget>

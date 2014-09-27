@@ -514,6 +514,7 @@ class Channel(FormClass, BaseClass):
     
     
     def removeChatter(self, name, action = None):
+        self.lobby.client.friendList.removeUser(name)
         if name in self.chatters:
             self.nickList.removeRow(self.chatters[name].row())        
             del self.chatters[name]
