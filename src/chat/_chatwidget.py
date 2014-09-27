@@ -287,7 +287,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.connection.privmsg('NickServ', 'register %s %s' % (util.md5text(self.client.password), self.client.email))
 
     def on_version(self, c, e):
-        self.connection.privmsg(e.source(), "Forged Alliance Forever " + util.VERSION)
+        self.connection.privmsg(e.source(), "Forged Alliance Forever " + util.VERSION_STRING)
 
 
     def on_motd(self, c, e):

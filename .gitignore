@@ -19,3 +19,4 @@ src/aip/faforever-cache
 *.dll
 src/bsdiff.pyd
 .idea/
+RELEASE-VERSION

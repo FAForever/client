@@ -20,23 +20,23 @@
 
 
 
-# Developer mode flag
 import sys
 import os
 import urllib2
 from ctypes import *
 
 
+# Developer mode flag
 def developer():
     return sys.executable.endswith("python.exe")
 
 try:
-    with open("version", "r") as version_file:
-            VERSION_STRING = version_file.read
-            VERSION = int(VERSION_STRING.rsplit('.', 1)[1])
+    with open("RELEASE-VERSION", "r") as version_file:
+            VERSION_STRING = version_file.read()
 except (BaseException, IOError), e:
-    VERSION = 0
-    VERSION_STRING = "undefined"
+    VERSION_STRING = "unknown"
+
+VERSION = 0  # FIXME: causes the updater to always skip.
 
 LOGFILE_MAX_SIZE = 256 * 1024  #256kb should be enough for anyone
 
