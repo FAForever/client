@@ -290,6 +290,7 @@ class ClientWindow(FormClass, BaseClass):
         self.draggingHover = False
         self.offset = None
         self.curSize = None
+        self.closing = False
 
         sizeGrip = QtGui.QSizeGrip(self)
         self.mainGridLayout.addWidget(sizeGrip, 2, 2)
@@ -670,6 +671,7 @@ class ClientWindow(FormClass, BaseClass):
 
     def closeEvent(self, event):
         logger.info("Close Event for Application Main Window")
+        self.closing = True
         self.saveWindow()
 
         if (fa.exe.running()):
@@ -1109,7 +1111,7 @@ class ClientWindow(FormClass, BaseClass):
 
     def reconnect(self):
         ''' try to reconnect to the server'''
-       
+
         self.socket.disconnected.disconnect(self.disconnectedFromServer)
         self.socket.disconnectFromHost()
         self.socket.disconnected.connect(self.disconnectedFromServer)
@@ -1149,7 +1151,7 @@ class ClientWindow(FormClass, BaseClass):
             return False
         else:
             self.send(dict(command="hello", version=util.VERSION, login=self.login, password=self.password, unique_id=self.uniqueId, local_ip=self.localIP, session=self.session))
-            #self.send(dict(command="ask_session"))    
+            #self.send(dict(command="ask_session"))
             return True
 
 
@@ -1247,7 +1249,7 @@ class ClientWindow(FormClass, BaseClass):
             #This is a triumph... I'm making a note here: Huge success!
             #logger.debug("Starting heartbeat timer")
             #self.heartbeatTimer.start(HEARTBEAT)
-            #self.timeout = 0            
+            #self.timeout = 0
             self.connected.emit()
             return True
         elif self.state == ClientState.REJECTED:
@@ -1603,7 +1605,7 @@ class ClientWindow(FormClass, BaseClass):
             #logger.info("Connection lost - Trying to reconnect.")
             #if not self.reconnect():
                 #logger.error("Unable to reconnect to the server.")
-                
+
 
     @QtCore.pyqtSlot()
     def readFromServer(self):
@@ -1793,7 +1795,7 @@ class ClientWindow(FormClass, BaseClass):
     def dispatch(self, message):
         '''
         A fairly pythonic way to process received strings as JSON messages.
-        '''     
+        '''
 
         # add a delay to the notification system
         if 'channels' in message:

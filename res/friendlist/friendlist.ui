@@ -130,7 +130,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
         <property name="styleSheet">
          <string notr="true"> QTreeView::branch:has-children {
    border-image: none;
-   image: url(res/client/folder.png);
+   image: url(res/friendlist/folder.png);
  }</string>
         </property>
         <property name="editTriggers">
