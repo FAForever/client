@@ -29,7 +29,7 @@ import modvault
 
 from fa import logger, writeFAPathLua, savePath
 from replayparser import replayParser
-from main import sys
+import sys
 import json
 
 

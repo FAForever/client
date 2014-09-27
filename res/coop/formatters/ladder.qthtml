@@ -1,0 +1,8 @@
+<tr class="{type}">
+	<td class="rank" align="center">{rank}</td>
+	<td class="rank" align="center">{numplayers}</td>
+	<td class="login">{players}</td>
+	<td class="login" align="center">{objectives}</td>
+	<td class="rating">{timing}</td>
+	<td class="login"><a href="http://direct.faforever.com/faf/vault/replay_vault/replay.php?id={gameuid}">{gameuid}</a></td>
+</tr>
