@@ -262,6 +262,8 @@
      <addaction name="separator"/>
      <addaction name="actionLink_account_to_Steam"/>
      <addaction name="separator"/>
+     <addaction name="actionTestingConnections"/>
+     <addaction name="separator"/>
      <addaction name="actionSetGamePath"/>
      <addaction name="actionSetGamePort"/>
      <addaction name="actionSaveGamelogs"/>
@@ -319,6 +321,7 @@
     <addaction name="menuTheme"/>
     <addaction name="menuVoice"/>
     <addaction name="menuNotifications"/>
+    <addaction name="actionFriendlist"/>
     <addaction name="separator"/>
     <addaction name="menuClear"/>
    </widget>
@@ -609,12 +612,23 @@
     <string>Team Invitations</string>
    </property>
   </action>
+  <action name="actionFriendlist">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Friendlist</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
    <class>QWebView</class>
    <extends>QWidget</extends>
-   <header>QtWebKit/QWebView</header>
+   <header>PyQt4.QtWebKit</header>
   </customwidget>
  </customwidgets>
  <resources/>
