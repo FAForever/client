@@ -27,7 +27,7 @@ print "BUILD: " + str(BUILD)
 t1 = {
       "script":"__main__.py",
       "dest_base":"FAForever",
-      "icon_resources" : [(0, "_lib/faf.ico")]
+      "icon_resources" : [(0, "res/faf.ico")]
       }
 
 
