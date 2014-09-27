@@ -1,0 +1,6 @@
+<font size="+2" align="center"><b>{name}</b></font>
+<font size="-1" align="left">
+<p width="300">
+{description}
+</p>
+</font>

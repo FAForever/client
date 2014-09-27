@@ -51,7 +51,7 @@ else:
 UNITS_PREVIEW_ROOT = "http://content.faforever.com/faf/unitsDB/icons/big/"
 
 #These are paths relative to the executable or main.py script
-COMMON_DIR = "_res"
+COMMON_DIR = os.path.join(os.getcwd(), "res")
 
 # These directories are in Appdata (e.g. C:\ProgramData on some Win7 versions)
 APPDATA_DIR = os.path.join(os.environ['ALLUSERSPROFILE'], "FAForever")
@@ -614,7 +614,11 @@ def md5(file_name):
 def uniqueID(user, session):
     ''' This is used to uniquely identify a user's machine to prevent smurfing. '''
     try:
-        mydll = cdll.LoadLibrary("uid.dll")
+        if os.path.isfile("uid.dll"):
+            mydll = cdll.LoadLibrary("uid.dll")
+        else:
+            mydll = cdll.LoadLibrary(os.path.join("lib", "uid.dll"))
+
         mydll.uid.restype = c_char_p
         baseString = (mydll.uid(session, os.path.join(LOG_DIR, "uid.log")) )
         DllCanUnloadNow()

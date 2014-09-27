@@ -1,5 +1,0 @@
-<tr class="{type}">
-	<td class="rank">{rank}</td>
-	<td class="login">{name}</td>
-	<td class="rating">{score}</td>
-</tr>
