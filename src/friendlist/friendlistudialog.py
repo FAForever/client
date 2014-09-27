@@ -1,5 +1,6 @@
 from PyQt4 import QtCore, QtGui
 import util
+import PyQt4
 
 FormClass, BaseClass = util.loadUiType("friendlist/friendlist.ui")
 class FriendListDialog(FormClass, BaseClass):
@@ -39,9 +40,12 @@ class FriendListDialog(FormClass, BaseClass):
         self.labelUsername.setText(self.client.getCompleteUserName(self.client.login))
 
     def closeEvent(self, event):
+        # close event is also triggered on client shutdown
+        if not self.client.closing:
+             # otherwise friendlist is always disabled
+            self.client.actionFriendlist.setChecked(False)
         self.saveSettings()
         event.accept()
-
 
     def loadSettings(self):
         util.settings.beginGroup("friendlist")
