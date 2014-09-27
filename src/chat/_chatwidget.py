@@ -136,6 +136,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
 
     def finishDownloadAvatar(self, reply):
+        # TODO: cache it?
         ''' this take care of updating the avatars of players once they are downloaded '''
         img = QtGui.QImage()
         img.loadFromData(reply.readAll())
@@ -301,6 +302,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
         for user in listing:
             self.channels[channel].addChatter(user)
+            self.client.friendList.addUser(user)
+
             QtGui.QApplication.processEvents()      #Added by thygrrr to improve application responsiveness on large IRC packets
 
         logger.debug("Added " + str(len(listing)) + " Chatters")
@@ -339,6 +342,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         if channel.lower() in self.crucialChannels and username != self.client.login:
             # TODO: search better solution, that html in nick & channel no rendered
             self.client.notificationSystem.on_event(ns.NotificationSystem.USER_ONLINE,{'user':username, 'channel':channel})
+            # TODO: use signal?
+            self.client.friendList.addUser(username)
         self.channels[channel].resizing()
 
 

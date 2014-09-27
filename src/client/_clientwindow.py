@@ -19,6 +19,7 @@ from client.updater import fetchClientUpdate
 import fa
 from fa.mods import checkMods
 from fa.path import loadPath
+from friendlist import FriendList
 
 '''
 Created on Dec 1, 2011
@@ -513,6 +514,8 @@ class ClientWindow(FormClass, BaseClass):
         self.Coop = coop.Coop(self)
         self.notificationSystem = ns.NotificationSystem(self)
 
+        self.friendList = FriendList(self)
+
         # set menu states
         self.actionNsEnabled.setChecked(self.notificationSystem.settings.enabled)
 
@@ -574,6 +577,11 @@ class ClientWindow(FormClass, BaseClass):
         self.rankedUEF.clicked.connect(self.rankedGameUEF)
         self.rankedRandom.clicked.connect(self.rankedGameRandom)
         self.warningHide()
+
+    def show(self):
+        super(FormClass, self).show()
+        if self.friendList.enabled:
+            self.friendList.dialog.show()
 
 
 
@@ -902,6 +910,13 @@ class ClientWindow(FormClass, BaseClass):
         util.settings.setValue("autopostjoin", self.autopostjoin)
         util.settings.setValue("coloredNicknames", self.coloredNicknames)
         util.settings.endGroup()
+
+    @QtCore.pyqtSlot(bool)
+    def on_actionFriendlist_toggled(self, checked):
+        util.settings.beginGroup("friendlist")
+        util.settings.setValue("enabled", checked)
+        util.settings.endGroup()
+        self.friendList.dialog.setVisible(checked)
 
 
     def loadSettingsPrelogin(self):
@@ -1299,6 +1314,15 @@ class ClientWindow(FormClass, BaseClass):
                 return self.players[name]["clan"]
         return ""
 
+    def getCompleteUserName(self, name, html = False):
+        clan = self.getUserClan(name)
+        if clan != '':
+            if html:
+                return '<b>[%s]</b>%s' % (clan, name)
+            else:
+                return '[%s] %s' % (clan, name)
+        return name
+
     def getUserLeague(self, name):
         '''
         Returns a user's league if any
@@ -1683,6 +1707,7 @@ class ClientWindow(FormClass, BaseClass):
         self.send(dict(command="social", friends=self.friends)) #LATER: Use this line instead
         #self.writeToServer("ADD_FRIEND", friend)
         self.usersUpdated.emit([friend])
+        self.friendList.addFriend(friend)
 
     def addFoe(self, foe):
         '''Adding a new foe by user'''
@@ -1697,6 +1722,8 @@ class ClientWindow(FormClass, BaseClass):
         #self.writeToServer("REMOVE_FRIEND", friend)
         self.send(dict(command="social", friends=self.friends)) #LATER: Use this line instead
         self.usersUpdated.emit([friend])
+        self.friendList.removeFriend(friend)
+
 
     def remFoe(self, foe):
         '''Removal of a foe by user'''
@@ -1978,6 +2005,7 @@ class ClientWindow(FormClass, BaseClass):
         if "friends" in message:
             self.friends = message["friends"]
             self.usersUpdated.emit(self.players.keys())
+            self.friendList.updateFriendList()
 
         if "foes" in message:
             self.foes = message["foes"]
@@ -2046,5 +2074,4 @@ class ClientWindow(FormClass, BaseClass):
         if message["style"] == "kick":
             logger.info("Server has kicked you from the Lobby.")
             self.cleanup()
-
 
