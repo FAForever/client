@@ -1,0 +1,18 @@
+<table border="0" cellpadding="0" cellspacing="0" height = "60" width= 550">
+<tr>
+<td width = "50" valign=center>
+<font color="silver" size="-1">start time</font><br/>
+<font color="white" size="+1">{time}</font>
+<td>
+<td width = "250">
+<font color="white" size="+1"><b>{name}</b></font><br/>
+<font color="silver"><font size="-1">on map</font>&nbsp;<b>{map}</b></font></font><br/>
+<font color="white"><b>mod : {mod}</b></font>
+</td>
+<td>
+<font color="white"><b>duration :<br/>{duration}</b></font><br/>
+</td>
+<tr>
+</table>
+
+

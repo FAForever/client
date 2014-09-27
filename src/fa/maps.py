@@ -454,11 +454,11 @@ def __exportPreviewFromMap(mapname, positions=None):
         if not isinstance(positions, dict):
             logger.debug("Icon positions were not passed or they were wrong for: " + mapname)
             return previews
-        genPrevFromDDS(previewddsname,previewlargename,small=False)
-        mapimage = QtGui.QPixmap(previewlargename)
-        armyicon = QtGui.QPixmap(os.path.join(os.getcwd(), ur"_res\vault\map_icons\army.png")).scaled(8, 9, 1, 1)
-        massicon = QtGui.QPixmap(os.path.join(os.getcwd(), ur"_res\vault\map_icons\mass.png")).scaled(8, 8, 1, 1)
-        hydroicon = QtGui.QPixmap(os.path.join(os.getcwd(), ur"_res\vault\map_icons\hydro.png")).scaled(10, 10, 1, 1)
+        genPrevFromDDS(previewddsname, previewlargename, small=False)
+        mapimage = util.pixmap(previewlargename)
+        armyicon = util.pixmap("vault/map_icons/army.png").scaled(8, 9, 1, 1)
+        massicon = util.pixmap("vault/map_icons/mass.png").scaled(8, 8, 1, 1)
+        hydroicon = util.pixmap("vault/map_icons/hydro.png").scaled(10, 10, 1, 1)
         
         
         painter = QtGui.QPainter()
