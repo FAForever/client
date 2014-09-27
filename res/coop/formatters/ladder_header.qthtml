@@ -1,0 +1,10 @@
+<tbody>
+<tr>
+	<th class="rank" width="10">{rank}</th>
+	<th class="login" width="10">Players</th>
+	<th class="login" width="250">{names}</th>
+	<th class="login" width="60">Secondary Objectives</th>
+	<th class="rating" width="60">{time}</th>
+	<th class="login" width="60">Replay</th>
+</tr>
+</tbody>
