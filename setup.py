@@ -17,10 +17,7 @@
 #-------------------------------------------------------------------------------
 
 
-
-
-
-# A simple setup script to create various executables with 
+# A simple setup script to create various executables with
 # different User Access Control flags in the manifest.
 
 # Run the build process by entering 'setup.py py2exe' or
@@ -28,8 +25,7 @@
 #
 # If everything works well, you should find a subdirectory named 'dist'
 # containing lots of executables
-
-from distutils.core import setup
+from setuptools import setup, find_packages
 import py2exe
 import shutil
 import os
