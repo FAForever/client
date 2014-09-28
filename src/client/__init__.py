@@ -26,14 +26,6 @@ import util
 logger = logging.getLogger("faf.client")
 #logger.setLevel(logging.DEBUG)
 
-VERSION        = 0
-VERSION_STRING = "development"
-
-#Load build number from version file.
-if not util.developer():        
-    VERSION_STRING = open("version").read()
-    VERSION = int(VERSION_STRING.rsplit('.', 1)[1])
-
 
 # Initialize all important globals
 LOBBY_HOST = 'lobby.faforever.com'
