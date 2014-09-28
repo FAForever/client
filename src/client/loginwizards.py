@@ -24,10 +24,7 @@ import util
 import hashlib
 from client import ClientState, logger
 
-PASSWORD_RECOVERY_URL = "http://app.faforever.com/faf/forgotPass.php"
-NAME_CHANGE_URL = "http://app.faforever.com/faf/userName.php"
-STEAM_LINK_URL = "http://app.faforever.com/faf/steam.php"
-TICKET_URL = "http://www.faforever.com/forums/viewforum.php?f=3"
+from . import TICKET_URL, STEAMLINK_URL, NAME_CHANGE_URL, PASSWORD_RECOVERY_URL
 
 class LoginWizard(QtGui.QWizard):
     def __init__(self, client):
@@ -167,7 +164,7 @@ class loginPage(QtGui.QWizardPage):
 
     @QtCore.pyqtSlot()
     def linkAccount(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(STEAM_LINK_URL))
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(STEAMLINK_URL))
         
     @QtCore.pyqtSlot()
     def renameAccount(self):
