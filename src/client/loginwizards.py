@@ -31,7 +31,7 @@ from client import ClientState, logger
 PASSWORD_RECOVERY_URL = "http://www.faforever.com/faf/forgotPass.php"
 NAME_CHANGE_URL = "http://www.faforever.com/faf/userName.php"
 STEAM_LINK_URL = "http://www.faforever.com/faf/steam.php"
-TICKET_URL = "http://www.faforever.com/forums/viewforum.php?f=3"
+TICKET_URL = "https://gitreports.com/issue/FAForever/lobby"
 
 class LoginWizard(QtGui.QWizard):
     def __init__(self, client):

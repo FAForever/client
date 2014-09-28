@@ -41,7 +41,7 @@ WEBSITE_URL = "http://www.faforever.com"
 UNITDB_URL = "http://www.faforever.com/faf/unitsDB/"
 WIKI_URL = "http://www.faforever.com/mediawiki/index.php/Main_Page"
 SUPPORT_URL = "http://www.faforever.com/forums/viewforum.php?f=3"
-TICKET_URL = "http://www.faforever.com/forums/viewforum.php?f=3"
+TICKET_URL = "https://gitreports.com/issue/FAForever/lobby"
 STEAMLINK_URL = "http://www.faforever.com/faf/steam.php"
 
 
