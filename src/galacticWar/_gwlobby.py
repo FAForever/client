@@ -17,6 +17,7 @@
 #-------------------------------------------------------------------------------
 
 from PyQt4 import QtGui, QtCore, QtNetwork
+from client.updater import fetchClientUpdate
 from galacticWar import logger, LOBBY_PORT, LOBBY_HOST, TEXTURE_SERVER, RANKS, FACTIONS
 from galaxy import Galaxy
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
@@ -553,7 +554,7 @@ class LobbyWidget(FormClass, BaseClass):
             logger.warn("Server says that Updating is needed.")
             self.progress.close()
             self.state = ClientState.OUTDATED
-            fa.updater.fetchClientUpdate(update)        
+            fetchClientUpdate(update)
 
     def process(self, action, stream):
         if action == "PING":
