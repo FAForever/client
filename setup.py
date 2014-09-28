@@ -33,7 +33,7 @@ print('Build version:', git_version, 'MSI version:', msi_version)
 
 # Dependencies are automatically detected, but it might need fine tuning.
 build_exe_options = {
-    'include_files': ['res', (version_file.name, 'RELEASE-VERSION'), ('lib/uid.dll', 'uid.dll')],
+    'include_files': ['res', 'RELEASE-VERSION', ('lib/uid.dll', 'uid.dll')],
     'icon': 'res/faf.ico',
     'include_msvcr': True,
     'packages': ['util']
@@ -87,7 +87,3 @@ setup(
     options={'build_exe': build_exe_options, 'bdist_msi': bdist_msi_options},
     executables=[exe]
 )
-
-# Clean Up Temporary Files
-import os
-os.remove(version_file.name)
