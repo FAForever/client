@@ -71,9 +71,9 @@ def write_release_version(version):
     return f
 
 
-def sanitize_version(git_version):
+def msi_version(git_version):
     import re
-    sanitized = [fragment for fragment in re.findall(r"[\w']+", git_version) if fragment.isdigit()][:4]
+    sanitized = [fragment for fragment in re.findall(r"[\w']+", git_version) if fragment.isdigit()][:3]
     return ".".join(sanitized) or "0.0.0.0"
 
  
