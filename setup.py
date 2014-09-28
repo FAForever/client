@@ -11,9 +11,10 @@ version_file = version.write_release_version(git_version)
 
 # Dependencies are automatically detected, but it might need fine tuning.
 build_exe_options = {
-    "include_files": ["res", (version_file.name, "RELEASE-VERSION")],
+    "include_files": ["res", (version_file.name, "RELEASE-VERSION"), ("lib/uid.dll", "uid.dll")],
     "icon": "res/faf.ico",
-    "include_msvcr": True
+    "include_msvcr": True,
+    "packages": ["util"]
 }
 
 bdist_msi_options = {
