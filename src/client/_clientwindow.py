@@ -16,11 +16,6 @@
 # GNU General Public License for more details.
 #-------------------------------------------------------------------------------
 from client.updater import fetchClientUpdate
-from friendlist import FriendList
-
-
-
-
 
 '''
 Created on Dec 1, 2011
@@ -516,8 +511,6 @@ class ClientWindow(FormClass, BaseClass):
         self.Coop = coop.Coop(self)
         self.notificationSystem = ns.NotificationSystem(self)
 
-        self.friendList = FriendList(self)
-
         # set menu states
         self.actionNsEnabled.setChecked(self.notificationSystem.settings.enabled)
 
@@ -580,10 +573,6 @@ class ClientWindow(FormClass, BaseClass):
         self.rankedRandom.clicked.connect(self.rankedGameRandom)
         self.warningHide()
 
-    def show(self):
-        super(FormClass, self).show()
-        if self.friendList.enabled:
-            self.friendList.dialog.show()
 
 
     def warningHide(self):
@@ -913,13 +902,6 @@ class ClientWindow(FormClass, BaseClass):
         util.settings.setValue("coloredNicknames", self.coloredNicknames)
         util.settings.endGroup()
 
-    @QtCore.pyqtSlot(bool)
-    def on_actionFriendlist_toggled(self, checked):
-        util.settings.beginGroup("friendlist")
-        util.settings.setValue("enabled", checked)
-        util.settings.endGroup()
-        self.friendList.dialog.setVisible(checked)
-
 
     def loadSettingsPrelogin(self):
 
@@ -1230,7 +1212,7 @@ class ClientWindow(FormClass, BaseClass):
             logger.info("Login accepted.")
 
             # update what's new page
-            self.whatNewsView.setUrl(QtCore.QUrl("http://www.faforever.com/?page_id=114&username={user}&pwdhash={pwdhash}".format(user=self.login, pwdhash=self.password))) # FIXME: Password sent via http.
+            self.whatNewsView.setUrl(QtCore.QUrl("http://www.faforever.com/?page_id=114&username={user}&pwdhash={pwdhash}".format(user=self.login, pwdhash=self.password)))
 
             # live streams
             self.LivestreamWebView.setUrl(QtCore.QUrl("http://www.faforever.com/?page_id=974"))
@@ -1314,15 +1296,6 @@ class ClientWindow(FormClass, BaseClass):
             if "clan" in self.players[name]:
                 return self.players[name]["clan"]
         return ""
-
-    def getCompleteUserName(self, name, html = False):
-        clan = self.getUserClan(name)
-        if clan != '':
-            if html:
-                return '<b>[%s]</b>%s' % (clan, name)
-            else:
-                return '[%s] %s' % (clan, name)
-        return name
 
     def getUserLeague(self, name):
         '''
@@ -1711,7 +1684,6 @@ class ClientWindow(FormClass, BaseClass):
         self.send(dict(command="social", friends=self.friends)) #LATER: Use this line instead
         #self.writeToServer("ADD_FRIEND", friend)
         self.usersUpdated.emit([friend])
-        self.friendList.addFriend(friend)
 
     def addFoe(self, foe):
         '''Adding a new foe by user'''
@@ -1726,8 +1698,6 @@ class ClientWindow(FormClass, BaseClass):
         #self.writeToServer("REMOVE_FRIEND", friend)
         self.send(dict(command="social", friends=self.friends)) #LATER: Use this line instead
         self.usersUpdated.emit([friend])
-        self.friendList.removeFriend(friend)
-
 
     def remFoe(self, foe):
         '''Removal of a foe by user'''
@@ -1835,7 +1805,7 @@ class ClientWindow(FormClass, BaseClass):
                 logger.warn("Server says that Updating is needed.")
                 self.progress.close()
                 self.state = ClientState.OUTDATED
-                fetchClientUpdate(message["update"])
+                fa.updater.fetchClientUpdate(message["update"])
 
             else:
                 logger.debug("Skipping update because this is a developer version.")
@@ -2085,7 +2055,6 @@ class ClientWindow(FormClass, BaseClass):
         if "friends" in message:
             self.friends = message["friends"]
             self.usersUpdated.emit(self.players.keys())
-            self.friendList.updateFriendList()
 
         if "foes" in message:
             self.foes = message["foes"]
@@ -2154,4 +2123,5 @@ class ClientWindow(FormClass, BaseClass):
         if message["style"] == "kick":
             logger.info("Server has kicked you from the Lobby.")
             self.cleanup()
+
 

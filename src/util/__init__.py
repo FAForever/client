@@ -31,7 +31,7 @@ try:
     with open("RELEASE-VERSION", "r") as version_file:
             VERSION_STRING = version_file.read()
 except (BaseException, IOError), e:
-    VERSION_STRING = "unknown"
+    VERSION_STRING = "(unknown version)"
 
 VERSION = 0  # FIXME: causes the updater to always skip.
 

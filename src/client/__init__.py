@@ -27,7 +27,6 @@ logger = logging.getLogger("faf.client")
 #logger.setLevel(logging.DEBUG)
 
 
-
 # Initialize all important globals
 LOBBY_HOST = 'direct.faforever.com'
 LOBBY_PORT = 8001
