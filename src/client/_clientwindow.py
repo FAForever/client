@@ -15,6 +15,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #-------------------------------------------------------------------------------
+from client.updater import fetchClientUpdate
 from friendlist import FriendList
 
 
@@ -1229,7 +1230,7 @@ class ClientWindow(FormClass, BaseClass):
             logger.info("Login accepted.")
 
             # update what's new page
-            self.whatNewsView.setUrl(QtCore.QUrl("http://www.faforever.com/?page_id=114&username={user}&pwdhash={pwdhash}".format(user=self.login, pwdhash=self.password)))
+            self.whatNewsView.setUrl(QtCore.QUrl("http://www.faforever.com/?page_id=114&username={user}&pwdhash={pwdhash}".format(user=self.login, pwdhash=self.password))) # FIXME: Password sent via http.
 
             # live streams
             self.LivestreamWebView.setUrl(QtCore.QUrl("http://www.faforever.com/?page_id=974"))
@@ -1834,7 +1835,7 @@ class ClientWindow(FormClass, BaseClass):
                 logger.warn("Server says that Updating is needed.")
                 self.progress.close()
                 self.state = ClientState.OUTDATED
-                fa.updater.fetchClientUpdate(message["update"])
+                fetchClientUpdate(message["update"])
 
             else:
                 logger.debug("Skipping update because this is a developer version.")
