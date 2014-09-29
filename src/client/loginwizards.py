@@ -168,7 +168,7 @@ class loginPage(QtGui.QWizardPage):
 
     @QtCore.pyqtSlot()
     def linkAccount(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(STEAM_LINK_URL))
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(STEAMLINK_URL))
         
     @QtCore.pyqtSlot()
     def renameAccount(self):
