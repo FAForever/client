@@ -22,12 +22,14 @@
 
 from PyQt4 import QtCore
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
+from fa.replay import replay
 import util
 import os
 import fa
 from tutorials.tutorialitem import TutorialItem, TutorialItemDelegate
 
-from tutorials import logger
+import logging
+logger = logging.getLogger(__name__)
 
 FormClass, BaseClass = util.loadUiType("tutorials/tutorials.ui")
 
@@ -56,7 +58,7 @@ class tutorialsWidget(FormClass, BaseClass):
         replay.write(reply.readAll())
         replay.close()
     
-        fa.exe.replay(filename, True)
+        replay(filename, True)
     
     def tutorialClicked(self, item):
 

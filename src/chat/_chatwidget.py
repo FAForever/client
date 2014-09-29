@@ -18,6 +18,8 @@
 
 
 
+import logging
+logger = logging.getLogger(__name__)
 
 
 from PyQt4 import QtGui, QtCore
@@ -28,7 +30,7 @@ import util
 import fa
 
 import sys
-from chat import logger, user2name
+from chat import user2name
 from chat.channel import Channel
 import notificatation_system as ns
 
@@ -89,7 +91,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
         #add signal handler for game exit
         self.client.gameExit.connect(self.processGameExit)
-        self.replayInfo = fa.exe.instance.info
+        self.replayInfo = fa.instance.info
 
 
         #Hook with client's connection and autojoin mechanisms
@@ -250,7 +252,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.autopostjoin = util.settings.value("chat/autopostjoin")
         logger.info("autopostjoin: " + str(self.autopostjoin))
         if (str(self.autopostjoin) == "true"):
-            self.replayInfo = fa.exe.instance.info
+            self.replayInfo = fa.instance.info
             if self.replayInfo:
                 if 'num_players' in self.replayInfo:
                     self.nrofplayers = int(self.replayInfo['num_players'])

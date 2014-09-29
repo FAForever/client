@@ -162,11 +162,11 @@ import traceback
 
 if not developer():
     logging.basicConfig(filename=LOG_FILE_FAF, level=logging.INFO,
-                        format='%(asctime)s %(levelname)-8s %(name)-20s %(message)s')
+                        format='%(asctime)s %(levelname)-8s %(name)-40s %(message)s')
 else:
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)-8s %(name)-20s %(message)s')
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)-8s %(name)-40s %(message)s')
 
-logger = logging.getLogger("faf.util")
+logger = logging.getLogger(__name__)
 
 
 def startLogging():

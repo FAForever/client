@@ -243,7 +243,7 @@ class InfoPanelWidget(FormClass, BaseClass):
             for planetuid in self.parent.attacks[uid] :
                 if self.parent.attacks[uid][planetuid]["defended"] == True :
                     continue
-                if self.galaxy.control_points[planetuid].occupation(faction) > 0.5 and self.parent.attacks[uid][planetuid]["faction"] != faction :
+                if self.galaxy.control_points[planetuid].occupation(faction) > 0.5 and self.parent.attacks[uid][planetuid]["faction.py"] != faction :
                     for site in self.galaxy.getLinkedPlanets(planetuid) :
                         if self.galaxy.control_points[site].occupation(faction) > 0.5 :
                             if not planetuid in self.myDefenses :
@@ -251,7 +251,7 @@ class InfoPanelWidget(FormClass, BaseClass):
                                 self.defenseListWidget.addItem(self.myDefenses[planetuid])            
                             
                             self.myDefenses[planetuid].update(self.parent.attacks[uid][planetuid], self)
-                        elif self.parent.attacks[uid][planetuid]["faction"] != faction :
+                        elif self.parent.attacks[uid][planetuid]["faction.py"] != faction :
                             for site in self.galaxy.getLinkedPlanets(planetuid) :
                                 if self.galaxy.control_points[site].occupation(faction) > 0.5 :
                                     if not planetuid in self.myDefenses :
@@ -363,19 +363,19 @@ class InfoPanelWidget(FormClass, BaseClass):
                         return
                          
                     if self.parent.attacks[uid][planetuid]["onHold"] == True :
-                        if self.parent.attacks[uid][planetuid]["faction"] == faction :
+                        if self.parent.attacks[uid][planetuid]["faction.py"] == faction :
                             self.attackButton.show()
                             self.planet = planetId
                             return
                         return
                     
-                    if self.galaxy.control_points[planetuid].occupation(faction) > 0.5 and self.parent.attacks[uid][planetuid]["faction"] != faction :
+                    if self.galaxy.control_points[planetuid].occupation(faction) > 0.5 and self.parent.attacks[uid][planetuid]["faction.py"] != faction :
                         for site in self.galaxy.getLinkedPlanets(planetId) :
                             if self.galaxy.control_points[site].occupation(faction) > 0.5 :
                                 self.defenseButton.show()
                                 self.planet = planetId
                                 return
-                    elif self.parent.attacks[uid][planetuid]["faction"] != faction :
+                    elif self.parent.attacks[uid][planetuid]["faction.py"] != faction :
                         for site in self.galaxy.getLinkedPlanets(planetId) :
                             if self.galaxy.control_points[site].occupation(faction) > 0.5 :
                                 self.attackButton.show()

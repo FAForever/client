@@ -262,8 +262,6 @@
      <addaction name="separator"/>
      <addaction name="actionLink_account_to_Steam"/>
      <addaction name="separator"/>
-     <addaction name="actionTestingConnections"/>
-     <addaction name="separator"/>
      <addaction name="actionSetGamePath"/>
      <addaction name="actionSetGamePort"/>
      <addaction name="actionSaveGamelogs"/>
@@ -616,7 +614,7 @@
   <customwidget>
    <class>QWebView</class>
    <extends>QWidget</extends>
-   <header>PyQt4.QtWebKit</header>
+   <header>QtWebKit/QWebView</header>
   </customwidget>
  </customwidgets>
  <resources/>

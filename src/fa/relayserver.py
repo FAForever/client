@@ -113,7 +113,7 @@ class Relayer(QtCore.QObject):
     This is a simple class that takes all the FA data input from its inputSocket 
     and relays it to an internet server via its relaySocket.
     '''
-    __logger = logging.getLogger("faf.fa.relayer")
+    __logger = logging.getLogger(__name__)
     __logger.setLevel(logging.DEBUG)
     
     def __init__(self, parent, client, local_socket, testing, *args, **kwargs):
@@ -387,7 +387,7 @@ class RelayServer(QtNetwork.QTcpServer):
     This is a local listening server that FA can send its data to.
     It will instantiate a fresh ReplayRecorder for each FA instance that launches.
     '''
-    __logger = logging.getLogger("faf.fa.relayserver")
+    __logger = logging.getLogger(__name__)
     __logger.setLevel(logging.DEBUG)
 
     def __init__(self, client, *args, **kwargs):

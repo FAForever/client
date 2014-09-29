@@ -1,4 +1,3 @@
-
 from galacticWar import logger
 import logging
 from PyQt4 import QtCore, QtGui, QtOpenGL
@@ -114,8 +113,8 @@ class GLWidget(QtOpenGL.QGLWidget):
 
         self.parent.depotUpdated.connect(self.depotUpdate)
 
-        fa.exe.instance.started.connect(self.startedFA)
-        fa.exe.instance.finished.connect(self.finishedFA)
+        fa.instance.started.connect(self.startedFA)
+        fa.instance.finished.connect(self.finishedFA)
         
         self.setMouseTracking(1)
         self.setAutoFillBackground(False)
@@ -520,7 +519,7 @@ class GLWidget(QtOpenGL.QGLWidget):
                     if self.parent.attacks[useruid][planetuid]["onHold"] == True :
                         color = QtGui.QColor(255,255,255)
                     else :
-                        color = self.COLOR_FACTIONS[int(self.parent.attacks[useruid][planetuid]["faction"])]
+                        color = self.COLOR_FACTIONS[int(self.parent.attacks[useruid][planetuid]["faction.py"])]
                     self.programSwirl.bind()
                     
                     if self.parent.attacks[useruid][planetuid]["defended"] :
@@ -690,7 +689,7 @@ class GLWidget(QtOpenGL.QGLWidget):
             self.timerRotate.start(self.UPDATE_ROTATION)
     
     def paintEvent(self, event):
-        if fa.exe.running() or self.isVisible() == False : return
+        if fa.instance.running() or self.isVisible() == False : return
         self.makeCurrent()
         GL.glEnable(GL.GL_DEPTH_TEST)
         GL.glDepthFunc(GL.GL_LEQUAL)
@@ -850,7 +849,7 @@ class GLWidget(QtOpenGL.QGLWidget):
                         if self.parent.attacks[useruid][planetuid]["onHold"] == True :
                             text += "<font color='silver'><h2>Attack on hold.</font></h2>"
                         else :
-                            faction = int(self.parent.attacks[useruid][planetuid]["faction"])
+                            faction = int(self.parent.attacks[useruid][planetuid]["faction.py"])
                             text += "<font color='red'><h2>Under %s Attack !</font></h2>" % (FACTIONS[faction])
                             
                             # Handling additional infos about attackers

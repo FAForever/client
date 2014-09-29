@@ -22,7 +22,7 @@ import util
 import copy
 import logging
 
-logger = logging.getLogger("gw.teamwidget")
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 FormClass, BaseClass = util.loadUiType("galacticwar/teams.ui")

@@ -3,7 +3,10 @@ import sys
 import tempfile
 import urllib2
 from PyQt4 import QtGui, QtCore
-from fa.updater import logger
+
+import logging
+logger = logging.getLogger(__name__)
+
 
 __author__ = 'Thygrrr'
 

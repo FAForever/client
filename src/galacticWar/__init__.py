@@ -21,7 +21,7 @@
 # Initialize logging system
 import logging
 from PyQt4 import QtGui
-logger = logging.getLogger("faf.galacticWar")
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 LOBBY_HOST = 'direct.faforever.com'

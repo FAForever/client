@@ -7,7 +7,10 @@ from util import VERSION_STRING, APPDATA_DIR, PERSONAL_DIR, LOG_FILE_GAME, LOG_F
 from PyQt4 import QtGui, QtCore
 import hashlib
 import sys
-from util import logger
+
+import logging
+logger = logging.getLogger(__name__)
+
 
 HELP_URL = "http://www.faforever.com/forums/viewforum.php?f=3"
 TICKET_URL = "http://bitbucket.org/thepilot/falobby/issues"

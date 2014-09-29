@@ -22,10 +22,12 @@
 
 from PyQt4 import QtCore, QtGui, QtWebKit
 import util
-from stats import logger
 from stats import mapstat
 import client
 import time
+
+import logging
+logger = logging.getLogger(__name__)
 
 ANTIFLOOD = 0.1
 

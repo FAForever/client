@@ -75,7 +75,7 @@ from uimodwidget import UIModWidget
 import util
 import logging
 import time
-logger = logging.getLogger("faf.modvault")
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 import urllib2
 

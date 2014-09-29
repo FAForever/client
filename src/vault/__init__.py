@@ -33,7 +33,7 @@ import urllib2
 import re
 import json
 
-logger = logging.getLogger("faf.vault")
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 class MapVault(QtCore.QObject):

@@ -20,7 +20,9 @@
 from PyQt4 import QtCore, QtGui, QtNetwork
 import util
 import os
-from featuredmods import logger
+import logging
+logger = logging.getLogger(__name__)
+
 
 FormClass, BaseClass = util.loadUiType("featuredmods/featuredmods.ui")
 
