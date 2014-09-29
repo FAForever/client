@@ -21,8 +21,8 @@
 
 
 import logging
-from fa import Faction
-logger = logging.getLogger("faf.coop")
+from fa import faction
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 

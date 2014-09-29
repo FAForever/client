@@ -22,14 +22,16 @@
 
 from PyQt4 import QtCore, QtGui, QtNetwork
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
+from fa.replay import replay
 import util
-from replays import logger
 import os
 import fa
 import time
 import client
 import json
 
+import logging
+logger = logging.getLogger(__name__)
 
 LIVEREPLAY_DELAY = 5 #livereplay delay in minutes
 LIVEREPLAY_DELAY_TIME = LIVEREPLAY_DELAY * 60 #livereplay delay for time() (in seconds)
@@ -118,7 +120,7 @@ class ReplaysWidget(BaseClass, FormClass):
         faf_replay.write(reply.readAll())
         faf_replay.flush()
         faf_replay.close()  
-        fa.exe.replay(os.path.join(util.CACHE_DIR, "temp.fafreplay"))
+        replay(os.path.join(util.CACHE_DIR, "temp.fafreplay"))
 
     def onlineTreeClicked(self, item):
         if QtGui.QApplication.mouseButtons() == QtCore.Qt.RightButton :
@@ -491,7 +493,7 @@ class ReplaysWidget(BaseClass, FormClass):
             return
 
         if self.myTree.indexOfTopLevelItem(item) == -1:
-            fa.exe.replay(item.filename)
+            replay(item.filename)
                 
                 
     @QtCore.pyqtSlot(QtGui.QTreeWidgetItem, int)
@@ -505,7 +507,7 @@ class ReplaysWidget(BaseClass, FormClass):
         if self.liveTree.indexOfTopLevelItem(item) == -1:
             # Notify other modules that we're watching a replay
             self.client.viewingReplay.emit(item.url)
-            fa.exe.replay(item.url)
+            replay(item.url)
             
     def connectToModVault(self):
         ''' connect to the replay vault server'''

@@ -18,7 +18,7 @@
 
 from PyQt4 import QtGui, QtCore, QtNetwork
 from client.updater import fetchClientUpdate
-from galacticWar import logger, LOBBY_PORT, LOBBY_HOST, TEXTURE_SERVER, RANKS, FACTIONS
+from galacticWar import LOBBY_PORT, LOBBY_HOST, TEXTURE_SERVER, RANKS, FACTIONS
 from galaxy import Galaxy
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
 
@@ -39,6 +39,9 @@ import os
 
 from types import IntType, FloatType, ListType, DictType
 import loginwizards
+
+import logging
+logger = logging.getLogger(__name__)
 
 FormClass, BaseClass = util.loadUiType("galacticwar/galacticwar.ui")
 
@@ -130,7 +133,7 @@ class LobbyWidget(FormClass, BaseClass):
     
     def showEvent(self, event):
         if self.state != ClientState.ACCEPTED :
-            fa.exe.check("gw")
+            fa.check.check("gw")
             if self.doConnect():
                 logger.info("connection done")
                 self.doLogin()                   
@@ -383,7 +386,7 @@ class LobbyWidget(FormClass, BaseClass):
         ''' Update Player stats '''
         
         self.uid        = int(message["uid"])
-        self.faction    = message["faction"]
+        self.faction    = message["faction.py"]
         self.name       = message["name"]        
         self.rank       = message["rank"]
         self.credits    = message["credits"]
@@ -506,7 +509,7 @@ class LobbyWidget(FormClass, BaseClass):
 
         elif message["action"] == 1 :
             name = message["name"]
-            self.faction = message["faction"]
+            self.faction = message["faction.py"]
 
             self.rank = message["rank"]
             

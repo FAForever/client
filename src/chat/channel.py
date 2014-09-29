@@ -15,10 +15,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #-------------------------------------------------------------------------------
-
-
-
-
+from fa.replay import replay
 
 import util
 from PyQt4 import QtGui, QtCore
@@ -202,7 +199,7 @@ class Channel(FormClass, BaseClass):
     def openUrl(self, url):
         logger.debug("Clicked on URL: " + url.toString())
         if url.scheme() == "faflive":
-            fa.exe.replay(url)
+            replay(url)
         elif url.scheme() == "fafgame":
             self.lobby.client.joinGameFromURL(url)
         else :

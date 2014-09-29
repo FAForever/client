@@ -23,7 +23,7 @@
 # Initialize logging system
 import logging
 import util
-logger = logging.getLogger("faf.client")
+logger = logging.getLogger(__name__)
 #logger.setLevel(logging.DEBUG)
 
 

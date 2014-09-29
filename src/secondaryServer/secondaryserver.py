@@ -25,7 +25,7 @@ import json
 import logging
 
 
-logger = logging.getLogger("faf.secondaryServer")
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 def log(string):

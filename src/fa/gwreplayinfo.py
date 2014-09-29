@@ -26,7 +26,7 @@ import json
 import logging
 import fa
 
-logger = logging.getLogger("faf.gwinfo")
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 def log(string):

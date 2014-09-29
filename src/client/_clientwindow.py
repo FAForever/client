@@ -16,6 +16,7 @@
 # GNU General Public License for more details.
 #-------------------------------------------------------------------------------
 from client.updater import fetchClientUpdate
+import fa
 
 '''
 Created on Dec 1, 2011
@@ -26,14 +27,16 @@ Created on Dec 1, 2011
 from PyQt4 import QtCore, QtGui, QtNetwork, QtWebKit
 from types import IntType, FloatType, ListType, DictType
 
-from client import logger, ClientState, MUMBLE_URL, WEBSITE_URL, WIKI_URL, \
+from client import ClientState, MUMBLE_URL, WEBSITE_URL, WIKI_URL, \
     FORUMS_URL, UNITDB_URL, SUPPORT_URL, TICKET_URL, GAME_PORT_DEFAULT, LOBBY_HOST, \
     LOBBY_PORT, LOCAL_REPLAY_PORT, STEAMLINK_URL
+
+import logging
+logger = logging.getLogger(__name__)
 
 HEARTBEAT = 20000
 
 import util
-import fa
 import secondaryServer
 
 import json
@@ -207,10 +210,10 @@ class ClientWindow(FormClass, BaseClass):
         self.preferedSize = 0
 
         #Process used to run Forged Alliance (managed in module fa)
-        fa.exe.instance.started.connect(self.startedFA)
-        fa.exe.instance.finished.connect(self.finishedFA)
-        fa.exe.instance.error.connect(self.errorFA)
-        self.gameInfo.connect(fa.exe.instance.processGameInfo)
+        fa.instance.started.connect(self.startedFA)
+        fa.instance.finished.connect(self.finishedFA)
+        fa.instance.error.connect(self.errorFA)
+        self.gameInfo.connect(fa.instance.processGameInfo)
 
         #Local Replay Server (and relay)
         self.replayServer = fa.replayserver.ReplayServer(self)
@@ -613,7 +616,7 @@ class ClientWindow(FormClass, BaseClass):
 
         #Important: If a game is running, offer to terminate it gently
         self.progress.setLabelText("Closing ForgedAlliance.exe")
-        fa.exe.close()
+        fa.instance.close()
 
         #Terminate Lobby Server connection
         if self.socket.state() == QtNetwork.QTcpSocket.ConnectedState:
@@ -662,7 +665,7 @@ class ClientWindow(FormClass, BaseClass):
         logger.info("Close Event for Application Main Window")
         self.saveWindow()
 
-        if (fa.exe.running()):
+        if fa.instance.running():
             if QtGui.QMessageBox.question(self, "Are you sure?", "Seems like you still have Forged Alliance running!<br/><b>Close anyway?</b>", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No) == QtGui.QMessageBox.No:
                 event.ignore()
                 return
@@ -699,7 +702,6 @@ class ClientWindow(FormClass, BaseClass):
         self.actionClearSettings.triggered.connect(self.clearSettings)
         self.actionClearGameFiles.triggered.connect(self.clearGameFiles)
 
-        self.actionTestingConnections.triggered.connect(self.runTesting)
         self.actionSetGamePath.triggered.connect(self.switchPath)
         self.actionSetGamePort.triggered.connect(self.switchPort)
         self.actionSetMumbleOptions.triggered.connect(self.setMumbleOptions)
@@ -976,8 +978,6 @@ class ClientWindow(FormClass, BaseClass):
             self.actionSetAutoPostJoin.setChecked(self.autopostjoin)
         except:
             pass
-
-
 
     def doConnect(self):
 
@@ -1311,7 +1311,7 @@ class ClientWindow(FormClass, BaseClass):
     @QtCore.pyqtSlot()
     def startedFA(self):
         '''
-        Slot hooked up to fa.exe.instance when the process has launched.
+        Slot hooked up to fa.instance when the process has launched.
         It will notify other modules through the signal gameEnter().
         '''
         logger.info("FA has launched in an attached process.")
@@ -1322,7 +1322,7 @@ class ClientWindow(FormClass, BaseClass):
     @QtCore.pyqtSlot(int)
     def finishedFA(self, exit_code):
         '''
-        Slot hooked up to fa.exe.instance when the process has ended.
+        Slot hooked up to fa.instance when the process has ended.
         It will notify other modules through the signal gameExit().
         '''
         if not exit_code:
@@ -1335,7 +1335,7 @@ class ClientWindow(FormClass, BaseClass):
     @QtCore.pyqtSlot(int)
     def errorFA(self, error_code):
         '''
-        Slot hooked up to fa.exe.instance when the process has failed to start.
+        Slot hooked up to fa.instance when the process has failed to start.
         '''
         if error_code == 0:
             logger.error("FA has failed to start")
@@ -1395,14 +1395,14 @@ class ClientWindow(FormClass, BaseClass):
         Tries to join the game at the given URL
         '''
         logger.debug("joinGameFromURL: " + url.toString())
-        if (fa.exe.available()):
+        if (available()):
             add_mods = []
             try:
                 modstr = url.queryItemValue("mods")
                 add_mods = json.loads(modstr) # should be a list
             except:
                 logger.info("Couldn't load urlquery value 'mods'")
-            if fa.exe.check(url.queryItemValue("mod"), url.queryItemValue("map"), sim_mods=add_mods):
+            if fa.check.check(url.queryItemValue("mod"), url.queryItemValue("map"), sim_mods=add_mods):
                 self.send(dict(command="game_join", uid=int(url.queryItemValue("uid")), gameport=self.gamePort))
 
 
@@ -1777,7 +1777,7 @@ class ClientWindow(FormClass, BaseClass):
                 silent = True
                 if "luatable" in message:
                     fa.gwgametable.writeTable(message["luatable"], "gwReinforcementList.gw")
-                if (not fa.exe.check(message[modkey], silent=silent)):
+                if (not fa.check.check(message[modkey], silent=silent)):
                     logger.error("Can't play %s without successfully updating Forged Alliance." % message[modkey])
                     return
 
@@ -1821,7 +1821,7 @@ class ClientWindow(FormClass, BaseClass):
         # Ensure we have the map
         if "mapname" in message:
 
-            fa.exe.checkMap(message['mapname'], force=True, silent=silent)
+            fa.check.checkMap(message['mapname'], force=True, silent=silent)
             if galacticWar:
                 # in case of GW, we need to alter the scenario for support AIs
                 if not fa.maps.gwmap(message['mapname']):
@@ -1829,7 +1829,7 @@ class ClientWindow(FormClass, BaseClass):
                     return
 
         if "sim_mods" in message:
-            fa.exe.checkMods(message['sim_mods'])
+            fa.check.checkMods(message['sim_mods'])
 
 
         # Writing a file for options
@@ -1868,66 +1868,13 @@ class ClientWindow(FormClass, BaseClass):
         version_info = message.get('version_info', {})
         version_info['lobby'] = util.VERSION_STRING
 
-        info = dict(uid=message['uid'], recorder=self.login, featured_mod=message[modkey], game_time=time.time(), version_info=version_info)
+        game_info = dict(uid=message['uid'], recorder=self.login, featured_mod=message[modkey], game_time=time.time(), version_info=version_info)
 
 
-        fa.exe.play(info, self.relayServer.serverPort(), self.gamelogs, arguments, galacticWar)
-
-    def stopTesting(self, success=False):
-        self.progress.close()
+        fa.play(game_info, self.relayServer.serverPort(), arguments)
 
 
 
-    def runTesting(self):
-        '''
-        Performs a running of ForgedAlliance.exe for testing that everything is okay
-        '''
-        result = QtGui.QMessageBox.question(None, "Testing Proxies", "This will test if your computer is able to use the proxy server.<br>The proxy server is there to solve connections problems that can't be resolved otherwise.<br>Having it running correctly is extremely important.<br><br>FA will launch AND close automatically.<br><b>Please don't close it yourself.</b><br><br>The test can take up to 60 seconds!<br><br>If all you see when FA is launched is a black screen, you have an incorrect mod. The solution is to check your mods. <br><br>Launch the test?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
-        if result != QtGui.QMessageBox.Yes:
-            return
-
-        self.progress.setWindowTitle("FAF is testing the proxy server")
-        self.progress.setLabelText("FA will launch and should close shortly after.")
-        self.progress.setMinimum(0)
-        self.progress.setMaximum(0)
-        self.progress.setValue(0)
-        self.progress.setCancelButton(None)
-        self.progress.show()
-
-        self.relayServer.testingProxy()
-        info = dict(uid= -1, recorder=self.login, featured_mod="faf", game_time=time.time())
-        fa.exe.play(info, self.relayServer.serverPort(), True)
-
-        started = time.time()
-        success = True
-
-        while self.progress.isVisible():
-            QtGui.QApplication.processEvents()
-            if time.time() - started > 60:
-                success = False
-                self.progress.close()
-
-        self.relayServer.stopTesting()
-        fa.exe.kill()
-
-        if success:
-            QtGui.QMessageBox.information(self, "Testing Proxy", "Proxy Server is running correctly!")
-        else:
-            if len(self.proxyServer.testedPorts) != 11:
-                nonreported = list(set(self.proxyServer.proxies).difference(self.proxyServer.testedPorts))
-                errorport = []
-                for port in nonreported:
-                    errorport.append(self.proxyServer.proxies[port].localPort())
-                QtGui.QMessageBox.warning(self, "Testing Proxy Failed", "FA was unable to communicate locally with these ports :<br><br>" + "<br>".join(str(x) for x in errorport) + "<br><br>This is most likely due to your firewall blocking these port locally.<br>Please allow these UDP ports for IP 127.0.0.1")
-
-            elif len(self.proxyServer.testedLoopback) != 11:
-                nonreported = list(set(self.proxyServer.proxies).difference(self.proxyServer.testedLoopback))
-                errorport = []
-                for port in nonreported:
-                    errorport.append(self.proxyServer.proxies[port].localPort())
-                QtGui.QMessageBox.warning(self, "Testing Proxy Failed", "The lobby didn't received any data from the proxy server for these ports :<br><br>" + "<br>".join(str(x) for x in errorport) + "<br><br>This is most likely due to your firewall blocking the proxy connection, or the proxy is offline.<br>")
-            else:
-                QtGui.QMessageBox.warning(self, "Testing Proxy Failed", "FA was unable to communicate locally with UDP ports 12001 to 12011.<br><br>This is most likely due to your firewall blocking these port locally.<br>Please allow these UDP ports for IP 127.0.0.1")
     def handle_coop_info(self, message):
         self.coopInfo.emit(message)
 
@@ -2057,7 +2004,7 @@ class ClientWindow(FormClass, BaseClass):
 
         if message["style"] == "kill":
             logger.info("Server has killed your Forged Alliance Process.")
-            fa.exe.kill()
+            fa.instance.kill()
 
         if message["style"] == "kick":
             logger.info("Server has kicked you from the Lobby.")

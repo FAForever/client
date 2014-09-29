@@ -4,7 +4,7 @@ import logging
 import urllib
 import util
 
-logger = logging.getLogger("faf.ladder")
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 

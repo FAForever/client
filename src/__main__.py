@@ -25,6 +25,7 @@ Created on Dec 1, 2011
 
 # CRUCIAL: This must remain on top.
 import sip
+
 sip.setapi('QString', 2)
 sip.setapi('QVariant', 2)
 sip.setapi('QStringList', 2)
@@ -33,10 +34,7 @@ sip.setapi('QProcess', 2)
 
 import sys
 from PyQt4 import QtGui
-
-# Set up a robust logging system
 import util
-util.startLogging()
 
 # Set up crash reporting
 excepthook_original = sys.excepthook
@@ -60,7 +58,7 @@ sys.excepthook = excepthook
 
 def runFAF():
     #Load theme from settings (one of the first things to be done)
-    util.loadTheme()    
+    util.loadTheme()
     
     #create client singleton and connect
     import client
@@ -85,10 +83,10 @@ def runFAF():
 if __name__ == '__main__':                
     #Set up logging framework
     import logging
-    logger = logging.getLogger("faf.main")
+    logger = logging.getLogger(__name__)
     logger.propagate = True
 
-    #init application framework    
+    #init application framework
     logger.info(">>> --------------------------- Application Launch")    
     app = QtGui.QApplication(sys.argv)
     app.setWindowIcon(util.icon("window_icon.png", True))
@@ -107,7 +105,7 @@ if __name__ == '__main__':
         # Try to interpret the argument as a replay.
         if sys.argv[1].lower().endswith(".fafreplay") or sys.argv[1].lower().endswith(".scfareplay"):
             import fa
-            fa.exe.replay(sys.argv[1], True)  # Launch as detached process
+            replay(sys.argv[1], True)  # Launch as detached process
 
     #End of show
     app.closeAllWindows()    
@@ -115,5 +113,5 @@ if __name__ == '__main__':
     
     #End the application, perform some housekeeping
     logger.info("<<< --------------------------- Application Shutdown")    
-    util.stopLogging()
+    logging.shutdown()
 

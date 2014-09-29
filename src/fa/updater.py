@@ -49,7 +49,7 @@ import tempfile
 import json
 import modvault
 
-logger = logging.getLogger("faf.updater")
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 # This contains a complete dump of everything that was supplied to logOutput

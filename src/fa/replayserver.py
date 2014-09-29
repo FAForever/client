@@ -38,7 +38,7 @@ class ReplayRecorder(QtCore.QObject):
     This is a simple class that takes all the FA replay data input from its inputSocket, writes it to a file, 
     and relays it to an internet server via its relaySocket.
     '''
-    __logger = logging.getLogger("faf.fa.replayrecorder")
+    __logger = logging.getLogger(__name__)
     __logger.setLevel(logging.DEBUG)
     
     def __init__(self, parent, login, local_socket, *args, **kwargs):
@@ -53,7 +53,7 @@ class ReplayRecorder(QtCore.QObject):
               
         #Create a file to write the replay data into
         self.replayData = QtCore.QByteArray()
-        self.replayInfo = fa.exe.instance.info
+        self.replayInfo = fa.instance.info
                  
         # Open the relay socket to our server
         self.relaySocket = QtNetwork.QTcpSocket(self.parent)        
@@ -139,13 +139,13 @@ class ReplayRecorder(QtCore.QObject):
     def writeReplayFile(self):
         
         # Update info block if possible.
-        if fa.exe.instance.info and fa.exe.instance.info['uid'] == self.replayInfo['uid']:
-            if fa.exe.instance.info.setdefault('complete', False):
+        if fa.instance.info and fa.instance.info['uid'] == self.replayInfo['uid']:
+            if fa.instance.info.setdefault('complete', False):
                 self.__logger.info("Found Complete Replay Info")
             else:
                 self.__logger.warn("Replay Info not Complete")
             
-            self.replayInfo = fa.exe.instance.info
+            self.replayInfo = fa.instance.info
                  
         self.replayInfo['game_end'] = time.time()
         
@@ -165,7 +165,7 @@ class ReplayServer(QtNetwork.QTcpServer):
     This is a local listening server that FA can send its replay data to.
     It will instantiate a fresh ReplayRecorder for each FA instance that launches.
     '''
-    __logger = logging.getLogger("faf.fa.replayserver")
+    __logger = logging.getLogger(__name__)
     __logger.setLevel(logging.INFO)
 
     def __init__(self, client, *args, **kwargs):

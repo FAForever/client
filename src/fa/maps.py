@@ -16,22 +16,13 @@
 # GNU General Public License for more details.
 #-------------------------------------------------------------------------------
 
-
-import sip
-sip.setapi('QString', 2)
-sip.setapi('QVariant', 2)
-sip.setapi('QStringList', 2)
-sip.setapi('QList', 2)
-sip.setapi('QProcess', 2)
-
-
 import logging
 import string
 import sys
 from urllib2 import HTTPError
 import fa
 
-logger= logging.getLogger("faf.fa.maps")
+logger= logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 

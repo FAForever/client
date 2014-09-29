@@ -18,7 +18,8 @@ import _winreg
 # Link-dll to interface with the mumble client
 import mumble_link
 
-from mumbleconnector import logger
+import logging
+logger = logging.getLogger(__name__)
 
 class mumbleConnector():
 
