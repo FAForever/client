@@ -31,7 +31,7 @@ import hashlib
 
 
 HELP_URL = "http://www.faforever.com/forums/viewforum.php?f=3"
-TICKET_URL = "https://github.com/FAForever/lobby/issues"
+TICKET_URL = "https://gitreports.com/issue/FAForever/lobby"
 
 
 class CrashDialog(QtGui.QDialog):

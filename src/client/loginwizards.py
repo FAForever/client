@@ -28,9 +28,6 @@ import util
 import hashlib
 from client import ClientState, logger
 
-PASSWORD_RECOVERY_URL = "http://www.faforever.com/faf/forgotPass.php"
-NAME_CHANGE_URL = "http://www.faforever.com/faf/userName.php"
-
 from . import TICKET_URL, STEAMLINK_URL, NAME_CHANGE_URL, PASSWORD_RECOVERY_URL
 
 class LoginWizard(QtGui.QWizard):

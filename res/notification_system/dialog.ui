@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>375</width>
-    <height>152</height>
+    <width>250</width>
+    <height>120</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -79,14 +79,14 @@ QPushButton:hover {
        <widget class="QLabel" name="labelImage">
         <property name="minimumSize">
          <size>
-          <width>80</width>
-          <height>80</height>
+          <width>50</width>
+          <height>50</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>64</width>
-          <height>16777215</height>
+          <width>50</width>
+          <height>50</height>
          </size>
         </property>
         <property name="text">
@@ -110,7 +110,7 @@ QPushButton:hover {
 	color: rgb(255, 255, 255);
     font-weight: bold;
     font-family: Verdana; 
-    font-size:13pt;
+    font-size:9pt;
 }
 
 
@@ -153,18 +153,18 @@ QPushButton:hover {
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QHBoxLayout" name="_3">
+      <property name="topMargin">
+       <number>6</number>
+      </property>
+      <property name="bottomMargin">
+       <number>6</number>
+      </property>
       <item>
        <widget class="QLabel" name="labelIcon">
-        <property name="minimumSize">
-         <size>
-          <width>32</width>
-          <height>32</height>
-         </size>
-        </property>
         <property name="maximumSize">
          <size>
-          <width>32</width>
-          <height>32</height>
+          <width>24</width>
+          <height>24</height>
          </size>
         </property>
         <property name="text">
