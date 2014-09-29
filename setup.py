@@ -85,5 +85,5 @@ setup(
     url='http://faforever.com',
     license='GNU General Public License, Version 3',
     options={'build_exe': build_exe_options, 'bdist_msi': bdist_msi_options},
-    executables=[exe]
+    executables=[exe], requires=['bsdiff4']
 )

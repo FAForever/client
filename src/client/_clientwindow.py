@@ -17,6 +17,7 @@
 #-------------------------------------------------------------------------------
 from client.updater import fetchClientUpdate
 import fa
+from fa.mods import checkMods
 
 '''
 Created on Dec 1, 2011
@@ -1829,7 +1830,7 @@ class ClientWindow(FormClass, BaseClass):
                     return
 
         if "sim_mods" in message:
-            fa.check.checkMods(message['sim_mods'])
+            checkMods(message['sim_mods'])
 
 
         # Writing a file for options
