@@ -23,7 +23,7 @@
 from PyQt4 import QtGui
 import util
 import client
-
+import os
 
 # These mods are always on top
 
@@ -48,8 +48,10 @@ class ModItem(QtGui.QListWidgetItem):
         tip = message["desc"]      
         self.setToolTip(tip)
         
-        if message["icon"] == None :
-            icon = util.icon("games/mods/faf.png")        
+        if message["icon"] is None:
+            icon = util.icon(os.path.join("games/mods/", self.mod + ".png"))
+            if icon.isNull():
+                icon = util.icon("games/mods/default.png")
             self.setIcon(icon)
         else :
             # TODO : download the icon from the remote path.
