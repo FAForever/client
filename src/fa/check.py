@@ -23,9 +23,10 @@ from PyQt4 import QtGui
 
 import fa
 from fa.mods import checkMods
+from fa.path import savePath, writeFAPathLua, validatePath
 
 logger = logging.getLogger(__name__)
-from fa import writeFAPathLua, savePath
+
 
 def checkMap(mapname, force=False, silent=False):
     """
@@ -66,7 +67,7 @@ def check(mod, mapname=None, version=None, modVersions=None, sim_mods=None, sile
     if not fa.gamepath:
         savePath(fa.updater.autoDetectPath())
 
-    while not fa.updater.validatePath(fa.gamepath):
+    while not validatePath(fa.gamepath):
         logger.warn("Invalid path: " + str(fa.gamepath))
         wizard = fa.updater.Wizard(None)
         result = wizard.exec_()

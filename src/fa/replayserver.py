@@ -32,6 +32,7 @@ import time
 INTERNET_REPLAY_SERVER_HOST = "faforever.com"
 INTERNET_REPLAY_SERVER_PORT = 15000
 
+from . import DEFAULT_LIVE_REPLAY
 
 class ReplayRecorder(QtCore.QObject): 
     '''
@@ -56,13 +57,14 @@ class ReplayRecorder(QtCore.QObject):
         self.replayInfo = fa.instance.info
                  
         # Open the relay socket to our server
-        self.relaySocket = QtNetwork.QTcpSocket(self.parent)        
-        self.relaySocket.connectToHost(INTERNET_REPLAY_SERVER_HOST, INTERNET_REPLAY_SERVER_PORT)        
+        self.relaySocket = QtNetwork.QTcpSocket(self.parent)
+        self.relaySocket.connectToHost(INTERNET_REPLAY_SERVER_HOST, INTERNET_REPLAY_SERVER_PORT)
         
-        if self.relaySocket.waitForConnected(1000): #Maybe make this asynchronous
-            self.__logger.debug("internet replay server " + self.relaySocket.peerName() + ":" + str(self.relaySocket.peerPort()))  
-        else:
-            self.__logger.error("no connection to internet replay server")
+        if settings.value("fa.live_replay", DEFAULT_LIVE_REPLAY, type=bool):
+            if self.relaySocket.waitForConnected(1000): #Maybe make this asynchronous
+                self.__logger.debug("internet replay server " + self.relaySocket.peerName() + ":" + str(self.relaySocket.peerPort()))
+            else:
+                self.__logger.error("no connection to internet replay server")
 
         
         
@@ -95,8 +97,7 @@ class ReplayRecorder(QtCore.QObject):
         else:
             #Write to buffer
             self.replayData.append(datas)
-        
-        
+
         # Relay to faforever.com
         if self.relaySocket.isOpen():
             self.relaySocket.write(datas)
@@ -120,15 +121,15 @@ class ReplayRecorder(QtCore.QObject):
         # Part of the hardening - ensure successful sending of the rest of the replay to the server
         if self.relaySocket.bytesToWrite():
             self.__logger.info("Waiting for replay transmission to finish: " + str(self.relaySocket.bytesToWrite()) + " bytes")
-            
+
             progress = QtGui.QProgressDialog("Finishing Replay Transmission", "Cancel", 0, 0)
             progress.show()
-        
+
             while self.relaySocket.bytesToWrite() and progress.isVisible():
                 QtGui.QApplication.processEvents()
-            
+
             progress.close()
-        
+
         self.relaySocket.disconnectFromHost()
         
         self.writeReplayFile()
