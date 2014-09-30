@@ -103,6 +103,4 @@ import relayserver
 import proxies
 import updater
 import upnp
-import gwreplayinfo
-import gwgametable
 import faction

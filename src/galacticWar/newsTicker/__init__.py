@@ -1,1 +1,0 @@
-from newsTicker import NewsTicker

@@ -82,7 +82,7 @@ QMenuBar::item
  }
 
  
-QTabWidget #lobbyTab,#gamesTab,#ladderTab,#tournamentTab,#coopTab,#galacticTab,#replaysTab,#vaultsTab,#mapsTab,#modsTab
+QTabWidget #lobbyTab,#gamesTab,#ladderTab,#tournamentTab,#coopTab,#replaysTab,#vaultsTab,#mapsTab,#modsTab
 { /* sets background color for every widget under a tab */
 		background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(15, 15, 15, 200), stop:1 #2f2f2f);
 		border-radius: 10px;

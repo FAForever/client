@@ -151,11 +151,6 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
                     self.channels[channel].chatters[player].avatarItem.setIcon(QtGui.QIcon(util.respix(reply.url().toString())))
                     self.channels[channel].chatters[player].avatarItem.setToolTip(self.channels[channel].chatters[player].avatarTip)
 
-            # if self.client.GalacticWar.channel != None :
-            #     if player in self.client.GalacticWar.channel.chatters :
-            #         self.client.GalacticWar.channel.chatters[player].avatarItem.setIcon(QtGui.QIcon(util.respix(reply.url().toString())))
-            #         self.client.GalacticWar.channel.chatters[player].avatarItem.setToolTip(self.client.GalacticWar.channel.chatters[player].avatarTip)
-
 
     def closeChannel(self, index):
         '''
@@ -306,11 +301,6 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
         for user in listing:
             self.channels[channel].addChatter(user)
-
-
-            # if self.client.GalacticWar.channel and channel == self.client.GalacticWar.channel.name :
-            #     self.client.GalacticWar.channel.addChatter(user)
-
             QtGui.QApplication.processEvents()      #Added by thygrrr to improve application responsiveness on large IRC packets
 
         logger.debug("Added " + str(len(listing)) + " Chatters")
@@ -336,12 +326,6 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
                 self.channels[channel].printAnnouncement("", "black", "+1")
 
             else:
-            #     if channel.lower() == "#uef" or channel.lower() == "#aeon" or channel.lower() == "#cybran" or channel.lower() == "#seraphim" :
-            #         self.client.GalacticWar.createChannel(self, channel)
-            #         self.client.GalacticWar.network_Chat.layout().addWidget(self.client.GalacticWar.channel)
-            #         self.client.GalacticWar.channel.addChatter(user2name(e.source()), True)
-            #         self.client.GalacticWar.channel.resizing()
-
                 self.addTab(self.channels[channel], channel)
 
 
@@ -418,8 +402,6 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
         if target in self.channels:
             self.channels[target].printMsg(user2name(e.source()), "\n".join(e.arguments()))
-        # if self.client.GalacticWar.channel and target == self.client.GalacticWar.channel.name :
-        #     self.client.GalacticWar.channel.printMsg(user2name(e.source()), "\n".join(e.arguments()))
 
     def on_privnotice(self, c, e):
         source = user2name(e.source())
