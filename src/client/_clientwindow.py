@@ -18,6 +18,7 @@
 from client.updater import fetchClientUpdate
 import fa
 from fa.mods import checkMods
+from fa.path import loadPath
 
 '''
 Created on Dec 1, 2011
@@ -919,7 +920,7 @@ class ClientWindow(FormClass, BaseClass):
 
     def loadSettings(self):
         #Load settings
-        fa.loadPath()
+        loadPath()
 
         util.settings.beginGroup("window")
         geometry = util.settings.value("geometry", None)

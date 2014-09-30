@@ -18,16 +18,19 @@
 
 
 # Initialize logging system
-from PyQt4 import QtCore
-import os
-import util
-
 import logging
+
+from fa.path import loadPathSC, loadPath
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 GPGNET_HOST = "lobby.faforever.com"
 GPGNET_PORT = 8000
+
+DEFAULT_LIVE_REPLAY = True
+DEFAULT_RECORD_REPLAY = True
+DEFAULT_WRITE_GAME_LOG = False
 
 
 # We only want one instance of Forged Alliance to run, so we use a singleton here (other modules may wish to connect to its signals so it needs persistence)
@@ -37,60 +40,6 @@ from play import play as play
 
 # This is the game path, a string pointing to the player's actual install of Forged Alliance
 gamepath = None
-
-
-def loadPathSC():
-    global gamepathSC
-    settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
-    settings.beginGroup("SupremeCommanderVanilla")
-    gamepathSC = settings.value("app/path")
-    settings.endGroup()
-
-
-def savePathSC(path):
-    global gamepathSC
-    gamepathSC = path
-    settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
-    settings.beginGroup("SupremeCommanderVanilla")
-    settings.setValue("app/path", gamepath)
-    settings.endGroup()
-    settings.sync()
-
-
-def loadPath():
-    global gamepath
-    settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
-    settings.beginGroup("ForgedAlliance")
-    gamepath = settings.value("app/path")
-    settings.endGroup()
-
-
-def savePath(path):
-    global gamepath
-    gamepath = path
-    settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
-    settings.beginGroup("ForgedAlliance")
-    settings.setValue("app/path", gamepath)
-    settings.endGroup()
-    settings.sync()
-
-
-def writeFAPathLua():
-    """
-    Writes a small lua file to disk that helps the new SupComDataPath.lua find the actual install of the game
-    """
-    name = os.path.join(util.APPDATA_DIR, u"fa_path.lua")
-    code = u"fa_path = '" + gamepath.replace(u"\\", u"\\\\") + u"'\n"
-
-    if gamepathSC:
-        code = code + u"sc_path = '" + gamepathSC.replace(u"\\", u"\\\\") + u"'\n"
-
-    lua = open(name, "w+")
-    lua.write(code.encode("utf-8"))
-    lua.flush()
-    os.fsync(lua.fileno())  # Ensuring the file is absolutely, positively on disk.
-    lua.close()
-
 
 # Initial Housekeeping
 loadPath()

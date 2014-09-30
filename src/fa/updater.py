@@ -28,23 +28,24 @@ patched, and all required files for a given mod are installed
 
 @author thygrrr
 """
-import _winreg
-
-from PyQt4 import QtGui, QtCore, QtNetwork
 import os
 import stat
 import time
 import subprocess
 import shutil
 from types import FloatType, IntType, ListType
-import util
 import logging
 import urllib2
 import sys
-import fa
 import tempfile
 import json
+
+from PyQt4 import QtGui, QtCore, QtNetwork
+
+from fa.path import savePathSC, savePath, mostProbablePaths, mostProbablePathsSC, validatePath
+import util
 import modvault
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -84,26 +85,7 @@ class UpdaterTimeout(StandardError):
     pass
 
 
-def validatePath(path):
-    try:
-        # Supcom only supports Ascii Paths
-        if not path.decode("ascii"): return False
 
-        #We check whether the base path and a gamedata/lua.scd file exists. This is a mildly naive check, but should suffice
-        if not os.path.isdir(path): return False
-        if not os.path.isfile(os.path.join(path, r'gamedata', r'lua.scd')): return False
-
-        #Reject or fix paths that end with a slash.
-        #LATER: this can have all sorts of intelligent logic added
-        #Suggested: Check if the files are actually the right ones, if not, tell the user what's wrong with them. 
-        if path.endswith("/"): return False
-        if path.endswith("\\"): return False
-
-        return True
-    except:
-        _, value, _ = sys.exc_info()
-        logger.error(u"Path validation failed: " + unicode(value))
-        return False
 
 
 def setPathInSettings(path):
@@ -148,78 +130,6 @@ def getPathFromSettingsSC():
     path = unicode(settings.value("app/path"))
     settings.endGroup()
     return path
-
-
-def mostProbablePaths():
-    """
-    Returns a list of the most probable paths where Supreme Commander: Forged Alliance might be installed
-    """
-    pathlist = [
-        getPathFromSettings(),
-
-        #Retail path
-        os.path.expandvars("%ProgramFiles%\\THQ\\Gas Powered Games\\Supreme Commander - Forged Alliance"),
-
-        #Direct2Drive Paths
-        #... allegedly identical to impulse paths - need to confirm this
-
-        #Impulse/GameStop Paths - might need confirmation yet
-        os.path.expandvars("%ProgramFiles%\\Supreme Commander - Forged Alliance"),
-
-        #Steam path
-        os.path.expandvars("%ProgramFiles%\\Steam\\steamapps\\common\\supreme commander forged alliance")
-    ]
-
-    #Construe path from registry traces - this is not a very safe method, but it seems to work for plain installs
-    try:
-        regkey = "SOFTWARE\\Classes\\SCFAReplayType\\Shell\\Open\\Command"
-        key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, regkey)
-        path = _winreg.QueryValue(key, "")
-        if "ForgedAlliance.exe" in path:
-            path = path[:path.rfind("bin")]
-            path = path.rstrip('"/\\')
-            pathlist.append(os.path.expandvars(path))
-    except:
-        pass
-
-        #CAVEAT: This list is not validated
-    return pathlist
-
-
-def mostProbablePathsSC():
-    """
-    Returns a list of the most probable paths where Supreme Commander might be installed
-    """
-    pathlist = [
-        getPathFromSettingsSC(),
-
-        #Retail path
-        os.path.expandvars("%ProgramFiles%\\THQ\\Gas Powered Games\\Supreme Commander"),
-
-        #Direct2Drive Paths
-        #... allegedly identical to impulse paths - need to confirm this
-
-        #Impulse/GameStop Paths - might need confirmation yet
-        os.path.expandvars("%ProgramFiles%\\Supreme Commander"),
-
-        #Steam path
-        os.path.expandvars("%ProgramFiles%\\Steam\\steamapps\\common\\supreme commander")
-    ]
-
-    #Construe path from registry traces - this is not a very safe method, but it seems to work for plain installs 
-    try:
-        regkey = "SOFTWARE\\Classes\\SCReplayType\\Shell\\Open\\Command"
-        key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, regkey)
-        path = _winreg.QueryValue(key, "")
-        if "SupremeCommander.exe" in path:
-            path = path[:path.rfind("bin")]
-            path = path.rstrip('"/\\')
-            pathlist.append(os.path.expandvars(path))
-    except:
-        pass
-
-        #CAVEAT: This list is not validated
-    return pathlist
 
 
 def autoDetectPath():
@@ -1064,7 +974,7 @@ class WizardSC(QtGui.QWizard):
 
 
     def accept(self):
-        fa.savePathSC(self.upgrade.comboBox.currentText())
+        savePathSC(self.upgrade.comboBox.currentText())
         QtGui.QWizard.accept(self)
 
 
@@ -1087,6 +997,6 @@ class Wizard(QtGui.QWizard):
 
 
     def accept(self):
-        fa.savePath(self.upgrade.comboBox.currentText())
+        savePath(self.upgrade.comboBox.currentText())
         QtGui.QWizard.accept(self)
 
