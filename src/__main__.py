@@ -36,24 +36,23 @@ import sys
 from PyQt4 import QtGui
 import util
 
-# Set up crash reporting
-excepthook_original = sys.excepthook
+if not util.developer():
+    # Set up crash reporting
+    excepthook_original = sys.excepthook
 
+    def excepthook(exc_type, exc_value, traceback_object):
+        """
+        This exception hook will stop the app if an uncaught error occurred, regardless where in the QApplication.
+        """
+        logger.error("Uncaught exception", exc_info=(exc_type, exc_value, traceback_object))
+        dialog = util.CrashDialog((exc_type, exc_value, traceback_object))
+        answer = dialog.exec_()
 
-def excepthook(exc_type, exc_value, traceback_object):
-    """
-    This exception hook will stop the app if an uncaught error occurred, regardless where in the QApplication.
-    """
-    logger.error("Uncaught exception", exc_info=(exc_type, exc_value, traceback_object))
-    dialog = util.CrashDialog((exc_type, exc_value, traceback_object))
-    answer = dialog.exec_()
+        if answer == QtGui.QDialog.Rejected:
+            sys.exit(1)
 
-    if answer == QtGui.QDialog.Rejected:
-        sys.exit(1)
-
-
-#Override our except hook.
-sys.excepthook = excepthook
+    #Override our except hook.
+    sys.excepthook = excepthook
 
 
 def runFAF():
@@ -65,7 +64,7 @@ def runFAF():
         
     faf_client = client.instance
     faf_client.setup()
-         
+
     #Connect and login, then load and show the UI if everything worked
     if faf_client.doConnect():
         if faf_client.waitSession() :
@@ -91,6 +90,12 @@ if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
     app.setWindowIcon(util.icon("window_icon.png", True))
     #Set application icon to nicely stack in the system task bar    
+
+    import fa.binary
+    dater = fa.binary.Updater()
+
+    while dater.thread.isRunning():
+        QtGui.QApplication.processEvents()
 
     import ctypes
     if getattr(ctypes.windll.shell32, "SetCurrentProcessExplicitAppUserModelID", None) is not None: 
