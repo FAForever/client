@@ -21,9 +21,10 @@ import _winreg
 import os
 import sys
 from PyQt4 import QtCore
-from fa import gamepath
-from fa.updater import getPathFromSettings, getPathFromSettingsSC, logger
+import logging
 import util
+
+logger = logging.getLogger(__name__)
 
 __author__ = 'Thygrrr'
 
@@ -173,3 +174,65 @@ def validatePath(path):
         _, value, _ = sys.exc_info()
         logger.error(u"Path validation failed: " + unicode(value))
         return False
+
+
+
+
+# This is the game path, a string pointing to the player's actual install of Forged Alliance
+gamepath = None
+
+# Initial Housekeeping
+loadPath()
+loadPathSC()
+
+
+def setPathInSettings(path):
+    """
+    Stores the new path for Forged Alliance in the app settings
+    """
+    settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
+    settings.beginGroup("ForgedAlliance")
+    settings.setValue("app/path", path)
+    settings.endGroup()
+    settings.sync()
+
+
+def getPathFromSettings():
+    """
+    Retrieves the Path as configured in the settings
+    """
+    settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
+    settings.beginGroup("ForgedAlliance")
+    path = unicode(settings.value("app/path"))
+    settings.endGroup()
+    return path
+
+
+def setPathInSettingsSC(path):
+    """
+    Stores the new path for Supremene Commander in the app settings
+    """
+    settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
+    settings.beginGroup("SupremeCommanderVanilla")
+    settings.setValue("app/path", path)
+    settings.endGroup()
+    settings.sync()
+
+
+def getPathFromSettingsSC():
+    """
+    Retrieves the Path as configured in the settings
+    """
+    settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
+    settings.beginGroup("SupremeCommanderVanilla")
+    path = unicode(settings.value("app/path"))
+    settings.endGroup()
+    return path
+
+
+def autoDetectPath():
+    for path in mostProbablePaths():
+        if validatePath(path):
+            return path
+
+    return None
