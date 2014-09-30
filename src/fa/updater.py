@@ -42,7 +42,7 @@ import json
 
 from PyQt4 import QtGui, QtCore, QtNetwork
 
-from fa.path import savePathSC, savePath, mostProbablePaths, mostProbablePathsSC, validatePath
+from fa.path import setPathInSettings, getPathFromSettings, setPathInSettingsSC, mostProbablePaths, mostProbablePathsSC, validatePath, savePath, savePathSC, loadPath, loadPathSC
 import util
 import modvault
 
@@ -85,67 +85,12 @@ class UpdaterTimeout(StandardError):
     pass
 
 
-
-
-
-def setPathInSettings(path):
-    """
-    Stores the new path for Forged Alliance in the app settings
-    """
-    settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
-    settings.beginGroup("ForgedAlliance")
-    settings.setValue("app/path", path)
-    settings.endGroup()
-    settings.sync()
-
-
-def getPathFromSettings():
-    """ 
-    Retrieves the Path as configured in the settings 
-    """
-    settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
-    settings.beginGroup("ForgedAlliance")
-    path = unicode(settings.value("app/path"))
-    settings.endGroup()
-    return path
-
-
-def setPathInSettingsSC(path):
-    """
-    Stores the new path for Supremene Commander in the app settings
-    """
-    settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
-    settings.beginGroup("SupremeCommanderVanilla")
-    settings.setValue("app/path", path)
-    settings.endGroup()
-    settings.sync()
-
-
-def getPathFromSettingsSC():
-    """ 
-    Retrieves the Path as configured in the settings 
-    """
-    settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
-    settings.beginGroup("SupremeCommanderVanilla")
-    path = unicode(settings.value("app/path"))
-    settings.endGroup()
-    return path
-
-
-def autoDetectPath():
-    for path in mostProbablePaths():
-        if validatePath(path):
-            return path
-
-    return None
-
-
 def validateAndAdd(path, combobox):
     """
     Validates a given path's existence and uniqueness, then adds it to the provided QComboBox
     """
     if validatePath(path):
-        if (combobox.findText(path, QtCore.Qt.MatchFixedString) == -1):
+        if combobox.findText(path, QtCore.Qt.MatchFixedString) == -1:
             combobox.addItem(path)
 
 
@@ -840,7 +785,7 @@ class UpgradePage(QtGui.QWizardPage):
         super(UpgradePage, self).__init__(parent)
 
         self.setTitle("Specify Forged Alliance folder")
-        self.setPixmap(QtGui.QWizard.WatermarkPixmap, util.pixmap("fa/updater/upgrade_watermark.png"))
+        self.setPixmap(QtGui.QWizard.WatermarkPixmap, util.pixmap("fa/updater/forged_alliance_watermark.png"))
 
         layout = QtGui.QVBoxLayout()
 
@@ -900,7 +845,7 @@ class UpgradePageSC(QtGui.QWizardPage):
         super(UpgradePageSC, self).__init__(parent)
 
         self.setTitle("Specify Supreme Commander folder")
-        self.setPixmap(QtGui.QWizard.WatermarkPixmap, util.pixmap("fa/updater/upgrade_watermark.png"))
+        self.setPixmap(QtGui.QWizard.WatermarkPixmap, util.pixmap("fa/updater/supreme_commander_watermark.png"))
 
         layout = QtGui.QVBoxLayout()
 
@@ -968,7 +913,7 @@ class WizardSC(QtGui.QWizard):
 
         self.setWizardStyle(QtGui.QWizard.ModernStyle)
         self.setWindowTitle("Supreme Commander Install Wizard")
-        self.setPixmap(QtGui.QWizard.WatermarkPixmap, util.pixmap("fa/updater/upgrade_watermark.png"))
+        self.setPixmap(QtGui.QWizard.WatermarkPixmap, util.pixmap("fa/updater/forged_alliance_watermark.png"))
 
         self.setOption(QtGui.QWizard.NoBackButtonOnStartPage, True)
 
@@ -991,7 +936,7 @@ class Wizard(QtGui.QWizard):
 
         self.setWizardStyle(QtGui.QWizard.ModernStyle)
         self.setWindowTitle("FAF Install Wizard")
-        self.setPixmap(QtGui.QWizard.WatermarkPixmap, util.pixmap("fa/updater/upgrade_watermark.png"))
+        self.setPixmap(QtGui.QWizard.WatermarkPixmap, util.pixmap("fa/updater/forged_alliance_watermark.png"))
 
         self.setOption(QtGui.QWizard.NoBackButtonOnStartPage, True)
 
