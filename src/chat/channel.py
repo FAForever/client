@@ -73,8 +73,6 @@ class Channel(FormClass, BaseClass):
         self.name = name
         self.private = private
         
-        self.gwChannel = False
-        
         self.setup()
         
         
@@ -566,15 +564,7 @@ class Channel(FormClass, BaseClass):
             else:
                 if self.lobby.sendMsg(target, text):
                     self.printMsg(self.lobby.client.login, text, True)
-                    if target.lower() == "#uef" or target.lower() == "#aeon" or target.lower() == "#cybran" or target.lower() == "#seraphim" :
-                        if self.gwChannel == True:
-                            # we need to send to the "normal" chat too
-                            if target in self.lobby.client.chat.channels:
-                                self.lobby.client.chat.channels[target].printMsg(self.lobby.client.login, text, True)
-                        else:
-                            # we need to send to the GW chat too
-                            self.lobby.client.GalacticWar.channel.printMsg(self.lobby.client.login, text, True)
-        
+
         self.chatEdit.clear()
         
         

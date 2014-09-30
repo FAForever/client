@@ -61,10 +61,6 @@ class SLPP:
         result = self.value()
         return result
 
-    def encodeReinforcements(self, obj):
-        self.depth = 0
-        return self.__encode(obj, start="gwReinforcements = ")
-        
     def encode(self, obj):
         if not obj:
             return

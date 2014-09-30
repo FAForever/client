@@ -18,7 +18,7 @@ def replay(source, detach=False):
     '''
     logger.info("fa.exe.replay(" + str(source) + ", detach = " + str(detach))
 
-    if (available()):
+    if fa.instance.available():
         version = None
         featured_mod_versions = None
         arg_string = None
@@ -53,15 +53,6 @@ def replay(source, detach=False):
 
                     parser = replayParser(arg_string)
                     version = parser.getVersion()
-
-                    if mod == "gw":
-                        infoReplayGW = fa.gwreplayinfo.GWReplayInfo(info['uid'])
-                        result = infoReplayGW.run()
-                        if (result != fa.gwreplayinfo.GWReplayInfo.RESULT_SUCCESS):
-                            logger.info("We don't have the info necessary for GW")
-                            return False
-
-                        logger.info("Writing GW game table file.")
 
                 elif source.endswith(".scfareplay"):  # compatibility mode
                     filename = os.path.basename(source)
@@ -113,13 +104,12 @@ def replay(source, detach=False):
         arguments = []
         arguments.append('/replay')
         arguments.append(arg_string)
-        #arguments.append('/sse2')
-        #arguments.append('/networksafe')
+
 
         #Proper mod loading code
         if not '/init' in arguments:
             arguments.append('/init')
-            arguments.append(os.path.join("..", "repos", mod, "init.lua"))
+            arguments.append("init_" + mod + ".lua")
 
         #disable bug reporter and movies
         arguments.append('/nobugreport')
@@ -137,14 +127,9 @@ def replay(source, detach=False):
             logger.error("Can't watch replays without an updated Forged Alliance game!")
             return False
 
-        if mod == "gw":
-            # in case of GW, we need to alter the scenario for support AIs
-            if not fa.maps.gwmap(info['mapname']):
-                logger.error("You don't have the required map.")
-                return
 
-                # Finally, run executable
-        if __run(None, arguments, detach):
+        # Finally, run executable
+        if fa.instance.run(None, arguments, detach):
             logger.info("Viewing Replay.")
             return True
         else:

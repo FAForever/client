@@ -320,7 +320,6 @@ class ClientWindow(FormClass, BaseClass):
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.gamesTab), util.icon("client/games.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.coopTab), util.icon("client/coop.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.vaultsTab), util.icon("client/mods.png"))
-        #self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.galacticwarTab), util.icon("client/gw.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.ladderTab), util.icon("client/ladder.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.tourneyTab), util.icon("client/tourney.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.livestreamTab), util.icon("client/twitch.png"))
@@ -491,7 +490,6 @@ class ClientWindow(FormClass, BaseClass):
         import games
         import tutorials
         import featuredmods
-        #import galacticWar
         import downloadManager
         import modvault
         import coop
@@ -511,7 +509,6 @@ class ClientWindow(FormClass, BaseClass):
         self.modvault = modvault.ModVault(self)
         self.replays = replays.Replays(self)
         self.tutorials = tutorials.Tutorials(self)
-        #self.GalacticWar = galacticWar.Lobby(self)
         self.Coop = coop.Coop(self)
         self.notificationSystem = ns.NotificationSystem(self)
 
@@ -1374,9 +1371,6 @@ class ClientWindow(FormClass, BaseClass):
         if new_tab is self.tourneyTab:
             self.showTourneys.emit()
 
-        # if new_tab is self.galacticwarTab:
-        #     self.showGalaxyWar.emit()
-
         if new_tab is self.coopTab:
             self.showCoop.emit()
 
@@ -1769,28 +1763,9 @@ class ClientWindow(FormClass, BaseClass):
 
         # Do some special things depending of the reason of the game launch.
         rank = False
-        galacticWar = False
-
-        if 'reason' in message:
-            if message['reason'] == 'gw' :
-                rank = True
-                galacticWar = True
-                silent = True
-                if "luatable" in message:
-                    fa.gwgametable.writeTable(message["luatable"], "gwReinforcementList.gw")
-                if (not fa.check.check(message[modkey], silent=silent)):
-                    logger.error("Can't play %s without successfully updating Forged Alliance." % message[modkey])
-                    return
 
         # HACK: Ideally, this comes from the server, too. LATER: search_ranked message
-        if rank :
-            arguments.append('/rank')
-            arguments.append(str(self.GalacticWar.rank))
-
-            # Launch the auto lobby
-            self.relayServer.init_mode = 0
-
-        elif message[modkey] == "ladder1v1":
+        if message[modkey] == "ladder1v1":
             arguments.append(self.games.race)
             #Player 1v1 rating
             arguments.append('/mean')
@@ -1815,23 +1790,16 @@ class ClientWindow(FormClass, BaseClass):
             self.relayServer.init_mode = 0
 
         clan = self.getUserClan(self.login)
-        if clan and galacticWar == False:
+        if clan:
             arguments.append('/clan')
             arguments.append(clan)
 
         # Ensure we have the map
         if "mapname" in message:
-
             fa.check.checkMap(message['mapname'], force=True, silent=silent)
-            if galacticWar:
-                # in case of GW, we need to alter the scenario for support AIs
-                if not fa.maps.gwmap(message['mapname']):
-                    logger.error("You don't have the required map.")
-                    return
 
         if "sim_mods" in message:
             checkMods(message['sim_mods'])
-
 
         # Writing a file for options
         if "options" in message:

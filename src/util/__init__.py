@@ -61,9 +61,6 @@ SOUND_DIR = os.path.join(APPDATA_DIR, EXTRA_DIR, "sounds")
 #This contains cached data downloaded for FA voices
 VOICES_DIR = os.path.join(APPDATA_DIR, EXTRA_DIR, SOUND_DIR, "voice", "us")
 
-#This contains cached data downloaded for galactic war.
-GW_TEXTURE_DIR = os.path.join(APPDATA_DIR, "cache", "galacticwar")
-
 #This contains the replays recorded by the local replay server
 REPLAY_DIR = os.path.join(APPDATA_DIR, "replays")
 
@@ -122,9 +119,6 @@ if not os.path.isdir(REPLAY_DIR):
 
 if not os.path.isdir(LOG_DIR):
     os.makedirs(LOG_DIR)
-
-if not os.path.isdir(GW_TEXTURE_DIR):
-    os.makedirs(GW_TEXTURE_DIR)
 
 if not os.path.isdir(EXTRA_DIR):
     os.makedirs(EXTRA_DIR)
