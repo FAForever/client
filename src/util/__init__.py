@@ -589,12 +589,11 @@ def md5(file_name):
     m = hashlib.md5()
     if not os.path.isfile(file_name): return None
 
-    fd = open(file_name, "rb")
-    while True:
-        content = fd.read(1024 * 1024)
-        if not content: break
-        m.update(content)
-    fd.close()
+    with open(file_name, "rb") as fd:
+        while True:
+            content = fd.read(1024 * 1024)
+            if not content: break
+            m.update(content)
 
     return m.hexdigest()
 
