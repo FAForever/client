@@ -1,7 +1,9 @@
 from PyQt4 import QtCore, QtGui
 import util, time
 
-
+"""
+The UI popup of the notification system
+"""
 FormClass, BaseClass = util.loadUiType("notification_system/dialog.ui")
 class NotficationDialog(FormClass, BaseClass):
     def __init__(self, client, *args, **kwargs):
@@ -28,6 +30,13 @@ class NotficationDialog(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def newEvent(self, pixmap, text, lifetime, sound):
+        """ Called to display a new popup
+        Keyword arguments:
+        pixmap -- Icon for the event (displayed left)
+        text- HTMl-Text of the vent (displayed right)
+        lifetime -- Display duration
+        sound -- true|false if should played
+        """
         self.labelEvent.setText(str(text))
         if not pixmap:
             pixmap = self.standardIcon
