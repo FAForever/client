@@ -9,7 +9,7 @@ from notificatation_system.ns_settings import NsSettingsDialog
 
 """
 The Notification Systems reacts on events and displays a popup.
-Each event_type has
+Each event_type has a NsHook to customize it.
 """
 class NotificationSystem():
     USER_ONLINE = 'user_online'
@@ -37,7 +37,8 @@ class NotificationSystem():
 
     @QtCore.pyqtSlot()
     def on_event(self, eventType, data):
-        """ Puts an event in a queue, can trigger a popup.
+        """
+        Puts an event in a queue, can trigger a popup.
         Keyword arguments:
         eventType -- Type of the event
         data -- Custom data that is used by the system to show a detailed popup
