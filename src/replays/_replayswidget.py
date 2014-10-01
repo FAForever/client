@@ -215,19 +215,18 @@ class ReplaysWidget(BaseClass, FormClass):
         cache_fname = os.path.join(util.CACHE_DIR, "local_replays_metadata")
         cache = {}
         if os.path.exists(cache_fname):
-            fh = open(cache_fname, "rt")
-            for line in fh:
-                filename, metadata = line.split(':', 1)
-                cache[filename] = metadata
+            with open(cache_fname, "rt") as fh:
+                for line in fh:
+                    filename, metadata = line.split(':', 1)
+                    cache[filename] = metadata
         return cache
 
     def saveLocalCache(self, cache_hit, cache_add):
-        fh = open(os.path.join(util.CACHE_DIR, "local_replays_metadata"), "wt");
-        for filename, metadata in cache_hit.iteritems():
-            fh.write(filename + ":" + metadata)
-        for filename, metadata in cache_add.iteritems():
-            fh.write(filename + ":" + metadata)
-        fh.close()
+        with open(os.path.join(util.CACHE_DIR, "local_replays_metadata"), "wt") as fh:
+            for filename, metadata in cache_hit.iteritems():
+                fh.write(filename + ":" + metadata)
+            for filename, metadata in cache_add.iteritems():
+                fh.write(filename + ":" + metadata)
 
     def updatemyTree(self):
         self.myTree.clear()
@@ -260,8 +259,9 @@ class ReplaysWidget(BaseClass, FormClass):
                         oneline = cache[basename]
                         cache_hit[basename] = oneline
                     else:
-                        oneline = open(item.filename, "rt").readline()
-                        cache_add[basename] = oneline
+                        with open(item.filename, "rt") as fh:
+                            oneline = fh.readline()
+                            cache_add[basename] = oneline
 
                     item.info = json.loads(oneline)
 
