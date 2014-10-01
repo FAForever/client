@@ -7,7 +7,10 @@ from multiprocessing import Lock
 from notificatation_system.ns_dialog import NotficationDialog
 from notificatation_system.ns_settings import NsSettingsDialog
 
-
+"""
+The Notification Systems reacts on events and displays a popup.
+Each event_type has
+"""
 class NotificationSystem():
     USER_ONLINE = 'user_online'
     NEW_GAME = 'new_game'
@@ -34,6 +37,11 @@ class NotificationSystem():
 
     @QtCore.pyqtSlot()
     def on_event(self, eventType, data):
+        """ Puts an event in a queue, can trigger a popup.
+        Keyword arguments:
+        eventType -- Type of the event
+        data -- Custom data that is used by the system to show a detailed popup
+        """
         if self.isDisabled() or not self.settings.popupEnabled(eventType):
             return
         self.events.append((eventType, data))
@@ -42,9 +50,11 @@ class NotificationSystem():
 
     @QtCore.pyqtSlot()
     def on_showSettings(self):
+        """ Shows a Settings Dialg with all registered notifications modules  """
         self.settings.show()
 
     def showEvent(self):
+        """ Display the next event in the queue as popup  """
         self.lock.acquire()
         event = self.events[0]
         del self.events[0]
