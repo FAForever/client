@@ -211,12 +211,33 @@ class ReplaysWidget(BaseClass, FormClass):
                 
             bucket_item.setExpanded(True)
     
+    def loadLocalCache(self):
+	fname = os.path.join(util.CACHE_DIR, "local_replays_metadata")
+	cache = {}
+	if os.path.exists(fname):
+	    fh = open(fname, "rt")
+	    for line in fh:
+		k, v = line.split(':', 1)
+		cache[k] = v
+	return cache
+
+    def saveLocalCache(self, cache1, cache2):
+        fh = open(os.path.join(util.CACHE_DIR, "local_replays_metadata"), "wt");
+        for k, v in cache1.iteritems():
+	    fh.write(k + ":" + v)
+	for k, v in cache2.iteritems():
+	    fh.write(k + ":" + v)
+	fh.close()
+
     def updatemyTree(self):
         self.myTree.clear()
         
         # We put the replays into buckets by day first, then we add them to the treewidget.
         buckets = {}
         
+	cache = self.loadLocalCache()
+	cache_add = {}
+	cache_hit = {}
         # Iterate
         for infile in os.listdir(util.REPLAY_DIR):            
             if infile.endswith(".scfareplay"):
@@ -234,7 +255,15 @@ class ReplaysWidget(BaseClass, FormClass):
                 item = QtGui.QTreeWidgetItem()
                 try:
                     item.filename = os.path.join(util.REPLAY_DIR, infile)
-                    item.info = json.loads(open(item.filename, "rt").readline())
+                    basename = os.path.basename(item.filename)
+                    if basename in cache:
+		        oneline = cache[basename]
+			cache_hit[basename] = oneline
+		    else:
+		        oneline = open(item.filename, "rt").readline()
+			cache_add[basename] = oneline
+
+                    item.info = json.loads(oneline)
                     
                     # Parse replayinfo into data
                     if item.info.get('complete', False):
@@ -287,6 +316,8 @@ class ReplaysWidget(BaseClass, FormClass):
                     
                 
             
+	if len(cache_add) > 10 or len(cache) - len(cache_hit) > 10:
+	    self.saveLocalCache(cache_hit, cache_add)
         # Now, create a top level treewidgetitem for every bucket, and put the bucket's contents into them         
         for bucket in buckets.keys():
             bucket_item = QtGui.QTreeWidgetItem()
