@@ -3,7 +3,9 @@ import util
 from notificatation_system.ns_hook import NsHook
 import notificatation_system as ns
 
-
+"""
+Settings for notifications: if a new game is hosted.
+"""
 class NsHookNewGame(NsHook):
     def __init__(self):
         NsHook.__init__(self, ns.NotificationSystem.NEW_GAME)

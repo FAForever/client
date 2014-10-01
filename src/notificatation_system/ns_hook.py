@@ -1,7 +1,15 @@
 from PyQt4 import QtGui
 import util
 
+"""
+Setting Model class.
+All Event Types (Notifications) are customizable.
+Required are "popup, sound, enabled" settings.
+You can add custom settings over the "settings" button.
+connect on clicked event some actions, e.g.
 
+self.button.clicked.connect(self.dialog.show)
+"""
 class NsHook():
     def __init__(self, eventType):
         self.eventType = eventType

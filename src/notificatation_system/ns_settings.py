@@ -6,7 +6,11 @@ from notificatation_system.ns_hook import NsHook
 from notificatation_system.hook_newgame import NsHookNewGame
 from notificatation_system.hook_teaminvite import NsHookTeamInvite
 
-
+"""
+The UI of the Notification System Settings Frame.
+Each module/hook for the notification system must be registered here.
+"""
+# TODO: how to register hooks?
 FormClass2, BaseClass2 = util.loadUiType("notification_system/ns_settings.ui")
 class NsSettingsDialog(FormClass2, BaseClass2):
     def __init__(self, client):
@@ -84,6 +88,10 @@ class NsSettingsDialog(FormClass2, BaseClass2):
                 return getattr(self.hooks[eventType], key)
         return None
 
+"""
+Model Class for notification type table.
+Needs an NsHook.
+"""
 class NotificationHooks(QtCore.QAbstractTableModel):
     POPUP = 1
     SOUND = 2
