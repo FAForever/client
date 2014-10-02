@@ -42,6 +42,12 @@ class Updater(QtCore.QObject):
                 if os.path.isfile(patch_filename):
                     logger.info("Applying patch " + patch_filename)
 
+                    # Workaround, 2014-10-02
+                    # We cannot use file_patch_inplace here because it has a bug
+                    # See: https://github.com/ilanschnell/bsdiff4/pull/5
+
+                    # bsdiff4.file_patch_inplace(fa_filename, patch_filename)
+
                     with open(fa_filename, "rb") as fa_file:
                         fa_data = fa_file.read()
 
