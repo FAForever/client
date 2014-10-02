@@ -211,12 +211,32 @@ class ReplaysWidget(BaseClass, FormClass):
                 
             bucket_item.setExpanded(True)
     
+    def loadLocalCache(self):
+        cache_fname = os.path.join(util.CACHE_DIR, "local_replays_metadata")
+        cache = {}
+        if os.path.exists(cache_fname):
+            with open(cache_fname, "rt") as fh:
+                for line in fh:
+                    filename, metadata = line.split(':', 1)
+                    cache[filename] = metadata
+        return cache
+
+    def saveLocalCache(self, cache_hit, cache_add):
+        with open(os.path.join(util.CACHE_DIR, "local_replays_metadata"), "wt") as fh:
+            for filename, metadata in cache_hit.iteritems():
+                fh.write(filename + ":" + metadata)
+            for filename, metadata in cache_add.iteritems():
+                fh.write(filename + ":" + metadata)
+
     def updatemyTree(self):
         self.myTree.clear()
         
         # We put the replays into buckets by day first, then we add them to the treewidget.
         buckets = {}
         
+        cache = self.loadLocalCache()
+        cache_add = {}
+        cache_hit = {}
         # Iterate
         for infile in os.listdir(util.REPLAY_DIR):            
             if infile.endswith(".scfareplay"):
@@ -234,8 +254,17 @@ class ReplaysWidget(BaseClass, FormClass):
                 item = QtGui.QTreeWidgetItem()
                 try:
                     item.filename = os.path.join(util.REPLAY_DIR, infile)
-                    item.info = json.loads(open(item.filename, "rt").readline())
-                    
+                    basename = os.path.basename(item.filename)
+                    if basename in cache:
+                        oneline = cache[basename]
+                        cache_hit[basename] = oneline
+                    else:
+                        with open(item.filename, "rt") as fh:
+                            oneline = fh.readline()
+                            cache_add[basename] = oneline
+
+                    item.info = json.loads(oneline)
+
                     # Parse replayinfo into data
                     if item.info.get('complete', False):
                         game_date = time.strftime("%Y-%m-%d", time.localtime(item.info['game_time']))
@@ -287,6 +316,8 @@ class ReplaysWidget(BaseClass, FormClass):
                     
                 
             
+        if len(cache_add) > 10 or len(cache) - len(cache_hit) > 10:
+            self.saveLocalCache(cache_hit, cache_add)
         # Now, create a top level treewidgetitem for every bucket, and put the bucket's contents into them         
         for bucket in buckets.keys():
             bucket_item = QtGui.QTreeWidgetItem()
