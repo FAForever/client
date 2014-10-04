@@ -1907,7 +1907,7 @@ class ClientWindow(FormClass, BaseClass):
         game_info = dict(uid=message['uid'], recorder=self.login, featured_mod=message[modkey], game_time=time.time(), version_info=version_info)
 
 
-        fa.play(game_info, self.relayServer.serverPort(), arguments)
+        fa.play(game_info, self.relayServer.serverPort(), self.gamelogs, self.livereplays, arguments)
 
 
 

@@ -12,7 +12,7 @@ from PyQt4 import QtCore
 settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
 
 
-def build_argument_list(game_info, port, arguments=None):
+def build_argument_list(game_info, port, gamelogs, livereplays, arguments=None):
     """
     Compiles an argument list to run the game with POpen style process invocation methods.
     Extends a potentially pre-existing argument list to allow for injection of special parameters
@@ -25,12 +25,12 @@ def build_argument_list(game_info, port, arguments=None):
         arguments.append("init_" + game_info['featured_mod'] + ".lua")
 
     #log file
-    if settings.value("fa.play.write_game_log", type=bool):
+    if gamelogs:
         arguments.append("/log")
         arguments.append('"' + util.LOG_FILE_GAME + '"')
 
     #live replay
-    if settings.value("fa.play.stream_live_replay", type=bool):
+    if livereplays:
         arguments.append('/savereplay')
         arguments.append('gpgnet://localhost/' + str(game_info['uid']) + "/" + str(game_info['recorder']) + '.SCFAreplay')
 
@@ -43,9 +43,9 @@ def build_argument_list(game_info, port, arguments=None):
     return arguments
 
 
-def play(game_info, port, arguments=None):
+def play(game_info, port, gamelogs, livereplays, arguments=None):
     """
     Launches Forged Alliance with the given arguments
     """
-    arguments = build_argument_list(game_info, port, arguments)
+    arguments = build_argument_list(game_info, port, gamelogs, livereplays, arguments)
     return instance.run(game_info, arguments)
