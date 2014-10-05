@@ -148,7 +148,7 @@ try:
         shutil.rmtree(LOG_DIR)
         os.makedirs(LOG_DIR)
 
-    if (os.path.isfile(LOG_FILE_FAF)):
+    if os.path.isfile(LOG_FILE_FAF):
         if os.path.getsize(LOG_FILE_FAF) > LOGFILE_MAX_SIZE:
             os.remove(LOG_FILE_FAF)
 except:
@@ -200,6 +200,11 @@ __themedir = None
 
 # Public settings object
 settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
+
+def clean_slate(path):
+    if os.path.exists(path):
+        shutil.rmtree(path)
+    os.makedirs(path)
 
 
 def loadTheme():
