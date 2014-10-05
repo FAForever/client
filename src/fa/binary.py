@@ -60,7 +60,7 @@ class Updater(QtCore.QThread):
 
     def __init__(self, parent=None):
         QtCore.QThread.__init__(self, parent)
-        self.repo = Repository(REPO_URL, os.path.join(util.REPO_DIR, REPO_NAME))
+        self.repo = Repository(os.path.join(util.REPO_DIR, REPO_NAME), REPO_URL)
 
     @staticmethod
     def guess_install_type(game_path):
@@ -181,6 +181,7 @@ class Updater(QtCore.QThread):
     def run(self):
         self.prepare_progress("Checking out Git Repository")
 
+        self.repo.fetch()
         self.repo.checkout()
 
         gamepath = os.path.join(str(settings.value("ForgedAlliance/app/path", type=str)), "bin")

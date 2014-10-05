@@ -135,7 +135,7 @@ if not os.path.isdir(VOICES_DIR):
 
 from PyQt4 import QtGui, uic, QtCore
 import shutil
-import hashlib, sha
+import hashlib
 import re
 import urllib
 import _winreg
