@@ -116,7 +116,7 @@ class Updater(QtCore.QThread):
                     file_md5 = hashlib.md5(file_data).hexdigest()
 
                 if file_md5 == expected_md5:
-                    logger.info(file_name + " OK")
+                    logger.debug(file_name + " OK")
                 else:
                     logger.warn(file_name + " checksum mismatch, " + file_md5 + " != " + expected_md5 + " (expected)")
                     okay  = False
@@ -132,6 +132,7 @@ class Updater(QtCore.QThread):
         except StandardError, err:
             logger.error("Error verifying files: " + str(err))
             okay = False
+
         return okay
 
 
