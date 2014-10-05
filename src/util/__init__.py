@@ -203,6 +203,7 @@ settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
 
 def clean_slate(path):
     if os.path.exists(path):
+        logger.info("Wiping " + path)
         shutil.rmtree(path)
     os.makedirs(path)
 

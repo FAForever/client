@@ -108,7 +108,7 @@ class Updater(QtCore.QThread):
         self.prepare_progress("Verifying FA Install", len(post_patch_verify))
 
         okay = True
-        logger.info("Verifying bin directory " + util.BIN_DIR)
+        logger.info("Verifying bin directory " + bin_dir)
         try:
             for file_name, expected_md5 in post_patch_verify.iteritems():
                 with open(os.path.join(bin_dir, file_name), "rb+") as source_file:
@@ -124,8 +124,13 @@ class Updater(QtCore.QThread):
                 self.progress_value.emit(count())
                 self.yieldCurrentThread()
 
-        except IOError, io:
-            logger.error("Error verifying: " + io.message)
+            for existing_file in os.listdir(bin_dir):
+                if not existing_file in post_patch_verify:
+                    logger.warn(existing_file + " is not in verify list.")
+                    okay = False
+
+        except StandardError, err:
+            logger.error("Error verifying files: " + str(err))
             okay = False
         return okay
 
@@ -149,13 +154,14 @@ class Updater(QtCore.QThread):
 
 
     def run(self):
-        self.prepare_progress("Fetching Git Repository")
+        self.prepare_progress("Checking out Git Repository")
 
         self.repo.checkout()
 
         gamepath = os.path.join(str(settings.value("ForgedAlliance/app/path", type=str)), "bin")
 
         if not self.check_up_to_date(gamepath):
+            logger.info("Fresh bin directory required.")
             self.prepare_progress("Creating fresh install.")
             util.clean_slate(util.BIN_DIR)
             self.patch_forged_alliance(gamepath)
@@ -165,8 +171,10 @@ if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
     updater = Updater(app)
     progress = QtGui.QProgressDialog()
-    progress.setWindowTitle("Updating FAF")
+    progress.setWindowTitle("Updating Game")
     progress.setAutoClose(False)
+    progress.setCancelButton(None)
+    progress.setMinimumDuration(1500)
     progress.show()
 
     updater.progress_value.connect(progress.setValue)
