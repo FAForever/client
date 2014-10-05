@@ -54,15 +54,18 @@ class Updater(QtCore.QThread):
             logger.info("Copying " + os.path.join(source_path, source_name))
             shutil.copyfile(os.path.join(source_path, source_name), os.path.join(destination_path, destination_name or source_name))
             self.progress_value.emit(count())
+            self.yieldCurrentThread()
 
 
     def prepare_progress(self, operation, maximum=0):
         self.progress_description.emit(operation)
         self.progress_maximum.emit(maximum)
         self.progress_reset.emit()
+        self.yieldCurrentThread()
 
 
-    def patch_forged_alliance_bin(self, post_patch_verify, patch_data_directory, bin_dir=util.BIN_DIR):
+
+    def patch_forged_alliance_bin(self, post_patch_verify, patch_data_directory=os.path.join(util.REPO_DIR, REPO_NAME, "bsdiff4"), bin_dir=util.BIN_DIR):
         count = make_counter()
         self.prepare_progress("Patching FA Install", len(post_patch_verify))
 
@@ -97,6 +100,7 @@ class Updater(QtCore.QThread):
                 raise ValueError("MD5 mismatch for " + file_name)
 
             self.progress_value.emit(count())
+            self.yieldCurrentThread()
 
 
     def verify_forged_alliance_bin(self, post_patch_verify, bin_dir=util.BIN_DIR):
@@ -118,6 +122,7 @@ class Updater(QtCore.QThread):
                     okay  = False
 
                 self.progress_value.emit(count())
+                self.yieldCurrentThread()
 
         except IOError, io:
             logger.error("Error verifying: " + io.message)
@@ -130,7 +135,7 @@ class Updater(QtCore.QThread):
             migration_data = json.loads(json_file.read())
 
         self.copy_forged_alliance_bin(migration_data['pre_patch_copy_rename'], game_path)
-        self.patch_forged_alliance_bin(migration_data['post_patch_verify'], os.path.join(util.REPO_DIR, "binary-patch", "bsdiff4"))
+        self.patch_forged_alliance_bin(migration_data['post_patch_verify'])
 
 
     def check_up_to_date(self, game_path, bin_dir=util.BIN_DIR):
@@ -160,6 +165,8 @@ if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
     updater = Updater(app)
     progress = QtGui.QProgressDialog()
+    progress.setWindowTitle("Updating FAF")
+    progress.setAutoClose(False)
     progress.show()
 
     updater.progress_value.connect(progress.setValue)
