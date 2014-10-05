@@ -1,3 +1,21 @@
+# -------------------------------------------------------------------------------
+# Copyright (c) 2014 Forged Alliance Forever Community Project.
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the GNU Public License v3.0
+# which accompanies this distribution, and is available at
+# http://www.gnu.org/licenses/gpl.html
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#-------------------------------------------------------------------------------
+
 from PyQt4.QtCore import pyqtSignal
 from git import Repository
 
@@ -13,6 +31,8 @@ import sys
 import json
 import logging
 import hashlib
+from updater import  illegalDialog
+
 logger = logging.getLogger(__name__)
 
 REPO_NAME = "binary-patch"
@@ -20,6 +40,8 @@ REPO_URL = "https://github.com/FAForever/binary-patch.git"
 
 from util import settings
 
+class PatchFailedError(StandardError):
+    pass
 
 def make_counter(start=0):
     _closure={"count":start}
@@ -28,11 +50,13 @@ def make_counter(start=0):
         return _closure['count']
     return f
 
+
 class Updater(QtCore.QThread):
     progress_reset = pyqtSignal()
     progress_value = pyqtSignal(int)
     progress_maximum = pyqtSignal(int)
     progress_description = pyqtSignal(str)
+    failed = pyqtSignal(PatchFailedError)
 
     def __init__(self, parent=None):
         QtCore.QThread.__init__(self, parent)
@@ -97,7 +121,7 @@ class Updater(QtCore.QThread):
                 logger.info("Verified: " + file_name + " OK")
             else:
                 logger.error(file_name + " checksum mismatch after patching, " + file_md5 + " != " + expected_md5 + " (expected)")
-                raise ValueError("MD5 mismatch for " + file_name)
+                raise PatchFailedError("MD5 mismatch for " + file_name)
 
             self.progress_value.emit(count())
             self.yieldCurrentThread()
@@ -165,8 +189,10 @@ class Updater(QtCore.QThread):
             logger.info("Fresh bin directory required.")
             self.prepare_progress("Creating fresh install.")
             util.clean_slate(util.BIN_DIR)
-            self.patch_forged_alliance(gamepath)
-
+            try:
+                self.patch_forged_alliance(gamepath)
+            except PatchFailedError, pfe:
+                self.failed.emit(pfe)
 
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
