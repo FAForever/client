@@ -1,126 +1,176 @@
+from PyQt4.QtCore import pyqtSignal
 from git import Repository
 
 __author__ = 'Thygrrr'
+
 
 from PyQt4 import QtGui, QtCore
 import os
 import util
 import bsdiff4
-
+import shutil
+import sys
+import json
 import logging
+import hashlib
 logger = logging.getLogger(__name__)
 
 REPO_NAME = "binary-patch"
 REPO_URL = "https://github.com/FAForever/binary-patch.git"
 
+from util import settings
 
-class Updater(QtCore.QObject):
+
+def make_counter(start=0):
+    _closure={"count":start}
+    def f(jump=1):
+        _closure['count'] += jump
+        return _closure['count']
+    return f
+
+class Updater(QtCore.QThread):
+    progress_reset = pyqtSignal()
+    progress_value = pyqtSignal(int)
+    progress_maximum = pyqtSignal(int)
+    progress_description = pyqtSignal(str)
+
     def __init__(self, parent=None):
-        QtCore.QObject.__init__(self, parent)
-        self.repo = Repository(self)
-        self.progress = QtGui.QProgressDialog("Checking out " + REPO_NAME, "Cancel", 0, 0)
-        self.progress.setWindowTitle("Updater")
-        self.progress.show()
-        self.repo.operation_complete.connect(self.progress.hide)
-        self.repo.checkout(REPO_URL, os.path.join(util.REPO_DIR, REPO_NAME))
+        QtCore.QThread.__init__(self, parent)
+        self.repo = Repository(REPO_URL, os.path.join(util.REPO_DIR, REPO_NAME))
+
+    @staticmethod
+    def guess_install_type(game_path):
+        return 'steam' if os.path.isfile(os.path.join(game_path, "steam_api.dll")) else 'retail'
 
 
-    def update_fa(self):
-        for patch_entry in os.listdir(self.repo.path):
-            if patch_entry.startswith("."):
-                continue
+    def copy_forged_alliance_bin(self, copy_rename, source_path, destination_path=util.BIN_DIR):
+        count = make_counter()
+        self.prepare_progress("Copying FA Files", len(copy_rename))
 
-            patch_path = os.path.join(self.repo.path, patch_entry)
+        if not os.path.exists(destination_path):
+            shutil.mkdirs(destination_path)
 
-            # The binary-patch repo has a collection of patches for the given file in BIN_DIR
-            if os.path.isdir(patch_path):
-                fa_filename = os.path.join(util.BIN_DIR, patch_entry)
-                fa_md5 = util.md5(fa_filename)
-                logger.info("Examining " + fa_filename + ", checksum " + fa_md5)
+        for source_name, destination_name in copy_rename.iteritems():
+            logger.info("Copying " + os.path.join(source_path, source_name))
+            shutil.copyfile(os.path.join(source_path, source_name), os.path.join(destination_path, destination_name or source_name))
+            self.progress_value.emit(count())
 
-                patch_filename = os.path.join(patch_path, fa_md5+".bsdiff4")
-                if os.path.isfile(patch_filename):
-                    logger.info("Applying patch " + patch_filename)
+
+    def prepare_progress(self, operation, maximum=0):
+        self.progress_description.emit(operation)
+        self.progress_maximum.emit(maximum)
+        self.progress_reset.emit()
+
+
+    def patch_forged_alliance_bin(self, post_patch_verify, patch_data_directory, bin_dir=util.BIN_DIR):
+        count = make_counter()
+        self.prepare_progress("Patching FA Install", len(post_patch_verify))
+
+        for file_name, expected_md5 in post_patch_verify.iteritems():
+            with open(os.path.join(bin_dir, file_name), "rb+") as source_file:
+                file_data = source_file.read()
+                file_md5 = hashlib.md5(file_data).hexdigest()
+
+                patch_name = os.path.join(patch_data_directory, file_md5)
+                if os.path.isfile(os.path.join(patch_data_directory, file_md5)):
+                    logger.info("Patching " + file_name)
 
                     # Workaround, 2014-10-02
                     # We cannot use file_patch_inplace here because it has a bug
                     # See: https://github.com/ilanschnell/bsdiff4/pull/5
 
-                    # bsdiff4.file_patch_inplace(fa_filename, patch_filename)
+                    # bsdiff4.file_patch_inplace(file_name, patch_name)
 
-                    with open(fa_filename, "rb") as fa_file:
-                        fa_data = fa_file.read()
+                    with open(patch_name, "rb") as patch_file:
+                        patched_data = bsdiff4.patch(file_data, patch_file.read())
+                        file_md5 = hashlib.md5(patched_data).hexdigest()
 
-                    with open(patch_filename, "rb") as patch_file:
-                        patch_data = patch_file.read()
+                    source_file.seek(0)
+                    source_file.write(patched_data)
 
-                    fa_data = bsdiff4.patch(fa_data, patch_data)
-                    with open(fa_filename, "wb+") as fa_file:
-                        fa_file.write(fa_data)
+                    source_file.truncate()
 
-                    fa_md5 = util.md5(fa_filename)
-                    logger.info("Patched " + fa_filename + ", checksum " + fa_md5)
+            if file_md5 == expected_md5:
+                logger.info("Verified: " + file_name + " OK")
+            else:
+                logger.error(file_name + " checksum mismatch after patching, " + file_md5 + " != " + expected_md5 + " (expected)")
+                raise ValueError("MD5 mismatch for " + file_name)
 
-
-                goal_filename = os.path.join(patch_path, "goal.md5")
-                if os.path.isfile(goal_filename):
-                    with open(goal_filename, "r") as goal_file:
-                        goal_md5 = goal_file.read()
-                        if goal_md5 == fa_md5:
-                            logger.info(patch_entry + " is OK")
-                        else:
-                            logger.error(patch_entry + " checksum mismatch, " + goal_md5 + " != " + fa_md5 )
+            self.progress_value.emit(count())
 
 
+    def verify_forged_alliance_bin(self, post_patch_verify, bin_dir=util.BIN_DIR):
+        count = make_counter()
+        self.prepare_progress("Verifying FA Install", len(post_patch_verify))
+
+        okay = True
+        logger.info("Verifying bin directory " + util.BIN_DIR)
+        try:
+            for file_name, expected_md5 in post_patch_verify.iteritems():
+                with open(os.path.join(bin_dir, file_name), "rb+") as source_file:
+                    file_data = source_file.read()
+                    file_md5 = hashlib.md5(file_data).hexdigest()
+
+                if file_md5 == expected_md5:
+                    logger.info(file_name + " OK")
+                else:
+                    logger.warn(file_name + " checksum mismatch, " + file_md5 + " != " + expected_md5 + " (expected)")
+                    okay  = False
+
+                self.progress_value.emit(count())
+
+        except IOError, io:
+            logger.error("Error verifying: " + io.message)
+            okay = False
+        return okay
 
 
+    def patch_forged_alliance(self, game_path):
+        with open(os.path.join(util.REPO_DIR, "binary-patch", Updater.guess_install_type(game_path) + ".json")) as json_file:
+            migration_data = json.loads(json_file.read())
 
-FA_STEAM_FILES = [
-   "BsSndRpt.exe",
-   "BugSplat.dll",
-   "BugSplatRc.dll",
-   "DbgHelp.dll",
-   "GDFBinary.dll",
-   "LuaPlus_1081.dll",
-   "MohoEngine.dll",
-   "SHSMP.DLL",
-   "SHW32d.DLL",
-   "SupremeCommander.exe",
-   "d3dx9_31.dll",
-   "game.dat",
-   "gpgcore.dll",
-   "gpggal.dll",
-   "msvcm80.dll",
-   "msvcp80.dll",
-   "msvcr80.dll",
-   "splash.png",
-   "sx32w.dll",
-   "wxmsw24u-vs80.dll",
-   "zlibwapi.dll",
-   "steam_api.dll",
-   "steam_appid.txt",
-]
+        self.copy_forged_alliance_bin(migration_data['pre_patch_copy_rename'], game_path)
+        self.patch_forged_alliance_bin(migration_data['post_patch_verify'], os.path.join(util.REPO_DIR, "binary-patch", "bsdiff4"))
 
-FA_RETAIL_FILES = [
-    "BsSndRpt.exe",
-    "BugSplat.dll",
-    "BugSplatRc.dll",
-    "DbgHelp.dll",
-    "ForgedAlliance.exe",
-    "GDFBinary.dll",
-    "Microsoft.VC80.CRT.manifest",
-    "SHSMP.DLL",
-    "msvcm80.dll",
-    "msvcp80.dll",
-    "msvcr80.dll",
-    "splash.png",
-    "sx32w.dll",
-    "wxmsw24u-vs80.dll",
-    "zlibwapi.dll",
-]
 
-FA_RENAMES = {
-   "SupremeCommander.exe": "ForgedAllianceForever.exe",
-   "ForgedAlliance.exe": "ForgedAllianceForever.exe"
-}
+    def check_up_to_date(self, game_path, bin_dir=util.BIN_DIR):
+        if not os.path.exists(bin_dir):
+            return False
+
+        with open(os.path.join(util.REPO_DIR, "binary-patch", Updater.guess_install_type(game_path) + ".json")) as json_file:
+            migration_data = json.loads(json_file.read())
+
+        return self.verify_forged_alliance_bin(migration_data['post_patch_verify'])
+
+
+    def run(self):
+        self.prepare_progress("Fetching Git Repository")
+
+        self.repo.checkout()
+
+        gamepath = os.path.join(str(settings.value("ForgedAlliance/app/path", type=str)), "bin")
+
+        if not self.check_up_to_date(gamepath):
+            self.prepare_progress("Creating fresh install.")
+            util.clean_slate(util.BIN_DIR)
+            self.patch_forged_alliance(gamepath)
+
+
+if __name__ == "__main__":
+    app = QtGui.QApplication(sys.argv)
+    updater = Updater(app)
+    progress = QtGui.QProgressDialog()
+    progress.show()
+
+    updater.progress_value.connect(progress.setValue)
+    updater.progress_description.connect(progress.setLabelText)
+    updater.progress_maximum.connect(progress.setMaximum)
+    updater.progress_reset.connect(progress.reset)
+    updater.finished.connect(app.exit)
+
+    app.processEvents()
+
+    updater.start()
+
+    app.exec_()
 
