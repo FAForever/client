@@ -3,7 +3,9 @@ import util
 from notificatation_system.ns_hook import NsHook
 import notificatation_system as ns
 
-
+"""
+Settings for notifications: if a player comes online
+"""
 class NsHookUserOnline(NsHook):
     def __init__(self):
         NsHook.__init__(self, ns.NotificationSystem.USER_ONLINE)
