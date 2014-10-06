@@ -33,8 +33,8 @@ def test_has_remote_faf_after_clone(tmpdir):
 
 def test_adds_remote_faf_after_clone(tmpdir):
     repo_dir = str(tmpdir.join("test_repo"))
-    repo = Repository(repo_dir, "http://google.de")
-    repo.repo.remotes[0].rename("google")
+    repo = Repository(repo_dir, "http://faforever.com")
+    repo.repo.remotes[0].rename("faforever")
 
     repo = Repository(repo_dir, TEST_REPO_URL)
     assert TEST_REPO_URL in repo.remote_urls
@@ -43,8 +43,10 @@ def test_adds_remote_faf_after_clone(tmpdir):
 
 def test_keeps_pre_existing_remote_faf(tmpdir):
     repo_dir = str(tmpdir.join("test_repo"))
-    repo = Repository(repo_dir, "http://google.de")
+    repo = Repository(repo_dir, "http://faforever.com")
 
     repo = Repository(repo_dir, TEST_REPO_URL)
     assert TEST_REPO_URL not in repo.remote_urls
     assert "faf" in repo.remote_names
+    a, b = repo.remote_urls, repo.remote_names
+    assert repo.remote_names.index("faf") == repo.remote_urls.index("http://faforever.com")
