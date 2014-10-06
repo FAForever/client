@@ -22,8 +22,7 @@ class Repository(object):
         else:
             self.repo = pygit2.Repository(self.path)
 
-        if not self.url in [remote.url for remote in self.repo.remotes] and \
-                not "faf" in [remote.name for remote in self.repo.remotes]:
+        if not self.url in self.remote_urls and not "faf" in self.remote_names:
             logger.info("Adding remote 'faf' " + self.path)
             self.repo.create_remote("faf", self.url)
 
@@ -40,13 +39,22 @@ class Repository(object):
         return filter(lambda r: regex.match(r), repo.listall_references())
 
 
+    @property
+    def remote_names(self):
+        return [remote.name for remote in self.repo.remotes]
+
+
+    @property
+    def remote_urls(self):
+        return [remote.url for remote in self.repo.remotes]
+
+
     def fetch(self):
         for remote in self.repo.remotes:
             logger.info("Fetching '" + remote.name + "' from " + remote.url)
             remote.fetch()
 
         self.repo.set_head("refs/remotes/faf/master")
-
 
 
     def checkout(self, refname="faf/master"):
