@@ -17,7 +17,6 @@
 #-------------------------------------------------------------------------------
 
 
-import _winreg
 import os
 import sys
 from PyQt4 import QtCore
@@ -104,6 +103,7 @@ def mostProbablePaths():
 
     #Construe path from registry traces - this is not a very safe method, but it seems to work for plain installs
     try:
+        import _winreg
         regkey = "SOFTWARE\\Classes\\SCFAReplayType\\Shell\\Open\\Command"
         key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, regkey)
         path = _winreg.QueryValue(key, "")

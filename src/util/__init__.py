@@ -44,7 +44,10 @@ UNITS_PREVIEW_ROOT = "http://www.faforever.com/faf/unitsDB/icons/big/"
 COMMON_DIR = os.path.join(os.getcwd(), "res")
 
 # These directories are in Appdata (e.g. C:\ProgramData on some Win7 versions)
-APPDATA_DIR = os.path.join(os.environ['ALLUSERSPROFILE'], "FAForever")
+if 'ALLUSERSPROFILE' in os.environ:
+    APPDATA_DIR = os.path.join(os.environ['ALLUSERSPROFILE'], "FAForever")
+else:
+    APPDATA_DIR = os.path.join("/usr/local", "FAForever")
 
 #This contains the themes
 THEME_DIR = os.path.join(APPDATA_DIR, "themes")
@@ -137,8 +140,6 @@ from PyQt4 import QtGui, uic, QtCore
 import shutil
 import hashlib
 import re
-import urllib
-import _winreg
 
 
 # Dirty log rotation: Get rid of logs if larger than 1 MiB
@@ -156,7 +157,6 @@ except:
 
 # Initialize logging system
 import logging
-import traceback
 
 if not developer():
     logging.basicConfig(filename=LOG_FILE_FAF, level=logging.INFO,
