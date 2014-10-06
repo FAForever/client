@@ -224,9 +224,6 @@ class ClientWindow(FormClass, BaseClass):
         #Local Relay Server
         self.relayServer = fa.relayserver.RelayServer(self)
 
-        #Local proxy servers
-        self.proxyServer = fa.proxies.proxies(self)
-
         #stat server
         self.statsServer = secondaryServer.SecondaryServer("Statistic", 11002, self)
 
@@ -302,6 +299,10 @@ class ClientWindow(FormClass, BaseClass):
 
         #Verrry important step!
         self.loadSettingsPrelogin()
+        self.loadSettings()
+
+        #Local proxy servers
+        self.proxyServer = fa.proxies.proxies(self)
 
         self.players = {}       # Player names known to the client, contains the player_info messages sent by the server
         self.urls = {}          # user game location URLs - TODO: Should go in self.players
@@ -1159,7 +1160,6 @@ class ClientWindow(FormClass, BaseClass):
             return False
 
         self.uniqueId = util.uniqueID(self.login, self.session)
-        self.loadSettings()
 
         #
         # Voice connector (This isn't supposed to be here, but I need the settings to be loaded before I can determine if we can hook in the mumbleConnector

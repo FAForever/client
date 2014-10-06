@@ -162,11 +162,13 @@ except:
 # Initialize logging system
 import logging
 
-if not developer():
-    logging.basicConfig(filename=LOG_FILE_FAF, level=logging.INFO,
-                        format='%(asctime)s %(levelname)-8s %(name)-40s %(message)s')
-else:
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)-8s %(name)-40s %(message)s')
+logging.basicConfig(filename=LOG_FILE_FAF, level=logging.INFO,
+                    format='%(asctime)s %(levelname)-8s %(name)-40s %(message)s')
+
+if developer():
+    devh = logging.StreamHandler()
+    devh.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-40s %(message)s'))
+    logging.getLogger().addHandler(devh)
 
 logger = logging.getLogger(__name__)
 

@@ -142,7 +142,11 @@ class Relayer(QtCore.QObject):
         self.inputSocket.readyRead.connect(self.readData)
         self.inputSocket.disconnected.connect(self.inputDisconnected)
         self.__logger.info("FA connected locally.")  
-        
+
+        # change this back if you enable P2PReconnect server command
+        #self.p2p_proxy_enable = 0
+        self.p2p_proxy_enable = 1
+        self.client.proxyServer.p2p_on_relay_construct(self)
 
         # Open the relay socket to our server
         self.relaySocket = QtNetwork.QTcpSocket(self.parent)        
@@ -160,6 +164,7 @@ class Relayer(QtCore.QObject):
             self.__logger.error("no connection to internet relay server")
 
         self.relaySocket.readyRead.connect(self.readDataFromServer)
+
         
     def __del__(self):
         #Find out whether this really does what it should (according to docs, sockets should be manually deleted to conserver resources)
@@ -183,8 +188,6 @@ class Relayer(QtCore.QObject):
             self.__logger.info("Command received from server : " + commands)
             self.handleAction(json.loads(commands))
             self.blockSizeFromServer = 0
-
-
 
     def readData(self):
         if self.inputSocket.bytesAvailable() == 0 :
@@ -275,8 +278,7 @@ class Relayer(QtCore.QObject):
                 
     def ping(self):
         self.sendToServer("ping", [])
-        
-        
+
     def sendToLocal(self, action, chunks):
         if action == 'GameState':
             if chunks[0] == 'Idle':
@@ -300,6 +302,23 @@ class Relayer(QtCore.QObject):
 
                             
     def sendToServer(self, action, chunks):
+        if self.p2p_proxy_enable:
+            if action == "ProcessNatPacket":
+                chunks[0] = self.client.proxyServer.p2p_translate_to_public(chunks[0]);
+            elif action == "Disconnected":
+                self.client.proxyServer.p2p_set_connected_state(int(chunks[0]), 0)
+            elif action == "Connected":
+                self.client.proxyServer.p2p_set_connected_state(int(chunks[0]), 1)
+            elif action == "GameState":
+                if chunks[0] == "Launching":
+                    self.client.proxyServer.p2p_set_game_launched(1)
+                elif chunks[0] == "Lobby":
+                    self.client.proxyServer.p2p_set_game_launched(0)
+            elif action == "Bottleneck":
+                self.client.proxyServer.p2p_bottleneck()
+            elif action == "BottleneckCleared":
+                self.client.proxyServer.p2p_bottleneck_cleared()
+
         data = json.dumps(dict(action=action, chuncks=chunks))
         # Relay to faforever.com
         if self.relaySocket.isOpen():
@@ -321,18 +340,43 @@ class Relayer(QtCore.QObject):
     def handleAction(self, commands):    
         key = commands["key"]
         acts = commands["commands"]
-        
+
         if key == "ping" :
             self.sendToServer("pong", [])
             
         elif key == "SendNatPacket" :
+            if self.p2p_proxy_enable:
+                acts[0] = self.client.proxyServer.p2p_translate_to_local(acts[0], self)
             reply = Packet(key, acts)
             self.inputSocket.write(reply.PackUdp())
+
+        elif key == "P2PReconnect" :
+            # notify p2p proxy of new relay
+            #self.client.proxyServer.p2p_on_relay_construct(self)
+            self.p2p_proxy_enable = 1
+
+        elif self.p2p_proxy_enable and key == "JoinGame" :
+            peer_real_addr = acts[0]
+            peeruid = int(acts[2])
+            acts[0] = self.client.proxyServer.p2p_translate_to_local(acts[0], self)
+            self.client.proxyServer.p2p_set_uid_for_peer(peer_real_addr, peeruid)
+            reply = Packet(key, acts)
+            self.inputSocket.write(reply.Pack())
+
+        elif self.p2p_proxy_enable and key == "ConnectToPeer" :
+            peer_real_addr = acts[0]
+            peeruid = int(acts[2])
+            acts[0] = self.client.proxyServer.p2p_translate_to_local(acts[0], self)
+            self.client.proxyServer.p2p_set_uid_for_peer(peer_real_addr, peeruid)
+            reply = Packet(key, acts)
+            self.inputSocket.write(reply.Pack())
 
         elif key == "CreateLobby":
             uid = int(acts[3])     
             self.client.proxyServer.setUid(uid)
             self.__logger.info("Setting uid : " + str(uid))
+            if self.p2p_proxy_enable:
+                acts[1] = self.client.gamePort + 1
             reply = Packet(key, acts)
             self.inputSocket.write(reply.Pack())
             
@@ -363,11 +407,12 @@ class Relayer(QtCore.QObject):
             reply = Packet(key, acts)
             self.inputSocket.write(reply.Pack())
 
-
     def done(self):
         self.__logger.info("remove relay")
         self.parent.removeRelay(self)
-
+        if self.p2p_proxy_enable:
+            # clean up p2p forwarding ports
+            self.client.proxyServer.p2p_on_relay_destruct(self)
 
     @QtCore.pyqtSlot()
     def inputDisconnected(self):
