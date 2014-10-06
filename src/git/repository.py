@@ -1,6 +1,7 @@
 __author__ = 'Thygrrr'
 
 import os
+import re
 import pygit2
 
 import logging
@@ -32,13 +33,17 @@ class Repository(object):
     @property
     def tags(self):
         regex = re.compile('^refs/tags')
-        return filter(lambda r: regex.match(r), repo.listall_references())
+        return filter(lambda r: regex.match(r), self.repo.listall_references())
 
+
+    @property
+    def remote_branches(self):
+        return self.repo.listall_branches(pygit2.GIT_BRANCH_REMOTE)
 
     @property
     def branches(self):
         regex = re.compile('^refs/heads')
-        return filter(lambda r: regex.match(r), repo.listall_references())
+        return filter(lambda r: regex.match(r), self.repo.listall_references())
 
 
     @property
@@ -62,4 +67,5 @@ class Repository(object):
     def checkout(self, refname="faf/master"):
         logger.info("Checking out " + refname + " in " + self.path)
         self.repo.checkout(self.repo.lookup_branch(refname, pygit2.GIT_BRANCH_REMOTE), strategy=pygit2.GIT_CHECKOUT_FORCE)
+        self.repo.set_head("refs/remotes/faf/master")
 
