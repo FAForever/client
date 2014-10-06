@@ -6,10 +6,13 @@ import pygit2
 import logging
 logger = logging.getLogger(__name__)
 
-print(pygit2.LIBGIT2_VERSION)
-
-class Repository():
+class Repository(object):
     def __init__(self, path, url):
+        object.__init__(self)
+
+        assert url
+        assert path
+
         self.path = path
         self.url = url
 
@@ -19,11 +22,10 @@ class Repository():
         else:
             self.repo = pygit2.Repository(self.path)
 
-        if not self.url in [remote.url for remote in self.repo.remotes]:
-            logger.info("Adding remote " + self.path)
-            self.repo.create_remote("origin", self.url)
-
-
+        if not self.url in [remote.url for remote in self.repo.remotes] and \
+                not "faf" in [remote.name for remote in self.repo.remotes]:
+            logger.info("Adding remote 'faf' " + self.path)
+            self.repo.create_remote("faf", self.url)
 
 
     @property
@@ -43,8 +45,11 @@ class Repository():
             logger.info("Fetching '" + remote.name + "' from " + remote.url)
             remote.fetch()
 
-    def checkout(self, refname="origin/master"):
+        self.repo.set_head("refs/remotes/faf/master")
+
+
+
+    def checkout(self, refname="faf/master"):
         logger.info("Checking out " + refname + " in " + self.path)
-        self.repo.set_head("refs/remotes/origin/master")
         self.repo.checkout(self.repo.lookup_branch(refname, pygit2.GIT_BRANCH_REMOTE), strategy=pygit2.GIT_CHECKOUT_FORCE)
 
