@@ -27,8 +27,8 @@ def test_retrieves_contents_on_checkout(tmpdir):
 def test_has_remote_faf_after_clone(tmpdir):
     repo_dir = str(tmpdir.join("test_repo"))
     repo = Repository(repo_dir, TEST_REPO_URL)
-    assert TEST_REPO_URL in [remote.url for remote in repo.repo.remotes]
-    assert "faf" in [remote.name for remote in repo.repo.remotes]
+    assert TEST_REPO_URL in repo.remote_urls
+    assert "faf" in repo.remote_names
 
 
 def test_adds_remote_faf_after_clone(tmpdir):
@@ -37,8 +37,8 @@ def test_adds_remote_faf_after_clone(tmpdir):
     repo.repo.remotes[0].rename("google")
 
     repo = Repository(repo_dir, TEST_REPO_URL)
-    assert TEST_REPO_URL in [remote.url for remote in repo.repo.remotes]
-    assert "faf" in [remote.name for remote in repo.repo.remotes]
+    assert TEST_REPO_URL in repo.remote_urls
+    assert "faf" in repo.remote_names
 
 
 def test_keeps_pre_existing_remote_faf(tmpdir):
@@ -46,5 +46,5 @@ def test_keeps_pre_existing_remote_faf(tmpdir):
     repo = Repository(repo_dir, "http://google.de")
 
     repo = Repository(repo_dir, TEST_REPO_URL)
-    assert TEST_REPO_URL not in [remote.url for remote in repo.repo.remotes]
-    assert "faf" in [remote.name for remote in repo.repo.remotes]
+    assert TEST_REPO_URL not in repo.remote_urls
+    assert "faf" in repo.remote_names
