@@ -25,7 +25,7 @@ class Repository(object):
                 raise IOError(self.path + " doesn't seem to be a git repo. libgit2 might crash.")
             self.repo = pygit2.Repository(self.path)
 
-        if not self.url in self.remote_urls and not "faf" in self.remote_names:
+        if not "faf" in self.remote_names:
             logger.info("Adding remote 'faf' " + self.path)
             self.repo.create_remote("faf", self.url)
 
