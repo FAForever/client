@@ -15,6 +15,21 @@ def test_creates_empty_repository_on_init(tmpdir):
     assert repo.repo.is_empty
 
 
+def test_raises_error_on_init_if_not_a_git_path(tmpdir):
+    with pytest.raises(IOError):
+        repo_dir = str(tmpdir.mkdir("test_repo"))
+        repo = Repository(repo_dir, TEST_REPO_URL)
+        assert os.path.exists(repo_dir)
+        assert repo.repo.is_empty
+
+
+def test_has_remote_faf_after_init(tmpdir):
+    repo_dir = str(tmpdir.join("test_repo"))
+    repo = Repository(repo_dir, TEST_REPO_URL)
+    assert TEST_REPO_URL in repo.remote_urls
+    assert "faf" in repo.remote_names
+
+
 def test_retrieves_contents_on_checkout(tmpdir):
     repo_dir = str(tmpdir.join("test_repo"))
     repo = Repository(repo_dir, TEST_REPO_URL)
@@ -22,13 +37,6 @@ def test_retrieves_contents_on_checkout(tmpdir):
     repo.checkout()
     assert os.path.isdir(os.path.join(repo_dir, ".git"))
     assert os.path.isfile(os.path.join(repo_dir, "LICENSE"))
-
-
-def test_has_remote_faf_after_clone(tmpdir):
-    repo_dir = str(tmpdir.join("test_repo"))
-    repo = Repository(repo_dir, TEST_REPO_URL)
-    assert TEST_REPO_URL in repo.remote_urls
-    assert "faf" in repo.remote_names
 
 
 def test_adds_remote_faf_after_clone(tmpdir):
