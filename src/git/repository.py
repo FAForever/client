@@ -29,6 +29,11 @@ class Repository(object):
             logger.info("Adding remote 'faf' " + self.path)
             self.repo.create_remote("faf", self.url)
 
+    def __del__(self):
+        self.close()
+
+    def close(self):
+        del self.repo
 
     @property
     def tags(self):

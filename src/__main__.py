@@ -105,7 +105,7 @@ if __name__ == '__main__':
         # Try to interpret the argument as a replay.
         if sys.argv[1].lower().endswith(".fafreplay") or sys.argv[1].lower().endswith(".scfareplay"):
             import fa
-            replay(sys.argv[1], True)  # Launch as detached process
+            fa.replay(sys.argv[1], True)  # Launch as detached process
 
     #End of show
     app.closeAllWindows()    

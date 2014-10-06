@@ -9,11 +9,12 @@ TEST_REPO_URL = "https://github.com/thygrrr/test.git"
 TEST_REPO_BRANCHES = ["faf/master", "faf/test"]
 
 @pytest.fixture()
-def prefetched_repo(tmpdir):
-    repo_dir = str(tmpdir.join("test_repo"))
-    repo_instance = Repository(repo_dir, TEST_REPO_URL)
-    repo_instance.fetch()
-    return repo_instance
+def prefetched_repo(request, tmpdir):
+    repo_dir = os.path.join(str(tmpdir), "test_repo_fixture")
+    repo = Repository(repo_dir, TEST_REPO_URL)
+    repo.fetch()
+
+    return repo
 
 
 def test_creates_empty_repository_on_init(tmpdir):

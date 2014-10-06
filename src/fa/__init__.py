@@ -32,7 +32,8 @@ DEFAULT_WRITE_GAME_LOG = False
 
 # We only want one instance of Forged Alliance to run, so we use a singleton here (other modules may wish to connect to its signals so it needs persistence)
 from process import instance as instance
-from play import play as play
+from play import play
+from replay import replay
 
 from fa.path import gamepath
 
