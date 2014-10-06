@@ -47,7 +47,7 @@ COMMON_DIR = os.path.join(os.getcwd(), "res")
 if 'ALLUSERSPROFILE' in os.environ:
     APPDATA_DIR = os.path.join(os.environ['ALLUSERSPROFILE'], "FAForever")
 else:
-    APPDATA_DIR = os.path.join("/usr/local", "FAForever")
+    APPDATA_DIR = os.path.join(os.environ['HOME'], "FAForever")
 
 #This contains the themes
 THEME_DIR = os.path.join(APPDATA_DIR, "themes")

@@ -6,6 +6,14 @@ from . import Repository
 __author__ = 'Thygrrr'
 
 TEST_REPO_URL = "https://github.com/thygrrr/test.git"
+TEST_REPO_BRANCHES = ["faf/master", "faf/test"]
+
+@pytest.fixture()
+def prefetched_repo(tmpdir):
+    repo_dir = str(tmpdir.join("test_repo"))
+    repo_instance = Repository(repo_dir, TEST_REPO_URL)
+    repo_instance.fetch()
+    return repo_instance
 
 
 def test_creates_empty_repository_on_init(tmpdir):
@@ -30,13 +38,31 @@ def test_has_remote_faf_after_init(tmpdir):
     assert "faf" in repo.remote_names
 
 
-def test_retrieves_contents_on_checkout(tmpdir):
-    repo_dir = str(tmpdir.join("test_repo"))
-    repo = Repository(repo_dir, TEST_REPO_URL)
-    repo.fetch()
-    repo.checkout()
+def test_retrieves_contents_on_checkout(prefetched_repo):
+    repo_dir = prefetched_repo.path
+    prefetched_repo.checkout()
     assert os.path.isdir(os.path.join(repo_dir, ".git"))
     assert os.path.isfile(os.path.join(repo_dir, "LICENSE"))
+
+
+def test_retrieves_alternate_branch_on_checkout(prefetched_repo):
+    repo_dir = prefetched_repo.path
+    prefetched_repo.checkout("faf/test")
+    assert os.path.isfile(os.path.join(repo_dir, "test"))
+
+
+def test_wipes_working_directory_on_branch_switch(prefetched_repo):
+    repo_dir = prefetched_repo.path
+
+    prefetched_repo.checkout("faf/test")
+    assert os.path.isfile(os.path.join(repo_dir, "test"))
+    prefetched_repo.checkout("faf/master")
+    assert not os.path.isfile(os.path.join(repo_dir, "test"))
+
+
+def test_has_all_branches_after_fetch(prefetched_repo):
+    for branch in TEST_REPO_BRANCHES:
+        assert branch in prefetched_repo.remote_branches
 
 
 def test_adds_remote_faf_after_clone(tmpdir):
@@ -51,10 +77,8 @@ def test_adds_remote_faf_after_clone(tmpdir):
 
 def test_keeps_pre_existing_remote_faf(tmpdir):
     repo_dir = str(tmpdir.join("test_repo"))
-    repo = Repository(repo_dir, "http://faforever.com")
-
+    _ = Repository(repo_dir, "http://faforever.com")
     repo = Repository(repo_dir, TEST_REPO_URL)
     assert TEST_REPO_URL not in repo.remote_urls
     assert "faf" in repo.remote_names
-    a, b = repo.remote_urls, repo.remote_names
     assert repo.remote_names.index("faf") == repo.remote_urls.index("http://faforever.com")
