@@ -11,11 +11,10 @@ TEST_REPO_BRANCHES = ["faf/master", "faf/test"]
 
 @pytest.fixture(scope="module")
 def prefetched_repo(request):
-    tmpdir = py.test.ensuretemp("prefetched_repo")
+    tmpdir = py.test.ensuretemp(__name__ + ".prefetched_repo")
     repo_dir = os.path.join(str(tmpdir), "test_repo_fixture")
     repo = Repository(repo_dir, TEST_REPO_URL)
     repo.fetch()
-
     return repo
 
 
@@ -26,8 +25,8 @@ def test_creates_empty_repository_on_init(tmpdir):
     assert test_repo.repo.is_empty
 
 
-def test_raises_error_on_init_if_not_a_git_path(tmpdir):
-    with pytest.raises(IOError):
+def test_raises_git_error_on_init_if_not_a_git_path(tmpdir):
+    with pytest.raises(pygit2.GitError):
         repo_dir = str(tmpdir.mkdir("test_repo"))
         test_repo = Repository(repo_dir, TEST_REPO_URL)
         assert os.path.exists(repo_dir)
