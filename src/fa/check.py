@@ -97,7 +97,7 @@ def check(mod, mapname=None, version=None, modVersions=None, sim_mods=None, sile
         writeFAPathLua()
     except:
         logger.error("fa_path.lua can't be written: ", exc_info=sys.exc_info())
-        QtGui.QMessageBox.critical(None, "Cannot write fa_path.lua",
+        QtGui.QMessageBox.critical(client.instance, "Cannot write fa_path.lua",
                                    "This is a  rare error and you should report it!<br/>(open Menu BETA, choose 'Report a Bug')")
         return False
 

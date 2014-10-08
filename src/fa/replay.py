@@ -125,9 +125,10 @@ def replay(source, detach=False):
 
 
         #Proper mod loading code
+        mod = "faf" if mod == "ladder1v1" else mod  #hack for feature/new-patcher
         if not '/init' in arguments:
             arguments.append('/init')
-            arguments.append("init_" + mod + ".lua")
+            arguments.append("../lua/init_" + mod + ".lua")
 
         #disable bug reporter and movies
         arguments.append('/nobugreport')
