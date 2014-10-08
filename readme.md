@@ -1,4 +1,4 @@
-FA Forever - Lobby
+FA Forever - Lobby [![Build Status](https://travis-ci.org/FAForever/lobby.svg)](https://travis-ci.org/FAForever/lobby)
 ------------------
 
 This is the source code for the FA Forever Lobby.
