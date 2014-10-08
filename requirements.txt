@@ -1,0 +1,8 @@
+bsdiff4>=1.1.4
+cx-Freeze>=4.3.3
+matplotlib>=1.4.0
+numpy>=1.8.2
+py>=1.4.25
+pygit2>=0.21.3
+pytest>=2.6.3
+python-dateutil>=2.2
