@@ -19,4 +19,3 @@ ls -la ..
 popd
 
 sudo apt-get install python-qt4
-pip install -r requirements.txt
