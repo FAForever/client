@@ -1391,7 +1391,7 @@ class ClientWindow(FormClass, BaseClass):
         Tries to join the game at the given URL
         '''
         logger.debug("joinGameFromURL: " + url.toString())
-        if (available()):
+        if fa.instance.available():
             add_mods = []
             try:
                 modstr = url.queryItemValue("mods")
