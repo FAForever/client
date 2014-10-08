@@ -6,10 +6,10 @@ virtualenv:
   - system_site_packages: true
 
 before_install:
-  - sudo apt-get install python-qt4
+  - "sudo apt-get install python-qt4"
 
 install:
-  - pip install -r requirements.txt
+  - "pip install -r requirements.txt"
 
 before_script:
   - "export DISPLAY=:99.0"
