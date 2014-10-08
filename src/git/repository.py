@@ -22,7 +22,7 @@ class Repository(object):
             self.repo = pygit2.init_repository(self.path)
         else:
             if not os.path.exists(os.path.join(self.path, ".git")):
-                raise IOError(self.path + " doesn't seem to be a git repo. libgit2 might crash.")
+                raise pygit2.GitError(self.path + " doesn't seem to be a git repo. libgit2 might crash.")
             self.repo = pygit2.Repository(self.path)
 
         if not "faf" in self.remote_names:
