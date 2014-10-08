@@ -3,19 +3,17 @@
 *.log
 *~
 *.pyo
+*.pyd
 *.project
 *.settings*
 *.cproject
 *.external*
 *.pydev*
 *.vcproj
-Thumbs.db
+.idea/
 build/
 dist/
-_cache/
-src/aip/Setup Files
+Thumbs.db
+.DS_Store
 *.orig
-src/aip/faforever-cache
-src/bsdiff.pyd
-.idea/
 RELEASE-VERSION
