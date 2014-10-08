@@ -5,6 +5,11 @@ python:
   - "2.7_with_system_site_packages"
 
 
+env:
+  - LIBGIT2=~/libgit2/_install/
+  - LD_LIBRARY_PATH=~/libgit2/_install/lib
+
+
 before_install:
   - "bash ./.travis.sh"
 
