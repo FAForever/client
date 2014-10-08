@@ -69,7 +69,7 @@ class Updater(QtCore.QThread):
 
     def copy_rename(self, copy_rename, source_path, destination_path=util.BIN_DIR):
         count = make_counter()
-        self.prepare_progress("Copying FA Files", len(copy_rename))
+        self.prepare_progress("Copying Files", len(copy_rename))
 
         if not os.path.exists(destination_path):
             shutil.mkdirs(destination_path)
@@ -88,9 +88,9 @@ class Updater(QtCore.QThread):
         self.yieldCurrentThread()
 
 
-    def patch_forged_alliance_bin(self, post_patch_verify, patch_data_directory=os.path.join(util.REPO_DIR, REPO_NAME, "bsdiff4"), bin_dir=util.BIN_DIR):
+    def patch_directory_contents(self, post_patch_verify, patch_data_directory=os.path.join(util.REPO_DIR, REPO_NAME, "bsdiff4"), bin_dir=util.BIN_DIR):
         count = make_counter()
-        self.prepare_progress("Patching FA Install", len(post_patch_verify))
+        self.prepare_progress("Patching Install", len(post_patch_verify))
 
         for file_name, expected_md5 in post_patch_verify.iteritems():
             with open(os.path.join(bin_dir, file_name), "rb+") as source_file:
@@ -128,7 +128,7 @@ class Updater(QtCore.QThread):
 
     def verify_forged_alliance_bin(self, post_patch_verify, bin_dir=util.BIN_DIR):
         count = make_counter()
-        self.prepare_progress("Verifying FA Install", len(post_patch_verify))
+        self.prepare_progress("Verifying Install", len(post_patch_verify))
 
         okay = True
         logger.info("Verifying bin directory " + bin_dir)
@@ -164,7 +164,7 @@ class Updater(QtCore.QThread):
             migration_data = json.loads(json_file.read())
 
         self.copy_rename(migration_data['pre_patch_copy_rename'], game_path)
-        self.patch_forged_alliance_bin(migration_data['post_patch_verify'])
+        self.patch_directory_contents(migration_data['post_patch_verify'])
 
 
     def check_up_to_date(self, game_path, bin_dir=util.BIN_DIR):
@@ -193,6 +193,7 @@ class Updater(QtCore.QThread):
                 self.patch_forged_alliance(gamepath)
             except PatchFailedError, pfe:
                 self.failed.emit(pfe)
+
 
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
