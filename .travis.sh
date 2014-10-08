@@ -14,5 +14,7 @@ cmake --build . --target install
 
 ls -la ..
 
+cd ~
+
 sudo apt-get install python-qt4
 pip install -r requirements.txt
