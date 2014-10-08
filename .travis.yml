@@ -6,8 +6,7 @@ python:
 
 
 env:
-  - LIBGIT2=~/libgit2/_install/
-  - LD_LIBRARY_PATH=~/libgit2/_install/lib
+  - LIBGIT2=~/libgit2/_install/ LD_LIBRARY_PATH=~/libgit2/_install/lib
 
 
 before_install:
