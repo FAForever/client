@@ -13,14 +13,14 @@ def test_copy_rename_copies_all_files(tmpdir, application):
     source_dir = tmpdir.mkdir("source")
     dest_dir = tmpdir.mkdir("dest")
 
-    source_dir.join("v").write("a")
+    source_dir.join("a").write("a")
     source_dir.join("b").write("b")
 
     copy_table = {"a":None, "b":None}
 
     updater = binary.Updater(application)
     updater.copy_rename(copy_table, str(source_dir), str(dest_dir))
-    assert dest_dir.join("d").exists()
+    assert dest_dir.join("a").exists()
     assert dest_dir.join("b").exists()
 
 
