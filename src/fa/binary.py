@@ -58,9 +58,11 @@ class Updater(QtCore.QThread):
     progress_description = pyqtSignal(str)
     failed = pyqtSignal(PatchFailedError)
 
-    def __init__(self, parent=None):
+
+    def __init__(self, parent=None, repo_name=REPO_NAME, repo_url=REPO_URL):
         QtCore.QThread.__init__(self, parent)
-        self.repo = Repository(os.path.join(util.REPO_DIR, REPO_NAME), REPO_URL)
+        self.repo = Repository(os.path.join(util.REPO_DIR, repo_name), repo_url)
+
 
     @staticmethod
     def guess_install_type(game_path):
@@ -126,7 +128,7 @@ class Updater(QtCore.QThread):
             self.yieldCurrentThread()
 
 
-    def verify_forged_alliance_bin(self, post_patch_verify, bin_dir=util.BIN_DIR):
+    def verify_directory_contents(self, post_patch_verify, bin_dir=util.BIN_DIR):
         count = make_counter()
         self.prepare_progress("Verifying Install", len(post_patch_verify))
 
@@ -174,7 +176,7 @@ class Updater(QtCore.QThread):
         with open(os.path.join(util.REPO_DIR, "binary-patch", Updater.guess_install_type(game_path) + ".json")) as json_file:
             migration_data = json.loads(json_file.read())
 
-        return self.verify_forged_alliance_bin(migration_data['post_patch_verify'])
+        return self.verify_directory_contents(migration_data['post_patch_verify'])
 
 
     def run(self):

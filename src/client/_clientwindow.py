@@ -614,7 +614,7 @@ class ClientWindow(FormClass, BaseClass):
         self.progress.show()
 
         #Important: If a game is running, offer to terminate it gently
-        self.progress.setLabelText("Closing ForgedAlliance.exe")
+        self.progress.setLabelText("Closing ForgedAllianceForever.exe")
         fa.instance.close()
 
         #Terminate Lobby Server connection
