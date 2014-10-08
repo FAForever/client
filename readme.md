@@ -9,10 +9,15 @@ Pre-requisites are :
 - PyQt4 4.7+
 - Requirements as in the [requirements](requirements.txt) file.
 
+
     install using pip install -r requirements.txt
+
 
 If you want to contribute back to the project, please make a fork and create
 pull-requests of your changes.
+
+- **NEW** Pull Requests must have py.test unit test coverage
+- 
 
 License
 -------
