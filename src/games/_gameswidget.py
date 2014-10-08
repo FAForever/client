@@ -344,7 +344,7 @@ class GamesWidget(FormClass, BaseClass):
     def startSearchRanked(self, race):
         self.stopSearchingTeamMatchmaker()
         if fa.instance.running():
-            QtGui.QMessageBox.information(None, "ForgedAlliance.exe", "FA is already running.")
+            QtGui.QMessageBox.information(None, "ForgedAllianceForever.exe", "FA is already running.")
             self.stopSearchRanked()
             return
 

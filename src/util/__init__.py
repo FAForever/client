@@ -49,6 +49,9 @@ if 'ALLUSERSPROFILE' in os.environ:
 else:
     APPDATA_DIR = os.path.join(os.environ['HOME'], "FAForever")
 
+#This is used to store init_*.lua files
+LUA_DIR = os.path.join(APPDATA_DIR, "lua")
+
 #This contains the themes
 THEME_DIR = os.path.join(APPDATA_DIR, "themes")
 
@@ -114,6 +117,9 @@ if not os.path.isdir(APPDATA_DIR):
 
 if not os.path.isdir(PERSONAL_DIR):
     os.makedirs(PERSONAL_DIR)
+
+if not os.path.isdir(LUA_DIR):
+    os.makedirs(LUA_DIR)
 
 if not os.path.isdir(CACHE_DIR):
     os.makedirs(CACHE_DIR)

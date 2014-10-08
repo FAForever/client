@@ -77,12 +77,17 @@ def check(mod, mapname=None, version=None, modVersions=None, sim_mods=None, sile
     # Perform the actual comparisons and updating                    
     logger.info("Updating FA for mod: " + str(mod) + ", version " + str(version))
 
+    # Spawn an updater for the game binary
+    binary_updater = fa.binary.Updater()
+    binary_updater.run()
+
     # Spawn an update for the required mod
-    updater = fa.updater.Updater(mod, version, modVersions, silent=silent)
+    game_updater = fa.updater.Updater(mod, version, modVersions, silent=silent)
 
-    result = updater.run()
+    result = game_updater.run()
 
-    updater = None  #Our work here is done
+    binary_updater = None
+    game_updater = None  #Our work here is done
 
     if result != fa.updater.Updater.RESULT_SUCCESS:
         return False

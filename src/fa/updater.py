@@ -404,31 +404,32 @@ class Updater(QtCore.QObject):
         log("Updates applied successfully.")
 
 
-    def prepareBinFAF(self):
-        """
-        Creates all necessary files in the binFAF folder, which contains a modified copy of all
-        that is in the standard bin folder of Forged Alliance
-        """
-        self.progress.setLabelText("Preparing binFAF...")
+# removed for feature/new-patcher
+#    def prepareBinFAF(self):
+#        """
+#        Creates all necessary files in the binFAF folder, which contains a modified copy of all
+#        that is in the standard bin folder of Forged Alliance
+#        """
+#        self.progress.setLabelText("Preparing binFAF...")##
 
-        #now we check if we've got a binFAF folder
-        FABindir = os.path.join(self.path, 'bin')
-        FAFdir = util.BIN_DIR
+#        #now we check if we've got a binFAF folder
+#        FABindir = os.path.join(self.path, 'bin')
+#        FAFdir = util.BIN_DIR
 
-        #Try to copy without overwriting, but fill in any missing files, otherwise it might miss some files to update
-        root_src_dir = FABindir
-        root_dst_dir = FAFdir
+#        #Try to copy without overwriting, but fill in any missing files, otherwise it might miss some files to update
+#        root_src_dir = FABindir
+#        root_dst_dir = FAFdir#
 
-        for src_dir, _, files in os.walk(root_src_dir):
-            dst_dir = src_dir.replace(root_src_dir, root_dst_dir)
-            if not os.path.exists(dst_dir):
-                os.mkdir(dst_dir)
-            for file_ in files:
-                src_file = os.path.join(src_dir, file_)
-                dst_file = os.path.join(dst_dir, file_)
-                if not os.path.exists(dst_file):
-                    shutil.copy(src_file, dst_dir)
-                os.chmod(dst_file, stat.S_IWRITE)  # make all files we were considered writable
+#        for src_dir, _, files in os.walk(root_src_dir):
+#            dst_dir = src_dir.replace(root_src_dir, root_dst_dir)
+#            if not os.path.exists(dst_dir):
+#                os.mkdir(dst_dir)
+#            for file_ in files:
+#                src_file = os.path.join(src_dir, file_)
+#                dst_file = os.path.join(dst_dir, file_)
+#                if not os.path.exists(dst_file):
+#                    shutil.copy(src_file, dst_dir)
+#                os.chmod(dst_file, stat.S_IWRITE)  # make all files we were considered writable
 
 
     def doUpdate(self):
@@ -445,14 +446,14 @@ class Updater(QtCore.QObject):
 
                 else:
                     #Prepare FAF directory & all necessary files
-                    self.prepareBinFAF()
+                    #self.prepareBinFAF() # removed for feature/new-patcher
 
                     #Update the mod if it's requested
                     if self.mod == "faf" or self.mod == "ladder1v1":  #HACK - ladder1v1 "is" FAF. :-)
-                        self.updateFiles("bin", "FAF")
+                        #self.updateFiles("bin", "FAF")  # removed for feature/new-patcher
                         self.updateFiles("gamedata", "FAFGAMEDATA")
                     else:
-                        self.updateFiles("bin", "FAF")
+                        #self.updateFiles("bin", "FAF")  # removed for feature/new-patcher
                         self.updateFiles("gamedata", "FAFGAMEDATA")
                         self.updateFiles("bin", self.mod)
                         self.updateFiles("gamedata", self.mod + "Gamedata")
@@ -515,13 +516,14 @@ class Updater(QtCore.QObject):
         self.result = self.RESULT_FAILURE
 
 
-    def applyPatch(self, original, patch):
-        toFile = os.path.join(util.CACHE_DIR, "patchedFile")
-        #applying delta
-        subprocess.call(['xdelta3', '-d', '-f', '-s', original, patch, toFile], stdout=subprocess.PIPE)
-        shutil.copy(toFile, original)
-        os.remove(toFile)
-        os.remove(patch)
+# removed for feature/new-patcher
+#    def applyPatch(self, original, patch):
+#        toFile = os.path.join(util.CACHE_DIR, "patchedFile")
+#        #applying delta
+#        subprocess.call(['xdelta3', '-d', '-f', '-s', original, patch, toFile], stdout=subprocess.PIPE)
+#        shutil.copy(toFile, original)
+#        os.remove(toFile)
+#        os.remove(patch)
 
 
     def handleAction(self, bytecount, action, stream):
@@ -595,12 +597,20 @@ class Updater(QtCore.QObject):
             path = stream.readQString()
             fileToCopy = stream.readQString()
             url = stream.readQString()
+
+            #HACK for feature/new-patcher
+            path = util.LUA_DIR if path == "bin" else path
+
             toFile = os.path.join(util.APPDATA_DIR, str(path), str(fileToCopy))
             self.fetchFile(url, toFile)
             self.filesToUpdate.remove(str(fileToCopy))
 
         elif action == "SEND_FILE":
             path = stream.readQString()
+
+            #HACK for feature/new-patcher
+            path = util.LUA_DIR if path == "bin" else path
+
             fileToCopy = stream.readQString()
             size = stream.readInt()
             fileDatas = stream.readRawData(size)
@@ -619,40 +629,42 @@ class Updater(QtCore.QObject):
             log("%s is copied in %s." % (fileToCopy, path))
             self.filesToUpdate.remove(str(fileToCopy))
 
-        elif action == "SEND_PATCH_URL":
-            destination = str(stream.readQString())
-            fileToUpdate = str(stream.readQString())
-            url = str(stream.readQString())
+# removed for feature/new-patcher
+#       elif action == "SEND_PATCH_URL":
+#           destination = str(stream.readQString())
+#           fileToUpdate = str(stream.readQString())
+#           url = str(stream.readQString())
 
-            toFile = os.path.join(util.CACHE_DIR, "temp.patch")
-            #
-            if self.fetchFile(url, toFile):
-                completePath = os.path.join(util.APPDATA_DIR, destination, fileToUpdate)
-                self.applyPatch(completePath, toFile)
+#           toFile = os.path.join(util.CACHE_DIR, "temp.patch")
+#           #
+#           if self.fetchFile(url, toFile):
+#               completePath = os.path.join(util.APPDATA_DIR, destination, fileToUpdate)
+#               self.applyPatch(completePath, toFile)
 
-                log("%s/%s is patched." % (destination, fileToUpdate))
-                self.filesToUpdate.remove(str(fileToUpdate))
-            else:
-                log("Failed to update file :'(")
+#               log("%s/%s is patched." % (destination, fileToUpdate))
+#               self.filesToUpdate.remove(str(fileToUpdate))
+#           else:
+#               log("Failed to update file :'(")
 
 
-        elif action == "SEND_PATCH":
-            destination = str(stream.readQString())
-            fileToUpdate = str(stream.readQString())
-            size = stream.readInt()
+# removed for feature/new-patcher
+#      elif action == "SEND_PATCH":
+#          destination = str(stream.readQString())
+#          fileToUpdate = str(stream.readQString())
+#          size = stream.readInt()
 
-            patchFile = stream.readRawData(size)
-            fd = open(os.path.join(util.CACHE_DIR, "temp.patch"), 'wb')
-            fd.write(patchFile)
-            fd.close()
+#          patchFile = stream.readRawData(size)
+#          fd = open(os.path.join(util.CACHE_DIR, "temp.patch"), 'wb')
+#          fd.write(patchFile)
+#          fd.close()
 
-            log("patching %s/%s ..." % (destination, fileToUpdate))
+#          log("patching %s/%s ..." % (destination, fileToUpdate))
 
-            completePath = os.path.join(util.APPDATA_DIR, destination, str(fileToUpdate))
-            self.applyPatch(completePath, toFile)
+#          completePath = os.path.join(util.APPDATA_DIR, destination, str(fileToUpdate))
+#          self.applyPatch(completePath, toFile)
 
-            log("%s/%s is patched." % (destination, fileToUpdate))
-            self.filesToUpdate.remove(str(fileToUpdate))
+#          log("%s/%s is patched." % (destination, fileToUpdate))
+#          self.filesToUpdate.remove(str(fileToUpdate))
         else:
             log("Unexpected server command received: " + action)
             self.result = self.RESULT_FAILURE
