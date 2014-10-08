@@ -1,4 +1,5 @@
 import pytest
+import py
 import os
 import pygit2
 from . import Repository
@@ -8,8 +9,9 @@ __author__ = 'Thygrrr'
 TEST_REPO_URL = "https://github.com/thygrrr/test.git"
 TEST_REPO_BRANCHES = ["faf/master", "faf/test"]
 
-@pytest.fixture()
-def prefetched_repo(request, tmpdir):
+@pytest.fixture(scope="module")
+def prefetched_repo(request):
+    tmpdir = py.test.ensuretemp("prefetched_repo")
     repo_dir = os.path.join(str(tmpdir), "test_repo_fixture")
     repo = Repository(repo_dir, TEST_REPO_URL)
     repo.fetch()

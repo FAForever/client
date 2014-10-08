@@ -67,7 +67,7 @@ class Updater(QtCore.QThread):
         return 'steam' if os.path.isfile(os.path.join(game_path, "steam_api.dll")) else 'retail'
 
 
-    def copy_forged_alliance_bin(self, copy_rename, source_path, destination_path=util.BIN_DIR):
+    def copy_rename(self, copy_rename, source_path, destination_path=util.BIN_DIR):
         count = make_counter()
         self.prepare_progress("Copying FA Files", len(copy_rename))
 
@@ -86,7 +86,6 @@ class Updater(QtCore.QThread):
         self.progress_maximum.emit(maximum)
         self.progress_reset.emit()
         self.yieldCurrentThread()
-
 
 
     def patch_forged_alliance_bin(self, post_patch_verify, patch_data_directory=os.path.join(util.REPO_DIR, REPO_NAME, "bsdiff4"), bin_dir=util.BIN_DIR):
@@ -164,7 +163,7 @@ class Updater(QtCore.QThread):
         with open(os.path.join(util.REPO_DIR, "binary-patch", Updater.guess_install_type(game_path) + ".json")) as json_file:
             migration_data = json.loads(json_file.read())
 
-        self.copy_forged_alliance_bin(migration_data['pre_patch_copy_rename'], game_path)
+        self.copy_rename(migration_data['pre_patch_copy_rename'], game_path)
         self.patch_forged_alliance_bin(migration_data['post_patch_verify'])
 
 
