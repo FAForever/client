@@ -28,3 +28,25 @@ def test_init_lua_for_featured_mod_returns_correct_repo_lua(tmpdir):
     repo_dir.mkdir("test").ensure("init.lua")
     repo_lua = mods.init_lua_for_featured_mod("test", str(repo_dir), str(lua_dir))
     assert repo_lua == os.path.join(str(repo_dir), "test", "init.lua")
+
+
+def test_filter_mod_versions_returns_tuple_of_dicts():
+    legacy, repo = mods.filter_mod_versions({},{})
+    assert isinstance(legacy, dict)
+    assert isinstance(repo, dict)
+
+
+def test_filter_mod_removes_found_mods_from_legacy():
+    legacy, _ = mods.filter_mod_versions({1:2},{1:"test"})
+    assert not legacy
+
+
+def test_filter_mod_places_found_mods_with_new_key_in_repo():
+    _, repo = mods.filter_mod_versions({1:2},{1:"test"})
+    assert repo["test"] == 2
+
+
+def test_filter_mod_versions_passes_through_on_empty_filter_table():
+    legacy, repo = mods.filter_mod_versions({1:2},{})
+    assert legacy[1] == 2
+    assert not repo

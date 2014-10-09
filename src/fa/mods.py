@@ -50,10 +50,27 @@ def fix_init_luas(target_dir=util.LUA_DIR):
             lua_file.truncate()
 
 
+def filter_mod_versions(versions, filter_table):
+    """
+    Filters out mods that can be pulled from git repositories instead of through the obsolete updater protocol.
+    :return: tuple with one list of legacy mods to keep and a dictionary of repo mods to update with the new updater
+    """
+    legacy = {}
+    repo = {}
+
+    for mod_uid in versions:
+        if mod_uid in filter_table:
+            repo[filter_table[mod_uid]] = versions[mod_uid]
+        else:
+            legacy[mod_uid] = versions[mod_uid]
+
+    return legacy, repo
+
+
 import logging
 logger = logging.getLogger(__name__)
 
-def checkLegacyMods(mods):  #mods is a dictionary of uid-name pairs
+def checkMods(mods):  #mods is a dictionary of uid-name pairs
     """
     Assures that the specified mods are available in FA, or returns False.
     Also sets the correct active mods in the ingame mod manager.
@@ -96,7 +113,3 @@ def checkLegacyMods(mods):  #mods is a dictionary of uid-name pairs
         return False
 
     return True
-
-
-def checkMods(mods):
-    logger.info("Updating FA for mods " + ", ".join(mods))
