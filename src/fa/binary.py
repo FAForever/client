@@ -31,7 +31,6 @@ import sys
 import json
 import logging
 import hashlib
-from updater import  illegalDialog
 
 logger = logging.getLogger(__name__)
 
@@ -199,6 +198,9 @@ class Updater(QtCore.QThread):
                 self.patch_forged_alliance(gamepath)
             except PatchFailedError, pfe:
                 self.failed.emit(pfe)
+
+
+
 
 
 if __name__ == "__main__":

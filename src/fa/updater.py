@@ -40,7 +40,6 @@ import json
 
 from PyQt4 import QtGui, QtCore, QtNetwork
 
-from fa.path import getPathFromSettings, mostProbablePaths, mostProbablePathsSC, validatePath
 import util
 import modvault
 
@@ -97,32 +96,6 @@ class UpdaterTimeout(StandardError):
     pass
 
 
-def validateAndAdd(path, combobox):
-    """
-    Validates a given path's existence and uniqueness, then adds it to the provided QComboBox
-    """
-    if validatePath(path):
-        if combobox.findText(path, QtCore.Qt.MatchFixedString) == -1:
-            combobox.addItem(path)
-
-
-def constructPathChoices(combobox):
-    """
-    Creates a combobox with all potentially valid paths for FA on this system
-    """
-    combobox.clear()
-    for path in mostProbablePaths():
-        validateAndAdd(path, combobox)
-
-
-def constructPathChoicesSC(combobox):
-    """
-    Creates a combobox with all potentially valid paths for SC on this system
-    """
-    combobox.clear()
-    for path in mostProbablePathsSC():
-        validateAndAdd(path, combobox)
-
 
 class Updater(QtCore.QObject):
     """
@@ -148,8 +121,6 @@ class Updater(QtCore.QObject):
         Constructor
         """
         QtCore.QObject.__init__(self, *args, **kwargs)
-
-        self.path = getPathFromSettings()
 
         self.filesToUpdate = []
 
@@ -189,7 +160,6 @@ class Updater(QtCore.QObject):
     def run(self, *args, **kwargs):
         clearLog()
         log("Update started at " + timestamp())
-        log("Using game path: " + self.path)
         log("Using appdata: " + util.APPDATA_DIR)
 
         self.progress.show()
@@ -331,18 +301,6 @@ class Updater(QtCore.QObject):
         self.waitUntilFilesAreUpdated()
 
 
-    def legalFAVersion(self):
-        #Now we check the FA version
-        luascd = os.path.join(self.path, 'gamedata', 'lua.scd')
-
-        if not os.path.isfile(luascd):
-            return False
-
-        md5LUA = util.md5(luascd)
-        log("lua.scd digest is %s" % md5LUA)
-        return md5LUA in ["4af45c46b0abb2805bea192e6e2517d4", "5cdd99bddafa38f0873bd11dd353055a",
-                          "ad999839d32f4784e331e5e8be1d32a2"]
-
     def waitForSimModPath(self):
         """
         A simple loop that waits until the server has transmitted a sim mod path.
@@ -416,76 +374,43 @@ class Updater(QtCore.QObject):
         log("Updates applied successfully.")
 
 
-# removed for feature/new-patcher
-#    def prepareBinFAF(self):
-#        """
-#        Creates all necessary files in the binFAF folder, which contains a modified copy of all
-#        that is in the standard bin folder of Forged Alliance
-#        """
-#        self.progress.setLabelText("Preparing binFAF...")##
-
-#        #now we check if we've got a binFAF folder
-#        FABindir = os.path.join(self.path, 'bin')
-#        FAFdir = util.BIN_DIR
-
-#        #Try to copy without overwriting, but fill in any missing files, otherwise it might miss some files to update
-#        root_src_dir = FABindir
-#        root_dst_dir = FAFdir#
-
-#        for src_dir, _, files in os.walk(root_src_dir):
-#            dst_dir = src_dir.replace(root_src_dir, root_dst_dir)
-#            if not os.path.exists(dst_dir):
-#                os.mkdir(dst_dir)
-#            for file_ in files:
-#                src_file = os.path.join(src_dir, file_)
-#                dst_file = os.path.join(dst_dir, file_)
-#                if not os.path.exists(dst_file):
-#                    shutil.copy(src_file, dst_dir)
-#                os.chmod(dst_file, stat.S_IWRITE)  # make all files we were considered writable
-
-
     def doUpdate(self):
         """ The core function that does most of the actual update work."""
+        try:
+            if self.sim:
+                self.writeToServer("REQUEST_SIM_PATH", self.mod)
+                self.waitForSimModPath()
+                if self.result == self.RESULT_SUCCESS:
+                    if modvault.downloadMod(self.modpath):
+                        self.writeToServer("ADD_DOWNLOAD_SIM_MOD", self.mod)
 
-        if self.legalFAVersion():
-            try:
-                if self.sim:
-                    self.writeToServer("REQUEST_SIM_PATH", self.mod)
-                    self.waitForSimModPath()
-                    if self.result == self.RESULT_SUCCESS:
-                        if modvault.downloadMod(self.modpath):
-                            self.writeToServer("ADD_DOWNLOAD_SIM_MOD", self.mod)
-
-                else:
-                    #Prepare FAF directory & all necessary files
-                    #self.prepareBinFAF() # removed for feature/new-patcher
-
-                    #Update the mod if it's requested
-                    if self.mod == "faf" or self.mod == "ladder1v1":  #HACK - ladder1v1 "is" FAF. :-)
-                        #self.updateFiles("bin", "FAF")  # removed for feature/new-patcher
-                        self.updateFiles("gamedata", "FAFGAMEDATA")
-                    else:
-                        #self.updateFiles("bin", "FAF")  # removed for feature/new-patcher
-                        self.updateFiles("gamedata", "FAFGAMEDATA")
-                        self.updateFiles("bin", self.mod)
-                        self.updateFiles("gamedata", self.mod + "Gamedata")
-
-            except UpdaterTimeout, et:
-                log("TIMEOUT: %s(%s)" % (et.__class__.__name__, str(et.args)))
-                self.result = self.RESULT_FAILURE
-            except UpdaterCancellation, ec:
-                log("CANCELLED: %s(%s)" % (ec.__class__.__name__, str(ec.args)))
-                self.result = self.RESULT_CANCEL
-            except Exception, e:
-                log("EXCEPTION: %s(%s)" % (e.__class__.__name__, str(e.args)))
-                self.result = self.RESULT_FAILURE
             else:
-                self.result = self.RESULT_SUCCESS
-            finally:
-                self.updateSocket.close()
+                #Prepare FAF directory & all necessary files
+                #self.prepareBinFAF() # removed for feature/new-patcher
+
+                #Update the mod if it's requested
+                if self.mod == "faf" or self.mod == "ladder1v1":  #HACK - ladder1v1 "is" FAF. :-)
+                    #self.updateFiles("bin", "FAF")  # removed for feature/new-patcher
+                    self.updateFiles("gamedata", "FAFGAMEDATA")
+                else:
+                    #self.updateFiles("bin", "FAF")  # removed for feature/new-patcher
+                    self.updateFiles("gamedata", "FAFGAMEDATA")
+                    self.updateFiles("bin", self.mod)
+                    self.updateFiles("gamedata", self.mod + "Gamedata")
+
+        except UpdaterTimeout, et:
+            log("TIMEOUT: %s(%s)" % (et.__class__.__name__, str(et.args)))
+            self.result = self.RESULT_FAILURE
+        except UpdaterCancellation, ec:
+            log("CANCELLED: %s(%s)" % (ec.__class__.__name__, str(ec.args)))
+            self.result = self.RESULT_CANCEL
+        except Exception, e:
+            log("EXCEPTION: %s(%s)" % (e.__class__.__name__, str(e.args)))
+            self.result = self.RESULT_FAILURE
         else:
-            log("Incompatible game version.")
-            self.result = self.RESULT_ILLEGAL
+            self.result = self.RESULT_SUCCESS
+        finally:
+            self.updateSocket.close()
 
         #Hide progress dialog if it's still showing.
         self.progress.close()
@@ -496,9 +421,6 @@ class Updater(QtCore.QObject):
         elif self.result == self.RESULT_PASS:
             QtGui.QMessageBox.information(QtGui.QApplication.activeWindow(), "Installation Required",
                                           "You can't play without a legal version of Forged Alliance.")
-        elif self.result == self.RESULT_ILLEGAL:
-            illegalDialog()
-
         elif self.result == self.RESULT_BUSY:
             QtGui.QMessageBox.information(QtGui.QApplication.activeWindow(), "Server Busy",
                                           "The Server is busy preparing new patch files.<br/>Try again later.")
@@ -527,15 +449,6 @@ class Updater(QtCore.QObject):
 
         self.result = self.RESULT_FAILURE
 
-
-# removed for feature/new-patcher
-#    def applyPatch(self, original, patch):
-#        toFile = os.path.join(util.CACHE_DIR, "patchedFile")
-#        #applying delta
-#        subprocess.call(['xdelta3', '-d', '-f', '-s', original, patch, toFile], stdout=subprocess.PIPE)
-#        shutil.copy(toFile, original)
-#        os.remove(toFile)
-#        os.remove(patch)
 
 
     def handleAction(self, bytecount, action, stream):
@@ -640,43 +553,6 @@ class Updater(QtCore.QObject):
 
             log("%s is copied in %s." % (fileToCopy, path))
             self.filesToUpdate.remove(str(fileToCopy))
-
-# removed for feature/new-patcher
-#       elif action == "SEND_PATCH_URL":
-#           destination = str(stream.readQString())
-#           fileToUpdate = str(stream.readQString())
-#           url = str(stream.readQString())
-
-#           toFile = os.path.join(util.CACHE_DIR, "temp.patch")
-#           #
-#           if self.fetchFile(url, toFile):
-#               completePath = os.path.join(util.APPDATA_DIR, destination, fileToUpdate)
-#               self.applyPatch(completePath, toFile)
-
-#               log("%s/%s is patched." % (destination, fileToUpdate))
-#               self.filesToUpdate.remove(str(fileToUpdate))
-#           else:
-#               log("Failed to update file :'(")
-
-
-# removed for feature/new-patcher
-#      elif action == "SEND_PATCH":
-#          destination = str(stream.readQString())
-#          fileToUpdate = str(stream.readQString())
-#          size = stream.readInt()
-
-#          patchFile = stream.readRawData(size)
-#          fd = open(os.path.join(util.CACHE_DIR, "temp.patch"), 'wb')
-#          fd.write(patchFile)
-#          fd.close()
-
-#          log("patching %s/%s ..." % (destination, fileToUpdate))
-
-#          completePath = os.path.join(util.APPDATA_DIR, destination, str(fileToUpdate))
-#          self.applyPatch(completePath, toFile)
-
-#          log("%s/%s is patched." % (destination, fileToUpdate))
-#          self.filesToUpdate.remove(str(fileToUpdate))
         else:
             log("Unexpected server command received: " + action)
             self.result = self.RESULT_FAILURE
@@ -794,13 +670,4 @@ def failureDialog():
     ui = util.loadUi("fa/updater/failure.ui")
     ui.logBox.appendPlainText(dumpPlainText())
     return ui.exec_()
-
-
-def illegalDialog():
-    """
-    The dialog explains the user that his version is incompatible.
-    """
-    ui = util.loadUi("fa/updater/illegal.ui")
-    return ui.exec_()
-
 

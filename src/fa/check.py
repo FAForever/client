@@ -23,10 +23,11 @@ from PyQt4 import QtGui
 
 import fa
 from fa.mods import checkMods
-from fa.path import savePath, writeFAPathLua, validatePath, autoDetectPath
+from fa.path import writeFAPathLua, validatePath
 from fa.wizards import Wizard
 from fa import binary
 import mods
+import util
 
 logger = logging.getLogger(__name__)
 
@@ -57,11 +58,8 @@ def checkMap(mapname, force=False, silent=False):
 
 
 def game(parent):
-    if not fa.gamepath:
-        savePath(autoDetectPath())
-
-    while not validatePath(fa.gamepath):
-        logger.warn("Invalid path: " + str(fa.gamepath))
+    while not validatePath(util.settings.value("ForgedAlliance/app/path", "", type=str)):
+        logger.warn("Invalid game path: " + util.settings.value("ForgedAlliance/app/path", "", type=str))
         wizard = Wizard(parent)
         result = wizard.exec_()
         if result == QtGui.QWizard.Rejected:
@@ -115,7 +113,7 @@ def check(featured_mod, mapname=None, version=None, modVersions=None, sim_mods=N
         writeFAPathLua()
     except:
         logger.error("fa_path.lua can't be written: ", exc_info=sys.exc_info())
-        QtGui.QMessageBox.critical(client.instance, "Cannot write fa_path.lua",
+        QtGui.QMessageBox.critical(None, "Cannot write fa_path.lua",
                                    "This is a  rare error and you should report it!<br/>(open Menu BETA, choose 'Report a Bug')")
         return False
 
