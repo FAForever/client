@@ -26,6 +26,7 @@ from fa.mods import checkMods
 from fa.path import savePath, writeFAPathLua, validatePath, autoDetectPath
 from fa.wizards import Wizard
 from fa import binary
+import mods
 
 logger = logging.getLogger(__name__)
 
@@ -85,21 +86,22 @@ def game(parent):
 
 
 
-def check(mod, mapname=None, version=None, modVersions=None, sim_mods=None, silent=False):
+def check(featured_mod, mapname=None, version=None, modVersions=None, sim_mods=None, silent=False):
     """
     This checks whether the mods are properly updated and player has the correct map.
     """
-    logger.info("Checking FA for: " + str(mod) + " and map " + str(mapname))
+    logger.info("Checking FA for: " + str(featured_mod) + " and map " + str(mapname))
 
-    if not mod:
+    if not featured_mod:
         QtGui.QMessageBox.warning(None, "No Mod Specified", "The application didn't specify which mod to update.")
         return False
 
     # Perform the actual comparisons and updating                    
-    logger.info("Updating FA for mod: " + str(mod) + ", version " + str(version))
+    logger.info("Updating FA for mod: " + str(featured_mod) + ", version " + str(version))
 
     # Spawn an update for the required mod
-    game_updater = fa.updater.Updater(mod, version, modVersions, silent=silent)
+    legacy_versions, repo_versions = mods.filter_mod_versions(modVersions, mods.MOD_TO_REPO)
+    game_updater = fa.updater.Updater(featured_mod, version, legacy_versions, silent=silent)
 
     result = game_updater.run()
 

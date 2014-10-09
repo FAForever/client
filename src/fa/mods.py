@@ -27,6 +27,8 @@ __author__ = 'Thygrrr'
 import os
 import util
 
+MOD_TO_REPO = {}
+
 def init_lua_for_featured_mod(mod, repo_dir=util.REPO_DIR, lua_dir=util.LUA_DIR):
     """
     HACK for the transition period where the server still sends init_.lua files instead of the mods containing them.
@@ -58,11 +60,12 @@ def filter_mod_versions(versions, filter_table):
     legacy = {}
     repo = {}
 
-    for mod_uid in versions:
-        if mod_uid in filter_table:
-            repo[filter_table[mod_uid]] = versions[mod_uid]
-        else:
-            legacy[mod_uid] = versions[mod_uid]
+    if versions:
+        for mod_uid in versions:
+            if mod_uid in filter_table:
+                repo[filter_table[mod_uid]] = versions[mod_uid]
+            else:
+                legacy[mod_uid] = versions[mod_uid]
 
     return legacy, repo
 
