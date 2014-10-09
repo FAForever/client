@@ -98,7 +98,7 @@ def check(featured_mod, mapname=None, version=None, modVersions=None, sim_mods=N
     logger.info("Updating FA for mod: " + str(featured_mod) + ", version " + str(version))
 
     # Spawn an update for the required mod
-    legacy_versions, repo_versions = mods.filter_mod_versions(modVersions, mods.MOD_TO_REPO)
+    legacy_versions, repo_versions = mods.filter_mod_versions(modVersions, mods.MOD_UID_TO_REPO)
     game_updater = fa.updater.Updater(featured_mod, version, legacy_versions, silent=silent)
 
     result = game_updater.run()

@@ -27,7 +27,10 @@ __author__ = 'Thygrrr'
 import os
 import util
 
-MOD_TO_REPO = {}
+GIT_ROOT = "https://github.com/FAForever/"
+
+MOD_UID_TO_REPO = {}
+FEATURED_MOD_TO_REPO = {"faf": "fa.git"}
 
 def init_lua_for_featured_mod(mod, repo_dir=util.REPO_DIR, lua_dir=util.LUA_DIR):
     """
@@ -68,6 +71,18 @@ def filter_mod_versions(versions, filter_table):
                 legacy[mod_uid] = versions[mod_uid]
 
     return legacy, repo
+
+
+def filter_featured_mods(featured_mod, filter_table):
+    """
+    Filters out mods that can be pulled from git repositories instead of through the obsolete updater protocol.
+    :return: tuple with a strings and a dict, either a legacy mod name or a non-legacy mod dict (name:repo) pairs
+    """
+
+    if featured_mod in filter_table:
+        return None, {featured_mod:filter_table[featured_mod]}
+
+    return featured_mod, None
 
 
 import logging
