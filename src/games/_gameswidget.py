@@ -392,7 +392,7 @@ class GamesWidget(FormClass, BaseClass):
         if self.radius >= SEARCH_RADIUS_MAX:
             self.radius = SEARCH_RADIUS_MAX;
             logger.debug("Search Cap reached at " + str(self.radius))
-            self.teamTimer.stop()
+#            self.teamTimer.stop()
         else:
             logger.debug("Expanding search to " + str(self.radius))
 
