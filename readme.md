@@ -1,5 +1,11 @@
-FA Forever - Lobby [![Build Status](https://travis-ci.org/FAForever/lobby.svg)](https://travis-ci.org/FAForever/lobby)
+ 
+
+FA Forever - Lobby 
 ------------------
+master|develop
+ ------------ | -------------
+[![Build Status](https://travis-ci.org/FAForever/lobby.svg?branch=master)](https://travis-ci.org/FAForever/lobby) | [![Build Status](https://travis-ci.org/FAForever/lobby.svg?branch=develop)](https://travis-ci.org/FAForever/lobby)
+ 
 
 This is the source code for the FA Forever Lobby.
 
