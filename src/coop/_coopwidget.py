@@ -23,6 +23,7 @@
 from PyQt4 import QtCore, QtGui
 import fa
 from fa.replay import replay
+from fa.wizards import WizardSC
 import util
 
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
@@ -179,7 +180,7 @@ class CoopWidget(FormClass, BaseClass):
     
     @QtCore.pyqtSlot()
     def linkVanilla(self):    
-        fa.updater.WizardSC(self).exec_()        
+        WizardSC(self).exec_()
 
     def coopChanged(self):
         if not self.loaded:
