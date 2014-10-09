@@ -33,6 +33,7 @@ INTERNET_REPLAY_SERVER_HOST = "faforever.com"
 INTERNET_REPLAY_SERVER_PORT = 15000
 
 from . import DEFAULT_LIVE_REPLAY
+from . import DEFAULT_RECORD_REPLAY
 
 class ReplayRecorder(QtCore.QObject): 
     """
@@ -132,7 +133,8 @@ class ReplayRecorder(QtCore.QObject):
 
         self.relaySocket.disconnectFromHost()
         
-        self.writeReplayFile()
+        if settings.value("fa.record_replay", DEFAULT_RECORD_REPLAY, type=bool):
+            self.writeReplayFile()
         
         self.done()
 

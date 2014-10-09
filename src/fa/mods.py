@@ -24,6 +24,32 @@ import modvault
 
 __author__ = 'Thygrrr'
 
+import os
+import util
+
+def init_lua_for_featured_mod(mod):
+    """
+    HACK for the transition period where the server still sends init_.lua files instead of the mods containing them.
+    """
+    repo_init_lua = os.path.join(util.REPO_DIR, mod, "init.lua")
+    legacy_init_lua = os.path.join(util.LUA_DIR, "init_" + mod + ".lua")
+
+    return repo_init_lua if os.path.exists(repo_init_lua) else legacy_init_lua
+
+
+def fix_init_luas(target_dir=util.LUA_DIR):
+    """
+    HACK some server-side init_*.lua files expect to be executed in the current working directory, which is wrong.
+    Can be removed on completion of https://github.com/FAForever/fa/issues/52
+    """
+    for lua_name in os.listdir(target_dir):
+        with open(os.path.join(target_dir, lua_name), "r+") as lua_file:
+            code = lua_file.read()
+            lua_file.seek(0)
+            lua_file.write(code.replace("dofile('init", "dofile(InitFileDir .. '\\\\init"))
+            lua_file.truncate()
+
+
 import logging
 logger = logging.getLogger(__name__)
 

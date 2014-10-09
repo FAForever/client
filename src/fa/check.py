@@ -68,18 +68,14 @@ def game(parent):
 
     # Spawn an updater for the game binary
     updater = binary.Updater(parent)
-    progress = QtGui.QProgressDialog(parent)
-    progress.setWindowTitle("Updating Game")
-    progress.setAutoClose(False)
-    progress.setCancelButton(None)
-    progress.setMinimumDuration(500)
+
+    progress = fa.updater.UpdaterProgressDialog(parent)
     progress.show()
 
-    updater.progress_value.connect(progress.setValue)
-    updater.progress_description.connect(progress.setLabelText)
-    updater.progress_maximum.connect(progress.setMaximum)
-    updater.progress_reset.connect(progress.reset)
-    updater.finished.connect(progress.close)
+    updater.progress_log.connect(progress.appendLog)
+    updater.progress_value.connect(progress.gameProgress.setValue)
+    updater.progress_maximum.connect(progress.gameProgress.setMaximum)
+    updater.progress_reset.connect(progress.gameProgress.reset)
 
     updater.start()
 

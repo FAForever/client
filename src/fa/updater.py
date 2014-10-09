@@ -52,6 +52,20 @@ logger.setLevel(logging.DEBUG)
 debugLog = []
 
 
+FormClass, BaseClass = util.loadUiType("fa/updater/updater.ui")
+class UpdaterProgressDialog(FormClass, BaseClass):
+    def __init__(self, parent):
+        FormClass.__init__(self, parent)
+        BaseClass.__init__(self, parent)
+        self.setupUi(self)
+        self.logPlainTextEdit.setVisible(False)
+        self.adjustSize()
+
+    @QtCore.pyqtSlot(str)
+    def appendLog(self, text):
+        self.logPlainTextEdit.appendPlainText(text)
+
+
 def clearLog():
     global debugLog
     debugLog = []
