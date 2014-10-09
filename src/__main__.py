@@ -36,23 +36,21 @@ import sys
 from PyQt4 import QtGui
 import util
 
-if not util.developer():
-    # Set up crash reporting
-    excepthook_original = sys.excepthook
+# Set up crash reporting
+excepthook_original = sys.excepthook
 
-    def excepthook(exc_type, exc_value, traceback_object):
-        """
-        This exception hook will stop the app if an uncaught error occurred, regardless where in the QApplication.
-        """
-        sys.excepthook = excepthook_original
+def excepthook(exc_type, exc_value, traceback_object):
+    """
+    This exception hook will stop the app if an uncaught error occurred, regardless where in the QApplication.
+    """
+    sys.excepthook = excepthook_original
 
-        logger.error("Uncaught exception", exc_info=(exc_type, exc_value, traceback_object))
-        dialog = util.CrashDialog((exc_type, exc_value, traceback_object))
-        answer = dialog.exec_()
+    logger.error("Uncaught exception", exc_info=(exc_type, exc_value, traceback_object))
+    dialog = util.CrashDialog((exc_type, exc_value, traceback_object))
+    answer = dialog.exec_()
 
-        if answer == QtGui.QDialog.Rejected:
-            QtGui.QApplication.exit(1)
-
+    if answer == QtGui.QDialog.Rejected:
+        QtGui.QApplication.exit(1)
 
     #Override our except hook.
     sys.excepthook = excepthook

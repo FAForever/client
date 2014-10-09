@@ -15,11 +15,12 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #-------------------------------------------------------------------------------
-
+from fa import mods
 
 from process import instance
 
 import util
+import os
 
 __author__ = 'Thygrrr'
 
@@ -40,13 +41,13 @@ def build_argument_list(game_info, port, arguments=None):
     """
     arguments = arguments or []
 
+    if '/init' in arguments:
+        raise ValueError("Custom init scripts no longer supportes.")
+
     # Proper mod loading code, but allow for custom init by server
-    if not '/init' in arguments:
-        arguments.append('/init')
-        arguments.append("../lua/init_" + game_info['featured_mod'] + ".lua")
-    else:
-        #HACK for feature/new-patcher
-        raise ValueError("Server has sent a custon init command and I have no idea what to do with it.")
+    mods.fix_init_luas()
+    arguments.append("/init")
+    arguments.append(mods.init_lua_for_featured_mod(game_info['featured_mod']))
 
     #log file
     if settings.value("fa.write_game_log", DEFAULT_WRITE_GAME_LOG, type=bool):
@@ -54,14 +55,13 @@ def build_argument_list(game_info, port, arguments=None):
         arguments.append('"' + util.LOG_FILE_GAME + '"')
 
     #live replay
-    if settings.value("fa.record_replay", DEFAULT_RECORD_REPLAY, type=bool):
-        arguments.append('/savereplay')
-        arguments.append('gpgnet://localhost/' + str(game_info['uid']) + "/" + str(game_info['recorder']) + '.SCFAreplay')
+    arguments.append('/savereplay')
+    arguments.append('gpgnet://localhost/' + str(game_info['uid']) + "/" + str(game_info['recorder']) + '.SCFAreplay')
 
     #disable bug reporter
     arguments.append('/nobugreport')
 
-    #gpg server
+    #gpg server emulation
     arguments.append('/gpgnet 127.0.0.1:' + str(port))
 
     return arguments

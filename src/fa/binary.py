@@ -55,7 +55,7 @@ class Updater(QtCore.QThread):
     progress_reset = pyqtSignal()
     progress_value = pyqtSignal(int)
     progress_maximum = pyqtSignal(int)
-    progress_description = pyqtSignal(str)
+    progress_log = pyqtSignal(str)
     failed = pyqtSignal(PatchFailedError)
 
 
@@ -82,9 +82,13 @@ class Updater(QtCore.QThread):
             self.progress_value.emit(count())
             self.yieldCurrentThread()
 
+    def log(self, text):
+        self.progress_log.emit("Game: " + text)
+        logger.info(text)
+
 
     def prepare_progress(self, operation, maximum=0):
-        self.progress_description.emit(operation)
+        self.log(operation)
         self.progress_maximum.emit(maximum)
         self.progress_reset.emit()
         self.yieldCurrentThread()
@@ -208,7 +212,7 @@ if __name__ == "__main__":
     progress.show()
 
     updater.progress_value.connect(progress.setValue)
-    updater.progress_description.connect(progress.setLabelText)
+    updater.log.connect(progress.setLabelText)
     updater.progress_maximum.connect(progress.setMaximum)
     updater.progress_reset.connect(progress.reset)
     updater.finished.connect(app.exit)
