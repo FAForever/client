@@ -18,7 +18,6 @@
 from client.updater import fetchClientUpdate
 import fa
 from fa.mods import checkMods
-from fa.path import loadPath
 from fa.wizards import Wizard
 
 '''
@@ -921,8 +920,6 @@ class ClientWindow(FormClass, BaseClass):
 
     def loadSettings(self):
         #Load settings
-        loadPath()
-
         util.settings.beginGroup("window")
         geometry = util.settings.value("geometry", None)
         if geometry:

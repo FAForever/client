@@ -1,6 +1,6 @@
 from PyQt4 import QtGui, QtCore
-from fa.path import validatePath, setPathInSettings, setPathInSettingsSC, savePathSC, savePath
-from fa.updater import constructPathChoices, constructPathChoicesSC
+from fa.path import validatePath, typicalSupComPaths, typicalForgedAlliancePaths
+
 import util
 
 __author__ = 'Thygrrr'
@@ -22,7 +22,7 @@ class UpgradePage(QtGui.QWizardPage):
 
         self.comboBox = QtGui.QComboBox()
         self.comboBox.setEditable(True)
-        constructPathChoices(self.comboBox)
+        constructPathChoices(self.comboBox, typicalForgedAlliancePaths())
         self.comboBox.currentIndexChanged.connect(self.comboChanged)
         self.comboBox.editTextChanged.connect(self.comboChanged)
         layout.addWidget(self.comboBox)
@@ -53,14 +53,12 @@ class UpgradePage(QtGui.QWizardPage):
 
     def isComplete(self, *args, **kwargs):
         if validatePath(self.comboBox.currentText()):
-            setPathInSettings(self.comboBox.currentText())
             return True
         else:
             return False
 
     def validatePage(self, *args, **kwargs):
         if validatePath(self.comboBox.currentText()):
-            setPathInSettings(self.comboBox.currentText())
             return True
         else:
             return False
@@ -82,7 +80,7 @@ class UpgradePageSC(QtGui.QWizardPage):
 
         self.comboBox = QtGui.QComboBox()
         self.comboBox.setEditable(True)
-        constructPathChoicesSC(self.comboBox)
+        constructPathChoices(self.comboBox, typicalSupComPaths())
         self.comboBox.currentIndexChanged.connect(self.comboChanged)
         self.comboBox.editTextChanged.connect(self.comboChanged)
         layout.addWidget(self.comboBox)
@@ -113,14 +111,12 @@ class UpgradePageSC(QtGui.QWizardPage):
 
     def isComplete(self, *args, **kwargs):
         if validatePath(self.comboBox.currentText()):
-            setPathInSettingsSC(self.comboBox.currentText())
             return True
         else:
             return False
 
     def validatePage(self, *args, **kwargs):
         if validatePath(self.comboBox.currentText()):
-            setPathInSettingsSC(self.comboBox.currentText())
             return True
         else:
             return False
@@ -138,14 +134,14 @@ class WizardSC(QtGui.QWizard):
         self.addPage(self.upgrade)
 
         self.setWizardStyle(QtGui.QWizard.ModernStyle)
-        self.setWindowTitle("Supreme Commander Install Wizard")
+        self.setWindowTitle("Supreme Commander Game Path")
         self.setPixmap(QtGui.QWizard.WatermarkPixmap, util.pixmap("fa/updater/forged_alliance_watermark.png"))
 
         self.setOption(QtGui.QWizard.NoBackButtonOnStartPage, True)
 
 
     def accept(self):
-        savePathSC(self.upgrade.comboBox.currentText())
+        util.settings.value("SupremeCommander/app/path", self.upgrade.comboBox.currentText())
         QtGui.QWizard.accept(self)
 
 
@@ -161,12 +157,23 @@ class Wizard(QtGui.QWizard):
         self.addPage(self.upgrade)
 
         self.setWizardStyle(QtGui.QWizard.ModernStyle)
-        self.setWindowTitle("FAF Install Wizard")
+        self.setWindowTitle("Forged Alliance Game Path")
         self.setPixmap(QtGui.QWizard.WatermarkPixmap, util.pixmap("fa/updater/forged_alliance_watermark.png"))
 
         self.setOption(QtGui.QWizard.NoBackButtonOnStartPage, True)
 
 
     def accept(self):
-        savePath(self.upgrade.comboBox.currentText())
+        util.settings.value("ForgedAlliance/app/path", self.upgrade.comboBox.currentText())
         QtGui.QWizard.accept(self)
+
+
+def constructPathChoices(combobox, validated_choices):
+    """
+    Creates a combobox with all potentially valid paths for FA on this system
+    """
+    combobox.clear()
+    for path in validated_choices:
+            if combobox.findText(path, QtCore.Qt.MatchFixedString) == -1:
+                combobox.addItem(path)
+
