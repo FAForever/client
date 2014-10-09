@@ -27,12 +27,12 @@ __author__ = 'Thygrrr'
 import os
 import util
 
-def init_lua_for_featured_mod(mod):
+def init_lua_for_featured_mod(mod, repo_dir=util.REPO_DIR, lua_dir=util.LUA_DIR):
     """
     HACK for the transition period where the server still sends init_.lua files instead of the mods containing them.
     """
-    repo_init_lua = os.path.join(util.REPO_DIR, mod, "init.lua")
-    legacy_init_lua = os.path.join(util.LUA_DIR, "init_" + mod + ".lua")
+    repo_init_lua = os.path.join(repo_dir, mod, "init.lua")
+    legacy_init_lua = os.path.join(lua_dir, "init_" + mod + ".lua")
 
     return repo_init_lua if os.path.exists(repo_init_lua) else legacy_init_lua
 
