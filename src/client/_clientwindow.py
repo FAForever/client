@@ -19,6 +19,7 @@ from client.updater import fetchClientUpdate
 import fa
 from fa.mods import checkMods
 from fa.path import loadPath
+from fa.wizards import Wizard
 
 '''
 Created on Dec 1, 2011
@@ -760,7 +761,7 @@ class ClientWindow(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def switchPath(self):
-        fa.updater.Wizard(self).exec_()
+        Wizard(self).exec_()
 
     @QtCore.pyqtSlot()
     def switchPort(self):
@@ -1398,8 +1399,9 @@ class ClientWindow(FormClass, BaseClass):
                 add_mods = json.loads(modstr) # should be a list
             except:
                 logger.info("Couldn't load urlquery value 'mods'")
-            if fa.check.check(url.queryItemValue("mod"), url.queryItemValue("map"), sim_mods=add_mods):
-                self.send(dict(command="game_join", uid=int(url.queryItemValue("uid")), gameport=self.gamePort))
+            if fa.check.game(self):
+                if fa.check.check(url.queryItemValue("mod"), url.queryItemValue("map"), sim_mods=add_mods):
+                    self.send(dict(command="game_join", uid=int(url.queryItemValue("uid")), gameport=self.gamePort))
 
 
     def loginWriteToFaServer(self, action, *args, **kw):

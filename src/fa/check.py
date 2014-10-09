@@ -24,6 +24,8 @@ from PyQt4 import QtGui
 import fa
 from fa.mods import checkMods
 from fa.path import savePath, writeFAPathLua, validatePath, autoDetectPath
+from fa.wizards import Wizard
+from fa import binary
 
 logger = logging.getLogger(__name__)
 
@@ -53,10 +55,43 @@ def checkMap(mapname, force=False, silent=False):
     return True
 
 
+def game(parent):
+    if not fa.gamepath:
+        savePath(autoDetectPath())
+
+    while not validatePath(fa.gamepath):
+        logger.warn("Invalid path: " + str(fa.gamepath))
+        wizard = Wizard(parent)
+        result = wizard.exec_()
+        if result == QtGui.QWizard.Rejected:
+            return False
+
+    # Spawn an updater for the game binary
+    updater = binary.Updater(parent)
+    progress = QtGui.QProgressDialog(parent)
+    progress.setWindowTitle("Updating Game")
+    progress.setAutoClose(False)
+    progress.setCancelButton(None)
+    progress.setMinimumDuration(500)
+    progress.show()
+
+    updater.progress_value.connect(progress.setValue)
+    updater.progress_description.connect(progress.setLabelText)
+    updater.progress_maximum.connect(progress.setMaximum)
+    updater.progress_reset.connect(progress.reset)
+    updater.finished.connect(progress.close)
+
+    updater.start()
+
+    return True
+
+
+
+
 
 def check(mod, mapname=None, version=None, modVersions=None, sim_mods=None, silent=False):
     """
-    This checks whether the game is properly updated and has the correct map.
+    This checks whether the mods are properly updated and player has the correct map.
     """
     logger.info("Checking FA for: " + str(mod) + " and map " + str(mapname))
 
@@ -64,29 +99,14 @@ def check(mod, mapname=None, version=None, modVersions=None, sim_mods=None, sile
         QtGui.QMessageBox.warning(None, "No Mod Specified", "The application didn't specify which mod to update.")
         return False
 
-    if not fa.gamepath:
-        savePath(autoDetectPath())
-
-    while not validatePath(fa.gamepath):
-        logger.warn("Invalid path: " + str(fa.gamepath))
-        wizard = fa.updater.Wizard(None)
-        result = wizard.exec_()
-        if not result:  # The wizard only returns successfully if the path is okay.
-            return False
-
     # Perform the actual comparisons and updating                    
     logger.info("Updating FA for mod: " + str(mod) + ", version " + str(version))
-
-    # Spawn an updater for the game binary
-    binary_updater = fa.binary.Updater()
-    binary_updater.run()
 
     # Spawn an update for the required mod
     game_updater = fa.updater.Updater(mod, version, modVersions, silent=silent)
 
     result = game_updater.run()
 
-    binary_updater = None
     game_updater = None  #Our work here is done
 
     if result != fa.updater.Updater.RESULT_SUCCESS:
