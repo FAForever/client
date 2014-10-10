@@ -17,8 +17,6 @@
 #-------------------------------------------------------------------------------
 from client.updater import fetchClientUpdate
 import fa
-from fa.mods import checkMods
-from fa.wizards import Wizard
 
 '''
 Created on Dec 1, 2011
@@ -760,7 +758,7 @@ class ClientWindow(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def switchPath(self):
-        Wizard(self).exec_()
+        fa.wizards.Wizard(self).exec_()
 
     @QtCore.pyqtSlot()
     def switchPort(self):
@@ -1757,7 +1755,7 @@ class ClientWindow(FormClass, BaseClass):
 
         # Important: This is the race parameter used by ladder search.
         if 'mod' in message:
-            modkey = 'mod'
+            modkey = 'mod'  # FIXME: Find out if this is not fully deprecated by now
         else:
             modkey = 'featured_mod'
 
@@ -1799,7 +1797,7 @@ class ClientWindow(FormClass, BaseClass):
             fa.check.checkMap(message['mapname'], force=True, silent=silent)
 
         if "sim_mods" in message:
-            checkMods(message['sim_mods'])
+            fa.mods.checkMods(message['sim_mods'])
 
         # Writing a file for options
         if "options" in message:

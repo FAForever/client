@@ -116,7 +116,7 @@ class Updater(QtCore.QObject):
     RESULT_PASS = 5  #User refuses to update by canceling the wizard
 
 
-    def __init__(self, mod, version=None, modversions=None, sim=False, silent=False, *args, **kwargs):
+    def __init__(self, featured_mod, version=None, modversions=None, sim=False, silent=False, *args, **kwargs):
         """
         Constructor
         """
@@ -126,7 +126,7 @@ class Updater(QtCore.QObject):
 
         self.lastData = time.time()
 
-        self.mod = mod
+        self.featured_mod = featured_mod
         self.version = version
         self.modversions = modversions
 
@@ -152,7 +152,7 @@ class Updater(QtCore.QObject):
         self.progress.setAutoClose(False)
         self.progress.setAutoReset(False)
         self.progress.setModal(1)
-        self.progress.setWindowTitle("Updating %s" % self.mod.upper())
+        self.progress.setWindowTitle("Updating %s" % str(self.featured_mod).upper())
 
         self.bytesToSend = 0
 
@@ -279,7 +279,7 @@ class Updater(QtCore.QObject):
             md5File = util.md5(os.path.join(util.APPDATA_DIR, destination, fileToUpdate))
             if md5File == None:
                 if self.version:
-                    if self.mod == "faf" or self.mod == "ladder1v1" or filegroup == "FAF" or filegroup == "FAFGAMEDATA":
+                    if self.featured_mod == "faf" or self.featured_mod == "ladder1v1" or filegroup == "FAF" or filegroup == "FAFGAMEDATA":
                         self.writeToServer("REQUEST_VERSION", destination, fileToUpdate, str(self.version))
                     else:
                         self.writeToServer("REQUEST_MOD_VERSION", destination, fileToUpdate,
@@ -289,7 +289,7 @@ class Updater(QtCore.QObject):
                     self.writeToServer("REQUEST_PATH", destination, fileToUpdate)
             else:
                 if self.version:
-                    if self.mod == "faf" or self.mod == "ladder1v1" or filegroup == "FAF" or filegroup == "FAFGAMEDATA":
+                    if self.featured_mod == "faf" or self.featured_mod == "ladder1v1" or filegroup == "FAF" or filegroup == "FAFGAMEDATA":
                         self.writeToServer("PATCH_TO", destination, fileToUpdate, md5File, str(self.version))
                     else:
 
@@ -378,25 +378,26 @@ class Updater(QtCore.QObject):
         """ The core function that does most of the actual update work."""
         try:
             if self.sim:
-                self.writeToServer("REQUEST_SIM_PATH", self.mod)
+                self.writeToServer("REQUEST_SIM_PATH", self.featured_mod)
                 self.waitForSimModPath()
                 if self.result == self.RESULT_SUCCESS:
                     if modvault.downloadMod(self.modpath):
-                        self.writeToServer("ADD_DOWNLOAD_SIM_MOD", self.mod)
+                        self.writeToServer("ADD_DOWNLOAD_SIM_MOD", self.featured_mod)
 
             else:
                 #Prepare FAF directory & all necessary files
                 #self.prepareBinFAF() # removed for feature/new-patcher
 
                 #Update the mod if it's requested
-                if self.mod == "faf" or self.mod == "ladder1v1":  #HACK - ladder1v1 "is" FAF. :-)
+                if self.featured_mod == "faf" or self.featured_mod == "ladder1v1":  #HACK - ladder1v1 "is" FAF. :-)
                     #self.updateFiles("bin", "FAF")  # removed for feature/new-patcher
-                    self.updateFiles("gamedata", "FAFGAMEDATA")
-                else:
+                    #self.updateFiles("gamedata", "FAFGAMEDATA") # removed for feature/new-patcher
+                    pass
+                elif self.featured_mod:
                     #self.updateFiles("bin", "FAF")  # removed for feature/new-patcher
-                    self.updateFiles("gamedata", "FAFGAMEDATA")
-                    self.updateFiles("bin", self.mod)
-                    self.updateFiles("gamedata", self.mod + "Gamedata")
+                    #self.updateFiles("gamedata", "FAFGAMEDATA") # removed for feature/new-patcher
+                    self.updateFiles("bin", self.featured_mod)
+                    self.updateFiles("gamedata", self.featured_mod + "Gamedata")
 
         except UpdaterTimeout, et:
             log("TIMEOUT: %s(%s)" % (et.__class__.__name__, str(et.args)))

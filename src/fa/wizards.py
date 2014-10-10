@@ -141,7 +141,7 @@ class WizardSC(QtGui.QWizard):
 
 
     def accept(self):
-        util.settings.value("SupremeCommander/app/path", self.upgrade.comboBox.currentText())
+        util.settings.setValue("SupremeCommander/app/path", self.upgrade.comboBox.currentText())
         QtGui.QWizard.accept(self)
 
 
@@ -164,7 +164,7 @@ class Wizard(QtGui.QWizard):
 
 
     def accept(self):
-        util.settings.value("ForgedAlliance/app/path", self.upgrade.comboBox.currentText())
+        util.settings.setValue("ForgedAlliance/app/path", self.upgrade.comboBox.currentText())
         QtGui.QWizard.accept(self)
 
 
