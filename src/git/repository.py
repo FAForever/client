@@ -11,8 +11,9 @@ from PyQt4 import QtCore, QtGui
 
 class Repository(QtCore.QObject):
 
-    transfer_progress_complete = QtCore.pyqtSignal(int)
-    transfer_progress_total = QtCore.pyqtSignal(int)
+    transfer_progress_value = QtCore.pyqtSignal(int)
+    transfer_progress_maximum = QtCore.pyqtSignal(int)
+    transfer_complete = QtCore.pyqtSignal()
 
     def __init__(self, path, url, parent=None):
         QtCore.QObject.__init__(self, parent)
@@ -78,8 +79,8 @@ class Repository(QtCore.QObject):
 
 
     def _transfer(self, transfer_progress):
-        self.transfer_progress_complete.emit(transfer_progress.indexed_deltas)
-        self.transfer_progress_total.emit(transfer_progress.total_deltas)
+        self.transfer_progress_value.emit(transfer_progress.indexed_deltas)
+        self.transfer_progress_maximum.emit(transfer_progress.total_deltas)
         QtGui.QApplication.processEvents()
 
 
@@ -93,6 +94,8 @@ class Repository(QtCore.QObject):
         # It's not entirely clear why this needs to happen, but libgit2 expects the head to point somewhere after fetch
         if self.repo.listall_references():
             self.repo.set_head(self.repo.listall_references()[0])
+
+        self.transfer_complete.emit()
 
 
     def checkout(self, target="faf/master"):
