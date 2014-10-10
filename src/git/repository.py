@@ -35,20 +35,21 @@ class Repository(object):
     def close(self):
         del self.repo
 
+
     @property
     def tags(self):
-        regex = re.compile('^refs/tags')
-        return filter(lambda r: regex.match(r), self.repo.listall_references())
+        regex = re.compile('^refs/tags/(.*)')
+        return [regex.match(r).group(1) for r in self.repo.listall_references() if regex.match(r)]
 
 
     @property
     def remote_branches(self):
         return self.repo.listall_branches(pygit2.GIT_BRANCH_REMOTE)
 
+
     @property
-    def branches(self):
-        regex = re.compile('^refs/heads')
-        return filter(lambda r: regex.match(r), self.repo.listall_references())
+    def local_branches(self):
+        return self.repo.listall_branches(pygit2.GIT_BRANCH_LOCAL)
 
 
     @property
@@ -61,16 +62,31 @@ class Repository(object):
         return [remote.url for remote in self.repo.remotes]
 
 
-    def fetch(self):
+    @property
+    def current_head(self):
+        return self.repo.head.target
+
+
+    def fetch(self,):
         for remote in self.repo.remotes:
             logger.info("Fetching '" + remote.name + "' from " + remote.url)
             remote.fetch()
 
-        self.repo.set_head("refs/remotes/faf/master")
+        # It's not entirely clear why this needs to happen, but libgit2 expects the head to point somewhere after fetch
+        if self.repo.listall_references():
+            self.repo.set_head(self.repo.listall_references()[0])
 
 
-    def checkout(self, refname="faf/master"):
-        logger.info("Checking out " + refname + " in " + self.path)
-        self.repo.checkout(self.repo.lookup_branch(refname, pygit2.GIT_BRANCH_REMOTE), strategy=pygit2.GIT_CHECKOUT_FORCE)
-        self.repo.set_head("refs/remotes/faf/master")
+    def checkout(self, target="faf/master"):
+        logger.info("Checking out " + target + " in " + self.path)
+        if target in self.remote_branches:
+            self.repo.checkout(self.repo.lookup_branch(target, pygit2.GIT_BRANCH_REMOTE), strategy=pygit2.GIT_CHECKOUT_FORCE)
+        elif target in self.local_branches:
+            self.repo.checkout(self.repo.lookup_branch(target, pygit2.GIT_BRANCH_LOCAL), strategy=pygit2.GIT_CHECKOUT_FORCE)
+        elif target in self.tags:
+            self.repo.checkout(self.repo.lookup_reference("refs/tags/" + target), strategy=pygit2.GIT_CHECKOUT_FORCE)
+        else:
+            reference = self.repo[target]
+            self.repo.reset(reference.id, pygit2.GIT_RESET_HARD)
+
 
