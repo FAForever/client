@@ -146,13 +146,11 @@ def test_returns_correct_commit_hex_after_checkout(prefetched_repo):
 
 
 def test_retrieves_correct_hex_on_tag_checkout(prefetched_repo):
-    repo_dir = prefetched_repo.path
     prefetched_repo.checkout(TEST_TAG)
     assert prefetched_repo.current_head.hex == TEST_TAG_COMMIT
 
 
 def test_retrieves_correct_hex_on_branch_checkout(prefetched_repo):
-    repo_dir = prefetched_repo.path
     prefetched_repo.checkout(TEST_BRANCH)
     assert prefetched_repo.current_head.hex == TEST_BRANCH_COMMIT
 
