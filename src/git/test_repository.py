@@ -8,6 +8,11 @@ __author__ = 'Thygrrr'
 
 TEST_REPO_URL = "https://github.com/thygrrr/test.git"
 TEST_REPO_BRANCHES = ["faf/master", "faf/test"]
+TEST_REPO_TAGS = ["v0.0.1", "v0.0.2"]
+
+TEST_ARBITRARY_COMMIT = "34856db7a9effddbfcfb56a25d6ef17ef7d51290"
+TEST_ARBITRARY_TAG = "v0.0.2"
+
 
 @pytest.fixture(scope="module")
 def prefetched_repo(request):
@@ -62,9 +67,18 @@ def test_wipes_working_directory_on_branch_switch(prefetched_repo):
     assert not os.path.isfile(os.path.join(repo_dir, "test"))
 
 
-def test_has_all_branches_after_fetch(prefetched_repo):
+def test_has_all_remote_branches_after_fetch(prefetched_repo):
     for branch in TEST_REPO_BRANCHES:
         assert branch in prefetched_repo.remote_branches
+
+
+def test_has_no_local_branches_after_fetch(prefetched_repo):
+    assert not prefetched_repo.local_branches
+
+
+def test_has_all_tags_after_fetch(prefetched_repo):
+    for branch in TEST_REPO_TAGS:
+        assert branch in prefetched_repo.tags
 
 
 def test_adds_remote_faf_after_clone(tmpdir):
@@ -94,3 +108,20 @@ def test_keeps_pre_existing_remote_faf(tmpdir):
     assert TEST_REPO_URL not in repo.remote_urls
     assert "faf" in repo.remote_names
     assert repo.remote_names.index("faf") == repo.remote_urls.index("http://faforever.com")
+
+
+def test_retrieves_arbitrary_commit_on_checkout(prefetched_repo):
+    repo_dir = prefetched_repo.path
+    prefetched_repo.checkout(TEST_ARBITRARY_COMMIT)
+    assert os.path.isfile(os.path.join(repo_dir, "arbitrary"))
+
+
+def test_retrieves_correct_tag_on_checkout(prefetched_repo):
+    repo_dir = prefetched_repo.path
+    prefetched_repo.checkout(TEST_ARBITRARY_TAG)
+    assert os.path.isfile(os.path.join(repo_dir, "tagged"))
+
+
+def test_returns_correct_commit_hex_after_checkout(prefetched_repo):
+    prefetched_repo.checkout(TEST_ARBITRARY_COMMIT)
+    assert prefetched_repo.current_head.hex == TEST_ARBITRARY_COMMIT
