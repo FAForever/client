@@ -68,14 +68,6 @@ def game(parent):
     # Spawn an updater for the game binary
     updater = binary.Updater(parent)
 
-    progress = fa.updater.UpdaterProgressDialog(parent)
-    progress.show()
-
-    updater.progress_log.connect(progress.appendLog)
-    updater.progress_value.connect(progress.gameProgress.setValue)
-    updater.progress_maximum.connect(progress.gameProgress.setMaximum)
-    updater.progress_reset.connect(progress.gameProgress.reset)
-
     updater.start()
 
     return True
@@ -107,10 +99,7 @@ def check(featured_mod, mapname=None, version=None, modVersions=None, sim_mods=N
     if repo_featured:
         import featured
         for featured_mod in repo_featured:
-            progress = fa.updater.UpdaterProgressDialog(None)
-            progress.show()
-
-            featured.checkout_featured_mod(featured_mod, repo_featured[featured_mod]['url'],repo_featured[featured_mod]['target'], progress.modProgress)
+            featured.checkout_featured_mod(featured_mod, repo_featured[featured_mod]['url'],repo_featured[featured_mod]['target'])
 
 
     game_updater = None  #Our work here is done

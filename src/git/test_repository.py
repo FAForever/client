@@ -50,13 +50,15 @@ def test_has_remote_faf_after_init(tmpdir):
     assert "faf" in test_repo.remote_names
 
 
-def test_emits_transfer_progress_on_fetch(tmpdir, signal_receiver):
+def test_emits_transfer_signals_on_fetch(tmpdir, signal_receiver):
     repo_dir = str(tmpdir.join("test_repo"))
     test_repo = Repository(repo_dir, TEST_REPO_URL)
-    test_repo.transfer_progress_complete.connect(signal_receiver.int_slot)
-    test_repo.transfer_progress_total.connect(signal_receiver.int_slot)
+    test_repo.transfer_complete.connect(signal_receiver.generic_slot)
+    test_repo.transfer_progress_value.connect(signal_receiver.int_slot)
+    test_repo.transfer_progress_maximum.connect(signal_receiver.int_slot)
     test_repo.fetch()
 
+    assert signal_receiver.generic_values
     assert signal_receiver.int_values
     assert signal_receiver.int_values[-2:][0] == signal_receiver.int_values[-2:][1]
 
