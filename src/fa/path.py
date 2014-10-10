@@ -114,7 +114,6 @@ def typicalSupComPaths():
 
 def validatePath(path):
     try:
-        logger.info("Validating path: " + path)
         # Supcom only supports Ascii Paths
         if not path.decode("ascii"): return False
 

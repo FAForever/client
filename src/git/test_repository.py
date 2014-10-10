@@ -11,8 +11,13 @@ TEST_REPO_BRANCHES = ["faf/master", "faf/test"]
 TEST_REPO_TAGS = ["v0.0.1", "v0.0.2"]
 
 TEST_ARBITRARY_COMMIT = "34856db7a9effddbfcfb56a25d6ef17ef7d51290"
-TEST_ARBITRARY_TAG = "v0.0.2"
 
+TEST_TAG = "v0.0.2"
+TEST_TAG_COMMIT = "af24b324862df335c2664d2d68dca2a4e4011043"
+
+TEST_MASTER = "faf/master"
+TEST_BRANCH = "faf/test"
+TEST_BRANCH_COMMIT = "b20f559f4e1857ea78783a84ffec4ddfaa60f557"
 
 @pytest.fixture(scope="module")
 def prefetched_repo(request):
@@ -45,6 +50,17 @@ def test_has_remote_faf_after_init(tmpdir):
     assert "faf" in test_repo.remote_names
 
 
+def test_emits_transfer_progress_on_fetch(tmpdir, signal_receiver):
+    repo_dir = str(tmpdir.join("test_repo"))
+    test_repo = Repository(repo_dir, TEST_REPO_URL)
+    test_repo.transfer_progress_complete.connect(signal_receiver.int_slot)
+    test_repo.transfer_progress_total.connect(signal_receiver.int_slot)
+    test_repo.fetch()
+
+    assert signal_receiver.int_values
+    assert signal_receiver.int_values[-2:][0] == signal_receiver.int_values[-2:][1]
+
+
 def test_retrieves_contents_on_checkout(prefetched_repo):
     repo_dir = prefetched_repo.path
     prefetched_repo.checkout()
@@ -54,16 +70,16 @@ def test_retrieves_contents_on_checkout(prefetched_repo):
 
 def test_retrieves_alternate_branch_on_checkout(prefetched_repo):
     repo_dir = prefetched_repo.path
-    prefetched_repo.checkout("faf/test")
+    prefetched_repo.checkout(TEST_BRANCH)
     assert os.path.isfile(os.path.join(repo_dir, "test"))
 
 
 def test_wipes_working_directory_on_branch_switch(prefetched_repo):
     repo_dir = prefetched_repo.path
 
-    prefetched_repo.checkout("faf/test")
+    prefetched_repo.checkout(TEST_BRANCH)
     assert os.path.isfile(os.path.join(repo_dir, "test"))
-    prefetched_repo.checkout("faf/master")
+    prefetched_repo.checkout(TEST_MASTER)
     assert not os.path.isfile(os.path.join(repo_dir, "test"))
 
 
@@ -118,10 +134,23 @@ def test_retrieves_arbitrary_commit_on_checkout(prefetched_repo):
 
 def test_retrieves_correct_tag_on_checkout(prefetched_repo):
     repo_dir = prefetched_repo.path
-    prefetched_repo.checkout(TEST_ARBITRARY_TAG)
+    prefetched_repo.checkout(TEST_TAG)
     assert os.path.isfile(os.path.join(repo_dir, "tagged"))
 
 
 def test_returns_correct_commit_hex_after_checkout(prefetched_repo):
     prefetched_repo.checkout(TEST_ARBITRARY_COMMIT)
     assert prefetched_repo.current_head.hex == TEST_ARBITRARY_COMMIT
+
+
+def test_retrieves_correct_hex_on_tag_checkout(prefetched_repo):
+    repo_dir = prefetched_repo.path
+    prefetched_repo.checkout(TEST_TAG)
+    assert prefetched_repo.current_head.hex == TEST_TAG_COMMIT
+
+
+def test_retrieves_correct_hex_on_branch_checkout(prefetched_repo):
+    repo_dir = prefetched_repo.path
+    prefetched_repo.checkout(TEST_BRANCH)
+    assert prefetched_repo.current_head.hex == TEST_BRANCH_COMMIT
+

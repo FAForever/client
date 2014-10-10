@@ -24,10 +24,15 @@ def signal_receiver(application):
             QtCore.QObject.__init__(self, parent)
             self.int_values = []
             self.generic_values = []
+            self.string_values = []
 
         @QtCore.pyqtSlot()
         def generic_slot(self):
             self.generic_values.append(None)
+
+        @QtCore.pyqtSlot(str)
+        def string_slot(self, value):
+            self.string_values.append(value)
 
         @QtCore.pyqtSlot(int)
         def int_slot(self, value):

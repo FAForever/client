@@ -7,9 +7,15 @@ import pygit2
 import logging
 logger = logging.getLogger(__name__)
 
-class Repository(object):
-    def __init__(self, path, url):
-        object.__init__(self)
+from PyQt4 import QtCore, QtGui
+
+class Repository(QtCore.QObject):
+
+    transfer_progress_complete = QtCore.pyqtSignal(int)
+    transfer_progress_total = QtCore.pyqtSignal(int)
+
+    def __init__(self, path, url, parent=None):
+        QtCore.QObject.__init__(self, parent)
 
         assert url
         assert path
@@ -67,9 +73,21 @@ class Repository(object):
         return self.repo.head.target
 
 
-    def fetch(self,):
+    def _sideband(self, operation):
+        logger.debug(operation)
+
+
+    def _transfer(self, transfer_progress):
+        self.transfer_progress_complete.emit(transfer_progress.indexed_deltas)
+        self.transfer_progress_total.emit(transfer_progress.total_deltas)
+        QtGui.QApplication.processEvents()
+
+
+    def fetch(self):
         for remote in self.repo.remotes:
             logger.info("Fetching '" + remote.name + "' from " + remote.url)
+            remote.sideband_progress = self._sideband
+            remote.transfer_progress = self._transfer
             remote.fetch()
 
         # It's not entirely clear why this needs to happen, but libgit2 expects the head to point somewhere after fetch

@@ -91,7 +91,7 @@ def check(featured_mod, mapname=None, version=None, modVersions=None, sim_mods=N
     logger.info("Checking FA for: " + str(featured_mod) + " and map " + str(mapname))
 
     if not featured_mod:
-        QtGui.QMessageBox.warning(None, "No Mod Specified", "The application didn't specify which mod to update.")
+        QtGui.QMessageBox.warning(None, "No featured mod Specified", "The application didn't specify which mod to update.")
         return False
 
     # Perform the actual comparisons and updating                    
@@ -99,9 +99,19 @@ def check(featured_mod, mapname=None, version=None, modVersions=None, sim_mods=N
 
     # Spawn an update for the required mod
     legacy_versions, repo_versions = mods.filter_mod_versions(modVersions, mods.MOD_UID_TO_REPO)
-    game_updater = fa.updater.Updater(featured_mod, version, legacy_versions, silent=silent)
+    legacy_featured, repo_featured = mods.filter_featured_mods(featured_mod, mods.FEATURED_MOD_TO_REPO)
 
+    game_updater = fa.updater.Updater(legacy_featured, version, legacy_versions, silent=silent)
     result = game_updater.run()
+
+    if repo_featured:
+        import featured
+        for featured_mod in repo_featured:
+            progress = fa.updater.UpdaterProgressDialog(None)
+            progress.show()
+
+            featured.checkout_featured_mod(featured_mod, repo_featured[featured_mod]['url'],repo_featured[featured_mod]['target'], progress.modProgress)
+
 
     game_updater = None  #Our work here is done
 
