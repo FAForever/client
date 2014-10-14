@@ -29,7 +29,7 @@ import fa
 import json
 import time
 
-INTERNET_REPLAY_SERVER_HOST = "faforever.com"
+INTERNET_REPLAY_SERVER_HOST = "lobby.faforever.com"
 INTERNET_REPLAY_SERVER_PORT = 15000
 
 from . import DEFAULT_LIVE_REPLAY

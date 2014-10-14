@@ -1,4 +1,4 @@
-# -------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 # Copyright (c) 2012 Gael Honorez.
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the GNU Public License v3.0
@@ -23,7 +23,7 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-GPGNET_HOST = "faforever.com"
+GPGNET_HOST = "lobby.faforever.com"
 GPGNET_PORT = 8000
 
 DEFAULT_LIVE_REPLAY = True
