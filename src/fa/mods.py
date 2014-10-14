@@ -30,7 +30,7 @@ import util
 GIT_ROOT = "https://github.com/FAForever/"
 
 MOD_UID_TO_REPO = {}
-FEATURED_MOD_TO_REPO = {"faf": {"url":GIT_ROOT + "fa.git", "target":"faf/develop"}}
+FEATURED_MOD_TO_REPO = {"faf": {"url":GIT_ROOT + "fa.git", "target":"3634"}}
 
 
 def init_lua_for_featured_mod(mod, repo_dir=util.REPO_DIR, lua_dir=util.LUA_DIR):
