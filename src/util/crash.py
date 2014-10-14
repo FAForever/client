@@ -20,7 +20,7 @@
 # Bug Reporting
 CRASH_REPORT_USER = "pre-login"
 
-import fa
+import util
 
 from . import APPDATA_DIR, PERSONAL_DIR, VERSION_STRING, LOG_FILE_FAF, \
     readlines
