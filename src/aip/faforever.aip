@@ -4,7 +4,7 @@
     <ROW Property="ALLUSERS" Value="2"/>
     <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
     <ROW Property="ARPCONTACT" Value="admin@faforever.com"/>
-    <ROW Property="ARPHELPLINK" Value="http://www.faforever.com/forums/viewforum.php?f=3"/>
+    <ROW Property="ARPHELPLINK" Value="http://forums.faforever.com/forums/viewforum.php?f=3"/>
     <ROW Property="ARPPRODUCTICON" Value="faf.exe" Type="8"/>
     <ROW Property="ARPURLINFOABOUT" Value="http://www.faforever.com"/>
     <ROW Property="ARPURLUPDATEINFO" Value="http://www.faforever.com/page=2"/>

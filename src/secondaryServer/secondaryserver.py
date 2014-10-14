@@ -45,7 +45,7 @@ class Timeout(StandardError):
 class SecondaryServer(QtCore.QObject):
 
     # Network configuration
-    HOST    = "direct.faforever.com"
+    HOST    = "lobby.faforever.com"
     TIMEOUT = 20  #seconds
 
     # Return codes to expect from run()
