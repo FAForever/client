@@ -22,7 +22,7 @@ from mumbleconnector import logger
 
 class mumbleConnector():
 
-    mumbleHost = "faforever.com"
+    mumbleHost = "mumble.faforever.com"
     mumbleChannelRoot = "Games"
     mumbleLinkActive = None
     pluginName = "faforever"

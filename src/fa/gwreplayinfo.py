@@ -49,7 +49,7 @@ class GWReplayInfo(QtCore.QObject):
     '''
     # Network configuration
     SOCKET  = 11002
-    HOST    = "faforever.com"
+    HOST    = "lobby.faforever.com"
     TIMEOUT = 20  #seconds
 
     # Return codes to expect from run()

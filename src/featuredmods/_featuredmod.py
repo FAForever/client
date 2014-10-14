@@ -77,7 +77,7 @@ class FeaturedModsWidget(FormClass, BaseClass):
         if self.ftp.currentCommand() == QtNetwork.QFtp.ConnectToHost:
             if error:
                 QtGui.QMessageBox.information(self, "FTP",
-                        "Unable to connect to the FTP server at faforever.com. ")
+                        "Unable to connect to the FTP server at lobby.faforever.com. ")
                 logger.warn("Cannot connect to FTP")
                 self.ftp.abort()       
                 self.ftp.close()
@@ -167,7 +167,7 @@ class FeaturedModsWidget(FormClass, BaseClass):
                 if fileName:
                     
                     self.fileToUpload = QtCore.QFile(fileName)
-                    self.ftp.connectToHost("faforever.com", 1980)
+                    self.ftp.connectToHost("lobby.faforever.com", 1980)
                     logger.debug("Connecting to FTP")
                     self.ftp.login(self.currentMod, self.password)
                     logger.debug("Logging to FTP")

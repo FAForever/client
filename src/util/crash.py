@@ -33,8 +33,8 @@ import hashlib
 
 
 
-HELP_URL = "http://www.faforever.com/forums/viewforum.php?f=3"
-TICKET_URL = "http://bitbucket.org/thepilot/falobby/issues"
+HELP_URL = "http://forums.faforever.com/forums/viewforum.php?f=3"
+TICKET_URL = "https://github.com/FAForever/lobby/issues"
 
 class CrashDialog(QtGui.QDialog):
     def __init__(self, exc_info, *args, **kwargs):

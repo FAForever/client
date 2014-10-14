@@ -32,7 +32,7 @@ import json
 import struct
 
 
-FAF_SERVER_HOST = "direct.faforever.com"
+FAF_SERVER_HOST = "lobby.faforever.com"
 #FAF_SERVER_HOST = "localhost"
 FAF_SERVER_PORT = 8000
 
