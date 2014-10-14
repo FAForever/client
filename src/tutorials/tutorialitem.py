@@ -108,7 +108,7 @@ class TutorialItem(QtGui.QListWidgetItem):
         self.client = client
         self.tutorial      = message['tutorial']
         self.description   = message['description']
-        self.url           = "http://faforever.com/faf/tutorials/" + message['url']
+        self.url           = "http://content.faforever.com/faf/tutorials/" + message['url']
 
         # Map preview code
         if self.mapname != message['mapname']:

@@ -28,9 +28,9 @@ import util
 import hashlib
 from client import ClientState, logger
 
-PASSWORD_RECOVERY_URL = "http://www.faforever.com/faf/forgotPass.php"
-NAME_CHANGE_URL = "http://www.faforever.com/faf/userName.php"
-STEAM_LINK_URL = "http://www.faforever.com/faf/steam.php"
+PASSWORD_RECOVERY_URL = "http://app.faforever.com/faf/forgotPass.php"
+NAME_CHANGE_URL = "http://app.faforever.com/faf/userName.php"
+STEAM_LINK_URL = "http://app.faforever.com/faf/steam.php"
 
 class LoginWizard(QtGui.QWizard):
     def __init__(self, client):
@@ -394,7 +394,7 @@ class GameSettings(QtGui.QWizardPage):
         self.setPixmap(QtGui.QWizard.WatermarkPixmap, util.pixmap("client/settings_watermark.png"))
         
         self.label = QtGui.QLabel()
-        self.label.setText('Forged Alliance needs an open UDP port to play. If you have trouble connecting to other players, try the UPnP option first. If that fails, you should try to open or forward the port on your router and firewall.<br/><br/>Visit the <a href="http://www.faforever.com/forums/viewforum.php?f=3">Tech Support Forum</a> if you need help.<br/><br/>')
+        self.label.setText('Forged Alliance needs an open UDP port to play. If you have trouble connecting to other players, try the UPnP option first. If that fails, you should try to open or forward the port on your router and firewall.<br/><br/>Visit the <a href="http://forums.faforever.com/forums/viewforum.php?f=3">Tech Support Forum</a> if you need help.<br/><br/>')
         self.label.setOpenExternalLinks(True)
         self.label.setWordWrap(True)
 
