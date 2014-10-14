@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 class mumbleConnector():
 
-    mumbleHost = "faforever.com"
+    mumbleHost = "mumble.faforever.com"
     mumbleChannelRoot = "Games"
     mumbleLinkActive = None
     pluginName = "faforever"
