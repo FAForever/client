@@ -613,7 +613,8 @@ class ClientWindow(FormClass, BaseClass):
 
         #Important: If a game is running, offer to terminate it gently
         self.progress.setLabelText("Closing ForgedAllianceForever.exe")
-        fa.instance.close()
+        if fa.instance.running():
+            fa.instance.close()
 
         #Terminate Lobby Server connection
         if self.socket.state() == QtNetwork.QTcpSocket.ConnectedState:
