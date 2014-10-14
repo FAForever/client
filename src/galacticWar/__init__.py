@@ -24,10 +24,10 @@ from PyQt4 import QtGui
 logger = logging.getLogger("faf.galacticWar")
 logger.setLevel(logging.DEBUG)
 
-LOBBY_HOST = 'direct.faforever.com'
+LOBBY_HOST = 'lobby.faforever.com'
 LOBBY_PORT = 10001
 
-TEXTURE_SERVER = "http://direct.faforever.com/faf/images/"
+TEXTURE_SERVER = "http://content.faforever.com/faf/images/"
 
 RANKS = {0:["Private", "Corporal", "Sergeant", "Captain", "Major", "Colonel", "General", "Supreme Commander"],
          1:["Paladin", "Legate", "Priest", "Centurion", "Crusader", "Evaluator", "Avatar-of-War", "Champion"],

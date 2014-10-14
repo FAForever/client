@@ -26,7 +26,7 @@ import functools
 
 import logging
 
-FAF_PROXY_HOST = "direct.faforever.com"
+FAF_PROXY_HOST = "proxy.faforever.com"
 FAF_PROXY_PORT = 9124
 
 UNIT16 = 8

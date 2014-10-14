@@ -27,7 +27,7 @@ import warnings
 logger= logging.getLogger("faf.downloader")
 logger.setLevel(logging.DEBUG)
 
-VAULT_PREVIEW_ROOT = "http://www.faforever.com/faf/vault/map_previews/small/"
+VAULT_PREVIEW_ROOT = "http://content.faforever.com/faf/vault/map_previews/small/"
 
 class downloadManager(QtCore.QObject):
     ''' This class allows downloading stuff in the background'''
