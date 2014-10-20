@@ -59,10 +59,23 @@ class UpdaterProgressDialog(FormClass, BaseClass):
         self.setupUi(self)
         self.logPlainTextEdit.setVisible(False)
         self.adjustSize()
+        self.watches = []
 
     @QtCore.pyqtSlot(str)
     def appendLog(self, text):
         self.logPlainTextEdit.appendPlainText(text)
+
+    @QtCore.pyqtSlot(QtCore.QObject)
+    def addWatch(self, watch):
+        self.watches.append(watch)
+        watch.finished.connect(self.watchFinished)
+
+    @QtCore.pyqtSlot()
+    def watchFinished(self):
+        for watch in self.watches:
+            if not watch.isFinished():
+                return
+        self.done(QtGui.QDialog.Accepted)  #equivalent to self.accept(), but clearer
 
 
 def clearLog():
