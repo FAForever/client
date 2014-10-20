@@ -45,12 +45,9 @@ def build_argument_list(game_info, port, arguments=None):
         raise ValueError("Custom init scripts no longer supportes.")
 
     # Proper mod loading code, but allow for custom init by server
-    if not '/init' in arguments:
-        arguments.append('/init')
-        arguments.append("../lua/init_" + game_info['featured_mod'] + ".lua")
-    else:
-        #HACK for feature/new-patcher
-        raise ValueError("Server has sent a custon init command and I have no idea what to do with it.")
+    mods.fix_init_luas()
+    arguments.append("/init")
+    arguments.append(mods.init_lua_for_featured_mod(game_info['featured_mod']))
 
     #log file
     if settings.value("fa.write_game_log", DEFAULT_WRITE_GAME_LOG, type=bool):
