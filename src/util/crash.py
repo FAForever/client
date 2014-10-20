@@ -1,4 +1,4 @@
-# -------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 # Copyright (c) 2012 Gael Honorez.
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the GNU Public License v3.0
@@ -30,7 +30,7 @@ import traceback
 import hashlib
 
 
-HELP_URL = "http://www.faforever.com/forums/viewforum.php?f=3"
+HELP_URL = "http://forums.faforever.com/forums/viewforum.php?f=3"
 TICKET_URL = "https://github.com/FAForever/lobby/issues"
 
 

@@ -1,4 +1,4 @@
-# -------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 # Copyright (c) 2012 Gael Honorez.
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the GNU Public License v3.0
@@ -36,9 +36,7 @@ except (BaseException, IOError), e:
 VERSION = 0  # FIXME: causes the updater to always skip.
 
 LOGFILE_MAX_SIZE = 256 * 1024  #256kb should be enough for anyone
-
-
-UNITS_PREVIEW_ROOT = "http://www.faforever.com/faf/unitsDB/icons/big/"
+UNITS_PREVIEW_ROOT = "http://content.faforever.com/faf/unitsDB/icons/big/" 
 
 #These are paths relative to the executable or main.py script
 COMMON_DIR = os.path.join(os.getcwd(), "res")
@@ -647,3 +645,6 @@ def now():
 
 
 from crash import CrashDialog
+from report import ReportDialog
+
+    

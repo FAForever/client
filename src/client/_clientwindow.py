@@ -1187,7 +1187,7 @@ class ClientWindow(FormClass, BaseClass):
 
 
         if not self.uniqueId :
-            QtGui.QMessageBox.warning(QtGui.QApplication.activeWindow(), "Unable to login", "It seems that you miss some important DLL.<br>Please install :<br><a href =\"http://www.microsoft.com/download/en/confirmation.aspx?id=8328\">http://www.microsoft.com/download/en/confirmation.aspx?id=8328</a> and <a href = \"http://www.microsoft.com/en-us/download/details.aspx?id=17851\">http://www.microsoft.com/en-us/download/details.aspx?id=17851</a><br><br>You probably have to restart your computer after installing them.<br><br>Please visit this link in case of problems : <a href=\"http://www.faforever.com/forums/viewforum.php?f=3\">http://www.faforever.com/forums/viewforum.php?f=3</a>", QtGui.QMessageBox.Close)
+            QtGui.QMessageBox.warning(QtGui.QApplication.activeWindow(), "Unable to login", "It seems that you miss some important DLL.<br>Please install :<br><a href =\"http://www.microsoft.com/download/en/confirmation.aspx?id=8328\">http://www.microsoft.com/download/en/confirmation.aspx?id=8328</a> and <a href = \"http://www.microsoft.com/en-us/download/details.aspx?id=17851\">http://www.microsoft.com/en-us/download/details.aspx?id=17851</a><br><br>You probably have to restart your computer after installing them.<br><br>Please visit this link in case of problems : <a href=\"http://forums.faforever.com/forums/viewforum.php?f=3\">http://forums.faforever.com/forums/viewforum.php?f=3</a>", QtGui.QMessageBox.Close)
             return False
         else :
             self.send(dict(command="hello", version=0, login=self.login, password=self.password, unique_id=self.uniqueId, local_ip=self.localIP))

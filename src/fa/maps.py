@@ -39,9 +39,9 @@ import tempfile
 import re
 
 
-VAULT_PREVIEW_ROOT = "http://www.faforever.com/faf/vault/map_previews/small/" 
-VAULT_DOWNLOAD_ROOT = "http://www.faforever.com/faf/vault/"
-VAULT_COUNTER_ROOT = "http://www.faforever.com/faf/vault/map_vault/inc_downloads.php"
+VAULT_PREVIEW_ROOT = "http://content.faforever.com/faf/vault/map_previews/small/" 
+VAULT_DOWNLOAD_ROOT = "http://content.faforever.com/faf/vault/"
+VAULT_COUNTER_ROOT = "http://content.faforever.com/faf/vault/map_vault/inc_downloads.php"
 
  
 maps = { # A Lookup table for info (names, sizes, players) of the official Forged Alliance Maps

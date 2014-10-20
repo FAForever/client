@@ -111,7 +111,7 @@ class ReplayItem(QtGui.QTreeWidgetItem):
         
         self.moreInfo       = False
         self.replayInfo     = False
-        self.url            = "http://faforever.com/faf/vault/replay_vault/replay.php?id=%i" % self.uid
+        self.url            = "http://content.faforever.com/faf/vault/replay_vault/replay.php?id=%i" % self.uid
         
         self.teams          = {}
         self.access         = None

@@ -102,8 +102,8 @@ class Updater(QtCore.QObject):
     This is the class that does the actual installation work.
     """
     # Network configuration
-    SOCKET = 9001
-    HOST = "direct.faforever.com"
+    SOCKET  = 9001
+    HOST    = "lobby.faforever.com"
     TIMEOUT = 20  #seconds
 
     # Return codes to expect from run()
