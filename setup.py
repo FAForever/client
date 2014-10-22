@@ -19,12 +19,14 @@
 import shutil
 import os
 import sys
+import PyQt4.uic
 from cx_Freeze import setup, Executable
 
 company_name = 'FAF Community'
 product_name = 'Forged Alliance Forever'
 
 import version
+import PyQt4.uic
 git_version = version.get_git_version()
 msi_version = version.msi_version(git_version)
 version_file = version.write_release_version(git_version)
@@ -74,6 +76,7 @@ exe = Executable(
     base=base,
     targetName='FAForever.exe',
     icon='res/faf.ico',
+    includes = [os.path.join(os.path.dirname(PyQt4.uic.__file__),"widget-plugins"), "PyQt4.uic.widget-plugins"]
 )
 
 setup(
@@ -86,5 +89,9 @@ setup(
     url='http://faforever.com',
     license='GNU General Public License, Version 3',
     options={'build_exe': build_exe_options, 'bdist_msi': bdist_msi_options},
+<<<<<<< 8bf9ee8210847932ce62e9234f62fe5b28a52278
     executables=[exe]
+=======
+    executables=[exe], requires=['bsdiff4'],
+>>>>>>> Fix (workaround?) for the cx_freeze import problem that arose. I'm not exactly sure what caused them, it should do all of this automatically. (and I believe it did, before pygit2 was added)
 )
