@@ -19,12 +19,14 @@
 import shutil
 import os
 import sys
+import PyQt4.uic
 from cx_Freeze import setup, Executable
 
 company_name = 'FAF Community'
 product_name = 'Forged Alliance Forever'
 
 import version
+import PyQt4.uic
 git_version = version.get_git_version()
 msi_version = version.msi_version(git_version)
 version_file = version.write_release_version(git_version)
@@ -36,7 +38,7 @@ build_exe_options = {
     'include_files': ['res', 'RELEASE-VERSION', ('lib/uid.dll', 'uid.dll')],
     'icon': 'res/faf.ico',
     'include_msvcr': True,
-    'packages': ['cffi', 'pycparser', '_cffi__xf1819144xd61e91d9'],
+    'packages': ['cffi', 'pycparser', '_cffi__xf1819144xd61e91d9', 'PyQt4.uic'],
 }
 
 shortcut_table = [
@@ -73,6 +75,7 @@ exe = Executable(
     base=base,
     targetName='FAForever.exe',
     icon='res/faf.ico',
+    includes = [os.path.join(os.path.dirname(PyQt4.uic.__file__),"widget-plugins"), "PyQt4.uic.widget-plugins"]
 )
 
 setup(
@@ -85,5 +88,5 @@ setup(
     url='http://faforever.com',
     license='GNU General Public License, Version 3',
     options={'build_exe': build_exe_options, 'bdist_msi': bdist_msi_options},
-    executables=[exe], requires=['bsdiff4']
+    executables=[exe], requires=['bsdiff4'],
 )
