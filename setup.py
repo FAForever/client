@@ -36,7 +36,7 @@ build_exe_options = {
     'include_files': ['res', 'RELEASE-VERSION', ('lib/uid.dll', 'uid.dll')],
     'icon': 'res/faf.ico',
     'include_msvcr': True,
-    'packages': ['util']
+    'packages': ['cffi', 'pycparser', '_cffi__xf1819144xd61e91d9'],
 }
 
 shortcut_table = [
