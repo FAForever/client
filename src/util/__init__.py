@@ -180,6 +180,10 @@ def stopLogging():
     logging.shutdown()
 
 
+from PyQt4 import uic
+path = os.path.join(os.path.dirname(sys.argv[0]), "PyQt4.uic.widget-plugins")
+uic.widgetPluginPath.append(path)
+
 def clearDirectory(directory, confirm=True):
     if (os.path.isdir(directory)):
         if (confirm):
