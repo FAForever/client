@@ -36,7 +36,8 @@ build_exe_options = {
     'include_files': ['res', 'RELEASE-VERSION', ('lib/uid.dll', 'uid.dll')],
     'icon': 'res/faf.ico',
     'include_msvcr': True,
-    'packages': ['util']
+    'packages': ['sip', 'pygit2', 'cffi', 'pycparser', '_cffi__xf1819144xd61e91d9'],
+    'optimize': 2
 }
 
 shortcut_table = [
@@ -85,5 +86,5 @@ setup(
     url='http://faforever.com',
     license='GNU General Public License, Version 3',
     options={'build_exe': build_exe_options, 'bdist_msi': bdist_msi_options},
-    executables=[exe], requires=['bsdiff4']
+    executables=[exe]
 )

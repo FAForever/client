@@ -646,9 +646,3 @@ def now():
     return _dateDummy.now()
 
 from crash import CrashDialog
-<<<<<<< 86139199a8e33445552613a1b2384ecfc854ca89
-=======
-from report import ReportDialog
-
-    
->>>>>>> changed client to reflect new DNS name structure

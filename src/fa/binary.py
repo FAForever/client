@@ -16,7 +16,6 @@
 # GNU General Public License for more details.
 #-------------------------------------------------------------------------------
 
-from PyQt4.QtCore import pyqtSignal
 from git import Repository
 
 __author__ = 'Thygrrr'
@@ -50,16 +49,16 @@ def make_counter(start=0):
     return f
 
 
-class Updater(QtCore.QThread):
-    progress_reset = pyqtSignal()
-    progress_value = pyqtSignal(int)
-    progress_maximum = pyqtSignal(int)
-    progress_log = pyqtSignal(str)
-    failed = pyqtSignal(PatchFailedError)
-
+class Updater(QtCore.QObject):
+    progress_reset = QtCore.pyqtSignal()
+    progress_value = QtCore.pyqtSignal(int)
+    progress_maximum = QtCore.pyqtSignal(int)
+    progress_log = QtCore.pyqtSignal(str)
+    failed = QtCore.pyqtSignal(str)
+    finished = QtCore.pyqtSignal()
 
     def __init__(self, parent=None, repo_name=REPO_NAME, repo_url=REPO_URL):
-        QtCore.QThread.__init__(self, parent)
+        QtCore.QObject.__init__(self, parent)
         self.repo = Repository(os.path.join(util.REPO_DIR, repo_name), repo_url)
 
 
@@ -79,7 +78,7 @@ class Updater(QtCore.QThread):
             logger.info("Copying " + os.path.join(source_path, source_name))
             shutil.copyfile(os.path.join(source_path, source_name), os.path.join(destination_path, destination_name or source_name))
             self.progress_value.emit(count())
-            self.yieldCurrentThread()
+            QtGui.QApplication.processEvents()
 
     def log(self, text):
         self.progress_log.emit("Game: " + text)
@@ -90,7 +89,7 @@ class Updater(QtCore.QThread):
         self.log(operation)
         self.progress_maximum.emit(maximum)
         self.progress_reset.emit()
-        self.yieldCurrentThread()
+        QtGui.QApplication.processEvents()
 
 
     def patch_directory_contents(self, post_patch_verify, patch_data_directory=os.path.join(util.REPO_DIR, REPO_NAME, "bsdiff4"), bin_dir=util.BIN_DIR):
@@ -128,7 +127,7 @@ class Updater(QtCore.QThread):
                 raise PatchFailedError("MD5 mismatch for " + file_name)
 
             self.progress_value.emit(count())
-            self.yieldCurrentThread()
+            QtGui.QApplication.processEvents()
 
 
     def verify_directory_contents(self, post_patch_verify, bin_dir=util.BIN_DIR):
@@ -150,7 +149,7 @@ class Updater(QtCore.QThread):
                     okay  = False
 
                 self.progress_value.emit(count())
-                self.yieldCurrentThread()
+                QtGui.QApplication.processEvents()
 
             for existing_file in os.listdir(bin_dir):
                 if not existing_file in post_patch_verify:
@@ -182,6 +181,7 @@ class Updater(QtCore.QThread):
         return self.verify_directory_contents(migration_data['post_patch_verify'])
 
 
+    @QtCore.pyqtSlot()
     def run(self):
         self.prepare_progress("Checking out Git Repository")
 
@@ -197,31 +197,6 @@ class Updater(QtCore.QThread):
             try:
                 self.patch_forged_alliance(gamepath)
             except PatchFailedError, pfe:
-                self.failed.emit(pfe)
+                self.failed.emit(str(pfe))
 
-
-
-
-
-if __name__ == "__main__":
-    app = QtGui.QApplication(sys.argv)
-    updater = Updater(app)
-    progress = QtGui.QProgressDialog()
-    progress.setWindowTitle("Updating Game")
-    progress.setAutoClose(False)
-    progress.setCancelButton(None)
-    progress.setMinimumDuration(1500)
-    progress.show()
-
-    updater.progress_value.connect(progress.setValue)
-    updater.log.connect(progress.setLabelText)
-    updater.progress_maximum.connect(progress.setMaximum)
-    updater.progress_reset.connect(progress.reset)
-    updater.finished.connect(app.exit)
-
-    app.processEvents()
-
-    updater.start()
-
-    app.exec_()
-
+        self.finished.emit()

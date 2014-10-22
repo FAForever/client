@@ -9,8 +9,10 @@ from PyQt4 import QtGui, QtCore
 def application(request):
     request.app = QtGui.QApplication(sys.argv)
     request.app.setApplicationName("py.test QApplication")
+    request.app.processEvents()
 
     def finalize():
+        request.app.processEvents()
         request.app.quit()
 
     request.addfinalizer(finalize)
