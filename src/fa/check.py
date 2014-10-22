@@ -32,7 +32,7 @@ import util
 logger = logging.getLogger(__name__)
 
 
-def checkMap(mapname, force=False, silent=False):
+def map(mapname, force=False, silent=False):
     """
     Assures that the map is available in FA, or returns false.
     """
@@ -57,7 +57,15 @@ def checkMap(mapname, force=False, silent=False):
     return True
 
 
-def game(parent):
+def featured_mod(featured_mod, version):
+    pass
+
+
+def sim_mod(sim_mod, version):
+    pass
+
+
+def path(parent):
     while not validatePath(util.settings.value("ForgedAlliance/app/path", "", type=str)):
         logger.warn("Invalid game path: " + util.settings.value("ForgedAlliance/app/path", "", type=str))
         wizard = Wizard(parent)
@@ -65,14 +73,17 @@ def game(parent):
         if result == QtGui.QWizard.Rejected:
             return False
 
+    logger.info("Writing fa_path.lua config file.")
+    writeFAPathLua()
+
+
+def game(parent):
     # Spawn an updater for the game binary
     updater = binary.Updater(parent)
 
-    updater.start()
+    updater.run()
 
     return True
-
-
 
 
 
@@ -82,9 +93,7 @@ def check(featured_mod, mapname=None, version=None, modVersions=None, sim_mods=N
     """
     logger.info("Checking FA for: " + str(featured_mod) + " and map " + str(mapname))
 
-    if not featured_mod:
-        QtGui.QMessageBox.warning(None, "No featured mod Specified", "The application didn't specify which mod to update.")
-        return False
+    assert featured_mod
 
     # Perform the actual comparisons and updating                    
     logger.info("Updating FA for mod: " + str(featured_mod) + ", version " + str(version))
@@ -119,7 +128,7 @@ def check(featured_mod, mapname=None, version=None, modVersions=None, sim_mods=N
 
     # Now it's down to having the right map
     if mapname:
-        if not checkMap(mapname, silent=silent):
+        if not map(mapname, silent=silent):
             return False
 
     if sim_mods:

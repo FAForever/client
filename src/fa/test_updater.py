@@ -12,11 +12,11 @@ import pytest
 class TestObjectWithoutIsFinished(QtCore.QObject):
     finished = QtCore.pyqtSignal()
 
-    def __init__(self, QObject_parent=None):
-        QtCore.QObject.__init__(self, QObject_parent)
 
-def noop_thread(self):
-    QtCore.QThread.yieldCurrentThread(self)
+class TestThreadNoOp(QtCore.QThread):
+    def run(self):
+        self.yieldCurrentThread()
+
 
 def test_updater_is_a_dialog(application):
     assert isinstance(updater.UpdaterProgressDialog(None), QtGui.QDialog)
@@ -64,8 +64,7 @@ def test_updater_watch_finished_raises_error_on_watch_without_method_is_finished
 
 def test_updater_hides_and_accepts_if_all_watches_are_finished(application):
     u = updater.UpdaterProgressDialog(None)
-    t = QtCore.QThread()
-    t.run = noop_thread
+    t = TestThreadNoOp()
 
     u.addWatch(t)
     u.show()
@@ -81,8 +80,7 @@ def test_updater_hides_and_accepts_if_all_watches_are_finished(application):
 
 def test_updater_does_not_hide_and_accept_before_all_watches_are_finished(application):
     u = updater.UpdaterProgressDialog(None)
-    t = QtCore.QThread()
-    t.run = noop_thread
+    t = TestThreadNoOp()
     t_not_finished = QtCore.QThread()
 
     u.addWatch(t)
