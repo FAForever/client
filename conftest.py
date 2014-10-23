@@ -5,7 +5,7 @@ import sys
 from PyQt4 import QtGui, QtCore
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def application(request):
     request.app = QtGui.QApplication(sys.argv)
     request.app.setApplicationName("py.test QApplication")

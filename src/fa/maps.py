@@ -523,10 +523,10 @@ class Downloader(QtCore.QObject):
     failed = QtCore.pyqtSignal(str)
     finished = QtCore.pyqtSignal()
 
-    def __init__(self, map_name, parent=None):
+    def __init__(self, map_name, download_root=VAULT_DOWNLOAD_ROOT, parent=None):
         QtCore.QObject.__init__(self, parent)
         self.map_name = map_name
-        self.url = QtCore.QUrl(VAULT_DOWNLOAD_ROOT + name2link(map_name))
+        self.url = QtCore.QUrl(download_root + name2link(map_name))
         self.data = QtCore.QByteArray()
         self.reply = None
 
@@ -537,7 +537,7 @@ class Downloader(QtCore.QObject):
 
     @QtCore.pyqtSlot()
     def _read_data(self):
-        data.append(self.reply.readAll())
+        self.data.append(self.reply.readAll())
 
     @QtCore.pyqtSlot()
     def _save_data(self):
@@ -552,7 +552,7 @@ class Downloader(QtCore.QObject):
     @QtCore.pyqtSlot()
     def run(self):
         self.progress_reset.emit()
-        self.progress_log.emit("Downloading map " + map_name)
+        self.progress_log.emit("Downloading map " + self.map_name)
         self.reply = util.network.get(QtNetwork.QNetworkRequest(self.url))
         self.reply.readyRead.connect(self._read_data)
         self.reply.finished.connect(self._save_data)
