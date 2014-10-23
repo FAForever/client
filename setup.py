@@ -21,6 +21,8 @@ import sys
 import PyQt4.uic
 from cx_Freeze import setup, Executable
 
+sys.path.insert(0, "src")
+
 company_name = 'FAF Community'
 product_name = 'Forged Alliance Forever'
 
