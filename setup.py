@@ -16,7 +16,6 @@
 # GNU General Public License for more details.
 #-------------------------------------------------------------------------------
 
-import shutil
 import os
 import sys
 import PyQt4.uic
@@ -38,7 +37,7 @@ build_exe_options = {
     'include_files': ['res', 'RELEASE-VERSION', ('lib/uid.dll', 'uid.dll')],
     'icon': 'res/faf.ico',
     'include_msvcr': True,
-    'packages': ['cffi', 'pycparser', '_cffi__xf1819144xd61e91d9', 'PyQt4.uic'],
+    'packages': ['util', 'cffi', 'pycparser', '_cffi__xf1819144xd61e91d9', 'PyQt4.uic'],
 }
 
 shortcut_table = [
