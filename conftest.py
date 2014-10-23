@@ -1,19 +1,16 @@
 __author__ = 'Thygrrr'
 
 import pytest
-import sys
 from PyQt4 import QtGui, QtCore
 
-
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="module")
 def application(request):
-    request.app = QtGui.QApplication(sys.argv)
+    request.app = QtGui.QApplication([])
     request.app.setApplicationName("py.test QApplication")
-    request.app.processEvents()
 
     def finalize():
-        request.app.processEvents()
-        request.app.quit()
+        request.app.deleteLater()
+        del request.app
 
     request.addfinalizer(finalize)
     return request.app

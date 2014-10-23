@@ -1,11 +1,7 @@
-from _ctypes import ArgumentError
-from _pytest.python import isfunction
-
 __author__ = 'Thygrrr'
 
 import updater
 from PyQt4 import QtGui, QtCore
-import types
 import pytest
 
 
