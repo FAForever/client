@@ -31,29 +31,29 @@ def test_init_lua_for_featured_mod_returns_correct_repo_lua(tmpdir):
 
 
 def test_filter_mod_versions_returns_tuple_of_dicts():
-    legacy, repo = mods.filter_mod_versions({},{})
+    legacy, repo = mods.filter_mod_versions({}, {})
     assert isinstance(legacy, dict)
     assert isinstance(repo, dict)
 
 
 def test_filter_mod_removes_found_mods_from_legacy():
-    legacy, _ = mods.filter_mod_versions({1:2},{1:"test"})
+    legacy, _ = mods.filter_mod_versions({1: 2}, {1: "test"})
     assert not legacy
 
 
 def test_filter_mod_strips_unwanted_mods_entirely():
-    legacy, repo = mods.filter_mod_versions({2:3}, {2:None})
+    legacy, repo = mods.filter_mod_versions({2: 3}, {2: None})
     assert 2 not in legacy
     assert 2 not in repo
 
 
 def test_filter_mod_places_found_mods_with_new_key_in_repo():
-    _, repo = mods.filter_mod_versions({1:2},{1:"test"})
+    _, repo = mods.filter_mod_versions({1: 2},  {1: "test"})
     assert repo["test"] == 2
 
 
 def test_filter_mod_versions_passes_through_on_empty_filter_table():
-    legacy, repo = mods.filter_mod_versions({1:2},{})
+    legacy, repo = mods.filter_mod_versions({1: 2}, {})
     assert legacy[1] == 2
     assert not repo
 
