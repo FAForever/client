@@ -42,18 +42,18 @@ build_exe_options = {
 }
 
 shortcut_table = [
-    ('DesktopShortcut',          # Shortcut
-     'DesktopFolder',            # Directory_
-     'FA Forever',               # Name
-     'TARGETDIR',                # Component_
-     '[TARGETDIR]FAForever.exe', # Target
-     None,                       # Arguments
-     None,                       # Description
-     None,                       # Hotkey
-     None,                       # Icon
-     None,                       # IconIndex
-     None,                       # ShowCmd
-     'TARGETDIR'                 # WkDir
+    ('DesktopShortcut',           # Shortcut
+     'DesktopFolder',             # Directory_
+     'FA Forever',                # Name
+     'TARGETDIR',                 # Component_
+     '[TARGETDIR]FAForever.exe',  # Target
+     None,                        # Arguments
+     None,                        # Description
+     None,                        # Hotkey
+     None,                        # Icon
+     None,                        # IconIndex
+     None,                        # ShowCmd
+     'TARGETDIR'                  # WkDir
      )
 ]
 
@@ -75,7 +75,7 @@ exe = Executable(
     base=base,
     targetName='FAForever.exe',
     icon='res/faf.ico',
-    includes = [os.path.join(os.path.dirname(PyQt4.uic.__file__),"widget-plugins"), "PyQt4.uic.widget-plugins"]
+    includes=[os.path.join(os.path.dirname(PyQt4.uic.__file__), 'widget-plugins'), 'PyQt4.uic.widget-plugins']
 )
 
 setup(
