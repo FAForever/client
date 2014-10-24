@@ -130,6 +130,7 @@ def test_keeps_pre_existing_remote_faf(tmpdir):
 
 def test_retrieves_arbitrary_commit_on_checkout(prefetched_repo):
     repo_dir = prefetched_repo.path
+    assert prefetched_repo.has_hex(TEST_ARBITRARY_COMMIT)
     prefetched_repo.checkout(TEST_ARBITRARY_COMMIT)
     assert os.path.isfile(os.path.join(repo_dir, "arbitrary"))
 

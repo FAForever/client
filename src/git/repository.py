@@ -83,6 +83,8 @@ class Repository(QtCore.QObject):
         self.transfer_progress_maximum.emit(transfer_progress.total_deltas)
         QtGui.QApplication.processEvents()
 
+    def has_hex(self, hex):
+        return self.repo.__contains__(hex)
 
     def fetch(self):
         for remote in self.repo.remotes:
