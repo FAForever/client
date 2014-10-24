@@ -34,6 +34,18 @@ class Version():
             return "".join([DEFAULT_REPO_URL_BASE, self._version.repo, ".git"])
 
     @property
+    def ref(self):
+        return self._version.ref
+
+    @property
+    def hash(self):
+        return self._version.hash
+
+    @property
+    def repo(self):
+        return self._version.repo
+
+    @property
     def is_stable(self):
         return self._version.hash is not None
 
