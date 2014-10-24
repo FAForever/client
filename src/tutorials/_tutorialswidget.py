@@ -20,8 +20,8 @@
 
 
 
-from PyQt4 import QtCore
-from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
+from PyQt4 import QtCore, QtGui
+from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
 from fa.replay import replay
 import util
 import os
@@ -52,13 +52,16 @@ class tutorialsWidget(FormClass, BaseClass):
         
         
     def finishReplay(self, reply):
-        filename = os.path.join(util.CACHE_DIR, str("tutorial.fafreplay"))
-        replay  = QtCore.QFile(filename)
-        replay.open(QtCore.QIODevice.WriteOnly | QtCore.QIODevice.Text)
-        replay.write(reply.readAll())
-        replay.close()
+        if reply.error() != QNetworkReply.NoError:
+            QtGui.QMessageBox.warning(self, "Network Error", reply.errorString())
+        else:
+            filename = os.path.join(util.CACHE_DIR, str("tutorial.fafreplay"))
+            replay  = QtCore.QFile(filename)
+            replay.open(QtCore.QIODevice.WriteOnly | QtCore.QIODevice.Text)
+            replay.write(reply.readAll())
+            replay.close()
     
-        replay(filename, True)
+            fa.replay(filename, True)
     
     def tutorialClicked(self, item):
 
