@@ -16,6 +16,13 @@ DEFAULT_REPO_URL_BASE = 'http://github.com/'
 RepositoryVersion = namedtuple("RepositoryVersion", "repo ref url hash")
 
 class Version():
+    """
+    Describes the version of a Repository.
+
+    We track "stableness" and "trustedness" of a repository with the following rules:
+     - A version is "stable" iff it has a commithash
+     - A version is "trusted" iff the repository is in TRUSTED_REPOS (Implementation subject to change)
+    """
     def __init__(self, repo, ref, url = None, hash=None):
         self._version = RepositoryVersion(repo,ref,url,hash)
 
