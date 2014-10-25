@@ -4,13 +4,9 @@ language: python
 python:
   - "2.7_with_system_site_packages"
 
-
-env:
-  - LIBGIT2=~/libgit2/_install/ LD_LIBRARY_PATH=~/libgit2/_install/lib
-
-
 install:
   - "bash ./.travis.sh"
+  - "sudo apt-get install python-qt4"
   - "pip install -r requirements.txt"
 
 
