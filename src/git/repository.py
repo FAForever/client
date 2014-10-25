@@ -90,7 +90,6 @@ class Repository(QtCore.QObject):
         ref_object = self.repo.get(self.repo.lookup_reference("refs/tags/"+version.ref).target)
         if isinstance(ref_object, pygit2.Tag):
             if ref_object.target:
-                print self.has_hex(version.hash)
                 return self.has_hex(version.hash) and ref_object.target.hex == version.hash
         return False
 
