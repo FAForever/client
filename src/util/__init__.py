@@ -39,7 +39,7 @@ LOGFILE_MAX_SIZE = 256 * 1024  #256kb should be enough for anyone
 UNITS_PREVIEW_ROOT = "http://content.faforever.com/faf/unitsDB/icons/big/" 
 
 #These are paths relative to the executable or main.py script
-COMMON_DIR = os.path.join(os.getcwd(), "res")
+COMMON_DIR = os.path.join(os.getcwd(), "..\\res")
 
 # These directories are in Appdata (e.g. C:\ProgramData on some Win7 versions)
 if 'ALLUSERSPROFILE' in os.environ:
