@@ -1,5 +1,5 @@
 __author__ = 'Thygrrr'
 
 
-import featured
+from fa import featured
 

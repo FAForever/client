@@ -1,6 +1,6 @@
 __author__ = 'Thygrrr'
 
-import updater
+from fa import updater
 from PyQt4 import QtGui, QtCore
 import pytest
 

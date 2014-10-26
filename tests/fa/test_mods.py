@@ -1,6 +1,6 @@
 __author__ = 'Thygrrr'
 
-import mods
+from fa import mods
 import os
 
 def test_fix_init_luas_changes_affected_files(tmpdir):
