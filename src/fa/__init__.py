@@ -47,3 +47,4 @@ import updater
 import upnp
 import faction
 import binary
+import featured
