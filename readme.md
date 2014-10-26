@@ -32,6 +32,10 @@ Run the lobby from the main directory using:
 
     python2 src
 
+Run the unit test suite using:
+
+    python2 runtests.py
+
 License
 -------
 
