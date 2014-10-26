@@ -21,7 +21,7 @@
 
 
 from PyQt4 import QtCore, QtGui, QtNetwork
-from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
+from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
 from fa.replay import replay
 import util
 import os
@@ -115,12 +115,15 @@ class ReplaysWidget(BaseClass, FormClass):
         
 
     def finishRequest(self, reply):
-        faf_replay = QtCore.QFile(os.path.join(util.CACHE_DIR, "temp.fafreplay"))
-        faf_replay.open(QtCore.QIODevice.WriteOnly | QtCore.QIODevice.Truncate)                
-        faf_replay.write(reply.readAll())
-        faf_replay.flush()
-        faf_replay.close()  
-        replay(os.path.join(util.CACHE_DIR, "temp.fafreplay"))
+        if reply.error() != QNetworkReply.NoError:
+            QtGui.QMessageBox.warning(self, "Network Error", reply.errorString())
+        else:
+            faf_replay = QtCore.QFile(os.path.join(util.CACHE_DIR, "temp.fafreplay"))
+            faf_replay.open(QtCore.QIODevice.WriteOnly | QtCore.QIODevice.Truncate)                
+            faf_replay.write(reply.readAll())
+            faf_replay.flush()
+            faf_replay.close()  
+            replay(os.path.join(util.CACHE_DIR, "temp.fafreplay"))
 
     def onlineTreeClicked(self, item):
         if QtGui.QApplication.mouseButtons() == QtCore.Qt.RightButton :
