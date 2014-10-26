@@ -1,7 +1,6 @@
 __author__ = 'Thygrrr'
 
-import featured
-import updater
+from fa import updater
 from PyQt4 import QtGui, QtCore
 import pytest
 
@@ -91,3 +90,4 @@ def test_updater_does_not_hide_and_accept_before_all_watches_are_finished(applic
     application.processEvents()
     assert u.isVisible()
     assert not u.result() == QtGui.QDialog.Accepted
+

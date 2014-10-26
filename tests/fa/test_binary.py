@@ -5,8 +5,8 @@ import bsdiff4
 import pytest
 import os
 import pygit2
-import binary
-import sys
+from fa import binary
+
 
 __author__ = 'Thygrrr'
 

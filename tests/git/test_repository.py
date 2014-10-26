@@ -2,7 +2,7 @@ import pytest
 import py
 import os
 import pygit2
-from . import Repository
+from git import Repository
 
 __author__ = 'Thygrrr'
 
