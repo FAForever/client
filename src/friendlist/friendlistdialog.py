@@ -1,5 +1,6 @@
 from PyQt4 import QtCore, QtGui
 import util
+from friendlist.ModelTest import ModelTest
 
 FormClass, BaseClass = util.loadUiType("friendlist/friendlist.ui")
 class FriendListDialog(FormClass, BaseClass):
@@ -80,6 +81,9 @@ class FriendListDialog(FormClass, BaseClass):
         util.settings.sync()
 
     def addFriend(self, groupIndex, username):
+        '''
+        groupIndex: 0 = online, 1 = offline
+        '''
         self.updateTopLabel()
         n = len(self.model.root[groupIndex].users)
         self.model.beginInsertRows(self.model.index(groupIndex, 0, QtCore.QModelIndex()), n, n)
@@ -92,6 +96,64 @@ class FriendListDialog(FormClass, BaseClass):
             self.model.beginRemoveRows(self.model.index(groupIndex, 0, QtCore.QModelIndex()), row, row)
             del self.model.root[groupIndex].users[row]
             self.model.endRemoveRows()
+
+    @QtCore.pyqtSlot(QtCore.QPoint)
+    def on_friendlist_customContextMenuRequested(self, pos):
+
+        modelIndex = self.friendlist.indexAt(pos)
+        if modelIndex == None or not modelIndex.isValid():
+            return
+        pointer = modelIndex.internalPointer()
+        if pointer == None:
+            return
+        playername = pointer.name
+        print playername
+
+        menu = QtGui.QMenu(self)
+
+        # Actions for stats
+        actionStats = QtGui.QAction("View Player statistics", menu)
+
+        # Actions for Games and Replays
+        actionReplay = QtGui.QAction("View Live Replay", menu)
+        actionVaultReplay = QtGui.QAction("View Replays in Vault", menu)
+        actionJoin = QtGui.QAction("Join in Game", menu)
+
+        # Default is all disabled, we figure out what we can do after this
+        actionReplay.setDisabled(True)
+        actionJoin.setDisabled(True)
+
+        # Triggers
+        # actionStats.triggered.connect(self.viewStats)
+        # actionReplay.triggered.connect(self.viewReplay)
+        # actionVaultReplay.triggered.connect(self.viewVaultReplay)
+        # actionJoin.triggered.connect(self.joinInGame)
+
+        # Adding to menu
+        menu.addAction(actionStats)
+
+        menu.addSeparator()
+        menu.addAction(actionReplay)
+        menu.addAction(actionVaultReplay)
+        menu.addSeparator()
+        menu.addAction(actionJoin)
+
+        # Actions for the Friends List
+        actionRemFriend = QtGui.QAction("Remove friend", menu)
+
+        # Don't allow self to be added or removed from friends or foes
+        if self.client.login == playername:
+            actionRemFriend.setDisabled(1)
+
+        # Triggers
+        actionRemFriend.triggered.connect(lambda : self.client.remFriend(playername))
+
+        # Adding to menu
+        menu.addSeparator()
+        menu.addAction(actionRemFriend)
+
+        # Finally: Show the popup
+        menu.popup(QtGui.QCursor.pos())
 
 class FriendGroup():
     def __init__(self, name, client):
@@ -201,7 +263,6 @@ class FriendListModel(QtCore.QAbstractItemModel):
                 return None
             if index.column() == 0:
                 return pointer.username
-
 
         if role == QtCore.Qt.DisplayRole or role == QtCore.Qt.UserRole:
             if isinstance(pointer, FriendGroup):
