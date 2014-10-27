@@ -1,5 +1,5 @@
 from PyQt4 import QtCore, QtGui
-from friendlist.friendlistudialog import FriendListDialog
+from friendlist.friendlistdialog import FriendListDialog
 import util
 
 
