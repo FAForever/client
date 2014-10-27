@@ -28,6 +28,9 @@ class FriendListDialog(FormClass, BaseClass):
         self.friendlist.header().setResizeMode(0, QtGui.QHeaderView.Stretch)
         self.friendlist.expandAll()
 
+        # remove Whats this button
+        self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowContextHelpButtonHint)
+
         # Frameless
         #self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowSystemMenuHint | QtCore.Qt.WindowMinimizeButtonHint)
 
