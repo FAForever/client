@@ -84,7 +84,7 @@ class Repository(QtCore.QObject):
         QtGui.QApplication.processEvents()
 
     def has_hex(self, hex):
-        return self.repo.__contains__(hex)
+        return hex in self.repo
 
     def has_version(self, version):
         ref_object = self.repo.get(self.repo.lookup_reference("refs/tags/"+version.ref).target)
