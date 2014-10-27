@@ -304,6 +304,21 @@ class GamesWidget(FormClass, BaseClass):
 
         self.client.replays.modList.addItem(message["name"])
 
+    def hideGamesWithPw(self):
+        return self.hideGameWithPw.isChecked()
+
+    @QtCore.pyqtSlot()
+    def on_hideGameWithPw_clicked(self):
+        for game in self.games:
+            tmpGame = self.games[game]
+            # filter out public games and running games
+            # TODO: dort out coop games?
+            if not tmpGame.access == 'password' or not tmpGame.state == 'open':
+                continue
+            tmpGame.setHidden(self.hideGamesWithPw())
+
+
+
     @QtCore.pyqtSlot(dict)
     def processGameInfo(self, message):
         '''
@@ -320,6 +335,10 @@ class GamesWidget(FormClass, BaseClass):
                 self.client.notificationSystem.on_event(ns.NotificationSystem.NEW_GAME, message)
         else:
             self.games[uid].update(message, self.client)
+
+        # hide pw games
+        if self.hideGamesWithPw() and message['state'] == 'open' and message['access'] == 'password':
+            self.games[uid].setHidden(True)
 
 
         #Special case: removal of a game that has ended
@@ -651,31 +670,32 @@ class GamesWidget(FormClass, BaseClass):
         self.stopSearchRanked()
 
         # A simple Hosting dialog.
-        if fa.check.check(item.mod):
-            hostgamewidget = HostgameWidget(self, item)
+        if fa.check.game(self.client):
+            if fa.check.check(item.mod):
+                hostgamewidget = HostgameWidget(self, item)
 
-            if hostgamewidget.exec_() == 1 :
-                if self.gamename:
-                    gameoptions = []
+                if hostgamewidget.exec_() == 1 :
+                    if self.gamename:
+                        gameoptions = []
 
-                    if len(self.options) != 0 :
-                        oneChecked = False
-                        for option in self.options :
-                            if option.isChecked() :
-                                oneChecked = True
-                            gameoptions.append(option.isChecked())
+                        if len(self.options) != 0 :
+                            oneChecked = False
+                            for option in self.options :
+                                if option.isChecked() :
+                                    oneChecked = True
+                                gameoptions.append(option.isChecked())
 
-                        if oneChecked == False :
-                            QtGui.QMessageBox.warning(None, "No option checked !", "You have to check at least one option !")
-                            return
-                    modnames = [str(moditem.text()) for moditem in hostgamewidget.modList.selectedItems()]
-                    mods = [hostgamewidget.mods[modstr] for modstr in modnames]
-                    modvault.setActiveMods(mods, True) #should be removed later as it should be managed by the server.
-#                #Send a message to the server with our intent.
-                    if self.ispassworded:
-                        self.client.send(dict(command="game_host", access="password", password = self.gamepassword, mod=item.mod, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort, options = gameoptions))
-                    else :
-                        self.client.send(dict(command="game_host", access="public", mod=item.mod, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort, options = gameoptions))
+                            if oneChecked == False :
+                                QtGui.QMessageBox.warning(None, "No option checked !", "You have to check at least one option !")
+                                return
+                        modnames = [str(moditem.text()) for moditem in hostgamewidget.modList.selectedItems()]
+                        mods = [hostgamewidget.mods[modstr] for modstr in modnames]
+                        modvault.setActiveMods(mods, True) #should be removed later as it should be managed by the server.
+        #                #Send a message to the server with our intent.
+                        if self.ispassworded:
+                            self.client.send(dict(command="game_host", access="password", password = self.gamepassword, mod=item.mod, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort, options = gameoptions))
+                        else :
+                            self.client.send(dict(command="game_host", access="public", mod=item.mod, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort, options = gameoptions))
 #
 
     def savePassword(self, password):
@@ -730,4 +750,3 @@ class GamesWidget(FormClass, BaseClass):
                 self.gamename = self.client.login + "'s game"
             else:
                 self.gamename = "nobody's game"
-
