@@ -106,8 +106,7 @@ class FriendListDialog(FormClass, BaseClass):
         pointer = self.proxy.mapToSource(modelIndex).internalPointer()
         if pointer == None:
             return
-        playername = pointer.name
-        print playername
+        playername = pointer.username
 
         menu = QtGui.QMenu(self)
 
@@ -124,9 +123,9 @@ class FriendListDialog(FormClass, BaseClass):
         actionJoin.setDisabled(True)
 
         # Triggers
-        # actionStats.triggered.connect(self.viewStats)
+        actionStats.triggered.connect(lambda : self.viewStats(playername))
         # actionReplay.triggered.connect(self.viewReplay)
-        # actionVaultReplay.triggered.connect(self.viewVaultReplay)
+        actionVaultReplay.triggered.connect(lambda : self.viewVaultReplay(playername))
         # actionJoin.triggered.connect(self.joinInGame)
 
         # Adding to menu
@@ -154,6 +153,23 @@ class FriendListDialog(FormClass, BaseClass):
 
         # Finally: Show the popup
         menu.popup(QtGui.QCursor.pos())
+
+    def viewStats(self, username):
+        try:
+            if username in self.client.players :
+                self.client.profile.setplayer(username)
+                self.client.profile.show()
+        except:
+            pass
+
+    def viewVaultReplay(self, username):
+        ''' see the player replays in the vault '''
+        self.client.replays.mapName.setText("")
+        self.client.replays.playerName.setText(username)
+        self.client.replays.minRating.setValue(0)
+        self.client.replays.searchVault()
+        self.client.mainTabs.setCurrentIndex(self.client.mainTabs.indexOf(self.client.replaysTab))
+
 
 class FriendGroup():
     def __init__(self, name, client):
