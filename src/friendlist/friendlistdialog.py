@@ -14,10 +14,10 @@ class FriendListDialog(FormClass, BaseClass):
 
         self.model = FriendListModel([FriendGroup('online', client), FriendGroup('offline', client)], client)
 
-        proxy = QtGui.QSortFilterProxyModel()
-        proxy.setSourceModel(self.model)
-        proxy.setSortRole(QtCore.Qt.UserRole)
-        self.friendlist.setModel(proxy)
+        self.proxy = QtGui.QSortFilterProxyModel()
+        self.proxy.setSourceModel(self.model)
+        self.proxy.setSortRole(QtCore.Qt.UserRole)
+        self.friendlist.setModel(self.proxy)
 
         self.friendlist.header().setStretchLastSection(False);
         self.friendlist.header().resizeSection (1, 48)
@@ -103,7 +103,7 @@ class FriendListDialog(FormClass, BaseClass):
         modelIndex = self.friendlist.indexAt(pos)
         if modelIndex == None or not modelIndex.isValid():
             return
-        pointer = modelIndex.internalPointer()
+        pointer = self.proxy.mapToSource(modelIndex).internalPointer()
         if pointer == None:
             return
         playername = pointer.name
@@ -244,6 +244,7 @@ class FriendListModel(QtCore.QAbstractItemModel):
         # if on FriendGroup level
         if hasattr(pointer, 'users'):
             return self.createIndex(row, column, pointer.users[row])
+        print 'no'
         return self.createIndex(row, column, None)
 
     def data(self, index, role):
