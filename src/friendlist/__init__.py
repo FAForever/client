@@ -10,7 +10,7 @@ class FriendList():
         self.client = client
 
         util.settings.beginGroup("friendlist")
-        self.enabled = util.settings.value('enabled', 'true') == 'true'
+        self.enabled = util.settings.value('enabled', "false") == 'true'
         self.client.actionFriendlist.blockSignals(True)
         self.client.actionFriendlist.setChecked(self.enabled)
         self.client.actionFriendlist.blockSignals(False)
