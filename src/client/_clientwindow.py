@@ -104,6 +104,9 @@ class ClientWindow(FormClass, BaseClass):
 
     topWidget = QtGui.QWidget()
 
+    # Propagate closing process to all childs
+    # otherwise it is not possible to distinguish parent and childs closed
+    closing_ui = QtCore.pyqtSignal()
 
     #These signals are emitted when the client is connected or disconnected from FAF
     connected = QtCore.pyqtSignal()
@@ -292,7 +295,6 @@ class ClientWindow(FormClass, BaseClass):
         self.draggingHover = False
         self.offset = None
         self.curSize = None
-        self.closing = False
 
         sizeGrip = QtGui.QSizeGrip(self)
         self.mainGridLayout.addWidget(sizeGrip, 2, 2)
@@ -671,7 +673,7 @@ class ClientWindow(FormClass, BaseClass):
 
     def closeEvent(self, event):
         logger.info("Close Event for Application Main Window")
-        self.closing = True
+        self.closing_ui.emit()
         self.saveWindow()
 
         if fa.instance.running():

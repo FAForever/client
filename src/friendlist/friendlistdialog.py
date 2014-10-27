@@ -1,6 +1,5 @@
 from PyQt4 import QtCore, QtGui
 import util
-import PyQt4
 
 FormClass, BaseClass = util.loadUiType("friendlist/friendlist.ui")
 class FriendListDialog(FormClass, BaseClass):
@@ -32,21 +31,32 @@ class FriendListDialog(FormClass, BaseClass):
         self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowContextHelpButtonHint)
 
         # Frameless
-        #self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowSystemMenuHint | QtCore.Qt.WindowMinimizeButtonHint)
+        # self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowSystemMenuHint | QtCore.Qt.WindowMinimizeButtonHint)
 
         # later use rubberband
         self.rubberBand = QtGui.QRubberBand(QtGui.QRubberBand.Rectangle)
 
         self.loadSettings()
 
+        # detect if main window is closed
+        self.closing = False
+        self.client.closing_ui.connect(self.set_closing)
+
+    def set_closing(self):
+        self.closing = True
+
+    def isClosing(self):
+        return self.closing
+
     def updateTopLabel(self):
         self.labelUsername.setText(self.client.getCompleteUserName(self.client.login))
 
     def closeEvent(self, event):
-        # close event is also triggered on client shutdown
-        if not self.client.closing:
-             # otherwise friendlist is always disabled
+        # if not a natural closing event, hide it
+        # otherwise friendlist is always disabled
+        if not self.isClosing():
             self.client.actionFriendlist.setChecked(False)
+
         self.saveSettings()
         event.accept()
 
@@ -57,7 +67,7 @@ class FriendListDialog(FormClass, BaseClass):
         width = util.settings.value('width', 334)
         height = util.settings.value('height', 291)
         util.settings.endGroup()
-        self.setGeometry(QtCore.QRect(x,y,width,height))
+        self.setGeometry(QtCore.QRect(x, y, width, height))
 
     def saveSettings(self):
         util.settings.beginGroup("friendlist")
@@ -106,7 +116,7 @@ class User():
         self.username = username
         self.name = group.client.getCompleteUserName(username)
         self.group = group
-        self.country =  group.client.getUserCountry(username)
+        self.country = group.client.getUserCountry(username)
         self.rating = group.client.getUserRanking(username)
         # TOO: fix it ...  called before avatar is loaded
         self.avatarNotLoaded = False
@@ -114,11 +124,11 @@ class User():
 
 
     def loadPixmap(self):
-        self.pix = QtGui.QPixmap(40+16 + self.indent, 20)
+        self.pix = QtGui.QPixmap(40 + 16 + self.indent, 20)
         self.pix.fill(QtCore.Qt.transparent)
         painter = QtGui.QPainter(self.pix)
 
-        self.avatar =  self.group.client.getUserAvatar(self.username)
+        self.avatar = self.group.client.getUserAvatar(self.username)
         if  self.avatar:
             avatarPix = util.respix(self.avatar['url'])
             if avatarPix:
