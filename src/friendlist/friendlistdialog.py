@@ -135,10 +135,10 @@ class FriendListDialog(FormClass, BaseClass):
                     actionReplay.setEnabled(True)
 
         # Triggers
-        actionStats.triggered.connect(lambda : self.client.api.viewPlayerStats(playername))
-        actionReplay.triggered.connect(lambda : self.client.api.viewLiveReplay(playername))
-        actionVaultReplay.triggered.connect(lambda : self.client.api.viewVaultReplay(playername))
-        actionJoin.triggered.connect(lambda : self.client.api.joinInGame(playername))
+        actionStats.triggered.connect(lambda : self.viewStats(playername))
+        actionReplay.triggered.connect(lambda : self.viewLiveReplay(playername))
+        actionVaultReplay.triggered.connect(lambda : self.viewVaultReplay(playername))
+        actionJoin.triggered.connect(lambda : self.joinInGame(playername))
 
         # Adding to menu
         menu.addAction(actionStats)
@@ -165,6 +165,30 @@ class FriendListDialog(FormClass, BaseClass):
 
         # Finally: Show the popup
         menu.popup(QtGui.QCursor.pos())
+
+    def viewStats(self, username):
+        try:
+            if username in self.client.players :
+                self.client.profile.setplayer(username)
+                self.client.profile.show()
+        except:
+            pass
+
+    def viewLiveReplay(self, username):
+        if username in client.instance.urls:
+            fa.exe.replay(client.instance.urls[username])
+
+    def viewVaultReplay(self, username):
+        ''' see the player replays in the vault '''
+        self.client.replays.mapName.setText("")
+        self.client.replays.playerName.setText(username)
+        self.client.replays.minRating.setValue(0)
+        self.client.replays.searchVault()
+        self.client.mainTabs.setCurrentIndex(self.client.mainTabs.indexOf(self.client.replaysTab))
+
+    def joinInGame(self, username):
+        if username in client.instance.urls:
+            self.client.instance.joinGameFromURL(client.instance.urls[username])
 
 class FriendGroup():
     def __init__(self, name, client):
