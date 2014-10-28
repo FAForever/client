@@ -1157,7 +1157,7 @@ class ClientWindow(FormClass, BaseClass):
             return False
         else:
             self.send(dict(command="hello", version=util.VERSION, login=self.login, password=self.password, unique_id=self.uniqueId, local_ip=self.localIP, session=self.session))
-            # self.send(dict(command="ask_session"))
+            self.send(dict(command="ask_session"))
             return True
 
 
