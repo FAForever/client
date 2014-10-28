@@ -16,6 +16,7 @@
 # GNU General Public License for more details.
 #-------------------------------------------------------------------------------
 from friendlist import FriendList
+from client.client_action import Client_Action
 
 
 
@@ -332,6 +333,9 @@ class ClientWindow(FormClass, BaseClass):
 
         QtWebKit.QWebSettings.globalSettings().setAttribute(QtWebKit.QWebSettings.PluginsEnabled, True)
 
+
+        # API for client actions
+        self.api = Client_Action(self)
 
         # for moderator
         self.modMenu = None
