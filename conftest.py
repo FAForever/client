@@ -3,7 +3,6 @@ __author__ = 'Thygrrr'
 import pytest
 from PyQt4 import QtGui, QtCore
 
-
 @pytest.fixture(scope="module")
 def application(request):
     request.app = QtGui.QApplication([])
