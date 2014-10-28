@@ -60,7 +60,7 @@ class ReplayRecorder(QtCore.QObject):
         self.relaySocket = QtNetwork.QTcpSocket(self.parent)
         self.relaySocket.connectToHost(INTERNET_REPLAY_SERVER_HOST, INTERNET_REPLAY_SERVER_PORT)
         
-        if settings.value("fa.live_replay", DEFAULT_LIVE_REPLAY, type=bool):
+        if util.settings.value("fa.live_replay", DEFAULT_LIVE_REPLAY, type=bool):
             if self.relaySocket.waitForConnected(1000): #Maybe make this asynchronous
                 self.__logger.debug("internet replay server " + self.relaySocket.peerName() + ":" + str(self.relaySocket.peerPort()))
             else:
