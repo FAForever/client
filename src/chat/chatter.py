@@ -290,9 +290,9 @@ class Chatter(QtGui.QTableWidgetItem):
                 if self.name in client.instance.urls:
                     url = client.instance.urls[self.name]
                     if url.scheme() == "fafgame":
-                        self.joinInGame()
+                        self.lobby.client.api.joinInGame(self.name)
                     elif url.scheme() == "faflive":
-                        self.viewReplay()
+                        self.lobby.client.api.viewLiveReplay(self.name)
 
 
 
@@ -329,11 +329,11 @@ class Chatter(QtGui.QTableWidgetItem):
 
 
         # Triggers
-        actionStats.triggered.connect(self.viewStats)
+        actionStats.triggered.connect(lambda : self.lobby.client.api.viewPlayerStats(self.name))
         actionSelectAvatar.triggered.connect(self.selectAvatar)
-        actionReplay.triggered.connect(self.viewReplay)
-        actionVaultReplay.triggered.connect(self.viewVaultReplay)
-        actionJoin.triggered.connect(self.joinInGame)
+        actionReplay.triggered.connect(lambda : self.lobby.client.api.viewLiveReplay(self.name))
+        actionVaultReplay.triggered.connect(lambda : self.lobby.client.api.viewVaultReplay(self.name))
+        actionJoin.triggered.connect(lambda : self.lobby.client.api.joinInGame(self.name))
         # actionInvite.triggered.connect(self.invite)
 
         # only for us. Either way, it will display our avatar, not anyone avatar.
@@ -434,35 +434,6 @@ class Chatter(QtGui.QTableWidgetItem):
 
         # Finally: Show the popup
         menu.popup(QtGui.QCursor.pos())
-
-    @QtCore.pyqtSlot()
-    def viewStats(self):
-        try:
-            if self.name in self.lobby.client.players :
-                self.lobby.client.profile.setplayer(self.name)
-                self.lobby.client.profile.show()
-        except:
-            pass
-
-    @QtCore.pyqtSlot()
-    def viewReplay(self):
-        if self.name in client.instance.urls:
-            fa.exe.replay(client.instance.urls[self.name])
-
-    @QtCore.pyqtSlot()
-    def viewVaultReplay(self):
-        ''' see the player replays in the vault '''
-        self.lobby.client.replays.mapName.setText("")
-        self.lobby.client.replays.playerName.setText(self.name)
-        self.lobby.client.replays.minRating.setValue(0)
-        self.lobby.client.replays.searchVault()
-        self.lobby.client.mainTabs.setCurrentIndex(self.lobby.client.mainTabs.indexOf(self.lobby.client.replaysTab))
-
-
-    @QtCore.pyqtSlot()
-    def joinInGame(self):
-        if self.name in client.instance.urls:
-            client.instance.joinGameFromURL(client.instance.urls[self.name])
 
     @QtCore.pyqtSlot()
     def invite(self):
