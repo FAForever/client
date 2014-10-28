@@ -1,6 +1,5 @@
 from PyQt4 import QtCore, QtGui
 import util, fa.exe, client
-from friendlist.ModelTest import ModelTest
 
 FormClass, BaseClass = util.loadUiType("friendlist/friendlist.ui")
 class FriendListDialog(FormClass, BaseClass):
