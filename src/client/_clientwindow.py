@@ -217,19 +217,11 @@ class ClientWindow(FormClass, BaseClass):
         self.resizeTimer.timeout.connect(self.resized)
         self.preferedSize = 0
 
-<<<<<<< HEAD
-        #Process used to run Forged Alliance (managed in module fa)
-        fa.instance.started.connect(self.startedFA)
-        fa.instance.finished.connect(self.finishedFA)
-        fa.instance.error.connect(self.errorFA)
-        self.gameInfo.connect(fa.instance.processGameInfo)
-=======
         # Process used to run Forged Alliance (managed in module fa)
         fa.exe.instance.started.connect(self.startedFA)
         fa.exe.instance.finished.connect(self.finishedFA)
         fa.exe.instance.error.connect(self.errorFA)
         self.gameInfo.connect(fa.exe.instance.processGameInfo)
->>>>>>> 04558e0... format
 
         # Local Replay Server (and relay)
         self.replayServer = fa.replayserver.ReplayServer(self)
@@ -334,10 +326,6 @@ class ClientWindow(FormClass, BaseClass):
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.gamesTab), util.icon("client/games.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.coopTab), util.icon("client/coop.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.vaultsTab), util.icon("client/mods.png"))
-<<<<<<< HEAD
-=======
-        # self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.galacticwarTab), util.icon("client/gw.png"))
->>>>>>> 04558e0... format
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.ladderTab), util.icon("client/ladder.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.tourneyTab), util.icon("client/tourney.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.livestreamTab), util.icon("client/twitch.png"))
@@ -511,10 +499,6 @@ class ClientWindow(FormClass, BaseClass):
         import games
         import tutorials
         import featuredmods
-<<<<<<< HEAD
-=======
-        # import galacticWar
->>>>>>> 04558e0... format
         import downloadManager
         import modvault
         import coop
@@ -534,10 +518,6 @@ class ClientWindow(FormClass, BaseClass):
         self.modvault = modvault.ModVault(self)
         self.replays = replays.Replays(self)
         self.tutorials = tutorials.Tutorials(self)
-<<<<<<< HEAD
-=======
-        # self.GalacticWar = galacticWar.Lobby(self)
->>>>>>> 04558e0... format
         self.Coop = coop.Coop(self)
         self.notificationSystem = ns.NotificationSystem(self)
 
@@ -648,15 +628,9 @@ class ClientWindow(FormClass, BaseClass):
         self.progress.setCancelButton(None)
         self.progress.show()
 
-<<<<<<< HEAD
-        #Important: If a game is running, offer to terminate it gently
-        self.progress.setLabelText("Closing ForgedAllianceForever.exe")
-        fa.instance.close()
-=======
         # Important: If a game is running, offer to terminate it gently
         self.progress.setLabelText("Closing ForgedAlliance.exe")
         fa.exe.close()
->>>>>>> 04558e0... format
 
         # Terminate Lobby Server connection
         if self.socket.state() == QtNetwork.QTcpSocket.ConnectedState:
@@ -968,13 +942,8 @@ class ClientWindow(FormClass, BaseClass):
 
 
     def loadSettings(self):
-<<<<<<< HEAD
-        #Load settings
-        loadPath()
-=======
         # Load settings
         fa.loadPath()
->>>>>>> 04558e0... format
 
         util.settings.beginGroup("window")
         geometry = util.settings.value("geometry", None)
