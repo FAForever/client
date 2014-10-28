@@ -1,21 +1,13 @@
 #!/bin/sh
 
-sudo apt-get install cmake
-pip install cffi
+# Install libgit2 from a bunch of Ubuntu 15.04 binary repos
+mkdir libgit2
+pushd libgit2
 
-pushd
+wget -q --progress=bar "https://launchpad.net/ubuntu/+source/libgit2/0.21.1-1/+build/6494190/+files/libgit2-21_0.21.1-1_amd64.deb"
+wget -q --progress=bar "https://launchpad.net/ubuntu/+source/libgit2/0.21.1-1/+build/6494190/+files/libgit2-dev_0.21.1-1_amd64.deb"
 
-cd ~
-
-git clone --depth=1 -b v0.21.1 https://github.com/libgit2/libgit2.git
-cd libgit2/
-
-mkdir build && cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=../_install -DBUILD_CLAR=OFF
-cmake --build . --target install
-
-ls -la ..
+sudo dpkg -i "libgit2-21_0.21.1-1_amd64.deb"
+sudo dpkg -i "libgit2-dev_0.21.1-1_amd64.deb"
 
 popd
-
-sudo apt-get install python-qt4
