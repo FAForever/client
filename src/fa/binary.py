@@ -44,7 +44,7 @@ class PatchFailedError(StandardError):
     pass
 
 def make_counter(start=0):
-    _closure={"count":start}
+    _closure = {"count":start}
     def f(jump=1):
         _closure['count'] += jump
         return _closure['count']
@@ -144,7 +144,7 @@ class Updater(QtCore.QThread):
                     logger.debug(file_name + " OK")
                 else:
                     logger.warn(file_name + " checksum mismatch, " + file_md5 + " != " + expected_md5 + " (expected)")
-                    okay  = False
+                    okay = False
 
                 self.progress_value.emit(count())
                 self.yieldCurrentThread()
