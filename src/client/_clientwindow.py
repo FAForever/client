@@ -21,6 +21,7 @@ from fa.mods import checkMods
 from friendlist import FriendList
 from client.client_action import Client_Action
 from fa.path import loadPath
+from client.admin_action import Admin_Action
 
 '''
 Created on Dec 1, 2011
@@ -337,6 +338,7 @@ class ClientWindow(FormClass, BaseClass):
 
         # API for client actions
         self.api = Client_Action(self)
+        self.admin_api = Admin_Action(self)
 
         # for moderator
         self.modMenu = None
