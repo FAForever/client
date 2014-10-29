@@ -18,9 +18,9 @@
 from client.updater import fetchClientUpdate
 import fa
 from fa.mods import checkMods
-from fa.path import loadPath
 from friendlist import FriendList
 from client.client_action import Client_Action
+from fa.path import loadPath
 
 '''
 Created on Dec 1, 2011
@@ -218,10 +218,10 @@ class ClientWindow(FormClass, BaseClass):
         self.preferedSize = 0
 
         # Process used to run Forged Alliance (managed in module fa)
-        fa.exe.instance.started.connect(self.startedFA)
-        fa.exe.instance.finished.connect(self.finishedFA)
-        fa.exe.instance.error.connect(self.errorFA)
-        self.gameInfo.connect(fa.exe.instance.processGameInfo)
+        fa.instance.started.connect(self.startedFA)
+        fa.instance.finished.connect(self.finishedFA)
+        fa.instance.error.connect(self.errorFA)
+        self.gameInfo.connect(fa.instance.processGameInfo)
 
         # Local Replay Server (and relay)
         self.replayServer = fa.replayserver.ReplayServer(self)
@@ -630,7 +630,7 @@ class ClientWindow(FormClass, BaseClass):
 
         # Important: If a game is running, offer to terminate it gently
         self.progress.setLabelText("Closing ForgedAlliance.exe")
-        fa.exe.close()
+        fa.instance.close()
 
         # Terminate Lobby Server connection
         if self.socket.state() == QtNetwork.QTcpSocket.ConnectedState:
@@ -943,7 +943,7 @@ class ClientWindow(FormClass, BaseClass):
 
     def loadSettings(self):
         # Load settings
-        fa.loadPath()
+        loadPath()
 
         util.settings.beginGroup("window")
         geometry = util.settings.value("geometry", None)
