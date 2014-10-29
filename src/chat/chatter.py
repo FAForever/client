@@ -240,18 +240,8 @@ class Chatter(QtGui.QTableWidgetItem):
                 self.rankItem.setIcon(util.icon("chat/rank/civilian.png"))
                 self.rankItem.setToolTip("IRC User")
 
-    def joinChannel(self):
-        channel, ok = QtGui.QInputDialog.getText(self.lobby.client, "QInputDialog.getText()", "Channel :", QtGui.QLineEdit.Normal, "#tournament")
-        if ok and channel != '':
-            self.lobby.client.joinChannel(self.name, channel)
-
-
     def selectAvatar(self):
         avatarSelection = avatarWidget(self.lobby.client, self.name, personal=True)
-        avatarSelection.exec_()
-
-    def addAvatar(self):
-        avatarSelection = avatarWidget(self.lobby.client, self.name)
         avatarSelection.exec_()
 
     def addFriend(self):
@@ -267,9 +257,6 @@ class Chatter(QtGui.QTableWidgetItem):
 
     def remFoe(self):
         self.lobby.client.remFoe(self.name)
-
-    def kick(self):
-        pass
 
     def closeFA(self):
         self.lobby.client.closeFA(self.name)
@@ -342,19 +329,19 @@ class Chatter(QtGui.QTableWidgetItem):
             menu.addSeparator()
 
         # power menu
-        if self.lobby.client.power > 1 :
+        if True or self.lobby.client.power > 1 :
             # admin and mod menus
             actionAddAvatar = QtGui.QAction("Assign avatar", menu)
             menu.addAction(actionAddAvatar)
-            actionAddAvatar.triggered.connect(self.addAvatar)
+            actionAddAvatar.triggered.connect(lambda: self.lobby.client.admin_api.addAvatar(self.name))
 
             actionJoinChannel = QtGui.QAction("Join Channel", menu)
             menu.addAction(actionJoinChannel)
-            actionJoinChannel.triggered.connect(self.joinChannel)
+            actionJoinChannel.triggered.connect(lambda: self.lobby.client.admin_api.joinChannel(self.name))
 
             actionKick = QtGui.QAction("Kick", menu)
             menu.addAction(actionKick)
-            actionKick.triggered.connect(self.kick)
+            actionKick.triggered.connect(lambda: self.lobby.client.admin_api.kick(self.name))
             actionKick.setDisabled(1)
 
             if self.lobby.client.power == 2 :
