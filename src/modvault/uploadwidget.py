@@ -29,6 +29,9 @@ import modvault
 from util import datetostr, strtodate, now
 import util
 
+import logging
+logger = logging.getLogger(__name__)
+
 FormClass, BaseClass = util.loadUiType("modvault/upload.ui")
 
 

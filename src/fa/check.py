@@ -24,6 +24,7 @@ from PyQt4 import QtGui
 import fa
 from fa.mods import checkMods
 from fa.path import savePath, writeFAPathLua, validatePath, autoDetectPath
+import client
 
 logger = logging.getLogger(__name__)
 
