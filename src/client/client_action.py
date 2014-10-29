@@ -1,5 +1,6 @@
 import client
 from fa.replay import replay
+from chat._avatarWidget import avatarWidget
 
 
 class Client_Action():
@@ -31,3 +32,27 @@ class Client_Action():
     def joinInGame(self, username):
         if username in client.instance.urls:
             client.instance.joinGameFromURL(client.instance.urls[username])
+
+    def closeFA(self, username):
+        self.client_window.closeFA(username)
+
+    def closeLobby(self, username):
+        self.client_window.closeLobby(username)
+
+    ### social actions
+
+    def selectAvatar(self, username):
+        avatarSelection = avatarWidget(self.client_window, username, personal=True)
+        avatarSelection.exec_()
+
+    def addFriend(self, username):
+        self.client_window.addFriend(username)
+
+    def remFriend(self, username):
+        self.client_window.remFriend(username)
+
+    def addFoe(self, username):
+        self.client_window.addFoe(username)
+
+    def remFoe(self, username):
+        self.client_window.remFoe(username)
