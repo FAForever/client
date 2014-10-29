@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 
 from PyQt4 import QtCore, QtGui
 
+
 class Repository(QtCore.QObject):
 
     transfer_progress_value = QtCore.pyqtSignal(int)
