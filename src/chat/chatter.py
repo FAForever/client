@@ -329,7 +329,7 @@ class Chatter(QtGui.QTableWidgetItem):
             menu.addSeparator()
 
         # power menu
-        if True or self.lobby.client.power > 1 :
+        if self.lobby.client.power > 1 :
             # admin and mod menus
             actionAddAvatar = QtGui.QAction("Assign avatar", menu)
             menu.addAction(actionAddAvatar)
