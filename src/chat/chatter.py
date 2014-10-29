@@ -323,11 +323,11 @@ class Chatter(QtGui.QTableWidgetItem):
             if self.lobby.client.power == 2 :
                 actionCloseFA = QtGui.QAction("Close FA", menu)
                 menu.addAction(actionCloseFA)
-                actionCloseFA.triggered.connect(lambda : self.lobby.client.api.closeFA(self.name))
+                actionCloseFA.triggered.connect(lambda : self.lobby.client.admin_api.closeFA(self.name))
 
                 actionCloseLobby = QtGui.QAction("Kick from Lobby", menu)
                 menu.addAction(actionCloseLobby)
-                actionCloseLobby.triggered.connect(lambda : self.lobby.client.api.closeLobby(self.name))
+                actionCloseLobby.triggered.connect(lambda : self.lobby.client.admin_api.closeLobby(self.name))
 
             menu.addSeparator()
 

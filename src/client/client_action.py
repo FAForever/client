@@ -33,12 +33,6 @@ class Client_Action():
         if username in client.instance.urls:
             client.instance.joinGameFromURL(client.instance.urls[username])
 
-    def closeFA(self, username):
-        self.client_window.closeFA(username)
-
-    def closeLobby(self, username):
-        self.client_window.closeLobby(username)
-
     ### social actions
 
     def selectAvatar(self, username):

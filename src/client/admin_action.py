@@ -19,3 +19,9 @@ class Admin_Action():
 
     def kick(self):
         pass
+
+    def closeFA(self, username):
+        self.client_window.closeFA(username)
+
+    def closeLobby(self, username):
+        self.client_window.closeLobby(username)
