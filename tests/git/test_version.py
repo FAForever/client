@@ -1,7 +1,8 @@
 import pytest
 import py
 import os
-from . import Repository, Version
+
+from git import Repository, Version
 
 __author__ = 'Sheeo'
 
