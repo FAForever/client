@@ -23,7 +23,7 @@ from PyQt4 import QtGui, QtCore, QtNetwork
 import time
 import json
 import logging
-
+from types import IntType, FloatType, ListType
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

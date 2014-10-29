@@ -31,6 +31,7 @@ import client
 import json
 
 import logging
+from types import IntType, FloatType, ListType
 logger = logging.getLogger(__name__)
 
 LIVEREPLAY_DELAY = 5 #livereplay delay in minutes
