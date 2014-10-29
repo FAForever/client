@@ -34,7 +34,7 @@ def replay(source, detach=False):
     '''
     Launches FA streaming the replay from the given location. Source can be a QUrl or a string
     '''
-    logger.info("fa.exe.replay(" + str(source) + ", detach = " + str(detach))
+    logger.info("replay(" + str(source) + ", detach = " + str(detach))
 
     if fa.instance.available():
         version = None

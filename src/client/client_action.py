@@ -1,5 +1,5 @@
-import client, fa.exe
-
+import client
+from fa.replay import replay
 
 
 class Client_Action():
@@ -17,7 +17,7 @@ class Client_Action():
 
     def viewLiveReplay(self, username):
         if username in client.instance.urls:
-            fa.exe.replay(client.instance.urls[username])
+            replay(client.instance.urls[username])
 
     def viewVaultReplay(self, username):
         ''' see the player replays in the vault '''
