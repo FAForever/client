@@ -125,15 +125,6 @@ class ClientWindow(FormClass, BaseClass):
     gameExit = QtCore.pyqtSignal()
 
     # These signals propagate important client state changes to other modules
-    statsInfo = QtCore.pyqtSignal(dict)
-    tourneyTypesInfo = QtCore.pyqtSignal(dict)
-    tutorialsInfo = QtCore.pyqtSignal(dict)
-    tourneyInfo = QtCore.pyqtSignal(dict)
-    modInfo = QtCore.pyqtSignal(dict)
-    gameInfo = QtCore.pyqtSignal(dict)
-    modVaultInfo = QtCore.pyqtSignal(dict)
-    coopInfo = QtCore.pyqtSignal(dict)
-    newGame = QtCore.pyqtSignal(str)
     avatarList = QtCore.pyqtSignal(list)
     playerAvatarList = QtCore.pyqtSignal(dict)
     usersUpdated = QtCore.pyqtSignal(list)
@@ -142,10 +133,6 @@ class ClientWindow(FormClass, BaseClass):
     autoJoin = QtCore.pyqtSignal(list)
     channelsUpdated = QtCore.pyqtSignal(list)
     featuredModManager = QtCore.pyqtSignal(str)
-    featuredModManagerInfo = QtCore.pyqtSignal(dict)
-    replayVault = QtCore.pyqtSignal(dict)
-    coopLeaderBoard = QtCore.pyqtSignal(dict)
-    ladderMapsList = QtCore.pyqtSignal(dict)
 
     # These signals are emitted whenever a certain tab is activated
     showReplays = QtCore.pyqtSignal()
@@ -172,11 +159,58 @@ class ClientWindow(FormClass, BaseClass):
     rankedGameUEF = QtCore.pyqtSignal(bool)
     rankedGameRandom = QtCore.pyqtSignal(bool)
 
-    # for team management
-    teamInfo = QtCore.pyqtSignal(dict)
-    teamInvitation = QtCore.pyqtSignal(dict)
 
     matchmakerInfo = QtCore.pyqtSignal(dict)
+
+    # signals for incoming network packages
+    statsInfo = QtCore.pyqtSignal(dict)  # deprecated?
+    tourneyTypesInfo = QtCore.pyqtSignal(dict)  # deprecated
+    tutorialsInfo = QtCore.pyqtSignal(dict)  # https://github.com/FAForever/server/search?q=tutorials_info
+    tourneyInfo = QtCore.pyqtSignal(dict)  # https://github.com/FAForever/server/search?q=tournament_info
+    modInfo = QtCore.pyqtSignal(dict)  # https://github.com/FAForever/server/search?q=mod_info
+    gameInfo = QtCore.pyqtSignal(dict)  # https://github.com/FAForever/server/search?q=game_info
+    modVaultInfo = QtCore.pyqtSignal(dict)  # https://github.com/FAForever/server/search?q=modvault_info
+    coopInfo = QtCore.pyqtSignal(dict)  # https://github.com/FAForever/server/search?q=coop_info
+    featuredModManagerInfo = QtCore.pyqtSignal(dict) #https://github.com/FAForever/server/search?q=mod_manager_info
+    replayVault = QtCore.pyqtSignal(dict)  # https://github.com/FAForever/server/search?q=replay_vault
+    coopLeaderBoard = QtCore.pyqtSignal(dict)  # deprecated
+    ladderMapsList = QtCore.pyqtSignal(dict)  # https://github.com/FAForever/server/search?q=ladder_maps
+
+    # for team management
+    teamInfo = QtCore.pyqtSignal(dict)  # https://github.com/FAForever/server/search?q=team_info
+    teamInvitation = QtCore.pyqtSignal(dict)  # FaServerThread.py, gwserver\lobby.py
+
+    # unused
+    newGame = QtCore.pyqtSignal(str)
+
+    # no signal found
+    welcome = QtCore.pyqtSignal(dict)
+    game_launch = QtCore.pyqtSignal(dict)
+    modvault_list_info = QtCore.pyqtSignal(dict)
+    matchmaker_info = QtCore.pyqtSignal(dict)
+    avatar = QtCore.pyqtSignal(dict)
+    admin = QtCore.pyqtSignal(dict)
+    social = QtCore.pyqtSignal(dict)
+
+    translation_table = {'stats' : 'statsInfo',
+                         'tournament_types_info' : 'tourneyTypesInfo',
+                         'tutorials_info' : 'tutorialsInfo',
+                         'tournament_info' : 'tourneyInfo',
+                         'mod_info' : 'modInfo',
+                         'game_info' : 'gameInfo',
+                         'modvault_info' : 'modVaultInfo',
+                         'coop_info' : 'coopInfo',
+                         'mod_manager_info' : 'featuredModManagerInfo',
+                         'replay_vault' : 'replayVault',
+                         'coop_leaderboard' : 'coopLeaderBoard',
+                         'ladder_maps' : 'ladderMapsList',
+                         'team_info' : 'teamInfo',
+                         'team' : 'teamInvitation'}
+
+    def translate(self, command):
+        if command in self.translation_table:
+            return self.translation_table[command]
+        raise Exception('no translation', command)
 
     def __init__(self, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
@@ -1808,24 +1842,32 @@ class ClientWindow(FormClass, BaseClass):
         try:
             if "debug" in message:
                 logger.info(message['debug'])
+                return
 
             if "command" in message:
-                cmd = "handle_" + message['command']
-                if hasattr(self, cmd):
-                    getattr(self, cmd)(message)
-                else:
+
+                try:
+                    # try to find signal to fire
+                    command = self.translate(message['command'])
+                    if hasattr(self, command):
+                        getattr(self, command).emit(message)
+                        return
+                except Exception as e:
+                    # otherwise handle old way
+                    logger.error("No slot found for (%s)" % (message['command']))
+
+
+                    cmd = "handle_" + message['command']
+                    if hasattr(self, cmd):
+                        getattr(self, cmd)(message)
+                        return
                     logger.error("Unknown command for JSON." + message['command'])
-                    raise "StandardError"
-            else:
-                logger.debug("No command in message.")
+                    raise StandardError
+            logger.debug("No command in message.")
         except:
             raise  # Pass it on to our caller, Malformed Command
 
-
-
-    def handle_stats(self, message):
-        self.statsInfo.emit(message)
-
+    # TODO: use  signal welcome
     def handle_welcome(self, message):
         if "session" in message :
             self.session = str(message["session"])
@@ -1854,7 +1896,7 @@ class ClientWindow(FormClass, BaseClass):
             self.state = ClientState.ACCEPTED
 
 
-
+    # TODO: use SIGNAL game_launch
     def handle_game_launch(self, message):
 
         logger.info("Handling game_launch via JSON " + str(message))
@@ -1947,43 +1989,13 @@ class ClientWindow(FormClass, BaseClass):
 
         fa.play(game_info, self.relayServer.serverPort(), arguments)
 
-
-
-    def handle_coop_info(self, message):
-        self.coopInfo.emit(message)
-
-    def handle_tournament_types_info(self, message):
-        self.tourneyTypesInfo.emit(message)
-
-    def handle_tournament_info(self, message):
-        self.tourneyInfo.emit(message)
-
-    def handle_tutorials_info(self, message):
-        self.tutorialsInfo.emit(message)
-
-    def handle_mod_info(self, message):
-        self.modInfo.emit(message)
-
-    def handle_game_info(self, message):
-        self.gameInfo.emit(message)
-
+    # TODO: use SIGNAL modvault_list_info
     def handle_modvault_list_info(self, message):
         modList = message["modList"]
         for mod in modList:
             self.handle_modvault_info(mod)
 
-    def handle_modvault_info(self, message):
-        self.modVaultInfo.emit(message)
-
-    def handle_replay_vault(self, message):
-        self.replayVault.emit(message)
-
-    def handle_coop_leaderboard(self, message):
-        self.coopLeaderBoard.emit(message)
-
-    def handle_ladder_maps(self, message):
-        self.ladderMapsList.emit(message)
-
+    # TODO: use SIGNAL matchmaker_info
     def handle_matchmaker_info(self, message):
         if "action" in message:
             self.matchmakerInfo.emit(message)
@@ -1994,10 +2006,12 @@ class ClientWindow(FormClass, BaseClass):
             else:
                 self.warningHide()
 
+    # TODO: use SIGNAL avatar
     def handle_avatar(self, message):
         if "avatarlist" in message :
             self.avatarList.emit(message["avatarlist"])
 
+    # TODO: use SIGNAL admin
     def handle_admin(self, message):
         if "avatarlist" in message :
             self.avatarList.emit(message["avatarlist"])
@@ -2005,12 +2019,7 @@ class ClientWindow(FormClass, BaseClass):
         elif "player_avatar_list" in message :
             self.playerAvatarList.emit(message)
 
-    def handle_team_info(self, message):
-        self.teamInfo.emit(message)
-
-    def handle_team(self, message):
-        self.teamInvitation.emit(message)
-
+    # TODO: use SIGNAL social
     def handle_social(self, message):
         if "friends" in message:
             self.friends = message["friends"]
@@ -2048,13 +2057,9 @@ class ClientWindow(FormClass, BaseClass):
                 action.triggered.connect(functools.partial(self.featuredMod, mod))
                 modMenu.addAction(action)
 
-    def handle_mod_manager_info(self, message):
-        self.featuredModManagerInfo.emit(message)
-
     def avatarManager(self):
         self.requestAvatars(0)
         self.avatarSelection.show()
-
 
 
     def featuredMod(self, action):
