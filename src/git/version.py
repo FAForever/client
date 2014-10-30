@@ -47,6 +47,17 @@ class Version():
             if not k in self._version:
                 raise KeyError
 
+    def __eq__(self, other):
+        if not self.hash is None:
+            return self.hash == other.hash
+        elif (self.repo, self.ref) is not (None, None):
+            return self.repo == other.repo and self.ref == other.ref
+        else:
+            return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     @property
     def url(self):
         if 'url' in self._version:
@@ -75,3 +86,6 @@ class Version():
     def is_trusted(self):
         parsed_url = urlparse(self.url)
         return len(filter(lambda url: parsed_url.netloc + parsed_url.path == url, TRUSTED_REPOS)) > 0
+
+    def to_json(self):
+        return json.dumps(self._version)
