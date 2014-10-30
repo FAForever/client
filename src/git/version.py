@@ -37,11 +37,15 @@ class Version():
             self._version['url'] = args[2]
             self._version['hash'] = args[3]
         elif len(args) == 1:
-            for k, v in json.loads(args[0]).iteritems():
-                self[k] = v
-
-    def __setitem__(self, key, value):
-        self._version[key] = value
+            json_object = json.loads(args[0])
+            for k in ['repo', 'ref', 'url', 'hash']:
+                try:
+                    self._version[k] = json_object[k]
+                except KeyError:
+                    pass
+        for k in ['repo', 'ref']:
+            if not k in self._version:
+                raise KeyError
 
     @property
     def url(self):
@@ -52,13 +56,11 @@ class Version():
 
     @property
     def ref(self):
-        if 'ref' in self._version:
-            return self._version['ref']
+        return self._version['ref']
 
     @property
     def repo(self):
-        if 'repo' in self._version:
-            return self._version['repo']
+        return self._version['repo']
 
     @property
     def hash(self):
