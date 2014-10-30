@@ -60,7 +60,7 @@ class Statpage(QMainWindow):
         QMainWindow.__init__(self, parent)
 
         self.parent = parent
-        self.parent.statsInfo.connect(self.processStatsInfos)
+        self.parent.net.statsInfo.connect(self.processStatsInfos)
 
 
         self.globalname = None
