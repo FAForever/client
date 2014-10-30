@@ -22,7 +22,7 @@
 
 import random
 
-from PyQt4 import QtCore, QtGui, QtNetwork
+from PyQt4 import QtCore, QtGui
 
 import util
 from games.gameitem import GameItem, GameItemDelegate
@@ -30,7 +30,6 @@ from games.moditem import ModItem, mod_invisible, mods
 from games.hostgamewidget import HostgameWidget
 from games._mapSelectWidget import mapSelectWidget
 from fa import faction
-from fa.version_service import VersionService
 import fa
 import modvault
 import notificatation_system as ns
@@ -38,7 +37,7 @@ import notificatation_system as ns
 import logging
 logger = logging.getLogger(__name__)
 
-RANKED_SEARCH_EXPANSION_TIME = 10000 #milliseconds before search radius expands
+RANKED_SEARCH_EXPANSION_TIME = 10000  # milliseconds before search radius expands
 
 SEARCH_RADIUS_INCREMENT = 0.05
 SEARCH_RADIUS_MAX = 0.25
@@ -58,12 +57,10 @@ class GamesWidget(FormClass, BaseClass):
         self.client = client
         self.client.gamesTab.layout().addWidget(self)
 
-        #Dictionary containing our actual games.
+        # Dictionary containing our actual games.
         self.games = {}
 
-        self.version_service = VersionService(QtNetwork.QNetworkAccessManager())
-
-        #Ranked search UI
+        # Ranked search UI
         self.rankedAeon.setIcon(util.icon("games/automatch/aeon.png"))
         self.rankedCybran.setIcon(util.icon("games/automatch/cybran.png"))
         self.rankedSeraphim.setIcon(util.icon("games/automatch/seraphim.png"))
@@ -91,7 +88,7 @@ class GamesWidget(FormClass, BaseClass):
         # self.teamUEF.setIcon(util.icon("games/automatch/uef.png"))
         # self.teamRandom.setIcon(util.icon("games/automatch/random.png"))
 
-        #self.teamRandom.setChecked(True)
+        # self.teamRandom.setChecked(True)
 
         # self.connectTeamFactionToggles()
 
@@ -117,8 +114,8 @@ class GamesWidget(FormClass, BaseClass):
 
         # self.teamInvitations = {}
 
-        self.client.modInfo.connect(self.processModInfo)
-        self.client.gameInfo.connect(self.processGameInfo)
+        self.client.net.modInfo.connect(self.processModInfo)
+        self.client.net.gameInfo.connect(self.processGameInfo)
 
         self.client.rankedGameAeon.connect(self.togglingAeon)
         self.client.rankedGameCybran.connect(self.togglingCybran)
@@ -127,8 +124,8 @@ class GamesWidget(FormClass, BaseClass):
         self.client.rankedGameRandom.connect(self.togglingRandom)
 
 
-        self.client.teamInvitation.connect(self.handleInvitations)
-        self.client.teamInfo.connect(self.handleTeamInfo)
+        self.client.net.teamInvitation.connect(self.handleInvitations)
+        self.client.net.teamInfo.connect(self.handleTeamInfo)
 
 
         self.client.gameEnter.connect(self.stopSearchRanked)
@@ -141,16 +138,16 @@ class GamesWidget(FormClass, BaseClass):
 
         self.mapSelectButton.clicked.connect(self.mapSelectClicked)
 
-        #self.TeamMapSelectButton.setVisible(False)
+        # self.TeamMapSelectButton.setVisible(False)
 
-        # try:            
+        # try:
         #     self.teamInvitationsListWidget.itemDoubleClicked.connect(self.teamInvitationClicked)
-        #     self.leaveTeamButton.clicked.connect(self.quitTeam)    
+        #     self.leaveTeamButton.clicked.connect(self.quitTeam)
         #     self.leaveTeamButton.setVisible(False)
         # except:
         #     QtGui.QMessageBox.warning(None, "Skin outdated.", "The theme you are using is outdated. Please remove it or the lobby will malfunction.")
 
-        #Load game name from settings (yay, it's persistent!)
+        # Load game name from settings (yay, it's persistent!)
         self.loadGameName()
         self.loadGameMap()
         self.loadPassword()
@@ -162,7 +159,7 @@ class GamesWidget(FormClass, BaseClass):
         if action == "startSearching":
             if (not fa.check.check("matchmaker")):
                 logger.error("Can't play ranked without successfully updating Forged Alliance.")
-                return            
+                return
 
             self.client.send(dict(command="game_matchmaking", mod="matchmaker", state="port", port=self.client.gamePort))
 
@@ -181,7 +178,7 @@ class GamesWidget(FormClass, BaseClass):
 
             self.teamSearching = True
             self.teamSearchProgress.show()
-        
+
         elif action == "stopSearching":
             self.teamSearching = False
             self.teamSearchProgress.hide()
@@ -205,13 +202,13 @@ class GamesWidget(FormClass, BaseClass):
 
 
     def handleInvitations(self, message):
-        action  = message["action"]
-        who     = message["who"]
-        ''' handling team invitations '''     
+        action = message["action"]
+        who = message["who"]
+        ''' handling team invitations '''
         if action == "teaminvitationremove":
             if not who in self.teaminvitations:
                 return
-            
+
             self.teamInvitationsListWidget.removeItemWidget(self.teaminvitations[who])
             del self.teaminvitations[who]
 
@@ -225,7 +222,7 @@ class GamesWidget(FormClass, BaseClass):
             self.client.notificationSystem.on_event(ns.NotificationSystem.TEAM_INVITE, "%s is inviting you to join his team." % who)
 
             item = QtGui.QListWidgetItem(who)
-            
+
             self.teamInvitations[who] = item
             self.teamInvitationsListWidget.addItem(self.teamInvitations[who])
 
@@ -245,21 +242,21 @@ class GamesWidget(FormClass, BaseClass):
         self.teamCybran.toggled.connect(self.togglingTeamCybran)
         self.teamSeraphim.toggled.connect(self.togglingTeamSeraphim)
         self.teamUEF.toggled.connect(self.togglingTeamUEF)
-        self.teamRandom.toggled.connect(self.togglingTeamRandom)        
+        self.teamRandom.toggled.connect(self.togglingTeamRandom)
 
     def disconnectTeamFactionToggles(self):
         self.teamAeon.toggled.disconnect(self.togglingTeamAeon)
         self.teamCybran.toggled.disconnect(self.togglingTeamCybran)
         self.teamSeraphim.toggled.disconnect(self.togglingTeamSeraphim)
         self.teamUEF.toggled.disconnect(self.togglingTeamUEF)
-        self.teamRandom.toggled.disconnect(self.togglingTeamRandom) 
+        self.teamRandom.toggled.disconnect(self.togglingTeamRandom)
 
 
     def connectTeamSearchToggles(self):
         for numplayers in self.teamSearchButton:
             self.teamSearchFnc[numplayers] = functools.partial(self.togglingTeams, numplayers)
             self.teamSearchButton[numplayers].toggled.connect(self.teamSearchFnc[numplayers])
-       
+
 
     def disconnectTeamSearchToggles(self):
         for numplayers in self.teamSearchButton:
@@ -325,7 +322,7 @@ class GamesWidget(FormClass, BaseClass):
             self.games[uid].update(message, self.client)
 
 
-        #Special case: removal of a game that has ended
+        # Special case: removal of a game that has ended
         if message['state'] == "closed":
             if uid in self.games:
                 self.gameList.takeItem(self.gameList.row(self.games[uid]))
@@ -340,7 +337,7 @@ class GamesWidget(FormClass, BaseClass):
 
     def stopSearchingTeamMatchmaker(self):
         self.client.send(dict(command="game_matchmaking", mod="matchmaker", state="askingtostop"))
-        #self.stopSearchRanked()
+        # self.stopSearchRanked()
 
 
 
@@ -359,9 +356,9 @@ class GamesWidget(FormClass, BaseClass):
         if (self.searching):
             logger.info("Switching Ranked Search to Race " + str(race))
             self.race = race
-            self.client.send(dict(command="game_matchmaking", mod="ladder1v1", state="settings", faction = self.race))
+            self.client.send(dict(command="game_matchmaking", mod="ladder1v1", state="settings", faction=self.race))
         else:
-            #Experimental UPnP Mapper - mappings are removed on app exit
+            # Experimental UPnP Mapper - mappings are removed on app exit
             if self.client.useUPnP:
                 fa.upnp.createPortMapping(self.client.localIP, self.client.gamePort, "UDP")
 
@@ -372,8 +369,8 @@ class GamesWidget(FormClass, BaseClass):
             self.searchProgress.setVisible(True)
             self.labelAutomatch.setText("Searching...")
             self.rankedTimer.start(RANKED_SEARCH_EXPANSION_TIME)
-            self.client.send(dict(command="game_matchmaking", mod="ladder1v1", state="start", gameport = self.client.gamePort, faction = self.race))
-            #self.client.writeToServer('SEARCH_LADDERGAME', 'START', self.client.gamePort)
+            self.client.send(dict(command="game_matchmaking", mod="ladder1v1", state="start", gameport=self.client.gamePort, faction=self.race))
+            # self.client.writeToServer('SEARCH_LADDERGAME', 'START', self.client.gamePort)
 
 
     @QtCore.pyqtSlot()
@@ -386,7 +383,7 @@ class GamesWidget(FormClass, BaseClass):
         else:
             logger.debug("Expanding teamsearch to " + str(self.radius))
 
-        #self.client.send(dict(command="game_matchmaking", mod="ladder1v1", state="expand", rate=self.radius))
+        # self.client.send(dict(command="game_matchmaking", mod="ladder1v1", state="expand", rate=self.radius))
 
 
     @QtCore.pyqtSlot()
@@ -497,7 +494,7 @@ class GamesWidget(FormClass, BaseClass):
             self.teamSeraphim.setChecked(False)
             self.teamUEF.setChecked(False)
             self.connectTeamFactionToggles()
-            self.client.send(dict(command="game_matchmaking", mod="matchmaker", state="faction", factionchosen=random.randint(1,4)))
+            self.client.send(dict(command="game_matchmaking", mod="matchmaker", state="faction", factionchosen=random.randint(1, 4)))
 
     # TEAM MATCHMAKER
     @QtCore.pyqtSlot(bool)
@@ -509,10 +506,10 @@ class GamesWidget(FormClass, BaseClass):
                 if numplayer != numplayers:
                     self.teamSearchButton[numplayer].setChecked(False)
             self.connectTeamSearchToggles()
-            
+
         else:
             self.stopSearchingTeamMatchmaker()
-                                             
+
 
     # RANKED
 
@@ -599,7 +596,7 @@ class GamesWidget(FormClass, BaseClass):
     @QtCore.pyqtSlot(bool)
     def toggleRandom(self, state):
         if (state):
-            faction = random.randint(1,4)
+            faction = random.randint(1, 4)
             if faction == 1 :
                 self.startSearchRanked(faction.UEF)
             elif faction == 2 :
@@ -626,72 +623,60 @@ class GamesWidget(FormClass, BaseClass):
         if not fa.instance.available():
             return
 
-        self.stopSearchRanked() # Actually a workaround
+        self.stopSearchRanked()  # Actually a workaround
 
         passw = None
 
-        if fa.check.game(self.client):
-            if fa.check.check(item.mod, item.mapname, None, item.mods):
-                if item.access == "password":
-                    passw, ok = QtGui.QInputDialog.getText(self.client, "Passworded game" , "Enter password :", QtGui.QLineEdit.Normal, "")
-                    if ok:
-                        self.client.send(dict(command="game_join", password=passw, uid=item.uid, gameport=self.client.gamePort))
-                else :
-                    self.client.send(dict(command="game_join", uid=item.uid, gameport=self.client.gamePort))
+        if fa.check.check(item.mod, item.mapname, None, item.mods):
+            if item.access == "password" :
+                passw, ok = QtGui.QInputDialog.getText(self.client, "Passworded game" , "Enter password :", QtGui.QLineEdit.Normal, "")
+                if ok:
+                    self.client.send(dict(command="game_join", password=passw, uid=item.uid, gameport=self.client.gamePort))
+            else :
+                self.client.send(dict(command="game_join", uid=item.uid, gameport=self.client.gamePort))
+
         else:
-            pass #checkFA failed and notified the user what was wrong. We won't join now.
+            pass  # checkFA failed and notified the user what was wrong. We won't join now.
+
+
 
     @QtCore.pyqtSlot(QtGui.QListWidgetItem)
     def hostGameClicked(self, item):
-        """
+        '''
         Hosting a game event
-        """
+        '''
         if not fa.instance.available():
             return
 
         self.stopSearchRanked()
 
-        versions_request = self.version_service.versions_for(item.mod)
+        # A simple Hosting dialog.
+        if fa.check.check(item.mod):
+            hostgamewidget = HostgameWidget(self, item)
 
-        def update_progress(text, cur, total):
-            logger.debug("Progress: %(text)s %(cur)d/%(total)d" % {"text": text, "cur": cur, "total": total})
+            if hostgamewidget.exec_() == 1 :
+                if self.gamename:
+                    gameoptions = []
 
-        hostgamewidget = HostgameWidget(self, item, versions_request, self.canChooseMap)
-        if hostgamewidget.exec_() == 1:
-            if self.gamename:
-                modvault.setActiveMods(hostgamewidget.selected_mods, True)
-                logger.debug("Setting active mods to")
-                logger.debug(hostgamewidget.selected_mods)
-                version = hostgamewidget.selected_game_version
+                    if len(self.options) != 0 :
+                        oneChecked = False
+                        for option in self.options :
+                            if option.isChecked() :
+                                oneChecked = True
+                            gameoptions.append(option.isChecked())
 
-                def launch_game():
-                    if fa.check.game(self, hostgamewidget.selected_game_version):
-                        self.client.send(dict(command="game_host",
-                                              access="password" if self.ispassworded else "public",
-                                              password=self.gamepassword,
-                                              version=version,
-                                              mod=item.mod,
-                                              title=self.gamename,
-                                              mapname=self.gamemap,
-                                              gameport=self.client.gamePort))
-                if not fa.check.game(self, version):
-                    logger.info("Updating game")
-
-                    updater = fa.updater.game_version(version)
-                    self.client.on_progress_start()
-                    updater.done.connect(launch_game)
-                    updater.error.connect(lambda e: logger.critical("Error: %r" % e))
-                    updater.progress.connect(update_progress)
-                    updater.progress.connect(self.client.on_progress)
-                    updater.done.connect(self.client.on_progress_stop)
-                    updater.start()
-                else:
-                    launch_game()
-
-        def error(err):
-            logger.critical(err)
-
-        versions_request.error.connect(error)
+                        if oneChecked == False :
+                            QtGui.QMessageBox.warning(None, "No option checked !", "You have to check at least one option !")
+                            return
+                    modnames = [str(moditem.text()) for moditem in hostgamewidget.modList.selectedItems()]
+                    mods = [hostgamewidget.mods[modstr] for modstr in modnames]
+                    modvault.setActiveMods(mods, True)  # should be removed later as it should be managed by the server.
+#                #Send a message to the server with our intent.
+                    if self.ispassworded:
+                        self.client.send(dict(command="game_host", access="password", password=self.gamepassword, mod=item.mod, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort, options=gameoptions))
+                    else :
+                        self.client.send(dict(command="game_host", access="public", mod=item.mod, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort, options=gameoptions))
+#
 
     def savePassword(self, password):
         self.gamepassword = password
@@ -705,7 +690,7 @@ class GamesWidget(FormClass, BaseClass):
         self.gamepassword = util.settings.value("password", None)
         util.settings.endGroup()
 
-        #Default Game Map ...
+        # Default Game Map ...
         if not self.gamepassword:
             self.gamepassword = "password"
 
@@ -721,7 +706,7 @@ class GamesWidget(FormClass, BaseClass):
         self.gamemap = util.settings.value("gamemap", None)
         util.settings.endGroup()
 
-        #Default Game Map ...
+        # Default Game Map ...
         if not self.gamemap:
             self.gamemap = "scmp_007"
 
@@ -739,7 +724,7 @@ class GamesWidget(FormClass, BaseClass):
         self.gamename = util.settings.value("gamename", None)
         util.settings.endGroup()
 
-        #Default Game Name ...
+        # Default Game Name ...
         if not self.gamename:
             if (self.client.login):
                 self.gamename = self.client.login + "'s game"
