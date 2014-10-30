@@ -22,6 +22,7 @@ from friendlist import FriendList
 from client.client_action import Client_Action
 from fa.path import loadPath
 from client.admin_action import Admin_Action
+from client.server_packets import ServerPackets
 
 '''
 Created on Dec 1, 2011
@@ -151,7 +152,6 @@ class ClientWindow(FormClass, BaseClass):
     joinGameFromURL = QtCore.pyqtSignal(str)
     joinReplayFromURL = QtCore.pyqtSignal(str)
 
-
     # for the auto join ranked
     rankedGameAeon = QtCore.pyqtSignal(bool)
     rankedGameCybran = QtCore.pyqtSignal(bool)
@@ -162,58 +162,9 @@ class ClientWindow(FormClass, BaseClass):
 
     matchmakerInfo = QtCore.pyqtSignal(dict)
 
-    # signals for incoming network packages
-    statsInfo = QtCore.pyqtSignal(dict)  # deprecated?
-    tourneyTypesInfo = QtCore.pyqtSignal(dict)  # deprecated
-    tutorialsInfo = QtCore.pyqtSignal(dict)  # https://github.com/FAForever/server/search?q=tutorials_info
-    tourneyInfo = QtCore.pyqtSignal(dict)  # https://github.com/FAForever/server/search?q=tournament_info
-    modInfo = QtCore.pyqtSignal(dict)  # https://github.com/FAForever/server/search?q=mod_info
-    gameInfo = QtCore.pyqtSignal(dict)  # https://github.com/FAForever/server/search?q=game_info
-    modVaultInfo = QtCore.pyqtSignal(dict)  # https://github.com/FAForever/server/search?q=modvault_info
-    coopInfo = QtCore.pyqtSignal(dict)  # https://github.com/FAForever/server/search?q=coop_info
-    featuredModManagerInfo = QtCore.pyqtSignal(dict) #https://github.com/FAForever/server/search?q=mod_manager_info
-    replayVault = QtCore.pyqtSignal(dict)  # https://github.com/FAForever/server/search?q=replay_vault
-    coopLeaderBoard = QtCore.pyqtSignal(dict)  # deprecated
-    ladderMapsList = QtCore.pyqtSignal(dict)  # https://github.com/FAForever/server/search?q=ladder_maps
-
-    # for team management
-    teamInfo = QtCore.pyqtSignal(dict)  # https://github.com/FAForever/server/search?q=team_info
-    teamInvitation = QtCore.pyqtSignal(dict)  # FaServerThread.py, gwserver\lobby.py
-
-    # unused
-    newGame = QtCore.pyqtSignal(str)
-
-    # no signal found
-    welcome = QtCore.pyqtSignal(dict)
-    game_launch = QtCore.pyqtSignal(dict)
-    modvault_list_info = QtCore.pyqtSignal(dict)
-    matchmaker_info = QtCore.pyqtSignal(dict)
-    avatar = QtCore.pyqtSignal(dict)
-    admin = QtCore.pyqtSignal(dict)
-    social = QtCore.pyqtSignal(dict)
-
-    translation_table = {'stats' : 'statsInfo',
-                         'tournament_types_info' : 'tourneyTypesInfo',
-                         'tutorials_info' : 'tutorialsInfo',
-                         'tournament_info' : 'tourneyInfo',
-                         'mod_info' : 'modInfo',
-                         'game_info' : 'gameInfo',
-                         'modvault_info' : 'modVaultInfo',
-                         'coop_info' : 'coopInfo',
-                         'mod_manager_info' : 'featuredModManagerInfo',
-                         'replay_vault' : 'replayVault',
-                         'coop_leaderboard' : 'coopLeaderBoard',
-                         'ladder_maps' : 'ladderMapsList',
-                         'team_info' : 'teamInfo',
-                         'team' : 'teamInvitation'}
-
-    def translate(self, command):
-        if command in self.translation_table:
-            return self.translation_table[command]
-        raise Exception('no translation', command)
-
     def __init__(self, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
+        self.net = ServerPackets()
 
         logger.debug("Client instantiating")
 
@@ -256,7 +207,7 @@ class ClientWindow(FormClass, BaseClass):
         fa.instance.started.connect(self.startedFA)
         fa.instance.finished.connect(self.finishedFA)
         fa.instance.error.connect(self.errorFA)
-        self.gameInfo.connect(fa.instance.processGameInfo)
+        self.net.gameInfo.connect(fa.instance.processGameInfo)
 
         # Local Replay Server (and relay)
         self.replayServer = fa.replayserver.ReplayServer(self)
@@ -1848,7 +1799,7 @@ class ClientWindow(FormClass, BaseClass):
 
                 try:
                     # try to find signal to fire
-                    command = self.translate(message['command'])
+                    command = self.net.translate(message['command'])
                     if hasattr(self, command):
                         getattr(self, command).emit(message)
                         return

@@ -46,7 +46,7 @@ class StatsWidget(BaseClass, FormClass):
         self.client = client
         client.ladderTab.layout().addWidget(self)
 
-        self.client.statsInfo.connect(self.processStatsInfos)
+        self.client.net.statsInfo.connect(self.processStatsInfos)
 
         self.client = client
 
