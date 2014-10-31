@@ -1246,19 +1246,21 @@ class ClientWindow(FormClass, BaseClass):
             self.state = ClientState.REJECTED
 
 
+    # TODO: model
     def isFriend(self, name):
         '''
         Convenience function for other modules to inquire about a user's friendliness.
         '''
         return name in self.friends
 
-
+    # TODO: model
     def isFoe(self, name):
         '''
         Convenience function for other modules to inquire about a user's foeliness.
         '''
         return name in self.foes
 
+    # TODO: model
     def isPlayer(self, name):
         '''
         Convenience function for other modules to inquire about a user's civilian status.
@@ -1272,6 +1274,7 @@ class ClientWindow(FormClass, BaseClass):
     colors = json.loads(util.readfile("client/colors.json"))
     randomcolors = json.loads(util.readfile("client/randomcolors.json"))
 
+    # TODO: model
     def getUserClan(self, name):
         '''
         Returns a user's clan if any
@@ -1281,6 +1284,7 @@ class ClientWindow(FormClass, BaseClass):
                 return self.players[name]["clan"]
         return ""
 
+    # TODO: model
     def getCompleteUserName(self, name, html=False):
         clan = self.getUserClan(name)
         if clan != '':
@@ -1290,6 +1294,7 @@ class ClientWindow(FormClass, BaseClass):
                 return '[%s] %s' % (clan, name)
         return name
 
+    # TODO: model
     def getUserLeague(self, name):
         '''
         Returns a user's league if any
@@ -1301,6 +1306,7 @@ class ClientWindow(FormClass, BaseClass):
 
         return None
 
+    # TODO: model
     def getUserCountry(self, name):
         '''
         Returns a user's country if any
@@ -1312,6 +1318,7 @@ class ClientWindow(FormClass, BaseClass):
 
         return None
 
+    # TODO: model
     def getUserAvatar(self, name):
         '''
         Returns a user's avatar if any
@@ -1321,7 +1328,7 @@ class ClientWindow(FormClass, BaseClass):
         else:
             return None
 
-
+    # TODO: model
     def getUserColor(self, name):
         '''
         Returns a user's color depending on their status with relation to the FAF client
@@ -1343,20 +1350,20 @@ class ClientWindow(FormClass, BaseClass):
             else:
                 return self.getColor("default")
 
-
+    # TODO: model
     def getRandomColor(self, name):
         '''Generate a random color from a name'''
         random.seed(name)
         return random.choice(self.randomcolors)
 
+    # TODO: model
     def getColor(self, name):
         if name in self.colors:
             return self.colors[name]
         else:
             return self.colors["default"]
 
-
-
+    # TODO: model
     def getUserRanking(self, name):
         '''
         Returns a user's ranking (trueskill rating) as a float.
@@ -1447,7 +1454,7 @@ class ClientWindow(FormClass, BaseClass):
         if new_tab is self.modsTab:
             self.showMods.emit()
 
-
+    # TODO: control
     def joinGameFromURL(self, url):
         '''
         Tries to join the game at the given URL
@@ -1463,7 +1470,7 @@ class ClientWindow(FormClass, BaseClass):
             if fa.check.check(url.queryItemValue("mod"), url.queryItemValue("map"), sim_mods=add_mods):
                 self.send(dict(command="game_join", uid=int(url.queryItemValue("uid")), gameport=self.gamePort))
 
-
+    # TODO: network
     def loginWriteToFaServer(self, action, *args, **kw):
         '''
         This is a specific method that handles sending Login-related and update-related messages to the server.
@@ -1498,6 +1505,7 @@ class ClientWindow(FormClass, BaseClass):
         self.socket.write(block)
         QtGui.QApplication.processEvents()
 
+    # TODO: network
     def writeToServer(self, action, *args, **kw):
         '''
         This method is the workhorse of the client, and is used to send messages, queries and commands to the server.
@@ -1652,22 +1660,27 @@ class ClientWindow(FormClass, BaseClass):
         else :
             self.send(dict(command="admin", action="requestavatars"))
 
+    # TODO: control
     def joinChannel(self, user, channel):
         '''Close FA remotly'''
         self.send(dict(command="admin", action="join_channel", users=[user], channel=channel))
 
+    # TODO: control
     def closeFA(self, userToClose):
         '''Close FA remotly'''
         self.send(dict(command="admin", action="closeFA", user=userToClose))
 
+    # TODO: control
     def closeLobby(self, userToClose):
         '''Close lobby remotly'''
         self.send(dict(command="admin", action="closelobby", user=userToClose))
 
+    # TODO: control
     def invite(self, player):
         ''' Send an invitation to be part of my team'''
         self.send(dict(command="social", teaminvite=player))
 
+    # TODO: control
     def addFriend(self, friend):
         '''Adding a new friend by user'''
         self.friends.append(friend)
@@ -1676,6 +1689,7 @@ class ClientWindow(FormClass, BaseClass):
         self.usersUpdated.emit([friend])
         self.friendList.addFriend(friend)
 
+    # TODO: control
     def addFoe(self, foe):
         '''Adding a new foe by user'''
         self.foes.append(foe)
@@ -1683,6 +1697,7 @@ class ClientWindow(FormClass, BaseClass):
         # self.writeToServer("ADD_FRIEND", friend)
         self.usersUpdated.emit([foe])
 
+    # TODO: control
     def remFriend(self, friend):
         '''Removal of a friend by user'''
         self.friends.remove(friend)
@@ -1691,7 +1706,7 @@ class ClientWindow(FormClass, BaseClass):
         self.usersUpdated.emit([friend])
         self.friendList.removeFriend(friend)
 
-
+    # TODO: control
     def remFoe(self, foe):
         '''Removal of a foe by user'''
         self.foes.remove(foe)
@@ -1977,16 +1992,13 @@ class ClientWindow(FormClass, BaseClass):
             modMenu = self.menu.addMenu("Featured Mods Manager")
             for mod in mods :
                 action = QtGui.QAction(mod, modMenu)
-                action.triggered.connect(functools.partial(self.featuredMod, mod))
+                action.triggered.connect(lambda: self.featuredModManager.emit(mod))
                 modMenu.addAction(action)
 
     def avatarManager(self):
         self.requestAvatars(0)
         self.avatarSelection.show()
 
-
-    def featuredMod(self, action):
-        self.featuredModManager.emit(action)
 
     def handle_notice(self, message):
         if "text" in message:
