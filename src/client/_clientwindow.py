@@ -23,6 +23,7 @@ from client.client_action import Client_Action
 from fa.path import loadPath
 from client.admin_action import Admin_Action
 from client.server_packets import ServerPackets
+from util import LOG_DIR
 
 '''
 Created on Dec 1, 2011
@@ -683,20 +684,20 @@ class ClientWindow(FormClass, BaseClass):
         self.doneresize.emit()
 
     def initMenus(self):
-        self.actionLinkMumble.triggered.connect(self.linkMumble)
-        self.actionLink_account_to_Steam.triggered.connect(self.linkToSteam)
-        self.actionLinkWebsite.triggered.connect(self.linkWebsite)
-        self.actionLinkWiki.triggered.connect(self.linkWiki)
-        self.actionLinkForums.triggered.connect(self.linkForums)
-        self.actionLinkUnitDB.triggered.connect(self.linkUnitDB)
+        self.actionLinkMumble.triggered.connect(lambda : self.openLink(MUMBLE_URL.format(login=self.login)))
+        self.actionLink_account_to_Steam.triggered.connect(lambda : self.openLink(STEAMLINK_URL))
+        self.actionLinkWebsite.triggered.connect(lambda : self.openLink(WEBSITE_URL))
+        self.actionLinkWiki.triggered.connect(lambda : self.openLink(WIKI_URL))
+        self.actionLinkForums.triggered.connect(lambda : self.openLink(FORUMS_URL))
+        self.actionLinkUnitDB.triggered.connect(lambda : self.openLink(UNITDB_URL))
 
         self.actionNsSettings.triggered.connect(lambda : self.notificationSystem.on_showSettings())
         self.actionNsEnabled.triggered.connect(lambda enabled : self.notificationSystem.setNotificationEnabled(enabled))
 
-        self.actionWiki.triggered.connect(self.linkWiki)
-        self.actionReportBug.triggered.connect(self.linkReportBug)
+        self.actionWiki.triggered.connect(lambda : self.openLink(WIKI_URL))
+        self.actionReportBug.triggered.connect(lambda : self.openLink(TICKET_URL))
         self.actionShowLogs.triggered.connect(self.linkShowLogs)
-        self.actionTechSupport.triggered.connect(self.linkTechSupport)
+        self.actionTechSupport.triggered.connect(lambda : self.openLink(SUPPORT_URL))
         self.actionAbout.triggered.connect(self.linkAbout)
 
 
@@ -771,10 +772,6 @@ class ClientWindow(FormClass, BaseClass):
         loginwizards.gameSettingsWizard(self).exec_()
 
     @QtCore.pyqtSlot()
-    def linkToSteam(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(STEAMLINK_URL))
-
-    @QtCore.pyqtSlot()
     def setMumbleOptions(self):
         import loginwizards
         loginwizards.mumbleOptionsWizard(self).exec_()
@@ -801,34 +798,9 @@ class ClientWindow(FormClass, BaseClass):
             QtGui.QMessageBox.information(None, "Restart Needed", "FAF will quit now.")
             QtGui.QApplication.quit()
 
-
-    @QtCore.pyqtSlot()
-    def linkMumble(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(MUMBLE_URL.format(login=self.login)))
-
-    @QtCore.pyqtSlot()
-    def linkWebsite(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(WEBSITE_URL))
-
-    @QtCore.pyqtSlot()
-    def linkWiki(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(WIKI_URL))
-
-    @QtCore.pyqtSlot()
-    def linkForums(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(FORUMS_URL))
-
-    @QtCore.pyqtSlot()
-    def linkUnitDB(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(UNITDB_URL))
-
-    @QtCore.pyqtSlot()
-    def linkReportBug(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(TICKET_URL))
-
-    @QtCore.pyqtSlot()
-    def linkTechSupport(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(SUPPORT_URL))
+    @QtCore.pyqtSlot(object)
+    def openLink(self, url):
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(url))
 
     @QtCore.pyqtSlot()
     def linkShowLogs(self):
