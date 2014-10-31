@@ -1,8 +1,9 @@
 class FriendGroup():
-    def getName(self):
-        raise NotImplementedError
 
-    def setName(self, name):
+    def __init__(self, model):
+        self.model = model
+
+    def getName(self):
         raise NotImplementedError
 
     def getUsers(self):
@@ -15,4 +16,7 @@ class FriendGroup():
         raise NotImplementedError
 
     def rename(self, newName):
+        raise NotImplementedError
+
+    def remove(self):
         raise NotImplementedError

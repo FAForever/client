@@ -1,4 +1,8 @@
 class Map():
+
+    def __init__(self, model):
+        self.model = model
+
     def getName(self):
         raise NotImplementedError
 
@@ -23,5 +27,6 @@ class Map():
     def getVersion(self):
         raise NotImplementedError
 
+    # new version available
     def isOutdated(self):
         raise NotImplementedError
