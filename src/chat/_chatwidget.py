@@ -72,8 +72,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         #IRC parameters
         self.ircServer = IRC_SERVER
         self.ircPort = IRC_PORT
-        self.crucialChannels = ["#aeolus"]
-        self.optionalChannels = []
+        self.crucialChannels = []
+        self.optionalChannels = ["#aeolus"]
 
         #We can't send command until the welcom message is received
         self.welcomed = False
