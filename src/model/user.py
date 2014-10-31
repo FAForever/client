@@ -1,4 +1,9 @@
 class User():
+    GAMESTATUS_HOST = 'host'
+    GAMESTATUS_LOBBY = 'lobby'
+    GAMESTATUS_INGAME = 'ingame'
+    GAMESTATUS_LIVEREPLAY = 'livereplay'
+    GAMESTATUS_VAULTREPLAY = 'vaultreplay'
 
     def __init__(self, model):
         self.model = model
@@ -43,6 +48,12 @@ class User():
         raise NotImplementedError
 
     def removeFoe(self, user):
+        raise NotImplementedError
+
+    def isOnline(self):
+        raise NotImplementedError
+
+    def getGameStats(self):
         raise NotImplementedError
 
     # control - seperate into control?
