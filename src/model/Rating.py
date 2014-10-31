@@ -4,3 +4,9 @@ class Rating():
 
     def getRatingDevision(self):
         raise NotImplementedError
+
+    def getLeague(self):
+        '''
+        Returns a user's league if any
+        '''
+        raise NotImplementedError
