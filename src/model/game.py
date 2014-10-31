@@ -6,6 +6,9 @@ class Game():
     GAMETYPE_PASSWORD = 'password'
     GAMETYPE_GW = 'GW'
 
+    def __init__(self, model):
+        self.model = model
+
     def getUid(self):
         raise NotImplementedError
 
@@ -33,9 +36,6 @@ class Game():
     def getMap(self):
         raise NotImplementedError
 
-    def changeMap(self, newMap):
-        raise NotImplementedError
-
     def getMinRating(self):
         raise NotImplementedError
 
@@ -58,9 +58,6 @@ class Game():
         raise NotImplementedError
 
     def getGameBalance(self):
-        raise NotImplementedError
-
-    def changeGameBalance(self):
         raise NotImplementedError
 
 class GameSetting():

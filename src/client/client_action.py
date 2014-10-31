@@ -1,9 +1,12 @@
 import client
 from fa.replay import replay
 from chat._avatarWidget import avatarWidget
+from PyQt4 import QtCore
 
+class Client_Action(QtCore.QObject):
 
-class Client_Action():
+    login_successful = QtCore.pyqtSignal(dict)
+    game_hosted = QtCore.pyqtSignal
 
     def __init__(self, client):
         self.client_window = client

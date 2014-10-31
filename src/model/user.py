@@ -1,4 +1,8 @@
 class User():
+
+    def __init__(self, model):
+        self.model = model
+
     def getAvatar(self):
         raise NotImplementedError
 
@@ -6,9 +10,6 @@ class User():
         raise NotImplementedError
 
     def getRating(self):
-        raise NotImplementedError
-
-    def setRating(self, rating):
         raise NotImplementedError
 
     def getNick(self):
