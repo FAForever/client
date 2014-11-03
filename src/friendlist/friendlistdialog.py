@@ -1,5 +1,5 @@
 from PyQt4 import QtCore, QtGui
-import util, client
+import util, client, friendlist
 
 FormClass, BaseClass = util.loadUiType("friendlist/friendlist.ui")
 class FriendListDialog(FormClass, BaseClass):
@@ -11,7 +11,7 @@ class FriendListDialog(FormClass, BaseClass):
 
         self.updateTopLabel()
 
-        self.model = FriendListModel([FriendGroup('online', client), FriendGroup('offline', client)], client)
+        self.model = FriendListModel([friendlist.FriendGroup('online', client), friendlist.FriendGroup('offline', client)], client)
 
         self.proxy = QtGui.QSortFilterProxyModel()
         self.proxy.setSourceModel(self.model)
@@ -166,60 +166,6 @@ class FriendListDialog(FormClass, BaseClass):
         # Finally: Show the popup
         menu.popup(QtGui.QCursor.pos())
 
-class FriendGroup():
-    def __init__(self, name, client):
-        self.client = client
-        self.name = name
-        self.users = []
-
-    def addUser(self, user):
-        self.users.append(User(user, self))
-
-    def getRowOfUser(self, user):
-        for i in xrange(0, len(self.users)):
-            if self.users[i].username == user:
-                return i
-        return -1
-
-# cache for user information to speed up model
-class User():
-    indent = 6
-
-    def __init__(self, username, group):
-        self.username = username
-        self.name = group.client.getCompleteUserName(username)
-        self.group = group
-        self.country = group.client.getUserCountry(username)
-        self.rating = group.client.getUserRanking(username)
-        # TOO: fix it ...  called before avatar is loaded
-        self.avatarNotLoaded = False
-        self.loadPixmap()
-
-
-    def loadPixmap(self):
-        self.pix = QtGui.QPixmap(40 + 16 + self.indent, 20)
-        self.pix.fill(QtCore.Qt.transparent)
-        painter = QtGui.QPainter(self.pix)
-
-        self.avatar = self.group.client.getUserAvatar(self.username)
-        if  self.avatar:
-            avatarPix = util.respix(self.avatar['url'])
-            if avatarPix:
-                painter.drawPixmap(0, 0, avatarPix)
-                self.avatarNotLoaded = False
-            else:
-                self.avatarNotLoaded = True
-
-        if self.country != None:
-            painter.drawPixmap(40 + self.indent, 2, util.icon("chat/countries/%s.png" % self.country.lower(), pix=True))
-        painter.end()
-
-    def __str__(self):
-        return self.username
-
-    def __repr__(self):
-        return self.username
-
 
 class FriendListModel(QtCore.QAbstractItemModel):
     COL_PLAYER = 0
@@ -271,7 +217,7 @@ class FriendListModel(QtCore.QAbstractItemModel):
         if not index.isValid():
             return None
         pointer = index.internalPointer()
-        if role == QtCore.Qt.DecorationRole and isinstance(pointer, User) \
+        if role == QtCore.Qt.DecorationRole and isinstance(pointer, friendlist.User) \
         and index.column() == self.COL_PLAYER:
             if pointer.avatarNotLoaded:
                 pointer.loadPixmap()
@@ -281,13 +227,13 @@ class FriendListModel(QtCore.QAbstractItemModel):
             return pointer.pix
 
         if role == QtCore.Qt.UserRole:
-            if isinstance(pointer, FriendGroup):
+            if isinstance(pointer, friendlist.FriendGroup):
                 return None
             if index.column() == self.COL_PLAYER:
                 return pointer.username
 
         if role == QtCore.Qt.DisplayRole or role == QtCore.Qt.UserRole:
-            if isinstance(pointer, FriendGroup):
+            if isinstance(pointer, friendlist.FriendGroup):
                 if index.column() == self.COL_PLAYER:
                     return pointer.name
                 return None
