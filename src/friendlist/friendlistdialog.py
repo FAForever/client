@@ -221,23 +221,23 @@ class FriendListModel(QtCore.QAbstractItemModel):
         if not index.isValid():
             return None
         pointer = index.internalPointer()
-        if role == QtCore.Qt.DecorationRole and isinstance(pointer, friendlist.User) \
-        and index.column() == self.COL_PLAYER:
-            if pointer.avatarNotLoaded:
-                pointer.loadPixmap()
-                if not pointer.avatarNotLoaded:
-                    self.emit(QtCore.SIGNAL('modelChanged'), index, index)
-            return pointer.pix
-        if role == QtCore.Qt.DecorationRole and index.column() == self.COL_INGAME:
-            # TODO: extract/refactor
-            playername = pointer.name
-            if playername in client.instance.urls:
-                url = client.instance.urls[playername]
-                if url.scheme() == "fafgame":
-                    return util.icon("chat/status/lobby.png")
-                if url.scheme() == "faflive":
-                    return util.icon("chat/status/playing.png")
-            return None
+        if role == QtCore.Qt.DecorationRole and isinstance(pointer, friendlist.User):
+            if index.column() == self.COL_PLAYER:
+                if pointer.avatarNotLoaded:
+                    pointer.loadPixmap()
+                    if not pointer.avatarNotLoaded:
+                        self.emit(QtCore.SIGNAL('modelChanged'), index, index)
+                return pointer.pix
+            if  index.column() == self.COL_INGAME:
+                # TODO: extract/refactor
+                playername = pointer.username
+                if playername in client.instance.urls:
+                    url = client.instance.urls[playername]
+                    if url.scheme() == "fafgame":
+                        return util.icon("chat/status/lobby.png")
+                    if url.scheme() == "faflive":
+                        return util.icon("chat/status/playing.png")
+                return None
 
         # for sorting
         if role == QtCore.Qt.UserRole:
@@ -246,7 +246,7 @@ class FriendListModel(QtCore.QAbstractItemModel):
             if index.column() == self.COL_PLAYER:
                 return pointer.username
             if index.column() == self.COL_INGAME:
-                playername = pointer.name
+                playername = pointer.username
                 # TODO: extract/refactor
                 if playername in client.instance.urls:
                     url = client.instance.urls[playername]
