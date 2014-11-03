@@ -4,6 +4,8 @@ from friendlistdialog import FriendListDialog
 
 
 class FriendList():
+    ONLINE = 0
+    OFFLINE = 1
 
     def __init__(self, client):
         self.client = client
@@ -22,11 +24,21 @@ class FriendList():
         self.dialog = FriendListDialog(self, client)
         self.users = set()
 
+        self.client.usersUpdated.connect(self.updateUser)
+
+    def updateUser(self, updatedUsers):
+        for user in updatedUsers:
+            if user not in self.users:
+                continue
+            self.dialog.updateGameStatus(user)
+
     def addUser(self, user):
+        if not self.client.isFriend(user):
+            return
+
         self.users.add(user)
-        if self.client.isFriend(user):
-            self.dialog.removeFriend(1, user)
-            self.dialog.addFriend(0,user)
+        self.dialog.removeFriend(self.OFFLINE, user)
+        self.dialog.addFriend(self.ONLINE, user)
 
     def removeUser(self, user):
         # remove only users in friendlist
@@ -34,23 +46,23 @@ class FriendList():
             return
         self.users.remove(user)
         if self.client.isFriend(user):
-            self.dialog.removeFriend(0, user)
-            self.dialog.addFriend(1, user)
+            self.dialog.removeFriend(self.ONLINE, user)
+            self.dialog.addFriend(self.OFFLINE, user)
 
     def addFriend(self, friend):
         self.addUser(friend)
 
     def removeFriend(self, friend):
-        self.dialog.removeFriend(0, friend)
-        self.dialog.removeFriend(1, friend)
+        self.dialog.removeFriend(self.ONLINE, friend)
+        self.dialog.removeFriend(self.OFFLINE, friend)
 
 
     def updateFriendList(self):
         for friend in self.client.friends:
             if friend in self.users:
-                self.dialog.addFriend(0,friend)
+                self.dialog.addFriend(self.ONLINE, friend)
             else:
-                self.dialog.addFriend(1,friend)
+                self.dialog.addFriend(self.OFFLINE, friend)
 
     def getGroups(self):
         return self.groups
@@ -72,11 +84,19 @@ class FriendGroup():
     def addUser(self, user):
         self.users.append(User(user, self))
 
-    def getRowOfUser(self, user):
+    # TODO: increase performance
+    def getRowOfUser(self, username):
         for i in xrange(0, len(self.users)):
-            if self.users[i].username == user:
+            if self.users[i].username == username:
                 return i
         return -1
+
+    # TODO: increase performance
+    def getUser(self, username):
+        for i in xrange(0, len(self.users)):
+            if self.users[i].username == username:
+                return self.users[i]
+        return None
 
 # cache for user information to speed up model
 class User():

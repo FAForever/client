@@ -11,6 +11,7 @@ class FriendListDialog(FormClass, BaseClass):
 
         self.updateTopLabel()
 
+        self.friendListModel = friendListModel
         self.model = FriendListModel(friendListModel.groups, client)
 
         self.proxy = QtGui.QSortFilterProxyModel()
@@ -96,6 +97,12 @@ class FriendListDialog(FormClass, BaseClass):
             self.model.beginRemoveRows(self.model.index(groupIndex, 0, QtCore.QModelIndex()), row, row)
             del self.model.root[groupIndex].users[row]
             self.model.endRemoveRows()
+
+    def updateGameStatus(self, username):
+        row = self.model.root[self.friendListModel.ONLINE].getRowOfUser(username)
+        user = self.model.root[self.friendListModel.ONLINE].getUser(username)
+        modelIndex = self.model.createIndex(row, FriendListModel.COL_INGAME, user)
+        self.model.dataChanged.emit(modelIndex, modelIndex)
 
     @QtCore.pyqtSlot(QtCore.QPoint)
     def on_friendlist_customContextMenuRequested(self, pos):
@@ -206,7 +213,8 @@ class FriendListModel(QtCore.QAbstractItemModel):
             return self.createIndex(row, column, self.root[row])
         # if on FriendGroup level
         if hasattr(pointer, 'users'):
-            return self.createIndex(row, column, pointer.users[row])
+            user = pointer.users[row]
+            return self.createIndex(row, column, user)
         return self.createIndex(row, column, None)
 
     def data(self, index, role):
@@ -220,6 +228,15 @@ class FriendListModel(QtCore.QAbstractItemModel):
                 if not pointer.avatarNotLoaded:
                     self.emit(QtCore.SIGNAL('modelChanged'), index, index)
             return pointer.pix
+        if role == QtCore.Qt.DecorationRole and index.column() == self.COL_INGAME:
+            playername = pointer.name
+            if playername in client.instance.urls:
+                url = client.instance.urls[playername]
+                if url.scheme() == "fafgame":
+                    return util.icon("chat/status/lobby.png")
+                elif url.scheme() == "faflive":
+                    return util.icon("chat/status/playing.png")
+            return None
 
         if role == QtCore.Qt.UserRole:
             if isinstance(pointer, friendlist.FriendGroup):
