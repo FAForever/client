@@ -95,6 +95,10 @@ def check(featured_mod, mapname=None, version=None, modVersions=None, sim_mods=N
 
     assert featured_mod
 
+    if version is None:
+        logger.fatal("Cannot update to an unknown version of FA")
+        return False
+
     # Perform the actual comparisons and updating                    
     logger.info("Updating FA for mod: " + str(featured_mod) + ", version " + str(version))
 
