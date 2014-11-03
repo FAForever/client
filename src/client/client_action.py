@@ -33,6 +33,14 @@ class Client_Action():
         if username in client.instance.urls:
             client.instance.joinGameFromURL(client.instance.urls[username])
 
+
+    def openPrivateChat(self, chatPartner):
+        # check if the client is online
+        if chatPartner not in self.client_window.players:
+            return
+        self.client_window.changeTab(self.client_window.TAB_CHAT)
+        self.client_window.chat.openQuery(chatPartner, True)
+
     ### social actions
 
     def selectAvatar(self, username):
