@@ -229,20 +229,32 @@ class FriendListModel(QtCore.QAbstractItemModel):
                     self.emit(QtCore.SIGNAL('modelChanged'), index, index)
             return pointer.pix
         if role == QtCore.Qt.DecorationRole and index.column() == self.COL_INGAME:
+            # TODO: extract/refactor
             playername = pointer.name
             if playername in client.instance.urls:
                 url = client.instance.urls[playername]
                 if url.scheme() == "fafgame":
                     return util.icon("chat/status/lobby.png")
-                elif url.scheme() == "faflive":
+                if url.scheme() == "faflive":
                     return util.icon("chat/status/playing.png")
             return None
 
+        # for sorting
         if role == QtCore.Qt.UserRole:
             if isinstance(pointer, friendlist.FriendGroup):
                 return None
             if index.column() == self.COL_PLAYER:
                 return pointer.username
+            if index.column() == self.COL_INGAME:
+                playername = pointer.name
+                # TODO: extract/refactor
+                if playername in client.instance.urls:
+                    url = client.instance.urls[playername]
+                    if url.scheme() == "fafgame":
+                        return 1
+                    if url.scheme() == "faflive":
+                        return 3
+                return 2
 
         if role == QtCore.Qt.DisplayRole or role == QtCore.Qt.UserRole:
             if isinstance(pointer, friendlist.FriendGroup):
