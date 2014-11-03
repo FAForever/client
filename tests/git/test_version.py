@@ -44,7 +44,7 @@ TEST_JSON_OBJECT = """
 
 def test_version_can_be_constructed_from_json():
     version = Version('FAForever/fa', '3634', 'http://github.com/FAForever/fa.git', '791035045345a4c597a92ea0ef50d71fcccb0bb1')
-    json_version = Version(TEST_JSON_OBJECT)
+    json_version = Version.from_json(TEST_JSON_OBJECT)
     assert version.hash == json_version.hash
     assert version.repo == json_version.repo
     assert version.ref == json_version.ref
@@ -53,7 +53,7 @@ def test_version_can_be_constructed_from_json():
 
 def test_version_requires_repo_and_ref():
     with pytest.raises(KeyError) as e:
-        Version("""
+        Version.from_json("""
         {
             "url": "http://example.com/FAForever/fa.git"
         }
@@ -61,7 +61,7 @@ def test_version_requires_repo_and_ref():
 
 
 def test_version_sufficient_with_repo_and_ref():
-    version = Version("""
+    version = Version.from_json("""
     {
         "repo": "FAForever/fa.git",
         "ref": "master"
@@ -72,7 +72,7 @@ def test_version_sufficient_with_repo_and_ref():
 
 
 def test_json_serialization():
-    assert Version(TEST_JSON_OBJECT) == Version(Version(TEST_JSON_OBJECT).to_json())
+    assert Version.from_json(TEST_JSON_OBJECT) == Version.from_json(Version.from_json(TEST_JSON_OBJECT).to_json())
 
 
 def test_equality():

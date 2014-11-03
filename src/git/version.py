@@ -26,20 +26,8 @@ class Version():
      - A version is "stable" iff it has a commithash
      - A version is "trusted" iff the repository is in TRUSTED_REPOS (Implementation subject to change)
     """
-    def __init__(self, *args):
-        if len(args) > 1:
-            self._version = dict(zip(['repo', 'ref', 'url', 'hash'], args))
-        elif len(args) == 1:
-            self._version = dict()
-            json_object = json.loads(args[0])
-            for k in ['repo', 'ref', 'url', 'hash']:
-                try:
-                    self._version[k] = json_object[k]
-                except KeyError:
-                    pass
-        for k in ['repo', 'ref']:
-            if not k in self._version:
-                raise KeyError
+    def __init__(self, repo, ref, url=None, hash=None):
+        self._version = {"repo": repo, "ref": ref, "url": url, "hash": hash}
 
     def __eq__(self, other):
         if not self.hash is None:
@@ -54,7 +42,7 @@ class Version():
 
     @property
     def url(self):
-        if 'url' in self._version:
+        if self._version['url'] is not None:
             return self._version['url']
         else:
             return "".join([DEFAULT_REPO_URL_BASE, self._version['repo'], ".git"])
@@ -80,6 +68,14 @@ class Version():
     def is_trusted(self):
         parsed_url = urlparse(self.url)
         return len(filter(lambda url: parsed_url.netloc + parsed_url.path == url, TRUSTED_REPOS)) > 0
+
+    @staticmethod
+    def from_json(string):
+        json_object = json.loads(string)
+        return Version(json_object['repo'],
+                       json_object['ref'],
+                       json_object.get('url', None),
+                       json_object.get('hash', None))
 
     def to_json(self):
         return json.dumps(self._version)
