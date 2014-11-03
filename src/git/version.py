@@ -4,6 +4,7 @@ import os
 import re
 import pygit2
 from urlparse import urlparse
+import fnmatch
 
 import json
 
@@ -12,7 +13,8 @@ logger = logging.getLogger(__name__)
 
 from collections import namedtuple
 
-TRUSTED_REPOS = ['github.com/FAForever/fa.git']
+TRUSTED_REPOS = ['github.com/FAForever/*',
+                 'git.faforever.com/*']
 DEFAULT_REPO_URL_BASE = 'http://github.com/'
 
 RepositoryVersion = namedtuple("RepositoryVersion", "repo ref url hash")
@@ -67,7 +69,7 @@ class Version():
     @property
     def is_trusted(self):
         parsed_url = urlparse(self.url)
-        return len(filter(lambda url: parsed_url.netloc + parsed_url.path == url, TRUSTED_REPOS)) > 0
+        return len(filter(lambda url: fnmatch.fnmatch(parsed_url.hostname + parsed_url.path, url), TRUSTED_REPOS)) > 0
 
     @staticmethod
     def from_json(string):
