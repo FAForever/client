@@ -1,7 +1,6 @@
 from PyQt4 import QtCore, QtGui
-from friendlist.friendlistdialog import FriendListDialog
 import util
-
+from friendlistdialog import FriendListDialog
 
 
 class FriendList():
