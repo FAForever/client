@@ -159,6 +159,10 @@ class ClientWindow(FormClass, BaseClass):
     rankedGameUEF = QtCore.pyqtSignal(bool)
     rankedGameRandom = QtCore.pyqtSignal(bool)
 
+    # Tan INDEX
+    TAB_NEWS = 0
+    TAB_CHAT = 1
+
 
     matchmakerInfo = QtCore.pyqtSignal(dict)
 
@@ -1438,6 +1442,9 @@ class ClientWindow(FormClass, BaseClass):
         self.send(dict(command="fa_state", state="off"))
         self.gameExit.emit()
 
+    def changeTab(self, index):
+        self.mainTabs.setCurrentIndex(index)
+
     @QtCore.pyqtSlot(int)
     def mainTabChanged(self, index):
         '''
@@ -1634,7 +1641,7 @@ class ClientWindow(FormClass, BaseClass):
 
             self.disconnected.emit()
 
-            self.mainTabs.setCurrentIndex(0)
+            self.changeTab(self.TAB_NEWS)
 
             for i in range(2, self.mainTabs.count()):
                 self.mainTabs.setTabEnabled(i, False)
