@@ -26,17 +26,11 @@ class Version():
      - A version is "stable" iff it has a commithash
      - A version is "trusted" iff the repository is in TRUSTED_REPOS (Implementation subject to change)
     """
-    def __init__(self, *args, **kwargs):
-        self._version = {}
-        if len(args) == 2:
-            self._version['repo'] = args[0]
-            self._version['ref'] = args[1]
-        elif len(args) == 4:
-            self._version['repo'] = args[0]
-            self._version['ref'] = args[1]
-            self._version['url'] = args[2]
-            self._version['hash'] = args[3]
+    def __init__(self, *args):
+        if len(args) > 1:
+            self._version = dict(zip(['repo', 'ref', 'url', 'hash'], args))
         elif len(args) == 1:
+            self._version = dict()
             json_object = json.loads(args[0])
             for k in ['repo', 'ref', 'url', 'hash']:
                 try:
