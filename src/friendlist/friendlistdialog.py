@@ -104,19 +104,30 @@ class FriendListDialog(FormClass, BaseClass):
         modelIndex = self.model.createIndex(row, FriendListModel.COL_INGAME, user)
         self.model.dataChanged.emit(modelIndex, modelIndex)
 
-    @QtCore.pyqtSlot(QtCore.QPoint)
-    def on_friendlist_customContextMenuRequested(self, pos):
-
-        modelIndex = self.friendlist.indexAt(pos)
+    def getUserNameFromModel(self, modelIndex):
         if modelIndex == None or not modelIndex.isValid():
-            return
+            return False
         pointer = self.proxy.mapToSource(modelIndex).internalPointer()
         if pointer == None:
-            return
+            return False
         # if a group and not a user
         if not hasattr(pointer, 'username'):
+            return False
+        return pointer.username
+
+    @QtCore.pyqtSlot(QtCore.QModelIndex)
+    def on_friendlist_doubleClicked(self, modelIndex):
+        playername = self.getUserNameFromModel(modelIndex)
+        if not playername:
             return
-        playername = pointer.username
+        self.client.api.openPrivateChat(playername)
+
+    @QtCore.pyqtSlot(QtCore.QPoint)
+    def on_friendlist_customContextMenuRequested(self, pos):
+        modelIndex = self.friendlist.indexAt(pos)
+        playername = self.getUserNameFromModel(modelIndex)
+        if not playername:
+            return
 
         menu = QtGui.QMenu(self)
 
