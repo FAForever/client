@@ -3,7 +3,7 @@ import util, client, friendlist
 
 FormClass, BaseClass = util.loadUiType("friendlist/friendlist.ui")
 class FriendListDialog(FormClass, BaseClass):
-    def __init__(self, client):
+    def __init__(self, friendListModel, client):
         BaseClass.__init__(self, client)
         self.client = client
 
@@ -11,7 +11,7 @@ class FriendListDialog(FormClass, BaseClass):
 
         self.updateTopLabel()
 
-        self.model = FriendListModel([friendlist.FriendGroup('online', client), friendlist.FriendGroup('offline', client)], client)
+        self.model = FriendListModel(friendListModel.groups, client)
 
         self.proxy = QtGui.QSortFilterProxyModel()
         self.proxy.setSourceModel(self.model)
@@ -174,9 +174,6 @@ class FriendListModel(QtCore.QAbstractItemModel):
     COL_RATING = 3
     COL_SORT = 4
 
-    GROUP_ONLINE = 0
-    GROUP_OFFLINE = 1
-
     def __init__(self, groups, client):
         QtCore.QAbstractItemModel.__init__(self)
         self.root = groups
@@ -210,7 +207,6 @@ class FriendListModel(QtCore.QAbstractItemModel):
         # if on FriendGroup level
         if hasattr(pointer, 'users'):
             return self.createIndex(row, column, pointer.users[row])
-        print 'no'
         return self.createIndex(row, column, None)
 
     def data(self, index, role):
@@ -222,7 +218,6 @@ class FriendListModel(QtCore.QAbstractItemModel):
             if pointer.avatarNotLoaded:
                 pointer.loadPixmap()
                 if not pointer.avatarNotLoaded:
-                    print 'loaded'
                     self.emit(QtCore.SIGNAL('modelChanged'), index, index)
             return pointer.pix
 
@@ -256,6 +251,6 @@ class FriendListModel(QtCore.QAbstractItemModel):
         pointer = index.internalPointer()
         if hasattr(pointer, 'users'):
             return QtCore.QModelIndex()
-        else:
-            row = self.GROUP_ONLINE if pointer.group == 'online' else self.GROUP_OFFLINE
+        if hasattr(pointer, 'group'):
+            row = pointer.group.id
             return self.createIndex(row, 0, pointer.group)
