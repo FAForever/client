@@ -49,5 +49,5 @@ class ServerPackets(QtCore.QObject):
 
     def translate(self, command):
         if command in self.translation_table:
-            return self.translation_table[command]
+            return getattr(self, self.translation_table[command])
         raise Exception('no translation', command)
