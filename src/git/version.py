@@ -74,8 +74,8 @@ class Version():
         json_object = json.loads(string)
         return Version(json_object['repo'],
                        json_object['ref'],
-                       json_object.get('url', None),
-                       json_object.get('hash', None))
+                       json_object.get('url'),
+                       json_object.get('hash'))
 
     def to_json(self):
         return json.dumps(self._version)
