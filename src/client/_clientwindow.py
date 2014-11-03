@@ -1799,13 +1799,12 @@ class ClientWindow(FormClass, BaseClass):
 
                 try:
                     # try to find signal to fire
-                    command = self.net.translate(message['command'])
-                    if hasattr(self, command):
-                        getattr(self, command).emit(message)
-                        return
-                except Exception as e:
+                    signal = self.net.translate(message['command'])
+                    signal.emit(message)
+                    return
+                except Exception:
                     # otherwise handle old way
-                    logger.error("No slot found for (%s)" % (message['command']))
+                    logger.debug("No slot found for (%s)" % (message['command']))
 
 
                     cmd = "handle_" + message['command']
