@@ -265,9 +265,9 @@ class FriendListModel(QtCore.QAbstractItemModel):
             if isinstance(pointer, friendlist.FriendGroup):
                 return None
             if index.column() == self.COL_PLAYER:
-                return pointer.username
+                return pointer.username.lower()
             if index.column() == self.COL_INGAME:
-                playername = pointer.username.lower()
+                playername = pointer.username
                 # TODO: extract/refactor
                 if playername in client.instance.urls:
                     url = client.instance.urls[playername]
