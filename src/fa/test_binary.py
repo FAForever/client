@@ -3,8 +3,8 @@ import bsdiff4
 import pytest
 import os
 import pygit2
-from fa import binary
-
+import binary
+import sys
 
 __author__ = 'Thygrrr'
 
