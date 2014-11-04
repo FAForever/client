@@ -47,8 +47,11 @@ class FriendList(QtCore.QObject):
         self.addUser(friend)
 
     def removeFriend(self, friend):
-        self.dialog.removeFriend(self.ONLINE, friend)
-        self.dialog.removeFriend(self.OFFLINE, friend)
+        if friend not in self.users:
+            return
+        self.users.remove(friend)
+        self.remove_user.emit(self.ONLINE, friend)
+        self.remove_user.emit(self.OFFLINE, friend)
 
 
     def updateFriendList(self):
