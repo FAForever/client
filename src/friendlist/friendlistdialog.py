@@ -1,6 +1,5 @@
 from PyQt4 import QtCore, QtGui
-import util
-from friendlist.ModelTest import ModelTest
+import util, fa.exe, client
 
 FormClass, BaseClass = util.loadUiType("friendlist/friendlist.ui")
 class FriendListDialog(FormClass, BaseClass):
@@ -20,9 +19,10 @@ class FriendListDialog(FormClass, BaseClass):
         self.friendlist.setModel(self.proxy)
 
         self.friendlist.header().setStretchLastSection(False);
-        self.friendlist.header().resizeSection (1, 48)
-        self.friendlist.header().resizeSection (2, 64)
-        self.friendlist.header().resizeSection (3, 18)
+        self.friendlist.header().resizeSection (FriendListModel.COL_INGAME, 18)
+        self.friendlist.header().resizeSection (FriendListModel.COL_LAND, 48)
+        self.friendlist.header().resizeSection (FriendListModel.COL_RATING, 64)
+        self.friendlist.header().resizeSection (FriendListModel.COL_SORT, 18)
 
         # stretch first column
         self.friendlist.header().setResizeMode(0, QtGui.QHeaderView.Stretch)
@@ -106,6 +106,9 @@ class FriendListDialog(FormClass, BaseClass):
         pointer = self.proxy.mapToSource(modelIndex).internalPointer()
         if pointer == None:
             return
+        # if a group and not a user
+        if not hasattr(pointer, 'username'):
+            return
         playername = pointer.username
 
         menu = QtGui.QMenu(self)
@@ -122,11 +125,20 @@ class FriendListDialog(FormClass, BaseClass):
         actionReplay.setDisabled(True)
         actionJoin.setDisabled(True)
 
+        # Don't allow self to be invited to a game, or join one
+        if self.client.login != playername:
+            if playername in client.instance.urls:
+                url = client.instance.urls[playername]
+                if url.scheme() == "fafgame":
+                    actionJoin.setEnabled(True)
+                elif url.scheme() == "faflive":
+                    actionReplay.setEnabled(True)
+
         # Triggers
         actionStats.triggered.connect(lambda : self.viewStats(playername))
-        # actionReplay.triggered.connect(self.viewReplay)
+        actionReplay.triggered.connect(lambda : self.viewLiveReplay(playername))
         actionVaultReplay.triggered.connect(lambda : self.viewVaultReplay(playername))
-        # actionJoin.triggered.connect(self.joinInGame)
+        actionJoin.triggered.connect(lambda : self.joinInGame(playername))
 
         # Adding to menu
         menu.addAction(actionStats)
@@ -162,6 +174,10 @@ class FriendListDialog(FormClass, BaseClass):
         except:
             pass
 
+    def viewLiveReplay(self, username):
+        if username in client.instance.urls:
+            fa.exe.replay(client.instance.urls[username])
+
     def viewVaultReplay(self, username):
         ''' see the player replays in the vault '''
         self.client.replays.mapName.setText("")
@@ -170,6 +186,9 @@ class FriendListDialog(FormClass, BaseClass):
         self.client.replays.searchVault()
         self.client.mainTabs.setCurrentIndex(self.client.mainTabs.indexOf(self.client.replaysTab))
 
+    def joinInGame(self, username):
+        if username in client.instance.urls:
+            self.client.instance.joinGameFromURL(client.instance.urls[username])
 
 class FriendGroup():
     def __init__(self, name, client):
@@ -227,12 +246,21 @@ class User():
 
 
 class FriendListModel(QtCore.QAbstractItemModel):
+    COL_PLAYER = 0
+    COL_INGAME = 1
+    COL_LAND = 2
+    COL_RATING = 3
+    COL_SORT = 4
+
+    GROUP_ONLINE = 0
+    GROUP_OFFLINE = 1
+
     def __init__(self, groups, client):
         QtCore.QAbstractItemModel.__init__(self)
         self.root = groups
         self.client = client
 
-        self.header = ['Player', 'Land', 'Rating', '#']
+        self.header = ['Player', ' ', 'Land', 'Rating', '#']
 
     def columnCount(self, parent):
         return len(self.header);
@@ -267,7 +295,8 @@ class FriendListModel(QtCore.QAbstractItemModel):
         if not index.isValid():
             return None
         pointer = index.internalPointer()
-        if role == QtCore.Qt.DecorationRole and isinstance(pointer, User) and index.column() == 0:
+        if role == QtCore.Qt.DecorationRole and isinstance(pointer, User) \
+        and index.column() == self.COL_PLAYER:
             if pointer.avatarNotLoaded:
                 pointer.loadPixmap()
                 if not pointer.avatarNotLoaded:
@@ -278,22 +307,24 @@ class FriendListModel(QtCore.QAbstractItemModel):
         if role == QtCore.Qt.UserRole:
             if isinstance(pointer, FriendGroup):
                 return None
-            if index.column() == 0:
+            if index.column() == self.COL_PLAYER:
                 return pointer.username
 
         if role == QtCore.Qt.DisplayRole or role == QtCore.Qt.UserRole:
             if isinstance(pointer, FriendGroup):
-                if index.column() == 0:
+                if index.column() == self.COL_PLAYER:
                     return pointer.name
                 return None
             else:
-                if index.column() == 1:
+                if index.column() == self.COL_PLAYER:
+                    return pointer.name
+                if index.column() == self.COL_LAND:
                     return pointer.country
-                if index.column() == 2:
+                if index.column() == self.COL_RATING:
                     return pointer.rating
-                if index.column() == 3:
+                if index.column() == self.COL_SORT:
                     return '#'
-                return pointer.name
+                return ''
 
         return None
 
@@ -304,5 +335,5 @@ class FriendListModel(QtCore.QAbstractItemModel):
         if hasattr(pointer, 'users'):
             return QtCore.QModelIndex()
         else:
-            row = 0 if pointer.group == 'online' else 1
+            row = self.GROUP_ONLINE if pointer.group == 'online' else self.GROUP_OFFLINE
             return self.createIndex(row, 0, pointer.group)

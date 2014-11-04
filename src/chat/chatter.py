@@ -447,7 +447,7 @@ class Chatter(QtGui.QTableWidgetItem):
     @QtCore.pyqtSlot()
     def viewReplay(self):
         if self.name in client.instance.urls:
-            replay(client.instance.urls[self.name])
+            fa.exe.replay(client.instance.urls[self.name])
 
     @QtCore.pyqtSlot()
     def viewVaultReplay(self):
