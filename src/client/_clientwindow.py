@@ -578,13 +578,6 @@ class ClientWindow(FormClass, BaseClass):
         self.rankedRandom.clicked.connect(self.rankedGameRandom)
         self.warningHide()
 
-    def show(self):
-        super(FormClass, self).show()
-        if self.friendList.enabled:
-            self.friendList.dialog.show()
-
-
-
     def warningHide(self):
         '''
         hide the warning bar for matchmaker
@@ -917,7 +910,7 @@ class ClientWindow(FormClass, BaseClass):
         util.settings.beginGroup("friendlist")
         util.settings.setValue("enabled", checked)
         util.settings.endGroup()
-        self.friendList.dialog.setVisible(checked)
+        self.sidebar.setVisible(checked)
 
 
     def loadSettingsPrelogin(self):
@@ -970,6 +963,12 @@ class ClientWindow(FormClass, BaseClass):
         self.actionActivateMumbleSwitching.setChecked(self.activateMumbleSwitching)
 
         self.loadChat()
+
+        # load friendlist settings
+        util.settings.beginGroup("friendlist")
+        friendlistEnabled = util.settings.value('enabled', 'true') == 'true'
+        self.actionFriendlist.setChecked(friendlistEnabled)
+        util.settings.endGroup()
 
 
     def loadChat(self):

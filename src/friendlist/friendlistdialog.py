@@ -6,6 +6,7 @@ class FriendListDialog(FormClass, BaseClass):
     def __init__(self, friendListModel, client):
         BaseClass.__init__(self, client)
         self.client = client
+        self.client.sidebar.hide()
 
         self.setupUi(self)
 
@@ -15,82 +16,26 @@ class FriendListDialog(FormClass, BaseClass):
         self.friendListModel.update_user.connect(self.updateGameStatus)
         self.model = FriendListModel(friendListModel.groups, client)
 
+        # proxy model for sorting
         self.proxy = QtGui.QSortFilterProxyModel()
         self.proxy.setSourceModel(self.model)
         self.proxy.setSortRole(QtCore.Qt.UserRole)
         self.friendlist.setModel(self.proxy)
 
+        # modify he width of columns
         self.friendlist.header().setStretchLastSection(False);
         self.friendlist.header().resizeSection (FriendListModel.COL_INGAME, 18)
-        #self.friendlist.header().resizeSection (FriendListModel.COL_LAND, 48)
-        self.friendlist.header().resizeSection (FriendListModel.COL_RATING, 64)
-        #self.friendlist.header().resizeSection (FriendListModel.COL_SORT, 18)
+        self.friendlist.header().resizeSection (FriendListModel.COL_RATING, 42)
 
         # stretch first column
         self.friendlist.header().setResizeMode(0, QtGui.QHeaderView.Stretch)
         self.friendlist.expandAll()
 
-        # remove Whats this button
-        self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowContextHelpButtonHint)
-
-        # Frameless
-        # self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowSystemMenuHint | QtCore.Qt.WindowMinimizeButtonHint)
-
-        # later use rubberband
-        self.rubberBand = QtGui.QRubberBand(QtGui.QRubberBand.Rectangle)
-
-        self.loadSettings()
-
-        # TODO: use signal
-        util.settings.beginGroup("friendlist")
-        self.friendListModel.enabled = util.settings.value('enabled', 'true') == 'true'
-        self.client.actionFriendlist.blockSignals(True)
-        self.client.actionFriendlist.setChecked(self.friendListModel.enabled)
-        self.client.actionFriendlist.blockSignals(False)
-        util.settings.endGroup()
-
+        # place on the the lobby
         layout = QtGui.QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self)
         self.client.friendlistWidget.setLayout(layout)
-
-        # detect if main window is closed
-        self.closing = False
-        self.client.closing_ui.connect(self.set_closing)
-
-    def set_closing(self):
-        self.closing = True
-
-    def isClosing(self):
-        return self.closing
-
-    def closeEvent(self, event):
-        # if not a natural closing event, hide it
-        # otherwise friendlist is always disabled
-        if not self.isClosing():
-            self.client.actionFriendlist.setChecked(False)
-
-        self.saveSettings()
-        event.accept()
-
-    def loadSettings(self):
-        util.settings.beginGroup("friendlist")
-        x = util.settings.value('x', 0)
-        y = util.settings.value('y', 0)
-        width = util.settings.value('width', 334)
-        height = util.settings.value('height', 291)
-        util.settings.endGroup()
-        self.setGeometry(QtCore.QRect(x, y, width, height))
-
-    def saveSettings(self):
-        util.settings.beginGroup("friendlist")
-        geometry = self.geometry()
-        util.settings.setValue('x', geometry.x())
-        util.settings.setValue('y', geometry.y())
-        util.settings.setValue('width', geometry.width())
-        util.settings.setValue('height', geometry.height())
-        util.settings.endGroup()
-        util.settings.sync()
 
     def addFriend(self, groupIndex, username):
         '''
@@ -197,9 +142,7 @@ class FriendListDialog(FormClass, BaseClass):
 class FriendListModel(QtCore.QAbstractItemModel):
     COL_PLAYER = 0
     COL_INGAME = 1
-    #COL_LAND = 2
     COL_RATING = 2
-    #COL_SORT = 4
 
     def __init__(self, groups, client):
         QtCore.QAbstractItemModel.__init__(self)
@@ -284,12 +227,8 @@ class FriendListModel(QtCore.QAbstractItemModel):
             else:
                 if index.column() == self.COL_PLAYER:
                     return pointer.name
-                #if index.column() == self.COL_LAND:
-                #    return pointer.country
                 if index.column() == self.COL_RATING:
                     return pointer.rating
-                #if index.column() == self.COL_SORT:
-                #    return '#'
                 return ''
 
         return None
