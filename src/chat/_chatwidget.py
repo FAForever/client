@@ -19,6 +19,7 @@
 
 
 import logging
+from friendlist import FriendList
 logger = logging.getLogger(__name__)
 
 
@@ -302,7 +303,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
         for user in listing:
             self.channels[channel].addChatter(user)
-            self.client.friendList.addUser(user2name(user))
+            self.client.friendList.switchUser(user2name(user), FriendList.ONLINE)
 
             QtGui.QApplication.processEvents()      #Added by thygrrr to improve application responsiveness on large IRC packets
 
@@ -342,7 +343,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         if channel.lower() in self.crucialChannels and username != self.client.login:
             # TODO: search better solution, that html in nick & channel no rendered
             self.client.notificationSystem.on_event(ns.NotificationSystem.USER_ONLINE,{'user':username, 'channel':channel})
-            self.client.friendList.addUser(username)
+            self.client.friendList.switchUser(username, FriendList.ONLINE)
         self.channels[channel].resizing()
 
 

@@ -1,4 +1,4 @@
-from PyQt4 import QtCore
+from PyQt4 import QtCore, QtGui
 import pytest
 from . import FriendList
 
@@ -6,9 +6,7 @@ __author__ = 'Dragonfire'
 
 
 class API_Mockup(QtCore.QObject):
-
     usersUpdated = QtCore.pyqtSignal(dict)
-
 
     def isFriend(self, username):
         return True
@@ -26,28 +24,51 @@ class API_Mockup(QtCore.QObject):
         return None
 
     def getFriends(self):
-        return []
+        return ["Anna", "Bernd", "Christoph"]
+
 
 @pytest.fixture(scope="module")
-def api():
-    return API_Mockup()
-
-def test_model(api):
+def friendListModel():
+    api = API_Mockup()
     friendListModel = FriendList(api)
+
+    # view must perform model operation
+    def addFriend(groupIndex, username):
+        friendListModel.getGroups()[groupIndex].addUser(username, False)
+
+    # view must perform model operation
+    def removeFriend(groupIndex, username):
+        friendListModel.getGroups()[groupIndex].removeUser(username)
+
+    friendListModel.add_user.connect(addFriend)
+    friendListModel.remove_user.connect(removeFriend)
+
+    return friendListModel
+
+def test_model(friendListModel):
+    assert 0 == len(friendListModel.getGroups()[FriendList.ONLINE].users)
+    assert 0 == len(friendListModel.getGroups()[FriendList.OFFLINE].users)
     # add three online players
-    friendListModel.addUser("Anna")
-    friendListModel.addUser("Bernd")
-    friendListModel.addUser("Christoph")
-    assert 3 == len(friendListModel.users)
+    friendListModel.updateFriendList()
+    assert 0 == len(friendListModel.getGroups()[FriendList.ONLINE].users)
+    assert 3 == len(friendListModel.getGroups()[FriendList.OFFLINE].users)
+    # change state to online
+    friendListModel.switchUser("Bernd", FriendList.ONLINE)
+    assert 1 == len(friendListModel.getGroups()[FriendList.ONLINE].users)
+    assert 2 == len(friendListModel.getGroups()[FriendList.OFFLINE].users)
     # change state to offline
-    friendListModel.addUser("Bernd")
-    assert 3 == len(friendListModel.users)
+    friendListModel.switchUser("Bernd", FriendList.OFFLINE)
+    assert 0 == len(friendListModel.getGroups()[FriendList.ONLINE].users)
+    assert 3 == len(friendListModel.getGroups()[FriendList.OFFLINE].users)
     # remove friend
-    friendListModel.removeFriend("Bernd")
-    assert 2 == len(friendListModel.users)
+    friendListModel.removeUser("Bernd")
+    assert 0 == len(friendListModel.getGroups()[FriendList.ONLINE].users)
+    assert 2 == len(friendListModel.getGroups()[FriendList.OFFLINE].users)
     # remove twice
-    friendListModel.removeFriend("Bernd")
-    assert 2 == len(friendListModel.users)
+    friendListModel.removeUser("Bernd")
+    assert 0 == len(friendListModel.getGroups()[FriendList.ONLINE].users)
+    assert 2 == len(friendListModel.getGroups()[FriendList.OFFLINE].users)
     # remove a non friend
-    friendListModel.removeFriend("Nobody")
-    assert 2 == len(friendListModel.users)
+    friendListModel.removeUser("Nobody")
+    assert 0 == len(friendListModel.getGroups()[FriendList.ONLINE].users)
+    assert 2 == len(friendListModel.getGroups()[FriendList.OFFLINE].users)

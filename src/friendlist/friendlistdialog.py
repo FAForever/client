@@ -14,6 +14,7 @@ class FriendListDialog(FormClass, BaseClass):
         self.friendListModel = friendListModel
         self.friendListModel.remove_user.connect(self.removeFriend)
         self.friendListModel.add_user.connect(self.addFriend)
+        self.friendListModel.update_user.connect(self.updateGameStatus)
         self.model = FriendListModel(friendListModel.groups, client)
 
         self.proxy = QtGui.QSortFilterProxyModel()
@@ -103,10 +104,9 @@ class FriendListDialog(FormClass, BaseClass):
 
     def removeFriend(self, groupIndex, username):
         row = self.model.root[groupIndex].getRowOfUser(username)
-        if row > 0:
-            self.model.beginRemoveRows(self.model.index(groupIndex, 0, QtCore.QModelIndex()), row, row)
-            del self.model.root[groupIndex].users[row]
-            self.model.endRemoveRows()
+        self.model.beginRemoveRows(self.model.index(groupIndex, 0, QtCore.QModelIndex()), row, row)
+        self.model.root[groupIndex].removeUser(username)
+        self.model.endRemoveRows()
 
     def updateGameStatus(self, username):
         row = self.model.root[self.friendListModel.ONLINE].getRowOfUser(username)
@@ -207,7 +207,7 @@ class FriendListModel(QtCore.QAbstractItemModel):
         self.root = groups
         self.client = client
 
-        self.header = ['Player', ' ', 'Land', 'Rating', '#']
+        self.header = ['Player', ' ', 'From', 'Rating', '#']
 
     def columnCount(self, parent):
         return len(self.header);
@@ -267,7 +267,7 @@ class FriendListModel(QtCore.QAbstractItemModel):
             if index.column() == self.COL_PLAYER:
                 return pointer.username
             if index.column() == self.COL_INGAME:
-                playername = pointer.username
+                playername = pointer.username.lower()
                 # TODO: extract/refactor
                 if playername in client.instance.urls:
                     url = client.instance.urls[playername]
