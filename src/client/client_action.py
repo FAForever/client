@@ -5,8 +5,11 @@ from chat._avatarWidget import avatarWidget
 
 class Client_Action():
 
+    usersUpdated = None
+
     def __init__(self, client):
         self.client_window = client
+        self.usersUpdated = self.client_window.usersUpdated
 
     def viewPlayerStats(self, username):
         try:
@@ -27,6 +30,24 @@ class Client_Action():
         self.client_window.replays.minRating.setValue(0)
         self.client_window.replays.searchVault()
         self.client_window.mainTabs.setCurrentIndex(self.client.mainTabs.indexOf(self.client.replaysTab))
+
+    def isFriend(self, username):
+        return self.client_window.isFriend(username)
+
+    def getCompleteUserName(self, username):
+        return self.client_window.getCompleteUserName(username)
+
+    def getUserCountry(self, username):
+        return self.client_window.getUserCountry(username)
+
+    def getUserRanking(self, username):
+        return self.client_window.getUserRanking(username)
+
+    def getUserAvatar(self, username):
+        return self.client_window.getUserAvatar(username)
+
+    def getFriends(self):
+        return self.client_window.friends
 
     # TODO: password parameter?
     def joinInGame(self, username):
