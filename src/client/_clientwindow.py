@@ -1981,6 +1981,7 @@ class ClientWindow(FormClass, BaseClass):
         if "friends" in message:
             self.friends = message["friends"]
             self.usersUpdated.emit(self.players.keys())
+            # Add all friends
             self.friendList.updateFriendList()
 
         if "foes" in message:
