@@ -106,7 +106,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.canDisconnect = False
         # self.heartbeatTimer = QtCore.QTimer(self)
         # self.heartbeatTimer.timeout.connect(self.serverTimeout)
-        # self.timeout = 0        
+        # self.timeout = 0
 
 
     @QtCore.pyqtSlot()
@@ -302,7 +302,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
         for user in listing:
             self.channels[channel].addChatter(user)
-            self.client.friendList.addUser(user)
+            self.client.friendList.addUser(user2name(user))
 
             QtGui.QApplication.processEvents()      #Added by thygrrr to improve application responsiveness on large IRC packets
 
@@ -342,7 +342,6 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         if channel.lower() in self.crucialChannels and username != self.client.login:
             # TODO: search better solution, that html in nick & channel no rendered
             self.client.notificationSystem.on_event(ns.NotificationSystem.USER_ONLINE,{'user':username, 'channel':channel})
-            # TODO: use signal?
             self.client.friendList.addUser(username)
         self.channels[channel].resizing()
 
@@ -454,7 +453,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
     def serverTimeout(self):
         pass
-        
+
 
     def on_disconnect(self, c, e):
         if not self.canDisconnect:

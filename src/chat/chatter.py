@@ -240,43 +240,6 @@ class Chatter(QtGui.QTableWidgetItem):
                 self.rankItem.setIcon(util.icon("chat/rank/civilian.png"))
                 self.rankItem.setToolTip("IRC User")
 
-    def joinChannel(self):
-        channel, ok = QtGui.QInputDialog.getText(self.lobby.client, "QInputDialog.getText()", "Channel :", QtGui.QLineEdit.Normal, "#tournament")
-        if ok and channel != '':
-            self.lobby.client.joinChannel(self.name, channel)
-
-
-    def selectAvatar(self):
-        avatarSelection = avatarWidget(self.lobby.client, self.name, personal=True)
-        avatarSelection.exec_()
-
-    def addAvatar(self):
-        avatarSelection = avatarWidget(self.lobby.client, self.name)
-        avatarSelection.exec_()
-
-    def addFriend(self):
-        self.lobby.client.addFriend(self.name)
-
-
-    def remFriend(self):
-        self.lobby.client.remFriend(self.name)
-
-    def addFoe(self):
-        self.lobby.client.addFoe(self.name)
-
-
-    def remFoe(self):
-        self.lobby.client.remFoe(self.name)
-
-    def kick(self):
-        pass
-
-    def closeFA(self):
-        self.lobby.client.closeFA(self.name)
-
-    def closeLobby(self):
-        self.lobby.client.closeLobby(self.name)
-
     def doubleClicked(self, item):
         # Chatter name clicked
         if item == self:
@@ -330,7 +293,7 @@ class Chatter(QtGui.QTableWidgetItem):
 
         # Triggers
         actionStats.triggered.connect(lambda : self.lobby.client.api.viewPlayerStats(self.name))
-        actionSelectAvatar.triggered.connect(self.selectAvatar)
+        actionSelectAvatar.triggered.connect(lambda : self.lobby.client.api.selectAvatar(self.name))
         actionReplay.triggered.connect(lambda : self.lobby.client.api.viewLiveReplay(self.name))
         actionVaultReplay.triggered.connect(lambda : self.lobby.client.api.viewVaultReplay(self.name))
         actionJoin.triggered.connect(lambda : self.lobby.client.api.joinInGame(self.name))
@@ -346,25 +309,25 @@ class Chatter(QtGui.QTableWidgetItem):
             # admin and mod menus
             actionAddAvatar = QtGui.QAction("Assign avatar", menu)
             menu.addAction(actionAddAvatar)
-            actionAddAvatar.triggered.connect(self.addAvatar)
+            actionAddAvatar.triggered.connect(lambda: self.lobby.client.admin_api.addAvatar(self.name))
 
             actionJoinChannel = QtGui.QAction("Join Channel", menu)
             menu.addAction(actionJoinChannel)
-            actionJoinChannel.triggered.connect(self.joinChannel)
+            actionJoinChannel.triggered.connect(lambda: self.lobby.client.admin_api.joinChannel(self.name))
 
             actionKick = QtGui.QAction("Kick", menu)
             menu.addAction(actionKick)
-            actionKick.triggered.connect(self.kick)
+            actionKick.triggered.connect(lambda: self.lobby.client.admin_api.kick(self.name))
             actionKick.setDisabled(1)
 
             if self.lobby.client.power == 2 :
                 actionCloseFA = QtGui.QAction("Close FA", menu)
                 menu.addAction(actionCloseFA)
-                actionCloseFA.triggered.connect(self.closeFA)
+                actionCloseFA.triggered.connect(lambda : self.lobby.client.admin_api.closeFA(self.name))
 
                 actionCloseLobby = QtGui.QAction("Kick from Lobby", menu)
                 menu.addAction(actionCloseLobby)
-                actionCloseLobby.triggered.connect(self.closeLobby)
+                actionCloseLobby.triggered.connect(lambda : self.lobby.client.admin_api.closeLobby(self.name))
 
             menu.addSeparator()
 
@@ -419,10 +382,10 @@ class Chatter(QtGui.QTableWidgetItem):
 
         # Triggers
 
-        actionAddFriend.triggered.connect(self.addFriend)
-        actionRemFriend.triggered.connect(self.remFriend)
-        actionAddFoe.triggered.connect(self.addFoe)
-        actionRemFoe.triggered.connect(self.remFoe)
+        actionAddFriend.triggered.connect(lambda : self.lobby.client.api.addFriend(self.name))
+        actionRemFriend.triggered.connect(lambda : self.lobby.client.api.remFriend(self.name))
+        actionAddFoe.triggered.connect(lambda : self.lobby.client.api.addFoe(self.name))
+        actionRemFoe.triggered.connect(lambda : self.lobby.client.api.remFoe(self.name))
 
         # Adding to menu
         menu.addAction(actionAddFriend)

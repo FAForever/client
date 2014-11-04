@@ -31,14 +31,14 @@ class mumbleConnector():
     mumbleSetup = None
     mumbleFailed = None
     mumbleIdentity = None
-    
+
     def __init__(self, client):
         self.client = client
         self.state = "closed"
         self.uid = 0
 
         # Add signal handlers
-        self.client.gameInfo.connect(self.processGameInfo)
+        self.client.net.gameInfo.connect(self.processGameInfo)
         self.client.gameExit.connect(self.processGameExit)
         self.client.viewingReplay.connect(self.processViewingReplay)
 
@@ -55,7 +55,7 @@ class mumbleConnector():
 
         # Start Mumble (Starting it now instead of when faf is launched will make sure mumble's overlay works, and prevent that mumble causes faf to minimize when it pops up
         self.linkMumble()
-        
+
         logger.info("MumbleConnector instantiated.")
 
     #
@@ -70,15 +70,15 @@ class mumbleConnector():
         url.addQueryItem("version", "1.2.0")
 
         logger.info("Opening " + url.toString())
-        
+
         if QtGui.QDesktopServices.openUrl(url):
             logger.debug("Lauching Mumble successful")
             return 1
 
         logger.debug("Lauching Mumble failed")
         return 0
-        
-            
+
+
     #
     # Checks and restores the link to mumble
     #
@@ -88,7 +88,7 @@ class mumbleConnector():
             # If there was a failure linking to mumble before, don't bother anymore.
             logger.debug("Mumble link failed permanently")
             return 0
-        
+
         elif not self.mumbleSetup:
             # Mumble link has never been set up
             logger.debug("Mumble link has never been set up")
@@ -105,14 +105,14 @@ class mumbleConnector():
             return 1
 
     def linkMumble(self):
-        
+
         # Launch mumble and connect to correct server
         if not self.launchMumble():
             self.mumbleFailed = 1
             return 0
 
         # Try to link. This may take up to 40 seconds until we bail out
-        for i in range (1,8):
+        for i in range (1, 8):
             logger.debug("Trying to connect link plugin: " + str(i))
 
             if mumble_link.setup(self.pluginName, self.pluginDescription):
@@ -122,8 +122,8 @@ class mumbleConnector():
 
             # FIXME: Replace with something nonblocking?
             time.sleep(i)
-            
-            
+
+
         logger.info("Mumble link failed")
         self.mumbleFailed = 1
         return 0
@@ -145,12 +145,12 @@ class mumbleConnector():
         self.state = "closed"
         self.mumbleIdentity = "0"
         self.updateMumbleState()
-            
+
     def processGameInfo(self, gameInfo):
         if self.playerInTeam(gameInfo):
             self.functionMapper[gameInfo["state"]](self, gameInfo)
             self.updateMumbleState()
-            
+
         return
 
     def processViewingReplay(self, url):
@@ -164,7 +164,7 @@ class mumbleConnector():
             self.updateMumbleState()
 
         return
-    
+
     #
     # Helper function to determine if we are in this gameInfo signal's team
     #
@@ -216,7 +216,7 @@ class mumbleConnector():
                 if len(gameInfo['teams'][team]) < 2:
                     logger.debug("Not putting 1 person team " + team + " in a channel")
                     continue
-                
+
                 for player in gameInfo['teams'][team]:
                     if self.client.login == player:
                         logger.debug(player + " is in team " + str(team))
@@ -224,10 +224,10 @@ class mumbleConnector():
                             self.mumbleIdentity = str(gameInfo["uid"]) + "-" + str(team)
                         else:
                             self.mumbleIdentity = "0"
-                            
+
                         logger.debug("Set mumbleIdentity: " + self.mumbleIdentity)
 
-                
+
     #
     # Process a state transition to state "closed"
     #
@@ -239,5 +239,5 @@ class mumbleConnector():
                       "closed" : state_closed,
                       "playing" : state_playing,
     }
-    
+
 

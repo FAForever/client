@@ -1,9 +1,9 @@
 from PyQt4 import QtCore, QtGui
-import util, client
+import util, client, friendlist
 
 FormClass, BaseClass = util.loadUiType("friendlist/friendlist.ui")
 class FriendListDialog(FormClass, BaseClass):
-    def __init__(self, client):
+    def __init__(self, friendListModel, client):
         BaseClass.__init__(self, client)
         self.client = client
 
@@ -11,7 +11,10 @@ class FriendListDialog(FormClass, BaseClass):
 
         self.updateTopLabel()
 
-        self.model = FriendListModel([FriendGroup('online', client), FriendGroup('offline', client)], client)
+        self.friendListModel = friendListModel
+        self.friendListModel.remove_user.connect(self.removeFriend)
+        self.friendListModel.add_user.connect(self.addFriend)
+        self.model = FriendListModel(friendListModel.groups, client)
 
         self.proxy = QtGui.QSortFilterProxyModel()
         self.proxy.setSourceModel(self.model)
@@ -38,6 +41,14 @@ class FriendListDialog(FormClass, BaseClass):
         self.rubberBand = QtGui.QRubberBand(QtGui.QRubberBand.Rectangle)
 
         self.loadSettings()
+
+        # TODO: use signal
+        util.settings.beginGroup("friendlist")
+        self.friendListModel.enabled = util.settings.value('enabled', 'true') == 'true'
+        self.client.actionFriendlist.blockSignals(True)
+        self.client.actionFriendlist.setChecked(self.friendListModel.enabled)
+        self.client.actionFriendlist.blockSignals(False)
+        util.settings.endGroup()
 
         # detect if main window is closed
         self.closing = False
@@ -97,19 +108,36 @@ class FriendListDialog(FormClass, BaseClass):
             del self.model.root[groupIndex].users[row]
             self.model.endRemoveRows()
 
-    @QtCore.pyqtSlot(QtCore.QPoint)
-    def on_friendlist_customContextMenuRequested(self, pos):
+    def updateGameStatus(self, username):
+        row = self.model.root[self.friendListModel.ONLINE].getRowOfUser(username)
+        user = self.model.root[self.friendListModel.ONLINE].getUser(username)
+        modelIndex = self.model.createIndex(row, FriendListModel.COL_INGAME, user)
+        self.model.dataChanged.emit(modelIndex, modelIndex)
 
-        modelIndex = self.friendlist.indexAt(pos)
+    def getUserNameFromModel(self, modelIndex):
         if modelIndex == None or not modelIndex.isValid():
-            return
+            return False
         pointer = self.proxy.mapToSource(modelIndex).internalPointer()
         if pointer == None:
-            return
+            return False
         # if a group and not a user
         if not hasattr(pointer, 'username'):
+            return False
+        return pointer.username
+
+    @QtCore.pyqtSlot(QtCore.QModelIndex)
+    def on_friendlist_doubleClicked(self, modelIndex):
+        playername = self.getUserNameFromModel(modelIndex)
+        if not playername:
             return
-        playername = pointer.username
+        self.client.api.openPrivateChat(playername)
+
+    @QtCore.pyqtSlot(QtCore.QPoint)
+    def on_friendlist_customContextMenuRequested(self, pos):
+        modelIndex = self.friendlist.indexAt(pos)
+        playername = self.getUserNameFromModel(modelIndex)
+        if not playername:
+            return
 
         menu = QtGui.QMenu(self)
 
@@ -166,60 +194,6 @@ class FriendListDialog(FormClass, BaseClass):
         # Finally: Show the popup
         menu.popup(QtGui.QCursor.pos())
 
-class FriendGroup():
-    def __init__(self, name, client):
-        self.client = client
-        self.name = name
-        self.users = []
-
-    def addUser(self, user):
-        self.users.append(User(user, self))
-
-    def getRowOfUser(self, user):
-        for i in xrange(0, len(self.users)):
-            if self.users[i].username == user:
-                return i
-        return -1
-
-# cache for user information to speed up model
-class User():
-    indent = 6
-
-    def __init__(self, username, group):
-        self.username = username
-        self.name = group.client.getCompleteUserName(username)
-        self.group = group
-        self.country = group.client.getUserCountry(username)
-        self.rating = group.client.getUserRanking(username)
-        # TOO: fix it ...  called before avatar is loaded
-        self.avatarNotLoaded = False
-        self.loadPixmap()
-
-
-    def loadPixmap(self):
-        self.pix = QtGui.QPixmap(40 + 16 + self.indent, 20)
-        self.pix.fill(QtCore.Qt.transparent)
-        painter = QtGui.QPainter(self.pix)
-
-        self.avatar = self.group.client.getUserAvatar(self.username)
-        if  self.avatar:
-            avatarPix = util.respix(self.avatar['url'])
-            if avatarPix:
-                painter.drawPixmap(0, 0, avatarPix)
-                self.avatarNotLoaded = False
-            else:
-                self.avatarNotLoaded = True
-
-        if self.country != None:
-            painter.drawPixmap(40 + self.indent, 2, util.icon("chat/countries/%s.png" % self.country.lower(), pix=True))
-        painter.end()
-
-    def __str__(self):
-        return self.username
-
-    def __repr__(self):
-        return self.username
-
 
 class FriendListModel(QtCore.QAbstractItemModel):
     COL_PLAYER = 0
@@ -227,9 +201,6 @@ class FriendListModel(QtCore.QAbstractItemModel):
     COL_LAND = 2
     COL_RATING = 3
     COL_SORT = 4
-
-    GROUP_ONLINE = 0
-    GROUP_OFFLINE = 1
 
     def __init__(self, groups, client):
         QtCore.QAbstractItemModel.__init__(self)
@@ -263,31 +234,51 @@ class FriendListModel(QtCore.QAbstractItemModel):
             return self.createIndex(row, column, self.root[row])
         # if on FriendGroup level
         if hasattr(pointer, 'users'):
-            return self.createIndex(row, column, pointer.users[row])
-        print 'no'
+            user = pointer.users[row]
+            return self.createIndex(row, column, user)
         return self.createIndex(row, column, None)
 
     def data(self, index, role):
         if not index.isValid():
             return None
         pointer = index.internalPointer()
-        if role == QtCore.Qt.DecorationRole and isinstance(pointer, User) \
-        and index.column() == self.COL_PLAYER:
-            if pointer.avatarNotLoaded:
-                pointer.loadPixmap()
-                if not pointer.avatarNotLoaded:
-                    print 'loaded'
-                    self.emit(QtCore.SIGNAL('modelChanged'), index, index)
-            return pointer.pix
+        if role == QtCore.Qt.DecorationRole and isinstance(pointer, friendlist.User):
+            if index.column() == self.COL_PLAYER:
+                if pointer.avatarNotLoaded:
+                    pointer.loadPixmap()
+                    if not pointer.avatarNotLoaded:
+                        self.emit(QtCore.SIGNAL('modelChanged'), index, index)
+                return pointer.pix
+            if  index.column() == self.COL_INGAME:
+                # TODO: extract/refactor
+                playername = pointer.username
+                if playername in client.instance.urls:
+                    url = client.instance.urls[playername]
+                    if url.scheme() == "fafgame":
+                        return util.icon("chat/status/lobby.png")
+                    if url.scheme() == "faflive":
+                        return util.icon("chat/status/playing.png")
+                return None
 
+        # for sorting
         if role == QtCore.Qt.UserRole:
-            if isinstance(pointer, FriendGroup):
+            if isinstance(pointer, friendlist.FriendGroup):
                 return None
             if index.column() == self.COL_PLAYER:
                 return pointer.username
+            if index.column() == self.COL_INGAME:
+                playername = pointer.username
+                # TODO: extract/refactor
+                if playername in client.instance.urls:
+                    url = client.instance.urls[playername]
+                    if url.scheme() == "fafgame":
+                        return 1
+                    if url.scheme() == "faflive":
+                        return 3
+                return 2
 
         if role == QtCore.Qt.DisplayRole or role == QtCore.Qt.UserRole:
-            if isinstance(pointer, FriendGroup):
+            if isinstance(pointer, friendlist.FriendGroup):
                 if index.column() == self.COL_PLAYER:
                     return pointer.name
                 return None
@@ -310,6 +301,6 @@ class FriendListModel(QtCore.QAbstractItemModel):
         pointer = index.internalPointer()
         if hasattr(pointer, 'users'):
             return QtCore.QModelIndex()
-        else:
-            row = self.GROUP_ONLINE if pointer.group == 'online' else self.GROUP_OFFLINE
+        if hasattr(pointer, 'group'):
+            row = pointer.group.id
             return self.createIndex(row, 0, pointer.group)

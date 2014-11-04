@@ -44,7 +44,7 @@ class PatchFailedError(StandardError):
     pass
 
 def make_counter(start=0):
-    _closure={"count":start}
+    _closure = {"count":start}
     def f(jump=1):
         _closure['count'] += jump
         return _closure['count']
@@ -74,7 +74,7 @@ class Updater(QtCore.QThread):
         self.prepare_progress("Copying Files", len(copy_rename))
 
         if not os.path.exists(destination_path):
-            shutil.mkdirs(destination_path)
+            os.makedirs(destination_path)
 
         for source_name, destination_name in copy_rename.iteritems():
             logger.info("Copying " + os.path.join(source_path, source_name))
@@ -144,7 +144,7 @@ class Updater(QtCore.QThread):
                     logger.debug(file_name + " OK")
                 else:
                     logger.warn(file_name + " checksum mismatch, " + file_md5 + " != " + expected_md5 + " (expected)")
-                    okay  = False
+                    okay = False
 
                 self.progress_value.emit(count())
                 self.yieldCurrentThread()
