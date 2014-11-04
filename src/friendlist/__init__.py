@@ -1,30 +1,24 @@
 from PyQt4 import QtCore, QtGui
 import util
-from friendlistdialog import FriendListDialog
 
-
-class FriendList():
+class FriendList(QtCore.QObject):
     ONLINE = 0
     OFFLINE = 1
 
-    def __init__(self, client):
-        self.client = client
+    remove_user =  QtCore.pyqtSignal(object, object) # group, user
+    add_user =  QtCore.pyqtSignal(object, object) # group, user
 
-        util.settings.beginGroup("friendlist")
-        self.enabled = util.settings.value('enabled', 'true') == 'true'
-        self.client.actionFriendlist.blockSignals(True)
-        self.client.actionFriendlist.setChecked(self.enabled)
-        self.client.actionFriendlist.blockSignals(False)
-        util.settings.endGroup()
+    def __init__(self, api):
+        super(FriendList, self).__init__()
+        self.api = api
 
-        self.groups = [FriendGroup('online', client), FriendGroup('offline', client)]
+        self.groups = [FriendGroup('online', self), FriendGroup('offline', self)]
         for i in xrange(len(self.groups)):
             self.groups[i].id = i
 
-        self.dialog = FriendListDialog(self, client)
         self.users = set()
 
-        self.client.usersUpdated.connect(self.updateUser)
+        self.api.usersUpdated.connect(self.updateUser)
 
     def updateUser(self, updatedUsers):
         for user in updatedUsers:
@@ -33,21 +27,21 @@ class FriendList():
             self.dialog.updateGameStatus(user)
 
     def addUser(self, user):
-        if not self.client.isFriend(user) or user in self.users:
+        if not self.api.isFriend(user) or user in self.users:
             return
 
         self.users.add(user)
-        self.dialog.removeFriend(self.OFFLINE, user)
-        self.dialog.addFriend(self.ONLINE, user)
+        self.remove_user.emit(self.OFFLINE, user)
+        self.add_user.emit(self.ONLINE, user)
 
     def removeUser(self, user):
         # remove only users in friendlist
         if user not in self.users:
             return
         self.users.remove(user)
-        if self.client.isFriend(user):
-            self.dialog.removeFriend(self.ONLINE, user)
-            self.dialog.addFriend(self.OFFLINE, user)
+        if self.api.isFriend(user):
+            self.remove_user.emit(self.ONLINE, user)
+            self.add_user.emit(self.OFFLINE, user)
 
     def addFriend(self, friend):
         self.addUser(friend)
@@ -58,7 +52,7 @@ class FriendList():
 
 
     def updateFriendList(self):
-        for friend in self.client.friends:
+        for friend in self.api.getFriends():
             if friend in self.users:
                 self.dialog.addFriend(self.ONLINE, friend)
             else:
@@ -68,9 +62,10 @@ class FriendList():
         return self.groups
 
 class FriendGroup():
-    def __init__(self, name, client):
+    def __init__(self, name, friendlist):
         self.name = name
-        self.client = client
+        self.friendlist = friendlist
+        self.api = friendlist.api
         self.users = []
         self.id = -1
 
@@ -104,10 +99,10 @@ class User():
 
     def __init__(self, username, group):
         self.username = username
-        self.name = group.client.getCompleteUserName(username)
+        self.name = group.api.getCompleteUserName(username)
         self.group = group
-        self.country = group.client.getUserCountry(username)
-        self.rating = group.client.getUserRanking(username)
+        self.country = group.api.getUserCountry(username)
+        self.rating = group.api.getUserRanking(username)
         # TOO: fix it ...  called before avatar is loaded
         self.avatarNotLoaded = False
         self.loadPixmap()
@@ -118,7 +113,7 @@ class User():
         self.pix.fill(QtCore.Qt.transparent)
         painter = QtGui.QPainter(self.pix)
 
-        self.avatar = self.group.client.getUserAvatar(self.username)
+        self.avatar = self.group.api.getUserAvatar(self.username)
         if  self.avatar:
             avatarPix = util.respix(self.avatar['url'])
             if avatarPix:

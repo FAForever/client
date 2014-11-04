@@ -12,6 +12,8 @@ class FriendListDialog(FormClass, BaseClass):
         self.updateTopLabel()
 
         self.friendListModel = friendListModel
+        self.friendListModel.remove_user.connect(self.removeFriend)
+        self.friendListModel.add_user.connect(self.addFriend)
         self.model = FriendListModel(friendListModel.groups, client)
 
         self.proxy = QtGui.QSortFilterProxyModel()
@@ -39,6 +41,14 @@ class FriendListDialog(FormClass, BaseClass):
         self.rubberBand = QtGui.QRubberBand(QtGui.QRubberBand.Rectangle)
 
         self.loadSettings()
+
+        # TODO: use signal
+        util.settings.beginGroup("friendlist")
+        self.friendListModel.enabled = util.settings.value('enabled', 'true') == 'true'
+        self.client.actionFriendlist.blockSignals(True)
+        self.client.actionFriendlist.setChecked(self.friendListModel.enabled)
+        self.client.actionFriendlist.blockSignals(False)
+        util.settings.endGroup()
 
         # detect if main window is closed
         self.closing = False

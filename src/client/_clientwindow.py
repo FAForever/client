@@ -23,6 +23,7 @@ from client.client_action import Client_Action
 from fa.path import loadPath
 from client.admin_action import Admin_Action
 from client.server_packets import ServerPackets
+from friendlist.friendlistdialog import FriendListDialog
 
 '''
 Created on Dec 1, 2011
@@ -512,7 +513,8 @@ class ClientWindow(FormClass, BaseClass):
         self.Coop = coop.Coop(self)
         self.notificationSystem = ns.NotificationSystem(self)
 
-        self.friendList = FriendList(self)
+        self.friendList = FriendList(self.api)
+        self.friendList.dialog = FriendListDialog(self.friendList, self)
 
         # set menu states
         self.actionNsEnabled.setChecked(self.notificationSystem.settings.enabled)
