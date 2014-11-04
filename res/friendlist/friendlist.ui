@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Dialog</class>
- <widget class="QDialog" name="Dialog">
+ <class>Widget</class>
+ <widget class="QWidget" name="Widget">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>370</width>
-    <height>430</height>
+    <width>400</width>
+    <height>600</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>400</width>
+    <height>0</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Friendlist</string>
@@ -21,7 +27,6 @@
 
 * {
 	color: lightgrey;
-   font-family: Verdana;
    border-radius: 5px;
 }
 
@@ -31,31 +36,17 @@ QHeaderView::section {
     padding: 3px;
 }
 
-QPushButton {
-	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #52575c, stop:1 #3A3E41);
-	color:#ffffff;
-   font-weight: bold;
+QFrame#friendlist {
+	border-style:solid;
+	border-width:1px;
+	border-color:#353535;
+	color:silver;
 	padding:5px;
-    border:1px solid #272b30;
-    border-radius: 5px;
-	border-top-color: grey;
-}
-
-
-QPushButton:disabled {
-	background-color: #3a3e41;
-	color: grey;
-   border: 1px solid #3a3e41;;
-}
-
-QPushButton:hover {
-	color: #3a3f44;
-  background-color: #e6e6e6;
-}
-
-QFrame {
-	background-color: #202328;
-	alternate-background-color: #2e3236;
+	background-color:#202025;
+	border-top-right-radius : 5px;
+	border-top-left-radius : 5px; 	
+	border-bottom-left-radius : 5px;
+	border-bottom-right-radius : 5px; 
 }
 
 /* Scrollbars*/
@@ -69,36 +60,10 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
 }
 </string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0,0,0">
-   <item>
-    <widget class="QFrame" name="frame_2">
-     <property name="styleSheet">
-      <string notr="true">QLabel {
-	font-size: 14px;
-	font-weight: bold;
-   color: #fff;
-}</string>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::Panel</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
-     </property>
-     <property name="lineWidth">
-      <number>2</number>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_2">
-      <item>
-       <widget class="QLabel" name="labelUsername">
-        <property name="text">
-         <string>[DEV] TestUser</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
+  <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0">
+   <property name="margin">
+    <number>0</number>
+   </property>
    <item>
     <widget class="QFrame" name="frame">
      <property name="frameShape">
@@ -134,7 +99,12 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
          <string notr="true"> QTreeView::branch:has-children {
    border-image: none;
    image: url(res/client/folder.png);
- }</string>
+ }
+
+QFrame {
+	color:silver;
+	background-color:#202025;
+}</string>
         </property>
         <property name="editTriggers">
          <set>QAbstractItemView::NoEditTriggers</set>
@@ -160,16 +130,6 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
        </widget>
       </item>
      </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPushButton" name="pushButton">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="text">
-      <string>Add Friend</string>
-     </property>
     </widget>
    </item>
   </layout>

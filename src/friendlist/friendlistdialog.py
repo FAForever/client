@@ -9,8 +9,6 @@ class FriendListDialog(FormClass, BaseClass):
 
         self.setupUi(self)
 
-        self.updateTopLabel()
-
         self.friendListModel = friendListModel
         self.friendListModel.remove_user.connect(self.removeFriend)
         self.friendListModel.add_user.connect(self.addFriend)
@@ -51,6 +49,11 @@ class FriendListDialog(FormClass, BaseClass):
         self.client.actionFriendlist.blockSignals(False)
         util.settings.endGroup()
 
+        layout = QtGui.QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(self)
+        self.client.friendlistWidget.setLayout(layout)
+
         # detect if main window is closed
         self.closing = False
         self.client.closing_ui.connect(self.set_closing)
@@ -60,9 +63,6 @@ class FriendListDialog(FormClass, BaseClass):
 
     def isClosing(self):
         return self.closing
-
-    def updateTopLabel(self):
-        self.labelUsername.setText(self.client.getCompleteUserName(self.client.login))
 
     def closeEvent(self, event):
         # if not a natural closing event, hide it
@@ -96,7 +96,6 @@ class FriendListDialog(FormClass, BaseClass):
         '''
         groupIndex: 0 = online, 1 = offline
         '''
-        self.updateTopLabel()
         n = len(self.model.root[groupIndex].users)
         self.model.beginInsertRows(self.model.index(groupIndex, 0, QtCore.QModelIndex()), n, n)
         self.model.root[groupIndex].addUser(username)
