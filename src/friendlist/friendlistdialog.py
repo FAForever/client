@@ -22,9 +22,9 @@ class FriendListDialog(FormClass, BaseClass):
 
         self.friendlist.header().setStretchLastSection(False);
         self.friendlist.header().resizeSection (FriendListModel.COL_INGAME, 18)
-        self.friendlist.header().resizeSection (FriendListModel.COL_LAND, 48)
+        #self.friendlist.header().resizeSection (FriendListModel.COL_LAND, 48)
         self.friendlist.header().resizeSection (FriendListModel.COL_RATING, 64)
-        self.friendlist.header().resizeSection (FriendListModel.COL_SORT, 18)
+        #self.friendlist.header().resizeSection (FriendListModel.COL_SORT, 18)
 
         # stretch first column
         self.friendlist.header().setResizeMode(0, QtGui.QHeaderView.Stretch)
@@ -197,16 +197,16 @@ class FriendListDialog(FormClass, BaseClass):
 class FriendListModel(QtCore.QAbstractItemModel):
     COL_PLAYER = 0
     COL_INGAME = 1
-    COL_LAND = 2
-    COL_RATING = 3
-    COL_SORT = 4
+    #COL_LAND = 2
+    COL_RATING = 2
+    #COL_SORT = 4
 
     def __init__(self, groups, client):
         QtCore.QAbstractItemModel.__init__(self)
         self.root = groups
         self.client = client
 
-        self.header = ['Player', ' ', 'From', 'Rating', '#']
+        self.header = ['Player', ' ', 'Rating']
 
     def columnCount(self, parent):
         return len(self.header);
@@ -284,12 +284,12 @@ class FriendListModel(QtCore.QAbstractItemModel):
             else:
                 if index.column() == self.COL_PLAYER:
                     return pointer.name
-                if index.column() == self.COL_LAND:
-                    return pointer.country
+                #if index.column() == self.COL_LAND:
+                #    return pointer.country
                 if index.column() == self.COL_RATING:
                     return pointer.rating
-                if index.column() == self.COL_SORT:
-                    return '#'
+                #if index.column() == self.COL_SORT:
+                #    return '#'
                 return ''
 
         return None
