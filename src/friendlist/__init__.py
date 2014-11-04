@@ -33,7 +33,7 @@ class FriendList():
             self.dialog.updateGameStatus(user)
 
     def addUser(self, user):
-        if not self.client.isFriend(user):
+        if not self.client.isFriend(user) or user in self.users:
             return
 
         self.users.add(user)
