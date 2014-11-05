@@ -580,9 +580,7 @@ class ReplaysWidget(BaseClass, FormClass):
         A fairly pythonic way to process received strings as JSON messages.
         '''
         message = json.loads(data_string)
-        cmd = "handle_" + message['command']
-        if hasattr(self.client, cmd):
-            getattr(self.client, cmd)(message)
+        self.client.dispatch(message)
 
         self.replayVaultSocket.disconnectFromHost()
 

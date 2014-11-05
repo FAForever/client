@@ -29,7 +29,7 @@ class Client_Action():
         self.client_window.replays.playerName.setText(username)
         self.client_window.replays.minRating.setValue(0)
         self.client_window.replays.searchVault()
-        self.client_window.mainTabs.setCurrentIndex(self.client.mainTabs.indexOf(self.client.replaysTab))
+        self.client_window.mainTabs.setCurrentIndex(self.client_window.mainTabs.indexOf(self.client_window.replaysTab))
 
     def isFriend(self, username):
         return self.client_window.isFriend(username)
