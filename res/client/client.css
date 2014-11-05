@@ -430,6 +430,11 @@ QLabel#labelModHint,#labelMyHint,#labelLiveHint,#labelRankedHint,#labelTeamManag
 	color:#AAAAAA;
 }
 
+QCheckBox#hideGameWithPw
+{
+	color:#AAAAAA;
+}
+
 QGroupBox
 {
 	color:orange;

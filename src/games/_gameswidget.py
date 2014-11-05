@@ -304,6 +304,21 @@ class GamesWidget(FormClass, BaseClass):
 
         self.client.replays.modList.addItem(message["name"])
 
+    def hideGamesWithPw(self):
+        return self.hideGameWithPw.isChecked()
+
+    @QtCore.pyqtSlot()
+    def on_hideGameWithPw_clicked(self):
+        for game in self.games:
+            tmpGame = self.games[game]
+            # filter out public games and running games
+            # TODO: dort out coop games?
+            if not tmpGame.access == 'password' or not tmpGame.state == 'open':
+                continue
+            tmpGame.setHidden(self.hideGamesWithPw())
+
+
+
     @QtCore.pyqtSlot(dict)
     def processGameInfo(self, message):
         '''
@@ -320,6 +335,10 @@ class GamesWidget(FormClass, BaseClass):
                 self.client.notificationSystem.on_event(ns.NotificationSystem.NEW_GAME, message)
         else:
             self.games[uid].update(message, self.client)
+
+        # hide pw games
+        if self.hideGamesWithPw() and message['state'] == 'open' and message['access'] == 'password':
+            self.games[uid].setHidden(True)
 
 
         # Special case: removal of a game that has ended
