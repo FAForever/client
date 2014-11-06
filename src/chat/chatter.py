@@ -183,13 +183,7 @@ class Chatter(QtGui.QTableWidgetItem):
             self.setText("[%s]%s" % (self.clan, self.name))
 
         # Color handling
-        if self.elevation in self.lobby.OPERATOR_COLORS:
-            self.setTextColor(QtGui.QColor(self.lobby.OPERATOR_COLORS[self.elevation]))
-        else:
-            if self.name in self.lobby.client.colors :
-                self.setTextColor(QtGui.QColor(self.lobby.client.getColor(self.name)))
-            else :
-                self.setTextColor(QtGui.QColor(self.lobby.client.getUserColor(self.name)))
+        self.setChatUserColor(self.name)
 
         rating = self.rating
 
@@ -239,6 +233,22 @@ class Chatter(QtGui.QTableWidgetItem):
         else:
                 self.rankItem.setIcon(util.icon("chat/rank/civilian.png"))
                 self.rankItem.setToolTip("IRC User")
+
+    def setChatUserColor(self, username):
+        if self.lobby.client.isFriend(username):
+            if self.elevation in self.lobby.OPERATOR_COLORS:
+                self.setTextColor(QtGui.QColor(self.lobby.client.getColor("friend_mod")))
+                return
+            self.setTextColor(QtGui.QColor(self.lobby.client.getColor("friend")))
+            return
+        if self.elevation in self.lobby.OPERATOR_COLORS:
+            self.setTextColor(QtGui.QColor(self.lobby.OPERATOR_COLORS[self.elevation]))
+            return
+        if self.name in self.lobby.client.colors :
+            self.setTextColor(QtGui.QColor(self.lobby.client.getColor(self.name)))
+            return
+        self.setTextColor(QtGui.QColor(self.lobby.client.getUserColor(self.name)))
+
 
     def doubleClicked(self, item):
         # filter yourself
