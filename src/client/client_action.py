@@ -5,6 +5,12 @@ from chat._avatarWidget import avatarWidget
 
 class Client_Action():
 
+    STATUS_UNKNOWN = 'unknown'
+    STATUS_FAF_LOBBY = 'python_lobby'
+    STATUS_INGAME_LOBBY = 'fafgame'
+    STATUS_PLAYING = 'faflive'
+    # TODO: add replay/host game
+
     usersUpdated = None
 
     def __init__(self, client):
@@ -75,6 +81,23 @@ class Client_Action():
             return
         self.client_window.changeTab(self.client_window.TAB_CHAT)
         self.client_window.chat.openQuery(chatPartner, True)
+
+    def getPlayerStatus(self, username):
+        if username in client.instance.urls:
+            url = client.instance.urls[username]
+            if not url:
+                return self.STATUS_INGAME_LOBBY
+            if url.scheme() == self.STATUS_INGAME_LOBBY:
+                return self.STATUS_PLAYING
+            if url.scheme() == self.STATUS_PLAYING:
+                return self.STATUS_PLAYING
+
+        return self.STATUS_UNKNOWN
+
+    def getUrl(self, username):
+        if username in client.instance.urls:
+            return client.instance.urls[username]
+        return None
 
     ### social actions
 

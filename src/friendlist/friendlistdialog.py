@@ -98,13 +98,12 @@ class FriendListDialog(FormClass, BaseClass):
         actionJoin.setDisabled(True)
 
         # Don't allow self to be invited to a game, or join one
-        if self.client.login != playername:
-            if playername in client.instance.urls:
-                url = client.instance.urls[playername]
-                if url.scheme() == "fafgame":
-                    actionJoin.setEnabled(True)
-                elif url.scheme() == "faflive":
-                    actionReplay.setEnabled(True)
+        if not (self.api.isMe(playername)):
+            playerStatus = self.api.getPlayerStatus(playername)
+            if playerStatus == self.api.STATUS_INGAME_LOBBY:
+                actionJoin.setEnabled(True)
+            elif playerStatus == self.api.STATUS_PLAYING:
+                actionReplay.setEnabled(True)
 
         # Triggers
         actionStats.triggered.connect(lambda : self.client.api.viewPlayerStats(playername))
@@ -148,6 +147,7 @@ class FriendListModel(QtCore.QAbstractItemModel):
         QtCore.QAbstractItemModel.__init__(self)
         self.root = groups
         self.client = client
+        self.api = client.api
 
         self.header = ['Player', ' ', 'Rating']
 
@@ -192,14 +192,11 @@ class FriendListModel(QtCore.QAbstractItemModel):
                         self.emit(QtCore.SIGNAL('modelChanged'), index, index)
                 return pointer.pix
             if  index.column() == self.COL_INGAME:
-                # TODO: extract/refactor
-                playername = pointer.username
-                if playername in client.instance.urls:
-                    url = client.instance.urls[playername]
-                    if url.scheme() == "fafgame":
-                        return util.icon("chat/status/lobby.png")
-                    if url.scheme() == "faflive":
-                        return util.icon("chat/status/playing.png")
+                playerStatus = self.api.getPlayerStatus(pointer.username)
+                if playerStatus == self.api.STATUS_INGAME_LOBBY:
+                    return util.icon("chat/status/lobby.png")
+                elif playerStatus == self.api.STATUS_PLAYING:
+                    return util.icon("chat/status/playing.png")
                 return None
 
         # for sorting
@@ -209,14 +206,11 @@ class FriendListModel(QtCore.QAbstractItemModel):
             if index.column() == self.COL_PLAYER:
                 return pointer.username.lower()
             if index.column() == self.COL_INGAME:
-                playername = pointer.username
-                # TODO: extract/refactor
-                if playername in client.instance.urls:
-                    url = client.instance.urls[playername]
-                    if url.scheme() == "fafgame":
-                        return 1
-                    if url.scheme() == "faflive":
-                        return 3
+                playerStatus = self.api.getPlayerStatus(pointer.username)
+                if playerStatus == self.api.STATUS_INGAME_LOBBY:
+                    return 1
+                elif playerStatus == self.api.STATUS_PLAYING:
+                    return 3
                 return 2
 
         if role == QtCore.Qt.DisplayRole or role == QtCore.Qt.UserRole:

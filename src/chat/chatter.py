@@ -194,18 +194,16 @@ class Chatter(QtGui.QTableWidgetItem):
         rating = self.rating
 
         # Status icon handling
-        if self.name in client.instance.urls:
-            url = client.instance.urls[self.name]
-            if url:
-                if url.scheme() == "fafgame":
-                    self.statusItem.setIcon(util.icon("chat/status/lobby.png"))
-                    self.statusItem.setToolTip("In Game Lobby<br/>" + url.toString())
-                elif url.scheme() == "faflive":
-                    self.statusItem.setIcon(util.icon("chat/status/playing.png"))
-                    self.statusItem.setToolTip("Playing Game<br/>" + url.toString())
+        playerStatus = self.api.getPlayerStatus(self.name)
+        if playerStatus == self.api.STATUS_INGAME_LOBBY:
+            self.statusItem.setIcon(util.icon("chat/status/lobby.png"))
+            self.statusItem.setToolTip("In Game Lobby<br/>" + self.api.getUrl(self.name).toString())
+        elif playerStatus == self.api.STATUS_PLAYING:
+            self.statusItem.setIcon(util.icon("chat/status/playing.png"))
+            self.statusItem.setToolTip("Playing Game<br/>" + self.api.getUrl(self.name).toString())
         else:
-                self.statusItem.setIcon(QtGui.QIcon())
-                self.statusItem.setToolTip("Idle")
+            self.statusItem.setIcon(QtGui.QIcon())
+            self.statusItem.setToolTip("Idle")
 
 
         # Rating icon choice
@@ -261,11 +259,10 @@ class Chatter(QtGui.QTableWidgetItem):
             self.lobby.openQuery(self.name, True)  # open and activate query window
 
         elif item == self.statusItem:
-            if self.name in client.instance.urls:
-                url = client.instance.urls[self.name]
-                if url.scheme() == "fafgame":
+            playerStatus = self.api.getPlayerStatus(self.name)
+            if playerStatus == self.api.STATUS_INGAME_LOBBY:
                     self.lobby.client.api.joinInGame(self.name)
-                elif url.scheme() == "faflive":
+            elif playerStatus == self.api.STATUS_PLAYING:
                     self.lobby.client.api.viewLiveReplay(self.name)
 
 
@@ -294,13 +291,11 @@ class Chatter(QtGui.QTableWidgetItem):
 
         # Don't allow self to be invited to a game, or join one
         if not (self.api.isMe(self.name)):
-            if self.name in client.instance.urls:
-                url = client.instance.urls[self.name]
-                if url.scheme() == "fafgame":
+            playerStatus = self.api.getPlayerStatus(self.name)
+            if playerStatus == self.api.STATUS_INGAME_LOBBY:
                     actionJoin.setEnabled(True)
-                elif url.scheme() == "faflive":
+            elif playerStatus == self.api.STATUS_PLAYING:
                     actionReplay.setEnabled(True)
-
 
         # Triggers
         actionStats.triggered.connect(lambda : self.api.viewPlayerStats(self.name))
