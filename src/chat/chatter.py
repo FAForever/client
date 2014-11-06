@@ -56,10 +56,7 @@ class Chatter(QtGui.QTableWidgetItem):
         self.parent = parent
         self.lobby = lobby
 
-        if user[0] in self.lobby.OPERATOR_COLORS:
-            self.elevation = user[0]
-        else:
-            self.elevation = None
+        self.elevation = user[0] if (user[0] in self.lobby.OPERATOR_COLORS) else None
 
         self.name = user2name(user)
 
@@ -72,6 +69,9 @@ class Chatter(QtGui.QTableWidgetItem):
         self.avatarTip = ""
 
         self.setup()
+
+    def hasElevation(self):
+        return self.elevation
 
     def setup(self):
         self.setText(self.name)
@@ -134,15 +134,15 @@ class Chatter(QtGui.QTableWidgetItem):
         # Default: Alphabetical
         return self.name.lower() < other.name.lower()
 
-    def getUserRank(self, user):
+    def getUserRank(self, userChatter):
         # TODO: Add subdivision for admin?
-        if user.elevation:
+        if userChatter.hasElevation():
             return self.RANK_ELEVATION
-        if self.lobby.client.isFriend(user.name):
+        if self.lobby.client.isFriend(userChatter.name):
             return self.RANK_FRIEND
-        if self.lobby.client.isFoe(user.name):
+        if self.lobby.client.isFoe(userChatter.name):
             return self.RANK_FOE
-        if self.lobby.client.isPlayer(user.name):
+        if self.lobby.client.isPlayer(userChatter.name):
             return self.RANK_USER
         return self.RANK_NONPLAYER
 
@@ -192,7 +192,7 @@ class Chatter(QtGui.QTableWidgetItem):
             self.setText("[%s]%s" % (self.clan, self.name))
 
         # Color handling
-        self.setChatUserColor(self.name)
+        self.setChatUserColor()
 
         rating = self.rating
 
@@ -243,14 +243,15 @@ class Chatter(QtGui.QTableWidgetItem):
                 self.rankItem.setIcon(util.icon("chat/rank/civilian.png"))
                 self.rankItem.setToolTip("IRC User")
 
-    def setChatUserColor(self, username):
+    def setChatUserColor(self):
+        username = self.name
         if self.lobby.client.isFriend(username):
-            if self.elevation in self.lobby.OPERATOR_COLORS:
+            if self.hasElevation():
                 self.setTextColor(QtGui.QColor(self.lobby.client.getColor("friend_mod")))
                 return
             self.setTextColor(QtGui.QColor(self.lobby.client.getColor("friend")))
             return
-        if self.elevation in self.lobby.OPERATOR_COLORS:
+        if self.hasElevation():
             self.setTextColor(QtGui.QColor(self.lobby.OPERATOR_COLORS[self.elevation]))
             return
         if self.name in self.lobby.client.colors :
