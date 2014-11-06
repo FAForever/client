@@ -34,6 +34,15 @@ class Client_Action():
     def isFriend(self, username):
         return self.client_window.isFriend(username)
 
+    def isFoe(self, username):
+        return self.client_window.isFoe(username)
+
+    def isPlayer(self, username):
+        return self.client_window.isPlayer(username)
+
+    def isMe(self, username):
+        return self.client_window.login == username
+
     def getCompleteUserName(self, username):
         return self.client_window.getCompleteUserName(username)
 
@@ -48,6 +57,11 @@ class Client_Action():
 
     def getFriends(self):
         return self.client_window.friends
+
+    def getColor(self, username):
+        if username in self.client_window.colors:
+            return self.client_window.getColor(username)
+        return self.client_window.getUserColor(username)
 
     # TODO: password parameter?
     def joinInGame(self, username):
