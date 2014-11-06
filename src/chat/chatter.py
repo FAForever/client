@@ -183,13 +183,7 @@ class Chatter(QtGui.QTableWidgetItem):
             self.setText("[%s]%s" % (self.clan,self.name))
 
         # Color handling
-        if self.elevation in self.lobby.OPERATOR_COLORS:            
-            self.setTextColor(QtGui.QColor(self.lobby.OPERATOR_COLORS[self.elevation]))
-        else:
-            if self.name in self.lobby.client.colors :
-                self.setTextColor(QtGui.QColor(self.lobby.client.getColor(self.name)))
-            else :
-                self.setTextColor(QtGui.QColor(self.lobby.client.getUserColor(self.name)))
+        self.setChatUserColor(self.name)
 
         rating = self.rating
 
@@ -239,44 +233,23 @@ class Chatter(QtGui.QTableWidgetItem):
         else:
                 self.rankItem.setIcon(util.icon("chat/rank/civilian.png"))
                 self.rankItem.setToolTip("IRC User")
-            
-    def joinChannel(self):
-        channel, ok = QtGui.QInputDialog.getText(self.lobby.client, "QInputDialog.getText()", "Channel :", QtGui.QLineEdit.Normal, "#tournament")
-        if ok and channel != '':
-            self.lobby.client.joinChannel(self.name, channel)
+
+    def setChatUserColor(self, username):
+        if self.lobby.client.isFriend(username):
+            if self.elevation in self.lobby.OPERATOR_COLORS:
+                self.setTextColor(QtGui.QColor(self.lobby.client.getColor("friend_mod")))
+                return
+            self.setTextColor(QtGui.QColor(self.lobby.client.getColor("friend")))
+            return
+        if self.elevation in self.lobby.OPERATOR_COLORS:
+            self.setTextColor(QtGui.QColor(self.lobby.OPERATOR_COLORS[self.elevation]))
+            return
+        if self.name in self.lobby.client.colors :
+            self.setTextColor(QtGui.QColor(self.lobby.client.getColor(self.name)))
+            return
+        self.setTextColor(QtGui.QColor(self.lobby.client.getUserColor(self.name)))
 
 
-    def selectAvatar(self):
-        avatarSelection = avatarWidget(self.lobby.client, self.name, personal = True)
-        avatarSelection.exec_()        
-
-    def addAvatar(self):
-        avatarSelection = avatarWidget(self.lobby.client, self.name)
-        avatarSelection.exec_()
-        
-    def addFriend(self):
-        self.lobby.client.addFriend(self.name)
-        
-        
-    def remFriend(self):
-        self.lobby.client.remFriend(self.name)
-
-    def addFoe(self):
-        self.lobby.client.addFoe(self.name)
-        
-        
-    def remFoe(self):
-        self.lobby.client.remFoe(self.name)
-   
-    def kick(self):
-        pass
-    
-    def closeFA(self):
-        self.lobby.client.closeFA(self.name)
-
-    def closeLobby(self):
-        self.lobby.client.closeLobby(self.name)
-    
     def doubleClicked(self, item):
         # filter yourself
         if self.lobby.client.login == self.name:
