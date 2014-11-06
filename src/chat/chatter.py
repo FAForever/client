@@ -37,8 +37,14 @@ class Chatter(QtGui.QTableWidgetItem):
     SORT_COLUMN = 2
     AVATAR_COLUMN = 1
     RANK_COLUMN = 0
-    STATUS_COLUMN = 3    
-            
+    STATUS_COLUMN = 3
+
+    RANK_ELEVATION = 0
+    RANK_FRIEND = 1
+    RANK_USER = 2
+    RANK_FOE = 3
+    RANK_NONPLAYER = 4
+
     '''
     A chatter is the representation of a person on IRC, in a channel's nick list. There are multiple chatters per channel.
     There can be multiple chatters for every Player in the Client.
@@ -114,30 +120,33 @@ class Chatter(QtGui.QTableWidgetItem):
     
     
     def __lt__(self, other):
-        ''' Comparison operator used for item list sorting '''        
-        
-        # Everyone is compared by operator status, operators are > everyone, just like in real life
-        # CAVEAT: This is actually arbitrary because the dict isn't guaranteed to be the 'correct' order
-        if self.elevation and other.elevation: return self.lobby.OPERATOR_COLORS.keys().index(self.elevation) < self.lobby.OPERATOR_COLORS.keys().index(other.elevation)
-        if self.elevation and not other.elevation: return True
-        if not self.elevation and other.elevation: return False
-        
-        # Non-Operators will be compared for friendship, foeness, and actual player (not civilian) status
-        if self.lobby.client.isFriend(self.name) and not self.lobby.client.isFriend(other.name): return True
-        if not self.lobby.client.isFriend(self.name) and self.lobby.client.isFriend(other.name): return False
-        if self.lobby.client.isFoe(self.name) and not self.lobby.client.isFoe(other.name): return True 
-        if not self.lobby.client.isFoe(self.name) and self.lobby.client.isFoe(other.name): return False        
-        if self.lobby.client.isPlayer(self.name) and not self.lobby.client.isPlayer(other.name): return True 
-        if not self.lobby.client.isPlayer(self.name) and self.lobby.client.isPlayer(other.name): return False
-        
-        # List self below all friends and above every other player 
+        ''' Comparison operator used for item list sorting '''
+        firstStatus = self.getUserRank(self)
+        secondStatus = self.getUserRank(other)
+        # if not same rank sort
+        if firstStatus != secondStatus:
+            return firstStatus < secondStatus
+
+        # List self below all friends and above every other player
         if self.name == self.lobby.client.login: return True
         if other.name == self.lobby.client.login: return False
         
         # Default: Alphabetical
         return self.name.lower() < other.name.lower()
- 
-    
+
+    def getUserRank(self, user):
+        # TODO: Add subdivision for admin?
+        if user.elevation:
+            return self.RANK_ELEVATION
+        if self.lobby.client.isFriend(user.name):
+            return self.RANK_FRIEND
+        if self.lobby.client.isFoe(user.name):
+            return self.RANK_FOE
+        if self.lobby.client.isPlayer(user.name):
+            return self.RANK_USER
+        return self.RANK_NONPLAYER
+
+
     def updateAvatar(self):
         if self.avatar:        
             
