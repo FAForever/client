@@ -25,6 +25,17 @@ pull-requests of your changes.
 - **NEW** Pull Requests must have py.test unit test coverage
 
 
+Running
+-------
+
+Run the lobby from the main directory using:
+
+    python2 src
+
+Run the unit test suite using:
+
+    python2 runtests.py
+
 License
 -------
 

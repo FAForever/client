@@ -21,6 +21,8 @@ import sys
 import PyQt4.uic
 from cx_Freeze import setup, Executable
 
+sys.path.insert(0, "src")
+
 company_name = 'FAF Community'
 product_name = 'Forged Alliance Forever'
 
@@ -41,18 +43,18 @@ build_exe_options = {
 }
 
 shortcut_table = [
-    ('DesktopShortcut',          # Shortcut
-     'DesktopFolder',            # Directory_
-     'FA Forever',               # Name
-     'TARGETDIR',                # Component_
-     '[TARGETDIR]FAForever.exe', # Target
-     None,                       # Arguments
-     None,                       # Description
-     None,                       # Hotkey
-     None,                       # Icon
-     None,                       # IconIndex
-     None,                       # ShowCmd
-     'TARGETDIR'                 # WkDir
+    ('DesktopShortcut',           # Shortcut
+     'DesktopFolder',             # Directory_
+     'FA Forever',                # Name
+     'TARGETDIR',                 # Component_
+     '[TARGETDIR]FAForever.exe',  # Target
+     None,                        # Arguments
+     None,                        # Description
+     None,                        # Hotkey
+     None,                        # Icon
+     None,                        # IconIndex
+     None,                        # ShowCmd
+     'TARGETDIR'                  # WkDir
      )
 ]
 
@@ -87,5 +89,5 @@ setup(
     url='http://faforever.com',
     license='GNU General Public License, Version 3',
     options={'build_exe': build_exe_options, 'bdist_msi': bdist_msi_options},
-    executables=[exe], requires=['bsdiff4'],
+    executables=[exe], requires=['bsdiff4', 'pygit2', 'PyQt4', 'cx_Freeze', 'cffi', 'py', 'pytest'],
 )
