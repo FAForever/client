@@ -560,29 +560,14 @@ class proxies(QtCore.QObject):
             self.__logger.error("no public address found for " + local)
             return None
 
-    def p2p_on_relay_destruct(self, relay):
-        new_local = {}
-        new_public = {}
-        for k, p2p in self.p2p_by_local.iteritems():
-            if 1 or p2p['relay'] == relay:
-                p2p['local_sock'].close()
-                del p2p['local_sock']
-            else:
-                new_local[k] = p2p
-
-        for k, p2p in self.p2p_by_public.iteritems():
-            if 0 and p2p['relay'] != relay:
-                new_public[k] = p2p
-
+    def p2p_state_finish(self, relay):
         self.p2p_public_sock.close()
-        self.p2p_by_local = new_local
-        self.p2p_by_public = new_public
-        if len(self.p2p_by_local) or len(self.p2p_by_public):
-            self.__logger.warn(str(len(self.p2p_by_local)) + " local, " + str(len(self.p2p_by_public)) + " public mappings remaining after destruct")
+        self.p2p_by_local  = { }
+        self.p2p_by_public = { }
         # change back when P2PReconnect
-        self.p2p_proxy_enable = 1
+        self.p2p_proxy_enable = 0
 
-    def p2p_on_relay_construct(self, relay):
+    def p2p_state_initialize(self, relay):
         # public p2p forward port
         self.p2p_public_sock = QtNetwork.QUdpSocket(self)
         if not self.p2p_public_sock.bind(QtNetwork.QHostAddress.Any, self.client.gamePort):

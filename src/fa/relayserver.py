@@ -144,9 +144,9 @@ class Relayer(QtCore.QObject):
         self.__logger.info("FA connected locally.")  
 
         # change this back if you enable P2PReconnect server command
-        #self.p2p_proxy_enable = 0
-        self.p2p_proxy_enable = 1
-        self.client.proxyServer.p2p_on_relay_construct(self)
+        self.p2p_proxy_enable = 0
+        #self.p2p_proxy_enable = 1
+        #self.client.proxyServer.p2p_state_initialize(self)
 
         # Open the relay socket to our server
         self.relaySocket = QtNetwork.QTcpSocket(self.parent)        
@@ -352,7 +352,7 @@ class Relayer(QtCore.QObject):
 
         elif key == "P2PReconnect" :
             # notify p2p proxy of new relay
-            #self.client.proxyServer.p2p_on_relay_construct(self)
+            self.client.proxyServer.p2p_state_initialize(self)
             self.p2p_proxy_enable = 1
 
         elif self.p2p_proxy_enable and key == "JoinGame" :
@@ -412,7 +412,7 @@ class Relayer(QtCore.QObject):
         self.parent.removeRelay(self)
         if self.p2p_proxy_enable:
             # clean up p2p forwarding ports
-            self.client.proxyServer.p2p_on_relay_destruct(self)
+            self.client.proxyServer.p2p_state_finish(self)
 
     @QtCore.pyqtSlot()
     def inputDisconnected(self):
