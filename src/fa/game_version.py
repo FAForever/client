@@ -41,7 +41,7 @@ class GameVersion():
             return isinstance(version, Version)
 
         def valid_featured_mod(mod):
-            return isinstance(mod, featured.FeaturedMod) \
+            return isinstance(mod, featured.Mod) \
                    and valid_version(mod.version) and featured.is_featured_mod(mod)
 
         def valid_mod(mod):
