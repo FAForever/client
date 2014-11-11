@@ -77,7 +77,12 @@ def path(parent):
     writeFAPathLua()
 
 
-def game(parent):
+def game(parent, game_version=None):
+
+    if game_version is None:
+        logger.fatal("Cannot update to an unknown version of FA")
+        return False
+
     # Spawn an updater for the game binary
     updater = binary.Updater(parent)
 

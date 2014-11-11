@@ -16,10 +16,9 @@ class Repository(QtCore.QObject):
     transfer_progress_maximum = QtCore.pyqtSignal(int)
     transfer_complete = QtCore.pyqtSignal()
 
-    def __init__(self, path, url, parent=None):
+    def __init__(self, path, url=None, parent=None):
         QtCore.QObject.__init__(self, parent)
 
-        assert url
         assert path
 
         self.path = path
@@ -33,7 +32,7 @@ class Repository(QtCore.QObject):
                 raise pygit2.GitError(self.path + " doesn't seem to be a git repo. libgit2 might crash.")
             self.repo = pygit2.Repository(self.path)
 
-        if not "faf" in self.remote_names:
+        if not "faf" in self.remote_names and url is not None:
             logger.info("Adding remote 'faf' " + self.path)
             self.repo.create_remote("faf", self.url)
 
@@ -43,41 +42,33 @@ class Repository(QtCore.QObject):
     def close(self):
         del self.repo
 
-
     @property
     def tags(self):
         regex = re.compile('^refs/tags/(.*)')
         return [regex.match(r).group(1) for r in self.repo.listall_references() if regex.match(r)]
 
-
     @property
     def remote_branches(self):
         return self.repo.listall_branches(pygit2.GIT_BRANCH_REMOTE)
-
 
     @property
     def local_branches(self):
         return self.repo.listall_branches(pygit2.GIT_BRANCH_LOCAL)
 
-
     @property
     def remote_names(self):
         return [remote.name for remote in self.repo.remotes]
-
 
     @property
     def remote_urls(self):
         return [remote.url for remote in self.repo.remotes]
 
-
     @property
     def current_head(self):
         return self.repo.head.target
 
-
     def _sideband(self, operation):
         logger.debug(operation)
-
 
     def _transfer(self, transfer_progress):
         self.transfer_progress_value.emit(transfer_progress.indexed_deltas)
