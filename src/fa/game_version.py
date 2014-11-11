@@ -53,8 +53,7 @@ class GameVersion():
             valid = valid and {
                 'engine': lambda version: valid_version(version),
                 'game': lambda mod: valid_featured_mod(mod),
-                'mods': lambda versions: any(versions)
-                                         and all(map(lambda v: valid_mod(v), versions)),
+                'mods': lambda versions: all(map(lambda v: valid_mod(v), versions)),
             }.get(key, lambda k: True)(value)
 
         return valid
@@ -67,7 +66,10 @@ class GameVersion():
         """
         trusted = self._versions['engine'].is_trusted
         trusted = trusted and self._versions['game'].is_trusted
-        return trusted and reduce(lambda x, y: x.is_trusted and y.is_trusted, self._versions['mods'])
+        if len(self._versions['mods']) > 0:
+            return trusted and reduce(lambda x, y: x.is_trusted and y.is_trusted, self._versions['mods'])
+        else:
+            return trusted
 
     @property
     def untrusted_urls(self):

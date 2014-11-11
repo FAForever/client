@@ -83,10 +83,17 @@ def game(parent, game_version=None):
         logger.fatal("Cannot update to an unknown version of FA")
         return False
 
-    # Spawn an updater for the game binary
-    updater = binary.Updater(parent)
+    if not game_version.is_valid:
+        logger.info("Invalid game version")
+        return False
 
-    updater.run()
+    if not game_version.is_stable:
+        logger.info("Unstable game version")
+        # TODO: Show some dialog here
+
+    if not game_version.is_trusted:
+        logger.info("Untrusted repositories")
+        # TODO: Show some dialog here
 
     return True
 
