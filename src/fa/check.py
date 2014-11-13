@@ -84,7 +84,8 @@ def game(parent, game_version=None):
         return False
 
     if not game_version.is_valid:
-        logger.info("Invalid game version")
+        logger.critical("Invalid game version")
+        # TODO: Show something about why, report error
         return False
 
     if not game_version.is_stable:
