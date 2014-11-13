@@ -2938,6 +2938,14 @@ import sys
 import base64
 import zlib
 
+import sip
+
+sip.setapi('QString', 2)
+sip.setapi('QVariant', 2)
+sip.setapi('QStringList', 2)
+sip.setapi('QList', 2)
+sip.setapi('QProcess', 2)
+
 class DictImporter(object):
     def __init__(self, sources):
         self.sources = sources
