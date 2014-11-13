@@ -88,20 +88,20 @@ def mostProbablePaths():
     pathlist = [
         getPathFromSettings(),
 
-        #Retail path
+        # Retail path
         os.path.expandvars("%ProgramFiles%\\THQ\\Gas Powered Games\\Supreme Commander - Forged Alliance"),
 
-        #Direct2Drive Paths
-        #... allegedly identical to impulse paths - need to confirm this
+        # Direct2Drive Paths
+        # ... allegedly identical to impulse paths - need to confirm this
 
-        #Impulse/GameStop Paths - might need confirmation yet
+        # Impulse/GameStop Paths - might need confirmation yet
         os.path.expandvars("%ProgramFiles%\\Supreme Commander - Forged Alliance"),
 
-        #Steam path
+        # Steam path
         os.path.expandvars("%ProgramFiles%\\Steam\\steamapps\\common\\supreme commander forged alliance")
     ]
 
-    #Construe path from registry traces - this is not a very safe method, but it seems to work for plain installs
+    # Construe path from registry traces - this is not a very safe method, but it seems to work for plain installs
     try:
         import _winreg
         regkey = "SOFTWARE\\Classes\\SCFAReplayType\\Shell\\Open\\Command"
@@ -114,7 +114,7 @@ def mostProbablePaths():
     except:
         pass
 
-        #CAVEAT: This list is not validated
+        # CAVEAT: This list is not validated
     return pathlist
 
 
@@ -125,20 +125,20 @@ def mostProbablePathsSC():
     pathlist = [
         getPathFromSettingsSC(),
 
-        #Retail path
+        # Retail path
         os.path.expandvars("%ProgramFiles%\\THQ\\Gas Powered Games\\Supreme Commander"),
 
-        #Direct2Drive Paths
-        #... allegedly identical to impulse paths - need to confirm this
+        # Direct2Drive Paths
+        # ... allegedly identical to impulse paths - need to confirm this
 
-        #Impulse/GameStop Paths - might need confirmation yet
+        # Impulse/GameStop Paths - might need confirmation yet
         os.path.expandvars("%ProgramFiles%\\Supreme Commander"),
 
-        #Steam path
+        # Steam path
         os.path.expandvars("%ProgramFiles%\\Steam\\steamapps\\common\\supreme commander")
     ]
 
-    #Construe path from registry traces - this is not a very safe method, but it seems to work for plain installs
+    # Construe path from registry traces - this is not a very safe method, but it seems to work for plain installs
     try:
         regkey = "SOFTWARE\\Classes\\SCReplayType\\Shell\\Open\\Command"
         key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, regkey)
@@ -150,7 +150,7 @@ def mostProbablePathsSC():
     except:
         pass
 
-        #CAVEAT: This list is not validated
+        # CAVEAT: This list is not validated
     return pathlist
 
 
@@ -159,13 +159,13 @@ def validatePath(path):
         # Supcom only supports Ascii Paths
         if not path.decode("ascii"): return False
 
-        #We check whether the base path and a gamedata/lua.scd file exists. This is a mildly naive check, but should suffice
+        # We check whether the base path and a gamedata/lua.scd file exists. This is a mildly naive check, but should suffice
         if not os.path.isdir(path): return False
         if not os.path.isfile(os.path.join(path, r'gamedata', r'lua.scd')): return False
 
-        #Reject or fix paths that end with a slash.
-        #LATER: this can have all sorts of intelligent logic added
-        #Suggested: Check if the files are actually the right ones, if not, tell the user what's wrong with them.
+        # Reject or fix paths that end with a slash.
+        # LATER: this can have all sorts of intelligent logic added
+        # Suggested: Check if the files are actually the right ones, if not, tell the user what's wrong with them.
         if path.endswith("/"): return False
         if path.endswith("\\"): return False
 
