@@ -15,10 +15,9 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #-------------------------------------------------------------------------------
-from client.updater import fetchClientUpdate
 import fa
+import client.updater
 from fa.mods import checkMods
-from fa.path import loadPath
 
 '''
 Created on Dec 1, 2011
@@ -919,9 +918,6 @@ class ClientWindow(FormClass, BaseClass):
 
 
     def loadSettings(self):
-        #Load settings
-        loadPath()
-
         util.settings.beginGroup("window")
         geometry = util.settings.value("geometry", None)
         if geometry:
@@ -1094,7 +1090,7 @@ class ClientWindow(FormClass, BaseClass):
 
     def reconnect(self):
         ''' try to reconnect to the server'''
-       
+
         self.socket.disconnected.disconnect(self.disconnectedFromServer)
         self.socket.disconnectFromHost()
         self.socket.disconnected.connect(self.disconnectedFromServer)
@@ -1134,7 +1130,7 @@ class ClientWindow(FormClass, BaseClass):
             return False
         else:
             self.send(dict(command="hello", version=0, login=self.login, password=self.password, unique_id=self.uniqueId, local_ip=self.localIP, session=self.session))
-            #self.send(dict(command="ask_session"))    
+            #self.send(dict(command="ask_session"))
             return True
 
 
@@ -1232,7 +1228,7 @@ class ClientWindow(FormClass, BaseClass):
             #This is a triumph... I'm making a note here: Huge success!
             #logger.debug("Starting heartbeat timer")
             #self.heartbeatTimer.start(HEARTBEAT)
-            #self.timeout = 0            
+            #self.timeout = 0
             self.connected.emit()
             return True
         elif self.state == ClientState.REJECTED:
@@ -1576,7 +1572,7 @@ class ClientWindow(FormClass, BaseClass):
             #logger.info("Connection lost - Trying to reconnect.")
             #if not self.reconnect():
                 #logger.error("Unable to reconnect to the server.")
-                
+
 
     @QtCore.pyqtSlot()
     def readFromServer(self):
@@ -1763,7 +1759,7 @@ class ClientWindow(FormClass, BaseClass):
     def dispatch(self, message):
         '''
         A fairly pythonic way to process received strings as JSON messages.
-        '''     
+        '''
 
         # add a delay to the notification system
         if 'channels' in message:
@@ -1804,7 +1800,7 @@ class ClientWindow(FormClass, BaseClass):
                 logger.warn("Server says that Updating is needed.")
                 self.progress.close()
                 self.state = ClientState.OUTDATED
-                fa.updater.fetchClientUpdate(message["update"])
+                client.updater.fetchClientUpdate(message["update"])
 
             else:
                 logger.debug("Skipping update because this is a developer version.")
