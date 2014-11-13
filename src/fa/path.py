@@ -31,7 +31,7 @@ __author__ = 'Thygrrr, Dragonfire'
 def getGameFolderFA():
     settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
     settings.beginGroup("ForgedAlliance")
-    gameFolderFA = settings.value("app/path")
+    gameFolderFA = unicode(settings.value("app/path"))
     settings.endGroup()
     gameFolderFA = fixFolderPathFA(gameFolderFA)
     return gameFolderFA
@@ -47,7 +47,7 @@ def setGameFolderFA(newGameFolderFA):
 def getGameFolderSC():
     settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
     settings.beginGroup("SupremeCommanderVanilla")
-    gameFolderSC = settings.value("app/path")
+    gameFolderSC = unicode(settings.value("app/path"))
     settings.endGroup()
     return gameFolderSC
 
