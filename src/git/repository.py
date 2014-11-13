@@ -76,14 +76,20 @@ class Repository(QtCore.QObject):
         QtGui.QApplication.processEvents()
 
     def has_hex(self, hex):
-        return hex in self.repo
+        try:
+            return hex in self.repo
+        except KeyError:
+            return False
 
     def has_version(self, version):
-        ref_object = self.repo.get(self.repo.lookup_reference("refs/tags/"+version.ref).target)
-        if isinstance(ref_object, pygit2.Tag):
-            if ref_object.target:
-                return self.has_hex(version.hash) and ref_object.target.hex == version.hash
-        return False
+        try:
+            ref_object = self.repo.get(self.repo.lookup_reference("refs/tags/"+version.ref).target)
+            if isinstance(ref_object, pygit2.Tag):
+                if ref_object.target:
+                    return self.has_hex(version.hash) and ref_object.target.hex == version.hash
+            return False
+        except KeyError:
+            return False
 
     def fetch(self):
         for remote in self.repo.remotes:
@@ -98,7 +104,6 @@ class Repository(QtCore.QObject):
 
         self.transfer_complete.emit()
 
-
     def checkout(self, target="faf/master"):
         logger.info("Checking out " + target + " in " + self.path)
         if target in self.remote_branches:
@@ -111,4 +116,10 @@ class Repository(QtCore.QObject):
             reference = self.repo[target]
             self.repo.reset(reference.id, pygit2.GIT_RESET_HARD)
 
-
+    def checkout_version(self, version):
+        if version.hash:
+            return self.checkout(version.hash)
+        elif version.ref:
+            return self.checkout(version.ref)
+        else:
+            raise KeyError("Version doesn't have a hash or ref")

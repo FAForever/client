@@ -20,6 +20,7 @@ def test_version_repo_can_be_split_into_parts():
     assert version.repo_name == 'fa'
     assert version.repo_author == 'FAForever'
 
+
 def test_version_with_hash_is_stable():
     assert Version('FAForever/fa', '3634', None, '791035045345a4c597a92ea0ef50d71fcccb0bb1').is_stable
 

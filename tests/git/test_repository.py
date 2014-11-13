@@ -159,3 +159,12 @@ def test_retrieves_correct_hex_on_branch_checkout(prefetched_repo):
 def test_repo_has_version(prefetched_repo):
     prefetched_repo.checkout(TEST_TAG)
     assert prefetched_repo.has_version(Version("thygrrr/test", TEST_TAG, None, TEST_TAG_COMMIT))
+
+
+def test_repo_has_version_negative(prefetched_repo):
+    assert not prefetched_repo.has_version(Version("thygrrr/test", "non-existing-tag", None, "nonsensical hash"))
+
+
+def test_can_checkout_version(prefetched_repo):
+    prefetched_repo.checkout_version(Version("thygrrr/test", TEST_TAG, TEST_REPO_URL, TEST_TAG_COMMIT))
+    assert prefetched_repo.current_head.hex == TEST_TAG_COMMIT
