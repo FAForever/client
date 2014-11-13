@@ -3,8 +3,10 @@ __author__ = 'Sheeo'
 import os
 import re
 import pygit2
+
 from urlparse import urlparse
 import fnmatch
+import posixpath
 
 import json
 
@@ -61,6 +63,14 @@ class Version():
     def hash(self):
         if 'hash' in self._version:
             return self._version['hash']
+
+    @property
+    def repo_name(self):
+        return posixpath.basename(self.repo)
+
+    @property
+    def repo_author(self):
+        return posixpath.dirname(self.repo)
 
     @property
     def is_stable(self):
