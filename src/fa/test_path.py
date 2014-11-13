@@ -1,25 +1,34 @@
 import path
-
+import os
+import shutil
 
 __author__ = 'Dragonfire'
 
+root = 'forged_alliance'
+root2 = 'supcom'
 
 def test_set():
-    CorrectFolder = 'D:\Program Files (x86)\Steam\SteamApps\common\Supreme Commander Forged Alliance2'
+    CorrectFolder = root
     path.setGameFolderFA(CorrectFolder)
 
     assert path.getGameFolderFA() == CorrectFolder
 
 def test_differentSet():
-    folderFA = 'D:\Program Files (x86)\Steam\SteamApps\common\Supreme Commander Forged Alliance'
-    folderSC = 'D:\Program Files (x86)\Steam\SteamApps\common\Supreme Commander'
+    folderFA = root
+    folderSC = root2
     path.setGameFolderFA(folderFA)
     path.setGameFolderSC(folderSC)
     assert path.getGameFolderFA() == folderFA
     assert path.getGameFolderSC() == folderSC
 
 def test_hotfixFA():
-    folderFA = 'D:\Program Files (x86)\Steam\SteamApps\common\Supreme Commander Forged Alliance'
+    folderFA = root
+
+    # create fake game
+    gamedata = os.path.join(root, 'gamedata')
+    os.makedirs(gamedata)
+    lua = os.path.join(gamedata, 'lua.scd')
+    open(lua, 'a').close()
 
     # positive test
     subfolders = ['\\bin', '\\\\bin', '\\bin\\', '/bin', '/bin/', '\\bin\\SupremeCommander.exe', \
@@ -35,3 +44,6 @@ def test_hotfixFA():
         tmpPath  = folderFA + sub
         path.setGameFolderFA(tmpPath)
         assert path.getGameFolderFA() == tmpPath
+
+    # clean up gamedata
+    shutil.rmtree(folderFA)
