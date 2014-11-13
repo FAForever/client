@@ -42,7 +42,7 @@ import json
 
 from PyQt4 import QtGui, QtCore, QtNetwork
 
-from fa.path import setPathInSettings, getPathFromSettings, setPathInSettingsSC, mostProbablePaths, mostProbablePathsSC, validatePath, savePath, savePathSC, loadPath, loadPathSC
+import fa.path
 import util
 import modvault
 
@@ -89,7 +89,7 @@ def validateAndAdd(path, combobox):
     """
     Validates a given path's existence and uniqueness, then adds it to the provided QComboBox
     """
-    if validatePath(path):
+    if fa.path.validatePath(path):
         if combobox.findText(path, QtCore.Qt.MatchFixedString) == -1:
             combobox.addItem(path)
 
@@ -99,7 +99,7 @@ def constructPathChoices(combobox):
     Creates a combobox with all potentially valid paths for FA on this system
     """
     combobox.clear()
-    for path in mostProbablePaths():
+    for path in fa.path.mostProbablePaths():
         validateAndAdd(path, combobox)
 
 
@@ -108,7 +108,7 @@ def constructPathChoicesSC(combobox):
     Creates a combobox with all potentially valid paths for SC on this system
     """
     combobox.clear()
-    for path in mostProbablePathsSC():
+    for path in fa.path.mostProbablePathsSC():
         validateAndAdd(path, combobox)
 
 
@@ -137,7 +137,7 @@ class Updater(QtCore.QObject):
         """
         QtCore.QObject.__init__(self, *args, **kwargs)
 
-        self.path = getPathFromSettings()
+        self.path = fa.path.getGameFolderFA()
 
         self.filesToUpdate = []
 
@@ -837,19 +837,17 @@ class UpgradePage(QtGui.QWizardPage):
             self.comboBox.setCurrentIndex(0)
             self.completeChanged.emit()
 
-    def isComplete(self, *args, **kwargs):
-        if validatePath(self.comboBox.currentText()):
-            setPathInSettings(self.comboBox.currentText())
+    def checkAndSetFolder(self):
+        if fa.path.validatePath(self.comboBox.currentText()):
+            fa.path.setGameFolderFA(self.comboBox.currentText())
             return True
-        else:
-            return False
+        return False
+
+    def isComplete(self, *args, **kwargs):
+        return self.checkAndSetFolder()
 
     def validatePage(self, *args, **kwargs):
-        if validatePath(self.comboBox.currentText()):
-            setPathInSettings(self.comboBox.currentText())
-            return True
-        else:
-            return False
+        return self.checkAndSetFolder()
 
 
 class UpgradePageSC(QtGui.QWizardPage):
@@ -897,19 +895,17 @@ class UpgradePageSC(QtGui.QWizardPage):
             self.comboBox.setCurrentIndex(0)
             self.completeChanged.emit()
 
-    def isComplete(self, *args, **kwargs):
-        if validatePath(self.comboBox.currentText()):
-            setPathInSettingsSC(self.comboBox.currentText())
+    def checkAndSetFolder(self):
+        if fa.path.validatePath(self.comboBox.currentText()):
+            fa.path.setGameFolderSC(self.comboBox.currentText())
             return True
-        else:
-            return False
+        return False
+
+    def isComplete(self, *args, **kwargs):
+        return self.checkAndSetFolder()
 
     def validatePage(self, *args, **kwargs):
-        if validatePath(self.comboBox.currentText()):
-            setPathInSettingsSC(self.comboBox.currentText())
-            return True
-        else:
-            return False
+        return self.checkAndSetFolder()
 
 
 class WizardSC(QtGui.QWizard):
@@ -931,7 +927,7 @@ class WizardSC(QtGui.QWizard):
 
 
     def accept(self):
-        savePathSC(self.upgrade.comboBox.currentText())
+        fa.path.setGameFolderSC(self.upgrade.comboBox.currentText())
         QtGui.QWizard.accept(self)
 
 
@@ -954,6 +950,6 @@ class Wizard(QtGui.QWizard):
 
 
     def accept(self):
-        savePath(self.upgrade.comboBox.currentText())
+        fa.path.setGameFolderFA(self.upgrade.comboBox.currentText())
         QtGui.QWizard.accept(self)
 

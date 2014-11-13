@@ -15,10 +15,9 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #-------------------------------------------------------------------------------
-from client.updater import fetchClientUpdate
+from client.updater import fetchClientUpdate # unused
 import fa
 from fa.mods import checkMods
-from fa.path import loadPath
 
 '''
 Created on Dec 1, 2011
@@ -919,9 +918,6 @@ class ClientWindow(FormClass, BaseClass):
 
 
     def loadSettings(self):
-        # Load settings
-        loadPath()
-
         util.settings.beginGroup("window")
         geometry = util.settings.value("geometry", None)
         if geometry:

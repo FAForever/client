@@ -21,9 +21,9 @@ import logging
 
 from PyQt4 import QtGui
 
-import fa
 from fa.mods import checkMods
-from fa.path import savePath, writeFAPathLua, validatePath, autoDetectPath
+from fa.path import writeFAPathLua, validatePath
+import fa.path
 
 logger = logging.getLogger(__name__)
 
@@ -64,11 +64,11 @@ def check(mod, mapname=None, version=None, modVersions=None, sim_mods=None, sile
         QtGui.QMessageBox.warning(None, "No Mod Specified", "The application didn't specify which mod to update.")
         return False
 
-    if not fa.gamepath:
-        savePath(autoDetectPath())
+    if not fa.path.getGameFolderFA():
+        fa.path.setGameFolderFA(fa.path.autoDetectPath())
 
-    while not validatePath(fa.gamepath):
-        logger.warn("Invalid path: " + str(fa.gamepath))
+    while not validatePath(fa.path.getGameFolderFA()):
+        logger.warn("Invalid path: " + str(fa.path.getGameFolderFA()))
         wizard = fa.updater.Wizard(None)
         result = wizard.exec_()
         if not result:  # The wizard only returns successfully if the path is okay.
