@@ -4,12 +4,12 @@
 # are made available under the terms of the GNU Public License v3.0
 # which accompanies this distribution, and is available at
 # http://www.gnu.org/licenses/gpl.html
-# 
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -21,9 +21,9 @@ import logging
 
 from PyQt4 import QtGui
 
-import fa
 from fa.mods import checkMods
-from fa.path import savePath, writeFAPathLua, validatePath, autoDetectPath
+from fa.path import writeFAPathLua, validatePath
+import fa.path
 
 logger = logging.getLogger(__name__)
 
@@ -64,17 +64,17 @@ def check(mod, mapname=None, version=None, modVersions=None, sim_mods=None, sile
         QtGui.QMessageBox.warning(None, "No Mod Specified", "The application didn't specify which mod to update.")
         return False
 
-    if not fa.gamepath:
-        savePath(autoDetectPath())
+    if not fa.path.getGameFolderFA():
+        fa.path.setGameFolderFA(fa.path.autoDetectPath())
 
-    while not validatePath(fa.gamepath):
-        logger.warn("Invalid path: " + str(fa.gamepath))
+    while not validatePath(fa.path.getGameFolderFA()):
+        logger.warn("Invalid path: " + str(fa.path.getGameFolderFA()))
         wizard = fa.updater.Wizard(None)
         result = wizard.exec_()
         if not result:  # The wizard only returns successfully if the path is okay.
             return False
 
-    # Perform the actual comparisons and updating                    
+    # Perform the actual comparisons and updating
     logger.info("Updating FA for mod: " + str(mod) + ", version " + str(version))
 
     # Spawn an updater for the game binary
@@ -87,7 +87,7 @@ def check(mod, mapname=None, version=None, modVersions=None, sim_mods=None, sile
     result = game_updater.run()
 
     binary_updater = None
-    game_updater = None  #Our work here is done
+    game_updater = None  # Our work here is done
 
     if result != fa.updater.Updater.RESULT_SUCCESS:
         return False
@@ -110,5 +110,5 @@ def check(mod, mapname=None, version=None, modVersions=None, sim_mods=None, sile
     if sim_mods:
         return checkMods(sim_mods)
 
-    return True  #FA is checked and ready
+    return True  # FA is checked and ready
 
