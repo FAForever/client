@@ -31,8 +31,8 @@ def test_hotfixFA():
     open(lua, 'a').close()
 
     # positive test
-    subfolders = ['\\bin', '\\\\bin', '\\bin\\', '/bin', '/bin/', '\\bin\\SupremeCommander.exe', \
-                  '\\\\bin\\\\SupremeCommander.exe', '/bin/SupremeCommander.exe']
+    subfolders = ['\\bin',  \
+                  '\\bin\\SupremeCommander.exe']
     for sub in subfolders:
         path.setGameFolderFA(folderFA + sub)
         assert path.getGameFolderFA() == folderFA
