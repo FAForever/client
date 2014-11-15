@@ -6,4 +6,5 @@ numpy>=1.8.2
 py>=1.4.25
 pygit2>=0.21.3
 pytest>=2.6.3
+pytestqt>=1.2.2
 python-dateutil>=2.2
