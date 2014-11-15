@@ -75,7 +75,7 @@ class ReportDialog(QtGui.QDialog):
             box.append(u"\n**FAF Username:** " + BUGREPORT_USER)
             box.append(u"\n**FAF Version:** " + VERSION_STRING)
             box.append(u"\n**FAF Directory:** " + APPDATA_DIR)
-            box.append(u"\n**FA Path:** " + str(fa.gamepath))
+            box.append(u"\n**FA Path:** " + str(util.settings.value("ForgedAlliance/app/path", None, type=str)))
             box.append(u"\n**Home Directory:** " + PERSONAL_DIR)
             box.append(u"")
             box.append(u"\n**FA Forever Log (last 128 lines):**")

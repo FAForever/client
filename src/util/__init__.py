@@ -209,6 +209,10 @@ __themedir = None
 # Public settings object
 settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
 
+# Public Network Access Manager
+from PyQt4 import QtNetwork
+network = QtNetwork.QNetworkAccessManager()
+
 def clean_slate(path):
     if os.path.exists(path):
         logger.info("Wiping " + path)

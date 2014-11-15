@@ -1,12 +1,18 @@
 from PyQt4.QtCore import pyqtSlot
+from PyQt4 import QtCore
+
 import bsdiff4
 import pytest
 import os
 import pygit2
-import binary
-import sys
+from fa import binary
+
 
 __author__ = 'Thygrrr'
+
+def test_updater_has_method_run(application):
+    updater = binary.Updater(application)
+    assert callable(updater.run)
 
 
 def test_copy_rename_copies_all_files(tmpdir, application):
@@ -120,4 +126,5 @@ def test_patch_directory_contents_raises_patch_failed_on_mismatching_untouched_f
         post_patch_verify = {"a": hashlib.md5("won't match").hexdigest()}
         updater = binary.Updater(application)
         updater.patch_directory_contents(post_patch_verify, str(patchdir), str(tmpdir))
+
 

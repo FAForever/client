@@ -11,6 +11,7 @@
 *.pydev*
 *.vcproj
 .idea/
+uid.dll
 build/
 dist/
 Thumbs.db

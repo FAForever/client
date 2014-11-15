@@ -24,10 +24,72 @@ import modvault
 
 __author__ = 'Thygrrr'
 
+import os
+import util
+
+GIT_ROOT = "https://github.com/FAForever/"
+
+MOD_UID_TO_REPO = {}
+FEATURED_MOD_TO_REPO = {"faf": {"url":GIT_ROOT + "fa.git", "target":"3634"}}
+
+
+def init_lua_for_featured_mod(mod, repo_dir=util.REPO_DIR, lua_dir=util.LUA_DIR):
+    """
+    HACK for the transition period where the server still sends init_.lua files instead of the mods containing them.
+    """
+    repo_init_lua = os.path.join(repo_dir, mod, "init.lua")
+    legacy_init_lua = os.path.join(lua_dir, "init_" + mod + ".lua")
+
+    return repo_init_lua if os.path.exists(repo_init_lua) else legacy_init_lua
+
+
+def fix_init_luas(target_dir=util.LUA_DIR):
+    """
+    HACK some server-side init_*.lua files expect to be executed in the current working directory, which is wrong.
+    Can be removed on completion of https://github.com/FAForever/fa/issues/52
+    """
+    for lua_name in os.listdir(target_dir):
+        with open(os.path.join(target_dir, lua_name), "r+") as lua_file:
+            code = lua_file.read()
+            lua_file.seek(0)
+            lua_file.write(code.replace("dofile('init", "dofile(InitFileDir .. '\\\\init"))
+            lua_file.truncate()
+
+
+def filter_mod_versions(versions, filter_table):
+    """
+    Filters out mods that can be pulled from git repositories instead of through the obsolete updater protocol.
+    :return: tuple with one list of legacy mods to keep and a dictionary of repo mods to update with the new updater
+    """
+    legacy = {}
+    repo = {}
+
+    if versions:
+        for mod_uid in versions:
+            if mod_uid in filter_table:
+                repo[filter_table[mod_uid]] = versions[mod_uid]
+            else:
+                legacy[mod_uid] = versions[mod_uid]
+
+    return legacy, repo
+
+
+def filter_featured_mods(featured_mod, filter_table):
+    """
+    Filters out mods that can be pulled from git repositories instead of through the obsolete updater protocol.
+    :return: tuple with a strings and a dict, either a legacy mod name or a non-legacy mod dict (name:repo) pairs
+    """
+
+    if featured_mod in filter_table:
+        return None, {featured_mod:filter_table[featured_mod]}
+
+    return featured_mod, None
+
+
 import logging
 logger = logging.getLogger(__name__)
 
-def checkLegacyMods(mods):  #mods is a dictionary of uid-name pairs
+def checkMods(mods):  #mods is a dictionary of uid-name pairs
     """
     Assures that the specified mods are available in FA, or returns False.
     Also sets the correct active mods in the ingame mod manager.
@@ -70,7 +132,3 @@ def checkLegacyMods(mods):  #mods is a dictionary of uid-name pairs
         return False
 
     return True
-
-
-def checkMods(mods):
-    logger.info("Updating FA for mods " + ", ".join(mods))

@@ -17,18 +17,27 @@
 # -------------------------------------------------------------------------------
 
 import sys
+
 import logging
 
 from PyQt4 import QtGui
 
 import fa
 from fa.mods import checkMods
-from fa.path import savePath, writeFAPathLua, validatePath, autoDetectPath
+from fa.path import writeFAPathLua, validatePath
+from fa.wizards import Wizard
+from fa import binary
+from git import Repository
+import mods
+import util
 
 logger = logging.getLogger(__name__)
 
+ENGINE_PATH = 'C:\\ProgramData\\FAForever\\repo\\binary-patch'
+GAME_PATH = 'C:\\ProgramData\\FAForever\\repo\\faf'
 
-def checkMap(mapname, force=False, silent=False):
+
+def map(mapname, force=False, silent=False):
     """
     Assures that the map is available in FA, or returns false.
     """
@@ -53,40 +62,93 @@ def checkMap(mapname, force=False, silent=False):
     return True
 
 
+def featured_mod(featured_mod, version):
+    pass
 
-def check(mod, mapname=None, version=None, modVersions=None, sim_mods=None, silent=False):
-    """
-    This checks whether the game is properly updated and has the correct map.
-    """
-    logger.info("Checking FA for: " + str(mod) + " and map " + str(mapname))
 
-    if not mod:
-        QtGui.QMessageBox.warning(None, "No Mod Specified", "The application didn't specify which mod to update.")
-        return False
+def sim_mod(sim_mod, version):
+    pass
 
-    if not fa.gamepath:
-        savePath(autoDetectPath())
 
-    while not validatePath(fa.gamepath):
-        logger.warn("Invalid path: " + str(fa.gamepath))
-        wizard = fa.updater.Wizard(None)
+def path(parent):
+    while not validatePath(util.settings.value("ForgedAlliance/app/path", "", type=str)):
+        logger.warn("Invalid game path: " + util.settings.value("ForgedAlliance/app/path", "", type=str))
+        wizard = Wizard(parent)
         result = wizard.exec_()
-        if not result:  # The wizard only returns successfully if the path is okay.
+        if result == QtGui.QWizard.Rejected:
             return False
 
-    # Perform the actual comparisons and updating                    
-    logger.info("Updating FA for mod: " + str(mod) + ", version " + str(version))
+    logger.info("Writing fa_path.lua config file.")
+    writeFAPathLua()
 
-    # Spawn an updater for the game binary
-    binary_updater = fa.binary.Updater()
-    binary_updater.run()
+
+def game(parent, game_version=None):
+
+    if game_version is None:
+        logger.fatal("Cannot update to an unknown version of FA")
+        return False
+
+    if not game_version.is_valid:
+        logger.critical("Invalid game version")
+        # TODO: Show something about why, report error
+        return False
+
+    if not game_version.is_stable:
+        logger.info("Unstable game version")
+        # TODO: Show some dialog here
+
+    if not game_version.is_trusted:
+        logger.info("Untrusted repositories")
+        # TODO: Show some dialog here
+
+    engine_repo = Repository(ENGINE_PATH)
+    if not engine_repo.has_version(game_version.engine):
+        logger.info("We don't have the required engine version")
+        binary_updater = binary.Updater(parent,
+                                        game_version.engine.repo_name,
+                                        game_version.engine.url)
+    else:
+        engine_repo.checkout_version(game_version.engine)
+        ## Do patch update if needed
+
+    game_repo = Repository(GAME_PATH)
+    if not game_repo.has_version(game_version.game.version):
+        logger.info("We don't have the required game version")
+        # TODO: Spawn an updater here
+    else:
+        game_repo.checkout(game_version.game.version)
+
+    return True
+
+
+def check(featured_mod, mapname=None, version=None, modVersions=None, sim_mods=None, silent=False):
+    """
+    This checks whether the mods are properly updated and player has the correct map.
+    """
+    logger.info("Checking FA for: " + str(featured_mod) + " and map " + str(mapname))
+
+    assert featured_mod
+
+    if version is None:
+        logger.fatal("Cannot update to an unknown version of FA")
+        return False
+
+    # Perform the actual comparisons and updating                    
+    logger.info("Updating FA for mod: " + str(featured_mod) + ", version " + str(version))
 
     # Spawn an update for the required mod
-    game_updater = fa.updater.Updater(mod, version, modVersions, silent=silent)
+    legacy_versions, repo_versions = mods.filter_mod_versions(modVersions, mods.MOD_UID_TO_REPO)
+    legacy_featured, repo_featured = mods.filter_featured_mods(featured_mod, mods.FEATURED_MOD_TO_REPO)
 
+    game_updater = fa.updater.Updater(legacy_featured, version, legacy_versions, silent=silent)
     result = game_updater.run()
 
-    binary_updater = None
+    if repo_featured:
+        import featured
+        for featured_mod in repo_featured:
+            featured.checkout_featured_mod(featured_mod, repo_featured[featured_mod]['url'],repo_featured[featured_mod]['target'])
+
+
     game_updater = None  #Our work here is done
 
     if result != fa.updater.Updater.RESULT_SUCCESS:
@@ -97,14 +159,14 @@ def check(mod, mapname=None, version=None, modVersions=None, sim_mods=None, sile
         writeFAPathLua()
     except:
         logger.error("fa_path.lua can't be written: ", exc_info=sys.exc_info())
-        QtGui.QMessageBox.critical(client.instance, "Cannot write fa_path.lua",
+        QtGui.QMessageBox.critical(None, "Cannot write fa_path.lua",
                                    "This is a  rare error and you should report it!<br/>(open Menu BETA, choose 'Report a Bug')")
         return False
 
 
     # Now it's down to having the right map
     if mapname:
-        if not checkMap(mapname, silent=silent):
+        if not map(mapname, silent=silent):
             return False
 
     if sim_mods:

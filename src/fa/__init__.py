@@ -35,9 +35,6 @@ from process import instance as instance
 from play import play
 from replay import replay
 
-from fa.path import gamepath
-
-
 import check
 import maps
 import replayserver
@@ -47,3 +44,4 @@ import updater
 import upnp
 import faction
 import binary
+import featured

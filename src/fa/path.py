@@ -28,40 +28,13 @@ logger = logging.getLogger(__name__)
 __author__ = 'Thygrrr'
 
 
-def loadPathSC():
-    global gamepathSC
-    settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
-    settings.beginGroup("SupremeCommanderVanilla")
-    gamepathSC = settings.value("app/path")
-    settings.endGroup()
-
-
-def savePathSC(path):
-    global gamepathSC
-    gamepathSC = path
-    settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
-    settings.beginGroup("SupremeCommanderVanilla")
-    settings.setValue("app/path", gamepath)
-    settings.endGroup()
-    settings.sync()
-
-
-def loadPath():
-    global gamepath
-    settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
-    settings.beginGroup("ForgedAlliance")
-    gamepath = settings.value("app/path")
-    settings.endGroup()
-
-
-def savePath(path):
-    global gamepath
-    gamepath = path
-    settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
-    settings.beginGroup("ForgedAlliance")
-    settings.setValue("app/path", gamepath)
-    settings.endGroup()
-    settings.sync()
+def steamPath():
+    try:
+        import _winreg
+        steam_key = _winreg.OpenKey(_winreg.HKEY_CURRENT_USER, "Software\\Valve\\Steam", 0, (_winreg.KEY_WOW64_64KEY + _winreg.KEY_ALL_ACCESS))
+        return _winreg.QueryValueEx(steam_key, "SteamPath")[0].replace("/", "\\")
+    except StandardError, e:
+        return None
 
 
 def writeFAPathLua():
@@ -69,24 +42,26 @@ def writeFAPathLua():
     Writes a small lua file to disk that helps the new SupComDataPath.lua find the actual install of the game
     """
     name = os.path.join(util.APPDATA_DIR, u"fa_path.lua")
-    code = u"fa_path = '" + gamepath.replace(u"\\", u"\\\\") + u"'\n"
+    gamepath_fa = util.settings.value("ForgedAlliance/app/path", type=str)
 
-    if gamepathSC:
-        code = code + u"sc_path = '" + gamepathSC.replace(u"\\", u"\\\\") + u"'\n"
+    code = u"fa_path = '" + gamepath_fa.replace(u"\\", u"\\\\") + u"'\n"
 
-    lua = open(name, "w+")
-    lua.write(code.encode("utf-8"))
-    lua.flush()
-    os.fsync(lua.fileno())  # Ensuring the file is absolutely, positively on disk.
-    lua.close()
+    gamepath_sc = util.settings.value("SupremeCommander/app/path", type=str)
+    if gamepath_sc:
+        code = code + u"sc_path = '" + gamepath_sc.replace(u"\\", u"\\\\") + u"'\n"
+
+    with open(name, "w+") as lua:
+        lua.write(code.encode("utf-8"))
+        lua.flush()
+        os.fsync(lua.fileno())  # Ensuring the file is absolutely, positively on disk.
 
 
-def mostProbablePaths():
+def typicalForgedAlliancePaths():
     """
     Returns a list of the most probable paths where Supreme Commander: Forged Alliance might be installed
     """
     pathlist = [
-        getPathFromSettings(),
+        util.settings.value("ForgedAlliance/app/path", "", type=str),
 
         #Retail path
         os.path.expandvars("%ProgramFiles%\\THQ\\Gas Powered Games\\Supreme Commander - Forged Alliance"),
@@ -97,33 +72,24 @@ def mostProbablePaths():
         #Impulse/GameStop Paths - might need confirmation yet
         os.path.expandvars("%ProgramFiles%\\Supreme Commander - Forged Alliance"),
 
-        #Steam path
+        #Guessed Steam path
         os.path.expandvars("%ProgramFiles%\\Steam\\steamapps\\common\\supreme commander forged alliance")
     ]
 
-    #Construe path from registry traces - this is not a very safe method, but it seems to work for plain installs
-    try:
-        import _winreg
-        regkey = "SOFTWARE\\Classes\\SCFAReplayType\\Shell\\Open\\Command"
-        key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, regkey)
-        path = _winreg.QueryValue(key, "")
-        if "ForgedAlliance.exe" in path:
-            path = path[:path.rfind("bin")]
-            path = path.rstrip('"/\\')
-            pathlist.append(os.path.expandvars(path))
-    except:
-        pass
+    #Registry Steam path
+    steam_path = steamPath()
+    if steam_path:
+        pathlist.append(os.path.join(steam_path, "SteamApps", "common", "Supreme Commander Forged Alliance"))
 
-        #CAVEAT: This list is not validated
-    return pathlist
+    return filter(validatePath, pathlist)
 
 
-def mostProbablePathsSC():
+def typicalSupComPaths():
     """
     Returns a list of the most probable paths where Supreme Commander might be installed
     """
     pathlist = [
-        getPathFromSettingsSC(),
+        util.settings.value("SupremeCommander/app/path", None, type=str),
 
         #Retail path
         os.path.expandvars("%ProgramFiles%\\THQ\\Gas Powered Games\\Supreme Commander"),
@@ -134,24 +100,16 @@ def mostProbablePathsSC():
         #Impulse/GameStop Paths - might need confirmation yet
         os.path.expandvars("%ProgramFiles%\\Supreme Commander"),
 
-        #Steam path
+        #Guessed Steam path
         os.path.expandvars("%ProgramFiles%\\Steam\\steamapps\\common\\supreme commander")
     ]
 
-    #Construe path from registry traces - this is not a very safe method, but it seems to work for plain installs
-    try:
-        regkey = "SOFTWARE\\Classes\\SCReplayType\\Shell\\Open\\Command"
-        key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, regkey)
-        path = _winreg.QueryValue(key, "")
-        if "SupremeCommander.exe" in path:
-            path = path[:path.rfind("bin")]
-            path = path.rstrip('"/\\')
-            pathlist.append(os.path.expandvars(path))
-    except:
-        pass
+    #Registry Steam path
+    steam_path = steamPath()
+    if steam_path:
+        pathlist.append(os.path.join(steam_path, "SteamApps", "common", "Supreme Commander"))
 
-        #CAVEAT: This list is not validated
-    return pathlist
+    return filter(validatePath, pathlist)
 
 
 def validatePath(path):
@@ -174,65 +132,3 @@ def validatePath(path):
         _, value, _ = sys.exc_info()
         logger.error(u"Path validation failed: " + unicode(value))
         return False
-
-
-
-
-# This is the game path, a string pointing to the player's actual install of Forged Alliance
-gamepath = None
-
-# Initial Housekeeping
-loadPath()
-loadPathSC()
-
-
-def setPathInSettings(path):
-    """
-    Stores the new path for Forged Alliance in the app settings
-    """
-    settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
-    settings.beginGroup("ForgedAlliance")
-    settings.setValue("app/path", path)
-    settings.endGroup()
-    settings.sync()
-
-
-def getPathFromSettings():
-    """
-    Retrieves the Path as configured in the settings
-    """
-    settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
-    settings.beginGroup("ForgedAlliance")
-    path = unicode(settings.value("app/path"))
-    settings.endGroup()
-    return path
-
-
-def setPathInSettingsSC(path):
-    """
-    Stores the new path for Supremene Commander in the app settings
-    """
-    settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
-    settings.beginGroup("SupremeCommanderVanilla")
-    settings.setValue("app/path", path)
-    settings.endGroup()
-    settings.sync()
-
-
-def getPathFromSettingsSC():
-    """
-    Retrieves the Path as configured in the settings
-    """
-    settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
-    settings.beginGroup("SupremeCommanderVanilla")
-    path = unicode(settings.value("app/path"))
-    settings.endGroup()
-    return path
-
-
-def autoDetectPath():
-    for path in mostProbablePaths():
-        if validatePath(path):
-            return path
-
-    return None

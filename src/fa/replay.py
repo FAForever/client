@@ -23,6 +23,7 @@ import fa
 from fa.check import check
 from fa.replayparser import replayParser
 import util
+import mods
 
 import logging
 logger = logging.getLogger(__name__)
@@ -125,10 +126,10 @@ def replay(source, detach=False):
 
 
         #Proper mod loading code
+        mods.fix_init_luas()
         mod = "faf" if mod == "ladder1v1" else mod  #hack for feature/new-patcher
-        if not '/init' in arguments:
-            arguments.append('/init')
-            arguments.append("../lua/init_" + mod + ".lua")
+        arguments.append("/init")
+        arguments.append(mods.init_lua_for_featured_mod(mod))
 
         #disable bug reporter and movies
         arguments.append('/nobugreport')

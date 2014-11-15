@@ -96,9 +96,9 @@ QTabWidget#mainTabs::tab-bar
 
 
 /* Central area background */
-QWidget#centralwidget
+QWidget#centralwidget, QDialog, QProgressDialog, QWindow, QWizard
 {
-	
+    color: silver;
 	background-image: url('%THEMEPATH%/stripe.png');
 	background-position: top left;
 	background-repeat:repeat-x;

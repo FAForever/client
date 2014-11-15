@@ -36,9 +36,8 @@ import sys
 from PyQt4 import QtGui
 import util
 
-if not util.developer():
-    # Set up crash reporting
-    excepthook_original = sys.excepthook
+# Set up crash reporting
+excepthook_original = sys.excepthook
 
 
 def excepthook(exc_type, exc_value, traceback_object):
@@ -55,8 +54,9 @@ def excepthook(exc_type, exc_value, traceback_object):
         QtGui.QApplication.exit(1)
 
 
-#Override our except hook.
-sys.excepthook = excepthook
+#Override our except hook for better crash reporting for the end user.
+if not util.developer():
+    sys.excepthook = excepthook
 
 
 def runFAF():

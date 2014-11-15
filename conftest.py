@@ -1,21 +1,19 @@
 __author__ = 'Thygrrr'
 
 import pytest
-import sys
+import sip
+
+sip.setapi('QString', 2)
+sip.setapi('QVariant', 2)
+sip.setapi('QStringList', 2)
+sip.setapi('QList', 2)
+sip.setapi('QProcess', 2)
+
 from PyQt4 import QtGui, QtCore
 
-
-@pytest.fixture(scope="module")
-def application(request):
-    request.app = QtGui.QApplication(sys.argv)
-    request.app.setApplicationName("py.test QApplication")
-
-    def finalize():
-        request.app.quit()
-
-    request.addfinalizer(finalize)
-    return request.app
-
+@pytest.fixture(scope="function")
+def application(qtbot, request):
+    return QtGui.qApp
 
 @pytest.fixture(scope="function")
 def signal_receiver(application):
@@ -24,10 +22,15 @@ def signal_receiver(application):
             QtCore.QObject.__init__(self, parent)
             self.int_values = []
             self.generic_values = []
+            self.string_values = []
 
         @QtCore.pyqtSlot()
         def generic_slot(self):
             self.generic_values.append(None)
+
+        @QtCore.pyqtSlot(str)
+        def string_slot(self, value):
+            self.string_values.append(value)
 
         @QtCore.pyqtSlot(int)
         def int_slot(self, value):

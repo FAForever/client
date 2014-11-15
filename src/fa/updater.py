@@ -29,9 +29,7 @@ patched, and all required files for a given mod are installed
 @author thygrrr
 """
 import os
-import stat
 import time
-import subprocess
 import shutil
 from types import FloatType, IntType, ListType
 import logging
@@ -42,7 +40,6 @@ import json
 
 from PyQt4 import QtGui, QtCore, QtNetwork
 
-from fa.path import setPathInSettings, getPathFromSettings, setPathInSettingsSC, mostProbablePaths, mostProbablePathsSC, validatePath, savePath, savePathSC, loadPath, loadPathSC
 import util
 import modvault
 
@@ -52,6 +49,33 @@ logger.setLevel(logging.DEBUG)
 
 # This contains a complete dump of everything that was supplied to logOutput
 debugLog = []
+
+
+FormClass, BaseClass = util.loadUiType("fa/updater/updater.ui")
+class UpdaterProgressDialog(FormClass, BaseClass):
+    def __init__(self, parent):
+        FormClass.__init__(self, parent)
+        BaseClass.__init__(self, parent)
+        self.setupUi(self)
+        self.logPlainTextEdit.setVisible(False)
+        self.adjustSize()
+        self.watches = []
+
+    @QtCore.pyqtSlot(str)
+    def appendLog(self, text):
+        self.logPlainTextEdit.appendPlainText(text)
+
+    @QtCore.pyqtSlot(QtCore.QObject)
+    def addWatch(self, watch):
+        self.watches.append(watch)
+        watch.finished.connect(self.watchFinished)
+
+    @QtCore.pyqtSlot()
+    def watchFinished(self):
+        for watch in self.watches:
+            if not watch.isFinished():
+                return
+        self.done(QtGui.QDialog.Accepted)  #equivalent to self.accept(), but clearer
 
 
 def clearLog():
@@ -85,32 +109,6 @@ class UpdaterTimeout(StandardError):
     pass
 
 
-def validateAndAdd(path, combobox):
-    """
-    Validates a given path's existence and uniqueness, then adds it to the provided QComboBox
-    """
-    if validatePath(path):
-        if combobox.findText(path, QtCore.Qt.MatchFixedString) == -1:
-            combobox.addItem(path)
-
-
-def constructPathChoices(combobox):
-    """
-    Creates a combobox with all potentially valid paths for FA on this system
-    """
-    combobox.clear()
-    for path in mostProbablePaths():
-        validateAndAdd(path, combobox)
-
-
-def constructPathChoicesSC(combobox):
-    """
-    Creates a combobox with all potentially valid paths for SC on this system
-    """
-    combobox.clear()
-    for path in mostProbablePathsSC():
-        validateAndAdd(path, combobox)
-
 
 class Updater(QtCore.QObject):
     """
@@ -131,19 +129,17 @@ class Updater(QtCore.QObject):
     RESULT_PASS = 5  #User refuses to update by canceling the wizard
 
 
-    def __init__(self, mod, version=None, modversions=None, sim=False, silent=False, *args, **kwargs):
+    def __init__(self, featured_mod, version=None, modversions=None, sim=False, silent=False, *args, **kwargs):
         """
         Constructor
         """
         QtCore.QObject.__init__(self, *args, **kwargs)
 
-        self.path = getPathFromSettings()
-
         self.filesToUpdate = []
 
         self.lastData = time.time()
 
-        self.mod = mod
+        self.featured_mod = featured_mod
         self.version = version
         self.modversions = modversions
 
@@ -169,7 +165,7 @@ class Updater(QtCore.QObject):
         self.progress.setAutoClose(False)
         self.progress.setAutoReset(False)
         self.progress.setModal(1)
-        self.progress.setWindowTitle("Updating %s" % self.mod.upper())
+        self.progress.setWindowTitle("Updating %s" % str(self.featured_mod).upper())
 
         self.bytesToSend = 0
 
@@ -177,7 +173,6 @@ class Updater(QtCore.QObject):
     def run(self, *args, **kwargs):
         clearLog()
         log("Update started at " + timestamp())
-        log("Using game path: " + self.path)
         log("Using appdata: " + util.APPDATA_DIR)
 
         self.progress.show()
@@ -297,7 +292,7 @@ class Updater(QtCore.QObject):
             md5File = util.md5(os.path.join(util.APPDATA_DIR, destination, fileToUpdate))
             if md5File == None:
                 if self.version:
-                    if self.mod == "faf" or self.mod == "ladder1v1" or filegroup == "FAF" or filegroup == "FAFGAMEDATA":
+                    if self.featured_mod == "faf" or self.featured_mod == "ladder1v1" or filegroup == "FAF" or filegroup == "FAFGAMEDATA":
                         self.writeToServer("REQUEST_VERSION", destination, fileToUpdate, str(self.version))
                     else:
                         self.writeToServer("REQUEST_MOD_VERSION", destination, fileToUpdate,
@@ -307,7 +302,7 @@ class Updater(QtCore.QObject):
                     self.writeToServer("REQUEST_PATH", destination, fileToUpdate)
             else:
                 if self.version:
-                    if self.mod == "faf" or self.mod == "ladder1v1" or filegroup == "FAF" or filegroup == "FAFGAMEDATA":
+                    if self.featured_mod == "faf" or self.featured_mod == "ladder1v1" or filegroup == "FAF" or filegroup == "FAFGAMEDATA":
                         self.writeToServer("PATCH_TO", destination, fileToUpdate, md5File, str(self.version))
                     else:
 
@@ -318,18 +313,6 @@ class Updater(QtCore.QObject):
 
         self.waitUntilFilesAreUpdated()
 
-
-    def legalFAVersion(self):
-        #Now we check the FA version
-        luascd = os.path.join(self.path, 'gamedata', 'lua.scd')
-
-        if not os.path.isfile(luascd):
-            return False
-
-        md5LUA = util.md5(luascd)
-        log("lua.scd digest is %s" % md5LUA)
-        return md5LUA in ["4af45c46b0abb2805bea192e6e2517d4", "5cdd99bddafa38f0873bd11dd353055a",
-                          "ad999839d32f4784e331e5e8be1d32a2"]
 
     def waitForSimModPath(self):
         """
@@ -404,76 +387,44 @@ class Updater(QtCore.QObject):
         log("Updates applied successfully.")
 
 
-# removed for feature/new-patcher
-#    def prepareBinFAF(self):
-#        """
-#        Creates all necessary files in the binFAF folder, which contains a modified copy of all
-#        that is in the standard bin folder of Forged Alliance
-#        """
-#        self.progress.setLabelText("Preparing binFAF...")##
-
-#        #now we check if we've got a binFAF folder
-#        FABindir = os.path.join(self.path, 'bin')
-#        FAFdir = util.BIN_DIR
-
-#        #Try to copy without overwriting, but fill in any missing files, otherwise it might miss some files to update
-#        root_src_dir = FABindir
-#        root_dst_dir = FAFdir#
-
-#        for src_dir, _, files in os.walk(root_src_dir):
-#            dst_dir = src_dir.replace(root_src_dir, root_dst_dir)
-#            if not os.path.exists(dst_dir):
-#                os.mkdir(dst_dir)
-#            for file_ in files:
-#                src_file = os.path.join(src_dir, file_)
-#                dst_file = os.path.join(dst_dir, file_)
-#                if not os.path.exists(dst_file):
-#                    shutil.copy(src_file, dst_dir)
-#                os.chmod(dst_file, stat.S_IWRITE)  # make all files we were considered writable
-
-
     def doUpdate(self):
         """ The core function that does most of the actual update work."""
+        try:
+            if self.sim:
+                self.writeToServer("REQUEST_SIM_PATH", self.featured_mod)
+                self.waitForSimModPath()
+                if self.result == self.RESULT_SUCCESS:
+                    if modvault.downloadMod(self.modpath):
+                        self.writeToServer("ADD_DOWNLOAD_SIM_MOD", self.featured_mod)
 
-        if self.legalFAVersion():
-            try:
-                if self.sim:
-                    self.writeToServer("REQUEST_SIM_PATH", self.mod)
-                    self.waitForSimModPath()
-                    if self.result == self.RESULT_SUCCESS:
-                        if modvault.downloadMod(self.modpath):
-                            self.writeToServer("ADD_DOWNLOAD_SIM_MOD", self.mod)
-
-                else:
-                    #Prepare FAF directory & all necessary files
-                    #self.prepareBinFAF() # removed for feature/new-patcher
-
-                    #Update the mod if it's requested
-                    if self.mod == "faf" or self.mod == "ladder1v1":  #HACK - ladder1v1 "is" FAF. :-)
-                        #self.updateFiles("bin", "FAF")  # removed for feature/new-patcher
-                        self.updateFiles("gamedata", "FAFGAMEDATA")
-                    else:
-                        #self.updateFiles("bin", "FAF")  # removed for feature/new-patcher
-                        self.updateFiles("gamedata", "FAFGAMEDATA")
-                        self.updateFiles("bin", self.mod)
-                        self.updateFiles("gamedata", self.mod + "Gamedata")
-
-            except UpdaterTimeout, et:
-                log("TIMEOUT: %s(%s)" % (et.__class__.__name__, str(et.args)))
-                self.result = self.RESULT_FAILURE
-            except UpdaterCancellation, ec:
-                log("CANCELLED: %s(%s)" % (ec.__class__.__name__, str(ec.args)))
-                self.result = self.RESULT_CANCEL
-            except Exception, e:
-                log("EXCEPTION: %s(%s)" % (e.__class__.__name__, str(e.args)))
-                self.result = self.RESULT_FAILURE
             else:
-                self.result = self.RESULT_SUCCESS
-            finally:
-                self.updateSocket.close()
+                #Prepare FAF directory & all necessary files
+                #self.prepareBinFAF() # removed for feature/new-patcher
+
+                #Update the mod if it's requested
+                if self.featured_mod == "faf" or self.featured_mod == "ladder1v1":  #HACK - ladder1v1 "is" FAF. :-)
+                    #self.updateFiles("bin", "FAF")  # removed for feature/new-patcher
+                    #self.updateFiles("gamedata", "FAFGAMEDATA") # removed for feature/new-patcher
+                    pass
+                elif self.featured_mod:
+                    #self.updateFiles("bin", "FAF")  # removed for feature/new-patcher
+                    #self.updateFiles("gamedata", "FAFGAMEDATA") # removed for feature/new-patcher
+                    self.updateFiles("bin", self.featured_mod)
+                    self.updateFiles("gamedata", self.featured_mod + "Gamedata")
+
+        except UpdaterTimeout, et:
+            log("TIMEOUT: %s(%s)" % (et.__class__.__name__, str(et.args)))
+            self.result = self.RESULT_FAILURE
+        except UpdaterCancellation, ec:
+            log("CANCELLED: %s(%s)" % (ec.__class__.__name__, str(ec.args)))
+            self.result = self.RESULT_CANCEL
+        except Exception, e:
+            log("EXCEPTION: %s(%s)" % (e.__class__.__name__, str(e.args)))
+            self.result = self.RESULT_FAILURE
         else:
-            log("Incompatible game version.")
-            self.result = self.RESULT_ILLEGAL
+            self.result = self.RESULT_SUCCESS
+        finally:
+            self.updateSocket.close()
 
         #Hide progress dialog if it's still showing.
         self.progress.close()
@@ -484,9 +435,6 @@ class Updater(QtCore.QObject):
         elif self.result == self.RESULT_PASS:
             QtGui.QMessageBox.information(QtGui.QApplication.activeWindow(), "Installation Required",
                                           "You can't play without a legal version of Forged Alliance.")
-        elif self.result == self.RESULT_ILLEGAL:
-            illegalDialog()
-
         elif self.result == self.RESULT_BUSY:
             QtGui.QMessageBox.information(QtGui.QApplication.activeWindow(), "Server Busy",
                                           "The Server is busy preparing new patch files.<br/>Try again later.")
@@ -515,15 +463,6 @@ class Updater(QtCore.QObject):
 
         self.result = self.RESULT_FAILURE
 
-
-# removed for feature/new-patcher
-#    def applyPatch(self, original, patch):
-#        toFile = os.path.join(util.CACHE_DIR, "patchedFile")
-#        #applying delta
-#        subprocess.call(['xdelta3', '-d', '-f', '-s', original, patch, toFile], stdout=subprocess.PIPE)
-#        shutil.copy(toFile, original)
-#        os.remove(toFile)
-#        os.remove(patch)
 
 
     def handleAction(self, bytecount, action, stream):
@@ -628,43 +567,6 @@ class Updater(QtCore.QObject):
 
             log("%s is copied in %s." % (fileToCopy, path))
             self.filesToUpdate.remove(str(fileToCopy))
-
-# removed for feature/new-patcher
-#       elif action == "SEND_PATCH_URL":
-#           destination = str(stream.readQString())
-#           fileToUpdate = str(stream.readQString())
-#           url = str(stream.readQString())
-
-#           toFile = os.path.join(util.CACHE_DIR, "temp.patch")
-#           #
-#           if self.fetchFile(url, toFile):
-#               completePath = os.path.join(util.APPDATA_DIR, destination, fileToUpdate)
-#               self.applyPatch(completePath, toFile)
-
-#               log("%s/%s is patched." % (destination, fileToUpdate))
-#               self.filesToUpdate.remove(str(fileToUpdate))
-#           else:
-#               log("Failed to update file :'(")
-
-
-# removed for feature/new-patcher
-#      elif action == "SEND_PATCH":
-#          destination = str(stream.readQString())
-#          fileToUpdate = str(stream.readQString())
-#          size = stream.readInt()
-
-#          patchFile = stream.readRawData(size)
-#          fd = open(os.path.join(util.CACHE_DIR, "temp.patch"), 'wb')
-#          fd.write(patchFile)
-#          fd.close()
-
-#          log("patching %s/%s ..." % (destination, fileToUpdate))
-
-#          completePath = os.path.join(util.APPDATA_DIR, destination, str(fileToUpdate))
-#          self.applyPatch(completePath, toFile)
-
-#          log("%s/%s is patched." % (destination, fileToUpdate))
-#          self.filesToUpdate.remove(str(fileToUpdate))
         else:
             log("Unexpected server command received: " + action)
             self.result = self.RESULT_FAILURE
@@ -782,178 +684,4 @@ def failureDialog():
     ui = util.loadUi("fa/updater/failure.ui")
     ui.logBox.appendPlainText(dumpPlainText())
     return ui.exec_()
-
-
-def illegalDialog():
-    """
-    The dialog explains the user that his version is incompatible.
-    """
-    ui = util.loadUi("fa/updater/illegal.ui")
-    return ui.exec_()
-
-
-class UpgradePage(QtGui.QWizardPage):
-    def __init__(self, parent=None):
-        super(UpgradePage, self).__init__(parent)
-
-        self.setTitle("Specify Forged Alliance folder")
-        self.setPixmap(QtGui.QWizard.WatermarkPixmap, util.pixmap("fa/updater/forged_alliance_watermark.png"))
-
-        layout = QtGui.QVBoxLayout()
-
-        self.label = QtGui.QLabel(
-            "FAF needs a version of Supreme Commander: Forged Alliance to launch games and replays. <br/><br/><b>Please choose the installation you wish to use.</b><br/><br/>The following versions are <u>equally</u> supported:<ul><li>3596(Retail version)</li><li>3599 (Retail patch)</li><li>3603beta (GPGnet beta patch)</li><li>1.6.6 (Steam Version)</li></ul>FAF doesn't modify your existing files.<br/><br/>Select folder:")
-        self.label.setWordWrap(True)
-        layout.addWidget(self.label)
-
-        self.comboBox = QtGui.QComboBox()
-        self.comboBox.setEditable(True)
-        constructPathChoices(self.comboBox)
-        self.comboBox.currentIndexChanged.connect(self.comboChanged)
-        self.comboBox.editTextChanged.connect(self.comboChanged)
-        layout.addWidget(self.comboBox)
-        self.setLayout(layout)
-
-        self.browseButton = QtGui.QPushButton()
-        self.browseButton.setText("Browse")
-        self.browseButton.clicked.connect(self.showChooser)
-        layout.addWidget(self.browseButton)
-
-        self.setLayout(layout)
-
-        self.setCommitPage(True)
-
-    @QtCore.pyqtSlot(int)
-    def comboChanged(self, index):
-        self.completeChanged.emit()
-
-    @QtCore.pyqtSlot()
-    def showChooser(self):
-        path = QtGui.QFileDialog.getExistingDirectory(self, "Select Forged Alliance folder",
-                                                      self.comboBox.currentText(),
-                                                      QtGui.QFileDialog.DontResolveSymlinks | QtGui.QFileDialog.ShowDirsOnly)
-        if (path):
-            self.comboBox.insertItem(0, path)
-            self.comboBox.setCurrentIndex(0)
-            self.completeChanged.emit()
-
-    def isComplete(self, *args, **kwargs):
-        if validatePath(self.comboBox.currentText()):
-            setPathInSettings(self.comboBox.currentText())
-            return True
-        else:
-            return False
-
-    def validatePage(self, *args, **kwargs):
-        if validatePath(self.comboBox.currentText()):
-            setPathInSettings(self.comboBox.currentText())
-            return True
-        else:
-            return False
-
-
-class UpgradePageSC(QtGui.QWizardPage):
-    def __init__(self, parent=None):
-        super(UpgradePageSC, self).__init__(parent)
-
-        self.setTitle("Specify Supreme Commander folder")
-        self.setPixmap(QtGui.QWizard.WatermarkPixmap, util.pixmap("fa/updater/supreme_commander_watermark.png"))
-
-        layout = QtGui.QVBoxLayout()
-
-        self.label = QtGui.QLabel(
-            "You can use any version of Supreme Commander.<br/><br/>FAF won't modify your existing files.<br/><br/>Select folder:")
-        self.label.setWordWrap(True)
-        layout.addWidget(self.label)
-
-        self.comboBox = QtGui.QComboBox()
-        self.comboBox.setEditable(True)
-        constructPathChoicesSC(self.comboBox)
-        self.comboBox.currentIndexChanged.connect(self.comboChanged)
-        self.comboBox.editTextChanged.connect(self.comboChanged)
-        layout.addWidget(self.comboBox)
-        self.setLayout(layout)
-
-        self.browseButton = QtGui.QPushButton()
-        self.browseButton.setText("Browse")
-        self.browseButton.clicked.connect(self.showChooser)
-        layout.addWidget(self.browseButton)
-
-        self.setLayout(layout)
-
-        self.setCommitPage(True)
-
-    @QtCore.pyqtSlot(int)
-    def comboChanged(self, index):
-        self.completeChanged.emit()
-
-    @QtCore.pyqtSlot()
-    def showChooser(self):
-        path = QtGui.QFileDialog.getExistingDirectory(self, "Select Supreme Commander folder",
-                                                      self.comboBox.currentText(),
-                                                      QtGui.QFileDialog.DontResolveSymlinks | QtGui.QFileDialog.ShowDirsOnly)
-        if (path):
-            self.comboBox.insertItem(0, path)
-            self.comboBox.setCurrentIndex(0)
-            self.completeChanged.emit()
-
-    def isComplete(self, *args, **kwargs):
-        if validatePath(self.comboBox.currentText()):
-            setPathInSettingsSC(self.comboBox.currentText())
-            return True
-        else:
-            return False
-
-    def validatePage(self, *args, **kwargs):
-        if validatePath(self.comboBox.currentText()):
-            setPathInSettingsSC(self.comboBox.currentText())
-            return True
-        else:
-            return False
-
-
-class WizardSC(QtGui.QWizard):
-    """
-    The actual Wizard which walks the user through the install.
-    """
-
-    def __init__(self, client, *args, **kwargs):
-        QtGui.QWizard.__init__(self, *args, **kwargs)
-        self.client = client
-        self.upgrade = UpgradePageSC()
-        self.addPage(self.upgrade)
-
-        self.setWizardStyle(QtGui.QWizard.ModernStyle)
-        self.setWindowTitle("Supreme Commander Install Wizard")
-        self.setPixmap(QtGui.QWizard.WatermarkPixmap, util.pixmap("fa/updater/forged_alliance_watermark.png"))
-
-        self.setOption(QtGui.QWizard.NoBackButtonOnStartPage, True)
-
-
-    def accept(self):
-        savePathSC(self.upgrade.comboBox.currentText())
-        QtGui.QWizard.accept(self)
-
-
-class Wizard(QtGui.QWizard):
-    """
-    The actual Wizard which walks the user through the install.
-    """
-
-    def __init__(self, client, *args, **kwargs):
-        QtGui.QWizard.__init__(self, *args, **kwargs)
-        self.client = client
-        self.upgrade = UpgradePage()
-        self.addPage(self.upgrade)
-
-        self.setWizardStyle(QtGui.QWizard.ModernStyle)
-        self.setWindowTitle("FAF Install Wizard")
-        self.setPixmap(QtGui.QWizard.WatermarkPixmap, util.pixmap("fa/updater/forged_alliance_watermark.png"))
-
-        self.setOption(QtGui.QWizard.NoBackButtonOnStartPage, True)
-
-
-    def accept(self):
-        savePath(self.upgrade.comboBox.currentText())
-        QtGui.QWizard.accept(self)
 

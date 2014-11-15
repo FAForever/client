@@ -76,7 +76,7 @@ exe = Executable(
     base=base,
     targetName='FAForever.exe',
     icon='res/faf.ico',
-    includes=[os.path.join(os.path.dirname(PyQt4.uic.__file__), 'widget-plugins'), 'PyQt4.uic.widget-plugins']
+    includes = [os.path.join(os.path.dirname(PyQt4.uic.__file__),"widget-plugins"), "PyQt4.uic.widget-plugins"]
 )
 
 setup(

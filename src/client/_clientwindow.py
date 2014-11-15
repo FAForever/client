@@ -17,8 +17,6 @@
 #-------------------------------------------------------------------------------
 from client.updater import fetchClientUpdate
 import fa
-from fa.mods import checkMods
-from fa.path import loadPath
 
 '''
 Created on Dec 1, 2011
@@ -615,7 +613,8 @@ class ClientWindow(FormClass, BaseClass):
 
         #Important: If a game is running, offer to terminate it gently
         self.progress.setLabelText("Closing ForgedAllianceForever.exe")
-        fa.instance.close()
+        if fa.instance.running():
+            fa.instance.close()
 
         #Terminate Lobby Server connection
         if self.socket.state() == QtNetwork.QTcpSocket.ConnectedState:
@@ -760,7 +759,7 @@ class ClientWindow(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def switchPath(self):
-        fa.updater.Wizard(self).exec_()
+        fa.wizards.Wizard(self).exec_()
 
     @QtCore.pyqtSlot()
     def switchPort(self):
@@ -920,8 +919,6 @@ class ClientWindow(FormClass, BaseClass):
 
     def loadSettings(self):
         #Load settings
-        loadPath()
-
         util.settings.beginGroup("window")
         geometry = util.settings.value("geometry", None)
         if geometry:
@@ -1469,8 +1466,9 @@ class ClientWindow(FormClass, BaseClass):
                 add_mods = json.loads(modstr) # should be a list
             except:
                 logger.info("Couldn't load urlquery value 'mods'")
-            if fa.check.check(url.queryItemValue("mod"), url.queryItemValue("map"), sim_mods=add_mods):
-                self.send(dict(command="game_join", uid=int(url.queryItemValue("uid")), gameport=self.gamePort))
+            if fa.check.game(self):
+                if fa.check.check(url.queryItemValue("mod"), url.queryItemValue("map"), sim_mods=add_mods):
+                    self.send(dict(command="game_join", uid=int(url.queryItemValue("uid")), gameport=self.gamePort))
 
 
     def loginWriteToFaServer(self, action, *args, **kw):
@@ -1804,7 +1802,7 @@ class ClientWindow(FormClass, BaseClass):
                 logger.warn("Server says that Updating is needed.")
                 self.progress.close()
                 self.state = ClientState.OUTDATED
-                fa.updater.fetchClientUpdate(message["update"])
+                fetchClientUpdate(message["update"])
 
             else:
                 logger.debug("Skipping update because this is a developer version.")
@@ -1831,7 +1829,7 @@ class ClientWindow(FormClass, BaseClass):
 
         # Important: This is the race parameter used by ladder search.
         if 'mod' in message:
-            modkey = 'mod'
+            modkey = 'mod'  # FIXME: Find out if this is not fully deprecated by now
         else:
             modkey = 'featured_mod'
 
@@ -1864,10 +1862,10 @@ class ClientWindow(FormClass, BaseClass):
 
         # Ensure we have the map
         if "mapname" in message:
-            fa.check.checkMap(message['mapname'], force=True, silent=silent)
+            fa.check.map(message['mapname'], force=True, silent=silent)
 
         if "sim_mods" in message:
-            checkMods(message['sim_mods'])
+            fa.mods.checkMods(message['sim_mods'])
 
         # Writing a file for options
         if "options" in message:
