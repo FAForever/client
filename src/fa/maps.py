@@ -250,11 +250,10 @@ def getBaseMapsFolder():
     '''
     Returns the folder containing all the base maps for this client.
     '''
-    gamepath = util.settings.value("ForgedAlliance/app/path", None, type=str)
-    if gamepath:
-        return os.path.join(gamepath, "maps")
+    if fa.path.getGameFolderFA():
+        return os.path.join(fa.path.getGameFolderFA(), "maps")
     else:
-        return "maps" #This most likely isn't the valid maps folder, but it's the best guess.
+        return "maps" # This most likely isn't the valid maps folder, but it's the best guess.
  
  
 def getUserMapsFolder():

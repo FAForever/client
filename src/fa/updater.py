@@ -40,6 +40,7 @@ import json
 
 from PyQt4 import QtGui, QtCore, QtNetwork
 
+import fa.path
 import util
 import modvault
 
@@ -109,6 +110,32 @@ class UpdaterTimeout(StandardError):
     pass
 
 
+def validateAndAdd(path, combobox):
+    """
+    Validates a given path's existence and uniqueness, then adds it to the provided QComboBox
+    """
+    if fa.path.validatePath(path):
+        if combobox.findText(path, QtCore.Qt.MatchFixedString) == -1:
+            combobox.addItem(path)
+
+
+def constructPathChoices(combobox):
+    """
+    Creates a combobox with all potentially valid paths for FA on this system
+    """
+    combobox.clear()
+    for path in fa.path.mostProbablePaths():
+        validateAndAdd(path, combobox)
+
+
+def constructPathChoicesSC(combobox):
+    """
+    Creates a combobox with all potentially valid paths for SC on this system
+    """
+    combobox.clear()
+    for path in fa.path.mostProbablePathsSC():
+        validateAndAdd(path, combobox)
+
 
 class Updater(QtCore.QObject):
     """
@@ -134,6 +161,8 @@ class Updater(QtCore.QObject):
         Constructor
         """
         QtCore.QObject.__init__(self, *args, **kwargs)
+
+        self.path = fa.path.getGameFolderFA()
 
         self.filesToUpdate = []
 

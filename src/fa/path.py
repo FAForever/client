@@ -25,7 +25,7 @@ import util
 
 logger = logging.getLogger(__name__)
 
-__author__ = 'Thygrrr'
+__author__ = 'Thygrrr, Dragonfire'
 
 
 def steamPath():
@@ -36,15 +36,60 @@ def steamPath():
     except StandardError, e:
         return None
 
+def getGameFolderFA():
+    settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
+    settings.beginGroup("ForgedAlliance")
+    gameFolderFA = unicode(settings.value("app/path"))
+    settings.endGroup()
+    gameFolderFA = fixFolderPathFA(gameFolderFA)
+    return gameFolderFA
+
+def setGameFolderFA(newGameFolderFA):
+    settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
+    settings.beginGroup("ForgedAlliance")
+    settings.setValue("app/path", newGameFolderFA)
+    settings.endGroup()
+    settings.sync()
+
+
+def getGameFolderSC():
+    settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
+    settings.beginGroup("SupremeCommanderVanilla")
+    gameFolderSC = unicode(settings.value("app/path"))
+    settings.endGroup()
+    return gameFolderSC
+
+def setGameFolderSC(newGameFolderSC):
+    settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
+    settings.beginGroup("SupremeCommanderVanilla")
+    settings.setValue("app/path", newGameFolderSC)
+    settings.endGroup()
+    settings.sync()
+
+def fixFolderPathFA(gameFolderFA):
+    """
+    Correct the game folder, e.g. if you selected the bin folder or exe.
+    """
+    normPath = os.path.normpath(gameFolderFA)
+    notAllowed = [u'\\bin', u'\\bin\\SupremeCommander.exe']
+    for check in notAllowed:
+        if normPath.endswith(check):
+            newPath = normPath[:-len(check)]
+            #  check if the new folder is valid
+            if validatePath(newPath):
+                setGameFolderFA(newPath)
+                return newPath
+    return gameFolderFA
 
 def writeFAPathLua():
     """
     Writes a small lua file to disk that helps the new SupComDataPath.lua find the actual install of the game
     """
     name = os.path.join(util.APPDATA_DIR, u"fa_path.lua")
-    gamepath_fa = util.settings.value("ForgedAlliance/app/path", type=str)
+    code = u"fa_path = '" + getGameFolderFA().replace(u"\\", u"\\\\") + u"'\n"
 
-    code = u"fa_path = '" + gamepath_fa.replace(u"\\", u"\\\\") + u"'\n"
+    if getGameFolderSC():
+        code = code + u"sc_path = '" + getGameFolderSC().replace(u"\\", u"\\\\") + u"'\n"
 
     gamepath_sc = util.settings.value("SupremeCommander/app/path", type=str)
     if gamepath_sc:
@@ -61,7 +106,7 @@ def typicalForgedAlliancePaths():
     Returns a list of the most probable paths where Supreme Commander: Forged Alliance might be installed
     """
     pathlist = [
-        util.settings.value("ForgedAlliance/app/path", "", type=str),
+        getGameFolderFA(),
 
         #Retail path
         os.path.expandvars("%ProgramFiles%\\THQ\\Gas Powered Games\\Supreme Commander - Forged Alliance"),
@@ -89,7 +134,7 @@ def typicalSupComPaths():
     Returns a list of the most probable paths where Supreme Commander might be installed
     """
     pathlist = [
-        util.settings.value("SupremeCommander/app/path", None, type=str),
+        getGameFolderSC(),
 
         #Retail path
         os.path.expandvars("%ProgramFiles%\\THQ\\Gas Powered Games\\Supreme Commander"),
@@ -132,3 +177,11 @@ def validatePath(path):
         _, value, _ = sys.exc_info()
         logger.error(u"Path validation failed: " + unicode(value))
         return False
+
+
+def autoDetectPath():
+    for path in typicalForgedAlliancePaths():
+        if validatePath(path):
+            return path
+
+    return None

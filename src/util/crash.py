@@ -68,7 +68,7 @@ class CrashDialog(QtGui.QDialog):
             box.append(u"\n**FAF Username:** " + CRASH_REPORT_USER)
             box.append(u"\n**FAF Version:** " + VERSION_STRING)
             box.append(u"\n**FAF Directory:** " + APPDATA_DIR)
-            box.append(u"\n**FA Path:** " + str(util.settings.value("ForgedAlliance/app/path", None, type=str)))
+            box.append(u"\n**FA Path:** " + str(fa.path.getGameFolderFA()))
             box.append(u"\n**Home Directory:** " + PERSONAL_DIR)
         except StandardError:
             box.append(u"\n**(Exception raised while writing debug vars)**")
