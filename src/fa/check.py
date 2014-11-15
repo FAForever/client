@@ -17,6 +17,7 @@
 # -------------------------------------------------------------------------------
 
 import sys
+
 import logging
 
 from PyQt4 import QtGui
@@ -26,10 +27,14 @@ from fa.mods import checkMods
 from fa.path import writeFAPathLua, validatePath
 from fa.wizards import Wizard
 from fa import binary
+from git import Repository
 import mods
 import util
 
 logger = logging.getLogger(__name__)
+
+ENGINE_PATH = 'C:\\ProgramData\\FAForever\\repo\\binary-patch'
+GAME_PATH = 'C:\\ProgramData\\FAForever\\repo\\faf'
 
 
 def map(mapname, force=False, silent=False):
@@ -96,8 +101,24 @@ def game(parent, game_version=None):
         logger.info("Untrusted repositories")
         # TODO: Show some dialog here
 
-    return True
+    engine_repo = Repository(ENGINE_PATH)
+    if not engine_repo.has_version(game_version.engine):
+        logger.info("We don't have the required engine version")
+        binary_updater = binary.Updater(parent,
+                                        game_version.engine.repo_name,
+                                        game_version.engine.url)
+    else:
+        engine_repo.checkout_version(game_version.engine)
+        ## Do patch update if needed
 
+    game_repo = Repository(GAME_PATH)
+    if not game_repo.has_version(game_version.game.version):
+        logger.info("We don't have the required game version")
+        # TODO: Spawn an updater here
+    else:
+        game_repo.checkout(game_version.game.version)
+
+    return True
 
 
 def check(featured_mod, mapname=None, version=None, modVersions=None, sim_mods=None, silent=False):

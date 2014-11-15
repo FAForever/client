@@ -29,6 +29,22 @@ class GameVersion():
                and all(map(lambda x: x.version.is_stable, self._versions['mods']))
 
     @property
+    def engine(self):
+        return self._versions['engine']
+
+    @property
+    def game(self):
+        return self._versions['game']
+
+    @property
+    def mods(self):
+        return self._versions['mods']
+
+    @property
+    def map(self):
+        return self._versions['map']
+
+    @property
     def is_valid(self):
         """
         Validity means that the dictionary contains the

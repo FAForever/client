@@ -40,8 +40,7 @@ def fcmp(fileA, fileB):
                 da = fa.read(512)
                 db = fb.read(512)
 
-def test_FAFReplay():
-    app = QCoreApplication([])
+def test_FAFReplay(qtbot):
 
     # Write a v2 replay
     f = QFile(join(tmpdir, REPLAY_v2))

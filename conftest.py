@@ -11,18 +11,9 @@ sip.setapi('QProcess', 2)
 
 from PyQt4 import QtGui, QtCore
 
-@pytest.fixture(scope="module")
-def application(request):
-    request.app = QtGui.QApplication([])
-    request.app.setApplicationName("py.test QApplication")
-
-    def finalize():
-        request.app.deleteLater()
-        del request.app
-
-    request.addfinalizer(finalize)
-    return request.app
-
+@pytest.fixture(scope="function")
+def application(qtbot, request):
+    return QtGui.qApp
 
 @pytest.fixture(scope="function")
 def signal_receiver(application):

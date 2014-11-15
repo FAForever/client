@@ -30,6 +30,7 @@ from games.moditem import ModItem, mod_invisible, mods
 from games.hostgamewidget import HostgameWidget
 from games._mapSelectWidget import mapSelectWidget
 from fa import faction
+from fa.version_service import VersionService
 import fa
 import modvault
 import notificatation_system as ns
@@ -638,45 +639,46 @@ class GamesWidget(FormClass, BaseClass):
         else:
             pass #checkFA failed and notified the user what was wrong. We won't join now.
 
-
-
     @QtCore.pyqtSlot(QtGui.QListWidgetItem)
     def hostGameClicked(self, item):
-        '''
+        """
         Hosting a game event
-        '''
+        """
         if not fa.instance.available():
             return
 
         self.stopSearchRanked()
 
-        # A simple Hosting dialog.
-        if fa.check.game(self.client):
-            if fa.check.check(item.mod):
-                hostgamewidget = HostgameWidget(self, item)
+        version = VersionService.default_version_for(item.mod)
 
-                if hostgamewidget.exec_() == 1 :
-                    if self.gamename:
-                        gameoptions = []
+        if fa.check.game(self.client, version):
+            hostgamewidget = HostgameWidget(self, item)
 
-                        if len(self.options) != 0 :
-                            oneChecked = False
-                            for option in self.options :
-                                if option.isChecked() :
-                                    oneChecked = True
-                                gameoptions.append(option.isChecked())
+            if hostgamewidget.exec_() == 1:
+                if self.gamename:
+                    gameoptions = []
 
-                            if oneChecked == False :
-                                QtGui.QMessageBox.warning(None, "No option checked !", "You have to check at least one option !")
-                                return
-                        modnames = [str(moditem.text()) for moditem in hostgamewidget.modList.selectedItems()]
-                        mods = [hostgamewidget.mods[modstr] for modstr in modnames]
-                        modvault.setActiveMods(mods, True) #should be removed later as it should be managed by the server.
-        #                #Send a message to the server with our intent.
-                        if self.ispassworded:
-                            self.client.send(dict(command="game_host", access="password", password = self.gamepassword, mod=item.mod, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort, options = gameoptions))
-                        else :
-                            self.client.send(dict(command="game_host", access="public", mod=item.mod, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort, options = gameoptions))
+                    if len(self.options) != 0:
+                        oneChecked = False
+                        for option in self.options:
+                            if option.isChecked():
+                                oneChecked = True
+                            gameoptions.append(option.isChecked())
+
+                        if oneChecked == False:
+                            QtGui.QMessageBox.warning(None, "No option checked!", "You have to check at least one option!")
+                            return
+
+                    modnames = [str(moditem.text()) for moditem in hostgamewidget.modList.selectedItems()]
+                    mods = [hostgamewidget.mods[modstr] for modstr in modnames]
+
+                    # Should be removed later as it should be managed by the server.
+                    modvault.setActiveMods(mods, True)
+
+                    if self.ispassworded:
+                        self.client.send(dict(command="game_host", access="password", password=self.gamepassword, mod=item.mod, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort, options = gameoptions))
+                    else:
+                        self.client.send(dict(command="game_host", access="public", mod=item.mod, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort, options = gameoptions))
 #
 
     def savePassword(self, password):

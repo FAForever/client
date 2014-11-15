@@ -4,7 +4,6 @@ from fa import updater
 from PyQt4 import QtGui, QtCore
 import pytest
 
-
 class TestObjectWithoutIsFinished(QtCore.QObject):
     finished = QtCore.pyqtSignal()
 

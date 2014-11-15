@@ -65,3 +65,4 @@ def test_game_version_is_trusted_iff_all_repos_are_trusted(version):
 
 def test_game_version_untrusted_urls(version):
     assert GameVersion(UNTRUSTED_GAME_VERSION).untrusted_urls == ["http://example.com/test.git"]
+
