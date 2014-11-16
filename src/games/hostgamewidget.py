@@ -25,6 +25,7 @@ from games.gameitem import GameItem, GameItemDelegate
 import modvault
 
 from fa import maps
+from fa.game_version import GameVersion
 import util
 
 import logging
@@ -40,36 +41,26 @@ FormClass, BaseClass = util.loadUiType("games/host.ui")
 
 
 class HostgameWidget(FormClass, BaseClass):
-    def __init__(self, parent, item, *args, **kwargs):
-        BaseClass.__init__(self, *args, **kwargs)
+    def __init__(self, parent, item, versions, allow_map_choice):
+        BaseClass.__init__(self)
 
+        logger.info("HostGameWidget started with: ")
+        logger.info(versions)
+        logger.info(allow_map_choice)
         self.setupUi(self)
         self.parent = parent
         
         self.parent.options = []
 
-        if len(item.options) == 0 :   
-            self.optionGroup.setVisible(False)
-        else :
-            group_layout = QtGui.QVBoxLayout()
-            self.optionGroup.setLayout(group_layout)
-            
-            for option in item.options :
-                checkBox = QtGui.QCheckBox(self)
-                checkBox.setText(option)
-                checkBox.setChecked(True)
-                group_layout.addWidget(checkBox)
-                self.parent.options.append(checkBox)
-        
         self.setStyleSheet(self.parent.client.styleSheet())
         
-        self.setWindowTitle ( "Hosting Game : " + item.name )
-        self.titleEdit.setText ( self.parent.gamename )
-        self.passEdit.setText ( self.parent.gamepassword )
+        self.setWindowTitle("Host Game: " + item.name)
+        self.titleEdit.setText(self.parent.gamename)
+        self.passEdit.setText(self.parent.gamepassword)
         self.game = GameItem(0)
-        self.gamePreview.setItemDelegate(GameItemDelegate(self));
+        self.gamePreview.setItemDelegate(GameItemDelegate(self))
         self.gamePreview.addItem(self.game)
-        
+
         self.message = {}
         self.message['title'] = self.parent.gamename
         self.message['host'] = self.parent.client.login
@@ -80,15 +71,23 @@ class HostgameWidget(FormClass, BaseClass):
         self.message['state'] = "open"
         
         self.game.update(self.message, self.parent.client)
-        
+
+
+        self.versions = versions
+        self.selectedVersion = 0
+        for version in versions:
+            self.versionList.addItem(version['name'], version['id'])
+
+        self.versionList.currentIndexChanged.connect(self.versionChanged)
+
         i = 0
         index = 0
-        if self.parent.canChooseMap == True:
+        if allow_map_choice:
             allmaps = dict()
             for map in maps.maps.keys() + maps.getUserMaps():
                 allmaps[map] = maps.getDisplayName(map)
             for (map, name) in sorted(allmaps.iteritems(), key=lambda x: x[1]):
-                if map == self.parent.gamemap :
+                if map == self.parent.gamemap:
                     index = i
                 self.mapList.addItem(name, map)
                 i = i + 1
@@ -123,6 +122,13 @@ class HostgameWidget(FormClass, BaseClass):
         self.hostButton.released.connect(self.hosting)
         self.titleEdit.textChanged.connect(self.updateText)
         self.modList.itemClicked.connect(self.modclicked)
+
+    @property
+    def game_version(self):
+        return GameVersion("FAForever/"+self.gameVersion.repo_name)
+
+    def versionChanged(self, index):
+        self.selectedVersion = index
         
     def updateText(self, text):
         self.message['title'] = text
@@ -131,10 +137,10 @@ class HostgameWidget(FormClass, BaseClass):
     def hosting(self):
         self.parent.saveGameName(self.titleEdit.text().strip())
         self.parent.saveGameMap(self.parent.gamemap)
-        if self.passCheck.isChecked() :
+        if self.passCheck.isChecked():
             self.parent.ispassworded = True
             self.parent.savePassword(self.passEdit.text())
-        else :
+        else:
             self.parent.ispassworded = False
         self.done(1)
 

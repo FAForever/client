@@ -6,8 +6,8 @@ from PyQt4.QtNetwork import *
 
 class RESTResponse(QObject):
 
-    error = pyqtSignal(dict)
-    done = pyqtSignal(dict)
+    error = pyqtSignal(object)
+    done = pyqtSignal(object)
 
     def __init__(self, reply):
         super(RESTResponse, self).__init__()
@@ -15,8 +15,6 @@ class RESTResponse(QObject):
         self.reply = reply
         reply.finished.connect(self._onFinished)
         reply.downloadProgress.connect(self._onProgress)
-        print reply.error()
-        print reply.isRunning()
 
     def _onProgress(self, recv, total):
         print "OnProgress " + recv + " " + total
@@ -40,13 +38,12 @@ class RESTResponse(QObject):
             self.done.emit(resp)
 
 
-class Service:
+class IRESTService:
     def __init__(self, network_manager):
         self.network_manager = network_manager
 
     def _get(self, url):
         req = QNetworkRequest(QUrl(url))
-        print url
         return RESTResponse(self.network_manager.get(req))
 
     def _post(self, url, post_data):

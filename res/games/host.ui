@@ -6,14 +6,33 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>393</width>
-    <height>440</height>
+    <width>378</width>
+    <height>628</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
+   <item row="3" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Lobby Preview</string>
+     </property>
+    </widget>
+   </item>
    <item row="1" column="0" colspan="3">
     <widget class="QLineEdit" name="titleEdit">
      <property name="font">
@@ -45,39 +64,6 @@
      </property>
      <property name="cursorPosition">
       <number>8</number>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="label_3">
-     <property name="font">
-      <font>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Lobby Preview</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="3" rowspan="2">
-    <spacer name="horizontalSpacer">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>6</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="2" column="1">
-    <widget class="QCheckBox" name="passCheck">
-     <property name="text">
-      <string>Password</string>
      </property>
     </widget>
    </item>
@@ -118,13 +104,10 @@
      </item>
     </layout>
    </item>
-   <item row="7" column="0">
-    <widget class="QGroupBox" name="optionGroup">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="title">
-      <string>Options</string>
+   <item row="2" column="1">
+    <widget class="QCheckBox" name="passCheck">
+     <property name="text">
+      <string>Password</string>
      </property>
     </widget>
    </item>
@@ -138,6 +121,81 @@
      </property>
      <property name="text">
       <string>Game Title</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0">
+    <widget class="QComboBox" name="mapList"/>
+   </item>
+   <item row="7" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Map (can be changed later)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="0" colspan="3">
+    <widget class="QListWidget" name="modList">
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="horizontalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOff</enum>
+     </property>
+     <property name="editTriggers">
+      <set>QAbstractItemView::SelectedClicked</set>
+     </property>
+     <property name="showDropIndicator" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="dragDropMode">
+      <enum>QAbstractItemView::DragOnly</enum>
+     </property>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::MultiSelection</enum>
+     </property>
+     <property name="verticalScrollMode">
+      <enum>QAbstractItemView::ScrollPerPixel</enum>
+     </property>
+     <property name="horizontalScrollMode">
+      <enum>QAbstractItemView::ScrollPerPixel</enum>
+     </property>
+     <property name="movement">
+      <enum>QListView::Snap</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QComboBox" name="versionList"/>
+   </item>
+   <item row="5" column="0">
+    <widget class="QLabel" name="label_4">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Game version</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::AutoText</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="2">
+    <widget class="QPushButton" name="hostButton">
+     <property name="text">
+      <string>Host Game</string>
      </property>
     </widget>
    </item>
@@ -208,62 +266,6 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="0">
-    <widget class="QLabel" name="label_2">
-     <property name="font">
-      <font>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Map (can be changed later)</string>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="0">
-    <widget class="QComboBox" name="mapList"/>
-   </item>
-   <item row="7" column="2">
-    <widget class="QPushButton" name="hostButton">
-     <property name="text">
-      <string>Host Game</string>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="0" colspan="3">
-    <widget class="QListWidget" name="modList">
-     <property name="font">
-      <font>
-       <pointsize>10</pointsize>
-      </font>
-     </property>
-     <property name="horizontalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOff</enum>
-     </property>
-     <property name="editTriggers">
-      <set>QAbstractItemView::SelectedClicked</set>
-     </property>
-     <property name="showDropIndicator" stdset="0">
-      <bool>false</bool>
-     </property>
-     <property name="dragDropMode">
-      <enum>QAbstractItemView::NoDragDrop</enum>
-     </property>
-     <property name="selectionMode">
-      <enum>QAbstractItemView::MultiSelection</enum>
-     </property>
-     <property name="verticalScrollMode">
-      <enum>QAbstractItemView::ScrollPerPixel</enum>
-     </property>
-     <property name="horizontalScrollMode">
-      <enum>QAbstractItemView::ScrollPerPixel</enum>
-     </property>
-     <property name="movement">
-      <enum>QListView::Snap</enum>
-     </property>
-    </widget>
-   </item>
   </layout>
   <zorder>label</zorder>
   <zorder>titleEdit</zorder>
@@ -272,11 +274,11 @@
   <zorder>mapList</zorder>
   <zorder>label_2</zorder>
   <zorder>label_3</zorder>
-  <zorder>optionGroup</zorder>
   <zorder>gamePreview</zorder>
-  <zorder>horizontalSpacer</zorder>
-  <zorder>hostButton</zorder>
   <zorder>modList</zorder>
+  <zorder>versionList</zorder>
+  <zorder>label_4</zorder>
+  <zorder>hostButton</zorder>
  </widget>
  <resources/>
  <connections>

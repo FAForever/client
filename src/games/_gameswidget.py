@@ -22,7 +22,7 @@
 
 import random
 
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtCore, QtGui, QtNetwork
 
 import util
 from games.gameitem import GameItem, GameItemDelegate
@@ -60,6 +60,9 @@ class GamesWidget(FormClass, BaseClass):
 
         #Dictionary containing our actual games.
         self.games = {}
+
+        self.requests = []
+        self.version_service = VersionService(QtNetwork.QNetworkAccessManager())
 
         #Ranked search UI
         self.rankedAeon.setIcon(util.icon("games/automatch/aeon.png"))
@@ -624,13 +627,13 @@ class GamesWidget(FormClass, BaseClass):
         if not fa.instance.available():
             return
 
-        self.stopSearchRanked() #Actually a workaround
+        self.stopSearchRanked() # Actually a workaround
 
         passw = None
 
         if fa.check.game(self.client):
             if fa.check.check(item.mod, item.mapname, None, item.mods):
-                if item.access == "password" :
+                if item.access == "password":
                     passw, ok = QtGui.QInputDialog.getText(self.client, "Passworded game" , "Enter password :", QtGui.QLineEdit.Normal, "")
                     if ok:
                         self.client.send(dict(command="game_join", password=passw, uid=item.uid, gameport=self.client.gamePort))
@@ -649,36 +652,32 @@ class GamesWidget(FormClass, BaseClass):
 
         self.stopSearchRanked()
 
-        version = VersionService.default_version_for(item.mod)
+        versions_request = self.version_service.versions_for(item.mod)
 
-        if fa.check.game(self.client, version):
-            hostgamewidget = HostgameWidget(self, item)
+        def done(res):
+            hostgamewidget = HostgameWidget(self, item, res, self.canChooseMap)
 
             if hostgamewidget.exec_() == 1:
                 if self.gamename:
-                    gameoptions = []
-
-                    if len(self.options) != 0:
-                        oneChecked = False
-                        for option in self.options:
-                            if option.isChecked():
-                                oneChecked = True
-                            gameoptions.append(option.isChecked())
-
-                        if oneChecked == False:
-                            QtGui.QMessageBox.warning(None, "No option checked!", "You have to check at least one option!")
-                            return
-
                     modnames = [str(moditem.text()) for moditem in hostgamewidget.modList.selectedItems()]
                     mods = [hostgamewidget.mods[modstr] for modstr in modnames]
 
                     # Should be removed later as it should be managed by the server.
                     modvault.setActiveMods(mods, True)
+                    if fa.check.game(self, hostgamewidget.game_version):
+                        if self.ispassworded:
+                            self.client.send(dict(command="game_host", access="password", password=self.gamepassword, mod=item.mod, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort, options = gameoptions))
+                        else:
+                            self.client.send(dict(command="game_host", access="public", mod=item.mod, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort, options = gameoptions))
 
-                    if self.ispassworded:
-                        self.client.send(dict(command="game_host", access="password", password=self.gamepassword, mod=item.mod, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort, options = gameoptions))
-                    else:
-                        self.client.send(dict(command="game_host", access="public", mod=item.mod, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort, options = gameoptions))
+        def error(err):
+            logger.critical(err)
+
+        versions_request.done.connect(done)
+        versions_request.error.connect(error)
+        self.requests.append(versions_request)
+
+
 #
 
     def savePassword(self, password):
