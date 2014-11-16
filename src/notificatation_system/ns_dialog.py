@@ -12,7 +12,7 @@ class NotficationDialog(FormClass, BaseClass):
         self.setupUi(self)
         self.client = client
 
-        self.labelIcon.setPixmap(util.icon("client/tray_icon.png", pix=True).scaled(32, 32))
+        self.labelIcon.setPixmap(util.icon("client/tray_icon.png", pix=True).scaled(24, 24))
         self.standardIcon = util.icon("client/comment.png", pix=True)
 
         screen = QtGui.QDesktopWidget().screenGeometry()
