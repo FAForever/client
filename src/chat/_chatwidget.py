@@ -19,6 +19,7 @@
 
 
 import logging
+from friendlist import FriendList
 logger = logging.getLogger(__name__)
 
 
@@ -106,7 +107,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.canDisconnect = False
         # self.heartbeatTimer = QtCore.QTimer(self)
         # self.heartbeatTimer.timeout.connect(self.serverTimeout)
-        # self.timeout = 0        
+        # self.timeout = 0
 
 
     @QtCore.pyqtSlot()
@@ -136,6 +137,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
 
     def finishDownloadAvatar(self, reply):
+        # TODO: cache it?
         ''' this take care of updating the avatars of players once they are downloaded '''
         img = QtGui.QImage()
         img.loadFromData(reply.readAll())
@@ -301,6 +303,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
         for user in listing:
             self.channels[channel].addChatter(user)
+            self.client.friendList.switchUser(user2name(user), FriendList.ONLINE)
+
             QtGui.QApplication.processEvents()      #Added by thygrrr to improve application responsiveness on large IRC packets
 
         logger.debug("Added " + str(len(listing)) + " Chatters")
@@ -339,6 +343,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         if channel.lower() in self.crucialChannels and username != self.client.login:
             # TODO: search better solution, that html in nick & channel no rendered
             self.client.notificationSystem.on_event(ns.NotificationSystem.USER_ONLINE,{'user':username, 'channel':channel})
+            self.client.friendList.switchUser(username, FriendList.ONLINE)
         self.channels[channel].resizing()
 
 
@@ -449,7 +454,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
     def serverTimeout(self):
         pass
-        
+
 
     def on_disconnect(self, c, e):
         if not self.canDisconnect:
