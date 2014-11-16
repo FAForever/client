@@ -1,6 +1,6 @@
 from PyQt4 import QtCore
 import pytest
-from . import FriendList
+from friendlist import FriendList
 
 __author__ = 'Dragonfire'
 
