@@ -513,6 +513,12 @@ class ClientWindow(FormClass, BaseClass):
         self.friendList = FriendList(self.api)
         self.friendList.dialog = FriendListDialog(self.friendList, self)
 
+        # load friendlist settings
+        util.settings.beginGroup("friendlist")
+        friendlistEnabled = util.settings.value('enabled', 'true') == 'true'
+        self.actionFriendlist.setChecked(friendlistEnabled)
+        util.settings.endGroup()
+
         # set menu states
         self.actionNsEnabled.setChecked(self.notificationSystem.settings.enabled)
 
@@ -959,12 +965,6 @@ class ClientWindow(FormClass, BaseClass):
         self.actionActivateMumbleSwitching.setChecked(self.activateMumbleSwitching)
 
         self.loadChat()
-
-        # load friendlist settings
-        util.settings.beginGroup("friendlist")
-        friendlistEnabled = util.settings.value('enabled', 'true') == 'true'
-        self.actionFriendlist.setChecked(friendlistEnabled)
-        util.settings.endGroup()
 
 
     def loadChat(self):
