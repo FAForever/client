@@ -49,7 +49,7 @@ def git_describe(repository, commit):
         for parent in repository.walk(commit, pygit2.GIT_SORT_TIME):
             if parent.hex in tag_lookup:
                 if distance == 0:
-                    return tags[parent.hex]
+                    return tag_lookup[parent.hex].replace("refs/tags/", "")
                 return '%s-%d-g%s' % (tag_lookup[parent.hex][10:], distance, commit.hex[:7])
             distance += 1
 

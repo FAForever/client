@@ -59,9 +59,13 @@ shortcut_table = [
      )
 ]
 
+target_dir = '[ProgramFilesFolder][ProductName]'
+if 'pre' in git_version:
+    target_dir += "-beta"
+
 bdist_msi_options = {
     'upgrade_code': '{ADE2A55B-834C-4D8D-A071-7A91A3A266B7}',
-    'initial_target_dir': r'[ProgramFilesFolder][ProductName]',
+    'initial_target_dir': target_dir,
     'add_to_path': False,
     'data': {'Shortcut': shortcut_table},
 }
@@ -77,18 +81,21 @@ exe = Executable(
     base=base,
     targetName='FAForever.exe',
     icon='res/faf.ico',
-    includes=[os.path.join(os.path.dirname(PyQt4.uic.__file__), 'widget-plugins'), 'PyQt4.uic.widget-plugins']
+    includes=[os.path.join(os.path.dirname(PyQt4.uic.__file__), "widget-plugins"), "PyQt4.uic.widget-plugins"]
 )
 
 setup(
     name=product_name,
     version=msi_version,
     description='Forged Alliance Forever - Lobby Client',
-    long_description='FA Forever is a community project that allows you to play Supreme Commander and Supreme Commander: Forged Alliance online with people across the globe. Provides new game play modes, including cooperative play, ranked ladder play, and featured mods.',
+    long_description='FA Forever is a community project that allows you to play \
+Supreme Commander and Supreme Commander: Forged Alliance online \
+with people across the globe. Provides new game play modes, including cooperative play, \
+ranked ladder play, and featured mods.',
     author='FA Forever Community',
-    maintainer='Thygrrr',
-    url='http://faforever.com',
+    maintainer='Sheeo',
+    url='http://www.faforever.com',
     license='GNU General Public License, Version 3',
     options={'build_exe': build_exe_options, 'bdist_msi': bdist_msi_options},
-    executables=[exe], requires=['bsdiff4', 'pygit2', 'PyQt4', 'cx_Freeze', 'cffi', 'py', 'pytest'],
+    executables=[exe], requires=['bsdiff4', 'sip', 'pygit2', 'PyQt4', 'cx_Freeze', 'cffi', 'py'],
 )
