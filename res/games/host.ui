@@ -169,7 +169,7 @@
       <bool>false</bool>
      </property>
      <property name="dragDropMode">
-      <enum>QAbstractItemView::DragOnly</enum>
+      <enum>QAbstractItemView::NoDragDrop</enum>
      </property>
      <property name="selectionMode">
       <enum>QAbstractItemView::MultiSelection</enum>
@@ -181,7 +181,7 @@
       <enum>QAbstractItemView::ScrollPerPixel</enum>
      </property>
      <property name="movement">
-      <enum>QListView::Snap</enum>
+      <enum>QListView::Static</enum>
      </property>
     </widget>
    </item>
