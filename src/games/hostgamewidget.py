@@ -147,7 +147,3 @@ class HostgameWidget(FormClass, BaseClass):
         self.message['mapname'] = self.parent.gamemap
         self.game.update(self.message, self.parent.client)
 
-    @QtCore.pyqtSlot(QtGui.QListWidgetItem)
-    def modclicked(self, item):
-        #item.setSelected(not item.isSelected())
-        logger.debug("mod %s clicked." % str(item.text()))
