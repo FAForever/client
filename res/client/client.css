@@ -6,16 +6,16 @@
 }
 
 
- *[titleLabel="true"]
+*[titleLabel="true"]
 {
 	color:lightgrey;
 	font-size:12pt;
 	margin-right: 15px;
 	font-family: Verdana;
-	padding-bottom:5px;
+	padding-bottom:-15px;
 }
 
- *[windowControlBtn="true"]
+*[windowControlBtn="true"]
 {
 	background-color: rgba(0,0,0,0);
 	width: 18px;

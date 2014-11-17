@@ -278,7 +278,7 @@ class ClientWindow(FormClass, BaseClass):
         self.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
         self.maxNormal = False
 
-        close.clicked.connect(self.close);
+        close.clicked.connect(self.close)
         self.minimize.clicked.connect(self.showSmall)
         self.maximize.clicked.connect(self.showMaxRestore)
 
