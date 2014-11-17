@@ -60,11 +60,13 @@ shortcut_table = [
 ]
 
 target_dir = '[ProgramFilesFolder][ProductName]'
+upgrade_code = '{ADE2A55B-834C-4D8D-A071-7A91A3A266B7}'
 if 'pre' in git_version:
     target_dir += "-beta"
+    upgrade_code = '{2A336240-1D51-4726-B36f-78B998DD3740}'
 
 bdist_msi_options = {
-    'upgrade_code': '{ADE2A55B-834C-4D8D-A071-7A91A3A266B7}',
+    'upgrade_code': upgrade_code,
     'initial_target_dir': target_dir,
     'add_to_path': False,
     'data': {'Shortcut': shortcut_table},
