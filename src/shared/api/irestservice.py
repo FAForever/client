@@ -8,6 +8,7 @@ class RESTResponse(QObject):
 
     error = pyqtSignal(object)
     done = pyqtSignal(object)
+    progress = pyqtSignal(int, int)
 
     def __init__(self, reply):
         super(RESTResponse, self).__init__()
@@ -17,7 +18,7 @@ class RESTResponse(QObject):
         reply.downloadProgress.connect(self._onProgress)
 
     def _onProgress(self, recv, total):
-        print "OnProgress " + str(recv) + " " + str(total)
+        self.progress.emit(recv, total)
 
     def _onFinished(self):
         print "On Finished"
@@ -60,4 +61,5 @@ class IRESTService:
         return res
 
     def _cleanup(self, res):
-        self.requests.remove(res)
+        if res in self.requests:
+            self.requests.remove(res)
