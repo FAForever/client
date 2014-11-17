@@ -61,7 +61,6 @@ class GamesWidget(FormClass, BaseClass):
         #Dictionary containing our actual games.
         self.games = {}
 
-        self.requests = []
         self.version_service = VersionService(QtNetwork.QNetworkAccessManager())
 
         #Ranked search UI
@@ -674,10 +673,6 @@ class GamesWidget(FormClass, BaseClass):
 
         versions_request.done.connect(done)
         versions_request.error.connect(error)
-        self.requests.append(versions_request)
-
-
-#
 
     def savePassword(self, password):
         self.gamepassword = password

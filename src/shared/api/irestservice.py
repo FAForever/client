@@ -17,7 +17,7 @@ class RESTResponse(QObject):
         reply.downloadProgress.connect(self._onProgress)
 
     def _onProgress(self, recv, total):
-        print "OnProgress " + recv + " " + total
+        print "OnProgress " + str(recv) + " " + str(total)
 
     def _onFinished(self):
         print "On Finished"
@@ -41,13 +41,23 @@ class RESTResponse(QObject):
 class IRESTService:
     def __init__(self, network_manager):
         self.network_manager = network_manager
+        self.requests = []
 
     def _get(self, url):
         req = QNetworkRequest(QUrl(url))
-        return RESTResponse(self.network_manager.get(req))
+        return self._respond(self.network_manager.get(req))
 
     def _post(self, url, post_data):
         req = QNetworkRequest(QUrl(url))
         req.setHeader(QNetworkRequest.ContentTypeHeader, "application/json")
+        return self._respond(self.network_manager.post(req, json.dumps(post_data).encode()))
 
-        return RESTResponse(self.network_manager.post(req, json.dumps(post_data).encode()))
+    def _respond(self, req):
+        res = RESTResponse(req)
+        self.requests.append(res)
+        res.done.connect(self._cleanup)
+        res.error.connect(self._cleanup)
+        return res
+
+    def _cleanup(self, res):
+        self.requests.remove(res)
