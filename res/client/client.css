@@ -436,7 +436,7 @@ QGroupBox
 /* Used for dialogs*/
 QDialog 
 {
-	background-color: #808080;
+	background-color: #575656;
 }
 
 QCheckBox#spoilerCheckbox
@@ -476,14 +476,16 @@ QToolButton::checked
 	border-radius : 5px;
  }
 
- QComboBox
- {
- 	color:orange;
-	background-color: grey;
- }
+QComboBox, QComboBox:selectec
+{
+    color:orange;
+    background-color: #575656;
+}
+
+
 
 QComboBox QAbstractItemView {
     border: 2px solid darkgray;
-    selection-background-color: grey;
-	background-color: grey;
+    selection-background-color: #575656;
+	background-color: #575656;
 }
