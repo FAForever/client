@@ -33,6 +33,18 @@ class Version():
     def __init__(self, repo, ref, url=None, hash=None):
         self._version = {"repo": repo, "ref": ref, "url": url, "hash": hash}
 
+    @staticmethod
+    def from_json(string):
+        json_object = json.loads(string)
+        return Version.from_dict(json_object)
+
+    @staticmethod
+    def from_dict(dictionary):
+        return Version(dictionary['repo'],
+                       dictionary['ref'],
+                       dictionary.get('url'),
+                       dictionary.get('hash'))
+
     def __eq__(self, other):
         if not self.hash is None:
             return self.hash == other.hash
@@ -80,14 +92,6 @@ class Version():
     def is_trusted(self):
         parsed_url = urlparse(self.url)
         return len(filter(lambda url: fnmatch.fnmatch(parsed_url.hostname + parsed_url.path, url), TRUSTED_REPOS)) > 0
-
-    @staticmethod
-    def from_json(string):
-        json_object = json.loads(string)
-        return Version(json_object['repo'],
-                       json_object['ref'],
-                       json_object.get('url'),
-                       json_object.get('hash'))
 
     def to_json(self):
         return json.dumps(self._version)
