@@ -329,9 +329,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
                 self.addTab(self.channels[channel], channel)
 
 
-            if channel.lower() in self.crucialChannels: #Make the crucial channels not closeable, and make the last one the active one
+            if channel.lower() in self.crucialChannels: #Make the last crucial channel the active one
                 self.setCurrentWidget(self.channels[channel])
-                #self.tabBar().setTabButton(self.currentIndex(), QtGui.QTabBar.RightSide, None) -- make crucial channels closable 
 
         username = user2name(e.source())
         self.channels[channel].addChatter(username, True)
