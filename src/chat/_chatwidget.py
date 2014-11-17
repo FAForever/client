@@ -72,8 +72,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         #IRC parameters
         self.ircServer = IRC_SERVER
         self.ircPort = IRC_PORT
-        self.crucialChannels = []
-        self.optionalChannels = ["#aeolus"]
+        self.crucialChannels = ["#aeolus"]
+        self.optionalChannels = []
 
         #We can't send command until the welcom message is received
         self.welcomed = False
@@ -329,9 +329,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
                 self.addTab(self.channels[channel], channel)
 
 
-            if channel.lower() in self.crucialChannels: #Make the crucial channels not closeable, and make the last one the active one
+            if channel.lower() in self.crucialChannels: #Make the last crucial channel the active one
                 self.setCurrentWidget(self.channels[channel])
-                self.tabBar().setTabButton(self.currentIndex(), QtGui.QTabBar.RightSide, None)
 
         username = user2name(e.source())
         self.channels[channel].addChatter(username, True)
