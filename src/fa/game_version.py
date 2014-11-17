@@ -10,9 +10,18 @@ class GameVersion():
     """
     For describing the exact version of FA used.
     """
+    def __init__(self, engine, game, mods=None, _map=None):
+        self._versions = dict({'engine': engine,
+                               'game': game,
+                               'mods': mods,
+                               'map': _map})
 
-    def __init__(self, dict):
-        self._versions = dict
+    @staticmethod
+    def from_dict(dictionary):
+        return GameVersion(dictionary['engine'],
+                           dictionary['game'],
+                           dictionary.get('mods'),
+                           dictionary.get('map'))
 
     @property
     def is_stable(self):

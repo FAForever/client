@@ -14,17 +14,6 @@ VALID_GAME_VERSION_INFO = {
 
 
 def test_check_game_verifies_game_version(application):
-    assert check.game(application, GameVersion(VALID_GAME_VERSION_INFO))
+    assert check.game(application, GameVersion.from_dict(VALID_GAME_VERSION_INFO))
 
-
-def test_check_game_without_engine(application):
-    invalid_version = VALID_GAME_VERSION_INFO.copy()
-    invalid_version.pop('engine')
-    assert not check.game(application, GameVersion(invalid_version))
-
-
-def test_check_game_without_game(application):
-    invalid_version = VALID_GAME_VERSION_INFO.copy()
-    invalid_version.pop('game')
-    assert not check.game(application, GameVersion(invalid_version))
 

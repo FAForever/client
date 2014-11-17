@@ -28,41 +28,43 @@ def version():
 
 
 def test_game_version_can_be_created_from_valid_dict():
-    assert GameVersion(VALID_GAME_VERSION_INFO).is_valid
+    assert GameVersion.from_dict(VALID_GAME_VERSION_INFO).is_valid
 
 
 def test_game_version_requires_valid_binary_patch_version(version):
     version.pop('engine')
-    assert not GameVersion(version).is_valid
-    version['engine'] = {"a": "b"}
-    assert not GameVersion(version).is_valid
+    with pytest.raises(KeyError):
+        assert not GameVersion.from_dict(version).is_valid
+        version['engine'] = {"a": "b"}
+        assert not GameVersion.from_dict(version).is_valid
 
 
-def test_game_version_requires_valid_featured_mods(version):
+def test_game_version_requires_valid_main_mod(version):
     version.pop('game')
-    assert not GameVersion(version).is_valid
-    version['game'] = []
-    assert not GameVersion(version).is_valid
+    with pytest.raises(KeyError):
+        assert not GameVersion.from_dict(version).is_valid
+        version['game'] = []
+        assert not GameVersion.from_dict(version).is_valid
 
 
 def test_game_version_requires_existing_featured_mods(version):
     version['game'] = Mod("non-existing-featured-mod", Version('example', 'example'))
-    assert not GameVersion(version).is_valid
+    assert not GameVersion.from_dict(version).is_valid
 
 
 def test_game_version_is_unstable_iff_contains_unstable_pointer(version):
-    assert not GameVersion(version).is_stable
+    assert not GameVersion.from_dict(version).is_stable
 
 
 def test_game_version_with_stable_pointers_is_stable(version):
     version['engine'] = Version('FAForever/binary-patch', 'master', None, 'a41659780460fd8829fce87b479beaa8ac78e474')
-    assert GameVersion(version).is_stable
+    assert GameVersion.from_dict(version).is_stable
 
 
 def test_game_version_is_trusted_iff_all_repos_are_trusted(version):
-    assert GameVersion(version).is_trusted
+    assert GameVersion.from_dict(version).is_trusted
 
 
 def test_game_version_untrusted_urls(version):
-    assert GameVersion(UNTRUSTED_GAME_VERSION).untrusted_urls == ["http://example.com/test.git"]
+    assert GameVersion.from_dict(UNTRUSTED_GAME_VERSION).untrusted_urls == ["http://example.com/test.git"]
 
