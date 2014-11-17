@@ -658,15 +658,25 @@ class GamesWidget(FormClass, BaseClass):
 
             if hostgamewidget.exec_() == 1:
                 if self.gamename:
-                    # Should be removed later as it should be managed by the server.
                     modvault.setActiveMods(hostgamewidget.selected_mods, True)
                     logger.debug("Setting active mods to")
                     logger.debug(hostgamewidget.selected_mods)
-                    if fa.check.game(self, hostgamewidget.game_version):
+                    if fa.check.game(self, hostgamewidget.selected_game_version):
                         if self.ispassworded:
-                            self.client.send(dict(command="game_host", access="password", password=self.gamepassword, mod=item.mod, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort, options = gameoptions))
+                            self.client.send(dict(command="game_host",
+                                                  access="password",
+                                                  password=self.gamepassword,
+                                                  mod=item.mod,
+                                                  title=self.gamename,
+                                                  mapname=self.gamemap,
+                                                  gameport=self.client.gamePort))
                         else:
-                            self.client.send(dict(command="game_host", access="public", mod=item.mod, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort, options = gameoptions))
+                            self.client.send(dict(command="game_host",
+                                                  access="public",
+                                                  mod=item.mod,
+                                                  title=self.gamename,
+                                                  mapname=self.gamemap,
+                                                  gameport=self.client.gamePort))
 
         def error(err):
             logger.critical(err)

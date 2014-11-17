@@ -20,12 +20,14 @@
 
 import os
 
+
 from PyQt4 import QtCore, QtGui
 from games.gameitem import GameItem, GameItemDelegate
 import modvault
 
 from fa import maps
 from fa.game_version import GameVersion
+from git.version import Version
 import util
 
 import logging
@@ -61,6 +63,7 @@ class HostgameWidget(FormClass, BaseClass):
         self.gamePreview.setItemDelegate(GameItemDelegate(self))
         self.gamePreview.addItem(self.game)
 
+        self.map = ''
         self.message = {}
         self.message['title'] = self.parent.gamename
         self.message['host'] = self.parent.client.login
@@ -123,8 +126,18 @@ class HostgameWidget(FormClass, BaseClass):
         self.titleEdit.textChanged.connect(self.updateText)
 
     @property
-    def game_version(self):
-        return GameVersion("FAForever/"+self.gameVersion.repo_name)
+    def selected_game_version(self):
+        """
+        Get a GameVersion representing what was selected
+        :return: GameVersion
+        """
+        version = self.versions[self.selectedVersion]
+        logger.debug("Using")
+        logger.debug(version)
+        return GameVersion(Version.from_dict(version['ver_engine']),
+                           Version.from_dict(version['ver_main_mod']),
+                           [],
+                           self.map)
 
     @property
     def selected_mods(self):
@@ -148,7 +161,7 @@ class HostgameWidget(FormClass, BaseClass):
         self.done(1)
 
     def mapChanged(self, index):
-        self.parent.gamemap = self.mapList.itemData(index)
+        self.map = self.mapList.itemData(index)
         icon = maps.preview(self.parent.gamemap, True)
         if not icon:
             icon = util.icon("games/unknown_map.png", False, True)
