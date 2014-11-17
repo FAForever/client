@@ -121,11 +121,14 @@ class HostgameWidget(FormClass, BaseClass):
         self.mapList.currentIndexChanged.connect(self.mapChanged)
         self.hostButton.released.connect(self.hosting)
         self.titleEdit.textChanged.connect(self.updateText)
-        self.modList.itemClicked.connect(self.modclicked)
 
     @property
     def game_version(self):
         return GameVersion("FAForever/"+self.gameVersion.repo_name)
+
+    @property
+    def selected_mods(self):
+        return [self.mods[str(m.text())] for m in self.modList.selectedItems()]
 
     def versionChanged(self, index):
         self.selectedVersion = index

@@ -659,11 +659,10 @@ class GamesWidget(FormClass, BaseClass):
 
             if hostgamewidget.exec_() == 1:
                 if self.gamename:
-                    modnames = [str(moditem.text()) for moditem in hostgamewidget.modList.selectedItems()]
-                    mods = [hostgamewidget.mods[modstr] for modstr in modnames]
-
                     # Should be removed later as it should be managed by the server.
-                    modvault.setActiveMods(mods, True)
+                    modvault.setActiveMods(hostgamewidget.selected_mods, True)
+                    logger.debug("Setting active mods to")
+                    logger.debug(hostgamewidget.selected_mods)
                     if fa.check.game(self, hostgamewidget.game_version):
                         if self.ispassworded:
                             self.client.send(dict(command="game_host", access="password", password=self.gamepassword, mod=item.mod, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort, options = gameoptions))
