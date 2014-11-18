@@ -22,6 +22,7 @@ import PyQt4.uic
 from cx_Freeze import setup, Executable
 
 sys.path.insert(0, "src")
+sys.path.insert(0, "lib")
 
 company_name = 'FAF Community'
 product_name = 'Forged Alliance Forever'
@@ -37,9 +38,11 @@ print('Build version:', git_version, 'MSI version:', msi_version)
 # Dependencies are automatically detected, but it might need fine tuning.
 build_exe_options = {
     'include_files': ['res', 'RELEASE-VERSION', ('lib/uid.dll', 'uid.dll')],
+    'optimize': 2,
     'icon': 'res/faf.ico',
     'include_msvcr': True,
-    'packages': ['util', 'sip', 'cffi', 'pycparser', 'PyQt4.uic'],
+    'silent': True,
+    'packages': ['util', 'sip', 'cffi', 'pycparser', 'PyQt4.uic']
 }
 
 shortcut_table = [
@@ -98,5 +101,5 @@ ranked ladder play, and featured mods.',
     url='http://www.faforever.com',
     license='GNU General Public License, Version 3',
     options={'build_exe': build_exe_options, 'bdist_msi': bdist_msi_options},
-    executables=[exe], requires=['bsdiff4', 'sip', 'pygit2', 'PyQt4', 'cx_Freeze', 'cffi', 'py'],
+    executables=[exe], requires=['bsdiff4', 'sip', 'pygit2', 'PyQt4', 'cx_Freeze', 'cffi', 'py', 'faftools'],
 )
