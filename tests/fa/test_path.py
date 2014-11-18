@@ -1,4 +1,4 @@
-import path
+from fa import path
 import os
 import shutil
 
