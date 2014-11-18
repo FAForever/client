@@ -1,13 +1,11 @@
-from PyQt4 import QtCore
-
-from shared.api.irestservice import IRESTService
-from shared.api import *
-
+from faftools.api.irestservice import IRESTService
+from faftools.api import *
 
 __author__ = 'Sheeo'
 
 import logging
 logger = logging.getLogger(__name__)
+
 logger.setLevel(logging.DEBUG)
 
 
