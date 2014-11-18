@@ -33,8 +33,12 @@ sip.setapi('QList', 2)
 sip.setapi('QProcess', 2)
 
 import sys
+import os
 from PyQt4 import QtGui
 import util
+
+
+sys.path.insert(0, os.path.abspath("lib"))
 
 # Set up crash reporting
 excepthook_original = sys.excepthook
