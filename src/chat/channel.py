@@ -226,15 +226,6 @@ class Channel(FormClass, BaseClass):
         else:
             self.chatArea.verticalScrollBar().setValue(scroll_current)
 
-    def quackerize(self, text):
-        line = []
-        words = text.split()
-        
-        for word in words :
-            line.append("qu"+ "a" * min(7,len(word))+ "ck")
-             
-        return (" ").join(line)    
- 
     @QtCore.pyqtSlot(str, str)
     def printMsg(self, name, text, scroll_forced=False):
         '''
