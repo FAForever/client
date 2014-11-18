@@ -46,6 +46,8 @@ class Version():
                        dictionary.get('hash'))
 
     def __eq__(self, other):
+        if not isinstance(other, Version):
+            return False
         if not self.hash is None:
             return self.hash == other.hash
         elif (self.repo, self.ref) is not (None, None):
