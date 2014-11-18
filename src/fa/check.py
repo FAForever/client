@@ -85,12 +85,7 @@ def path(parent):
     writeFAPathLua()
 
 
-def game(parent, game_version=None):
-
-    if game_version is None:
-        logger.fatal("Cannot update to an unknown version of FA")
-        return False
-
+def game(parent, game_version):
     if not game_version.is_valid:
         logger.critical("Invalid game version")
         # TODO: Show something about why, report error
@@ -117,9 +112,8 @@ def game(parent, game_version=None):
     game_repo = Repository(GAME_PATH)
     if not game_repo.has_version(game_version.main_mod.version):
         logger.info("We don't have the required game version")
-        # TODO: Spawn an updater here
     else:
-        game_repo.checkout(game_version.main_mod.version)
+        game_repo.checkout_version(game_version.main_mod.version)
 
     return True
 
