@@ -22,6 +22,7 @@ import PyQt4.uic
 from cx_Freeze import setup, Executable
 
 sys.path.insert(0, "src")
+sys.path.insert(0, "lib")
 
 company_name = 'FAF Community'
 product_name = 'Forged Alliance Forever'
@@ -41,6 +42,7 @@ build_exe_options = {
     'include_msvcr': True,
     'optimize': 2,
     'packages': ['cffi', 'pycparser', '_cffi__xf1819144xd61e91d9'],
+    'silent': True,
 }
 
 shortcut_table = [
@@ -99,5 +101,5 @@ ranked ladder play, and featured mods.',
     url='http://www.faforever.com',
     license='GNU General Public License, Version 3',
     options={'build_exe': build_exe_options, 'bdist_msi': bdist_msi_options},
-    executables=[exe], requires=['bsdiff4', 'sip', 'pygit2', 'PyQt4', 'cx_Freeze', 'cffi', 'py'],
+    executables=[exe], requires=['bsdiff4', 'sip', 'pygit2', 'PyQt4', 'cx_Freeze', 'cffi', 'py', 'faftools'],
 )
