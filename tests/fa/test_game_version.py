@@ -13,13 +13,13 @@ VALID_BINARY_PATCH = Version('FAForever/binary-patch', 'master')
 
 VALID_GAME_VERSION_INFO = {
     "engine": Version('FAForever/binary-patch', 'master'),
-    "game": Mod("faf", TEST_GAME_VERSION),
+    "main_mod": Mod("faf", TEST_GAME_VERSION),
     "mods": [TEST_SIM_MOD],
     "map": {"name": "scmp_0009", "version": "builtin"}
 }
 
 UNTRUSTED_GAME_VERSION = VALID_GAME_VERSION_INFO.copy()
-UNTRUSTED_GAME_VERSION["game"] = Mod("faf", Version("fa", "3678", "http://example.com/test.git"))
+UNTRUSTED_GAME_VERSION["main_mod"] = Mod("faf", Version("fa", "3678", "http://example.com/test.git"))
 
 
 @pytest.fixture(scope='function')
@@ -40,15 +40,15 @@ def test_game_version_requires_valid_binary_patch_version(version):
 
 
 def test_game_version_requires_valid_main_mod(version):
-    version.pop('game')
+    version.pop('main_mod')
     with pytest.raises(KeyError):
         assert not GameVersion.from_dict(version).is_valid
-        version['game'] = []
+        version['main_mod'] = []
         assert not GameVersion.from_dict(version).is_valid
 
 
 def test_game_version_requires_existing_featured_mods(version):
-    version['game'] = Mod("non-existing-featured-mod", Version('example', 'example'))
+    version['main_mod'] = Mod("non-existing-featured-mod", Version('example', 'example'))
     assert not GameVersion.from_dict(version).is_valid
 
 

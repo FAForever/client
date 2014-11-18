@@ -115,11 +115,11 @@ def game(parent, game_version=None):
         ## Do patch update if needed
 
     game_repo = Repository(GAME_PATH)
-    if not game_repo.has_version(game_version.game.version):
+    if not game_repo.has_version(game_version.main_mod.version):
         logger.info("We don't have the required game version")
         # TODO: Spawn an updater here
     else:
-        game_repo.checkout(game_version.game.version)
+        game_repo.checkout(game_version.main_mod.version)
 
     return True
 

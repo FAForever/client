@@ -10,16 +10,16 @@ class GameVersion():
     """
     For describing the exact version of FA used.
     """
-    def __init__(self, engine, game, mods=None, _map=None):
+    def __init__(self, engine, main_mod, mods=None, _map=None):
         self._versions = dict({'engine': engine,
-                               'game': game,
+                               'main_mod': main_mod,
                                'mods': mods,
                                'map': _map})
 
     @staticmethod
     def from_dict(dictionary):
         return GameVersion(dictionary['engine'],
-                           dictionary['game'],
+                           dictionary['main_mod'],
                            dictionary.get('mods'),
                            dictionary.get('map'))
 
@@ -34,7 +34,7 @@ class GameVersion():
         """
         return self.is_valid \
                and self._versions['engine'].is_stable \
-               and self._versions['game'].version.is_stable \
+               and self._versions['main_mod'].version.is_stable \
                and all(map(lambda x: x.version.is_stable, self._versions['mods']))
 
     @property
@@ -42,8 +42,8 @@ class GameVersion():
         return self._versions['engine']
 
     @property
-    def game(self):
-        return self._versions['game']
+    def main_mod(self):
+        return self._versions['main_mod']
 
     @property
     def mods(self):
@@ -73,11 +73,11 @@ class GameVersion():
             return True
 
         valid = "engine" in self._versions
-        valid = valid and "game" in self._versions
+        valid = valid and "main_mod" in self._versions
         for key, value in self._versions.iteritems():
             valid = valid and {
                 'engine': lambda version: valid_version(version),
-                'game': lambda mod: valid_featured_mod(mod),
+                'main_mod': lambda mod: valid_featured_mod(mod),
                 'mods': lambda versions: all(map(lambda v: valid_mod(v), versions)),
             }.get(key, lambda k: True)(value)
 
@@ -89,9 +89,9 @@ class GameVersion():
         Trustedness means that all repos referenced are trusted
         :return bool
         """
-        trusted = self._versions['engine'].is_trusted
-        trusted = trusted and self._versions['game'].is_trusted
-        if len(self._versions['mods']) > 0:
+        trusted = self.engine.is_trusted
+        trusted = trusted and self.main_mod.is_trusted
+        if len(self.mods) > 0:
             return trusted and reduce(lambda x, y: x.is_trusted and y.is_trusted, self._versions['mods'])
         else:
             return trusted
@@ -99,8 +99,8 @@ class GameVersion():
     @property
     def untrusted_urls(self):
         urls = []
-        if not self._versions['engine'].is_trusted:
-            urls.append(self._versions['engine'].url)
-        if not self._versions['game'].version.is_trusted:
-            urls.append(self._versions['game'].version.url)
+        if not self.engine.is_trusted:
+            urls.append(self.engine.url)
+        if not self.main_mod.version.is_trusted:
+            urls.append(self.main_mod.version.url)
         return urls
