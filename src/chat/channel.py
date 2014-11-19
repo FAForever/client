@@ -243,8 +243,8 @@ class Channel(FormClass, BaseClass):
             
             displayName = name
             
-            if self.lobby.client.isFoe(name) :
-                text = self.quackerize(text)
+            if self.lobby.client.isFoe(name):
+                return
             
             clan = self.lobby.client.getUserClan(name)
             if clan != "":
