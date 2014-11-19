@@ -27,7 +27,7 @@ sys.path.insert(0, "lib")
 company_name = 'FAF Community'
 product_name = 'Forged Alliance Forever'
 
-import version
+import config.version as version
 import PyQt4.uic
 git_version = version.get_git_version()
 msi_version = version.msi_version(git_version)
