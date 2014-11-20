@@ -9,10 +9,13 @@ class InitFile(object):
     """
     def __init__(self):
         self._init_keys = [
-            ('path', {}),
+            ('path', []),
             ('hook', ['/schook']),
             ('protocols', ['http', 'https', 'mailto', 'ventrilo', 'teamspeak', 'daap', 'im'])
         ]
+
+    def mount(self, path, mountpoint):
+        self._init_keys[0][1].append({"mountpoint": mountpoint, "dir": path})#omg
 
     def to_lua(self):
         lua = []
