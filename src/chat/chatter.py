@@ -125,10 +125,12 @@ class Chatter(QtGui.QTableWidgetItem):
         # Non-Operators will be compared for friendship, foeness, and actual player (not civilian) status
         if self.lobby.client.isFriend(self.name) and not self.lobby.client.isFriend(other.name): return True
         if not self.lobby.client.isFriend(self.name) and self.lobby.client.isFriend(other.name): return False
-        if self.lobby.client.isFoe(self.name) and not self.lobby.client.isFoe(other.name): return True 
-        if not self.lobby.client.isFoe(self.name) and self.lobby.client.isFoe(other.name): return False        
+        if self.lobby.client.isClanMember(self.name) and not self.lobby.client.isClanMember(other.name): return True
+        if not self.lobby.client.isClanMember(self.name) and self.lobby.client.isClanMember(other.name): return False
         if self.lobby.client.isPlayer(self.name) and not self.lobby.client.isPlayer(other.name): return True 
         if not self.lobby.client.isPlayer(self.name) and self.lobby.client.isPlayer(other.name): return False
+        if self.lobby.client.isFoe(self.name) and not self.lobby.client.isFoe(other.name): return False
+        if not self.lobby.client.isFoe(self.name) and self.lobby.client.isFoe(other.name): return True
         
         # List self below all friends and above every other player 
         if self.name == self.lobby.client.login: return True

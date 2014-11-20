@@ -308,6 +308,7 @@ class ClientWindow(FormClass, BaseClass):
 
         self.friends = []       # names of the client's friends
         self.foes = []       # names of the client's foes
+        self.clanlist = []      # members of clients clan
 
         self.power = 0          # current user power
         self.email = None
@@ -1274,6 +1275,12 @@ class ClientWindow(FormClass, BaseClass):
         '''
         return name in self.foes
 
+    def isClanMember(self, name):
+        '''
+        Convenience function for other modules to inquire about a user's clanliness.
+        '''
+        return name in self.clanlist
+
     def isPlayer(self, name):
         '''
         Convenience function for other modules to inquire about a user's civilian status.
@@ -1338,6 +1345,8 @@ class ClientWindow(FormClass, BaseClass):
             return self.getColor("friend")
         elif name in self.foes:
             return self.getColor("foe")
+        elif name in self.clanlist:
+            return self.getColor("clan")
         elif name in self.players:
             if self.coloredNicknames:
                 return self.getRandomColor(name)
@@ -1995,6 +2004,12 @@ class ClientWindow(FormClass, BaseClass):
         name = message["login"]
         self.players[name] = message
         self.usersUpdated.emit([name])
+        # Once we have the users clan, initialise the clanlist.
+        if name == self.login:
+            self.initClanlist()
+        # If users clan not yet known, self.getUserClan(self.login) equals ''
+        if not message["clan"] == '' and message["clan"] == self.getUserClan(self.login):
+            self.clanlist.append(name)
 
 
     def handle_mod_manager(self, message):
@@ -2045,4 +2060,11 @@ class ClientWindow(FormClass, BaseClass):
             logger.info("Server has kicked you from the Lobby.")
             self.cleanup()
 
-
+    def initClanlist(self):
+        clan = self.getUserClan(self.login)
+        # Check user has a clan
+        if clan == '': return
+        
+        for name in self.players:
+            if self.getUserClan(name) == clan:
+                self.clanlist.append(name)
