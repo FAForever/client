@@ -32,7 +32,6 @@ import json
 
 import logging
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 LIVEREPLAY_DELAY = 5 #livereplay delay in minutes
 LIVEREPLAY_DELAY_TIME = LIVEREPLAY_DELAY * 60 #livereplay delay for time() (in seconds)

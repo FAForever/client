@@ -162,24 +162,7 @@ except:
 # Initialize logging system
 import logging
 
-logging.basicConfig(filename=LOG_FILE_FAF, level=logging.INFO,
-                    format='%(asctime)s %(levelname)-8s %(name)-40s %(message)s')
-
-if developer():
-    devh = logging.StreamHandler()
-    devh.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-40s %(message)s'))
-    logging.getLogger().addHandler(devh)
-
 logger = logging.getLogger(__name__)
-
-
-def startLogging():
-    logger.debug("Logging started.")
-
-
-def stopLogging():
-    logger.debug("Logging ended.")
-    logging.shutdown()
 
 
 from PyQt4 import uic

@@ -23,7 +23,6 @@ from urllib2 import HTTPError
 import fa
 
 logger= logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 
 

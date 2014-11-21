@@ -32,13 +32,19 @@ sip.setapi('QStringList', 2)
 sip.setapi('QList', 2)
 sip.setapi('QProcess', 2)
 
-import sys
 import os
+import sys
+
+if os.path.isdir("lib"):
+    sys.path.insert(0, os.path.abspath("lib"))
+elif os.path.isdir("../lib"):
+    sys.path.insert(0, os.path.abspath("../lib"))
+
 from PyQt4 import QtGui
+import config
 import util
 
 
-sys.path.insert(0, os.path.abspath("lib"))
 
 # Set up crash reporting
 excepthook_original = sys.excepthook
@@ -83,22 +89,17 @@ def runFAF():
                 #Main update loop
                 QtGui.QApplication.exec_()
 
-    
 
-
-#Actual "main" method 
-if __name__ == '__main__':                
-    #Set up logging framework
+#Actual "main" method
+if __name__ == '__main__':
     import logging
     logger = logging.getLogger(__name__)
-    logger.propagate = True
 
     #init application framework
-    logger.info(">>> --------------------------- Application Launch")    
+    logger.info(">>> --------------------------- Application Launch")
     app = QtGui.QApplication(sys.argv)
     app.setWindowIcon(util.icon("window_icon.png", True))
     #Set application icon to nicely stack in the system task bar    
-
 
     import ctypes
     if getattr(ctypes.windll.shell32, "SetCurrentProcessExplicitAppUserModelID", None) is not None: 
@@ -121,5 +122,4 @@ if __name__ == '__main__':
     
     #End the application, perform some housekeeping
     logger.info("<<< --------------------------- Application Shutdown")    
-    logging.shutdown()
 

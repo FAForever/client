@@ -36,7 +36,6 @@ UNIT16 = 8
 
 class proxies(QtCore.QObject):
     __logger = logging.getLogger(__name__)
-    __logger.setLevel(logging.DEBUG)
 
     def __init__(self, parent=None):
         super(proxies, self).__init__(parent)

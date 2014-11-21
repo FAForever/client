@@ -23,7 +23,6 @@
 import logging
 from fa import faction
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 
 

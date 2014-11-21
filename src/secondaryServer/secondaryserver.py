@@ -26,7 +26,6 @@ import logging
 
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 def log(string):
     logger.debug(string)
