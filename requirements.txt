@@ -9,3 +9,4 @@ pygit2>=0.21.3
 pytest>=2.6.3
 pytest-qt>=1.2.2
 python-dateutil>=2.2
+lupa>=1.1
