@@ -1,7 +1,7 @@
 __author__ = 'Sheeo'
 
 from fa import check
-from fa.featured import Mod
+from fa.mod import Mod
 from fa.game_version import GameVersion
 from git.version import Version
 from PyQt4.QtGui import qApp
@@ -23,12 +23,12 @@ fa.check.Repository = repo_mock
 
 version_service = flexmock()
 TEST_GAME_VERSION = Version('FAForever/fa', '3634', None, '791035045345a4c597a92ea0ef50d71fcccb0bb1')
-TEST_SIM_MOD = Mod("test-mod", Version('FAForever/test_sim_mod', 'some-branch', None, 'some-hash'))
+TEST_SIM_MOD = Mod("test-mod", "test-path", Version('FAForever/test_sim_mod', 'some-branch', None, 'some-hash'))
 VALID_BINARY_PATCH = Version('FAForever/binary-patch', 'master', None, 'a41659780460fd8829fce87b479beaa8ac78e474')
 
 TEST_VERSION = GameVersion.from_dict({
     "engine": VALID_BINARY_PATCH,
-    "main_mod": Mod("faf", TEST_GAME_VERSION),
+    "main_mod": Mod("faf", "test-path", TEST_GAME_VERSION),
     "mods": [TEST_SIM_MOD],
     "map": {"name": "scmp_0009", "version": "builtin"}
 })

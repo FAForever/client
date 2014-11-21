@@ -1,7 +1,9 @@
 __author__ = 'Sheeo'
 
 from git import Repository, Version
+
 from fa import featured
+from fa.mod import Mod
 
 from collections import namedtuple
 
@@ -66,8 +68,8 @@ class GameVersion():
             return isinstance(version, Version)
 
         def valid_featured_mod(mod):
-            return isinstance(mod, featured.Mod) \
-                   and valid_version(mod.version) and featured.is_featured_mod(mod)
+            return isinstance(mod, Mod) \
+                   and valid_version(mod.version) and mod.is_featured
 
         def valid_mod(mod):
             return True
@@ -90,7 +92,7 @@ class GameVersion():
         :return bool
         """
         trusted = self.engine.is_trusted
-        trusted = trusted and self.main_mod.is_trusted
+        trusted = trusted and self.main_mod.version.is_trusted
         if len(self.mods) > 0:
             return trusted and reduce(lambda x, y: x.is_trusted and y.is_trusted, self._versions['mods'])
         else:

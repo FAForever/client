@@ -10,27 +10,6 @@ from git import Version
 
 logger = logging.getLogger(__name__)
 
-FEATURED_MOD_TO_REPO_NAME = {
-    "faf": "fa",
-    "coop": "fa",
-    "gw": "fa",
-    "balancetesting": "fa",
-    "ladder1v1": "fa",
-    "matchmaker": "fa",
-    "nomads": "nomads",
-    "murderparty": "murderparty",
-    "labwars": "labwars",
-    "wyvern": "wyvern",
-    "blackops": "blackops",
-    "xtremewars": "xtremewars",
-    "diamond": "diamong",
-    "phantomx": "phantomx",
-    "vanilla": "vanilla",
-    "civilians": "civilians",
-    "koth": "koth",
-    "claustrophobia": "claustrophobia",
-    "supremeDestruction": "supremeDestruction"
-}
 
 DEFAULT_REPO_BASE = "FAForever"
 
@@ -55,23 +34,3 @@ def replay_info_to_featured_mod_version(replay_info):
                               None)
 
 
-class Mod():
-    def __init__(self, name, version):
-        self._name = name
-        self._version = version
-
-    @property
-    def is_trusted(self):
-        return self._version.is_trusted
-
-    @property
-    def is_featured(self):
-        return self._name in FEATURED_MOD_TO_REPO_NAME.iterkeys()
-
-    @property
-    def version(self):
-        return self._version
-
-    @property
-    def name(self):
-        return self._name

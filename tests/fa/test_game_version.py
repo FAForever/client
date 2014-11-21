@@ -1,5 +1,5 @@
 from fa.game_version import GameVersion
-from fa.featured import Mod
+from fa.mod import Mod
 from git import Repository, Version
 
 import pytest
@@ -7,19 +7,19 @@ import pytest
 __author__ = 'Sheeo'
 
 TEST_GAME_VERSION = Version('FAForever/fa', '3634', None, '791035045345a4c597a92ea0ef50d71fcccb0bb1')
-TEST_SIM_MOD = Mod("test-mod", Version('FAForever/test_sim_mod', 'some-branch', None, 'some-hash'))
+TEST_SIM_MOD = Mod("test-mod", "test-path", Version('FAForever/test_sim_mod', 'some-branch', None, 'some-hash'))
 
 VALID_BINARY_PATCH = Version('FAForever/binary-patch', 'master')
 
 VALID_GAME_VERSION_INFO = {
     "engine": Version('FAForever/binary-patch', 'master'),
-    "main_mod": Mod("faf", TEST_GAME_VERSION),
+    "main_mod": Mod("faf", "test-path", TEST_GAME_VERSION),
     "mods": [TEST_SIM_MOD],
     "map": {"name": "scmp_0009", "version": "builtin"}
 }
 
 UNTRUSTED_GAME_VERSION = VALID_GAME_VERSION_INFO.copy()
-UNTRUSTED_GAME_VERSION["main_mod"] = Mod("faf", Version("fa", "3678", "http://example.com/test.git"))
+UNTRUSTED_GAME_VERSION["main_mod"] = Mod("faf", "test-path", Version("fa", "3678", "http://example.com/test.git"))
 
 
 @pytest.fixture(scope='function')
@@ -48,7 +48,7 @@ def test_game_version_requires_valid_main_mod(version):
 
 
 def test_game_version_requires_existing_featured_mods(version):
-    version['main_mod'] = Mod("non-existing-featured-mod", Version('example', 'example'))
+    version['main_mod'] = Mod("non-existing-featured-mod", "non-existing-path", Version('example', 'example'))
     assert not GameVersion.from_dict(version).is_valid
 
 
