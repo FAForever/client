@@ -26,3 +26,14 @@ def test_path_gets_amended():
 hook={"/schook"}
 protocols={"http","https","mailto","ventrilo","teamspeak","daap","im"}
 """
+
+
+def test_mount_order_matters():
+    f = InitFile()
+    f.mount('first-dir', '/')
+    f.mount('second-dir', '/')
+    assert f.to_lua() == \
+"""path={{"mountpoint"="/","dir"="first-dir"},{"mountpoint"="/","dir"="second-dir"}}
+hook={"/schook"}
+protocols={"http","https","mailto","ventrilo","teamspeak","daap","im"}
+"""
