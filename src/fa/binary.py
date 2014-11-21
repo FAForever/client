@@ -191,9 +191,8 @@ class Updater(QtCore.QObject):
         gamepath = os.path.join(str(settings.value("ForgedAlliance/app/path", type=str)), "bin")
 
         if not self.check_up_to_date(gamepath):
-            logger.info("Fresh bin directory required.")
+            logger.info("Updated bin directory required.")
             self.prepare_progress("Creating fresh install.")
-            util.clean_slate(util.BIN_DIR)
             try:
                 self.patch_forged_alliance(gamepath)
             except PatchFailedError, pfe:
