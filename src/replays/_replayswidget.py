@@ -32,6 +32,7 @@ import json
 
 import logging
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 LIVEREPLAY_DELAY = 5 #livereplay delay in minutes
 LIVEREPLAY_DELAY_TIME = LIVEREPLAY_DELAY * 60 #livereplay delay for time() (in seconds)
@@ -576,15 +577,18 @@ class ReplaysWidget(BaseClass, FormClass):
         logger.debug("Replay Vault Server: " + action)
         self.receiveJSON(action, stream)
         
-
     def receiveJSON(self, data_string, stream):
         '''
         A fairly pythonic way to process received strings as JSON messages.
         '''
-        message = json.loads(data_string)
-        cmd = "handle_" + message['command']
-        if hasattr(self.client, cmd):
-            getattr(self.client, cmd)(message)
+        try:
+            message = json.loads(data_string)
+            cmd = "handle_" + message['command']
+            if hasattr(self.client, cmd):
+                getattr(self.client, cmd)(message)
+        except ValueError as e:
+            logger.error("Error decoding json ")
+            logger.error(e)
         
         self.replayVaultSocket.disconnectFromHost()
         
