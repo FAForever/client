@@ -19,6 +19,8 @@ TEST_MASTER = "faf/master"
 TEST_BRANCH = "faf/test"
 TEST_BRANCH_COMMIT = "b20f559f4e1857ea78783a84ffec4ddfaa60f557"
 
+# TODO: Have TEST_REPO as a submodule and use the local repository
+
 @pytest.fixture(scope="module")
 def prefetched_repo(request):
     tmpdir = py.test.ensuretemp(__name__ + ".prefetched_repo")
@@ -50,6 +52,7 @@ def test_has_remote_faf_after_init(tmpdir):
     assert "faf" in test_repo.remote_names
 
 
+@pytest.mark.net
 def test_emits_transfer_signals_on_fetch(tmpdir, signal_receiver):
     repo_dir = str(tmpdir.join("test_repo"))
     test_repo = Repository(repo_dir, TEST_REPO_URL)
@@ -63,6 +66,7 @@ def test_emits_transfer_signals_on_fetch(tmpdir, signal_receiver):
     assert signal_receiver.int_values[-2:][0] == signal_receiver.int_values[-2:][1]
 
 
+@pytest.mark.net
 def test_retrieves_contents_on_checkout(prefetched_repo):
     repo_dir = prefetched_repo.path
     prefetched_repo.checkout()
@@ -70,12 +74,14 @@ def test_retrieves_contents_on_checkout(prefetched_repo):
     assert os.path.isfile(os.path.join(repo_dir, "LICENSE"))
 
 
+@pytest.mark.net
 def test_retrieves_alternate_branch_on_checkout(prefetched_repo):
     repo_dir = prefetched_repo.path
     prefetched_repo.checkout(TEST_BRANCH)
     assert os.path.isfile(os.path.join(repo_dir, "test"))
 
 
+@pytest.mark.net
 def test_wipes_working_directory_on_branch_switch(prefetched_repo):
     repo_dir = prefetched_repo.path
 
@@ -85,20 +91,24 @@ def test_wipes_working_directory_on_branch_switch(prefetched_repo):
     assert not os.path.isfile(os.path.join(repo_dir, "test"))
 
 
+@pytest.mark.net
 def test_has_all_remote_branches_after_fetch(prefetched_repo):
     for branch in TEST_REPO_BRANCHES:
         assert branch in prefetched_repo.remote_branches
 
 
+@pytest.mark.net
 def test_has_no_local_branches_after_fetch(prefetched_repo):
     assert not prefetched_repo.local_branches
 
 
+@pytest.mark.net
 def test_has_all_tags_after_fetch(prefetched_repo):
     for branch in TEST_REPO_TAGS:
         assert branch in prefetched_repo.tags
 
 
+@pytest.mark.net
 def test_adds_remote_faf_after_clone(tmpdir):
     repo_dir = str(tmpdir.join("test_repo"))
     test_repo = Repository(repo_dir, "http://faforever.com")
@@ -109,6 +119,7 @@ def test_adds_remote_faf_after_clone(tmpdir):
     assert "faf" in test_repo.remote_names
 
 
+@pytest.mark.net
 def test_adds_faf_even_if_same_remote_url_exists_for_other_remote(tmpdir):
     repo_dir = str(tmpdir.join("test_repo"))
     test_repo = Repository(repo_dir, TEST_REPO_URL)
@@ -119,6 +130,7 @@ def test_adds_faf_even_if_same_remote_url_exists_for_other_remote(tmpdir):
     assert "faf" in test_repo.remote_names
 
 
+@pytest.mark.net
 def test_keeps_pre_existing_remote_faf(tmpdir):
     repo_dir = str(tmpdir.join("test_repo"))
     _ = Repository(repo_dir, "http://faforever.com")
@@ -128,6 +140,7 @@ def test_keeps_pre_existing_remote_faf(tmpdir):
     assert repo.remote_names.index("faf") == repo.remote_urls.index("http://faforever.com")
 
 
+@pytest.mark.net
 def test_retrieves_arbitrary_commit_on_checkout(prefetched_repo):
     repo_dir = prefetched_repo.path
     assert prefetched_repo.has_hex(TEST_ARBITRARY_COMMIT)
@@ -135,36 +148,43 @@ def test_retrieves_arbitrary_commit_on_checkout(prefetched_repo):
     assert os.path.isfile(os.path.join(repo_dir, "arbitrary"))
 
 
+@pytest.mark.net
 def test_retrieves_correct_tag_on_checkout(prefetched_repo):
     repo_dir = prefetched_repo.path
     prefetched_repo.checkout(TEST_TAG)
     assert os.path.isfile(os.path.join(repo_dir, "tagged"))
 
 
+@pytest.mark.net
 def test_returns_correct_commit_hex_after_checkout(prefetched_repo):
     prefetched_repo.checkout(TEST_ARBITRARY_COMMIT)
     assert prefetched_repo.current_head.hex == TEST_ARBITRARY_COMMIT
 
 
+@pytest.mark.net
 def test_retrieves_correct_hex_on_tag_checkout(prefetched_repo):
     prefetched_repo.checkout(TEST_TAG)
     assert prefetched_repo.current_head.hex == TEST_TAG_COMMIT
 
 
+@pytest.mark.net
 def test_retrieves_correct_hex_on_branch_checkout(prefetched_repo):
     prefetched_repo.checkout(TEST_BRANCH)
     assert prefetched_repo.current_head.hex == TEST_BRANCH_COMMIT
 
 
+@pytest.mark.net
 def test_repo_has_version(prefetched_repo):
     prefetched_repo.checkout(TEST_TAG)
     assert prefetched_repo.has_version(Version("thygrrr/test", TEST_TAG, None, TEST_TAG_COMMIT))
 
 
+@pytest.mark.net
 def test_repo_has_version_negative(prefetched_repo):
     assert not prefetched_repo.has_version(Version("thygrrr/test", "non-existing-tag", None, "nonsensical hash"))
 
 
+@pytest.mark.net
 def test_can_checkout_version(prefetched_repo):
     prefetched_repo.checkout_version(Version("thygrrr/test", TEST_TAG, TEST_REPO_URL, TEST_TAG_COMMIT))
     assert prefetched_repo.current_head.hex == TEST_TAG_COMMIT
