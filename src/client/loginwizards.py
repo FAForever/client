@@ -28,9 +28,9 @@ import util
 import hashlib
 from client import ClientState, logger
 
-PASSWORD_RECOVERY_URL = "http://app.faforever.com/faf/forgotPass.php"
-NAME_CHANGE_URL = "http://app.faforever.com/faf/userName.php"
-STEAM_LINK_URL = "http://app.faforever.com/faf/steam.php"
+PASSWORD_RECOVERY_URL = "http://" + util.selectserver("app") + "/faf/forgotPass.php"
+NAME_CHANGE_URL = "http://" + util.selectserver("app") + "/faf/userName.php"
+STEAM_LINK_URL = "http://" + util.selectserver("app") + "/faf/steam.php"
 
 from . import TICKET_URL, STEAMLINK_URL, NAME_CHANGE_URL, PASSWORD_RECOVERY_URL
 

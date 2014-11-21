@@ -28,8 +28,9 @@ import logging
 import time
 import random
 import json
+import util
 
-FAF_PROXY_HOST = "proxy.faforever.com"
+FAF_PROXY_HOST = util.selectserver("proxy")
 FAF_PROXY_PORT = 9124
 
 UNIT16 = 8

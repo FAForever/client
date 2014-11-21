@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 
 # Initialize all important globals
-LOBBY_HOST = 'lobby.faforever.com'
+LOBBY_HOST = util.selectserver('lobby')
 LOBBY_PORT = 8001
 LOCAL_REPLAY_PORT = 15000
 GAME_PORT_DEFAULT = 6112

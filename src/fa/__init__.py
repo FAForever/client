@@ -19,11 +19,12 @@
 
 # Initialize logging system
 import logging
+import util
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-GPGNET_HOST = "lobby.faforever.com"
+GPGNET_HOST = util.selectserver("lobby")
 GPGNET_PORT = 8000
 
 DEFAULT_LIVE_REPLAY = True

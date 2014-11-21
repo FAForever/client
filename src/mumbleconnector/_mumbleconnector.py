@@ -14,6 +14,7 @@ import win32api
 import time
 import re
 import _winreg
+import util
 
 # Link-dll to interface with the mumble client
 import mumble_link
@@ -23,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 class mumbleConnector():
 
-    mumbleHost = "mumble.faforever.com"
+    mumbleHost = util.selectserver("mumble")
     mumbleChannelRoot = "Games"
     mumbleLinkActive = None
     pluginName = "faforever"

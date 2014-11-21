@@ -35,7 +35,7 @@ from chat.channel import Channel
 import notificatation_system as ns
 
 IRC_PORT = 8167
-IRC_SERVER = "irc.faforever.com"
+IRC_SERVER = util.selectserver("irc")
 POLLING_INTERVAL = 300   # milliseconds between irc polls
 PONG_INTERVAL = 100000   # milliseconds between pongs
 

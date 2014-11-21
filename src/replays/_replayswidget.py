@@ -46,7 +46,7 @@ FormClass, BaseClass = util.loadUiType("replays/replays.ui")
 
 class ReplaysWidget(BaseClass, FormClass):
     SOCKET  = 11002
-    HOST    = "lobby.faforever.com"
+    HOST    = util.selectserver("lobby")
     
     def __init__(self, client):
         super(BaseClass, self).__init__()
@@ -420,7 +420,7 @@ class ReplaysWidget(BaseClass, FormClass):
 
                     url = QtCore.QUrl()
                     url.setScheme("faflive")
-                    url.setHost("lobby.faforever.com")
+                    url.setHost(util.selectserver("lobby"))
                     url.setPath(str(info["uid"]) + "/" + player + ".SCFAreplay")
                     url.addQueryItem("map", info["mapname"])
                     url.addQueryItem("mod", info["featured_mod"])

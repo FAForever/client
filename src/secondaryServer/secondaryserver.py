@@ -23,6 +23,7 @@ from PyQt4 import QtGui, QtCore, QtNetwork
 import time
 import json
 import logging
+import util
 
 
 logger = logging.getLogger(__name__)
@@ -45,7 +46,7 @@ class Timeout(StandardError):
 class SecondaryServer(QtCore.QObject):
 
     # Network configuration
-    HOST    = "lobby.faforever.com"
+    HOST    = util.selectserver("lobby")
     TIMEOUT = 20  #seconds
 
     # Return codes to expect from run()

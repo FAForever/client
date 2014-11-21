@@ -146,6 +146,15 @@ import hashlib
 import re
 
 
+selectserver_develop = 1
+
+def selectserver(prefix):
+    if selectserver_develop:
+        return prefix + ".dev.faforever.com"
+    else:
+        return prefix + ".faforever.com"
+
+
 # Dirty log rotation: Get rid of logs if larger than 1 MiB
 try:
     #HACK: Clean up obsolete logs directory trees
