@@ -37,3 +37,14 @@ def test_mount_order_matters():
 hook={"/schook"}
 protocols={"http","https","mailto","ventrilo","teamspeak","daap","im"}
 """
+
+
+def test_can_add_hook_directoies():
+    f = InitFile()
+    f.hook('/nomads')
+    assert f.to_lua() == \
+"""path={}
+hook={"/schook","/nomads"}
+protocols={"http","https","mailto","ventrilo","teamspeak","daap","im"}
+"""
+

@@ -15,7 +15,10 @@ class InitFile(object):
         ]
 
     def mount(self, path, mountpoint):
-        self._init_keys[0][1].append({"mountpoint": mountpoint, "dir": path})#omg
+        self._init_keys[0][1].append({"mountpoint": mountpoint, "dir": path})
+
+    def hook(self, path):
+        self._init_keys[1][1].append(path)
 
     def to_lua(self):
         lua = []
