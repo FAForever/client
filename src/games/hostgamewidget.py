@@ -87,6 +87,7 @@ class HostgameWidget(FormClass, BaseClass):
         if len(self.versions) == 1:
             self.versionChanged(0)
             self.versionList.setVisible(False)
+            self.gameVersionLabel.setVisible(False)
 
         i = 0
         index = 0
