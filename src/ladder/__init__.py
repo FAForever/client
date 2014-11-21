@@ -5,7 +5,6 @@ import urllib
 import util
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 
 class Ladder(QtCore.QObject):

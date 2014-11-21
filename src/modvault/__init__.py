@@ -76,7 +76,6 @@ import util
 import logging
 import time
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 import urllib2
 
 d = datetostr(now())

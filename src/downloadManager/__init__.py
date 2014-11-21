@@ -25,7 +25,6 @@ import util
 import warnings
 
 logger= logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 VAULT_PREVIEW_ROOT = "http://content.faforever.com/faf/vault/map_previews/small/"
 

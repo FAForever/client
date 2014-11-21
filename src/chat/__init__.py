@@ -23,7 +23,6 @@
 # Initialize logging system
 import logging
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 def user2name(user):
     return (user.split('!')[0]).strip('&@~%+')

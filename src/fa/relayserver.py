@@ -114,10 +114,10 @@ class Relayer(QtCore.QObject):
     and relays it to an internet server via its relaySocket.
     '''
     __logger = logging.getLogger(__name__)
-    __logger.setLevel(logging.DEBUG)
-    
-    def __init__(self, parent, client, local_socket, testing, init_mode=1):
-        QtCore.QObject.__init__(self)
+
+    def __init__(self, parent, client, local_socket, testing, init_mode=1, *args, **kwargs):
+        QtCore.QObject.__init__(self, *args, **kwargs)
+
         self.parent = parent
         self.inputSocket = local_socket
         self.client = client
@@ -399,7 +399,6 @@ class RelayServer(QtNetwork.QTcpServer):
     It will instantiate a fresh ReplayRecorder for each FA instance that launches.
     '''
     __logger = logging.getLogger(__name__)
-    __logger.setLevel(logging.DEBUG)
 
     def __init__(self, client, *args, **kwargs):
         QtNetwork.QTcpServer.__init__(self, *args, **kwargs)

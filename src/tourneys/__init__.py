@@ -25,6 +25,5 @@ from PyQt4 import QtWebKit
 import logging
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 from _tournamentswidget import TournamentsWidget as Tourneys

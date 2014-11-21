@@ -21,7 +21,6 @@
 import logging
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 GPGNET_HOST = "lobby.faforever.com"
 GPGNET_PORT = 8000
