@@ -74,6 +74,8 @@ class HostgameWidget(FormClass, BaseClass):
         
         self.game.update(self.message, self.parent.client)
 
+        if len(versions) == 0:
+            logger.error("No versions given to hostgamewidget")
 
         self.versions = versions
         self.selectedVersion = 0
@@ -81,6 +83,10 @@ class HostgameWidget(FormClass, BaseClass):
             self.versionList.addItem(version['name'], version['id'])
 
         self.versionList.currentIndexChanged.connect(self.versionChanged)
+
+        if len(self.versions) == 1:
+            self.versionChanged(0)
+            self.versionList.setVisible(False)
 
         i = 0
         index = 0
