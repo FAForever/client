@@ -41,9 +41,10 @@ class Chatter(QtGui.QTableWidgetItem):
 
     RANK_ELEVATION = 0
     RANK_FRIEND = 1
-    RANK_USER = 2
-    RANK_FOE = 3
-    RANK_NONPLAYER = 4
+    RANK_CLAN_MEMBER = 2
+    RANK_USER = 3
+    RANK_FOE = 4
+    RANK_NONPLAYER = 5
 
     '''
     A chatter is the representation of a person on IRC, in a channel's nick list. There are multiple chatters per channel.
@@ -140,6 +141,8 @@ class Chatter(QtGui.QTableWidgetItem):
             return self.RANK_ELEVATION
         if self.lobby.client.isFriend(user.name):
             return self.RANK_FRIEND
+        if self.lobby.client.isClanMember(self.name):
+            return self.RANK_CLAN_MEMBER
         if self.lobby.client.isFoe(user.name):
             return self.RANK_FOE
         if self.lobby.client.isPlayer(user.name):
@@ -258,6 +261,39 @@ class Chatter(QtGui.QTableWidgetItem):
             return
         self.setTextColor(QtGui.QColor(self.lobby.client.getUserColor(self.name)))
 
+    def joinChannel(self):
+        channel, ok = QtGui.QInputDialog.getText(self.lobby.client, "QInputDialog.getText()", "Channel :", QtGui.QLineEdit.Normal)
+        if ok and channel != '':
+            self.lobby.client.joinChannel(self.name, channel)
+
+    def selectAvatar(self):
+        avatarSelection = avatarWidget(self.lobby.client, self.name, personal = True)
+        avatarSelection.exec_()
+
+    def addAvatar(self):
+        avatarSelection = avatarWidget(self.lobby.client, self.name)
+        avatarSelection.exec_()
+
+    def addFriend(self):
+        self.lobby.client.addFriend(self.name)
+
+    def remFriend(self):
+        self.lobby.client.remFriend(self.name)
+
+    def addFoe(self):
+        self.lobby.client.addFoe(self.name)
+
+    def remFoe(self):
+        self.lobby.client.remFoe(self.name)
+
+    def kick(self):
+        pass
+
+    def closeFA(self):
+        self.lobby.client.closeFA(self.name)
+
+    def closeLobby(self):
+        self.lobby.client.closeLobby(self.name)
 
     def doubleClicked(self, item):
         # filter yourself
