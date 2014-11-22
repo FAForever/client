@@ -1,6 +1,7 @@
 __author__ = 'Sheeo'
 
 import os
+import sys
 import version
 import logging
 from PyQt4 import QtCore
@@ -9,6 +10,10 @@ _settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
 
 
 class Settings(object):
+    """
+    This wraps QSettings, fetching default values from the
+    selected configuration module if the key isn't found.
+    """
     @staticmethod
     def get(key, group=None):
         if group is None:
@@ -34,7 +39,12 @@ class Settings(object):
             _settings.endGroup()
 
 
-if version.is_development_version():
+def make_dirs():
+    if not os.path.isdir(os.path.basename(Settings.get('FAF', 'LOG'))):
+        os.makedirs(os.path.basename(Settings.get('FAF', 'LOG')))
+
+
+if version.is_development_version() or sys.executable.endswith("python.exe"):
     # Setup logging output
     devh = logging.StreamHandler()
     devh.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-40s %(message)s'))
@@ -46,8 +56,10 @@ if version.is_development_version():
 
     logging.getLogger(__name__).info("Loading development configuration")
     from develop import defaults
+    make_dirs()
 else:
     from production import defaults
+    make_dirs()
     logging.basicConfig(filename=Settings.get('FAF', 'LOG'), level=Settings.get('LEVEL', 'LOG'),
                         format='%(asctime)s %(levelname)-8s %(name)-40s %(message)s')
 
