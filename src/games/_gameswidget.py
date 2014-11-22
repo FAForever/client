@@ -653,35 +653,33 @@ class GamesWidget(FormClass, BaseClass):
 
         versions_request = self.version_service.versions_for(item.mod)
 
-        def done(res):
-            hostgamewidget = HostgameWidget(self, item, res, self.canChooseMap)
+        hostgamewidget = HostgameWidget(self, item, versions_request, self.canChooseMap)
 
-            if hostgamewidget.exec_() == 1:
-                if self.gamename:
-                    modvault.setActiveMods(hostgamewidget.selected_mods, True)
-                    logger.debug("Setting active mods to")
-                    logger.debug(hostgamewidget.selected_mods)
-                    if fa.check.game(self, hostgamewidget.selected_game_version):
-                        if self.ispassworded:
-                            self.client.send(dict(command="game_host",
-                                                  access="password",
-                                                  password=self.gamepassword,
-                                                  mod=item.mod,
-                                                  title=self.gamename,
-                                                  mapname=self.gamemap,
-                                                  gameport=self.client.gamePort))
-                        else:
-                            self.client.send(dict(command="game_host",
-                                                  access="public",
-                                                  mod=item.mod,
-                                                  title=self.gamename,
-                                                  mapname=self.gamemap,
-                                                  gameport=self.client.gamePort))
+        if hostgamewidget.exec_() == 1:
+            if self.gamename:
+                modvault.setActiveMods(hostgamewidget.selected_mods, True)
+                logger.debug("Setting active mods to")
+                logger.debug(hostgamewidget.selected_mods)
+                if fa.check.game(self, hostgamewidget.selected_game_version):
+                    if self.ispassworded:
+                        self.client.send(dict(command="game_host",
+                                              access="password",
+                                              password=self.gamepassword,
+                                              mod=item.mod,
+                                              title=self.gamename,
+                                              mapname=self.gamemap,
+                                              gameport=self.client.gamePort))
+                    else:
+                        self.client.send(dict(command="game_host",
+                                              access="public",
+                                              mod=item.mod,
+                                              title=self.gamename,
+                                              mapname=self.gamemap,
+                                              gameport=self.client.gamePort))
 
         def error(err):
             logger.critical(err)
 
-        versions_request.done.connect(done)
         versions_request.error.connect(error)
 
     def savePassword(self, password):

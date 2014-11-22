@@ -42,12 +42,12 @@ FormClass, BaseClass = util.loadUiType("games/host.ui")
 
 
 class HostgameWidget(FormClass, BaseClass):
-    def __init__(self, parent, item, versions, allow_map_choice):
+    def __init__(self, parent, item, versions_request, allow_map_choice):
         BaseClass.__init__(self)
 
-        logger.info("HostGameWidget started with: ")
-        logger.info(versions)
-        logger.info(allow_map_choice)
+        logger.debug("HostGameWidget started with: ")
+        logger.debug(item)
+        logger.debug(allow_map_choice)
         self.setupUi(self)
         self.parent = parent
         
@@ -74,20 +74,11 @@ class HostgameWidget(FormClass, BaseClass):
         
         self.game.update(self.message, self.parent.client)
 
-        if len(versions) == 0:
-            logger.error("No versions given to hostgamewidget")
-
-        self.versions = versions
+        versions_request.done.connect(self.set_versions)
+        self.versions = []
         self.selectedVersion = 0
-        for version in versions:
-            self.versionList.addItem(version['name'], version['id'])
-
-        self.versionList.currentIndexChanged.connect(self.versionChanged)
-
-        if len(self.versions) == 1:
-            self.versionChanged(0)
-            self.versionList.setVisible(False)
-            self.gameVersionLabel.setVisible(False)
+        self.versionList.setVisible(False)
+        self.gameVersionLabel.setVisible(False)
 
         i = 0
         index = 0
@@ -130,6 +121,19 @@ class HostgameWidget(FormClass, BaseClass):
         self.mapList.currentIndexChanged.connect(self.mapChanged)
         self.hostButton.released.connect(self.hosting)
         self.titleEdit.textChanged.connect(self.updateText)
+
+    def set_versions(self, versions):
+        self.versions = versions
+        if len(versions) == 0:
+            logger.error("No versions given to hostgamewidget")
+
+        for version in versions:
+            self.versionList.addItem(version['name'], version['id'])
+
+        if len(self.versions) > 1:
+            self.versionList.setVisible(True)
+            self.gameVersionLabel.setVisible(True)
+
 
     @property
     def selected_game_version(self):
