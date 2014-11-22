@@ -22,16 +22,18 @@
 
 # Initialize logging system
 import logging
-import util
+
+from config import Settings
+
 logger = logging.getLogger(__name__)
 #logger.setLevel(logging.DEBUG)
 
 
 # Initialize all important globals
-LOBBY_HOST = 'lobby.faforever.com'
-LOBBY_PORT = 8001
-LOCAL_REPLAY_PORT = 15000
-GAME_PORT_DEFAULT = 6112
+LOBBY_HOST = Settings.get('HOST', 'LOBBY')
+LOBBY_PORT = Settings.get('PORT', 'LOBBY')
+LOCAL_REPLAY_PORT = Settings.get('LOCAL_REPLAY_PORT', 'LOBBY')
+GAME_PORT_DEFAULT = Settings.get('GAME_PORT_DEFAULT', 'LOBBY')
 
 # Important URLs
 MUMBLE_URL = "mumble://{login}@mumble.faforever.com/Games?version=1.2.0" 
