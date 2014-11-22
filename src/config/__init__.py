@@ -40,8 +40,16 @@ class Settings(object):
 
 
 def make_dirs():
-    if not os.path.isdir(os.path.basename(Settings.get('FAF', 'LOG'))):
-        os.makedirs(os.path.basename(Settings.get('FAF', 'LOG')))
+    if not os.path.isdir(Settings.get('DIR', 'LOG')):
+        os.makedirs(Settings.get('DIR', 'LOG'))
+
+
+def rotate_logs():
+    log_dir = Settings.get('DIR', 'LOG')
+    faf_log_file = os.path.join(log_dir, 'forever.log')
+    # Same dirty implementation for now
+    if os.path.isfile(faf_log_file) and os.path.getsize(faf_log_file) > Settings.get('MAX_SIZE', 'LOG'):
+        os.remove(faf_log_file)
 
 
 if version.is_development_version() or sys.executable.endswith("python.exe"):
@@ -57,9 +65,11 @@ if version.is_development_version() or sys.executable.endswith("python.exe"):
     logging.getLogger(__name__).info("Loading development configuration")
     from develop import defaults
     make_dirs()
+    rotate_logs()
 else:
     from production import defaults
     make_dirs()
+    rotate_logs()
     logging.basicConfig(filename=Settings.get('FAF', 'LOG'), level=Settings.get('LEVEL', 'LOG'),
                         format='%(asctime)s %(levelname)-8s %(name)-40s %(message)s')
 
