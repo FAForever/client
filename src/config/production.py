@@ -15,7 +15,7 @@ defaults = {
         'FAF': os.path.join(APPDATA_DIR, "logs/forever.log"),
         'GAME': os.path.join(APPDATA_DIR, "logs/game.log"),
         'REPLAY': os.path.join(APPDATA_DIR, "logs/replay.log"),
-        'LOG_LEVEL': logging.WARNING
+        'LEVEL': logging.WARNING
     },
     'FA': {
         "BIN": os.path.join(APPDATA_DIR, "bin")
