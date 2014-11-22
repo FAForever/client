@@ -12,10 +12,9 @@ else:
 defaults = {
     'BASE_DIR': APPDATA_DIR,
     'LOG': {
-        'FAF': os.path.join(APPDATA_DIR, "logs/forever.log"),
-        'GAME': os.path.join(APPDATA_DIR, "logs/game.log"),
-        'REPLAY': os.path.join(APPDATA_DIR, "logs/replay.log"),
-        'LEVEL': logging.WARNING
+        'DIR': os.path.join(APPDATA_DIR, 'logs'),
+        'LEVEL': logging.WARNING,
+        'MAX_SIZE': 256*1024
     },
     'FA': {
         "BIN": os.path.join(APPDATA_DIR, "bin")
