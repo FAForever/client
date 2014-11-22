@@ -1,52 +1,53 @@
 __author__ = 'Sheeo'
 
+import os
 import version
 import logging
-import util  # Temporary, util is deprecated
+from PyQt4 import QtCore
+
+_settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
 
 
 class Settings(object):
     @staticmethod
     def get(key, group=None):
-        value = None
         if group is None:
-            value = util.settings.value(key)
+            value = _settings.value(key)
         else:
-            util.settings.beginGroup(group)
-            value = util.settings.value(key)
-            util.settings.endGroup()
+            _settings.beginGroup(group)
+            value = _settings.value(key)
+            _settings.endGroup()
+        if value is None:
+            if group is None:
+                return defaults[key]
+            else:
+                return defaults[group][key]
         return value
 
     @staticmethod
     def set(key, value, group=None):
         if group is None:
-            util.settings.setValue(key, value)
+            _settings.setValue(key, value)
         else:
-            util.settings.beginGroup(group)
-            util.settings.setValue(key, value)
-            util.settings.endGroup()
-
-DEFAULT_BIN_DIR = util.BIN_DIR
-GLOBAL_LOG_LEVEL = Settings.get('log_level') or logging.WARNING
+            _settings.beginGroup(group)
+            _settings.setValue(key, value)
+            _settings.endGroup()
 
 
 if version.is_development_version():
-    GLOBAL_LOG_LEVEL = logging.INFO
-
     # Setup logging output
     devh = logging.StreamHandler()
     devh.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-40s %(message)s'))
     logging.getLogger().addHandler(devh)
-    logging.getLogger().setLevel(GLOBAL_LOG_LEVEL)
+    logging.getLogger().setLevel(logging.INFO)
 
     for k in []:
         logging.getLogger(k).setLevel(logging.DEBUG)
 
     logging.getLogger(__name__).info("Loading development configuration")
+    from develop import defaults
 else:
-    logging.basicConfig(filename=util.LOG_FILE_FAF, level=GLOBAL_LOG_LEVEL,
+    from production import defaults
+    logging.basicConfig(filename=Settings.get('FAF', 'LOG'), level=Settings.get('LEVEL', 'LOG'),
                         format='%(asctime)s %(levelname)-8s %(name)-40s %(message)s')
 
-# Set default QSettings here
-if Settings.get('bin_dir', 'fa') is None:
-    Settings.set('bin_dir', util.BIN_DIR, 'fa')
