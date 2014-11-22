@@ -15,4 +15,5 @@ defaults = production_defaults.copy()
 
 defaults['LOG']['LEVEL'] = logging.INFO
 
+defaults['LOBBY']['HOST'] = 'lobby.dev.faforever.com'
 defaults['PROXY']['HOST'] = 'proxy.dev.faforever.com'
