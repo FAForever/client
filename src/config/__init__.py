@@ -52,7 +52,9 @@ def rotate_logs():
         os.remove(faf_log_file)
 
 
-if version.is_development_version() or sys.executable.endswith('py.test'):
+if version.is_development_version()\
+        or sys.executable.endswith('py.test')\
+        or sys.executable.endswith('python.exe'):
     # Setup logging output
     devh = logging.StreamHandler()
     devh.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-40s %(message)s'))
