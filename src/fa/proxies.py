@@ -17,9 +17,6 @@
 #-------------------------------------------------------------------------------
 
 
-
-
-
 from PyQt4 import QtCore, QtGui, QtNetwork
 
 import functools
@@ -29,10 +26,13 @@ import time
 import random
 import json
 
-FAF_PROXY_HOST = "proxy.faforever.com"
-FAF_PROXY_PORT = 9124
+from config import Settings
+
+FAF_PROXY_HOST = Settings.get('HOST', 'PROXY')
+FAF_PROXY_PORT = Settings.get('PORT', 'PROXY')
 
 UNIT16 = 8
+
 
 class proxies(QtCore.QObject):
     __logger = logging.getLogger(__name__)
