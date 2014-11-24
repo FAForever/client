@@ -1,7 +1,6 @@
 __author__ = "Thygrrr, humbly treading in the shadow of sheeo's awesomeness"
 
 import os
-import git
 import util
 import logging
 from collections import namedtuple
