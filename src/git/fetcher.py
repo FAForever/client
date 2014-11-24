@@ -16,7 +16,7 @@ class Fetcher(QThread):
 
     def run(self):
         for r, v in self._repo_versions:
-            text = "%s fetching version %s" % (r.path, v)
+            text = "Fetching %s from %s" % (v.ref, v.url)
             self.progress.emit(text, 0, 0)
             r.progress.connect(lambda indexed, total: self.progress.emit(text, indexed, total))
             try:

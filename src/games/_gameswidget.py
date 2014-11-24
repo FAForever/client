@@ -653,9 +653,8 @@ class GamesWidget(FormClass, BaseClass):
 
         versions_request = self.version_service.versions_for(item.mod)
 
-
         def update_progress(text, cur, total):
-            logger.info("Progress: %(text)s %(cur)d/%(total)d" % {"text": text, "cur": cur, "total": total})
+            logger.debug("Progress: %(text)s %(cur)d/%(total)d" % {"text": text, "cur": cur, "total": total})
 
         hostgamewidget = HostgameWidget(self, item, versions_request, self.canChooseMap)
         if hostgamewidget.exec_() == 1:
@@ -678,10 +677,13 @@ class GamesWidget(FormClass, BaseClass):
                     logger.info("Updating game")
 
                     updater = fa.updater.game_version(version)
+                    self.client.on_progress_start()
                     updater.done.connect(launch_game)
                     updater.error.connect(lambda e: logger.critical("Error: %r" % e))
                     updater.progress.connect(update_progress)
-                    updater.run()
+                    updater.progress.connect(self.client.on_progress)
+                    updater.done.connect(self.client.on_progress_stop)
+                    updater.start()
                 else:
                     launch_game()
 

@@ -194,9 +194,6 @@ class ClientWindow(FormClass, BaseClass):
             pass
 
         self.sendFile = False
-        self.progress = QtGui.QProgressDialog()
-        self.progress.setMinimum(0)
-        self.progress.setMaximum(0)
 
         #Tray icon
         self.tray = QtGui.QSystemTrayIcon()
@@ -291,6 +288,8 @@ class ClientWindow(FormClass, BaseClass):
         sizeGrip = QtGui.QSizeGrip(self)
         self.mainGridLayout.addWidget(sizeGrip, 2, 2)
 
+        # Setup progress bar
+        self.progress = QtGui.QProgressDialog()  # This needs to die
 
         #Wire all important signals
         self.mainTabs.currentChanged.connect(self.mainTabChanged)
@@ -313,26 +312,50 @@ class ClientWindow(FormClass, BaseClass):
         self.power = 0          # current user power
         self.email = None
         self.coloredNicknames = False
-        #Initialize the Menu Bar according to settings etc.
+        # Initialize the Menu Bar according to settings etc.
         self.initMenus()
 
-        #Load the icons for the tabs
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.whatNewTab), util.icon("client/feed.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.chatTab), util.icon("client/chat.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.gamesTab), util.icon("client/games.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.coopTab), util.icon("client/coop.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.vaultsTab), util.icon("client/mods.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.ladderTab), util.icon("client/ladder.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.tourneyTab), util.icon("client/tourney.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.livestreamTab), util.icon("client/twitch.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.replaysTab), util.icon("client/replays.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.tutorialsTab), util.icon("client/tutorials.png"))
+        # Load the icons for the tabs
+        tab_icons = [
+            (self.whatNewTab, "client/feed.png"),
+            (self.chatTab, "client/chat.png"),
+            (self.gamesTab, "client/games.png"),
+            (self.coopTab, "client/coop.png"),
+            (self.vaultsTab, "client/mods.png"),
+            (self.ladderTab, "client/ladder.png"),
+            (self.tourneyTab, "client/tourney.png"),
+            (self.livestreamTab, "client/twitch.png"),
+            (self.replaysTab, "client/replays.png"),
+            (self.tutorialsTab, "client/tutorials.png")
+        ]
+
+        for tab, icon in tab_icons:
+            self.mainTabs.setTabIcon(self.mainTabs.indexOf(tab), util.icon(icon))
 
         QtWebKit.QWebSettings.globalSettings().setAttribute(QtWebKit.QWebSettings.PluginsEnabled, True)
 
-
-        #for moderator
+        # For moderators
         self.modMenu = None
+
+    @QtCore.pyqtSlot(str, int, int)
+    def on_progress(self, text, current, maximum):
+        self.progress.setLabelText(text)
+        self.progress.setRange(0, maximum)
+        self.progress.setValue(current)
+
+    @QtCore.pyqtSlot()
+    def on_progress_start(self):
+        self.progress.destroy()
+        self.progress.setAutoReset(False)
+        self.progress.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
+        self.progress.setModal(0)
+        self.progress.setCancelButton(None)
+        self.progress.setWindowTitle("Downloading")
+
+    @QtCore.pyqtSlot()
+    def on_progress_stop(self):
+        self.progress.setVisible(False)
+        self.progress.close()
 
     def eventFilter(self, obj, event):
         if (event.type() == QtCore.QEvent.HoverMove):

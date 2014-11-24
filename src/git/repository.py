@@ -78,10 +78,9 @@ class Repository(QtCore.QObject):
         logger.debug(operation)
 
     def _transfer(self, transfer_progress):
-        self.transfer_progress_value.emit(transfer_progress.indexed_deltas)
-        self.transfer_progress_maximum.emit(transfer_progress.total_deltas)
-        self.progress.emit(transfer_progress.indexed_deltas, transfer_progress.total_deltas)
-        QtGui.QApplication.processEvents()
+        self.transfer_progress_value.emit(transfer_progress.received_objects)
+        self.transfer_progress_maximum.emit(transfer_progress.total_objects)
+        self.progress.emit(transfer_progress.received_objects, transfer_progress.total_objects)
 
     def has_hex(self, hex):
         try:

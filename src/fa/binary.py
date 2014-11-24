@@ -154,7 +154,6 @@ class Updater(QtCore.QObject):
             for existing_file in os.listdir(bin_dir):
                 if not existing_file in post_patch_verify:
                     logger.warn(existing_file + " is not in verify list.")
-                    okay = False
 
         except StandardError, err:
             logger.error("Error verifying files: " + str(err))

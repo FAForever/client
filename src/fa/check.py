@@ -109,7 +109,9 @@ def game(parent, game_version):
     else:
         engine_repo.checkout_version(game_version.engine)
         updater = binary.Updater(engine_repo, parent)
-        updater.patch_forged_alliance(os.path.join(fa.path.getGameFolderFA(), 'bin'))
+        game_path = os.path.join(fa.path.getGameFolderFA(), 'bin')
+        if not updater.check_up_to_date(game_path):
+            updater.patch_forged_alliance(os.path.join(fa.path.getGameFolderFA(), 'bin'))
 
     main_mod_repo = game_version.main_mod_repo
     if not main_mod_repo.has_version(game_version.main_mod.version):
