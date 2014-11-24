@@ -17,25 +17,16 @@
 #-------------------------------------------------------------------------------
 
 
-
-
-
 from PyQt4 import QtCore, QtNetwork, QtGui
 
-import os
 import logging
-import util
-import fa
-import time
 import json
+from config import Settings
 
 import struct
 
-
-FAF_SERVER_HOST = "lobby.faforever.com"
-#FAF_SERVER_HOST = "localhost"
-FAF_SERVER_PORT = 8000
-
+FAF_SERVER_HOST = Settings.get('HOST', 'RELAY_SERVER')
+FAF_SERVER_PORT = Settings.get('PORT', 'RELAY_SERVER')
 
 
 class Packet():

@@ -29,32 +29,6 @@ import util
 
 GIT_ROOT = "https://github.com/FAForever/"
 
-MOD_UID_TO_REPO = {}
-FEATURED_MOD_TO_REPO = {"faf": {"url":GIT_ROOT + "fa.git", "target":"3634"}}
-
-
-def init_lua_for_featured_mod(mod, repo_dir=util.REPO_DIR, lua_dir=util.LUA_DIR):
-    """
-    HACK for the transition period where the server still sends init_.lua files instead of the mods containing them.
-    """
-    repo_init_lua = os.path.join(repo_dir, mod, "init.lua")
-    legacy_init_lua = os.path.join(lua_dir, "init_" + mod + ".lua")
-
-    return repo_init_lua if os.path.exists(repo_init_lua) else legacy_init_lua
-
-
-def fix_init_luas(target_dir=util.LUA_DIR):
-    """
-    HACK some server-side init_*.lua files expect to be executed in the current working directory, which is wrong.
-    Can be removed on completion of https://github.com/FAForever/fa/issues/52
-    """
-    for lua_name in os.listdir(target_dir):
-        with open(os.path.join(target_dir, lua_name), "r+") as lua_file:
-            code = lua_file.read()
-            lua_file.seek(0)
-            lua_file.write(code.replace("dofile('init", "dofile(InitFileDir .. '\\\\init"))
-            lua_file.truncate()
-
 
 def filter_mod_versions(versions, filter_table):
     """

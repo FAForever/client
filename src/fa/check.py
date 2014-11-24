@@ -17,6 +17,7 @@
 # -------------------------------------------------------------------------------
 
 import sys
+import os
 import logging
 
 from PyQt4 import QtGui
@@ -80,12 +81,9 @@ def path(parent):
 def game(parent):
     # Spawn an updater for the game binary
     updater = binary.Updater(parent)
-
     updater.run()
 
     return True
-
-
 
 def check(featured_mod, mapname=None, version=None, modVersions=None, sim_mods=None, silent=False):
     """
