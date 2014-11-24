@@ -18,7 +18,7 @@ import fa.check
 #  - test check.mods
 #  - test check.map
 
-repo_mock = flexmock()
+repo_mock = flexmock(checkout_version=lambda v: True)
 fa.check.Repository = repo_mock
 
 version_service = flexmock()
@@ -38,8 +38,8 @@ fa.check.ENGINE_PATH = "repo/binary-patch"
 
 
 def test_check_game_checks_engine_version(qtbot):
-    repo_mock.should_receive('has_version').with_args(TEST_VERSION.main_mod.version)
-    repo_mock.should_receive('has_version').with_args(TEST_VERSION.engine)
+    repo_mock.should_receive('has_version').with_args(TEST_VERSION.main_mod.version).and_return(True)
+    repo_mock.should_receive('has_version').with_args(TEST_VERSION.engine).and_return(True)
     check.game(qApp, TEST_VERSION)
 
 

@@ -1,11 +1,17 @@
 __author__ = 'Sheeo'
 
+from config import Settings
+
 from git import Repository, Version
 
-from fa import featured
 from fa.mod import Mod
 
-from collections import namedtuple
+import json
+
+
+class GameVersionError(Exception):
+    def __init__(self, msg):
+        super(GameVersionError, self).__init__(self, msg)
 
 
 class GameVersion():
@@ -13,6 +19,10 @@ class GameVersion():
     For describing the exact version of FA used.
     """
     def __init__(self, engine, main_mod, mods=None, _map=None):
+        if not isinstance(main_mod, Mod):
+            raise GameVersionError("Not a loadable mod: " + repr(main_mod))
+        if not all(map(lambda m: isinstance(m, Mod), mods)):
+            raise GameVersionError("Not all mods given are loadable mods")
         self._versions = dict({'engine': engine,
                                'main_mod': main_mod,
                                'mods': mods,
@@ -38,6 +48,28 @@ class GameVersion():
                and self._versions['engine'].is_stable \
                and self._versions['main_mod'].version.is_stable \
                and all(map(lambda x: x.version.is_stable, self._versions['mods']))
+
+    @property
+    def repos(self):
+        repos = [Repository(Settings.get('ENGINE_PATH', 'FA')),
+                 Repository(self.main_mod.path)]
+        for m in self.mods:
+            repos.append(Repository(m.path))
+        return repos
+
+    @property
+    def repo_versions(self):
+        repos = self.repos
+        versions = [self.engine, self.main_mod.version, map(lambda m: m.version, self.mods)]
+        return zip(repos, versions)
+
+    @property
+    def engine_repo(self):
+        return Repository(Settings.get('ENGINE_PATH', 'FA'))
+
+    @property
+    def main_mod_repo(self):
+        return Repository(self.main_mod.path)
 
     @property
     def engine(self):
@@ -67,19 +99,19 @@ class GameVersion():
         def valid_version(version):
             return isinstance(version, Version)
 
-        def valid_featured_mod(mod):
-            return isinstance(mod, Mod) \
-                   and valid_version(mod.version) and mod.is_featured
-
         def valid_mod(mod):
-            return True
+            return isinstance(mod, Mod) \
+                   and valid_version(mod.version)
+
+        def valid_main_mod(mod):
+            return valid_mod(mod) and mod.is_featured
 
         valid = "engine" in self._versions
         valid = valid and "main_mod" in self._versions
         for key, value in self._versions.iteritems():
             valid = valid and {
                 'engine': lambda version: valid_version(version),
-                'main_mod': lambda mod: valid_featured_mod(mod),
+                'main_mod': lambda mod: valid_main_mod(mod),
                 'mods': lambda versions: all(map(lambda v: valid_mod(v), versions)),
             }.get(key, lambda k: True)(value)
 
@@ -106,3 +138,15 @@ class GameVersion():
         if not self.main_mod.version.is_trusted:
             urls.append(self.main_mod.version.url)
         return urls
+
+    @staticmethod
+    def serialize_kids(obj):
+        if isinstance(obj, Mod):
+            return Mod.to_dict(obj)
+        elif isinstance(obj, Version):
+            return Version.to_dict(obj)
+        else:
+            raise TypeError(repr(obj) + " is not JSON serializable")
+
+    def to_json(self):
+        return json.dumps(self._versions, default=self.serialize_kids)

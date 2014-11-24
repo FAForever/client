@@ -21,13 +21,16 @@
 import os
 
 
+
 from PyQt4 import QtCore, QtGui
 from games.gameitem import GameItem, GameItemDelegate
 import modvault
 
 from fa import maps
+from fa.mod import Mod
 from fa.game_version import GameVersion
 from git.version import Version
+from config import Settings
 import util
 
 import logging
@@ -144,8 +147,12 @@ class HostgameWidget(FormClass, BaseClass):
         version = self.versions[self.selectedVersion]
         logger.debug("Using")
         logger.debug(version)
+
+        main_mod = Mod(version['mod'],
+                       os.path.join(Settings.get('MODS_PATH', 'FA'), version['mod']),
+                       Version.from_dict(version['ver_main_mod']))
         return GameVersion(Version.from_dict(version['ver_engine']),
-                           Version.from_dict(version['ver_main_mod']),
+                           main_mod,
                            [],
                            self.map)
 

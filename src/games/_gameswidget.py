@@ -653,29 +653,37 @@ class GamesWidget(FormClass, BaseClass):
 
         versions_request = self.version_service.versions_for(item.mod)
 
-        hostgamewidget = HostgameWidget(self, item, versions_request, self.canChooseMap)
 
+        def update_progress(text, cur, total):
+            logger.info("Progress: %(text)s %(cur)d/%(total)d" % {"text": text, "cur": cur, "total": total})
+
+        hostgamewidget = HostgameWidget(self, item, versions_request, self.canChooseMap)
         if hostgamewidget.exec_() == 1:
             if self.gamename:
                 modvault.setActiveMods(hostgamewidget.selected_mods, True)
                 logger.debug("Setting active mods to")
                 logger.debug(hostgamewidget.selected_mods)
-                if fa.check.game(self, hostgamewidget.selected_game_version):
-                    if self.ispassworded:
+                version = hostgamewidget.selected_game_version
+
+                def launch_game():
+                    if fa.check.game(self, hostgamewidget.selected_game_version):
                         self.client.send(dict(command="game_host",
-                                              access="password",
+                                              access="password" if self.ispassworded else "public",
                                               password=self.gamepassword,
                                               mod=item.mod,
                                               title=self.gamename,
                                               mapname=self.gamemap,
                                               gameport=self.client.gamePort))
-                    else:
-                        self.client.send(dict(command="game_host",
-                                              access="public",
-                                              mod=item.mod,
-                                              title=self.gamename,
-                                              mapname=self.gamemap,
-                                              gameport=self.client.gamePort))
+                if not fa.check.game(self, version):
+                    logger.info("Updating game")
+
+                    updater = fa.updater.game_version(version)
+                    updater.done.connect(launch_game)
+                    updater.error.connect(lambda e: logger.critical("Error: %r" % e))
+                    updater.progress.connect(update_progress)
+                    updater.run()
+                else:
+                    launch_game()
 
         def error(err):
             logger.critical(err)

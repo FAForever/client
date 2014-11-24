@@ -44,6 +44,8 @@ import fa.path
 import util
 import modvault
 
+from git.fetcher import Fetcher
+
 
 logger = logging.getLogger(__name__)
 
@@ -702,6 +704,19 @@ class Updater(QtCore.QObject):
 
 def timestamp():
     return time.strftime("%Y-%m-%d %H:%M:%S")
+
+_fetchers = []
+
+
+def game_version(version):
+    fetcher = Fetcher(version.repo_versions)
+
+    def cleanup():
+        if fetcher in _fetchers:
+            _fetchers.remove(fetcher)
+    fetcher.done.connect(cleanup)
+    _fetchers.append(fetcher)
+    return fetcher
 
 
 #This is a pretty rough port of the old installer wizard. It works, but will need some work later   

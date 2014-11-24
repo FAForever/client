@@ -25,16 +25,15 @@ from PyQt4 import QtGui
 from fa.mods import checkMods
 from fa.path import writeFAPathLua, validatePath
 from fa.wizards import Wizard
+from fa.game_version import GameVersion
 from fa import binary
 from git import Repository
+
 import mods
-import util
 import fa.path
+from config import Settings
 
 logger = logging.getLogger(__name__)
-
-ENGINE_PATH = 'C:\\ProgramData\\FAForever\\repo\\binary-patch'
-GAME_PATH = 'C:\\ProgramData\\FAForever\\repo\\faf'
 
 
 def map(mapname, force=False, silent=False):
@@ -86,9 +85,11 @@ def path(parent):
 
 
 def game(parent, game_version):
+    if not isinstance(game_version, GameVersion):
+        logger.critical("Not a GameVersion object: " + repr(game_version))
+        return False
     if not game_version.is_valid:
-        logger.critical("Invalid game version")
-        # TODO: Show something about why, report error
+        logger.error("Invalid game version: " + repr(game_version.to_json()))
         return False
 
     if not game_version.is_stable:
@@ -99,21 +100,23 @@ def game(parent, game_version):
         logger.info("Untrusted repositories")
         # TODO: Show some dialog here
 
-    engine_repo = Repository(ENGINE_PATH)
+    engine_repo = game_version.engine_repo
     if not engine_repo.has_version(game_version.engine):
         logger.info("We don't have the required engine version")
-        binary_updater = binary.Updater(parent,
-                                        game_version.engine.repo_name,
-                                        game_version.engine.url)
+        return False
+        #binary_updater = binary.Updater(parent,
+        #                                game_version.engine.repo_name,
+        #                                game_version.engine.url)
     else:
         engine_repo.checkout_version(game_version.engine)
         ## Do patch update if needed
 
-    game_repo = Repository(GAME_PATH)
-    if not game_repo.has_version(game_version.main_mod.version):
+    main_mod_repo = game_version.main_mod_repo
+    if not main_mod_repo.has_version(game_version.main_mod.version):
         logger.info("We don't have the required game version")
+        return False
     else:
-        game_repo.checkout_version(game_version.main_mod.version)
+        main_mod_repo.checkout_version(game_version.main_mod.version)
 
     return True
 
