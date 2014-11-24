@@ -1,23 +1,29 @@
 __author__ = 'Sheeo'
 
-import os
+from os import environ
+from os.path import join
+
 import logging
 
 # These directories are in Appdata (e.g. C:\ProgramData on some Win7 versions)
-if 'ALLUSERSPROFILE' in os.environ:
-    APPDATA_DIR = os.path.join(os.environ['ALLUSERSPROFILE'], "FAForever")
+if 'ALLUSERSPROFILE' in environ:
+    APPDATA_DIR = join(environ['ALLUSERSPROFILE'], "FAForever")
 else:
-    APPDATA_DIR = os.path.join(os.environ['HOME'], "FAForever")
+    APPDATA_DIR = join(environ['HOME'], "FAForever")
+
 
 defaults = {
     'BASE_DIR': APPDATA_DIR,
     'LOG': {
-        'DIR': os.path.join(APPDATA_DIR, 'logs'),
+        'DIR': join(APPDATA_DIR, 'logs'),
         'LEVEL': logging.WARNING,
         'MAX_SIZE': 256*1024
     },
     'FA': {
-        "BIN": os.path.join(APPDATA_DIR, "bin")
+        "BIN": join(APPDATA_DIR, "bin"),
+        "ENGINE_PATH": join(join(APPDATA_DIR, "repo"), "binary-patch"),
+        "MODS_PATH": join(join(APPDATA_DIR, "repo"), "mods"),
+        "MAPS_PATH": join(join(APPDATA_DIR, "repo"), "maps"),
     },
     'PROXY': {
         'HOST': 'proxy.faforever.com',
