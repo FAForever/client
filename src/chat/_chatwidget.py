@@ -26,6 +26,7 @@ from PyQt4 import QtGui, QtCore
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
 
 from chat.irclib import SimpleIRCClient
+from config import Settings
 import util
 import fa
 
@@ -48,6 +49,10 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
     It manages a list of channels and dispatches IRC events (lobby inherits from irclib's client class
     '''
     def __init__(self, client, *args, **kwargs):
+        if Settings.get('USE_CHAT') is False:
+            logger.info("Disabling chat")
+            return
+
         logger.debug("Lobby instantiating.")
         BaseClass.__init__(self, *args, **kwargs)
         SimpleIRCClient.__init__(self)

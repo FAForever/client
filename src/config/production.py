@@ -44,5 +44,6 @@ defaults = {
     'TICKET_URL': "http://forums.faforever.com/forums/viewforum.php?f:3",
     'STEAMLINK_URL': "http://app.faforever.com/faf/steam.php",
     'PASSWORD_RECOVERY_URL': "http://www.faforever.com/faf/forgotPass.php",
-    'NAME_CHANGE_URL': "http://www.faforever.com/faf/userName.php"
+    'NAME_CHANGE_URL': "http://www.faforever.com/faf/userName.php",
+    'USE_CHAT': True
 }
