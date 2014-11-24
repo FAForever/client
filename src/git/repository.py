@@ -1,8 +1,10 @@
 __author__ = 'Thygrrr'
 
 import os
+
 import re
 import pygit2
+from urlparse import urlparse
 
 import logging
 logger = logging.getLogger(__name__)
@@ -14,6 +16,7 @@ class Repository(QtCore.QObject):
 
     transfer_progress_value = QtCore.pyqtSignal(int)
     transfer_progress_maximum = QtCore.pyqtSignal(int)
+    progress = QtCore.pyqtSignal(int, int)
     transfer_complete = QtCore.pyqtSignal()
 
     def __init__(self, path, url=None, parent=None):
@@ -21,7 +24,7 @@ class Repository(QtCore.QObject):
 
         assert path
 
-        self.path = path
+        self._path = path
         self.url = url
 
         logger.info("Opening repository at " + self.path)
@@ -41,6 +44,10 @@ class Repository(QtCore.QObject):
 
     def close(self):
         del self.repo
+
+    @property
+    def path(self):
+        return self._path
 
     @property
     def tags(self):
@@ -73,6 +80,7 @@ class Repository(QtCore.QObject):
     def _transfer(self, transfer_progress):
         self.transfer_progress_value.emit(transfer_progress.indexed_deltas)
         self.transfer_progress_maximum.emit(transfer_progress.total_deltas)
+        self.progress.emit(transfer_progress.indexed_deltas, transfer_progress.total_deltas)
         QtGui.QApplication.processEvents()
 
     def has_hex(self, hex):
@@ -103,6 +111,31 @@ class Repository(QtCore.QObject):
             self.repo.set_head(self.repo.listall_references()[0])
 
         self.transfer_complete.emit()
+
+    def fetch_url(self, url):
+        if not urlparse(url).hostname in self.remote_names:
+            remote = self.repo.create_remote(urlparse(url).hostname, url)
+        else:
+            for r in self.repo.remotes:
+                if r.name == urlparse(url).hostname:
+                    remote = r
+        logger.info("Fetching '"+url+"'")
+        remote.sideband_progress = self._sideband
+        remote.transfer_progress = self._transfer
+        remote.fetch()
+
+        if self.repo.listall_references():
+            self.repo.set_head(self.repo.listall_references()[0])
+
+        self.transfer_complete.emit()
+
+    def fetch_version(self, version):
+        if version.url is None:
+            # Fetch from faf
+            if 'faf' in self.repo.remotes:
+                self.fetch()
+        else:
+            self.fetch_url(version.url)
 
     def checkout(self, target="faf/master"):
         logger.info("Checking out " + target + " in " + self.path)

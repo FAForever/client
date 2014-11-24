@@ -97,3 +97,6 @@ class Version():
 
     def to_json(self):
         return json.dumps(self._version)
+
+    def to_dict(self):
+        return self._version
