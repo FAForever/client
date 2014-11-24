@@ -181,7 +181,7 @@ def test_repo_has_version(prefetched_repo):
 
 @pytest.mark.net
 def test_repo_has_version_negative(prefetched_repo):
-    assert not prefetched_repo.has_version(Version("thygrrr/test", "non-existing-tag", None, "nonsensical hash"))
+    assert not prefetched_repo.has_version(Version("thygrrr/test", "non-existing-tag", None, "nonsensical-hash"))
 
 
 @pytest.mark.net

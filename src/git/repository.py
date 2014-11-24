@@ -86,7 +86,7 @@ class Repository(QtCore.QObject):
         try:
             logger.info("Has hex?: %s " % hex)
             return hex in self.repo
-        except KeyError:
+        except (KeyError, ValueError):
             return False
 
     def has_version(self, version):
