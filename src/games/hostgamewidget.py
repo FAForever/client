@@ -147,11 +147,14 @@ class HostgameWidget(FormClass, BaseClass):
         version = self.versions[self.selectedVersion]
         logger.debug("Using")
         logger.debug(version)
-
+        version_mm = Version.from_dict(version['ver_main_mod'])
+        version_mm._version['url'] = None
+        version_engine = Version.from_dict(version['ver_engine'])
+        version_engine._version['url'] = None
         main_mod = Mod(version['mod'],
                        os.path.join(Settings.get('MODS_PATH', 'FA'), version['mod']),
-                       Version.from_dict(version['ver_main_mod']))
-        return GameVersion(Version.from_dict(version['ver_engine']),
+                       version_mm)
+        return GameVersion(version_engine,
                            main_mod,
                            [],
                            self.map)

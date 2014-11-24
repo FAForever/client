@@ -45,5 +45,13 @@ defaults = {
     'STEAMLINK_URL': "http://app.faforever.com/faf/steam.php",
     'PASSWORD_RECOVERY_URL': "http://www.faforever.com/faf/forgotPass.php",
     'NAME_CHANGE_URL': "http://www.faforever.com/faf/userName.php",
-    'USE_CHAT': True
+    'USE_CHAT': True,
+    'ONLINE_REPLAY_SERVER': {
+        'HOST': 'lobby.faforever.com',
+        'PORT': 15000
+    },
+    'RELAY_SERVER': {
+        'HOST': 'lobby.faforever.com',
+        'PORT': 8000
+    }
 }

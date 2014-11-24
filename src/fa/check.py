@@ -17,7 +17,7 @@
 # -------------------------------------------------------------------------------
 
 import sys
-
+import os
 import logging
 
 from PyQt4 import QtGui
@@ -103,13 +103,13 @@ def game(parent, game_version):
     engine_repo = game_version.engine_repo
     if not engine_repo.has_version(game_version.engine):
         logger.info("We don't have the required engine version")
+        logger.debug("Requested version %s" % game_version.engine)
+        logger.debug("Repo: %s" % game_version.engine_repo.path)
         return False
-        #binary_updater = binary.Updater(parent,
-        #                                game_version.engine.repo_name,
-        #                                game_version.engine.url)
     else:
         engine_repo.checkout_version(game_version.engine)
-        ## Do patch update if needed
+        updater = binary.Updater(engine_repo, parent)
+        updater.patch_forged_alliance(os.path.join(fa.path.getGameFolderFA(), 'bin'))
 
     main_mod_repo = game_version.main_mod_repo
     if not main_mod_repo.has_version(game_version.main_mod.version):

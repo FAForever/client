@@ -29,8 +29,10 @@ import fa
 import json
 import time
 
-INTERNET_REPLAY_SERVER_HOST = "lobby.faforever.com"
-INTERNET_REPLAY_SERVER_PORT = 15000
+from config import Settings
+
+INTERNET_REPLAY_SERVER_HOST = Settings.get('HOST', 'ONLINE_REPLAY_SERVER')
+INTERNET_REPLAY_SERVER_PORT = Settings.get('PORT', 'ONLINE_REPLAY_SERVER')
 
 from . import DEFAULT_LIVE_REPLAY
 from . import DEFAULT_RECORD_REPLAY

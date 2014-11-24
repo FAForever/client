@@ -57,9 +57,9 @@ class Updater(QtCore.QObject):
     failed = QtCore.pyqtSignal(str)
     finished = QtCore.pyqtSignal()
 
-    def __init__(self, parent=None, repo_name=REPO_NAME, repo_url=REPO_URL):
+    def __init__(self, repo, parent=None):
         QtCore.QObject.__init__(self, parent)
-        self.repo = Repository(os.path.join(util.REPO_DIR, repo_name), repo_url)
+        self.repo = repo
 
 
     @staticmethod

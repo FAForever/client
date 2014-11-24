@@ -95,6 +95,9 @@ class Version():
         parsed_url = urlparse(self.url)
         return len(filter(lambda url: fnmatch.fnmatch(parsed_url.hostname + parsed_url.path, url), TRUSTED_REPOS)) > 0
 
+    def __repr__(self):
+        return "(repo: %s,ref: %s, url: %s, hash: %s)" % (self.repo, self.ref, self.url, self.hash)
+
     def to_json(self):
         return json.dumps(self._version)
 

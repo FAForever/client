@@ -85,6 +85,7 @@ class Repository(QtCore.QObject):
 
     def has_hex(self, hex):
         try:
+            logger.info("Has hex?: %s " % hex)
             return hex in self.repo
         except KeyError:
             return False
@@ -95,9 +96,9 @@ class Repository(QtCore.QObject):
             if isinstance(ref_object, pygit2.Tag):
                 if ref_object.target:
                     return self.has_hex(version.hash) and ref_object.target.hex == version.hash
-            return False
         except KeyError:
-            return False
+            pass
+        return self.has_hex(version.hash)
 
     def fetch(self):
         for remote in self.repo.remotes:

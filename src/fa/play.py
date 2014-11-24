@@ -34,6 +34,7 @@ settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
 from . import DEFAULT_WRITE_GAME_LOG
 from . import DEFAULT_RECORD_REPLAY
 
+
 def build_argument_list(game_info, port, arguments=None):
     """
     Compiles an argument list to run the game with POpen style process invocation methods.
@@ -42,12 +43,7 @@ def build_argument_list(game_info, port, arguments=None):
     arguments = arguments or []
 
     if '/init' in arguments:
-        raise ValueError("Custom init scripts no longer supportes.")
-
-    # Proper mod loading code, but allow for custom init by server
-    mods.fix_init_luas()
-    arguments.append("/init")
-    arguments.append(mods.init_lua_for_featured_mod(game_info['featured_mod']))
+        raise ValueError("Custom init scripts no longer supported.")
 
     #log file
     if settings.value("fa.write_game_log", DEFAULT_WRITE_GAME_LOG, type=bool):
