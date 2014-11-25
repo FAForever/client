@@ -27,13 +27,18 @@ class GameVersion():
                                'main_mod': main_mod,
                                'mods': mods,
                                'map': _map})
+        if not self._is_valid:
+            raise GameVersionError("Invalid game version: " + repr(self._versions))
 
     @staticmethod
     def from_dict(dictionary):
-        return GameVersion(dictionary['engine'],
-                           dictionary['main_mod'],
-                           dictionary.get('mods'),
-                           dictionary.get('map'))
+        try:
+            return GameVersion(dictionary['engine'],
+                               dictionary['main_mod'],
+                               dictionary.get('mods'),
+                               dictionary.get('map'))
+        except (KeyError, ValueError):
+            raise GameVersionError("Invalid GameVersion: %r" % dictionary)
 
     @property
     def is_stable(self):
@@ -44,8 +49,7 @@ class GameVersion():
             for every repo version.
         :return: bool
         """
-        return self.is_valid \
-               and self._versions['engine'].is_stable \
+        return self._versions['engine'].is_stable \
                and self._versions['main_mod'].version.is_stable \
                and all(map(lambda x: x.version.is_stable, self._versions['mods']))
 

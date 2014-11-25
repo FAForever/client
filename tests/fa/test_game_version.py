@@ -1,4 +1,4 @@
-from fa.game_version import GameVersion
+from fa.game_version import GameVersion, GameVersionError
 from fa.mod import Mod
 from git import Repository, Version
 
@@ -28,28 +28,29 @@ def version():
 
 
 def test_game_version_can_be_created_from_valid_dict():
-    assert GameVersion.from_dict(VALID_GAME_VERSION_INFO).is_valid
+    assert GameVersion.from_dict(VALID_GAME_VERSION_INFO)
 
 
 def test_game_version_requires_valid_binary_patch_version(version):
     version.pop('engine')
-    with pytest.raises(KeyError):
-        assert not GameVersion.from_dict(version).is_valid
+    with pytest.raises(GameVersionError):
+        assert not GameVersion.from_dict(version)._is_valid
         version['engine'] = {"a": "b"}
-        assert not GameVersion.from_dict(version).is_valid
+        assert not GameVersion.from_dict(version)._is_valid
 
 
 def test_game_version_requires_valid_main_mod(version):
     version.pop('main_mod')
-    with pytest.raises(KeyError):
-        assert not GameVersion.from_dict(version).is_valid
+    with pytest.raises(GameVersionError):
+        assert not GameVersion.from_dict(version)._is_valid
         version['main_mod'] = []
-        assert not GameVersion.from_dict(version).is_valid
+        assert not GameVersion.from_dict(version)._is_valid
 
 
 def test_game_version_requires_existing_featured_mods(version):
     version['main_mod'] = Mod("non-existing-featured-mod", "non-existing-path", Version('example', 'example'))
-    assert not GameVersion.from_dict(version).is_valid
+    with pytest.raises(GameVersionError):
+        assert not GameVersion.from_dict(version)._is_valid
 
 
 def test_game_version_is_unstable_iff_contains_unstable_pointer(version):

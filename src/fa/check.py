@@ -88,9 +88,6 @@ def game(parent, game_version):
     if not isinstance(game_version, GameVersion):
         logger.critical("Not a GameVersion object: " + repr(game_version))
         return False
-    if not game_version.is_valid:
-        logger.error("Invalid game version: " + repr(game_version.to_json()))
-        return False
 
     if not game_version.is_stable:
         logger.info("Unstable game version")
