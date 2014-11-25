@@ -17,7 +17,7 @@
 #-------------------------------------------------------------------------------
 from fa import mods
 
-from process import instance
+from .process import instance
 
 import util
 import os
@@ -56,7 +56,7 @@ def build_argument_list(game_info, port, arguments=None):
 
     #live replay
     arguments.append('/savereplay')
-    arguments.append('gpgnet://localhost/' + str(game_info['uid']) + "/" + str(game_info['recorder']) + '.SCFAreplay')
+    arguments.append('"gpgnet://localhost/' + str(game_info['uid']) + "/" + str(game_info['recorder']) + '.SCFAreplay"')
 
     #disable bug reporter
     arguments.append('/nobugreport')
@@ -67,9 +67,10 @@ def build_argument_list(game_info, port, arguments=None):
     return arguments
 
 
-def play(game_info, port, arguments=None):
+def run(game_info, port, arguments=None):
     """
     Launches Forged Alliance with the given arguments
     """
+    logger.info("Play received arguments: %s" % arguments)
     arguments = build_argument_list(game_info, port, arguments)
     return instance.run(game_info, arguments)
