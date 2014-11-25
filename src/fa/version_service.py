@@ -7,7 +7,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-
 class VersionService(IRESTService):
     """
     Service to get available versions for mods, maps etc.
@@ -17,7 +16,7 @@ class VersionService(IRESTService):
           potentially within GameService
     """
     def __init__(self, network_manager):
-        IRESTService.__init__(self, network_manager)
+        super(VersionService, self).__init__(network_manager)
 
     def versions_for(self, mod):
         """
