@@ -73,10 +73,6 @@ class Process(QtCore.QProcess):
                 QtGui.QMessageBox.warning(None, "ForgedAllianceForever.exe", "Another instance of FA is already running.")
                 return False
 
-    def kill(self):
-        logger.warn("Process forcefully terminated.")
-        self.kill()
-
     def running(self):
         return self.state() == QtCore.QProcess.Running
 
