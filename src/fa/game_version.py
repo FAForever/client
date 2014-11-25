@@ -3,7 +3,6 @@ __author__ = 'Sheeo'
 from config import Settings
 
 from git import Repository, Version
-
 from fa.mod import Mod
 
 import json
@@ -18,6 +17,7 @@ class GameVersion():
     """
     For describing the exact version of FA used.
     """
+
     def __init__(self, engine, main_mod, mods=None, _map=None):
         if not isinstance(main_mod, Mod):
             raise GameVersionError("Not a loadable mod: " + repr(main_mod))
@@ -41,6 +41,36 @@ class GameVersion():
             raise GameVersionError("Invalid GameVersion: %r" % dictionary)
 
     @property
+    def _is_valid(self):
+        """
+        Validity means that the dictionary contains the
+        required keys with instances of Version.
+
+        :return: bool
+        """
+
+        def valid_version(version):
+            return isinstance(version, Version)
+
+        def valid_mod(mod):
+            return isinstance(mod, Mod) \
+                   and valid_version(mod.version)
+
+        def valid_main_mod(mod):
+            return valid_mod(mod) and mod.is_featured
+
+        valid = "engine" in self._versions
+        valid = valid and "main_mod" in self._versions
+        for key, value in self._versions.iteritems():
+            valid = valid and {
+                'engine': lambda version: valid_version(version),
+                'main_mod': lambda mod: valid_main_mod(mod),
+                'mods': lambda versions: all(map(lambda v: valid_mod(v), versions)),
+                }.get(key, lambda k: True)(value)
+
+        return valid
+
+    @property
     def is_stable(self):
         """
         Stable means that this version of the game is a fixed pointer, i.e.:
@@ -50,8 +80,8 @@ class GameVersion():
         :return: bool
         """
         return self._versions['engine'].is_stable \
-               and self._versions['main_mod'].version.is_stable \
-               and all(map(lambda x: x.version.is_stable, self._versions['mods']))
+            and self._versions['main_mod'].version.is_stable \
+            and all(map(lambda x: x.version.is_stable, self._versions['mods']))
 
     @property
     def repos(self):
@@ -92,36 +122,6 @@ class GameVersion():
         return self._versions['map']
 
     @property
-    def is_valid(self):
-        """
-        Validity means that the dictionary contains the
-        required keys with instances of Version.
-
-        :return: bool
-        """
-
-        def valid_version(version):
-            return isinstance(version, Version)
-
-        def valid_mod(mod):
-            return isinstance(mod, Mod) \
-                   and valid_version(mod.version)
-
-        def valid_main_mod(mod):
-            return valid_mod(mod) and mod.is_featured
-
-        valid = "engine" in self._versions
-        valid = valid and "main_mod" in self._versions
-        for key, value in self._versions.iteritems():
-            valid = valid and {
-                'engine': lambda version: valid_version(version),
-                'main_mod': lambda mod: valid_main_mod(mod),
-                'mods': lambda versions: all(map(lambda v: valid_mod(v), versions)),
-            }.get(key, lambda k: True)(value)
-
-        return valid
-
-    @property
     def is_trusted(self):
         """
         Trustedness means that all repos referenced are trusted
@@ -154,3 +154,7 @@ class GameVersion():
 
     def to_json(self):
         return json.dumps(self._versions, default=self.serialize_kids)
+
+    @staticmethod
+    def from_default_version(result):
+        return GameVersion.from_dict(result)
