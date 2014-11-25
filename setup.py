@@ -18,6 +18,15 @@
 
 import os
 import sys
+
+import sip
+
+sip.setapi('QString', 2)
+sip.setapi('QVariant', 2)
+sip.setapi('QStringList', 2)
+sip.setapi('QList', 2)
+sip.setapi('QProcess', 2)
+
 import PyQt4.uic
 from cx_Freeze import setup, Executable
 
