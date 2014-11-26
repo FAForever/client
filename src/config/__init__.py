@@ -4,6 +4,7 @@ import os
 import sys
 import version
 import logging
+from logging.handlers import RotatingFileHandler
 from PyQt4 import QtCore
 
 _settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
@@ -64,7 +65,7 @@ if version.is_development_version()\
     for k in []:
         logging.getLogger(k).setLevel(logging.DEBUG)
 
-    logging.getLogger(__name__).info("Loading development configuration")
+    logging.info("Loading development configuration")
     from develop import defaults
     make_dirs()
     rotate_logs()
@@ -72,9 +73,10 @@ if version.is_development_version()\
 else:
     from production import defaults
     make_dirs()
-    rotate_logs()
-    logging.basicConfig(filename=os.path.join(Settings.get('DIR', 'LOG'), 'forever.log'),
-                        level=Settings.get('LEVEL', 'LOG'),
-                        format='%(asctime)s %(levelname)-8s %(name)-40s %(message)s')
+    rotate = RotatingFileHandler(filename=os.path.join(Settings.get('DIR', 'LOG'), 'forever.log'),
+                                 maxBytes=Settings.get('MAX_SIZE', 'LOG'),
+                                 backupCount=10)
+    logging.getLogger(rotate)
+    logging.getLogger().setLevel(Settings.get('LEVEL', 'LOG'))
     logging.warning("FAF version: " + repr(version.get_git_version()))
 
