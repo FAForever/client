@@ -151,8 +151,8 @@ class HostgameWidget(FormClass, BaseClass):
         version_mm._version['url'] = None
         version_engine = Version.from_dict(version['ver_engine'])
         version_engine._version['url'] = None
-        main_mod = Mod(version['mod'],
-                       os.path.join(Settings.get('MODS_PATH', 'FA'), version['mod']),
+        main_mod = Mod(version['name'],
+                       version['mod'],
                        version_mm)
         return GameVersion(version_engine,
                            main_mod,

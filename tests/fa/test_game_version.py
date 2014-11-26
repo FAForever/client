@@ -8,18 +8,19 @@ __author__ = 'Sheeo'
 
 TEST_GAME_VERSION = Version('FAForever/fa', '3634', None, '791035045345a4c597a92ea0ef50d71fcccb0bb1')
 TEST_SIM_MOD = Mod("test-mod", "test-path", Version('FAForever/test_sim_mod', 'some-branch', None, 'some-hash'))
+TEST_MAIN_MOD = Mod("Forged Alliance Forever", "faf", TEST_GAME_VERSION)
 
 VALID_BINARY_PATCH = Version('FAForever/binary-patch', 'master')
 
 VALID_GAME_VERSION_INFO = {
     "engine": Version('FAForever/binary-patch', 'master'),
-    "main_mod": Mod("faf", "test-path", TEST_GAME_VERSION),
+    "main_mod": TEST_MAIN_MOD,
     "mods": [TEST_SIM_MOD],
     "map": {"name": "scmp_0009", "version": "builtin"}
 }
 
 UNTRUSTED_GAME_VERSION = VALID_GAME_VERSION_INFO.copy()
-UNTRUSTED_GAME_VERSION["main_mod"] = Mod("faf", "test-path", Version("fa", "3678", "http://example.com/test.git"))
+UNTRUSTED_GAME_VERSION["main_mod"] = Mod("Forged Alliance Forever", "faf", Version("fa", "3678", "http://example.com/test.git"))
 
 
 @pytest.fixture(scope='function')

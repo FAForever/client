@@ -1,5 +1,6 @@
 
 from git import Version
+import os.path
 
 __author__ = 'Sheeo'
 
@@ -38,13 +39,15 @@ class Mod():
     def __init__(self, name, path, version):
         if not isinstance(version, Version):
             raise ModError("Not given a version "+repr(version))
+        if os.path.isabs(path):
+            raise ModError("Mod %s given an absolute path: %s" % (name, path))
         self._name = name
         self._path = path
         self._version = version
 
     @property
     def is_featured(self):
-        return self._name in FEATURED_MODS
+        return os.path.basename(self._path) in FEATURED_MODS
 
     @property
     def version(self):
@@ -68,6 +71,9 @@ class Mod():
             return '/'
         else:
             return '/mods/'
+
+    def __repr__(self):
+        return repr(self.to_dict())
 
     def to_dict(self):
         return {'name':self.name,'path':self.path,'version:':self.version.to_dict()}

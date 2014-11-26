@@ -84,7 +84,6 @@ class Repository(QtCore.QObject):
 
     def has_hex(self, hex):
         try:
-            logger.info("Has hex?: %s " % hex)
             return hex in self.repo
         except (KeyError, ValueError):
             return False
@@ -119,7 +118,7 @@ class Repository(QtCore.QObject):
             for r in self.repo.remotes:
                 if r.name == urlparse(url).hostname:
                     remote = r
-        logger.info("Fetching '"+url+"'")
+        logger.debug("Fetching '"+url+"'")
         remote.sideband_progress = self._sideband
         remote.transfer_progress = self._transfer
         remote.fetch()
@@ -138,7 +137,7 @@ class Repository(QtCore.QObject):
             self.fetch_url(version.url)
 
     def checkout(self, target="faf/master"):
-        logger.info("Checking out " + target + " in " + self.path)
+        logger.debug("Checking out " + target + " in " + self.path)
         if target in self.remote_branches:
             self.repo.checkout(self.repo.lookup_branch(target, pygit2.GIT_BRANCH_REMOTE), strategy=pygit2.GIT_CHECKOUT_FORCE)
         elif target in self.local_branches:
