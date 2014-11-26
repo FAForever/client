@@ -58,7 +58,7 @@ if version.is_development_version()\
         or sys.executable.endswith('python.exe'):
     # Setup logging output
     devh = logging.StreamHandler()
-    devh.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-40s %(message)s'))
+    devh.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))
     logging.getLogger().addHandler(devh)
     logging.getLogger().setLevel(logging.INFO)
 
@@ -76,6 +76,7 @@ else:
     rotate = RotatingFileHandler(filename=os.path.join(Settings.get('DIR', 'LOG'), 'forever.log'),
                                  maxBytes=Settings.get('MAX_SIZE', 'LOG'),
                                  backupCount=10)
+    rotate.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))
     logging.getLogger(rotate)
     logging.getLogger().setLevel(Settings.get('LEVEL', 'LOG'))
     logging.warning("FAF version: " + repr(version.get_git_version()))
