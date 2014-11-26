@@ -32,6 +32,7 @@ from cx_Freeze import setup, Executable
 
 sys.path.insert(0, "src")
 sys.path.insert(0, "lib")
+sys.path.insert(0, "lib/pygit2/build/lib.win32-2.7")
 
 company_name = 'FAF Community'
 product_name = 'Forged Alliance Forever'
@@ -46,12 +47,13 @@ print('Build version:', git_version, 'MSI version:', msi_version)
 
 # Dependencies are automatically detected, but it might need fine tuning.
 build_exe_options = {
-    'include_files': ['res', 'RELEASE-VERSION', ('lib/uid.dll', 'uid.dll')],
+    'include_files': ['res', 'RELEASE-VERSION', ('lib/uid.dll', 'uid.dll'),
+                      ('lib/pygit2/pygit2/decl.h','decl.h')],
     'optimize': 2,
     'icon': 'res/faf.ico',
     'include_msvcr': True,
     'silent': True,
-    'packages': ['util', 'sip', 'cffi', 'pycparser', 'PyQt4.uic', 'lupa']
+    'packages': ['util', 'sip', 'cffi', 'pycparser', 'PyQt4.uic', 'lupa', 'pygit2', 'pygit2_cffi_18eab927xbf062fb5']
 }
 
 shortcut_table = [
