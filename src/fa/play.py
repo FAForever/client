@@ -16,6 +16,9 @@
 # GNU General Public License for more details.
 #-------------------------------------------------------------------------------
 from fa import mods
+from fa.init_file import InitFile
+from fa.path import getGameFolderFA
+from fa.game_version import GameVersion
 
 from .process import instance
 
@@ -29,10 +32,10 @@ logger = logging.getLogger(__name__)
 
 from PyQt4 import QtCore
 
-settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
-
 from . import DEFAULT_WRITE_GAME_LOG
 from . import DEFAULT_RECORD_REPLAY
+
+from config import Settings
 
 
 def build_argument_list(game_info, port, arguments=None):
@@ -46,19 +49,18 @@ def build_argument_list(game_info, port, arguments=None):
         raise ValueError("Custom init scripts no longer supported.")
 
     #log file
-    if settings.value("fa.write_game_log", DEFAULT_WRITE_GAME_LOG, type=bool):
-        arguments.append("/log")
-        arguments.append('"' + util.LOG_FILE_GAME + '"')
+    if Settings.get('WRITE_GAME_LOG', 'FA'):
+        arguments.append(("log", util.LOG_FILE_GAME))
 
     #live replay
-    arguments.append('/savereplay')
-    arguments.append('"gpgnet://localhost/' + str(game_info['uid']) + "/" + str(game_info['recorder']) + '.SCFAreplay"')
+    arguments.append(('savereplay',
+                     '"gpgnet://localhost/' + str(game_info['uid']) + "/" + str(game_info['recorder']) + '.SCFAreplay"'))
 
     #disable bug reporter
-    arguments.append('/nobugreport')
+    arguments.append(('nobugreport', None))
 
     #gpg server emulation
-    arguments.append('/gpgnet 127.0.0.1:' + str(port))
+    arguments.append(('gpgnet', '127.0.0.1:' + str(port)))
 
     return arguments
 
@@ -67,6 +69,19 @@ def run(game_info, port, arguments=None):
     """
     Launches Forged Alliance with the given arguments
     """
-    logger.info("Play received arguments: %s" % arguments)
     arguments = build_argument_list(game_info, port, arguments)
-    return instance.run(game_info, arguments)
+    init_file = InitFile()
+    logger.info("Launching with game_info %r" % game_info)
+    game_version = game_info['version']
+
+    init_file.mount(os.path.join(getGameFolderFA(), 'gamedata'), '/')
+    init_file.mount(game_version.main_mod.path, '/')
+
+    init_path = os.path.join(Settings.get('BIN', 'FA'), 'init_%s.lua' % game_version.main_mod.name)
+    f = file(init_path, 'w')
+    f.write(init_file.to_lua())
+    f.close()
+
+    arguments.append(('init', init_path))
+
+    return instance.run(game_version, arguments, False, init_file)

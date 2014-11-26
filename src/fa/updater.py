@@ -29,6 +29,7 @@ patched, and all required files for a given mod are installed
 @author thygrrr
 """
 import os
+
 import time
 import shutil
 from types import FloatType, IntType, ListType

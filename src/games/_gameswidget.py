@@ -669,6 +669,7 @@ class GamesWidget(FormClass, BaseClass):
                         self.client.send(dict(command="game_host",
                                               access="password" if self.ispassworded else "public",
                                               password=self.gamepassword,
+                                              version=version,
                                               mod=item.mod,
                                               title=self.gamename,
                                               mapname=self.gamemap,

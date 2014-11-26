@@ -155,6 +155,9 @@ class GameVersion():
     def to_json(self):
         return json.dumps(self._versions, default=self.serialize_kids)
 
+    def to_dict(self):
+        return self._versions
+
     @staticmethod
     def from_default_version(result):
         return GameVersion.from_dict(result)

@@ -49,6 +49,8 @@ import os
 import random
 import notificatation_system as ns
 
+from fa.game_version import GameVersion
+
 try:
     from profile import playerstats
 except:
@@ -1775,17 +1777,20 @@ class ClientWindow(FormClass, BaseClass):
             except:
                 logger.error("Error dispatching JSON: " + action, exc_info=sys.exc_info())
 
-
-
+    def serialize(self, obj):
+        if isinstance(obj, GameVersion):
+            return obj.to_dict()
+        else:
+            return GameVersion.serialize_kids(obj)
 
     #
     # JSON Protocol v2 Implementation below here
     #
     def send(self, message):
-        data = json.dumps(message)
-        if message["command"] == "hello" :
+        data = json.dumps(message, default=self.serialize)
+        if message["command"] == "hello":
             logger.info("Outgoing JSON Message: login.")
-        else :
+        else:
             logger.info("Outgoing JSON Message: " + data)
         self.writeToServer(data)
 

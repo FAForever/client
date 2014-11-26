@@ -24,6 +24,7 @@ defaults = {
         "ENGINE_PATH": join(join(APPDATA_DIR, "repo"), "binary-patch"),
         "MODS_PATH": join(join(APPDATA_DIR, "repo"), "mods"),
         "MAPS_PATH": join(join(APPDATA_DIR, "repo"), "maps"),
+        "WRITE_GAME_LOG": False
     },
     'PROXY': {
         'HOST': 'proxy.faforever.com',
