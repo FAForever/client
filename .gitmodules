@@ -1,6 +1,3 @@
 [submodule "lib/faftools"]
 	path = lib/faftools
     url = https://github.com/FAForever/faftools.git
-[submodule "lib/pygit2"]
-	path = lib/pygit2
-	url = https://github.com/FAForever/pygit2.git
