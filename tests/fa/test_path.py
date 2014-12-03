@@ -26,12 +26,15 @@ def test_hotfixFA():
 
     # create fake game
     gamedata = os.path.join(root, 'gamedata')
-    os.makedirs(gamedata)
+    try:
+        os.makedirs(gamedata)
+    except os.error:
+        pass
     lua = os.path.join(gamedata, 'lua.scd')
     open(lua, 'a').close()
 
     # positive test
-    subfolders = ['\\bin',  \
+    subfolders = ['\\bin',
                   '\\bin\\SupremeCommander.exe']
     for sub in subfolders:
         path.setGameFolderFA(folderFA + sub)

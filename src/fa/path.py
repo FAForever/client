@@ -41,7 +41,7 @@ def getGameFolderFA():
     settings.beginGroup("ForgedAlliance")
     gameFolderFA = unicode(settings.value("app/path"))
     settings.endGroup()
-    return gameFolderFA
+    return fixFolderPathFA(gameFolderFA)
 
 def setGameFolderFA(newGameFolderFA):
     logger.info("Setting game path to: %s" % newGameFolderFA)

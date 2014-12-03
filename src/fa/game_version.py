@@ -33,8 +33,12 @@ class GameVersion():
     @staticmethod
     def from_dict(dictionary):
         try:
-            return GameVersion(Version.from_dict(dictionary['engine']),
-                               Mod.from_dict(dictionary['main_mod']),
+            engine = dictionary['engine'] if isinstance(dictionary['engine'], Version)\
+                                          else Version.from_dict(dictionary['engine'])
+            main_mod = dictionary['main_mod'] if isinstance(dictionary['main_mod'], Mod)\
+                                              else Mod.from_dict(dictionary['main_mod'])
+            return GameVersion(engine,
+                               main_mod,
                                dictionary.get('mods'),
                                dictionary.get('map'))
         except (KeyError, ValueError) as e:

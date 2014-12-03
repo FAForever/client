@@ -26,7 +26,7 @@ def test_default_init_file():
 
 def test_path_gets_amended():
     f = InitFile()
-    f.mount('c:\\\\some-directory\\\\', '/')
+    f.mount('c:\\some-directory\\', '/')
     print f.to_lua()
     lua.execute(f.to_lua())
     path = []
