@@ -5,6 +5,7 @@ from config import Settings
 from git import Repository, Version
 from fa.mod import Mod
 
+import os
 import json
 
 
@@ -27,48 +28,45 @@ class GameVersion():
                                'main_mod': main_mod,
                                'mods': mods,
                                'map': _map})
-        if not self._is_valid:
-            raise GameVersionError("Invalid game version: " + repr(self._versions))
+        self.validate()
 
     @staticmethod
     def from_dict(dictionary):
         try:
-            return GameVersion(dictionary['engine'],
-                               dictionary['main_mod'],
+            return GameVersion(Version.from_dict(dictionary['engine']),
+                               Mod.from_dict(dictionary['main_mod']),
                                dictionary.get('mods'),
                                dictionary.get('map'))
-        except (KeyError, ValueError):
-            raise GameVersionError("Invalid GameVersion: %r" % dictionary)
+        except (KeyError, ValueError) as e:
+            raise GameVersionError("Invalid GameVersion: %r, error: %r" % (dictionary, e))
 
-    @property
-    def _is_valid(self):
-        """
-        Validity means that the dictionary contains the
-        required keys with instances of Version.
-
-        :return: bool
-        """
-
+    def validate(self):
         def valid_version(version):
-            return isinstance(version, Version)
+            if not isinstance(version, Version):
+                raise GameVersionError("Not a valid git version: %s" % version)
 
         def valid_mod(mod):
-            return isinstance(mod, Mod) \
-                   and valid_version(mod.version)
+            if not isinstance(mod, Mod):
+                raise GameVersionError("Not a loadable mod: %s" % mod)
+            valid_version(mod.version)
 
         def valid_main_mod(mod):
-            return valid_mod(mod) and mod.is_featured
+            valid_mod(mod)
+            if not mod.is_featured:
+                raise GameVersionError("Cannot load %s as main mod" % mod)
 
-        valid = "engine" in self._versions
-        valid = valid and "main_mod" in self._versions
+        if not "engine" in self._versions:
+            raise GameVersionError("No engine version specified")
+        if not "main_mod" in self._versions:
+            raise GameVersionError("No main mod version specified")
+
         for key, value in self._versions.iteritems():
-            valid = valid and {
+            {
                 'engine': lambda version: valid_version(version),
                 'main_mod': lambda mod: valid_main_mod(mod),
-                'mods': lambda versions: all(map(lambda v: valid_mod(v), versions)),
-                }.get(key, lambda k: True)(value)
-
-        return valid
+                'mods': lambda versions: all(map(lambda v: valid_mod(v), versions))
+            }.get(key, lambda k: True)(value)
+        return True
 
     @property
     def is_stable(self):
@@ -85,10 +83,10 @@ class GameVersion():
 
     @property
     def repos(self):
-        repos = [Repository(Settings.get('ENGINE_PATH', 'FA')),
-                 Repository(self.main_mod.path)]
+        repos = [self.engine_repo,
+                 self.main_mod_repo]
         for m in self.mods:
-            repos.append(Repository(m.path))
+            repos.append(Repository(os.path.join(Settings.get('MODS_PATH', 'FA'), m.identifier)))
         return repos
 
     @property
@@ -103,7 +101,7 @@ class GameVersion():
 
     @property
     def main_mod_repo(self):
-        return Repository(self.main_mod.path)
+        return Repository(os.path.join(Settings.get('MODS_PATH', 'FA'), self.main_mod.identifier))
 
     @property
     def engine(self):

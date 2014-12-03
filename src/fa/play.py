@@ -43,7 +43,8 @@ def build_argument_list(game_info, port, arguments=None):
     Compiles an argument list to run the game with POpen style process invocation methods.
     Extends a potentially pre-existing argument list to allow for injection of special parameters
     """
-    arguments = arguments or []
+    logger.info(arguments)
+    arguments = []
 
     if '/init' in arguments:
         raise ValueError("Custom init scripts no longer supported.")
@@ -74,8 +75,9 @@ def run(game_info, port, arguments=None):
     logger.info("Launching with game_info %r" % game_info)
     game_version = game_info['version']
 
-    init_file.mount(os.path.join(getGameFolderFA(), 'gamedata'), '/')
-    init_file.mount(game_version.main_mod.path, '/')
+    init_file.mount(os.path.join(Settings.get("MODS_PATH", 'FA'), game_version.main_mod.identifier), '/')
+    init_file.mount(os.path.join(str(getGameFolderFA()), 'gamedata\\*.scd'), '/')
+    init_file.mount(str(getGameFolderFA()), '/')
 
     init_path = os.path.join(Settings.get('BIN', 'FA'), 'init_%s.lua' % game_version.main_mod.name)
     f = file(init_path, 'w')
@@ -84,4 +86,4 @@ def run(game_info, port, arguments=None):
 
     arguments.append(('init', init_path))
 
-    return instance.run(game_version, arguments, False, init_file)
+    return instance.run(game_info, arguments, False, init_file)

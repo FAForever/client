@@ -36,14 +36,18 @@ class Mod():
     """
     Represents a mod loadable by FA
     """
-    def __init__(self, name, path, version):
+    def __init__(self, name, identifier, version):
         if not isinstance(version, Version):
             raise ModError("Not given a version "+repr(version))
-        if os.path.isabs(path):
-            raise ModError("Mod %s given an absolute path: %s" % (name, path))
-        self._name = name
-        self._path = path
+        self._name = str(name)
+        self._path = str(identifier)
         self._version = version
+
+    @staticmethod
+    def from_dict(dictionary):
+        return Mod(dictionary['name'],
+                   dictionary['identifier'],
+                   Version.from_dict(dictionary['version']))
 
     @property
     def is_featured(self):
@@ -58,7 +62,7 @@ class Mod():
         return self._name
 
     @property
-    def path(self):
+    def identifier(self):
         return self._path
 
     @property
@@ -76,4 +80,4 @@ class Mod():
         return repr(self.to_dict())
 
     def to_dict(self):
-        return {'name':self.name,'path':self.path,'version:':self.version.to_dict()}
+        return {'name':self.name,'identifier':self.identifier,'version':self.version.to_dict()}

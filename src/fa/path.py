@@ -41,10 +41,10 @@ def getGameFolderFA():
     settings.beginGroup("ForgedAlliance")
     gameFolderFA = unicode(settings.value("app/path"))
     settings.endGroup()
-    gameFolderFA = fixFolderPathFA(gameFolderFA)
     return gameFolderFA
 
 def setGameFolderFA(newGameFolderFA):
+    logger.info("Setting game path to: %s" % newGameFolderFA)
     settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
     settings.beginGroup("ForgedAlliance")
     settings.setValue("app/path", newGameFolderFA)

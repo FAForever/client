@@ -15,7 +15,7 @@ class InitFile(object):
         }
 
     def mount(self, path, mountpoint):
-        self.path.append({"mountpoint": mountpoint, "dir": path})
+        self.path.append({"mountpoint": mountpoint, "dir": path.replace('\\', '\\\\')})
 
     def add_hook(self, path):
         self.hook.append(path)

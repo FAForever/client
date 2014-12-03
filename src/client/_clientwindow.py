@@ -1940,7 +1940,12 @@ class ClientWindow(FormClass, BaseClass):
         version_info = message.get('version_info', {})
         version_info['lobby'] = util.VERSION_STRING
 
-        game_info = dict(uid=message['uid'], recorder=self.login, featured_mod=message[modkey], game_time=time.time(), version_info=version_info)
+        game_info = dict(uid=message['uid'],
+                         recorder=self.login,
+                         featured_mod=message[modkey],
+                         game_time=time.time(),
+                         version_info=version_info,
+                         version=GameVersion.from_dict(message.get('version')))
 
         fa.run(game_info, self.relayServer.serverPort(), arguments)
 
