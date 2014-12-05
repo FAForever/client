@@ -5,12 +5,6 @@ from lupa import LuaRuntime
 
 lua = LuaRuntime(unpack_returned_tuples=True)
 
-"""
-These tests suck quite hard, since they
-depend on the order that the dict happens to be iterated in.
-
-We should parse the lua back and compare values instead.
-"""
 
 def test_default_init_file():
     f = InitFile()
