@@ -2,6 +2,7 @@ __author__ = 'Sheeo'
 
 from fa.init_file import InitFile
 
+lua = LuaRuntime(unpack_returned_tuples=True)
 
 def test_default_init_file():
     f = InitFile()
