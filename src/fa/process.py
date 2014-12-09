@@ -53,7 +53,7 @@ class Process(QtCore.QProcess):
             in an attached process.
             """
             #prepare actual command for launching
-            executable = os.path.join(config.Settings.get('bin_dir', 'fa'), "ForgedAllianceForever.exe")
+            executable = os.path.join(config.Settings.get('BIN_DIR', 'FA'), "ForgedAllianceForever.exe")
             logger.info(arguments)
             command = '"' + executable + '" ' + " ".join(map(lambda (k, v): '/%s "%s"' % (k, v), arguments))
 
