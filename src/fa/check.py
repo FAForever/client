@@ -26,7 +26,7 @@ from fa.mods import checkMods
 from fa.path import writeFAPathLua, validatePath
 from fa.wizards import Wizard
 from fa.game_version import GameVersion
-from fa import binary
+from fa.binary import Updater
 from git import Repository
 
 import mods
@@ -85,10 +85,6 @@ def path(parent):
 
 
 def game(parent, game_version):
-    if not isinstance(game_version, GameVersion):
-        logger.critical("Not a GameVersion object: " + repr(game_version))
-        return False
-
     if not game_version.is_stable:
         logger.info("Unstable game version")
         # TODO: Show some dialog here
@@ -105,7 +101,7 @@ def game(parent, game_version):
         return False
     else:
         engine_repo.checkout_version(game_version.engine)
-        updater = binary.Updater(engine_repo, parent)
+        updater = Updater(engine_repo, parent)
         game_path = os.path.join(fa.path.getGameFolderFA(), 'bin')
         if not updater.check_up_to_date(game_path):
             updater.patch_forged_alliance(os.path.join(fa.path.getGameFolderFA(), 'bin'))
