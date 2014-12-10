@@ -20,6 +20,7 @@ import fa.check
 
 repo_mock = flexmock(checkout_version=lambda v: True)
 fa.check.Repository = repo_mock
+fa.game_version.Repository = repo_mock
 
 version_service = flexmock()
 TEST_GAME_VERSION = Version('FAForever/fa', '3634', None, '791035045345a4c597a92ea0ef50d71fcccb0bb1')
