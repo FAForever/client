@@ -41,14 +41,15 @@ class Settings(object):
 
 
 def make_dirs():
-    if not os.path.isdir(Settings.get('DIR', 'LOG')):
-        os.makedirs(Settings.get('DIR', 'LOG'))
-    if not os.path.isdir(Settings.get('MODS_PATH', 'FA')):
-        os.makedirs(Settings.get('MODS_PATH', 'FA'))
-    if not os.path.isdir(Settings.get('ENGINE_PATH', 'FA')):
-        os.makedirs(Settings.get('ENGINE_PATH', 'FA'))
-    if not os.path.isdir(Settings.get('MAPS_PATH', 'FA')):
-        os.makedirs(Settings.get('MAPS_PATH', 'FA'))
+    dirs = [
+        Settings.get('DIR', 'LOG'),
+        Settings.get('MODS_PATH', 'FA'),
+        Settings.get('ENGINE_PATH', 'FA'),
+        Settings.get('MAPS_PATH', 'FA')
+    ]
+    for d in dirs:
+        if not os.path.isdir(d):
+            os.makedirs(d)
 
 
 def rotate_logs():
@@ -60,18 +61,28 @@ def rotate_logs():
 
 v = version.get_git_version()
 
-if getattr(sys, 'frozen', False) and not version.is_prerelease_version(v):
-    logging.warning("FAF version: " + repr(version.get_git_version()))
-    from production import defaults
-    make_dirs()
-    rotate = RotatingFileHandler(filename=os.path.join(Settings.get('DIR', 'LOG'), 'forever.log'),
-                                 maxBytes=Settings.get('MAX_SIZE', 'LOG'),
-                                 backupCount=10)
-    rotate.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))
-    logging.getLogger().addHandler(rotate)
-    logging.getLogger().setLevel(Settings.get('LEVEL', 'LOG'))
-elif version.is_development_version(v)\
-        or sys.executable.endswith("py.test"):
+if getattr(sys, 'frozen', False):
+    if not version.is_prerelease_version(v):
+        logging.warning("FAF version: " + repr(version.get_git_version()))
+        from production import defaults
+        make_dirs()
+        rotate = RotatingFileHandler(filename=os.path.join(Settings.get('DIR', 'LOG'), 'forever.log'),
+                                     maxBytes=Settings.get('MAX_SIZE', 'LOG'),
+                                     backupCount=10)
+        rotate.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))
+        logging.getLogger().addHandler(rotate)
+        logging.getLogger().setLevel(Settings.get('LEVEL', 'LOG'))
+    else:
+        logging.warning("FAF prerelease version: " + repr(version.get_git_version()))
+        from develop import defaults
+        make_dirs()
+        rotate = RotatingFileHandler(filename=os.path.join(Settings.get('DIR', 'LOG'), 'forever.log'),
+                                     maxBytes=Settings.get('MAX_SIZE', 'LOG'),
+                                     backupCount=10)
+        rotate.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))
+        logging.getLogger().addHandler(rotate)
+        logging.getLogger().setLevel(Settings.get('LEVEL', 'LOG'))
+else:
     # Setup logging output
     devh = logging.StreamHandler()
     devh.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))
@@ -85,13 +96,3 @@ elif version.is_development_version(v)\
     make_dirs()
     rotate_logs()
     logging.warning("FAF development version: " + repr(version.get_git_version()))
-elif version.is_prerelease_version(v):
-    logging.warning("FAF prerelease version: " + repr(version.get_git_version()))
-    from develop import defaults
-    make_dirs()
-    rotate = RotatingFileHandler(filename=os.path.join(Settings.get('DIR', 'LOG'), 'forever.log'),
-                                 maxBytes=Settings.get('MAX_SIZE', 'LOG'),
-                                 backupCount=10)
-    rotate.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))
-    logging.getLogger().addHandler(rotate)
-    logging.getLogger().setLevel(Settings.get('LEVEL', 'LOG'))
