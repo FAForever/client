@@ -60,8 +60,17 @@ def rotate_logs():
 
 v = version.get_git_version()
 
-if version.is_development_version(v)\
-        or not getattr(sys, 'frozen', False):
+if getattr(sys, 'frozen', False) and not version.is_prerelease_version(v):
+    logging.warning("FAF version: " + repr(version.get_git_version()))
+    from production import defaults
+    make_dirs()
+    rotate = RotatingFileHandler(filename=os.path.join(Settings.get('DIR', 'LOG'), 'forever.log'),
+                                 maxBytes=Settings.get('MAX_SIZE', 'LOG'),
+                                 backupCount=10)
+    rotate.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))
+    logging.getLogger().addHandler(rotate)
+    logging.getLogger().setLevel(Settings.get('LEVEL', 'LOG'))
+elif version.is_development_version(v):
     # Setup logging output
     devh = logging.StreamHandler()
     devh.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))
@@ -75,8 +84,9 @@ if version.is_development_version(v)\
     make_dirs()
     rotate_logs()
     logging.warning("FAF development version: " + repr(version.get_git_version()))
-else:
-    from production import defaults
+elif version.is_prerelease_version(v):
+    logging.warning("FAF prerelease version: " + repr(version.get_git_version()))
+    from develop import defaults
     make_dirs()
     rotate = RotatingFileHandler(filename=os.path.join(Settings.get('DIR', 'LOG'), 'forever.log'),
                                  maxBytes=Settings.get('MAX_SIZE', 'LOG'),
@@ -84,8 +94,3 @@ else:
     rotate.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))
     logging.getLogger().addHandler(rotate)
     logging.getLogger().setLevel(Settings.get('LEVEL', 'LOG'))
-    if version.is_prerelease_version(v):
-        logging.warning("FAF prerelease version: " + repr(version.get_git_version()))
-    else:
-        logging.warning("FAF version: " + repr(version.get_git_version()))
-
