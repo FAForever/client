@@ -39,6 +39,8 @@ if os.path.isdir("lib"):
     sys.path.insert(0, os.path.abspath("lib"))
 elif os.path.isdir("../lib"):
     sys.path.insert(0, os.path.abspath("../lib"))
+if os.path.isdir("lib/pygit2"):
+    sys.path.insert(0, os.path.abspath("lib/pygit2"))
 
 from PyQt4 import QtGui
 import config
