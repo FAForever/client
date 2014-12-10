@@ -8,6 +8,11 @@ sip.setapi('QStringList', 2)
 sip.setapi('QList', 2)
 sip.setapi('QProcess', 2)
 
+import sys
+
+sys.path.insert(0, "lib")
+sys.path.insert(0, "lib/pygit2")
+
 import pytest
 
 from PyQt4 import QtGui, QtCore

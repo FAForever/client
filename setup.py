@@ -32,7 +32,7 @@ from cx_Freeze import setup, Executable
 
 sys.path.insert(0, "src")
 sys.path.insert(0, "lib")
-sys.path.insert(0, "lib/pygit2/build/lib.win32-2.7")
+sys.path.insert(0, "lib/pygit2")
 
 company_name = 'FAF Community'
 product_name = 'Forged Alliance Forever'
