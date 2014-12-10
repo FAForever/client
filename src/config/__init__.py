@@ -70,7 +70,8 @@ if getattr(sys, 'frozen', False) and not version.is_prerelease_version(v):
     rotate.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))
     logging.getLogger().addHandler(rotate)
     logging.getLogger().setLevel(Settings.get('LEVEL', 'LOG'))
-elif version.is_development_version(v):
+elif version.is_development_version(v)\
+        or sys.executable.endswith("py.test"):
     # Setup logging output
     devh = logging.StreamHandler()
     devh.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))
