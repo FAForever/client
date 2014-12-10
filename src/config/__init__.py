@@ -43,6 +43,12 @@ class Settings(object):
 def make_dirs():
     if not os.path.isdir(Settings.get('DIR', 'LOG')):
         os.makedirs(Settings.get('DIR', 'LOG'))
+    if not os.path.isdir(Settings.get('MODS_PATH', 'FA')):
+        os.makedirs(Settings.get('MODS_PATH', 'FA'))
+    if not os.path.isdir(Settings.get('ENGINE_PATH', 'FA')):
+        os.makedirs(Settings.get('ENGINE_PATH', 'FA'))
+    if not os.path.isdir(Settings.get('MAPS_PATH', 'FA')):
+        os.makedirs(Settings.get('MAPS_PATH', 'FA'))
 
 
 def rotate_logs():
@@ -52,10 +58,10 @@ def rotate_logs():
     if os.path.isfile(faf_log_file) and os.path.getsize(faf_log_file) > Settings.get('MAX_SIZE', 'LOG'):
         os.remove(faf_log_file)
 
+v = version.get_git_version()
 
-if version.is_development_version()\
-        or sys.executable.endswith('py.test')\
-        or sys.executable.endswith('python.exe'):
+if version.is_development_version(v)\
+        or not getattr(sys, 'frozen', False):
     # Setup logging output
     devh = logging.StreamHandler()
     devh.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))
@@ -65,7 +71,6 @@ if version.is_development_version()\
     for k in []:
         logging.getLogger(k).setLevel(logging.DEBUG)
 
-    logging.info("Loading development configuration")
     from develop import defaults
     make_dirs()
     rotate_logs()
@@ -77,7 +82,10 @@ else:
                                  maxBytes=Settings.get('MAX_SIZE', 'LOG'),
                                  backupCount=10)
     rotate.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))
-    logging.getLogger(rotate)
+    logging.getLogger().addHandler(rotate)
     logging.getLogger().setLevel(Settings.get('LEVEL', 'LOG'))
-    logging.warning("FAF version: " + repr(version.get_git_version()))
+    if version.is_prerelease_version(v):
+        logging.warning("FAF prerelease version: " + repr(version.get_git_version()))
+    else:
+        logging.warning("FAF version: " + repr(version.get_git_version()))
 

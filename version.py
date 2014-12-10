@@ -55,6 +55,12 @@ def git_describe(repository, commit):
 
     return 'g' + commit.hex[:7]
 
+def is_development_version(version):
+    return "-" in version and not is_prerelease_version(version)
+
+
+def is_prerelease_version(version):
+    return "pre" in version or "rc" in version
 
 def read_release_version():
     try:
