@@ -239,7 +239,7 @@ class StatsWidget(BaseClass, FormClass):
         if util.themeurl("ladder/style.css"):
             self.webview.settings().setUserStyleSheetUrl(util.themeurl("ladder/style.css"))
 
-        self.webview.setUrl(QtCore.QUrl("http://content.faforever.com/faf/leaderboards/read-leader.php?board=1v1&username=%s" % (self.client.login)))
+        self.webview.setUrl(QtCore.QUrl("http://content.dev.faforever.com/faf/leaderboards/read-leader.php?board=1v1&username=%s" % (self.client.login)))
         
         
     

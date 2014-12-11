@@ -46,7 +46,7 @@ else:
     VERSION        = 0
     VERSION_STRING = "development"
 
-UNITS_PREVIEW_ROOT = "http://content.faforever.com/faf/unitsDB/icons/big/" 
+UNITS_PREVIEW_ROOT = "http://content.dev.faforever.com/faf/unitsDB/icons/big/"
 
 #These are paths relative to the executable or main.py script
 COMMON_DIR = "_res"

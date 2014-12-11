@@ -24,7 +24,7 @@ from PyQt4 import QtGui
 logger = logging.getLogger("faf.galacticWar")
 logger.setLevel(logging.DEBUG)
 
-LOBBY_HOST = 'lobby.faforever.com'
+LOBBY_HOST = 'lobby.dev.faforever.com'
 LOBBY_PORT = 10001
 
 TEXTURE_SERVER = "http://content.faforever.com/faf/images/"
