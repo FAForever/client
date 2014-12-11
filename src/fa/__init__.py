@@ -28,7 +28,7 @@ import util
 logger= logging.getLogger("faf.fa")
 logger.setLevel(logging.INFO)
 
-GPGNET_HOST = "lobby.faforever.com"
+GPGNET_HOST = "lobby.dev.faforever.com"
 GPGNET_PORT = 8000
 
 

@@ -65,7 +65,7 @@ class MapVault(QtCore.QObject):
         if util.themeurl("vault/style.css"):
             self.ui.settings().setUserStyleSheetUrl(util.themeurl("vault/style.css"))
 
-        self.ui.setUrl(QtCore.QUrl("http://content.faforever.com/faf/vault/maps.php?username={user}&pwdhash={pwdhash}".format(user=self.client.login, pwdhash=self.client.password)))
+        self.ui.setUrl(QtCore.QUrl("http://content.dev.faforever.com/faf/vault/maps.php?username={user}&pwdhash={pwdhash}".format(user=self.client.login, pwdhash=self.client.password)))
         
 
         
