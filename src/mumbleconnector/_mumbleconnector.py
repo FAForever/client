@@ -10,10 +10,13 @@ from PyQt4 import QtGui
 
 import os
 import sys
-import win32api
 import time
 import re
-import _winreg
+try:
+    import win32api
+    import _winreg
+except:
+    pass #not for linux
 
 # Link-dll to interface with the mumble client
 import mumble_link

@@ -20,12 +20,19 @@
 import sys
 import os
 import urllib2
+import platform
 from ctypes import *
 
 
 # Developer mode flag
 def developer():
     return sys.executable.endswith("python.exe")
+
+
+if platform.system() == "Windows":
+    WINDOWS = True
+else:
+    WINDOWS = False
 
 try:
     with open("RELEASE-VERSION", "r") as version_file:
@@ -39,13 +46,15 @@ LOGFILE_MAX_SIZE = 256 * 1024  #256kb should be enough for anyone
 UNITS_PREVIEW_ROOT = "http://content.faforever.com/faf/unitsDB/icons/big/" 
 
 #These are paths relative to the executable or main.py script
-COMMON_DIR = os.path.join(os.getcwd(), "res")
+COMMON_DIR = os.path.join(os.getcwd(), "_res")
 
 # These directories are in Appdata (e.g. C:\ProgramData on some Win7 versions)
 if 'ALLUSERSPROFILE' in os.environ:
     APPDATA_DIR = os.path.join(os.environ['ALLUSERSPROFILE'], "FAForever")
-else:
+elif WINDOWS:
     APPDATA_DIR = os.path.join(os.environ['HOME'], "FAForever")
+else: #dotFolder for Linux
+    APPDATA_DIR = os.path.join(os.environ['HOME'], ".FAForever")
 
 #This is used to store init_*.lua files
 LUA_DIR = os.path.join(APPDATA_DIR, "lua")
@@ -518,9 +527,11 @@ def openInExplorer(location):
     '''
     import subprocess
 
-    _command = (u'explorer  "%s"' % location).encode(sys.getfilesystemencoding())
+    if(WINDOWS):
+        _command = (u'explorer  "%s"' % location).encode(sys.getfilesystemencoding())
+    else:
+        _command = ["xdg-open",location.encode(sys.getfilesystemencoding())]
     subprocess.Popen(_command)
-
 
 def showInExplorer(location):
     """
@@ -528,7 +539,10 @@ def showInExplorer(location):
     """
     import subprocess
 
-    _command = (u'explorer  /select, "%s"' % location).encode(sys.getfilesystemencoding())
+    if(WINDOWS):
+       _command = (u'explorer  /select, "%s"' % location).encode(sys.getfilesystemencoding())        
+    else:
+        _command = ["xdg-open",location.encode(sys.getfilesystemencoding())]
     subprocess.Popen(_command)
 
 
@@ -604,16 +618,20 @@ def md5(file_name):
 def uniqueID(user, session):
     ''' This is used to uniquely identify a user's machine to prevent smurfing. '''
     try:
-        if os.path.isfile("uid.dll"):
-            mydll = cdll.LoadLibrary("uid.dll")
+        if WINDOWS:
+            if os.path.isfile("uid.dll"):
+                mydll = cdll.LoadLibrary("uid.dll")
+            else:
+                mydll = cdll.LoadLibrary(os.path.join("lib", "uid.dll"))
+
+            mydll.uid.restype = c_char_p
+            baseString = (mydll.uid(session, os.path.join(LOG_DIR, "uid.log")) )
+            DllCanUnloadNow()
+
+            return baseString
         else:
-            mydll = cdll.LoadLibrary(os.path.join("lib", "uid.dll"))
-
-        mydll.uid.restype = c_char_p
-        baseString = (mydll.uid(session, os.path.join(LOG_DIR, "uid.log")) )
-        DllCanUnloadNow()
-
-        return baseString
+            import subprocess
+            return subprocess.Popen(["wine", "uid.exe", session, os.path.join(LOG_DIR, "uid.log")], stdout=subprocess.PIPE).communicate()[0]
 
     except:
         logger.error("UniqueID Failure", exc_info=sys.exc_info())
