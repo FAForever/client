@@ -46,7 +46,7 @@ LOGFILE_MAX_SIZE = 256 * 1024  #256kb should be enough for anyone
 UNITS_PREVIEW_ROOT = "http://content.faforever.com/faf/unitsDB/icons/big/" 
 
 #These are paths relative to the executable or main.py script
-COMMON_DIR = os.path.join(os.getcwd(), "_res")
+COMMON_DIR = os.path.join(os.getcwd(), "res")
 
 # These directories are in Appdata (e.g. C:\ProgramData on some Win7 versions)
 if 'ALLUSERSPROFILE' in os.environ:
@@ -631,7 +631,7 @@ def uniqueID(user, session):
             return baseString
         else:
             import subprocess
-            return subprocess.Popen(["wine", "uid.exe", session, os.path.join(LOG_DIR, "uid.log")], stdout=subprocess.PIPE).communicate()[0]
+            return subprocess.Popen(["wine", "lib/uid.exe", session, os.path.join(LOG_DIR, "uid.log")], stdout=subprocess.PIPE).communicate()[0]
 
     except:
         logger.error("UniqueID Failure", exc_info=sys.exc_info())
