@@ -508,6 +508,13 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QCheckBox" name="hideGameWithPw">
+        <property name="text">
+         <string>Hide Private Games</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -1224,7 +1231,6 @@ p, li { white-space: pre-wrap; }
      <zorder>labelTeamManagementHint2</zorder>
      <zorder>teamFaction</zorder>
      <zorder>teamSearch</zorder>
-     <zorder>layoutWidget</zorder>
      <zorder>TeamMapSelectButton</zorder>
      <zorder>verticalSpacer_2</zorder>
      <zorder>leaveTeamButton</zorder>
