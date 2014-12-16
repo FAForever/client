@@ -28,11 +28,11 @@ from ctypes import *
 def developer():
     return sys.executable.endswith("python.exe")
 
-
-if platform.system() == "Windows":
-    WINDOWS = True
-else:
-    WINDOWS = False
+def isWindows():
+    if platform.system() == "Windows":
+        return True
+    else:
+        return False
 
 try:
     with open("RELEASE-VERSION", "r") as version_file:
@@ -49,12 +49,13 @@ UNITS_PREVIEW_ROOT = "http://content.faforever.com/faf/unitsDB/icons/big/"
 COMMON_DIR = os.path.join(os.getcwd(), "res")
 
 # These directories are in Appdata (e.g. C:\ProgramData on some Win7 versions)
-if 'ALLUSERSPROFILE' in os.environ:
-    APPDATA_DIR = os.path.join(os.environ['ALLUSERSPROFILE'], "FAForever")
-elif WINDOWS:
-    APPDATA_DIR = os.path.join(os.environ['HOME'], "FAForever")
-else: #dotFolder for Linux
+if not isWindows():
+    #dotFolder for Linux
     APPDATA_DIR = os.path.join(os.environ['HOME'], ".FAForever")
+elif 'ALLUSERSPROFILE' in os.environ:
+    APPDATA_DIR = os.path.join(os.environ['ALLUSERSPROFILE'], "FAForever")
+else: 
+    APPDATA_DIR = os.path.join(os.environ['HOME'], "FAForever")
 
 #This is used to store init_*.lua files
 LUA_DIR = os.path.join(APPDATA_DIR, "lua")
@@ -527,7 +528,7 @@ def openInExplorer(location):
     '''
     import subprocess
 
-    if(WINDOWS):
+    if isWindows():
         _command = (u'explorer  "%s"' % location).encode(sys.getfilesystemencoding())
     else:
         _command = ["xdg-open",location.encode(sys.getfilesystemencoding())]
@@ -539,7 +540,7 @@ def showInExplorer(location):
     """
     import subprocess
 
-    if(WINDOWS):
+    if isWindows():
        _command = (u'explorer  /select, "%s"' % location).encode(sys.getfilesystemencoding())        
     else:
         _command = ["xdg-open",location.encode(sys.getfilesystemencoding())]
@@ -618,7 +619,7 @@ def md5(file_name):
 def uniqueID(user, session):
     ''' This is used to uniquely identify a user's machine to prevent smurfing. '''
     try:
-        if WINDOWS:
+        if isWindows:
             if os.path.isfile("uid.dll"):
                 mydll = cdll.LoadLibrary("uid.dll")
             else:
@@ -629,7 +630,7 @@ def uniqueID(user, session):
             DllCanUnloadNow()
 
             return baseString
-        else:
+        else: #linux needs winewrapper for uid, yet
             import subprocess
             return subprocess.Popen(["wine", "lib/uid.exe", session, os.path.join(LOG_DIR, "uid.log")], stdout=subprocess.PIPE).communicate()[0]
 

@@ -12,11 +12,10 @@ import os
 import sys
 import time
 import re
-try:
+from util import isWindows
+if isWindows(): #Windows only
     import win32api
     import _winreg
-except:
-    pass #not for linux
 
 # Link-dll to interface with the mumble client
 import mumble_link
