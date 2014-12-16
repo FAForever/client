@@ -41,6 +41,8 @@ elif os.path.isdir("../lib"):
     sys.path.insert(0, os.path.abspath("../lib"))
 if os.path.isdir("lib/pygit2"):
     sys.path.insert(0, os.path.abspath("lib/pygit2"))
+if os.path.isdir("lib/mumbleconnector"):
+    sys.path.insert(0, os.path.abspath("lib/mumbleconnector"))
 
 from PyQt4 import QtGui
 import config
@@ -104,9 +106,12 @@ if __name__ == '__main__':
     #Set application icon to nicely stack in the system task bar    
 
     import ctypes
-    if getattr(ctypes.windll.shell32, "SetCurrentProcessExplicitAppUserModelID", None) is not None: 
-        myappid = 'com.faforever.lobby'
-        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+    try:
+        if getattr(ctypes.windll.shell32, "SetCurrentProcessExplicitAppUserModelID", None) is not None: 
+            myappid = 'com.faforever.lobby'
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+    except:
+        pass #Not for linux
 
     if len(sys.argv) == 1:
         #Do the magic   

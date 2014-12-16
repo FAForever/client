@@ -100,7 +100,7 @@ if __name__ == '__main__':
             myappid = 'com.faforever.lobby'
             ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
     except:
-        pass  # not for linux
+        pass  #Not for linux
         
     if len(sys.argv) == 1:
         #Do the magic   
