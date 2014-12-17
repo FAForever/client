@@ -28,7 +28,8 @@ class Repository(QtCore.QObject):
         self.url = url
 
         logger.info("Opening repository at " + self.path)
-        if not os.path.exists(self.path):
+        if not os.path.exists(self.path) or not os.listdir(self.path):
+            #in Linux folders are already created on startup (but empty)
             self.repo = pygit2.init_repository(self.path)
         else:
             if not os.path.exists(os.path.join(self.path, ".git")):
