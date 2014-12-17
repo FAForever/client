@@ -37,14 +37,6 @@ def test_creates_empty_repository_on_init(tmpdir):
     assert test_repo.repo.is_empty
 
 
-def test_raises_git_error_on_init_if_not_a_git_path(tmpdir):
-    with pytest.raises(pygit2.GitError):
-        repo_dir = str(tmpdir.mkdir("test_repo"))
-        test_repo = Repository(repo_dir, TEST_REPO_URL)
-        assert os.path.exists(repo_dir)
-        assert test_repo.repo.is_empty
-
-
 def test_has_remote_faf_after_init(tmpdir):
     repo_dir = str(tmpdir.join("test_repo"))
     test_repo = Repository(repo_dir, TEST_REPO_URL)
