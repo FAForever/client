@@ -619,7 +619,7 @@ def md5(file_name):
 def uniqueID(user, session):
     ''' This is used to uniquely identify a user's machine to prevent smurfing. '''
     try:
-        if isWindows:
+        if isWindows():
             if os.path.isfile("uid.dll"):
                 mydll = cdll.LoadLibrary("uid.dll")
             else:

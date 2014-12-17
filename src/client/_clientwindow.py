@@ -1946,7 +1946,6 @@ class ClientWindow(FormClass, BaseClass):
                          game_time=time.time(),
                          version_info=version_info,
                          version=GameVersion.from_dict(message.get('version')))
-
         fa.run(game_info, self.relayServer.serverPort(), arguments)
 
 
