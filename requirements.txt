@@ -7,4 +7,6 @@ py>=1.4.25
 pygit2>=0.21.3
 pytest>=2.6.3
 pytest-qt>=1.2.2
+pytest-cov
+python-coveralls
 python-dateutil>=2.2
