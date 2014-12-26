@@ -18,3 +18,5 @@ Thumbs.db
 .DS_Store
 *.orig
 RELEASE-VERSION
+__pycache__
+.coverage
