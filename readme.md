@@ -5,6 +5,7 @@ FA Forever - Lobby
 master|develop
  ------------ | -------------
 [![Build Status](https://travis-ci.org/FAForever/lobby.svg?branch=master)](https://travis-ci.org/FAForever/lobby) | [![Build Status](https://travis-ci.org/FAForever/lobby.svg?branch=develop)](https://travis-ci.org/FAForever/lobby)
+[![Coverage Status](https://img.shields.io/coveralls/FAForever/lobby.svg?branch=master)](https://coveralls.io/r/FAForever/lobby) | [![Coverage Status](https://img.shields.io/coveralls/FAForever/lobby.svg?branch=develop)](https://coveralls.io/r/FAForever/lobby)
  
 
 This is the source code for the FA Forever Lobby.
@@ -22,7 +23,7 @@ Pre-requisites are:
 If you want to contribute back to the project, please make a fork and create
 pull-requests of your changes.
 
-- **NEW** Pull Requests must have py.test unit test coverage
+Pull Requests must have py.test unit test coverage.
 
 
 Running
