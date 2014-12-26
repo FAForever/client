@@ -179,11 +179,11 @@ class Channel(FormClass, BaseClass):
                 
             
     @QtCore.pyqtSlot()    
-    def pingWindow(self):
+    def pingWindow(self, sound=True):
         QtGui.QApplication.alert(self.lobby.client)
             
         
-        if not self.isVisible() or QtGui.QApplication.activeWindow() != self.lobby.client:
+        if sound and (not self.isVisible() or QtGui.QApplication.activeWindow()) != self.lobby.client:
             if self.oneMinuteOrOlder():
                 if self.lobby.client.soundeffects:
                     util.sound("chat/sfx/query.wav")
@@ -266,7 +266,9 @@ class Channel(FormClass, BaseClass):
             # Play a ping sound and flash the title under certain circumstances
             if self.private and name != self.lobby.client.login:
                 self.pingWindow()
-            
+            elif not self.name in self.lobby.crucialChannels:
+                self.pingWindow(sound=False)
+
             if not self.private and text.find(self.lobby.client.login)!=-1:
                 self.pingWindow()
                 color = self.lobby.client.getColor("tous")
