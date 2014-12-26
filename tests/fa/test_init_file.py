@@ -1,6 +1,6 @@
 __author__ = 'Sheeo'
 
-from fa.init_file import InitFile
+from fa.lua import InitFile
 from lupa import LuaRuntime
 
 lua = LuaRuntime(unpack_returned_tuples=True)

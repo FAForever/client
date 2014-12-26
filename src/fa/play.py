@@ -15,8 +15,10 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #-------------------------------------------------------------------------------
+
 from fa import mods
-from fa.init_file import InitFile
+
+from fa.lua import InitFile
 from fa.path import getGameFolderFA
 from fa.game_version import GameVersion
 

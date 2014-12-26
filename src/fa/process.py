@@ -18,12 +18,11 @@
 
 
 import os
+import logging
 
 from PyQt4 import QtCore, QtGui
-from .init_file import InitFile
-import config
 
-import logging
+import config
 logger = logging.getLogger(__name__)
 
 __author__ = 'Thygrrr'
