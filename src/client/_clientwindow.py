@@ -30,7 +30,7 @@ from types import IntType, FloatType, ListType, DictType
 
 from client import ClientState, MUMBLE_URL, WEBSITE_URL, WIKI_URL, \
     FORUMS_URL, UNITDB_URL, SUPPORT_URL, TICKET_URL, GAME_PORT_DEFAULT, LOBBY_HOST, \
-    LOBBY_PORT, LOCAL_REPLAY_PORT, STEAMLINK_URL
+    LOBBY_PORT, LOCAL_REPLAY_PORT, STEAMLINK_URL, GITHUB_URL
 
 import logging
 logger = logging.getLogger(__name__)
@@ -711,6 +711,7 @@ class ClientWindow(FormClass, BaseClass):
         self.actionLink_account_to_Steam.triggered.connect(self.linkToSteam)
         self.actionLinkWebsite.triggered.connect(self.linkWebsite)
         self.actionLinkWiki.triggered.connect(self.linkWiki)
+        self.actionLinkGitHub.triggered.connect(self.linkGitHub)
         self.actionLinkForums.triggered.connect(self.linkForums)
         self.actionLinkUnitDB.triggered.connect(self.linkUnitDB)
 
@@ -837,6 +838,10 @@ class ClientWindow(FormClass, BaseClass):
     @QtCore.pyqtSlot()
     def linkWiki(self):
         QtGui.QDesktopServices.openUrl(QtCore.QUrl(WIKI_URL))
+
+    @QtCore.pyqtSlot()
+    def linkGitHub(self):
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(GITHUB_URL))
 
     @QtCore.pyqtSlot()
     def linkForums(self):
