@@ -50,14 +50,6 @@ def make_dirs():
     if not os.path.isdir(Settings.get('MAPS_PATH', 'FA')):
         os.makedirs(Settings.get('MAPS_PATH', 'FA'))
 
-
-def rotate_logs():
-    log_dir = Settings.get('DIR', 'LOG')
-    faf_log_file = os.path.join(log_dir, 'forever.log')
-    # Same dirty implementation for now
-    if os.path.isfile(faf_log_file) and os.path.getsize(faf_log_file) > Settings.get('MAX_SIZE', 'LOG'):
-        os.remove(faf_log_file)
-
 v = version.get_git_version()
 
 if getattr(sys, 'frozen', False) and not version.is_prerelease_version(v):
@@ -83,7 +75,6 @@ elif version.is_development_version(v)\
 
     from develop import defaults
     make_dirs()
-    rotate_logs()
     logging.warning("FAF development version: " + repr(version.get_git_version()))
 elif version.is_prerelease_version(v):
     logging.warning("FAF prerelease version: " + repr(version.get_git_version()))
