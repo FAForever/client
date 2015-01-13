@@ -22,7 +22,7 @@ import os
 import urllib2
 import platform
 from ctypes import *
-
+from config.production import APPDATA_DIR
 
 # Developer mode flag
 def developer():
@@ -47,15 +47,6 @@ UNITS_PREVIEW_ROOT = "http://content.faforever.com/faf/unitsDB/icons/big/"
 
 #These are paths relative to the executable or main.py script
 COMMON_DIR = os.path.join(os.getcwd(), "res")
-
-# These directories are in Appdata (e.g. C:\ProgramData on some Win7 versions)
-if not isWindows():
-    #dotFolder for Linux
-    APPDATA_DIR = os.path.join(os.environ['HOME'], ".FAForever")
-elif 'ALLUSERSPROFILE' in os.environ:
-    APPDATA_DIR = os.path.join(os.environ['ALLUSERSPROFILE'], "FAForever")
-else: 
-    APPDATA_DIR = os.path.join(os.environ['HOME'], "FAForever")
 
 #This is used to store init_*.lua files
 LUA_DIR = os.path.join(APPDATA_DIR, "lua")
@@ -92,12 +83,14 @@ REPO_DIR = os.path.join(APPDATA_DIR, "repo")
 if not os.path.exists(REPO_DIR):
     os.makedirs(REPO_DIR)
 
-LOCALFOLDER = os.path.join(os.path.expandvars("%LOCALAPPDATA%"), "Gas Powered Games",
-                           "Supreme Commander Forged Alliance")
+LOCALFOLDER = os.path.join(os.path.expandvars("%LOCALAPPDATA%"), "Gas Powered Games", "Supreme Commander Forged Alliance")
 if not os.path.exists(LOCALFOLDER):
-    LOCALFOLDER = os.path.join(os.path.expandvars("%USERPROFILE%"), "Local Settings", "Application Data",
-                               "Gas Powered Games", "Supreme Commander Forged Alliance")
-PREFSFILENAME = os.path.join(LOCALFOLDER, "game.prefs")
+    LOCALFOLDER = os.path.join(os.path.expandvars("%USERPROFILE%"), "Local Settings", "Application Data", "Gas Powered Games", "Supreme Commander Forged Alliance")
+if not isWindows():
+    LOCALFOLDER = os.path.join(os.environ['HOME'], ".PlayOnLinux", "wineprefix", "SupremeCommander", "drive_c", "users", "frozen_byte", "Local Settings", "Application Data", "Gas Powered Games", "Supreme Commander Forged Alliance")
+
+PREFSFILENAME = os.path.join(LOCALFOLDER, "Game.prefs")
+
 
 DOWNLOADED_RES_PIX = {}
 DOWNLOADING_RES_PIX = {}
