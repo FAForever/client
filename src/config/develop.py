@@ -5,7 +5,6 @@ from os.path import join
 from platform import system
 import logging
 from production import defaults as production_defaults
-from production import APPDATA_DIR
 
 defaults = production_defaults.copy()
 

@@ -22,17 +22,11 @@ import os
 import urllib2
 import platform
 from ctypes import *
-from config.production import APPDATA_DIR
-
+import config
+from config.production import APPDATA_DIR, ON_WINDOWS, GAME_PREFS_PATH
 # Developer mode flag
 def developer():
     return sys.executable.endswith("python.exe")
-
-def isWindows():
-    if platform.system() == "Windows":
-        return True
-    else:
-        return False
 
 try:
     with open("RELEASE-VERSION", "r") as version_file:
@@ -512,7 +506,7 @@ def openInExplorer(location):
     '''
     import subprocess
 
-    if isWindows():
+    if ON_WINDOWS:
         _command = (u'explorer  "%s"' % location).encode(sys.getfilesystemencoding())
     else:
         _command = ["xdg-open",location.encode(sys.getfilesystemencoding())]
@@ -524,7 +518,7 @@ def showInExplorer(location):
     """
     import subprocess
 
-    if isWindows():
+    if ON_WINDOWS:
        _command = (u'explorer  /select, "%s"' % location).encode(sys.getfilesystemencoding())        
     else:
         _command = ["xdg-open",location.encode(sys.getfilesystemencoding())]
@@ -603,7 +597,7 @@ def md5(file_name):
 def uniqueID(user, session):
     ''' This is used to uniquely identify a user's machine to prevent smurfing. '''
     try:
-        if isWindows():
+        if ON_WINDOWS:
             if os.path.isfile("uid.dll"):
                 mydll = cdll.LoadLibrary("uid.dll")
             else:

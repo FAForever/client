@@ -34,6 +34,7 @@ sip.setapi('QProcess', 2)
 
 import os
 import sys
+from config.production import ON_WINDOWS
 
 if os.path.isdir("lib"):
     sys.path.insert(0, os.path.abspath("lib"))
@@ -45,7 +46,6 @@ if os.path.isdir("lib/mumbleconnector"):
     sys.path.insert(0, os.path.abspath("lib/mumbleconnector"))
 
 from PyQt4 import QtGui
-import config
 import util
 
 
@@ -104,8 +104,8 @@ if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
     app.setWindowIcon(util.icon("window_icon.png", True))
     #Set application icon to nicely stack in the system task bar    
-
-    if util.isWindows(): #Windows only
+    
+    if ON_WINDOWS: #Windows only
         import ctypes
         if getattr(ctypes.windll.shell32, "SetCurrentProcessExplicitAppUserModelID", None) is not None: 
             myappid = 'com.faforever.lobby'

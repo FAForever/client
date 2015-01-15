@@ -12,8 +12,8 @@ import os
 import sys
 import time
 import re
-from util import isWindows
-if isWindows(): #Windows only
+from config.production import ON_WINDOWS
+if ON_WINDOWS: #Windows only
     import win32api
     import _winreg
 

@@ -36,6 +36,7 @@ from PyQt4 import QtGui
 
 # Set up a robust logging system
 import util
+import config
 #util.startLogging()
 
 # Set up crash reporting
@@ -94,7 +95,7 @@ if __name__ == '__main__':
     app.setWindowIcon(util.icon("window_icon.png", True))
     #Set application icon to nicely stack in the system task bar    
 
-    if util.isWindows(): #Windows only
+    if ON_WINDOWS: #Windows only
         import ctypes
         if getattr(ctypes.windll.shell32, "SetCurrentProcessExplicitAppUserModelID", None) is not None: 
             myappid = 'com.faforever.lobby'
