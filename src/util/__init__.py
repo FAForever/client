@@ -1,3 +1,4 @@
+
 #-------------------------------------------------------------------------------
 # Copyright (c) 2012 Gael Honorez.
 # All rights reserved. This program and the accompanying materials
@@ -636,5 +637,3 @@ def now():
 
 from crash import CrashDialog
 from report import ReportDialog
-
-    

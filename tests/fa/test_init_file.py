@@ -1,21 +1,21 @@
 __author__ = 'Sheeo'
 
-from fa.init_file import InitFile
+from fa.lua import InitFile
 from lupa import LuaRuntime
 
 lua = LuaRuntime(unpack_returned_tuples=True)
 
 
-def test_default_init_file():
+def test_default_init_values():
     f = InitFile()
     print f.to_lua()
     lua.execute(f.to_lua())
-    path = dict(lua.eval('path').items())
-    assert path == {}
+    path = list(lua.eval('path').items())
+    assert path == f.path
     hook = list(lua.eval('hook').values())
-    assert hook == ['/schook']
+    assert hook == f.hook
     protocols = list(lua.eval('protocols').values())
-    assert protocols == ["http", "https", "mailto", "ventrilo", "teamspeak", "daap", "im"]
+    assert protocols == f.protocols
 
 
 def test_path_gets_amended():

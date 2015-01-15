@@ -1,5 +1,3 @@
-from fa.init_file import InitFile
-
 __author__ = 'Sheeo'
 
 from flexmock import flexmock
