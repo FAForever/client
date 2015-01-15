@@ -83,15 +83,6 @@ REPO_DIR = os.path.join(APPDATA_DIR, "repo")
 if not os.path.exists(REPO_DIR):
     os.makedirs(REPO_DIR)
 
-LOCALFOLDER = os.path.join(os.path.expandvars("%LOCALAPPDATA%"), "Gas Powered Games", "Supreme Commander Forged Alliance")
-if not os.path.exists(LOCALFOLDER):
-    LOCALFOLDER = os.path.join(os.path.expandvars("%USERPROFILE%"), "Local Settings", "Application Data", "Gas Powered Games", "Supreme Commander Forged Alliance")
-if not isWindows():
-    LOCALFOLDER = os.path.join(os.environ['HOME'], ".PlayOnLinux", "wineprefix", "SupremeCommander", "drive_c", "users", "frozen_byte", "Local Settings", "Application Data", "Gas Powered Games", "Supreme Commander Forged Alliance")
-
-PREFSFILENAME = os.path.join(LOCALFOLDER, "Game.prefs")
-
-
 DOWNLOADED_RES_PIX = {}
 DOWNLOADING_RES_PIX = {}
 

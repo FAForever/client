@@ -72,7 +72,7 @@ class Updater(QtCore.QObject):
         self.prepare_progress("Copying Files", len(copy_rename))
 
         if not os.path.exists(destination_path):
-            shutil.os.mkdir(destination_path)
+            shutil.makedirs(destination_path)
 
         for source_name, destination_name in copy_rename.iteritems():
             logger.info("Copying " + os.path.join(source_path, source_name))
