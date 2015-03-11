@@ -575,8 +575,14 @@ def irc_escape(text, a_style=""):
             fragment = fragment.replace(match.group(0), rpl)
 
         result.append(fragment)
-    return " ".join(result)
 
+    text = " ".join(result)
+
+    # Replay links by using #<replay-id>
+    p = re.compile(r'(^|\s)#([0-9]+)(\s|$)')
+    text = p.sub(r'\1<a href="http://content.faforever.com/faf/vault/replay_vault/replay.php?id=\2">Replay #\2</a>\3', text)
+
+    return text
 
 def md5text(text):
     m = hashlib.md5()
