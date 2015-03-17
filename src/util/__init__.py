@@ -1,3 +1,4 @@
+
 #-------------------------------------------------------------------------------
 # Copyright (c) 2012 Gael Honorez.
 # All rights reserved. This program and the accompanying materials
@@ -20,9 +21,10 @@
 import sys
 import os
 import urllib2
+import platform
 from ctypes import *
-
-
+import config
+from config.production import APPDATA_DIR, ON_WINDOWS, GAME_PREFS_PATH
 # Developer mode flag
 def developer():
     return sys.executable.endswith("python.exe")
@@ -40,12 +42,6 @@ UNITS_PREVIEW_ROOT = "http://content.faforever.com/faf/unitsDB/icons/big/"
 
 #These are paths relative to the executable or main.py script
 COMMON_DIR = os.path.join(os.getcwd(), "res")
-
-# These directories are in Appdata (e.g. C:\ProgramData on some Win7 versions)
-if 'ALLUSERSPROFILE' in os.environ:
-    APPDATA_DIR = os.path.join(os.environ['ALLUSERSPROFILE'], "FAForever")
-else:
-    APPDATA_DIR = os.path.join(os.environ['HOME'], "FAForever")
 
 #This is used to store init_*.lua files
 LUA_DIR = os.path.join(APPDATA_DIR, "lua")
@@ -81,13 +77,6 @@ REPO_DIR = os.path.join(APPDATA_DIR, "repo")
 
 if not os.path.exists(REPO_DIR):
     os.makedirs(REPO_DIR)
-
-LOCALFOLDER = os.path.join(os.path.expandvars("%LOCALAPPDATA%"), "Gas Powered Games",
-                           "Supreme Commander Forged Alliance")
-if not os.path.exists(LOCALFOLDER):
-    LOCALFOLDER = os.path.join(os.path.expandvars("%USERPROFILE%"), "Local Settings", "Application Data",
-                               "Gas Powered Games", "Supreme Commander Forged Alliance")
-PREFSFILENAME = os.path.join(LOCALFOLDER, "game.prefs")
 
 DOWNLOADED_RES_PIX = {}
 DOWNLOADING_RES_PIX = {}
@@ -518,9 +507,11 @@ def openInExplorer(location):
     '''
     import subprocess
 
-    _command = (u'explorer  "%s"' % location).encode(sys.getfilesystemencoding())
+    if ON_WINDOWS:
+        _command = (u'explorer  "%s"' % location).encode(sys.getfilesystemencoding())
+    else:
+        _command = ["xdg-open",location.encode(sys.getfilesystemencoding())]
     subprocess.Popen(_command)
-
 
 def showInExplorer(location):
     """
@@ -528,7 +519,10 @@ def showInExplorer(location):
     """
     import subprocess
 
-    _command = (u'explorer  /select, "%s"' % location).encode(sys.getfilesystemencoding())
+    if ON_WINDOWS:
+       _command = (u'explorer  /select, "%s"' % location).encode(sys.getfilesystemencoding())        
+    else:
+        _command = ["xdg-open",location.encode(sys.getfilesystemencoding())]
     subprocess.Popen(_command)
 
 
@@ -604,16 +598,20 @@ def md5(file_name):
 def uniqueID(user, session):
     ''' This is used to uniquely identify a user's machine to prevent smurfing. '''
     try:
-        if os.path.isfile("uid.dll"):
-            mydll = cdll.LoadLibrary("uid.dll")
-        else:
-            mydll = cdll.LoadLibrary(os.path.join("lib", "uid.dll"))
+        if ON_WINDOWS:
+            if os.path.isfile("uid.dll"):
+                mydll = cdll.LoadLibrary("uid.dll")
+            else:
+                mydll = cdll.LoadLibrary(os.path.join("lib", "uid.dll"))
 
-        mydll.uid.restype = c_char_p
-        baseString = (mydll.uid(session, os.path.join(LOG_DIR, "uid.log")) )
-        DllCanUnloadNow()
+            mydll.uid.restype = c_char_p
+            baseString = (mydll.uid(session, os.path.join(LOG_DIR, "uid.log")) )
+            DllCanUnloadNow()
 
-        return baseString
+            return baseString
+        else: #linux needs winewrapper for uid, yet
+            import subprocess
+            return subprocess.Popen(["wine", "lib/uid.exe", session, os.path.join(LOG_DIR, "uid.log")], stdout=subprocess.PIPE).communicate()[0]
 
     except:
         logger.error("UniqueID Failure", exc_info=sys.exc_info())
@@ -639,5 +637,3 @@ def now():
 
 from crash import CrashDialog
 from report import ReportDialog
-
-    

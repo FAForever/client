@@ -41,7 +41,7 @@ class GameVersion():
                                main_mod,
                                dictionary.get('mods'),
                                dictionary.get('map'))
-        except (KeyError, ValueError) as e:
+        except (KeyError, ValueError, TypeError) as e:
             raise GameVersionError("Invalid GameVersion: %r, error: %r" % (dictionary, e))
 
     def validate(self):

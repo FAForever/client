@@ -1,29 +1,45 @@
 __author__ = 'Sheeo'
 
-from os import environ
-from os.path import join
-
+import os
+from platform import system
 import logging
 
+if system() == "Windows":
+    ON_WINDOWS = True
+else: 
+    ON_WINDOWS = False
+
 # These directories are in Appdata (e.g. C:\ProgramData on some Win7 versions)
-if 'ALLUSERSPROFILE' in environ:
-    APPDATA_DIR = join(environ['ALLUSERSPROFILE'], "FAForever")
+if not ON_WINDOWS:
+    #dotFolder for Linux
+    APPDATA_DIR = os.path.join(os.environ['HOME'], ".FAForever")
+elif 'ALLUSERSPROFILE' in os.environ:
+    APPDATA_DIR = os.path.join(os.environ['ALLUSERSPROFILE'], "FAForever")
+else: 
+    APPDATA_DIR = os.path.join(os.environ['HOME'], "FAForever")
+
+if not ON_WINDOWS:
+    localfolder = os.path.join(os.environ['HOME'], ".PlayOnLinux", "wineprefix", "SupremeCommander", "drive_c", "users", os.environ['USER'], "Local Settings", "Application Data", "Gas Powered Games", "Supreme Commander Forged Alliance")
 else:
-    APPDATA_DIR = join(environ['HOME'], "FAForever")
+    localfolder = os.path.join(os.path.expandvars("%LOCALAPPDATA%"), "Gas Powered Games", "Supreme Commander Forged Alliance")
+    if not os.path.exists(localfolder):
+        localfolder = os.path.join(os.path.expandvars("%USERPROFILE%"), "Local Settings", "Application Data", "Gas Powered Games", "Supreme Commander Forged Alliance")
+
+GAME_PREFS_PATH = os.path.join(localfolder, "Game.prefs")
 
 
 defaults = {
     'BASE_DIR': APPDATA_DIR,
     'LOG': {
-        'DIR': join(APPDATA_DIR, 'logs'),
+        'DIR': os.path.join(APPDATA_DIR, 'logs'),
         'LEVEL': logging.WARNING,
         'MAX_SIZE': 256*1024
     },
     'FA': {
-        "BIN": join(APPDATA_DIR, "bin"),
-        "ENGINE_PATH": join(join(APPDATA_DIR, "repo"), "binary-patch"),
-        "MODS_PATH": join(join(APPDATA_DIR, "repo"), "mods"),
-        "MAPS_PATH": join(join(APPDATA_DIR, "repo"), "maps"),
+        "BIN": os.path.join(APPDATA_DIR, "bin"),
+        "ENGINE_PATH": os.path.join(os.path.join(APPDATA_DIR, "repo"), "binary-patch"),
+        "MODS_PATH": os.path.join(os.path.join(APPDATA_DIR, "repo"), "mods"),
+        "MAPS_PATH": os.path.join(os.path.join(APPDATA_DIR, "repo"), "maps"),
         "WRITE_GAME_LOG": False
     },
     'PROXY': {

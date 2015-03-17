@@ -24,8 +24,9 @@ import shutil
 
 from PyQt4 import QtCore, QtGui
 
-from util import strtodate, datetostr, now, PREFSFILENAME
+from util import strtodate, datetostr, now
 import util
+import config
 import logging
 from vault import luaparser
 import warnings
@@ -211,11 +212,11 @@ def getActiveMods(uimods=None): # returns a list of ModInfo's containing informa
     """
     active_mods = []
     try:
-        if not os.path.exists(PREFSFILENAME):
+        if not os.path.exists(GAME_PREFS_PATH):
             logger.info("No game.prefs file found")
             return []
         
-        l = luaparser.luaParser(PREFSFILENAME)
+        l = luaparser.luaParser(GAME_PREFS_PATH)
         l.loweringKeys = False
         modlist = l.parse({"active_mods":"active_mods"},{"active_mods":{}})["active_mods"]
         if l.error:
@@ -254,7 +255,7 @@ def setActiveMods(mods, keepuimods=True): #uimods works the same as in getActive
     s += "}"
 
     try:
-        f = open(PREFSFILENAME, 'r')
+        f = open(GAME_PREFS_PATH, 'r')
         data = f.read()
     except:
         logger.info("Couldn't read the game.prefs file")
@@ -268,7 +269,7 @@ def setActiveMods(mods, keepuimods=True): #uimods works the same as in getActive
         data += "\n" + s
 
     try:
-        f = open(PREFSFILENAME, 'w')
+        f = open(GAME_PREFS_PATH, 'w')
         f.write(data)
     except:
         logger.info("Cound't write to the game.prefs file")
