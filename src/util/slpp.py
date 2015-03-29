@@ -47,13 +47,13 @@ class SLPP:
         self.tab = '\t'
 
     def decode(self, text):
-        
+
         if not text or type(text) is not str:
             return
-        #FIXME: only short comments removed
+        # FIXME: only short comments removed
         reg = re.compile('--.*$', re.M)
         text = reg.sub('', text, 0)
-        
+
         self.text = text
         self.at, self.ch, self.depth = 0, '', 0
         self.len = len(text)
@@ -73,7 +73,7 @@ class SLPP:
         newline = '\n'
         tp = type(obj).__name__
         if tp == 'str' or tp == 'unicode':
-            s += '"'+obj+'"'
+            s += '"' + obj + '"'
         elif tp == 'int' or tp == 'float' or tp == 'long' or tp == 'complex':
             s += str(obj)
         elif tp == 'bool':
@@ -89,7 +89,7 @@ class SLPP:
             s += "{" + newline
             self.depth += 1
             for key in obj:
-                #TODO: lua cannot into number keys. Add check.
+                # TODO: lua cannot into number keys. Add check.
                 if type(key).__name__ == 'int':
                     s += tab * self.depth + self.__encode(obj[key]) + ',' + newline
                 else:
@@ -121,18 +121,18 @@ class SLPP:
             return self.object()
         if self.ch == "[":
             self.next_chr()
-        if self.ch in ['"',  "'",  '[']:
+        if self.ch in ['"', "'", '[']:
             return self.string(self.ch)
         if self.ch.isdigit() or self.ch == '-':
             return self.number()
         return self.word()
 
-    def string(self,  end=None):
+    def string(self, end = None):
         s = ''
         start = self.ch
         if end == '[':
             end = ']'
-        if start in ['"',  "'",  '[']:
+        if start in ['"', "'", '[']:
             while self.next_chr():
                 if self.ch == end:
                     self.next_chr()
@@ -152,7 +152,7 @@ class SLPP:
         if self.ch and self.ch == '}':
             self.depth -= 1
             self.next_chr()
-            return o #Exit here
+            return o  # Exit here
         else:
             while self.ch:
                 self.white()
@@ -165,12 +165,12 @@ class SLPP:
                     self.next_chr()
                     if k:
                        o[idx] = k
-                    if not numeric_keys and len([ key for key in o if type(key) in (str,  float,  bool,  tuple)]) == 0:
+                    if not numeric_keys and len([ key for key in o if type(key) in (str, float, bool, tuple)]) == 0:
                         ar = []
                         for key in o:
                            ar.insert(key, o[key])
                         o = ar
-                    return o #or here
+                    return o  # or here
                 else:
                     if self.ch == ',':
                         self.next_chr()
@@ -193,7 +193,7 @@ class SLPP:
                         o[idx] = k
                         idx += 1
                         k = ''
-        print ERRORS['unexp_end_table'] #Bad exit here
+        print ERRORS['unexp_end_table']  # Bad exit here
 
     def word(self):
         s = ''

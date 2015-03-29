@@ -4,12 +4,12 @@
 # are made available under the terms of the GNU Public License v3.0
 # which accompanies this distribution, and is available at
 # http://www.gnu.org/licenses/gpl.html
-# 
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -25,9 +25,9 @@ from trueSkill.FactorGraphs.Schedule import *
 
 class IteratedTeamDifferencesInnerLayer(TrueSkillFactorGraphLayer) :
     def __init__(self, parentGraph, teamPerformancesToPerformanceDifferences, teamDifferencesComparisonLayer):
-        
+
         super(IteratedTeamDifferencesInnerLayer, self).__init__(parentGraph)
-        
+
         self._TeamDifferencesComparisonLayer = teamDifferencesComparisonLayer
         self._TeamPerformancesToTeamPerformanceDifferencesLayer = teamPerformancesToPerformanceDifferences
 
@@ -41,20 +41,20 @@ class IteratedTeamDifferencesInnerLayer(TrueSkillFactorGraphLayer) :
 
 
     def buildLayer(self) :
-    
+
         inputVariablesGroups = self.getInputVariablesGroups()
         self._TeamPerformancesToTeamPerformanceDifferencesLayer.setInputVariablesGroups(inputVariablesGroups)
         self._TeamPerformancesToTeamPerformanceDifferencesLayer.buildLayer()
 
         teamDifferencesOutputVariablesGroups = self._TeamPerformancesToTeamPerformanceDifferencesLayer.getOutputVariablesGroups()
         self._TeamDifferencesComparisonLayer.setInputVariablesGroups(teamDifferencesOutputVariablesGroups)
-        
-        
+
+
         self._TeamDifferencesComparisonLayer.buildLayer()
 
 
     def createPriorSchedule(self) :
-        
+
         case = len(self.getInputVariablesGroups())
 
         if  case == 1 :
@@ -75,15 +75,15 @@ class IteratedTeamDifferencesInnerLayer(TrueSkillFactorGraphLayer) :
         firstDifferencesFactor = localFactors[0]
         lastDifferencesFactor = localFactors[totalTeamDifferences - 1]
 
-        
-        array = (loop,ScheduleStep("teamPerformanceToPerformanceDifferenceFactors[0] @ 1", 
-                                   firstDifferencesFactor, 1), 
-                                   ScheduleStep("teamPerformanceToPerformanceDifferenceFactors[teamTeamDifferences = %d - 1] @ 2" % totalTeamDifferences, 
-                                   lastDifferencesFactor, 
+
+        array = (loop, ScheduleStep("teamPerformanceToPerformanceDifferenceFactors[0] @ 1",
+                                   firstDifferencesFactor, 1),
+                                   ScheduleStep("teamPerformanceToPerformanceDifferenceFactors[teamTeamDifferences = %d - 1] @ 2" % totalTeamDifferences,
+                                   lastDifferencesFactor,
                                    2)
                                    )
-        
-        
+
+
         innerSchedule = ScheduleSequence("inner schedule", array)
 
         return innerSchedule
@@ -96,8 +96,8 @@ class IteratedTeamDifferencesInnerLayer(TrueSkillFactorGraphLayer) :
 
         firstPerfToTeamDiff = teamPerformancesToTeamPerformanceDifferencesLayerLocalFactors[0]
         firstTeamDiffComparison = teamDifferencesComparisonLayerLocalFactors[0]
-        
-        itemsToSequence =  (
+
+        itemsToSequence = (
                     ScheduleStep(
                         "send team perf to perf differences",
                         firstPerfToTeamDiff,
@@ -112,10 +112,10 @@ class IteratedTeamDifferencesInnerLayer(TrueSkillFactorGraphLayer) :
         return self.scheduleSequence(
             itemsToSequence,
             "loop of just two teams inner sequence")
-    
+
 
     def createMultipleTeamInnerPriorLoopSchedule(self) :
- 
+
         totalTeamDifferences = len(self._TeamPerformancesToTeamPerformanceDifferencesLayer.getLocalFactors())
 
         forwardScheduleList = []
@@ -166,18 +166,18 @@ class IteratedTeamDifferencesInnerLayer(TrueSkillFactorGraphLayer) :
                             ("teamPerformanceToPerformanceDifferenceFactors[totalTeamDifferences - 1 - %d] @ 0" % i),
                             differencesFactor, 0),
                          ScheduleStep(
-                            ("greaterThanOrWithinResultFactors[totalTeamDifferences - 1 - %d] @ 0"% i),
+                            ("greaterThanOrWithinResultFactors[totalTeamDifferences - 1 - %d] @ 0" % i),
                             comparisonFactor, 0),
                          ScheduleStep(
                             ("teamPerformanceToPerformanceDifferenceFactors[totalTeamDifferences - 1 - %d] @ 1" % i),
                             performancesToDifferencesFactor, 1)
                 ))
             backwardScheduleList.append(currentBackwardSchedulePiece)
-        
 
-        backwardSchedule =  ScheduleSequence("backward schedule", backwardScheduleList)
 
-        forwardBackwardScheduleToLoop =  ScheduleSequence(
+        backwardSchedule = ScheduleSequence("backward schedule", backwardScheduleList)
+
+        forwardBackwardScheduleToLoop = ScheduleSequence(
                 "forward Backward Schedule To Loop",
                 (forwardSchedule, backwardSchedule))
 

@@ -4,12 +4,12 @@
 # are made available under the terms of the GNU Public License v3.0
 # which accompanies this distribution, and is available at
 # http://www.gnu.org/licenses/gpl.html
-# 
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -35,10 +35,10 @@ except (BaseException, IOError), e:
 
 VERSION = 0  # FIXME: causes the updater to always skip.
 
-LOGFILE_MAX_SIZE = 256 * 1024  #256kb should be enough for anyone
-UNITS_PREVIEW_ROOT = "http://content.faforever.com/faf/unitsDB/icons/big/" 
+LOGFILE_MAX_SIZE = 256 * 1024  # 256kb should be enough for anyone
+UNITS_PREVIEW_ROOT = "http://content.faforever.com/faf/unitsDB/icons/big/"
 
-#These are paths relative to the executable or main.py script
+# These are paths relative to the executable or main.py script
 COMMON_DIR = os.path.join(os.getcwd(), "res")
 
 # These directories are in Appdata (e.g. C:\ProgramData on some Win7 versions)
@@ -47,34 +47,34 @@ if 'ALLUSERSPROFILE' in os.environ:
 else:
     APPDATA_DIR = os.path.join(os.environ['HOME'], "FAForever")
 
-#This is used to store init_*.lua files
+# This is used to store init_*.lua files
 LUA_DIR = os.path.join(APPDATA_DIR, "lua")
 
-#This contains the themes
+# This contains the themes
 THEME_DIR = os.path.join(APPDATA_DIR, "themes")
 
-#This contains cached data downloaded while communicating with the lobby - at the moment, mostly map preview pngs.
+# This contains cached data downloaded while communicating with the lobby - at the moment, mostly map preview pngs.
 CACHE_DIR = os.path.join(APPDATA_DIR, "cache")
 
-#This contains cached data downloaded for FA extras
+# This contains cached data downloaded for FA extras
 EXTRA_DIR = os.path.join(APPDATA_DIR, "extra")
 
-#This contains cached data downloaded for FA sounds
+# This contains cached data downloaded for FA sounds
 SOUND_DIR = os.path.join(APPDATA_DIR, EXTRA_DIR, "sounds")
 
-#This contains cached data downloaded for FA voices
+# This contains cached data downloaded for FA voices
 VOICES_DIR = os.path.join(APPDATA_DIR, EXTRA_DIR, SOUND_DIR, "voice", "us")
 
-#This contains the replays recorded by the local replay server
+# This contains the replays recorded by the local replay server
 REPLAY_DIR = os.path.join(APPDATA_DIR, "replays")
 
-#This contains all Lobby, Chat and Game logs
+# This contains all Lobby, Chat and Game logs
 LOG_DIR = os.path.join(APPDATA_DIR, "logs")
 LOG_FILE_FAF = os.path.join(LOG_DIR, 'forever.log')
 LOG_FILE_GAME = os.path.join(LOG_DIR, 'game.log')
 LOG_FILE_REPLAY = os.path.join(LOG_DIR, 'replay.log')
 
-#This contains the game binaries (old binFAF folder) and the game mods (.faf files)
+# This contains the game binaries (old binFAF folder) and the game mods (.faf files)
 BIN_DIR = os.path.join(APPDATA_DIR, "bin")
 GAMEDATA_DIR = os.path.join(APPDATA_DIR, "gamedata")
 REPO_DIR = os.path.join(APPDATA_DIR, "repo")
@@ -109,7 +109,7 @@ try:
 except:
     PERSONAL_DIR = os.path.join(APPDATA_DIR, "user")
 
-#Ensure Application data directories exist
+# Ensure Application data directories exist
 if not os.path.isdir(APPDATA_DIR):
     os.makedirs(APPDATA_DIR)
 
@@ -148,7 +148,7 @@ import re
 
 # Dirty log rotation: Get rid of logs if larger than 1 MiB
 try:
-    #HACK: Clean up obsolete logs directory trees
+    # HACK: Clean up obsolete logs directory trees
     if os.path.isfile(os.path.join(LOG_DIR, "faforever.log")):
         shutil.rmtree(LOG_DIR)
         os.makedirs(LOG_DIR)
@@ -169,7 +169,7 @@ from PyQt4 import uic
 path = os.path.join(os.path.dirname(sys.argv[0]), "PyQt4.uic.widget-plugins")
 uic.widgetPluginPath.append(path)
 
-def clearDirectory(directory, confirm=True):
+def clearDirectory(directory, confirm = True):
     if (os.path.isdir(directory)):
         if (confirm):
             result = QtGui.QMessageBox.question(None, "Clear Directory",
@@ -221,7 +221,7 @@ def getTheme():
     return __theme
 
 
-def setTheme(theme, restart=True):
+def setTheme(theme, restart = True):
     global __theme
     global __themedir
 
@@ -250,7 +250,7 @@ def setTheme(theme, restart=True):
         else:
             logger.error("Theme not found: " + theme + " in directory " + test_dir)
 
-            #Save theme setting
+            # Save theme setting
     settings.beginGroup("theme")
     settings.setValue("theme/name", __theme)
     settings.endGroup()
@@ -307,7 +307,7 @@ def respix(url):
     return None
 
 
-def pixmap(filename, themed=True):
+def pixmap(filename, themed = True):
     '''
     This function loads a pixmap from a themed directory, or anywhere.
     It also stores them in a cache dictionary (may or may not be necessary depending on how Qt works under the hood)
@@ -321,14 +321,14 @@ def pixmap(filename, themed=True):
             else:
                 pix = QtGui.QPixmap(os.path.join(COMMON_DIR, filename))
         else:
-            pix = QtGui.QPixmap(filename)  #Unthemed means this can come from any location
+            pix = QtGui.QPixmap(filename)  # Unthemed means this can come from any location
 
         __pixmapcache[filename] = pix
         return pix
     return None
 
 
-def loadUi(filename, themed=True):
+def loadUi(filename, themed = True):
     '''
     Loads and compiles a Qt Ui file via uic.
     Looks in theme directories first. Nonthemed means the file can come from anywhere.
@@ -339,12 +339,12 @@ def loadUi(filename, themed=True):
         else:
             ui = uic.loadUi(os.path.join(COMMON_DIR, filename))
     else:
-        ui = uic.loadUi(filename)  #Unthemed means this can come from any location
+        ui = uic.loadUi(filename)  # Unthemed means this can come from any location
 
     return ui
 
 
-def loadUiType(filename, themed=True):
+def loadUiType(filename, themed = True):
     '''
     Loads and compiles a Qt Ui file via uic, and returns the Type and Basetype as a tuple
     Looks in theme directories first. Nonthemed means the file can come from anywhere.
@@ -355,10 +355,10 @@ def loadUiType(filename, themed=True):
         else:
             return uic.loadUiType(os.path.join(COMMON_DIR, filename))
     else:
-        return uic.loadUiType(filename)  #Unthemed means this can come from any location
+        return uic.loadUiType(filename)  # Unthemed means this can come from any location
 
 
-def readlines(filename, themed=True):
+def readlines(filename, themed = True):
     '''
     Reads and returns the contents of a file. It looks in theme folders first.
     If non-themed, the file can come from anywhere.
@@ -403,7 +403,7 @@ def themeurl(filename):
         return None
 
 
-def readfile(filename, themed=True):
+def readfile(filename, themed = True):
     '''
     Reads and returns the contents of a file. It looks in theme folders first.
     If non-themed, the file can come from anywhere.
@@ -428,19 +428,19 @@ def __downloadPreviewFromWeb(unitname):
     '''
     Downloads a preview image from the web for the given unit name
     '''
-    #This is done so generated previews always have a lower case name. This doesn't solve the underlying problem (case folding Windows vs. Unix vs. FAF)
+    # This is done so generated previews always have a lower case name. This doesn't solve the underlying problem (case folding Windows vs. Unix vs. FAF)
     unitname = unitname.lower()
 
     logger.debug("Searching web preview for: " + unitname)
 
     url = UNITS_PREVIEW_ROOT + urllib2.quote(unitname)
-    header = urllib2.Request(url, headers={'User-Agent': "FAF Client"})
+    header = urllib2.Request(url, headers = {'User-Agent': "FAF Client"})
     req = urllib2.urlopen(header)
     img = os.path.join(CACHE_DIR, unitname)
     with open(img, 'wb') as fp:
         shutil.copyfileobj(req, fp)
         fp.flush()
-        os.fsync(fp.fileno())  #probably works fine without the flush and fsync
+        os.fsync(fp.fileno())  # probably works fine without the flush and fsync
         fp.close()
 
 
@@ -458,7 +458,7 @@ def iconUnit(unitname):
         return icon(img, False)
 
 
-def icon(filename, themed=True, pix=False):
+def icon(filename, themed = True, pix = False):
     '''
     Convenience method returning an icon from a cached, optionally themed pixmap as returned by the util.pixmap(...) function
     '''
@@ -484,7 +484,7 @@ def icon(filename, themed=True, pix=False):
         return icon
 
 
-def sound(filename, themed=True):
+def sound(filename, themed = True):
     '''
     Plays a sound, from one of the themed or fallback folders, or optionally from anywhere if unthemed.
     '''
@@ -546,13 +546,13 @@ def html_escape(text):
     return "".join(html_escape_table.get(c, c) for c in text)
 
 
-def irc_escape(text, a_style=""):
-    #first, strip any and all html
+def irc_escape(text, a_style = ""):
+    # first, strip any and all html
     text = html_escape(text)
 
-    #taken from django and adapted
+    # taken from django and adapted
     url_re = re.compile(
-        r'^((https?|faflive|fafgame|fafmap|ftp|ts3server)://)?'  # protocols    
+        r'^((https?|faflive|fafgame|fafmap|ftp|ts3server)://)?'  # protocols
         r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+'  # domain name, then TLDs
         r'(?:ac|ad|ae|aero|af|ag|ai|al|am|an|ao|aq|ar|arpa|as|asia|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|biz|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cat|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|com|coop|cr|cu|cv|cw|cx|cy|cz|de|dj|dk|dm|do|dz|ec|edu|ee|eg|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gov|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|info|int|io|iq|ir|is|it|je|jm|jo|jobs|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mil|mk|ml|mm|mn|mo|mobi|mp|mq|mr|ms|mt|mu|museum|mv|mw|mx|my|mz|na|name|nc|ne|net|nf|ng|ni|nl|no|np|nr|nu|nz|om|org|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|pro|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|st|su|sv|sx|sy|sz|tc|td|tel|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|travel|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|xxx|ye|yt|za|zm|zw)'
         r'|localhost'  # localhost...
@@ -567,7 +567,7 @@ def irc_escape(text, a_style=""):
     for fragment in strings:
         match = url_re.match(fragment)
         if match:
-            if "://" in fragment:  #slight hack to get those protocol-less URLs on board. Better: With groups!
+            if "://" in fragment:  # slight hack to get those protocol-less URLs on board. Better: With groups!
                 rpl = '<a href="{0}" style="{1}">{0}</a>'.format(fragment, a_style)
             else:
                 rpl = '<a href="http://{0}" style="{1}">{0}</a>'.format(fragment, a_style)
@@ -610,13 +610,13 @@ def uniqueID(user, session):
             mydll = cdll.LoadLibrary(os.path.join("lib", "uid.dll"))
 
         mydll.uid.restype = c_char_p
-        baseString = (mydll.uid(session, os.path.join(LOG_DIR, "uid.log")) )
+        baseString = (mydll.uid(session, os.path.join(LOG_DIR, "uid.log")))
         DllCanUnloadNow()
 
         return baseString
 
     except:
-        logger.error("UniqueID Failure", exc_info=sys.exc_info())
+        logger.error("UniqueID Failure", exc_info = sys.exc_info())
         return None
 
 
@@ -640,4 +640,4 @@ def now():
 from crash import CrashDialog
 from report import ReportDialog
 
-    
+

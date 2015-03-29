@@ -10,7 +10,7 @@ class Fetcher(QThread):
     error = pyqtSignal(object)
     progress = pyqtSignal(str, int, int)
 
-    def __init__(self, repo_versions, parent=None):
+    def __init__(self, repo_versions, parent = None):
         super(QThread, self).__init__(parent)
         self._repo_versions = repo_versions
 

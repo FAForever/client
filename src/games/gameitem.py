@@ -4,12 +4,12 @@
 # are made available under the terms of the GNU Public License v3.0
 # which accompanies this distribution, and is available at
 # http://www.gnu.org/licenses/gpl.html
-# 
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -28,62 +28,62 @@ from games.moditem import mod_invisible, mods
 
 from trueSkill.Team import *
 from trueSkill.Teams import *
-from trueSkill.TrueSkill.FactorGraphTrueSkillCalculator import * 
+from trueSkill.TrueSkill.FactorGraphTrueSkillCalculator import *
 from trueSkill.Rating import *
 
 import client
 import copy
 
 class GameItemDelegate(QtGui.QStyledItemDelegate):
-    
+
     def __init__(self, *args, **kwargs):
         QtGui.QStyledItemDelegate.__init__(self, *args, **kwargs)
-        
+
     def paint(self, painter, option, index, *args, **kwargs):
         self.initStyleOption(option, index)
-                
+
         painter.save()
-        
+
         html = QtGui.QTextDocument()
         html.setHtml(option.text)
-        
+
         icon = QtGui.QIcon(option.icon)
         iconsize = icon.actualSize(option.rect.size())
-        
-        #clear icon and text before letting the control draw itself because we're rendering these parts ourselves
-        option.icon = QtGui.QIcon()        
-        option.text = ""  
-        option.widget.style().drawControl(QtGui.QStyle.CE_ItemViewItem, option, painter, option.widget)
-        
-        #Shadow
-        painter.fillRect(option.rect.left()+8-1, option.rect.top()+8-1, iconsize.width(), iconsize.height(), QtGui.QColor("#202020"))
 
-        #Icon
-        icon.paint(painter, option.rect.adjusted(5-2, -2, 0, 0), QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
-        
-        #Frame around the icon
+        # clear icon and text before letting the control draw itself because we're rendering these parts ourselves
+        option.icon = QtGui.QIcon()
+        option.text = ""
+        option.widget.style().drawControl(QtGui.QStyle.CE_ItemViewItem, option, painter, option.widget)
+
+        # Shadow
+        painter.fillRect(option.rect.left() + 8 - 1, option.rect.top() + 8 - 1, iconsize.width(), iconsize.height(), QtGui.QColor("#202020"))
+
+        # Icon
+        icon.paint(painter, option.rect.adjusted(5 - 2, -2, 0, 0), QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
+
+        # Frame around the icon
         pen = QtGui.QPen()
         pen.setWidth(1);
-        pen.setBrush(QtGui.QColor("#303030"));  #FIXME: This needs to come from theme.
+        pen.setBrush(QtGui.QColor("#303030"));  # FIXME: This needs to come from theme.
         pen.setCapStyle(QtCore.Qt.RoundCap);
         painter.setPen(pen)
-        painter.drawRect(option.rect.left()+5-2, option.rect.top()+5-2, iconsize.width(), iconsize.height())
+        painter.drawRect(option.rect.left() + 5 - 2, option.rect.top() + 5 - 2, iconsize.width(), iconsize.height())
 
-        #Description
-        painter.translate(option.rect.left() + iconsize.width() + 10, option.rect.top()+10)
-        clip = QtCore.QRectF(0, 0, option.rect.width()-iconsize.width() - 10 - 5, option.rect.height())
+        # Description
+        painter.translate(option.rect.left() + iconsize.width() + 10, option.rect.top() + 10)
+        clip = QtCore.QRectF(0, 0, option.rect.width() - iconsize.width() - 10 - 5, option.rect.height())
         html.drawContents(painter, clip)
-  
+
         painter.restore()
-        
+
 
     def sizeHint(self, option, index, *args, **kwargs):
         self.initStyleOption(option, index)
-        
+
         html = QtGui.QTextDocument()
         html.setHtml(option.text)
         html.setTextWidth(GameItem.TEXTWIDTH)
-        return QtCore.QSize(GameItem.ICONSIZE + GameItem.TEXTWIDTH + GameItem.PADDING, GameItem.ICONSIZE)  
+        return QtCore.QSize(GameItem.ICONSIZE + GameItem.TEXTWIDTH + GameItem.PADDING, GameItem.ICONSIZE)
 
 
 
@@ -93,42 +93,42 @@ class GameItem(QtGui.QListWidgetItem):
     TEXTWIDTH = 230
     ICONSIZE = 110
     PADDING = 10
-    
+
     WIDTH = ICONSIZE + TEXTWIDTH
-    #DATA_PLAYERS = 32
-    
-    
-    FORMATTER_FAF       = unicode(util.readfile("games/formatters/faf.qthtml"))
-    FORMATTER_MOD       = unicode(util.readfile("games/formatters/mod.qthtml"))
-    FORMATTER_TOOL      = unicode(util.readfile("games/formatters/tool.qthtml"))
-    
+    # DATA_PLAYERS = 32
+
+
+    FORMATTER_FAF = unicode(util.readfile("games/formatters/faf.qthtml"))
+    FORMATTER_MOD = unicode(util.readfile("games/formatters/mod.qthtml"))
+    FORMATTER_TOOL = unicode(util.readfile("games/formatters/tool.qthtml"))
+
     def __init__(self, uid, *args, **kwargs):
         QtGui.QListWidgetItem.__init__(self, *args, **kwargs)
 
-        self.uid            = uid
-        self.mapname        = None
+        self.uid = uid
+        self.mapname = None
         self.mapdisplayname = None
-        self.client         = None
-        self.title          = None
-        self.host           = None
-        self.teams          = None
-        self.access         = None
-        self.mod            = None
-        self.mods           = None
+        self.client = None
+        self.title = None
+        self.host = None
+        self.teams = None
+        self.access = None
+        self.mod = None
+        self.mods = None
         self.moddisplayname = None
-        self.state          = None
-        self.nTeams         = 0
-        self.options        = []
-        self.players        = []
-        
+        self.state = None
+        self.nTeams = 0
+        self.options = []
+        self.players = []
+
         self.setHidden(True)
 
-        
+
     def url(self, player = None):
         if not player:
             player = self.host
-            
-        
+
+
         if self.state == "playing":
             url = QtCore.QUrl()
             url.setScheme("faflive")
@@ -146,9 +146,9 @@ class GameItem(QtGui.QListWidgetItem):
             url.addQueryItem("mod", self.mod)
             url.addQueryItem("uid", str(self.uid))
             return url
-        return None 
-        
-        
+        return None
+
+
     @QtCore.pyqtSlot()
     def announceReplay(self):
         if not self.client.isFriend(self.host):
@@ -156,19 +156,19 @@ class GameItem(QtGui.QListWidgetItem):
 
         if not self.state == "playing":
             return
-                
-        # User doesnt want to see this in chat   
+
+        # User doesnt want to see this in chat
         if not self.client.livereplays:
             return
 
         url = self.url()
-                      
+
         if self.mod == "faf":
             self.client.forwardLocalBroadcast(self.host, 'is playing live in <a style="color:' + self.client.getColor("url") + '" href="' + url.toString() + '">' + self.title + '</a> (on "' + self.mapdisplayname + '")')
         else:
             self.client.forwardLocalBroadcast(self.host, 'is playing ' + self.moddisplayname + ' in <a style="color:' + self.client.getColor("url") + '" href="' + url.toString() + '">' + self.title + '</a> (on "' + self.mapdisplayname + '")')
-        
-    
+
+
     @QtCore.pyqtSlot()
     def announceHosting(self):
         if not self.client.isFriend(self.host) or self.isHidden() or self.private:
@@ -176,23 +176,23 @@ class GameItem(QtGui.QListWidgetItem):
 
         if not self.state == "open":
             return
-                
+
         url = self.url()
-                
+
         # Join url for single sword
         client.instance.urls[self.host] = url
-        
-        # No visible message if not requested   
+
+        # No visible message if not requested
         if not self.client.opengames:
             return
-                         
+
         if self.mod == "faf":
             self.client.forwardLocalBroadcast(self.host, 'is hosting <a style="color:' + self.client.getColor("url") + '" href="' + url.toString() + '">' + self.title + '</a> (on "' + self.mapdisplayname + '")')
         else:
             self.client.forwardLocalBroadcast(self.host, 'is hosting ' + self.moddisplayname + ' <a style="color:' + self.client.getColor("url") + '" href="' + url.toString() + '">' + self.title + '</a> (on "' + self.mapdisplayname + '")')
-            
-    
-    
+
+
+
     def update(self, message, client):
         '''
         Updates this item from the message dictionary supplied
@@ -200,23 +200,23 @@ class GameItem(QtGui.QListWidgetItem):
 
         foo = message
         message = copy.deepcopy(foo)
-        
-        self.client  = client
 
-        self.title      = message['title']
-        self.host       = message['host']
-        self.teams      = dict.copy(message['teams'])
-        self.access     = message.get('access', 'public')
-        self.mod        = message['featured_mod']
+        self.client = client
+
+        self.title = message['title']
+        self.host = message['host']
+        self.teams = dict.copy(message['teams'])
+        self.access = message.get('access', 'public')
+        self.mod = message['featured_mod']
         self.modVersion = message.get('featured_mod_versions', [])
-        self.mods       = message.get('sim_mods',{})
-        self.options    = message.get('options', [])
-        self.numplayers = message.get('num_players', 0) 
-        self.slots      = message.get('max_players',12)
-        
+        self.mods = message.get('sim_mods', {})
+        self.options = message.get('options', [])
+        self.numplayers = message.get('num_players', 0)
+        self.slots = message.get('max_players', 12)
+
         oldstate = self.state
-        self.state  = message['state']
-      
+        self.state = message['state']
+
 
         # Assemble a players & teams lists
         self.teamlist = []
@@ -227,12 +227,12 @@ class GameItem(QtGui.QListWidgetItem):
         self.invalidTS = False
         self.nTeams = 0
 
-        #HACK: Visibility field not supported yet.
-        self.private = self.title.lower().find("private") != -1        
-        self.setHidden((self.state != 'open') or (self.mod in mod_invisible))        
+        # HACK: Visibility field not supported yet.
+        self.private = self.title.lower().find("private") != -1
+        self.setHidden((self.state != 'open') or (self.mod in mod_invisible))
 
 
-        # Clear the status for all involved players (url may change, or players may have left, or game closed)        
+        # Clear the status for all involved players (url may change, or players may have left, or game closed)
         for player in self.players:
             if player in client.urls:
                 del client.urls[player]
@@ -242,7 +242,7 @@ class GameItem(QtGui.QListWidgetItem):
         if self.state == "closed":
             client.usersUpdated.emit(self.players)
             return
-            
+
         self.players = []
         for team in self.teams:
             self.players.extend(self.teams[team])
@@ -255,38 +255,38 @@ class GameItem(QtGui.QListWidgetItem):
             refresh_icon = True
         else:
             refresh_icon = False
-                    
-        #Resolve pretty display name
+
+        # Resolve pretty display name
         self.moddisplayname = self.mod
         self.modoptions = []
-        
+
         if self.mod in mods :
-            self.moddisplayname = mods[self.mod].name 
+            self.moddisplayname = mods[self.mod].name
             self.modoptions = mods[self.mod].options
-        
 
-        #Checking if the mod has options
 
-        #Alternate icon: If private game, use game_locked icon. Otherwise, use preview icon from map library.
+        # Checking if the mod has options
+
+        # Alternate icon: If private game, use game_locked icon. Otherwise, use preview icon from map library.
         if refresh_icon:
             if self.access == "password" or self.private:
                 icon = util.icon("games/private_game.png")
-            else:            
+            else:
                 icon = maps.preview(self.mapname)
                 if not icon:
                     self.client.downloader.downloadMap(self.mapname, self)
                     icon = util.icon("games/unknown_map.png")
-                             
-            self.setIcon(icon)
-        
 
-        # Used to differentiate between newly added / removed and previously present players            
+            self.setIcon(icon)
+
+
+        # Used to differentiate between newly added / removed and previously present players
         oldplayers = set(self.players)
-        
-       
+
+
         self.playerIncluded = False
-        
-        
+
+
         if self.state == "open" :
             if "1" in self.teams and "2" in self.teams and self.client.login != None and self.client.login not in self.teams["1"] and self.client.login not in self.teams["2"] :
                 if len(self.teams["1"]) < len(self.teams["2"]) :
@@ -317,13 +317,13 @@ class GameItem(QtGui.QListWidgetItem):
                         if team == "1" and (len(self.teams["1"]) < len(self.teams["2"])) and self.playerIncluded == True :
                             if self.client.login in self.client.players :
                                 curTeam.addPlayer(self.client.login, Rating(self.client.players[self.client.login]["rating_mean"], self.client.players[self.client.login]["rating_deviation"]))
-                        
+
                         if team == "2" and (len(self.teams["1"]) > len(self.teams["2"])) and self.playerIncluded == True :
                             if self.client.login in self.client.players :
                                 curTeam.addPlayer(self.client.login, Rating(self.client.players[self.client.login]["rating_mean"], self.client.players[self.client.login]["rating_deviation"]))
 
 
-                        for player in self.teams[team] :          
+                        for player in self.teams[team] :
                             if player in self.client.players :
                                 if self.client.isFoe(player) :
                                     self.hasFoe = True
@@ -332,10 +332,10 @@ class GameItem(QtGui.QListWidgetItem):
                                 curTeam.addPlayer(player, Rating(mean, dev))
                             else :
                                 self.invalidTS = True
-                                
+
 
                         self.teamsTrueskill.append(curTeam)
-                    
+
                 # computing game quality :
                 if len(self.teamsTrueskill) > 1 and self.invalidTS == False :
                     self.nTeams = 0
@@ -354,37 +354,37 @@ class GameItem(QtGui.QListWidgetItem):
                             self.gamequality = round((gamequality * 100), 2)
 
         strQuality = ""
-        
+
         if self.gamequality == 0 :
             strQuality = "? %"
         else :
-            strQuality = str(self.gamequality)+" %"
+            strQuality = str(self.gamequality) + " %"
 
 
         if len(self.players) == 1:
             playerstring = "player"
         else:
             playerstring = "players"
-        
-        
+
+
         self.numplayers = len(self.players)
-        
+
         self.playerIncludedTxt = ""
         if self.playerIncluded :
             self.playerIncludedTxt = "(with you)"
-            
+
         color = client.getUserColor(self.host)
-        
+
         for player in self.players :
             if self.client.isFoe(player) :
                 color = client.getUserColor(player)
 
         self.editTooltip()
-        
-        
+
+
 
         if self.mod == "faf" and not self.mods:
-            self.setText(self.FORMATTER_FAF.format(color=color, mapslots = self.slots, mapdisplayname=self.mapdisplayname, title=self.title, host=self.host, players=self.numplayers, playerstring=playerstring, gamequality = strQuality, playerincluded = self.playerIncludedTxt))
+            self.setText(self.FORMATTER_FAF.format(color = color, mapslots = self.slots, mapdisplayname = self.mapdisplayname, title = self.title, host = self.host, players = self.numplayers, playerstring = playerstring, gamequality = strQuality, playerincluded = self.playerIncludedTxt))
         else:
             if not self.mods:
                 modstr = self.mod
@@ -392,56 +392,56 @@ class GameItem(QtGui.QListWidgetItem):
                 if self.mod == 'faf': modstr = ", ".join(self.mods.values())
                 else: modstr = self.mod + " & " + ", ".join(self.mods.values())
                 if len(modstr) > 20: modstr = modstr[:15] + "..."
-            self.setText(self.FORMATTER_MOD.format(color=color, mapslots = self.slots, mapdisplayname=self.mapdisplayname, title=self.title, host=self.host, players=self.numplayers, playerstring=playerstring, gamequality = strQuality, playerincluded = self.playerIncludedTxt, mod=modstr))
-        
+            self.setText(self.FORMATTER_MOD.format(color = color, mapslots = self.slots, mapdisplayname = self.mapdisplayname, title = self.title, host = self.host, players = self.numplayers, playerstring = playerstring, gamequality = strQuality, playerincluded = self.playerIncludedTxt, mod = modstr))
+
         if self.uid == 0:
             return
-                
-        #Spawn announcers: IF we had a gamestate change, show replay and hosting announcements 
-        if (oldstate != self.state):            
+
+        # Spawn announcers: IF we had a gamestate change, show replay and hosting announcements
+        if (oldstate != self.state):
             if (self.state == "playing"):
-                QtCore.QTimer.singleShot(5*60000, self.announceReplay) #The delay is there because we have a 5 minutes delay in the livereplay server
+                QtCore.QTimer.singleShot(5 * 60000, self.announceReplay)  # The delay is there because we have a 5 minutes delay in the livereplay server
             elif (self.state == "open"):
-                QtCore.QTimer.singleShot(35000, self.announceHosting)   #The delay is there because we currently the host needs time to choose a map
+                QtCore.QTimer.singleShot(35000, self.announceHosting)  # The delay is there because we currently the host needs time to choose a map
 
         # Update player URLs
         for player in self.players:
             client.urls[player] = self.url(player)
 
-        # Determine which players are affected by this game's state change            
-        newplayers = set(self.players)            
+        # Determine which players are affected by this game's state change
+        newplayers = set(self.players)
         affectedplayers = oldplayers | newplayers
         client.usersUpdated.emit(list(affectedplayers))
-        
-        
+
+
     def editTooltip(self):
-        
-        observerlist    = []
-        teamlist        = []
+
+        observerlist = []
+        teamlist = []
 
         teams = ""
 
         i = 0
         for team in self.teams:
-            
+
             if team != "-1" :
                 i = i + 1
                 teamtxt = "<table>"
 
-                    
-                teamDisplay    = []
+
+                teamDisplay = []
                 for player in self.teams[team] :
                     displayPlayer = ""
                     if player in self.client.players :
-                        
+
                         playerStr = player
-                        
+
                         if player == self.client.login :
                             playerStr = ("<b><i>%s</b></i>" % player)
-                            
-                        dev     = self.client.players[player]["rating_deviation"]
+
+                        dev = self.client.players[player]["rating_deviation"]
                         if dev < 200 :
-                            playerStr += " ("+str(self.client.getUserRanking(player))+")"
+                            playerStr += " (" + str(self.client.getUserRanking(player)) + ")"
 
                         if i == 1 :
                             displayPlayer = ("<td align = 'left' valign='center' width = '150'>%s</td>" % playerStr)
@@ -449,15 +449,15 @@ class GameItem(QtGui.QListWidgetItem):
                             displayPlayer = ("<td align = 'right' valign='center' width = '150'>%s</td>" % playerStr)
                         else :
                             displayPlayer = ("<td align = 'center' valign='center' width = '150'>%s</td>" % playerStr)
-                        
-                        
+
+
                         country = os.path.join(util.COMMON_DIR, "chat/countries/%s.png" % self.client.players[player]["country"].lower())
-                        
-                        if i == self.nTeams : 
-                            displayPlayer += '<td width="16"><img src = "'+country+'" width="16" height="16"></td>'
+
+                        if i == self.nTeams :
+                            displayPlayer += '<td width="16"><img src = "' + country + '" width="16" height="16"></td>'
                         else :
-                            displayPlayer = '<td width="16"><img src = "'+country+'" width="16" height="16"></td>' + displayPlayer
-                            
+                            displayPlayer = '<td width="16"><img src = "' + country + '" width="16" height="16"></td>' + displayPlayer
+
                     else :
                         if i == 1 :
                             displayPlayer = ("<td align = 'left' valign='center' width = '150'>%s</td>" % player)
@@ -465,18 +465,18 @@ class GameItem(QtGui.QListWidgetItem):
                             displayPlayer = ("<td align = 'right' valign='center' width = '150'>%s</td>" % player)
                         else :
                             displayPlayer = ("<td align = 'center' valign='center' width = '150'>%s</td>" % player)
-                        
 
-                        
+
+
                     display = ("<tr>%s</tr>" % displayPlayer)
                     teamDisplay.append(display)
-                        
+
                 members = "".join(teamDisplay)
-                
-                teamlist.append("<td>" +teamtxt + members + "</table></td>")
-                
-                    
-                
+
+                teamlist.append("<td>" + teamtxt + members + "</table></td>")
+
+
+
             else :
                 observerlist.append(",".join(self.teams[team]))
 
@@ -487,22 +487,22 @@ class GameItem(QtGui.QListWidgetItem):
         observers = ""
         if len(observerlist) != 0 :
             observers = "Observers : "
-            observers += ",".join(observerlist)        
+            observers += ",".join(observerlist)
 
-        mods = "" 
-        if len(self.modoptions)!= 0 and len(self.modoptions) == len(self.options):
-            mods  += "<br/>Options :<br/>"
-   
+        mods = ""
+        if len(self.modoptions) != 0 and len(self.modoptions) == len(self.options):
+            mods += "<br/>Options :<br/>"
+
             for i in range(len(self.modoptions)) :
                 mods += self.modoptions[i]
-                if self.options[i] == True :                  
+                if self.options[i] == True :
                     mods += ": On<br/>"
                 else :
                     mods += ": Off<br/>"
 
         if self.mods: mods += "<br/><br/>With " + "<br/>".join(self.mods.values())
 
-        self.setToolTip(self.FORMATTER_TOOL.format(teams = teams, observers=observers, mods = mods)) 
+        self.setToolTip(self.FORMATTER_TOOL.format(teams = teams, observers = observers, mods = mods))
 
     def permutations(self, items):
         """Yields all permutations of the items."""
@@ -510,11 +510,11 @@ class GameItem(QtGui.QListWidgetItem):
             yield []
         else:
             for i in range(len(items)):
-                for j in self.permutations(items[:i] + items[i+1:]):
+                for j in self.permutations(items[:i] + items[i + 1:]):
                     yield [items[i]] + j
 
 
-    
+
 
     def assignToTeam(self, num) :
         ''' return the team of the player based on his place/rating '''
@@ -523,66 +523,66 @@ class GameItem(QtGui.QListWidgetItem):
             rest = num % 2
             if rest == 1 :
                 even = even + 1
-            num=(num-rest)/2
-        
+            num = (num - rest) / 2
+
         if even % 2 == 0 :
             return 1
         else :
             return 2
 
     def getBestMatchup(self):
-        
 
-        
+
+
         if not self.state == "open":
             return "game in play"
-        
+
         nTeams = 0
         for t in  self.teamlist :
             if t != -1 :
                 nTeams += 1
-        
-        
+
+
         if nTeams != 2 or len(self.players) <= 2 :
             return "No teams formed yet"
-        
-       
+
+
         if len(self.players) % nTeams :
             return "Missing players for this number of teams (%i)" % (int(nTeams))
         if (len(self.players) / nTeams) == 1 :
-            
-            return "Only one player per team" 
-            
-        playerlist =  {}  
+
+            return "Only one player per team"
+
+        playerlist = {}
         for player in self.players :
             mean = self.client.players[player]["rating_mean"]
             dev = self.client.players[player]["rating_deviation"]
             rating = mean - 3 * dev
             playerlist[player] = rating
-        
+
         i = 0
-        
+
         bestTeams = {}
         bestTeams[1] = []
         bestTeams[2] = []
-        
-        for key, value in sorted(playerlist.iteritems(), key=lambda (k,v): (v,k), reverse=True):
+
+        for key, value in sorted(playerlist.iteritems(), key = lambda (k, v): (v, k), reverse = True):
             bestTeams[self.assignToTeam(i)].append(key)
             i = i + 1
 
         msg = ""
 #        i = 0
 #        for teams in winningTeam :
-#            
+#
         msg += ", ".join(bestTeams[1])
 #            i = i + 1
 #            if i != len(winningTeam) :
         msg += "<br/>Vs<br/>"
         msg += ", ".join(bestTeams[2])
-        
+
         teamsTrueskill = []
         invalidTS = False
-        
+
         for player in bestTeams[1] :
             curTeam = Team()
             if player in self.client.players :
@@ -602,7 +602,7 @@ class GameItem(QtGui.QListWidgetItem):
             else :
                 self.invalidTS = True
             teamsTrueskill.append(curTeam)
-    
+
         # computing game quality :
         if  invalidTS == False :
 
@@ -612,31 +612,31 @@ class GameItem(QtGui.QListWidgetItem):
             if gamequality < 1 :
                 gamequality = round((gamequality * 100), 2)
 
-        
-        
-                msg = msg + "<br/>Game Quality will be : " + str(gamequality) + '%' 
+
+
+                msg = msg + "<br/>Game Quality will be : " + str(gamequality) + '%'
         return msg
 
     def __ge__(self, other):
-        ''' Comparison operator used for item list sorting '''        
+        ''' Comparison operator used for item list sorting '''
         return not self.__lt__(other)
-    
-    
+
+
     def __lt__(self, other):
-        ''' Comparison operator used for item list sorting '''        
-        if not self.client: return True # If not initialized...
+        ''' Comparison operator used for item list sorting '''
+        if not self.client: return True  # If not initialized...
         if not other.client: return False;
-        
+
         # Friend games are on top
         if self.client.isFriend(self.host) and not self.client.isFriend(other.host): return True
         if not self.client.isFriend(self.host) and self.client.isFriend(other.host): return False
-        
+
         # Private games are on bottom
         if (not self.private and other.private): return True;
         if (self.private and not other.private): return False;
-        
+
         # Default: by UID.
         return self.uid < other.uid
-    
+
 
 

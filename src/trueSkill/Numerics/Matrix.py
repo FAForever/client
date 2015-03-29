@@ -4,12 +4,12 @@
 # are made available under the terms of the GNU Public License v3.0
 # which accompanies this distribution, and is available at
 # http://www.gnu.org/licenses/gpl.html
-# 
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -37,14 +37,14 @@ def make_matrix(rows, cols):
     where the lists are cols in size
     resulting matrix contains zeros
     """
-    matrix= []
+    matrix = []
     for i in range(rows):
         matrix.append(make_list(cols))
     return matrix
 
 class Matrix(object):
-    
-    def __init__(self, rows =0 , columns = 0, matrixData = None) :
+
+    def __init__(self, rows = 0 , columns = 0, matrixData = None) :
         self._matrixRowData = []
 
         self._rowCount = rows
@@ -55,7 +55,7 @@ class Matrix(object):
             self._matrixRowData = make_matrix(rows, columns)
             self._matrixRowData = matrixData
 
-        
+
     @staticmethod
     def fromColumnValues(rows, columns, columnValues) :
 
@@ -63,25 +63,25 @@ class Matrix(object):
 
         for currentColumn in range(columns) :
             currentColumnData = columnValues[currentColumn]
-            
+
             for currentRow in range(rows) :
                 result.setValue(currentRow, currentColumn, currentColumnData[currentRow])
 
         return result
-    
-    
+
+
     @staticmethod
     def fromRowsColumns(*args, **kwargs) :
         rows = args[0]
         cols = args[1]
-        
-        result =  Matrix(rows, cols)
+
+        result = Matrix(rows, cols)
         currentIndex = 2
 
         for currentRow in range(rows) :
             for currentColumn in range(cols) :
                 currentIndex = currentIndex + 1
-                
+
                 result.setValue(currentRow, currentColumn, args[currentIndex])
         return result
 
@@ -95,21 +95,21 @@ class Matrix(object):
         return self._matrixRowData[row][col]
 
     def setValue(self, row, col, value) :
-        
+
         self._matrixRowData[row][col] = value
 
- 
+
     def getTranspose(self) :
         # Just flip everything
         transposeMatrix = make_matrix(self._columnCount, self._rowCount)
 
         rowMatrixData = self._matrixRowData
 
-        
+
         for currentRowTransposeMatrix in range(self._columnCount) :
-        
+
             for currentColumnTransposeMatrix in range (self._rowCount) :
-            
+
                 transposeMatrix[currentRowTransposeMatrix][currentColumnTransposeMatrix] = rowMatrixData[currentColumnTransposeMatrix][currentRowTransposeMatrix]
 
         return Matrix(self._columnCount, self._rowCount, transposeMatrix)
@@ -143,7 +143,7 @@ class Matrix(object):
             b = self._matrixRowData[0][1]
             c = self._matrixRowData[1][0]
             d = self._matrixRowData[1][1]
-            return a*d - b*c
+            return a * d - b * c
 
 
 #         I use the Laplace expansion here since it's straightforward to implement.
@@ -158,14 +158,14 @@ class Matrix(object):
         for currentColumn in range(self._columnCount) :
             firstRowColValue = self._matrixRowData[0][currentColumn]
             cofactor = self.getCofactor(0, currentColumn)
-            itemToAdd = firstRowColValue*cofactor
+            itemToAdd = firstRowColValue * cofactor
             result = result + itemToAdd
 
         return result
 
 
     def getAdjugate(self) :
-        
+
         if not self.__isSquare() :
             raise Exception("Matrix must be square!")
 
@@ -184,7 +184,7 @@ class Matrix(object):
             c = self._matrixRowData[1][0]
             d = self._matrixRowData[1][1]
 
-            return SquareMatrix( d, -b, -c,  a)
+            return SquareMatrix(d, -b, -c, a)
 
 
         # The idea is that it's the transpose of the cofactors
@@ -202,7 +202,7 @@ class Matrix(object):
     def getInverse(self) :
 
         if self._rowCount == 1 and self._columnCount == 1 :
-            return SquareMatrix(1.0/self._matrixRowData[0][0])
+            return SquareMatrix(1.0 / self._matrixRowData[0][0])
 
 
         # Take the simple approach:
@@ -221,7 +221,7 @@ class Matrix(object):
 
         for currentRow in range(rows) :
             for currentColumn in range(columns) :
-                newValues[currentRow][currentColumn] = scalarValue*matrix.getValue(currentRow, currentColumn)
+                newValues[currentRow][currentColumn] = scalarValue * matrix.getValue(currentRow, currentColumn)
 
         return Matrix(rows, columns, newValues)
 
@@ -233,7 +233,7 @@ class Matrix(object):
             raise Exception("Matrices must be of the same size");
 
 
-        #simple addition of each item
+        # simple addition of each item
 
         resultMatrix = make_matrix(left.getRowCount(), right.getColumnCount())
 
@@ -243,7 +243,7 @@ class Matrix(object):
 
 
         return Matrix(left.getRowCount(), right.getColumnCount(), resultMatrix)
-    
+
     @staticmethod
     def multiply(left, right) :
         '''
@@ -264,12 +264,12 @@ class Matrix(object):
         for currentRow in range (resultRows) :
             for currentColumn in range(resultColumns) :
                 productValue = 0
-                
+
                 for vectorIndex in range(left.getColumnCount()) :
 
                     leftValue = left.getValue(currentRow, vectorIndex)
                     rightValue = right.getValue(vectorIndex, currentColumn)
-                    vectorIndexProduct = leftValue*rightValue
+                    vectorIndexProduct = leftValue * rightValue
                     productValue = productValue + vectorIndexProduct
 
 
@@ -277,13 +277,13 @@ class Matrix(object):
 
 
         return Matrix(resultRows, resultColumns, resultMatrix)
-  
+
     def getMinorMatrix(self, rowToRemove, columnToRemove) :
 
 #         See http://en.wikipedia.org/wiki/Minor_(linear_algebra)
 #         Im going to use a horribly naive algorithm... because I can :)
 
-        
+
         result = []
         actualRow = 0
 
@@ -291,22 +291,22 @@ class Matrix(object):
 
             if (currentRow == rowToRemove) :
                 continue
-            
+
             actualCol = 0
-            result.insert(actualRow,[])
-            
+            result.insert(actualRow, [])
+
             for currentColumn in range(self._columnCount) :
 
-                result[actualRow].insert(actualCol,0)
+                result[actualRow].insert(actualCol, 0)
                 if (currentColumn == columnToRemove) :
                     continue
-              
-                
+
+
                 result[actualRow][actualCol] = self._matrixRowData[currentRow][currentColumn]
 
                 actualCol = actualCol + 1
 
-            actualRow = actualRow + 1 
+            actualRow = actualRow + 1
 
         return Matrix(self._rowCount - 1, self._columnCount - 1, result)
 
@@ -316,15 +316,15 @@ class Matrix(object):
          See http://en.wikipedia.org/wiki/Cofactor_(linear_algebra) for details
          REVIEW: should things be reversed since I'm 0 indexed?
         '''
-        
+
         sum = rowToRemove + columnToRemove
 
-        isEven = (sum%2 == 0)
+        isEven = (sum % 2 == 0)
 
         if isEven :
             return self.getMinorMatrix(rowToRemove, columnToRemove).getDeterminant()
         else :
-            return -1.0*self.getMinorMatrix(rowToRemove, columnToRemove).getDeterminant()
+            return -1.0 * self.getMinorMatrix(rowToRemove, columnToRemove).getDeterminant()
 
     def equals(self, otherMatrix) :
 
@@ -339,13 +339,13 @@ class Matrix(object):
 
         for currentRow in range(self._rowCount) :
             for currentColumn in range(self._columnCount) :
-            
-                delta = fabs(self._matrixRowData[currentRow][currentColumn] -otherMatrix.getValue(currentRow, currentColumn))
+
+                delta = fabs(self._matrixRowData[currentRow][currentColumn] - otherMatrix.getValue(currentRow, currentColumn))
 
                 if (delta > self.ERROR_TOLERANCE) :
                     return False
         return True
-    
+
     def __str__(self) :
         msg = ''
 
@@ -353,49 +353,49 @@ class Matrix(object):
 #            for col in range(self._columnCount) :
             msg += str(self._matrixRowData[row]) + '\n'
         return msg
-    
-    
+
+
 class Vector(Matrix) :
     def __init__(self, vectorValues):
-        columnValues =[]
-       
+        columnValues = []
+
         for currentVectorValue in vectorValues :
             list = []
             list.append(currentVectorValue)
             columnValues.append(list)
 
         super(Vector, self).__init__(len(vectorValues), 1, columnValues)
-        
+
 
 class SquareMatrix(Matrix) :
     def __init__(self, *args, **kwargs):
         allValues = args
-        
-        
+
+
         rows = int(sqrt(len(allValues)))
         cols = rows
 
         matrixData = make_matrix(rows, cols)
         allValuesIndex = 0
-        
+
         for currentRow in range(rows) :
             for currentColumn in range(cols) :
-  
+
                 matrixData[currentRow][currentColumn] = allValues[allValuesIndex]
-                allValuesIndex  = allValuesIndex + 1
-                
-        super(SquareMatrix, self).__init__(rows, cols, matrixData)        
-        
-        
+                allValuesIndex = allValuesIndex + 1
+
+        super(SquareMatrix, self).__init__(rows, cols, matrixData)
+
+
 class DiagonalMatrix(Matrix) :
     def __init__(self, diagonalValues):
-    
+
         diagonalCount = len(diagonalValues)
         rowCount = diagonalCount
         colCount = rowCount
-        
-        super(DiagonalMatrix, self).__init__(rowCount, colCount)   
-        
+
+        super(DiagonalMatrix, self).__init__(rowCount, colCount)
+
         for currentRow in range (rowCount) :
             for currentCol in range(colCount) :
 
@@ -407,5 +407,5 @@ class DiagonalMatrix(Matrix) :
 
 class IdentityMatrix(DiagonalMatrix) :
     def __init__(self, rows):
-        super(IdentityMatrix, self).__init__([1]*4)
+        super(IdentityMatrix, self).__init__([1] * 4)
 

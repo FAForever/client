@@ -4,12 +4,12 @@
 # are made available under the terms of the GNU Public License v3.0
 # which accompanies this distribution, and is available at
 # http://www.gnu.org/licenses/gpl.html
-# 
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -40,7 +40,7 @@ class RatingContainer(object):
 
         return self._playerToRating.setValue(player, rating)
 
-    
+
     def getAllPlayers(self) :
 
         allPlayers = self._playerToRating.getAllKeys()
@@ -54,7 +54,7 @@ class RatingContainer(object):
             list.append(player.getId())
         return list
 
-    
+
     def getAllRatings(self) :
 
         allRatings = self._playerToRating.getAllValues()
@@ -71,11 +71,11 @@ class RatingContainer(object):
 
         return iter(obj)
 
-    
+
 #    def next(self):
 #        list = []
 #        for player in self.getAllPlayers() :
 #            list.append(player)
 #        for i in range(self.count()) :
 #            if i == self.index :
-#                return list[i] 
+#                return list[i]

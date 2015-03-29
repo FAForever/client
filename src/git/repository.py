@@ -19,7 +19,7 @@ class Repository(QtCore.QObject):
     progress = QtCore.pyqtSignal(int, int)
     transfer_complete = QtCore.pyqtSignal()
 
-    def __init__(self, path, url=None, parent=None):
+    def __init__(self, path, url = None, parent = None):
         QtCore.QObject.__init__(self, parent)
 
         assert path
@@ -90,7 +90,7 @@ class Repository(QtCore.QObject):
 
     def has_version(self, version):
         try:
-            ref_object = self.repo.get(self.repo.lookup_reference("refs/tags/"+version.ref).target)
+            ref_object = self.repo.get(self.repo.lookup_reference("refs/tags/" + version.ref).target)
             if isinstance(ref_object, pygit2.Tag):
                 if ref_object.target:
                     return self.has_hex(version.hash) and ref_object.target.hex == version.hash
@@ -118,7 +118,7 @@ class Repository(QtCore.QObject):
             for r in self.repo.remotes:
                 if r.name == urlparse(url).hostname:
                     remote = r
-        logger.debug("Fetching '"+url+"'")
+        logger.debug("Fetching '" + url + "'")
         remote.sideband_progress = self._sideband
         remote.transfer_progress = self._transfer
         remote.fetch()
@@ -136,14 +136,14 @@ class Repository(QtCore.QObject):
         else:
             self.fetch_url(version.url)
 
-    def checkout(self, target="faf/master"):
+    def checkout(self, target = "faf/master"):
         logger.debug("Checking out " + target + " in " + self.path)
         if target in self.remote_branches:
-            self.repo.checkout(self.repo.lookup_branch(target, pygit2.GIT_BRANCH_REMOTE), strategy=pygit2.GIT_CHECKOUT_FORCE)
+            self.repo.checkout(self.repo.lookup_branch(target, pygit2.GIT_BRANCH_REMOTE), strategy = pygit2.GIT_CHECKOUT_FORCE)
         elif target in self.local_branches:
-            self.repo.checkout(self.repo.lookup_branch(target, pygit2.GIT_BRANCH_LOCAL), strategy=pygit2.GIT_CHECKOUT_FORCE)
+            self.repo.checkout(self.repo.lookup_branch(target, pygit2.GIT_BRANCH_LOCAL), strategy = pygit2.GIT_CHECKOUT_FORCE)
         elif target in self.tags:
-            self.repo.checkout(self.repo.lookup_reference("refs/tags/" + target), strategy=pygit2.GIT_CHECKOUT_FORCE)
+            self.repo.checkout(self.repo.lookup_reference("refs/tags/" + target), strategy = pygit2.GIT_CHECKOUT_FORCE)
         else:
             reference = self.repo[target]
             self.repo.reset(reference.id, pygit2.GIT_RESET_HARD)

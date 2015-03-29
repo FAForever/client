@@ -17,14 +17,14 @@ import pytest
 
 from PyQt4 import QtGui, QtCore
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope = "function")
 def application(qtbot, request):
     return QtGui.qApp
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope = "function")
 def signal_receiver(application):
     class SignalReceiver(QtCore.QObject):
-        def __init__(self, parent=None):
+        def __init__(self, parent = None):
             QtCore.QObject.__init__(self, parent)
             self.int_values = []
             self.generic_values = []

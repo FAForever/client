@@ -22,7 +22,7 @@ def test_filter_mod_strips_unwanted_mods_entirely():
 
 
 def test_filter_mod_places_found_mods_with_new_key_in_repo():
-    _, repo = mods.filter_mod_versions({1: 2},  {1: "test"})
+    _, repo = mods.filter_mod_versions({1: 2}, {1: "test"})
     assert repo["test"] == 2
 
 

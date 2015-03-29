@@ -63,7 +63,7 @@ def filter_featured_mods(featured_mod, filter_table):
 import logging
 logger = logging.getLogger(__name__)
 
-def checkMods(mods):  #mods is a dictionary of uid-name pairs
+def checkMods(mods):  # mods is a dictionary of uid-name pairs
     """
     Assures that the specified mods are available in FA, or returns False.
     Also sets the correct active mods in the ingame mod manager.
@@ -82,9 +82,9 @@ def checkMods(mods):  #mods is a dictionary of uid-name pairs
                                             mods[uid] + "</b>", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
         if result == QtGui.QMessageBox.Yes:
             # Spawn an update for the required mod
-            updater = fa.updater.Updater(uid, sim=True)
+            updater = fa.updater.Updater(uid, sim = True)
             result = updater.run()
-            updater = None  #Our work here is done
+            updater = None  # Our work here is done
             if (result != fa.updater.Updater.RESULT_SUCCESS):
                 return False
         else:

@@ -40,7 +40,7 @@ from . import DEFAULT_RECORD_REPLAY
 from config import Settings
 
 
-def build_argument_list(game_info, port, arguments=None):
+def build_argument_list(game_info, port, arguments = None):
     """
     Compiles an argument list to run the game with POpen style process invocation methods.
     Extends a potentially pre-existing argument list to allow for injection of special parameters
@@ -51,24 +51,24 @@ def build_argument_list(game_info, port, arguments=None):
     if '/init' in arguments:
         raise ValueError("Custom init scripts no longer supported.")
 
-    #log file
+    # log file
     if Settings.get('WRITE_GAME_LOG', 'FA'):
         arguments.append(("log", util.LOG_FILE_GAME))
 
-    #live replay
+    # live replay
     arguments.append(('savereplay',
                      '"gpgnet://localhost/' + str(game_info['uid']) + "/" + str(game_info['recorder']) + '.SCFAreplay"'))
 
-    #disable bug reporter
+    # disable bug reporter
     arguments.append(('nobugreport', None))
 
-    #gpg server emulation
+    # gpg server emulation
     arguments.append(('gpgnet', '127.0.0.1:' + str(port)))
 
     return arguments
 
 
-def run(game_info, port, arguments=None):
+def run(game_info, port, arguments = None):
     """
     Launches Forged Alliance with the given arguments
     """

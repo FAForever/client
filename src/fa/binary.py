@@ -41,9 +41,9 @@ from util import settings
 class PatchFailedError(StandardError):
     pass
 
-def make_counter(start=0):
-    _closure={"count":start}
-    def f(jump=1):
+def make_counter(start = 0):
+    _closure = {"count":start}
+    def f(jump = 1):
         _closure['count'] += jump
         return _closure['count']
     return f
@@ -57,7 +57,7 @@ class Updater(QtCore.QObject):
     failed = QtCore.pyqtSignal(str)
     finished = QtCore.pyqtSignal()
 
-    def __init__(self, repo, parent=None):
+    def __init__(self, repo, parent = None):
         QtCore.QObject.__init__(self, parent)
         self.repo = repo
 
@@ -67,7 +67,7 @@ class Updater(QtCore.QObject):
         return 'steam' if os.path.isfile(os.path.join(game_path, "steam_api.dll")) else 'retail'
 
 
-    def copy_rename(self, copy_rename, source_path, destination_path=util.BIN_DIR):
+    def copy_rename(self, copy_rename, source_path, destination_path = util.BIN_DIR):
         count = make_counter()
         self.prepare_progress("Copying Files", len(copy_rename))
 
@@ -85,14 +85,14 @@ class Updater(QtCore.QObject):
         logger.info(text)
 
 
-    def prepare_progress(self, operation, maximum=0):
+    def prepare_progress(self, operation, maximum = 0):
         self.log(operation)
         self.progress_maximum.emit(maximum)
         self.progress_reset.emit()
         QtGui.QApplication.processEvents()
 
 
-    def patch_directory_contents(self, post_patch_verify, patch_data_directory=os.path.join(util.REPO_DIR, REPO_NAME, "bsdiff4"), bin_dir=util.BIN_DIR):
+    def patch_directory_contents(self, post_patch_verify, patch_data_directory = os.path.join(util.REPO_DIR, REPO_NAME, "bsdiff4"), bin_dir = util.BIN_DIR):
         count = make_counter()
         self.prepare_progress("Patching Install", len(post_patch_verify))
 
@@ -130,7 +130,7 @@ class Updater(QtCore.QObject):
             QtGui.QApplication.processEvents()
 
 
-    def verify_directory_contents(self, post_patch_verify, bin_dir=util.BIN_DIR):
+    def verify_directory_contents(self, post_patch_verify, bin_dir = util.BIN_DIR):
         count = make_counter()
         self.prepare_progress("Verifying Install", len(post_patch_verify))
 
@@ -146,7 +146,7 @@ class Updater(QtCore.QObject):
                     logger.debug(file_name + " OK")
                 else:
                     logger.warn(file_name + " checksum mismatch, " + file_md5 + " != " + expected_md5 + " (expected)")
-                    okay  = False
+                    okay = False
 
                 self.progress_value.emit(count())
                 QtGui.QApplication.processEvents()
@@ -170,7 +170,7 @@ class Updater(QtCore.QObject):
         self.patch_directory_contents(migration_data['post_patch_verify'])
 
 
-    def check_up_to_date(self, game_path, bin_dir=util.BIN_DIR):
+    def check_up_to_date(self, game_path, bin_dir = util.BIN_DIR):
         if not os.path.exists(bin_dir):
             return False
 
@@ -187,7 +187,7 @@ class Updater(QtCore.QObject):
         self.repo.fetch()
         self.repo.checkout()
 
-        gamepath = os.path.join(str(settings.value("ForgedAlliance/app/path", type=str)), "bin")
+        gamepath = os.path.join(str(settings.value("ForgedAlliance/app/path", type = str)), "bin")
 
         if not self.check_up_to_date(gamepath):
             logger.info("Updated bin directory required.")

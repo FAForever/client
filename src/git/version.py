@@ -30,7 +30,7 @@ class Version():
      - A version is "stable" iff it has a commithash
      - A version is "trusted" iff the repository is in TRUSTED_REPOS (Implementation subject to change)
     """
-    def __init__(self, repo, ref, url=None, hash=None):
+    def __init__(self, repo, ref, url = None, hash = None):
         self._version = {"repo": repo, "ref": ref, "url": url, "hash": hash}
 
     @staticmethod

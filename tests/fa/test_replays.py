@@ -24,7 +24,7 @@ from fa.FAFReplayWriter import FAFReplayWriter
 with open(join(tmpdir, REPLAY_v1), "rb") as fv1:
     fv1.readline()
 
-    replay_data = zlib.decompress( base64.b64decode( fv1.read() )[4:] )
+    replay_data = zlib.decompress(base64.b64decode(fv1.read())[4:])
 
     with open(join(tmpdir, REPLAY_v0), "wb") as fv0:
         fv0.write(replay_data)

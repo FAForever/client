@@ -38,7 +38,7 @@ class Mod():
     """
     def __init__(self, name, identifier, version):
         if not isinstance(version, Version):
-            raise ModError("Not given a version "+repr(version))
+            raise ModError("Not given a version " + repr(version))
         self._name = str(name)
         self._path = str(identifier)
         self._version = version
@@ -80,4 +80,4 @@ class Mod():
         return repr(self.to_dict())
 
     def to_dict(self):
-        return {'name':self.name,'identifier':self.identifier,'version':self.version.to_dict()}
+        return {'name':self.name, 'identifier':self.identifier, 'version':self.version.to_dict()}

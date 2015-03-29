@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 __author__ = 'Thygrrr'
 
 
-def replay(source, detach=False):
+def replay(source, detach = False):
     '''
     Launches FA streaming the replay from the given location. Source can be a QUrl or a string
     '''
@@ -79,7 +79,7 @@ def replay(source, detach=False):
                         mod = filename.rsplit(".", 2)[1]
                         logger.info("mod guessed from " + source + " is " + mod)
                     else:
-                        mod = "faf"  #TODO: maybe offer a list of mods for the user.
+                        mod = "faf"  # TODO: maybe offer a list of mods for the user.
                         logger.warn("no mod could be guessed, using fallback ('faf') ")
 
                     mapname = None
@@ -93,11 +93,11 @@ def replay(source, detach=False):
                 logger.info("Replaying " + str(arg_string) + " with mod " + str(mod) + " on map " + str(mapname))
             else:
                 source = QtCore.QUrl(
-                    source)  #Try to interpret the string as an actual url, it may come from the command line
+                    source)  # Try to interpret the string as an actual url, it may come from the command line
 
         if isinstance(source, QtCore.QUrl):
             url = source
-            #Determine if it's a faflive url
+            # Determine if it's a faflive url
             if url.scheme() == "faflive":
                 mod = url.queryItemValue("mod")
                 mapname = url.queryItemValue("map")
@@ -125,16 +125,16 @@ def replay(source, detach=False):
         arguments.append(arg_string)
 
 
-        #Proper mod loading code
+        # Proper mod loading code
         mods.fix_init_luas()
-        mod = "faf" if mod == "ladder1v1" else mod  #hack for feature/new-patcher
+        mod = "faf" if mod == "ladder1v1" else mod  # hack for feature/new-patcher
         arguments.append("/init")
         arguments.append(mods.init_lua_for_featured_mod(mod))
 
-        #disable bug reporter and movies
+        # disable bug reporter and movies
         arguments.append('/nobugreport')
 
-        #log file
+        # log file
         arguments.append("/log")
         arguments.append('"' + util.LOG_FILE_REPLAY + '"')
 

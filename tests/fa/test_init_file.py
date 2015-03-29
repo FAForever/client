@@ -3,7 +3,7 @@ __author__ = 'Sheeo'
 from fa.lua import InitFile
 from lupa import LuaRuntime
 
-lua = LuaRuntime(unpack_returned_tuples=True)
+lua = LuaRuntime(unpack_returned_tuples = True)
 
 
 def test_default_init_values():

@@ -16,7 +16,7 @@ class Settings(object):
     selected configuration module if the key isn't found.
     """
     @staticmethod
-    def get(key, group=None):
+    def get(key, group = None):
         if group is None:
             value = _settings.value(key)
         else:
@@ -31,7 +31,7 @@ class Settings(object):
         return value
 
     @staticmethod
-    def set(key, value, group=None):
+    def set(key, value, group = None):
         if group is None:
             _settings.setValue(key, value)
         else:
@@ -58,9 +58,9 @@ if getattr(sys, 'frozen', False):
         logging.warning("FAF version: " + repr(version.get_git_version()))
         from production import defaults
         make_dirs()
-        rotate = RotatingFileHandler(filename=os.path.join(Settings.get('DIR', 'LOG'), 'forever.log'),
-                                     maxBytes=Settings.get('MAX_SIZE', 'LOG'),
-                                     backupCount=10)
+        rotate = RotatingFileHandler(filename = os.path.join(Settings.get('DIR', 'LOG'), 'forever.log'),
+                                     maxBytes = Settings.get('MAX_SIZE', 'LOG'),
+                                     backupCount = 10)
         rotate.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))
         logging.getLogger().addHandler(rotate)
         logging.getLogger().setLevel(Settings.get('LEVEL', 'LOG'))
@@ -68,9 +68,9 @@ if getattr(sys, 'frozen', False):
         logging.warning("FAF prerelease version: " + repr(version.get_git_version()))
         from develop import defaults
         make_dirs()
-        rotate = RotatingFileHandler(filename=os.path.join(Settings.get('DIR', 'LOG'), 'forever.log'),
-                                     maxBytes=Settings.get('MAX_SIZE', 'LOG'),
-                                     backupCount=10)
+        rotate = RotatingFileHandler(filename = os.path.join(Settings.get('DIR', 'LOG'), 'forever.log'),
+                                     maxBytes = Settings.get('MAX_SIZE', 'LOG'),
+                                     backupCount = 10)
         rotate.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))
         logging.getLogger().addHandler(rotate)
         logging.getLogger().setLevel(Settings.get('LEVEL', 'LOG'))

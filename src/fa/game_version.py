@@ -19,7 +19,7 @@ class GameVersion():
     For describing the exact version of FA used.
     """
 
-    def __init__(self, engine, main_mod, mods=None, _map=None):
+    def __init__(self, engine, main_mod, mods = None, _map = None):
         if not isinstance(main_mod, Mod):
             raise GameVersionError("Not a loadable mod: " + repr(main_mod))
         if not all(map(lambda m: isinstance(m, Mod), mods)):
@@ -155,7 +155,7 @@ class GameVersion():
             raise TypeError(repr(obj) + " is not JSON serializable")
 
     def to_json(self):
-        return json.dumps(self._versions, default=self.serialize_kids)
+        return json.dumps(self._versions, default = self.serialize_kids)
 
     def to_dict(self):
         return self._versions

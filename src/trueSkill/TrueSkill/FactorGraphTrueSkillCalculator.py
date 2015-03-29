@@ -4,12 +4,12 @@
 # are made available under the terms of the GNU Public License v3.0
 # which accompanies this distribution, and is available at
 # http://www.gnu.org/licenses/gpl.html
-# 
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -32,13 +32,13 @@ from trueSkill.Rating import *
 from trueSkill.Guard import *
 from trueSkill.RankSorter import *
 from trueSkill.TrueSkill.TrueSkillFactorGraph import *
-#/**
+# /**
 # * Calculates TrueSkill using a full factor graph.
 # */
 class FactorGraphTrueSkillCalculator(SkillCalculator) :
     def __init__(self) :
         super(FactorGraphTrueSkillCalculator, self).__init__(SkillCalculatorSupportedOptions.NONE, TeamsRange.atLeast(2), PlayersRange.atLeast(1))
-    
+
 
     def calculateNewRatings(self, gameInfo,
                                         teams,
@@ -49,21 +49,21 @@ class FactorGraphTrueSkillCalculator(SkillCalculator) :
 
         self.validateTeamCountAndPlayersCountPerTeam(teams)
 
-        
-        teamRanks, teams = RankSorter.sort(teams, teamRanks)      
-  
+
+        teamRanks, teams = RankSorter.sort(teams, teamRanks)
+
         factorGraph = TrueSkillFactorGraph(gameInfo, teams, teamRanks)
 
         factorGraph.buildGraph()
 
         factorGraph.runSchedule()
-       
+
         probabilityOfOutcome = factorGraph.getProbabilityOfRanking()
 
 
         return factorGraph.getUpdatedRatings()
 
-    #@staticmethod
+    # @staticmethod
     def calculateMatchQuality(self, gameInfo, teams) :
 
 #        // We need to create the A matrix which is the player team assigments.
@@ -72,25 +72,25 @@ class FactorGraphTrueSkillCalculator(SkillCalculator) :
 
 
         skillsMatrix = self.getPlayerCovarianceMatrix(teamAssignmentsList)
-        
-       
+
+
         meanVector = self.getPlayerMeansVector(teamAssignmentsList)
 
         meanVectorTranspose = meanVector.getTranspose()
 
         playerTeamAssignmentsMatrix = self.createPlayerTeamAssignmentMatrix(teamAssignmentsList, meanVector.getRowCount())
-        
 
-        
+
+
         playerTeamAssignmentsMatrixTranspose = playerTeamAssignmentsMatrix.getTranspose()
 
 
         betaSquared = square(gameInfo.getBeta())
 
         start = Matrix.multiply(meanVectorTranspose, playerTeamAssignmentsMatrix)
-        
 
-        
+
+
         aTa = Matrix.multiply(Matrix.scalarMultiply(betaSquared,
                                                playerTeamAssignmentsMatrixTranspose),
                                                 playerTeamAssignmentsMatrix)
@@ -122,19 +122,19 @@ class FactorGraphTrueSkillCalculator(SkillCalculator) :
     def getRatingPlayerMeansVector(self, rating):
         return rating.getMean()
 
-    #@staticmethod
+    # @staticmethod
     def getPlayerMeansVector(self, teamAssignmentsList) :
 
-        
-        #// A simple vector of all the player means.
-        return Vector(self.getPlayerRatingValues(teamAssignmentsList,self.getRatingPlayerMeansVector))
 
-    
+        # // A simple vector of all the player means.
+        return Vector(self.getPlayerRatingValues(teamAssignmentsList, self.getRatingPlayerMeansVector))
+
+
     def getRatingStandardDeviation(self, rating) :
          return square(rating.getStandardDeviation())
 
 
-    #@staticmethod 
+    # @staticmethod
     def getPlayerCovarianceMatrix(self, teamAssignmentsList) :
 
         # This is a square matrix whose diagonal values represent the variance (square of standard deviation) of all
@@ -148,7 +148,7 @@ class FactorGraphTrueSkillCalculator(SkillCalculator) :
     @staticmethod
     def getPlayerRatingValues(teamAssignmentsList, playerRatingFunction) :
         playerRatingValues = []
-        for currentTeam in teamAssignmentsList : 
+        for currentTeam in teamAssignmentsList :
             for currentRating in currentTeam.getAllRatings() :
                 playerRatingValues.append(playerRatingFunction(currentRating))
 
@@ -157,7 +157,7 @@ class FactorGraphTrueSkillCalculator(SkillCalculator) :
 #
     @staticmethod
     def createPlayerTeamAssignmentMatrix(teamAssignmentsList, totalPlayers) :
-        
+
 #        // The team assignment matrix is often referred to as the "A" matrix. It's a matrix whose rows represent the players
 #        // and the columns represent teams. At Matrix[row, column] represents that player[row] is on team[col]
 #        // Positive values represent an assignment and a negative value means that we subtract the value of the next
@@ -177,26 +177,26 @@ class FactorGraphTrueSkillCalculator(SkillCalculator) :
         totalPreviousPlayers = 0
 
         teamAssignmentsListCount = len(teamAssignmentsList)
-        
+
         currentColumn = 0
-        
-        for i in range(teamAssignmentsListCount-1) :
+
+        for i in range(teamAssignmentsListCount - 1) :
 
             currentTeam = teamAssignmentsList[i]
 
- 
+
 #            // Need to add in 0's for all the previous players, since they're not
 #            // on this team
-            result = [] 
+            result = []
             if totalPreviousPlayers > 0 :
                 result = [0] * totalPreviousPlayers
 
 
 
             playerAssignments.insert(currentColumn, result)
-            #playerAssignments[currentColumn] = result
+            # playerAssignments[currentColumn] = result
 
-            for currentPlayer in currentTeam.getAllPlayers() : 
+            for currentPlayer in currentTeam.getAllPlayers() :
 
                 playerAssignments[currentColumn].append(PartialPlay.getPartialPlayPercentage(currentPlayer))
 #                // indicates the player is on the team
@@ -205,11 +205,11 @@ class FactorGraphTrueSkillCalculator(SkillCalculator) :
 
             rowsRemaining = totalPlayers - totalPreviousPlayers
             nextTeam = teamAssignmentsList[i + 1]
-            
-            for nextTeamPlayer in nextTeam.getAllPlayers() : 
+
+            for nextTeamPlayer in nextTeam.getAllPlayers() :
 
 #                // Add a -1 * playing time to represent the difference
-                playerAssignments[currentColumn].append( -1 * PartialPlay.getPartialPlayPercentage(nextTeamPlayer))
+                playerAssignments[currentColumn].append(-1 * PartialPlay.getPartialPlayPercentage(nextTeamPlayer))
                 rowsRemaining = rowsRemaining - 1
 
             for ixAdditionalRow in range(rowsRemaining) :
@@ -222,4 +222,4 @@ class FactorGraphTrueSkillCalculator(SkillCalculator) :
         playerTeamAssignmentsMatrix = Matrix.fromColumnValues(totalPlayers, teamAssignmentsListCount - 1, playerAssignments)
 
         return playerTeamAssignmentsMatrix
- 
+

@@ -27,14 +27,14 @@ TEST_ENGINE_VERSION = Version('FAForever/binary-patch', 'master', None, 'a416597
 TEST_MAIN_MOD = Mod("Forged Alliance Forever", "faf", TEST_GAME_VERSION)
 
 
-repo_mock = flexmock(checkout_version=lambda v: True)
-updater_mock = flexmock(check_up_to_date=lambda p: True)
-version_mock = flexmock(is_stable=lambda: True,
-                        is_trusted=lambda: True,
-                        engine_repo=repo_mock,
-                        engine=TEST_ENGINE_VERSION,
-                        main_mod=TEST_MAIN_MOD,
-                        main_mod_repo=repo_mock)
+repo_mock = flexmock(checkout_version = lambda v: True)
+updater_mock = flexmock(check_up_to_date = lambda p: True)
+version_mock = flexmock(is_stable = lambda: True,
+                        is_trusted = lambda: True,
+                        engine_repo = repo_mock,
+                        engine = TEST_ENGINE_VERSION,
+                        main_mod = TEST_MAIN_MOD,
+                        main_mod_repo = repo_mock)
 
 
 def test_check_game_checks_engine_version(qtbot, monkeypatch):
