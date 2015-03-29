@@ -25,11 +25,11 @@ def fetchClientUpdate(url):
             progress.setAutoClose(True)
             progress.setAutoReset(False)
 
-            req = urllib2.Request(url, headers={'User-Agent' : "FAF Client"})
-            msifile  = urllib2.urlopen(req)
+            req = urllib2.Request(url, headers = {'User-Agent' : "FAF Client"})
+            msifile = urllib2.urlopen(req)
             meta = msifile.info()
 
-            #Fix for #241, sometimes the server sends an error and no content-length.
+            # Fix for #241, sometimes the server sends an error and no content-length.
             file_size = int(meta.getheaders("Content-Length")[0])
             progress.setMinimum(0)
             progress.setMaximum(file_size)
@@ -41,8 +41,8 @@ def fetchClientUpdate(url):
             progress.setLabelText('Downloading the latest version of <b>Forged Alliance Forever</b><br/><a href="' + url + '">' + url + '</a><br/>File size: ' + str(int(file_size / 1024 / 1024)) + ' MiB')
             progress.show()
 
-            #Download the file as a series of up to 4 KiB chunks, then uncompress it.
-            output = tempfile.NamedTemporaryFile(mode='w+b', suffix=".msi", delete=False)
+            # Download the file as a series of up to 4 KiB chunks, then uncompress it.
+            output = tempfile.NamedTemporaryFile(mode = 'w+b', suffix = ".msi", delete = False)
 
             file_size_dl = 0
             block_sz = 4096
@@ -65,7 +65,7 @@ def fetchClientUpdate(url):
                 import subprocess
                 command = r'msiexec /i "{msiname}" & del "{msiname}"'.format(msiname = output.name)
                 logger.debug(r'Running command: ' + command)
-                subprocess.Popen(command, shell=True)
+                subprocess.Popen(command, shell = True)
             else:
                 QtGui.QMessageBox.information(None, "Aborted", "Update download not complete.")
                 logger.warn("MSI download not complete.")

@@ -35,10 +35,10 @@ def TryGetSCFAReplayHeader(byteArray):
     def skip(nbytes):
         stream.skipRawData(nbytes)
 
-    readNulStr() # engine version
-    readNulStr() #
-    readNulStr() # Replay v1.9\r\n/maps/Map/File.scmap
-    readNulStr() # foek knoes
+    readNulStr()  # engine version
+    readNulStr()  #
+    readNulStr()  # Replay v1.9\r\n/maps/Map/File.scmap
+    readNulStr()  # foek knoes
 
     mods_size = readUI32()
     skip(mods_size)
@@ -48,19 +48,19 @@ def TryGetSCFAReplayHeader(byteArray):
 
     n_sources = readUI8()
     for i in range(n_sources):
-        readNulStr() # name
-        readUI32() # timeouts rem
+        readNulStr()  # name
+        readUI32()  # timeouts rem
 
-    readUI8() # cheats
+    readUI8()  # cheats
 
     n_armies = readUI8()
     for i in range(n_armies):
         data_size = readUI32()
         skip(data_size)
-        readUI8() # source_id
-        readUI8() # unknown
+        readUI8()  # source_id
+        readUI8()  # unknown
 
-    readUI32() # random_seed
+    readUI32()  # random_seed
 
     size = stream.device().pos()
     return byteArray[:size], byteArray[size:]
@@ -107,10 +107,10 @@ class FAFReplayWriter(QIODevice):
         ds = QDataStream(self._target_device)
         ds.setByteOrder(QDataStream.LittleEndian)
 
-        ds.writeUInt32( 32 + 4 + len(self._faf_header) )
-        ds.writeUInt32( 32 + 4 + len(self._faf_header) + len(self._scfa_header))
+        ds.writeUInt32(32 + 4 + len(self._faf_header))
+        ds.writeUInt32(32 + 4 + len(self._faf_header) + len(self._scfa_header))
         ds.device().write(self._scfa_tick_compress)
-        ds.writeUInt32(0) # reserved
+        ds.writeUInt32(0)  # reserved
 
         # Write faf json header
         ds.writeBytes(self._faf_header)

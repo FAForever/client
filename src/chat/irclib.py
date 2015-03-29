@@ -4,12 +4,12 @@
 # are made available under the terms of the GNU Public License v3.0
 # which accompanies this distribution, and is available at
 # http://www.gnu.org/licenses/gpl.html
-# 
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -142,9 +142,9 @@ class IRC:
     to the nickname a_nickname.
     """
 
-    def __init__(self, fn_to_add_socket=None,
-                 fn_to_remove_socket=None,
-                 fn_to_add_timeout=None):
+    def __init__(self, fn_to_add_socket = None,
+                 fn_to_remove_socket = None,
+                 fn_to_add_timeout = None):
         """Constructor for IRC objects.
 
         Optional arguments are fn_to_add_socket, fn_to_remove_socket
@@ -178,7 +178,7 @@ class IRC:
         self.fn_to_add_timeout = fn_to_add_timeout
         self.connections = []
         self.handlers = {}
-        self.delayed_commands = [] # list of tuples in the format (time, function, arguments)
+        self.delayed_commands = []  # list of tuples in the format (time, function, arguments)
 
         self.add_global_handler("ping", _ping_ponger, -42)
 
@@ -216,7 +216,7 @@ class IRC:
             else:
                 break
 
-    def process_once(self, timeout=0):
+    def process_once(self, timeout = 0):
         """Process data from connections once.
 
         Arguments:
@@ -237,7 +237,7 @@ class IRC:
             time.sleep(timeout)
         self.process_timeout()
 
-    def process_forever(self, timeout=0.2):
+    def process_forever(self, timeout = 0.2):
         """Run an infinite loop, processing data from connections.
 
         This method repeatedly calls process_once.
@@ -249,12 +249,12 @@ class IRC:
         while 1:
             self.process_once(timeout)
 
-    def disconnect_all(self, message=""):
+    def disconnect_all(self, message = ""):
         """Disconnects all connections."""
         for c in self.connections:
             c.disconnect(message)
 
-    def add_global_handler(self, event, handler, priority=0):
+    def add_global_handler(self, event, handler, priority = 0):
         """Adds a global handler function for a specific event type.
 
         Arguments:
@@ -297,7 +297,7 @@ class IRC:
                 self.handlers[event].remove(h)
         return 1
 
-    def execute_at(self, at, function, arguments=()):
+    def execute_at(self, at, function, arguments = ()):
         """Execute a function at a specified time.
 
         Arguments:
@@ -308,9 +308,9 @@ class IRC:
 
             arguments -- Arguments to give the function.
         """
-        self.execute_delayed(at-time.time(), function, arguments)
+        self.execute_delayed(at - time.time(), function, arguments)
 
-    def execute_delayed(self, delay, function, arguments=()):
+    def execute_delayed(self, delay, function, arguments = ()):
         """Execute a function after a specified time.
 
         Arguments:
@@ -321,11 +321,11 @@ class IRC:
 
             arguments -- Arguments to give the function.
         """
-        bisect.insort(self.delayed_commands, (delay+time.time(), function, arguments))
+        bisect.insort(self.delayed_commands, (delay + time.time(), function, arguments))
         if self.fn_to_add_timeout:
             self.fn_to_add_timeout(delay)
 
-    def dcc(self, dcctype="chat"):
+    def dcc(self, dcctype = "chat"):
         """Creates and returns a DCCConnection object.
 
         Arguments:
@@ -366,12 +366,12 @@ class Connection:
         raise IRCError, "Not overridden"
 
     ##############################
-    ### Convenience wrappers.
+    # ## Convenience wrappers.
 
-    def execute_at(self, at, function, arguments=()):
+    def execute_at(self, at, function, arguments = ()):
         self.irclibobj.execute_at(at, function, arguments)
 
-    def execute_delayed(self, delay, function, arguments=()):
+    def execute_delayed(self, delay, function, arguments = ()):
         self.irclibobj.execute_delayed(delay, function, arguments)
 
 
@@ -399,8 +399,8 @@ class ServerConnection(Connection):
         self.socket = None
         self.ssl = None
 
-    def connect(self, server, port, nickname, password=None, username=None,
-                ircname=None, localaddress="", localport=0, ssl=False, ipv6=False):
+    def connect(self, server, port, nickname, password = None, username = None,
+                ircname = None, localaddress = "", localport = 0, ssl = False, ipv6 = False):
         """Connect/reconnect to a server.
 
         Arguments:
@@ -508,9 +508,9 @@ class ServerConnection(Connection):
         """[Internal]"""
         try:
             if self.ssl:
-                new_data = self.ssl.read(2**14)
+                new_data = self.ssl.read(2 ** 14)
             else:
-                new_data = self.socket.recv(2**14)
+                new_data = self.socket.recv(2 ** 14)
         except socket.error, x:
             # The server hung up.
             self.disconnect("Connection reset by peer")
@@ -533,11 +533,11 @@ class ServerConnection(Connection):
                 continue
 
             try:
-                line = line.decode("utf-8", "replace")     # utf-8 support hacked in by thygrrr (may break in some scenarios - see chardet python package)
-            except:            
+                line = line.decode("utf-8", "replace")  # utf-8 support hacked in by thygrrr (may break in some scenarios - see chardet python package)
+            except:
                 print "irclib: non-utf-8 line, unexpected encoding error " + line
                 line = "** encoding error - replaced by irclib.py **"
-                
+
             prefix = None
             command = None
             arguments = None
@@ -657,11 +657,11 @@ class ServerConnection(Connection):
         """Send a CTCP ACTION command."""
         self.ctcp("ACTION", target, action)
 
-    def admin(self, server=""):
+    def admin(self, server = ""):
         """Send an ADMIN command."""
         self.send_raw(" ".join(["ADMIN", server]).strip())
 
-    def ctcp(self, ctcptype, target, parameter=""):
+    def ctcp(self, ctcptype, target, parameter = ""):
         """Send a CTCP command."""
         ctcptype = ctcptype.upper()
         self.privmsg(target, "\001%s%s\001" % (ctcptype, parameter and (" " + parameter) or ""))
@@ -670,7 +670,7 @@ class ServerConnection(Connection):
         """Send a CTCP REPLY command."""
         self.notice(target, "\001%s\001" % parameter)
 
-    def disconnect(self, message=""):
+    def disconnect(self, message = ""):
         """Hang up the connection.
 
         Arguments:
@@ -695,7 +695,7 @@ class ServerConnection(Connection):
         """Send a GLOBOPS command."""
         self.send_raw("GLOBOPS :" + text)
 
-    def info(self, server=""):
+    def info(self, server = ""):
         """Send an INFO command."""
         self.send_raw(" ".join(["INFO", server]).strip())
 
@@ -712,15 +712,15 @@ class ServerConnection(Connection):
         """
         self.send_raw("ISON " + " ".join(nicks))
 
-    def join(self, channel, key=""):
+    def join(self, channel, key = ""):
         """Send a JOIN command."""
         self.send_raw("JOIN %s%s" % (channel, (key and (" " + key))))
 
-    def kick(self, channel, nick, comment=""):
+    def kick(self, channel, nick, comment = ""):
         """Send a KICK command."""
         self.send_raw("KICK %s %s%s" % (channel, nick, (comment and (" :" + comment))))
 
-    def links(self, remote_server="", server_mask=""):
+    def links(self, remote_server = "", server_mask = ""):
         """Send a LINKS command."""
         command = "LINKS"
         if remote_server:
@@ -729,7 +729,7 @@ class ServerConnection(Connection):
             command = command + " " + server_mask
         self.send_raw(command)
 
-    def list(self, channels=None, server=""):
+    def list(self, channels = None, server = ""):
         """Send a LIST command."""
         command = "LIST"
         if channels:
@@ -738,7 +738,7 @@ class ServerConnection(Connection):
             command = command + " " + server
         self.send_raw(command)
 
-    def lusers(self, server=""):
+    def lusers(self, server = ""):
         """Send a LUSERS command."""
         self.send_raw("LUSERS" + (server and (" " + server)))
 
@@ -746,11 +746,11 @@ class ServerConnection(Connection):
         """Send a MODE command."""
         self.send_raw("MODE %s %s" % (target, command))
 
-    def motd(self, server=""):
+    def motd(self, server = ""):
         """Send an MOTD command."""
         self.send_raw("MOTD" + (server and (" " + server)))
 
-    def names(self, channels=None):
+    def names(self, channels = None):
         """Send a NAMES command."""
         self.send_raw("NAMES" + (channels and (" " + ",".join(channels)) or ""))
 
@@ -767,7 +767,7 @@ class ServerConnection(Connection):
         """Send an OPER command."""
         self.send_raw("OPER %s %s" % (nick, password))
 
-    def part(self, channels, message=""):
+    def part(self, channels, message = ""):
         """Send a PART command."""
         if type(channels) == types.StringType:
             self.send_raw("PART " + channels + (message and (" " + message)))
@@ -778,11 +778,11 @@ class ServerConnection(Connection):
         """Send a PASS command."""
         self.send_raw("PASS " + password)
 
-    def ping(self, target, target2=""):
+    def ping(self, target, target2 = ""):
         """Send a PING command."""
         self.send_raw("PING %s%s" % (target, target2 and (" " + target2)))
 
-    def pong(self, target, target2=""):
+    def pong(self, target, target2 = ""):
         """Send a PONG command."""
         self.send_raw("PONG %s%s" % (target, target2 and (" " + target2)))
 
@@ -796,7 +796,7 @@ class ServerConnection(Connection):
         # Should limit len(text) here!
         self.send_raw("PRIVMSG %s :%s" % (",".join(targets), text))
 
-    def quit(self, message=""):
+    def quit(self, message = ""):
         """Send a QUIT command."""
         # Note that many IRC servers don't use your QUIT message
         # unless you've been connected for at least 5 minutes!
@@ -811,35 +811,35 @@ class ServerConnection(Connection):
             raise ServerNotConnectedError, "Not connected."
         try:
             if self.ssl:
-                self.ssl.write((string + "\r\n").encode("utf-8"))     #FIXME utf-8 support hacked in by thygrrrc(may break in some scenarios)
+                self.ssl.write((string + "\r\n").encode("utf-8"))  # FIXME utf-8 support hacked in by thygrrrc(may break in some scenarios)
             else:
-                self.socket.send((string + "\r\n").encode("utf-8"))   #FIXME utf-8 support hacked in by thygrrr (may break in some scenarios)
+                self.socket.send((string + "\r\n").encode("utf-8"))  # FIXME utf-8 support hacked in by thygrrr (may break in some scenarios)
             if DEBUG:
                 print "TO SERVER:", string
         except socket.error, x:
             # Ouch!
             self.disconnect("Connection reset by peer.")
 
-    def squit(self, server, comment=""):
+    def squit(self, server, comment = ""):
         """Send an SQUIT command."""
         self.send_raw("SQUIT %s%s" % (server, comment and (u" :" + comment)))
 
-    def stats(self, statstype, server=""):
+    def stats(self, statstype, server = ""):
         """Send a STATS command."""
         self.send_raw("STATS %s%s" % (statstype, server and ("u " + server)))
 
-    def time(self, server=""):
+    def time(self, server = ""):
         """Send a TIME command."""
         self.send_raw("TIME" + (server and (u" " + server)))
 
-    def topic(self, channel, new_topic=None):
+    def topic(self, channel, new_topic = None):
         """Send a TOPIC command."""
         if new_topic is None:
             self.send_raw("TOPIC " + channel)
         else:
             self.send_raw("TOPIC %s :%s" % (channel, new_topic))
 
-    def trace(self, target=""):
+    def trace(self, target = ""):
         """Send a TRACE command."""
         self.send_raw("TRACE" + (target and (" " + target)))
 
@@ -851,11 +851,11 @@ class ServerConnection(Connection):
         """Send a USERHOST command."""
         self.send_raw("USERHOST " + ",".join(nicks))
 
-    def users(self, server=""):
+    def users(self, server = ""):
         """Send a USERS command."""
         self.send_raw("USERS" + (server and (" " + server)))
 
-    def version(self, server=""):
+    def version(self, server = ""):
         """Send a VERSION command."""
         self.send_raw("VERSION" + (server and (" " + server)))
 
@@ -863,7 +863,7 @@ class ServerConnection(Connection):
         """Send a WALLOPS command."""
         self.send_raw("WALLOPS :" + text)
 
-    def who(self, target="", op=""):
+    def who(self, target = "", op = ""):
         """Send a WHO command."""
         self.send_raw("WHO%s%s" % (target and (" " + target), op and (" o")))
 
@@ -871,7 +871,7 @@ class ServerConnection(Connection):
         """Send a WHOIS command."""
         self.send_raw("WHOIS " + ",".join(targets))
 
-    def whowas(self, nick, max="", server=""):
+    def whowas(self, nick, max = "", server = ""):
         """Send a WHOWAS command."""
         self.send_raw("WHOWAS %s%s%s" % (nick,
                                          max and (" " + max),
@@ -943,7 +943,7 @@ class DCCConnection(Connection):
             raise DCCConnectionError, "Couldn't bind socket: %s" % x
         return self
 
-    def disconnect(self, message=""):
+    def disconnect(self, message = ""):
         """Hang up the connection and close the object.
 
         Arguments:
@@ -981,7 +981,7 @@ class DCCConnection(Connection):
             return
 
         try:
-            new_data = self.socket.recv(2**14)
+            new_data = self.socket.recv(2 ** 14)
         except socket.error, x:
             # The server hung up.
             self.disconnect("Connection reset by peer")
@@ -998,7 +998,7 @@ class DCCConnection(Connection):
 
             # Save the last, unfinished line.
             self.previous_buffer = chunks[-1]
-            if len(self.previous_buffer) > 2**14:
+            if len(self.previous_buffer) > 2 ** 14:
                 # Bad peer! Naughty peer!
                 self.disconnect()
                 return
@@ -1081,8 +1081,8 @@ class SimpleIRCClient:
     def _dcc_disconnect(self, c, e):
         self.dcc_connections.remove(c)
 
-    def irc_connect(self, server, port, nickname, password=None, username=None,
-                ircname=None, localaddress="", localport=0, ssl=False, ipv6=False):
+    def irc_connect(self, server, port, nickname, password = None, username = None,
+                ircname = None, localaddress = "", localport = 0, ssl = False, ipv6 = False):
         """Connect/reconnect to a server.
 
         Arguments:
@@ -1113,10 +1113,10 @@ class SimpleIRCClient:
                                 password, username, ircname,
                                 localaddress, localport, ssl, ipv6)
 
-    def irc_disconnect(self, message="ctrl-k"):
+    def irc_disconnect(self, message = "ctrl-k"):
         self.connection.disconnect(message)
-        
-    def dcc_connect(self, address, port, dcctype="chat"):
+
+    def dcc_connect(self, address, port, dcctype = "chat"):
         """Connect to a DCC peer.
 
         Arguments:
@@ -1132,7 +1132,7 @@ class SimpleIRCClient:
         dcc.connect(address, port)
         return dcc
 
-    def dcc_listen(self, dcctype="chat"):
+    def dcc_listen(self, dcctype = "chat"):
         """Listen for connections from a DCC peer.
 
         Returns a DCCConnection instance.
@@ -1153,7 +1153,7 @@ class SimpleIRCClient:
 
 class Event:
     """Class representing an IRC event."""
-    def __init__(self, eventtype, source, target, arguments=None):
+    def __init__(self, eventtype, source, target, arguments = None):
         """Constructor of Event objects.
 
         Arguments:
@@ -1265,14 +1265,14 @@ def _ctcp_dequote(message):
 
         messages = []
         i = 0
-        while i < len(chunks)-1:
+        while i < len(chunks) - 1:
             # Add message if it's non-empty.
             if len(chunks[i]) > 0:
                 messages.append(chunks[i])
 
-            if i < len(chunks)-2:
+            if i < len(chunks) - 2:
                 # Aye!  CTCP tagged data ahead!
-                messages.append(tuple(chunks[i+1].split(" ", 1)))
+                messages.append(tuple(chunks[i + 1].split(" ", 1)))
 
             i = i + 2
 
@@ -1370,7 +1370,7 @@ def parse_channel_modes(mode_string):
 
     return _parse_modes(mode_string, "bklvo")
 
-def _parse_modes(mode_string, unary_modes=""):
+def _parse_modes(mode_string, unary_modes = ""):
     """[Internal]"""
     modes = []
     arg_count = 0
@@ -1504,7 +1504,7 @@ numeric_events = {
     "374": "endofinfo",
     "375": "motdstart",
     "376": "endofmotd",
-    "377": "motd2",        # 1997-10-16 -- tkil
+    "377": "motd2",  # 1997-10-16 -- tkil
     "381": "youreoper",
     "382": "rehashing",
     "384": "myportis",
@@ -1530,7 +1530,7 @@ numeric_events = {
     "423": "noadmininfo",
     "424": "fileerror",
     "431": "nonicknamegiven",
-    "432": "erroneusnickname", # Thiss iz how its speld in thee RFC.
+    "432": "erroneusnickname",  # Thiss iz how its speld in thee RFC.
     "433": "nicknameinuse",
     "436": "nickcollision",
     "437": "unavailresource",  # "Nick temporally unavailable"
@@ -1545,7 +1545,7 @@ numeric_events = {
     "462": "alreadyregistered",
     "463": "nopermforhost",
     "464": "passwdmismatch",
-    "465": "yourebannedcreep", # I love this one...
+    "465": "yourebannedcreep",  # I love this one...
     "466": "youwillbebanned",
     "467": "keyset",
     "471": "channelisfull",
@@ -1559,7 +1559,7 @@ numeric_events = {
     "481": "noprivileges",
     "482": "chanoprivsneeded",
     "483": "cantkillserver",
-    "484": "restricted",   # Connection is restricted
+    "484": "restricted",  # Connection is restricted
     "485": "uniqopprivsneeded",
     "491": "nooperhost",
     "492": "noservicehost",

@@ -4,12 +4,12 @@
 # are made available under the terms of the GNU Public License v3.0
 # which accompanies this distribution, and is available at
 # http://www.gnu.org/licenses/gpl.html
-# 
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -48,7 +48,7 @@ print('Build version:', git_version, 'MSI version:', msi_version)
 # Dependencies are automatically detected, but it might need fine tuning.
 build_exe_options = {
     'include_files': ['res', 'RELEASE-VERSION', ('lib/uid.dll', 'uid.dll'),
-                      ('lib/pygit2/pygit2/decl.h','decl.h')],
+                      ('lib/pygit2/pygit2/decl.h', 'decl.h')],
     'optimize': 2,
     'icon': 'res/faf.ico',
     'include_msvcr': True,
@@ -57,18 +57,18 @@ build_exe_options = {
 }
 
 shortcut_table = [
-    ('DesktopShortcut',           # Shortcut
-     'DesktopFolder',             # Directory_
-     'FA Forever',                # Name
-     'TARGETDIR',                 # Component_
+    ('DesktopShortcut',  # Shortcut
+     'DesktopFolder',  # Directory_
+     'FA Forever',  # Name
+     'TARGETDIR',  # Component_
      '[TARGETDIR]FAForever.exe',  # Target
-     None,                        # Arguments
-     None,                        # Description
-     None,                        # Hotkey
-     None,                        # Icon
-     None,                        # IconIndex
-     None,                        # ShowCmd
-     'TARGETDIR'                  # WkDir
+     None,  # Arguments
+     None,  # Description
+     None,  # Hotkey
+     None,  # Icon
+     None,  # IconIndex
+     None,  # ShowCmd
+     'TARGETDIR'  # WkDir
      )
 ]
 
@@ -93,24 +93,24 @@ if sys.platform == 'win32':
 
 exe = Executable(
     'src/__main__.py',
-    base=base,
-    targetName='FAForever.exe',
-    icon='res/faf.ico',
-    includes=[os.path.join(os.path.dirname(PyQt4.uic.__file__), "widget-plugins"), "PyQt4.uic.widget-plugins"]
+    base = base,
+    targetName = 'FAForever.exe',
+    icon = 'res/faf.ico',
+    includes = [os.path.join(os.path.dirname(PyQt4.uic.__file__), "widget-plugins"), "PyQt4.uic.widget-plugins"]
 )
 
 setup(
-    name=product_name,
-    version=msi_version,
-    description='Forged Alliance Forever - Lobby Client',
-    long_description='FA Forever is a community project that allows you to play \
+    name = product_name,
+    version = msi_version,
+    description = 'Forged Alliance Forever - Lobby Client',
+    long_description = 'FA Forever is a community project that allows you to play \
 Supreme Commander and Supreme Commander: Forged Alliance online \
 with people across the globe. Provides new game play modes, including cooperative play, \
 ranked ladder play, and featured mods.',
-    author='FA Forever Community',
-    maintainer='Sheeo',
-    url='http://www.faforever.com',
-    license='GNU General Public License, Version 3',
-    options={'build_exe': build_exe_options, 'bdist_msi': bdist_msi_options},
-    executables=[exe], requires=['bsdiff4', 'sip', 'pygit2', 'PyQt4', 'cx_Freeze', 'cffi', 'py', 'faftools', 'lupa'],
+    author = 'FA Forever Community',
+    maintainer = 'Sheeo',
+    url = 'http://www.faforever.com',
+    license = 'GNU General Public License, Version 3',
+    options = {'build_exe': build_exe_options, 'bdist_msi': bdist_msi_options},
+    executables = [exe], requires = ['bsdiff4', 'sip', 'pygit2', 'PyQt4', 'cx_Freeze', 'cffi', 'py', 'faftools', 'lupa'],
 )

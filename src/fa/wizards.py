@@ -7,7 +7,7 @@ __author__ = 'Thygrrr'
 
 
 class UpgradePage(QtGui.QWizardPage):
-    def __init__(self, parent=None):
+    def __init__(self, parent = None):
         super(UpgradePage, self).__init__(parent)
 
         self.setTitle("Specify Forged Alliance folder")
@@ -65,7 +65,7 @@ class UpgradePage(QtGui.QWizardPage):
 
 
 class UpgradePageSC(QtGui.QWizardPage):
-    def __init__(self, parent=None):
+    def __init__(self, parent = None):
         super(UpgradePageSC, self).__init__(parent)
 
         self.setTitle("Specify Supreme Commander folder")

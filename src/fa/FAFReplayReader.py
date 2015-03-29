@@ -61,17 +61,17 @@ class FAFReplayReader(QIODevice):
             required = 36 - len(self._fafheader)
             if required > 0:
                 self._fafheader += self._readTarget(required)
-                
+
                 if 36 - len(self._fafheader) > 0:
                     return b''
-                
+
             json_len = unpack('<l', self._fafheader[32:36])[0]
 
             required = json_len + 36 - len(self._fafheader)
 
             if required > 0:
                 self._fafheader += self._readTarget(required)
-                
+
                 if json_len + 36 - len(self._fafheader) > 0:
                     return b''
 
@@ -84,12 +84,12 @@ class FAFReplayReader(QIODevice):
             if self._pos == self._scfa_data_off:
                 self._state = STATE_SCFADATA
             return data
-        
+
         elif self._state == STATE_SCFADATA:
             uncomp = self._zlib_stream.unconsumed_tail
             uncomp += self._readTarget(nbytes - len(uncomp))
-            return self._zlib_stream.decompress( uncomp, nbytes)
-        
+            return self._zlib_stream.decompress(uncomp, nbytes)
+
     def close(self):
         self._target_device.close()
         super(FAFReplayReader, self).close()

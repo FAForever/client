@@ -44,7 +44,7 @@ def test_hotfixFA():
     subfolders = ['\\bin\\bin', '\\bin\\forgedalliance.exe', '\\bin\\supremecommander.exe']
     for sub in subfolders:
 
-        tmpPath  = folderFA + sub
+        tmpPath = folderFA + sub
         path.setGameFolderFA(tmpPath)
         assert path.getGameFolderFA() == tmpPath
 

@@ -15,7 +15,7 @@ FormClass2, BaseClass2 = util.loadUiType("notification_system/ns_settings.ui")
 class NsSettingsDialog(FormClass2, BaseClass2):
     def __init__(self, client):
         BaseClass2.__init__(self)
-        #BaseClass2.__init__(self, client)
+        # BaseClass2.__init__(self, client)
 
         self.setupUi(self)
         self.client = client
@@ -124,7 +124,7 @@ class NotificationHooks(QtCore.QAbstractTableModel):
         if not index.isValid():
             return None
 
-        #if role == QtCore.Qt.TextAlignmentRole and index.column() != 0:
+        # if role == QtCore.Qt.TextAlignmentRole and index.column() != 0:
         #    return QtCore.Qt.AlignHCenter
 
         if role == QtCore.Qt.CheckStateRole:

@@ -23,7 +23,7 @@ UNTRUSTED_GAME_VERSION = VALID_GAME_VERSION_INFO.copy()
 UNTRUSTED_GAME_VERSION["main_mod"] = Mod("Forged Alliance Forever", "faf", Version("fa", "3678", "http://example.com/test.git"))
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope = 'function')
 def version():
     return VALID_GAME_VERSION_INFO.copy()
 

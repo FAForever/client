@@ -4,12 +4,12 @@
 # are made available under the terms of the GNU Public License v3.0
 # which accompanies this distribution, and is available at
 # http://www.gnu.org/licenses/gpl.html
-# 
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -34,7 +34,7 @@ from DrawMargin import *
 from TruncatedGaussianCorrectionFunctions import *
 
 # * Calculates the new ratings for only two players.
-# * 
+# *
 # * When you only have two players, a lot of the math simplifies. The main purpose of this class
 # * is to show the bare minimum of what a TrueSkill implementation should have.
 # */
@@ -43,7 +43,7 @@ class TwoPlayerTrueSkillCalculator (SkillCalculator) :
 
     def __init__(self):
         super(TwoPlayerTrueSkillCalculator, self).__init__(SkillCalculatorSupportedOptions.NONE, TeamsRange.exactly(2), PlayersRange.exactly(1))
-        
+
 
 
     def calculateNewRatings(self, gameInfo, teams, teamRanks) :
@@ -51,14 +51,14 @@ class TwoPlayerTrueSkillCalculator (SkillCalculator) :
         Guard.argumentNotNull(gameInfo, "gameInfo")
         self.validateTeamCountAndPlayersCountPerTeam(teams)
 
-        #Make sure things are in order
+        # Make sure things are in order
         RankSorter.sort(teams, teamRanks)
-        
-        #Since we verified that each team has one player, we know the player is the first one
+
+        # Since we verified that each team has one player, we know the player is the first one
         winningTeamPlayers = teams[0].getAllPlayers()
         winner = winningTeamPlayers[0]
-        winnerPreviousRating = teams[0].getRating(winner)      
-       
+        winnerPreviousRating = teams[0].getRating(winner)
+
         losingTeamPlayers = teams[1].getAllPlayers()
         loser = losingTeamPlayers[0]
         loserPreviousRating = teams[1].getRating(loser)
@@ -69,7 +69,7 @@ class TwoPlayerTrueSkillCalculator (SkillCalculator) :
 
 
         results = RatingContainer()
-        
+
         resultWin = ''
         resultLost = ''
         if wasDraw :
@@ -80,7 +80,7 @@ class TwoPlayerTrueSkillCalculator (SkillCalculator) :
             resultLost = PairwiseComparison.LOSE
 
 
-        
+
         results.setRating(winner, self.calculateNewRating(gameInfo,
                                                               winnerPreviousRating,
                                                               loserPreviousRating,
@@ -91,7 +91,7 @@ class TwoPlayerTrueSkillCalculator (SkillCalculator) :
                                                              winnerPreviousRating,
                                                              resultLost))
 
-        #// And we're done!
+        # // And we're done!
 
         return results
 
@@ -101,12 +101,12 @@ class TwoPlayerTrueSkillCalculator (SkillCalculator) :
         drawMargin = DrawMargin.getDrawMarginFromDrawProbability(gameInfo.getDrawProbability(),
                                                                    gameInfo.getBeta())
 
-        c =sqrt(
+        c = sqrt(
                 square(selfRating.getStandardDeviation())
                 +
                 square(opponentRating.getStandardDeviation())
                 +
-                2*square(gameInfo.getBeta()))
+                2 * square(gameInfo.getBeta()))
 
         winningMean = selfRating.getMean()
         losingMean = opponentRating.getMean()
@@ -134,13 +134,13 @@ class TwoPlayerTrueSkillCalculator (SkillCalculator) :
             rankMultiplier = 1
 
 
-        meanMultiplier = (square(selfRating.getStandardDeviation()) + square(gameInfo.getDynamicsFactor()))/c;
+        meanMultiplier = (square(selfRating.getStandardDeviation()) + square(gameInfo.getDynamicsFactor())) / c;
 
         varianceWithDynamics = square(selfRating.getStandardDeviation()) + square(gameInfo.getDynamicsFactor())
-        stdDevMultiplier = varianceWithDynamics/square(c)
+        stdDevMultiplier = varianceWithDynamics / square(c)
 
-        newMean = selfRating.getMean() + (rankMultiplier*meanMultiplier*v)
-        newStdDev = sqrt(varianceWithDynamics*(1 - w*stdDevMultiplier))
+        newMean = selfRating.getMean() + (rankMultiplier * meanMultiplier * v)
+        newStdDev = sqrt(varianceWithDynamics * (1 - w * stdDevMultiplier))
 
         return  Rating(newMean, newStdDev)
 
@@ -161,19 +161,19 @@ class TwoPlayerTrueSkillCalculator (SkillCalculator) :
 
         player1Rating = team1Ratings[0]
         player2Rating = team2Ratings[0]
-        
-        #// We just use equation 4.1 found on page 8 of the TrueSkill 2006 paper:
+
+        # // We just use equation 4.1 found on page 8 of the TrueSkill 2006 paper:
         betaSquared = square(gameInfo.getBeta())
         player1SigmaSquared = square(player1Rating.getStandardDeviation())
         player2SigmaSquared = square(player2Rating.getStandardDeviation())
 
-        #// This is the square root part of the equation:
-        sqrtPart = sqrt((2*betaSquared) / (2*betaSquared + player1SigmaSquared + player2SigmaSquared))
+        # // This is the square root part of the equation:
+        sqrtPart = sqrt((2 * betaSquared) / (2 * betaSquared + player1SigmaSquared + player2SigmaSquared))
 
-        #// This is the exponent part of the equation:
+        # // This is the exponent part of the equation:
         expPart = exp(
-                (-1*square(player1Rating.getMean() - player2Rating.getMean()))
+                (-1 * square(player1Rating.getMean() - player2Rating.getMean()))
                 /
-                (2*(2*betaSquared + player1SigmaSquared + player2SigmaSquared)))
+                (2 * (2 * betaSquared + player1SigmaSquared + player2SigmaSquared)))
 
-        return sqrtPart*expPart
+        return sqrtPart * expPart

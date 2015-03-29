@@ -4,12 +4,12 @@
 # are made available under the terms of the GNU Public License v3.0
 # which accompanies this distribution, and is available at
 # http://www.gnu.org/licenses/gpl.html
-# 
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -35,13 +35,13 @@ class ModWidget(FormClass, BaseClass):
 
         self.setupUi(self)
         self.parent = parent
-        
+
         self.setStyleSheet(self.parent.client.styleSheet())
-        
+
         self.setWindowTitle(mod.name)
 
         self.mod = mod
-        
+
         self.Title.setText(mod.name)
         self.Description.setText(mod.description)
         modtext = ""
@@ -53,7 +53,7 @@ class ModWidget(FormClass, BaseClass):
         if mod.thumbnail == None:
             self.Picture.setPixmap(util.pixmap("games/unknown_map.png"))
         else:
-            self.Picture.setPixmap(mod.thumbnail.pixmap(100,100))
+            self.Picture.setPixmap(mod.thumbnail.pixmap(100, 100))
 
         self.Comments.setItemDelegate(CommentItemDelegate(self))
         self.BugReports.setItemDelegate(CommentItemDelegate(self))
@@ -66,14 +66,14 @@ class ModWidget(FormClass, BaseClass):
         self.LineBugReport.returnPressed.connect(self.addBugReport)
 
         for item in mod.comments:
-            comment = CommentItem(self,item["uid"])
+            comment = CommentItem(self, item["uid"])
             comment.update(item)
             self.Comments.addItem(comment)
         for item in mod.bugreports:
-            comment = CommentItem(self,item["uid"])
+            comment = CommentItem(self, item["uid"])
             comment.update(item)
             self.BugReports.addItem(comment)
-        
+
     @QtCore.pyqtSlot()
     def download(self):
         if not self.mod.uid in self.parent.uids:
@@ -89,9 +89,9 @@ class ModWidget(FormClass, BaseClass):
     def addComment(self):
         if self.LineComment.text() == "": return
         comment = {"author":self.parent.client.login, "text":self.LineComment.text(),
-                   "date":datetostr(now()), "uid":"%s-%s" % (self.mod.uid, str(len(self.mod.bugreports)+len(self.mod.comments)).zfill(3))}
-        
-        self.parent.client.send(dict(command="modvault",type="addcomment",moduid=self.mod.uid,comment=comment))
+                   "date":datetostr(now()), "uid":"%s-%s" % (self.mod.uid, str(len(self.mod.bugreports) + len(self.mod.comments)).zfill(3))}
+
+        self.parent.client.send(dict(command = "modvault", type = "addcomment", moduid = self.mod.uid, comment = comment))
         c = CommentItem(self, comment["uid"])
         c.update(comment)
         self.Comments.addItem(c)
@@ -103,8 +103,8 @@ class ModWidget(FormClass, BaseClass):
         if self.LineBugReport.text() == "": return
         bugreport = {"author":self.parent.client.login, "text":self.LineBugReport.text(),
                    "date":datetostr(now()), "uid":"%s-%s" % (self.mod.uid, str(len(self.mod.bugreports) + +len(self.mod.comments)).zfill(3))}
-        
-        self.parent.client.send(dict(command="modvault",type="addbugreport",moduid=self.mod.uid,bugreport=bugreport))
+
+        self.parent.client.send(dict(command = "modvault", type = "addbugreport", moduid = self.mod.uid, bugreport = bugreport))
         c = CommentItem(self, bugreport["uid"])
         c.update(bugreport)
         self.BugReports.addItem(c)
@@ -112,8 +112,8 @@ class ModWidget(FormClass, BaseClass):
         self.LineBugReport.setText("")
 
     @QtCore.pyqtSlot()
-    def like(self): #the server should determine if the user hasn't already clicked the like button for this mod.
-        self.parent.client.send(dict(command="modvault",type="like", uid=self.mod.uid))
+    def like(self):  # the server should determine if the user hasn't already clicked the like button for this mod.
+        self.parent.client.send(dict(command = "modvault", type = "like", uid = self.mod.uid))
         self.likeButton.setEnabled(False)
 
 class CommentItemDelegate(QtGui.QStyledItemDelegate):
@@ -121,30 +121,30 @@ class CommentItemDelegate(QtGui.QStyledItemDelegate):
     TEXTHEIGHT = 60
     def __init__(self, *args, **kwargs):
         QtGui.QStyledItemDelegate.__init__(self, *args, **kwargs)
-        
+
     def paint(self, painter, option, index, *args, **kwargs):
         self.initStyleOption(option, index)
-                
+
         painter.save()
-        
+
         html = QtGui.QTextDocument()
         html.setHtml(option.text)
-                
-        option.text = ""  
-        option.widget.style().drawControl(QtGui.QStyle.CE_ItemViewItem, option, painter, option.widget)
-        
 
-        #Description
-        painter.translate(option.rect.left() + 10, option.rect.top()+10)
+        option.text = ""
+        option.widget.style().drawControl(QtGui.QStyle.CE_ItemViewItem, option, painter, option.widget)
+
+
+        # Description
+        painter.translate(option.rect.left() + 10, option.rect.top() + 10)
         clip = QtCore.QRectF(0, 0, option.rect.width(), option.rect.height())
         html.drawContents(painter, clip)
-  
+
         painter.restore()
-        
+
 
     def sizeHint(self, option, index, *args, **kwargs):
         self.initStyleOption(option, index)
-        
+
         html = QtGui.QTextDocument()
         html.setHtml(option.text)
         html.setTextWidth(self.TEXTWIDTH)
@@ -165,7 +165,7 @@ class CommentItem(QtGui.QListWidgetItem):
         self.text = dic["text"]
         self.author = dic["author"]
         self.date = strtodate(dic["date"])
-        self.setText(self.FORMATTER_COMMENT.format(text=self.text,author=self.author,date=str(self.date)))
+        self.setText(self.FORMATTER_COMMENT.format(text = self.text, author = self.author, date = str(self.date)))
 
     def __ge__(self, other):
         return self.date > other.date

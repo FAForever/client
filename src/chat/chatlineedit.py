@@ -4,12 +4,12 @@
 # are made available under the terms of the GNU Public License v3.0
 # which accompanies this distribution, and is available at
 # http://www.gnu.org/licenses/gpl.html
-# 
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -44,14 +44,14 @@ class ChatLineEdit(QtGui.QLineEdit):
         self.LocalChatterNameList = []
         self.currenLocalChatter = None
 
-        
+
     def setChatters(self, chatters):
         self.chatters = chatters
 
-   
+
     def event(self, event):
         if (event.type() == QtCore.QEvent.KeyPress):
-            #Swallow a selection of keypresses that we want for our history support.
+            # Swallow a selection of keypresses that we want for our history support.
             if (event.key() == QtCore.Qt.Key_Tab):
                 self.tryCompletion()
                 return True
@@ -87,23 +87,23 @@ class ChatLineEdit(QtGui.QLineEdit):
 
     def tryCompletion(self):
         if (self.completionStarted == False):
-            #no completion on empty line
+            # no completion on empty line
             if (self.text() == ""):
                 return
-            #no completion if last character is a space
-            if (self.text().rfind(" ") == (len(self.text()) -1)):
-                return            
+            # no completion if last character is a space
+            if (self.text().rfind(" ") == (len(self.text()) - 1)):
+                return
 
-            self.completionStarted = True   
+            self.completionStarted = True
             self.LocalChatterNameList = []
-            self.completionText = self.text().split()[-1]                   # take last word from line
-            self.completionLine = self.text().rstrip(self.completionText)   # store line to be completed without the completion string
-            
-            #make a copy of users because the list might change frequently giving all kind of problems
+            self.completionText = self.text().split()[-1]  # take last word from line
+            self.completionLine = self.text().rstrip(self.completionText)  # store line to be completed without the completion string
+
+            # make a copy of users because the list might change frequently giving all kind of problems
             for name in self.chatters:
                 if (name.lower().startswith(self.completionText.lower())):
                     self.LocalChatterNameList.append(name)
-            
+
             if (len(self.LocalChatterNameList) > 0):
                 self.LocalChatterNameList.sort(lambda a, b: cmp(a.lower(), b.lower()))
                 self.currenLocalChatter = 0;
@@ -125,17 +125,17 @@ class ChatLineEdit(QtGui.QLineEdit):
 
 
     def prevHistory(self):
-        if (self.currentHistoryIndex != None): # no history nothing to do
-            if (self.currentHistoryIndex > 0 and self.historyShown == True): #check for boundaries and only change index is hostory is alrady shown
+        if (self.currentHistoryIndex != None):  # no history nothing to do
+            if (self.currentHistoryIndex > 0 and self.historyShown == True):  # check for boundaries and only change index is hostory is alrady shown
                 self.currentHistoryIndex = self.currentHistoryIndex - 1
             self.historyShown = True
             self.setText(self.history[self.currentHistoryIndex])
-    
-    
+
+
     def nextHistory(self):
         if (self.currentHistoryIndex != None):
-            if (self.currentHistoryIndex < len(self.history)-1 and self.historyShown == True): #check for boundaries and only change index is hostory is alrady shown
+            if (self.currentHistoryIndex < len(self.history) - 1 and self.historyShown == True):  # check for boundaries and only change index is hostory is alrady shown
                 self.currentHistoryIndex = self.currentHistoryIndex + 1
             self.historyShown = True
-            self.setText(self.history[self.currentHistoryIndex])          
+            self.setText(self.history[self.currentHistoryIndex])
 

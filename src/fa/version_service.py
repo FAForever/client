@@ -25,7 +25,7 @@ class VersionService(IRESTService):
         :param mod: identifier for the mod, eg 'faf', 'blackops'
         :return: List of versions available of the mod
         """
-        url = VERSION_SERVICE_URL + "/default/"+mod
+        url = VERSION_SERVICE_URL + "/default/" + mod
         logger.debug("Getting default versions from: " + url)
         return self._get(url)
 

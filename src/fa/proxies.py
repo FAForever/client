@@ -4,12 +4,12 @@
 # are made available under the terms of the GNU Public License v3.0
 # which accompanies this distribution, and is available at
 # http://www.gnu.org/licenses/gpl.html
-# 
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -37,7 +37,7 @@ UNIT16 = 8
 class proxies(QtCore.QObject):
     __logger = logging.getLogger(__name__)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent = None):
         super(proxies, self).__init__(parent)
 
         self.client = parent
@@ -74,12 +74,12 @@ class proxies(QtCore.QObject):
                 self.proxiesDestination[i] = None
         if errored:
             QtGui.QMessageBox.warning(self.client, "Cannot use proxy server", "FAF is unable to bind the port <b>12000 to 12011 on TCP</b>.<br>Please check your firewall settings.<br><b>You may experience connections problems until it's fixed.</b>")
-            
+
         self.proxySocket = QtNetwork.QTcpSocket(self)
         self.proxySocket.connected.connect(self.connectedProxy)
         self.proxySocket.readyRead.connect(self.readData)
         self.proxySocket.disconnected.connect(self.disconnectedFromProxy)
-        
+
         self.blockSize = 0
         self.uid = None
         self.canClose = False
@@ -88,21 +88,21 @@ class proxies(QtCore.QObject):
         self.testedLoopbackAmount = {}
         self.testedLoopback = []
         self.testing = False
-        
+
     def testingProxy(self):
         self.testing = True
         self.testedPortsAmount = {}
         self.testedPorts = []
         self.testedLoopbackAmount = {}
         self.testedLoopback = []
-                    
+
     def stopTesting(self):
         self.testing = False
         self.testedPortsAmount = {}
         self.testedPorts = []
         self.testedLoopbackAmount = {}
         self.testedLoopback = []
-    
+
     def setUid(self, uid):
         self.uid = uid
 
@@ -116,7 +116,7 @@ class proxies(QtCore.QObject):
         self.proxySocket.connectToHost(FAF_PROXY_HOST, FAF_PROXY_PORT)
         if self.proxySocket.waitForConnected(10000):
             self.__logger.info("Connected to proxy server " + self.proxySocket.peerName() + ":" + str(self.proxySocket.peerPort()))
-        
+
         self.canClose = False
         self.testedPorts = []
         self.testedLoopback = []
@@ -124,7 +124,7 @@ class proxies(QtCore.QObject):
 
     def bindSocket(self, port, uid):
         self.proxiesDestination[port] = uid
-        self.__logger.debug("Binding socket "+ str(port) +" (local port : "+ str(self.proxies[port].localPort()) +") for uid "+ str(uid))
+        self.__logger.debug("Binding socket " + str(port) + " (local port : " + str(self.proxies[port].localPort()) + ") for uid " + str(uid))
         if not self.proxySocket.state() == QtNetwork.QAbstractSocket.ConnectedState :
             self.connectToProxy()
         return self.proxies[port].localPort()
@@ -159,7 +159,7 @@ class proxies(QtCore.QObject):
             stamp_name = 'try_reconn_timestamp'
             if by_intermediate:
                 stamp_name = 'try_ind_reconn_timestamp'
-                
+
             if p2p[stamp_name] + self.P2P_RECONNECT_RATELIMIT < time.time():
                 if by_intermediate:
                     self.__logger.info("attempting reconnect by intermediary to " + p2p['public_addr'] + ":" + str(p2p['public_port']))
@@ -189,7 +189,7 @@ class proxies(QtCore.QObject):
                 else:
                     self.__logger.info("attempting to reconnect to " + p2p['public_addr'] + ":" + str(p2p['public_port']))
                     p = QtCore.QByteArray(self.reconn_escape_prefix)
-                    p.append(chr(23)) # 23 = ask peer to update address
+                    p.append(chr(23))  # 23 = ask peer to update address
                     p.append(p2p['our_reconn_tag'])
                     psock.writeDatagram(p, p2p['public_addr_qt'], p2p['public_port'])
                     p2p['reconnect_attempts'] += 1
@@ -216,7 +216,7 @@ class proxies(QtCore.QObject):
         # matter
         #
         # we also only act if FA.exe reports bottleneck
-        
+
         if time.time() - p2p['pub_last_recv'] > 10 and self.p2p_bottleneck_:
             if p2p['currently_reconnecting']:
                 if p2p['reconnect_attempts'] >= self.P2P_INDIRECT_RECONNECT_AFTER:
@@ -240,7 +240,7 @@ class proxies(QtCore.QObject):
     def p2p_handle_public(self, dgram, host, port, p2p):
         psock = self.p2p_public_sock
         if dgram.startsWith(self.reconn_escape_prefix):
-            hexdump = ''.join([hex(ord(dgram[i])).replace('0x',' ') for i in range(0, len(dgram))])
+            hexdump = ''.join([hex(ord(dgram[i])).replace('0x', ' ') for i in range(0, len(dgram))])
             self.__logger.debug("recv prefixed dgram " + hexdump)
             # one of our prefixed messages
             if dgram.at(15) == chr(1) or dgram.at(15) == chr(11):
@@ -256,7 +256,7 @@ class proxies(QtCore.QObject):
                 if 'their_reconn_tag' in p2p and p2p['their_reconn_tag'] != theirtag or dgram.at(15) == chr(11) and not 'their_reconn_tag' in p2p:
                     self.__logger.info("peer wants to send a different tag now. we ignore")
                     p = QtCore.QByteArray(self.reconn_escape_prefix)
-                    p.append(chr(3)) # decline
+                    p.append(chr(3))  # decline
                     p.append(theirtag)
                     psock.writeDatagram(p, host, port)
                 else:
@@ -264,7 +264,7 @@ class proxies(QtCore.QObject):
                     # but in case they send the same tag twice, we assume our ack got lost
                     p2p['their_reconn_tag'] = theirtag
                     p = QtCore.QByteArray(self.reconn_escape_prefix)
-                    p.append(chr(2)) # 2 = ack tag
+                    p.append(chr(2))  # 2 = ack tag
                     p.append(theirtag)
                     psock.writeDatagram(p, host, port)
             elif dgram.at(15) == chr(2):
@@ -285,7 +285,7 @@ class proxies(QtCore.QObject):
             elif dgram.at(15) == chr(3):
                 # they decline our tag
                 tag = dgram.mid(16, 8)
-                
+
                 if p2p['our_reconn_tag'] == tag:
                     self.__logger.info("peer " + host.toString() + ":" + str(port) + " declines our tag")
                     p2p['our_reconn_tag_declined'] = 1
@@ -321,7 +321,7 @@ class proxies(QtCore.QObject):
                     if p2p['public_addr_qt'] != host or p2p['public_port'] != port:
                         self.__logger.info("passing on reconn-by-intermediary to " + p2p['public_addr'] + ":" + str(p2p['public_port']))
                         p = QtCore.QByteArray(self.reconn_escape_prefix)
-                        p.append(chr(18)) # 18 = reconn-by-intermediary-2
+                        p.append(chr(18))  # 18 = reconn-by-intermediary-2
                         p.append(dgram.mid(16, 8))
                         h32 = host.toIPv4Address()
                         for ii in range(4, 0, -1):
@@ -442,9 +442,9 @@ class proxies(QtCore.QObject):
                 if p2p['our_reconn_tag_ack']:
                     # we only want to get an ack from a peer that acked
                     # us before
-                    p.append(chr(11)) # 11 = confirm tag
+                    p.append(chr(11))  # 11 = confirm tag
                 else:
-                    p.append(chr(1)) # 1 = offer tag
+                    p.append(chr(1))  # 1 = offer tag
                 p.append(tag)
                 self.__logger.info("sending tag to peer " + host.toString() + ":" + str(port))
                 psock.writeDatagram(p, host, port)
@@ -458,7 +458,7 @@ class proxies(QtCore.QObject):
             dgram, host, port = psock.readDatagram(size)
             remote_str = host.toString() + ':' + str(port)
             if remote_str in self.p2p_by_public:
-                #self.__logger.info("UDP forward " + remote_str + "->127.0.0.1:" + str(self.client.gamePort + 1))
+                # self.__logger.info("UDP forward " + remote_str + "->127.0.0.1:" + str(self.client.gamePort + 1))
                 p2p = self.p2p_by_public[remote_str]
                 self.p2p_handle_public(QtCore.QByteArray(dgram), host, port, p2p)
             else:
@@ -480,7 +480,7 @@ class proxies(QtCore.QObject):
                 # peer has to make sure he is not learning any new tags from us
                 self.p2p_translate_to_local(remote_str, None)
                 if remote_str in self.p2p_by_public:
-                    #self.__logger.info("UDP forward " + remote_str + "->127.0.0.1:" + str(self.client.gamePort + 1))
+                    # self.__logger.info("UDP forward " + remote_str + "->127.0.0.1:" + str(self.client.gamePort + 1))
                     p2p = self.p2p_by_public[remote_str]
                     self.p2p_handle_public(QtCore.QByteArray(dgram), host, port, p2p);
                 else:
@@ -497,7 +497,7 @@ class proxies(QtCore.QObject):
         num_found = 0
         remove_pub = [ ]
         remove_loc = [ ]
-        
+
         for pub, p2p in self.p2p_by_public.iteritems():
             if p2p['peeruid'] == uid:
                 if not connected and p2p['connected']:
@@ -561,7 +561,7 @@ class proxies(QtCore.QObject):
 
     def p2p_state_finish(self, relay):
         self.p2p_public_sock.close()
-        self.p2p_by_local  = { }
+        self.p2p_by_local = { }
         self.p2p_by_public = { }
         # change back when P2PReconnect
         self.p2p_proxy_enable = 0
@@ -574,7 +574,7 @@ class proxies(QtCore.QObject):
             errored = True
         self.p2p_public_sock.readyRead.connect(self.p2p_read_public)
         self.p2p_by_public = {}
-        self.p2p_by_local  = {}
+        self.p2p_by_local = {}
         self.p2p_game_launched = 0
         self.p2p_bottleneck_ = 0
         self.p2p_proxy_enable = 1
@@ -593,10 +593,10 @@ class proxies(QtCore.QObject):
                 if not port in self.testedLoopback:
                     self.__logger.info("Testing proxy : Received data from proxy on port %i" % self.proxies[port].localPort())
                     self.testedLoopback.append(port)
-                
+
             if len(self.testedLoopback) == len(self.proxies):
                 self.__logger.info("Testing proxy : All ports received data correctly")
-                self.client.stopTesting(success=True)
+                self.client.stopTesting(success = True)
                 self.testing = False
         else:
             if not port in self.testedPorts:
@@ -610,12 +610,12 @@ class proxies(QtCore.QObject):
 
     def readData(self):
         self.proxy_lastdata = time.time()
-        if self.proxySocket.isValid() :           
+        if self.proxySocket.isValid() :
             if self.proxySocket.bytesAvailable() == 0 :
                 return
             ins = QtCore.QDataStream(self.proxySocket)
             ins.setVersion(QtCore.QDataStream.Qt_4_2)
-            while ins.atEnd() == False :                             
+            while ins.atEnd() == False :
                 if self.proxySocket.isValid() :
                     if self.blockSize == 0:
                         if self.proxySocket.isValid() :
@@ -625,23 +625,23 @@ class proxies(QtCore.QObject):
                             self.blockSize = ins.readUInt32()
                         else :
                             return
-        
+
                     if self.proxySocket.isValid() :
                         if self.proxySocket.bytesAvailable() < self.blockSize:
                             return
 
                     else :
-                        return  
+                        return
                     port = ins.readUInt16()
-                    packet  = ins.readQVariant()
-                    
+                    packet = ins.readQVariant()
+
                     self.tranfertToUdp(port, packet)
-                    
+
                     self.blockSize = 0
-      
-                else : 
-                    return    
-            return                
+
+                else :
+                    return
+            return
 
     def sendUid(self, *args, **kwargs) :
         if self.uid:
@@ -649,35 +649,35 @@ class proxies(QtCore.QObject):
             reply = QtCore.QByteArray()
             stream = QtCore.QDataStream(reply, QtCore.QIODevice.WriteOnly)
             stream.setVersion(QtCore.QDataStream.Qt_4_2)
-            stream.writeUInt32(0)           
-                
-            stream.writeUInt16(self.uid)        
+            stream.writeUInt32(0)
+
+            stream.writeUInt16(self.uid)
             stream.device().seek(0)
-            
+
             stream.writeUInt32(reply.size() - 4)
-    
+
             if self.proxySocket.write(reply) == -1 :
                 # we may be reconnecting and dont wanna flood the logs
                 pass
-                #self.__logger.warn("error writing to proxy server !")
+                # self.__logger.warn("error writing to proxy server !")
 
     def sendReply(self, port, uid, packet, *args, **kwargs) :
         reply = QtCore.QByteArray()
         stream = QtCore.QDataStream(reply, QtCore.QIODevice.WriteOnly)
         stream.setVersion(QtCore.QDataStream.Qt_4_2)
-        stream.writeUInt32(0)           
-            
+        stream.writeUInt32(0)
+
         stream.writeUInt16(port)
-        stream.writeUInt16(uid)        
+        stream.writeUInt16(uid)
         stream.writeQVariant(packet)
         stream.device().seek(0)
-        
+
         stream.writeUInt32(reply.size() - 4)
 
         if self.proxySocket.write(reply) == -1 :
             # we may be reconnecting and dont wanna flood the logs
             pass
-            #self.__logger.warn("error writing to proxy server !")
+            # self.__logger.warn("error writing to proxy server !")
 
     def closeSocket(self):
         if self.proxySocket.state() == QtNetwork.QAbstractSocket.ConnectedState :
@@ -686,7 +686,7 @@ class proxies(QtCore.QObject):
             self.proxySocket.disconnectFromHost()
             for port in self.proxies:
                 self.releaseSocket(port)
-    
+
     def processPendingDatagrams(self, i):
         if self.p2p_proxy_enable and self.proxy_lastdata + 10 < time.time():
             # reconnect to the proxy
@@ -699,25 +699,25 @@ class proxies(QtCore.QObject):
             self.connectToProxy()
             # give it 10 seconds to get incoming data again
             self.proxy_lastdata = time.time()
-            
+
         udpSocket = self.proxies[i]
         while udpSocket.hasPendingDatagrams():
             datagram, _, _ = udpSocket.readDatagram(udpSocket.pendingDatagramSize())
             if self.testing:
                 if not i in self.testedPortsAmount:
                     self.testedPortsAmount[i] = 0
-                    
+
                 if self.testedPortsAmount[i] < 10:
                     self.testedPortsAmount[i] = self.testedPortsAmount[i] + 1
                 else:
                     if not i in self.testedPorts:
                         self.__logger.info("Testing proxy : Received data from FA on port %i" % self.proxies[i].localPort())
                         self.testedPorts.append(i)
-                        
+
                 if len(self.testedPorts) == len(self.proxies):
                     self.__logger.info("Testing proxy : All ports triggered correctly")
                 self.sendReply(i, 1, QtCore.QByteArray(datagram))
-                
+
             else:
                 if not i in self.testedLoopback:
                     self.__logger.debug("Received data from FA on port %i" % self.proxies[i].localPort())
@@ -732,7 +732,7 @@ class proxies(QtCore.QObject):
     def disconnectedFromProxy(self):
         '''Disconnection'''
         self.testedPorts = []
-        self.testedLoopback = []        
+        self.testedLoopback = []
         self.__logger.info("disconnected from proxy server")
         if self.canClose == False:
             self.__logger.info("reconnecting to proxy server")

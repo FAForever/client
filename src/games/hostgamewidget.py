@@ -4,12 +4,12 @@
 # are made available under the terms of the GNU Public License v3.0
 # which accompanies this distribution, and is available at
 # http://www.gnu.org/licenses/gpl.html
-# 
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -36,7 +36,7 @@ import util
 import logging
 logger = logging.getLogger(__name__)
 
-RANKED_SEARCH_EXPANSION_TIME = 10000 #milliseconds before search radius expands
+RANKED_SEARCH_EXPANSION_TIME = 10000  # milliseconds before search radius expands
 
 SEARCH_RADIUS_INCREMENT = 0.05
 SEARCH_RADIUS_MAX = 0.25
@@ -53,11 +53,11 @@ class HostgameWidget(FormClass, BaseClass):
         logger.debug(allow_map_choice)
         self.setupUi(self)
         self.parent = parent
-        
+
         self.parent.options = []
 
         self.setStyleSheet(self.parent.client.styleSheet())
-        
+
         self.setWindowTitle("Host Game: " + item.name)
         self.titleEdit.setText(self.parent.gamename)
         self.passEdit.setText(self.parent.gamepassword)
@@ -74,7 +74,7 @@ class HostgameWidget(FormClass, BaseClass):
         self.message['featured_mod'] = "faf"
         self.message['mapname'] = self.parent.gamemap
         self.message['state'] = "open"
-        
+
         self.game.update(self.message, self.parent.client)
 
         versions_request.done.connect(self.set_versions)
@@ -89,7 +89,7 @@ class HostgameWidget(FormClass, BaseClass):
             allmaps = dict()
             for map in maps.maps.keys() + maps.getUserMaps():
                 allmaps[map] = maps.getDisplayName(map)
-            for (map, name) in sorted(allmaps.iteritems(), key=lambda x: x[1]):
+            for (map, name) in sorted(allmaps.iteritems(), key = lambda x: x[1]):
                 if map == self.parent.gamemap:
                     index = i
                 self.mapList.addItem(name, map)
@@ -97,30 +97,30 @@ class HostgameWidget(FormClass, BaseClass):
             self.mapList.setCurrentIndex(index)
         else:
             self.mapList.hide()
-            
+
         icon = maps.preview(self.parent.gamemap, True)
 
         if not icon:
             icon = util.icon("games/unknown_map.png", False, True)
-                
+
 
         self.mods = {}
-        #this makes it so you can select every non-ui_only mod
+        # this makes it so you can select every non-ui_only mod
         for mod in modvault.getInstalledMods():
             if mod.ui_only:
                 continue
             self.mods[mod.totalname] = mod
             self.modList.addItem(mod.totalname)
 
-        names = [mod.totalname for mod in modvault.getActiveMods(uimods=False)]
+        names = [mod.totalname for mod in modvault.getActiveMods(uimods = False)]
         logger.debug("Active Mods detected: %s" % str(names))
         for name in names:
             l = self.modList.findItems(name, QtCore.Qt.MatchExactly)
             logger.debug("found item: %s" % l[0].text())
             if l: l[0].setSelected(True)
-            
-        #self.mapPreview.setPixmap(icon)
-        
+
+        # self.mapPreview.setPixmap(icon)
+
         self.mapList.currentIndexChanged.connect(self.mapChanged)
         self.hostButton.released.connect(self.hosting)
         self.titleEdit.textChanged.connect(self.updateText)
@@ -165,7 +165,7 @@ class HostgameWidget(FormClass, BaseClass):
 
     def versionChanged(self, index):
         self.selectedVersion = index
-        
+
     def updateText(self, text):
         self.message['title'] = text
         self.game.update(self.message, self.parent.client)
@@ -185,7 +185,7 @@ class HostgameWidget(FormClass, BaseClass):
         icon = maps.preview(self.parent.gamemap, True)
         if not icon:
             icon = util.icon("games/unknown_map.png", False, True)
-        #self.mapPreview.setPixmap(icon)
+        # self.mapPreview.setPixmap(icon)
         self.message['mapname'] = self.parent.gamemap
         self.game.update(self.message, self.parent.client)
 

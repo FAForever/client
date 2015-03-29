@@ -21,7 +21,7 @@ TEST_BRANCH_COMMIT = "b20f559f4e1857ea78783a84ffec4ddfaa60f557"
 
 # TODO: Have TEST_REPO as a submodule and use the local repository
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope = "module")
 def prefetched_repo(request):
     tmpdir = py.test.ensuretemp(__name__ + ".prefetched_repo")
     repo_dir = os.path.join(str(tmpdir), "test_repo_fixture")

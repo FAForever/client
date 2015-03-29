@@ -42,25 +42,25 @@ class Process(QtCore.QProcess):
         if self.info and not self.info.setdefault('complete', False):
             if self.info['uid'] == message['uid']:
                 if message['state'] == "playing":
-                    self.info = dict(self.info.items() + message.items())   # don't we all love python?
+                    self.info = dict(self.info.items() + message.items())  # don't we all love python?
                     self.info['complete'] = True
                     logger.warn("Deprecated game info message: " + str(self.info))
 
-    def run(self, info, arguments, detach=False, init_file=None):
+    def run(self, info, arguments, detach = False, init_file = None):
             """
             Performs the actual running of ForgedAlliance.exe
             in an attached process.
             """
-            #prepare actual command for launching
+            # prepare actual command for launching
             executable = os.path.join(config.Settings.get('BIN', 'FA'), "ForgedAllianceForever.exe")
             logger.info(arguments)
             command = '"' + executable + '" ' + " ".join(map(lambda (k, v): '/%s "%s"' % (k, v), arguments))
 
             logger.info("Running FA with info: " + str(info))
             logger.info("Running FA via command: " + command)
-            #launch the game as a stand alone process
+            # launch the game as a stand alone process
             if not instance.running():
-                #CAVEAT: This is correct now (and was wrong in 0.4.x)! All processes are start()ed asynchronously, startDetached() would simply detach it from our QProcess object, preventing signals/slot from being emitted.
+                # CAVEAT: This is correct now (and was wrong in 0.4.x)! All processes are start()ed asynchronously, startDetached() would simply detach it from our QProcess object, preventing signals/slot from being emitted.
                 self.info = info
 
                 self.setWorkingDirectory(os.path.dirname(executable))

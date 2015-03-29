@@ -8,9 +8,9 @@ from faftools.api.irestservice import IRESTService
 __author__ = 'Sheeo'
 
 network_manager = flexmock()
-signal_mock = flexmock(connect=lambda func: True)
+signal_mock = flexmock(connect = lambda func: True)
 restmock = flexmock(IRESTService)
-rest_response_mock = flexmock(done=signal_mock, error=signal_mock)
+rest_response_mock = flexmock(done = signal_mock, error = signal_mock)
 
 
 def test_returns_default_versions_for_mod():
