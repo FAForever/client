@@ -51,6 +51,14 @@ def make_dirs():
         if not os.path.isdir(d):
             os.makedirs(d)
 
+
+def rotate_logs():
+    log_dir = Settings.get('DIR', 'LOG')
+    faf_log_file = os.path.join(log_dir, 'forever.log')
+    # Same dirty implementation for now
+    if os.path.isfile(faf_log_file) and os.path.getsize(faf_log_file) > Settings.get('MAX_SIZE', 'LOG'):
+        os.remove(faf_log_file)
+
 v = version.get_git_version()
 
 if getattr(sys, 'frozen', False):
@@ -86,4 +94,5 @@ else:
 
     from develop import defaults
     make_dirs()
+    rotate_logs()
     logging.warning("FAF development version: " + repr(version.get_git_version()))

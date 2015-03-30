@@ -344,7 +344,6 @@
     <addaction name="actionLinkWebsite"/>
     <addaction name="actionLinkForums"/>
     <addaction name="actionLinkWiki"/>
-    <addaction name="actionLinkGitHub"/>
    </widget>
    <addaction name="menuLinks"/>
    <addaction name="menuOptions"/>
@@ -363,11 +362,6 @@
   <action name="actionLinkWiki">
    <property name="text">
     <string>Wiki</string>
-   </property>
-  </action>
-  <action name="actionLinkGitHub">
-   <property name="text">
-    <string>GitHub</string>
    </property>
   </action>
   <action name="actionShowLogs">
