@@ -1,8 +1,8 @@
 pycparser==2.10
 bsdiff4==1.1.4
 cx_Freeze==4.3.3
-matplotlib==1.4.0
 numpy==1.8.2
+matplotlib==1.4.0
 py==1.4.25
 pytest==2.6.3
 pytest-qt==1.2.2
