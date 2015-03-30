@@ -30,7 +30,7 @@ from types import IntType, FloatType, ListType, DictType
 
 from client import ClientState, MUMBLE_URL, WEBSITE_URL, WIKI_URL, \
     FORUMS_URL, UNITDB_URL, SUPPORT_URL, TICKET_URL, GAME_PORT_DEFAULT, LOBBY_HOST, \
-    LOBBY_PORT, LOCAL_REPLAY_PORT, STEAMLINK_URL, GITHUB_URL
+    LOBBY_PORT, LOCAL_REPLAY_PORT, STEAMLINK_URL
 
 import logging
 logger = logging.getLogger(__name__)
@@ -711,7 +711,6 @@ class ClientWindow(FormClass, BaseClass):
         self.actionLink_account_to_Steam.triggered.connect(self.linkToSteam)
         self.actionLinkWebsite.triggered.connect(self.linkWebsite)
         self.actionLinkWiki.triggered.connect(self.linkWiki)
-        self.actionLinkGitHub.triggered.connect(self.linkGitHub)
         self.actionLinkForums.triggered.connect(self.linkForums)
         self.actionLinkUnitDB.triggered.connect(self.linkUnitDB)
 
@@ -838,10 +837,6 @@ class ClientWindow(FormClass, BaseClass):
     @QtCore.pyqtSlot()
     def linkWiki(self):
         QtGui.QDesktopServices.openUrl(QtCore.QUrl(WIKI_URL))
-
-    @QtCore.pyqtSlot()
-    def linkGitHub(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(GITHUB_URL))
 
     @QtCore.pyqtSlot()
     def linkForums(self):
@@ -1011,6 +1006,73 @@ class ClientWindow(FormClass, BaseClass):
     def processTestGameportDatagram(self):
         self.udpTest = True
 
+    def testGamePort(self):
+        '''
+        Here, we test with the server if the current game port set is all right.
+        If not, we propose alternatives to the user
+        '''
+        if self.useUPnP:
+            fa.upnp.createPortMapping(self.localIP, self.gamePort, "UDP")
+
+        #binding the port
+        udpSocket = QtNetwork.QUdpSocket(self)
+        udpSocket.bind(self.gamePort)
+        udpSocket.readyRead.connect(self.processTestGameportDatagram)
+
+        if udpSocket.localPort() != self.gamePort :
+            logger.error("The game port set (%i) is not available." % self.gamePort)
+            answer = QtGui.QMessageBox.warning(None, "Port Occupied", "FAF has detected that the gameport you choose is not available. Possible reasons:<ul><li><b>FAF is already running</b> (most likely)</li><li>another program is listening on port {port}</li></ul><br>If you click Apply, FAF will port {port2} for this session.".format(port=self.gamePort, port2=udpSocket.localPort()), QtGui.QMessageBox.Apply, QtGui.QMessageBox.Abort)
+            if answer == QtGui.QMessageBox.Apply:
+                self.gamePort = udpSocket.localPort()
+
+            else :
+                udpSocket.close()
+                udpSocket.deleteLater()
+                return False
+        logger.info("The game port is now set to %i" % self.gamePort)
+        #now we try sending a packet to the server
+        logger.info("sending packet to " + LOBBY_HOST)
+
+
+        if udpSocket.writeDatagram(self.login, QtNetwork.QHostAddress(QtNetwork.QHostInfo.fromName(LOBBY_HOST).addresses ()[0]), 30351) == -1 :
+            logger.info("Unable to send UDP Packet")
+            QtGui.QMessageBox.critical(self, "UDP Packet not sent !", "We are not able to send a UDP packet. <br><br>Possible reasons:<ul><li><b>Your firewall is blocking the UDP port {port}.</b></li><li><b>Your router is blocking or routing port {port} in a wrong way.</b></li></ul><br><font size='+2'>How to fix this : </font> <ul><li>Check your firewall and router. <b>More info in the wiki (Links -> Wiki)</li></b><li>You should also consider using <b>uPnP (Options -> Settings -> Gameport)</b></li><li>You should ask for assistance in the TechQuestions chat and/or in the <b>technical forum (Links -> Forums<b>)</li></ul><br><font size='+1'><b>FA will not be able to perform correctly until this issue is fixed.</b></font>".format(port=self.gamePort))
+
+
+
+        self.progress.setCancelButtonText("Cancel")
+        self.progress.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
+        self.progress.setAutoClose(False)
+        self.progress.setAutoReset(False)
+        self.progress.setModal(1)
+        self.progress.setWindowTitle("UDP test...")
+        self.progress.setLabelText("We are waiting for an UDP answer from the server on port %i." % (self.gamePort))
+        self.progress.show()
+
+        timer = time.time()
+        interval = 1
+
+        while self.udpTest == False :
+            QtGui.QApplication.processEvents()
+            if time.time() - timer > interval :
+                udpSocket.writeDatagram(self.login, QtNetwork.QHostAddress("91.236.254.74"), 30351)
+                interval = interval + 1
+
+            if time.time() - timer > 10 :
+                break
+
+        self.progress.close()
+
+        udpSocket.close()
+        udpSocket.deleteLater()
+
+        if not self.udpTest:
+            logger.info("Unable to receive UDP Packet")
+            QtGui.QMessageBox.critical(self, "UDP Packet not received !", "We didn't received any answer from the server. <br><br>Possible reasons:<ul><li><b>Your firewall is blocking the UDP port {port}.</b></li><li><b>Your router is blocking or routing port {port} in a wrong way/to the wrong computer.</b></li></ul><br><font size='+2'>How to fix this : </font> <ul><li>Check your firewall and router. <b>More info in the wiki (Links -> Wiki)</li></b><li>You should also consider using <b>uPnP (Options -> Settings -> Gameport)</b></li><li>You should ask for assistance in the TechQuestions chat and/or in the <b>technical forum (Links -> Forums<b>)</li></ul><br><font size='+1'><b>FA will not be able to perform correctly until this issue is fixed.</b></font>".format(port=self.gamePort))
+
+        return True
+
+
     def doConnect(self):
 
         if not self.replayServer.doListen(LOCAL_REPLAY_PORT):
@@ -1150,7 +1212,7 @@ class ClientWindow(FormClass, BaseClass):
 
 
 
-        if not self.uniqueId:
+        if not self.uniqueId :
             QtGui.QMessageBox.warning(QtGui.QApplication.activeWindow(), "Unable to login", "It seems that you miss some important DLL.<br>Please install :<br><a href =\"http://www.microsoft.com/download/en/confirmation.aspx?id=8328\">http://www.microsoft.com/download/en/confirmation.aspx?id=8328</a> and <a href = \"http://www.microsoft.com/en-us/download/details.aspx?id=17851\">http://www.microsoft.com/en-us/download/details.aspx?id=17851</a><br><br>You probably have to restart your computer after installing them.<br><br>Please visit this link in case of problems : <a href=\"http://forums.faforever.com/forums/viewforum.php?f=3\">http://forums.faforever.com/forums/viewforum.php?f=3</a>", QtGui.QMessageBox.Close)
             return False
         else :
@@ -1166,8 +1228,10 @@ class ClientWindow(FormClass, BaseClass):
 
         self.progress.close()
 
-        if self.state == ClientState.OUTDATED:
-            logger.warn("Client is OUTDATED.")
+
+
+        if self.state == ClientState.OUTDATED :
+                logger.warn("Client is OUTDATED.")
 
         elif self.state == ClientState.ACCEPTED:
             logger.info("Login accepted.")
@@ -1180,14 +1244,20 @@ class ClientWindow(FormClass, BaseClass):
 
             util.crash.CRASH_REPORT_USER = self.login
 
-            # success: save login data (if requested) and carry on
+            if not self.testGamePort() :
+                return False
+
+            #success: save login data (if requested) and carry on
             self.actionSetAutoLogin.setChecked(self.autologin)
             self.updateOptions()
 
             self.progress.close()
+            #This is a triumph... I'm making a note here: Huge success!
+            #logger.debug("Starting heartbeat timer")
+            #self.heartbeatTimer.start(HEARTBEAT)
+            #self.timeout = 0
             self.connected.emit()
             return True
-
         elif self.state == ClientState.REJECTED:
             logger.warning("Login rejected.")
             #seems that there isa bug in a key ..
