@@ -7,7 +7,7 @@ tar xzf v0.22.0.tar.gz
 cd libgit2-0.22.0/
 cmake -Wno-dev .
 make --quiet
-sudo ldconfig
 sudo make install --quiet
+sudo ldconfig
 sudo pip install pygit2
 python -c 'import pygit2;print("SUCCESS")'
