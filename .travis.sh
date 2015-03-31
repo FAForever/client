@@ -10,4 +10,5 @@ make --quiet
 sudo make install --quiet
 sudo ldconfig
 sudo pip install pygit2
-python -c 'import pygit2;print("SUCCESS")'
+status=$( python -c 'import pygit2;print("SUCCESS") )
+echo "$status"
