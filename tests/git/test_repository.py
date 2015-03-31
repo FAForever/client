@@ -112,7 +112,7 @@ def test_has_all_tags_after_fetch(prefetched_repo):
 def test_adds_remote_faf_after_clone(tmpdir):
     repo_dir = str(tmpdir.join("test_repo"))
     test_repo = Repository(repo_dir, "http://faforever.com")
-    test_repo.repo.remotes.rename("origin", "faforever")
+    test_repo.repo.remotes.rename("faf", "faforever")
 
     test_repo = Repository(repo_dir, TEST_REPO_URL)
     assert TEST_REPO_URL in test_repo.remote_urls
@@ -123,7 +123,7 @@ def test_adds_remote_faf_after_clone(tmpdir):
 def test_adds_faf_even_if_same_remote_url_exists_for_other_remote(tmpdir):
     repo_dir = str(tmpdir.join("test_repo"))
     test_repo = Repository(repo_dir, TEST_REPO_URL)
-    test_repo.repo.remotes.rename("origin", "faforever")
+    test_repo.repo.remotes.rename("faf", "faforever")
 
     test_repo = Repository(repo_dir, TEST_REPO_URL)
     assert 2 == len([remote.url for remote in test_repo.repo.remotes if remote.url == TEST_REPO_URL])
