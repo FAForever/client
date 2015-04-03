@@ -59,184 +59,221 @@
      </layout>
     </item>
     <item row="1" column="0">
-     <widget class="QTabWidget" name="mainTabs">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>4</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="focusPolicy">
-       <enum>Qt::NoFocus</enum>
-      </property>
-      <property name="styleSheet">
-       <string notr="true"/>
-      </property>
-      <property name="tabPosition">
-       <enum>QTabWidget::South</enum>
-      </property>
-      <property name="tabShape">
-       <enum>QTabWidget::Rounded</enum>
-      </property>
-      <property name="currentIndex">
-       <number>0</number>
-      </property>
-      <property name="iconSize">
-       <size>
-        <width>30</width>
-        <height>30</height>
-       </size>
-      </property>
-      <property name="documentMode">
-       <bool>false</bool>
-      </property>
-      <property name="movable">
-       <bool>false</bool>
-      </property>
-      <widget class="QWidget" name="whatNewTab">
-       <attribute name="title">
-        <string>What's new ?</string>
-       </attribute>
-       <layout class="QGridLayout" name="gridLayout_6">
-        <property name="margin">
-         <number>0</number>
-        </property>
-        <property name="spacing">
-         <number>0</number>
-        </property>
-        <item row="0" column="0">
-         <widget class="QWebView" name="whatNewsView">
-          <property name="url">
-           <url>
-            <string>about:blank</string>
-           </url>
-          </property>
+     <widget class="QWidget" name="widget" native="true">
+      <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,0">
+       <item>
+        <widget class="QTabWidget" name="mainTabs">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>4</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
+         <property name="tabPosition">
+          <enum>QTabWidget::South</enum>
+         </property>
+         <property name="tabShape">
+          <enum>QTabWidget::Rounded</enum>
+         </property>
+         <property name="currentIndex">
+          <number>0</number>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>30</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="documentMode">
+          <bool>false</bool>
+         </property>
+         <property name="movable">
+          <bool>false</bool>
+         </property>
+         <widget class="QWidget" name="whatNewTab">
+          <attribute name="title">
+           <string>What's new ?</string>
+          </attribute>
+          <layout class="QGridLayout" name="gridLayout_6">
+           <property name="margin">
+            <number>0</number>
+           </property>
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <item row="0" column="0">
+            <widget class="QWebView" name="whatNewsView">
+             <property name="url">
+              <url>
+               <string>about:blank</string>
+              </url>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="chatTab">
-       <attribute name="title">
-        <string>Chat Lobby</string>
-       </attribute>
-       <layout class="QGridLayout" name="gridLayout">
-        <property name="margin">
-         <number>6</number>
-        </property>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="coopTab">
-       <attribute name="title">
-        <string>Coop Missions</string>
-       </attribute>
-       <layout class="QGridLayout" name="gridLayout_14"/>
-      </widget>
-      <widget class="QWidget" name="gamesTab">
-       <attribute name="title">
-        <string>Find Games</string>
-       </attribute>
-       <layout class="QGridLayout" name="gridLayout_7">
-        <property name="margin">
-         <number>6</number>
-        </property>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="tutorialsTab">
-       <attribute name="title">
-        <string>Tutorials</string>
-       </attribute>
-       <layout class="QGridLayout" name="gridLayout_5">
-        <property name="margin">
-         <number>6</number>
-        </property>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="ladderTab">
-       <attribute name="title">
-        <string>Leaderboards</string>
-       </attribute>
-       <layout class="QGridLayout" name="gridLayout_4">
-        <property name="margin">
-         <number>6</number>
-        </property>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="tourneyTab">
-       <attribute name="title">
-        <string>Tournaments</string>
-       </attribute>
-       <layout class="QGridLayout" name="gridLayout_13">
-        <property name="margin">
-         <number>6</number>
-        </property>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="livestreamTab">
-       <attribute name="title">
-        <string>Livestreams</string>
-       </attribute>
-       <layout class="QGridLayout" name="gridLayout_10">
-        <property name="margin">
-         <number>0</number>
-        </property>
-        <item row="0" column="0">
-         <widget class="QWebView" name="LivestreamWebView">
-          <property name="url">
-           <url>
-            <string>about:blank</string>
-           </url>
-          </property>
+         <widget class="QWidget" name="chatTab">
+          <attribute name="title">
+           <string>Chat Lobby</string>
+          </attribute>
+          <layout class="QGridLayout" name="gridLayout">
+           <property name="margin">
+            <number>6</number>
+           </property>
+          </layout>
          </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="replaysTab">
-       <attribute name="title">
-        <string>Replays</string>
-       </attribute>
-       <layout class="QGridLayout" name="gridLayout_2">
-        <property name="margin">
-         <number>6</number>
-        </property>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="vaultsTab">
-       <attribute name="title">
-        <string>Vaults</string>
-       </attribute>
-       <layout class="QGridLayout" name="gridLayout_9">
-        <property name="margin">
-         <number>6</number>
-        </property>
-        <item row="0" column="0">
-         <widget class="QTabWidget" name="topTabs">
-          <property name="currentIndex">
+         <widget class="QWidget" name="coopTab">
+          <attribute name="title">
+           <string>Coop Missions</string>
+          </attribute>
+          <layout class="QGridLayout" name="gridLayout_14"/>
+         </widget>
+         <widget class="QWidget" name="gamesTab">
+          <attribute name="title">
+           <string>Find Games</string>
+          </attribute>
+          <layout class="QGridLayout" name="gridLayout_7">
+           <property name="margin">
+            <number>6</number>
+           </property>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="tutorialsTab">
+          <attribute name="title">
+           <string>Tutorials</string>
+          </attribute>
+          <layout class="QGridLayout" name="gridLayout_5">
+           <property name="margin">
+            <number>6</number>
+           </property>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="ladderTab">
+          <attribute name="title">
+           <string>Leaderboards</string>
+          </attribute>
+          <layout class="QGridLayout" name="gridLayout_4">
+           <property name="margin">
+            <number>6</number>
+           </property>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="tourneyTab">
+          <attribute name="title">
+           <string>Tournaments</string>
+          </attribute>
+          <layout class="QGridLayout" name="gridLayout_13">
+           <property name="margin">
+            <number>6</number>
+           </property>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="livestreamTab">
+          <attribute name="title">
+           <string>Livestreams</string>
+          </attribute>
+          <layout class="QGridLayout" name="gridLayout_10">
+           <property name="margin">
+            <number>0</number>
+           </property>
+           <item row="0" column="0">
+            <widget class="QWebView" name="LivestreamWebView">
+             <property name="url">
+              <url>
+               <string>about:blank</string>
+              </url>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="replaysTab">
+          <attribute name="title">
+           <string>Replays</string>
+          </attribute>
+          <layout class="QGridLayout" name="gridLayout_2">
+           <property name="margin">
+            <number>6</number>
+           </property>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="vaultsTab">
+          <attribute name="title">
+           <string>Vaults</string>
+          </attribute>
+          <layout class="QGridLayout" name="gridLayout_9">
+           <property name="margin">
+            <number>6</number>
+           </property>
+           <item row="0" column="0">
+            <widget class="QTabWidget" name="topTabs">
+             <property name="currentIndex">
+              <number>0</number>
+             </property>
+             <widget class="QWidget" name="mapsTab">
+              <attribute name="title">
+               <string>Maps</string>
+              </attribute>
+              <layout class="QGridLayout" name="gridLayout_11">
+               <property name="margin">
+                <number>0</number>
+               </property>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="modsTab">
+              <attribute name="title">
+               <string>Mods</string>
+              </attribute>
+              <layout class="QGridLayout" name="gridLayout_12">
+               <property name="margin">
+                <number>0</number>
+               </property>
+              </layout>
+             </widget>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+       <item>
+        <widget class="QWidget" name="sidebar" native="true">
+         <property name="minimumSize">
+          <size>
+           <width>100</width>
+           <height>0</height>
+          </size>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_3" rowstretch="0,1" columnstretch="1,0">
+          <property name="topMargin">
+           <number>9</number>
+          </property>
+          <property name="spacing">
            <number>0</number>
           </property>
-          <widget class="QWidget" name="mapsTab">
-           <attribute name="title">
-            <string>Maps</string>
-           </attribute>
-           <layout class="QGridLayout" name="gridLayout_11">
-            <property name="margin">
-             <number>0</number>
+          <item row="0" column="0">
+           <widget class="QLabel" name="friendlistLabel">
+            <property name="text">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Friendlist&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="modsTab">
-           <attribute name="title">
-            <string>Mods</string>
-           </attribute>
-           <layout class="QGridLayout" name="gridLayout_12">
-            <property name="margin">
-             <number>0</number>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
-           </layout>
-          </widget>
-         </widget>
-        </item>
-       </layout>
-      </widget>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="2">
+           <widget class="QWidget" name="friendlistWidget" native="true"/>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </item>
    </layout>
@@ -261,6 +298,8 @@
      <addaction name="actionSetAutoLogin"/>
      <addaction name="separator"/>
      <addaction name="actionLink_account_to_Steam"/>
+     <addaction name="separator"/>
+     <addaction name="actionTestingConnections"/>
      <addaction name="separator"/>
      <addaction name="actionSetGamePath"/>
      <addaction name="actionSetGamePort"/>
@@ -319,6 +358,7 @@
     <addaction name="menuTheme"/>
     <addaction name="menuVoice"/>
     <addaction name="menuNotifications"/>
+    <addaction name="actionFriendlist"/>
     <addaction name="separator"/>
     <addaction name="menuClear"/>
    </widget>
@@ -613,6 +653,14 @@
    </property>
    <property name="text">
     <string>Team Invitations</string>
+   </property>
+  </action>
+  <action name="actionFriendlist">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Friendlist</string>
    </property>
   </action>
  </widget>

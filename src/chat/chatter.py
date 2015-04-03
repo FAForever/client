@@ -261,40 +261,6 @@ class Chatter(QtGui.QTableWidgetItem):
             return
         self.setTextColor(QtGui.QColor(self.lobby.client.getUserColor(self.name)))
 
-    def joinChannel(self):
-        channel, ok = QtGui.QInputDialog.getText(self.lobby.client, "QInputDialog.getText()", "Channel :", QtGui.QLineEdit.Normal)
-        if ok and channel != '':
-            self.lobby.client.joinChannel(self.name, channel)
-
-    def selectAvatar(self):
-        avatarSelection = avatarWidget(self.lobby.client, self.name, personal = True)
-        avatarSelection.exec_()
-
-    def addAvatar(self):
-        avatarSelection = avatarWidget(self.lobby.client, self.name)
-        avatarSelection.exec_()
-
-    def addFriend(self):
-        self.lobby.client.addFriend(self.name)
-
-    def remFriend(self):
-        self.lobby.client.remFriend(self.name)
-
-    def addFoe(self):
-        self.lobby.client.addFoe(self.name)
-
-    def remFoe(self):
-        self.lobby.client.remFoe(self.name)
-
-    def kick(self):
-        pass
-
-    def closeFA(self):
-        self.lobby.client.closeFA(self.name)
-
-    def closeLobby(self):
-        self.lobby.client.closeLobby(self.name)
-
     def doubleClicked(self, item):
         # filter yourself
         if self.lobby.client.login == self.name:
@@ -347,11 +313,11 @@ class Chatter(QtGui.QTableWidgetItem):
 
 
         # Triggers
-        actionStats.triggered.connect(self.viewStats)
-        actionSelectAvatar.triggered.connect(self.selectAvatar)
-        actionReplay.triggered.connect(self.viewReplay)
-        actionVaultReplay.triggered.connect(self.viewVaultReplay)
-        actionJoin.triggered.connect(self.joinInGame)
+        actionStats.triggered.connect(self.lobby.client.api.viewPlayerStats)
+        actionSelectAvatar.triggered.connect(self.lobby.client.api.selectAvatar)
+        actionReplay.triggered.connect(self.lobby.client.api.viewLiveReplay)
+        actionVaultReplay.triggered.connect(self.lobby.client.api.viewVaultReplay)
+        actionJoin.triggered.connect(self.lobby.client.api.joinInGame)
         # actionInvite.triggered.connect(self.invite)
 
         # only for us. Either way, it will display our avatar, not anyone avatar.
@@ -364,25 +330,25 @@ class Chatter(QtGui.QTableWidgetItem):
             # admin and mod menus
             actionAddAvatar = QtGui.QAction("Assign avatar", menu)
             menu.addAction(actionAddAvatar)
-            actionAddAvatar.triggered.connect(self.addAvatar)
+            actionAddAvatar.triggered.connect(self.lobby.client.admin_api.addAvatar)
 
             actionJoinChannel = QtGui.QAction("Join Channel", menu)
             menu.addAction(actionJoinChannel)
-            actionJoinChannel.triggered.connect(self.joinChannel)
+            actionJoinChannel.triggered.connect(self.lobby.client.admin_api.joinChannel)
 
             actionKick = QtGui.QAction("Kick", menu)
             menu.addAction(actionKick)
-            actionKick.triggered.connect(self.kick)
+            actionKick.triggered.connect(self.lobby.client.admin_api.kick)
             actionKick.setDisabled(1)
 
             if self.lobby.client.power == 2 :
                 actionCloseFA = QtGui.QAction("Close FA", menu)
                 menu.addAction(actionCloseFA)
-                actionCloseFA.triggered.connect(self.closeFA)
+                actionCloseFA.triggered.connect(self.lobby.client.admin_api.closeFA)
 
                 actionCloseLobby = QtGui.QAction("Kick from Lobby", menu)
                 menu.addAction(actionCloseLobby)
-                actionCloseLobby.triggered.connect(self.closeLobby)
+                actionCloseLobby.triggered.connect(self.lobby.client.admin_api.closeLobby)
 
             menu.addSeparator()
 
@@ -437,10 +403,10 @@ class Chatter(QtGui.QTableWidgetItem):
 
         # Triggers
 
-        actionAddFriend.triggered.connect(self.addFriend)
-        actionRemFriend.triggered.connect(self.remFriend)
-        actionAddFoe.triggered.connect(self.addFoe)
-        actionRemFoe.triggered.connect(self.remFoe)
+        actionAddFriend.triggered.connect(self.lobby.client.api.addFriend)
+        actionRemFriend.triggered.connect(self.lobby.client.api.remFriend)
+        actionAddFoe.triggered.connect(self.lobby.client.api.addFoe)
+        actionRemFoe.triggered.connect(self.lobby.client.api.remFoe)
 
         # Adding to menu
         menu.addAction(actionAddFriend)
@@ -452,35 +418,6 @@ class Chatter(QtGui.QTableWidgetItem):
 
         # Finally: Show the popup
         menu.popup(QtGui.QCursor.pos())
-
-    @QtCore.pyqtSlot()
-    def viewStats(self):
-        try:
-            if self.name in self.lobby.client.players :
-                self.lobby.client.profile.setplayer(self.name)
-                self.lobby.client.profile.show()
-        except:
-            pass
-
-    @QtCore.pyqtSlot()
-    def viewReplay(self):
-        if self.name in client.instance.urls:
-            replay(client.instance.urls[self.name])
-
-    @QtCore.pyqtSlot()
-    def viewVaultReplay(self):
-        ''' see the player replays in the vault '''
-        self.lobby.client.replays.mapName.setText("")
-        self.lobby.client.replays.playerName.setText(self.name)
-        self.lobby.client.replays.minRating.setValue(0)
-        self.lobby.client.replays.searchVault()
-        self.lobby.client.mainTabs.setCurrentIndex(self.lobby.client.mainTabs.indexOf(self.lobby.client.replaysTab))
-
-
-    @QtCore.pyqtSlot()
-    def joinInGame(self):
-        if self.name in client.instance.urls:
-            client.instance.joinGameFromURL(client.instance.urls[self.name])
 
     @QtCore.pyqtSlot()
     def invite(self):

@@ -25,6 +25,13 @@ import logging
 logger = logging.getLogger(__name__)
 
 def user2name(user):
+    '''
+    ~ owner
+    & admin
+    @ full operator
+    % half operator
+    + voice
+    '''
     return (user.split('!')[0]).strip('&@~%+')
 
 

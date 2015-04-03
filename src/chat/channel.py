@@ -26,6 +26,7 @@ import re
 import fa
 import json
 import unicodedata
+from friendlist import FriendList
 
 QUERY_BLINK_SPEED = 250
 CHAT_TEXT_LIMIT = 350
@@ -226,6 +227,15 @@ class Channel(FormClass, BaseClass):
         else:
             self.chatArea.verticalScrollBar().setValue(scroll_current)
 
+    def quackerize(self, text):
+        line = []
+        words = text.split()
+
+        for word in words :
+            line.append("qu" + "a" * min(7, len(word)) + "ck")
+
+        return (" ").join(line)
+
     @QtCore.pyqtSlot(str, str)
     def printMsg(self, name, text, scroll_forced = False):
         '''
@@ -243,8 +253,8 @@ class Channel(FormClass, BaseClass):
 
             displayName = name
 
-            if self.lobby.client.isFoe(name):
-                return
+            if self.lobby.client.isFoe(name) :
+                text = self.quackerize(text)
 
             clan = self.lobby.client.getUserClan(name)
             if clan != "":
@@ -440,7 +450,7 @@ class Channel(FormClass, BaseClass):
 
     @QtCore.pyqtSlot(list)
     def updateChatters(self, chatters):
-        ''' 
+        '''
         Updates the status, icon and color of an IRC user depending on its known state in the FAF client
         Takes a list of users.
         '''
@@ -500,6 +510,7 @@ class Channel(FormClass, BaseClass):
 
 
     def removeChatter(self, name, action = None):
+        self.lobby.client.friendList.switchUser(name, FriendList.OFFLINE)
         if name in self.chatters:
             self.nickList.removeRow(self.chatters[name].row())
             del self.chatters[name]

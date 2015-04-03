@@ -59,7 +59,7 @@ class FeaturedModsWidget(FormClass, BaseClass):
 
 
         self.client.featuredModManager.connect(self.manageMod)
-        self.client.featuredModManagerInfo.connect(self.manageModInfo)
+        self.client.net.featuredModManagerInfo.connect(self.manageModInfo)
 
         self.filesTable.cellPressed.connect(self.fileClicked)
         self.versionTable.cellPressed.connect(self.versionClicked)

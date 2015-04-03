@@ -19,6 +19,7 @@
 
 
 import logging
+from friendlist import FriendList
 logger = logging.getLogger(__name__)
 
 
@@ -306,6 +307,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
         for user in listing:
             self.channels[channel].addChatter(user)
+            self.client.friendList.switchUser(user2name(user), FriendList.ONLINE)
+
             QtGui.QApplication.processEvents()  # Added by thygrrr to improve application responsiveness on large IRC packets
 
         logger.debug("Added " + str(len(listing)) + " Chatters")
@@ -325,7 +328,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             if (channel.lower() in self.crucialChannels):
                 self.insertTab(1, self.channels[channel], channel)  # CAVEAT: This is assumes a server tab exists.
                 self.client.localBroadcast.connect(self.channels[channel].printRaw)
-                self.channels[channel].printAnnouncement("Welcome to Forged Alliance Forever!", "red", "+3")
+                self.channels[channel].printAnnouncement("Welcome to Forged Alliance Forever !", "red", "+3")
                 self.channels[channel].printAnnouncement("Check out FAF development at GitHub!", "red", "+1")
                 self.channels[channel].printAnnouncement("The documentation is the wiki. Find both in the Links menu!", "red", "+1")
                 self.channels[channel].printAnnouncement("", "black", "+1")
@@ -344,6 +347,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         if channel.lower() in self.crucialChannels and username != self.client.login:
             # TODO: search better solution, that html in nick & channel no rendered
             self.client.notificationSystem.on_event(ns.NotificationSystem.USER_ONLINE, {'user':username, 'channel':channel})
+            self.client.friendList.switchUser(username, FriendList.ONLINE)
         self.channels[channel].resizing()
 
 

@@ -117,8 +117,8 @@ class GamesWidget(FormClass, BaseClass):
 
         # self.teamInvitations = {}
 
-        self.client.modInfo.connect(self.processModInfo)
-        self.client.gameInfo.connect(self.processGameInfo)
+        self.client.net.modInfo.connect(self.processModInfo)
+        self.client.net.gameInfo.connect(self.processGameInfo)
 
         self.client.rankedGameAeon.connect(self.togglingAeon)
         self.client.rankedGameCybran.connect(self.togglingCybran)
@@ -127,8 +127,8 @@ class GamesWidget(FormClass, BaseClass):
         self.client.rankedGameRandom.connect(self.togglingRandom)
 
 
-        self.client.teamInvitation.connect(self.handleInvitations)
-        self.client.teamInfo.connect(self.handleTeamInfo)
+        self.client.net.teamInvitation.connect(self.handleInvitations)
+        self.client.net.teamInfo.connect(self.handleTeamInfo)
 
 
         self.client.gameEnter.connect(self.stopSearchRanked)

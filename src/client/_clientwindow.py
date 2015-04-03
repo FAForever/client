@@ -18,6 +18,11 @@
 import fa
 import client.updater
 from fa.mods import checkMods
+from friendlist import FriendList
+from client.client_action import Client_Action
+from client.admin_action import Admin_Action
+from client.server_packets import ServerPackets
+from friendlist.friendlistdialog import FriendListDialog
 
 '''
 Created on Dec 1, 2011
@@ -104,7 +109,6 @@ class ClientWindow(FormClass, BaseClass):
 
     topWidget = QtGui.QWidget()
 
-
     # These signals are emitted when the client is connected or disconnected from FAF
     connected = QtCore.pyqtSignal()
     disconnected = QtCore.pyqtSignal()
@@ -120,15 +124,6 @@ class ClientWindow(FormClass, BaseClass):
     gameExit = QtCore.pyqtSignal()
 
     # These signals propagate important client state changes to other modules
-    statsInfo = QtCore.pyqtSignal(dict)
-    tourneyTypesInfo = QtCore.pyqtSignal(dict)
-    tutorialsInfo = QtCore.pyqtSignal(dict)
-    tourneyInfo = QtCore.pyqtSignal(dict)
-    modInfo = QtCore.pyqtSignal(dict)
-    gameInfo = QtCore.pyqtSignal(dict)
-    modVaultInfo = QtCore.pyqtSignal(dict)
-    coopInfo = QtCore.pyqtSignal(dict)
-    newGame = QtCore.pyqtSignal(str)
     avatarList = QtCore.pyqtSignal(list)
     playerAvatarList = QtCore.pyqtSignal(dict)
     usersUpdated = QtCore.pyqtSignal(list)
@@ -137,10 +132,6 @@ class ClientWindow(FormClass, BaseClass):
     autoJoin = QtCore.pyqtSignal(list)
     channelsUpdated = QtCore.pyqtSignal(list)
     featuredModManager = QtCore.pyqtSignal(str)
-    featuredModManagerInfo = QtCore.pyqtSignal(dict)
-    replayVault = QtCore.pyqtSignal(dict)
-    coopLeaderBoard = QtCore.pyqtSignal(dict)
-    ladderMapsList = QtCore.pyqtSignal(dict)
 
     # These signals are emitted whenever a certain tab is activated
     showReplays = QtCore.pyqtSignal()
@@ -159,7 +150,6 @@ class ClientWindow(FormClass, BaseClass):
     joinGameFromURL = QtCore.pyqtSignal(str)
     joinReplayFromURL = QtCore.pyqtSignal(str)
 
-
     # for the auto join ranked
     rankedGameAeon = QtCore.pyqtSignal(bool)
     rankedGameCybran = QtCore.pyqtSignal(bool)
@@ -167,14 +157,16 @@ class ClientWindow(FormClass, BaseClass):
     rankedGameUEF = QtCore.pyqtSignal(bool)
     rankedGameRandom = QtCore.pyqtSignal(bool)
 
-    # for team management
-    teamInfo = QtCore.pyqtSignal(dict)
-    teamInvitation = QtCore.pyqtSignal(dict)
+    # Tab INDEX
+    TAB_NEWS = 0
+    TAB_CHAT = 1
+
 
     matchmakerInfo = QtCore.pyqtSignal(dict)
 
     def __init__(self, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
+        self.net = ServerPackets()
 
         logger.debug("Client instantiating")
 
@@ -214,7 +206,7 @@ class ClientWindow(FormClass, BaseClass):
         fa.instance.started.connect(self.startedFA)
         fa.instance.finished.connect(self.finishedFA)
         fa.instance.error.connect(self.errorFA)
-        self.gameInfo.connect(fa.instance.processGameInfo)
+        self.net.gameInfo.connect(fa.instance.processGameInfo)
 
         # Local Replay Server (and relay)
         self.replayServer = fa.replayserver.ReplayServer(self)
@@ -335,6 +327,11 @@ class ClientWindow(FormClass, BaseClass):
             self.mainTabs.setTabIcon(self.mainTabs.indexOf(tab), util.icon(icon))
 
         QtWebKit.QWebSettings.globalSettings().setAttribute(QtWebKit.QWebSettings.PluginsEnabled, True)
+
+
+        # API for client actions
+        self.api = Client_Action(self)
+        self.admin_api = Admin_Action(self)
 
         # For moderators
         self.modMenu = None
@@ -538,6 +535,15 @@ class ClientWindow(FormClass, BaseClass):
         self.tutorials = tutorials.Tutorials(self)
         self.Coop = coop.Coop(self)
         self.notificationSystem = ns.NotificationSystem(self)
+
+        self.friendList = FriendList(self.api)
+        self.friendList.dialog = FriendListDialog(self.friendList, self)
+
+        # load friendlist settings
+        util.settings.beginGroup("friendlist")
+        friendlistEnabled = util.settings.value('enabled', 'true') == 'true'
+        self.actionFriendlist.setChecked(friendlistEnabled)
+        util.settings.endGroup()
 
         # set menu states
         self.actionNsEnabled.setChecked(self.notificationSystem.settings.enabled)
@@ -935,6 +941,13 @@ class ClientWindow(FormClass, BaseClass):
         util.settings.setValue("coloredNicknames", self.coloredNicknames)
         util.settings.endGroup()
 
+    @QtCore.pyqtSlot(bool)
+    def on_actionFriendlist_toggled(self, checked):
+        util.settings.beginGroup("friendlist")
+        util.settings.setValue("enabled", checked)
+        util.settings.endGroup()
+        self.sidebar.setVisible(checked)
+
 
     def loadSettingsPrelogin(self):
 
@@ -1258,6 +1271,15 @@ class ClientWindow(FormClass, BaseClass):
                 return self.players[name]["clan"]
         return ""
 
+    def getCompleteUserName(self, name, html = False):
+        clan = self.getUserClan(name)
+        if clan != '':
+            if html:
+                return '<b>[%s]</b>%s' % (clan, name)
+            else:
+                return '[%s] %s' % (clan, name)
+        return name
+
     def getUserLeague(self, name):
         '''
         Returns a user's league if any
@@ -1379,6 +1401,9 @@ class ClientWindow(FormClass, BaseClass):
             QtGui.QMessageBox.critical(self, "Error from FA", text)
         self.send(dict(command = "fa_state", state = "off"))
         self.gameExit.emit()
+
+    def changeTab(self, index):
+        self.mainTabs.setCurrentIndex(index)
 
     @QtCore.pyqtSlot(int)
     def mainTabChanged(self, index):
@@ -1577,7 +1602,7 @@ class ClientWindow(FormClass, BaseClass):
 
             self.disconnected.emit()
 
-            self.mainTabs.setCurrentIndex(0)
+            self.changeTab(self.TAB_NEWS)
 
             for i in range(2, self.mainTabs.count()):
                 self.mainTabs.setTabEnabled(i, False)
@@ -1642,14 +1667,15 @@ class ClientWindow(FormClass, BaseClass):
     def addFriend(self, friend):
         '''Adding a new friend by user'''
         self.friends.append(friend)
-        self.send(dict(command = "social", friends = self.friends))  # FIXME: WTF
+        self.send(dict(command = "social", friends = self.friends))  # LATER: Use this line instead
         # self.writeToServer("ADD_FRIEND", friend)
         self.usersUpdated.emit([friend])
+        self.friendList.switchUser(friend, FriendList.ONLINE)
 
     def addFoe(self, foe):
         '''Adding a new foe by user'''
         self.foes.append(foe)
-        self.send(dict(command = "social", foes = self.foes))  # FIXME: WTF
+        self.send(dict(command = "social", foes = self.foes))  # LATER: Use this line instead
         # self.writeToServer("ADD_FRIEND", friend)
         self.usersUpdated.emit([foe])
 
@@ -1657,14 +1683,16 @@ class ClientWindow(FormClass, BaseClass):
         '''Removal of a friend by user'''
         self.friends.remove(friend)
         # self.writeToServer("REMOVE_FRIEND", friend)
-        self.send(dict(command = "social", friends = self.friends))  # FIXME: WTF
+        self.send(dict(command = "social", friends = self.friends))  # LATER: Use this line instead
         self.usersUpdated.emit([friend])
+        self.friendList.removeUser(friend)
+
 
     def remFoe(self, foe):
         '''Removal of a foe by user'''
         self.foes.remove(foe)
         # self.writeToServer("REMOVE_FRIEND", friend)
-        self.send(dict(command = "social", foes = self.foes))  # FIXME: WTF
+        self.send(dict(command = "social", foes = self.foes))  # LATER: Use this line instead
         self.usersUpdated.emit([foe])
 
 
@@ -1736,24 +1764,31 @@ class ClientWindow(FormClass, BaseClass):
         try:
             if "debug" in message:
                 logger.info(message['debug'])
+                return
 
             if "command" in message:
+
+                try:
+                    # try to find signal to fire
+                    signal = self.net.translate(message['command'])
+                    signal.emit(message)
+                    return
+                except Exception:
+                    # otherwise handle old way
+                    logger.debug("No slot found for (%s)" % (message['command']))
+
+
                 cmd = "handle_" + message['command']
                 if hasattr(self, cmd):
                     getattr(self, cmd)(message)
-                else:
-                    logger.error("Unknown command for JSON." + message['command'])
-                    raise "StandardError"
-            else:
+                    return
+                logger.error("Unknown command for JSON." + message['command'])
+                raise "StandardError"
                 logger.debug("No command in message.")
         except:
             raise  # Pass it on to our caller, Malformed Command
 
-
-
-    def handle_stats(self, message):
-        self.statsInfo.emit(message)
-
+    # TODO: use  signal welcome
     def handle_welcome(self, message):
         if "session" in message :
             self.session = str(message["session"])
@@ -1782,7 +1817,7 @@ class ClientWindow(FormClass, BaseClass):
             self.state = ClientState.ACCEPTED
 
 
-
+    # TODO: use SIGNAL game_launch
     def handle_game_launch(self, message):
 
         logger.info("Handling game_launch via JSON " + str(message))
@@ -1879,43 +1914,13 @@ class ClientWindow(FormClass, BaseClass):
 
         fa.run(game_info, self.relayServer.serverPort(), arguments)
 
-
-
-    def handle_coop_info(self, message):
-        self.coopInfo.emit(message)
-
-    def handle_tournament_types_info(self, message):
-        self.tourneyTypesInfo.emit(message)
-
-    def handle_tournament_info(self, message):
-        self.tourneyInfo.emit(message)
-
-    def handle_tutorials_info(self, message):
-        self.tutorialsInfo.emit(message)
-
-    def handle_mod_info(self, message):
-        self.modInfo.emit(message)
-
-    def handle_game_info(self, message):
-        self.gameInfo.emit(message)
-
+    # TODO: use SIGNAL modvault_list_info
     def handle_modvault_list_info(self, message):
         modList = message["modList"]
         for mod in modList:
             self.handle_modvault_info(mod)
 
-    def handle_modvault_info(self, message):
-        self.modVaultInfo.emit(message)
-
-    def handle_replay_vault(self, message):
-        self.replayVault.emit(message)
-
-    def handle_coop_leaderboard(self, message):
-        self.coopLeaderBoard.emit(message)
-
-    def handle_ladder_maps(self, message):
-        self.ladderMapsList.emit(message)
-
+    # TODO: use SIGNAL matchmaker_info
     def handle_matchmaker_info(self, message):
         if "action" in message:
             self.matchmakerInfo.emit(message)
@@ -1926,10 +1931,12 @@ class ClientWindow(FormClass, BaseClass):
             else:
                 self.warningHide()
 
+    # TODO: use SIGNAL avatar
     def handle_avatar(self, message):
         if "avatarlist" in message :
             self.avatarList.emit(message["avatarlist"])
 
+    # TODO: use SIGNAL admin
     def handle_admin(self, message):
         if "avatarlist" in message :
             self.avatarList.emit(message["avatarlist"])
@@ -1937,16 +1944,13 @@ class ClientWindow(FormClass, BaseClass):
         elif "player_avatar_list" in message :
             self.playerAvatarList.emit(message)
 
-    def handle_team_info(self, message):
-        self.teamInfo.emit(message)
-
-    def handle_team(self, message):
-        self.teamInvitation.emit(message)
-
+    # TODO: use SIGNAL social
     def handle_social(self, message):
         if "friends" in message:
             self.friends = message["friends"]
             self.usersUpdated.emit(self.players.keys())
+            # Add all friends
+            self.friendList.updateFriendList()
 
         if "foes" in message:
             self.foes = message["foes"]
@@ -1985,13 +1989,9 @@ class ClientWindow(FormClass, BaseClass):
                 action.triggered.connect(functools.partial(self.featuredMod, mod))
                 modMenu.addAction(action)
 
-    def handle_mod_manager_info(self, message):
-        self.featuredModManagerInfo.emit(message)
-
     def avatarManager(self):
         self.requestAvatars(0)
         self.avatarSelection.show()
-
 
 
     def featuredMod(self, action):

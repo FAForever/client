@@ -57,8 +57,8 @@ class ReplaysWidget(BaseClass, FormClass):
         self.client = client
         client.replaysTab.layout().addWidget(self)
 
-        client.gameInfo.connect(self.processGameInfo)
-        client.replayVault.connect(self.replayVault)
+        client.net.gameInfo.connect(self.processGameInfo)
+        client.net.replayVault.connect(self.replayVault)
 
         self.onlineReplays = {}
         self.onlineTree.setItemDelegate(ReplayItemDelegate(self))
@@ -580,14 +580,8 @@ class ReplaysWidget(BaseClass, FormClass):
         '''
         A fairly pythonic way to process received strings as JSON messages.
         '''
-        try:
-            message = json.loads(data_string)
-            cmd = "handle_" + message['command']
-            if hasattr(self.client, cmd):
-                getattr(self.client, cmd)(message)
-        except ValueError as e:
-            logger.error("Error decoding json ")
-            logger.error(e)
+        message = json.loads(data_string)
+        self.client.dispatch(message)
 
         self.replayVaultSocket.disconnectFromHost()
 
