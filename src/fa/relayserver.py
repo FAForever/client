@@ -146,7 +146,7 @@ class Relayer(QtCore.QObject):
 
         # Open the relay socket to our server
         self.relaySocket = QtNetwork.QTcpSocket(self.parent)        
-        #self.relaySocket .setSocketOption(QtNetwork.QTcpSocket.KeepAliveOption, 1)
+        self.relaySocket.setSocketOption(QtNetwork.QTcpSocket.KeepAliveOption, 1)
         self.relaySocket.connectToHost(FAF_SERVER_HOST, FAF_SERVER_PORT)        
         
         if self.relaySocket.waitForConnected(10000): #Maybe make this asynchronous
