@@ -33,6 +33,7 @@ class downloadManager(QtCore.QObject):
     ''' This class allows downloading stuff in the background'''
     
     def __init__(self, parent = None):
+        super(QtCore.QObject, self).__init__()
         self.client = parent
         self.nam = QNetworkAccessManager()
         
