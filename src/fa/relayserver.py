@@ -149,6 +149,10 @@ class Relayer(QtCore.QObject):
         self.relaySocket.setSocketOption(QtNetwork.QTcpSocket.KeepAliveOption, 1)
         self.relaySocket.connectToHost(FAF_SERVER_HOST, FAF_SERVER_PORT)
         self.relaySocket.connected.connect(self.on_connected)
+        self.relaySocket.error.connect(self.on_error)
+
+    def on_error(self, socketError):
+        self.__logger.error(self.relaySocket.errorString())
 
     def on_connected(self):
         self.__logger.debug("faf server " + self.relaySocket.peerName() + ":" + str(self.relaySocket.peerPort()))
