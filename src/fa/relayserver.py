@@ -147,20 +147,18 @@ class Relayer(QtCore.QObject):
         # Open the relay socket to our server
         self.relaySocket = QtNetwork.QTcpSocket(self.parent)        
         self.relaySocket.setSocketOption(QtNetwork.QTcpSocket.KeepAliveOption, 1)
-        self.relaySocket.connectToHost(FAF_SERVER_HOST, FAF_SERVER_PORT)        
-        
-        if self.relaySocket.waitForConnected(10000): #Maybe make this asynchronous
-            self.__logger.debug("faf server " + self.relaySocket.peerName() + ":" + str(self.relaySocket.peerPort()))
-            self.__logger.debug("Initializing ping timer")
-            self.pingTimer = QtCore.QTimer(self)
-            self.pingTimer.timeout.connect(self.ping)
-            self.pingTimer.start(30000)            
-  
-        else:
-            self.__logger.error("no connection to internet relay server")
+        self.relaySocket.connectToHost(FAF_SERVER_HOST, FAF_SERVER_PORT)
+        self.relaySocket.connected.connect(self.on_connected)
 
+    def on_connected(self):
+        self.__logger.debug("faf server " + self.relaySocket.peerName() + ":" + str(self.relaySocket.peerPort()))
+        self.__logger.debug("Initializing ping timer")
+        self.pingTimer = QtCore.QTimer(self)
+        self.pingTimer.timeout.connect(self.ping)
+        self.pingTimer.start(30000)
+        self.sendToServer('Authenticate', [self.client.session])
         self.relaySocket.readyRead.connect(self.readDataFromServer)
-        
+
     def __del__(self):
         #Find out whether this really does what it should (according to docs, sockets should be manually deleted to conserver resources)
         self.inputSocket.deleteLater()
