@@ -634,9 +634,38 @@ class GameItem(QtGui.QListWidgetItem):
         # Private games are on bottom
         if (not self.private and other.private): return True;
         if (self.private and not other.private): return False;
-        
-        # Default: by UID.
-        return self.uid < other.uid
-    
+
+        # Sort Games
+        # 0: By Player Count
+        # 1: By Game Quality
+        # 2: By avg. Player Score
+        try:
+            sortBy = self.listWidget().sortBy
+        except AttributeError:
+            sortBy = 99
+        if (sortBy == 0):
+            return len(self.players) > len(other.players)
+        elif (sortBy == 1):
+            return self.gamequality > other.gamequality
+        elif (sortBy == 2):
+            selfScore = 0
+            otherScore = 0
+            try:
+                for player in self.players :
+                    mean = self.client.players[player]["rating_mean"]
+                    dev = self.client.players[player]["rating_deviation"]
+                    selfScore += mean - 3 * dev
+
+                for player in other.players :
+                    mean = self.client.players[player]["rating_mean"]
+                    dev = self.client.players[player]["rating_deviation"]
+                    otherScore += mean - 3 * dev
+            except KeyError:
+                pass
+            return selfScore > otherScore
+        else:
+            # Default: by UID.
+            return self.uid < other.uid
+
 
 

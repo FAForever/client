@@ -133,6 +133,10 @@ class GamesWidget(FormClass, BaseClass):
 
         self.gameList.setItemDelegate(GameItemDelegate(self))
         self.gameList.itemDoubleClicked.connect(self.gameDoubleClicked)
+        self.gameList.sortBy = 0 # Default Sorting is By Players count
+
+        self.sortGamesComboBox.addItems(['By Players', 'By Game Quality', 'By avg. Player Score'])
+        self.sortGamesComboBox.currentIndexChanged.connect(self.sortGamesComboChanged)
 
         self.modList.itemDoubleClicked.connect(self.hostGameClicked)
 
@@ -742,3 +746,6 @@ class GamesWidget(FormClass, BaseClass):
             else:
                 self.gamename = "nobody's game"
 
+    def sortGamesComboChanged(self, index):
+        self.gameList.sortBy = index
+        self.gameList.sortItems()

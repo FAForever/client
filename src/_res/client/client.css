@@ -417,7 +417,7 @@ QScrollBar::sub-page
 }
 
 
-QLabel#labelJoinGame,#labelHostGame,#labelAutomatch,#labelMyReplays,#labelLiveReplays,#labelHostTournament,#labelJoinTournament,#joinLabel,#labelTeamManagement
+QLabel#labelSortGames,#labelJoinGame,#labelHostGame,#labelAutomatch,#labelMyReplays,#labelLiveReplays,#labelHostTournament,#labelJoinTournament,#joinLabel,#labelTeamManagement
 {
 	color:white;
 }
