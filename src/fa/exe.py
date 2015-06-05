@@ -328,7 +328,7 @@ def checkMap(mapname, force = False, silent=False):
     
     return True
 
-def checkMods(mods): #mods is a dictionary of uid-name pairs
+def checkMods(mods, force=False): #mods is a dictionary of uid-name pairs
     '''
     Assures that the specified mods are available in FA, or returns False.
     Also sets the correct active mods in the ingame mod manager.
@@ -342,7 +342,10 @@ def checkMods(mods): #mods is a dictionary of uid-name pairs
             to_download.append(uid)
 
     for uid in to_download:
-        result = QtGui.QMessageBox.question(None, "Download Mod", "Seems that you don't have this mod. Do you want to download it?<br/><b>" + mods[uid] + "</b>", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+        if force:
+            result = QtGui.QMessageBox.Yes
+        else:
+            result = QtGui.QMessageBox.question(None, "Download Mod", "Seems that you don't have this mod. Do you want to download it?<br/><b>" + mods[uid] + "</b>", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
         if result == QtGui.QMessageBox.Yes:
             # Spawn an update for the required mod
             updater = fa.updater.Updater(uid, sim=True)
@@ -369,7 +372,8 @@ def checkMods(mods): #mods is a dictionary of uid-name pairs
 
     return True
     
-def check(mod, mapname = None, version = None, modVersions = None, sim_mods = None, silent=False):
+def check(mod, mapname = None, version = None, modVersions = None, sim_mods = None, silent=False,
+          forceMapDownload=False, forceModDownload=False):
     '''
     This checks whether the game is properly updated and has the correct map.
     '''
@@ -413,11 +417,11 @@ def check(mod, mapname = None, version = None, modVersions = None, sim_mods = No
 
     # Now it's down to having the right map
     if mapname:
-        if not checkMap(mapname, silent=silent):
+        if not checkMap(mapname, force=forceMapDownload, silent=silent):
             return False
 
     if sim_mods:
-        return checkMods(sim_mods)
+        return checkMods(sim_mods, forceModDownload)
         
     return True #FA is checked and ready
         
