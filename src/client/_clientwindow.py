@@ -715,6 +715,8 @@ class ClientWindow(FormClass, BaseClass):
 
         #Toggle-Options
         self.actionSetAutoLogin.triggered.connect(self.updateOptions)
+        self.actionSetAutoMapDownload.triggered.connect(self.updateOptions)
+        self.actionSetAutoModDownload.triggered.connect(self.updateOptions)
         self.actionSetSoundEffects.triggered.connect(self.updateOptions)
         self.actionSetOpenGames.triggered.connect(self.updateOptions)
         self.actionSetJoinsParts.triggered.connect(self.updateOptions)
@@ -746,6 +748,8 @@ class ClientWindow(FormClass, BaseClass):
     @QtCore.pyqtSlot()
     def updateOptions(self):
         self.autologin = self.actionSetAutoLogin.isChecked()
+        self.automapdownload = self.actionSetAutoMapDownload.isChecked()
+        self.automoddownload = self.actionSetAutoModDownload.isChecked()
         self.soundeffects = self.actionSetSoundEffects.isChecked()
         self.opengames = self.actionSetOpenGames.isChecked()
         self.joinsparts = self.actionSetJoinsParts.isChecked()
@@ -876,6 +880,8 @@ class ClientWindow(FormClass, BaseClass):
         util.settings.endGroup()
         util.settings.beginGroup("ForgedAlliance")
         util.settings.setValue("app/falogs", self.gamelogs)
+        util.settings.setValue("app/automapdownload", self.automapdownload)
+        util.settings.setValue("app/automoddownload", self.automoddownload)
         util.settings.endGroup()
 
     def savePort(self):
@@ -941,7 +947,12 @@ class ClientWindow(FormClass, BaseClass):
         self.gamePort = int(util.settings.value("app/gameport", GAME_PORT_DEFAULT))
         self.useUPnP = (util.settings.value("app/upnp", "false") == "true")
         self.gamelogs = (util.settings.value("app/falogs", "false") == "true")
+        self.automapdownload = (util.settings.value("app/automapdownload", "false") == "true")
+        self.automoddownload = (util.settings.value("app/automoddownload", "false") == "true")
         self.actionSaveGamelogs.setChecked(self.gamelogs)
+        self.actionSetAutoMapDownload.setChecked(self.automapdownload)
+        self.actionSetAutoModDownload.setChecked(self.automoddownload)
+
         util.settings.endGroup()
 
         util.settings.beginGroup("Mumble")
@@ -1830,7 +1841,7 @@ class ClientWindow(FormClass, BaseClass):
                     return
 
         if "sim_mods" in message:
-            fa.exe.checkMods(message['sim_mods'])
+            fa.exe.checkMods(message['sim_mods'], self.automoddownload)
 
 
         # Writing a file for options

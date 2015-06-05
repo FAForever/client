@@ -259,6 +259,8 @@
       <string>Settings...</string>
      </property>
      <addaction name="actionSetAutoLogin"/>
+     <addaction name="actionSetAutoMapDownload"/>
+     <addaction name="actionSetAutoModDownload"/>
      <addaction name="separator"/>
      <addaction name="actionLink_account_to_Steam"/>
      <addaction name="separator"/>
@@ -402,6 +404,21 @@
    </property>
    <property name="text">
     <string>Automatic Login</string>
+   </property>
+  </action>  <action name="actionSetAutoMapDownload">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Automatic Map Download</string>
+   </property>
+  </action>
+  <action name="actionSetAutoModDownload">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Automatic Mod Download</string>
    </property>
   </action>
   <action name="actionClearCache">

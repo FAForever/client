@@ -638,7 +638,8 @@ class GamesWidget(FormClass, BaseClass):
 
         passw = None
 
-        if fa.exe.check(item.mod, item.mapname, None, item.mods):
+        if fa.exe.check(item.mod, item.mapname, None, item.mods,
+                        forceMapDownload = self.client.automapdownload, forceModDownload = self.client.automoddownload):
             if item.access == "password" :
                 passw, ok = QtGui.QInputDialog.getText(self.client, "Passworded game" , "Enter password :", QtGui.QLineEdit.Normal, "")
                 if ok:
