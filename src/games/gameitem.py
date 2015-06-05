@@ -638,7 +638,7 @@ class GameItem(QtGui.QListWidgetItem):
         # Sort Games
         # 0: By Player Count
         # 1: By Game Quality
-        # 2: By avg. Player Score
+        # 2: By avg. Player Rating
         try:
             sortBy = self.listWidget().sortBy
         except AttributeError:
@@ -648,24 +648,19 @@ class GameItem(QtGui.QListWidgetItem):
         elif (sortBy == 1):
             return self.gamequality > other.gamequality
         elif (sortBy == 2):
-            selfScore = 0
-            otherScore = 0
-            try:
-                for player in self.players :
-                    mean = self.client.players[player]["rating_mean"]
-                    dev = self.client.players[player]["rating_deviation"]
-                    selfScore += mean - 3 * dev
-
-                for player in other.players :
-                    mean = self.client.players[player]["rating_mean"]
-                    dev = self.client.players[player]["rating_deviation"]
-                    otherScore += mean - 3 * dev
-            except KeyError:
-                pass
-            return selfScore > otherScore
+            return self.average_rating > other.average_rating
         else:
             # Default: by UID.
             return self.uid < other.uid
 
-
-
+    @property
+    def average_rating(self):
+        rating = 0
+        for player in self.players :
+            try:
+                mean = self.client.players[player]["rating_mean"]
+                dev = self.client.players[player]["rating_deviation"]
+                rating += mean - 3 * dev
+            except KeyError:
+                pass
+        return rating
