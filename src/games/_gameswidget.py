@@ -21,6 +21,7 @@
 
 
 from PyQt4 import QtCore, QtGui
+from PyQt4.QtCore import Qt
 import util
 
 from games.gameitem import GameItem, GameItemDelegate
@@ -137,6 +138,8 @@ class GamesWidget(FormClass, BaseClass):
 
         self.sortGamesComboBox.addItems(['By Players', 'By Game Quality', 'By avg. Player Rating'])
         self.sortGamesComboBox.currentIndexChanged.connect(self.sortGamesComboChanged)
+
+        self.hideGamesWithPw.stateChanged.connect(self.togglePrivateGames)
 
         self.modList.itemDoubleClicked.connect(self.hostGameClicked)
 
@@ -305,8 +308,15 @@ class GamesWidget(FormClass, BaseClass):
         if not message["name"] in mods :
             mods[message["name"]] = item
 
-
         self.client.replays.modList.addItem(message["name"])
+
+    @QtCore.pyqtSlot(int)
+    def togglePrivateGames(self, state):
+        # Wow.
+        for game in [self.games[game] for game in self.games
+                     if self.games[game].state == 'open'
+                     and self.games[game].access == 'password']:
+            game.setHidden(state == Qt.Checked)
 
     @QtCore.pyqtSlot(dict)
     def processGameInfo(self, message):
@@ -325,8 +335,11 @@ class GamesWidget(FormClass, BaseClass):
         else:
             self.games[uid].update(message, self.client)
 
+        # Hide private games
+        if self.hideGamesWithPw.isChecked() and message['state'] == 'open' and message['access'] == 'password':
+            self.games[uid].setHidden(True)
 
-        #Special case: removal of a game that has ended
+        # Special case: removal of a game that has ended
         if message['state'] == "closed":
             if uid in self.games:
                 self.gameList.takeItem(self.gameList.row(self.games[uid]))
