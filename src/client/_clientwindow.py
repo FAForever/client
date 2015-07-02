@@ -314,6 +314,7 @@ class ClientWindow(FormClass, BaseClass):
         self.foes = []       # names of the client's foes
 
         self.power = 0          # current user power
+        self.id = 0
         self.email = None
         self.coloredNicknames = False
         #Initialize the Menu Bar according to settings etc.
@@ -1754,9 +1755,9 @@ class ClientWindow(FormClass, BaseClass):
 
         else :
             self.email = message["email"]
+            self.id = message["id"]
             logger.debug("Login success")
             self.state = ClientState.ACCEPTED
-
 
 
     def handle_game_launch(self, message):
@@ -1767,8 +1768,6 @@ class ClientWindow(FormClass, BaseClass):
             arguments = message['args']
         else:
             arguments = []
-
-
 
         # Important: This is the race parameter used by ladder search.
         if 'mod' in message:
