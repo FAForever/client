@@ -1795,6 +1795,9 @@ class ClientWindow(FormClass, BaseClass):
             arguments.append('/rank')
             arguments.append(str(self.GalacticWar.rank))
 
+            # Launch the auto lobby
+            self.relayServer.init_mode = 0
+
         elif message[modkey] == "ladder1v1":
             arguments.append(self.games.race)
             #Player 1v1 rating
@@ -1802,6 +1805,9 @@ class ClientWindow(FormClass, BaseClass):
             arguments.append(str(self.players[self.login]["ladder_rating_mean"]))
             arguments.append('/deviation')
             arguments.append(str(self.players[self.login]["ladder_rating_deviation"]))
+
+            # Launch the auto lobby
+            self.relayServer.init_mode = 1
 
         else :
             #Player global rating
@@ -1812,6 +1818,9 @@ class ClientWindow(FormClass, BaseClass):
             arguments.append('/country ') #Add country command line argument - Vicarian
             country = self.getUserCountry(self.login) #Add country command line argument - Vicarian
             arguments.append(str(country)) #Add country command line argument - Vicarian
+
+            # Launch the normal lobby
+            self.relayServer.init_mode = 0
 
         clan = self.getUserClan(self.login)
         if clan and galacticWar == False:

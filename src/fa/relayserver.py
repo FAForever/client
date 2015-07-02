@@ -116,8 +116,8 @@ class Relayer(QtCore.QObject):
     __logger = logging.getLogger("faf.fa.relayer")
     __logger.setLevel(logging.DEBUG)
     
-    def __init__(self, parent, client, local_socket, testing, *args, **kwargs):
-        QtCore.QObject.__init__(self, *args, **kwargs)
+    def __init__(self, parent, client, local_socket, testing, init_mode=1):
+        QtCore.QObject.__init__(self)
         self.parent = parent
         self.inputSocket = local_socket
         self.client = client
@@ -137,7 +137,8 @@ class Relayer(QtCore.QObject):
         self.chunks = []
 
         self.pingTimer = None
-        
+        self.init_mode = init_mode
+
         #self.inputSocket.setSocketOption(QtNetwork.QTcpSocket.KeepAliveOption, 1)
         self.inputSocket.readyRead.connect(self.readData)
         self.inputSocket.disconnected.connect(self.inputDisconnected)
@@ -264,7 +265,7 @@ class Relayer(QtCore.QObject):
                         self.fieldSizeRead = False  
       
                 if not self.testing:
-                    self.sendToServer(self.action, self.chunks)
+                    self.handle_incoming_local(self.action, self.chunks)
                 else:
                     self.sendToLocal(self.action, self.chunks)
                 self.action = None
@@ -274,11 +275,22 @@ class Relayer(QtCore.QObject):
                 self.chunkSizeRead = False
                 self.fieldTypeRead = False
                 self.fieldSizeRead = False
-                
+
+    def handle_incoming_local(self, action, chunks):
+        if self.action == 'GameState':
+            if chunks[0] == 'Idle':
+                self.__logger.info("Telling game to create lobby")
+                reply = Packet("CreateLobby", [self.init_mode,
+                                               self.client.gamePort,
+                                               self.client.login,
+                                               self.client.id,
+                                               1])
+                self.inputSocket.write(reply.Pack())
+        self.sendToServer(action, chunks)
+
     def ping(self):
         self.sendToServer("ping", [])
-        
-        
+
     def sendToLocal(self, action, chunks):
         if action == 'GameState':
             if chunks[0] == 'Idle':
@@ -335,10 +347,7 @@ class Relayer(QtCore.QObject):
             uid = int(acts[3])     
             self.client.proxyServer.setUid(uid)
             self.__logger.info("Setting uid : " + str(uid))
-            reply = Packet(key, acts)
-            self.inputSocket.write(reply.Pack())
-            
-            
+
         elif key == "ConnectToProxy" :
                 port = acts[0]
                 login   = acts[2]
@@ -398,7 +407,9 @@ class RelayServer(QtNetwork.QTcpServer):
         self.client = client
         self.local = False
         self.testing = False
-              
+        # Use normal lobby by default
+        self.init_mode = 1
+
         self.__logger.debug("initializing...")
         self.newConnection.connect(self.acceptConnection)
 
@@ -437,6 +448,6 @@ class RelayServer(QtNetwork.QTcpServer):
     def acceptConnection(self):
         socket = self.nextPendingConnection()
         self.__logger.debug("incoming connection to relay server...")
-        self.relayers.append(Relayer(self, self.client, socket, self.testing))
+        self.relayers.append(Relayer(self, self.client, socket, self.testing, init_mode=self.init_mode))
         pass
 
