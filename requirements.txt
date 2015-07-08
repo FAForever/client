@@ -8,7 +8,7 @@ py==1.4.25
 pytest==2.6.3
 pytest-qt==1.2.2
 pytest-cov
-python-coveralls
 python-dateutil==2.2
 lupa==1.1
 git+https://github.com/FAForever/faftools.git@master#egg=faftools
+http://content.dev.faforever.com/wheel/pygit2-0.22.0-cp27-none-win32.whl
