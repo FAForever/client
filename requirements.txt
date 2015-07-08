@@ -11,3 +11,4 @@ pytest-cov
 python-coveralls
 python-dateutil==2.2
 lupa==1.1
+git+https://github.com/FAForever/faftools.git@master#egg=faftools
