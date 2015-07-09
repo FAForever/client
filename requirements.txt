@@ -11,4 +11,5 @@ pytest-cov
 python-dateutil==2.2
 lupa==1.1
 git+https://github.com/FAForever/faftools.git@master#egg=faftools
-http://content.dev.faforever.com/wheel/pygit2-0.22.0-cp27-none-win32.whl
+http://content.dev.faforever.com/wheel/pygit2-0.22.0-cp27-none-win32.whl ; sys.platform == 'win32';
+pygit2 ; 'linux' in sys.platform
