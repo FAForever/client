@@ -4,12 +4,12 @@
 # are made available under the terms of the GNU Public License v3.0
 # which accompanies this distribution, and is available at
 # http://www.gnu.org/licenses/gpl.html
-# 
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -35,11 +35,11 @@ class Cancellation(StandardError):
     pass
 
 class Failure(StandardError):
-    pass    
+    pass
 
 class Timeout(StandardError):
     pass
-    
+
 
 class SecondaryServer(QtCore.QObject):
 
@@ -54,25 +54,25 @@ class SecondaryServer(QtCore.QObject):
     RESULT_CANCEL = 2       # User cancelled
     RESULT_BUSY = 4         # Server is currently busy
     RESULT_PASS = 5         # User refuses to update by canceling
-    
+
     def __init__(self, name, socket, requester, *args, **kwargs):
         '''
         Constructor
         '''
         QtCore.QObject.__init__(self, *args, **kwargs)
-        
+
         self.name = name
-        
+
         logger = logging.getLogger("faf.secondaryServer.%s" % self.name)
         logger.info("Instanciating secondary server.")
-        
+
         self.socketPort = socket
         self.requester      = requester
 
         self.result = self.RESULT_NONE
         self.command = None
         self.message = None
-        
+
         self.blockSize = 0
         self.serverSocket = QtNetwork.QTcpSocket()
 
@@ -81,22 +81,22 @@ class SecondaryServer(QtCore.QObject):
         self.serverSocket.disconnected.connect(self.disconnected)
         self.serverSocket.error.connect(self.errored)
         self.invisible = False
-            
+
     def setInvisible(self):
         self.invisible = True
-    
+
     def send(self, command, *args, **kwargs):
         ''' actually do the settings'''
-                  
+
         if self.serverSocket.state() == QtNetwork.QAbstractSocket.ConnectedState:
             logger.info("A request is pending. Cancelling command")
             return
-        
+
         self.result = self.RESULT_NONE
         self.command = None
         self.message = None
-        
-        self.progress = QtGui.QProgressDialog()        
+
+        self.progress = QtGui.QProgressDialog()
         self.progress.setCancelButtonText(None)
         self.progress.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
         self.progress.setAutoClose(False)
@@ -105,23 +105,23 @@ class SecondaryServer(QtCore.QObject):
         self.progress.setWindowTitle("Connecting to %s server" % self.name)
         if not self.invisible:
             self.progress.show()
-            self.progress.setLabelText("Connecting to server...")     
-           
-        self.lastData = time.time()
-        
+            self.progress.setLabelText("Connecting to server...")
 
-        self.serverSocket.connectToHost(self.HOST, self.socketPort)                         
+        self.lastData = time.time()
+
+
+        self.serverSocket.connectToHost(self.HOST, self.socketPort)
 
         if not self.invisible:
-            while not (self.serverSocket.state() == QtNetwork.QAbstractSocket.ConnectedState) and self.progress.isVisible():                
+            while not (self.serverSocket.state() == QtNetwork.QAbstractSocket.ConnectedState) and self.progress.isVisible():
                 QtGui.QApplication.processEvents()
             if not self.progress.wasCanceled():
-                self.doCommand(command)                     
+                self.doCommand(command)
             else:
-                self.result = self.RESULT_CANCEL       
+                self.result = self.RESULT_CANCEL
             self.progress.setLabelText("Cleaning up.")
-            self.progress.close()                
-                         
+            self.progress.close()
+
         else:
             started = time.time()
             cancelled = False
@@ -134,62 +134,77 @@ class SecondaryServer(QtCore.QObject):
             if not cancelled:
                 self.doCommand(command)
 
-        return self.result  
+        return self.result
 
     def doCommand(self, command):
         ''' The core function that does most of the actual work.'''
         self.sendJson(command)
         self.waitForInfo()
-              
+
     def waitForInfo(self):
         '''
         A simple loop that waits until the server has transmitted our info.
-        '''        
+        '''
         if not self.invisible:
             self.progress.setValue(0)
             self.progress.setMinimum(0)
             self.progress.setMaximum(0)
-        while self.result == self.RESULT_NONE :
-            if not self.invisible:
-                if (self.progress.wasCanceled()) : logger.error("Operation aborted while waiting for info.")
-                if (time.time() - self.lastData > self.TIMEOUT) : logger.error("Operation timed out while waiting for info.")
-            QtGui.QApplication.processEvents()
-        logger.debug("Finishing request")
-        self.result = self.RESULT_NONE
-        
+            self.result = self.RESULT_NONE
+
+            maxErrorCount = 5
+            errorCount = 0
+
+            while self.result == self.RESULT_NONE :
+                if not self.invisible:
+                    if (self.progress.wasCanceled()) :
+                        errorCount += 1
+                        logger.error("Operation aborted while waiting for info.")
+                    if (time.time() - self.lastData > self.TIMEOUT) :
+                        errorCount += 1
+                        logger.error("Operation timed out while waiting for info.")
+
+                QtGui.QApplication.processEvents()
+                # exit the loop when there are too many errors
+                if errorCount > maxErrorCount:
+                    logger.error("Too many errors while waiting for info.")
+                    self.result = self.RESULT_FAILURE
+                    break #get the hell outta here
+
+            logger.debug("Finishing request")
+
         if self.command != None and self.message != None:
             getattr(self.requester, self.command)(self.message)
-            
+
     def sendJson(self, message):
         data = json.dumps(message)
         logger.debug("Outgoing JSON Message: " + data)
-        self.writeToServer(data)      
+        self.writeToServer(data)
 
     @QtCore.pyqtSlot()
     def readDataFromServer(self):
-        ins = QtCore.QDataStream(self.serverSocket)        
+        ins = QtCore.QDataStream(self.serverSocket)
         ins.setVersion(QtCore.QDataStream.Qt_4_2)
-        
+
         while ins.atEnd() == False :
             if self.blockSize == 0:
                 if self.serverSocket.bytesAvailable() < 4:
                     return
-                self.blockSize = ins.readUInt32()            
+                self.blockSize = ins.readUInt32()
             if self.serverSocket.bytesAvailable() < self.blockSize:
                 return
-            
+
             action = ins.readQString()
             self.process(action, ins)
             self.blockSize = 0
-            
-    def writeToServer(self, action, *args, **kw):               
+
+    def writeToServer(self, action, *args, **kw):
         block = QtCore.QByteArray()
         out = QtCore.QDataStream(block, QtCore.QIODevice.ReadWrite)
         out.setVersion(QtCore.QDataStream.Qt_4_2)
         out.writeUInt32(0)
         out.writeQString(action)
-        
-        for arg in args :            
+
+        for arg in args :
             if type(arg) is IntType:
                 out.writeInt(arg)
             elif isinstance(arg, basestring):
@@ -199,18 +214,18 @@ class SecondaryServer(QtCore.QObject):
             elif type(arg) is ListType:
                 out.writeQVariantList(arg)
             else:
-                out.writeQString(str(arg))      
+                out.writeQString(str(arg))
 
         out.device().seek(0)
         out.writeUInt32(block.size() - 4)
 
-        self.bytesToSend = block.size() - 4        
+        self.bytesToSend = block.size() - 4
         self.serverSocket.write(block)
 
 
     def process(self, action, stream):
         self.receiveJSON(action, stream)
-        
+
     def receiveJSON(self, data_string, stream):
         '''
         A fairly pythonic way to process received strings as JSON messages.
@@ -221,12 +236,12 @@ class SecondaryServer(QtCore.QObject):
         if hasattr(self.requester, cmd):
             self.command = cmd
             self.message = message
-        
-        self.serverSocket.abort()        
+
+        self.serverSocket.abort()
         self.result = self.RESULT_SUCCESS
-            
-        
-        
+
+
+
 
     @QtCore.pyqtSlot('QAbstractSocket::SocketError')
     def handleServerError(self, socketError):
@@ -238,13 +253,13 @@ class SecondaryServer(QtCore.QObject):
 
         elif socketError == QtNetwork.QAbstractSocket.HostNotFoundError:
             log("Connection to Host lost. Please check the host name and port settings.")
-            
+
         elif socketError == QtNetwork.QAbstractSocket.ConnectionRefusedError:
             log("The connection was refused by the peer.")
         else:
-            log("The following error occurred: %s." % self.serverSocket.errorString())    
+            log("The following error occurred: %s." % self.serverSocket.errorString())
 
-        self.result = self.RESULT_FAILURE  
+        self.result = self.RESULT_FAILURE
 
     @QtCore.pyqtSlot()
     def disconnected(self):
