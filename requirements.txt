@@ -1,3 +1,6 @@
+-f https://content.faforever.com/wheel/
+--allow-unverified pygit2
+--allow-external pygit2
 flexmock
 pycparser==2.10
 bsdiff4==1.1.4
@@ -11,5 +14,4 @@ pytest-cov
 python-dateutil==2.2
 lupa==1.1
 git+https://github.com/FAForever/faftools.git@master#egg=faftools
-http://content.dev.faforever.com/wheel/pygit2-0.22.0-cp27-none-win32.whl ; sys.platform == 'win32';
-pygit2 ; 'linux' in sys.platform
+pygit2
