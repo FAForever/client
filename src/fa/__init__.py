@@ -97,6 +97,7 @@ def writeFAPathLua():
 loadPath()
 loadPathSC()
 
+import wine
 import exe
 import maps
 import replayserver

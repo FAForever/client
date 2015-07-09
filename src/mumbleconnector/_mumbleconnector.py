@@ -14,9 +14,14 @@ import win32api
 import time
 import re
 import _winreg
+import wine
+import subprocess
 
 # Link-dll to interface with the mumble client
-import mumble_link
+if wine.version is None:
+    import mumble_link
+else:
+    from wine import mumble_link
 
 from mumbleconnector import logger
 
@@ -69,14 +74,18 @@ class mumbleConnector():
         url.addQueryItem("version", "1.2.0")
 
         logger.info("Opening " + url.toString())
-        
-        if QtGui.QDesktopServices.openUrl(url):
+
+        if wine.version is None:
+            result = QtGui.QDesktopServices.openUrl(url):
+        else:
+            result = (subprocess.call(["cmd", "/c", "start", "/unix", wine.FAFpath + "/wine_mumble.sh", url.url()]) == 0)
+
+        if result
             logger.debug("Lauching Mumble successful")
             return 1
 
         logger.debug("Lauching Mumble failed")
         return 0
-        
             
     #
     # Checks and restores the link to mumble
@@ -109,6 +118,12 @@ class mumbleConnector():
         if not self.launchMumble():
             self.mumbleFailed = 1
             return 0
+
+        # If under wine, setup wine link helper
+        if wine.Version is not None:
+            if not mumble_link.launch_helper()
+                self.mumbleFailed = 1
+                return 0
 
         # Try to link. This may take up to 40 seconds until we bail out
         for i in range (1,8):
