@@ -26,7 +26,7 @@ class NotificationSystem():
 
         self.settings = NsSettingsDialog(self.client)
 
-        self.user = util.icon("client/user.png", pix=True)
+        self.user = util.icon("client/user.png", pix = True)
 
     def isDisabled(self):
         return self.disabledStartup or not self.settings.enabled
@@ -77,11 +77,11 @@ class NotificationSystem():
                 self.dialogClosed()
                 return
 
-            preview = maps.preview(data['mapname'], pixmap=True)
+            preview = maps.preview(data['mapname'], pixmap = True)
             if preview:
-                pixmap = preview.scaled(80, 80)
+                pixmap = preview.scaled(50, 50)
 
-            #TODO: outsource as function?
+            # TODO: outsource as function?
             mod = None if 'featured_mod' not in data else data['featured_mod']
             mods = None if 'sim_mods' not in data else data['sim_mods']
 

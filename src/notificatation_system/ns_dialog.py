@@ -12,8 +12,8 @@ class NotficationDialog(FormClass, BaseClass):
         self.setupUi(self)
         self.client = client
 
-        self.labelIcon.setPixmap(util.icon("client/tray_icon.png", pix=True).scaled(32, 32))
-        self.standardIcon = util.icon("client/comment.png", pix=True)
+        self.labelIcon.setPixmap(util.icon("client/tray_icon.png", pix = True).scaled(24, 24))
+        self.standardIcon = util.icon("client/comment.png", pix = True)
 
         screen = QtGui.QDesktopWidget().screenGeometry()
         dialog_size = self.geometry()
@@ -26,7 +26,7 @@ class NotficationDialog(FormClass, BaseClass):
         self.setWindowFlags(QtCore.Qt.ToolTip)
 
         # TODO: integrate into client.css
-        #self.setStyleSheet(self.client.styleSheet())
+        # self.setStyleSheet(self.client.styleSheet())
 
     @QtCore.pyqtSlot()
     def newEvent(self, pixmap, text, lifetime, sound):

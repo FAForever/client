@@ -19,6 +19,7 @@
 
 
 import logging
+from friendlist import FriendList
 logger = logging.getLogger(__name__)
 
 
@@ -37,8 +38,8 @@ import notificatation_system as ns
 
 IRC_PORT = 8167
 IRC_SERVER = "irc.faforever.com"
-POLLING_INTERVAL = 300   # milliseconds between irc polls
-PONG_INTERVAL = 100000   # milliseconds between pongs
+POLLING_INTERVAL = 300  # milliseconds between irc polls
+PONG_INTERVAL = 100000  # milliseconds between pongs
 
 
 FormClass, BaseClass = util.loadUiType("chat/chat.ui")
@@ -67,39 +68,39 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.client = client
         self.channels = {}
 
-        #avatar downloader
+        # avatar downloader
         self.nam = QNetworkAccessManager()
         self.nam.finished.connect(self.finishDownloadAvatar)
 
-        #nickserv stuff
+        # nickserv stuff
         self.identified = False
 
-        #IRC parameters
+        # IRC parameters
         self.ircServer = IRC_SERVER
         self.ircPort = IRC_PORT
         self.crucialChannels = ["#aeolus"]
         self.optionalChannels = []
 
-        #We can't send command until the welcom message is received
+        # We can't send command until the welcom message is received
         self.welcomed = False
 
         # Load colors and styles from theme
         self.specialUserColors = json.loads(util.readfile("chat/formatters/special_colors.json"))
         self.a_style = util.readfile("chat/formatters/a_style.qss")
 
-        #load UI perform some tweaks
+        # load UI perform some tweaks
         self.tabBar().setTabButton(0, 1, None)
 
-        #add self to client's window
+        # add self to client's window
         self.client.chatTab.layout().addWidget(self)
         self.tabCloseRequested.connect(self.closeChannel)
 
-        #add signal handler for game exit
+        # add signal handler for game exit
         self.client.gameExit.connect(self.processGameExit)
         self.replayInfo = fa.instance.info
 
 
-        #Hook with client's connection and autojoin mechanisms
+        # Hook with client's connection and autojoin mechanisms
         self.client.connected.connect(self.connect)
         self.client.publicBroadcast.connect(self.announce)
         self.client.autoJoin.connect(self.autoJoin)
@@ -111,7 +112,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.canDisconnect = False
         # self.heartbeatTimer = QtCore.QTimer(self)
         # self.heartbeatTimer.timeout.connect(self.serverTimeout)
-        # self.timeout = 0        
+        # self.timeout = 0
 
 
     @QtCore.pyqtSlot()
@@ -129,15 +130,15 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
     @QtCore.pyqtSlot()
     def connect(self):
-        #Do the actual connecting, join all important channels
+        # Do the actual connecting, join all important channels
         try:
-            self.irc_connect(self.ircServer, self.ircPort, self.client.login, ssl=True)
+            self.irc_connect(self.ircServer, self.ircPort, self.client.login, ssl = True)
             self.timer.start()
 
         except:
             logger.debug("Unable to connect to IRC server.")
             self.serverLogArea.appendPlainText("Unable to connect to the chat server, but you should still be able to host and join games.")
-            logger.error("IRC Exception", exc_info=sys.exc_info())
+            logger.error("IRC Exception", exc_info = sys.exc_info())
 
 
     def finishDownloadAvatar(self, reply):
@@ -164,7 +165,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         channel = self.widget(index)
         for name in self.channels:
                 if self.channels[name] is channel:
-                    if not self.channels[name].private and self.connection.is_connected():     # Channels must be parted (if still connected)
+                    if not self.channels[name].private and self.connection.is_connected():  # Channels must be parted (if still connected)
                         self.connection.part([name], "tab closed")
                     else:
                         # Queries and disconnected channel windows can just be closed
@@ -182,8 +183,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         for channel in self.crucialChannels:
             self.sendMsg(channel, broadcast)
 
-    def setTopic(self,chan,topic):
-        self.connection.topic(chan,topic)
+    def setTopic(self, chan, topic):
+        self.connection.topic(chan, topic)
 
     def sendMsg(self, target, text):
         if self.connection.is_connected():
@@ -211,12 +212,12 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
 
 
-    def openQuery(self, name, activate=False):
+    def openQuery(self, name, activate = False):
         # In developer mode, allow player to talk to self to test chat functions
         if (name == self.client.login) and not util.developer():
             return False
 
-        #not allowing foes to talk to us.
+        # not allowing foes to talk to us.
         if (self.client.isFoe(name)) :
             return False
 
@@ -238,10 +239,10 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
                 if channel in self.channels:
                     continue
                 if (self.connection.is_connected()) and self.welcomed:
-                    #directly join
+                    # directly join
                     self.connection.join(channel)
                 else:
-                    #Note down channels for later.
+                    # Note down channels for later.
                     self.optionalChannels.append(channel)
 
     def join(self, channel):
@@ -265,7 +266,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
 
 
-#SimpleIRCClient Class Dispatcher Attributes follow here.
+# SimpleIRCClient Class Dispatcher Attributes follow here.
     def on_welcome(self, c, e):
         self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
         self.welcomed = True
@@ -280,7 +281,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         if self.connection.get_nickname() != self.client.login :
             self.serverLogArea.appendPlainText("[Retrieving our nickname : %s]" % (self.client.login))
             self.connection.privmsg('nickserv', 'recover %s %s' % (self.client.login, util.md5text(self.client.password)))
-        #Perform any pending autojoins (client may have emitted autoJoin signals before we talked to the IRC server)
+        # Perform any pending autojoins (client may have emitted autoJoin signals before we talked to the IRC server)
         self.autoJoin(self.optionalChannels)
         self.autoJoin(self.crucialChannels)
 
@@ -306,7 +307,9 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
         for user in listing:
             self.channels[channel].addChatter(user)
-            QtGui.QApplication.processEvents()      #Added by thygrrr to improve application responsiveness on large IRC packets
+            self.client.friendList.switchUser(user2name(user), FriendList.ONLINE)
+
+            QtGui.QApplication.processEvents()  # Added by thygrrr to improve application responsiveness on large IRC packets
 
         logger.debug("Added " + str(len(listing)) + " Chatters")
 
@@ -323,7 +326,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         if channel not in self.channels:
             self.channels[channel] = Channel(self, channel)
             if (channel.lower() in self.crucialChannels):
-                self.insertTab(1, self.channels[channel], channel)    #CAVEAT: This is assumes a server tab exists.
+                self.insertTab(1, self.channels[channel], channel)  # CAVEAT: This is assumes a server tab exists.
                 self.client.localBroadcast.connect(self.channels[channel].printRaw)
                 self.channels[channel].printAnnouncement("Welcome to Forged Alliance Forever!", "red", "+3")
                 self.channels[channel].printAnnouncement("Check out FAF development at GitHub!", "red", "+1")
@@ -335,7 +338,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
                 self.addTab(self.channels[channel], channel)
 
 
-            if channel.lower() in self.crucialChannels: #Make the last crucial channel the active one
+            if channel.lower() in self.crucialChannels:  # Make the last crucial channel the active one
                 self.setCurrentWidget(self.channels[channel])
 
         username = user2name(e.source())
@@ -343,17 +346,18 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
         if channel.lower() in self.crucialChannels and username != self.client.login:
             # TODO: search better solution, that html in nick & channel no rendered
-            self.client.notificationSystem.on_event(ns.NotificationSystem.USER_ONLINE,{'user':username, 'channel':channel})
+            self.client.notificationSystem.on_event(ns.NotificationSystem.USER_ONLINE, {'user':username, 'channel':channel})
+            self.client.friendList.switchUser(username, FriendList.ONLINE)
         self.channels[channel].resizing()
 
 
     def on_part(self, c, e):
         channel = e.target()
         name = user2name(e.source())
-        if name == self.client.login:   #We left ourselves.
+        if name == self.client.login:  # We left ourselves.
             self.removeTab(self.indexOf(self.channels[channel]))
             del self.channels[channel]
-        else:                           #Someone else left
+        else:  # Someone else left
             self.channels[channel].removeChatter(name, "left.")
 
 
@@ -454,7 +458,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
     def serverTimeout(self):
         pass
-        
+
 
     def on_disconnect(self, c, e):
         if not self.canDisconnect:
