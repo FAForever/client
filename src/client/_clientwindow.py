@@ -1754,8 +1754,8 @@ class ClientWindow(FormClass, BaseClass):
                 self.state = ClientState.ACCEPTED
 
         else :
-            self.email = message["email"]
-            self.id = message["id"]
+            self.email = message.get('email', '')
+            self.id = message.get('id', 0)
             logger.debug("Login success")
             self.state = ClientState.ACCEPTED
 
