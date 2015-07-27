@@ -12,3 +12,10 @@ Enhancements
 - Ability to sort active games by number of players / game quality and average rating
 - Ability to hide private games
 - Games will launch slightly faster
+
+Contributors
+------------
+
+- HaraldWeber
+- Dragonfire
+- Sheeo
