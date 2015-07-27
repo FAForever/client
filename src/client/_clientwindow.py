@@ -1163,6 +1163,9 @@ class ClientWindow(FormClass, BaseClass):
             util.report.BUGREPORT_USER = self.login
             util.crash.CRASHREPORT_USER = self.login
 
+            if self.useUPnP:
+                fa.upnp.createPortMapping(self.localIP, self.gamePort, "UDP")
+
             #success: save login data (if requested) and carry on
             self.actionSetAutoLogin.setChecked(self.autologin)
             self.updateOptions()

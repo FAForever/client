@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DOCUMENT Type="Advanced Installer" CreateVersion="8.2" version="11.5.1" Modules="simple" RootPath="." Language="en" Id="{12DBD6A4-B629-4B03-8158-F30A859838A6}">
+<DOCUMENT Type="Advanced Installer" CreateVersion="8.2" version="12.3" Modules="simple" RootPath="." Language="en" Id="{12DBD6A4-B629-4B03-8158-F30A859838A6}">
   <COMPONENT cid="caphyon.advinst.msicomp.MsiValidationComponent">
     <ROW Table="File" Column="Sequence" MinValue="1" MaxValue="2147483647" Description="Sequence with respect to the media images; order must track cabinet order." Options="0" ColumnType="3" ColumnIndex="7" ColumnSize="4" MsiKey="File#Sequence"/>
     <ROW Table="Media" Column="LastSequence" MinValue="0" MaxValue="2147483647" Description="File sequence number for the last file for this media." Options="0" ColumnType="3" ColumnIndex="1" ColumnSize="4" MsiKey="Media#LastSequence"/>
@@ -15,10 +15,10 @@
     <ROW Property="ARPURLUPDATEINFO" Value="http://www.faforever.com/page=2"/>
     <ROW Property="CTRLS" Value="2"/>
     <ROW Property="Manufacturer" Value="FAF Community" ValueLocId="*"/>
-    <ROW Property="ProductCode" Value="1033:{EF37C7C0-1281-4452-8A3F-D71215478D63} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{BDB1A380-10A0-4750-96AF-08ABD3715794} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Forged Alliance Forever" ValueLocId="*"/>
-    <ROW Property="ProductVersion" Value="240.10.122" Type="32"/>
+    <ROW Property="ProductVersion" Value="242.10.125" Type="32"/>
     <ROW Property="REBOOT" MultiBuildValue="DefaultBuild:Suppress"/>
     <ROW Property="RUNAPPLICATION" Value="1" Type="4"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
@@ -243,7 +243,7 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
     <ROW File="ACT" Component_="ACT" FileName="ACT" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\tzdata\Australia\ACT" SelfReg="false" NextFile="Adelaide"/>
-    <ROW File="APIMSWinCoreLocalRegistryL110.dll" Component_="APIMSWinCoreLocalRegistryL110.dll" FileName="API-MS~1.dll|API-MS-Win-Core-LocalRegistry-L1-1-0.dll" Attributes="0" SourcePath="..\dist\API-MS-Win-Core-LocalRegistry-L1-1-0.dll" SelfReg="false" NextFile="mfc100u.dll"/>
+    <ROW File="APIMSWinCoreLocalRegistryL110.dll" Component_="APIMSWinCoreLocalRegistryL110.dll" FileName="API-MS~1.dll|API-MS-Win-Core-LocalRegistry-L1-1-0.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\API-MS-Win-Core-LocalRegistry-L1-1-0.dll" SelfReg="false" NextFile="mfc100u.dll"/>
     <ROW File="AST4" Component_="AST4" FileName="AST4" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\tzdata\SystemV\AST4" SelfReg="false" NextFile="AST4ADT"/>
     <ROW File="AST4ADT" Component_="AST4" FileName="AST4ADT" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\tzdata\SystemV\AST4ADT" SelfReg="false" NextFile="CST6"/>
     <ROW File="Abidjan" Component_="Abidjan" FileName="Abidjan" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\tzdata\Africa\Abidjan" SelfReg="false" NextFile="Accra"/>
@@ -425,8 +425,8 @@
     <ROW File="Enderbury" Component_="Apia" FileName="ENDERB~1|Enderbury" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\tzdata\Pacific\Enderbury" SelfReg="false" NextFile="Fakaofo"/>
     <ROW File="Ensenada" Component_="Adak" FileName="Ensenada" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\tzdata\America\Ensenada" SelfReg="false" NextFile="Fortaleza"/>
     <ROW File="Eucla" Component_="ACT" FileName="Eucla" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\tzdata\Australia\Eucla" SelfReg="false" NextFile="Hobart"/>
-    <ROW File="FAForever.exe" Component_="FAForever.exe" FileName="FAFore~1.exe|FAForever.exe" Attributes="0" SourcePath="..\dist\FAForever.exe" SelfReg="false" NextFile="qgif4.dll_1"/>
-    <ROW File="FAForever.lib" Component_="FAForever.lib" FileName="FAFore~1.lib|FAForever.lib" Attributes="0" SourcePath="..\dist\FAForever.lib" SelfReg="false" NextFile="version"/>
+    <ROW File="FAForever.exe" Component_="FAForever.exe" FileName="FAFore~1.exe|FAForever.exe" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\FAForever.exe" SelfReg="false" NextFile="qgif4.dll_1"/>
+    <ROW File="FAForever.lib" Component_="FAForever.lib" FileName="FAFore~1.lib|FAForever.lib" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\FAForever.lib" SelfReg="false" NextFile="version"/>
     <ROW File="Faeroe" Component_="Azores" FileName="Faeroe" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\tzdata\Atlantic\Faeroe" SelfReg="false" NextFile="Faroe"/>
     <ROW File="Fakaofo" Component_="Apia" FileName="Fakaofo" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\tzdata\Pacific\Fakaofo" SelfReg="false" NextFile="Fiji"/>
     <ROW File="Faroe" Component_="Azores" FileName="Faroe" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\tzdata\Atlantic\Faroe" SelfReg="false" NextFile="Jan_Mayen"/>
@@ -564,7 +564,7 @@
     <ROW File="Kwajalein" Component_="CET" FileName="KWAJAL~1|Kwajalein" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\tzdata\Kwajalein" SelfReg="false" NextFile="Libya"/>
     <ROW File="Kwajalein_1" Component_="Apia" FileName="KWAJAL~1|Kwajalein" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\tzdata\Pacific\Kwajalein" SelfReg="false" NextFile="Majuro"/>
     <ROW File="LHI" Component_="ACT" FileName="LHI" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\tzdata\Australia\LHI" SelfReg="false" NextFile="Lindeman"/>
-    <ROW File="LIBEAY32.dll" Component_="LIBEAY32.dll" FileName="LIBEAY32.dll" Attributes="0" SourcePath="..\dist\LIBEAY32.dll" SelfReg="false" NextFile="SSLEAY32.dll"/>
+    <ROW File="LIBEAY32.dll" Component_="LIBEAY32.dll" FileName="LIBEAY32.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\LIBEAY32.dll" SelfReg="false" NextFile="SSLEAY32.dll"/>
     <ROW File="LICENSE_STIX" Component_="cmb10.ttf" FileName="LICENS~1|LICENSE_STIX" Attributes="0" SourcePath="..\dist\mpl-data\fonts\ttf\LICENSE_STIX" SelfReg="false" NextFile="README.TXT_2"/>
     <ROW File="La_Paz" Component_="Adak" FileName="La_Paz" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\tzdata\America\La_Paz" SelfReg="false" NextFile="Lima"/>
     <ROW File="La_Rioja" Component_="Buenos_Aires" FileName="La_Rioja" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\tzdata\America\Argentina\La_Rioja" SelfReg="false" NextFile="Mendoza"/>
@@ -588,7 +588,7 @@
     <ROW File="Lusaka" Component_="Abidjan" FileName="Lusaka" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\tzdata\Africa\Lusaka" SelfReg="false" NextFile="Malabo"/>
     <ROW File="Luxembourg" Component_="Amsterdam" FileName="LUXEMB~1|Luxembourg" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\tzdata\Europe\Luxembourg" SelfReg="false" NextFile="Madrid"/>
     <ROW File="MET" Component_="CET" FileName="MET" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\tzdata\MET" SelfReg="false" NextFile="BajaNorte"/>
-    <ROW File="MPR.dll" Component_="MPR.dll" FileName="MPR.dll" Attributes="0" SourcePath="..\dist\MPR.dll" SelfReg="false" NextFile="PyQt4.Qt.pyd"/>
+    <ROW File="MPR.dll" Component_="MPR.dll" FileName="MPR.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\MPR.dll" SelfReg="false" NextFile="PyQt4.Qt.pyd"/>
     <ROW File="MST" Component_="CET" FileName="MST" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\tzdata\MST" SelfReg="false" NextFile="MST7MDT"/>
     <ROW File="MST7" Component_="AST4" FileName="MST7" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\tzdata\SystemV\MST7" SelfReg="false" NextFile="MST7MDT_1"/>
     <ROW File="MST7MDT" Component_="CET" FileName="MST7MDT" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\tzdata\MST7MDT" SelfReg="false" NextFile="Navajo"/>
@@ -677,7 +677,7 @@
     <ROW File="Oral" Component_="Aden" FileName="Oral" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\tzdata\Asia\Oral" SelfReg="false" NextFile="Phnom_Penh"/>
     <ROW File="Oslo" Component_="Amsterdam" FileName="Oslo" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\tzdata\Europe\Oslo" SelfReg="false" NextFile="Paris"/>
     <ROW File="Ouagadougou" Component_="Abidjan" FileName="OUAGAD~1|Ouagadougou" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\tzdata\Africa\Ouagadougou" SelfReg="false" NextFile="PortoNovo"/>
-    <ROW File="PIL._imaging.pyd" Component_="FAForever.lib" FileName="PIL_im~1.pyd|PIL._imaging.pyd" Attributes="0" SourcePath="..\dist\PIL._imaging.pyd" SelfReg="false" NextFile="APIMSWinCoreLocalRegistryL110.dll"/>
+    <ROW File="PIL._imaging.pyd" Component_="FAForever.lib" FileName="PIL_im~1.pyd|PIL._imaging.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\PIL._imaging.pyd" SelfReg="false" NextFile="APIMSWinCoreLocalRegistryL110.dll"/>
     <ROW File="PRC" Component_="CET" FileName="PRC" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\tzdata\PRC" SelfReg="false" NextFile="PST8PDT"/>
     <ROW File="PST8" Component_="AST4" FileName="PST8" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\tzdata\SystemV\PST8" SelfReg="false" NextFile="PST8PDT_1"/>
     <ROW File="PST8PDT" Component_="CET" FileName="PST8PDT" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\tzdata\PST8PDT" SelfReg="false" NextFile="ROC"/>
@@ -711,19 +711,19 @@
     <ROW File="Portugal" Component_="CET" FileName="Portugal" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\tzdata\Portugal" SelfReg="false" NextFile="PRC"/>
     <ROW File="Prague" Component_="Amsterdam" FileName="Prague" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\tzdata\Europe\Prague" SelfReg="false" NextFile="Riga"/>
     <ROW File="Puerto_Rico" Component_="Adak" FileName="PUERTO~1|Puerto_Rico" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\tzdata\America\Puerto_Rico" SelfReg="false" NextFile="Rainy_River"/>
-    <ROW File="PyQt4.Qt.pyd" Component_="FAForever.lib" FileName="PyQt4Q~6.pyd|PyQt4.Qt.pyd" Attributes="0" SourcePath="..\dist\PyQt4.Qt.pyd" SelfReg="false" NextFile="qgif4.dll"/>
-    <ROW File="PyQt4.QtCore.pyd" Component_="FAForever.lib" FileName="PyQt4Q~5.pyd|PyQt4.QtCore.pyd" Attributes="0" SourcePath="..\dist\PyQt4.QtCore.pyd" SelfReg="false" NextFile="sip.pyd"/>
-    <ROW File="PyQt4.QtGui.pyd" Component_="FAForever.lib" FileName="PyQt4Q~4.pyd|PyQt4.QtGui.pyd" Attributes="0" SourcePath="..\dist\PyQt4.QtGui.pyd" SelfReg="false" NextFile="PyQt4.QtCore.pyd"/>
-    <ROW File="PyQt4.QtNetwork.pyd" Component_="FAForever.lib" FileName="PyQt4Q~3.pyd|PyQt4.QtNetwork.pyd" Attributes="0" SourcePath="..\dist\PyQt4.QtNetwork.pyd" SelfReg="false" NextFile="PyQt4.QtGui.pyd"/>
-    <ROW File="PyQt4.QtOpenGL.pyd" Component_="FAForever.lib" FileName="PyQt4Q~2.pyd|PyQt4.QtOpenGL.pyd" Attributes="0" SourcePath="..\dist\PyQt4.QtOpenGL.pyd" SelfReg="false" NextFile="PyQt4.QtNetwork.pyd"/>
-    <ROW File="PyQt4.QtWebKit.pyd" Component_="FAForever.lib" FileName="PyQt4Q~1.pyd|PyQt4.QtWebKit.pyd" Attributes="0" SourcePath="..\dist\PyQt4.QtWebKit.pyd" SelfReg="false" NextFile="PyQt4.QtOpenGL.pyd"/>
+    <ROW File="PyQt4.Qt.pyd" Component_="FAForever.lib" FileName="PyQt4Q~6.pyd|PyQt4.Qt.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\PyQt4.Qt.pyd" SelfReg="false" NextFile="qgif4.dll"/>
+    <ROW File="PyQt4.QtCore.pyd" Component_="FAForever.lib" FileName="PyQt4Q~5.pyd|PyQt4.QtCore.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\PyQt4.QtCore.pyd" SelfReg="false" NextFile="sip.pyd"/>
+    <ROW File="PyQt4.QtGui.pyd" Component_="FAForever.lib" FileName="PyQt4Q~4.pyd|PyQt4.QtGui.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\PyQt4.QtGui.pyd" SelfReg="false" NextFile="PyQt4.QtCore.pyd"/>
+    <ROW File="PyQt4.QtNetwork.pyd" Component_="FAForever.lib" FileName="PyQt4Q~3.pyd|PyQt4.QtNetwork.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\PyQt4.QtNetwork.pyd" SelfReg="false" NextFile="PyQt4.QtGui.pyd"/>
+    <ROW File="PyQt4.QtOpenGL.pyd" Component_="FAForever.lib" FileName="PyQt4Q~2.pyd|PyQt4.QtOpenGL.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\PyQt4.QtOpenGL.pyd" SelfReg="false" NextFile="PyQt4.QtNetwork.pyd"/>
+    <ROW File="PyQt4.QtWebKit.pyd" Component_="FAForever.lib" FileName="PyQt4Q~1.pyd|PyQt4.QtWebKit.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\PyQt4.QtWebKit.pyd" SelfReg="false" NextFile="PyQt4.QtOpenGL.pyd"/>
     <ROW File="Pyongyang" Component_="Aden" FileName="PYONGY~1|Pyongyang" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\tzdata\Asia\Pyongyang" SelfReg="false" NextFile="Qatar"/>
     <ROW File="Qatar" Component_="Aden" FileName="Qatar" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\tzdata\Asia\Qatar" SelfReg="false" NextFile="Qyzylorda"/>
-    <ROW File="QtCore4.dll" Component_="QtCore4.dll" FileName="QtCore4.dll" Attributes="0" SourcePath="..\dist\QtCore4.dll" SelfReg="false" NextFile="uid.dll"/>
-    <ROW File="QtGui4.dll" Component_="QtGui4.dll" FileName="QtGui4.dll" Attributes="0" SourcePath="..\dist\QtGui4.dll" SelfReg="false" NextFile="QtNetwork4.dll"/>
-    <ROW File="QtNetwork4.dll" Component_="QtNetwork4.dll" FileName="QtNetw~1.dll|QtNetwork4.dll" Attributes="0" SourcePath="..\dist\QtNetwork4.dll" SelfReg="false" NextFile="QtCore4.dll"/>
-    <ROW File="QtOpenGL4.dll" Component_="QtOpenGL4.dll" FileName="QtOpen~1.dll|QtOpenGL4.dll" Attributes="0" SourcePath="..\dist\QtOpenGL4.dll" SelfReg="false" NextFile="QtGui4.dll"/>
-    <ROW File="QtWebKit4.dll" Component_="QtWebKit4.dll" FileName="QtWebK~1.dll|QtWebKit4.dll" Attributes="0" SourcePath="..\dist\QtWebKit4.dll" SelfReg="false" NextFile="QtOpenGL4.dll"/>
+    <ROW File="QtCore4.dll" Component_="QtCore4.dll" FileName="QtCore4.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\QtCore4.dll" SelfReg="false" NextFile="uid.dll"/>
+    <ROW File="QtGui4.dll" Component_="QtGui4.dll" FileName="QtGui4.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\QtGui4.dll" SelfReg="false" NextFile="QtNetwork4.dll"/>
+    <ROW File="QtNetwork4.dll" Component_="QtNetwork4.dll" FileName="QtNetw~1.dll|QtNetwork4.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\QtNetwork4.dll" SelfReg="false" NextFile="QtCore4.dll"/>
+    <ROW File="QtOpenGL4.dll" Component_="QtOpenGL4.dll" FileName="QtOpen~1.dll|QtOpenGL4.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\QtOpenGL4.dll" SelfReg="false" NextFile="QtGui4.dll"/>
+    <ROW File="QtWebKit4.dll" Component_="QtWebKit4.dll" FileName="QtWebK~1.dll|QtWebKit4.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\QtWebKit4.dll" SelfReg="false" NextFile="QtOpenGL4.dll"/>
     <ROW File="Queensland" Component_="ACT" FileName="QUEENS~1|Queensland" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\tzdata\Australia\Queensland" SelfReg="false" NextFile="South"/>
     <ROW File="Qyzylorda" Component_="Aden" FileName="QYZYLO~1|Qyzylorda" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\tzdata\Asia\Qyzylorda" SelfReg="false" NextFile="Rangoon"/>
     <ROW File="README" Component_="anilabel.tcl" FileName="README" Attributes="0" SourcePath="..\dist\tcl\tk8.5\demos\README" SelfReg="false" NextFile="rmt"/>
@@ -748,7 +748,7 @@
     <ROW File="Rome" Component_="Amsterdam" FileName="Rome" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\tzdata\Europe\Rome" SelfReg="false" NextFile="Samara"/>
     <ROW File="Rosario" Component_="Adak" FileName="Rosario" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\tzdata\America\Rosario" SelfReg="false" NextFile="Santarem"/>
     <ROW File="Rothera" Component_="Casey" FileName="Rothera" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\tzdata\Antarctica\Rothera" SelfReg="false" NextFile="South_Pole"/>
-    <ROW File="SSLEAY32.dll" Component_="SSLEAY32.dll" FileName="SSLEAY32.dll" Attributes="0" SourcePath="..\dist\SSLEAY32.dll" SelfReg="false" NextFile="bsdiff.pyd"/>
+    <ROW File="SSLEAY32.dll" Component_="SSLEAY32.dll" FileName="SSLEAY32.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\SSLEAY32.dll" SelfReg="false" NextFile="bsdiff.pyd"/>
     <ROW File="STIXGeneral.ttf" Component_="cmb10.ttf" FileName="STIXGe~1.ttf|STIXGeneral.ttf" Attributes="0" SourcePath="..\dist\mpl-data\fonts\ttf\STIXGeneral.ttf" SelfReg="false" NextFile="STIXGeneralBol.ttf"/>
     <ROW File="STIXGeneralBol.ttf" Component_="cmb10.ttf" FileName="STIXGe~2.ttf|STIXGeneralBol.ttf" Attributes="0" SourcePath="..\dist\mpl-data\fonts\ttf\STIXGeneralBol.ttf" SelfReg="false" NextFile="STIXGeneralBolIta.ttf"/>
     <ROW File="STIXGeneralBolIta.ttf" Component_="cmb10.ttf" FileName="STIXGe~3.ttf|STIXGeneralBolIta.ttf" Attributes="0" SourcePath="..\dist\mpl-data\fonts\ttf\STIXGeneralBolIta.ttf" SelfReg="false" NextFile="STIXGeneralItalic.ttf"/>
@@ -942,14 +942,14 @@
     <ROW File="_WHO.png" Component_="ad.png" FileName="_WHO.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\_WHO.png" SelfReg="false" NextFile="_WTO.png"/>
     <ROW File="_WTO.png" Component_="ad.png" FileName="_WTO.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\_WTO.png" SelfReg="false" NextFile="tutorials.png"/>
     <ROW File="_Wales.png" Component_="ad.png" FileName="_Wales.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\_Wales.png" SelfReg="false" NextFile="_WHO.png"/>
-    <ROW File="_ctypes.pyd" Component_="FAForever.lib" FileName="_ctypes.pyd" Attributes="0" SourcePath="..\dist\_ctypes.pyd" SelfReg="false" NextFile="_hashlib.pyd"/>
-    <ROW File="_hashlib.pyd" Component_="FAForever.lib" FileName="_hashlib.pyd" Attributes="0" SourcePath="..\dist\_hashlib.pyd" SelfReg="false" NextFile="bz2.pyd"/>
-    <ROW File="_imaging.pyd" Component_="FAForever.lib" FileName="_imaging.pyd" Attributes="0" SourcePath="..\dist\_imaging.pyd" SelfReg="false" NextFile="PIL._imaging.pyd"/>
-    <ROW File="_multiprocessing.pyd" Component_="FAForever.lib" FileName="_multi~1.pyd|_multiprocessing.pyd" Attributes="0" SourcePath="..\dist\_multiprocessing.pyd" SelfReg="false" NextFile="account_seraphim.png"/>
-    <ROW File="_socket.pyd" Component_="FAForever.lib" FileName="_socket.pyd" Attributes="0" SourcePath="..\dist\_socket.pyd" SelfReg="false" NextFile="_ssl.pyd"/>
-    <ROW File="_ssl.pyd" Component_="FAForever.lib" FileName="_ssl.pyd" Attributes="0" SourcePath="..\dist\_ssl.pyd" SelfReg="false" NextFile="python27.dll"/>
-    <ROW File="_tkinter.pyd" Component_="FAForever.lib" FileName="_tkinter.pyd" Attributes="0" SourcePath="..\dist\_tkinter.pyd" SelfReg="false" NextFile="unicodedata.pyd"/>
-    <ROW File="_win32sysloader.pyd" Component_="FAForever.lib" FileName="_win32~1.pyd|_win32sysloader.pyd" Attributes="0" SourcePath="..\dist\_win32sysloader.pyd" SelfReg="false" NextFile="win32pipe.pyd"/>
+    <ROW File="_ctypes.pyd" Component_="FAForever.lib" FileName="_ctypes.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\_ctypes.pyd" SelfReg="false" NextFile="_hashlib.pyd"/>
+    <ROW File="_hashlib.pyd" Component_="FAForever.lib" FileName="_hashlib.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\_hashlib.pyd" SelfReg="false" NextFile="bz2.pyd"/>
+    <ROW File="_imaging.pyd" Component_="FAForever.lib" FileName="_imaging.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\_imaging.pyd" SelfReg="false" NextFile="PIL._imaging.pyd"/>
+    <ROW File="_multiprocessing.pyd" Component_="FAForever.lib" FileName="_multi~1.pyd|_multiprocessing.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\_multiprocessing.pyd" SelfReg="false" NextFile="account_seraphim.png"/>
+    <ROW File="_socket.pyd" Component_="FAForever.lib" FileName="_socket.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\_socket.pyd" SelfReg="false" NextFile="_ssl.pyd"/>
+    <ROW File="_ssl.pyd" Component_="FAForever.lib" FileName="_ssl.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\_ssl.pyd" SelfReg="false" NextFile="python27.dll"/>
+    <ROW File="_tkinter.pyd" Component_="FAForever.lib" FileName="_tkinter.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\_tkinter.pyd" SelfReg="false" NextFile="unicodedata.pyd"/>
+    <ROW File="_win32sysloader.pyd" Component_="FAForever.lib" FileName="_win32~1.pyd|_win32sysloader.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\_win32sysloader.pyd" SelfReg="false" NextFile="win32pipe.pyd"/>
     <ROW File="a_style.qss" Component_="action.qthtml" FileName="a_style.qss" Attributes="0" SourcePath="..\dist\_res\chat\formatters\a_style.qss" SelfReg="false" NextFile="message.qthtml"/>
     <ROW File="about.ui" Component_="about.ui" FileName="about.ui" Attributes="0" SourcePath="..\dist\_res\client\about.ui" SelfReg="false" NextFile="account_watermark_created.png"/>
     <ROW File="account_seraphim.png" Component_="about.ui" FileName="ACCOUN~4.PNG|account_seraphim.png" Attributes="0" SourcePath="..\dist\_res\client\account_seraphim.png" SelfReg="false" NextFile="background5.png"/>
@@ -1032,7 +1032,7 @@
     <ROW File="broken.png" Component_="broken.png" FileName="broken.png" Attributes="0" SourcePath="..\dist\_res\replays\broken.png" SelfReg="false" NextFile="bucket.png"/>
     <ROW File="browse" Component_="anilabel.tcl" FileName="browse" Attributes="0" SourcePath="..\dist\tcl\tk8.5\demos\browse" SelfReg="false" NextFile="button.tcl_1"/>
     <ROW File="bs.png" Component_="ad.png" FileName="bs.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\bs.png" SelfReg="false" NextFile="bt.png"/>
-    <ROW File="bsdiff.pyd" Component_="FAForever.lib" FileName="bsdiff.pyd" Attributes="0" SourcePath="..\dist\bsdiff.pyd" SelfReg="false" NextFile="w9xpopen.exe"/>
+    <ROW File="bsdiff.pyd" Component_="FAForever.lib" FileName="bsdiff.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\bsdiff.pyd" SelfReg="false" NextFile="w9xpopen.exe"/>
     <ROW File="bt.png" Component_="ad.png" FileName="bt.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\bt.png" SelfReg="false" NextFile="bv.png"/>
     <ROW File="bucket.png" Component_="broken.png" FileName="bucket.png" Attributes="0" SourcePath="..\dist\_res\replays\bucket.png" SelfReg="false" NextFile="live.png"/>
     <ROW File="button.tcl" Component_="bgerror.tcl" FileName="button.tcl" Attributes="0" SourcePath="..\dist\tcl\tk8.5\button.tcl" SelfReg="false" NextFile="choosedir.tcl"/>
@@ -1042,7 +1042,7 @@
     <ROW File="bw.png" Component_="ad.png" FileName="bw.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\bw.png" SelfReg="false" NextFile="by.png"/>
     <ROW File="by.png" Component_="ad.png" FileName="by.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\by.png" SelfReg="false" NextFile="bz.png"/>
     <ROW File="bz.png" Component_="ad.png" FileName="bz.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\bz.png" SelfReg="false" NextFile="ca.png"/>
-    <ROW File="bz2.pyd" Component_="FAForever.lib" FileName="bz2.pyd" Attributes="0" SourcePath="..\dist\bz2.pyd" SelfReg="false" NextFile="select.pyd"/>
+    <ROW File="bz2.pyd" Component_="FAForever.lib" FileName="bz2.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\bz2.pyd" SelfReg="false" NextFile="select.pyd"/>
     <ROW File="ca.msg" Component_="af.msg" FileName="ca.msg" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\msgs\ca.msg" SelfReg="false" NextFile="cs.msg"/>
     <ROW File="ca.png" Component_="ad.png" FileName="ca.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\ca.png" SelfReg="false" NextFile="cc.png"/>
     <ROW File="cc.png" Component_="ad.png" FileName="cc.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\cc.png" SelfReg="false" NextFile="cd.png"/>
@@ -1227,7 +1227,7 @@
     <ROW File="fa_ir.msg" Component_="af.msg" FileName="fa_ir.msg" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\msgs\fa_ir.msg" SelfReg="false" NextFile="fi.msg"/>
     <ROW File="face.xbm" Component_="earth.gif" FileName="face.xbm" Attributes="0" SourcePath="..\dist\tcl\tk8.5\demos\images\face.xbm" SelfReg="false" NextFile="flagdown.xbm"/>
     <ROW File="faf.html" Component_="blackops.html" FileName="faf~1.htm|faf.html" Attributes="0" SourcePath="..\dist\_res\games\mods\faf.html" SelfReg="false" NextFile="faf.png"/>
-    <ROW File="faf.ico" Component_="FAForever.lib" FileName="faf.ico" Attributes="0" SourcePath="..\dist\faf.ico" SelfReg="false" NextFile="mumble_link.pyd"/>
+    <ROW File="faf.ico" Component_="FAForever.lib" FileName="faf.ico" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\faf.ico" SelfReg="false" NextFile="mumble_link.pyd"/>
     <ROW File="faf.png" Component_="blackops.html" FileName="faf.png" Attributes="0" SourcePath="..\dist\_res\games\mods\faf.png" SelfReg="false" NextFile="koth.html"/>
     <ROW File="faf.qthtml" Component_="faf.qthtml" FileName="faf~1.qth|faf.qthtml" Attributes="0" SourcePath="..\dist\_res\games\formatters\faf.qthtml" SelfReg="false" NextFile="mod.qthtml"/>
     <ROW File="failure.ui" Component_="failure.ui" FileName="failure.ui" Attributes="0" SourcePath="..\dist\_res\fa\updater\failure.ui" SelfReg="false" NextFile="illegal.ui"/>
@@ -1417,7 +1417,7 @@
     <ROW File="lc.png" Component_="ad.png" FileName="lc.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\lc.png" SelfReg="false" NextFile="li.png"/>
     <ROW File="letters.xbm" Component_="earth.gif" FileName="letters.xbm" Attributes="0" SourcePath="..\dist\tcl\tk8.5\demos\images\letters.xbm" SelfReg="false" NextFile="noletter.xbm"/>
     <ROW File="li.png" Component_="ad.png" FileName="li.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\li.png" SelfReg="false" NextFile="lk.png"/>
-    <ROW File="libiomp5md.dll" Component_="libiomp5md.dll" FileName="LIBIOM~1.DLL|libiomp5md.dll" Attributes="0" SourcePath="..\dist\libiomp5md.dll" SelfReg="false" NextFile="matplotlib._qhull.pyd"/>
+    <ROW File="libiomp5md.dll" Component_="libiomp5md.dll" FileName="LIBIOM~1.DLL|libiomp5md.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\libiomp5md.dll" SelfReg="false" NextFile="matplotlib._qhull.pyd"/>
     <ROW File="license.terms" Component_="anilabel.tcl" FileName="LICENS~1.TER|license.terms" Attributes="0" SourcePath="..\dist\tcl\tk8.5\demos\license.terms" SelfReg="false" NextFile="mclist.tcl"/>
     <ROW File="license.terms_1" Component_="bgerror.tcl" FileName="LICENS~1.TER|license.terms" Attributes="0" SourcePath="..\dist\tcl\tk8.5\license.terms" SelfReg="false" NextFile="listbox.tcl"/>
     <ROW File="lineprops.glade" Component_="lineprops.glade" FileName="linepr~1.gla|lineprops.glade" Attributes="0" SourcePath="..\dist\mpl-data\lineprops.glade" SelfReg="false" NextFile="matplotlib.conf"/>
@@ -1459,20 +1459,20 @@
     <ROW File="maps.png" Component_="about.ui" FileName="maps.png" Attributes="0" SourcePath="..\dist\_res\client\maps.png" SelfReg="false" NextFile="replays.png"/>
     <ROW File="mapstat.ui" Component_="mapstat.ui" FileName="mapstat.ui" Attributes="0" SourcePath="..\dist\_res\stats\mapstat.ui" SelfReg="false" NextFile="stats.ui"/>
     <ROW File="mass.png" Component_="army.png" FileName="mass.png" Attributes="0" SourcePath="..\dist\_res\vault\map_icons\mass.png" SelfReg="false" NextFile="window_icon.png"/>
-    <ROW File="matplotlib._cntr.pyd" Component_="FAForever.lib" FileName="matplo~7.pyd|matplotlib._cntr.pyd" Attributes="0" SourcePath="..\dist\matplotlib._cntr.pyd" SelfReg="false" NextFile="matplotlib.ttconv.pyd"/>
-    <ROW File="matplotlib._delaunay.pyd" Component_="FAForever.lib" FileName="matplo~6.pyd|matplotlib._delaunay.pyd" Attributes="0" SourcePath="..\dist\matplotlib._delaunay.pyd" SelfReg="false" NextFile="matplotlib._cntr.pyd"/>
-    <ROW File="matplotlib._image.pyd" Component_="FAForever.lib" FileName="matplo~2.pyd|matplotlib._image.pyd" Attributes="0" SourcePath="..\dist\matplotlib._image.pyd" SelfReg="false" NextFile="matplotlib.backends._backend_agg.pyd"/>
-    <ROW File="matplotlib._path.pyd" Component_="FAForever.lib" FileName="matplo~5.pyd|matplotlib._path.pyd" Attributes="0" SourcePath="..\dist\matplotlib._path.pyd" SelfReg="false" NextFile="matplotlib._delaunay.pyd"/>
-    <ROW File="matplotlib._png.pyd" Component_="FAForever.lib" FileName="matplo~1.pyd|matplotlib._png.pyd" Attributes="0" SourcePath="..\dist\matplotlib._png.pyd" SelfReg="false" NextFile="matplotlib._image.pyd"/>
-    <ROW File="matplotlib._qhull.pyd" Component_="FAForever.lib" FileName="MATPL~10.PYD|matplotlib._qhull.pyd" Attributes="0" SourcePath="..\dist\matplotlib._qhull.pyd" SelfReg="false" NextFile="numpy.core._dotblas.pyd"/>
-    <ROW File="matplotlib._tri.pyd" Component_="FAForever.lib" FileName="matplo~4.pyd|matplotlib._tri.pyd" Attributes="0" SourcePath="..\dist\matplotlib._tri.pyd" SelfReg="false" NextFile="matplotlib._path.pyd"/>
-    <ROW File="matplotlib.backends._backend_agg.pyd" Component_="FAForever.lib" FileName="matplo~3.pyd|matplotlib.backends._backend_agg.pyd" Attributes="0" SourcePath="..\dist\matplotlib.backends._backend_agg.pyd" SelfReg="false" NextFile="matplotlib._tri.pyd"/>
+    <ROW File="matplotlib._cntr.pyd" Component_="FAForever.lib" FileName="matplo~7.pyd|matplotlib._cntr.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\matplotlib._cntr.pyd" SelfReg="false" NextFile="matplotlib.ttconv.pyd"/>
+    <ROW File="matplotlib._delaunay.pyd" Component_="FAForever.lib" FileName="matplo~6.pyd|matplotlib._delaunay.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\matplotlib._delaunay.pyd" SelfReg="false" NextFile="matplotlib._cntr.pyd"/>
+    <ROW File="matplotlib._image.pyd" Component_="FAForever.lib" FileName="matplo~2.pyd|matplotlib._image.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\matplotlib._image.pyd" SelfReg="false" NextFile="matplotlib.backends._backend_agg.pyd"/>
+    <ROW File="matplotlib._path.pyd" Component_="FAForever.lib" FileName="matplo~5.pyd|matplotlib._path.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\matplotlib._path.pyd" SelfReg="false" NextFile="matplotlib._delaunay.pyd"/>
+    <ROW File="matplotlib._png.pyd" Component_="FAForever.lib" FileName="matplo~1.pyd|matplotlib._png.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\matplotlib._png.pyd" SelfReg="false" NextFile="matplotlib._image.pyd"/>
+    <ROW File="matplotlib._qhull.pyd" Component_="FAForever.lib" FileName="MATPL~10.PYD|matplotlib._qhull.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\matplotlib._qhull.pyd" SelfReg="false" NextFile="numpy.core._dotblas.pyd"/>
+    <ROW File="matplotlib._tri.pyd" Component_="FAForever.lib" FileName="matplo~4.pyd|matplotlib._tri.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\matplotlib._tri.pyd" SelfReg="false" NextFile="matplotlib._path.pyd"/>
+    <ROW File="matplotlib.backends._backend_agg.pyd" Component_="FAForever.lib" FileName="matplo~3.pyd|matplotlib.backends._backend_agg.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\matplotlib.backends._backend_agg.pyd" SelfReg="false" NextFile="matplotlib._tri.pyd"/>
     <ROW File="matplotlib.conf" Component_="lineprops.glade" FileName="matplo~1.con|matplotlib.conf" Attributes="0" SourcePath="..\dist\mpl-data\matplotlib.conf" SelfReg="false" NextFile="matplotlibrc"/>
-    <ROW File="matplotlib.ft2font.pyd" Component_="FAForever.lib" FileName="matplo~9.pyd|matplotlib.ft2font.pyd" Attributes="0" SourcePath="..\dist\matplotlib.ft2font.pyd" SelfReg="false" NextFile="qt.conf"/>
+    <ROW File="matplotlib.ft2font.pyd" Component_="FAForever.lib" FileName="matplo~9.pyd|matplotlib.ft2font.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\matplotlib.ft2font.pyd" SelfReg="false" NextFile="qt.conf"/>
     <ROW File="matplotlib.gif" Component_="back.png" FileName="MATPLO~1.GIF|matplotlib.gif" Attributes="0" SourcePath="..\dist\mpl-data\images\matplotlib.gif" SelfReg="false" NextFile="bmh.mplstyle"/>
     <ROW File="matplotlib.png" Component_="back.png" FileName="matplo~1.png|matplotlib.png" Attributes="0" SourcePath="..\dist\mpl-data\images\matplotlib.png" SelfReg="false" NextFile="matplotlib.svg"/>
     <ROW File="matplotlib.svg" Component_="back.png" FileName="matplo~1.svg|matplotlib.svg" Attributes="0" SourcePath="..\dist\mpl-data\images\matplotlib.svg" SelfReg="false" NextFile="move.png"/>
-    <ROW File="matplotlib.ttconv.pyd" Component_="FAForever.lib" FileName="matplo~8.pyd|matplotlib.ttconv.pyd" Attributes="0" SourcePath="..\dist\matplotlib.ttconv.pyd" SelfReg="false" NextFile="matplotlib.ft2font.pyd"/>
+    <ROW File="matplotlib.ttconv.pyd" Component_="FAForever.lib" FileName="matplo~8.pyd|matplotlib.ttconv.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\matplotlib.ttconv.pyd" SelfReg="false" NextFile="matplotlib.ft2font.pyd"/>
     <ROW File="matplotlibrc" Component_="lineprops.glade" FileName="matplo~1|matplotlibrc" Attributes="0" SourcePath="..\dist\mpl-data\matplotlibrc" SelfReg="false" NextFile="tournaments.ui"/>
     <ROW File="maximizebutton.png" Component_="about.ui" FileName="maximi~1.png|maximize-button.png" Attributes="0" SourcePath="..\dist\_res\client\maximize-button.png" SelfReg="false" NextFile="closebutton.png"/>
     <ROW File="mc.png" Component_="ad.png" FileName="mc.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\mc.png" SelfReg="false" NextFile="md.png"/>
@@ -1487,7 +1487,7 @@
     <ROW File="messageAvatar.qthtml" Component_="action.qthtml" FileName="messag~2.qth|messageAvatar.qthtml" Attributes="0" SourcePath="..\dist\_res\chat\formatters\messageAvatar.qthtml" SelfReg="false" NextFile="tutorialarea.ui"/>
     <ROW File="metal_bg.png" Component_="bg_chat.jpg" FileName="metal_bg.png" Attributes="0" SourcePath="..\dist\_res\galacticwar\metal_bg.png" SelfReg="false" NextFile="planetaryItems.ui"/>
     <ROW File="mf.png" Component_="ad.png" FileName="mf.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\mf.png" SelfReg="false" NextFile="mg.png"/>
-    <ROW File="mfc100u.dll" Component_="mfc100u.dll" FileName="mfc100u.dll" Attributes="0" SourcePath="..\dist\mfc100u.dll" SelfReg="false" NextFile="msvcp100.dll"/>
+    <ROW File="mfc100u.dll" Component_="mfc100u.dll" FileName="mfc100u.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\mfc100u.dll" SelfReg="false" NextFile="msvcp100.dll"/>
     <ROW File="mg.png" Component_="ad.png" FileName="mg.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\mg.png" SelfReg="false" NextFile="mh.png"/>
     <ROW File="mh.png" Component_="ad.png" FileName="mh.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\mh.png" SelfReg="false" NextFile="mk.png"/>
     <ROW File="minimizebutton.png" Component_="about.ui" FileName="minimi~1.png|minimize-button.png" Attributes="0" SourcePath="..\dist\_res\client\minimize-button.png" SelfReg="false" NextFile="maximizebutton.png"/>
@@ -1518,13 +1518,13 @@
     <ROW File="ms_my.msg" Component_="af.msg" FileName="ms_my.msg" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\msgs\ms_my.msg" SelfReg="false" NextFile="mt.msg"/>
     <ROW File="msgbox.tcl" Component_="anilabel.tcl" FileName="msgbox.tcl" Attributes="0" SourcePath="..\dist\tcl\tk8.5\demos\msgbox.tcl" SelfReg="false" NextFile="nl.msg_1"/>
     <ROW File="msgbox.tcl_1" Component_="bgerror.tcl" FileName="msgbox.tcl" Attributes="0" SourcePath="..\dist\tcl\tk8.5\msgbox.tcl" SelfReg="false" NextFile="cs.msg_1"/>
-    <ROW File="msvcp100.dll" Component_="msvcp100.dll" FileName="msvcp100.dll" Attributes="0" SourcePath="..\dist\msvcp100.dll" SelfReg="false" NextFile="msvcr100.dll"/>
-    <ROW File="msvcr100.dll" Component_="msvcr100.dll" FileName="msvcr100.dll" Attributes="0" SourcePath="..\dist\msvcr100.dll" SelfReg="false" NextFile="MPR.dll"/>
-    <ROW File="msvcr90.dll" Component_="msvcr90.dll" FileName="msvcr90.dll" Attributes="0" SourcePath="..\dist\msvcr90.dll" SelfReg="false" NextFile="matplotlib._png.pyd"/>
+    <ROW File="msvcp100.dll" Component_="msvcp100.dll" FileName="msvcp100.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\msvcp100.dll" SelfReg="false" NextFile="msvcr100.dll"/>
+    <ROW File="msvcr100.dll" Component_="msvcr100.dll" FileName="msvcr100.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\msvcr100.dll" SelfReg="false" NextFile="MPR.dll"/>
+    <ROW File="msvcr90.dll" Component_="msvcr90.dll" FileName="msvcr90.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\msvcr90.dll" SelfReg="false" NextFile="matplotlib._png.pyd"/>
     <ROW File="mt.msg" Component_="af.msg" FileName="mt.msg" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\msgs\mt.msg" SelfReg="false" NextFile="nb.msg"/>
     <ROW File="mt.png" Component_="ad.png" FileName="mt.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\mt.png" SelfReg="false" NextFile="mu.png"/>
     <ROW File="mu.png" Component_="ad.png" FileName="mu.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\mu.png" SelfReg="false" NextFile="mv.png"/>
-    <ROW File="mumble_link.pyd" Component_="FAForever.lib" FileName="mumble~1.pyd|mumble_link.pyd" Attributes="0" SourcePath="..\dist\mumble_link.pyd" SelfReg="false" NextFile="PyQt4.QtWebKit.pyd"/>
+    <ROW File="mumble_link.pyd" Component_="FAForever.lib" FileName="mumble~1.pyd|mumble_link.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\mumble_link.pyd" SelfReg="false" NextFile="PyQt4.QtWebKit.pyd"/>
     <ROW File="murderparty.html" Component_="blackops.html" FileName="murder~1.htm|murderparty.html" Attributes="0" SourcePath="..\dist\_res\games\mods\murderparty.html" SelfReg="false" NextFile="murderparty.png"/>
     <ROW File="murderparty.png" Component_="blackops.html" FileName="murder~1.png|murderparty.png" Attributes="0" SourcePath="..\dist\_res\games\mods\murderparty.png" SelfReg="false" NextFile="nftw.html"/>
     <ROW File="mv.png" Component_="ad.png" FileName="mv.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\mv.png" SelfReg="false" NextFile="mw.png"/>
@@ -1560,21 +1560,21 @@
     <ROW File="nr.png" Component_="ad.png" FileName="nr.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\nr.png" SelfReg="false" NextFile="nu.png"/>
     <ROW File="ns_settings.ui" Component_="dialog.ui" FileName="ns_set~1.ui|ns_settings.ui" Attributes="0" SourcePath="..\dist\_res\notification_system\ns_settings.ui" SelfReg="false" NextFile="user_online.ui"/>
     <ROW File="nu.png" Component_="ad.png" FileName="nu.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\nu.png" SelfReg="false" NextFile="nz.png"/>
-    <ROW File="numpy.core._dotblas.pyd" Component_="FAForever.lib" FileName="NUMPY~10.PYD|numpy.core._dotblas.pyd" Attributes="0" SourcePath="..\dist\numpy.core._dotblas.pyd" SelfReg="false"/>
-    <ROW File="numpy.core._dummy.pyd" Component_="FAForever.lib" FileName="numpyc~9.pyd|numpy.core._dummy.pyd" Attributes="0" SourcePath="..\dist\numpy.core._dummy.pyd" SelfReg="false" NextFile="faf.ico"/>
-    <ROW File="numpy.core.multiarray.pyd" Component_="FAForever.lib" FileName="numpyc~8.pyd|numpy.core.multiarray.pyd" Attributes="0" SourcePath="..\dist\numpy.core.multiarray.pyd" SelfReg="false" NextFile="numpy.core._dummy.pyd"/>
-    <ROW File="numpy.core.multiarray_tests.pyd" Component_="FAForever.lib" FileName="numpyc~1.pyd|numpy.core.multiarray_tests.pyd" Attributes="0" SourcePath="..\dist\numpy.core.multiarray_tests.pyd" SelfReg="false" NextFile="numpy.core.operand_flag_tests.pyd"/>
-    <ROW File="numpy.core.operand_flag_tests.pyd" Component_="FAForever.lib" FileName="numpyc~2.pyd|numpy.core.operand_flag_tests.pyd" Attributes="0" SourcePath="..\dist\numpy.core.operand_flag_tests.pyd" SelfReg="false" NextFile="numpy.core.struct_ufunc_test.pyd"/>
-    <ROW File="numpy.core.scalarmath.pyd" Component_="FAForever.lib" FileName="numpyc~6.pyd|numpy.core.scalarmath.pyd" Attributes="0" SourcePath="..\dist\numpy.core.scalarmath.pyd" SelfReg="false" NextFile="numpy.core.umath.pyd"/>
-    <ROW File="numpy.core.struct_ufunc_test.pyd" Component_="FAForever.lib" FileName="numpyc~3.pyd|numpy.core.struct_ufunc_test.pyd" Attributes="0" SourcePath="..\dist\numpy.core.struct_ufunc_test.pyd" SelfReg="false" NextFile="numpy.core.test_rational.pyd"/>
-    <ROW File="numpy.core.test_rational.pyd" Component_="FAForever.lib" FileName="numpyc~4.pyd|numpy.core.test_rational.pyd" Attributes="0" SourcePath="..\dist\numpy.core.test_rational.pyd" SelfReg="false" NextFile="numpy.core.umath_tests.pyd"/>
-    <ROW File="numpy.core.umath.pyd" Component_="FAForever.lib" FileName="numpyc~7.pyd|numpy.core.umath.pyd" Attributes="0" SourcePath="..\dist\numpy.core.umath.pyd" SelfReg="false" NextFile="numpy.core.multiarray.pyd"/>
-    <ROW File="numpy.core.umath_tests.pyd" Component_="FAForever.lib" FileName="numpyc~5.pyd|numpy.core.umath_tests.pyd" Attributes="0" SourcePath="..\dist\numpy.core.umath_tests.pyd" SelfReg="false" NextFile="numpy.core.scalarmath.pyd"/>
-    <ROW File="numpy.fft.fftpack_lite.pyd" Component_="FAForever.lib" FileName="numpyf~1.pyd|numpy.fft.fftpack_lite.pyd" Attributes="0" SourcePath="..\dist\numpy.fft.fftpack_lite.pyd" SelfReg="false" NextFile="numpy.lib._compiled_base.pyd"/>
-    <ROW File="numpy.lib._compiled_base.pyd" Component_="FAForever.lib" FileName="numpyl~3.pyd|numpy.lib._compiled_base.pyd" Attributes="0" SourcePath="..\dist\numpy.lib._compiled_base.pyd" SelfReg="false" NextFile="numpy.core.multiarray_tests.pyd"/>
-    <ROW File="numpy.linalg._umath_linalg.pyd" Component_="FAForever.lib" FileName="numpyl~1.pyd|numpy.linalg._umath_linalg.pyd" Attributes="0" SourcePath="..\dist\numpy.linalg._umath_linalg.pyd" SelfReg="false" NextFile="numpy.linalg.lapack_lite.pyd"/>
-    <ROW File="numpy.linalg.lapack_lite.pyd" Component_="FAForever.lib" FileName="numpyl~2.pyd|numpy.linalg.lapack_lite.pyd" Attributes="0" SourcePath="..\dist\numpy.linalg.lapack_lite.pyd" SelfReg="false" NextFile="numpy.fft.fftpack_lite.pyd"/>
-    <ROW File="numpy.random.mtrand.pyd" Component_="FAForever.lib" FileName="numpyr~1.pyd|numpy.random.mtrand.pyd" Attributes="0" SourcePath="..\dist\numpy.random.mtrand.pyd" SelfReg="false" NextFile="numpy.linalg._umath_linalg.pyd"/>
+    <ROW File="numpy.core._dotblas.pyd" Component_="FAForever.lib" FileName="NUMPY~10.PYD|numpy.core._dotblas.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\numpy.core._dotblas.pyd" SelfReg="false"/>
+    <ROW File="numpy.core._dummy.pyd" Component_="FAForever.lib" FileName="numpyc~9.pyd|numpy.core._dummy.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\numpy.core._dummy.pyd" SelfReg="false" NextFile="faf.ico"/>
+    <ROW File="numpy.core.multiarray.pyd" Component_="FAForever.lib" FileName="numpyc~8.pyd|numpy.core.multiarray.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\numpy.core.multiarray.pyd" SelfReg="false" NextFile="numpy.core._dummy.pyd"/>
+    <ROW File="numpy.core.multiarray_tests.pyd" Component_="FAForever.lib" FileName="numpyc~1.pyd|numpy.core.multiarray_tests.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\numpy.core.multiarray_tests.pyd" SelfReg="false" NextFile="numpy.core.operand_flag_tests.pyd"/>
+    <ROW File="numpy.core.operand_flag_tests.pyd" Component_="FAForever.lib" FileName="numpyc~2.pyd|numpy.core.operand_flag_tests.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\numpy.core.operand_flag_tests.pyd" SelfReg="false" NextFile="numpy.core.struct_ufunc_test.pyd"/>
+    <ROW File="numpy.core.scalarmath.pyd" Component_="FAForever.lib" FileName="numpyc~6.pyd|numpy.core.scalarmath.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\numpy.core.scalarmath.pyd" SelfReg="false" NextFile="numpy.core.umath.pyd"/>
+    <ROW File="numpy.core.struct_ufunc_test.pyd" Component_="FAForever.lib" FileName="numpyc~3.pyd|numpy.core.struct_ufunc_test.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\numpy.core.struct_ufunc_test.pyd" SelfReg="false" NextFile="numpy.core.test_rational.pyd"/>
+    <ROW File="numpy.core.test_rational.pyd" Component_="FAForever.lib" FileName="numpyc~4.pyd|numpy.core.test_rational.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\numpy.core.test_rational.pyd" SelfReg="false" NextFile="numpy.core.umath_tests.pyd"/>
+    <ROW File="numpy.core.umath.pyd" Component_="FAForever.lib" FileName="numpyc~7.pyd|numpy.core.umath.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\numpy.core.umath.pyd" SelfReg="false" NextFile="numpy.core.multiarray.pyd"/>
+    <ROW File="numpy.core.umath_tests.pyd" Component_="FAForever.lib" FileName="numpyc~5.pyd|numpy.core.umath_tests.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\numpy.core.umath_tests.pyd" SelfReg="false" NextFile="numpy.core.scalarmath.pyd"/>
+    <ROW File="numpy.fft.fftpack_lite.pyd" Component_="FAForever.lib" FileName="numpyf~1.pyd|numpy.fft.fftpack_lite.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\numpy.fft.fftpack_lite.pyd" SelfReg="false" NextFile="numpy.lib._compiled_base.pyd"/>
+    <ROW File="numpy.lib._compiled_base.pyd" Component_="FAForever.lib" FileName="numpyl~3.pyd|numpy.lib._compiled_base.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\numpy.lib._compiled_base.pyd" SelfReg="false" NextFile="numpy.core.multiarray_tests.pyd"/>
+    <ROW File="numpy.linalg._umath_linalg.pyd" Component_="FAForever.lib" FileName="numpyl~1.pyd|numpy.linalg._umath_linalg.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\numpy.linalg._umath_linalg.pyd" SelfReg="false" NextFile="numpy.linalg.lapack_lite.pyd"/>
+    <ROW File="numpy.linalg.lapack_lite.pyd" Component_="FAForever.lib" FileName="numpyl~2.pyd|numpy.linalg.lapack_lite.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\numpy.linalg.lapack_lite.pyd" SelfReg="false" NextFile="numpy.fft.fftpack_lite.pyd"/>
+    <ROW File="numpy.random.mtrand.pyd" Component_="FAForever.lib" FileName="numpyr~1.pyd|numpy.random.mtrand.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\numpy.random.mtrand.pyd" SelfReg="false" NextFile="numpy.linalg._umath_linalg.pyd"/>
     <ROW File="nz.png" Component_="ad.png" FileName="nz.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\nz.png" SelfReg="false" NextFile="om.png"/>
     <ROW File="obsolete.tcl" Component_="bgerror.tcl" FileName="obsolete.tcl" Attributes="0" SourcePath="..\dist\tcl\tk8.5\obsolete.tcl" SelfReg="false" NextFile="optMenu.tcl"/>
     <ROW File="om.png" Component_="ad.png" FileName="om.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\om.png" SelfReg="false" NextFile="pa.png"/>
@@ -1667,29 +1667,29 @@
     <ROW File="pwrdLogo200.gif" Component_="logo.eps" FileName="PWRDLO~4.GIF|pwrdLogo200.gif" Attributes="0" SourcePath="..\dist\tcl\tk8.5\images\pwrdLogo200.gif" SelfReg="false" NextFile="pwrdLogo75.gif"/>
     <ROW File="pwrdLogo75.gif" Component_="logo.eps" FileName="PWRDLO~5.GIF|pwrdLogo75.gif" Attributes="0" SourcePath="..\dist\tcl\tk8.5\images\pwrdLogo75.gif" SelfReg="false" NextFile="README_1"/>
     <ROW File="py.png" Component_="ad.png" FileName="py.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\py.png" SelfReg="false" NextFile="qa.png"/>
-    <ROW File="pyexpat.pyd" Component_="FAForever.lib" FileName="pyexpat.pyd" Attributes="0" SourcePath="..\dist\pyexpat.pyd" SelfReg="false" NextFile="_ctypes.pyd"/>
-    <ROW File="python27.dll" Component_="python27.dll" FileName="python27.dll" Attributes="0" SourcePath="..\dist\python27.dll" SelfReg="false" NextFile="pyexpat.pyd"/>
-    <ROW File="pythoncom27.dll" Component_="pythoncom27.dll" FileName="python~1.dll|pythoncom27.dll" Attributes="0" SourcePath="..\dist\pythoncom27.dll" SelfReg="false" NextFile="win32api.pyd"/>
-    <ROW File="pywintypes27.dll" Component_="pywintypes27.dll" FileName="pywint~1.dll|pywintypes27.dll" Attributes="0" SourcePath="..\dist\pywintypes27.dll" SelfReg="false" NextFile="win32ui.pyd"/>
+    <ROW File="pyexpat.pyd" Component_="FAForever.lib" FileName="pyexpat.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\pyexpat.pyd" SelfReg="false" NextFile="_ctypes.pyd"/>
+    <ROW File="python27.dll" Component_="python27.dll" FileName="python27.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\python27.dll" SelfReg="false" NextFile="pyexpat.pyd"/>
+    <ROW File="pythoncom27.dll" Component_="pythoncom27.dll" FileName="python~1.dll|pythoncom27.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\pythoncom27.dll" SelfReg="false" NextFile="win32api.pyd"/>
+    <ROW File="pywintypes27.dll" Component_="pywintypes27.dll" FileName="pywint~1.dll|pywintypes27.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\pywintypes27.dll" SelfReg="false" NextFile="win32ui.pyd"/>
     <ROW File="pzcmi8a.afm" Component_="cmex10.afm" FileName="pzcmi8a.afm" Attributes="0" SourcePath="..\dist\mpl-data\fonts\afm\pzcmi8a.afm" SelfReg="false" NextFile="pzdr.afm"/>
     <ROW File="pzdr.afm" Component_="cmex10.afm" FileName="pzdr.afm" Attributes="0" SourcePath="..\dist\mpl-data\fonts\afm\pzdr.afm" SelfReg="false" NextFile="CourierBold.afm"/>
     <ROW File="qa.png" Component_="ad.png" FileName="qa.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\qa.png" SelfReg="false" NextFile="re.png"/>
-    <ROW File="qgif4.dll" Component_="qgif4.dll" FileName="qgif4.dll" Attributes="0" SourcePath="..\dist\qgif4.dll" SelfReg="false" NextFile="qico4.dll"/>
+    <ROW File="qgif4.dll" Component_="qgif4.dll" FileName="qgif4.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\qgif4.dll" SelfReg="false" NextFile="qico4.dll"/>
     <ROW File="qgif4.dll_1" Component_="qgif4.dll_1" FileName="qgif4.dll" Attributes="0" SourcePath="..\dist\plugins\imageformats\qgif4.dll" SelfReg="false" NextFile="qico4.dll_1"/>
-    <ROW File="qico4.dll" Component_="qico4.dll" FileName="qico4.dll" Attributes="0" SourcePath="..\dist\qico4.dll" SelfReg="false" NextFile="qjpeg4.dll"/>
+    <ROW File="qico4.dll" Component_="qico4.dll" FileName="qico4.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\qico4.dll" SelfReg="false" NextFile="qjpeg4.dll"/>
     <ROW File="qico4.dll_1" Component_="qico4.dll_1" FileName="qico4.dll" Attributes="0" SourcePath="..\dist\plugins\imageformats\qico4.dll" SelfReg="false" NextFile="qjpeg4.dll_1"/>
-    <ROW File="qjpeg4.dll" Component_="qjpeg4.dll" FileName="qjpeg4.dll" Attributes="0" SourcePath="..\dist\qjpeg4.dll" SelfReg="false" NextFile="qmng4.dll"/>
+    <ROW File="qjpeg4.dll" Component_="qjpeg4.dll" FileName="qjpeg4.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\qjpeg4.dll" SelfReg="false" NextFile="qmng4.dll"/>
     <ROW File="qjpeg4.dll_1" Component_="qjpeg4.dll_1" FileName="qjpeg4.dll" Attributes="0" SourcePath="..\dist\plugins\imageformats\qjpeg4.dll" SelfReg="false" NextFile="qmng4.dll_1"/>
-    <ROW File="qmng4.dll" Component_="qmng4.dll" FileName="qmng4.dll" Attributes="0" SourcePath="..\dist\qmng4.dll" SelfReg="false" NextFile="qsvg4.dll"/>
+    <ROW File="qmng4.dll" Component_="qmng4.dll" FileName="qmng4.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\qmng4.dll" SelfReg="false" NextFile="qsvg4.dll"/>
     <ROW File="qmng4.dll_1" Component_="qmng4.dll_1" FileName="qmng4.dll" Attributes="0" SourcePath="..\dist\plugins\imageformats\qmng4.dll" SelfReg="false" NextFile="qsvg4.dll_1"/>
-    <ROW File="qsvg4.dll" Component_="qsvg4.dll" FileName="qsvg4.dll" Attributes="0" SourcePath="..\dist\qsvg4.dll" SelfReg="false" NextFile="qtga4.dll"/>
+    <ROW File="qsvg4.dll" Component_="qsvg4.dll" FileName="qsvg4.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\qsvg4.dll" SelfReg="false" NextFile="qtga4.dll"/>
     <ROW File="qsvg4.dll_1" Component_="qsvg4.dll_1" FileName="qsvg4.dll" Attributes="0" SourcePath="..\dist\plugins\imageformats\qsvg4.dll" SelfReg="false" NextFile="qtga4.dll_1"/>
-    <ROW File="qt.conf" Component_="FAForever.lib" FileName="qt~1.con|qt.conf" Attributes="0" SourcePath="..\dist\qt.conf" SelfReg="false" NextFile="LIBEAY32.dll"/>
+    <ROW File="qt.conf" Component_="FAForever.lib" FileName="qt~1.con|qt.conf" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\qt.conf" SelfReg="false" NextFile="LIBEAY32.dll"/>
     <ROW File="qt4_editor_options.png" Component_="back.png" FileName="qt4_ed~1.png|qt4_editor_options.png" Attributes="0" SourcePath="..\dist\mpl-data\images\qt4_editor_options.png" SelfReg="false" NextFile="qt4_editor_options.svg"/>
     <ROW File="qt4_editor_options.svg" Component_="back.png" FileName="qt4_ed~1.svg|qt4_editor_options.svg" Attributes="0" SourcePath="..\dist\mpl-data\images\qt4_editor_options.svg" SelfReg="false" NextFile="stock_close.ppm"/>
-    <ROW File="qtga4.dll" Component_="qtga4.dll" FileName="qtga4.dll" Attributes="0" SourcePath="..\dist\qtga4.dll" SelfReg="false" NextFile="qtiff4.dll"/>
+    <ROW File="qtga4.dll" Component_="qtga4.dll" FileName="qtga4.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\qtga4.dll" SelfReg="false" NextFile="qtiff4.dll"/>
     <ROW File="qtga4.dll_1" Component_="qtga4.dll_1" FileName="qtga4.dll" Attributes="0" SourcePath="..\dist\plugins\imageformats\qtga4.dll" SelfReg="false" NextFile="qtiff4.dll_1"/>
-    <ROW File="qtiff4.dll" Component_="qtiff4.dll" FileName="qtiff4.dll" Attributes="0" SourcePath="..\dist\qtiff4.dll" SelfReg="false" NextFile="reinforcementSmall.qthtml"/>
+    <ROW File="qtiff4.dll" Component_="qtiff4.dll" FileName="qtiff4.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\qtiff4.dll" SelfReg="false" NextFile="reinforcementSmall.qthtml"/>
     <ROW File="qtiff4.dll_1" Component_="qtiff4.dll_1" FileName="qtiff4.dll" Attributes="0" SourcePath="..\dist\plugins\imageformats\qtiff4.dll" SelfReg="false" NextFile="channel.ui"/>
     <ROW File="query.wav" Component_="privmsg.wav" FileName="query.wav" Attributes="0" SourcePath="..\dist\_res\chat\sfx\query.wav" SelfReg="false" NextFile="host.png"/>
     <ROW File="radio.tcl" Component_="anilabel.tcl" FileName="radio.tcl" Attributes="0" SourcePath="..\dist\tcl\tk8.5\demos\radio.tcl" SelfReg="false" NextFile="README"/>
@@ -1702,7 +1702,7 @@
     <ROW File="reinforcement.qthtml" Component_="planetarydefenses.qthtml" FileName="reinfo~1.qth|reinforcement.qthtml" Attributes="0" SourcePath="..\dist\_res\galacticwar\formatters\reinforcement.qthtml" SelfReg="false" NextFile="galacticwar.css"/>
     <ROW File="reinforcementItems.ui" Component_="bg_chat.jpg" FileName="reinfo~1.ui|reinforcementItems.ui" Attributes="0" SourcePath="..\dist\_res\galacticwar\reinforcementItems.ui" SelfReg="false" NextFile="bg.png_3"/>
     <ROW File="reinforcementSmall.qthtml" Component_="planetarydefenses.qthtml" FileName="reinfo~2.qth|reinforcementSmall.qthtml" Attributes="0" SourcePath="..\dist\_res\galacticwar\formatters\reinforcementSmall.qthtml" SelfReg="false" NextFile="modinfoui.qthtml"/>
-    <ROW File="replay.ico" Component_="FAForever.lib" FileName="replay.ico" Attributes="0" SourcePath="..\dist\replay.ico" SelfReg="false" NextFile="cmex10.afm"/>
+    <ROW File="replay.ico" Component_="FAForever.lib" FileName="replay.ico" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\replay.ico" SelfReg="false" NextFile="cmex10.afm"/>
     <ROW File="replay.png" Component_="broken.png" FileName="replay.png" Attributes="0" SourcePath="..\dist\_res\replays\replay.png" SelfReg="false" NextFile="replays.ui"/>
     <ROW File="replay.qthtml" Component_="replay.qthtml" FileName="replay~1.qth|replay.qthtml" Attributes="0" SourcePath="..\dist\_res\replays\formatters\replay.qthtml" SelfReg="false" NextFile="random.png"/>
     <ROW File="replays.png" Component_="about.ui" FileName="replays.png" Attributes="0" SourcePath="..\dist\_res\client\replays.png" SelfReg="false" NextFile="settings_watermark.png"/>
@@ -1734,7 +1734,7 @@
     <ROW File="sd.png" Component_="ad.png" FileName="sd.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\sd.png" SelfReg="false" NextFile="se.png"/>
     <ROW File="se.png" Component_="ad.png" FileName="se.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\se.png" SelfReg="false" NextFile="sg.png"/>
     <ROW File="search.tcl" Component_="anilabel.tcl" FileName="search.tcl" Attributes="0" SourcePath="..\dist\tcl\tk8.5\demos\search.tcl" SelfReg="false" NextFile="spin.tcl"/>
-    <ROW File="select.pyd" Component_="FAForever.lib" FileName="select.pyd" Attributes="0" SourcePath="..\dist\select.pyd" SelfReg="false" NextFile="_tkinter.pyd"/>
+    <ROW File="select.pyd" Component_="FAForever.lib" FileName="select.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\select.pyd" SelfReg="false" NextFile="_tkinter.pyd"/>
     <ROW File="seraphim.png" Component_="aeon.png" FileName="seraphim.png" Attributes="0" SourcePath="..\dist\_res\games\automatch\seraphim.png" SelfReg="false" NextFile="uef.png"/>
     <ROW File="settings_watermark.png" Component_="about.ui" FileName="settin~1.png|settings_watermark.png" Attributes="0" SourcePath="..\dist\_res\client\settings_watermark.png" SelfReg="false" NextFile="star.png"/>
     <ROW File="sg.png" Component_="ad.png" FileName="sg.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\sg.png" SelfReg="false" NextFile="sh.png"/>
@@ -1742,7 +1742,7 @@
     <ROW File="sh.png" Component_="ad.png" FileName="sh.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\sh.png" SelfReg="false" NextFile="si.png"/>
     <ROW File="shiftjis.enc" Component_="ascii.enc" FileName="shiftjis.enc" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\encoding\shiftjis.enc" SelfReg="false" NextFile="symbol.enc"/>
     <ROW File="si.png" Component_="ad.png" FileName="si.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\si.png" SelfReg="false" NextFile="sj.png"/>
-    <ROW File="sip.pyd" Component_="FAForever.lib" FileName="sip.pyd" Attributes="0" SourcePath="..\dist\sip.pyd" SelfReg="false" NextFile="QtWebKit4.dll"/>
+    <ROW File="sip.pyd" Component_="FAForever.lib" FileName="sip.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\sip.pyd" SelfReg="false" NextFile="QtWebKit4.dll"/>
     <ROW File="sizegrip.tcl" Component_="altTheme.tcl" FileName="sizegrip.tcl" Attributes="0" SourcePath="..\dist\tcl\tk8.5\ttk\sizegrip.tcl" SelfReg="false" NextFile="spinbox.tcl_1"/>
     <ROW File="sj.png" Component_="ad.png" FileName="sj.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\sj.png" SelfReg="false" NextFile="sk.png"/>
     <ROW File="sk.msg" Component_="af.msg" FileName="sk.msg" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\msgs\sk.msg" SelfReg="false" NextFile="sl.msg"/>
@@ -1803,7 +1803,7 @@
     <ROW File="ta_in.msg" Component_="af.msg" FileName="ta_in.msg" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\msgs\ta_in.msg" SelfReg="false" NextFile="te.msg"/>
     <ROW File="taiku.gif" Component_="logo.eps" FileName="tai-ku.gif" Attributes="0" SourcePath="..\dist\tcl\tk8.5\images\tai-ku.gif" SelfReg="false" NextFile="license.terms_1"/>
     <ROW File="tc.png" Component_="ad.png" FileName="tc.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\tc.png" SelfReg="false" NextFile="td.png"/>
-    <ROW File="tcl85.dll" Component_="tcl85.dll" FileName="tcl85.dll" Attributes="0" SourcePath="..\dist\tcl85.dll" SelfReg="false" NextFile="_imaging.pyd"/>
+    <ROW File="tcl85.dll" Component_="tcl85.dll" FileName="tcl85.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\tcl85.dll" SelfReg="false" NextFile="_imaging.pyd"/>
     <ROW File="tclIndex" Component_="auto.tcl" FileName="tclIndex" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\tclIndex" SelfReg="false" NextFile="tm.tcl"/>
     <ROW File="tclIndex_1" Component_="anilabel.tcl" FileName="tclIndex" Attributes="0" SourcePath="..\dist\tcl\tk8.5\demos\tclIndex" SelfReg="false" NextFile="tcolor"/>
     <ROW File="tclIndex_2" Component_="bgerror.tcl" FileName="tclIndex" Attributes="0" SourcePath="..\dist\tcl\tk8.5\tclIndex" SelfReg="false" NextFile="tearoff.tcl"/>
@@ -1827,7 +1827,7 @@
     <ROW File="tj.png" Component_="ad.png" FileName="tj.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\tj.png" SelfReg="false" NextFile="tk.png"/>
     <ROW File="tk.png" Component_="ad.png" FileName="tk.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\tk.png" SelfReg="false" NextFile="tl.png"/>
     <ROW File="tk.tcl" Component_="bgerror.tcl" FileName="tk.tcl" Attributes="0" SourcePath="..\dist\tcl\tk8.5\tk.tcl" SelfReg="false" NextFile="tkfbox.tcl"/>
-    <ROW File="tk85.dll" Component_="tk85.dll" FileName="tk85.dll" Attributes="0" SourcePath="..\dist\tk85.dll" SelfReg="false" NextFile="tcl85.dll"/>
+    <ROW File="tk85.dll" Component_="tk85.dll" FileName="tk85.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\tk85.dll" SelfReg="false" NextFile="tcl85.dll"/>
     <ROW File="tkfbox.tcl" Component_="bgerror.tcl" FileName="tkfbox.tcl" Attributes="0" SourcePath="..\dist\tcl\tk8.5\tkfbox.tcl" SelfReg="false" NextFile="altTheme.tcl"/>
     <ROW File="tl.png" Component_="ad.png" FileName="tl.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\tl.png" SelfReg="false" NextFile="tm.png"/>
     <ROW File="tm.png" Component_="ad.png" FileName="tm.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\tm.png" SelfReg="false" NextFile="tn.png"/>
@@ -1869,12 +1869,12 @@
     <ROW File="ua.png" Component_="ad.png" FileName="ua.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\ua.png" SelfReg="false" NextFile="ug.png"/>
     <ROW File="uef.png" Component_="aeon.png" FileName="uef.png" Attributes="0" SourcePath="..\dist\_res\games\automatch\uef.png" SelfReg="false" NextFile="faf.qthtml"/>
     <ROW File="ug.png" Component_="ad.png" FileName="ug.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\ug.png" SelfReg="false" NextFile="um.png"/>
-    <ROW File="uid.dll" Component_="uid.dll" FileName="uid.dll" Attributes="0" SourcePath="..\dist\uid.dll" SelfReg="false" NextFile="msvcr90.dll"/>
+    <ROW File="uid.dll" Component_="uid.dll" FileName="uid.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\uid.dll" SelfReg="false" NextFile="msvcr90.dll"/>
     <ROW File="uimod.qthtml" Component_="comment.qthtml" FileName="uimod~1.qth|uimod.qthtml" Attributes="0" SourcePath="..\dist\_res\modvault\uimod.qthtml" SelfReg="false" NextFile="uimod.ui"/>
     <ROW File="uimod.ui" Component_="comment.qthtml" FileName="uimod.ui" Attributes="0" SourcePath="..\dist\_res\modvault\uimod.ui" SelfReg="false" NextFile="upload.ui"/>
     <ROW File="uk.msg" Component_="af.msg" FileName="uk.msg" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\msgs\uk.msg" SelfReg="false" NextFile="vi.msg"/>
     <ROW File="um.png" Component_="ad.png" FileName="um.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\um.png" SelfReg="false" NextFile="us.png"/>
-    <ROW File="unicodedata.pyd" Component_="FAForever.lib" FileName="unicod~1.pyd|unicodedata.pyd" Attributes="0" SourcePath="..\dist\unicodedata.pyd" SelfReg="false" NextFile="pywintypes27.dll"/>
+    <ROW File="unicodedata.pyd" Component_="FAForever.lib" FileName="unicod~1.pyd|unicodedata.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\unicodedata.pyd" SelfReg="false" NextFile="pywintypes27.dll"/>
     <ROW File="unicodeout.tcl" Component_="anilabel.tcl" FileName="UNICOD~1.TCL|unicodeout.tcl" Attributes="0" SourcePath="..\dist\tcl\tk8.5\demos\unicodeout.tcl" SelfReg="false" NextFile="vscale.tcl"/>
     <ROW File="unknown_map.png" Component_="games.ui" FileName="unknow~1.png|unknown_map.png" Attributes="0" SourcePath="..\dist\_res\games\unknown_map.png" SelfReg="false" NextFile="broken.png"/>
     <ROW File="unsupported.tcl" Component_="bgerror.tcl" FileName="UNSUPP~1.TCL|unsupported.tcl" Attributes="0" SourcePath="..\dist\tcl\tk8.5\unsupported.tcl" SelfReg="false" NextFile="xmfbox.tcl"/>
@@ -1889,7 +1889,7 @@
     <ROW File="va.png" Component_="ad.png" FileName="va.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\va.png" SelfReg="false" NextFile="vc.png"/>
     <ROW File="vc.png" Component_="ad.png" FileName="vc.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\vc.png" SelfReg="false" NextFile="ve.png"/>
     <ROW File="ve.png" Component_="ad.png" FileName="ve.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\ve.png" SelfReg="false" NextFile="vg.png"/>
-    <ROW File="version" Component_="FAForever.lib" FileName="version" Attributes="0" SourcePath="..\dist\version" SelfReg="false" NextFile="numpy.random.mtrand.pyd"/>
+    <ROW File="version" Component_="FAForever.lib" FileName="version" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\version" SelfReg="false" NextFile="numpy.random.mtrand.pyd"/>
     <ROW File="vg.png" Component_="ad.png" FileName="vg.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\vg.png" SelfReg="false" NextFile="vi.png"/>
     <ROW File="vi.msg" Component_="af.msg" FileName="vi.msg" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\msgs\vi.msg" SelfReg="false" NextFile="zh.msg"/>
     <ROW File="vi.png" Component_="ad.png" FileName="vi.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\vi.png" SelfReg="false" NextFile="vn.png"/>
@@ -1897,20 +1897,20 @@
     <ROW File="vn.png" Component_="ad.png" FileName="vn.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\vn.png" SelfReg="false" NextFile="vu.png"/>
     <ROW File="vscale.tcl" Component_="anilabel.tcl" FileName="vscale.tcl" Attributes="0" SourcePath="..\dist\tcl\tk8.5\demos\vscale.tcl" SelfReg="false" NextFile="widget"/>
     <ROW File="vu.png" Component_="ad.png" FileName="vu.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\vu.png" SelfReg="false" NextFile="wf.png"/>
-    <ROW File="w9xpopen.exe" Component_="w9xpopen.exe" FileName="w9xpopen.exe" Attributes="0" SourcePath="..\dist\w9xpopen.exe" SelfReg="false" NextFile="_socket.pyd"/>
+    <ROW File="w9xpopen.exe" Component_="w9xpopen.exe" FileName="w9xpopen.exe" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\w9xpopen.exe" SelfReg="false" NextFile="_socket.pyd"/>
     <ROW File="wf.png" Component_="ad.png" FileName="wf.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\wf.png" SelfReg="false" NextFile="ws.png"/>
     <ROW File="widget" Component_="anilabel.tcl" FileName="widget" Attributes="0" SourcePath="..\dist\tcl\tk8.5\demos\widget" SelfReg="false" NextFile="dialog.tcl"/>
-    <ROW File="win32api.pyd" Component_="FAForever.lib" FileName="win32api.pyd" Attributes="0" SourcePath="..\dist\win32api.pyd" SelfReg="false" NextFile="_win32sysloader.pyd"/>
-    <ROW File="win32pdh.pyd" Component_="FAForever.lib" FileName="win32pdh.pyd" Attributes="0" SourcePath="..\dist\win32pdh.pyd" SelfReg="false" NextFile="tk85.dll"/>
-    <ROW File="win32pipe.pyd" Component_="FAForever.lib" FileName="win32p~1.pyd|win32pipe.pyd" Attributes="0" SourcePath="..\dist\win32pipe.pyd" SelfReg="false" NextFile="win32pdh.pyd"/>
-    <ROW File="win32ui.pyd" Component_="FAForever.lib" FileName="win32ui.pyd" Attributes="0" SourcePath="..\dist\win32ui.pyd" SelfReg="false" NextFile="pythoncom27.dll"/>
+    <ROW File="win32api.pyd" Component_="FAForever.lib" FileName="win32api.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\win32api.pyd" SelfReg="false" NextFile="_win32sysloader.pyd"/>
+    <ROW File="win32pdh.pyd" Component_="FAForever.lib" FileName="win32pdh.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\win32pdh.pyd" SelfReg="false" NextFile="tk85.dll"/>
+    <ROW File="win32pipe.pyd" Component_="FAForever.lib" FileName="win32p~1.pyd|win32pipe.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\win32pipe.pyd" SelfReg="false" NextFile="win32pdh.pyd"/>
+    <ROW File="win32ui.pyd" Component_="FAForever.lib" FileName="win32ui.pyd" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\win32ui.pyd" SelfReg="false" NextFile="pythoncom27.dll"/>
     <ROW File="winTheme.tcl" Component_="altTheme.tcl" FileName="winTheme.tcl" Attributes="0" SourcePath="..\dist\tcl\tk8.5\ttk\winTheme.tcl" SelfReg="false" NextFile="xpTheme.tcl"/>
     <ROW File="window_icon.png" Component_="window_icon.png" FileName="window~1.png|window_icon.png" Attributes="0" SourcePath="..\dist\_res\window_icon.png" SelfReg="false" NextFile="replay.ico"/>
     <ROW File="word.tcl" Component_="auto.tcl" FileName="word.tcl" Attributes="0" SourcePath="..\dist\tcl\tcl8.5\word.tcl" SelfReg="false" NextFile="bgerror.tcl"/>
     <ROW File="ws.png" Component_="ad.png" FileName="ws.png" Attributes="0" SourcePath="..\dist\_res\chat\countries\ws.png" SelfReg="false" NextFile="ye.png"/>
     <ROW File="wyvern.html" Component_="blackops.html" FileName="wyvern~1.htm|wyvern.html" Attributes="0" SourcePath="..\dist\_res\games\mods\wyvern.html" SelfReg="false" NextFile="wyvern.png"/>
     <ROW File="wyvern.png" Component_="blackops.html" FileName="wyvern.png" Attributes="0" SourcePath="..\dist\_res\games\mods\wyvern.png" SelfReg="false" NextFile="xtremewars.html"/>
-    <ROW File="xdelta3.exe" Component_="xdelta3.exe" FileName="xdelta3.exe" Attributes="0" SourcePath="..\dist\xdelta3.exe" SelfReg="false" NextFile="_multiprocessing.pyd"/>
+    <ROW File="xdelta3.exe" Component_="xdelta3.exe" FileName="xdelta3.exe" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\dist\xdelta3.exe" SelfReg="false" NextFile="_multiprocessing.pyd"/>
     <ROW File="xmfbox.tcl" Component_="bgerror.tcl" FileName="xmfbox.tcl" Attributes="0" SourcePath="..\dist\tcl\tk8.5\xmfbox.tcl" SelfReg="false" NextFile="libiomp5md.dll"/>
     <ROW File="xpTheme.tcl" Component_="altTheme.tcl" FileName="xpTheme.tcl" Attributes="0" SourcePath="..\dist\tcl\tk8.5\ttk\xpTheme.tcl" SelfReg="false" NextFile="unsupported.tcl"/>
     <ROW File="xtremewars.html" Component_="blackops.html" FileName="xtreme~1.htm|xtremewars.html" Attributes="0" SourcePath="..\dist\_res\games\mods\xtremewars.html" SelfReg="false" NextFile="xtremewars.png"/>
