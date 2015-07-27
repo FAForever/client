@@ -383,7 +383,7 @@ class GameItem(QtGui.QListWidgetItem):
         
         
 
-        if self.mod == "faf" and not self.mods:
+        if self.mod == "faf" or self.mod == "balancetesting" and not self.mods:
             self.setText(self.FORMATTER_FAF.format(color=color, mapslots = self.slots, mapdisplayname=self.mapdisplayname, title=self.title, host=self.host, players=self.numplayers, playerstring=playerstring, gamequality = strQuality, playerincluded = self.playerIncludedTxt))
         else:
             if not self.mods:
