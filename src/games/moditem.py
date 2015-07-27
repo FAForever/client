@@ -29,7 +29,7 @@ import client
 
 mods = {}
 
-mod_crucial = ["faf"]
+mod_crucial = ["balancetesting", "faf"]
 
 # These mods are not shown in the game list
 mod_invisible = []
