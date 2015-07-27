@@ -74,8 +74,12 @@ class ModItem(QtGui.QListWidgetItem):
         ''' Comparison operator used for item list sorting '''        
         
         # Crucial Mods are on top
-        if (self.mod in mod_crucial) and not (other.mod in mod_crucial): return True
-        if not (self.mod in mod_crucial) and (other.mod in mod_crucial): return False
+        if self.mod in mod_crucial and other.mod in mod_crucial:
+            return mod_crucial.index(self.mod) < mod_crucial.index(other.mod)
+        if self.mod in mod_crucial and other.mod not in mod_crucial:
+            return True
+        if self.mod not in mod_crucial and other.mod in mod_crucial:
+            return False
         
         # Favourites are also ranked up top
         if (self.mod in mod_favourites) and not (other.mod in mod_favourites): return True
