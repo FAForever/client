@@ -46,8 +46,6 @@ class ModWidget(FormClass, BaseClass):
         self.Description.setText(mod.description)
         modtext = ""
         if mod.isuimod: modtext = "UI mod\n"
-        elif mod.isbigmod: modtext = "Big mod\n"
-        elif mod.issmallmod: modtext = "Small mod\n"
         self.Info.setText(modtext + "By %s\nUploaded %s" % (mod.author,
                                     str(mod.date)))
         if mod.thumbnail == None:

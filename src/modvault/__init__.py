@@ -40,8 +40,6 @@ comments    - A python list containing dictionaries containing the keys as descr
 bugreports  - A python list containing dictionaries containing the keys as described above.
 date        - A string describing the date the mod was uploaded. Format: "%Y-%m-%d %H:%M:%S" eg: 2012-10-28 16:50:28
 ui          - A boolean describing if it is a ui mod yay or nay.
-big         - A boolean describing if this mod is to be considered a big mod. Chosen by the uploader for better filtering
-small       - A boolean describing if this mod is to be considered a small mod. It could be that both big and small are false.
 link        - Direct link to the zip file containing the mod.
 thumbnail   - A direct link to the thumbnail file. Should be something suitable for util.icon(). Not yet tested if this works correctly
 
@@ -81,7 +79,7 @@ import urllib2
 d = datetostr(now())
 '''
 tempmod1 = dict(uid=1,name='Mod1', comments=[],bugreports=[], date = d,
-                ui=True, big=False,small=False, downloads=0, likes=0,
+                ui=True, downloads=0, likes=0,
                 thumbnail="",author='johnie102',
                 description="""Lorem ipsum dolor sit amet, consectetur adipiscing elit. """,)
 '''
@@ -159,10 +157,6 @@ class ModVault(FormClass, BaseClass):
             self.showType = "ui"
         elif index == 2:
             self.showType = "sim"
-        elif index == 3:
-            self.showType = "big"
-        elif index == 4:
-            self.showType = "small"
         elif index == 5:
             self.showType = "yours"
         elif index == 6:
@@ -328,8 +322,6 @@ class ModItem(QtGui.QListWidgetItem):
         self.bugreports = [] #text, author and date key
         self.date = None
         self.isuidmod = False
-        self.isbigmod = False
-        self.issmallmod = False
         self.uploadedbyuser = False
 
         self.thumbnail = None
@@ -349,8 +341,6 @@ class ModItem(QtGui.QListWidgetItem):
         self.bugreports = dic["bugreports"]
         self.date = QtCore.QDateTime.fromTime_t(dic['date']).toString("yyyy-MM-dd")
         self.isuimod = dic["ui"]
-        self.isbigmod = dic["big"]
-        self.issmallmod = dic["small"]
         self.link = dic["link"] #Direct link to the zip file.
         self.thumbstr = dic["thumbnail"]# direct url to the thumbnail file.
         self.uploadedbyuser = (self.author == self.parent.client.login)
@@ -380,10 +370,6 @@ class ModItem(QtGui.QListWidgetItem):
             return self.isuimod
         elif p.showType == "sim":
             return not self.isuimod
-        elif p.showType == "big":
-            return self.isbigmod
-        elif p.showType == "small":
-            return self.issmallmod
         elif p.showType == "yours":
             return self.uploadedbyuser
         elif p.showType == "installed":
@@ -400,8 +386,6 @@ class ModItem(QtGui.QListWidgetItem):
 
         modtype = ""
         if self.isuimod: modtype ="UI mod"
-        elif self.isbigmod: modtype="big mod"
-        elif self.issmallmod: modtype="small mod"
         if self.uid in self.parent.uids: color="green"
         else: color="white"
         
@@ -413,9 +397,6 @@ class ModItem(QtGui.QListWidgetItem):
             self.setText(self.FORMATTER_MOD.format(color=color,version=str(self.version),title=self.name,
                 description=descr, author=self.author,downloads=str(self.downloads),
                 likes=str(self.likes),date=str(self.date),modtype=modtype,played=str(self.played)))
-            
-
-
 
         self.setToolTip('<p width="230">%s</p>' % self.description)
 
