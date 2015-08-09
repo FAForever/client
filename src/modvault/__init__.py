@@ -104,7 +104,7 @@ class ModVault(FormClass, BaseClass):
         self.modList.setItemDelegate(ModItemDelegate(self))
         self.modList.itemDoubleClicked.connect(self.modClicked)
         self.searchButton.clicked.connect(self.search)
-        self.searchInput.textChanged.connect(self.localSearch)
+        self.searchInput.returnPressed.connect(self.search)
         self.uploadButton.clicked.connect(self.openUploadForm)
         self.UIButton.clicked.connect(self.openUIModForm)
 
@@ -179,7 +179,7 @@ class ModVault(FormClass, BaseClass):
     def search(self):
         ''' Sending search to mod server'''
         
-        searchString = self.searchInput.text().lower()
+        self.searchString = self.searchInput.text().lower()
         index = self.ShowType.currentIndex()
         typemod = 2
 
@@ -188,13 +188,9 @@ class ModVault(FormClass, BaseClass):
         elif index == 2:
             typemod = 0
 
-        self.client.statsServer.send(dict(command="modvault_search", typemod=typemod, search=searchString))
-
-    @QtCore.pyqtSlot(str)
-    def localSearch(self, text):
-        self.searchString = self.searchInput.text().lower()
+        self.client.statsServer.send(dict(command="modvault_search", typemod=typemod, search=self.searchString))
+        
         self.updateVisibilities()
-    
 
     @QtCore.pyqtSlot()
     def openUIModForm(self):
