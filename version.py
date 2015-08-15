@@ -26,34 +26,20 @@
 # Note that the RELEASE-VERSION file should *not* be checked into git;
 # please add it to your top-level .gitignore file.
 
+from subprocess import Popen, PIPE
 
 __all__ = "get_git_version"
 
-import pygit2
+def call_git_describe():
+    try:
+        p = Popen(['git', 'describe', '--tags'],
+                  stdout=PIPE, stderr=PIPE)
+        p.stderr.close()
+        line = p.stdout.readlines()[0]
+        return line.strip()
 
-
-def git_describe(repository, commit):
-    """
-    Python equivalent to the git describe --tags command.
-    """
-    import re
-    regex = re.compile('^refs/tags')
-    tags = filter(lambda r: regex.match(r), repository.listall_references())
-
-    if tags:
-        tag_lookup = {}
-        for tag in tags:
-            tag_lookup[repository.lookup_reference(tag).resolve().get_object().hex] = tag
-
-        distance = 0
-        for parent in repository.walk(commit, pygit2.GIT_SORT_TIME):
-            if parent.hex in tag_lookup:
-                if distance == 0:
-                    return tag_lookup[parent.hex].replace("refs/tags/", "")
-                return '%s-%d-g%s' % (tag_lookup[parent.hex][10:], distance, commit.hex[:7])
-            distance += 1
-
-    return 'g' + commit.hex[:7]
+    except:
+        return None
 
 def is_development_version(version):
     return "-" in version and not is_prerelease_version(version)
@@ -93,8 +79,7 @@ def get_git_version():
     release_version = read_release_version()
 
     # First try to get the current version using “git describe”.
-    repo = pygit2.Repository(".")
-    version = git_describe(repo, repo.head.target)
+    version = call_git_describe()
 
     # If that doesn't work, fall back on the value that's in
     # RELEASE-VERSION.

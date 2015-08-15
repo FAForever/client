@@ -110,5 +110,5 @@ ranked ladder play, and featured mods.',
     url='http://www.faforever.com',
     license='GNU General Public License, Version 3',
     options={'build_exe': build_exe_options, 'bdist_msi': bdist_msi_options},
-    executables=[exe], requires=['bsdiff4', 'sip', 'pygit2', 'PyQt4', 'cx_Freeze', 'cffi', 'py', 'faftools'],
+    executables=[exe], requires=['bsdiff4', 'sip', 'PyQt4', 'cx_Freeze', 'cffi', 'py', 'faftools'],
 )

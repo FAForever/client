@@ -4,7 +4,6 @@ from PyQt4 import QtCore
 import bsdiff4
 import pytest
 import os
-import pygit2
 from fa import binary
 
 
