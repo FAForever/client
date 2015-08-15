@@ -21,44 +21,10 @@ from PyQt4 import QtGui
 import fa
 import modvault
 
-
 __author__ = 'Thygrrr'
 
 import os
 import util
-
-GIT_ROOT = "https://github.com/FAForever/"
-
-
-def filter_mod_versions(versions, filter_table):
-    """
-    Filters out mods that can be pulled from git repositories instead of through the obsolete updater protocol.
-    :return: tuple with one list of legacy mods to keep and a dictionary of repo mods to update with the new updater
-    """
-    legacy = {}
-    repo = {}
-
-    if versions:
-        for mod_uid in versions:
-            if mod_uid in filter_table:
-                repo[filter_table[mod_uid]] = versions[mod_uid]
-            else:
-                legacy[mod_uid] = versions[mod_uid]
-
-    return legacy, repo
-
-
-def filter_featured_mods(featured_mod, filter_table):
-    """
-    Filters out mods that can be pulled from git repositories instead of through the obsolete updater protocol.
-    :return: tuple with a strings and a dict, either a legacy mod name or a non-legacy mod dict (name:repo) pairs
-    """
-
-    if featured_mod in filter_table:
-        return None, {featured_mod:filter_table[featured_mod]}
-
-    return featured_mod, None
-
 
 import logging
 logger = logging.getLogger(__name__)
