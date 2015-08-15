@@ -11,7 +11,7 @@ init:
 
 install:
   - "powershell appveyor\\install.ps1"
-  - "%PYTHON%\\Scripts\\pip.exe install sip cx_Freeze"
+  - "%PYTHON%\\Scripts\\pip.exe install sip cx_Freeze --allow-external sip --allow-unverified sip"
   - "%PYTHON%\\Scripts\\pip.exe install -r requirements.txt"
 
 
