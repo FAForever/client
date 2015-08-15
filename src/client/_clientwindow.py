@@ -519,7 +519,6 @@ class ClientWindow(FormClass, BaseClass):
         self.featuredMods = featuredmods.FeaturedMods(self)
         self.avatarAdmin = self.avatarSelection = avatarWidget(self, None)
 
-
         # warning setup
         self.warning = QtGui.QHBoxLayout()
 
@@ -548,7 +547,6 @@ class ClientWindow(FormClass, BaseClass):
         self.rankedUEF.setIcon(util.icon("games/automatch/uef.png"))
         self.rankedRandom.setIcon(util.icon("games/automatch/random.png"))
 
-
         self.warning.addStretch()
         self.warning.addWidget(self.warnPlayer)
         self.warning.addWidget(self.rankedUEF)
@@ -560,15 +558,12 @@ class ClientWindow(FormClass, BaseClass):
 
         self.mainGridLayout.addLayout(self.warning, 2, 0)
 
-
         self.rankedAeon.clicked.connect(self.rankedGameAeon)
         self.rankedCybran.clicked.connect(self.rankedGameCybran)
         self.rankedSeraphim.clicked.connect(self.rankedGameSeraphim)
         self.rankedUEF.clicked.connect(self.rankedGameUEF)
         self.rankedRandom.clicked.connect(self.rankedGameRandom)
         self.warningHide()
-
-
 
     def warningHide(self):
         '''
