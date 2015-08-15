@@ -9,5 +9,6 @@ pytest-qt==1.2.2
 pytest-cov
 python-coveralls
 python-dateutil==2.2
-git+https://github.com/FAForever/faftools.git@master#egg=faftools
+lupa
+git+https://github.com/FAForever/faftools.git@develop#egg=faftools
 -e .
