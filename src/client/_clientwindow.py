@@ -19,6 +19,7 @@ from client import ClientState, GAME_PORT_DEFAULT, LOBBY_HOST, \
 
 import logging
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 import util
 import secondaryServer
@@ -877,8 +878,6 @@ class ClientWindow(FormClass, BaseClass):
         self.socket.setSocketOption(QtNetwork.QTcpSocket.KeepAliveOption, 1)
         self.socket.connectToHost(LOBBY_HOST, LOBBY_PORT)
 
-
-
         while (self.socket.state() != QtNetwork.QAbstractSocket.ConnectedState) and self.progress.isVisible():
             QtGui.QApplication.processEvents()
 
@@ -1202,6 +1201,7 @@ class ClientWindow(FormClass, BaseClass):
         block = QtCore.QByteArray()
         out = QtCore.QDataStream(block, QtCore.QIODevice.ReadWrite)
         out.setVersion(QtCore.QDataStream.Qt_4_2)
+        out.setByteOrder(QDataStream.LittleEndian)
 
         out.writeUInt32(0)
         out.writeQString(action)
@@ -1248,8 +1248,9 @@ class ClientWindow(FormClass, BaseClass):
         out.writeUInt32(block.size() - 4)
         self.bytesToSend = block.size() - 4
 
+        import binascii
+        print(binascii.hexlify(block))
         self.socket.write(block)
-
 
     def serverTimeout(self):
         if self.timeout == 0:
@@ -1263,6 +1264,7 @@ class ClientWindow(FormClass, BaseClass):
     def readFromServer(self):
         ins = QtCore.QDataStream(self.socket)
         ins.setVersion(QtCore.QDataStream.Qt_4_2)
+        ins.setByteOrder(QDataStream.LittleEndian)
 
         while ins.atEnd() == False :
             if self.blockSize == 0:

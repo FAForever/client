@@ -77,7 +77,7 @@ if __name__ == '__main__':
     #Set application icon to nicely stack in the system task bar    
 
     import ctypes
-    if getattr(ctypes.windll.shell32, "SetCurrentProcessExplicitAppUserModelID", None) is not None: 
+    if hasattr(ctypes, 'windll') and getattr(ctypes.windll.shell32, "SetCurrentProcessExplicitAppUserModelID", None) is not None:
         myappid = 'com.faforever.lobby'
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
