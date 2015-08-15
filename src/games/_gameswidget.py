@@ -30,7 +30,7 @@ from games.gameitem import GameItem, GameItemDelegate
 from games.moditem import ModItem, mod_invisible, mods
 from games.hostgamewidget import HostgameWidget
 from games._mapSelectWidget import mapSelectWidget
-from fa import faction
+from fa.faction import Faction
 import fa
 import modvault
 import notificatation_system as ns
@@ -79,41 +79,6 @@ class GamesWidget(FormClass, BaseClass):
         self.race = None
         self.ispassworded = False
         self.canChooseMap = True
-
-
-        self.teamFrame.setVisible(False)
-        # Team search UI
-        # self.teamAeon.setIcon(util.icon("games/automatch/aeon.png"))
-        # self.teamCybran.setIcon(util.icon("games/automatch/cybran.png"))
-        # self.teamSeraphim.setIcon(util.icon("games/automatch/seraphim.png"))
-        # self.teamUEF.setIcon(util.icon("games/automatch/uef.png"))
-        # self.teamRandom.setIcon(util.icon("games/automatch/random.png"))
-
-        #self.teamRandom.setChecked(True)
-
-        # self.connectTeamFactionToggles()
-
-        # self.teamSearchButton={}
-        # self.teamSearchButton[2] = self.players2
-        # self.teamSearchButton[3] = self.players3
-        # self.teamSearchButton[4] = self.players4
-        # self.teamSearchButton[5] = self.players5
-        # self.teamSearchButton[6] = self.players6
-
-        # self.teamSearchFnc = {}
-
-        # self.connectTeamSearchToggles()
-
-        # self.teamTimer = QtCore.QTimer()
-        # self.teamTimer.timeout.connect(self.expandSearchTeamRanked)
-        # self.teamSearchProgress.hide()
-
-        # self.client.matchmakerInfo.connect(self.handleMatchmakerInfo)
-
-        # # Team search state variables
-        # self.teamSearching = False
-
-        # self.teamInvitations = {}
 
         self.client.modInfo.connect(self.processModInfo)
         self.client.gameInfo.connect(self.processGameInfo)
@@ -557,49 +522,37 @@ class GamesWidget(FormClass, BaseClass):
 
     @QtCore.pyqtSlot(bool)
     def toggleUEF(self, state):
-        if (state):
-            self.startSearchRanked(faction.UEF)
-            self.disconnectRankedToggles()
-            self.rankedAeon.setChecked(False)
-            self.rankedCybran.setChecked(False)
-            self.rankedSeraphim.setChecked(False)
-            self.rankedRandom.setChecked(False)
-            self.connectRankedToggles()
-        else:
-            self.stopSearchRanked()
+        self.toggleSearch(state, Faction.UEF)
 
     @QtCore.pyqtSlot(bool)
     def toggleAeon(self, state):
-        if (state):
-            self.startSearchRanked(faction.AEON)
-            self.disconnectRankedToggles()
-            self.rankedCybran.setChecked(False)
-            self.rankedSeraphim.setChecked(False)
-            self.rankedUEF.setChecked(False)
-            self.rankedRandom.setChecked(False)
-            self.connectRankedToggles()
-        else:
-            self.stopSearchRanked()
-
+        self.toggleSearch(state, Faction.AEON)
 
     @QtCore.pyqtSlot(bool)
     def toggleCybran(self, state):
-        if (state):
-            self.startSearchRanked(faction.CYBRAN)
-            self.disconnectRankedToggles()
-            self.rankedAeon.setChecked(False)
-            self.rankedSeraphim.setChecked(False)
-            self.rankedUEF.setChecked(False)
-            self.rankedRandom.setChecked(False)
-            self.connectRankedToggles()
-        else:
-            self.stopSearchRanked()
-
+        self.toggleSearch(state, Faction.CYBRAN)
 
     @QtCore.pyqtSlot(bool)
     def toggleSeraphim(self, state):
+        self.toggleSearch(state, Faction.SERAPHIM)
+
+    @QtCore.pyqtSlot(bool)
+    def toggleRandom(self, state):
+        if state:
+            self.toggleSearch(state, random.randint(1,4))
+        else:
+            self.stopSearchRanked()
+
+
+    def toggleSearch(self, state, player_faction):
+        """
+        Handler called when a ladder search button is pressed. They're really checkboxes, and the
+        state flag is used to decide whether to start or stop the search.
+        :param state: The checkedness state of the search checkbox that was pushed
+        :param player_faction: The faction corresponding to that checkbox
+        """
         if (state):
-            self.startSearchRanked(faction.SERAPHIM)
+            self.startSearchRanked(player_faction)
             self.disconnectRankedToggles()
             self.rankedAeon.setChecked(False)
             self.rankedCybran.setChecked(False)
@@ -608,28 +561,6 @@ class GamesWidget(FormClass, BaseClass):
             self.connectRankedToggles()
         else:
             self.stopSearchRanked()
-
-    @QtCore.pyqtSlot(bool)
-    def toggleRandom(self, state):
-        if (state):
-            faction = random.randint(1,4)
-            if faction == 1 :
-                self.startSearchRanked(faction.UEF)
-            elif faction == 2 :
-                self.startSearchRanked(faction.CYBRAN)
-            elif faction == 3 :
-                self.startSearchRanked(faction.AEON)
-            else :
-                self.startSearchRanked(faction.SERAPHIM)
-
-            self.disconnectRankedToggles()
-            self.rankedAeon.setChecked(False)
-            self.rankedCybran.setChecked(False)
-            self.rankedSeraphim.setChecked(False)
-            self.connectRankedToggles()
-        else:
-            self.stopSearchRanked()
-
 
     @QtCore.pyqtSlot(QtGui.QListWidgetItem)
     def gameDoubleClicked(self, item):

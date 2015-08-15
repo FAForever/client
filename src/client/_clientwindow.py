@@ -536,12 +536,6 @@ class ClientWindow(FormClass, BaseClass):
         self.rankedUEF = QtGui.QToolButton(self)
         self.rankedRandom = QtGui.QToolButton(self)
 
-#        self.rankedAeon.setAutoRaise(0)
-#        self.rankedCybran.setAutoRaise(0)
-#        self.rankedSeraphim.setAutoRaise(0)
-#        self.rankedUEF.setAutoRaise(0)
-#        self.rankedRandom.setAutoRaise(0)
-
         self.rankedAeon.setMaximumSize(25, 25)
         self.rankedCybran.setMaximumSize(25, 25)
         self.rankedSeraphim.setMaximumSize(25, 25)
