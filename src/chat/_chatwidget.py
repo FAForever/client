@@ -400,28 +400,20 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         target = prefix.strip("[]")
 
         if source and source.lower() == 'nickserv':
-
-            if e.arguments()[0].find("registered under your account") >= 0:
-                if self.identified == False :
+            if notice.find("registered under your account") or \
+               notice.find("Password accepted"):
+                if not self.identified :
                     self.identified = True
                     self.on_authentified()
 
-            elif e.arguments()[0].find("isn't registered") >= 0:
-
+            elif notice.find("isn't registered") >= 0:
                 self.nickservRegister()
 
-            elif e.arguments()[0].find("Password accepted") :
-                if self.identified == False :
-                    self.identified = True
-                    self.on_authentified()
-
-            elif e.arguments()[0].find("RELEASE") >= 0:
+            elif notice.find("RELEASE") >= 0:
                 self.connection.privmsg('nickserv', 'release %s %s' % (self.client.login, util.md5text(self.client.password)))
 
-            elif e.arguments()[0].find("hold on") >= 0:
+            elif notice.find("hold on") >= 0:
                 self.connection.nick(self.client.login)
-        elif source and source.lower() == 'botserv':
-            print "botserv", notice
 
 
         message = "\n".join(e.arguments()).lstrip(prefix)
@@ -436,10 +428,9 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         else:
             self.serverLogArea.appendPlainText("%s: %s" % (source, notice))
 
-
+    # THIS CANNOT POSSIBLY BE A GOOD IDEA.
     def serverTimeout(self):
         pass
-        
 
     def on_disconnect(self, c, e):
         if not self.canDisconnect:
