@@ -1551,45 +1551,45 @@ class ClientWindow(FormClass, BaseClass):
         else :
             self.send(dict(command="admin", action="requestavatars"))
 
-    def joinChannel(self, user, channel):
-        '''Close FA remotly'''
-        self.send(dict(command="admin", action="join_channel", users=[user], channel=channel))
+    def joinChannel(self, username, channel):
+        '''Join users to a channel'''
+        self.send(dict(command="admin", action="join_channel", users=[self.players[username].id], channel=channel))
 
-    def closeFA(self, userToClose):
+    def closeFA(self, username):
         '''Close FA remotly'''
-        self.send(dict(command="admin", action="closeFA", user=userToClose))
+        self.send(dict(command="admin", action="closeFA", user=self.players[username].id))
 
-    def closeLobby(self, userToClose):
+    def closeLobby(self, username):
         '''Close lobby remotly'''
-        self.send(dict(command="admin", action="closelobby", user=userToClose))
+        self.send(dict(command="admin", action="closelobby", user=self.players[username].id))
 
     def invite(self, player):
         ''' Send an invitation to be part of my team'''
         self.send(dict(command="social", teaminvite=player))
 
-    def addFriend(self, friend):
+    def addFriend(self, friend_name):
         '''Adding a new friend by user'''
-        self.friends.append(friend)
-        self.send(dict(command="social_add", friend=friend))
-        self.usersUpdated.emit([friend])
+        self.friends.append(friend_name)
+        self.send(dict(command="social_add", friend=self.players[friend_name].id))
+        self.usersUpdated.emit([friend_name])
 
-    def addFoe(self, foe):
+    def addFoe(self, foe_name):
         '''Adding a new foe by user'''
-        self.foes.append(foe)
-        self.send(dict(command="social_add", foe=foe))
-        self.usersUpdated.emit([foe])
+        self.foes.append(foe_name)
+        self.send(dict(command="social_add", foe=self.players[foe_name].id))
+        self.usersUpdated.emit([foe_name])
 
-    def remFriend(self, friend):
+    def remFriend(self, friend_name):
         '''Removal of a friend by user'''
-        self.friends.remove(friend)
-        self.send(dict(command="social_remove", friend=friend))
-        self.usersUpdated.emit([friend])
+        self.friends.remove(friend_name)
+        self.send(dict(command="social_remove", friend=self.players[friend_name].id))
+        self.usersUpdated.emit([friend_name])
 
-    def remFoe(self, foe):
+    def remFoe(self, foe_name):
         '''Removal of a foe by user'''
-        self.foes.remove(foe)
-        self.send(dict(command="social_remove", foe=foe))
-        self.usersUpdated.emit([foe])
+        self.foes.remove(foe_name)
+        self.send(dict(command="social_remove", foe=self.players[foe_name].id))
+        self.usersUpdated.emit([foe_name])
 
 
     def process(self, action, stream):
