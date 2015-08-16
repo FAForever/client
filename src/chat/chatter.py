@@ -95,7 +95,6 @@ class Chatter(QtGui.QTableWidgetItem):
         self.statusItem.setFlags(QtCore.Qt.ItemIsEnabled)
         self.statusItem.setTextAlignment(QtCore.Qt.AlignHCenter)
 
-
         self.parent.setItem(self.row(), Chatter.RANK_COLUMN, self.rankItem)
         self.parent.setItem(self.row(), Chatter.AVATAR_COLUMN, self.avatarItem)
         self.parent.setItem(self.row(), Chatter.STATUS_COLUMN, self.statusItem)
@@ -117,8 +116,7 @@ class Chatter(QtGui.QTableWidgetItem):
     def __ge__(self, other):
         ''' Comparison operator used for item list sorting '''        
         return not self.__lt__(other)
-    
-    
+
     def __lt__(self, other):
         ''' Comparison operator used for item list sorting '''
         firstStatus = self.getUserRank(self)
@@ -152,10 +150,9 @@ class Chatter(QtGui.QTableWidgetItem):
             
             self.avatarTip = self.avatar["tooltip"]           
             url = self.avatar["url"]
-            
-            
+
             avatarPix = util.respix(url) 
-                    
+
             if avatarPix :
                 self.avatarItem.setIcon(QtGui.QIcon(avatarPix))            
                 self.avatarItem.setToolTip(self.avatarTip)
@@ -166,9 +163,7 @@ class Chatter(QtGui.QTableWidgetItem):
             # No avatar set.
             self.avatarItem.setIcon(QtGui.QIcon()) 
             self.avatarItem.setToolTip(None)
-            
-                        
-                            
+
     def update(self):
         '''
         updates the appearance of this chatter in the nicklist according to its lobby and irc states 
@@ -207,8 +202,8 @@ class Chatter(QtGui.QTableWidgetItem):
                     self.statusItem.setIcon(util.icon("chat/status/playing.png"))
                     self.statusItem.setToolTip("Playing Game<br/>"+url.toString())
         else:
-                self.statusItem.setIcon(QtGui.QIcon())
-                self.statusItem.setToolTip("Idle")
+            self.statusItem.setIcon(QtGui.QIcon())
+            self.statusItem.setToolTip("Idle")
 
         #Rating icon choice
         #TODO: These are very basic and primitive
@@ -258,31 +253,22 @@ class Chatter(QtGui.QTableWidgetItem):
                 elif url.scheme() == "faflive":
                     self.lobby.client.api.viewLiveReplay(self.name)
 
-
-
-        
     def pressed(self, item):        
         menu = QtGui.QMenu(self.parent)
 
         # Actions for stats
-        
         actionStats         = QtGui.QAction("View Player statistics", menu)
-        
         actionSelectAvatar  = QtGui.QAction("Select Avatar", menu)
         
         # Actions for Games and Replays
         actionReplay = QtGui.QAction("View Live Replay", menu)
         actionVaultReplay = QtGui.QAction("View Replays in Vault", menu)
         actionJoin = QtGui.QAction("Join in Game", menu)
-        #actionInvite = QtGui.QAction("Invite to Game", menu)
 
-        
         # Default is all disabled, we figure out what we can do after this
         actionReplay.setDisabled(True)
         actionJoin.setDisabled(True)
-        #actionInvite.setDisabled(True)
 
-                
         # Don't allow self to be invited to a game, or join one
         if self.lobby.client.login != self.name:
             if self.name in client.instance.urls:
@@ -299,7 +285,6 @@ class Chatter(QtGui.QTableWidgetItem):
         actionReplay.triggered.connect(self.viewReplay)
         actionVaultReplay.triggered.connect(self.viewVaultReplay)
         actionJoin.triggered.connect(self.joinInGame)
-        #actionInvite.triggered.connect(self.invite)
         
         # only for us. Either way, it will display our avatar, not anyone avatar.
         if self.lobby.client.login == self.name :
@@ -332,9 +317,7 @@ class Chatter(QtGui.QTableWidgetItem):
                 actionCloseLobby.triggered.connect(self.closeLobby)                
       
             menu.addSeparator()
-            
-            
-        
+
         # Adding to menu
         menu.addAction(actionStats)
         
@@ -343,13 +326,6 @@ class Chatter(QtGui.QTableWidgetItem):
         menu.addAction(actionVaultReplay)
         menu.addSeparator()
         menu.addAction(actionJoin)
-        
-            
-        # Actions for teams
-        # actionInviteToTeam = QtGui.QAction("Invite to Team", menu)
-        # actionInviteToTeam.triggered.connect(self.invite)
-        # menu.addAction(actionInviteToTeam)
-        # menu.addSeparator()
 
         # Actions for the Friends List
         actionAddFriend = QtGui.QAction("Add friend", menu)
@@ -371,19 +347,17 @@ class Chatter(QtGui.QTableWidgetItem):
             actionAddFriend.setDisabled(1)
             actionRemFoe.setDisabled(1)
             actionAddFoe.setDisabled(1)
-        else :
+        else:
             actionRemFriend.setDisabled(1)
 
         if self.lobby.client.isFoe(self.name):
             actionAddFoe.setDisabled(1)
             actionAddFriend.setDisabled(1)
             actionRemFriend.setDisabled(1)
-
-        else :
+        else:
             actionRemFoe.setDisabled(1)
                                       
         # Triggers
-        
         actionAddFriend.triggered.connect(self.addFriend)
         actionRemFriend.triggered.connect(self.remFriend)
         actionAddFoe.triggered.connect(self.addFoe)
@@ -395,7 +369,6 @@ class Chatter(QtGui.QTableWidgetItem):
         menu.addSeparator()
         menu.addAction(actionAddFoe)
         menu.addAction(actionRemFoe)
-
 
         #Finally: Show the popup
         menu.popup(QtGui.QCursor.pos())
