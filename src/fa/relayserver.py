@@ -305,7 +305,7 @@ class Relayer(QtCore.QObject):
 
                             
     def sendToServer(self, action, chunks):
-        data = json.dumps(dict(action=action, chuncks=chunks))
+        data = json.dumps(dict(action=action, chunks=chunks))
         # Relay to faforever.com
         if self.relaySocket.isOpen():
             if action != "ping" and action != "pong" :
