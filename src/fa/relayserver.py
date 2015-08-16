@@ -152,7 +152,7 @@ class Relayer(QtCore.QObject):
         self.pingTimer = QtCore.QTimer(self)
         self.pingTimer.timeout.connect(self.ping)
         self.pingTimer.start(30000)
-        self.sendToServer('Authenticate', [self.client.session])
+        self.sendToServer('Authenticate', [self.client.session, self.client.id])
         self.relaySocket.readyRead.connect(self.readDataFromServer)
 
     def __del__(self):
