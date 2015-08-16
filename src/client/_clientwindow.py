@@ -1478,17 +1478,10 @@ class ClientWindow(FormClass, BaseClass):
             self.writeToServer("PING")
             self.timeout = self.timeout + 1
         else:
-            #self.heartbeatTimer.stop()
             self.socket.abort()
-            #logger.info("Connection lost - Trying to reconnect.")
-            #if not self.reconnect():
-                #logger.error("Unable to reconnect to the server.")
-                
 
     @QtCore.pyqtSlot()
     def readFromServer(self):
-        #self.heartbeatTimer.start(HEARTBEAT)
-        #self.timeout = 0
         ins = QtCore.QDataStream(self.socket)
         ins.setVersion(QtCore.QDataStream.Qt_4_2)
 
@@ -1512,8 +1505,6 @@ class ClientWindow(FormClass, BaseClass):
         if self.state == ClientState.ACCEPTED:
             QtGui.QMessageBox.warning(QtGui.QApplication.activeWindow(), "Disconnected from FAF", "The lobby lost the connection to the FAF server.<br/><b>You might still be able to chat.<br/>To play, try reconnecting a little later!</b>", QtGui.QMessageBox.Close)
 
-            # stop hearbeat
-            #self.heartbeatTimer.stop()
             #Clear the online users lists
             oldplayers = self.players.keys()
             self.players = {}
@@ -1529,8 +1520,6 @@ class ClientWindow(FormClass, BaseClass):
                 self.mainTabs.setTabText(i, "offline")
 
         self.state = ClientState.DROPPED
-
-
 
     @QtCore.pyqtSlot(QtNetwork.QAbstractSocket.SocketError)
     def socketError(self, error):
