@@ -249,12 +249,13 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
                             self.connection.join(postGameChannel)
 
 
+    def log_event(self, e):
+        self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
 
 #SimpleIRCClient Class Dispatcher Attributes follow here.
     def on_welcome(self, c, e):
-        self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
+        self.log_event(e)
         self.welcomed = True
-
 
     def nickservIdentify(self):
         if self.identified == False :
@@ -275,30 +276,27 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
     def on_version(self, c, e):
         self.connection.privmsg(e.source(), "Forged Alliance Forever " + util.VERSION_STRING)
 
-
     def on_motd(self, c, e):
-        self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
+        self.log_event(e)
         self.nickservIdentify()
 
     def on_endofmotd(self, c, e):
-        self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
+        self.log_event(e)
 
 
     def on_namreply(self, c, e):
-        self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
+        self.log_event(e)
         channel = e.arguments()[1]
         listing = e.arguments()[2].split()
 
         for user in listing:
             self.channels[channel].addChatter(user)
-            QtGui.QApplication.processEvents()      #Added by thygrrr to improve application responsiveness on large IRC packets
+            QtGui.QApplication.processEvents()
 
         logger.debug("Added " + str(len(listing)) + " Chatters")
 
-
-
     def on_whoisuser(self, c, e):
-        self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
+        self.log_event(e)
 
 
     def on_join(self, c, e):
@@ -349,7 +347,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
                 self.channels[channel].removeChatter(name, "quit.")
 
     def on_nick(self, c, e):
-        self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
+        self.log_event(e)
 
     def on_mode(self, c, e):
         if len(e.arguments()) < 2:
@@ -359,10 +357,10 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             self.channels[e.target()].elevateChatter(name, e.arguments()[0])
 
     def on_umode(self, c, e):
-        self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
+        self.log_event(e)
 
     def on_notice(self, c, e):
-        self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
+        self.log_event(e)
 
     def on_topic(self, c, e):
         channel = e.target()
@@ -376,15 +374,15 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
 
     def on_topicinfo(self, c, e):
-        self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
+        self.log_event(e)
 
 
     def on_list(self, c, e):
-        self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
+        self.log_event(e)
 
 
     def on_bannedfromchan(self, c, e):
-        self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
+        self.log_event(e)
 
 
     def on_pubmsg(self, c, e):
