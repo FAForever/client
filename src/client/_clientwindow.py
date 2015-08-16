@@ -327,17 +327,15 @@ class ClientWindow(FormClass, BaseClass):
 
         QtWebKit.QWebSettings.globalSettings().setAttribute(QtWebKit.QWebSettings.PluginsEnabled, True)
 
-
         #for moderator
         self.modMenu = None
 
     def eventFilter(self, obj, event):
         if (event.type() == QtCore.QEvent.HoverMove):
+            self.draggingHover = self.dragging
             if self.dragging:
-                self.draggingHover = True
                 self.resizeWidget(self.mapToGlobal(event.pos()))
             else:
-                self.draggingHover = False
                 if self.maxNormal == False:
                     self.mousePosition.computeMousePosition(event.pos())
                 else:
@@ -345,7 +343,6 @@ class ClientWindow(FormClass, BaseClass):
             self.updateCursorShape(event.pos())
 
         return False
-
 
     def updateCursorShape(self, pos):
         if self.mousePosition.onTopLeftEdge or self.mousePosition.onBottomRightEdge:
