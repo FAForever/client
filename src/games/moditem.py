@@ -1,7 +1,3 @@
-
-
-
-
 from PyQt4 import QtGui
 import util
 import client
@@ -24,7 +20,6 @@ class ModItem(QtGui.QListWidgetItem):
 
         self.mod  = message["name"]
         self.name = message["fullname"]
-        self.options = message["options"]
         #Load Icon and Tooltip
 
         tip = message["desc"]      

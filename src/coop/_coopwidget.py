@@ -1,7 +1,3 @@
-
-
-
-
 from PyQt4 import QtCore, QtGui
 import fa
 from fa.replay import replay
@@ -190,9 +186,7 @@ class CoopWidget(FormClass, BaseClass):
         if item != self.selectedItem: 
             self.selectedItem = item
             self.client.statsServer.send(dict(command="coop_stats", mission=item.uid, type=self.tabLeaderWidget.currentIndex()))
-        
-        
-        
+
     def coopListDoubleClicked(self, item):
         '''
         Hosting a coop event
@@ -214,26 +208,14 @@ class CoopWidget(FormClass, BaseClass):
             
             if hostgamewidget.exec_() == 1 :
                 if self.gamename:
-                    gameoptions = []
-                    
-                    if len(self.options) != 0 :
-                        oneChecked = False
-                        for option in self.options :
-                            if option.isChecked() :
-                                oneChecked = True
-                            gameoptions.append(option.isChecked())
-            
-                        if oneChecked == False :
-                            QtGui.QMessageBox.warning(None, "No option checked !", "You have to check at least one option !")
-                            return
                     modnames = [str(moditem.text()) for moditem in hostgamewidget.modList.selectedItems()]
                     mods = [hostgamewidget.mods[modstr] for modstr in modnames]
                     modvault.setActiveMods(mods, True) #should be removed later as it should be managed by the server.
 #                #Send a message to the server with our intent.
                     if self.ispassworded:
-                        self.client.send(dict(command="game_host", access="password", password = self.gamepassword, mod=item.mod, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort, options = gameoptions))
+                        self.client.send(dict(command="game_host", access="password", password = self.gamepassword, mod=item.mod, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort))
                     else :
-                        self.client.send(dict(command="game_host", access="public", mod=item.mod, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort, options = gameoptions))
+                        self.client.send(dict(command="game_host", access="public", mod=item.mod, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort))
 
 
     @QtCore.pyqtSlot(dict)
