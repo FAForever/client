@@ -8,7 +8,6 @@ import util
 from games.gameitem import GameItem, GameItemDelegate
 from games.moditem import ModItem, mod_invisible, mods
 from games.hostgamewidget import HostgameWidget
-from games._mapSelectWidget import mapSelectWidget
 from fa.faction import Faction
 import fa
 import modvault
@@ -87,23 +86,11 @@ class GamesWidget(FormClass, BaseClass):
 
         self.modList.itemDoubleClicked.connect(self.hostGameClicked)
 
-        self.mapSelectButton.clicked.connect(self.mapSelectClicked)
-
-        #self.TeamMapSelectButton.setVisible(False)
-
-        # try:            
-        #     self.teamInvitationsListWidget.itemDoubleClicked.connect(self.teamInvitationClicked)
-        #     self.leaveTeamButton.clicked.connect(self.quitTeam)    
-        #     self.leaveTeamButton.setVisible(False)
-        # except:
-        #     QtGui.QMessageBox.warning(None, "Skin outdated.", "The theme you are using is outdated. Please remove it or the lobby will malfunction.")
-
         #Load game name from settings (yay, it's persistent!)
         self.loadGameName()
         self.loadGameMap()
         self.loadPassword()
         self.options = []
-
 
     def handleMatchmakerInfo(self, message):
         action = message["action"]
@@ -227,13 +214,6 @@ class GamesWidget(FormClass, BaseClass):
         self.rankedSeraphim.toggled.disconnect(self.toggleSeraphim)
         self.rankedUEF.toggled.disconnect(self.toggleUEF)
         self.rankedRandom.toggled.disconnect(self.toggleRandom)
-
-
-    def mapSelectClicked(self):
-        ''' This is for handling map selector'''
-        mapSelection = mapSelectWidget(self)
-        mapSelection.exec_()
-
 
     @QtCore.pyqtSlot(dict)
     def processModInfo(self, message):

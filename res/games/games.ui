@@ -378,16 +378,6 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="0">
-          <widget class="QPushButton" name="mapSelectButton">
-           <property name="text">
-            <string>Select maps ...</string>
-           </property>
-           <property name="flat">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
          <item row="2" column="0">
           <spacer name="verticalSpacer">
            <property name="orientation">
@@ -1186,16 +1176,6 @@ p, li { white-space: pre-wrap; }
         </layout>
        </widget>
       </item>
-      <item row="3" column="0" colspan="4">
-       <widget class="QPushButton" name="TeamMapSelectButton">
-        <property name="text">
-         <string>Select maps ...</string>
-        </property>
-        <property name="flat">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
       <item row="12" column="1">
        <spacer name="verticalSpacer_2">
         <property name="orientation">
@@ -1225,7 +1205,6 @@ p, li { white-space: pre-wrap; }
      <zorder>teamFaction</zorder>
      <zorder>teamSearch</zorder>
      <zorder>layoutWidget</zorder>
-     <zorder>TeamMapSelectButton</zorder>
      <zorder>verticalSpacer_2</zorder>
      <zorder>leaveTeamButton</zorder>
     </widget>

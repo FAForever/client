@@ -435,12 +435,12 @@ class Channel(FormClass, BaseClass):
 
 
     @QtCore.pyqtSlot(list)    
-    def updateChatters(self, chatters):
+    def updateChatters(self, updated_chatters):
         ''' 
         Updates the status, icon and color of an IRC user depending on its known state in the FAF client
         Takes a list of users.
         '''
-        for name in chatters:            
+        for name in updated_chatters:
             if name in self.chatters: 
                 self.chatters[name].update() #only update chatters that are in this channel
         

@@ -137,7 +137,6 @@ class ClientWindow(FormClass, BaseClass):
     featuredModManagerInfo = QtCore.pyqtSignal(dict)
     replayVault = QtCore.pyqtSignal(dict)
     coopLeaderBoard = QtCore.pyqtSignal(dict)
-    ladderMapsList = QtCore.pyqtSignal(dict)
 
     #These signals are emitted whenever a certain tab is activated
     showReplays = QtCore.pyqtSignal()
@@ -1698,18 +1697,12 @@ class ClientWindow(FormClass, BaseClass):
         else:
             arguments = []
 
-        # Important: This is the race parameter used by ladder search.
-        if 'mod' in message:
-            modkey = 'mod'  # FIXME: Find out if this is not fully deprecated by now
-        else:
-            modkey = 'featured_mod'
-
         # Do some special things depending of the reason of the game launch.
         rank = False
 
         # HACK: Ideally, this comes from the server, too. LATER: search_ranked message
-        if message[modkey] == "ladder1v1":
-            arguments.append(self.games.race)
+        if message["featured_mod"] == "ladder1v1":
+            arguments.append('/' + self.games.race)
             #Player 1v1 rating
             arguments.append('/mean')
             arguments.append(str(self.players[self.login]["ladder_rating_mean"]))
@@ -1808,9 +1801,6 @@ class ClientWindow(FormClass, BaseClass):
 
     def handle_coop_leaderboard(self, message):
         self.coopLeaderBoard.emit(message)
-
-    def handle_ladder_maps(self, message):
-        self.ladderMapsList.emit(message)
 
     def handle_matchmaker_info(self, message):
         if "action" in message:

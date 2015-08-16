@@ -95,9 +95,7 @@ class LadderMapStat(FormClass, BaseClass):
         
         if game_played == 0 :
             game_played = 1
-        
 
-        
         self.mapstats.insertHtml("<br><font size='+1'>"+str(game_played)+" games played on this map </font><br>")
         
         self.mapstats.insertHtml("<br><font size='+1'>"+str(round(float(draws)/float(game_played),2))+"% of the games end with a draw ("+str(draws)+" games) </font><br>")
@@ -127,8 +125,7 @@ class LadderMapStat(FormClass, BaseClass):
         cybrannomirror = (float(cybran_total)-float(cybran_ignore)*2)
         aeonnomirror = (float(aeon_total)-float(aeon_ignore)*2)
         seranomirror = (float(sera_total)-float(sera_ignore)*2)
-        
-        
+
         if uefnomirror == 0 :
             uefnomirror = 1
 
@@ -152,8 +149,6 @@ class LadderMapStat(FormClass, BaseClass):
         self.mapstats.insertHtml("<br><font size='+1'>Aeon : "+str(percentwinAeon)+ " % ("+str(aeon_win)+" games won in "+str(int(aeonnomirror))+" no mirror matchup games)</font>")
         self.mapstats.insertHtml("<br><font size='+1'>Seraphim : "+str(percentwinSera)+ " % ("+str(sera_win)+" games won in "+str(int(seranomirror))+" no mirror matchup games)</font>")
 
-
-    
     def mapselected(self, item):
         ''' user has selected a map, we send the request to the server'''
         
@@ -165,11 +160,7 @@ class LadderMapStat(FormClass, BaseClass):
 
         self.mapstats.insertHtml("<img src=\"map.png\" /><br><font size='+5'>" + item.text() + "</font><br><br>")
         self.client.statsServer.send(dict(command="stats", type="ladder_map_stat", mapid = self.mapid))
-        
-        
 
-        
-        
     @QtCore.pyqtSlot(dict)
     def updatemaps(self, message):
 
@@ -192,6 +183,3 @@ class LadderMapStat(FormClass, BaseClass):
             self.maplist.addItem(item)
             
         self.maplist.sortItems(0)
-        
-        
-        

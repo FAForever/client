@@ -193,18 +193,12 @@ class StatsWidget(BaseClass, FormClass):
                 leagueTab = self.leagues.widget(tab).findChild(QtGui.QTabWidget,"league"+str(tab))
                 leagueTab.currentChanged.connect(self.divisionsUpdate)
                 leagueTab.widget(0).layout().addWidget(self.pagesAllLeagues[tab])
-            
-        elif typeStat == "ladder_maps" :
-            self.laddermaplist.emit(message)
 
         elif typeStat == "ladder_map_stat" :
             self.laddermapstat.emit(message)
 
     @QtCore.pyqtSlot()
     def updating(self):
-    
-        self.client.statsServer.send(dict(command="stats", type="ladder_maps"))
-    
         if  self.client.getUserLeague(self.client.login) :
             self.leagues.setCurrentIndex(self.client.getUserLeague(self.client.login)["league"]-1)
         else :
@@ -224,6 +218,3 @@ class StatsWidget(BaseClass, FormClass):
             self.webview.settings().setUserStyleSheetUrl(util.themeurl("ladder/style.css"))
 
         self.webview.setUrl(QtCore.QUrl("http://content.faforever.com/faf/leaderboards/read-leader.php?board=1v1&username=%s" % (self.client.login)))
-        
-        
-    
