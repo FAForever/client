@@ -26,11 +26,11 @@ defaults = {
         "MAPS_PATH": join(join(APPDATA_DIR, "repo"), "maps"),
     },
     'PROXY': {
-        'HOST': 'proxy.faforever.com',
+        'HOST': 'proxy.dev.faforever.com',
         'PORT': 9134
     },
     'LOBBY': {
-        'HOST': 'lobby.faforever.com',
+        'HOST': 'lobby.dev.faforever.com',
         'PORT': 8001,
         'LOCAL_REPLAY_PORT': 15000,
         'GAME_PORT_DEFAULT': 6112
@@ -38,20 +38,20 @@ defaults = {
     'MUMBLE_URL': "mumble://{login}@mumble.faforever.com/Games?version:1.2.0",
     'FORUMS_URL': "http://forums.faforever.com/forums",
     'WEBSITE_URL': "http://www.faforever.com",
-    'UNITDB_URL': "http://content.faforever.com/faf/unitsDB/",
+    'UNITDB_URL': "http://content.dev.faforever.com/faf/unitsDB/",
     'WIKI_URL': "http://wiki.faforever.com/mediawiki/index.php/Main_Page",
     'SUPPORT_URL': "http://forums.faforever.com/forums/viewforum.php?f:3",
     'TICKET_URL': "http://forums.faforever.com/forums/viewforum.php?f:3",
-    'STEAMLINK_URL': "http://app.faforever.com/faf/steam.php",
+    'STEAMLINK_URL': "http://app.dev.faforever.com/faf/steam.php",
     'PASSWORD_RECOVERY_URL': "http://www.faforever.com/faf/forgotPass.php",
     'NAME_CHANGE_URL': "http://www.faforever.com/faf/userName.php",
     'USE_CHAT': True,
     'ONLINE_REPLAY_SERVER': {
-        'HOST': 'lobby.faforever.com',
+        'HOST': 'lobby.dev.faforever.com',
         'PORT': 15000
     },
     'RELAY_SERVER': {
-        'HOST': 'lobby.faforever.com',
+        'HOST': 'lobby.dev.faforever.com',
         'PORT': 8000
     }
 }

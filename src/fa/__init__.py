@@ -4,7 +4,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-GPGNET_HOST = "lobby.faforever.com"
+GPGNET_HOST = "lobby.dev.faforever.com"
 GPGNET_PORT = 8000
 
 DEFAULT_LIVE_REPLAY = True

@@ -20,7 +20,7 @@ VERSION = 0  # FIXME: causes the updater to always skip.
 LOGFILE_MAX_SIZE = 256 * 1024  #256kb should be enough for anyone
 
 
-UNITS_PREVIEW_ROOT = "http://content.faforever.com/faf/unitsDB/icons/big/"
+UNITS_PREVIEW_ROOT = "http://content.dev.faforever.com/faf/unitsDB/icons/big/"
 
 #These are paths relative to the executable or main.py script
 COMMON_DIR = os.path.join(os.getcwd(), "res")
