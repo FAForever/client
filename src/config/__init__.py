@@ -1,8 +1,9 @@
+from config import version
+
 __author__ = 'Sheeo'
 
 import os
 import sys
-import version
 import logging
 from logging.handlers import RotatingFileHandler
 from PyQt4 import QtCore
