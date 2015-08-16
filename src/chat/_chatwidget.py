@@ -233,22 +233,6 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         if channel not in self.channels:
             self.connection.join(channel)
 
-    def processGameExit(self):
-        self.autopostjoin = util.settings.value("chat/autopostjoin")
-        logger.info("autopostjoin: " + str(self.autopostjoin))
-        if (str(self.autopostjoin) == "true"):
-            self.replayInfo = fa.instance.info
-            if self.replayInfo:
-                if 'num_players' in self.replayInfo:
-                    self.nrofplayers = int(self.replayInfo['num_players'])
-                    logger.info("nr of players: " + str(self.nrofplayers))
-                    if (self.nrofplayers > 1):
-                        postGameChannel = "#game-" + str(self.replayInfo['uid'])
-                        if (self.connection.is_connected()):
-                            logger.info("Joining post-game channel.")
-                            self.connection.join(postGameChannel)
-
-
     def log_event(self, e):
         self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
 
@@ -372,18 +356,14 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         if channel in self.channels:
             self.channels[channel].setAnnounceText(" ".join(e.arguments()[1:]))
 
-
     def on_topicinfo(self, c, e):
         self.log_event(e)
-
 
     def on_list(self, c, e):
         self.log_event(e)
 
-
     def on_bannedfromchan(self, c, e):
         self.log_event(e)
-
 
     def on_pubmsg(self, c, e):
         target = e.target()
