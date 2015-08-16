@@ -1667,8 +1667,9 @@ class ClientWindow(FormClass, BaseClass):
         self.statsInfo.emit(message)
 
     def handle_welcome(self, message):
-        if "session" in message :
+        if "session" in message:
             self.session = str(message["session"])
+            return
 
         elif "update" in message :
             # Mystereous voodoo nonsense.
