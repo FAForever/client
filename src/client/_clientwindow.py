@@ -1552,15 +1552,15 @@ class ClientWindow(FormClass, BaseClass):
 
     def joinChannel(self, username, channel):
         '''Join users to a channel'''
-        self.send(dict(command="admin", action="join_channel", users=[self.players[username].id], channel=channel))
+        self.send(dict(command="admin", action="join_channel", user_ids=[self.players[username].id], channel=channel))
 
     def closeFA(self, username):
         '''Close FA remotly'''
-        self.send(dict(command="admin", action="closeFA", user=self.players[username].id))
+        self.send(dict(command="admin", action="closeFA", user_id=self.players[username].id))
 
     def closeLobby(self, username):
         '''Close lobby remotly'''
-        self.send(dict(command="admin", action="closelobby", user=self.players[username].id))
+        self.send(dict(command="admin", action="closelobby", user_id=self.players[username].id))
 
     def invite(self, player):
         ''' Send an invitation to be part of my team'''
