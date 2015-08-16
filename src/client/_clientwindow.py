@@ -309,7 +309,6 @@ class ClientWindow(FormClass, BaseClass):
 
         self.power = 0          # current user power
         self.id = 0
-        self.email = None
         self.coloredNicknames = False
         #Initialize the Menu Bar according to settings etc.
         self.initMenus()
@@ -1705,8 +1704,6 @@ class ClientWindow(FormClass, BaseClass):
         except:
             raise #Pass it on to our caller, Malformed Command
 
-
-
     def handle_stats(self, message):
         self.statsInfo.emit(message)
 
@@ -1733,8 +1730,7 @@ class ClientWindow(FormClass, BaseClass):
                 self.state = ClientState.ACCEPTED
 
         else :
-            self.email = message.get('email', '')
-            self.id = message.get('id', 0)
+            self.id = message["id"]
             self.login = message["login"]
             logger.debug("Login success")
             self.state = ClientState.ACCEPTED
