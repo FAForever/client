@@ -16,8 +16,6 @@
 # GNU General Public License for more details.
 #-------------------------------------------------------------------------------
 
-
-
 import logging
 logger = logging.getLogger(__name__)
 
@@ -40,7 +38,6 @@ IRC_SERVER = "irc.faforever.com"
 POLLING_INTERVAL = 300   # milliseconds between irc polls
 PONG_INTERVAL = 100000   # milliseconds between pongs
 
-
 FormClass, BaseClass = util.loadUiType("chat/chat.ui")
 
 class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
@@ -58,7 +55,6 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         SimpleIRCClient.__init__(self)
 
         self.setupUi(self)
-
 
         # CAVEAT: These will fail if loaded before theming is loaded
         import json
@@ -109,9 +105,6 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
         # disconnection checks
         self.canDisconnect = False
-        # self.heartbeatTimer = QtCore.QTimer(self)
-        # self.heartbeatTimer.timeout.connect(self.serverTimeout)
-        # self.timeout = 0        
 
 
     @QtCore.pyqtSlot()
@@ -491,8 +484,3 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
         if "Nickname is already in use." in "\n".join(e.arguments()) :
             self.connection.nick(self.client.login + "_")
-
-    # def on_ping(self, c,e):
-    #     self.timeout = 0
-    #     self.heartbeatTimer.start(PONG_INTERVAL)
-
