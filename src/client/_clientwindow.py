@@ -1857,7 +1857,7 @@ class ClientWindow(FormClass, BaseClass):
         if name == self.login:
             self.initClanlist()
         # If users clan not yet known, self.getUserClan(self.login) equals ''
-        if not message["clan"] == '' and message["clan"] == self.getUserClan(self.login):
+        if "clan" in message and message["clan"] == self.getUserClan(self.login):
             self.clanlist.append(name)
 
 
