@@ -209,39 +209,22 @@ class Chatter(QtGui.QTableWidgetItem):
         else:
                 self.statusItem.setIcon(QtGui.QIcon())
                 self.statusItem.setToolTip("Idle")
-            
 
         #Rating icon choice
         #TODO: These are very basic and primitive
-        if rating != None:            
-                league = self.lobby.client.getUserLeague(self.name)
-                
-                self.rankItem.setToolTip("Global Rating: " + str(int(rating)))  
-                
-                if league != None :        
-                    self.rankItem.setToolTip("Division : " + league["division"]+ "\nGlobal Rating: " + str(int(rating)))
-                    if league["league"] == 1 :
-                        self.league = "chat/rank/Aeon_Scout.png"
-                        self.rankItem.setIcon(util.icon("chat/rank/Aeon_Scout.png"))
-                    elif league["league"] == 2 :
-                        self.league = "chat/rank/Aeon_T1.png"
-                        self.rankItem.setIcon(util.icon("chat/rank/Aeon_T1.png"))
-                    elif league["league"] == 3 :
-                        self.league = "chat/rank/Aeon_T2.png"
-                        self.rankItem.setIcon(util.icon("chat/rank/Aeon_T2.png"))
-                    elif league["league"] == 4 :
-                        self.league = "chat/rank/Aeon_T3.png"
-                        self.rankItem.setIcon(util.icon("chat/rank/Aeon_T3.png"))
-                    elif league["league"] == 5 :                
-                        self.league = "chat/rank/Aeon_XP.png"        
-                        self.rankItem.setIcon(util.icon("chat/rank/Aeon_XP.png"))
-                else :
-                    self.league = "chat/rank/newplayer.png"
-                    self.rankItem.setIcon(util.icon("chat/rank/newplayer.png"))
-                    
+        if rating is not None:
+            league = self.lobby.client.getUserLeague(self.name)
+
+            self.rankItem.setToolTip("Global Rating: " + str(int(rating)))
+
+            if league is not None :
+                self.rankItem.setToolTip("Division : " + league["division"]+ "\nGlobal Rating: " + str(int(rating)))
+                self.rankItem.setIcon(util.icon("chat/rank/%s.png" % league["league"]))
+            else:
+                self.rankItem.setIcon(util.icon("chat/rank/newplayer.png"))
         else:
-                self.rankItem.setIcon(util.icon("chat/rank/civilian.png"))
-                self.rankItem.setToolTip("IRC User")
+            self.rankItem.setIcon(util.icon("chat/rank/civilian.png"))
+            self.rankItem.setToolTip("IRC User")
 
     def setChatUserColor(self, username):
         if self.lobby.client.isFriend(username):
