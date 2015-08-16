@@ -1102,12 +1102,10 @@ class ClientWindow(FormClass, BaseClass):
         logger.info("Attempting to login as: " + str(self.login))
         self.state = ClientState.NONE
 
-
-
         if not self.uniqueId :
             QtGui.QMessageBox.warning(QtGui.QApplication.activeWindow(), "Unable to login", "It seems that you miss some important DLL.<br>Please install :<br><a href =\"http://www.microsoft.com/download/en/confirmation.aspx?id=8328\">http://www.microsoft.com/download/en/confirmation.aspx?id=8328</a> and <a href = \"http://www.microsoft.com/en-us/download/details.aspx?id=17851\">http://www.microsoft.com/en-us/download/details.aspx?id=17851</a><br><br>You probably have to restart your computer after installing them.<br><br>Please visit this link in case of problems : <a href=\"http://forums.faforever.com/forums/viewforum.php?f=3\">http://forums.faforever.com/forums/viewforum.php?f=3</a>", QtGui.QMessageBox.Close)
             return False
-        else :
+        else:
             self.send(dict(command="hello", version=0, login=self.login, password=self.password, unique_id=self.uniqueId, local_ip=self.localIP))
 
         while (not self.state) and self.progress.isVisible():
@@ -1142,10 +1140,6 @@ class ClientWindow(FormClass, BaseClass):
             self.updateOptions()
 
             self.progress.close()
-            #This is a triumph... I'm making a note here: Huge success!
-            #logger.debug("Starting heartbeat timer")
-            #self.heartbeatTimer.start(HEARTBEAT)
-            #self.timeout = 0            
             self.connected.emit()
             return True
         elif self.state == ClientState.REJECTED:
@@ -1705,29 +1699,22 @@ class ClientWindow(FormClass, BaseClass):
             self.session = str(message["session"])
 
         elif "update" in message :
-
+            # Mystereous voodoo nonsense.
             # fix a problem with Qt.
             util.settings.beginGroup("window")
             util.settings.remove("geometry")
             util.settings.endGroup()
 
-            if not util.developer():
-                logger.warn("Server says that Updating is needed.")
-                self.progress.close()
-                self.state = ClientState.OUTDATED
-                fetchClientUpdate(message["update"])
+            logger.warn("Server says that Updating is needed.")
+            self.progress.close()
+            self.state = ClientState.OUTDATED
+            fetchClientUpdate(message["update"])
+            return
 
-            else:
-                logger.debug("Skipping update because this is a developer version.")
-                logger.debug("Login success")
-                self.state = ClientState.ACCEPTED
-
-        else :
-            self.id = message["id"]
-            self.login = message["login"]
-            logger.debug("Login success")
-            self.state = ClientState.ACCEPTED
-
+        self.id = message["id"]
+        self.login = message["login"]
+        logger.debug("Login success")
+        self.state = ClientState.ACCEPTED
 
     def handle_game_launch(self, message):
 
