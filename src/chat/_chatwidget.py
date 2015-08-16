@@ -91,7 +91,6 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.tabCloseRequested.connect(self.closeChannel)
 
         #add signal handler for game exit
-        self.client.gameExit.connect(self.processGameExit)
         self.replayInfo = fa.instance.info
 
 
