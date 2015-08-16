@@ -124,7 +124,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
     def connect(self):
         #Do the actual connecting, join all important channels
         try:
-            self.irc_connect(self.ircServer, self.ircPort, self.client.login, ssl=True, ircname=self.client.id)
+            self.irc_connect(self.ircServer, self.ircPort, self.client.login, ssl=True)
             self.timer.start()
 
         except:
@@ -202,9 +202,15 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
                     self.channels[channel].printAction("IRC", "was disconnected.")
             return False
 
+
+
     def openQuery(self, name, activate=False):
-        # Ignore foes... and yourself.
-        if self.client.isFoe(name) or name == self.client.login:
+        # In developer mode, allow player to talk to self to test chat functions
+        if (name == self.client.login) and not util.developer():
+            return False
+
+        #not allowing foes to talk to us.
+        if (self.client.isFoe(name)) :
             return False
 
         if name not in self.channels:
@@ -216,6 +222,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
         self.channels[name].resizing()
         return True
+
+
 
     @QtCore.pyqtSlot(list)
     def autoJoin(self, channels):
