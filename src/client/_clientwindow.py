@@ -1120,8 +1120,6 @@ class ClientWindow(FormClass, BaseClass):
 
         self.progress.close()
 
-
-
         if self.state == ClientState.OUTDATED :
                 logger.warn("Client is OUTDATED.")
 
@@ -1161,8 +1159,6 @@ class ClientWindow(FormClass, BaseClass):
         else:
             # A more profound error has occurrect (cancellation or disconnection)
             return False
-
-
 
 
     def loginCreation(self, result):
@@ -1772,9 +1768,9 @@ class ClientWindow(FormClass, BaseClass):
             arguments.append(str(self.players[self.login]["rating_mean"]))
             arguments.append('/deviation')
             arguments.append(str(self.players[self.login]["rating_deviation"]))
-            arguments.append('/country ') #Add country command line argument - Vicarian
-            country = self.getUserCountry(self.login) #Add country command line argument - Vicarian
-            arguments.append(str(country)) #Add country command line argument - Vicarian
+            arguments.append('/country ')
+            country = self.getUserCountry(self.login)
+            arguments.append(str(country))
 
             # Launch the normal lobby
             self.relayServer.init_mode = 0
@@ -1813,25 +1809,16 @@ class ClientWindow(FormClass, BaseClass):
                 if lenopt != numOpt :
                     options.write(", ")
 
-
-
             options.write(" }")
-
             options.close()
-
 
         #Experimental UPnP Mapper - mappings are removed on app exit
         if self.useUPnP:
             fa.upnp.createPortMapping(self.localIP, self.gamePort, "UDP")
 
-        version_info = message.get('version_info', {})
-        version_info['lobby'] = util.VERSION_STRING
-
-        game_info = dict(uid=message['uid'], recorder=self.login, featured_mod=message[modkey], game_time=time.time(), version_info=version_info)
+        info = dict(uid=message['uid'], recorder=self.login, featured_mod=message[modkey], game_time=time.time())
 
         fa.run(game_info, self.relayServer.serverPort(), arguments)
-
-
 
     def handle_coop_info(self, message):
         self.coopInfo.emit(message)
