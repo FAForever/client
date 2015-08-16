@@ -1147,7 +1147,7 @@ class ClientWindow(FormClass, BaseClass):
             self.clearAutologin()
             return self.doLogin()   #Just try to login again, slightly hackish but I can get away with it here, I guess.
         else:
-            # A more profound error has occurrect (cancellation or disconnection)
+            # A more profound error has occurred (cancellation or disconnection)
             return False
 
 
@@ -1189,8 +1189,6 @@ class ClientWindow(FormClass, BaseClass):
         Convenience function for other modules to inquire about a user's civilian status.
         '''
         return name in self.players or name == self.login
-
-
 
     #Color table used by the following method
     # CAVEAT: This will break if the theme is loaded after the client package is imported
