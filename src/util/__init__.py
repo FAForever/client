@@ -79,10 +79,6 @@ LOG_FILE_REPLAY = os.path.join(LOG_DIR, 'replay.log')
 #This contains the game binaries (old binFAF folder) and the game mods (.faf files)
 BIN_DIR = os.path.join(APPDATA_DIR, "bin")
 GAMEDATA_DIR = os.path.join(APPDATA_DIR, "gamedata")
-REPO_DIR = os.path.join(APPDATA_DIR, "repo")
-
-if not os.path.exists(REPO_DIR):
-    os.makedirs(REPO_DIR)
 
 LOCALFOLDER = os.path.join(os.path.expandvars("%LOCALAPPDATA%"), "Gas Powered Games",
                            "Supreme Commander Forged Alliance")
