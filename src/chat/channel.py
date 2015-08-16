@@ -164,9 +164,7 @@ class Channel(FormClass, BaseClass):
         else:
             self.blinked = True
             self.lobby.tabBar().setTabText(self.lobby.indexOf(self), "")
-        pass
 
-    
     @QtCore.pyqtSlot()
     def stopBlink(self):
         self.blinker.stop()
@@ -427,8 +425,6 @@ class Channel(FormClass, BaseClass):
     def nickDoubleClicked(self, item):
         chatter = self.nickList.item(item.row(), Chatter.SORT_COLUMN) #Look up the associated chatter object          
         chatter.doubleClicked(item)
-        pass
-
 
     @QtCore.pyqtSlot(QtGui.QTableWidgetItem)
     def nickPressed(self, item):

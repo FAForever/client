@@ -735,7 +735,6 @@ class ClientWindow(FormClass, BaseClass):
 
         self.saveChat()
         self.saveCredentials()
-        pass
 
 
     @QtCore.pyqtSlot()
@@ -1637,20 +1636,14 @@ class ClientWindow(FormClass, BaseClass):
             data = stream.readQString()
             logger.error("Protocol Error, server says: " + message + " - " + data)
 
-
         elif action == "MESSAGE":
             stream.readQString()
             stream.readQString()
-            pass
-
         else:
             try:
                 self.dispatch(json.loads(action))
             except:
                 logger.error("Error dispatching JSON: " + action, exc_info=sys.exc_info())
-
-
-
 
     #
     # JSON Protocol v2 Implementation below here

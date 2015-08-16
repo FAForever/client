@@ -201,5 +201,4 @@ class ReplayServer(QtNetwork.QTcpServer):
         socket = self.nextPendingConnection()
         self.__logger.debug("incoming connection...")
         self.recorders.append(ReplayRecorder(self, socket))
-        pass
 

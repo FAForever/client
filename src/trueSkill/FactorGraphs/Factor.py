@@ -78,7 +78,6 @@ class Factor (object):
     def sendMessageVariable(self, message, variable) :
         pass
 
-
     def createVariableToMessageBinding(self, variable) :
         pass
     

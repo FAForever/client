@@ -11,7 +11,6 @@ logger = logging.getLogger(__name__)
 __author__ = 'Thygrrr'
 
 def checkForUpdates():
-
     pass
 
 # This part updates the Lobby Client by downloading the latest MSI.

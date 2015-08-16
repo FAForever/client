@@ -478,7 +478,6 @@ def __downloadPreviewFromWeb(name):
                 return img
         except:
             logger.debug("Web preview download failed for " + name)
-            pass    #don't bother if anything goes wrong
         
     logger.debug("Web Preview not found for: " + name)
     return None

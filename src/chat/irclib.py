@@ -111,8 +111,6 @@ DEBUG = 0
 
 class IRCError(Exception):
     """Represents an IRC exception."""
-    pass
-
 
 class IRC:
     """Class that handles one or several IRC server connections.

@@ -16,10 +16,6 @@
 # GNU General Public License for more details.
 #-------------------------------------------------------------------------------
 
-
-
-
-
 from Factor import Factor
 
 class Schedule(object):
@@ -28,7 +24,7 @@ class Schedule(object):
 
     def visit(self, depth = -1, maxDepth = 0) :
         pass
-#
+
     def __str__(self) :
         return self._name
 

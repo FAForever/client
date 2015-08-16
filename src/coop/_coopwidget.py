@@ -291,9 +291,7 @@ class CoopWidget(FormClass, BaseClass):
         if message["featured_mod"] == "coop":
             if 'max_players' in  message:
                 message["max_players"] = 4
-            
-            
-            
+
             if uid not in self.games:
                 self.games[uid] = GameItem(uid)
                 self.gameList.addItem(self.games[uid])
@@ -312,8 +310,6 @@ class CoopWidget(FormClass, BaseClass):
                 del self.games[uid]    
             return
 
-        
-    
     @QtCore.pyqtSlot(QtGui.QListWidgetItem)
     def gameDoubleClicked(self, item):
         '''
@@ -321,19 +317,17 @@ class CoopWidget(FormClass, BaseClass):
         '''
         if not fa.instance.available():
             return
-        
-        passw = None 
-        
-        if fa.check.check(item.mod, item.mapname, None, item.mods):
-            if item.access == "password" : 
-                passw, ok = QtGui.QInputDialog.getText(self.client, "Passworded game" , "Enter password :", QtGui.QLineEdit.Normal, "")
-                if ok:
-                    self.client.send(dict(command="game_join", password=passw, uid=item.uid, gameport=self.client.gamePort))
-            else :
-                self.client.send(dict(command="game_join", uid=item.uid, gameport=self.client.gamePort))
-                
-        else:
-            pass #checkFA failed and notified the user what was wrong. We won't join now.
+
+        if not fa.check.check(item.mod, item.mapname, None, item.mods):
+            return
+
+        if item.access == "password" :
+            passw, ok = QtGui.QInputDialog.getText(self.client, "Passworded game" , "Enter password :", QtGui.QLineEdit.Normal, "")
+            if ok:
+                self.client.send(dict(command="game_join", password=passw, uid=item.uid, gameport=self.client.gamePort))
+        else :
+            self.client.send(dict(command="game_join", uid=item.uid, gameport=self.client.gamePort))
+
 
     def savePassword(self, password):
         self.gamepassword = password

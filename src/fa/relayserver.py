@@ -439,5 +439,4 @@ class RelayServer(QtNetwork.QTcpServer):
         socket = self.nextPendingConnection()
         self.__logger.debug("incoming connection to relay server...")
         self.relayers.append(Relayer(self, self.client, socket, self.testing, init_mode=self.init_mode))
-        pass
 

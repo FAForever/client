@@ -545,20 +545,16 @@ class GamesWidget(FormClass, BaseClass):
 
         self.stopSearchRanked() #Actually a workaround
 
-        passw = None
+        if not fa.check.game(self.client):
+            return
 
-        if fa.check.game(self.client):
-            if fa.check.check(item.mod, item.mapname, None, item.mods):
-                if item.access == "password" :
-                    passw, ok = QtGui.QInputDialog.getText(self.client, "Passworded game" , "Enter password :", QtGui.QLineEdit.Normal, "")
-                    if ok:
-                        self.client.send(dict(command="game_join", password=passw, uid=item.uid, gameport=self.client.gamePort))
-                else :
-                    self.client.send(dict(command="game_join", uid=item.uid, gameport=self.client.gamePort))
-        else:
-            pass #checkFA failed and notified the user what was wrong. We won't join now.
-
-
+        if fa.check.check(item.mod, item.mapname, None, item.mods):
+            if item.access == "password" :
+                passw, ok = QtGui.QInputDialog.getText(self.client, "Passworded game" , "Enter password :", QtGui.QLineEdit.Normal, "")
+                if ok:
+                    self.client.send(dict(command="game_join", password=passw, uid=item.uid, gameport=self.client.gamePort))
+            else :
+                self.client.send(dict(command="game_join", uid=item.uid, gameport=self.client.gamePort))
 
     @QtCore.pyqtSlot(QtGui.QListWidgetItem)
     def hostGameClicked(self, item):
@@ -571,6 +567,7 @@ class GamesWidget(FormClass, BaseClass):
         self.stopSearchRanked()
 
         # A simple Hosting dialog.
+        # THIS IS NOT IN ANY SENSE SIMPLE
         if fa.check.game(self.client):
             if fa.check.check(item.mod):
                 hostgamewidget = HostgameWidget(self, item)

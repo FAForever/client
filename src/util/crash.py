@@ -70,7 +70,6 @@ class CrashDialog(QtGui.QDialog):
             box.append(u"\n**Home Directory:** " + PERSONAL_DIR)
         except StandardError:
             box.append(u"\n**(Exception raised while writing debug vars)**")
-            pass
 
         box.append(u"")
         box.append(u"\n**FA Forever Log (last 128 lines):**")
