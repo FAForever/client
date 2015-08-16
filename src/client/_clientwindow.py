@@ -1605,29 +1605,25 @@ class ClientWindow(FormClass, BaseClass):
     def addFriend(self, friend):
         '''Adding a new friend by user'''
         self.friends.append(friend)
-        self.send(dict(command="social", friends=self.friends)) #LATER: Use this line instead
-        #self.writeToServer("ADD_FRIEND", friend)
+        self.send(dict(command="social_add", friend=friend))
         self.usersUpdated.emit([friend])
 
     def addFoe(self, foe):
         '''Adding a new foe by user'''
         self.foes.append(foe)
-        self.send(dict(command="social", foes=self.foes)) #LATER: Use this line instead
-        #self.writeToServer("ADD_FRIEND", friend)
+        self.send(dict(command="social_add", foe=foe))
         self.usersUpdated.emit([foe])
 
     def remFriend(self, friend):
         '''Removal of a friend by user'''
         self.friends.remove(friend)
-        #self.writeToServer("REMOVE_FRIEND", friend)
-        self.send(dict(command="social", friends=self.friends)) #LATER: Use this line instead
+        self.send(dict(command="social_remove", friend=friend))
         self.usersUpdated.emit([friend])
 
     def remFoe(self, foe):
         '''Removal of a foe by user'''
         self.foes.remove(foe)
-        #self.writeToServer("REMOVE_FRIEND", friend)
-        self.send(dict(command="social", foes=self.foes)) #LATER: Use this line instead
+        self.send(dict(command="social_remove", foe=foe))
         self.usersUpdated.emit([foe])
 
 
