@@ -1237,7 +1237,6 @@ class ClientWindow(FormClass, BaseClass):
         else:
             return None
 
-
     def getUserColor(self, name):
         '''
         Returns a user's color depending on their status with relation to the FAF client
@@ -1250,17 +1249,14 @@ class ClientWindow(FormClass, BaseClass):
             return self.getColor("foe")
         elif name in self.clanlist:
             return self.getColor("clan")
-        elif name in self.players:
-            if self.coloredNicknames:
-                return self.getRandomColor(name)
-            else:
-                return self.getColor("player")
         else:
             if self.coloredNicknames:
                 return self.getRandomColor(name)
-            else:
-                return self.getColor("default")
 
+            if name in self.players:
+                return self.getColor("player")
+
+            return self.getColor("default")
 
     def getRandomColor(self, name):
         '''Generate a random color from a name'''
