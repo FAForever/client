@@ -61,16 +61,16 @@ class Packet():
                 fields = []
                 if fieldType is 1:
 
-                    datas = "\x08"
+                    data = "\x08"
                     if i == 1 :
-                        fieldSize = len(field) + len(datas)
+                        fieldSize = len(field) + len(data)
                     else :
                         fieldSize = len(field)
                         
                     chunkPackStr += "<bi" + str(fieldSize) + "s"
                     fieldStr = str(field).replace("\t","/t").replace("\n","/n")
                     if i == 1 :
-                        fields.extend([2, fieldSize, datas+fieldStr])
+                        fields.extend([2, fieldSize, data+fieldStr])
                     else :
                         fields.extend([fieldType, fieldSize, fieldStr])
                 elif fieldType is 0:
@@ -196,7 +196,7 @@ class Relayer(QtCore.QObject):
                     self.chunkSizeRead = True
                 
                 if self.chunkSize > 100 :
-                    self.__logger.info("Big error reading FA datas !")
+                    self.__logger.info("Big error reading FA data !")
                     self.inputSocket.readAll()
                     self.fieldSize = 0
                     self.blockSize = 0
@@ -231,8 +231,8 @@ class Relayer(QtCore.QObject):
                         if self.inputSocket.bytesAvailable() < self.fieldSize :
                             return
 
-                        datastring = ins.readRawData(self.fieldSize)
-                        fixedStr = datastring.replace("/t","\t").replace("/n","\n")
+                        datatring = ins.readRawData(self.fieldSize)
+                        fixedStr = datatring.replace("/t","\t").replace("/n","\n")
                         self.chunks.append(fixedStr)               
                         self.fieldTypeRead = False
                         self.fieldSizeRead = False  
@@ -303,7 +303,7 @@ class Relayer(QtCore.QObject):
             self.bytesToSend = block.size() - 4
             self.relaySocket.writeData(block)
         else :
-            self.__logger.warn("Error transmitting datas to server : " + data)
+            self.__logger.warn("Error transmitting data to server : " + data)
 
     def handleAction(self, commands):    
         key = commands["key"]

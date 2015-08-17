@@ -6,7 +6,7 @@
 lua data parser by Raging_Squirrel
 
 to parse lua file, initialize the class with path to the file
-call parse method to extract the datas you need
+call parse method to extract the data you need
 the 1st parameter is a dictionary which represents search and data mapping
 	keys: 'parent>name:command' - where to search
 	values: 'destination:alias' - how to map found data in the result

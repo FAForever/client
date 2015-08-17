@@ -57,7 +57,7 @@ class LadderMapStat(FormClass, BaseClass):
     
     @QtCore.pyqtSlot(dict)
     def updatemapstat(self, message):
-        ''' fill all the datas for that map'''
+        ''' fill all the data for that map'''
 
         if message["idmap"] != self.mapid :
             return

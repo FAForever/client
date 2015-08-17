@@ -122,7 +122,7 @@ class MapVault(QtCore.QObject):
                         qfile.remove()
             else :
                 QtGui.QMessageBox.information(self.client,"Map selection",
-                        "This folder doesn't contain valid map datas.")
+                        "This folder doesn't contain valid map data.")
     
     @QtCore.pyqtSlot(str)  
     def downloadMap(self, link):

@@ -67,24 +67,24 @@ class ReplayRecorder(QtCore.QObject):
             return
         
         #Convert data into a bytearray for easier processing
-        datas = QtCore.QByteArray(read)
+        data = QtCore.QByteArray(read)
         
         # Record locally
         if self.replayData.isEmpty():
             #This prefix means "P"osting replay in the livereplay protocol of FA, this needs to be stripped from the local file            
-            if datas.startsWith("P/"):    
-                rest = datas.indexOf("\x00") + 1
-                self.__logger.info("Stripping prefix '" + str(datas.left(rest)) + "' from replay.")
-                self.replayData.append(datas.right(datas.size() - rest))
+            if data.startsWith("P/"):
+                rest = data.indexOf("\x00") + 1
+                self.__logger.info("Stripping prefix '" + str(data.left(rest)) + "' from replay.")
+                self.replayData.append(data.right(data.size() - rest))
             else:
-                self.replayData.append(datas)                
+                self.replayData.append(data)
         else:
             #Write to buffer
-            self.replayData.append(datas)
+            self.replayData.append(data)
 
         # Relay to faforever.com
         if self.relaySocket.isOpen():
-            self.relaySocket.write(datas)
+            self.relaySocket.write(data)
         
 
 
