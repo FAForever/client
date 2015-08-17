@@ -259,32 +259,40 @@ class GamesWidget(FormClass, BaseClass):
 
         self.stopSearchRanked()
 
+        hostgamewidget = HostgameWidget(self, item)
+        # Abort if the client cancelled the host game dialogue.
+        if hostgamewidget.exec_() != 1 :
+            return
+
         # A simple Hosting dialog.
         # THIS IS NOT IN ANY SENSE SIMPLE
-        if fa.check.game(self.client):
-            if fa.check.check(item.mod):
-                hostgamewidget = HostgameWidget(self, item)
 
-                if hostgamewidget.exec_() == 1 :
-                    if self.gamename:
-                        modnames = [str(moditem.text()) for moditem in hostgamewidget.modList.selectedItems()]
-                        mods = [hostgamewidget.mods[modstr] for modstr in modnames]
-                        modvault.setActiveMods(mods, True) #should be removed later as it should be managed by the server.
-        #                #Send a message to the server with our intent.
-                        message = {
-                            "command": "game_host",
-                            "access": "public",
-                            "mod": item.mod,
-                            "title": self.gamename,
-                            "mapname": self.gamemap,
-                            "gameport": self.client.gamePort
-                        }
+        # Make sure the binaries are all up to date, and abort if the update fails or is cancelled.
+        if not fa.check.game(self.client):
+            return
 
-                        if self.ispassworded:
-                            message.access = "password"
-                            message.password = self.gamepassword
+        # Ensure all mods are up-to-date, and abort up if the update process fails.
+        if not fa.check.check(item.mod):
+            return
 
-                        self.client.send(message)
+        modnames = [str(moditem.text()) for moditem in hostgamewidget.modList.selectedItems()]
+        mods = [hostgamewidget.mods[modstr] for modstr in modnames]
+        modvault.setActiveMods(mods, True) #should be removed later as it should be managed by the server.
+
+        message = {
+            "command": "game_host",
+            "access": "public",
+            "mod": item.mod,
+            "title": self.gamename,
+            "mapname": self.gamemap,
+            "gameport": self.client.gamePort
+        }
+
+        if self.ispassworded:
+            message.access = "password"
+            message.password = self.gamepassword
+
+        self.client.send(message)
 
     def load_last_hosted_settings(self):
         util.settings.beginGroup("fa.games")
