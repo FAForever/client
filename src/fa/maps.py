@@ -430,7 +430,7 @@ def __exportPreviewFromMap(mapname, positions=None):
 
     return previews
 
-iconExtensions = ["png"] #, "jpg" removed to have less of those costly 404 misses.
+iconExtensions = ["png"] #, "jpg" removed to have fewer of those costly 404 misses.
 
 
 def __downloadPreviewFromWeb(name):
@@ -612,8 +612,6 @@ def downloadMap(name, silent=False):
             logger.warn("Map download cancelled for: " + url)
             return False
 
-
-
     except:
         logger.warn("Map download or extraction failed for: " + url)
         if sys.exc_type is HTTPError:
@@ -636,15 +634,6 @@ def downloadMap(name, silent=False):
         logger.error("Download Count Exception", exc_info=sys.exc_info())
 
     return True
-
-
-
-
-
-def createBigMapPreview():
-    pass
-
-
 
 def processMapFolderForUpload(mapDir, positions):
     """ 
