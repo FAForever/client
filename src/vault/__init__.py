@@ -48,10 +48,6 @@ class MapVault(QtCore.QObject):
             self.ui.settings().setUserStyleSheetUrl(util.themeurl("vault/style.css"))
 
         self.ui.setUrl(QtCore.QUrl("http://content.dev.faforever.com/faf/vault/maps.php?username={user}&pwdhash={pwdhash}".format(user=self.client.login, pwdhash=self.client.password)))
-        
-
-        
-
 
     @QtCore.pyqtSlot()
     def addScript(self):
@@ -73,22 +69,18 @@ class MapVault(QtCore.QObject):
             
         cf_x = size[0]/img_size[0]
         cf_y = size[1]/img_size[1]
-        
-        
+
         regexp = re.compile(" \d+\.\d*| \d+")
-        
+
         for postype in positions:
             for pos in positions[postype]:
-                string = positions[postype][pos]
                 values = regexp.findall(positions[postype][pos])
                 x = off_x + float(values[0].strip())/cf_x
                 y = off_y + float(values[2].strip())/cf_y
                 positions[postype][pos] = [int(x), int(y)]
-                
 
     @QtCore.pyqtSlot()  
     def uploadMap(self):
-        
         mapDir = QtGui.QFileDialog.getExistingDirectory (self.client, "Select the map directory to upload", maps.getUserMapsFolder(),  QtGui.QFileDialog.ShowDirsOnly)
         logger.debug("Uploading map from: " + mapDir)
         if mapDir != "" :
@@ -143,15 +135,3 @@ class MapVault(QtCore.QObject):
             show = QtGui.QMessageBox.question(self.client, "Already got the Map", "Seems like you already have that map!<br/><b>Would you like to see it?</b>", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
             if show == QtGui.QMessageBox.Yes:
                 util.showInExplorer(maps.folderForMap(name))
-    
-    @QtCore.pyqtSlot(str)
-    def checkMaps(self, data):
-        exist_maps = list()
-        viewed_maps = json.loads(data)
-        for id, name in viewed_maps.iteritems():
-            if maps.mapExists(name):
-               exist_maps.append(id)
-        if len(exist_maps) > 0:
-            json_str = json.dumps(exist_maps).replace('"', '\\"')
-            self.ui.page().mainFrame().evaluateJavaScript('handle_exist_maps("%s")' % json_str)
-    

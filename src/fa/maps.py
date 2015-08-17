@@ -90,9 +90,7 @@ def isBase(mapname):
     '''
     Returns true if mapname is the name of an official map
     '''
-    if mapname in maps :
-        return True
-    return False
+    return mapname in maps
 
 def getUserMaps():
     maps = []
@@ -100,16 +98,16 @@ def getUserMaps():
             maps = os.listdir(getUserMapsFolder())
     return maps
 
-def getDisplayName(mapname):
+def getDisplayName(filename):
     '''
     Tries to return a pretty name for the map (for official maps, it looks up the name)
     For nonofficial maps, it tries to clean up the filename
     '''      
-    if str(mapname) in maps :
-        return maps[mapname][0]
+    if str(filename) in maps :
+        return maps[filename][0]
     else :
         #cut off ugly version numbers, replace "_" with space.
-        pretty = mapname.rsplit(".v0",1)[0]
+        pretty = filename.rsplit(".v0",1)[0]
         pretty = pretty.replace("_", " ")
         pretty = string.capwords(pretty)  
         return pretty
