@@ -25,17 +25,17 @@ class HostgameWidget(FormClass, BaseClass):
         self.titleEdit.setText ( self.parent.gamename )
         self.passEdit.setText ( self.parent.gamepassword )
         self.game = GameItem(0)
-        self.gamePreview.setItemDelegate(GameItemDelegate(self));
+        self.gamePreview.setItemDelegate(GameItemDelegate(self))
         self.gamePreview.addItem(self.game)
         
-        self.message = {}
-        self.message['title'] = self.parent.gamename
-        self.message['host'] = self.parent.client.login
-        self.message['teams'] = {1:[self.parent.client.login]}
-#        self.message.get('access', 'public')
-        self.message['featured_mod'] = "faf"
-        self.message['mapname'] = self.parent.gamemap
-        self.message['state'] = "open"
+        self.message = {
+            "title": self.parent.gamename,
+            "host": self.parent.client.login,
+            "teams": {1:[self.parent.client.login]},
+            "featured_mod": "faf",
+            "mapname": self.parent.gamemap,
+            "state": "open",
+        }
         
         self.game.update(self.message, self.parent.client)
         
@@ -58,7 +58,6 @@ class HostgameWidget(FormClass, BaseClass):
 
         if not icon:
             icon = util.icon("games/unknown_map.png", False, True)
-                
 
         self.mods = {}
         #this makes it so you can select every non-ui_only mod
@@ -74,8 +73,6 @@ class HostgameWidget(FormClass, BaseClass):
             l = self.modList.findItems(name, QtCore.Qt.MatchExactly)
             logger.debug("found item: %s" % l[0].text())
             if l: l[0].setSelected(True)
-            
-        #self.mapPreview.setPixmap(icon)
         
         self.mapList.currentIndexChanged.connect(self.mapChanged)
         self.hostButton.released.connect(self.hosting)
@@ -108,7 +105,7 @@ class HostgameWidget(FormClass, BaseClass):
         icon = maps.preview(self.parent.gamemap, True)
         if not icon:
             icon = util.icon("games/unknown_map.png", False, True)
-        #self.mapPreview.setPixmap(icon)
+
         self.message['mapname'] = self.parent.gamemap
         self.game.update(self.message, self.parent.client)
 
