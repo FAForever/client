@@ -19,6 +19,7 @@ from functools import partial
 from client.updater import fetchClientUpdate
 from config import Settings
 import fa
+from fa.factions import Factions
 
 '''
 Created on Dec 1, 2011
@@ -152,14 +153,6 @@ class ClientWindow(FormClass, BaseClass):
 
     joinGameFromURL = QtCore.pyqtSignal(str)
     joinReplayFromURL = QtCore.pyqtSignal(str)
-
-
-    # for the auto join ranked
-    rankedGameAeon = QtCore.pyqtSignal(bool)
-    rankedGameCybran = QtCore.pyqtSignal(bool)
-    rankedGameSeraphim = QtCore.pyqtSignal(bool)
-    rankedGameUEF = QtCore.pyqtSignal(bool)
-    rankedGameRandom = QtCore.pyqtSignal(bool)
 
     # for team management
     teamInfo = QtCore.pyqtSignal(dict)
@@ -520,40 +513,20 @@ class ClientWindow(FormClass, BaseClass):
 
         self.warnPlayer.setProperty("warning", True)
 
-        self.rankedAeon = QtGui.QToolButton(self)
-        self.rankedCybran = QtGui.QToolButton(self)
-        self.rankedSeraphim = QtGui.QToolButton(self)
-        self.rankedUEF = QtGui.QToolButton(self)
-        self.rankedRandom = QtGui.QToolButton(self)
+        self.warning.addStretch()
+        def add_warning_button(faction):
+            button = QtGui.QToolButton(self)
 
-        self.rankedAeon.setMaximumSize(25, 25)
-        self.rankedCybran.setMaximumSize(25, 25)
-        self.rankedSeraphim.setMaximumSize(25, 25)
-        self.rankedUEF.setMaximumSize(25, 25)
-        self.rankedRandom.setMaximumSize(25, 25)
+            button.setMaximumSize(25, 25)
+            button.setIcon(util.icon("games/automatch/%s.png" % faction.to_name()))
+            button.clicked.connect(self.games.join_ladder_listeners[faction])
+            self.warning.addWidget(button)
 
-        self.rankedAeon.setIcon(util.icon("games/automatch/aeon.png"))
-        self.rankedCybran.setIcon(util.icon("games/automatch/cybran.png"))
-        self.rankedSeraphim.setIcon(util.icon("games/automatch/seraphim.png"))
-        self.rankedUEF.setIcon(util.icon("games/automatch/uef.png"))
-        self.rankedRandom.setIcon(util.icon("games/automatch/random.png"))
+        for faction in Factions:
+            add_warning_button(faction)
 
         self.warning.addStretch()
-        self.warning.addWidget(self.warnPlayer)
-        self.warning.addWidget(self.rankedUEF)
-        self.warning.addWidget(self.rankedCybran)
-        self.warning.addWidget(self.rankedAeon)
-        self.warning.addWidget(self.rankedSeraphim)
-        self.warning.addWidget(self.rankedRandom)
-        self.warning.addStretch()
-
         self.mainGridLayout.addLayout(self.warning, 2, 0)
-
-        self.rankedAeon.clicked.connect(self.rankedGameAeon)
-        self.rankedCybran.clicked.connect(self.rankedGameCybran)
-        self.rankedSeraphim.clicked.connect(self.rankedGameSeraphim)
-        self.rankedUEF.clicked.connect(self.rankedGameUEF)
-        self.rankedRandom.clicked.connect(self.rankedGameRandom)
         self.warningHide()
 
     def warningHide(self):

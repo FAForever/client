@@ -1,3 +1,4 @@
+from functools import partial
 import random
 
 from PyQt4 import QtCore, QtGui
@@ -7,7 +8,7 @@ import util
 from games.gameitem import GameItem, GameItemDelegate
 from games.moditem import ModItem, mod_invisible, mods
 from games.hostgamewidget import HostgameWidget
-from fa.faction import Faction
+from fa.factions import Factions
 import fa
 import modvault
 import notificatation_system as ns
@@ -42,19 +43,14 @@ class GamesWidget(FormClass, BaseClass):
 
         # Ranked search state variables
         self.searching = False
-        self.radius = 0
         self.race = None
         self.ispassworded = False
         self.canChooseMap = True
 
+        self.join_ladder_listeners = [partial(self.toggle_search, faction) for faction in Factions]
+
         self.client.modInfo.connect(self.processModInfo)
         self.client.gameInfo.connect(self.processGameInfo)
-
-        self.client.rankedGameAeon.connect(self.toggleAeon)
-        self.client.rankedGameCybran.connect(self.toggleCybran)
-        self.client.rankedGameSeraphim.connect(self.toggleSeraphim)
-        self.client.rankedGameUEF.connect(self.toggleUEF)
-        self.client.rankedGameRandom.connect(self.toggleRandom)
 
         self.client.gameEnter.connect(self.stopSearchRanked)
         self.client.viewingReplay.connect(self.stopSearchRanked)
@@ -74,18 +70,18 @@ class GamesWidget(FormClass, BaseClass):
         self.load_last_hosted_settings()
 
     def connectRankedToggles(self):
-        self.rankedAeon.toggled.connect(self.toggleAeon)
-        self.rankedCybran.toggled.connect(self.toggleCybran)
-        self.rankedSeraphim.toggled.connect(self.toggleSeraphim)
-        self.rankedUEF.toggled.connect(self.toggleUEF)
-        self.rankedRandom.toggled.connect(self.toggleRandom)
+        self.rankedAeon.toggled.connect(self.join_ladder_listeners[Factions.AEON])
+        self.rankedCybran.toggled.connect(self.join_ladder_listeners[Factions.CYBRAN])
+        self.rankedSeraphim.toggled.connect(self.join_ladder_listeners[Factions.SERAPHIM])
+        self.rankedUEF.toggled.connect(self.join_ladder_listeners[Factions.UEF])
+        self.rankedRandom.toggled.connect(self.join_ladder_listeners[Factions.RANDOM])
 
     def disconnectRankedToggles(self):
-        self.rankedAeon.toggled.disconnect(self.toggleAeon)
-        self.rankedCybran.toggled.disconnect(self.toggleCybran)
-        self.rankedSeraphim.toggled.disconnect(self.toggleSeraphim)
-        self.rankedUEF.toggled.disconnect(self.toggleUEF)
-        self.rankedRandom.toggled.disconnect(self.toggleRandom)
+        self.rankedAeon.toggled.disconnect(self.join_ladder_listeners[Factions.AEON])
+        self.rankedCybran.toggled.disconnect(self.join_ladder_listeners[Factions.CYBRAN])
+        self.rankedSeraphim.toggled.disconnect(self.join_ladder_listeners[Factions.SERAPHIM])
+        self.rankedUEF.toggled.disconnect(self.join_ladder_listeners[Factions.UEF])
+        self.rankedRandom.toggled.disconnect(self.join_ladder_listeners[Factions.RANDOM])
 
     @QtCore.pyqtSlot(dict)
     def processModInfo(self, message):
@@ -163,7 +159,6 @@ class GamesWidget(FormClass, BaseClass):
             logger.info("Starting Ranked Search as " + str(race) + ", port: " + str(self.client.gamePort))
             self.searching = True
             self.race = race
-            self.radius = 0
             self.searchProgress.setVisible(True)
             self.labelAutomatch.setText("Searching...")
             self.client.send(dict(command="game_matchmaking", mod="ladder1v1", state="start", gameport = self.client.gamePort, faction = self.race))
@@ -185,29 +180,12 @@ class GamesWidget(FormClass, BaseClass):
         self.rankedUEF.setChecked(False)
         self.connectRankedToggles()
 
-    # RANKED
     @QtCore.pyqtSlot(bool)
-    def toggleUEF(self, state):
-        self.toggleSearch(state, Faction.UEF)
+    def toggle_search(self, faction, enabled):
+        if faction == Factions.RANDOM:
+            faction = Factions.get_random_faction()
 
-    @QtCore.pyqtSlot(bool)
-    def toggleAeon(self, state):
-        self.toggleSearch(state, Faction.AEON)
-
-    @QtCore.pyqtSlot(bool)
-    def toggleCybran(self, state):
-        self.toggleSearch(state, Faction.CYBRAN)
-
-    @QtCore.pyqtSlot(bool)
-    def toggleSeraphim(self, state):
-        self.toggleSearch(state, Faction.SERAPHIM)
-
-    @QtCore.pyqtSlot(bool)
-    def toggleRandom(self, state):
-        if state:
-            self.toggleSearch(state, random.randint(1,4))
-        else:
-            self.stopSearchRanked()
+        self.toggleSearch(enabled, faction)
 
     def toggleSearch(self, state, player_faction):
         """

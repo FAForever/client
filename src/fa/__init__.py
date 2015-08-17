@@ -23,5 +23,5 @@ import relayserver
 import proxies
 import updater
 import upnp
-import faction
+import factions
 import binary

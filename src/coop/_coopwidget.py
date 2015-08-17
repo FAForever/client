@@ -9,7 +9,7 @@ from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
 from games.gameitem import GameItem, GameItemDelegate
 from coop.coopmapitem import CoopMapItem, CoopMapItemDelegate
 from games.hostgamewidget import HostgameWidget
-from fa import faction
+from fa import factions
 import random
 import fa
 import modvault
