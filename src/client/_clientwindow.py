@@ -143,7 +143,6 @@ class ClientWindow(FormClass, BaseClass):
     showTourneys = QtCore.pyqtSignal()
     showLadder = QtCore.pyqtSignal()
     showChat = QtCore.pyqtSignal()
-    showGalaxyWar = QtCore.pyqtSignal()
     showMods = QtCore.pyqtSignal()
     showCoop = QtCore.pyqtSignal()
 
