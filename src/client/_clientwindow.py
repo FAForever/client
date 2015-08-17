@@ -15,6 +15,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #-------------------------------------------------------------------------------
+from functools import partial
 from client.updater import fetchClientUpdate
 from config import Settings
 import fa
@@ -659,22 +660,21 @@ class ClientWindow(FormClass, BaseClass):
         self.doneresize.emit()
 
     def initMenus(self):
-        self.actionLinkMumble.triggered.connect(self.linkMumble)
-        self.actionLink_account_to_Steam.triggered.connect(self.linkToSteam)
-        self.actionLinkWebsite.triggered.connect(self.linkWebsite)
-        self.actionLinkWiki.triggered.connect(self.linkWiki)
-        self.actionLinkForums.triggered.connect(self.linkForums)
-        self.actionLinkUnitDB.triggered.connect(self.linkUnitDB)
+        self.actionLinkMumble.triggered.connect(partial(self.open_url, Settings.get("MUMBLE_URL").format(login=self.login)))
+        self.actionLink_account_to_Steam.triggered.connect(partial(self.open_url, Settings.get("STEAMLINK_URL")))
+        self.actionLinkWebsite.triggered.connect(partial(self.open_url, Settings.get("WEBSITE_URL")))
+        self.actionLinkWiki.triggered.connect(partial(self.open_url, Settings.get("WIKI_URL")))
+        self.actionLinkForums.triggered.connect(partial(self.open_url, Settings.get("FORUMS_URL")))
+        self.actionLinkUnitDB.triggered.connect(partial(self.open_url, Settings.get("UNITDB_URL")))
 
         self.actionNsSettings.triggered.connect(lambda : self.notificationSystem.on_showSettings())
         self.actionNsEnabled.triggered.connect(lambda enabled : self.notificationSystem.setNotificationEnabled(enabled))
 
-        self.actionWiki.triggered.connect(self.linkWiki)
-        self.actionReportBug.triggered.connect(self.linkReportBug)
+        self.actionWiki.triggered.connect(partial(self.open_url, Settings.get("WIKI_URL")))
+        self.actionReportBug.triggered.connect(partial(self.open_url, Settings.get("TICKET_URL")))
         self.actionShowLogs.triggered.connect(self.linkShowLogs)
-        self.actionTechSupport.triggered.connect(self.linkTechSupport)
+        self.actionTechSupport.triggered.connect(partial(self.open_url, Settings.get("SUPPORT_URL")))
         self.actionAbout.triggered.connect(self.linkAbout)
-
 
         self.actionClearCache.triggered.connect(self.clearCache)
         self.actionClearSettings.triggered.connect(self.clearSettings)
@@ -746,10 +746,6 @@ class ClientWindow(FormClass, BaseClass):
         loginwizards.gameSettingsWizard(self).exec_()
 
     @QtCore.pyqtSlot()
-    def linkToSteam(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(Settings.get("STEAMLINK_URL")))
-
-    @QtCore.pyqtSlot()
     def setMumbleOptions(self):
         import loginwizards
         loginwizards.mumbleOptionsWizard(self).exec_()
@@ -778,32 +774,8 @@ class ClientWindow(FormClass, BaseClass):
 
 
     @QtCore.pyqtSlot()
-    def linkMumble(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(Settings.get("MUMBLE_URL").format(login=self.login)))
-
-    @QtCore.pyqtSlot()
-    def linkWebsite(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(Settings.get("WEBSITE_URL")))
-
-    @QtCore.pyqtSlot()
-    def linkWiki(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(Settings.get("WIKI_URL")))
-
-    @QtCore.pyqtSlot()
-    def linkForums(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(Settings.get("FORUMS_URL")))
-
-    @QtCore.pyqtSlot()
-    def linkUnitDB(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(Settings.get("UNITDB_URL")))
-
-    @QtCore.pyqtSlot()
-    def linkReportBug(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(Settings.get("TICKET_URL")))
-
-    @QtCore.pyqtSlot()
-    def linkTechSupport(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(Settings.get("SUPPORT_URL")))
+    def open_url(self, url):
+        QtGui.QDesktopServices.openUrl(url)
 
     @QtCore.pyqtSlot()
     def linkShowLogs(self):
