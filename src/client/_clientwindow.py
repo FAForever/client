@@ -133,8 +133,6 @@ class ClientWindow(FormClass, BaseClass):
     publicBroadcast = QtCore.pyqtSignal(str)
     autoJoin = QtCore.pyqtSignal(list)
     channelsUpdated = QtCore.pyqtSignal(list)
-    featuredModManager = QtCore.pyqtSignal(str)
-    featuredModManagerInfo = QtCore.pyqtSignal(dict)
     replayVault = QtCore.pyqtSignal(dict)
     coopLeaderBoard = QtCore.pyqtSignal(dict)
 
@@ -484,7 +482,6 @@ class ClientWindow(FormClass, BaseClass):
         import vault
         import games
         import tutorials
-        import featuredmods
         import downloadManager
         import modvault
         import coop
@@ -511,7 +508,6 @@ class ClientWindow(FormClass, BaseClass):
         self.actionNsEnabled.setChecked(self.notificationSystem.settings.enabled)
 
         # Other windows
-        self.featuredMods = featuredmods.FeaturedMods(self)
         self.avatarAdmin = self.avatarSelection = avatarWidget(self, None)
 
         # warning setup
@@ -1860,29 +1856,9 @@ class ClientWindow(FormClass, BaseClass):
         if "clan" in message and message["clan"] == self.getUserClan(self.login):
             self.clanlist.append(name)
 
-
-    def handle_mod_manager(self, message):
-        import functools
-        action = message["action"]
-        if action == "list" :
-            mods = message["mods"]
-            modMenu = self.menu.addMenu("Featured Mods Manager")
-            for mod in mods :
-                action = QtGui.QAction(mod, modMenu)
-                action.triggered.connect(functools.partial(self.featuredMod, mod))
-                modMenu.addAction(action)
-
-    def handle_mod_manager_info(self, message):
-        self.featuredModManagerInfo.emit(message)
-
     def avatarManager(self):
         self.requestAvatars(0)
         self.avatarSelection.show()
-
-
-
-    def featuredMod(self, action):
-        self.featuredModManager.emit(action)
 
     def handle_notice(self, message):
         if "text" in message:

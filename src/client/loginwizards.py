@@ -231,13 +231,10 @@ class mumbleOptionsWizard(QtGui.QWizard):
 
         self.setWindowTitle("Configure Voice")
 
-
     def accept(self):
         self.client.enableMumble = self.settings.checkEnableMumble.isChecked()
         self.client.saveMumble()
         QtGui.QWizard.accept(self)
-
-
 
 class IntroPage(QtGui.QWizardPage):
     def __init__(self, parent=None):
@@ -254,8 +251,6 @@ class IntroPage(QtGui.QWizardPage):
         layout = QtGui.QVBoxLayout()
         layout.addWidget(label)
         self.setLayout(layout)
-
-
 
 class AccountCreationPage(QtGui.QWizardPage):
     def __init__(self, parent=None):
@@ -294,15 +289,11 @@ class AccountCreationPage(QtGui.QWizardPage):
         validMail = QtGui.QRegExpValidator(rxMail, self)
         self.EmailLineEdit.setValidator(validMail)
 
-
         self.registerField('login*', self.loginLineEdit)
         self.registerField('password*', self.passwordLineEdit)
         self.registerField('passwordCheck*', self.passwordCheckLineEdit)
         self.registerField('email*', self.EmailLineEdit)
 
-        self.password1 = ''
-        self.password2 = ''
-        
         layout = QtGui.QGridLayout()
                 
         layout.addWidget(loginLabel, 1, 0)
