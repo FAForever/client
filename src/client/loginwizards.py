@@ -1,10 +1,9 @@
 from PyQt4 import QtCore, QtGui
-
 import re
 import util
 
 import hashlib
-from client import ClientState, logger
+from client import ClientState
 
 from . import TICKET_URL, STEAMLINK_URL, NAME_CHANGE_URL, PASSWORD_RECOVERY_URL
 
@@ -21,15 +20,14 @@ class LoginWizard(QtGui.QWizard):
         self.setWizardStyle(QtGui.QWizard.ModernStyle)
         self.setModal(True)
 
-        buttons_layout = []
-        buttons_layout.append(QtGui.QWizard.CancelButton )
-        buttons_layout.append(QtGui.QWizard.FinishButton )
+        buttons_layout = [
+            QtGui.QWizard.CancelButton,
+            QtGui.QWizard.FinishButton
+        ]
 
         self.setButtonLayout(buttons_layout)
 
         self.setWindowTitle("Login")
-
-
 
     def accept(self):
         self.login = self.field("login").strip()
