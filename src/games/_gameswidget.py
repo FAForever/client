@@ -304,23 +304,18 @@ class GamesWidget(FormClass, BaseClass):
 
         util.settings.endGroup()
 
-    def savePassword(self, password):
-        self.gamepassword = password
-        util.settings.beginGroup("fa.games")
-        util.settings.setValue("password", self.gamepassword)
-        util.settings.endGroup()
-
-    def saveGameMap(self, name):
-        self.gamemap = name
-        util.settings.beginGroup("fa.games")
-        util.settings.setValue("gamemap", self.gamemap)
-        util.settings.endGroup()
-
-    def saveGameName(self, name):
+    def save_last_hosted_settings(self, name, map, password = None):
+        self.gamemap = map
         self.gamename = name
 
         util.settings.beginGroup("fa.games")
-        util.settings.setValue("gamename", self.gamename)
+        util.settings.setValue("gamemap", map)
+        util.settings.setValue("gamename", name)
+
+        if password is not None:
+            self.gamePassword = password
+            util.settings.setValue("password", password)
+
         util.settings.endGroup()
 
     def sortGamesComboChanged(self, index):

@@ -102,13 +102,20 @@ class HostgameWidget(FormClass, BaseClass):
         self.game.update(self.message, self.parent.client)
 
     def hosting(self):
-        self.parent.saveGameName(self.titleEdit.text().strip())
-        self.parent.saveGameMap(self.parent.gamemap)
-        if self.passCheck.isChecked() :
-            self.parent.ispassworded = True
-            self.parent.savePassword(self.passEdit.text())
-        else :
-            self.parent.ispassworded = False
+        name = self.titleEdit.text().strip()
+        if len(name) == 0:
+            # TODO: Feedback to the UI that the name must not be blank.
+            return
+
+        if self.passCheck.isChecked():
+            password = self.passEdit.text()
+        else:
+            password = None
+
+        # TODO: Remove this ridiculous use of a parent pointer.
+        map = self.parent.gamemap
+
+        self.parent.save_last_hosted_settings(name, map, password)
         self.done(1)
 
     def mapChanged(self, index):
