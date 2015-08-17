@@ -18,22 +18,7 @@ class HostgameWidget(FormClass, BaseClass):
 
         self.setupUi(self)
         self.parent = parent
-        
-        self.parent.options = []
 
-        if len(item.options) == 0 :   
-            self.optionGroup.setVisible(False)
-        else :
-            group_layout = QtGui.QVBoxLayout()
-            self.optionGroup.setLayout(group_layout)
-            
-            for option in item.options :
-                checkBox = QtGui.QCheckBox(self)
-                checkBox.setText(option)
-                checkBox.setChecked(True)
-                group_layout.addWidget(checkBox)
-                self.parent.options.append(checkBox)
-        
         self.setStyleSheet(self.parent.client.styleSheet())
         
         self.setWindowTitle ( "Hosting Game : " + item.name )

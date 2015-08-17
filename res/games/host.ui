@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>393</width>
-    <height>440</height>
+    <width>428</width>
+    <height>492</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,10 +22,17 @@
       </font>
      </property>
      <property name="text">
-      <string>Thygrrr's Game</string>
+      <string/>
      </property>
      <property name="maxLength">
       <number>25</number>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QCheckBox" name="passCheck">
+     <property name="text">
+      <string>Password</string>
      </property>
     </widget>
    </item>
@@ -74,13 +81,6 @@
      </property>
     </spacer>
    </item>
-   <item row="2" column="1">
-    <widget class="QCheckBox" name="passCheck">
-     <property name="text">
-      <string>Password</string>
-     </property>
-    </widget>
-   </item>
    <item row="2" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
@@ -117,16 +117,6 @@
       </widget>
      </item>
     </layout>
-   </item>
-   <item row="7" column="0">
-    <widget class="QGroupBox" name="optionGroup">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="title">
-      <string>Options</string>
-     </property>
-    </widget>
    </item>
    <item row="0" column="0">
     <widget class="QLabel" name="label">
@@ -224,13 +214,6 @@
    <item row="6" column="0">
     <widget class="QComboBox" name="mapList"/>
    </item>
-   <item row="7" column="2">
-    <widget class="QPushButton" name="hostButton">
-     <property name="text">
-      <string>Host Game</string>
-     </property>
-    </widget>
-   </item>
    <item row="8" column="0" colspan="3">
     <widget class="QListWidget" name="modList">
      <property name="font">
@@ -248,7 +231,7 @@
       <bool>false</bool>
      </property>
      <property name="dragDropMode">
-      <enum>QAbstractItemView::NoDragDrop</enum>
+      <enum>QAbstractItemView::DragOnly</enum>
      </property>
      <property name="selectionMode">
       <enum>QAbstractItemView::MultiSelection</enum>
@@ -264,6 +247,13 @@
      </property>
     </widget>
    </item>
+   <item row="7" column="2">
+    <widget class="QPushButton" name="hostButton">
+     <property name="text">
+      <string>Host Game</string>
+     </property>
+    </widget>
+   </item>
   </layout>
   <zorder>label</zorder>
   <zorder>titleEdit</zorder>
@@ -272,7 +262,6 @@
   <zorder>mapList</zorder>
   <zorder>label_2</zorder>
   <zorder>label_3</zorder>
-  <zorder>optionGroup</zorder>
   <zorder>gamePreview</zorder>
   <zorder>horizontalSpacer</zorder>
   <zorder>hostButton</zorder>

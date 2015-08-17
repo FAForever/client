@@ -72,7 +72,6 @@ class GamesWidget(FormClass, BaseClass):
 
         # Load game name from settings (yay, it's persistent!)
         self.load_last_hosted_settings()
-        self.options = []
 
     def connectRankedToggles(self):
         self.rankedAeon.toggled.connect(self.toggleAeon)
