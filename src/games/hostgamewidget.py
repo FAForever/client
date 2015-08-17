@@ -54,11 +54,6 @@ class HostgameWidget(FormClass, BaseClass):
         else:
             self.mapList.hide()
 
-        icon = maps.preview(self.parent.gamemap, True)
-
-        if not icon:
-            icon = util.icon("games/unknown_map.png", False, True)
-
         self.mods = {}
         #this makes it so you can select every non-ui_only mod
         for mod in modvault.getInstalledMods():
@@ -104,10 +99,6 @@ class HostgameWidget(FormClass, BaseClass):
 
     def mapChanged(self, index):
         self.parent.gamemap = self.mapList.itemData(index)
-        icon = maps.preview(self.parent.gamemap, True)
-        if not icon:
-            icon = util.icon("games/unknown_map.png", False, True)
 
         self.message['mapname'] = self.parent.gamemap
         self.game.update(self.message, self.parent.client)
-
