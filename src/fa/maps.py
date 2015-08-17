@@ -6,8 +6,6 @@ import fa
 
 logger= logging.getLogger(__name__)
 
-
-
 from PyQt4 import QtCore, QtGui, QtNetwork
 import cStringIO
 import util
@@ -18,7 +16,6 @@ import urllib2
 import zipfile
 import tempfile
 import re
-
 
 VAULT_PREVIEW_ROOT = "http://content.dev.faforever.com/faf/vault/map_previews/small/"
 VAULT_DOWNLOAD_ROOT = "http://content.dev.faforever.com/faf/vault/"
@@ -150,26 +147,15 @@ def isMapFolderValid(folder):
     Check if the folder got all the files needed to be a map folder.
     '''
     baseName = os.path.basename(folder).split('.')[0]
+    files_required = {
+        baseName + ".scmap",
+        baseName + "_save.lua",
+        baseName + "_scenario.lua",
+        baseName + "_script.lua"
+    }
+    files_present = set(os.listdir(folder))
 
-    checklist1 = False
-    checklist2 = False
-    checklist3 = False
-    checklist4 = False
-
-    for infile in os.listdir(folder) :
-        if infile.lower() == (baseName.lower() + ".scmap") :
-            checklist1 = True
-        if infile.lower() == (baseName.lower() + "_save.lua") :
-            checklist2 = True
-        if infile.lower() == (baseName.lower() + "_scenario.lua") :
-            checklist3 = True
-        if infile.lower() == (baseName.lower() + "_script.lua") :
-            checklist4 = True 
-
-    if checklist1 and checklist2 and checklist3 and checklist4 :
-        return True
-    else :
-        return False
+    return files_required.issubset(files_present)
 
 
 def existMaps(force = False):
