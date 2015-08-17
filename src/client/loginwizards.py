@@ -343,8 +343,7 @@ class AccountCreationPage(QtGui.QWizardPage):
         if not self.validateEmail(email) :
             QtGui.QMessageBox.information(self, "Create account", "Invalid Email address!")
             return False   
-        
-        # check if the login is okay
+
         login = self.loginLineEdit.text().strip()
         
         self.client.loginWriteToFaServer("CREATE_ACCOUNT", login, email, hashed_password)
