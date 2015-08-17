@@ -324,12 +324,19 @@ class AccountCreationPage(QtGui.QWizardPage):
         return re.match("^[a-zA-Z0-9._%-]+@[a-zA-Z0-9._%-]+.[a-zA-Z]{2,6}$", email) is not None
 
     def validatePage(self):
-        password1 = hashlib.sha256(self.passwordLineEdit.text().encode("utf-8")).hexdigest()        
-        password2 = hashlib.sha256(self.passwordCheckLineEdit.text().encode("utf-8")).hexdigest()
-        
-        if password1 != password2 :
+        password = self.passwordLineEdit.text().encode("utf-8")
+        confim_password = self.passwordCheckLineEdit.text().encode("utf-8")
+
+        if password != confim_password:
             QtGui.QMessageBox.information(self, "Create account","Passwords don't match!")
             return False
+
+        # Hashing the password client-side is not an effective way of ensuring security, but now we
+        # have a database full of sha256(password) we have to start considering sha256(password) to
+        # _be_ the user's password, and enforce a saner policy atop this.
+        #
+        # Soon. We promise. Hopefully before large scale identity theft takes place.
+        hashed_password = hashlib.sha256(password.encode("utf-8")).hexdigest()
         
         email = self.EmailLineEdit.text()
         
@@ -340,7 +347,7 @@ class AccountCreationPage(QtGui.QWizardPage):
         # check if the login is okay
         login = self.loginLineEdit.text().strip()
         
-        self.client.loginWriteToFaServer("CREATE_ACCOUNT", login, email, password1)
+        self.client.loginWriteToFaServer("CREATE_ACCOUNT", login, email, hashed_password)
 
         # Wait for client state to change.
         util.wait(lambda: self.client.state)
@@ -350,7 +357,7 @@ class AccountCreationPage(QtGui.QWizardPage):
             return False
         else:
             self.client.login = login
-            self.client.password = password1
+            self.client.password = hashed_password
             return True  
 
 class GameSettings(QtGui.QWizardPage):
