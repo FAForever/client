@@ -2,64 +2,64 @@
 
 QLabel
 {
-	color:white;
+    color:white;
 }
 
 QTabWidget::pane
 {
-	 /* The tab widget frame */
-	background-image: url('%THEMEPATH%/stripe.png');
-	background-position: top left;
-	background-repeat:repeat-x;
-	
-	border-style:solid;
-	border-width:1px;
-	border-color:#353535;
-	color:silver;
-	padding:5px;
-	background-color:#0F0F0F;
-	border-top-right-radius : 5px;
-	border-top-left-radius : 5px; 	
-	border-bottom-left-radius : 5px;
-	border-bottom-right-radius : 5px; 
+     /* The tab widget frame */
+    background-image: url('%THEMEPATH%/stripe.png');
+    background-position: top left;
+    background-repeat:repeat-x;
+
+    border-style:solid;
+    border-width:1px;
+    border-color:#353535;
+    color:silver;
+    padding:5px;
+    background-color:#0F0F0F;
+    border-top-right-radius : 5px;
+    border-top-left-radius : 5px;
+    border-bottom-left-radius : 5px;
+    border-bottom-right-radius : 5px;
  }
 
 
  QTabWidget::tab-bar
 {
-	top: 0px;
+    top: 0px;
     left: 25px; /* move to the right by 25px */
  }
 
-							
-/* Style the tab using the tab sub-control. Note that it reads QTabBar _not_ QTabWidget */	
+
+/* Style the tab using the tab sub-control. Note that it reads QTabBar _not_ QTabWidget */
 QTabWidget > QTabBar::tab 
 {
-	background-color:#383838;
-	color: silver;
-	min-width: 80px;
-	padding:4px;
+    background-color:#383838;
+    color: silver;
+    min-width: 80px;
+    padding:4px;
 }
 
 
 QTabWidget > QTabBar::tab:!selected 
 {
 
-	background-color: #203040;
+    background-color: #203040;
 }
 
-								
+
 QTabWidget > QTabBar::tab:hover 
 {
-	color:white;
-	background-color: #606060;
+    color:white;
+    background-color: #606060;
 }
 
 
 QTabWidget > QTabBar::tab:selected 
 {
-	color:white;
-	background-color: #303030;
+    color:white;
+    background-color: #303030;
 }
 
 /* tables */
@@ -73,23 +73,23 @@ body {background-color: #2f2f2f; overflow: hidden;}
 .ladder.selected:hover {background-color: rgb(146, 193, 228);}
 .scroll {overflow-y: scroll; height: 100%; border: 1px solid black;}
 .players {
-	font-family:arial;
-	font-size: 8pt;
-	width: 600;
+    font-family:arial;
+    font-size: 8pt;
+    width: 600;
 }
 .players th{
-	background-color: rgb(146, 193, 228);
-	padding: 0 2px;
-	font-size: 8pt;
-	border-left: 2px dotted rgb(75, 148, 231);
+    background-color: rgb(146, 193, 228);
+    padding: 0 2px;
+    font-size: 8pt;
+    border-left: 2px dotted rgb(75, 148, 231);
 }
 .players th:first-child {border-left: 1px solid rgb(146, 193, 228);}
 
 .players td {
-	color: #3D3D3D;
-	padding: 4px;
-	background-color: rgb(216, 216, 217);
-	vertical-align: top;
+    color: #3D3D3D;
+    padding: 4px;
+    background-color: rgb(216, 216, 217);
+    vertical-align: top;
 }
 
 .players tr.even td {background-color: rgb(241, 241, 241); }
@@ -102,8 +102,8 @@ body {background-color: #2f2f2f; overflow: hidden;}
 .division  {color: red; font-size: 16pt;}
 
 .pages {float: right; cursor: default; margin-bottom: 3px;}
-	.pages a {color: blue;}
-	.pages .current_page {color: black;}
+    .pages a {color: blue;}
+    .pages .current_page {color: black;}
 
 .search_form {float: left;}
 

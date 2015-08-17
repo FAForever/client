@@ -1,37 +1,37 @@
 
  *[warning="true"]
 {
-	color:lightgrey;
-	font-size:8pt;
+    color:lightgrey;
+    font-size:8pt;
 }
 
 
 *[titleLabel="true"]
 {
-	color:lightgrey;
-	font-size:12pt;
-	margin-right: 15px;
-	font-family: Verdana;
-	padding-bottom:-15px;
+    color:lightgrey;
+    font-size:12pt;
+    margin-right: 15px;
+    font-family: Verdana;
+    padding-bottom:-15px;
 }
 
 *[windowControlBtn="true"]
 {
-	background-color: rgba(0,0,0,0);
-	width: 18px;
-	height: 18px;
-	
+    background-color: rgba(0,0,0,0);
+    width: 18px;
+    height: 18px;
+
 }
 
 QMenuBar
 {
-	background-color: rgba(0,0,0,0);
+    background-color: rgba(0,0,0,0);
 }
 
 QMenuBar::item
 {
-	background-color: rgba(0,0,0,0);
-	color: white;
+    background-color: rgba(0,0,0,0);
+    color: white;
 }
 
  QMenuBar::item:selected { /* when selected using mouse or keyboard */
@@ -45,7 +45,7 @@ QMenuBar::item
  
  QMenu {
      background-color: rgb(50,50,50);
-	 color: lightgrey;
+     color: lightgrey;
      margin: 2px; /* some spacing around the menu */
  }
 
@@ -56,7 +56,7 @@ QMenuBar::item
 
  QMenu::item:selected {
      background: rgba(150, 150, 150, 150);
-	 border-radius: 2px;
+     border-radius: 2px;
  }
 
  QMenu::icon:checked { /* appearance of a 'checked' icon */
@@ -84,8 +84,8 @@ QMenuBar::item
  
 QTabWidget #lobbyTab,#gamesTab,#ladderTab,#tournamentTab,#coopTab,#replaysTab,#vaultsTab,#mapsTab,#modsTab
 { /* sets background color for every widget under a tab */
-		background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(15, 15, 15, 200), stop:1 #2f2f2f);
-		border-radius: 10px;
+        background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(15, 15, 15, 200), stop:1 #2f2f2f);
+        border-radius: 10px;
 }
 
 QTabWidget#mainTabs::tab-bar
@@ -99,109 +99,109 @@ QTabWidget#mainTabs::tab-bar
 QWidget#centralwidget, QProgressDialog, QWindow, QWizard
 {
     color: silver;
-	background-image: url('%THEMEPATH%/stripe.png');
-	background-position: top left;
-	background-repeat:repeat-x;
-	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #FFFFFF, stop:0.1 #000000, stop:1 #1F1F1F);
+    background-image: url('%THEMEPATH%/stripe.png');
+    background-position: top left;
+    background-repeat:repeat-x;
+    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #FFFFFF, stop:0.1 #000000, stop:1 #1F1F1F);
 }
 
 
 QTabWidget#mainTabs::pane
 { /* The tab widget frame */
 
-	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(15, 15, 15, 200), stop:1 #2f2f2f);
-	border-radius: 5px;
-	
-}
-							
-/* Style the tab using the tab sub-control. Note that it reads QTabBar _not_ QTabWidget */	
-QTabWidget#mainTabs > QTabBar::tab
-{
-	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:1 #555555, stop:0 #333333);
-	color: silver;
-	min-width: 80px;
-	padding:2px;
-	padding-right: 5px;
-	padding-left: 5px;
+    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(15, 15, 15, 200), stop:1 #2f2f2f);
+    border-radius: 5px;
+
 }
 
-								
+/* Style the tab using the tab sub-control. Note that it reads QTabBar _not_ QTabWidget */
+QTabWidget#mainTabs > QTabBar::tab
+{
+    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:1 #555555, stop:0 #333333);
+    color: silver;
+    min-width: 80px;
+    padding:2px;
+    padding-right: 5px;
+    padding-left: 5px;
+}
+
+
 QTabWidget#mainTabs > QTabBar::tab:hover 
 {
-	color:#66b9fa;
-	background-color: #606060;
+    color:#66b9fa;
+    background-color: #606060;
 }
 
 QTabWidget#mainTabs > QTabBar::tab:selected 
 {
-	color:#000000;
-	font-weight:bold;
-	background-color: #adadad;
-	border-bottom-left-radius: 5px;
-	border-bottom-right-radius: 5px;
+    color:#000000;
+    font-weight:bold;
+    background-color: #adadad;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
 }
 
 
 QTabWidget#mainTabs > QTabBar::tab:!selected 
 {
-	margin-bottom: 8px; /* make non-selected tabs look smaller */
+    margin-bottom: 8px; /* make non-selected tabs look smaller */
 }
 
 /* Typical widget controls (top tabs, etc) */
 
 QTabWidget#topTabs::pane
 {
-	 /* The tab widget frame */
+     /* The tab widget frame */
      border: none;
-	 background-color: #2f2f2f;
+     background-color: #2f2f2f;
  }
 
 
  QTabWidget#topTabs::tab-bar
 {
-	top: 0px;
+    top: 0px;
     left: 25px; /* move to the right by 25px */
  }
 
-							
-/* Style the tab using the tab sub-control. Note that it reads QTabBar _not_ QTabWidget */	
+
+/* Style the tab using the tab sub-control. Note that it reads QTabBar _not_ QTabWidget */
 QTabWidget#topTabs > QTabBar::tab 
 {
-	background-color:#383838;
-	color: silver;
-	min-width: 80px;
-	padding:4px;
+    background-color:#383838;
+    color: silver;
+    min-width: 80px;
+    padding:4px;
 }
 
 
 QTabWidget#topTabs > QTabBar::tab:!selected 
 {
-	margin-top:5px;
-	background-color: #414b55;
-	
+    margin-top:5px;
+    background-color: #414b55;
+
 }
 
-								
+
 QTabWidget#topTabs > QTabBar::tab:hover 
 {
-	color:white;
-	background-color: #606060;
-	
+    color:white;
+    background-color: #606060;
+
 }
 
 
 QTabWidget#topTabs > QTabBar::tab:selected 
 {
-	color:white;
-	background-color: #758fa0;
-	border-top-left-radius: 5px;
-	border-top-right-radius: 5px;
+    color:white;
+    background-color: #758fa0;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
 
 }
 
 QSplitter::handle 
 {
-	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #0F0F0F, stop:1 #2f2f2f);
+    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #0F0F0F, stop:1 #2f2f2f);
 }
 
 
@@ -226,30 +226,30 @@ QSplitter::handle:hover
 /* Text controls */
 QTextEdit, QPlainTextEdit, QLineEdit, QListWidget, QTableWidget, QTreeWidget, QFrame#rankedFrame, QFrame#teamFaction, QFrame#teamSearch
 {
-	border-style:solid;
-	border-width:1px;
-	border-color:#353535;
-	color:silver;
-	padding:5px;
-	background-color:#202025;
-	border-top-right-radius : 5px;
-	border-top-left-radius : 5px; 	
-	border-bottom-left-radius : 5px;
-	border-bottom-right-radius : 5px; 	
+    border-style:solid;
+    border-width:1px;
+    border-color:#353535;
+    color:silver;
+    padding:5px;
+    background-color:#202025;
+    border-top-right-radius : 5px;
+    border-top-left-radius : 5px;
+    border-bottom-left-radius : 5px;
+    border-bottom-right-radius : 5px;
 
 }
 
 /* Modlist */
 QFrame#rankedFrame
 {
-	border-style:solid;
-	border-width:1px;
-	border-color:#353535;
-	color:silver;
-	padding:5px;
-	background-color:#303038;
-	border-bottom-left-radius : 5px;
-	border-bottom-right-radius : 5px; 	
+    border-style:solid;
+    border-width:1px;
+    border-color:#353535;
+    color:silver;
+    padding:5px;
+    background-color:#303038;
+    border-bottom-left-radius : 5px;
+    border-bottom-right-radius : 5px;
 }
 
 
@@ -258,21 +258,21 @@ QFrame#rankedFrame
 
 QTableWidget::item
 {
-	margin: 0px;
-	border: none;
-	padding:0px;
+    margin: 0px;
+    border: none;
+    padding:0px;
 }
 
 QTableWidget::item::hover
 {
-	background: #606060;
-	border-radius: 3px;
+    background: #606060;
+    border-radius: 3px;
 }
 
 
 QTableWidget::item:selected, QListWidget::item:previously-selected
 {
-	border: none;
+    border: none;
 }
 
 
@@ -280,58 +280,58 @@ QTableWidget::item:selected, QListWidget::item:previously-selected
 
 QLineEdit
 {
-	color:orange;
+    color:orange;
 }
 
 
 
 QListWidget::item:hover
 {
-	border: none;
-	background: #606060;
-	border-radius: 3px;
+    border: none;
+    background: #606060;
+    border-radius: 3px;
 }
 
 QListWidget::item:selected, QTreeWidget::item:previously-selected
 {
-	border: none;
+    border: none;
 }
 
 QListWidget#modList::item:selected
 {
-	background-color: #505050;
-	color: #20A080;
+    background-color: #505050;
+    color: #20A080;
 }
 
 /* for tournament*/
 QListWidget#tourneyList
 {
-	background-image: url('%THEMEPATH%/stripe.png');
-	background-position: top left;
-	background-repeat:repeat-x;
-	
-	border-style:solid;
-	border-width:1px;
-	border-color:#353535;
-	color:silver;
-	padding:5px;
-	background-color:#0F0F0F;
-	border-top-right-radius : 5px;
-	border-top-left-radius : 5px; 	
-	border-bottom-left-radius : 5px;
-	border-bottom-right-radius : 5px; 
+    background-image: url('%THEMEPATH%/stripe.png');
+    background-position: top left;
+    background-repeat:repeat-x;
+
+    border-style:solid;
+    border-width:1px;
+    border-color:#353535;
+    color:silver;
+    padding:5px;
+    background-color:#0F0F0F;
+    border-top-right-radius : 5px;
+    border-top-left-radius : 5px;
+    border-bottom-left-radius : 5px;
+    border-bottom-right-radius : 5px;
 }
  
 QTreeWidget::item:hover
 {
-	border: none;
-	background: #606060;
-	border-radius: 3px;
+    border: none;
+    background: #606060;
+    border-radius: 3px;
 }
 
 QTreeWidget::item:selected, QTreeWidget::item:previously-selected
 {
-	border: none;
+    border: none;
 }
 
  
@@ -340,140 +340,140 @@ QTreeWidget::item:selected, QTreeWidget::item:previously-selected
 /* ScrollWidgets*/
 QScrollArea
 {
-	border-style:solid;
-	border-width:1px;
-	border-color:#353535;
-	color:silver;
-	padding:5px;
-	background-color:#303038;
-	border-bottom-left-radius : 5px;
-	border-bottom-right-radius : 5px; 
+    border-style:solid;
+    border-width:1px;
+    border-color:#353535;
+    color:silver;
+    padding:5px;
+    background-color:#303038;
+    border-bottom-left-radius : 5px;
+    border-bottom-right-radius : 5px;
 }
 
 
 /* Scrollbars*/
 QScrollBar {
-	
-	background-color: grey;
-	width: 15px;
-	margin: 16px 0;
+
+    background-color: grey;
+    width: 15px;
+    margin: 16px 0;
 }
 QScrollBar::handle {
-	background-image: url('%THEMEPATH%/drag3.png');
-	background-position: center center;
-	background-repeat:no-repeat;
-	background-color: #2e2d2d;
-	min-height: 24px;
-	border-radius : 2px;
+    background-image: url('%THEMEPATH%/drag3.png');
+    background-position: center center;
+    background-repeat:no-repeat;
+    background-color: #2e2d2d;
+    min-height: 24px;
+    border-radius : 2px;
 }
 
 QScrollBar::handle:hover {
-	border-radius : 2px;
-	background-image: url('%THEMEPATH%/drag2.png');
-	background-color: #d5d6d6;
-	min-height: 24px;
+    border-radius : 2px;
+    background-image: url('%THEMEPATH%/drag2.png');
+    background-color: #d5d6d6;
+    min-height: 24px;
 }
 
 QScrollBar::sub-line {
-	border-top-left-radius: 3px;
-	border-top-right-radius: 3px;
-	background: #2f2f2f;
-	height: 15px;
-	subcontrol-position: top;
-	subcontrol-origin: margin;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    background: #2f2f2f;
+    height: 15px;
+    subcontrol-position: top;
+    subcontrol-origin: margin;
 }
 QScrollBar::add-line  {
-	
-	border-bottom-left-radius: 3px;
-	border-bottom-right-radius: 3px;
-	background: #2f2f2f;
-	height: 15px;
-	subcontrol-position: bottom;
-	subcontrol-origin: margin;
+
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    background: #2f2f2f;
+    height: 15px;
+    subcontrol-position: bottom;
+    subcontrol-origin: margin;
 }
 
 QScrollBar:down-arrow {
-	background-image: url('%THEMEPATH%/scrollDown.png');
-	background-position: center center;
-	background-repeat:no-repeat;     
+    background-image: url('%THEMEPATH%/scrollDown.png');
+    background-position: center center;
+    background-repeat:no-repeat;
  }
 
  QScrollBar:up-arrow {
-	background-image: url('%THEMEPATH%/scrollUp.png');
-	background-position: center center;
-	background-repeat:no-repeat;     
+    background-image: url('%THEMEPATH%/scrollUp.png');
+    background-position: center center;
+    background-repeat:no-repeat;
 
  }
 
 
 QScrollBar::add-page
 {
-	background-color: #1f1f1f;
+    background-color: #1f1f1f;
 }
 
 QScrollBar::sub-page
 {
-	background-color: #1f1f1f;
+    background-color: #1f1f1f;
 }
 
 
 QLabel#labelJoinGame,#labelHostGame,#labelAutomatch,#labelMyReplays,#labelLiveReplays,#labelHostTournament,#labelJoinTournament,#joinLabel,#labelTeamManagement
 {
-	color:white;
+    color:white;
 }
 
 QLabel#labelModHint,#labelMyHint,#labelLiveHint,#labelRankedHint,#labelTeamManagementHint,#labelTeamManagementHint2,#labelTeamManagementHint3
 {
-	color:#AAAAAA;
+    color:#AAAAAA;
 }
 
 QGroupBox
 {
-	color:orange;
-	background-color: grey;
+    color:orange;
+    background-color: grey;
 }
 
 /* Used for dialogs*/
 QDialog 
 {
-	background-color: #575656;
+    background-color: #575656;
 }
 
 QCheckBox#spoilerCheckbox
 {
-	color: white;
+    color: white;
 }
 
 /* Used for Ranked Buttons only at the moment*/
 QToolButton::pressed 
 {
-	border: none;
+    border: none;
 
-	color:silver;
-	padding:5px;
-	background-color:#383838;
-	border-radius : 5px;
+    color:silver;
+    padding:5px;
+    background-color:#383838;
+    border-radius : 5px;
 }
 
 QToolButton::hover
 {
-	border: none;
+    border: none;
 
-	color:silver;
-	padding:5px;
-	background-color:#808080;
-	border-radius : 5px;
+    color:silver;
+    padding:5px;
+    background-color:#808080;
+    border-radius : 5px;
  }
 
 QToolButton::checked
 {
-	border: none;
-	border: 2px solid #353535;
+    border: none;
+    border: 2px solid #353535;
 
-	color:silver;
-	padding:5px;
-	background-color:#C0C0C0;
-	border-radius : 5px;
+    color:silver;
+    padding:5px;
+    background-color:#C0C0C0;
+    border-radius : 5px;
  }
 
 QComboBox, QComboBox:selectec
@@ -487,5 +487,5 @@ QComboBox, QComboBox:selectec
 QComboBox QAbstractItemView {
     border: 2px solid darkgray;
     selection-background-color: #575656;
-	background-color: #575656;
+    background-color: #575656;
 }
