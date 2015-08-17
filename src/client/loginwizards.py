@@ -321,13 +321,7 @@ class AccountCreationPage(QtGui.QWizardPage):
 #
 
     def validateEmail(self, email):
-        if email.count("@") != 1:
-            return False
-        if len(email) > 6:
-            if re.match("^[a-zA-Z0-9._%-]+@[a-zA-Z0-9._%-]+.[a-zA-Z]{2,6}$", email) != None:
-                return True
-        return False
-
+        return re.match("^[a-zA-Z0-9._%-]+@[a-zA-Z0-9._%-]+.[a-zA-Z]{2,6}$", email) is not None
 
     def validatePage(self):
         password1 = hashlib.sha256(self.passwordLineEdit.text().encode("utf-8")).hexdigest()        
