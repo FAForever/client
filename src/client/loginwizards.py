@@ -1,11 +1,10 @@
 from PyQt4 import QtCore, QtGui
 import re
+from config import Settings
 import util
 
 import hashlib
 from client import ClientState
-
-from . import TICKET_URL, STEAMLINK_URL, NAME_CHANGE_URL, PASSWORD_RECOVERY_URL
 
 class LoginWizard(QtGui.QWizard):
     def __init__(self, client):
@@ -127,12 +126,9 @@ class loginPage(QtGui.QWizardPage):
 
         self.setLayout(layout)
 
-
-
     def rememberCheck(self):
         self.client.remember = self.rememberCheckBox.isChecked()
-                
-        
+
     @QtCore.pyqtSlot()
     def createAccount(self):
         wizard = creationAccountWizard(self)
@@ -144,22 +140,19 @@ class loginPage(QtGui.QWizardPage):
 
     @QtCore.pyqtSlot()
     def linkAccount(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(STEAMLINK_URL))
-        
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(Settings.get("STEAMLINK_URL")))
+
     @QtCore.pyqtSlot()
     def renameAccount(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(NAME_CHANGE_URL))
-        
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(Settings.get("NAME_CHANGE_URL")))
+
     @QtCore.pyqtSlot()
     def forgotPassword(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(PASSWORD_RECOVERY_URL))
-
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(Settings.get("PASSWORD_RECOVERY_URL")))
 
     @QtCore.pyqtSlot()
     def reportBug(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(TICKET_URL))
-
-
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(Settings.get("TICKET_URL")))
 
 class creationAccountWizard(QtGui.QWizard):
     def __init__(self, parent=None):

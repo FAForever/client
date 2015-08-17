@@ -16,6 +16,7 @@
 # GNU General Public License for more details.
 #-------------------------------------------------------------------------------
 from client.updater import fetchClientUpdate
+from config import Settings
 import fa
 
 '''
@@ -27,9 +28,8 @@ Created on Dec 1, 2011
 from PyQt4 import QtCore, QtGui, QtNetwork, QtWebKit
 from types import IntType, FloatType, ListType, DictType
 
-from client import ClientState, MUMBLE_URL, WEBSITE_URL, WIKI_URL, \
-    FORUMS_URL, UNITDB_URL, SUPPORT_URL, TICKET_URL, GAME_PORT_DEFAULT, LOBBY_HOST, \
-    LOBBY_PORT, LOCAL_REPLAY_PORT, STEAMLINK_URL
+from client import ClientState, GAME_PORT_DEFAULT, LOBBY_HOST, \
+    LOBBY_PORT, LOCAL_REPLAY_PORT
 
 import logging
 logger = logging.getLogger(__name__)
@@ -747,7 +747,7 @@ class ClientWindow(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def linkToSteam(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(STEAMLINK_URL))
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(Settings.get("STEAMLINK_URL")))
 
     @QtCore.pyqtSlot()
     def setMumbleOptions(self):
@@ -779,31 +779,31 @@ class ClientWindow(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def linkMumble(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(MUMBLE_URL.format(login=self.login)))
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(Settings.get("MUMBLE_URL").format(login=self.login)))
 
     @QtCore.pyqtSlot()
     def linkWebsite(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(WEBSITE_URL))
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(Settings.get("WEBSITE_URL")))
 
     @QtCore.pyqtSlot()
     def linkWiki(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(WIKI_URL))
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(Settings.get("WIKI_URL")))
 
     @QtCore.pyqtSlot()
     def linkForums(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(FORUMS_URL))
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(Settings.get("FORUMS_URL")))
 
     @QtCore.pyqtSlot()
     def linkUnitDB(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(UNITDB_URL))
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(Settings.get("UNITDB_URL")))
 
     @QtCore.pyqtSlot()
     def linkReportBug(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(TICKET_URL))
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(Settings.get("TICKET_URL")))
 
     @QtCore.pyqtSlot()
     def linkTechSupport(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(SUPPORT_URL))
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(Settings.get("SUPPORT_URL")))
 
     @QtCore.pyqtSlot()
     def linkShowLogs(self):

@@ -1,7 +1,6 @@
-
-
-
 # Bug Reporting
+from config import Settings
+
 CRASH_REPORT_USER = "pre-login"
 
 import util
@@ -12,9 +11,6 @@ from . import APPDATA_DIR, PERSONAL_DIR, VERSION_STRING, LOG_FILE_FAF, \
 from PyQt4 import QtGui, QtCore
 import traceback
 import hashlib
-
-HELP_URL = "http://forums.faforever.com/forums/viewforum.php?f=3"
-TICKET_URL = "https://github.com/FAForever/lobby/issues"
 
 class CrashDialog(QtGui.QDialog):
     def __init__(self, exc_info, *args, **kwargs):
@@ -92,8 +88,8 @@ class CrashDialog(QtGui.QDialog):
 
     @QtCore.pyqtSlot()
     def tech_support(self):
-        QtGui.QDesktopServices().openUrl(QtCore.QUrl(HELP_URL))
+        QtGui.QDesktopServices().openUrl(QtCore.QUrl(Settings.get("HELP_URL")))
 
     @QtCore.pyqtSlot()
     def post_report(self):
-        QtGui.QDesktopServices().openUrl(QtCore.QUrl(TICKET_URL))
+        QtGui.QDesktopServices().openUrl(QtCore.QUrl(Settings.get("TICKET_URL")))
