@@ -20,7 +20,7 @@ class HostgameWidget(FormClass, BaseClass):
         self.parent = parent
 
         self.setStyleSheet(self.parent.client.styleSheet())
-        
+
         self.setWindowTitle ( "Hosting Game : " + item.name )
         self.titleEdit.setText ( self.parent.gamename )
         self.passEdit.setText ( self.parent.gamepassword )
@@ -36,7 +36,7 @@ class HostgameWidget(FormClass, BaseClass):
             "mapname": self.parent.gamemap,
             "state": "open",
         }
-        
+
         self.game.update(self.message, self.parent.client)
         
         i = 0
@@ -53,7 +53,7 @@ class HostgameWidget(FormClass, BaseClass):
             self.mapList.setCurrentIndex(index)
         else:
             self.mapList.hide()
-            
+
         icon = maps.preview(self.parent.gamemap, True)
 
         if not icon:
@@ -73,7 +73,9 @@ class HostgameWidget(FormClass, BaseClass):
             l = self.modList.findItems(name, QtCore.Qt.MatchExactly)
             logger.debug("found item: %s" % l[0].text())
             if l: l[0].setSelected(True)
-        
+
+        self.radioFriends.setChecked(self.parent.friends_only)
+
         self.mapList.currentIndexChanged.connect(self.mapChanged)
         self.hostButton.released.connect(self.hosting)
         self.titleEdit.textChanged.connect(self.updateText)
@@ -97,7 +99,7 @@ class HostgameWidget(FormClass, BaseClass):
         # TODO: Remove this ridiculous use of a parent pointer.
         map = self.parent.gamemap
 
-        self.parent.save_last_hosted_settings(name, map, password)
+        self.parent.save_last_hosted_settings(name, map, password, self.radioFriends.isChecked())
         self.done(1)
 
     def mapChanged(self, index):

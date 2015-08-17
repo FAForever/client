@@ -109,7 +109,7 @@ class GamesWidget(FormClass, BaseClass):
         # Wow.
         for game in [self.games[game] for game in self.games
                      if self.games[game].state == 'open'
-                     and self.games[game].access == 'password']:
+                     and self.games[game].password_protected]:
             game.setHidden(state == Qt.Checked)
 
     @QtCore.pyqtSlot(dict)
@@ -124,13 +124,13 @@ class GamesWidget(FormClass, BaseClass):
             self.gameList.addItem(self.games[uid])
             self.games[uid].update(message, self.client)
 
-            if message['state'] == 'open' and message['access'] == 'public':
+            if message['state'] == 'open' and not message['password_protected']:
                 self.client.notificationSystem.on_event(ns.NotificationSystem.NEW_GAME, message)
         else:
             self.games[uid].update(message, self.client)
 
         # Hide private games
-        if self.hideGamesWithPw.isChecked() and message['state'] == 'open' and message['access'] == 'password':
+        if self.hideGamesWithPw.isChecked() and message['state'] == 'open' and not message['password_protected']:
             self.games[uid].setHidden(True)
 
         # Special case: removal of a game that has ended
@@ -241,7 +241,7 @@ class GamesWidget(FormClass, BaseClass):
             return
 
         if fa.check.check(item.mod, item.mapname, None, item.mods):
-            if item.access == "password" :
+            if item.password_protected:
                 passw, ok = QtGui.QInputDialog.getText(self.client, "Passworded game" , "Enter password :", QtGui.QLineEdit.Normal, "")
                 if ok:
                     self.client.send(dict(command="game_join", password=passw, uid=item.uid, gameport=self.client.gamePort))
@@ -263,9 +263,6 @@ class GamesWidget(FormClass, BaseClass):
         if hostgamewidget.exec_() != 1 :
             return
 
-        # A simple Hosting dialog.
-        # THIS IS NOT IN ANY SENSE SIMPLE
-
         # Make sure the binaries are all up to date, and abort if the update fails or is cancelled.
         if not fa.check.game(self.client):
             return
@@ -278,9 +275,14 @@ class GamesWidget(FormClass, BaseClass):
         mods = [hostgamewidget.mods[modstr] for modstr in modnames]
         modvault.setActiveMods(mods, True) #should be removed later as it should be managed by the server.
 
+        if self.friends_only:
+            visibility = "friends"
+        else:
+            visibility = "public"
+
         message = {
             "command": "game_host",
-            "access": "public",
+            "visibility": visibility,
             "mod": item.mod,
             "title": self.gamename,
             "mapname": self.gamemap,
@@ -288,7 +290,6 @@ class GamesWidget(FormClass, BaseClass):
         }
 
         if self.ispassworded:
-            message.access = "password"
             message.password = self.gamepassword
 
         self.client.send(message)
@@ -300,16 +301,18 @@ class GamesWidget(FormClass, BaseClass):
         self.gamepassword = util.settings.value("password", "password")
         self.gamemap = util.settings.value("gamemap", "scmp_007")
         self.gamename = util.settings.value("gamename", self.client.login + "'s game")
+        self.friends_only = util.settings.value("friends_only", False)
 
         util.settings.endGroup()
 
-    def save_last_hosted_settings(self, name, map, password = None):
+    def save_last_hosted_settings(self, name, map, password = None, friends_only = False):
         self.gamemap = map
         self.gamename = name
 
         util.settings.beginGroup("fa.games")
         util.settings.setValue("gamemap", map)
         util.settings.setValue("gamename", name)
+        util.settings.setValue("friends_only", friends_only)
 
         if password is not None:
             self.gamePassword = password

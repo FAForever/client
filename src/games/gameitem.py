@@ -94,7 +94,7 @@ class GameItem(QtGui.QListWidgetItem):
         self.title          = None
         self.host           = None
         self.teams          = None
-        self.access         = None
+        self.password_protected = False
         self.mod            = None
         self.mods           = None
         self.moddisplayname = None
@@ -104,7 +104,6 @@ class GameItem(QtGui.QListWidgetItem):
         self.players        = []
         
         self.setHidden(True)
-
         
     def url(self, player = None):
         if not player:
@@ -188,7 +187,7 @@ class GameItem(QtGui.QListWidgetItem):
         self.title      = message['title']
         self.host       = message['host']
         self.teams      = dict.copy(message['teams'])
-        self.access     = message.get('access', 'public')
+        self.password_protected = message.get('password_protected', False)
         self.mod        = message['featured_mod']
         self.modVersion = message.get('featured_mod_versions', [])
         self.mods       = message.get('sim_mods',{})
@@ -251,7 +250,7 @@ class GameItem(QtGui.QListWidgetItem):
 
         #Alternate icon: If private game, use game_locked icon. Otherwise, use preview icon from map library.
         if refresh_icon:
-            if self.access == "password" or self.private:
+            if self.password_protected or self.private:
                 icon = util.icon("games/private_game.png")
             else:            
                 icon = maps.preview(self.mapname)
