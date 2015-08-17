@@ -50,8 +50,7 @@ class CoopWidget(FormClass, BaseClass):
         self.client.gameInfo.connect(self.processGameInfo)
         self.coopList.header().setResizeMode(0, QtGui.QHeaderView.ResizeToContents)
         self.coopList.setItemDelegate(CoopMapItemDelegate(self))
-        
-        
+
         self.gameList.setItemDelegate(GameItemDelegate(self))
         self.gameList.itemDoubleClicked.connect(self.gameDoubleClicked)
 
@@ -63,8 +62,7 @@ class CoopWidget(FormClass, BaseClass):
         
         self.linkButton.clicked.connect(self.linkVanilla)
         #Load game name from settings (yay, it's persistent!)        
-        self.loadGameName()
-        self.loadPassword()
+        self.load_last_hosted_settings()
         self.leaderBoard.setVisible(0)
         self.stylesheet              = util.readstylesheet("coop/formatters/style.css")
         self.FORMATTER_LADDER        = unicode(util.readfile("coop/formatters/ladder.qthtml"))
@@ -81,7 +79,6 @@ class CoopWidget(FormClass, BaseClass):
         self.replayDownload = QNetworkAccessManager()
         self.replayDownload.finished.connect(self.finishRequest)
 
-    
         self.selectedItem = None
 
     @QtCore.pyqtSlot(QtCore.QUrl)
@@ -292,22 +289,22 @@ class CoopWidget(FormClass, BaseClass):
         else :
             self.client.send(dict(command="game_join", uid=item.uid, gameport=self.client.gamePort))
 
+    # TODO: Avoid evil duplication from gameswidget.
+    def load_last_hosted_settings(self):
+        util.settings.beginGroup("fa.games")
+
+        # Default of "password"
+        self.gamepassword = util.settings.value("password", "password")
+        self.gamename = util.settings.value("gamename", self.client.login + "'s game")
+
+        util.settings.endGroup()
 
     def savePassword(self, password):
         self.gamepassword = password
         util.settings.beginGroup("fa.games")
         util.settings.setValue("password", self.gamepassword)        
         util.settings.endGroup()        
-                
-                
-    def loadPassword(self):
-        util.settings.beginGroup("fa.games")
-        self.gamepassword = util.settings.value("password", None)        
-        util.settings.endGroup()        
-                
-        #Default Game Map ...
-        if not self.gamepassword:
-            self.gamepassword = "password"
+
 
     def saveGameMap(self, name):
         pass
@@ -319,17 +316,3 @@ class CoopWidget(FormClass, BaseClass):
         util.settings.beginGroup("fa.games")
         util.settings.setValue("gamename", self.gamename)        
         util.settings.endGroup()        
-                
-                
-    def loadGameName(self):
-        util.settings.beginGroup("fa.games")
-        self.gamename = util.settings.value("gamename", None)        
-        util.settings.endGroup()        
-                
-        #Default Game Name ...
-        if not self.gamename:
-            if (self.client.login):
-                self.gamename = self.client.login + "'s game"
-            else:
-                self.gamename = "nobody's game"
-        

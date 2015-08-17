@@ -70,10 +70,8 @@ class GamesWidget(FormClass, BaseClass):
 
         self.modList.itemDoubleClicked.connect(self.hostGameClicked)
 
-        #Load game name from settings (yay, it's persistent!)
-        self.loadGameName()
-        self.loadGameMap()
-        self.loadPassword()
+        # Load game name from settings (yay, it's persistent!)
+        self.load_last_hosted_settings()
         self.options = []
 
     def connectRankedToggles(self):
@@ -278,20 +276,21 @@ class GamesWidget(FormClass, BaseClass):
                         else :
                             self.client.send(dict(command="game_host", access="public", mod=item.mod, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort))
 
+    def load_last_hosted_settings(self):
+        util.settings.beginGroup("fa.games")
+
+        # Default of "password"
+        self.gamepassword = util.settings.value("password", "password")
+        self.gamemap = util.settings.value("gamemap", "scmp_007")
+        self.gamename = util.settings.value("gamename", self.client.login + "'s game")
+
+        util.settings.endGroup()
+
     def savePassword(self, password):
         self.gamepassword = password
         util.settings.beginGroup("fa.games")
         util.settings.setValue("password", self.gamepassword)
         util.settings.endGroup()
-
-    def loadPassword(self):
-        util.settings.beginGroup("fa.games")
-        self.gamepassword = util.settings.value("password", None)
-        util.settings.endGroup()
-
-        #Default Game Map ...
-        if not self.gamepassword:
-            self.gamepassword = "password"
 
     def saveGameMap(self, name):
         self.gamemap = name
@@ -299,35 +298,12 @@ class GamesWidget(FormClass, BaseClass):
         util.settings.setValue("gamemap", self.gamemap)
         util.settings.endGroup()
 
-    def loadGameMap(self):
-        util.settings.beginGroup("fa.games")
-        self.gamemap = util.settings.value("gamemap", None)
-        util.settings.endGroup()
-
-        #Default Game Map ...
-        if not self.gamemap:
-            self.gamemap = "scmp_007"
-
-
     def saveGameName(self, name):
         self.gamename = name
 
         util.settings.beginGroup("fa.games")
         util.settings.setValue("gamename", self.gamename)
         util.settings.endGroup()
-
-
-    def loadGameName(self):
-        util.settings.beginGroup("fa.games")
-        self.gamename = util.settings.value("gamename", None)
-        util.settings.endGroup()
-
-        #Default Game Name ...
-        if not self.gamename:
-            if (self.client.login):
-                self.gamename = self.client.login + "'s game"
-            else:
-                self.gamename = "nobody's game"
 
     def sortGamesComboChanged(self, index):
         self.gameList.sortBy = index
