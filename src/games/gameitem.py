@@ -113,7 +113,7 @@ class GameItem(QtGui.QListWidgetItem):
         if self.state == "playing":
             url = QtCore.QUrl()
             url.setScheme("faflive")
-            url.setHost("lobby.dev.faforever.com")
+            url.setHost("lobby.faforever.com")
             url.setPath(str(self.uid) + "/" + player + ".SCFAreplay")
             url.addQueryItem("map", self.mapname)
             url.addQueryItem("mod", self.mod)
@@ -121,7 +121,7 @@ class GameItem(QtGui.QListWidgetItem):
         elif self.state == "open":
             url = QtCore.QUrl()
             url.setScheme("fafgame")
-            url.setHost("lobby.dev.faforever.com")
+            url.setHost("lobby.faforever.com")
             url.setPath(self.host)
             url.addQueryItem("map", self.mapname)
             url.addQueryItem("mod", self.mod)
