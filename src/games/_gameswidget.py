@@ -1,4 +1,3 @@
-
 import random
 
 from PyQt4 import QtCore, QtGui
@@ -16,15 +15,7 @@ import notificatation_system as ns
 import logging
 logger = logging.getLogger(__name__)
 
-RANKED_SEARCH_EXPANSION_TIME = 10000 #milliseconds before search radius expands
-
-SEARCH_RADIUS_INCREMENT = 0.05
-SEARCH_RADIUS_MAX = 0.25
-
 FormClass, BaseClass = util.loadUiType("games/games.ui")
-
-import functools
-
 
 class GamesWidget(FormClass, BaseClass):
     def __init__(self, client, *args, **kwargs):
@@ -47,8 +38,6 @@ class GamesWidget(FormClass, BaseClass):
         self.rankedRandom.setIcon(util.icon("games/automatch/random.png"))
 
         self.connectRankedToggles()
-        self.rankedTimer = QtCore.QTimer()
-        self.rankedTimer.timeout.connect(self.expandSearchRanked)
         self.searchProgress.hide()
 
         # Ranked search state variables
@@ -66,11 +55,6 @@ class GamesWidget(FormClass, BaseClass):
         self.client.rankedGameSeraphim.connect(self.toggleSeraphim)
         self.client.rankedGameUEF.connect(self.toggleUEF)
         self.client.rankedGameRandom.connect(self.toggleRandom)
-
-
-        self.client.teamInvitation.connect(self.handleInvitations)
-        self.client.teamInfo.connect(self.handleTeamInfo)
-
 
         self.client.gameEnter.connect(self.stopSearchRanked)
         self.client.viewingReplay.connect(self.stopSearchRanked)
@@ -92,121 +76,12 @@ class GamesWidget(FormClass, BaseClass):
         self.loadPassword()
         self.options = []
 
-    def handleMatchmakerInfo(self, message):
-        action = message["action"]
-        if action == "startSearching":
-            if (not fa.check.check("matchmaker")):
-                logger.error("Can't play ranked without successfully updating Forged Alliance.")
-                return            
-
-            self.client.send(dict(command="game_matchmaking", mod="matchmaker", state="port", port=self.client.gamePort))
-
-            if self.client.useUPnP:
-                fa.upnp.createPortMapping(self.client.localIP, self.client.gamePort, "UDP")
-
-            numplayers = message["players"]
-
-            self.disconnectTeamSearchToggles()
-            for numplayer in self.teamSearchButton:
-                if numplayer != numplayers:
-                    self.teamSearchButton[numplayer].setChecked(False)
-                else:
-                    self.teamSearchButton[numplayer].setChecked(True)
-            self.connectTeamSearchToggles()
-
-            self.teamSearching = True
-            self.teamSearchProgress.show()
-        
-        elif action == "stopSearching":
-            self.teamSearching = False
-            self.teamSearchProgress.hide()
-
-
-
-    def handleTeamInfo(self, message):
-        ''' handling team informations '''
-        self.teamManagerListWidget.clear()
-
-        if len(message["members"]) > 0:
-            # cleaning invitations
-            self.teamInvitationsListWidget.clear()
-            self.leaveTeamButton.setVisible(True)
-
-        else:
-            self.leaveTeamButton.setVisible(False)
-
-        for member in message["members"]:
-            self.teamManagerListWidget.addItem(member)
-
-
-    def handleInvitations(self, message):
-        action  = message["action"]
-        who     = message["who"]
-        ''' handling team invitations '''     
-        if action == "teaminvitationremove":
-            if not who in self.teaminvitations:
-                return
-            
-            self.teamInvitationsListWidget.removeItemWidget(self.teaminvitations[who])
-            del self.teaminvitations[who]
-
-        elif action == "teaminvitation":
-            if who in self.teamInvitations:
-                return
-
-            if self.client.teaminvitations :
-                self.client.forwardLocalBroadcast(who, "is inviting you to join his team.")
-
-            self.client.notificationSystem.on_event(ns.NotificationSystem.TEAM_INVITE, "%s is inviting you to join his team." % who)
-
-            item = QtGui.QListWidgetItem(who)
-            
-            self.teamInvitations[who] = item
-            self.teamInvitationsListWidget.addItem(self.teamInvitations[who])
-
-    def quitTeam(self):
-        ''' leave a team '''
-        self.client.send(dict(command="quit_team"))
-
-    def teamInvitationClicked(self, item):
-        ''' invitation acceptation '''
-        who = item.text()
-        self.client.send(dict(command="game_matchmaking", mod="matchmaker", state="port", port=self.client.gamePort))
-        self.client.send(dict(command="accept_team_proposal", leader=who))
-
-
-    def connectTeamFactionToggles(self):
-        self.teamAeon.toggled.connect(self.togglingTeamAeon)
-        self.teamCybran.toggled.connect(self.togglingTeamCybran)
-        self.teamSeraphim.toggled.connect(self.togglingTeamSeraphim)
-        self.teamUEF.toggled.connect(self.togglingTeamUEF)
-        self.teamRandom.toggled.connect(self.togglingTeamRandom)        
-
-    def disconnectTeamFactionToggles(self):
-        self.teamAeon.toggled.disconnect(self.togglingTeamAeon)
-        self.teamCybran.toggled.disconnect(self.togglingTeamCybran)
-        self.teamSeraphim.toggled.disconnect(self.togglingTeamSeraphim)
-        self.teamUEF.toggled.disconnect(self.togglingTeamUEF)
-        self.teamRandom.toggled.disconnect(self.togglingTeamRandom) 
-
-
-    def connectTeamSearchToggles(self):
-        for numplayers in self.teamSearchButton:
-            self.teamSearchFnc[numplayers] = functools.partial(self.togglingTeams, numplayers)
-            self.teamSearchButton[numplayers].toggled.connect(self.teamSearchFnc[numplayers])
-       
-
-    def disconnectTeamSearchToggles(self):
-        for numplayers in self.teamSearchButton:
-            self.teamSearchButton[numplayers].toggled.disconnect(self.teamSearchFnc[numplayers])
-
     def connectRankedToggles(self):
         self.rankedAeon.toggled.connect(self.toggleAeon)
         self.rankedCybran.toggled.connect(self.toggleCybran)
         self.rankedSeraphim.toggled.connect(self.toggleSeraphim)
         self.rankedUEF.toggled.connect(self.toggleUEF)
         self.rankedRandom.toggled.connect(self.toggleRandom)
-
 
     def disconnectRankedToggles(self):
         self.rankedAeon.toggled.disconnect(self.toggleAeon)
@@ -220,7 +95,6 @@ class GamesWidget(FormClass, BaseClass):
         '''
         Slot that interprets and propagates mod_info messages into the mod list
         '''
-
         item = ModItem(message)
 
         if message["host"] :
@@ -269,20 +143,7 @@ class GamesWidget(FormClass, BaseClass):
                 del self.games[uid]
             return
 
-
-    def startSearchingTeamMatchmaker(self, players):
-
-        self.client.send(dict(command="game_matchmaking", mod="matchmaker", state="askingtostart", players=players, port=self.client.gamePort))
-
-
-    def stopSearchingTeamMatchmaker(self):
-        self.client.send(dict(command="game_matchmaking", mod="matchmaker", state="askingtostop"))
-        #self.stopSearchRanked()
-
-
-
     def startSearchRanked(self, race):
-        self.stopSearchingTeamMatchmaker()
         if fa.instance.running():
             QtGui.QMessageBox.information(None, "ForgedAllianceForever.exe", "FA is already running.")
             self.stopSearchRanked()
@@ -308,41 +169,12 @@ class GamesWidget(FormClass, BaseClass):
             self.radius = 0
             self.searchProgress.setVisible(True)
             self.labelAutomatch.setText("Searching...")
-            self.rankedTimer.start(RANKED_SEARCH_EXPANSION_TIME)
             self.client.send(dict(command="game_matchmaking", mod="ladder1v1", state="start", gameport = self.client.gamePort, faction = self.race))
-            #self.client.writeToServer('SEARCH_LADDERGAME', 'START', self.client.gamePort)
-
-
-    @QtCore.pyqtSlot()
-    def expandSearchTeamRanked(self):
-        self.radius += SEARCH_RADIUS_INCREMENT
-        if self.radius >= SEARCH_RADIUS_MAX:
-            self.radius = SEARCH_RADIUS_MAX;
-            logger.debug("Search Team Cap reached at " + str(self.radius))
-            self.rankedTimer.stop()
-        else:
-            logger.debug("Expanding teamsearch to " + str(self.radius))
-
-        #self.client.send(dict(command="game_matchmaking", mod="ladder1v1", state="expand", rate=self.radius))
-
-
-    @QtCore.pyqtSlot()
-    def expandSearchRanked(self):
-        self.radius += SEARCH_RADIUS_INCREMENT
-        if self.radius >= SEARCH_RADIUS_MAX:
-            self.radius = SEARCH_RADIUS_MAX;
-            logger.debug("Search Cap reached at " + str(self.radius))
-        else:
-            logger.debug("Expanding search to " + str(self.radius))
-
-        self.client.send(dict(command="game_matchmaking", mod="ladder1v1", state="expand", rate=self.radius))
-
 
     @QtCore.pyqtSlot()
     def stopSearchRanked(self, *args):
         if (self.searching):
             logger.debug("Stopping Ranked Search")
-            self.rankedTimer.stop()
             self.client.send(dict(command="game_matchmaking", mod="ladder1v1", state="stop"))
             self.searching = False
 
@@ -355,100 +187,6 @@ class GamesWidget(FormClass, BaseClass):
         self.rankedSeraphim.setChecked(False)
         self.rankedUEF.setChecked(False)
         self.connectRankedToggles()
-
-    @QtCore.pyqtSlot(bool)
-    def togglingTeamAeon(self, state):
-        self.toggleTeamAeon(1)
-
-    @QtCore.pyqtSlot(bool)
-    def togglingTeamCybran(self, state):
-        self.toggleTeamCybran(1)
-
-
-    @QtCore.pyqtSlot(bool)
-    def togglingTeamSeraphim(self, state):
-        self.toggleTeamSeraphim(1)
-
-    @QtCore.pyqtSlot(bool)
-    def togglingTeamRandom(self, state):
-        self.toggleTeamRandom(1)
-
-    @QtCore.pyqtSlot(bool)
-    def togglingTeamUEF(self, state):
-        self.toggleTeamUEF(1)
-
-    @QtCore.pyqtSlot(bool)
-    def toggleTeamUEF(self, state):
-        if (state):
-            self.disconnectTeamFactionToggles()
-            self.teamAeon.setChecked(False)
-            self.teamCybran.setChecked(False)
-            self.teamSeraphim.setChecked(False)
-            self.teamRandom.setChecked(False)
-            self.connectTeamFactionToggles()
-            self.client.send(dict(command="game_matchmaking", mod="matchmaker", state="faction", factionchosen=1))
-
-    @QtCore.pyqtSlot(bool)
-    def toggleTeamAeon(self, state):
-        if (state):
-            self.disconnectTeamFactionToggles()
-            self.teamCybran.setChecked(False)
-            self.teamSeraphim.setChecked(False)
-            self.teamUEF.setChecked(False)
-            self.teamRandom.setChecked(False)
-            self.connectTeamFactionToggles()
-            self.client.send(dict(command="game_matchmaking", mod="matchmaker", state="faction", factionchosen=2))
-
-
-
-    @QtCore.pyqtSlot(bool)
-    def toggleTeamCybran(self, state):
-        if (state):
-            self.disconnectTeamFactionToggles()
-            self.teamAeon.setChecked(False)
-            self.teamSeraphim.setChecked(False)
-            self.teamUEF.setChecked(False)
-            self.teamRandom.setChecked(False)
-            self.connectTeamFactionToggles()
-            self.client.send(dict(command="game_matchmaking", mod="matchmaker", state="faction", factionchosen=3))
-
-
-    @QtCore.pyqtSlot(bool)
-    def toggleTeamSeraphim(self, state):
-        if (state):
-            self.disconnectTeamFactionToggles()
-            self.teamAeon.setChecked(False)
-            self.teamCybran.setChecked(False)
-            self.teamUEF.setChecked(False)
-            self.teamRandom.setChecked(False)
-            self.connectTeamFactionToggles()
-            self.client.send(dict(command="game_matchmaking", mod="matchmaker", state="faction", factionchosen=4))
-
-    @QtCore.pyqtSlot(bool)
-    def toggleTeamRandom(self, state):
-        if (state):
-            self.disconnectTeamFactionToggles()
-            self.teamAeon.setChecked(False)
-            self.teamCybran.setChecked(False)
-            self.teamSeraphim.setChecked(False)
-            self.teamUEF.setChecked(False)
-            self.connectTeamFactionToggles()
-            self.client.send(dict(command="game_matchmaking", mod="matchmaker", state="faction", factionchosen=random.randint(1,4)))
-
-    # TEAM MATCHMAKER
-    @QtCore.pyqtSlot(bool)
-    def togglingTeams(self, numplayers, state):
-        if (state):
-            self.startSearchingTeamMatchmaker(numplayers)
-            self.disconnectTeamSearchToggles()
-            for numplayer in self.teamSearchButton:
-                if numplayer != numplayers:
-                    self.teamSearchButton[numplayer].setChecked(False)
-            self.connectTeamSearchToggles()
-            
-        else:
-            self.stopSearchingTeamMatchmaker()
-                                             
 
     # RANKED
     @QtCore.pyqtSlot(bool)
@@ -473,7 +211,6 @@ class GamesWidget(FormClass, BaseClass):
             self.toggleSearch(state, random.randint(1,4))
         else:
             self.stopSearchRanked()
-
 
     def toggleSearch(self, state, player_faction):
         """
@@ -540,14 +277,12 @@ class GamesWidget(FormClass, BaseClass):
                             self.client.send(dict(command="game_host", access="password", password = self.gamepassword, mod=item.mod, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort))
                         else :
                             self.client.send(dict(command="game_host", access="public", mod=item.mod, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort))
-#
 
     def savePassword(self, password):
         self.gamepassword = password
         util.settings.beginGroup("fa.games")
         util.settings.setValue("password", self.gamepassword)
         util.settings.endGroup()
-
 
     def loadPassword(self):
         util.settings.beginGroup("fa.games")
@@ -563,7 +298,6 @@ class GamesWidget(FormClass, BaseClass):
         util.settings.beginGroup("fa.games")
         util.settings.setValue("gamemap", self.gamemap)
         util.settings.endGroup()
-
 
     def loadGameMap(self):
         util.settings.beginGroup("fa.games")

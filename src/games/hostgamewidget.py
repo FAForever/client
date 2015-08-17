@@ -1,5 +1,3 @@
-
-
 import os
 
 from PyQt4 import QtCore, QtGui
@@ -12,13 +10,7 @@ import util
 import logging
 logger = logging.getLogger(__name__)
 
-RANKED_SEARCH_EXPANSION_TIME = 10000 #milliseconds before search radius expands
-
-SEARCH_RADIUS_INCREMENT = 0.05
-SEARCH_RADIUS_MAX = 0.25
-
 FormClass, BaseClass = util.loadUiType("games/host.ui")
-
 
 class HostgameWidget(FormClass, BaseClass):
     def __init__(self, parent, item, *args, **kwargs):
