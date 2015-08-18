@@ -218,6 +218,34 @@ class Chatter(QtGui.QTableWidgetItem):
             return
         self.setTextColor(QtGui.QColor(self.lobby.client.getUserColor(self.name)))
 
+    def selectAvatar(self):
+        avatarSelection = avatarWidget(self.lobby.client, self.name, personal = True)
+        avatarSelection.exec_()
+
+    def addAvatar(self):
+        avatarSelection = avatarWidget(self.lobby.client, self.name)
+        avatarSelection.exec_()
+
+    def addFriend(self):
+        self.lobby.client.addFriend(self.name)
+
+    def remFriend(self):
+        self.lobby.client.remFriend(self.name)
+
+    def addFoe(self):
+        self.lobby.client.addFoe(self.name)
+
+    def remFoe(self):
+        self.lobby.client.remFoe(self.name)
+
+    def kick(self):
+        pass
+
+    def closeFA(self):
+        self.lobby.client.closeFA(self.name)
+
+    def closeLobby(self):
+        self.lobby.client.closeLobby(self.name)
 
     def doubleClicked(self, item):
         # filter yourself
