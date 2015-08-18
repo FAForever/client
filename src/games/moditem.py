@@ -3,8 +3,7 @@ import util
 import client
 import os
 
-# These mods are always on top
-
+# Maps names of featured mods to ModItem objects.
 mods = {}
 
 mod_crucial = ["balancetesting", "faf"]

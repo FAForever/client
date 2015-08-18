@@ -1,4 +1,6 @@
 from PyQt4 import QtCore, QtGui
+import trueskill
+from trueskill import Rating
 from fa import maps
 import util
 import os
@@ -69,8 +71,6 @@ class GameItem(QtGui.QListWidgetItem):
     PADDING = 10
     
     WIDTH = ICONSIZE + TEXTWIDTH
-    #DATA_PLAYERS = 32
-    
     
     FORMATTER_FAF       = unicode(util.readfile("games/formatters/faf.qthtml"))
     FORMATTER_MOD       = unicode(util.readfile("games/formatters/mod.qthtml"))
@@ -144,7 +144,7 @@ class GameItem(QtGui.QListWidgetItem):
     
     @QtCore.pyqtSlot()
     def announceHosting(self):
-        if not self.client.isFriend(self.host) or self.isHidden() or self.private:
+        if not self.client.isFriend(self.host) or self.isHidden():
             return
 
         if not self.state == "open":
@@ -163,63 +163,66 @@ class GameItem(QtGui.QListWidgetItem):
             self.client.forwardLocalBroadcast(self.host, 'is hosting <a style="color:' + self.client.getColor("url") + '" href="' + url.toString() + '">' + self.title + '</a> (on "' + self.mapdisplayname + '")')
         else:
             self.client.forwardLocalBroadcast(self.host, 'is hosting ' + self.moddisplayname + ' <a style="color:' + self.client.getColor("url") + '" href="' + url.toString() + '">' + self.title + '</a> (on "' + self.mapdisplayname + '")')
-            
-    
-    
+
     def update(self, message, client):
         '''
         Updates this item from the message dictionary supplied
         '''
-
-        foo = message
-        message = copy.deepcopy(foo)
-        
         self.client  = client
 
-        self.title      = message['title']
-        self.host       = message['host']
-        self.teams      = dict.copy(message['teams'])
+        self.title = message['title']
+        self.host = message['host']
+
+        # Maps integral team numbers (from 2, with 1 "none") to lists of names.
+        teams_map = dict.copy(message['teams'])
         self.password_protected = message.get('password_protected', False)
-        self.mod        = message['featured_mod']
+        self.mod = message['featured_mod']
         self.modVersion = message.get('featured_mod_versions', [])
-        self.mods       = message.get('sim_mods',{})
-        self.options    = message.get('options', [])
-        self.numplayers = message.get('num_players', 0) 
-        self.slots      = message.get('max_players',12)
+        self.mods = message.get('sim_mods', {})
+        self.options = message.get('options', [])
+        num_players = message.get('num_players', 0)
+        self.slots = message.get('max_players', 12)
         
         oldstate = self.state
         self.state  = message['state']
-      
 
         # Assemble a players & teams lists
         self.teamlist = []
         self.observerlist = []
-        self.realPlayers = []
-        self.teamsTrueskill = []
-        self.gamequality = 0
-        self.invalidTS = False
-        self.nTeams = 0
 
-        #HACK: Visibility field not supported yet.
-        self.private = self.title.lower().find("private") != -1        
         self.setHidden((self.state != 'open') or (self.mod in mod_invisible))        
-
 
         # Clear the status for all involved players (url may change, or players may have left, or game closed)        
         for player in self.players:
             if player in client.urls:
                 del client.urls[player]
 
-
         # Just jump out if we've left the game, but tell the client that all players need their states updated
         if self.state == "closed":
             client.usersUpdated.emit(self.players)
             return
-            
-        self.players = []
-        for team in self.teams:
-            self.players.extend(self.teams[team])
 
+        # Following the convention used by the game, a team value of 1 represents "No team". Let's
+        # desugar those into "real" teams now (and convert the dict to a list)
+        # Also, turn the lists of names into lists of players, and build a player name list.
+        self.players = []
+        teams = []
+        for team_index, team in teams_map:
+            self.players.extend(team)
+            if team_index == 1:
+                for ffa_player in team:
+                    teams.append([self.client.players[ffa_player]])
+
+            teams.append(map(lambda name: self.client.players[name], team))
+
+        # Tuples for feeding into trueskill.
+        rating_tuples = []
+        for team in teams:
+            ratings_for_team = map(lambda player: Rating(player.rating_mean, player.rating_deviation), team)
+            rating_tuples.append(tuple(ratings_for_team))
+
+        self.gamequality = trueskill.quality(rating_tuples)
+        self.nTeams = len(teams)
 
         # Map preview code
         if self.mapname != message['mapname']:
@@ -228,21 +231,10 @@ class GameItem(QtGui.QListWidgetItem):
             refresh_icon = True
         else:
             refresh_icon = False
-                    
-        #Resolve pretty display name
-        self.moddisplayname = self.mod
-        self.modoptions = []
-        
-        if self.mod in mods :
-            self.moddisplayname = mods[self.mod].name 
-            self.modoptions = mods[self.mod].options
-        
-
-        #Checking if the mod has options
 
         #Alternate icon: If private game, use game_locked icon. Otherwise, use preview icon from map library.
         if refresh_icon:
-            if self.password_protected or self.private:
+            if self.password_protected:
                 icon = util.icon("games/private_game.png")
             else:            
                 icon = maps.preview(self.mapname)
@@ -251,80 +243,9 @@ class GameItem(QtGui.QListWidgetItem):
                     icon = util.icon("games/unknown_map.png")
                              
             self.setIcon(icon)
-        
 
         # Used to differentiate between newly added / removed and previously present players            
         oldplayers = set(self.players)
-        
-       
-        self.playerIncluded = False
-        
-        
-        if self.state == "open" :
-            if "1" in self.teams and "2" in self.teams and self.client.login != None and self.client.login not in self.teams["1"] and self.client.login not in self.teams["2"] :
-                if len(self.teams["1"]) < len(self.teams["2"]) :
-                    self.teams["1"].append(self.client.login)
-                    self.playerIncluded = True
-
-                elif len(self.teams["1"]) > len(self.teams["2"]) :
-                    self.teams["2"].append(self.client.login)
-                    self.playerIncluded = True
-
-        if self.state == "open" and  "1" in self.teams and "2" in self.teams :
-            for team in self.teams:
-                if team != "-1" :
-                    self.realPlayers.extend(self.teams[team])
-                    if team == 0 :
-                        for player in self.teams[team] :
-                            curTeam = Team()
-                            if player in self.client.players :
-                                mean = self.client.players[player]["rating_mean"]
-                                dev = self.client.players[player]["rating_deviation"]
-                                curTeam.addPlayer(player, Rating(mean, dev))
-                            else :
-                                self.invalidTS = True
-                            self.teamsTrueskill.append(curTeam)
-                    else :
-                        curTeam = Team()
-
-                        if team == "1" and (len(self.teams["1"]) < len(self.teams["2"])) and self.playerIncluded == True :
-                            if self.client.login in self.client.players :
-                                curTeam.addPlayer(self.client.login, Rating(self.client.players[self.client.login]["rating_mean"], self.client.players[self.client.login]["rating_deviation"]))
-                        
-                        if team == "2" and (len(self.teams["1"]) > len(self.teams["2"])) and self.playerIncluded == True :
-                            if self.client.login in self.client.players :
-                                curTeam.addPlayer(self.client.login, Rating(self.client.players[self.client.login]["rating_mean"], self.client.players[self.client.login]["rating_deviation"]))
-
-
-                        for player in self.teams[team] :          
-                            if player in self.client.players :
-                                if self.client.isFoe(player) :
-                                    self.hasFoe = True
-                                mean = self.client.players[player]["rating_mean"]
-                                dev = self.client.players[player]["rating_deviation"]
-                                curTeam.addPlayer(player, Rating(mean, dev))
-                            else :
-                                self.invalidTS = True
-                                
-
-                        self.teamsTrueskill.append(curTeam)
-                    
-                # computing game quality :
-                if len(self.teamsTrueskill) > 1 and self.invalidTS == False :
-                    self.nTeams = 0
-                    for t in self.teams :
-                        if int(t) != -1 :
-                            self.nTeams += 1
-
-                    realPlayers = len(self.realPlayers)
-
-                    if realPlayers % self.nTeams == 0 :
-
-                        gameInfo = GameInfo()
-                        calculator = FactorGraphTrueSkillCalculator()
-                        gamequality = calculator.calculateMatchQuality(gameInfo, self.teamsTrueskill)
-                        if gamequality < 1 :
-                            self.gamequality = round((gamequality * 100), 2)
 
         strQuality = ""
         
@@ -333,29 +254,17 @@ class GameItem(QtGui.QListWidgetItem):
         else :
             strQuality = str(self.gamequality)+" %"
 
-
-        if len(self.players) == 1:
+        if num_players == 1:
             playerstring = "player"
         else:
             playerstring = "players"
-        
-        
-        self.numplayers = len(self.players)
-        
-        self.playerIncludedTxt = ""
-        if self.playerIncluded :
-            self.playerIncludedTxt = "(with you)"
-            
+
         color = client.getUserColor(self.host)
-        
-        for player in self.players :
-            if self.client.isFoe(player) :
-                color = client.getUserColor(player)
 
         self.editTooltip()
 
         if self.mod == "faf" or self.mod == "balancetesting" and not self.mods:
-            self.setText(self.FORMATTER_FAF.format(color=color, mapslots = self.slots, mapdisplayname=self.mapdisplayname, title=self.title, host=self.host, players=self.numplayers, playerstring=playerstring, gamequality = strQuality, playerincluded = self.playerIncludedTxt))
+            self.setText(self.FORMATTER_FAF.format(color=color, mapslots = self.slots, mapdisplayname=self.mapdisplayname, title=self.title, host=self.host, players=num_players, playerstring=playerstring, gamequality = strQuality))
         else:
             if not self.mods:
                 modstr = self.mod
@@ -363,11 +272,8 @@ class GameItem(QtGui.QListWidgetItem):
                 if self.mod == 'faf': modstr = ", ".join(self.mods.values())
                 else: modstr = self.mod + " & " + ", ".join(self.mods.values())
                 if len(modstr) > 20: modstr = modstr[:15] + "..."
-            self.setText(self.FORMATTER_MOD.format(color=color, mapslots = self.slots, mapdisplayname=self.mapdisplayname, title=self.title, host=self.host, players=self.numplayers, playerstring=playerstring, gamequality = strQuality, playerincluded = self.playerIncludedTxt, mod=modstr))
-        
-        if self.uid == 0:
-            return
-                
+            self.setText(self.FORMATTER_MOD.format(color=color, mapslots = self.slots, mapdisplayname=self.mapdisplayname, title=self.title, host=self.host, players=num_players, playerstring=playerstring, gamequality = strQuality, mod=modstr))
+
         #Spawn announcers: IF we had a gamestate change, show replay and hosting announcements 
         if (oldstate != self.state):            
             if (self.state == "playing"):
@@ -435,42 +341,27 @@ class GameItem(QtGui.QListWidgetItem):
                             displayPlayer = ("<td align = 'right' valign='center' width = '150'>%s</td>" % player)
                         else :
                             displayPlayer = ("<td align = 'center' valign='center' width = '150'>%s</td>" % player)
-                        
 
-                        
                     display = ("<tr>%s</tr>" % displayPlayer)
                     teamDisplay.append(display)
                         
                 members = "".join(teamDisplay)
                 
                 teamlist.append("<td>" +teamtxt + members + "</table></td>")
-                
-                    
-                
             else :
                 observerlist.append(",".join(self.teams[team]))
 
         teams += "<td valign='center' height='100%'><font valign='center' color='black' size='+5'>VS</font></td>".join(teamlist)
-
-        self.numplayers = self.numplayers - len(observerlist)
 
         observers = ""
         if len(observerlist) != 0 :
             observers = "Observers : "
             observers += ",".join(observerlist)        
 
-        mods = "" 
-        if len(self.modoptions)!= 0 and len(self.modoptions) == len(self.options):
-            mods  += "<br/>Options :<br/>"
-   
-            for i in range(len(self.modoptions)) :
-                mods += self.modoptions[i]
-                if self.options[i] == True :                  
-                    mods += ": On<br/>"
-                else :
-                    mods += ": Off<br/>"
+        mods = ""
 
-        if self.mods: mods += "<br/><br/>With " + "<br/>".join(self.mods.values())
+        if self.mods:
+            mods += "<br/>With " + "<br/>".join(self.mods.values())
 
         self.setToolTip(self.FORMATTER_TOOL.format(teams = teams, observers=observers, mods = mods)) 
 
@@ -496,10 +387,6 @@ class GameItem(QtGui.QListWidgetItem):
         # Friend games are on top
         if self.client.isFriend(self.host) and not self.client.isFriend(other.host): return True
         if not self.client.isFriend(self.host) and self.client.isFriend(other.host): return False
-        
-        # Private games are on bottom
-        if (not self.private and other.private): return True;
-        if (self.private and not other.private): return False;
 
         # Sort Games
         # 0: By Player Count

@@ -11,5 +11,6 @@ python-coveralls
 python-dateutil==2.2
 lupa
 enum34
+trueskill
 git+https://github.com/FAForever/faftools.git@develop#egg=faftools
 -e .
