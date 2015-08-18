@@ -90,9 +90,9 @@ class GamesWidget(FormClass, BaseClass):
         '''
         item = ModItem(message)
 
-        if message["host"] :
+        if message["publish"] :
             self.modList.addItem(item)
-        else :
+        else:
             mod_invisible.append(message["name"])
 
         if not message["name"] in mods :
