@@ -504,16 +504,17 @@ class ClientWindow(FormClass, BaseClass):
 
         self.warning.addStretch()
         def add_warning_button(faction):
+            logger.warning("Adding a button!")
+            logger.warning(faction)
             button = QtGui.QToolButton(self)
 
             button.setMaximumSize(25, 25)
             button.setIcon(util.icon("games/automatch/%s.png" % faction.to_name()))
             button.clicked.connect(self.games.join_ladder_listeners[faction])
             self.warning.addWidget(button)
-        self.warning_buttons = {faction: add_warning_button(faction) for faction in Factions}
 
-        for faction in Factions:
-            add_warning_button(faction)
+            return button
+        self.warning_buttons = {faction: add_warning_button(faction) for faction in Factions}
 
         self.warning.addStretch()
         self.mainGridLayout.addLayout(self.warning, 2, 0)
