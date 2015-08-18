@@ -4,8 +4,8 @@ FA Forever - Lobby
 ------------------
 master|develop
  ------------ | -------------
-[![Build Status](https://travis-ci.org/FAForever/lobby.svg?branch=master)](https://travis-ci.org/FAForever/lobby) | [![Build Status](https://travis-ci.org/FAForever/lobby.svg?branch=develop)](https://travis-ci.org/FAForever/lobby)
-[![Coverage Status](https://img.shields.io/coveralls/FAForever/lobby.svg?branch=master)](https://coveralls.io/r/FAForever/lobby) | [![Coverage Status](https://img.shields.io/coveralls/FAForever/lobby.svg?branch=develop)](https://coveralls.io/r/FAForever/lobby)
+[![Build Status](https://travis-ci.org/FAForever/client.svg?branch=master)](https://travis-ci.org/FAForever/client) | [![Build Status](https://travis-ci.org/FAForever/client.svg?branch=develop)](https://travis-ci.org/FAForever/client)
+[![Coverage Status](https://img.shields.io/coveralls/FAForever/client.svg?branch=master)](https://coveralls.io/r/FAForever/client) | [![Coverage Status](https://img.shields.io/coveralls/FAForever/client.svg?branch=develop)](https://coveralls.io/r/FAForever/client)
  
 
 This is the source code for the FA Forever Lobby.
