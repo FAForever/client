@@ -186,16 +186,6 @@ def isMapAvailable(mapname):
 
     return False    
 
-def mapExists(mapname):
-    '''
-    improved isMapAvailable
-    '''
-    for map in existMaps():
-        if mapname == map.lower():
-            return True
-    return False
-    
-
 def folderForMap(mapname):
     '''
     Returns the folder where the application could find the map

@@ -1,4 +1,3 @@
-
 import os
 import sys
 from PyQt4 import QtCore
@@ -14,52 +13,6 @@ def steamPath():
         return _winreg.QueryValueEx(steam_key, "SteamPath")[0].replace("/", "\\")
     except StandardError, e:
         return None
-
-
-def getGameFolderFA():
-    settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
-    settings.beginGroup("ForgedAlliance")
-    gameFolderFA = unicode(settings.value("app/path"))
-    settings.endGroup()
-    gameFolderFA = fixFolderPathFA(gameFolderFA)
-    return gameFolderFA
-
-def setGameFolderFA(newGameFolderFA):
-    settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
-    settings.beginGroup("ForgedAlliance")
-    settings.setValue("app/path", newGameFolderFA)
-    settings.endGroup()
-    settings.sync()
-
-
-def getGameFolderSC():
-    settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
-    settings.beginGroup("SupremeCommanderVanilla")
-    gameFolderSC = unicode(settings.value("app/path"))
-    settings.endGroup()
-    return gameFolderSC
-
-def setGameFolderSC(newGameFolderSC):
-    settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
-    settings.beginGroup("SupremeCommanderVanilla")
-    settings.setValue("app/path", newGameFolderSC)
-    settings.endGroup()
-    settings.sync()
-
-def fixFolderPathFA(gameFolderFA):
-    """
-    Correct the game folder, e.g. if you selected the bin folder or exe.
-    """
-    normPath = os.path.normpath(gameFolderFA)
-    notAllowed = [u'\\bin', u'\\bin\\SupremeCommander.exe']
-    for check in notAllowed:
-        if normPath.endswith(check):
-            newPath = normPath[:-len(check)]
-            #  check if the new folder is valid
-            if validatePath(newPath):
-                setGameFolderFA(newPath)
-                return newPath
-    return gameFolderFA
 
 def writeFAPathLua():
     """
