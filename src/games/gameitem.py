@@ -1,7 +1,3 @@
-
-
-
-
 from PyQt4 import QtCore, QtGui
 from fa import maps
 import util
@@ -9,7 +5,6 @@ import os
 from games.moditem import mod_invisible, mods
 
 from trueSkill.Team import *
-from trueSkill.Teams import *
 from trueSkill.TrueSkill.FactorGraphTrueSkillCalculator import * 
 from trueSkill.Rating import *
 
@@ -66,9 +61,6 @@ class GameItemDelegate(QtGui.QStyledItemDelegate):
         html.setHtml(option.text)
         html.setTextWidth(GameItem.TEXTWIDTH)
         return QtCore.QSize(GameItem.ICONSIZE + GameItem.TEXTWIDTH + GameItem.PADDING, GameItem.ICONSIZE)  
-
-
-
 
 
 class GameItem(QtGui.QListWidgetItem):
@@ -361,8 +353,6 @@ class GameItem(QtGui.QListWidgetItem):
                 color = client.getUserColor(player)
 
         self.editTooltip()
-        
-        
 
         if self.mod == "faf" or self.mod == "balancetesting" and not self.mods:
             self.setText(self.FORMATTER_FAF.format(color=color, mapslots = self.slots, mapdisplayname=self.mapdisplayname, title=self.title, host=self.host, players=self.numplayers, playerstring=playerstring, gamequality = strQuality, playerincluded = self.playerIncludedTxt))
@@ -393,8 +383,7 @@ class GameItem(QtGui.QListWidgetItem):
         newplayers = set(self.players)            
         affectedplayers = oldplayers | newplayers
         client.usersUpdated.emit(list(affectedplayers))
-        
-        
+
     def editTooltip(self):
         
         observerlist    = []
@@ -493,110 +482,6 @@ class GameItem(QtGui.QListWidgetItem):
             for i in range(len(items)):
                 for j in self.permutations(items[:i] + items[i+1:]):
                     yield [items[i]] + j
-
-
-    
-
-    def assignToTeam(self, num) :
-        ''' return the team of the player based on his place/rating '''
-        even = 0
-        while num > 0 :
-            rest = num % 2
-            if rest == 1 :
-                even = even + 1
-            num=(num-rest)/2
-        
-        if even % 2 == 0 :
-            return 1
-        else :
-            return 2
-
-    def getBestMatchup(self):
-        
-
-        
-        if not self.state == "open":
-            return "game in play"
-        
-        nTeams = 0
-        for t in  self.teamlist :
-            if t != -1 :
-                nTeams += 1
-        
-        
-        if nTeams != 2 or len(self.players) <= 2 :
-            return "No teams formed yet"
-        
-       
-        if len(self.players) % nTeams :
-            return "Missing players for this number of teams (%i)" % (int(nTeams))
-        if (len(self.players) / nTeams) == 1 :
-            
-            return "Only one player per team" 
-            
-        playerlist =  {}  
-        for player in self.players :
-            mean = self.client.players[player]["rating_mean"]
-            dev = self.client.players[player]["rating_deviation"]
-            rating = mean - 3 * dev
-            playerlist[player] = rating
-        
-        i = 0
-        
-        bestTeams = {}
-        bestTeams[1] = []
-        bestTeams[2] = []
-        
-        for key, value in sorted(playerlist.iteritems(), key=lambda (k,v): (v,k), reverse=True):
-            bestTeams[self.assignToTeam(i)].append(key)
-            i = i + 1
-
-        msg = ""
-#        i = 0
-#        for teams in winningTeam :
-#            
-        msg += ", ".join(bestTeams[1])
-#            i = i + 1
-#            if i != len(winningTeam) :
-        msg += "<br/>Vs<br/>"
-        msg += ", ".join(bestTeams[2])
-        
-        teamsTrueskill = []
-        invalidTS = False
-        
-        for player in bestTeams[1] :
-            curTeam = Team()
-            if player in self.client.players :
-                mean = self.client.players[player]["rating_mean"]
-                dev = self.client.players[player]["rating_deviation"]
-                curTeam.addPlayer(player, Rating(mean, dev))
-            else :
-                self.invalidTS = True
-            teamsTrueskill.append(curTeam)
-
-        for player in bestTeams[2] :
-            curTeam = Team()
-            if player in self.client.players :
-                mean = self.client.players[player]["rating_mean"]
-                dev = self.client.players[player]["rating_deviation"]
-                curTeam.addPlayer(player, Rating(mean, dev))
-            else :
-                self.invalidTS = True
-            teamsTrueskill.append(curTeam)
-    
-        # computing game quality :
-        if  invalidTS == False :
-
-            gameInfo = GameInfo()
-            calculator = FactorGraphTrueSkillCalculator()
-            gamequality = calculator.calculateMatchQuality(gameInfo, teamsTrueskill)
-            if gamequality < 1 :
-                gamequality = round((gamequality * 100), 2)
-
-        
-        
-                msg = msg + "<br/>Game Quality will be : " + str(gamequality) + '%' 
-        return msg
 
     def __ge__(self, other):
         ''' Comparison operator used for item list sorting '''        
