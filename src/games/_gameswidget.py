@@ -38,6 +38,8 @@ class GamesWidget(FormClass, BaseClass):
         self.rankedUEF.setIcon(util.icon("games/automatch/uef.png"))
         self.rankedRandom.setIcon(util.icon("games/automatch/random.png"))
 
+        self.join_ladder_listeners = {faction: partial(self.toggle_search, faction) for faction in Factions}
+
         self.connectRankedToggles()
         self.searchProgress.hide()
 
@@ -46,8 +48,6 @@ class GamesWidget(FormClass, BaseClass):
         self.race = None
         self.ispassworded = False
         self.canChooseMap = True
-
-        self.join_ladder_listeners = [partial(self.toggle_search, faction) for faction in Factions]
 
         self.client.modInfo.connect(self.processModInfo)
         self.client.gameInfo.connect(self.processGameInfo)

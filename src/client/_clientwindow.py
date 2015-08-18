@@ -64,6 +64,7 @@ class mousePosition(object):
         self.onTopEdge = False
         self.onBottomEdge = False
         self.cursorShapeChange = False
+        self.warning_buttons = dict()
 
     def computeMousePosition(self, pos):
         self.onLeftEdge = pos.x() < 8
@@ -509,6 +510,7 @@ class ClientWindow(FormClass, BaseClass):
             button.setIcon(util.icon("games/automatch/%s.png" % faction.to_name()))
             button.clicked.connect(self.games.join_ladder_listeners[faction])
             self.warning.addWidget(button)
+        self.warning_buttons = {faction: add_warning_button(faction) for faction in Factions}
 
         for faction in Factions:
             add_warning_button(faction)
@@ -522,22 +524,16 @@ class ClientWindow(FormClass, BaseClass):
         hide the warning bar for matchmaker
         '''
         self.warnPlayer.hide()
-        self.rankedUEF.hide()
-        self.rankedAeon.hide()
-        self.rankedCybran.hide()
-        self.rankedSeraphim.hide()
-        self.rankedRandom.hide()
+        for i in self.warning_buttons.values():
+            i.hide()
 
     def warningShow(self):
         '''
         show the warning bar for matchmaker
         '''
         self.warnPlayer.show()
-        self.rankedUEF.show()
-        self.rankedAeon.show()
-        self.rankedCybran.show()
-        self.rankedSeraphim.show()
-        self.rankedRandom.show()
+        for i in self.warning_buttons.values():
+            i.show()
 
     @QtCore.pyqtSlot()
     def cleanup(self):
@@ -1188,8 +1184,6 @@ class ClientWindow(FormClass, BaseClass):
         else:
             return self.colors["default"]
 
-
-
     def getUserRanking(self, name):
         '''
         Returns a user's ranking (trueskill rating) as a float.
@@ -1200,8 +1194,6 @@ class ClientWindow(FormClass, BaseClass):
         else:
             return None
 
-
-
     @QtCore.pyqtSlot()
     def startedFA(self):
         '''
@@ -1210,7 +1202,6 @@ class ClientWindow(FormClass, BaseClass):
         '''
         logger.info("FA has launched in an attached process.")
         self.gameEnter.emit()
-
 
     @QtCore.pyqtSlot(int)
     def finishedFA(self, exit_code):

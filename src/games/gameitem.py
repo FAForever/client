@@ -6,10 +6,6 @@ import util
 import os
 from games.moditem import mod_invisible, mods
 
-from trueSkill.Team import *
-from trueSkill.TrueSkill.FactorGraphTrueSkillCalculator import * 
-from trueSkill.Rating import *
-
 import client
 import copy
 
@@ -100,8 +96,8 @@ class GameItem(QtGui.QListWidgetItem):
     def url(self, player = None):
         if not player:
             player = self.host
-            
-        
+
+
         if self.state == "playing":
             url = QtCore.QUrl()
             url.setScheme("faflive")
