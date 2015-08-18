@@ -36,8 +36,6 @@ from client import ClientState, GAME_PORT_DEFAULT, LOBBY_HOST, \
 import logging
 logger = logging.getLogger(__name__)
 
-HEARTBEAT = 20000
-
 import util
 import secondaryServer
 
@@ -54,10 +52,6 @@ try:
     from profile import playerstats
 except:
     pass
-
-class ClientOutdated(StandardError):
-    pass
-
 
 FormClass, BaseClass = util.loadUiType("client/client.ui")
 
@@ -127,12 +121,10 @@ class ClientWindow(FormClass, BaseClass):
     gameInfo = QtCore.pyqtSignal(dict)
     modVaultInfo = QtCore.pyqtSignal(dict)
     coopInfo = QtCore.pyqtSignal(dict)
-    newGame = QtCore.pyqtSignal(str)
     avatarList = QtCore.pyqtSignal(list)
     playerAvatarList = QtCore.pyqtSignal(dict)
     usersUpdated = QtCore.pyqtSignal(list)
     localBroadcast = QtCore.pyqtSignal(str, str)
-    publicBroadcast = QtCore.pyqtSignal(str)
     autoJoin = QtCore.pyqtSignal(list)
     channelsUpdated = QtCore.pyqtSignal(list)
     replayVault = QtCore.pyqtSignal(dict)
@@ -148,11 +140,7 @@ class ClientWindow(FormClass, BaseClass):
     showMods = QtCore.pyqtSignal()
     showCoop = QtCore.pyqtSignal()
 
-    joinGameFromUser = QtCore.pyqtSignal(str)
-    joinReplayFromUser = QtCore.pyqtSignal(str)
-
     joinGameFromURL = QtCore.pyqtSignal(str)
-    joinReplayFromURL = QtCore.pyqtSignal(str)
 
     # for team management
     teamInfo = QtCore.pyqtSignal(dict)
@@ -1117,12 +1105,6 @@ class ClientWindow(FormClass, BaseClass):
         '''
         return name in self.foes
 
-    def isClanMember(self, name):
-        '''
-        Convenience function for other modules to inquire about a user's clanliness.
-        '''
-        return name in self.clanlist
-
     def isPlayer(self, name):
         '''
         Convenience function for other modules to inquire about a user's civilian status.
@@ -1461,17 +1443,9 @@ class ClientWindow(FormClass, BaseClass):
             QtGui.QMessageBox.critical(None, "TCP Error", "A TCP Connection Error has occurred:<br/><br/><b>" + self.socket.errorString() + "</b>", QtGui.QMessageBox.Close)
             self.progress.cancel()
 
-
-
     @QtCore.pyqtSlot()
     def forwardLocalBroadcast(self, source, message):
         self.localBroadcast.emit(source, message)
-
-
-
-    #@QtCore.pyqtSlot()
-    def forwardPublicBroadcast(self, message):
-        self.publicBroadcast.emit(message)
 
 
     def manage_power(self):

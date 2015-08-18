@@ -96,7 +96,6 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
         #Hook with client's connection and autojoin mechanisms
         self.client.connected.connect(self.connect)
-        self.client.publicBroadcast.connect(self.announce)
         self.client.autoJoin.connect(self.autoJoin)
         self.channelsAvailable = []
         self.timer = QtCore.QTimer(self)

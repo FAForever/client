@@ -298,21 +298,3 @@ class CoopWidget(FormClass, BaseClass):
         self.gamename = util.settings.value("gamename", self.client.login + "'s game")
 
         util.settings.endGroup()
-
-    def savePassword(self, password):
-        self.gamepassword = password
-        util.settings.beginGroup("fa.games")
-        util.settings.setValue("password", self.gamepassword)        
-        util.settings.endGroup()        
-
-
-    def saveGameMap(self, name):
-        pass
-                
-
-    def saveGameName(self, name):
-        self.gamename = name
-        
-        util.settings.beginGroup("fa.games")
-        util.settings.setValue("gamename", self.gamename)        
-        util.settings.endGroup()        
