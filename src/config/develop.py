@@ -19,3 +19,6 @@ defaults['LOBBY']['HOST'] = 'lobby.dev.faforever.com'
 defaults['PROXY']['HOST'] = 'proxy.dev.faforever.com'
 defaults['ONLINE_REPLAY_SERVER']['HOST'] = 'lobby.dev.faforever.com'
 defaults['RELAY_SERVER']['HOST'] = 'lobby.dev.faforever.com'
+defaults['STEAMLINK_URL'] = "http://app.dev.faforever.com/faf/steam.php"
+defaults['PASSWORD_RECOVERY_URL'] =  "http://app.dev.faforever.com/faf/forgotPass.php"
+defaults['NAME_CHANGE_URL'] = "http://app.dev.faforever.com/faf/userName.php"
