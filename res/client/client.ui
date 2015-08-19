@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1091</width>
-    <height>686</height>
+    <width>1186</width>
+    <height>697</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -246,8 +246,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1091</width>
-     <height>21</height>
+     <width>1186</width>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuOptions">
@@ -266,7 +266,6 @@
      <addaction name="actionSetGamePort"/>
      <addaction name="actionSaveGamelogs"/>
      <addaction name="separator"/>
-     <addaction name="actionGalacticWar"/>
     </widget>
     <widget class="QMenu" name="menuTheme">
      <property name="tearOffEnabled">
@@ -304,7 +303,6 @@
      <addaction name="actionSetLiveReplays"/>
      <addaction name="actionTeamSetInvitations"/>
      <addaction name="actionSetSoundEffects"/>
-     <addaction name="actionSetAutoPostJoin"/>
      <addaction name="separator"/>
     </widget>
     <widget class="QMenu" name="menuNotifications">
@@ -545,27 +543,6 @@
   <action name="actionWiki">
    <property name="text">
     <string>Wiki</string>
-   </property>
-  </action>
-  <action name="actionSetAutoPostJoin">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Autojoin Post-game chat</string>
-   </property>
-  </action>
-  <action name="actionGalactic_War">
-   <property name="text">
-    <string>Galactic War...</string>
-   </property>
-  </action>
-  <action name="actionGalacticWar">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>Galactic War...</string>
    </property>
   </action>
   <action name="actionLink_account_to_Steam">
