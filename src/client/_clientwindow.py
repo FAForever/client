@@ -649,7 +649,6 @@ class ClientWindow(FormClass, BaseClass):
         self.actionSetOpenGames.triggered.connect(self.updateOptions)
         self.actionSetJoinsParts.triggered.connect(self.updateOptions)
         self.actionTeamSetInvitations.triggered.connect(self.updateOptions)
-        self.actionSetAutoPostJoin.triggered.connect(self.updateOptions)
         self.actionSetLiveReplays.triggered.connect(self.updateOptions)
         self.actionSaveGamelogs.triggered.connect(self.updateOptions)
         self.actionColoredNicknames.triggered.connect(self.updateOptions)
@@ -680,7 +679,6 @@ class ClientWindow(FormClass, BaseClass):
         self.opengames = self.actionSetOpenGames.isChecked()
         self.joinsparts = self.actionSetJoinsParts.isChecked()
         self.teaminvitations = self.actionTeamSetInvitations.isChecked()
-        self.autopostjoin = self.actionSetAutoPostJoin.isChecked()
         self.livereplays = self.actionSetLiveReplays.isChecked()
         self.gamelogs = self.actionSaveGamelogs.isChecked()
         self.coloredNicknames = self.actionColoredNicknames.isChecked()
@@ -807,7 +805,6 @@ class ClientWindow(FormClass, BaseClass):
         util.settings.setValue("opengames", self.opengames)
         util.settings.setValue("joinsparts", self.joinsparts)
         util.settings.setValue("teaminvitations", self.teaminvitations)
-        util.settings.setValue("autopostjoin", self.autopostjoin)
         util.settings.setValue("coloredNicknames", self.coloredNicknames)
         util.settings.endGroup()
 
@@ -869,7 +866,6 @@ class ClientWindow(FormClass, BaseClass):
             self.opengames = (util.settings.value("opengames", "true") == "true")
             self.joinsparts = (util.settings.value("joinsparts", "false") == "true")
             self.livereplays = (util.settings.value("livereplays", "true") == "true")
-            self.autopostjoin = (util.settings.value("autopostjoin", "true") == "true")
             self.coloredNicknames = (util.settings.value("coloredNicknames", "false") == "true")
             self.teaminvitations = (util.settings.value("teaminvitations", "false") == "true")
 
@@ -880,7 +876,6 @@ class ClientWindow(FormClass, BaseClass):
             self.actionSetOpenGames.setChecked(self.opengames)
             self.actionSetJoinsParts.setChecked(self.joinsparts)
             self.actionTeamSetInvitations.setChecked(self.teamInvitations)
-            self.actionSetAutoPostJoin.setChecked(self.autopostjoin)
         except:
             pass
 
