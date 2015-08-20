@@ -1751,15 +1751,18 @@ class ClientWindow(FormClass, BaseClass):
             self.manage_power()
 
     def handle_player_info(self, message):
-        name = message["login"]
-        self.players[name] = message
-        self.usersUpdated.emit([name])
-        # Once we have the users clan, initialise the clanlist.
-        if name == self.login:
-            self.initClanlist()
-        # If users clan not yet known, self.getUserClan(self.login) equals ''
-        if "clan" in message and message["clan"] == self.getUserClan(self.login):
-            self.clanlist.append(name)
+        players = message["players"]
+        for player in players:
+            name = player["login"]
+            self.players[name] = player
+            self.usersUpdated.emit([name])
+            # Once we have the users clan, initialise the clanlist.
+            if name == self.login:
+                self.initClanlist()
+
+            # If users clan not yet known, self.getUserClan(self.login) equals ''
+            if "clan" in player and player["clan"] == self.getUserClan(self.login):
+                self.clanlist.append(name)
 
     def avatarManager(self):
         self.requestAvatars(0)
