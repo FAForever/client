@@ -1,10 +1,10 @@
 __author__ = 'Thygrrr'
 
 import pytest
-from PyQt4 import QtGui, QtCore
 
 @pytest.fixture(scope="module")
 def application(request):
+    from PyQt4 import QtGui
     request.app = QtGui.QApplication([])
     request.app.setApplicationName("py.test QApplication")
 
@@ -15,9 +15,9 @@ def application(request):
     request.addfinalizer(finalize)
     return request.app
 
-
 @pytest.fixture(scope="function")
 def signal_receiver(application):
+    from PyQt4 import QtCore
     class SignalReceiver(QtCore.QObject):
         def __init__(self, parent=None):
             QtCore.QObject.__init__(self, parent)
