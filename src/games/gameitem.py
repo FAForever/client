@@ -203,13 +203,14 @@ class GameItem(QtGui.QListWidgetItem):
         # Also, turn the lists of names into lists of players, and build a player name list.
         self.players = []
         teams = []
-        for team_index, team in teams_map:
+        for team_index, team in teams_map.iteritems():
             self.players.extend(team)
             if team_index == 1:
                 for ffa_player in team:
                     teams.append([self.client.players[ffa_player]])
 
             teams.append(map(lambda name: self.client.players[name], team))
+        teams.pop(0)
 
         # Tuples for feeding into trueskill.
         rating_tuples = []
