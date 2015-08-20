@@ -1740,15 +1740,15 @@ class ClientWindow(FormClass, BaseClass):
             self.foes = message["foes"]
             self.usersUpdated.emit(self.players.keys())
 
+        if "channels" in message:
+            self.channelsUpdated.emit(message["channels"])
+
         if "autojoin" in message:
             self.autoJoin.emit(message["autojoin"])
 
         if "power" in message:
             self.power = message["power"]
             self.manage_power()
-
-        if "channels" in message:
-            self.channelsUpdated.emit(message["channels"])
 
     def handle_player_info(self, message):
         name = message["login"]
