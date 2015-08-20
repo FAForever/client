@@ -23,17 +23,12 @@ class ModItem(QtGui.QListWidgetItem):
 
         tip = message["desc"]      
         self.setToolTip(tip)
-        
-        if message["icon"] is None:
-            icon = util.icon(os.path.join("games/mods/", self.mod + ".png"))
-            if icon.isNull():
-                icon = util.icon("games/mods/default.png")
-            self.setIcon(icon)
-        else :
-            # TODO : download the icon from the remote path.
-            pass
-        
-        
+
+        icon = util.icon(os.path.join("games/mods/", self.mod + ".png"))
+        if icon.isNull():
+            icon = util.icon("games/mods/default.png")
+        self.setIcon(icon)
+
         if  self.mod in mod_crucial:
             color = client.instance.getColor("self")
         else:
