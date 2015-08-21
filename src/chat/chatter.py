@@ -289,7 +289,6 @@ class Chatter(QtGui.QTableWidgetItem):
                     actionJoin.setEnabled(True)
                 elif url.scheme() == "faflive":
                     actionReplay.setEnabled(True)
-                
 
         # Triggers
         actionStats.triggered.connect(self.viewStats)
@@ -413,8 +412,3 @@ class Chatter(QtGui.QTableWidgetItem):
     def joinInGame(self):
         if self.name in client.instance.urls:
             client.instance.joinGameFromURL(client.instance.urls[self.name])
-    
-    @QtCore.pyqtSlot()
-    def invite(self):
-        self.lobby.client.invite(self.name)
-
