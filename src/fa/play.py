@@ -37,9 +37,6 @@ def build_argument_list(game_info, port, arguments=None):
     arguments.append('/savereplay')
     arguments.append('"gpgnet://localhost/' + str(game_info['uid']) + "/" + str(game_info['recorder']) + '.SCFAreplay"')
 
-    #disable bug reporter
-    arguments.append('/nobugreport')
-
     #gpg server emulation
     arguments.append('/gpgnet 127.0.0.1:' + str(port))
 

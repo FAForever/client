@@ -115,9 +115,6 @@ def replay(source, detach=False):
             arguments.append('/init')
             arguments.append("../lua/init_" + mod + ".lua")
 
-        #disable bug reporter and movies
-        arguments.append('/nobugreport')
-
         #log file
         arguments.append("/log")
         arguments.append('"' + util.LOG_FILE_REPLAY + '"')
