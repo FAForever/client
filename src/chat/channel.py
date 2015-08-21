@@ -240,19 +240,19 @@ class Channel(FormClass, BaseClass):
             avatar = None
             
             displayName = name
-            
+
             if self.lobby.client.isFoe(name):
                 return
-            
-            clan = self.lobby.client.getUserClan(name)
-            if clan != "":
-                displayName = "<b>[%s]</b>%s" % (clan, name)
+
+            player = self.lobby.players[name]
+            if player.clan is not None:
+                displayName = "<b>[%s]</b>%s" % (player.clan, name)
             
             if name.lower() in self.lobby.specialUserColors:
                 color = self.lobby.specialUserColors[name.lower()]
             else:
                 if name in self.chatters:
-                    chatter = self.chatters[name]                
+                    chatter = self.chatters[name]
                     color = chatter.textColor().name()
                     if chatter.avatar:
                         avatar = chatter.avatar["url"] 
@@ -262,10 +262,9 @@ class Channel(FormClass, BaseClass):
                     color = self.lobby.client.getUserColor(name) #Fallback and ask the client. We have no Idea who this is.
     
             # Play a ping sound and flash the title under certain circumstances
-            if self.private and name != self.lobby.client.login:
+            if self.private:
                 self.pingWindow()
-            
-            if not self.private and text.find(self.lobby.client.login)!=-1:
+            elif text.find(self.lobby.client.login) != -1:
                 self.pingWindow()
                 color = self.lobby.client.getColor("tous")
     
@@ -316,7 +315,7 @@ class Channel(FormClass, BaseClass):
                 cursor.removeSelectedText()
                 self.lines = self.lines - CHAT_REMOVEBLOCK        
             
-            if server_action :
+            if server_action:
                 color = self.lobby.client.getColor("server")
             elif name.lower() in self.lobby.specialUserColors:
                 color = self.lobby.specialUserColors[name.lower()]
@@ -326,11 +325,12 @@ class Channel(FormClass, BaseClass):
             # Play a ping sound
             if self.private and name != self.lobby.client.login:
                 self.pingWindow()
-    
+
+            player = self.lobby.players[name]
+
             displayName = name
-            clan = self.lobby.client.getUserClan(name)
-            if clan != "":
-                displayName = "<b>[%s]</b>%s" % (clan, name)
+            if player.clan is not None:
+                displayName = "<b>[%s]</b>%s" % (player.clan, name)
     
             avatar = None
     
@@ -347,7 +347,9 @@ class Channel(FormClass, BaseClass):
             cursor = self.chatArea.textCursor()
             cursor.movePosition(QtGui.QTextCursor.End)
             self.chatArea.setTextCursor(cursor)
-    
+
+            # This whole block seems to be duplicated further up.
+            # For fucks sake.
             if avatar :
                 pix = util.respix(avatar)
                 if pix:            

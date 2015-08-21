@@ -91,14 +91,15 @@ class StatsWidget(BaseClass, FormClass):
         
     def createDivisionsTabs(self, divisions):
         userDivision = ""
-        if  self.client.getUserLeague(self.client.login) :
-            userDivision = self.client.getUserLeague(self.client.login)["division"]
+        me = self.client.me
+        if me.division is not None:
+            userDivision = me.division
        
         pages = QtGui.QTabWidget()
 
         foundDivision = False
         
-        for division in divisions :
+        for division in divisions:
             name = division["division"]
             index = division["number"]
             league = division["league"]
@@ -199,16 +200,16 @@ class StatsWidget(BaseClass, FormClass):
 
     @QtCore.pyqtSlot()
     def updating(self):
-        if  self.client.getUserLeague(self.client.login) :
-            self.leagues.setCurrentIndex(self.client.getUserLeague(self.client.login)["league"]-1)
-        else :
+        me = self.client.league
+        if me.league is not None:
+            self.leagues.setCurrentIndex(me.league - 1)
+        else:
             self.leagues.setCurrentIndex(0)
             self.client.statsServer.send(dict(command="stats", type="league_table", league=1))
-        
-        if (self.loaded): 
-            return 
 
- 
+        if self.loaded:
+            return
+
         self.loaded = True
         
         self.webview.setVisible(False)
@@ -217,4 +218,4 @@ class StatsWidget(BaseClass, FormClass):
         if util.themeurl("ladder/style.css"):
             self.webview.settings().setUserStyleSheetUrl(util.themeurl("ladder/style.css"))
 
-        self.webview.setUrl(QtCore.QUrl("http://content.faforever.com/faf/leaderboards/read-leader.php?board=1v1&username=%s" % (self.client.login)))
+        self.webview.setUrl(QtCore.QUrl("http://content.faforever.com/faf/leaderboards/read-leader.php?board=1v1&username=%s" % me.login))

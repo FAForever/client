@@ -16,6 +16,7 @@
 # GNU General Public License for more details.
 #-------------------------------------------------------------------------------
 from functools import partial
+from client.data.player import Player
 from client.updater import fetchClientUpdate
 from config import Settings
 import fa
@@ -279,15 +280,17 @@ class ClientWindow(FormClass, BaseClass):
         #Verrry important step!
         self.loadSettingsPrelogin()
 
-        self.players = {}       # Player names known to the client, contains the player_info messages sent by the server
-        self.urls = {}          # user game location URLs - TODO: Should go in self.players
+        self.players = {}       # Players known to the client, contains the player_info messages sent by the server
+
+        # Handy reference to the Player object representing the logged-in user.
+        self.me = None
 
         # names of the client's friends
         self.friends = set()
 
         # names of the client's foes
         self.foes = set()
-        self.clanlist = []      # members of clients clan
+        self.clanlist = set()      # members of clients clan
 
         self.power = 0          # current user power
         self.id = 0
@@ -1111,46 +1114,6 @@ class ClientWindow(FormClass, BaseClass):
     colors = json.loads(util.readfile("client/colors.json"))
     randomcolors = json.loads(util.readfile("client/randomcolors.json"))
 
-    def getUserClan(self, name):
-        '''
-        Returns a user's clan if any
-        '''
-        if name in self.players:
-            if "clan" in self.players[name]:
-                return self.players[name]["clan"]
-        return ""
-
-    def getUserLeague(self, name):
-        '''
-        Returns a user's league if any
-        '''
-        if name in self.players:
-            if "league" in self.players[name] :
-                return self.players[name]["league"]
-
-
-        return None
-
-    def getUserCountry(self, name):
-        '''
-        Returns a user's country if any
-        '''
-        if name in self.players:
-            if "country" in self.players[name] :
-                return self.players[name]["country"]
-
-
-        return None
-
-    def getUserAvatar(self, name):
-        '''
-        Returns a user's avatar if any
-        '''
-        if name in self.players:
-            return self.players[name]["avatar"]
-        else:
-            return None
-
     def getUserColor(self, name):
         '''
         Returns a user's color depending on their status with relation to the FAF client
@@ -1182,16 +1145,6 @@ class ClientWindow(FormClass, BaseClass):
             return self.colors[name]
         else:
             return self.colors["default"]
-
-    def getUserRanking(self, name):
-        '''
-        Returns a user's ranking (trueskill rating) as a float.
-        '''
-        if name in self.players:
-
-            return int(max(0, round((self.players[name]["rating_mean"] - 3 * self.players[name]["rating_deviation"])/100.0)*100))
-        else:
-            return None
 
     @QtCore.pyqtSlot()
     def startedFA(self):
@@ -1623,17 +1576,16 @@ class ClientWindow(FormClass, BaseClass):
             arguments.append(str(self.players[self.login]["rating_mean"]))
             arguments.append('/deviation')
             arguments.append(str(self.players[self.login]["rating_deviation"]))
-            arguments.append('/country ')
-            country = self.getUserCountry(self.login)
-            arguments.append(str(country))
+            if self.me.country is not None:
+                arguments.append('/country ')
+                arguments.append(self.me.country)
 
             # Launch the normal lobby
             self.relayServer.init_mode = 0
 
-        clan = self.getUserClan(self.login)
-        if clan:
+        if self.me.clan is not None:
             arguments.append('/clan')
-            arguments.append(clan)
+            arguments.append(self.me.clan)
 
         # Ensure we have the map
         if "mapname" in message:
@@ -1755,17 +1707,21 @@ class ClientWindow(FormClass, BaseClass):
 
     def handle_player_info(self, message):
         players = message["players"]
+
+        # Firstly, find yourself. Things get easier one "me" is assigned.
+        for player in players:
+            if player["login"] == self.login:
+                self.me = Player(player)
+
         for player in players:
             name = player["login"]
-            self.players[name] = player
-            self.usersUpdated.emit([name])
-            # Once we have the users clan, initialise the clanlist.
-            if name == self.login:
-                self.initClanlist()
+            new_player = Player(player)
 
-            # If users clan not yet known, self.getUserClan(self.login) equals ''
-            if "clan" in player and player["clan"] == self.getUserClan(self.login):
-                self.clanlist.append(name)
+            self.players[name] = new_player
+            self.usersUpdated.emit([name])
+
+            if new_player.clan == self.me.clan:
+                self.clanlist.add(name)
 
     def avatarManager(self):
         self.requestAvatars(0)
@@ -1795,12 +1751,3 @@ class ClientWindow(FormClass, BaseClass):
         if message["style"] == "kick":
             logger.info("Server has kicked you from the Lobby.")
             self.cleanup()
-
-    def initClanlist(self):
-        clan = self.getUserClan(self.login)
-        # Check user has a clan
-        if clan == '': return
-        
-        for name in self.players:
-            if self.getUserClan(name) == clan:
-                self.clanlist.append(name)

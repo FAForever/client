@@ -145,12 +145,12 @@ class GameItem(QtGui.QListWidgetItem):
 
         if not self.state == "open":
             return
-                
+
         url = self.url()
-                
+
         # Join url for single sword
         client.instance.urls[self.host] = url
-        
+
         # No visible message if not requested   
         if not self.client.opengames:
             return
@@ -305,7 +305,7 @@ class GameItem(QtGui.QListWidgetItem):
                 teamDisplay    = []
                 for player in self.teams[team] :
                     displayPlayer = ""
-                    if player in self.client.players :
+                    if player in self.client.players:
                         
                         playerStr = player
                         
@@ -314,7 +314,7 @@ class GameItem(QtGui.QListWidgetItem):
                             
                         dev     = self.client.players[player]["rating_deviation"]
                         if dev < 200 :
-                            playerStr += " ("+str(self.client.getUserRanking(player))+")"
+                            playerStr += " ("+str(self.client.players[player].get_ranking())+")"
 
                         if i == 1 :
                             displayPlayer = ("<td align = 'left' valign='center' width = '150'>%s</td>" % playerStr)
@@ -322,8 +322,7 @@ class GameItem(QtGui.QListWidgetItem):
                             displayPlayer = ("<td align = 'right' valign='center' width = '150'>%s</td>" % playerStr)
                         else :
                             displayPlayer = ("<td align = 'center' valign='center' width = '150'>%s</td>" % playerStr)
-                        
-                        
+
                         country = os.path.join(util.COMMON_DIR, "chat/countries/%s.png" % self.client.players[player]["country"].lower())
                         
                         if i == self.nTeams : 

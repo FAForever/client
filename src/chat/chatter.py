@@ -151,21 +151,28 @@ class Chatter(QtGui.QTableWidgetItem):
         updates the appearance of this chatter in the nicklist according to its lobby and irc states 
         '''        
 
-        country = self.lobby.client.getUserCountry(self.name)
+        # Weed out IRC users early.
+        if self.name not in self.lobby.client.players:
+            self.rankItem.setIcon(util.icon("chat/rank/civilian.png"))
+            self.rankItem.setToolTip("IRC User")
+            return
 
-        if  country != None :
+        # Soon enough we'll just have a "self.player", but that'd make this refactor too big.
+        player = self.lobby.client.players[self.name]
+
+        country = player.country
+        if country is not None :
             self.setIcon(util.icon("chat/countries/%s.png" % country.lower()))
             self.setToolTip(country)
-            
-        
-        if self.lobby.client.getUserAvatar(self.name) != self.avatar:            
-            self.avatar = self.lobby.client.getUserAvatar(self.name)
+
+        if player.avatar != self.avatar:
+            self.avatar = player.avatar
             self.updateAvatar()
 
-        self.rating = self.lobby.client.getUserRanking(self.name)
+        self.rating = player.get_ranking()
 
-        self.clan = self.lobby.client.getUserClan(self.name)
-        if self.clan != "":
+        self.clan = player.clan
+        if self.clan is not None:
             self.setText("[%s]%s" % (self.clan,self.name))
 
         # Color handling
@@ -189,19 +196,14 @@ class Chatter(QtGui.QTableWidgetItem):
 
         #Rating icon choice
         #TODO: These are very basic and primitive
-        if rating is not None:
-            league = self.lobby.client.getUserLeague(self.name)
+        self.rankItem.setToolTip("Global Rating: " + str(int(rating)))
 
-            self.rankItem.setToolTip("Global Rating: " + str(int(rating)))
-
-            if league is not None :
-                self.rankItem.setToolTip("Division : " + league["division"]+ "\nGlobal Rating: " + str(int(rating)))
-                self.rankItem.setIcon(util.icon("chat/rank/%s.png" % league["league"]))
-            else:
-                self.rankItem.setIcon(util.icon("chat/rank/newplayer.png"))
+        league = player.league
+        if league is not None:
+            self.rankItem.setToolTip("Division : " + league["division"]+ "\nGlobal Rating: " + str(int(rating)))
+            self.rankItem.setIcon(util.icon("chat/rank/%s.png" % league["league"]))
         else:
-            self.rankItem.setIcon(util.icon("chat/rank/civilian.png"))
-            self.rankItem.setToolTip("IRC User")
+            self.rankItem.setIcon(util.icon("chat/rank/newplayer.png"))
 
     def setChatUserColor(self, username):
         if self.lobby.client.isFriend(username):
