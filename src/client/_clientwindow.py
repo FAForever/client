@@ -1050,21 +1050,6 @@ class ClientWindow(FormClass, BaseClass):
             # A more profound error has occurred (cancellation or disconnection)
             return False
 
-
-    def loginCreation(self, result):
-        '''
-        Simply acknowledges the answer the server gave to our account creation attempt,
-        and sets the client's state accordingly so the Account Creation Wizard
-        can continue its work.
-        '''
-        logger.debug("Account name free and valid: " + result)
-
-        if result == "yes" :
-            self.state = ClientState.CREATED
-        else:
-            self.state = ClientState.REJECTED
-
-
     def isFriend(self, name):
         '''
         Convenience function for other modules to inquire about a user's friendliness.
@@ -1389,12 +1374,6 @@ class ClientWindow(FormClass, BaseClass):
 
         if action == "PING":
             self.writeToServer("PONG")
-
-        elif action == "LOGIN_AVAILABLE" :
-            result = stream.readQString()
-            name = stream.readQString()
-            logger.info("LOGIN_AVAILABLE: " + name + " - " + result)
-            self.loginCreation(result)
         else:
             try:
                 self.dispatch(json.loads(action))
@@ -1462,6 +1441,14 @@ class ClientWindow(FormClass, BaseClass):
         self.login = message["login"]
         logger.debug("Login success")
         self.state = ClientState.ACCEPTED
+
+    def handle_registration_response(self, message):
+        if message["result"] == "SUCCESS":
+            self.state = ClientState.CREATED
+            return
+
+        self.state = ClientState.REJECTED
+        self.handle_notice({"style": "notice", "text": message["error"]})
 
     def handle_game_launch(self, message):
 
