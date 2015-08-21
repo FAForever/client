@@ -142,6 +142,7 @@ class ClientWindow(FormClass, BaseClass):
         QtGui.QApplication.instance().aboutToQuit.connect(self.cleanup)
 
         #Init and wire the TCP Network socket to communicate with faforever.com
+        # This is the evil stream API.
         self.socket = QtNetwork.QTcpSocket()
         self.socket.readyRead.connect(self.readFromServer)
         self.socket.disconnected.connect(self.disconnectedFromServer)
@@ -1442,25 +1443,6 @@ class ClientWindow(FormClass, BaseClass):
             name = stream.readQString()
             logger.info("LOGIN_AVAILABLE: " + name + " - " + result)
             self.loginCreation(result)
-
-        elif action == 'ACK' :
-            bytesWritten = stream.readQString()
-            logger.debug("Acknowledged %s bytes" % bytesWritten)
-
-            if self.sendFile == True :
-                self.progress.setValue(int(bytesWritten) * 100 / self.bytesToSend)
-                if int(bytesWritten) >= self.bytesToSend :
-                    self.progress.close()
-                    self.sendFile = False
-
-        elif action == 'ERROR' :
-            message = stream.readQString()
-            data = stream.readQString()
-            logger.error("Protocol Error, server says: " + message + " - " + data)
-
-        elif action == "MESSAGE":
-            stream.readQString()
-            stream.readQString()
         else:
             try:
                 self.dispatch(json.loads(action))
