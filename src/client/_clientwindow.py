@@ -282,8 +282,11 @@ class ClientWindow(FormClass, BaseClass):
         self.players = {}       # Player names known to the client, contains the player_info messages sent by the server
         self.urls = {}          # user game location URLs - TODO: Should go in self.players
 
-        self.friends = []       # names of the client's friends
-        self.foes = []       # names of the client's foes
+        # names of the client's friends
+        self.friends = set()
+
+        # names of the client's foes
+        self.foes = set()
         self.clanlist = []      # members of clients clan
 
         self.power = 0          # current user power
@@ -1469,13 +1472,13 @@ class ClientWindow(FormClass, BaseClass):
 
     def addFriend(self, friend_name):
         '''Adding a new friend by user'''
-        self.friends.append(friend_name)
+        self.friends.add(friend_name)
         self.send(dict(command="social_add", friend=self.players[friend_name].id))
         self.usersUpdated.emit([friend_name])
 
     def addFoe(self, foe_name):
         '''Adding a new foe by user'''
-        self.foes.append(foe_name)
+        self.foes.add(foe_name)
         self.send(dict(command="social_add", foe=self.players[foe_name].id))
         self.usersUpdated.emit([foe_name])
 
@@ -1733,11 +1736,11 @@ class ClientWindow(FormClass, BaseClass):
 
     def handle_social(self, message):
         if "friends" in message:
-            self.friends = message["friends"]
+            self.friends = set(message["friends"])
             self.usersUpdated.emit(self.players.keys())
 
         if "foes" in message:
-            self.foes = message["foes"]
+            self.foes = set(message["foes"])
             self.usersUpdated.emit(self.players.keys())
 
         if "channels" in message:
