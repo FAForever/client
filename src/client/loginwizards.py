@@ -329,8 +329,12 @@ class AccountCreationPage(QtGui.QWizardPage):
             return False   
 
         login = self.loginLineEdit.text().strip()
-        
-        self.client.loginWriteToFaServer("CREATE_ACCOUNT", login, email, hashed_password)
+        self.client.send({
+            "command": "create_account",
+            "login": login,
+            "email": email,
+            "password": hashed_password
+        })
 
         # Wait for client state to change.
         util.wait(lambda: self.client.state)

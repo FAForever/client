@@ -945,7 +945,7 @@ class ClientWindow(FormClass, BaseClass):
             return False
         else:
             self.send(dict(command="hello", version=0, login=self.login, password=self.password, unique_id=self.uniqueId, local_ip=self.localIP, session=self.session))
-            #self.send(dict(command="ask_session"))    
+
             return True
 
 
@@ -1212,44 +1212,9 @@ class ClientWindow(FormClass, BaseClass):
                 if fa.check.check(url.queryItemValue("mod"), url.queryItemValue("map"), sim_mods=add_mods):
                     self.send(dict(command="game_join", uid=int(url.queryItemValue("uid")), gameport=self.gamePort))
 
-
-    def loginWriteToFaServer(self, action, *args, **kw):
-        '''
-        This is a specific method that handles sending Login-related and update-related messages to the server.
-        '''
-        self.state = ClientState.NONE
-
-        logger.debug("Login Write: " + action)
-
-        block = QtCore.QByteArray()
-        out = QtCore.QDataStream(block, QtCore.QIODevice.ReadWrite)
-        out.setVersion(QtCore.QDataStream.Qt_4_2)
-
-        out.writeUInt32(0)
-        out.writeQString(action)
-        for arg in args :
-            if type(arg) is IntType:
-                out.writeInt(arg)
-            elif isinstance(arg, basestring):
-                out.writeQString(arg)
-            elif type(arg) is FloatType:
-                out.writeFloat(arg)
-            elif type(arg) is ListType:
-                out.writeQVariantList(arg)
-            elif type(arg) is DictType:
-                out.writeQString(json.dumps(arg))
-            else:
-                logger.warn("Uninterpreted Data Type: " + str(type(arg)) + " of value: " + str(arg))
-                out.writeQString(str(arg))
-
-        out.device().seek(0)
-        out.writeUInt32(block.size() - 4)
-        self.socket.write(block)
-        QtGui.QApplication.processEvents()
-
     def writeToServer(self, action, *args, **kw):
         '''
-        This method is the workhorse of the client, and is used to send messages, queries and commands to the server.
+        Writes data to the deprecated stream API. Do not use.
         '''
         logger.debug("Client: " + action)
 
