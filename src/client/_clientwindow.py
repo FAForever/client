@@ -1407,24 +1407,22 @@ class ClientWindow(FormClass, BaseClass):
     def handle_stats(self, message):
         self.statsInfo.emit(message)
 
+    def handle_session(self, message):
+        self.session = message["session"]
+
+    def handle_update(self, message):
+        # Mystereous voodoo nonsense.
+        # fix a problem with Qt.
+        util.settings.beginGroup("window")
+        util.settings.remove("geometry")
+        util.settings.endGroup()
+
+        logger.warn("Server says that Updating is needed.")
+        self.progress.close()
+        self.state = ClientState.OUTDATED
+        fetchClientUpdate(message["update"])
+
     def handle_welcome(self, message):
-        if "session" in message:
-            self.session = str(message["session"])
-            return
-
-        elif "update" in message :
-            # Mystereous voodoo nonsense.
-            # fix a problem with Qt.
-            util.settings.beginGroup("window")
-            util.settings.remove("geometry")
-            util.settings.endGroup()
-
-            logger.warn("Server says that Updating is needed.")
-            self.progress.close()
-            self.state = ClientState.OUTDATED
-            fetchClientUpdate(message["update"])
-            return
-
         self.id = message["id"]
         self.login = message["login"]
         logger.debug("Login success")
