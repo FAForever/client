@@ -1277,7 +1277,16 @@ class ClientWindow(FormClass, BaseClass):
                 return
 
             action = ins.readQString()
-            self.process(action, ins)
+            logger.debug("Server: " + action)
+
+            if action == "PING":
+                self.writeToServer("PONG")
+                return
+            try:
+                self.dispatch(json.loads(action))
+            except:
+                logger.error("Error dispatching JSON: " + action, exc_info=sys.exc_info())
+
             self.blockSize = 0
 
 
@@ -1367,18 +1376,6 @@ class ClientWindow(FormClass, BaseClass):
         self.foes.remove(foe_name)
         self.send(dict(command="social_remove", foe=self.players[foe_name].id))
         self.usersUpdated.emit([foe_name])
-
-
-    def process(self, action, stream):
-        logger.debug("Server: " + action)
-
-        if action == "PING":
-            self.writeToServer("PONG")
-        else:
-            try:
-                self.dispatch(json.loads(action))
-            except:
-                logger.error("Error dispatching JSON: " + action, exc_info=sys.exc_info())
 
     #
     # JSON Protocol v2 Implementation below here
