@@ -1394,9 +1394,6 @@ class ClientWindow(FormClass, BaseClass):
         A fairly pythonic way to process received strings as JSON messages.
         '''     
 
-        # add a delay to the notification system
-        if 'channels' in message:
-            self.notificationSystem.disabledStartup = False
         try:
             if "debug" in message:
                 logger.info(message['debug'])
@@ -1591,6 +1588,8 @@ class ClientWindow(FormClass, BaseClass):
             self.usersUpdated.emit(self.players.keys())
 
         if "channels" in message:
+            # Add a delay to the notification system (insane cargo cult)
+            self.notificationSystem.disabledStartup = False
             self.channelsUpdated.emit(message["channels"])
 
         if "autojoin" in message:
