@@ -1392,9 +1392,6 @@ class ClientWindow(FormClass, BaseClass):
         '''     
 
         try:
-            if "debug" in message:
-                logger.info(message['debug'])
-
             if "command" in message:
                 cmd = "handle_" + message['command']
                 if hasattr(self, cmd):
