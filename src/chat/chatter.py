@@ -290,11 +290,6 @@ class Chatter(QtGui.QTableWidgetItem):
             menu.addAction(actionJoinChannel)
             actionJoinChannel.triggered.connect(self.joinChannel)
 
-            actionKick = QtGui.QAction("Kick", menu)
-            menu.addAction(actionKick)
-            actionKick.triggered.connect(self.kick)
-            actionKick.setDisabled(1)
-
             if self.lobby.client.power == 2 :
                 actionCloseFA = QtGui.QAction("Close FA", menu)
                 menu.addAction(actionCloseFA)
