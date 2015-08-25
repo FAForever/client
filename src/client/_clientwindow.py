@@ -1408,7 +1408,7 @@ class ClientWindow(FormClass, BaseClass):
         self.statsInfo.emit(message)
 
     def handle_session(self, message):
-        self.session = message["session"]
+        self.session = str(message["session"])
 
     def handle_update(self, message):
         # Mystereous voodoo nonsense.
