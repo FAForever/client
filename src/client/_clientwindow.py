@@ -1277,10 +1277,11 @@ class ClientWindow(FormClass, BaseClass):
                 return
 
             action = ins.readQString()
-            logger.debug("Server: " + action)
+            logger.info("Server: '%s'" % action)
 
             if action == "PING":
                 self.writeToServer("PONG")
+                self.blockSize = 0
                 return
             try:
                 self.dispatch(json.loads(action))
