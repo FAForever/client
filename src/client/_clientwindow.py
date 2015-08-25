@@ -1391,18 +1391,15 @@ class ClientWindow(FormClass, BaseClass):
         A fairly pythonic way to process received strings as JSON messages.
         '''     
 
-        try:
-            if "command" in message:
-                cmd = "handle_" + message['command']
-                if hasattr(self, cmd):
-                    getattr(self, cmd)(message)
-                else:
-                    logger.error("Unknown command for JSON." + message['command'])
-                    raise "StandardError"
+        if "command" in message:
+            cmd = "handle_" + message['command']
+            if hasattr(self, cmd):
+                getattr(self, cmd)(message)
             else:
-                logger.debug("No command in message.")
-        except:
-            raise #Pass it on to our caller, Malformed Command
+                logger.error("Unknown JSON command: %s" % message['command'])
+                raise ValueError
+        else:
+            logger.debug("No command in message.")
 
     def handle_stats(self, message):
         self.statsInfo.emit(message)
