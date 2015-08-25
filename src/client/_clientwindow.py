@@ -1,5 +1,5 @@
 from functools import partial
-from client.data.player import Player
+from client.player import Player
 from client.updater import fetchClientUpdate
 from config import Settings
 import fa

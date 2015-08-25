@@ -71,7 +71,3 @@ def fetchClientUpdate(url):
         except:
             logger.error("Updater error: ", exc_info = sys.exc_info())
             QtGui.QMessageBox.information(None, "Download Failed", "The file wasn't properly sent by the server. <br/><b>Try again later.</b>")
-
-
-
-
