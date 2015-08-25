@@ -226,7 +226,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             self.serverLogArea.appendPlainText("[Identify as : %s]" % (self.client.login))
             self.connection.privmsg('NickServ', 'identify %s %s' % (self.client.login, util.md5text(self.client.password)))
 
-    def on_authentified(self):
+    def on_identified(self):
         if self.connection.get_nickname() != self.client.login :
             self.serverLogArea.appendPlainText("[Retrieving our nickname : %s]" % (self.client.login))
             self.connection.privmsg('nickserv', 'recover %s %s' % (self.client.login, util.md5text(self.client.password)))
@@ -357,12 +357,14 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         prefix = notice.split(" ")[0]
         target = prefix.strip("[]")
 
+        # It is surprising that SimpleIRCClient doesn't handle this for us.
+        # I suspect, in reality, it probably can do...
         if source and source.lower() == 'nickserv':
             if notice.find("registered under your account") or \
                notice.find("Password accepted"):
                 if not self.identified :
                     self.identified = True
-                    self.on_authentified()
+                    self.on_identified()
 
             elif notice.find("isn't registered") >= 0:
                 self.nickservRegister()
