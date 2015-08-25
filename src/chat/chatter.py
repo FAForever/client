@@ -1,7 +1,3 @@
-
-
-
-
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtNetwork import QNetworkRequest
 from chat._avatarWidget import avatarWidget
@@ -11,7 +7,6 @@ from chat import user2name
 from fa.replay import replay
 import util
 
-import fa
 import client
 
 
@@ -228,26 +223,8 @@ class Chatter(QtGui.QTableWidgetItem):
         avatarSelection = avatarWidget(self.lobby.client, self.name)
         avatarSelection.exec_()
 
-    def addFriend(self):
-        self.lobby.client.addFriend(self.name)
-
-    def remFriend(self):
-        self.lobby.client.remFriend(self.name)
-
-    def addFoe(self):
-        self.lobby.client.addFoe(self.name)
-
-    def remFoe(self):
-        self.lobby.client.remFoe(self.name)
-
     def kick(self):
         pass
-
-    def closeFA(self):
-        self.lobby.client.closeFA(self.name)
-
-    def closeLobby(self):
-        self.lobby.client.closeLobby(self.name)
 
     def doubleClicked(self, item):
         # filter yourself
@@ -321,11 +298,11 @@ class Chatter(QtGui.QTableWidgetItem):
             if self.lobby.client.power == 2 :
                 actionCloseFA = QtGui.QAction("Close FA", menu)
                 menu.addAction(actionCloseFA)
-                actionCloseFA.triggered.connect(self.closeFA)
+                actionCloseFA.triggered.connect(lambda: self.lobby.client.closeFA(self.name))
 
                 actionCloseLobby = QtGui.QAction("Kick from Lobby", menu)
                 menu.addAction(actionCloseLobby)
-                actionCloseLobby.triggered.connect(self.closeLobby)                
+                actionCloseLobby.triggered.connect(lambda: self.lobby.client.closeLobby(self.name))
       
             menu.addSeparator()
 
@@ -369,10 +346,10 @@ class Chatter(QtGui.QTableWidgetItem):
             actionRemFoe.setDisabled(1)
                                       
         # Triggers
-        actionAddFriend.triggered.connect(self.addFriend)
-        actionRemFriend.triggered.connect(self.remFriend)
-        actionAddFoe.triggered.connect(self.addFoe)
-        actionRemFoe.triggered.connect(self.remFoe)
+        actionAddFriend.triggered.connect(lambda: self.lobby.client.addFriend(self.name))
+        actionRemFriend.triggered.connect(lambda: self.lobby.client.remFriend(self.name))
+        actionAddFoe.triggered.connect(lambda: self.lobby.client.addFoe(self.name))
+        actionRemFoe.triggered.connect(lambda: self.lobby.client.remFoe(self.name))
       
         # Adding to menu
         menu.addAction(actionAddFriend)
