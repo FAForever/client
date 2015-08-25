@@ -182,15 +182,9 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
                     self.channels[channel].printAction("IRC", "was disconnected.")
             return False
 
-
-
     def openQuery(self, name, activate=False):
-        # In developer mode, allow player to talk to self to test chat functions
-        if (name == self.client.login) and not util.developer():
-            return False
-
-        #not allowing foes to talk to us.
-        if (self.client.isFoe(name)) :
+        # Ignore foes, and ourselves.
+        if self.client.isFoe(name) or name == self.client.login:
             return False
 
         if name not in self.channels:
@@ -203,19 +197,17 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.channels[name].resizing()
         return True
 
-
-
     @QtCore.pyqtSlot(list)
     def autoJoin(self, channels):
-            for channel in channels:
-                if channel in self.channels:
-                    continue
-                if (self.connection.is_connected()) and self.welcomed:
-                    #directly join
-                    self.connection.join(channel)
-                else:
-                    #Note down channels for later.
-                    self.optionalChannels.append(channel)
+        for channel in channels:
+            if channel in self.channels:
+                continue
+            if (self.connection.is_connected()) and self.welcomed:
+                #directly join
+                self.connection.join(channel)
+            else:
+                #Note down channels for later.
+                self.optionalChannels.append(channel)
 
     def join(self, channel):
         if channel not in self.channels:
