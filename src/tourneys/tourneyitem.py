@@ -1,7 +1,3 @@
-
-
-
-
 from PyQt4 import QtCore, QtGui, QtWebKit
 import util
 
