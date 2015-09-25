@@ -10,9 +10,11 @@ $GET_PIP_PATH = "C:\get-pip.py"
 
 $env:INCLUDE = $env:INCLUDE + ":" + $LUA_PATH + "\include"
 
+Write-Host "env | grep INCLUDE"
+Write-Host $env:INCLUDE
 
 # Install choco
-if (!(choco)) {
+if (!(Get-Command "choco" -errorAction SilentlyContinue)) {
   Write-Host "Installing chocolatey"
   iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))
 }
