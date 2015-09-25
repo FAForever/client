@@ -12,6 +12,7 @@ Created on Dec 1, 2011
 '''
 
 from PyQt4 import QtCore, QtGui, QtNetwork, QtWebKit
+from PyQt4.QtCore import QDataStream
 from types import IntType, FloatType, ListType, DictType
 
 from client import ClientState, GAME_PORT_DEFAULT, LOBBY_HOST, \
