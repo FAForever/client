@@ -10,8 +10,7 @@ init:
   - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH% %QTIMPL%"
 
 install:
-  - "powershell appveyor\\install.ps1"
-  - "%PYTHON%\\Scripts\\pip.exe install sip cx_Freeze --allow-external sip --allow-unverified sip"
+  - "powershell install.ps1"
   - "%PYTHON%\\Scripts\\pip.exe install -r requirements.txt"
 
 
