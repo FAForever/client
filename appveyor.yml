@@ -13,7 +13,6 @@ install:
   - "powershell install.ps1"
   - "%PYTHON%\\Scripts\\pip.exe install -r requirements.txt"
 
-
 test_script:
     - "%PYTHON%\\Scripts\\py.test.exe"
 
