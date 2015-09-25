@@ -488,8 +488,6 @@ class ClientWindow(FormClass, BaseClass):
 
         self.warning.addStretch()
         def add_warning_button(faction):
-            logger.warning("Adding a button!")
-            logger.warning(faction)
             button = QtGui.QToolButton(self)
 
             button.setMaximumSize(25, 25)
