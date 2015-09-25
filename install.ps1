@@ -61,11 +61,10 @@ if (-not(Test-Path $pip_path)) {
 function InstallPackage ($pkg) {
     & $pip_path install $pkg
 }
-
+$pip_path install http://content.faforever.com/wheel/lupa-1.1-cp27-none-win32.whl
 InstallPackage wheel
 InstallPackage pytest
 InstallPackage cx_Freeze
-InstallPackage lupa
 
 if ($env:QTIMPL -eq "PyQt4"){
     Write-Host "Installing PyQt4"
