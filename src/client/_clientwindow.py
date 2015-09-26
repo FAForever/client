@@ -870,7 +870,7 @@ class ClientWindow(FormClass, BaseClass):
         self.progress.setAutoReset(False)
         self.progress.setModal(1)
         self.progress.setWindowTitle("Connecting...")
-        self.progress.setLabelText("Establishing connection ...")
+        self.progress.setLabelText("Establishing connection to {}:{}".format(LOBBY_HOST, LOBBY_PORT))
         self.progress.show()
 
         # Begin connecting.
