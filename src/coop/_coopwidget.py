@@ -295,6 +295,6 @@ class CoopWidget(FormClass, BaseClass):
 
         # Default of "password"
         self.gamepassword = util.settings.value("password", "password")
-        self.gamename = util.settings.value("gamename", self.client.login + "'s game")
+        self.gamename = util.settings.value("gamename", (self.client.login or "") + "'s game")
 
         util.settings.endGroup()

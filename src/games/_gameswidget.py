@@ -278,7 +278,7 @@ class GamesWidget(FormClass, BaseClass):
         # Default of "password"
         self.gamepassword = util.settings.value("password", "password")
         self.gamemap = util.settings.value("gamemap", "scmp_007")
-        self.gamename = util.settings.value("gamename", self.client.login + "'s game")
+        self.gamename = util.settings.value("gamename", (self.client.login or "") + "'s game")
         self.friends_only = util.settings.value("friends_only", False)
 
         util.settings.endGroup()
