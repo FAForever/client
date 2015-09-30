@@ -13,6 +13,8 @@ $env:INCLUDE = $env:INCLUDE + ":" + $LUA_PATH + "\include"
 Write-Host "env | grep INCLUDE"
 Write-Host $env:INCLUDE
 
+
+
 # Install choco
 if (!(Get-Command "choco" -errorAction SilentlyContinue)) {
   Write-Host "Installing chocolatey"
@@ -22,7 +24,7 @@ else {
   Write-Host "chocolatey already installed"
 }
 
-if (!(python -V)) {
+if (!(Get-Command "python" -errorAction SilentlyContinue)) {
   # This is going to fail with error code 3010, which means 'screw you, reboot'
   # being awesome, we ignore this silly advice.
   try {
@@ -30,8 +32,13 @@ if (!(python -V)) {
   }
   catch {}
   choco install -y python2-x86_32
-  choco install -y numpy
+
+  #choco install -y numpy
   choco install -y git
+
+  #Attempt to reload PATH so we can find newly installed commands
+  "Reloading Path"
+  $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine")
 }
 
 if (-not(Test-Path "C:\tools\vcc_py2-7.msi")) {
@@ -74,11 +81,14 @@ if ($env:QTIMPL -eq "PyQt4"){
     Start-Process -FilePath C:\install-PyQt4.exe -ArgumentList "/S" -Wait -Passthru
 }
 
-Move-Item C:\Python27 C:\tools\python2-x86_32
+if(Test-Path "C:\Python27")
+{
+    Move-Item C:\Python27 C:\tools\python2-x86_32
+}
 
 if ($env:QTIMPL -eq "PyQt5"){
     (new-object net.webclient).DownloadFile("http://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.4/PyQt5-5.4-gpl-Py3.4-Qt5.4.0-x32.exe/download", "C:\install-PyQt5.exe")
     Start-Process -FilePath C:\install-PyQt5.exe -ArgumentList "/S" -Wait -Passthru
 }
 
-& $pip_path install -r requirements.txt
+& $pip_path install -r c:\vagrant\requirements.txt
