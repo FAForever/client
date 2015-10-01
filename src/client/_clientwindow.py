@@ -34,11 +34,6 @@ import os
 import random
 import notificatation_system as ns
 
-try:
-    from profile import playerstats
-except:
-    pass
-
 FormClass, BaseClass = util.loadUiType("client/client.ui")
 
 
@@ -148,10 +143,6 @@ class ClientWindow(FormClass, BaseClass):
         self.blockSize = 0
 
         self.uniqueId = None
-        try:
-            self.profile = playerstats.Statpage(self)
-        except:
-            pass
 
         self.sendFile = False
         self.progress = QtGui.QProgressDialog()
