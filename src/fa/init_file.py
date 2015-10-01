@@ -1,6 +1,4 @@
-__author__ = 'Sheeo'
-
-from faftools.lua import emit
+from faf.tools.lua import to_lua
 
 
 class InitFile(object):
@@ -17,6 +15,6 @@ class InitFile(object):
     def to_lua(self):
         lua = []
         for k, v in self._init_keys:
-            lua.append(''.join([k, '=', emit.to_lua(v), '\n']))
+            lua.append(''.join([k, '=', to_lua(v), '\n']))
         return ''.join(lua)
 
