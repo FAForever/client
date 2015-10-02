@@ -1,4 +1,4 @@
-$env:PYTHON = "C:\tools\python2-x86_32"
+$env:PYTHON = "C:\Python27"
 $env:QTIMPL = "PyQT4"
 
 $BASE_PATH = ""
@@ -7,6 +7,9 @@ $BASE_URL = "https://www.python.org/ftp/python/"
 $GET_PIP_URL = "https://bootstrap.pypa.io/get-pip.py"
 $LUA_PATH = "C:\Program Files (x86)\Lua\5.1"
 $GET_PIP_PATH = "C:\get-pip.py"
+
+$webclient = (new-object net.webclient)
+$python_home = "C:\Python27"
 
 $env:INCLUDE = $env:INCLUDE + ":" + $LUA_PATH + "\include"
 
@@ -18,7 +21,7 @@ Write-Host $env:INCLUDE
 # Install choco
 if (!(Get-Command "choco" -errorAction SilentlyContinue)) {
   Write-Host "Installing chocolatey"
-  iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))
+  iex ($webclient.DownloadString('https://chocolatey.org/install.ps1'))
 }
 else {
   Write-Host "chocolatey already installed"
@@ -31,7 +34,9 @@ if (!(Get-Command "python" -errorAction SilentlyContinue)) {
      choco install -y vcredist2008 -x86
   }
   catch {}
-  choco install -y python2-x86_32
+
+  $webclient.DownloadFile("https://www.python.org/ftp/python/2.7.10/python-2.7.10.msi", "c:\python2.msi")
+  Start-Process -FilePath C:\python2.msi -ArgumentList "/passive" -Wait -Passthru
 
   #choco install -y numpy
   choco install -y git
@@ -41,18 +46,17 @@ if (!(Get-Command "python" -errorAction SilentlyContinue)) {
   $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine")
 }
 
-if (-not(Test-Path "C:\tools\vcc_py2-7.msi")) {
+if (-not(Test-Path "C:\vcc_py2-7.msi")) {
   Write-Host "Downloading python2.7 compiler"
-  (new-object net.webclient).DownloadFile("http://download.microsoft.com/download/7/9/6/796EF2E4-801B-4FC4-AB28-B59FBF6D907B/VCForPython27.msi", "C:\tools\vcc_py2-7.msi")
+  (new-object net.webclient).DownloadFile("http://download.microsoft.com/download/7/9/6/796EF2E4-801B-4FC4-AB28-B59FBF6D907B/VCForPython27.msi", "C:\vcc_py2-7.msi")
 }
 Write-Host "Running python2.7 compiler installer"
-Start-Process -FilePath C:\tools\vcc_py2-7.msi -ArgumentList "/passive" -Wait -Passthru
+Start-Process -FilePath C:\vcc_py2-7.msi -ArgumentList "/passive" -Wait -Passthru
 
 Write-Host "Downloading stdint.h into include directory"
-(new-object net.webclient).DownloadFile("http://msinttypes.googlecode.com/svn/trunk/stdint.h", "C:\tools\python2-x86_32\include\stdint.h")
+$weblcient.DownloadFile("http://msinttypes.googlecode.com/svn/trunk/stdint.h", "C:\tools\python2-x86_32\include\stdint.h")
 
 
-$python_home = "C:\tools\python2-x86_32"
 
 # Install pip
 $pip_path = $python_home + "\Scripts\pip.exe"
@@ -79,11 +83,6 @@ if ($env:QTIMPL -eq "PyQt4"){
     Write-Host "Installing PyQt4"
     (new-object net.webclient).DownloadFile("http://sourceforge.net/projects/pyqt/files/PyQt4/PyQt-4.11.3/PyQt4-4.11.3-gpl-Py2.7-Qt4.8.6-x32.exe", "C:\install-PyQt4.exe")
     Start-Process -FilePath C:\install-PyQt4.exe -ArgumentList "/S" -Wait -Passthru
-}
-
-if(Test-Path "C:\Python27")
-{
-    Move-Item C:\Python27 C:\tools\python2-x86_32
 }
 
 if ($env:QTIMPL -eq "PyQt5"){
