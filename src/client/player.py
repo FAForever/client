@@ -1,4 +1,4 @@
-class Player():
+class Player:
     """
     Represents a player the client knows about, mirrors the similar class in the server.
     Needs to be constructed using a player_info message sent from the server.
@@ -10,20 +10,9 @@ class Player():
         self.number_of_games = player_info_message["number_of_games"]
 
         # Optional fields
-        if "avatar" in player_info_message:
-            self.avatar = player_info_message["avatar"]
-        else:
-            self.avatar = None
-
-        if "country" in player_info_message:
-            self.country = player_info_message["country"]
-        else:
-            self.country = None
-
-        if "clan" in player_info_message:
-            self.clan = player_info_message["clan"]
-        else:
-            self.clan = None
+        self.avatar = player_info_message.get("avatar")
+        self.country = player_info_message.get("country")
+        self.clan = player_info_message.get("clan")
 
     # I'm pretty sure the trueskill library can do this for us, but I don't currently have internet
     # with which to check, so I'll cargo-cult this to make the nice refactor work.
