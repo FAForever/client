@@ -261,6 +261,7 @@ class ClientWindow(FormClass, BaseClass):
         self.loadSettingsPrelogin()
 
         self.players = {}       # Players known to the client, contains the player_info messages sent by the server
+        self.urls = {}
 
         # Handy reference to the Player object representing the logged-in user.
         self.me = None
