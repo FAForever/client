@@ -1,5 +1,3 @@
-__author__ = 'Sheeo'
-
 import os
 import logging
 

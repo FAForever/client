@@ -1,7 +1,5 @@
 from config import version
 
-__author__ = 'Sheeo'
-
 import os
 import sys
 import logging
