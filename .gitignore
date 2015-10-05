@@ -20,3 +20,5 @@ Thumbs.db
 RELEASE-VERSION
 __pycache__
 .coverage
+client_venv
+*.egg-info
