@@ -37,9 +37,9 @@ def call_git_describe():
         p.stderr.close()
         line = p.stdout.readlines()[0]
         return line.strip()
-
-    except:
-        return None
+    except Exception as e:
+        print("Error grabbing git version: {}".format(e))
+        return "0.0-pre"
 
 def is_development_version(version):
     return "-" in version and not is_prerelease_version(version)
