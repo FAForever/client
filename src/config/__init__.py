@@ -1,4 +1,4 @@
-from config import version
+from . import version
 
 import os
 import sys
@@ -51,7 +51,7 @@ def make_dirs():
 
 v = version.get_git_version()
 
-if getattr(sys, 'frozen', False) and not version.is_prerelease_version(v):
+if os.getenv("FAF_FORCE_PRODUCTION") or getattr(sys, 'frozen', False) and not version.is_prerelease_version(v):
     logging.warning("FAF version: " + repr(version.get_git_version()))
     from production import defaults
     make_dirs()

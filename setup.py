@@ -24,16 +24,30 @@ git_version = version.get_git_version()
 msi_version = version.msi_version(git_version)
 version_file = version.write_release_version(git_version)
 
+from pathlib import Path
 print('Build version:', git_version, 'MSI version:', msi_version)
+
+# Ugly hack to fix broken PyQt4
+try:
+    silly_file = Path(PyQt4.__path__[0]) / "uic" / "port_v3" / "proxy_base.py"
+    print("Removing {}".format(silly_file))
+    silly_file.unlink()
+except OSError:
+    pass
+
 
 # Dependencies are automatically detected, but it might need fine tuning.
 build_exe_options = {
-    'include_files': ['res', 'RELEASE-VERSION', ('lib/uid.dll', 'uid.dll')],
+    'include_files': ['res',
+                      'RELEASE-VERSION',
+                      ('lib/uid.dll', 'uid.dll'),
+                      ('lib/qt.conf', 'qt.conf')],
     'icon': 'res/faf.ico',
     'include_msvcr': True,
     'optimize': 2,
-    'packages': ['cffi', 'pycparser', '_cffi__xf1819144xd61e91d9'],
+    'packages': ['cffi', 'pycparser', 'PyQt4', 'PyQt4.uic', 'PyQt4.QtGui', 'PyQt4.QtNetwork'],
     'silent': True,
+    'excludes': ['numpy', 'scipy', 'matplotlib', 'tcl', 'Tkinter']
 }
 
 shortcut_table = [
@@ -76,7 +90,8 @@ exe = Executable(
     base=base,
     targetName='FAForever.exe',
     icon='res/faf.ico',
-    includes=[os.path.join(os.path.dirname(PyQt4.uic.__file__), "widget-plugins"), "PyQt4.uic.widget-plugins"]
+    includes=[os.path.join(os.path.dirname(PyQt4.uic.__file__), "widget-plugins"),
+            "PyQt4.uic.widget-plugins"]
 )
 
 setup(
@@ -91,6 +106,8 @@ ranked ladder play, and featured mods.',
     maintainer='Sheeo',
     url='http://www.faforever.com',
     license='GNU General Public License, Version 3',
-    options={'build_exe': build_exe_options, 'bdist_msi': bdist_msi_options},
-    executables=[exe], requires=['bsdiff4', 'sip', 'PyQt4', 'cx_Freeze', 'cffi', 'py', 'faftools'],
+    options={'build_exe': build_exe_options,
+             'bdist_msi': bdist_msi_options},
+    executables=[exe],
+    requires=['bsdiff4', 'sip', 'PyQt4', 'cx_Freeze', 'cffi', 'py', 'faftools'],
 )

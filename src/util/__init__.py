@@ -1,5 +1,6 @@
 
 import sys
+
 import os
 import urllib2
 from ctypes import *
@@ -121,6 +122,7 @@ if not os.path.isdir(VOICES_DIR):
     os.makedirs(VOICES_DIR)
 
 from PyQt4 import QtGui, uic, QtCore
+from PyQt4.uic import *
 import shutil
 import hashlib
 import re

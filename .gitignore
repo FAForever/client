@@ -22,3 +22,4 @@ __pycache__
 .coverage
 client_venv
 *.egg-info
+.vagrant

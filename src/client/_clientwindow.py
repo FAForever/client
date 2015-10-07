@@ -12,6 +12,7 @@ Created on Dec 1, 2011
 '''
 
 from PyQt4 import QtCore, QtGui, QtNetwork, QtWebKit
+from PyQt4.QtCore import QDataStream
 from types import IntType, FloatType, ListType, DictType
 
 from client import ClientState, GAME_PORT_DEFAULT, LOBBY_HOST, \
@@ -31,11 +32,6 @@ import time
 import os
 import random
 import notificatation_system as ns
-
-try:
-    from profile import playerstats
-except:
-    pass
 
 FormClass, BaseClass = util.loadUiType("client/client.ui")
 
@@ -146,10 +142,6 @@ class ClientWindow(FormClass, BaseClass):
         self.blockSize = 0
 
         self.uniqueId = None
-        try:
-            self.profile = playerstats.Statpage(self)
-        except:
-            pass
 
         self.sendFile = False
         self.progress = QtGui.QProgressDialog()
@@ -487,8 +479,6 @@ class ClientWindow(FormClass, BaseClass):
 
         self.warning.addStretch()
         def add_warning_button(faction):
-            logger.warning("Adding a button!")
-            logger.warning(faction)
             button = QtGui.QToolButton(self)
 
             button.setMaximumSize(25, 25)
@@ -1206,8 +1196,8 @@ class ClientWindow(FormClass, BaseClass):
 
         out.writeUInt32(0)
         out.writeQString(action)
-        out.writeQString(self.login)
-        out.writeQString(self.session)
+        out.writeQString(self.login or "")
+        out.writeQString(self.session or "")
 
         for arg in args :
             if type(arg) is IntType:
@@ -1223,8 +1213,6 @@ class ClientWindow(FormClass, BaseClass):
             elif type(arg) is QtCore.QFile :
                 arg.open(QtCore.QIODevice.ReadOnly)
                 fileDatas = QtCore.QByteArray(arg.readAll())
-                #seems that that logger doesn't work
-                #logger.debug("file size ", int(fileDatas.size()))
                 out.writeInt(fileDatas.size())
                 out.writeRawData(fileDatas)
 

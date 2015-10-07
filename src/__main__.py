@@ -22,7 +22,11 @@ if os.path.isdir("lib"):
 elif os.path.isdir("../lib"):
     sys.path.insert(0, os.path.abspath("../lib"))
 
-from PyQt4 import QtGui
+from PyQt4 import QtGui, uic
+
+path = os.path.join(os.path.dirname(sys.argv[0]), "PyQt4.uic.widget-plugins")
+uic.widgetPluginPath.append(path)
+
 import util
 
 # Set up crash reporting
