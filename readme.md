@@ -4,7 +4,7 @@ FA Forever - Lobby
 ------------------
 master|develop
  ------------ | -------------
-[![Build Status](https://travis-ci.org/FAForever/client.svg?branch=master)](https://travis-ci.org/FAForever/client) | [![Build Status](https://travis-ci.org/FAForever/client.svg?branch=develop)](https://travis-ci.org/FAForever/client)
+[![Build Status](https://travis-ci.org/FAForever/client.svg?branch=master)](https://travis-ci.org/FAForever/client) [![Appveyor Status](https://ci.appveyor.com/api/projects/status/p15sk71sp957ij72/branch/master?svg=true)](https://ci.appveyor.com/project/Sheeo/client) | [![Build Status](https://travis-ci.org/FAForever/client.svg?branch=develop)](https://travis-ci.org/FAForever/client) [![Appveyor Status](https://ci.appveyor.com/api/projects/status/p15sk71sp957ij72/branch/develop?svg=true)](https://ci.appveyor.com/project/Sheeo/client)
 [![Coverage Status](https://img.shields.io/coveralls/FAForever/client.svg?branch=master)](https://coveralls.io/r/FAForever/client) | [![Coverage Status](https://img.shields.io/coveralls/FAForever/client.svg?branch=develop)](https://coveralls.io/r/FAForever/client)
  
 
