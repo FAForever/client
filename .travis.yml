@@ -8,6 +8,7 @@ install:
   - "bash ./.travis.sh"
   - "sudo apt-get install python-qt4 liblua5.1"
   - "pip install cx_Freeze"
+  - "pip install python-coveralls"
   - "pip install -r requirements.txt --trusted-host content.faforever.com"
 
 
