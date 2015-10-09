@@ -25,7 +25,7 @@ FormClass, BaseClass = util.loadUiType("chat/chat.ui")
 class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
     '''
     This is the chat lobby module for the FAF client.
-    It manages a list of channels and dispatches IRC events (lobby inherits from irclib's client class
+    It manages a list of channels and dispatches IRC events (lobby inherits from irclib's client class)
     '''
     def __init__(self, client, *args, **kwargs):
         if Settings.get('USE_CHAT') is False:

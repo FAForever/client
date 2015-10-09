@@ -141,26 +141,8 @@ try:
 except:
     pass
 
-# Initialize logging system
 import logging
-
-if not developer():
-    logging.basicConfig(filename=LOG_FILE_FAF, level=logging.INFO,
-                        format='%(asctime)s %(levelname)-8s %(name)-40s %(message)s')
-else:
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)-8s %(name)-40s %(message)s')
-
 logger = logging.getLogger(__name__)
-
-
-def startLogging():
-    logger.debug("Logging started.")
-
-
-def stopLogging():
-    logger.debug("Logging ended.")
-    logging.shutdown()
-
 
 def clearDirectory(directory, confirm=True):
     if (os.path.isdir(directory)):
