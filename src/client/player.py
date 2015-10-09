@@ -1,4 +1,4 @@
-class Player:
+class Player(object):
     """
     Represents a player the client knows about, mirrors the similar class in the server.
     Needs to be constructed using a player_info message sent from the server.

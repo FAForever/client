@@ -11,11 +11,25 @@ import fa
 import json
 import unicodedata
 
+from src.client.player import Player
+
 QUERY_BLINK_SPEED = 250
 CHAT_TEXT_LIMIT = 350
 CHAT_REMOVEBLOCK = 50
 
 FormClass, BaseClass = util.loadUiType("chat/channel.ui")
+
+
+class IRCPlayer(Player):
+    def __init__(self, name):
+        Player.__init__(self, {
+            "id": 0,
+            "login": name,
+            "global_rating": (1500, 500),
+            "ladder_rating": (1500, 500),
+            "number_of_games": 0
+        })
+
 
 class Channel(FormClass, BaseClass):
     '''
@@ -208,15 +222,15 @@ class Channel(FormClass, BaseClass):
         else:
             self.chatArea.verticalScrollBar().setValue(scroll_current)
 
-    def printLine(self, name, text, color, scroll_forced=False, server_action=False):
-        if self.lines > CHAT_TEXT_LIMIT :
+    def printLine(self, name, text, scroll_forced=False, server_action=False):
+        if self.lines > CHAT_TEXT_LIMIT:
             cursor = self.chatArea.textCursor()
             cursor.movePosition(QtGui.QTextCursor.Start)
             cursor.movePosition(QtGui.QTextCursor.Down, QtGui.QTextCursor.KeepAnchor, CHAT_REMOVEBLOCK)
             cursor.removeSelectedText()
             self.lines = self.lines - CHAT_REMOVEBLOCK
 
-        player = self.lobby.players[name]
+        player = self.lobby.client.players.get(name, IRCPlayer(name))
 
         displayName = name
         if player.clan is not None:
