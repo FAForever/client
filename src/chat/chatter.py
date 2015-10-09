@@ -277,17 +277,13 @@ class Chatter(QtGui.QTableWidgetItem):
             menu.addSeparator()
       
         # power menu
-        if self.lobby.client.power > 1 :
+        if self.lobby.client.power > 1:
             # admin and mod menus
             actionAddAvatar = QtGui.QAction("Assign avatar", menu)
             menu.addAction(actionAddAvatar)
             actionAddAvatar.triggered.connect(self.addAvatar)
             
-            actionJoinChannel = QtGui.QAction("Join Channel", menu)
-            menu.addAction(actionJoinChannel)
-            actionJoinChannel.triggered.connect(self.joinChannel)
-
-            if self.lobby.client.power == 2 :
+            if self.lobby.client.power == 2:
                 actionCloseFA = QtGui.QAction("Close FA", menu)
                 menu.addAction(actionCloseFA)
                 actionCloseFA.triggered.connect(lambda: self.lobby.client.closeFA(self.name))
