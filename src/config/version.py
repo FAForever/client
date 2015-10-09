@@ -92,12 +92,6 @@ def get_git_version():
     if version is None:
         raise ValueError("Cannot find the version number!")
 
-    # If the current version is different from what's in the
-    # RELEASE-VERSION file, update the file to be current.
-
-    if version != release_version:
-        write_release_version(version)
-
     # Finally, return the current version.
     return version
 

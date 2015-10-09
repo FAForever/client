@@ -2,6 +2,7 @@ import os
 import sys
 
 import sip
+from pathlib import Path
 
 sip.setapi('QString', 2)
 sip.setapi('QVariant', 2)
@@ -24,7 +25,6 @@ git_version = version.get_git_version()
 msi_version = version.msi_version(git_version)
 version_file = version.write_release_version(git_version)
 
-from pathlib import Path
 print('Build version:', git_version, 'MSI version:', msi_version)
 
 # Ugly hack to fix broken PyQt4
