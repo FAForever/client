@@ -14,6 +14,8 @@ init:
 install:
   - "C:\\Python27\\python -u appveyor\\install_qt.py"
   - "powershell appveyor\\install.ps1"
+  - ps: "$env:APPVEYOR_BUILD_VERSION = (& c:\\Python27\\python .\\src\\config\\version.py) + \"+\" + $env:APPVEYOR_BUILD_NUMBER"
+  - ps: "get-childitem env:"
   - "%PYTHON%\\Scripts\\pip.exe install -r requirements.txt --trusted-host content.faforever.com"
 
 test_script:
@@ -27,7 +29,7 @@ artifacts:
 
 deploy:
   - provider: GitHub
-    release: Client-lobby-v$(appveyor_build_version)
+    release: v$(appveyor_build_version)
     auth_token:
       secure: "09WRxoB8lu9lPzuk3qYu0brKVQubLpnsS1Wdn49nYZYi5RDiva3z37eITcjtZkTD"
     artifact: /.*\.msi/
@@ -38,7 +40,7 @@ deploy:
       appveyor_repo_tag: true
 
   - provider: GitHub
-    release: Client-lobby-v$(appveyor_build_version)
+    release: v$(appveyor_build_version)
     auth_token:
       secure: "09WRxoB8lu9lPzuk3qYu0brKVQubLpnsS1Wdn49nYZYi5RDiva3z37eITcjtZkTD"
     artifact: /.*\.msi/
