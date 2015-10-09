@@ -50,8 +50,8 @@ class Chatter(QtGui.QTableWidgetItem):
         self.avatarTip = ""
         
         self.setText(self.name)
-        self.setFlags(QtCore.Qt.ItemIsEnabled)        
-        self.setTextAlignment(QtCore.Qt.AlignLeft)
+        self.setFlags(QtCore.Qt.ItemIsEnabled)
+        self.setTextAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
 
         row = self.parent.rowCount()
         self.parent.insertRow(row)

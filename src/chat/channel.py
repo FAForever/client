@@ -252,11 +252,8 @@ class Channel(FormClass, BaseClass):
             # Fallback and ask the client. We have no Idea who this is.
             color = self.lobby.client.getUserColor(name)
 
-
-        # Overrides for special cases.
         if mentioned:
             color = self.lobby.client.getColor("you")
-
 
         # scroll if close to the last line of the log
         scroll_current = self.chatArea.verticalScrollBar().value()
@@ -403,7 +400,7 @@ class Channel(FormClass, BaseClass):
                     self.chatters[name].elevation = None
                     self.chatters[name].update()
         
-    def addChatter(self, user, join = False):
+    def addChatter(self, user, join=False):
         '''
         Adds an user to this chat channel, and assigns an appropriate icon depending on friendship and FAF player status
         '''          
