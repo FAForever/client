@@ -9,7 +9,11 @@ import util
 
 import client
 
-
+"""
+A chatter is the representation of a person on IRC, in a channel's nick list.
+There are multiple chatters per channel.
+There can be multiple chatters for every Player in the Client.
+"""
 class Chatter(QtGui.QTableWidgetItem):
     SORT_COLUMN = 2
     AVATAR_COLUMN = 1
@@ -22,14 +26,11 @@ class Chatter(QtGui.QTableWidgetItem):
     RANK_FOE = 3
     RANK_NONPLAYER = 4
 
-    '''
-    A chatter is the representation of a person on IRC, in a channel's nick list. There are multiple chatters per channel.
-    There can be multiple chatters for every Player in the Client.
-    '''
     def __init__(self, parent, user, lobby, *args, **kwargs):
         QtGui.QTableWidgetItem.__init__(self, *args, **kwargs)
                 
-        #TODO: for now, userflags and ranks aren't properly interpreted :-/ This is impractical if an operator reconnects too late.
+        # TODO: for now, userflags and ranks aren't properly interpreted :-/
+        # This is impractical if an operator reconnects too late.
         self.parent = parent
         self.lobby = lobby
 
@@ -48,9 +49,6 @@ class Chatter(QtGui.QTableWidgetItem):
         self.clan = ""
         self.avatarTip = ""
         
-        self.setup()
-    
-    def setup(self):
         self.setText(self.name)
         self.setFlags(QtCore.Qt.ItemIsEnabled)        
         self.setTextAlignment(QtCore.Qt.AlignLeft)
@@ -78,9 +76,8 @@ class Chatter(QtGui.QTableWidgetItem):
 
         self.update()        
 
-
     def isFiltered(self, filter):
-        if filter in self.clan.lower() or filter in self.name.lower():
+        if filter in (self.clan or "").lower() or filter in self.name.lower():
             return True
         return False
 
@@ -142,9 +139,12 @@ class Chatter(QtGui.QTableWidgetItem):
             self.avatarItem.setToolTip(None)
 
     def update(self):
-        '''
-        updates the appearance of this chatter in the nicklist according to its lobby and irc states 
-        '''        
+        """
+        Updates the appearance of this chatter in the nicklist
+         according to its lobby and irc states
+        """
+        # Color handling
+        self.setChatUserColor(self.name)
 
         # Weed out IRC users early.
         if self.name not in self.lobby.client.players:
@@ -168,9 +168,6 @@ class Chatter(QtGui.QTableWidgetItem):
         self.clan = player.clan
         if self.clan is not None:
             self.setText("[%s]%s" % (self.clan,self.name))
-
-        # Color handling
-        self.setChatUserColor(self.name)
 
         rating = self.rating
 

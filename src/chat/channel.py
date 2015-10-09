@@ -202,9 +202,6 @@ class Channel(FormClass, BaseClass):
 
     @QtCore.pyqtSlot(str, str)
     def printAnnouncement(self, text, color, size, scroll_forced = True):
-        '''
-        Print an actual message in the chatArea of the channel
-        '''                         
         # scroll if close to the last line of the log
         scroll_current = self.chatArea.verticalScrollBar().value()
         scroll_needed = scroll_forced or ((self.chatArea.verticalScrollBar().maximum() - scroll_current) < 20)
