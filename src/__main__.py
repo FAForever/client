@@ -27,6 +27,7 @@ from PyQt4 import QtGui, uic
 path = os.path.join(os.path.dirname(sys.argv[0]), "PyQt4.uic.widget-plugins")
 uic.widgetPluginPath.append(path)
 
+import config
 import util
 
 # Set up crash reporting
@@ -68,8 +69,6 @@ def runFAF():
                 #Main update loop
                 QtGui.QApplication.exec_()
 
-
-#Actual "main" method
 if __name__ == '__main__':
     import logging
     logger = logging.getLogger(__name__)
