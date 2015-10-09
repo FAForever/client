@@ -245,7 +245,6 @@ class Chatter(QtGui.QTableWidgetItem):
         menu = QtGui.QMenu(self.parent)
 
         # Actions for stats
-        actionStats         = QtGui.QAction("View Player statistics", menu)
         actionSelectAvatar  = QtGui.QAction("Select Avatar", menu)
         
         # Actions for Games and Replays
@@ -267,7 +266,6 @@ class Chatter(QtGui.QTableWidgetItem):
                     actionReplay.setEnabled(True)
 
         # Triggers
-        actionStats.triggered.connect(self.viewStats)
         actionSelectAvatar.triggered.connect(self.selectAvatar)
         actionReplay.triggered.connect(self.viewReplay)
         actionVaultReplay.triggered.connect(self.viewVaultReplay)
@@ -301,8 +299,6 @@ class Chatter(QtGui.QTableWidgetItem):
             menu.addSeparator()
 
         # Adding to menu
-        menu.addAction(actionStats)
-        
         menu.addSeparator()
         menu.addAction(actionReplay)
         menu.addAction(actionVaultReplay)
@@ -355,15 +351,6 @@ class Chatter(QtGui.QTableWidgetItem):
         #Finally: Show the popup
         menu.popup(QtGui.QCursor.pos())
             
-    @QtCore.pyqtSlot()
-    def viewStats(self):
-        try:
-            if self.name in self.lobby.client.players :
-                self.lobby.client.profile.setplayer(self.name)
-                self.lobby.client.profile.show() 
-        except:
-            pass
-
     @QtCore.pyqtSlot()
     def viewReplay(self):
         if self.name in client.instance.urls:
