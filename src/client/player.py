@@ -11,6 +11,7 @@ class Player:
         :return:
         """
         # Required fields
+        self.id = player_info_message["id"]
         self.login = player_info_message["login"]
         self.global_rating = player_info_message["global_rating"]
         self.ladder_rating = player_info_message["ladder_rating"]
