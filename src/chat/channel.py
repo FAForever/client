@@ -256,7 +256,7 @@ class Channel(FormClass, BaseClass):
 
         # Overrides for special cases.
         if mentioned:
-            color = self.lobby.client.getColor("tous")
+            color = self.lobby.client.getColor("you")
 
         if server_action:
             color = self.lobby.client.getColor("server")
