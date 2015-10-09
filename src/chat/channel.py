@@ -11,7 +11,7 @@ import fa
 import json
 import unicodedata
 
-from src.client.player import Player
+from client import Player
 
 QUERY_BLINK_SPEED = 250
 CHAT_TEXT_LIMIT = 350

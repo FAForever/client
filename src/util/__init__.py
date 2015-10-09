@@ -1,22 +1,14 @@
-
 import sys
 
 import os
 import urllib2
 from ctypes import *
 
-
 # Developer mode flag
 def developer():
     return sys.executable.endswith("python.exe")
 
-try:
-    with open("RELEASE-VERSION", "r") as version_file:
-            VERSION_STRING = version_file.read()
-except (BaseException, IOError), e:
-    VERSION_STRING = "(unknown version)"
-
-VERSION = 0  # FIXME: causes the updater to always skip.
+from config import VERSION as VERSION_STRING
 
 LOGFILE_MAX_SIZE = 256 * 1024  #256kb should be enough for anyone
 
@@ -203,7 +195,7 @@ def setTheme(theme, restart=True):
         test_dir = os.path.join(THEME_DIR, theme)
         if os.path.isdir(test_dir):
             version_file = os.path.join(THEME_DIR, theme, "version")
-            if developer() or os.path.isfile(version_file) and (VERSION_STRING == open(version_file).read()):
+            if os.path.isfile(version_file) and (VERSION_STRING == open(version_file).read()):
                 logger.info("Using theme: " + theme + " in directory " + test_dir)
                 __themedir = test_dir
                 __theme = theme

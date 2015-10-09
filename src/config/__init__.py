@@ -3,10 +3,14 @@ from . import version
 import os
 import sys
 import logging
+import trueskill
 from logging.handlers import RotatingFileHandler
 from PyQt4 import QtCore
 
+trueskill.setup(mu=1500, sigma=500, beta=250, tau=5, draw_probability=0.10)
+
 _settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
+
 
 
 class Settings(object):
@@ -49,9 +53,9 @@ def make_dirs():
     if not os.path.isdir(Settings.get('MAPS_PATH', 'FA')):
         os.makedirs(Settings.get('MAPS_PATH', 'FA'))
 
-v = version.get_git_version()
+VERSION = version.get_git_version()
 
-if os.getenv("FAF_FORCE_PRODUCTION") or getattr(sys, 'frozen', False) and not version.is_prerelease_version(v):
+if os.getenv("FAF_FORCE_PRODUCTION") or getattr(sys, 'frozen', False) and not version.is_prerelease_version(VERSION):
     from production import defaults
     make_dirs()
     rotate = RotatingFileHandler(filename=os.path.join(Settings.get('DIR', 'LOG'), 'forever.log'),
@@ -60,7 +64,7 @@ if os.getenv("FAF_FORCE_PRODUCTION") or getattr(sys, 'frozen', False) and not ve
     rotate.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))
     logging.getLogger().addHandler(rotate)
     logging.getLogger().setLevel(Settings.get('LEVEL', 'LOG'))
-elif version.is_development_version(v)\
+elif version.is_development_version(VERSION)\
         or sys.executable.endswith("py.test"):
     # Setup logging output
     devh = logging.StreamHandler()
@@ -73,7 +77,7 @@ elif version.is_development_version(v)\
 
     from develop import defaults
     make_dirs()
-elif version.is_prerelease_version(v):
+elif version.is_prerelease_version(VERSION):
     from develop import defaults
     make_dirs()
     rotate = RotatingFileHandler(filename=os.path.join(Settings.get('DIR', 'LOG'), 'forever.log'),

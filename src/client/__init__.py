@@ -2,6 +2,7 @@
 import logging
 
 from config import Settings
+from .player import Player
 
 logger = logging.getLogger(__name__)
 #logger.setLevel(logging.DEBUG)
