@@ -31,6 +31,15 @@ class IRCPlayer(Player):
         })
 
 
+class Formatters(object):
+    FORMATTER_ANNOUNCEMENT        = unicode(util.readfile("chat/formatters/announcement.qthtml"))
+    FORMATTER_MESSAGE             = unicode(util.readfile("chat/formatters/message.qthtml"))
+    FORMATTER_MESSAGE_AVATAR      = unicode(util.readfile("chat/formatters/messageAvatar.qthtml"))
+    FORMATTER_ACTION              = unicode(util.readfile("chat/formatters/action.qthtml"))
+    FORMATTER_ACTION_AVATAR       = unicode(util.readfile("chat/formatters/actionAvatar.qthtml"))
+    FORMATTER_RAW                 = unicode(util.readfile("chat/formatters/raw.qthtml"))
+    NICKLIST_COLUMNS              = json.loads(util.readfile("chat/formatters/nicklist_columns.json"))
+
 class Channel(FormClass, BaseClass):
     '''
     This is an actual chat channel object, representing an IRC chat room and the users currently present.
@@ -41,14 +50,7 @@ class Channel(FormClass, BaseClass):
         self.setupUi(self)
         
         #Special HTML formatter used to layout the chat lines written by people
-        self.FORMATTER_ANNOUNCEMENT        = unicode(util.readfile("chat/formatters/announcement.qthtml"))
-        self.FORMATTER_MESSAGE             = unicode(util.readfile("chat/formatters/message.qthtml"))
-        self.FORMATTER_MESSAGE_AVATAR      = unicode(util.readfile("chat/formatters/messageAvatar.qthtml"))
-        self.FORMATTER_ACTION              = unicode(util.readfile("chat/formatters/action.qthtml"))
-        self.FORMATTER_ACTION_AVATAR       = unicode(util.readfile("chat/formatters/actionAvatar.qthtml"))
-        self.FORMATTER_RAW                 = unicode(util.readfile("chat/formatters/raw.qthtml"))
-        self.NICKLIST_COLUMNS              = json.loads(util.readfile("chat/formatters/nicklist_columns.json"))
-        self.lobby = lobby        
+        self.lobby = lobby
         self.chatters = {}
         
         self.lasttimestamp= None
@@ -81,13 +83,13 @@ class Channel(FormClass, BaseClass):
             
             #Properly and snugly snap all the columns
             self.nickList.horizontalHeader().setResizeMode(Chatter.RANK_COLUMN, QtGui.QHeaderView.Fixed)
-            self.nickList.horizontalHeader().resizeSection(Chatter.RANK_COLUMN, self.NICKLIST_COLUMNS['RANK'])
+            self.nickList.horizontalHeader().resizeSection(Chatter.RANK_COLUMN, Formatters.NICKLIST_COLUMNS['RANK'])
 
             self.nickList.horizontalHeader().setResizeMode(Chatter.AVATAR_COLUMN, QtGui.QHeaderView.Fixed)
-            self.nickList.horizontalHeader().resizeSection(Chatter.AVATAR_COLUMN, self.NICKLIST_COLUMNS['AVATAR'])
+            self.nickList.horizontalHeader().resizeSection(Chatter.AVATAR_COLUMN, Formatters.NICKLIST_COLUMNS['AVATAR'])
             
             self.nickList.horizontalHeader().setResizeMode(Chatter.STATUS_COLUMN, QtGui.QHeaderView.Fixed)
-            self.nickList.horizontalHeader().resizeSection(Chatter.STATUS_COLUMN, self.NICKLIST_COLUMNS['STATUS'])
+            self.nickList.horizontalHeader().resizeSection(Chatter.STATUS_COLUMN, Formatters.NICKLIST_COLUMNS['STATUS'])
             
             self.nickList.horizontalHeader().setResizeMode(Chatter.SORT_COLUMN, QtGui.QHeaderView.Stretch)
             
@@ -210,7 +212,7 @@ class Channel(FormClass, BaseClass):
         cursor.movePosition(QtGui.QTextCursor.End)
         self.chatArea.setTextCursor(cursor)
 
-        formatter = self.FORMATTER_ANNOUNCEMENT        
+        formatter = Formatters.FORMATTER_ANNOUNCEMENT
         line = formatter.format(size=size, color=color, text=util.irc_escape(text, self.lobby.a_style))        
         self.chatArea.insertHtml(line)
         
@@ -219,7 +221,7 @@ class Channel(FormClass, BaseClass):
         else:
             self.chatArea.verticalScrollBar().setValue(scroll_current)
 
-    def printLine(self, name, text, scroll_forced=False, server_action=False):
+    def printLine(self, name, text, scroll_forced=False, formatter=Formatters.FORMATTER_MESSAGE):
         if self.lines > CHAT_TEXT_LIMIT:
             cursor = self.chatArea.textCursor()
             cursor.movePosition(QtGui.QTextCursor.Start)
@@ -239,27 +241,22 @@ class Channel(FormClass, BaseClass):
             self.pingWindow()
 
         avatar = None
-        # Default colour behaviour
-        if name.lower() in self.lobby.specialUserColors:
-            color = self.lobby.specialUserColors[name.lower()]
-        else:
-            if name in self.chatters:
-                chatter = self.chatters[name]
-                color = chatter.textColor().name()
-                if chatter.avatar:
-                    avatar = chatter.avatar["url"]
-                    avatarTip = chatter.avatarTip or ""
+        if name in self.chatters:
+            chatter = self.chatters[name]
+            color = chatter.textColor().name()
+            if chatter.avatar:
+                avatar = chatter.avatar["url"]
+                avatarTip = chatter.avatarTip or ""
 
-            else:
-                # Fallback and ask the client. We have no Idea who this is.
-                color = self.lobby.client.getUserColor(name)
+        else:
+            # Fallback and ask the client. We have no Idea who this is.
+            color = self.lobby.client.getUserColor(name)
+
 
         # Overrides for special cases.
         if mentioned:
             color = self.lobby.client.getColor("you")
 
-        if server_action:
-            color = self.lobby.client.getColor("server")
 
         # scroll if close to the last line of the log
         scroll_current = self.chatArea.verticalScrollBar().value()
@@ -276,13 +273,10 @@ class Channel(FormClass, BaseClass):
             if pix:
                 if not self.chatArea.document().resource(QtGui.QTextDocument.ImageResource, QtCore.QUrl(avatar)) :
                     self.chatArea.document().addResource(QtGui.QTextDocument.ImageResource,  QtCore.QUrl(avatar), pix)
-                formatter = self.FORMATTER_ACTION_AVATAR
                 line = formatter.format(time=self.timestamp(), avatar=avatar, avatarTip=avatarTip, name=displayName, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))
             else:
-                formatter = self.FORMATTER_ACTION
                 line = formatter.format(time=self.timestamp(), name=displayName, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))
         else:
-            formatter = self.FORMATTER_ACTION
             line = formatter.format(time=self.timestamp(), name=displayName, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))
 
         self.chatArea.insertHtml(line)
@@ -298,11 +292,11 @@ class Channel(FormClass, BaseClass):
         if self.lobby.client.isFoe(name):
             return
 
-        self.printLine(name, text, scroll_forced)
+        self.printLine(name, text, scroll_forced, Formatters.FORMATTER_MESSAGE)
 
     @QtCore.pyqtSlot(str, str)
-    def printAction(self, name, text, scroll_forced=False, server_action=False):
-        self.printLine(name, text, scroll_forced, server_action)
+    def printAction(self, name, text, scroll_forced=False):
+        self.printLine(name, text, scroll_forced, Formatters.FORMATTER_ACTION)
 
         
     @QtCore.pyqtSlot(str, str)
@@ -328,7 +322,7 @@ class Channel(FormClass, BaseClass):
             cursor.movePosition(QtGui.QTextCursor.End)
             self.chatArea.setTextCursor(cursor)
                                 
-            formatter = self.FORMATTER_RAW
+            formatter = Formatters.FORMATTER_RAW
             line = formatter.format(time=self.timestamp(), name=name, color=color, width=self.maxChatterWidth, text=text)
             self.chatArea.insertHtml(line)
             
@@ -483,5 +477,4 @@ class Channel(FormClass, BaseClass):
             else:
                 if self.lobby.sendMsg(target, text):
                     self.printMsg(self.lobby.client.login, text, True)
-
         self.chatEdit.clear()
