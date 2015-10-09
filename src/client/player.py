@@ -4,6 +4,13 @@ class Player:
     Needs to be constructed using a player_info message sent from the server.
     """
     def __init__(self, player_info_message):
+        """
+        Initialize a Player from the given player_info_message sent by the server
+
+        :param player_info_message:
+        :return:
+        """
+        # Required fields
         self.login = player_info_message["login"]
         self.global_rating = player_info_message["global_rating"]
         self.ladder_rating = player_info_message["ladder_rating"]
@@ -13,6 +20,7 @@ class Player:
         self.avatar = player_info_message.get("avatar")
         self.country = player_info_message.get("country")
         self.clan = player_info_message.get("clan")
+        self.league = player_info_message.get("league")
 
     # I'm pretty sure the trueskill library can do this for us, but I don't currently have internet
     # with which to check, so I'll cargo-cult this to make the nice refactor work.

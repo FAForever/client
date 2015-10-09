@@ -152,7 +152,6 @@ class Chatter(QtGui.QTableWidgetItem):
             self.rankItem.setToolTip("IRC User")
             return
 
-        # Soon enough we'll just have a "self.player", but that'd make this refactor too big.
         player = self.lobby.client.players[self.name]
 
         country = player.country
