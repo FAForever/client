@@ -27,3 +27,11 @@ class Player(object):
     # with which to check, so I'll cargo-cult this to make the nice refactor work.
     def get_ranking(self):
         return int(max(0, round((self.global_rating[0] - 3 * self.global_rating[1])/100.0)*100))
+
+    @property
+    def rating_mean(self):
+        return self.global_rating[0]
+
+    @property
+    def rating_deviation(self):
+        return self.global_rating[1]
