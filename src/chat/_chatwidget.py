@@ -62,7 +62,6 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.welcomed = False
 
         # Load colors and styles from theme
-        self.specialUserColors = json.loads(util.readfile("chat/formatters/special_colors.json"))
         self.a_style = util.readfile("chat/formatters/a_style.qss")
 
         #load UI perform some tweaks
