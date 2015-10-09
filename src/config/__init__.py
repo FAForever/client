@@ -52,7 +52,6 @@ def make_dirs():
 v = version.get_git_version()
 
 if os.getenv("FAF_FORCE_PRODUCTION") or getattr(sys, 'frozen', False) and not version.is_prerelease_version(v):
-    logging.warning("FAF version: " + repr(version.get_git_version()))
     from production import defaults
     make_dirs()
     rotate = RotatingFileHandler(filename=os.path.join(Settings.get('DIR', 'LOG'), 'forever.log'),
@@ -74,9 +73,7 @@ elif version.is_development_version(v)\
 
     from develop import defaults
     make_dirs()
-    logging.warning("FAF development version: " + repr(version.get_git_version()))
 elif version.is_prerelease_version(v):
-    logging.warning("FAF prerelease version: " + repr(version.get_git_version()))
     from develop import defaults
     make_dirs()
     rotate = RotatingFileHandler(filename=os.path.join(Settings.get('DIR', 'LOG'), 'forever.log'),
@@ -85,3 +82,5 @@ elif version.is_prerelease_version(v):
     rotate.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))
     logging.getLogger().addHandler(rotate)
     logging.getLogger().setLevel(Settings.get('LEVEL', 'LOG'))
+
+logging.getLogger().info("FAF version: {}".format(version.get_git_version()))
