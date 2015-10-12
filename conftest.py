@@ -1,19 +1,8 @@
-__author__ = 'Thygrrr'
-
 import pytest
 
 @pytest.fixture(scope="module")
-def application(request):
-    from PyQt4 import QtGui
-    request.app = QtGui.QApplication([])
-    request.app.setApplicationName("py.test QApplication")
-
-    def finalize():
-        request.app.deleteLater()
-        del request.app
-
-    request.addfinalizer(finalize)
-    return request.app
+def application(qapp, request):
+    return qapp
 
 @pytest.fixture(scope="function")
 def signal_receiver(application):
