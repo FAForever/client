@@ -4,6 +4,7 @@ from fa.replay import replay
 import util
 from PyQt4 import QtGui, QtCore
 import time
+import chat
 from chat import user2name, logger
 from chat.chatter import Chatter
 import re          
@@ -39,6 +40,7 @@ class Formatters(object):
     FORMATTER_ACTION_AVATAR       = unicode(util.readfile("chat/formatters/actionAvatar.qthtml"))
     FORMATTER_RAW                 = unicode(util.readfile("chat/formatters/raw.qthtml"))
     NICKLIST_COLUMNS              = json.loads(util.readfile("chat/formatters/nicklist_columns.json"))
+
 
 class Channel(FormClass, BaseClass):
     '''
@@ -288,12 +290,13 @@ class Channel(FormClass, BaseClass):
     def printMsg(self, name, text, scroll_forced=False):
         if self.lobby.client.isFoe(name):
             return
-
-        self.printLine(name, text, scroll_forced, Formatters.FORMATTER_MESSAGE)
+        fmt = Formatters.FORMATTER_MESSAGE_AVATAR if self.chatters[name].avatar else Formatters.FORMATTER_MESSAGE
+        self.printLine(name, text, scroll_forced, fmt)
 
     @QtCore.pyqtSlot(str, str)
     def printAction(self, name, text, scroll_forced=False):
-        self.printLine(name, text, scroll_forced, Formatters.FORMATTER_ACTION)
+        fmt = Formatters.FORMATTER_MESSAGE_AVATAR if self.chatters[name].avatar else Formatters.FORMATTER_MESSAGE
+        self.printLine(name, text, scroll_forced, fmt)
 
         
     @QtCore.pyqtSlot(str, str)
@@ -364,8 +367,8 @@ class Channel(FormClass, BaseClass):
         Takes a list of users.
         '''
         for name in updated_chatters:
-            if name in self.chatters: 
-                self.chatters[name].update() #only update chatters that are in this channel
+            if name in self.chatters:
+                self.chatters[name].update()
         
         self.updateUserCount()
         
@@ -383,7 +386,7 @@ class Channel(FormClass, BaseClass):
                     mode = "@"
                 if "q" in modes:
                     mode = "~"                    
-                if mode in self.lobby.OPERATOR_COLORS:
+                if mode in chat.colors.OPERATOR_COLORS:
                     self.chatters[name].elevation = mode
                     self.chatters[name].update()
             removematch = re.search(remove, modes)

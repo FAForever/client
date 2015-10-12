@@ -11,6 +11,7 @@ import util
 import fa
 
 import sys
+import chat
 from chat import user2name
 from chat.channel import Channel
 import notificatation_system as ns
@@ -40,7 +41,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
         # CAVEAT: These will fail if loaded before theming is loaded
         import json
-        self.OPERATOR_COLORS = json.loads(util.readfile("chat/formatters/operator_colors.json"))
+        chat.OPERATOR_COLORS = json.loads(util.readfile("chat/formatters/operator_colors.json"))
 
         self.client = client
         self.channels = {}

@@ -1,9 +1,12 @@
 from PyQt4 import QtGui, QtCore
+
 from PyQt4.QtNetwork import QNetworkRequest
 from chat._avatarWidget import avatarWidget
 
 
+import chat
 from chat import user2name
+
 from fa.replay import replay
 import util
 
@@ -34,7 +37,7 @@ class Chatter(QtGui.QTableWidgetItem):
         self.parent = parent
         self.lobby = lobby
 
-        if user[0] in self.lobby.OPERATOR_COLORS:
+        if user[0] in chat.OPERATOR_COLORS:
             self.elevation = user[0]
         else:
             self.elevation = None
@@ -198,16 +201,16 @@ class Chatter(QtGui.QTableWidgetItem):
 
     def setChatUserColor(self, username):
         if self.lobby.client.isFriend(username):
-            if self.elevation in self.lobby.OPERATOR_COLORS:
-                self.setTextColor(QtGui.QColor(self.lobby.client.getColor("friend_mod")))
+            if self.elevation in chat.OPERATOR_COLORS:
+                self.setTextColor(QtGui.QColor(chat.colors.getColor("friend_mod")))
                 return
-            self.setTextColor(QtGui.QColor(self.lobby.client.getColor("friend")))
+            self.setTextColor(QtGui.QColor(chat.colors.getColor("friend")))
             return
-        if self.elevation in self.lobby.OPERATOR_COLORS:
-            self.setTextColor(QtGui.QColor(self.lobby.OPERATOR_COLORS[self.elevation]))
+        if self.elevation in chat.colors.OPERATOR_COLORS:
+            self.setTextColor(QtGui.QColor(chat.colors.OPERATOR_COLORS[self.elevation]))
             return
-        if self.name in self.lobby.client.colors :
-            self.setTextColor(QtGui.QColor(self.lobby.client.getColor(self.name)))
+        if self.name in self.lobby.client.colors:
+            self.setTextColor(QtGui.QColor(chat.colors.getColor(self.name)))
             return
         self.setTextColor(QtGui.QColor(self.lobby.client.getUserColor(self.name)))
 

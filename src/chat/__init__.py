@@ -14,3 +14,6 @@ from _chatwidget import ChatWidget as Lobby
 
 # CAVEAT: DO NOT REMOVE! These are promoted widgets and py2exe wouldn't include them otherwise
 from chat.chatlineedit import ChatLineEdit
+
+from .colors import OPERATOR_COLORS, CHAT_COLORS
+
