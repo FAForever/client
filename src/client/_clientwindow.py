@@ -141,6 +141,8 @@ class ClientWindow(FormClass, BaseClass):
         self.socket.error.connect(self.socketError)
         self.blockSize = 0
 
+        self.useUPnP = False
+
         self.uniqueId = None
 
         self.sendFile = False
