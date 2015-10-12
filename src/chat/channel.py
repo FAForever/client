@@ -68,17 +68,10 @@ class Channel(FormClass, BaseClass):
         #count the number of line currently in the chat
         self.lines = 0
 
-        # Clear window menu action
-        self.lobby.client.actionClearWindow.triggered.connect(self.clearWindow)
-
         # Perform special setup for public channels as opposed to private ones
         self.name = name
         self.private = private
         
-        self.setup()
-        
-        
-    def setup(self):
         if not self.private:
             # Non-query channels have a sorted nicklist
             self.nickList.sortItems(Chatter.SORT_COLUMN)
@@ -108,6 +101,7 @@ class Channel(FormClass, BaseClass):
         self.chatArea.anchorClicked.connect(self.openUrl)
         self.chatEdit.returnPressed.connect(self.sendLine)
         self.chatEdit.setChatters(self.chatters)
+
         self.lobby.client.doneresize.connect(self.resizing)
 
         self.resizeTimer = QtCore.QTimer(self)

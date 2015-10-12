@@ -295,8 +295,6 @@
      <property name="title">
       <string>Chat...</string>
      </property>
-     <addaction name="actionClearWindow"/>
-     <addaction name="separator"/>
      <addaction name="actionColoredNicknames"/>
      <addaction name="actionSetJoinsParts"/>
      <addaction name="actionSetOpenGames"/>
@@ -524,11 +522,6 @@
    </property>
    <property name="text">
     <string>Save game logs</string>
-   </property>
-  </action>
-  <action name="actionClearWindow">
-   <property name="text">
-    <string>Clear Window</string>
    </property>
   </action>
   <action name="actionColoredNicknames">
