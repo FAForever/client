@@ -49,8 +49,8 @@ class GamesWidget(FormClass, BaseClass):
         self.ispassworded = False
         self.canChooseMap = True
 
-        self.client.modInfo.connect(self.processModInfo)
-        self.client.gameInfo.connect(self.processGameInfo)
+        self.client.net.modInfo.connect(self.processModInfo)
+        self.client.net.gameInfo.connect(self.processGameInfo)
 
         self.client.gameEnter.connect(self.stopSearchRanked)
         self.client.viewingReplay.connect(self.stopSearchRanked)

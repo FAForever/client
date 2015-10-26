@@ -38,7 +38,7 @@ class mumbleConnector():
         self.uid = 0
 
         # Add signal handlers
-        self.client.gameInfo.connect(self.processGameInfo)
+        self.client.net.gameInfo.connect(self.processGameInfo)
         self.client.viewingReplay.connect(self.processViewingReplay)
 
         # Update registry settings for Mumble
