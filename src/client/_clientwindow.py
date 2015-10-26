@@ -112,9 +112,7 @@ class ClientWindow(FormClass, BaseClass):
 
     # These signals propagate important client state changes to other modules
     statsInfo = QtCore.pyqtSignal(dict)
-    tourneyTypesInfo = QtCore.pyqtSignal(dict)
     tutorialsInfo = QtCore.pyqtSignal(dict)
-    tourneyInfo = QtCore.pyqtSignal(dict)
     modInfo = QtCore.pyqtSignal(dict)
     gameInfo = QtCore.pyqtSignal(dict)
     modVaultInfo = QtCore.pyqtSignal(dict)
@@ -1300,12 +1298,6 @@ class ClientWindow(FormClass, BaseClass):
 
     def handle_coop_info(self, message):
         self.coopInfo.emit(message)
-
-    def handle_tournament_types_info(self, message):
-        self.tourneyTypesInfo.emit(message)
-
-    def handle_tournament_info(self, message):
-        self.tourneyInfo.emit(message)
 
     def handle_tutorials_info(self, message):
         self.tutorialsInfo.emit(message)
