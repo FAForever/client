@@ -4,6 +4,7 @@ from client.updater import fetchClientUpdate
 from config import Settings
 import fa
 from fa.factions import Factions
+from client.setting_manager import SettingManager
 
 '''
 Created on Dec 1, 2011
@@ -127,6 +128,7 @@ class ClientWindow(FormClass, BaseClass):
 
     def __init__(self, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
+        self.settingManager = SettingManager(self)
 
         logger.debug("Client instantiating")
 
@@ -252,7 +254,7 @@ class ClientWindow(FormClass, BaseClass):
         self.topTabs.currentChanged.connect(self.vaultTabChanged)
 
         #Verrry important step!
-        self.loadSettingsPrelogin()
+        self.settingManager.loadSettingsPrelogin()
 
         self.players = {}       # Players known to the client, contains the player_info messages sent by the server
         self.urls = {}
@@ -575,7 +577,7 @@ class ClientWindow(FormClass, BaseClass):
 
     def closeEvent(self, event):
         logger.info("Close Event for Application Main Window")
-        self.saveWindow()
+        self.settingManager.saveWindow()
 
         if fa.instance.running():
             if QtGui.QMessageBox.question(self, "Are you sure?", "Seems like you still have Forged Alliance running!<br/><b>Close anyway?</b>", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No) == QtGui.QMessageBox.No:
@@ -610,7 +612,7 @@ class ClientWindow(FormClass, BaseClass):
         self.actionAbout.triggered.connect(self.linkAbout)
 
         self.actionClearCache.triggered.connect(self.clearCache)
-        self.actionClearSettings.triggered.connect(self.clearSettings)
+        self.actionClearSettings.triggered.connect(self.settingManager.clearSettings)
         self.actionClearGameFiles.triggered.connect(self.clearGameFiles)
 
         self.actionSetGamePath.triggered.connect(self.switchPath)
@@ -626,7 +628,7 @@ class ClientWindow(FormClass, BaseClass):
         self.actionSetLiveReplays.triggered.connect(self.updateOptions)
         self.actionSaveGamelogs.triggered.connect(self.updateOptions)
         self.actionColoredNicknames.triggered.connect(self.updateOptions)
-        self.actionActivateMumbleSwitching.triggered.connect(self.saveMumbleSwitching)
+        self.actionActivateMumbleSwitching.triggered.connect(self.settingManager.saveMumbleSwitching)
 
 
         #Init themes as actions.
@@ -656,8 +658,8 @@ class ClientWindow(FormClass, BaseClass):
         self.gamelogs = self.actionSaveGamelogs.isChecked()
         self.coloredNicknames = self.actionColoredNicknames.isChecked()
 
-        self.saveChat()
-        self.saveCredentials()
+        self.settingManager.saveChat()
+        self.settingManager.saveCredentials()
 
 
     @QtCore.pyqtSlot()
@@ -678,16 +680,6 @@ class ClientWindow(FormClass, BaseClass):
     def setMumbleOptions(self):
         import loginwizards
         loginwizards.mumbleOptionsWizard(self).exec_()
-
-    @QtCore.pyqtSlot()
-    def clearSettings(self):
-        result = QtGui.QMessageBox.question(None, "Clear Settings", "Are you sure you wish to clear all settings, login info, etc. used by this program?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
-        if (result == QtGui.QMessageBox.Yes):
-
-            util.settings.clear()
-            util.settings.sync()
-            QtGui.QMessageBox.information(None, "Restart Needed", "FAF will quit now.")
-            QtGui.QApplication.quit()
 
     @QtCore.pyqtSlot()
     def clearGameFiles(self):
@@ -714,122 +706,6 @@ class ClientWindow(FormClass, BaseClass):
     def linkAbout(self):
         dialog = util.loadUi("client/about.ui")
         dialog.exec_()
-
-    def saveCredentials(self):
-        util.settings.beginGroup("user")
-        util.settings.setValue("user/remember", self.remember) #always remember to remember
-        if self.remember:
-            util.settings.setValue("user/login", self.login)
-            util.settings.setValue("user/password", self.password)
-            util.settings.setValue("user/autologin", self.autologin) #only autologin if remembering
-        else:
-            util.settings.setValue("user/login", None)
-            util.settings.setValue("user/password", None)
-            util.settings.setValue("user/autologin", False)
-        util.settings.endGroup()
-        util.settings.sync()
-
-
-    def clearAutologin(self):
-        self.autologin = False
-        self.actionSetAutoLogin.setChecked(False)
-
-        util.settings.beginGroup("user")
-        util.settings.setValue("user/autologin", False)
-        util.settings.endGroup()
-        util.settings.sync()
-
-
-    def saveWindow(self):
-        util.settings.beginGroup("window")
-        util.settings.setValue("geometry", self.saveGeometry())
-        util.settings.endGroup()
-        util.settings.beginGroup("ForgedAlliance")
-        util.settings.setValue("app/falogs", self.gamelogs)
-        util.settings.endGroup()
-
-    def savePort(self):
-        util.settings.beginGroup("ForgedAlliance")
-        util.settings.setValue("app/gameport", self.gamePort)
-        util.settings.setValue("app/upnp", self.useUPnP)
-
-        util.settings.endGroup()
-        util.settings.sync()
-
-    def saveMumble(self):
-        util.settings.beginGroup("Mumble")
-        util.settings.setValue("app/mumble", self.enableMumble)
-        util.settings.endGroup()
-        util.settings.sync()
-
-    def saveMumbleSwitching(self):
-        self.activateMumbleSwitching = self.actionActivateMumbleSwitching.isChecked()
-
-        util.settings.beginGroup("Mumble")
-        util.settings.setValue("app/activateMumbleSwitching", self.activateMumbleSwitching)
-        util.settings.endGroup()
-        util.settings.sync()
-
-    @QtCore.pyqtSlot()
-    def saveChat(self):
-        util.settings.beginGroup("chat")
-        util.settings.setValue("soundeffects", self.soundeffects)
-        util.settings.setValue("livereplays", self.livereplays)
-        util.settings.setValue("opengames", self.opengames)
-        util.settings.setValue("joinsparts", self.joinsparts)
-        util.settings.setValue("coloredNicknames", self.coloredNicknames)
-        util.settings.endGroup()
-
-
-    def loadSettingsPrelogin(self):
-
-        util.settings.beginGroup("user")
-        self.login = util.settings.value("user/login")
-        self.password = util.settings.value("user/password")
-        self.remember = (util.settings.value("user/remember") == "true")
-
-        # This is the new way we do things.
-        self.autologin = (util.settings.value("user/autologin") == "true")
-        self.actionSetAutoLogin.setChecked(self.autologin)
-        util.settings.endGroup()
-
-
-
-    def loadSettings(self):
-        #Load settings
-        util.settings.beginGroup("window")
-        geometry = util.settings.value("geometry", None)
-        if geometry:
-            self.restoreGeometry(geometry)
-        util.settings.endGroup()
-
-        util.settings.beginGroup("ForgedAlliance")
-        self.gamePort = int(util.settings.value("app/gameport", GAME_PORT_DEFAULT))
-        self.useUPnP = (util.settings.value("app/upnp", "false") == "true")
-        self.gamelogs = (util.settings.value("app/falogs", "false") == "true")
-        self.actionSaveGamelogs.setChecked(self.gamelogs)
-        util.settings.endGroup()
-
-        util.settings.beginGroup("Mumble")
-
-        if util.settings.value("app/mumble", "firsttime") == "firsttime":
-            # The user has never configured mumble before. Be a little intrusive and ask him if he wants to use it.
-            if QtGui.QMessageBox.question(self, "Enable Voice Connector?", "FA Forever can connect with <a href=\"http://mumble.sourceforge.net/\">Mumble</a> to support the automatic setup of voice connections between you and your team mates. Would you like to enable this feature? You can change the setting at any time by going to options -> settings -> Voice", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No) == QtGui.QMessageBox.Yes:
-                util.settings.setValue("app/mumble", "true")
-            else:
-                util.settings.setValue("app/mumble", "false")
-
-        if util.settings.value("app/activateMumbleSwitching", "firsttime") == "firsttime":
-            util.settings.setValue("app/activateMumbleSwitching", "true")
-
-        self.enableMumble = (util.settings.value("app/mumble", "false") == "true")
-        self.activateMumbleSwitching = (util.settings.value("app/activateMumbleSwitching", "false") == "true")
-        util.settings.endGroup()
-
-        self.actionActivateMumbleSwitching.setChecked(self.activateMumbleSwitching)
-
-        self.loadChat()
-
 
     def loadChat(self):
         try:
@@ -953,13 +829,13 @@ class ClientWindow(FormClass, BaseClass):
         if not self.session :
             if self.progress.wasCanceled():
                 logger.warn("waitSession() aborted by user.")
-            else :
+            else:
                 logger.error("waitSession() failed with clientstate " + str(self.state) + ", socket errorstring: " + self.socket.errorString())
                 QtGui.QMessageBox.critical(self, "Notice from Server", "Unable to get a session : <br> Server under maintenance.<br><br>Please retry in some minutes.")
             return False
 
         self.uniqueId = util.uniqueID(self.login, self.session)
-        self.loadSettings()
+        self.settingManager.loadSettings()
 
         #
         # Voice connector (This isn't supposed to be here, but I need the settings to be loaded before I can determine if we can hook in the mumbleConnector
@@ -1033,7 +909,7 @@ class ClientWindow(FormClass, BaseClass):
             util.settings.beginGroup("window")
             util.settings.remove("geometry")
             util.settings.endGroup()
-            self.clearAutologin()
+            self.settingManager.clearAutologin()
             return self.doLogin()   #Just try to login again, slightly hackish but I can get away with it here, I guess.
         else:
             # A more profound error has occurred (cancellation or disconnection)
