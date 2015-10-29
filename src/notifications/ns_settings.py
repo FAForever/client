@@ -5,6 +5,7 @@ import util
 import notifications as ns
 from notifications.hook_useronline import NsHookUserOnline
 from notifications.hook_newgame import NsHookNewGame
+from notifications.hook_game_full import NsHookTeamFull
 
 """
 The UI of the Notification System Settings Frame.
@@ -47,9 +48,9 @@ class NsSettingsDialog(FormClass2, BaseClass2):
         self.setWindowFlags(self.windowFlags() & (~QtCore.Qt.WindowContextHelpButtonHint))
 
         # init hooks
-        self.hooks = {}
-        self.hooks[ns.Notifications.USER_ONLINE] = NsHookUserOnline()
-        self.hooks[ns.Notifications.NEW_GAME] = NsHookNewGame()
+        self.hooks = {ns.Notifications.USER_ONLINE: NsHookUserOnline(),
+                      ns.Notifications.NEW_GAME: NsHookNewGame(),
+                      ns.Notifications.GAME_FULL: NsHookTeamFull()}
 
         model = NotificationHooks(self, self.hooks.values())
         self.tableView.setModel(model)
