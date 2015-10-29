@@ -4,7 +4,7 @@ from client.updater import fetchClientUpdate
 from config import Settings
 import fa
 from fa.factions import Factions
-from client.server_packets import ServerPackets
+from client.command_dispatcher import CommandDispatcher
 
 '''
 Created on Dec 1, 2011
@@ -121,7 +121,7 @@ class ClientWindow(FormClass, BaseClass):
     def __init__(self, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
         # Signals for Server Communication
-        self.net = ServerPackets()
+        self.net = CommandDispatcher()
 
         logger.debug("Client instantiating")
 
@@ -1370,18 +1370,9 @@ class ClientWindow(FormClass, BaseClass):
         self.writeToServer(data)
 
     def dispatch(self, message):
-        '''
-        A fairly pythonic way to process received strings as JSON messages.
-        '''     
-
         if "command" in message:
-            # try to find signal to fire
-            signal = self.net.translate(message['command'])
-            if signal:
-                signal.emit(message)
-            else:
-                # otherwise handle old way
-                logger.error("No signal found for (%s)" % (message['command']))
+            if not self.net.dispatch(message['command'], message):
+                logger.debug("No signal found for (%s)" % (message['command']))
 
                 cmd = "handle_" + message['command']
                 if hasattr(self, cmd):
