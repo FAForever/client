@@ -4,6 +4,7 @@ from client.updater import fetchClientUpdate
 from config import Settings
 import fa
 from fa.factions import Factions
+from client.command_dispatcher import CommandDispatcher
 
 '''
 Created on Dec 1, 2011
@@ -95,20 +96,12 @@ class ClientWindow(FormClass, BaseClass):
 
     #These signals propagate important client state changes to other modules
     statsInfo = QtCore.pyqtSignal(dict)
-    tourneyTypesInfo = QtCore.pyqtSignal(dict)
-    tutorialsInfo = QtCore.pyqtSignal(dict)
-    tourneyInfo = QtCore.pyqtSignal(dict)
-    modInfo = QtCore.pyqtSignal(dict)
-    gameInfo = QtCore.pyqtSignal(dict)
-    modVaultInfo = QtCore.pyqtSignal(dict)
-    coopInfo = QtCore.pyqtSignal(dict)
     avatarList = QtCore.pyqtSignal(list)
     playerAvatarList = QtCore.pyqtSignal(dict)
     usersUpdated = QtCore.pyqtSignal(list)
     localBroadcast = QtCore.pyqtSignal(str, str)
     autoJoin = QtCore.pyqtSignal(list)
     channelsUpdated = QtCore.pyqtSignal(list)
-    replayVault = QtCore.pyqtSignal(dict)
     coopLeaderBoard = QtCore.pyqtSignal(dict)
 
     #These signals are emitted whenever a certain tab is activated
@@ -127,6 +120,8 @@ class ClientWindow(FormClass, BaseClass):
 
     def __init__(self, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
+        # Signals for Server Communication
+        self.net = CommandDispatcher()
 
         logger.debug("Client instantiating")
 
@@ -167,7 +162,7 @@ class ClientWindow(FormClass, BaseClass):
         fa.instance.started.connect(self.startedFA)
         fa.instance.finished.connect(self.finishedFA)
         fa.instance.error.connect(self.errorFA)
-        self.gameInfo.connect(fa.instance.processGameInfo)
+        self.net.gameInfo.connect(fa.instance.processGameInfo)
 
         #Local Replay Server (and relay)
         self.replayServer = fa.replayserver.ReplayServer(self)
@@ -1375,20 +1370,19 @@ class ClientWindow(FormClass, BaseClass):
         self.writeToServer(data)
 
     def dispatch(self, message):
-        '''
-        A fairly pythonic way to process received strings as JSON messages.
-        '''     
-
         if "command" in message:
-            cmd = "handle_" + message['command']
-            if hasattr(self, cmd):
-                getattr(self, cmd)(message)
-            else:
-                logger.error("Unknown JSON command: %s" % message['command'])
-                raise ValueError
+            if not self.net.dispatch(message['command'], message):
+                logger.debug("No signal found for (%s)" % (message['command']))
+
+                cmd = "handle_" + message['command']
+                if hasattr(self, cmd):
+                    getattr(self, cmd)(message)
+                else:
+                    logger.error("Unknown JSON command: %s" % message['command'])
+                    raise ValueError
         else:
             logger.debug("No command in message.")
-
+    # This signal is indirect called over Secondary Server
     def handle_stats(self, message):
         self.statsInfo.emit(message)
 
@@ -1502,35 +1496,12 @@ class ClientWindow(FormClass, BaseClass):
 
         fa.run(game_info, self.relayServer.serverPort(), arguments)
 
-    def handle_coop_info(self, message):
-        self.coopInfo.emit(message)
-
-    def handle_tournament_types_info(self, message):
-        self.tourneyTypesInfo.emit(message)
-
-    def handle_tournament_info(self, message):
-        self.tourneyInfo.emit(message)
-
-    def handle_tutorials_info(self, message):
-        self.tutorialsInfo.emit(message)
-
-    def handle_mod_info(self, message):
-        self.modInfo.emit(message)
-
-    def handle_game_info(self, message):
-        self.gameInfo.emit(message)
-
     def handle_modvault_list_info(self, message):
         modList = message["modList"]
         for mod in modList:
             self.handle_modvault_info(mod)
 
-    def handle_modvault_info(self, message):
-        self.modVaultInfo.emit(message)
-
-    def handle_replay_vault(self, message):
-        self.replayVault.emit(message)
-
+    # This signal is indirect called over Secondary Server
     def handle_coop_leaderboard(self, message):
         self.coopLeaderBoard.emit(message)
 
