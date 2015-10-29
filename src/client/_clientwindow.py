@@ -805,7 +805,7 @@ class ClientWindow(FormClass, BaseClass):
 
         util.settings.beginGroup("ForgedAlliance")
         self.gamePort = int(util.settings.value("app/gameport", GAME_PORT_DEFAULT))
-        self.useUPnP = (util.settings.value("app/upnp", "false") == "true")
+        self.useUPnP = (util.settings.value("app/upnp", "true") == "true")
         self.gamelogs = (util.settings.value("app/falogs", "false") == "true")
         self.actionSaveGamelogs.setChecked(self.gamelogs)
         util.settings.endGroup()
