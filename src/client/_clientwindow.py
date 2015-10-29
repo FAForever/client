@@ -762,6 +762,7 @@ class ClientWindow(FormClass, BaseClass):
         util.settings.endGroup()
         util.settings.sync()
 
+    @QtCore.pyqtSlot()
     def saveMumbleSwitching(self):
         self.activateMumbleSwitching = self.actionActivateMumbleSwitching.isChecked()
 
@@ -770,7 +771,6 @@ class ClientWindow(FormClass, BaseClass):
         util.settings.endGroup()
         util.settings.sync()
 
-    @QtCore.pyqtSlot()
     def saveChat(self):
         util.settings.beginGroup("chat")
         util.settings.setValue("soundeffects", self.soundeffects)
