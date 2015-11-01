@@ -1,4 +1,12 @@
+import os
+
 import pytest
+
+import sys
+if os.path.isdir("src"):
+    sys.path.insert(0, os.path.abspath("src"))
+elif os.path.isdir("../src"):
+    sys.path.insert(0, os.path.abspath("../src"))
 
 @pytest.fixture(scope="module")
 def application(qapp, request):

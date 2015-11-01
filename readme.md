@@ -28,6 +28,9 @@ Pull Requests must have py.test unit test coverage.
 
 Running
 -------
+Before running unit tests, set PYTEST_QT_API as follows:
+
+    export PYTEST_QT_API='pyqt4v2'
 
 Run the lobby from the main directory using:
 
