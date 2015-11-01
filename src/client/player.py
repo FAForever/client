@@ -14,10 +14,7 @@ class Player:
                  clan=None,
                  league=None):
         """
-        Initialize a Player from the given player_info_message sent by the server
-
-        :param player_info_message:
-        :return:
+        Initialize a Player
         """
         # Required fields
         self.id = id
@@ -53,21 +50,21 @@ class Player:
     def __getitem__(self, item):
         """
         Allow dictionary access
+
+        # FIXME: Don't use Player as a dictionary
         """
         return getattr(self, item)
 
-    def __str__(self):
-        return "Player(id={}, login={}, global_rating={}, ladder_rating={})".format(
-            self.id,
-            self.login,
-            self.global_rating,
-            self.ladder_rating
-        )
-
     def rounded_rating_estimate(self):
+        """
+        Get the conservative estimate of the players global trueskill rating, rounded to nearest 100
+        """
         return round((self.rating_estimate()/100))*100
 
     def rating_estimate(self):
+        """
+        Get the conservative estimate of the players global trueskill rating
+        """
         return int(max(0, (self.global_rating[0] - 3 * self.global_rating[1])))
 
     @property
@@ -77,3 +74,14 @@ class Player:
     @property
     def rating_deviation(self):
         return self.global_rating[1]
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __str__(self):
+        return "Player(id={}, login={}, global_rating={}, ladder_rating={})".format(
+            self.id,
+            self.login,
+            self.global_rating,
+            self.ladder_rating
+        )
