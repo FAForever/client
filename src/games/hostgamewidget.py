@@ -30,8 +30,8 @@ class HostgameWidget(FormClass, BaseClass):
         
         self.message = {
             "title": self.parent.gamename,
-            "host": self.parent.client.login,
-            "teams": {1:[self.parent.client.login]},
+            "host": self.parent.client.player,
+            "teams": {1:[self.parent.client.player]},
             "featured_mod": "faf",
             "mapname": self.parent.gamemap,
             "state": "open",

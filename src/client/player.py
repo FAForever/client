@@ -37,6 +37,9 @@ class Player:
         """
         return self.id.__hash__()
 
+    def __index__(self):
+        return self.id
+
     def __eq__(self, other):
         """
         Equality by id
