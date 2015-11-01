@@ -7,6 +7,7 @@ import functools
 
 import logging
 
+import config
 from config import Settings
 
 FAF_PROXY_HOST = Settings.get('HOST', 'PROXY')
@@ -38,8 +39,8 @@ class proxies(QtCore.QObject):
                 self.proxies[i].readyRead.connect(functools.partial(self.processPendingDatagrams, i))
                 self.proxiesDestination[i] = None
         if errored:
-            QtGui.QMessageBox.warning(self.client, "Cannot use proxy server", "FAF is unable to bind the port <b>12000 to 12011 on TCP</b>.<br>Please check your firewall settings.<br><b>You may experience connections problems until it's fixed.</b>")
-            
+            return None
+
         self.proxySocket = QtNetwork.QTcpSocket(self)
         self.proxySocket.connected.connect(self.connectedProxy)
         self.proxySocket.readyRead.connect(self.readData)

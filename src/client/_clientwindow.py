@@ -1,4 +1,6 @@
 from functools import partial
+
+import config
 from client.player import Player
 from client.updater import fetchClientUpdate
 from config import Settings
@@ -177,6 +179,9 @@ class ClientWindow(FormClass, BaseClass):
 
         #Local proxy servers
         self.proxyServer = fa.proxies.proxies(self)
+
+        if not self.proxyServer and not config.no_dialogs:
+            QtGui.QMessageBox.warning(self.client, "Cannot use proxy server", "FAF is unable to bind the port <b>12000 to 12011 on TCP</b>.<br>Please check your firewall settings.<br><b>You may experience connections problems until it's fixed.</b>")
 
         #stat server
         self.statsServer = secondaryServer.SecondaryServer("Statistic", 11002, self)

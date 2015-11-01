@@ -55,6 +55,13 @@ def make_dirs():
 
 VERSION = version.get_git_version()
 
+
+def is_development_version():
+    return version.is_development_version(VERSION)
+
+# FIXME: Don't initialize proxy code that shows a dialogue box on import
+no_dialogs = False
+
 if os.getenv("FAF_FORCE_PRODUCTION") or getattr(sys, 'frozen', False) and not version.is_prerelease_version(VERSION):
     from production import defaults
     make_dirs()
@@ -64,8 +71,7 @@ if os.getenv("FAF_FORCE_PRODUCTION") or getattr(sys, 'frozen', False) and not ve
     rotate.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))
     logging.getLogger().addHandler(rotate)
     logging.getLogger().setLevel(Settings.get('LEVEL', 'LOG'))
-elif version.is_development_version(VERSION)\
-        or sys.executable.endswith("py.test"):
+elif is_development_version() or sys.executable.endswith("py.test"):
     # Setup logging output
     devh = logging.StreamHandler()
     devh.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))

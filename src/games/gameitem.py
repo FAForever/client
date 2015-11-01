@@ -404,12 +404,4 @@ class GameItem(QtGui.QListWidgetItem):
 
     @property
     def average_rating(self):
-        ratings = []
-        for player in self.players :
-            try:
-                mean = self.client.players[player]["rating_mean"]
-                dev = self.client.players[player]["rating_deviation"]
-                ratings.append(mean - 3 * dev)
-            except KeyError:
-                pass
-        return float( sum(ratings) ) / max( len(ratings), 1)
+        return sum(map(lambda p: p.rating_estimate(), self.players)) / max(len(self.players), 1)
