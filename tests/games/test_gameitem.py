@@ -20,7 +20,7 @@ def test_average_rating(qtbot):
     assert expected_average_rating == g.average_rating
 
 
-def test_average_rating_no_players_no_players_no_players_no_players(qtbot):
+def test_average_rating_no_players(qtbot):
     import config
     config.no_dialogs = True
     import client
