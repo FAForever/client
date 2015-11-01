@@ -1,9 +1,18 @@
-class Player(object):
+class Player:
     """
     Represents a player the client knows about, mirrors the similar class in the server.
     Needs to be constructed using a player_info message sent from the server.
     """
-    def __init__(self, player_info_message):
+    def __init__(self,
+                 id=None,
+                 login=None,
+                 global_rating=(1500, 500),
+                 ladder_rating=(1500, 500),
+                 number_of_games=0,
+                 avatar=None,
+                 country=None,
+                 clan=None,
+                 league=None):
         """
         Initialize a Player from the given player_info_message sent by the server
 
@@ -11,22 +20,55 @@ class Player(object):
         :return:
         """
         # Required fields
-        self.id = player_info_message["id"]
-        self.login = player_info_message["login"]
-        self.global_rating = player_info_message["global_rating"]
-        self.ladder_rating = player_info_message["ladder_rating"]
-        self.number_of_games = player_info_message["number_of_games"]
+        self.id = id
+        self.login = login
+        if not id or not login:
+            raise KeyError("Player missing id or login attribute {}".format(self))
 
         # Optional fields
-        self.avatar = player_info_message.get("avatar")
-        self.country = player_info_message.get("country")
-        self.clan = player_info_message.get("clan")
-        self.league = player_info_message.get("league")
+        self.global_rating = global_rating
+        self.ladder_rating = ladder_rating
+        self.number_of_games = number_of_games
+        self.avatar = avatar or None
+        self.country = country or None
+        self.clan = clan or None
+        self.league = league or None
 
-    # I'm pretty sure the trueskill library can do this for us, but I don't currently have internet
-    # with which to check, so I'll cargo-cult this to make the nice refactor work.
-    def get_ranking(self):
-        return int(max(0, round((self.global_rating[0] - 3 * self.global_rating[1])/100.0)*100))
+    def __hash__(self):
+        """
+        Index by id
+        """
+        return self.id.__hash__()
+
+    def __eq__(self, other):
+        """
+        Equality by id
+
+        :param other: player object to compare with
+        """
+        if not isinstance(other, Player):
+            return False
+        return other.id == self.id
+
+    def __getitem__(self, item):
+        """
+        Allow dictionary access
+        """
+        return getattr(self, item)
+
+    def __str__(self):
+        return "Player(id={}, login={}, global_rating={}, ladder_rating={})".format(
+            self.id,
+            self.login,
+            self.global_rating,
+            self.ladder_rating
+        )
+
+    def rounded_rating_estimate(self):
+        return round((self.rating_estimate()/100))*100
+
+    def rating_estimate(self):
+        return int(max(0, (self.global_rating[0] - 3 * self.global_rating[1])))
 
     @property
     def rating_mean(self):

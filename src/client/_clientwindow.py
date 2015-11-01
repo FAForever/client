@@ -1582,11 +1582,11 @@ class ClientWindow(FormClass, BaseClass):
         # Firstly, find yourself. Things get easier one "me" is assigned.
         for player in players:
             if player["login"] == self.login:
-                self.me = Player(player)
+                self.me = Player(**player)
 
         for player in players:
             name = player["login"]
-            new_player = Player(player)
+            new_player = Player(**player)
 
             self.players[name] = new_player
             self.usersUpdated.emit([name])

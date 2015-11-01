@@ -166,7 +166,7 @@ class Chatter(QtGui.QTableWidgetItem):
             self.avatar = player.avatar
             self.updateAvatar()
 
-        self.rating = player.get_ranking()
+        self.rating = player.rating_estimate()
 
         self.clan = player.clan
         if self.clan is not None:
