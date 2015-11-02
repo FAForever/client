@@ -1589,18 +1589,18 @@ class ClientWindow(FormClass, BaseClass):
 
         # Firstly, find yourself. Things get easier one "me" is assigned.
         for player in players:
-            if player["login"] == self.login:
+            if player["id"] == self.id:
                 self.me = Player(**player)
 
         for player in players:
-            name = player["login"]
+            id = player["id"]
             new_player = Player(**player)
 
-            self.players[name] = new_player
-            self.usersUpdated.emit([name])
+            self.players[id] = new_player
+            self.usersUpdated.emit([player['login']])
 
             if new_player.clan == self.me.clan:
-                self.clanlist.add(name)
+                self.clanlist.add(player['login'])
 
     def avatarManager(self):
         self.requestAvatars(0)

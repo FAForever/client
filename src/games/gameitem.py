@@ -81,7 +81,7 @@ class GameItem(QtGui.QListWidgetItem):
         self.client         = None
         self.title          = None
         self.host           = None
-        self.teams          = None
+        self.teams          = []
         self.password_protected = False
         self.mod            = None
         self.mods           = None
@@ -93,10 +93,9 @@ class GameItem(QtGui.QListWidgetItem):
         
         self.setHidden(True)
         
-    def url(self, player = None):
-        if not player:
-            player = self.host
-
+    def url(self, player_id=None):
+        if not player_id:
+            player_id = self.host
 
         if self.state == "playing":
             url = QtCore.QUrl()
@@ -110,7 +109,7 @@ class GameItem(QtGui.QListWidgetItem):
             url = QtCore.QUrl()
             url.setScheme("fafgame")
             url.setHost("lobby.faforever.com")
-            url.setPath(self.host)
+            url.setPath(str(player_id))
             url.addQueryItem("map", self.mapname)
             url.addQueryItem("mod", self.mod)
             url.addQueryItem("uid", str(self.uid))
@@ -218,7 +217,10 @@ class GameItem(QtGui.QListWidgetItem):
             ratings_for_team = map(lambda player: Rating(player.rating_mean, player.rating_deviation), team)
             rating_tuples.append(tuple(ratings_for_team))
 
-        self.gamequality = trueskill.quality(rating_tuples)
+        try:
+            self.gamequality = trueskill.quality(rating_tuples)
+        except ValueError:
+            self.gamequality = 0
         self.nTeams = len(teams)
 
         # Map preview code

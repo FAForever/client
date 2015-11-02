@@ -30,8 +30,8 @@ class HostgameWidget(FormClass, BaseClass):
         
         self.message = {
             "title": self.parent.gamename,
-            "host": self.parent.client.player,
-            "teams": {1:[self.parent.client.player]},
+            "host": self.parent.client.id,
+            "teams": {1:[self.parent.client.id]},
             "featured_mod": "faf",
             "mapname": self.parent.gamemap,
             "state": "open",
@@ -74,7 +74,7 @@ class HostgameWidget(FormClass, BaseClass):
         self.mapList.currentIndexChanged.connect(self.mapChanged)
         self.hostButton.released.connect(self.hosting)
         self.titleEdit.textChanged.connect(self.updateText)
-        self.modList.itemClicked.connect(self.modclicked)
+        #self.modList.itemClicked.connect(self.modclicked)
         
     def updateText(self, text):
         self.message['title'] = text
