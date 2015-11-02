@@ -61,16 +61,16 @@ class Packet():
                 fields = []
                 if fieldType is 1:
 
-                    data = "\x08"
+                    prefix = "\x08"
                     if i == 1 :
-                        fieldSize = len(field) + len(data)
+                        fieldSize = len(field) + len(prefix)
                     else :
                         fieldSize = len(field)
                         
                     chunkPackStr += "<bi" + str(fieldSize) + "s"
                     fieldStr = str(field).replace("\t","/t").replace("\n","/n")
                     if i == 1 :
-                        fields.extend([2, fieldSize, data+fieldStr])
+                        fields.extend([2, fieldSize, prefix+fieldStr])
                     else :
                         fields.extend([fieldType, fieldSize, fieldStr])
                 elif fieldType is 0:
