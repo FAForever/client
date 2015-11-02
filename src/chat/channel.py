@@ -24,7 +24,7 @@ FormClass, BaseClass = util.loadUiType("chat/channel.ui")
 class IRCPlayer(Player):
     def __init__(self, name):
         Player.__init__(self, **{
-            "id": 0,
+            "id": -1,
             "login": name,
             "global_rating": (1500, 500),
             "ladder_rating": (1500, 500),
