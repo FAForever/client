@@ -18,7 +18,7 @@ defaults = {
         'MAX_SIZE': 256*1024
     },
     'FA': {
-        "BIN": join(APPDATA_DIR, "bin"),
+        "BIN_PATH": join(APPDATA_DIR, "bin"),
         "ENGINE_PATH": join(join(APPDATA_DIR, "repo"), "binary-patch"),
         "MODS_PATH": join(join(APPDATA_DIR, "repo"), "mods"),
         "MAPS_PATH": join(join(APPDATA_DIR, "repo"), "maps"),

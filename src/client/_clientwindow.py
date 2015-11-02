@@ -1442,13 +1442,13 @@ class ClientWindow(FormClass, BaseClass):
         rank = False
 
         # HACK: Ideally, this comes from the server, too. LATER: search_ranked message
-        if message["featured_mod"] == "ladder1v1":
+        if message["mod"] == "ladder1v1":
             arguments.append('/' + self.games.race)
             #Player 1v1 rating
             arguments.append('/mean')
-            arguments.append(str(self.players[self.login]["ladder_rating_mean"]))
+            arguments.append(str(self.players[self.id]["ladder_rating_mean"]))
             arguments.append('/deviation')
-            arguments.append(str(self.players[self.login]["ladder_rating_deviation"]))
+            arguments.append(str(self.players[self.id]["ladder_rating_deviation"]))
 
             # Launch the auto lobby
             self.relayServer.init_mode = 1
@@ -1456,9 +1456,9 @@ class ClientWindow(FormClass, BaseClass):
         else :
             #Player global rating
             arguments.append('/mean')
-            arguments.append(str(self.players[self.login]["rating_mean"]))
+            arguments.append(str(self.players[self.id]["rating_mean"]))
             arguments.append('/deviation')
-            arguments.append(str(self.players[self.login]["rating_deviation"]))
+            arguments.append(str(self.players[self.id]["rating_deviation"]))
             if self.me.country is not None:
                 arguments.append('/country ')
                 arguments.append(self.me.country)
@@ -1477,38 +1477,13 @@ class ClientWindow(FormClass, BaseClass):
         if "sim_mods" in message:
             fa.mods.checkMods(message['sim_mods'])
 
-        # Writing a file for options
-        if "options" in message:
-            filename = os.path.join(util.CACHE_DIR, "options.lua")
-            options = QtCore.QFile(filename)
-            options.open(QtCore.QIODevice.WriteOnly | QtCore.QIODevice.Text)
-            numOpt = 0
-
-            options.write("Options = { ")
-
-            lenopt = len(message['options'])
-
-            for option in message['options'] :
-
-                if option == True :
-                    options.write("'1'")
-                else :
-                    options.write("'0'")
-
-                numOpt = numOpt + 1
-                if lenopt != numOpt :
-                    options.write(", ")
-
-            options.write(" }")
-            options.close()
-
         #Experimental UPnP Mapper - mappings are removed on app exit
         if self.useUPnP:
             fa.upnp.createPortMapping(self.localIP, self.gamePort, "UDP")
 
-        info = dict(uid=message['uid'], recorder=self.login, featured_mod=message[modkey], game_time=time.time())
+        info = dict(uid=message['uid'], recorder=self.login, featured_mod=message['mod'], game_time=time.time())
 
-        fa.run(game_info, self.relayServer.serverPort(), arguments)
+        fa.run(info, self.relayServer.serverPort(), arguments)
 
     def handle_coop_info(self, message):
         self.coopInfo.emit(message)

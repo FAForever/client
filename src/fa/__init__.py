@@ -24,4 +24,3 @@ import proxies
 import updater
 import upnp
 import factions
-import binary

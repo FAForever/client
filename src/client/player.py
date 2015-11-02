@@ -78,6 +78,14 @@ class Player:
     def rating_deviation(self):
         return self.global_rating[1]
 
+    @property
+    def ladder_rating_mean(self):
+        return self.ladder_rating[0]
+
+    @property
+    def ladder_rating_deviation(self):
+        return self.ladder_rating[1]
+
     def __repr__(self):
         return self.__str__()
 

@@ -8,7 +8,6 @@ import fa
 from fa.mods import checkMods
 from fa.path import writeFAPathLua, validatePath
 from fa.wizards import Wizard
-from fa import binary
 import mods
 import util
 
@@ -61,10 +60,6 @@ def path(parent):
 
 
 def game(parent):
-    # Spawn an updater for the game binary
-    updater = binary.Updater(parent)
-    updater.run()
-
     return True
 
 def check(featured_mod, mapname=None, version=None, modVersions=None, sim_mods=None, silent=False):
@@ -76,8 +71,7 @@ def check(featured_mod, mapname=None, version=None, modVersions=None, sim_mods=N
     assert featured_mod
 
     if version is None:
-        logger.fatal("Cannot update to an unknown version of FA")
-        return False
+        logger.info("Version unknown, assuming latest")
 
     # Perform the actual comparisons and updating                    
     logger.info("Updating FA for mod: " + str(featured_mod) + ", version " + str(version))

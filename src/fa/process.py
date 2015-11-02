@@ -35,7 +35,7 @@ class Process(QtCore.QProcess):
             in an attached process.
             """
             #prepare actual command for launching
-            executable = os.path.join(config.Settings.get('BIN_DIR', 'FA'), "ForgedAllianceForever.exe")
+            executable = os.path.join(config.Settings.get('BIN_PATH', 'FA'), "ForgedAlliance.exe")
             command = '"' + executable + '" ' + " ".join(arguments)
 
             logger.info("Running FA with info: " + str(info))
@@ -52,7 +52,7 @@ class Process(QtCore.QProcess):
                     self.startDetached(executable, arguments)
                 return True
             else:
-                QtGui.QMessageBox.warning(None, "ForgedAllianceForever.exe", "Another instance of FA is already running.")
+                QtGui.QMessageBox.warning(None, "ForgedAlliance.exe", "Another instance of FA is already running.")
                 return False
 
     def running(self):
