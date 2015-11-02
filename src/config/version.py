@@ -97,4 +97,8 @@ def get_git_version():
 
 
 if __name__ == "__main__":
-    print get_git_version()
+    v = get_git_version()
+    print("""FAF Version: {}
+             Dev: {} Pre: {}""".format(get_git_version(),
+                                       is_development_version(v),
+                                       is_prerelease_version(v)))
