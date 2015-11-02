@@ -2,6 +2,7 @@ from functools import partial
 
 import config
 from client.player import Player
+from client.players import Players
 from client.updater import fetchClientUpdate
 from config import Settings
 import fa
@@ -259,7 +260,7 @@ class ClientWindow(FormClass, BaseClass):
         #Verrry important step!
         self.loadSettingsPrelogin()
 
-        self.players = {}       # Players known to the client, contains the player_info messages sent by the server
+        self.players = Players()  # Players known to the client, contains the player_info messages sent by the server
         self.urls = {}
 
         # Handy reference to the Player object representing the logged-in user.

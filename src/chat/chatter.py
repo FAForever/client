@@ -146,14 +146,15 @@ class Chatter(QtGui.QTableWidgetItem):
         Updates the appearance of this chatter in the nicklist
          according to its lobby and irc states
         """
-        # Color handling
-        self.setChatUserColor(self.name)
 
         # Weed out IRC users early.
         if self.name not in self.lobby.client.players:
             self.rankItem.setIcon(util.icon("chat/rank/civilian.png"))
             self.rankItem.setToolTip("IRC User")
             return
+
+        # Color handling
+        self.setChatUserColor(self.name)
 
         player = self.lobby.client.players[self.name]
 
