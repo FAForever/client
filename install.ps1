@@ -75,6 +75,7 @@ InstallPackage http://content.faforever.com/wheel/lupa-1.1-cp27-none-win32.whl
 InstallPackage wheel
 InstallPackage pytest
 InstallPackage cx_Freeze
+InstallPackage https://pypi.python.org/packages/cp27/p/pypiwin32/pypiwin32-219-cp27-none-win32.whl#md5=a8b0c1b608c1afeb18cd38d759ee5e29
 
 if ($env:QTIMPL -eq "PyQt4"){
     Write-Host "Installing PyQt4"
