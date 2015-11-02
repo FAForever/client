@@ -1394,6 +1394,9 @@ class ClientWindow(FormClass, BaseClass):
         else:
             logger.debug("No command in message.")
 
+    def handle_invalid(self, message):
+        logger.exception(message)
+
     def handle_stats(self, message):
         self.statsInfo.emit(message)
 
