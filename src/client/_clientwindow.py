@@ -256,8 +256,6 @@ class ClientWindow(FormClass, BaseClass):
         self.mainTabs.currentChanged.connect(self.mainTabChanged)
         self.topTabs.currentChanged.connect(self.vaultTabChanged)
 
-        self.loadSettings()
-
         self.players = Players()  # Players known to the client, contains the player_info messages sent by the server
         self.urls = {}
 
@@ -453,6 +451,8 @@ class ClientWindow(FormClass, BaseClass):
         import modvault
         import coop
         from chat._avatarWidget import avatarWidget
+
+        self.loadSettings()
 
         # Initialize chat
         self.chat = chat.Lobby(self)
@@ -1314,7 +1314,7 @@ class ClientWindow(FormClass, BaseClass):
         if "sim_mods" in message:
             fa.mods.checkMods(message['sim_mods'])
 
-        #Experimental UPnP Mapper - mappings are removed on app exit
+        # UPnP Mapper - mappings are removed on app exit
         if self.useUPnP:
             fa.upnp.createPortMapping(self.localIP, self.gamePort, "UDP")
 
