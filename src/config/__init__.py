@@ -11,7 +11,7 @@ from PyQt4 import QtCore
 
 trueskill.setup(mu=1500, sigma=500, beta=250, tau=5, draw_probability=0.10)
 
-_settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
+_settings = QtCore.QSettings(QtCore.QSettings.IniFormat, QtCore.QSettings.UserScope, "ForgedAllianceForever", "FA Lobby")
 _unpersisted_settings = defaultdict(dict)
 
 
