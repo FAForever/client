@@ -128,6 +128,11 @@ class ClientWindow(FormClass, BaseClass):
 
     matchmakerInfo = QtCore.pyqtSignal(dict)
 
+    remember = Settings.persisted_property('user/remember', is_bool=True)
+    autologin = Settings.persisted_property('user/autologin', is_bool=True)
+    login = Settings.persisted_property('user/login', persist_if=lambda self: self.remember)
+    password = Settings.persisted_property('user/password', persist_if=lambda self: self.remember)
+
     def __init__(self, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
 
@@ -145,7 +150,6 @@ class ClientWindow(FormClass, BaseClass):
         self.blockSize = 0
 
         self.useUPnP = False
-
         self.uniqueId = None
 
         self.sendFile = False
@@ -257,8 +261,7 @@ class ClientWindow(FormClass, BaseClass):
         self.mainTabs.currentChanged.connect(self.mainTabChanged)
         self.topTabs.currentChanged.connect(self.vaultTabChanged)
 
-        #Verrry important step!
-        self.loadSettingsPrelogin()
+        self.loadSettings()
 
         self.players = Players()  # Players known to the client, contains the player_info messages sent by the server
         self.urls = {}
@@ -295,6 +298,9 @@ class ClientWindow(FormClass, BaseClass):
 
         #for moderator
         self.modMenu = None
+
+        # live streams
+        self.LivestreamWebView.setUrl(QtCore.QUrl("http://www.faforever.com/?page_id=974"))
 
     def eventFilter(self, obj, event):
         if (event.type() == QtCore.QEvent.HoverMove):
@@ -663,7 +669,6 @@ class ClientWindow(FormClass, BaseClass):
         self.coloredNicknames = self.actionColoredNicknames.isChecked()
 
         self.saveChat()
-        self.saveCredentials()
 
 
     @QtCore.pyqtSlot()
@@ -721,30 +726,8 @@ class ClientWindow(FormClass, BaseClass):
         dialog = util.loadUi("client/about.ui")
         dialog.exec_()
 
-    def saveCredentials(self):
-        util.settings.beginGroup("user")
-        util.settings.setValue("user/remember", self.remember) #always remember to remember
-        if self.remember:
-            util.settings.setValue("user/login", self.login)
-            util.settings.setValue("user/password", self.password)
-            util.settings.setValue("user/autologin", self.autologin) #only autologin if remembering
-        else:
-            util.settings.setValue("user/login", None)
-            util.settings.setValue("user/password", None)
-            util.settings.setValue("user/autologin", False)
-        util.settings.endGroup()
-        util.settings.sync()
-
-
     def clearAutologin(self):
         self.autologin = False
-        self.actionSetAutoLogin.setChecked(False)
-
-        util.settings.beginGroup("user")
-        util.settings.setValue("user/autologin", False)
-        util.settings.endGroup()
-        util.settings.sync()
-
 
     def saveWindow(self):
         util.settings.beginGroup("window")
@@ -785,21 +768,6 @@ class ClientWindow(FormClass, BaseClass):
         util.settings.setValue("joinsparts", self.joinsparts)
         util.settings.setValue("coloredNicknames", self.coloredNicknames)
         util.settings.endGroup()
-
-
-    def loadSettingsPrelogin(self):
-
-        util.settings.beginGroup("user")
-        self.login = util.settings.value("user/login")
-        self.password = util.settings.value("user/password")
-        self.remember = (util.settings.value("user/remember") == "true")
-
-        # This is the new way we do things.
-        self.autologin = (util.settings.value("user/autologin") == "true")
-        self.actionSetAutoLogin.setChecked(self.autologin)
-        util.settings.endGroup()
-
-
 
     def loadSettings(self):
         #Load settings
@@ -856,194 +824,48 @@ class ClientWindow(FormClass, BaseClass):
             pass
 
     def doConnect(self):
-
         if not self.replayServer.doListen(LOCAL_REPLAY_PORT):
             return False
 
         if not self.relayServer.doListen():
             return False
 
-        self.progress.setCancelButtonText("Cancel")
-        self.progress.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
-        self.progress.setAutoClose(False)
-        self.progress.setAutoReset(False)
-        self.progress.setModal(1)
-        self.progress.setWindowTitle("Connecting...")
-        self.progress.setLabelText("Establishing connection to {}:{}".format(LOBBY_HOST, LOBBY_PORT))
-        self.progress.show()
-
         # Begin connecting.
+        self.socket.connected.connect(self.on_connected)
         self.socket.setSocketOption(QtNetwork.QTcpSocket.KeepAliveOption, 1)
         self.socket.connectToHost(LOBBY_HOST, LOBBY_PORT)
-
-
-
-        while (self.socket.state() != QtNetwork.QAbstractSocket.ConnectedState) and self.progress.isVisible():
-            QtGui.QApplication.processEvents()
-
-        self.state = ClientState.NONE
-        self.localIP = str(self.socket.localAddress().toString())
-
-
-#        #Perform Version Check first
-        if not self.socket.state() == QtNetwork.QAbstractSocket.ConnectedState:
-
-            self.progress.close() # in case it was still showing...
-            # We either cancelled or had a TCP error, meaning the connection failed..
-            if self.progress.wasCanceled():
-                logger.warn("doConnect() aborted by user.")
-            else:
-                logger.error("doConnect() failed with clientstate " + str(self.state) + ", socket errorstring: " + self.socket.errorString())
-            return False
-        else:
-            return True
-
-    def reconnect(self):
-        ''' try to reconnect to the server'''
-       
-        self.socket.disconnected.disconnect(self.disconnectedFromServer)
-        self.socket.disconnectFromHost()
-        self.socket.disconnected.connect(self.disconnectedFromServer)
-
-        self.progress.setCancelButtonText("Cancel")
-        self.progress.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
-        self.progress.setAutoClose(False)
-        self.progress.setAutoReset(False)
-        self.progress.setModal(1)
-        self.progress.setWindowTitle("Re-connecting...")
-        self.progress.setLabelText("Re-establishing connection ...")
-        self.progress.show()
-
-
-        # Begin connecting.
-        self.socket.setSocketOption(QtNetwork.QTcpSocket.KeepAliveOption, 1)
-        self.socket.connectToHost(LOBBY_HOST, LOBBY_PORT)
-
-
-
-        while (self.socket.state() != QtNetwork.QAbstractSocket.ConnectedState) and self.progress.isVisible():
-            QtGui.QApplication.processEvents()
-
-        self.state = ClientState.NONE
-        self.localIP = str(self.socket.localAddress().toString())
-
-
-#        #Perform Version Check first
-        if not self.socket.state() == QtNetwork.QAbstractSocket.ConnectedState:
-
-            self.progress.close() # in case it was still showing...
-            # We either cancelled or had a TCP error, meaning the connection failed..
-            if self.progress.wasCanceled():
-                logger.warn("doConnect() aborted by user.")
-            else:
-                logger.error("doConnect() failed with clientstate " + str(self.state) + ", socket errorstring: " + self.socket.errorString())
-            return False
-        else:
-            self.send(dict(command="hello", version=0, login=self.login, password=self.password, unique_id=self.uniqueId, local_ip=self.localIP, session=self.session))
-
-            return True
-
-
-
-
-    def waitSession(self):
-        self.progress.setLabelText("Setting up Session...")
-        self.send(dict(command="ask_session"))
-        start = time.time()
-        while self.session == None and self.progress.isVisible() :
-            QtGui.QApplication.processEvents()
-            if time.time() - start > 15 :
-                break
-
-
-        if not self.session :
-            if self.progress.wasCanceled():
-                logger.warn("waitSession() aborted by user.")
-            else :
-                logger.error("waitSession() failed with clientstate " + str(self.state) + ", socket errorstring: " + self.socket.errorString())
-                QtGui.QMessageBox.critical(self, "Notice from Server", "Unable to get a session : <br> Server under maintenance.<br><br>Please retry in some minutes.")
-            return False
-
-        self.uniqueId = util.uniqueID(self.login, self.session)
-        self.loadSettings()
-
-        #
-        # Voice connector (This isn't supposed to be here, but I need the settings to be loaded before I can determine if we can hook in the mumbleConnector
-        #
-        if self.enableMumble:
-            self.progress.setLabelText("Setting up Mumble...")
-            import mumbleconnector
-            self.mumbleConnector = mumbleconnector.MumbleConnector(self)
         return True
 
+    def reconnect(self):
+        """
+        Reconnect to the server
+        :return:
+        """
+        self.state = ClientState.NONE
+        self.socket.setSocketOption(QtNetwork.QTcpSocket.KeepAliveOption, 1)
+        self.socket.connectToHost(LOBBY_HOST, LOBBY_PORT)
+
+
+    @QtCore.pyqtSlot()
+    def on_connected(self):
+        self.state = ClientState.ACCEPTED
+        self.send(dict(command="ask_session"))
+        self.connected.emit()
+
+    def waitSession(self):
+        return True
 
     def doLogin(self):
-
+        self.state = ClientState.NONE
         #Determine if a login wizard needs to be displayed and do so
         if not self.autologin or not self.password or not self.login:
-            import loginwizards
-            if not loginwizards.LoginWizard(self).exec_():
-                return False;
-
-        self.progress.setLabelText("Logging in...")
-        self.progress.reset()
-        self.progress.show()
-
-        self.login = self.login.strip()
-        logger.info("Attempting to login as: " + str(self.login))
-        self.state = ClientState.NONE
-
-        if not self.uniqueId :
-            QtGui.QMessageBox.warning(QtGui.QApplication.activeWindow(), "Unable to login", "It seems that you miss some important DLL.<br>Please install :<br><a href =\"http://www.microsoft.com/download/en/confirmation.aspx?id=8328\">http://www.microsoft.com/download/en/confirmation.aspx?id=8328</a> and <a href = \"http://www.microsoft.com/en-us/download/details.aspx?id=17851\">http://www.microsoft.com/en-us/download/details.aspx?id=17851</a><br><br>You probably have to restart your computer after installing them.<br><br>Please visit this link in case of problems : <a href=\"http://forums.faforever.com/forums/viewforum.php?f=3\">http://forums.faforever.com/forums/viewforum.php?f=3</a>", QtGui.QMessageBox.Close)
-            return False
-        else:
-            self.send(dict(command="hello", version=0, login=self.login, password=self.password, unique_id=self.uniqueId, local_ip=self.localIP))
-
-        while (not self.state) and self.progress.isVisible():
-            QtGui.QApplication.processEvents()
-
-
-        if self.progress.wasCanceled():
-            logger.warn("Login aborted by user.")
-            return False
-
-        self.progress.close()
-
-        if self.state == ClientState.OUTDATED :
-                logger.warn("Client is OUTDATED.")
-
-        elif self.state == ClientState.ACCEPTED:
-            logger.info("Login accepted.")
-
-            # update what's new page
-            self.whatNewsView.setUrl(QtCore.QUrl("http://www.faforever.com/?page_id=114&username={user}&pwdhash={pwdhash}".format(user=self.login, pwdhash=self.password)))
-
-            # live streams
-            self.LivestreamWebView.setUrl(QtCore.QUrl("http://www.faforever.com/?page_id=974"))
-
-            util.crash.CRASH_REPORT_USER = self.login
-
-            if self.useUPnP:
-                fa.upnp.createPortMapping(self.localIP, self.gamePort, "UDP")
-
-            #success: save login data (if requested) and carry on
-            self.actionSetAutoLogin.setChecked(self.autologin)
-            self.updateOptions()
-
-            self.progress.close()
-            self.connected.emit()
+            from loginwizards import LoginWizard
+            wizard = LoginWizard(self)
+            wizard.accepted.connect(self.perform_login)
+            wizard.exec_()
             return True
-        elif self.state == ClientState.REJECTED:
-            logger.warning("Login rejected.")
-            #seems that there isa bug in a key ..
-            util.settings.beginGroup("window")
-            util.settings.remove("geometry")
-            util.settings.endGroup()
-            self.clearAutologin()
-            return self.doLogin()   #Just try to login again, slightly hackish but I can get away with it here, I guess.
-        else:
-            # A more profound error has occurred (cancellation or disconnection)
-            return False
+
+        return True
 
     def isFriend(self, name):
         '''
@@ -1289,30 +1111,20 @@ class ClientWindow(FormClass, BaseClass):
         logger.warn("Disconnected from lobby server.")
 
         if self.state == ClientState.ACCEPTED:
-            QtGui.QMessageBox.warning(QtGui.QApplication.activeWindow(), "Disconnected from FAF", "The lobby lost the connection to the FAF server.<br/><b>You might still be able to chat.<br/>To play, try reconnecting a little later!</b>", QtGui.QMessageBox.Close)
-
             #Clear the online users lists
             oldplayers = self.players.keys()
-            self.players = {}
+            self.players = Players()
             self.urls = {}
             self.usersUpdated.emit(oldplayers)
 
             self.disconnected.emit()
 
-            self.mainTabs.setCurrentIndex(0)
-
-            for i in range(2, self.mainTabs.count()):
-                self.mainTabs.setTabEnabled(i, False)
-                self.mainTabs.setTabText(i, "offline")
-
         self.state = ClientState.DROPPED
+        self.reconnect()
 
     @QtCore.pyqtSlot(QtNetwork.QAbstractSocket.SocketError)
     def socketError(self, error):
         logger.error("TCP Socket Error: " + self.socket.errorString())
-        if self.state > ClientState.NONE:   # Positive client states deserve user notification.
-            QtGui.QMessageBox.critical(None, "TCP Error", "A TCP Connection Error has occurred:<br/><br/><b>" + self.socket.errorString() + "</b>", QtGui.QMessageBox.Close)
-            self.progress.cancel()
 
     @QtCore.pyqtSlot()
     def forwardLocalBroadcast(self, source, message):
@@ -1381,10 +1193,6 @@ class ClientWindow(FormClass, BaseClass):
         self.writeToServer(data)
 
     def dispatch(self, message):
-        '''
-        A fairly pythonic way to process received strings as JSON messages.
-        '''     
-
         if "command" in message:
             cmd = "handle_" + message['command']
             if hasattr(self, cmd):
@@ -1395,14 +1203,33 @@ class ClientWindow(FormClass, BaseClass):
         else:
             logger.debug("No command in message.")
 
+    def handle_session(self, message):
+        self.session = str(message['session'])
+        if self.autologin and self.login and self.password:
+            self.perform_login()
+
+    @QtCore.pyqtSlot()
+    def perform_login(self):
+        self.uniqueId = util.uniqueID(self.login, self.session)
+        self.send(dict(command="hello",
+                       version=0,
+                       login=self.login,
+                       password=self.password,
+                       unique_id=self.uniqueId,
+                       session=self.session))
+
+        # FIXME: Get this out of here
+        if self.enableMumble:
+            self.progress.setLabelText("Setting up Mumble...")
+            import mumbleconnector
+            self.mumbleConnector = mumbleconnector.MumbleConnector(self)
+        return True
+
     def handle_invalid(self, message):
         logger.exception(message)
 
     def handle_stats(self, message):
         self.statsInfo.emit(message)
-
-    def handle_session(self, message):
-        self.session = str(message["session"])
 
     def handle_update(self, message):
         # Mystereous voodoo nonsense.
@@ -1421,6 +1248,18 @@ class ClientWindow(FormClass, BaseClass):
         self.login = message["login"]
         logger.debug("Login success")
         self.state = ClientState.ACCEPTED
+
+        util.crash.CRASH_REPORT_USER = self.login
+
+        if self.useUPnP:
+            fa.upnp.createPortMapping(str(self.socket.localAddress()), self.gamePort, "UDP")
+
+        # update what's new page
+        self.whatNewsView.setUrl(QtCore.QUrl("http://www.faforever.com/?page_id=114&username={user}&pwdhash={pwdhash}".format(user=self.login, pwdhash=self.password)))
+
+        # Save login data (if requested)
+        self.updateOptions()
+
 
     def handle_registration_response(self, message):
         if message["result"] == "SUCCESS":
@@ -1605,4 +1444,3 @@ class ClientWindow(FormClass, BaseClass):
 
         if message["style"] == "kick":
             logger.info("Server has kicked you from the Lobby.")
-            self.cleanup()

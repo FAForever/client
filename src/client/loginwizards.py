@@ -27,22 +27,23 @@ class LoginWizard(QtGui.QWizard):
         self.setButtonLayout(buttons_layout)
 
         self.setWindowTitle("Login")
+        self.accepted.connect(self.on_accepted)
+        self.rejected.connect(self.on_rejected)
 
-    def accept(self):
-        self.login = self.field("login").strip()
-        if (self.field("password") != "!!!password!!!"): #Not entirely nicely coded, this can go into a lambda function connected to the LineEdit                    
+    @QtCore.pyqtSlot()
+    def on_accepted(self):
+        if (self.field("password") != "!!!password!!!"): #Not entirely nicely coded, this can go into a lambda function connected to the LineEdit
             self.password = hashlib.sha256(self.field("password").strip().encode("utf-8")).hexdigest()
 
+        self.client.remember = self.field("remember")
         self.client.login = self.field("login").strip()
         self.client.password = self.password    #this is the hash, not the dummy password
-        self.client.remember = self.field("remember")
         self.client.autologin = self.field("autologin")
-        
-        QtGui.QWizard.accept(self)
+        util.settings.sync()
 
-
-    def reject(self):
-        QtGui.QWizard.reject(self)
+    @QtCore.pyqtSlot()
+    def on_rejected(self):
+        pass
 
 
 class loginPage(QtGui.QWizardPage):

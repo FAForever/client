@@ -163,7 +163,7 @@ __themedir = None
 
 
 # Public settings object
-settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
+settings = QtCore.QSettings(QtCore.QSettings.IniFormat, QtCore.QSettings.UserScope, "ForgedAllianceForever", "FA Lobby")
 
 def clean_slate(path):
     if os.path.exists(path):
@@ -604,3 +604,4 @@ def now():
     return _dateDummy.now()
 
 from crash import CrashDialog
+
