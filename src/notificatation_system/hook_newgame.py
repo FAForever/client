@@ -32,6 +32,7 @@ class NewGameDialog(FormClass, BaseClass):
         util.settings.beginGroup(self.eventType)
         self.mode = util.settings.value('mode', 'friends')
         util.settings.endGroup()
+        util.settings.endGroup()
 
         self.checkBoxFriends.setCheckState(QtCore.Qt.Checked if self.mode == 'friends' else QtCore.Qt.Unchecked)
         self.parent.mode = self.mode
@@ -40,6 +41,7 @@ class NewGameDialog(FormClass, BaseClass):
         util.settings.beginGroup("notification_system")
         util.settings.beginGroup(self.eventType)
         util.settings.setValue('mode', self.mode)
+        util.settings.endGroup()
         util.settings.endGroup()
         util.settings.sync()
         self.parent.mode = self.mode
