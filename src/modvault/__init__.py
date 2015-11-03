@@ -43,6 +43,7 @@ The tempAddMods function should be removed after the server can return mods in t
 """
 
 import os
+
 import zipfile
 
 from PyQt4 import QtCore, QtGui
@@ -58,6 +59,7 @@ import time
 logger = logging.getLogger(__name__)
 import urllib2
 
+from util import datetostr, now
 d = datetostr(now())
 '''
 tempmod1 = dict(uid=1,name='Mod1', comments=[],bugreports=[], date = d,
