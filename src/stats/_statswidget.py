@@ -200,7 +200,7 @@ class StatsWidget(BaseClass, FormClass):
 
     @QtCore.pyqtSlot()
     def updating(self):
-        me = self.client.league
+        me = self.client.players[self.client.login]
         if me.league is not None:
             self.leagues.setCurrentIndex(me.league - 1)
         else:
