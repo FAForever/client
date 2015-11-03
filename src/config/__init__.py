@@ -1,4 +1,4 @@
-import version
+from . import version
 
 from collections import defaultdict
 
