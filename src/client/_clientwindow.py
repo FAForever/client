@@ -1,10 +1,10 @@
 from functools import partial
 
 import config
+from config import Settings
 from client.player import Player
 from client.players import Players
 from client.updater import fetchClientUpdate
-from config import Settings
 import fa
 from fa.factions import Factions
 
@@ -15,7 +15,6 @@ Created on Dec 1, 2011
 '''
 
 from PyQt4 import QtCore, QtGui, QtNetwork, QtWebKit
-from PyQt4.QtCore import QDataStream
 from types import IntType, FloatType, ListType, DictType
 
 from client import ClientState, GAME_PORT_DEFAULT, LOBBY_HOST, \
@@ -32,7 +31,6 @@ import sys
 import replays
 
 import time
-import os
 import random
 import notificatation_system as ns
 
@@ -124,8 +122,6 @@ class ClientWindow(FormClass, BaseClass):
     showMods = QtCore.pyqtSignal()
     showCoop = QtCore.pyqtSignal()
 
-    joinGameFromURL = QtCore.pyqtSignal(str)
-
     matchmakerInfo = QtCore.pyqtSignal(dict)
 
     remember = Settings.persisted_property('user/remember', is_bool=True)
@@ -141,8 +137,7 @@ class ClientWindow(FormClass, BaseClass):
         # Hook to Qt's application management system
         QtGui.QApplication.instance().aboutToQuit.connect(self.cleanup)
 
-        #Init and wire the TCP Network socket to communicate with faforever.com
-        # This is the evil stream API.
+        # Init and wire the TCP Network socket to communicate with faforever.com
         self.socket = QtNetwork.QTcpSocket()
         self.socket.readyRead.connect(self.readFromServer)
         self.socket.disconnected.connect(self.disconnectedFromServer)
@@ -999,6 +994,7 @@ class ClientWindow(FormClass, BaseClass):
             self.showMods.emit()
 
 
+    @QtCore.pyqtSlot()
     def joinGameFromURL(self, url):
         '''
         Tries to join the game at the given URL
