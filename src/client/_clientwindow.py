@@ -299,8 +299,6 @@ class ClientWindow(FormClass, BaseClass):
         #for moderator
         self.modMenu = None
 
-        # live streams
-        self.LivestreamWebView.setUrl(QtCore.QUrl("http://www.faforever.com/?page_id=974"))
 
     def eventFilter(self, obj, event):
         if (event.type() == QtCore.QEvent.HoverMove):
@@ -483,6 +481,9 @@ class ClientWindow(FormClass, BaseClass):
 
         # warning setup
         self.warning = QtGui.QHBoxLayout()
+
+        # live streams
+        self.LivestreamWebView.setUrl(QtCore.QUrl("http://www.faforever.com/?page_id=974"))
 
         self.warnPlayer = QtGui.QLabel(self)
         self.warnPlayer.setText("A player of your skill level is currently searching for a 1v1 game. Click a faction to join them! ")
