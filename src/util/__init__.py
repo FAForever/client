@@ -163,7 +163,9 @@ __themedir = None
 
 
 # Public settings object
-settings = QtCore.QSettings(QtCore.QSettings.IniFormat, QtCore.QSettings.UserScope, "ForgedAllianceForever", "FA Lobby")
+# Stolen from Config because reasons
+from config import _settings
+settings = _settings
 
 def clean_slate(path):
     if os.path.exists(path):

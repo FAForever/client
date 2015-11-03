@@ -6,7 +6,6 @@ import os
 from PyQt4 import QtCore, QtGui
 
 import modvault
-from util import datetostr,strtodate,now
 import util
 
 FormClass, BaseClass = util.loadUiType("modvault/upload.ui")

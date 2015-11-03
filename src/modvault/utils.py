@@ -6,7 +6,7 @@ import shutil
 
 from PyQt4 import QtCore, QtGui
 
-from util import strtodate, datetostr, now, PREFSFILENAME
+from util import PREFSFILENAME
 import util
 import logging
 from vault import luaparser

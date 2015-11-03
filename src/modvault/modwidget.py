@@ -4,7 +4,6 @@ import urllib2
 
 from PyQt4 import QtCore, QtGui
 
-import modvault
 from util import strtodate, datetostr, now
 import util
 
