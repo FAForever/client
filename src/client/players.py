@@ -2,6 +2,13 @@ from util import logger
 
 
 class Players:
+    """
+    Wrapper for an id->Player map
+
+    Used to lookup players either by id (cheap) or by login (expensive, don't do this).
+
+    In the future could contain more responsibility, e.g. emitting signals when players are updated.
+    """
     def __init__(self):
         self._players = {}
         self._warned = False
@@ -14,6 +21,10 @@ class Players:
 
     def items(self):
         return self._players.items()
+
+    def get(self, item, default):
+        val = self.__getitem__(item)
+        return val if val else default
 
     def __contains__(self, item):
         return self.__getitem__(item) is not None
