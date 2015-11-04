@@ -108,7 +108,6 @@ def replay(source, detach=False):
 
 
         #Proper mod loading code
-        mods.fix_init_luas()
         mod = "faf" if mod == "ladder1v1" else mod  #hack for feature/new-patcher
 
         if not '/init' in arguments:
