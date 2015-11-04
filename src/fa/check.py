@@ -62,6 +62,7 @@ def path(parent):
 def game(parent):
     return True
 
+
 def check(featured_mod, mapname=None, version=None, modVersions=None, sim_mods=None, silent=False):
     """
     This checks whether the mods are properly updated and player has the correct map.
@@ -85,16 +86,7 @@ def check(featured_mod, mapname=None, version=None, modVersions=None, sim_mods=N
     if result != fa.updater.Updater.RESULT_SUCCESS:
         return False
 
-    logger.info("Writing fa_path.lua config file.")
     path(client.instance)
-    try:
-        writeFAPathLua()
-    except:
-        logger.error("fa_path.lua can't be written: ", exc_info=sys.exc_info())
-        QtGui.QMessageBox.critical(None, "Cannot write fa_path.lua",
-                                   "This is a  rare error and you should report it!<br/>(open Menu BETA, choose 'Report a Bug')")
-        return False
-
 
     # Now it's down to having the right map
     if mapname:
