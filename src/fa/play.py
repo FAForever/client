@@ -24,6 +24,9 @@ def build_argument_list(game_info, port, arguments=None):
         arguments.append("/log")
         arguments.append('"' + util.LOG_FILE_GAME + '"')
 
+    # Disable defunct bug reporter
+    arguments.append('/nobugreport')
+
     # live replay
     arguments.append('/savereplay')
     arguments.append('"gpgnet://localhost/' + str(game_info['uid']) + "/" + str(game_info['recorder']) + '.SCFAreplay"')
