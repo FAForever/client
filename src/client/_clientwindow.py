@@ -181,6 +181,7 @@ class ClientWindow(FormClass, BaseClass):
 
         #Local proxy servers
         self.proxyServer = fa.proxies.proxies(self)
+        self.localIP = None
 
         if not self.proxyServer and not config.no_dialogs:
             QtGui.QMessageBox.warning(self.client, "Cannot use proxy server", "FAF is unable to bind the port <b>12000 to 12011 on TCP</b>.<br>Please check your firewall settings.<br><b>You may experience connections problems until it's fixed.</b>")
@@ -831,6 +832,7 @@ class ClientWindow(FormClass, BaseClass):
     @QtCore.pyqtSlot()
     def on_connected(self):
         self.state = ClientState.ACCEPTED
+        self.localIP = self.socket.localAddress()
         self.send(dict(command="ask_session"))
         self.connected.emit()
 
