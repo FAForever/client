@@ -414,8 +414,8 @@ class ClientWindow(FormClass, BaseClass):
             top = globalMousePos.y()
 
         elif self.mousePosition.onBottomLeftEdge:
-            left = globalMousePos.x();
-            bottom = globalMousePos.y();
+            left = globalMousePos.x()
+            bottom = globalMousePos.y()
         elif self.mousePosition.onTopRightEdge:
             right = globalMousePos.x()
             top = globalMousePos.y()
