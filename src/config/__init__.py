@@ -57,17 +57,18 @@ class Settings:
 
 
 def make_dirs():
-    if not os.path.isdir(Settings.get('client/data_path')):
-        os.makedirs(Settings.get('game/data_path'))
-    if not os.path.isdir(Settings.get('game/logs/path')):
-        os.makedirs(Settings.get('game/logs/path'))
-    if not os.path.isdir(Settings.get('game/mods/path')):
-        os.makedirs(Settings.get('game/mods/path'))
-    if not os.path.isdir(Settings.get('game/engine/path')):
-        os.makedirs(Settings.get('game/engine/path'))
-    if not os.path.isdir(Settings.get('game/maps/path')):
-        os.makedirs(Settings.get('game/maps/path'))
-
+    for dir in [
+        'client/data_path',
+        'game/logs/path',
+        'game/mods/path',
+        'game/engine/path',
+        'game/maps/path',
+    ]:
+        path = Settings.get(dir)
+        if path is None:
+            raise Exception("Missing configured path for {}".format(dir))
+        if not os.path.isdir(path):
+            os.makedirs(path)
 
 VERSION = version.get_git_version()
 
