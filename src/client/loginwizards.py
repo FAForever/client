@@ -194,8 +194,7 @@ class gameSettingsWizard(QtGui.QWizard):
     def accept(self):
         self.client.gamePort = self.settings.gamePortSpin.value()
         self.client.useUPnP = self.settings.checkUPnP.isChecked()
-        self.client.savePort()
-        QtGui.QWizard.accept(self)        
+        QtGui.QWizard.accept(self)
 
 
 class mumbleOptionsWizard(QtGui.QWizard):

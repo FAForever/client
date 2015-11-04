@@ -128,6 +128,10 @@ class ClientWindow(FormClass, BaseClass):
     login = Settings.persisted_property('user/login', persist_if=lambda self: self.remember)
     password = Settings.persisted_property('user/password', persist_if=lambda self: self.remember)
 
+    gamelogs = Settings.persisted_property('game/logs', is_bool=True, default_value=False)
+    useUPnP = Settings.persisted_property('game/upnp', is_bool=True, default_value=True)
+    gamePort = Settings.persisted_property('game/port', default_value=6112)
+
     def __init__(self, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
 
@@ -143,7 +147,6 @@ class ClientWindow(FormClass, BaseClass):
         self.socket.error.connect(self.socketError)
         self.blockSize = 0
 
-        self.useUPnP = False
         self.uniqueId = None
 
         self.sendFile = False
@@ -290,6 +293,10 @@ class ClientWindow(FormClass, BaseClass):
 
         #for moderator
         self.modMenu = None
+
+    @QtCore.pyqtSlot(bool)
+    def on_actionSavegamelogs_toggled(self, value):
+        self.gamelogs = value
 
 
     def eventFilter(self, obj, event):
@@ -625,13 +632,14 @@ class ClientWindow(FormClass, BaseClass):
         self.actionSetMumbleOptions.triggered.connect(self.setMumbleOptions)
 
 
-        #Toggle-Options
+        # Toggle-Options
         self.actionSetAutoLogin.triggered.connect(self.updateOptions)
         self.actionSetSoundEffects.triggered.connect(self.updateOptions)
         self.actionSetOpenGames.triggered.connect(self.updateOptions)
         self.actionSetJoinsParts.triggered.connect(self.updateOptions)
         self.actionSetLiveReplays.triggered.connect(self.updateOptions)
-        self.actionSaveGamelogs.triggered.connect(self.updateOptions)
+        self.actionSaveGamelogs.toggled.connect(self.on_actionSavegamelogs_toggled)
+        self.actionSaveGamelogs.setChecked(self.gamelogs)
         self.actionColoredNicknames.triggered.connect(self.updateOptions)
         self.actionActivateMumbleSwitching.triggered.connect(self.saveMumbleSwitching)
 
@@ -659,7 +667,6 @@ class ClientWindow(FormClass, BaseClass):
         self.opengames = self.actionSetOpenGames.isChecked()
         self.joinsparts = self.actionSetJoinsParts.isChecked()
         self.livereplays = self.actionSetLiveReplays.isChecked()
-        self.gamelogs = self.actionSaveGamelogs.isChecked()
         self.coloredNicknames = self.actionColoredNicknames.isChecked()
 
         self.saveChat()
@@ -724,17 +731,6 @@ class ClientWindow(FormClass, BaseClass):
         util.settings.beginGroup("window")
         util.settings.setValue("geometry", self.saveGeometry())
         util.settings.endGroup()
-        util.settings.beginGroup("ForgedAlliance")
-        util.settings.setValue("app/falogs", self.gamelogs)
-        util.settings.endGroup()
-
-    def savePort(self):
-        util.settings.beginGroup("ForgedAlliance")
-        util.settings.setValue("app/gameport", self.gamePort)
-        util.settings.setValue("app/upnp", self.useUPnP)
-
-        util.settings.endGroup()
-        util.settings.sync()
 
     def saveMumble(self):
         util.settings.beginGroup("Mumble")
@@ -769,10 +765,6 @@ class ClientWindow(FormClass, BaseClass):
         util.settings.endGroup()
 
         util.settings.beginGroup("ForgedAlliance")
-        self.gamePort = int(util.settings.value("app/gameport", GAME_PORT_DEFAULT))
-        self.useUPnP = (util.settings.value("app/upnp", "true") == "true")
-        self.gamelogs = (util.settings.value("app/falogs", "false") == "true")
-        self.actionSaveGamelogs.setChecked(self.gamelogs)
         util.settings.endGroup()
 
         util.settings.beginGroup("Mumble")
