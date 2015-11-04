@@ -35,7 +35,7 @@ class Process(QtCore.QProcess):
             in an attached process.
             """
             #prepare actual command for launching
-            executable = os.path.join(config.Settings.get('BIN_PATH', 'FA'), "ForgedAlliance.exe")
+            executable = os.path.join(config.Settings.get('game/bin/path'), "ForgedAlliance.exe")
             command = '"' + executable + '" ' + " ".join(arguments)
 
             logger.info("Running FA with info: " + str(info))

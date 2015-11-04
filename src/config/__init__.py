@@ -1,7 +1,4 @@
 from . import version
-
-from collections import defaultdict
-
 import os
 import sys
 import logging
@@ -12,7 +9,7 @@ from PyQt4 import QtCore
 trueskill.setup(mu=1500, sigma=500, beta=250, tau=5, draw_probability=0.10)
 
 _settings = QtCore.QSettings(QtCore.QSettings.IniFormat, QtCore.QSettings.UserScope, "ForgedAllianceForever", "FA Lobby")
-_unpersisted_settings = defaultdict(dict)
+_unpersisted_settings = {}
 
 
 class Settings:
@@ -22,65 +19,54 @@ class Settings:
     """
 
     @staticmethod
-    def persisted_property(key, default_value=None, persist_if=lambda self: True, on_changed=None, type=str):
+    def get(key, default=None, type=str):
+        # Get from a local dict cache before hitting QSettings
+        # this is for properties such as client.login which we
+        # don't necessarily want to persist
+        if key in _unpersisted_settings:
+            return _unpersisted_settings[key]
+        # Hit QSettings to see if the user has defined a value for the key
+        if _settings.contains(key):
+            return _settings.value(key, type=type)
+        # Try out our defaults for the current environment
+        return defaults.get(key, default)
+
+    @staticmethod
+    def set(key, value, persist=True):
+        _unpersisted_settings[key] = value
+        if not persist:
+            _settings.remove(key)
+        else:
+            _settings.setValue(key, value)
+
+    @staticmethod
+    def persisted_property(key, default_value=None, persist_if=lambda self: True, type=str):
         """
+        Create a magically persisted property
 
         :param key: QSettings key to persist with
         :param default_value: default value
-        :param is_bool: Persist booleans as strings, do conversion. Implies default_value=False
         :param persist_if: Lambda predicate that gets self as a first argument.
                            Determines whether or not to persist the value
+        :param type: Type of values for persisting
         :return: a property suitable for a class
         """
-        def get(self):
-            if key in _unpersisted_settings[self]:
-                return _unpersisted_settings[self][key]
-            return _settings.value(key, default_value, type=type)
-
-        def set(self, val):
-            _unpersisted_settings[self][key] = val
-            if persist_if(self):
-                _settings.setValue(key, val)
-            else:
-                _settings.remove(key)
-            if on_changed:
-                on_changed(self)
-        return property(get, set, doc="Persisted property: {}".format(key))
-
-    @staticmethod
-    def get(key, group=None, type=str):
-        if group is None:
-            value = _settings.value(key, type=type)
-        else:
-            _settings.beginGroup(group)
-            value = _settings.value(key, type=type)
-            _settings.endGroup()
-        if not value:
-            if group is None:
-                return defaults[key]
-            else:
-                return defaults[group][key]
-        return value
-
-    @staticmethod
-    def set(key, value, group=None):
-        if group is None:
-            _settings.setValue(key, value)
-        else:
-            _settings.beginGroup(group)
-            _settings.setValue(key, value)
-            _settings.endGroup()
+        return property(lambda s: Settings.get(key, default=default_value, type=type),
+                        lambda s, v: Settings.set(key, v, persist=persist_if(s)),
+                        doc='Persisted property: {}. Default: '.format(key, default_value))
 
 
 def make_dirs():
-    if not os.path.isdir(Settings.get('DIR', 'LOG')):
-        os.makedirs(Settings.get('DIR', 'LOG'))
-    if not os.path.isdir(Settings.get('MODS_PATH', 'FA')):
-        os.makedirs(Settings.get('MODS_PATH', 'FA'))
-    if not os.path.isdir(Settings.get('ENGINE_PATH', 'FA')):
-        os.makedirs(Settings.get('ENGINE_PATH', 'FA'))
-    if not os.path.isdir(Settings.get('MAPS_PATH', 'FA')):
-        os.makedirs(Settings.get('MAPS_PATH', 'FA'))
+    if not os.path.isdir(Settings.get('client/data_path')):
+        os.makedirs(Settings.get('game/data_path'))
+    if not os.path.isdir(Settings.get('game/logs/path')):
+        os.makedirs(Settings.get('game/logs/path'))
+    if not os.path.isdir(Settings.get('game/mods/path')):
+        os.makedirs(Settings.get('game/mods/path'))
+    if not os.path.isdir(Settings.get('game/engine/path')):
+        os.makedirs(Settings.get('game/engine/path'))
+    if not os.path.isdir(Settings.get('game/maps/path')):
+        os.makedirs(Settings.get('game/maps/path'))
 
 
 VERSION = version.get_git_version()
@@ -97,12 +83,12 @@ if os.getenv("FAF_FORCE_PRODUCTION") or getattr(sys, 'frozen', False) and not ve
     from production import defaults
 
     make_dirs()
-    rotate = RotatingFileHandler(filename=os.path.join(Settings.get('DIR', 'LOG'), 'forever.log'),
-                                 maxBytes=Settings.get('MAX_SIZE', 'LOG'),
+    rotate = RotatingFileHandler(filename=os.path.join(Settings.get('client/logs/path'), 'forever.log'),
+                                 maxBytes=Settings.get('client/logs/max_size'),
                                  backupCount=10)
     rotate.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))
     logging.getLogger().addHandler(rotate)
-    logging.getLogger().setLevel(Settings.get('LEVEL', 'LOG'))
+    logging.getLogger().setLevel(Settings.get('client/logs/level'))
 elif is_development_version() or sys.executable.endswith("py.test"):
     # Setup logging output
     devh = logging.StreamHandler()
@@ -120,11 +106,11 @@ elif version.is_prerelease_version(VERSION):
     from develop import defaults
 
     make_dirs()
-    rotate = RotatingFileHandler(filename=os.path.join(Settings.get('DIR', 'LOG'), 'forever.log'),
-                                 maxBytes=Settings.get('MAX_SIZE', 'LOG'),
+    rotate = RotatingFileHandler(filename=os.path.join(Settings.get('client/logs/path'), 'forever.log'),
+                                 maxBytes=Settings.get('client/logs/max_size'),
                                  backupCount=10)
     rotate.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))
     logging.getLogger().addHandler(rotate)
-    logging.getLogger().setLevel(Settings.get('LEVEL', 'LOG'))
+    logging.getLogger().setLevel(Settings.get('client/logs/level'))
 
 logging.getLogger().info("FAF version: {}".format(version.get_git_version()))

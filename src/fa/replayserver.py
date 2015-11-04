@@ -13,8 +13,8 @@ import time
 
 from config import Settings
 
-INTERNET_REPLAY_SERVER_HOST = Settings.get('HOST', 'ONLINE_REPLAY_SERVER')
-INTERNET_REPLAY_SERVER_PORT = Settings.get('PORT', 'ONLINE_REPLAY_SERVER')
+INTERNET_REPLAY_SERVER_HOST = Settings.get('replay_server/host')
+INTERNET_REPLAY_SERVER_PORT = Settings.get('replay_server/port')
 
 from . import DEFAULT_LIVE_REPLAY
 from . import DEFAULT_RECORD_REPLAY

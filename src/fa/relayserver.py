@@ -7,8 +7,8 @@ from config import Settings
 
 import struct
 
-FAF_SERVER_HOST = Settings.get('HOST', 'RELAY_SERVER')
-FAF_SERVER_PORT = Settings.get('PORT', 'RELAY_SERVER')
+FAF_SERVER_HOST = Settings.get('relay_server/host')
+FAF_SERVER_PORT = Settings.get('relay_server/port')
 
 
 class Packet():

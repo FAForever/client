@@ -10,8 +10,8 @@ import logging
 import config
 from config import Settings
 
-FAF_PROXY_HOST = Settings.get('HOST', 'PROXY')
-FAF_PROXY_PORT = Settings.get('PORT', 'PROXY')
+FAF_PROXY_HOST = Settings.get('proxy/host')
+FAF_PROXY_PORT = Settings.get('proxy/port')
 
 UNIT16 = 8
 

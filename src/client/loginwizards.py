@@ -25,7 +25,6 @@ class LoginWizard(QtGui.QWizard):
         ]
 
         self.setButtonLayout(buttons_layout)
-
         self.setWindowTitle("Login")
         self.accepted.connect(self.on_accepted)
         self.rejected.connect(self.on_rejected)
@@ -37,8 +36,7 @@ class LoginWizard(QtGui.QWizard):
 
         self.client.remember = self.field("remember")
         self.client.login = self.field("login").strip()
-        self.client.password = self.password    #this is the hash, not the dummy password
-        util.settings.sync()
+        self.client.password = self.password  # This is the hash, not the dummy password
 
     @QtCore.pyqtSlot()
     def on_rejected(self):

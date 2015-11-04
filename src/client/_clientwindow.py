@@ -124,7 +124,7 @@ class ClientWindow(FormClass, BaseClass):
 
     matchmakerInfo = QtCore.pyqtSignal(dict)
 
-    remember = Settings.persisted_property('user/remember', default_value=True, type=bool)
+    remember = Settings.persisted_property('user/remember', type=bool, default_value=True)
     login = Settings.persisted_property('user/login', persist_if=lambda self: self.remember)
     password = Settings.persisted_property('user/password', persist_if=lambda self: self.remember)
 
@@ -757,6 +757,7 @@ class ClientWindow(FormClass, BaseClass):
         util.settings.endGroup()
 
     def loadSettings(self):
+        self.loadChat()
         #Load settings
         util.settings.beginGroup("window")
         geometry = util.settings.value("geometry", None)
@@ -784,8 +785,6 @@ class ClientWindow(FormClass, BaseClass):
         util.settings.endGroup()
 
         self.actionActivateMumbleSwitching.setChecked(self.activateMumbleSwitching)
-
-        self.loadChat()
 
 
     def loadChat(self):
@@ -1241,8 +1240,8 @@ class ClientWindow(FormClass, BaseClass):
         # update what's new page
         self.whatNewsView.setUrl(QtCore.QUrl("http://www.faforever.com/?page_id=114&username={user}&pwdhash={pwdhash}".format(user=self.login, pwdhash=self.password)))
 
-        # Save login data (if requested)
         self.updateOptions()
+
 
 
     def handle_registration_response(self, message):

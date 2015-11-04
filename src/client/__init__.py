@@ -8,9 +8,9 @@ logger = logging.getLogger(__name__)
 #logger.setLevel(logging.DEBUG)
 
 # Initialize all important globals
-LOBBY_HOST = Settings.get('HOST', 'LOBBY')
-LOBBY_PORT = Settings.get('PORT', 'LOBBY')
-LOCAL_REPLAY_PORT = Settings.get('LOCAL_REPLAY_PORT', 'LOBBY')
+LOBBY_HOST = Settings.get('lobby/host')
+LOBBY_PORT = Settings.get('lobby/port')
+LOCAL_REPLAY_PORT = Settings.get('lobby/relay/port')
 
 class ClientState:
     '''
