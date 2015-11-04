@@ -451,9 +451,13 @@ class ClientWindow(FormClass, BaseClass):
         import vault
         import games
         import tutorials
+        import downloadManager
         import modvault
         import coop
         from chat._avatarWidget import avatarWidget
+
+        #download manager
+        self.downloader = downloadManager.downloadManager(self)
 
         # Initialize chat
         self.chat = chat.Lobby(self)
