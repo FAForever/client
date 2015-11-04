@@ -11,6 +11,7 @@ patched, and all required files for a given mod are installed
 @author thygrrr
 """
 import os
+
 import time
 import shutil
 from types import FloatType, IntType, ListType
@@ -384,14 +385,14 @@ class Updater(QtCore.QObject):
 
                 #Update the mod if it's requested
                 if self.featured_mod == "faf" or self.featured_mod == "ladder1v1":  #HACK - ladder1v1 "is" FAF. :-)
-                    #self.updateFiles("bin", "FAF")  # removed for feature/new-patcher
-                    #self.updateFiles("gamedata", "FAFGAMEDATA") # removed for feature/new-patcher
+                    self.updateFiles("bin", "FAF")  # removed for feature/new-patcher
+                    self.updateFiles("gamedata", "FAFGAMEDATA") # removed for feature/new-patcher
                     pass
                 elif self.featured_mod:
-                    #self.updateFiles("bin", "FAF")  # removed for feature/new-patcher
-                    #self.updateFiles("gamedata", "FAFGAMEDATA") # removed for feature/new-patcher
-                    self.updateFiles("bin", self.featured_mod)
-                    self.updateFiles("gamedata", self.featured_mod + "Gamedata")
+                    self.updateFiles("bin", "FAF")  # removed for feature/new-patcher
+                    self.updateFiles("gamedata", "FAFGAMEDATA") # removed for feature/new-patcher
+                    #self.updateFiles("bin", self.featured_mod)
+                    #self.updateFiles("gamedata", self.featured_mod + "Gamedata")
 
         except UpdaterTimeout, et:
             log("TIMEOUT: %s(%s)" % (et.__class__.__name__, str(et.args)))

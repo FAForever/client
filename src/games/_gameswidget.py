@@ -20,7 +20,6 @@ FormClass, BaseClass = util.loadUiType("games/games.ui")
 
 class GamesWidget(FormClass, BaseClass):
     def __init__(self, client, *args, **kwargs):
-
         BaseClass.__init__(self, *args, **kwargs)
 
         self.setupUi(self)
@@ -279,7 +278,7 @@ class GamesWidget(FormClass, BaseClass):
         self.gamepassword = util.settings.value("password", "password")
         self.gamemap = util.settings.value("gamemap", "scmp_007")
         self.gamename = util.settings.value("gamename", (self.client.login or "") + "'s game")
-        self.friends_only = util.settings.value("friends_only", False)
+        self.friends_only = util.settings.value("friends_only", False, type=bool)
 
         util.settings.endGroup()
 

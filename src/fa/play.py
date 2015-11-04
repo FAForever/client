@@ -19,6 +19,10 @@ def build_argument_list(game_info, port, arguments=None):
     if '/init' in arguments:
         raise ValueError("Custom init scripts no longer supported.")
 
+    # Init file
+    arguments.append('/init')
+    arguments.append('init_{}.lua'.format(game_info.get('featured_mod', 'faf')))
+
     # log file
     if Settings.get("game/logs", False, type=bool):
         arguments.append("/log")

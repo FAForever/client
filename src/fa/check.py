@@ -1,14 +1,14 @@
 import sys
-import os
+
 import logging
 
 from PyQt4 import QtGui
 
+import client
 import fa
 from fa.mods import checkMods
 from fa.path import writeFAPathLua, validatePath
 from fa.wizards import Wizard
-import mods
 import util
 
 logger = logging.getLogger(__name__)
@@ -86,6 +86,7 @@ def check(featured_mod, mapname=None, version=None, modVersions=None, sim_mods=N
         return False
 
     logger.info("Writing fa_path.lua config file.")
+    path(client.instance)
     try:
         writeFAPathLua()
     except:
