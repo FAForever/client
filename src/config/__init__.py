@@ -36,7 +36,7 @@ class Settings:
             def get(self):
                 if key in _unpersisted_settings[self]:
                     return _unpersisted_settings[self][key]
-                return _settings.value(key) == "true"
+                return _settings.value(key, "true" if default_value else "false") == "true"
 
             def set(self, val):
                 _unpersisted_settings[self][key] = val
