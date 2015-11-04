@@ -4,7 +4,6 @@ import logging
 
 from PyQt4 import QtGui
 
-import client
 import fa
 from fa.mods import checkMods
 from fa.path import writeFAPathLua, validatePath
@@ -86,6 +85,7 @@ def check(featured_mod, mapname=None, version=None, modVersions=None, sim_mods=N
     if result != fa.updater.Updater.RESULT_SUCCESS:
         return False
 
+    import client
     path(client.instance)
 
     # Now it's down to having the right map
