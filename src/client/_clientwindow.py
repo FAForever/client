@@ -125,7 +125,6 @@ class ClientWindow(FormClass, BaseClass):
     matchmakerInfo = QtCore.pyqtSignal(dict)
 
     remember = Settings.persisted_property('user/remember', is_bool=True)
-    autologin = Settings.persisted_property('user/autologin', is_bool=True)
     login = Settings.persisted_property('user/login', persist_if=lambda self: self.remember)
     password = Settings.persisted_property('user/password', persist_if=lambda self: self.remember)
 
@@ -656,7 +655,6 @@ class ClientWindow(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def updateOptions(self):
-        self.autologin = self.actionSetAutoLogin.isChecked()
         self.soundeffects = self.actionSetSoundEffects.isChecked()
         self.opengames = self.actionSetOpenGames.isChecked()
         self.joinsparts = self.actionSetJoinsParts.isChecked()
@@ -721,9 +719,6 @@ class ClientWindow(FormClass, BaseClass):
     def linkAbout(self):
         dialog = util.loadUi("client/about.ui")
         dialog.exec_()
-
-    def clearAutologin(self):
-        self.autologin = False
 
     def saveWindow(self):
         util.settings.beginGroup("window")
@@ -854,7 +849,7 @@ class ClientWindow(FormClass, BaseClass):
     def doLogin(self):
         self.state = ClientState.NONE
         #Determine if a login wizard needs to be displayed and do so
-        if not self.autologin or not self.password or not self.login:
+        if not self.remember or not self.password or not self.login:
             from loginwizards import LoginWizard
             wizard = LoginWizard(self)
             wizard.accepted.connect(self.perform_login)
@@ -1202,7 +1197,7 @@ class ClientWindow(FormClass, BaseClass):
 
     def handle_session(self, message):
         self.session = str(message['session'])
-        if self.autologin and self.login and self.password:
+        if self.remember and self.login and self.password:
             self.perform_login()
 
     @QtCore.pyqtSlot()

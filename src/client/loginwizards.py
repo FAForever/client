@@ -38,7 +38,6 @@ class LoginWizard(QtGui.QWizard):
         self.client.remember = self.field("remember")
         self.client.login = self.field("login").strip()
         self.client.password = self.password    #this is the hash, not the dummy password
-        self.client.autologin = self.field("autologin")
         util.settings.sync()
 
     @QtCore.pyqtSlot()
@@ -79,17 +78,12 @@ class loginPage(QtGui.QWizardPage):
         self.passwordLineEdit.selectionChanged.connect(self.passwordLineEdit.clear)               
 
 
-        self.rememberCheckBox = QtGui.QCheckBox("&Remember password")
+        self.rememberCheckBox = QtGui.QCheckBox("&Remember me")
         self.rememberCheckBox.setChecked(self.client.remember)
         
-        self.autologinCheckBox = QtGui.QCheckBox("&Automatic Login")
-        self.autologinCheckBox.setChecked(self.client.autologin)
-        self.autologinCheckBox.setEnabled(self.client.remember)
-        
+
         self.rememberCheckBox.clicked.connect(self.rememberCheck)
-        self.rememberCheckBox.clicked.connect(self.autologinCheckBox.setChecked)
-        self.rememberCheckBox.clicked.connect(self.autologinCheckBox.setEnabled)
-        
+
         self.createAccountBtn = QtGui.QPushButton("Create new Account")
         self.renameAccountBtn = QtGui.QPushButton("Rename your account")
         self.linkAccountBtn = QtGui.QPushButton("Link your account to Steam")
@@ -105,7 +99,6 @@ class loginPage(QtGui.QWizardPage):
         self.registerField('login', self.loginLineEdit)
         self.registerField('password', self.passwordLineEdit)
         self.registerField('remember', self.rememberCheckBox)
-        self.registerField('autologin', self.autologinCheckBox)
 
 
         layout = QtGui.QGridLayout()
@@ -117,7 +110,6 @@ class loginPage(QtGui.QWizardPage):
         layout.addWidget(self.passwordLineEdit, 2, 1)
 
         layout.addWidget(self.rememberCheckBox, 3, 0, 1, 3)
-        layout.addWidget(self.autologinCheckBox, 4, 0, 1, 3)
         layout.addWidget(self.createAccountBtn, 5, 0, 1, 3)
         layout.addWidget(self.renameAccountBtn, 6, 0, 1, 3)
         layout.addWidget(self.linkAccountBtn, 7, 0, 1, 3)
