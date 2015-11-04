@@ -17,7 +17,7 @@ Created on Dec 1, 2011
 from PyQt4 import QtCore, QtGui, QtNetwork, QtWebKit
 from types import IntType, FloatType, ListType, DictType
 
-from client import ClientState, GAME_PORT_DEFAULT, LOBBY_HOST, \
+from client import ClientState, LOBBY_HOST, \
     LOBBY_PORT, LOCAL_REPLAY_PORT
 
 import logging

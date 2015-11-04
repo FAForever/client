@@ -30,8 +30,7 @@ defaults = {
     'LOBBY': {
         'HOST': 'lobby.faforever.com',
         'PORT': 8001,
-        'LOCAL_REPLAY_PORT': 15000,
-        'GAME_PORT_DEFAULT': 6112
+        'LOCAL_REPLAY_PORT': 15000
     },
     'MUMBLE_URL': "mumble://{login}@mumble.faforever.com/Games?version:1.2.0",
     'FORUMS_URL': "http://forums.faforever.com/forums",

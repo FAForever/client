@@ -11,7 +11,6 @@ logger = logging.getLogger(__name__)
 LOBBY_HOST = Settings.get('HOST', 'LOBBY')
 LOBBY_PORT = Settings.get('PORT', 'LOBBY')
 LOCAL_REPLAY_PORT = Settings.get('LOCAL_REPLAY_PORT', 'LOBBY')
-GAME_PORT_DEFAULT = Settings.get('GAME_PORT_DEFAULT', 'LOBBY')
 
 class ClientState:
     '''
