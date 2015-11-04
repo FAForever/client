@@ -124,12 +124,12 @@ class ClientWindow(FormClass, BaseClass):
 
     matchmakerInfo = QtCore.pyqtSignal(dict)
 
-    remember = Settings.persisted_property('user/remember', is_bool=True)
+    remember = Settings.persisted_property('user/remember', default_value=True, type=bool)
     login = Settings.persisted_property('user/login', persist_if=lambda self: self.remember)
     password = Settings.persisted_property('user/password', persist_if=lambda self: self.remember)
 
-    gamelogs = Settings.persisted_property('game/logs', is_bool=True, default_value=False)
-    useUPnP = Settings.persisted_property('game/upnp', is_bool=True, default_value=True)
+    gamelogs = Settings.persisted_property('game/logs', type=bool, default_value=False)
+    useUPnP = Settings.persisted_property('game/upnp', type=bool, default_value=True)
     gamePort = Settings.persisted_property('game/port', default_value=6112)
 
     def __init__(self, *args, **kwargs):

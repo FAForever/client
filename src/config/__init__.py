@@ -22,7 +22,7 @@ class Settings:
     """
 
     @staticmethod
-    def persisted_property(key, default_value=None, is_bool=False, persist_if=lambda self: True, on_changed=None):
+    def persisted_property(key, default_value=None, persist_if=lambda self: True, on_changed=None, type=str):
         """
 
         :param key: QSettings key to persist with
@@ -32,45 +32,30 @@ class Settings:
                            Determines whether or not to persist the value
         :return: a property suitable for a class
         """
-        if is_bool:
-            def get(self):
-                if key in _unpersisted_settings[self]:
-                    return _unpersisted_settings[self][key]
-                return _settings.value(key, "true" if default_value else "false") == "true"
+        def get(self):
+            if key in _unpersisted_settings[self]:
+                return _unpersisted_settings[self][key]
+            return _settings.value(key, default_value, type=type)
 
-            def set(self, val):
-                _unpersisted_settings[self][key] = val
-                if persist_if(self):
-                    _settings.setValue(key, "true" if val else "false")
-                else:
-                    _settings.remove(key)
-                if on_changed:
-                    on_changed(self)
-        else:
-            def get(self):
-                if key in _unpersisted_settings[self]:
-                    return _unpersisted_settings[self][key]
-                return _settings.value(key, default_value)
-
-            def set(self, val):
-                _unpersisted_settings[self][key] = val
-                if persist_if(self):
-                    _settings.setValue(key, val)
-                else:
-                    _settings.remove(key)
-                if on_changed:
-                    on_changed(self)
+        def set(self, val):
+            _unpersisted_settings[self][key] = val
+            if persist_if(self):
+                _settings.setValue(key, val)
+            else:
+                _settings.remove(key)
+            if on_changed:
+                on_changed(self)
         return property(get, set, doc="Persisted property: {}".format(key))
 
     @staticmethod
-    def get(key, group=None):
+    def get(key, group=None, type=str):
         if group is None:
-            value = _settings.value(key)
+            value = _settings.value(key, type=type)
         else:
             _settings.beginGroup(group)
-            value = _settings.value(key)
+            value = _settings.value(key, type=type)
             _settings.endGroup()
-        if value is None:
+        if not value:
             if group is None:
                 return defaults[key]
             else:

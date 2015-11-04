@@ -1,21 +1,12 @@
-from fa import mods
-
 from .process import instance
 
+from config import Settings
 import util
-import os
 
 __author__ = 'Thygrrr'
 
 import logging
 logger = logging.getLogger(__name__)
-
-from PyQt4 import QtCore
-
-settings = QtCore.QSettings("ForgedAllianceForever", "FA Lobby")
-
-from . import DEFAULT_WRITE_GAME_LOG
-from . import DEFAULT_RECORD_REPLAY
 
 
 def build_argument_list(game_info, port, arguments=None):
@@ -28,16 +19,16 @@ def build_argument_list(game_info, port, arguments=None):
     if '/init' in arguments:
         raise ValueError("Custom init scripts no longer supported.")
 
-    #log file
-    if settings.value("fa.write_game_log", DEFAULT_WRITE_GAME_LOG, type=bool):
+    # log file
+    if Settings.get("game/logs", False, type=bool):
         arguments.append("/log")
         arguments.append('"' + util.LOG_FILE_GAME + '"')
 
-    #live replay
+    # live replay
     arguments.append('/savereplay')
     arguments.append('"gpgnet://localhost/' + str(game_info['uid']) + "/" + str(game_info['recorder']) + '.SCFAreplay"')
 
-    #gpg server emulation
+    # gpg server emulation
     arguments.append('/gpgnet 127.0.0.1:' + str(port))
 
     return arguments
