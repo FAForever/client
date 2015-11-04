@@ -24,12 +24,13 @@ PONG_INTERVAL = 100000   # milliseconds between pongs
 FormClass, BaseClass = util.loadUiType("chat/chat.ui")
 
 class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
+    use_chat = Settings.persisted_property('chat/enabled', is_bool=True, default_value=True)
     '''
     This is the chat lobby module for the FAF client.
     It manages a list of channels and dispatches IRC events (lobby inherits from irclib's client class)
     '''
     def __init__(self, client, *args, **kwargs):
-        if Settings.get('USE_CHAT') is False:
+        if not self.use_chat:
             logger.info("Disabling chat")
             return
 
