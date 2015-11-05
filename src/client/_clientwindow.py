@@ -265,13 +265,6 @@ class ClientWindow(FormClass, BaseClass):
         # Handy reference to the Player object representing the logged-in user.
         self.me = None
 
-        # names of the client's friends
-        self.friends = set()
-
-        # names of the client's foes
-        self.foes = set()
-        self.clanlist = set()      # members of clients clan
-
         self.power = 0          # current user power
         self.id = 0
         self.coloredNicknames = False
@@ -818,14 +811,14 @@ class ClientWindow(FormClass, BaseClass):
         '''
         Convenience function for other modules to inquire about a user's friendliness.
         '''
-        return name in self.friends
+        return name in self.players.friends
 
 
     def isFoe(self, name):
         '''
         Convenience function for other modules to inquire about a user's foeliness.
         '''
-        return name in self.foes
+        return name in self.players.foes
 
     def isPlayer(self, name):
         '''
@@ -844,11 +837,11 @@ class ClientWindow(FormClass, BaseClass):
         '''
         if name == self.login:
             return self.getColor("self")
-        elif name in self.friends:
+        elif name in self.players.friends:
             return self.getColor("friend")
-        elif name in self.foes:
+        elif name in self.players.foes:
             return self.getColor("foe")
-        elif name in self.clanlist:
+        elif name in self.players.clanlist:
             return self.getColor("clan")
         else:
             if self.coloredNicknames:
@@ -1109,25 +1102,25 @@ class ClientWindow(FormClass, BaseClass):
 
     def addFriend(self, friend_name):
         '''Adding a new friend by user'''
-        self.friends.add(friend_name)
+        self.players.friends.add(friend_name)
         self.send(dict(command="social_add", friend=self.players[friend_name].id))
         self.usersUpdated.emit([friend_name])
 
     def addFoe(self, foe_name):
         '''Adding a new foe by user'''
-        self.foes.add(foe_name)
+        self.players.foes.add(foe_name)
         self.send(dict(command="social_add", foe=self.players[foe_name].id))
         self.usersUpdated.emit([foe_name])
 
     def remFriend(self, friend_name):
         '''Removal of a friend by user'''
-        self.friends.remove(friend_name)
+        self.players.friends.remove(friend_name)
         self.send(dict(command="social_remove", friend=self.players[friend_name].id))
         self.usersUpdated.emit([friend_name])
 
     def remFoe(self, foe_name):
         '''Removal of a foe by user'''
-        self.foes.remove(foe_name)
+        self.players.foes.remove(foe_name)
         self.send(dict(command="social_remove", foe=self.players[foe_name].id))
         self.usersUpdated.emit([foe_name])
 
@@ -1322,11 +1315,11 @@ class ClientWindow(FormClass, BaseClass):
 
     def handle_social(self, message):
         if "friends" in message:
-            self.friends = set(message["friends"])
+            self.players.friends = set(message["friends"])
             self.usersUpdated.emit(self.players.keys())
 
         if "foes" in message:
-            self.foes = set(message["foes"])
+            self.players.foes = set(message["foes"])
             self.usersUpdated.emit(self.players.keys())
 
         if "channels" in message:
@@ -1344,7 +1337,7 @@ class ClientWindow(FormClass, BaseClass):
     def handle_player_info(self, message):
         players = message["players"]
 
-        # Firstly, find yourself. Things get easier one "me" is assigned.
+        # Firstly, find yourself. Things get easier once "me" is assigned.
         for player in players:
             if player["id"] == self.id:
                 self.me = Player(**player)
@@ -1357,7 +1350,7 @@ class ClientWindow(FormClass, BaseClass):
             self.usersUpdated.emit([player['login']])
 
             if new_player.clan == self.me.clan:
-                self.clanlist.add(player['login'])
+                self.players.clanlist.add(player['login'])
 
     def avatarManager(self):
         self.requestAvatars(0)

@@ -12,6 +12,15 @@ class Players:
     def __init__(self):
         self._players = {}
         self._warned = False
+        
+        # names of the client's friends
+        self.friends = set()
+        
+        # names of the client's foes
+        self.foes = set()
+        
+        # names of the client's clanmates
+        self.clanlist = set()
 
     def keys(self):
         return self._players.keys()
