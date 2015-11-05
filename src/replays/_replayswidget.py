@@ -412,7 +412,7 @@ class ReplaysWidget(BaseClass, FormClass):
                         playeritem.setTextColor(0, QtGui.QColor(client.instance.getColor("self")))
                         playeritem.setToolTip(0, url.toString())
                         playeritem.setIcon(0, util.icon("replays/replay.png"))                        
-                    elif client.instance.isFriend(player):
+                    elif client.instance.players.isFriend(player):
                         if not mygame:
                             item.setTextColor(1, QtGui.QColor(client.instance.getColor("friend")))
                         playeritem.setTextColor(0, QtGui.QColor(client.instance.getColor("friend")))

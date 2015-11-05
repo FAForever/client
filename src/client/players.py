@@ -29,6 +29,19 @@ class Players:
     colors = json.loads(util.readfile("client/colors.json"))
     randomcolors = json.loads(util.readfile("client/randomcolors.json"))
 
+    def isFriend(self, name):
+        '''
+        Convenience function for other modules to inquire about a user's friendliness.
+        '''
+        return name in self.friends
+
+    def isFoe(self, name):
+        '''
+        Convenience function for other modules to inquire about a user's foeliness.
+        '''
+        return name in self.foes
+
+
     def getUserColor(self, name):
         '''
         Returns a user's color depending on their status with relation to the FAF client

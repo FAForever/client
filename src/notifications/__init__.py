@@ -65,13 +65,13 @@ class Notifications:
         text = str(data)
         if eventType == self.USER_ONLINE:
             username = data['user']
-            if self.settings.getCustomSetting(eventType, 'mode') == 'friends' and not self.client.isFriend(username):
+            if self.settings.getCustomSetting(eventType, 'mode') == 'friends' and not self.client.players.isFriend(username):
                 self.dialogClosed()
                 return
             pixmap = self.user
             text = '<html>%s<br><font color="silver" size="-2">joined</font> %s</html>' % (username, data['channel'])
         elif eventType == self.NEW_GAME:
-            if self.settings.getCustomSetting(eventType, 'mode') == 'friends' and ('host' not in data or not self.client.isFriend(data['host'])):
+            if self.settings.getCustomSetting(eventType, 'mode') == 'friends' and ('host' not in data or not self.client.players.isFriend(data['host'])):
                 self.dialogClosed()
                 return
 

@@ -807,19 +807,6 @@ class ClientWindow(FormClass, BaseClass):
 
         return True
 
-    def isFriend(self, name):
-        '''
-        Convenience function for other modules to inquire about a user's friendliness.
-        '''
-        return name in self.players.friends
-
-
-    def isFoe(self, name):
-        '''
-        Convenience function for other modules to inquire about a user's foeliness.
-        '''
-        return name in self.players.foes
-
     def isPlayer(self, name):
         '''
         Convenience function for other modules to inquire about a user's civilian status.

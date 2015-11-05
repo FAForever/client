@@ -185,7 +185,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
     def openQuery(self, name, activate=False):
         # Ignore foes, and ourselves.
-        if self.client.isFoe(name) or name == self.client.login:
+        if self.client.players.isFoe(name) or name == self.client.login:
             return False
 
         if name not in self.channels:
@@ -403,7 +403,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
     def on_privmsg(self, c, e):
         name = user2name(e.source())
 
-        if self.client.isFoe(name) :
+        if self.client.players.isFoe(name) :
             return
         # Create a Query if it's not open yet, and post to it if it exists.
         if self.openQuery(name):
@@ -414,7 +414,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         name = user2name(e.source())
         target = e.target()
 
-        if self.client.isFoe(name) :
+        if self.client.players.isFoe(name) :
             return
 
         # Create a Query if it's not an action intended for a channel
