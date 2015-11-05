@@ -259,7 +259,10 @@ class ClientWindow(FormClass, BaseClass):
         self.mainTabs.currentChanged.connect(self.mainTabChanged)
         self.topTabs.currentChanged.connect(self.vaultTabChanged)
 
-        self.players = Players()  # Players known to the client, contains the player_info messages sent by the server
+
+        #Verrry important step!
+        self.loadSettingsPrelogin()
+        self.players = Players(self.login)  # Players known to the client, contains the player_info messages sent by the server
         self.urls = {}
 
         # Handy reference to the Player object representing the logged-in user.
@@ -806,12 +809,6 @@ class ClientWindow(FormClass, BaseClass):
             return True
 
         return True
-
-    def isPlayer(self, name):
-        '''
-        Convenience function for other modules to inquire about a user's civilian status.
-        '''
-        return name in self.players or name == self.login
 
     def getColor(self, name):
         if name in self.colors:

@@ -117,7 +117,7 @@ class Chatter(QtGui.QTableWidgetItem):
             return self.RANK_FRIEND
         if self.lobby.client.players.isFoe(user.name):
             return self.RANK_FOE
-        if self.lobby.client.isPlayer(user.name):
+        if self.lobby.client.players.isPlayer(user.name):
             return self.RANK_USER
         return self.RANK_NONPLAYER
 

@@ -9,9 +9,10 @@ class Players:
     
     Also responsible for general player logic, e.g remembering friendliness and colors of players.
     """
-    def __init__(self):
+    def __init__(self, login):
         self._players = {}
         self._warned = False
+        self.login = login
         
         # names of the client's friends
         self.friends = set()
@@ -40,6 +41,12 @@ class Players:
         Convenience function for other modules to inquire about a user's foeliness.
         '''
         return name in self.foes
+
+    def isPlayer(self, name):
+        '''
+        Convenience function for other modules to inquire about a user's civilian status.
+        '''
+        return name in self or name == self.login
 
 
     def getUserColor(self, name):
