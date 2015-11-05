@@ -246,7 +246,7 @@ class Channel(FormClass, BaseClass):
 
         else:
             # Fallback and ask the client. We have no Idea who this is.
-            color = self.lobby.client.getUserColor(name)
+            color = self.lobby.client.players.getUserColor(name)
 
         if mentioned:
             color = self.lobby.client.getColor("you")
@@ -302,7 +302,7 @@ class Channel(FormClass, BaseClass):
             if name in self.lobby.specialUserColors:
                 color = self.lobby.specialUserColors[name]
             else:
-                color = self.lobby.client.getUserColor(name)
+                color = self.lobby.client.players.getUserColor(name)
                 
             # Play a ping sound
             if self.private and name != self.lobby.client.login:

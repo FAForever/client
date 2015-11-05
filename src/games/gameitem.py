@@ -258,7 +258,7 @@ class GameItem(QtGui.QListWidgetItem):
         else:
             playerstring = "players"
 
-        color = client.getUserColor(self.host)
+        color = client.players.getUserColor(self.host)
 
         self.editTooltip()
 
