@@ -262,7 +262,7 @@ class ClientWindow(FormClass, BaseClass):
 
         #Verrry important step!
         self.loadSettingsPrelogin()
-        self.players = Players(self.login)  # Players known to the client, contains the player_info messages sent by the server
+        self.players = Players()  # Players known to the client, contains the player_info messages sent by the server
         self.urls = {}
 
         # Handy reference to the Player object representing the logged-in user.
@@ -1139,6 +1139,7 @@ class ClientWindow(FormClass, BaseClass):
     def handle_welcome(self, message):
         self.id = message["id"]
         self.login = message["login"]
+        self.players.login = self.login
         logger.debug("Login success")
         self.state = ClientState.ACCEPTED
 
