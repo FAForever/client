@@ -1,5 +1,9 @@
 from util import logger
 
+import json
+
+import util
+
 
 class Players:
     """
@@ -13,6 +17,7 @@ class Players:
         self._players = {}
         self._warned = False
         self.login = login
+        self.coloredNicknames = False
         
         # names of the client's friends
         self.friends = set()
