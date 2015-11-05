@@ -13,10 +13,10 @@ class Players:
     
     Also responsible for general player logic, e.g remembering friendliness and colors of players.
     """
-    def __init__(self, login):
+    def __init__(self):
         self._players = {}
         self._warned = False
-        self.login = login
+        self.login = None
         self.coloredNicknames = False
         
         # names of the client's friends
