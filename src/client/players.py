@@ -6,8 +6,8 @@ class Players:
     Wrapper for an id->Player map
 
     Used to lookup players either by id (cheap) or by login (expensive, don't do this).
-
-    In the future could contain more responsibility, e.g. emitting signals when players are updated.
+    
+    Also responsible for general player logic, e.g remembering friendliness and colors of players.
     """
     def __init__(self):
         self._players = {}
