@@ -280,7 +280,7 @@ class ReplaysWidget(BaseClass, FormClass):
                         # Add additional info
                         item.setText(3, item.info['featured_mod'])
                         item.setTextAlignment(3, QtCore.Qt.AlignCenter)
-                        item.setTextColor(1, QtGui.QColor(client.instance.getUserColor(item.info.get('recorder', ""))))
+                        item.setTextColor(1, QtGui.QColor(client.instance.players.getUserColor(item.info.get('recorder', ""))))
                     else:
                         bucket = buckets.setdefault("incomplete", [])                    
                         item.setIcon(0, util.icon("replays/replay.png"))

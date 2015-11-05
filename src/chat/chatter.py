@@ -213,7 +213,7 @@ class Chatter(QtGui.QTableWidgetItem):
         if self.name in self.lobby.client.colors:
             self.setTextColor(QtGui.QColor(chat.colors.getColor(self.name)))
             return
-        self.setTextColor(QtGui.QColor(self.lobby.client.getUserColor(self.name)))
+        self.setTextColor(QtGui.QColor(self.lobby.client.players.getUserColor(self.name)))
 
     def selectAvatar(self):
         avatarSelection = avatarWidget(self.lobby.client, self.name, personal = True)
