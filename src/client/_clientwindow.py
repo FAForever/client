@@ -270,7 +270,6 @@ class ClientWindow(FormClass, BaseClass):
 
         self.power = 0          # current user power
         self.id = 0
-        self.coloredNicknames = False
         #Initialize the Menu Bar according to settings etc.
         self.initMenus()
 
@@ -665,7 +664,9 @@ class ClientWindow(FormClass, BaseClass):
         self.opengames = self.actionSetOpenGames.isChecked()
         self.joinsparts = self.actionSetJoinsParts.isChecked()
         self.livereplays = self.actionSetLiveReplays.isChecked()
-        self.coloredNicknames = self.actionColoredNicknames.isChecked()
+
+        self.gamelogs = self.actionSaveGamelogs.isChecked()
+        self.players.coloredNicknames = self.actionColoredNicknames.isChecked()
 
         self.saveChat()
 
@@ -731,7 +732,7 @@ class ClientWindow(FormClass, BaseClass):
         util.settings.setValue("livereplays", self.livereplays)
         util.settings.setValue("opengames", self.opengames)
         util.settings.setValue("joinsparts", self.joinsparts)
-        util.settings.setValue("coloredNicknames", self.coloredNicknames)
+        util.settings.setValue("coloredNicknames", self.players.coloredNicknames)
         util.settings.endGroup()
 
     def loadSettings(self):
@@ -754,10 +755,10 @@ class ClientWindow(FormClass, BaseClass):
             self.opengames = (util.settings.value("opengames", "true") == "true")
             self.joinsparts = (util.settings.value("joinsparts", "false") == "true")
             self.livereplays = (util.settings.value("livereplays", "true") == "true")
-            self.coloredNicknames = (util.settings.value("coloredNicknames", "false") == "true")
+            self.players.coloredNicknames = (util.settings.value("coloredNicknames", "false") == "true")
 
             util.settings.endGroup()
-            self.actionColoredNicknames.setChecked(self.coloredNicknames)
+            self.actionColoredNicknames.setChecked(self.players.coloredNicknames)
             self.actionSetSoundEffects.setChecked(self.soundeffects)
             self.actionSetLiveReplays.setChecked(self.livereplays)
             self.actionSetOpenGames.setChecked(self.opengames)
@@ -809,6 +810,10 @@ class ClientWindow(FormClass, BaseClass):
             return True
 
         return True
+
+    #Color table used by the following method
+    # CAVEAT: This will break if the theme is loaded after the client package is imported
+    colors = json.loads(util.readfile("client/colors.json"))
 
     def getColor(self, name):
         if name in self.colors:
