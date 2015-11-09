@@ -428,3 +428,9 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
         if "Nickname is already in use." in "\n".join(e.arguments()) :
             self.connection.nick(self.client.login + "_")
+
+    def on_kick(self, c, e):
+        logger.warn("Kicked from " + e.target())
+        channel = e.target()
+        self.removeTab(self.indexOf(self.channels[channel]))
+        del self.channels[channel]
