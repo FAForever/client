@@ -73,6 +73,10 @@ def replay(source, detach=False):
                                                "Sorry, FAF has no idea how to replay this file:<br/><b>" + source + "</b>")
 
                 logger.info("Replaying " + str(arg_string) + " with mod " + str(mod) + " on map " + str(mapname))
+                
+                #Wrap up file path in "" to ensure proper parsing by FA.exe
+                arg_string = '"' + arg_string + '"'
+                
             else:
                 source = QtCore.QUrl(
                     source)  #Try to interpret the string as an actual url, it may come from the command line
@@ -108,7 +112,6 @@ def replay(source, detach=False):
 
 
         #Proper mod loading code
-        mods.fix_init_luas()
         mod = "faf" if mod == "ladder1v1" else mod  #hack for feature/new-patcher
 
         if not '/init' in arguments:
