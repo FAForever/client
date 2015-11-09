@@ -417,7 +417,7 @@ QScrollBar::sub-page
 }
 
 
-QLabel#labelJoinGame,#labelHostGame,#labelAutomatch,#labelMyReplays,#labelLiveReplays,#labelHostTournament,#labelJoinTournament,#joinLabel,#labelTeamManagement
+QLabel#labelSortGames,#hideGamesWithPw,#labelJoinGame,#labelHostGame,#labelAutomatch,#labelMyReplays,#labelLiveReplays,#labelHostTournament,#labelJoinTournament,#joinLabel,#labelTeamManagement
 {
     color:white;
 }
@@ -476,10 +476,12 @@ QToolButton::checked
     border-radius : 5px;
  }
 
-QComboBox, QComboBox:selectec
+QComboBox, QComboBox:selected
 {
     color:orange;
+    selection-color:orange;
     background-color: #575656;
+    selection-background-color: #575656;
 }
 
 
