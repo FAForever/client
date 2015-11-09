@@ -1,8 +1,7 @@
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtCore
 
-import util, time
+import util
 from fa import maps
-from games.gameitem import GameItemDelegate
 from multiprocessing import Lock
 from notifications.ns_dialog import NotficationDialog
 from notifications.ns_settings import NsSettingsDialog
