@@ -4,8 +4,8 @@ import util, time
 from fa import maps
 from games.gameitem import GameItemDelegate
 from multiprocessing import Lock
-from notificatation_system.ns_dialog import NotficationDialog
-from notificatation_system.ns_settings import NsSettingsDialog
+from notifications.ns_dialog import NotficationDialog
+from notifications.ns_settings import NsSettingsDialog
 
 """
 The Notification Systems reacts on events and displays a popup.

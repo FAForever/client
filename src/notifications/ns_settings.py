@@ -1,8 +1,8 @@
 from PyQt4 import QtCore, QtGui
 import util
-import notificatation_system as ns
-from notificatation_system.hook_useronline import NsHookUserOnline
-from notificatation_system.hook_newgame import NsHookNewGame
+import notifications as ns
+from notifications.hook_useronline import NsHookUserOnline
+from notifications.hook_newgame import NsHookNewGame
 
 """
 The UI of the Notification System Settings Frame.

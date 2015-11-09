@@ -1,20 +1,20 @@
 from PyQt4 import QtCore
 import util
-from notificatation_system.ns_hook import NsHook
-import notificatation_system as ns
+from notifications.ns_hook import NsHook
+import notifications as ns
 
 """
-Settings for notifications: if a new game is hosted.
+Settings for notifications: if a player comes online
 """
-class NsHookNewGame(NsHook):
+class NsHookUserOnline(NsHook):
     def __init__(self):
-        NsHook.__init__(self, ns.NotificationSystem.NEW_GAME)
+        NsHook.__init__(self, ns.NotificationSystem.USER_ONLINE)
         self.button.setEnabled(True)
-        self.dialog = NewGameDialog(self, self.eventType)
+        self.dialog = UserOnlineDialog(self, self.eventType)
         self.button.clicked.connect(self.dialog.show)
 
-FormClass, BaseClass = util.loadUiType("notification_system/new_game.ui")
-class NewGameDialog(FormClass, BaseClass):
+FormClass, BaseClass = util.loadUiType("notification_system/user_online.ui")
+class UserOnlineDialog(FormClass, BaseClass):
     def __init__(self, parent, eventType):
         BaseClass.__init__(self)
         self.parent = parent
@@ -34,7 +34,10 @@ class NewGameDialog(FormClass, BaseClass):
         util.settings.endGroup()
         util.settings.endGroup()
 
-        self.checkBoxFriends.setCheckState(QtCore.Qt.Checked if self.mode == 'friends' else QtCore.Qt.Unchecked)
+        if self.mode == 'friends':
+            self.radioButtonFriends.setChecked(True)
+        else:
+            self.radioButtonAll.setChecked(True)
         self.parent.mode = self.mode
 
     def saveSettings(self):
@@ -48,6 +51,6 @@ class NewGameDialog(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def on_btnSave_clicked(self):
-        self.mode = 'friends' if self.checkBoxFriends.checkState() == QtCore.Qt.Checked else 'all'
+        self.mode = 'friends' if self.radioButtonFriends.isChecked() else 'all'
         self.saveSettings()
         self.hide()

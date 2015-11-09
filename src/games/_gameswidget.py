@@ -11,7 +11,7 @@ from games.hostgamewidget import HostgameWidget
 from fa.factions import Factions
 import fa
 import modvault
-import notificatation_system as ns
+import notifications as ns
 
 import logging
 logger = logging.getLogger(__name__)

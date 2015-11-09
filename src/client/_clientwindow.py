@@ -32,7 +32,7 @@ import replays
 
 import time
 import random
-import notificatation_system as ns
+import notifications as ns
 
 FormClass, BaseClass = util.loadUiType("client/client.ui")
 

@@ -14,7 +14,7 @@ import sys
 import chat
 from chat import user2name
 from chat.channel import Channel
-import notificatation_system as ns
+import notifications as ns
 
 IRC_PORT = 8167
 IRC_SERVER = "irc.faforever.com"
