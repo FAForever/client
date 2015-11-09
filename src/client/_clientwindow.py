@@ -608,7 +608,6 @@ class ClientWindow(FormClass, BaseClass):
         self.doneresize.emit()
 
     def initMenus(self):
-        self.actionLinkMumble.triggered.connect(partial(self.open_url, Settings.get("MUMBLE_URL").format(login=self.login)))
         self.actionLink_account_to_Steam.triggered.connect(partial(self.open_url, Settings.get("STEAMLINK_URL")))
         self.actionLinkWebsite.triggered.connect(partial(self.open_url, Settings.get("WEBSITE_URL")))
         self.actionLinkWiki.triggered.connect(partial(self.open_url, Settings.get("WIKI_URL")))
@@ -630,7 +629,6 @@ class ClientWindow(FormClass, BaseClass):
 
         self.actionSetGamePath.triggered.connect(self.switchPath)
         self.actionSetGamePort.triggered.connect(self.switchPort)
-        self.actionSetMumbleOptions.triggered.connect(self.setMumbleOptions)
 
 
         # Toggle-Options
@@ -642,7 +640,6 @@ class ClientWindow(FormClass, BaseClass):
         self.actionSaveGamelogs.toggled.connect(self.on_actionSavegamelogs_toggled)
         self.actionSaveGamelogs.setChecked(self.gamelogs)
         self.actionColoredNicknames.triggered.connect(self.updateOptions)
-        self.actionActivateMumbleSwitching.triggered.connect(self.saveMumbleSwitching)
 
 
         #Init themes as actions.
@@ -688,11 +685,6 @@ class ClientWindow(FormClass, BaseClass):
         loginwizards.gameSettingsWizard(self).exec_()
 
     @QtCore.pyqtSlot()
-    def setMumbleOptions(self):
-        import loginwizards
-        loginwizards.mumbleOptionsWizard(self).exec_()
-
-    @QtCore.pyqtSlot()
     def clearSettings(self):
         result = QtGui.QMessageBox.question(None, "Clear Settings", "Are you sure you wish to clear all settings, login info, etc. used by this program?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
         if (result == QtGui.QMessageBox.Yes):
@@ -733,21 +725,6 @@ class ClientWindow(FormClass, BaseClass):
         util.settings.setValue("geometry", self.saveGeometry())
         util.settings.endGroup()
 
-    def saveMumble(self):
-        util.settings.beginGroup("Mumble")
-        util.settings.setValue("app/mumble", self.enableMumble)
-        util.settings.endGroup()
-        util.settings.sync()
-
-    @QtCore.pyqtSlot()
-    def saveMumbleSwitching(self):
-        self.activateMumbleSwitching = self.actionActivateMumbleSwitching.isChecked()
-
-        util.settings.beginGroup("Mumble")
-        util.settings.setValue("app/activateMumbleSwitching", self.activateMumbleSwitching)
-        util.settings.endGroup()
-        util.settings.sync()
-
     def saveChat(self):
         util.settings.beginGroup("chat")
         util.settings.setValue("soundeffects", self.soundeffects)
@@ -768,24 +745,6 @@ class ClientWindow(FormClass, BaseClass):
 
         util.settings.beginGroup("ForgedAlliance")
         util.settings.endGroup()
-
-        util.settings.beginGroup("Mumble")
-
-        if util.settings.value("app/mumble", "firsttime") == "firsttime":
-            # The user has never configured mumble before. Be a little intrusive and ask him if he wants to use it.
-            if QtGui.QMessageBox.question(self, "Enable Voice Connector?", "FA Forever can connect with <a href=\"http://mumble.sourceforge.net/\">Mumble</a> to support the automatic setup of voice connections between you and your team mates. Would you like to enable this feature? You can change the setting at any time by going to options -> settings -> Voice", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No) == QtGui.QMessageBox.Yes:
-                util.settings.setValue("app/mumble", "true")
-            else:
-                util.settings.setValue("app/mumble", "false")
-
-        if util.settings.value("app/activateMumbleSwitching", "firsttime") == "firsttime":
-            util.settings.setValue("app/activateMumbleSwitching", "true")
-
-        self.enableMumble = (util.settings.value("app/mumble", "false") == "true")
-        self.activateMumbleSwitching = (util.settings.value("app/activateMumbleSwitching", "false") == "true")
-        util.settings.endGroup()
-
-        self.actionActivateMumbleSwitching.setChecked(self.activateMumbleSwitching)
 
 
     def loadChat(self):
@@ -1202,12 +1161,6 @@ class ClientWindow(FormClass, BaseClass):
                        password=self.password,
                        unique_id=self.uniqueId,
                        session=self.session))
-
-        # FIXME: Get this out of here
-        if self.enableMumble:
-            self.progress.setLabelText("Setting up Mumble...")
-            import mumbleconnector
-            self.mumbleConnector = mumbleconnector.MumbleConnector(self)
         return True
 
     def handle_invalid(self, message):

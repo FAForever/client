@@ -275,13 +275,6 @@
       <string>Theme...</string>
      </property>
     </widget>
-    <widget class="QMenu" name="menuVoice">
-     <property name="title">
-      <string>Voice...</string>
-     </property>
-     <addaction name="actionActivateMumbleSwitching"/>
-     <addaction name="actionSetMumbleOptions"/>
-    </widget>
     <widget class="QMenu" name="menuClear">
      <property name="title">
       <string>Clear...</string>
@@ -312,7 +305,6 @@
     <addaction name="menuSettings"/>
     <addaction name="menuChat"/>
     <addaction name="menuTheme"/>
-    <addaction name="menuVoice"/>
     <addaction name="menuNotifications"/>
     <addaction name="separator"/>
     <addaction name="menuClear"/>
@@ -578,7 +570,7 @@
   <customwidget>
    <class>QWebView</class>
    <extends>QWidget</extends>
-   <header>QtWebKit/QWebView</header>
+   <header>QtWebKitWidgets/QWebView</header>
   </customwidget>
  </customwidgets>
  <resources/>
