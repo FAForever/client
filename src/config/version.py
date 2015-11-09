@@ -97,8 +97,10 @@ def get_git_version():
 
 
 if __name__ == "__main__":
-    v = get_git_version()
-    print("""FAF Version: {}
-             Dev: {} Pre: {}""".format(get_git_version(),
-                                       is_development_version(v),
-                                       is_prerelease_version(v)))
+    import sys
+    res = get_git_version()
+    if len(sys.argv) != 1:
+        res = """FAF Version: {} Dev: {} Pre: {}""".format(get_git_version(),
+                                                           is_development_version(res),
+                                                           is_prerelease_version(res))
+    print(res)
