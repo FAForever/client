@@ -26,6 +26,7 @@ build_version = version.msi_version(git_version)
 appveyor_build_version = os.getenv('APPVEYOR_BUILD_VERSION')
 if appveyor_build_version:
     build_version = appveyor_build_version
+version.write_release_version(build_version)
 
 print('Git version:', git_version, 'Build version:', build_version)
 
