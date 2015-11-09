@@ -22,13 +22,13 @@ product_name = 'Forged Alliance Forever'
 import config.version as version
 import PyQt4.uic
 git_version = version.get_git_version()
-build_version = version.msi_version(git_version)
+msi_version = version.msi_version(git_version)
 appveyor_build_version = os.getenv('APPVEYOR_BUILD_VERSION')
-if appveyor_build_version:
-    build_version = appveyor_build_version
-version.write_release_version(build_version)
+version.write_release_version(appveyor_build_version)
 
-print('Git version:', git_version, 'Build version:', build_version)
+print('Git version:', git_version,
+      'Release version:', appveyor_build_version,
+      'Build version:', msi_version)
 
 # Ugly hack to fix broken PyQt4
 try:
@@ -99,7 +99,7 @@ exe = Executable(
 
 setup(
     name=product_name,
-    version=build_version,
+    version=msi_version,
     description='Forged Alliance Forever - Lobby Client',
     long_description='FA Forever is a community project that allows you to play \
 Supreme Commander and Supreme Commander: Forged Alliance online \
