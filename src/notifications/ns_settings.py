@@ -23,8 +23,8 @@ class NsSettingsDialog(FormClass2, BaseClass2):
 
         # init hooks
         self.hooks = {}
-        self.hooks[ns.NotificationSystem.USER_ONLINE] = NsHookUserOnline()
-        self.hooks[ns.NotificationSystem.NEW_GAME] = NsHookNewGame()
+        self.hooks[ns.Notifications.USER_ONLINE] = NsHookUserOnline()
+        self.hooks[ns.Notifications.NEW_GAME] = NsHookNewGame()
 
         model = NotificationHooks(self, self.hooks.values())
         self.tableView.setModel(model)

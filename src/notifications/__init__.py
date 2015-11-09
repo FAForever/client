@@ -3,21 +3,21 @@ from PyQt4 import QtCore
 import util
 from fa import maps
 from multiprocessing import Lock
-from notifications.ns_dialog import NotficationDialog
+from notifications.ns_dialog import NotificationDialog
 from notifications.ns_settings import NsSettingsDialog
 
 """
 The Notification Systems reacts on events and displays a popup.
 Each event_type has a NsHook to customize it.
 """
-class NotificationSystem():
+class Notifications:
     USER_ONLINE = 'user_online'
     NEW_GAME = 'new_game'
 
     def __init__(self, client):
         self.client = client
 
-        self.dialog = NotficationDialog(self.client)
+        self.dialog = NotificationDialog(self.client)
         self.events = []
         self.disabledStartup = True
         self.lock = Lock()

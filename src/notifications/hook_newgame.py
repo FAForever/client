@@ -8,7 +8,7 @@ Settings for notifications: if a new game is hosted.
 """
 class NsHookNewGame(NsHook):
     def __init__(self):
-        NsHook.__init__(self, ns.NotificationSystem.NEW_GAME)
+        NsHook.__init__(self, ns.Notifications.NEW_GAME)
         self.button.setEnabled(True)
         self.dialog = NewGameDialog(self, self.eventType)
         self.button.clicked.connect(self.dialog.show)

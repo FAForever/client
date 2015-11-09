@@ -120,7 +120,7 @@ class GamesWidget(FormClass, BaseClass):
             self.games[uid].update(message, self.client)
 
             if message['state'] == 'open' and not message['password_protected']:
-                self.client.notificationSystem.on_event(ns.NotificationSystem.NEW_GAME, message)
+                self.client.notificationSystem.on_event(ns.Notifications.NEW_GAME, message)
         else:
             self.games[uid].update(message, self.client)
 

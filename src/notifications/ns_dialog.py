@@ -5,7 +5,7 @@ import util, time
 The UI popup of the notification system
 """
 FormClass, BaseClass = util.loadUiType("notification_system/dialog.ui")
-class NotficationDialog(FormClass, BaseClass):
+class NotificationDialog(FormClass, BaseClass):
     def __init__(self, client, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
 

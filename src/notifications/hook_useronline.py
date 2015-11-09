@@ -8,7 +8,7 @@ Settings for notifications: if a player comes online
 """
 class NsHookUserOnline(NsHook):
     def __init__(self):
-        NsHook.__init__(self, ns.NotificationSystem.USER_ONLINE)
+        NsHook.__init__(self, ns.Notifications.USER_ONLINE)
         self.button.setEnabled(True)
         self.dialog = UserOnlineDialog(self, self.eventType)
         self.button.clicked.connect(self.dialog.show)

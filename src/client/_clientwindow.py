@@ -477,7 +477,7 @@ class ClientWindow(FormClass, BaseClass):
         self.replays = replays.Replays(self)
         self.tutorials = tutorials.Tutorials(self)
         self.Coop = coop.Coop(self)
-        self.notificationSystem = ns.NotificationSystem(self)
+        self.notificationSystem = ns.Notifications(self)
 
         # set menu states
         self.actionNsEnabled.setChecked(self.notificationSystem.settings.enabled)
@@ -618,8 +618,8 @@ class ClientWindow(FormClass, BaseClass):
         self.actionLinkForums.triggered.connect(partial(self.open_url, Settings.get("FORUMS_URL")))
         self.actionLinkUnitDB.triggered.connect(partial(self.open_url, Settings.get("UNITDB_URL")))
 
-        self.actionNsSettings.triggered.connect(lambda : self.notificationSystem.on_showSettings())
-        self.actionNsEnabled.triggered.connect(lambda enabled : self.notificationSystem.setNotificationEnabled(enabled))
+        self.actionNsSettings.triggered.connect(lambda: self.notificationSystem.on_showSettings())
+        self.actionNsEnabled.triggered.connect(lambda enabled: self.notificationSystem.setNotificationEnabled(enabled))
 
         self.actionWiki.triggered.connect(partial(self.open_url, Settings.get("WIKI_URL")))
         self.actionReportBug.triggered.connect(partial(self.open_url, Settings.get("TICKET_URL")))
