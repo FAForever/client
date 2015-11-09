@@ -1,17 +1,91 @@
 from util import logger
 
+import json
+
+import util
+
 
 class Players:
     """
     Wrapper for an id->Player map
 
     Used to lookup players either by id (cheap) or by login (expensive, don't do this).
-
-    In the future could contain more responsibility, e.g. emitting signals when players are updated.
+    
+    Also responsible for general player logic, e.g remembering friendliness and colors of players.
     """
     def __init__(self):
         self._players = {}
         self._warned = False
+        self.login = None
+        self.coloredNicknames = False
+        
+        # names of the client's friends
+        self.friends = set()
+        
+        # names of the client's foes
+        self.foes = set()
+        
+        # names of the client's clanmates
+        self.clanlist = set()
+
+
+
+    #Color table used by the following method
+    # CAVEAT: This will break if the theme is loaded after the client package is imported
+    colors = json.loads(util.readfile("client/colors.json"))
+    randomcolors = json.loads(util.readfile("client/randomcolors.json"))
+
+    def isFriend(self, name):
+        '''
+        Convenience function for other modules to inquire about a user's friendliness.
+        '''
+        return name in self.friends
+
+    def isFoe(self, name):
+        '''
+        Convenience function for other modules to inquire about a user's foeliness.
+        '''
+        return name in self.foes
+
+    def isPlayer(self, name):
+        '''
+        Convenience function for other modules to inquire about a user's civilian status.
+        '''
+        return name in self or name == self.login
+
+
+    def getUserColor(self, name):
+        '''
+        Returns a user's color depending on their status with relation to the FAF client
+        '''
+        if name == self.login:
+            return self.getColor("self")
+        elif name in self.players.friends:
+            return self.getColor("friend")
+        elif name in self.players.foes:
+            return self.getColor("foe")
+        elif name in self.players.clanlist:
+            return self.getColor("clan")
+        else:
+            if self.coloredNicknames:
+                return self.getRandomColor(name)
+
+            if name in self.players:
+                return self.getColor("player")
+
+            return self.getColor("default")
+
+    def getRandomColor(self, name):
+        '''Generate a random color from a name'''
+        random.seed(name)
+        return random.choice(self.randomcolors)
+
+    def getColor(self, name):
+        if name in self.colors:
+            return self.colors[name]
+        else:
+            return self.colors["default"]
+
 
     def keys(self):
         return self._players.keys()

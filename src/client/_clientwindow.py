@@ -259,22 +259,17 @@ class ClientWindow(FormClass, BaseClass):
         self.mainTabs.currentChanged.connect(self.mainTabChanged)
         self.topTabs.currentChanged.connect(self.vaultTabChanged)
 
+
+        #Verrry important step!
+        self.loadSettingsPrelogin()
         self.players = Players()  # Players known to the client, contains the player_info messages sent by the server
         self.urls = {}
 
         # Handy reference to the Player object representing the logged-in user.
         self.me = None
 
-        # names of the client's friends
-        self.friends = set()
-
-        # names of the client's foes
-        self.foes = set()
-        self.clanlist = set()      # members of clients clan
-
         self.power = 0          # current user power
         self.id = 0
-        self.coloredNicknames = False
         #Initialize the Menu Bar according to settings etc.
         self.initMenus()
 
@@ -669,7 +664,9 @@ class ClientWindow(FormClass, BaseClass):
         self.opengames = self.actionSetOpenGames.isChecked()
         self.joinsparts = self.actionSetJoinsParts.isChecked()
         self.livereplays = self.actionSetLiveReplays.isChecked()
-        self.coloredNicknames = self.actionColoredNicknames.isChecked()
+
+        self.gamelogs = self.actionSaveGamelogs.isChecked()
+        self.players.coloredNicknames = self.actionColoredNicknames.isChecked()
 
         self.saveChat()
 
@@ -735,7 +732,7 @@ class ClientWindow(FormClass, BaseClass):
         util.settings.setValue("livereplays", self.livereplays)
         util.settings.setValue("opengames", self.opengames)
         util.settings.setValue("joinsparts", self.joinsparts)
-        util.settings.setValue("coloredNicknames", self.coloredNicknames)
+        util.settings.setValue("coloredNicknames", self.players.coloredNicknames)
         util.settings.endGroup()
 
     def loadSettings(self):
@@ -758,10 +755,10 @@ class ClientWindow(FormClass, BaseClass):
             self.opengames = (util.settings.value("opengames", "true") == "true")
             self.joinsparts = (util.settings.value("joinsparts", "false") == "true")
             self.livereplays = (util.settings.value("livereplays", "true") == "true")
-            self.coloredNicknames = (util.settings.value("coloredNicknames", "false") == "true")
+            self.players.coloredNicknames = (util.settings.value("coloredNicknames", "false") == "true")
 
             util.settings.endGroup()
-            self.actionColoredNicknames.setChecked(self.coloredNicknames)
+            self.actionColoredNicknames.setChecked(self.players.coloredNicknames)
             self.actionSetSoundEffects.setChecked(self.soundeffects)
             self.actionSetLiveReplays.setChecked(self.livereplays)
             self.actionSetOpenGames.setChecked(self.opengames)
@@ -814,55 +811,9 @@ class ClientWindow(FormClass, BaseClass):
 
         return True
 
-    def isFriend(self, name):
-        '''
-        Convenience function for other modules to inquire about a user's friendliness.
-        '''
-        return name in self.friends
-
-
-    def isFoe(self, name):
-        '''
-        Convenience function for other modules to inquire about a user's foeliness.
-        '''
-        return name in self.foes
-
-    def isPlayer(self, name):
-        '''
-        Convenience function for other modules to inquire about a user's civilian status.
-        '''
-        return name in self.players or name == self.login
-
     #Color table used by the following method
     # CAVEAT: This will break if the theme is loaded after the client package is imported
     colors = json.loads(util.readfile("client/colors.json"))
-    randomcolors = json.loads(util.readfile("client/randomcolors.json"))
-
-    def getUserColor(self, name):
-        '''
-        Returns a user's color depending on their status with relation to the FAF client
-        '''
-        if name == self.login:
-            return self.getColor("self")
-        elif name in self.friends:
-            return self.getColor("friend")
-        elif name in self.foes:
-            return self.getColor("foe")
-        elif name in self.clanlist:
-            return self.getColor("clan")
-        else:
-            if self.coloredNicknames:
-                return self.getRandomColor(name)
-
-            if name in self.players:
-                return self.getColor("player")
-
-            return self.getColor("default")
-
-    def getRandomColor(self, name):
-        '''Generate a random color from a name'''
-        random.seed(name)
-        return random.choice(self.randomcolors)
 
     def getColor(self, name):
         if name in self.colors:
@@ -1109,25 +1060,25 @@ class ClientWindow(FormClass, BaseClass):
 
     def addFriend(self, friend_name):
         '''Adding a new friend by user'''
-        self.friends.add(friend_name)
+        self.players.friends.add(friend_name)
         self.send(dict(command="social_add", friend=self.players[friend_name].id))
         self.usersUpdated.emit([friend_name])
 
     def addFoe(self, foe_name):
         '''Adding a new foe by user'''
-        self.foes.add(foe_name)
+        self.players.foes.add(foe_name)
         self.send(dict(command="social_add", foe=self.players[foe_name].id))
         self.usersUpdated.emit([foe_name])
 
     def remFriend(self, friend_name):
         '''Removal of a friend by user'''
-        self.friends.remove(friend_name)
+        self.players.friends.remove(friend_name)
         self.send(dict(command="social_remove", friend=self.players[friend_name].id))
         self.usersUpdated.emit([friend_name])
 
     def remFoe(self, foe_name):
         '''Removal of a foe by user'''
-        self.foes.remove(foe_name)
+        self.players.foes.remove(foe_name)
         self.send(dict(command="social_remove", foe=self.players[foe_name].id))
         self.usersUpdated.emit([foe_name])
 
@@ -1188,6 +1139,7 @@ class ClientWindow(FormClass, BaseClass):
     def handle_welcome(self, message):
         self.id = message["id"]
         self.login = message["login"]
+        self.players.login = self.login
         logger.debug("Login success")
         self.state = ClientState.ACCEPTED
 
@@ -1322,11 +1274,11 @@ class ClientWindow(FormClass, BaseClass):
 
     def handle_social(self, message):
         if "friends" in message:
-            self.friends = set(message["friends"])
+            self.players.friends = set(message["friends"])
             self.usersUpdated.emit(self.players.keys())
 
         if "foes" in message:
-            self.foes = set(message["foes"])
+            self.players.foes = set(message["foes"])
             self.usersUpdated.emit(self.players.keys())
 
         if "channels" in message:
@@ -1344,7 +1296,7 @@ class ClientWindow(FormClass, BaseClass):
     def handle_player_info(self, message):
         players = message["players"]
 
-        # Firstly, find yourself. Things get easier one "me" is assigned.
+        # Firstly, find yourself. Things get easier once "me" is assigned.
         for player in players:
             if player["id"] == self.id:
                 self.me = Player(**player)
@@ -1357,7 +1309,7 @@ class ClientWindow(FormClass, BaseClass):
             self.usersUpdated.emit([player['login']])
 
             if new_player.clan == self.me.clan:
-                self.clanlist.add(player['login'])
+                self.players.clanlist.add(player['login'])
 
     def avatarManager(self):
         self.requestAvatars(0)

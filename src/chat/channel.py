@@ -246,7 +246,7 @@ class Channel(FormClass, BaseClass):
 
         else:
             # Fallback and ask the client. We have no Idea who this is.
-            color = self.lobby.client.getUserColor(name)
+            color = self.lobby.client.players.getUserColor(name)
 
         if mentioned:
             color = self.lobby.client.getColor("you")
@@ -282,7 +282,7 @@ class Channel(FormClass, BaseClass):
 
     @QtCore.pyqtSlot(str, str)
     def printMsg(self, name, text, scroll_forced=False):
-        if self.lobby.client.isFoe(name):
+        if self.lobby.client.players.isFoe(name):
             return
         fmt = Formatters.FORMATTER_MESSAGE_AVATAR if self.chatters[name].avatar else Formatters.FORMATTER_MESSAGE
         self.printLine(name, text, scroll_forced, fmt)
@@ -302,7 +302,7 @@ class Channel(FormClass, BaseClass):
             if name in self.lobby.specialUserColors:
                 color = self.lobby.specialUserColors[name]
             else:
-                color = self.lobby.client.getUserColor(name)
+                color = self.lobby.client.players.getUserColor(name)
                 
             # Play a ping sound
             if self.private and name != self.lobby.client.login:

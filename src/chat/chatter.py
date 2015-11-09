@@ -113,11 +113,11 @@ class Chatter(QtGui.QTableWidgetItem):
         # TODO: Add subdivision for admin?
         if user.elevation:
             return self.RANK_ELEVATION
-        if self.lobby.client.isFriend(user.name):
+        if self.lobby.client.players.isFriend(user.name):
             return self.RANK_FRIEND
-        if self.lobby.client.isFoe(user.name):
+        if self.lobby.client.players.isFoe(user.name):
             return self.RANK_FOE
-        if self.lobby.client.isPlayer(user.name):
+        if self.lobby.client.players.isPlayer(user.name):
             return self.RANK_USER
         return self.RANK_NONPLAYER
 
@@ -201,19 +201,14 @@ class Chatter(QtGui.QTableWidgetItem):
             self.rankItem.setIcon(util.icon("chat/rank/newplayer.png"))
 
     def setChatUserColor(self, username):
-        if self.lobby.client.isFriend(username):
+        if self.lobby.client.players.isFriend(username):
             if self.elevation in chat.OPERATOR_COLORS:
                 self.setTextColor(QtGui.QColor(chat.colors.getColor("friend_mod")))
                 return
-            self.setTextColor(QtGui.QColor(chat.colors.getColor("friend")))
-            return
         if self.elevation in chat.colors.OPERATOR_COLORS:
             self.setTextColor(QtGui.QColor(chat.colors.OPERATOR_COLORS[self.elevation]))
             return
-        if self.name in self.lobby.client.colors:
-            self.setTextColor(QtGui.QColor(chat.colors.getColor(self.name)))
-            return
-        self.setTextColor(QtGui.QColor(self.lobby.client.getUserColor(self.name)))
+        self.setTextColor(QtGui.QColor(self.lobby.client.players.getUserColor(self.name)))
 
     def selectAvatar(self):
         avatarSelection = avatarWidget(self.lobby.client, self.name, personal = True)
@@ -318,14 +313,14 @@ class Chatter(QtGui.QTableWidgetItem):
             actionRemFoe.setDisabled(1)
               
         # Enable / Disable actions according to friend status  
-        if self.lobby.client.isFriend(self.name):
+        if self.lobby.client.players.isFriend(self.name):
             actionAddFriend.setDisabled(1)
             actionRemFoe.setDisabled(1)
             actionAddFoe.setDisabled(1)
         else:
             actionRemFriend.setDisabled(1)
 
-        if self.lobby.client.isFoe(self.name):
+        if self.lobby.client.players.isFoe(self.name):
             actionAddFoe.setDisabled(1)
             actionAddFriend.setDisabled(1)
             actionRemFriend.setDisabled(1)
