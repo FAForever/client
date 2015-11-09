@@ -30,7 +30,7 @@ artifacts:
 
 deploy:
   - provider: GitHub
-    release: v$(appveyor_build_version)
+    release: $(appveyor_build_version)
     auth_token:
       secure: "09WRxoB8lu9lPzuk3qYu0brKVQubLpnsS1Wdn49nYZYi5RDiva3z37eITcjtZkTD"
     artifact: /.*\.msi/
@@ -41,7 +41,7 @@ deploy:
       appveyor_repo_tag: true
 
   - provider: GitHub
-    release: v$(appveyor_build_version)
+    release: $(appveyor_build_version)
     auth_token:
       secure: "09WRxoB8lu9lPzuk3qYu0brKVQubLpnsS1Wdn49nYZYi5RDiva3z37eITcjtZkTD"
     artifact: /.*\.msi/
