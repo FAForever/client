@@ -252,12 +252,11 @@ class Relayer(QtCore.QObject):
     def handle_incoming_local(self, action, chunks):
         if self.action == 'GameState':
             if chunks[0] == 'Idle':
-                self.__logger.info("Telling game to create lobby")
-                reply = Packet("CreateLobby", [self.init_mode,
-                                               self.client.gamePort,
-                                               self.client.login,
-                                               self.client.id,
-                                               1])
+                args = [self.init_mode, self.client.gamePort,
+                        self.client.login, self.client.id]
+                self.__logger.info("Telling game to create lobby: {}".
+                                    format(args))
+                reply = Packet("CreateLobby", args)
                 self.inputSocket.write(reply.Pack())
         self.sendToServer(action, chunks)
 
