@@ -83,7 +83,7 @@ def replay(source, detach=False):
 
         if isinstance(source, QtCore.QUrl):
             url = source
-            #Determine if it's a faflive url
+            # Determine if it's a faflive url
             if url.scheme() == "faflive":
                 mod = url.queryItemValue("mod")
                 mapname = url.queryItemValue("map")
@@ -111,7 +111,7 @@ def replay(source, detach=False):
         #Proper mod loading code
         mod = "faf" if mod == "ladder1v1" else mod
 
-        if not '/init' in arguments:
+        if '/init' not in arguments:
             arguments.append('/init')
             arguments.append("init_" + mod + ".lua")
 
@@ -131,11 +131,9 @@ def replay(source, detach=False):
             logger.error("Can't watch replays without an updated Forged Alliance game!")
             return False
 
-
-        # Finally, run executable
         if fa.instance.run(None, arguments, detach):
             logger.info("Viewing Replay.")
             return True
         else:
-            logger.error("Replaying failed.")
+            logger.error("Replaying failed. Guru meditation: {}".format(arguments))
             return False
