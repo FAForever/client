@@ -83,6 +83,9 @@ environment = ('production' if os.getenv('FAF_FORCE_PRODUCTION')
                                or hasattr(sys, 'frozen')
                             else 'development')
 
+if _settings.contains('client/force_environment'):
+    environment = _settings.value('client/force_environment')
+
 if environment == 'production':
     from production import defaults
 
