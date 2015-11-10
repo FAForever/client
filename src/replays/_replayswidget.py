@@ -571,8 +571,7 @@ class ReplaysWidget(BaseClass, FormClass):
         
         self.replayVaultSocket.disconnectFromHost()
         
-
-    def writeToServer(self, action, *args, **kw):        
+    def writeToServer(self, action, *args, **kw):
         logger.debug(("writeToServer(" + action + ", [" + ', '.join(args) + "])"))
         
         block = QtCore.QByteArray()
