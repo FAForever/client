@@ -1305,7 +1305,7 @@ class ClientWindow(FormClass, BaseClass):
             self.players[id] = new_player
             self.usersUpdated.emit([player['login']])
 
-            if new_player.clan == self.me.clan:
+            if self.me.clan is not None and new_player.clan == self.me.clan:
                 self.players.clanlist.add(player['login'])
 
     def avatarManager(self):
