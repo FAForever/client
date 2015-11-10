@@ -25,7 +25,7 @@ def dumpMapping(mappingPort):
 
 if platform.system() == "Windows":
     def createPortMapping(ip, port, protocol="UDP"):
-        logger.info("Creating UPnP port mappings...")
+        logger.info("UPnP mapping {}:{}".format(ip, port))
         try:
             import win32com.client
             NATUPnP = win32com.client.Dispatch("HNetCfg.NATUPnP")
@@ -39,11 +39,11 @@ if platform.system() == "Windows":
             else:
                 logger.error("Couldn't get StaticPortMappingCollection")
         except:
-            logger.error("Exception in UPnP createPortMapping.", exc_info=sys.exc_info())
-            util.CrashDialog(sys.exc_info()).exec_()
+            logger.error("Exception in UPnP createPortMapping.",
+                         exc_info=sys.exc_info())
 
     def removePortMappings():
-        logger.info("Removing UPnP port mappings...")
+        logger.info("Removing UPnP port mapping.")
         try:
             import win32com.client
             NATUPnP = win32com.client.Dispatch("HNetCfg.NATUPnP")
@@ -66,5 +66,5 @@ else:
     def createPortMapping(ip, port, protocol='UDP'):
         logger.info("FIXME: Create a UPNP mapper for platform != Windows")
 
-    def removePortMappings(ip, port, protocol='UDP'):
+    def removePortMappings():
         logger.info("FIXME: Create a UPNP mapper for platform != Windows")
