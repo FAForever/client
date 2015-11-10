@@ -106,13 +106,10 @@ def replay(source, detach=False):
             return False
 
         # Launch preparation: Start with an empty arguments list
-        arguments = []
-        arguments.append('/replay')
-        arguments.append(arg_string)
-
+        arguments = ['/replay', arg_string]
 
         #Proper mod loading code
-        mod = "faf" if mod == "ladder1v1" else mod  #hack for feature/new-patcher
+        mod = "faf" if mod == "ladder1v1" else mod
 
         if not '/init' in arguments:
             arguments.append('/init')
