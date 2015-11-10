@@ -76,11 +76,14 @@ VERSION = version.get_git_version()
 def is_development_version():
     return version.is_development_version(VERSION)
 
-
 # FIXME: Don't initialize proxy code that shows a dialogue box on import
 no_dialogs = False
 
-if os.getenv("FAF_FORCE_PRODUCTION") or getattr(sys, 'frozen', False) and not version.is_prerelease_version(VERSION):
+environment = ('production' if os.getenv('FAF_FORCE_PRODUCTION')
+                               or hasattr(sys, 'frozen')
+                            else 'development')
+
+if environment == 'production':
     from production import defaults
 
     make_dirs()
@@ -90,7 +93,7 @@ if os.getenv("FAF_FORCE_PRODUCTION") or getattr(sys, 'frozen', False) and not ve
     rotate.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))
     logging.getLogger().addHandler(rotate)
     logging.getLogger().setLevel(Settings.get('client/logs/level'))
-elif is_development_version() or sys.executable.endswith("py.test"):
+elif environment == 'development':
     # Setup logging output
     devh = logging.StreamHandler()
     devh.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))
@@ -103,15 +106,5 @@ elif is_development_version() or sys.executable.endswith("py.test"):
     from develop import defaults
 
     make_dirs()
-elif version.is_prerelease_version(VERSION):
-    from develop import defaults
 
-    make_dirs()
-    rotate = RotatingFileHandler(filename=os.path.join(Settings.get('client/logs/path'), 'forever.log'),
-                                 maxBytes=Settings.get('client/logs/max_size'),
-                                 backupCount=10)
-    rotate.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))
-    logging.getLogger().addHandler(rotate)
-    logging.getLogger().setLevel(Settings.get('client/logs/level'))
-
-logging.getLogger().info("FAF version: {}".format(version.get_git_version()))
+logging.getLogger().info("FAF version: {} Environment: {}".format(version.get_git_version(), environment))
