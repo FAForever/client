@@ -248,7 +248,6 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
     def on_endofmotd(self, c, e):
         self.log_event(e)
 
-
     def on_namreply(self, c, e):
         self.log_event(e)
         channel = e.arguments()[1]
@@ -262,7 +261,6 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
     def on_whoisuser(self, c, e):
         self.log_event(e)
-
 
     def on_join(self, c, e):
         channel = e.target()
@@ -294,7 +292,6 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             self.client.notificationSystem.on_event(ns.Notifications.USER_ONLINE, {'user':username, 'channel':channel})
         self.channels[channel].resizing()
 
-
     def on_part(self, c, e):
         channel = e.target()
         name = user2name(e.source())
@@ -303,7 +300,6 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             del self.channels[channel]
         else:                           #Someone else left
             self.channels[channel].removeChatter(name, "left.")
-
 
     def on_quit(self, c, e):
         name = user2name(e.source())
@@ -376,7 +372,6 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             elif notice.find("hold on") >= 0:
                 self.connection.nick(self.client.login)
 
-
         message = "\n".join(e.arguments()).lstrip(prefix)
         if target in self.channels:
             self.channels[target].printMsg(source, message)
@@ -389,10 +384,6 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         else:
             self.serverLogArea.appendPlainText("%s: %s" % (source, notice))
 
-    # THIS CANNOT POSSIBLY BE A GOOD IDEA.
-    def serverTimeout(self):
-        pass
-
     def on_disconnect(self, c, e):
         if not self.canDisconnect:
             logger.warn("IRC disconnected - reconnecting.")
@@ -403,18 +394,18 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
     def on_privmsg(self, c, e):
         name = user2name(e.source())
 
-        if self.client.isFoe(name) :
+        if self.client.isFoe(name):
             return
+
         # Create a Query if it's not open yet, and post to it if it exists.
         if self.openQuery(name):
             self.channels[name].printMsg(name, "\n".join(e.arguments()))
-
 
     def on_action(self, c, e):
         name = user2name(e.source())
         target = e.target()
 
-        if self.client.isFoe(name) :
+        if self.client.isFoe(name):
             return
 
         # Create a Query if it's not an action intended for a channel
@@ -430,7 +421,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             self.connection.nick(self.client.login + "_")
 
     def on_kick(self, c, e):
-        logger.warn("Kicked from " + e.target())
+        logger.info("Kicked from " + e.target())
         channel = e.target()
         self.removeTab(self.indexOf(self.channels[channel]))
         del self.channels[channel]
