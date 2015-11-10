@@ -88,26 +88,23 @@ if _settings.contains('client/force_environment'):
 
 if environment == 'production':
     from production import defaults
-
-    make_dirs()
-    rotate = RotatingFileHandler(filename=os.path.join(Settings.get('client/logs/path'), 'forever.log'),
-                                 maxBytes=Settings.get('client/logs/max_size'),
-                                 backupCount=10)
-    rotate.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))
-    logging.getLogger().addHandler(rotate)
-    logging.getLogger().setLevel(Settings.get('client/logs/level'))
 elif environment == 'development':
-    # Setup logging output
+    from develop import defaults
+
+# Setup normal rotating log handler
+make_dirs()
+rotate = RotatingFileHandler(filename=os.path.join(Settings.get('client/logs/path'), 'forever.log'),
+                             maxBytes=Settings.get('client/logs/max_size'),
+                             backupCount=10)
+rotate.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))
+logging.getLogger().addHandler(rotate)
+logging.getLogger().setLevel(Settings.get('client/logs/level'))
+
+if environment == 'development':
+    # Setup logging output to console
     devh = logging.StreamHandler()
     devh.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))
     logging.getLogger().addHandler(devh)
     logging.getLogger().setLevel(logging.INFO)
-
-    for k in []:
-        logging.getLogger(k).setLevel(logging.DEBUG)
-
-    from develop import defaults
-
-    make_dirs()
 
 logging.getLogger().info("FAF version: {} Environment: {}".format(version.get_git_version(), environment))
