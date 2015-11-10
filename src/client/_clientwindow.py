@@ -259,9 +259,6 @@ class ClientWindow(FormClass, BaseClass):
         self.mainTabs.currentChanged.connect(self.mainTabChanged)
         self.topTabs.currentChanged.connect(self.vaultTabChanged)
 
-
-        #Verrry important step!
-        self.loadSettingsPrelogin()
         self.players = Players()  # Players known to the client, contains the player_info messages sent by the server
         self.urls = {}
 
