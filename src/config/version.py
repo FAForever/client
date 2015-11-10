@@ -78,6 +78,9 @@ def get_git_version():
     # Read in the version that's currently in RELEASE-VERSION.
     release_version = read_release_version()
 
+    if hasattr(sys, 'frozen'):
+        return release_version
+
     # First try to get the current version using “git describe”.
     version = call_git_describe()
 
