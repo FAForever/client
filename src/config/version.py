@@ -27,6 +27,7 @@
 # please add it to your top-level .gitignore file.
 
 from subprocess import Popen, PIPE
+import sys
 
 __all__ = "get_git_version"
 
@@ -100,7 +101,6 @@ def get_git_version():
 
 
 if __name__ == "__main__":
-    import sys
     res = get_git_version()
     if len(sys.argv) != 1:
         res = """FAF Version: {} Dev: {} Pre: {}""".format(get_git_version(),
