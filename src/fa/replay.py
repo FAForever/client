@@ -116,7 +116,7 @@ def replay(source, detach=False):
 
         if not '/init' in arguments:
             arguments.append('/init')
-            arguments.append("../lua/init_" + mod + ".lua")
+            arguments.append("init_" + mod + ".lua")
 
         # Disable defunct bug reporter
         arguments.append('/nobugreport')
