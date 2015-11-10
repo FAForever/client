@@ -55,24 +55,23 @@ class Players:
         '''
         return name in self or name == self.login
 
-
     def getUserColor(self, name):
         '''
         Returns a user's color depending on their status with relation to the FAF client
         '''
         if name == self.login:
             return self.getColor("self")
-        elif name in self.players.friends:
+        elif name in self.friends:
             return self.getColor("friend")
-        elif name in self.players.foes:
+        elif name in self.foes:
             return self.getColor("foe")
-        elif name in self.players.clanlist:
+        elif name in self.clanlist:
             return self.getColor("clan")
         else:
             if self.coloredNicknames:
                 return self.getRandomColor(name)
 
-            if name in self.players:
+            if name in self:
                 return self.getColor("player")
 
             return self.getColor("default")
