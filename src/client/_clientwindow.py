@@ -1143,7 +1143,7 @@ class ClientWindow(FormClass, BaseClass):
         util.crash.CRASH_REPORT_USER = self.login
 
         if self.useUPnP:
-            fa.upnp.createPortMapping(str(self.socket.localAddress()), self.gamePort, "UDP")
+            fa.upnp.createPortMapping(self.socket.localAddress().toString(), self.gamePort, "UDP")
 
         # update what's new page
         self.whatNewsView.setUrl(QtCore.QUrl("http://www.faforever.com/?page_id=114&username={user}&pwdhash={pwdhash}".format(user=self.login, pwdhash=self.password)))
