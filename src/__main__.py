@@ -28,6 +28,7 @@ path = os.path.join(os.path.dirname(sys.argv[0]), "PyQt4.uic.widget-plugins")
 uic.widgetPluginPath.append(path)
 
 import config
+import platform
 import util
 
 # Set up crash reporting
@@ -75,14 +76,16 @@ if __name__ == '__main__':
 
     #init application framework
     logger.info(">>> --------------------------- Application Launch")
+
     app = QtGui.QApplication(sys.argv)
     app.setWindowIcon(util.icon("window_icon.png", True))
-    #Set application icon to nicely stack in the system task bar    
+    # Set application icon to nicely stack in the system task bar
 
-    import ctypes
-    if getattr(ctypes.windll.shell32, "SetCurrentProcessExplicitAppUserModelID", None) is not None: 
-        myappid = 'com.faforever.lobby'
-        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+    if platform.system() == "Windows":
+        import ctypes
+        if getattr(ctypes.windll.shell32, "SetCurrentProcessExplicitAppUserModelID", None) is not None:
+            myappid = 'com.faforever.lobby'
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
     if len(sys.argv) == 1:
         #Do the magic   
