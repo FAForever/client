@@ -1,3 +1,5 @@
+import random
+
 from util import logger
 
 import json
