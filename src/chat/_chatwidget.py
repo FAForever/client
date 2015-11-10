@@ -191,6 +191,9 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         if name not in self.channels:
             self.channels[name] = Channel(self, name, True)
             self.addTab(self.channels[name], user2name(name))
+            #Add participants to private channel
+            self.channels[name].addChatter(name)
+            self.channels[name].addChatter(self.client.login)
 
         if activate:
             self.setCurrentWidget(self.channels[name])
