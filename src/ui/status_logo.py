@@ -1,5 +1,5 @@
-from PyQt4.QtCore import pyqtSignal, Qt
-from PyQt4.QtGui import QLabel, QMouseEvent, QAction, QMenu
+from PyQt4.QtCore import pyqtSignal
+from PyQt4.QtGui import QLabel, QAction, QMenu
 import util
 from client import ClientState
 
@@ -16,11 +16,19 @@ class StatusLogo(QLabel):
         self.setScaledContents(True)
         self.setMargin(3)
 
+        normal, yellow, red = map(util.pixmap, [
+            'window_icon.png',
+            'window_icon_yellow.png',
+            'window_icon_red.png'
+        ])
+
         self._pixmaps = {
-            ClientState.ONLINE: util.pixmap('window_icon.png'),
-            ClientState.RECONNECTING: util.pixmap('window_icon_yellow.png'),
-            ClientState.DROPPED: util.pixmap('window_icon_red.png'),
-            ClientState.NONE: util.pixmap('window_icon_red.png')
+            ClientState.ONLINE: normal,
+            ClientState.ACCEPTED: yellow,
+            ClientState.CREATED: yellow,
+            ClientState.RECONNECTING: yellow,
+            ClientState.DROPPED: red,
+            ClientState.NONE: red
         }
         self.setMaximumSize(30, 30)
 
