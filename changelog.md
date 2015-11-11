@@ -11,7 +11,8 @@ Enhancements
 Bugfixes
 --------
 
-- Many small issues fixed
+- Fixed colouring problem with certain names
+- Many other small issues fixed
 
 
 Contributors
