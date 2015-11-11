@@ -398,7 +398,7 @@ class Channel(FormClass, BaseClass):
                     self.chatters[name].elevation = None
                     self.chatters[name].update()
         
-    def addChatter(self, name, id, elevation, hostname, join=False):
+    def addChatter(self, name, id=-1, elevation='', hostname='', join=False):
         '''
         Adds an user to this chat channel, and assigns an appropriate icon depending on friendship and FAF player status
         '''
