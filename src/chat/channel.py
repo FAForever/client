@@ -290,10 +290,9 @@ class Channel(FormClass, BaseClass):
 
     @QtCore.pyqtSlot(str, str)
     def printAction(self, name, text, scroll_forced=False):
-        fmt = Formatters.FORMATTER_MESSAGE_AVATAR if self.chatters[name].avatar else Formatters.FORMATTER_MESSAGE
+        fmt = Formatters.FORMATTER_ACTION_AVATAR if self.chatters[name].avatar else Formatters.FORMATTER_ACTION
         self.printLine(name, text, scroll_forced, fmt)
 
-        
     @QtCore.pyqtSlot(str, str)
     def printRaw(self, name, text, scroll_forced=False):
         '''
