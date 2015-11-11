@@ -401,7 +401,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             logger.warn("IRC disconnected - reconnecting.")
             self.identified = False
             self.timer.stop()
-            self.connect()
+            self.connect(self.client.me)
 
     def on_privmsg(self, c, e):
         name = user2name(e.source())
