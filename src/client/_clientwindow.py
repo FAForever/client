@@ -197,6 +197,7 @@ class ClientWindow(FormClass, BaseClass):
         #create user interface (main window) and load theme
         self.setupUi(self)
         self.setStyleSheet(util.readstylesheet("client/client.css"))
+        self.whatNewsView.setHtml("<body style='background-color: #000;'></body>")
 
         self.setWindowTitle("FA Forever " + util.VERSION_STRING)
 
@@ -1173,8 +1174,6 @@ class ClientWindow(FormClass, BaseClass):
 
         self.state = ClientState.ONLINE
         self.authorized.emit(self.me)
-
-
 
     def handle_registration_response(self, message):
         if message["result"] == "SUCCESS":
