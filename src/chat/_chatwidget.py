@@ -1,4 +1,7 @@
 import logging
+
+from client import Player
+
 logger = logging.getLogger(__name__)
 
 
@@ -78,7 +81,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
 
         #Hook with client's connection and autojoin mechanisms
-        self.client.connected.connect(self.connect)
+        self.client.authorized.connect(self.connect)
         self.client.autoJoin.connect(self.autoJoin)
         self.channelsAvailable = []
         self.timer = QtCore.QTimer(self)
@@ -101,11 +104,15 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.timer.stop()
 
 
-    @QtCore.pyqtSlot()
-    def connect(self):
-        #Do the actual connecting, join all important channels
+    @QtCore.pyqtSlot(object)
+    def connect(self, player):
         try:
-            self.irc_connect(self.ircServer, self.ircPort, self.client.login, ssl=True)
+            self.irc_connect(self.ircServer,
+                             self.ircPort,
+                             player.login,
+                             ssl=True,
+                             ircname=player.login,
+                             username=player.id)
             self.timer.start()
 
         except:

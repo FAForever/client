@@ -82,6 +82,7 @@ class ClientWindow(FormClass, BaseClass):
 
     #These signals are emitted when the client is connected or disconnected from FAF
     connected = QtCore.pyqtSignal()
+    authorized = QtCore.pyqtSignal(object)
     disconnected = QtCore.pyqtSignal()
 
     #This signal is emitted when the client is done rezising
@@ -1136,6 +1137,7 @@ class ClientWindow(FormClass, BaseClass):
     def handle_welcome(self, message):
         self.id = message["id"]
         self.login = message["login"]
+        self.me = Player(id=self.id, login=self.login)
         self.players.login = self.login
         logger.debug("Login success")
         self.state = ClientState.ACCEPTED
@@ -1149,6 +1151,8 @@ class ClientWindow(FormClass, BaseClass):
         self.whatNewsView.setUrl(QtCore.QUrl("http://www.faforever.com/?page_id=114&username={user}&pwdhash={pwdhash}".format(user=self.login, pwdhash=self.password)))
 
         self.updateOptions()
+
+        self.authorized.emit(self.me)
 
 
 
