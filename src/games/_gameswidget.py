@@ -98,8 +98,7 @@ class GamesWidget(FormClass, BaseClass):
                 del mod_invisible[mod]
             for i in range(0, self.modList.count()):
                 if self.modList.item(i) == old_mod:
-                    self.modList.takeItem(old_mod)
-                    old_mod.deleteLater()
+                    self.modList.takeItem(i)
                     continue
 
         if message["publish"]:
