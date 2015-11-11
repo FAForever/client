@@ -37,6 +37,11 @@ class ModItem(QtGui.QListWidgetItem):
         self.setTextColor(QtGui.QColor(color))
         self.setText(self.name)
 
+    def __eq__(self, other):
+        if not isinstance(other, ModItem):
+            return False
+        return other.mod == self.mod
+
 
     def __ge__(self, other):
         ''' Comparison operator used for item list sorting '''        

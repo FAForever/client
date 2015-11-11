@@ -27,7 +27,9 @@ class GamesWidget(FormClass, BaseClass):
         self.client = client
         self.client.gamesTab.layout().addWidget(self)
 
-        #Dictionary containing our actual games.
+        self.mods = {}
+
+        # Dictionary containing our actual games.
         self.games = {}
 
         #Ranked search UI
@@ -87,15 +89,23 @@ class GamesWidget(FormClass, BaseClass):
         '''
         Slot that interprets and propagates mod_info messages into the mod list
         '''
-        item = ModItem(message)
+        mod = message['name']
+        old_mod = self.mods.get(mod, None)
+        self.mods[mod] = ModItem(message)
 
-        if message["publish"] :
-            self.modList.addItem(item)
+        if old_mod:
+            if mod in mod_invisible:
+                del mod_invisible[mod]
+            for i in range(0, self.modList.count()):
+                if self.modList.item(i) == old_mod:
+                    self.modList.takeItem(old_mod)
+                    old_mod.deleteLater()
+                    continue
+
+        if message["publish"]:
+            self.modList.addItem(self.mods[mod])
         else:
             mod_invisible.append(message["name"])
-
-        if not message["name"] in mods :
-            mods[message["name"]] = item
 
         self.client.replays.modList.addItem(message["name"])
 
