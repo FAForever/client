@@ -174,7 +174,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             logger.error("IRC connection lost.")
             for channel in self.crucialChannels:
                 if channel in self.channels:
-                    self.channels[channel].printAction("IRC", "was disconnected.")
+                    self.channels[channel].printRaw("Server", "IRC is disconnected")
             return False
 
 

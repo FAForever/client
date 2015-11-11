@@ -7,6 +7,7 @@ from client.players import Players
 from client.updater import fetchClientUpdate
 import fa
 from fa.factions import Factions
+from ui.status_logo import StatusLogo
 
 '''
 Created on Dec 1, 2011
@@ -85,6 +86,8 @@ class ClientWindow(FormClass, BaseClass):
     authorized = QtCore.pyqtSignal(object)
     disconnected = QtCore.pyqtSignal()
 
+    state_changed = QtCore.pyqtSignal(object)
+
     #This signal is emitted when the client is done rezising
     doneresize = QtCore.pyqtSignal()
 
@@ -160,8 +163,9 @@ class ClientWindow(FormClass, BaseClass):
         self.tray.setIcon(util.icon("client/tray_icon.png"))
         self.tray.show()
 
-        self.state = ClientState.NONE
+        self._state = ClientState.NONE
         self.session = None
+        self._connection_attempts = 0
 
         #Timer for resize events
         self.resizeTimer = QtCore.QTimer(self)
@@ -193,10 +197,6 @@ class ClientWindow(FormClass, BaseClass):
         #create user interface (main window) and load theme
         self.setupUi(self)
         self.setStyleSheet(util.readstylesheet("client/client.css"))
-
-        self.windowsTitleLabel = QtGui.QLabel(self)
-        self.windowsTitleLabel.setText("FA Forever " + util.VERSION_STRING)
-        self.windowsTitleLabel.setProperty("titleLabel", True)
 
         self.setWindowTitle("FA Forever " + util.VERSION_STRING)
 
@@ -231,9 +231,13 @@ class ClientWindow(FormClass, BaseClass):
         self.maximize.setProperty("windowControlBtn", True)
         self.minimize.setProperty("windowControlBtn", True)
 
+        self.logo = StatusLogo(self)
+        self.logo.disconnect_requested.connect(self.disconnect)
+        self.logo.reconnect_requested.connect(self.reconnect)
+
         self.menu = self.menuBar()
+        self.topLayout.addWidget(self.logo)
         self.topLayout.addWidget(self.menu)
-        self.topLayout.addWidget(self.windowsTitleLabel)
         self.topLayout.addWidget(self.minimize)
         self.topLayout.addWidget(self.maximize)
         self.topLayout.addWidget(close)
@@ -287,6 +291,15 @@ class ClientWindow(FormClass, BaseClass):
 
         #for moderator
         self.modMenu = None
+
+    @property
+    def state(self):
+        return self._state
+
+    @state.setter
+    def state(self, value):
+        self._state = value
+        self.state_changed.emit(value)
 
     @QtCore.pyqtSlot(bool)
     def on_actionSavegamelogs_toggled(self, value):
@@ -522,6 +535,11 @@ class ClientWindow(FormClass, BaseClass):
         self.warnPlayer.show()
         for i in self.warning_buttons.values():
             i.show()
+
+    def disconnect(self):
+        self.state = ClientState.DISCONNECTED
+        self.socket.disconnectFromHost()
+        self.chat.disconnect()
 
     @QtCore.pyqtSlot()
     def cleanup(self):
@@ -782,10 +800,10 @@ class ClientWindow(FormClass, BaseClass):
         Reconnect to the server
         :return:
         """
-        self.state = ClientState.NONE
+        self._connection_attempts += 1
+        self.state = ClientState.RECONNECTING
         self.socket.setSocketOption(QtNetwork.QTcpSocket.KeepAliveOption, 1)
         self.socket.connectToHost(LOBBY_HOST, LOBBY_PORT)
-
 
     @QtCore.pyqtSlot()
     def on_connected(self):
@@ -1016,8 +1034,9 @@ class ClientWindow(FormClass, BaseClass):
 
             self.disconnected.emit()
 
-        self.state = ClientState.DROPPED
-        self.reconnect()
+        if self.state != ClientState.DISCONNECTED:
+            self.state = ClientState.DROPPED
+            self.reconnect()
 
     @QtCore.pyqtSlot(QtNetwork.QAbstractSocket.SocketError)
     def socketError(self, error):
@@ -1152,6 +1171,7 @@ class ClientWindow(FormClass, BaseClass):
 
         self.updateOptions()
 
+        self.state = ClientState.ONLINE
         self.authorized.emit(self.me)
 
 
