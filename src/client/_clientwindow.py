@@ -235,6 +235,7 @@ class ClientWindow(FormClass, BaseClass):
         self.logo = StatusLogo(self)
         self.logo.disconnect_requested.connect(self.disconnect)
         self.logo.reconnect_requested.connect(self.reconnect)
+        self.logo.about_dialog_requested.connect(self.linkAbout)
 
         self.menu = self.menuBar()
         self.topLayout.addWidget(self.logo)
@@ -736,6 +737,7 @@ class ClientWindow(FormClass, BaseClass):
     @QtCore.pyqtSlot()
     def linkAbout(self):
         dialog = util.loadUi("client/about.ui")
+        dialog.version_label.setText("Version: {}".format(util.VERSION_STRING))
         dialog.exec_()
 
     def saveWindow(self):

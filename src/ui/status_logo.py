@@ -7,6 +7,7 @@ from client import ClientState
 class StatusLogo(QLabel):
     disconnect_requested = pyqtSignal()
     reconnect_requested = pyqtSignal()
+    about_dialog_requested = pyqtSignal()
 
     def __init__(self, client, logo_file='window_icon.png'):
         QLabel.__init__(self)
@@ -31,6 +32,7 @@ class StatusLogo(QLabel):
 
         dc = QAction('Disconnect', None)
         rc = QAction('Reconnect', None)
+        about = QAction('About', None)
 
         if self.state != ClientState.DISCONNECTED:
             menu.addAction(dc)
@@ -38,11 +40,15 @@ class StatusLogo(QLabel):
             and self.state != ClientState.RECONNECTING:
             menu.addAction(rc)
 
+        menu.addAction(about)
+
         action = menu.exec_(self.mapToGlobal(event.pos()))
         if action == dc:
             self.disconnect_requested.emit()
         elif action == rc:
             self.reconnect_requested.emit()
+        elif action == about:
+            self.about_dialog_requested.emit()
 
     def change_state(self, state):
         self.state = state
