@@ -1,11 +1,12 @@
 
 from fa.replay import replay
 
+
 import util
 from PyQt4 import QtGui, QtCore
 import time
 import chat
-from chat import user2name, logger
+from chat import user2name, parse_irc_source, logger
 from chat.chatter import Chatter
 import re          
 import fa
@@ -397,15 +398,13 @@ class Channel(FormClass, BaseClass):
                     self.chatters[name].elevation = None
                     self.chatters[name].update()
         
-    def addChatter(self, user, join=False):
+    def addChatter(self, name, id, elevation, hostname, join=False):
         '''
         Adds an user to this chat channel, and assigns an appropriate icon depending on friendship and FAF player status
-        '''          
-        name = user2name(user)
-
+        '''
         if name not in self.chatters:
-            item = Chatter(self.nickList, user, self.lobby, None)                        
-            self.chatters[name] = item        
+            item = Chatter(self.nickList, (name, id, elevation, hostname), self.lobby, None)
+            self.chatters[name] = item
             
         self.chatters[name].update()
 

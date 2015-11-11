@@ -8,15 +8,15 @@ logger = logging.getLogger(__name__)
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
 
-from chat.irclib import SimpleIRCClient
 from config import Settings
 import util
 import fa
 
 import sys
 import chat
-from chat import user2name
+from chat import user2name, parse_irc_source
 from chat.channel import Channel
+from chat.irclib import SimpleIRCClient
 import notifications as ns
 
 IRC_PORT = 8167
@@ -199,7 +199,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             self.channels[name] = Channel(self, name, True)
             self.addTab(self.channels[name], user2name(name))
             #Add participants to private channel
-            self.channels[name].addChatter(name)
+            self.channels[name].addChatter(parse_irc_source(name))
             self.channels[name].addChatter(self.client.login)
 
         if activate:
@@ -264,8 +264,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         listing = e.arguments()[2].split()
 
         for user in listing:
-            self.channels[channel].addChatter(user)
-            QtGui.QApplication.processEvents()
+            name = user.strip(chat.IRC_ELEVATION)
+            self.channels[channel].addChatter(name, -1, user[0] if user[0] in chat.IRC_ELEVATION else None, '')
 
         logger.debug("Added " + str(len(listing)) + " Chatters")
 
@@ -294,12 +294,13 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
                 self.setCurrentWidget(self.channels[channel])
                 self.tabBar().setTabButton(self.currentIndex(), QtGui.QTabBar.RightSide, None)
 
-        username = user2name(e.source())
-        self.channels[channel].addChatter(username, True)
+        name, id, elevation, hostname = parse_irc_source(e.source())
+        self.channels[channel].addChatter(name, id, elevation, hostname, True)
 
-        if channel.lower() in self.crucialChannels and username != self.client.login:
+        if channel.lower() in self.crucialChannels and name != self.client.login:
             # TODO: search better solution, that html in nick & channel no rendered
-            self.client.notificationSystem.on_event(ns.Notifications.USER_ONLINE, {'user':username, 'channel':channel})
+            self.client.notificationSystem.on_event(ns.Notifications.USER_ONLINE,
+                                                    {'user': name, 'channel': channel})
         self.channels[channel].resizing()
 
     def on_part(self, c, e):

@@ -37,13 +37,8 @@ class Chatter(QtGui.QTableWidgetItem):
         self.parent = parent
         self.lobby = lobby
 
-        if user[0] in chat.OPERATOR_COLORS:
-            self.elevation = user[0]
-        else:
-            self.elevation = None
+        self.name, self.id, self.elevation, self.hostname = user
 
-        self.name = user2name(user)
-        
         self.avatar = None
         self.status = None
         self.rating = None
@@ -201,10 +196,10 @@ class Chatter(QtGui.QTableWidgetItem):
 
     def setChatUserColor(self, username):
         if self.lobby.client.players.isFriend(username):
-            if self.elevation in chat.OPERATOR_COLORS:
+            if self.elevation in chat.OPERATOR_COLORS.keys():
                 self.setTextColor(QtGui.QColor(chat.colors.getColor("friend_mod")))
                 return
-        if self.elevation in chat.colors.OPERATOR_COLORS:
+        if self.elevation in chat.colors.OPERATOR_COLORS.keys():
             self.setTextColor(QtGui.QColor(chat.colors.OPERATOR_COLORS[self.elevation]))
             return
         self.setTextColor(QtGui.QColor(self.lobby.client.players.getUserColor(self.name)))
