@@ -253,7 +253,7 @@ class Relayer(QtCore.QObject):
         if self.action == 'GameState':
             if chunks[0] == 'Idle':
                 args = [self.init_mode, self.client.gamePort,
-                        self.client.login, self.client.id]
+                        self.client.login, self.client.id, 1]
                 self.__logger.info("Telling game to create lobby: {}".
                                     format(args))
                 reply = Packet("CreateLobby", args)
