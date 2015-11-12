@@ -1,5 +1,5 @@
 from PyQt4 import QtGui, QtCore
-
+from PyQt4.QtCore import QUrl
 from PyQt4.QtNetwork import QNetworkRequest
 from chat._avatarWidget import avatarWidget
 
@@ -274,6 +274,17 @@ class Chatter(QtGui.QTableWidgetItem):
             actionAddAvatar.triggered.connect(self.addAvatar)
             
             if self.lobby.client.power == 2:
+                action_inspect_in_mordor = QtGui.QAction("Send the Orcs", menu)
+                menu.addAction(action_inspect_in_mordor)
+
+                def send_the_orcs():
+                    if self.id != -1:
+                        QtGui.QDesktopServices.openUrl(QUrl("http://mordor.faforever.com/users/{}".format(self.id)))
+                    else:
+                        QtGui.QDesktopServices.openUrl(QUrl("http://mordor.faforever.com/users/{}".format(self.name)))
+
+                action_inspect_in_mordor.triggered.connect(send_the_orcs)
+
                 actionCloseFA = QtGui.QAction("Close FA", menu)
                 menu.addAction(actionCloseFA)
                 actionCloseFA.triggered.connect(lambda: self.lobby.client.closeFA(self.name))
