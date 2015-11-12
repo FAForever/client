@@ -815,9 +815,6 @@ class ClientWindow(FormClass, BaseClass):
         self.send(dict(command="ask_session"))
         self.connected.emit()
 
-    def waitSession(self):
-        return True
-
     def doLogin(self):
         self.state = ClientState.NONE
         #Determine if a login wizard needs to be displayed and do so
