@@ -1,73 +1,72 @@
-import os
-import sys
 import tempfile
-import urllib2
+
+from PyQt4.QtGui import QLabel
+
+import client
 from PyQt4 import QtGui, QtCore
 
 import logging
+import subprocess
+
+from PyQt4.QtCore import QUrl, QObject
+from PyQt4.QtNetwork import QNetworkRequest, QNetworkReply
+
 logger = logging.getLogger(__name__)
 
 
-__author__ = 'Thygrrr'
+class ClientUpdater(QObject):
+    def __init__(self, url):
+        QObject.__init__(self)
+        self.url = QUrl(url)
+        self._progress = None
+        self._network_manager = client.NetworkManager
+        self._tmp = None
+        self._req = None
+        self._rep = None
 
-def checkForUpdates():
-    pass
+    def exec_(self):
+        self._setup_progress()
+        self._tmp = tempfile.NamedTemporaryFile(mode='w+b',
+                                                suffix=".msi",
+                                                delete=False)
+        self._req = QNetworkRequest(self.url)
+        self._rep = self._network_manager.get(self._req)
+        self._rep.setReadBufferSize(0)
+        self._rep.downloadProgress.connect(self.on_progress)
+        self._rep.finished.connect(self._run_installer)
+        self._rep.error.connect(self.error)
+        self._rep.readyRead.connect(self._buffer)
 
-# This part updates the Lobby Client by downloading the latest MSI.
-def fetchClientUpdate(url):
-    result = QtGui.QMessageBox.question(None, "Update Needed", "Your version of FAF is outdated. You need to download and install the most recent version to connect and play.<br/><br/><b>Do you want to download and install the update now?</b>", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
-    if (result == QtGui.QMessageBox.Yes):
-        try:
-            progress = QtGui.QProgressDialog()
-            progress.setCancelButtonText("Cancel")
-            progress.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
-            progress.setAutoClose(True)
-            progress.setAutoReset(False)
+    def error(self, code):
+        logger.exception(self._rep.errorString())
 
-            req = urllib2.Request(url, headers={'User-Agent' : "FAF Client"})
-            msifile  = urllib2.urlopen(req)
-            meta = msifile.info()
+    def _buffer(self):
+        self._tmp.write(self._rep.read(self._rep.bytesAvailable()))
 
-            #Fix for #241, sometimes the server sends an error and no content-length.
-            file_size = int(meta.getheaders("Content-Length")[0])
-            progress.setMinimum(0)
-            progress.setMaximum(file_size)
-            progress.setModal(1)
-            progress.setWindowTitle("Downloading Update")
-            label = QtGui.QLabel()
-            label.setOpenExternalLinks(True)
-            progress.setLabel(label)
-            progress.setLabelText('Downloading the latest version of <b>Forged Alliance Forever</b><br/><a href="' + url + '">' + url + '</a><br/>File size: ' + str(int(file_size / 1024 / 1024)) + ' MiB')
-            progress.show()
+    def _run_installer(self):
+        assert self._tmp
+        assert self._rep.atEnd()
+        assert self._rep.error() == QNetworkReply.NoError
+        self._tmp.close()
+        command = r'msiexec /i "{msiname}" & del "{msiname}"'.format(msiname=self._tmp.name)
+        logger.debug(r'Running msi installation command: ' + command)
+        subprocess.Popen(command, shell=True)
+        self._progress.close()
 
-            #Download the file as a series of up to 4 KiB chunks, then uncompress it.
-            output = tempfile.NamedTemporaryFile(mode='w+b', suffix=".msi", delete=False)
+    def on_progress(self, current, max):
+        self._progress.setMaximum(max)
+        self._progress.setValue(current)
 
-            file_size_dl = 0
-            block_sz = 4096
+    def cancel(self):
+        self._rep.abort()
 
-            while progress.isVisible():
-                QtGui.QApplication.processEvents()
-                read_buffer = msifile.read(block_sz)
-                if not read_buffer:
-                    break
-                file_size_dl += len(read_buffer)
-                output.write(read_buffer)
-                progress.setValue(file_size_dl)
-
-            output.flush()
-            os.fsync(output.fileno())
-            output.close()
-
-            if (progress.value() == file_size):
-                logger.debug("MSI download successful.")
-                import subprocess
-                command = r'msiexec /i "{msiname}" & del "{msiname}"'.format(msiname = output.name)
-                logger.debug(r'Running command: ' + command)
-                subprocess.Popen(command, shell=True)
-            else:
-                QtGui.QMessageBox.information(None, "Aborted", "Update download not complete.")
-                logger.warn("MSI download not complete.")
-        except:
-            logger.error("Updater error: ", exc_info = sys.exc_info())
-            QtGui.QMessageBox.information(None, "Download Failed", "The file wasn't properly sent by the server. <br/><b>Try again later.</b>")
+    def _setup_progress(self):
+        progress = QtGui.QProgressDialog()
+        progress.setLabel(QLabel("Downloading update"))
+        progress.setCancelButtonText("Cancel")
+        progress.canceled.connect(self.cancel)
+        progress.setWindowFlags(QtCore.Qt.CustomizeWindowHint
+                                | QtCore.Qt.WindowTitleHint)
+        progress.setAutoClose(True)
+        progress.setAutoReset(False)
+        self._progress = progress

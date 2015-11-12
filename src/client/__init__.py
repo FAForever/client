@@ -1,6 +1,7 @@
 # Initialize logging system
 import logging
 
+from PyQt4.QtNetwork import QNetworkAccessManager
 from enum import IntEnum
 
 from config import Settings
@@ -43,3 +44,5 @@ class ClientState(IntEnum):
 from _clientwindow import ClientWindow as Client
 
 instance = Client()
+
+NetworkManager = QNetworkAccessManager(instance)

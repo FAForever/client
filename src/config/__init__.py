@@ -40,6 +40,13 @@ class Settings:
             _settings.setValue(key, value)
 
     @staticmethod
+    def remove(key):
+        if key in _unpersisted_settings:
+            del _unpersisted_settings[key]
+        if _settings.contains(key):
+            _settings.remove(key)
+
+    @staticmethod
     def persisted_property(key, default_value=None, persist_if=lambda self: True, type=str):
         """
         Create a magically persisted property

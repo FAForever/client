@@ -4,7 +4,7 @@ import config
 from config import Settings
 from client.player import Player
 from client.players import Players
-from client.updater import fetchClientUpdate
+from client.updater import ClientUpdater
 import fa
 from fa.factions import Factions
 from ui.status_logo import StatusLogo
@@ -149,6 +149,7 @@ class ClientWindow(FormClass, BaseClass):
         self.socket.readyRead.connect(self.readFromServer)
         self.socket.disconnected.connect(self.disconnectedFromServer)
         self.socket.error.connect(self.socketError)
+        self._client_updater = None
         self.blockSize = 0
 
         self.uniqueId = None
@@ -1128,7 +1129,8 @@ class ClientWindow(FormClass, BaseClass):
     def perform_login(self):
         self.uniqueId = util.uniqueID(self.login, self.session)
         self.send(dict(command="hello",
-                       version=0,
+                       version=config.VERSION,
+                       user_agent="faf-client",
                        login=self.login,
                        password=self.password,
                        unique_id=self.uniqueId,
@@ -1142,16 +1144,15 @@ class ClientWindow(FormClass, BaseClass):
         self.statsInfo.emit(message)
 
     def handle_update(self, message):
-        # Mystereous voodoo nonsense.
-        # fix a problem with Qt.
-        util.settings.beginGroup("window")
-        util.settings.remove("geometry")
-        util.settings.endGroup()
+        # Remove geometry settings prior to updating
+        # could be incompatible with an updated client.
+        Settings.remove('window/geometry')
 
-        logger.warn("Server says that Updating is needed.")
+        logger.warn("Server says we need an update")
         self.progress.close()
         self.state = ClientState.OUTDATED
-        fetchClientUpdate(message["update"])
+        self._client_updater = ClientUpdater(message['update'])
+        self._client_updater.exec_()
 
     def handle_welcome(self, message):
         self.id = message["id"]
