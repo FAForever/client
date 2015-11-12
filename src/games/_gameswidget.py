@@ -158,7 +158,8 @@ class GamesWidget(FormClass, BaseClass):
         if (self.searching):
             logger.info("Switching Ranked Search to Race " + str(race))
             self.race = race
-            self.client.send(dict(command="game_matchmaking", mod="ladder1v1", state="settings", faction = self.race))
+            self.client.send(dict(command="game_matchmaking", mod="ladder1v1", state="settings",
+                                  faction=self.race.value))
         else:
             #Experimental UPnP Mapper - mappings are removed on app exit
             if self.client.useUPnP:
@@ -169,7 +170,9 @@ class GamesWidget(FormClass, BaseClass):
             self.race = race
             self.searchProgress.setVisible(True)
             self.labelAutomatch.setText("Searching...")
-            self.client.send(dict(command="game_matchmaking", mod="ladder1v1", state="start", gameport = self.client.gamePort, faction = self.race))
+            self.client.send(dict(command="game_matchmaking", mod="ladder1v1", state="start",
+                                  gameport=self.client.gamePort,
+                                  faction=self.race.value))
 
     @QtCore.pyqtSlot()
     def stopSearchRanked(self, *args):
