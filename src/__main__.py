@@ -62,13 +62,12 @@ def runFAF():
 
     #Connect and login, then load and show the UI if everything worked
     if faf_client.doConnect():
-        if faf_client.waitSession() :
-            if faf_client.doLogin():    
-                #Done setting things up, show the window to the user.
-                faf_client.show()                    
+        if faf_client.doLogin():    
+            #Done setting things up, show the window to the user.
+            faf_client.show()                    
 
-                #Main update loop
-                QtGui.QApplication.exec_()
+            #Main update loop
+            QtGui.QApplication.exec_()
 
 if __name__ == '__main__':
     import logging
