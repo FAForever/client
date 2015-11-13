@@ -12,6 +12,7 @@ patched, and all required files for a given mod are installed
 """
 import os
 
+
 import time
 import shutil
 from types import FloatType, IntType, ListType
@@ -20,6 +21,7 @@ import urllib2
 import sys
 import tempfile
 import json
+from config import Settings
 
 from PyQt4 import QtGui, QtCore, QtNetwork
 
@@ -98,7 +100,7 @@ class Updater(QtCore.QObject):
     """
     # Network configuration
     SOCKET  = 9001
-    HOST    = "lobby.faforever.com"
+    HOST    = Settings.get('lobby/host')
     TIMEOUT = 20  #seconds
 
     # Return codes to expect from run()
