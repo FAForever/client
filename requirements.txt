@@ -5,6 +5,7 @@ cx_Freeze==4.3.3
 py==1.4.25
 pytest==2.7.0
 pytest-cov
+pytest-mock
 git+https://github.com/pytest-dev/pytest-qt.git@4658c89e990848e8c33dbfd14b077d5e3447dc52#egg=pytest-qt
 python-dateutil==2.2
 lupa
