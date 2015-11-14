@@ -9,9 +9,9 @@ mods = {}
 mod_crucial = ["balancetesting", "faf"]
 
 # These mods are not shown in the game list
-mod_invisible = []
+mod_invisible = {}
 
-mod_favourites = []  # LATER: Make these saveable and load them from settings
+mod_favourites = {}  # LATER: Make these saveable and load them from settings
 
 class ModItem(QtGui.QListWidgetItem):
     def __init__(self, message, *args, **kwargs):

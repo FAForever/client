@@ -104,7 +104,7 @@ class GamesWidget(FormClass, BaseClass):
         if message["publish"]:
             self.modList.addItem(self.mods[mod])
         else:
-            mod_invisible.append(message["name"])
+            mod_invisible[mod] = self.mods[mod]
 
         self.client.replays.modList.addItem(message["name"])
 
