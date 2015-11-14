@@ -824,7 +824,7 @@ class ClientWindow(FormClass, BaseClass):
         from loginwizards import LoginWizard
         wizard = LoginWizard(self)
         wizard.accepted.connect(self.perform_login)
-        return True
+        wizard.exec_()
 
     def doLogin(self):
         self.state = ClientState.NONE
