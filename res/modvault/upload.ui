@@ -68,38 +68,6 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_4">
-       <property name="font">
-        <font>
-         <family>Segoe UI</family>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>Big or Small?</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <widget class="QComboBox" name="SizeType">
-       <item>
-        <property name="text">
-         <string>Neither</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Big</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Small</string>
-        </property>
-       </item>
-      </widget>
-     </item>
      <item row="4" column="0">
       <widget class="QLabel" name="label_3">
        <property name="font">
@@ -213,7 +181,7 @@
         </font>
        </property>
        <property name="text">
-        <string>is UI Only</string>
+        <string>UI Only</string>
        </property>
       </widget>
      </item>
