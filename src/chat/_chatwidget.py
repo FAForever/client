@@ -305,9 +305,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
                 self.addTab(self.channels[channel], channel)
 
 
-            if channel.lower() in self.crucialChannels: #Make the crucial channels not closeable, and make the last one the active one
+            if channel.lower() in self.crucialChannels: #Make a crucial channel the active one
                 self.setCurrentWidget(self.channels[channel])
-                self.tabBar().setTabButton(self.currentIndex(), QtGui.QTabBar.RightSide, None)
 
         name, id, elevation, hostname = parse_irc_source(e.source())
         self.channels[channel].addChatter(name, id, elevation, hostname, True)
@@ -462,6 +461,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             
     def rejoinChat(self):
         self.rejoinChatButton.hide()
+        # Rejoin all crucial channels
         for channel in self.crucialChannels:
             self.join(channel)
             
