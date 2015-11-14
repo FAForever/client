@@ -816,17 +816,21 @@ class ClientWindow(FormClass, BaseClass):
         self.send(dict(command="ask_session"))
         self.connected.emit()
 
+    @property
+    def can_login(self):
+        return self.remember and self.password and self.login
+
+    def show_login_wizard(self):
+        from loginwizards import LoginWizard
+        wizard = LoginWizard(self)
+        wizard.accepted.connect(self.perform_login)
+        return True
+
     def doLogin(self):
         self.state = ClientState.NONE
-        #Determine if a login wizard needs to be displayed and do so
-        if not self.remember or not self.password or not self.login:
-            from loginwizards import LoginWizard
-            wizard = LoginWizard(self)
-            wizard.accepted.connect(self.perform_login)
-            wizard.exec_()
-            return True
+        if not self.can_login:
+            self.show_login_wizard()
 
-        return True
 
     #Color table used by the following method
     # CAVEAT: This will break if the theme is loaded after the client package is imported
@@ -1138,7 +1142,9 @@ class ClientWindow(FormClass, BaseClass):
         return True
 
     def handle_invalid(self, message):
+        self.state = ClientState.DISCONNECTED
         logger.exception(message)
+        util.crash.CrashDialog(message)
 
     def handle_stats(self, message):
         self.statsInfo.emit(message)
@@ -1335,18 +1341,20 @@ class ClientWindow(FormClass, BaseClass):
         self.requestAvatars(0)
         self.avatarSelection.show()
 
+    def handle_authentication_failed(self, message):
+        QtGui.QMessageBox.warning(self, "Authentication failed", message["text"])
+        self.state = ClientState.DISCONNECTED
+        self.show_login_wizard()
+
+
     def handle_notice(self, message):
         if "text" in message:
-            if message["style"] == "error" :
-                if self.state != ClientState.NONE :
-                    QtGui.QMessageBox.critical(self, "Error from Server", message["text"])
-                else :
-                    QtGui.QMessageBox.critical(self, "Login Failed", message["text"])
-                    self.state = ClientState.REJECTED
-
-            elif message["style"] == "warning":
+            style = message.get('style', None)
+            if style == "error":
+                QtGui.QMessageBox.critical(self, "Error from Server", message["text"])
+            elif style == "warning":
                 QtGui.QMessageBox.warning(self, "Warning from Server", message["text"])
-            elif message["style"] == "scores":
+            elif style == "scores":
                 self.tray.showMessage("Scores", message["text"], QtGui.QSystemTrayIcon.Information, 3500)
                 self.localBroadcast.emit("Scores", message["text"])
             else:

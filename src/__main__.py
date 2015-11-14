@@ -51,23 +51,22 @@ def excepthook(exc_type, exc_value, traceback_object):
     sys.excepthook = excepthook
 
 def runFAF():
-    #Load theme from settings (one of the first things to be done)
+    # Load theme from settings (one of the first things to be done)
     util.loadTheme()
     
-    #create client singleton and connect
+    # Create client singleton and connect
     import client
         
     faf_client = client.instance
     faf_client.setup()
 
-    #Connect and login, then load and show the UI if everything worked
-    if faf_client.doConnect():
-        if faf_client.doLogin():    
-            #Done setting things up, show the window to the user.
-            faf_client.show()                    
+    faf_client.doConnect()
+    faf_client.doLogin()
 
-            #Main update loop
-            QtGui.QApplication.exec_()
+    faf_client.show()
+
+    # Main update loop
+    QtGui.QApplication.exec_()
 
 if __name__ == '__main__':
     import logging
