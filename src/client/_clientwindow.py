@@ -134,7 +134,7 @@ class ClientWindow(FormClass, BaseClass):
 
     gamelogs = Settings.persisted_property('game/logs', type=bool, default_value=False)
     useUPnP = Settings.persisted_property('game/upnp', type=bool, default_value=True)
-    gamePort = Settings.persisted_property('game/port', default_value=6112)
+    gamePort = Settings.persisted_property('game/port', type=int, default_value=6112)
 
     def __init__(self, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
