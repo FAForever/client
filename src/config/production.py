@@ -22,7 +22,7 @@ defaults = {
     'game/mods/path': join(join(APPDATA_DIR, 'repo'), 'mods'),
     'game/maps/path': join(join(APPDATA_DIR, 'repo'), 'maps'),
     'proxy/host': 'proxy.faforever.com',
-    'proxy/port': 9134,
+    'proxy/port': 9124,
     'lobby/relay/port': 15000,
     'lobby/host': 'lobby.faforever.com',
     'lobby/port': 8001,
