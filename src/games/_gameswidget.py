@@ -52,6 +52,7 @@ class GamesWidget(FormClass, BaseClass):
 
         self.client.modInfo.connect(self.processModInfo)
         self.client.gameInfo.connect(self.processGameInfo)
+        self.client.disconnected.connect(self.gameList.clear)
 
         self.client.gameEnter.connect(self.stopSearchRanked)
         self.client.viewingReplay.connect(self.stopSearchRanked)

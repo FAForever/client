@@ -997,11 +997,11 @@ class ClientWindow(FormClass, BaseClass):
             self.urls = {}
             self.usersUpdated.emit(oldplayers)
 
-            self.disconnected.emit()
-
         if self.state != ClientState.DISCONNECTED:
             self.state = ClientState.DROPPED
             self.reconnect()
+
+        self.disconnected.emit()
 
     @QtCore.pyqtSlot(QtNetwork.QAbstractSocket.SocketError)
     def socketError(self, error):
