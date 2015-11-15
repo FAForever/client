@@ -29,8 +29,9 @@ class Players:
         
         # names of the client's clanmates
         self.clanlist = set()
-
-
+        
+        # clans with special clan colors
+        self.clanColors = {}
 
     #Color table used by the following method
     # CAVEAT: This will break if the theme is loaded after the client package is imported
@@ -75,6 +76,20 @@ class Players:
                 return self.getColor("player")
 
             return self.getColor("default")
+    
+    def getClanColor(self, clan):
+        '''
+        Returns the color for a clans clan tag.
+        
+        Returns None if the clan has no assigned color, in which case the clan tag will default to the color of the player
+        '''
+        if clan in self.clanColors:
+            return self.clanColors[clan]
+
+        return None
+
+    def setClanColor(self, clan, color):
+        self.clanColors[clan] = color
 
     def getRandomColor(self, name):
         '''Generate a random color from a name'''

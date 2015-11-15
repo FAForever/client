@@ -1018,6 +1018,11 @@ class ClientWindow(FormClass, BaseClass):
             if self.modMenu == None :
                 self.modMenu = self.menu.addMenu("Administration")
 
+            # Add a clan color manager
+            actionClanColor = QtGui.QAction("Clan colour manager", self.modMenu)
+            actionClanColor.triggered.connect(self.clanColorManager)
+            self.modMenu.addAction(actionClanColor)
+
             actionAvatar = QtGui.QAction("Avatar manager", self.modMenu)
             actionAvatar.triggered.connect(self.avatarManager)
             self.modMenu.addAction(actionAvatar)
@@ -1301,6 +1306,27 @@ class ClientWindow(FormClass, BaseClass):
         self.requestAvatars(0)
         self.avatarSelection.show()
 
+    def clanColorManager(self):
+        # Choose the lucky clan
+        (clan, status) = QtGui.QInputDialog.getText(self, "Enter clan-tag", "Clan-tag, e.g SGI")
+
+        # If the user cancelled exit
+        if not status:
+            return
+
+        # Pick the color, defaults to normal player color
+        color = QtGui.QColorDialog.getColor(QtGui.QColor(self.players.getColor("player")), self, "Select Clan Colour")
+
+        # If the user cancelled then exit
+        if not color.isValid():
+            return
+
+        # Pull out the hex color string, strip off the alpha value
+        colorString = "#" + ("%x" % color.rgb())[2:]
+
+        # Tell the Server we want to update this clans color
+        self.send(self.send(dict(command="clan_color", clan=clan, color=colorString)))
+
     def handle_authentication_failed(self, message):
         QtGui.QMessageBox.warning(self, "Authentication failed", message["text"])
         self.state = ClientState.DISCONNECTED
@@ -1326,3 +1352,9 @@ class ClientWindow(FormClass, BaseClass):
 
         if message["style"] == "kick":
             logger.info("Server has kicked you from the Lobby.")
+            
+    def handle_clan_info(self, message):
+        # This message could hold more in the future
+        clan = message["clan"]
+        color = message["color"]
+        players.setClanColor(clan,color)
