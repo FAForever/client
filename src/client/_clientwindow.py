@@ -944,48 +944,8 @@ class ClientWindow(FormClass, BaseClass):
         out = QtCore.QDataStream(block, QtCore.QIODevice.ReadWrite)
         out.setVersion(QtCore.QDataStream.Qt_4_2)
 
-        out.writeUInt32(0)
+        out.writeUInt32(2*len(action)+4)
         out.writeQString(action)
-        out.writeQString(self.login or "")
-        out.writeQString(self.session or "")
-
-        for arg in args :
-            if type(arg) is IntType:
-                out.writeInt(arg)
-            elif isinstance(arg, basestring):
-                out.writeQString(arg)
-            elif type(arg) is FloatType:
-                out.writeFloat(arg)
-            elif type(arg) is ListType:
-                out.writeQVariantList(arg)
-            elif type(arg) is DictType:
-                out.writeQString(json.dumps(arg))
-            elif type(arg) is QtCore.QFile :
-                arg.open(QtCore.QIODevice.ReadOnly)
-                fileDatas = QtCore.QByteArray(arg.readAll())
-                out.writeInt(fileDatas.size())
-                out.writeRawData(fileDatas)
-
-                # This may take a while. We display the progress bar so the user get a feedback
-                self.sendFile = True
-                self.progress.setLabelText("Sending file to server")
-                self.progress.setCancelButton(None)
-                self.progress.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
-                self.progress.setAutoClose(True)
-                self.progress.setMinimum(0)
-                self.progress.setMaximum(100)
-                self.progress.setModal(1)
-                self.progress.setWindowTitle("Uploading in progress")
-
-                self.progress.show()
-                arg.close()
-            else:
-                logger.warn("Uninterpreted Data Type: " + str(type(arg)) + " sent as str: " + str(arg))
-                out.writeQString(str(arg))
-
-        out.device().seek(0)
-        out.writeUInt32(block.size() - 4)
-        self.bytesToSend = block.size() - 4
 
         self.socket.write(block)
 
