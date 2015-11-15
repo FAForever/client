@@ -1,7 +1,7 @@
 pycparser==2.10
 pathlib
 bsdiff4==1.1.4
-cx_Freeze==4.3.3
+cx_Freeze==4.3.4
 py==1.4.25
 pytest==2.7.0
 pytest-cov
