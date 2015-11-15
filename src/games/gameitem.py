@@ -101,7 +101,7 @@ class GameItem(QtGui.QListWidgetItem):
             url = QtCore.QUrl()
             url.setScheme("faflive")
             url.setHost("lobby.faforever.com")
-            url.setPath(str(self.uid) + "/" + player + ".SCFAreplay")
+            url.setPath(str(self.uid) + "/" + player_id + ".SCFAreplay")
             url.addQueryItem("map", self.mapname)
             url.addQueryItem("mod", self.mod)
             return url
