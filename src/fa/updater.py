@@ -11,8 +11,7 @@ patched, and all required files for a given mod are installed
 @author thygrrr
 """
 import os
-
-
+import subprocess
 import time
 import shutil
 from types import FloatType, IntType, ListType
@@ -551,10 +550,34 @@ class Updater(QtCore.QObject):
 
             log("%s is copied in %s." % (fileToCopy, path))
             self.filesToUpdate.remove(str(fileToCopy))
+
+        elif action == "SEND_PATCH_URL":
+            destination = str(stream.readQString())
+            fileToUpdate = str(stream.readQString())
+            url = str(stream.readQString())
+
+            toFile = os.path.join(util.CACHE_DIR, "temp.patch")
+            #
+            if self.fetchFile(url, toFile) :
+                completePath = os.path.join(util.APPDATA_DIR, destination, fileToUpdate)
+                self.applyPatch(completePath ,toFile)
+
+
+                log("%s/%s is patched." % (destination, fileToUpdate))
+                self.filesToUpdate.remove(str(fileToUpdate))
+            else :
+                log("Failed to update file :'(")
         else:
             log("Unexpected server command received: " + action)
             self.result = self.RESULT_FAILURE
 
+    def applyPatch(self, original, patch):
+        toFile = os.path.join(util.CACHE_DIR, "patchedFile")
+        #applying delta
+        subprocess.call(['xdelta3', '-d','-f', '-s', original, patch, toFile], stdout = subprocess.PIPE)
+        shutil.copy(toFile, original)
+        os.remove(toFile)
+        os.remove(patch)
 
     @QtCore.pyqtSlot()
     def readDataFromServer(self):
