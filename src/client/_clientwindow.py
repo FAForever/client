@@ -1366,3 +1366,9 @@ class ClientWindow(FormClass, BaseClass):
 
         if message["style"] == "kick":
             logger.info("Server has kicked you from the Lobby.")
+            
+    def handle_clan_info(self, message):
+        clan = message["clan"]
+        color = message["color"]
+        
+        players.setClanColor(clan,color)
