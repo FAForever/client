@@ -116,8 +116,7 @@ class ReplayRecorder(QtCore.QObject):
 
         self.relaySocket.disconnectFromHost()
         
-        if settings.value("fa.record_replay", DEFAULT_RECORD_REPLAY, type=bool):
-            self.writeReplayFile()
+        self.writeReplayFile()
         
         self.done()
 
