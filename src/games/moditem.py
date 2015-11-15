@@ -18,6 +18,7 @@ class ModItem(QtGui.QListWidgetItem):
         QtGui.QListWidgetItem.__init__(self, *args, **kwargs)
 
         self.mod  = message["name"]
+        self.order = message.get("order", 0)
         self.name = message["fullname"]
         #Load Icon and Tooltip
 
@@ -49,20 +50,11 @@ class ModItem(QtGui.QListWidgetItem):
     
     
     def __lt__(self, other):
-        ''' Comparison operator used for item list sorting '''        
-        
-        # Crucial Mods are on top
-        if self.mod in mod_crucial and other.mod in mod_crucial:
-            return mod_crucial.index(self.mod) < mod_crucial.index(other.mod)
-        if self.mod in mod_crucial and other.mod not in mod_crucial:
+        ''' Comparison operator used for item list sorting '''
+
+        if self.order < other.order:
             return True
-        if self.mod not in mod_crucial and other.mod in mod_crucial:
-            return False
-        
-        # Favourites are also ranked up top
-        if (self.mod in mod_favourites) and not (other.mod in mod_favourites): return True
-        if not(self.mod in mod_favourites) and (other.mod in mod_favourites): return False
-        
+
         # Default: Alphabetical
         return self.name.lower() < other.mod.lower()
     
