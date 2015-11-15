@@ -90,19 +90,11 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         # disconnection checks
         self.canDisconnect = False
         
-        # Create button
-        self.rejoinChatButton = QtGui.QToolButton(self)
-        # Set font
-        font = self.rejoinChatButton.font()
-        font.setBold(True)
-        self.rejoinChatButton.setFont(font)
-        # Set text
-        self.rejoinChatButton.setText("Rejoin Chat")
-        # Reformat
-        #self.rejoinChatButton.
-        # Hide button
+        # Place and connect rejoin button
         self.setCornerWidget(self.rejoinChatButton)
         self.rejoinChatButton.clicked.connect(self.rejoinChat)
+        
+        # Hide button, not needed since we already have open chat channels on startup.
         self.rejoinChatButton.hide()
 
 
@@ -457,11 +449,9 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         #Check whether that was the last open channel
         if len(self.channels) == 0:
             self.rejoinChatButton.show()
-            
-            
+
     def rejoinChat(self):
         self.rejoinChatButton.hide()
         # Rejoin all crucial channels
         for channel in self.crucialChannels:
             self.join(channel)
-            

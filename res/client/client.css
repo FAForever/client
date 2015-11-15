@@ -1,10 +1,8 @@
-
  *[warning="true"]
 {
     color:lightgrey;
     font-size:8pt;
 }
-
 
 *[titleLabel="true"]
 {
@@ -41,7 +39,6 @@ QMenuBar::item
  QMenuBar::item:pressed {
      background: #888888;
  }
-
  
  QMenu {
      background-color: rgb(50,50,50);
@@ -80,7 +77,6 @@ QMenuBar::item
      width: 13px;
      height: 13px;
  }
-
  
 QTabWidget #lobbyTab,#gamesTab,#ladderTab,#tournamentTab,#coopTab,#replaysTab,#vaultsTab,#mapsTab,#modsTab
 { /* sets background color for every widget under a tab */
@@ -93,8 +89,6 @@ QTabWidget#mainTabs::tab-bar
      left: 25px; /* move to the right by 25px */
 }
 
-
-
 /* Central area background */
 QWidget#centralwidget, QProgressDialog, QWindow, QWizard
 {
@@ -104,7 +98,6 @@ QWidget#centralwidget, QProgressDialog, QWindow, QWizard
     background-repeat:repeat-x;
     background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #FFFFFF, stop:0.1 #000000, stop:1 #1F1F1F);
 }
-
 
 QTabWidget#mainTabs::pane
 { /* The tab widget frame */
@@ -125,7 +118,6 @@ QTabWidget#mainTabs > QTabBar::tab
     padding-left: 5px;
 }
 
-
 QTabWidget#mainTabs > QTabBar::tab:hover 
 {
     color:#66b9fa;
@@ -141,7 +133,6 @@ QTabWidget#mainTabs > QTabBar::tab:selected
     border-bottom-right-radius: 5px;
 }
 
-
 QTabWidget#mainTabs > QTabBar::tab:!selected 
 {
     margin-bottom: 8px; /* make non-selected tabs look smaller */
@@ -156,13 +147,11 @@ QTabWidget#topTabs::pane
      background-color: #2f2f2f;
  }
 
-
  QTabWidget#topTabs::tab-bar
 {
     top: 0px;
     left: 25px; /* move to the right by 25px */
  }
-
 
 /* Style the tab using the tab sub-control. Note that it reads QTabBar _not_ QTabWidget */
 QTabWidget#topTabs > QTabBar::tab 
@@ -173,7 +162,6 @@ QTabWidget#topTabs > QTabBar::tab
     padding:4px;
 }
 
-
 QTabWidget#topTabs > QTabBar::tab:!selected 
 {
     margin-top:5px;
@@ -181,14 +169,12 @@ QTabWidget#topTabs > QTabBar::tab:!selected
 
 }
 
-
 QTabWidget#topTabs > QTabBar::tab:hover 
 {
     color:white;
     background-color: #606060;
 
 }
-
 
 QTabWidget#topTabs > QTabBar::tab:selected 
 {
@@ -203,7 +189,6 @@ QSplitter::handle
 {
     background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #0F0F0F, stop:1 #2f2f2f);
 }
-
 
 QSplitter::handle:horizontal 
 {
@@ -220,8 +205,6 @@ QSplitter::handle:hover
 {
      background-color: #606060;
  }
-
-
 
 /* Text controls */
 QTextEdit, QPlainTextEdit, QLineEdit, QListWidget, QTableWidget, QTreeWidget, QFrame#rankedFrame, QFrame#teamFaction, QFrame#teamSearch
@@ -252,8 +235,6 @@ QFrame#rankedFrame
     border-bottom-right-radius : 5px;
 }
 
-
-
 /* Nicklist controls */
 
 QTableWidget::item
@@ -269,21 +250,15 @@ QTableWidget::item::hover
     border-radius: 3px;
 }
 
-
 QTableWidget::item:selected, QListWidget::item:previously-selected
 {
     border: none;
 }
 
-
-
-
 QLineEdit
 {
     color:orange;
 }
-
-
 
 QListWidget::item:hover
 {
@@ -334,9 +309,6 @@ QTreeWidget::item:selected, QTreeWidget::item:previously-selected
     border: none;
 }
 
- 
-
-
 /* ScrollWidgets*/
 QScrollArea
 {
@@ -349,7 +321,6 @@ QScrollArea
     border-bottom-left-radius : 5px;
     border-bottom-right-radius : 5px;
 }
-
 
 /* Scrollbars*/
 QScrollBar {
@@ -382,6 +353,7 @@ QScrollBar::sub-line {
     subcontrol-position: top;
     subcontrol-origin: margin;
 }
+
 QScrollBar::add-line  {
 
     border-bottom-left-radius: 3px;
@@ -405,7 +377,6 @@ QScrollBar:down-arrow {
 
  }
 
-
 QScrollBar::add-page
 {
     background-color: #1f1f1f;
@@ -415,7 +386,6 @@ QScrollBar::sub-page
 {
     background-color: #1f1f1f;
 }
-
 
 QLabel#labelSortGames,#hideGamesWithPw,#labelJoinGame,#labelHostGame,#labelAutomatch,#labelMyReplays,#labelLiveReplays,#labelHostTournament,#labelJoinTournament,#joinLabel,#labelTeamManagement
 {
@@ -444,7 +414,6 @@ QCheckBox#spoilerCheckbox
     color: white;
 }
 
-/* Used for Ranked Buttons only at the moment*/
 QToolButton::pressed 
 {
     border: none;
@@ -484,10 +453,23 @@ QComboBox, QComboBox:selected
     selection-background-color: #575656;
 }
 
-
-
 QComboBox QAbstractItemView {
     border: 2px solid darkgray;
     selection-background-color: #575656;
     background-color: #575656;
+}
+
+QToolButton#rejoinChatButton
+{
+    color:silver;
+    background-color:#383838;
+    font-weight:bold;
+    border-radius : 5px;
+    padding:5px;
+}
+
+QToolButton#rejoinChatButton:hover
+{
+    color:#383838;
+    background-color:silver;
 }
