@@ -52,7 +52,7 @@ class GamesWidget(FormClass, BaseClass):
 
         self.client.modInfo.connect(self.processModInfo)
         self.client.gameInfo.connect(self.processGameInfo)
-        self.client.disconnected.connect(self.gameList.clear)
+        self.client.disconnected.connect(self.clear_games)
 
         self.client.gameEnter.connect(self.stopSearchRanked)
         self.client.viewingReplay.connect(self.stopSearchRanked)
@@ -116,6 +116,11 @@ class GamesWidget(FormClass, BaseClass):
                      if self.games[game].state == 'open'
                      and self.games[game].password_protected]:
             game.setHidden(state == Qt.Checked)
+
+    @QtCore.pyqtSlot()
+    def clear_games(self):
+        self.games = []
+        self.gameList.clear()
 
     @QtCore.pyqtSlot(dict)
     def processGameInfo(self, message):
