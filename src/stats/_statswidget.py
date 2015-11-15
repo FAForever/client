@@ -169,11 +169,9 @@ class StatsWidget(BaseClass, FormClass):
             tab =  self.currentLeague-1
 
             if not tab in self.pagesDivisions :
-                print "no tab in division"
                 self.pagesDivisions[tab] = self.createDivisionsTabs(message["values"])
                 leagueTab = self.leagues.widget(tab).findChild(QtGui.QTabWidget,"league"+str(tab))   
                 leagueTab.widget(1).layout().addWidget(self.pagesDivisions[tab])
-                print "done"
 
 
         elif typeStat == "division_table" :

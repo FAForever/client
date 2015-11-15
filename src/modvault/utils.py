@@ -161,7 +161,6 @@ def getModInfoFromZip(zfile):
         logger.debug("Error in parsing mod_info.lua in %s" % zfile)
         return None
     m = ModInfo(**info)
-    print zfile
     m.setFolder(zfile)
     m.update()
     modCache[zfile] = m
