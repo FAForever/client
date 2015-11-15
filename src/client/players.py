@@ -30,7 +30,7 @@ class Players:
         # names of the client's clanmates
         self.clanlist = set()
         
-        # list of clans with special clan colors
+        # clans with special clan colors
         self.clanColors = {}
 
     #Color table used by the following method
