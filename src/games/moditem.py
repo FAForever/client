@@ -6,7 +6,7 @@ import os
 # Maps names of featured mods to ModItem objects.
 mods = {}
 
-mod_crucial = ["balancetesting", "faf"]
+mod_crucial = ["balancetesting", "faf", "fafbeta"]
 
 # These mods are not shown in the game list
 mod_invisible = {}
@@ -52,12 +52,12 @@ class ModItem(QtGui.QListWidgetItem):
     def __lt__(self, other):
         ''' Comparison operator used for item list sorting '''
 
-        if self.order < other.order:
-            return True
+        if self.order == other.order:
+            # Default: Alphabetical
+            return self.name.lower() < other.mod.lower()
 
-        # Default: Alphabetical
-        return self.name.lower() < other.mod.lower()
-    
+        return self.order < other.order
+
 
 
 
