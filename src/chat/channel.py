@@ -299,10 +299,7 @@ class Channel(FormClass, BaseClass):
         Print an raw message in the chatArea of the channel
         '''
         try:
-            if name in self.lobby.specialUserColors:
-                color = self.lobby.specialUserColors[name]
-            else:
-                color = self.lobby.client.players.getUserColor(name)
+            color = self.lobby.client.players.getUserColor(name)
                 
             # Play a ping sound
             if self.private and name != self.lobby.client.login:
