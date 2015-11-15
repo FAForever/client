@@ -1,7 +1,6 @@
 import sys
 
 import os
-import urllib2
 from ctypes import *
 
 # Developer mode flag
@@ -398,6 +397,7 @@ def __downloadPreviewFromWeb(unitname):
     Downloads a preview image from the web for the given unit name
     '''
     #This is done so generated previews always have a lower case name. This doesn't solve the underlying problem (case folding Windows vs. Unix vs. FAF)
+    import urllib2
     unitname = unitname.lower()
 
     logger.debug("Searching web preview for: " + unitname)
