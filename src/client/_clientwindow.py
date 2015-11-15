@@ -1365,7 +1365,7 @@ class ClientWindow(FormClass, BaseClass):
         colorString = "#" + ("%x" % color.rgb())[2:]
 
         # Tell the Server we want to update this clans color
-        self.send(self.send(dict(command="clan_color", color=colorString)))
+        self.send(self.send(dict(command="clan_color", clan=clan, color=colorString)))
 
     def handle_authentication_failed(self, message):
         QtGui.QMessageBox.warning(self, "Authentication failed", message["text"])
