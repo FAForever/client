@@ -1172,7 +1172,7 @@ class ClientWindow(FormClass, BaseClass):
 
         # HACK: Ideally, this comes from the server, too. LATER: search_ranked message
         if message["mod"] == "ladder1v1":
-            arguments.append('/' + self.games.race)
+            arguments.append('/' + Factions.to_name(self.games.race))
             #Player 1v1 rating
             arguments.append('/mean')
             arguments.append(str(self.players[self.id]["ladder_rating_mean"]))
