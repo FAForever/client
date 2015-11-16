@@ -63,9 +63,9 @@ class StatusLogo(QLabel):
         self.state = state
         self.setPixmap(self._pixmaps.get(state, self._pixmaps[ClientState.DROPPED]))
 
-        if state == ClientState.DISCONNECTED:
-            self.setToolTip("Offline")
+        if state == ClientState.ONLINE:
+            self.setToolTip("Online")
         elif state == ClientState.RECONNECTING or state == ClientState.DROPPED:
             self.setToolTip("Reconnecting")
-        elif state == ClientState.ONLINE:
-            self.setToolTip("Online")
+        else:
+            self.setToolTip("Offline")
