@@ -61,7 +61,6 @@ if platform.system() == "Windows":
                 logger.error("Couldn't get StaticPortMappingCollection")
         except:
             logger.error("Exception in UPnP removePortMappings.", exc_info=sys.exc_info())
-            util.CrashDialog(sys.exc_info()).exec_()
 else:
     def createPortMapping(ip, port, protocol='UDP'):
         logger.info("FIXME: Create a UPNP mapper for platform != Windows")
