@@ -32,6 +32,8 @@ class GamesWidget(FormClass, BaseClass):
         # Dictionary containing our actual games.
         self.games = {}
 
+        self.canChooseMap = True
+
         #Ranked search UI
         self._ranked_icons = {
             Factions.AEON: self.rankedAeon,
