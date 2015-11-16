@@ -513,7 +513,7 @@ class ClientWindow(FormClass, BaseClass):
 
             button.setMaximumSize(25, 25)
             button.setIcon(util.icon("games/automatch/%s.png" % faction.to_name()))
-            button.clicked.connect(self.games.join_ladder_listeners[faction])
+            button.clicked.connect(partial(self.games.startSearchRanked, faction))
             self.warning.addWidget(button)
 
             return button

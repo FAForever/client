@@ -33,22 +33,28 @@ class GamesWidget(FormClass, BaseClass):
         self.games = {}
 
         #Ranked search UI
+        self._ranked_icons = {
+            Factions.AEON: self.rankedAeon,
+            Factions.CYBRAN: self.rankedCybran,
+            Factions.SERAPHIM: self.rankedSeraphim,
+            Factions.UEF: self.rankedUEF,
+            Factions.RANDOM: self.rankedRandom
+        }
         self.rankedAeon.setIcon(util.icon("games/automatch/aeon.png"))
         self.rankedCybran.setIcon(util.icon("games/automatch/cybran.png"))
         self.rankedSeraphim.setIcon(util.icon("games/automatch/seraphim.png"))
         self.rankedUEF.setIcon(util.icon("games/automatch/uef.png"))
         self.rankedRandom.setIcon(util.icon("games/automatch/random.png"))
 
-        self.join_ladder_listeners = {faction: partial(self.toggle_search, faction) for faction in Factions}
+        for faction, icon in self._ranked_icons.items():
+            icon.clicked.connect(partial(self.toggle_search, faction=faction))
 
-        self.connectRankedToggles()
         self.searchProgress.hide()
 
         # Ranked search state variables
         self.searching = False
         self.race = None
         self.ispassworded = False
-        self.canChooseMap = True
 
         self.client.modInfo.connect(self.processModInfo)
         self.client.gameInfo.connect(self.processGameInfo)
@@ -59,7 +65,7 @@ class GamesWidget(FormClass, BaseClass):
 
         self.gameList.setItemDelegate(GameItemDelegate(self))
         self.gameList.itemDoubleClicked.connect(self.gameDoubleClicked)
-        self.gameList.sortBy = 0 # Default Sorting is By Players count
+        self.gameList.sortBy = 0  # Default Sorting is By Players count
 
         self.sortGamesComboBox.addItems(['By Players', 'By Game Quality', 'By avg. Player Rating'])
         self.sortGamesComboBox.currentIndexChanged.connect(self.sortGamesComboChanged)
@@ -67,20 +73,6 @@ class GamesWidget(FormClass, BaseClass):
         self.hideGamesWithPw.stateChanged.connect(self.togglePrivateGames)
 
         self.modList.itemDoubleClicked.connect(self.hostGameClicked)
-
-    def connectRankedToggles(self):
-        self.rankedAeon.toggled.connect(self.join_ladder_listeners[Factions.AEON])
-        self.rankedCybran.toggled.connect(self.join_ladder_listeners[Factions.CYBRAN])
-        self.rankedSeraphim.toggled.connect(self.join_ladder_listeners[Factions.SERAPHIM])
-        self.rankedUEF.toggled.connect(self.join_ladder_listeners[Factions.UEF])
-        self.rankedRandom.toggled.connect(self.join_ladder_listeners[Factions.RANDOM])
-
-    def disconnectRankedToggles(self):
-        self.rankedAeon.toggled.disconnect(self.join_ladder_listeners[Factions.AEON])
-        self.rankedCybran.toggled.disconnect(self.join_ladder_listeners[Factions.CYBRAN])
-        self.rankedSeraphim.toggled.disconnect(self.join_ladder_listeners[Factions.SERAPHIM])
-        self.rankedUEF.toggled.disconnect(self.join_ladder_listeners[Factions.UEF])
-        self.rankedRandom.toggled.disconnect(self.join_ladder_listeners[Factions.RANDOM])
 
     @QtCore.pyqtSlot(dict)
     def processModInfo(self, message):
@@ -148,6 +140,12 @@ class GamesWidget(FormClass, BaseClass):
             return
 
     def startSearchRanked(self, race):
+        for faction, icon in self._ranked_icons.items():
+            icon.setChecked(faction == race)
+
+        if race == Factions.RANDOM:
+            race = Factions.get_random_faction()
+
         if fa.instance.running():
             QtGui.QMessageBox.information(None, "ForgedAllianceForever.exe", "FA is already running.")
             self.stopSearchRanked()
@@ -187,35 +185,19 @@ class GamesWidget(FormClass, BaseClass):
         self.searchProgress.setVisible(False)
         self.labelAutomatch.setText("1 vs 1 Automatch")
 
-        self.disconnectRankedToggles()
-        self.rankedAeon.setChecked(False)
-        self.rankedCybran.setChecked(False)
-        self.rankedSeraphim.setChecked(False)
-        self.rankedUEF.setChecked(False)
-        self.connectRankedToggles()
+        for _, icon in self._ranked_icons.items():
+            icon.setChecked(False)
 
     @QtCore.pyqtSlot(bool)
-    def toggle_search(self, faction, enabled):
-        if faction == Factions.RANDOM:
-            faction = Factions.get_random_faction()
-
-        self.toggleSearch(enabled, faction)
-
-    def toggleSearch(self, state, player_faction):
+    def toggle_search(self, enabled, faction=None):
         """
         Handler called when a ladder search button is pressed. They're really checkboxes, and the
         state flag is used to decide whether to start or stop the search.
         :param state: The checkedness state of the search checkbox that was pushed
         :param player_faction: The faction corresponding to that checkbox
         """
-        if (state):
-            self.startSearchRanked(player_faction)
-            self.disconnectRankedToggles()
-            self.rankedAeon.setChecked(False)
-            self.rankedCybran.setChecked(False)
-            self.rankedUEF.setChecked(False)
-            self.rankedRandom.setChecked(False)
-            self.connectRankedToggles()
+        if enabled:
+            self.startSearchRanked(faction)
         else:
             self.stopSearchRanked()
 
