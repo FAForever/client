@@ -1050,28 +1050,28 @@ class ClientWindow(FormClass, BaseClass):
         self.send(dict(command="admin", action="closelobby", user_id=self.players[username].id))
 
     def addFriend(self, friend_name):
-        '''Adding a new friend by user'''
-        self.players.friends.add(friend_name)
-        self.send(dict(command="social_add", friend=self.players[friend_name].id))
-        self.usersUpdated.emit([friend_name])
+        if friend_name in self.players:
+            self.players.friends.add(friend_name)
+            self.send(dict(command="social_add", friend=self.players[friend_name].id))
+            self.usersUpdated.emit([friend_name])
 
     def addFoe(self, foe_name):
-        '''Adding a new foe by user'''
-        self.players.foes.add(foe_name)
-        self.send(dict(command="social_add", foe=self.players[foe_name].id))
-        self.usersUpdated.emit([foe_name])
+        if foe_name in self.players:
+            self.players.foes.add(foe_name)
+            self.send(dict(command="social_add", foe=self.players[foe_name].id))
+            self.usersUpdated.emit([foe_name])
 
     def remFriend(self, friend_name):
-        '''Removal of a friend by user'''
-        self.players.friends.remove(friend_name)
-        self.send(dict(command="social_remove", friend=self.players[friend_name].id))
-        self.usersUpdated.emit([friend_name])
+        if friend_name in self.players:
+            self.players.friends.remove(friend_name)
+            self.send(dict(command="social_remove", friend=self.players[friend_name].id))
+            self.usersUpdated.emit([friend_name])
 
     def remFoe(self, foe_name):
-        '''Removal of a foe by user'''
-        self.players.foes.remove(foe_name)
-        self.send(dict(command="social_remove", foe=self.players[foe_name].id))
-        self.usersUpdated.emit([foe_name])
+        if foe_name in self.players:
+            self.players.foes.remove(foe_name)
+            self.send(dict(command="social_remove", foe=self.players[foe_name].id))
+            self.usersUpdated.emit([foe_name])
 
     #
     # JSON Protocol v2 Implementation below here
