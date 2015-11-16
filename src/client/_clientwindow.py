@@ -812,6 +812,7 @@ class ClientWindow(FormClass, BaseClass):
     @QtCore.pyqtSlot()
     def on_connected(self):
         self.state = ClientState.ACCEPTED
+        self._connection_attempts = 0
         self.localIP = self.socket.localAddress()
         self.send(dict(command="ask_session"))
         self.connected.emit()
@@ -998,9 +999,18 @@ class ClientWindow(FormClass, BaseClass):
             self.usersUpdated.emit(oldplayers)
 
         if self.state != ClientState.DISCONNECTED:
-            self.state = ClientState.DROPPED
-            self.reconnect()
+            if self._connection_attempts < 2:
+                logger.info("Reconnecting immediately")
+                self.reconnect()
+            else:
+                timer = QtCore.QTimer(self)
+                timer.setSingleShot(True)
+                timer.timeout.connect(self.reconnect)
+                t = self._connection_attempts * 10000
+                timer.start(t)
+                logger.info("Scheduling reconnect in {}".format(t/1000))
 
+        self.state = ClientState.DROPPED
         self.disconnected.emit()
 
     @QtCore.pyqtSlot(QtNetwork.QAbstractSocket.SocketError)
