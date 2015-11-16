@@ -999,6 +999,7 @@ class ClientWindow(FormClass, BaseClass):
             self.usersUpdated.emit(oldplayers)
 
         if self.state != ClientState.DISCONNECTED:
+            self.state = ClientState.DROPPED
             if self._connection_attempts < 2:
                 logger.info("Reconnecting immediately")
                 self.reconnect()
@@ -1010,7 +1011,6 @@ class ClientWindow(FormClass, BaseClass):
                 timer.start(t)
                 logger.info("Scheduling reconnect in {}".format(t/1000))
 
-        self.state = ClientState.DROPPED
         self.disconnected.emit()
 
     @QtCore.pyqtSlot(QtNetwork.QAbstractSocket.SocketError)
@@ -1020,7 +1020,6 @@ class ClientWindow(FormClass, BaseClass):
     @QtCore.pyqtSlot()
     def forwardLocalBroadcast(self, source, message):
         self.localBroadcast.emit(source, message)
-
 
     def manage_power(self):
         ''' update the interface accordingly to the power of the user'''
