@@ -68,9 +68,6 @@ class GamesWidget(FormClass, BaseClass):
 
         self.modList.itemDoubleClicked.connect(self.hostGameClicked)
 
-        # Load game name from settings (yay, it's persistent!)
-        self.load_last_hosted_settings()
-
     def connectRankedToggles(self):
         self.rankedAeon.toggled.connect(self.join_ladder_listeners[Factions.AEON])
         self.rankedCybran.toggled.connect(self.join_ladder_listeners[Factions.CYBRAN])
@@ -248,6 +245,7 @@ class GamesWidget(FormClass, BaseClass):
         '''
         Hosting a game event
         '''
+        self.load_last_hosted_settings()
         if not fa.instance.available():
             return
 
