@@ -158,6 +158,7 @@ class ClientWindow(FormClass, BaseClass):
         self.progress = QtGui.QProgressDialog()
         self.progress.setMinimum(0)
         self.progress.setMaximum(0)
+        self.warning_buttons = {}
 
         #Tray icon
         self.tray = QtGui.QSystemTrayIcon()
@@ -517,8 +518,8 @@ class ClientWindow(FormClass, BaseClass):
             self.warning.addWidget(button)
             return button
 
-        for faction in Factions:
-            add_warning_button(faction)
+        self.warning_buttons = {faction: add_warning_button(faction) for faction in Factions}
+
         self.warning.addStretch()
 
         self.mainGridLayout.addLayout(self.warning, 2, 0)
