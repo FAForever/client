@@ -110,7 +110,7 @@ class GamesWidget(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def clear_games(self):
-        self.games = []
+        self.games = {}
         self.gameList.clear()
 
     @QtCore.pyqtSlot(dict)
