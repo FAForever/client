@@ -246,7 +246,7 @@ class ClientWindow(FormClass, BaseClass):
         titleLabel = QLabel("FA Forever" if not config.is_beta() else "FA Forever BETA")
         titleLabel.setProperty('titleLabel', True)
         self.topLayout.addWidget(titleLabel)
-        self.topLayout.addStretch()
+        self.topLayout.addStretch(500)
         self.topLayout.addWidget(self.menu)
         self.topLayout.addWidget(self.minimize)
         self.topLayout.addWidget(self.maximize)
