@@ -1,5 +1,7 @@
 from functools import partial
 
+from PyQt4.QtGui import QLabel, QStyle
+
 import config
 from config import Settings
 from client.player import Player
@@ -241,11 +243,14 @@ class ClientWindow(FormClass, BaseClass):
 
         self.menu = self.menuBar()
         self.topLayout.addWidget(self.logo)
+        titleLabel = QLabel("FA Forever" if not config.is_beta() else "FA Forever BETA")
+        titleLabel.setProperty('titleLabel', True)
+        self.topLayout.addWidget(titleLabel)
+        self.topLayout.addStretch()
         self.topLayout.addWidget(self.menu)
         self.topLayout.addWidget(self.minimize)
         self.topLayout.addWidget(self.maximize)
         self.topLayout.addWidget(close)
-        self.topLayout.insertStretch(1, 500)
         self.topLayout.setSpacing(0)
         self.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
         self.maxNormal = False

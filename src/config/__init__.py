@@ -83,6 +83,7 @@ VERSION = version.get_git_version()
 def is_development_version():
     return version.is_development_version(VERSION)
 
+
 # FIXME: Don't initialize proxy code that shows a dialogue box on import
 no_dialogs = False
 
@@ -90,8 +91,12 @@ environment = ('production' if os.getenv('FAF_FORCE_PRODUCTION')
                                or hasattr(sys, 'frozen')
                             else 'development')
 
+
+def is_beta():
+    return environment == 'development'
+
 if _settings.contains('client/force_environment'):
-    environment = _settings.value('client/force_environment')
+    environment = _settings.value('client/force_environment', 'development')
 
 if environment == 'production':
     from production import defaults
