@@ -22,7 +22,9 @@ def parse_irc_source(src):
     else:
         elevation = ''
     id, hostname = tail.split('@')
-    if id == username:
+    try:
+        id = int(id)
+    except ValueError:
         id = -1
     return username, id, elevation, hostname
 

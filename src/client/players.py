@@ -15,7 +15,8 @@ class Players:
     
     Also responsible for general player logic, e.g remembering friendliness and colors of players.
     """
-    def __init__(self):
+    def __init__(self, me):
+        self.me = me
         self._players = {}
         self._warned = False
         self.login = None
@@ -55,30 +56,29 @@ class Players:
         '''
         return name in self or name == self.login
 
-    def getUserColor(self, name):
+    def getUserColor(self, id):
         '''
         Returns a user's color depending on their status with relation to the FAF client
         '''
-        if name == self.login:
+        if id == self.me.id:
             return self.getColor("self")
-        elif name in self.friends:
+        elif id in self.friends:
             return self.getColor("friend")
-        elif name in self.foes:
+        elif id in self.foes:
             return self.getColor("foe")
-        elif name in self.clanlist:
+        elif id in self.clanlist:
             return self.getColor("clan")
         else:
             if self.coloredNicknames:
-                return self.getRandomColor(name)
-
-            if name in self:
+                return self.getRandomColor(id)
+            if id in self:
                 return self.getColor("player")
 
             return self.getColor("default")
 
-    def getRandomColor(self, name):
+    def getRandomColor(self, id):
         '''Generate a random color from a name'''
-        random.seed(name)
+        random.seed(id)
         return random.choice(self.randomcolors)
 
     def getColor(self, name):
@@ -86,7 +86,6 @@ class Players:
             return self.colors[name]
         else:
             return self.colors["default"]
-
 
     def keys(self):
         return self._players.keys()
@@ -105,9 +104,9 @@ class Players:
         return self.__getitem__(item) is not None
 
     def __getitem__(self, item):
-        if item in self._players:
-            return self._players[item]
-        else:
+        try:
+            return self._players[int(item)]
+        except (ValueError, KeyError):
             if not self._warned:
                 logger.warning("Expensive lookup by player login, FIXME.")
                 self._warned = True
@@ -116,4 +115,5 @@ class Players:
                 return by_login[item]
 
     def __setitem__(self, key, value):
+        assert isinstance(key, int)
         self._players[key] = value

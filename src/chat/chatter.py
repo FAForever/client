@@ -142,18 +142,21 @@ class Chatter(QtGui.QTableWidgetItem):
          according to its lobby and irc states
         """
         # Color handling
-        self.setChatUserColor(self.name)
+        self.set_color()
 
-        # Weed out IRC users early.
-        if self.name not in self.lobby.client.players:
+        player = self.lobby.client.players[self.id]
+        if not player and not self.id == -1:  # We should have a player object for this
+            player = self.lobby.client.players[self.name]
+            print("Looked up {} to {}".format(self.id, player))
+
+        # Weed out IRC users and those we don't know about early.
+        if self.id == -1 or player is None:
             self.rankItem.setIcon(util.icon("chat/rank/civilian.png"))
             self.rankItem.setToolTip("IRC User")
             return
 
-        player = self.lobby.client.players[self.name]
-
         country = player.country
-        if country is not None :
+        if country is not None:
             self.setIcon(util.icon("chat/countries/%s.png" % country.lower()))
             self.setToolTip(country)
 
@@ -194,18 +197,22 @@ class Chatter(QtGui.QTableWidgetItem):
         else:
             self.rankItem.setIcon(util.icon("chat/rank/newplayer.png"))
 
-    def setChatUserColor(self, username):
-        if self.lobby.client.players.isFriend(username):
-            if self.elevation in chat.OPERATOR_COLORS.keys():
-                self.setTextColor(QtGui.QColor(chat.colors.getColor("friend_mod")))
-                return
+    def set_color(self):
+        if self.lobby.client.players.isFriend(self.id) and self.elevation in chat.OPERATOR_COLORS.keys():
+            self.setTextColor(QtGui.QColor(chat.colors.getColor("friend_mod")))
+            return
         if self.elevation in chat.colors.OPERATOR_COLORS.keys():
             self.setTextColor(QtGui.QColor(chat.colors.OPERATOR_COLORS[self.elevation]))
             return
-        self.setTextColor(QtGui.QColor(self.lobby.client.players.getUserColor(self.name)))
+
+        if self.id != -1:
+            self.setTextColor(QtGui.QColor(self.lobby.client.players.getUserColor(self.id)))
+            return
+
+        self.setTextColor(QtGui.QColor(chat.colors.getColor("default")))
 
     def selectAvatar(self):
-        avatarSelection = avatarWidget(self.lobby.client, self.name, personal = True)
+        avatarSelection = avatarWidget(self.lobby.client, self.name, personal=True)
         avatarSelection.exec_()
 
     def addAvatar(self):
@@ -311,21 +318,21 @@ class Chatter(QtGui.QTableWidgetItem):
         actionRemFoe = QtGui.QAction("Remove foe", menu)
         
         # Don't allow self to be added or removed from friends or foes
-        if self.lobby.client.login == self.name:
+        if self.lobby.client.me.id == self.id:
             actionAddFriend.setDisabled(1)
             actionRemFriend.setDisabled(1)
             actionAddFoe.setDisabled(1)
             actionRemFoe.setDisabled(1)
               
         # Enable / Disable actions according to friend status  
-        if self.lobby.client.players.isFriend(self.name):
+        if self.lobby.client.players.isFriend(self.id):
             actionAddFriend.setDisabled(1)
             actionRemFoe.setDisabled(1)
             actionAddFoe.setDisabled(1)
         else:
             actionRemFriend.setDisabled(1)
 
-        if self.lobby.client.players.isFoe(self.name):
+        if self.lobby.client.players.isFoe(self.id):
             actionAddFoe.setDisabled(1)
             actionAddFriend.setDisabled(1)
             actionRemFriend.setDisabled(1)
@@ -333,10 +340,10 @@ class Chatter(QtGui.QTableWidgetItem):
             actionRemFoe.setDisabled(1)
                                       
         # Triggers
-        actionAddFriend.triggered.connect(lambda: self.lobby.client.addFriend(self.name))
-        actionRemFriend.triggered.connect(lambda: self.lobby.client.remFriend(self.name))
-        actionAddFoe.triggered.connect(lambda: self.lobby.client.addFoe(self.name))
-        actionRemFoe.triggered.connect(lambda: self.lobby.client.remFoe(self.name))
+        actionAddFriend.triggered.connect(lambda: self.lobby.client.addFriend(self.id))
+        actionRemFriend.triggered.connect(lambda: self.lobby.client.remFriend(self.id))
+        actionAddFoe.triggered.connect(lambda: self.lobby.client.addFoe(self.id))
+        actionRemFoe.triggered.connect(lambda: self.lobby.client.remFoe(self.id))
       
         # Adding to menu
         menu.addAction(actionAddFriend)

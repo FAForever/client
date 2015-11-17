@@ -94,7 +94,7 @@ class Channel(FormClass, BaseClass):
             
             self.nickFilter.textChanged.connect(self.filterNicks)
             
-            self.lobby.client.usersUpdated.connect(self.updateChatters)
+            self.lobby.client.usersUpdated.connect(self.update_users)
         else:
             self.nickFrame.hide()
             self.announceLine.hide()
@@ -354,13 +354,10 @@ class Channel(FormClass, BaseClass):
             chatter.pressed(item)
 
 
-    @QtCore.pyqtSlot(list)    
-    def updateChatters(self, updated_chatters):
-        ''' 
-        Updates the status, icon and color of an IRC user depending on its known state in the FAF client
-        Takes a list of users.
-        '''
-        for name in updated_chatters:
+    @QtCore.pyqtSlot(list)
+    def update_users(self, updated_users):
+        for id in updated_users:
+            name = self.lobby.client.players[id].login
             if name in self.chatters:
                 self.chatters[name].update()
         

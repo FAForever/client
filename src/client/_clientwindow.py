@@ -267,11 +267,12 @@ class ClientWindow(FormClass, BaseClass):
         self.mainTabs.currentChanged.connect(self.mainTabChanged)
         self.topTabs.currentChanged.connect(self.vaultTabChanged)
 
-        self.players = Players()  # Players known to the client, contains the player_info messages sent by the server
+        # Handy reference to the Player object representing the logged-in user.
+        self.me = None  # FIXME: Move it elsewhere
+
+        self.players = Players(self.me)  # Players known to the client, contains the player_info messages sent by the server
         self.urls = {}
 
-        # Handy reference to the Player object representing the logged-in user.
-        self.me = None
 
         self.power = 0          # current user power
         self.id = 0
@@ -994,7 +995,7 @@ class ClientWindow(FormClass, BaseClass):
         if self.state == ClientState.ACCEPTED:
             #Clear the online users lists
             oldplayers = self.players.keys()
-            self.players = Players()
+            self.players = Players(self.me)
             self.urls = {}
             self.usersUpdated.emit(oldplayers)
 
@@ -1049,29 +1050,29 @@ class ClientWindow(FormClass, BaseClass):
         '''Close lobby remotly'''
         self.send(dict(command="admin", action="closelobby", user_id=self.players[username].id))
 
-    def addFriend(self, friend_name):
-        if friend_name in self.players:
-            self.players.friends.add(friend_name)
-            self.send(dict(command="social_add", friend=self.players[friend_name].id))
-            self.usersUpdated.emit([friend_name])
+    def addFriend(self, friend_id):
+        if friend_id in self.players:
+            self.players.friends.add(friend_id)
+            self.send(dict(command="social_add", friend=friend_id))
+            self.usersUpdated.emit([friend_id])
 
-    def addFoe(self, foe_name):
-        if foe_name in self.players:
-            self.players.foes.add(foe_name)
-            self.send(dict(command="social_add", foe=self.players[foe_name].id))
-            self.usersUpdated.emit([foe_name])
+    def addFoe(self, foe_id):
+        if foe_id in self.players:
+            self.players.foes.add(foe_id)
+            self.send(dict(command="social_add", foe=foe_id))
+            self.usersUpdated.emit([foe_id])
 
-    def remFriend(self, friend_name):
-        if friend_name in self.players:
-            self.players.friends.remove(friend_name)
-            self.send(dict(command="social_remove", friend=self.players[friend_name].id))
-            self.usersUpdated.emit([friend_name])
+    def remFriend(self, friend_id):
+        if friend_id in self.players:
+            self.players.friends.remove(friend_id)
+            self.send(dict(command="social_remove", friend=friend_id))
+            self.usersUpdated.emit([friend_id])
 
-    def remFoe(self, foe_name):
-        if foe_name in self.players:
-            self.players.foes.remove(foe_name)
-            self.send(dict(command="social_remove", foe=self.players[foe_name].id))
-            self.usersUpdated.emit([foe_name])
+    def remFoe(self, foe_id):
+        if foe_id in self.players:
+            self.players.foes.remove(foe_id)
+            self.send(dict(command="social_remove", foe=foe_id))
+            self.usersUpdated.emit([foe_id])
 
     #
     # JSON Protocol v2 Implementation below here
@@ -1133,6 +1134,8 @@ class ClientWindow(FormClass, BaseClass):
         self.id = message["id"]
         self.login = message["login"]
         self.me = Player(id=self.id, login=self.login)
+        self.players[self.me.id] = self.me  # FIXME
+        self.players.me = self.me  # FIXME
         self.players.login = self.login
         logger.debug("Login success")
         self.state = ClientState.ACCEPTED
@@ -1251,7 +1254,7 @@ class ClientWindow(FormClass, BaseClass):
             self.matchmakerInfo.emit(message)
 
         elif "potential" in message:
-            if message["potential"] :
+            if message["potential"]:
                 self.warningShow()
             else:
                 self.warningHide()
