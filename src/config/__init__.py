@@ -87,10 +87,7 @@ def is_development_version():
 # FIXME: Don't initialize proxy code that shows a dialogue box on import
 no_dialogs = False
 
-environment = ('production' if os.getenv('FAF_FORCE_PRODUCTION')
-                               or hasattr(sys, 'frozen')
-                            else 'development')
-
+environment = 'development'
 
 def is_beta():
     return environment == 'development'
