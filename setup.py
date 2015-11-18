@@ -77,7 +77,6 @@ upgrade_code = '{ADE2A55B-834C-4D8D-A071-7A91A3A266B7}'
 
 if True:  # Beta build
     product_name += " Beta"
-    target_dir += "-beta"
     upgrade_code = '{2A336240-1D51-4726-B36f-78B998DD3740}'
 
 bdist_msi_options = {
