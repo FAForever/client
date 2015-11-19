@@ -1085,7 +1085,12 @@ class ClientWindow(FormClass, BaseClass):
     #
     def send(self, message):
         data = json.dumps(message)
-        logger.info("Outgoing JSON Message: " + data)
+        if message.get('command') == 'hello':
+            logger.info('Logging in with {}'.format({
+                k: v for k, v in message.items() if k != 'password'
+            }))
+        else:
+            logger.info("Outgoing JSON Message: " + data)
 
         self.writeToServer(data)
 
