@@ -1,5 +1,6 @@
 from PyQt4 import QtGui
 import util
+from config import Settings
 
 """
 Setting Model class.
@@ -13,26 +14,20 @@ self.button.clicked.connect(self.dialog.show)
 class NsHook():
     def __init__(self, eventType):
         self.eventType = eventType
+        self._settings_key = 'notifications/{}'.format(eventType)
         self.loadSettings()
         self.button = QtGui.QPushButton('More')
         self.button.setEnabled(False)
 
     def loadSettings(self):
-        util.settings.beginGroup("notification_system")
-        util.settings.beginGroup(self.eventType)
-        self.popup = util.settings.value('popup', 'true') == 'true'
-        self.sound = util.settings.value('sound', 'true') == 'true'
-        util.settings.endGroup()
-        util.settings.endGroup()
+        self.popup = Settings.get(self._settings_key + '/popup',
+                                  True, type=bool)
+        self.sound = Settings.get(self._settings_key + '/sound',
+                                  True, type=bool)
 
     def saveSettings(self):
-        util.settings.beginGroup("notification_system")
-        util.settings.beginGroup(self.eventType)
-        util.settings.setValue('popup', self.popup)
-        util.settings.setValue('sound', self.sound)
-        util.settings.endGroup()
-        util.settings.endGroup()
-        util.settings.sync()
+        Settings.set(self._settings_key+'/popup', self.popup)
+        Settings.set(self._settings_key+'/sound', self.sound)
 
     def getEventDisplayName(self):
         return self.eventType

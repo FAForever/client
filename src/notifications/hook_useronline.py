@@ -1,5 +1,7 @@
 from PyQt4 import QtCore
 import util
+import config
+from config import Settings
 from notifications.ns_hook import NsHook
 import notifications as ns
 
@@ -19,6 +21,7 @@ class UserOnlineDialog(FormClass, BaseClass):
         BaseClass.__init__(self)
         self.parent = parent
         self.eventType = eventType
+        self._settings_key = 'notifications/{}'.format(eventType)
         self.setupUi(self)
 
         # remove help button
@@ -28,11 +31,7 @@ class UserOnlineDialog(FormClass, BaseClass):
 
 
     def loadSettings(self):
-        util.settings.beginGroup("notification_system")
-        util.settings.beginGroup(self.eventType)
-        self.mode = util.settings.value('mode', 'friends')
-        util.settings.endGroup()
-        util.settings.endGroup()
+        self.mode = Settings.get(self._settings_key+'/mode', 'friends')
 
         if self.mode == 'friends':
             self.radioButtonFriends.setChecked(True)
@@ -41,12 +40,7 @@ class UserOnlineDialog(FormClass, BaseClass):
         self.parent.mode = self.mode
 
     def saveSettings(self):
-        util.settings.beginGroup("notification_system")
-        util.settings.beginGroup(self.eventType)
-        util.settings.setValue('mode', self.mode)
-        util.settings.endGroup()
-        util.settings.endGroup()
-        util.settings.sync()
+        Settings.set(self._settings_key+'/mode', self.mode)
         self.parent.mode = self.mode
 
     @QtCore.pyqtSlot()

@@ -1,4 +1,7 @@
 from PyQt4 import QtCore, QtGui
+
+import config
+from config import Settings
 import util
 import notifications as ns
 from notifications.hook_useronline import NsHookUserOnline
@@ -38,21 +41,16 @@ class NsSettingsDialog(FormClass2, BaseClass2):
 
 
     def loadSettings(self):
-        util.settings.beginGroup("notification_system")
-        self.enabled = util.settings.value('enabled', 'true') == 'true'
-        self.popup_lifetime = util.settings.value('popup_lifetime', 5)
-        util.settings.endGroup()
+        self.enabled = Settings.get('notifications/enabled', True, type=bool)
+        self.popup_lifetime = Settings.get('notifications/popup_lifetime', 5, type=int)
 
         self.nsEnabled.setChecked(self.enabled)
         self.nsPopLifetime.setValue(self.popup_lifetime)
 
 
     def saveSettings(self):
-        util.settings.beginGroup("notification_system")
-        util.settings.setValue('enabled', self.enabled)
-        util.settings.setValue('popup_lifetime', self.popup_lifetime)
-        util.settings.endGroup()
-        util.settings.sync()
+        Settings.set('notifications/enabled', self.enabled)
+        Settings.set('notifications/popup_lifetime', self.popup_lifetime)
 
         self.client.actionNsEnabled.setChecked(self.enabled)
 
