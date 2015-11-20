@@ -1,5 +1,6 @@
 from functools import partial
 
+from PyQt4.QtCore import QUrl
 from PyQt4.QtGui import QLabel, QStyle
 
 import config
@@ -736,9 +737,9 @@ class ClientWindow(FormClass, BaseClass):
             QtGui.QApplication.quit()
 
 
-    @QtCore.pyqtSlot()
+    @QtCore.pyqtSlot(str)
     def open_url(self, url):
-        QtGui.QDesktopServices.openUrl(url)
+        QtGui.QDesktopServices.openUrl(QUrl(url))
 
     @QtCore.pyqtSlot()
     def linkShowLogs(self):
