@@ -38,7 +38,8 @@ class CrashDialog(QtGui.QDialog):
                                                 config.VERSION)
         self.bugreport = BugReport(self.title,
                                    target=self.bugreport_target,
-                                   traceback=self.trace)
+                                   traceback=self.trace,
+                                   automatic=automatic)
 
         dialog.setWindowTitle(self.title)
 
