@@ -658,6 +658,7 @@ class ClientWindow(FormClass, BaseClass):
 
         # Toggle-Options
         self.actionSetAutoLogin.triggered.connect(self.updateOptions)
+        self.actionSetAutoLogin.setChecked(self.remember)
         self.actionSetSoundEffects.triggered.connect(self.updateOptions)
         self.actionSetOpenGames.triggered.connect(self.updateOptions)
         self.actionSetJoinsParts.triggered.connect(self.updateOptions)
@@ -686,6 +687,7 @@ class ClientWindow(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def updateOptions(self):
+        self.remember = self.actionSetAutoLogin.isChecked()
         self.soundeffects = self.actionSetSoundEffects.isChecked()
         self.opengames = self.actionSetOpenGames.isChecked()
         self.joinsparts = self.actionSetJoinsParts.isChecked()
