@@ -39,7 +39,6 @@ deploy:
     prerelease: true
     on:
       branch: develop
-      appveyor_repo_tag: true
 
   - provider: GitHub
     release: $(appveyor_build_version)
