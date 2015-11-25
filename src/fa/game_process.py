@@ -1,8 +1,6 @@
-
 import os
 
 from PyQt4 import QtCore, QtGui
-from .init_file import InitFile
 import config
 
 import logging
@@ -11,39 +9,28 @@ logger = logging.getLogger(__name__)
 __author__ = 'Thygrrr'
 
 
-class Process(QtCore.QProcess):
+class GameArguments:
+    pass
+
+
+class GameProcess(QtCore.QProcess):
     def __init__(self, *args, **kwargs):
         QtCore.QProcess.__init__(self, *args, **kwargs)
-        self.info = None
-
-    @QtCore.pyqtSlot(list)
-    def processGameInfo(self, message):
-        """
-        Processes game info events, sifting out the ones relevant to the game that's currently playing.
-        If such a game is found, it will merge all its data on the first try, "completing" the game info.
-        """
-        if self.info and not self.info.setdefault('complete', False):
-            if self.info['uid'] == message['uid']:
-                if message['state'] == "playing":
-                    self.info = dict(self.info.items() + message.items())   # don't we all love python?
-                    self.info['complete'] = True
-                    logger.warn("Deprecated game info message: " + str(self.info))
 
     def run(self, info, arguments, detach=False, init_file=None):
             """
             Performs the actual running of ForgedAlliance.exe
             in an attached process.
             """
-            #prepare actual command for launching
-            executable = os.path.join(config.Settings.get('game/bin/path'), "ForgedAlliance.exe")
+            executable = os.path.join(config.Settings.get('game/bin/path'),
+                                      "ForgedAlliance.exe")
             command = '"' + executable + '" ' + " ".join(arguments)
 
             logger.info("Running FA with info: " + str(info))
             logger.info("Running FA via command: " + command)
-            #launch the game as a stand alone process
+
+            # Launch the game as a stand alone process
             if not instance.running():
-                #CAVEAT: This is correct now (and was wrong in 0.4.x)! All processes are start()ed asynchronously, startDetached() would simply detach it from our QProcess object, preventing signals/slot from being emitted.
-                self.info = info
 
                 self.setWorkingDirectory(os.path.dirname(executable))
                 if not detach:
@@ -89,5 +76,5 @@ class Process(QtCore.QProcess):
 
             self.close()
 
-instance = Process()
+instance = GameProcess()
 

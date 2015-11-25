@@ -12,6 +12,7 @@ else:
 defaults = production_defaults.copy()
 
 defaults['client/log/level'] = logging.INFO
+defaults['turn/host'] = 'dev.faforever.com'
 defaults['lobby/host'] = 'lobby.dev.faforever.com'
 defaults['proxy/host'] = 'proxy.dev.faforever.com'
 defaults['replay_server/host'] = 'lobby.dev.faforever.com'

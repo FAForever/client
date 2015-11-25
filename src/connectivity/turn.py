@@ -1,4 +1,5 @@
 import logging
+from abc import ABCMeta, abstractmethod
 from binascii import hexlify
 
 import struct
@@ -16,41 +17,57 @@ class TURNState(Enum):
 
 class TURNSession:
     """
-    TURN session abstraction.
+    Abstract TURN session abstraction.
 
     Handles details of the TURN protocol.
-
-    Currently event abstractions are implemented with three ugly callbacks:
-      - send (Send raw bytes to the turn server)
-      - recv (We received non-turn data on channel/address)
-      - call_in (Schedule function to be called in x ms)
-
-    This is done to keep the TURN specific code Qt-free.
-
-    Of course; once we've got python3.5 and pyqt5/quamash on the client,
-    these abstractions can be made much nicer.
-
-    Until then.
     """
-    def __init__(self, send, recv, call_in):
+    __metaclass__ = ABCMeta
+
+    def __init__(self):
         self._pending_tx = {}
         self.logger = logging.getLogger(__name__)
         self.bindings = {}
         self.permissions = {}
         self._pending_bindings = []
-        self.state = TURNState.INITIALIZING
+        self._state = TURNState.INITIALIZING
         self.mapped_addr = (None, None)
         self.relayed_addr = (None, None)
         self.lifetime = 0
-        self.write = send
-        self.call_in = call_in
-        self.recv = recv
+
+    @abstractmethod
+    def _write(self, bytes):
+        pass
+
+    @abstractmethod
+    def _call_in(self, timeout, func):
+        pass
+
+    @abstractmethod
+    def _recv(self, channel, data):
+        pass
+
+    @abstractmethod
+    def _recvfrom(self, sender, data):
+        pass
+
+    @abstractmethod
+    def state_changed(self, new_state):
+        pass
+
+    @property
+    def state(self):
+        return self._state
+
+    @state.setter
+    def state(self, val):
+        self._state = val
+        self.state_changed(val)
 
     def start(self):
         self.logger.info("Requesting relay allocation")
-        self.send(STUNMessage('Allocate',
-                              [('REQUESTED-TRANSPORT', 17)]))
-        self.call_in(self._retransmit, 15)
+        self._send(STUNMessage('Allocate',
+                               [('REQUESTED-TRANSPORT', 17)]))
+        self._call_in(self._retransmit, 15)
 
     def stop(self):
         self.state = TURNState.STOPPED
@@ -62,30 +79,30 @@ class TURNSession:
         msg = STUNMessage('ChannelBind',
                           [('CHANNEL-NUMBER', channel),
                            ('XOR-PEER-ADDRESS', addr)])
-        self.send(msg)
+        self._send(msg)
         self._pending_bindings.append((msg.transaction_id, addr, channel_id))
 
     def permit(self, addr):
         self.logger.info("Permitting sends from {}".format(addr))
         msg = STUNMessage('CreatePermission',
                           [('XOR-PEER-ADDRESS', addr)])
-        self.send(msg)
+        self._send(msg)
 
-    def send(self, stun_msg):
+    def _send(self, stun_msg):
         self._pending_tx[stun_msg.transaction_id] = stun_msg
-        self.write(stun_msg.to_bytes())
+        self._write(stun_msg.to_bytes())
 
     _channeldata_format = struct.Struct('!HH')
     def send_to(self, addr, data):
         if isinstance(addr, int):
             msg = struct.pack('!HH', addr, len(data))
-            self.write(msg + data)
+            self._write(msg + data)
         elif addr in self.bindings:
             header = TURNSession._channeldata_format.pack(self.bindings[addr], len(data))
-            self.write(header+data)
+            self._write(header + data)
         else:
-            self.write(STUNMessage('Send',
-                              [('XOR-PEER-ADDRESS', addr),
+            self._write(STUNMessage('Send',
+                                    [('XOR-PEER-ADDRESS', addr),
                                ('DATA', data)]).to_bytes())
 
 
@@ -93,8 +110,8 @@ class TURNSession:
         if not self.state == TURNState.STOPPED:
             for tx, msg in self._pending_tx.items():
                 self.logger.debug("Retransmitting {}".format(tx))
-                self.write(msg)
-            self.call_in(self._retransmit, 1)
+                self._write(msg)
+            self._call_in(self._retransmit, 1)
 
     def handle_response(self, stun_msg):
         """
@@ -111,9 +128,9 @@ class TURNSession:
             self.logger.debug("<<({}:{}): {}".format(sender_addr, sender_port, data))
             if not (sender_addr, sender_port) in self.permissions.keys():
                 self.bind(1, (sender_addr, sender_port))
-            self.recv((sender_addr, sender_port), data)
+            self._recvfrom((sender_addr, sender_port), data)
         if stun_msg.method_str == 'ChannelData':
-            self.recv(attr['CHANNEL-NUMBER'], attr['DATA'])
+            self._recv(attr['CHANNEL-NUMBER'], attr['DATA'])
         elif stun_msg.method_str == 'AllocateSuccess':
             self.logger.info("Relay allocated: {}".format(attr.get('XOR-RELAYED-ADDRESS')))
             self.handle_allocate_success(stun_msg)
@@ -146,10 +163,10 @@ class TURNSession:
         self.permit(('37.58.123.3', 6112))
 
     def schedule_refresh(self):
-        self.call_in(self.refresh, 30)
+        self._call_in(self.refresh, 30)
 
     def refresh(self):
-        self.write(STUNMessage('Refresh').to_bytes())
+        self._write(STUNMessage('Refresh').to_bytes())
 
     def __str__(self):
         return "TURNSession({}, {}, {}, {})".format(self.state, self.mapped_addr, self.relayed_addr, self.lifetime)

@@ -180,11 +180,12 @@ class ClientWindow(FormClass, BaseClass):
         self.resizeTimer.timeout.connect(self.resized)
         self.preferedSize = 0
 
+        self._receivers = {}
+
         #Process used to run Forged Alliance (managed in module fa)
         fa.instance.started.connect(self.startedFA)
         fa.instance.finished.connect(self.finishedFA)
         fa.instance.error.connect(self.errorFA)
-        self.gameInfo.connect(fa.instance.processGameInfo)
 
         #Local Replay Server (and relay)
         self.replayServer = fa.replayserver.ReplayServer(self)
@@ -1111,6 +1112,12 @@ class ClientWindow(FormClass, BaseClass):
             logger.info("Outgoing JSON Message: " + data)
 
         self.writeToServer(data)
+
+    def subscribe_to(self, target, receiver):
+        self._receivers[target] = receiver
+
+    def unsubscribe(self, target, receiver):
+        del self._receivers[target]
 
     def dispatch(self, message):
         if "command" in message:

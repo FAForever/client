@@ -13,22 +13,22 @@ FAF_SERVER_PORT = Settings.get('relay_server/port')
 
 class Packet():
     def __init__(self, header=None , data=None, *values, **kwvalues):
-        
-        self._data = data  
+
+        self._data = data
         self._values = kwvalues
         self._header = header
-    
+
     def Pack(self):
 
         data = ""
-        
+
         headerSize = len(str(self._header))
         headerField = str(self._header).replace("\t","/t").replace("\n","/n")
         chunkSize = len(self._data)
         headerPackStr = "<i" + str(headerSize) + "si"
         data += struct.pack(headerPackStr, headerSize, headerField, chunkSize)
 
-        for field in self._data :      
+        for field in self._data :
             fieldType = 0 if type(field) is int else 1
 
             chunkPackStr = ""
@@ -44,7 +44,7 @@ class Packet():
             data += struct.pack(chunkPackStr, *fields)
 
         return data
-    
+
     def PackUdp(self):
 
         data = ""
@@ -66,7 +66,7 @@ class Packet():
                         fieldSize = len(field) + len(prefix)
                     else :
                         fieldSize = len(field)
-                        
+
                     chunkPackStr += "<bi" + str(fieldSize) + "s"
                     fieldStr = str(field).replace("\t","/t").replace("\n","/n")
                     if i == 1 :
@@ -81,9 +81,9 @@ class Packet():
         return data
 
 
-class Relayer(QtCore.QObject): 
+class Relayer(QtCore.QObject):
     '''
-    This is a simple class that takes all the FA data input from its inputSocket 
+    This is a simple class that takes all the FA data input from its inputSocket
     and relays it to an internet server via its relaySocket.
     '''
     __logger = logging.getLogger(__name__)
@@ -115,11 +115,11 @@ class Relayer(QtCore.QObject):
         #self.inputSocket.setSocketOption(QtNetwork.QTcpSocket.KeepAliveOption, 1)
         self.inputSocket.readyRead.connect(self.readData)
         self.inputSocket.disconnected.connect(self.inputDisconnected)
-        self.__logger.info("FA connected locally.")  
-        
+        self.__logger.info("FA connected locally.")
+
 
         # Open the relay socket to our server
-        self.relaySocket = QtNetwork.QTcpSocket(self.parent)        
+        self.relaySocket = QtNetwork.QTcpSocket(self.parent)
         self.relaySocket.setSocketOption(QtNetwork.QTcpSocket.KeepAliveOption, 1)
         self.relaySocket.connectToHost(FAF_SERVER_HOST, FAF_SERVER_PORT)
         self.relaySocket.connected.connect(self.on_connected)
@@ -141,17 +141,17 @@ class Relayer(QtCore.QObject):
         #Find out whether this really does what it should (according to docs, sockets should be manually deleted to conserver resources)
         self.inputSocket.deleteLater()
         self.relaySocket.deleteLater()
-        self.__logger.debug("destructor called")        
-           
+        self.__logger.debug("destructor called")
+
     def readDataFromServer(self):
-        ins = QtCore.QDataStream(self.relaySocket)        
+        ins = QtCore.QDataStream(self.relaySocket)
         ins.setVersion(QtCore.QDataStream.Qt_4_2)
-        
+
         while ins.atEnd() == False :
             if self.blockSizeFromServer == 0:
                 if self.relaySocket.bytesAvailable() < 4:
                     return
-                self.blockSizeFromServer = ins.readUInt32()            
+                self.blockSizeFromServer = ins.readUInt32()
             if self.relaySocket.bytesAvailable() < self.blockSizeFromServer:
                 return
 
@@ -166,77 +166,77 @@ class Relayer(QtCore.QObject):
         if self.inputSocket.bytesAvailable() == 0 :
             self.__logger.info("data reception read done - too or not enough data")
             return
-        
+
         ins = QtCore.QDataStream(self.inputSocket)
-        ins.setByteOrder(QtCore.QDataStream.LittleEndian)  
+        ins.setByteOrder(QtCore.QDataStream.LittleEndian)
 
         while ins.atEnd() == False :
             if self.inputSocket.isValid() :
                 if self.headerSizeRead == False :
                     if self.inputSocket.bytesAvailable() < 4:
                         return
-                
+
                     self.blockSize = ins.readUInt32()
                     self.headerSizeRead = True
-                    
+
                 if self.headerRead == False :
-                
+
                     if self.inputSocket.bytesAvailable() < self.blockSize :
                         return
-                
+
                     self.action = ins.readRawData(self.blockSize)
                     self.headerRead = True
-                    
+
                 if self.chunkSizeRead == False :
                     if self.inputSocket.bytesAvailable() < 4:
                         return
-                
+
                     self.chunkSize = ins.readInt32()
                     self.chunks = []
                     self.chunkSizeRead = True
-                
+
                 if self.chunkSize > 100 :
                     self.__logger.info("Big error reading FA data !")
                     self.inputSocket.readAll()
                     self.fieldSize = 0
                     self.blockSize = 0
-                    self.chunkSize = 0  
-                    self.noSocket = True                         
+                    self.chunkSize = 0
+                    self.noSocket = True
                     return
-                
+
                 for _ in range(len(self.chunks), self.chunkSize):
                     if self.fieldTypeRead == False :
                         if self.inputSocket.bytesAvailable() < 1 :
                             return
-                                
+
                         self.fieldType = ins.readBool()
                         self.fieldTypeRead = True
-                    
+
                     if not self.fieldType :
-                     
+
                         if self.inputSocket.bytesAvailable() < 4 :
                             return
                         number = ins.readInt32()
                         self.chunks.append(number)
-                        self.fieldTypeRead = False         
+                        self.fieldTypeRead = False
 
                     else :
-                        if self.fieldSizeRead == False :      
+                        if self.fieldSizeRead == False :
                             if self.inputSocket.bytesAvailable() < 4 :
-                                return  
-                              
+                                return
+
                             self.fieldSize =  ins.readInt32()
                             self.fieldSizeRead = True
-                
+
                         if self.inputSocket.bytesAvailable() < self.fieldSize :
                             return
 
                         datatring = ins.readRawData(self.fieldSize)
                         fixedStr = datatring.replace("/t","\t").replace("/n","\n")
-                        self.chunks.append(fixedStr)               
+                        self.chunks.append(fixedStr)
                         self.fieldTypeRead = False
-                        self.fieldSizeRead = False  
-      
+                        self.fieldSizeRead = False
+
                 if not self.testing:
                     self.handle_incoming_local(self.action, self.chunks)
                 else:
@@ -282,41 +282,41 @@ class Relayer(QtCore.QObject):
                         reply = Packet("ConnectToPeer", acts)
                         self.inputSocket.write(reply.Pack())
                 else:
-                    self.client.proxyServer.stopTesting()                    
+                    self.client.proxyServer.stopTesting()
 
-                            
+
     def sendToServer(self, action, chunks):
         data = json.dumps(dict(action=action, chunks=chunks))
         # Relay to faforever.com
         if self.relaySocket.isOpen():
             if action != "ping" and action != "pong" :
                 self.__logger.info("Command transmitted from FA to server : " + data)
-            
+
             block = QtCore.QByteArray()
             out = QtCore.QDataStream(block, QtCore.QIODevice.ReadWrite)
             out.setVersion(QtCore.QDataStream.Qt_4_2)
             out.writeUInt32(0)
             out.writeQString(data)
-            out.device().seek(0)        
+            out.device().seek(0)
             out.writeUInt32(block.size() - 4)
             self.bytesToSend = block.size() - 4
             self.relaySocket.writeData(block)
         else :
             self.__logger.warn("Error transmitting data to server : " + data)
 
-    def handleAction(self, commands):    
+    def handleAction(self, commands):
         key = commands["key"]
         acts = commands["commands"]
-        
+
         if key == "ping" :
             self.sendToServer("pong", [])
-            
+
         elif key == "SendNatPacket" :
             reply = Packet(key, acts)
             self.inputSocket.write(reply.PackUdp())
 
         elif key == "CreateLobby":
-            uid = int(acts[3])     
+            uid = int(acts[3])
             self.client.proxyServer.setUid(uid)
             self.__logger.info("Setting uid : " + str(uid))
 
@@ -325,23 +325,23 @@ class Relayer(QtCore.QObject):
                 login   = acts[2]
                 uid     = acts[3]
                 udpport = self.client.proxyServer.bindSocket(port, uid)
-                
+
                 newActs = [("127.0.0.1:%i" % udpport), login, uid]
-                
+
                 reply = Packet("ConnectToPeer", newActs)
                 self.inputSocket.write(reply.Pack())
-                
+
         elif key == "JoinProxy" :
             port = acts[0]
             login   = acts[2]
             uid     = acts[3]
             udpport = self.client.proxyServer.bindSocket(port, uid)
-            
+
             newActs = [("127.0.0.1:%i" % udpport), login, uid]
-            
+
             reply = Packet("JoinGame", newActs)
-            self.inputSocket.write(reply.Pack())                
-            
+            self.inputSocket.write(reply.Pack())
+
         else :
             reply = Packet(key, acts)
             self.inputSocket.write(reply.Pack())
@@ -360,8 +360,8 @@ class Relayer(QtCore.QObject):
         if self.pingTimer :
             self.pingTimer.stop()
         self.done()
-        
-        
+
+
 
 
 
@@ -398,7 +398,7 @@ class RelayServer(QtNetwork.QTcpServer):
         for relay in self.relayers:
             relay.testing = True
 
-        
+
     def doListen(self):
         while not self.isListening():
             self.listen(QtNetwork.QHostAddress.LocalHost, 0)
@@ -413,9 +413,9 @@ class RelayServer(QtNetwork.QTcpServer):
               
     def removeRelay(self, relay):
         self.relayers.remove(relay)
-            
-            
-    @QtCore.pyqtSlot()       
+
+
+    @QtCore.pyqtSlot()
     def acceptConnection(self):
         socket = self.nextPendingConnection()
         self.__logger.debug("incoming connection to relay server...")

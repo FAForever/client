@@ -1,4 +1,4 @@
-from .process import instance
+from .game_process import instance
 
 from config import Settings
 import util

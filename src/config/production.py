@@ -26,6 +26,8 @@ defaults = {
     'lobby/relay/port': 15000,
     'lobby/host': 'lobby.faforever.com',
     'lobby/port': 8001,
+    'turn/host': 'faforever.com',
+    'turn/port': 3478,
     'replay_server/host': 'lobby.faforever.com',
     'replay_server/port': 15000,
     'relay_server/host': 'lobby.faforever.com',
