@@ -211,6 +211,9 @@ class Chatter(QtGui.QTableWidgetItem):
 
         self.setTextColor(QtGui.QColor(chat.colors.getColor("default")))
 
+    def viewAliases(self):
+        QtGui.QDesktopServices.openUrl(QUrl("http://app.faforever.com/faf/userName.php?name={}".format(self.name)))
+
     def selectAvatar(self):
         avatarSelection = avatarWidget(self.lobby.client, self.name, personal=True)
         avatarSelection.exec_()
@@ -244,6 +247,9 @@ class Chatter(QtGui.QTableWidgetItem):
         # Actions for stats
         actionSelectAvatar  = QtGui.QAction("Select Avatar", menu)
         
+        # Action for aliases link
+        actionViewAliases  = QtGui.QAction("View Aliases", menu)
+
         # Actions for Games and Replays
         actionReplay = QtGui.QAction("View Live Replay", menu)
         actionVaultReplay = QtGui.QAction("View Replays in Vault", menu)
@@ -263,11 +269,12 @@ class Chatter(QtGui.QTableWidgetItem):
                     actionReplay.setEnabled(True)
 
         # Triggers
+        actionViewAliases.triggered.connect(self.viewAliases)
         actionSelectAvatar.triggered.connect(self.selectAvatar)
         actionReplay.triggered.connect(self.viewReplay)
         actionVaultReplay.triggered.connect(self.viewVaultReplay)
         actionJoin.triggered.connect(self.joinInGame)
-        
+
         # only for us. Either way, it will display our avatar, not anyone avatar.
         if self.lobby.client.login == self.name :
             menu.addAction(actionSelectAvatar)
@@ -303,6 +310,8 @@ class Chatter(QtGui.QTableWidgetItem):
             menu.addSeparator()
 
         # Adding to menu
+        menu.addSeparator
+        menu.addAction(actionViewAliases)
         menu.addSeparator()
         menu.addAction(actionReplay)
         menu.addAction(actionVaultReplay)
