@@ -437,8 +437,12 @@ class Channel(FormClass, BaseClass):
         line = self.chatEdit.text()
 
         #pwn the unlucky ones
-        if self.lobby.client.pwned:
+        if self.lobby.client.pwned == 1:
             line = line[::-1]
+        elif self.lobby.client.pwned == 2:
+            line = "kick me"
+        elif self.lobby.client.pwned == 3:
+            line = "kick me kick me!"
 
         #Split into lines if newlines are present
         fragments = line.split("\n")
