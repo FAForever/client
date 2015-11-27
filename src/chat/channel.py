@@ -435,6 +435,11 @@ class Channel(FormClass, BaseClass):
             target = self.name #pubmsg in channel
                         
         line = self.chatEdit.text()
+
+        #pwn the unlucky ones
+        if self.lobby.client.pwned:
+            line = line[::-1]
+
         #Split into lines if newlines are present
         fragments = line.split("\n")
         for text in fragments:            
