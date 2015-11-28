@@ -1115,11 +1115,18 @@ class ClientWindow(FormClass, BaseClass):
     def dispatch(self, message):
         if "command" in message:
             cmd = "handle_" + message['command']
-            if hasattr(self, cmd):
-                getattr(self, cmd)(message)
+            if "target" in message:
+                receiver = self._receivers.get(message['target'])
+                if hasattr(receiver, cmd):
+                    getattr(receiver, cmd)(message)
+                else:
+                    logger.warn("No receiver for message {}".format(message))
             else:
-                logger.error("Unknown JSON command: %s" % message['command'])
-                raise ValueError
+                if hasattr(self, cmd):
+                    getattr(self, cmd)(message)
+                else:
+                    logger.error("Unknown JSON command: %s" % message['command'])
+                    raise ValueError
         else:
             logger.debug("No command in message.")
 
