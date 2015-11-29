@@ -1,20 +1,17 @@
 # Bug Reporting
 import config
-from config import Settings
-from faf.api import BugReportSchema
-
-CRASH_REPORT_USER = "pre-login"
-
+import traceback
 import util
+from config import Settings
 
 from . import APPDATA_DIR, PERSONAL_DIR, VERSION_STRING, LOG_FILE_FAF, \
     readlines
 
 from PyQt4 import QtGui, QtCore
-import traceback
-import hashlib
-
+from faf.api import BugReportSchema
 from faf.domain.bugs import BugReport, BugReportTarget
+
+CRASH_REPORT_USER = "pre-login"
 
 
 class CrashDialog(QtGui.QDialog):
@@ -29,9 +26,12 @@ class CrashDialog(QtGui.QDialog):
         else:
             automatic = Settings.get('client/auto_bugreport', type=bool, default=True)
 
-        self.trace = u"".join(traceback.format_exception(exc_type, exc_value, traceback_object, 10))
+        self.trace = "".join(traceback.format_exception(exc_type, exc_value, traceback_object, 10))
 
-        self.title = u"Report from " + CRASH_REPORT_USER + u": " + str(exc_value)
+        if automatic:
+            self.title = "Bug report"
+        else:
+            self.title = "Report from " + CRASH_REPORT_USER + u": " + str(exc_value)
 
         self.bugreport_target = BugReportTarget('client',
                                                 'https://github.com/FAForever/client',
@@ -71,10 +71,10 @@ class CrashDialog(QtGui.QDialog):
             dialog.layout().addWidget(self.box)
             dialog.setLayout(QtGui.QVBoxLayout())
             label = QtGui.QLabel()
-            label.setText("An error has occurred in the FAF client. <br><br>You can report it by clicking the ticket button.")
+            label.setText(
+                    "An error has occurred in the FAF client. <br><br>You can report it by clicking the ticket button.")
             label.setWordWrap(True)
             dialog.layout().addWidget(label)
-
 
             label = QtGui.QLabel()
             label.setText("<b>This is what happened. If you have more to add please write in the field below.</b>")

@@ -252,24 +252,11 @@ class GamesWidget(FormClass, BaseClass):
         mods = [hostgamewidget.mods[modstr] for modstr in modnames]
         modvault.setActiveMods(mods, True) #should be removed later as it should be managed by the server.
 
-        if self.friends_only:
-            visibility = "friends"
-        else:
-            visibility = "public"
-
-        message = {
-            "command": "game_host",
-            "visibility": visibility,
-            "mod": item.mod,
-            "title": self.gamename,
-            "mapname": self.gamemap,
-            "gameport": self.client.gamePort
-        }
-
-        if self.ispassworded:
-            message.password = self.gamepassword
-
-        self.client.send(message)
+        self.client.host_game(title=self.gamename,
+                              mod=item.mod,
+                              visibility="friends" if self.friends_only else "public",
+                              mapname=self.gamemap,
+                              password=self.gamepassword if self.ispassworded else None)
 
     def load_last_hosted_settings(self):
         util.settings.beginGroup("fa.games")

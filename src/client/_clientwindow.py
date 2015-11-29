@@ -9,7 +9,10 @@ from client.player import Player
 from client.players import Players
 from client.updater import ClientUpdater
 import fa
+from connectivity.connectivity_test import ConnectivityTest
+from fa import GameSession
 from fa.factions import Factions
+from fa.game_session import GameSessionState
 from ui.status_logo import StatusLogo
 
 '''
@@ -186,6 +189,12 @@ class ClientWindow(FormClass, BaseClass):
         #Local Replay Server (and relay)
         self.replayServer = fa.replayserver.ReplayServer(self)
 
+        # GameSession
+        self.game_session = None  # type: GameSession
+
+        # ConnectivityTest
+        self.connectivity_test = None  # type: ConnectivityTest
+
         #Local Relay Server
         self.relayServer = fa.relayserver.RelayServer(self)
 
@@ -241,6 +250,7 @@ class ClientWindow(FormClass, BaseClass):
         self.logo.disconnect_requested.connect(self.disconnect)
         self.logo.reconnect_requested.connect(self.reconnect)
         self.logo.about_dialog_requested.connect(self.linkAbout)
+        self.logo.connectivity_dialog_requested.connect(self.connectivityDialog)
 
         self.menu = self.menuBar()
         self.topLayout.addWidget(self.logo)
@@ -746,6 +756,11 @@ class ClientWindow(FormClass, BaseClass):
         util.showInExplorer(util.LOG_DIR)
 
     @QtCore.pyqtSlot()
+    def connectivityDialog(self):
+        dialog = util.loadUi('connectivity/connectivity.ui')
+        dialog.exec_()
+
+    @QtCore.pyqtSlot()
     def linkAbout(self):
         dialog = util.loadUi("client/about.ui")
         dialog.version_label.setText("Version: {}".format(util.VERSION_STRING))
@@ -1127,8 +1142,7 @@ class ClientWindow(FormClass, BaseClass):
 
     def handle_invalid(self, message):
         self.state = ClientState.DISCONNECTED
-        logger.exception(message)
-        util.crash.CrashDialog(message)
+        raise Exception(message)
 
     def handle_stats(self, message):
         self.statsInfo.emit(message)
@@ -1167,6 +1181,15 @@ class ClientWindow(FormClass, BaseClass):
         self.state = ClientState.ONLINE
         self.authorized.emit(self.me)
 
+        # Run an initial connectivity test and initialize a gamesession object
+        # when done
+        self.connectivity_test = ConnectivityTest(self, self.gamePort)
+        self.connectivity_test.connectivityEstablished.connect(self.initialize_game_session)
+        self.connectivity_test.start()
+
+    def initialize_game_session(self):
+        self.game_session = GameSession(self)
+
     def handle_registration_response(self, message):
         if message["result"] == "SUCCESS":
             self.state = ClientState.CREATED
@@ -1175,19 +1198,31 @@ class ClientWindow(FormClass, BaseClass):
         self.state = ClientState.REJECTED
         self.handle_notice({"style": "notice", "text": message["error"]})
 
+    def host_game(self, title, mod, visibility, mapname, password):
+        assert self.game_session.state == GameSessionState.OFF
+        def _send_hostgame_message():
+            self.send({
+                'command': 'game_host',
+                'title': title,
+                'mod': mod,
+                'visibility': visibility,
+                'mapname': mapname,
+                'password': password
+            })
+
+
     def handle_game_launch(self, message):
+        if not self.game_session:
+            logger.error("Not ready for game launch")
 
         logger.info("Handling game_launch via JSON " + str(message))
-        silent = False
-        if 'args' in message:
-            arguments = message['args']
-        else:
-            arguments = []
 
+        silent = False
         # Do some special things depending of the reason of the game launch.
         rank = False
 
         # HACK: Ideally, this comes from the server, too. LATER: search_ranked message
+        arguments = []
         if message["mod"] == "ladder1v1":
             arguments.append('/' + Factions.to_name(self.games.race))
             #Player 1v1 rating
