@@ -303,6 +303,9 @@ class ClientWindow(FormClass, BaseClass):
         #for moderator
         self.modMenu = None
 
+        #for the unlucky
+        self.pwned = 0
+
     @property
     def state(self):
         return self._state
@@ -1352,3 +1355,6 @@ class ClientWindow(FormClass, BaseClass):
 
         if message["style"] == "kick":
             logger.info("Server has kicked you from the Lobby.")
+
+    def handle_pwning(self, message):
+        self.pwned = message["pwned"]
