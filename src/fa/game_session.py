@@ -24,12 +24,15 @@ class GameSessionState(IntEnum):
 
 
 class GameSession(QObject):
-    def __init__(self, client):
+    def __init__(self, client, connectivity):
         QObject.__init__(self)
         self._state = GameSessionState.OFF
 
         # Subscribe to messages targeted at 'game' from the server
         client.subscribe_to('game', self)
+
+        self.connectivity = connectivity
+
         # Keep a parent pointer so we can use it to send
         # relay messages about the game state
         self._client = client

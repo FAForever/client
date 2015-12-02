@@ -4,12 +4,13 @@ from PyQt4.QtCore import QUrl
 from PyQt4.QtGui import QLabel, QStyle
 
 import config
+import connectivity
 from config import Settings
 from client.player import Player
 from client.players import Players
 from client.updater import ClientUpdater
 import fa
-from connectivity.connectivity_test import ConnectivityTest
+from connectivity.helper import ConnectivityHelper
 from fa import GameSession
 from fa.factions import Factions
 from fa.game_session import GameSessionState
@@ -194,7 +195,7 @@ class ClientWindow(FormClass, BaseClass):
         self.game_session = None  # type: GameSession
 
         # ConnectivityTest
-        self.connectivity_test = None  # type: ConnectivityTest
+        self.connectivity = None  # type: ConnectivityHelper
 
         #Local Relay Server
         self.relayServer = fa.relayserver.RelayServer(self)
@@ -758,7 +759,7 @@ class ClientWindow(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def connectivityDialog(self):
-        dialog = util.loadUi('connectivity/connectivity.ui')
+        dialog = connectivity.ConnectivityDialog(self.connectivity)
         dialog.exec_()
 
     @QtCore.pyqtSlot()
@@ -1197,12 +1198,12 @@ class ClientWindow(FormClass, BaseClass):
 
         # Run an initial connectivity test and initialize a gamesession object
         # when done
-        self.connectivity_test = ConnectivityTest(self, self.gamePort)
-        self.connectivity_test.connectivityEstablished.connect(self.initialize_game_session)
-        self.connectivity_test.start()
+        self.connectivity = ConnectivityHelper(self, self.gamePort)
+        self.connectivity.connectivity_status_established.connect(self.initialize_game_session)
+        self.connectivity.start_test()
 
     def initialize_game_session(self):
-        self.game_session = GameSession(self)
+        self.game_session = GameSession(self, self.connectivity)
 
     def handle_registration_response(self, message):
         if message["result"] == "SUCCESS":

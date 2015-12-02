@@ -1,6 +1,5 @@
 import logging
 from abc import ABCMeta, abstractmethod
-from binascii import hexlify
 
 import struct
 from enum import Enum
@@ -93,7 +92,7 @@ class TURNSession:
         self._write(stun_msg.to_bytes())
 
     _channeldata_format = struct.Struct('!HH')
-    def send_to(self, addr, data):
+    def send_to(self, data, addr):
         if isinstance(addr, int):
             msg = struct.pack('!HH', addr, len(data))
             self._write(msg + data)
@@ -110,7 +109,8 @@ class TURNSession:
         if not self.state == TURNState.STOPPED:
             for tx, msg in self._pending_tx.items():
                 self.logger.debug("Retransmitting {}".format(tx))
-                self._write(msg)
+                # avoid retransmitting retransmissions
+                self._write(msg.to_bytes())
             self._call_in(self._retransmit, 1)
 
     def handle_response(self, stun_msg):
@@ -126,8 +126,6 @@ class TURNSession:
             self.logger.debug(stun_msg.attributes)
             data, (sender_addr, sender_port) = attr.get('DATA'), attr.get('XOR-PEER-ADDRESS')
             self.logger.debug("<<({}:{}): {}".format(sender_addr, sender_port, data))
-            if not (sender_addr, sender_port) in self.permissions.keys():
-                self.bind(1, (sender_addr, sender_port))
             self._recvfrom((sender_addr, sender_port), data)
         if stun_msg.method_str == 'ChannelData':
             self._recv(attr['CHANNEL-NUMBER'], attr['DATA'])
