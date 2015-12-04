@@ -59,8 +59,9 @@ class TURNSession:
 
     @state.setter
     def state(self, val):
-        self._state = val
-        self.state_changed(val)
+        if self._state != val:
+            self._state = val
+            self.state_changed(val)
 
     def start(self):
         self.logger.info("Requesting relay allocation")
