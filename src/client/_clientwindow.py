@@ -1216,17 +1216,14 @@ class ClientWindow(FormClass, BaseClass):
         self.handle_notice({"style": "notice", "text": message["error"]})
 
     def host_game(self, title, mod, visibility, mapname, password):
-        assert self.game_session.state == GameSessionState.OFF
-        def _send_hostgame_message():
-            self.send({
-                'command': 'game_host',
-                'title': title,
-                'mod': mod,
-                'visibility': visibility,
-                'mapname': mapname,
-                'password': password
-            })
-
+        self.send({
+            'command': 'game_host',
+            'title': title,
+            'mod': mod,
+            'visibility': visibility,
+            'mapname': mapname,
+            'password': password
+        })
 
     def handle_game_launch(self, message):
         if not self.game_session:
@@ -1281,7 +1278,8 @@ class ClientWindow(FormClass, BaseClass):
 
         info = dict(uid=message['uid'], recorder=self.login, featured_mod=message['mod'], game_time=time.time())
 
-        fa.run(info, self.relayServer.serverPort(), arguments)
+        self.game_session.handle_launch()
+        fa.run(info, self.game_session.relay_port, arguments)
 
     def handle_coop_info(self, message):
         self.coopInfo.emit(message)

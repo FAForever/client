@@ -50,7 +50,7 @@ class GPGNetConnection(QObject):
     def _packLuaVal(self, val):
         if isinstance(val, int):
             return pack("=bi", 0, val)
-        elif isinstance(val, str):
+        elif isinstance(val, unicode) or isinstance(val, str):
             return pack("=bi%ds" % len(val), 1, len(val), val.encode())
         else:
             raise Exception("Unknown GameConnection Field Type: %s" % type(val))
@@ -73,7 +73,7 @@ class GPGNetConnection(QObject):
             datastring = ds.readRawData(fieldSize).decode()
             fixedStr = datastring.replace("/t","\t").replace("/n","\n")
 
-            return fixedStr
+            return str(fixedStr)
         else:
             raise Exception("Unknown GameConnection Field Type: %d" % fieldType)
 

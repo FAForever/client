@@ -148,6 +148,10 @@ class ConnectivityHelper(QObject):
             'args': args or []
         })
 
+    def send_udp(self, bytes, addr):
+        host, port = addr
+        self._socket.writeDatagram(bytes, QHostAddress(host), int(port))
+
     def _socket_readyread(self):
         while self._socket.hasPendingDatagrams():
             data, host, port = self._socket.readDatagram(self._socket.pendingDatagramSize())
