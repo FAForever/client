@@ -80,8 +80,6 @@ def check(featured_mod, mapname=None, version=None, modVersions=None, sim_mods=N
     game_updater = fa.updater.Updater(featured_mod, version, modVersions, silent=silent)
     result = game_updater.run()
 
-    game_updater = None  #Our work here is done
-
     if result != fa.updater.Updater.RESULT_SUCCESS:
         return False
 
@@ -96,5 +94,5 @@ def check(featured_mod, mapname=None, version=None, modVersions=None, sim_mods=N
     if sim_mods:
         return checkMods(sim_mods)
 
-    return True  #FA is checked and ready
+    return True
 
