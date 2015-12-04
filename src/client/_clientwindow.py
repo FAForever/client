@@ -1127,6 +1127,8 @@ class ClientWindow(FormClass, BaseClass):
                 receiver = self._receivers.get(message['target'])
                 if hasattr(receiver, cmd):
                     getattr(receiver, cmd)(message)
+                elif hasattr(receiver, 'handle_message'):
+                    receiver.handle_message(message)
                 else:
                     logger.warn("No receiver for message {}".format(message))
             else:
