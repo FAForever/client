@@ -5,7 +5,7 @@ python:
   - "2.7_with_system_site_packages"
 
 install:
-  - "bash ./.travis.sh"
+  - "sudo apt-get update"
   - "sudo apt-get install python-qt4 liblua5.1"
   - "pip install cx_Freeze"
   - "pip install python-coveralls"
