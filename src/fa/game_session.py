@@ -1,9 +1,8 @@
-from functools import partial
-
 from PyQt4.QtCore import QObject
 from PyQt4.QtNetwork import QTcpServer, QHostAddress
 from enum import IntEnum
 
+from base import Client
 from connectivity import QTurnClient
 from connectivity.turn import TURNState
 from decorators import with_logger
@@ -23,6 +22,7 @@ class GameSessionState(IntEnum):
     # Game is running and we're relaying gpgnet commands
     RUNNING = 4
 
+
 @with_logger
 class GameSession(QObject):
     def __init__(self, client, connectivity):
@@ -37,7 +37,7 @@ class GameSession(QObject):
 
         # Keep a parent pointer so we can use it to send
         # relay messages about the game state
-        self._client = client
+        self._client = client  # type: Client
         self.me = client.me
 
         self.game_port = client.gamePort
@@ -85,6 +85,7 @@ class GameSession(QObject):
                 self.send('ConnectivityTest',
                           [self._turn_client.mapped_address,
                            self._turn_client.relay_address])
+
         self._turn_client.state_changed.connect(handle_state_changed)
 
     def listen(self):

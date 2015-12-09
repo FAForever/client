@@ -5,6 +5,7 @@ from PyQt4.QtGui import QLabel, QStyle
 
 import config
 import connectivity
+from base import Client
 from config import Settings
 from client.player import Player
 from client.players import Players
@@ -1389,3 +1390,5 @@ class ClientWindow(FormClass, BaseClass):
 
         if message["style"] == "kick":
             logger.info("Server has kicked you from the Lobby.")
+
+Client.register(ClientWindow)
