@@ -40,8 +40,8 @@ class ClientState(IntEnum):
     OUTDATED = 9000
     UPTODATE = 9001  # It's over nine thousaaand!
 
-from _clientwindow import ClientWindow as Client
+from _clientwindow import ClientWindow
 
-instance = Client()
+instance = ClientWindow()
 
 NetworkManager = QNetworkAccessManager(instance)
