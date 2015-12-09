@@ -220,9 +220,9 @@ class GamesWidget(FormClass, BaseClass):
             if item.password_protected:
                 passw, ok = QtGui.QInputDialog.getText(self.client, "Passworded game" , "Enter password :", QtGui.QLineEdit.Normal, "")
                 if ok:
-                    self.client.send(dict(command="game_join", password=passw, uid=item.uid, gameport=self.client.gamePort))
-            else :
-                self.client.send(dict(command="game_join", uid=item.uid, gameport=self.client.gamePort))
+                    self.client.join_game(uid=item.uid, password=passw)
+            else:
+                self.client.join_game(uid=item.uid)
 
     @QtCore.pyqtSlot(QtGui.QListWidgetItem)
     def hostGameClicked(self, item):

@@ -93,6 +93,7 @@ class ConnectivityHelper(QObject):
         self._socket.readyRead.connect(self._socket_readyread)
         self._turnclient = QTurnClient()
         self._turnclient.state_changed.connect(self.turn_state_changed)
+        self._turnclient.received_indication_data.connect(self._on_indication)
         self._client.subscribe_to('connectivity', self)
         self._socket.bind(self._port)
         self.relay_address, self.mapped_address = None, None
@@ -128,6 +129,7 @@ class ConnectivityHelper(QObject):
         if state == TURNState.BOUND:
             self.relay_address = self._turnclient.relay_address
             self.mapped_address = self._turnclient.relay_address
+            self.relay_bound.emit()
 
     def handle_SendNatPacket(self, msg):
         target, message = msg['args']
@@ -141,6 +143,11 @@ class ConnectivityHelper(QObject):
         self.connectivity_status_established.emit(self.state, self.addr)
         self._logger.info("Connectivity state is {}, mapped address: {}".format(state, addr))
 
+    def handle_message(self, msg):
+        command = msg.get('command')
+        if command == 'CreatePermission':
+            self._turnclient.permit(msg['args'])
+
     def send(self, command, args):
         self._client.send({
             'command': command,
@@ -148,9 +155,18 @@ class ConnectivityHelper(QObject):
             'args': args or []
         })
 
+    def prepare(self):
+        if self.state == 'STUN' and not self._turnclient.state == TURNState.BOUND:
+            self._turnclient.run()
+        else:
+            self.relay_bound.emit()
+
     def send_udp(self, bytes, addr):
         host, port = addr
         self._socket.writeDatagram(bytes, QHostAddress(host), int(port))
+
+    def _on_indication(self, addr, data):
+        message = data.decode()
 
     def _socket_readyread(self):
         while self._socket.hasPendingDatagrams():

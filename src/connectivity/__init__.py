@@ -17,7 +17,8 @@ class ConnectivityDialog(QObject):
         self.dialog.runTestButton.clicked.connect(self.run_relay_test)
 
     def update_relay_info(self):
-        self.dialog.relay_test_label.setText(self.connectivity.relay_address)
+        if self.connectivity.relay_address:
+            self.dialog.relay_test_label.setText("{}:{}".format(*self.connectivity.relay_address))
 
     def run_relay_test(self):
         self.dialog.runTestButton.setEnabled(False)

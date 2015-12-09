@@ -1205,14 +1205,37 @@ class ClientWindow(FormClass, BaseClass):
         self.handle_notice({"style": "notice", "text": message["error"]})
 
     def host_game(self, title, mod, visibility, mapname, password):
-        self.send({
-            'command': 'game_host',
-            'title': title,
-            'mod': mod,
-            'visibility': visibility,
-            'mapname': mapname,
-            'password': password
-        })
+        def request_launch():
+            msg = {
+                'command': 'game_host',
+                'title': title,
+                'mod': mod,
+                'visibility': visibility,
+                'mapname': mapname,
+                'password': password,
+            }
+            if self.connectivity.state == 'STUN':
+                msg['relay_address'] = self.connectivity.relay_address
+            self.send(msg)
+            self.game_session.ready.disconnect(request_launch)
+        self.game_session.ready.connect(request_launch)
+        self.game_session.listen()
+
+    def join_game(self, uid, password=None):
+        def request_launch():
+            msg = {
+                'command': 'game_join',
+                'uid': uid,
+                'gameport': self.gamePort
+            }
+            if password:
+                msg['password'] = password
+            if self.connectivity.state == "STUN":
+                msg['relay_address'] = self.connectivity.relay_address
+            self.send(msg)
+            self.game_session.ready.disconnect(request_launch)
+        self.game_session.ready.connect(request_launch)
+        self.game_session.listen()
 
     def handle_game_launch(self, message):
         if not self.game_session:
@@ -1267,7 +1290,6 @@ class ClientWindow(FormClass, BaseClass):
 
         info = dict(uid=message['uid'], recorder=self.login, featured_mod=message['mod'], game_time=time.time())
 
-        self.game_session.handle_launch()
         fa.run(info, self.game_session.relay_port, arguments)
 
     def handle_coop_info(self, message):

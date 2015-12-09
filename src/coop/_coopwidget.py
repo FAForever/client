@@ -285,9 +285,9 @@ class CoopWidget(FormClass, BaseClass):
         if item.access == "password" :
             passw, ok = QtGui.QInputDialog.getText(self.client, "Passworded game" , "Enter password :", QtGui.QLineEdit.Normal, "")
             if ok:
-                self.client.send(dict(command="game_join", password=passw, uid=item.uid, gameport=self.client.gamePort))
+                self.client.join_game(uid=item.uid, password=passw)
         else :
-            self.client.send(dict(command="game_join", uid=item.uid, gameport=self.client.gamePort))
+            self.client.join_game(uid=item.uid)
 
     # TODO: Avoid evil duplication from gameswidget.
     def load_last_hosted_settings(self):

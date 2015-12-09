@@ -1,4 +1,4 @@
-from PyQt4.QtCore import QObject
+from PyQt4.QtCore import QObject, pyqtSignal
 from PyQt4.QtNetwork import QTcpServer, QHostAddress
 from enum import IntEnum
 
@@ -25,6 +25,8 @@ class GameSessionState(IntEnum):
 
 @with_logger
 class GameSession(QObject):
+    ready = pyqtSignal()
+
     def __init__(self, client, connectivity):
         QObject.__init__(self)
         self._state = GameSessionState.OFF
@@ -34,6 +36,7 @@ class GameSession(QObject):
 
         # Connectivity helper
         self.connectivity = connectivity
+        self.connectivity.relay_bound.connect(self.ready.emit)
 
         # Keep a parent pointer so we can use it to send
         # relay messages about the game state
@@ -49,9 +52,6 @@ class GameSession(QObject):
         # 'GPGNet' TCP listener
         self._game_listener = QTcpServer(self)
         self._game_listener.newConnection.connect(self._new_game_connection)
-
-        # STUN/TURN client
-        self._turn_client = QTurnClient()
 
         # We only allow one game connection at a time
         self._game_connection = None
@@ -72,22 +72,6 @@ class GameSession(QObject):
     def state(self, val):
         self._state = val
 
-    def perform_connectivity_test(self):
-        """
-        Ask the server to perform a connectivity test
-        :return:
-        """
-        if not self.state == GameSessionState.LISTENING:
-            self.listen()
-
-        def handle_state_changed(state):
-            if state == TURNState.BOUND:
-                self.send('ConnectivityTest',
-                          [self._turn_client.mapped_address,
-                           self._turn_client.relay_address])
-
-        self._turn_client.state_changed.connect(handle_state_changed)
-
     def listen(self):
         """
         Start listening for remote commands
@@ -97,14 +81,11 @@ class GameSession(QObject):
         """
         assert self.state == GameSessionState.OFF
         self._game_listener.listen(QHostAddress.LocalHost)
-        if self.connectivity.state == 'STUN':
-            self._turn_client.run()
         self.state = GameSessionState.LISTENING
-
-    def handle_launch(self):
-        if not self.state == GameSessionState.LISTENING:
-            self.listen()
-        self.state = GameSessionState.LAUNCHED
+        if self.connectivity.state == 'STUN':
+            self.connectivity.prepare()
+        else:
+            self.ready.emit()
 
     def handle_message(self, message):
         command, args = message.get('command'), message.get('args', [])
@@ -112,6 +93,14 @@ class GameSession(QObject):
             addr_and_port, message = args
             host, port = addr_and_port.split(':')
             self.connectivity.send(message, (host, port))
+        elif command == 'CreatePermission':
+            addr_and_port = args[0]
+            host, port = addr_and_port.split(':')
+            self._turn_client.permit((host, port))
+        elif command == 'JoinGame':
+            addr, login, peer_id = args
+        elif command == 'ConnectToPeer':
+            addr, login, peer_id = args
         else:
             self._game_connection.send(command, *args)
 
@@ -136,15 +125,19 @@ class GameSession(QObject):
             if args[0] == 'Idle':
                 # autolobby, port, nickname, uid, hasSupcom
                 self._game_connection.send("CreateLobby",
-                                            self.init_mode,
-                                            self.game_port+1,
-                                            self.me.login,
-                                            self.me.id,
-                                            1)
+                                           self.init_mode,
+                                           self.game_port + 1,
+                                           self.me.login,
+                                           self.me.id,
+                                           1)
             elif args[0] == 'Lobby':
                 # TODO: Eagerly initialize the game by hosting/joining early
                 pass
         self.send(command, args)
+
+    def _turn_state_changed(self, val):
+        if val == TURNState.BOUND:
+            self.ready.emit()
 
     def _launched(self):
         self._logger.info("Game has started")
