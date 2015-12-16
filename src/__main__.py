@@ -37,12 +37,16 @@ def excepthook(exc_type, exc_value, traceback_object):
     """
     This exception hook will stop the app if an uncaught error occurred, regardless where in the QApplication.
     """
+    sys.excepthook = excepthook_original
+
     logger.error("Uncaught exception", exc_info=(exc_type, exc_value, traceback_object))
     dialog = util.CrashDialog((exc_type, exc_value, traceback_object))
     answer = dialog.exec_()
 
     if answer == QtGui.QDialog.Rejected:
         QtGui.QApplication.exit(1)
+
+    sys.excepthook = excepthook
 
 def runFAF():
     # Load theme from settings (one of the first things to be done)
