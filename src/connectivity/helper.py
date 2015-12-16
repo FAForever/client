@@ -178,11 +178,10 @@ class ConnectivityHelper(QObject):
 
     def _on_data(self, addr, data):
         host, port = addr
-        self._logger.info("Type of data: {}".format(type(data)))
         if not self._process_natpacket(data, addr):
             try:
                 relay = self._relays[(host, int(port))]
-                self._logger.info('{}<<{} len: {}'.format(relay.peer_id, addr, len(data)))
+                self._logger.debug('{}<<{} len: {}'.format(relay.peer_id, addr, len(data)))
                 relay.send(data)
             except KeyError:
                 self._logger.exception("No relay for data from {}:{}".format(host, port))
