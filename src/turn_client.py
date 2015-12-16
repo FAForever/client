@@ -1,7 +1,7 @@
 import signal
 from PyQt4.QtCore import QCoreApplication, QTimer
 
-from connectivity import QTurnClient
+from connectivity import QTurnSocket
 
 if __name__ == '__main__':
     import logging
@@ -15,6 +15,6 @@ if __name__ == '__main__':
     signal.signal(signal.SIGINT, sigint_handler)
     timer.start(500)
     timer.timeout.connect(lambda: None)
-    c = QTurnClient()
+    c = QTurnSocket()
     c.run()
     app.exec_()

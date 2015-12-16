@@ -1,12 +1,13 @@
 from __future__ import division
 
+from functools import partial
+
 from PyQt4.QtCore import QObject, pyqtSignal, QTimer, Qt
 from PyQt4.QtNetwork import QUdpSocket, QHostAddress
 import time
 
-from math import floor
-
-from connectivity import QTurnClient
+from connectivity import QTurnSocket
+from connectivity.relay import Relay
 from connectivity.turn import TURNState
 from decorators import with_logger
 
@@ -16,9 +17,8 @@ class RelayTest(QObject):
     finished = pyqtSignal()
     progress = pyqtSignal(str)
 
-    def __init__(self, turn_client, socket):
+    def __init__(self, socket):
         QObject.__init__(self)
-        self._turnclient = turn_client
         self._socket = socket
         self.start_time, self.end_time = None, None
         self.addr = None
@@ -31,8 +31,8 @@ class RelayTest(QObject):
     def start_relay_test(self, address):
         self.addr = address
         self._logger.info("Starting relay test")
-        self._turnclient.received_indication_data.connect(self.receive)
-        self._turnclient.permit(self.addr)
+        self._socket.data.connect(self.receive)
+        self._socket.permit(self.addr)
 
         self.start_time, self.end_time = time.time(), None
         host, port = self.addr
@@ -66,7 +66,7 @@ class RelayTest(QObject):
         self._sendtimer.stop()
         self._logger.info('Relay test finished')
         self.finished.emit()
-        self._turnclient.received_indication_data.disconnect(self.receive)
+        self.socket.data.disconnect(self.receive)
 
     def receive(self, sender, data):
         self.received.add(int(data.decode()))
@@ -78,7 +78,11 @@ class RelayTest(QObject):
 @with_logger
 class ConnectivityHelper(QObject):
     connectivity_status_established = pyqtSignal(str, str)
-    relay_bound = pyqtSignal()
+
+    # Emitted when a peer is bound to a local port
+    peer_bound = pyqtSignal(str, int, int)
+
+    ready = pyqtSignal()
 
     relay_test_finished = pyqtSignal()
     relay_test_progress = pyqtSignal(str)
@@ -89,15 +93,15 @@ class ConnectivityHelper(QObject):
         QObject.__init__(self)
         self._client = client
         self._port = port
-        self._socket = QUdpSocket()
-        self._socket.readyRead.connect(self._socket_readyread)
-        self._turnclient = QTurnClient()
-        self._turnclient.state_changed.connect(self.turn_state_changed)
-        self._turnclient.received_indication_data.connect(self._on_indication)
+        self.game_port = port+1
+
+        self._socket = QTurnSocket(port, self._on_data)
+        self._socket.state_changed.connect(self.turn_state_changed)
+
         self._client.subscribe_to('connectivity', self)
-        self._socket.bind(self._port)
         self.relay_address, self.mapped_address = None, None
         self._relay_test = None
+        self._relays = {}
         self.state = None
         self.addr = None
 
@@ -106,17 +110,17 @@ class ConnectivityHelper(QObject):
 
     def start_relay_test(self):
         if not self._relay_test:
-            self._relay_test = RelayTest(self._turnclient, self._socket)
+            self._relay_test = RelayTest(self._socket)
             self._relay_test.finished.connect(self.relay_test_finished.emit)
             self._relay_test.progress.connect(self.relay_test_progress.emit)
 
-        if not self._turnclient.state == TURNState.BOUND:
-            self._turnclient.run()
-            self._turnclient.bound.connect(self._relay_test.start_relay_test, Qt.UniqueConnection)
+        if not self._socket.turn_state == TURNState.BOUND:
+            self._socket.connect_to_relay()
+            self._socket.bound.connect(self._relay_test.start_relay_test, Qt.UniqueConnection)
 
             def _cleanup():
                 try:
-                    self._turnclient.bound.disconnect(self._relay_test.start_relay_test)
+                    self._socket.bound.disconnect(self._relay_test.start_relay_test)
                 except TypeError:
                     # For some reason pyqt raises _TypeError_ here
                     pass
@@ -127,9 +131,9 @@ class ConnectivityHelper(QObject):
 
     def turn_state_changed(self, state):
         if state == TURNState.BOUND:
-            self.relay_address = self._turnclient.relay_address
-            self.mapped_address = self._turnclient.relay_address
-            self.relay_bound.emit()
+            self.relay_address = self._socket.relay_address
+            self.mapped_address = self._socket.relay_address
+            self.ready.emit()
 
     def handle_SendNatPacket(self, msg):
         target, message = msg['args']
@@ -146,7 +150,14 @@ class ConnectivityHelper(QObject):
     def handle_message(self, msg):
         command = msg.get('command')
         if command == 'CreatePermission':
-            self._turnclient.permit(msg['args'])
+            self._socket.permit(msg['args'])
+
+    def bind(self, (host, port), login, peer_id):
+        host, port = host, int(port)
+        relay = Relay(self.game_port, login, peer_id, partial(self.send_udp, (host, port)))
+        relay.bound.connect(partial(self.peer_bound.emit, login, peer_id))
+        relay.listen()
+        self._relays[(host, port)] = relay
 
     def send(self, command, args):
         self._client.send({
@@ -156,20 +167,46 @@ class ConnectivityHelper(QObject):
         })
 
     def prepare(self):
-        if self.state == 'STUN' and not self._turnclient.state == TURNState.BOUND:
-            self._turnclient.run()
+        if self.state == 'STUN' and not self._socket.state == TURNState.BOUND:
+            self._socket.connect_to_relay()
         else:
-            self.relay_bound.emit()
+            self.ready.emit()
 
-    def send_udp(self, bytes, addr):
+    def send_udp(self, (host, port), data):
+        host, port = host, int(port)
+        self._socket.sendto(data, (host, port))
+
+    def _on_data(self, addr, data):
         host, port = addr
-        self._socket.writeDatagram(bytes, QHostAddress(host), int(port))
+        self._logger.info("Type of data: {}".format(type(data)))
+        if not self._process_natpacket(data, addr):
+            try:
+                relay = self._relays[(host, int(port))]
+                self._logger.info('{}<<{} len: {}'.format(relay.peer_id, addr, len(data)))
+                relay.send(data)
+            except KeyError:
+                self._logger.exception("No relay for data from {}:{}".format(host, port))
 
-    def _on_indication(self, addr, data):
-        message = data.decode()
+    def _process_natpacket(self, data, addr):
+        """
+        Process data from given address as a natpacket
 
-    def _socket_readyread(self):
-        while self._socket.hasPendingDatagrams():
-            data, host, port = self._socket.readDatagram(self._socket.pendingDatagramSize())
+        Returns true iff it was processed as such
+        :param data:
+        :param addr:
+        :return:
+        """
+        if data.startswith(b'\x08'):
+            host, port = addr
+            msg = data[1:].decode()
             self.send('ProcessNatPacket',
-                      ["{}:{}".format(host.toString(), port), data.encode()])
+                      ["{}:{}".format(host, port), msg])
+            if msg.startswith('Bind'):
+                peer_id = int(msg[4:])
+                if (host, port) not in self._socket.bindings:
+                    self._logger.info("Binding {} to {}".format((host, port), peer_id))
+                    self._socket.bind_address((host, port))
+                self._logger.info("Processed bind request")
+            else:
+                self._logger.info("Unknown natpacket")
+            return True

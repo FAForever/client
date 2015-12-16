@@ -3,8 +3,8 @@ from binascii import hexlify
 
 import config
 
-from PyQt4.QtCore import QObject, QTimer, pyqtSignal
-from PyQt4.QtNetwork import QUdpSocket
+from PyQt4.QtCore import QObject, QTimer, pyqtSignal, QByteArray
+from PyQt4.QtNetwork import QUdpSocket, QHostAddress, QHostInfo
 
 from connectivity.stun import STUNMessage
 from connectivity.turn import TURNSession, TURNState
@@ -14,7 +14,7 @@ from decorators import with_logger
 class QTurnSession(TURNSession):
     def __init__(self, turn_client):
         super(QTurnSession, self).__init__()
-        self.turn_client = turn_client  # type: QTurnClient
+        self.turn_client = turn_client  # type: QTurnSocket
 
     def _call_in(self, func, timeout):
         self.turn_client.call_in(func, timeout)
@@ -23,7 +23,10 @@ class QTurnSession(TURNSession):
         self.turn_client.recvfrom(sender, data)
 
     def state_changed(self, new_state):
-        self.turn_client.state = new_state
+        self.turn_client.turn_state = new_state
+
+    def channel_bound(self, address, channel):
+        self.turn_client.channel_bound(address, channel)
 
     def _write(self, bytes):
         self.turn_client.send(bytes)
@@ -33,16 +36,11 @@ class QTurnSession(TURNSession):
 
 
 @with_logger
-class QTurnClient(QObject):
+class QTurnSocket(QUdpSocket):
     """
-    Qt based TURN client
+    Qt based TURN client, abstracts a normal socket
+    and provides transparent TURN tunnelling functionality.
     """
-    # Emitted when we receive data on a given port
-    received_channel_data = pyqtSignal(int, bytes)
-
-    # Emitted when we receive indication data from a given address
-    received_indication_data = pyqtSignal(tuple, bytes)
-
     # Emitted when the TURN session changes state
     state_changed = pyqtSignal(TURNState)
 
@@ -58,38 +56,52 @@ class QTurnClient(QObject):
         return self._session.relayed_addr
 
     @property
-    def state(self):
+    def turn_state(self):
         return self._state
 
-    @state.setter
-    def state(self, val):
+    @turn_state.setter
+    def turn_state(self, val):
         self._state = val
         self._logger.info("TURN state changed: {}".format(val))
         self.state_changed.emit(val)
         if val == TURNState.BOUND:
             self.bound.emit(self.relay_address)
 
-    def __init__(self):
-        QObject.__init__(self)
+    def __init__(self, port, data_cb):
+        QUdpSocket.__init__(self)
+        self._session = None
         self._state = TURNState.UNBOUND
-        self._socket = QUdpSocket()
+        self.bindings = {}
+        self.port = port
+        self._data_cb = data_cb
+        self.turn_host, self.turn_port = config.Settings.get('turn/host', type=unicode, default='dev.faforever.com'), \
+                               config.Settings.get('turn/port', type=int, default=3478)
+        self._logger.info("Turn socket initialized: {}".format(self.turn_host))
+        self.turn_address = None
+        QHostInfo.lookupHost(self.turn_host, self._looked_up)
+        self.bind(port)
+        self.readyRead.connect(self._readyRead)
+        self.error.connect(self._error)
+
+    def _looked_up(self, info):
+        self.turn_address = info.addresses()[0]
+
+    def connect_to_relay(self):
         self._session = QTurnSession(self)
-
-        self._socket.connected.connect(self._session.start)
-        self._socket.readyRead.connect(self._socket_readyRead)
-        self._socket.error.connect(self._error)
-
-    def run(self):
-        host, port = config.Settings.get('turn/host', type=str, default='dev.faforever.com'),\
-                     config.Settings.get('turn/port', type=int, default=3478)
-        self._logger.info("Connecting to TURN relay {}:{}".format(host, port))
-        self._socket.connectToHost(host, port)
+        self._session.start()
 
     def stop(self):
-        self._socket.close()
+        self.close()
 
     def permit(self, addr):
         self._session.permit(addr)
+
+    def bind_address(self, addr):
+        self._session.bind(addr)
+
+    def channel_bound(self, (host, port), channel):
+        self._logger.info("Bound channel {} to {}".format(channel, (host, port)))
+        self.bindings[channel] = (host, int(port))
 
     def call_in(self, func, sec):
         timer = QTimer(self)
@@ -99,28 +111,43 @@ class QTurnClient(QObject):
         pass
 
     def recvfrom(self, sender, data):
-        self.received_indication_data.emit(sender, data)
+        self._data_cb(sender, data)
 
     def recv(self, channel, data):
-        self.received_data.emit(channel, data)
+        self._logger.debug("{}/TURNData<<: {}".format(channel, data))
+        try:
+            self._data_cb(self.bindings[channel], data)
+        except KeyError:
+            self._logger.exception("No binding for channel: {}. Known: {}".format(channel, self.bindings))
 
     def send(self, data):
         """
-        Write directly to the underlying socket
-
-        Overrides TURNSession._send
+        Write directly to the TURN relay
         :param data:
         :return:
         """
-        self._logger.debug("Sending {}".format(data))
-        self._socket.write(data)
+        self.writeDatagram(data, self.turn_address, self.turn_port)
 
     def sendto(self, data, address):
-        self._logger.debug("Sending {} to {}".format(data, address))
-        self._session.send_to(data, address)
+        if address in self.bindings.values():
+            self._logger.debug("Sending to {} through relay".format(address))
+            self._session.send_to(data, address)
+        else:
+            host, port = address
+            self._logger.debug("Sending to {} directly".format(address))
+            self.writeDatagram(data, QHostAddress(host), port)
 
-    def _socket_readyRead(self):
-        while self._socket.hasPendingDatagrams():
-            data, host, port = self._socket.readDatagram(self._socket.pendingDatagramSize())
+    def handle_data(self, (host, port), data):
+        self._logger.debug("{}:{}/UDP<<".format(host, port))
+        if self._session and self._session.is_stun_message(data):
+            self._logger.debug("Handling using turn session")
             response = STUNMessage.from_bytes(data)
             self._session.handle_response(response)
+        else:
+            self._logger.debug("Emitting data, len: {}".format(len(data)))
+            self._data_cb((host, port), data)
+
+    def _readyRead(self):
+        while self.hasPendingDatagrams():
+            data, host, port = self.readDatagram(self.pendingDatagramSize())
+            self.handle_data((host.toString(), int(port)), data)

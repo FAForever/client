@@ -189,7 +189,7 @@ class STUNMessage:
     @staticmethod
     def from_bytes(buffer):
         channel, len = struct.unpack('!HH', buffer[:4])
-        if 0x4000 < channel < 0x7FFF:
+        if 0x4000 <= channel <= 0x7FFF:
             return STUNMessage('ChannelData',
                                [('CHANNEL-NUMBER', channel),
                                 ('DATA', buffer[4:4+len])])
@@ -208,6 +208,6 @@ class STUNMessage:
         return self.header + self.body
 
     def __str__(self):
-        return "STUNMessage({}, {}, {})".format(STUN_METHOD_VALUES[self.method],
+        return "STUNMessage({}, {}, {})".format(STUN_METHOD_VALUES.get(self.method),
                                                 binascii.hexlify(self.transaction_id),
                                                 len(self.body))

@@ -3,7 +3,6 @@ from PyQt4.QtNetwork import QTcpServer, QHostAddress
 from enum import IntEnum
 
 from base import Client
-from connectivity import QTurnClient
 from connectivity.turn import TURNState
 from decorators import with_logger
 from fa.game_connection import GPGNetConnection
@@ -36,7 +35,8 @@ class GameSession(QObject):
 
         # Connectivity helper
         self.connectivity = connectivity
-        self.connectivity.relay_bound.connect(self.ready.emit)
+        self.connectivity.ready.connect(self.ready.emit)
+        self.connectivity.peer_bound.connect(self._peer_bound)
 
         # Keep a parent pointer so we can use it to send
         # relay messages about the game state
@@ -48,6 +48,7 @@ class GameSession(QObject):
 
         # Use the normal lobby by default
         self.init_mode = 0
+        self._joins, self._connects = [], []
 
         # 'GPGNet' TCP listener
         self._game_listener = QTcpServer(self)
@@ -96,11 +97,15 @@ class GameSession(QObject):
         elif command == 'CreatePermission':
             addr_and_port = args[0]
             host, port = addr_and_port.split(':')
-            self._turn_client.permit((host, port))
+            self.connectivity.permit((host, port))
         elif command == 'JoinGame':
             addr, login, peer_id = args
+            self._joins.append(peer_id)
+            self.connectivity.bind(addr, login, peer_id)
         elif command == 'ConnectToPeer':
             addr, login, peer_id = args
+            self._connects.append(peer_id)
+            self.connectivity.bind(addr, login, peer_id)
         else:
             self._game_connection.send(command, *args)
 
@@ -111,6 +116,15 @@ class GameSession(QObject):
             'target': 'game',
             'args': args or []
         })
+
+    def _peer_bound(self, login, peer_id, port):
+        self._logger.info("Bound peer {}/{} to {}".format(login, peer_id, port))
+        if peer_id in self._connects:
+            self._game_connection.send('ConnectToPeer', '127.0.0.1:{}'.format(port), login, peer_id)
+            self._connects.remove(peer_id)
+        elif peer_id in self._joins:
+            self._game_connection.send('JoinGame', '127.0.0.1:{}'.format(port), login, peer_id)
+            self._joins.remove(peer_id)
 
     def _new_game_connection(self):
         self._logger.info("Game connected through GPGNet")

@@ -1,16 +1,10 @@
 from PyQt4.QtCore import QObject, pyqtSignal, QDataStream
 from struct import pack, unpack
 
-import logging
-logger = logging.getLogger(__name__)
+from decorators import with_logger
 
 
-class UDPRelay(QObject):
-    """
-    Represents a local relay
-    """
-
-
+@with_logger
 class GPGNetConnection(QObject):
     """
     Represents a local 'GPGNet' connection from the game
@@ -21,19 +15,15 @@ class GPGNetConnection(QObject):
 
     def __init__(self, tcp_connection):
         super(GPGNetConnection, self).__init__()
-
         self._socket = tcp_connection
-
         self._socket.readyRead.connect(self._onReadyRead)
         self._socket.disconnected.connect(lambda: self.closed.emit())
-
         self.header = None
-
         self.nchunks = -1
         self.chunks = None
 
     def send(self, command, *args):
-        logger.debug("GC << : %s : %s", command, args)
+        self._logger.info("GC<<: {}:{}".format(command, args))
         ds = QDataStream(self._socket)
         ds.setByteOrder(QDataStream.LittleEndian)
 
@@ -110,7 +100,7 @@ class GPGNetConnection(QObject):
                     self.chunks.append(chunk)
 
                 # Packet pair reading done.
-                logger.debug("GC >> : %s : %s", self.header, self.chunks)
+                self._logger.info("GC >> : %s : %s", self.header, self.chunks)
                 self.messageReceived.emit(self.header, self.chunks)
                 self.header = None
                 self.nchunks = -1

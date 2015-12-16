@@ -4,7 +4,7 @@ from abc import ABCMeta, abstractmethod
 import struct
 from enum import Enum
 
-from connectivity.stun import STUNMessage
+from connectivity.stun import STUNMessage, STUN_MAGIC_COOKIE
 
 
 class TURNState(Enum):
@@ -26,6 +26,7 @@ class TURNSession:
         self._pending_tx = {}
         self.logger = logging.getLogger(__name__)
         self.bindings = {}
+        self._next_channel = 0x4000
         self.permissions = {}
         self._pending_bindings = []
         self._state = TURNState.INITIALIZING
@@ -50,6 +51,10 @@ class TURNSession:
         pass
 
     @abstractmethod
+    def channel_bound(self, address, channel):
+        pass
+
+    @abstractmethod
     def state_changed(self, new_state):
         pass
 
@@ -65,6 +70,9 @@ class TURNSession:
 
     def start(self):
         self.logger.info("Requesting relay allocation")
+        # Remove any previous allocation we may have
+        self._send(STUNMessage('Refresh',
+                               [('LIFETIME', 0)]))
         self._send(STUNMessage('Allocate',
                                [('REQUESTED-TRANSPORT', 17)]))
         self._call_in(self._retransmit, 15)
@@ -72,15 +80,30 @@ class TURNSession:
     def stop(self):
         self.state = TURNState.STOPPED
 
-    def bind(self, channel_id, addr):
+    def is_stun_message(self, data):
+        try:
+            channel, len = struct.unpack('!HH', data[:4])
+            if 0x4000 <= channel <= 0x7FFF:
+                return True
+            else:
+                method, length, magic, tx_id = STUNMessage.parse_header(data[:20])
+                return magic == STUN_MAGIC_COOKIE
+        except:
+            return False
+
+
+    def bind(self, addr):
+        if addr in self.bindings or addr in [addr for (_, addr, _)
+                                             in self._pending_bindings]:
+            return
         self.permit(addr)
-        self.logger.info("Requesting channel bind for {}:{}".format(channel_id, addr))
-        channel = 0x4000+channel_id
+        self.logger.info("Requesting channel bind for {}:{}".format(self._next_channel, addr))
         msg = STUNMessage('ChannelBind',
-                          [('CHANNEL-NUMBER', channel),
+                          [('CHANNEL-NUMBER', self._next_channel),
                            ('XOR-PEER-ADDRESS', addr)])
         self._send(msg)
-        self._pending_bindings.append((msg.transaction_id, addr, channel_id))
+        self._pending_bindings.append((msg.transaction_id, addr, self._next_channel))
+        self._next_channel += 1
 
     def permit(self, addr):
         self.logger.info("Permitting sends from {}".format(addr))
@@ -104,7 +127,6 @@ class TURNSession:
             self._write(STUNMessage('Send',
                                     [('XOR-PEER-ADDRESS', addr),
                                ('DATA', data)]).to_bytes())
-
 
     def _retransmit(self):
         if not self.state == TURNState.STOPPED:
@@ -137,8 +159,8 @@ class TURNSession:
             for txid, (addr, port), channel_id in self._pending_bindings:
                 if txid == stun_msg.transaction_id:
                     self.logger.info("Successfully bound {}:{} to {}".format(addr, port, channel_id))
-                    self.bindings[addr] = channel_id
-                    print(self.bindings)
+                    self.bindings[(addr, port)] = channel_id
+                    self.channel_bound((addr, port), channel_id)
                     self._pending_bindings.remove((txid, (addr,port), channel_id))
         elif stun_msg.method_str == 'CreatePermissionSuccess':
             pass
