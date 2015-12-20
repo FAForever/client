@@ -83,8 +83,6 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self.poll)
 
-        self.autoJoin(Settings.get("chat/autojoin_channels", [], type=str))
-        
         # disconnection checks
         self.canDisconnect = False
 
@@ -111,14 +109,9 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         logger.info("Setting Autojoin Settings for channel %s to %s" %(channel, "True" if checked else "False"))
         currentSettings = Settings.get("chat/autojoin_channels", [], type=str)
         if checked:
-            logger.info("%s  checked" %channel)
-            if channel in currentSettings:
-                logger.error("Channel %s is already set in the Settings" %channel)
-            else:
-                currentSettings.append(channel)
-                Settings.set("chat/autojoin_channels",currentSettings, persist=True)
+            currentSettings.append(channel)
+            Settings.set("chat/autojoin_channels",currentSettings, persist=True)
         else:
-            logger.info("%s unchecked" %channel)
             currentSettings.remove(channel)
             Settings.set("chat/autojoin_channels",currentSettings, persist=True)
         
@@ -279,6 +272,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         #Perform any pending autojoins (client may have emitted autoJoin signals before we talked to the IRC server)
         self.autoJoin(self.optionalChannels)
         self.autoJoin(self.crucialChannels)
+        self.autoJoin(Settings.get("chat/autojoin_channels", [], type=str))
 
     def nickservRegister(self):
         self.connection.privmsg('NickServ', 'register %s %s' % (util.md5text(self.client.password), self.client.email))
@@ -331,6 +325,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             if channel.lower() in self.crucialChannels: #Make the crucial channels not closeable, and make the last one the active one
                 self.setCurrentWidget(self.channels[channel])
                 self.tabBar().setTabButton(self.currentIndex(), QtGui.QTabBar.RightSide, None)
+            # only update the options when we join a channel
+            self.updateAutoJoinMenu()
 
         name, id, elevation, hostname = parse_irc_source(e.source())
         self.channels[channel].addChatter(name, id, elevation, hostname, True)
@@ -340,7 +336,6 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             self.client.notificationSystem.on_event(ns.Notifications.USER_ONLINE,
                                                     {'user': name, 'channel': channel})
         self.channels[channel].resizing()
-        self.updateAutoJoinMenu()
 
     def on_part(self, c, e):
         channel = e.target()
