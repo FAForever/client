@@ -83,8 +83,46 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self.poll)
 
+        self.autoJoin(Settings.get("chat/autojoin_channels", [], type=str))
+        
         # disconnection checks
         self.canDisconnect = False
+
+
+    def updateAutoJoinMenu(self):
+        self.client.menuAutojoin.clear()
+        
+        autojoin_channels = Settings.get("chat/autojoin_channels", [], type=str)
+        logger.info("autojoin  loaded as    %s" %("string" if isinstance(autojoin_channels, str) else ("list" if isinstance(autojoin_channels, list) else type(autojoin_channels)) ))
+        logger.info(autojoin_channels)
+        
+        for channel in self.channels:
+            if not self.channels[channel].private and not channel == "#aeolus":    
+                action = self.client.menuAutojoin.addAction(channel)
+                action.setCheckable(True)
+                # We set the state of the items before assigning an function to them, since
+                # otherwise the function would get called to early
+                if channel in autojoin_channels:
+                    action.setChecked(True)
+                action.toggled.connect(lambda checked, chan=channel: self.updateAutojoinSettings(chan,checked))
+                
+
+    def updateAutojoinSettings(self, channel, checked):
+        logger.info("Setting Autojoin Settings for channel %s to %s" %(channel, "True" if checked else "False"))
+        currentSettings = Settings.get("chat/autojoin_channels", [], type=str)
+        if checked:
+            logger.info("%s  checked" %channel)
+            if channel in currentSettings:
+                logger.error("Channel %s is already set in the Settings" %channel)
+            else:
+                currentSettings.append(channel)
+                Settings.set("chat/autojoin_channels",currentSettings, persist=True)
+        else:
+            logger.info("%s unchecked" %channel)
+            currentSettings.remove(channel)
+            Settings.set("chat/autojoin_channels",currentSettings, persist=True)
+        
+    
 
 
     @QtCore.pyqtSlot()
@@ -302,6 +340,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             self.client.notificationSystem.on_event(ns.Notifications.USER_ONLINE,
                                                     {'user': name, 'channel': channel})
         self.channels[channel].resizing()
+        self.updateAutoJoinMenu()
 
     def on_part(self, c, e):
         channel = e.target()
@@ -309,6 +348,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         if name == self.client.login:   #We left ourselves.
             self.removeTab(self.indexOf(self.channels[channel]))
             del self.channels[channel]
+            self.updateAutoJoinMenu()
         else:                           #Someone else left
             self.channels[channel].removeChatter(name, "left.")
 
