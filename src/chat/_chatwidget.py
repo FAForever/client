@@ -224,6 +224,45 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
     def log_event(self, e):
         self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
 
+    def updateAutojoinIRCMenu(self):
+        self.client.menuAutojoinIRC.clear()
+        
+        autojoin_channels = Settings.get("chat/autojoin_channels", [], type=str).split(".")
+        autojoin_channels.remove('')
+        
+        for channel in self.channels:
+            if not self.channels[channel].private and not channel == "#aeolus":    
+                action = self.client.menuAutojoinIRC.addAction(channel)
+                action.setCheckable(True)
+                # We set the state of the items before assigning an function to them, since
+                # otherwise the function would get called to early
+                if channel in autojoin_channels:
+                    action.setChecked(True)
+                action.toggled.connect(lambda checked, chan=channel: self.updateAutojoinSettings(chan,checked))
+                
+        #now add channels we autojoin, but that we left in the meantime
+        for channel in autojoin_channels:
+            if channel not in self.channels:
+                action = self.client.menuAutojoinIRC.addAction(channel)
+                action.setCheckable(True)
+                action.setChecked(True)
+                action.toggled.connect(lambda checked, chan=channel: self.updateAutojoinSettings(chan,checked))
+                
+        
+
+    def updateAutojoinSettings(self, channel, checked):
+        logger.info("Setting Autojoin Settings for channel %s to %s" %(channel, "True" if checked else "False"))
+        currentSettings = Settings.get("chat/autojoin_channels", [], type=str).split(".")
+        if checked:
+            currentSettings.append(channel)
+            Settings.set("chat/autojoin_channels", ".".join(currentSettings), persist=True)
+        else:
+            currentSettings.remove(channel)
+            Settings.set("chat/autojoin_channels", ".".join(currentSettings), persist=True)
+            
+            if channel not in self.channels:
+                self.updateAutojoinIRCMenu()
+        
 #SimpleIRCClient Class Dispatcher Attributes follow here.
     def on_welcome(self, c, e):
         self.log_event(e)
@@ -241,6 +280,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         #Perform any pending autojoins (client may have emitted autoJoin signals before we talked to the IRC server)
         self.autoJoin(self.optionalChannels)
         self.autoJoin(self.crucialChannels)
+        self.autoJoin(Settings.get("chat/autojoin_channels", [], type=str).split("."))
 
     def nickservRegister(self):
         self.connection.privmsg('NickServ', 'register %s %s' % (util.md5text(self.client.password), self.client.email))
@@ -293,6 +333,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             if channel.lower() in self.crucialChannels: #Make the crucial channels not closeable, and make the last one the active one
                 self.setCurrentWidget(self.channels[channel])
                 self.tabBar().setTabButton(self.currentIndex(), QtGui.QTabBar.RightSide, None)
+            self.updateAutojoinIRCMenu()
 
         name, id, elevation, hostname = parse_irc_source(e.source())
         self.channels[channel].addChatter(name, id, elevation, hostname, True)
@@ -309,6 +350,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         if name == self.client.login:   #We left ourselves.
             self.removeTab(self.indexOf(self.channels[channel]))
             del self.channels[channel]
+            self.updateAutojoinIRCMenu()
         else:                           #Someone else left
             self.channels[channel].removeChatter(name, "left.")
 
