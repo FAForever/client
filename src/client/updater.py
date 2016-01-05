@@ -50,12 +50,12 @@ class ClientUpdater(QObject):
     def _run_installer(self):
         assert self._tmp
         assert self._rep.atEnd()
-        assert self._rep.error() == QNetworkReply.NoError
-        self._tmp.close()
-        command = r'msiexec /i "{msiname}" & del "{msiname}"'.format(msiname=self._tmp.name)
-        self._logger.debug(r'Running msi installation command: ' + command)
-        subprocess.Popen(command, shell=True)
-        self._progress.close()
+        if self._rep.error() == QNetworkReply.NoError:
+            self._tmp.close()
+            command = r'msiexec /i "{msiname}" & del "{msiname}"'.format(msiname=self._tmp.name)
+            self._logger.debug(r'Running msi installation command: ' + command)
+            subprocess.Popen(command, shell=True)
+            self._progress.close()
 
     def on_progress(self, current, max):
         self._progress.setMaximum(max)
@@ -63,6 +63,7 @@ class ClientUpdater(QObject):
 
     def cancel(self):
         self._rep.abort()
+        QtGui.QApplication.quit()
 
     def _setup_progress(self):
         progress = QtGui.QProgressDialog()
