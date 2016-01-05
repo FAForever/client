@@ -56,6 +56,7 @@ class mousePosition(object):
         self.onBottomEdge = False
         self.cursorShapeChange = False
         self.warning_buttons = dict()
+        self.onEdges = False
 
     def computeMousePosition(self, pos):
         self.onLeftEdge = pos.x() < 8
