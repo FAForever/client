@@ -1,19 +1,15 @@
 import tempfile
-
-from PyQt4.QtGui import QLabel
-
 import client
-from PyQt4 import QtGui, QtCore
-
-import logging
 import subprocess
 
+from decorators import with_logger
+from PyQt4 import QtGui, QtCore
+from PyQt4.QtGui import QLabel
 from PyQt4.QtCore import QUrl, QObject
 from PyQt4.QtNetwork import QNetworkRequest, QNetworkReply
 
-logger = logging.getLogger(__name__)
 
-
+@with_logger
 class ClientUpdater(QObject):
     def __init__(self, url):
         QObject.__init__(self)
@@ -25,20 +21,28 @@ class ClientUpdater(QObject):
         self._rep = None
 
     def exec_(self):
-        self._setup_progress()
-        self._tmp = tempfile.NamedTemporaryFile(mode='w+b',
-                                                suffix=".msi",
-                                                delete=False)
-        self._req = QNetworkRequest(self.url)
-        self._rep = self._network_manager.get(self._req)
-        self._rep.setReadBufferSize(0)
-        self._rep.downloadProgress.connect(self.on_progress)
-        self._rep.finished.connect(self._run_installer)
-        self._rep.error.connect(self.error)
-        self._rep.readyRead.connect(self._buffer)
+        result = QtGui.QMessageBox.question(None,
+                                            "Update Needed",
+                                            "Your version of FAF is outdated. You need to download and install the most recent version to connect and play.<br/><br/><b>Do you want to download and install the update now?</b>",
+                                            QtGui.QMessageBox.No,
+                                            QtGui.QMessageBox.Yes)
+        if result == QtGui.QMessageBox.Yes:
+            self._setup_progress()
+            self._tmp = tempfile.NamedTemporaryFile(mode='w+b',
+                                                    suffix=".msi",
+                                                    delete=False)
+            self._req = QNetworkRequest(self.url)
+            self._rep = self._network_manager.get(self._req)
+            self._rep.setReadBufferSize(0)
+            self._rep.downloadProgress.connect(self.on_progress)
+            self._rep.finished.connect(self._run_installer)
+            self._rep.error.connect(self.error)
+            self._rep.readyRead.connect(self._buffer)
+        else:
+            QtGui.QApplication.quit()
 
     def error(self, code):
-        logger.exception(self._rep.errorString())
+        self._logger.exception(self._rep.errorString())
 
     def _buffer(self):
         self._tmp.write(self._rep.read(self._rep.bytesAvailable()))
@@ -49,7 +53,7 @@ class ClientUpdater(QObject):
         assert self._rep.error() == QNetworkReply.NoError
         self._tmp.close()
         command = r'msiexec /i "{msiname}" & del "{msiname}"'.format(msiname=self._tmp.name)
-        logger.debug(r'Running msi installation command: ' + command)
+        self._logger.debug(r'Running msi installation command: ' + command)
         subprocess.Popen(command, shell=True)
         self._progress.close()
 
