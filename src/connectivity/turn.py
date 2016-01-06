@@ -191,7 +191,7 @@ class TURNSession:
         for addr, channel in self.bindings.items():
             self._write(STUNMessage('ChannelBind',
                   [('CHANNEL-NUMBER', channel),
-                   ('XOR-PEER-ADDRESS', addr)]))
+                   ('XOR-PEER-ADDRESS', addr)]).to_bytes())
 
     def __str__(self):
         return "TURNSession({}, {}, {}, {})".format(self.state, self.mapped_addr, self.relayed_addr, self.lifetime)
