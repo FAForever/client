@@ -207,9 +207,8 @@ class GameItem(QtGui.QListWidgetItem):
             if team_index == 1:
                 for ffa_player in team:
                     teams.append([self.client.players[ffa_player]])
-
-            teams.append(map(lambda name: self.client.players[name], team))
-        teams.pop(0)
+            else:
+                teams.append(map(lambda name: self.client.players[name], team))
 
         # Tuples for feeding into trueskill.
         rating_tuples = []
