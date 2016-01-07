@@ -87,6 +87,7 @@ class GameItem(QtGui.QListWidgetItem):
         self.mods           = None
         self.moddisplayname = None
         self.state          = None
+        self.gamequality    = 0
         self.nTeams         = 0
         self.options        = []
         self.players        = []
