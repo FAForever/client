@@ -157,5 +157,6 @@ class GameSession(QObject):
         self._logger.info("Game has started")
 
     def _exited(self, status):
+        self.state = GameSessionState.OFF
         self._logger.info("Game has exited with status code: {}".format(status))
         self.send('GameState', ['Ended'])
