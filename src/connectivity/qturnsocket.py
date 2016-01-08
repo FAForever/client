@@ -1,9 +1,6 @@
-import logging
-from binascii import hexlify
-
 import config
 
-from PyQt4.QtCore import QObject, QTimer, pyqtSignal, QByteArray
+from PyQt4.QtCore import QTimer, pyqtSignal
 from PyQt4.QtNetwork import QUdpSocket, QHostAddress, QHostInfo
 
 from connectivity.stun import STUNMessage

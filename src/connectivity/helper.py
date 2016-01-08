@@ -3,7 +3,7 @@ from __future__ import division
 from functools import partial
 
 from PyQt4.QtCore import QObject, pyqtSignal, QTimer, Qt
-from PyQt4.QtNetwork import QUdpSocket, QHostAddress
+from PyQt4.QtNetwork import QUdpSocket, QHostAddress, QAbstractSocket
 import time
 
 from connectivity import QTurnSocket
@@ -104,6 +104,12 @@ class ConnectivityHelper(QObject):
         self._relays = {}
         self.state = None
         self.addr = None
+
+    @property
+    def is_ready(self):
+        return (self.relay_address is not None
+                and self.mapped_address is not None
+                and self._socket.state == QAbstractSocket.BoundState)
 
     def start_test(self):
         self.send('InitiateTest', [self._port])

@@ -53,6 +53,7 @@ class GameSession(QObject):
         # 'GPGNet' TCP listener
         self._game_listener = QTcpServer(self)
         self._game_listener.newConnection.connect(self._new_game_connection)
+        self._game_listener.listen(QHostAddress.LocalHost)
 
         # We only allow one game connection at a time
         self._game_connection = None
@@ -81,11 +82,10 @@ class GameSession(QObject):
         e.g. when the host game dialog is being shown.
         """
         assert self.state == GameSessionState.OFF
-        self._game_listener.listen(QHostAddress.LocalHost)
         self.state = GameSessionState.LISTENING
-        if self.connectivity.state == 'STUN':
+        if self.connectivity.state == 'STUN' and not self.connectivity.is_ready:
             self.connectivity.prepare()
-        else:
+        elif self.connectivity.is_ready:
             self.ready.emit()
 
     def handle_message(self, message):

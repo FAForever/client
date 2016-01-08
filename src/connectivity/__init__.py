@@ -4,7 +4,7 @@ from PyQt4.QtCore import QObject
 
 import util
 
-from .turn_client import QTurnSocket
+from .qturnsocket import QTurnSocket
 from .helper import ConnectivityHelper
 
 logger = logging.getLogger(__name__)
