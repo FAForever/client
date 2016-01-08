@@ -66,7 +66,7 @@ class QTurnSocket(QUdpSocket):
 
     def __init__(self, port, data_cb):
         QUdpSocket.__init__(self)
-        self._session = None
+        self._session = QTurnSession(self)
         self._state = TURNState.UNBOUND
         self.bindings = {}
         self.port = port
@@ -84,7 +84,6 @@ class QTurnSocket(QUdpSocket):
         self.turn_address = info.addresses()[0]
 
     def connect_to_relay(self):
-        self._session = QTurnSession(self)
         self._session.start()
 
     def stop(self):

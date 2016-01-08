@@ -71,8 +71,9 @@ class TURNSession:
     def start(self):
         self.logger.info("Requesting relay allocation")
         # Remove any previous allocation we may have
-        self._send(STUNMessage('Refresh',
-                               [('LIFETIME', 0)]))
+        self._write(STUNMessage('Refresh',
+                               [('LIFETIME', 0)]).to_bytes())
+        # Allocate a new UDP relay address
         self._send(STUNMessage('Allocate',
                                [('REQUESTED-TRANSPORT', 17)]))
         self._call_in(self._retransmit, 15)
@@ -90,7 +91,6 @@ class TURNSession:
                 return magic == STUN_MAGIC_COOKIE
         except:
             return False
-
 
     def bind(self, addr):
         if addr in self.bindings or addr in [addr for (_, addr, _)

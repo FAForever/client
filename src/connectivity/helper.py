@@ -173,7 +173,7 @@ class ConnectivityHelper(QObject):
         })
 
     def prepare(self):
-        if self.state == 'STUN' and not self._socket.state == TURNState.BOUND:
+        if self.state == 'STUN' and not self._socket.turn_state == TURNState.BOUND:
             self._socket.connect_to_relay()
         elif self.state == 'BLOCKED':
             pass

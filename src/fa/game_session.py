@@ -83,10 +83,10 @@ class GameSession(QObject):
         """
         assert self.state == GameSessionState.OFF
         self.state = GameSessionState.LISTENING
-        if self.connectivity.state == 'STUN' and not self.connectivity.is_ready:
-            self.connectivity.prepare()
-        elif self.connectivity.is_ready:
+        if self.connectivity.is_ready:
             self.ready.emit()
+        else:
+            self.connectivity.prepare()
 
     def handle_message(self, message):
         command, args = message.get('command'), message.get('args', [])
@@ -157,6 +157,7 @@ class GameSession(QObject):
         self._logger.info("Game has started")
 
     def _exited(self, status):
+        self._game_connection = None
         self.state = GameSessionState.OFF
         self._logger.info("Game has exited with status code: {}".format(status))
         self.send('GameState', ['Ended'])
