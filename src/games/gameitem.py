@@ -218,7 +218,7 @@ class GameItem(QtGui.QListWidgetItem):
             rating_tuples.append(tuple(ratings_for_team))
 
         try:
-            self.gamequality = round(trueskill.quality(rating_tuples), 2)
+            self.gamequality = 100*round(trueskill.quality(rating_tuples), 2)
         except ValueError:
             self.gamequality = 0
         self.nTeams = len(teams)
