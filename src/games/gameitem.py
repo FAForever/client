@@ -260,7 +260,7 @@ class GameItem(QtGui.QListWidgetItem):
 
         color = client.players.getUserColor(self.host)
 
-        self.editTooltip()
+        self.editTooltip(teams)
 
         if self.mod == "faf" or self.mod == "balancetesting" and not self.mods:
             self.setText(self.FORMATTER_FAF.format(color=color, mapslots = self.slots, mapdisplayname=self.mapdisplayname, title=self.title, host=self.host, players=num_players, playerstring=playerstring, gamequality = strQuality))
@@ -289,15 +289,15 @@ class GameItem(QtGui.QListWidgetItem):
         affectedplayers = oldplayers | newplayers
         client.usersUpdated.emit(list(affectedplayers))
 
-    def editTooltip(self):
+    def editTooltip(self, teams):
         
         observerlist    = []
         teamlist        = []
 
-        teams = ""
+        teams_string = ""
 
         i = 0
-        for team in self.teams:
+        for team in teams:
             
             if team != "-1" :
                 i = i + 1
@@ -305,40 +305,30 @@ class GameItem(QtGui.QListWidgetItem):
 
                     
                 teamDisplay    = []
-                for player in self.teams[team] :
+                for player in team:
                     displayPlayer = ""
-                    if player in self.client.players:
-                        
-                        playerStr = player
-                        
-                        if player == self.client.login :
-                            playerStr = ("<b><i>%s</b></i>" % player)
-                            
-                        dev     = self.client.players[player]["rating_deviation"]
-                        if dev < 200 :
-                            playerStr += " ("+str(self.client.players[player].rating_estimate())+")"
+                    playerStr = player.login
 
-                        if i == 1 :
-                            displayPlayer = ("<td align = 'left' valign='center' width = '150'>%s</td>" % playerStr)
-                        elif i == self.nTeams :
-                            displayPlayer = ("<td align = 'right' valign='center' width = '150'>%s</td>" % playerStr)
-                        else :
-                            displayPlayer = ("<td align = 'center' valign='center' width = '150'>%s</td>" % playerStr)
+                    if player == self.client.me:
+                        playerStr = ("<b><i>%s</b></i>" % player.login)
 
-                        country = os.path.join(util.COMMON_DIR, "chat/countries/%s.png" % self.client.players[player]["country"].lower())
-                        
-                        if i == self.nTeams : 
-                            displayPlayer += '<td width="16"><img src = "'+country+'" width="16" height="16"></td>'
-                        else :
-                            displayPlayer = '<td width="16"><img src = "'+country+'" width="16" height="16"></td>' + displayPlayer
-                            
+                    dev = player.rating_deviation
+                    if dev < 200 :
+                        playerStr += " ("+str(player.rating_estimate())+")"
+
+                    if i == 1 :
+                        displayPlayer = ("<td align = 'left' valign='center' width = '150'>%s</td>" % playerStr)
+                    elif i == self.nTeams :
+                        displayPlayer = ("<td align = 'right' valign='center' width = '150'>%s</td>" % playerStr)
                     else :
-                        if i == 1 :
-                            displayPlayer = ("<td align = 'left' valign='center' width = '150'>%s</td>" % player)
-                        elif i == self.nTeams :
-                            displayPlayer = ("<td align = 'right' valign='center' width = '150'>%s</td>" % player)
-                        else :
-                            displayPlayer = ("<td align = 'center' valign='center' width = '150'>%s</td>" % player)
+                        displayPlayer = ("<td align = 'center' valign='center' width = '150'>%s</td>" % playerStr)
+
+                    country = os.path.join(util.COMMON_DIR, "chat/countries/%s.png" % player.country.lower())
+
+                    if i == self.nTeams :
+                        displayPlayer += '<td width="16"><img src = "'+country+'" width="16" height="16"></td>'
+                    else :
+                        displayPlayer = '<td width="16"><img src = "'+country+'" width="16" height="16"></td>' + displayPlayer
 
                     display = ("<tr>%s</tr>" % displayPlayer)
                     teamDisplay.append(display)
@@ -349,7 +339,7 @@ class GameItem(QtGui.QListWidgetItem):
             else :
                 observerlist.append(",".join(self.teams[team]))
 
-        teams += "<td valign='center' height='100%'><font valign='center' color='black' size='+5'>VS</font></td>".join(teamlist)
+        teams_string += "<td valign='center' height='100%'><font valign='center' color='black' size='+5'>VS</font></td>".join(teamlist)
 
         observers = ""
         if len(observerlist) != 0 :
@@ -361,7 +351,7 @@ class GameItem(QtGui.QListWidgetItem):
         if self.mods:
             mods += "<br/>With " + "<br/>".join(self.mods.values())
 
-        self.setToolTip(self.FORMATTER_TOOL.format(teams = teams, observers=observers, mods = mods)) 
+        self.setToolTip(self.FORMATTER_TOOL.format(teams = teams_string, observers=observers, mods = mods))
 
     def permutations(self, items):
         """Yields all permutations of the items."""
