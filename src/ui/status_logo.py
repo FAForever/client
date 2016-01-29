@@ -42,8 +42,6 @@ class StatusLogo(QLabel):
 
         dc = QAction('Disconnect', None)
         rc = QAction('Reconnect', None)
-        connectivity = QAction('Connection Test', None)
-        menu.addAction(connectivity)
         about = QAction('About', None)
 
         if self.state != ClientState.DISCONNECTED:
@@ -59,8 +57,6 @@ class StatusLogo(QLabel):
             self.disconnect_requested.emit()
         elif action == rc:
             self.reconnect_requested.emit()
-        elif action == connectivity:
-            self.connectivity_dialog_requested.emit()
         elif action == about:
             self.about_dialog_requested.emit()
 
