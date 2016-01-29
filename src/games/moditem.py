@@ -30,7 +30,7 @@ class ModItem(QtGui.QListWidgetItem):
             icon = util.icon("games/mods/default.png")
         self.setIcon(icon)
 
-        if  self.mod in mod_crucial:
+        if self.mod in mod_crucial:
             color = client.instance.getColor("self")
         else:
             color = client.instance.getColor("player")

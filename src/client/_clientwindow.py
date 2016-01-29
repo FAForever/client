@@ -7,6 +7,7 @@ import config
 import connectivity
 from base import Client
 from config import Settings
+import chat
 from client.player import Player
 from client.players import Players
 from client.updater import ClientUpdater
@@ -485,6 +486,9 @@ class ClientWindow(FormClass, BaseClass):
 
         # Initialize chat
         self.chat = chat.Lobby(self)
+        # Color table used by the following method
+        # CAVEAT: This will break if the theme is loaded after the client package is imported
+        chat.CHAT_COLORS = json.loads(util.readfile("client/colors.json"))
 
         # build main window with the now active client
         self.ladder = stats.Stats(self)
@@ -833,15 +837,8 @@ class ClientWindow(FormClass, BaseClass):
         if not self.can_login:
             self.show_login_wizard()
 
-    # Color table used by the following method
-    # CAVEAT: This will break if the theme is loaded after the client package is imported
-    colors = json.loads(util.readfile("client/colors.json"))
-
     def getColor(self, name):
-        if name in self.colors:
-            return self.colors[name]
-        else:
-            return self.colors["default"]
+        return chat.get_color(name)
 
     @QtCore.pyqtSlot()
     def startedFA(self):

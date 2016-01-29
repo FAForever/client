@@ -199,7 +199,7 @@ class Chatter(QtGui.QTableWidgetItem):
 
     def set_color(self):
         if self.lobby.client.players.isFriend(self.id) and self.elevation in chat.OPERATOR_COLORS.keys():
-            self.setTextColor(QtGui.QColor(chat.colors.getColor("friend_mod")))
+            self.setTextColor(QtGui.QColor(chat.get_color("friend_mod")))
             return
         if self.elevation in chat.colors.OPERATOR_COLORS.keys():
             self.setTextColor(QtGui.QColor(chat.colors.OPERATOR_COLORS[self.elevation]))
@@ -209,7 +209,7 @@ class Chatter(QtGui.QTableWidgetItem):
             self.setTextColor(QtGui.QColor(self.lobby.client.players.getUserColor(self.id)))
             return
 
-        self.setTextColor(QtGui.QColor(chat.colors.getColor("default")))
+        self.setTextColor(QtGui.QColor(chat.get_color("default")))
 
     def selectAvatar(self):
         avatarSelection = avatarWidget(self.lobby.client, self.name, personal=True)

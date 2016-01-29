@@ -37,3 +37,6 @@ from chat.chatlineedit import ChatLineEdit
 
 from .colors import OPERATOR_COLORS, CHAT_COLORS
 
+
+def get_color(kind):
+    return CHAT_COLORS.get(kind) or CHAT_COLORS['default']

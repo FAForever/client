@@ -11,8 +11,3 @@ CHAT_COLORS = {
     "default": "grey"
 }
 
-def getColor(name):
-    if name in CHAT_COLORS:
-        return CHAT_COLORS[name]
-    else:
-        return CHAT_COLORS["default"]
