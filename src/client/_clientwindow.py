@@ -191,7 +191,7 @@ class ClientWindow(FormClass, BaseClass):
         fa.instance.finished.connect(self.finishedFA)
         fa.instance.error.connect(self.errorFA)
 
-        # Local Replay Server (and relay)
+        # Local Replay Server
         self.replayServer = fa.replayserver.ReplayServer(self)
 
         # GameSession
@@ -200,16 +200,7 @@ class ClientWindow(FormClass, BaseClass):
         # ConnectivityTest
         self.connectivity = None  # type: ConnectivityHelper
 
-        # Local Relay Server
-        self.relayServer = fa.relayserver.RelayServer(self)
-
-        # Local proxy servers
-        self.proxyServer = fa.proxies.proxies(self)
         self.localIP = None
-
-        if not self.proxyServer and not config.no_dialogs:
-            QtGui.QMessageBox.warning(self.client, "Cannot use proxy server",
-                                      "FAF is unable to bind the port <b>12000 to 12011 on TCP</b>.<br>Please check your firewall settings.<br><b>You may experience connections problems until it's fixed.</b>")
 
         # stat server
         self.statsServer = secondaryServer.SecondaryServer("Statistic", 11002, self)
@@ -598,12 +589,6 @@ class ClientWindow(FormClass, BaseClass):
             self.replayServer.close()
             self.replayServer = None
 
-        # Terminate local ReplayServer
-        if self.relayServer:
-            self.progress.setLabelText("Terminating local relay server")
-            self.relayServer.close()
-            self.relayServer = None
-
         # Clean up Chat
         if self.chat:
             self.progress.setLabelText("Disconnecting from IRC")
@@ -807,9 +792,6 @@ class ClientWindow(FormClass, BaseClass):
 
     def doConnect(self):
         if not self.replayServer.doListen(LOCAL_REPLAY_PORT):
-            return False
-
-        if not self.relayServer.doListen():
             return False
 
         # Begin connecting.
@@ -1259,7 +1241,7 @@ class ClientWindow(FormClass, BaseClass):
             arguments.append(str(self.players[self.id]["ladder_rating_deviation"]))
 
             # Launch the auto lobby
-            self.relayServer.init_mode = 1
+            self.game_session.init_mode = 1
 
         else:
             # Player global rating
@@ -1272,7 +1254,7 @@ class ClientWindow(FormClass, BaseClass):
                 arguments.append(self.me.country)
 
             # Launch the normal lobby
-            self.relayServer.init_mode = 0
+            self.game_session.init_mode = 0
 
         if self.me.clan is not None:
             arguments.append('/clan')

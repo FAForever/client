@@ -20,8 +20,6 @@ from replay import replay
 import check
 import maps
 import replayserver
-import relayserver
-import proxies
 import updater
 import upnp
 import factions
