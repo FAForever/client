@@ -114,7 +114,7 @@ class QTurnSocket(QUdpSocket):
         try:
             self._data_cb(self.bindings[channel], data)
         except KeyError:
-            self._logger.exception("No binding for channel: {}. Known: {}".format(channel, self.bindings))
+            self._logger.debug("No binding for channel: {}. Known: {}".format(channel, self.bindings))
 
     def send(self, data):
         """
