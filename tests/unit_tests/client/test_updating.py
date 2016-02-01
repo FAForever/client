@@ -8,8 +8,10 @@ def test_client_sends_current_version(qtbot, mocker):
     c = client.instance
     mocker.patch('util.uniqueID', side_effect='some_unique_id')
     mocker.patch.object(c, 'send')
+    mocker.patch.object(c, 'connected')
+    mocker.patch.object(c, 'socket')
 
-    c.perform_login()
+    c.on_connected()
 
     args, kwargs = c.send.call_args
     assert args[0]['version'] == config.VERSION
