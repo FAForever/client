@@ -234,9 +234,9 @@ class Chatter(QtGui.QTableWidgetItem):
             if self.name in client.instance.urls:
                 url = client.instance.urls[self.name]
                 if url.scheme() == "fafgame":
-                    self.lobby.client.api.joinInGame(self.name)
+                    self.joinInGame()
                 elif url.scheme() == "faflive":
-                    self.lobby.client.api.viewLiveReplay(self.name)
+                    self.viewReplay()
 
     def pressed(self, item):        
         menu = QtGui.QMenu(self.parent)
