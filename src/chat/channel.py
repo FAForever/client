@@ -285,12 +285,18 @@ class Channel(FormClass, BaseClass):
     def printMsg(self, name, text, scroll_forced=False):
         if self.lobby.client.players.isFoe(name):
             return
-        fmt = Formatters.FORMATTER_MESSAGE_AVATAR if self.chatters[name].avatar else Formatters.FORMATTER_MESSAGE
+        if name in self.chatters and self.chatters[name].avatar:
+            fmt = Formatters.FORMATTER_MESSAGE_AVATAR
+        else:
+            fmt = Formatters.FORMATTER_MESSAGE
         self.printLine(name, text, scroll_forced, fmt)
 
     @QtCore.pyqtSlot(str, str)
     def printAction(self, name, text, scroll_forced=False):
-        fmt = Formatters.FORMATTER_ACTION_AVATAR if self.chatters[name].avatar else Formatters.FORMATTER_ACTION
+        if name in self.chatters and self.chatters[name].avatar:
+            fmt = Formatters.FORMATTER_ACTION_AVATAR
+        else:
+            fmt = Formatters.FORMATTER_ACTION
         self.printLine(name, text, scroll_forced, fmt)
 
     @QtCore.pyqtSlot(str, str)
