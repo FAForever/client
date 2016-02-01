@@ -108,6 +108,7 @@ class ConnectivityHelper(QObject):
     @property
     def is_ready(self):
         return (self.relay_address is not None
+                and self.relay_address is not [None, None]
                 and self.mapped_address is not None
                 and self._socket.state == QAbstractSocket.BoundState)
 
