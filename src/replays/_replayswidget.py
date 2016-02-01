@@ -353,7 +353,7 @@ class ReplaysWidget(BaseClass, FormClass):
                 
                 self.liveTree.insertTopLevelItem(0, item)
                 
-                if time.time() - info["game_time"] < LIVEREPLAY_DELAY_TIME  :
+                if time.time() - info.get('launched_at', time.time()) < LIVEREPLAY_DELAY_TIME:
                     item.setHidden(True)
                     QtCore.QTimer.singleShot(LIVEREPLAY_DELAY_QTIMER, self.displayReplay) #The delay is there because we have a delay in the livereplay server
 
