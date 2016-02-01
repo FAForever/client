@@ -68,6 +68,11 @@
     </item>
    </layout>
   </widget>
+   <widget class="QToolButton" name="rejoinChatButton">
+     <property name="text">
+       <string>Rejoin Chat</string>
+     </property>
+   </widget>
  </widget>
  <resources/>
  <connections/>

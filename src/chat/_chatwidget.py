@@ -85,6 +85,13 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
         # disconnection checks
         self.canDisconnect = False
+        
+        # Place and connect rejoin button
+        self.setCornerWidget(self.rejoinChatButton)
+        self.rejoinChatButton.clicked.connect(self.rejoinChat)
+        
+        # Hide button, not needed since we already have open chat channels on startup.
+        self.rejoinChatButton.hide()
 
 
     @QtCore.pyqtSlot()
@@ -145,8 +152,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
                         self.connection.part([name], "tab closed")
                     else:
                         # Queries and disconnected channel windows can just be closed
-                        self.removeTab(index)
-                        del self.channels[name]
+                        self.removeChannel(channel)
 
                     break
 
@@ -224,7 +230,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
     def log_event(self, e):
         self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
 
-#SimpleIRCClient Class Dispatcher Attributes follow here.
+    #SimpleIRCClient Class Dispatcher Attributes follow here.
     def on_welcome(self, c, e):
         self.log_event(e)
         self.welcomed = True
@@ -290,9 +296,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
                 self.addTab(self.channels[channel], channel)
 
 
-            if channel.lower() in self.crucialChannels: #Make the crucial channels not closeable, and make the last one the active one
+            if channel.lower() in self.crucialChannels: #Make a crucial channel the active one
                 self.setCurrentWidget(self.channels[channel])
-                self.tabBar().setTabButton(self.currentIndex(), QtGui.QTabBar.RightSide, None)
 
         name, id, elevation, hostname = parse_irc_source(e.source())
         self.channels[channel].addChatter(name, id, elevation, hostname, True)
@@ -307,8 +312,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         channel = e.target()
         name = user2name(e.source())
         if name == self.client.login:   #We left ourselves.
-            self.removeTab(self.indexOf(self.channels[channel]))
-            del self.channels[channel]
+            self.removeChannel(channel)
         else:                           #Someone else left
             self.channels[channel].removeChatter(name, "left.")
 
@@ -434,5 +438,19 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
     def on_kick(self, c, e):
         logger.info("Kicked from " + e.target())
         channel = e.target()
+        self.removeChannel(channel)
+        
+    def removeChannel(self, channel):
         self.removeTab(self.indexOf(self.channels[channel]))
         del self.channels[channel]
+        
+        logger.info("Closing chat channel: " + channel)
+        #Check whether that was the last open channel
+        if len(self.channels) == 0:
+            self.rejoinChatButton.show()
+
+    def rejoinChat(self):
+        self.rejoinChatButton.hide()
+        # Rejoin all crucial channels
+        for channel in self.crucialChannels:
+            self.join(channel)
