@@ -2,7 +2,6 @@ from .game_process import instance
 
 from config import Settings
 import util
-import client
 
 __author__ = 'Thygrrr'
 
@@ -15,6 +14,7 @@ def build_argument_list(game_info, port, arguments=None):
     Compiles an argument list to run the game with POpen style process invocation methods.
     Extends a potentially pre-existing argument list to allow for injection of special parameters
     """
+    import client
     arguments = arguments or []
 
     if '/init' in arguments:
