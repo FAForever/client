@@ -252,8 +252,8 @@ class ReplaysWidget(BaseClass, FormClass):
 
                     # Parse replayinfo into data
                     if item.info.get('complete', False):
-                        game_date = time.strftime("%Y-%m-%d", time.localtime(item.info['game_time']))
-                        game_hour = time.strftime("%H:%M", time.localtime(item.info['game_time']))
+                        game_date = time.strftime("%Y-%m-%d", time.localtime(item.info.get('launched_at', time.time())))
+                        game_hour = time.strftime("%H:%M", time.localtime(item.info('launched_at', time.time())))
                         
                         bucket = buckets.setdefault(game_date, [])                    
                         
@@ -335,7 +335,7 @@ class ReplaysWidget(BaseClass, FormClass):
     def displayReplay(self):
         for uid in self.games :
             item = self.games[uid]
-            if time.time() - item.info['game_time'] > LIVEREPLAY_DELAY_TIME and item.isHidden():
+            if time.time() - item.info.get('launched_at', time.time()) > LIVEREPLAY_DELAY_TIME and item.isHidden():
                 item.setHidden(False)
 
     @QtCore.pyqtSlot(dict)
@@ -372,7 +372,7 @@ class ReplaysWidget(BaseClass, FormClass):
                 self.client.downloader.downloadMap(item.info['mapname'], item, True)
                 icon = util.icon("games/unknown_map.png")
 
-            item.setText(0,time.strftime("%H:%M", time.localtime(item.info['game_time'])))
+            item.setText(0,time.strftime("%H:%M", time.localtime(item.info.get('launched_at', time.time()))))
             item.setTextColor(0, QtGui.QColor(client.instance.getColor("default")))
                                     
 

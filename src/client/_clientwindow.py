@@ -1268,7 +1268,7 @@ class ClientWindow(FormClass, BaseClass):
         if self.useUPnP:
             fa.upnp.createPortMapping(self.localIP, self.gamePort, "UDP")
 
-        info = dict(uid=message['uid'], recorder=self.login, featured_mod=message['mod'], game_time=time.time())
+        info = dict(uid=message['uid'], recorder=self.login, featured_mod=message['mod'], launched_at=time.time())
 
         fa.run(info, self.game_session.relay_port, arguments)
 
