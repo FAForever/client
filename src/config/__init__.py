@@ -87,7 +87,8 @@ def is_development_version():
 # FIXME: Don't initialize proxy code that shows a dialogue box on import
 no_dialogs = False
 
-environment = 'development'
+environment = 'production'
+
 
 def is_beta():
     return environment == 'development'
