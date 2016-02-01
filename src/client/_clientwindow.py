@@ -819,7 +819,9 @@ class ClientWindow(FormClass, BaseClass):
         self.state = ClientState.ACCEPTED
         self._connection_attempts = 0
         self.localIP = self.socket.localAddress()
-        self.send(dict(command="ask_session"))
+        self.send(dict(command="ask_session",
+                       version=config.VERSION,
+                       user_agent="faf-client"))
         self.connected.emit()
 
     @property
@@ -1116,8 +1118,6 @@ class ClientWindow(FormClass, BaseClass):
     def perform_login(self):
         self.uniqueId = util.uniqueID(self.login, self.session)
         self.send(dict(command="hello",
-                       version=config.VERSION,
-                       user_agent="faf-client",
                        login=self.login,
                        password=self.password,
                        unique_id=self.uniqueId,
