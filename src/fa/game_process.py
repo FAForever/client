@@ -16,12 +16,15 @@ class GameArguments:
 class GameProcess(QtCore.QProcess):
     def __init__(self, *args, **kwargs):
         QtCore.QProcess.__init__(self, *args, **kwargs)
+        self.info = None
 
     def run(self, info, arguments, detach=False, init_file=None):
             """
             Performs the actual running of ForgedAlliance.exe
             in an attached process.
             """
+            self.info = info
+
             executable = os.path.join(config.Settings.get('game/bin/path'),
                                       "ForgedAlliance.exe")
             command = '"' + executable + '" ' + " ".join(arguments)
