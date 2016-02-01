@@ -511,7 +511,7 @@ class ClientWindow(FormClass, BaseClass):
         self.warning = QtGui.QHBoxLayout()
 
         # live streams
-        self.LivestreamWebView.setUrl(QtCore.QUrl("http://www.faforever.com/?page_id=974"))
+        self.LivestreamWebView.setUrl(QtCore.QUrl("http://www.faforever.com/livestream"))
 
         self.warnPlayer = QtGui.QLabel(self)
         self.warnPlayer.setText(
