@@ -2,6 +2,7 @@ from .game_process import instance
 
 from config import Settings
 import util
+import client
 
 __author__ = 'Thygrrr'
 
@@ -22,6 +23,8 @@ def build_argument_list(game_info, port, arguments=None):
     # Init file
     arguments.append('/init')
     arguments.append('init_{}.lua'.format(game_info.get('featured_mod', 'faf')))
+
+    arguments.append('/numgames {}'.format(client.instance.me.number_of_games))
 
     # log file
     if Settings.get("game/logs", False, type=bool):
