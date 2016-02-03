@@ -1268,7 +1268,7 @@ class ClientWindow(FormClass, BaseClass):
 
         # UPnP Mapper - mappings are removed on app exit
         if self.useUPnP:
-            fa.upnp.createPortMapping(self.localIP, self.gamePort, "UDP")
+            fa.upnp.createPortMapping(self.socket.localAddress().toString(), self.gamePort, "UDP")
 
         info = dict(uid=message['uid'], recorder=self.login, featured_mod=message['mod'], launched_at=time.time())
 
