@@ -2,6 +2,7 @@ from functools import partial
 
 from PyQt4.QtCore import QUrl
 from PyQt4.QtGui import QLabel, QStyle
+from PyQt4.QtNetwork import QAbstractSocket
 
 import config
 import connectivity
@@ -1005,7 +1006,15 @@ class ClientWindow(FormClass, BaseClass):
 
     @QtCore.pyqtSlot(QtNetwork.QAbstractSocket.SocketError)
     def socketError(self, error):
-        logger.error("TCP Socket Error: " + self.socket.errorString())
+        if (error == QAbstractSocket.SocketTimeoutError
+                or error == QAbstractSocket.NetworkError
+                or error == QAbstractSocket.ConnectionRefusedError
+                or error == QAbstractSocket.RemoteHostClosedError):
+            logger.info("Timeout/network error: {}".format(self.socket.errorString()))
+            self.disconnectedFromServer()
+        else:
+            self.state = ClientState.DISCONNECTED
+            logger.error("Fatal TCP Socket Error: " + self.socket.errorString())
 
     @QtCore.pyqtSlot()
     def forwardLocalBroadcast(self, source, message):
