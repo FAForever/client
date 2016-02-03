@@ -390,4 +390,10 @@ class GameItem(QtGui.QListWidgetItem):
 
     @property
     def average_rating(self):
-        return sum(map(lambda p: self.client.players[p].rating_estimate(), self.players)) / max(len(self.players), 1)
+        def rating_estimate(p):
+            p = self.client.players[p]
+            # FIXME: ...
+            if p and hasattr(p, 'rating_estimate'):
+                return p.rating_estimate()
+            return 1500
+        return sum(map(rating_estimate, self.players)) / max(len(self.players), 1)
