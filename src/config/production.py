@@ -13,7 +13,7 @@ else:
 defaults = {
     'client/data_path': APPDATA_DIR,
     'client/logs/path': join(APPDATA_DIR, 'logs'),
-    'client/logs/level': logging.WARNING,
+    'client/logs/level': logging.INFO,
     'client/logs/max_size': 256*1024,
     'chat/enabled': True,
     'game/bin/path': join(APPDATA_DIR, 'bin'),
