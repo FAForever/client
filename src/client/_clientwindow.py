@@ -950,14 +950,6 @@ class ClientWindow(FormClass, BaseClass):
 
         self.socket.write(block)
 
-    def serverTimeout(self):
-        if self.timeout == 0:
-            logger.info("Connection timeout - Checking if server is alive.")
-            self.writeToServer("PING")
-            self.timeout = self.timeout + 1
-        else:
-            self.socket.abort()
-
     @QtCore.pyqtSlot()
     def readFromServer(self):
         ins = QtCore.QDataStream(self.socket)
