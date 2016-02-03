@@ -151,10 +151,13 @@ class ConnectivityHelper(QObject):
 
     def handle_ConnectivityState(self, msg):
         state, addr = msg['args']
-        host, port = addr.split(':')
-        self.state, self.mapped_address = state, (host, port)
-        self.connectivity_status_established.emit(self.state, self.addr)
-        self._logger.info("Connectivity state is {}, mapped address: {}".format(state, addr))
+        if state == 'BLOCKED':
+            self._logger.warning("Outbound traffic is blocked")
+        else:
+            host, port = addr.split(':')
+            self.state, self.mapped_address = state, (host, port)
+            self.connectivity_status_established.emit(self.state, self.addr)
+            self._logger.info("Connectivity state is {}, mapped address: {}".format(state, addr))
 
     def handle_message(self, msg):
         command = msg.get('command')

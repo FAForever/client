@@ -1200,8 +1200,9 @@ class ClientWindow(FormClass, BaseClass):
                 msg['relay_address'] = self.connectivity.relay_address
             self.send(msg)
             self.game_session.ready.disconnect(request_launch)
-        self.game_session.ready.connect(request_launch)
-        self.game_session.listen()
+        if self.game_session:
+            self.game_session.ready.connect(request_launch)
+            self.game_session.listen()
 
     def join_game(self, uid, password=None):
         def request_launch():
@@ -1216,8 +1217,9 @@ class ClientWindow(FormClass, BaseClass):
                 msg['relay_address'] = self.connectivity.relay_address
             self.send(msg)
             self.game_session.ready.disconnect(request_launch)
-        self.game_session.ready.connect(request_launch)
-        self.game_session.listen()
+        if self.game_session:
+            self.game_session.ready.connect(request_launch)
+            self.game_session.listen()
 
     def handle_game_launch(self, message):
         if not self.game_session:
