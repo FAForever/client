@@ -94,27 +94,26 @@ class Chatter(QtGui.QTableWidgetItem):
         firstStatus = self.getUserRank(self)
         secondStatus = self.getUserRank(other)
 
-        # List self below all friends and above every other player
-        if self.name == self.lobby.client.login: return True
-        if other.name == self.lobby.client.login: return False
-
         # if not same rank sort
         if firstStatus != secondStatus:
             return firstStatus < secondStatus
 
+        # List self below all friends and above every other player
+        if self.name == self.lobby.client.login: return True
+        if other.name == self.lobby.client.login: return False
 
         # Default: Alphabetical
         return self.name.lower() < other.name.lower()
 
-    def getUserRank(self, user):
+    def getUserRank(self, other_chatter):
         # TODO: Add subdivision for admin?
-        if user.elevation:
+        if other_chatter.elevation:
             return self.RANK_ELEVATION
-        if self.lobby.client.players.isFriend(user.name):
+        if self.lobby.client.players.isFriend(other_chatter.id):
             return self.RANK_FRIEND
-        if self.lobby.client.players.isFoe(user.name):
+        if self.lobby.client.players.isFoe(other_chatter.id):
             return self.RANK_FOE
-        if self.lobby.client.players.isPlayer(user.name):
+        if self.lobby.client.players.isPlayer(other_chatter.id):
             return self.RANK_USER
         return self.RANK_NONPLAYER
 
