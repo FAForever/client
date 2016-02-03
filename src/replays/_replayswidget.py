@@ -288,14 +288,14 @@ class ReplaysWidget(BaseClass, FormClass):
                         item.setText(2, "(replay doesn't have complete metadata)")
                         item.setTextColor(1, QtGui.QColor("yellow")) #FIXME: Needs to come from theme
 
-                except:
+                except Exception as ex:
                     bucket = buckets.setdefault("broken", [])                    
                     item.setIcon(0, util.icon("replays/broken.png"))
                     item.setText(1, infile)
                     item.setTextColor(1, QtGui.QColor("red"))   #FIXME: Needs to come from theme
                     item.setText(2, "(replay parse error)")
                     item.setTextColor(2, QtGui.QColor("gray"))  #FIXME: Needs to come from theme
-                    logger.error("Replay parse error for " + infile)
+                    logger.exception("Exception parsing replay {}: {}".format(infile, ex))
 
                 bucket.append(item)
 
