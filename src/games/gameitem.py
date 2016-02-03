@@ -102,7 +102,7 @@ class GameItem(QtGui.QListWidgetItem):
             url = QtCore.QUrl()
             url.setScheme("faflive")
             url.setHost("lobby.faforever.com")
-            url.setPath(str(self.uid) + "/" + player_id + ".SCFAreplay")
+            url.setPath(str(self.uid) + "/" + str(player_id) + ".SCFAreplay")
             url.addQueryItem("map", self.mapname)
             url.addQueryItem("mod", self.mod)
             return url
@@ -198,6 +198,9 @@ class GameItem(QtGui.QListWidgetItem):
             client.usersUpdated.emit(self.players)
             return
 
+        # Used to differentiate between newly added / removed and previously present players
+        oldplayers = set(map(lambda p: p.login, self.players))
+
         # Following the convention used by the game, a team value of 1 represents "No team". Let's
         # desugar those into "real" teams now (and convert the dict to a list)
         # Also, turn the lists of names into lists of players, and build a player name list.
@@ -207,12 +210,12 @@ class GameItem(QtGui.QListWidgetItem):
             if team_index == 1:
                 for ffa_player in team:
                     if ffa_player in self.client.players:
-                        self.players.extend(self.client.players[ffa_player])
+                        self.players.append(self.client.players[ffa_player])
                         teams.append([self.client.players[ffa_player]])
             else:
                 for name in team:
                     if name in self.client.players:
-                        self.players.extend(self.client.players[name])
+                        self.players.append(self.client.players[name])
                         teams.append([self.client.players[name]])
 
         # Tuples for feeding into trueskill.
@@ -247,9 +250,6 @@ class GameItem(QtGui.QListWidgetItem):
                              
             self.setIcon(icon)
 
-        # Used to differentiate between newly added / removed and previously present players            
-        oldplayers = set(self.players)
-
         strQuality = ""
         
         if self.gamequality == 0 :
@@ -277,10 +277,10 @@ class GameItem(QtGui.QListWidgetItem):
 
         # Update player URLs
         for player in self.players:
-            client.urls[player] = self.url(player)
+            client.urls[player] = self.url(player.id)
 
         # Determine which players are affected by this game's state change            
-        newplayers = set(self.players)            
+        newplayers = set(map(lambda p: p.login, self.players))
         affectedplayers = oldplayers | newplayers
         client.usersUpdated.emit(list(affectedplayers))
 

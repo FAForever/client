@@ -50,15 +50,6 @@ class Player:
             return False
         return other.id == self.id
 
-    def __getitem__(self, item):
-        """
-        Allow dictionary access
-
-        # FIXME: Don't use Player as a dictionary
-        """
-        if isinstance(item, str):
-            return getattr(self, item)
-
     def rounded_rating_estimate(self):
         """
         Get the conservative estimate of the players global trueskill rating, rounded to nearest 100
