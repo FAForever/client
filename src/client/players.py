@@ -1,5 +1,6 @@
 import random
 
+from client import Player
 from util import logger
 
 import json
@@ -104,6 +105,8 @@ class Players:
         return self.__getitem__(item) is not None
 
     def __getitem__(self, item):
+        if isinstance(item, Player):
+            return item
         try:
             return self._players[int(item)]
         except (ValueError, KeyError):
