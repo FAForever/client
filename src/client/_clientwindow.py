@@ -1235,9 +1235,9 @@ class ClientWindow(FormClass, BaseClass):
             arguments.append('/' + Factions.to_name(self.games.race))
             # Player 1v1 rating
             arguments.append('/mean')
-            arguments.append(str(self.players[self.id]["ladder_rating_mean"]))
+            arguments.append(str(self.me.ladder_rating_mean))
             arguments.append('/deviation')
-            arguments.append(str(self.players[self.id]["ladder_rating_deviation"]))
+            arguments.append(str(self.me.ladder_rating_deviation))
 
             # Launch the auto lobby
             self.game_session.init_mode = 1
@@ -1245,9 +1245,9 @@ class ClientWindow(FormClass, BaseClass):
         else:
             # Player global rating
             arguments.append('/mean')
-            arguments.append(str(self.players[self.id]["rating_mean"]))
+            arguments.append(str(self.me.rating_mean))
             arguments.append('/deviation')
-            arguments.append(str(self.players[self.id]["rating_deviation"]))
+            arguments.append(str(self.me.rating_deviation))
             if self.me.country is not None:
                 arguments.append('/country ')
                 arguments.append(self.me.country)
