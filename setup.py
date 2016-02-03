@@ -59,7 +59,7 @@ build_exe_options = {
 shortcut_table = [
     ('DesktopShortcut',           # Shortcut
      'DesktopFolder',             # Directory_
-     'FA Forever BETA',           # Name
+     'FA Forever',                # Name
      'TARGETDIR',                 # Component_
      '[TARGETDIR]FAForever.exe',  # Target
      None,                        # Arguments
