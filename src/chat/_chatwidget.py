@@ -432,7 +432,4 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             self.connection.nick(self.client.login + "_")
 
     def on_kick(self, c, e):
-        logger.info("Kicked from " + e.target())
-        channel = e.target()
-        self.removeTab(self.indexOf(self.channels[channel]))
-        del self.channels[channel]
+        pass
