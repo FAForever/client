@@ -262,16 +262,7 @@ class GameItem(QtGui.QListWidgetItem):
 
         self.editTooltip(teams)
 
-        if self.mod == "faf" or self.mod == "balancetesting" and not self.mods:
-            self.setText(self.FORMATTER_FAF.format(color=color, mapslots = self.slots, mapdisplayname=self.mapdisplayname, title=self.title, host=self.host, players=num_players, playerstring=playerstring, gamequality = strQuality))
-        else:
-            if not self.mods:
-                modstr = self.mod
-            else:
-                if self.mod == 'faf': modstr = ", ".join(self.mods.values())
-                else: modstr = self.mod + " & " + ", ".join(self.mods.values())
-                if len(modstr) > 20: modstr = modstr[:15] + "..."
-            self.setText(self.FORMATTER_MOD.format(color=color, mapslots = self.slots, mapdisplayname=self.mapdisplayname, title=self.title, host=self.host, players=num_players, playerstring=playerstring, gamequality = strQuality, mod=modstr))
+        self.setText(self.FORMATTER_FAF.format(color=color, mapslots = self.slots, mapdisplayname=self.mapdisplayname, title=self.title, host=self.host, players=num_players, playerstring=playerstring, gamequality = strQuality))
 
         #Spawn announcers: IF we had a gamestate change, show replay and hosting announcements 
         if (oldstate != self.state):            
