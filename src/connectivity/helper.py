@@ -145,7 +145,7 @@ class ConnectivityHelper(QObject):
     def handle_SendNatPacket(self, msg):
         target, message = msg['args']
         host, port = target.split(':')
-        if self._socket.localPort() == self._port:
+        if self.state is None and self._socket.localPort() == self._port:
             self._socket.randomize_port()
         self._socket.writeDatagram(b'\x08'+message.encode(), QHostAddress(host), int(port))
 
