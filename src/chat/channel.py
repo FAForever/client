@@ -412,13 +412,13 @@ class Channel(FormClass, BaseClass):
         if join and self.lobby.client.joinsparts:
             self.printAction(name, "joined the channel.", server_action=True)
     
-    def removeChatter(self, name, action = None):
+    def removeChatter(self, name, server_action=None):
         if name in self.chatters:
             self.nickList.removeRow(self.chatters[name].row())        
             del self.chatters[name]
 
-            if action and (self.lobby.client.joinsparts or self.private):
-                self.printAction(name, action, server_action=True)
+            if server_action and (self.lobby.client.joinsparts or self.private):
+                self.printAction(name, server_action, server_action=True)
                 self.stopBlink()
 
 
