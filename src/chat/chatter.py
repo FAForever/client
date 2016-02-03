@@ -26,8 +26,8 @@ class Chatter(QtGui.QTableWidgetItem):
     RANK_ELEVATION = 0
     RANK_FRIEND = 1
     RANK_USER = 2
-    RANK_FOE = 3
-    RANK_NONPLAYER = 4
+    RANK_NONPLAYER = 3
+    RANK_FOE = 4
 
     def __init__(self, parent, user, lobby, *args, **kwargs):
         QtGui.QTableWidgetItem.__init__(self, *args, **kwargs)
