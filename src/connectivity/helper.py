@@ -155,8 +155,6 @@ class ConnectivityHelper(QObject):
         self.state, self.mapped_address = state, (host, port)
         self.connectivity_status_established.emit(self.state, self.addr)
         self._logger.info("Connectivity state is {}, mapped address: {}".format(state, addr))
-        if state == 'PUBLIC':
-            self._socket.reset_port()
 
     def handle_message(self, msg):
         command = msg.get('command')
