@@ -362,7 +362,10 @@ class Channel(FormClass, BaseClass):
     @QtCore.pyqtSlot(list)
     def update_users(self, updated_users):
         for id in updated_users:
-            name = self.lobby.client.players[id].login
+            if id in self.lobby.client.players:
+                name = self.lobby.client.players[id].login
+            else:
+                name = id
             if name in self.chatters:
                 self.chatters[name].update()
         
