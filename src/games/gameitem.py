@@ -207,9 +207,12 @@ class GameItem(QtGui.QListWidgetItem):
             self.players.extend(team)
             if team_index == 1:
                 for ffa_player in team:
-                    teams.append([self.client.players[ffa_player]])
+                    if ffa_player in self.client.players:
+                        teams.append([self.client.players[ffa_player]])
             else:
-                teams.append(map(lambda name: self.client.players[name], team))
+                for name in team:
+                    if name in self.client.players:
+                        teams.append([self.client.players[name]])
 
         # Tuples for feeding into trueskill.
         rating_tuples = []
