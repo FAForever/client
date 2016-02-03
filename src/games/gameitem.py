@@ -204,14 +204,15 @@ class GameItem(QtGui.QListWidgetItem):
         self.players = []
         teams = []
         for team_index, team in teams_map.iteritems():
-            self.players.extend(team)
             if team_index == 1:
                 for ffa_player in team:
                     if ffa_player in self.client.players:
+                        self.players.extend(self.client.players[ffa_player])
                         teams.append([self.client.players[ffa_player]])
             else:
                 for name in team:
                     if name in self.client.players:
+                        self.players.extend(self.client.players[name])
                         teams.append([self.client.players[name]])
 
         # Tuples for feeding into trueskill.
@@ -390,12 +391,4 @@ class GameItem(QtGui.QListWidgetItem):
 
     @property
     def average_rating(self):
-        def rating_estimate(p):
-            if p not in self.client.players:
-                return 1500
-            p = self.client.players[p]
-            # FIXME: ...
-            if hasattr(p, 'rating_estimate'):
-                return p.rating_estimate()
-            return 1500
-        return sum(map(rating_estimate, self.players)) / max(len(self.players), 1)
+        return sum(map(lambda p: p.rating_estimate(), self.players)) / max(len(self.players), 1)
