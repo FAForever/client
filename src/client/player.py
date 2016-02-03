@@ -56,7 +56,8 @@ class Player:
 
         # FIXME: Don't use Player as a dictionary
         """
-        return getattr(self, item)
+        if isinstance(item, str):
+            return getattr(self, item)
 
     def rounded_rating_estimate(self):
         """
