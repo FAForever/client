@@ -253,7 +253,7 @@ class ReplaysWidget(BaseClass, FormClass):
                     # Parse replayinfo into data
                     if item.info.get('complete', False):
                         game_date = time.strftime("%Y-%m-%d", time.localtime(item.info.get('launched_at', time.time())))
-                        game_hour = time.strftime("%H:%M", time.localtime(item.info('launched_at', time.time())))
+                        game_hour = time.strftime("%H:%M", time.localtime(item.info.get('launched_at', time.time())))
                         
                         bucket = buckets.setdefault(game_date, [])                    
                         
