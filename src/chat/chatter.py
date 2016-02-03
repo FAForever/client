@@ -93,14 +93,16 @@ class Chatter(QtGui.QTableWidgetItem):
         ''' Comparison operator used for item list sorting '''
         firstStatus = self.getUserRank(self)
         secondStatus = self.getUserRank(other)
-        # if not same rank sort
-        if firstStatus != secondStatus:
-            return firstStatus < secondStatus
 
         # List self below all friends and above every other player
         if self.name == self.lobby.client.login: return True
         if other.name == self.lobby.client.login: return False
-        
+
+        # if not same rank sort
+        if firstStatus != secondStatus:
+            return firstStatus < secondStatus
+
+
         # Default: Alphabetical
         return self.name.lower() < other.name.lower()
 
