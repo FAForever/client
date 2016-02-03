@@ -60,10 +60,10 @@ class GPGNetConnection(QObject):
 
             ds.readRawData(5)
 
-            datastring = ds.readRawData(fieldSize).decode()
+            datastring = ds.readRawData(fieldSize).decode('utf-8')
             fixedStr = datastring.replace("/t","\t").replace("/n","\n")
 
-            return str(fixedStr)
+            return unicode(fixedStr)
         else:
             raise Exception("Unknown GameConnection Field Type: %d" % fieldType)
 
