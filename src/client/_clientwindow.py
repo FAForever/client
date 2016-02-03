@@ -817,7 +817,6 @@ class ClientWindow(FormClass, BaseClass):
     @QtCore.pyqtSlot()
     def on_connected(self):
         self.state = ClientState.ACCEPTED
-        self._connection_attempts = 0
         self.localIP = self.socket.localAddress()
         self.send(dict(command="ask_session",
                        version=config.VERSION,
@@ -1143,6 +1142,8 @@ class ClientWindow(FormClass, BaseClass):
         self._client_updater.exec_()
 
     def handle_welcome(self, message):
+        self._connection_attempts = 0
+
         self.id = message["id"]
         self.login = message["login"]
         self.me = Player(id=self.id, login=self.login)
