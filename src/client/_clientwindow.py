@@ -1138,7 +1138,7 @@ class ClientWindow(FormClass, BaseClass):
 
         logger.warn("Server says we need an update")
         self.progress.close()
-        self.state = ClientState.OUTDATED
+        self.state = ClientState.DISCONNECTED
         self._client_updater = ClientUpdater(message['update'])
         self._client_updater.exec_()
 
