@@ -965,7 +965,7 @@ class ClientWindow(FormClass, BaseClass):
                 return
 
             action = ins.readQString()
-            logger.info("Server: '%s'" % action)
+            logger.debug("Server: '%s'" % action)
 
             if action == "PING":
                 self.writeToServer("PONG")
