@@ -19,6 +19,7 @@ from replay import replay
 
 import check
 import maps
+import mods
 import replayserver
 import updater
 import upnp
