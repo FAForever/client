@@ -292,8 +292,10 @@ class Channel(FormClass, BaseClass):
         self.printLine(name, text, scroll_forced, fmt)
 
     @QtCore.pyqtSlot(str, str)
-    def printAction(self, name, text, scroll_forced=False):
-        if name in self.chatters and self.chatters[name].avatar:
+    def printAction(self, name, text, scroll_forced=False, server_action=False):
+        if server_action:
+            fmt = Formatters.FORMATTER_RAW
+        elif name in self.chatters and self.chatters[name].avatar:
             fmt = Formatters.FORMATTER_ACTION_AVATAR
         else:
             fmt = Formatters.FORMATTER_ACTION
