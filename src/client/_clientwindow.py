@@ -1192,7 +1192,8 @@ class ClientWindow(FormClass, BaseClass):
                 'command': 'game_matchmaking',
                 'mod': 'ladder1v1',
                 'state': 'start',
-                'gameport': self.gamePort
+                'gameport': self.gamePort,
+                'faction': faction
             }
             if self.connectivity.state == 'STUN':
                 msg['relay_address'] = self.connectivity.relay_address
