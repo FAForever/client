@@ -675,6 +675,8 @@ class ClientWindow(FormClass, BaseClass):
         self.actionSetSoundEffects.triggered.connect(self.updateOptions)
         self.actionSetOpenGames.triggered.connect(self.updateOptions)
         self.actionSetJoinsParts.triggered.connect(self.updateOptions)
+        self.actionSetLanguageChannel.triggered.connect(self.updateOptions)
+        self.actionSetNewbiesChannel.triggered.connect(self.updateOptions)
         self.actionSetLiveReplays.triggered.connect(self.updateOptions)
         self.actionSaveGamelogs.toggled.connect(self.on_actionSavegamelogs_toggled)
         self.actionSaveGamelogs.setChecked(self.gamelogs)
@@ -702,6 +704,8 @@ class ClientWindow(FormClass, BaseClass):
         self.soundeffects = self.actionSetSoundEffects.isChecked()
         self.opengames = self.actionSetOpenGames.isChecked()
         self.joinsparts = self.actionSetJoinsParts.isChecked()
+        self.useLanguageChannel = self.actionSetLanguageChannel.isChecked()
+        self.useNewbiesChannel = self.actionSetNewbiesChannel.isChecked()
         self.livereplays = self.actionSetLiveReplays.isChecked()
 
         self.gamelogs = self.actionSaveGamelogs.isChecked()
@@ -775,6 +779,8 @@ class ClientWindow(FormClass, BaseClass):
         util.settings.setValue("livereplays", self.livereplays)
         util.settings.setValue("opengames", self.opengames)
         util.settings.setValue("joinsparts", self.joinsparts)
+        util.settings.setValue("languageChannel", self.useLanguageChannel)
+        util.settings.setValue("newbiesChannel", self.useNewbiesChannel)
         util.settings.setValue("coloredNicknames", self.players.coloredNicknames)
         util.settings.endGroup()
 
@@ -796,6 +802,8 @@ class ClientWindow(FormClass, BaseClass):
             self.soundeffects = (util.settings.value("soundeffects", "true") == "true")
             self.opengames = (util.settings.value("opengames", "true") == "true")
             self.joinsparts = (util.settings.value("joinsparts", "false") == "true")
+            self.useLanguageChannel = (util.settings.value("languageChannel","true") == "true")
+            self.useNewbiesChannel = (util.settings.value("newbiesChannel","true") == "true")
             self.livereplays = (util.settings.value("livereplays", "true") == "true")
             self.players.coloredNicknames = (util.settings.value("coloredNicknames", "false") == "true")
 
@@ -805,6 +813,8 @@ class ClientWindow(FormClass, BaseClass):
             self.actionSetLiveReplays.setChecked(self.livereplays)
             self.actionSetOpenGames.setChecked(self.opengames)
             self.actionSetJoinsParts.setChecked(self.joinsparts)
+            self.actionSetLanguageChannel.setChecked(self.useLanguageChannel)
+            self.actionSetNewbiesChannel.setChecked(self.useNewbiesChannel)
         except:
             pass
 
