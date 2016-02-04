@@ -173,9 +173,7 @@ class GamesWidget(FormClass, BaseClass):
             self.race = race
             self.searchProgress.setVisible(True)
             self.labelAutomatch.setText("Searching...")
-            self.client.send(dict(command="game_matchmaking", mod="ladder1v1", state="start",
-                                  gameport=self.client.gamePort,
-                                  faction=self.race.value))
+            self.client.search_ranked(faction=self.race.value)
 
     @QtCore.pyqtSlot()
     def stopSearchRanked(self, *args):

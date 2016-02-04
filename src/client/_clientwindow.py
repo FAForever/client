@@ -1186,6 +1186,21 @@ class ClientWindow(FormClass, BaseClass):
         self.state = ClientState.REJECTED
         self.handle_notice({"style": "notice", "text": message["error"]})
 
+    def search_ranked(self, faction):
+        def request_launch():
+            msg = {
+                'command': 'game_matchmaking',
+                'mod': 'ladder1v1',
+                'state': 'start',
+            }
+            if self.connectivity.state == 'STUN':
+                msg['relay_address'] = self.connectivity.relay_address
+            self.send(msg)
+            self.game_session.ready.disconnect(request_launch)
+        if self.game_session:
+            self.game_session.ready.connect(request_launch)
+            self.game_session.listen()
+
     def host_game(self, title, mod, visibility, mapname, password):
         def request_launch():
             msg = {
@@ -1222,7 +1237,7 @@ class ClientWindow(FormClass, BaseClass):
             self.game_session.listen()
 
     def handle_game_launch(self, message):
-        if not self.game_session:
+        if not self.game_session or not self.connectivity.is_ready:
             logger.error("Not ready for game launch")
 
         logger.info("Handling game_launch via JSON " + str(message))
