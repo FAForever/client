@@ -76,15 +76,15 @@ def check(featured_mod, mapname=None, version=None, modVersions=None, sim_mods=N
     # Perform the actual comparisons and updating                    
     logger.info("Updating FA for mod: " + str(featured_mod) + ", version " + str(version))
 
+    import client
+    path(client.instance)
+
     # Spawn an update for the required mod
     game_updater = fa.updater.Updater(featured_mod, version, modVersions, silent=silent)
     result = game_updater.run()
 
     if result != fa.updater.Updater.RESULT_SUCCESS:
         return False
-
-    import client
-    path(client.instance)
 
     # Now it's down to having the right map
     if mapname:
