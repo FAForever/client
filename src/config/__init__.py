@@ -67,6 +67,7 @@ def make_dirs():
     for dir in [
         'client/data_path',
         'game/logs/path',
+        'game/bin/path',
         'game/mods/path',
         'game/engine/path',
         'game/maps/path',
