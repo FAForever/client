@@ -11,6 +11,7 @@ patched, and all required files for a given mod are installed
 @author thygrrr
 """
 import os
+import stat
 import subprocess
 import time
 import shutil
@@ -20,6 +21,8 @@ import urllib2
 import sys
 import tempfile
 import json
+
+import config
 from config import Settings
 
 from PyQt4 import QtGui, QtCore, QtNetwork
@@ -369,6 +372,31 @@ class Updater(QtCore.QObject):
 
         log("Updates applied successfully.")
 
+    def prepareBinFAF(self):
+        '''
+        Creates all necessary files in the binFAF folder, which contains a modified copy of all
+        that is in the standard bin folder of Forged Alliance
+        '''
+        self.progress.setLabelText("Preparing binFAF...")
+
+        #now we check if we've got a binFAF folder
+        FABindir = os.path.join(config.Settings.get("ForgedAlliance/app/path"), 'bin')
+        FAFdir = util.BIN_DIR
+
+        #Try to copy without overwriting, but fill in any missing files, otherwise it might miss some files to update
+        root_src_dir = FABindir
+        root_dst_dir = FAFdir
+
+        for src_dir, _, files in os.walk(root_src_dir):
+            dst_dir = src_dir.replace(root_src_dir, root_dst_dir)
+            if not os.path.exists(dst_dir):
+                os.mkdir(dst_dir)
+            for file_ in files:
+                src_file = os.path.join(src_dir, file_)
+                dst_file = os.path.join(dst_dir, file_)
+                if not os.path.exists(dst_file):
+                    shutil.copy(src_file, dst_dir)
+                os.chmod(dst_file, stat.S_IWRITE)   # make all files we were considering writable, because we may need to patch them
 
     def doUpdate(self):
         """ The core function that does most of the actual update work."""
@@ -382,18 +410,18 @@ class Updater(QtCore.QObject):
 
             else:
                 #Prepare FAF directory & all necessary files
-                #self.prepareBinFAF() # removed for feature/new-patcher
+                self.prepareBinFAF()
 
                 #Update the mod if it's requested
                 if self.featured_mod == "faf" or self.featured_mod == "ladder1v1":  #HACK - ladder1v1 "is" FAF. :-)
-                    self.updateFiles("bin", "FAF")  # removed for feature/new-patcher
-                    self.updateFiles("gamedata", "FAFGAMEDATA") # removed for feature/new-patcher
+                    self.updateFiles("bin", "FAF")
+                    self.updateFiles("gamedata", "FAFGAMEDATA")
                     pass
                 elif self.featured_mod:
-                    self.updateFiles("bin", "FAF")  # removed for feature/new-patcher
-                    self.updateFiles("gamedata", "FAFGAMEDATA") # removed for feature/new-patcher
-                    #self.updateFiles("bin", self.featured_mod)
-                    #self.updateFiles("gamedata", self.featured_mod + "Gamedata")
+                    self.updateFiles("bin", "FAF")
+                    self.updateFiles("gamedata", "FAFGAMEDATA")
+                    self.updateFiles("bin", self.featured_mod)
+                    self.updateFiles("gamedata", self.featured_mod)
 
         except UpdaterTimeout, et:
             log("TIMEOUT: %s(%s)" % (et.__class__.__name__, str(et.args)))
@@ -519,9 +547,6 @@ class Updater(QtCore.QObject):
             path = stream.readQString()
             fileToCopy = stream.readQString()
             url = stream.readQString()
-
-            #HACK for feature/new-patcher
-            path = util.LUA_DIR if path == "bin" else path
 
             toFile = os.path.join(util.APPDATA_DIR, str(path), str(fileToCopy))
             self.fetchFile(url, toFile)
