@@ -25,6 +25,16 @@ class Settings:
         # don't necessarily want to persist
         if key in _unpersisted_settings:
             return _unpersisted_settings[key]
+        # Read a list from the Settings
+        # this assumes that all the elements of the list are strings
+        if type == list:
+            savedlist = []
+            size = _settings.beginReadArray(key)
+            for i in range(size):
+                _settings.setArrayIndex(i)
+                savedlist += [_settings.value("key",str)]
+            _settings.endArray()
+            return savedlist
         # Hit QSettings to see if the user has defined a value for the key
         if _settings.contains(key):
             return _settings.value(key, type=type)
@@ -37,7 +47,14 @@ class Settings:
         if not persist:
             _settings.remove(key)
         else:
-            _settings.setValue(key, value)
+            if not isinstance(value, list):
+                _settings.setValue(key, value)
+            else:
+                _settings.beginWriteArray(key)
+                for i, listvalue in enumerate(value):
+                    _settings.setArrayIndex(i)
+                    _settings.setValue("key", listvalue)
+                _settings.endArray()
 
     @staticmethod
     def remove(key):
