@@ -18,6 +18,19 @@ class GameProcess(QtCore.QProcess):
         QtCore.QProcess.__init__(self, *args, **kwargs)
         self.info = None
 
+    @QtCore.pyqtSlot(list)
+    def processGameInfo(self, message):
+        '''
+        Processes game info events, sifting out the ones relevant to the game that's currently playing.
+        If such a game is found, it will merge all its data on the first try, "completing" the game info.
+        '''
+        if self.info and not self.info.setdefault('complete', False):
+            if self.info['uid'] == message['uid']:
+                if message['state'] == "playing":
+                    self.info = dict(self.info.items() + message.items())
+                    self.info['complete'] = True
+                    logger.info("Game Info Complete: " + str(self.info))
+
     def run(self, info, arguments, detach=False, init_file=None):
             """
             Performs the actual running of ForgedAlliance.exe

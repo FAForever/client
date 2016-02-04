@@ -192,6 +192,7 @@ class ClientWindow(FormClass, BaseClass):
         fa.instance.started.connect(self.startedFA)
         fa.instance.finished.connect(self.finishedFA)
         fa.instance.error.connect(self.errorFA)
+        self.gameInfo.connect(fa.instance.processGameInfo)
 
         # Local Replay Server
         self.replayServer = fa.replayserver.ReplayServer(self)
