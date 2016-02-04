@@ -423,14 +423,14 @@ class Updater(QtCore.QObject):
                     self.updateFiles("bin", self.featured_mod)
                     self.updateFiles("gamedata", self.featured_mod)
 
-        except UpdaterTimeout, et:
-            log("TIMEOUT: %s(%s)" % (et.__class__.__name__, str(et.args)))
+        except UpdaterTimeout, e:
+            log("TIMEOUT: {}".format(e))
             self.result = self.RESULT_FAILURE
-        except UpdaterCancellation, ec:
-            log("CANCELLED: %s(%s)" % (ec.__class__.__name__, str(ec.args)))
+        except UpdaterCancellation, e:
+            log("CANCELLED: {}".format(e))
             self.result = self.RESULT_CANCEL
         except Exception, e:
-            log("EXCEPTION: %s(%s)" % (e.__class__.__name__, str(e.args)))
+            log("EXCEPTION: {}".format(e))
             self.result = self.RESULT_FAILURE
         else:
             self.result = self.RESULT_SUCCESS
