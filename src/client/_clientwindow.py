@@ -1240,6 +1240,8 @@ class ClientWindow(FormClass, BaseClass):
             arguments.append(str(self.me.ladder_rating_mean))
             arguments.append('/deviation')
             arguments.append(str(self.me.ladder_rating_deviation))
+            arguments.append('/players 2')  # Always 2 players in 1v1 ladder
+            arguments.append('/team 1')     # Always FFA team
 
             # Launch the auto lobby
             self.game_session.init_mode = 1
