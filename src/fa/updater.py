@@ -713,7 +713,5 @@ def failureDialog():
     """
     The dialog that shows the user the log if something went wrong.
     """
-    ui = util.loadUi("fa/updater/failure.ui")
-    ui.logBox.appendPlainText(dumpPlainText())
-    return ui.exec_()
+    raise Exception(dumpPlainText())
 
