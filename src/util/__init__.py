@@ -21,8 +21,9 @@ else:
     if settings.contains("wine/prefix"):
         wine_prefix = settings.value("wine/prefix")
     else:
-        wine_prefix = None
+        wine_prefix = os.path.join(os.path.expanduser("~"), ".wine")
     settings_file = settings.fileName()
+    wine_use_optirun = settings.value("wine/use_optirun", False)
 
 from config import VERSION as VERSION_STRING
 
@@ -78,12 +79,21 @@ REPO_DIR = os.path.join(APPDATA_DIR, "repo")
 if not os.path.exists(REPO_DIR):
     os.makedirs(REPO_DIR)
 
-LOCALFOLDER = os.path.join(os.path.expandvars("%LOCALAPPDATA%"), "Gas Powered Games",
-                           "Supreme Commander Forged Alliance")
-if not os.path.exists(LOCALFOLDER):
-    LOCALFOLDER = os.path.join(os.path.expandvars("%USERPROFILE%"), "Local Settings", "Application Data",
-                               "Gas Powered Games", "Supreme Commander Forged Alliance")
+if WINDOWS:
+    LOCALFOLDER = os.path.join(os.path.expandvars("%LOCALAPPDATA%"), "Gas Powered Games",
+                               "Supreme Commander Forged Alliance")
+    if not os.path.exists(LOCALFOLDER):
+        LOCALFOLDER = os.path.join(os.path.expandvars("%USERPROFILE%"), "Local Settings", "Application Data",
+                                   "Gas Powered Games", "Supreme Commander Forged Alliance")
+else:
+    import getpass
+    LOCALFOLDER = os.path.join(wine_prefix, 'drive_c', 'users', getpass.getuser(), "Local Settings", "Application Data",
+                                   "Gas Powered Games", "Supreme Commander Forged Alliance")
+
 PREFSFILENAME = os.path.join(LOCALFOLDER, "game.prefs")
+if not os.path.exists(PREFSFILENAME):
+    PREFSFILENAME = os.path.join(LOCALFOLDER, "Game.prefs") #fix wrong case on some Linux machines
+
 
 DOWNLOADED_RES_PIX = {}
 DOWNLOADING_RES_PIX = {}

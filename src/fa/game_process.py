@@ -45,6 +45,8 @@ class GameProcess(QtCore.QProcess):
                 command = '"' + executable + '" ' + " ".join(arguments)
             else:
                 command = util.wine_exe + ' "' + executable + '" ' + " ".join(arguments)
+                if util.wine_use_optirun:
+                    command = "optirun " + command
                 if util.wine_prefix:
                     wine_env = QtCore.QProcessEnvironment.systemEnvironment()
                     wine_env.insert("WINEPREFIX", util.wine_prefix)
