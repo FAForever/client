@@ -284,6 +284,8 @@ class GamesWidget(FormClass, BaseClass):
             self.gamepassword = password
             self.ispassworded = True
             util.settings.setValue("password", password)
+        else:
+            self.ispassworded = False
 
         util.settings.endGroup()
 
