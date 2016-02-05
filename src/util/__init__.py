@@ -7,6 +7,23 @@ from ctypes import *
 def developer():
     return sys.executable.endswith("python.exe")
 
+# Public settings object
+# Stolen from Config because reasons
+from config import _settings
+settings = _settings
+
+import platform
+if platform.system() == "Windows":
+    WINDOWS = True
+else:
+    WINDOWS = False
+    wine_exe = settings.value("wine/exe", "wine")
+    if settings.contains("wine/prefix"):
+        wine_prefix = settings.value("wine/prefix")
+    else:
+        wine_prefix = None
+    settings_file = settings.fileName()
+
 from config import VERSION as VERSION_STRING
 
 LOGFILE_MAX_SIZE = 256 * 1024  #256kb should be enough for anyone
@@ -15,7 +32,7 @@ LOGFILE_MAX_SIZE = 256 * 1024  #256kb should be enough for anyone
 UNITS_PREVIEW_ROOT = "http://content.faforever.com/faf/unitsDB/icons/big/"
 
 #These are paths relative to the executable or main.py script
-if sys.platform == 'win32':
+if WINDOWS:
   COMMON_DIR = os.path.join(os.getcwd(), "res")
 else:
   COMMON_DIR = os.path.join("/usr", "share", "fafclient")
@@ -163,11 +180,6 @@ __pixmapcache = {}
 __theme = None
 __themedir = None
 
-
-# Public settings object
-# Stolen from Config because reasons
-from config import _settings
-settings = _settings
 
 def clean_slate(path):
     if os.path.exists(path):
