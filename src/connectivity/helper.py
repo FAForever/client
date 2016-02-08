@@ -11,7 +11,7 @@ from connectivity.relay import Relay
 from connectivity.turn import TURNState
 from decorators import with_logger
 
-from client import ClientState
+
 from PyQt4 import QtGui, uic
 
 
@@ -153,6 +153,7 @@ class ConnectivityHelper(QObject):
         self._socket.writeDatagram(b'\x08'+message.encode(), QHostAddress(host), int(port))
 
     def handle_ConnectivityState(self, msg):
+        from client import ClientState
         state, addr = msg['args']
         if state == 'BLOCKED':
             self._logger.warning("Outbound traffic is blocked")
