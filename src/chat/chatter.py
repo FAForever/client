@@ -148,7 +148,6 @@ class Chatter(QtGui.QTableWidgetItem):
         player = self.lobby.client.players[self.id]
         if not player and not self.id == -1:  # We should have a player object for this
             player = self.lobby.client.players[self.name]
-            print("Looked up {} to {}".format(self.id, player))
 
         # Weed out IRC users and those we don't know about early.
         if self.id == -1 or player is None:
