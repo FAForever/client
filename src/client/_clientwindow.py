@@ -178,6 +178,7 @@ class ClientWindow(FormClass, BaseClass):
         self.tray.show()
 
         self._state = ClientState.NONE
+        self.auth_state = ClientState.NONE # Using ClientState for reasons
         self.session = None
         self._connection_attempts = 0
 
@@ -1181,10 +1182,10 @@ class ClientWindow(FormClass, BaseClass):
 
     def handle_registration_response(self, message):
         if message["result"] == "SUCCESS":
-            self.state = ClientState.CREATED
+            self.auth_state = ClientState.CREATED
             return
 
-        self.state = ClientState.REJECTED
+        self.auth_state = ClientState.REJECTED
         self.handle_notice({"style": "notice", "text": message["error"]})
 
     def search_ranked(self, faction):

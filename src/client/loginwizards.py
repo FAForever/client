@@ -327,15 +327,17 @@ class AccountCreationPage(QtGui.QWizardPage):
         })
 
         # Wait for client state to change.
-        util.wait(lambda: self.client.state)
+        util.wait(lambda: self.client.auth_state == ClientState.CREATED or self.client.auth_state == ClientState.REJECTED)
                 
-        if self.client.state == ClientState.REJECTED:
+        if self.client.auth_state == ClientState.REJECTED:
             QtGui.QMessageBox.information(self, "Create account", "Sorry, this Login is not available, or the email address was already used.")
             return False
-        else:
+        elif self.client.auth_state == ClientState.CREATED:
             self.client.login = login
             self.client.password = hashed_password
-            return True  
+            return True
+        else:
+            return False
 
 class GameSettings(QtGui.QWizardPage):
     def __init__(self, parent=None):
