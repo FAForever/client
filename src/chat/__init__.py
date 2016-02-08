@@ -10,6 +10,12 @@ IRC_ELEVATION = '%@~%+&'
 
 def user2name(user):
     return (user.split('!')[0]).strip(IRC_ELEVATION)
+def user2id(user):
+    try:
+        return int(user.split('!')[1].split('@')[0])
+    except:
+        return None
+
 
 def parse_irc_source(src):
     """

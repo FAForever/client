@@ -14,7 +14,7 @@ import fa
 
 import sys
 import chat
-from chat import user2name, parse_irc_source
+from chat import user2name, user2id, parse_irc_source
 from chat.channel import Channel
 from chat.irclib import SimpleIRCClient
 import notifications as ns
@@ -404,8 +404,9 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
     def on_privmsg(self, c, e):
         name = user2name(e.source())
+        id = user2id(e.source())
 
-        if self.client.players.isFoe(name):
+        if self.client.players.isFoe(id):
             return
 
         # Create a Query if it's not open yet, and post to it if it exists.
@@ -414,9 +415,10 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
     def on_action(self, c, e):
         name = user2name(e.source())
+        id = user2id(e.source())
         target = e.target()
 
-        if self.client.players.isFoe(name):
+        if self.client.players.isFoe(id):
             return
 
         # Create a Query if it's not an action intended for a channel
