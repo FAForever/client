@@ -110,7 +110,7 @@ class ConnectivityHelper(QObject):
         return (self.relay_address is not None
                 and self.relay_address is not [None, None]
                 and self.mapped_address is not None
-                and self._socket.state == QAbstractSocket.BoundState)
+                and self._socket.state() == QAbstractSocket.BoundState)
 
     def start_test(self):
         self.send('InitiateTest', [self._port])
