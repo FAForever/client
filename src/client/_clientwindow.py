@@ -1313,7 +1313,11 @@ class ClientWindow(FormClass, BaseClass):
         self.modInfo.emit(message)
 
     def handle_game_info(self, message):
-        self.gameInfo.emit(message)
+        if 'games' in message:
+            for game in message['games']:
+                self.gameInfo.emit(game)
+        else:
+            self.gameInfo.emit(message)
 
     def handle_modvault_list_info(self, message):
         modList = message["modList"]
