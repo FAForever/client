@@ -187,8 +187,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             return False
 
     def openQuery(self, name, activate=False):
-        # Ignore foes, and ourselves.
-        if self.client.players.isFoe(name) or name == self.client.login:
+        # Ignore ourselves.
+        if name == self.client.login:
             return False
 
         if name not in self.channels:
@@ -354,10 +354,11 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.log_event(e)
 
     def on_pubmsg(self, c, e):
+        name, id, elevation, hostname = parse_irc_source(e.source())
         target = e.target()
 
-        if target in self.channels:
-            self.channels[target].printMsg(user2name(e.source()), "\n".join(e.arguments()))
+        if target in self.channels and not self.client.players.isFoe(id):
+            self.channels[target].printMsg(name, "\n".join(e.arguments()))
 
     def on_privnotice(self, c, e):
         source = user2name(e.source())
@@ -403,9 +404,9 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             self.connect(self.client.me)
 
     def on_privmsg(self, c, e):
-        name = user2name(e.source())
+        name, id, elevation, hostname = parse_irc_source(e.source())
 
-        if self.client.players.isFoe(name):
+        if self.client.players.isFoe(id):
             return
 
         # Create a Query if it's not open yet, and post to it if it exists.
@@ -413,10 +414,10 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             self.channels[name].printMsg(name, "\n".join(e.arguments()))
 
     def on_action(self, c, e):
-        name = user2name(e.source())
+        name, id, elevation, hostname = parse_irc_source(e.source())#user2name(e.source())
         target = e.target()
 
-        if self.client.players.isFoe(name):
+        if self.client.players.isFoe(id):
             return
 
         # Create a Query if it's not an action intended for a channel
