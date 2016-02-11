@@ -23,10 +23,10 @@ class Players:
         self.login = None
         self.coloredNicknames = False
         
-        # names of the client's friends
+        # ids of the client's friends
         self.friends = set()
         
-        # names of the client's foes
+        # ids of the client's foes
         self.foes = set()
         
         # names of the client's clanmates
@@ -39,17 +39,17 @@ class Players:
     colors = json.loads(util.readfile("client/colors.json"))
     randomcolors = json.loads(util.readfile("client/randomcolors.json"))
 
-    def isFriend(self, name):
+    def isFriend(self, id):
         '''
         Convenience function for other modules to inquire about a user's friendliness.
         '''
-        return name in self.friends
+        return id in self.friends
 
-    def isFoe(self, name):
+    def isFoe(self, id):
         '''
         Convenience function for other modules to inquire about a user's foeliness.
         '''
-        return name in self.foes
+        return id in self.foes
 
     def isPlayer(self, name):
         '''

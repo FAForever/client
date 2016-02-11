@@ -283,8 +283,6 @@ class Channel(FormClass, BaseClass):
 
     @QtCore.pyqtSlot(str, str)
     def printMsg(self, name, text, scroll_forced=False):
-        if self.lobby.client.players.isFoe(name):
-            return
         if name in self.chatters and self.chatters[name].avatar:
             fmt = Formatters.FORMATTER_MESSAGE_AVATAR
         else:
