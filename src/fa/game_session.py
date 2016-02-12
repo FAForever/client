@@ -29,6 +29,13 @@ class GameSession(QObject):
     def __init__(self, client, connectivity):
         QObject.__init__(self)
         self._state = GameSessionState.OFF
+        self._rehost = False
+        self.game_uid = None
+        self.game_name = None
+        self.game_mod = None
+        self.game_visibility = None
+        self.game_map = None
+        self.game_password = None
 
         # Subscribe to messages targeted at 'game' from the server
         client.subscribe_to('game', self)
@@ -147,6 +154,9 @@ class GameSession(QObject):
             elif args[0] == 'Lobby':
                 # TODO: Eagerly initialize the game by hosting/joining early
                 pass
+        elif command == 'Rehost':
+            self._rehost = True
+
         self.send(command, args)
 
     def _turn_state_changed(self, val):
@@ -161,3 +171,19 @@ class GameSession(QObject):
         self.state = GameSessionState.OFF
         self._logger.info("Game has exited with status code: {}".format(status))
         self.send('GameState', ['Ended'])
+
+        if self._rehost:
+            self.client.host_game(title=self.game_name,
+                                  mod=self.game_mod,
+                                  visibility=self.game_visibility,
+                                  mapname=self.game_map,
+                                  password=self.game_password,
+                                  is_rehost=True)
+
+        self._rehost = False
+        self.game_uid = None
+        self.game_name = None
+        self.game_mod = None
+        self.game_visibility = None
+        self.game_map = None
+        self.game_password = None

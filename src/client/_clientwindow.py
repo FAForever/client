@@ -1205,7 +1205,7 @@ class ClientWindow(FormClass, BaseClass):
             self.game_session.ready.connect(request_launch)
             self.game_session.listen()
 
-    def host_game(self, title, mod, visibility, mapname, password):
+    def host_game(self, title, mod, visibility, mapname, password, is_rehost=False):
         def request_launch():
             msg = {
                 'command': 'game_host',
@@ -1214,12 +1214,14 @@ class ClientWindow(FormClass, BaseClass):
                 'visibility': visibility,
                 'mapname': mapname,
                 'password': password,
+                'is_rehost': is_rehost
             }
             if self.connectivity.state == 'STUN':
                 msg['relay_address'] = self.connectivity.relay_address
             self.send(msg)
             self.game_session.ready.disconnect(request_launch)
         if self.game_session:
+            self.game_session.game_password = password
             self.game_session.ready.connect(request_launch)
             self.game_session.listen()
 
@@ -1237,6 +1239,7 @@ class ClientWindow(FormClass, BaseClass):
             self.send(msg)
             self.game_session.ready.disconnect(request_launch)
         if self.game_session:
+            self.game_session.game_password = password
             self.game_session.ready.connect(request_launch)
             self.game_session.listen()
 
@@ -1295,6 +1298,8 @@ class ClientWindow(FormClass, BaseClass):
 
         info = dict(uid=message['uid'], recorder=self.login, featured_mod=message['mod'], launched_at=time.time())
 
+        self.game_session.game_uid = message['uid']
+
         fa.run(info, self.game_session.relay_port, arguments)
 
     def handle_coop_info(self, message):
@@ -1313,6 +1318,12 @@ class ClientWindow(FormClass, BaseClass):
         self.modInfo.emit(message)
 
     def handle_game_info(self, message):
+        if message['uid'] == self.game_session.game_uid:
+            self.game_session.game_map = message['mapname']
+            self.game_session.game_mod = message['featured_mod']
+            self.game_session.game_name = message['title']
+            self.game_session.game_visibility = message['visibility']
+
         if 'games' in message:
             for game in message['games']:
                 self.gameInfo.emit(game)
