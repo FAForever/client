@@ -300,7 +300,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         if channel.lower() in self.crucialChannels and name != self.client.login:
             # TODO: search better solution, that html in nick & channel no rendered
             self.client.notificationSystem.on_event(ns.Notifications.USER_ONLINE,
-                                                    {'user': name, 'channel': channel})
+                                                    {'user': id, 'channel': channel})
         self.channels[channel].resizing()
 
     def on_part(self, c, e):
