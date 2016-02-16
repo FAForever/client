@@ -230,14 +230,14 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.welcomed = True
 
     def nickservIdentify(self):
-        if self.identified == False :
+        if not self.identified:
             self.serverLogArea.appendPlainText("[Identify as : %s]" % (self.client.login))
             self.connection.privmsg('NickServ', 'identify %s %s' % (self.client.login, util.md5text(self.client.password)))
 
     def on_identified(self):
         if self.connection.get_nickname() != self.client.login :
             self.serverLogArea.appendPlainText("[Retrieving our nickname : %s]" % (self.client.login))
-            self.connection.privmsg('nickserv', 'recover %s %s' % (self.client.login, util.md5text(self.client.password)))
+            self.connection.privmsg('NickServ', 'recover %s %s' % (self.client.login, util.md5text(self.client.password)))
         #Perform any pending autojoins (client may have emitted autoJoin signals before we talked to the IRC server)
         self.autoJoin(self.optionalChannels)
         self.autoJoin(self.crucialChannels)
