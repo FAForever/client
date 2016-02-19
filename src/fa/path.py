@@ -23,11 +23,11 @@ def writeFAPathLua():
     name = os.path.join(util.APPDATA_DIR, u"fa_path.lua")
     gamepath_fa = config.Settings.get("ForgedAlliance/app/path", type=str)
 
-    code = u"fa_path = '" + gamepath_fa.replace(u"\\", u"\\\\") + u"'\n"
+    code = 'fa_path = "' + gamepath_fa.replace("\\", "\\\\") + '"' + "\n"
 
     gamepath_sc = config.Settings.get("SupremeCommander/app/path", type=str)
     if gamepath_sc:
-        code = code + u"sc_path = '" + gamepath_sc.replace(u"\\", u"\\\\") + u"'\n"
+        code = code + 'sc_path = "' + gamepath_sc.replace("\\", "\\\\") + '"' + "\n"
 
     with open(name, "w+") as lua:
         lua.write(code.encode("utf-8"))
