@@ -23,7 +23,7 @@ else:
     else:
         wine_prefix = os.path.join(os.path.expanduser("~"), ".wine")
     settings_file = settings.fileName()
-    wine_use_optirun = settings.value("wine/use_optirun", False)
+    wine_use_optirun = settings.value("wine/use_optirun", False, type=bool)
 
 from config import VERSION as VERSION_STRING
 
