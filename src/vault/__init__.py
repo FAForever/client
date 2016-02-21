@@ -17,6 +17,12 @@ import json
 
 logger = logging.getLogger(__name__)
 
+class FAFPage(QtWebKit.QWebPage):
+    def __init__(self):
+        super(QtWebKit.QWebPage, self).__init__()
+
+    def userAgentForUrl(self, url):
+        return "FAForever"
 
 class MapVault(QtCore.QObject):
     def __init__(self, client, *args, **kwargs):
@@ -26,6 +32,9 @@ class MapVault(QtCore.QObject):
         logger.debug("Map Vault tab instantiating")
         
         self.ui = QtWebKit.QWebView()
+
+        self.ui.setPage(FAFPage())
+
         self.ui.page().mainFrame().javaScriptWindowObjectCleared.connect(self.addScript)
         
         self.client.mapsTab.layout().addWidget(self.ui)
