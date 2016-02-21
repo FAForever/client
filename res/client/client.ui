@@ -133,7 +133,7 @@
       </widget>
       <widget class="QWidget" name="gamesTab">
        <attribute name="title">
-        <string>Find Games</string>
+        <string>Play</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_7">
         <property name="margin">
