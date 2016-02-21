@@ -1,5 +1,14 @@
-0.11.0 (...)
-============
+0.11.50
+=======
+
+- Fix an issue with users who have ' in their game path
+- Renamed "Find Games" to "Play"
+- Fix links to forum and unit database
+- Fix map vault when using the client in development mode
+
+
+0.11.0
+======
 
 Enhancements
 ------------
