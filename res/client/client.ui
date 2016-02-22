@@ -324,8 +324,6 @@
     <property name="title">
      <string>Links</string>
     </property>
-    <addaction name="actionLinkMumble"/>
-    <addaction name="separator"/>
     <addaction name="actionLinkUnitDB"/>
     <addaction name="separator"/>
     <addaction name="actionLinkWebsite"/>

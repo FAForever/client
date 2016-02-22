@@ -36,6 +36,7 @@ defaults = {
     'FORUMS_URL': 'http://forums.faforever.com/forums',
     'WEBSITE_URL': 'http://www.faforever.com',
     'UNITDB_URL': 'http://faforever.com/faf/unitsDB/',
+    'GITHUB_URL': 'http://www.github.com/FAForever',
     'WIKI_URL': 'http://wiki.faforever.com/mediawiki/index.php/Main_Page',
     'SUPPORT_URL': 'http://forums.faforever.com/viewforum.php?f=3',
     'TICKET_URL': 'http://forums.faforever.com/viewforum.php?f=3',
