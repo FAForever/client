@@ -26,10 +26,6 @@ from PyQt4 import QtGui, uic
 path = os.path.join(os.path.dirname(sys.argv[0]), "PyQt4.uic.widget-plugins")
 uic.widgetPluginPath.append(path)
 
-import config
-import platform
-import util
-
 # Are we running from a frozen interpreter?
 if getattr(sys, 'frozen', False):
     os.chdir(os.path.dirname(sys.executable))
@@ -40,7 +36,11 @@ else:
     os.chdir(devRoot)
     # We need to set the working directory correctly.
 
+import util
 util.COMMON_DIR = os.path.join(os.getcwd(), "res")
+
+import config
+import platform
 
 # Set up crash reporting
 excepthook_original = sys.excepthook
