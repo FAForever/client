@@ -27,7 +27,7 @@ class SecondaryServer(QtCore.QObject):
 
     # Network configuration
     HOST    = "lobby.faforever.com"
-    TIMEOUT = 20  #seconds
+    TIMEOUT = 5  #seconds
 
     # Return codes to expect from run()
     RESULT_SUCCESS = 0      # successful
@@ -95,7 +95,7 @@ class SecondaryServer(QtCore.QObject):
         self.serverSocket.connectToHost(self.HOST, self.socketPort)                         
 
         if not self.invisible:
-            while not (self.serverSocket.state() == QtNetwork.QAbstractSocket.ConnectedState) and self.progress.isVisible():                
+            while not (self.serverSocket.state() == QtNetwork.QAbstractSocket.ConnectedState) and self.progress.isVisible():
                 QtGui.QApplication.processEvents()
             if not self.progress.wasCanceled():
                 self.doCommand(command)                     
@@ -133,8 +133,9 @@ class SecondaryServer(QtCore.QObject):
             self.progress.setMaximum(0)
         while self.result == self.RESULT_NONE :
             if not self.invisible:
-                if (self.progress.wasCanceled()) : logger.error("Operation aborted while waiting for info.")
-                if (time.time() - self.lastData > self.TIMEOUT) : logger.error("Operation timed out while waiting for info.")
+                if self.progress.wasCanceled() or (time.time() - self.lastData > self.TIMEOUT):
+                    logger.error("Operation timed out/aborted while waiting for info.")
+                    break
             QtGui.QApplication.processEvents()
         logger.debug("Finishing request")
         self.result = self.RESULT_NONE
