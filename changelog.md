@@ -12,6 +12,7 @@ Contributors
 ------------
 
 - Blackclaws
+- Speed2
 - Sheeo
 
 0.11.0
