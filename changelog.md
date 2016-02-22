@@ -5,7 +5,14 @@
 - Renamed "Find Games" to "Play"
 - Fix links to forum and unit database
 - Fix map vault when using the client in development mode
+- Allow replays to be launched from anywhere again (Make sure the client executable is associated with .fafreplay)
+- Fix an issue that causes the client to never quit when searching the mod vault / connecting to statistics server
 
+Contributors
+------------
+
+- Blackclaws
+- Sheeo
 
 0.11.0
 ======
