@@ -6,6 +6,7 @@ from chat._avatarWidget import avatarWidget
 
 import chat
 from chat import user2name
+from config import Settings
 
 from fa.replay import replay
 import util
@@ -148,7 +149,6 @@ class Chatter(QtGui.QTableWidgetItem):
         player = self.lobby.client.players[self.id]
         if not player and not self.id == -1:  # We should have a player object for this
             player = self.lobby.client.players[self.name]
-            print("Looked up {} to {}".format(self.id, player))
 
         # Weed out IRC users and those we don't know about early.
         if self.id == -1 or player is None:
@@ -212,6 +212,9 @@ class Chatter(QtGui.QTableWidgetItem):
 
         self.setTextColor(QtGui.QColor(chat.get_color("default")))
 
+    def viewAliases(self):
+        QtGui.QDesktopServices.openUrl(QUrl("{}?name={}".format(Settings.get("NAME_CHANGE_URL"), self.name)))
+
     def selectAvatar(self):
         avatarSelection = avatarWidget(self.lobby.client, self.name, personal=True)
         avatarSelection.exec_()
@@ -245,6 +248,9 @@ class Chatter(QtGui.QTableWidgetItem):
         # Actions for stats
         actionSelectAvatar  = QtGui.QAction("Select Avatar", menu)
         
+        # Action for aliases link
+        actionViewAliases  = QtGui.QAction("View Aliases", menu)
+
         # Actions for Games and Replays
         actionReplay = QtGui.QAction("View Live Replay", menu)
         actionVaultReplay = QtGui.QAction("View Replays in Vault", menu)
@@ -264,11 +270,12 @@ class Chatter(QtGui.QTableWidgetItem):
                     actionReplay.setEnabled(True)
 
         # Triggers
+        actionViewAliases.triggered.connect(self.viewAliases)
         actionSelectAvatar.triggered.connect(self.selectAvatar)
         actionReplay.triggered.connect(self.viewReplay)
         actionVaultReplay.triggered.connect(self.viewVaultReplay)
         actionJoin.triggered.connect(self.joinInGame)
-        
+
         # only for us. Either way, it will display our avatar, not anyone avatar.
         if self.lobby.client.login == self.name :
             menu.addAction(actionSelectAvatar)
@@ -304,6 +311,8 @@ class Chatter(QtGui.QTableWidgetItem):
             menu.addSeparator()
 
         # Adding to menu
+        menu.addSeparator
+        menu.addAction(actionViewAliases)
         menu.addSeparator()
         menu.addAction(actionReplay)
         menu.addAction(actionVaultReplay)

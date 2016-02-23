@@ -234,7 +234,7 @@ class Channel(FormClass, BaseClass):
 
         # Play a ping sound and flash the title under certain circumstances
         mentioned = text.find(self.lobby.client.login) != -1
-        if self.private or mentioned:
+        if mentioned or (self.private and not (formatter is Formatters.FORMATTER_RAW and  text=="quit.")):
             self.pingWindow()
 
         avatar = None
@@ -283,8 +283,6 @@ class Channel(FormClass, BaseClass):
 
     @QtCore.pyqtSlot(str, str)
     def printMsg(self, name, text, scroll_forced=False):
-        if self.lobby.client.players.isFoe(name):
-            return
         if name in self.chatters and self.chatters[name].avatar:
             fmt = Formatters.FORMATTER_MESSAGE_AVATAR
         else:

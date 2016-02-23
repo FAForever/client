@@ -112,9 +112,7 @@ class ClientWindow(FormClass, BaseClass):
 
     # These signals propagate important client state changes to other modules
     statsInfo = QtCore.pyqtSignal(dict)
-    tourneyTypesInfo = QtCore.pyqtSignal(dict)
     tutorialsInfo = QtCore.pyqtSignal(dict)
-    tourneyInfo = QtCore.pyqtSignal(dict)
     modInfo = QtCore.pyqtSignal(dict)
     gameInfo = QtCore.pyqtSignal(dict)
     modVaultInfo = QtCore.pyqtSignal(dict)
@@ -178,6 +176,7 @@ class ClientWindow(FormClass, BaseClass):
         self.tray.show()
 
         self._state = ClientState.NONE
+        self.auth_state = ClientState.NONE # Using ClientState for reasons
         self.session = None
         self._connection_attempts = 0
 
@@ -640,6 +639,7 @@ class ClientWindow(FormClass, BaseClass):
         self.actionLinkWiki.triggered.connect(partial(self.open_url, Settings.get("WIKI_URL")))
         self.actionLinkForums.triggered.connect(partial(self.open_url, Settings.get("FORUMS_URL")))
         self.actionLinkUnitDB.triggered.connect(partial(self.open_url, Settings.get("UNITDB_URL")))
+        self.actionLinkGitHub.triggered.connect(partial(self.open_url, Settings.get("GITHUB_URL")))
 
         self.actionNsSettings.triggered.connect(lambda: self.notificationSystem.on_showSettings())
         self.actionNsEnabled.triggered.connect(lambda enabled: self.notificationSystem.setNotificationEnabled(enabled))
@@ -1181,10 +1181,10 @@ class ClientWindow(FormClass, BaseClass):
 
     def handle_registration_response(self, message):
         if message["result"] == "SUCCESS":
-            self.state = ClientState.CREATED
+            self.auth_state = ClientState.CREATED
             return
 
-        self.state = ClientState.REJECTED
+        self.auth_state = ClientState.REJECTED
         self.handle_notice({"style": "notice", "text": message["error"]})
 
     def search_ranked(self, faction):
@@ -1299,12 +1299,6 @@ class ClientWindow(FormClass, BaseClass):
     def handle_coop_info(self, message):
         self.coopInfo.emit(message)
 
-    def handle_tournament_types_info(self, message):
-        self.tourneyTypesInfo.emit(message)
-
-    def handle_tournament_info(self, message):
-        self.tourneyInfo.emit(message)
-
     def handle_tutorials_info(self, message):
         self.tutorialsInfo.emit(message)
 
@@ -1312,7 +1306,11 @@ class ClientWindow(FormClass, BaseClass):
         self.modInfo.emit(message)
 
     def handle_game_info(self, message):
-        self.gameInfo.emit(message)
+        if 'games' in message:
+            for game in message['games']:
+                self.gameInfo.emit(game)
+        else:
+            self.gameInfo.emit(message)
 
     def handle_modvault_list_info(self, message):
         modList = message["modList"]

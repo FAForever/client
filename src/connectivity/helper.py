@@ -12,6 +12,9 @@ from connectivity.turn import TURNState
 from decorators import with_logger
 
 
+from PyQt4 import QtGui, uic
+
+
 @with_logger
 class RelayTest(QObject):
     finished = pyqtSignal()
@@ -110,7 +113,7 @@ class ConnectivityHelper(QObject):
         return (self.relay_address is not None
                 and self.relay_address is not [None, None]
                 and self.mapped_address is not None
-                and self._socket.state == QAbstractSocket.BoundState)
+                and self._socket.state() == QAbstractSocket.BoundState)
 
     def start_test(self):
         self.send('InitiateTest', [self._port])
@@ -150,9 +153,12 @@ class ConnectivityHelper(QObject):
         self._socket.writeDatagram(b'\x08'+message.encode(), QHostAddress(host), int(port))
 
     def handle_ConnectivityState(self, msg):
+        from client import ClientState
         state, addr = msg['args']
         if state == 'BLOCKED':
             self._logger.warning("Outbound traffic is blocked")
+            QtGui.QMessageBox.warning(None, "Traffic Blocked", "Your outbound traffic appears to be blocked. Try restarting FAF. <br/> If the error persists please contact a moderator and send your logs. <br/> We are already working on a solution to this problem.")
+            self._client.state = ClientState.NONE
         else:
             host, port = addr.split(':')
             self.state, self.mapped_address = state, (host, port)

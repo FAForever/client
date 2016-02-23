@@ -131,7 +131,7 @@ class GamesWidget(FormClass, BaseClass):
             self.games[uid].update(message, self.client)
 
         # Hide private games
-        if self.hideGamesWithPw.isChecked() and message['state'] == 'open' and not message['password_protected']:
+        if self.hideGamesWithPw.isChecked() and message['state'] == 'open' and message['password_protected']:
             self.games[uid].setHidden(True)
 
         # Special case: removal of a game that has ended
@@ -139,7 +139,6 @@ class GamesWidget(FormClass, BaseClass):
             if uid in self.games:
                 self.gameList.takeItem(self.gameList.row(self.games[uid]))
                 del self.games[uid]
-            return
 
     def startSearchRanked(self, race):
         for faction, icon in self._ranked_icons.items():
@@ -282,8 +281,11 @@ class GamesWidget(FormClass, BaseClass):
         util.settings.setValue("friends_only", friends_only)
 
         if password is not None:
-            self.gamePassword = password
+            self.gamepassword = password
+            self.ispassworded = True
             util.settings.setValue("password", password)
+        else:
+            self.ispassworded = False
 
         util.settings.endGroup()
 
