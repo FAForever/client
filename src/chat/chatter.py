@@ -215,6 +215,9 @@ class Chatter(QtGui.QTableWidgetItem):
     def viewAliases(self):
         QtGui.QDesktopServices.openUrl(QUrl("{}?name={}".format(Settings.get("NAME_CHANGE_URL"), self.name)))
 
+    def viewAliases(self):
+        QtGui.QDesktopServices.openUrl(QUrl("http://app.faforever.com/faf/userName.php?name={}".format(self.name)))
+
     def selectAvatar(self):
         avatarSelection = avatarWidget(self.lobby.client, self.name, personal=True)
         avatarSelection.exec_()
