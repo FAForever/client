@@ -1,3 +1,15 @@
+0.11.51
+=======
+
+- Add 'view aliases' option to chat user list
+
+
+Contributors
+------------
+
+- Softly
+- Sheeo
+
 0.11.50
 =======
 
