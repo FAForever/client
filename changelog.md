@@ -26,6 +26,7 @@ Contributors
 - Blackclaws
 - Speed2
 - Sheeo
+- Yorick
 
 0.11.0
 ======
