@@ -6,6 +6,7 @@ from chat._avatarWidget import avatarWidget
 
 import chat
 from chat import user2name
+from config import Settings
 
 from fa.replay import replay
 import util
@@ -212,7 +213,7 @@ class Chatter(QtGui.QTableWidgetItem):
         self.setTextColor(QtGui.QColor(chat.get_color("default")))
 
     def viewAliases(self):
-        QtGui.QDesktopServices.openUrl(QUrl("http://app.faforever.com/faf/userName.php?name={}".format(self.name)))
+        QtGui.QDesktopServices.openUrl(QUrl("{}?name={}".format(Settings.get("NAME_CHANGE_URL"), self.name)))
 
     def selectAvatar(self):
         avatarSelection = avatarWidget(self.lobby.client, self.name, personal=True)
