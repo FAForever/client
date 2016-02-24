@@ -256,9 +256,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         if checked:
             self.autoJoinChannels += [channel]
         else:
-            tmp = self.autoJoinChannels
-            tmp.remove(channel)
-            self.autoJoinChannels = tmp
+            # Settings only guarenteed to persist if they get reassigned
+            self.autoJoinChannels = [chan for chan in self.autoJoinChannels if chan!=channel]
             if channel not in self.channels:
                 self.updateAutoJoinIRCMenu()
 
