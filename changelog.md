@@ -2,6 +2,8 @@
 =======
 
 - Add 'view aliases' option to chat user list
+- Fix updating of featured mods
+- Fix resetting of game file permissions on non-windows systems
 
 
 Contributors
