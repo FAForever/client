@@ -422,7 +422,7 @@ class Updater(QtCore.QObject):
                     self.updateFiles("bin", "FAF")
                     self.updateFiles("gamedata", "FAFGAMEDATA")
                     self.updateFiles("bin", self.featured_mod)
-                    self.updateFiles("gamedata", self.featured_mod)
+                    self.updateFiles("gamedata", self.featured_mod + "Gamedata")
 
         except UpdaterTimeout, e:
             log("TIMEOUT: {}".format(e))
