@@ -396,7 +396,8 @@ class Updater(QtCore.QObject):
                 dst_file = os.path.join(dst_dir, file_)
                 if not os.path.exists(dst_file):
                     shutil.copy(src_file, dst_dir)
-                os.chmod(dst_file, stat.S_IWRITE | stat.S_IREAD)   # make all files we were considering writable, because we may need to patch them
+                st = os.stat(dst_file)
+                os.chmod(dst_file, st.st_mode | stat.S_IWRITE)   # make all files we were considering writable, because we may need to patch them
 
     def doUpdate(self):
         """ The core function that does most of the actual update work."""
@@ -421,7 +422,7 @@ class Updater(QtCore.QObject):
                     self.updateFiles("bin", "FAF")
                     self.updateFiles("gamedata", "FAFGAMEDATA")
                     self.updateFiles("bin", self.featured_mod)
-                    self.updateFiles("gamedata", self.featured_mod)
+                    self.updateFiles("gamedata", self.featured_mod + "Gamedata")
 
         except UpdaterTimeout, e:
             log("TIMEOUT: {}".format(e))
