@@ -636,5 +636,3 @@ def datetostr(d):
 def now():
     return _dateDummy.now()
 
-from crash import CrashDialog
-
