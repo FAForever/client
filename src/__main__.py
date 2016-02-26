@@ -51,7 +51,9 @@ def excepthook(exc_type, exc_value, traceback_object):
     sys.excepthook = excepthook_original
 
     logger.error("Uncaught exception", exc_info=(exc_type, exc_value, traceback_object))
-    dialog = util.CrashDialog((exc_type, exc_value, traceback_object))
+    from util.crash import CrashDialog
+
+    dialog = CrashDialog((exc_type, exc_value, traceback_object))
     answer = dialog.exec_()
 
     if answer == QtGui.QDialog.Rejected:
