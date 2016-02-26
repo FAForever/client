@@ -25,9 +25,9 @@ settings = _settings
 
 # initialize wine settings for non Windows platforms
 if not WINDOWS:
-    wine_exe = settings.value("wine/exe", "wine")
+    wine_exe = str(settings.value("wine/exe", "wine", type=str))
     if settings.contains("wine/prefix"):
-        wine_prefix = settings.value("wine/prefix")
+        wine_prefix = str(settings.value("wine/prefix", type=str))
     else:
         wine_prefix = os.path.join(os.path.expanduser("~"), ".wine")
     settings_file = settings.fileName()
