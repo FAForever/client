@@ -196,7 +196,7 @@ def folderForMap(mapname):
     if os.path.isdir(getUserMapsFolder()):
         for infile in os.listdir(getUserMapsFolder()) :
             if infile.lower() == mapname.lower(): 
-                return os.path.join(getUserMapsFolder(), mapname)
+                return os.path.join(getUserMapsFolder(), infile)
 
     return None
 
