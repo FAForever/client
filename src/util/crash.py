@@ -2,9 +2,9 @@
 import config
 import traceback
 import util
-from config import Settings
+from config import Settings, VERSION
 
-from . import APPDATA_DIR, PERSONAL_DIR, VERSION_STRING, LOG_FILE_FAF, \
+from . import APPDATA_DIR, PERSONAL_DIR, LOG_FILE_FAF, \
     readlines
 
 from PyQt4 import QtGui, QtCore
@@ -46,7 +46,7 @@ class CrashDialog(QtGui.QDialog):
         description = u""
         try:
             description += (u"\n**FAF Username:** " + CRASH_REPORT_USER)
-            description += (u"\n**FAF Version:** " + VERSION_STRING)
+            description += (u"\n**FAF Version:** " + VERSION)
             description += (u"\n**FAF Environment:** " + config.environment)
             description += (u"\n**FAF Directory:** " + APPDATA_DIR)
             description += (u"\n**FA Path:** " + str(util.settings.value("ForgedAlliance/app/path", None, type=str)))

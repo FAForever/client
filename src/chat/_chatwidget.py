@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
 
-from config import Settings
+from config import Settings, VERSION
 import util
 import fa
 
@@ -246,7 +246,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.connection.privmsg('NickServ', 'register %s %s' % (util.md5text(self.client.password), self.client.email))
 
     def on_version(self, c, e):
-        self.connection.privmsg(e.source(), "Forged Alliance Forever " + util.VERSION_STRING)
+        self.connection.privmsg(e.source(), "Forged Alliance Forever " + VERSION)
 
     def on_motd(self, c, e):
         self.log_event(e)

@@ -7,7 +7,7 @@ from PyQt4.QtNetwork import QAbstractSocket
 import config
 import connectivity
 from base import Client
-from config import Settings
+from config import Settings, VERSION
 import chat
 from client.player import Player
 from client.players import Players
@@ -212,7 +212,7 @@ class ClientWindow(FormClass, BaseClass):
         self.setStyleSheet(util.readstylesheet("client/client.css"))
         self.whatNewsView.setHtml("<body style='background-color: #000;'></body>")
 
-        self.setWindowTitle("FA Forever " + util.VERSION_STRING)
+        self.setWindowTitle("FA Forever " + VERSION)
 
         # Frameless
         self.setWindowFlags(
@@ -749,7 +749,7 @@ class ClientWindow(FormClass, BaseClass):
     @QtCore.pyqtSlot()
     def linkAbout(self):
         dialog = util.loadUi("client/about.ui")
-        dialog.version_label.setText("Version: {}".format(util.VERSION_STRING))
+        dialog.version_label.setText("Version: {}".format(VERSION))
         dialog.exec_()
 
     def saveWindow(self):

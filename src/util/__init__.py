@@ -1,32 +1,30 @@
 import sys
 
 import os
-from ctypes import *
 
 # Developer mode flag
 def developer():
-    return sys.executable.contains("python")
-
-# Are we running from a frozen interpreter?
-if getattr(sys, 'frozen', False):
-    os.chdir(os.path.dirname(sys.executable))
-else:
-    # We are most likely running from source
-    srcDir = os.path.dirname(os.path.relpath(__file__))
-    devRoot = os.path.abspath(os.path.join(srcDir, os.pardir))
-    os.chdir(devRoot)
-    # We need to set the working directory correctly.
-
-# Public settings object
-# Stolen from Config because reasons
-from config import _settings
-settings = _settings
+    return "python" in sys.executable
 
 import platform
 if platform.system() == "Windows":
     WINDOWS = True
 else:
     WINDOWS = False
+
+#This data path is relative to the executable or main.py script
+COMMON_DIR = os.path.join(os.getcwd(), "res")
+if not os.path.exists(COMMON_DIR) and not WINDOWS:
+    # support a separation of the res folder into /usr/share/fafclient
+    COMMON_DIR = os.path.join("/usr", "share", "fafclient")
+
+# Public settings object
+# Stolen from Config because reasons
+from config import _settings
+settings = _settings
+
+# initialize wine settings for non Windows platforms
+if not WINDOWS:
     wine_exe = settings.value("wine/exe", "wine")
     if settings.contains("wine/prefix"):
         wine_prefix = settings.value("wine/prefix")
@@ -35,17 +33,10 @@ else:
     settings_file = settings.fileName()
     wine_use_optirun = settings.value("wine/use_optirun", False, type=bool)
 
-from config import VERSION as VERSION_STRING
-
 LOGFILE_MAX_SIZE = 256 * 1024  #256kb should be enough for anyone
 
 
 UNITS_PREVIEW_ROOT = "http://content.faforever.com/faf/unitsDB/icons/big/"
-
-#These are paths relative to the executable or main.py script
-COMMON_DIR = os.path.join(os.getcwd(), "res")
-if not os.path.exists(COMMON_DIR) and not WINDOWS:
-  COMMON_DIR = os.path.join("/usr", "share", "fafclient")
 
 # These directories are in Appdata (e.g. C:\ProgramData on some Win7 versions)
 if 'ALLUSERSPROFILE' in os.environ:
@@ -239,7 +230,8 @@ def setTheme(theme, restart=True):
         test_dir = os.path.join(THEME_DIR, theme)
         if os.path.isdir(test_dir):
             version_file = os.path.join(THEME_DIR, theme, "version")
-            if os.path.isfile(version_file) and (VERSION_STRING == open(version_file).read()):
+            from config import VERSION
+            if os.path.isfile(version_file) and (VERSION == open(version_file).read()):
                 logger.info("Using theme: " + theme + " in directory " + test_dir)
                 __themedir = test_dir
                 __theme = theme

@@ -51,7 +51,9 @@ def is_prerelease_version(version):
 
 def read_release_version():
     try:
-        f = open("RELEASE-VERSION", "r")
+        import util
+        import os.path
+        f = open(os.path.join(util.COMMON_DIR,"RELEASE-VERSION"), "r")
 
         try:
             version = f.readlines()[0]
