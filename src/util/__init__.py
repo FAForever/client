@@ -99,20 +99,25 @@ DOWNLOADING_RES_PIX = {}
 
 # This should be "My Documents" for most users. However, users with accents in their names can't even use these folders in Supcom
 # so we are nice and create a new home for them in the APPDATA_DIR
-try:
-    os.environ['USERNAME'].decode('ascii')  # Try to see if the user has a wacky username
+if WINDOWS:
+    try:
+        os.environ['USERNAME'].decode('ascii')  # Try to see if the user has a wacky username
 
-    import ctypes
-    from ctypes.wintypes import MAX_PATH
+        import ctypes
+        from ctypes.wintypes import MAX_PATH
 
-    dll = ctypes.windll.shell32
-    buf = ctypes.create_unicode_buffer(MAX_PATH + 1)
-    if dll.SHGetSpecialFolderPathW(None, buf, 0x0005, False):
-        PERSONAL_DIR = (buf.value)
-    else:
-        raise StandardError
-except:
-    PERSONAL_DIR = os.path.join(APPDATA_DIR, "user")
+        dll = ctypes.windll.shell32
+        buf = ctypes.create_unicode_buffer(MAX_PATH + 1)
+        if dll.SHGetSpecialFolderPathW(None, buf, 0x0005, False):
+            PERSONAL_DIR = (buf.value)
+        else:
+            raise StandardError
+    except:
+        # wine points the "My Documents" folder to the users home directory on linux
+        PERSONAL_DIR = os.path.join(APPDATA_DIR, "user")
+else:
+    from os.path import expanduser
+    PERSONAL_DIR = expanduser("~")
 
 #Ensure Application data directories exist
 if not os.path.isdir(APPDATA_DIR):
