@@ -243,7 +243,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.autoJoin(self.crucialChannels)
 
     def nickservRegister(self):
-        self.connection.privmsg('NickServ', 'register %s %s' % (util.md5text(self.client.password), self.client.email))
+        self.connection.privmsg('NickServ', 'register %s %s' % (util.md5text(self.client.password), '{}@users.faforever.com'.format(self.client.me.login)))
 
     def on_version(self, c, e):
         self.connection.privmsg(e.source(), "Forged Alliance Forever " + util.VERSION_STRING)
@@ -366,8 +366,6 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         prefix = notice.split(" ")[0]
         target = prefix.strip("[]")
 
-        # It is surprising that SimpleIRCClient doesn't handle this for us.
-        # I suspect, in reality, it probably can do...
         if source and source.lower() == 'nickserv':
             if notice.find("registered under your account") or \
                notice.find("Password accepted"):
