@@ -109,7 +109,8 @@ class ReplaysWidget(BaseClass, FormClass):
 
     def onlineTreeClicked(self, item):
         if QtGui.QApplication.mouseButtons() == QtCore.Qt.RightButton :
-            item.pressed(item)           
+            if(type(item.parent) == ReplaysWidget):
+                item.pressed(item)
         else :
             if hasattr(item, "moreInfo") :
                 if item.moreInfo == False :
