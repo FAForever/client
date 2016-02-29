@@ -5,6 +5,7 @@
 - Fix autodownload of sim mods
 - Add options to skip dialogs for autodownload of maps/mods
 - Fix crash when rightclicking in the replayvault
+- Fix 'spoiler free' option in replay vault not working
 
 Contributors:
  - HaraldWeber
