@@ -291,6 +291,7 @@
       <string>Chat...</string>
      </property>
      <addaction name="actionColoredNicknames"/>
+     <addaction name="actionFriendsOnTop"/>
      <addaction name="actionSetJoinsParts"/>
      <addaction name="actionSetOpenGames"/>
      <addaction name="actionSetLiveReplays"/>
@@ -538,6 +539,14 @@
    </property>
    <property name="text">
     <string>Colored nicknames</string>
+   </property>
+  </action>
+  <action name="actionFriendsOnTop">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Friends on top</string>
    </property>
   </action>
   <action name="actionWiki">

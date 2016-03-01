@@ -679,6 +679,7 @@ class ClientWindow(FormClass, BaseClass):
         self.actionSaveGamelogs.toggled.connect(self.on_actionSavegamelogs_toggled)
         self.actionSaveGamelogs.setChecked(self.gamelogs)
         self.actionColoredNicknames.triggered.connect(self.updateOptions)
+        self.actionFriendsOnTop.triggered.connect(self.updateOptions)
 
         # Init themes as actions.
         themes = util.listThemes()
@@ -706,6 +707,7 @@ class ClientWindow(FormClass, BaseClass):
 
         self.gamelogs = self.actionSaveGamelogs.isChecked()
         self.players.coloredNicknames = self.actionColoredNicknames.isChecked()
+        self.friendsontop = self.actionFriendsOnTop.isChecked()
 
         self.saveChat()
 
@@ -776,6 +778,7 @@ class ClientWindow(FormClass, BaseClass):
         util.settings.setValue("opengames", self.opengames)
         util.settings.setValue("joinsparts", self.joinsparts)
         util.settings.setValue("coloredNicknames", self.players.coloredNicknames)
+        util.settings.setValue("friendsontop", self.friendsontop)
         util.settings.endGroup()
 
     def loadSettings(self):
@@ -798,9 +801,11 @@ class ClientWindow(FormClass, BaseClass):
             self.joinsparts = (util.settings.value("joinsparts", "false") == "true")
             self.livereplays = (util.settings.value("livereplays", "true") == "true")
             self.players.coloredNicknames = (util.settings.value("coloredNicknames", "false") == "true")
+            self.friendsontop = (util.settings.value("friendsontop", "false") == "true")
 
             util.settings.endGroup()
             self.actionColoredNicknames.setChecked(self.players.coloredNicknames)
+            self.actionFriendsOnTop.setChecked(self.friendsontop)
             self.actionSetSoundEffects.setChecked(self.soundeffects)
             self.actionSetLiveReplays.setChecked(self.livereplays)
             self.actionSetOpenGames.setChecked(self.opengames)
