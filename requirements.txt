@@ -6,7 +6,7 @@ git+https://github.com/FAForever/faftools.git@develop#egg=faftools
 ipaddress
 lupa
 pathlib
-py==1.4.25
+py
 pycparser==2.10
 pytest
 pytest-cov
