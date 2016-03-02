@@ -1,4 +1,5 @@
 bsdiff4==1.1.4
+ConcurrentLogHandler
 cx_Freeze==4.3.4
 enum34
 git+https://github.com/FAForever/faftools.git@develop#egg=faftools
