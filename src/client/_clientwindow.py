@@ -1331,6 +1331,8 @@ class ClientWindow(FormClass, BaseClass):
             self.matchmakerInfo.emit(message)
 
         elif "queues" in message:
+            if self.me.ladder_rating_deviation > 100:
+                return
             show = False
             for q in message['queues']:
                 if q['queue_name'] == 'ladder1v1':
