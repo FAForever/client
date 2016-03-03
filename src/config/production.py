@@ -15,6 +15,7 @@ defaults = {
     'client/logs/path': join(APPDATA_DIR, 'logs'),
     'client/logs/level': logging.INFO,
     'client/logs/max_size': 512*1024,
+    'client/logs/buffer_size': 8*1024,
     'chat/enabled': True,
     'game/bin/path': join(APPDATA_DIR, 'bin'),
     'game/engine/path': join(join(APPDATA_DIR, 'repo'), 'binary-patch'),
