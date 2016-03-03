@@ -1330,8 +1330,15 @@ class ClientWindow(FormClass, BaseClass):
         if "action" in message:
             self.matchmakerInfo.emit(message)
 
-        elif "potential" in message:
-            if message["potential"]:
+        elif "queues" in message:
+            show = False
+            for q in message['queues']:
+                if q['queue_name'] == 'ladder1v1':
+                    mu = self.me.ladder_rating_mean
+                    for min, max in q['boundaries']:
+                        if min < mu < max:
+                            show = True
+            if show:
                 self.warningShow()
             else:
                 self.warningHide()
