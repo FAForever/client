@@ -1,4 +1,3 @@
-ConcurrentLogHandler
 bsdiff4==1.1.4
 cx_Freeze==4.3.4
 enum34
