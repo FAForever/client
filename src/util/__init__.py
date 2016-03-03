@@ -26,12 +26,11 @@ settings = _settings
 # initialize wine settings for non Windows platforms
 if not WINDOWS:
     wine_exe = settings.value("wine/exe", "wine", type=str)
+    wine_cmd_prefix = settings.value("wine/cmd_prefix", "", type=str)
     if settings.contains("wine/prefix"):
         wine_prefix = str(settings.value("wine/prefix", type=str))
     else:
         wine_prefix = os.path.join(os.path.expanduser("~"), ".wine")
-    settings_file = settings.fileName()
-    wine_use_optirun = settings.value("wine/use_optirun", False, type=bool)
 
 LOGFILE_MAX_SIZE = 256 * 1024  #256kb should be enough for anyone
 
