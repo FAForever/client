@@ -1329,9 +1329,18 @@ class ClientWindow(FormClass, BaseClass):
     def handle_matchmaker_info(self, message):
         if "action" in message:
             self.matchmakerInfo.emit(message)
-
-        elif "potential" in message:
-            if message["potential"]:
+        elif "queues" in message:
+            if self.me.ladder_rating_deviation > 200 or self.games.searching:
+                return
+            key = 'boundary_80s' if self.me.ladder_rating_deviation < 100 else 'boundary_75s'
+            show = False
+            for q in message['queues']:
+                if q['queue_name'] == 'ladder1v1':
+                    mu = self.me.ladder_rating_mean
+                    for min, max in q[key]:
+                        if min < mu < max:
+                            show = True
+            if show:
                 self.warningShow()
             else:
                 self.warningHide()

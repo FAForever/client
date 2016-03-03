@@ -458,6 +458,9 @@ class Channel(FormClass, BaseClass):
                     self.lobby.join(text[6:])
                 elif text.startswith(("/topic ")):
                     self.lobby.setTopic(self.name, text[7:])
+                elif text.startswith(("/msg ")):
+                    blobs = text.split(" ")
+                    self.lobby.sendMsg(blobs[1], " ".join(blobs[2:]))
                 elif text.startswith(("/me ")):
                     if self.lobby.sendAction(target, text[4:]):
                         self.printAction(self.lobby.client.login, text[4:], True)
