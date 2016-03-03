@@ -1,10 +1,9 @@
 from . import version
 import os
-import sys
 import logging
 import trueskill
-from cloghandler import ConcurrentRotatingFileHandler
 from PyQt4 import QtCore
+from logging.handlers import RotatingFileHandler, MemoryHandler
 
 trueskill.setup(mu=1500, sigma=500, beta=250, tau=5, draw_probability=0.10)
 
@@ -104,11 +103,14 @@ elif environment == 'development':
 
 # Setup normal rotating log handler
 make_dirs()
-rotate = ConcurrentRotatingFileHandler(os.path.join(Settings.get('client/logs/path'), 'forever.log'),
-                                       maxBytes=int(Settings.get('client/logs/max_size')),
-                                       backupCount=10)
+rotate = RotatingFileHandler(os.path.join(Settings.get('client/logs/path'), 'forever.log'),
+                             maxBytes=int(Settings.get('client/logs/max_size')),
+                             backupCount=0)
 rotate.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))
-logging.getLogger().addHandler(rotate)
+
+buffering_handler = MemoryHandler(int(Settings.get('client/logs/buffer_size')), target=rotate)
+
+logging.getLogger().addHandler(buffering_handler)
 logging.getLogger().setLevel(Settings.get('client/logs/level'))
 
 if environment == 'development':
