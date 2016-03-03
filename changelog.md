@@ -1,3 +1,8 @@
+0.11.52
+=======
+
+- Mitigate an issue for certain players that could cause disconnects during longer teamgames
+
 0.11.51
 =======
 
