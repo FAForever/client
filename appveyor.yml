@@ -21,7 +21,7 @@ install:
   - "%PYTHON%\\Scripts\\pip.exe install -r requirements.txt --trusted-host content.faforever.com"
 
 test_script:
-    - "%PYTHON%\\Scripts\\py.test.exe"
+    - "%PYTHON%\\Scripts\\py.test.exe -vv --full-trace"
 
 after_test:
   - "%PYTHON%\\python setup.py bdist_msi"
