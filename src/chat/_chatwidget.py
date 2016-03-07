@@ -243,7 +243,12 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.autoJoin(self.crucialChannels)
 
     def nickservRegister(self):
+        if hasattr(self, '_nickserv_registered'):
+            return
         self.connection.privmsg('NickServ', 'register %s %s' % (util.md5text(self.client.password), '{}@users.faforever.com'.format(self.client.me.login)))
+        self._nickserv_registered = True
+        self.autoJoin(self.optionalChannels)
+        self.autoJoin(self.crucialChannels)
 
     def on_version(self, c, e):
         self.connection.privmsg(e.source(), "Forged Alliance Forever " + util.VERSION_STRING)
@@ -367,8 +372,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         target = prefix.strip("[]")
 
         if source and source.lower() == 'nickserv':
-            if notice.find("registered under your account") or \
-               notice.find("Password accepted"):
+            if notice.find("registered under your account") >= 0 or \
+               notice.find("Password accepted") >= 0:
                 if not self.identified :
                     self.identified = True
                     self.on_identified()
