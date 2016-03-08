@@ -432,9 +432,9 @@ def __downloadPreviewFromWeb(name):
                 logger.debug("Web Preview " + extension + " used for: " + name)
                 return img
         except:
-            logger.debug("Web preview download failed for " + name)
+            logger.error("Web preview download failed for " + name)
         
-    logger.debug("Web Preview not found for: " + name)
+    logger.error("Web Preview not found for: " + name)
     return None
      
 def preview(mapname, pixmap = False, force=False):
