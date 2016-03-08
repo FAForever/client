@@ -4,6 +4,7 @@
 - Sword icons now disappear again as players leave games and lobbies
 - Added /msg <target> command for chat
 - Fix an issue with registering on IRC
+- Fix map previews not downloading properly
 
 0.11.52
 =======
