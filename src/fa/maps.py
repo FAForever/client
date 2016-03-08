@@ -436,8 +436,9 @@ def __downloadPreviewFromWeb(name):
         
     logger.error("Web Preview not found for: " + name)
     return None
-     
-def preview(mapname, pixmap = False, force=False):
+
+
+def preview(mapname, pixmap = False):
     try:
         # Try to load directly from cache
         for extension in iconExtensions:
