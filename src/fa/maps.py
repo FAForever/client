@@ -432,12 +432,13 @@ def __downloadPreviewFromWeb(name):
                 logger.debug("Web Preview " + extension + " used for: " + name)
                 return img
         except:
-            logger.debug("Web preview download failed for " + name)
+            logger.error("Web preview download failed for " + name)
         
-    logger.debug("Web Preview not found for: " + name)
+    logger.error("Web Preview not found for: " + name)
     return None
-     
-def preview(mapname, pixmap = False, force=False):
+
+
+def preview(mapname, pixmap = False):
     try:
         # Try to load directly from cache
         for extension in iconExtensions:
@@ -445,22 +446,20 @@ def preview(mapname, pixmap = False, force=False):
             if os.path.isfile(img):
                 logger.debug("Using cached preview image for: " + mapname)
                 return util.icon(img, False, pixmap)
-        if force :
-        # Try to download from web
+
+        # Try to find in local map folder    
+        img = __exportPreviewFromMap(mapname)
+       
+        if img and 'cache' in img and img['cache'] and os.path.isfile(img['cache']):
+            logger.debug("Using fresh preview image for: " + mapname)
+            return util.icon(img['cache'], False, pixmap)
+        else:
+            # Try to download from web
             img = __downloadPreviewFromWeb(mapname)
             if img and os.path.isfile(img):
                 logger.debug("Using web preview image for: " + mapname)
                 return util.icon(img, False, pixmap)
-    
-        # Try to find in local map folder    
-        img = __exportPreviewFromMap(mapname)
-       
-        if img :
-            img = __exportPreviewFromMap(mapname)["cache"]
-            if img and os.path.isfile(img):
-                logger.debug("Using fresh preview image for: " + mapname)
-                return util.icon(img, False, pixmap)
-        
+
         return None
     except:
         logger.error("Error raised in maps.preview(...) for " + mapname)
