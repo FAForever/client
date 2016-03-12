@@ -665,6 +665,9 @@ class ClientWindow(FormClass, BaseClass):
         self.actionSetGamePath.triggered.connect(self.switchPath)
         self.actionSetGamePort.triggered.connect(self.switchPort)
 
+        self.actionUseSubset.triggered.connect(self.switchSubset)
+        self.actionUseSubset.setChecked(Settings.get("play/selectSubset", type=bool, default=False))
+
         # Toggle-Options
         self.actionSetAutoLogin.triggered.connect(self.updateOptions)
         self.actionSetAutoLogin.setChecked(self.remember)
@@ -723,6 +726,10 @@ class ClientWindow(FormClass, BaseClass):
     def switchPort(self):
         import loginwizards
         loginwizards.gameSettingsWizard(self).exec_()
+
+    def switchSubset(self, enabled):
+        Settings.set("play/selectSubset", enabled)
+        self.games.generateSelectSubset()
 
     @QtCore.pyqtSlot()
     def clearSettings(self):
