@@ -5,6 +5,7 @@
 - Added /msg <target> command for chat
 - Fix an issue with registering on IRC
 - Fix map previews not downloading properly
+- Fix unicode characters in chatmessage URL's causing an exception
 
 0.11.52
 =======

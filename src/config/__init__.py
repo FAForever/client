@@ -105,7 +105,7 @@ elif environment == 'development':
 make_dirs()
 rotate = RotatingFileHandler(os.path.join(Settings.get('client/logs/path'), 'forever.log'),
                              maxBytes=int(Settings.get('client/logs/max_size')),
-                             backupCount=0)
+                             backupCount=1)
 rotate.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))
 
 buffering_handler = MemoryHandler(int(Settings.get('client/logs/buffer_size')), target=rotate)
