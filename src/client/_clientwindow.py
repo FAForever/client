@@ -656,6 +656,8 @@ class ClientWindow(FormClass, BaseClass):
 
         self.actionSetGamePath.triggered.connect(self.switchPath)
         self.actionSetGamePort.triggered.connect(self.switchPort)
+        self.actionUseSubset.triggered.connect(self.updateOptions)
+        self.actionUseSubset.setChecked(bool(Settings.get("play/selectSubset")))
 
         # Toggle-Options
         self.actionSetAutoLogin.triggered.connect(self.updateOptions)

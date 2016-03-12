@@ -12,6 +12,7 @@ from fa.factions import Factions
 import fa
 import modvault
 import notifications as ns
+from config import Settings
 
 import logging
 logger = logging.getLogger(__name__)
@@ -19,6 +20,9 @@ logger = logging.getLogger(__name__)
 FormClass, BaseClass = util.loadUiType("games/games.ui")
 
 class GamesWidget(FormClass, BaseClass):
+
+    selectSubset = Settings.persisted_property("play/selectSubset", type=bool, default_value=False)
+
     def __init__(self, client, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
 
@@ -48,8 +52,14 @@ class GamesWidget(FormClass, BaseClass):
         self.rankedUEF.setIcon(util.icon("games/automatch/uef.png"))
         self.rankedRandom.setIcon(util.icon("games/automatch/random.png"))
 
-        for faction, icon in self._ranked_icons.items():
-            icon.clicked.connect(partial(self.toggle_search, faction=faction))
+        if(Settings.get("play/selectSubset")):
+            self.rankedPlay.show()
+            for faction, icon in self._ranked_icons.items():
+                icon.clicked.connect(partial(self.selectSubset, faction=faction))
+        else:
+            self.rankedPlay.hide()
+            for faction, icon in self._ranked_icons.items():
+                icon.clicked.connect(partial(self.toggle_search, faction=faction))
 
         self.searchProgress.hide()
 
@@ -107,6 +117,9 @@ class GamesWidget(FormClass, BaseClass):
                      if self.games[game].state == 'open'
                      and self.games[game].password_protected]:
             game.setHidden(state == Qt.Checked)
+
+    def selectSubset(self, enabled, faction=None):
+
 
     @QtCore.pyqtSlot()
     def clear_games(self):
