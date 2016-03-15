@@ -15,13 +15,19 @@ import notifications as ns
 from config import Settings
 
 import logging
+
 logger = logging.getLogger(__name__)
 
 FormClass, BaseClass = util.loadUiType("games/games.ui")
 
+PLAY_SUBSET_FACTIONS = "play/subsetFactions"
+PLAY_SUBSET_SELECT = "play/selectSubset"
+
+
 class GamesWidget(FormClass, BaseClass):
 
-    selectSubset = Settings.persisted_property("play/selectSubset", type=bool, default_value=False)
+    Settings.persisted_property(PLAY_SUBSET_SELECT, type=bool, default_value=False)
+    Settings.persisted_property(PLAY_SUBSET_FACTIONS, default_value=[False, False, False, False, False])
 
     def __init__(self, client, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
@@ -52,21 +58,14 @@ class GamesWidget(FormClass, BaseClass):
         self.rankedUEF.setIcon(util.icon("games/automatch/uef.png"))
         self.rankedRandom.setIcon(util.icon("games/automatch/random.png"))
 
-        if(Settings.get("play/selectSubset")):
-            self.rankedPlay.show()
-            for faction, icon in self._ranked_icons.items():
-                icon.clicked.connect(partial(self.selectSubset, faction=faction))
-        else:
-            self.rankedPlay.hide()
-            for faction, icon in self._ranked_icons.items():
-                icon.clicked.connect(partial(self.toggle_search, faction=faction))
-
         self.searchProgress.hide()
 
         # Ranked search state variables
         self.searching = False
         self.race = None
         self.ispassworded = False
+
+        self.generateSelectSubset(disconnect=False)
 
         self.client.modInfo.connect(self.processModInfo)
         self.client.gameInfo.connect(self.processGameInfo)
@@ -118,7 +117,57 @@ class GamesWidget(FormClass, BaseClass):
                      and self.games[game].password_protected]:
             game.setHidden(state == Qt.Checked)
 
-    def selectSubset(self, enabled, faction=None):
+    def selectSubset(self, enabled, factionIndex):
+        if(self.searching):
+            self.stopSearchRanked()
+        subsetFactionList = Settings.get(PLAY_SUBSET_FACTIONS, default=[False, False, False, False, False])
+        subsetFactionList[factionIndex] = enabled
+        Settings.set(PLAY_SUBSET_FACTIONS, subsetFactionList)
+
+    def startSubRandomRankedSearch(self):
+        if(self.searching):
+            self.stopSearchRanked()
+        else:
+            self.searching = True
+            factionSubset = []
+
+            if(self.rankedRandom.isChecked()):
+                self.startSearchRanked(Factions.RANDOM)
+            elif(self.rankedUEF.isChecked()):
+                factionSubset.append("uef")
+            if(self.rankedCybran.isChecked()):
+                factionSubset.append("cybran")
+            if(self.rankedAeon.isChecked()):
+                factionSubset.append("aeon")
+            if(self.rankedSeraphim.isChecked()):
+                factionSubset.append("seraphim")
+
+            if(len(factionSubset) == 4):
+                self.startSearchRanked(Factions.RANDOM)
+            elif(len(factionSubset) > 0):
+                self.startSearchRanked(Factions.from_name(factionSubset[random.randint(0, len(factionSubset) - 1)])) #chooses a random factionstring from factionsubset and converts it to a Faction
+
+
+
+    def generateSelectSubset(self, disconnect=True): #disconnect() throws an exception when there are no connections to the button and disconnect() is called so it cannot be called when initialising
+        if(self.searching): #you cannot search while changing the UI
+            self.stopSearchRanked()
+        if(Settings.get(PLAY_SUBSET_SELECT, type=bool, default=False)):
+            subsetFactionList = Settings.get(PLAY_SUBSET_FACTIONS, default=[False, False, False, False, False]) #stringlist
+            self.rankedPlay.clicked.connect(self.startSubRandomRankedSearch)
+            self.rankedPlay.show()
+            for faction, icon in self._ranked_icons.items():
+                if(disconnect):
+                    icon.clicked.disconnect()
+                icon.setChecked(subsetFactionList[faction.value - 1] == 'true')
+                icon.clicked.connect(partial(self.selectSubset, factionIndex=(faction.value - 1)))
+        else:
+            self.rankedPlay.hide()
+            for faction, icon in self._ranked_icons.items():
+                if(disconnect):
+                    icon.clicked.disconnect()
+                icon.setChecked(False)
+                icon.clicked.connect(partial(self.toggle_search, race=faction))
 
 
     @QtCore.pyqtSlot()
@@ -154,8 +203,6 @@ class GamesWidget(FormClass, BaseClass):
                 del self.games[uid]
 
     def startSearchRanked(self, race):
-        for faction, icon in self._ranked_icons.items():
-            icon.setChecked(faction == race)
 
         if race == Factions.RANDOM:
             race = Factions.get_random_faction()
@@ -185,6 +232,7 @@ class GamesWidget(FormClass, BaseClass):
             self.race = race
             self.searchProgress.setVisible(True)
             self.labelAutomatch.setText("Searching...")
+            self.rankedPlay.setText("Stop")
             self.client.search_ranked(faction=self.race.value)
 
     @QtCore.pyqtSlot()
@@ -194,6 +242,7 @@ class GamesWidget(FormClass, BaseClass):
             self.client.send(dict(command="game_matchmaking", mod="ladder1v1", state="stop"))
             self.searching = False
 
+        self.rankedPlay.setText("Start")
         self.searchProgress.setVisible(False)
         self.labelAutomatch.setText("1 vs 1 Automatch")
 
@@ -201,15 +250,17 @@ class GamesWidget(FormClass, BaseClass):
             icon.setChecked(False)
 
     @QtCore.pyqtSlot(bool)
-    def toggle_search(self, enabled, faction=None):
+    def toggle_search(self, enabled, race=None):
         """
         Handler called when a ladder search button is pressed. They're really checkboxes, and the
         state flag is used to decide whether to start or stop the search.
         :param state: The checkedness state of the search checkbox that was pushed
         :param player_faction: The faction corresponding to that checkbox
         """
-        if enabled:
-            self.startSearchRanked(faction)
+        if enabled and not self.searching:
+            for faction, icon in self._ranked_icons.items():
+                icon.setChecked(faction == race)
+            self.startSearchRanked(race)
         else:
             self.stopSearchRanked()
 

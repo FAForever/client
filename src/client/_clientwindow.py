@@ -634,6 +634,8 @@ class ClientWindow(FormClass, BaseClass):
         self.doneresize.emit()
 
     def initMenus(self):
+        from  games._gameswidget import PLAY_SUBSET_SELECT
+
         self.actionLink_account_to_Steam.triggered.connect(partial(self.open_url, Settings.get("STEAMLINK_URL")))
         self.actionLinkWebsite.triggered.connect(partial(self.open_url, Settings.get("WEBSITE_URL")))
         self.actionLinkWiki.triggered.connect(partial(self.open_url, Settings.get("WIKI_URL")))
@@ -656,8 +658,9 @@ class ClientWindow(FormClass, BaseClass):
 
         self.actionSetGamePath.triggered.connect(self.switchPath)
         self.actionSetGamePort.triggered.connect(self.switchPort)
-        self.actionUseSubset.triggered.connect(self.updateOptions)
-        self.actionUseSubset.setChecked(bool(Settings.get("play/selectSubset")))
+
+        self.actionUseSubset.triggered.connect(self.switchSubset)
+        self.actionUseSubset.setChecked(Settings.get(PLAY_SUBSET_SELECT, type=bool, default=False))
 
         # Toggle-Options
         self.actionSetAutoLogin.triggered.connect(self.updateOptions)
@@ -711,6 +714,10 @@ class ClientWindow(FormClass, BaseClass):
     def switchPort(self):
         import loginwizards
         loginwizards.gameSettingsWizard(self).exec_()
+
+    def switchSubset(self, enabled):
+        Settings.set("play/selectSubset", enabled)
+        self.games.generateSelectSubset()
 
     @QtCore.pyqtSlot()
     def clearSettings(self):
