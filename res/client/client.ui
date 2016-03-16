@@ -569,7 +569,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Use subset (1 vs 1)</string>
+    <string>Select subset of factions</string>
    </property>
   </action>
  </widget>

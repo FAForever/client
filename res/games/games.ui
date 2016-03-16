@@ -408,6 +408,15 @@
              <height>25</height>
             </size>
            </property>
+           <property name="acceptDrops">
+            <bool>false</bool>
+           </property>
+           <property name="toolTip">
+            <string/>
+           </property>
+           <property name="whatsThis">
+            <string extracomment="Select some factions and start searching for a 1 vs 1 match"/>
+           </property>
            <property name="autoFillBackground">
             <bool>true</bool>
            </property>
