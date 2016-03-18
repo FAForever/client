@@ -1,7 +1,4 @@
-
-
-
-from PyQt4 import QtGui, QtCore, QtNetwork
+from PyQt4 import QtCore, QtNetwork
 import time
 import json
 import logging
@@ -47,11 +44,11 @@ class SecondaryServer(QtCore.QObject):
         
         logger = logging.getLogger("faf.secondaryServer.%s" % self.name)
         logger.info("Instantiating secondary server.")
+        self.logger = logger
         
         self.socketPort = socket
         self.requester      = requester
 
-        self.result = self.RESULT_NONE
         self.command = None
         self.message = None
         
@@ -60,89 +57,31 @@ class SecondaryServer(QtCore.QObject):
 
         self.serverSocket.error.connect(self.handleServerError)
         self.serverSocket.readyRead.connect(self.readDataFromServer)
-        self.serverSocket.disconnected.connect(self.disconnected)
-        self.serverSocket.error.connect(self.errored)
+        self.serverSocket.connected.connect(self.send_pending)
         self.invisible = False
+        self._requests = []
             
     def setInvisible(self):
         self.invisible = True
     
     def send(self, command, *args, **kwargs):
         ''' actually do the settings'''
-                  
-        if self.serverSocket.state() == QtNetwork.QAbstractSocket.ConnectedState:
-            logger.info("A request is pending. Cancelling command")
-            return
-        
-        self.result = self.RESULT_NONE
-        self.command = None
-        self.message = None
-        
-        self.progress = QtGui.QProgressDialog()        
-        self.progress.setCancelButtonText(None)
-        self.progress.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
-        self.progress.setAutoClose(False)
-        self.progress.setAutoReset(True)
-        self.progress.setModal(1)
-        self.progress.setWindowTitle("Connecting to %s server" % self.name)
-        if not self.invisible:
-            self.progress.show()
-            self.progress.setLabelText("Connecting to server...")     
-           
-        self.lastData = time.time()
-        
-
-        self.serverSocket.connectToHost(self.HOST, self.socketPort)                         
-
-        if not self.invisible:
-            while not (self.serverSocket.state() == QtNetwork.QAbstractSocket.ConnectedState) and self.progress.isVisible():
-                QtGui.QApplication.processEvents()
-            if not self.progress.wasCanceled():
-                self.doCommand(command)                     
-            else:
-                self.result = self.RESULT_CANCEL       
-            self.progress.setLabelText("Cleaning up.")
-            self.progress.close()                
-                         
+        self._requests += [{'command': command, 'args': args, 'kwargs': kwargs}]
+        self.logger.info("Pending requests: {}".format(len(self._requests)))
+        if not self.serverSocket.state() == QtNetwork.QAbstractSocket.ConnectedState:
+            self.logger.info("Connecting to {}".format(self.name))
+            self.serverSocket.connectToHost(self.HOST, self.socketPort)
         else:
-            started = time.time()
-            cancelled = False
-            while not (self.serverSocket.state() == QtNetwork.QAbstractSocket.ConnectedState):
-                QtGui.QApplication.processEvents()
-                if time.time() - started > 5:
-                    cancelled = True
-                    self.result = self.RESULT_CANCEL
-                    break
-            if not cancelled:
-                self.doCommand(command)
+            self.send_pending()
 
-        return self.result  
+    def send_pending(self):
+        for req in self._requests:
+            self.send_request(req['command'], req['args'], req['kwargs'])
+        self._requests = []
 
-    def doCommand(self, command):
-        ''' The core function that does most of the actual work.'''
+    def send_request(self, command, *args, **kwargs):
         self.sendJson(command)
-        self.waitForInfo()
-              
-    def waitForInfo(self):
-        '''
-        A simple loop that waits until the server has transmitted our info.
-        '''        
-        if not self.invisible:
-            self.progress.setValue(0)
-            self.progress.setMinimum(0)
-            self.progress.setMaximum(0)
-        while self.result == self.RESULT_NONE :
-            if not self.invisible:
-                if self.progress.wasCanceled() or (time.time() - self.lastData > self.TIMEOUT):
-                    logger.error("Operation timed out/aborted while waiting for info.")
-                    break
-            QtGui.QApplication.processEvents()
-        logger.debug("Finishing request")
-        self.result = self.RESULT_NONE
-        
-        if self.command != None and self.message != None:
-            getattr(self.requester, self.command)(self.message)
-            
+
     def sendJson(self, message):
         data = json.dumps(message)
         logger.debug("Outgoing JSON Message: " + data)
@@ -150,9 +89,9 @@ class SecondaryServer(QtCore.QObject):
 
     @QtCore.pyqtSlot()
     def readDataFromServer(self):
-        ins = QtCore.QDataStream(self.serverSocket)        
+        ins = QtCore.QDataStream(self.serverSocket)
         ins.setVersion(QtCore.QDataStream.Qt_4_2)
-        
+
         while ins.atEnd() == False :
             if self.blockSize == 0:
                 if self.serverSocket.bytesAvailable() < 4:
@@ -202,14 +141,7 @@ class SecondaryServer(QtCore.QObject):
         cmd = "handle_" + message['command']
         logger.debug("answering from server :" + str(cmd))
         if hasattr(self.requester, cmd):
-            self.command = cmd
-            self.message = message
-        
-        self.serverSocket.abort()        
-        self.result = self.RESULT_SUCCESS
-            
-        
-        
+            getattr(self.requester, cmd)(message)
 
     @QtCore.pyqtSlot('QAbstractSocket::SocketError')
     def handleServerError(self, socketError):
@@ -226,15 +158,3 @@ class SecondaryServer(QtCore.QObject):
             log("The connection was refused by the peer.")
         else:
             log("The following error occurred: %s." % self.serverSocket.errorString())    
-
-        self.result = self.RESULT_FAILURE  
-
-    @QtCore.pyqtSlot()
-    def disconnected(self):
-        #This isn't necessarily an error so we won't change self.result here.
-        pass
-
-
-    @QtCore.pyqtSlot(QtNetwork.QAbstractSocket.SocketError)
-    def errored(self, error):
-        self.result = self.RESULT_FAILURE

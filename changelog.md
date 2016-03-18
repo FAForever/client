@@ -2,6 +2,7 @@
 =======
 
 - Fix an issue that could block connections in certain circumstances
+- Remove "connecting to statistics server popup" that would block normal operation of the client
 
 
 0.11.53
