@@ -634,8 +634,6 @@ class ClientWindow(FormClass, BaseClass):
         self.doneresize.emit()
 
     def initMenus(self):
-        from  games._gameswidget import PLAY_SUBSET_SELECT
-
         self.actionLink_account_to_Steam.triggered.connect(partial(self.open_url, Settings.get("STEAMLINK_URL")))
         self.actionLinkWebsite.triggered.connect(partial(self.open_url, Settings.get("WEBSITE_URL")))
         self.actionLinkWiki.triggered.connect(partial(self.open_url, Settings.get("WIKI_URL")))
@@ -660,7 +658,7 @@ class ClientWindow(FormClass, BaseClass):
         self.actionSetGamePort.triggered.connect(self.switchPort)
 
         self.actionUseSubset.triggered.connect(self.switchSubset)
-        self.actionUseSubset.setChecked(Settings.get(PLAY_SUBSET_SELECT, type=bool, default=False))
+        self.actionUseSubset.setChecked(Settings.get("play/selectSubset", type=bool, default=False))
 
         # Toggle-Options
         self.actionSetAutoLogin.triggered.connect(self.updateOptions)

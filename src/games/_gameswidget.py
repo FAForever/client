@@ -20,14 +20,9 @@ logger = logging.getLogger(__name__)
 
 FormClass, BaseClass = util.loadUiType("games/games.ui")
 
-PLAY_SUBSET_FACTIONS = "play/subsetFactions"
-PLAY_SUBSET_SELECT = "play/selectSubset"
-
-
 class GamesWidget(FormClass, BaseClass):
 
-    Settings.persisted_property(PLAY_SUBSET_SELECT, type=bool, default_value=False)
-    Settings.persisted_property(PLAY_SUBSET_FACTIONS, default_value=[False, False, False, False, False])
+    use_subset = Settings.persisted_property("play/selectSubset", type=bool, default_value=False)
 
     def __init__(self, client, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
@@ -117,14 +112,14 @@ class GamesWidget(FormClass, BaseClass):
                      and self.games[game].password_protected]:
             game.setHidden(state == Qt.Checked)
 
-    def selectSubset(self, enabled, factionIndex):
+    def selectSubset(self, enabled):
         if(self.searching):
             self.stopSearchRanked()
-        subsetFactionList = Settings.get(PLAY_SUBSET_FACTIONS, default=[False, False, False, False, False])
-        subsetFactionList[factionIndex] = enabled
-        Settings.set(PLAY_SUBSET_FACTIONS, subsetFactionList)
 
     def startSubRandomRankedSearch(self):
+        '''
+        This is a wrapper around startRankedSearch where a faction will be chosen based on the selected checkboxes
+        '''
         if(self.searching):
             self.stopSearchRanked()
         else:
@@ -133,7 +128,8 @@ class GamesWidget(FormClass, BaseClass):
 
             if(self.rankedRandom.isChecked()):
                 self.startSearchRanked(Factions.RANDOM)
-            elif(self.rankedUEF.isChecked()):
+
+            if(self.rankedUEF.isChecked()):
                 factionSubset.append("uef")
             if(self.rankedCybran.isChecked()):
                 factionSubset.append("cybran")
@@ -152,20 +148,23 @@ class GamesWidget(FormClass, BaseClass):
     def generateSelectSubset(self, disconnect=True): #disconnect() throws an exception when there are no connections to the button and disconnect() is called so it cannot be called when initialising
         if(self.searching): #you cannot search while changing the UI
             self.stopSearchRanked()
-        if(Settings.get(PLAY_SUBSET_SELECT, type=bool, default=False)):
-            subsetFactionList = Settings.get(PLAY_SUBSET_FACTIONS, default=[False, False, False, False, False]) #stringlist
+        if(self.use_subset):
             self.rankedPlay.clicked.connect(self.startSubRandomRankedSearch)
             self.rankedPlay.show()
+            self.labelRankedHint.setText("Select a few of your favorite factions and hit play to get matched against a player of your level in a random map !")
             for faction, icon in self._ranked_icons.items():
                 if(disconnect):
                     icon.clicked.disconnect()
-                icon.setChecked(subsetFactionList[faction.value - 1] == 'true')
-                icon.clicked.connect(partial(self.selectSubset, factionIndex=(faction.value - 1)))
+
+                icon.setChecked(False)
+                icon.clicked.connect(self.selectSubset)
         else:
             self.rankedPlay.hide()
+            self.labelRankedHint.setText("Select your favorite faction and get matched against a player of your level in a random map !")
             for faction, icon in self._ranked_icons.items():
                 if(disconnect):
                     icon.clicked.disconnect()
+
                 icon.setChecked(False)
                 icon.clicked.connect(partial(self.toggle_search, race=faction))
 
