@@ -1,3 +1,10 @@
+0.11.54
+=======
+
+- Fix an issue that could block connections in certain circumstances
+- Remove "connecting to statistics server popup" that would block normal operation of the client
+
+
 0.11.53
 =======
 
@@ -6,6 +13,7 @@
 - Fix an issue with registering on IRC
 - Fix map previews not downloading properly
 - Fix unicode characters in chatmessage URL's causing an exception
+- Make logs not grow out of proportion
 
 0.11.52
 =======
