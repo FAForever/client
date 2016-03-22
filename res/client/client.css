@@ -219,7 +219,11 @@ QSplitter::handle:hover
      background-color: #606060;
  }
 
-
+QSpinBox#minRating, QLineEdit#mapName, QLineEdit#playerName, QComboBox#modList
+{
+	background-color: #353535;
+	color: orange;
+}
 
 /* Text controls */
 QTextEdit, QPlainTextEdit, QLineEdit, QListWidget, QTableWidget, QTreeWidget, QFrame#rankedFrame, QFrame#teamFaction, QFrame#teamSearch

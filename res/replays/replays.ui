@@ -189,6 +189,61 @@
        </size>
       </property>
       <layout class="QGridLayout" name="gridLayout_5">
+       <item row="1" column="2">
+        <spacer name="horizontalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Expanding</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>0</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="1">
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="2" column="1">
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="0">
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>0</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
        <item row="1" column="1">
         <widget class="QGroupBox" name="groupBox">
          <property name="sizePolicy">
@@ -226,7 +281,7 @@
            <number>4</number>
           </property>
           <property name="verticalSpacing">
-           <number>2</number>
+           <number>4</number>
           </property>
           <property name="margin">
            <number>19</number>
@@ -242,7 +297,7 @@
                <string notr="true"/>
               </property>
               <property name="text">
-               <string>Player :</string>
+               <string>Player : </string>
               </property>
              </widget>
             </item>
@@ -262,7 +317,7 @@
                <string notr="true"/>
               </property>
               <property name="text">
-               <string>Map :</string>
+               <string>Map : </string>
               </property>
              </widget>
             </item>
@@ -292,7 +347,7 @@
                <string notr="true"/>
               </property>
               <property name="text">
-               <string>Mod :</string>
+               <string>Mod : </string>
               </property>
              </widget>
             </item>
@@ -318,7 +373,7 @@
                <string notr="true"/>
               </property>
               <property name="text">
-               <string>Min rating :</string>
+               <string>Min rating : </string>
               </property>
              </widget>
             </item>
@@ -346,61 +401,6 @@
           </item>
          </layout>
         </widget>
-       </item>
-       <item row="0" column="1">
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="1" column="0">
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>0</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="1" column="2">
-        <spacer name="horizontalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Expanding</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>0</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="2" column="1">
-        <spacer name="verticalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
        </item>
       </layout>
       <zorder>groupBox</zorder>
