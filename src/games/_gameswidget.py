@@ -16,17 +16,15 @@ import notifications as ns
 
 import logging
 
-SORT_GAMES = "play/sortGames"
-HIDE_PRIVATE_GAMES = "play/hidePrivateGames"
-
 logger = logging.getLogger(__name__)
 
 FormClass, BaseClass = util.loadUiType("games/games.ui")
 
-Settings.persisted_property(HIDE_PRIVATE_GAMES, default_value=False, type=bool)
-Settings.persisted_property(SORT_GAMES, default_value=0, type=int)
-
 class GamesWidget(FormClass, BaseClass):
+
+    hide_private_games = Settings.persisted_property("play/hidePrivateGames", default_value=False, type=bool)
+    sort_games_index = Settings.persisted_property("play/sortGames", default_value=0, type=int) #Default is by player count
+
     def __init__(self, client, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
 
@@ -75,14 +73,14 @@ class GamesWidget(FormClass, BaseClass):
 
         self.gameList.setItemDelegate(GameItemDelegate(self))
         self.gameList.itemDoubleClicked.connect(self.gameDoubleClicked)
-        self.gameList.sortBy = Settings.get(SORT_GAMES, type=int, default=0)  # Default Sorting is By Players count
+        self.gameList.sortBy = self.sort_games_index  # Default Sorting is By Players count
 
         self.sortGamesComboBox.addItems(['By Players', 'By Game Quality', 'By avg. Player Rating'])
         self.sortGamesComboBox.currentIndexChanged.connect(self.sortGamesComboChanged)
-        self.sortGamesComboBox.setCurrentIndex(Settings.get(SORT_GAMES, type=int, default=0))
+        self.sortGamesComboBox.setCurrentIndex(self.sort_games_index)
 
         self.hideGamesWithPw.stateChanged.connect(self.togglePrivateGames)
-        self.hideGamesWithPw.setChecked(Settings.get(HIDE_PRIVATE_GAMES, type=bool, default=False))
+        self.hideGamesWithPw.setChecked(self.hide_private_games)
 
         self.modList.itemDoubleClicked.connect(self.hostGameClicked)
 
@@ -113,7 +111,7 @@ class GamesWidget(FormClass, BaseClass):
     @QtCore.pyqtSlot(int)
     def togglePrivateGames(self, state):
         # Wow.
-        Settings.set(HIDE_PRIVATE_GAMES, value=bool(state), persist=True)
+        self.hide_private_games = state
 
         for game in [self.games[game] for game in self.games
                      if self.games[game].state == 'open'
@@ -302,6 +300,6 @@ class GamesWidget(FormClass, BaseClass):
         util.settings.endGroup()
 
     def sortGamesComboChanged(self, index):
-        Settings.set(SORT_GAMES, value=index, persist=True)
+        self.sort_games_index = index;
         self.gameList.sortBy = index
         self.gameList.sortItems()
