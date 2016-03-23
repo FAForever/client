@@ -40,7 +40,7 @@ def call_git_describe():
         return line.strip()
     except Exception as e:
         print("Error grabbing git version: {}".format(e))
-        return "0.0.0-dev"
+        return None
 
 def is_development_version(version):
     return "-" in version and not is_prerelease_version(version)
@@ -51,7 +51,9 @@ def is_prerelease_version(version):
 
 def read_release_version():
     try:
-        f = open("RELEASE-VERSION", "r")
+        import util
+        import os.path
+        f = open(os.path.join(util.COMMON_DIR,"RELEASE-VERSION"), "r")
 
         try:
             version = f.readlines()[0]

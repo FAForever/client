@@ -191,13 +191,18 @@ def folderForMap(mapname):
     Returns the folder where the application could find the map
     '''
     if isBase(mapname):
-        return os.path.join(getBaseMapsFolder(), mapname)
-    
-    if os.path.isdir(getUserMapsFolder()):
-        for infile in os.listdir(getUserMapsFolder()) :
-            if infile.lower() == mapname.lower(): 
-                return os.path.join(getUserMapsFolder(), mapname)
+        mapsfolder = getBaseMapsFolder()
+    else:
+        mapsfolder = getUserMapsFolder()
 
+    if not os.path.isdir(mapsfolder):
+        return None
+
+    for infile in os.listdir(mapsfolder):
+        if infile.lower() == mapname.lower():
+            result = os.path.join(mapsfolder, infile)
+            if os.path.isdir(result):
+                return result
     return None
 
 def getBaseMapsFolder():
@@ -250,18 +255,13 @@ def __exportPreviewFromMap(mapname, positions=None):
     largeExists = False
     ddsExists = False
     previews = {"cache":None, "tozip":list()}
-    
-    if os.path.isdir(mapname):
-        mapdir = mapname
-    elif os.path.isdir(os.path.join(getUserMapsFolder(), mapname)):
-        mapdir = os.path.join(getUserMapsFolder(), mapname)
-    elif os.path.isdir(os.path.join(getBaseMapsFolder(), mapname)):
-        mapdir = os.path.join(getBaseMapsFolder(), mapname)
-    else:
+
+    mapdir = folderForMap(mapname)
+    if not mapdir:
         logger.debug("Can't find mapname in file system: " + mapname)
         return previews
         
-    mapname = os.path.basename(mapdir).lower()
+    mapname = os.path.basename(mapdir)
     mapfilename = os.path.join(mapdir, mapname.split(".")[0]+".scmap")
     
     mode = os.stat(mapdir)[0]

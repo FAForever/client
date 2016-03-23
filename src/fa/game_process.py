@@ -41,7 +41,15 @@ class GameProcess(QtCore.QProcess):
 
             executable = os.path.join(config.Settings.get('game/bin/path'),
                                       "ForgedAlliance.exe")
-            command = '"' + executable + '" ' + " ".join(arguments)
+            import util
+            if util.WINDOWS:
+                command = '"' + executable + '" ' + " ".join(arguments)
+            else:
+                command = util.wine_cmd_prefix + " " + util.wine_exe + ' "' + executable + '" ' + " ".join(arguments)
+                if util.wine_prefix:
+                    wine_env = QtCore.QProcessEnvironment.systemEnvironment()
+                    wine_env.insert("WINEPREFIX", util.wine_prefix)
+                    QtCore.QProcess.setProcessEnvironment(self, wine_env)
 
             logger.info("Running FA with info: " + str(info))
             logger.info("Running FA via command: " + command)

@@ -1,21 +1,41 @@
 import sys
 
 import os
-from ctypes import *
 
 # Developer mode flag
 def developer():
-    return sys.executable.endswith("python.exe")
+    return "python" in sys.executable
 
-from config import VERSION as VERSION_STRING
+import platform
+if platform.system() == "Windows":
+    WINDOWS = True
+else:
+    WINDOWS = False
+
+#This data path is relative to the executable or main.py script
+COMMON_DIR = os.path.join(os.getcwd(), "res")
+if not os.path.exists(COMMON_DIR) and not WINDOWS:
+    # support a separation of the res folder into /usr/share/fafclient
+    COMMON_DIR = os.path.join("/usr", "share", "fafclient")
+
+# Public settings object
+# Stolen from Config because reasons
+from config import _settings
+settings = _settings
+
+# initialize wine settings for non Windows platforms
+if not WINDOWS:
+    wine_exe = settings.value("wine/exe", "wine", type=str)
+    wine_cmd_prefix = settings.value("wine/cmd_prefix", "", type=str)
+    if settings.contains("wine/prefix"):
+        wine_prefix = str(settings.value("wine/prefix", type=str))
+    else:
+        wine_prefix = os.path.join(os.path.expanduser("~"), ".wine")
 
 LOGFILE_MAX_SIZE = 256 * 1024  #256kb should be enough for anyone
 
 
 UNITS_PREVIEW_ROOT = "http://content.faforever.com/faf/unitsDB/icons/big/"
-
-#These are paths relative to the executable or main.py script
-COMMON_DIR = os.path.join(os.getcwd(), "res")
 
 # These directories are in Appdata (e.g. C:\ProgramData on some Win7 versions)
 if 'ALLUSERSPROFILE' in os.environ:
@@ -58,32 +78,46 @@ REPO_DIR = os.path.join(APPDATA_DIR, "repo")
 if not os.path.exists(REPO_DIR):
     os.makedirs(REPO_DIR)
 
-LOCALFOLDER = os.path.join(os.path.expandvars("%LOCALAPPDATA%"), "Gas Powered Games",
-                           "Supreme Commander Forged Alliance")
-if not os.path.exists(LOCALFOLDER):
-    LOCALFOLDER = os.path.join(os.path.expandvars("%USERPROFILE%"), "Local Settings", "Application Data",
-                               "Gas Powered Games", "Supreme Commander Forged Alliance")
+if WINDOWS:
+    LOCALFOLDER = os.path.join(os.path.expandvars("%LOCALAPPDATA%"), "Gas Powered Games",
+                               "Supreme Commander Forged Alliance")
+    if not os.path.exists(LOCALFOLDER):
+        LOCALFOLDER = os.path.join(os.path.expandvars("%USERPROFILE%"), "Local Settings", "Application Data",
+                                   "Gas Powered Games", "Supreme Commander Forged Alliance")
+else:
+    import getpass
+    LOCALFOLDER = os.path.join(wine_prefix, 'drive_c', 'users', getpass.getuser(), "Local Settings", "Application Data",
+                                   "Gas Powered Games", "Supreme Commander Forged Alliance")
+
 PREFSFILENAME = os.path.join(LOCALFOLDER, "game.prefs")
+if not os.path.exists(PREFSFILENAME):
+    PREFSFILENAME = os.path.join(LOCALFOLDER, "Game.prefs") #fix wrong case on some Linux machines
+
 
 DOWNLOADED_RES_PIX = {}
 DOWNLOADING_RES_PIX = {}
 
 # This should be "My Documents" for most users. However, users with accents in their names can't even use these folders in Supcom
 # so we are nice and create a new home for them in the APPDATA_DIR
-try:
-    os.environ['USERNAME'].decode('ascii')  # Try to see if the user has a wacky username
+if WINDOWS:
+    try:
+        os.environ['USERNAME'].decode('ascii')  # Try to see if the user has a wacky username
 
-    import ctypes
-    from ctypes.wintypes import MAX_PATH
+        import ctypes
+        from ctypes.wintypes import MAX_PATH
 
-    dll = ctypes.windll.shell32
-    buf = ctypes.create_unicode_buffer(MAX_PATH + 1)
-    if dll.SHGetSpecialFolderPathW(None, buf, 0x0005, False):
-        PERSONAL_DIR = (buf.value)
-    else:
-        raise StandardError
-except:
-    PERSONAL_DIR = os.path.join(APPDATA_DIR, "user")
+        dll = ctypes.windll.shell32
+        buf = ctypes.create_unicode_buffer(MAX_PATH + 1)
+        if dll.SHGetSpecialFolderPathW(None, buf, 0x0005, False):
+            PERSONAL_DIR = (buf.value)
+        else:
+            raise StandardError
+    except:
+        # wine points the "My Documents" folder to the users home directory on linux
+        PERSONAL_DIR = os.path.join(APPDATA_DIR, "user")
+else:
+    from os.path import expanduser
+    PERSONAL_DIR = expanduser("~")
 
 #Ensure Application data directories exist
 if not os.path.isdir(APPDATA_DIR):
@@ -161,11 +195,6 @@ __theme = None
 __themedir = None
 
 
-# Public settings object
-# Stolen from Config because reasons
-from config import _settings
-settings = _settings
-
 def clean_slate(path):
     if os.path.exists(path):
         logger.info("Wiping " + path)
@@ -200,7 +229,8 @@ def setTheme(theme, restart=True):
         test_dir = os.path.join(THEME_DIR, theme)
         if os.path.isdir(test_dir):
             version_file = os.path.join(THEME_DIR, theme, "version")
-            if os.path.isfile(version_file) and (VERSION_STRING == open(version_file).read()):
+            from config import VERSION
+            if os.path.isfile(version_file) and (VERSION == open(version_file).read()):
                 logger.info("Using theme: " + theme + " in directory " + test_dir)
                 __themedir = test_dir
                 __theme = theme
@@ -604,6 +634,4 @@ def datetostr(d):
 
 def now():
     return _dateDummy.now()
-
-from crash import CrashDialog
 
