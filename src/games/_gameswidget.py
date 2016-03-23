@@ -23,6 +23,7 @@ FormClass, BaseClass = util.loadUiType("games/games.ui")
 class GamesWidget(FormClass, BaseClass):
 
     use_subset = Settings.persisted_property("play/selectSubset", type=bool, default_value=False)
+    sub_factions = Settings.persisted_property("play/subFactions", default_value=[False, False, False, False, False])
 
     def __init__(self, client, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
@@ -112,7 +113,12 @@ class GamesWidget(FormClass, BaseClass):
                      and self.games[game].password_protected]:
             game.setHidden(state == Qt.Checked)
 
-    def selectSubset(self, enabled):
+    def selectFaction(self, enabled, factionID=0):
+        if len(self.sub_factions) > factionID: return #sanity check
+
+        self.sub_factions[factionID] = enabled
+        Settings.set("play/subFactions", value=self.sub_factions, persist=True) #i have to manually set it otherwhise it won't write it to the settingsfile
+
         if(self.searching):
             self.stopSearchRanked()
 
@@ -125,9 +131,6 @@ class GamesWidget(FormClass, BaseClass):
         else:
             self.searching = True
             factionSubset = []
-
-            if(self.rankedRandom.isChecked()):
-                self.startSearchRanked(Factions.RANDOM)
 
             if(self.rankedUEF.isChecked()):
                 factionSubset.append("uef")
@@ -145,8 +148,8 @@ class GamesWidget(FormClass, BaseClass):
 
 
 
-    def generateSelectSubset(self, disconnect=True): #disconnect() throws an exception when there are no connections to the button and disconnect() is called so it cannot be called when initialising
-        if(self.searching): #you cannot search while changing the UI
+    def generateSelectSubset(self, disconnect=True): #disconnect() throws an exception when there are no handlers on the button when disconnect() is called so it cannot be called when initialising
+        if(self.searching): #you cannot search for a match while changing/creating the UI
             self.stopSearchRanked()
         if(self.use_subset):
             self.rankedPlay.clicked.connect(self.startSubRandomRankedSearch)
@@ -157,8 +160,8 @@ class GamesWidget(FormClass, BaseClass):
                 if(disconnect):
                     icon.clicked.disconnect()
 
-                icon.setChecked(False)
-                icon.clicked.connect(self.selectSubset)
+                icon.setChecked(len(self.sub_factions) > (faction.value) and self.sub_factions[faction.value] == 'true') # we have a list but no list<bool>
+                icon.clicked.connect(partial(self.selectFaction, factionID=faction.value)) # removed - 1 on factionIndex because it won't set to the first element within the list
         else:
             self.rankedPlay.hide()
             self.rankedRandom.show()
