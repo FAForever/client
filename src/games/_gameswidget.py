@@ -155,7 +155,8 @@ class GamesWidget(FormClass, BaseClass):
             self.rankedPlay.clicked.connect(self.startSubRandomRankedSearch)
             self.rankedPlay.show()
             self.rankedRandom.hide()
-            self.labelRankedHint.setText("Select a few of your favorite factions and hit play to get matched against a player of your level in a random map !")
+            self.labelRankedHint.hide()
+            self.labelSubsetRankedHint.show()
             for faction, icon in self._ranked_icons.items():
                 if(disconnect):
                     icon.clicked.disconnect()
@@ -165,7 +166,8 @@ class GamesWidget(FormClass, BaseClass):
         else:
             self.rankedPlay.hide()
             self.rankedRandom.show()
-            self.labelRankedHint.setText("Select your favorite faction and get matched against a player of your level in a random map !")
+            self.labelRankedHint.show()
+            self.labelSubsetRankedHint.hide()
             for faction, icon in self._ranked_icons.items():
                 if(disconnect):
                     icon.clicked.disconnect()
