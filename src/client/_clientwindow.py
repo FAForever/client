@@ -1327,6 +1327,8 @@ class ClientWindow(FormClass, BaseClass):
         self.coopLeaderBoard.emit(message)
 
     def handle_matchmaker_info(self, message):
+        if not self.me:
+            return
         if "action" in message:
             self.matchmakerInfo.emit(message)
         elif "queues" in message:
