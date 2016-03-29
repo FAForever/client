@@ -6,7 +6,8 @@ logger = logging.getLogger(__name__)
 
 
 from PyQt4 import QtGui, QtCore
-from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
+from PyQt4.QtNetwork import QNetworkAccessManager
+from PyQt4.QtCore import QSocketNotifier
 
 from config import Settings
 import util
@@ -21,7 +22,6 @@ import notifications as ns
 
 IRC_PORT = 8167
 IRC_SERVER = "irc.faforever.com"
-POLLING_INTERVAL = 300   # milliseconds between irc polls
 PONG_INTERVAL = 100000   # milliseconds between pongs
 
 FormClass, BaseClass = util.loadUiType("chat/chat.ui")
@@ -80,24 +80,16 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.client.authorized.connect(self.connect)
         self.client.autoJoin.connect(self.autoJoin)
         self.channelsAvailable = []
-        self.timer = QtCore.QTimer(self)
-        self.timer.timeout.connect(self.poll)
+
+        self._notifier = None
 
         # disconnection checks
         self.canDisconnect = False
 
-
-    @QtCore.pyqtSlot()
-    def poll(self):
-        self.timer.stop()
-        self.once()
-        self.timer.start(POLLING_INTERVAL)
-
-
     def disconnect(self):
         self.canDisconnect = True
         self.irc_disconnect()
-        self.timer.stop()
+        self._notifier = None
 
 
     @QtCore.pyqtSlot(object)
@@ -109,7 +101,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
                              ssl=True,
                              ircname=player.login,
                              username=player.id)
-            self.timer.start()
+            self._notifier = QSocketNotifier(self.ircobj.connections[0]._get_socket().fileno(), QSocketNotifier.Read, self)
+            self._notifier.activated.connect(self.once)
 
         except:
             logger.debug("Unable to connect to IRC server.")
