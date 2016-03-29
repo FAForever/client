@@ -73,6 +73,7 @@ import string
 import time
 import types
 import ssl
+import logging
 
 VERSION = 0, 4, 8
 DEBUG = 0
@@ -608,10 +609,13 @@ class ServerConnection(Connection):
 
     def _handle_event(self, event):
         """[Internal]"""
-        self.irclibobj._handle_event(self, event)
-        if event.eventtype() in self.handlers:
-            for fn in self.handlers[event.eventtype()]:
-                fn(self, event)
+        try:
+            self.irclibobj._handle_event(self, event)
+            if event.eventtype() in self.handlers:
+                for fn in self.handlers[event.eventtype()]:
+                    fn(self, event)
+        except Exception as e:
+            logging.getLogger('irclib').exception(e)
 
     def is_connected(self):
         """Return connection status.
