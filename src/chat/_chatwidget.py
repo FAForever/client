@@ -395,6 +395,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
     def on_disconnect(self, c, e):
         if not self.canDisconnect:
             logger.warn("IRC disconnected - reconnecting.")
+            self.serverLogArea.appendPlainText("IRC disconnected - reconnecting.")
             self.identified = False
             self.connect(self.client.me)
 
