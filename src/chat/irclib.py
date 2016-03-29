@@ -213,8 +213,6 @@ class IRC:
         if sockets:
             (i, o, e) = select.select(sockets, [], [], timeout)
             self.process_data(i)
-        else:
-            time.sleep(timeout)
         self.process_timeout()
 
     def process_forever(self, timeout=0.2):
