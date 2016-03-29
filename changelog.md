@@ -6,6 +6,9 @@
 - Make chat a whole lot faster
 - Persist the 'Hide private games' checkbox
 
+Contributors:
+
+ - TimWolters
 
 0.11.53
 =======
