@@ -1,3 +1,9 @@
+0.11.55
+=======
+
+- Fix a problem that would cause IRC to disconnect randomly
+  - Fix an automated bug report popping up if above happened
+
 0.11.54
 =======
 
