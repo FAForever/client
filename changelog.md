@@ -1,3 +1,8 @@
+0.11.56
+=======
+
+- Fix another problem that would cause IRC to disconnect randomly (And show an error popup)
+
 0.11.55
 =======
 
@@ -15,6 +20,7 @@
 Contributors:
 
  - TimWolters
+
 
 0.11.53
 =======
