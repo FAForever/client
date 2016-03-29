@@ -1128,7 +1128,7 @@ class SimpleIRCClient:
 
     def once(self):
         """Poll IRC server once."""
-        self.ircobj.process_once()
+        self.ircobj.process_once(timeout=0.01)
 
 
 class Event:
