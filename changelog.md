@@ -1,4 +1,4 @@
-0.11.56
+0.11.57
 =======
 
 - Fix another problem that would cause IRC to disconnect randomly (And show an error popup)
