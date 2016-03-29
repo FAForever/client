@@ -72,6 +72,7 @@ import socket
 import string
 import time
 import types
+import ssl
 
 VERSION = 0, 4, 8
 DEBUG = 0
@@ -378,7 +379,7 @@ class ServerConnection(Connection):
         self.ssl = None
 
     def connect(self, server, port, nickname, password=None, username=None,
-                ircname=None, localaddress="", localport=0, ssl=False, ipv6=False):
+                ircname=None, localaddress="", localport=0, use_ssl=False, ipv6=False):
         """Connect/reconnect to a server.
 
         Arguments:
@@ -430,8 +431,11 @@ class ServerConnection(Connection):
         try:
             self.socket.bind((self.localaddress, self.localport))
             self.socket.connect((self.server, self.port))
-            if ssl:
-                self.ssl = socket.ssl(self.socket)
+            if use_ssl:
+                self.ssl = ssl.wrap_socket(self.socket)
+                self.ssl.settimeout(0.0)
+            else:
+                self.socket.settimeout(0.0)
         except socket.error, x:
             self.socket.close()
             self.socket = None
@@ -489,12 +493,11 @@ class ServerConnection(Connection):
                 new_data = self.ssl.read(2**14)
             else:
                 new_data = self.socket.recv(2**14)
-        except socket.error, x:
+        except socket.timeout:
+            # Nothing was interesting
+            pass
+        except socket.error as x:
             # The server hung up.
-            self.disconnect("Connection reset by peer")
-            return
-        if not new_data:
-            # Read nothing: connection must be down.
             self.disconnect("Connection reset by peer")
             return
 

@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtNetwork import QNetworkAccessManager
-from PyQt4.QtCore import QSocketNotifier
+from PyQt4.QtCore import QSocketNotifier, QTimer
 
 from config import Settings
 import util
@@ -82,6 +82,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.channelsAvailable = []
 
         self._notifier = None
+        self._timer = QTimer()
+        self._timer.timeout.connect(self.once)
 
         # disconnection checks
         self.canDisconnect = False
@@ -103,6 +105,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
                              username=player.id)
             self._notifier = QSocketNotifier(self.ircobj.connections[0]._get_socket().fileno(), QSocketNotifier.Read, self)
             self._notifier.activated.connect(self.once)
+            self._timer.start(60 * 1000)  # 60 s
 
         except:
             logger.debug("Unable to connect to IRC server.")
@@ -397,6 +400,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             logger.warn("IRC disconnected - reconnecting.")
             self.serverLogArea.appendPlainText("IRC disconnected - reconnecting.")
             self.identified = False
+            self._timer.stop()
             self.connect(self.client.me)
 
     def on_privmsg(self, c, e):
