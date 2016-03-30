@@ -990,7 +990,7 @@ class ClientWindow(FormClass, BaseClass):
             self.urls = {}
             self.usersUpdated.emit(oldplayers)
 
-        if self.state != ClientState.DISCONNECTED:
+        if self.state != ClientState.DISCONNECTED and self.state != ClientState.SHUTDOWN:
             self.state = ClientState.DROPPED
             if self._connection_attempts < 2:
                 logger.info("Reconnecting immediately")
@@ -1118,6 +1118,8 @@ class ClientWindow(FormClass, BaseClass):
     @QtCore.pyqtSlot()
     def perform_login(self):
         self.uniqueId = util.uniqueID(self.login, self.session)
+        if not self.uniqueId:
+            return False
         self.send(dict(command="hello",
                        login=self.login,
                        password=self.password,

@@ -91,7 +91,9 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
     def disconnect(self):
         self.canDisconnect = True
         self.irc_disconnect()
-        self._notifier = None
+        if self._notifier:
+            self._notifier.activated.disconnect(self.once)
+            self._notifier = None
 
 
     @QtCore.pyqtSlot(object)
