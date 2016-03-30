@@ -1,3 +1,10 @@
+0.11.58
+=======
+
+- Show a warning if the required C++ 2010 runtime is missing
+- Default IRC to port 6667 without the use of TLS (Standard IRC behavior)
+
+
 0.11.57
 =======
 
