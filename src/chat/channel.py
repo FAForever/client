@@ -272,7 +272,6 @@ class Channel(FormClass, BaseClass):
                 formatter = Formatters.FORMATTER_MESSAGE
                 line = formatter.format(time=self.timestamp(), name=displayName, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))
         else:
-            formatter = Formatters.FORMATTER_MESSAGE
             line = formatter.format(time=self.timestamp(), name=displayName, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))
 
         self.chatArea.insertHtml(line)
