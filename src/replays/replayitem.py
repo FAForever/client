@@ -93,6 +93,7 @@ class ReplayItem(QtGui.QTreeWidgetItem):
         
         self.moreInfo       = False
         self.replayInfo     = False
+        self.spoiled        = False
         self.url            = "http://content.faforever.com/faf/vault/replay_vault/replay.php?id=%i" % self.uid
         
         self.teams          = {}
@@ -167,17 +168,21 @@ class ReplayItem(QtGui.QTreeWidgetItem):
                 else :
                     self.teams[team].append(player)
 
-        teamWin = None
+        self.teamWin = None
         if len(scores) > 0 :
             winner = 0
             for team in scores :
                 if scores[team] > winner :
-                    teamWin = team
+                    self.teamWin = team
+
+        self.generateInfoPlayersHtml()
                 
+    def generateInfoPlayersHtml(self):
         observerlist    = []
         teamlist        = []
 
         teams = ""
+        self.spoiled = self.parent.spoilerCheckbox.isChecked() == False
 
         i = 0
         for team in self.teams:
@@ -186,21 +191,21 @@ class ReplayItem(QtGui.QTreeWidgetItem):
                 teamtxt = "<table border=0 width = 100% height = 100%>"
 
                 teamDisplay    = []
-                if teamWin and self.parent.spoilerCheckbox.isChecked() == False :
-                    if teamWin == i :
+                if self.teamWin and self.spoiled:
+                    if self.teamWin == i :
                         teamDisplay.append("<table border=0 width = 100% height = 100%><tr><td align = 'center' valign='center' width =100%><font size ='+2'>WIN</font></td></tr></table>")
                     else :
                         teamDisplay.append("<table border=0 width = 100% height = 100%><tr><td align = 'center' valign='center' width =100%><font size ='+2'>LOSE</font></td></tr></table>")
                 for player in self.teams[team] :
                     displayPlayer = ""
 
-    
+
                     playerStr = player["name"]
-                    
+
                     if "rating" in player :
                         playerStr += " ("+str(int(player["rating"]))+")"
-                    
-                    if "after_rating" in player and self.parent.spoilerCheckbox.isChecked() == False :
+
+                    if "after_rating" in player and self.spoiled:
                         playerStr += " to ("+str(int(player["after_rating"]))+")"
 
 
