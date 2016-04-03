@@ -3,6 +3,10 @@
 
 - Uncheck 'remember me' if sign in failed
 - Fix autodownload of sim mods
+- Add options to skip dialogs for autodownload of maps/mods
+
+Contributors:
+ - HaraldWeber
 
 0.11.58
 =======
