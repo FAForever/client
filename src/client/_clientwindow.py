@@ -323,6 +323,10 @@ class ClientWindow(FormClass, BaseClass):
     def on_actionSavegamelogs_toggled(self, value):
         self.gamelogs = value
 
+    @QtCore.pyqtSlot(bool)
+    def on_actionAutoDownloadMods_toggled(self, value):
+        Settings.set('mods/autodownload', value is True)
+
     def eventFilter(self, obj, event):
         if (event.type() == QtCore.QEvent.HoverMove):
             self.draggingHover = self.dragging
@@ -660,6 +664,8 @@ class ClientWindow(FormClass, BaseClass):
         # Toggle-Options
         self.actionSetAutoLogin.triggered.connect(self.updateOptions)
         self.actionSetAutoLogin.setChecked(self.remember)
+        self.actionSetAutoDownloadMods.toggled.connect(self.on_actionAutoDownloadMods_toggled)
+        self.actionSetAutoDownloadMods.setChecked(Settings.get('mods/autodownload', type=bool, default=False))
         self.actionSetSoundEffects.triggered.connect(self.updateOptions)
         self.actionSetOpenGames.triggered.connect(self.updateOptions)
         self.actionSetJoinsParts.triggered.connect(self.updateOptions)
