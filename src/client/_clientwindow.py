@@ -327,6 +327,10 @@ class ClientWindow(FormClass, BaseClass):
     def on_actionAutoDownloadMods_toggled(self, value):
         Settings.set('mods/autodownload', value is True)
 
+    @QtCore.pyqtSlot(bool)
+    def on_actionAutoDownloadMaps_toggled(self, value):
+        Settings.set('maps/autodownload', value is True)
+
     def eventFilter(self, obj, event):
         if (event.type() == QtCore.QEvent.HoverMove):
             self.draggingHover = self.dragging
@@ -666,6 +670,8 @@ class ClientWindow(FormClass, BaseClass):
         self.actionSetAutoLogin.setChecked(self.remember)
         self.actionSetAutoDownloadMods.toggled.connect(self.on_actionAutoDownloadMods_toggled)
         self.actionSetAutoDownloadMods.setChecked(Settings.get('mods/autodownload', type=bool, default=False))
+        self.actionSetAutoDownloadMaps.toggled.connect(self.on_actionAutoDownloadMaps_toggled)
+        self.actionSetAutoDownloadMaps.setChecked(Settings.get('maps/autodownload', type=bool, default=False))
         self.actionSetSoundEffects.triggered.connect(self.updateOptions)
         self.actionSetOpenGames.triggered.connect(self.updateOptions)
         self.actionSetJoinsParts.triggered.connect(self.updateOptions)
