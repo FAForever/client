@@ -1,3 +1,8 @@
+0.11.59
+=======
+
+- Uncheck 'remember me' if sign in failed
+
 0.11.58
 =======
 

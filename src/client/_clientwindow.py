@@ -1405,6 +1405,7 @@ class ClientWindow(FormClass, BaseClass):
 
     def handle_authentication_failed(self, message):
         QtGui.QMessageBox.warning(self, "Authentication failed", message["text"])
+        self.remember = False
         self.state = ClientState.DISCONNECTED
         self.show_login_wizard()
 
