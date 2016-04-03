@@ -218,12 +218,12 @@ class GamesWidget(FormClass, BaseClass):
         if not fa.instance.available():
             return
 
-        self.stopSearchRanked() #Actually a workaround
+        self.stopSearchRanked()  # Actually a workaround
 
         if not fa.check.game(self.client):
             return
 
-        if fa.check.check(item.mod, item.mapname, None, item.mods):
+        if fa.check.check(item.mod, mapname=item.mapname, version=None, sim_mods=item.mods):
             if item.password_protected:
                 passw, ok = QtGui.QInputDialog.getText(self.client, "Passworded game" , "Enter password :", QtGui.QLineEdit.Normal, "")
                 if ok:

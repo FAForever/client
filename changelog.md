@@ -2,6 +2,7 @@
 =======
 
 - Uncheck 'remember me' if sign in failed
+- Fix autodownload of sim mods
 
 0.11.58
 =======
