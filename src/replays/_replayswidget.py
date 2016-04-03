@@ -108,15 +108,15 @@ class ReplaysWidget(BaseClass, FormClass):
             replay(os.path.join(util.CACHE_DIR, "temp.fafreplay"))
 
     def onlineTreeClicked(self, item):
-        if QtGui.QApplication.mouseButtons() == QtCore.Qt.RightButton :
-            if(type(item.parent) == ReplaysWidget):
+        if QtGui.QApplication.mouseButtons() == QtCore.Qt.RightButton:
+            if type(item.parent) == ReplaysWidget:
                 item.pressed(item)
-        else :
-            if hasattr(item, "moreInfo") :
-                if item.moreInfo == False :
+        else:
+            if hasattr(item, "moreInfo"):
+                if item.moreInfo == False:
                     self.connectToModVault()
-                    self.send(dict(command="info_replay", uid = item.uid))
-                else :
+                    self.send(dict(command="info_replay", uid=item.uid))
+                else:
                     self.replayInfos.clear()
                     self.replayInfos.setHtml(item.replayInfo)
                 
