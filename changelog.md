@@ -4,9 +4,11 @@
 - Uncheck 'remember me' if sign in failed
 - Fix autodownload of sim mods
 - Add options to skip dialogs for autodownload of maps/mods
+- Fix crash when rightclicking in the replayvault
 
 Contributors:
  - HaraldWeber
+ - TimWolters
 
 0.11.58
 =======
