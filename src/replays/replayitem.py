@@ -93,6 +93,7 @@ class ReplayItem(QtGui.QTreeWidgetItem):
         
         self.moreInfo       = False
         self.replayInfo     = False
+        self.spoiled        = False
         self.url            = "http://content.faforever.com/faf/vault/replay_vault/replay.php?id=%i" % self.uid
         
         self.teams          = {}
@@ -150,8 +151,8 @@ class ReplayItem(QtGui.QTreeWidgetItem):
     def infoPlayers(self, players):
         
         self.moreInfo = True
-        width = 100
-        height = 80
+        self.width = 100
+        self.height = 80
         scores = {}
         
         for player in players :
@@ -169,24 +170,28 @@ class ReplayItem(QtGui.QTreeWidgetItem):
                 else :
                     self.teams[team].append(player)
 
-        teamWin = None
+        self.teamWin = None
         if len(scores) > 0 :
             winner = 0
             for team in scores :
                 if scores[team] > winner :
-                    teamWin = team
+                    self.teamWin = team
 
+        self.generateInfoPlayersHtml()
+                
+    def generateInfoPlayersHtml(self):
         observerlist    = []
         teamlist        = []
         biggestTeam = 0
 
         teams = ""
+        self.spoiled = self.parent.spoilerCheckbox.isChecked() == False
 
         i = 0
         for team in self.teams:
             if team != -1 :
 
-                width += 200 #150 for team + 50 for VS
+                self.width += 200 #150 for team + 50 for VS
                 if(len(self.teams[team]) > biggestTeam):
                     biggestTeam = len(self.teams[team])
 
@@ -194,9 +199,9 @@ class ReplayItem(QtGui.QTreeWidgetItem):
                 teamtxt = "<table border=0 width = 100% height = 100%>"
 
                 teamDisplay    = []
-                if teamWin and self.parent.spoilerCheckbox.isChecked() == False :
-                    if teamWin == i :
-                        height += 40 #expecting only 1 winner
+                if self.teamWin and self.spoiled :
+                    if self.teamWin == i :
+                        self.height += 40 #expecting only 1 winner
                         teamDisplay.append("<table border=0 width = 100% height = 100%><tr><td align = 'center' valign='center' width =100%><font size ='+2'>WIN</font></td></tr></table>")
                     else :
                         teamDisplay.append("<table border=0 width = 100% height = 100%><tr><td align = 'center' valign='center' width =100%><font size ='+2'>LOSE</font></td></tr></table>")
@@ -204,11 +209,11 @@ class ReplayItem(QtGui.QTreeWidgetItem):
                     displayPlayer = ""
 
                     playerStr = player["name"]
-                    
+
                     if "rating" in player :
                         playerStr += " ("+str(int(player["rating"]))+")"
-                    
-                    if "after_rating" in player and self.parent.spoilerCheckbox.isChecked() == False :
+
+                    if "after_rating" in player and self.spoiled:
                         playerStr += " to ("+str(int(player["after_rating"]))+")"
 
 
@@ -262,12 +267,12 @@ class ReplayItem(QtGui.QTreeWidgetItem):
         if len(observerlist) != 0 :
             observers = "Observers : "
             observers += ",".join(observerlist)
-            width += 200
+            self.width += 200
             if(len(observerlist) > biggestTeam):
                 biggestTeam = len(observerlist)
 
 
-        height += biggestTeam * 20 #fontsize + margin/padding, now using height of icon
+        self.height += biggestTeam * 20 #fontsize + margin/padding, now using height of icon
 
         #self.setToolTip(teams)
         self.replayInfo = ('<h2 align="center">Replay UID : %i</h2></br></br><table border="0" cellpadding="0" cellspacing="5" align="center"><tbody><tr>%s</tr></tbody></table>') % (self.uid, teams)
@@ -275,14 +280,15 @@ class ReplayItem(QtGui.QTreeWidgetItem):
         
         if self.isSelected() :
             self.parent.replayInfos.clear()
-
-            self.parent.replayInfos.setMinimumWidth(width)
-            self.parent.replayInfos.setMaximumWidth(width)
-
-            self.parent.replayInfos.setMinimumHeight(height)
-            self.parent.replayInfos.setMaximumHeight(height)
-
+            self.resize()
             self.parent.replayInfos.setHtml(self.replayInfo)
+
+    def resize(self):
+        self.parent.replayInfos.setMinimumWidth(self.width)
+        self.parent.replayInfos.setMaximumWidth(self.width)
+
+        self.parent.replayInfos.setMinimumHeight(self.height)
+        self.parent.replayInfos.setMaximumHeight(self.height)
 
     def pressed(self, item):
         menu = QtGui.QMenu(self.parent)

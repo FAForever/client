@@ -48,7 +48,7 @@ build_exe_options = {
                       ('lib/xdelta3.exe', 'xdelta3.exe'),
                       ('lib/lua51.dll', 'lua51.dll')],
     'icon': 'res/faf.ico',
-    'include_msvcr': False,
+    'include_msvcr': True,
     'optimize': 2,
     'packages': ['cffi', 'pycparser', 'PyQt4', 'PyQt4.uic',
                  'PyQt4.QtGui', 'PyQt4.QtNetwork', 'win32com', 'win32com.client'],

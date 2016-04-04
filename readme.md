@@ -1,6 +1,8 @@
- 
+FA Forever Client
+=================
 
-FA Forever - Lobby 
+[![Stories in Ready](https://badge.waffle.io/faforever/client.png?label=ready&title=Ready)](http://waffle.io/faforever/client)
+
 ------------------
 master|develop
  ------------ | -------------

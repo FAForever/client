@@ -117,7 +117,6 @@ class GameItem(QtGui.QListWidgetItem):
             return url
         return None 
         
-        
     @QtCore.pyqtSlot()
     def announceReplay(self):
         if not self.client.players.isFriend(self.host):

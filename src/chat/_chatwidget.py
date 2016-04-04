@@ -1,16 +1,14 @@
 import logging
 
-from client import Player
-
 logger = logging.getLogger(__name__)
 
 
 from PyQt4 import QtGui, QtCore
-from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
+from PyQt4.QtNetwork import QNetworkAccessManager
+from PyQt4.QtCore import QSocketNotifier, QTimer
 
 from config import Settings
 import util
-import fa
 
 import sys
 import chat
@@ -19,15 +17,17 @@ from chat.channel import Channel
 from chat.irclib import SimpleIRCClient
 import notifications as ns
 
-IRC_PORT = 8167
-IRC_SERVER = "irc.faforever.com"
-POLLING_INTERVAL = 300   # milliseconds between irc polls
-PONG_INTERVAL = 100000   # milliseconds between pongs
+PONG_INTERVAL = 60000   # milliseconds between pongs
 
 FormClass, BaseClass = util.loadUiType("chat/chat.ui")
 
 class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
+
     use_chat = Settings.persisted_property('chat/enabled', type=bool, default_value=True)
+    irc_port = Settings.persisted_property('chat/port', type=int, default_value=6667)
+    irc_host = Settings.persisted_property('chat/host', type=str, default_value='irc.faforever.com')
+    irc_tls = Settings.persisted_property('chat/tls', type=bool, default_value=False)
+
     '''
     This is the chat lobby module for the FAF client.
     It manages a list of channels and dispatches IRC events (lobby inherits from irclib's client class)
@@ -58,8 +58,6 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.identified = False
 
         #IRC parameters
-        self.ircServer = IRC_SERVER
-        self.ircPort = IRC_PORT
         self.crucialChannels = ["#aeolus"]
         self.optionalChannels = []
 
@@ -80,36 +78,35 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.client.authorized.connect(self.connect)
         self.client.autoJoin.connect(self.autoJoin)
         self.channelsAvailable = []
-        self.timer = QtCore.QTimer(self)
-        self.timer.timeout.connect(self.poll)
+
+        self._notifier = None
+        self._timer = QTimer()
+        self._timer.timeout.connect(self.once)
 
         # disconnection checks
         self.canDisconnect = False
 
-
-    @QtCore.pyqtSlot()
-    def poll(self):
-        self.timer.stop()
-        self.once()
-        self.timer.start(POLLING_INTERVAL)
-
-
     def disconnect(self):
         self.canDisconnect = True
         self.irc_disconnect()
-        self.timer.stop()
+        if self._notifier:
+            self._notifier.activated.disconnect(self.once)
+            self._notifier = None
 
 
     @QtCore.pyqtSlot(object)
     def connect(self, player):
         try:
-            self.irc_connect(self.ircServer,
-                             self.ircPort,
+            logger.info("Connecting to IRC at: {}:{}. TLS: {}".format(self.irc_host, self.irc_port, self.irc_tls))
+            self.irc_connect(self.irc_host,
+                             self.irc_port,
                              player.login,
-                             ssl=True,
+                             ssl=self.irc_tls,
                              ircname=player.login,
                              username=player.id)
-            self.timer.start()
+            self._notifier = QSocketNotifier(self.ircobj.connections[0]._get_socket().fileno(), QSocketNotifier.Read, self)
+            self._notifier.activated.connect(self.once)
+            self._timer.start(PONG_INTERVAL)
 
         except:
             logger.debug("Unable to connect to IRC server.")
@@ -402,8 +399,9 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
     def on_disconnect(self, c, e):
         if not self.canDisconnect:
             logger.warn("IRC disconnected - reconnecting.")
+            self.serverLogArea.appendPlainText("IRC disconnected - reconnecting.")
             self.identified = False
-            self.timer.stop()
+            self._timer.stop()
             self.connect(self.client.me)
 
     def on_privmsg(self, c, e):

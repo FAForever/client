@@ -1,8 +1,45 @@
+0.11.59
+=======
+
+- Uncheck 'remember me' if sign in failed
+- Fix autodownload of sim mods
+- Add options to skip dialogs for autodownload of maps/mods
+- Fix crash when rightclicking in the replayvault
+- Fix 'spoiler free' option in replay vault not working
+
+Contributors:
+ - HaraldWeber
+ - TimWolters
+
+0.11.58
+=======
+
+- Show a warning if the required C++ 2010 runtime is missing
+- Default IRC to port 6667 without the use of TLS (Standard IRC behavior)
+
+
+0.11.57
+=======
+
+- Fix another problem that would cause IRC to disconnect randomly (And show an error popup)
+
+0.11.55
+=======
+
+- Fix a problem that would cause IRC to disconnect randomly
+  - Fix an automated bug report popping up if above happened
+
 0.11.54
 =======
 
 - Fix an issue that could block connections in certain circumstances
 - Remove "connecting to statistics server popup" that would block normal operation of the client
+- Make chat a whole lot faster
+- Persist the 'Hide private games' checkbox
+
+Contributors:
+
+ - TimWolters
 
 
 0.11.53

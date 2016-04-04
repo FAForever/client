@@ -1,15 +1,11 @@
-
 from PyQt4 import QtGui
 import fa
 import modvault
-
-__author__ = 'Thygrrr'
-
-import os
-import util
-
 import logging
+import config
+
 logger = logging.getLogger(__name__)
+
 
 def checkMods(mods):  #mods is a dictionary of uid-name pairs
     """
@@ -24,19 +20,29 @@ def checkMods(mods):  #mods is a dictionary of uid-name pairs
         if uid not in uids:
             to_download.append(uid)
 
-    for uid in to_download:
-        result = QtGui.QMessageBox.question(None, "Download Mod",
-                                            "Seems that you don't have this mod. Do you want to download it?<br/><b>" +
-                                            mods[uid] + "</b>", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
-        if result == QtGui.QMessageBox.Yes:
-            # Spawn an update for the required mod
-            updater = fa.updater.Updater(uid, sim=True)
-            result = updater.run()
-            updater = None  #Our work here is done
-            if (result != fa.updater.Updater.RESULT_SUCCESS):
-                return False
-        else:
+    auto = config.Settings.get('mods/autodownload', default=False, type=bool)
+    if not auto:
+        mod_names = ", ".join([mods[uid] for uid in mods])
+        msgbox = QtGui.QMessageBox()
+        msgbox.setWindowTitle("Download Mod")
+        msgbox.setText("Seems that you don't have mods used in this game. Do you want to download them?<br/><b>" + mod_names + "</b>")
+        msgbox.setInformativeText("If you respond 'Yes to All' mods will be downloaded automatically in the future")
+        msgbox.setStandardButtons(QtGui.QMessageBox.Yes | QtGui.QMessageBox.YesToAll | QtGui.QMessageBox.No)
+        result = msgbox.exec_()
+        if result == QtGui.QMessageBox.No:
             return False
+        elif result == QtGui.QMessageBox.YesToAll:
+            config.Settings.set('mods/autodownload', True)
+
+    for uid in to_download:
+        # Spawn an update for the required mod
+        updater = fa.updater.Updater(uid, sim=True)
+        result = updater.run()
+        if result != fa.updater.Updater.RESULT_SUCCESS:
+            logger.warning("Failure getting {}: {}".format(uid, mods[uid]))
+            return False
+        else:
+            return True
 
     actual_mods = []
     inst = modvault.getInstalledMods()
