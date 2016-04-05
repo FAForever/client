@@ -122,7 +122,7 @@ class ReplaysWidget(BaseClass, FormClass):
                 elif item.spoiled != self.spoilerCheckbox.isChecked():
                     self.replayInfos.clear()
                     self.replayInfos.setHtml(item.replayInfo)
-                    self.replayInfos.resize()
+                    item.resize()
                 else:
                     self.replayInfos.clear()
                     item.generateInfoPlayersHtml()

@@ -1,0 +1,11 @@
+<h2 align="center">Replay UID : {uid}</h2>
+</br></br>
+<table border="0" cellpadding="0" cellspacing="5" align="center">
+   <tbody>
+      <tr>
+        <td>
+			{teams}         
+		</td>
+      </tr>
+   </tbody>
+</table>
