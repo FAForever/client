@@ -231,7 +231,7 @@ class Chatter(QtGui.QTableWidgetItem):
             return
         # Chatter name clicked
         if item == self:
-            self.lobby.openQuery(self.name, True)  # open and activate query window
+            self.lobby.openQuery(self.name, self.id, activate=True)  # open and activate query window
 
         elif item == self.statusItem:
             if self.name in client.instance.urls:
