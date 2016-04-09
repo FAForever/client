@@ -183,7 +183,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
                     self.channels[channel].printAction("IRC", "was disconnected.")
             return False
 
-    def openQuery(self, name, activate=False):
+    def openQuery(self, name, id=-1, activate=False):
         # Ignore ourselves.
         if name == self.client.login:
             return False
@@ -193,8 +193,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             self.addTab(self.channels[name], name)
 
             # Add participants to private channel
-            self.channels[name].addChatter(name)
-            self.channels[name].addChatter(self.client.login)
+            self.channels[name].addChatter(name, id)
+            self.channels[name].addChatter(self.client.login, self.client.me.id)
 
         if activate:
             self.setCurrentWidget(self.channels[name])
@@ -409,7 +409,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             return
 
         # Create a Query if it's not open yet, and post to it if it exists.
-        if self.openQuery(name):
+        if self.openQuery(name, id):
             self.channels[name].printMsg(name, "\n".join(e.arguments()))
 
     def on_action(self, c, e):
@@ -421,7 +421,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
         # Create a Query if it's not an action intended for a channel
         if target not in self.channels:
-            self.openQuery(name)
+            self.openQuery(name,id)
             self.channels[name].printAction(name, "\n".join(e.arguments()))
         else:
             self.channels[target].printAction(name, "\n".join(e.arguments()))
