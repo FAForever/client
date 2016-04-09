@@ -7,6 +7,7 @@ import os
 from games.moditem import mod_invisible, mods
 
 import client
+from client import Player
 import copy
 
 class GameItemDelegate(QtGui.QStyledItemDelegate):
@@ -81,6 +82,7 @@ class GameItem(QtGui.QListWidgetItem):
         self.client         = None
         self.title          = None
         self.host           = None
+        self.hostID         = None
         self.teams          = []
         self.password_protected = False
         self.mod            = None
@@ -119,7 +121,7 @@ class GameItem(QtGui.QListWidgetItem):
         
     @QtCore.pyqtSlot()
     def announceReplay(self):
-        if not self.client.players.isFriend(self.host):
+        if not self.client.players.isFriend(self.hostID):
             return
 
         if not self.state == "playing":
@@ -139,7 +141,7 @@ class GameItem(QtGui.QListWidgetItem):
     
     @QtCore.pyqtSlot()
     def announceHosting(self):
-        if not self.client.players.isFriend(self.host) or self.isHidden():
+        if not self.client.players.isFriend(self.hostID) or self.isHidden():
             return
 
         if not self.state == "open":
@@ -166,7 +168,8 @@ class GameItem(QtGui.QListWidgetItem):
         self.client  = client
 
         self.title = message['title']
-        self.host = message['host']
+        self.hostID = message['host']
+        self.host = (self.client.players.get(self.hostID, Player(-1, "UnknownPlayer"))).login
 
         # Maps integral team numbers (from 2, with 1 "none") to lists of names.
         teams_map = dict.copy(message['teams'])
@@ -263,7 +266,7 @@ class GameItem(QtGui.QListWidgetItem):
         else:
             playerstring = "players"
 
-        color = client.players.getUserColor(self.host)
+        color = client.players.getUserColor(self.hostID)
 
         self.editTooltip(teams)
 
@@ -369,8 +372,8 @@ class GameItem(QtGui.QListWidgetItem):
         if not other.client: return False;
         
         # Friend games are on top
-        if self.client.players.isFriend(self.host) and not self.client.players.isFriend(other.host): return True
-        if not self.client.players.isFriend(self.host) and self.client.players.isFriend(other.host): return False
+        if self.client.players.isFriend(self.hostID) and not self.client.players.isFriend(other.hostID): return True
+        if not self.client.players.isFriend(self.hostID) and self.client.players.isFriend(other.hostID): return False
 
         # Sort Games
         # 0: By Player Count
