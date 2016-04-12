@@ -51,7 +51,8 @@ class ReplaysWidget(BaseClass, FormClass):
         self.searchButton.pressed.connect(self.searchVault)
         self.playerName.returnPressed.connect(self.searchVault)
         self.mapName.returnPressed.connect(self.searchVault)
-        
+        self.spoilerCheckbox.stateChanged.connect(self.spoilerCheckboxPressed)
+
         self.myTree.itemDoubleClicked.connect(self.myTreeDoubleClicked)
         self.myTree.itemPressed.connect(self.myTreePressed)
         self.myTree.header().setResizeMode(0, QtGui.QHeaderView.ResizeToContents)
@@ -69,7 +70,8 @@ class ReplaysWidget(BaseClass, FormClass):
         
         self.onlineTree.itemDoubleClicked.connect(self.onlineTreeDoubleClicked)
         self.onlineTree.itemPressed.connect(self.onlineTreeClicked)
-        
+        self.selectedReplay = False
+
         # replay vault connection to server
         self.searching = False
         self.blockSize = 0
@@ -108,21 +110,29 @@ class ReplaysWidget(BaseClass, FormClass):
             replay(os.path.join(util.CACHE_DIR, "temp.fafreplay"))
 
     def onlineTreeClicked(self, item):
-        if QtGui.QApplication.mouseButtons() == QtCore.Qt.RightButton :
-            item.pressed(item)           
-        else :
-            if hasattr(item, "moreInfo") :
-                if item.moreInfo == False :
+        if QtGui.QApplication.mouseButtons() == QtCore.Qt.RightButton:
+            if type(item.parent) == ReplaysWidget:
+                item.pressed(item)
+        else:
+            self.selectedReplay = item
+            if hasattr(item, "moreInfo"):
+                if item.moreInfo is False:
                     self.connectToModVault()
-                    self.send(dict(command="info_replay", uid = item.uid))
-                else :
+                    self.send(dict(command="info_replay", uid=item.uid))
+                elif item.spoiled != self.spoilerCheckbox.isChecked():
                     self.replayInfos.clear()
                     self.replayInfos.setHtml(item.replayInfo)
+                else:
+                    self.replayInfos.clear()
+                    item.generateInfoPlayersHtml()
                 
     def onlineTreeDoubleClicked(self, item):
         if hasattr(item, "url") :
             self.replayDownload.get(QNetworkRequest(QtCore.QUrl(item.url))) 
 
+    def spoilerCheckboxPressed(self, item):
+        if self.selectedReplay:
+            self.selectedReplay.generateInfoPlayersHtml()
 
     def replayVault(self, message):
         action = message["action"]

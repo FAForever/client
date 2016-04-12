@@ -1,10 +1,9 @@
-import sys
-
 import logging
 
 from PyQt4 import QtGui
 
 import fa
+import config
 from fa.mods import checkMods
 from fa.path import writeFAPathLua, validatePath
 from fa.wizards import Wizard
@@ -26,17 +25,20 @@ def map(mapname, force=False, silent=False):
     if force:
         return fa.maps.downloadMap(mapname, silent=silent)
 
-    result = QtGui.QMessageBox.question(None, "Download Map",
-                                        "Seems that you don't have the map. Do you want to download it?<br/><b>" + mapname + "</b>",
-                                        QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
-    if result == QtGui.QMessageBox.Yes:
-        if not fa.maps.downloadMap(mapname, silent=silent):
+    auto = config.Settings.get('maps/autodownload', default=False, type=bool)
+    if not auto:
+        msgbox = QtGui.QMessageBox()
+        msgbox.setWindowTitle("Download Mod")
+        msgbox.setText("Seems that you don't have the map used this game. Do you want to download it?<br/><b>" + mapname + "</b>")
+        msgbox.setInformativeText("If you respond 'Yes to All' maps will be downloaded automatically in the future")
+        msgbox.setStandardButtons(QtGui.QMessageBox.Yes | QtGui.QMessageBox.YesToAll | QtGui.QMessageBox.No)
+        result = msgbox.exec_()
+        if result == QtGui.QMessageBox.No:
             return False
-    else:
-        return False
+        elif result == QtGui.QMessageBox.YesToAll:
+            config.Settings.set('maps/autodownload', True)
 
-    return True
-
+    return fa.maps.downloadMap(mapname, silent=silent)
 
 def featured_mod(featured_mod, version):
     pass

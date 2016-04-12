@@ -215,17 +215,20 @@ class ConnectivityHelper(QObject):
         :param addr:
         :return:
         """
-        if data.startswith(b'\x08'):
-            host, port = addr
-            msg = data[1:].decode()
-            self.send('ProcessNatPacket',
-                      ["{}:{}".format(host, port), msg])
-            if msg.startswith('Bind'):
-                peer_id = int(msg[4:])
-                if (host, port) not in self._socket.bindings:
-                    self._logger.info("Binding {} to {}".format((host, port), peer_id))
-                    self._socket.bind_address((host, port))
-                self._logger.info("Processed bind request")
-            else:
-                self._logger.info("Unknown natpacket")
-            return True
+        try:
+            if data.startswith(b'\x08'):
+                host, port = addr
+                msg = data[1:].decode()
+                self.send('ProcessNatPacket',
+                          ["{}:{}".format(host, port), msg])
+                if msg.startswith('Bind'):
+                    peer_id = int(msg[4:])
+                    if (host, port) not in self._socket.bindings:
+                        self._logger.info("Binding {} to {}".format((host, port), peer_id))
+                        self._socket.bind_address((host, port))
+                    self._logger.info("Processed bind request")
+                else:
+                    self._logger.info("Unknown natpacket")
+                return True
+        except UnicodeDecodeError:
+            return

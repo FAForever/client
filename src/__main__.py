@@ -70,7 +70,7 @@ def runFAF():
     faf_client = client.instance
     faf_client.setup()
 
-    faf_client.doConnect()
+    if not faf_client.doConnect(): exit(1)
     faf_client.doLogin()
 
     faf_client.show()
