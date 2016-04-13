@@ -6,7 +6,7 @@ The UI popup of the notification system
 """
 FormClass, BaseClass = util.loadUiType("notification_system/dialog.ui")
 class NotificationDialog(FormClass, BaseClass):
-    def __init__(self, client, *args, **kwargs):
+    def __init__(self, client, settings, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
 
         self.setupUi(self)
@@ -15,12 +15,8 @@ class NotificationDialog(FormClass, BaseClass):
         self.labelIcon.setPixmap(util.icon("client/tray_icon.png", pix=True).scaled(32, 32))
         self.standardIcon = util.icon("client/comment.png", pix=True)
 
-        screen = QtGui.QDesktopWidget().screenGeometry()
-        dialog_size = self.geometry()
-
-        # TODO: more positions
-        # bottom right
-        self.move(screen.width() - dialog_size.width(), screen.height() - dialog_size.height())
+        self.settings = settings
+        self.updatePosition()
 
         # Frameless, always on top, steal no focus & no entry at the taskbar
         self.setWindowFlags(QtCore.Qt.ToolTip)
@@ -57,3 +53,17 @@ class NotificationDialog(FormClass, BaseClass):
     def mousePressEvent(self, event):
         if event.button() == QtCore.Qt.RightButton:
             self.hide()
+
+    def updatePosition(self):
+        screen = QtGui.QDesktopWidget().screenGeometry()
+        dialog_size = self.geometry()
+        position = self.settings.popup_position  # self.client.notificationSystem.settings.popup_position
+
+        if position == "top left":
+            self.move(0, 0)
+        elif position == "top right":
+            self.move(screen.width() - dialog_size.width(), 0)
+        elif position == "bottom left":
+            self.move(0, screen.height() - dialog_size.height())
+        else:  # default is bottom right
+            self.move(screen.width() - dialog_size.width(), screen.height() - dialog_size.height())
