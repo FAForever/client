@@ -15,6 +15,7 @@
 * Add linux support (thanks @muellni)
 * Add new uid implementation (thanks @muellni)
 * Leaderboard display performance improvement (#438, thanks @grotheFAF)
+* Save game logs as default
 
 0.11.60
 =======
