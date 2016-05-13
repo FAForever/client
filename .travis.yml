@@ -1,16 +1,15 @@
 language: python
 
-
 python:
   - "2.7_with_system_site_packages"
 
 install:
   - "sudo apt-get update"
-  - "sudo apt-get install python-qt4 liblua5.1"
+  - "sudo apt-get install -y python-qt4 liblua5.1"
   - "pip install cx_Freeze"
   - "pip install python-coveralls"
   - "pip install -r requirements.txt --trusted-host content.faforever.com"
-
+  - curl -s https://api.github.com/repos/FAForever/uid/releases/latest | jq -r '.assets[] | select(.name | contains("uid_py273.so")) | .browser_download_url' | wget -i - -O ./src/uid.so
 
 before_script:
   - "export DISPLAY=:99.0"
