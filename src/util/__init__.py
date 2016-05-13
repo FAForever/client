@@ -569,28 +569,6 @@ def md5(file_name):
 
     return m.hexdigest()
 
-
-def uniqueID(user, session):
-    ''' This is used to uniquely identify a user's machine to prevent smurfing. '''
-    try:
-        if os.path.isfile("uid.dll"):
-            mydll = cdll.LoadLibrary("uid.dll")
-        else:
-            mydll = cdll.LoadLibrary(os.path.join("lib", "uid.dll"))
-
-        mydll.uid.restype = c_char_p
-        baseString = (mydll.uid(session, os.path.join(LOG_DIR, "uid.log")) )
-        DllCanUnloadNow()
-
-        return baseString
-
-    except:
-        QtGui.QMessageBox.warning(None, "C++ 2010 Runtime Missing",
-                                  "You are missing the Microsoft Visual C++ 2010 Runtime.<br><br>Get it from here: <a href='https://www.microsoft.com/en-us/download/details.aspx?id=5555'>https://www.microsoft.com/en-us/download/details.aspx?id=5555</a>")
-        logger.warning("UniqueID Failure, user warned", exc_info=sys.exc_info())
-        QtGui.QApplication.quit()
-
-
 import datetime
 
 _dateDummy = datetime.datetime(2013, 5, 27)
