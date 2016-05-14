@@ -32,7 +32,8 @@ Running
 -------
 Before running unit tests, set PYTEST_QT_API as follows:
 
-    export PYTEST_QT_API='pyqt4v2'
+    *nix: export PYTEST_QT_API='pyqt4v2'
+	Windows: SET PYTEST_QT_API='pyqt4v2'
 
 Run the lobby from the main directory using:
 
