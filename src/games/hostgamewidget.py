@@ -108,10 +108,6 @@ class HostgameWidget(FormClass, BaseClass):
             self.password = None
         self.save_last_hosted_settings()
 
-
-        self.save_last_hosted_settings()
-
-
         # Make sure the binaries are all up to date, and abort if the update fails or is cancelled.
         if not fa.check.game(self.parent.client):
             return

@@ -244,39 +244,6 @@ class GamesWidget(FormClass, BaseClass):
         if hostgamewidget.exec_() != 1:
             return
 
-    def load_last_hosted_settings(self):
-        util.settings.beginGroup("fa.games")
-
-        # Default of "password"
-        self.gamepassword = util.settings.value("password", "password")
-        self.gamemap = util.settings.value("gamemap", "scmp_007")
-        if self.client.login:
-            self.gamename = util.settings.value("gamename", "{}'s game".format(self.client.login))
-        else:
-            self.gamename = util.settings.value("gamename", "Nobody's game")
-
-        self.friends_only = util.settings.value("friends_only", False, type=bool)
-
-        util.settings.endGroup()
-
-    def save_last_hosted_settings(self, name, map, password = None, friends_only = False):
-        self.gamemap = map
-        self.gamename = name
-
-        util.settings.beginGroup("fa.games")
-        util.settings.setValue("gamemap", map)
-        if name != "Nobody's game":
-            util.settings.setValue("gamename", name)
-        util.settings.setValue("friends_only", friends_only)
-
-        if password is not None:
-            self.gamepassword = password
-            self.ispassworded = True
-            util.settings.setValue("password", password)
-        else:
-            self.ispassworded = False
-
-        util.settings.endGroup()
 
     def sortGamesComboChanged(self, index):
         self.sort_games_index = index;
