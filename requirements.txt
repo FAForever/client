@@ -14,3 +14,4 @@ pytest-qt
 python-dateutil==2.2
 requests
 trueskill
+pycrypto

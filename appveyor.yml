@@ -19,6 +19,7 @@ install:
   - ps: "$env:PYTEST_QT_API=\"pyqt4v2\""
   - ps: "$env:FAF_FORCE_PRODUCTION=true"
   - "%PYTHON%\\Scripts\\pip.exe install -r requirements.txt --trusted-host content.faforever.com"
+  - ps: "(New-Object Net.WebClient).DownloadFile('https://github.com/FAForever/uid/releases/download/v1.0/uid.pyd', '.\\src\\uid.pyd')"
 
 test_script:
     - "%PYTHON%\\Scripts\\py.test.exe -vv --full-trace"
