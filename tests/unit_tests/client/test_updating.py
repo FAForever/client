@@ -6,7 +6,6 @@ import config
 def test_client_sends_current_version(qtbot, mocker):
     import client
     c = client.instance
-    mocker.patch('util.uniqueID', side_effect='some_unique_id')
     mocker.patch.object(c, 'send')
     mocker.patch.object(c, 'connected')
     mocker.patch.object(c, 'socket')
