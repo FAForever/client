@@ -94,12 +94,14 @@ class HostgameWidget(FormClass, BaseClass):
     def updateText(self, text):
         self.message['title'] = text
         self.game.update(self.message, self.parent.client)
+        self.game.setHidden(False)
 
     def hosting(self):
         name = self.titleEdit.text().strip()
         if len(name) == 0:
             # TODO: Feedback to the UI that the name must not be blank.
             return
+        self.title = name
 
         self.friends_only = self.radioFriends.isChecked()
         if self.passCheck.isChecked():
