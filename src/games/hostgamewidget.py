@@ -6,6 +6,7 @@ import modvault
 
 from fa import maps
 import util
+import fa.check
 
 import logging
 logger = logging.getLogger(__name__)
@@ -13,40 +14,54 @@ logger = logging.getLogger(__name__)
 FormClass, BaseClass = util.loadUiType("games/host.ui")
 
 class HostgameWidget(FormClass, BaseClass):
-    def __init__(self, parent, item, *args, **kwargs):
+    def __init__(self, parent, item, iscoop=False, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
 
         self.setupUi(self)
         self.parent = parent
+        self.iscoop = iscoop
+        self.featured_mod = item.mod
 
         self.setStyleSheet(self.parent.client.styleSheet())
+        # load settings
+        util.settings.beginGroup("fa.games")
+        # Default of "password"
+        self.password = util.settings.value("password", "password")
+        self.title = util.settings.value("gamename", (self.parent.client.login or "") + "'s game")
+        self.friends_only = util.settings.value("friends_only", False, type=bool)
+        if self.iscoop:
+            self.mapname = fa.maps.link2name(item.mapUrl)
+        else:
+            self.mapname = util.settings.value("gamemap", "scmp_007")
+        util.settings.endGroup()
 
         self.setWindowTitle ( "Hosting Game : " + item.name )
-        self.titleEdit.setText ( self.parent.gamename )
-        self.passEdit.setText ( self.parent.gamepassword )
+        self.titleEdit.setText(self.title)
+        self.passEdit.setText(self.password)
         self.game = GameItem(0)
         self.gamePreview.setItemDelegate(GameItemDelegate(self))
         self.gamePreview.addItem(self.game)
         
         self.message = {
-            "title": self.parent.gamename,
-            "host": self.parent.client.login,
+            "title": self.title,
+            "host": self.parent.client.login, # We will want to send our ID here at some point
             "teams": {1:[self.parent.client.id]},
-            "featured_mod": "faf",
-            "mapname": self.parent.gamemap,
+            "featured_mod": self.featured_mod,
+            "mapname": self.mapname,
             "state": "open",
         }
 
         self.game.update(self.message, self.parent.client)
+        self.game.setHidden(False)
         
         i = 0
         index = 0
-        if self.parent.canChooseMap == True:
+        if not self.iscoop:
             allmaps = dict()
             for map in maps.maps.keys() + maps.getUserMaps():
                 allmaps[map] = maps.getDisplayName(map)
             for (map, name) in sorted(allmaps.iteritems(), key=lambda x: x[1]):
-                if map == self.parent.gamemap :
+                if map == self.mapname :
                     index = i
                 self.mapList.addItem(name, map)
                 i = i + 1
@@ -69,7 +84,7 @@ class HostgameWidget(FormClass, BaseClass):
             logger.debug("found item: %s" % l[0].text())
             if l: l[0].setSelected(True)
 
-        self.radioFriends.setChecked(self.parent.friends_only)
+        self.radioFriends.setChecked(self.friends_only)
 
         self.mapList.currentIndexChanged.connect(self.mapChanged)
         self.hostButton.released.connect(self.hosting)
@@ -79,26 +94,61 @@ class HostgameWidget(FormClass, BaseClass):
     def updateText(self, text):
         self.message['title'] = text
         self.game.update(self.message, self.parent.client)
+        self.game.setHidden(False)
 
     def hosting(self):
         name = self.titleEdit.text().strip()
         if len(name) == 0:
             # TODO: Feedback to the UI that the name must not be blank.
             return
+        self.title = name
 
+        self.friends_only = self.radioFriends.isChecked()
         if self.passCheck.isChecked():
-            password = self.passEdit.text()
+            self.password = self.passEdit.text()
         else:
-            password = None
+            self.password = None
+        self.save_last_hosted_settings()
 
-        # TODO: Remove this ridiculous use of a parent pointer.
-        map = self.parent.gamemap
+        # Make sure the binaries are all up to date, and abort if the update fails or is cancelled.
+        if not fa.check.game(self.parent.client):
+            return
 
-        self.parent.save_last_hosted_settings(name, map, password, self.radioFriends.isChecked())
+        # Ensure all mods are up-to-date, and abort if the update process fails.
+        if not fa.check.check(self.featured_mod):
+            return
+        if self.iscoop and not fa.check.map(self.mapname, force=True):
+            return
+
+        modnames = [str(moditem.text()) for moditem in self.modList.selectedItems()]
+        mods = [self.mods[modstr] for modstr in modnames]
+        modvault.setActiveMods(mods, True)
+
+        self.parent.client.host_game(title=self.title,
+                                 mod=self.featured_mod,
+                                 visibility="friends" if self.friends_only else "public",
+                                 mapname=self.mapname,
+                                 password=self.password)
+
+
         self.done(1)
+        return
+
 
     def mapChanged(self, index):
-        self.parent.gamemap = self.mapList.itemData(index)
+        self.mapname = self.mapList.itemData(index)
 
-        self.message['mapname'] = self.parent.gamemap
+        self.message['mapname'] = self.mapname
         self.game.update(self.message, self.parent.client)
+
+    def save_last_hosted_settings(self):
+        util.settings.beginGroup("fa.games")
+        if not self.iscoop:
+            util.settings.setValue("gamemap", self.mapname)
+        if self.title != "Nobody's game":
+            util.settings.setValue("gamename", self.title)
+        util.settings.setValue("friends_only", self.radioFriends.isChecked())
+
+        if self.password is not None:
+            util.settings.setValue("password", self.password)
+        util.settings.endGroup()
