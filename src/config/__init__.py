@@ -111,7 +111,7 @@ rotate.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-30s %
 buffering_handler = MemoryHandler(int(Settings.get('client/logs/buffer_size')), target=rotate)
 
 logging.getLogger().addHandler(buffering_handler)
-logging.getLogger().setLevel(Settings.get('client/logs/level'))
+logging.getLogger().setLevel(Settings.get('client/logs/level', type=int))
 
 if environment == 'development':
     # Setup logging output to console
