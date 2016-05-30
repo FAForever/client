@@ -10,7 +10,7 @@ install:
   - "pip install cx_Freeze"
   - "pip install python-coveralls"
   - "pip install -r requirements.txt --trusted-host content.faforever.com"
-  - "wget https://github.com/FAForever/uid/releases/download/v1.0/uid.so -O ./src/uid.so"
+  - curl -s https://api.github.com/repos/muellni/uid/releases/latest | jq -r '.assets[] | select(.name | contains("uid.so")) | .browser_download_url' | wget -i - -O ./src/uid.so
 
 
 before_script:
