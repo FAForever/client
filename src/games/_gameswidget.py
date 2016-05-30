@@ -38,8 +38,6 @@ class GamesWidget(FormClass, BaseClass):
         # Dictionary containing our actual games.
         self.games = {}
 
-        self.canChooseMap = True
-
         #Ranked search UI
         self._ranked_icons = {
             Factions.AEON: self.rankedAeon,
@@ -236,7 +234,6 @@ class GamesWidget(FormClass, BaseClass):
         '''
         Hosting a game event
         '''
-        self.load_last_hosted_settings()
         if not fa.instance.available():
             return
 
@@ -247,57 +244,6 @@ class GamesWidget(FormClass, BaseClass):
         if hostgamewidget.exec_() != 1:
             return
 
-        # Make sure the binaries are all up to date, and abort if the update fails or is cancelled.
-        if not fa.check.game(self.client):
-            return
-
-        # Ensure all mods are up-to-date, and abort if the update process fails.
-        if not fa.check.check(item.mod):
-            return
-
-        modnames = [str(moditem.text()) for moditem in hostgamewidget.modList.selectedItems()]
-        mods = [hostgamewidget.mods[modstr] for modstr in modnames]
-        modvault.setActiveMods(mods, True)
-
-        self.client.host_game(title=self.gamename,
-                              mod=item.mod,
-                              visibility="friends" if self.friends_only else "public",
-                              mapname=self.gamemap,
-                              password=self.gamepassword if self.ispassworded else None)
-
-    def load_last_hosted_settings(self):
-        util.settings.beginGroup("fa.games")
-
-        # Default of "password"
-        self.gamepassword = util.settings.value("password", "password")
-        self.gamemap = util.settings.value("gamemap", "scmp_007")
-        if self.client.login:
-            self.gamename = util.settings.value("gamename", "{}'s game".format(self.client.login))
-        else:
-            self.gamename = util.settings.value("gamename", "Nobody's game")
-
-        self.friends_only = util.settings.value("friends_only", False, type=bool)
-
-        util.settings.endGroup()
-
-    def save_last_hosted_settings(self, name, map, password = None, friends_only = False):
-        self.gamemap = map
-        self.gamename = name
-
-        util.settings.beginGroup("fa.games")
-        util.settings.setValue("gamemap", map)
-        if name != "Nobody's game":
-            util.settings.setValue("gamename", name)
-        util.settings.setValue("friends_only", friends_only)
-
-        if password is not None:
-            self.gamepassword = password
-            self.ispassworded = True
-            util.settings.setValue("password", password)
-        else:
-            self.ispassworded = False
-
-        util.settings.endGroup()
 
     def sortGamesComboChanged(self, index):
         self.sort_games_index = index;

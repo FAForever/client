@@ -42,7 +42,6 @@ class CoopWidget(FormClass, BaseClass):
         self.coop = {}
         self.cooptypes = {}
         
-        self.canChooseMap = False
         self.options = []
         
         self.client.showCoop.connect(self.coopChanged)
@@ -61,8 +60,6 @@ class CoopWidget(FormClass, BaseClass):
         self.tabLeaderWidget.currentChanged.connect(self.askLeaderBoard)
         
         self.linkButton.clicked.connect(self.linkVanilla)
-        #Load game name from settings (yay, it's persistent!)        
-        self.load_last_hosted_settings()
         self.leaderBoard.setVisible(0)
         self.stylesheet              = util.readstylesheet("coop/formatters/style.css")
         self.FORMATTER_LADDER        = unicode(util.readfile("coop/formatters/ladder.qthtml"))
@@ -195,24 +192,11 @@ class CoopWidget(FormClass, BaseClass):
             return
             
         self.client.games.stopSearchRanked()
-        self.gamemap = fa.maps.link2name(item.mapUrl)
-        
-        fa.check.map(self.gamemap, force=True)
         
         # A simple Hosting dialog.
         if fa.check.check("coop"):
-            hostgamewidget = HostgameWidget(self, item)
-            
-            if hostgamewidget.exec_() == 1 :
-                if self.gamename:
-                    modnames = [str(moditem.text()) for moditem in hostgamewidget.modList.selectedItems()]
-                    mods = [hostgamewidget.mods[modstr] for modstr in modnames]
-                    modvault.setActiveMods(mods, True) #should be removed later as it should be managed by the server.
-#                #Send a message to the server with our intent.
-                    if self.ispassworded:
-                        self.client.send(dict(command="game_host", access="password", password = self.gamepassword, mod=item.mod, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort))
-                    else :
-                        self.client.send(dict(command="game_host", access="public", mod=item.mod, title=self.gamename, mapname=self.gamemap, gameport=self.client.gamePort))
+            hostgamewidget = HostgameWidget(self, item, iscoop=True)
+            hostgamewidget.exec_()
 
 
     @QtCore.pyqtSlot(dict)
@@ -282,19 +266,11 @@ class CoopWidget(FormClass, BaseClass):
         if not fa.check.check(item.mod, item.mapname, None, item.mods):
             return
 
-        if item.access == "password" :
+        if item.password_protected:
             passw, ok = QtGui.QInputDialog.getText(self.client, "Passworded game" , "Enter password :", QtGui.QLineEdit.Normal, "")
             if ok:
                 self.client.join_game(uid=item.uid, password=passw)
         else :
             self.client.join_game(uid=item.uid)
 
-    # TODO: Avoid evil duplication from gameswidget.
-    def load_last_hosted_settings(self):
-        util.settings.beginGroup("fa.games")
 
-        # Default of "password"
-        self.gamepassword = util.settings.value("password", "password")
-        self.gamename = util.settings.value("gamename", (self.client.login or "") + "'s game")
-
-        util.settings.endGroup()
