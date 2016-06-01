@@ -189,8 +189,8 @@ class GameItem(QtGui.QListWidgetItem):
 
         # Clear the status for all involved players (url may change, or players may have left, or game closed)        
         for player in self.players:
-            if player.login in client.instance.urls:
-                del client.instance.urls[player.login]
+            if player.login in client.urls:
+                del client.urls[player.login]
 
         # Just jump out if we've left the game, but tell the client that all players need their states updated
         if self.state == "closed":
@@ -278,7 +278,7 @@ class GameItem(QtGui.QListWidgetItem):
 
         # Update player URLs
         for player in self.players:
-            client.instance.urls[player.login] = self.url(player.id)
+            client.urls[player.login] = self.url(player.id)
 
         # Determine which players are affected by this game's state change            
         newplayers = set(map(lambda p: p.login, self.players))
