@@ -6,10 +6,16 @@
 - Add options to skip dialogs for autodownload of maps/mods
 - Fix crash when rightclicking in the replayvault
 - Fix 'spoiler free' option in replay vault not working
+- Fix hosting of coop missions
+- Fix chatlist sometimes not getting populated with additional player information
+- Add support for 'rehost' functionality (Will be enabled by upcoming gamepatch)
 
 Contributors:
  - HaraldWeber
  - TimWolters
+ - Yorick
+ - Downlord
+ - Sheeo
 
 0.11.58
 =======
