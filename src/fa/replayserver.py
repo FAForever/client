@@ -62,7 +62,7 @@ class ReplayRecorder(QtCore.QObject):
     def readDatas(self):        
         read = self.inputSocket.read(self.inputSocket.bytesAvailable()) #CAVEAT: readAll() was seemingly truncating data here
         
-        if not isinstance(read, basestring):
+        if not isinstance(read, str):
             self.__logger.warning("Read failure on inputSocket: " + str(bytes))
             return
         

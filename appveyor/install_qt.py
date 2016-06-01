@@ -3,10 +3,10 @@ Script to install PyQt or PySide in CI (Travis and AppVeyor).
 
 Adapted from pytest-qt
 """
-from __future__ import print_function
+
 import os
 import subprocess
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 
 def fix_registry(python_ver):
@@ -14,7 +14,7 @@ def fix_registry(python_ver):
     location.
     python_ver must be "34", "27", etc.
     """
-    import _winreg as winreg
+    import winreg as winreg
     python_dir = r'C:\Python%s' % python_ver
     print("Fixing registry %s..." % python_ver)
     assert os.path.isdir(python_dir)
@@ -37,7 +37,7 @@ if 'INSTALL_QT' in os.environ:
     url = downloads[caption]
     print("Downloading %s..." % caption)
     installer = r'C:\install-%s.exe' % caption
-    urllib.urlretrieve(base_url + url, installer)
+    urllib.request.urlretrieve(base_url + url, installer)
     print('Installing %s...' % caption)
     subprocess.check_call([installer, '/S'])
     python = caption.split('-')[0]

@@ -97,9 +97,9 @@ if _settings.contains('client/force_environment'):
     environment = _settings.value('client/force_environment', 'development')
 
 if environment == 'production':
-    from production import defaults
+    from .production import defaults
 elif environment == 'development':
-    from develop import defaults
+    from .develop import defaults
 
 # Setup normal rotating log handler
 make_dirs()

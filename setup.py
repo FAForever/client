@@ -26,14 +26,14 @@ msi_version = version.msi_version(git_version)
 appveyor_build_version = os.getenv('APPVEYOR_BUILD_VERSION')
 version.write_release_version(appveyor_build_version)
 
-print('Git version:', git_version,
+print(('Git version:', git_version,
       'Release version:', appveyor_build_version,
-      'Build version:', msi_version)
+      'Build version:', msi_version))
 
 # Ugly hack to fix broken PyQt4
 try:
     silly_file = Path(PyQt4.__path__[0]) / "uic" / "port_v3" / "proxy_base.py"
-    print("Removing {}".format(silly_file))
+    print(("Removing {}".format(silly_file)))
     silly_file.unlink()
 except OSError:
     pass

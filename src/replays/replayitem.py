@@ -71,7 +71,7 @@ class ReplayItemDelegate(QtGui.QStyledItemDelegate):
 class ReplayItem(QtGui.QTreeWidgetItem):
 
     
-    FORMATTER_REPLAY        = unicode(util.readfile("replays/formatters/replay.qthtml"))
+    FORMATTER_REPLAY        = str(util.readfile("replays/formatters/replay.qthtml"))
 
     
     def __init__(self, uid, parent, *args, **kwargs):

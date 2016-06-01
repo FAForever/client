@@ -1,6 +1,6 @@
 
 
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 from PyQt4 import QtCore, QtGui
 
@@ -11,7 +11,7 @@ FormClass, BaseClass = util.loadUiType("modvault/uimod.ui")
 
 
 class UIModWidget(FormClass, BaseClass):
-    FORMATTER_UIMOD = unicode(util.readfile("modvault/uimod.qthtml"))
+    FORMATTER_UIMOD = str(util.readfile("modvault/uimod.qthtml"))
     def __init__(self, parent, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
 

@@ -36,10 +36,10 @@ else:
     os.chdir(devRoot)
     # We need to set the working directory correctly.
 
-import util
+from . import util
 util.COMMON_DIR = os.path.join(os.getcwd(), "res")
 
-import config
+from . import config
 import platform
 
 # Set up crash reporting
@@ -65,7 +65,7 @@ def runFAF():
     util.loadTheme()
     
     # Create client singleton and connect
-    import client
+    from . import client
         
     faf_client = client.instance
     faf_client.setup()
@@ -104,7 +104,7 @@ if __name__ == '__main__':
     else:  
         # Try to interpret the argument as a replay.
         if sys.argv[1].lower().endswith(".fafreplay") or sys.argv[1].lower().endswith(".scfareplay"):
-            import fa
+            from . import fa
             fa.replay(sys.argv[1], True)  # Launch as detached process
 
     #End of show

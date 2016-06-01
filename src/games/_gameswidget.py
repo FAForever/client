@@ -52,7 +52,7 @@ class GamesWidget(FormClass, BaseClass):
         self.rankedUEF.setIcon(util.icon("games/automatch/uef.png"))
         self.rankedRandom.setIcon(util.icon("games/automatch/random.png"))
 
-        for faction, icon in self._ranked_icons.items():
+        for faction, icon in list(self._ranked_icons.items()):
             icon.clicked.connect(partial(self.toggle_search, faction=faction))
 
         self.searchProgress.hide()
@@ -149,7 +149,7 @@ class GamesWidget(FormClass, BaseClass):
                 del self.games[uid]
 
     def startSearchRanked(self, race):
-        for faction, icon in self._ranked_icons.items():
+        for faction, icon in list(self._ranked_icons.items()):
             icon.setChecked(faction == race)
 
         if race == Factions.RANDOM:
@@ -192,7 +192,7 @@ class GamesWidget(FormClass, BaseClass):
         self.searchProgress.setVisible(False)
         self.labelAutomatch.setText("1 vs 1 Automatch")
 
-        for _, icon in self._ranked_icons.items():
+        for _, icon in list(self._ranked_icons.items()):
             icon.setChecked(False)
 
     @QtCore.pyqtSlot(bool)

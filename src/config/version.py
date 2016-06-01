@@ -39,7 +39,7 @@ def call_git_describe():
         line = p.stdout.readlines()[0]
         return line.strip()
     except Exception as e:
-        print("Error grabbing git version: {}".format(e))
+        print(("Error grabbing git version: {}".format(e)))
         return "0.0.0-dev"
 
 def is_development_version(version):

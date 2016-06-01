@@ -31,7 +31,7 @@ class CrashDialog(QtGui.QDialog):
         if automatic:
             self.title = "Bug report"
         else:
-            self.title = "Report from " + CRASH_REPORT_USER + u": " + str(exc_value)
+            self.title = "Report from " + CRASH_REPORT_USER + ": " + str(exc_value)
 
         self.bugreport_target = BugReportTarget('client',
                                                 'https://github.com/FAForever/client',
@@ -43,23 +43,23 @@ class CrashDialog(QtGui.QDialog):
 
         dialog.setWindowTitle(self.title)
 
-        description = u""
+        description = ""
         try:
-            description += (u"\n**FAF Username:** " + CRASH_REPORT_USER)
-            description += (u"\n**FAF Version:** " + VERSION_STRING)
-            description += (u"\n**FAF Environment:** " + config.environment)
-            description += (u"\n**FAF Directory:** " + APPDATA_DIR)
-            description += (u"\n**FA Path:** " + str(util.settings.value("ForgedAlliance/app/path", None, type=str)))
-            description += (u"\n**Home Directory:** " + PERSONAL_DIR)
-        except StandardError:
-            description += (u"\n**(Exception raised while writing debug vars)**")
+            description += ("\n**FAF Username:** " + CRASH_REPORT_USER)
+            description += ("\n**FAF Version:** " + VERSION_STRING)
+            description += ("\n**FAF Environment:** " + config.environment)
+            description += ("\n**FAF Directory:** " + APPDATA_DIR)
+            description += ("\n**FA Path:** " + str(util.settings.value("ForgedAlliance/app/path", None, type=str)))
+            description += ("\n**Home Directory:** " + PERSONAL_DIR)
+        except Exception:
+            description += ("\n**(Exception raised while writing debug vars)**")
 
-        log = u""
+        log = ""
         try:
-            log += (u"\n".join(readlines(LOG_FILE_FAF, False)[-128:]))
-        except StandardError:
-            log += (unicode(LOG_FILE_FAF))
-            log += (u"empty or not readable")
+            log += ("\n".join(readlines(LOG_FILE_FAF, False)[-128:]))
+        except Exception:
+            log += (str(LOG_FILE_FAF))
+            log += ("empty or not readable")
 
         self.bugreport.description = description
         self.bugreport.log = log
