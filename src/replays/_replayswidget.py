@@ -311,7 +311,7 @@ class ReplaysWidget(BaseClass, FormClass):
             self.saveLocalCache(cache_hit, cache_add)
         # Now, create a top level treewidgetitem for every bucket, and put the bucket's contents into them         
         for bucket in list(buckets.keys()):
-            bucket_item = QtGui.QTreeWidgetItem()
+            bucket_item = QtWidgets.QTreeWidgetItem()
             
             if bucket == "broken":
                 bucket_item.setForeground(0, QtGui.QBrush(QtGui.QColor("red"))) #FIXME: Needs to come from theme
@@ -403,7 +403,7 @@ class ReplaysWidget(BaseClass, FormClass):
                     continue
                 
                 for player in info['teams'][team]:
-                    playeritem = QtGui.QTreeWidgetItem()
+                    playeritem = QtWidgets.QTreeWidgetItem()
                     playeritem.setText(0, player)  
 
                     url = QtCore.QUrl()
