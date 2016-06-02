@@ -98,22 +98,28 @@ class GameItem(QtWidgets.QListWidgetItem):
         if not player_id:
             player_id = self.host
 
+        query = QtCore.QUrlQuery()
+        query.addQueryItem("map", self.mapname)
+        query.addQueryItem("mod", self.mod)
+
         if self.state == "playing":
             url = QtCore.QUrl()
             url.setScheme("faflive")
             url.setHost("lobby.faforever.com")
             url.setPath(str(self.uid) + "/" + str(player_id) + ".SCFAreplay")
-            url.addQueryItem("map", self.mapname)
-            url.addQueryItem("mod", self.mod)
+
+            url.setQuery(query)
+
             return url
         elif self.state == "open":
             url = QtCore.QUrl()
             url.setScheme("fafgame")
             url.setHost("lobby.faforever.com")
             url.setPath(str(player_id))
-            url.addQueryItem("map", self.mapname)
-            url.addQueryItem("mod", self.mod)
-            url.addQueryItem("uid", str(self.uid))
+
+            query.addQueryItem("uid", str(self.uid))
+            url.setQuery(query)
+
             return url
         return None 
         

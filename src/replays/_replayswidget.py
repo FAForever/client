@@ -411,9 +411,13 @@ class ReplaysWidget(BaseClass, FormClass):
                     url.setScheme("faflive")
                     url.setHost("lobby.faforever.com")
                     url.setPath(str(info["uid"]) + "/" + player + ".SCFAreplay")
-                    url.addQueryItem("map", info["mapname"])
-                    url.addQueryItem("mod", info["featured_mod"])
-                    
+
+                    query = QtCore.QUrlQuery()
+                    query.addQueryItem("map", info["mapname"])
+                    query.addQueryItem("mod", info["featured_mod"])
+
+                    url.setQuery(query)
+
                     playeritem.url = url
                     if client.instance.login == player:
                         mygame = True
