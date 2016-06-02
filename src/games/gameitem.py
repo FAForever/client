@@ -19,14 +19,14 @@ class GameItemDelegate(QtWidgets.QStyledItemDelegate):
 
         painter.save()
 
-        html = QtWidgets.QTextDocument()
+        html = QtGui.QTextDocument()
         html.setHtml(option.text)
 
-        icon = QtWidgets.QIcon(option.icon)
+        icon = QtGui.QIcon(option.icon)
         iconsize = icon.actualSize(option.rect.size())
 
         #clear icon and text before letting the control draw itself because we're rendering these parts ourselves
-        option.icon = QtWidgets.QIcon()
+        option.icon = QtGui.QIcon()
         option.text = ""
         option.widget.style().drawControl(QtWidgets.QStyle.CE_ItemViewItem, option, painter, option.widget)
 
@@ -37,7 +37,7 @@ class GameItemDelegate(QtWidgets.QStyledItemDelegate):
         icon.paint(painter, option.rect.adjusted(5-2, -2, 0, 0), QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
 
         #Frame around the icon
-        pen = QtWidgets.QPen()
+        pen = QtGui.QPen()
         pen.setWidth(1)
         pen.setBrush(QtGui.QColor("#303030"))  #FIXME: This needs to come from theme.
         pen.setCapStyle(QtCore.Qt.RoundCap)
@@ -55,7 +55,7 @@ class GameItemDelegate(QtWidgets.QStyledItemDelegate):
     def sizeHint(self, option, index, *args, **kwargs):
         self.initStyleOption(option, index)
         
-        html = QtWidgets.QTextDocument()
+        html = QtGui.QTextDocument()
         html.setHtml(option.text)
         html.setTextWidth(GameItem.TEXTWIDTH)
         return QtCore.QSize(GameItem.ICONSIZE + GameItem.TEXTWIDTH + GameItem.PADDING, GameItem.ICONSIZE)  

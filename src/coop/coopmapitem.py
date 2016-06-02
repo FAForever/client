@@ -1,4 +1,4 @@
-from PyQt5 import QtCore, QtGui
+from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QStyledItemDelegate, QTreeWidgetItem
 from fa import maps
 import util
@@ -30,7 +30,7 @@ class CoopMapItemDelegate(QStyledItemDelegate):
 #        #clear icon and text before letting the control draw itself because we're rendering these parts ourselves
 #        option.icon = QtGui.QIcon()        
         option.text = ""  
-        option.widget.style().drawControl(QtGui.QStyle.CE_ItemViewItem, option, painter, option.widget)
+        option.widget.style().drawControl(QtWidgets.QStyle.CE_ItemViewItem, option, painter, option.widget)
 #        
 #        #Icon
 #        icon.paint(painter, option.rect.adjusted(5-2, -2, 0, 0), QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
