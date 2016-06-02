@@ -1,12 +1,12 @@
-from PyQt4 import QtCore, QtGui, QtWebKit
+from PyQt5 import QtCore, QtGui, QtWidgets#, QtWebKit #TODO
 import util
 
 
-class TourneyItemDelegate(QtGui.QStyledItemDelegate):
+class TourneyItemDelegate(QtWidgets.QStyledItemDelegate):
     #colors = json.loads(util.readfile("client/colors.json"))
     
     def __init__(self, *args, **kwargs):
-        QtGui.QStyledItemDelegate.__init__(self, *args, **kwargs)
+        QtWidgets.QStyledItemDelegate.__init__(self, *args, **kwargs)
         self.height = 125
         
     def paint(self, painter, option, index, *args, **kwargs):
@@ -14,7 +14,7 @@ class TourneyItemDelegate(QtGui.QStyledItemDelegate):
                 
         painter.save()
         
-        html = QtGui.QTextDocument()
+        html = QtWidgets.QTextDocument()
         html.setHtml(option.text)
         if self.height < html.size().height() :
             self.height = html.size().height()
@@ -37,19 +37,20 @@ class TourneyItemDelegate(QtGui.QStyledItemDelegate):
         html.setHtml(option.text)
         return QtCore.QSize(int(html.size().width()), int(html.size().height()))
 
-class QWebPageChrome(QtWebKit.QWebPage):
-    def __init__(self, *args, **kwargs):
-        QtWebKit.QWebPage.__init__(self, *args, **kwargs)
-        
-    def userAgentForUrl(self, url):
-        return "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.121 Safari/535.2"
+# TODO: WHY IS THIS NAMED LIKE THAT, IT ISN'T PART OF QT.
+# class QWebPageChrome(QtWebKit.QWebPage):
+#     def __init__(self, *args, **kwargs):
+#         QtWebKit.QWebPage.__init__(self, *args, **kwargs)
+#
+#     def userAgentForUrl(self, url):
+#         return "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.121 Safari/535.2"
 
-class TourneyItem(QtGui.QListWidgetItem):
+class TourneyItem(QtWidgets.QListWidgetItem):
     FORMATTER_SWISS_OPEN = str(util.readfile("tournaments/formatters/open.qthtml"))
 
     
     def __init__(self, parent, uid, *args, **kwargs):
-        QtGui.QListWidgetItem.__init__(self, *args, **kwargs)
+        QtWidgets.QListWidgetItem.__init__(self, *args, **kwargs)
 
         self.uid = int(uid)
 
@@ -82,12 +83,14 @@ class TourneyItem(QtGui.QListWidgetItem):
         self.description    = message.get('description', "")
         self.players        = message.get('participants', [])
 
-        if old_state != self.state and self.state == "started" :
-            widget = QtWebKit.QWebView()
-            webPage = QWebPageChrome()
-            widget.setPage(webPage)
-            widget.setUrl(QtCore.QUrl(self.url))
-            self.parent.topTabs.addTab(widget, self.title)
+        if old_state != self.state and self.state == "started":
+            pass
+            # TODO
+            # widget = QtWebKit.QWebView()
+            # webPage = QWebPageChrome()
+            # widget.setPage(webPage)
+            # widget.setUrl(QtCore.QUrl(self.url))
+            # self.parent.topTabs.addTab(widget, self.title)
 
         self.playersname= []
         for player in self.players :
@@ -95,7 +98,7 @@ class TourneyItem(QtGui.QListWidgetItem):
             if old_state != self.state and self.state == "started" and player["name"] == self.client.login :
                 channel = "#" + self.title.replace(" ", "_")
                 self.client.autoJoin.emit([channel])
-                QtGui.QMessageBox.information(self.client, "Tournament started !", "Your tournament has started !\nYou have automatically joined the tournament channel.")
+                QtWidgets.QMessageBox.information(self.client, "Tournament started !", "Your tournament has started !\nYou have automatically joined the tournament channel.")
 
         playerstring = "<br/>".join(self.playersname)
 
@@ -135,9 +138,5 @@ class TourneyItem(QtGui.QListWidgetItem):
         if not self.client: return True # If not initialized...
         if not other.client: return False;
         
-        
         # Default: Alphabetical
         return self.title.lower() < other.title.lower()
-    
-
-

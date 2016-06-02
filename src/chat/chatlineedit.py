@@ -1,22 +1,14 @@
+from PyQt5 import QtCore
+from PyQt5.QtWidgets import QLineEdit
 
-
-
-
-'''
-Created on Dec 8, 2011
-
-@author: thygrrr
-'''
-from PyQt4 import QtCore, QtGui
-
-class ChatLineEdit(QtGui.QLineEdit):
+class ChatLineEdit(QLineEdit):
     '''
     A special promoted QLineEdit that is used in channel.ui to provide a mirc-style editing experience
     with completion and history.
     LATER: History and tab completion support
     '''
     def __init__(self, parent):
-        QtGui.QLineEdit.__init__(self, parent)
+        QLineEdit.__init__(self, parent)
         self.returnPressed.connect(self.onLineEntered)
         self.history = []
         self.currentHistoryIndex = None
@@ -39,7 +31,7 @@ class ChatLineEdit(QtGui.QLineEdit):
                 return True
             elif (event.key() == QtCore.Qt.Key_Space):
                 self.acceptCompletion()
-                return QtGui.QLineEdit.event(self, event)
+                return QLineEdit.event(self, event)
             elif (event.key() == QtCore.Qt.Key_Up):
                 self.cancelCompletion()
                 self.prevHistory()
@@ -50,10 +42,10 @@ class ChatLineEdit(QtGui.QLineEdit):
                 return True
             else:
                 self.cancelCompletion()
-                return QtGui.QLineEdit.event(self, event)
+                return QLineEdit.event(self, event)
 
         # All other events (non-keypress)
-        return QtGui.QLineEdit.event(self, event)
+        return QLineEdit.event(self, event)
 
 
     @QtCore.pyqtSlot()
@@ -64,7 +56,7 @@ class ChatLineEdit(QtGui.QLineEdit):
 
     def showEvent(self, event):
         self.setFocus(True)
-        return QtGui.QLineEdit.showEvent(self, event)
+        return QLineEdit.showEvent(self, event)
 
 
     def tryCompletion(self):
@@ -88,7 +80,7 @@ class ChatLineEdit(QtGui.QLineEdit):
             
             if (len(self.LocalChatterNameList) > 0):
                 self.LocalChatterNameList.sort(lambda a, b: cmp(a.lower(), b.lower()))
-                self.currenLocalChatter = 0;
+                self.currenLocalChatter = 0
                 self.setText(self.completionLine + self.LocalChatterNameList[self.currenLocalChatter])
             else:
                 self.currenLocalChatter = None

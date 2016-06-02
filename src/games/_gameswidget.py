@@ -1,8 +1,9 @@
 from functools import partial
 import random
 
-from PyQt4 import QtCore, QtGui
-from PyQt4.QtCore import Qt
+from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtCore import Qt
 
 import util
 from config import Settings
@@ -156,7 +157,7 @@ class GamesWidget(FormClass, BaseClass):
             race = Factions.get_random_faction()
 
         if fa.instance.running():
-            QtGui.QMessageBox.information(None, "ForgedAllianceForever.exe", "FA is already running.")
+            QMessageBox.information(None, "ForgedAllianceForever.exe", "FA is already running.")
             self.stopSearchRanked()
             return
 
@@ -208,7 +209,7 @@ class GamesWidget(FormClass, BaseClass):
         else:
             self.stopSearchRanked()
 
-    @QtCore.pyqtSlot(QtGui.QListWidgetItem)
+    @QtCore.pyqtSlot(QtWidgets.QListWidgetItem)
     def gameDoubleClicked(self, item):
         '''
         Slot that attempts to join a game.
@@ -223,13 +224,13 @@ class GamesWidget(FormClass, BaseClass):
 
         if fa.check.check(item.mod, mapname=item.mapname, version=None, sim_mods=item.mods):
             if item.password_protected:
-                passw, ok = QtGui.QInputDialog.getText(self.client, "Passworded game" , "Enter password :", QtGui.QLineEdit.Normal, "")
+                passw, ok = QtWidgets.QInputDialog.getText(self.client, "Passworded game" , "Enter password :", QtWidgets.QLineEdit.Normal, "")
                 if ok:
                     self.client.join_game(uid=item.uid, password=passw)
             else:
                 self.client.join_game(uid=item.uid)
 
-    @QtCore.pyqtSlot(QtGui.QListWidgetItem)
+    @QtCore.pyqtSlot(QtWidgets.QListWidgetItem)
     def hostGameClicked(self, item):
         '''
         Hosting a game event

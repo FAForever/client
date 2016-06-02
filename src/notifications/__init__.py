@@ -1,4 +1,4 @@
-from PyQt4 import QtCore
+from PyQt5 import QtCore
 
 import util
 from fa import maps

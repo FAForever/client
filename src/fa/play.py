@@ -3,8 +3,6 @@ from .game_process import instance
 from config import Settings
 import util
 
-__author__ = 'Thygrrr'
-
 import logging
 logger = logging.getLogger(__name__)
 

@@ -1,8 +1,4 @@
-
-
-
-
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtGui, QtWidgets
 from fa import maps
 import util
 import os, time
@@ -11,26 +7,26 @@ from games.moditem import mods
 import client
 
 
-class ReplayItemDelegate(QtGui.QStyledItemDelegate):
+class ReplayItemDelegate(QtWidgets.QStyledItemDelegate):
     
     def __init__(self, *args, **kwargs):
-        QtGui.QStyledItemDelegate.__init__(self, *args, **kwargs)
+        QtWidgets.QStyledItemDelegate.__init__(self, *args, **kwargs)
         
     def paint(self, painter, option, index, *args, **kwargs):
         self.initStyleOption(option, index)
                 
         painter.save()
         
-        html = QtGui.QTextDocument()
+        html = QtWidgets.QTextDocument()
         html.setHtml(option.text)
         
-        icon = QtGui.QIcon(option.icon)
+        icon = QtWidgets.QIcon(option.icon)
         iconsize = icon.actualSize(option.rect.size())
         
         #clear icon and text before letting the control draw itself because we're rendering these parts ourselves
-        option.icon = QtGui.QIcon()        
+        option.icon = QtWidgets.QIcon()
         option.text = ""  
-        option.widget.style().drawControl(QtGui.QStyle.CE_ItemViewItem, option, painter, option.widget)
+        option.widget.style().drawControl(QtWidgets.QStyle.CE_ItemViewItem, option, painter, option.widget)
         
         #Shadow
         #painter.fillRect(option.rect.left()+8-1, option.rect.top()+8-1, iconsize.width(), iconsize.height(), QtGui.QColor("#202020"))
@@ -57,25 +53,23 @@ class ReplayItemDelegate(QtGui.QStyledItemDelegate):
     def sizeHint(self, option, index, *args, **kwargs):
         clip = index.model().data(index, QtCore.Qt.UserRole)
         self.initStyleOption(option, index)
-        html = QtGui.QTextDocument()
+        html = QtWidgets.QTextDocument()
         html.setHtml(option.text)
         html.setTextWidth(240)
-        if clip :
+        if clip:
             return QtCore.QSize(215, clip.height)
-        else :
+        else:
             return QtCore.QSize(215, 35)
 
 
-
-
-class ReplayItem(QtGui.QTreeWidgetItem):
+class ReplayItem(QtWidgets.QTreeWidgetItem):
 
     
     FORMATTER_REPLAY        = str(util.readfile("replays/formatters/replay.qthtml"))
 
     
     def __init__(self, uid, parent, *args, **kwargs):
-        QtGui.QTreeWidgetItem.__init__(self, *args, **kwargs)
+        QtWidgets.QTreeWidgetItem.__init__(self, *args, **kwargs)
 
         
         self.uid            = uid
@@ -270,7 +264,7 @@ class ReplayItem(QtGui.QTreeWidgetItem):
 
     def pressed(self, item):
         menu = QtGui.QMenu(self.parent)
-        actionDownload = QtGui.QAction("Download replay", menu)
+        actionDownload = QtWidgets.QAction("Download replay", menu)
         actionDownload.triggered.connect(self.downloadReplay)
         menu.addAction(actionDownload)
         menu.popup(QtGui.QCursor.pos())

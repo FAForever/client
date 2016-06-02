@@ -3,9 +3,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-from PyQt4 import QtGui, QtCore
-from PyQt4.QtNetwork import QNetworkAccessManager
-from PyQt4.QtCore import QSocketNotifier, QTimer
+from PyQt5 import QtGui, QtCore, QtWidgets
+from PyQt5.QtNetwork import QNetworkAccessManager
+from PyQt5.QtCore import QSocketNotifier, QTimer
 
 from config import Settings
 import util

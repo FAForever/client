@@ -1,5 +1,5 @@
-from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
-from PyQt4 import QtGui, QtCore
+from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest
+from PyQt5 import QtGui, QtCore
 import urllib.request, urllib.error, urllib.parse
 import logging
 import os

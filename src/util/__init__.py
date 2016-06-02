@@ -116,8 +116,9 @@ if not os.path.isdir(SOUND_DIR):
 if not os.path.isdir(VOICES_DIR):
     os.makedirs(VOICES_DIR)
 
-from PyQt4 import QtGui, uic, QtCore
-from PyQt4.uic import *
+from PyQt5 import QtGui, uic, QtCore, QtWidgets
+from PyQt5.QtWidgets import QApplication, QMessageBox
+from PyQt5.uic import *
 import shutil
 import hashlib
 import re
@@ -142,13 +143,13 @@ logger = logging.getLogger(__name__)
 def clearDirectory(directory, confirm=True):
     if (os.path.isdir(directory)):
         if (confirm):
-            result = QtGui.QMessageBox.question(None, "Clear Directory",
+            result = QMessageBox.question(None, "Clear Directory",
                                                 "Are you sure you wish to clear the following directory:<br/><b>&nbsp;&nbsp;" + directory + "</b>",
-                                                QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+                                                QMessageBox.Yes, QMessageBox.No)
         else:
-            result = QtGui.QMessageBox.Yes
+            result = QMessageBox.Yes
 
-        if (result == QtGui.QMessageBox.Yes):
+        if (result == QMessageBox.Yes):
             shutil.rmtree(directory)
             return True
         else:
@@ -205,10 +206,10 @@ def setTheme(theme, restart=True):
                 __themedir = test_dir
                 __theme = theme
             else:
-                result = QtGui.QMessageBox.question(QtGui.QApplication.activeWindow(), "Incompatible Theme",
+                result = QMessageBox.question(QApplication.activeWindow(), "Incompatible Theme",
                                                     "The following theme is not the right version:<br/><b>" + theme + "</b><br/><i>Contact the maker of the theme for an update!</i><br/><br/><b>Reset to default, or apply theme anyway?</b>",
-                                                    QtGui.QMessageBox.Apply, QtGui.QMessageBox.Reset)
-                if result == QtGui.QMessageBox.Apply:
+                                                    QMessageBox.Apply, QMessageBox.Reset)
+                if result == QMessageBox.Apply:
                     logger.info("Using theme: " + theme + " in directory " + test_dir)
                     __themedir = test_dir
                     __theme = theme
@@ -225,8 +226,8 @@ def setTheme(theme, restart=True):
     settings.sync()
 
     if restart:
-        QtGui.QMessageBox.information(None, "Restart Needed", "FAF will quit now.")
-        QtGui.QApplication.quit()
+        QMessageBox.information(None, "Restart Needed", "FAF will quit now.")
+        QApplication.quit()
 
 
 def listThemes():
@@ -470,11 +471,11 @@ def wait(until):
     '''
     Super-simple wait function that takes a callable and waits until the callable returns true or the user aborts.
     '''
-    progress = QtGui.QProgressDialog()
+    progress = QtWidgets.QProgressDialog()
     progress.show()
 
     while not until() and progress.isVisible():
-        QtGui.QApplication.processEvents()
+        QApplication.processEvents()
 
     progress.close()
 
@@ -585,10 +586,10 @@ def uniqueID(user, session):
         return baseString
 
     except:
-        QtGui.QMessageBox.warning(None, "C++ 2010 Runtime Missing",
+        QMessageBox.warning(None, "C++ 2010 Runtime Missing",
                                   "You are missing the Microsoft Visual C++ 2010 Runtime.<br><br>Get it from here: <a href='https://www.microsoft.com/en-us/download/details.aspx?id=5555'>https://www.microsoft.com/en-us/download/details.aspx?id=5555</a>")
         logger.warning("UniqueID Failure, user warned", exc_info=sys.exc_info())
-        QtGui.QApplication.quit()
+        QApplication.quit()
 
 
 import datetime

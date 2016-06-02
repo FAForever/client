@@ -7,16 +7,16 @@ from config import Settings
 from . import APPDATA_DIR, PERSONAL_DIR, VERSION_STRING, LOG_FILE_FAF, \
     readlines
 
-from PyQt4 import QtGui, QtCore
+from PyQt5 import QtWidgets, QtCore
 from faf.api import BugReportSchema
 from faf.domain.bugs import BugReport, BugReportTarget
 
 CRASH_REPORT_USER = "pre-login"
 
 
-class CrashDialog(QtGui.QDialog):
+class CrashDialog(QtWidgets.QDialog):
     def __init__(self, exc_info, *args, **kwargs):
-        QtGui.QDialog.__init__(self, *args, **kwargs)
+        QtWidgets.QDialog.__init__(self, *args, **kwargs)
 
         exc_type, exc_value, traceback_object = exc_info
 
@@ -65,54 +65,54 @@ class CrashDialog(QtGui.QDialog):
         self.bugreport.log = log
 
         if not automatic:
-            self.box = QtGui.QTextEdit()
-            self.box.setFont(QtGui.QFont("Lucida Console", 8))
+            self.box = QtWidgets.QTextEdit()
+            self.box.setFont(QtWidgets.QFont("Lucida Console", 8))
             self.box.append(description)
             dialog.layout().addWidget(self.box)
-            dialog.setLayout(QtGui.QVBoxLayout())
-            label = QtGui.QLabel()
+            dialog.setLayout(QtWidgets.QVBoxLayout())
+            label = QtWidgets.QLabel()
             label.setText(
                     "An error has occurred in the FAF client. <br><br>You can report it by clicking the ticket button.")
             label.setWordWrap(True)
             dialog.layout().addWidget(label)
 
-            label = QtGui.QLabel()
+            label = QtWidgets.QLabel()
             label.setText("<b>This is what happened. If you have more to add please write in the field below.</b>")
             label.setWordWrap(False)
             dialog.layout().addWidget(label)
-            self.sendButton = QtGui.QPushButton("\nReport error\n")
+            self.sendButton = QtWidgets.QPushButton("\nReport error\n")
             self.sendButton.pressed.connect(self.post_report)
 
             dialog.layout().addWidget(self.sendButton)
 
-            label = QtGui.QLabel()
+            label = QtWidgets.QLabel()
             label.setText("<b></b><br/><i>(please note that the error may be fatal, proceed at your own risk)</i>")
             label.setWordWrap(False)
             dialog.layout().addWidget(label)
 
-            self.buttons = QtGui.QDialogButtonBox()
+            self.buttons = QtWidgets.QDialogButtonBox()
             buttons = self.buttons
-            buttons.addButton("Continue", QtGui.QDialogButtonBox.AcceptRole)
-            buttons.addButton("Close FAF", QtGui.QDialogButtonBox.RejectRole)
+            buttons.addButton("Continue", QtWidgets.QDialogButtonBox.AcceptRole)
+            buttons.addButton("Close FAF", QtWidgets.QDialogButtonBox.RejectRole)
             buttons.addButton("Help", QtGui.QDialogButtonBox.HelpRole)
             buttons.accepted.connect(dialog.accept)
             buttons.rejected.connect(dialog.reject)
             buttons.helpRequested.connect(self.tech_support)
             dialog.layout().addWidget(buttons)
         else:
-            dialog.setLayout(QtGui.QVBoxLayout())
-            label = QtGui.QLabel()
+            dialog.setLayout(QtWidgets.QVBoxLayout())
+            label = QtWidgets.QLabel()
             label.setText("An error has occurred in the FAF client. It has been automatically reported.")
             label.setWordWrap(True)
             dialog.layout().addWidget(label)
             self.post_report()
-            self.sendButton = QtGui.QPushButton("\nOK\n")
+            self.sendButton = QtWidgets.QPushButton("\nOK\n")
             self.sendButton.pressed.connect(dialog.accept)
             dialog.layout().addWidget(self.sendButton)
 
     @QtCore.pyqtSlot()
     def tech_support(self):
-        QtGui.QDesktopServices().openUrl(QtCore.QUrl(Settings.get("HELP_URL")))
+        QtWidgets.QDesktopServices().openUrl(QtCore.QUrl(Settings.get("HELP_URL")))
 
     @QtCore.pyqtSlot()
     def post_report(self):

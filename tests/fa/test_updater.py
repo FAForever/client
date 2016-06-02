@@ -1,7 +1,5 @@
-__author__ = 'Thygrrr'
-
 from fa import updater
-from PyQt4 import QtGui, QtCore
+from PyQt5 import QtGui, QtCore
 import pytest
 import collections
 

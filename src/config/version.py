@@ -36,7 +36,7 @@ def call_git_describe():
         p = Popen(['git', 'describe', '--tags'],
                   stdout=PIPE, stderr=PIPE)
         p.stderr.close()
-        line = p.stdout.readlines()[0]
+        line = p.stdout.readlines()[0].decode("utf-8")
         return line.strip()
     except Exception as e:
         print(("Error grabbing git version: {}".format(e)))

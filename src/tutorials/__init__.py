@@ -2,7 +2,7 @@
 
 
 
-from PyQt4 import QtCore
+from PyQt5 import QtCore
 import logging
 
 logger = logging.getLogger(__name__)

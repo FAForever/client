@@ -1,7 +1,3 @@
-
-
-
-
 import struct
 
 class replayParser:
@@ -17,6 +13,7 @@ class replayParser:
             offset = offset + 1
             if char[0] == '\r' :
                 #offset = offset + 2
+                # TODO: WTF?!
                 break
             elif char[0] == '\x00' :
                 #offset = offset + 3

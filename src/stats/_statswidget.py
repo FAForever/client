@@ -1,8 +1,4 @@
-
-
-
-
-from PyQt4 import QtCore, QtGui, QtWebKit
+from PyQt5 import QtCore, QtGui #, QtWebKit # TODO
 import util
 from stats import mapstat
 import client
@@ -32,13 +28,14 @@ class StatsWidget(BaseClass, FormClass):
 
         self.client = client
 
-        self.webview = QtWebKit.QWebView()
+# TODO
+#         self.webview = QtWebKit.QWebView()
         
-        self.LadderRatings.layout().addWidget(self.webview)
+        # self.LadderRatings.layout().addWidget(self.webview)
         
         self.loaded = False
         self.client.showLadder.connect(self.updating)
-        self.webview.loadFinished.connect(self.webview.show)
+        # self.webview.loadFinished.connect(self.webview.show)
         self.leagues.currentChanged.connect(self.leagueUpdate)
         self.pagesDivisions = {}
         self.pagesDivisionsResults = {}
@@ -56,8 +53,8 @@ class StatsWidget(BaseClass, FormClass):
         self.leagues.setStyleSheet(self.stylesheet)
     
    
-        #setup other tabs
-        self.mapstat = mapstat.LadderMapStat(self.client, self)
+        #setup other tabs # TODO (It caught fire when webview went away)
+        # self.mapstat = mapstat.LadderMapStat(self.client, self)
         
         
     

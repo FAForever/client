@@ -3,10 +3,10 @@ import client
 import subprocess
 
 from decorators import with_logger
-from PyQt4 import QtGui, QtCore
-from PyQt4.QtGui import QLabel
-from PyQt4.QtCore import QUrl, QObject
-from PyQt4.QtNetwork import QNetworkRequest, QNetworkReply
+from PyQt5 import QtCore
+from PyQt5.QtWidgets import QLabel, QMessageBox, QProgressDialog, QApplication
+from PyQt5.QtCore import QUrl, QObject
+from PyQt5.QtNetwork import QNetworkRequest, QNetworkReply
 
 
 @with_logger
@@ -21,12 +21,12 @@ class ClientUpdater(QObject):
         self._rep = None
 
     def exec_(self):
-        result = QtGui.QMessageBox.question(None,
+        result = QMessageBox.question(None,
                                             "Update Needed",
                                             "Your version of FAF is outdated. You need to download and install the most recent version to connect and play.<br/><br/><b>Do you want to download and install the update now?</b><br/><br/><a href='https://github.com/FAForever/client/blob/develop/changelog.md'>See changes</a>",
-                                            QtGui.QMessageBox.No,
-                                            QtGui.QMessageBox.Yes)
-        if result == QtGui.QMessageBox.Yes:
+                                            QMessageBox.No,
+                                            QMessageBox.Yes)
+        if result == QMessageBox.Yes:
             self._setup_progress()
             self._tmp = tempfile.NamedTemporaryFile(mode='w+b',
                                                     suffix=".msi",
@@ -39,7 +39,7 @@ class ClientUpdater(QObject):
             self._rep.error.connect(self.error)
             self._rep.readyRead.connect(self._buffer)
         else:
-            QtGui.QApplication.quit()
+            QApplication.quit()
 
     def error(self, code):
         self._logger.exception(self._rep.errorString())
@@ -63,10 +63,10 @@ class ClientUpdater(QObject):
 
     def cancel(self):
         self._rep.abort()
-        QtGui.QApplication.quit()
+        QApplication.quit()
 
     def _setup_progress(self):
-        progress = QtGui.QProgressDialog()
+        progress = QProgressDialog()
         progress.setLabel(QLabel("Downloading update"))
         progress.setCancelButtonText("Cancel")
         progress.canceled.connect(self.cancel)

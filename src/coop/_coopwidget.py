@@ -1,10 +1,11 @@
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtGui
+from PyQt5.QtWidgets import QListWidgetItem, QInputDialog, QTreeWidgetItem, QHeaderView
 import fa
 from fa.replay import replay
 from fa.wizards import WizardSC
 import util
 
-from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
+from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest
 
 from games.gameitem import GameItem, GameItemDelegate
 from coop.coopmapitem import CoopMapItem, CoopMapItemDelegate
@@ -47,7 +48,7 @@ class CoopWidget(FormClass, BaseClass):
         self.client.showCoop.connect(self.coopChanged)
         self.client.coopInfo.connect(self.processCoopInfo)
         self.client.gameInfo.connect(self.processGameInfo)
-        self.coopList.header().setResizeMode(0, QtGui.QHeaderView.ResizeToContents)
+        self.coopList.header().setSectionResizeMode(0, QHeaderView.ResizeToContents)
         self.coopList.setItemDelegate(CoopMapItemDelegate(self))
 
         self.gameList.setItemDelegate(GameItemDelegate(self))
@@ -211,7 +212,7 @@ class CoopWidget(FormClass, BaseClass):
             typeCoop = message["type"]
             
             if not typeCoop in self.cooptypes:
-                root_item = QtGui.QTreeWidgetItem()
+                root_item = QTreeWidgetItem()
                 self.coopList.addTopLevelItem(root_item)
                 root_item.setText(0, "<font color='white' size=+3>%s</font>" % typeCoop)
                 self.cooptypes[typeCoop] = root_item
@@ -255,7 +256,7 @@ class CoopWidget(FormClass, BaseClass):
                 del self.games[uid]    
             return
 
-    @QtCore.pyqtSlot(QtGui.QListWidgetItem)
+    @QtCore.pyqtSlot(QListWidgetItem)
     def gameDoubleClicked(self, item):
         '''
         Slot that attempts to join a game.
@@ -267,7 +268,7 @@ class CoopWidget(FormClass, BaseClass):
             return
 
         if item.password_protected:
-            passw, ok = QtGui.QInputDialog.getText(self.client, "Passworded game" , "Enter password :", QtGui.QLineEdit.Normal, "")
+            passw, ok = QInputDialog.getText(self.client, "Passworded game" , "Enter password :", QtGui.QLineEdit.Normal, "")
             if ok:
                 self.client.join_game(uid=item.uid, password=passw)
         else :

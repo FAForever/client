@@ -1,7 +1,7 @@
 # Initialize logging system
 import logging
 
-from PyQt4.QtNetwork import QNetworkAccessManager
+from PyQt5.QtNetwork import QNetworkAccessManager
 from enum import IntEnum
 
 from config import Settings

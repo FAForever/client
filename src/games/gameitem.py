@@ -1,4 +1,4 @@
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtWidgets, QtGui
 import trueskill
 from trueskill import Rating
 from fa import maps
@@ -9,38 +9,38 @@ from games.moditem import mod_invisible, mods
 import client
 import copy
 
-class GameItemDelegate(QtGui.QStyledItemDelegate):
+class GameItemDelegate(QtWidgets.QStyledItemDelegate):
     
     def __init__(self, *args, **kwargs):
-        QtGui.QStyledItemDelegate.__init__(self, *args, **kwargs)
+        QtWidgets.QStyledItemDelegate.__init__(self, *args, **kwargs)
         
     def paint(self, painter, option, index, *args, **kwargs):
         self.initStyleOption(option, index)
-                
+
         painter.save()
-        
-        html = QtGui.QTextDocument()
+
+        html = QtWidgets.QTextDocument()
         html.setHtml(option.text)
-        
-        icon = QtGui.QIcon(option.icon)
+
+        icon = QtWidgets.QIcon(option.icon)
         iconsize = icon.actualSize(option.rect.size())
-        
+
         #clear icon and text before letting the control draw itself because we're rendering these parts ourselves
-        option.icon = QtGui.QIcon()        
-        option.text = ""  
-        option.widget.style().drawControl(QtGui.QStyle.CE_ItemViewItem, option, painter, option.widget)
-        
+        option.icon = QtWidgets.QIcon()
+        option.text = ""
+        option.widget.style().drawControl(QtWidgets.QStyle.CE_ItemViewItem, option, painter, option.widget)
+
         #Shadow
         painter.fillRect(option.rect.left()+8-1, option.rect.top()+8-1, iconsize.width(), iconsize.height(), QtGui.QColor("#202020"))
 
         #Icon
         icon.paint(painter, option.rect.adjusted(5-2, -2, 0, 0), QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
-        
+
         #Frame around the icon
-        pen = QtGui.QPen()
-        pen.setWidth(1);
-        pen.setBrush(QtGui.QColor("#303030"));  #FIXME: This needs to come from theme.
-        pen.setCapStyle(QtCore.Qt.RoundCap);
+        pen = QtWidgets.QPen()
+        pen.setWidth(1)
+        pen.setBrush(QtGui.QColor("#303030"))  #FIXME: This needs to come from theme.
+        pen.setCapStyle(QtCore.Qt.RoundCap)
         painter.setPen(pen)
         painter.drawRect(option.rect.left()+5-2, option.rect.top()+5-2, iconsize.width(), iconsize.height())
 
@@ -48,20 +48,20 @@ class GameItemDelegate(QtGui.QStyledItemDelegate):
         painter.translate(option.rect.left() + iconsize.width() + 10, option.rect.top()+10)
         clip = QtCore.QRectF(0, 0, option.rect.width()-iconsize.width() - 10 - 5, option.rect.height())
         html.drawContents(painter, clip)
-  
+
         painter.restore()
-        
+
 
     def sizeHint(self, option, index, *args, **kwargs):
         self.initStyleOption(option, index)
         
-        html = QtGui.QTextDocument()
+        html = QtWidgets.QTextDocument()
         html.setHtml(option.text)
         html.setTextWidth(GameItem.TEXTWIDTH)
         return QtCore.QSize(GameItem.ICONSIZE + GameItem.TEXTWIDTH + GameItem.PADDING, GameItem.ICONSIZE)  
 
 
-class GameItem(QtGui.QListWidgetItem):
+class GameItem(QtWidgets.QListWidgetItem):
     TEXTWIDTH = 230
     ICONSIZE = 110
     PADDING = 10
@@ -73,7 +73,7 @@ class GameItem(QtGui.QListWidgetItem):
     FORMATTER_TOOL      = str(util.readfile("games/formatters/tool.qthtml"))
     
     def __init__(self, uid, *args, **kwargs):
-        QtGui.QListWidgetItem.__init__(self, *args, **kwargs)
+        QtWidgets.QListWidgetItem.__init__(self, *args, **kwargs)
 
         self.uid            = uid
         self.mapname        = None
@@ -189,8 +189,8 @@ class GameItem(QtGui.QListWidgetItem):
 
         # Clear the status for all involved players (url may change, or players may have left, or game closed)        
         for player in self.players:
-            if player.login in client.urls:
-                del client.urls[player.login]
+            if player.login in client.instance.urls:
+                del client.instance.urls[player.login]
 
         # Just jump out if we've left the game, but tell the client that all players need their states updated
         if self.state == "closed":
@@ -278,7 +278,7 @@ class GameItem(QtGui.QListWidgetItem):
 
         # Update player URLs
         for player in self.players:
-            client.urls[player.login] = self.url(player.id)
+            client.instance.urls[player.login] = self.url(player.id)
 
         # Determine which players are affected by this game's state change            
         newplayers = set([p.login for p in self.players])

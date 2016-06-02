@@ -1,7 +1,8 @@
-from PyQt4 import QtGui, QtCore
-from PyQt4.QtCore import QUrl
-from PyQt4.QtNetwork import QNetworkRequest
+from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5.QtCore import QUrl
+from PyQt5.QtNetwork import QNetworkRequest
 from chat._avatarWidget import avatarWidget
+from PyQt5.QtWidgets import QTableWidgetItem
 
 
 import chat
@@ -18,7 +19,7 @@ A chatter is the representation of a person on IRC, in a channel's nick list.
 There are multiple chatters per channel.
 There can be multiple chatters for every Player in the Client.
 """
-class Chatter(QtGui.QTableWidgetItem):
+class Chatter(QTableWidgetItem):
     SORT_COLUMN = 2
     AVATAR_COLUMN = 1
     RANK_COLUMN = 0
@@ -31,7 +32,7 @@ class Chatter(QtGui.QTableWidgetItem):
     RANK_FOE = 4
 
     def __init__(self, parent, user, lobby, *args, **kwargs):
-        QtGui.QTableWidgetItem.__init__(self, *args, **kwargs)
+        QtWidgets.QTableWidgetItem.__init__(self, *args, **kwargs)
                 
         # TODO: for now, userflags and ranks aren't properly interpreted :-/
         # This is impractical if an operator reconnects too late.
@@ -57,15 +58,15 @@ class Chatter(QtGui.QTableWidgetItem):
         
         self.parent.setItem(row, Chatter.SORT_COLUMN, self)
         
-        self.avatarItem = QtGui.QTableWidgetItem()
+        self.avatarItem = QTableWidgetItem()
         self.avatarItem.setFlags(QtCore.Qt.ItemIsEnabled)
         self.avatarItem.setTextAlignment(QtCore.Qt.AlignHCenter)
         
-        self.rankItem = QtGui.QTableWidgetItem()
+        self.rankItem = QTableWidgetItem()
         self.rankItem.setFlags(QtCore.Qt.ItemIsEnabled)
         self.rankItem.setTextAlignment(QtCore.Qt.AlignHCenter)
 
-        self.statusItem = QtGui.QTableWidgetItem()
+        self.statusItem = QTableWidgetItem()
         self.statusItem.setFlags(QtCore.Qt.ItemIsEnabled)
         self.statusItem.setTextAlignment(QtCore.Qt.AlignHCenter)
 
@@ -249,15 +250,15 @@ class Chatter(QtGui.QTableWidgetItem):
         menu = QtGui.QMenu(self.parent)
 
         # Actions for stats
-        actionSelectAvatar  = QtGui.QAction("Select Avatar", menu)
+        actionSelectAvatar  = QtWidgets.QAction("Select Avatar", menu)
         
         # Action for aliases link
-        actionViewAliases  = QtGui.QAction("View Aliases", menu)
+        actionViewAliases  = QtWidgets.QAction("View Aliases", menu)
 
         # Actions for Games and Replays
-        actionReplay = QtGui.QAction("View Live Replay", menu)
-        actionVaultReplay = QtGui.QAction("View Replays in Vault", menu)
-        actionJoin = QtGui.QAction("Join in Game", menu)
+        actionReplay = QtWidgets.QAction("View Live Replay", menu)
+        actionVaultReplay = QtWidgets.QAction("View Replays in Vault", menu)
+        actionJoin = QtWidgets.QAction("Join in Game", menu)
 
         # Default is all disabled, we figure out what we can do after this
         actionReplay.setDisabled(True)
@@ -287,12 +288,12 @@ class Chatter(QtGui.QTableWidgetItem):
         # power menu
         if self.lobby.client.power > 1:
             # admin and mod menus
-            actionAddAvatar = QtGui.QAction("Assign avatar", menu)
+            actionAddAvatar = QtWidgets.QAction("Assign avatar", menu)
             menu.addAction(actionAddAvatar)
             actionAddAvatar.triggered.connect(self.addAvatar)
             
             if self.lobby.client.power == 2:
-                action_inspect_in_mordor = QtGui.QAction("Send the Orcs", menu)
+                action_inspect_in_mordor = QtWidgets.QAction("Send the Orcs", menu)
                 menu.addAction(action_inspect_in_mordor)
 
                 def send_the_orcs():
@@ -303,11 +304,11 @@ class Chatter(QtGui.QTableWidgetItem):
 
                 action_inspect_in_mordor.triggered.connect(send_the_orcs)
 
-                actionCloseFA = QtGui.QAction("Close FA", menu)
+                actionCloseFA = QtWidgets.QAction("Close FA", menu)
                 menu.addAction(actionCloseFA)
                 actionCloseFA.triggered.connect(lambda: self.lobby.client.closeFA(self.name))
 
-                actionCloseLobby = QtGui.QAction("Kick from Lobby", menu)
+                actionCloseLobby = QtWidgets.QAction("Kick from Lobby", menu)
                 menu.addAction(actionCloseLobby)
                 actionCloseLobby.triggered.connect(lambda: self.lobby.client.closeLobby(self.name))
       
@@ -323,12 +324,12 @@ class Chatter(QtGui.QTableWidgetItem):
         menu.addAction(actionJoin)
 
         # Actions for the Friends List
-        actionAddFriend = QtGui.QAction("Add friend", menu)
-        actionRemFriend = QtGui.QAction("Remove friend", menu)
+        actionAddFriend = QtWidgets.QAction("Add friend", menu)
+        actionRemFriend = QtWidgets.QAction("Remove friend", menu)
 
         # Actions for the Foes List
-        actionAddFoe = QtGui.QAction("Add foe", menu)
-        actionRemFoe = QtGui.QAction("Remove foe", menu)
+        actionAddFoe = QtWidgets.QAction("Add foe", menu)
+        actionRemFoe = QtWidgets.QAction("Remove foe", menu)
         
         # Don't allow self to be added or removed from friends or foes
         if self.lobby.client.me.id == self.id:

@@ -45,7 +45,16 @@
     </size>
    </property>
    <layout class="QGridLayout" name="mainGridLayout">
-    <property name="margin">
+    <property name="leftMargin">
+     <number>9</number>
+    </property>
+    <property name="topMargin">
+     <number>9</number>
+    </property>
+    <property name="rightMargin">
+     <number>9</number>
+    </property>
+    <property name="bottomMargin">
      <number>9</number>
     </property>
     <property name="spacing">
@@ -79,7 +88,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>7</number>
       </property>
       <property name="iconSize">
        <size>
@@ -98,21 +107,21 @@
         <string>What's new ?</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_6">
-        <property name="margin">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
          <number>0</number>
         </property>
         <property name="spacing">
          <number>0</number>
         </property>
-        <item row="0" column="0">
-         <widget class="QWebView" name="whatNewsView">
-          <property name="url">
-           <url>
-            <string>about:blank</string>
-           </url>
-          </property>
-         </widget>
-        </item>
        </layout>
       </widget>
       <widget class="QWidget" name="chatTab">
@@ -120,7 +129,16 @@
         <string>Chat Lobby</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout">
-        <property name="margin">
+        <property name="leftMargin">
+         <number>6</number>
+        </property>
+        <property name="topMargin">
+         <number>6</number>
+        </property>
+        <property name="rightMargin">
+         <number>6</number>
+        </property>
+        <property name="bottomMargin">
          <number>6</number>
         </property>
        </layout>
@@ -136,7 +154,16 @@
         <string>Play</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_7">
-        <property name="margin">
+        <property name="leftMargin">
+         <number>6</number>
+        </property>
+        <property name="topMargin">
+         <number>6</number>
+        </property>
+        <property name="rightMargin">
+         <number>6</number>
+        </property>
+        <property name="bottomMargin">
          <number>6</number>
         </property>
        </layout>
@@ -146,7 +173,16 @@
         <string>Tutorials</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_5">
-        <property name="margin">
+        <property name="leftMargin">
+         <number>6</number>
+        </property>
+        <property name="topMargin">
+         <number>6</number>
+        </property>
+        <property name="rightMargin">
+         <number>6</number>
+        </property>
+        <property name="bottomMargin">
          <number>6</number>
         </property>
        </layout>
@@ -156,7 +192,16 @@
         <string>Leaderboards</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_4">
-        <property name="margin">
+        <property name="leftMargin">
+         <number>6</number>
+        </property>
+        <property name="topMargin">
+         <number>6</number>
+        </property>
+        <property name="rightMargin">
+         <number>6</number>
+        </property>
+        <property name="bottomMargin">
          <number>6</number>
         </property>
        </layout>
@@ -166,7 +211,16 @@
         <string>Tournaments</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_13">
-        <property name="margin">
+        <property name="leftMargin">
+         <number>6</number>
+        </property>
+        <property name="topMargin">
+         <number>6</number>
+        </property>
+        <property name="rightMargin">
+         <number>6</number>
+        </property>
+        <property name="bottomMargin">
          <number>6</number>
         </property>
        </layout>
@@ -176,18 +230,18 @@
         <string>Livestreams</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_10">
-        <property name="margin">
+        <property name="leftMargin">
          <number>0</number>
         </property>
-        <item row="0" column="0">
-         <widget class="QWebView" name="LivestreamWebView">
-          <property name="url">
-           <url>
-            <string>about:blank</string>
-           </url>
-          </property>
-         </widget>
-        </item>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
        </layout>
       </widget>
       <widget class="QWidget" name="replaysTab">
@@ -195,7 +249,16 @@
         <string>Replays</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_2">
-        <property name="margin">
+        <property name="leftMargin">
+         <number>6</number>
+        </property>
+        <property name="topMargin">
+         <number>6</number>
+        </property>
+        <property name="rightMargin">
+         <number>6</number>
+        </property>
+        <property name="bottomMargin">
          <number>6</number>
         </property>
        </layout>
@@ -205,7 +268,16 @@
         <string>Vaults</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_9">
-        <property name="margin">
+        <property name="leftMargin">
+         <number>6</number>
+        </property>
+        <property name="topMargin">
+         <number>6</number>
+        </property>
+        <property name="rightMargin">
+         <number>6</number>
+        </property>
+        <property name="bottomMargin">
          <number>6</number>
         </property>
         <item row="0" column="0">
@@ -218,7 +290,16 @@
             <string>Maps</string>
            </attribute>
            <layout class="QGridLayout" name="gridLayout_11">
-            <property name="margin">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
              <number>0</number>
             </property>
            </layout>
@@ -228,7 +309,16 @@
             <string>Mods</string>
            </attribute>
            <layout class="QGridLayout" name="gridLayout_12">
-            <property name="margin">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
              <number>0</number>
             </property>
            </layout>
@@ -247,7 +337,7 @@
      <x>0</x>
      <y>0</y>
      <width>1186</width>
-     <height>25</height>
+     <height>28</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuOptions">
@@ -582,13 +672,6 @@
    </property>
   </action>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>QWebView</class>
-   <extends>QWidget</extends>
-   <header>QtWebKitWidgets/QWebView</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

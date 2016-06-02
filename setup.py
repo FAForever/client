@@ -10,7 +10,7 @@ sip.setapi('QStringList', 2)
 sip.setapi('QList', 2)
 sip.setapi('QProcess', 2)
 
-import PyQt4.uic
+import PyQt5.uic
 from cx_Freeze import setup, Executable
 
 sys.path.insert(0, "src")
@@ -20,7 +20,7 @@ company_name = 'FAF Community'
 product_name = 'Forged Alliance Forever'
 
 import config.version as version
-import PyQt4.uic
+import PyQt5.uic
 git_version = version.get_git_version()
 msi_version = version.msi_version(git_version)
 appveyor_build_version = os.getenv('APPVEYOR_BUILD_VERSION')
@@ -30,9 +30,9 @@ print(('Git version:', git_version,
       'Release version:', appveyor_build_version,
       'Build version:', msi_version))
 
-# Ugly hack to fix broken PyQt4
+# Ugly hack to fix broken PyQt5
 try:
-    silly_file = Path(PyQt4.__path__[0]) / "uic" / "port_v3" / "proxy_base.py"
+    silly_file = Path(PyQt5.__path__[0]) / "uic" / "port_v3" / "proxy_base.py"
     print(("Removing {}".format(silly_file)))
     silly_file.unlink()
 except OSError:
@@ -50,8 +50,8 @@ build_exe_options = {
     'icon': 'res/faf.ico',
     'include_msvcr': True,
     'optimize': 2,
-    'packages': ['cffi', 'pycparser', 'PyQt4', 'PyQt4.uic',
-                 'PyQt4.QtGui', 'PyQt4.QtNetwork', 'win32com', 'win32com.client'],
+    'packages': ['cffi', 'pycparser', 'PyQt5', 'PyQt5.uic',
+                 'PyQt5.QtGui', 'PyQt5.QtNetwork', 'win32com', 'win32com.client'],
     'silent': True,
     'excludes': ['numpy', 'scipy', 'matplotlib', 'tcl', 'Tkinter']
 }
@@ -97,8 +97,8 @@ exe = Executable(
     base=base,
     targetName='FAForever.exe',
     icon='res/faf.ico',
-    includes=[os.path.join(os.path.dirname(PyQt4.uic.__file__), "widget-plugins"),
-            "PyQt4.uic.widget-plugins"]
+    includes=[os.path.join(os.path.dirname(PyQt5.uic.__file__), "widget-plugins"),
+            "PyQt5.uic.widget-plugins"]
 )
 
 setup(
@@ -116,5 +116,5 @@ ranked ladder play, and featured mods.',
     options={'build_exe': build_exe_options,
              'bdist_msi': bdist_msi_options},
     executables=[exe],
-    requires=['bsdiff4', 'sip', 'PyQt4', 'cx_Freeze', 'cffi', 'py', 'faftools'],
+    requires=['bsdiff4', 'sip', 'PyQt5', 'cx_Freeze', 'cffi', 'py', 'faftools'],
 )

@@ -1,5 +1,5 @@
-from PyQt4 import QtCore, QtGui
-from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
+from PyQt5 import QtCore, QtGui
+from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
 from fa.replay import replay
 import util
 import os

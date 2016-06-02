@@ -1,6 +1,6 @@
 import os
 
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore
 from games.gameitem import GameItem, GameItemDelegate
 import modvault
 

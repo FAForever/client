@@ -1,9 +1,8 @@
-
 from fa.replay import replay
 
 
 import util
-from PyQt4 import QtGui, QtCore
+from PyQt5 import QtGui, QtCore, QtWidgets
 import time
 import chat
 from chat import user2name, parse_irc_source, logger
@@ -78,16 +77,16 @@ class Channel(FormClass, BaseClass):
             self.nickList.sortItems(Chatter.SORT_COLUMN)
             
             #Properly and snugly snap all the columns
-            self.nickList.horizontalHeader().setResizeMode(Chatter.RANK_COLUMN, QtGui.QHeaderView.Fixed)
+            self.nickList.horizontalHeader().setSectionResizeMode(Chatter.RANK_COLUMN, QtGQtWidgetsui.QHeaderView.Fixed)
             self.nickList.horizontalHeader().resizeSection(Chatter.RANK_COLUMN, Formatters.NICKLIST_COLUMNS['RANK'])
 
-            self.nickList.horizontalHeader().setResizeMode(Chatter.AVATAR_COLUMN, QtGui.QHeaderView.Fixed)
+            self.nickList.horizontalHeader().setSectionResizeMode(Chatter.AVATAR_COLUMN, QtGQtWidgetsui.QHeaderView.Fixed)
             self.nickList.horizontalHeader().resizeSection(Chatter.AVATAR_COLUMN, Formatters.NICKLIST_COLUMNS['AVATAR'])
             
-            self.nickList.horizontalHeader().setResizeMode(Chatter.STATUS_COLUMN, QtGui.QHeaderView.Fixed)
+            self.nickList.horizontalHeader().setSectionResizeMode(Chatter.STATUS_COLUMN, QtGQtWidgetsui.QHeaderView.Fixed)
             self.nickList.horizontalHeader().resizeSection(Chatter.STATUS_COLUMN, Formatters.NICKLIST_COLUMNS['STATUS'])
             
-            self.nickList.horizontalHeader().setResizeMode(Chatter.SORT_COLUMN, QtGui.QHeaderView.Stretch)
+            self.nickList.horizontalHeader().setSectionResizeMode(Chatter.SORT_COLUMN, QtGQtWidgetsui.QHeaderView.Stretch)
             
             self.nickList.itemDoubleClicked.connect(self.nickDoubleClicked)
             self.nickList.itemPressed.connect(self.nickPressed)
@@ -175,10 +174,10 @@ class Channel(FormClass, BaseClass):
             
     @QtCore.pyqtSlot()    
     def pingWindow(self):
-        QtGui.QApplication.alert(self.lobby.client)
+        QtGQtWidgetsui.QApplication.alert(self.lobby.client)
             
         
-        if not self.isVisible() or QtGui.QApplication.activeWindow() != self.lobby.client:
+        if not self.isVisible() or QtGQtWidgetsui.QApplication.activeWindow() != self.lobby.client:
             if self.oneMinuteOrOlder():
                 if self.lobby.client.soundeffects:
                     util.sound("chat/sfx/query.wav")
@@ -195,7 +194,7 @@ class Channel(FormClass, BaseClass):
             replay(url)
         elif url.scheme() == "fafgame":
             self.lobby.client.joinGameFromURL(url)
-        else :
+        else:
             QtGui.QDesktopServices.openUrl(url)
 
 
@@ -345,14 +344,14 @@ class Channel(FormClass, BaseClass):
         return self.lasttimestamp != timestamp
         
     
-    @QtCore.pyqtSlot(QtGui.QTableWidgetItem)
+    @QtCore.pyqtSlot(QtWidgets.QTableWidgetItem)
     def nickDoubleClicked(self, item):
         chatter = self.nickList.item(item.row(), Chatter.SORT_COLUMN) #Look up the associated chatter object          
         chatter.doubleClicked(item)
 
-    @QtCore.pyqtSlot(QtGui.QTableWidgetItem)
+    @QtCore.pyqtSlot(QtWidgets.QTableWidgetItem)
     def nickPressed(self, item):
-        if QtGui.QApplication.mouseButtons() == QtCore.Qt.RightButton:            
+        if QtGQtWidgetsui.QApplication.mouseButtons() == QtCore.Qt.RightButton:
             #Look up the associated chatter object
             chatter = self.nickList.item(item.row(), Chatter.SORT_COLUMN)           
             chatter.pressed(item)

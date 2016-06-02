@@ -1,4 +1,4 @@
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtWidgets
 import util, time
 
 """
@@ -15,7 +15,7 @@ class NotificationDialog(FormClass, BaseClass):
         self.labelIcon.setPixmap(util.icon("client/tray_icon.png", pix=True).scaled(32, 32))
         self.standardIcon = util.icon("client/comment.png", pix=True)
 
-        screen = QtGui.QDesktopWidget().screenGeometry()
+        screen = QtWidgets.QDesktopWidget().screenGeometry()
         dialog_size = self.geometry()
 
         # TODO: more positions

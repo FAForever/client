@@ -1,18 +1,12 @@
 import os
 
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtWidgets import QMessageBox
 import config
 import re
 
 import logging
 logger = logging.getLogger(__name__)
-
-__author__ = 'Thygrrr'
-
-
-class GameArguments:
-    pass
-
 
 class GameProcess(QtCore.QProcess):
     def __init__(self, *args, **kwargs):
@@ -59,7 +53,7 @@ class GameProcess(QtCore.QProcess):
                     self.startDetached(executable, arguments, os.path.dirname(executable))
                 return True
             else:
-                QtGui.QMessageBox.warning(None, "ForgedAlliance.exe", "Another instance of FA is already running.")
+                QMessageBox.warning(None, "ForgedAlliance.exe", "Another instance of FA is already running.")
                 return False
 
     def running(self):
@@ -67,13 +61,13 @@ class GameProcess(QtCore.QProcess):
 
     def available(self):
         if self.running():
-            QtGui.QMessageBox.warning(QtGui.QApplication.activeWindow(), "ForgedAllianceForever.exe", "<b>Forged Alliance is already running.</b><br/>You can only run one instance of the game.")
+            QMessageBox.warning(QtWidgets.QApplication.activeWindow(), "ForgedAllianceForever.exe", "<b>Forged Alliance is already running.</b><br/>You can only run one instance of the game.")
             return False
         return True
 
     def close(self):
         if self.running():
-            progress = QtGui.QProgressDialog()
+            progress = QtWidgets.QProgressDialog()
             progress.setCancelButtonText("Terminate")
             progress.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
             progress.setAutoClose(False)
@@ -87,7 +81,7 @@ class GameProcess(QtCore.QProcess):
             progress.show()
 
             while self.running() and progress.isVisible():
-                QtGui.QApplication.processEvents()
+                QtWidgets.QApplication.processEvents()
 
             progress.close()
 

@@ -1,9 +1,3 @@
-"""
-Created on Dec 1, 2011
-
-@author: thygrrr
-"""
-
 # CRUCIAL: This must remain on top.
 import sip
 
@@ -21,9 +15,9 @@ if os.path.isdir("lib"):
 elif os.path.isdir("../lib"):
     sys.path.insert(0, os.path.abspath("../lib"))
 
-from PyQt4 import QtGui, uic
+from PyQt5 import QtWidgets, uic
 
-path = os.path.join(os.path.dirname(sys.argv[0]), "PyQt4.uic.widget-plugins")
+path = os.path.join(os.path.dirname(sys.argv[0]), "PyQt5.uic.widget-plugins")
 uic.widgetPluginPath.append(path)
 
 # Are we running from a frozen interpreter?
@@ -36,10 +30,10 @@ else:
     os.chdir(devRoot)
     # We need to set the working directory correctly.
 
-from . import util
+import util
 util.COMMON_DIR = os.path.join(os.getcwd(), "res")
 
-from . import config
+import config
 import platform
 
 # Set up crash reporting
@@ -55,8 +49,8 @@ def excepthook(exc_type, exc_value, traceback_object):
     dialog = util.CrashDialog((exc_type, exc_value, traceback_object))
     answer = dialog.exec_()
 
-    if answer == QtGui.QDialog.Rejected:
-        QtGui.QApplication.exit(1)
+    if answer == QtWidgets.QDialog.Rejected:
+        QtWidgets.QApplication.exit(1)
 
     sys.excepthook = excepthook
 
@@ -65,7 +59,7 @@ def runFAF():
     util.loadTheme()
     
     # Create client singleton and connect
-    from . import client
+    import client
         
     faf_client = client.instance
     faf_client.setup()
@@ -76,7 +70,7 @@ def runFAF():
     faf_client.show()
 
     # Main update loop
-    QtGui.QApplication.exec_()
+    QtWidgets.QApplication.exec_()
 
 if __name__ == '__main__':
     import logging
@@ -84,7 +78,7 @@ if __name__ == '__main__':
 
     logger.info(">>> --------------------------- Application Launch")
 
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     # Set application icon to nicely stack in the system task bar
     app.setWindowIcon(util.icon("window_icon.png", True))
 

@@ -1,9 +1,7 @@
-
-
-
-
-from PyQt4 import QtCore, QtGui
-from PyQt4 import QtWebKit
+# TODO
+# from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineView
+from PyQt5 import QtCore, QtGui
+from PyQt5.QtWidgets import QMessageBox
 from stat import *
 import util
 import urllib.request, urllib.parse, urllib.error
@@ -17,12 +15,12 @@ import json
 
 logger = logging.getLogger(__name__)
 
-class FAFPage(QtWebKit.QWebPage):
-    def __init__(self):
-        super(QtWebKit.QWebPage, self).__init__()
-
-    def userAgentForUrl(self, url):
-        return "FAForever"
+# class FAFPage(QWebEnginePage):
+#     def __init__(self):
+#         super(QWebEnginePage, self).__init__()
+#
+#     def userAgentForUrl(self, url):
+#         return "FAForever"
 
 class MapVault(QtCore.QObject):
     def __init__(self, client, *args, **kwargs):
@@ -30,18 +28,19 @@ class MapVault(QtCore.QObject):
         self.client = client
 
         logger.debug("Map Vault tab instantiating")
-        
-        self.ui = QtWebKit.QWebView()
+        #
+        # self.ui = QWebEngineView()
+        #
+        # self.ui.setPage(FAFPage())
 
-        self.ui.setPage(FAFPage())
+        # self.ui.page().mainFrame().javaScriptWindowObjectCleared.connect(self.addScript)
 
-        self.ui.page().mainFrame().javaScriptWindowObjectCleared.connect(self.addScript)
-        
-        self.client.mapsTab.layout().addWidget(self.ui)
+# TODO: Fix webviews
+        # self.client.mapsTab.layout().addWidget(self.ui)
 
         self.loaded = False
         self.client.showMaps.connect(self.reloadView)
-        self.ui.loadFinished.connect(self.ui.show)
+        # self.ui.loadFinished.connect(self.ui.show)
         self.reloadView()
         
     @QtCore.pyqtSlot()
@@ -50,18 +49,20 @@ class MapVault(QtCore.QObject):
             return
         self.loaded = True
         
-        self.ui.setVisible(False)
+        # self.ui.setVisible(False)
 
         #If a local theme CSS exists, skin the WebView with it
         if util.themeurl("vault/style.css"):
-            self.ui.settings().setUserStyleSheetUrl(util.themeurl("vault/style.css"))
+            pass
+            # self.ui.settings().setUserStyleSheetUrl(util.themeurl("vault/style.css"))
 
-        self.ui.setUrl(QtCore.QUrl("http://content.faforever.com/faf/vault/maps.php?username={user}&pwdhash={pwdhash}".format(user=self.client.login, pwdhash=self.client.password)))
+        # self.ui.setUrl(QtCore.QUrl("http://content.faforever.com/faf/vault/maps.php?username={user}&pwdhash={pwdhash}".format(user=self.client.login, pwdhash=self.client.password)))
 
     @QtCore.pyqtSlot()
     def addScript(self):
-        frame  = self.ui.page().mainFrame()
-        frame.addToJavaScriptWindowObject("webVault", self)
+        pass
+        # frame  = self.ui.page().mainFrame()
+        # frame.addToJavaScriptWindowObject("webVault", self)
     
     def __preparePositions(self, positions, map_size):
         img_size = [256, 256]
@@ -104,13 +105,13 @@ class MapVault(QtCore.QObject):
                 if scenariolua.error:
                     logger.debug("There were " + str(scenariolua.errors) + " errors and " + str(scenariolua.warnings) + " warnings.")
                     logger.debug(scenariolua.errorMsg)
-                    QtGui.QMessageBox.critical(self.client, "Lua parsing error", scenariolua.errorMsg + "\nMap uploading cancelled.")
+                    QMessageBox.critical(self.client, "Lua parsing error", scenariolua.errorMsg + "\nMap uploading cancelled.")
                 else:
                     if scenariolua.warning:
-                        uploadmap = QtGui.QMessageBox.question(self.client, "Lua parsing warning", scenariolua.errorMsg + "\nDo you want to upload the map?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+                        uploadmap = QMessageBox.question(self.client, "Lua parsing warning", scenariolua.errorMsg + "\nDo you want to upload the map?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
                     else:
-                        uploadmap = QtGui.QMessageBox.Yes
-                    if uploadmap == QtGui.QMessageBox.Yes:
+                        uploadmap = QMessageBox.Yes
+                    if uploadmap == QMessageBox.Yes:
                         savelua = luaparser.luaParser(os.path.join(mapDir,maps.getSaveFile(mapDir)))
                         saveInfos = savelua.parse({'markers>mass*>position':'mass:__parent__', 'markers>hydro*>position':'hydro:__parent__', 'markers>army*>position':'army:__parent__'})
                         if savelua.error or savelua.warning:
@@ -121,7 +122,7 @@ class MapVault(QtCore.QObject):
                         
                         tmpFile = maps.processMapFolderForUpload(mapDir, saveInfos)
                         if not tmpFile:
-                            QtGui.QMessageBox.critical(self.client, "Map uploading error", "Couldn't make previews for " + mapName + "\nMap uploading cancelled.")
+                            QMessageBox.critical(self.client, "Map uploading error", "Couldn't make previews for " + mapName + "\nMap uploading cancelled.")
                             return None
                         
                         qfile = QtCore.QFile(tmpFile.name)
@@ -129,8 +130,8 @@ class MapVault(QtCore.QObject):
                 
                         #removing temporary files
                         qfile.remove()
-            else :
-                QtGui.QMessageBox.information(self.client,"Map selection",
+            else:
+                QMessageBox.information(self.client,"Map selection",
                         "This folder doesn't contain valid map data.")
     
     @QtCore.pyqtSlot(str)  
@@ -141,6 +142,6 @@ class MapVault(QtCore.QObject):
             maps.downloadMap(name)  
             maps.existMaps(True)
         else:
-            show = QtGui.QMessageBox.question(self.client, "Already got the Map", "Seems like you already have that map!<br/><b>Would you like to see it?</b>", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
-            if show == QtGui.QMessageBox.Yes:
+            show = QMessageBox.question(self.client, "Already got the Map", "Seems like you already have that map!<br/><b>Would you like to see it?</b>", QMessageBox.Yes, QMessageBox.No)
+            if show == QMessageBox.Yes:
                 util.showInExplorer(maps.folderForMap(name))

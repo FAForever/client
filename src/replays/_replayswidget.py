@@ -1,9 +1,6 @@
-
-
-
-
-from PyQt4 import QtCore, QtGui, QtNetwork
-from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
+from PyQt5 import QtCore, QtGui, QtNetwork, QtWidgets
+from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
+from PyQt5.QtWidgets import QMessageBox
 from fa.replay import replay
 import util
 import os
@@ -38,15 +35,15 @@ class ReplaysWidget(BaseClass, FormClass):
         #self.replayVault.setVisible(False)
         self.client = client
         client.replaysTab.layout().addWidget(self)
-        
+
         client.gameInfo.connect(self.processGameInfo)
-        client.replayVault.connect(self.replayVault)    
-        
+        client.replayVault.connect(self.replayVault)
+
         self.onlineReplays = {}
         self.onlineTree.setItemDelegate(ReplayItemDelegate(self))
         self.replayDownload = QNetworkAccessManager()
         self.replayDownload.finished.connect(self.finishRequest)
-        
+
         # sending request to replay vault
         self.searchButton.pressed.connect(self.searchVault)
         self.playerName.returnPressed.connect(self.searchVault)
@@ -55,19 +52,19 @@ class ReplaysWidget(BaseClass, FormClass):
 
         self.myTree.itemDoubleClicked.connect(self.myTreeDoubleClicked)
         self.myTree.itemPressed.connect(self.myTreePressed)
-        self.myTree.header().setResizeMode(0, QtGui.QHeaderView.ResizeToContents)
-        self.myTree.header().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
-        self.myTree.header().setResizeMode(2, QtGui.QHeaderView.Stretch)
-        self.myTree.header().setResizeMode(3, QtGui.QHeaderView.ResizeToContents)
-        
+        self.myTree.header().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
+        self.myTree.header().setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
+        self.myTree.header().setSectionResizeMode(2, QtWidgets.QHeaderView.Stretch)
+        self.myTree.header().setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeToContents)
+
         self.liveTree.itemDoubleClicked.connect(self.liveTreeDoubleClicked)
         self.liveTree.itemPressed.connect(self.liveTreePressed)
-        self.liveTree.header().setResizeMode(0, QtGui.QHeaderView.ResizeToContents)
-        self.liveTree.header().setResizeMode(1, QtGui.QHeaderView.Stretch)
-        self.liveTree.header().setResizeMode(2, QtGui.QHeaderView.ResizeToContents)
-        
+        self.liveTree.header().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
+        self.liveTree.header().setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
+        self.liveTree.header().setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeToContents)
+
         self.games = {}
-        
+
         self.onlineTree.itemDoubleClicked.connect(self.onlineTreeDoubleClicked)
         self.onlineTree.itemPressed.connect(self.onlineTreeClicked)
         self.selectedReplay = False
@@ -79,9 +76,9 @@ class ReplaysWidget(BaseClass, FormClass):
         self.replayVaultSocket.error.connect(self.handleServerError)
         self.replayVaultSocket.readyRead.connect(self.readDataFromServer)
         self.replayVaultSocket.disconnected.connect(self.disconnected)
-        self.replayVaultSocket.error.connect(self.errored) 
+        self.replayVaultSocket.error.connect(self.errored)
 
-        
+
         logger.info("Replays Widget instantiated.")
 
         
@@ -100,7 +97,7 @@ class ReplaysWidget(BaseClass, FormClass):
 
     def finishRequest(self, reply):
         if reply.error() != QNetworkReply.NoError:
-            QtGui.QMessageBox.warning(self, "Network Error", reply.errorString())
+            QMessageBox.warning(self, "Network Error", reply.errorString())
         else:
             faf_replay = QtCore.QFile(os.path.join(util.CACHE_DIR, "temp.fafreplay"))
             faf_replay.open(QtCore.QIODevice.WriteOnly | QtCore.QIODevice.Truncate)                
@@ -110,7 +107,7 @@ class ReplaysWidget(BaseClass, FormClass):
             replay(os.path.join(util.CACHE_DIR, "temp.fafreplay"))
 
     def onlineTreeClicked(self, item):
-        if QtGui.QApplication.mouseButtons() == QtCore.Qt.RightButton:
+        if QtWidgets.QApplication.mouseButtons() == QtCore.Qt.RightButton:
             if type(item.parent) == ReplaysWidget:
                 item.pressed(item)
         else:
@@ -190,7 +187,7 @@ class ReplaysWidget(BaseClass, FormClass):
             bucket.append(self.onlineReplays[uid])
             
         for bucket in list(buckets.keys()):
-            bucket_item = QtGui.QTreeWidgetItem()
+            bucket_item = QtWidgets.QTreeWidgetItem()
             self.onlineTree.addTopLevelItem(bucket_item)
             
             bucket_item.setIcon(0, util.icon("replays/bucket.png"))                                
@@ -237,7 +234,7 @@ class ReplaysWidget(BaseClass, FormClass):
             if infile.endswith(".scfareplay"):
                 bucket = buckets.setdefault("legacy", [])
                 
-                item = QtGui.QTreeWidgetItem()
+                item = QtWidgets.QTreeWidgetItem()
                 item.setText(1, infile)
                 item.filename = os.path.join(util.REPLAY_DIR, infile)
                 item.setIcon(0, util.icon("replays/replay.png"))
@@ -246,7 +243,7 @@ class ReplaysWidget(BaseClass, FormClass):
                 bucket.append(item)
                 
             elif infile.endswith(".fafreplay"):
-                item = QtGui.QTreeWidgetItem()
+                item = QtWidgets.QTreeWidgetItem()
                 try:
                     item.filename = os.path.join(util.REPLAY_DIR, infile)
                     basename = os.path.basename(item.filename)
@@ -402,7 +399,8 @@ class ReplaysWidget(BaseClass, FormClass):
 
             # Create player entries for all the live players in a match
             for team in info['teams']:
-                if team == "-1": #skip observers, they don't seem to stream livereplays
+                # Observers don't stream replays.
+                if team == "-1":
                     continue
                 
                 for player in info['teams'][team]:
@@ -445,20 +443,20 @@ class ReplaysWidget(BaseClass, FormClass):
                 
                 
                 
-    @QtCore.pyqtSlot(QtGui.QTreeWidgetItem)
-    def liveTreePressed(self, item):
-        if QtGui.QApplication.mouseButtons() != QtCore.Qt.RightButton:
+    @QtCore.pyqtSlot(QtWidgets.QTreeWidgetItem, int)
+    def liveTreePressed(self, item, column):
+        if QtWidgets.QApplication.mouseButtons() != QtCore.Qt.RightButton:
             return            
             
         if self.liveTree.indexOfTopLevelItem(item) != -1:
             item.setExpanded(True)
             return
 
-        menu = QtGui.QMenu(self.liveTree)
+        menu = QtWidgets.QMenu(self.liveTree)
         
         # Actions for Games and Replays
-        actionReplay = QtGui.QAction("Replay in FA", menu)
-        actionLink = QtGui.QAction("Copy Link", menu)
+        actionReplay = QtWidgets.QAction("Replay in FA", menu)
+        actionLink = QtWidgets.QAction("Copy Link", menu)
         
         # Adding to menu
         menu.addAction(actionReplay)
@@ -466,7 +464,7 @@ class ReplaysWidget(BaseClass, FormClass):
             
         # Triggers
         actionReplay.triggered.connect(lambda : self.liveTreeDoubleClicked(item, 0))
-        actionLink.triggered.connect(lambda : QtGui.QApplication.clipboard().setText(item.toolTip(0)))
+        actionLink.triggered.connect(lambda : QtWidgets.QApplication.clipboard().setText(item.toolTip(0)))
       
         # Adding to menu
         menu.addAction(actionReplay)
@@ -476,10 +474,9 @@ class ReplaysWidget(BaseClass, FormClass):
         menu.popup(QtGui.QCursor.pos())
 
 
-    
-    @QtCore.pyqtSlot(QtGui.QListWidgetItem)
-    def myTreePressed(self, item):
-        if QtGui.QApplication.mouseButtons() != QtCore.Qt.RightButton:
+    @QtCore.pyqtSlot(QtWidgets.QTreeWidgetItem, int)
+    def myTreePressed(self, item, column):
+        if QtWidgets.QApplication.mouseButtons() != QtCore.Qt.RightButton:
             return
                     
         if item.isDisabled():
@@ -488,11 +485,11 @@ class ReplaysWidget(BaseClass, FormClass):
         if self.myTree.indexOfTopLevelItem(item) != -1:
             return
         
-        menu = QtGui.QMenu(self.myTree)
+        menu = QtWidgets.QMenu(self.myTree)
         
         # Actions for Games and Replays
-        actionReplay = QtGui.QAction("Replay", menu)
-        actionExplorer = QtGui.QAction("Show in Explorer", menu)
+        actionReplay = QtWidgets.QAction("Replay", menu)
+        actionExplorer = QtWidgets.QAction("Show in Explorer", menu)
         
         # Adding to menu
         menu.addAction(actionReplay)
@@ -512,7 +509,7 @@ class ReplaysWidget(BaseClass, FormClass):
 
 
 
-    @QtCore.pyqtSlot(QtGui.QTreeWidgetItem, int)
+    @QtCore.pyqtSlot(QtWidgets.QTreeWidgetItem, int)
     def myTreeDoubleClicked(self, item, column):
         if item.isDisabled():
             return
@@ -521,7 +518,7 @@ class ReplaysWidget(BaseClass, FormClass):
             replay(item.filename)
                 
                 
-    @QtCore.pyqtSlot(QtGui.QTreeWidgetItem, int)
+    @QtCore.pyqtSlot(QtWidgets.QTreeWidgetItem, int)
     def liveTreeDoubleClicked(self, item, column):
         '''
         This slot launches a live replay from eligible items in liveTree

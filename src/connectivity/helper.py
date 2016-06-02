@@ -2,8 +2,8 @@
 
 from functools import partial
 
-from PyQt4.QtCore import QObject, pyqtSignal, QTimer, Qt
-from PyQt4.QtNetwork import QUdpSocket, QHostAddress, QAbstractSocket
+from PyQt5.QtCore import QObject, pyqtSignal, QTimer, Qt
+from PyQt5.QtNetwork import QUdpSocket, QHostAddress, QAbstractSocket
 import time
 
 from connectivity import QTurnSocket
@@ -12,7 +12,7 @@ from connectivity.turn import TURNState
 from decorators import with_logger
 
 
-from PyQt4 import QtGui, uic
+from PyQt5 import QtGui, uic
 
 
 @with_logger

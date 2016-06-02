@@ -1,20 +1,21 @@
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtGui
+from PyQt5.QtWidgets import QStyledItemDelegate, QTreeWidgetItem
 from fa import maps
 import util
 import os
 import client
 
 
-class CoopMapItemDelegate(QtGui.QStyledItemDelegate):
+class CoopMapItemDelegate(QStyledItemDelegate):
     
     def __init__(self, *args, **kwargs):
-        QtGui.QStyledItemDelegate.__init__(self, *args, **kwargs)
+        QStyledItemDelegate.__init__(self, *args, **kwargs)
         
     def paint(self, painter, option, index, *args, **kwargs):
         self.initStyleOption(option, index)
                 
         painter.save()
-        
+
         html = QtGui.QTextDocument()
         textOption = QtGui.QTextOption()
         textOption.setWrapMode(QtGui.QTextOption.WordWrap)
@@ -56,14 +57,11 @@ class CoopMapItemDelegate(QtGui.QStyledItemDelegate):
         
 
 
-class CoopMapItem(QtGui.QTreeWidgetItem):
-
-    
+class CoopMapItem(QTreeWidgetItem):
     FORMATTER_COOP        = str(util.readfile("coop/formatters/coop.qthtml"))
 
-    
     def __init__(self, uid, parent, *args, **kwargs):
-        QtGui.QTreeWidgetItem.__init__(self, *args, **kwargs)
+        QTreeWidgetItem.__init__(self, *args, **kwargs)
 
         
         self.uid            = uid
@@ -128,6 +126,3 @@ class CoopMapItem(QtGui.QTreeWidgetItem):
         ''' Comparison operator used for item list sorting '''        
         # Default: uid
         return self.uid > other.uid
-    
-
-

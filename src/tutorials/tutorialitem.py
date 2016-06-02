@@ -1,15 +1,12 @@
-
-
-
-
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtGui
+from PyQt5.QtWidgets import QStyledItemDelegate, QListWidgetItem
 from fa import maps
 import util
 
-class TutorialItemDelegate(QtGui.QStyledItemDelegate):
+class TutorialItemDelegate(QStyledItemDelegate):
     
     def __init__(self, *args, **kwargs):
-        QtGui.QStyledItemDelegate.__init__(self, *args, **kwargs)
+        QStyledItemDelegate.__init__(self, *args, **kwargs)
         
     def paint(self, painter, option, index, *args, **kwargs):
         self.initStyleOption(option, index)
@@ -35,9 +32,9 @@ class TutorialItemDelegate(QtGui.QStyledItemDelegate):
         
         #Frame around the icon
         pen = QtGui.QPen()
-        pen.setWidth(1);
-        pen.setBrush(QtGui.QColor("#303030"));  #FIXME: This needs to come from theme.
-        pen.setCapStyle(QtCore.Qt.RoundCap);
+        pen.setWidth(1)
+        pen.setBrush(QtGui.QColor("#303030"))  #FIXME: This needs to come from theme.
+        pen.setCapStyle(QtCore.Qt.RoundCap)
         painter.setPen(pen)
         painter.drawRect(option.rect.left()+5-2, option.rect.top()+5-2, iconsize.width(), iconsize.height())
 
@@ -58,23 +55,18 @@ class TutorialItemDelegate(QtGui.QStyledItemDelegate):
         return QtCore.QSize(TutorialItem.ICONSIZE + TutorialItem.TEXTWIDTH + TutorialItem.PADDING, TutorialItem.ICONSIZE)  
 
 
-
-
-
-class TutorialItem(QtGui.QListWidgetItem):
+class TutorialItem(QListWidgetItem):
     TEXTWIDTH = 230
     ICONSIZE = 110
     PADDING = 10
     
     WIDTH = ICONSIZE + TEXTWIDTH
     #DATA_PLAYERS = 32
-    
-    
+
     FORMATTER_TUTORIAL = str(util.readfile("tutorials/formatters/tutorials.qthtml"))
-    
-    
+
     def __init__(self, uid, *args, **kwargs):
-        QtGui.QListWidgetItem.__init__(self, *args, **kwargs)
+        QListWidgetItem.__init__(self, *args, **kwargs)
 
         self.mapname = None
         self.mapdisplayname = None      
@@ -106,9 +98,6 @@ class TutorialItem(QtGui.QListWidgetItem):
 
         self.setText(self.FORMATTER_TUTORIAL.format(mapdisplayname=self.mapdisplayname, title=self.tutorial, description=self.description))
 
-
-        
-
     def permutations(self, items):
         """Yields all permutations of the items."""
         if items == []:
@@ -117,7 +106,6 @@ class TutorialItem(QtGui.QListWidgetItem):
             for i in range(len(items)):
                 for j in self.permutations(items[:i] + items[i+1:]):
                     yield [items[i]] + j
-
 
     def __ge__(self, other):
         ''' Comparison operator used for item list sorting '''        
@@ -129,6 +117,3 @@ class TutorialItem(QtGui.QListWidgetItem):
        
         # Default: Alphabetical
         return self.tutorial.lower() < other.tutorial.lower()
-    
-
-

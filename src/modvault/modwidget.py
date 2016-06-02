@@ -1,8 +1,7 @@
-
-
 import urllib.request, urllib.error, urllib.parse
 
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtWidgets import QMessageBox
 
 from util import strtodate, datetostr, now
 import util
@@ -59,8 +58,8 @@ class ModWidget(FormClass, BaseClass):
             self.parent.downloadMod(self.mod)
             self.done(1)
         else:
-            show = QtGui.QMessageBox.question(self.parent.client, "Delete Mod", "Are you sure you want to delete this mod?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
-            if show == QtGui.QMessageBox.Yes:
+            show = QMessageBox.question(self.parent.client, "Delete Mod", "Are you sure you want to delete this mod?", QMessageBox.Yes, QMessageBox.No)
+            if show == QMessageBox.Yes:
                 self.parent.removeMod(self.mod)
                 self.done(1)
 
@@ -95,22 +94,22 @@ class ModWidget(FormClass, BaseClass):
         self.parent.client.send(dict(command="modvault",type="like", uid=self.mod.uid))
         self.likeButton.setEnabled(False)
 
-class CommentItemDelegate(QtGui.QStyledItemDelegate):
+class CommentItemDelegate(QtWidgets.QStyledItemDelegate):
     TEXTWIDTH = 350
     TEXTHEIGHT = 60
     def __init__(self, *args, **kwargs):
-        QtGui.QStyledItemDelegate.__init__(self, *args, **kwargs)
+        QtWidgets.QStyledItemDelegate.__init__(self, *args, **kwargs)
         
     def paint(self, painter, option, index, *args, **kwargs):
         self.initStyleOption(option, index)
                 
         painter.save()
         
-        html = QtGui.QTextDocument()
+        html = QtWidgets.QTextDocument()
         html.setHtml(option.text)
                 
         option.text = ""  
-        option.widget.style().drawControl(QtGui.QStyle.CE_ItemViewItem, option, painter, option.widget)
+        option.widget.style().drawControl(QtWidgets.QStyle.CE_ItemViewItem, option, painter, option.widget)
         
 
         #Description
@@ -124,15 +123,15 @@ class CommentItemDelegate(QtGui.QStyledItemDelegate):
     def sizeHint(self, option, index, *args, **kwargs):
         self.initStyleOption(option, index)
         
-        html = QtGui.QTextDocument()
+        html = QtWidgets.QTextDocument()
         html.setHtml(option.text)
         html.setTextWidth(self.TEXTWIDTH)
         return QtCore.QSize(self.TEXTWIDTH, self.TEXTHEIGHT)
 
-class CommentItem(QtGui.QListWidgetItem):
+class CommentItem(QtWidgets.QListWidgetItem):
     FORMATTER_COMMENT = str(util.readfile("modvault/comment.qthtml"))
     def __init__(self, parent, uid, *args, **kwargs):
-        QtGui.QListWidgetItem.__init__(self, *args, **kwargs)
+        QtWidgets.QListWidgetItem.__init__(self, *args, **kwargs)
 
         self.parent = parent
         self.uid = uid

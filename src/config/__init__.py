@@ -2,7 +2,7 @@ from . import version
 import os
 import logging
 import trueskill
-from PyQt4 import QtCore
+from PyQt5 import QtCore
 from logging.handlers import RotatingFileHandler, MemoryHandler
 
 trueskill.setup(mu=1500, sigma=500, beta=250, tau=5, draw_probability=0.10)

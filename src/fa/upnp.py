@@ -1,8 +1,3 @@
-"""
-Created on Mar 22, 2012
-
-@author: thygrrr
-"""
 import logging
 import sys
 import util

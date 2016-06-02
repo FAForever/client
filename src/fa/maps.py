@@ -6,7 +6,8 @@ import fa
 
 logger= logging.getLogger(__name__)
 
-from PyQt4 import QtCore, QtGui, QtNetwork
+from PyQt5 import QtCore, QtWidgets, QtNetwork, QtGui
+from PyQt5.QtWidgets import QMessageBox
 import io
 import util
 import os, stat
@@ -225,7 +226,7 @@ def genPrevFromDDS(sourcename, destname,small=False):
     try:
         img = bytearray()
         buf = bytearray(16)
-        file = open(sourcename,"rb")
+        file = open(sourcename, "rb")
         file.seek(128) # skip header
         while file.readinto(buf):
             img += buf[:3] + buf[4:7] + buf[8:11] + buf[12:15]
@@ -233,9 +234,9 @@ def genPrevFromDDS(sourcename, destname,small=False):
 
         size = int((len(img)/3) ** (1.0/2))
         if small:
-            imageFile = QtGui.QImage(img,size,size,QtGui.QImage.Format_RGB888).rgbSwapped().scaled(100,100,transformMode = QtCore.Qt.SmoothTransformation)
+            imageFile = QtWidgets.QImage(img, size, size, QtWidgets.QImage.Format_RGB888).rgbSwapped().scaled(100, 100, transformMode = QtCore.Qt.SmoothTransformation)
         else:
-            imageFile = QtGui.QImage(img,size,size,QtGui.QImage.Format_RGB888).rgbSwapped()
+            imageFile = QtWidgets.QImage(img, size, size, QtWidgets.QImage.Format_RGB888).rgbSwapped()
         imageFile.save(destname)
     except IOError:
         pass # cant open the
@@ -427,7 +428,7 @@ def __downloadPreviewFromWeb(name):
                 fp.close()
                 
                 #Create alpha-mapped preview image
-                im = QtGui.QImage(img) #.scaled(100,100)
+                im = QtWidgets.QImage(img) #.scaled(100,100)
                 im.save(img)
                 logger.debug("Web Preview " + extension + " used for: " + name)
                 return img
@@ -521,7 +522,7 @@ def downloadMap(name, silent=False):
     url = VAULT_DOWNLOAD_ROOT + link
     logger.debug("Getting map from: " + url)
 
-    progress = QtGui.QProgressDialog()
+    progress = QtWidgets.QProgressDialog()
     if not silent:
         progress.setCancelButtonText("Cancel")
     else:
@@ -588,10 +589,10 @@ def downloadMap(name, silent=False):
         logger.warn("Map download or extraction failed for: " + url)
         if sys.exc_info()[0] is HTTPError:
             logger.warning("Vault download failed with HTTPError, map probably not in vault (or broken).")
-            QtGui.QMessageBox.information(None, "Map not downloadable", "<b>This map was not found in the vault (or is broken).</b><br/>You need to get it from somewhere else in order to use it." )
+            QMessageBox.information(None, "Map not downloadable", "<b>This map was not found in the vault (or is broken).</b><br/>You need to get it from somewhere else in order to use it." )
         else:
             logger.error("Download Exception", exc_info=sys.exc_info())
-            QtGui.QMessageBox.information(None, "Map installation failed", "<b>This map could not be installed (please report this map or bug).</b>" )
+            QMessageBox.information(None, "Map installation failed", "<b>This map could not be installed (please report this map or bug).</b>" )
         return False
 
     #Count the map downloads

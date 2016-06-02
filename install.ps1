@@ -1,5 +1,5 @@
-$env:PYTHON = "C:\Python27"
-$env:QTIMPL = "PyQt4"
+$env:PYTHON = "C:\Python35"
+$env:QTIMPL = "PyQt5"
 
 $BASE_PATH = ""
 
@@ -77,8 +77,8 @@ InstallPackage pytest
 InstallPackage cx_Freeze
 InstallPackage https://pypi.python.org/packages/cp27/p/pypiwin32/pypiwin32-219-cp27-none-win32.whl#md5=a8b0c1b608c1afeb18cd38d759ee5e29
 
-if ($env:QTIMPL -eq "PyQt4"){
-    Write-Host "Installing PyQt4"
+if ($env:QTIMPL -eq "PyQt5"){
+    Write-Host "Installing PyQt5"
     $webclient.DownloadFile("http://sourceforge.net/projects/pyqt/files/PyQt4/PyQt-4.11.3/PyQt4-4.11.3-gpl-Py2.7-Qt4.8.6-x32.exe", "C:\install-PyQt4.exe")
     Start-Process -FilePath C:\install-PyQt4.exe -ArgumentList "/S" -Wait -Passthru
 }
