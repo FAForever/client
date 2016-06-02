@@ -490,6 +490,8 @@ class ServerConnection(Connection):
                 new_data = self.ssl.read(2**14)
             else:
                 new_data = self.socket.recv(2**14)
+
+            new_data = str(new_data)
         except socket.timeout:
             # Nothing was interesting
             pass
