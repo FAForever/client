@@ -18,7 +18,6 @@ class TournamentsWidget(FormClass, BaseClass):
         self.setupUi(self)
 
         self.client = client
-        self.client.tourneyTab.layout().addWidget(self)
         
         #tournament server
         self.tourneyServer = secondaryServer.SecondaryServer("Tournament", 11001, self)

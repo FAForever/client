@@ -32,7 +32,6 @@ class GamesWidget(FormClass, BaseClass):
         self.setupUi(self)
 
         self.client = client
-        self.client.gamesTab.layout().addWidget(self)
 
         self.mods = {}
 
@@ -247,6 +246,6 @@ class GamesWidget(FormClass, BaseClass):
 
 
     def sortGamesComboChanged(self, index):
-        self.sort_games_index = index;
+        self.sort_games_index = index
         self.gameList.sortBy = index
         self.gameList.sortItems()

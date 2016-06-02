@@ -34,7 +34,6 @@ class ReplaysWidget(BaseClass, FormClass):
 
         #self.replayVault.setVisible(False)
         self.client = client
-        client.replaysTab.layout().addWidget(self)
 
         client.gameInfo.connect(self.processGameInfo)
         client.replayVault.connect(self.replayVault)

@@ -31,7 +31,6 @@ class CoopWidget(FormClass, BaseClass):
         self.setupUi(self)
 
         self.client = client
-        self.client.coopTab.layout().addWidget(self)
         
         #Dictionary containing our actual games.
         self.games = {}
@@ -156,6 +155,9 @@ class CoopWidget(FormClass, BaseClass):
         WizardSC(self).exec_()
 
     def coopChanged(self):
+        """
+        Called when the Coop tab is selected.
+        """
         if not self.loaded:
             self.client.send(dict(command="coop_list"))
             self.loaded = True

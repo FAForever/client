@@ -19,7 +19,6 @@ class tutorialsWidget(FormClass, BaseClass):
         self.setupUi(self)
 
         self.client = client
-        self.client.tutorialsTab.layout().addWidget(self)    
         
         self.sections = {}
         self.tutorials = {}
@@ -79,4 +78,3 @@ class tutorialsWidget(FormClass, BaseClass):
                 self.tutorials[tutorial].update(message, self.client)
                 
                 self.sections[section].addItem(self.tutorials[tutorial]) 
-        

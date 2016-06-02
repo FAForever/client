@@ -494,15 +494,26 @@ class ClientWindow(FormClass, BaseClass):
         # CAVEAT: This will break if the theme is loaded after the client package is imported
         chat.CHAT_COLORS = json.loads(util.readfile("client/colors.json"))
 
-        # build main window with the now active client
+        # Initialise the UI of each tab.
         self.ladder = stats.Stats(self)
         self.games = games.Games(self)
         self.tourneys = tourneys.Tourneys(self)
         self.vault = vault.MapVault(self)
+        # TODO: Why the hell is this one different?! Procedural UI is evil.
         self.modvault = modvault.ModVault(self)
         self.replays = replays.Replays(self)
         self.tutorials = tutorials.Tutorials(self)
         self.Coop = coop.Coop(self)
+
+        # Add the tab widgets to each tab.
+        self.ladderTab.layout().addWidget(self.ladder)
+        self.gamesTab.layout().addWidget(self.games)
+        self.tourneyTab.layout().addWidget(self.tourneys)
+        self.modsTab.layout().addWidget(self.modvault)
+        self.replaysTab.layout().addWidget(self.replays)
+        self.tutorialsTab.layout().addWidget(self.tutorials)
+        self.coopTab.layout().addWidget(self.Coop)
+
         self.notificationSystem = ns.Notifications(self)
 
         # set menu states

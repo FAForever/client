@@ -78,7 +78,6 @@ class ModVault(FormClass, BaseClass):
         self.setupUi(self)
         
         self.client = client
-        self.client.modsTab.layout().addWidget(self)
 
         logger.debug("Mod Vault tab instantiating")
         self.loaded = False
