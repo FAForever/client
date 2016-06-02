@@ -1,6 +1,7 @@
 from functools import partial
 
 from PyQt5.QtCore import QUrl, QProcess
+from PyQt5 import QtGui
 from PyQt5.QtWidgets import QLabel, QStyle, QMessageBox, QApplication, QSystemTrayIcon
 from PyQt5.QtNetwork import QAbstractSocket
 
@@ -846,8 +847,16 @@ class ClientWindow(FormClass, BaseClass):
         if not self.can_login:
             self.show_login_wizard()
 
+    # TODO: We probably need only one of these three if we stop being dumb...
     def getColor(self, name):
         return chat.get_color(name)
+
+    def getQtColor(self, name):
+        return QtGui.QColor(self.getColor(name))
+
+    def getColorAsBrush(self, name):
+        return QtGui.QBrush(self.getQtColor(name))
+
 
     @QtCore.pyqtSlot()
     def startedFA(self):
