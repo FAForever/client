@@ -284,7 +284,7 @@ class GameItem(QtWidgets.QListWidgetItem):
 
         # Update player URLs
         for player in self.players:
-            client.instance.urls[player.login] = self.url(player.id)
+            client.urls[player.login] = self.url(player.id)
 
         # Determine which players are affected by this game's state change            
         newplayers = set([p.login for p in self.players])
