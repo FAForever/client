@@ -1338,12 +1338,6 @@ class ClientWindow(FormClass, BaseClass):
 
         Or it sends a single game update (a single element of the `games` list).
         """
-        if message['uid'] == self.game_session.game_uid:
-            self.game_session.game_map = message['mapname']
-            self.game_session.game_mod = message['featured_mod']
-            self.game_session.game_name = message['title']
-            self.game_session.game_visibility = message['visibility']
-
         if 'games' in message:
             for game in message['games']:
                 self.gameInfo.emit(game)
