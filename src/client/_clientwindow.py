@@ -160,9 +160,6 @@ class ClientWindow(FormClass, BaseClass):
         self.uniqueId = None
 
         self.sendFile = False
-        self.progress = QtWidgets.QProgressDialog()
-        self.progress.setMinimum(0)
-        self.progress.setMaximum(0)
         self.warning_buttons = {}
 
         # Tray icon
@@ -581,52 +578,36 @@ class ClientWindow(FormClass, BaseClass):
         '''
         self.state = ClientState.SHUTDOWN
 
-        self.progress.setWindowTitle("FAF is shutting down")
-        self.progress.setMinimum(0)
-        self.progress.setMaximum(0)
-        self.progress.setValue(0)
-        self.progress.setCancelButton(None)
-        self.progress.show()
-
         # Important: If a game is running, offer to terminate it gently
-        self.progress.setLabelText("Closing ForgedAllianceForever.exe")
         if fa.instance.running():
             fa.instance.close()
 
         # Terminate Lobby Server connection
         if self.socket.state() == QtNetwork.QTcpSocket.ConnectedState:
-            self.progress.setLabelText("Closing main connection.")
             self.socket.disconnectFromHost()
 
         # Clear UPnP Mappings...
         if self.useUPnP:
-            self.progress.setLabelText("Removing UPnP port mappings")
             fa.upnp.removePortMappings()
 
         # Terminate local ReplayServer
         if self.replayServer:
-            self.progress.setLabelText("Terminating local replay server")
             self.replayServer.close()
             self.replayServer = None
 
         # Clean up Chat
         if self.chat:
-            self.progress.setLabelText("Disconnecting from IRC")
             self.chat.disconnect()
             self.chat = None
 
         # Get rid of the Tray icon
         if self.tray:
-            self.progress.setLabelText("Removing System Tray icon")
             self.tray.deleteLater()
             self.tray = None
 
         # Terminate UI
         if self.isVisible():
-            self.progress.setLabelText("Closing main window")
             self.close()
-
-        self.progress.close()
 
     def closeEvent(self, event):
         logger.info("Close Event for Application Main Window")
@@ -1168,7 +1149,6 @@ class ClientWindow(FormClass, BaseClass):
         Settings.remove('window/geometry')
 
         logger.warn("Server says we need an update")
-        self.progress.close()
         self.state = ClientState.DISCONNECTED
         self._client_updater = ClientUpdater(message['update'])
         self._client_updater.exec_()
