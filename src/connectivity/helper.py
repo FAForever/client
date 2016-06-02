@@ -162,7 +162,7 @@ class ConnectivityHelper(QObject):
         else:
             host, port = addr.split(':')
             self.state, self.mapped_address = state, (host, port)
-            self.connectivity_status_established.emit(self.state, self.addr)
+            self.connectivity_status_established.emit(self.state, addr)
             self._logger.info("Connectivity state is {}, mapped address: {}".format(state, addr))
 
     def handle_message(self, msg):
