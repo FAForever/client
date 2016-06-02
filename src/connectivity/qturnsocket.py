@@ -76,7 +76,7 @@ class QTurnSocket(QUdpSocket):
         self._logger.info("Turn socket initialized: {}".format(self.turn_host))
         self.turn_address = None
         QHostInfo.lookupHost(self.turn_host, self._looked_up)
-        self.bind(port)
+        self.bind(QHostAddress.AnyIPv4, port)
         self.readyRead.connect(self._readyRead)
         self.error.connect(self._error)
 
