@@ -1165,7 +1165,6 @@ class ClientWindow(FormClass, BaseClass):
         self.me = Player(id=self.id, login=self.login)
         self.players[self.me.id] = self.me  # FIXME
         self.players.me = self.me  # FIXME
-        self.players.login = self.login
         logger.debug("Login success")
         self.state = ClientState.ACCEPTED
 
