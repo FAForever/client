@@ -117,17 +117,6 @@ class TourneyItem(QtWidgets.QListWidgetItem):
             return self
         return super(TourneyItem, self).data(role)
 
-
-
-    def permutations(self, items):
-        """Yields all permutations of the items."""
-        if items == []:
-            yield []
-        else:
-            for i in range(len(items)):
-                for j in self.permutations(items[:i] + items[i+1:]):
-                    yield [items[i]] + j
-
     def __ge__(self, other):
         ''' Comparison operator used for item list sorting '''        
         return not self.__lt__(other)
