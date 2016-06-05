@@ -45,19 +45,25 @@ class Players:
         '''
         Convenience function for other modules to inquire about a user's friendliness.
         '''
+        if id in self._logins:
+            id = self._logins[id].id
+
         return id in self.friends
 
     def isFoe(self, id):
         '''
         Convenience function for other modules to inquire about a user's foeliness.
         '''
+        if id in self._logins:
+            id = self._logins[id].id
+
         return id in self.foes
 
-    def isPlayer(self, name):
+    def isPlayer(self, id):
         '''
         Convenience function for other modules to inquire about a user's civilian status.
         '''
-        return name in self or name == self.me.login
+        return id in self
 
     def getUserColor(self, id):
         '''
@@ -109,12 +115,12 @@ class Players:
     def __getitem__(self, item):
         if isinstance(item, Player):
             return item
-        try:
-            # Lets hope that nobody has an integer valued name
-            return self._players[int(item)]
-        except (ValueError, KeyError):
-            if item in self._logins:
-                return self._logins[item]
+        elif item in self._players:
+            # item is a player id
+            return self._players[item]
+        elif item in self._logins:
+            # item is a player name
+            return self._logins[item]
 
     def __setitem__(self, key, value):
         assert isinstance(key, int)
