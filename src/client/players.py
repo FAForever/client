@@ -18,17 +18,19 @@ class Players:
     """
     def __init__(self, me):
         self.me = me
-        self._players = {}
-        self._warned = False
-        self.login = None
         self.coloredNicknames = False
-        
+
+        # UID -> Player map
+        self._players = {}
+        # Login -> Player map
+        self._logins = {}
+
         # ids of the client's friends
         self.friends = set()
-        
+
         # ids of the client's foes
         self.foes = set()
-        
+
         # names of the client's clanmates
         self.clanlist = set()
 
@@ -55,7 +57,7 @@ class Players:
         '''
         Convenience function for other modules to inquire about a user's civilian status.
         '''
-        return name in self or name == self.login
+        return name in self or name == self.me.login
 
     def getUserColor(self, id):
         '''
@@ -108,15 +110,13 @@ class Players:
         if isinstance(item, Player):
             return item
         try:
+            # Lets hope that nobody has an integer valued name
             return self._players[int(item)]
         except (ValueError, KeyError):
-            if not self._warned:
-                logger.warning("Expensive lookup by player login, FIXME.")
-                self._warned = True
-            by_login = {p.login: p for _, p in self._players.items()}
-            if item in by_login:
-                return by_login[item]
+            if item in self._logins:
+                return self._logins[item]
 
     def __setitem__(self, key, value):
         assert isinstance(key, int)
         self._players[key] = value
+        self._logins[value.login] = value
