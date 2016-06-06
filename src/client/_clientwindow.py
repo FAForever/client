@@ -1324,16 +1324,17 @@ class ClientWindow(FormClass, BaseClass):
         self.modInfo.emit(message)
 
     def handle_game_info(self, message):
-        if message['uid'] == self.game_session.game_uid:
-            self.game_session.game_map = message['mapname']
-            self.game_session.game_mod = message['featured_mod']
-            self.game_session.game_name = message['title']
-            self.game_session.game_visibility = message['visibility']
-
         if 'games' in message:
             for game in message['games']:
                 self.gameInfo.emit(game)
         else:
+            # sometimes we get the game_info message before a game session was created
+            if self.game_session and message['uid'] == self.game_session.game_uid:
+                self.game_session.game_map = message['mapname']
+                self.game_session.game_mod = message['featured_mod']
+                self.game_session.game_name = message['title']
+                self.game_session.game_visibility = message['visibility']
+
             self.gameInfo.emit(message)
 
     def handle_modvault_list_info(self, message):
