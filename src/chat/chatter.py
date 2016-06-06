@@ -150,15 +150,13 @@ class Chatter(QtGui.QTableWidgetItem):
         # Color handling
         self.set_color()
 
-        player = self.lobby.client.players[self.id]
-        if not player and not self.id == -1:  # We should have a player object for this
-            player = self.lobby.client.players[self.name]
-
         # Weed out IRC users and those we don't know about early.
-        if self.id == -1 or player is None:
+        if self.id == -1 or not self.lobby.client.players.isPlayer(self.id):
             self.rankItem.setIcon(util.icon("chat/rank/civilian.png"))
             self.rankItem.setToolTip("IRC User")
             return
+
+        player = self.lobby.client.players[self.id]
 
         country = player.country
         if country is not None:
