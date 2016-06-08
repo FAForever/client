@@ -408,9 +408,7 @@ class ReplaysWidget(BaseClass, FormClass):
                     playeritem = QtGui.QTreeWidgetItem()
                     playeritem.setText(0, name)
 
-                    playerid = -1
-                    if self.client.players.isPlayer(name):
-                        playerid = self.client.players[name].id
+                    playerid = self.client.players.getID(name)
 
                     url = QtCore.QUrl()
                     url.setScheme("faflive")

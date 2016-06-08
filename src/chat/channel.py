@@ -308,10 +308,8 @@ class Channel(FormClass, BaseClass):
         '''
         Print an raw message in the chatArea of the channel
         '''
-        if self.lobby.client.players.isPlayer(name):
-            id = self.lobby.client.players[name].id
-        else:
-            id = -1
+        id = self.lobby.client.players.getID(name)
+
         color = self.lobby.client.players.getUserColor(id)
 
         # Play a ping sound

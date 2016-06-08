@@ -102,6 +102,11 @@ class Players:
         val = self.__getitem__(item)
         return val if val else default
 
+    def getID(self, name):
+        if name in self._logins:
+            return self._logins[name].id
+        return -1
+
     def __contains__(self, item):
         return self.__getitem__(item) is not None
 
