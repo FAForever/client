@@ -404,31 +404,35 @@ class ReplaysWidget(BaseClass, FormClass):
                 if team == "-1": #skip observers, they don't seem to stream livereplays
                     continue
                 
-                for player in info['teams'][team]:
+                for name in info['teams'][team]:
                     playeritem = QtGui.QTreeWidgetItem()
-                    playeritem.setText(0, player)  
+                    playeritem.setText(0, name)
+
+                    playerid = -1
+                    if self.client.players.isPlayer(name):
+                        playerid = self.client.players[name].id
 
                     url = QtCore.QUrl()
                     url.setScheme("faflive")
                     url.setHost("lobby.faforever.com")
-                    url.setPath(str(info["uid"]) + "/" + player + ".SCFAreplay")
+                    url.setPath(str(info["uid"]) + "/" + name + ".SCFAreplay")
                     url.addQueryItem("map", info["mapname"])
                     url.addQueryItem("mod", info["featured_mod"])
                     
                     playeritem.url = url
-                    if client.instance.login == player:
+                    if client.instance.login == name:
                         mygame = True
                         item.setTextColor(1, QtGui.QColor(client.instance.getColor("self")))
                         playeritem.setTextColor(0, QtGui.QColor(client.instance.getColor("self")))
                         playeritem.setToolTip(0, url.toString())
                         playeritem.setIcon(0, util.icon("replays/replay.png"))                        
-                    elif client.instance.players.isFriend(player):
+                    elif client.instance.players.isFriend(playerid):
                         if not mygame:
                             item.setTextColor(1, QtGui.QColor(client.instance.getColor("friend")))
                         playeritem.setTextColor(0, QtGui.QColor(client.instance.getColor("friend")))
                         playeritem.setToolTip(0, url.toString())
                         playeritem.setIcon(0, util.icon("replays/replay.png"))                        
-                    elif client.instance.players.isPlayer(player):
+                    elif client.instance.players.isPlayer(playerid):
                         playeritem.setTextColor(0, QtGui.QColor(client.instance.getColor("player")))                        
                         playeritem.setToolTip(0, url.toString())
                         playeritem.setIcon(0, util.icon("replays/replay.png"))                        
