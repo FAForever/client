@@ -57,7 +57,7 @@ class Players:
         '''
         Convenience function for other modules to inquire about a user's civilian status.
         '''
-        return name in self or name == self.me.login
+        return name in self
 
     def getUserColor(self, id):
         '''
@@ -113,11 +113,9 @@ class Players:
     def __getitem__(self, item):
         if isinstance(item, Player):
             return item
-        try:
-            # Lets hope that nobody has an integer valued name
-            return self._players[int(item)]
-        except (ValueError, KeyError):
-            if item in self._logins:
+        if isinstance(item, int) and item in self._players:
+            return self._players[item]
+        if item in self._logins:
                 return self._logins[item]
 
     def __setitem__(self, key, value):
