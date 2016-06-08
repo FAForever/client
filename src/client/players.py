@@ -65,19 +65,18 @@ class Players:
         '''
         if id == self.me.id:
             return self.getColor("self")
-        elif id in self.friends:
+        if id in self.friends:
             return self.getColor("friend")
-        elif id in self.foes:
+        if id in self.foes:
             return self.getColor("foe")
-        elif id in self.clanlist:
+        if id in self.clanlist:
             return self.getColor("clan")
-        else:
-            if self.coloredNicknames:
-                return self.getRandomColor(id)
-            if id in self:
-                return self.getColor("player")
+        if self.coloredNicknames:
+            return self.getRandomColor(id)
+        if id in self:
+            return self.getColor("player")
 
-            return self.getColor("default")
+        return self.getColor("default")
 
     def getRandomColor(self, id):
         '''Generate a random color from a name'''

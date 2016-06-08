@@ -81,6 +81,7 @@ class GameItem(QtGui.QListWidgetItem):
         self.client         = None
         self.title          = None
         self.host           = None
+        self.hostid         = -1
         self.teams          = []
         self.password_protected = False
         self.mod            = None
@@ -167,6 +168,9 @@ class GameItem(QtGui.QListWidgetItem):
 
         self.title = message['title']
         self.host = message['host']
+
+        if self.client.players.isPlayer(self.host):
+            self.hostid = self.client.players.isPlayer(self.host)
 
         # Maps integral team numbers (from 2, with 1 "none") to lists of names.
         teams_map = dict.copy(message['teams'])
@@ -263,7 +267,7 @@ class GameItem(QtGui.QListWidgetItem):
         else:
             playerstring = "players"
 
-        color = client.players.getUserColor(self.host)
+        color = client.players.getUserColor(self.hostid)
 
         self.editTooltip(teams)
 

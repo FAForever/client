@@ -226,7 +226,10 @@ class Channel(FormClass, BaseClass):
             cursor.removeSelectedText()
             self.lines = self.lines - CHAT_REMOVEBLOCK
 
-        player = self.lobby.client.players.get(name, IRCPlayer(name))
+        if self.lobby.client.players.isPlayer(name):
+            player = self.lobby.client.players[name]
+        else:
+            player = IRCPlayer(name)
 
         displayName = name
         if player.clan is not None:
@@ -247,7 +250,7 @@ class Channel(FormClass, BaseClass):
 
         else:
             # Fallback and ask the client. We have no Idea who this is.
-            color = self.lobby.client.players.getUserColor(name)
+            color = self.lobby.client.players.getUserColor(player.id)
 
         if mentioned:
             color = self.lobby.client.getColor("you")
@@ -305,31 +308,32 @@ class Channel(FormClass, BaseClass):
         '''
         Print an raw message in the chatArea of the channel
         '''
-        try:
-            color = self.lobby.client.players.getUserColor(name)
-                
-            # Play a ping sound
-            if self.private and name != self.lobby.client.login:
-                self.pingWindow()
-                
-            # scroll if close to the last line of the log
-            scroll_current = self.chatArea.verticalScrollBar().value()
-            scroll_needed = scroll_forced or ((self.chatArea.verticalScrollBar().maximum() - scroll_current) < 20)
-            
-            cursor = self.chatArea.textCursor()
-            cursor.movePosition(QtGui.QTextCursor.End)
-            self.chatArea.setTextCursor(cursor)
-                                
-            formatter = Formatters.FORMATTER_RAW
-            line = formatter.format(time=self.timestamp(), name=name, color=color, width=self.maxChatterWidth, text=text)
-            self.chatArea.insertHtml(line)
-            
-            if scroll_needed:
-                self.chatArea.verticalScrollBar().setValue(self.chatArea.verticalScrollBar().maximum())
-            else:
-                self.chatArea.verticalScrollBar().setValue(scroll_current)
-        except:
-            pass
+        if self.lobby.client.players.isPlayer(name):
+            id = self.lobby.client.players[name].id
+        else:
+            id = -1
+        color = self.lobby.client.players.getUserColor(id)
+
+        # Play a ping sound
+        if self.private and name != self.lobby.client.login:
+            self.pingWindow()
+
+        # scroll if close to the last line of the log
+        scroll_current = self.chatArea.verticalScrollBar().value()
+        scroll_needed = scroll_forced or ((self.chatArea.verticalScrollBar().maximum() - scroll_current) < 20)
+
+        cursor = self.chatArea.textCursor()
+        cursor.movePosition(QtGui.QTextCursor.End)
+        self.chatArea.setTextCursor(cursor)
+
+        formatter = Formatters.FORMATTER_RAW
+        line = formatter.format(time=self.timestamp(), name=name, color=color, width=self.maxChatterWidth, text=text)
+        self.chatArea.insertHtml(line)
+
+        if scroll_needed:
+            self.chatArea.verticalScrollBar().setValue(self.chatArea.verticalScrollBar().maximum())
+        else:
+            self.chatArea.verticalScrollBar().setValue(scroll_current)
 
     def timestamp(self):
         '''returns a fresh timestamp string once every minute, and an empty string otherwise'''
