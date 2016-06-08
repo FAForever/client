@@ -120,7 +120,7 @@ class GameItem(QtGui.QListWidgetItem):
         
     @QtCore.pyqtSlot()
     def announceReplay(self):
-        if not self.client.players.isFriend(self.host):
+        if not self.client.players.isFriend(self.hostid):
             return
 
         if not self.state == "playing":
@@ -140,7 +140,7 @@ class GameItem(QtGui.QListWidgetItem):
     
     @QtCore.pyqtSlot()
     def announceHosting(self):
-        if not self.client.players.isFriend(self.host) or self.isHidden():
+        if not self.client.players.isFriend(self.hostid) or self.isHidden():
             return
 
         if not self.state == "open":
@@ -373,8 +373,8 @@ class GameItem(QtGui.QListWidgetItem):
         if not other.client: return False;
         
         # Friend games are on top
-        if self.client.players.isFriend(self.host) and not self.client.players.isFriend(other.host): return True
-        if not self.client.players.isFriend(self.host) and self.client.players.isFriend(other.host): return False
+        if self.client.players.isFriend(self.hostid) and not self.client.players.isFriend(other.hostid): return True
+        if not self.client.players.isFriend(self.hostid) and self.client.players.isFriend(other.hostid): return False
 
         # Sort Games
         # 0: By Player Count
