@@ -7,6 +7,7 @@ from fa import maps
 import util
 import os, time
 from games.moditem import mods
+from config import Settings
 
 import client
 
@@ -77,6 +78,7 @@ class ReplayItem(QtGui.QTreeWidgetItem):
     def __init__(self, uid, parent, *args, **kwargs):
         QtGui.QTreeWidgetItem.__init__(self, *args, **kwargs)
 
+        ROOT = Settings.get('content/host')
         
         self.uid            = uid
         self.parent         = parent
@@ -94,7 +96,7 @@ class ReplayItem(QtGui.QTreeWidgetItem):
         self.moreInfo       = False
         self.replayInfo     = False
         self.spoiled        = False
-        self.url            = "http://content.faforever.com/faf/vault/replay_vault/replay.php?id=%i" % self.uid
+        self.url            = "{}/faf/vault/replay_vault/replay.php?id={}".format(Settings.get('content/host'), self.uid)
         
         self.teams          = {}
         self.access         = None

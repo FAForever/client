@@ -5,24 +5,25 @@ import logging
 import os
 import util
 import warnings
+from config import Settings
 
 logger= logging.getLogger(__name__)
 
-VAULT_PREVIEW_ROOT = "http://content.faforever.com/faf/vault/map_previews/small/"
+VAULT_PREVIEW_ROOT = "{}/faf/vault/map_previews/small/".format(Settings.get('content/host'))
 
 class downloadManager(QtCore.QObject):
     ''' This class allows downloading stuff in the background'''
-    
+
     def __init__(self, parent = None):
         self.client = parent
         self.nam = QNetworkAccessManager()
-        
+
         self.nam.finished.connect(self.finishedDownload)
 
         self.modRequests = {}
         self.mapRequests = {}
         self.mapRequestsItem = []
-        
+
     def finishedDownload(self,reply):
         ''' finishing downloads '''
         urlstring = reply.url().toString()
@@ -59,7 +60,7 @@ class downloadManager(QtCore.QObject):
                         requester.setIcon(util.icon(pathimg, False))
             if urlstring in self.mapRequests: del self.mapRequests[urlstring]
             if urlstring in self.modRequests: del self.modRequests[urlstring]
-            
+
     def downloadMap(self, name, requester, item=False):
         '''
         Downloads a preview image from the web for the given map name
@@ -68,7 +69,7 @@ class downloadManager(QtCore.QObject):
         name = name.lower()
         if len(name) == 0:
             return
-        
+
 
         url = QtCore.QUrl(VAULT_PREVIEW_ROOT + urllib2.quote(name) + ".png")
         if not url.toString() in self.mapRequests:

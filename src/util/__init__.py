@@ -2,6 +2,7 @@ import sys
 
 import os
 from ctypes import *
+from config import Settings
 
 # Developer mode flag
 def developer():
@@ -11,8 +12,7 @@ from config import VERSION as VERSION_STRING
 
 LOGFILE_MAX_SIZE = 256 * 1024  #256kb should be enough for anyone
 
-
-UNITS_PREVIEW_ROOT = "http://content.faforever.com/faf/unitsDB/icons/big/"
+UNITS_PREVIEW_ROOT = "{}/faf/unitsDB/icons/big/".format(Settings.get('content/host'))
 
 #These are paths relative to the executable or main.py script
 COMMON_DIR = os.path.join(os.getcwd(), "res")

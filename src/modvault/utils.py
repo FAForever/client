@@ -14,11 +14,12 @@ import warnings
 
 import cStringIO
 import zipfile
+from config import Settings
 
 logger = logging.getLogger(__name__)
 
 MODFOLDER = os.path.join(util.PERSONAL_DIR, "My Games", "Gas Powered Games", "Supreme Commander Forged Alliance", "Mods")
-MODVAULT_DOWNLOAD_ROOT = "http://content.faforever.com/faf/vault/"
+MODVAULT_DOWNLOAD_ROOT = "{}/faf/vault/".format(Settings.get('content/host'))
 
 installedMods = [] # This is a global list that should be kept intact. So it should be cleared using installedMods[:] = []
 

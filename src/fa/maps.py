@@ -16,10 +16,12 @@ import urllib2
 import zipfile
 import tempfile
 import re
+from config import Settings
 
-VAULT_PREVIEW_ROOT = "http://content.faforever.com/faf/vault/map_previews/small/"
-VAULT_DOWNLOAD_ROOT = "http://content.faforever.com/faf/vault/"
-VAULT_COUNTER_ROOT = "http://content.faforever.com/faf/vault/map_vault/inc_downloads.php"
+route = Settings.get('content/host')
+VAULT_PREVIEW_ROOT = "{}/faf/vault/map_previews/small/".format(route)
+VAULT_DOWNLOAD_ROOT = "{}/faf/vault/".format(route)
+VAULT_COUNTER_ROOT = "{}/faf/vault/map_vault/inc_downloads.php".format(route)
  
 maps = { # A Lookup table for info (names, sizes, players) of the official Forged Alliance Maps
                  "scmp_001" : ["Burial Mounds", "1024x1024", 8],
