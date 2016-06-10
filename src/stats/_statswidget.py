@@ -11,6 +11,8 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 
+from config import Settings
+
 ANTIFLOOD = 0.1
 
 FormClass, BaseClass = util.loadUiType("stats/stats.ui")
@@ -216,4 +218,4 @@ class StatsWidget(BaseClass, FormClass):
         if util.themeurl("ladder/style.css"):
             self.webview.settings().setUserStyleSheetUrl(util.themeurl("ladder/style.css"))
 
-        self.webview.setUrl(QtCore.QUrl("http://content.faforever.com/faf/leaderboards/read-leader.php?board=1v1&username=%s" % me.login))
+        self.webview.setUrl(QtCore.QUrl("{}/faf/leaderboards/read-leader.php?board=1v1&username={}".format(Settings.get('content/host'), me.login)))

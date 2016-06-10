@@ -5,6 +5,7 @@
 from PyQt4 import QtCore, QtGui
 from fa import maps
 import util
+from config import Settings
 
 class TutorialItemDelegate(QtGui.QStyledItemDelegate):
     
@@ -85,12 +86,11 @@ class TutorialItem(QtGui.QListWidgetItem):
         '''
         Updates this item from the message dictionary supplied
         '''
-        
-        
+
         self.client = client
         self.tutorial      = message['tutorial']
         self.description   = message['description']
-        self.url           = "http://content.faforever.com/faf/tutorials/" + message['url']
+        self.url           = "{}/faf/tutorials/{}".format(Settings.get('content/host'), message['url'])
 
         # Map preview code
         if self.mapname != message['mapname']:

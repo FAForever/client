@@ -13,6 +13,7 @@ from fa.replay import replay
 import util
 
 import client
+from config import Settings
 
 """
 A chatter is the representation of a person on IRC, in a channel's nick list.
@@ -301,10 +302,12 @@ class Chatter(QtGui.QTableWidgetItem):
                 menu.addAction(action_inspect_in_mordor)
 
                 def send_the_orcs():
+                    route = Settings.get('mordor/host')
+
                     if self.id != -1:
-                        QtGui.QDesktopServices.openUrl(QUrl("http://mordor.faforever.com/users/{}".format(self.id)))
+                        QtGui.QDesktopServices.openUrl(QUrl("{}/users/{}".format(route, self.id)))
                     else:
-                        QtGui.QDesktopServices.openUrl(QUrl("http://mordor.faforever.com/users/{}".format(self.name)))
+                        QtGui.QDesktopServices.openUrl(QUrl("{}/users/{}".format(route, self.name)))
 
                 action_inspect_in_mordor.triggered.connect(send_the_orcs)
 
