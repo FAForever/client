@@ -35,12 +35,6 @@ CACHE_DIR = os.path.join(APPDATA_DIR, "cache")
 #This contains cached data downloaded for FA extras
 EXTRA_DIR = os.path.join(APPDATA_DIR, "extra")
 
-#This contains cached data downloaded for FA sounds
-SOUND_DIR = os.path.join(APPDATA_DIR, EXTRA_DIR, "sounds")
-
-#This contains cached data downloaded for FA voices
-VOICES_DIR = os.path.join(APPDATA_DIR, EXTRA_DIR, SOUND_DIR, "voice", "us")
-
 #This contains the replays recorded by the local replay server
 REPLAY_DIR = os.path.join(APPDATA_DIR, "replays")
 
@@ -109,12 +103,6 @@ if not os.path.isdir(LOG_DIR):
 
 if not os.path.isdir(EXTRA_DIR):
     os.makedirs(EXTRA_DIR)
-
-if not os.path.isdir(SOUND_DIR):
-    os.makedirs(SOUND_DIR)
-
-if not os.path.isdir(VOICES_DIR):
-    os.makedirs(VOICES_DIR)
 
 from PyQt4 import QtGui, uic, QtCore
 from PyQt4.uic import *
