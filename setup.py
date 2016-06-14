@@ -43,7 +43,6 @@ except OSError:
 build_exe_options = {
     'include_files': ['res',
                       'RELEASE-VERSION',
-                      ('lib/uid.dll', 'uid.dll'),
                       ('lib/qt.conf', 'qt.conf'),
                       ('lib/xdelta3.exe', 'xdelta3.exe'),
                       ('lib/lua51.dll', 'lua51.dll')],
@@ -51,7 +50,7 @@ build_exe_options = {
     'include_msvcr': True,
     'optimize': 2,
     'packages': ['cffi', 'pycparser', 'PyQt4', 'PyQt4.uic',
-                 'PyQt4.QtGui', 'PyQt4.QtNetwork', 'win32com', 'win32com.client'],
+                 'PyQt4.QtGui', 'PyQt4.QtNetwork', 'win32com', 'win32com.client', 'Crypto'],
     'silent': True,
     'excludes': ['numpy', 'scipy', 'matplotlib', 'tcl', 'Tkinter']
 }

@@ -46,8 +46,9 @@ import time
 import random
 import notifications as ns
 
-FormClass, BaseClass = util.loadUiType("client/client.ui")
+import uid
 
+FormClass, BaseClass = util.loadUiType("client/client.ui")
 
 class mousePosition(object):
     def __init__(self, parent):
@@ -943,11 +944,11 @@ class ClientWindow(FormClass, BaseClass):
             except:
                 logger.info("Couldn't load urlquery value 'mods'")
             if fa.check.game(self):
-                uid, mod, map = url.queryItemValue('uid'), url.queryItemValue('mod'), url.queryItemValue('map')
+                unique_id, mod, map = url.queryItemValue('uid'), url.queryItemValue('mod'), url.queryItemValue('map')
                 if fa.check.check(mod,
                                   map,
                                   sim_mods=add_mods):
-                    self.join_game(uid)
+                    self.join_game(unique_id)
 
     def writeToServer(self, action, *args, **kw):
         '''
@@ -1129,7 +1130,7 @@ class ClientWindow(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def perform_login(self):
-        self.uniqueId = util.uniqueID(self.login, self.session)
+        self.uniqueId = uid.encodeUniqueId(self.session)
         if not self.uniqueId:
             return False
         self.send(dict(command="hello",
@@ -1237,11 +1238,11 @@ class ClientWindow(FormClass, BaseClass):
             self.game_session.ready.connect(request_launch)
             self.game_session.listen()
 
-    def join_game(self, uid, password=None):
+    def join_game(self, unique_id, password=None):
         def request_launch():
             msg = {
                 'command': 'game_join',
-                'uid': uid,
+                'uid': unique_id,
                 'gameport': self.gamePort
             }
             if password:
