@@ -105,6 +105,8 @@ class Players:
     def getID(self, name):
         if name in self._logins:
             return self._logins[name].id
+
+        logger.warn("No ID for player name: %s" % name)
         return -1
 
     def __contains__(self, item):
