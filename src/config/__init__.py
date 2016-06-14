@@ -101,6 +101,10 @@ if environment == 'production':
 elif environment == 'development':
     from develop import defaults
 
+for k, v in defaults.iteritems():
+    if isinstance(v, str):
+        defaults[k] = v.format(host = Settings.get('host'))
+
 # Setup normal rotating log handler
 make_dirs()
 rotate = RotatingFileHandler(os.path.join(Settings.get('client/logs/path'), 'forever.log'),
