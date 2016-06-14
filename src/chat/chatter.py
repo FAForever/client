@@ -202,6 +202,9 @@ class Chatter(QtGui.QTableWidgetItem):
             self.rankItem.setIcon(util.icon("chat/rank/newplayer.png"))
 
     def set_color(self):
+        if self.lobby.client.id == self.id and self.elevation in chat.OPERATOR_COLORS.keys():
+            self.setTextColor(QtGui.QColor(chat.get_color("self_mod")))
+            return
         if self.lobby.client.players.isFriend(self.id) and self.elevation in chat.OPERATOR_COLORS.keys():
             self.setTextColor(QtGui.QColor(chat.get_color("friend_mod")))
             return
