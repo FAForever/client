@@ -36,7 +36,6 @@ defaults = {
     'replay_server/port': 15000,
     'relay_server/host': 'lobby.{host}',
     'relay_server/port': 8000,
-    'MUMBLE_URL': 'mumble://{login}@mumble.faforever.com/Games?version:1.2.0',
     'FORUMS_URL': 'http://forums.faforever.com/forums',
     'WEBSITE_URL': 'http://www.faforever.com',
     'UNITDB_URL': 'http://faforever.com/faf/unitsDB/',
