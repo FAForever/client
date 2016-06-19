@@ -438,7 +438,6 @@ class ReplaysWidget(BaseClass, FormClass):
                         playeritem.setDisabled(True)
 
                     item.addChild(playeritem)
-                    self.liveTree.setFirstItemColumnSpanned(playeritem, True)
         elif info['state'] == "closed":
             if info['uid'] in self.games:
                 self.liveTree.takeTopLevelItem(self.liveTree.indexOfTopLevelItem(self.games[info['uid']]))
