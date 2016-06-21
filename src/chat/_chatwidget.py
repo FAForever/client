@@ -61,7 +61,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.crucialChannels = ["#aeolus"]
         self.optionalChannels = []
 
-        #We can't send command until the welcom message is received
+        #We can't send command until the welcome message is received
         self.welcomed = False
 
         # Load colors and styles from theme
