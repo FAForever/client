@@ -3,6 +3,7 @@ from PyQt4.QtCore import QUrl
 from PyQt4.QtNetwork import QNetworkRequest
 from chat._avatarWidget import avatarWidget
 
+import urllib2
 
 import chat
 from chat import user2name
@@ -123,6 +124,7 @@ class Chatter(QtGui.QTableWidgetItem):
         if self.avatar:        
             
             self.avatarTip = self.avatar["tooltip"]           
+            self.avatar["url"] = urllib2.unquote(self.avatar["url"])
             url = self.avatar["url"]
 
             avatarPix = util.respix(url) 
