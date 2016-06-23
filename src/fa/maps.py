@@ -17,7 +17,7 @@ import zipfile
 import tempfile
 import re
 
-VAULT_PREVIEW_ROOT = "http://content.faforever.com/faf/vault/map_previews/small/" 
+VAULT_PREVIEW_ROOT = "http://content.faforever.com/faf/vault/map_previews/small/"
 VAULT_DOWNLOAD_ROOT = "http://content.faforever.com/faf/vault/"
 VAULT_COUNTER_ROOT = "http://content.faforever.com/faf/vault/map_vault/inc_downloads.php"
  
@@ -564,20 +564,6 @@ def downloadMap(name, silent=False):
             zfile = zipfile.ZipFile(output)
             zfile.extractall(getUserMapsFolder())
             zfile.close()
-
-            #check for eventual sound files
-            if folderForMap(name):
-                if "sounds" in os.listdir(folderForMap(name)) :
-                    root_src_dir = os.path.join(folderForMap(name), "sounds")
-                    for src_dir, _, files in os.walk(root_src_dir):
-                        dst_dir = src_dir.replace(root_src_dir, util.SOUND_DIR)
-                        for file_ in files:
-                            src_file = os.path.join(src_dir, file_)
-                            dst_file = os.path.join(dst_dir, file_)
-                            if os.path.exists(dst_file):
-                                os.remove(dst_file)
-                            shutil.move(src_file, dst_dir)
-
                 
             logger.debug("Successfully downloaded and extracted map from: " + url)
         else:
