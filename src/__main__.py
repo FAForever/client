@@ -70,11 +70,11 @@ def runFAF():
     faf_client = client.instance
     faf_client.setup()
 
-    if not faf_client.doConnect(): exit(1)
+    if not faf_client.doConnect():
+        return
+
     faf_client.doLogin()
-
     faf_client.show()
-
     # Main update loop
     QtGui.QApplication.exec_()
 
