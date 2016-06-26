@@ -1,7 +1,7 @@
 from PyQt4.QtCore import QObject, pyqtSignal
 from PyQt4.QtNetwork import QTcpServer, QHostAddress
 from enum import IntEnum
-
+from functools import partial
 from base import Client
 from connectivity.turn import TURNState
 from decorators import with_logger
@@ -56,6 +56,8 @@ class GameSession(QObject):
         # Use the normal lobby by default
         self.init_mode = 0
         self._joins, self._connects = [], []
+        # queue up bind requests if game connection isn't initialized
+        self._bind_queue = []
 
         # 'GPGNet' TCP listener
         self._game_listener = QTcpServer(self)
@@ -125,6 +127,10 @@ class GameSession(QObject):
         })
 
     def _peer_bound(self, login, peer_id, port):
+        if not self._game_connection:
+            self._bind_queue.append(partial(self._peer_bound, login, peer_id, port))
+            return
+
         self._logger.info("Bound peer {}/{} to {}".format(login, peer_id, port))
         if peer_id in self._connects:
             self._game_connection.send('ConnectToPeer', '127.0.0.1:{}'.format(port), login, peer_id)
@@ -139,6 +145,10 @@ class GameSession(QObject):
         self._game_connection = GPGNetConnection(self._game_listener.nextPendingConnection())
         self._game_connection.messageReceived.connect(self._on_game_message)
         self.state = GameSessionState.RUNNING
+
+        if self._bind_queue:
+            for f in self._bind_queue:
+                f()
 
     def _on_game_message(self, command, args):
         self._logger.info("Incoming GPGNet: {} {}".format(command, args))
