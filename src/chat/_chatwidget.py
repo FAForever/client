@@ -264,9 +264,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
         for user in listing:
             name = user.strip(chat.IRC_ELEVATION)
-            id = -1
-            if name in self.client.players:
-                id = self.client.players[name].id
+            id = self.client.players.getID(name)
             self.channels[channel].addChatter(name, id, user[0] if user[0] in chat.IRC_ELEVATION else None, '')
 
         logger.debug("Added " + str(len(listing)) + " Chatters")

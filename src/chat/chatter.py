@@ -147,7 +147,7 @@ class Chatter(QtGui.QTableWidgetItem):
         """
         # First make sure we've got the correct id for ourselves
         if self.id == -1 and self.lobby.client.players.isPlayer(self.name):
-            self.id = self.lobby.client.players[self.name].id
+            self.id = self.lobby.client.players.getID(self.name)
         
         # Color handling
         self.set_color()

@@ -57,7 +57,7 @@ class Players:
         '''
         Convenience function for other modules to inquire about a user's civilian status.
         '''
-        return name in self or name == self.me.login
+        return name in self
 
     def getUserColor(self, id):
         '''
@@ -65,19 +65,18 @@ class Players:
         '''
         if id == self.me.id:
             return self.getColor("self")
-        elif id in self.friends:
+        if id in self.friends:
             return self.getColor("friend")
-        elif id in self.foes:
+        if id in self.foes:
             return self.getColor("foe")
-        elif id in self.clanlist:
+        if id in self.clanlist:
             return self.getColor("clan")
-        else:
-            if self.coloredNicknames:
-                return self.getRandomColor(id)
-            if id in self:
-                return self.getColor("player")
+        if self.coloredNicknames:
+            return self.getRandomColor(id)
+        if id in self:
+            return self.getColor("player")
 
-            return self.getColor("default")
+        return self.getColor("default")
 
     def getRandomColor(self, id):
         '''Generate a random color from a name'''
@@ -103,17 +102,20 @@ class Players:
         val = self.__getitem__(item)
         return val if val else default
 
+    def getID(self, name):
+        if name in self._logins:
+            return self._logins[name].id
+        return -1
+
     def __contains__(self, item):
         return self.__getitem__(item) is not None
 
     def __getitem__(self, item):
         if isinstance(item, Player):
             return item
-        try:
-            # Lets hope that nobody has an integer valued name
-            return self._players[int(item)]
-        except (ValueError, KeyError):
-            if item in self._logins:
+        if isinstance(item, int) and item in self._players:
+            return self._players[item]
+        if item in self._logins:
                 return self._logins[item]
 
     def __setitem__(self, key, value):
