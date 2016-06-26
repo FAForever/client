@@ -149,6 +149,7 @@ class GameSession(QObject):
         if self._bind_queue:
             for f in self._bind_queue:
                 f()
+            self._bind_queue = []
 
     def _on_game_message(self, command, args):
         self._logger.info("Incoming GPGNet: {} {}".format(command, args))
