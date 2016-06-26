@@ -1,4 +1,4 @@
-0.11.59
+0.11.60
 =======
 
 - Uncheck 'remember me' if sign in failed
@@ -6,7 +6,7 @@
 - Add options to skip dialogs for autodownload of maps/mods
 - Fix crash when rightclicking in the replayvault
 - Fix 'spoiler free' option in replay vault not working
-- Fix hosting of coop missions
+- Fix hosting of coop missions (Requires server updates, TBA)
 - Fix chatlist sometimes not getting populated with additional player information
 - Add support for 'rehost' functionality (Will be enabled by upcoming gamepatch)
 
