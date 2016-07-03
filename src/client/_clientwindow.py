@@ -1051,15 +1051,15 @@ class ClientWindow(FormClass, BaseClass):
 
     def joinChannel(self, username, channel):
         '''Join users to a channel'''
-        self.send(dict(command="admin", action="join_channel", user_ids=[self.players[username].id], channel=channel))
+        self.send(dict(command="admin", action="join_channel", user_ids=[self.players.getID(username)], channel=channel))
 
     def closeFA(self, username):
         '''Close FA remotly'''
-        self.send(dict(command="admin", action="closeFA", user_id=self.players[username].id))
+        self.send(dict(command="admin", action="closeFA", user_id=self.players.getID(username)))
 
     def closeLobby(self, username):
         '''Close lobby remotly'''
-        self.send(dict(command="admin", action="closelobby", user_id=self.players[username].id))
+        self.send(dict(command="admin", action="closelobby", user_id=self.players.getID(username)))
 
     def addFriend(self, friend_id):
         if friend_id in self.players:
@@ -1420,7 +1420,7 @@ class ClientWindow(FormClass, BaseClass):
             self.usersUpdated.emit([player['login']])
 
             if self.me.clan is not None and new_player.clan == self.me.clan:
-                self.players.clanlist.add(player['login'])
+                self.players.clanlist.add(player['id'])
 
     def avatarManager(self):
         self.requestAvatars(0)
