@@ -11,11 +11,12 @@
 - Add support for 'rehost' functionality (Will be enabled by upcoming gamepatch)
 
 Contributors:
+ - Downlord
  - HaraldWeber
+ - Sheeo
+ - Softly
  - TimWolters
  - Yorick
- - Downlord
- - Sheeo
 
 0.11.58
 =======
