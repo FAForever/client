@@ -41,6 +41,7 @@ if (!(Get-Command "python" -errorAction SilentlyContinue)) {
  }
 
 choco install -y git
+choco install -y xdelta3
 
 "Reloading Path"
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine")
