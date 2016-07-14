@@ -30,14 +30,16 @@ uic.widgetPluginPath.append(path)
 if getattr(sys, 'frozen', False):
     os.chdir(os.path.dirname(sys.executable))
 else:
-    # We are most likely running from source
-    srcDir = os.path.dirname(os.path.relpath(__file__))
-    devRoot = os.path.abspath(os.path.join(srcDir, os.pardir))
-    os.chdir(devRoot)
-    # We need to set the working directory correctly.
+    if sys.platform == 'win32':
+        # We are most likely running from source
+        srcDir = os.path.dirname(os.path.relpath(__file__))
+        devRoot = os.path.abspath(os.path.join(srcDir, os.pardir))
+        os.chdir(devRoot)
+        # We need to set the working directory correctly.
 
 import util
-util.COMMON_DIR = os.path.join(os.getcwd(), "res")
+if sys.platform == 'win32':
+    util.COMMON_DIR = os.path.join(os.getcwd(), "res")
 
 # Set up crash reporting
 excepthook_original = sys.excepthook
