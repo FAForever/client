@@ -219,7 +219,11 @@ QSplitter::handle:hover
      background-color: #606060;
  }
 
-
+QSpinBox#minRating, QLineEdit#mapName, QLineEdit#playerName, QComboBox#modList
+{
+	background-color: #353535;
+	color: orange;
+}
 
 /* Text controls */
 QTextEdit, QPlainTextEdit, QLineEdit, QListWidget, QTableWidget, QTreeWidget, QFrame#rankedFrame, QFrame#teamFaction, QFrame#teamSearch
@@ -332,9 +336,6 @@ QTreeWidget::item:selected, QTreeWidget::item:previously-selected
     border: none;
 }
 
- 
-
-
 /* ScrollWidgets*/
 QScrollArea
 {
@@ -427,8 +428,16 @@ QLabel#labelModHint,#labelMyHint,#labelLiveHint,#labelRankedHint,#labelTeamManag
 
 QGroupBox
 {
-    color:orange;
-    background-color: grey;
+	margin: 5px;
+	border: 1px solid #353535;
+	border-radius: 5px;
+    background-color: rgb(32, 32, 37);
+	color: silver;	
+}
+
+QLabel
+{
+	color: silver;
 }
 
 /* Used for dialogs*/
