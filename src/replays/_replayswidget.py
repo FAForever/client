@@ -122,6 +122,7 @@ class ReplaysWidget(BaseClass, FormClass):
                 elif item.spoiled != self.spoilerCheckbox.isChecked():
                     self.replayInfos.clear()
                     self.replayInfos.setHtml(item.replayInfo)
+                    item.resize()
                 else:
                     self.replayInfos.clear()
                     item.generateInfoPlayersHtml()
@@ -291,6 +292,7 @@ class ReplaysWidget(BaseClass, FormClass):
                         # Add additional info
                         item.setText(3, item.info['featured_mod'])
                         item.setTextAlignment(3, QtCore.Qt.AlignCenter)
+                        item.setTextColor(1, QtGui.QColor(client.instance.players.getUserColor(item.info.get('recorder', ""))))
                     else:
                         bucket = buckets.setdefault("incomplete", [])                    
                         item.setIcon(0, util.icon("replays/replay.png"))
@@ -416,7 +418,7 @@ class ReplaysWidget(BaseClass, FormClass):
                     url.setPath(str(info["uid"]) + "/" + name + ".SCFAreplay")
                     url.addQueryItem("map", info["mapname"])
                     url.addQueryItem("mod", info["featured_mod"])
-                    
+
                     playeritem.url = url
                     if client.instance.login == name:
                         mygame = True
@@ -439,6 +441,7 @@ class ReplaysWidget(BaseClass, FormClass):
                         playeritem.setDisabled(True)
 
                     item.addChild(playeritem)
+                    self.liveTree.setFirstItemColumnSpanned(playeritem, True)
         elif info['state'] == "closed":
             if info['uid'] in self.games:
                 self.liveTree.takeTopLevelItem(self.liveTree.indexOfTopLevelItem(self.games[info['uid']]))
