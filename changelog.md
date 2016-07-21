@@ -15,6 +15,7 @@ Contributors:
  - TimWolters
  - Yorick
  - Downlord
+ - Softly
  - Sheeo
 
 0.11.58
