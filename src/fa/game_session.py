@@ -159,10 +159,6 @@ class GameSession(QObject):
 
         self.send(command, args)
 
-    def _turn_state_changed(self, val):
-        if val == TURNState.BOUND:
-            self.ready.emit()
-
     def _launched(self):
         self._logger.info("Game has started")
 
