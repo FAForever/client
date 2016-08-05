@@ -51,7 +51,6 @@ class GameSession(QObject):
         self.me = client.me
 
         self.game_port = client.gamePort
-        self.player = client.me
 
         # Use the normal lobby by default
         self.init_mode = 0
