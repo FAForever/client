@@ -1,6 +1,6 @@
 from functools import partial
 
-from PyQt4.QtCore import QUrl
+from PyQt4.QtCore import QUrl, pyqtSignal
 from PyQt4.QtGui import QLabel, QStyle
 from PyQt4.QtNetwork import QAbstractSocket
 
@@ -94,49 +94,49 @@ class ClientWindow(FormClass, BaseClass):
     topWidget = QtGui.QWidget()
 
     # These signals are emitted when the client is connected or disconnected from FAF
-    connected = QtCore.pyqtSignal()
-    authorized = QtCore.pyqtSignal(object)
-    disconnected = QtCore.pyqtSignal()
+    connected = pyqtSignal()
+    authorized = pyqtSignal(object)
+    disconnected = pyqtSignal()
 
-    state_changed = QtCore.pyqtSignal(object)
+    state_changed = pyqtSignal(object)
 
     # This signal is emitted when the client is done rezising
-    doneresize = QtCore.pyqtSignal()
+    doneresize = pyqtSignal()
 
     # These signals notify connected modules of game state changes (i.e. reasons why FA is launched)
-    viewingReplay = QtCore.pyqtSignal(QtCore.QUrl)
+    viewingReplay = pyqtSignal(QtCore.QUrl)
 
     # Game state controls
-    gameEnter = QtCore.pyqtSignal()
-    gameExit = QtCore.pyqtSignal()
+    gameEnter = pyqtSignal()
+    gameExit = pyqtSignal()
 
     # These signals propagate important client state changes to other modules
-    statsInfo = QtCore.pyqtSignal(dict)
-    tutorialsInfo = QtCore.pyqtSignal(dict)
-    modInfo = QtCore.pyqtSignal(dict)
-    gameInfo = QtCore.pyqtSignal(dict)
-    modVaultInfo = QtCore.pyqtSignal(dict)
-    coopInfo = QtCore.pyqtSignal(dict)
-    avatarList = QtCore.pyqtSignal(list)
-    playerAvatarList = QtCore.pyqtSignal(dict)
-    usersUpdated = QtCore.pyqtSignal(list)
-    localBroadcast = QtCore.pyqtSignal(str, str)
-    autoJoin = QtCore.pyqtSignal(list)
-    channelsUpdated = QtCore.pyqtSignal(list)
-    replayVault = QtCore.pyqtSignal(dict)
-    coopLeaderBoard = QtCore.pyqtSignal(dict)
+    statsInfo = pyqtSignal(dict)
+    tutorialsInfo = pyqtSignal(dict)
+    modInfo = pyqtSignal(dict)
+    gameInfo = pyqtSignal(dict)
+    modVaultInfo = pyqtSignal(dict)
+    coopInfo = pyqtSignal(dict)
+    avatarList = pyqtSignal(list)
+    playerAvatarList = pyqtSignal(dict)
+    usersUpdated = pyqtSignal(list)
+    localBroadcast = pyqtSignal(str, str)
+    autoJoin = pyqtSignal(list)
+    channelsUpdated = pyqtSignal(list)
+    replayVault = pyqtSignal(dict)
+    coopLeaderBoard = pyqtSignal(dict)
 
     # These signals are emitted whenever a certain tab is activated
-    showReplays = QtCore.pyqtSignal()
-    showMaps = QtCore.pyqtSignal()
-    showGames = QtCore.pyqtSignal()
-    showTourneys = QtCore.pyqtSignal()
-    showLadder = QtCore.pyqtSignal()
-    showChat = QtCore.pyqtSignal()
-    showMods = QtCore.pyqtSignal()
-    showCoop = QtCore.pyqtSignal()
+    showReplays = pyqtSignal()
+    showMaps = pyqtSignal()
+    showGames = pyqtSignal()
+    showTourneys = pyqtSignal()
+    showLadder = pyqtSignal()
+    showChat = pyqtSignal()
+    showMods = pyqtSignal()
+    showCoop = pyqtSignal()
 
-    matchmakerInfo = QtCore.pyqtSignal(dict)
+    matchmakerInfo = pyqtSignal(dict)
 
     remember = Settings.persisted_property('user/remember', type=bool, default_value=True)
     login = Settings.persisted_property('user/login', persist_if=lambda self: self.remember)
