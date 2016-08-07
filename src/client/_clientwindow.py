@@ -1,6 +1,6 @@
 from functools import partial
 
-from PyQt4.QtCore import QUrl, pyqtSignal
+from PyQt4.QtCore import QUrl, QThread, pyqtSignal
 from PyQt4.QtGui import QLabel, QStyle
 from PyQt4.QtNetwork import QAbstractSocket
 
@@ -201,6 +201,9 @@ class ClientWindow(FormClass, BaseClass):
 
         # ConnectivityTest
         self.connectivity = None  # type: ConnectivityHelper
+
+        self.connectivity_state = None
+        self.relay_address = None
 
         self.localIP = None
 
@@ -1090,12 +1093,15 @@ class ClientWindow(FormClass, BaseClass):
             self.send(dict(command="social_remove", foe=foe_id))
             self.usersUpdated.emit([foe_id])
 
+    @QtCore.pyqtSlot(dict)
     def send(self, message):
         data = json.dumps(message)
         if message.get('command') == 'hello':
-            logger.info('Logging in with {}'.format({
-                                                        k: v for k, v in message.items() if k != 'password'
-                                                        }))
+            logger.info('Logging in with {}'.format(
+                {
+                    k: v for k, v in message.items() if k != 'password'
+                })
+            )
         else:
             logger.info("Outgoing JSON Message: " + data)
 
@@ -1112,6 +1118,10 @@ class ClientWindow(FormClass, BaseClass):
             cmd = "handle_" + message['command']
             if "target" in message:
                 receiver = self._receivers.get(message['target'])
+                if receiver == self.connectivity:
+                    self.connectivity.command_msg.emit(message)
+                    return
+
                 if hasattr(receiver, cmd):
                     getattr(receiver, cmd)(message)
                 elif hasattr(receiver, 'handle_message'):
@@ -1190,12 +1200,23 @@ class ClientWindow(FormClass, BaseClass):
 
         # Run an initial connectivity test and initialize a gamesession object
         # when done
+        thread = QThread()
+        self.thread = thread
         self.connectivity = ConnectivityHelper(self, self.gamePort)
-        self.connectivity.connectivity_status_established.connect(self.initialize_game_session)
-        self.connectivity.start_test()
+        self.connectivity.moveToThread(thread)
+        self.connectivity.connectivity_status_established.connect(self.connectivity_update)
+        thread.started.connect(self.connectivity.start_test)
+        thread.start()
 
-    def initialize_game_session(self):
+
+    @QtCore.pyqtSlot(str, str)
+    def connectivity_update(self, state, addr):
+        logger.info("connectivity_update: state " + str(state) + " " + str(addr))
+        self.connectivity_state = state
+        host, port = addr.split(':')
+        self.relay_address = (host, int(port))
         self.game_session = GameSession(self, self.connectivity)
+
 
     def handle_registration_response(self, message):
         if message["result"] == "SUCCESS":
@@ -1214,8 +1235,8 @@ class ClientWindow(FormClass, BaseClass):
                 'gameport': self.gamePort,
                 'faction': faction
             }
-            if self.connectivity.state == 'STUN':
-                msg['relay_address'] = self.connectivity.relay_address
+            if self.connectivity_state == 'STUN':
+                msg['relay_address'] = self.relay_address
             self.send(msg)
             self.game_session.ready.disconnect(request_launch)
         if self.game_session:
@@ -1233,8 +1254,8 @@ class ClientWindow(FormClass, BaseClass):
                 'password': password,
                 'is_rehost': is_rehost
             }
-            if self.connectivity.state == 'STUN':
-                msg['relay_address'] = self.connectivity.relay_address
+            if self.connectivity_state == 'STUN':
+                msg['relay_address'] = self.relay_address
             self.send(msg)
             self.game_session.ready.disconnect(request_launch)
         if self.game_session:
@@ -1251,8 +1272,8 @@ class ClientWindow(FormClass, BaseClass):
             }
             if password:
                 msg['password'] = password
-            if self.connectivity.state == "STUN":
-                msg['relay_address'] = self.connectivity.relay_address
+            if self.connectivity_state == "STUN":
+                msg['relay_address'] = self.relay_address
             self.send(msg)
             self.game_session.ready.disconnect(request_launch)
         if self.game_session:
