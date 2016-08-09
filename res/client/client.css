@@ -421,7 +421,7 @@ QLabel#labelSortGames,#hideGamesWithPw,#labelJoinGame,#labelHostGame,#labelAutom
     color:white;
 }
 
-QLabel#labelModHint,#labelMyHint,#labelLiveHint,#labelRankedHint,#labelTeamManagementHint,#labelTeamManagementHint2,#labelTeamManagementHint3
+QLabel#labelModHint,#labelMyHint,#labelLiveHint,#labelSubsetRankedHint,#labelRankedHint,#labelTeamManagementHint,#labelTeamManagementHint2,#labelTeamManagementHint3
 {
     color:#AAAAAA;
 }
@@ -452,11 +452,17 @@ QCheckBox#spoilerCheckbox
 }
 
 /* Used for Ranked Buttons only at the moment*/
+QToolButton#rankedPlay
+{
+	color: silver;
+	border-radius: 5px;
+	border: 1px solid grey;
+}
+
 QToolButton::pressed 
 {
     border: none;
-
-    color:silver;
+    color: black;
     padding:5px;
     background-color:#383838;
     border-radius : 5px;
@@ -477,7 +483,7 @@ QToolButton::checked
     border: none;
     border: 2px solid #353535;
 
-    color:silver;
+    color:black;
     padding:5px;
     background-color:#C0C0C0;
     border-radius : 5px;
