@@ -39,9 +39,6 @@ else:
 import util
 util.COMMON_DIR = os.path.join(os.getcwd(), "res")
 
-import config
-import platform
-
 # Set up crash reporting
 excepthook_original = sys.excepthook
 
@@ -79,9 +76,20 @@ def runFAF():
     QtGui.QApplication.exec_()
 
 if __name__ == '__main__':
+    import platform
     import logging
-    logger = logging.getLogger(__name__)
 
+    if platform.system() == "Windows":
+        import ctypes
+        if ctypes.windll.shell32.IsUserAnAdmin():
+            exit()
+
+        if getattr(ctypes.windll.shell32, "SetCurrentProcessExplicitAppUserModelID", None) is not None:
+            myappid = 'com.faforever.lobby'
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+
+
+    logger = logging.getLogger(__name__)
     logger.info(">>> --------------------------- Application Launch")
 
     app = QtGui.QApplication(sys.argv)
@@ -91,11 +99,6 @@ if __name__ == '__main__':
     # We can now set our excepthook since the app has been initialized
     sys.excepthook = excepthook
 
-    if platform.system() == "Windows":
-        import ctypes
-        if getattr(ctypes.windll.shell32, "SetCurrentProcessExplicitAppUserModelID", None) is not None:
-            myappid = 'com.faforever.lobby'
-            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
     if len(sys.argv) == 1:
         #Do the magic
