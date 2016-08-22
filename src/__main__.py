@@ -63,10 +63,10 @@ def excepthook(exc_type, exc_value, traceback_object):
 def runFAF():
     # Load theme from settings (one of the first things to be done)
     util.loadTheme()
-    
+
     # Create client singleton and connect
     import client
-        
+
     faf_client = client.instance
     faf_client.setup()
 
@@ -98,19 +98,19 @@ if __name__ == '__main__':
             ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
     if len(sys.argv) == 1:
-        #Do the magic   
-        sys.path += ['.'] 
+        #Do the magic
+        sys.path += ['.']
         runFAF()
-    else:  
+    else:
         # Try to interpret the argument as a replay.
         if sys.argv[1].lower().endswith(".fafreplay") or sys.argv[1].lower().endswith(".scfareplay"):
             import fa
             fa.replay(sys.argv[1], True)  # Launch as detached process
 
     #End of show
-    app.closeAllWindows()    
+    app.closeAllWindows()
     app.quit()
-    
+
     #End the application, perform some housekeeping
-    logger.info("<<< --------------------------- Application Shutdown")    
+    logger.info("<<< --------------------------- Application Shutdown")
 
