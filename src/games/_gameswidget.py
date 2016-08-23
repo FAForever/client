@@ -21,14 +21,17 @@ logger = logging.getLogger(__name__)
 
 FormClass, BaseClass = util.loadUiType("games/games.ui")
 
+
 class GamesWidget(FormClass, BaseClass):
 
-    hide_private_games = Settings.persisted_property("play/hidePrivateGames", default_value=False, type=bool)
-    sort_games_index = Settings.persisted_property("play/sortGames", default_value=0, type=int) #Default is by player count
+    hide_private_games = Settings.persisted_property(
+        "play/hidePrivateGames", default_value=False, type=bool)
+    sort_games_index = Settings.persisted_property(
+        "play/sortGames", default_value=0, type=int)  # Default is by player count
 
     use_subset = Settings.persisted_property("play/selectSubset", type=bool, default_value=False)
-    sub_factions = Settings.persisted_property("play/subFactions", default_value=[False, False, False, False, False])
-
+    sub_factions = Settings.persisted_property(
+        "play/subFactions", default_value=[False, False, False, False, False])
 
     def __init__(self, client, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
@@ -43,7 +46,7 @@ class GamesWidget(FormClass, BaseClass):
         # Dictionary containing our actual games.
         self.games = {}
 
-        #Ranked search UI
+        # Ranked search UI
         self._ranked_icons = {
             Factions.AEON: self.rankedAeon,
             Factions.CYBRAN: self.rankedCybran,
@@ -121,67 +124,73 @@ class GamesWidget(FormClass, BaseClass):
             game.setHidden(state == Qt.Checked)
 
     def selectFaction(self, enabled, factionID=0):
-        if len(self.sub_factions) > factionID: return #sanity check
+        if len(self.sub_factions) > factionID:
+            return  # sanity check
 
         self.sub_factions[factionID] = enabled
-        Settings.set("play/subFactions", value=self.sub_factions, persist=True) #i have to manually set it otherwhise it won't write it to the settingsfile
+        # i have to manually set it otherwhise it won't write it to the settingsfile
+        Settings.set("play/subFactions", value=self.sub_factions, persist=True)
 
-        if(self.searching):
+        if self.searching:
             self.stopSearchRanked()
 
     def startSubRandomRankedSearch(self):
         '''
         This is a wrapper around startRankedSearch where a faction will be chosen based on the selected checkboxes
         '''
-        if(self.searching):
+        if self.searching:
             self.stopSearchRanked()
         else:
             self.searching = True
             factionSubset = []
 
-            if(self.rankedUEF.isChecked()):
+            if self.rankedUEF.isChecked():
                 factionSubset.append("uef")
-            if(self.rankedCybran.isChecked()):
+            if self.rankedCybran.isChecked():
                 factionSubset.append("cybran")
-            if(self.rankedAeon.isChecked()):
+            if self.rankedAeon.isChecked():
                 factionSubset.append("aeon")
-            if(self.rankedSeraphim.isChecked()):
+            if self.rankedSeraphim.isChecked():
                 factionSubset.append("seraphim")
 
-            if(len(factionSubset) == 4):
+            if len(factionSubset) == 4:
                 self.startSearchRanked(Factions.RANDOM)
-            elif(len(factionSubset) > 0):
-                self.startSearchRanked(Factions.from_name(factionSubset[random.randint(0, len(factionSubset) - 1)])) #chooses a random factionstring from factionsubset and converts it to a Faction
+            elif len(factionSubset) > 0:
+                # chooses a random factionstring from factionsubset and converts it to a Faction
+                self.startSearchRanked(Factions.from_name(
+                    factionSubset[random.randint(0, len(factionSubset) - 1)]))
 
-
-
-    def generateSelectSubset(self, disconnect=True): #disconnect() throws an exception when there are no handlers on the button when disconnect() is called so it cannot be called when initialising
-        if(self.searching): #you cannot search for a match while changing/creating the UI
+    # disconnect() throws an exception when there are no handlers on the button when disconnect()
+    # is called so it cannot be called when initialising
+    def generateSelectSubset(self, disconnect=True):
+        if self.searching:  # you cannot search for a match while changing/creating the UI
             self.stopSearchRanked()
-        if(self.use_subset):
+        if self.use_subset:
             self.rankedPlay.clicked.connect(self.startSubRandomRankedSearch)
             self.rankedPlay.show()
             self.rankedRandom.hide()
             self.labelRankedHint.hide()
             self.labelSubsetRankedHint.show()
             for faction, icon in self._ranked_icons.items():
-                if(disconnect):
+                if disconnect:
                     icon.clicked.disconnect()
 
-                icon.setChecked(len(self.sub_factions) > (faction.value) and self.sub_factions[faction.value] == 'true') # we have a list but no list<bool>
-                icon.clicked.connect(partial(self.selectFaction, factionID=faction.value)) # removed - 1 on factionIndex because it won't set to the first element within the list
+                icon.setChecked(len(self.sub_factions) > (faction.value) and self.sub_factions[
+                                faction.value] == 'true')  # we have a list but no list<bool>
+                # removed - 1 on factionIndex because it won't set to the first element
+                # within the list
+                icon.clicked.connect(partial(self.selectFaction, factionID=faction.value))
         else:
             self.rankedPlay.hide()
             self.rankedRandom.show()
             self.labelRankedHint.show()
             self.labelSubsetRankedHint.hide()
             for faction, icon in self._ranked_icons.items():
-                if(disconnect):
+                if disconnect:
                     icon.clicked.disconnect()
 
                 icon.setChecked(False)
                 icon.clicked.connect(partial(self.toggle_search, race=faction))
-
 
     @QtCore.pyqtSlot()
     def clear_games(self):
@@ -221,26 +230,28 @@ class GamesWidget(FormClass, BaseClass):
             race = Factions.get_random_faction()
 
         if fa.instance.running():
-            QtGui.QMessageBox.information(None, "ForgedAllianceForever.exe", "FA is already running.")
+            QtGui.QMessageBox.information(
+                None, "ForgedAllianceForever.exe", "FA is already running.")
             self.stopSearchRanked()
             return
 
-        if (not fa.check.check("ladder1v1")):
+        if not fa.check.check("ladder1v1"):
             self.stopSearchRanked()
             logger.error("Can't play ranked without successfully updating Forged Alliance.")
             return
 
-        if (self.searching):
+        if self.searching:
             logger.info("Switching Ranked Search to Race " + str(race))
             self.race = race
             self.client.send(dict(command="game_matchmaking", mod="ladder1v1", state="settings",
                                   faction=self.race.value))
         else:
-            #Experimental UPnP Mapper - mappings are removed on app exit
+            # Experimental UPnP Mapper - mappings are removed on app exit
             if self.client.useUPnP:
                 fa.upnp.createPortMapping(self.client.localIP, self.client.gamePort, "UDP")
 
-            logger.info("Starting Ranked Search as " + str(race) + ", port: " + str(self.client.gamePort))
+            logger.info("Starting Ranked Search as " + str(race) +
+                        ", port: " + str(self.client.gamePort))
             self.searching = True
             self.race = race
             self.searchProgress.setVisible(True)
@@ -250,7 +261,7 @@ class GamesWidget(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def stopSearchRanked(self, *args):
-        if (self.searching):
+        if self.searching:
             logger.debug("Stopping Ranked Search")
             self.client.send(dict(command="game_matchmaking", mod="ladder1v1", state="stop"))
             self.searching = False
@@ -292,7 +303,8 @@ class GamesWidget(FormClass, BaseClass):
 
         if fa.check.check(item.mod, mapname=item.mapname, version=None, sim_mods=item.mods):
             if item.password_protected:
-                passw, ok = QtGui.QInputDialog.getText(self.client, "Passworded game" , "Enter password :", QtGui.QLineEdit.Normal, "")
+                passw, ok = QtGui.QInputDialog.getText(
+                    self.client, "Passworded game", "Enter password :", QtGui.QLineEdit.Normal, "")
                 if ok:
                     self.client.join_game(uid=item.uid, password=passw)
             else:
@@ -313,8 +325,7 @@ class GamesWidget(FormClass, BaseClass):
         if hostgamewidget.exec_() != 1:
             return
 
-
     def sortGamesComboChanged(self, index):
-        self.sort_games_index = index;
+        self.sort_games_index = index
         self.gameList.sortBy = index
         self.gameList.sortItems()
