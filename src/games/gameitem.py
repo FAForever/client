@@ -169,8 +169,11 @@ class GameItem(QtGui.QListWidgetItem):
         self.title = message['title']
         self.host = message['host']
 
-        if self.client.players.isPlayer(self.host):
-            self.hostid = self.client.players.isPlayer(self.host)
+        if 'host_id' in message:
+            self.hostid = message['host_id']
+        else:
+            self.hostid = self.client.players.getID(self.host)
+
 
         # Maps integral team numbers (from 2, with 1 "none") to lists of names.
         teams_map = dict.copy(message['teams'])
