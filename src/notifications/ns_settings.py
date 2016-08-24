@@ -1,6 +1,5 @@
 from PyQt4 import QtCore, QtGui
-
-import config
+from enum import Enum
 from config import Settings
 import util
 import notifications as ns
@@ -11,6 +10,24 @@ from notifications.hook_newgame import NsHookNewGame
 The UI of the Notification System Settings Frame.
 Each module/hook for the notification system must be registered here.
 """
+
+class NotificationPosition(Enum):
+    BOTTOM_RIGHT = 0
+    TOP_RIGHT = 1
+    BOTTOM_LEFT = 2
+    TOP_LEFT = 3
+
+    def getLabel(self):
+        if self == NotificationPosition.BOTTOM_RIGHT:
+            return "bottom right"
+        elif self == NotificationPosition.TOP_RIGHT:
+            return "top right"
+        elif self == NotificationPosition.BOTTOM_LEFT:
+            return "bottom left"
+        elif self == NotificationPosition.TOP_LEFT:
+            return "top left"
+
+
 # TODO: how to register hooks?
 FormClass2, BaseClass2 = util.loadUiType("notification_system/ns_settings.ui")
 class NsSettingsDialog(FormClass2, BaseClass2):
@@ -43,18 +60,17 @@ class NsSettingsDialog(FormClass2, BaseClass2):
     def loadSettings(self):
         self.enabled = Settings.get('notifications/enabled', True, type=bool)
         self.popup_lifetime = Settings.get('notifications/popup_lifetime', 5, type=int)
-        self.popup_position = Settings.get('notifications/popup_position', "bottom right", type=str)
+        self.popup_position = NotificationPosition(Settings.get('notifications/popup_position', NotificationPosition.BOTTOM_RIGHT.value, type=int))
 
         self.nsEnabled.setChecked(self.enabled)
         self.nsPopLifetime.setValue(self.popup_lifetime)
-        comboboxIndex = [i for i in range(4) if self.nsPositionComboBox.itemText(i) == self.popup_position]
-        self.nsPositionComboBox.setCurrentIndex(comboboxIndex[0] if comboboxIndex else -1)
+        self.nsPositionComboBox.setCurrentIndex(self.popup_position.value)
 
 
     def saveSettings(self):
         Settings.set('notifications/enabled', self.enabled)
         Settings.set('notifications/popup_lifetime', self.popup_lifetime)
-        Settings.set('notifications/popup_position', self.popup_position)
+        Settings.set('notifications/popup_position', self.popup_position.value)
 
         self.client.actionNsEnabled.setChecked(self.enabled)
 
@@ -62,7 +78,7 @@ class NsSettingsDialog(FormClass2, BaseClass2):
     def on_btnSave_clicked(self):
         self.enabled = self.nsEnabled.isChecked()
         self.popup_lifetime = self.nsPopLifetime.value()
-        self.popup_position = self.nsPositionComboBox.currentText()
+        self.popup_position = NotificationPosition(self.nsPositionComboBox.currentIndex())
 
         self.saveSettings()
         self.hide()

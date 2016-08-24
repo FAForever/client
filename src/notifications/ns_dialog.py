@@ -1,6 +1,7 @@
 from PyQt4 import QtCore, QtGui
 import util
 import time
+from ns_settings import NotificationPosition
 
 """
 The UI popup of the notification system
@@ -46,6 +47,8 @@ class NotificationDialog(FormClass, BaseClass):
         QtCore.QTimer.singleShot(lifetime * 1000, self, QtCore.SLOT('hide()'))
         if sound:
             util.sound("chat/sfx/query.wav")
+
+        self.updatePosition()
         self.show()
 
     @QtCore.pyqtSlot()
@@ -63,11 +66,11 @@ class NotificationDialog(FormClass, BaseClass):
         dialog_size = self.geometry()
         position = self.settings.popup_position  # self.client.notificationSystem.settings.popup_position
 
-        if position == "top left":
+        if position == NotificationPosition.TOP_LEFT:
             self.move(0, 0)
-        elif position == "top right":
+        elif position == NotificationPosition.TOP_RIGHT:
             self.move(screen.width() - dialog_size.width(), 0)
-        elif position == "bottom left":
+        elif position == NotificationPosition.BOTTOM_LEFT:
             self.move(0, screen.height() - dialog_size.height())
-        else:  # default is bottom right
+        else:
             self.move(screen.width() - dialog_size.width(), screen.height() - dialog_size.height())
