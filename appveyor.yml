@@ -16,7 +16,7 @@ install:
   - "powershell appveyor\\install.ps1"
   - ps: "$env:APPVEYOR_BUILD_VERSION = (& c:\\Python27\\python .\\src\\config\\version.py) + \"+\" + $env:APPVEYOR_BUILD_NUMBER"
   - ps: "get-childitem env:"
-  - ps: "$env:PYTEST_QT_API=\"pyqt4v2\""
+  - ps: "$env:PYTEST_QT_API=\"pyqt4\""
   - ps: "$env:FAF_FORCE_PRODUCTION=true"
   - "%PYTHON%\\Scripts\\pip.exe install -r requirements.txt --trusted-host content.faforever.com"
 
