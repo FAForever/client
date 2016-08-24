@@ -1,11 +1,15 @@
 from PyQt4 import QtCore, QtGui
-import util, time
+import util
+import time
 
 """
 The UI popup of the notification system
 """
 FormClass, BaseClass = util.loadUiType("notification_system/dialog.ui")
+
+
 class NotificationDialog(FormClass, BaseClass):
+
     def __init__(self, client, settings, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
 
@@ -22,7 +26,7 @@ class NotificationDialog(FormClass, BaseClass):
         self.setWindowFlags(QtCore.Qt.ToolTip)
 
         # TODO: integrate into client.css
-        #self.setStyleSheet(self.client.styleSheet())
+        # self.setStyleSheet(self.client.styleSheet())
 
     @QtCore.pyqtSlot()
     def newEvent(self, pixmap, text, lifetime, sound):
