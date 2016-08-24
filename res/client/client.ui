@@ -267,8 +267,6 @@
      <addaction name="actionSetGamePath"/>
      <addaction name="actionSetGamePort"/>
      <addaction name="actionSaveGamelogs"/>
-     <addaction name="separator"/>
-     <addaction name="actionUseSubset"/>
     </widget>
     <widget class="QMenu" name="menuTheme">
      <property name="tearOffEnabled">
@@ -589,14 +587,6 @@
   <action name="actionNsSettings">
    <property name="text">
     <string>Settings</string>
-   </property>
-  </action>
-  <action name="actionUseSubset">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Select multiple factions</string>
    </property>
   </action>
  </widget>
