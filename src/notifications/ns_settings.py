@@ -43,14 +43,18 @@ class NsSettingsDialog(FormClass2, BaseClass2):
     def loadSettings(self):
         self.enabled = Settings.get('notifications/enabled', True, type=bool)
         self.popup_lifetime = Settings.get('notifications/popup_lifetime', 5, type=int)
+        self.popup_position = Settings.get('notifications/popup_position', "bottom right", type=str)
 
         self.nsEnabled.setChecked(self.enabled)
         self.nsPopLifetime.setValue(self.popup_lifetime)
+        comboboxIndex = [i for i in range(4) if self.nsPositionComboBox.itemText(i) == self.popup_position]
+        self.nsPositionComboBox.setCurrentIndex(comboboxIndex[0] if comboboxIndex else -1)
 
 
     def saveSettings(self):
         Settings.set('notifications/enabled', self.enabled)
         Settings.set('notifications/popup_lifetime', self.popup_lifetime)
+        Settings.set('notifications/popup_position', self.popup_position)
 
         self.client.actionNsEnabled.setChecked(self.enabled)
 
@@ -58,6 +62,7 @@ class NsSettingsDialog(FormClass2, BaseClass2):
     def on_btnSave_clicked(self):
         self.enabled = self.nsEnabled.isChecked()
         self.popup_lifetime = self.nsPopLifetime.value()
+        self.popup_position = self.nsPositionComboBox.currentText()
 
         self.saveSettings()
         self.hide()

@@ -17,12 +17,11 @@ class Notifications:
     def __init__(self, client):
         self.client = client
 
-        self.dialog = NotificationDialog(self.client)
+        self.settings = NsSettingsDialog(self.client)
+        self.dialog = NotificationDialog(self.client,self.settings)
         self.events = []
         self.disabledStartup = True
         self.lock = Lock()
-
-        self.settings = NsSettingsDialog(self.client)
 
         self.user = util.icon("client/user.png", pix=True)
 
