@@ -118,10 +118,10 @@ class GamesWidget(FormClass, BaseClass):
             game.setHidden(state == Qt.Checked)
 
     def selectFaction(self, enabled, factionID=0):
-        if len(self.sub_factions) <= factionID:
+        if len(self.sub_factions) < factionID:
             return
 
-        self.sub_factions[factionID] = 'true' if enabled else 'false'
+        self.sub_factions[factionID-1] = 'true' if enabled else 'false'
 
         Settings.set("play/subFactions", self.sub_factions)
 
@@ -168,7 +168,7 @@ class GamesWidget(FormClass, BaseClass):
             except TypeError:
                 pass
 
-            icon.setChecked(self.sub_factions[faction.value] == 'true')
+            icon.setChecked(self.sub_factions[faction.value-1] == 'true')
             icon.clicked.connect(partial(self.selectFaction, factionID=faction.value))
 
     @QtCore.pyqtSlot()
