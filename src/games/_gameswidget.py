@@ -85,6 +85,8 @@ class GamesWidget(FormClass, BaseClass):
 
         self.modList.itemDoubleClicked.connect(self.hostGameClicked)
 
+        self.updatePlayButton()
+
 
     @QtCore.pyqtSlot(dict)
     def processModInfo(self, message):
@@ -127,6 +129,8 @@ class GamesWidget(FormClass, BaseClass):
 
         if self.searching:
             self.stopSearchRanked()
+
+        self.updatePlayButton()
 
     def startSubRandomRankedSearch(self):
         '''
@@ -207,7 +211,11 @@ class GamesWidget(FormClass, BaseClass):
         if self.searching:
             s = "Stop search"
         else:
-            s = "Play!"
+            c = self.sub_factions.count('true')
+            if c in [0, 4]:
+                s = "Play as random!"
+            else:
+                s = "Play!"
 
         self.rankedPlay.setText(s)
 
