@@ -41,8 +41,6 @@ def checkMods(mods):  #mods is a dictionary of uid-name pairs
         if result != fa.updater.Updater.RESULT_SUCCESS:
             logger.warning("Failure getting {}: {}".format(uid, mods[uid]))
             return False
-        else:
-            return True
 
     actual_mods = []
     inst = modvault.getInstalledMods()
