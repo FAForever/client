@@ -98,12 +98,11 @@ class Chatter(QtGui.QTableWidgetItem):
         secondStatus = self.getUserRank(other)
 
         if self.name == self.lobby.client.login: return True
+        if other.name == self.lobby.client.login: return False
 
         # if not same rank sort
         if firstStatus != secondStatus:
             return firstStatus < secondStatus
-
-        if other.name == self.lobby.client.login: return False
 
         # Default: Alphabetical
         return self.name.lower() < other.name.lower()
