@@ -57,6 +57,15 @@ def excepthook(exc_type, exc_value, traceback_object):
 
     sys.excepthook = excepthook
 
+def AdminUserErrorDialog():
+    box = QtGui.QMessageBox()
+    box.setText("FAF cannot be run as an administrator!")
+    box.setStandardButtons(QtGui.QMessageBox.Close)
+    box.setIcon(QtGui.QMessageBox.Critical)
+    box.setWindowTitle("FAF privilege error")
+    box.exec_()
+
+
 def runFAF():
     # Load theme from settings (one of the first things to be done)
     util.loadTheme()
@@ -79,9 +88,13 @@ if __name__ == '__main__':
     import platform
     import logging
 
+    app = QtGui.QApplication(sys.argv)
+
     if platform.system() == "Windows":
         import ctypes
         if ctypes.windll.shell32.IsUserAnAdmin():
+            AdminUserErrorDialog()
+            app.quit()
             exit()
 
         if getattr(ctypes.windll.shell32, "SetCurrentProcessExplicitAppUserModelID", None) is not None:
@@ -92,7 +105,6 @@ if __name__ == '__main__':
     logger = logging.getLogger(__name__)
     logger.info(">>> --------------------------- Application Launch")
 
-    app = QtGui.QApplication(sys.argv)
     # Set application icon to nicely stack in the system task bar
     app.setWindowIcon(util.icon("window_icon.png", True))
 
