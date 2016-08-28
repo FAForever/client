@@ -1127,6 +1127,9 @@ class ClientWindow(FormClass, BaseClass):
         else:
             logger.debug("No command in message.")
 
+    def handle_updated_achievements(self, message):
+        pass
+
     def handle_session(self, message):
         self.session = str(message['session'])
         if self.remember and self.login and self.password:
