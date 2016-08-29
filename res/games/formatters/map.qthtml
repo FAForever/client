@@ -1,0 +1,17 @@
+<font color="black" size="+2"><b>{mapname}</b></font>
+<font color="black"><font size="-1">v{version}</font><br/>
+<table border="0" cellpadding="0" cellspacing="0" width= "230">
+<tbody>
+<tr>
+<td>
+MaxPlayers: {maxplayers}
+</td>
+</tr>
+<tr>
+<td>
+Size: {size} km
+</td>
+</tr>
+</tbody>
+</table>
+</font>

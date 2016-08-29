@@ -452,7 +452,7 @@ QCheckBox#spoilerCheckbox
 }
 
 /* Used for Ranked Buttons only at the moment*/
-QToolButton#rankedPlay
+QToolButton#rankedPlay,#buttonViewMaps
 {
 	color: silver;
 	border-radius: 5px;

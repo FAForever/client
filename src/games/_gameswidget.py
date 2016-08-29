@@ -9,6 +9,7 @@ from config import Settings
 from games.gameitem import GameItem, GameItemDelegate
 from games.moditem import ModItem, mod_invisible, mods
 from games.hostgamewidget import HostgameWidget
+from games.showMapsDialog import ShowMapsDialog
 from fa.factions import Factions
 import fa
 import modvault
@@ -57,6 +58,7 @@ class GamesWidget(FormClass, BaseClass):
         self.rankedUEF.setIcon(util.icon("games/automatch/uef.png"))
 
         self.searchProgress.hide()
+        self.buttonViewMaps.clicked.connect(self.viewMapsPressed)
 
         # Ranked search state variables
         self.searching = False
@@ -277,6 +279,11 @@ class GamesWidget(FormClass, BaseClass):
             self.startSearchRanked(race)
         else:
             self.stopSearchRanked()
+
+    @QtCore.pyqtSlot()
+    def viewMapsPressed(self):
+        logger.info("view maps pressed")
+        dialog = ShowMapsDialog()
 
     @QtCore.pyqtSlot(QtGui.QListWidgetItem)
     def gameDoubleClicked(self, item):
