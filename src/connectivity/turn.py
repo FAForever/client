@@ -184,7 +184,8 @@ class TURNSession:
         self.permit(('37.58.123.3', 6112))
 
     def schedule_refresh(self):
-        self._call_in(self.refresh, 30)
+        # Lifetime is in seconds, make sure to refresh before it expires
+        self._call_in(self.refresh, self.lifetime / 70)
 
     def refresh(self):
         self._write(STUNMessage('Refresh').to_bytes())
