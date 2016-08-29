@@ -1,3 +1,17 @@
+0.11.61
+=======
+* Make it possible to choose subset of factions in ladder
+* Re-enable notification of game events
+* Update UI in the Replayvault
+    - Split generateInfoPlayersHtml into different methods
+    - Moved HTML as much as possible to the top and in constants
+    - Added free-for-all in the extra information of the replay
+    - Removed observers from the extra information of the replay
+    - Removed after rating from extra information of the replay (in code)
+* Added option to sort nicknames with friends on top.
+* Multiple mods are now downloaded if required
+* Fixed sorting bug with the player list
+
 0.11.60
 =======
 
