@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>794</width>
-    <height>434</height>
+    <width>1056</width>
+    <height>592</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,8 +16,26 @@
   <layout class="QGridLayout" name="gridLayout_2">
    <item row="0" column="0">
     <widget class="QListWidget" name="mapList">
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
+     </property>
+     <property name="showDropIndicator" stdset="0">
+      <bool>true</bool>
+     </property>
      <property name="dragDropMode">
       <enum>QAbstractItemView::NoDragDrop</enum>
+     </property>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::NoSelection</enum>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>100</width>
+       <height>100</height>
+      </size>
+     </property>
+     <property name="movement">
+      <enum>QListView::Static</enum>
      </property>
      <property name="resizeMode">
       <enum>QListView::Adjust</enum>
