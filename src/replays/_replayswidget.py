@@ -1,7 +1,5 @@
 
 
-
-
 from PyQt4 import QtCore, QtGui, QtNetwork
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
 from fa.replay import replay
@@ -19,12 +17,13 @@ LIVEREPLAY_DELAY = 5  # livereplay delay in minutes
 LIVEREPLAY_DELAY_TIME = LIVEREPLAY_DELAY * 60  # livereplay delay for time() (in seconds)
 LIVEREPLAY_DELAY_QTIMER = LIVEREPLAY_DELAY * 60000  # livereplay delay for Qtimer (in milliseconds)
 
-from replays.replayitem import ReplayItem, ReplayItemDelegate
+from src.replays.replayitem import ReplayItem, ReplayItemDelegate
 
 # Replays uses the new Inheritance Based UI creation pattern
 # This allows us to do all sorts of awesome stuff by overriding methods etc.
 
 FormClass, BaseClass = util.loadUiType("replays/replays.ui")
+
 
 class ReplaysWidget(BaseClass, FormClass):
     SOCKET = 11002
@@ -81,19 +80,17 @@ class ReplaysWidget(BaseClass, FormClass):
         self.replayVaultSocket.disconnected.connect(self.disconnected)
         self.replayVaultSocket.error.connect(self.errored) 
 
-        
         logger.info("Replays Widget instantiated.")
 
-        
     def searchVault(self):
-        ''' search for some replays '''
+        # search for some replays #
         self.searching = True
         self.connectToModVault()
         self.send(dict(command="search", rating=self.minRating.value(), map=self.mapName.text(), player=self.playerName.text(), mod=self.modList.currentText()))
         self.onlineTree.clear()
 
     def reloadView(self):
-        if self.searching != True:
+        if not self.searching:
             self.connectToModVault()
             self.send(dict(command="list"))
         
@@ -181,7 +178,6 @@ class ReplaysWidget(BaseClass, FormClass):
         self.reloadView()
         return BaseClass.showEvent(self, event)
 
-                
     def updateOnlineTree(self):
         self.replayInfos.clear()
         self.onlineTree.clear()
@@ -198,8 +194,6 @@ class ReplaysWidget(BaseClass, FormClass):
             bucket_item.setText(0, "<font color='white'>" + bucket+"</font>")
             bucket_item.setText(1, "<font color='white'>" + str(len(buckets[bucket])) + " replays</font>")
 
-            
-            
             for replay in buckets[bucket]:
                 bucket_item.addChild(replay)
                 replay.setFirstColumnSpanned(True)
@@ -343,7 +337,6 @@ class ReplaysWidget(BaseClass, FormClass):
             for replay in buckets[bucket]:
                 bucket_item.addChild(replay)
 
-
     def displayReplay(self):
         for uid in self.games:
             item = self.games[uid]
@@ -387,7 +380,6 @@ class ReplaysWidget(BaseClass, FormClass):
             item.setText(0, time.strftime("%H:%M", time.localtime(item.info.get('launched_at', time.time()))))
             item.setTextColor(0, QtGui.QColor(client.instance.getColor("default")))
                                     
-
             item.setIcon(0, icon)
             item.setText(1, info['title'])
             item.setTextColor(1, QtGui.QColor(client.instance.getColor("player")))
@@ -446,8 +438,6 @@ class ReplaysWidget(BaseClass, FormClass):
             if info['uid'] in self.games:
                 self.liveTree.takeTopLevelItem(self.liveTree.indexOfTopLevelItem(self.games[info['uid']]))
                 
-                
-                
     @QtCore.pyqtSlot(QtGui.QTreeWidgetItem)
     def liveTreePressed(self, item):
         if QtGui.QApplication.mouseButtons() != QtCore.Qt.RightButton:
@@ -478,8 +468,6 @@ class ReplaysWidget(BaseClass, FormClass):
         # Finally: Show the popup
         menu.popup(QtGui.QCursor.pos())
 
-
-    
     @QtCore.pyqtSlot(QtGui.QListWidgetItem)
     def myTreePressed(self, item):
         if QtGui.QApplication.mouseButtons() != QtCore.Qt.RightButton:
@@ -513,8 +501,6 @@ class ReplaysWidget(BaseClass, FormClass):
         menu.popup(QtGui.QCursor.pos())
 
 
-
-
     @QtCore.pyqtSlot(QtGui.QTreeWidgetItem, int)
     def myTreeDoubleClicked(self, item, column):
         if item.isDisabled():
@@ -523,12 +509,10 @@ class ReplaysWidget(BaseClass, FormClass):
         if self.myTree.indexOfTopLevelItem(item) == -1:
             replay(item.filename)
                 
-                
     @QtCore.pyqtSlot(QtGui.QTreeWidgetItem, int)
     def liveTreeDoubleClicked(self, item, column):
-        '''
-        This slot launches a live replay from eligible items in liveTree
-        '''
+        # This slot launches a live replay from eligible items in liveTree #
+
         if item.isDisabled():
             return
         
@@ -538,12 +522,11 @@ class ReplaysWidget(BaseClass, FormClass):
             replay(item.url)
             
     def connectToModVault(self):
-        ''' connect to the replay vault server'''
+        # connect to the replay vault server #
         
         if self.replayVaultSocket.state() != QtNetwork.QAbstractSocket.ConnectedState and self.replayVaultSocket.state() != QtNetwork.QAbstractSocket.ConnectingState:
             self.replayVaultSocket.connectToHost(self.HOST, self.SOCKET)        
 
-    
     def send(self, message):
         data = json.dumps(message)
         logger.debug("Outgoing JSON Message: " + data)
@@ -554,7 +537,7 @@ class ReplaysWidget(BaseClass, FormClass):
         ins = QtCore.QDataStream(self.replayVaultSocket)        
         ins.setVersion(QtCore.QDataStream.Qt_4_2)
         
-        while ins.atEnd() == False :
+        while not ins.atEnd():
             if self.blockSize == 0:
                 if self.replayVaultSocket.bytesAvailable() < 4:
                     return
@@ -571,9 +554,8 @@ class ReplaysWidget(BaseClass, FormClass):
         self.receiveJSON(action, stream)
         
     def receiveJSON(self, data_string, stream):
-        '''
-        A fairly pythonic way to process received strings as JSON messages.
-        '''
+        # A fairly pythonic way to process received strings as JSON messages. #
+
         try:
             message = json.loads(data_string)
             cmd = "handle_" + message['command']
@@ -595,13 +577,13 @@ class ReplaysWidget(BaseClass, FormClass):
         out.writeQString(action)
         
         for arg in args:
-            if type(arg) is IntType:
+            if type(arg) is type(int):
                 out.writeInt(arg)
             elif isinstance(arg, basestring):
                 out.writeQString(arg)
-            elif type(arg) is FloatType:
+            elif type(arg) is type(float):
                 out.writeFloat(arg)
-            elif type(arg) is ListType:
+            elif type(arg) is type(list):
                 out.writeQVariantList(arg)
             else:
                 logger.warn("Uninterpreted Data Type: " + str(type(arg)) + " of value: " + str(arg))
@@ -625,11 +607,9 @@ class ReplaysWidget(BaseClass, FormClass):
         else:
             logger.info("The following error occurred: %s." % self.replayVaultSocket.errorString())    
 
-
     @QtCore.pyqtSlot()
     def disconnected(self):
         logger.debug("Disconnected from server")
-
 
     @QtCore.pyqtSlot(QtNetwork.QAbstractSocket.SocketError)
     def errored(self, error):

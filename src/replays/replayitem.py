@@ -1,16 +1,12 @@
+import os
+import time
 
-
-
-
-from PyQt4 import QtCore, QtGui
-from fa import maps
-from fa.factions import Factions
 import util
-import os, time
-from games.moditem import mods
-from config import Settings
+from PyQt4 import QtCore, QtGui
 
-import client
+from src.config import Settings
+from src.fa import maps
+from src.games.moditem import mods
 
 
 class ReplayItemDelegate(QtGui.QStyledItemDelegate):
@@ -111,18 +107,17 @@ class ReplayItem(QtGui.QTreeWidgetItem):
 
         self.options        = []
         self.players        = []
+        self.numberplayers  = 0
         self.biggestTeam    = 0
         self.winner         = None
+        self.teamWin        = None
 
         self.setHidden(True)
         self.extraInfoWidth  = 0  # panel with more information
         self.extraInfoHeight = 0  # panel with more information
     
     def update(self, message, client):
-        '''
-        Updates this item from the message dictionary supplied
-        '''
-        
+        # Updates this item from the message dictionary supplied #
         
         self.client = client
         
@@ -158,9 +153,9 @@ class ReplayItem(QtGui.QTreeWidgetItem):
         self.viewtext = (self.FORMATTER_REPLAY.format(time=self.startHour, name=self.name, map = self.mapdisplayname, duration = self.duration, mod = self.moddisplayname))
 
     def infoPlayers(self, players):
-        '''
-        processes information from the server about a replay into readable extra information for the user, also calls method to show the information
-        '''
+        # processes information from the server about a replay into readable extra information for the user, #
+        # also calls method to show the information #
+
         self.moreInfo = True
         self.numberplayers = len(players)
         mvpscore = 0
@@ -184,7 +179,7 @@ class ReplayItem(QtGui.QTreeWidgetItem):
                     scores[team] = scores[team] + player["score"]
                 else:
                     scores[team] = player["score"]
-                if not team in self.teams :
+            if team not in self.teams:
                 self.teams[team] = [player]
             else:
                 self.teams[team].append(player)
@@ -210,26 +205,22 @@ class ReplayItem(QtGui.QTreeWidgetItem):
 
         self.generateInfoPlayersHtml()
 
-
-
     def generateInfoPlayersHtml(self):
-        '''
-        Creates the ui and extra information about a replay,
-        Either teamWin or winner must be set if the replay is to be spoiled
+        # Creates the ui and extra information about a replay, #
+        # Either teamWin or winner must be set if the replay is to be spoiled #
 
-        '''
         observerlist = []
         teams = ""
-        winnerHTML = "";
+        winnerHTML = ""
 
-        self.spoiled = self.parent.spoilerCheckbox.isChecked() == False
+        self.spoiled = not self.parent.spoilerCheckbox.isChecked()
 
         i = 0
         for team in self.teams:
             if team != -1:
                 i += 1
 
-                if(len(self.teams[team]) > self.biggestTeam):
+                if len(self.teams[team]) > self.biggestTeam:  # for height of Infobox
                     self.biggestTeam = len(self.teams[team])
 
                 players = ""
@@ -330,7 +321,6 @@ class ReplayItem(QtGui.QTreeWidgetItem):
             self.parent.replayInfos.setMinimumHeight(self.extraInfoHeight)
             self.parent.replayInfos.setMaximumHeight(self.extraInfoHeight)
 
-
     def pressed(self, item):
         menu = QtGui.QMenu(self.parent)
         actionDownload = QtGui.QAction("Download replay", menu)
@@ -355,8 +345,8 @@ class ReplayItem(QtGui.QTreeWidgetItem):
         return super(ReplayItem, self).data(column, role)
  
     def permutations(self, items):
-        """Yields all permutations of the items."""
-        if items == []:
+        # Yields all permutations of the items. #
+        if items is []:
             yield []
         else:
             for i in range(len(items)):
@@ -364,16 +354,12 @@ class ReplayItem(QtGui.QTreeWidgetItem):
                     yield [items[i]] + j
 
     def __ge__(self, other):
-        ''' Comparison operator used for item list sorting '''        
+        # Comparison operator used for item list sorting #
         return not self.__lt__(other)
 
-    
     def __lt__(self, other):
-        ''' Comparison operator used for item list sorting '''        
+        # Comparison operator used for item list sorting #
         if not self.client: return True  # If not initialized...
-        if not other.client: return False;
+        if not other.client: return False
         # Default: uid
         return self.uid < other.uid
-    
-
-
