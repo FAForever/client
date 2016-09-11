@@ -29,18 +29,18 @@ class ReplayItemDelegate(QtGui.QStyledItemDelegate):
         icon = QtGui.QIcon(option.icon)
         iconsize = icon.actualSize(option.rect.size())
         
-        #clear icon and text before letting the control draw itself because we're rendering these parts ourselves
+        # clear icon and text before letting the control draw itself because we're rendering these parts ourselves
         option.icon = QtGui.QIcon()        
         option.text = ""  
         option.widget.style().drawControl(QtGui.QStyle.CE_ItemViewItem, option, painter, option.widget)
         
-        #Shadow
-        #painter.fillRect(option.rect.left()+8-1, option.rect.top()+8-1, iconsize.width(), iconsize.height(), QtGui.QColor("#202020"))
+        # Shadow
+        # painter.fillRect(option.rect.left()+8-1, option.rect.top()+8-1, iconsize.width(), iconsize.height(), QtGui.QColor("#202020"))
 
-        #Icon
+        # Icon
         icon.paint(painter, option.rect.adjusted(5-2, -2, 0, 0), QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
         
-        #Frame around the icon
+        # Frame around the icon
 #        pen = QtGui.QPen()
 #        pen.setWidth(1);
 #        pen.setBrush(QtGui.QColor("#303030"));  #FIXME: This needs to come from theme.
@@ -48,7 +48,7 @@ class ReplayItemDelegate(QtGui.QStyledItemDelegate):
 #        painter.setPen(pen)
 #        painter.drawRect(option.rect.left()+5-2, option.rect.top()+5-2, iconsize.width(), iconsize.height())
 
-        #Description
+        # Description
         painter.translate(option.rect.left() + iconsize.width() + 10, option.rect.top()+10)
         clip = QtCore.QRectF(0, 0, option.rect.width()-iconsize.width() - 10 - 5, option.rect.height())
         html.drawContents(painter, clip)
@@ -62,9 +62,9 @@ class ReplayItemDelegate(QtGui.QStyledItemDelegate):
         html = QtGui.QTextDocument()
         html.setHtml(option.text)
         html.setTextWidth(240)
-        if clip :
+        if clip:
             return QtCore.QSize(215, clip.height)
-        else :
+        else:
             return QtCore.QSize(215, 35)
 
 
@@ -115,10 +115,10 @@ class ReplayItem(QtGui.QTreeWidgetItem):
         self.players        = []
         self.biggestTeam    = 0
         self.winner         = None
-        
+
         self.setHidden(True)
-        self.extraInfoWidth          = 0 #panel with more information
-        self.extraInfoHeight         = 0 #panel with more information
+        self.extraInfoWidth  = 0  # panel with more information
+        self.extraInfoHeight = 0  # panel with more information
     
     def update(self, message, client):
         '''
@@ -126,15 +126,15 @@ class ReplayItem(QtGui.QTreeWidgetItem):
         '''
         
         
-        self.client  = client
+        self.client = client
         
-        self.name       = message["name"]
-        self.mapname    = message["map"]
-        self.duration   = time.strftime('%H:%M:%S', time.gmtime(message["duration"]))
-        self.startHour  = time.strftime("%H:%M", time.localtime(message['start']))
-        self.startDate  = time.strftime("%Y-%m-%d", time.localtime(message['start']))
-        self.mod        = message["mod"]
-         
+        self.name      = message["name"]
+        self.mapname   = message["map"]
+        self.duration  = time.strftime('%H:%M:%S', time.gmtime(message["duration"]))
+        self.startHour = time.strftime("%H:%M", time.localtime(message['start']))
+        self.startDate = time.strftime("%Y-%m-%d", time.localtime(message['start']))
+        self.mod       = message["mod"]
+
         # Map preview code
         self.mapdisplayname = maps.getDisplayName(self.mapname)
       
@@ -147,7 +147,7 @@ class ReplayItem(QtGui.QTreeWidgetItem):
         self.moddisplayname = self.mod
         self.modoptions = []
 
-        if self.mod in mods :
+        if self.mod in mods:
             self.moddisplayname = mods[self.mod].name 
 
 #        self.title      = message['title']
@@ -169,24 +169,24 @@ class ReplayItem(QtGui.QTreeWidgetItem):
         mvpscore = 0
         mvp = None
         scores = {}
-        
+
         for player in players :
             team            = int(player["team"])
 
             if team : #even if it's FFA the players are still in team 1
-                if "score" in player :
-                    if player["score"] > mvpscore:
-                        mvp = player
-                        mvpscore = player["score"]
+            if "score" in player:
+                if player["score"] > mvpscore:
+                    mvp = player
+                    mvpscore = player["score"]
 
-                    if team in scores :
-                        scores[team] = scores[team] + player["score"]
-                    else :
-                        scores[team] = player["score"]
+                if team in scores:
+                    scores[team] = scores[team] + player["score"]
+                else:
+                    scores[team] = player["score"]
                 if not team in self.teams :
-                    self.teams[team] = [player]
-                else :
-                    self.teams[team].append(player)
+                self.teams[team] = [player]
+            else:
+                self.teams[team].append(player)
 
         self.teamWin = None
 
@@ -194,7 +194,7 @@ class ReplayItem(QtGui.QTreeWidgetItem):
             self.winner = mvp
         elif len(scores) > 0:
             winner = -10
-            for team in scores :
+            for team in scores:
                 if scores[team] > winner :
                     self.teamWin = team
                     winner = scores[team]
@@ -209,7 +209,7 @@ class ReplayItem(QtGui.QTreeWidgetItem):
         Either teamWin or winner must be set if the replay is to be spoiled
 
         '''
-        observerlist    = []
+        observerlist = []
         teams = ""
         winnerHTML = "";
 
@@ -217,14 +217,14 @@ class ReplayItem(QtGui.QTreeWidgetItem):
 
         i = 0
         for team in self.teams:
-            if team != -1 :
+            if team != -1:
                 i += 1
 
                 if(len(self.teams[team]) > self.biggestTeam):
                     self.biggestTeam = len(self.teams[team])
 
                 players = ""
-                for player in self.teams[team] :
+                for player in self.teams[team]:
                     alignment, playerIcon, playerLabel = self.generatePlayerHTML(i, player)
 
                     if(player == self.winner and self.spoiled):
@@ -242,7 +242,7 @@ class ReplayItem(QtGui.QTreeWidgetItem):
                         if(self.teamWin == team):
                             teamTitle = "Win"
 
-                        teams += self.FORMATTER_REPLAY_TEAM_SPOILED.format(title= teamTitle, players = players)
+                            teams += self.FORMATTER_REPLAY_TEAM_SPOILED.format(title=teamTitle, players=players)
                 else:
                     teams += self.FORMATTER_REPLAY_TEAM.format(players = players)
 
@@ -273,7 +273,7 @@ class ReplayItem(QtGui.QTreeWidgetItem):
 
         return alignment, playerIcon, playerLabel
 
-    def retrieveIconFaction(self, player): #Factions does not contain Nomads
+    def retrieveIconFaction(self, player):  # Factions does not contain Nomads
         if "faction" in player:
             if player["faction"] == 1:
                 faction = "UEF"
@@ -314,15 +314,15 @@ class ReplayItem(QtGui.QTreeWidgetItem):
         QtGui.QDesktopServices.openUrl(QtCore.QUrl(self.url))
 
     def display(self, column):
-        if column == 0 :
+        if column == 0:
             return self.viewtext
-        if column == 1 :
+        if column == 1:
             return self.viewtext   
  
     def data(self, column, role):
         if role == QtCore.Qt.DisplayRole:
             return self.display(column)  
-        elif role == QtCore.Qt.UserRole :
+        elif role == QtCore.Qt.UserRole:
             return self
         return super(ReplayItem, self).data(column, role)
  
@@ -338,11 +338,11 @@ class ReplayItem(QtGui.QTreeWidgetItem):
     def __ge__(self, other):
         ''' Comparison operator used for item list sorting '''        
         return not self.__lt__(other)
-    
+
     
     def __lt__(self, other):
         ''' Comparison operator used for item list sorting '''        
-        if not self.client: return True # If not initialized...
+        if not self.client: return True  # If not initialized...
         if not other.client: return False;
         # Default: uid
         return self.uid < other.uid

@@ -15,9 +15,9 @@ import json
 import logging
 logger = logging.getLogger(__name__)
 
-LIVEREPLAY_DELAY = 5 #livereplay delay in minutes
-LIVEREPLAY_DELAY_TIME = LIVEREPLAY_DELAY * 60 #livereplay delay for time() (in seconds)
-LIVEREPLAY_DELAY_QTIMER = LIVEREPLAY_DELAY * 60000 #livereplay delay for Qtimer (in milliseconds)
+LIVEREPLAY_DELAY = 5  # livereplay delay in minutes
+LIVEREPLAY_DELAY_TIME = LIVEREPLAY_DELAY * 60  # livereplay delay for time() (in seconds)
+LIVEREPLAY_DELAY_QTIMER = LIVEREPLAY_DELAY * 60000  # livereplay delay for Qtimer (in milliseconds)
 
 from replays.replayitem import ReplayItem, ReplayItemDelegate
 
@@ -27,15 +27,15 @@ from replays.replayitem import ReplayItem, ReplayItemDelegate
 FormClass, BaseClass = util.loadUiType("replays/replays.ui")
 
 class ReplaysWidget(BaseClass, FormClass):
-    SOCKET  = 11002
-    HOST    = "lobby.faforever.com"
+    SOCKET = 11002
+    HOST   = "lobby.faforever.com"
     
     def __init__(self, client):
         super(BaseClass, self).__init__()
 
         self.setupUi(self)
 
-        #self.replayVault.setVisible(False)
+        # self.replayVault.setVisible(False)
         self.client = client
         client.replaysTab.layout().addWidget(self)
         
@@ -89,7 +89,7 @@ class ReplaysWidget(BaseClass, FormClass):
         ''' search for some replays '''
         self.searching = True
         self.connectToModVault()
-        self.send(dict(command="search", rating = self.minRating.value(), map = self.mapName.text(), player = self.playerName.text(), mod = self.modList.currentText()))
+        self.send(dict(command="search", rating=self.minRating.value(), map=self.mapName.text(), player=self.playerName.text(), mod=self.modList.currentText()))
         self.onlineTree.clear()
 
     def reloadView(self):
@@ -128,7 +128,7 @@ class ReplaysWidget(BaseClass, FormClass):
                     item.generateInfoPlayersHtml()
                 
     def onlineTreeDoubleClicked(self, item):
-        if hasattr(item, "url") :
+        if hasattr(item, "url"):
             self.replayDownload.get(QNetworkRequest(QtCore.QUrl(item.url))) 
 
     def spoilerCheckboxPressed(self, item):
@@ -137,10 +137,10 @@ class ReplaysWidget(BaseClass, FormClass):
 
     def replayVault(self, message):
         action = message["action"]
-        if action == "list_recents" :
+        if action == "list_recents":
             self.onlineReplays = {}
             replays = message["replays"]
-            for replay in replays :
+            for replay in replays:
                 uid = replay["id"]
         
                 if uid not in self.onlineReplays:
@@ -151,16 +151,16 @@ class ReplaysWidget(BaseClass, FormClass):
                     
             self.updateOnlineTree()
             
-        elif action == "info_replay" :
+        elif action == "info_replay":
             uid = message["uid"]
             if uid in self.onlineReplays:
                 self.onlineReplays[uid].infoPlayers(message["players"])
                 
-        elif action == "search_result" :
+        elif action == "search_result":
             self.searching = False
             self.onlineReplays = {}
             replays = message["replays"]
-            for replay in replays :
+            for replay in replays:
                 uid = replay["id"]
         
                 if uid not in self.onlineReplays:
@@ -186,7 +186,7 @@ class ReplaysWidget(BaseClass, FormClass):
         self.replayInfos.clear()
         self.onlineTree.clear()
         buckets = {}
-        for uid in self.onlineReplays :
+        for uid in self.onlineReplays:
             bucket = buckets.setdefault(self.onlineReplays[uid].startDate, [])
             bucket.append(self.onlineReplays[uid])
             
@@ -196,8 +196,8 @@ class ReplaysWidget(BaseClass, FormClass):
             
             bucket_item.setIcon(0, util.icon("replays/bucket.png"))                                
             bucket_item.setText(0, "<font color='white'>" + bucket+"</font>")
-            bucket_item.setText(1,"<font color='white'>" + str(len(buckets[bucket])) + " replays</font>")
-            
+            bucket_item.setText(1, "<font color='white'>" + str(len(buckets[bucket])) + " replays</font>")
+
             
             
             for replay in buckets[bucket]:
@@ -274,7 +274,7 @@ class ReplaysWidget(BaseClass, FormClass):
                             item.setIcon(0, icon)
                         else:
                             self.client.downloader.downloadMap(item.info['mapname'], item, True)
-                            item.setIcon(0,util.icon("games/unknown_map.png"))                                                      
+                            item.setIcon(0, util.icon("games/unknown_map.png"))
                         item.setToolTip(0, fa.maps.getDisplayName(item.info['mapname']))
                         item.setText(0, game_hour)
                         item.setTextColor(0, QtGui.QColor(client.instance.getColor("default")))
@@ -298,15 +298,15 @@ class ReplaysWidget(BaseClass, FormClass):
                         item.setIcon(0, util.icon("replays/replay.png"))
                         item.setText(1, infile)
                         item.setText(2, "(replay doesn't have complete metadata)")
-                        item.setTextColor(1, QtGui.QColor("yellow")) #FIXME: Needs to come from theme
+                        item.setTextColor(1, QtGui.QColor("yellow"))  # FIXME: Needs to come from theme
 
                 except Exception as ex:
                     bucket = buckets.setdefault("broken", [])                    
                     item.setIcon(0, util.icon("replays/broken.png"))
                     item.setText(1, infile)
-                    item.setTextColor(1, QtGui.QColor("red"))   #FIXME: Needs to come from theme
+                    item.setTextColor(1, QtGui.QColor("red"))   # FIXME: Needs to come from theme
                     item.setText(2, "(replay parse error)")
-                    item.setTextColor(2, QtGui.QColor("gray"))  #FIXME: Needs to come from theme
+                    item.setTextColor(2, QtGui.QColor("gray"))  # FIXME: Needs to come from theme
                     logger.exception("Exception parsing replay {}: {}".format(infile, ex))
 
                 bucket.append(item)
@@ -318,11 +318,11 @@ class ReplaysWidget(BaseClass, FormClass):
             bucket_item = QtGui.QTreeWidgetItem()
             
             if bucket == "broken":
-                bucket_item.setTextColor(0, QtGui.QColor("red")) #FIXME: Needs to come from theme
+                bucket_item.setTextColor(0, QtGui.QColor("red"))  # FIXME: Needs to come from theme
                 bucket_item.setText(1, "(not watchable)")
                 bucket_item.setTextColor(1, QtGui.QColor(client.instance.getColor("default")))
             elif bucket == "incomplete":
-                bucket_item.setTextColor(0, QtGui.QColor("yellow")) #FIXME: Needs to come from theme
+                bucket_item.setTextColor(0, QtGui.QColor("yellow"))  # FIXME: Needs to come from theme
                 bucket_item.setText(1, "(watchable)")
                 bucket_item.setTextColor(1, QtGui.QColor(client.instance.getColor("default")))
             elif bucket == "legacy":
@@ -345,7 +345,7 @@ class ReplaysWidget(BaseClass, FormClass):
 
 
     def displayReplay(self):
-        for uid in self.games :
+        for uid in self.games:
             item = self.games[uid]
             if time.time() - item.info.get('launched_at', time.time()) > LIVEREPLAY_DELAY_TIME and item.isHidden():
                 item.setHidden(False)
@@ -357,7 +357,7 @@ class ReplaysWidget(BaseClass, FormClass):
                 # Updating an existing item
                 item = self.games[info['uid']]
                 
-                item.takeChildren()  #Clear the children of this item before we're updating it
+                item.takeChildren()  # Clear the children of this item before we're updating it
             else:
                 # Creating a fresh item
                 item = QtGui.QTreeWidgetItem()
@@ -367,7 +367,7 @@ class ReplaysWidget(BaseClass, FormClass):
                 
                 if time.time() - info.get('launched_at', time.time()) < LIVEREPLAY_DELAY_TIME:
                     item.setHidden(True)
-                    QtCore.QTimer.singleShot(LIVEREPLAY_DELAY_QTIMER, self.displayReplay) #The delay is there because we have a delay in the livereplay server
+                    QtCore.QTimer.singleShot(LIVEREPLAY_DELAY_QTIMER, self.displayReplay)  # The delay is there because we have a delay in the livereplay server
 
             # For debugging purposes, format our tooltip for the top level items
             # so it contains a human-readable representation of the info dictionary
@@ -384,7 +384,7 @@ class ReplaysWidget(BaseClass, FormClass):
                 self.client.downloader.downloadMap(item.info['mapname'], item, True)
                 icon = util.icon("games/unknown_map.png")
 
-            item.setText(0,time.strftime("%H:%M", time.localtime(item.info.get('launched_at', time.time()))))
+            item.setText(0, time.strftime("%H:%M", time.localtime(item.info.get('launched_at', time.time()))))
             item.setTextColor(0, QtGui.QColor(client.instance.getColor("default")))
                                     
 
@@ -403,7 +403,7 @@ class ReplaysWidget(BaseClass, FormClass):
 
             # Create player entries for all the live players in a match
             for team in info['teams']:
-                if team == "-1": #skip observers, they don't seem to stream livereplays
+                if team == "-1":  # skip observers, they don't seem to stream livereplays
                     continue
                 
                 for name in info['teams'][team]:
@@ -468,14 +468,14 @@ class ReplaysWidget(BaseClass, FormClass):
         menu.addAction(actionLink)
             
         # Triggers
-        actionReplay.triggered.connect(lambda : self.liveTreeDoubleClicked(item, 0))
-        actionLink.triggered.connect(lambda : QtGui.QApplication.clipboard().setText(item.toolTip(0)))
+        actionReplay.triggered.connect(lambda: self.liveTreeDoubleClicked(item, 0))
+        actionLink.triggered.connect(lambda: QtGui.QApplication.clipboard().setText(item.toolTip(0)))
       
         # Adding to menu
         menu.addAction(actionReplay)
         menu.addAction(actionLink)
     
-        #Finally: Show the popup
+        # Finally: Show the popup
         menu.popup(QtGui.QCursor.pos())
 
 
@@ -502,14 +502,14 @@ class ReplaysWidget(BaseClass, FormClass):
         menu.addAction(actionExplorer)
             
         # Triggers
-        actionReplay.triggered.connect(lambda : self.myTreeDoubleClicked(item, 0))
-        actionExplorer.triggered.connect(lambda : util.showInExplorer(item.filename))
+        actionReplay.triggered.connect(lambda: self.myTreeDoubleClicked(item, 0))
+        actionExplorer.triggered.connect(lambda: util.showInExplorer(item.filename))
       
         # Adding to menu
         menu.addAction(actionReplay)
         menu.addAction(actionExplorer)
 
-        #Finally: Show the popup
+        # Finally: Show the popup
         menu.popup(QtGui.QCursor.pos())
 
 
@@ -540,9 +540,9 @@ class ReplaysWidget(BaseClass, FormClass):
     def connectToModVault(self):
         ''' connect to the replay vault server'''
         
-        if self.replayVaultSocket.state() != QtNetwork.QAbstractSocket.ConnectedState and self.replayVaultSocket.state() !=QtNetwork.QAbstractSocket.ConnectingState:
+        if self.replayVaultSocket.state() != QtNetwork.QAbstractSocket.ConnectedState and self.replayVaultSocket.state() != QtNetwork.QAbstractSocket.ConnectingState:
             self.replayVaultSocket.connectToHost(self.HOST, self.SOCKET)        
-    
+
     
     def send(self, message):
         data = json.dumps(message)
@@ -594,7 +594,7 @@ class ReplaysWidget(BaseClass, FormClass):
         out.writeUInt32(0)
         out.writeQString(action)
         
-        for arg in args :            
+        for arg in args:
             if type(arg) is IntType:
                 out.writeInt(arg)
             elif isinstance(arg, basestring):

@@ -265,7 +265,7 @@
           </size>
          </property>
          <property name="title">
-          <string>Search options</string>
+          <string> Search options</string>
          </property>
          <property name="flat">
           <bool>true</bool>
