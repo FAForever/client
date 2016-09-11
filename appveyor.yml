@@ -2,10 +2,11 @@ environment:
 
   matrix:
     - PYTHON: "C:\\Miniconda"
-      PYTHON_VERSION: "2.7.11"
+      PYTHON_VERSION: "3.4.4"
       PYTHON_ARCH: "32"
       QTIMPL: "PyQt4"
-      TESTENVS: "py27-pyqt4"
+      INSTALL_QT: "py34-pyqt4"
+      TESTENVS: "py34-pyqt4"
 
 init:
   - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH% %QTIMPL%"

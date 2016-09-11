@@ -1,13 +1,37 @@
 language: python
 
-
 python:
-  - "2.7_with_system_site_packages"
+  - "3.5"
+
+before_install:
+  - sudo mkdir -p /downloads
+  - sudo chmod a+rw /downloads
+  - curl -L http://sourceforge.net/projects/pyqt/files/sip/sip-4.18.1/sip-4.18.1.tar.gz -o /downloads/sip.tar.gz
+  - curl -L http://sourceforge.net/projects/pyqt/files/PyQt4/PyQt-4.11.4/PyQt-x11-gpl-4.11.4.tar.gz -o /downloads/pyqt4.tar.gz
+  # Builds
+  - sudo mkdir -p /builds
+  - sudo chmod a+rw /builds
 
 install:
   - "sudo apt-get update"
-  - "sudo apt-get install python-qt4 liblua5.1"
-  - "sudo apt-get install python-qt4 liblua5.1 libjpeg8-dev zlib1g-dev"
+  - "sudo apt-get install -y libqt4-dev"
+  - "sudo apt-get install -y liblua5.1 libjpeg8-dev zlib1g-dev"
+  - pushd /builds
+  # SIP
+  - tar xzf /downloads/sip.tar.gz --keep-newer-files
+  - pushd sip-4.18.1
+  - python configure.py
+  - make
+  - sudo make install
+  - popd
+  # PyQt4
+  - tar xzf /downloads/pyqt4.tar.gz --keep-newer-files
+  - pushd PyQt-x11-gpl-4.11.4
+  - python configure.py -c --confirm-license --no-designer-plugin -e QtCore -e QtGui -e QtTest -e QtNetwork -e QtWebKit
+  - make
+  - sudo make install
+  - popd
+  - popd
   - "pip install cx_Freeze"
   - "pip install python-coveralls"
   - "pip install -r requirements.txt --trusted-host content.faforever.com"
