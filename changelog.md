@@ -1,6 +1,5 @@
 0.11.61
 =======
-* Fix bug with some connections timing out
 * Make it possible to choose subset of factions in ladder
 * Re-enable notification of game events
 * Update UI in the Replayvault
