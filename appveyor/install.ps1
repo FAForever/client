@@ -4,7 +4,7 @@ $GET_PIP_PATH = "C:\get-pip.py"
 
 $webclient = (new-object net.webclient)
 
-$python_home = "C:\Python27"
+$python_home = "C:\Python34"
 
 $pip_path = $python_home + "\Scripts\pip.exe"
 $python_path = $python_home + "\python.exe"
@@ -27,7 +27,7 @@ InstallPackage http://content.faforever.com/wheel/lupa-1.1-cp27-none-win32.whl
 InstallPackage wheel
 InstallPackage pytest
 InstallPackage cffi
-InstallPackage https://pypi.python.org/packages/cp27/p/pypiwin32/pypiwin32-219-cp27-none-win32.whl#md5=a8b0c1b608c1afeb18cd38d759ee5e29
+InstallPackage https://pypi.python.org/packages/68/76/c3457dfe31c5a6c4fc3687d012a89c769d52129f19584415309aa0339a31/pypiwin32-219-cp34-none-win32.whl#md5=d1064ebb932294271b883ffdb369c640
 InstallPackage cx_Freeze
 
 & $pip_path install -r requirements.txt
