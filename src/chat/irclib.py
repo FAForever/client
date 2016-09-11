@@ -365,7 +365,7 @@ class ServerNotConnectedError(ServerConnectionError):
 
 # Huh!?  Crrrrazy EFNet doesn't follow the RFC: their ircd seems to
 # use \n as message separator!  :P
-_linesep_regexp = re.compile("\r?\n")
+_linesep_regexp = re.compile(b'\r?\n')
 
 
 class ServerConnection(Connection):
@@ -414,7 +414,7 @@ class ServerConnection(Connection):
         if self.connected:
             self.disconnect("Changing servers")
 
-        self.previous_buffer = ""
+        self.previous_buffer = b''
         self.handlers = {}
         self.real_server_name = ""
         self.real_nickname = nickname
@@ -896,7 +896,7 @@ class DCCConnection(Connection):
         self.peeraddress = socket.gethostbyname(address)
         self.peerport = port
         self.socket = None
-        self.previous_buffer = ""
+        self.previous_buffer = b''
         self.handlers = {}
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.passive = 0
@@ -919,7 +919,7 @@ class DCCConnection(Connection):
         peer, the peer address and port are available as
         self.peeraddress and self.peerport.
         """
-        self.previous_buffer = ""
+        self.previous_buffer = b''
         self.handlers = {}
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.passive = 1
