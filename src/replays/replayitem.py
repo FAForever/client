@@ -68,25 +68,22 @@ class ReplayItemDelegate(QtGui.QStyledItemDelegate):
             return QtCore.QSize(215, 35)
 
 
-
-
 class ReplayItem(QtGui.QTreeWidgetItem):
-
-    
+    # list element
     FORMATTER_REPLAY                = unicode(util.readfile("replays/formatters/replay.qthtml"))
-    FORMATTER_REPLAY_INFORMATION    = "<h2 align='center'>Replay UID : {uid}</h2></br></br><table border='0' cellpadding='0' cellspacing='5' align='center'><tbody><tr>{teams}</tr></tbody></table>"
-    FORMATTER_REPLAY_TEAM_SPOILED   = "<td><table border=0 width=100% height=100%><table border=0 width=100% height=100%><tr><td align='center' valign='center' width=100%><font size='+2'>{title}</font></td></tr></table>{players}</table></td>"
-    FORMATTER_REPLAY_FFA_SPOILED    = "<td><table border=0 width=100% height=100%><table border=0 width=100% height=100%><tr><td align='center' valign='center' width=100%><font size='+2'>Winner</font></td></tr></table><br></br>{winner}</table></td><table border=0 width=100% height=100%><table border=0 width=100% height=100%><tr><td align='center' valign='center' width=100%><font size='+2'>Other</font></td></tr></table><br></br>{players}</table></td>"
-    FORMATTER_REPLAY_TEAM           = "<td><table border=0 width=100% height=100%>{players}</table></td>"
-    FORMATTER_REPLAY_PLAYER_LABEL   = "<td align='{alignment}' valign='center' width=150>{player_name} ({player_rating})</td>"
+    # replay-info elements
+    FORMATTER_REPLAY_INFORMATION    = "<h2 align='center'>Replay UID : {uid}</h2><table border='0' cellpadding='0' cellspacing='5' align='center'><tbody>{teams}</tbody></table>"
+    FORMATTER_REPLAY_TEAM_SPOILED   = "<tr><td colspan='3' align='center' valign='middle'><font size='+2'>{title}</font></td></tr>{players}"
+    FORMATTER_REPLAY_FFA_SPOILED    = "<tr><td colspan='3' align='center' valign='middle'><font size='+2'>Win</font></td></tr>{winner}<tr><td colspan=3 align='center' valign='middle'><font size='+2'>Lose</font></td></tr>{players}"
+    FORMATTER_REPLAY_TEAM2_SPOILED = "<td><table border=0><tr><td colspan='3' align='center' valign='middle'><font size='+2'>{title}</font></td></tr>{players}</table></td>"
+    FORMATTER_REPLAY_TEAM2         = "<td><table border=0>{players}</table></td>"
+    FORMATTER_REPLAY_PLAYER_SCORE   = "<td align='center' valign='middle' width='20'>{player_score}</td>"
     FORMATTER_REPLAY_PLAYER_ICON    = "<td width='40'><img src='{faction_icon_uri}' width='40' height='20'></td>"
-
+    FORMATTER_REPLAY_PLAYER_LABEL   = "<td align='{alignment}' valign='middle' width='130'>{player_name} ({player_rating})</td>"
 
     def __init__(self, uid, parent, *args, **kwargs):
         QtGui.QTreeWidgetItem.__init__(self, *args, **kwargs)
 
-        ROOT = Settings.get('content/host')
-        
         self.uid            = uid
         self.parent         = parent
         self.height         = 70
@@ -96,6 +93,7 @@ class ReplayItem(QtGui.QTreeWidgetItem):
         self.mapdisplayname = None
         self.client         = None
         self.title          = None
+        self.host           = None
         
         self.startDate      = None
         self.duration       = None
@@ -142,19 +140,17 @@ class ReplayItem(QtGui.QTreeWidgetItem):
         if not self.icon:
             self.client.downloader.downloadMap(self.mapname, self, True)
             self.icon = util.icon("games/unknown_map.png")        
-        #self.setIcon(0, self.icon)
-        
-        self.moddisplayname = self.mod
-        self.modoptions = []
 
         if self.mod in mods:
             self.moddisplayname = mods[self.mod].name 
+        else:
+            self.moddisplayname = self.mod
 
 #        self.title      = message['title']
-#        self.host       = message['host']
 #        self.teams      = message['teams']
 #        self.access     = message.get('access', 'public')
 #        self.mod        = message['featured_mod']
+#        self.host       = message["host"]
 #        self.options    = message.get('options', [])
 #        self.numplayers = message.get('num_players', 0) 
 #        self.slots      = message.get('max_players',12)
@@ -166,19 +162,24 @@ class ReplayItem(QtGui.QTreeWidgetItem):
         processes information from the server about a replay into readable extra information for the user, also calls method to show the information
         '''
         self.moreInfo = True
+        self.numberplayers = len(players)
         mvpscore = 0
         mvp = None
         scores = {}
 
-        for player in players :
-            team            = int(player["team"])
-
-            if team : #even if it's FFA the players are still in team 1
+        for player in players:  # player highscore
             if "score" in player:
                 if player["score"] > mvpscore:
                     mvp = player
                     mvpscore = player["score"]
 
+        for player in players:  # player -> teams & playerscore -> teamscore
+            if self.mod == "phantomx" or self.mod == "murderparty":
+                team = 1
+            else:
+                team = int(player["team"])
+
+            if "score" in player:
                 if team in scores:
                     scores[team] = scores[team] + player["score"]
                 else:
@@ -188,16 +189,24 @@ class ReplayItem(QtGui.QTreeWidgetItem):
             else:
                 self.teams[team].append(player)
 
-        self.teamWin = None
+        if self.numberplayers == len(self.teams):  # some kind of FFA
+            self.teams ={}
+            scores = {}
+            team = 1
+            for player in players:  # player -> team (1)
+                if team not in self.teams:
+                    self.teams[team] = [player]
+                else:
+                    self.teams[team].append(player)
 
-        if len(self.teams) == 1 and 1 in self.teams : #it's FFA
+        if len(self.teams) == 1 or len(self.teams) == len(players):  # it's FFA
             self.winner = mvp
-        elif len(scores) > 0:
-            winner = -10
+        elif len(scores) > 0:  # team highscore
+            mvt = 0
             for team in scores:
-                if scores[team] > winner :
+                if scores[team] > mvt:
                     self.teamWin = team
-                    winner = scores[team]
+                    mvt = scores[team]
 
         self.generateInfoPlayersHtml()
 
@@ -225,31 +234,40 @@ class ReplayItem(QtGui.QTreeWidgetItem):
 
                 players = ""
                 for player in self.teams[team]:
-                    alignment, playerIcon, playerLabel = self.generatePlayerHTML(i, player)
+                    alignment, playerIcon, playerLabel, playerScore = self.generatePlayerHTML(i, player)
 
-                    if(player == self.winner and self.spoiled):
-                        winnerHTML = "<tr>%s%s</tr>" % (playerIcon, playerLabel)
-                    elif(alignment == "left" or alignment == "center"):
-                        players += "<tr>%s%s</tr>" % (playerIcon, playerLabel)
-                    else:
-                        players += "<tr>%s%s</tr>" % (playerLabel, playerIcon)
+                    if self.winner is not None and player["score"] == self.winner["score"] and self.spoiled:
+                        winnerHTML += "<tr>%s%s%s</tr>" % (playerScore, playerIcon, playerLabel)
+                    elif alignment == "left":
+                        players += "<tr>%s%s%s</tr>" % (playerScore, playerIcon, playerLabel)
+                    else:  # alignment == "right"
+                        players += "<tr>%s%s%s</tr>" % (playerLabel, playerIcon, playerScore)
 
-                if(self.spoiled):
-                    if(self.winner != None):
+                if self.spoiled:
+                    if self.winner is not None:  # FFA in rows: Win ... Lose ....
                         teams += self.FORMATTER_REPLAY_FFA_SPOILED.format(winner=winnerHTML, players=players)
                     else:
-                        teamTitle = "Lose"
-                        if(self.teamWin == team):
+                        if self.teamWin == team:
                             teamTitle = "Win"
+                        else:
+                            teamTitle = "Lose"
 
+                        if len(self.teams) == 2:  # pack team in <table>
+                            teams += self.FORMATTER_REPLAY_TEAM2_SPOILED.format(title=teamTitle, players=players)
+                        else:  # just row on
                             teams += self.FORMATTER_REPLAY_TEAM_SPOILED.format(title=teamTitle, players=players)
                 else:
-                    teams += self.FORMATTER_REPLAY_TEAM.format(players = players)
+                    if len(self.teams) == 2:  # pack team in <table>
+                        teams += self.FORMATTER_REPLAY_TEAM2.format(players=players)
+                    else:  # just row on
+                        teams += players
 
-                if(i < len(self.teams)):
-                    teams += "<td valign='center' height='100%'><font valign='center' color='black' size='+5'>VS</font></td>"
+                if len(self.teams) == 2 and i == 1:  # add the 'vs'
+                    teams += "<td align='center' valign='middle' height='100%'><font color='black' size='+4'>VS</font></td>"
 
-        #self.setToolTip(teams)
+        if len(self.teams) == 2:  # prepare the package to 'fit in' with its <td>s
+            teams = "<tr>%s</tr>" % teams
+
         self.replayInfo = self.FORMATTER_REPLAY_INFORMATION.format(uid=self.uid, teams=teams)
 
         if self.isSelected() :
@@ -258,11 +276,10 @@ class ReplayItem(QtGui.QTreeWidgetItem):
             self.parent.replayInfos.setHtml(self.replayInfo)
 
     def generatePlayerHTML(self, i, player):
-        alignment = "left"
-        if i == len(self.teams) and len(self.teams) > 1:
+        if i == 2 and len(self.teams) == 2:
             alignment = "right"
-        if(i > 1 and i < len(self.teams)):
-            alignment = "left" #center if possible but it won't fill nice
+        else:
+            alignment = "left"
 
         playerLabel = self.FORMATTER_REPLAY_PLAYER_LABEL.format(player_name=player["name"],
                                                                 player_rating=player["rating"], alignment=alignment)
@@ -271,7 +288,12 @@ class ReplayItem(QtGui.QTreeWidgetItem):
 
         playerIcon = self.FORMATTER_REPLAY_PLAYER_ICON.format(faction_icon_uri=iconUrl)
 
-        return alignment, playerIcon, playerLabel
+        if self.spoiled and not self.mod == "ladder1v1":
+            playerScore = self.FORMATTER_REPLAY_PLAYER_SCORE.format(player_score=player["score"])
+        else:  # no score for ladder
+            playerScore = self.FORMATTER_REPLAY_PLAYER_SCORE.format(player_score=" ")
+
+        return alignment, playerIcon, playerLabel, playerScore
 
     def retrieveIconFaction(self, player):  # Factions does not contain Nomads
         if "faction" in player:
@@ -290,14 +312,20 @@ class ReplayItem(QtGui.QTreeWidgetItem):
         return faction
 
     def resize(self):
-        if(self.isSelected()):
-            if(self.extraInfoWidth == 0 or self.extraInfoHeight == 0):
-                self.extraInfoWidth = len(self.teams) * 200 + 150
-                self.extraInfoHeight = 100 + self.biggestTeam * 20
-                if(self.winner != None): self.extraInfoHeight += 40 #second title
+        if self.isSelected():
+            if self.extraInfoWidth == 0 or self.extraInfoHeight == 0:
+                if len(self.teams) == 1:  # ladder, FFA
+                    self.extraInfoWidth = 275
+                    self.extraInfoHeight = 75 + (self.numberplayers + 1) * 25  # + 1 -> second title
+                elif len(self.teams) == 2:  # Team vs Team
+                    self.extraInfoWidth = 500
+                    self.extraInfoHeight = 75 + self.biggestTeam * 22
+                else:  # FAF
+                    self.extraInfoWidth = 275
+                    self.extraInfoHeight = 75 + (self.numberplayers + len(self.teams)) * 25
 
             self.parent.replayInfos.setMinimumWidth(self.extraInfoWidth)
-            self.parent.replayInfos.setMaximumWidth(self.extraInfoWidth)
+            self.parent.replayInfos.setMaximumWidth(600)
 
             self.parent.replayInfos.setMinimumHeight(self.extraInfoHeight)
             self.parent.replayInfos.setMaximumHeight(self.extraInfoHeight)
