@@ -343,8 +343,8 @@ def downloadMod(item): #most of this function is stolen from fa.maps.downloadMap
         req = urllib.request.Request(link, headers={'User-Agent' : "FAF Client"})         
         zipwebfile  = urllib.request.urlopen(req)
 
+        file_size = int(zipwebfile.getheader("Content-Length"))
         meta = zipwebfile.info()
-        file_size = int(meta.getheaders("Content-Length")[0])
         progress.setMinimum(0)
         progress.setMaximum(file_size)
         progress.setModal(1)
@@ -354,7 +354,7 @@ def downloadMod(item): #most of this function is stolen from fa.maps.downloadMap
         progress.show()
 
         #Download the file as a series of 8 KiB chunks, then uncompress it.
-        output = io.StringIO()
+        output = io.BytesIO()
         file_size_dl = 0
         block_sz = 8192       
 
