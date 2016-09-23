@@ -39,9 +39,6 @@ else:
 import util
 util.COMMON_DIR = os.path.join(os.getcwd(), "res")
 
-import config
-import platform
-
 # Set up crash reporting
 excepthook_original = sys.excepthook
 
@@ -60,13 +57,22 @@ def excepthook(exc_type, exc_value, traceback_object):
 
     sys.excepthook = excepthook
 
+def AdminUserErrorDialog():
+    box = QtGui.QMessageBox()
+    box.setText("FAF cannot be run as an administrator!")
+    box.setStandardButtons(QtGui.QMessageBox.Close)
+    box.setIcon(QtGui.QMessageBox.Critical)
+    box.setWindowTitle("FAF privilege error")
+    box.exec_()
+
+
 def runFAF():
     # Load theme from settings (one of the first things to be done)
     util.loadTheme()
-    
+
     # Create client singleton and connect
     import client
-        
+
     faf_client = client.instance
     faf_client.setup()
 
@@ -79,38 +85,47 @@ def runFAF():
     QtGui.QApplication.exec_()
 
 if __name__ == '__main__':
+    import platform
     import logging
-    logger = logging.getLogger(__name__)
-
-    logger.info(">>> --------------------------- Application Launch")
 
     app = QtGui.QApplication(sys.argv)
+
+    if platform.system() == "Windows":
+        import ctypes
+        if ctypes.windll.shell32.IsUserAnAdmin():
+            AdminUserErrorDialog()
+            app.quit()
+            exit()
+
+        if getattr(ctypes.windll.shell32, "SetCurrentProcessExplicitAppUserModelID", None) is not None:
+            myappid = 'com.faforever.lobby'
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+
+
+    logger = logging.getLogger(__name__)
+    logger.info(">>> --------------------------- Application Launch")
+
     # Set application icon to nicely stack in the system task bar
     app.setWindowIcon(util.icon("window_icon.png", True))
 
     # We can now set our excepthook since the app has been initialized
     sys.excepthook = excepthook
 
-    if platform.system() == "Windows":
-        import ctypes
-        if getattr(ctypes.windll.shell32, "SetCurrentProcessExplicitAppUserModelID", None) is not None:
-            myappid = 'com.faforever.lobby'
-            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
     if len(sys.argv) == 1:
-        #Do the magic   
-        sys.path += ['.'] 
+        #Do the magic
+        sys.path += ['.']
         runFAF()
-    else:  
+    else:
         # Try to interpret the argument as a replay.
         if sys.argv[1].lower().endswith(".fafreplay") or sys.argv[1].lower().endswith(".scfareplay"):
             import fa
             fa.replay(sys.argv[1], True)  # Launch as detached process
 
     #End of show
-    app.closeAllWindows()    
+    app.closeAllWindows()
     app.quit()
-    
+
     #End the application, perform some housekeeping
-    logger.info("<<< --------------------------- Application Shutdown")    
+    logger.info("<<< --------------------------- Application Shutdown")
 
