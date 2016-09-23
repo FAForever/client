@@ -17,7 +17,7 @@ LIVEREPLAY_DELAY = 5  # livereplay delay in minutes
 LIVEREPLAY_DELAY_TIME = LIVEREPLAY_DELAY * 60  # livereplay delay for time() (in seconds)
 LIVEREPLAY_DELAY_QTIMER = LIVEREPLAY_DELAY * 60000  # livereplay delay for Qtimer (in milliseconds)
 
-from src.replays.replayitem import ReplayItem, ReplayItemDelegate
+from replays.replayitem import ReplayItem, ReplayItemDelegate
 
 # Replays uses the new Inheritance Based UI creation pattern
 # This allows us to do all sorts of awesome stuff by overriding methods etc.
