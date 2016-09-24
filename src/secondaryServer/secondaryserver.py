@@ -112,13 +112,13 @@ class SecondaryServer(QtCore.QObject):
         out.writeQString(action)
         
         for arg in args :            
-            if type(arg) is IntType:
+            if type(arg) is type(int):
                 out.writeInt(arg)
             elif isinstance(arg, basestring):
                 out.writeQString(arg)
-            elif type(arg) is FloatType:
+            elif type(arg) is type(float):
                 out.writeFloat(arg)
-            elif type(arg) is ListType:
+            elif type(arg) is type(list):
                 out.writeQVariantList(arg)
             else:
                 out.writeQString(str(arg))      
