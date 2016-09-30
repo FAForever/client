@@ -10,6 +10,7 @@ from games.gameitem import GameItem, GameItemDelegate
 from games.moditem import ModItem, mod_invisible, mods
 from games.hostgamewidget import HostgameWidget
 from fa.factions import Factions
+import connectivity.nat as NAT
 import fa
 import modvault
 import notifications as ns
@@ -242,7 +243,7 @@ class GamesWidget(FormClass, BaseClass):
         else:
             # Experimental UPnP Mapper - mappings are removed on app exit
             if self.client.useUPnP:
-                fa.upnp.createPortMapping(self.client.localIP, self.client.gamePort, "UDP")
+                NAT.CreatePortMapping(self.client.localIP, self.client.gamePort, "UDP")
 
             logger.info("Starting Ranked Search as " + str(race) +
                         ", port: " + str(self.client.gamePort))

@@ -6,6 +6,8 @@ import util
 
 from .qturnsocket import QTurnSocket
 from .helper import ConnectivityHelper
+from .nat import CreatePortMapping
+from .nat import RemovePortMapping
 
 logger = logging.getLogger(__name__)
 
