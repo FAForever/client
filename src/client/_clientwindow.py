@@ -85,11 +85,11 @@ class mousePosition(object):
 
 
 class ClientWindow(FormClass, BaseClass):
-    '''
+    """
     This is the main lobby client that manages the FAF-related connection and data,
     in particular players, games, ranking, etc.
     Its UI also houses all the other UIs for the sub-modules.
-    '''
+    """
 
     topWidget = QtGui.QWidget()
 
@@ -547,17 +547,17 @@ class ClientWindow(FormClass, BaseClass):
         self.warningHide()
 
     def warningHide(self):
-        '''
+        """
         hide the warning bar for matchmaker
-        '''
+        """
         self.warnPlayer.hide()
         for i in self.warning_buttons.values():
             i.hide()
 
     def warningShow(self):
-        '''
+        """
         show the warning bar for matchmaker
-        '''
+        """
         self.warnPlayer.show()
         for i in self.warning_buttons.values():
             i.show()
@@ -569,9 +569,9 @@ class ClientWindow(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def cleanup(self):
-        '''
+        """
         Perform cleanup before the UI closes
-        '''
+        """
         self.state = ClientState.SHUTDOWN
 
         self.progress.setWindowTitle("FAF is shutting down")
@@ -862,19 +862,19 @@ class ClientWindow(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def startedFA(self):
-        '''
+        """
         Slot hooked up to fa.instance when the process has launched.
         It will notify other modules through the signal gameEnter().
-        '''
+        """
         logger.info("FA has launched in an attached process.")
         self.gameEnter.emit()
 
     @QtCore.pyqtSlot(int)
     def finishedFA(self, exit_code):
-        '''
+        """
         Slot hooked up to fa.instance when the process has ended.
         It will notify other modules through the signal gameExit().
-        '''
+        """
         if not exit_code:
             logger.info("FA has finished with exit code: " + str(exit_code))
         else:
@@ -883,9 +883,9 @@ class ClientWindow(FormClass, BaseClass):
 
     @QtCore.pyqtSlot(int)
     def errorFA(self, error_code):
-        '''
+        """
         Slot hooked up to fa.instance when the process has failed to start.
-        '''
+        """
         if error_code == 0:
             logger.error("FA has failed to start")
             QtGui.QMessageBox.critical(self, "Error from FA", "FA has failed to start.")
@@ -899,12 +899,12 @@ class ClientWindow(FormClass, BaseClass):
 
     @QtCore.pyqtSlot(int)
     def mainTabChanged(self, index):
-        '''
+        """
         The main visible tab (module) of the client's UI has changed.
         In this case, other modules may want to load some data or cease
         particularly CPU-intensive interactive functionality.
         LATER: This can be rewritten as a simple Signal that each module can then individually connect to.
-        '''
+        """
         new_tab = self.mainTabs.widget(index)
         if new_tab is self.gamesTab:
             self.showGames.emit()
@@ -936,9 +936,9 @@ class ClientWindow(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def joinGameFromURL(self, url):
-        '''
+        """
         Tries to join the game at the given URL
-        '''
+        """
         logger.debug("joinGameFromURL: " + url.toString())
         if fa.instance.available():
             add_mods = []
@@ -955,9 +955,9 @@ class ClientWindow(FormClass, BaseClass):
                     self.join_game(uid)
 
     def writeToServer(self, action, *args, **kw):
-        '''
+        """
         Writes data to the deprecated stream API. Do not use.
-        '''
+        """
         logger.debug("Client: " + action)
 
         block = QtCore.QByteArray()
@@ -1039,7 +1039,7 @@ class ClientWindow(FormClass, BaseClass):
         self.localBroadcast.emit(source, message)
 
     def manage_power(self):
-        ''' update the interface accordingly to the power of the user'''
+        """ update the interface accordingly to the power of the user """
         if self.power >= 1:
             if self.modMenu == None:
                 self.modMenu = self.menu.addMenu("Administration")
@@ -1055,15 +1055,15 @@ class ClientWindow(FormClass, BaseClass):
             self.send(dict(command="admin", action="requestavatars"))
 
     def joinChannel(self, username, channel):
-        '''Join users to a channel'''
+        """ Join users to a channel """
         self.send(dict(command="admin", action="join_channel", user_ids=[self.players.getID(username)], channel=channel))
 
     def closeFA(self, username):
-        '''Close FA remotly'''
+        """ Close FA remotely """
         self.send(dict(command="admin", action="closeFA", user_id=self.players.getID(username)))
 
     def closeLobby(self, username):
-        '''Close lobby remotly'''
+        """ Close lobby remotely """
         self.send(dict(command="admin", action="closelobby", user_id=self.players.getID(username)))
 
     def addFriend(self, friend_id):

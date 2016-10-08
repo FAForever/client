@@ -17,11 +17,13 @@ ANTIFLOOD = 0.1
 
 FormClass, BaseClass = util.loadUiType("stats/stats.ui")
 
+
 class StatsWidget(BaseClass, FormClass):
 
-    #signals
+    # signals
     laddermaplist = QtCore.pyqtSignal(dict)
     laddermapstat = QtCore.pyqtSignal(dict)
+
     def __init__(self, client):
         super(BaseClass, self).__init__()
 
@@ -53,41 +55,38 @@ class StatsWidget(BaseClass, FormClass):
         
         self.FORMATTER_LADDER        = unicode(util.readfile("stats/formatters/ladder.qthtml"))
         self.FORMATTER_LADDER_HEADER = unicode(util.readfile("stats/formatters/ladder_header.qthtml"))
-        self.stylesheet              = util.readstylesheet("stats/formatters/style.css")
+        self.stylesheet = util.readstylesheet("stats/formatters/style.css")
 
         self.leagues.setStyleSheet(self.stylesheet)
     
-   
-        #setup other tabs
+        # setup other tabs
         self.mapstat = mapstat.LadderMapStat(self.client, self)
-        
-        
-    
+
     @QtCore.pyqtSlot(int)
     def leagueUpdate(self, index):
         self.currentLeague = index + 1
         leagueTab = self.leagues.widget(index).findChild(QtGui.QTabWidget,"league"+str(index))
-        if leagueTab :
-            if leagueTab.currentIndex() == 0 :
+        if leagueTab:
+            if leagueTab.currentIndex() == 0:
                 if time.time() - self.floodtimer > ANTIFLOOD :
                     self.floodtimer = time.time() 
                     self.client.statsServer.send(dict(command="stats", type="league_table", league=self.currentLeague))
     
-    @QtCore.pyqtSlot(int)            
+    @QtCore.pyqtSlot(int)
     def divisionsUpdate(self, index):
-        if index == 0 :
-            if time.time() - self.floodtimer > ANTIFLOOD :
+        if index == 0:
+            if time.time() - self.floodtimer > ANTIFLOOD:
                 self.floodtimer = time.time()
                 self.client.statsServer.send(dict(command="stats", type="league_table", league=self.currentLeague))
         
-        elif index == 1 :            
-            tab =  self.currentLeague-1
-            if not tab in self.pagesDivisions :
+        elif index == 1:
+            tab = self.currentLeague - 1
+            if tab not in self.pagesDivisions:
                     self.client.statsServer.send(dict(command="stats", type="divisions", league=self.currentLeague))
         
     @QtCore.pyqtSlot(int)
     def divisionUpdate(self, index):
-        if time.time() - self.floodtimer > ANTIFLOOD :
+        if time.time() - self.floodtimer > ANTIFLOOD:
             self.floodtimer = time.time()
             self.client.statsServer.send(dict(command="stats", type="division_table", league=self.currentLeague, division=index))           
         
@@ -107,7 +106,7 @@ class StatsWidget(BaseClass, FormClass):
             league = division["league"]
             widget = QtGui.QTextBrowser()
             
-            if not league in self.pagesDivisionsResults :
+            if league not in self.pagesDivisionsResults:
                 self.pagesDivisionsResults[league] = {}
             
             self.pagesDivisionsResults[league][index] = widget 
@@ -119,17 +118,16 @@ class StatsWidget(BaseClass, FormClass):
                 pages.setCurrentIndex(index)
                 self.client.statsServer.send(dict(command="stats", type="division_table", league=league, division=index))
         
-        if foundDivision == False :
+        if not foundDivision:
             self.client.statsServer.send(dict(command="stats", type="division_table", league=league, division=0))
         
         pages.currentChanged.connect(self.divisionUpdate)
         return pages
-            
-    
+
     def createResults(self, values, table):
         
         doc = QtGui.QTextDocument()
-        doc.addResource(3, QtCore.QUrl("style.css"), self.stylesheet )
+        doc.addResource(3, QtCore.QUrl("style.css"), self.stylesheet)
         html = ("<html><head><link rel='stylesheet' type='text/css' href='style.css'></head><body><table class='players' cellspacing='0' cellpadding='0' width='100%' height='100%'>")
 
         formatter = self.FORMATTER_LADDER
@@ -140,17 +138,17 @@ class StatsWidget(BaseClass, FormClass):
         color = "lime"
         line = formatter_header.format(rank="rank", name="name", score="score", color=color)
         html += line
-        
-        for val in values :
+
+        for val in values:
             rank = val["rank"]
             name = val["name"]
-            if self.client.login == name :
+            if self.client.login == name:
                 line = formatter.format(rank=str(rank), name= name, score=str(val["score"]), type="highlight")
-            elif rank % 2 == 0 :
+            elif rank % 2 == 0:
                 line = formatter.format(rank=str(rank), name= name, score=str(val["score"]), type="even")
-            else :
+            else:
                 line = formatter.format(rank=str(rank), name= name, score=str(val["score"]), type="")
-            
+
             html += line
 
         html +="</tbody></table></body></html>"
@@ -160,42 +158,39 @@ class StatsWidget(BaseClass, FormClass):
         
         table.verticalScrollBar().setValue(table.verticalScrollBar().minimum())
         return table
-        
-    
+
     @QtCore.pyqtSlot(dict)
     def processStatsInfos(self, message):
 
         typeStat = message["type"]
-        if typeStat == "divisions" :
+        if typeStat == "divisions":
             self.currentLeague = message["league"]
-            tab =  self.currentLeague-1
+            tab = self.currentLeague - 1
 
-            if not tab in self.pagesDivisions :
+            if tab not in self.pagesDivisions:
                 self.pagesDivisions[tab] = self.createDivisionsTabs(message["values"])
                 leagueTab = self.leagues.widget(tab).findChild(QtGui.QTabWidget,"league"+str(tab))   
                 leagueTab.widget(1).layout().addWidget(self.pagesDivisions[tab])
 
-
-        elif typeStat == "division_table" :
+        elif typeStat == "division_table":
             self.currentLeague = message["league"]
             self.currentDivision = message["division"]
 
-            if self.currentLeague in self.pagesDivisionsResults :
-                if self.currentDivision in self.pagesDivisionsResults[self.currentLeague] :
+            if self.currentLeague in self.pagesDivisionsResults:
+                if self.currentDivision in self.pagesDivisionsResults[self.currentLeague]:
                     self.createResults(message["values"], self.pagesDivisionsResults[self.currentLeague][self.currentDivision])
                     
-
-        elif typeStat == "league_table" :
+        elif typeStat == "league_table":
             self.currentLeague = message["league"]
-            tab =  self.currentLeague-1
-            if not tab in self.pagesAllLeagues :
+            tab = self.currentLeague - 1
+            if tab not in self.pagesAllLeagues:
                 table = QtGui.QTextBrowser()
                 self.pagesAllLeagues[tab] = self.createResults(message["values"], table)
                 leagueTab = self.leagues.widget(tab).findChild(QtGui.QTabWidget,"league"+str(tab))
                 leagueTab.currentChanged.connect(self.divisionsUpdate)
                 leagueTab.widget(0).layout().addWidget(self.pagesAllLeagues[tab])
 
-        elif typeStat == "ladder_map_stat" :
+        elif typeStat == "ladder_map_stat":
             self.laddermapstat.emit(message)
 
     @QtCore.pyqtSlot()
@@ -214,7 +209,7 @@ class StatsWidget(BaseClass, FormClass):
         
         self.webview.setVisible(False)
 
-        #If a local theme CSS exists, skin the WebView with it
+        # If a local theme CSS exists, skin the WebView with it
         if util.themeurl("ladder/style.css"):
             self.webview.settings().setUserStyleSheetUrl(util.themeurl("ladder/style.css"))
 
