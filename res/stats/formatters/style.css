@@ -58,11 +58,12 @@ body {background-color: #2f2f2f; overflow: hidden;}
 }
 .players th{
     background-color: rgb(146, 193, 228);
+    color: #3D3D3D;
     padding: 0 2px;
     font-size: 12pt;
     border-left: 2px dotted rgb(75, 148, 231);
 }
-.players th:first-child {border-left: 1px solid rgb(146, 193, 228);}
+.players th:first-child {border-left: 5px solid rgb(146, 193, 228);}
 
 .players td {
     color: #3D3D3D;
@@ -70,12 +71,9 @@ body {background-color: #2f2f2f; overflow: hidden;}
     background-color: rgb(216, 216, 217);
     vertical-align: top;
 }
-.players tr.even td {background-color: rgb(241, 241, 241); }
-/*.players tr:nth-child(odd) td {background-color:#F0F0F6;}*/
-.highlight td {background-color: #6CF;}
+.players tr.even td {background-color: rgb(241, 241, 241);}
 
-.rank, .rating, .login {text-align: center; color: #3D3D3D}
-.name {text-align: left;}
+.highlight td {background-color: #6CF;}
 
 .division {color: white; font-size: 16pt;font-family:"Lucida Console"}
 
