@@ -90,9 +90,9 @@ class GamesWidget(FormClass, BaseClass):
 
     @QtCore.pyqtSlot(dict)
     def processModInfo(self, message):
-        '''
+        """
         Slot that interprets and propagates mod_info messages into the mod list
-        '''
+        """
         mod = message['name']
         old_mod = self.mods.get(mod, None)
         self.mods[mod] = ModItem(message)
@@ -133,9 +133,9 @@ class GamesWidget(FormClass, BaseClass):
         self.updatePlayButton()
 
     def startSubRandomRankedSearch(self):
-        '''
+        """
         This is a wrapper around startRankedSearch where a faction will be chosen based on the selected checkboxes
-        '''
+        """
         if self.searching:
             self.stopSearchRanked()
         else:
@@ -182,9 +182,9 @@ class GamesWidget(FormClass, BaseClass):
 
     @QtCore.pyqtSlot(dict)
     def processGameInfo(self, message):
-        '''
+        """
         Slot that interprets and propagates game_info messages into GameItems
-        '''
+        """
         uid = message["uid"]
 
         if uid not in self.games:
@@ -280,9 +280,9 @@ class GamesWidget(FormClass, BaseClass):
 
     @QtCore.pyqtSlot(QtGui.QListWidgetItem)
     def gameDoubleClicked(self, item):
-        '''
+        """
         Slot that attempts to join a game.
-        '''
+        """
         if not fa.instance.available():
             return
 
@@ -302,9 +302,9 @@ class GamesWidget(FormClass, BaseClass):
 
     @QtCore.pyqtSlot(QtGui.QListWidgetItem)
     def hostGameClicked(self, item):
-        '''
+        """
         Hosting a game event
-        '''
+        """
         if not fa.instance.available():
             return
 
