@@ -1152,7 +1152,8 @@ class ClientWindow(FormClass, BaseClass):
         raise Exception(message)
 
     def handle_stats(self, message):
-        self.statsInfo.emit(message)
+        # self.statsInfo.emit(message)  # currently useless -> safe some time
+        return
 
     def handle_update(self, message):
         # Remove geometry settings prior to updating
