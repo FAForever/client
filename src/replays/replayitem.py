@@ -4,9 +4,9 @@ import time
 import util
 from PyQt4 import QtCore, QtGui
 
-from src.config import Settings
-from src.fa import maps
-from src.games.moditem import mods
+from config import Settings
+from fa import maps
+from games.moditem import mods
 
 
 class ReplayItemDelegate(QtGui.QStyledItemDelegate):
@@ -38,14 +38,14 @@ class ReplayItemDelegate(QtGui.QStyledItemDelegate):
         
         # Frame around the icon
 #        pen = QtGui.QPen()
-#        pen.setWidth(1);
-#        pen.setBrush(QtGui.QColor("#303030"));  #FIXME: This needs to come from theme.
-#        pen.setCapStyle(QtCore.Qt.RoundCap);
+#        pen.setWidth(1)
+#        pen.setBrush(QtGui.QColor("#303030"))  #FIXME: This needs to come from theme.
+#        pen.setCapStyle(QtCore.Qt.RoundCap)
 #        painter.setPen(pen)
 #        painter.drawRect(option.rect.left()+5-2, option.rect.top()+5-2, iconsize.width(), iconsize.height())
 
         # Description
-        painter.translate(option.rect.left() + iconsize.width() + 10, option.rect.top()+10)
+        painter.translate(option.rect.left() + iconsize.width() + 10, option.rect.top() + 10)
         clip = QtCore.QRectF(0, 0, option.rect.width()-iconsize.width() - 10 - 5, option.rect.height())
         html.drawContents(painter, clip)
   
@@ -99,7 +99,6 @@ class ReplayItem(QtGui.QTreeWidgetItem):
         self.spoiled        = False
         self.url            = "{}/faf/vault/replay_vault/replay.php?id={}".format(Settings.get('content/host'), self.uid)
 
-        
         self.teams          = {}
         self.access         = None
         self.mod            = None
@@ -117,7 +116,7 @@ class ReplayItem(QtGui.QTreeWidgetItem):
         self.extraInfoHeight = 0  # panel with more information
     
     def update(self, message, client):
-        # Updates this item from the message dictionary supplied #
+        """ Updates this item from the message dictionary supplied """
         
         self.client = client
         
@@ -150,11 +149,12 @@ class ReplayItem(QtGui.QTreeWidgetItem):
 #        self.numplayers = message.get('num_players', 0) 
 #        self.slots      = message.get('max_players',12)
 
-        self.viewtext = (self.FORMATTER_REPLAY.format(time=self.startHour, name=self.name, map = self.mapdisplayname, duration = self.duration, mod = self.moddisplayname))
+        self.viewtext = self.FORMATTER_REPLAY.format(time=self.startHour, name=self.name, map=self.mapdisplayname,
+                                                     duration=self.duration, mod=self.moddisplayname)
 
     def infoPlayers(self, players):
-        # processes information from the server about a replay into readable extra information for the user, #
-        # also calls method to show the information #
+        """ processes information from the server about a replay into readable extra information for the user,
+                also calls method to show the information """
 
         self.moreInfo = True
         self.numberplayers = len(players)
@@ -169,7 +169,7 @@ class ReplayItem(QtGui.QTreeWidgetItem):
                     mvpscore = player["score"]
 
         for player in players:  # player -> teams & playerscore -> teamscore
-            if self.mod == "phantomx" or self.mod == "murderparty":
+            if self.mod == "phantomx" or self.mod == "murderparty":  # get ffa like into one team
                 team = 1
             else:
                 team = int(player["team"])
@@ -206,10 +206,9 @@ class ReplayItem(QtGui.QTreeWidgetItem):
         self.generateInfoPlayersHtml()
 
     def generateInfoPlayersHtml(self):
-        # Creates the ui and extra information about a replay, #
-        # Either teamWin or winner must be set if the replay is to be spoiled #
+        """  Creates the ui and extra information about a replay,
+             Either teamWin or winner must be set if the replay is to be spoiled """
 
-        observerlist = []
         teams = ""
         winnerHTML = ""
 
@@ -261,7 +260,7 @@ class ReplayItem(QtGui.QTreeWidgetItem):
 
         self.replayInfo = self.FORMATTER_REPLAY_INFORMATION.format(uid=self.uid, teams=teams)
 
-        if self.isSelected() :
+        if self.isSelected():
             self.parent.replayInfos.clear()
             self.resize()
             self.parent.replayInfos.setHtml(self.replayInfo)
@@ -327,7 +326,7 @@ class ReplayItem(QtGui.QTreeWidgetItem):
         actionDownload.triggered.connect(self.downloadReplay)
         menu.addAction(actionDownload)
         menu.popup(QtGui.QCursor.pos())
-        
+
     def downloadReplay(self):
         QtGui.QDesktopServices.openUrl(QtCore.QUrl(self.url))
 
@@ -335,17 +334,17 @@ class ReplayItem(QtGui.QTreeWidgetItem):
         if column == 0:
             return self.viewtext
         if column == 1:
-            return self.viewtext   
- 
+            return self.viewtext
+
     def data(self, column, role):
         if role == QtCore.Qt.DisplayRole:
-            return self.display(column)  
+            return self.display(column)
         elif role == QtCore.Qt.UserRole:
             return self
         return super(ReplayItem, self).data(column, role)
- 
+
     def permutations(self, items):
-        # Yields all permutations of the items. #
+        """  Yields all permutations of the items. """
         if items is []:
             yield []
         else:
@@ -354,11 +353,11 @@ class ReplayItem(QtGui.QTreeWidgetItem):
                     yield [items[i]] + j
 
     def __ge__(self, other):
-        # Comparison operator used for item list sorting #
+        """  Comparison operator used for item list sorting """
         return not self.__lt__(other)
 
     def __lt__(self, other):
-        # Comparison operator used for item list sorting #
+        """ Comparison operator used for item list sorting """
         if not self.client: return True  # If not initialized...
         if not other.client: return False
         # Default: uid
