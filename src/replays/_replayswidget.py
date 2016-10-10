@@ -91,7 +91,7 @@ class ReplaysWidget(BaseClass, FormClass):
         self.onlineTree.clear()
 
     def reloadView(self):
-        if not self.searching:
+        if not self.searching and self.automaticRecent.isChecked():
             self.connectToModVault()
             self.send(dict(command="list"))
 
@@ -125,8 +125,12 @@ class ReplaysWidget(BaseClass, FormClass):
                     item.generateInfoPlayersHtml()
                 
     def onlineTreeDoubleClicked(self, item):
-        if hasattr(item, "url"):
-            self.replayDownload.get(QNetworkRequest(QtCore.QUrl(item.url))) 
+        if hasattr(item, "duration"):
+            if "playing" in item.duration:  # live game will not be in vault
+               return
+            else:
+                if hasattr(item, "url"):
+                    self.replayDownload.get(QNetworkRequest(QtCore.QUrl(item.url)))
 
     def spoilerCheckboxPressed(self, item):
         if self.selectedReplay:
