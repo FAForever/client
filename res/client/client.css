@@ -443,7 +443,7 @@ QGroupBox
     margin: 5px;
     border: 1px solid #353535;
     border-radius: 5px;
-    background-color: rgb(32, 32, 37);
+    background-color: #202025;
     color: silver;
 }
 
@@ -458,9 +458,16 @@ QDialog
     background-color: #575656;
 }
 
+QCheckBox#automaticRecent
+{
+    color: red;
+    background-color: #202025;
+}
+
 QCheckBox#spoilerCheckbox
 {
     color: white;
+    background-color: #202025;
 }
 
 /* Used for Ranked Buttons only at the moment*/
