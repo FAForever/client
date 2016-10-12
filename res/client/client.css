@@ -331,7 +331,14 @@ QTreeWidget::item:hover
     border-radius: 3px;
 }
 
-QTreeWidget::item:selected, QTreeWidget::item:previously-selected
+QTreeWidget::item:selected
+{
+    border: none;
+    background: #353535;
+    border-radius: 3px;
+}
+
+QTreeWidget::item:previously-selected
 {
     border: none;
 }
