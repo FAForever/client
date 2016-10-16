@@ -127,8 +127,20 @@ class ReplaysWidget(BaseClass, FormClass):
     def onlineTreeDoubleClicked(self, item):
         if hasattr(item, "duration"):
             if "playing" in item.duration:  # live game will not be in vault
-               return
-            else:
+                if "darkred" not in item.duration:  # live game under 5min
+                    if item.mod == "ladder1v1":
+                        name = item.name[:item.name.find(" ")]  # "name vs name"
+                    else:
+                        for team in item.teams:  # find a player...
+                            for player in item.teams[team]:
+                                name = player["name"]
+                                if name != "":
+                                    break
+                            if name != "":
+                                break
+                    if name in client.instance.urls:  # join live game
+                        replay(client.instance.urls[name])
+            else:  # start replay
                 if hasattr(item, "url"):
                     self.replayDownload.get(QNetworkRequest(QtCore.QUrl(item.url)))
 
