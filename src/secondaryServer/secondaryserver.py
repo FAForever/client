@@ -6,15 +6,19 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 def log(string):
     logger.debug(string)
+
 
 # A set of exceptions we use to see what goes wrong during asynchronous data transfer waits
 class Cancellation(StandardError):
     pass
 
+
 class Failure(StandardError):
     pass    
+
 
 class Timeout(StandardError):
     pass
@@ -23,8 +27,8 @@ class Timeout(StandardError):
 class SecondaryServer(QtCore.QObject):
 
     # Network configuration
-    HOST    = "lobby.faforever.com"
-    TIMEOUT = 5  #seconds
+    HOST = "lobby.faforever.com"
+    TIMEOUT = 5  # seconds
 
     # Return codes to expect from run()
     RESULT_SUCCESS = 0      # successful
@@ -35,9 +39,9 @@ class SecondaryServer(QtCore.QObject):
     RESULT_PASS = 5         # User refuses to update by canceling
     
     def __init__(self, name, socket, requester, *args, **kwargs):
-        '''
+        """
         Constructor
-        '''
+        """
         QtCore.QObject.__init__(self, *args, **kwargs)
         
         self.name = name
@@ -47,7 +51,7 @@ class SecondaryServer(QtCore.QObject):
         self.logger = logger
         
         self.socketPort = socket
-        self.requester      = requester
+        self.requester = requester
 
         self.command = None
         self.message = None
@@ -65,7 +69,7 @@ class SecondaryServer(QtCore.QObject):
         self.invisible = True
     
     def send(self, command, *args, **kwargs):
-        ''' actually do the settings'''
+        """ actually do the settings  """
         self._requests += [{'command': command, 'args': args, 'kwargs': kwargs}]
         self.logger.info("Pending requests: {}".format(len(self._requests)))
         if not self.serverSocket.state() == QtNetwork.QAbstractSocket.ConnectedState:
@@ -92,7 +96,7 @@ class SecondaryServer(QtCore.QObject):
         ins = QtCore.QDataStream(self.serverSocket)
         ins.setVersion(QtCore.QDataStream.Qt_4_2)
 
-        while ins.atEnd() == False :
+        while not ins.atEnd():
             if self.blockSize == 0:
                 if self.serverSocket.bytesAvailable() < 4:
                     return
@@ -111,14 +115,14 @@ class SecondaryServer(QtCore.QObject):
         out.writeUInt32(0)
         out.writeQString(action)
         
-        for arg in args :            
-            if type(arg) is IntType:
+        for arg in args:
+            if type(arg) is int:
                 out.writeInt(arg)
             elif isinstance(arg, basestring):
                 out.writeQString(arg)
-            elif type(arg) is FloatType:
+            elif type(arg) is float:
                 out.writeFloat(arg)
-            elif type(arg) is ListType:
+            elif type(arg) is list:
                 out.writeQVariantList(arg)
             else:
                 out.writeQString(str(arg))      
@@ -129,14 +133,13 @@ class SecondaryServer(QtCore.QObject):
         self.bytesToSend = block.size() - 4        
         self.serverSocket.write(block)
 
-
     def process(self, action, stream):
         self.receiveJSON(action, stream)
         
     def receiveJSON(self, data_string, stream):
-        '''
+        """
         A fairly pythonic way to process received strings as JSON messages.
-        '''
+        """
         message = json.loads(data_string)
         cmd = "handle_" + message['command']
         logger.debug("answering from server :" + str(cmd))
@@ -145,9 +148,9 @@ class SecondaryServer(QtCore.QObject):
 
     @QtCore.pyqtSlot('QAbstractSocket::SocketError')
     def handleServerError(self, socketError):
-        '''
+        """
         Simple error handler that flags the whole operation as failed, not very graceful but what can you do...
-        '''
+        """
         if socketError == QtNetwork.QAbstractSocket.RemoteHostClosedError:
             log("FA Server down: The server is down for maintenance, please try later.")
 

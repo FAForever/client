@@ -7,13 +7,11 @@ QTabWidget::pane
      background-color: #2f2f2f;
  }
 
-
  QTabWidget::tab-bar
 {
     top: 0px;
     left: 25px; /* move to the right by 25px */
  }
-
 
 /* Style the tab using the tab sub-control. Note that it reads QTabBar _not_ QTabWidget */
 QTabWidget > QTabBar::tab 
@@ -24,10 +22,8 @@ QTabWidget > QTabBar::tab
     padding:4px;
 }
 
-
-QTabWidget > QTabBar::tab:!selected 
+QTabWidget > QTabBar::tab:!selected
 {
-
     background-color: #203040;
 }
 
@@ -38,8 +34,7 @@ QTabWidget > QTabBar::tab:hover
     background-color: #606060;
 }
 
-
-QTabWidget > QTabBar::tab:selected 
+QTabWidget > QTabBar::tab:selected
 {
     color:white;
     background-color: #303030;
@@ -55,6 +50,7 @@ body {background-color: #2f2f2f; overflow: hidden;}
 .ladder:hover {background-color: rgb(241, 241, 241);}
 .ladder.selected:hover {background-color: rgb(146, 193, 228);}
 .scroll {overflow-y: scroll; height: 100%; border: 1px solid black;}
+
 .players {
     font-family:arial;
     font-size: 8pt;
@@ -74,7 +70,6 @@ body {background-color: #2f2f2f; overflow: hidden;}
     background-color: rgb(216, 216, 217);
     vertical-align: top;
 }
-
 .players tr.even td {background-color: rgb(241, 241, 241); }
 /*.players tr:nth-child(odd) td {background-color:#F0F0F6;}*/
 .highlight td {background-color: #6CF;}
@@ -82,7 +77,7 @@ body {background-color: #2f2f2f; overflow: hidden;}
 .rank, .rating, .login {text-align: center; color: #3D3D3D}
 .name {text-align: left;}
 
-.division  {color: white; font-size: 16pt;font-family:"Lucida Console"}
+.division {color: white; font-size: 16pt;font-family:"Lucida Console"}
 
 .pages {float: right; cursor: default; margin-bottom: 3px;}
     .pages a {color: blue;}
