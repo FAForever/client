@@ -92,10 +92,11 @@ if __name__ == '__main__':
 
     if platform.system() == "Windows":
         import ctypes
-        if ctypes.windll.shell32.IsUserAnAdmin():
-            AdminUserErrorDialog()
-            app.quit()
-            exit()
+        if platform.release() != "XP":  # legacy special :-)
+            if ctypes.windll.shell32.IsUserAnAdmin():
+                AdminUserErrorDialog()
+                app.quit()
+                exit()
 
         if getattr(ctypes.windll.shell32, "SetCurrentProcessExplicitAppUserModelID", None) is not None:
             myappid = 'com.faforever.lobby'

@@ -40,7 +40,7 @@ QMenuBar::item
      background: #888888;
  }
 
- 
+
  QMenu {
      background-color: rgb(50,50,50);
      color: lightgrey;
@@ -79,7 +79,7 @@ QMenuBar::item
      height: 13px;
  }
 
- 
+
 QTabWidget #lobbyTab,#gamesTab,#ladderTab,#tournamentTab,#coopTab,#replaysTab,#vaultsTab,#mapsTab,#modsTab
 { /* sets background color for every widget under a tab */
         background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(15, 15, 15, 200), stop:1 #2f2f2f);
@@ -124,13 +124,13 @@ QTabWidget#mainTabs > QTabBar::tab
 }
 
 
-QTabWidget#mainTabs > QTabBar::tab:hover 
+QTabWidget#mainTabs > QTabBar::tab:hover
 {
     color:#66b9fa;
     background-color: #606060;
 }
 
-QTabWidget#mainTabs > QTabBar::tab:selected 
+QTabWidget#mainTabs > QTabBar::tab:selected
 {
     color:#000000;
     font-weight:bold;
@@ -140,7 +140,7 @@ QTabWidget#mainTabs > QTabBar::tab:selected
 }
 
 
-QTabWidget#mainTabs > QTabBar::tab:!selected 
+QTabWidget#mainTabs > QTabBar::tab:!selected
 {
     margin-bottom: 8px; /* make non-selected tabs look smaller */
 }
@@ -163,7 +163,7 @@ QTabWidget#topTabs::pane
 
 
 /* Style the tab using the tab sub-control. Note that it reads QTabBar _not_ QTabWidget */
-QTabWidget#topTabs > QTabBar::tab 
+QTabWidget#topTabs > QTabBar::tab
 {
     background-color:#383838;
     color: silver;
@@ -172,7 +172,7 @@ QTabWidget#topTabs > QTabBar::tab
 }
 
 
-QTabWidget#topTabs > QTabBar::tab:!selected 
+QTabWidget#topTabs > QTabBar::tab:!selected
 {
     margin-top:5px;
     background-color: #414b55;
@@ -180,7 +180,7 @@ QTabWidget#topTabs > QTabBar::tab:!selected
 }
 
 
-QTabWidget#topTabs > QTabBar::tab:hover 
+QTabWidget#topTabs > QTabBar::tab:hover
 {
     color:white;
     background-color: #606060;
@@ -188,7 +188,7 @@ QTabWidget#topTabs > QTabBar::tab:hover
 }
 
 
-QTabWidget#topTabs > QTabBar::tab:selected 
+QTabWidget#topTabs > QTabBar::tab:selected
 {
     color:white;
     background-color: #758fa0;
@@ -197,24 +197,24 @@ QTabWidget#topTabs > QTabBar::tab:selected
 
 }
 
-QSplitter::handle 
+QSplitter::handle
 {
     background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #0F0F0F, stop:1 #2f2f2f);
 }
 
 
-QSplitter::handle:horizontal 
+QSplitter::handle:horizontal
 {
      width: 8px;
  }
 
-QSplitter::handle:vertical 
+QSplitter::handle:vertical
 {
      height: 8px;
 }
 
 /* strangely, this seems to have no effect :( */
-QSplitter::handle:hover 
+QSplitter::handle:hover
 {
      background-color: #606060;
  }
@@ -323,7 +323,7 @@ QListWidget#tourneyList
     border-bottom-left-radius : 5px;
     border-bottom-right-radius : 5px;
 }
- 
+
 QTreeWidget::item:hover
 {
     border: none;
@@ -331,7 +331,14 @@ QTreeWidget::item:hover
     border-radius: 3px;
 }
 
-QTreeWidget::item:selected, QTreeWidget::item:previously-selected
+QTreeWidget::item:selected
+{
+    border: none;
+    background: #353535;
+    border-radius: 3px;
+}
+
+QTreeWidget::item:previously-selected
 {
     border: none;
 }
@@ -441,7 +448,7 @@ QLabel
 }
 
 /* Used for dialogs*/
-QDialog 
+QDialog
 {
     background-color: #575656;
 }
@@ -459,7 +466,7 @@ QToolButton#rankedPlay
 	border: 1px solid grey;
 }
 
-QToolButton::pressed 
+QToolButton::pressed
 {
     border: none;
     color: black;

@@ -17,7 +17,7 @@ LIVEREPLAY_DELAY = 5  # livereplay delay in minutes
 LIVEREPLAY_DELAY_TIME = LIVEREPLAY_DELAY * 60  # livereplay delay for time() (in seconds)
 LIVEREPLAY_DELAY_QTIMER = LIVEREPLAY_DELAY * 60000  # livereplay delay for Qtimer (in milliseconds)
 
-from src.replays.replayitem import ReplayItem, ReplayItemDelegate
+from replays.replayitem import ReplayItem, ReplayItemDelegate
 
 # Replays uses the new Inheritance Based UI creation pattern
 # This allows us to do all sorts of awesome stuff by overriding methods etc.
@@ -83,17 +83,17 @@ class ReplaysWidget(BaseClass, FormClass):
         logger.info("Replays Widget instantiated.")
 
     def searchVault(self):
-        # search for some replays #
+        """ search for some replays """
         self.searching = True
         self.connectToModVault()
-        self.send(dict(command="search", rating=self.minRating.value(), map=self.mapName.text(), player=self.playerName.text(), mod=self.modList.currentText()))
+        self.send(dict(command="search", rating=self.minRating.value(), map=self.mapName.text(),
+                                player=self.playerName.text(), mod=self.modList.currentText()))
         self.onlineTree.clear()
 
     def reloadView(self):
         if not self.searching:
             self.connectToModVault()
             self.send(dict(command="list"))
-        
 
     def finishRequest(self, reply):
         if reply.error() != QNetworkReply.NoError:
@@ -159,7 +159,7 @@ class ReplaysWidget(BaseClass, FormClass):
             replays = message["replays"]
             for replay in replays:
                 uid = replay["id"]
-        
+
                 if uid not in self.onlineReplays:
                     self.onlineReplays[uid] = ReplayItem(uid, self)
                     self.onlineReplays[uid].update(replay, self.client)
@@ -185,7 +185,7 @@ class ReplaysWidget(BaseClass, FormClass):
         for uid in self.onlineReplays:
             bucket = buckets.setdefault(self.onlineReplays[uid].startDate, [])
             bucket.append(self.onlineReplays[uid])
-            
+
         for bucket in buckets.keys():
             bucket_item = QtGui.QTreeWidgetItem()
             self.onlineTree.addTopLevelItem(bucket_item)
@@ -510,7 +510,7 @@ class ReplaysWidget(BaseClass, FormClass):
                 
     @QtCore.pyqtSlot(QtGui.QTreeWidgetItem, int)
     def liveTreeDoubleClicked(self, item, column):
-        # This slot launches a live replay from eligible items in liveTree #
+        """ This slot launches a live replay from eligible items in liveTree """
 
         if item.isDisabled():
             return
@@ -521,8 +521,8 @@ class ReplaysWidget(BaseClass, FormClass):
             replay(item.url)
             
     def connectToModVault(self):
-        # connect to the replay vault server #
-        
+        """ connect to the replay vault server """
+
         if self.replayVaultSocket.state() != QtNetwork.QAbstractSocket.ConnectedState and self.replayVaultSocket.state() != QtNetwork.QAbstractSocket.ConnectingState:
             self.replayVaultSocket.connectToHost(self.HOST, self.SOCKET)        
 
@@ -553,7 +553,7 @@ class ReplaysWidget(BaseClass, FormClass):
         self.receiveJSON(action, stream)
         
     def receiveJSON(self, data_string, stream):
-        # A fairly pythonic way to process received strings as JSON messages. #
+        """ A fairly pythonic way to process received strings as JSON messages. """
 
         try:
             message = json.loads(data_string)
@@ -576,13 +576,13 @@ class ReplaysWidget(BaseClass, FormClass):
         out.writeQString(action)
         
         for arg in args:
-            if type(arg) is type(int):
+            if type(arg) is int:
                 out.writeInt(arg)
             elif isinstance(arg, basestring):
                 out.writeQString(arg)
-            elif type(arg) is type(float):
+            elif type(arg) is float:
                 out.writeFloat(arg)
-            elif type(arg) is type(list):
+            elif type(arg) is list:
                 out.writeQVariantList(arg)
             else:
                 logger.warn("Uninterpreted Data Type: " + str(type(arg)) + " of value: " + str(arg))
