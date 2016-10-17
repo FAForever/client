@@ -199,7 +199,7 @@ class StatsWidget(BaseClass, FormClass):
         if me.league is not None:
             self.leagues.setCurrentIndex(me.league - 1)
         else:
-            self.leagues.setCurrentIndex(0)
+            self.leagues.setCurrentIndex(5)  # -> 5 = direct to Ladder Ratings
             self.client.statsServer.send(dict(command="stats", type="league_table", league=1))
 
         if self.loaded:
