@@ -6,7 +6,7 @@
 </td>
 <td width = "250">
 <font color="white" size="+1"><b>{name}</b></font><br/>
-<font color="silver" size="-1">on map </font><font color="gold"><b>{map}</b></font><br/>
+<font color="silver" size="-1">on map </font><font color="GoldenRod"><b>{map}</b></font><br/>
 <font color="silver"><b>mod : </b></font><font color="white"><b>{mod}</b></font>
 </td>
 <td>
