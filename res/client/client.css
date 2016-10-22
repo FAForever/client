@@ -458,7 +458,7 @@ QDialog
     background-color: #575656;
 }
 
-QCheckBox#automaticRecent
+QCheckBox#keepsearch
 {
     color: red;
     background-color: #202025;

@@ -396,7 +396,7 @@
            <number>10</number>
           </property>
           <item row="0" column="0">
-           <widget class="QCheckBox" name="automaticRecent">
+           <widget class="QCheckBox" name="keepsearch">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -410,13 +410,13 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>automaticly update recent Replays</string>
+             <string>stop refresh recent Replays on Tab reentry</string>
             </property>
             <property name="text">
-             <string>Automatic</string>
+             <string>Keep Search</string>
             </property>
             <property name="checked">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
            </widget>
           </item>

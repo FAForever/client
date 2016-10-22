@@ -91,7 +91,7 @@ class ReplaysWidget(BaseClass, FormClass):
         self.onlineTree.clear()
 
     def reloadView(self):
-        if not self.searching and self.automaticRecent.isChecked():
+        if not self.searching and not self.keepsearch.isChecked():
             self.connectToReplayVault()
             self.send(dict(command="list"))
 
