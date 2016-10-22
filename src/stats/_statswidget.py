@@ -1,17 +1,14 @@
 
 
-
-
 from PyQt4 import QtCore, QtGui, QtWebKit
 import util
 from stats import mapstat
+from config import Settings
 import client
 import time
 
 import logging
 logger = logging.getLogger(__name__)
-
-from config import Settings
 
 ANTIFLOOD = 0.1
 
@@ -68,10 +65,10 @@ class StatsWidget(BaseClass, FormClass):
         leagueTab = self.leagues.widget(index).findChild(QtGui.QTabWidget,"league"+str(index))
         if leagueTab:
             if leagueTab.currentIndex() == 0:
-                if time.time() - self.floodtimer > ANTIFLOOD :
+                if time.time() - self.floodtimer > ANTIFLOOD:
                     self.floodtimer = time.time() 
                     self.client.statsServer.send(dict(command="stats", type="league_table", league=self.currentLeague))
-    
+
     @QtCore.pyqtSlot(int)
     def divisionsUpdate(self, index):
         if index == 0:
@@ -93,8 +90,8 @@ class StatsWidget(BaseClass, FormClass):
     def createDivisionsTabs(self, divisions):
         userDivision = ""
         me = self.client.me
-        if me.division is not None:
-            userDivision = me.division
+        if me.league is not None:  # was me.division, but no there there
+            userDivision = me.league[1]  # ? [0]=league and [1]=division
        
         pages = QtGui.QTabWidget()
 
@@ -113,7 +110,7 @@ class StatsWidget(BaseClass, FormClass):
             
             pages.insertTab(index, widget, name)
             
-            if name == userDivision :
+            if name == userDivision:
                 foundDivision = True
                 pages.setCurrentIndex(index)
                 self.client.statsServer.send(dict(command="stats", type="division_table", league=league, division=index))
@@ -126,35 +123,28 @@ class StatsWidget(BaseClass, FormClass):
 
     def createResults(self, values, table):
         
-        doc = QtGui.QTextDocument()
-        doc.addResource(3, QtCore.QUrl("style.css"), self.stylesheet)
-        html = ("<html><head><link rel='stylesheet' type='text/css' href='style.css'></head><body><table class='players' cellspacing='0' cellpadding='0' width='100%' height='100%'>")
-
         formatter = self.FORMATTER_LADDER
         formatter_header = self.FORMATTER_LADDER_HEADER
-        cursor = table.textCursor()
-        cursor.movePosition(QtGui.QTextCursor.End)
-        table.setTextCursor(cursor) 
-        color = "lime"
-        line = formatter_header.format(rank="rank", name="name", score="score", color=color)
-        html += line
+        glist = []
+        append = glist.append
+        append("<table style='color:#3D3D3D' cellspacing='0' cellpadding='4' width='100%' height='100%'><tbody>")
+        append(formatter_header.format(rank="rank", name="name", score="score", color="#92C1E4"))
 
         for val in values:
             rank = val["rank"]
             name = val["name"]
+            score = str(val["score"])
             if self.client.login == name:
-                line = formatter.format(rank=str(rank), name= name, score=str(val["score"]), type="highlight")
+                append(formatter.format(rank=str(rank), name=name, score=score, color="#6CF"))
             elif rank % 2 == 0:
-                line = formatter.format(rank=str(rank), name= name, score=str(val["score"]), type="even")
+                append(formatter.format(rank=str(rank), name=name, score=str(val["score"]), color="#F1F1F1"))
             else:
-                line = formatter.format(rank=str(rank), name= name, score=str(val["score"]), type="")
+                append(formatter.format(rank=str(rank), name=name, score=str(val["score"]), color="#D8D8D8"))
 
-            html += line
+        append("</tbody></table>")
+        html = "".join(glist)
 
-        html +="</tbody></table></body></html>"
-
-        doc.setHtml(html)
-        table.setDocument(doc)
+        table.setHtml(html)
         
         table.verticalScrollBar().setValue(table.verticalScrollBar().minimum())
         return table
@@ -200,7 +190,6 @@ class StatsWidget(BaseClass, FormClass):
             self.leagues.setCurrentIndex(me.league - 1)
         else:
             self.leagues.setCurrentIndex(5)  # -> 5 = direct to Ladder Ratings
-            self.client.statsServer.send(dict(command="stats", type="league_table", league=1))
 
         if self.loaded:
             return

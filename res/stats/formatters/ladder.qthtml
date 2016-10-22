@@ -1,5 +1,5 @@
-<tr class="{type}">
-    <td class="rank">{rank}</td>
-    <td class="login">{name}</td>
-    <td class="rating">{score}</td>
+<tr bgcolor="{color}">
+    <td align="center">{rank}</td>
+    <td>{name}</td>
+    <td align="center">{score}</td>
 </tr>
