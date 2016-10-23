@@ -1,6 +1,5 @@
 
 
-
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
 
@@ -9,7 +8,7 @@ import util
 
 
 class playerAvatar(QtGui.QDialog):
-    def __init__(self, users = [], idavatar = 0, parent=None, *args, **kwargs):
+    def __init__(self, users=[], idavatar=0, parent=None, *args, **kwargs):
         QtGui.QDialog.__init__(self, *args, **kwargs)
         
         self.parent = parent
@@ -21,10 +20,9 @@ class playerAvatar(QtGui.QDialog):
         
         self.grid = QtGui.QGridLayout(self)
         self.userlist = None
-        #self.grid.addWidget(self.userlist, 0, 0)
-        
+
         self.removeButton = QtGui.QPushButton("&Remove users")
-        self.grid.addWidget(self.removeButton,1,0)
+        self.grid.addWidget(self.removeButton, 1, 0)
 
         self.removeButton.clicked.connect(self.removeThem)
         
@@ -37,22 +35,18 @@ class playerAvatar(QtGui.QDialog):
         self.idavatar = idavatar
         self.userlist = self.createUserSelection()
         self.grid.addWidget(self.userlist, 0, 0)
-        #self.grid.addWidget()
 
-
-    
     def removeThem(self):
         for user in self.checkBox :
-            if self.checkBox[user].checkState() == 2 :
-                self.parent.send(dict(command="admin", action="remove_avatar", iduser = user, idavatar = self.idavatar))
+            if self.checkBox[user].checkState() == 2:
+                self.parent.send(dict(command="admin", action="remove_avatar", iduser=user, idavatar=self.idavatar))
         self.close()
             
-
     def createUserSelection(self):
         groupBox = QtGui.QGroupBox("Select the users you want to remove this avatar :")
         vbox = QtGui.QVBoxLayout()
         
-        for user in self.users :
+        for user in self.users:
             self.checkBox[user["iduser"]] = QtGui.QCheckBox(user["login"])
             vbox.addWidget(self.checkBox[user["iduser"]])
         
@@ -63,7 +57,7 @@ class playerAvatar(QtGui.QDialog):
             
 
 class avatarWidget(QtGui.QDialog):
-    def __init__(self, parent, user, personal = False, *args, **kwargs):
+    def __init__(self, parent, user, personal=False, *args, **kwargs):
         
         QtGui.QDialog.__init__(self, *args, **kwargs)
         
@@ -72,11 +66,10 @@ class avatarWidget(QtGui.QDialog):
         self.parent = parent
 
         self.setStyleSheet(self.parent.styleSheet())
-        self.setWindowTitle ( "Avatar manager")
+        self.setWindowTitle("Avatar manager")
         
-        
-        self.group_layout   = QtGui.QVBoxLayout(self)
-        self.listAvatars    = QtGui.QListWidget()
+        self.group_layout = QtGui.QVBoxLayout(self)
+        self.listAvatars  = QtGui.QListWidget()
          
         self.listAvatars.setWrapping(1)
         self.listAvatars.setSpacing(5)
@@ -84,7 +77,7 @@ class avatarWidget(QtGui.QDialog):
 
         self.group_layout.addWidget(self.listAvatars)
 
-        if not self.personal : 
+        if not self.personal:
             self.addAvatarButton = QtGui.QPushButton("Add/Edit avatar")
             self.addAvatarButton.clicked.connect(self.addAvatar)
             self.group_layout.addWidget(self.addAvatarButton)
@@ -93,7 +86,7 @@ class avatarWidget(QtGui.QDialog):
         self.parent.avatarList.connect(self.avatarList)
         self.parent.playerAvatarList.connect(self.doPlayerAvatarList)
 
-        self.playerList = playerAvatar(parent = self.parent)
+        self.playerList = playerAvatar(parent=self.parent)
     
         self.nams = {}
         self.avatars = {}
@@ -103,23 +96,19 @@ class avatarWidget(QtGui.QDialog):
     def showEvent(self, event):
         self.parent.requestAvatars(self.personal)
 
-    
     def addAvatar(self):
         
         options = QtGui.QFileDialog.Options()       
         options |= QtGui.QFileDialog.DontUseNativeDialog
         
-        fileName = QtGui.QFileDialog.getOpenFileName(self,
-                "Select the PNG file",
-                "",
-                "png Files (*.png)", options)
+        fileName = QtGui.QFileDialog.getOpenFileName(self, "Select the PNG file", "", "png Files (*.png)", options)
         if fileName:
-            ## check the properties of that file
+            # check the properties of that file
             pixmap = QtGui.QPixmap(fileName)
-            if pixmap.height() == 20 and pixmap.width() == 40 :
+            if pixmap.height() == 20 and pixmap.width() == 40:
                 
                 text, ok = QtGui.QInputDialog.getText(self, "Avatar description",
-                "Please enter the tooltip :", QtGui.QLineEdit.Normal, "")
+                                                            "Please enter the tooltip :", QtGui.QLineEdit.Normal, "")
                 
                 if ok and text != '':
                 
@@ -128,17 +117,15 @@ class avatarWidget(QtGui.QDialog):
                     fileDatas = base64.b64encode(zlib.compress(file.readAll()))
                     file.close()
                 
-                    self.parent.send(dict(command="avatar", action="upload_avatar", name=os.path.basename(fileName),description=text, file=fileDatas))
+                    self.parent.send(dict(command="avatar", action="upload_avatar", name=os.path.basename(fileName),
+                                          description=text, file=fileDatas))
                     
-                
-            else :
+            else:
                 QtGui.QMessageBox.warning(self, "Bad image", "The image must be in png, format is 40x20 !")      
         
-            #self.client.send(dict(command="edits", action="submit", file = fileDatas))        
-
     def finishRequest(self, reply):
 
-        if reply.url().toString() in self.avatars :
+        if reply.url().toString() in self.avatars:
             img = QtGui.QImage()
             img.loadFromData(reply.readAll())
             pix = QtGui.QPixmap(img)
@@ -155,43 +142,40 @@ class avatarWidget(QtGui.QDialog):
         return lambda: self.doit(x)
     
     def doit(self, val):
-        if self.personal == True :
+        if self.personal:
             self.parent.send(dict(command="avatar", action="select", avatar=val))
             self.close()
  
-        else :
-            if self.user == None :
+        else:
+            if self.user is None:
                 self.parent.send(dict(command="admin", action="list_avatar_users", avatar=val))
-            else :
+            else:
                 self.parent.send(dict(command="admin", action="add_avatar", user=self.user, avatar=val))
                 self.close()
                 
-    
-    
     def doPlayerAvatarList(self, message):
-        self.playerList = playerAvatar(parent = self.parent)
-        player_avatar_list  = message["player_avatar_list"]
-        idavatar            = message["avatar_id"]
+        self.playerList = playerAvatar(parent=self.parent)
+        player_avatar_list = message["player_avatar_list"]
+        idavatar = message["avatar_id"]
         self.playerList.processList(player_avatar_list, idavatar)
         self.playerList.show()
     
     def avatarList(self, avatar_list):
         self.listAvatars.clear()
         button = QtGui.QPushButton()
-        #self.group_layout.addWidget(button)
         self.avatars["None"] = button
         
         item = QtGui.QListWidgetItem()
-        item.setSizeHint (QtCore.QSize(40,20))
+        item.setSizeHint(QtCore.QSize(40,20))
 
         self.item.append(item)
             
-        self.listAvatars.addItem (item )
-        self.listAvatars.setItemWidget ( item, button )
+        self.listAvatars.addItem(item)
+        self.listAvatars.setItemWidget(item, button)
         
         button.clicked.connect(self.clicked)
         
-        for avatar in avatar_list :
+        for avatar in avatar_list:
             
             avatarPix = util.respix(avatar["url"])
             button = QtGui.QPushButton()
@@ -199,29 +183,27 @@ class avatarWidget(QtGui.QDialog):
             button.clicked.connect(self.create_connect(avatar["url"]))
             
             item = QtGui.QListWidgetItem()
-            item.setSizeHint (QtCore.QSize(40,20))
+            item.setSizeHint(QtCore.QSize(40, 20))
             self.item.append(item)
             
-            self.listAvatars.addItem (item )
+            self.listAvatars.addItem(item)
             
-
             button.setToolTip(avatar["tooltip"])
             url = QtCore.QUrl(avatar["url"])            
             self.avatars[avatar["url"]] = button
             
-            self.listAvatars.setItemWidget ( item, self.avatars[avatar["url"]] )
+            self.listAvatars.setItemWidget(item, self.avatars[avatar["url"]])
             
-            if not avatarPix :          
+            if not avatarPix:
                 self.nams[url] = QNetworkAccessManager(button)
                 self.nams[url].finished.connect(self.finishRequest)
                 self.nams[url].get(QNetworkRequest(url))
-            else :
+            else:
                 self.avatars[avatar["url"]].setIcon(QtGui.QIcon(avatarPix))   
                 self.avatars[avatar["url"]].setIconSize(avatarPix.rect().size())           
 
     def cleaning(self):
-        if self != self.parent.avatarAdmin :
+        if self != self.parent.avatarAdmin:
             self.parent.avatarList.disconnect(self.avatarList)
             self.parent.playerAvatarList.disconnect(self.doPlayerAvatarList)
 
-        

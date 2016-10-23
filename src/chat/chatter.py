@@ -4,14 +4,9 @@ from PyQt4.QtNetwork import QNetworkRequest
 from chat._avatarWidget import avatarWidget
 
 import urllib2
-
 import chat
-from chat import user2name
-from config import Settings
-
 from fa.replay import replay
 import util
-
 import client
 from config import Settings
 
@@ -20,6 +15,8 @@ A chatter is the representation of a person on IRC, in a channel's nick list.
 There are multiple chatters per channel.
 There can be multiple chatters for every Player in the Client.
 """
+
+
 class Chatter(QtGui.QTableWidgetItem):
     SORT_COLUMN = 2
     AVATAR_COLUMN = 1
@@ -89,11 +86,11 @@ class Chatter(QtGui.QTableWidgetItem):
             self.tableWidget().hideRow(self.row())
               
     def __ge__(self, other):
-        ''' Comparison operator used for item list sorting '''        
+        """ Comparison operator used for item list sorting """
         return not self.__lt__(other)
 
     def __lt__(self, other):
-        ''' Comparison operator used for item list sorting '''
+        """ Comparison operator used for item list sorting """
         firstStatus = self.getUserRank(self)
         secondStatus = self.getUserRank(other)
 
@@ -130,11 +127,11 @@ class Chatter(QtGui.QTableWidgetItem):
 
             avatarPix = util.respix(url) 
 
-            if avatarPix :
+            if avatarPix:
                 self.avatarItem.setIcon(QtGui.QIcon(avatarPix))            
                 self.avatarItem.setToolTip(self.avatarTip)
             else:                           
-                if util.addcurDownloadAvatar(url, self.name) :                
+                if util.addcurDownloadAvatar(url, self.name):
                     self.lobby.nam.get(QNetworkRequest(QtCore.QUrl(url)))            
         else:
             # No avatar set.
@@ -194,6 +191,9 @@ class Chatter(QtGui.QTableWidgetItem):
             self.statusItem.setIcon(QtGui.QIcon())
             self.statusItem.setToolTip("Idle")
 
+        # Rating icon choice
+        # TODO: These are very basic and primitive
+        self.rankItem.setToolTip("Global Rating: " + str(int(rating)))
         # Rating icon choice  (chr(0xB1) = +-)
         self.rankItem.setToolTip("Global Rating: " + str(int(rating)) + " (" + str(player.number_of_games) + " Games) ["
                                  + str(int(player.rating_mean)) + chr(0xB1) + str(int(player.rating_deviation)) +
@@ -258,10 +258,10 @@ class Chatter(QtGui.QTableWidgetItem):
         menu = QtGui.QMenu(self.parent)
 
         # Actions for stats
-        actionSelectAvatar  = QtGui.QAction("Select Avatar", menu)
+        actionSelectAvatar = QtGui.QAction("Select Avatar", menu)
         
         # Action for aliases link
-        actionViewAliases  = QtGui.QAction("View Aliases", menu)
+        actionViewAliases = QtGui.QAction("View Aliases", menu)
 
         # Actions for Games and Replays
         actionReplay = QtGui.QAction("View Live Replay", menu)
@@ -376,7 +376,7 @@ class Chatter(QtGui.QTableWidgetItem):
         menu.addAction(actionAddFoe)
         menu.addAction(actionRemFoe)
 
-        #Finally: Show the popup
+        # Finally: Show the popup
         menu.popup(QtGui.QCursor.pos())
             
     @QtCore.pyqtSlot()
@@ -386,13 +386,12 @@ class Chatter(QtGui.QTableWidgetItem):
 
     @QtCore.pyqtSlot()
     def viewVaultReplay(self):
-        ''' see the player replays in the vault '''
+        """ see the player replays in the vault """
         self.lobby.client.replays.mapName.setText("")
         self.lobby.client.replays.playerName.setText(self.name)
         self.lobby.client.replays.minRating.setValue(0)
         self.lobby.client.replays.searchVault()
         self.lobby.client.mainTabs.setCurrentIndex(self.lobby.client.mainTabs.indexOf(self.lobby.client.replaysTab))
-    
 
     @QtCore.pyqtSlot()
     def joinInGame(self):
