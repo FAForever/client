@@ -1,7 +1,4 @@
 
-
-
-
 # Copyright (C) 1999--2002  Joel Rosdahl
 #
 # This library is free software; you can redistribute it and/or
@@ -22,7 +19,7 @@
 #
 # $Id: irclib.py,v 1.47 2008/09/25 22:00:59 keltus Exp $
 
-"""irclib -- Internet Relay Chat (IRC) protocol client library.
+""" irclib -- Internet Relay Chat (IRC) protocol client library.
 
 This library is intended to encapsulate the IRC protocol at a quite
 low level.  It provides an event-driven IRC client framework.  It has
@@ -93,8 +90,10 @@ DEBUG = 0
 # ERROR from the server triggers the error event and the disconnect event.
 # dropping of the connection triggers the disconnect event.
 
+
 class IRCError(Exception):
     """Represents an IRC exception."""
+
 
 class IRC:
     """Class that handles one or several IRC server connections.
@@ -160,7 +159,7 @@ class IRC:
         self.fn_to_add_timeout = fn_to_add_timeout
         self.connections = []
         self.handlers = {}
-        self.delayed_commands = [] # list of tuples in the format (time, function, arguments)
+        self.delayed_commands = []  # list of tuples in the format (time, function, arguments)
 
         self.add_global_handler("ping", _ping_ponger, -42)
 
@@ -211,7 +210,7 @@ class IRC:
         at the process_forever method.
         """
         sockets = map(lambda x: x._get_socket(), self.connections)
-        sockets = filter(lambda x: x != None, sockets)
+        sockets = filter(lambda x: x is not None, sockets)
         if sockets:
             (i, o, e) = select.select(sockets, [], [], timeout)
             self.process_data(i)
@@ -270,7 +269,7 @@ class IRC:
 
         Returns 1 on success, otherwise 0.
         """
-        if not event in self.handlers:
+        if event not in self.handlers:
             return 0
         for h in self.handlers[event]:
             if handler == h[1]:
@@ -334,6 +333,7 @@ class IRC:
 
 _rfc_1459_command_regexp = re.compile("^(:(?P<prefix>[^ ]+) +)?(?P<command>[^ ]+)( *(?P<argument> .+))?")
 
+
 class Connection:
     """Base class for IRC connections.
 
@@ -346,7 +346,7 @@ class Connection:
         raise IRCError, "Not overridden"
 
     ##############################
-    ### Convenience wrappers.
+    #  Convenience wrappers.
 
     def execute_at(self, at, function, arguments=()):
         self.irclibobj.execute_at(at, function, arguments)
@@ -358,6 +358,7 @@ class Connection:
 class ServerConnectionError(IRCError):
     pass
 
+
 class ServerNotConnectedError(ServerConnectionError):
     pass
 
@@ -365,6 +366,7 @@ class ServerNotConnectedError(ServerConnectionError):
 # Huh!?  Crrrrazy EFNet doesn't follow the RFC: their ircd seems to
 # use \n as message separator!  :P
 _linesep_regexp = re.compile("\r?\n")
+
 
 class ServerConnection(Connection):
     """This class represents an IRC server connection.
@@ -515,7 +517,7 @@ class ServerConnection(Connection):
                 continue
 
             try:
-                line = line.decode("utf-8", "replace")     # utf-8 support hacked in by thygrrr (may break in some scenarios - see chardet python package)
+                line = line.decode("utf-8", "replace")   # utf-8 support hacked in by thygrrr (may break in some scenarios - see chardet python package)
             except:            
                 print "irclib: non-utf-8 line, unexpected encoding error " + line
                 line = "** encoding error - replaced by irclib.py **"
@@ -862,6 +864,7 @@ class ServerConnection(Connection):
                                          max and (" " + max),
                                          server and (" " + server)))
 
+
 class DCCConnectionError(IRCError):
     pass
 
@@ -1024,6 +1027,7 @@ class DCCConnection(Connection):
         except socket.error, x:
             # Ouch!
             self.disconnect("Connection reset by peer.")
+
 
 class SimpleIRCClient:
     """A simple single-server IRC client class.
@@ -1188,6 +1192,7 @@ _low_level_mapping = {
 
 _low_level_regexp = re.compile(_LOW_LEVEL_QUOTE + "(.)")
 
+
 def mask_matches(nick, mask):
     """Check if a nick matches a mask.
 
@@ -1208,6 +1213,7 @@ nick_characters = string.ascii_letters + string.digits + _special
 _ircstring_translation = string.maketrans(string.ascii_uppercase + "[]\\^",
                                           string.ascii_lowercase + "{}|~")
 
+
 def irc_lower(s):
     """Returns a lowercased string.
 
@@ -1215,6 +1221,7 @@ def irc_lower(s):
     1459).
     """
     return s.translate(_ircstring_translation)
+
 
 def _ctcp_dequote(message):
     """[Internal] Dequote a message according to CTCP specifications.
@@ -1270,12 +1277,14 @@ def _ctcp_dequote(message):
 
         return messages
 
+
 def is_channel(string):
     """Check if a string is a channel name.
 
     Returns true if the argument is a channel name, otherwise false.
     """
     return string and string[0] in "#&+!"
+
 
 def ip_numstr_to_quad(num):
     """Convert an IP number as an integer given in ASCII
@@ -1285,6 +1294,7 @@ def ip_numstr_to_quad(num):
     p = map(str, map(int, [n >> 24 & 0xFF, n >> 16 & 0xFF,
                            n >> 8 & 0xFF, n & 0xFF]))
     return ".".join(p)
+
 
 def ip_quad_to_numstr(quad):
     """Convert an IP address string (e.g. '192.168.0.1') to an IP
@@ -1296,12 +1306,14 @@ def ip_quad_to_numstr(quad):
         s = s[:-1]
     return s
 
+
 def nm_to_n(s):
     """Get the nick part of a nickmask.
 
     (The source of an Event is a nickmask.)
     """
     return s.split("!")[0]
+
 
 def nm_to_uh(s):
     """Get the userhost part of a nickmask.
@@ -1310,12 +1322,14 @@ def nm_to_uh(s):
     """
     return s.split("!")[1]
 
+
 def nm_to_h(s):
     """Get the host part of a nickmask.
 
     (The source of an Event is a nickmask.)
     """
     return s.split("@")[1]
+
 
 def nm_to_u(s):
     """Get the user part of a nickmask.
@@ -1324,6 +1338,7 @@ def nm_to_u(s):
     """
     s = s.split("!")[1]
     return s.split("@")[0]
+
 
 def parse_nick_modes(mode_string):
     """Parse a nick mode string.
@@ -1340,6 +1355,7 @@ def parse_nick_modes(mode_string):
 
     return _parse_modes(mode_string, "")
 
+
 def parse_channel_modes(mode_string):
     """Parse a channel mode string.
 
@@ -1354,6 +1370,7 @@ def parse_channel_modes(mode_string):
     """
 
     return _parse_modes(mode_string, "bklvo")
+
 
 def _parse_modes(mode_string, unary_modes=""):
     """[Internal]"""
@@ -1385,6 +1402,7 @@ def _parse_modes(mode_string, unary_modes=""):
         else:
             modes.append([sign, ch, None])
     return modes
+
 
 def _ping_ponger(connection, event):
     """[Internal]"""
