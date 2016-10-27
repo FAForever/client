@@ -129,8 +129,9 @@ class ReplaysWidget(BaseClass, FormClass):
             self.replayDownload.get(QNetworkRequest(QtCore.QUrl(item.url))) 
 
     def spoilerCheckboxPressed(self, item):
-        if self.selectedReplay:
-            self.selectedReplay.generateInfoPlayersHtml()
+        if self.selectedReplay:  # if something is selected in the tree to the left
+            if type(self.selectedReplay) == ReplayItem:  # and if it is a game
+                self.selectedReplay.generateInfoPlayersHtml()  # then we redo it
 
     def replayVault(self, message):
         action = message["action"]
@@ -179,6 +180,7 @@ class ReplaysWidget(BaseClass, FormClass):
         return BaseClass.showEvent(self, event)
 
     def updateOnlineTree(self):
+        self.selectedReplay = None  # clear because won't be part of the new tree
         self.replayInfos.clear()
         self.onlineTree.clear()
         buckets = {}
