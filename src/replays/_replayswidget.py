@@ -85,14 +85,14 @@ class ReplaysWidget(BaseClass, FormClass):
     def searchVault(self):
         """ search for some replays """
         self.searching = True
-        self.connectToModVault()
+        self.connectToReplayVault()
         self.send(dict(command="search", rating=self.minRating.value(), map=self.mapName.text(),
                                 player=self.playerName.text(), mod=self.modList.currentText()))
         self.onlineTree.clear()
 
     def reloadView(self):
         if not self.searching:
-            self.connectToModVault()
+            self.connectToReplayVault()
             self.send(dict(command="list"))
 
     def finishRequest(self, reply):
@@ -114,7 +114,7 @@ class ReplaysWidget(BaseClass, FormClass):
             self.selectedReplay = item
             if hasattr(item, "moreInfo"):
                 if item.moreInfo is False:
-                    self.connectToModVault()
+                    self.connectToReplayVault()
                     self.send(dict(command="info_replay", uid=item.uid))
                 elif item.spoiled != self.spoilerCheckbox.isChecked():
                     self.replayInfos.clear()
@@ -520,7 +520,7 @@ class ReplaysWidget(BaseClass, FormClass):
             self.client.viewingReplay.emit(item.url)
             replay(item.url)
             
-    def connectToModVault(self):
+    def connectToReplayVault(self):
         """ connect to the replay vault server """
 
         if self.replayVaultSocket.state() != QtNetwork.QAbstractSocket.ConnectedState and self.replayVaultSocket.state() != QtNetwork.QAbstractSocket.ConnectingState:
