@@ -28,7 +28,7 @@ def map(mapname, force=False, silent=False):
     auto = config.Settings.get('maps/autodownload', default=False, type=bool)
     if not auto:
         msgbox = QtGui.QMessageBox()
-        msgbox.setWindowTitle("Download Mod")
+        msgbox.setWindowTitle("Download Map")
         msgbox.setText("Seems that you don't have the map used this game. Do you want to download it?<br/><b>" + mapname + "</b>")
         msgbox.setInformativeText("If you respond 'Yes to All' maps will be downloaded automatically in the future")
         msgbox.setStandardButtons(QtGui.QMessageBox.Yes | QtGui.QMessageBox.YesToAll | QtGui.QMessageBox.No)
