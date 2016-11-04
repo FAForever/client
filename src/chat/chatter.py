@@ -179,6 +179,7 @@ class Chatter(QtGui.QTableWidgetItem):
             self.setText("[%s]%s" % (self.clan,self.name))
 
         rating = self.rating
+        ladder_rating = player.ladder_estimate()
 
         # Status icon handling
         url = client.instance.urls.get(player.login)
@@ -193,13 +194,15 @@ class Chatter(QtGui.QTableWidgetItem):
             self.statusItem.setIcon(QtGui.QIcon())
             self.statusItem.setToolTip("Idle")
 
-        #Rating icon choice
-        #TODO: These are very basic and primitive
-        self.rankItem.setToolTip("Global Rating: " + str(int(rating)))
+        # Rating icon choice  (chr(0xB1) = +-)
+        self.rankItem.setToolTip("Global Rating: " + str(int(rating)) + " (" + str(player.number_of_games) + " Games) ["
+                                 + str(int(player.rating_mean)) + chr(0xB1) + str(int(player.rating_deviation)) +
+                                 "]\nLadder Rating: " + str(int(ladder_rating)) + " [" +
+                                 str(int(player.ladder_rating_mean)) + chr(0xB1) + str(int(player.ladder_rating_deviation)) + "]")
 
         league = player.league
         if league is not None:
-            self.rankItem.setToolTip("Division : " + league["division"]+ "\nGlobal Rating: " + str(int(rating)))
+            self.rankItem.setToolTip("Division : " + league["division"] + "\nGlobal Rating: " + str(int(rating)))
             self.rankItem.setIcon(util.icon("chat/rank/%s.png" % league["league"]))
         else:
             self.rankItem.setIcon(util.icon("chat/rank/newplayer.png"))
