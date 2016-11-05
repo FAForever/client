@@ -28,7 +28,33 @@ pull-requests of your changes.
 Pull Requests must have py.test unit test coverage.
 
 
-Running
+Running on Linux
+-------
+This guide is about runnning the client from source repository. For a [ready-made Arch-Linux package](https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=python2-fafclient) [follow the instructions in the wiki](http://wiki.faforever.com/index.php?title=Setting_Up_FAF_Linux).
+
+Clone this repository locally:
+
+    git clone https://github.com/FAForever/client.git faf-client
+    
+Create a python virtualenv for installing its dependencies:
+
+    virtualenv2 ./faf-client-venv --system-site-packages
+    ./faf-client-venv/bin/pip install -r ./faf-client/requirements.txt
+
+Now download the `uid` executable:
+
+    wget https://github.com/FAForever/uid/releases/download/v2.1.0/uid -O ./faf-client/lib/uid
+    chmod +x ./faf-client/lib/uid
+
+Note that the `uid` smurf protection executable needs to run `xrandr`, `lspci`, `lsblk` and `uname` to gather unique system information.
+
+Run the client:
+
+    cd ./faf-client && ../faf-client-venv/bin/python src/__main__.py
+
+For more information see [the wiki](http://wiki.faforever.com/index.php?title=Setting_Up_FAF_Linux).
+
+Running unit tests
 -------
 Before running unit tests, set PYTEST_QT_API as follows:
 
