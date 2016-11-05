@@ -11,7 +11,10 @@ sip.setapi('QList', 2)
 sip.setapi('QProcess', 2)
 
 import PyQt4.uic
-from cx_Freeze import setup, Executable
+if sys.platform == 'win32':
+    from cx_Freeze import setup, Executable
+else:
+    from distutils.core import setup
 
 sys.path.insert(0, "src")
 sys.path.insert(0, "lib")
@@ -92,18 +95,31 @@ base = None
 if sys.platform == 'win32':
     base = 'Win32GUI'
 
-exe = Executable(
-    'src/__main__.py',
-    base=base,
-    targetName='FAForever.exe',
-    icon='res/faf.ico',
-    includes=[os.path.join(os.path.dirname(PyQt4.uic.__file__), "widget-plugins"),
-            "PyQt4.uic.widget-plugins"]
-)
+if sys.platform == 'win32':
+    platform_options = {
+        'executables': [Executable(
+                          'src/__main__.py',
+                          base=base,
+                          targetName='FAForever.exe',
+                          icon='res/faf.ico',
+                          includes=[os.path.join(os.path.dirname(PyQt4.uic.__file__), "widget-plugins"),
+                                  "PyQt4.uic.widget-plugins"]
+                      )],
+        'requires': ['bsdiff4', 'sip', 'PyQt4', 'cx_Freeze', 'cffi', 'py', 'faftools'],
+        'options': {'build_exe': build_exe_options,
+                 'bdist_msi': bdist_msi_options},
+        'version': msi_version,
+                 }
+        
+else:
+    from setuptools import find_packages
+    platform_options = {
+        'packages': find_packages()
+        'version': os.getenv('FAFCLIENT_VERSION'),
+        }
 
 setup(
     name=product_name,
-    version=msi_version,
     description='Forged Alliance Forever - Lobby Client',
     long_description='FA Forever is a community project that allows you to play \
 Supreme Commander and Supreme Commander: Forged Alliance online \
@@ -113,8 +129,5 @@ ranked ladder play, and featured mods.',
     maintainer='Sheeo',
     url='http://www.faforever.com',
     license='GNU General Public License, Version 3',
-    options={'build_exe': build_exe_options,
-             'bdist_msi': bdist_msi_options},
-    executables=[exe],
-    requires=['bsdiff4', 'sip', 'PyQt4', 'cx_Freeze', 'cffi', 'py', 'faftools'],
+    **platform_options
 )
