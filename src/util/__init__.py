@@ -1,6 +1,7 @@
 import sys
 
 import os
+import subprocess
 from ctypes import *
 from config import Settings
 
@@ -560,23 +561,17 @@ def md5(file_name):
 
 def uniqueID(user, session):
     ''' This is used to uniquely identify a user's machine to prevent smurfing. '''
+    env = os.environ
+    env['PATH'] += ":" + os.getcwd() # the Windows setup places executables in the root/CWD
+    env['PATH'] += ":" + os.path.join(os.getcwd(), "lib") # the default download location for travis/Appveyor
     try:
-        if os.path.isfile("uid.dll"):
-            mydll = cdll.LoadLibrary("uid.dll")
-        else:
-            mydll = cdll.LoadLibrary(os.path.join("lib", "uid.dll"))
-
-        mydll.uid.restype = c_char_p
-        baseString = (mydll.uid(session, os.path.join(LOG_DIR, "uid.log")) )
-        DllCanUnloadNow()
-
-        return baseString
-
-    except:
-        QtGui.QMessageBox.warning(None, "C++ 2010 Runtime Missing",
-                                  "You are missing the Microsoft Visual C++ 2010 Runtime.<br><br>Get it from here: <a href='https://www.microsoft.com/en-us/download/details.aspx?id=5555'>https://www.microsoft.com/en-us/download/details.aspx?id=5555</a>")
-        logger.warning("UniqueID Failure, user warned", exc_info=sys.exc_info())
-        QtGui.QApplication.quit()
+        # on error, the uid exe returns 1 which will result in a CalledProcessError exception
+        return subprocess.check_output(["faf-uid", session], env=env, stderr=subprocess.STDOUT)
+    except OSError as err:
+        logger.error("UniqueID error finding the executable: {}".format(err))
+    except subprocess.CalledProcessError as exc:
+        logger.error("UniqueID executable error: {}".format(exc.output))
+    return None
 
 
 import datetime
