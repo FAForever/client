@@ -40,7 +40,7 @@ def call_git_describe():
         return line.strip()
     except Exception as e:
         print("Error grabbing git version: {}".format(e))
-        return "0.0.0-dev"
+        return None
 
 def is_development_version(version):
     return "-" in version and not is_prerelease_version(version)
@@ -94,7 +94,7 @@ def get_git_version():
     # If we still don't have anything, that's an error.
 
     if version is None:
-        raise ValueError("Cannot find the version number!")
+        raise ValueError("Cannot find the version number! Please provide RELEASE-VERSION file or run from git.")
 
     # Finally, return the current version.
     return version
