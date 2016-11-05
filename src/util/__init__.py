@@ -1,16 +1,13 @@
 import sys
+
 import os
-import getpass
+import subprocess
 from ctypes import *
-
-from PyQt4.QtGui import QDesktopServices
-
 from config import Settings
-from PyQt4.QtGui import QDesktopServices
 
 # Developer mode flag
 def developer():
-    return sys.executable.contains("python")
+    return sys.executable.endswith("python.exe")
 
 from config import VERSION as VERSION_STRING
 
@@ -18,11 +15,8 @@ LOGFILE_MAX_SIZE = 256 * 1024  #256kb should be enough for anyone
 
 UNITS_PREVIEW_ROOT = "{}/faf/unitsDB/icons/big/".format(Settings.get('content/host'))
 
-# On Windows the res dir is relative to the executable or main.py script
+#These are paths relative to the executable or main.py script
 COMMON_DIR = os.path.join(os.getcwd(), "res")
-if sys.platform != 'win32' and not os.path.exists(COMMON_DIR):
-    #On Linux the res dir is installed as /usr/share/fafclient
-    COMMON_DIR = os.path.join("/usr", "share", "fafclient")
 
 # These directories are in Appdata (e.g. C:\ProgramData on some Win7 versions)
 if 'ALLUSERSPROFILE' in os.environ:
@@ -59,42 +53,33 @@ REPO_DIR = os.path.join(APPDATA_DIR, "repo")
 if not os.path.exists(REPO_DIR):
     os.makedirs(REPO_DIR)
 
-# Public settings object
-# Stolen from Config because reasons
-from config import _settings
-settings = _settings
-
-# initialize wine settings for non Windows platforms
-if sys.platform != 'win32':
-    wine_exe = settings.value("wine/exe", "wine", type=str)
-    wine_cmd_prefix = settings.value("wine/cmd_prefix", "", type=str)
-    if settings.contains("wine/prefix"):
-        wine_prefix = str(settings.value("wine/prefix", type=str))
-    else:
-        wine_prefix = os.path.join(os.path.expanduser("~"), ".wine")
-
 LOCALFOLDER = os.path.join(os.path.expandvars("%LOCALAPPDATA%"), "Gas Powered Games",
                            "Supreme Commander Forged Alliance")
 if not os.path.exists(LOCALFOLDER):
     LOCALFOLDER = os.path.join(os.path.expandvars("%USERPROFILE%"), "Local Settings", "Application Data",
                                "Gas Powered Games", "Supreme Commander Forged Alliance")
-if not os.path.exists(LOCALFOLDER) and sys.platform != 'win32':
-    LOCALFOLDER = os.path.join(wine_prefix, "drive_c", "users", getpass.getuser(), "Local Settings", "Application Data",
-                               "Gas Powered Games", "Supreme Commander Forged Alliance")
-
 PREFSFILENAME = os.path.join(LOCALFOLDER, "game.prefs")
-if not os.path.exists(PREFSFILENAME):
-    PREFSFILENAME = os.path.join(LOCALFOLDER, "Game.prefs")
 
 DOWNLOADED_RES_PIX = {}
 DOWNLOADING_RES_PIX = {}
 
-PERSONAL_DIR = str(QDesktopServices.storageLocation(QDesktopServices.DocumentsLocation))
+# This should be "My Documents" for most users. However, users with accents in their names can't even use these folders in Supcom
+# so we are nice and create a new home for them in the APPDATA_DIR
 try:
-    getpass.getuser().decode('ascii')  # Try to see if the user has a wacky username
+    os.environ['USERNAME'].decode('ascii')  # Try to see if the user has a wacky username
+
+    import ctypes
+    from ctypes.wintypes import MAX_PATH
+
+    dll = ctypes.windll.shell32
+    buf = ctypes.create_unicode_buffer(MAX_PATH + 1)
+    if dll.SHGetSpecialFolderPathW(None, buf, 0x0005, False):
+        PERSONAL_DIR = (buf.value)
+    else:
+        raise StandardError
 except:
     PERSONAL_DIR = os.path.join(APPDATA_DIR, "user")
-    
+
 #Ensure Application data directories exist
 if not os.path.isdir(APPDATA_DIR):
     os.makedirs(APPDATA_DIR)
@@ -165,14 +150,10 @@ __theme = None
 __themedir = None
 
 
-# initialize wine settings for non Windows platforms
-if sys.platform != 'win32':
-    wine_exe = settings.value("wine/exe", "wine", type=str)
-    wine_cmd_prefix = settings.value("wine/cmd_prefix", "", type=str)
-    if settings.contains("wine/prefix"):
-        wine_prefix = str(settings.value("wine/prefix", type=str))
-    else:
-        wine_prefix = os.path.join(os.path.expanduser("~"), ".wine")
+# Public settings object
+# Stolen from Config because reasons
+from config import _settings
+settings = _settings
 
 def clean_slate(path):
     if os.path.exists(path):
@@ -580,23 +561,17 @@ def md5(file_name):
 
 def uniqueID(user, session):
     ''' This is used to uniquely identify a user's machine to prevent smurfing. '''
+    env = os.environ
+    env['PATH'] += ":" + os.getcwd() # the Windows setup places executables in the root/CWD
+    env['PATH'] += ":" + os.path.join(os.getcwd(), "lib") # the default download location for travis/Appveyor
     try:
-        if os.path.isfile("uid.dll"):
-            mydll = cdll.LoadLibrary("uid.dll")
-        else:
-            mydll = cdll.LoadLibrary(os.path.join("lib", "uid.dll"))
-
-        mydll.uid.restype = c_char_p
-        baseString = (mydll.uid(session, os.path.join(LOG_DIR, "uid.log")) )
-        DllCanUnloadNow()
-
-        return baseString
-
-    except:
-        QtGui.QMessageBox.warning(None, "C++ 2010 Runtime Missing",
-                                  "You are missing the Microsoft Visual C++ 2010 Runtime.<br><br>Get it from here: <a href='https://www.microsoft.com/en-us/download/details.aspx?id=5555'>https://www.microsoft.com/en-us/download/details.aspx?id=5555</a>")
-        logger.warning("UniqueID Failure, user warned", exc_info=sys.exc_info())
-        QtGui.QApplication.quit()
+        # on error, the uid exe returns 1 which will result in a CalledProcessError exception
+        return subprocess.check_output(["faf-uid", session], env=env, stderr=subprocess.STDOUT)
+    except OSError as err:
+        logger.error("UniqueID error finding the executable: {}".format(err))
+    except subprocess.CalledProcessError as exc:
+        logger.error("UniqueID executable error: {}".format(exc.output))
+    return None
 
 
 import datetime

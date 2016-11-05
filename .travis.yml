@@ -11,6 +11,7 @@ install:
   - "pip install cx_Freeze"
   - "pip install python-coveralls"
   - "pip install -r requirements.txt --trusted-host content.faforever.com"
+  - curl -s https://api.github.com/repos/FAForever/uid/releases/latest | jq -r '.assets[] | select(.name | contains("uid")) | .browser_download_url' | wget -i - -O ./lib/faf-uid
 
 
 before_script:

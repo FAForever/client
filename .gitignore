@@ -11,7 +11,8 @@
 *.pydev*
 *.vcproj
 .idea/
-uid.dll
+lib/faf-uid
+lib/faf-uid.exe
 build/
 dist/
 Thumbs.db
