@@ -43,7 +43,7 @@ except OSError:
 build_exe_options = {
     'include_files': ['res',
                       'RELEASE-VERSION',
-                      ('lib/uid.dll', 'uid.dll'),
+                      ('lib/uid.exe', 'uid.exe'),
                       ('lib/qt.conf', 'qt.conf'),
                       ('lib/xdelta3.exe', 'xdelta3.exe'),
                       ('lib/lua51.dll', 'lua51.dll')],
