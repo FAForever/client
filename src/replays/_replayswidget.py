@@ -3,6 +3,7 @@
 from PyQt4 import QtCore, QtGui, QtNetwork
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
 from fa.replay import replay
+from config import Settings
 import util
 import os
 import fa
@@ -28,7 +29,11 @@ FormClass, BaseClass = util.loadUiType("replays/replays.ui")
 class ReplaysWidget(BaseClass, FormClass):
     SOCKET = 11002
     HOST   = "lobby.faforever.com"
-    
+
+    # connect to save/restore persistence settings for checkboxes
+    keep_search = Settings.persisted_property("replay/keepSearch", default_value=False, type=bool)
+    spoiler_free = Settings.persisted_property("replay/spoilerFree", default_value=True, type=bool)
+
     def __init__(self, client):
         super(BaseClass, self).__init__()
 
@@ -50,7 +55,8 @@ class ReplaysWidget(BaseClass, FormClass):
         self.searchButton.pressed.connect(self.searchVault)
         self.playerName.returnPressed.connect(self.searchVault)
         self.mapName.returnPressed.connect(self.searchVault)
-        self.spoilerCheckbox.stateChanged.connect(self.spoilerCheckboxPressed)
+        self.keepsearch.stateChanged.connect(self.keepsearchCheckboxchange)
+        self.spoilerCheckbox.stateChanged.connect(self.spoilerCheckboxchange)
 
         self.myTree.itemDoubleClicked.connect(self.myTreeDoubleClicked)
         self.myTree.itemPressed.connect(self.myTreePressed)
@@ -66,7 +72,7 @@ class ReplaysWidget(BaseClass, FormClass):
         self.liveTree.header().setResizeMode(2, QtGui.QHeaderView.ResizeToContents)
         
         self.games = {}
-        
+
         self.onlineTree.itemDoubleClicked.connect(self.onlineTreeDoubleClicked)
         self.onlineTree.itemPressed.connect(self.onlineTreeClicked)
         self.selectedReplay = False
@@ -79,6 +85,10 @@ class ReplaysWidget(BaseClass, FormClass):
         self.replayVaultSocket.readyRead.connect(self.readDataFromServer)
         self.replayVaultSocket.disconnected.connect(self.disconnected)
         self.replayVaultSocket.error.connect(self.errored) 
+
+        # restore persistent checkbox settings
+        self.keepsearch.setChecked(self.keep_search)
+        self.spoilerCheckbox.setChecked(self.spoiler_free)
 
         logger.info("Replays Widget instantiated.")
 
@@ -144,7 +154,14 @@ class ReplaysWidget(BaseClass, FormClass):
                 if hasattr(item, "url"):
                     self.replayDownload.get(QNetworkRequest(QtCore.QUrl(item.url)))
 
-    def spoilerCheckboxPressed(self, item):
+    def keepsearchCheckboxchange(self, state):
+        self.keep_search = state  # save state .. no magic
+        if not self.searching and not self.keepsearch.isChecked():
+            self.connectToReplayVault()
+            self.send(dict(command="list"))
+
+    def spoilerCheckboxchange(self, state):
+        self.spoiler_free = state  # save state .. no magic
         if self.selectedReplay:  # if something is selected in the tree to the left
             if type(self.selectedReplay) == ReplayItem:  # and if it is a game
                 self.selectedReplay.generateInfoPlayersHtml()  # then we redo it
