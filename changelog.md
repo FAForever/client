@@ -1,4 +1,4 @@
-0.11.61
+0.12.0
 =======
 * Make it possible to choose subset of factions in ladder
 * Re-enable notification of game events
@@ -11,6 +11,8 @@
 * Added option to sort nicknames with friends on top.
 * Multiple mods are now downloaded if required
 * Fixed sorting bug with the player list
+* Add linux support (thanks @muellni)
+* Add new uid implementation (thanks @muellni)
 
 0.11.60
 =======
