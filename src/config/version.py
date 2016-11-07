@@ -26,18 +26,16 @@
 # Note that the RELEASE-VERSION file should *not* be checked into git;
 # please add it to your top-level .gitignore file.
 
-from subprocess import Popen, PIPE
-import sys
+from subprocess import check_output
+import sys, os
 
 __all__ = "get_git_version"
 
 def call_git_describe():
     try:
-        p = Popen(['git', 'describe', '--tags'],
-                  stdout=PIPE, stderr=PIPE)
-        p.stderr.close()
-        line = p.stdout.readlines()[0]
-        return line.strip()
+        lines = check_output(['git', 'describe', '--tags', '--always']).split(os.linesep)
+        line = lines[0]
+        return line
     except Exception as e:
         print("Error grabbing git version: {}".format(e))
         return None
@@ -89,6 +87,7 @@ def get_git_version():
     # RELEASE-VERSION.
 
     if version is None:
+        sys.stderr.write("Could not get git version" + os.linesep)
         version = release_version
 
     # If we still don't have anything, that's an error.
