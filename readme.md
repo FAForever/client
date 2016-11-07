@@ -22,10 +22,33 @@ Pre-requisites are:
     pip install -r requirements.txt
 
 
-If you want to contribute back to the project, please make a fork and create
-pull-requests of your changes.
+Contributing
+-------
 
-Pull Requests must have py.test unit test coverage.
+By contributing, you agree to license your work to the FAForever project in such a way that it can forever be distributed under the conditions of the GPL v3.0 license.
+
+### Code-Style
+
+[Downlord's FAF Client Contribution Guidelines](https://github.com/FAForever/downlords-faf-client/wiki/Contribution-guidelines#write-readable-code)
+* [Quality has highest priority](https://github.com/FAForever/downlords-faf-client/wiki/Contribution-guidelines#choose-quality-over-quantity)
+* [Write readable code](https://github.com/FAForever/downlords-faf-client/wiki/Contribution-guidelines#write-readable-code)
+* [Use comments only when absolutely necessary to explain complex algorithms or inherently unintuitive reasons for how or why your code functions](https://github.com/FAForever/downlords-faf-client/wiki/Contribution-guidelines#avoid-javadoc-and-comments)
+* Use the logger
+
+### Issues, PRs, and commit formatting
+
+1. Open an issue for every improvement or problem you want to work on
+2. Open a PR that references the issue, name of the feature branch for the PR should start with issue number
+3. Use reasonably structured commits in your PR, for example like this:
+    1. Cosmetic changes necessary to prepare your work
+    2. Infrastructure / low level changes necessary for your high-level feature/fix
+    3. Implementation of your feature/fix
+    4. Additional work, such as localizations
+3. Use "Closes #xxx" in commit messages
+4. Changelog messages of the form `* Fix the foo #issue (@myname #pr)` are appreciated when done in a final rebase after PR is marked "ready", but otherwise tend to cause annoying merge conflicts
+5. PRs without test coverage for all logic will not be accepted
+
+Small fixes by contributors who "own" (have recently made commits on) the part of the project they are making changes on may be fast-tracked, but when in doubt open at least a PR with a descriptive title **and** description.
 
 
 Running on Linux
@@ -67,6 +90,7 @@ Run the lobby from the main directory using:
 Run the unit test suite using:
 
     python2 runtests.py
+
 
 License
 -------
