@@ -259,8 +259,11 @@ class ReplayItem(QtGui.QTreeWidgetItem):
                                      "<font size='+2'>%s</font></td></tr>%s" % (team_title, players)
                 else:
                     if len(self.teams) == 2:  # pack team in <table>
-                        teams += "<td><table border=0>%s</table></td>" % players
+                        teams += "<td><table border=0><tr><td colspan='3' align='center' valign='middle'>" \
+                                     "<font size='+2'>&nbsp;</font></td></tr>%s</table></td>" % players
                     else:  # just one row
+                        if i == 1:  # extra (empty) line between uid and players
+                            teams += "<tr><td colspan='3' align='center' valign='middle'><font size='+2'>&nbsp;</font></td></tr>"
                         teams += players
 
                 if len(self.teams) == 2 and i == 1:  # add the 'VS'
@@ -287,7 +290,7 @@ class ReplayItem(QtGui.QTreeWidgetItem):
 
         icon_url = os.path.join(util.COMMON_DIR, "replays/%s.png" % self.retrieveIconFaction(player))
 
-        icon = "<td width='40'><img src='%s' width='40' height='20'></td>" % icon_url
+        icon = "<td width='40'><img src='file:///%s' width='40' height='20'></td>" % icon_url
 
         if self.spoiled and not self.mod == "ladder1v1":
             score = "<td align='center' valign='middle' width='20'>%s</td>" % player["score"]

@@ -221,12 +221,11 @@ QSplitter::handle:hover
 
 QSpinBox#minRating, QLineEdit#mapName, QLineEdit#playerName, QComboBox#modList
 {
-    background-color: #353535;
     color: orange;
 }
 
 /* Text controls */
-QTextEdit, QPlainTextEdit, QLineEdit, QListWidget, QTableWidget, QTreeWidget, QFrame#rankedFrame, QFrame#teamFaction, QFrame#teamSearch
+QTextEdit, QPlainTextEdit, QSpinBox, QLineEdit, QComboBox, QListWidget, QTableWidget, QTreeWidget, QFrame#rankedFrame, QFrame#teamFaction, QFrame#teamSearch
 {
     border-style:solid;
     border-width:1px;
@@ -445,6 +444,13 @@ QGroupBox
     border-radius: 5px;
     background-color: #202025;
     color: silver;
+    font-weight: bold;
+}
+
+QGroupBox::title
+{
+    background-color:transparent;
+    padding: 3px;
 }
 
 QLabel
@@ -458,18 +464,39 @@ QDialog
     background-color: #575656;
 }
 
-QCheckBox#keepsearch
+QCheckBox#automaticCheckbox
 {
-    color: red;
+    color: silver;
     background-color: #202025;
+    padding: 5px;
 }
 
 QCheckBox#spoilerCheckbox
 {
     color: white;
     background-color: #202025;
+    padding: 5px;
 }
 
+QPushButton#RefreshResetButton, #searchButton
+{
+	color: white;
+    padding: 5px;
+	border-radius: 5px;
+	border: 1px solid grey;
+}
+
+QPushButton::hover:!pressed
+{
+    border: none;
+    background-color: #808080;
+}
+
+QPushButton::pressed
+{
+    border: none;
+    background-color: darkred;
+}
 /* Used for Ranked Buttons only at the moment*/
 QToolButton#rankedPlay
 {
