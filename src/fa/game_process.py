@@ -1,9 +1,11 @@
 import os
+import sys
 
 from PyQt4 import QtCore, QtGui
 import config
 import re
 
+import util
 import logging
 logger = logging.getLogger(__name__)
 
@@ -41,8 +43,14 @@ class GameProcess(QtCore.QProcess):
 
             executable = os.path.join(config.Settings.get('game/bin/path'),
                                       "ForgedAlliance.exe")
-            command = '"' + executable + '" ' + " ".join(arguments)
-
+            if sys.platform == 'win32':
+                command = '"' + executable + '" ' + " ".join(arguments)
+            else:
+                command = util.wine_cmd_prefix + " " + util.wine_exe + ' "' + executable + '" ' + " ".join(arguments)
+                if util.wine_prefix:
+                    wine_env = QtCore.QProcessEnvironment.systemEnvironment()
+                    wine_env.insert("WINEPREFIX", util.wine_prefix)
+                    QtCore.QProcess.setProcessEnvironment(self, wine_env)
             logger.info("Running FA with info: " + str(info))
             logger.info("Running FA via command: " + command)
             logger.info("Running FA via executable: " + executable)
