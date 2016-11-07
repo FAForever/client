@@ -4,12 +4,11 @@ from fa import updater
 from PyQt4 import QtGui, QtCore
 import pytest
 
-
-class TestObjectWithoutIsFinished(QtCore.QObject):
+class _TestObjectWithoutIsFinished(QtCore.QObject):
     finished = QtCore.pyqtSignal()
 
 
-class TestThreadNoOp(QtCore.QThread):
+class _TestThreadNoOp(QtCore.QThread):
     def run(self):
         self.yieldCurrentThread()
 
@@ -53,14 +52,14 @@ def test_updater_add_watch_raises_error_on_watch_without_signal_finished(applica
 
 def test_updater_watch_finished_raises_error_on_watch_without_method_is_finished(application):
     u = updater.UpdaterProgressDialog(None)
-    u.addWatch(TestObjectWithoutIsFinished())
+    u.addWatch(_TestObjectWithoutIsFinished())
     with pytest.raises(AttributeError):
         u.watchFinished()
 
 
 def test_updater_hides_and_accepts_if_all_watches_are_finished(application):
     u = updater.UpdaterProgressDialog(None)
-    t = TestThreadNoOp()
+    t = _TestThreadNoOp()
 
     u.addWatch(t)
     u.show()
@@ -76,7 +75,7 @@ def test_updater_hides_and_accepts_if_all_watches_are_finished(application):
 
 def test_updater_does_not_hide_and_accept_before_all_watches_are_finished(application):
     u = updater.UpdaterProgressDialog(None)
-    t = TestThreadNoOp()
+    t = _TestThreadNoOp()
     t_not_finished = QtCore.QThread()
 
     u.addWatch(t)
