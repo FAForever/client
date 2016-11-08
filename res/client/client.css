@@ -466,12 +466,12 @@ QDialog
 
 QCheckBox#automaticCheckbox
 {
-    color: silver;
+    color: #575656;
     background-color: #202025;
     padding: 5px;
 }
 
-QCheckBox#spoilerCheckbox
+QCheckBox#spoilerCheckbox, QLabel#searchInfoLabel
 {
     color: white;
     background-color: #202025;

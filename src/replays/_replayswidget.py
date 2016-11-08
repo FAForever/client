@@ -80,7 +80,7 @@ class ReplaysWidget(BaseClass, FormClass):
 
         # replay vault connection to server
         self.searching = False
-        self.searchInfo = "<font color='gold' size='+1'>searching...</font>"
+        self.searchInfo = "<font color='gold'><b>Searching...</b></font>"
         self.blockSize = 0
         self.replayVaultSocket = QtNetwork.QTcpSocket()
         self.replayVaultSocket.error.connect(self.handleServerError)
@@ -96,7 +96,7 @@ class ReplaysWidget(BaseClass, FormClass):
 
     def searchVault(self):
         """ search for some replays """
-        self.replayInfos.setHtml(self.searchInfo)
+        self.searchInfoLabel.setText(self.searchInfo)
         self.searching = True
         self.connectToReplayVault()
         self.send(dict(command="search", rating=self.minRating.value(), map=self.mapName.text(),
@@ -106,7 +106,7 @@ class ReplaysWidget(BaseClass, FormClass):
     def reloadView(self):
         if not self.searching:  # something else is already in the pipe from SearchVault
             if self.automatic or self.onlineReplays == {}:  # refresh on Tap change or only the first time
-                self.replayInfos.setHtml(self.searchInfo)
+                self.searchInfoLabel.setText(self.searchInfo)
                 self.connectToReplayVault()
                 self.send(dict(command="list"))
 
@@ -169,7 +169,7 @@ class ReplaysWidget(BaseClass, FormClass):
                 self.selectedReplay.generateInfoPlayersHtml()  # then we redo it
 
     def ResetRefreshpressed(self):  # reset search parameter and reload recent Replays List
-        self.replayInfos.setHtml(self.searchInfo)
+        self.searchInfoLabel.setText(self.searchInfo)
         self.connectToReplayVault()
         self.send(dict(command="list"))
         self.minRating.setValue(0)
@@ -179,6 +179,7 @@ class ReplaysWidget(BaseClass, FormClass):
 
     def replayVault(self, message):
         action = message["action"]
+        self.searchInfoLabel.clear()
         if action == "list_recents":
             self.onlineReplays = {}
             replays = message["replays"]
