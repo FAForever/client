@@ -562,8 +562,8 @@ def md5(file_name):
 def uniqueID(user, session):
     ''' This is used to uniquely identify a user's machine to prevent smurfing. '''
     env = os.environ
-    env['PATH'] += ":" + os.getcwd() # the Windows setup places executables in the root/CWD
-    env['PATH'] += ":" + os.path.join(os.getcwd(), "lib") # the default download location for travis/Appveyor
+    env['PATH'] += os.pathsep + os.getcwd() # the Windows setup places executables in the root/CWD
+    env['PATH'] += os.pathsep + os.path.join(os.getcwd(), "lib") # the default download location for travis/Appveyor
     try:
         # on error, the uid exe returns 1 which will result in a CalledProcessError exception
         return subprocess.check_output(["faf-uid", session], env=env, stderr=subprocess.STDOUT)
