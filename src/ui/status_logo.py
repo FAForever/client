@@ -52,6 +52,7 @@ class StatusLogo(QLabel):
         dc = QAction('Disconnect', None)
         rc = QAction('Reconnect', None)
         crc = QAction('Reconnect with chat', None)
+        conn = QAction('Connectivity', None)
         about = QAction('About', None)
 
         if self.state != ClientState.DISCONNECTED:
@@ -64,6 +65,7 @@ class StatusLogo(QLabel):
                 ClientState.LOGGED_IN]:
             menu.addAction(rc)
 
+        menu.addAction(conn)
         menu.addAction(about)
 
         action = menu.exec_(self.mapToGlobal(event.pos()))
@@ -73,6 +75,8 @@ class StatusLogo(QLabel):
             self.reconnect_requested.emit()
         elif action == crc:
             self.chat_reconnect_requested.emit()
+        elif action == conn:
+            self.connectivity_dialog_requested.emit()
         elif action == about:
             self.about_dialog_requested.emit()
 

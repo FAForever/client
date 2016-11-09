@@ -103,6 +103,7 @@ if sys.platform == 'win32':
                           'qtwebengine_resources.pak', # ditto
                           'QtWebEngineProcess.exe', # ditto
                           ('lib/faf-uid.exe', 'lib/faf-uid.exe'),
+                          ('lib/ice-adapter', 'lib/ice-adapter'),
                           ('lib/qt.conf', 'qt.conf'),
                           ('lib/xdelta3.exe', 'lib/xdelta3.exe')],
         'zip_includes': get_jsonschema_includes(),
