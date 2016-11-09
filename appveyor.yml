@@ -20,6 +20,7 @@ install:
   - ps: "$env:FAF_FORCE_PRODUCTION=true"
   - "%PYTHON%\\Scripts\\pip.exe install -r requirements.txt --trusted-host content.faforever.com"
   - ps: (Invoke-WebRequest -Uri https://api.github.com/repos/FAForever/uid/releases/latest | ConvertFrom-Json).assets | where {$_.name -eq "faf-uid.exe"} | %{ iwr $_.browser_download_url -OutFile ".\\lib\\faf-uid.exe" }
+  - ps: (Invoke-WebRequest -Uri https://api.github.com/repos/FAForever/ice-adapter/releases/latest | ConvertFrom-Json).assets | where {$_.name -eq "faf-ice-adapter.exe"} | %{ iwr $_.browser_download_url -OutFile ".\\lib\\faf-ice-adapter.exe" }
 
 test_script:
     - "C:\\Python27\\python runtests.py -vv --full-trace"
