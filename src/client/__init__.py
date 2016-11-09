@@ -15,7 +15,6 @@ LOBBY_HOST = Settings.get('lobby/host')
 LOBBY_PORT = Settings.get('lobby/port')
 LOCAL_REPLAY_PORT = Settings.get('lobby/relay/port')
 
-
 class ClientState(IntEnum):
     '''
     Various states the client can be in.

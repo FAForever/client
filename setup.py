@@ -49,6 +49,7 @@ build_exe_options = {
                       'RELEASE-VERSION',
                       'imageformats',
                       ('lib/faf-uid.exe', 'faf-uid.exe'),
+                      ('lib/faf-ice-adapter.exe', 'faf-ice-adapter.exe'),
                       ('lib/qt.conf', 'qt.conf'),
                       ('lib/xdelta3.exe', 'xdelta3.exe'),
                       ('lib/lua51.dll', 'lua51.dll')],
