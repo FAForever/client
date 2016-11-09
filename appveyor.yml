@@ -63,7 +63,7 @@ deploy:
   - provider: GitHub
     release: $(appveyor_build_version)
     auth_token:
-      secure: "09WRxoB8lu9lPzuk3qYu0brKVQubLpnsS1Wdn49nYZYi5RDiva3z37eITcjtZkTD"
+      secure: "QcyCEVSQGi03vWKEPMgiMNJuuD/x0us5GcNNOZc0qwoQgL52LUYlP58FuWt3bExc"
     artifact: /.*\.msi/
     draft: true
     prerelease: true
