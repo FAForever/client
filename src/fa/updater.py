@@ -102,6 +102,7 @@ class Updater(QtCore.QObject):
     """
     # Network configuration
     SOCKET  = 9001
+
     HOST    = Settings.get('lobby/host')
     TIMEOUT = 20  #seconds
 

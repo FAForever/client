@@ -137,18 +137,23 @@ VERSION = version.get_release_version(fafpath.get_resdir())
 def is_development_version():
     return version.is_development_version(VERSION)
 
-
 # FIXME: Don't initialize proxy code that shows a dialogue box on import
 no_dialogs = False
 
-environment = 'production'
+#TODO: revert me for production
+if 'CI' in os.environ:
+    environment = 'production'
 
+    def is_beta():
+        return environment == 'development'
 
-def is_beta():
-    return environment == 'development'
+    if _settings.contains('client/force_environment'):
+        environment = _settings.value('client/force_environment', 'development')
+else:
+    environment = 'development'
 
-if _settings.contains('client/force_environment'):
-    environment = _settings.value('client/force_environment', 'development')
+    def is_beta():
+        return True
 
 if environment == 'production':
     from production import defaults
