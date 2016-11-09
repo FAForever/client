@@ -6,6 +6,7 @@ environment:
     GITHUB_TOKEN:
       secure: Np481CGoJvTGB8O5rZTRswUZagGv7WtWT/TXTABQ184xUbL5vj9NoCtmtNRK6YxF
     UID_VERSION: v4.0.4
+    ICE_ADAPTER_VERSION: v2.3.0
   matrix:
     - PYTHON: "C:\\Python36"
       PYWHEEL_INFIX: "cp36"
@@ -48,7 +49,9 @@ install:
   - ps: "$env:PYTEST_QT_API=\"pyqt5\""
   - ps: "$env:FAF_FORCE_PRODUCTION=true"
   - ps: "Invoke-WebRequest -Uri \"https://github.com/FAForever/uid/releases/download/$($env:UID_VERSION)/faf-uid.exe\" -OutFile \".\\lib\\faf-uid.exe\""
-
+  - ps: "Invoke-WebRequest -Uri \"https://github.com/FAForever/java-ice-adapter/releases/download/v1.0.0/faf-ice-adapter-jre-base.7z\" -OutFile \".\\faf-ice-adapter-jre-base.7z\""
+  - 7z x faf-ice-adapter-jre-base.7z -olib
+  - ps: "Invoke-WebRequest -Uri \"https://github.com/FAForever/java-ice-adapter/releases/download/$($env:ICE_ADAPTER_VERSION)/faf-ice-adapter.jar\" -OutFile \".\\lib\\ice-adapter\\faf-ice-adapter.jar\""
 test_script:
   - "%PYTHON%\\python runtests.py -vv --full-trace"
 

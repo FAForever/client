@@ -38,7 +38,7 @@ class ServerReconnecter(QtCore.QObject):
         self._keepalive = False
         self._keepalive_timer = QtCore.QTimer(self)
         self._keepalive_timer.timeout.connect(self._ping_connection)
-        self.keepalive_interval = 10 * 1000
+        self.keepalive_interval = 3 * 1000
         self._waiting_for_pong = False
 
     @property
