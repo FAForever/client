@@ -1,5 +1,6 @@
 0.12.0
 =======
+
 * Make it possible to choose subset of factions in ladder
 * Re-enable notification of game events
 * Update UI in the Replayvault
@@ -13,6 +14,7 @@
 * Fixed sorting bug with the player list
 * Add linux support (thanks @muellni)
 * Add new uid implementation (thanks @muellni)
+* Leaderboard display performance improvement (#438, thanks @grotheFAF)
 
 0.11.60
 =======
