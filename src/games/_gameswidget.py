@@ -214,12 +214,7 @@ class GamesWidget(FormClass, BaseClass):
             self.client.lobby_connection.send(dict(command="game_matchmaking", mod="ladder1v1", state="settings",
                                   faction=self.race.value))
         else:
-            # Experimental UPnP Mapper - mappings are removed on app exit
-            if self.client.useUPnP:
-                self.client.lobby_connection.set_upnp(self.client.gamePort)
-
-            logger.info("Starting Ranked Search as " + str(race) +
-                        ", port: " + str(self.client.gamePort))
+            logger.info("Starting Ranked Search as " + str(race))
             self.searching = True
             self.race = race
             self.searchProgress.setVisible(True)
