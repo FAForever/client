@@ -36,6 +36,7 @@ install:
   - ps: "$env:FAF_FORCE_PRODUCTION=true"
   # download faf-uid.exe to ./lib/
   - ps: (Invoke-WebRequest -Uri https://api.github.com/repos/FAForever/uid/releases/latest | ConvertFrom-Json).assets | where {$_.name -eq "faf-uid.exe"} | %{ iwr $_.browser_download_url -OutFile ".\\lib\\faf-uid.exe" }
+  - ps: (Invoke-WebRequest -Uri https://api.github.com/repos/FAForever/ice-adapter/releases/latest | ConvertFrom-Json).assets | where {$_.name -eq "faf-ice-adapter.exe"} | %{ iwr $_.browser_download_url -OutFile ".\\lib\\faf-ice-adapter.exe" }
 
 test_script:
   - "%PYTHON%\\python runtests.py -vv --full-trace"
