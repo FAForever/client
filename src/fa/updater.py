@@ -102,7 +102,10 @@ class Updater(QtCore.QObject):
     """
     # Network configuration
     SOCKET  = 9001
-    HOST    = Settings.get('lobby/host')
+
+    #TODO: revert me for production!!
+    #HOST    = Settings.get('lobby/host')
+    HOST = "lobby.faforever.com"
     TIMEOUT = 20  #seconds
 
     # Return codes to expect from run()
