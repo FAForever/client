@@ -40,6 +40,7 @@ Created on Dec 1, 2011
 @author: thygrrr
 '''
 
+from connectivity.ConnectivityDialog import ConnectivityDialog
 import logging
 logger = logging.getLogger(__name__)
 
@@ -295,6 +296,8 @@ class ClientWindow(FormClass, BaseClass):
         self.modMenu = None
 
         self._alias_window = AliasSearchWindow(self)
+        self.connectivity_dialog = None
+
         #self.nFrame = NewsFrame()
         #self.whatsNewLayout.addWidget(self.nFrame)
         #self.nFrame.collapse()
@@ -662,6 +665,11 @@ class ClientWindow(FormClass, BaseClass):
 
         # Clear UPnP Mappings...
 
+        # Close connectivity dialog
+        if self.connectivity_dialog:
+            self.connectivity_dialog.close()
+            self.connectivity_dialog = None
+
         # Close game session (and stop faf-ice-adapter.exe)
         if self.game_session:
             self.game_session.close()
@@ -695,7 +703,10 @@ class ClientWindow(FormClass, BaseClass):
     def closeEvent(self, event):
         logger.info("Close Event for Application Main Window")
         self.saveWindow()
-        self.game_session.close()
+        if getattr(self, "game_session", False):
+            self.game_session.close()
+        if getattr(self, "connectivity_dialog", False):
+            self.connectivity_dialog.close()
 
         if fa.instance.running():
             if QtWidgets.QMessageBox.question(self, "Are you sure?", "Seems like you still have Forged Alliance "
