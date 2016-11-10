@@ -289,6 +289,14 @@
      <property name="title">
       <string>Chat...</string>
      </property>
+     <widget class="QMenu" name="menuAutoJoinIRC">
+      <property name="title">
+        <string>Set Autojoin Channels</string>
+       </property>
+     </widget>
+     <addaction name="menuAutoJoinIRC"/>
+     <addaction name="actionSetLanguageChannel"/>
+     <addaction name="actionSetNewbiesChannel"/>
      <addaction name="actionColoredNicknames"/>
      <addaction name="actionFriendsOnTop"/>
      <addaction name="actionSetJoinsParts"/>
@@ -500,6 +508,22 @@
    </property>
    <property name="text">
     <string>Joins / Parts</string>
+   </property>
+  </action>
+  <action name="actionSetLanguageChannel">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Use Language Channel</string>
+   </property>
+  </action>
+  <action name="actionSetNewbiesChannel">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Use Newbies Channel</string>
    </property>
   </action>
   <action name="actionSetOpenGames">
