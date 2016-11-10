@@ -465,6 +465,18 @@
             </item>
             <item>
              <widget class="QComboBox" name="modList">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>100</width>
+                <height>0</height>
+               </size>
+              </property>
               <item>
                <property name="text">
                 <string>All</string>
@@ -494,6 +506,12 @@
             </item>
             <item>
              <widget class="QSpinBox" name="minRating">
+              <property name="minimumSize">
+               <size>
+                <width>50</width>
+                <height>0</height>
+               </size>
+              </property>
               <property name="styleSheet">
                <string notr="true"/>
               </property>
