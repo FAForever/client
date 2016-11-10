@@ -28,7 +28,7 @@ from types import IntType, FloatType, ListType, DictType
 
 from client import ClientState, LOBBY_HOST, \
     LOBBY_PORT, LOCAL_REPLAY_PORT
-
+from connectivity.ConnectivityDialog import ConnectivityDialog
 import logging
 
 logger = logging.getLogger(__name__)
@@ -622,7 +622,10 @@ class ClientWindow(FormClass, BaseClass):
     def closeEvent(self, event):
         logger.info("Close Event for Application Main Window")
         self.saveWindow()
-        self.game_session.close()
+        if getattr(self, "game_session", False):
+            self.game_session.close()
+        if getattr(self, "connectivity_dialog", False):
+            self.connectivity_dialog.close()
 
         if fa.instance.running():
             if QtGui.QMessageBox.question(self, "Are you sure?",
@@ -756,8 +759,8 @@ class ClientWindow(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def connectivityDialog(self):
-        dialog = connectivity.ConnectivityDialog(self.connectivity)
-        dialog.exec_()
+        self.connectivity_dialog = ConnectivityDialog(self.game_session)
+        self.connectivity_dialog.show()
 
     @QtCore.pyqtSlot()
     def linkAbout(self):
