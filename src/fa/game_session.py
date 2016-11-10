@@ -109,8 +109,8 @@ class GameSession(QObject):
         elif command == 'DisconnectFromPeer':
             self.ice_adapter_client.call("disconnectFromPeer", [args[0]])
         elif command == "IceMsg":
-            peer_id, iceMsg = args
-            self.ice_adapter_client.call("iceMsg", [peer_id, iceMsg])
+            peer_id, ice_msg = args
+            self.ice_adapter_client.call("iceMsg", [peer_id, ice_msg])
         else:
             self._logger.warn("sending unhandled GPGNet message {} {}".format(command, args))
             self.ice_adapter_client.call("sendToGpgNet", [command, args])

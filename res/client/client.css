@@ -234,11 +234,26 @@ QTextEdit, QPlainTextEdit, QLineEdit, QListWidget, QTableWidget, QTreeWidget, QF
     color:silver;
     padding:5px;
     background-color:#202025;
+    alternate-background-color: #303035;
     border-top-right-radius : 5px;
     border-top-left-radius : 5px;
     border-bottom-left-radius : 5px;
     border-bottom-right-radius : 5px;
+}
 
+/* used in ConnectivityDialog */
+QTableCornerButton::section {
+    background-color:#606060;
+}
+
+QHeaderView {
+    background-color:#202025;
+}
+
+QHeaderView::section {
+    color:silver;
+    background-color: #606060;
+    border: none;
 }
 
 /* Modlist */
@@ -452,6 +467,8 @@ QGroupBox
     border-radius: 5px;
     background-color: rgb(32, 32, 37);
     color: silver;
+    padding: 5px;
+    padding-top: 15px;
 }
 
 QLabel
