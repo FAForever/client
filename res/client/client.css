@@ -14,19 +14,19 @@
 
 *[windowControlBtn="true"]
 {
-    background-color: black;
+    background-color: transparent;
     width: 18px;
     height: 18px;
 }
 
 QMenuBar
 {
-    background-color: black;
+    background-color: transparent;
 }
 
 QMenuBar::item
 {
-    background-color: black;
+    background-color: transparent;
     color: white;
 }
 
@@ -51,7 +51,7 @@ QMenuBar::item
  }
 
  QMenu::item:selected {
-     background: rgba(150, 150, 150, 150);
+     background: rgba(150, 150, 150, 1);
      border-radius: 2px;
  }
 
@@ -80,8 +80,8 @@ QMenuBar::item
 
 QTabWidget #lobbyTab,#gamesTab,#ladderTab,#tournamentTab,#coopTab,#replaysTab,#vaultsTab,#mapsTab,#modsTab
 { /* sets background color for every widget under a tab */
-        background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(15, 15, 15, 200), stop:1 #2f2f2f);
-        border-radius: 10px;
+     background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(15, 15, 15, 200), stop:1 #2f2f2f);
+     border-radius: 10px;
 }
 
 QTabWidget#mainTabs::tab-bar
@@ -238,20 +238,16 @@ QTableWidget::item::hover
     border-radius: 3px;
 }
 
-
 QTableWidget::item:selected, QListWidget::item:previously-selected
 {
     border: none;
 }
 
 
-
-
 QLineEdit
 {
     color:orange;
 }
-
 
 
 QListWidget::item:hover
@@ -454,6 +450,7 @@ QPushButton::pressed
 QToolButton#rankedPlay
 {
 	color: silver;
+    padding:5px;
 	border-radius: 5px;
 	border: 1px solid grey;
 }
@@ -462,19 +459,15 @@ QToolButton::pressed
 {
     border: none;
     color: black;
-    padding:5px;
     background-color:#383838;
-    border-radius : 5px;
 }
 
 QToolButton::hover
 {
     border: none;
-    color:silver;
-    padding:5px;
+    color: silver;
     background-color:#808080;
-    border-radius : 5px;
- }
+}
 
 QToolButton::checked
 {
@@ -494,9 +487,18 @@ QComboBox, QComboBox:selected
     background-color: #575656;
     selection-background-color: #575656;
 }
-
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 14px;
+    border-top-right-radius: 5px; /* same radius as the QComboBox */
+    border-bottom-right-radius: 5px;
+}
+QComboBox::down-arrow {
+    image: url('%THEMEPATH%/dropDown.png');
+}
 QComboBox QAbstractItemView {
-    border: 2px solid darkgray;
+    border: 1px solid darkgray;
     padding: 2px;
     selection-background-color: #575656;
     background-color: #575656;

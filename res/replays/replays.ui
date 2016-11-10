@@ -566,7 +566,7 @@
              <string>reloads recent Replays on Tab reentry&lt;br&gt;'...same as it ever was ... same as it ever was'</string>
             </property>
             <property name="text">
-             <string>Automatic</string>
+             <string>Automatic Refresh</string>
             </property>
             <property name="checked">
              <bool>false</bool>
