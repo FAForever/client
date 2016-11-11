@@ -22,16 +22,17 @@ sys.path.insert(0, "lib")
 company_name = 'FAF Community'
 product_name = 'Forged Alliance Forever'
 
-import config.version as version
-import PyQt4.uic
-git_version = version.get_git_version()
-msi_version = version.msi_version(git_version)
-appveyor_build_version = os.getenv('APPVEYOR_BUILD_VERSION')
-version.write_release_version(appveyor_build_version)
+if sys.platform == 'win32':
+    import config.version as version
+    import PyQt4.uic
+    git_version = version.get_git_version()
+    msi_version = version.msi_version(git_version)
+    appveyor_build_version = os.getenv('APPVEYOR_BUILD_VERSION')
+    version.write_release_version(appveyor_build_version)
 
-print('Git version:', git_version,
-      'Release version:', appveyor_build_version,
-      'Build version:', msi_version)
+    print('Git version:', git_version,
+          'Release version:', appveyor_build_version,
+          'Build version:', msi_version)
 
 # Ugly hack to fix broken PyQt4
 try:
