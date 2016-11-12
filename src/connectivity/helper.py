@@ -1,4 +1,4 @@
-from __future__ import division
+
 
 from functools import partial
 
@@ -170,7 +170,8 @@ class ConnectivityHelper(QObject):
         if command == 'CreatePermission':
             self._socket.permit(msg['args'])
 
-    def bind(self, (host, port), login, peer_id):
+    def bind(self, xxx_todo_changeme, login, peer_id):
+        (host, port) = xxx_todo_changeme
         host, port = host, int(port)
         relay = Relay(self.game_port, login, peer_id, partial(self.send_udp, (host, port)))
         relay.bound.connect(partial(self.peer_bound.emit, login, peer_id))
@@ -192,7 +193,8 @@ class ConnectivityHelper(QObject):
         else:
             self.ready.emit()
 
-    def send_udp(self, (host, port), data):
+    def send_udp(self, xxx_todo_changeme1, data):
+        (host, port) = xxx_todo_changeme1
         host, port = host, int(port)
         self._socket.sendto(data, (host, port))
 

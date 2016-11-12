@@ -2,15 +2,19 @@
 import logging
 import string
 import sys
-from urllib2 import HTTPError
+from urllib.error import HTTPError
+import fa
+
+logger= logging.getLogger(__name__)
+
 from PyQt4 import QtCore, QtGui, QtNetwork
-import cStringIO
+import io
 import util
 import os
 import stat
 import struct
 import shutil
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import zipfile
 import tempfile
 import re
@@ -118,7 +122,7 @@ def name2link(name):
     Returns a quoted link for use with the VAULT_xxxx Urls
     TODO: This could be cleaned up a little later.
     '''
-    return urllib2.quote("maps/" + name + ".zip")
+    return urllib.parse.quote("maps/" + name + ".zip")
 
 def link2name(link):
     '''
@@ -444,10 +448,10 @@ def __downloadPreviewFromWeb(name):
 
     for extension in iconExtensions:
         try:
-            header = urllib2.Request(
-                VAULT_PREVIEW_ROOT + urllib2.quote(name) + "." + extension,
+            header = urllib.request.Request(
+                VAULT_PREVIEW_ROOT + urllib.parse.quote(name) + "." + extension,
                 headers={'User-Agent' : "FAF Client"})
-            req = urllib2.urlopen(header)
+            req = urllib.request.urlopen(header)
             img = os.path.join(util.CACHE_DIR, name + "." + extension)
             with open(img, 'wb') as fp:
                 shutil.copyfileobj(req, fp)
@@ -516,8 +520,8 @@ def downloadMap(name, silent=False):
 
 
     try:
-        req = urllib2.Request(url, headers={'User-Agent' : "FAF Client"})
-        zipwebfile = urllib2.urlopen(req)
+        req = urllib.request.Request(url, headers={'User-Agent' : "FAF Client"})
+        zipwebfile  = urllib.request.urlopen(req)
         meta = zipwebfile.info()
         file_size = int(meta.getheaders("Content-Length")[0])
 
@@ -530,7 +534,7 @@ def downloadMap(name, silent=False):
         progress.show()
 
         #Download the file as a series of 8 KiB chunks, then uncompress it.
-        output = cStringIO.StringIO()
+        output = io.StringIO()
         file_size_dl = 0
         block_sz = 8192
 
@@ -555,7 +559,7 @@ def downloadMap(name, silent=False):
 
     except:
         logger.warn("Map download or extraction failed for: " + url)
-        if sys.exc_type is HTTPError:
+        if sys.exc_info()[0] is HTTPError:
             logger.warning("Vault download failed with HTTPError,"\
                 " map probably not in vault (or broken).")
             QtGui.QMessageBox.information(
@@ -573,11 +577,10 @@ def downloadMap(name, silent=False):
 
     #Count the map downloads
     try:
-        url = VAULT_COUNTER_ROOT + "?map=" + urllib2.quote(link)
-        req = urllib2.Request(url, headers={'User-Agent' : "FAF Client"})
-        urllib2.urlopen(req)
+        url = VAULT_COUNTER_ROOT + "?map=" + urllib.parse.quote(link)
+        req = urllib.request.Request(url, headers={'User-Agent' : "FAF Client"})
+        urllib.request.urlopen(req)
         logger.debug("Successfully sent download counter request for: " + url)
-
     except:
         logger.warn("Request to map download counter failed for: " + url)
         logger.error("Download Count Exception", exc_info=sys.exc_info())

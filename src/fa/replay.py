@@ -5,7 +5,7 @@ import fa
 from fa.check import check
 from fa.replayparser import replayParser
 import util
-import mods
+from . import mods
 
 import logging
 logger = logging.getLogger(__name__)
@@ -25,7 +25,7 @@ def replay(source, detach=False):
         arg_string = None
         replay_id = None
         # Convert strings to URLs
-        if isinstance(source, basestring):
+        if isinstance(source, str):
             if os.path.isfile(source):
                 if source.endswith(".fafreplay"):  # the new way of doing things
                     replay = open(source, "rt")

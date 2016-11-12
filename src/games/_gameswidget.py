@@ -166,7 +166,7 @@ class GamesWidget(FormClass, BaseClass):
         self.rankedPlay.show()
         self.labelRankedHint.hide()
         self.labelSubsetRankedHint.show()
-        for faction, icon in self._ranked_icons.items():
+        for faction, icon in list(self._ranked_icons.items()):
             try:
                 icon.clicked.disconnect()
             except TypeError:
