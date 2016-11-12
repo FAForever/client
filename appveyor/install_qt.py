@@ -3,10 +3,10 @@ Script to install PyQt or PySide in CI (Travis and AppVeyor).
 
 Adapted from pytest-qt
 """
-from __future__ import print_function
+
 import os
 import subprocess
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 base_url = 'http://downloads.sourceforge.net/project/pyqt/'
 downloads = {
@@ -19,7 +19,7 @@ if 'INSTALL_QT' in os.environ:
     url = downloads[caption]
     print("Downloading %s..." % caption)
     installer = r'C:\install-%s.exe' % caption
-    urllib.urlretrieve(base_url + url, installer)
+    urllib.request.urlretrieve(base_url + url, installer)
     print('Installing %s...' % caption)
     subprocess.check_call([installer, '/S'])
     python = caption.split('-')[0]

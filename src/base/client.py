@@ -1,11 +1,10 @@
 from abc import ABCMeta
 
 
-class Client:
+class Client(metaclass=ABCMeta):
     def __init__(self):
         pass
 
-    __metaclass__ = ABCMeta
     
     def send(self, message):
         pass

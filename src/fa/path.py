@@ -10,17 +10,17 @@ logger = logging.getLogger(__name__)
 
 def steamPath():
     try:
-        import _winreg
-        steam_key = _winreg.OpenKey(_winreg.HKEY_CURRENT_USER, "Software\\Valve\\Steam", 0, (_winreg.KEY_WOW64_64KEY + _winreg.KEY_ALL_ACCESS))
-        return _winreg.QueryValueEx(steam_key, "SteamPath")[0].replace("/", "\\")
-    except StandardError, e:
+        import winreg
+        steam_key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Software\\Valve\\Steam", 0, (winreg.KEY_WOW64_64KEY + winreg.KEY_ALL_ACCESS))
+        return winreg.QueryValueEx(steam_key, "SteamPath")[0].replace("/", "\\")
+    except Exception as e:
         return None
 
 def writeFAPathLua():
     """
     Writes a small lua file to disk that helps the new SupComDataPath.lua find the actual install of the game
     """
-    name = os.path.join(util.APPDATA_DIR, u"fa_path.lua")
+    name = os.path.join(util.APPDATA_DIR, "fa_path.lua")
     gamepath_fa = config.Settings.get("ForgedAlliance/app/path", type=str)
 
     code = 'fa_path = "' + gamepath_fa.replace("\\", "\\\\") + '"' + "\n"
@@ -60,7 +60,7 @@ def typicalForgedAlliancePaths():
     if steam_path:
         pathlist.append(os.path.join(steam_path, "SteamApps", "common", "Supreme Commander Forged Alliance"))
 
-    return filter(validatePath, pathlist)
+    return list(filter(validatePath, pathlist))
 
 
 def typicalSupComPaths():
@@ -88,7 +88,7 @@ def typicalSupComPaths():
     if steam_path:
         pathlist.append(os.path.join(steam_path, "SteamApps", "common", "Supreme Commander"))
 
-    return filter(validatePath, pathlist)
+    return list(filter(validatePath, pathlist))
 
 
 def validatePath(path):
@@ -109,5 +109,5 @@ def validatePath(path):
         return True
     except:
         _, value, _ = sys.exc_info()
-        logger.error(u"Path validation failed: " + unicode(value))
+        logger.error("Path validation failed: " + str(value))
         return False
