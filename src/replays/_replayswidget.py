@@ -187,7 +187,7 @@ class ReplaysWidget(BaseClass, FormClass):
         for uid in self.onlineReplays:
             bucket = buckets.setdefault(self.onlineReplays[uid].startDate, [])
             bucket.append(self.onlineReplays[uid])
-
+            
         for bucket in buckets.keys():
             bucket_item = QtGui.QTreeWidgetItem()
             self.onlineTree.addTopLevelItem(bucket_item)

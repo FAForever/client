@@ -63,7 +63,7 @@ class GameItem(QtGui.QListWidgetItem):
     TEXTWIDTH = 250
     ICONSIZE = 110
     PADDING = 10
-
+    
     FORMATTER_FAF  = unicode(util.readfile("games/formatters/faf.qthtml"))
     FORMATTER_MOD  = unicode(util.readfile("games/formatters/mod.qthtml"))
     FORMATTER_TOOL = unicode(util.readfile("games/formatters/tool.qthtml"))
