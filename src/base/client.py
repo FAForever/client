@@ -6,6 +6,6 @@ class Client:
         pass
 
     __metaclass__ = ABCMeta
-
+    
     def send(self, message):
         pass

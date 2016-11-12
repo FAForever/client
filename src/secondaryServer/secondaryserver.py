@@ -22,7 +22,7 @@ class Failure(StandardError):
 
 class Timeout(StandardError):
     pass
-    
+
 
 class SecondaryServer(QtCore.QObject):
 
@@ -37,19 +37,19 @@ class SecondaryServer(QtCore.QObject):
     RESULT_CANCEL = 2       # User cancelled
     RESULT_BUSY = 4         # Server is currently busy
     RESULT_PASS = 5         # User refuses to update by canceling
-    
+
     def __init__(self, name, socket, requester, *args, **kwargs):
         """
         Constructor
         """
         QtCore.QObject.__init__(self, *args, **kwargs)
-        
+
         self.name = name
-        
+
         logger = logging.getLogger("faf.secondaryServer.%s" % self.name)
         logger.info("Instantiating secondary server.")
         self.logger = logger
-        
+
         self.socketPort = socket
         self.requester = requester
 
