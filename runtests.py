@@ -12,6 +12,8 @@ sip.setapi('QTextStream', 2)
 sip.setapi('QTime', 2)
 sip.setapi('QUrl', 2)
 
+import sys
+
 if __name__ == '__main__':
     import sys
-    pytest.main(sys.argv[1:])
+    sys.exit(pytest.main(sys.argv[1:]))
