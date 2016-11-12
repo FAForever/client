@@ -40,7 +40,7 @@ class ClientState(IntEnum):
     OUTDATED = 9000
     UPTODATE = 9001  # It's over nine thousaaand!
 
-from _clientwindow import ClientWindow
+from ._clientwindow import ClientWindow
 
 instance = ClientWindow()
 

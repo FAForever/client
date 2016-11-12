@@ -1,7 +1,7 @@
 from PyQt4 import QtCore, QtGui
 import util
 import time
-from ns_settings import NotificationPosition
+from .ns_settings import NotificationPosition
 
 """
 The UI popup of the notification system

@@ -7,11 +7,13 @@ __author__ = 'Thygrrr'
 
 
 class UpgradePage(QtGui.QWizardPage):
+
     def __init__(self, parent=None):
         super(UpgradePage, self).__init__(parent)
 
         self.setTitle("Specify Forged Alliance folder")
-        self.setPixmap(QtGui.QWizard.WatermarkPixmap, util.pixmap("fa/updater/forged_alliance_watermark.png"))
+        self.setPixmap(QtGui.QWizard.WatermarkPixmap,
+                       util.pixmap("fa/updater/forged_alliance_watermark.png"))
 
         layout = QtGui.QVBoxLayout()
 
@@ -46,7 +48,7 @@ class UpgradePage(QtGui.QWizardPage):
         path = QtGui.QFileDialog.getExistingDirectory(self, "Select Forged Alliance folder",
                                                       self.comboBox.currentText(),
                                                       QtGui.QFileDialog.DontResolveSymlinks | QtGui.QFileDialog.ShowDirsOnly)
-        if (path):
+        if path:
             self.comboBox.insertItem(0, path)
             self.comboBox.setCurrentIndex(0)
             self.completeChanged.emit()
@@ -65,11 +67,13 @@ class UpgradePage(QtGui.QWizardPage):
 
 
 class UpgradePageSC(QtGui.QWizardPage):
+
     def __init__(self, parent=None):
         super(UpgradePageSC, self).__init__(parent)
 
         self.setTitle("Specify Supreme Commander folder")
-        self.setPixmap(QtGui.QWizard.WatermarkPixmap, util.pixmap("fa/updater/supreme_commander_watermark.png"))
+        self.setPixmap(QtGui.QWizard.WatermarkPixmap, util.pixmap(
+            "fa/updater/supreme_commander_watermark.png"))
 
         layout = QtGui.QVBoxLayout()
 
@@ -135,10 +139,10 @@ class WizardSC(QtGui.QWizard):
 
         self.setWizardStyle(QtGui.QWizard.ModernStyle)
         self.setWindowTitle("Supreme Commander Game Path")
-        self.setPixmap(QtGui.QWizard.WatermarkPixmap, util.pixmap("fa/updater/forged_alliance_watermark.png"))
+        self.setPixmap(QtGui.QWizard.WatermarkPixmap,
+                       util.pixmap("fa/updater/forged_alliance_watermark.png"))
 
         self.setOption(QtGui.QWizard.NoBackButtonOnStartPage, True)
-
 
     def accept(self):
         util.settings.setValue("SupremeCommander/app/path", self.upgrade.comboBox.currentText())
@@ -158,10 +162,10 @@ class Wizard(QtGui.QWizard):
 
         self.setWizardStyle(QtGui.QWizard.ModernStyle)
         self.setWindowTitle("Forged Alliance Game Path")
-        self.setPixmap(QtGui.QWizard.WatermarkPixmap, util.pixmap("fa/updater/forged_alliance_watermark.png"))
+        self.setPixmap(QtGui.QWizard.WatermarkPixmap,
+                       util.pixmap("fa/updater/forged_alliance_watermark.png"))
 
         self.setOption(QtGui.QWizard.NoBackButtonOnStartPage, True)
-
 
     def accept(self):
         util.settings.setValue("ForgedAlliance/app/path", self.upgrade.comboBox.currentText())
@@ -174,6 +178,5 @@ def constructPathChoices(combobox, validated_choices):
     """
     combobox.clear()
     for path in validated_choices:
-            if combobox.findText(path, QtCore.Qt.MatchFixedString) == -1:
-                combobox.addItem(path)
-
+        if combobox.findText(path, QtCore.Qt.MatchFixedString) == -1:
+            combobox.addItem(path)

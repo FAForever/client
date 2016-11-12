@@ -12,17 +12,15 @@ def log(string):
 
 
 # A set of exceptions we use to see what goes wrong during asynchronous data transfer waits
-class Cancellation(StandardError):
+class Cancellation(Exception):
     pass
 
-
-class Failure(StandardError):
+class Failure(Exception):
     pass    
 
-
-class Timeout(StandardError):
+class Timeout(Exception):
     pass
-    
+
 
 class SecondaryServer(QtCore.QObject):
 
@@ -37,19 +35,19 @@ class SecondaryServer(QtCore.QObject):
     RESULT_CANCEL = 2       # User cancelled
     RESULT_BUSY = 4         # Server is currently busy
     RESULT_PASS = 5         # User refuses to update by canceling
-    
+
     def __init__(self, name, socket, requester, *args, **kwargs):
         """
         Constructor
         """
         QtCore.QObject.__init__(self, *args, **kwargs)
-        
+
         self.name = name
-        
+
         logger = logging.getLogger("faf.secondaryServer.%s" % self.name)
         logger.info("Instantiating secondary server.")
         self.logger = logger
-        
+
         self.socketPort = socket
         self.requester = requester
 
@@ -118,7 +116,7 @@ class SecondaryServer(QtCore.QObject):
         for arg in args:
             if type(arg) is int:
                 out.writeInt(arg)
-            elif isinstance(arg, basestring):
+            elif isinstance(arg, str):
                 out.writeQString(arg)
             elif type(arg) is float:
                 out.writeFloat(arg)

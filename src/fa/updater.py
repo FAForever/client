@@ -1,7 +1,5 @@
 
 
-
-
 """
 This is the FORGED ALLIANCE updater.
 
@@ -15,9 +13,10 @@ import stat
 import subprocess
 import time
 import shutil
-from types import FloatType, IntType, ListType
 import logging
-import urllib2
+import urllib.request
+import urllib.error
+import urllib.parse
 import sys
 import tempfile
 import json
@@ -38,9 +37,12 @@ debugLog = []
 
 
 FormClass, BaseClass = util.loadUiType("fa/updater/updater.ui")
+
+
 class UpdaterProgressDialog(FormClass, BaseClass):
+
     def __init__(self, parent):
-        FormClass.__init__(self, parent)
+        FormClass.__init__(self)
         BaseClass.__init__(self, parent)
         self.setupUi(self)
         self.logPlainTextEdit.setVisible(False)
@@ -61,7 +63,7 @@ class UpdaterProgressDialog(FormClass, BaseClass):
         for watch in self.watches:
             if not watch.isFinished():
                 return
-        self.done(QtGui.QDialog.Accepted)  #equivalent to self.accept(), but clearer
+        self.done(QtGui.QDialog.Accepted)  # equivalent to self.accept(), but clearer
 
 
 def clearLog():
@@ -71,7 +73,7 @@ def clearLog():
 
 def log(string):
     logger.debug(string)
-    debugLog.append(unicode(string))
+    debugLog.append(str(string))
 
 
 def dumpPlainText():
@@ -83,17 +85,16 @@ def dumpHTML():
 
 
 # A set of exceptions we use to see what goes wrong during asynchronous data transfer waits
-class UpdaterCancellation(StandardError):
+class UpdaterCancellation(Exception):
     pass
 
 
-class UpdaterFailure(StandardError):
+class UpdaterFailure(Exception):
     pass
 
 
-class UpdaterTimeout(StandardError):
+class UpdaterTimeout(Exception):
     pass
-
 
 
 class Updater(QtCore.QObject):
@@ -101,21 +102,21 @@ class Updater(QtCore.QObject):
     This is the class that does the actual installation work.
     """
     # Network configuration
-    SOCKET  = 9001
-    HOST    = Settings.get('lobby/host')
-    TIMEOUT = 20  #seconds
+    SOCKET = 9001
+    HOST = Settings.get('lobby/host')
+    TIMEOUT = 20  # seconds
 
     # Return codes to expect from run()
-    RESULT_SUCCESS = 0  #Update successful
-    RESULT_NONE = -1  #Update operation is still ongoing
-    RESULT_FAILURE = 1  #An error occured during updating
-    RESULT_CANCEL = 2  #User cancelled the download process
-    RESULT_ILLEGAL = 3  #User has the wrong version of FA
-    RESULT_BUSY = 4  #Server is currently busy
-    RESULT_PASS = 5  #User refuses to update by canceling the wizard
+    RESULT_SUCCESS = 0  # Update successful
+    RESULT_NONE = -1  # Update operation is still ongoing
+    RESULT_FAILURE = 1  # An error occured during updating
+    RESULT_CANCEL = 2  # User cancelled the download process
+    RESULT_ILLEGAL = 3  # User has the wrong version of FA
+    RESULT_BUSY = 4  # Server is currently busy
+    RESULT_PASS = 5  # User refuses to update by canceling the wizard
 
-
-    def __init__(self, featured_mod, version=None, modversions=None, sim=False, silent=False, *args, **kwargs):
+    def __init__(self, featured_mod, version=None, modversions=None,
+                 sim=False, silent=False, *args, **kwargs):
         """
         Constructor
         """
@@ -155,7 +156,6 @@ class Updater(QtCore.QObject):
 
         self.bytesToSend = 0
 
-
     def run(self, *args, **kwargs):
         clearLog()
         log("Update started at " + timestamp())
@@ -164,8 +164,7 @@ class Updater(QtCore.QObject):
         self.progress.show()
         QtGui.QApplication.processEvents()
 
-
-        #Actual network code adapted from previous version
+        # Actual network code adapted from previous version
         self.progress.setLabelText("Connecting to update server...")
         self.updateSocket.error.connect(self.handleServerError)
         self.updateSocket.readyRead.connect(self.readDataFromServer)
@@ -174,7 +173,8 @@ class Updater(QtCore.QObject):
 
         self.updateSocket.connectToHost(self.HOST, self.SOCKET)
 
-        while not (self.updateSocket.state() == QtNetwork.QAbstractSocket.ConnectedState) and self.progress.isVisible():
+        while not (self.updateSocket.state() ==
+                   QtNetwork.QAbstractSocket.ConnectedState) and self.progress.isVisible():
             QtGui.QApplication.processEvents()
 
         if not self.progress.wasCanceled():
@@ -200,12 +200,11 @@ class Updater(QtCore.QObject):
             progress.setAutoClose(True)
             progress.setAutoReset(False)
 
-            req = urllib2.Request(url, headers={'User-Agent': "FAF Client"})
-            downloadedfile = urllib2.urlopen(req)
+            req = urllib.request.Request(url, headers={'User-Agent': "FAF Client"})
+            downloadedfile = urllib.request.urlopen(req)
+            file_size = int(downloadedfile.getheader("Content-Length"))
             meta = downloadedfile.info()
 
-            #Fix for #241, sometimes the server sends an error and no content-length.
-            file_size = int(meta.getheaders("Content-Length")[0])
             progress.setMinimum(0)
             progress.setMaximum(file_size)
             progress.setModal(1)
@@ -217,7 +216,7 @@ class Updater(QtCore.QObject):
                 int(file_size / 1024 / 1024)) + ' MiB')
             progress.show()
 
-            #Download the file as a series of up to 4 KiB chunks, then uncompress it.
+            # Download the file as a series of up to 4 KiB chunks, then uncompress it.
 
             output = tempfile.NamedTemporaryFile(mode='w+b', delete=False)
 
@@ -252,12 +251,11 @@ class Updater(QtCore.QObject):
                                           "The file wasn't properly sent by the server. <br/><b>Try again later.</b>")
             return False
 
-
     def updateFiles(self, destination, filegroup):
         """
         Updates the files in a given file group, in the destination subdirectory of the Forged Alliance path.
         If existing=True, the existing contents of the directory will be added to the current self.filesToUpdate
-        list. 
+        list.
         """
         QtGui.QApplication.processEvents()
 
@@ -267,7 +265,7 @@ class Updater(QtCore.QObject):
         self.writeToServer("GET_FILES_TO_UPDATE", filegroup)
         self.waitForFileList()
 
-        #Ensure our list is unique
+        # Ensure our list is unique
         self.filesToUpdate = list(set(self.filesToUpdate))
 
         targetdir = os.path.join(util.APPDATA_DIR, destination)
@@ -276,10 +274,11 @@ class Updater(QtCore.QObject):
 
         for fileToUpdate in self.filesToUpdate:
             md5File = util.md5(os.path.join(util.APPDATA_DIR, destination, fileToUpdate))
-            if md5File == None:
+            if md5File is None:
                 if self.version:
                     if self.featured_mod == "faf" or self.featured_mod == "ladder1v1" or filegroup == "FAF" or filegroup == "FAFGAMEDATA":
-                        self.writeToServer("REQUEST_VERSION", destination, fileToUpdate, str(self.version))
+                        self.writeToServer("REQUEST_VERSION", destination,
+                                           fileToUpdate, str(self.version))
                     else:
                         self.writeToServer("REQUEST_MOD_VERSION", destination, fileToUpdate,
                                            json.dumps(self.modversions))
@@ -289,7 +288,9 @@ class Updater(QtCore.QObject):
             else:
                 if self.version:
                     if self.featured_mod == "faf" or self.featured_mod == "ladder1v1" or filegroup == "FAF" or filegroup == "FAFGAMEDATA":
-                        self.writeToServer("PATCH_TO", destination, fileToUpdate, md5File, str(self.version))
+                        self.writeToServer(
+                            "PATCH_TO", destination, fileToUpdate, md5File, str(
+                                self.version))
                     else:
 
                         self.writeToServer("MOD_PATCH_TO", destination, fileToUpdate, md5File,
@@ -298,7 +299,6 @@ class Updater(QtCore.QObject):
                     self.writeToServer("UPDATE", destination, fileToUpdate, md5File)
 
         self.waitUntilFilesAreUpdated()
-
 
     def waitForSimModPath(self):
         """
@@ -310,7 +310,7 @@ class Updater(QtCore.QObject):
         self.progress.setMinimum(0)
         self.progress.setMaximum(0)
 
-        while self.modpath == None:
+        while self.modpath is None:
             if self.progress.wasCanceled():
                 raise UpdaterCancellation("Operation aborted while waiting for sim mod path.")
 
@@ -321,7 +321,6 @@ class Updater(QtCore.QObject):
                 raise UpdaterTimeout("Operation timed out while waiting for sim mod path.")
 
             QtGui.QApplication.processEvents()
-
 
     def waitForFileList(self):
         """
@@ -346,7 +345,6 @@ class Updater(QtCore.QObject):
             QtGui.QApplication.processEvents()
 
         log("Files to update: [" + ', '.join(self.filesToUpdate) + "]")
-
 
     def waitUntilFilesAreUpdated(self):
         """
@@ -379,11 +377,12 @@ class Updater(QtCore.QObject):
         '''
         self.progress.setLabelText("Preparing binFAF...")
 
-        #now we check if we've got a binFAF folder
+        # now we check if we've got a binFAF folder
         FABindir = os.path.join(config.Settings.get("ForgedAlliance/app/path"), 'bin')
         FAFdir = util.BIN_DIR
 
-        #Try to copy without overwriting, but fill in any missing files, otherwise it might miss some files to update
+        # Try to copy without overwriting, but fill in any missing files,
+        # otherwise it might miss some files to update
         root_src_dir = FABindir
         root_dst_dir = FAFdir
 
@@ -397,7 +396,8 @@ class Updater(QtCore.QObject):
                 if not os.path.exists(dst_file):
                     shutil.copy(src_file, dst_dir)
                 st = os.stat(dst_file)
-                os.chmod(dst_file, st.st_mode | stat.S_IWRITE)   # make all files we were considering writable, because we may need to patch them
+                # make all files we were considering writable, because we may need to patch them
+                os.chmod(dst_file, st.st_mode | stat.S_IWRITE)
 
     def doUpdate(self):
         """ The core function that does most of the actual update work."""
@@ -410,11 +410,11 @@ class Updater(QtCore.QObject):
                         self.writeToServer("ADD_DOWNLOAD_SIM_MOD", self.featured_mod)
 
             else:
-                #Prepare FAF directory & all necessary files
+                # Prepare FAF directory & all necessary files
                 self.prepareBinFAF()
 
-                #Update the mod if it's requested
-                if self.featured_mod == "faf" or self.featured_mod == "ladder1v1":  #HACK - ladder1v1 "is" FAF. :-)
+                # Update the mod if it's requested
+                if self.featured_mod == "faf" or self.featured_mod == "ladder1v1":  # HACK - ladder1v1 "is" FAF. :-)
                     self.updateFiles("bin", "FAF")
                     self.updateFiles("gamedata", "FAFGAMEDATA")
                     pass
@@ -424,13 +424,13 @@ class Updater(QtCore.QObject):
                     self.updateFiles("bin", self.featured_mod)
                     self.updateFiles("gamedata", self.featured_mod + "Gamedata")
 
-        except UpdaterTimeout, e:
+        except UpdaterTimeout as e:
             log("TIMEOUT: {}".format(e))
             self.result = self.RESULT_FAILURE
-        except UpdaterCancellation, e:
+        except UpdaterCancellation as e:
             log("CANCELLED: {}".format(e))
             self.result = self.RESULT_CANCEL
-        except Exception, e:
+        except Exception as e:
             log("EXCEPTION: {}".format(e))
             self.result = self.RESULT_FAILURE
         else:
@@ -438,12 +438,12 @@ class Updater(QtCore.QObject):
         finally:
             self.updateSocket.close()
 
-        #Hide progress dialog if it's still showing.
+        # Hide progress dialog if it's still showing.
         self.progress.close()
 
-        # Integrated handlers for the various things that could go wrong                              
+        # Integrated handlers for the various things that could go wrong
         if self.result == self.RESULT_CANCEL:
-            pass  #The user knows damn well what happened here.
+            pass  # The user knows damn well what happened here.
         elif self.result == self.RESULT_PASS:
             QtGui.QMessageBox.information(QtGui.QApplication.activeWindow(), "Installation Required",
                                           "You can't play without a legal version of Forged Alliance.")
@@ -453,9 +453,9 @@ class Updater(QtCore.QObject):
         elif self.result == self.RESULT_FAILURE:
             failureDialog()
 
-        # If nothing terribly bad happened until now, the operation is a success and/or the client can display what's up.                           
+        # If nothing terribly bad happened until now, the operation is a success
+        # and/or the client can display what's up.
         return self.result
-
 
     @QtCore.pyqtSlot('QAbstractSocket::SocketError')
     def handleServerError(self, socketError):
@@ -474,8 +474,6 @@ class Updater(QtCore.QObject):
             log("The following error occurred: %s." % self.updateSocket.errorString())
 
         self.result = self.RESULT_FAILURE
-
-
 
     def handleAction(self, bytecount, action, stream):
         """
@@ -497,7 +495,7 @@ class Updater(QtCore.QObject):
 
         elif action == "LIST_FILES_TO_UP":
             self.filesToUpdate = eval(str(stream.readQString()))
-            if (self.filesToUpdate == None):
+            if (self.filesToUpdate is None):
                 self.filesToUpdate = []
             return
 
@@ -520,7 +518,12 @@ class Updater(QtCore.QObject):
         elif action == "VERSION_MOD_PATCH_NOT_FOUND":
             response = stream.readQString()
             log("Error: Patch version %s not found for %s." % (str(self.modversions), response))
-            self.writeToServer("REQUEST_MOD_VERSION", self.destination, response, json.dumps(self.modversions))
+            self.writeToServer(
+                "REQUEST_MOD_VERSION",
+                self.destination,
+                response,
+                json.dumps(
+                    self.modversions))
             return
 
         elif action == "PATCH_NOT_FOUND":
@@ -556,7 +559,7 @@ class Updater(QtCore.QObject):
         elif action == "SEND_FILE":
             path = stream.readQString()
 
-            #HACK for feature/new-patcher
+            # HACK for feature/new-patcher
             path = util.LUA_DIR if path == "bin" else path
 
             fileToCopy = stream.readQString()
@@ -572,7 +575,7 @@ class Updater(QtCore.QObject):
                 writeFile.close()
             else:
                 logger.warn("%s is not writeable in in %s. Skipping." % (
-                fileToCopy, path))  #This may or may not be desirable behavior
+                    fileToCopy, path))  # This may or may not be desirable behavior
 
             log("%s is copied in %s." % (fileToCopy, path))
             self.filesToUpdate.remove(str(fileToCopy))
@@ -584,14 +587,13 @@ class Updater(QtCore.QObject):
 
             toFile = os.path.join(util.CACHE_DIR, "temp.patch")
             #
-            if self.fetchFile(url, toFile) :
+            if self.fetchFile(url, toFile):
                 completePath = os.path.join(util.APPDATA_DIR, destination, fileToUpdate)
-                self.applyPatch(completePath ,toFile)
-
+                self.applyPatch(completePath, toFile)
 
                 log("%s/%s is patched." % (destination, fileToUpdate))
                 self.filesToUpdate.remove(str(fileToUpdate))
-            else :
+            else:
                 log("Failed to update file :'(")
         else:
             log("Unexpected server command received: " + action)
@@ -599,8 +601,9 @@ class Updater(QtCore.QObject):
 
     def applyPatch(self, original, patch):
         toFile = os.path.join(util.CACHE_DIR, "patchedFile")
-        #applying delta
-        subprocess.call(['xdelta3', '-d','-f', '-s', original, patch, toFile], stdout = subprocess.PIPE)
+        # applying delta
+        subprocess.call(['xdelta3', '-d', '-f', '-s', original,
+                         patch, toFile], stdout=subprocess.PIPE)
         shutil.copy(toFile, original)
         os.remove(toFile)
         os.remove(patch)
@@ -613,13 +616,13 @@ class Updater(QtCore.QObject):
         ins.setVersion(QtCore.QDataStream.Qt_4_2)
 
         while not ins.atEnd():
-            #log("Bytes Available: %d" % self.updateSocket.bytesAvailable())                    
+            #log("Bytes Available: %d" % self.updateSocket.bytesAvailable())
 
             # Nothing was read yet, commence a new block.
             if self.blockSize == 0:
                 self.progress.reset()
 
-                #wait for enough bytes to piece together block size information
+                # wait for enough bytes to piece together block size information
                 if self.updateSocket.bytesAvailable() < 4:
                     return
 
@@ -634,16 +637,17 @@ class Updater(QtCore.QObject):
                     self.progress.setMinimum(0)
                     self.progress.setMaximum(0)
 
-            # Update our Gui at least once before proceeding (we might be receiving a huge file and this is not the first time we get here)   
+            # Update our Gui at least once before proceeding (we might be receiving a
+            # huge file and this is not the first time we get here)
             self.lastData = time.time()
             QtGui.QApplication.processEvents()
 
-            #We have an incoming block, wait for enough bytes to accumulate                    
+            # We have an incoming block, wait for enough bytes to accumulate
             if self.updateSocket.bytesAvailable() < self.blockSize:
                 self.progress.setValue(self.updateSocket.bytesAvailable())
-                return  #until later, this slot is reentrant
+                return  # until later, this slot is reentrant
 
-            #Enough bytes accumulated. Carry on.
+            # Enough bytes accumulated. Carry on.
             self.progress.setValue(self.blockSize)
 
             # Update our Gui at least once before proceeding (we might have to write a big file)
@@ -661,7 +665,6 @@ class Updater(QtCore.QObject):
             self.progress.setMinimum(0)
             self.progress.setMaximum(0)
 
-
     def writeToServer(self, action, *args, **kw):
         log(("writeToServer(" + action + ", [" + ', '.join(args) + "])"))
         self.lastData = time.time()
@@ -673,13 +676,13 @@ class Updater(QtCore.QObject):
         out.writeQString(action)
 
         for arg in args:
-            if type(arg) is IntType:
+            if isinstance(arg, type(int)):
                 out.writeInt(arg)
-            elif isinstance(arg, basestring):
+            elif isinstance(arg, str):
                 out.writeQString(arg)
-            elif type(arg) is FloatType:
+            elif isinstance(arg, type(float)):
                 out.writeFloat(arg)
-            elif type(arg) is ListType:
+            elif isinstance(arg, type(list)):
                 out.writeQVariantList(arg)
             else:
                 log("Uninterpreted Data Type: " + str(type(arg)) + " of value: " + str(arg))
@@ -691,16 +694,14 @@ class Updater(QtCore.QObject):
         self.bytesToSend = block.size() - 4
         self.updateSocket.write(block)
 
-
     @QtCore.pyqtSlot()
     def disconnected(self):
-        #This isn't necessarily an error so we won't change self.result here.
+        # This isn't necessarily an error so we won't change self.result here.
         log("Disconnected from server at " + timestamp())
-
 
     @QtCore.pyqtSlot(QtNetwork.QAbstractSocket.SocketError)
     def errored(self, error):
-        #This isn't necessarily an error so we won't change self.result here.
+        # This isn't necessarily an error so we won't change self.result here.
         log("TCP Error " + self.updateSocket.errorString())
         self.result = self.RESULT_FAILURE
 
@@ -709,10 +710,9 @@ def timestamp():
     return time.strftime("%Y-%m-%d %H:%M:%S")
 
 
-#This is a pretty rough port of the old installer wizard. It works, but will need some work later   
+# This is a pretty rough port of the old installer wizard. It works, but will need some work later
 def failureDialog():
     """
     The dialog that shows the user the log if something went wrong.
     """
     raise Exception(dumpPlainText())
-
