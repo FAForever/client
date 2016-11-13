@@ -17,6 +17,7 @@
 * Leaderboard display performance improvement (#438, thanks @grotheFAF)
 * Save game logs as default
 * Fix a bug with preview generation (#481)
+* Remove unused map downloader class (#483)
 
 0.11.60
 =======
