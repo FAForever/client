@@ -259,7 +259,8 @@ def genPrevFromDDS(sourcename, destname, small=False):
                 QtGui.QImage.Format_RGB888).rgbSwapped()
         imageFile.save(destname)
     except IOError:
-        pass # cant open the
+        logger.debug('IOError exception in genPrevFromDDS', exc_info=True)
+        raise
 
 def __exportPreviewFromMap(mapname, positions=None):
     '''
@@ -370,19 +371,13 @@ def __exportPreviewFromMap(mapname, positions=None):
 
     if not smallExists:
         logger.debug("Making small preview from DDS for: " + mapname)
-        genPrevFromDDS(previewddsname, previewsmallname, small=True)
-        if os.path.isfile(previewsmallname):
+        try:
+            genPrevFromDDS(previewddsname, previewsmallname, small=True)
             previews["tozip"].append(previewsmallname)
-        else:
-            logger.debug("Failed to make small preview for: " + mapname)
-            return previews
-
-        shutil.copyfile(previewsmallname, cachepngname)
-        #checking if file was copied correctly, just in case
-        if os.path.isfile(cachepngname):
+            shutil.copyfile(previewsmallname, cachepngname)
             previews["cache"] = cachepngname
-        else:
-            logger.debug("Failed to write in cache folder")
+        except IOError:
+            logger.debug("Failed to make small preview for: " + mapname)
             return previews
 
     if not largeExists:
@@ -390,47 +385,45 @@ def __exportPreviewFromMap(mapname, positions=None):
         if not isinstance(positions, dict):
             logger.debug("Icon positions were not passed or they were wrong for: " + mapname)
             return previews
-        genPrevFromDDS(previewddsname, previewlargename, small=False)
-        mapimage = util.pixmap(previewlargename)
-        armyicon = util.pixmap("vault/map_icons/army.png").scaled(8, 9, 1, 1)
-        massicon = util.pixmap("vault/map_icons/mass.png").scaled(8, 8, 1, 1)
-        hydroicon = util.pixmap("vault/map_icons/hydro.png").scaled(10, 10, 1, 1)
+        try:
+            genPrevFromDDS(previewddsname, previewlargename, small=False)
+            mapimage = util.pixmap(previewlargename)
+            armyicon = util.pixmap("vault/map_icons/army.png").scaled(8, 9, 1, 1)
+            massicon = util.pixmap("vault/map_icons/mass.png").scaled(8, 8, 1, 1)
+            hydroicon = util.pixmap("vault/map_icons/hydro.png").scaled(10, 10, 1, 1)
 
+            painter = QtGui.QPainter()
 
-        painter = QtGui.QPainter()
+            painter.begin(mapimage)
+            # icons should be drawn in certain order: first layer is hydros,
+            # second - mass, and army on top. made so that previews not
+            # look messed up.
+            if positions.has_key("hydro"):
+                for pos in positions["hydro"]:
+                    target = QtCore.QRectF(
+                        positions["hydro"][pos][0]-5,
+                        positions["hydro"][pos][1]-5, 10, 10)
+                    source = QtCore.QRectF(0.0, 0.0, 10.0, 10.0)
+                    painter.drawPixmap(target, hydroicon, source)
+            if positions.has_key("mass"):
+                for pos in positions["mass"]:
+                    target = QtCore.QRectF(
+                        positions["mass"][pos][0]-4,
+                        positions["mass"][pos][1]-4, 8, 8)
+                    source = QtCore.QRectF(0.0, 0.0, 8.0, 8.0)
+                    painter.drawPixmap(target, massicon, source)
+            if positions.has_key("army"):
+                for pos in positions["army"]:
+                    target = QtCore.QRectF(
+                        positions["army"][pos][0]-4,
+                        positions["army"][pos][1]-4, 8, 9)
+                    source = QtCore.QRectF(0.0, 0.0, 8.0, 9.0)
+                    painter.drawPixmap(target, armyicon, source)
+            painter.end()
 
-        painter.begin(mapimage)
-        # icons should be drawn in certain order: first layer is hydros,
-        # second - mass, and army on top. made so that previews not
-        # look messed up.
-        if positions.has_key("hydro"):
-            for pos in positions["hydro"]:
-                target = QtCore.QRectF(
-                    positions["hydro"][pos][0]-5,
-                    positions["hydro"][pos][1]-5, 10, 10)
-                source = QtCore.QRectF(0.0, 0.0, 10.0, 10.0)
-                painter.drawPixmap(target, hydroicon, source)
-        if positions.has_key("mass"):
-            for pos in positions["mass"]:
-                target = QtCore.QRectF(
-                    positions["mass"][pos][0]-4,
-                    positions["mass"][pos][1]-4, 8, 8)
-                source = QtCore.QRectF(0.0, 0.0, 8.0, 8.0)
-                painter.drawPixmap(target, massicon, source)
-        if positions.has_key("army"):
-            for pos in positions["army"]:
-                target = QtCore.QRectF(
-                    positions["army"][pos][0]-4,
-                    positions["army"][pos][1]-4, 8, 9)
-                source = QtCore.QRectF(0.0, 0.0, 8.0, 9.0)
-                painter.drawPixmap(target, armyicon, source)
-        painter.end()
-
-        mapimage.save(previewlargename)
-        #checking if file was created correctly, just in case
-        if os.path.isfile(previewlargename):
+            mapimage.save(previewlargename)
             previews["tozip"].append(previewlargename)
-        else:
+        except IOError:
             logger.debug("Failed to make large preview for: " + mapname)
 
     return previews
