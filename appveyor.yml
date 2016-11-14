@@ -30,7 +30,7 @@ test_script:
   - "%PYTHON%\\python runtests.py -vv --full-trace"
 
 after_test:
-  - "%PYTHON%\\python setup.py bdist_msi"
+  - "%PYTHON%\\python setup.py bdist_msi --install-script=windows_postinstall.py"
 
 artifacts:
   - path: '**\*.msi'
