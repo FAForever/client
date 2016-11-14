@@ -227,7 +227,7 @@ class Channel(FormClass, BaseClass):
 
         # Play a ping sound and flash the title under certain circumstances
         mentioned = text.find(self.lobby.client.login) != -1
-        if mentioned or (self.private and not (formatter is Formatters.FORMATTER_RAW and text == "quit.")):
+        if mentioned or (self.private and not (formatter is Formatters.FORMATTER_RAW and text == "quit.")) or self.name == "#announcements":
             self.pingWindow()
 
         avatar = None
