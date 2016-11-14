@@ -490,8 +490,6 @@ def openInExplorer(location):
     '''
     Opens a given location in Windows Explorer
     '''
-    import subprocess
-
     _command = ('explorer  "%s"' % location).encode(sys.getfilesystemencoding())
     subprocess.Popen(_command)
 
@@ -500,8 +498,6 @@ def showInExplorer(location):
     """
     Opens a given location's parent in Windows Explorer and focuses the location in it.
     """
-    import subprocess
-
     _command = ('explorer  /select, "%s"' % location).encode(sys.getfilesystemencoding())
     subprocess.Popen(_command)
 
@@ -582,7 +578,7 @@ def uniqueID(user, session):
     env['PATH'] += os.pathsep + os.path.join(os.getcwd(), "lib") # the default download location for travis/Appveyor
     try:
         # on error, the uid exe returns 1 which will result in a CalledProcessError exception
-        return subprocess.check_output(["faf-uid", session], env=env, stderr=subprocess.STDOUT)
+        return subprocess.check_output(["faf-uid", session], env=env, stderr=subprocess.STDOUT).decode()
     except OSError as err:
         logger.error("UniqueID error finding the executable: {}".format(err))
     except subprocess.CalledProcessError as exc:

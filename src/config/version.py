@@ -26,18 +26,19 @@
 # Note that the RELEASE-VERSION file should *not* be checked into git;
 # please add it to your top-level .gitignore file.
 
-from subprocess import getoutput
+from subprocess import check_output
 import sys, os
 
 __all__ = "get_git_version"
 
 def call_git_describe():
     try:
-        lines = getoutput(['git', 'describe', '--tags', '--always']).split(os.linesep)
+        lines = check_output(['git', 'describe', '--tags', '--always']).decode().split(os.linesep)
         line = lines[0]
         return line
     except Exception as e:
         print("Error grabbing git version: {}".format(e))
+        raise
         return None
 
 def is_development_version(version):

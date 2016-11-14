@@ -1,6 +1,7 @@
 import tempfile
 import client
 import subprocess
+from config import VERSION
 
 from decorators import with_logger
 from PyQt4 import QtGui, QtCore
@@ -21,11 +22,12 @@ class ClientUpdater(QObject):
         self._rep = None
 
     def exec_(self):
-        result = QtGui.QMessageBox.question(None,
-                                            "Update Needed",
-                                            "Your version of FAF is outdated. You need to download and install the most recent version to connect and play.<br/><br/><b>Do you want to download and install the update now?</b><br/><br/><a href='https://github.com/FAForever/client/blob/develop/changelog.md'>See changes</a>",
-                                            QtGui.QMessageBox.No,
-                                            QtGui.QMessageBox.Yes)
+        result = QtGui.QMessageBox.question(
+            None,
+            "Update Needed (Current: {})".format(VERSION),
+            "Your version of FAF is outdated. You need to download and install the most recent version to connect and play.<br/><br/><b>Do you want to download and install the update now?</b><br/><br/><a href='https://github.com/FAForever/client/blob/develop/changelog.md'>See changes</a>",
+            QtGui.QMessageBox.No,
+            QtGui.QMessageBox.Yes)
         if result == QtGui.QMessageBox.Yes:
             self._setup_progress()
             self._tmp = tempfile.NamedTemporaryFile(mode='w+b',
