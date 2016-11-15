@@ -11,24 +11,24 @@ init:
   - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH% %QTIMPL%"
 
 install:
-  - C:\\Miniconda\\Scripts\\conda install --quiet -y pyqt=4.11.4 pywin32
-  - C:\\Miniconda\\Scripts\\pip install http://content.faforever.com/wheel/lupa-1.1-cp27-none-win32.whl
-  - C:\\Miniconda\\Scripts\\pip install wheel
-  - C:\\Miniconda\\Scripts\\pip install pytest
-  - C:\\Miniconda\\Scripts\\pip install cffi
-  - C:\\Miniconda\\Scripts\\pip install cx_Freeze
+  - "%PYTHON%\\Scripts\\conda install --quiet -y pyqt=4.11.4 pywin32"
+  - "%PYTHON%\\Scripts\\pip install http://content.faforever.com/wheel/lupa-1.1-cp27-none-win32.whl"
+  - "%PYTHON%\\Scripts\\pip install wheel"
+  - "%PYTHON%\\Scripts\\pip install pytest"
+  - "%PYTHON%\\Scripts\\pip install cffi"
+  - "%PYTHON%\\Scripts\\pip install cx_Freeze"
   - ps: "$env:APPVEYOR_BUILD_VERSION = (& C:\\Miniconda\\python .\\src\\config\\version.py) + \"+\" + $env:APPVEYOR_BUILD_NUMBER"
   - ps: "get-childitem env:"
   - ps: "$env:PYTEST_QT_API=\"pyqt4v2\""
   - ps: "$env:FAF_FORCE_PRODUCTION=true"
-  - "C:\\Miniconda\\Scripts\\pip install -r requirements.txt --trusted-host content.faforever.com"
+  - "%PYTHON%\\Scripts\\pip install -r requirements.txt --trusted-host content.faforever.com"
   - ps: (Invoke-WebRequest -Uri https://api.github.com/repos/FAForever/uid/releases/latest | ConvertFrom-Json).assets | where {$_.name -eq "faf-uid.exe"} | %{ iwr $_.browser_download_url -OutFile ".\\lib\\faf-uid.exe" }
 
 test_script:
-  - "C:\\Miniconda\\python runtests.py -vv --full-trace"
+  - "%PYTHON%\\python runtests.py -vv --full-trace"
 
 after_test:
-  - "C:\\Miniconda\\python setup.py bdist_msi"
+  - "%PYTHON%\\python setup.py bdist_msi"
 
 artifacts:
   - path: '**\*.msi'
