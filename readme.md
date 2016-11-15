@@ -14,7 +14,7 @@ This is the source code for the FA Forever Lobby.
 
 Pre-requisites are:
 
-- Python 2.7.x
+- Python 3.4+
 - PyQt4 4.7+
 - Requirements as in the [requirements](requirements.txt) file.
 
@@ -59,9 +59,9 @@ Clone this repository locally:
 
     git clone https://github.com/FAForever/client.git faf-client
     
-Create a python virtualenv for installing its dependencies:
+Create a python3(!) virtualenv for installing its dependencies:
 
-    virtualenv2 ./faf-client-venv --system-site-packages
+    virtualenv ./faf-client-venv --system-site-packages
     ./faf-client-venv/bin/pip install -r ./faf-client/requirements.txt
 
 Now download the `uid` executable:
@@ -85,11 +85,11 @@ Before running unit tests, set PYTEST_QT_API as follows:
 
 Run the lobby from the main directory using:
 
-    python2 src
+    python3 src
 
 Run the unit test suite using:
 
-    python2 runtests.py
+    python3 runtests.py
 
 
 License
