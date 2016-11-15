@@ -14,7 +14,7 @@ This is the source code for the FA Forever Lobby.
 
 Pre-requisites are:
 
-- Python 2.7.x
+- Python 3.4+
 - PyQt4 4.7+
 - Requirements as in the [requirements](requirements.txt) file.
 
@@ -50,18 +50,22 @@ By contributing, you agree to license your work to the FAForever project in such
 
 Small fixes by contributors who "own" (have recently made commits on) the part of the project they are making changes on may be fast-tracked, but when in doubt open at least a PR with a descriptive title **and** description.
 
+Running on Windows
+-------
+
+https://github.com/faforever/client/wiki/Windows-Dev-Environment-with-Miniconda
 
 Running on Linux
 -------
-This guide is about runnning the client from source repository. For a [ready-made Arch-Linux package](https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=python2-fafclient) [follow the instructions in the wiki](http://wiki.faforever.com/index.php?title=Setting_Up_FAF_Linux).
+This guide is about runnning the client from source repository. For a [ready-made Arch-Linux package](https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=python-fafclient) [follow the instructions in the wiki](http://wiki.faforever.com/index.php?title=Setting_Up_FAF_Linux).
 
 Clone this repository locally:
 
     git clone https://github.com/FAForever/client.git faf-client
+    
+Create a python3(!) virtualenv for installing its dependencies:
 
-Create a python virtualenv for installing its dependencies:
-
-    virtualenv2 ./faf-client-venv --system-site-packages
+    virtualenv ./faf-client-venv --system-site-packages
     ./faf-client-venv/bin/pip install -r ./faf-client/requirements.txt
 
 Now download the `faf-uid` executable:
@@ -85,11 +89,11 @@ Before running unit tests, set PYTEST_QT_API as follows:
 
 Run the lobby from the main directory using:
 
-    python2 src
+    python3 src
 
 Run the unit test suite using:
 
-    python2 runtests.py
+    python3 runtests.py
 
 
 License
