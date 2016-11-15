@@ -13,8 +13,6 @@
 .idea/
 lib/faf-uid
 lib/faf-uid.exe
-lib/faf-ice-adapter
-lib/faf-ice-adapter.exe
 build/
 dist/
 Thumbs.db
