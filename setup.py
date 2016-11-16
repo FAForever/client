@@ -47,7 +47,9 @@ except OSError:
 build_exe_options = {
     'include_files': ['res',
                       'RELEASE-VERSION',
+                      'imageformats',
                       ('lib/faf-uid.exe', 'faf-uid.exe'),
+                      ('lib/faf-ice-adapter.exe', 'faf-ice-adapter.exe'),
                       ('lib/qt.conf', 'qt.conf'),
                       ('lib/xdelta3.exe', 'xdelta3.exe'),
                       ('lib/lua51.dll', 'lua51.dll')],
@@ -108,16 +110,17 @@ if sys.platform == 'win32':
                       )],
         'requires': ['bsdiff4', 'sip', 'PyQt4', 'cx_Freeze', 'cffi', 'py', 'faftools'],
         'options': {'build_exe': build_exe_options,
-                 'bdist_msi': bdist_msi_options},
+                    'bdist_msi': bdist_msi_options},
         'version': msi_version,
-                 }
+        'scripts': ['windows_postinstall.py'],
+    }
         
 else:
     from setuptools import find_packages
     platform_options = {
         'packages': find_packages(),
         'version': os.getenv('FAFCLIENT_VERSION'),
-        }
+    }
 
 setup(
     name=product_name,

@@ -5,7 +5,6 @@ from PyQt4.QtGui import QLabel, QStyle
 from PyQt4.QtNetwork import QAbstractSocket
 
 import config
-import connectivity
 from base import Client
 from config import Settings
 import chat
@@ -13,7 +12,6 @@ from client.player import Player
 from client.players import Players
 from client.updater import ClientUpdater
 import fa
-from connectivity.helper import ConnectivityHelper
 from fa import GameSession
 from fa.factions import Factions
 from fa.game_session import GameSessionState
@@ -30,7 +28,7 @@ from types import IntType, FloatType, ListType, DictType
 
 from client import ClientState, LOBBY_HOST, \
     LOBBY_PORT, LOCAL_REPLAY_PORT
-
+from connectivity.ConnectivityDialog import ConnectivityDialog
 import logging
 
 logger = logging.getLogger(__name__)
@@ -624,6 +622,10 @@ class ClientWindow(FormClass, BaseClass):
     def closeEvent(self, event):
         logger.info("Close Event for Application Main Window")
         self.saveWindow()
+        if getattr(self, "game_session", False):
+            self.game_session.close()
+        if getattr(self, "connectivity_dialog", False):
+            self.connectivity_dialog.close()
 
         if fa.instance.running():
             if QtGui.QMessageBox.question(self, "Are you sure?",
@@ -757,8 +759,8 @@ class ClientWindow(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def connectivityDialog(self):
-        dialog = connectivity.ConnectivityDialog(self.connectivity)
-        dialog.exec_()
+        self.connectivity_dialog = ConnectivityDialog(self.game_session)
+        self.connectivity_dialog.show()
 
     @QtCore.pyqtSlot()
     def linkAbout(self):
@@ -1191,13 +1193,6 @@ class ClientWindow(FormClass, BaseClass):
         self.state = ClientState.ONLINE
         self.authorized.emit(self.me)
 
-        # Run an initial connectivity test and initialize a gamesession object
-        # when done
-        self.connectivity = ConnectivityHelper(self, self.gamePort)
-        self.connectivity.connectivity_status_established.connect(self.initialize_game_session)
-        self.connectivity.start_test()
-
-    def initialize_game_session(self):
         self.game_session = GameSession(self, self.connectivity)
 
     def handle_registration_response(self, message):
@@ -1209,63 +1204,38 @@ class ClientWindow(FormClass, BaseClass):
         self.handle_notice({"style": "notice", "text": message["error"]})
 
     def search_ranked(self, faction):
-        def request_launch():
-            msg = {
-                'command': 'game_matchmaking',
-                'mod': 'ladder1v1',
-                'state': 'start',
-                'gameport': self.gamePort,
-                'faction': faction
-            }
-            if self.connectivity.state == 'STUN':
-                msg['relay_address'] = self.connectivity.relay_address
-            self.send(msg)
-            self.game_session.ready.disconnect(request_launch)
-        if self.game_session:
-            self.game_session.ready.connect(request_launch)
-            self.game_session.listen()
+        msg = {
+            'command': 'game_matchmaking',
+            'mod': 'ladder1v1',
+            'state': 'start',
+            'gameport': self.gamePort,
+            'faction': faction
+        }
+        self.send(msg)
 
     def host_game(self, title, mod, visibility, mapname, password, is_rehost=False):
-        def request_launch():
-            msg = {
-                'command': 'game_host',
-                'title': title,
-                'mod': mod,
-                'visibility': visibility,
-                'mapname': mapname,
-                'password': password,
-                'is_rehost': is_rehost
-            }
-            if self.connectivity.state == 'STUN':
-                msg['relay_address'] = self.connectivity.relay_address
-            self.send(msg)
-            self.game_session.ready.disconnect(request_launch)
-        if self.game_session:
-            self.game_session.game_password = password
-            self.game_session.ready.connect(request_launch)
-            self.game_session.listen()
+        msg = {
+            'command': 'game_host',
+            'title': title,
+            'mod': mod,
+            'visibility': visibility,
+            'mapname': mapname,
+            'password': password,
+            'is_rehost': is_rehost
+        }
+        self.send(msg)
 
     def join_game(self, uid, password=None):
-        def request_launch():
-            msg = {
-                'command': 'game_join',
-                'uid': uid,
-                'gameport': self.gamePort
-            }
-            if password:
-                msg['password'] = password
-            if self.connectivity.state == "STUN":
-                msg['relay_address'] = self.connectivity.relay_address
-            self.send(msg)
-            self.game_session.ready.disconnect(request_launch)
-        if self.game_session:
-            self.game_session.game_password = password
-            self.game_session.ready.connect(request_launch)
-            self.game_session.listen()
+        msg = {
+            'command': 'game_join',
+            'uid': uid,
+            'gameport': self.gamePort
+        }
+        if password:
+            msg['password'] = password
+        self.send(msg)
 
     def handle_game_launch(self, message):
-        if not self.game_session or not self.connectivity.is_ready:
-            logger.error("Not ready for game launch")
 
         logger.info("Handling game_launch via JSON " + str(message))
 
