@@ -23,6 +23,7 @@ install:
   - ps: "$env:FAF_FORCE_PRODUCTION=true"
   - "%PYTHON%\\Scripts\\pip install -r requirements.txt --trusted-host content.faforever.com"
   - ps: (Invoke-WebRequest -Uri https://api.github.com/repos/FAForever/uid/releases/latest | ConvertFrom-Json).assets | where {$_.name -eq "faf-uid.exe"} | %{ iwr $_.browser_download_url -OutFile ".\\lib\\faf-uid.exe" }
+  - "xcopy %PYTHON%\\Library\\plugins\\imageformats .\\imageformats /I"
 
 test_script:
   - "%PYTHON%\\python runtests.py -vv --full-trace"
