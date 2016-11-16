@@ -47,6 +47,7 @@ except OSError:
 build_exe_options = {
     'include_files': ['res',
                       'RELEASE-VERSION',
+                      'imageformats',
                       ('lib/faf-uid.exe', 'faf-uid.exe'),
                       ('lib/qt.conf', 'qt.conf'),
                       ('lib/xdelta3.exe', 'xdelta3.exe'),
