@@ -248,7 +248,9 @@ class ReplayItem(QtGui.QTreeWidgetItem):
                     if self.winner is not None:  # FFA in rows: Win ... Lose ....
                         teams += self.FORMATTER_REPLAY_FFA_SPOILED.format(winner=winnerHTML, players=players)
                     else:
-                        if self.teamWin == team:
+                        if "playing" in self.duration:
+                            teamTitle = "Playing"
+                        elif self.teamWin == team:
                             teamTitle = "Win"
                         else:
                             teamTitle = "Lose"
