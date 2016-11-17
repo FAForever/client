@@ -5,7 +5,6 @@
     font-size:8pt;
 }
 
-
 *[titleLabel="true"]
 {
     color:lightgrey;
@@ -15,20 +14,19 @@
 
 *[windowControlBtn="true"]
 {
-    background-color: rgba(0,0,0,0);
+    background-color: transparent;
     width: 18px;
     height: 18px;
-
 }
 
 QMenuBar
 {
-    background-color: rgba(0,0,0,0);
+    background-color: transparent;
 }
 
 QMenuBar::item
 {
-    background-color: rgba(0,0,0,0);
+    background-color: transparent;
     color: white;
 }
 
@@ -42,7 +40,7 @@ QMenuBar::item
 
 
  QMenu {
-     background-color: rgb(50,50,50);
+     background-color: #323232;
      color: lightgrey;
      margin: 2px; /* some spacing around the menu */
  }
@@ -53,7 +51,7 @@ QMenuBar::item
  }
 
  QMenu::item:selected {
-     background: rgba(150, 150, 150, 150);
+     background: rgba(150, 150, 150, 1);
      border-radius: 2px;
  }
 
@@ -82,15 +80,14 @@ QMenuBar::item
 
 QTabWidget #lobbyTab,#gamesTab,#ladderTab,#tournamentTab,#coopTab,#replaysTab,#vaultsTab,#mapsTab,#modsTab
 { /* sets background color for every widget under a tab */
-        background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(15, 15, 15, 200), stop:1 #2f2f2f);
-        border-radius: 10px;
+     background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(15, 15, 15, 200), stop:1 #2f2f2f);
+     border-radius: 10px;
 }
 
 QTabWidget#mainTabs::tab-bar
 {
      left: 25px; /* move to the right by 25px */
 }
-
 
 
 /* Central area background */
@@ -109,7 +106,6 @@ QTabWidget#mainTabs::pane
 
     background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(15, 15, 15, 200), stop:1 #2f2f2f);
     border-radius: 5px;
-
 }
 
 /* Style the tab using the tab sub-control. Note that it reads QTabBar _not_ QTabWidget */
@@ -122,7 +118,6 @@ QTabWidget#mainTabs > QTabBar::tab
     padding-right: 5px;
     padding-left: 5px;
 }
-
 
 QTabWidget#mainTabs > QTabBar::tab:hover
 {
@@ -139,7 +134,6 @@ QTabWidget#mainTabs > QTabBar::tab:selected
     border-bottom-right-radius: 5px;
 }
 
-
 QTabWidget#mainTabs > QTabBar::tab:!selected
 {
     margin-bottom: 8px; /* make non-selected tabs look smaller */
@@ -153,7 +147,6 @@ QTabWidget#topTabs::pane
      border: none;
      background-color: #2f2f2f;
  }
-
 
  QTabWidget#topTabs::tab-bar
 {
@@ -171,22 +164,17 @@ QTabWidget#topTabs > QTabBar::tab
     padding:4px;
 }
 
-
 QTabWidget#topTabs > QTabBar::tab:!selected
 {
     margin-top:5px;
     background-color: #414b55;
-
 }
-
 
 QTabWidget#topTabs > QTabBar::tab:hover
 {
     color:white;
     background-color: #606060;
-
 }
-
 
 QTabWidget#topTabs > QTabBar::tab:selected
 {
@@ -194,14 +182,12 @@ QTabWidget#topTabs > QTabBar::tab:selected
     background-color: #758fa0;
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
-
 }
 
 QSplitter::handle
 {
     background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #0F0F0F, stop:1 #2f2f2f);
 }
-
 
 QSplitter::handle:horizontal
 {
@@ -213,47 +199,28 @@ QSplitter::handle:vertical
      height: 8px;
 }
 
-/* strangely, this seems to have no effect :( */
-QSplitter::handle:hover
-{
-     background-color: #606060;
- }
-
 QSpinBox#minRating, QLineEdit#mapName, QLineEdit#playerName, QComboBox#modList
 {
-    background-color: #353535;
     color: orange;
 }
 
 /* Text controls */
-QTextEdit, QPlainTextEdit, QLineEdit, QListWidget, QTableWidget, QTreeWidget, QFrame#rankedFrame, QFrame#teamFaction, QFrame#teamSearch
+QTextEdit, QPlainTextEdit, QSpinBox, QLineEdit, QComboBox, QListWidget, QTableWidget, QTreeWidget, QFrame#rankedFrame
 {
     border-style:solid;
     border-width:1px;
     border-color:#353535;
     color:silver;
-    padding:5px;
+    padding: 5px;
     background-color:#202025;
-    border-top-right-radius : 5px;
-    border-top-left-radius : 5px;
-    border-bottom-left-radius : 5px;
-    border-bottom-right-radius : 5px;
-
+    border-radius : 5px;
 }
 
-/* Modlist */
+/* ladder in Games */
 QFrame#rankedFrame
 {
-    border-style:solid;
-    border-width:1px;
-    border-color:#353535;
-    color:silver;
-    padding:5px;
     background-color:#303038;
-    border-bottom-left-radius : 5px;
-    border-bottom-right-radius : 5px;
 }
-
 
 
 /* Nicklist controls */
@@ -271,20 +238,16 @@ QTableWidget::item::hover
     border-radius: 3px;
 }
 
-
 QTableWidget::item:selected, QListWidget::item:previously-selected
 {
     border: none;
 }
 
 
-
-
 QLineEdit
 {
     color:orange;
 }
-
 
 
 QListWidget::item:hover
@@ -319,10 +282,7 @@ QListWidget#tourneyList
     color:silver;
     padding:5px;
     background-color:#0F0F0F;
-    border-top-right-radius : 5px;
-    border-top-left-radius : 5px;
-    border-bottom-left-radius : 5px;
-    border-bottom-right-radius : 5px;
+    border-radius : 5px;
 }
 
 QTreeWidget::item:hover
@@ -360,7 +320,6 @@ QScrollArea
 
 /* Scrollbars*/
 QScrollBar {
-
     background-color: grey;
     width: 15px;
     margin: 16px 0;
@@ -390,7 +349,6 @@ QScrollBar::sub-line {
     subcontrol-origin: margin;
 }
 QScrollBar::add-line  {
-
     border-bottom-left-radius: 3px;
     border-bottom-right-radius: 3px;
     background: #2f2f2f;
@@ -412,16 +370,11 @@ QScrollBar:down-arrow {
 
  }
 
-
-QScrollBar::add-page
+QScrollBar::add-page, QScrollBar::sub-page
 {
     background-color: #1f1f1f;
 }
 
-QScrollBar::sub-page
-{
-    background-color: #1f1f1f;
-}
 
 QCheckBox#hideGamesWithPw
 {
@@ -434,9 +387,9 @@ QLabel#labelSortGames,#labelJoinGame,#labelHostGame,#labelAutomatch,#labelMyRepl
     color:white;
 }
 
-QLabel#labelModHint,#labelMyHint,#labelLiveHint,#labelSubsetRankedHint,#labelRankedHint,#labelTeamManagementHint,#labelTeamManagementHint2,#labelTeamManagementHint3
+QLabel
 {
-    color:#AAAAAA;
+    color:silver;
 }
 
 QLabel#titleLabel
@@ -450,13 +403,15 @@ QGroupBox
     margin: 5px;
     border: 1px solid #353535;
     border-radius: 5px;
-    background-color: rgb(32, 32, 37);
+    background-color: #202025;
     color: silver;
+    font-weight: bold;
 }
 
-QLabel
+QGroupBox::title
 {
-    color: silver;
+    background-color:transparent;
+    padding: 3px;
 }
 
 /* Used for dialogs*/
@@ -465,19 +420,49 @@ QDialog
     background-color: #575656;
 }
 
-QCheckBox#spoilerCheckbox, #automaticCheckbox
+QCheckBox#automaticCheckbox
 {
-    color: silver;
+    color: #575656;
+    background-color: #202025;
+    padding: 5px;
 }
 
-/* Used for Ranked Buttons only at the moment*/
-QToolButton#rankedPlay
+QCheckBox#spoilerCheckbox, QLabel#searchInfoLabel
 {
-	color: silver;
+    color: white;
+    background-color: #202025;
+    padding: 5px;
+}
+
+QPushButton#RefreshResetButton, #searchButton, #UIButton, #uploadButton
+{
+	color: white;
+    padding: 5px;
 	border-radius: 5px;
 	border: 1px solid grey;
 }
 
+QPushButton::hover:!pressed
+{
+    border: none;
+    background-color: #808080;
+}
+
+QPushButton::pressed
+{
+    border: none;
+    background-color: darkred;
+}
+/* Used for Ranked Buttons only at the moment*/
+QToolButton#rankedPlay
+{
+	color: silver;
+    padding:5px;
+	border-radius: 5px;
+	border: 1px solid grey;
+}
+
+/* Menu - Min, Max, Close */
 QToolButton::pressed
 {
     border: none;
@@ -490,18 +475,16 @@ QToolButton::pressed
 QToolButton::hover
 {
     border: none;
-
-    color:silver;
+    color: silver;
     padding:5px;
     background-color:#808080;
     border-radius : 5px;
- }
+}
 
 QToolButton::checked
 {
     border: none;
     border: 2px solid #353535;
-
     color:black;
     padding:5px;
     background-color:#C0C0C0;
@@ -511,15 +494,25 @@ QToolButton::checked
 QComboBox, QComboBox:selected
 {
     color:orange;
+    padding:3px;
     selection-color:orange;
     background-color: #575656;
     selection-background-color: #575656;
 }
-
-
-
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 14px;
+    border-top-right-radius: 5px; /* same radius as the QComboBox */
+    border-bottom-right-radius: 5px;
+}
+QComboBox::down-arrow {
+    image: url('%THEMEPATH%/dropDown.png');
+}
 QComboBox QAbstractItemView {
-    border: 2px solid darkgray;
+    border: 1px solid darkgray;
+    padding: 2px;
     selection-background-color: #575656;
     background-color: #575656;
+    border-radius : 5px;
 }
