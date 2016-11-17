@@ -191,9 +191,6 @@ class Chatter(QtGui.QTableWidgetItem):
             self.statusItem.setIcon(QtGui.QIcon())
             self.statusItem.setToolTip("Idle")
 
-        # Rating icon choice
-        # TODO: These are very basic and primitive
-        self.rankItem.setToolTip("Global Rating: " + str(int(rating)))
         # Rating icon choice  (chr(0xB1) = +-)
         self.rankItem.setToolTip("Global Rating: " + str(int(rating)) + " (" + str(player.number_of_games) + " Games) ["
                                  + str(int(player.rating_mean)) + chr(0xB1) + str(int(player.rating_deviation)) +
