@@ -384,6 +384,7 @@ class Chatter(QtGui.QTableWidgetItem):
     @QtCore.pyqtSlot()
     def viewVaultReplay(self):
         """ see the player replays in the vault """
+        self.lobby.client.replays.setCurrentIndex(2)  # focus on Online Fault
         self.lobby.client.replays.mapName.setText("")
         self.lobby.client.replays.playerName.setText(self.name)
         self.lobby.client.replays.minRating.setValue(0)
