@@ -122,7 +122,18 @@ class ReplayItem(QtGui.QTreeWidgetItem):
         
         self.name      = message["name"]
         self.mapname   = message["map"]
-        self.duration  = time.strftime('%H:%M:%S', time.gmtime(message["duration"]))
+        if message['end'] == 4294967295:  # = FFFF FFFF (year 2106) aka still playing
+            seconds = time.time()-message['start']
+            if seconds > 86400:  # more than 24 hours
+                self.duration = str(int(seconds/86400)) + " days<br />&nbsp;! error !"
+            elif seconds > 7200:  # more than 2 hours
+                self.duration = time.strftime('%H:%M:%S', time.gmtime(seconds)) + "<br />? error ?"
+            elif seconds < 300:  # less than 5 minutes (color darkred is used as flag in onlineTreeDoubleClicked)
+                self.duration = time.strftime('%H:%M:%S', time.gmtime(seconds)) + "<br />&nbsp;<font color='darkred'>playing</font>"
+            else:
+                self.duration = time.strftime('%H:%M:%S', time.gmtime(seconds)) + "<br />&nbsp;playing"
+        else:
+            self.duration = time.strftime('%H:%M:%S', time.gmtime(message["duration"]))
         self.startHour = time.strftime("%H:%M", time.localtime(message['start']))
         self.startDate = time.strftime("%Y-%m-%d", time.localtime(message['start']))
         self.mod       = message["mod"]
