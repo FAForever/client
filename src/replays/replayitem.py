@@ -93,7 +93,8 @@ class ReplayItem(QtGui.QTreeWidgetItem):
         
         self.startDate      = None
         self.duration       = None
-        
+        self.live_delay     = False
+
         self.moreInfo       = False
         self.replayInfo     = False
         self.spoiled        = False
@@ -128,8 +129,9 @@ class ReplayItem(QtGui.QTreeWidgetItem):
                 self.duration = str(int(seconds/86400)) + " days<br />&nbsp;! error !"
             elif seconds > 7200:  # more than 2 hours
                 self.duration = time.strftime('%H:%M:%S', time.gmtime(seconds)) + "<br />? error ?"
-            elif seconds < 300:  # less than 5 minutes (color darkred is used as flag in onlineTreeDoubleClicked)
+            elif seconds < 300:  # less than 5 minutes
                 self.duration = time.strftime('%H:%M:%S', time.gmtime(seconds)) + "<br />&nbsp;<font color='darkred'>playing</font>"
+                self.live_delay = True
             else:
                 self.duration = time.strftime('%H:%M:%S', time.gmtime(seconds)) + "<br />&nbsp;playing"
         else:

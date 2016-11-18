@@ -127,7 +127,7 @@ class ReplaysWidget(BaseClass, FormClass):
     def onlineTreeDoubleClicked(self, item):
         if hasattr(item, "duration"):
             if "playing" in item.duration:  # live game will not be in vault
-                if "darkred" not in item.duration:  # live game under 5min
+                if not item.live_delay:  # live game under 5min
                     if item.mod == "ladder1v1":
                         name = item.name[:item.name.find(" ")]  # "name vs name"
                     else:
