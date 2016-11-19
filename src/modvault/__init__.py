@@ -181,22 +181,18 @@ class ModVault(FormClass, BaseClass):
         if modDir != "":
             if isModFolderValid(modDir):
                 #os.chmod(modDir, S_IWRITE) Don't need this at the moment
-                modinfofile, modinfo = parseModInfo(modDir)
-                if modinfofile.error:
+                try:
+                    modinfo = parseModInfo(modDir)
+                except:
                     logger.debug("There were " + str(modinfofile.errors) + " errors and " + str(modinfofile.warnings) + " warnings.")
                     logger.debug(modinfofile.errorMsg)
                     QtGui.QMessageBox.critical(self.client, "Lua parsing error", modinfofile.errorMsg + "\nMod uploading cancelled.")
-                else:
-                    if modinfofile.warning:
-                        uploadmod = QtGui.QMessageBox.question(self.client, "Lua parsing warning", modinfofile.errorMsg + "\nDo you want to upload the mod?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
-                    else:
-                        uploadmod = QtGui.QMessageBox.Yes
-                    if uploadmod == QtGui.QMessageBox.Yes:
-                        modinfo = ModInfo(**modinfo)
-                        modinfo.setFolder(os.path.split(modDir)[1])
-                        modinfo.update()
-                        dialog = UploadModWidget(self, modDir, modinfo)
-                        dialog.exec_()
+                    return
+                modinfo = ModInfo(**modinfo)
+                modinfo.setFolder(os.path.split(modDir)[1])
+                modinfo.update()
+                dialog = UploadModWidget(self, modDir, modinfo)
+                dialog.exec_()
             else :
                 QtGui.QMessageBox.information(self.client,"Mod selection",
                         "This folder doesn't contain a mod_info.lua file")

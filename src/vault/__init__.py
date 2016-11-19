@@ -5,8 +5,8 @@ import util
 import urllib
 import logging
 import os
+import lupa
 from fa import maps
-from vault import luaparser
 import urllib2
 import re
 import json
@@ -109,19 +109,22 @@ class MapVault(QtCore.QObject):
                 mapName = os.path.basename(mapDir)
                 zipName = mapName.lower()+".zip"
 
-                scenariolua = luaparser.luaParser(os.path.join(
-                    mapDir,
-                    maps.getScenarioFile(mapDir)))
-                scenarioInfos = scenariolua.parse({
-                    'scenarioinfo>name':'name', 'size':'map_size',
-                    'description':'description',
-                    'count:armies':'max_players',
-                    'map_version':'version',
-                    'type':'map_type',
-                    'teams>0>name':'battle_type'
-                    }, {'version':'1'})
-
-                if scenariolua.error:
+                try:
+                    lua_rt = lupa.LuaRuntime()
+                    lua_rt.execute(os.path.join(
+                        mapDir,
+                        maps.getScenarioFile(mapDir)))
+                    scenariolua = dict(lua_rt.globals())
+                    logger.debug(scenariolua)
+                    scenarioInfos = {
+                        'name': scenariolua['scenarioinfo']['name'],
+                        'map_size': scenariolua['size'],
+                        'description': scenariolua['description'],
+                        'version': scenariolua.get('map_version', '1'),
+                        'map_type': scenariolua['type'],
+                        'battle_type': scenariolua['teams'][0]['name']
+                        }
+                except:
                     logger.debug("There were {} errors and {} warnings".format(
                         scenariolua.errors,
                         scenariolua.warnings
@@ -132,53 +135,53 @@ class MapVault(QtCore.QObject):
                         "Lua parsing error",
                         "{}\nMap uploading cancelled.".format(
                             scenariolua.errorMsg))
+                    return
+                if scenariolua.warning:
+                    uploadmap = QtGui.QMessageBox.question(
+                        self.client,
+                        "Lua parsing warning",
+                        "{}\nDo you want to upload the map?".format(
+                            scenariolua.errorMsg),
+                        QtGui.QMessageBox.Yes,
+                        QtGui.QMessageBox.No)
                 else:
-                    if scenariolua.warning:
-                        uploadmap = QtGui.QMessageBox.question(
-                            self.client,
-                            "Lua parsing warning",
-                            "{}\nDo you want to upload the map?".format(
-                                scenariolua.errorMsg),
-                            QtGui.QMessageBox.Yes,
-                            QtGui.QMessageBox.No)
-                    else:
-                        uploadmap = QtGui.QMessageBox.Yes
-                    if uploadmap == QtGui.QMessageBox.Yes:
-                        savelua = luaparser.luaParser(os.path.join(
-                            mapDir,
-                            maps.getSaveFile(mapDir)
+                    uploadmap = QtGui.QMessageBox.Yes
+                if uploadmap == QtGui.QMessageBox.Yes:
+                    savelua = luaparser.luaParser(os.path.join(
+                        mapDir,
+                        maps.getSaveFile(mapDir)
+                        ))
+                    saveInfos = savelua.parse({
+                        'markers>mass*>position':'mass:__parent__',
+                        'markers>hydro*>position':'hydro:__parent__',
+                        'markers>army*>position':'army:__parent__'})
+                    if savelua.error or savelua.warning:
+                        logger.debug("There were {} errors and {} warnings".format(
+                            scenariolua.errors,
+                            scenariolua.warnings
                             ))
-                        saveInfos = savelua.parse({
-                            'markers>mass*>position':'mass:__parent__',
-                            'markers>hydro*>position':'hydro:__parent__',
-                            'markers>army*>position':'army:__parent__'})
-                        if savelua.error or savelua.warning:
-                            logger.debug("There were {} errors and {} warnings".format(
-                                scenariolua.errors,
-                                scenariolua.warnings
-                                ))
-                            logger.debug(scenariolua.errorMsg)
+                        logger.debug(scenariolua.errorMsg)
 
-                        self.__preparePositions(
-                            saveInfos,
-                            scenarioInfos["map_size"])
+                    self.__preparePositions(
+                        saveInfos,
+                        scenarioInfos["map_size"])
 
-                        tmpFile = maps.processMapFolderForUpload(
-                            mapDir,
-                            saveInfos)
-                        if not tmpFile:
-                            QtGui.QMessageBox.critical(
-                                self.client,
-                                "Map uploading error",
-                                "Couldn't make previews for {}\n"
-                                "Map uploading cancelled.".format(mapName))
-                            return None
+                    tmpFile = maps.processMapFolderForUpload(
+                        mapDir,
+                        saveInfos)
+                    if not tmpFile:
+                        QtGui.QMessageBox.critical(
+                            self.client,
+                            "Map uploading error",
+                            "Couldn't make previews for {}\n"
+                            "Map uploading cancelled.".format(mapName))
+                        return None
 
-                        qfile = QtCore.QFile(tmpFile.name)
-                        self.client.writeToServer("UPLOAD_MAP", zipName, scenarioInfos, qfile)
+                    qfile = QtCore.QFile(tmpFile.name)
+                    self.client.writeToServer("UPLOAD_MAP", zipName, scenarioInfos, qfile)
 
-                        #removing temporary files
-                        qfile.remove()
+                    #removing temporary files
+                    qfile.remove()
             else:
                 QtGui.QMessageBox.information(
                     self.client,

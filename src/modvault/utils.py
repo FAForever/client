@@ -9,7 +9,7 @@ from PyQt4 import QtCore, QtGui
 from util import PREFSFILENAME
 import util
 import logging
-from vault import luaparser
+import lupa
 import warnings
 
 import cStringIO
@@ -109,11 +109,20 @@ def getIcon(name):
     return None
 
 def getModInfo(modinfofile):
-    modinfo = modinfofile.parse({"name":"name","uid":"uid","version":"version","author":"author",
-                                 "description":"description","ui_only":"ui_only",
-                                 "icon":"icon"},
-                                {"version":"1","ui_only":"false","description":"","icon":"","author":""})
-    modinfo["ui_only"] = (modinfo["ui_only"] == 'true')
+    lua_rt = lupa.LuaRuntime()
+    with open(modinfofile) as f:
+        lua_rt.execute(f.read())
+    lua_globals = dict(lua_rt.globals())
+    logger.info(lua_globals)
+    modinfo = {
+        'name': lua_globals['name'],
+        'uid': lua_globals['uid'],
+        'version': lua_globals.get('version', 1),
+        'author': lua_globals.get('author', ''),
+        'description': lua_globals.get('description',''),
+        'ui_only': lua_globals.get('ui_only', False),
+        'icon': lua_globals.get('icon','')
+        }
     if not "uid" in modinfo:
         logger.warn("Couldn't find uid for mod %s" % modinfo["name"])
         return None
@@ -126,12 +135,12 @@ def getModInfo(modinfofile):
         except:
             modinfo["version"] = 0
             logger.warn("Couldn't find version for mod %s" % modinfo["name"])
-    return (modinfofile, modinfo)    
+    return modinfo
 
 def parseModInfo(folder):
     if not isModFolderValid(folder):
         return None
-    modinfofile = luaparser.luaParser(os.path.join(folder,"mod_info.lua"))
+    modinfofile = os.path.join(folder,"mod_info.lua")
     return getModInfo(modinfofile)
 
 modCache = {}
@@ -153,14 +162,14 @@ def getModInfoFromZip(zfile):
                     modinfofile = luaparser.luaParser("mod_info.lua")
                     modinfofile.iszip = True
                     modinfofile.zip = zip
-                    r = getModInfo(modinfofile)
-    if r == None:
-        logger.debug("mod_info.lua not found in zip file %s" % zfile)
-        return None
-    f, info = r
-    if f.error:
-        logger.debug("Error in parsing mod_info.lua in %s" % zfile)
-        return None
+                    info = getModInfo(modinfofile)
+#    if r == None:
+#        logger.debug("mod_info.lua not found in zip file %s" % zfile)
+#        return None
+#    f, info = r
+#    if f.error:
+#        logger.debug("Error in parsing mod_info.lua in %s" % zfile)
+#        return None
     m = ModInfo(**info)
     m.setFolder(zfile)
     m.update()
