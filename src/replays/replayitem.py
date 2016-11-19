@@ -126,9 +126,9 @@ class ReplayItem(QtGui.QTreeWidgetItem):
         if message['end'] == 4294967295:  # = FFFF FFFF (year 2106) aka still playing
             seconds = time.time()-message['start']
             if seconds > 86400:  # more than 24 hours
-                self.duration = str(int(seconds/86400)) + " days<br />&nbsp;! error !"
+                self.duration = "<font color='darkgrey'>end time<br />&nbsp;missing</font>"
             elif seconds > 7200:  # more than 2 hours
-                self.duration = time.strftime('%H:%M:%S', time.gmtime(seconds)) + "<br />? error ?"
+                self.duration = time.strftime('%H:%M:%S', time.gmtime(seconds)) + "<br />?playing?"
             elif seconds < 300:  # less than 5 minutes
                 self.duration = time.strftime('%H:%M:%S', time.gmtime(seconds)) + "<br />&nbsp;<font color='darkred'>playing</font>"
                 self.live_delay = True
