@@ -6,7 +6,12 @@ import util
 import os
 from games.moditem import mod_invisible, mods
 
+import traceback
+
 import client
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 class GameItemDelegate(QtGui.QStyledItemDelegate):
@@ -74,7 +79,6 @@ class GameItem(QtGui.QListWidgetItem):
         self.uid            = uid
         self.mapname        = None
         self.mapdisplayname = None
-        self.client         = None
         self.title          = None
         self.host           = None
         self.hostid         = -1
@@ -116,27 +120,27 @@ class GameItem(QtGui.QListWidgetItem):
         
     @QtCore.pyqtSlot()
     def announceReplay(self):
-        if not self.client.players.isFriend(self.hostid):
+        if not client.instance.players.isFriend(self.hostid):
             return
 
         if not self.state == "playing":
             return
                 
         # User doesnt want to see this in chat   
-        if not self.client.livereplays:
+        if not client.instance.livereplays:
             return
 
         url = self.url()
-        istr = self.client.getColor("url") + '" href="' + url.toString() + '">' + self.title + '</a> (on "' + self.mapdisplayname + '")'
+        istr = client.instance.getColor("url") + '" href="' + url.toString() + '">' + self.title + '</a> (on "' + self.mapdisplayname + '")'
         if self.mod == "faf":
-            self.client.forwardLocalBroadcast(self.host, 'is playing live in <a style="color:' + istr)
+            client.instance.forwardLocalBroadcast(self.host, 'is playing live in <a style="color:' + istr)
         else:
-            self.client.forwardLocalBroadcast(self.host, 'is playing ' + self.mod + ' in <a style="color:' + istr)
+            client.instance.forwardLocalBroadcast(self.host, 'is playing ' + self.mod + ' in <a style="color:' + istr)
         
     
     @QtCore.pyqtSlot()
     def announceHosting(self):
-        if not self.client.players.isFriend(self.hostid) or self.isHidden():
+        if not client.instance.players.isFriend(self.hostid) or self.isHidden():
             return
 
         if not self.state == "open":
@@ -148,19 +152,22 @@ class GameItem(QtGui.QListWidgetItem):
         client.instance.urls[self.host] = url
 
         # No visible message if not requested   
-        if not self.client.opengames:
+        if not client.instance.opengames:
             return
                          
         if self.mod == "faf":
-            self.client.forwardLocalBroadcast(self.host, 'is hosting <a style="color:' + self.client.getColor("url") + '" href="' + url.toString() + '">' + self.title + '</a> (on "' + self.mapdisplayname + '")')
+            client.instance.forwardLocalBroadcast(self.host, 'is hosting <a style="color:' + client.instance.getColor("url") + '" href="' + url.toString() + '">' + self.title + '</a> (on "' + self.mapdisplayname + '")')
         else:
-            self.client.forwardLocalBroadcast(self.host, 'is hosting ' + self.mod + ' <a style="color:' + self.client.getColor("url") + '" href="' + url.toString() + '">' + self.title + '</a> (on "' + self.mapdisplayname + '")')
+            client.instance.forwardLocalBroadcast(self.host, 'is hosting ' + self.mod + ' <a style="color:' + client.instance.getColor("url") + '" href="' + url.toString() + '">' + self.title + '</a> (on "' + self.mapdisplayname + '")')
 
-    def update(self, message, client):
+    def update(self, message, old_client=None):
         """
         Updates this item from the message dictionary supplied
         """
-        self.client = client
+
+        if old_client:
+            logger.error('gamesitem.update called with 3 args')
+            logger.error(traceback.format_stack())
 
         if self.title is None:  # you can't change this...
             self.title = message['title']
@@ -171,7 +178,7 @@ class GameItem(QtGui.QListWidgetItem):
             if 'host_id' in message:
                 self.hostid = message['host_id']
             else:
-                self.hostid = self.client.players.getID(self.host)
+                self.hostid = client.instance.players.getID(self.host)
 
         # Maps integral team numbers (from 2, with 1 "none") to lists of names.
         teams_map = dict.copy(message['teams'])
@@ -188,12 +195,12 @@ class GameItem(QtGui.QListWidgetItem):
 
         # Clear the status for all involved players (url may change, or players may have left, or game closed)        
         for player in self.players:
-            if player.login in client.urls:
-                del client.urls[player.login]
+            if player.login in client.instance.urls:
+                del client.instance.urls[player.login]
 
         # Just jump out if we've left the game, but tell the client that all players need their states updated
         if self.state == "closed":
-            client.usersUpdated.emit(self.players)
+            client.instance.usersUpdated.emit(self.players)
             return
 
         # Map preview code
@@ -215,15 +222,15 @@ class GameItem(QtGui.QListWidgetItem):
         for team_index, team in teams_map.iteritems():
             if team_index == 1:
                 for ffa_player in team:
-                    if ffa_player in self.client.players:
-                        self.players.append(self.client.players[ffa_player])
-                        teams.append([self.client.players[ffa_player]])
+                    if ffa_player in client.instance.players:
+                        self.players.append(client.instance.players[ffa_player])
+                        teams.append([client.instance.players[ffa_player]])
             else:
                 real_team = []
                 for name in team:
-                    if name in self.client.players:
-                        self.players.append(self.client.players[name])
-                        real_team.append(self.client.players[name])
+                    if name in client.instance.players:
+                        self.players.append(client.instance.players[name])
+                        real_team.append(client.instance.players[name])
                 teams.append(real_team)
 
         self.nTeams = len(teams)
@@ -246,7 +253,7 @@ class GameItem(QtGui.QListWidgetItem):
             else:
                 icon = maps.preview(self.mapname)
                 if not icon:
-                    self.client.downloader.downloadMap(self.mapname, self)
+                    client.instance.downloader.downloadMap(self.mapname, self)
                     icon = util.icon("games/unknown_map.png")
 
             self.setIcon(icon)
@@ -261,7 +268,7 @@ class GameItem(QtGui.QListWidgetItem):
         else:
             playerstring = "players"
 
-        color = client.players.getUserColor(self.hostid)
+        color = client.instance.players.getUserColor(self.hostid)
 
         self.editTooltip(teams)
 
@@ -283,12 +290,12 @@ class GameItem(QtGui.QListWidgetItem):
 
         # Update player URLs
         for player in self.players:
-            client.urls[player.login] = self.url(player.id)
+            client.instance.urls[player.login] = self.url(player.id)
 
         # Determine which players are affected by this game's state change            
         newplayers = set(map(lambda p: p.login, self.players))
         affectedplayers = oldplayers | newplayers
-        client.usersUpdated.emit(list(affectedplayers))
+        client.instance.usersUpdated.emit(list(affectedplayers))
 
     def editTooltip(self, teams):
         
@@ -307,7 +314,7 @@ class GameItem(QtGui.QListWidgetItem):
                 teamplayer.append("<td><table>")
                 for player in team:
 
-                    if player == self.client.me:
+                    if player == client.instance.me:
                         playerStr = "<b><i>%s</b></i>" % player.login
                     else:
                         playerStr = player.login
@@ -365,12 +372,11 @@ class GameItem(QtGui.QListWidgetItem):
 
     def __lt__(self, other):
         """ Comparison operator used for item list sorting """
-        if not self.client: return True  # If not initialized...
-        if not other.client: return False
+        if not client.instance: return True  # If not initialized...
 
         # Friend games are on top
-        if self.client.players.isFriend(self.hostid) and not self.client.players.isFriend(other.hostid): return True
-        if not self.client.players.isFriend(self.hostid) and self.client.players.isFriend(other.hostid): return False
+        if client.instance.players.isFriend(self.hostid) and not client.instance.players.isFriend(other.hostid): return True
+        if not client.instance.players.isFriend(self.hostid) and client.instance.players.isFriend(other.hostid): return False
 
         # Sort Games
         # 0: By Player Count

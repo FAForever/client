@@ -190,12 +190,12 @@ class GamesWidget(FormClass, BaseClass):
         if uid not in self.games:
             self.games[uid] = GameItem(uid)
             self.gameList.addItem(self.games[uid])
-            self.games[uid].update(message, self.client)
+            self.games[uid].update(message)
 
             if message['state'] == 'open' and not message['password_protected']:
                 self.client.notificationSystem.on_event(ns.Notifications.NEW_GAME, message)
         else:
-            self.games[uid].update(message, self.client)
+            self.games[uid].update(message)
 
         # Hide private games
         if self.hideGamesWithPw.isChecked() and message['state'] == 'open' and message['password_protected']:

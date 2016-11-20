@@ -51,7 +51,7 @@ class HostgameWidget(FormClass, BaseClass):
             "state": "open",
         }
 
-        self.game.update(self.message, self.parent.client)
+        self.game.update(self.message)
         self.game.setHidden(False)
         
         i = 0
@@ -93,7 +93,7 @@ class HostgameWidget(FormClass, BaseClass):
         
     def updateText(self, text):
         self.message['title'] = text
-        self.game.update(self.message, self.parent.client)
+        self.game.update(self.message)
         self.game.setHidden(False)
 
     def hosting(self):
@@ -139,7 +139,7 @@ class HostgameWidget(FormClass, BaseClass):
         self.mapname = self.mapList.itemData(index)
 
         self.message['mapname'] = self.mapname
-        self.game.update(self.message, self.parent.client)
+        self.game.update(self.message)
 
     def save_last_hosted_settings(self):
         util.settings.beginGroup("fa.games")
