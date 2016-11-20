@@ -430,43 +430,6 @@ def __exportPreviewFromMap(mapname, positions=None):
 
 iconExtensions = ["png"] #, "jpg" removed to have fewer of those costly 404 misses.
 
-
-def __downloadPreviewFromWeb(name):
-    '''
-    Downloads a preview image from the web for the given map name
-    '''
-    # This is done so generated previews always have a lower case name.
-    # This doesn't solve the underlying problem
-    # (case folding Windows vs. Unix vs. FAF)
-    name = name.lower()
-
-    logger.debug("Searching web preview for: " + name)
-
-    for extension in iconExtensions:
-        try:
-            header = urllib2.Request(
-                VAULT_PREVIEW_ROOT + urllib2.quote(name) + "." + extension,
-                headers={'User-Agent' : "FAF Client"})
-            req = urllib2.urlopen(header)
-            img = os.path.join(util.CACHE_DIR, name + "." + extension)
-            with open(img, 'wb') as fp:
-                shutil.copyfileobj(req, fp)
-                fp.flush()
-                os.fsync(fp.fileno())       # probably works fine without the flush and fsync
-                fp.close()
-
-                # Create alpha-mapped preview image
-                im = QtGui.QImage(img) #.scaled(100,100)
-                im.save(img)
-                logger.debug("Web Preview " + extension + " used for: " + name)
-                return img
-        except:
-            logger.error("Web preview download failed for " + name)
-
-    logger.error("Web Preview not found for: " + name)
-    return None
-
-
 def preview(mapname, pixmap=False):
     try:
         # Try to load directly from cache
@@ -482,12 +445,6 @@ def preview(mapname, pixmap=False):
         if img and 'cache' in img and img['cache'] and os.path.isfile(img['cache']):
             logger.debug("Using fresh preview image for: " + mapname)
             return util.icon(img['cache'], False, pixmap)
-        else:
-            # Try to download from web
-            img = __downloadPreviewFromWeb(mapname)
-            if img and os.path.isfile(img):
-                logger.debug("Using web preview image for: " + mapname)
-                return util.icon(img, False, pixmap)
 
         return None
     except:

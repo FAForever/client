@@ -19,6 +19,7 @@
 * Fix a bug with preview generation (#481)
 * Remove unused map downloader class (#483)
 * Fix error in PERSONAL_DIR selection (#428)
+* Make map preview download asynchronous (#507)
 
 0.11.60
 =======
