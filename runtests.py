@@ -1,4 +1,7 @@
 #! /usr/bin/env python3
+import sys
+
+print(sys.version)
 
 import sip, pytest
 sip.setapi('QString', 2)
@@ -12,8 +15,7 @@ sip.setapi('QTextStream', 2)
 sip.setapi('QTime', 2)
 sip.setapi('QUrl', 2)
 
-import sys
 
 if __name__ == '__main__':
-    import sys
+    print("pytest:", pytest.__file__)
     sys.exit(pytest.main(sys.argv[1:]))

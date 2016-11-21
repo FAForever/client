@@ -1,5 +1,5 @@
 bsdiff4==1.1.4
-cx_Freeze==4.3.4
+cx_Freeze
 enum34
 lupa
 pillow==3.4.1
