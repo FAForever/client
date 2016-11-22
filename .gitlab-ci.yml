@@ -1,0 +1,16 @@
+image: python:3.5
+
+test:
+  script:
+    - export DEBIAN_FRONTEND=noninteractive
+    - apt-get update -qy
+    - apt-get install -y python3-pyqt4 liblua5.1-0-dev libjpeg-dev zlib1g-dev xvfb jq
+    - pip install python-coveralls
+    - pip install -r requirements.txt
+    - curl -s https://api.github.com/repos/FAForever/uid/releases/latest | jq -r '.assets[] | select(.name == "faf-uid") | .browser_download_url' | wget -i - -O ./lib/faf-uid
+    - export DISPLAY=:99.0
+    - sh -e ./xvfb start
+    - export PYTEST_QT_API=pyqt4v2
+    - python runtests.py -xs --cov src --cov-report term-missing
+
+
