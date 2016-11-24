@@ -247,7 +247,7 @@
      <x>0</x>
      <y>0</y>
      <width>983</width>
-     <height>18</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuOptions">
@@ -265,7 +265,6 @@
      <addaction name="actionLink_account_to_Steam"/>
      <addaction name="separator"/>
      <addaction name="actionSetGamePath"/>
-     <addaction name="actionSetGamePort"/>
      <addaction name="actionSaveGamelogs"/>
     </widget>
     <widget class="QMenu" name="menuTheme">
@@ -434,11 +433,6 @@
   <action name="actionSetGamePath">
    <property name="text">
     <string>Game Path...</string>
-   </property>
-  </action>
-  <action name="actionSetGamePort">
-   <property name="text">
-    <string>Game Port...</string>
    </property>
   </action>
   <action name="actionSetMumbleOptions">

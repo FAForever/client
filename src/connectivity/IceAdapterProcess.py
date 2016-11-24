@@ -4,6 +4,7 @@ from PyQt4.QtNetwork import QTcpServer, QHostAddress
 import os
 import sys
 from config import Settings
+import client
 
 if sys.platform != 'win32':
     from distutils.spawn import find_executable
@@ -37,9 +38,10 @@ class IceAdapterProcess(object):
         self.ice_adapter_process.start(node_executable,
                                        [adapter_app,
                                         "--id", str(player_id),
+                                        "--login", player_login,
                                         "--rpc_port", str(self._rpc_server_port),
                                         "--gpgnet_port", "0",
-                                        "--log-file", log_file])
+                                        "--log_file", log_file])
 
 
         #wait for the first message which usually means the ICE adapter is listening for JSONRPC connections
