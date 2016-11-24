@@ -22,6 +22,5 @@ from . import maps
 from . import mods
 from . import replayserver
 from . import updater
-from . import upnp
 from . import factions
 from . import wizards
