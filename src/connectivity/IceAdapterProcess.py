@@ -4,6 +4,7 @@ from PyQt4.QtNetwork import QTcpServer, QHostAddress
 import os
 import sys
 from config import Settings
+import client
 
 if sys.platform != 'win32':
     from distutils.spawn import find_executable
@@ -37,6 +38,7 @@ class IceAdapterProcess(object):
         self.ice_adapter_process.start(node_executable,
                                        [adapter_app,
                                         "--id", str(player_id),
+                                        "--login", player_login,
                                         "--rpc-port", str(self._rpc_server_port),
                                         "--gpgnet-port", "0",
                                         "--log-file", log_file])
