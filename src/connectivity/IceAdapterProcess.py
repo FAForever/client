@@ -27,6 +27,7 @@ class IceAdapterProcess(object):
         self.ice_adapter_process = QProcess()
         self.ice_adapter_process.start(exe_path,
                                        ["--id", str(player_id),
+                                        "--login", player_login,
                                         "--rpc-port", str(self._rpc_server_port),
                                         "--gpgnet-port", "0",
                                         "--log-level" , "debug",
