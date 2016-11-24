@@ -1,6 +1,7 @@
 from PyQt4.QtCore import QObject, pyqtSignal
 from enum import IntEnum
 
+import client
 from decorators import with_logger
 from fa.game_process import GameProcess, instance as game_process_instance
 
@@ -24,7 +25,7 @@ class GameSessionState(IntEnum):
 class GameSession(QObject):
     ready = pyqtSignal()
 
-    def __init__(self, client, player_id, player_login):
+    def __init__(self, player_id, player_login):
         QObject.__init__(self)
         self._state = GameSessionState.OFF
         self._rehost = False
@@ -36,12 +37,9 @@ class GameSession(QObject):
         self.game_password = None
         self.player_id = player_id
         self.player_login = player_login
-        # Keep a parent pointer so we can use it to send
-        # relay messages about the game state
-        self._client = client  # type: Client
 
         # Subscribe to messages targeted at 'game' from the server
-        client.subscribe_to('game', self)
+        client.instance.subscribe_to('game', self)
 
         # Use the normal lobby by default
         self.init_mode = 0
@@ -121,7 +119,7 @@ class GameSession(QObject):
 
     def send(self, command_id, args):
         self._logger.info("Outgoing relay message {} {}".format(command_id, args))
-        self._client.send({
+        client.instance.send({
             'command': command_id,
             'target': 'game',
             'args': args or []
@@ -150,7 +148,7 @@ class GameSession(QObject):
         self.send('GameState', ['Ended'])
 
         if self._rehost:
-            self.client.host_game(title=self.game_name,
+            client.instance.host_game(title=self.game_name,
                                   mod=self.game_mod,
                                   visibility=self.game_visibility,
                                   mapname=self.game_map,

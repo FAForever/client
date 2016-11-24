@@ -3,6 +3,7 @@ from PyQt4.QtCore import QProcess, QProcessEnvironment
 from PyQt4.QtNetwork import QTcpServer, QHostAddress
 import os
 from config import Settings
+import client
 
 @with_logger
 class IceAdapterProcess(object):
@@ -24,10 +25,13 @@ class IceAdapterProcess(object):
         self.ice_adapter_process = QProcess()
         self.ice_adapter_process.setProcessEnvironment(path_env)
         self.ice_adapter_process.start("faf-ice-adapter",
-                                       ["-i", str(player_id),
-                                        "-l", player_login,
-                                        "-p", str(self._rpc_server_port),
-                                        "-g", "0",
+                                       ["--id", str(player_id),
+                                        "--login", player_login,
+                                        "--rpc-port", str(self._rpc_server_port),
+                                        "--ice-port-min", str(client.instance.gamePort),
+                                        "--ice-port-max", str(client.instance.gamePortMax),
+                                        "--upnp", str(client.instance.useUPnP),
+                                        "--gpgnet-port", "0",
                                         "--log-file", log_file])
 
 

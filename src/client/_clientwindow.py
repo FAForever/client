@@ -142,6 +142,7 @@ class ClientWindow(FormClass, BaseClass):
     gamelogs = Settings.persisted_property('game/logs', type=bool, default_value=True)
     useUPnP = Settings.persisted_property('game/upnp', type=bool, default_value=True)
     gamePort = Settings.persisted_property('game/port', type=int, default_value=6112)
+    gamePortMax = Settings.persisted_property('game/portMax', type=int, default_value=6212)
 
     def __init__(self, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
@@ -588,10 +589,13 @@ class ClientWindow(FormClass, BaseClass):
             self.progress.setLabelText("Closing main connection.")
             self.socket.disconnectFromHost()
 
-        # Clear UPnP Mappings...
-        if self.useUPnP:
-            self.progress.setLabelText("Removing UPnP port mappings")
-            fa.upnp.removePortMappings()
+        # Close connectivity dialog
+        if getattr(self, "connectivity_dialog", False):
+            self.connectivity_dialog.close()
+
+        # Close game session (and stop faf-ice-adapter.exe)
+        if getattr(self, "game_session", False):
+            self.game_session.close()
 
         # Terminate local ReplayServer
         if self.replayServer:
@@ -621,10 +625,6 @@ class ClientWindow(FormClass, BaseClass):
     def closeEvent(self, event):
         logger.info("Close Event for Application Main Window")
         self.saveWindow()
-        if getattr(self, "game_session", False):
-            self.game_session.close()
-        if getattr(self, "connectivity_dialog", False):
-            self.connectivity_dialog.close()
 
         if fa.instance.running():
             if QtGui.QMessageBox.question(self, "Are you sure?",
@@ -664,7 +664,7 @@ class ClientWindow(FormClass, BaseClass):
         self.actionClearGameFiles.triggered.connect(self.clearGameFiles)
 
         self.actionSetGamePath.triggered.connect(self.switchPath)
-        self.actionSetGamePort.triggered.connect(self.switchPort)
+        self.actionNetworkSettings.triggered.connect(self.networkSettings)
 
         # Toggle-Options
         self.actionSetAutoLogin.triggered.connect(self.updateOptions)
@@ -721,9 +721,9 @@ class ClientWindow(FormClass, BaseClass):
         fa.wizards.Wizard(self).exec_()
 
     @QtCore.pyqtSlot()
-    def switchPort(self):
+    def networkSettings(self):
         import loginwizards
-        loginwizards.gameSettingsWizard(self).exec_()
+        loginwizards.networkSettingsWizard(self).exec_()
 
     @QtCore.pyqtSlot()
     def clearSettings(self):
@@ -1179,9 +1179,6 @@ class ClientWindow(FormClass, BaseClass):
 
         util.crash.CRASH_REPORT_USER = self.login
 
-        if self.useUPnP:
-            fa.upnp.createPortMapping(self.socket.localAddress().toString(), self.gamePort, "UDP")
-
         # update what's new page
         self.whatNewsView.setUrl(QtCore.QUrl(
             "http://www.faforever.com/?page_id=114&username={user}&pwdhash={pwdhash}".format(user=self.login,
@@ -1192,8 +1189,7 @@ class ClientWindow(FormClass, BaseClass):
         self.state = ClientState.ONLINE
         self.authorized.emit(self.me)
 
-        self.game_session = GameSession(self,
-                                        player_id=message["id"],
+        self.game_session = GameSession(player_id=message["id"],
                                         player_login=message["login"])
 
     def handle_registration_response(self, message):
@@ -1282,10 +1278,6 @@ class ClientWindow(FormClass, BaseClass):
 
         if "sim_mods" in message:
             fa.mods.checkMods(message['sim_mods'])
-
-        # UPnP Mapper - mappings are removed on app exit
-        if self.useUPnP:
-            fa.upnp.createPortMapping(self.socket.localAddress().toString(), self.gamePort, "UDP")
 
         info = dict(uid=message['uid'], recorder=self.login, featured_mod=message['mod'], launched_at=time.time())
 
