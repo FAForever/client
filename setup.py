@@ -37,16 +37,18 @@ if sys.platform == 'win32':
     if git_revision:
         print('Git revision:', git_revision)
 
-# Ugly hack to fix broken PyQt4
-try:
-    silly_file = Path(PyQt4.__path__[0]) / "uic" / "port_v3" / "proxy_base.py"
-    print("Removing {}".format(silly_file))
-    silly_file.unlink()
-except OSError:
-    pass
-
+    # Ugly hack to fix broken PyQt4
+    import PyQt4
+    for module in ["invoke.py", "load_plugin.py"]:
+        try:
+            silly_file = Path(PyQt4.__path__[0]) / "uic" / "port_v2" / module
+            print("Removing {}".format(silly_file))
+            silly_file.unlink()
+        except OSError:
+            pass
 
 # Dependencies are automatically detected, but it might need fine tuning.
+import PyQt4.uic
 build_exe_options = {
     'include_files': ['res',
                       'imageformats',
@@ -55,7 +57,6 @@ build_exe_options = {
                       ('lib/faf-uid.exe', 'lib/faf-uid.exe'),
                       ('lib/qt.conf', 'qt.conf'),
                       ('lib/xdelta3.exe', 'lib/xdelta3.exe')],
-    'icon': 'res/faf.ico',
     'include_msvcr': True,
     'optimize': 2,
     'packages': ['PyQt4', 'PyQt4.uic',
@@ -106,9 +107,7 @@ if sys.platform == 'win32':
                           'src/__main__.py',
                           base=base,
                           targetName='FAForever.exe',
-                          icon='res/faf.ico',
-                          includes=[os.path.join(os.path.dirname(PyQt4.uic.__file__), "widget-plugins"),
-                                  "PyQt4.uic.widget-plugins"]
+                          icon='res/faf.ico'
                       )],
         'requires': ['sip', 'PyQt4', 'cx_Freeze'],
         'options': {'build_exe': build_exe_options,
