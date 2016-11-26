@@ -18,6 +18,7 @@
 * Save game logs as default
 * Fix a bug with preview generation (#481)
 * Remove unused map downloader class (#483)
+* Fix error in PERSONAL_DIR selection (#428)
 
 0.11.60
 =======
