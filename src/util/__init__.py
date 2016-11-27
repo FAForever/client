@@ -90,7 +90,7 @@ if not os.path.exists(PREFSFILENAME):
 DOWNLOADED_RES_PIX = {}
 DOWNLOADING_RES_PIX = {}
 
-PERSONAL_DIR = str(QDesktopServices.storageLocation(QDesktopServices.DocumentsLocation))
+PERSONAL_DIR = QDesktopServices.storageLocation(QDesktopServices.DocumentsLocation)
 #try:
 #    getpass.getuser().decode('ascii')  # Try to see if the user has a wacky username
 #except:
