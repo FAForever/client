@@ -4,8 +4,8 @@ from os.path import join
 import logging
 
 # These directories are in Appdata (e.g. C:\ProgramData on some Win7 versions)
-if 'ALLUSERSPROFILE' in environ:
-    APPDATA_DIR = join(environ['ALLUSERSPROFILE'], "FAForever")
+if 'APPDATA' in environ:
+    APPDATA_DIR = join(environ['APPDATA'], "FAForever")
 else:
     APPDATA_DIR = join(environ['HOME'], "FAForever")
 
