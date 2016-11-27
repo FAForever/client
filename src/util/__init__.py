@@ -91,10 +91,10 @@ DOWNLOADED_RES_PIX = {}
 DOWNLOADING_RES_PIX = {}
 
 PERSONAL_DIR = str(QDesktopServices.storageLocation(QDesktopServices.DocumentsLocation))
-try:
-    getpass.getuser().decode('ascii')  # Try to see if the user has a wacky username
-except:
-    PERSONAL_DIR = os.path.join(APPDATA_DIR, "user")
+#try:
+#    getpass.getuser().decode('ascii')  # Try to see if the user has a wacky username
+#except:
+#    PERSONAL_DIR = os.path.join(APPDATA_DIR, "user")
     
 #Ensure Application data directories exist
 if not os.path.isdir(APPDATA_DIR):
