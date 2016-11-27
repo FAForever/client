@@ -145,7 +145,7 @@ if __name__ == '__main__':
     try:
         folderid = getattr(FOLDERID, sys.argv[1])
     except AttributeError:
-        print 'Unknown folder id "%s"' % sys.argv[1] >> file=sys.stderr
+        print 'Unknown folder id "%s"' % sys.argv[1] >> sys.stderr
         sys.exit(1)
 
     try:
