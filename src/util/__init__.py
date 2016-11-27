@@ -26,8 +26,8 @@ if sys.platform != 'win32' and not os.path.exists(COMMON_DIR):
     COMMON_DIR = os.path.join("/usr", "share", "fafclient")
 
 # These directories are in Appdata (e.g. C:\ProgramData on some Win7 versions)
-if 'ALLUSERSPROFILE' in os.environ:
-    APPDATA_DIR = os.path.join(os.environ['ALLUSERSPROFILE'], "FAForever")
+if 'APPDATA' in os.environ:
+    APPDATA_DIR = os.path.join(os.environ['APPDATA'], "FAForever")
 else:
     APPDATA_DIR = os.path.join(os.environ['HOME'], "FAForever")
 
