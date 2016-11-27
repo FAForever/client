@@ -607,4 +607,4 @@ def now():
     return _dateDummy.now()
 
 from crash import CrashDialog
-
+import knownpaths

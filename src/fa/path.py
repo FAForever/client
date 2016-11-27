@@ -30,9 +30,9 @@ def writeFAPathLua():
         code = code + 'sc_path = "' + gamepath_sc.replace("\\", "\\\\") + '"' + "\n"
 
     if sys.platform == 'win32':
-        import knownpaths
-        docpath = knownpaths.get_path(knownpaths.FOLDERID.Documents, knownpaths.UserHandle.current)
-        appdata = knownpaths.get_path(knownpaths.FOLDERID.RoamingAppData, knownpaths.UserHandle.current)
+        from util.knownpaths import get_path, FOLDERID, UserHandle
+        docpath = get_path(FOLDERID.Documents, UserHandle.current)
+        appdata = get_path(FOLDERID.RoamingAppData, UserHandle.current)
         code = code + 'doc_path = "' + docpath.replace("\\", "\\\\") + '"' + "\n"
         code = code + 'appdata = "' + appdata.replace("\\", "\\\\") + '"' + "\n"
 
