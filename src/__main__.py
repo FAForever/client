@@ -98,7 +98,6 @@ if __name__ == '__main__':
             if ctypes.windll.shell32.IsUserAnAdmin():
                 AdminUserErrorDialog()
                 app.quit()
-                exit()
 
         if getattr(ctypes.windll.shell32, "SetCurrentProcessExplicitAppUserModelID", None) is not None:
             myappid = 'com.faforever.lobby'
