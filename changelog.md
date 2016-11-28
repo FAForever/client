@@ -20,6 +20,7 @@
 * Remove unused map downloader class (#483)
 * Fix error in PERSONAL_DIR selection (#428)
 * Make map preview download asynchronous (#507)
+* Fix duration for live games in Replays (#497, thank @grotheFAF)
 
 0.11.60
 =======
