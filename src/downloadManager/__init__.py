@@ -1,4 +1,4 @@
-from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
+from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
 from PyQt4 import QtGui, QtCore
 import urllib2
 import logging
@@ -15,8 +15,9 @@ class downloadManager(QtCore.QObject):
     ''' This class allows downloading stuff in the background'''
 
     def __init__(self, parent = None):
+        QtCore.QObject.__init__(self, parent)
         self.client = parent
-        self.nam = QNetworkAccessManager()
+        self.nam = QNetworkAccessManager(self)
 
         self.nam.finished.connect(self.finishedDownload)
 
@@ -24,9 +25,13 @@ class downloadManager(QtCore.QObject):
         self.mapRequests = {}
         self.mapRequestsItem = []
 
-    def finishedDownload(self,reply):
+    @QtCore.pyqtSlot(QNetworkReply)
+    def finishedDownload(self, reply):
         ''' finishing downloads '''
+        # mark reply for collection by Qt
+        reply.deleteLater()
         urlstring = reply.url().toString()
+        logger.info("Finished download from " + urlstring)
         reqlist = []
         if urlstring in self.mapRequests: reqlist = self.mapRequests[urlstring]
         if urlstring in self.modRequests: reqlist = self.modRequests[urlstring]
@@ -61,6 +66,18 @@ class downloadManager(QtCore.QObject):
             if urlstring in self.mapRequests: del self.mapRequests[urlstring]
             if urlstring in self.modRequests: del self.modRequests[urlstring]
 
+    @QtCore.pyqtSlot(QNetworkReply.NetworkError)
+    def downloadError(self, networkError):
+        logger.info("Network Error")
+
+    @QtCore.pyqtSlot()
+    def readyRead(self):
+        logger.info("readyRead")
+
+    @QtCore.pyqtSlot(int, int)
+    def progress(self, rcv, total):
+        logger.info("received " + rcv + "out of" + total + " bytes")
+
     def downloadMap(self, name, requester, item=False):
         '''
         Downloads a preview image from the web for the given map name
@@ -70,13 +87,12 @@ class downloadManager(QtCore.QObject):
         if len(name) == 0:
             return
 
-
         url = QtCore.QUrl(VAULT_PREVIEW_ROOT + urllib2.quote(name) + ".png")
         if not url.toString() in self.mapRequests:
-            logger.debug("Searching map preview for: " + name)
+            logger.info("Searching map preview for: " + name + " from " + url.toString())
             self.mapRequests[url.toString()] = []
             request = QNetworkRequest(url)
-            self.nam.get(request)
+            rpl = self.nam.get(request)
             self.mapRequests[url.toString()].append(requester)
         else :
             self.mapRequests[url.toString()].append(requester)
@@ -89,5 +105,5 @@ class downloadManager(QtCore.QObject):
             logger.debug("Searching mod preview for: " + os.path.basename(strurl).rsplit('.',1)[0])
             self.modRequests[url.toString()] = []
             request = QNetworkRequest(url)
-            self.nam.get(request)
+            rpl = self.nam.get(request)
         self.modRequests[url.toString()].append(requester)
