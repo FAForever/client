@@ -61,7 +61,7 @@ def excepthook(exc_type, exc_value, traceback_object):
 
 def AdminUserErrorDialog():
     box = QtGui.QMessageBox()
-    box.setText("FAF cannot be run as an administrator!")
+    box.setText("FAF cannot be run as an administrator!<br><br>This probably means you need to fix the file permissions in C:\\ProgramData.<br>Proceed at your own risk.")
     box.setStandardButtons(QtGui.QMessageBox.Close)
     box.setIcon(QtGui.QMessageBox.Critical)
     box.setWindowTitle("FAF privilege error")
@@ -97,7 +97,6 @@ if __name__ == '__main__':
         if platform.release() != "XP":  # legacy special :-)
             if ctypes.windll.shell32.IsUserAnAdmin():
                 AdminUserErrorDialog()
-                app.quit()
 
         if getattr(ctypes.windll.shell32, "SetCurrentProcessExplicitAppUserModelID", None) is not None:
             myappid = 'com.faforever.lobby'
