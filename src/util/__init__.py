@@ -4,6 +4,9 @@ import subprocess
 import getpass
 from ctypes import *
 
+import logging
+logger = logging.getLogger(__name__)
+
 from PyQt4.QtGui import QDesktopServices
 
 from config import Settings
@@ -26,6 +29,7 @@ if sys.platform != 'win32' and not os.path.exists(COMMON_DIR):
     COMMON_DIR = os.path.join("/usr", "share", "fafclient")
 
 # These directories are in Appdata (e.g. C:\ProgramData on some Win7 versions)
+# Use real APPDATA
 if 'APPDATA' in os.environ:
     APPDATA_DIR = os.path.join(os.environ['APPDATA'], "FAForever")
 else:
@@ -91,6 +95,10 @@ DOWNLOADED_RES_PIX = {}
 DOWNLOADING_RES_PIX = {}
 
 PERSONAL_DIR = QDesktopServices.storageLocation(QDesktopServices.DocumentsLocation)
+try:
+    PERSONAL_DIR = PERSONAL_DIR.decode('cp1252')
+except:
+    logger.error('could not decode PERSONAL_DIR')
 #try:
 #    getpass.getuser().decode('ascii')  # Try to see if the user has a wacky username
 #except:
@@ -140,9 +148,6 @@ try:
             os.remove(LOG_FILE_FAF)
 except:
     pass
-
-import logging
-logger = logging.getLogger(__name__)
 
 def clearDirectory(directory, confirm=True):
     if (os.path.isdir(directory)):
