@@ -1,9 +1,16 @@
 from . import version
 import os
+import sys
 import logging
 import trueskill
 from PyQt4 import QtCore
 from logging.handlers import RotatingFileHandler, MemoryHandler
+
+if sys.platform == 'win32':
+    import win32api
+    import win32con
+    import win32security
+    from . import admin
 
 trueskill.setup(mu=1500, sigma=500, beta=250, tau=5, draw_probability=0.10)
 
@@ -61,8 +68,24 @@ class Settings:
                         lambda s, v: Settings.set(key, v, persist=persist_if(s)),
                         doc='Persisted property: {}. Default: '.format(key, default_value))
 
+def check_data_path_permissions():
+    if sys.platform == 'win32' and (not 'CI' in os.environ):
+        data_path = Settings.get('client/data_path')
+
+        if os.path.exists(data_path):
+            my_user = win32api.GetUserNameEx(win32con.NameSamCompatible)
+            sd = win32security.GetFileSecurity(data_path, win32security.OWNER_SECURITY_INFORMATION)
+            owner_sid = sd.GetSecurityDescriptorOwner()
+            name, domain, type = win32security.LookupAccountSid(None, owner_sid)
+            data_path_owner = "%s\\%s" % (domain, name)
+
+            if (my_user != data_path_owner):
+                win32api.MessageBox(0, "FA Forever needs to fix folder permissions due to user. Please confirm the following two admin prompts.", "User changed")
+                admin.runAsAdmin(["takeown", "/f", data_path, "/r"])
+                admin.runAsAdmin(["icacls", data_path, "/reset", "/T"])
 
 def make_dirs():
+    check_data_path_permissions()
     for dir in [
         'client/data_path',
         'game/logs/path',
