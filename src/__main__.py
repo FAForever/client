@@ -87,21 +87,21 @@ def runFAF():
     QtGui.QApplication.exec_()
 
 if __name__ == '__main__':
-    import platform
     import logging
+    import config
 
     app = QtGui.QApplication(sys.argv)
 
-    if platform.system() == "Windows":
+    if sys.platform == 'win32':
+        import platform
         import ctypes
         if platform.release() != "XP":  # legacy special :-)
-            if ctypes.windll.shell32.IsUserAnAdmin():
+            if config.admin.isUserAdmin():
                 AdminUserErrorDialog()
 
         if getattr(ctypes.windll.shell32, "SetCurrentProcessExplicitAppUserModelID", None) is not None:
             myappid = 'com.faforever.lobby'
             ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
-
 
     logger = logging.getLogger(__name__)
     logger.info(">>> --------------------------- Application Launch")
@@ -125,6 +125,8 @@ if __name__ == '__main__':
 
     #End of show
     app.closeAllWindows()
+    if config.admin.isUserAdmin():
+        config.set_data_path_permissions()
     app.quit()
 
     #End the application, perform some housekeeping

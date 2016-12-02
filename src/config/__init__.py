@@ -68,10 +68,24 @@ class Settings:
                         lambda s, v: Settings.set(key, v, persist=persist_if(s)),
                         doc='Persisted property: {}. Default: '.format(key, default_value))
 
-def check_data_path_permissions():
+def set_data_path_permissions():
+    """
+    Set the owner of C:\ProgramData\FAForever recursively to the current user
+    """
     if sys.platform == 'win32' and (not 'CI' in os.environ):
         data_path = Settings.get('client/data_path')
+        if os.path.exists(data_path):
+            my_user = win32api.GetUserNameEx(win32con.NameSamCompatible)
+            admin.runAsAdmin(["icacls", data_path, "/setowner", my_user, "/T"])
+            admin.runAsAdmin(["icacls", data_path, "/reset", "/T"])
 
+def check_data_path_permissions():
+    """
+    Checks if the current user is owner of C:\ProgramData\FAForever
+    Fixes the permissions in case that FAF was run as different user before
+    """
+    if sys.platform == 'win32' and (not 'CI' in os.environ):
+        data_path = Settings.get('client/data_path')
         if os.path.exists(data_path):
             my_user = win32api.GetUserNameEx(win32con.NameSamCompatible)
             sd = win32security.GetFileSecurity(data_path, win32security.OWNER_SECURITY_INFORMATION)
@@ -80,9 +94,9 @@ def check_data_path_permissions():
             data_path_owner = "%s\\%s" % (domain, name)
 
             if (my_user != data_path_owner):
-                win32api.MessageBox(0, "FA Forever needs to fix folder permissions due to user. Please confirm the following two admin prompts.", "User changed")
-                admin.runAsAdmin(["takeown", "/f", data_path, "/r"])
-                admin.runAsAdmin(["icacls", data_path, "/reset", "/T"])
+                if not admin.isUserAdmin():
+                    win32api.MessageBox(0, "FA Forever needs to fix folder permissions due to user change. Please confirm the following two admin prompts.", "User changed")
+                set_data_path_permissions()
 
 def make_dirs():
     check_data_path_permissions()
