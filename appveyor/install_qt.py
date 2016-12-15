@@ -19,10 +19,13 @@ def fix_registry(python_ver):
     print("Fixing registry %s..." % python_ver)
     assert os.path.isdir(python_dir)
     registry_key = r'Software\Python\PythonCore\%s.%s' % (python_ver[0], python_ver[1])
-    with winreg.OpenKey(winreg.HKEY_CURRENT_USER,
-                        registry_key, 0,
-                        winreg.KEY_WRITE) as key:
-        winreg.SetValue(key, 'InstallPath', winreg.REG_SZ, python_dir)
+    try:
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER,
+                            registry_key, 0,
+                            winreg.KEY_WRITE) as key:
+            winreg.SetValue(key, 'InstallPath', winreg.REG_SZ, python_dir)
+    except:
+        pass
 
 base_url = 'http://downloads.sourceforge.net/project/pyqt/'
 downloads = {
