@@ -4,10 +4,13 @@ import subprocess
 import getpass
 from ctypes import *
 
-from PyQt4.QtGui import QDesktopServices
+from PyQt4.QtGui import QDesktopServices, QMessageBox
 
 from config import Settings
 from PyQt4.QtGui import QDesktopServices
+if sys.platform == 'win32':
+    import win32serviceutil
+    import win32service
 
 # Developer mode flag
 def developer():
@@ -584,9 +587,18 @@ def uniqueID(user, session):
     env = os.environ
     env['PATH'] += os.pathsep + os.getcwd() # the Windows setup places executables in the root/CWD
     env['PATH'] += os.pathsep + os.path.join(os.getcwd(), "lib") # the default download location for travis/Appveyor
+    # the UID check needs the WMI service running on Windows
+    if sys.platform == 'win32':
+        try:
+            _, wmi_state, _, _, _, _, _ = win32serviceutil.QueryServiceStatus('Winmgmt')
+            if wmi_state != win32service.SERVICE_RUNNING:
+                QMessageBox.critical(None, "WMI service not running", "FAF requires the 'Windows Management Instrumentation' service for smurf protection to be running. "
+                                     "Please run 'service.msc', open the 'Windows Management Instrumentation' service, set the startup type to automatic and restart FAF.")
+        except Exception as e:
+            QMessageBox.critical(None, "WMI service missing", "FAF requires the 'Windows Management Instrumentation' service for smurf protection. This service could not be found.")
     try:
         # on error, the uid exe returns 1 which will result in a CalledProcessError exception
-        return subprocess.check_output(["faf-uid", session], env=env, stderr=subprocess.STDOUT)
+        return subprocess.check_output(["faf-uid", session], env=env)
     except OSError as err:
         logger.error("UniqueID error finding the executable: {}".format(err))
     except subprocess.CalledProcessError as exc:
