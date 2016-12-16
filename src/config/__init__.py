@@ -72,6 +72,8 @@ def set_data_path_permissions():
     """
     Set the owner of C:\ProgramData\FAForever recursively to the current user
     """
+    if not admin.isUserAdmin():
+        win32api.MessageBox(0, "FA Forever needs to fix folder permissions due to user change. Please confirm the following two admin prompts.", "User changed")
     if sys.platform == 'win32' and (not 'CI' in os.environ):
         data_path = Settings.get('client/data_path')
         if os.path.exists(data_path):
@@ -94,8 +96,6 @@ def check_data_path_permissions():
             data_path_owner = "%s\\%s" % (domain, name)
 
             if (my_user != data_path_owner):
-                if not admin.isUserAdmin():
-                    win32api.MessageBox(0, "FA Forever needs to fix folder permissions due to user change. Please confirm the following two admin prompts.", "User changed")
                 set_data_path_permissions()
 
 def make_dirs():
@@ -112,7 +112,11 @@ def make_dirs():
         if path is None:
             raise Exception("Missing configured path for {}".format(dir))
         if not os.path.isdir(path):
-            os.makedirs(path)
+            try:
+                os.makedirs(path)
+            except IOError, e:
+                set_data_path_permissions()
+                os.makedirs(path)
 
 VERSION = version.get_git_version()
 
@@ -144,6 +148,13 @@ for k, v in defaults.iteritems():
 
 # Setup normal rotating log handler
 make_dirs()
+#check permissions of writing the log file first (which fails when changing users)
+log_file = os.path.join(Settings.get('client/logs/path'), 'forever.log')
+try:
+    with open(log_file, "a") as f:
+        pass
+except IOError, e:
+    set_data_path_permissions()
 rotate = RotatingFileHandler(os.path.join(Settings.get('client/logs/path'), 'forever.log'),
                              maxBytes=int(Settings.get('client/logs/max_size')),
                              backupCount=1)
