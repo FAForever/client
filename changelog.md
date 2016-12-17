@@ -1,4 +1,4 @@
-0.12.0
+0.11.70
 =======
 
 * Make it possible to choose subset of factions in ladder
@@ -21,6 +21,13 @@
 * Fix error in PERSONAL_DIR selection (#428)
 * Make map preview download asynchronous (#507)
 * Fix duration for live games in Replays (#497, thank @grotheFAF)
+* Fix file permissions (#521, thanks @muellni)
+* Check for WMI service needed by uid (#523, thanks @muellni)
+
+0.11.61
+=======
+
+0.11.61 to 0.11.69 are reserved for 0.11.60 hotfixes
 
 0.11.60
 =======
