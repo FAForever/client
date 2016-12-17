@@ -18,8 +18,6 @@ install:
   - ps: "get-childitem env:"
   - ps: "$env:PYTEST_QT_API=\"pyqt4v2\""
   - ps: "$env:FAF_FORCE_PRODUCTION=true"
-  - "xcopy %PYTHON%\\Library\\bin\\libeay32.dll ."
-  - "xcopy %PYTHON%\\Library\\bin\\ssleay32.dll ."
   - "%PYTHON%\\Scripts\\pip.exe install -r requirements.txt --trusted-host content.faforever.com"
 
 after_test:
