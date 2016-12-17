@@ -13,6 +13,7 @@ init:
 install:
   # install and build Lua and the lupa python module
   - git clone https://github.com/LuaDist/lua.git
+  - git -C lua describe --tags --always
   - mkdir lua-build
   - cd lua-build
   - "\"%LOCALAPPDATA%\\Programs\\Common\\Microsoft\\Visual C++ for Python\\9.0\\vcvarsall.bat\" x86"
