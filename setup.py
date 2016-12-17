@@ -43,6 +43,8 @@ except OSError:
 build_exe_options = {
     'include_files': ['res',
                       'RELEASE-VERSION',
+                      'libeay32.dll',
+                      'ssleay32.dll',
                       ('lib/uid.dll', 'uid.dll'),
                       ('lib/qt.conf', 'qt.conf'),
                       ('lib/xdelta3.exe', 'xdelta3.exe'),
