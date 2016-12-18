@@ -56,17 +56,6 @@ deploy:
     draft: true
     prerelease: true
     on:
-      branch: develop
-
-  - provider: GitHub
-    release: $(appveyor_build_version)
-    auth_token:
-      secure: "09WRxoB8lu9lPzuk3qYu0brKVQubLpnsS1Wdn49nYZYi5RDiva3z37eITcjtZkTD"
-    artifact: /.*\.msi/
-    draft: false
-    prerelease: false
-    on:
-      branch: master
       appveyor_repo_tag: true
 
 build: off
