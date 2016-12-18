@@ -26,7 +26,10 @@ install:
   - "%PYTHON%\\Scripts\\pip install --global-option=build_ext --global-option=\"-I%APPVEYOR_BUILD_FOLDER%\\lua-build;%APPVEYOR_BUILD_FOLDER%\\lua\\src\" --global-option=\"-L%APPVEYOR_BUILD_FOLDER%\\lua-build\" --global-option=\"-lliblua_static\" lupa"
   # use conda for installing pyqt
   - "%PYTHON%\\Scripts\\conda install --quiet -y pyqt=4.11.4 pywin32"
+  # copy required dlls for packaging in setup.py
   - "xcopy %PYTHON%\\Library\\plugins\\imageformats .\\imageformats /I"
+  - "xcopy %PYTHON%\\Library\\bin\\libeay32.dll ."
+  - "xcopy %PYTHON%\\Library\\bin\\ssleay32.dll ."
   # install dependencies using pip
   - "%PYTHON%\\Scripts\\pip install wheel"
   - "%PYTHON%\\Scripts\\pip install pytest"
