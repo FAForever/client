@@ -8,9 +8,11 @@ environment:
       TESTENVS: "py27-pyqt4"
 
 init:
-  - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH% %QTIMPL%"
+  - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH% %QTIMPL% %APPVEYOR_REPO_TAG_NAME%"
 
 install:
+  # dump version
+  - git describe --tags --always
   # install and build Lua and the lupa python module
   - git clone https://github.com/LuaDist/lua.git
   - git -C lua describe --tags --always
@@ -56,17 +58,6 @@ deploy:
     draft: true
     prerelease: true
     on:
-      branch: develop
-
-  - provider: GitHub
-    release: $(appveyor_build_version)
-    auth_token:
-      secure: "09WRxoB8lu9lPzuk3qYu0brKVQubLpnsS1Wdn49nYZYi5RDiva3z37eITcjtZkTD"
-    artifact: /.*\.msi/
-    draft: false
-    prerelease: false
-    on:
-      branch: master
       appveyor_repo_tag: true
 
 build: off
