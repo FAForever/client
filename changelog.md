@@ -24,6 +24,7 @@
 * Fix file permissions (#521, thanks @muellni)
 * Check for WMI service needed by uid (#523, thanks @muellni)
 * Build improvements (#531)
+* Fix What's New Tab displaying correct page (thanks @downlord)
 
 
 0.11.64

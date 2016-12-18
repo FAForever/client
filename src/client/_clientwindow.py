@@ -1182,6 +1182,13 @@ class ClientWindow(FormClass, BaseClass):
             fa.upnp.createPortMapping(self.socket.localAddress().toString(), self.gamePort, "UDP")
 
         # update what's new page
+        self.whatNewsView.loadFinished.connect(lambda x: self.whatNewsView.page().mainFrame()
+                .evaluateJavaScript(
+                    """
+document.getElementById('header').style.visibility='hidden';
+document.getElementById('blogTerm').parentElement.parentElement.style.visibility='hidden';
+                    """
+                    ))
         self.whatNewsView.setUrl(QtCore.QUrl("https://www.faforever.com/news"))
 
         self.updateOptions()
