@@ -1,4 +1,4 @@
-0.11.70
+0.12.0
 =======
 
 * Make it possible to choose subset of factions in ladder
@@ -23,11 +23,13 @@
 * Fix duration for live games in Replays (#497, thank @grotheFAF)
 * Fix file permissions (#521, thanks @muellni)
 * Check for WMI service needed by uid (#523, thanks @muellni)
+* Build improvements (#531)
 
-0.11.61
+
+0.11.64
 =======
 
-0.11.61 to 0.11.69 are reserved for 0.11.60 hotfixes
+Hotfix release
 
 0.11.60
 =======
