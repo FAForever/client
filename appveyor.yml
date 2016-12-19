@@ -1,5 +1,6 @@
 environment:
-
+  GITHUB_TOKEN:
+    secure: "09WRxoB8lu9lPzuk3qYu0brKVQubLpnsS1Wdn49nYZYi5RDiva3z37eITcjtZkTD"
   matrix:
     - PYTHON: "C:\\Miniconda"
       PYTHON_VERSION: "2.7.11"
@@ -41,7 +42,7 @@ install:
   - ps: "$env:PYTEST_QT_API=\"pyqt4v2\""
   - ps: "$env:FAF_FORCE_PRODUCTION=true"
   # download faf-uid.exe to ./lib/
-  - ps: (Invoke-WebRequest -Uri https://api.github.com/repos/FAForever/uid/releases/latest | ConvertFrom-Json).assets | where {$_.name -eq "faf-uid.exe"} | %{ iwr $_.browser_download_url -OutFile ".\\lib\\faf-uid.exe" }
+  - ps: (Invoke-WebRequest -Uri https://api.github.com/repos/FAForever/uid/releases/latest?access_token=$($env:GITHUB_TOKEN) | ConvertFrom-Json).assets | where {$_.name -eq "faf-uid.exe"} | %{ iwr $_.browser_download_url -OutFile ".\\lib\\faf-uid.exe" }
 
 test_script:
   - "%PYTHON%\\python runtests.py -vv --full-trace"
