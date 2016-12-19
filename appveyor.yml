@@ -1,5 +1,10 @@
+# GITHUB_TOKEN env var defined in appveyor project
+# GITHUB_USER env var defined in appveyor project
 environment:
-
+  global:
+    GITHUB_USER: faf-bot
+    GITHUB_TOKEN:
+      secure: Np481CGoJvTGB8O5rZTRswUZagGv7WtWT/TXTABQ184xUbL5vj9NoCtmtNRK6YxF
   matrix:
     - PYTHON: "C:\\Miniconda"
       PYWHEEL_INFIX: "cp27"
@@ -25,11 +30,17 @@ install:
   - "%PYTHON%\\Scripts\\pip install cx_Freeze"
   - "%PYTHON%\\Scripts\\pip install -r requirements.txt --trusted-host content.faforever.com"
   - ps: "$env:APPVEYOR_BUILD_VERSION = (& C:\\Miniconda\\python .\\src\\config\\version.py .\\res) + \"+\" + $env:APPVEYOR_BUILD_NUMBER"
-  - ps: "get-childitem env:"
   - ps: "$env:PYTEST_QT_API=\"pyqt4v2\""
   - ps: "$env:FAF_FORCE_PRODUCTION=true"
-  # download faf-uid.exe to ./lib/
-  - ps: (Invoke-WebRequest -Uri https://api.github.com/repos/FAForever/uid/releases/latest | ConvertFrom-Json).assets | where {$_.name -eq "faf-uid.exe"} | %{ iwr $_.browser_download_url -OutFile ".\\lib\\faf-uid.exe" }
+  - ps:
+      |
+        if ($env:GITHUB_TOKEN) {
+          $env:AUTH_HEADER="Basic $([System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes("$($env:GITHUB_USER):$($env:GITHUB_TOKEN)")))"
+          $headers = @{"Authorization" = "$env:AUTH_HEADER"}
+        } else {
+          $headers = @{}
+        }
+        (Invoke-WebRequest -Uri https://api.github.com/repos/FAForever/uid/releases/latest -Headers $headers  | ConvertFrom-Json).assets | where {$_.name -eq "faf-uid.exe"} | %{ iwr $_.browser_download_url -OutFile ".\\lib\\faf-uid.exe" }
 
 test_script:
   - "%PYTHON%\\python runtests.py -vv --full-trace"
