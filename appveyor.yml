@@ -1,5 +1,5 @@
+# GITHUB_TOKEN env var defined in appveyor project
 environment:
-
   matrix:
     - PYTHON: "C:\\Miniconda"
       PYTHON_VERSION: "2.7.11"
@@ -36,12 +36,13 @@ install:
   - "%PYTHON%\\Scripts\\pip install cffi"
   - "%PYTHON%\\Scripts\\pip install cx_Freeze"
   - "%PYTHON%\\Scripts\\pip install -r requirements.txt --trusted-host content.faforever.com"
+  # get uid.exe
   - ps: "$env:APPVEYOR_BUILD_VERSION = (& C:\\Miniconda\\python .\\src\\config\\version.py) + \"+\" + $env:APPVEYOR_BUILD_NUMBER"
-  - ps: "get-childitem env:"
   - ps: "$env:PYTEST_QT_API=\"pyqt4v2\""
   - ps: "$env:FAF_FORCE_PRODUCTION=true"
+  - ps: "$env:AUTH_HEADER=\"Basic $([System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(\"duk3luk3:$($env:GITHUB_TOKEN)\")))\""
   # download faf-uid.exe to ./lib/
-  - ps: (Invoke-WebRequest -Uri https://api.github.com/repos/FAForever/uid/releases/latest | ConvertFrom-Json).assets | where {$_.name -eq "faf-uid.exe"} | %{ iwr $_.browser_download_url -OutFile ".\\lib\\faf-uid.exe" }
+  - ps: (Invoke-WebRequest -Uri https://api.github.com/repos/FAForever/uid/releases/latest -Headers @{"Authorization" = "$env:AUTH_HEADER"} | ConvertFrom-Json).assets | where {$_.name -eq "faf-uid.exe"} | %{ iwr $_.browser_download_url -OutFile ".\\lib\\faf-uid.exe" }
 
 test_script:
   - "%PYTHON%\\python runtests.py -vv --full-trace"
