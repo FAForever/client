@@ -1,4 +1,5 @@
 # GITHUB_TOKEN env var defined in appveyor project
+# GITHUB_USER env var defined in appveyor project
 environment:
   matrix:
     - PYTHON: "C:\\Miniconda"
@@ -40,7 +41,7 @@ install:
   - ps: "$env:APPVEYOR_BUILD_VERSION = (& C:\\Miniconda\\python .\\src\\config\\version.py) + \"+\" + $env:APPVEYOR_BUILD_NUMBER"
   - ps: "$env:PYTEST_QT_API=\"pyqt4v2\""
   - ps: "$env:FAF_FORCE_PRODUCTION=true"
-  - ps: "$env:AUTH_HEADER=\"Basic $([System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(\"duk3luk3:$($env:GITHUB_TOKEN)\")))\""
+  - ps: "$env:AUTH_HEADER=\"Basic $([System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(\"$($env:GITHUB_USER):$($env:GITHUB_TOKEN)\")))\""
   # download faf-uid.exe to ./lib/
   - ps: (Invoke-WebRequest -Uri https://api.github.com/repos/FAForever/uid/releases/latest -Headers @{"Authorization" = "$env:AUTH_HEADER"} | ConvertFrom-Json).assets | where {$_.name -eq "faf-uid.exe"} | %{ iwr $_.browser_download_url -OutFile ".\\lib\\faf-uid.exe" }
 
