@@ -49,8 +49,10 @@ install:
       |
         if ($env:GITHUB_TOKEN) {
           $env:AUTH_HEADER="Basic $([System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes("$($env:GITHUB_USER):$($env:GITHUB_TOKEN)")))"
-          $headers = @{"Authorization" = "$env:AUTH_HEADER"}
+          $headers = @{"Authorization" = "$env:AUTH_HEADER"
+          Write-Host "Added Auth Header"
         } else {
+          Write-Host "No Token, skipping Auth Header. This may lead to build failure due to Github API rate limiting."
           $headers = @{}
         }
         (Invoke-WebRequest -Uri https://api.github.com/repos/FAForever/uid/releases/latest -Headers $headers  | ConvertFrom-Json).assets | where {$_.name -eq "faf-uid.exe"} | %{ iwr $_.browser_download_url -OutFile ".\\lib\\faf-uid.exe" }
