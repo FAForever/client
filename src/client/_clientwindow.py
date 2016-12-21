@@ -301,7 +301,7 @@ class ClientWindow(FormClass, BaseClass):
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.vaultsTab), util.icon("client/mods.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.ladderTab), util.icon("client/ladder.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.tourneyTab), util.icon("client/tourney.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.livestreamTab), util.icon("client/twitch.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.unitdbTab), util.icon("client/twitch.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.replaysTab), util.icon("client/replays.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.tutorialsTab), util.icon("client/tutorials.png"))
 
@@ -519,8 +519,11 @@ class ClientWindow(FormClass, BaseClass):
         # warning setup
         self.warning = QtGui.QHBoxLayout()
 
-        # live streams
-        self.LivestreamWebView.setUrl(QtCore.QUrl("http://www.faforever.com/livestream"))
+        # units database (ex. live streams)
+        # old unitDB
+        self.unitdbWebView.setUrl(QtCore.QUrl("http://direct.faforever.com/faf/unitsDB"))
+        # spookys unitDB (will be moved to site)
+        # self.unitdbWebView.setUrl(QtCore.QUrl("http://spooky.github.io/unitdb/#/"))
 
         self.warnPlayer = QtGui.QLabel(self)
         self.warnPlayer.setText(
