@@ -53,7 +53,7 @@ install:
         } else {
           $headers = @{}
         }
-        (Invoke-WebRequest -Uri https://api.github.com/repos/FAForever/uid/releases/latest -Headers  | ConvertFrom-Json).assets | where {$_.name -eq "faf-uid.exe"} | %{ iwr $_.browser_download_url -OutFile ".\\lib\\faf-uid.exe" }
+        (Invoke-WebRequest -Uri https://api.github.com/repos/FAForever/uid/releases/latest -Headers $headers  | ConvertFrom-Json).assets | where {$_.name -eq "faf-uid.exe"} | %{ iwr $_.browser_download_url -OutFile ".\\lib\\faf-uid.exe" }
 
 test_script:
   - "%PYTHON%\\python runtests.py -vv --full-trace"
