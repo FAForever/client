@@ -1,6 +1,10 @@
 # GITHUB_TOKEN env var defined in appveyor project
 # GITHUB_USER env var defined in appveyor project
 environment:
+  global:
+    GITHUB_USER: faf-bot
+    GITHUB_TOKEN:
+      secure: Np481CGoJvTGB8O5rZTRswUZagGv7WtWT/TXTABQ184xUbL5vj9NoCtmtNRK6YxF
   matrix:
     - PYTHON: "C:\\Miniconda"
       PYTHON_VERSION: "2.7.11"
