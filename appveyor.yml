@@ -45,9 +45,15 @@ install:
   - ps: "$env:APPVEYOR_BUILD_VERSION = (& C:\\Miniconda\\python .\\src\\config\\version.py) + \"+\" + $env:APPVEYOR_BUILD_NUMBER"
   - ps: "$env:PYTEST_QT_API=\"pyqt4v2\""
   - ps: "$env:FAF_FORCE_PRODUCTION=true"
-  - ps: "$env:AUTH_HEADER=\"Basic $([System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(\"$($env:GITHUB_USER):$($env:GITHUB_TOKEN)\")))\""
-  # download faf-uid.exe to ./lib/
-  - ps: (Invoke-WebRequest -Uri https://api.github.com/repos/FAForever/uid/releases/latest -Headers @{"Authorization" = "$env:AUTH_HEADER"} | ConvertFrom-Json).assets | where {$_.name -eq "faf-uid.exe"} | %{ iwr $_.browser_download_url -OutFile ".\\lib\\faf-uid.exe" }
+  - ps:
+      |
+        if ($env:GITHUB_TOKEN) {
+          $env:AUTH_HEADER="Basic $([System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes("$($env:GITHUB_USER):$($env:GITHUB_TOKEN)")))"
+          $headers = @{"Authorization" = "$env:AUTH_HEADER"}
+        } else {
+          $headers = @{}
+        }
+        (Invoke-WebRequest -Uri https://api.github.com/repos/FAForever/uid/releases/latest -Headers  | ConvertFrom-Json).assets | where {$_.name -eq "faf-uid.exe"} | %{ iwr $_.browser_download_url -OutFile ".\\lib\\faf-uid.exe" }
 
 test_script:
   - "%PYTHON%\\python runtests.py -vv --full-trace"
