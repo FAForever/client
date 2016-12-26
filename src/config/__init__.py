@@ -4,6 +4,7 @@ import sys
 import logging
 import trueskill
 import fafpath
+import traceback
 from PyQt4 import QtCore
 from logging.handlers import RotatingFileHandler, MemoryHandler
 
@@ -90,13 +91,25 @@ def check_data_path_permissions():
     if sys.platform == 'win32' and (not 'CI' in os.environ):
         data_path = Settings.get('client/data_path')
         if os.path.exists(data_path):
-            my_user = win32api.GetUserNameEx(win32con.NameSamCompatible)
-            sd = win32security.GetFileSecurity(data_path, win32security.OWNER_SECURITY_INFORMATION)
-            owner_sid = sd.GetSecurityDescriptorOwner()
-            name, domain, type = win32security.LookupAccountSid(None, owner_sid)
-            data_path_owner = "%s\\%s" % (domain, name)
+            try:
+                my_user = win32api.GetUserNameEx(win32con.NameSamCompatible)
+                sd = win32security.GetFileSecurity(data_path, win32security.OWNER_SECURITY_INFORMATION)
+                owner_sid = sd.GetSecurityDescriptorOwner()
+                name, domain, type = win32security.LookupAccountSid(None, owner_sid)
+                data_path_owner = "%s\\%s" % (domain, name)
 
-            if (my_user != data_path_owner):
+                if (my_user != data_path_owner):
+                    set_data_path_permissions()
+            except Exception, e:
+                # we encountered error 1332 in win32security.LookupAccountSid here: http://forums.faforever.com/viewtopic.php?f=3&t=13728
+                # https://msdn.microsoft.com/en-us/library/windows/desktop/aa379166(v=vs.85).aspx states:
+                # "It also occurs for SIDs that have no corresponding account name, such as a logon SID that identifies a logon session."
+                # so let's just fix permissions on every exception for now and wait for someone stuck in a permission-loop
+                win32api.MessageBox(0,
+                                    "FA Forever ran into an exception checking the data folder permissions: '{}'\n"
+                                    "If you get this popup more than one time, please report a screenshot of this popup to tech support forum. "
+                                    "Full stacktrace:\n{}".format(e, traceback.format_exc()),
+                                    "Permission check exception")
                 set_data_path_permissions()
 
 def make_dirs():
