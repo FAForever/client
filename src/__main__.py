@@ -1,3 +1,4 @@
+#!/usr/bin/env python2
 """
 Created on Dec 1, 2011
 
@@ -15,6 +16,24 @@ sip.setapi('QProcess', 2)
 
 import os
 import sys
+
+# Some linux distros (like Gentoo) make package scripts available
+# by copying and modifying them. This breaks path to our modules.
+# This hack restores our path, but really the best way to fix it
+# would be to convert our imports to relative form.
+# We check if we can import our packages already in case we are run
+# through the interpreter (e.g. from source).
+
+import imp
+if __package__ is None and not hasattr(sys, 'frozen'):
+    try:
+        imp.find_module("client")
+    except ImportError:
+        # __main__ executed directly
+        import os.path
+        import fafclient
+        path = os.path.realpath(os.path.abspath(fafclient.__file__))
+        sys.path.insert(0, os.path.dirname(path))
 
 if os.path.isdir("lib"):
     sys.path.insert(0, os.path.abspath("lib"))
