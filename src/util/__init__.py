@@ -25,11 +25,8 @@ LOGFILE_MAX_SIZE = 256 * 1024  #256kb should be enough for anyone
 
 UNITS_PREVIEW_ROOT = "{}/faf/unitsDB/icons/big/".format(Settings.get('content/host'))
 
-# On Windows the res dir is relative to the executable or main.py script
-COMMON_DIR = os.path.join(os.getcwd(), "res")
-if sys.platform != 'win32' and not os.path.exists(COMMON_DIR):
-    #On Linux the res dir is installed as /usr/share/fafclient
-    COMMON_DIR = os.path.join("/usr", "share", "fafclient")
+import fafpath
+COMMON_DIR = fafpath.get_resdir()
 
 # These directories are in Appdata (e.g. C:\ProgramData on some Win7 versions)
 if 'ALLUSERSPROFILE' in os.environ:
