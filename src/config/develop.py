@@ -11,3 +11,8 @@ else:
 
 defaults = production_defaults.copy()
 defaults['host'] = 'test.faforever.com'
+
+# FIXME: Temporary fix for broken https config on test server
+# Turns off certificate verification entirely
+import ssl
+ssl._https_verify_certificates(False)
