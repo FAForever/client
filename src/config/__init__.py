@@ -3,6 +3,7 @@ import os
 import sys
 import logging
 import trueskill
+import fafpath
 from PyQt4 import QtCore
 from logging.handlers import RotatingFileHandler, MemoryHandler
 
@@ -118,8 +119,7 @@ def make_dirs():
                 set_data_path_permissions()
                 os.makedirs(path)
 
-VERSION = version.get_git_version()
-
+VERSION = version.get_release_version(os.path.dirname(fafpath.get_resdir()))
 
 def is_development_version():
     return version.is_development_version(VERSION)
@@ -172,4 +172,4 @@ if environment == 'development':
     logging.getLogger().addHandler(devh)
     logging.getLogger().setLevel(logging.INFO)
 
-logging.getLogger().info("FAF version: {} Environment: {}".format(version.get_git_version(), environment))
+logging.getLogger().info("FAF version: {} Environment: {}".format(VERSION, environment))

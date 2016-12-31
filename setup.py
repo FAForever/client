@@ -25,10 +25,12 @@ product_name = 'Forged Alliance Forever'
 if sys.platform == 'win32':
     import config.version as version
     import PyQt4.uic
+
+    root_dir = os.path.dirname(os.path.abspath(__file__))
     git_version = version.get_git_version()
     msi_version = version.msi_version(git_version)
     appveyor_build_version = os.getenv('APPVEYOR_BUILD_VERSION')
-    version.write_release_version(appveyor_build_version)
+    version.write_version_file(appveyor_build_version, root_dir)
 
     print('Git version:', git_version,
           'Release version:', appveyor_build_version,
