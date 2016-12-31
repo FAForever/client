@@ -27,10 +27,11 @@ if sys.platform == 'win32':
     import PyQt4.uic
 
     root_dir = os.path.dirname(os.path.abspath(__file__))
+    res_dir = os.path.join(root_dir, "res")
     git_version = version.get_git_version()
     msi_version = version.msi_version(git_version)
     appveyor_build_version = os.getenv('APPVEYOR_BUILD_VERSION')
-    version.write_version_file(appveyor_build_version, root_dir)
+    version.write_version_file(appveyor_build_version, res_dir)
 
     print('Git version:', git_version,
           'Release version:', appveyor_build_version,
@@ -48,7 +49,6 @@ except OSError:
 # Dependencies are automatically detected, but it might need fine tuning.
 build_exe_options = {
     'include_files': ['res',
-                      'RELEASE-VERSION',
                       'imageformats',
                       'libeay32.dll',
                       'ssleay32.dll',

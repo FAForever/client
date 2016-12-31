@@ -36,7 +36,7 @@ install:
   - "%PYTHON%\\Scripts\\pip install cffi"
   - "%PYTHON%\\Scripts\\pip install cx_Freeze"
   - "%PYTHON%\\Scripts\\pip install -r requirements.txt --trusted-host content.faforever.com"
-  - ps: "$env:APPVEYOR_BUILD_VERSION = (& C:\\Miniconda\\python .\\src\\config\\version.py .) + \"+\" + $env:APPVEYOR_BUILD_NUMBER"
+  - ps: "$env:APPVEYOR_BUILD_VERSION = (& C:\\Miniconda\\python .\\src\\config\\version.py .\\res) + \"+\" + $env:APPVEYOR_BUILD_NUMBER"
   - ps: "get-childitem env:"
   - ps: "$env:PYTEST_QT_API=\"pyqt4v2\""
   - ps: "$env:FAF_FORCE_PRODUCTION=true"
