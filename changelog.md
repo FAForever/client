@@ -26,6 +26,7 @@
 * Build improvements (#531)
 * Fix What's New Tab displaying correct page (thanks @downlord)
 * replace Tab Livestreams with (old) Unit Database (#539)
+* Add logging to game updater and disable cert verification on test server (#558)
 
 
 0.11.64
