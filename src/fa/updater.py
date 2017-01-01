@@ -194,6 +194,7 @@ class Updater(QtCore.QObject):
 
     def fetchFile(self, url, toFile):
         try:
+            logger.info('Updater: Downloading {}'.format(url))
             progress = QtGui.QProgressDialog()
             progress.setCancelButtonText("Cancel")
             progress.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
