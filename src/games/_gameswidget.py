@@ -29,7 +29,7 @@ class GamesWidget(FormClass, BaseClass):
     sort_games_index = Settings.persisted_property(
         "play/sortGames", default_value=0, type=int)  # Default is by player count
     sub_factions = Settings.persisted_property(
-        "play/subFactions", default_value=['false', 'false', 'false', 'false'])
+        "play/subFactions", default_value=[False, False, False, False])
 
     def __init__(self, client, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
@@ -55,6 +55,9 @@ class GamesWidget(FormClass, BaseClass):
         self.rankedCybran.setIcon(util.icon("games/automatch/cybran.png"))
         self.rankedSeraphim.setIcon(util.icon("games/automatch/seraphim.png"))
         self.rankedUEF.setIcon(util.icon("games/automatch/uef.png"))
+
+        # Fixup ini file type loss
+        self.sub_factions = [True if x=='true' else False for x in self.sub_factions]
 
         self.searchProgress.hide()
 
@@ -120,12 +123,16 @@ class GamesWidget(FormClass, BaseClass):
             game.setHidden(state == Qt.Checked)
 
     def selectFaction(self, enabled, factionID=0):
+        logger.debug('selectFaction: enabled={}, factionID={}'.format(enabled, factionID))
         if len(self.sub_factions) < factionID:
+            logger.warn('selectFaction: len(self.sub_factions) < factionID, aborting')
             return
 
-        self.sub_factions[factionID-1] = 'true' if enabled else 'false'
+        logger.debug('selectFaction: selected was {}'.format(self.sub_factions))
+        self.sub_factions[factionID-1] = enabled
 
         Settings.set("play/subFactions", self.sub_factions)
+        logger.debug('selectFaction: selected is {}'.format(self.sub_factions))
 
         if self.searching:
             self.stopSearchRanked()
@@ -172,7 +179,7 @@ class GamesWidget(FormClass, BaseClass):
             except TypeError:
                 pass
 
-            icon.setChecked(self.sub_factions[faction.value-1] == 'true')
+            icon.setChecked(self.sub_factions[faction.value-1])
             icon.clicked.connect(partial(self.selectFaction, factionID=faction.value))
 
     @QtCore.pyqtSlot()
@@ -211,8 +218,8 @@ class GamesWidget(FormClass, BaseClass):
         if self.searching:
             s = "Stop search"
         else:
-            c = self.sub_factions.count('true')
-            if c in [0, 4]:
+            c = self.sub_factions.count(True)
+            if c in [0, 4]: # all or none selected
                 s = "Play as random!"
             else:
                 s = "Play!"

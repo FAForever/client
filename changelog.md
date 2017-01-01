@@ -28,6 +28,7 @@
 * replace Tab Livestreams with (old) Unit Database (#539)
 * Add logging to game updater and disable cert verification on test server (#558)
 * Clean up 'res' directory finding (#552)
+* Improve ladder race selection (#554)
 
 0.11.64
 =======
