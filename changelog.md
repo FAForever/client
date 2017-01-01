@@ -12,7 +12,7 @@
 * Added option to sort nicknames with friends on top.
 * Multiple mods are now downloaded if required
 * Fixed sorting bug with the player list
-* Add linux support (thanks @muellni)
+* Add linux support (thanks @muellni and @wesmania)
 * Add new uid implementation (thanks @muellni)
 * Leaderboard display performance improvement (#438, thanks @grotheFAF)
 * Save game logs as default
