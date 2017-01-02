@@ -1,14 +1,10 @@
 from os import environ
 from os.path import join
+import fafpath
 
 import logging
 
-# These directories are in Appdata (e.g. C:\ProgramData on some Win7 versions)
-if 'ALLUSERSPROFILE' in environ:
-    APPDATA_DIR = join(environ['ALLUSERSPROFILE'], "FAForever")
-else:
-    APPDATA_DIR = join(environ['HOME'], "FAForever")
-
+APPDATA_DIR = fafpath.get_userdir()
 
 defaults = {
     'client/data_path': APPDATA_DIR,

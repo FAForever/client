@@ -23,3 +23,10 @@ def get_resdir():
         # We are most likely running from source
         srcDir = os.path.dirname(os.path.abspath(__file__))
         return os.path.join(os.path.dirname(srcDir), "res")
+
+def get_userdir():
+    # These directories are in Appdata (e.g. C:\ProgramData on some Win7 versions)
+    if 'ALLUSERSPROFILE' in os.environ:
+        return os.path.join(os.environ['ALLUSERSPROFILE'], "FAForever")
+    else:
+        return os.path.join(os.environ['HOME'], "FAForever")

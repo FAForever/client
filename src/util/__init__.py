@@ -28,11 +28,7 @@ UNITS_PREVIEW_ROOT = "{}/faf/unitsDB/icons/big/".format(Settings.get('content/ho
 import fafpath
 COMMON_DIR = fafpath.get_resdir()
 
-# These directories are in Appdata (e.g. C:\ProgramData on some Win7 versions)
-if 'ALLUSERSPROFILE' in os.environ:
-    APPDATA_DIR = os.path.join(os.environ['ALLUSERSPROFILE'], "FAForever")
-else:
-    APPDATA_DIR = os.path.join(os.environ['HOME'], "FAForever")
+APPDATA_DIR = fafpath.get_userdir()
 
 #This is used to store init_*.lua files
 LUA_DIR = os.path.join(APPDATA_DIR, "lua")
