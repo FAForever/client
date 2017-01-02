@@ -75,6 +75,23 @@ class Settings:
                         lambda s, v: Settings.set(key, v, persist=persist_if(s)),
                         doc='Persisted property: {}. Default: '.format(key, default_value))
 
+    @staticmethod
+    def contains(key):
+        return (key in _unpersisted_settings or
+                _settings.contains(key) or
+                defaults.contains(key))
+
+    # If you use this, setting signals will not be emitted!
+    @staticmethod
+    def clear():
+        _settings.clear()
+        global _unpersisted_settings
+        _unpersisted_settings = {}
+
+    @staticmethod
+    def sync():
+        _settings.sync()
+
 if environment == 'production':
     from production import defaults
 elif environment == 'development':
@@ -83,4 +100,3 @@ elif environment == 'development':
 for k, v in defaults.iteritems():
     if isinstance(v, str):
         defaults[k] = v.format(host = Settings.get('host'))
-
