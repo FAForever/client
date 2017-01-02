@@ -4,7 +4,7 @@ import sys
 __all__ = ["get_resdir"]
 
 # default unix res path
-UNIX_SHARE_PATH = '/usr/share/faforever'
+UNIX_SHARE_PATH = '/usr/share/fafclient'
 
 def run_from_frozen():
     return getattr(sys, 'frozen', False)
