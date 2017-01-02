@@ -1,4 +1,5 @@
 from . import version
+import os
 import trueskill
 import fafpath
 from PyQt4 import QtCore
@@ -25,6 +26,15 @@ if _settings.contains('client/force_environment'):
 else:
     environment = 'production'
 
+if environment == 'development':
+    # FIXME: Temporary fix for broken https config on test server
+    # Turns off certificate verification entirely
+    import ssl
+    ssl._https_verify_certificates(False)
+
+defaults = os.path.join(fafpath.get_resdir(), "default_settings", environment + ".ini")
+defaults = QtCore.QSettings(defaults, QtCore.QSettings.IniFormat)
+
 class Settings:
     """
     This wraps QSettings, fetching default values from the
@@ -42,7 +52,9 @@ class Settings:
         if _settings.contains(key):
             return _settings.value(key, type=type)
         # Try out our defaults for the current environment
-        return defaults.get(key, default)
+        if defaults.contains(key):
+            return defaults.value(key, type=type)
+        return default
 
     @staticmethod
     def set(key, value, persist=True):
@@ -91,12 +103,3 @@ class Settings:
     @staticmethod
     def sync():
         _settings.sync()
-
-if environment == 'production':
-    from production import defaults
-elif environment == 'development':
-    from develop import defaults
-
-for k, v in defaults.iteritems():
-    if isinstance(v, str):
-        defaults[k] = v.format(host = Settings.get('host'))
