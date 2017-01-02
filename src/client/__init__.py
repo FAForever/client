@@ -12,8 +12,8 @@ logger = logging.getLogger(__name__)
 
 # Initialize all important globals
 LOBBY_HOST = Settings.get('lobby/host')
-LOBBY_PORT = Settings.get('lobby/port')
-LOCAL_REPLAY_PORT = Settings.get('lobby/relay/port')
+LOBBY_PORT = Settings.get('lobby/port', type=int)
+LOCAL_REPLAY_PORT = Settings.get('lobby/relay/port', type=int)
 
 
 class ClientState(IntEnum):
