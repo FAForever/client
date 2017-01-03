@@ -7,7 +7,6 @@ from ctypes import *
 from PyQt4.QtGui import QDesktopServices, QMessageBox
 
 from config import modules as cfg
-from config import Settings
 
 from PyQt4.QtGui import QDesktopServices
 if sys.platform == 'win32':
@@ -211,7 +210,6 @@ def setTheme(theme, restart=True):
 
             #Save theme setting
     cfg.theme.name.set(__theme)
-    Settings.sync()
 
     if restart:
         QtGui.QMessageBox.information(None, "Restart Needed", "FAF will quit now.")
