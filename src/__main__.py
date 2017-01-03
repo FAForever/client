@@ -100,6 +100,10 @@ def runFAF():
 if __name__ == '__main__':
     import logging
     import config
+    import config.dirs
+    import config.logger
+    config.dirs.make_dirs()
+    config.logger.setup_logging()
 
     app = QtGui.QApplication(sys.argv)
 

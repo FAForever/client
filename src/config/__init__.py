@@ -1,24 +1,29 @@
 from . import version
-import os
-import sys
-import logging
 import trueskill
 import fafpath
-import traceback
 from PyQt4 import QtCore
-from logging.handlers import RotatingFileHandler, MemoryHandler
-
-if sys.platform == 'win32':
-    import win32api
-    import win32con
-    import win32security
-    from . import admin
 
 trueskill.setup(mu=1500, sigma=500, beta=250, tau=5, draw_probability=0.10)
 
 _settings = QtCore.QSettings(QtCore.QSettings.IniFormat, QtCore.QSettings.UserScope, "ForgedAllianceForever", "FA Lobby")
 _unpersisted_settings = {}
 
+VERSION = version.get_release_version(fafpath.get_resdir())
+
+def is_development_version():
+    return version.is_development_version(VERSION)
+
+
+# FIXME: Don't initialize proxy code that shows a dialogue box on import
+no_dialogs = False
+
+def is_beta():
+    return environment == 'development'
+
+if _settings.contains('client/force_environment'):
+    environment = _settings.value('client/force_environment', 'development')
+else:
+    environment = 'production'
 
 class Settings:
     """
@@ -70,86 +75,6 @@ class Settings:
                         lambda s, v: Settings.set(key, v, persist=persist_if(s)),
                         doc='Persisted property: {}. Default: '.format(key, default_value))
 
-def set_data_path_permissions():
-    """
-    Set the owner of C:\ProgramData\FAForever recursively to the current user
-    """
-    if not admin.isUserAdmin():
-        win32api.MessageBox(0, "FA Forever needs to fix folder permissions due to user change. Please confirm the following two admin prompts.", "User changed")
-    if sys.platform == 'win32' and (not 'CI' in os.environ):
-        data_path = Settings.get('client/data_path')
-        if os.path.exists(data_path):
-            my_user = win32api.GetUserNameEx(win32con.NameSamCompatible)
-            admin.runAsAdmin(["icacls", data_path, "/setowner", my_user, "/T"])
-            admin.runAsAdmin(["icacls", data_path, "/reset", "/T"])
-
-def check_data_path_permissions():
-    """
-    Checks if the current user is owner of C:\ProgramData\FAForever
-    Fixes the permissions in case that FAF was run as different user before
-    """
-    if sys.platform == 'win32' and (not 'CI' in os.environ):
-        data_path = Settings.get('client/data_path')
-        if os.path.exists(data_path):
-            try:
-                my_user = win32api.GetUserNameEx(win32con.NameSamCompatible)
-                sd = win32security.GetFileSecurity(data_path, win32security.OWNER_SECURITY_INFORMATION)
-                owner_sid = sd.GetSecurityDescriptorOwner()
-                name, domain, type = win32security.LookupAccountSid(None, owner_sid)
-                data_path_owner = "%s\\%s" % (domain, name)
-
-                if (my_user != data_path_owner):
-                    set_data_path_permissions()
-            except Exception, e:
-                # we encountered error 1332 in win32security.LookupAccountSid here: http://forums.faforever.com/viewtopic.php?f=3&t=13728
-                # https://msdn.microsoft.com/en-us/library/windows/desktop/aa379166(v=vs.85).aspx states:
-                # "It also occurs for SIDs that have no corresponding account name, such as a logon SID that identifies a logon session."
-                # so let's just fix permissions on every exception for now and wait for someone stuck in a permission-loop
-                win32api.MessageBox(0,
-                                    "FA Forever ran into an exception checking the data folder permissions: '{}'\n"
-                                    "If you get this popup more than one time, please report a screenshot of this popup to tech support forum. "
-                                    "Full stacktrace:\n{}".format(e, traceback.format_exc()),
-                                    "Permission check exception")
-                set_data_path_permissions()
-
-def make_dirs():
-    check_data_path_permissions()
-    for dir in [
-        'client/data_path',
-        'game/logs/path',
-        'game/bin/path',
-        'game/mods/path',
-        'game/engine/path',
-        'game/maps/path',
-    ]:
-        path = Settings.get(dir)
-        if path is None:
-            raise Exception("Missing configured path for {}".format(dir))
-        if not os.path.isdir(path):
-            try:
-                os.makedirs(path)
-            except IOError, e:
-                set_data_path_permissions()
-                os.makedirs(path)
-
-VERSION = version.get_release_version(fafpath.get_resdir())
-
-def is_development_version():
-    return version.is_development_version(VERSION)
-
-
-# FIXME: Don't initialize proxy code that shows a dialogue box on import
-no_dialogs = False
-
-environment = 'production'
-
-
-def is_beta():
-    return environment == 'development'
-
-if _settings.contains('client/force_environment'):
-    environment = _settings.value('client/force_environment', 'development')
-
 if environment == 'production':
     from production import defaults
 elif environment == 'development':
@@ -159,30 +84,3 @@ for k, v in defaults.iteritems():
     if isinstance(v, str):
         defaults[k] = v.format(host = Settings.get('host'))
 
-# Setup normal rotating log handler
-make_dirs()
-#check permissions of writing the log file first (which fails when changing users)
-log_file = os.path.join(Settings.get('client/logs/path'), 'forever.log')
-try:
-    with open(log_file, "a") as f:
-        pass
-except IOError, e:
-    set_data_path_permissions()
-rotate = RotatingFileHandler(os.path.join(Settings.get('client/logs/path'), 'forever.log'),
-                             maxBytes=int(Settings.get('client/logs/max_size')),
-                             backupCount=1)
-rotate.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))
-
-buffering_handler = MemoryHandler(int(Settings.get('client/logs/buffer_size')), target=rotate)
-
-logging.getLogger().addHandler(buffering_handler)
-logging.getLogger().setLevel(Settings.get('client/logs/level', type=int))
-
-if environment == 'development':
-    # Setup logging output to console
-    devh = logging.StreamHandler()
-    devh.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))
-    logging.getLogger().addHandler(devh)
-    logging.getLogger().setLevel(Settings.get('client/logs/level', type=int))
-
-logging.getLogger().info("FAF version: {} Environment: {}".format(VERSION, environment))
