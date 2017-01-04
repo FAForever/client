@@ -7,13 +7,13 @@ from config import modules as cfg
 from config import VERSION, environment
 
 def setup_logging():
-    log_file = os.path.join(cfg.client.logs_path.get(), 'forever.log')
+    log_file = os.path.join(cfg.game.logs_path.get(), 'forever.log')
     try:
         with open(log_file, "a") as _:
             pass
     except IOError:
         dirs.set_data_path_permissions()
-    rotate = RotatingFileHandler(os.path.join(cfg.client.logs_path.get(), 'forever.log'),
+    rotate = RotatingFileHandler(os.path.join(cfg.game.logs_path.get(), 'forever.log'),
                                  maxBytes=cfg.client.logs_max_size.get(),
                                  backupCount=1)
     rotate.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))
