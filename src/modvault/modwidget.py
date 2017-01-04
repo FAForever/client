@@ -7,6 +7,8 @@ from PyQt4 import QtCore, QtGui
 from util import strtodate, datetostr, now
 import util
 
+from config import modules as cfg
+
 FormClass, BaseClass = util.loadUiType("modvault/mod.ui")
 
 
@@ -75,7 +77,7 @@ class ModWidget(FormClass, BaseClass):
     @QtCore.pyqtSlot()
     def addComment(self):
         if self.LineComment.text() == "": return
-        comment = {"author":self.parent.client.login, "text":self.LineComment.text(),
+        comment = {"author":cfg.user.login.get(), "text":self.LineComment.text(),
                    "date":datetostr(now()), "uid":"%s-%s" % (self.mod.uid, str(len(self.mod.bugreports)+len(self.mod.comments)).zfill(3))}
         
         self.parent.client.send(dict(command="modvault",type="addcomment",moduid=self.mod.uid,comment=comment))
@@ -88,7 +90,7 @@ class ModWidget(FormClass, BaseClass):
     @QtCore.pyqtSlot()
     def addBugReport(self):
         if self.LineBugReport.text() == "": return
-        bugreport = {"author":self.parent.client.login, "text":self.LineBugReport.text(),
+        bugreport = {"author":cfg.user.login.get(), "text":self.LineBugReport.text(),
                    "date":datetostr(now()), "uid":"%s-%s" % (self.mod.uid, str(len(self.mod.bugreports) + +len(self.mod.comments)).zfill(3))}
         
         self.parent.client.send(dict(command="modvault",type="addbugreport",moduid=self.mod.uid,bugreport=bugreport))

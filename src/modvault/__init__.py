@@ -59,6 +59,8 @@ import time
 logger = logging.getLogger(__name__)
 import urllib2
 
+from config import modules as cfg
+
 from util import datetostr, now
 d = datetostr(now())
 '''
@@ -327,7 +329,7 @@ class ModItem(QtGui.QListWidgetItem):
         self.isuimod = dic["ui"]
         self.link = dic["link"] #Direct link to the zip file.
         self.thumbstr = dic["thumbnail"]# direct url to the thumbnail file.
-        self.uploadedbyuser = (self.author == self.parent.client.login)
+        self.uploadedbyuser = (self.author == cfg.user.login.get())
 
         self.thumbnail = None
         if self.thumbstr == "":

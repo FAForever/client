@@ -11,6 +11,8 @@ import fa.check
 import logging
 logger = logging.getLogger(__name__)
 
+from config import modules as cfg
+
 FormClass, BaseClass = util.loadUiType("games/host.ui")
 
 class HostgameWidget(FormClass, BaseClass):
@@ -27,7 +29,7 @@ class HostgameWidget(FormClass, BaseClass):
         util.settings.beginGroup("fa.games")
         # Default of "password"
         self.password = util.settings.value("password", "password")
-        self.title = util.settings.value("gamename", (self.parent.client.login or "") + "'s game")
+        self.title = util.settings.value("gamename", (cfg.user.login.get() or "") + "'s game")
         self.friends_only = util.settings.value("friends_only", False, type=bool)
         if self.iscoop:
             self.mapname = fa.maps.link2name(item.mapUrl)
@@ -44,7 +46,7 @@ class HostgameWidget(FormClass, BaseClass):
         
         self.message = {
             "title": self.title,
-            "host": self.parent.client.login, # We will want to send our ID here at some point
+            "host": cfg.user.login.get(), # We will want to send our ID here at some point
             "teams": {1:[self.parent.client.id]},
             "featured_mod": self.featured_mod,
             "mapname": self.mapname,

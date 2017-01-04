@@ -11,6 +11,7 @@ import time
 import client
 import json
 
+from config import modules as cfg
 import logging
 logger = logging.getLogger(__name__)
 
@@ -43,10 +44,6 @@ class LiveReplayItem(QtGui.QTreeWidgetItem):
 class ReplaysWidget(BaseClass, FormClass):
     SOCKET = 11002
     HOST   = "lobby.faforever.com"
-
-    # connect to save/restore persistence settings for checkboxes & search parameters
-    automatic = Settings.persisted_property("replay/automatic", default_value=False, type=bool)
-    spoiler_free = Settings.persisted_property("replay/spoilerFree", default_value=True, type=bool)
 
     def __init__(self, client):
         super(BaseClass, self).__init__()
@@ -103,8 +100,8 @@ class ReplaysWidget(BaseClass, FormClass):
         self.replayVaultSocket.error.connect(self.errored) 
 
         # restore persistent checkbox settings
-        self.automaticCheckbox.setChecked(self.automatic)
-        self.spoilerCheckbox.setChecked(self.spoiler_free)
+        self.automaticCheckbox.setChecked(cfg.replay.automatic.get())
+        self.spoilerCheckbox.setChecked(cfg.replay.spoiler_free.get())
 
         logger.info("Replays Widget instantiated.")
 
@@ -119,7 +116,7 @@ class ReplaysWidget(BaseClass, FormClass):
 
     def reloadView(self):
         if not self.searching:  # something else is already in the pipe from SearchVault
-            if self.automatic or self.onlineReplays == {}:  # refresh on Tap change or only the first time
+            if cfg.replay.automatic.get() or self.onlineReplays == {}:  # refresh on Tap change or only the first time
                 self.searchInfoLabel.setText(self.searchInfo)
                 self.connectToReplayVault()
                 self.send(dict(command="list"))
@@ -174,10 +171,10 @@ class ReplaysWidget(BaseClass, FormClass):
                     self.replayDownload.get(QNetworkRequest(QtCore.QUrl(item.url)))
 
     def automaticCheckboxchange(self, state):
-        self.automatic = state  # save state .. no magic
+        cfg.replay.automatic.set(state)  # save state .. no magic
 
     def spoilerCheckboxchange(self, state):
-        self.spoiler_free = state  # save state .. no magic
+        cfg.replay.spoiler_free.set(state)  # save state .. no magic
         if self.selectedReplay:  # if something is selected in the tree to the left
             if type(self.selectedReplay) == ReplayItem:  # and if it is a game
                 self.selectedReplay.generateInfoPlayersHtml()  # then we redo it
@@ -486,7 +483,7 @@ class ReplaysWidget(BaseClass, FormClass):
                     url.addQueryItem("mod", info["featured_mod"])
 
                     playeritem.url = url
-                    if client.instance.login == name:
+                    if cfg.user.login.get() == name:
                         mygame = True
                         item.setTextColor(1, QtGui.QColor(client.instance.getColor("self")))
                         playeritem.setTextColor(0, QtGui.QColor(client.instance.getColor("self")))

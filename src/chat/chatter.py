@@ -9,6 +9,7 @@ from fa.replay import replay
 import util
 import client
 from config import Settings
+from config import modules as cfg
 
 """
 A chatter is the representation of a person on IRC, in a channel's nick list.
@@ -94,8 +95,8 @@ class Chatter(QtGui.QTableWidgetItem):
         firstStatus = self.getUserRank(self)
         secondStatus = self.getUserRank(other)
 
-        if self.name == self.lobby.client.login: return True
-        if other.name == self.lobby.client.login: return False
+        if self.name == cfg.user.login.get(): return True
+        if other.name == cfg.user.login.get(): return False
 
         # if not same rank sort
         if firstStatus != secondStatus:
@@ -237,7 +238,7 @@ class Chatter(QtGui.QTableWidgetItem):
 
     def doubleClicked(self, item):
         # filter yourself
-        if self.lobby.client.login == self.name:
+        if cfg.user.login.get() == self.name:
             return
         # Chatter name clicked
         if item == self:
@@ -270,7 +271,7 @@ class Chatter(QtGui.QTableWidgetItem):
         actionJoin.setDisabled(True)
 
         # Don't allow self to be invited to a game, or join one
-        if self.lobby.client.login != self.name:
+        if cfg.user.login.get() != self.name:
             if self.name in client.instance.urls:
                 url = client.instance.urls[self.name]
                 if url.scheme() == "fafgame":
@@ -286,7 +287,7 @@ class Chatter(QtGui.QTableWidgetItem):
         actionJoin.triggered.connect(self.joinInGame)
 
         # only for us. Either way, it will display our avatar, not anyone avatar.
-        if self.lobby.client.login == self.name :
+        if cfg.user.login.get() == self.name :
             menu.addAction(actionSelectAvatar)
             menu.addSeparator()
       

@@ -11,6 +11,7 @@ import urllib2
 import re
 import json
 from config import Settings
+from config import modules as cfg
 
 logger = logging.getLogger(__name__)
 
@@ -62,8 +63,8 @@ class MapVault(QtCore.QObject):
             QtCore.QUrl("{route}/faf/vault/maps.php?username={user}"
                         "&pwdhash={pwdhash}".format(
                             route=Settings.get('content/host'),
-                            user=self.client.login,
-                            pwdhash=self.client.password)))
+                            user=cfg.user.login.get(),
+                            pwdhash=cfg.user.password.get())))
 
     @QtCore.pyqtSlot()
     def addScript(self):

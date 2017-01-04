@@ -44,7 +44,7 @@ class Settings:
     @staticmethod
     def get(key, default=None, type=str):
         # Get from a local dict cache before hitting QSettings
-        # this is for properties such as client.login which we
+        # this is for properties such as user.login which we
         # don't necessarily want to persist
         if key in _unpersisted_settings:
             return _unpersisted_settings[key]
@@ -70,22 +70,6 @@ class Settings:
             del _unpersisted_settings[key]
         if _settings.contains(key):
             _settings.remove(key)
-
-    @staticmethod
-    def persisted_property(key, default_value=None, persist_if=lambda self: True, type=str):
-        """
-        Create a magically persisted property
-
-        :param key: QSettings key to persist with
-        :param default_value: default value
-        :param persist_if: Lambda predicate that gets self as a first argument.
-                           Determines whether or not to persist the value
-        :param type: Type of values for persisting
-        :return: a property suitable for a class
-        """
-        return property(lambda s: Settings.get(key, default=default_value, type=type),
-                        lambda s, v: Settings.set(key, v, persist=persist_if(s)),
-                        doc='Persisted property: {}. Default: '.format(key, default_value))
 
     @staticmethod
     def contains(key):

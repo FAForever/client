@@ -5,6 +5,7 @@ import secondaryServer
 
 from tourneys.tourneyitem import TourneyItem, TourneyItemDelegate
 
+from config import modules as cfg
 
 FormClass, BaseClass = util.loadUiType("tournaments/tournaments.ui")
 
@@ -54,19 +55,19 @@ class TournamentsWidget(FormClass, BaseClass):
         '''
         Slot that attempts to join or leave a tournament.
         ''' 
-        if not self.client.login in item.playersname :
+        if not cfg.user.login.get() in item.playersname :
             reply = QtGui.QMessageBox.question(self.client, "Register",
                 "Do you want to register to this tournament ?",
                 QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
             if reply == QtGui.QMessageBox.Yes:
-                self.tourneyServer.send(dict(command="add_participant", uid=item.uid, login=self.client.login))
+                self.tourneyServer.send(dict(command="add_participant", uid=item.uid, login=cfg.user.login.get()))
 
         else :
             reply = QtGui.QMessageBox.question(self.client, "Register",
                 "Do you want to leave this tournament ?",
                 QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
             if reply == QtGui.QMessageBox.Yes:   
-                self.tourneyServer.send(dict(command="remove_participant", uid=item.uid, login=self.client.login)) 
+                self.tourneyServer.send(dict(command="remove_participant", uid=item.uid, login=cfg.user.login.get())) 
     
                 
     def handle_tournaments_info(self, message):
