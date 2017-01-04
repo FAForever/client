@@ -8,7 +8,6 @@ import chat
 from fa.replay import replay
 import util
 import client
-from config import Settings
 from config import modules as cfg
 
 """
@@ -223,7 +222,7 @@ class Chatter(QtGui.QTableWidgetItem):
         self.setTextColor(QtGui.QColor(chat.get_color("default")))
 
     def viewAliases(self):
-        QtGui.QDesktopServices.openUrl(QUrl("{}?name={}".format(Settings.get("NAME_CHANGE_URL"), self.name)))
+        QtGui.QDesktopServices.openUrl(QUrl("{}?name={}".format(cfg.url.name_change.get(), self.name)))
 
     def selectAvatar(self):
         avatarSelection = avatarWidget(self.lobby.client, self.name, personal=True)
@@ -303,7 +302,7 @@ class Chatter(QtGui.QTableWidgetItem):
                 menu.addAction(action_inspect_in_mordor)
 
                 def send_the_orcs():
-                    route = Settings.get('mordor/host')
+                    route = cfg.mordor.host.get()
 
                     if self.id != -1:
                         QtGui.QDesktopServices.openUrl(QUrl("{}/users/{}".format(route, self.id)))

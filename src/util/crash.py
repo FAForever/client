@@ -2,7 +2,7 @@
 import config
 import traceback
 import util
-from config import Settings
+from config import modules as cfg
 
 from . import APPDATA_DIR, PERSONAL_DIR, VERSION_STRING, LOG_FILE_FAF, \
     readlines
@@ -24,7 +24,7 @@ class CrashDialog(QtGui.QDialog):
         if kwargs.get('automatic'):
             automatic = True
         else:
-            automatic = Settings.get('client/auto_bugreport', type=bool, default=True)
+            automatic = cfg.client.auto_bugreport.get()
 
         self.trace = "".join(traceback.format_exception(exc_type, exc_value, traceback_object, 10))
 
@@ -112,7 +112,7 @@ class CrashDialog(QtGui.QDialog):
 
     @QtCore.pyqtSlot()
     def tech_support(self):
-        QtGui.QDesktopServices().openUrl(QtCore.QUrl(Settings.get("HELP_URL")))
+        QtGui.QDesktopServices().openUrl(QtCore.QUrl(cfg.url.helpsite.get()))
 
     @QtCore.pyqtSlot()
     def post_report(self):

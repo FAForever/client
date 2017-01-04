@@ -10,7 +10,6 @@ from vault import luaparser
 import urllib2
 import re
 import json
-from config import Settings
 from config import modules as cfg
 
 logger = logging.getLogger(__name__)
@@ -58,11 +57,11 @@ class MapVault(QtCore.QObject):
             self.ui.settings().setUserStyleSheetUrl(
                 util.themeurl("vault/style.css"))
 
-        ROOT = Settings.get('content/host')
+        ROOT = cfg.content.host.get()
         self.ui.setUrl(
             QtCore.QUrl("{route}/faf/vault/maps.php?username={user}"
                         "&pwdhash={pwdhash}".format(
-                            route=Settings.get('content/host'),
+                            route=cfg.content.host.get(),
                             user=cfg.user.login.get(),
                             pwdhash=cfg.user.password.get())))
 

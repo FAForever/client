@@ -6,7 +6,7 @@ from ctypes import *
 
 from PyQt4.QtGui import QDesktopServices, QMessageBox
 
-from config import Settings
+from config import modules as cfg
 from PyQt4.QtGui import QDesktopServices
 if sys.platform == 'win32':
     import win32serviceutil
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 LOGFILE_MAX_SIZE = 256 * 1024  #256kb should be enough for anyone
 
-UNITS_PREVIEW_ROOT = "{}/faf/unitsDB/icons/big/".format(Settings.get('content/host'))
+UNITS_PREVIEW_ROOT = "{}/faf/unitsDB/icons/big/".format(cfg.content.host.get())
 
 import fafpath
 COMMON_DIR = fafpath.get_resdir()

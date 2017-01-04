@@ -5,6 +5,7 @@ import util
 import notifications as ns
 from notifications.hook_useronline import NsHookUserOnline
 from notifications.hook_newgame import NsHookNewGame
+from config.modules import notifications as cfg
 
 """
 The UI of the Notification System Settings Frame.
@@ -63,10 +64,10 @@ class NsSettingsDialog(FormClass2, BaseClass2):
 
 
     def loadSettings(self):
-        self.enabled = Settings.get('notifications/enabled', True, type=bool)
-        self.popup_lifetime = Settings.get('notifications/popup_lifetime', 5, type=int)
-        self.popup_position = NotificationPosition(Settings.get('notifications/popup_position', NotificationPosition.BOTTOM_RIGHT.value, type=int))
-        self.ingame_notifications =  IngameNotification(Settings.get('notifications/ingame', IngameNotification.ENABLE, type=int))
+        self.enabled = cfg.enabled.get(True)
+        self.popup_lifetime = cfg.popup_lifetime.get(5)
+        self.popup_position = NotificationPosition(cfg.popup_position.get(NotificationPosition.BOTTOM_RIGHT.value))
+        self.ingame_notifications =  IngameNotification(cfg.ingame_notifications.get(IngameNotification.ENABLE))
 
         self.nsEnabled.setChecked(self.enabled)
         self.nsPopLifetime.setValue(self.popup_lifetime)
@@ -75,10 +76,10 @@ class NsSettingsDialog(FormClass2, BaseClass2):
 
 
     def saveSettings(self):
-        Settings.set('notifications/enabled', self.enabled)
-        Settings.set('notifications/popup_lifetime', self.popup_lifetime)
-        Settings.set('notifications/popup_position', self.popup_position.value)
-        Settings.set('notifications/ingame', self.ingame_notifications.value)
+        cfg.enabled.set(self.enabled)
+        cfg.popup_lifetime.set(self.popup_lifetime)
+        cfg.popup_position.set(self.popup_position.value)
+        cfg.ingame_notifications.set(self.ingame_notifications.value)
 
         self.client.actionNsEnabled.setChecked(self.enabled)
 

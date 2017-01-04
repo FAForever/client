@@ -11,10 +11,10 @@ import fa
 import json
 import time
 
-from config import Settings
+from config import modules as cfg
 
-INTERNET_REPLAY_SERVER_HOST = Settings.get('replay_server/host')
-INTERNET_REPLAY_SERVER_PORT = Settings.get('replay_server/port')
+INTERNET_REPLAY_SERVER_HOST = cfg.replay_server.host.get()
+INTERNET_REPLAY_SERVER_PORT = cfg.replay_server.port.get()
 
 from . import DEFAULT_LIVE_REPLAY
 from . import DEFAULT_RECORD_REPLAY

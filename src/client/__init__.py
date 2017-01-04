@@ -4,16 +4,16 @@ import logging
 from PyQt4.QtNetwork import QNetworkAccessManager
 from enum import IntEnum
 
-from config import Settings
+from config import modules as cfg
 from .player import Player
 
 logger = logging.getLogger(__name__)
 # logger.setLevel(logging.DEBUG)
 
 # Initialize all important globals
-LOBBY_HOST = Settings.get('lobby/host')
-LOBBY_PORT = Settings.get('lobby/port', type=int)
-LOCAL_REPLAY_PORT = Settings.get('lobby/relay/port', type=int)
+LOBBY_HOST = cfg.lobby.host.get()
+LOBBY_PORT = cfg.lobby.port.get()
+LOCAL_REPLAY_PORT = cfg.lobby.relay_port.get()
 
 
 class ClientState(IntEnum):

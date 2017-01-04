@@ -1,7 +1,7 @@
 import os
 import sys
 import traceback
-from config import Settings
+from config import modules as cfg
 
 if sys.platform == 'win32':
     import win32api
@@ -24,7 +24,7 @@ def set_data_path_permissions():
     if sys.platform != 'win32' or 'CI' in os.environ:
         return
 
-    data_path = Settings.get('client/data_path')
+    data_path = cfg.client.data_path.get()
     if not os.path.exists(data_path):
         return
 
@@ -40,7 +40,7 @@ def check_data_path_permissions():
     if sys.platform != 'win32' or 'CI' in os.environ:
         return
 
-    data_path = Settings.get('client/data_path')
+    data_path = cfg.client.data_path.get()
     if not os.path.exists(data_path):
         return
 
@@ -73,15 +73,14 @@ def check_data_path_permissions():
 
 def make_dirs():
     check_data_path_permissions()
-    for dir in [
-        'client/data_path',
-        'game/logs/path',
-        'game/bin/path',
-        'game/mods/path',
-        'game/engine/path',
-        'game/maps/path',
+    for path in [
+        cfg.client.data_path.get(),
+        cfg.game.logs_path.get(),
+        cfg.game.bin_path.get(),
+        cfg.game.mods_path.get(),
+        cfg.game.engine_path.get(),
+        cfg.game.maps_path.get(),
     ]:
-        path = Settings.get(dir)
         if path is None:
             raise Exception("Missing configured path for {}".format(path))
         if not os.path.isdir(path):

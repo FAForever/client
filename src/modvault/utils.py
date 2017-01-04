@@ -14,16 +14,14 @@ import warnings
 
 import cStringIO
 import zipfile
-from config import Settings
+from config import modules as cfg
 
 logger = logging.getLogger(__name__)
 
 MODFOLDER = os.path.join(util.PERSONAL_DIR, "My Games", "Gas Powered Games", "Supreme Commander Forged Alliance", "Mods")
-MODVAULT_DOWNLOAD_ROOT = "{}/faf/vault/".format(Settings.get('content/host'))
+MODVAULT_DOWNLOAD_ROOT = "{}/faf/vault/".format(cfg.content.host.get())
 
 installedMods = [] # This is a global list that should be kept intact. So it should be cleared using installedMods[:] = []
-
-selectedMods = Settings.get('play/mods', default=[]) # mods selected by user, are not overwritten by temporary mods selected when joining game
 
 class ModInfo(object):
     def __init__(self, **kwargs):
@@ -210,7 +208,7 @@ def getActiveMods(uimods=None, temporary=True): # returns a list of ModInfo's co
             uids = [uid for uid,b in modlist.items() if b == 'true']
             #logger.debug("Active mods detected: %s" % str(uids))
         else:
-            uids = selectedMods[:]
+            uids = cfg.play.selected_mods.get()
 
         allmods = []
         for m in installedMods:
@@ -245,11 +243,11 @@ def setActiveMods(mods, keepuimods=True, temporary=True): #uimods works the same
     s += "}"
 
     if not temporary:
-        logger.debug('selectedMods was: {}'.format(Settings.get('play/mods')))
-        selectedMods = list([str(mod.uid) for mods in allmods])
-        logger.debug('Writing selectedMods: {}'.format(selectedMods))
-        Settings.set('play/mods', selectedMods)
-        logger.debug('selectedMods written: {}'.format(Settings.get('play/mods')))
+        logger.debug('selected_mods was: {}'.format(cfg.play.selected_mods.get()))
+        selected_mods = list([str(mod.uid) for mods in allmods])
+        logger.debug('Writing selected_mods: {}'.format(selected_mods))
+        cfg.play.selected_mods.set(selected_mods)
+        logger.debug('selected_mods written: {}'.format(cfg.play.selected_mods.get()))
 
     try:
         f = open(PREFSFILENAME, 'r')

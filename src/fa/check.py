@@ -8,7 +8,7 @@ import binascii
 from PyQt4 import QtGui
 
 import fa
-import config
+from config import modules as cfg
 from fa.mods import checkMods
 from fa.path import writeFAPathLua, validatePath
 from fa.wizards import Wizard
@@ -30,7 +30,7 @@ def map(mapname, force=False, silent=False):
     if force:
         return fa.maps.downloadMap(mapname, silent=silent)
 
-    auto = config.Settings.get('maps/autodownload', default=False, type=bool)
+    auto = cfg.maps.autodownload.get()
     if not auto:
         msgbox = QtGui.QMessageBox()
         msgbox.setWindowTitle("Download Map")
@@ -41,7 +41,7 @@ def map(mapname, force=False, silent=False):
         if result == QtGui.QMessageBox.No:
             return False
         elif result == QtGui.QMessageBox.YesToAll:
-            config.Settings.set('maps/autodownload', True)
+            cfg.maps.autodownload.set(True)
 
     return fa.maps.downloadMap(mapname, silent=silent)
 

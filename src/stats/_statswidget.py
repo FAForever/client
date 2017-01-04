@@ -3,7 +3,6 @@
 from PyQt4 import QtCore, QtGui, QtWebKit
 import util
 from stats import mapstat
-from config import Settings
 import client
 import time
 
@@ -204,4 +203,4 @@ class StatsWidget(BaseClass, FormClass):
         if util.themeurl("ladder/style.css"):
             self.webview.settings().setUserStyleSheetUrl(util.themeurl("ladder/style.css"))
 
-        self.webview.setUrl(QtCore.QUrl("{}/faf/leaderboards/read-leader.php?board=1v1&username={}".format(Settings.get('content/host'), me.login)))
+        self.webview.setUrl(QtCore.QUrl("{}/faf/leaderboards/read-leader.php?board=1v1&username={}".format(cfg.content.host.get(), me.login)))

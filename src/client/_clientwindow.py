@@ -1193,7 +1193,7 @@ class ClientWindow(FormClass, BaseClass):
     def handle_update(self, message):
         # Remove geometry settings prior to updating
         # could be incompatible with an updated client.
-        Settings.remove('window/geometry')
+        cfg.window.geometry.delete()
 
         logger.warn("Server says we need an update")
         self.progress.close()
