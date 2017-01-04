@@ -209,7 +209,7 @@ def getBaseMapsFolder():
     '''
     Returns the folder containing all the base maps for this client.
     '''
-    gamepath = util.settings.value("ForgedAlliance/app/path", None, type=str)
+    gamepath = cfg.ForgedAlliance.app_path.get()
     if gamepath:
         return os.path.join(gamepath, "maps")
     else:

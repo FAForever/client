@@ -26,16 +26,15 @@ class HostgameWidget(FormClass, BaseClass):
 
         self.setStyleSheet(self.parent.client.styleSheet())
         # load settings
-        util.settings.beginGroup("fa.games")
+        g = cfg.fa_games
         # Default of "password"
-        self.password = util.settings.value("password", "password")
-        self.title = util.settings.value("gamename", (cfg.user.login.get() or "") + "'s game")
-        self.friends_only = util.settings.value("friends_only", False, type=bool)
+        self.password = g.password.get()
+        self.title = g.gamename.get(cfg.user.login.get("") + "'s game")
+        self.friends_only = g.friends_only.get()
         if self.iscoop:
             self.mapname = fa.maps.link2name(item.mapUrl)
         else:
-            self.mapname = util.settings.value("gamemap", "scmp_007")
-        util.settings.endGroup()
+            self.mapname = g.gamemap.get()
 
         self.setWindowTitle ( "Hosting Game : " + item.name )
         self.titleEdit.setText(self.title)
@@ -144,13 +143,12 @@ class HostgameWidget(FormClass, BaseClass):
         self.game.update(self.message)
 
     def save_last_hosted_settings(self):
-        util.settings.beginGroup("fa.games")
+        g = cfg.fa_games
         if not self.iscoop:
-            util.settings.setValue("gamemap", self.mapname)
+            g.gamemap.set(self.mapname)
         if self.title != "Nobody's game":
-            util.settings.setValue("gamename", self.title)
-        util.settings.setValue("friends_only", self.radioFriends.isChecked())
+            g.gamename.set(self.title)
+        g.friends_only.set(self.radioFriends.isChecked())
 
         if self.password is not None:
-            util.settings.setValue("password", self.password)
-        util.settings.endGroup()
+            g.password.set(self.password)

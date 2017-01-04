@@ -20,6 +20,7 @@ from fa.game_session import GameSessionState
 from ui.status_logo import StatusLogo
 
 from config import modules as cfg
+from config import Settings
 
 '''
 Created on Dec 1, 2011
@@ -763,8 +764,8 @@ class ClientWindow(FormClass, BaseClass):
                                             "Are you sure you wish to clear all settings, login info, etc. used by this program?",
                                             QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
         if (result == QtGui.QMessageBox.Yes):
-            util.settings.clear()
-            util.settings.sync()
+            Settings.clear()
+            Settings.sync()
             QtGui.QMessageBox.information(None, "Restart Needed", "FAF will quit now.")
             QtGui.QApplication.quit()
 
@@ -800,43 +801,35 @@ class ClientWindow(FormClass, BaseClass):
         dialog.exec_()
 
     def saveWindow(self):
-        util.settings.beginGroup("window")
-        util.settings.setValue("geometry", self.saveGeometry())
-        util.settings.endGroup()
+        cfg.window.geometry.set(self.saveGeometry())
 
     def saveChat(self):
-        util.settings.beginGroup("chat")
-        util.settings.setValue("soundeffects", self.soundeffects)
-        util.settings.setValue("livereplays", self.livereplays)
-        util.settings.setValue("opengames", self.opengames)
-        util.settings.setValue("joinsparts", self.joinsparts)
-        util.settings.setValue("coloredNicknames", self.players.coloredNicknames)
-        util.settings.setValue("friendsontop", self.friendsontop)
-        util.settings.endGroup()
+        c = cfg.chat
+        c.soundeffects.set(self.soundeffects)
+        c.livereplays.set(self.livereplays)
+        c.opengames.set(self.opengames)
+        c.joinsparts.set(self.joinsparts)
+        c.coloredNicknames.set(self.players.coloredNicknames)
+        c.friendsontop.set(self.friendsontop)
 
     def loadSettings(self):
         self.loadChat()
         # Load settings
-        util.settings.beginGroup("window")
-        geometry = util.settings.value("geometry", None)
+        geometry = cfg.window.geometry.get()
         if geometry:
             self.restoreGeometry(geometry)
-        util.settings.endGroup()
 
-        util.settings.beginGroup("ForgedAlliance")
-        util.settings.endGroup()
 
     def loadChat(self):
         try:
-            util.settings.beginGroup("chat")
-            self.soundeffects = (util.settings.value("soundeffects", "true") == "true")
-            self.opengames = (util.settings.value("opengames", "true") == "true")
-            self.joinsparts = (util.settings.value("joinsparts", "false") == "true")
-            self.livereplays = (util.settings.value("livereplays", "true") == "true")
-            self.players.coloredNicknames = (util.settings.value("coloredNicknames", "false") == "true")
-            self.friendsontop = (util.settings.value("friendsontop", "false") == "true")
+            c = cfg.chat
+            self.soundeffects = c.soundeffects.get()
+            self.opengames = c.opengames.get()
+            self.joinsparts = c.joinsparts.get()
+            self.livereplays = c.livereplays.get()
+            self.players.coloredNicknames = c.coloredNicknames.get()
+            self.friendsontop = c.friendsontop.get()
 
-            util.settings.endGroup()
             self.actionColoredNicknames.setChecked(self.players.coloredNicknames)
             self.actionFriendsOnTop.setChecked(self.friendsontop)
             self.actionSetSoundEffects.setChecked(self.soundeffects)

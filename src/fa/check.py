@@ -12,7 +12,6 @@ from config import modules as cfg
 from fa.mods import checkMods
 from fa.path import writeFAPathLua, validatePath
 from fa.wizards import Wizard
-import util
 
 logger = logging.getLogger(__name__)
 
@@ -54,8 +53,8 @@ def sim_mod(sim_mod, version):
 
 
 def path(parent):
-    while not validatePath(util.settings.value("ForgedAlliance/app/path", "", type=str)):
-        logger.warn("Invalid game path: " + util.settings.value("ForgedAlliance/app/path", "", type=str))
+    while not validatePath(cfg.ForgedAlliance.app_path.get("")):
+        logger.warn("Invalid game path: " + cfg.ForgedAlliance.app_path.get(""))
         wizard = Wizard(parent)
         result = wizard.exec_()
         if result == QtGui.QWizard.Rejected:
