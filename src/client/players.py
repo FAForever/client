@@ -18,6 +18,7 @@ class Players:
     """
     def __init__(self, me):
         self.me = me
+        "Logged in player. Can be None if we're not connected."
         self.coloredNicknames = False
 
         # UID -> Player map
@@ -63,6 +64,10 @@ class Players:
         '''
         Returns a user's color depending on their status with relation to the FAF client
         '''
+        # Return default color if we're not logged in
+        if self.me is None:
+            return self.getColor("default")
+
         if id == self.me.id:
             return self.getColor("self")
         if id in self.friends:
