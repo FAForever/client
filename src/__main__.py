@@ -19,20 +19,15 @@ import sys
 
 # Some linux distros (like Gentoo) make package scripts available
 # by copying and modifying them. This breaks path to our modules.
-# This hack restores our path, but really the best way to fix it
-# would be to convert our imports to relative form.
-# We check if we can import our packages already in case we are run
-# through the interpreter (e.g. from source).
 
-import imp
 if __package__ is None and not hasattr(sys, 'frozen'):
-    try:
-        imp.find_module("client")
-    except ImportError:
-        # __main__ executed directly
-        import os.path
+    # We are run by the interpreter. Are we run from source?
+    file_dir = os.path.dirname(os.path.realpath(__file__))
+    base_dir = os.path.basename(file_dir)
+    if (base_dir != 'src'):
+        # We're probably run as an installed file.
         import fafclient
-        path = os.path.realpath(os.path.abspath(fafclient.__file__))
+        path = os.path.realpath(fafclient.__file__)
         sys.path.insert(0, os.path.dirname(path))
 
 from PyQt4 import QtGui, uic
