@@ -132,7 +132,8 @@ def make_dirs():
                 set_data_path_permissions()
                 os.makedirs(path)
 
-VERSION = version.get_release_version(fafpath.get_resdir())
+VERSION = version.get_release_version(dir = fafpath.get_resdir(),
+                                      git_dir = fafpath.get_srcdir())
 
 def is_development_version():
     return version.is_development_version(VERSION)

@@ -28,9 +28,12 @@ import sys, os
 
 __all__ = ["get_git_version", "get_release_version", "write_version_file"]
 
-def call_git_describe():
+def call_git_describe(git_path = None):
+    git_args = ['describe', '--tags', '--always']
+    if git_path is not None:
+        git_args = ['-C', git_path] + git_args
     try:
-        lines = check_output(['git', 'describe', '--tags', '--always']).split(os.linesep)
+        lines = check_output(["git"] + git_args).split(os.linesep)
         line = lines[0]
         return line
     except Exception as e:
@@ -75,13 +78,13 @@ def msi_version(git_version):
 # This is run by FAF to find our version. It should first try to locate the
 # RELEASE-VERSION file, then try to fall back on git (maybe we're run from
 # the repo), then, if it fails, throw an exception.
-def get_release_version(dir = None):
+def get_release_version(dir = None, git_dir = None):
     version = None if dir is None else read_version_file(dir)
     if version is not None:
         return version
 
     # Maybe we are running from source?
-    version = call_git_describe()
+    version = call_git_describe(git_dir)
 
     # If we still don't have anything, that's an error.
     if version is None:
@@ -93,8 +96,8 @@ def get_release_version(dir = None):
 # This is run by an install script. It should first try to ask git for the
 # version. If it fails (maybe we are in an unpacked tarball), it may fall back
 # to reading the RELEASE-VERSION file in the provided dir.
-def get_git_version(dir = None):
-    version = call_git_describe()
+def get_git_version(dir = None, git_dir = None):
+    version = call_git_describe(git_dir)
     if version is not None:
         return version
     elif dir is not None:
@@ -105,6 +108,7 @@ def get_git_version(dir = None):
 if __name__ == "__main__":
     # We were run by a setup script to return current version.
     # Get the optional directory from command line.
+    # Assume our current directory is FAF git repo.
     if len(sys.argv) == 1:
         dir = None
     else:
