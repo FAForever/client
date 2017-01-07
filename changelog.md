@@ -32,6 +32,12 @@
 * Make selected mods persistent (#560)
 * Disable modvault feedback (#568)
 * Fix local replays being shown as broken when offline (#564)
+* Update 'Search Options' in Replays (#498)
+    - Load recent replays list only on first entry
+    - Add Button 'Refresh Recent List'/'Reset Search to Recent'
+    - Add Checkbox to enable Automatic Refresh (old behavior)
+    - Add Label 'Searching...' while waiting for server
+    - Change 'Min rating' steps to 100 
 
 0.11.64
 =======
