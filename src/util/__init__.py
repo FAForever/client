@@ -469,7 +469,7 @@ def themeurl(filename):
     if __themedir and os.path.isfile(os.path.join(__themedir, filename)):
         return QtCore.QUrl("file://" + os.path.join(__themedir, filename).replace("\\", "/"))
     elif os.path.isfile(os.path.join(COMMON_DIR, filename)):
-        return QtCore.QUrl("file://" + os.path.join(os.getcwd(), COMMON_DIR, filename).replace("\\", "/"))
+        return QtCore.QUrl("file://" + os.path.join(COMMON_DIR, filename).replace("\\", "/"))
     else:
         return None
 
