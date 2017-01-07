@@ -458,9 +458,9 @@ QDialog
     background-color: #575656;
 }
 
-QCheckBox#spoilerCheckbox
+QCheckBox#spoilerCheckbox, #automaticCheckbox
 {
-    color: white;
+    color: silver;
 }
 
 /* Used for Ranked Buttons only at the moment*/
