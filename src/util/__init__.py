@@ -679,7 +679,7 @@ def uniqueID(user, session):
             QMessageBox.critical(None, "WMI service missing", "FAF requires the 'Windows Management Instrumentation' service for smurf protection. This service could not be found.")
 
     if sys.platform == 'win32':
-        exe_path = os.path.join(os.getcwd(), "lib", "faf-uid.exe")
+        exe_path = os.path.join(fafpath.get_libdir(), "faf-uid.exe")
     else:   # Expect it to be in PATH already
         exe_path = "faf-uid"
     try:

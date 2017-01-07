@@ -25,6 +25,7 @@ import ast
 
 import config
 from config import Settings
+import fafpath
 
 from PyQt4 import QtGui, QtCore, QtNetwork
 
@@ -609,7 +610,11 @@ class Updater(QtCore.QObject):
     def applyPatch(self, original, patch):
         toFile = os.path.join(util.CACHE_DIR, "patchedFile")
         #applying delta
-        subprocess.call(['xdelta3', '-d','-f', '-s', original, patch, toFile], stdout = subprocess.PIPE)
+        if sys.platform == 'win32':
+            xdelta = os.path.join(fafpath.get_libdir(), "xdelta3.exe")
+        else:
+            xdelta = "xdelta3"
+        subprocess.call([xdelta, '-d','-f', '-s', original, patch, toFile], stdout = subprocess.PIPE)
         shutil.copy(toFile, original)
         os.remove(toFile)
         os.remove(patch)
