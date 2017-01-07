@@ -436,7 +436,7 @@ def preview(mapname, pixmap=False):
         for extension in iconExtensions:
             img = os.path.join(util.CACHE_DIR, mapname + "." + extension)
             if os.path.isfile(img):
-                logger.debug("Using cached preview image for: " + mapname)
+                logger.log(5,"Using cached preview image for: " + mapname)
                 return util.icon(img, False, pixmap)
 
         # Try to find in local map folder

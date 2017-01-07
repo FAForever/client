@@ -29,6 +29,7 @@
 * Add logging to game updater and disable cert verification on test server (#558)
 * Clean up 'res' directory finding (#552)
 * Improve ladder race selection (#554)
+* Make selected mods persistent (#560)
 
 0.11.64
 =======
