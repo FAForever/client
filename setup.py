@@ -17,7 +17,6 @@ else:
     from distutils.core import setup
 
 sys.path.insert(0, "src")
-sys.path.insert(0, "lib")
 
 company_name = 'FAF Community'
 product_name = 'Forged Alliance Forever'

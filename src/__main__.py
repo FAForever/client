@@ -35,11 +35,6 @@ if __package__ is None and not hasattr(sys, 'frozen'):
         path = os.path.realpath(os.path.abspath(fafclient.__file__))
         sys.path.insert(0, os.path.dirname(path))
 
-if os.path.isdir("lib"):
-    sys.path.insert(0, os.path.abspath("lib"))
-elif os.path.isdir("../lib"):
-    sys.path.insert(0, os.path.abspath("../lib"))
-
 from PyQt4 import QtGui, uic
 
 path = os.path.join(os.path.dirname(sys.argv[0]), "PyQt4.uic.widget-plugins")
