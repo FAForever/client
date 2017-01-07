@@ -23,6 +23,8 @@ MODVAULT_DOWNLOAD_ROOT = "{}/faf/vault/".format(Settings.get('content/host'))
 
 installedMods = [] # This is a global list that should be kept intact. So it should be cleared using installedMods[:] = []
 
+selectedMods = Settings.get('play/mods', default=[]) # mods selected by user, are not overwritten by temporary mods selected when joining game
+
 class ModInfo(object):
     def __init__(self, **kwargs):
         self.name = "Not filled in"
@@ -104,7 +106,7 @@ def fullPathToIcon(path):
 def getIcon(name):
     img = os.path.join(util.CACHE_DIR, name)
     if os.path.isfile(img):
-        logger.debug("Using cached preview image for: " + name)
+        logger.log(5, "Using cached preview image for: " + name)
         return img
     return None
 
@@ -185,27 +187,31 @@ def getModInfoFromFolder(modfolder): # modfolder must be local to MODFOLDER
     modCache[modfolder] = m
     return m
 
-def getActiveMods(uimods=None): # returns a list of ModInfo's containing information of the mods
+def getActiveMods(uimods=None, temporary=True): # returns a list of ModInfo's containing information of the mods
     """uimods:
         None - return all active mods
         True - only return active UI Mods
         False - only return active non-UI Mods
+       temporary:
+        read from game.prefs and not from settings
     """
     active_mods = []
     try:
         if not os.path.exists(PREFSFILENAME):
             logger.info("No game.prefs file found")
             return []
-        
-        l = luaparser.luaParser(PREFSFILENAME)
-        l.loweringKeys = False
-        modlist = l.parse({"active_mods":"active_mods"},{"active_mods":{}})["active_mods"]
-        if l.error:
-            logger.info("Error in reading the game.prefs file")
-            return []
-        uids = [uid for uid,b in modlist.items() if b == 'true']
-        #logger.debug("Active mods detected: %s" % str(uids))
-        
+        if temporary:
+            l = luaparser.luaParser(PREFSFILENAME)
+            l.loweringKeys = False
+            modlist = l.parse({"active_mods":"active_mods"},{"active_mods":{}})["active_mods"]
+            if l.error:
+                logger.info("Error in reading the game.prefs file")
+                return []
+            uids = [uid for uid,b in modlist.items() if b == 'true']
+            #logger.debug("Active mods detected: %s" % str(uids))
+        else:
+            uids = selectedMods[:]
+
         allmods = []
         for m in installedMods:
             if ((uimods == True and m.ui_only) or (uimods == False and not m.ui_only) or uimods == None):
@@ -217,23 +223,33 @@ def getActiveMods(uimods=None): # returns a list of ModInfo's containing informa
         return []
     
 
-def setActiveMods(mods, keepuimods=True): #uimods works the same as in getActiveMods
+def setActiveMods(mods, keepuimods=True, temporary=True): #uimods works the same as in getActiveMods
     """
     keepuimods:
         None: Replace all active mods with 'mods'
         True: Keep the UI mods already activated activated
         False: Keep only the non-UI mods that were activated activated
         So set it True if you want to set gameplay mods, and False if you want to set UI mods.
+    temporary:
+        Set this when mods are activated due to joining a game.
     """
     if keepuimods != None:
         keepTheseMods = getActiveMods(keepuimods) # returns the active UI mods if True, the active non-ui mods if False
     else:
         keepTheseMods = []
     allmods = keepTheseMods + mods
+    logger.debug('setting active Mods: {}'.format([mod.uid for mod in allmods]))
     s = "active_mods = {\n"
     for mod in allmods:
         s += "['%s'] = true,\n" % str(mod.uid)
     s += "}"
+
+    if not temporary:
+        logger.debug('selectedMods was: {}'.format(Settings.get('play/mods')))
+        selectedMods = list([str(mod.uid) for mods in allmods])
+        logger.debug('Writing selectedMods: {}'.format(selectedMods))
+        Settings.set('play/mods', selectedMods)
+        logger.debug('selectedMods written: {}'.format(Settings.get('play/mods')))
 
     try:
         f = open(PREFSFILENAME, 'r')

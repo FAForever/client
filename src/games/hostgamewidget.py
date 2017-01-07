@@ -77,7 +77,7 @@ class HostgameWidget(FormClass, BaseClass):
             self.mods[mod.totalname] = mod
             self.modList.addItem(mod.totalname)
 
-        names = [mod.totalname for mod in modvault.getActiveMods(uimods=False)]
+        names = [mod.totalname for mod in modvault.getActiveMods(uimods=False, temporary=False)]
         logger.debug("Active Mods detected: %s" % str(names))
         for name in names:
             l = self.modList.findItems(name, QtCore.Qt.MatchExactly)
@@ -122,7 +122,7 @@ class HostgameWidget(FormClass, BaseClass):
 
         modnames = [str(moditem.text()) for moditem in self.modList.selectedItems()]
         mods = [self.mods[modstr] for modstr in modnames]
-        modvault.setActiveMods(mods, True)
+        modvault.setActiveMods(mods, True, False)
 
         self.parent.client.host_game(title=self.title,
                                  mod=self.featured_mod,

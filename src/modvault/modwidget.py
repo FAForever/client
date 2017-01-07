@@ -34,24 +34,32 @@ class ModWidget(FormClass, BaseClass):
         else:
             self.Picture.setPixmap(mod.thumbnail.pixmap(100,100))
 
-        self.Comments.setItemDelegate(CommentItemDelegate(self))
-        self.BugReports.setItemDelegate(CommentItemDelegate(self))
+        #self.Comments.setItemDelegate(CommentItemDelegate(self))
+        #self.BugReports.setItemDelegate(CommentItemDelegate(self))
+
+        self.tabWidget.setEnabled(False)
 
         if self.mod.uid in self.parent.uids:
             self.DownloadButton.setText("Remove Mod")
         self.DownloadButton.clicked.connect(self.download)
-        self.likeButton.clicked.connect(self.like)
-        self.LineComment.returnPressed.connect(self.addComment)
-        self.LineBugReport.returnPressed.connect(self.addBugReport)
 
-        for item in mod.comments:
-            comment = CommentItem(self,item["uid"])
-            comment.update(item)
-            self.Comments.addItem(comment)
-        for item in mod.bugreports:
-            comment = CommentItem(self,item["uid"])
-            comment.update(item)
-            self.BugReports.addItem(comment)
+        #self.likeButton.clicked.connect(self.like)
+        #self.LineComment.returnPressed.connect(self.addComment)
+        #self.LineBugReport.returnPressed.connect(self.addBugReport)
+
+        #for item in mod.comments:
+        #    comment = CommentItem(self,item["uid"])
+        #    comment.update(item)
+        #    self.Comments.addItem(comment)
+        #for item in mod.bugreports:
+        #    comment = CommentItem(self,item["uid"])
+        #    comment.update(item)
+        #    self.BugReports.addItem(comment)
+
+        self.likeButton.setEnabled(False)
+        self.LineComment.setEnabled(False)
+        self.LineBugReport.setEnabled(False)
+
         
     @QtCore.pyqtSlot()
     def download(self):

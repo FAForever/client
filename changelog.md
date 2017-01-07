@@ -29,6 +29,9 @@
 * Add logging to game updater and disable cert verification on test server (#558)
 * Clean up 'res' directory finding (#552)
 * Improve ladder race selection (#554)
+* Make selected mods persistent (#560)
+* Disable modvault feedback (#568)
+* Fix local replays being shown as broken when offline (#564)
 
 0.11.64
 =======
