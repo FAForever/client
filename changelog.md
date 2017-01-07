@@ -31,6 +31,7 @@
 * Improve ladder race selection (#554)
 * Make selected mods persistent (#560)
 * Disable modvault feedback (#568)
+* Fix local replays being shown as broken when offline (#564)
 
 0.11.64
 =======
