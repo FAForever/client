@@ -30,6 +30,7 @@
 * Clean up 'res' directory finding (#552)
 * Improve ladder race selection (#554)
 * Make selected mods persistent (#560)
+* Disable modvault feedback (#568)
 
 0.11.64
 =======
