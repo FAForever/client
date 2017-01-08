@@ -37,7 +37,8 @@
     - Add Button 'Refresh Recent List'/'Reset Search to Recent'
     - Add Checkbox to enable Automatic Refresh (old behavior)
     - Add Label 'Searching...' while waiting for server
-    - Change 'Min rating' steps to 100 
+    - Change 'Min rating' steps to 100
+* Fix 'View Replays in Vault' change to 'Online Vault' Tab (#495)
 
 0.11.64
 =======
