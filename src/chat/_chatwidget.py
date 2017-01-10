@@ -381,9 +381,13 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             self.channels[target].printMsg(source, message)
         elif source == "Global":
             for channel in self.channels:
+                if not channel in self.crucialChannels:
+                    continue
                 self.channels[channel].printAnnouncement(message, "yellow", "+2")
         elif source == "AeonCommander":
             for channel in self.channels:
+                if not channel in self.crucialChannels:
+                    continue
                 self.channels[channel].printMsg(source, message)
         else:
             self.serverLogArea.appendPlainText("%s: %s" % (source, notice))
