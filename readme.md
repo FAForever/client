@@ -8,7 +8,7 @@ master|develop
  ------------ | -------------
 [![Build Status](https://travis-ci.org/FAForever/client.svg?branch=master)](https://travis-ci.org/FAForever/client) [![Appveyor Status](https://ci.appveyor.com/api/projects/status/p15sk71sp957ij72/branch/master?svg=true)](https://ci.appveyor.com/project/Sheeo/client) | [![Build Status](https://travis-ci.org/FAForever/client.svg?branch=develop)](https://travis-ci.org/FAForever/client) [![Appveyor Status](https://ci.appveyor.com/api/projects/status/p15sk71sp957ij72/branch/develop?svg=true)](https://ci.appveyor.com/project/Sheeo/client)
 [![Coverage Status](https://img.shields.io/coveralls/FAForever/client.svg?branch=master)](https://coveralls.io/r/FAForever/client) | [![Coverage Status](https://img.shields.io/coveralls/FAForever/client.svg?branch=develop)](https://coveralls.io/r/FAForever/client)
- 
+
 
 This is the source code for the FA Forever Lobby.
 
@@ -58,18 +58,18 @@ This guide is about runnning the client from source repository. For a [ready-mad
 Clone this repository locally:
 
     git clone https://github.com/FAForever/client.git faf-client
-    
+
 Create a python virtualenv for installing its dependencies:
 
     virtualenv2 ./faf-client-venv --system-site-packages
     ./faf-client-venv/bin/pip install -r ./faf-client/requirements.txt
 
-Now download the `uid` executable:
+Now download the `faf-uid` executable:
 
-    wget https://github.com/FAForever/uid/releases/download/v2.1.0/uid -O ./faf-client/lib/uid
-    chmod +x ./faf-client/lib/uid
+    wget https://github.com/FAForever/uid/releases/download/v3.0.0/faf-uid -O ./faf-client/lib/faf-uid
+    chmod +x ./faf-client/lib/faf-uid
 
-Note that the `uid` smurf protection executable needs to run `xrandr`, `lspci`, `lsblk` and `uname` to gather unique system information.
+Note that the `faf-uid` smurf protection executable needs to run `xrandr`, `lspci`, `lsblk` and `uname` to gather unique system information.
 
 Run the client:
 
