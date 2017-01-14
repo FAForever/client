@@ -2,7 +2,7 @@ from functools import partial
 
 from PyQt4 import Qt
 from PyQt4.QtCore import QUrl
-from PyQt4.QtGui import QLabel, QStyle
+from PyQt4.QtGui import QLabel, QStyle, QAction
 from PyQt4.QtNetwork import QAbstractSocket
 
 import config
@@ -208,7 +208,7 @@ class ClientWindow(FormClass, BaseClass):
 
         # create user interface (main window) and load theme
         self.setupUi(self)
-        self.setStyleSheet(util.readstylesheet("client/client.css"))
+        util.setStyleSheet(self, "client/client.css")
 
         self.setWindowTitle("FA Forever " + util.VERSION_STRING)
 
@@ -717,24 +717,23 @@ class ClientWindow(FormClass, BaseClass):
         self.actionSetLiveReplays.triggered.connect(self.updateOptions)
         self.actionSaveGamelogs.toggled.connect(self.on_actionSavegamelogs_toggled)
         self.actionSaveGamelogs.setChecked(self.gamelogs)
+        self.actionReloadStyleSheet.triggered.connect(util.reloadStyleSheets)
         self.actionColoredNicknames.triggered.connect(self.updateOptions)
         self.actionFriendsOnTop.triggered.connect(self.updateOptions)
 
         # Init themes as actions.
         themes = util.listThemes()
         for theme in themes:
-            action = self.menuTheme.addAction(str(theme))
+            action = QAction(str(theme), self.menuTheme)
             action.triggered.connect(self.switchTheme)
             action.theme = theme
             action.setCheckable(True)
 
             if util.getTheme() == theme:
                 action.setChecked(True)
+            self.menuTheme.insertAction(self.actionReloadStyleSheet, action)
+        self.menuTheme.insertSeparator(self.actionReloadStyleSheet)
 
-        # Nice helper for the developers
-        self.menuTheme.addSeparator()
-        self.menuTheme.addAction("Reload Stylesheet",
-                                 lambda: self.setStyleSheet(util.readstylesheet("client/client.css")))
 
     @QtCore.pyqtSlot()
     def updateOptions(self):

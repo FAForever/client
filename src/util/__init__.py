@@ -28,6 +28,8 @@ UNITS_PREVIEW_ROOT = "{}/faf/unitsDB/icons/big/".format(Settings.get('content/ho
 import fafpath
 COMMON_DIR = fafpath.get_resdir()
 
+stylesheets = {} # map [qt obj] ->  filename of stylesheet
+
 # These directories are in Appdata (e.g. C:\ProgramData on some Win7 versions)
 if 'ALLUSERSPROFILE' in os.environ:
     APPDATA_DIR = os.path.join(os.environ['ALLUSERSPROFILE'], "FAForever")
@@ -358,6 +360,15 @@ def readlines(filename, themed=True):
     result.close()
     return lines
 
+
+def setStyleSheet(obj, filename):
+    stylesheets[obj] = filename
+    obj.setStyleSheet(readstylesheet(filename))
+
+
+def reloadStyleSheets():
+    for obj, filename in stylesheets.iteritems():
+        obj.setStyleSheet(readstylesheet(filename))
 
 def readstylesheet(filename):
     if __themedir and os.path.isfile(os.path.join(__themedir, filename)):

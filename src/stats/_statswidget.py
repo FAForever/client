@@ -52,9 +52,8 @@ class StatsWidget(BaseClass, FormClass):
         
         self.FORMATTER_LADDER        = unicode(util.readfile("stats/formatters/ladder.qthtml"))
         self.FORMATTER_LADDER_HEADER = unicode(util.readfile("stats/formatters/ladder_header.qthtml"))
-        self.stylesheet = util.readstylesheet("stats/formatters/style.css")
 
-        self.leagues.setStyleSheet(self.stylesheet)
+        util.setStyleSheet(self.leagues, "stats/formatters/style.css")
     
         # setup other tabs
         self.mapstat = mapstat.LadderMapStat(self.client, self)

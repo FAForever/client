@@ -34,7 +34,7 @@ class TournamentsWidget(FormClass, BaseClass):
         self.tourneysTab = {}
 
         #Special stylesheet       
-        self.setStyleSheet(util.readstylesheet("tournaments/formatters/style.css"))
+        util.setStyleSheet(self, "tournaments/formatters/style.css")
 
         self.updateTimer = QtCore.QTimer(self)
         self.updateTimer.timeout.connect(self.updateTournaments)

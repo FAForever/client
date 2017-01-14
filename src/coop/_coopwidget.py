@@ -61,12 +61,11 @@ class CoopWidget(FormClass, BaseClass):
         
         self.linkButton.clicked.connect(self.linkVanilla)
         self.leaderBoard.setVisible(0)
-        self.stylesheet              = util.readstylesheet("coop/formatters/style.css")
         self.FORMATTER_LADDER        = unicode(util.readfile("coop/formatters/ladder.qthtml"))
         self.FORMATTER_LADDER_HEADER = unicode(util.readfile("coop/formatters/ladder_header.qthtml"))
 
-        self.leaderBoard.setStyleSheet(self.stylesheet)
-        
+        util.setStyleSheet(self.leaderBoard, "coop/formatters/style.css")
+
         self.leaderBoardTextGeneral.anchorClicked.connect(self.openUrl)
         self.leaderBoardTextOne.anchorClicked.connect(self.openUrl)
         self.leaderBoardTextTwo.anchorClicked.connect(self.openUrl)
@@ -108,7 +107,7 @@ class CoopWidget(FormClass, BaseClass):
 
                         
         doc = QtGui.QTextDocument()
-        doc.addResource(3, QtCore.QUrl("style.css"), self.stylesheet )
+        doc.addResource(3, QtCore.QUrl("style.css"), self.leaderBoard.styleSheet() )
         html = ("<html><head><link rel='stylesheet' type='text/css' href='style.css'></head><body>")
         
         if self.selectedItem:

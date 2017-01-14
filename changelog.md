@@ -11,11 +11,13 @@
 * Fix typo preventing rehost feature from working (#630 / #632)
 * Remove needless abstract base class for client (#629)
 * Fall back to APPDATA if Documents folder cannot be created (#619, #626)
+* Make all (themed) stylesheets reloadable (#584)
 
 Contributors:
   - Duke
   - speed2
   - Wesmania
+  - yorick
 
 0.12.2
 ======
