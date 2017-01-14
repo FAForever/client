@@ -39,6 +39,7 @@
     - Add Label 'Searching...' while waiting for server
     - Change 'Min rating' steps to 100
 * Fix 'View Replays in Vault' change to 'Online Vault' Tab (#495)
+* Make announcements less annoying (#575, thanks @HardlySoftly!)
 
 0.11.64
 =======
