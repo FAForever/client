@@ -1,6 +1,7 @@
 FA Forever Client
 =================
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/c5f88c9780ec49339514fa344fc0db04)](https://www.codacy.com/app/micheljung/client?utm_source=github.com&utm_medium=referral&utm_content=FAForever/client&utm_campaign=badger)
 [![Stories in Ready](https://badge.waffle.io/faforever/client.png?label=ready&title=Ready)](http://waffle.io/faforever/client)
 
 ------------------
