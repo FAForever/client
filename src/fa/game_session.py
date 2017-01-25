@@ -1,4 +1,4 @@
-from PyQt4.QtCore import QObject, pyqtSignal
+from PyQt4.QtCore import QObject, pyqtSignal,  QMetaObject, Q_ARG, Qt
 from PyQt4.QtNetwork import QTcpServer, QHostAddress
 from enum import IntEnum
 
@@ -51,7 +51,6 @@ class GameSession(QObject):
         self.me = client.me
 
         self.game_port = client.gamePort
-        self.player = client.me
 
         # Use the normal lobby by default
         self.init_mode = 0
@@ -90,31 +89,23 @@ class GameSession(QObject):
         """
         assert self.state == GameSessionState.OFF
         self.state = GameSessionState.LISTENING
-        if self.connectivity.is_ready:
-            self.ready.emit()
-        else:
-            self.connectivity.prepare()
+
+        # prepare() will emit 'ready' when done
+        self.connectivity.metaObject().invokeMethod(self.connectivity, "prepare", Qt.QueuedConnection)
 
     def handle_message(self, message):
         command, args = message.get('command'), message.get('args', [])
-        if command == 'SendNatPacket':
-            addr_and_port, message = args
-            host, port = addr_and_port.split(':')
-            self.connectivity.send(message, (host, port))
-        elif command == 'CreatePermission':
-            addr_and_port = args[0]
-            host, port = addr_and_port.split(':')
-            self.connectivity.permit((host, port))
-        elif command == 'JoinGame':
+
+        if command == 'JoinGame':
             addr, login, peer_id = args
             self._joins.append(peer_id)
-            self.connectivity.bind(addr, login, peer_id)
         elif command == 'ConnectToPeer':
             addr, login, peer_id = args
             self._connects.append(peer_id)
-            self.connectivity.bind(addr, login, peer_id)
         else:
             self._game_connection.send(command, *args)
+
+        self.connectivity.metaObject().invokeMethod(self.connectivity, "handle_game_message", Qt.QueuedConnection, Q_ARG(dict, message))
 
     def send(self, command_id, args):
         self._logger.info("Outgoing relay message {} {}".format(command_id, args))
@@ -158,10 +149,6 @@ class GameSession(QObject):
             self._rehost = True
 
         self.send(command, args)
-
-    def _turn_state_changed(self, val):
-        if val == TURNState.BOUND:
-            self.ready.emit()
 
     def _launched(self):
         self._logger.info("Game has started")

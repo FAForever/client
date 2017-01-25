@@ -1,6 +1,6 @@
 from functools import partial
 
-from PyQt4.QtCore import QUrl
+from PyQt4.QtCore import QUrl, QThread, pyqtSignal
 from PyQt4.QtGui import QLabel, QStyle
 from PyQt4.QtNetwork import QAbstractSocket
 
@@ -94,49 +94,49 @@ class ClientWindow(FormClass, BaseClass):
     topWidget = QtGui.QWidget()
 
     # These signals are emitted when the client is connected or disconnected from FAF
-    connected = QtCore.pyqtSignal()
-    authorized = QtCore.pyqtSignal(object)
-    disconnected = QtCore.pyqtSignal()
+    connected = pyqtSignal()
+    authorized = pyqtSignal(object)
+    disconnected = pyqtSignal()
 
-    state_changed = QtCore.pyqtSignal(object)
+    state_changed = pyqtSignal(object)
 
     # This signal is emitted when the client is done rezising
-    doneresize = QtCore.pyqtSignal()
+    doneresize = pyqtSignal()
 
     # These signals notify connected modules of game state changes (i.e. reasons why FA is launched)
-    viewingReplay = QtCore.pyqtSignal(QtCore.QUrl)
+    viewingReplay = pyqtSignal(QtCore.QUrl)
 
     # Game state controls
-    gameEnter = QtCore.pyqtSignal()
-    gameExit = QtCore.pyqtSignal()
+    gameEnter = pyqtSignal()
+    gameExit = pyqtSignal()
 
     # These signals propagate important client state changes to other modules
-    statsInfo = QtCore.pyqtSignal(dict)
-    tutorialsInfo = QtCore.pyqtSignal(dict)
-    modInfo = QtCore.pyqtSignal(dict)
-    gameInfo = QtCore.pyqtSignal(dict)
-    modVaultInfo = QtCore.pyqtSignal(dict)
-    coopInfo = QtCore.pyqtSignal(dict)
-    avatarList = QtCore.pyqtSignal(list)
-    playerAvatarList = QtCore.pyqtSignal(dict)
-    usersUpdated = QtCore.pyqtSignal(list)
-    localBroadcast = QtCore.pyqtSignal(str, str)
-    autoJoin = QtCore.pyqtSignal(list)
-    channelsUpdated = QtCore.pyqtSignal(list)
-    replayVault = QtCore.pyqtSignal(dict)
-    coopLeaderBoard = QtCore.pyqtSignal(dict)
+    statsInfo = pyqtSignal(dict)
+    tutorialsInfo = pyqtSignal(dict)
+    modInfo = pyqtSignal(dict)
+    gameInfo = pyqtSignal(dict)
+    modVaultInfo = pyqtSignal(dict)
+    coopInfo = pyqtSignal(dict)
+    avatarList = pyqtSignal(list)
+    playerAvatarList = pyqtSignal(dict)
+    usersUpdated = pyqtSignal(list)
+    localBroadcast = pyqtSignal(str, str)
+    autoJoin = pyqtSignal(list)
+    channelsUpdated = pyqtSignal(list)
+    replayVault = pyqtSignal(dict)
+    coopLeaderBoard = pyqtSignal(dict)
 
     # These signals are emitted whenever a certain tab is activated
-    showReplays = QtCore.pyqtSignal()
-    showMaps = QtCore.pyqtSignal()
-    showGames = QtCore.pyqtSignal()
-    showTourneys = QtCore.pyqtSignal()
-    showLadder = QtCore.pyqtSignal()
-    showChat = QtCore.pyqtSignal()
-    showMods = QtCore.pyqtSignal()
-    showCoop = QtCore.pyqtSignal()
+    showReplays = pyqtSignal()
+    showMaps = pyqtSignal()
+    showGames = pyqtSignal()
+    showTourneys = pyqtSignal()
+    showLadder = pyqtSignal()
+    showChat = pyqtSignal()
+    showMods = pyqtSignal()
+    showCoop = pyqtSignal()
 
-    matchmakerInfo = QtCore.pyqtSignal(dict)
+    matchmakerInfo = pyqtSignal(dict)
 
     remember = Settings.persisted_property('user/remember', type=bool, default_value=True)
     login = Settings.persisted_property('user/login', persist_if=lambda self: self.remember)
@@ -201,6 +201,9 @@ class ClientWindow(FormClass, BaseClass):
 
         # ConnectivityTest
         self.connectivity = None  # type: ConnectivityHelper
+
+        self.connectivity_state = None
+        self.relay_address = None
 
         self.localIP = None
 
@@ -1093,12 +1096,15 @@ class ClientWindow(FormClass, BaseClass):
             self.send(dict(command="social_remove", foe=foe_id))
             self.usersUpdated.emit([foe_id])
 
+    @QtCore.pyqtSlot(dict)
     def send(self, message):
         data = json.dumps(message)
         if message.get('command') == 'hello':
-            logger.info('Logging in with {}'.format({
-                                                        k: v for k, v in message.items() if k != 'password'
-                                                        }))
+            logger.info('Logging in with {}'.format(
+                {
+                    k: v for k, v in message.items() if k != 'password'
+                })
+            )
         else:
             logger.info("Outgoing JSON Message: " + data)
 
@@ -1115,6 +1121,10 @@ class ClientWindow(FormClass, BaseClass):
             cmd = "handle_" + message['command']
             if "target" in message:
                 receiver = self._receivers.get(message['target'])
+                if receiver == self.connectivity:
+                    self.connectivity.command_msg.emit(message)
+                    return
+
                 if hasattr(receiver, cmd):
                     getattr(receiver, cmd)(message)
                 elif hasattr(receiver, 'handle_message'):
@@ -1201,12 +1211,23 @@ document.getElementById('blogTerm').parentElement.parentElement.style.visibility
 
         # Run an initial connectivity test and initialize a gamesession object
         # when done
+        thread = QThread()
+        self.thread = thread
         self.connectivity = ConnectivityHelper(self, self.gamePort)
-        self.connectivity.connectivity_status_established.connect(self.initialize_game_session)
-        self.connectivity.start_test()
+        self.connectivity.moveToThread(thread)
+        self.connectivity.connectivity_status_established.connect(self.connectivity_update)
+        thread.started.connect(self.connectivity.start_test)
+        thread.start()
 
-    def initialize_game_session(self):
+
+    @QtCore.pyqtSlot(str, str)
+    def connectivity_update(self, state, addr):
+        logger.info("connectivity_update: state " + str(state) + " " + str(addr))
+        self.connectivity_state = state
+        host, port = addr.split(':')
+        self.relay_address = (host, int(port))
         self.game_session = GameSession(self, self.connectivity)
+
 
     def handle_registration_response(self, message):
         if message["result"] == "SUCCESS":
@@ -1225,8 +1246,8 @@ document.getElementById('blogTerm').parentElement.parentElement.style.visibility
                 'gameport': self.gamePort,
                 'faction': faction
             }
-            if self.connectivity.state == 'STUN':
-                msg['relay_address'] = self.connectivity.relay_address
+            if self.connectivity_state == 'STUN':
+                msg['relay_address'] = self.relay_address
             self.send(msg)
             self.game_session.ready.disconnect(request_launch)
         if self.game_session:
@@ -1244,8 +1265,8 @@ document.getElementById('blogTerm').parentElement.parentElement.style.visibility
                 'password': password,
                 'is_rehost': is_rehost
             }
-            if self.connectivity.state == 'STUN':
-                msg['relay_address'] = self.connectivity.relay_address
+            if self.connectivity_state == 'STUN':
+                msg['relay_address'] = self.relay_address
             self.send(msg)
             self.game_session.ready.disconnect(request_launch)
         if self.game_session:
@@ -1262,8 +1283,8 @@ document.getElementById('blogTerm').parentElement.parentElement.style.visibility
             }
             if password:
                 msg['password'] = password
-            if self.connectivity.state == "STUN":
-                msg['relay_address'] = self.connectivity.relay_address
+            if self.connectivity_state == "STUN":
+                msg['relay_address'] = self.relay_address
             self.send(msg)
             self.game_session.ready.disconnect(request_launch)
         if self.game_session:

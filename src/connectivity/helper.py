@@ -2,7 +2,7 @@ from __future__ import division
 
 from functools import partial
 
-from PyQt4.QtCore import QObject, pyqtSignal, QTimer, Qt
+from PyQt4.QtCore import QObject, pyqtSignal, pyqtSlot, QTimer, QMetaObject, Q_ARG, Qt
 from PyQt4.QtNetwork import QUdpSocket, QHostAddress, QAbstractSocket
 import time
 
@@ -80,15 +80,17 @@ class RelayTest(QObject):
 
 @with_logger
 class ConnectivityHelper(QObject):
-    connectivity_status_established = pyqtSignal(str, str)
+    connectivity_status_established = pyqtSignal(str, object)
 
     # Emitted when a peer is bound to a local port
     peer_bound = pyqtSignal(str, int, int)
 
     ready = pyqtSignal()
-
+    start_test = pyqtSignal()
     relay_test_finished = pyqtSignal()
     relay_test_progress = pyqtSignal(str)
+
+    command_msg = pyqtSignal(dict)
 
     error = pyqtSignal(str)
 
@@ -97,16 +99,13 @@ class ConnectivityHelper(QObject):
         self._client = client
         self._port = port
         self.game_port = port+1
-
-        self._socket = QTurnSocket(port, self._on_data)
-        self._socket.state_changed.connect(self.turn_state_changed)
-
-        self._client.subscribe_to('connectivity', self)
         self.relay_address, self.mapped_address = None, None
         self._relay_test = None
         self._relays = {}
         self.state = None
         self.addr = None
+        self.start_test.connect(self.run_test)
+        self.command_msg.connect(self.handle_cmd_message)
 
     @property
     def is_ready(self):
@@ -115,7 +114,12 @@ class ConnectivityHelper(QObject):
                 and self.mapped_address is not None
                 and self._socket.state() == QAbstractSocket.BoundState)
 
-    def start_test(self):
+    @pyqtSlot()
+    def run_test(self):
+        self._client.subscribe_to('connectivity', self)
+        self._socket = QTurnSocket(self._port, self._on_data)
+        self._socket.state_changed.connect(self.turn_state_changed)
+
         self.send('InitiateTest', [self._port])
 
     def start_relay_test(self):
@@ -162,13 +166,22 @@ class ConnectivityHelper(QObject):
         else:
             host, port = addr.split(':')
             self.state, self.mapped_address = state, (host, port)
-            self.connectivity_status_established.emit(self.state, self.addr)
             self._logger.info("Connectivity state is {}, mapped address: {}".format(state, addr))
+            self.connectivity_status_established.emit(self.state, addr)
 
-    def handle_message(self, msg):
+    def handle_CreatePermission(self, msg):
+        self._socket.permit(msg['args'])
+
+    @pyqtSlot(dict)
+    def handle_cmd_message(self, msg):
         command = msg.get('command')
-        if command == 'CreatePermission':
-            self._socket.permit(msg['args'])
+        f = getattr(self, "handle_" + command)
+
+        if not f:
+            logger.warn("No receiver for message {}".format(message))
+            return
+
+        f(msg)
 
     def bind(self, (host, port), login, peer_id):
         host, port = host, int(port)
@@ -178,12 +191,35 @@ class ConnectivityHelper(QObject):
         self._relays[(host, port)] = relay
 
     def send(self, command, args):
-        self._client.send({
+        meta = self._client.metaObject()
+        data = {
             'command': command,
             'target': 'connectivity',
             'args': args or []
-        })
+        }
 
+        meta.invokeMethod(self._client, "send", Qt.QueuedConnection, Q_ARG(dict, data))
+
+    @pyqtSlot(dict)
+    def handle_game_message(self, message):
+        command, args = message.get('command'), message.get('args', [])
+
+        if command == 'SendNatPacket':
+            addr_and_port, message = args
+            host, port = addr_and_port.split(':')
+            self.send(message, (host, port))
+        elif command == 'CreatePermission':
+            addr_and_port = args[0]
+            host, port = addr_and_port.split(':')
+            self.permit((host, port))
+        elif command == 'JoinGame':
+            addr, login, peer_id = args
+            self.bind(addr, login, peer_id)
+        elif command == 'ConnectToPeer':
+            addr, login, peer_id = args
+            self.bind(addr, login, peer_id)
+
+    @pyqtSlot()
     def prepare(self):
         if self.state == 'STUN' and not self._socket.turn_state == TURNState.BOUND:
             self._socket.connect_to_relay()

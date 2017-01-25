@@ -22,7 +22,6 @@ class Relay(QObject):
         self._socket.bind()
 
     def send(self, message):
-        self._logger.debug("game at 127.0.0.1:{}<<{} len: {}".format(self.game_port, self.peer_id, len(message)))
         self._socket.writeDatagram(message, QHostAddress.LocalHost, self.game_port)
 
     def _state_changed(self, state):
@@ -32,5 +31,4 @@ class Relay(QObject):
     def _ready_read(self):
         while self._socket.hasPendingDatagrams():
             data, host, port = self._socket.readDatagram(self._socket.pendingDatagramSize())
-            self._logger.debug("{}>>{}/{}".format(self._socket.localPort(), self.login, self.peer_id))
             self.recv(data)
