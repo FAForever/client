@@ -6,6 +6,7 @@ from PyQt4.QtNetwork import QAbstractSocket
 
 import config
 import connectivity
+import connectivity.nat as NAT
 from base import Client
 from config import Settings
 import chat
@@ -597,7 +598,7 @@ class ClientWindow(FormClass, BaseClass):
         # Clear UPnP Mappings...
         if self.useUPnP:
             self.progress.setLabelText("Removing UPnP port mappings")
-            fa.upnp.removePortMappings()
+            NAT.RemovePortMapping()
 
         # Terminate local ReplayServer
         if self.replayServer:
@@ -1182,7 +1183,7 @@ class ClientWindow(FormClass, BaseClass):
         util.crash.CRASH_REPORT_USER = self.login
 
         if self.useUPnP:
-            fa.upnp.createPortMapping(self.socket.localAddress().toString(), self.gamePort, "UDP")
+            NAT.CreatePortMapping(self.socket.localAddress().toString(), self.gamePort, "UDP")
 
         # update what's new page
         self.whatNewsView.loadFinished.connect(lambda x: self.whatNewsView.page().mainFrame()
@@ -1322,7 +1323,7 @@ document.getElementById('blogTerm').parentElement.parentElement.style.visibility
 
         # UPnP Mapper - mappings are removed on app exit
         if self.useUPnP:
-            fa.upnp.createPortMapping(self.socket.localAddress().toString(), self.gamePort, "UDP")
+            NAT.CreatePortMapping(self.socket.localAddress().toString(), self.gamePort, "UDP")
 
         info = dict(uid=message['uid'], recorder=self.login, featured_mod=message['mod'], launched_at=time.time())
 

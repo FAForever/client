@@ -22,5 +22,4 @@ import maps
 import mods
 import replayserver
 import updater
-import upnp
 import factions

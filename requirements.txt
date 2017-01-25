@@ -7,6 +7,7 @@ git+https://github.com/FAForever/faftools.git@develop#egg=faftools
 ipaddress
 pathlib
 py
+NAT-PMP
 pycparser==2.10
 pytest
 pytest-cov
