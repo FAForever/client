@@ -53,6 +53,7 @@ build_exe_options = {
                       'libeay32.dll',
                       'ssleay32.dll',
                       ('lib/faf-uid.exe', 'faf-uid.exe'),
+                      ('lib/faf-ice-adapter.exe', 'faf-ice-adapter.exe'),
                       ('lib/qt.conf', 'qt.conf'),
                       ('lib/xdelta3.exe', 'xdelta3.exe')],
     'icon': 'res/faf.ico',

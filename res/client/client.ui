@@ -265,7 +265,7 @@
      <addaction name="actionLink_account_to_Steam"/>
      <addaction name="separator"/>
      <addaction name="actionSetGamePath"/>
-     <addaction name="actionSetGamePort"/>
+     <addaction name="actionNetworkSettings"/>
      <addaction name="actionSaveGamelogs"/>
     </widget>
     <widget class="QMenu" name="menuTheme">
@@ -436,9 +436,9 @@
     <string>Game Path...</string>
    </property>
   </action>
-  <action name="actionSetGamePort">
+  <action name="actionNetworkSettings">
    <property name="text">
-    <string>Game Port...</string>
+    <string>Network...</string>
    </property>
   </action>
   <action name="actionSetMumbleOptions">
