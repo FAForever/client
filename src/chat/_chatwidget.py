@@ -6,7 +6,7 @@ from PyQt4 import QtGui, QtCore
 from PyQt4.QtNetwork import QNetworkAccessManager
 from PyQt4.QtCore import QSocketNotifier, QTimer
 
-from config import Settings
+from config import Settings, defaults
 import util
 
 import sys
@@ -25,7 +25,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
     use_chat = Settings.persisted_property('chat/enabled', type=bool, default_value=True)
     irc_port = Settings.persisted_property('chat/port', type=int, default_value=6667)
-    irc_host = Settings.persisted_property('chat/host', type=str, default_value='irc.faforever.com')
+    irc_host = Settings.persisted_property('chat/host', type=str, default_value='irc.' + defaults['host'])
     irc_tls = Settings.persisted_property('chat/tls', type=bool, default_value=False)
 
     """
