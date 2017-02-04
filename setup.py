@@ -49,6 +49,7 @@ except OSError:
 # Dependencies are automatically detected, but it might need fine tuning.
 build_exe_options = {
     'include_files': ['res',
+                      'ice-adapter',
                       'imageformats',
                       'libeay32.dll',
                       'ssleay32.dll',
