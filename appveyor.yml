@@ -45,7 +45,8 @@ install:
           $headers = @{}
         }
         (Invoke-WebRequest -Uri https://api.github.com/repos/FAForever/uid/releases/latest -Headers $headers  | ConvertFrom-Json).assets | where {$_.name -eq "faf-uid.exe"} | %{ iwr $_.browser_download_url -OutFile ".\\lib\\faf-uid.exe" }
-
+        (Invoke-WebRequest -Uri https://api.github.com/repos/FAForever/ice-adapter/releases/latest -Headers $headers  | ConvertFrom-Json).assets | where {$_.name -like "faf-ice-adapter-win32-*.zip"} | %{ iwr $_.browser_download_url -OutFile ".\\faf-ice-adapter.zip" }
+  - ps: Expand-Archive .\\faf-ice-adapter.zip -DestinationPath .
 test_script:
   - "%PYTHON%\\python runtests.py -vv --full-trace"
 
