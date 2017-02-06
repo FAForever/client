@@ -41,6 +41,15 @@
 * Fix 'View Replays in Vault' change to 'Online Vault' Tab (#495)
 * Make announcements less annoying (#575, thanks @HardlySoftly!)
 
+Contributors:
+ - Downlord
+ - Softly
+ - Sheeo
+ - Duke
+ - Grothe
+ - Muellni
+ - Wesmania
+
 0.11.64
 =======
 
