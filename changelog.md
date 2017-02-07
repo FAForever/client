@@ -1,3 +1,8 @@
+0.12.1
+======
+
+* Verson bump for updater
+
 0.12.0
 =======
 
