@@ -31,6 +31,8 @@ from types import IntType, FloatType, ListType, DictType
 from client import ClientState, LOBBY_HOST, \
     LOBBY_PORT, LOCAL_REPLAY_PORT
 
+from news import NewsFrame
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -210,7 +212,6 @@ class ClientWindow(FormClass, BaseClass):
         # create user interface (main window) and load theme
         self.setupUi(self)
         self.setStyleSheet(util.readstylesheet("client/client.css"))
-        self.whatNewsView.setHtml("<body style='background-color: #000;'></body>")
 
         self.setWindowTitle("FA Forever " + util.VERSION_STRING)
 
@@ -309,6 +310,9 @@ class ClientWindow(FormClass, BaseClass):
 
         # for moderator
         self.modMenu = None
+
+        nFrame = NewsFrame(self)
+        self.whatsNewLayout.addWidget(nFrame)
 
     @property
     def state(self):
@@ -1202,16 +1206,6 @@ class ClientWindow(FormClass, BaseClass):
 
         if self.useUPnP:
             fa.upnp.createPortMapping(self.socket.localAddress().toString(), self.gamePort, "UDP")
-
-        # update what's new page
-        self.whatNewsView.loadFinished.connect(lambda x: self.whatNewsView.page().mainFrame()
-                .evaluateJavaScript(
-                    """
-document.getElementById('header').style.visibility='hidden';
-document.getElementById('blogTerm').parentElement.parentElement.style.visibility='hidden';
-                    """
-                    ))
-        self.whatNewsView.setUrl(QtCore.QUrl("https://www.faforever.com/news"))
 
         self.updateOptions()
 

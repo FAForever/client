@@ -1,0 +1,1 @@
+from .newsitem import NewsFrame

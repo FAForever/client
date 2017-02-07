@@ -45,7 +45,16 @@
     </size>
    </property>
    <layout class="QGridLayout" name="mainGridLayout">
-    <property name="margin">
+    <property name="leftMargin">
+     <number>9</number>
+    </property>
+    <property name="topMargin">
+     <number>9</number>
+    </property>
+    <property name="rightMargin">
+     <number>9</number>
+    </property>
+    <property name="bottomMargin">
      <number>9</number>
     </property>
     <property name="spacing">
@@ -98,20 +107,23 @@
         <string>What's new ?</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_6">
-        <property name="margin">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
          <number>0</number>
         </property>
         <property name="spacing">
          <number>0</number>
         </property>
-        <item row="0" column="0">
-         <widget class="QWebView" name="whatNewsView">
-          <property name="url">
-           <url>
-            <string>about:blank</string>
-           </url>
-          </property>
-         </widget>
+        <item row="1" column="0">
+         <layout class="QVBoxLayout" name="whatsNewLayout"/>
         </item>
        </layout>
       </widget>
@@ -120,7 +132,16 @@
         <string>Chat Lobby</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout">
-        <property name="margin">
+        <property name="leftMargin">
+         <number>6</number>
+        </property>
+        <property name="topMargin">
+         <number>6</number>
+        </property>
+        <property name="rightMargin">
+         <number>6</number>
+        </property>
+        <property name="bottomMargin">
          <number>6</number>
         </property>
        </layout>
@@ -136,7 +157,16 @@
         <string>Play</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_7">
-        <property name="margin">
+        <property name="leftMargin">
+         <number>6</number>
+        </property>
+        <property name="topMargin">
+         <number>6</number>
+        </property>
+        <property name="rightMargin">
+         <number>6</number>
+        </property>
+        <property name="bottomMargin">
          <number>6</number>
         </property>
        </layout>
@@ -146,7 +176,16 @@
         <string>Tutorials</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_5">
-        <property name="margin">
+        <property name="leftMargin">
+         <number>6</number>
+        </property>
+        <property name="topMargin">
+         <number>6</number>
+        </property>
+        <property name="rightMargin">
+         <number>6</number>
+        </property>
+        <property name="bottomMargin">
          <number>6</number>
         </property>
        </layout>
@@ -156,7 +195,16 @@
         <string>Leaderboards</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_4">
-        <property name="margin">
+        <property name="leftMargin">
+         <number>6</number>
+        </property>
+        <property name="topMargin">
+         <number>6</number>
+        </property>
+        <property name="rightMargin">
+         <number>6</number>
+        </property>
+        <property name="bottomMargin">
          <number>6</number>
         </property>
        </layout>
@@ -166,7 +214,16 @@
         <string>Tournaments</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_13">
-        <property name="margin">
+        <property name="leftMargin">
+         <number>6</number>
+        </property>
+        <property name="topMargin">
+         <number>6</number>
+        </property>
+        <property name="rightMargin">
+         <number>6</number>
+        </property>
+        <property name="bottomMargin">
          <number>6</number>
         </property>
        </layout>
@@ -176,7 +233,16 @@
         <string>Units Database</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_10">
-        <property name="margin">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
          <number>0</number>
         </property>
         <item row="0" column="0">
@@ -195,7 +261,16 @@
         <string>Replays</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_2">
-        <property name="margin">
+        <property name="leftMargin">
+         <number>6</number>
+        </property>
+        <property name="topMargin">
+         <number>6</number>
+        </property>
+        <property name="rightMargin">
+         <number>6</number>
+        </property>
+        <property name="bottomMargin">
          <number>6</number>
         </property>
        </layout>
@@ -205,7 +280,16 @@
         <string>Vaults</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_9">
-        <property name="margin">
+        <property name="leftMargin">
+         <number>6</number>
+        </property>
+        <property name="topMargin">
+         <number>6</number>
+        </property>
+        <property name="rightMargin">
+         <number>6</number>
+        </property>
+        <property name="bottomMargin">
          <number>6</number>
         </property>
         <item row="0" column="0">
@@ -218,7 +302,16 @@
             <string>Maps</string>
            </attribute>
            <layout class="QGridLayout" name="gridLayout_11">
-            <property name="margin">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
              <number>0</number>
             </property>
            </layout>
@@ -228,7 +321,16 @@
             <string>Mods</string>
            </attribute>
            <layout class="QGridLayout" name="gridLayout_12">
-            <property name="margin">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
              <number>0</number>
             </property>
            </layout>
@@ -247,16 +349,16 @@
      <x>0</x>
      <y>0</y>
      <width>983</width>
-     <height>18</height>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuOptions">
     <property name="title">
-     <string>Options</string>
+     <string>Optio&amp;ns</string>
     </property>
     <widget class="QMenu" name="menuSettings">
      <property name="title">
-      <string>Settings...</string>
+      <string>&amp;Settings...</string>
      </property>
      <addaction name="actionSetAutoLogin"/>
      <addaction name="actionSetAutoDownloadMods"/>
@@ -273,12 +375,12 @@
       <bool>true</bool>
      </property>
      <property name="title">
-      <string>Theme...</string>
+      <string>&amp;Theme...</string>
      </property>
     </widget>
     <widget class="QMenu" name="menuClear">
      <property name="title">
-      <string>Clear...</string>
+      <string>C&amp;lear...</string>
      </property>
      <addaction name="actionClearCache"/>
      <addaction name="actionClearSettings"/>
@@ -287,7 +389,7 @@
     </widget>
     <widget class="QMenu" name="menuChat">
      <property name="title">
-      <string>Chat...</string>
+      <string>&amp;Chat...</string>
      </property>
      <addaction name="actionColoredNicknames"/>
      <addaction name="actionFriendsOnTop"/>
@@ -299,7 +401,7 @@
     </widget>
     <widget class="QMenu" name="menuNotifications">
      <property name="title">
-      <string>Notifications...</string>
+      <string>&amp;Notifications...</string>
      </property>
      <addaction name="actionNsEnabled"/>
      <addaction name="actionNsSettings"/>
@@ -324,7 +426,7 @@
    </widget>
    <widget class="QMenu" name="menuLinks">
     <property name="title">
-     <string>Links</string>
+     <string>&amp;Links</string>
     </property>
     <addaction name="actionLinkUnitDB"/>
     <addaction name="separator"/>
@@ -339,27 +441,27 @@
   </widget>
   <action name="actionAbout">
    <property name="text">
-    <string>About FAF</string>
+    <string>&amp;About FAF</string>
    </property>
   </action>
   <action name="actionLinkWebsite">
    <property name="text">
-    <string>Website</string>
+    <string>&amp;Website</string>
    </property>
   </action>
   <action name="actionLinkWiki">
    <property name="text">
-    <string>Wiki</string>
+    <string>W&amp;iki</string>
    </property>
   </action>
   <action name="actionLinkGitHub">
    <property name="text">
-    <string>GitHub</string>
+    <string>&amp;GitHub</string>
    </property>
   </action>
   <action name="actionShowLogs">
    <property name="text">
-    <string>Show Logs</string>
+    <string>&amp;Show Logs</string>
    </property>
   </action>
   <action name="actionReportBug">
@@ -369,17 +471,17 @@
   </action>
   <action name="actionLinkForums">
    <property name="text">
-    <string>Forums</string>
+    <string>&amp;Forums</string>
    </property>
   </action>
   <action name="actionLinkUnitDB">
    <property name="text">
-    <string>Unit List</string>
+    <string>&amp;Unit List</string>
    </property>
   </action>
   <action name="actionTechSupport">
    <property name="text">
-    <string>Tech Support</string>
+    <string>&amp;Tech Support</string>
    </property>
   </action>
   <action name="actionLinkMumble">
@@ -392,7 +494,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Automatic Login</string>
+    <string>&amp;Automatic Login</string>
    </property>
   </action>
   <action name="actionSetAutoDownloadMods">
@@ -400,7 +502,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Automatic Downloading of Mods</string>
+    <string>Automatic &amp;Downloading of Mods</string>
    </property>
   </action>
   <action name="actionSetAutoDownloadMaps">
@@ -408,12 +510,12 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Automatic Downloading of Maps</string>
+    <string>Automatic Downloading &amp;of Maps</string>
    </property>
   </action>
   <action name="actionClearCache">
    <property name="text">
-    <string>Cache</string>
+    <string>&amp;Cache</string>
    </property>
   </action>
   <action name="actionClearLogs">
@@ -423,22 +525,22 @@
   </action>
   <action name="actionClearSettings">
    <property name="text">
-    <string>Settings</string>
+    <string>&amp;Settings</string>
    </property>
   </action>
   <action name="actionClearGameFiles">
    <property name="text">
-    <string>Game Files</string>
+    <string>&amp;Game Files</string>
    </property>
   </action>
   <action name="actionSetGamePath">
    <property name="text">
-    <string>Game Path...</string>
+    <string>&amp;Game Path...</string>
    </property>
   </action>
   <action name="actionSetGamePort">
    <property name="text">
-    <string>Game Port...</string>
+    <string>Game &amp;Port...</string>
    </property>
   </action>
   <action name="actionSetMumbleOptions">
@@ -465,7 +567,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Sound Effects</string>
+    <string>&amp;Sound Effects</string>
    </property>
   </action>
   <action name="actionMessages">
@@ -499,7 +601,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Joins / Parts</string>
+    <string>&amp;Joins / Parts</string>
    </property>
   </action>
   <action name="actionSetOpenGames">
@@ -510,7 +612,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Friend Games</string>
+    <string>Friend &amp;Games</string>
    </property>
   </action>
   <action name="actionSetLiveReplays">
@@ -521,7 +623,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Friend Replays</string>
+    <string>Friend &amp;Replays</string>
    </property>
   </action>
   <action name="actionSaveGamelogs">
@@ -529,7 +631,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Save game logs</string>
+    <string>&amp;Save game logs</string>
    </property>
   </action>
   <action name="actionColoredNicknames">
@@ -537,7 +639,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Colored nicknames</string>
+    <string>&amp;Colored nicknames</string>
    </property>
   </action>
   <action name="actionFriendsOnTop">
@@ -545,17 +647,17 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Friends on top</string>
+    <string>&amp;Friends on top</string>
    </property>
   </action>
   <action name="actionWiki">
    <property name="text">
-    <string>Wiki</string>
+    <string>&amp;Wiki</string>
    </property>
   </action>
   <action name="actionLink_account_to_Steam">
    <property name="text">
-    <string>Link account to Steam</string>
+    <string>&amp;Link account to Steam</string>
    </property>
   </action>
   <action name="actionTestingConnections">
@@ -581,12 +683,12 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Enabled</string>
+    <string>&amp;Enabled</string>
    </property>
   </action>
   <action name="actionNsSettings">
    <property name="text">
-    <string>Settings</string>
+    <string>&amp;Settings</string>
    </property>
   </action>
  </widget>
@@ -594,7 +696,7 @@
   <customwidget>
    <class>QWebView</class>
    <extends>QWidget</extends>
-   <header>QtWebKit/QWebView</header>
+   <header>QtWebKitWidgets/QWebView</header>
   </customwidget>
  </customwidgets>
  <resources/>
