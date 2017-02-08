@@ -31,6 +31,7 @@ if sys.platform == 'win32':
     git_version = version.get_git_version()
     msi_version = version.msi_version(git_version)
     appveyor_build_version = os.getenv('APPVEYOR_BUILD_VERSION')
+    appveyor_build_version = appveyor_build_version.replace(' ','')
     version.write_version_file(appveyor_build_version, res_dir)
 
     print('Git version:', git_version,
