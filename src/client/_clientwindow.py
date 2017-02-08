@@ -31,7 +31,7 @@ from types import IntType, FloatType, ListType, DictType
 from client import ClientState, LOBBY_HOST, \
     LOBBY_PORT, LOCAL_REPLAY_PORT
 
-from news import NewsFrame
+from news import NewsFrame, WPAPI
 
 import logging
 
@@ -311,8 +311,19 @@ class ClientWindow(FormClass, BaseClass):
         # for moderator
         self.modMenu = None
 
-        nFrame = NewsFrame(self)
-        self.whatsNewLayout.addWidget(nFrame)
+        #self.nFrame = NewsFrame()
+        #self.whatsNewLayout.addWidget(self.nFrame)
+        #self.nFrame.collapse()
+
+        #self.nFrame = NewsFrame()
+        #self.whatsNewLayout.addWidget(self.nFrame)
+
+        #self.nFrame = NewsFrame()
+        #self.whatsNewLayout.addWidget(self.nFrame)
+
+        self.WPApi = WPAPI(self)
+        self.WPApi.newsDone.connect(self.on_wpapi_done)
+        self.WPApi.download()
 
     @property
     def state(self):
@@ -322,6 +333,11 @@ class ClientWindow(FormClass, BaseClass):
     def state(self, value):
         self._state = value
         self.state_changed.emit(value)
+
+    @QtCore.pyqtSlot()
+    def on_wpapi_done(self):
+        for frame in self.WPApi.newsItems[:5]:
+            self.whatsNewLayout.addWidget(frame)
 
     @QtCore.pyqtSlot(bool)
     def on_actionSavegamelogs_toggled(self, value):
