@@ -1,5 +1,6 @@
 from functools import partial
 
+from PyQt4 import Qt
 from PyQt4.QtCore import QUrl
 from PyQt4.QtGui import QLabel, QStyle
 from PyQt4.QtNetwork import QAbstractSocket
@@ -31,7 +32,7 @@ from types import IntType, FloatType, ListType, DictType
 from client import ClientState, LOBBY_HOST, \
     LOBBY_PORT, LOCAL_REPLAY_PORT
 
-from news import NewsFrame, WPAPI
+from news import NewsFrame, NewsManager, WPAPI
 
 import logging
 
@@ -321,9 +322,13 @@ class ClientWindow(FormClass, BaseClass):
         #self.nFrame = NewsFrame()
         #self.whatsNewLayout.addWidget(self.nFrame)
 
-        self.WPApi = WPAPI(self)
-        self.WPApi.newsDone.connect(self.on_wpapi_done)
-        self.WPApi.download()
+        self.newsManager = NewsManager(self)
+
+        #self.WPApi = WPAPI(self)
+        #self.WPApi.newsDone.connect(self.on_wpapi_done)
+        #self.WPApi.download()
+
+        self.controlsContainerLayout.setAlignment(self.pageControlFrame, QtCore.Qt.AlignRight)
 
     @property
     def state(self):
@@ -333,11 +338,6 @@ class ClientWindow(FormClass, BaseClass):
     def state(self, value):
         self._state = value
         self.state_changed.emit(value)
-
-    @QtCore.pyqtSlot()
-    def on_wpapi_done(self):
-        for frame in self.WPApi.newsItems[:5]:
-            self.whatsNewLayout.addWidget(frame)
 
     @QtCore.pyqtSlot(bool)
     def on_actionSavegamelogs_toggled(self, value):
