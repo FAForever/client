@@ -38,6 +38,7 @@ class ClientUpdater(QObject):
             self._rep.finished.connect(self._run_installer)
             self._rep.error.connect(self.error)
             self._rep.readyRead.connect(self._buffer)
+            self._progress.show()
         else:
             QtGui.QApplication.quit()
 
@@ -67,11 +68,13 @@ class ClientUpdater(QObject):
 
     def _setup_progress(self):
         progress = QtGui.QProgressDialog()
+        progress.setMinimumDuration(0)
         progress.setLabel(QLabel("Downloading update"))
         progress.setCancelButtonText("Cancel")
         progress.canceled.connect(self.cancel)
         progress.setWindowFlags(QtCore.Qt.CustomizeWindowHint
                                 | QtCore.Qt.WindowTitleHint)
+        progress.setWindowModality(QtCore.Qt.WindowModal)
         progress.setAutoClose(True)
         progress.setAutoReset(False)
         self._progress = progress
