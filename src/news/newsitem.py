@@ -72,13 +72,10 @@ class NewsFrame(FormClass, BaseClass):
 
     def collapse(self):
         self.newsWebView.hide()
+        self.mf.doFilter = True
 
-    def expand(self):
+    def expand(self, scrollbar_policy=Qt.ScrollBarAlwaysOff, set_filter=True):
+        self.newsWebView.page().mainFrame().setScrollBarPolicy(Qt.Vertical, scrollbar_policy)
         self.newsWebView.show()
         self.newsWebView.setHtml(self.content[1])
-
-    def toggle(self):
-        if self.newsWebView.isHidden():
-            self.expand()
-        else:
-            self.collapse()
+        self.mf.doFilter = set_filter

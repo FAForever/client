@@ -8,7 +8,7 @@ import sys
 logger = logging.getLogger(__name__)
 
 #FIXME: Make setting
-WPAPI_ROOT = 'http://direct.faforever.com/wp-json/wp/v2/posts?per_page=30'
+WPAPI_ROOT = 'http://direct.faforever.com/wp-json/wp/v2/posts?per_page={perpage}&page={page}'
 
 class WPAPI(QtCore.QObject):
     newsDone = QtCore.pyqtSignal(list)
@@ -44,8 +44,8 @@ class WPAPI(QtCore.QObject):
         except:
             logger.exception('Error handling wp data')
 
-    def download(self):
-        url = QtCore.QUrl(WPAPI_ROOT)
+    def download(self, page=1, perpage=10):
+        url = QtCore.QUrl(WPAPI_ROOT.format(page=page,perpage=perpage))
         request = QNetworkRequest(url)
         self.nam.get(request)
 

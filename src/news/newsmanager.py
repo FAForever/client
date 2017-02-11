@@ -32,7 +32,7 @@ class NewsManager(QObject):
 
         self.WpApi = WPAPI(client)
         self.WpApi.newsDone.connect(self.on_wpapi_done)
-        self.WpApi.download()
+        self.WpApi.download(page=1, perpage=10)
 
     @QtCore.pyqtSlot(list)
     def on_wpapi_done(self, items):
@@ -43,16 +43,16 @@ class NewsManager(QObject):
 
         We need to set up pagination and the news item frames.
         """
-        self.newsContent = items
+        self.newsContent = self.newsContent + items
 
-        self.npages = int(math.ceil(len(items) / self.FRAMES))
-        self.page = 0
+        self.npages = int(math.ceil(len(self.newsContent) / self.FRAMES))
+
+#        origpage = self.page
 
         pb = client.instance.pageBox
-        pb.clear()
-        pb.insertItems(0, ['Page {: >2}'.format(x + 1) for x in range(self.npages)])
+        pb.insertItems(pb.count(), ['Page {: >2}'.format(x + 1) for x in range(pb.count(), self.npages)])
 
-        self.selectPage(0)
+        self.selectPage(self.page)
 
     @QtCore.pyqtSlot()
     def frameClicked(self):
@@ -74,11 +74,8 @@ class NewsManager(QObject):
         else:
             for frame in self.newsFrames:
                 frame.collapse()
-                frame.mf.doFilter = True
 
-        selectedFrame.newsWebView.page().mainFrame().setScrollBarPolicy(Qt.Vertical, Qt.ScrollBarAsNeeded)
-        selectedFrame.expand()
-        selectedFrame.mf.doFilter = False
+        selectedFrame.expand(Qt.ScrollBarAsNeeded, set_filter=False)
 
         self.selectedFrame = selectedFrame
 
@@ -86,22 +83,20 @@ class NewsManager(QObject):
         logger.info('resetFrames')
         self.selectedFrame = None
         for frame in self.newsFrames:
-            frame.expand()
-            frame.newsWebView.page().mainFrame().setScrollBarPolicy(Qt.Vertical, Qt.ScrollBarAlwaysOff)
-            frame.mf.doFilter = True
-
+            frame.expand(Qt.ScrollBarAlwaysOff, set_filter=True)
 
     def nextPage(self):
-        self.selectPage(self.page + 1)
+        pb = client.instance.pageBox
+        pb.setCurrentIndex(self.page + 1)
 
     def prevPage(self):
-        self.selectPage(self.page - 1)
+        pb = client.instance.pageBox
+        pb.setCurrentIndex(self.page - 1)
 
     @QtCore.pyqtSlot(int)
     def selectPage(self, idx):
+        logger.info('selectPage')
         self.page = idx
-        pb = client.instance.pageBox
-        pb.setCurrentIndex(idx)
 
         client.instance.prevPageButton.setEnabled(True)
         client.instance.nextPageButton.setEnabled(True)
@@ -110,6 +105,8 @@ class NewsManager(QObject):
             client.instance.prevPageButton.setEnabled(False)
         elif idx == self.npages - 1:
             client.instance.nextPageButton.setEnabled(False)
+            # download next page
+            self.WpApi.download(page=self.npages+1, perpage=self.FRAMES)
 
         firstNewsIdx = idx * self.FRAMES
 
