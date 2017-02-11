@@ -2,6 +2,7 @@
 ======
 
 * Make sure client updater progress is shown (#605)
+* Check for updates on Github (#578)
 
 Contributors:
  - Duke

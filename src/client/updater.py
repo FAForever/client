@@ -1,12 +1,45 @@
 import tempfile
 import client
 import subprocess
+import json
+import semver
+import config
 
 from decorators import with_logger
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtGui import QLabel
 from PyQt4.QtCore import QUrl, QObject
 from PyQt4.QtNetwork import QNetworkRequest, QNetworkReply
+
+
+@with_logger
+class GithubUpdateChecker(QObject):
+    GH_RELEASE_URL = 'https://api.github.com/repos/FAForever/client/releases/latest'
+
+    update_found = QtCore.pyqtSignal(dict)
+
+    def __init__(self):
+        QObject.__init__(self)
+        self._network_manager = client.NetworkManager
+
+    def start(self):
+        url = QUrl(self.GH_RELEASE_URL)
+        self._rep = self._network_manager.get(QNetworkRequest(url))
+        self._rep.finished.connect(self._req_done)
+
+    def _req_done(self):
+        try:
+            body = self._rep.readAll()
+            js = json.loads(unicode(body))
+            tag = js.get('tag_name')
+            self._logger.info('Found release on github: {}'.format(js.get('name')))
+            if tag is not None:
+                curr_ver = config.VERSION.split('-')[0]
+                if semver.compare(tag, curr_ver) > 0:
+                    self._logger.info('Should update {} -> {}'.format(curr_ver, tag))
+                    self.update_found.emit(js)
+        except:
+            self._logger.exception("Error parsing network reply")
 
 
 @with_logger
@@ -20,10 +53,23 @@ class ClientUpdater(QObject):
         self._req = None
         self._rep = None
 
-    def exec_(self):
+    def exec_(self, is_gh=False, is_pre=False, info_url='https://github.com/FAForever/client/blob/develop/changelog.md'):
+        update_msg = {
+                False: (
+                    "Update needed",
+                    "Your version of FAF is outdated. You need to download and install the most recent version to connect and play.<br/><br/><b>Do you want to download and install the update now?</b><br/><br/><a href='{}'>See changes</a>".format(info_url)
+                    ),
+                True: (
+                    "Update available",
+                    "There is a new{} version of FAF.<br/><b>Would you like to download and install this update now?</b><br/><br/><a href='{}'>See information</a>".format(
+                        ' beta' if is_pre else ' release',
+                        info_url
+                        )
+                    )
+                }
         result = QtGui.QMessageBox.question(None,
-                                            "Update Needed",
-                                            "Your version of FAF is outdated. You need to download and install the most recent version to connect and play.<br/><br/><b>Do you want to download and install the update now?</b><br/><br/><a href='https://github.com/FAForever/client/blob/develop/changelog.md'>See changes</a>",
+                                            update_msg[is_gh][0],
+                                            update_msg[is_gh][1],
                                             QtGui.QMessageBox.No,
                                             QtGui.QMessageBox.Yes)
         if result == QtGui.QMessageBox.Yes:
@@ -39,7 +85,7 @@ class ClientUpdater(QObject):
             self._rep.error.connect(self.error)
             self._rep.readyRead.connect(self._buffer)
             self._progress.show()
-        else:
+        elif not is_gh:
             QtGui.QApplication.quit()
 
     def error(self, code):

@@ -11,7 +11,7 @@ from config import Settings
 import chat
 from client.player import Player
 from client.players import Players
-from client.updater import ClientUpdater
+from client.updater import ClientUpdater, GithubUpdateChecker
 import fa
 from connectivity.helper import ConnectivityHelper
 from fa import GameSession
@@ -549,6 +549,10 @@ class ClientWindow(FormClass, BaseClass):
         self.mainGridLayout.addLayout(self.warning, 2, 0)
         self.warningHide()
 
+        self.githubUpdater = GithubUpdateChecker()
+        self.githubUpdater.update_found.connect(self.github_update)
+        self.githubUpdater.start()
+
     def warningHide(self):
         """
         hide the warning bar for matchmaker
@@ -569,6 +573,21 @@ class ClientWindow(FormClass, BaseClass):
         self.state = ClientState.DISCONNECTED
         self.socket.disconnectFromHost()
         self.chat.disconnect()
+
+    @QtCore.pyqtSlot(dict)
+    def github_update(self, update):
+        logger.info('Got github update')
+        version = update['name']
+        prerelease = update['prerelease']
+        assets = update['assets']
+        url = update['url']
+        download_url = None
+        for asset in assets:
+            if '.msi' in asset['browser_download_url']:
+                download_url = asset['browser_download_url']
+        if download_url is not None:
+            self._client_updater = ClientUpdater(download_url)
+            self._client_updater.exec_(True, prerelease, url)
 
     @QtCore.pyqtSlot()
     def cleanup(self):
