@@ -1,3 +1,11 @@
+0.12.2
+======
+
+* Make sure client updater progress is shown (#605)
+
+Contributors:
+ - Duke
+
 0.12.1
 ======
 
