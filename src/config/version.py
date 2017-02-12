@@ -15,10 +15,9 @@
 # write_version_file. It accepts a string to write and the directory you
 # want to create the version file in.
 #
-# Finally, you can run this file with an interpreter. It will return the
-# output of get_git_version, optionally passing it the first command line
-# argument as path to directory containing the RELEASE-VERSION file. If
-# it fails to find the version, the return value will be 1.
+# Finally, you can run this file with an interpreter. It will simply return
+# the output of get_git_version. If it fails to find the version, the return
+# value will be 1.
 #
 # Note that the RELEASE-VERSION file should *not* be checked into git;
 # please add it to your top-level .gitignore file.
@@ -28,21 +27,8 @@ import sys, os
 
 __all__ = ["get_git_version", "get_release_version", "write_version_file"]
 
-def call_git_describe(git_path = None):
-    git_args = ['describe', '--tags', '--always']
-    if git_path is not None:
-        git_args = ['-C', git_path] + git_args
-    try:
-        lines = check_output(["git"] + git_args).split(os.linesep)
-        line = lines[0]
-        return line
-    except Exception as e:
-        sys.stderr.write("Error grabbing git version: {}".format(e))
-        return None
-
 def is_development_version(version):
     return "-" in version and not is_prerelease_version(version)
-
 
 def is_prerelease_version(version):
     return "pre" in version or "rc" in version
@@ -75,45 +61,34 @@ def msi_version(git_version):
     sanitized = [fragment for fragment in re.findall(r"[\w']+", git_version) if fragment.isdigit()][:3]
     return ".".join(sanitized) or "0.0.0"
 
-# This is run by FAF to find our version. It should first try to locate the
-# RELEASE-VERSION file, then try to fall back on git (maybe we're run from
-# the repo), then, if it fails, throw an exception.
+
+def get_git_version(git_dir = None):
+    git_args = ['describe', '--tags', '--always']
+    if git_dir is not None:
+        git_args = ['-C', git_dir] + git_args
+    try:
+        lines = check_output(["git"] + git_args).split(os.linesep)
+        line = lines[0]
+        return line
+    except Exception as e:
+        sys.stderr.write("Error grabbing git version: {}".format(e))
+        return None
+
 def get_release_version(dir = None, git_dir = None):
-    version = None if dir is None else read_version_file(dir)
+    version = read_version_file(dir) if dir is not None else None
     if version is not None:
         return version
 
     # Maybe we are running from source?
-    version = call_git_describe(git_dir)
-
+    version = get_git_version(git_dir)
     # If we still don't have anything, that's an error.
     if version is None:
         sys.stderr.write("Could not get git version" + os.linesep)
         raise ValueError("Cannot find the version number! Please provide RELEASE-VERSION file or run from git.")
-
     return version
 
-# This is run by an install script. It should first try to ask git for the
-# version. If it fails (maybe we are in an unpacked tarball), it may fall back
-# to reading the RELEASE-VERSION file in the provided dir.
-def get_git_version(dir = None, git_dir = None):
-    version = call_git_describe(git_dir)
-    if version is not None:
-        return version
-    elif dir is not None:
-        return read_version_file(dir)
-    else:
-        return None
-
 if __name__ == "__main__":
-    # We were run by a setup script to return current version.
-    # Get the optional directory from command line.
-    # Assume our current directory is FAF git repo.
-    if len(sys.argv) == 1:
-        dir = None
-    else:
-        dir = sys.argv[1]
-    res = get_git_version(dir)
-    if (res is None):
+    res = get_git_version()
+    if res is None:
         exit(1)
     print(res)
