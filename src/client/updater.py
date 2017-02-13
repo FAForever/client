@@ -2,7 +2,7 @@ import tempfile
 import client
 import subprocess
 import json
-import semver
+from semantic_version import Version
 import config
 
 from decorators import with_logger
@@ -35,7 +35,7 @@ class GithubUpdateChecker(QObject):
             self._logger.info('Found release on github: {}'.format(js.get('name')))
             if tag is not None:
                 curr_ver = config.VERSION.split('-')[0]
-                if semver.compare(tag, curr_ver) > 0:
+                if Version(tag) > Version(curr_ver):
                     self._logger.info('Should update {} -> {}'.format(curr_ver, tag))
                     self.update_found.emit(js)
         except:
