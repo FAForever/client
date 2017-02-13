@@ -2,6 +2,8 @@ import logging
 import os
 import glob
 import shutil
+import zipfile
+import binascii
 
 from PyQt4 import QtGui
 
@@ -66,32 +68,36 @@ def path(parent):
 def game(parent):
     return True
 
-def checkMovies():
+def crc32(fname):
+    with open(fname) as stream:
+        return binascii.crc32(stream)
+
+def checkMovies(files):
     """
-    This function rescues movies (.sdf files) from the gamedata folder and copies
-    them to the movies folder.
+    Unpacks movies (based on path in zipfile) to the movies folder.
+
+    Movies must be unpacked for FA to be able to play them.
 
     This is a hack needed because the game updater can only handle bin and gamedata.
     """
 
+    logger.info('checking updated files: {}'.format(files))
+
     # construct dirs
     gd = os.path.join(util.APPDATA_DIR, 'gamedata')
-    mv = os.path.join(util.APPDATA_DIR, 'movies')
 
-    # make sure moviedir exists
-    if not os.path.exists(mv):
-        try:
-            os.makedirs(mv)
-        except:
-            logger.exception('Failed to make moviedir! Check permissions.')
-            return
+    for fname in files:
+        origpath = os.path.join(gd, fname)
 
-    moviefiles = glob.glob(os.path.join(gd, '*.sdf'))
-    for gdf in moviefiles:
-        bn = os.path.basename(mvf)
-        mvf = os.path.join(mv, bn)
-        if not os.file.exists(gdf) or os.stat(gdf).st_size != os.stat(mvg).st_size:
-            shutil.copyfile(gdf, mvf)
+        if os.path.exists(origpath) and zipfile.is_zipfile(origpath):
+            zf = zipfile.ZipFile(origpath)
+
+            for zi in zf.infolist():
+                if zi.filename.startswith('movies'):
+                    tgtpath = os.path.join(util.APPDATA_DIR, zi.filename)
+                    # copy only if file is different - check first if file exists, then if size is changed, then crc
+                    if not os.path.exists(tgtpath) or os.stat(tgtpath).st_size != zi.file_size or crc32(tgtpath) != zi.CRC:
+                        zf.extract(zi, util.APPDATA_DIR)
 
 def check(featured_mod, mapname=None, version=None, modVersions=None, sim_mods=None, silent=False):
     """
@@ -115,6 +121,13 @@ def check(featured_mod, mapname=None, version=None, modVersions=None, sim_mods=N
     result = game_updater.run()
 
     if result != fa.updater.Updater.RESULT_SUCCESS:
+        return False
+
+    try:
+        if len(game_updater.updatedFiles) > 0:
+            checkMovies(game_updater.updatedFiles)
+    except:
+        logger.exception('Error checking game files for movies')
         return False
 
     # Now it's down to having the right map

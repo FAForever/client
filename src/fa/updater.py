@@ -122,6 +122,7 @@ class Updater(QtCore.QObject):
         QtCore.QObject.__init__(self, *args, **kwargs)
 
         self.filesToUpdate = []
+        self.updatedFiles = []
 
         self.lastData = time.time()
 
@@ -553,6 +554,7 @@ class Updater(QtCore.QObject):
             toFile = os.path.join(util.APPDATA_DIR, str(path), str(fileToCopy))
             self.fetchFile(url, toFile)
             self.filesToUpdate.remove(str(fileToCopy))
+            self.updatedFiles.append(str(fileToCopy))
 
         elif action == "SEND_FILE":
             path = stream.readQString()
@@ -577,6 +579,7 @@ class Updater(QtCore.QObject):
 
             log("%s is copied in %s." % (fileToCopy, path))
             self.filesToUpdate.remove(str(fileToCopy))
+            self.updatedFiles.append(str(fileToCopy))
 
         elif action == "SEND_PATCH_URL":
             destination = str(stream.readQString())
@@ -592,6 +595,7 @@ class Updater(QtCore.QObject):
 
                 log("%s/%s is patched." % (destination, fileToUpdate))
                 self.filesToUpdate.remove(str(fileToUpdate))
+                self.updatedFiles.append(str(fileToUpdate))
             else :
                 log("Failed to update file :'(")
         else:
