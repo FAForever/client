@@ -3,6 +3,7 @@
 
 * Remove dependency on faftools (#756, #757)
 * Remove many unused client dependencies (#566, 759)
+* Clean up usage of directory paths (#571)
 
 Contributors:
  - Wesmania
@@ -21,7 +22,6 @@ Contributors:
 Contributors:
   - Grothe
   - Wesmania
-
 
 0.12.5
 =====
