@@ -75,7 +75,7 @@ def check(featured_mod, mapname=None, version=None, modVersions=None, sim_mods=N
     if version is None:
         logger.info("Version unknown, assuming latest")
 
-    # Perform the actual comparisons and updating                    
+    # Perform the actual comparisons and updating
     logger.info("Updating FA for mod: " + str(featured_mod) + ", version " + str(version))
 
     import client
