@@ -1,4 +1,7 @@
 import logging
+import os
+import glob
+import shutil
 
 from PyQt4 import QtGui
 
@@ -63,6 +66,32 @@ def path(parent):
 def game(parent):
     return True
 
+def checkMovies():
+    """
+    This function rescues movies (.sdf files) from the gamedata folder and copies
+    them to the movies folder.
+
+    This is a hack needed because the game updater can only handle bin and gamedata.
+    """
+
+    # construct dirs
+    gd = os.path.join(util.APPDATA_DIR, 'gamedata')
+    mv = os.path.join(util.APPDATA_DIR, 'movies')
+
+    # make sure moviedir exists
+    if not os.path.exists(mv):
+        try:
+            os.makedirs(mv)
+        except:
+            logger.exception('Failed to make moviedir! Check permissions.')
+            return
+
+    moviefiles = glob.glob(os.path.join(gd, '*.sdf'))
+    for gdf in moviefiles:
+        bn = os.path.basename(mvf)
+        mvf = os.path.join(mv, bn)
+        if not os.file.exists(gdf) or os.stat(gdf).st_size != os.stat(mvg).st_size:
+            shutil.copyfile(gdf, mvf)
 
 def check(featured_mod, mapname=None, version=None, modVersions=None, sim_mods=None, silent=False):
     """
