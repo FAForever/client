@@ -25,6 +25,20 @@ from replays.replayitem import ReplayItem, ReplayItemDelegate
 
 FormClass, BaseClass = util.loadUiType("replays/replays.ui")
 
+class LiveReplayItem(QtGui.QTreeWidgetItem):
+    def __init__(self, time):
+        QtGui.QTreeWidgetItem.__init__(self)
+        self.time = time
+
+    def __lt__(self, other):
+        return self.time < other.time
+    def __le__(self, other):
+        return self.time <= other.time
+    def __gt__(self, other):
+        return self.time > other.time
+    def __ge__(self, other):
+        return self.time >= other.time
+
 
 class ReplaysWidget(BaseClass, FormClass):
     SOCKET = 11002
@@ -404,7 +418,7 @@ class ReplaysWidget(BaseClass, FormClass):
                 item.takeChildren()  # Clear the children of this item before we're updating it
             else:
                 # Creating a fresh item
-                item = QtGui.QTreeWidgetItem()
+                item = LiveReplayItem(info.get('launched_at', time.time()))
                 self.games[info['uid']] = item
                 
                 self.liveTree.insertTopLevelItem(0, item)
