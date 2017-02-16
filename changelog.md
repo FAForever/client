@@ -3,6 +3,7 @@
 
 * Make sure client updater progress is shown (#605)
 * Check for updates on Github (#578)
+* fix usability of 'Live Games' in Replays (#614)
 
 Contributors:
  - Duke
