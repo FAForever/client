@@ -34,6 +34,7 @@ install:
   - ps: "Write-Host \"$($env:faf_version) + $($env:APPVEYOR_BUILD_NUMBER) = $($env:APPVEYOR_BUILD_VERSION)\""
   - ps: "$env:PYTEST_QT_API=\"pyqt4v2\""
   - ps: "$env:FAF_FORCE_PRODUCTION=true"
+  - mkdir ice-adapter
   - ps:
       |
         if ($env:GITHUB_TOKEN) {
@@ -45,6 +46,9 @@ install:
           $headers = @{}
         }
         (Invoke-WebRequest -Uri https://api.github.com/repos/FAForever/uid/releases/latest -Headers $headers  | ConvertFrom-Json).assets | where {$_.name -eq "faf-uid.exe"} | %{ iwr $_.browser_download_url -OutFile ".\\lib\\faf-uid.exe" }
+        (Invoke-WebRequest -Uri https://api.github.com/repos/FAForever/ice-adapter/releases/latest -Headers $headers  | ConvertFrom-Json).assets | where {$_.name -eq "faf-ice-adapter.js"} | %{ iwr $_.browser_download_url -OutFile ".\\ice-adapter\\faf-ice-adapter.js" }
+        (Invoke-WebRequest -Uri https://github.com/FAForever/node-webrtc/releases/download/untagged-9cae71a02bfad5ffb694/wrtc.node -Headers $headers -OutFile ".\\ice-adapter\\wrtc.node")
+  - ps: (Invoke-WebRequest -Uri https://nodejs.org/dist/v7.5.0/win-x86/node.exe -OutFile ".\\ice-adapter\\node.exe")
 
 test_script:
   - "%PYTHON%\\python runtests.py -vv --full-trace"
