@@ -3,11 +3,13 @@
 
 * Make sure client updater progress is shown (#605)
 * Check for updates on Github (#578)
-* fix usability of 'Live Games' in Replays (#614)
+* fix usability of 'Live Games' in Replays (#615)
+* Fix live replay sorting (#616)
 
 Contributors:
  - Duke
  - Grothe
+ - Wesmania
 
 0.12.1
 ======
