@@ -411,7 +411,10 @@ class ReplaysWidget(BaseClass, FormClass):
                 
                 if time.time() - info.get('launched_at', time.time()) < LIVEREPLAY_DELAY_TIME:
                     item.setHidden(True)
-                    QtCore.QTimer.singleShot(LIVEREPLAY_DELAY_QTIMER, self.displayReplay)  # The delay is there because we have a delay in the livereplay server
+                    # to get the delay right on client start, subtract the already passed game time
+                    delay_time = LIVEREPLAY_DELAY_QTIMER - int(1000*(time.time() - info.get('launched_at', time.time())))
+                    QtCore.QTimer.singleShot(delay_time, self.displayReplay)
+                    # The delay is there because we have a delay in the livereplay server
 
             # For debugging purposes, format our tooltip for the top level items
             # so it contains a human-readable representation of the info dictionary
@@ -428,11 +431,17 @@ class ReplaysWidget(BaseClass, FormClass):
                 self.client.downloader.downloadMap(item.info['mapname'], item, True)
                 icon = util.icon("games/unknown_map.png")
 
-            item.setText(0, time.strftime("%H:%M", time.localtime(item.info.get('launched_at', time.time()))))
+            item.setText(0, time.strftime("%Y-%m-%d  -  %H:%M", time.localtime(item.info.get('launched_at', time.time()))))
             item.setTextColor(0, QtGui.QColor(client.instance.getColor("default")))
                                     
-            item.setIcon(0, icon)
-            item.setText(1, info['title'])
+            if info['featured_mod'] == "coop":  # no map icons for coop
+                item.setIcon(0, util.icon("games/unknown_map.png"))
+            else:
+                item.setIcon(0, icon)
+            if info['featured_mod'] == "ladder1v1":
+                item.setText(1, info['title'])
+            else:
+                item.setText(1, info['title'] + "    -    [host: " + info['host'] + "]")
             item.setTextColor(1, QtGui.QColor(client.instance.getColor("player")))
             
             item.setText(2, info['featured_mod'])
