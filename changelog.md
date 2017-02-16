@@ -7,6 +7,7 @@
 
 Contributors:
  - Duke
+ - Grothe
 
 0.12.1
 ======
