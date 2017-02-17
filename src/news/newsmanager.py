@@ -1,7 +1,7 @@
 from PyQt4 import QtCore
 from PyQt4.QtCore import QObject, Qt
 
-from .newsitem import NewsFrame
+from .newsitem import NewsItem
 from .wpapi import WPAPI
 
 import client
@@ -15,20 +15,21 @@ class NewsManager(QObject):
 
     def __init__(self, client):
         QObject.__init__(self)
-        self.newsContent = []
-        self.newsFrames = []
-        self.selectedFrame = None
-        self.page = 0
-
-        for i in range(self.FRAMES):
-            frame = NewsFrame()
-            self.newsFrames.append(frame)
-            client.newsAreaLayout.addWidget(frame)
-            frame.clicked.connect(self.frameClicked)
-
-        client.nextPageButton.clicked.connect(self.nextPage)
-        client.prevPageButton.clicked.connect(self.prevPage)
-        client.pageBox.currentIndexChanged.connect(self.selectPage)
+        self.widget = client
+#        self.newsContent = []
+#        self.newsFrames = []
+#        self.selectedFrame = None
+#        self.page = 0
+#
+#        for i in range(self.FRAMES):
+#            frame = NewsFrame()
+#            self.newsFrames.append(frame)
+#            client.newsAreaLayout.addWidget(frame)
+#            frame.clicked.connect(self.frameClicked)
+#
+#        client.nextPageButton.clicked.connect(self.nextPage)
+#        client.prevPageButton.clicked.connect(self.prevPage)
+#        client.pageBox.currentIndexChanged.connect(self.selectPage)
 
         self.WpApi = WPAPI(client)
         self.WpApi.newsDone.connect(self.on_wpapi_done)
@@ -43,16 +44,18 @@ class NewsManager(QObject):
 
         We need to set up pagination and the news item frames.
         """
-        self.newsContent = self.newsContent + items
-
-        self.npages = int(math.ceil(len(self.newsContent) / self.FRAMES))
-
-#        origpage = self.page
-
-        pb = client.instance.pageBox
-        pb.insertItems(pb.count(), ['Page {: >2}'.format(x + 1) for x in range(pb.count(), self.npages)])
-
-        self.selectPage(self.page)
+        for item in items:
+            self.widget.addNews(item)
+#        self.newsContent = self.newsContent + items
+#
+#        self.npages = int(math.ceil(len(self.newsContent) / self.FRAMES))
+#
+##        origpage = self.page
+#
+#        pb = client.instance.pageBox
+#        pb.insertItems(pb.count(), ['Page {: >2}'.format(x + 1) for x in range(pb.count(), self.npages)])
+#
+#        self.selectPage(self.page)
 
     @QtCore.pyqtSlot()
     def frameClicked(self):

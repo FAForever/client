@@ -32,8 +32,6 @@ from types import IntType, FloatType, ListType, DictType
 from client import ClientState, LOBBY_HOST, \
     LOBBY_PORT, LOCAL_REPLAY_PORT
 
-from news import NewsFrame, NewsManager, WPAPI
-
 import logging
 
 logger = logging.getLogger(__name__)
@@ -322,13 +320,12 @@ class ClientWindow(FormClass, BaseClass):
         #self.nFrame = NewsFrame()
         #self.whatsNewLayout.addWidget(self.nFrame)
 
-        self.newsManager = NewsManager(self)
 
         #self.WPApi = WPAPI(self)
         #self.WPApi.newsDone.connect(self.on_wpapi_done)
         #self.WPApi.download()
 
-        self.controlsContainerLayout.setAlignment(self.pageControlFrame, QtCore.Qt.AlignRight)
+        #self.controlsContainerLayout.setAlignment(self.pageControlFrame, QtCore.Qt.AlignRight)
 
     @property
     def state(self):
@@ -506,6 +503,7 @@ class ClientWindow(FormClass, BaseClass):
         import downloadManager
         import modvault
         import coop
+        import news
         from chat._avatarWidget import avatarWidget
 
         # download manager
@@ -520,6 +518,7 @@ class ClientWindow(FormClass, BaseClass):
         chat.CHAT_COLORS = json.loads(util.readfile("client/colors.json"))
 
         # build main window with the now active client
+        self.news = news.NewsWidget(self)
         self.ladder = stats.Stats(self)
         self.games = games.Games(self)
         self.tourneys = tourneys.Tourneys(self)

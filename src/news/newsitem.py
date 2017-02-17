@@ -1,81 +1,88 @@
-import webbrowser
+from PyQt4 import QtCore, QtGui
 
 import util
-
-from PyQt4 import QtCore
-from PyQt4.QtCore import Qt, QObject, QEvent
+import client
 
 import logging
 logger = logging.getLogger(__name__)
 
-
-FormClass, BaseClass = util.loadUiType("news/newsframe.ui")
-
-class MouseFilter(QObject):
-    clicked = QtCore.pyqtSignal()
-
-    def __init__(self):
-        QObject.__init__(self)
-        self.doFilter = True
-
-    def eventFilter(self, obj, ev):
-        if ev.type() == QEvent.MouseButtonRelease:
-            logger.info('eventFilter MouseButtonRelease')
-            self.clicked.emit()
-            return self.doFilter
-        else:
-            return False
-
-
-class NewsFrame(FormClass, BaseClass):
-    enterStyle = "background-color: #ffffff;"
-    leaveStyle = "background-color: #aaaaaa;"
-    clicked = QtCore.pyqtSignal()
-
+class NewsItemDelegate(QtGui.QStyledItemDelegate):
     def __init__(self, *args, **kwargs):
-        BaseClass.__init__(self, *args, **kwargs)
-        self.setupUi(self)
+        QtGui.QStyledItemDelegate.__init__(self, *args, **kwargs)
 
-        self.mf = MouseFilter()
-        self.mf.clicked.connect(self.clicked)
+        html = QtGui.QTextDocument()
+        to = QtGui.QTextOption()
+        to.setWrapMode(QtGui.QTextOption.WordWrap)
+        html.setDefaultTextOption(to)
+        html.setTextWidth(NewsItem.TEXTWIDTH)
 
-        #self.setMouseTracking(True)
-        self.setStyleSheet(self.leaveStyle)
+        self.html = html
 
-        self.newsWebView.installEventFilter(self.mf)
-        self.titleLabel.installEventFilter(self.mf)
+    def paint(self, painter, option, index, *args, **kwargs):
+        self.initStyleOption(option, index)
 
-        page = self.newsWebView.page()
-        #page.mainFrame().setScrollBarPolicy(Qt.Vertical, Qt.ScrollBarAlwaysOff)
-        page.setLinkDelegationPolicy(page.DelegateAllLinks)
-        page.linkClicked.connect(self.linkClicked)
+        painter.save()
 
-    def mouseReleaseEvent(self, ev):
-        logger.info('clicked')
-        self.clicked.emit()
+        self.html.setHtml(option.text)
 
-    def linkClicked(self, url):
-        webbrowser.open(url.toString())
+        icon = QtGui.QIcon(option.icon)
 
-    def enterEvent(self, ev):
-        logger.info('enter')
-        self.setStyleSheet(self.enterStyle)
+        # clear icon and text before letting the control draw itself because we're rendering these parts ourselves
+        option.icon = QtGui.QIcon()
+        option.text = ""  
+        option.widget.style().drawControl(QtGui.QStyle.CE_ItemViewItem, option, painter, option.widget)
 
-    def leaveEvent(self, ev):
-        logger.info('leave')
-        self.setStyleSheet(self.leaveStyle)
+        # Shadow (100x100 shifted 8 right and 8 down)
+#        painter.fillRect(option.rect.left()+8, option.rect.top()+8, 100, 100, QtGui.QColor("#202020"))
 
-    def set_content(self, title, content):
-        self.content = (title, content)
-        self.titleLabel.setText(title)
-        self.newsWebView.setHtml(content)
+#        # Icon  (110x110 adjusted: shifts top,left 3 and bottom,right -7 -> makes/clips it to 100x100)
+#        icon.paint(painter, option.rect.adjusted(3, 3, -7, -7), QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
 
-    def collapse(self):
-        self.newsWebView.hide()
-        self.mf.doFilter = True
+        # Frame around the icon (100x100 shifted 3 right and 3 down)
+#        pen = QtGui.QPen()
+#        pen.setWidth(1)
+#        pen.setBrush(QtGui.QColor("#303030"))  # FIXME: This needs to come from theme.
+#        pen.setCapStyle(QtCore.Qt.RoundCap)
+#        painter.setPen(pen)
+#        painter.drawRect(option.rect.left() + 3, option.rect.top() + 3, 100, 100)
 
-    def expand(self, scrollbar_policy=Qt.ScrollBarAlwaysOff, set_filter=True):
-        self.newsWebView.page().mainFrame().setScrollBarPolicy(Qt.Vertical, scrollbar_policy)
-        self.newsWebView.show()
-        self.newsWebView.setHtml(self.content[1])
-        self.mf.doFilter = set_filter
+        # Description (text right of map icon(100), shifted 10 more right and 10 down)
+        painter.translate(option.rect.left() + 10, option.rect.top()+10)
+        clip = QtCore.QRectF(0, 0, option.rect.width() - 10 - 5, option.rect.height())
+        self.html.drawContents(painter, clip)
+
+        painter.restore()
+
+    def sizeHint(self, option, index, *args, **kwargs):
+        self.initStyleOption(option, index)
+
+        self.html.setHtml(option.text)
+
+        return QtCore.QSize(NewsItem.TEXTWIDTH + NewsItem.PADDING, NewsItem.TEXTHEIGHT)
+
+
+class NewsItem(QtGui.QListWidgetItem):
+    TEXTWIDTH = 230
+    TEXTHEIGHT = 85
+    PADDING = 10
+
+    FORMATTER = unicode(util.readfile("news/formatters/newsitem.qhtml"))
+
+    def __init__(self, newsPost, *args, **kwargs):
+        QtGui.QListWidgetItem.__init__(self, *args, **kwargs)
+
+        self.newsPost = newsPost
+
+
+        self.setText(self.FORMATTER.format(
+            author=newsPost['author'][0]['name'],
+            date=newsPost['date'],
+            title=newsPost['title']
+            ))
+
+    def __ge__(self, other):
+        """ Comparison operator used for item list sorting """
+        return not self.__lt__(other)
+
+    def __lt__(self, other):
+        return self.newsPost['date'].__lt__(other.newsPost['date'])

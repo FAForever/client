@@ -8,14 +8,13 @@ import sys
 logger = logging.getLogger(__name__)
 
 #FIXME: Make setting
-WPAPI_ROOT = 'http://direct.faforever.com/wp-json/wp/v2/posts?per_page={perpage}&page={page}'
+WPAPI_ROOT = 'http://direct.faforever.com/wp-json/wp/v2/posts?per_page={perpage}&page={page}&_embed=1'
 
 class WPAPI(QtCore.QObject):
     newsDone = QtCore.pyqtSignal(list)
 
     def __init__(self, parent = None):
         QtCore.QObject.__init__(self, parent)
-        self.client = parent
         self.nam = QNetworkAccessManager(self)
 
         self.nam.finished.connect(self.finishedDownload)
@@ -26,7 +25,8 @@ class WPAPI(QtCore.QObject):
         # mark reply for collection by Qt
         reply.deleteLater()
 
-        logger.info('Downloaded news from {}'.format(reply.url().toString()))
+
+        logger.info('Received {}'.format(reply.url().toString()))
 
         try:
             content = reply.readAll()
@@ -36,9 +36,14 @@ class WPAPI(QtCore.QObject):
             posts = []
 
             for post in js:
-                title = post.get('title', {}).get('rendered')
-                body = post.get('content', {}).get('rendered')
-                posts.append((title, body))
+                content = {
+                    'title': post.get('title', {}).get('rendered'),
+                    'body': post.get('content', {}).get('rendered'),
+                    'date': post.get('date'),
+                    'excerpt': post.get('excerpt', {}).get('rendered'),
+                    'author': post.get('_embedded', {}).get('author')
+                }
+                posts.append(content)
 
             self.newsDone.emit(posts)
         except:
