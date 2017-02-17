@@ -299,7 +299,8 @@ QListWidget::item:selected, QTreeWidget::item:previously-selected
     border: none;
 }
 
-QListWidget#modList::item:selected
+QListWidget#modList::item:selected, QListWidget#newsList::item:selected
+
 {
     background-color: #505050;
     color: #20A080;

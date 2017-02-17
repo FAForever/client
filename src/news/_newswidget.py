@@ -71,13 +71,13 @@ class NewsWidget(FormClass, BaseClass):
 
         self.newsList.setIconSize(QtCore.QSize(0,0))
         self.newsList.setItemDelegate(NewsItemDelegate(self))
-        self.newsList.itemClicked.connect(self.itemClicked)
+        self.newsList.currentItemChanged.connect(self.itemChanged)
 
     def addNews(self, newsPost):
         newsItem = NewsItem(newsPost, self.newsList)
 
-    def itemClicked(self, item):
+    def itemChanged(self, current, previous):
         self.newsWebView.setHtml(self.HTML.format(
-            title = item.newsPost['title'],
-            content = item.newsPost['body'],
+            title = current.newsPost['title'],
+            content = current.newsPost['body'],
         ))
