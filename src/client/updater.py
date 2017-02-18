@@ -44,22 +44,37 @@ class GithubUpdateChecker(QObject):
 
 @with_logger
 class ClientUpdater(QObject):
-    def __init__(self, url):
+    def __init__(self):
         QObject.__init__(self)
-        self.url = QUrl(url)
         self._progress = None
         self._network_manager = client.NetworkManager
         self._tmp = None
         self._req = None
         self._rep = None
+        # Info needed for update comes from 2 sources - github and server
+        # We need server to tell us whether we're outdated before we update
+        self._outdated = None
+        self._postponed_exec = None
 
-    def exec_(self, is_gh=False, is_pre=False, info_url='https://github.com/FAForever/client/blob/develop/changelog.md'):
+    def notify_outdated(self, outdated):
+        self._outdated = outdated
+        if self._postponed_exec is not None:
+            call = self._postponed_exec
+            self._postponed_exec = None
+            call()
+
+    def exec_(self, url, is_pre=False, info_url='https://github.com/FAForever/client/blob/develop/changelog.md'):
+        if self._outdated is None:
+            # Postpone the update until we know if we're outdated
+            self._postponed_exec = lambda: self.exec_(url, is_pre, info_url)
+            return
+
         update_msg = {
-                False: (
+                True: (
                     "Update needed",
                     "Your version of FAF is outdated. You need to download and install the most recent version to connect and play.<br/><br/><b>Do you want to download and install the update now?</b><br/><br/><a href='{}'>See changes</a>".format(info_url)
                     ),
-                True: (
+                False: (
                     "Update available",
                     "There is a new{} version of FAF.<br/><b>Would you like to download and install this update now?</b><br/><br/><a href='{}'>See information</a>".format(
                         ' beta' if is_pre else ' release',
@@ -68,8 +83,8 @@ class ClientUpdater(QObject):
                     )
                 }
         result = QtGui.QMessageBox.question(None,
-                                            update_msg[is_gh][0],
-                                            update_msg[is_gh][1],
+                                            update_msg[self._outdated][0],
+                                            update_msg[self._outdated][1],
                                             QtGui.QMessageBox.No,
                                             QtGui.QMessageBox.Yes)
         if result == QtGui.QMessageBox.Yes:
@@ -77,7 +92,7 @@ class ClientUpdater(QObject):
             self._tmp = tempfile.NamedTemporaryFile(mode='w+b',
                                                     suffix=".msi",
                                                     delete=False)
-            self._req = QNetworkRequest(self.url)
+            self._req = QNetworkRequest(QUrl(url))
             self._rep = self._network_manager.get(self._req)
             self._rep.setReadBufferSize(0)
             self._rep.downloadProgress.connect(self.on_progress)
@@ -85,7 +100,7 @@ class ClientUpdater(QObject):
             self._rep.error.connect(self.error)
             self._rep.readyRead.connect(self._buffer)
             self._progress.show()
-        elif not is_gh:
+        elif self._outdated:
             QtGui.QApplication.quit()
 
     def error(self, code):

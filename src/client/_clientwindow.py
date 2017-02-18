@@ -160,7 +160,6 @@ class ClientWindow(FormClass, BaseClass):
         self.socket.readyRead.connect(self.readFromServer)
         self.socket.disconnected.connect(self.disconnectedFromServer)
         self.socket.error.connect(self.socketError)
-        self._client_updater = None
         self.blockSize = 0
 
         self.uniqueId = None
@@ -568,6 +567,7 @@ class ClientWindow(FormClass, BaseClass):
         self.mainGridLayout.addLayout(self.warning, 2, 0)
         self.warningHide()
 
+        self._client_updater = ClientUpdater()
         self.githubUpdater = GithubUpdateChecker()
         self.githubUpdater.update_found.connect(self.github_update)
         self.githubUpdater.start()
@@ -605,8 +605,7 @@ class ClientWindow(FormClass, BaseClass):
             if '.msi' in asset['browser_download_url']:
                 download_url = asset['browser_download_url']
         if download_url is not None:
-            self._client_updater = ClientUpdater(download_url)
-            self._client_updater.exec_(True, prerelease, url)
+            self._client_updater.exec_(download_url, prerelease, url)
 
     @QtCore.pyqtSlot()
     def cleanup(self):
@@ -1172,6 +1171,9 @@ class ClientWindow(FormClass, BaseClass):
         pass
 
     def handle_session(self, message):
+        # Getting here means our client is not outdated
+        self._client_updater.notify_outdated(False)
+
         self.session = str(message['session'])
         if self.remember and self.login and self.password:
             self.perform_login()
@@ -1203,8 +1205,7 @@ class ClientWindow(FormClass, BaseClass):
         logger.warn("Server says we need an update")
         self.progress.close()
         self.state = ClientState.DISCONNECTED
-        self._client_updater = ClientUpdater(message['update'])
-        self._client_updater.exec_()
+        self._client_updater.notify_outdated(True)
 
     def handle_welcome(self, message):
         self._connection_attempts = 0
