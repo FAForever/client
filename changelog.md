@@ -7,6 +7,7 @@
 * Fix live replay sorting (#616)
 * Unpack movies from mod packages (#610)
 * Render "what's new" directly in client from WP-API (#533, #603)
+* Fix updater displaying update dialog twice (#612)
 
 Contributors:
  - Duke
