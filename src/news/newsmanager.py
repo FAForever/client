@@ -33,7 +33,7 @@ class NewsManager(QObject):
 
         self.WpApi = WPAPI(client)
         self.WpApi.newsDone.connect(self.on_wpapi_done)
-        self.WpApi.download(page=1, perpage=10)
+        self.WpApi.download(page=1, perpage=20)
 
     @QtCore.pyqtSlot(list)
     def on_wpapi_done(self, items):
