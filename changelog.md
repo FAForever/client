@@ -6,6 +6,7 @@
 * fix usability of 'Live Games' in Replays (#615)
 * Fix live replay sorting (#616)
 * Unpack movies from mod packages (#610)
+* Render "what's new" directly in client from WP-API (#533, #603)
 
 Contributors:
  - Duke
