@@ -57,7 +57,7 @@ class ReplaysWidget(BaseClass, FormClass):
         self.client = client
         client.replaysTab.layout().addWidget(self)
         
-        client.gameInfo.connect(self.processGameInfo)
+        client.lobby_server.gameInfo.connect(self.processGameInfo)
         client.lobby_server.replayVault.connect(self.replayVault)
         
         self.onlineReplays = {}

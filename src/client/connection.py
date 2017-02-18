@@ -19,6 +19,7 @@ class LobbyConnection(QtCore.QObject):
     state_changed = QtCore.pyqtSignal(object)
 
     # These signals propagate important client state changes to other modules
+    gameInfo = QtCore.pyqtSignal(dict)
     statsInfo = QtCore.pyqtSignal(dict)
     coopInfo = QtCore.pyqtSignal(dict)
     tutorialsInfo = QtCore.pyqtSignal(dict)
@@ -246,7 +247,13 @@ class LobbyConnection(QtCore.QObject):
         self.modInfo.emit(message)
 
     def handle_game_info(self, message):
-        self._client.handle_game_info(message)
+        if 'games' in message:
+            for game in message['games']:
+                self.gameInfo.emit(game)
+        else:
+            # sometimes we get the game_info message before a game session was created
+            self._client.fill_in_session_info(message)
+            self.gameInfo.emit(message)
 
     def handle_modvault_list_info(self, message):
         modList = message["modList"]

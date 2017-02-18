@@ -46,7 +46,7 @@ class CoopWidget(FormClass, BaseClass):
         
         self.client.showCoop.connect(self.coopChanged)
         self.client.lobby_server.coopInfo.connect(self.processCoopInfo)
-        self.client.gameInfo.connect(self.processGameInfo)
+        self.client.lobby_server.gameInfo.connect(self.processGameInfo)
         self.coopList.header().setResizeMode(0, QtGui.QHeaderView.ResizeToContents)
         self.coopList.setItemDelegate(CoopMapItemDelegate(self))
 

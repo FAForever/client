@@ -107,7 +107,6 @@ class ClientWindow(FormClass, BaseClass):
     gameExit = QtCore.pyqtSignal()
 
     # These signals propagate important client state changes to other modules
-    gameInfo = QtCore.pyqtSignal(dict)
     usersUpdated = QtCore.pyqtSignal(list)
     localBroadcast = QtCore.pyqtSignal(str, str)
     autoJoin = QtCore.pyqtSignal(list)
@@ -157,6 +156,8 @@ class ClientWindow(FormClass, BaseClass):
         self.auth_state = ClientState.NONE # Using ClientState for reasons
         self.session = None
 
+        self.lobby_server = LobbyConnection(self)
+
         # Timer for resize events
         self.resizeTimer = QtCore.QTimer(self)
         self.resizeTimer.timeout.connect(self.resized)
@@ -166,7 +167,7 @@ class ClientWindow(FormClass, BaseClass):
         fa.instance.started.connect(self.startedFA)
         fa.instance.finished.connect(self.finishedFA)
         fa.instance.error.connect(self.errorFA)
-        self.gameInfo.connect(fa.instance.processGameInfo)
+        self.lobby_server.gameInfo.connect(fa.instance.processGameInfo)
 
         # Local Replay Server
         self.replayServer = fa.replayserver.ReplayServer(self)
@@ -179,7 +180,6 @@ class ClientWindow(FormClass, BaseClass):
 
         # stat server
         self.statsServer = secondaryServer.SecondaryServer("Statistic", 11002, self)
-        self.lobby_server = LobbyConnection(self)
 
         # create user interface (main window) and load theme
         self.setupUi(self)
@@ -1016,7 +1016,6 @@ class ClientWindow(FormClass, BaseClass):
         self._client_updater.notify_outdated(True)
 
     def handle_welcome(self, message):
-
         self.id = message["id"]
         self.login = message["login"]
         self.me = Player(id=self.id, login=self.login)
@@ -1164,19 +1163,12 @@ class ClientWindow(FormClass, BaseClass):
 
         fa.run(info, self.game_session.relay_port, arguments)
 
-    def handle_game_info(self, message):
-        if 'games' in message:
-            for game in message['games']:
-                self.gameInfo.emit(game)
-        else:
-            # sometimes we get the game_info message before a game session was created
-            if self.game_session and message['uid'] == self.game_session.game_uid:
-                self.game_session.game_map = message['mapname']
-                self.game_session.game_mod = message['featured_mod']
-                self.game_session.game_name = message['title']
-                self.game_session.game_visibility = message['visibility']
-
-            self.gameInfo.emit(message)
+    def fill_in_session_info(self, message):
+        if self.game_session and message['uid'] == self.game_session.game_uid:
+            self.game_session.game_map = message['mapname']
+            self.game_session.game_mod = message['featured_mod']
+            self.game_session.game_name = message['title']
+            self.game_session.game_visibility = message['visibility']
 
     def handle_matchmaker_info(self, message):
         if not self.me:
