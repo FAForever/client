@@ -101,7 +101,7 @@ class ConnectivityHelper(QObject):
         self._socket = QTurnSocket(port, self._on_data)
         self._socket.state_changed.connect(self.turn_state_changed)
 
-        self._client.subscribe_to('connectivity', self)
+        self._client.lobby_server.subscribe_to('connectivity', self)
         self.relay_address, self.mapped_address = None, None
         self._relay_test = None
         self._relays = {}
@@ -158,7 +158,7 @@ class ConnectivityHelper(QObject):
         if state == 'BLOCKED':
             self._logger.warning("Outbound traffic is blocked")
             QtGui.QMessageBox.warning(None, "Traffic Blocked", "Your outbound traffic appears to be blocked. Try restarting FAF. <br/> If the error persists please contact a moderator and send your logs. <br/> We are already working on a solution to this problem.")
-            self._client.state = ClientState.NONE
+            self._client.lobby_server.state = ClientState.NONE
         else:
             host, port = addr.split(':')
             self.state, self.mapped_address = state, (host, port)
@@ -178,7 +178,7 @@ class ConnectivityHelper(QObject):
         self._relays[(host, port)] = relay
 
     def send(self, command, args):
-        self._client.send({
+        self._client.lobby_server.send({
             'command': command,
             'target': 'connectivity',
             'args': args or []

@@ -37,7 +37,7 @@ class GameSession(QObject):
         self.game_password = None
 
         # Subscribe to messages targeted at 'game' from the server
-        client.subscribe_to('game', self)
+        client.lobby_server.subscribe_to('game', self)
 
         # Connectivity helper
         self.connectivity = connectivity
@@ -117,7 +117,7 @@ class GameSession(QObject):
 
     def send(self, command_id, args):
         self._logger.info("Outgoing relay message {} {}".format(command_id, args))
-        self._client.send({
+        self._client.lobby_server.send({
             'command': command_id,
             'target': 'game',
             'args': args or []

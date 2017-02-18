@@ -175,7 +175,7 @@ class MapVault(QtCore.QObject):
                             return None
 
                         qfile = QtCore.QFile(tmpFile.name)
-                        self.client.writeToServer("UPLOAD_MAP", zipName, scenarioInfos, qfile)
+                        self.client.lobby_server.writeToServer("UPLOAD_MAP", zipName, scenarioInfos, qfile)
 
                         #removing temporary files
                         qfile.remove()

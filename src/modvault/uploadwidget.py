@@ -67,7 +67,7 @@ class UploadModWidget(FormClass, BaseClass):
         qfile =QtCore.QFile(temp.name)
 
         #The server should check again if there is already a mod with this name or UID.
-        self.client.writeToServer("UPLOAD_MOD", "%s.v%04d.zip" % (self.modinfo.name, self.modinfo.version), self.modinfo.to_dict(), qfile)
+        self.client.lobby_server.writeToServer("UPLOAD_MOD", "%s.v%04d.zip" % (self.modinfo.name, self.modinfo.version), self.modinfo.to_dict(), qfile)
 
     @QtCore.pyqtSlot()
     def updateThumbnail(self):

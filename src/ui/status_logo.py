@@ -13,7 +13,7 @@ class StatusLogo(QLabel):
     def __init__(self, client, logo_file='window_icon.png'):
         QLabel.__init__(self)
 
-        self.state = client.state
+        self.state = client.lobby_server.state
         self.setScaledContents(True)
         self.setMargin(3)
 
@@ -34,8 +34,8 @@ class StatusLogo(QLabel):
         }
         self.setMaximumSize(30, 30)
 
-        client.state_changed.connect(self.change_state)
-        self.change_state(client.state)
+        client.lobby_server.state_changed.connect(self.change_state)
+        self.change_state(client.lobby_server.state)
 
     def contextMenuEvent(self, event):
         menu = QMenu(self)
