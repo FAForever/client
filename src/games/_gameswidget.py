@@ -68,7 +68,7 @@ class GamesWidget(FormClass, BaseClass):
 
         self.generateSelectSubset()
 
-        self.client.modInfo.connect(self.processModInfo)
+        self.client.lobby_server.modInfo.connect(self.processModInfo)
         self.client.gameInfo.connect(self.processGameInfo)
         self.client.lobby_server.disconnected.connect(self.clear_games)
 

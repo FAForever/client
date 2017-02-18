@@ -83,8 +83,8 @@ class avatarWidget(QtGui.QDialog):
             self.group_layout.addWidget(self.addAvatarButton)
 
         self.item = []
-        self.parent.avatarList.connect(self.avatarList)
-        self.parent.playerAvatarList.connect(self.doPlayerAvatarList)
+        self.parent.lobby_server.avatarList.connect(self.avatarList)
+        self.parent.lobby_server.playerAvatarList.connect(self.doPlayerAvatarList)
 
         self.playerList = playerAvatar(parent=self.parent)
     
@@ -204,6 +204,6 @@ class avatarWidget(QtGui.QDialog):
 
     def cleaning(self):
         if self != self.parent.avatarAdmin:
-            self.parent.avatarList.disconnect(self.avatarList)
-            self.parent.playerAvatarList.disconnect(self.doPlayerAvatarList)
+            self.parent.lobby_server.avatarList.disconnect(self.avatarList)
+            self.parent.lobby_server.playerAvatarList.disconnect(self.doPlayerAvatarList)
 

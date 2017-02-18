@@ -107,20 +107,11 @@ class ClientWindow(FormClass, BaseClass):
     gameExit = QtCore.pyqtSignal()
 
     # These signals propagate important client state changes to other modules
-    statsInfo = QtCore.pyqtSignal(dict)
-    tutorialsInfo = QtCore.pyqtSignal(dict)
-    modInfo = QtCore.pyqtSignal(dict)
     gameInfo = QtCore.pyqtSignal(dict)
-    modVaultInfo = QtCore.pyqtSignal(dict)
-    coopInfo = QtCore.pyqtSignal(dict)
-    avatarList = QtCore.pyqtSignal(list)
-    playerAvatarList = QtCore.pyqtSignal(dict)
     usersUpdated = QtCore.pyqtSignal(list)
     localBroadcast = QtCore.pyqtSignal(str, str)
     autoJoin = QtCore.pyqtSignal(list)
     channelsUpdated = QtCore.pyqtSignal(list)
-    replayVault = QtCore.pyqtSignal(dict)
-    coopLeaderBoard = QtCore.pyqtSignal(dict)
 
     # These signals are emitted whenever a certain tab is activated
     showReplays = QtCore.pyqtSignal()
@@ -995,9 +986,6 @@ class ClientWindow(FormClass, BaseClass):
             self.usersUpdated.emit([foe_id])
 
 
-    def handle_updated_achievements(self, message):
-        pass
-
     def handle_session(self, message):
         # Getting here means our client is not outdated
         self._client_updater.notify_outdated(False)
@@ -1017,12 +1005,6 @@ class ClientWindow(FormClass, BaseClass):
                        unique_id=self.uniqueId,
                        session=self.session))
         return True
-
-    def handle_invalid(self, message):
-        raise Exception(message)
-
-    def handle_stats(self, message):
-        self.statsInfo.emit(message)
 
     def handle_update(self, message):
         # Remove geometry settings prior to updating
@@ -1182,15 +1164,6 @@ class ClientWindow(FormClass, BaseClass):
 
         fa.run(info, self.game_session.relay_port, arguments)
 
-    def handle_coop_info(self, message):
-        self.coopInfo.emit(message)
-
-    def handle_tutorials_info(self, message):
-        self.tutorialsInfo.emit(message)
-
-    def handle_mod_info(self, message):
-        self.modInfo.emit(message)
-
     def handle_game_info(self, message):
         if 'games' in message:
             for game in message['games']:
@@ -1204,20 +1177,6 @@ class ClientWindow(FormClass, BaseClass):
                 self.game_session.game_visibility = message['visibility']
 
             self.gameInfo.emit(message)
-
-    def handle_modvault_list_info(self, message):
-        modList = message["modList"]
-        for mod in modList:
-            self.handle_modvault_info(mod)
-
-    def handle_modvault_info(self, message):
-        self.modVaultInfo.emit(message)
-
-    def handle_replay_vault(self, message):
-        self.replayVault.emit(message)
-
-    def handle_coop_leaderboard(self, message):
-        self.coopLeaderBoard.emit(message)
 
     def handle_matchmaker_info(self, message):
         if not self.me:
@@ -1239,17 +1198,6 @@ class ClientWindow(FormClass, BaseClass):
                 self.warningShow()
             else:
                 self.warningHide()
-
-    def handle_avatar(self, message):
-        if "avatarlist" in message:
-            self.avatarList.emit(message["avatarlist"])
-
-    def handle_admin(self, message):
-        if "avatarlist" in message:
-            self.avatarList.emit(message["avatarlist"])
-
-        elif "player_avatar_list" in message:
-            self.playerAvatarList.emit(message)
 
     def handle_social(self, message):
         if "friends" in message:
@@ -1318,3 +1266,6 @@ class ClientWindow(FormClass, BaseClass):
 
         if message["style"] == "kick":
             logger.info("Server has kicked you from the Lobby.")
+
+    def handle_invalid(self, message):
+        raise Exception(message)

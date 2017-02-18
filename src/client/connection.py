@@ -18,6 +18,17 @@ class LobbyConnection(QtCore.QObject):
     disconnected = QtCore.pyqtSignal()
     state_changed = QtCore.pyqtSignal(object)
 
+    # These signals propagate important client state changes to other modules
+    statsInfo = QtCore.pyqtSignal(dict)
+    coopInfo = QtCore.pyqtSignal(dict)
+    tutorialsInfo = QtCore.pyqtSignal(dict)
+    modInfo = QtCore.pyqtSignal(dict)
+    modVaultInfo = QtCore.pyqtSignal(dict)
+    replayVault = QtCore.pyqtSignal(dict)
+    coopLeaderBoard = QtCore.pyqtSignal(dict)
+    avatarList = QtCore.pyqtSignal(list)
+    playerAvatarList = QtCore.pyqtSignal(dict)
+
     def __init__(self, client):
         QtCore.QObject.__init__(self)
 
@@ -208,7 +219,7 @@ class LobbyConnection(QtCore.QObject):
         raise Exception(message)
 
     def handle_stats(self, message):
-        self._client.handle_stats(message)
+        self.statsInfo.emit(message)
 
     def handle_update(self, message):
         self.state = ClientState.DISCONNECTED
@@ -226,37 +237,44 @@ class LobbyConnection(QtCore.QObject):
         self._client.handle_game_launch(message)
 
     def handle_coop_info(self, message):
-        self._client.handle_coop_info(message)
+        self.coopInfo.emit(message)
 
     def handle_tutorials_info(self, message):
-        self._client.handle_tutorials_info(message)
+        self.tutorialsInfo.emit(message)
 
     def handle_mod_info(self, message):
-        self._client.handle_mod_info(message)
+        self.modInfo.emit(message)
 
     def handle_game_info(self, message):
         self._client.handle_game_info(message)
 
     def handle_modvault_list_info(self, message):
-        self._client.handle_modvault_list_info(message)
+        modList = message["modList"]
+        for mod in modList:
+            self.handle_modvault_info(mod)
 
     def handle_modvault_info(self, message):
-        self._client.handle_modvault_info(message)
+        self.modVaultInfo.emit(message)
 
     def handle_replay_vault(self, message):
-        self._client.handle_replay_vault(message)
+        self.replayVault.emit(message)
 
     def handle_coop_leaderboard(self, message):
-        self._client.handle_coop_leaderboard(message)
+        self.coopLeaderBoard.emit(message)
 
     def handle_matchmaker_info(self, message):
         self._client.handle_matchmaker_info(message)
 
     def handle_avatar(self, message):
-        self._client.handle_avatar(message)
+        if "avatarlist" in message:
+            self.avatarList.emit(message["avatarlist"])
 
     def handle_admin(self, message):
-        self._client.handle_admin(message)
+        if "avatarlist" in message:
+            self.avatarList.emit(message["avatarlist"])
+
+        elif "player_avatar_list" in message:
+            self.playerAvatarList.emit(message)
 
     def handle_social(self, message):
         self._client.handle_social(message)

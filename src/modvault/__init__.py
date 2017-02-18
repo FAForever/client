@@ -95,7 +95,7 @@ class ModVault(FormClass, BaseClass):
         
         
         self.client.showMods.connect(self.tabOpened)
-        self.client.modVaultInfo.connect(self.modInfo)
+        self.client.lobby_server.modVaultInfo.connect(self.modInfo)
 
         self.sortType = "rating"
         self.showType = "all"

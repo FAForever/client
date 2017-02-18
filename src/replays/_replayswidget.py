@@ -58,7 +58,7 @@ class ReplaysWidget(BaseClass, FormClass):
         client.replaysTab.layout().addWidget(self)
         
         client.gameInfo.connect(self.processGameInfo)
-        client.replayVault.connect(self.replayVault)    
+        client.lobby_server.replayVault.connect(self.replayVault)
         
         self.onlineReplays = {}
         self.onlineTree.setItemDelegate(ReplayItemDelegate(self))
@@ -632,8 +632,8 @@ class ReplaysWidget(BaseClass, FormClass):
         try:
             message = json.loads(data_string)
             cmd = "handle_" + message['command']
-            if hasattr(self.client, cmd):
-                getattr(self.client, cmd)(message)
+            if hasattr(self.client.lobby_server, cmd):
+                getattr(self.client.lobby_server, cmd)(message)
         except ValueError as e:
             logger.error("Error decoding json ")
             logger.error(e)

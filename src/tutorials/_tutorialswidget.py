@@ -24,7 +24,7 @@ class tutorialsWidget(FormClass, BaseClass):
         self.sections = {}
         self.tutorials = {}
 
-        self.client.tutorialsInfo.connect(self.processTutorialInfo)
+        self.client.lobby_server.tutorialsInfo.connect(self.processTutorialInfo)
         
         logger.info("Tutorials instantiated.")
         
