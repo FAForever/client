@@ -5,6 +5,7 @@
 * Check for updates on Github (#578)
 * fix usability of 'Live Games' in Replays (#615)
 * Fix live replay sorting (#616)
+* Unpack movies from mod packages (#610)
 
 Contributors:
  - Duke
