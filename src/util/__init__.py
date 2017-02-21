@@ -97,8 +97,11 @@ PERSONAL_DIR = unicode(QDesktopServices.storageLocation(QDesktopServices.Documen
 logger.info('PERSONAL_DIR initial: ' + PERSONAL_DIR)
 try:
     PERSONAL_DIR = PERSONAL_DIR.decode('ascii')
+
+    if not os.path.isdir(PERSONAL_DIR):
+        raise Exception('No documents location. Will use APPDATA instead.')
 except:
-    logger.warn('PERSONAL_DIR not ascii')
+    logger.exception('PERSONAL_DIR not ok, falling back.')
     PERSONAL_DIR = os.path.join(APPDATA_DIR, "user")
 
 logger.info('PERSONAL_DIR final: ' + PERSONAL_DIR)
