@@ -7,7 +7,6 @@ from PyQt4.QtNetwork import QAbstractSocket
 
 import config
 import connectivity
-from base import Client
 from config import Settings
 import chat
 from client.player import Player
@@ -1496,5 +1495,3 @@ class ClientWindow(FormClass, BaseClass):
 
         if message["style"] == "kick":
             logger.info("Server has kicked you from the Lobby.")
-
-Client.register(ClientWindow)

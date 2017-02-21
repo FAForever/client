@@ -2,7 +2,6 @@ from PyQt4.QtCore import QObject, pyqtSignal
 from PyQt4.QtNetwork import QTcpServer, QHostAddress
 from enum import IntEnum
 
-from base import Client
 from connectivity.turn import TURNState
 from decorators import with_logger
 from fa.game_connection import GPGNetConnection
