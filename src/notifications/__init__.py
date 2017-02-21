@@ -21,12 +21,23 @@ class Notifications:
         self.dialog = NotificationDialog(self.client,self.settings)
         self.events = []
         self.disabledStartup = True
+        self.game_running = False
         self.lock = Lock()
+
+
+        client.gameEnter.connect(self.gameEnter)
+        client.gameExit.connect(self.gameExit)
 
         self.user = util.icon("client/user.png", pix=True)
 
+    def gameEnter(self):
+        self.game_running = True
+
+    def gameExit(self):
+        self.game_running = False
+
     def isDisabled(self):
-        return self.disabledStartup or not self.settings.enabled
+        return self.disabledStartup or self.game_running or not self.settings.enabled
 
     def setNotificationEnabled(self, enabled):
         self.settings.enabled = enabled
