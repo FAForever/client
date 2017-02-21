@@ -37,8 +37,6 @@ class ClientState(IntEnum):
     ACCEPTED = 1
     CREATED = 2
     ONLINE = 3
-    OUTDATED = 9000
-    UPTODATE = 9001  # It's over nine thousaaand!
 
 from _clientwindow import ClientWindow
 

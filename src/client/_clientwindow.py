@@ -839,7 +839,6 @@ class ClientWindow(FormClass, BaseClass):
         wizard.exec_()
 
     def doLogin(self):
-        self.lobby_server.doLogin()
         if not self.can_login:
             self.show_login_wizard()
 

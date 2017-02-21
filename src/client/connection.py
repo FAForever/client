@@ -293,9 +293,6 @@ class LobbyConnection(QtCore.QObject):
     def mark_for_shutdown(self):
         self.state = ClientState.SHUTDOWN
 
-    def doLogin(self):
-        self.state = ClientState.NONE
-
     @QtCore.pyqtSlot()
     def on_disconnected(self):
         logger.warn("Disconnected from lobby server.")

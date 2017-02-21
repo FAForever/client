@@ -162,7 +162,6 @@ class ConnectivityHelper(QObject):
         if state == 'BLOCKED':
             self._logger.warning("Outbound traffic is blocked")
             QtGui.QMessageBox.warning(None, "Traffic Blocked", "Your outbound traffic appears to be blocked. Try restarting FAF. <br/> If the error persists please contact a moderator and send your logs. <br/> We are already working on a solution to this problem.")
-            self._client.lobby_server.state = ClientState.NONE
         else:
             host, port = addr.split(':')
             self.state, self.mapped_address = state, (host, port)
