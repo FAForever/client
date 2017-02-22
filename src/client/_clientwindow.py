@@ -11,7 +11,7 @@ from config import Settings
 import chat
 from client.player import Player
 from client.players import Players
-from client.connection import LobbyConnection, ServerConnection
+from client.connection import LobbyConnection, ServerConnection, Dispatcher
 from client.updater import ClientUpdater, GithubUpdateChecker
 import fa
 from connectivity.helper import ConnectivityHelper
@@ -156,8 +156,10 @@ class ClientWindow(FormClass, BaseClass):
         self.auth_state = ClientState.NONE # Using ClientState for reasons
         self.session = None
 
-        self.lobby_connection = ServerConnection(LOBBY_HOST, LOBBY_PORT)
-        self.lobby_server = LobbyConnection(self, self.lobby_connection)
+        self.lobby_dispatch = Dispatcher()
+        self.lobby_connection = ServerConnection(LOBBY_HOST, LOBBY_PORT,
+                                                 self.lobby_dispatch.dispatch)
+        self.lobby_server = LobbyConnection(self, self.lobby_connection, self.lobby_dispatch)
 
         # Timer for resize events
         self.resizeTimer = QtCore.QTimer(self)

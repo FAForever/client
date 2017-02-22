@@ -25,7 +25,7 @@ class ServerConnection(QtCore.QObject):
     # These signals are emitted when the client is connected or disconnected from FAF
     state_changed = QtCore.pyqtSignal(object)
 
-    def __init__(self, host, port):
+    def __init__(self, host, port, dispatch):
         QtCore.QObject.__init__(self)
         self.socket = QtNetwork.QTcpSocket()
         self.socket.readyRead.connect(self.readFromServer)
@@ -42,7 +42,7 @@ class ServerConnection(QtCore.QObject):
         self._disconnect_requested = False
         self.localIP = None
 
-        self.dispatch = None
+        self._dispatch = dispatch
 
     @property
     def state(self):
@@ -104,8 +104,7 @@ class ServerConnection(QtCore.QObject):
                 self.blockSize = 0
                 return
             try:
-                if self.dispatch is not None:
-                    self.dispatch(json.loads(action))
+                self._dispatch(json.loads(action))
             except:
                 logger.error("Error dispatching JSON: " + action, exc_info=sys.exc_info())
 
@@ -171,6 +170,45 @@ class ServerConnection(QtCore.QObject):
         self.socket.disconnectFromHost()
 
 
+class Dispatcher():
+    def __init__(self):
+        self._receivers = {}
+        self._dispatchees = {}
+
+    def __setitem__(self, key, fn):
+        self._dispatchees[key] = fn
+
+    def __delitem__(self, key):
+        del self._dispatchees[key]
+
+    def subscribe_to(self, target, fn, msg = None):
+        self._receivers[(target, msg)] = fn
+
+    def unsubscribe(self, target, msg = None):
+        del self._receivers[(target, msg)]
+
+    def dispatch(self, message):
+        if "command" not in message:
+            logger.debug("No command in message.")
+            return
+
+        cmd = message['command']
+        if "target" in message:
+            fn = self._receivers.get((message['target'], cmd))
+            fn = self._receivers.get((message['target'], None)) if fn is None else fn
+            if fn is not None:
+                fn(message)
+            else:
+                logger.warn("No receiver for message {}".format(message))
+        else:
+            fn = self._dispatchees.get(cmd)
+            if fn is not None:
+                fn(message)
+            else:
+                logger.error("Unknown JSON command: %s" % message['command'])
+                raise ValueError
+
+
 class LobbyConnection(QtCore.QObject):
 
     # These signals are emitted when the client is connected or disconnected from FAF
@@ -190,16 +228,39 @@ class LobbyConnection(QtCore.QObject):
     avatarList = QtCore.pyqtSignal(list)
     playerAvatarList = QtCore.pyqtSignal(dict)
 
-    def __init__(self, client, connection):
+    def __init__(self, client, connection, dispatcher):
         QtCore.QObject.__init__(self)
 
         self._client = client
         self._connection = connection
-        self._connection.dispatch = self.dispatch
         self._connection.state_changed.connect(self.on_connection_state_changed)
-
         self._state = ClientState.NONE
-        self._receivers = {}
+        self._dispatcher = dispatcher
+
+        self._dispatcher["updated_achievements"] = self.handle_updated_achievements
+        self._dispatcher["session"] = self.handle_session
+        self._dispatcher["invalid"] = self.handle_invalid
+        self._dispatcher["stats"] = self.handle_stats
+        self._dispatcher["update"] = self.handle_update
+        self._dispatcher["welcome"] = self.handle_welcome
+        self._dispatcher["registration_response"] = self.handle_registration_response
+        self._dispatcher["game_launch"] = self.handle_game_launch
+        self._dispatcher["coop_info"] = self.handle_coop_info
+        self._dispatcher["tutorials_info"] = self.handle_tutorials_info
+        self._dispatcher["mod_info"] = self.handle_mod_info
+        self._dispatcher["game_info"] = self.handle_game_info
+        self._dispatcher["modvault_list_info"] = self.handle_modvault_list_info
+        self._dispatcher["modvault_info"] = self.handle_modvault_info
+        self._dispatcher["replay_vault"] = self.handle_replay_vault
+        self._dispatcher["coop_leaderboard"] = self.handle_coop_leaderboard
+        self._dispatcher["matchmaker_info"] = self.handle_matchmaker_info
+        self._dispatcher["avatar"] = self.handle_avatar
+        self._dispatcher["admin"] = self.handle_admin
+        self._dispatcher["social"] = self.handle_social
+        self._dispatcher["player_info"] = self.handle_player_info
+        self._dispatcher["authentication_failed"] = self.handle_authentication_failed
+        self._dispatcher["notice"] = self.handle_notice
+
 
     @property
     def state(self):
@@ -250,31 +311,6 @@ class LobbyConnection(QtCore.QObject):
             self._client.clear_players()
         self.disconnected.emit()
 
-    def subscribe_to(self, target, receiver):
-        self._receivers[target] = receiver
-
-    def unsubscribe(self, target, receiver):
-        del self._receivers[target]
-
-    def dispatch(self, message):
-        if "command" in message:
-            cmd = "handle_" + message['command']
-            if "target" in message:
-                receiver = self._receivers.get(message['target'])
-                if hasattr(receiver, cmd):
-                    getattr(receiver, cmd)(message)
-                elif hasattr(receiver, 'handle_message'):
-                    receiver.handle_message(message)
-                else:
-                    logger.warn("No receiver for message {}".format(message))
-            else:
-                if hasattr(self, cmd):
-                    getattr(self, cmd)(message)
-                else:
-                    logger.error("Unknown JSON command: %s" % message['command'])
-                    raise ValueError
-        else:
-            logger.debug("No command in message.")
 
     def handle_updated_achievements(self, message):
         pass

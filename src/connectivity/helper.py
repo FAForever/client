@@ -101,7 +101,11 @@ class ConnectivityHelper(QObject):
         self._socket = QTurnSocket(port, self._on_data)
         self._socket.state_changed.connect(self.turn_state_changed)
 
-        self._client.lobby_server.subscribe_to('connectivity', self)
+        dispatch = self._client.lobby_dispatch
+        dispatch.subscribe_to('connectivity', self.handle_SendNatPacket, "SendNatPacket")
+        dispatch.subscribe_to('connectivity', self.handle_ConnectivityState, "ConnectivityState")
+        dispatch.subscribe_to('connectivity', self.handle_message)
+
         self.relay_address, self.mapped_address = None, None
         self._relay_test = None
         self._relays = {}
