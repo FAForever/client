@@ -70,7 +70,7 @@ class GamesWidget(FormClass, BaseClass):
 
         self.client.lobby_server.modInfo.connect(self.processModInfo)
         self.client.lobby_server.gameInfo.connect(self.processGameInfo)
-        self.client.lobby_server.disconnected.connect(self.clear_games)
+        self.client.lobby_connection.disconnected.connect(self.clear_games)
 
         self.client.gameEnter.connect(self.stopSearchRanked)
         self.client.viewingReplay.connect(self.stopSearchRanked)

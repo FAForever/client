@@ -11,7 +11,7 @@ from config import Settings
 import chat
 from client.player import Player
 from client.players import Players
-from client.connection import LobbyConnection, ServerConnection, Dispatcher
+from client.connection import LobbyConnection, ServerConnection, Dispatcher, ConnectionState
 from client.updater import ClientUpdater, GithubUpdateChecker
 import fa
 from connectivity.helper import ConnectivityHelper
@@ -94,6 +94,7 @@ class ClientWindow(FormClass, BaseClass):
 
     topWidget = QtGui.QWidget()
 
+    state_changed = QtCore.pyqtSignal(object)
     authorized = QtCore.pyqtSignal(object)
 
     # This signal is emitted when the client is done rezising
@@ -153,12 +154,14 @@ class ClientWindow(FormClass, BaseClass):
         self.tray.setIcon(util.icon("client/tray_icon.png"))
         self.tray.show()
 
+        self._state = ClientState.NONE
         self.auth_state = ClientState.NONE # Using ClientState for reasons
         self.session = None
 
         self.lobby_dispatch = Dispatcher()
         self.lobby_connection = ServerConnection(LOBBY_HOST, LOBBY_PORT,
                                                  self.lobby_dispatch.dispatch)
+        self.lobby_connection.state_changed.connect(self.on_connection_state_changed)
         self.lobby_server = LobbyConnection(self, self.lobby_connection, self.lobby_dispatch)
 
         self.lobby_dispatch["session"] = self.handle_session
@@ -168,6 +171,10 @@ class ClientWindow(FormClass, BaseClass):
         self.lobby_dispatch["social"] = self.handle_social
         self.lobby_dispatch["player_info"] = self.handle_player_info
         self.lobby_dispatch["notice"] = self.handle_notice
+        self.lobby_dispatch["invalid"] = self.handle_invalid
+        self.lobby_dispatch["update"] = self.handle_update
+        self.lobby_dispatch["welcome"] = self.handle_welcome
+        self.lobby_dispatch["authentication_failed"] = self.handle_authentication_failed
 
         # Timer for resize events
         self.resizeTimer = QtCore.QTimer(self)
@@ -310,6 +317,40 @@ class ClientWindow(FormClass, BaseClass):
         #self.WPApi.download()
 
         #self.controlsContainerLayout.setAlignment(self.pageControlFrame, QtCore.Qt.AlignRight)
+
+    @property
+    def state(self):
+        return self._state
+
+    @state.setter
+    def state(self, value):
+        self._state = value
+        self.state_changed.emit(value)
+
+    def on_connection_state_changed(self, state):
+        if self.state == ClientState.SHUTDOWN:
+            return
+
+        if state == ConnectionState.CONNECTED:
+            self.on_connected()
+            self.state = ClientState.ACCEPTED
+        elif state == ConnectionState.DISCONNECTED:
+            self.on_disconnected()
+            self.state = ClientState.DISCONNECTED
+        elif state == ConnectionState.DROPPED:
+            self.on_disconnected()
+            self.state = ClientState.DROPPED
+        elif state == ConnectionState.RECONNECTING:
+            self.state = ClientState.RECONNECTING
+
+    def on_connected(self):
+        self.lobby_connection.send(dict(command="ask_session",
+                                        version=config.VERSION,
+                                        user_agent="faf-client"))
+
+    def on_disconnected(self):
+        logger.warn("Disconnected from lobby server.")
+        self.clear_players()
 
     @QtCore.pyqtSlot(bool)
     def on_actionSavegamelogs_toggled(self, value):
@@ -590,7 +631,7 @@ class ClientWindow(FormClass, BaseClass):
         """
         Perform cleanup before the UI closes
         """
-        self.lobby_server.mark_for_shutdown()
+        self.state = ClientState.SHUTDOWN
 
         self.progress.setWindowTitle("FAF is shutting down")
         self.progress.setMinimum(0)
@@ -1017,6 +1058,7 @@ class ClientWindow(FormClass, BaseClass):
         return True
 
     def handle_update(self, message):
+        self.state = ClientState.DISCONNECTED
         # Remove geometry settings prior to updating
         # could be incompatible with an updated client.
         Settings.remove('window/geometry')
@@ -1026,6 +1068,7 @@ class ClientWindow(FormClass, BaseClass):
         self._client_updater.notify_outdated(True)
 
     def handle_welcome(self, message):
+        self.state = ClientState.ONLINE
         self.id = message["id"]
         self.login = message["login"]
         self.me = Player(id=self.id, login=self.login)
@@ -1245,6 +1288,7 @@ class ClientWindow(FormClass, BaseClass):
         self.avatarSelection.show()
 
     def handle_authentication_failed(self, message):
+        self.state = ClientState.DISCONNECTED
         QtGui.QMessageBox.warning(self, "Authentication failed", message["text"])
         self.remember = False
         self.show_login_wizard()

@@ -24,6 +24,8 @@ class ServerConnection(QtCore.QObject):
 
     # These signals are emitted when the client is connected or disconnected from FAF
     state_changed = QtCore.pyqtSignal(object)
+    connected = QtCore.pyqtSignal()
+    disconnected = QtCore.pyqtSignal()
 
     def __init__(self, host, port, dispatch):
         QtCore.QObject.__init__(self)
@@ -62,6 +64,7 @@ class ServerConnection(QtCore.QObject):
         self.state = ConnectionState.CONNECTED
         self._connection_attempts = 0
         self.localIP = self.socket.localAddress()
+        self.connected.emit()
 
     def reconnect(self):
         """
@@ -141,6 +144,7 @@ class ServerConnection(QtCore.QObject):
     def disconnectedFromServer(self):
         logger.warn("Disconnected from lobby server.")
         self.blockSize = 0
+        self.disconnected.emit()
         if self._disconnect_requested:
             self.state = ConnectionState.DISCONNECTED
         if self.state == ConnectionState.DISCONNECTED:
@@ -211,11 +215,6 @@ class Dispatcher():
 
 class LobbyConnection(QtCore.QObject):
 
-    # These signals are emitted when the client is connected or disconnected from FAF
-    connected = QtCore.pyqtSignal()
-    disconnected = QtCore.pyqtSignal()
-    state_changed = QtCore.pyqtSignal(object)
-
     # These signals propagate important client state changes to other modules
     gameInfo = QtCore.pyqtSignal(dict)
     statsInfo = QtCore.pyqtSignal(dict)
@@ -233,15 +232,10 @@ class LobbyConnection(QtCore.QObject):
 
         self._client = client
         self._connection = connection
-        self._connection.state_changed.connect(self.on_connection_state_changed)
-        self._state = ClientState.NONE
         self._dispatcher = dispatcher
 
         self._dispatcher["updated_achievements"] = self.handle_updated_achievements
-        self._dispatcher["invalid"] = self.handle_invalid
         self._dispatcher["stats"] = self.handle_stats
-        self._dispatcher["update"] = self.handle_update
-        self._dispatcher["welcome"] = self.handle_welcome
         self._dispatcher["coop_info"] = self.handle_coop_info
         self._dispatcher["tutorials_info"] = self.handle_tutorials_info
         self._dispatcher["mod_info"] = self.handle_mod_info
@@ -252,72 +246,16 @@ class LobbyConnection(QtCore.QObject):
         self._dispatcher["coop_leaderboard"] = self.handle_coop_leaderboard
         self._dispatcher["avatar"] = self.handle_avatar
         self._dispatcher["admin"] = self.handle_admin
-        self._dispatcher["authentication_failed"] = self.handle_authentication_failed
 
-
-    @property
-    def state(self):
-        return self._state
-
-    @state.setter
-    def state(self, value):
-        self._state = value
-        self.state_changed.emit(value)
-
-    def on_connection_state_changed(self, state):
-        if self.state == ClientState.SHUTDOWN:
-            return
-
-        if state == ConnectionState.CONNECTED:
-            self.on_connected()
-            self.state = ClientState.ACCEPTED
-        elif state == ConnectionState.DISCONNECTED:
-            self.on_disconnected()
-            self.state = ClientState.DISCONNECTED
-        elif state == ConnectionState.DROPPED:
-            self.on_disconnected()
-            self.state = ClientState.DROPPED
-        elif state == ConnectionState.RECONNECTING:
-            self.state = ClientState.RECONNECTING
 
     def send(self, message):
         self._connection.send(message)
 
-    @QtCore.pyqtSlot()
-    def on_connected(self):
-        self._connection.send(dict(command="ask_session",
-                                   version=config.VERSION,
-                                   user_agent="faf-client"))
-        self.connected.emit()
-
-    def mark_for_shutdown(self):
-        self.state = ClientState.SHUTDOWN
-
-    @QtCore.pyqtSlot()
-    def on_disconnected(self):
-        logger.warn("Disconnected from lobby server.")
-
-        if self.state == ClientState.ACCEPTED:
-            self._client.clear_players()
-        self.disconnected.emit()
-
     def handle_updated_achievements(self, message):
         pass
 
-    def handle_invalid(self, message):
-        self.state = ClientState.DISCONNECTED
-        raise Exception(message)
-
     def handle_stats(self, message):
         self.statsInfo.emit(message)
-
-    def handle_update(self, message):
-        self.state = ClientState.DISCONNECTED
-        self._client.handle_update(message)
-
-    def handle_welcome(self, message):
-        self.state = ClientState.ONLINE
-        self._client.handle_welcome(message)
 
     def handle_coop_info(self, message):
         self.coopInfo.emit(message)
@@ -361,7 +299,3 @@ class LobbyConnection(QtCore.QObject):
 
         elif "player_avatar_list" in message:
             self.playerAvatarList.emit(message)
-
-    def handle_authentication_failed(self, message):
-        self.state = ClientState.DISCONNECTED
-        self._client.handle_authentication_failed(message)
