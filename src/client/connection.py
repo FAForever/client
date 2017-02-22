@@ -238,13 +238,10 @@ class LobbyConnection(QtCore.QObject):
         self._dispatcher = dispatcher
 
         self._dispatcher["updated_achievements"] = self.handle_updated_achievements
-        self._dispatcher["session"] = self.handle_session
         self._dispatcher["invalid"] = self.handle_invalid
         self._dispatcher["stats"] = self.handle_stats
         self._dispatcher["update"] = self.handle_update
         self._dispatcher["welcome"] = self.handle_welcome
-        self._dispatcher["registration_response"] = self.handle_registration_response
-        self._dispatcher["game_launch"] = self.handle_game_launch
         self._dispatcher["coop_info"] = self.handle_coop_info
         self._dispatcher["tutorials_info"] = self.handle_tutorials_info
         self._dispatcher["mod_info"] = self.handle_mod_info
@@ -253,13 +250,9 @@ class LobbyConnection(QtCore.QObject):
         self._dispatcher["modvault_info"] = self.handle_modvault_info
         self._dispatcher["replay_vault"] = self.handle_replay_vault
         self._dispatcher["coop_leaderboard"] = self.handle_coop_leaderboard
-        self._dispatcher["matchmaker_info"] = self.handle_matchmaker_info
         self._dispatcher["avatar"] = self.handle_avatar
         self._dispatcher["admin"] = self.handle_admin
-        self._dispatcher["social"] = self.handle_social
-        self._dispatcher["player_info"] = self.handle_player_info
         self._dispatcher["authentication_failed"] = self.handle_authentication_failed
-        self._dispatcher["notice"] = self.handle_notice
 
 
     @property
@@ -311,12 +304,8 @@ class LobbyConnection(QtCore.QObject):
             self._client.clear_players()
         self.disconnected.emit()
 
-
     def handle_updated_achievements(self, message):
         pass
-
-    def handle_session(self, message):
-        self._client.handle_session(message)
 
     def handle_invalid(self, message):
         self.state = ClientState.DISCONNECTED
@@ -332,12 +321,6 @@ class LobbyConnection(QtCore.QObject):
     def handle_welcome(self, message):
         self.state = ClientState.ONLINE
         self._client.handle_welcome(message)
-
-    def handle_registration_response(self, message):
-        self._client.handle_registration_response(message)
-
-    def handle_game_launch(self, message):
-        self._client.handle_game_launch(message)
 
     def handle_coop_info(self, message):
         self.coopInfo.emit(message)
@@ -371,9 +354,6 @@ class LobbyConnection(QtCore.QObject):
     def handle_coop_leaderboard(self, message):
         self.coopLeaderBoard.emit(message)
 
-    def handle_matchmaker_info(self, message):
-        self._client.handle_matchmaker_info(message)
-
     def handle_avatar(self, message):
         if "avatarlist" in message:
             self.avatarList.emit(message["avatarlist"])
@@ -385,15 +365,6 @@ class LobbyConnection(QtCore.QObject):
         elif "player_avatar_list" in message:
             self.playerAvatarList.emit(message)
 
-    def handle_social(self, message):
-        self._client.handle_social(message)
-
-    def handle_player_info(self, message):
-        self._client.handle_player_info(message)
-
     def handle_authentication_failed(self, message):
         self.state = ClientState.DISCONNECTED
         self._client.handle_authentication_failed(message)
-
-    def handle_notice(self, message):
-        self._client.handle_notice(message)

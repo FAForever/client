@@ -161,6 +161,14 @@ class ClientWindow(FormClass, BaseClass):
                                                  self.lobby_dispatch.dispatch)
         self.lobby_server = LobbyConnection(self, self.lobby_connection, self.lobby_dispatch)
 
+        self.lobby_dispatch["session"] = self.handle_session
+        self.lobby_dispatch["registration_response"] = self.handle_registration_response
+        self.lobby_dispatch["game_launch"] = self.handle_game_launch
+        self.lobby_dispatch["matchmaker_info"] = self.handle_matchmaker_info
+        self.lobby_dispatch["social"] = self.handle_social
+        self.lobby_dispatch["player_info"] = self.handle_player_info
+        self.lobby_dispatch["notice"] = self.handle_notice
+
         # Timer for resize events
         self.resizeTimer = QtCore.QTimer(self)
         self.resizeTimer.timeout.connect(self.resized)
