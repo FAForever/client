@@ -4,7 +4,7 @@ import util
 from fa import maps
 from multiprocessing import Lock
 from notifications.ns_dialog import NotificationDialog
-from notifications.ns_settings import NsSettingsDialog
+from notifications.ns_settings import NsSettingsDialog, IngameNotification
 
 """
 The Notification Systems reacts on events and displays a popup.
@@ -35,9 +35,16 @@ class Notifications:
 
     def gameExit(self):
         self.game_running = False
+        # kick the queue
+        if self.settings.ingame_notifications == IngameNotification.QUEUE:
+            self.nextEvent()
 
     def isDisabled(self):
-        return self.disabledStartup or self.game_running or not self.settings.enabled
+        return (
+            self.disabledStartup
+            or self.game_running and self.settings.ingame_notifications == IngameNotification.DISABLE
+            or not self.settings.enabled
+        )
 
     def setNotificationEnabled(self, enabled):
         self.settings.enabled = enabled
@@ -54,7 +61,7 @@ class Notifications:
         if self.isDisabled() or not self.settings.popupEnabled(eventType):
             return
         self.events.append((eventType, data))
-        if self.dialog.isHidden():
+        if self.dialog.isHidden() and not (self.settings.ingame_notifications == IngameNotification.QUEUE and self.game_running):
             self.showEvent()
 
     @QtCore.pyqtSlot()
@@ -76,13 +83,13 @@ class Notifications:
         if eventType == self.USER_ONLINE:
             userid = data['user']
             if self.settings.getCustomSetting(eventType, 'mode') == 'friends' and not self.client.players.isFriend(userid):
-                self.dialogClosed()
+                self.nextEvent()
                 return
             pixmap = self.user
             text = '<html>%s<br><font color="silver" size="-2">joined</font> %s</html>' % (self.client.players[userid].login, data['channel'])
         elif eventType == self.NEW_GAME:
             if self.settings.getCustomSetting(eventType, 'mode') == 'friends' and ('host' not in data or not self.client.players.isFriend(data['host'])):
-                self.dialogClosed()
+                self.nextEvent()
                 return
 
             preview = maps.preview(data['mapname'], pixmap=True)
@@ -106,6 +113,6 @@ class Notifications:
 
         self.dialog.newEvent(pixmap, text, self.settings.popup_lifetime, self.settings.soundEnabled(eventType))
 
-    def dialogClosed(self):
+    def nextEvent(self):
         if self.events:
             self.showEvent()

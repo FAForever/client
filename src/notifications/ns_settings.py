@@ -11,6 +11,11 @@ The UI of the Notification System Settings Frame.
 Each module/hook for the notification system must be registered here.
 """
 
+class IngameNotification(Enum):
+    ENABLE = 0
+    DISABLE = 1
+    QUEUE = 2
+
 class NotificationPosition(Enum):
     BOTTOM_RIGHT = 0
     TOP_RIGHT = 1
@@ -61,16 +66,19 @@ class NsSettingsDialog(FormClass2, BaseClass2):
         self.enabled = Settings.get('notifications/enabled', True, type=bool)
         self.popup_lifetime = Settings.get('notifications/popup_lifetime', 5, type=int)
         self.popup_position = NotificationPosition(Settings.get('notifications/popup_position', NotificationPosition.BOTTOM_RIGHT.value, type=int))
+        self.ingame_notifications =  IngameNotification(Settings.get('notifications/ingame', IngameNotification.ENABLE, type=int))
 
         self.nsEnabled.setChecked(self.enabled)
         self.nsPopLifetime.setValue(self.popup_lifetime)
         self.nsPositionComboBox.setCurrentIndex(self.popup_position.value)
+        self.nsIngameComboBox.setCurrentIndex(self.ingame_notifications.value)
 
 
     def saveSettings(self):
         Settings.set('notifications/enabled', self.enabled)
         Settings.set('notifications/popup_lifetime', self.popup_lifetime)
         Settings.set('notifications/popup_position', self.popup_position.value)
+        Settings.set('notifications/ingame', self.ingame_notifications.value)
 
         self.client.actionNsEnabled.setChecked(self.enabled)
 
@@ -79,6 +87,7 @@ class NsSettingsDialog(FormClass2, BaseClass2):
         self.enabled = self.nsEnabled.isChecked()
         self.popup_lifetime = self.nsPopLifetime.value()
         self.popup_position = NotificationPosition(self.nsPositionComboBox.currentIndex())
+        self.ingame_notifications = IngameNotification(self.nsIngameComboBox.currentIndex())
 
         self.saveSettings()
         self.hide()

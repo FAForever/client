@@ -54,7 +54,7 @@ class NotificationDialog(FormClass, BaseClass):
     @QtCore.pyqtSlot()
     def hide(self):
         super(FormClass, self).hide()
-        self.client.notificationSystem.dialogClosed()
+        self.client.notificationSystem.nextEvent()
 
     # mouseReleaseEvent sometimes not fired
     def mousePressEvent(self, event):
