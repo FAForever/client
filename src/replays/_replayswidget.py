@@ -48,13 +48,14 @@ class ReplaysWidget(BaseClass, FormClass):
     automatic = Settings.persisted_property("replay/automatic", default_value=False, type=bool)
     spoiler_free = Settings.persisted_property("replay/spoilerFree", default_value=True, type=bool)
 
-    def __init__(self, client):
+    def __init__(self, client, dispatcher):
         super(BaseClass, self).__init__()
 
         self.setupUi(self)
 
         # self.replayVault.setVisible(False)
         self.client = client
+        self._dispatcher = dispatcher
         client.replaysTab.layout().addWidget(self)
         
         client.lobby_server.gameInfo.connect(self.processGameInfo)
@@ -631,9 +632,7 @@ class ReplaysWidget(BaseClass, FormClass):
 
         try:
             message = json.loads(data_string)
-            cmd = "handle_" + message['command']
-            if hasattr(self.client.lobby_server, cmd):
-                getattr(self.client.lobby_server, cmd)(message)
+            self._dispatcher.dispatch(message)
         except ValueError as e:
             logger.error("Error decoding json ")
             logger.error(e)

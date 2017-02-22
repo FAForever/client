@@ -541,7 +541,7 @@ class ClientWindow(FormClass, BaseClass):
         self.tourneys = tourneys.Tourneys(self)
         self.vault = vault.MapVault(self)
         self.modvault = modvault.ModVault(self)
-        self.replays = replays.Replays(self)
+        self.replays = replays.Replays(self, self.lobby_dispatch)
         self.tutorials = tutorials.Tutorials(self)
         self.Coop = coop.Coop(self)
         self.notificationSystem = ns.Notifications(self)
