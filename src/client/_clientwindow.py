@@ -162,7 +162,8 @@ class ClientWindow(FormClass, BaseClass):
         self.lobby_connection = ServerConnection(LOBBY_HOST, LOBBY_PORT,
                                                  self.lobby_dispatch.dispatch)
         self.lobby_connection.state_changed.connect(self.on_connection_state_changed)
-        self.lobby_server = LobbyConnection(self, self.lobby_dispatch)
+        self.lobby_server = LobbyConnection(self.lobby_dispatch)
+        self.lobby_server.gameInfo.connect(self.fill_in_session_info)
 
         self.lobby_dispatch["session"] = self.handle_session
         self.lobby_dispatch["registration_response"] = self.handle_registration_response
@@ -1217,6 +1218,9 @@ class ClientWindow(FormClass, BaseClass):
         fa.run(info, self.game_session.relay_port, arguments)
 
     def fill_in_session_info(self, message):
+        if 'games' in message:
+            return
+        # sometimes we get the game_info message before a game session was created
         if self.game_session and message['uid'] == self.game_session.game_uid:
             self.game_session.game_map = message['mapname']
             self.game_session.game_mod = message['featured_mod']

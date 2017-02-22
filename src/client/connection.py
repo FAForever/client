@@ -227,12 +227,10 @@ class LobbyConnection(QtCore.QObject):
     avatarList = QtCore.pyqtSignal(list)
     playerAvatarList = QtCore.pyqtSignal(dict)
 
-    def __init__(self, client, dispatcher):
+    def __init__(self, dispatcher):
         QtCore.QObject.__init__(self)
 
-        self._client = client
         self._dispatcher = dispatcher
-
         self._dispatcher["updated_achievements"] = self.handle_updated_achievements
         self._dispatcher["stats"] = self.handle_stats
         self._dispatcher["coop_info"] = self.handle_coop_info
@@ -266,8 +264,6 @@ class LobbyConnection(QtCore.QObject):
             for game in message['games']:
                 self.gameInfo.emit(game)
         else:
-            # sometimes we get the game_info message before a game session was created
-            self._client.fill_in_session_info(message)
             self.gameInfo.emit(message)
 
     def handle_modvault_list_info(self, message):
