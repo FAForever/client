@@ -181,7 +181,7 @@ class ConnectivityHelper(QObject):
         self._relays[(host, port)] = relay
 
     def send(self, command, args):
-        self._client.lobby_server.send({
+        self._client.lobby_connection.send({
             'command': command,
             'target': 'connectivity',
             'args': args or []

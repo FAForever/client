@@ -78,7 +78,7 @@ class ModWidget(FormClass, BaseClass):
         comment = {"author":self.parent.client.login, "text":self.LineComment.text(),
                    "date":datetostr(now()), "uid":"%s-%s" % (self.mod.uid, str(len(self.mod.bugreports)+len(self.mod.comments)).zfill(3))}
         
-        self.parent.client.lobby_server.send(dict(command="modvault",type="addcomment",moduid=self.mod.uid,comment=comment))
+        self.parent.client.lobby_connection.send(dict(command="modvault",type="addcomment",moduid=self.mod.uid,comment=comment))
         c = CommentItem(self, comment["uid"])
         c.update(comment)
         self.Comments.addItem(c)
@@ -91,7 +91,7 @@ class ModWidget(FormClass, BaseClass):
         bugreport = {"author":self.parent.client.login, "text":self.LineBugReport.text(),
                    "date":datetostr(now()), "uid":"%s-%s" % (self.mod.uid, str(len(self.mod.bugreports) + +len(self.mod.comments)).zfill(3))}
         
-        self.parent.client.lobby_server.send(dict(command="modvault",type="addbugreport",moduid=self.mod.uid,bugreport=bugreport))
+        self.parent.client.lobby_connection.send(dict(command="modvault",type="addbugreport",moduid=self.mod.uid,bugreport=bugreport))
         c = CommentItem(self, bugreport["uid"])
         c.update(bugreport)
         self.BugReports.addItem(c)
@@ -100,7 +100,7 @@ class ModWidget(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def like(self): #the server should determine if the user hasn't already clicked the like button for this mod.
-        self.parent.client.lobby_server.send(dict(command="modvault",type="like", uid=self.mod.uid))
+        self.parent.client.lobby_connection.send(dict(command="modvault",type="like", uid=self.mod.uid))
         self.likeButton.setEnabled(False)
 
 class CommentItemDelegate(QtGui.QStyledItemDelegate):

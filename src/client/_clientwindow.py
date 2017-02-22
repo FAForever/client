@@ -162,7 +162,7 @@ class ClientWindow(FormClass, BaseClass):
         self.lobby_connection = ServerConnection(LOBBY_HOST, LOBBY_PORT,
                                                  self.lobby_dispatch.dispatch)
         self.lobby_connection.state_changed.connect(self.on_connection_state_changed)
-        self.lobby_server = LobbyConnection(self, self.lobby_connection, self.lobby_dispatch)
+        self.lobby_server = LobbyConnection(self, self.lobby_dispatch)
 
         self.lobby_dispatch["session"] = self.handle_session
         self.lobby_dispatch["registration_response"] = self.handle_registration_response
@@ -996,44 +996,44 @@ class ClientWindow(FormClass, BaseClass):
 
     def requestAvatars(self, personal):
         if personal:
-            self.lobby_server.send(dict(command="avatar", action="list_avatar"))
+            self.lobby_connection.send(dict(command="avatar", action="list_avatar"))
         else:
-            self.lobby_server.send(dict(command="admin", action="requestavatars"))
+            self.lobby_connection.send(dict(command="admin", action="requestavatars"))
 
     def joinChannel(self, username, channel):
         """ Join users to a channel """
-        self.lobby_server.send(dict(command="admin", action="join_channel", user_ids=[self.players.getID(username)], channel=channel))
+        self.lobby_connection.send(dict(command="admin", action="join_channel", user_ids=[self.players.getID(username)], channel=channel))
 
     def closeFA(self, username):
         """ Close FA remotely """
-        self.lobby_server.send(dict(command="admin", action="closeFA", user_id=self.players.getID(username)))
+        self.lobby_connection.send(dict(command="admin", action="closeFA", user_id=self.players.getID(username)))
 
     def closeLobby(self, username):
         """ Close lobby remotely """
-        self.lobby_server.send(dict(command="admin", action="closelobby", user_id=self.players.getID(username)))
+        self.lobby_connection.send(dict(command="admin", action="closelobby", user_id=self.players.getID(username)))
 
     def addFriend(self, friend_id):
         if friend_id in self.players:
             self.players.friends.add(friend_id)
-            self.lobby_server.send(dict(command="social_add", friend=friend_id))
+            self.lobby_connection.send(dict(command="social_add", friend=friend_id))
             self.usersUpdated.emit([friend_id])
 
     def addFoe(self, foe_id):
         if foe_id in self.players:
             self.players.foes.add(foe_id)
-            self.lobby_server.send(dict(command="social_add", foe=foe_id))
+            self.lobby_connection.send(dict(command="social_add", foe=foe_id))
             self.usersUpdated.emit([foe_id])
 
     def remFriend(self, friend_id):
         if friend_id in self.players:
             self.players.friends.remove(friend_id)
-            self.lobby_server.send(dict(command="social_remove", friend=friend_id))
+            self.lobby_connection.send(dict(command="social_remove", friend=friend_id))
             self.usersUpdated.emit([friend_id])
 
     def remFoe(self, foe_id):
         if foe_id in self.players:
             self.players.foes.remove(foe_id)
-            self.lobby_server.send(dict(command="social_remove", foe=foe_id))
+            self.lobby_connection.send(dict(command="social_remove", foe=foe_id))
             self.usersUpdated.emit([foe_id])
 
 
@@ -1050,7 +1050,7 @@ class ClientWindow(FormClass, BaseClass):
         self.uniqueId = util.uniqueID(self.login, self.session)
         if not self.uniqueId:
             return False
-        self.lobby_server.send(dict(command="hello",
+        self.lobby_connection.send(dict(command="hello",
                        login=self.login,
                        password=self.password,
                        unique_id=self.uniqueId,
@@ -1113,7 +1113,7 @@ class ClientWindow(FormClass, BaseClass):
             }
             if self.connectivity.state == 'STUN':
                 msg['relay_address'] = self.connectivity.relay_address
-            self.lobby_server.send(msg)
+            self.lobby_connection.send(msg)
             self.game_session.ready.disconnect(request_launch)
         if self.game_session:
             self.game_session.ready.connect(request_launch)
@@ -1132,7 +1132,7 @@ class ClientWindow(FormClass, BaseClass):
             }
             if self.connectivity.state == 'STUN':
                 msg['relay_address'] = self.connectivity.relay_address
-            self.lobby_server.send(msg)
+            self.lobby_connection.send(msg)
             self.game_session.ready.disconnect(request_launch)
         if self.game_session:
             self.game_session.game_password = password
@@ -1150,7 +1150,7 @@ class ClientWindow(FormClass, BaseClass):
                 msg['password'] = password
             if self.connectivity.state == "STUN":
                 msg['relay_address'] = self.connectivity.relay_address
-            self.lobby_server.send(msg)
+            self.lobby_connection.send(msg)
             self.game_session.ready.disconnect(request_launch)
         if self.game_session:
             self.game_session.game_password = password

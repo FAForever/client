@@ -155,7 +155,7 @@ class CoopWidget(FormClass, BaseClass):
 
     def coopChanged(self):
         if not self.loaded:
-            self.client.lobby_server.send(dict(command="coop_list"))
+            self.client.lobby_connection.send(dict(command="coop_list"))
             self.loaded = True
 
     def askLeaderBoard(self):

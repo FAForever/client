@@ -227,11 +227,10 @@ class LobbyConnection(QtCore.QObject):
     avatarList = QtCore.pyqtSignal(list)
     playerAvatarList = QtCore.pyqtSignal(dict)
 
-    def __init__(self, client, connection, dispatcher):
+    def __init__(self, client, dispatcher):
         QtCore.QObject.__init__(self)
 
         self._client = client
-        self._connection = connection
         self._dispatcher = dispatcher
 
         self._dispatcher["updated_achievements"] = self.handle_updated_achievements
@@ -246,10 +245,6 @@ class LobbyConnection(QtCore.QObject):
         self._dispatcher["coop_leaderboard"] = self.handle_coop_leaderboard
         self._dispatcher["avatar"] = self.handle_avatar
         self._dispatcher["admin"] = self.handle_admin
-
-
-    def send(self, message):
-        self._connection.send(message)
 
     def handle_updated_achievements(self, message):
         pass

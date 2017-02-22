@@ -203,7 +203,7 @@ class ModVault(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def tabOpened(self):
-        self.client.lobby_server.send(dict(command="modvault",type="start"))
+        self.client.lobby_connection.send(dict(command="modvault",type="start"))
 
     def updateVisibilities(self):
         logger.debug("Updating visibilities with sort '%s' and visibility '%s'" % (self.sortType, self.showType))
@@ -213,7 +213,7 @@ class ModVault(FormClass, BaseClass):
 
     def downloadMod(self, mod):
         if downloadMod(mod):
-            self.client.lobby_server.send(dict(command="modvault",type="download", uid=mod.uid))
+            self.client.lobby_connection.send(dict(command="modvault",type="download", uid=mod.uid))
             self.uids = [mod.uid for mod in getInstalledMods()]
             self.updateVisibilities()
             return True

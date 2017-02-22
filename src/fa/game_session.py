@@ -117,7 +117,7 @@ class GameSession(QObject):
 
     def send(self, command_id, args):
         self._logger.info("Outgoing relay message {} {}".format(command_id, args))
-        self._client.lobby_server.send({
+        self._client.lobby_connection.send({
             'command': command_id,
             'target': 'game',
             'args': args or []

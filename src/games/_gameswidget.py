@@ -244,7 +244,7 @@ class GamesWidget(FormClass, BaseClass):
         if self.searching:
             logger.info("Switching Ranked Search to Race " + str(race))
             self.race = race
-            self.client.lobby_server.send(dict(command="game_matchmaking", mod="ladder1v1", state="settings",
+            self.client.lobby_connection.send(dict(command="game_matchmaking", mod="ladder1v1", state="settings",
                                   faction=self.race.value))
         else:
             # Experimental UPnP Mapper - mappings are removed on app exit
@@ -264,7 +264,7 @@ class GamesWidget(FormClass, BaseClass):
     def stopSearchRanked(self, *args):
         if self.searching:
             logger.debug("Stopping Ranked Search")
-            self.client.lobby_server.send(dict(command="game_matchmaking", mod="ladder1v1", state="stop"))
+            self.client.lobby_connection.send(dict(command="game_matchmaking", mod="ladder1v1", state="stop"))
             self.searching = False
 
         self.updatePlayButton()
