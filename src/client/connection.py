@@ -213,7 +213,7 @@ class Dispatcher():
                 raise ValueError
 
 
-class LobbyConnection(QtCore.QObject):
+class LobbyInfo(QtCore.QObject):
 
     # These signals propagate important client state changes to other modules
     gameInfo = QtCore.pyqtSignal(dict)

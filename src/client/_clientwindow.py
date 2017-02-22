@@ -11,7 +11,7 @@ from config import Settings
 import chat
 from client.player import Player
 from client.players import Players
-from client.connection import LobbyConnection, ServerConnection, Dispatcher, ConnectionState
+from client.connection import LobbyInfo, ServerConnection, Dispatcher, ConnectionState
 from client.updater import ClientUpdater, GithubUpdateChecker
 import fa
 from connectivity.helper import ConnectivityHelper
@@ -162,8 +162,8 @@ class ClientWindow(FormClass, BaseClass):
         self.lobby_connection = ServerConnection(LOBBY_HOST, LOBBY_PORT,
                                                  self.lobby_dispatch.dispatch)
         self.lobby_connection.state_changed.connect(self.on_connection_state_changed)
-        self.lobby_server = LobbyConnection(self.lobby_dispatch)
-        self.lobby_server.gameInfo.connect(self.fill_in_session_info)
+        self.lobby_info = LobbyInfo(self.lobby_dispatch)
+        self.lobby_info.gameInfo.connect(self.fill_in_session_info)
 
         self.lobby_dispatch["session"] = self.handle_session
         self.lobby_dispatch["registration_response"] = self.handle_registration_response
@@ -186,7 +186,7 @@ class ClientWindow(FormClass, BaseClass):
         fa.instance.started.connect(self.startedFA)
         fa.instance.finished.connect(self.finishedFA)
         fa.instance.error.connect(self.errorFA)
-        self.lobby_server.gameInfo.connect(fa.instance.processGameInfo)
+        self.lobby_info.gameInfo.connect(fa.instance.processGameInfo)
 
         # Local Replay Server
         self.replayServer = fa.replayserver.ReplayServer(self)

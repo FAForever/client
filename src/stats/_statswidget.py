@@ -29,7 +29,7 @@ class StatsWidget(BaseClass, FormClass):
         self.client = client
         client.ladderTab.layout().addWidget(self)
         
-        self.client.lobby_server.statsInfo.connect(self.processStatsInfos)
+        self.client.lobby_info.statsInfo.connect(self.processStatsInfos)
 
         self.client = client
 

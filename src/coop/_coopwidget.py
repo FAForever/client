@@ -45,8 +45,8 @@ class CoopWidget(FormClass, BaseClass):
         self.options = []
         
         self.client.showCoop.connect(self.coopChanged)
-        self.client.lobby_server.coopInfo.connect(self.processCoopInfo)
-        self.client.lobby_server.gameInfo.connect(self.processGameInfo)
+        self.client.lobby_info.coopInfo.connect(self.processCoopInfo)
+        self.client.lobby_info.gameInfo.connect(self.processGameInfo)
         self.coopList.header().setResizeMode(0, QtGui.QHeaderView.ResizeToContents)
         self.coopList.setItemDelegate(CoopMapItemDelegate(self))
 
@@ -56,7 +56,7 @@ class CoopWidget(FormClass, BaseClass):
         self.coopList.itemDoubleClicked.connect(self.coopListDoubleClicked)
         self.coopList.itemClicked.connect(self.coopListClicked)
         
-        self.client.lobby_server.coopLeaderBoard.connect(self.processLeaderBoardInfos)
+        self.client.lobby_info.coopLeaderBoard.connect(self.processLeaderBoardInfos)
         self.tabLeaderWidget.currentChanged.connect(self.askLeaderBoard)
         
         self.linkButton.clicked.connect(self.linkVanilla)

@@ -58,8 +58,8 @@ class ReplaysWidget(BaseClass, FormClass):
         self._dispatcher = dispatcher
         client.replaysTab.layout().addWidget(self)
         
-        client.lobby_server.gameInfo.connect(self.processGameInfo)
-        client.lobby_server.replayVault.connect(self.replayVault)
+        client.lobby_info.gameInfo.connect(self.processGameInfo)
+        client.lobby_info.replayVault.connect(self.replayVault)
         
         self.onlineReplays = {}
         self.onlineTree.setItemDelegate(ReplayItemDelegate(self))
