@@ -11,7 +11,7 @@ from config import Settings
 import chat
 from client.player import Player
 from client.players import Players
-from client.connection import LobbyConnection
+from client.connection import LobbyConnection, ServerConnection
 from client.updater import ClientUpdater, GithubUpdateChecker
 import fa
 from connectivity.helper import ConnectivityHelper
@@ -156,7 +156,8 @@ class ClientWindow(FormClass, BaseClass):
         self.auth_state = ClientState.NONE # Using ClientState for reasons
         self.session = None
 
-        self.lobby_server = LobbyConnection(self)
+        self.lobby_connection = ServerConnection(LOBBY_HOST, LOBBY_PORT)
+        self.lobby_server = LobbyConnection(self, self.lobby_connection)
 
         # Timer for resize events
         self.resizeTimer = QtCore.QTimer(self)
@@ -554,10 +555,10 @@ class ClientWindow(FormClass, BaseClass):
             i.show()
 
     def reconnect(self):
-        self.lobby_server.reconnect()
+        self.lobby_connection.reconnect()
 
     def disconnect(self):
-        self.lobby_server.disconnect()
+        self.lobby_connection.disconnect()
         self.chat.disconnect()
 
     @QtCore.pyqtSlot(dict)
@@ -594,9 +595,9 @@ class ClientWindow(FormClass, BaseClass):
             fa.instance.close()
 
         # Terminate Lobby Server connection
-        if self.lobby_server.socket_connected():
+        if self.lobby_connection.socket_connected():
             self.progress.setLabelText("Closing main connection.")
-            self.lobby_server.disconnect()
+            self.lobby_connection.disconnect()
 
         # Clear UPnP Mappings...
         if self.useUPnP:
@@ -814,7 +815,7 @@ class ClientWindow(FormClass, BaseClass):
         if not self.replayServer.doListen(LOCAL_REPLAY_PORT):
             return False
 
-        self.lobby_server.doConnect()
+        self.lobby_connection.doConnect()
         return True
 
     @property
@@ -1026,7 +1027,7 @@ class ClientWindow(FormClass, BaseClass):
         util.crash.CRASH_REPORT_USER = self.login
 
         if self.useUPnP:
-            self.lobby_server.set_upnp(self.gamePort)
+            self.lobby_connection.set_upnp(self.gamePort)
 
         self.updateOptions()
 
@@ -1155,7 +1156,7 @@ class ClientWindow(FormClass, BaseClass):
 
         # UPnP Mapper - mappings are removed on app exit
         if self.useUPnP:
-            self.lobby_server.set_upnp()
+            self.lobby_connection.set_upnp(self.gamePort)
 
         info = dict(uid=message['uid'], recorder=self.login, featured_mod=message['mod'], launched_at=time.time())
 

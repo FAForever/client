@@ -6,45 +6,43 @@ import fa
 import json
 import sys
 
+from enum import IntEnum
 from client import ClientState, LOBBY_HOST, \
     LOBBY_PORT
 
 logger = logging.getLogger(__name__)
 
-class LobbyConnection(QtCore.QObject):
+class ConnectionState(IntEnum):
+    INITIAL = -1
+    DISCONNECTED = 0
+    RECONNECTING = 1
+    # On this state automatically try and reconnect
+    DROPPED = 2
+    CONNECTED = 3
+
+class ServerConnection(QtCore.QObject):
 
     # These signals are emitted when the client is connected or disconnected from FAF
-    connected = QtCore.pyqtSignal()
-    disconnected = QtCore.pyqtSignal()
     state_changed = QtCore.pyqtSignal(object)
 
-    # These signals propagate important client state changes to other modules
-    gameInfo = QtCore.pyqtSignal(dict)
-    statsInfo = QtCore.pyqtSignal(dict)
-    coopInfo = QtCore.pyqtSignal(dict)
-    tutorialsInfo = QtCore.pyqtSignal(dict)
-    modInfo = QtCore.pyqtSignal(dict)
-    modVaultInfo = QtCore.pyqtSignal(dict)
-    replayVault = QtCore.pyqtSignal(dict)
-    coopLeaderBoard = QtCore.pyqtSignal(dict)
-    avatarList = QtCore.pyqtSignal(list)
-    playerAvatarList = QtCore.pyqtSignal(dict)
-
-    def __init__(self, client):
+    def __init__(self, host, port):
         QtCore.QObject.__init__(self)
-
-        self._client = client
-
-        # Init and wire the TCP Network socket to communicate with faforever.com
         self.socket = QtNetwork.QTcpSocket()
         self.socket.readyRead.connect(self.readFromServer)
         self.socket.disconnected.connect(self.disconnectedFromServer)
         self.socket.error.connect(self.socketError)
+        self.socket.connected.connect(self.on_connected)
+        self.socket.setSocketOption(QtNetwork.QTcpSocket.KeepAliveOption, 1)
+
+        self._host = host
+        self._port = port
+        self._state = ConnectionState.INITIAL
         self.blockSize = 0
-        self._state = ClientState.NONE
         self._connection_attempts = 0
-        self._receivers = {}
+        self._disconnect_requested = False
         self.localIP = None
+
+        self.dispatch = None
 
     @property
     def state(self):
@@ -56,40 +54,31 @@ class LobbyConnection(QtCore.QObject):
         self.state_changed.emit(value)
 
     def doConnect(self):
-        self.socket.connected.connect(self.on_connected)
-        self.socket.setSocketOption(QtNetwork.QTcpSocket.KeepAliveOption, 1)
-        self.socket.connectToHost(LOBBY_HOST, LOBBY_PORT)
+        self._disconnect_requested = False
+        self.socket.connectToHost(self._host, self._port)
 
     @QtCore.pyqtSlot()
     def on_connected(self):
-        self.state = ClientState.ACCEPTED
+        self.state = ConnectionState.CONNECTED
+        self._connection_attempts = 0
         self.localIP = self.socket.localAddress()
-        self.send(dict(command="ask_session",
-                       version=config.VERSION,
-                       user_agent="faf-client"))
-        self.connected.emit()
 
     def reconnect(self):
         """
         Reconnect to the server
         :return:
         """
+        self._disconnect_requested = False
         self._connection_attempts += 1
-        self.state = ClientState.RECONNECTING
-        self.socket.setSocketOption(QtNetwork.QTcpSocket.KeepAliveOption, 1)
-        self.socket.connectToHost(LOBBY_HOST, LOBBY_PORT)
+        self.state = ConnectionState.RECONNECTING
+        self.socket.connectToHost(self._host, self._port)
 
     def socket_connected(self):
         return self.socket.state() == QtNetwork.QTcpSocket.ConnectedState
 
     def disconnect(self):
+        self._disconnect_requested = True
         self.socket.disconnectFromHost()
-
-    def mark_for_shutdown(self):
-        self.state = ClientState.SHUTDOWN
-
-    def doLogin(self):
-        self.state = ClientState.NONE
 
     def set_upnp(self, port):
         fa.upnp.createPortMapping(self.socket.localAddress().toString(), port, "UDP")
@@ -115,7 +104,8 @@ class LobbyConnection(QtCore.QObject):
                 self.blockSize = 0
                 return
             try:
-                self.dispatch(json.loads(action))
+                if self.dispatch is not None:
+                    self.dispatch(json.loads(action))
             except:
                 logger.error("Error dispatching JSON: " + action, exc_info=sys.exc_info())
 
@@ -151,24 +141,23 @@ class LobbyConnection(QtCore.QObject):
     @QtCore.pyqtSlot()
     def disconnectedFromServer(self):
         logger.warn("Disconnected from lobby server.")
+        self.blockSize = 0
+        if self._disconnect_requested:
+            self.state = ConnectionState.DISCONNECTED
+        if self.state == ConnectionState.DISCONNECTED:
+            return
 
-        if self.state == ClientState.ACCEPTED:
-            self._client.clear_players()
-
-        if self.state != ClientState.DISCONNECTED and self.state != ClientState.SHUTDOWN:
-            self.state = ClientState.DROPPED
-            if self._connection_attempts < 2:
-                logger.info("Reconnecting immediately")
-                self.reconnect()
-            else:
-                timer = QtCore.QTimer(self)
-                timer.setSingleShot(True)
-                timer.timeout.connect(self.reconnect)
-                t = self._connection_attempts * 10000
-                timer.start(t)
-                logger.info("Scheduling reconnect in {}".format(t / 1000))
-
-        self.disconnected.emit()
+        self.state = ConnectionState.DROPPED
+        if self._connection_attempts < 2:
+            logger.info("Reconnecting immediately")
+            self.reconnect()
+        else:
+            timer = QtCore.QTimer(self)
+            timer.setSingleShot(True)
+            timer.timeout.connect(self.reconnect)
+            t = self._connection_attempts * 10000
+            timer.start(t)
+            logger.info("Scheduling reconnect in {}".format(t / 1000))
 
     @QtCore.pyqtSlot(QtNetwork.QAbstractSocket.SocketError)
     def socketError(self, error):
@@ -177,11 +166,89 @@ class LobbyConnection(QtCore.QObject):
                 or error == QtNetwork.QAbstractSocket.ConnectionRefusedError
                 or error == QtNetwork.QAbstractSocket.RemoteHostClosedError):
             logger.info("Timeout/network error: {}".format(self.socket.errorString()))
-            self.disconnectedFromServer()
         else:
-            self.state = ClientState.DISCONNECTED
             logger.error("Fatal TCP Socket Error: " + self.socket.errorString())
+        self.socket.disconnectFromHost()
 
+
+class LobbyConnection(QtCore.QObject):
+
+    # These signals are emitted when the client is connected or disconnected from FAF
+    connected = QtCore.pyqtSignal()
+    disconnected = QtCore.pyqtSignal()
+    state_changed = QtCore.pyqtSignal(object)
+
+    # These signals propagate important client state changes to other modules
+    gameInfo = QtCore.pyqtSignal(dict)
+    statsInfo = QtCore.pyqtSignal(dict)
+    coopInfo = QtCore.pyqtSignal(dict)
+    tutorialsInfo = QtCore.pyqtSignal(dict)
+    modInfo = QtCore.pyqtSignal(dict)
+    modVaultInfo = QtCore.pyqtSignal(dict)
+    replayVault = QtCore.pyqtSignal(dict)
+    coopLeaderBoard = QtCore.pyqtSignal(dict)
+    avatarList = QtCore.pyqtSignal(list)
+    playerAvatarList = QtCore.pyqtSignal(dict)
+
+    def __init__(self, client, connection):
+        QtCore.QObject.__init__(self)
+
+        self._client = client
+        self._connection = connection
+        self._connection.dispatch = self.dispatch
+        self._connection.state_changed.connect(self.on_connection_state_changed)
+
+        self._state = ClientState.NONE
+        self._receivers = {}
+
+    @property
+    def state(self):
+        return self._state
+
+    @state.setter
+    def state(self, value):
+        self._state = value
+        self.state_changed.emit(value)
+
+    def on_connection_state_changed(self, state):
+        if self.state == ClientState.SHUTDOWN:
+            return
+
+        if state == ConnectionState.CONNECTED:
+            self.on_connected()
+            self.state = ClientState.ACCEPTED
+        elif state == ConnectionState.DISCONNECTED:
+            self.on_disconnected()
+            self.state = ClientState.DISCONNECTED
+        elif state == ConnectionState.DROPPED:
+            self.on_disconnected()
+            self.state = ClientState.DROPPED
+        elif state == ConnectionState.RECONNECTING:
+            self.state = ClientState.RECONNECTING
+
+    def send(self, message):
+        self._connection.send(message)
+
+    @QtCore.pyqtSlot()
+    def on_connected(self):
+        self._connection.send(dict(command="ask_session",
+                                   version=config.VERSION,
+                                   user_agent="faf-client"))
+        self.connected.emit()
+
+    def mark_for_shutdown(self):
+        self.state = ClientState.SHUTDOWN
+
+    def doLogin(self):
+        self.state = ClientState.NONE
+
+    @QtCore.pyqtSlot()
+    def on_disconnected(self):
+        logger.warn("Disconnected from lobby server.")
+
+        if self.state == ClientState.ACCEPTED:
+            self._client.clear_players()
+        self.disconnected.emit()
 
     def subscribe_to(self, target, receiver):
         self._receivers[target] = receiver
@@ -227,7 +294,6 @@ class LobbyConnection(QtCore.QObject):
         self._client.handle_update(message)
 
     def handle_welcome(self, message):
-        self._connection_attempts = 0
         self.state = ClientState.ONLINE
         self._client.handle_welcome(message)
 
