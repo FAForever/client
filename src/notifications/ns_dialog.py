@@ -54,7 +54,8 @@ class NotificationDialog(FormClass, BaseClass):
     @QtCore.pyqtSlot()
     def hide(self):
         super(FormClass, self).hide()
-        self.client.notificationSystem.nextEvent()
+        # check for next event to show notification for
+        self.client.notificationSystem.checkEvent()
 
     # mouseReleaseEvent sometimes not fired
     def mousePressEvent(self, event):

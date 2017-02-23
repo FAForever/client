@@ -1,4 +1,4 @@
-from PyQt4 import QtCore
+from PyQt4 import QtCore, QtGui
 
 import util
 from fa import maps
@@ -37,7 +37,7 @@ class Notifications:
         self.game_running = False
         # kick the queue
         if self.settings.ingame_notifications == IngameNotification.QUEUE:
-            self.nextEvent()
+            self.checkEvent()
 
     def isDisabled(self):
         return (
@@ -61,8 +61,7 @@ class Notifications:
         if self.isDisabled() or not self.settings.popupEnabled(eventType):
             return
         self.events.append((eventType, data))
-        if self.dialog.isHidden() and not (self.settings.ingame_notifications == IngameNotification.QUEUE and self.game_running):
-            self.showEvent()
+        self.checkEvent()
 
     @QtCore.pyqtSlot()
     def on_showSettings(self):
@@ -71,9 +70,12 @@ class Notifications:
 
     def showEvent(self):
         """ Display the next event in the queue as popup  """
-        self.lock.acquire()
-        event = self.events[0]
-        del self.events[0]
+        gotLock = False
+        while not gotLock:
+            gotLock = self.lock.acquire(timeout=0.1)
+            QtGui.QApplication.processEvents()
+
+        event = self.events.pop(0)
         self.lock.release()
 
         eventType = event[0]
@@ -83,13 +85,13 @@ class Notifications:
         if eventType == self.USER_ONLINE:
             userid = data['user']
             if self.settings.getCustomSetting(eventType, 'mode') == 'friends' and not self.client.players.isFriend(userid):
-                self.nextEvent()
+                self.checkEvent()
                 return
             pixmap = self.user
             text = '<html>%s<br><font color="silver" size="-2">joined</font> %s</html>' % (self.client.players[userid].login, data['channel'])
         elif eventType == self.NEW_GAME:
             if self.settings.getCustomSetting(eventType, 'mode') == 'friends' and ('host' not in data or not self.client.players.isFriend(data['host'])):
-                self.nextEvent()
+                self.checkEvent()
                 return
 
             preview = maps.preview(data['mapname'], pixmap=True)
@@ -113,6 +115,22 @@ class Notifications:
 
         self.dialog.newEvent(pixmap, text, self.settings.popup_lifetime, self.settings.soundEnabled(eventType))
 
-    def nextEvent(self):
-        if self.events:
+    def checkEvent(self):
+        """
+        Checks that we are in correct state to show next notification popup
+
+        This means:
+            * There need to be events pending
+            * There must be no notification showing right now (i.e. notification dialog hidden)
+            * Game isn't running, or ingame notifications are enabled
+
+        """
+        if (
+            len(self.events) > 0
+            and self.dialog.isHidden()
+            and (
+                not self.game_running
+                or self.settings.ingame_notifications == IngameNotification.ENABLE
+                )
+            ):
             self.showEvent()
