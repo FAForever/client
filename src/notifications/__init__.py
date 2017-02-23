@@ -69,7 +69,14 @@ class Notifications:
         self.settings.show()
 
     def showEvent(self):
-        """ Display the next event in the queue as popup  """
+        """
+        Display the next event in the queue as popup
+
+        Pops event from queue and checks if it is showable as per settings
+        If event is showable, process event data and then feed it into notification dialog
+
+        Returns True if showable event found, False otherwise
+        """
         gotLock = False
         while not gotLock:
             gotLock = self.lock.acquire(timeout=0.1)
@@ -85,22 +92,20 @@ class Notifications:
         if eventType == self.USER_ONLINE:
             userid = data['user']
             if self.settings.getCustomSetting(eventType, 'mode') == 'friends' and not self.client.players.isFriend(userid):
-                self.checkEvent()
-                return
+                return False
             pixmap = self.user
             text = '<html>%s<br><font color="silver" size="-2">joined</font> %s</html>' % (self.client.players[userid].login, data['channel'])
         elif eventType == self.NEW_GAME:
             if self.settings.getCustomSetting(eventType, 'mode') == 'friends' and ('host' not in data or not self.client.players.isFriend(data['host'])):
-                self.checkEvent()
-                return
+                return False
 
             preview = maps.preview(data['mapname'], pixmap=True)
             if preview:
                 pixmap = preview.scaled(80, 80)
 
             #TODO: outsource as function?
-            mod = None if 'featured_mod' not in data else data['featured_mod']
-            mods = None if 'sim_mods' not in data else data['sim_mods']
+            mod = data.get('featured_mod')
+            mods = data.get('sim_mods')
 
             modstr = ''
             if (mod != 'faf' or mods):
@@ -114,6 +119,7 @@ class Notifications:
             text = '<html>%s<br><font color="silver" size="-2">on</font> %s%s</html>' % (data['title'], maps.getDisplayName(data['mapname']), modhtml)
 
         self.dialog.newEvent(pixmap, text, self.settings.popup_lifetime, self.settings.soundEnabled(eventType))
+        return True
 
     def checkEvent(self):
         """
@@ -125,7 +131,7 @@ class Notifications:
             * Game isn't running, or ingame notifications are enabled
 
         """
-        if (
+        while (
             len(self.events) > 0
             and self.dialog.isHidden()
             and (
@@ -133,4 +139,6 @@ class Notifications:
                 or self.settings.ingame_notifications == IngameNotification.ENABLE
                 )
             ):
-            self.showEvent()
+            shown = self.showEvent()
+            if shown:
+                break
