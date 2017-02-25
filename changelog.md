@@ -5,6 +5,7 @@
 =====
 
 * Add feature to disable / delay client notifications while ingame (#627 / #628
+* Point account-related links to the new website (#631/#633)
 
 Contributors:
   - Duke
