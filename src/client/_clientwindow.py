@@ -717,23 +717,11 @@ class ClientWindow(FormClass, BaseClass):
         self.actionSetLiveReplays.triggered.connect(self.updateOptions)
         self.actionSaveGamelogs.toggled.connect(self.on_actionSavegamelogs_toggled)
         self.actionSaveGamelogs.setChecked(self.gamelogs)
-        self.actionReloadStyleSheet.triggered.connect(util.reloadStyleSheets)
         self.actionColoredNicknames.triggered.connect(self.updateOptions)
         self.actionFriendsOnTop.triggered.connect(self.updateOptions)
 
-        # Init themes as actions.
-        themes = util.listThemes()
-        for theme in themes:
-            action = QAction(str(theme), self.menuTheme)
-            action.triggered.connect(self.switchTheme)
-            action.theme = theme
-            action.setCheckable(True)
-
-            if util.getTheme() == theme:
-                action.setChecked(True)
-            self.menuTheme.insertAction(self.actionReloadStyleSheet, action)
-        self.menuTheme.insertSeparator(self.actionReloadStyleSheet)
-
+        self.menuTheme.setup(util.listThemes())
+        self.menuTheme.themeSelected.connect(lambda theme: util.setTheme(theme, True))
 
     @QtCore.pyqtSlot()
     def updateOptions(self):
@@ -748,10 +736,6 @@ class ClientWindow(FormClass, BaseClass):
         self.friendsontop = self.actionFriendsOnTop.isChecked()
 
         self.saveChat()
-
-    @QtCore.pyqtSlot()
-    def switchTheme(self):
-        util.setTheme(self.sender().theme, True)
 
     @QtCore.pyqtSlot()
     def switchPath(self):

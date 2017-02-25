@@ -42,6 +42,9 @@ class ClientState(IntEnum):
 
 from _clientwindow import ClientWindow
 
+# Do not remove - promoted widget, py2exe does not include it otherwise
+from client.theme_menu import ThemeMenu
+
 instance = ClientWindow()
 
 NetworkManager = QNetworkAccessManager(instance)
