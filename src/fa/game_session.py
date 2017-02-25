@@ -173,12 +173,12 @@ class GameSession(QObject):
         self.send('GameState', ['Ended'])
 
         if self._rehost:
-            self.client.host_game(title=self.game_name,
-                                  mod=self.game_mod,
-                                  visibility=self.game_visibility,
-                                  mapname=self.game_map,
-                                  password=self.game_password,
-                                  is_rehost=True)
+            self._client.host_game(title=self.game_name,
+                                   mod=self.game_mod,
+                                   visibility=self.game_visibility,
+                                   mapname=self.game_map,
+                                   password=self.game_password,
+                                   is_rehost=True)
 
         self._rehost = False
         self.game_uid = None
