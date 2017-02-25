@@ -5,7 +5,6 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import Qt
 
 import util
-from config import Settings
 from games.gameitem import GameItem, GameItemDelegate
 from games.moditem import ModItem, mod_invisible, mods
 from games.hostgamewidget import HostgameWidget
@@ -13,7 +12,7 @@ from fa.factions import Factions
 import fa
 import modvault
 import notifications as ns
-from config import Settings
+from config import modules as cfg
 
 import logging
 
@@ -24,12 +23,6 @@ FormClass, BaseClass = util.loadUiType("games/games.ui")
 
 class GamesWidget(FormClass, BaseClass):
 
-    hide_private_games = Settings.persisted_property(
-        "play/hidePrivateGames", default_value=False, type=bool)
-    sort_games_index = Settings.persisted_property(
-        "play/sortGames", default_value=0, type=int)  # Default is by player count
-    sub_factions = Settings.persisted_property(
-        "play/subFactions", default_value=[False, False, False, False])
 
     def __init__(self, client, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
@@ -40,7 +33,8 @@ class GamesWidget(FormClass, BaseClass):
         self.client.gamesTab.layout().addWidget(self)
 
         self.mods = {}
-
+        # Cache faction selection list for convenience
+        self.sub_factions = cfg.play.sub_factions.get()
         # Dictionary containing our actual games.
         self.games = {}
 
@@ -55,9 +49,6 @@ class GamesWidget(FormClass, BaseClass):
         self.rankedCybran.setIcon(util.icon("games/automatch/cybran.png"))
         self.rankedSeraphim.setIcon(util.icon("games/automatch/seraphim.png"))
         self.rankedUEF.setIcon(util.icon("games/automatch/uef.png"))
-
-        # Fixup ini file type loss
-        self.sub_factions = [True if x=='true' else False for x in self.sub_factions]
 
         self.searchProgress.hide()
 
@@ -77,14 +68,14 @@ class GamesWidget(FormClass, BaseClass):
 
         self.gameList.setItemDelegate(GameItemDelegate(self))
         self.gameList.itemDoubleClicked.connect(self.gameDoubleClicked)
-        self.gameList.sortBy = self.sort_games_index  # Default Sorting is By Players count
+        self.gameList.sortBy = cfg.play.sort_games.get()  # Default Sorting is By Players count
 
         self.sortGamesComboBox.addItems(['By Players', 'By Game Quality', 'By avg. Player Rating'])
         self.sortGamesComboBox.currentIndexChanged.connect(self.sortGamesComboChanged)
-        self.sortGamesComboBox.setCurrentIndex(self.sort_games_index)
+        self.sortGamesComboBox.setCurrentIndex(cfg.play.sort_games.get())
 
         self.hideGamesWithPw.stateChanged.connect(self.togglePrivateGames)
-        self.hideGamesWithPw.setChecked(self.hide_private_games)
+        self.hideGamesWithPw.setChecked(cfg.play.hide_private_games.get())
 
         self.modList.itemDoubleClicked.connect(self.hostGameClicked)
 
@@ -117,7 +108,7 @@ class GamesWidget(FormClass, BaseClass):
 
     @QtCore.pyqtSlot(int)
     def togglePrivateGames(self, state):
-        self.hide_private_games = state
+        cfg.play.hide_private_games.set(state)
 
         for game in [self.games[game] for game in self.games if self.games[game].state == 'open' and self.games[game].password_protected]:
             game.setHidden(state == Qt.Checked)
@@ -131,7 +122,7 @@ class GamesWidget(FormClass, BaseClass):
         logger.debug('selectFaction: selected was {}'.format(self.sub_factions))
         self.sub_factions[factionID-1] = enabled
 
-        Settings.set("play/subFactions", self.sub_factions)
+        cfg.play.sub_factions.set(self.sub_factions)
         logger.debug('selectFaction: selected is {}'.format(self.sub_factions))
 
         if self.searching:
@@ -248,11 +239,11 @@ class GamesWidget(FormClass, BaseClass):
                                   faction=self.race.value))
         else:
             # Experimental UPnP Mapper - mappings are removed on app exit
-            if self.client.useUPnP:
-                fa.upnp.createPortMapping(self.client.localIP, self.client.gamePort, "UDP")
+            if cfg.game.upnp.get():
+                fa.upnp.createPortMapping(self.client.localIP, cfg.game.port.get(), "UDP")
 
             logger.info("Starting Ranked Search as " + str(race) +
-                        ", port: " + str(self.client.gamePort))
+                        ", port: " + str(cfg.game.port.get()))
             self.searching = True
             self.race = race
             self.searchProgress.setVisible(True)
@@ -323,6 +314,6 @@ class GamesWidget(FormClass, BaseClass):
             return
 
     def sortGamesComboChanged(self, index):
-        self.sort_games_index = index
+        cfg.play.sort_games.set(index)
         self.gameList.sortBy = index
         self.gameList.sortItems()

@@ -5,7 +5,7 @@
 from PyQt4 import QtCore, QtGui
 from fa import maps
 import util
-from config import Settings
+from config import modules as cfg
 
 class TutorialItemDelegate(QtGui.QStyledItemDelegate):
     
@@ -90,7 +90,7 @@ class TutorialItem(QtGui.QListWidgetItem):
         self.client = client
         self.tutorial      = message['tutorial']
         self.description   = message['description']
-        self.url           = "{}/faf/tutorials/{}".format(Settings.get('content/host'), message['url'])
+        self.url           = "{}/faf/tutorials/{}".format(cfg.content.host.get(), message['url'])
 
         # Map preview code
         if self.mapname != message['mapname']:

@@ -1,6 +1,7 @@
 from PyQt4 import QtCore, QtGui, QtWebKit
 import util
 
+from config import modules as cfg
 
 class TourneyItemDelegate(QtGui.QStyledItemDelegate):
     #colors = json.loads(util.readfile("client/colors.json"))
@@ -92,7 +93,7 @@ class TourneyItem(QtGui.QListWidgetItem):
         self.playersname= []
         for player in self.players :
             self.playersname.append(player["name"])
-            if old_state != self.state and self.state == "started" and player["name"] == self.client.login :
+            if old_state != self.state and self.state == "started" and player["name"] == cfg.user.login.get() :
                 channel = "#" + self.title.replace(" ", "_")
                 self.client.autoJoin.emit([channel])
                 QtGui.QMessageBox.information(self.client, "Tournament started !", "Your tournament has started !\nYou have automatically joined the tournament channel.")

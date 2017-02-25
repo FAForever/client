@@ -2,7 +2,7 @@ from PyQt4 import QtGui
 import fa
 import modvault
 import logging
-import config
+from config import modules as cfg
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +20,7 @@ def checkMods(mods):  #mods is a dictionary of uid-name pairs
         if uid not in uids:
             to_download.append(uid)
 
-    auto = config.Settings.get('mods/autodownload', default=False, type=bool)
+    auto = cfg.mods.autodownload.get()
     if not auto:
         mod_names = ", ".join([mods[uid] for uid in mods])
         msgbox = QtGui.QMessageBox()
@@ -32,7 +32,7 @@ def checkMods(mods):  #mods is a dictionary of uid-name pairs
         if result == QtGui.QMessageBox.No:
             return False
         elif result == QtGui.QMessageBox.YesToAll:
-            config.Settings.set('mods/autodownload', True)
+            cfg.mods.autodownload.set(True)
 
     for uid in to_download:
         # Spawn an update for the required mod

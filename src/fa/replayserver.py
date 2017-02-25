@@ -11,13 +11,10 @@ import fa
 import json
 import time
 
-from config import Settings
+from config import modules as cfg
 
-INTERNET_REPLAY_SERVER_HOST = Settings.get('replay_server/host')
-INTERNET_REPLAY_SERVER_PORT = Settings.get('replay_server/port')
-
-from . import DEFAULT_LIVE_REPLAY
-from . import DEFAULT_RECORD_REPLAY
+INTERNET_REPLAY_SERVER_HOST = cfg.replay_server.host.get()
+INTERNET_REPLAY_SERVER_PORT = cfg.replay_server.port.get()
 
 class ReplayRecorder(QtCore.QObject): 
     """
@@ -44,7 +41,7 @@ class ReplayRecorder(QtCore.QObject):
         self.relaySocket = QtNetwork.QTcpSocket(self.parent)
         self.relaySocket.connectToHost(INTERNET_REPLAY_SERVER_HOST, INTERNET_REPLAY_SERVER_PORT)
         
-        if util.settings.value("fa.live_replay", DEFAULT_LIVE_REPLAY, type=bool):
+        if cfg.replay_server.connect.get():
             if self.relaySocket.waitForConnected(1000): #Maybe make this asynchronous
                 self.__logger.debug("internet replay server " + self.relaySocket.peerName() + ":" + str(self.relaySocket.peerPort()))
             else:

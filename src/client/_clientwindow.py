@@ -8,7 +8,6 @@ from PyQt4.QtNetwork import QAbstractSocket
 import config
 import connectivity
 from base import Client
-from config import Settings
 import chat
 from client.player import Player
 from client.players import Players
@@ -19,6 +18,9 @@ from fa import GameSession
 from fa.factions import Factions
 from fa.game_session import GameSessionState
 from ui.status_logo import StatusLogo
+
+from config import modules as cfg
+from config import Settings
 
 '''
 Created on Dec 1, 2011
@@ -138,14 +140,6 @@ class ClientWindow(FormClass, BaseClass):
     showCoop = QtCore.pyqtSignal()
 
     matchmakerInfo = QtCore.pyqtSignal(dict)
-
-    remember = Settings.persisted_property('user/remember', type=bool, default_value=True)
-    login = Settings.persisted_property('user/login', persist_if=lambda self: self.remember)
-    password = Settings.persisted_property('user/password', persist_if=lambda self: self.remember)
-
-    gamelogs = Settings.persisted_property('game/logs', type=bool, default_value=True)
-    useUPnP = Settings.persisted_property('game/upnp', type=bool, default_value=True)
-    gamePort = Settings.persisted_property('game/port', type=int, default_value=6112)
 
     def __init__(self, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
@@ -337,15 +331,15 @@ class ClientWindow(FormClass, BaseClass):
 
     @QtCore.pyqtSlot(bool)
     def on_actionSavegamelogs_toggled(self, value):
-        self.gamelogs = value
+        cfg.game.logs.set(value)
 
     @QtCore.pyqtSlot(bool)
     def on_actionAutoDownloadMods_toggled(self, value):
-        Settings.set('mods/autodownload', value is True)
+        cfg.mods.autodownload.set(value is True)
 
     @QtCore.pyqtSlot(bool)
     def on_actionAutoDownloadMaps_toggled(self, value):
-        Settings.set('maps/autodownload', value is True)
+        cfg.maps.autodownload.set(value is True)
 
     def eventFilter(self, obj, event):
         if (event.type() == QtCore.QEvent.HoverMove):
@@ -632,7 +626,7 @@ class ClientWindow(FormClass, BaseClass):
             self.socket.disconnectFromHost()
 
         # Clear UPnP Mappings...
-        if self.useUPnP:
+        if cfg.game.upnp.get():
             self.progress.setLabelText("Removing UPnP port mappings")
             fa.upnp.removePortMappings()
 
@@ -659,6 +653,9 @@ class ClientWindow(FormClass, BaseClass):
             self.progress.setLabelText("Closing main window")
             self.close()
 
+        # Save settings
+        Settings.sync()
+
         self.progress.close()
 
     def closeEvent(self, event):
@@ -682,20 +679,20 @@ class ClientWindow(FormClass, BaseClass):
         self.doneresize.emit()
 
     def initMenus(self):
-        self.actionLink_account_to_Steam.triggered.connect(partial(self.open_url, Settings.get("STEAMLINK_URL")))
-        self.actionLinkWebsite.triggered.connect(partial(self.open_url, Settings.get("WEBSITE_URL")))
-        self.actionLinkWiki.triggered.connect(partial(self.open_url, Settings.get("WIKI_URL")))
-        self.actionLinkForums.triggered.connect(partial(self.open_url, Settings.get("FORUMS_URL")))
-        self.actionLinkUnitDB.triggered.connect(partial(self.open_url, Settings.get("UNITDB_URL")))
-        self.actionLinkGitHub.triggered.connect(partial(self.open_url, Settings.get("GITHUB_URL")))
+        self.actionLink_account_to_Steam.triggered.connect(partial(self.open_url, cfg.url.steamlink.get()))
+        self.actionLinkWebsite.triggered.connect(partial(self.open_url, cfg.url.website.get()))
+        self.actionLinkWiki.triggered.connect(partial(self.open_url, cfg.url.wiki.get()))
+        self.actionLinkForums.triggered.connect(partial(self.open_url, cfg.url.forums.get()))
+        self.actionLinkUnitDB.triggered.connect(partial(self.open_url, cfg.url.unitdb.get()))
+        self.actionLinkGitHub.triggered.connect(partial(self.open_url, cfg.url.github.get()))
 
         self.actionNsSettings.triggered.connect(lambda: self.notificationSystem.on_showSettings())
         self.actionNsEnabled.triggered.connect(lambda enabled: self.notificationSystem.setNotificationEnabled(enabled))
 
-        self.actionWiki.triggered.connect(partial(self.open_url, Settings.get("WIKI_URL")))
-        self.actionReportBug.triggered.connect(partial(self.open_url, Settings.get("TICKET_URL")))
+        self.actionWiki.triggered.connect(partial(self.open_url, cfg.url.wiki.get()))
+        self.actionReportBug.triggered.connect(partial(self.open_url, cfg.url.ticket.get()))
         self.actionShowLogs.triggered.connect(self.linkShowLogs)
-        self.actionTechSupport.triggered.connect(partial(self.open_url, Settings.get("SUPPORT_URL")))
+        self.actionTechSupport.triggered.connect(partial(self.open_url, cfg.url.support.get()))
         self.actionAbout.triggered.connect(self.linkAbout)
 
         self.actionClearCache.triggered.connect(self.clearCache)
@@ -707,17 +704,17 @@ class ClientWindow(FormClass, BaseClass):
 
         # Toggle-Options
         self.actionSetAutoLogin.triggered.connect(self.updateOptions)
-        self.actionSetAutoLogin.setChecked(self.remember)
+        self.actionSetAutoLogin.setChecked(cfg.user.remember.get())
         self.actionSetAutoDownloadMods.toggled.connect(self.on_actionAutoDownloadMods_toggled)
-        self.actionSetAutoDownloadMods.setChecked(Settings.get('mods/autodownload', type=bool, default=False))
+        self.actionSetAutoDownloadMods.setChecked(cfg.mods.autodownload.get())
         self.actionSetAutoDownloadMaps.toggled.connect(self.on_actionAutoDownloadMaps_toggled)
-        self.actionSetAutoDownloadMaps.setChecked(Settings.get('maps/autodownload', type=bool, default=False))
+        self.actionSetAutoDownloadMaps.setChecked(cfg.maps.autodownload.get())
         self.actionSetSoundEffects.triggered.connect(self.updateOptions)
         self.actionSetOpenGames.triggered.connect(self.updateOptions)
         self.actionSetJoinsParts.triggered.connect(self.updateOptions)
         self.actionSetLiveReplays.triggered.connect(self.updateOptions)
         self.actionSaveGamelogs.toggled.connect(self.on_actionSavegamelogs_toggled)
-        self.actionSaveGamelogs.setChecked(self.gamelogs)
+        self.actionSaveGamelogs.setChecked(cfg.game.logs.get())
         self.actionColoredNicknames.triggered.connect(self.updateOptions)
         self.actionFriendsOnTop.triggered.connect(self.updateOptions)
 
@@ -739,15 +736,15 @@ class ClientWindow(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def updateOptions(self):
-        self.remember = self.actionSetAutoLogin.isChecked()
-        self.soundeffects = self.actionSetSoundEffects.isChecked()
-        self.opengames = self.actionSetOpenGames.isChecked()
-        self.joinsparts = self.actionSetJoinsParts.isChecked()
-        self.livereplays = self.actionSetLiveReplays.isChecked()
+        cfg.user.remember.set(self.actionSetAutoLogin.isChecked())
+        cfg.chat.soundeffects.set(self.actionSetSoundEffects.isChecked())
+        cfg.chat.opengames.set(self.actionSetOpenGames.isChecked())
+        cfg.chat.joinsparts.set(self.actionSetJoinsParts.isChecked())
+        cfg.chat.livereplays.set(self.actionSetLiveReplays.isChecked())
 
-        self.gamelogs = self.actionSaveGamelogs.isChecked()
+        cfg.game.logs.set(self.actionSaveGamelogs.isChecked())
         self.players.coloredNicknames = self.actionColoredNicknames.isChecked()
-        self.friendsontop = self.actionFriendsOnTop.isChecked()
+        cfg.chat.friendsontop.set(self.actionFriendsOnTop.isChecked())
 
         self.saveChat()
 
@@ -770,8 +767,7 @@ class ClientWindow(FormClass, BaseClass):
                                             "Are you sure you wish to clear all settings, login info, etc. used by this program?",
                                             QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
         if (result == QtGui.QMessageBox.Yes):
-            util.settings.clear()
-            util.settings.sync()
+            Settings.clear()
             QtGui.QMessageBox.information(None, "Restart Needed", "FAF will quit now.")
             QtGui.QApplication.quit()
 
@@ -807,43 +803,35 @@ class ClientWindow(FormClass, BaseClass):
         dialog.exec_()
 
     def saveWindow(self):
-        util.settings.beginGroup("window")
-        util.settings.setValue("geometry", self.saveGeometry())
-        util.settings.endGroup()
+        cfg.window.geometry.set(self.saveGeometry())
 
     def saveChat(self):
-        util.settings.beginGroup("chat")
-        util.settings.setValue("soundeffects", self.soundeffects)
-        util.settings.setValue("livereplays", self.livereplays)
-        util.settings.setValue("opengames", self.opengames)
-        util.settings.setValue("joinsparts", self.joinsparts)
-        util.settings.setValue("coloredNicknames", self.players.coloredNicknames)
-        util.settings.setValue("friendsontop", self.friendsontop)
-        util.settings.endGroup()
+        c = cfg.chat
+        c.soundeffects.set(self.soundeffects)
+        c.livereplays.set(self.livereplays)
+        c.opengames.set(self.opengames)
+        c.joinsparts.set(self.joinsparts)
+        c.coloredNicknames.set(self.players.coloredNicknames)
+        c.friendsontop.set(self.friendsontop)
 
     def loadSettings(self):
         self.loadChat()
         # Load settings
-        util.settings.beginGroup("window")
-        geometry = util.settings.value("geometry", None)
+        geometry = cfg.window.geometry.get()
         if geometry:
             self.restoreGeometry(geometry)
-        util.settings.endGroup()
 
-        util.settings.beginGroup("ForgedAlliance")
-        util.settings.endGroup()
 
     def loadChat(self):
         try:
-            util.settings.beginGroup("chat")
-            self.soundeffects = (util.settings.value("soundeffects", "true") == "true")
-            self.opengames = (util.settings.value("opengames", "true") == "true")
-            self.joinsparts = (util.settings.value("joinsparts", "false") == "true")
-            self.livereplays = (util.settings.value("livereplays", "true") == "true")
-            self.players.coloredNicknames = (util.settings.value("coloredNicknames", "false") == "true")
-            self.friendsontop = (util.settings.value("friendsontop", "false") == "true")
+            c = cfg.chat
+            self.soundeffects = c.soundeffects.get()
+            self.opengames = c.opengames.get()
+            self.joinsparts = c.joinsparts.get()
+            self.livereplays = c.livereplays.get()
+            self.players.coloredNicknames = c.coloredNicknames.get()
+            self.friendsontop = c.friendsontop.get()
 
-            util.settings.endGroup()
             self.actionColoredNicknames.setChecked(self.players.coloredNicknames)
             self.actionFriendsOnTop.setChecked(self.friendsontop)
             self.actionSetSoundEffects.setChecked(self.soundeffects)
@@ -884,7 +872,7 @@ class ClientWindow(FormClass, BaseClass):
 
     @property
     def can_login(self):
-        return self.remember and self.password and self.login
+        return cfg.user.remember.get() and cfg.user.password.get() and cfg.user.login.get()
 
     def show_login_wizard(self):
         from loginwizards import LoginWizard
@@ -1175,17 +1163,17 @@ class ClientWindow(FormClass, BaseClass):
         self._client_updater.notify_outdated(False)
 
         self.session = str(message['session'])
-        if self.remember and self.login and self.password:
+        if self.can_login:
             self.perform_login()
 
     @QtCore.pyqtSlot()
     def perform_login(self):
-        self.uniqueId = util.uniqueID(self.login, self.session)
+        self.uniqueId = util.uniqueID(cfg.user.login.get(), self.session)
         if not self.uniqueId:
             return False
         self.send(dict(command="hello",
-                       login=self.login,
-                       password=self.password,
+                       login=cfg.user.login.get(),
+                       password=cfg.user.password.get(),
                        unique_id=self.uniqueId,
                        session=self.session))
         return True
@@ -1200,7 +1188,7 @@ class ClientWindow(FormClass, BaseClass):
     def handle_update(self, message):
         # Remove geometry settings prior to updating
         # could be incompatible with an updated client.
-        Settings.remove('window/geometry')
+        cfg.window.geometry.delete()
 
         logger.warn("Server says we need an update")
         self.progress.close()
@@ -1211,17 +1199,17 @@ class ClientWindow(FormClass, BaseClass):
         self._connection_attempts = 0
 
         self.id = message["id"]
-        self.login = message["login"]
-        self.me = Player(id=self.id, login=self.login)
+        cfg.user.login.set(message["login"], persist = cfg.user.remember.get())
+        self.me = Player(id=self.id, login=cfg.user.login.get())
         self.players[self.me.id] = self.me  # FIXME
         self.players.me = self.me  # FIXME
         logger.debug("Login success")
         self.state = ClientState.ACCEPTED
 
-        util.crash.CRASH_REPORT_USER = self.login
+        util.crash.CRASH_REPORT_USER = cfg.user.login.get()
 
-        if self.useUPnP:
-            fa.upnp.createPortMapping(self.socket.localAddress().toString(), self.gamePort, "UDP")
+        if cfg.game.upnp.get():
+            fa.upnp.createPortMapping(self.socket.localAddress().toString(), cfg.game.port.get(), "UDP")
 
         self.updateOptions()
 
@@ -1230,7 +1218,7 @@ class ClientWindow(FormClass, BaseClass):
 
         # Run an initial connectivity test and initialize a gamesession object
         # when done
-        self.connectivity = ConnectivityHelper(self, self.gamePort)
+        self.connectivity = ConnectivityHelper(self, cfg.game.port.get())
         self.connectivity.connectivity_status_established.connect(self.initialize_game_session)
         self.connectivity.start_test()
 
@@ -1251,7 +1239,7 @@ class ClientWindow(FormClass, BaseClass):
                 'command': 'game_matchmaking',
                 'mod': 'ladder1v1',
                 'state': 'start',
-                'gameport': self.gamePort,
+                'gameport': cfg.game.port.get(),
                 'faction': faction
             }
             if self.connectivity.state == 'STUN':
@@ -1287,7 +1275,7 @@ class ClientWindow(FormClass, BaseClass):
             msg = {
                 'command': 'game_join',
                 'uid': uid,
-                'gameport': self.gamePort
+                'gameport': self.game.port.get()
             }
             if password:
                 msg['password'] = password
@@ -1350,10 +1338,10 @@ class ClientWindow(FormClass, BaseClass):
             fa.mods.checkMods(message['sim_mods'])
 
         # UPnP Mapper - mappings are removed on app exit
-        if self.useUPnP:
-            fa.upnp.createPortMapping(self.socket.localAddress().toString(), self.gamePort, "UDP")
+        if cfg.game.upnp.get():
+            fa.upnp.createPortMapping(self.socket.localAddress().toString(), cfg.game.port.get(), "UDP")
 
-        info = dict(uid=message['uid'], recorder=self.login, featured_mod=message['mod'], launched_at=time.time())
+        info = dict(uid=message['uid'], recorder=cfg.user.login.get(), featured_mod=message['mod'], launched_at=time.time())
 
         self.game_session.game_uid = message['uid']
 
@@ -1473,7 +1461,7 @@ class ClientWindow(FormClass, BaseClass):
 
     def handle_authentication_failed(self, message):
         QtGui.QMessageBox.warning(self, "Authentication failed", message["text"])
-        self.remember = False
+        cfg.user.remember.set(False)
         self.state = ClientState.DISCONNECTED
         self.show_login_wizard()
 

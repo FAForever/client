@@ -3,9 +3,10 @@
 from PyQt4 import QtCore, QtGui, QtWebKit
 import util
 from stats import mapstat
-from config import Settings
 import client
 import time
+
+from config import modules as cfg
 
 import logging
 logger = logging.getLogger(__name__)
@@ -134,7 +135,7 @@ class StatsWidget(BaseClass, FormClass):
             rank = val["rank"]
             name = val["name"]
             score = str(val["score"])
-            if self.client.login == name:
+            if cfg.user.login.get() == name:
                 append(formatter.format(rank=str(rank), name=name, score=score, color="#6CF"))
             elif rank % 2 == 0:
                 append(formatter.format(rank=str(rank), name=name, score=str(val["score"]), color="#F1F1F1"))
@@ -185,7 +186,7 @@ class StatsWidget(BaseClass, FormClass):
 
     @QtCore.pyqtSlot()
     def updating(self):
-        me = self.client.players[self.client.login]
+        me = self.client.players[cfg.user.login.get()]
         if me.league is not None:
             self.leagues.setCurrentIndex(me.league - 1)
         else:
@@ -202,4 +203,4 @@ class StatsWidget(BaseClass, FormClass):
         if util.themeurl("ladder/style.css"):
             self.webview.settings().setUserStyleSheetUrl(util.themeurl("ladder/style.css"))
 
-        self.webview.setUrl(QtCore.QUrl("{}/faf/leaderboards/read-leader.php?board=1v1&username={}".format(Settings.get('content/host'), me.login)))
+        self.webview.setUrl(QtCore.QUrl("{}/faf/leaderboards/read-leader.php?board=1v1&username={}".format(cfg.content.host.get(), me.login)))

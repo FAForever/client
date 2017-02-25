@@ -8,6 +8,7 @@ from decorators import with_logger
 from fa.game_connection import GPGNetConnection
 from fa.game_process import GameProcess, instance as game_process_instance
 
+from config import modules as cfg
 
 class GameSessionState(IntEnum):
     # Game services are entirely off
@@ -50,7 +51,7 @@ class GameSession(QObject):
         self._client = client  # type: Client
         self.me = client.me
 
-        self.game_port = client.gamePort
+        self.game_port = cfg.game.port.get()
         self.player = client.me
 
         # Use the normal lobby by default

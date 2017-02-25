@@ -3,7 +3,7 @@ import os
 import sys
 import logging
 
-import config
+from config import modules as cfg
 import util
 
 logger = logging.getLogger(__name__)
@@ -21,11 +21,11 @@ def writeFAPathLua():
     Writes a small lua file to disk that helps the new SupComDataPath.lua find the actual install of the game
     """
     name = os.path.join(util.APPDATA_DIR, u"fa_path.lua")
-    gamepath_fa = config.Settings.get("ForgedAlliance/app/path", type=str)
+    gamepath_fa = cfg.ForgedAlliance.app_path.get()
 
     code = 'fa_path = "' + gamepath_fa.replace("\\", "\\\\") + '"' + "\n"
 
-    gamepath_sc = config.Settings.get("SupremeCommander/app/path", type=str)
+    gamepath_sc = cfg.SupremeCommander.app_path.get()
     if gamepath_sc:
         code = code + 'sc_path = "' + gamepath_sc.replace("\\", "\\\\") + '"' + "\n"
 
@@ -40,7 +40,7 @@ def typicalForgedAlliancePaths():
     Returns a list of the most probable paths where Supreme Commander: Forged Alliance might be installed
     """
     pathlist = [
-        config.Settings.get("ForgedAlliance/app/path", "", type=str),
+        cfg.ForgedAlliance.app_path.get(''),
 
         #Retail path
         os.path.expandvars("%ProgramFiles%\\THQ\\Gas Powered Games\\Supreme Commander - Forged Alliance"),
@@ -68,7 +68,7 @@ def typicalSupComPaths():
     Returns a list of the most probable paths where Supreme Commander might be installed
     """
     pathlist = [
-        config.Settings.get("SupremeCommander/app/path", None, type=str),
+        cfg.SupremeCommander.app_path.get(''),
 
         #Retail path
         os.path.expandvars("%ProgramFiles%\\THQ\\Gas Powered Games\\Supreme Commander"),

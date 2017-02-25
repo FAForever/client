@@ -1,4 +1,4 @@
-import config
+from config import modules as cfg
 
 from PyQt4.QtCore import QTimer, pyqtSignal
 from PyQt4.QtNetwork import QUdpSocket, QHostAddress, QHostInfo
@@ -71,8 +71,8 @@ class QTurnSocket(QUdpSocket):
         self.bindings = {}
         self.initial_port = port
         self._data_cb = data_cb
-        self.turn_host, self.turn_port = config.Settings.get('turn/host', type=unicode, default='dev.faforever.com'), \
-                               config.Settings.get('turn/port', type=int, default=3478)
+        self.turn_host, self.turn_port = cfg.turn.host.get(), \
+                               cfg.turn.port.get()
         self._logger.info("Turn socket initialized: {}".format(self.turn_host))
         self.turn_address = None
         QHostInfo.lookupHost(self.turn_host, self._looked_up)

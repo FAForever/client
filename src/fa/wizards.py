@@ -2,6 +2,7 @@ from PyQt4 import QtGui, QtCore
 from fa.path import validatePath, typicalSupComPaths, typicalForgedAlliancePaths
 
 import util
+from config import modules as cfg
 
 __author__ = 'Thygrrr'
 
@@ -141,7 +142,7 @@ class WizardSC(QtGui.QWizard):
 
 
     def accept(self):
-        util.settings.setValue("SupremeCommander/app/path", self.upgrade.comboBox.currentText())
+        cfg.SupremeCommander.app_path.set(self.upgrade.comboBox.currentText())
         QtGui.QWizard.accept(self)
 
 
@@ -164,7 +165,7 @@ class Wizard(QtGui.QWizard):
 
 
     def accept(self):
-        util.settings.setValue("ForgedAlliance/app/path", self.upgrade.comboBox.currentText())
+        cfg.ForgedAlliance.app_path.set(self.upgrade.comboBox.currentText())
         QtGui.QWizard.accept(self)
 
 

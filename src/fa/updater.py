@@ -22,8 +22,7 @@ import sys
 import tempfile
 import json
 
-import config
-from config import Settings
+from config import modules as cfg
 
 from PyQt4 import QtGui, QtCore, QtNetwork
 
@@ -102,7 +101,7 @@ class Updater(QtCore.QObject):
     """
     # Network configuration
     SOCKET  = 9001
-    HOST    = Settings.get('lobby/host')
+    HOST    = cfg.lobby.host.get()
     TIMEOUT = 20  #seconds
 
     # Return codes to expect from run()
@@ -382,7 +381,7 @@ class Updater(QtCore.QObject):
         self.progress.setLabelText("Preparing binFAF...")
 
         #now we check if we've got a binFAF folder
-        FABindir = os.path.join(config.Settings.get("ForgedAlliance/app/path"), 'bin')
+        FABindir = os.path.join(cfg.ForgedAlliance.app_path.get(), 'bin')
         FAFdir = util.BIN_DIR
 
         #Try to copy without overwriting, but fill in any missing files, otherwise it might miss some files to update

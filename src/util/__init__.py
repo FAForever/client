@@ -6,7 +6,8 @@ from ctypes import *
 
 from PyQt4.QtGui import QDesktopServices, QMessageBox
 
-from config import Settings
+from config import modules as cfg
+
 from PyQt4.QtGui import QDesktopServices
 if sys.platform == 'win32':
     import win32serviceutil
@@ -23,16 +24,12 @@ logger = logging.getLogger(__name__)
 
 LOGFILE_MAX_SIZE = 256 * 1024  #256kb should be enough for anyone
 
-UNITS_PREVIEW_ROOT = "{}/faf/unitsDB/icons/big/".format(Settings.get('content/host'))
+UNITS_PREVIEW_ROOT = "{}/faf/unitsDB/icons/big/".format(cfg.content.host.get())
 
 import fafpath
 COMMON_DIR = fafpath.get_resdir()
 
-# These directories are in Appdata (e.g. C:\ProgramData on some Win7 versions)
-if 'ALLUSERSPROFILE' in os.environ:
-    APPDATA_DIR = os.path.join(os.environ['ALLUSERSPROFILE'], "FAForever")
-else:
-    APPDATA_DIR = os.path.join(os.environ['HOME'], "FAForever")
+APPDATA_DIR = fafpath.get_userdir()
 
 #This is used to store init_*.lua files
 LUA_DIR = os.path.join(APPDATA_DIR, "lua")
@@ -63,19 +60,11 @@ REPO_DIR = os.path.join(APPDATA_DIR, "repo")
 if not os.path.exists(REPO_DIR):
     os.makedirs(REPO_DIR)
 
-# Public settings object
-# Stolen from Config because reasons
-from config import _settings
-settings = _settings
-
 # initialize wine settings for non Windows platforms
 if sys.platform != 'win32':
-    wine_exe = settings.value("wine/exe", "wine", type=str)
-    wine_cmd_prefix = settings.value("wine/cmd_prefix", "", type=str)
-    if settings.contains("wine/prefix"):
-        wine_prefix = str(settings.value("wine/prefix", type=str))
-    else:
-        wine_prefix = os.path.join(os.path.expanduser("~"), ".wine")
+    wine_exe = cfg.wine.exe.get()
+    wine_cmd_prefix = cfg.wine.cmd_prefix.get()
+    wine_prefix = cfg.wine.prefix.get(os.path.join(os.path.expanduser("~"), ".wine"))
 
 LOCALFOLDER = os.path.join(os.path.expandvars("%LOCALAPPDATA%"), "Gas Powered Games",
                            "Supreme Commander Forged Alliance")
@@ -169,12 +158,6 @@ __pixmapcache = {}
 __theme = None
 __themedir = None
 
-
-# Public settings object
-# Stolen from Config because reasons
-from config import _settings
-settings = _settings
-
 def clean_slate(path):
     if os.path.exists(path):
         logger.info("Wiping " + path)
@@ -186,9 +169,7 @@ def loadTheme():
     global __theme
     global __themedir
 
-    settings.beginGroup("theme")
-    loaded = settings.value("theme/name")
-    settings.endGroup()
+    loaded = cfg.theme.name.get()
     logger.debug("Loaded Theme: " + str(loaded))
 
     setTheme(loaded, False)
@@ -228,10 +209,7 @@ def setTheme(theme, restart=True):
             logger.error("Theme not found: " + theme + " in directory " + test_dir)
 
             #Save theme setting
-    settings.beginGroup("theme")
-    settings.setValue("theme/name", __theme)
-    settings.endGroup()
-    settings.sync()
+    cfg.theme.name.set(__theme)
 
     if restart:
         QtGui.QMessageBox.information(None, "Restart Needed", "FAF will quit now.")

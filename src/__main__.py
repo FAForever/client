@@ -66,8 +66,8 @@ def excepthook(exc_type, exc_value, traceback_object):
     sys.excepthook = excepthook
 
 def AdminUserErrorDialog():
-    from config import Settings
-    ignore_admin = Settings.get("client/ignore_admin", False, bool)
+    from config import modules as cfg
+    ignore_admin = cfg.client.ignore_admin.get()
     if not ignore_admin:
         box = QtGui.QMessageBox()
         box.setText("FAF should not be run as an administrator!<br><br>This probably means you need to fix the file permissions in C:\\ProgramData.<br>Proceed at your own risk.")
@@ -75,7 +75,7 @@ def AdminUserErrorDialog():
         box.setIcon(QtGui.QMessageBox.Critical)
         box.setWindowTitle("FAF privilege error")
         if (box.exec_() == QtGui.QMessageBox.Ignore):
-            Settings.set("client/ignore_admin", True)
+            cfg.client.ignore_admin.set(True)
 
 
 
@@ -100,6 +100,10 @@ def runFAF():
 if __name__ == '__main__':
     import logging
     import config
+    import config.dirs
+    import config.logger
+    config.dirs.make_dirs()
+    config.logger.setup_logging()
 
     app = QtGui.QApplication(sys.argv)
 

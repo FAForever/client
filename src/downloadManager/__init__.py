@@ -5,11 +5,11 @@ import logging
 import os
 import util
 import warnings
-from config import Settings
+from config import modules as cfg
 
 logger= logging.getLogger(__name__)
 
-VAULT_PREVIEW_ROOT = "{}/faf/vault/map_previews/small/".format(Settings.get('content/host'))
+VAULT_PREVIEW_ROOT = "{}/faf/vault/map_previews/small/".format(cfg.content.host.get())
 
 class downloadManager(QtCore.QObject):
     ''' This class allows downloading stuff in the background'''

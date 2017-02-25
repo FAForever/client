@@ -1,6 +1,6 @@
 from .game_process import instance
 
-from config import Settings
+from config import modules as cfg
 import util
 
 __author__ = 'Thygrrr'
@@ -27,7 +27,7 @@ def build_argument_list(game_info, port, arguments=None):
     arguments.append('/numgames {}'.format(client.instance.me.number_of_games))
 
     # log file
-    if Settings.get("game/logs", False, type=bool):
+    if cfg.game.logs.get():
         arguments.append("/log")
         arguments.append('"' + util.LOG_FILE_GAME + '"')
 

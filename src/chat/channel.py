@@ -11,6 +11,7 @@ import re
 import json
 
 from client import Player
+from config import modules as cfg
 
 QUERY_BLINK_SPEED = 250
 CHAT_TEXT_LIMIT = 350
@@ -226,7 +227,7 @@ class Channel(FormClass, BaseClass):
             displayName = "<b>[%s]</b>%s" % (player.clan, name)
 
         # Play a ping sound and flash the title under certain circumstances
-        mentioned = text.find(self.lobby.client.login) != -1
+        mentioned = text.find(cfg.user.login.get()) != -1
         if mentioned or (self.private and not (formatter is Formatters.FORMATTER_RAW and text == "quit.")):
             self.pingWindow()
 
@@ -304,7 +305,7 @@ class Channel(FormClass, BaseClass):
         color = self.lobby.client.players.getUserColor(id)
 
         # Play a ping sound
-        if self.private and name != self.lobby.client.login:
+        if self.private and name != cfg.user.login.get():
             self.pingWindow()
 
         # scroll if close to the last line of the log
@@ -453,7 +454,7 @@ class Channel(FormClass, BaseClass):
                     self.lobby.sendMsg(blobs[1], " ".join(blobs[2:]))
                 elif text.startswith("/me "):
                     if self.lobby.sendAction(target, text[4:]):
-                        self.printAction(self.lobby.client.login, text[4:], True)
+                        self.printAction(cfg.user.login.get(), text[4:], True)
                     else:
                         self.printAction("IRC", "action not supported", True)
                 elif text.startswith("/seen "):
@@ -463,5 +464,5 @@ class Channel(FormClass, BaseClass):
                         self.printAction("IRC", "not connected", True)
             else:
                 if self.lobby.sendMsg(target, text):
-                    self.printMsg(self.lobby.client.login, text, True)
+                    self.printMsg(cfg.user.login.get(), text, True)
         self.chatEdit.clear()

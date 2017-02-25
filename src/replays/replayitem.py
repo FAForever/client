@@ -4,7 +4,7 @@ import time
 import util
 from PyQt4 import QtCore, QtGui
 
-from config import Settings
+from config import modules as cfg
 from fa import maps
 from games.moditem import mods
 
@@ -98,7 +98,7 @@ class ReplayItem(QtGui.QTreeWidgetItem):
         self.moreInfo       = False
         self.replayInfo     = False
         self.spoiled        = False
-        self.url            = "{}/faf/vault/replay_vault/replay.php?id={}".format(Settings.get('content/host'), self.uid)
+        self.url            = "{}/faf/vault/replay_vault/replay.php?id={}".format(cfg.content.host.get(), self.uid)
 
         self.teams          = {}
         self.access         = None

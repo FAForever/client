@@ -1,18 +1,18 @@
 from PyQt4 import QtCore, QtGui
 import re
-from config import Settings
 import util
 
 import hashlib
 from client import ClientState
+from config import modules as cfg
+
 
 class LoginWizard(QtGui.QWizard):
     def __init__(self, client):
         QtGui.QWizard.__init__(self)
 
         self.client = client
-        self.login = client.login
-        self.password = client.password
+        self.password = cfg.user.password.get()
         
         self.addPage(loginPage(self))
 
@@ -34,9 +34,10 @@ class LoginWizard(QtGui.QWizard):
         if (self.field("password") != "!!!password!!!"): #Not entirely nicely coded, this can go into a lambda function connected to the LineEdit
             self.password = hashlib.sha256(self.field("password").strip().encode("utf-8")).hexdigest()
 
-        self.client.remember = self.field("remember")
-        self.client.login = self.field("login").strip()
-        self.client.password = self.password  # This is the hash, not the dummy password
+        remember = self.field("remember")
+        cfg.user.remember.set(remember)
+        cfg.user.login.set(self.field("login").strip(), persist = remember)
+        cfg.user.password.set(self.password, persist = remember) # This is the hash, not the dummy password
 
     @QtCore.pyqtSlot()
     def on_rejected(self):
@@ -61,7 +62,7 @@ class loginPage(QtGui.QWizardPage):
         loginLabel = QtGui.QLabel("&User name :")
         self.loginLineEdit = QtGui.QLineEdit()
         loginLabel.setBuddy(self.loginLineEdit)
-        self.loginLineEdit.setText(self.client.login)
+        self.loginLineEdit.setText(cfg.user.login.get())
 
         passwordLabel = QtGui.QLabel("&Password :")
         self.passwordLineEdit = QtGui.QLineEdit()
@@ -70,14 +71,14 @@ class loginPage(QtGui.QWizardPage):
         
         self.passwordLineEdit.setEchoMode(QtGui.QLineEdit.Password)
                 
-        if (self.client.password):
+        if (cfg.user.password.get()):
             self.passwordLineEdit.setText("!!!password!!!")
 
         self.passwordLineEdit.selectionChanged.connect(self.passwordLineEdit.clear)               
 
 
         self.rememberCheckBox = QtGui.QCheckBox("&Remember me")
-        self.rememberCheckBox.setChecked(self.client.remember)
+        self.rememberCheckBox.setChecked(cfg.user.remember.get())
         
 
         self.rememberCheckBox.clicked.connect(self.rememberCheck)
@@ -118,32 +119,32 @@ class loginPage(QtGui.QWizardPage):
         self.setLayout(layout)
 
     def rememberCheck(self):
-        self.client.remember = self.rememberCheckBox.isChecked()
+        cfg.user.remember.set(self.rememberCheckBox.isChecked())
 
     @QtCore.pyqtSlot()
     def createAccount(self):
         wizard = creationAccountWizard(self)
         if wizard.exec_():
             #Re-load credentials after successful creation.
-            self.loginLineEdit.setText(self.client.login)
+            self.loginLineEdit.setText(cfg.user.login.get())
             self.setField('password', "!!!password!!!")
-            self.parent.password = self.client.password # This is needed because we're writing the field in accept()
+            self.parent.password = cfg.user.password.get() # This is needed because we're writing the field in accept()
 
     @QtCore.pyqtSlot()
     def linkAccount(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(Settings.get("STEAMLINK_URL")))
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(cfg.url.steamlink.get()))
 
     @QtCore.pyqtSlot()
     def renameAccount(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(Settings.get("NAME_CHANGE_URL")))
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(cfg.url.name_change.get()))
 
     @QtCore.pyqtSlot()
     def forgotPassword(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(Settings.get("PASSWORD_RECOVERY_URL")))
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(cfg.url.password_recovery.get()))
 
     @QtCore.pyqtSlot()
     def reportBug(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(Settings.get("TICKET_URL")))
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(cfg.url.ticket.get()))
 
 class creationAccountWizard(QtGui.QWizard):
     def __init__(self, parent=None):
@@ -176,8 +177,8 @@ class gameSettingsWizard(QtGui.QWizard):
         self.client = client
 
         self.settings = GameSettings()
-        self.settings.gamePortSpin.setValue(self.client.gamePort)
-        self.settings.checkUPnP.setChecked(self.client.useUPnP)
+        self.settings.gamePortSpin.setValue(cfg.game.port.get())
+        self.settings.checkUPnP.setChecked(cfg.game.upnp.get())
         self.addPage(self.settings)
 
         self.setWizardStyle(1)
@@ -190,8 +191,8 @@ class gameSettingsWizard(QtGui.QWizard):
         self.setWindowTitle("Set Game Port")
 
     def accept(self):
-        self.client.gamePort = self.settings.gamePortSpin.value()
-        self.client.useUPnP = self.settings.checkUPnP.isChecked()
+        cfg.game.port.set(self.settings.gamePortSpin.value())
+        cfg.game.upnp.set(self.settings.checkUPnP.isChecked())
         QtGui.QWizard.accept(self)
 
 
@@ -333,8 +334,8 @@ class AccountCreationPage(QtGui.QWizardPage):
             QtGui.QMessageBox.information(self, "Create account", "Sorry, this Login is not available, or the email address was already used.")
             return False
         elif self.client.auth_state == ClientState.CREATED:
-            self.client.login = login
-            self.client.password = hashed_password
+            cfg.user.login.set(login, persist = cfg.user.remember.get())
+            cfg.user.password.set(hashed_password, persist = cfg.user.remember.get())
             return True
         else:
             return False
