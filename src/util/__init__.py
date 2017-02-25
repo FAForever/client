@@ -6,6 +6,8 @@ from ctypes import *
 
 from PyQt4.QtGui import QDesktopServices, QMessageBox
 
+from semantic_version import Version
+
 from config import Settings
 from PyQt4.QtGui import QDesktopServices
 if sys.platform == 'win32':
@@ -202,43 +204,123 @@ def loadTheme():
 def getTheme():
     return __theme
 
+# Throws an exception if it fails to read and parse theme version string.
+def _checkThemeVersion(theme):
+    version_file = os.path.join(THEME_DIR, theme, "version")
+    version_str = open(version_file).read().strip()
+    version = Version(version_str)
 
-def setTheme(theme, restart=True):
+    override_config = "theme_version_override/" + theme
+    override_version_str = Settings.get(override_config, None)
+    if override_version_str is None:
+        return version
+
+    try:
+        override_version = Version(override_version_str)
+    except ValueError:
+        # Did someone manually mess with the override config?
+        logger.warn("Malformed theme version override setting: " + override_version_str)
+        Settings.remove(override_config)
+        return version
+
+    if version >= override_version:
+        logger.info("New version " + version_str + " of theme " + theme +
+                    ", removing override " + override_version_str)
+        Settings.remove(override_config)
+        return version
+    else:
+        return override_version
+
+def _checkThemeOutdated(theme):
+    theme_version = _checkThemeVersion(theme)
+    faf_version = Version(VERSION_STRING)
+    return faf_version > theme_version
+
+def _do_setTheme(new_theme):
     global __theme
     global __themedir
 
-    __theme = None
-    __themedir = None
+    old_theme = __theme
+    theme_changed = lambda: old_theme != __theme
 
-    if theme:
-        test_dir = os.path.join(THEME_DIR, theme)
-        if os.path.isdir(test_dir):
-            version_file = os.path.join(THEME_DIR, theme, "version")
-            if os.path.isfile(version_file) and (VERSION_STRING == open(version_file).read()):
-                logger.info("Using theme: " + theme + " in directory " + test_dir)
-                __themedir = test_dir
-                __theme = theme
-            else:
-                result = QtGui.QMessageBox.question(QtGui.QApplication.activeWindow(), "Incompatible Theme",
-                                                    "The following theme is not the right version:<br/><b>" + theme + "</b><br/><i>Contact the maker of the theme for an update!</i><br/><br/><b>Reset to default, or apply theme anyway?</b>",
-                                                    QtGui.QMessageBox.Apply, QtGui.QMessageBox.Reset)
-                if result == QtGui.QMessageBox.Apply:
-                    logger.info("Using theme: " + theme + " in directory " + test_dir)
-                    __themedir = test_dir
-                    __theme = theme
-                else:
-                    logger.warn(
-                        "Theme '" + theme + "' does not have the appropriate version string.<br/><b> FAF is reverting to unthemed mode for safety.</b><br/>Check the source where you got the theme for an update.")
+    if new_theme == __theme:
+        return theme_changed()
+
+    # Is the theme default?
+    if new_theme is None:
+        __theme = None
+        __themedir = None
+        return theme_changed()
+
+    test_dir = os.path.join(THEME_DIR, new_theme)
+    if not os.path.isdir(test_dir):
+        logger.error("Theme not found: " + new_theme + " in directory " + test_dir)
+        return theme_changed()
+
+    try:
+        outdated = _checkThemeOutdated(new_theme)
+    except:
+        QtGui.QMessageBox.information(
+                QtGui.QApplication.activeWindow(),
+                "Invalid Theme",
+                "Failed to read the version of the following theme:<br/><b>" +
+                new_theme +
+                "</b><br/><i>Contact the maker of the theme for a fix!</i>")
+        logger.error("Error reading theme version: " + new_theme + " in directory " + test_dir)
+        return theme_changed()
+
+    if not outdated:
+        logger.info("Using theme: " + new_theme + " in directory " + test_dir)
+        __themedir = test_dir
+        __theme = new_theme
+    else:
+        box = QtGui.QMessageBox(QtGui.QApplication.activeWindow())
+        box.setWindowTitle("Incompatible Theme")
+        box.setText(
+                "The selected theme reports compatibility with a lower version of the FA client:<br/><b>" +
+                new_theme +
+                "</b><br/><i>Contact the maker of the theme for an update!</i><br/>" +
+                "<b>Do you want to try to apply the theme anyway?</b>")
+        b_yes = box.addButton("Apply this once", QtGui.QMessageBox.YesRole)
+        b_always = box.addButton("Always apply for this FA version", QtGui.QMessageBox.YesRole)
+        b_default = box.addButton("Use default theme", QtGui.QMessageBox.NoRole)
+        b_no = box.addButton("Abort", QtGui.QMessageBox.NoRole)
+        box.exec_()
+        result = box.clickedButton()
+
+        if result == b_always:
+            QMessageBox.information(
+                    QtGui.QApplication.activeWindow(),
+                    "Notice",
+                    "If the applied theme causes crashes, clear the '[theme_version_override]'<br/>" +
+                    "section of your FA client config file.")
+            logger.info("Overriding version of theme " + new_theme + "with " + VERSION_STRING)
+            override_config = "theme_version_override/" + new_theme
+            Settings.set(override_config, VERSION_STRING)
+
+        if result == b_always or result == b_yes:
+            logger.info("Using theme: " + new_theme + " in directory " + test_dir)
+            __themedir = test_dir
+            __theme = new_theme
+        elif result == b_default:
+            __themedir = None
+            __theme = None
         else:
-            logger.error("Theme not found: " + theme + " in directory " + test_dir)
+            pass
+    return theme_changed()
 
-            #Save theme setting
+def setTheme(theme, restart=True):
+    global __theme
+
+    set_theme = _do_setTheme(theme)
+
+    #Starting value of __theme needn't be the value in settings
     settings.beginGroup("theme")
     settings.setValue("theme/name", __theme)
     settings.endGroup()
     settings.sync()
 
-    if restart:
+    if set_theme and restart:
         QtGui.QMessageBox.information(None, "Restart Needed", "FAF will quit now.")
         QtGui.QApplication.quit()
 
