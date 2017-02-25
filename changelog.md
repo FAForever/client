@@ -1,6 +1,15 @@
 0.x.x
 =====
 
+0.12.3
+=====
+
+* Add feature to disable / delay client notifications while ingame (#627 / #628
+
+Contributors:
+  - Duke
+  - Wesmania
+
 0.12.2
 ======
 
