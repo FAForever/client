@@ -12,6 +12,7 @@
 * Remove needless abstract base class for client (#629)
 * Fall back to APPDATA if Documents folder cannot be created (#619, #626)
 * Make all (themed) stylesheets reloadable (#584)
+* Add option to always load outdated themes in given version of FA (#583 / #634)
 
 Contributors:
   - Duke
