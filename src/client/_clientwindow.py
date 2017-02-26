@@ -606,9 +606,11 @@ class ClientWindow(FormClass, BaseClass):
             i.show()
 
     def reconnect(self):
+        self.lobby_reconnecter.enabled = True
         self.lobby_connection.doConnect()
 
     def disconnect(self):
+        self.lobby_reconnecter.enabled = False
         self.lobby_connection.disconnect()
         self.chat.disconnect()
 
@@ -646,6 +648,7 @@ class ClientWindow(FormClass, BaseClass):
             fa.instance.close()
 
         # Terminate Lobby Server connection
+        self.lobby_reconnecter.enabled = False
         if self.lobby_connection.socket_connected():
             self.progress.setLabelText("Closing main connection.")
             self.lobby_connection.disconnect()

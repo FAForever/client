@@ -31,6 +31,9 @@ class ServerReconnecter(QtCore.QObject):
         self._reconnect_timer.setSingleShot(True)
         self._reconnect_timer.timeout.connect(self._connection.doConnect)
 
+        # For explicit disconnect UI
+        self._enabled = True
+
         self._keepalive = False
         self._keepalive_timer = QtCore.QTimer(self)
         self._keepalive_timer.timeout.connect(self._ping_connection)
@@ -38,9 +41,17 @@ class ServerReconnecter(QtCore.QObject):
         self._waiting_for_pong = False
 
     @property
+    def enabled(self):
+        return self._enabled
+    @enabled.setter
+    def enabled(self, value):
+        self._enabled = value
+        if not self._enabled:
+            self._reconnect_timer.stop()
+
+    @property
     def keepalive(self):
         return self._keepalive
-
     @keepalive.setter
     def keepalive(self, value):
         self._keepalive = value
@@ -62,7 +73,6 @@ class ServerReconnecter(QtCore.QObject):
     @property
     def keepalive_interval(self):
         return self._keepalive_timer.interval()
-
     @keepalive_interval.setter
     def keepalive_interval(self, value):
         self._keepalive_timer.setInterval(value)
@@ -82,6 +92,8 @@ class ServerReconnecter(QtCore.QObject):
         self._connection_attempts += 1
 
     def handle_disconnected(self):
+        if not self._enabled:
+            return
 
         if self._connection_attempts < 3:
             logger.info("Reconnecting immediately")
@@ -99,7 +111,7 @@ class ServerReconnecter(QtCore.QObject):
 
     def _ping_connection(self):
         # If we're disconnected, we're already trying to reconnect often
-        if self._connection.state != CONNECTED:
+        if not self._enabled or self._connection.state != CONNECTED:
             self._waiting_for_pong = False
             return
 
