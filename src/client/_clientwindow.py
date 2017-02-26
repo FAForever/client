@@ -338,9 +338,6 @@ class ClientWindow(FormClass, BaseClass):
         elif state == ConnectionState.DISCONNECTED:
             self.on_disconnected()
             self.state = ClientState.DISCONNECTED
-        elif state == ConnectionState.DROPPED:
-            self.on_disconnected()
-            self.state = ClientState.DROPPED
         elif state == ConnectionState.RECONNECTING:
             self.state = ClientState.RECONNECTING
 

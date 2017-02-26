@@ -17,8 +17,7 @@ class ConnectionState(IntEnum):
     DISCONNECTED = 0
     RECONNECTING = 1
     # On this state automatically try and reconnect
-    DROPPED = 2
-    CONNECTED = 3
+    CONNECTED = 2
 
 class ServerConnection(QtCore.QObject):
 
@@ -31,10 +30,9 @@ class ServerConnection(QtCore.QObject):
         QtCore.QObject.__init__(self)
         self.socket = QtNetwork.QTcpSocket()
         self.socket.readyRead.connect(self.readFromServer)
-        self.socket.disconnected.connect(self.disconnectedFromServer)
         self.socket.error.connect(self.socketError)
-        self.socket.connected.connect(self.on_connected)
         self.socket.setSocketOption(QtNetwork.QTcpSocket.KeepAliveOption, 1)
+        self.socket.stateChanged.connect(self.on_socket_state_change)
 
         self._host = host
         self._port = port
@@ -45,6 +43,27 @@ class ServerConnection(QtCore.QObject):
         self.localIP = None
 
         self._dispatch = dispatch
+
+    def on_socket_state_change(self, state):
+        states = QtNetwork.QAbstractSocket
+        my_state = None
+        if state == states.UnconnectedState or state == states.BoundState:
+            my_state = ConnectionState.DISCONNECTED
+        elif state == states.HostLookupState or state == states.ConnectingState:
+            my_state = ConnectionState.CONNECTING
+        elif state == states.ConnectedState or state == states.ClosingState:
+            my_state = ConnectionState.CONNECTED
+
+        if my_state is None or my_state == self.state:
+            return
+
+        if my_state == ConnectionState.CONNECTED:
+            self.on_connected()
+        elif my_state == ConnectionState.CONNECTING:
+            self.on_connecting()
+        else:
+            self.on_disconnect()
+
 
     @property
     def state(self):
@@ -59,7 +78,9 @@ class ServerConnection(QtCore.QObject):
         self._disconnect_requested = False
         self.socket.connectToHost(self._host, self._port)
 
-    @QtCore.pyqtSlot()
+    def on_connecting(self):
+        self.state = ConnectionState.CONNECTING
+
     def on_connected(self):
         self.state = ConnectionState.CONNECTED
         self._connection_attempts = 0
@@ -80,7 +101,6 @@ class ServerConnection(QtCore.QObject):
         return self.socket.state() == QtNetwork.QTcpSocket.ConnectedState
 
     def disconnect(self):
-        self._disconnect_requested = True
         self.socket.disconnectFromHost()
 
     def set_upnp(self, port):
@@ -140,17 +160,14 @@ class ServerConnection(QtCore.QObject):
         self.writeToServer(data)
 
 
-    @QtCore.pyqtSlot()
-    def disconnectedFromServer(self):
+    def on_disconnect(self):
         logger.warn("Disconnected from lobby server.")
         self.blockSize = 0
+        self.state = ConnectionState.DISCONNECTED
         self.disconnected.emit()
         if self._disconnect_requested:
-            self.state = ConnectionState.DISCONNECTED
-        if self.state == ConnectionState.DISCONNECTED:
             return
 
-        self.state = ConnectionState.DROPPED
         if self._connection_attempts < 2:
             logger.info("Reconnecting immediately")
             self.reconnect()
@@ -171,7 +188,6 @@ class ServerConnection(QtCore.QObject):
             logger.info("Timeout/network error: {}".format(self.socket.errorString()))
         else:
             logger.error("Fatal TCP Socket Error: " + self.socket.errorString())
-        self.socket.disconnectFromHost()
 
 
 class Dispatcher():
