@@ -7,6 +7,7 @@
 * Add feature to disable / delay client notifications while ingame (#627 / #628
 * Point other links to the new website (#636)
 * Point account-related links to the new website (#631/#633)
+* Replace account creation wizard with link to FAF 'create account' page (#577 / #635)
 
 Contributors:
   - Duke
