@@ -11,7 +11,8 @@ from config import Settings
 import chat
 from client.player import Player
 from client.players import Players
-from client.connection import LobbyInfo, ServerConnection, Dispatcher, ConnectionState
+from client.connection import LobbyInfo, ServerConnection, \
+        Dispatcher, ConnectionState, ServerReconnecter
 from client.updater import ClientUpdater, GithubUpdateChecker
 import fa
 from connectivity.helper import ConnectivityHelper
@@ -162,6 +163,7 @@ class ClientWindow(FormClass, BaseClass):
         self.lobby_connection = ServerConnection(LOBBY_HOST, LOBBY_PORT,
                                                  self.lobby_dispatch.dispatch)
         self.lobby_connection.state_changed.connect(self.on_connection_state_changed)
+        self.lobby_reconnecter = ServerReconnecter(self.lobby_connection)
         self.lobby_info = LobbyInfo(self.lobby_dispatch)
         self.lobby_info.gameInfo.connect(self.fill_in_session_info)
 
@@ -338,7 +340,7 @@ class ClientWindow(FormClass, BaseClass):
         elif state == ConnectionState.DISCONNECTED:
             self.on_disconnected()
             self.state = ClientState.DISCONNECTED
-        elif state == ConnectionState.RECONNECTING:
+        elif state == ConnectionState.CONNECTING:
             self.state = ClientState.RECONNECTING
 
     def on_connected(self):
@@ -604,7 +606,7 @@ class ClientWindow(FormClass, BaseClass):
             i.show()
 
     def reconnect(self):
-        self.lobby_connection.reconnect()
+        self.lobby_connection.doConnect()
 
     def disconnect(self):
         self.lobby_connection.disconnect()

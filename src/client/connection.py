@@ -15,9 +15,47 @@ logger = logging.getLogger(__name__)
 class ConnectionState(IntEnum):
     INITIAL = -1
     DISCONNECTED = 0
-    RECONNECTING = 1
+    CONNECTING = 1
     # On this state automatically try and reconnect
     CONNECTED = 2
+
+class ServerReconnecter(QtCore.QObject):
+    def __init__(self, connection):
+        QtCore.QObject.__init__(self)
+        self._connection = connection
+        connection.state_changed.connect(self.on_state_changed)
+        self._connection_attempts = 0
+
+        self._reconnect_timer = QtCore.QTimer(self)
+        self._reconnect_timer.setSingleShot(True)
+        self._reconnect_timer.timeout.connect(self._connection.doConnect)
+
+    def on_state_changed(self, state):
+        if state == ConnectionState.CONNECTED:
+            self.handle_connected()
+        elif state == ConnectionState.DISCONNECTED:
+            self.handle_disconnected()
+        elif state == ConnectionState.CONNECTING:
+            self.handle_reconnecting()
+
+    def handle_connected(self):
+        self._connection_attempts = 0
+
+    def handle_reconnecting(self):
+        self._connection_attempts += 1
+
+    def handle_disconnected(self):
+        if self._connection_attempts < 3:
+            logger.info("Reconnecting immediately")
+            self._reconnect_timer.stop()
+            self._connection.doConnect()
+        elif self._reconnect_timer.isActive():
+            return
+        else:
+            t = self._connection_attempts * 10000
+            self._reconnect_timer.start(t)
+            logger.info("Scheduling reconnect in {}".format(t / 1000))
+
 
 class ServerConnection(QtCore.QObject):
 
@@ -38,7 +76,6 @@ class ServerConnection(QtCore.QObject):
         self._port = port
         self._state = ConnectionState.INITIAL
         self.blockSize = 0
-        self._connection_attempts = 0
         self._disconnect_requested = False
         self.localIP = None
 
@@ -76,6 +113,7 @@ class ServerConnection(QtCore.QObject):
 
     def doConnect(self):
         self._disconnect_requested = False
+        self.state = ConnectionState.CONNECTING
         self.socket.connectToHost(self._host, self._port)
 
     def on_connecting(self):
@@ -83,19 +121,8 @@ class ServerConnection(QtCore.QObject):
 
     def on_connected(self):
         self.state = ConnectionState.CONNECTED
-        self._connection_attempts = 0
         self.localIP = self.socket.localAddress()
         self.connected.emit()
-
-    def reconnect(self):
-        """
-        Reconnect to the server
-        :return:
-        """
-        self._disconnect_requested = False
-        self._connection_attempts += 1
-        self.state = ConnectionState.RECONNECTING
-        self.socket.connectToHost(self._host, self._port)
 
     def socket_connected(self):
         return self.socket.state() == QtNetwork.QTcpSocket.ConnectedState
@@ -167,17 +194,6 @@ class ServerConnection(QtCore.QObject):
         self.disconnected.emit()
         if self._disconnect_requested:
             return
-
-        if self._connection_attempts < 2:
-            logger.info("Reconnecting immediately")
-            self.reconnect()
-        else:
-            timer = QtCore.QTimer(self)
-            timer.setSingleShot(True)
-            timer.timeout.connect(self.reconnect)
-            t = self._connection_attempts * 10000
-            timer.start(t)
-            logger.info("Scheduling reconnect in {}".format(t / 1000))
 
     @QtCore.pyqtSlot(QtNetwork.QAbstractSocket.SocketError)
     def socketError(self, error):
