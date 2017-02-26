@@ -143,6 +143,7 @@ class ClientWindow(FormClass, BaseClass):
         QtGui.QApplication.instance().aboutToQuit.connect(self.cleanup)
 
         self.uniqueId = None
+        self._did_login = False
 
         self.sendFile = False
         self.progress = QtGui.QProgressDialog()
@@ -874,7 +875,7 @@ class ClientWindow(FormClass, BaseClass):
 
     @property
     def can_login(self):
-        return self.remember and self.password and self.login
+        return (self.remember or self._did_login) and self.password and self.login
 
     def show_login_wizard(self):
         from loginwizards import LoginWizard
@@ -1045,7 +1046,7 @@ class ClientWindow(FormClass, BaseClass):
         self._client_updater.notify_outdated(False)
 
         self.session = str(message['session'])
-        if self.remember and self.login and self.password:
+        if self.can_login:
             self.perform_login()
 
     @QtCore.pyqtSlot()
@@ -1058,6 +1059,7 @@ class ClientWindow(FormClass, BaseClass):
                        password=self.password,
                        unique_id=self.uniqueId,
                        session=self.session))
+        self._did_login = True
         return True
 
     def handle_update(self, message):
