@@ -24,11 +24,48 @@ class ServerReconnecter(QtCore.QObject):
         QtCore.QObject.__init__(self)
         self._connection = connection
         connection.state_changed.connect(self.on_state_changed)
+        connection.received_pong.connect(self._receive_pong)
         self._connection_attempts = 0
 
         self._reconnect_timer = QtCore.QTimer(self)
         self._reconnect_timer.setSingleShot(True)
         self._reconnect_timer.timeout.connect(self._connection.doConnect)
+
+        self._keepalive = False
+        self._keepalive_timer = QtCore.QTimer(self)
+        self._keepalive_timer.timeout.connect(self._ping_connection)
+        self.keepalive_interval = 10 * 1000
+        self._waiting_for_pong = False
+
+    @property
+    def keepalive(self):
+        return self._keepalive
+
+    @keepalive.setter
+    def keepalive(self, value):
+        self._keepalive = value
+        if self._keepalive:
+            self._enable_keepalive()
+        else:
+            self._disable_keepalive()
+
+    def _disable_keepalive(self):
+        self._keepalive_timer.stop()
+        self._waiting_for_pong = False
+    def _enable_keepalive(self):
+        if not self._keepalive_timer.isActive():
+            self._keepalive_timer.start()
+        # Ensure we reconnect fast if reconnecting
+        if self._reconnect_timer.isActive():
+            self._reconnect_timer.setInterval(self.keepalive_interval)
+
+    @property
+    def keepalive_interval(self):
+        return self._keepalive_timer.interval()
+
+    @keepalive_interval.setter
+    def keepalive_interval(self, value):
+        self._keepalive_timer.setInterval(value)
 
     def on_state_changed(self, state):
         if state == ConnectionState.CONNECTED:
@@ -45,6 +82,7 @@ class ServerReconnecter(QtCore.QObject):
         self._connection_attempts += 1
 
     def handle_disconnected(self):
+
         if self._connection_attempts < 3:
             logger.info("Reconnecting immediately")
             self._reconnect_timer.stop()
@@ -52,9 +90,35 @@ class ServerReconnecter(QtCore.QObject):
         elif self._reconnect_timer.isActive():
             return
         else:
-            t = self._connection_attempts * 10000
+            if self.keepalive:
+                t = self.keepalive_interval
+            else:
+                t = self._connection_attempts * 10000
             self._reconnect_timer.start(t)
             logger.info("Scheduling reconnect in {}".format(t / 1000))
+
+    def _ping_connection(self):
+        # If we're disconnected, we're already trying to reconnect often
+        if self._connection.state != CONNECTED:
+            self._waiting_for_pong = False
+            return
+
+        # Prepare to reconnect immediately
+        self._connection_attempts = 0
+
+        if self._waiting_for_pong:
+            self._waiting_for_pong = False
+            # Force disconnect
+            # Note that it will force disconnect and reconnect if we
+            # reconnected on our own since last ping!
+            self._connection.disconnect()
+
+        else:
+            self._waiting_for_pong = True
+            self._connection.writeToServer("PING")
+
+    def _receive_pong(self):
+        self._waiting_for_pong = False
 
 
 class ServerConnection(QtCore.QObject):
@@ -63,6 +127,7 @@ class ServerConnection(QtCore.QObject):
     state_changed = QtCore.pyqtSignal(object)
     connected = QtCore.pyqtSignal()
     disconnected = QtCore.pyqtSignal()
+    received_pong = QtCore.pyqtSignal()
 
     def __init__(self, host, port, dispatch):
         QtCore.QObject.__init__(self)
@@ -152,6 +217,10 @@ class ServerConnection(QtCore.QObject):
             if action == "PING":
                 self.writeToServer("PONG")
                 self.blockSize = 0
+                return
+            elif action == "PONG":
+                self.blockSize = 0
+                self.received_pong.emit()
                 return
             try:
                 self._dispatch(json.loads(action))
