@@ -122,12 +122,7 @@ class loginPage(QtGui.QWizardPage):
 
     @QtCore.pyqtSlot()
     def createAccount(self):
-        wizard = creationAccountWizard(self)
-        if wizard.exec_():
-            #Re-load credentials after successful creation.
-            self.loginLineEdit.setText(self.client.login)
-            self.setField('password', "!!!password!!!")
-            self.parent.password = self.client.password # This is needed because we're writing the field in accept()
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(Settings.get("CREATE_ACCOUNT_URL")))
 
     @QtCore.pyqtSlot()
     def linkAccount(self):
@@ -144,29 +139,6 @@ class loginPage(QtGui.QWizardPage):
     @QtCore.pyqtSlot()
     def reportBug(self):
         QtGui.QDesktopServices.openUrl(QtCore.QUrl(Settings.get("TICKET_URL")))
-
-class creationAccountWizard(QtGui.QWizard):
-    def __init__(self, parent=None):
-        
-        super(creationAccountWizard, self).__init__(parent)
-
-        self.client = parent.client
-
-        self.setOption(QtGui.QWizard.DisabledBackButtonOnLastPage)
-        self.addPage(IntroPage())
-        self.addPage(AccountCreationPage(self))
-        self.addPage(AccountCreated())
-
-
-        self.setWizardStyle(QtGui.QWizard.ModernStyle)
-
-        self.setPixmap(QtGui.QWizard.BannerPixmap,
-                QtGui.QPixmap('client/banner.png'))
-        self.setPixmap(QtGui.QWizard.BackgroundPixmap,
-                QtGui.QPixmap('client/background.png'))
-
-        self.setWindowTitle("Create Account")
-
 
 
 class gameSettingsWizard(QtGui.QWizard):
@@ -218,126 +190,6 @@ class mumbleOptionsWizard(QtGui.QWizard):
         self.client.enableMumble = self.settings.checkEnableMumble.isChecked()
         self.client.saveMumble()
         QtGui.QWizard.accept(self)
-
-class IntroPage(QtGui.QWizardPage):
-    def __init__(self, parent=None):
-        super(IntroPage, self).__init__(parent)
-
-        self.setTitle("Welcome to FA Forever.")
-        self.setSubTitle("In order to play, you first need to create an account.")
-        self.setPixmap(QtGui.QWizard.WatermarkPixmap, util.pixmap("client/account_watermark_intro.png"))
-
-        label = QtGui.QLabel("This wizard will help you in the process of account creation.<br/><br/><b>At this time, we only allow one account per computer.</b>")
-        
-        label.setWordWrap(True)
-
-        layout = QtGui.QVBoxLayout()
-        layout.addWidget(label)
-        self.setLayout(layout)
-
-class AccountCreationPage(QtGui.QWizardPage):
-    def __init__(self, parent=None):
-        super(AccountCreationPage, self).__init__(parent)
-
-        self.parent = parent
-        self.client = parent.client
-        
-        self.setTitle("Account Creation")
-        self.setSubTitle("Please enter your desired login and password. Note that your password will not be stored on our server. Please specify a working email address in case you need to change it.")
-        
-        self.setPixmap(QtGui.QWizard.WatermarkPixmap, util.pixmap("client/account_watermark_input.png"))
-
-        loginLabel = QtGui.QLabel("&User name :")
-        self.loginLineEdit = QtGui.QLineEdit()
-        rxLog = QtCore.QRegExp("[A-Z,a-z]{1}[A-Z,a-z,0-9,_,-]{0,15}")
-        validLog = QtGui.QRegExpValidator(rxLog, self)
-        self.loginLineEdit.setValidator(validLog)
-        loginLabel.setBuddy(self.loginLineEdit)
-
-        passwordLabel = QtGui.QLabel("&Password :")
-        self.passwordLineEdit = QtGui.QLineEdit()
-        passwordLabel.setBuddy(self.passwordLineEdit)
-
-        self.passwordLineEdit.setEchoMode(2)
-
-        passwordCheckLabel = QtGui.QLabel("&Re-type Password :")
-        self.passwordCheckLineEdit = QtGui.QLineEdit()
-        passwordCheckLabel.setBuddy(self.passwordCheckLineEdit)
-
-        self.passwordCheckLineEdit.setEchoMode(2)
-
-        EmailLabel = QtGui.QLabel("E-mail :")
-        self.EmailLineEdit = QtGui.QLineEdit()
-        rxMail = QtCore.QRegExp("^[a-zA-Z0-9]{1}[a-zA-Z0-9._%-]+@[a-zA-Z0-9._%-]+.[a-zA-Z]{2,6}$")
-        validMail = QtGui.QRegExpValidator(rxMail, self)
-        self.EmailLineEdit.setValidator(validMail)
-
-        self.registerField('login*', self.loginLineEdit)
-        self.registerField('password*', self.passwordLineEdit)
-        self.registerField('passwordCheck*', self.passwordCheckLineEdit)
-        self.registerField('email*', self.EmailLineEdit)
-
-        layout = QtGui.QGridLayout()
-                
-        layout.addWidget(loginLabel, 1, 0)
-        layout.addWidget(self.loginLineEdit, 1, 1)
-        
-        layout.addWidget(passwordLabel, 2, 0)
-        layout.addWidget(self.passwordLineEdit, 2, 1)
-        
-        layout.addWidget(passwordCheckLabel, 3, 0)
-        layout.addWidget(self.passwordCheckLineEdit, 3, 1)
-        
-        layout.addWidget(EmailLabel, 4, 0)
-        layout.addWidget(self.EmailLineEdit, 4, 1)
-
-        self.setLayout(layout)
-#
-
-    def validateEmail(self, email):
-        return re.match("^[a-zA-Z0-9._%-]+@[a-zA-Z0-9._%-]+.[a-zA-Z]{2,6}$", email) is not None
-
-    def validatePage(self):
-        password = self.passwordLineEdit.text().encode("utf-8")
-        confim_password = self.passwordCheckLineEdit.text().encode("utf-8")
-
-        if password != confim_password:
-            QtGui.QMessageBox.information(self, "Create account","Passwords don't match!")
-            return False
-
-        # Hashing the password client-side is not an effective way of ensuring security, but now we
-        # have a database full of sha256(password) we have to start considering sha256(password) to
-        # _be_ the user's password, and enforce a saner policy atop this.
-        #
-        # Soon. We promise. Hopefully before large scale identity theft takes place.
-        hashed_password = hashlib.sha256(password.encode("utf-8")).hexdigest()
-        
-        email = self.EmailLineEdit.text()
-        
-        if not self.validateEmail(email) :
-            QtGui.QMessageBox.information(self, "Create account", "Invalid Email address!")
-            return False   
-
-        login = self.loginLineEdit.text().strip()
-        self.client.send({
-            "command": "create_account",
-            "login": login,
-            "email": email,
-            "password": hashed_password
-        })
-
-        # Wait for client state to change.
-        util.wait(lambda: self.client.auth_state == ClientState.CREATED or self.client.auth_state == ClientState.REJECTED)
-                
-        if self.client.auth_state == ClientState.REJECTED:
-            QtGui.QMessageBox.information(self, "Create account", "Sorry, this Login is not available, or the email address was already used.")
-            return False
-        elif self.client.auth_state == ClientState.CREATED:
-            self.client.login = login
-            self.client.password = hashed_password
-            return True
-        else:
-            return False
 
 class GameSettings(QtGui.QWizardPage):
     def __init__(self, parent=None):
@@ -397,24 +249,3 @@ class MumbleSettings(QtGui.QWizardPage):
 
     def validatePage(self):        
         return 1
-
-
-
-class AccountCreated(QtGui.QWizardPage):
-    def __init__(self, *args, **kwargs):
-        QtGui.QWizardPage.__init__(self, *args, **kwargs)
-
-        self.setFinalPage(True)
-        self.setTitle("Congratulations!")
-        self.setSubTitle("Your Account has been created.")
-        self.setPixmap(QtGui.QWizard.WatermarkPixmap, util.pixmap("client/account_watermark_created.png"))
-
-        self.label = QtGui.QLabel()
-        self.label.setWordWrap(True)
-        layout = QtGui.QVBoxLayout()
-        layout.addWidget(self.label)
-        self.setLayout(layout)
-
-    def initializePage(self):
-        self.label.setText("You will be redirected to the login page.")
-

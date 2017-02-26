@@ -43,6 +43,7 @@ defaults = {
     'WIKI_URL': 'http://wiki.faforever.com/index.php?title=Main_Page',
     'SUPPORT_URL': 'http://forums.faforever.com/viewforum.php?f=3',
     'TICKET_URL': 'http://forums.faforever.com/viewforum.php?f=3',
+    'CREATE_ACCOUNT_URL': 'https://faforever.com/account/register',
     'STEAMLINK_URL': 'https://faforever.com/account/link',
     'PASSWORD_RECOVERY_URL': 'https://faforever.com/account/password/reset',
     'NAME_CHANGE_URL': 'https://faforever.com/account/username/change',
