@@ -9,6 +9,7 @@
 * Point account-related links to the new website (#631/#633)
 * Replace account creation wizard with link to FAF 'create account' page (#577 / #635)
 * Fix typo preventing rehost feature from working (#630 / #632)
+* Remove needless abstract base class for client (#629)
 
 Contributors:
   - Duke
