@@ -1,6 +1,14 @@
 0.x.x
 =====
 
+0.12.4
+=====
+
+* Fix irc/notification recursion loop
+
+Contributors:
+  - Duke
+
 0.12.3
 =====
 

@@ -2,7 +2,6 @@ from PyQt4 import QtCore, QtGui
 
 import util
 from fa import maps
-from multiprocessing import Lock
 from notifications.ns_dialog import NotificationDialog
 from notifications.ns_settings import NsSettingsDialog, IngameNotification
 
@@ -22,7 +21,6 @@ class Notifications:
         self.events = []
         self.disabledStartup = True
         self.game_running = False
-        self.lock = Lock()
 
 
         client.gameEnter.connect(self.gameEnter)
@@ -60,7 +58,20 @@ class Notifications:
         """
         if self.isDisabled() or not self.settings.popupEnabled(eventType):
             return
-        self.events.append((eventType, data))
+
+        doAdd = False
+
+        if eventType == self.USER_ONLINE:
+            userid = data['user']
+            if self.settings.getCustomSetting(eventType, 'mode') == 'all' or self.client.players.isFriend(userid):
+                doAdd = True
+        elif eventType == self.NEW_GAME:
+            if self.settings.getCustomSetting(eventType, 'mode') == 'all' or ('host' in data and self.client.players.isFriend(data['host'])):
+                doAdd = True
+
+        if doAdd:
+            self.events.append((eventType, data))
+
         self.checkEvent()
 
     @QtCore.pyqtSlot()
@@ -77,13 +88,8 @@ class Notifications:
 
         Returns True if showable event found, False otherwise
         """
-        gotLock = False
-        while not gotLock:
-            gotLock = self.lock.acquire(timeout=0.1)
-            QtGui.QApplication.processEvents()
 
         event = self.events.pop(0)
-        self.lock.release()
 
         eventType = event[0]
         data = event[1]
@@ -91,13 +97,9 @@ class Notifications:
         text = str(data)
         if eventType == self.USER_ONLINE:
             userid = data['user']
-            if self.settings.getCustomSetting(eventType, 'mode') == 'friends' and not self.client.players.isFriend(userid):
-                return False
             pixmap = self.user
             text = '<html>%s<br><font color="silver" size="-2">joined</font> %s</html>' % (self.client.players[userid].login, data['channel'])
         elif eventType == self.NEW_GAME:
-            if self.settings.getCustomSetting(eventType, 'mode') == 'friends' and ('host' not in data or not self.client.players.isFriend(data['host'])):
-                return False
 
             preview = maps.preview(data['mapname'], pixmap=True)
             if preview:
@@ -119,7 +121,6 @@ class Notifications:
             text = '<html>%s<br><font color="silver" size="-2">on</font> %s%s</html>' % (data['title'], maps.getDisplayName(data['mapname']), modhtml)
 
         self.dialog.newEvent(pixmap, text, self.settings.popup_lifetime, self.settings.soundEnabled(eventType))
-        return True
 
     def checkEvent(self):
         """
@@ -131,14 +132,10 @@ class Notifications:
             * Game isn't running, or ingame notifications are enabled
 
         """
-        while (
-            len(self.events) > 0
-            and self.dialog.isHidden()
+        if (len(self.events) > 0 and self.dialog.isHidden()
             and (
                 not self.game_running
                 or self.settings.ingame_notifications == IngameNotification.ENABLE
                 )
             ):
-            shown = self.showEvent()
-            if shown:
-                break
+            self.showEvent()
