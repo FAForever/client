@@ -433,7 +433,16 @@ class ReplaysWidget(BaseClass, FormClass):
                 
             bucket_item.setIcon(0, util.icon("replays/bucket.png"))                                
             bucket_item.setText(0, bucket)
-            bucket_item.setText(3, str(len(buckets[bucket])) + " replays")
+            if bucket == "directories":
+                if len(buckets[bucket]) == 1:
+                    bucket_item.setText(3, "1 folder")
+                else:
+                    bucket_item.setText(3, str(len(buckets[bucket])) + " folders")
+            else:
+                if len(buckets[bucket]) == 1:
+                    bucket_item.setText(3, "1 replay")
+                else:
+                    bucket_item.setText(3, str(len(buckets[bucket])) + " replays")
             bucket_item.setTextColor(3, QtGui.QColor(client.instance.getColor("default")))
                 
             self.myTree.addTopLevelItem(bucket_item)
