@@ -4,7 +4,6 @@ from config import Settings
 import util
 
 import hashlib
-from client import ClientState
 
 class LoginWizard(QtGui.QWizard):
     def __init__(self, client):

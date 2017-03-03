@@ -157,7 +157,6 @@ class ConnectivityHelper(QObject):
         self._socket.writeDatagram(b'\x08'+message.encode(), QHostAddress(host), int(port))
 
     def handle_ConnectivityState(self, msg):
-        from client import ClientState
         state, addr = msg['args']
         if state == 'BLOCKED':
             self._logger.warning("Outbound traffic is blocked")

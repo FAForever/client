@@ -157,7 +157,6 @@ class ClientWindow(FormClass, BaseClass):
         self.tray.show()
 
         self._state = ClientState.NONE
-        self.auth_state = ClientState.NONE # Using ClientState for reasons
         self.session = None
 
         self.lobby_dispatch = Dispatcher()
@@ -337,12 +336,12 @@ class ClientWindow(FormClass, BaseClass):
 
         if state == ConnectionState.CONNECTED:
             self.on_connected()
-            self.state = ClientState.ACCEPTED
+            self.state = ClientState.CONNECTED
         elif state == ConnectionState.DISCONNECTED:
             self.on_disconnected()
             self.state = ClientState.DISCONNECTED
         elif state == ConnectionState.CONNECTING:
-            self.state = ClientState.RECONNECTING
+            self.state = ClientState.CONNECTING
 
     def on_connected(self):
         self.lobby_connection.send(dict(command="ask_session",
@@ -1063,7 +1062,6 @@ class ClientWindow(FormClass, BaseClass):
         return True
 
     def handle_update(self, message):
-        self.state = ClientState.DISCONNECTED
         # Remove geometry settings prior to updating
         # could be incompatible with an updated client.
         Settings.remove('window/geometry')
@@ -1073,7 +1071,7 @@ class ClientWindow(FormClass, BaseClass):
         self._client_updater.notify_outdated(True)
 
     def handle_welcome(self, message):
-        self.state = ClientState.ONLINE
+        self.state = ClientState.LOGGED_IN
         self.id = message["id"]
         self.login = message["login"]
         self.me = Player(id=self.id, login=self.login)
@@ -1101,10 +1099,8 @@ class ClientWindow(FormClass, BaseClass):
 
     def handle_registration_response(self, message):
         if message["result"] == "SUCCESS":
-            self.auth_state = ClientState.CREATED
             return
 
-        self.auth_state = ClientState.REJECTED
         self.handle_notice({"style": "notice", "text": message["error"]})
 
     def search_ranked(self, faction):
@@ -1296,7 +1292,6 @@ class ClientWindow(FormClass, BaseClass):
         self.avatarSelection.show()
 
     def handle_authentication_failed(self, message):
-        self.state = ClientState.DISCONNECTED
         QtGui.QMessageBox.warning(self, "Authentication failed", message["text"])
         self.remember = False
         self.show_login_wizard()

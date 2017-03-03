@@ -22,21 +22,11 @@ class ClientState(IntEnum):
     '''
     SHUTDOWN = -666  # Going... DOWN!
 
-    # Disconnected state
-    # We enter this state if either:
-    #  - The user requested it
-    #  - We've reconnected too many times
-    DISCONNECTED = -4
-
-    RECONNECTING = -3
-
-    # On this state automatically try and reconnect
-    DROPPED = -2
-    REJECTED = -1
+    DISCONNECTED = -2
+    CONNECTING = -1
     NONE = 0
-    ACCEPTED = 1
-    CREATED = 2
-    ONLINE = 3
+    CONNECTED = 1
+    LOGGED_IN = 2
 
 from _clientwindow import ClientWindow
 

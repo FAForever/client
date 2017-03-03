@@ -24,13 +24,20 @@ class StatusLogo(QLabel):
         ])
 
         self._pixmaps = {
-            ClientState.ONLINE: normal,
-            ClientState.ACCEPTED: yellow,
-            ClientState.CREATED: yellow,
-            ClientState.RECONNECTING: yellow,
-            ClientState.DROPPED: yellow,
+            ClientState.SHUTDOWN: red,
+            ClientState.NONE: red,
             ClientState.DISCONNECTED: red,
-            ClientState.NONE: red
+            ClientState.CONNECTING: yellow,
+            ClientState.CONNECTED: normal,
+            ClientState.LOGGED_IN: normal,
+        }
+        self._tooltips = {
+            ClientState.SHUTDOWN: "Shutting down",
+            ClientState.NONE: "Unknown",
+            ClientState.DISCONNECTED: "Disconnected",
+            ClientState.CONNECTING: "Connecting",
+            ClientState.CONNECTED: "Connected",
+            ClientState.LOGGED_IN: "Logged in",
         }
         self.setMaximumSize(30, 30)
 
@@ -46,8 +53,10 @@ class StatusLogo(QLabel):
 
         if self.state != ClientState.DISCONNECTED:
             menu.addAction(dc)
-        if self.state != ClientState.ONLINE\
-            and self.state != ClientState.RECONNECTING:
+        if self.state not in [
+                ClientState.CONNECTING,
+                ClientState.CONNECTED,
+                ClientState.LOGGED_IN]:
             menu.addAction(rc)
 
         menu.addAction(about)
@@ -62,11 +71,5 @@ class StatusLogo(QLabel):
 
     def change_state(self, state):
         self.state = state
-        self.setPixmap(self._pixmaps.get(state, self._pixmaps[ClientState.DROPPED]))
-
-        if state == ClientState.ONLINE:
-            self.setToolTip("Online")
-        elif state == ClientState.RECONNECTING or state == ClientState.DROPPED:
-            self.setToolTip("Reconnecting")
-        else:
-            self.setToolTip("Offline")
+        self.setPixmap(self._pixmaps[state])
+        self.setToolTip(self._tooltips[state])

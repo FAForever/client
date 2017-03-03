@@ -7,8 +7,7 @@ import json
 import sys
 
 from enum import IntEnum
-from client import ClientState, LOBBY_HOST, \
-    LOBBY_PORT
+from client import LOBBY_HOST, LOBBY_PORT
 
 logger = logging.getLogger(__name__)
 
