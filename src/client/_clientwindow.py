@@ -1095,6 +1095,9 @@ class ClientWindow(FormClass, BaseClass):
             self.game_session = GameSession(player_id=message["id"],
                                             player_login=message["login"])
             logger.debug("game_session created")
+        elif self.game_session.game_uid != None:
+            self.lobby_connection.send({'command': 'restore_game_session',
+                                        'game_id': self.game_session.game_uid})
 
     def handle_registration_response(self, message):
         if message["result"] == "SUCCESS":

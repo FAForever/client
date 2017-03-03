@@ -146,11 +146,13 @@ class GameSession(QObject):
 
     def _launched(self):
         self._logger.info("Game has started")
+        client.instance.lobby_reconnecter.keepalive = True
 
     def _exited(self, status):
         self.state = GameSessionState.OFF
         self._logger.info("Game has exited with status code: {}".format(status))
         self.send('GameState', ['Ended'])
+        client.instance.lobby_reconnecter.keepalive = False
 
         if self._rehost:
             client.instance.host_game(title=self.game_name,
