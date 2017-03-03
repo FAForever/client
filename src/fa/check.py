@@ -69,8 +69,12 @@ def game(parent):
     return True
 
 def crc32(fname):
-    with open(fname) as stream:
-        return binascii.crc32(stream)
+    try:
+        with open(fname) as stream:
+            return binascii.crc32(stream.read())
+    except:
+        logger.exception('CRC check fail!')
+        return None
 
 def checkMovies(files):
     """

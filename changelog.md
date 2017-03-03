@@ -4,7 +4,8 @@
 0.12.4
 =====
 
-* Fix irc/notification recursion loop
+* Fix irc/notification recursion loop (#638, 641)
+* Fix movie file crc calculations (#640, #642)
 
 Contributors:
   - Duke
