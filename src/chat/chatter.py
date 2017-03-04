@@ -143,6 +143,8 @@ class Chatter(QtGui.QTableWidgetItem):
         Updates the appearance of this chatter in the nicklist
          according to its lobby and irc states
         """
+        self.setText(self.name)
+
         # First make sure we've got the correct id for ourselves
         if self.id == -1 and self.lobby.client.players.isPlayer(self.name):
             self.id = self.lobby.client.players.getID(self.name)

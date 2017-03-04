@@ -407,6 +407,14 @@ class Channel(FormClass, BaseClass):
         if join and self.lobby.client.joinsparts:
             self.printAction(name, "joined the channel.", server_action=True)
 
+    def renameChatter(self, oldname, newname):
+        if oldname in self.chatters:
+            chatter = self.chatters.pop(oldname)
+            chatter.name = newname
+            self.chatters[newname] = chatter
+            chatter.update()
+
+
     def removeChatter(self, name, server_action=None):
         if name in self.chatters:
             self.nickList.removeRow(self.chatters[name].row())
