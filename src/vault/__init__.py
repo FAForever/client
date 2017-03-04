@@ -39,8 +39,6 @@ class MapVault(QtCore.QObject, BusyWidget):
 
         self.ui.setPage(self._page)
 
-        self.client.mapsTab.layout().addWidget(self.ui)
-
         self.loaded = False
         self.ui.loadFinished.connect(self.ui.show)
         self.reloadView()

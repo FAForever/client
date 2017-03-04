@@ -28,7 +28,6 @@ class StatsWidget(BaseClass, FormClass, BusyWidget):
         self.setupUi(self)
 
         self.client = client
-        client.ladderTab.layout().addWidget(self)
         
         self.client.lobby_info.statsInfo.connect(self.processStatsInfos)
 

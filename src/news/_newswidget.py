@@ -3,7 +3,6 @@ from PyQt5.QtCore import Qt
 
 import webbrowser
 import util
-import client
 import re
 from .newsitem import NewsItem, NewsItemDelegate
 from .newsmanager import NewsManager
@@ -51,8 +50,6 @@ class NewsWidget(FormClass, BaseClass):
         BaseClass.__init__(self, *args, **kwargs)
 
         self.setupUi(self)
-
-        client.instance.whatNewTab.layout().addWidget(self)
 
         self.newsManager = NewsManager(self)
 

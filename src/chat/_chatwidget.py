@@ -70,8 +70,6 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         # load UI perform some tweaks
         self.tabBar().setTabButton(0, 1, None)
 
-        # add self to client's window
-        self.client.chatTab.layout().addWidget(self)
         self.tabCloseRequested.connect(self.closeChannel)
 
         # Hook with client's connection and autojoin mechanisms

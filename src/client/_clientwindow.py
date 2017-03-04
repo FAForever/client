@@ -531,6 +531,18 @@ class ClientWindow(FormClass, BaseClass):
         self.Coop = coop.Coop(self)
         self.notificationSystem = ns.Notifications(self)
 
+        #TODO: some day when the tabs only do UI we'll have all this in the .ui file
+        self.chatTab.layout().addWidget(self.chat)
+        self.whatNewTab.layout().addWidget(self.news)
+        self.ladderTab.layout().addWidget(self.ladder)
+        self.gamesTab.layout().addWidget(self.games)
+        self.tourneyTab.layout().addWidget(self.tourneys)
+        self.mapsTab.layout().addWidget(self.vault.ui)
+        self.modsTab.layout().addWidget(self.modvault)
+        self.replaysTab.layout().addWidget(self.replays)
+        self.tutorialsTab.layout().addWidget(self.tutorials)
+        self.coopTab.layout().addWidget(self.Coop)
+
         # set menu states
         self.actionNsEnabled.setChecked(self.notificationSystem.settings.enabled)
 

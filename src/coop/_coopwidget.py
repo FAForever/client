@@ -31,7 +31,6 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
         self.setupUi(self)
 
         self.client = client
-        self.client.coopTab.layout().addWidget(self)
         
         #Dictionary containing our actual games.
         self.games = {}
