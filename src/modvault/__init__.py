@@ -52,6 +52,7 @@ from modvault.utils import *
 from .modwidget import ModWidget
 from .uploadwidget import UploadModWidget
 from .uimodwidget import UIModWidget
+from ui.busy_widget import BusyWidget
 
 import util
 import logging
@@ -70,7 +71,7 @@ tempmod1 = dict(uid=1,name='Mod1', comments=[],bugreports=[], date = d,
 
 FormClass, BaseClass = util.loadUiType("modvault/modvault.ui")
 
-class ModVault(FormClass, BaseClass):
+class ModVault(FormClass, BaseClass, BusyWidget):
     def __init__(self, client, *args, **kwargs):
         QtCore.QObject.__init__(self, *args, **kwargs)
 
@@ -93,8 +94,6 @@ class ModVault(FormClass, BaseClass):
         self.SortType.currentIndexChanged.connect(self.sortChanged)
         self.ShowType.currentIndexChanged.connect(self.showChanged)
         
-        
-        self.client.showMods.connect(self.tabOpened)
         self.client.lobby_info.modVaultInfo.connect(self.modInfo)
 
         self.sortType = "rating"
@@ -202,7 +201,7 @@ class ModVault(FormClass, BaseClass):
                         "This folder doesn't contain a mod_info.lua file")
 
     @QtCore.pyqtSlot()
-    def tabOpened(self):
+    def busy_entered(self):
         self.client.lobby_connection.send(dict(command="modvault",type="start"))
 
     def updateVisibilities(self):

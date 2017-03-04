@@ -21,6 +21,7 @@ from fa.maps import getUserMapsFolder
 from modvault.utils import MODFOLDER
 from ui.status_logo import StatusLogo
 from client.login import LoginWidget
+from ui.busy_widget import BusyWidget
 
 '''
 Created on Dec 1, 2011
@@ -108,16 +109,6 @@ class ClientWindow(FormClass, BaseClass):
     localBroadcast = QtCore.pyqtSignal(str, str)
     autoJoin = QtCore.pyqtSignal(list)
     channelsUpdated = QtCore.pyqtSignal(list)
-
-    # These signals are emitted whenever a certain tab is activated
-    showReplays = QtCore.pyqtSignal()
-    showMaps = QtCore.pyqtSignal()
-    showGames = QtCore.pyqtSignal()
-    showTourneys = QtCore.pyqtSignal()
-    showLadder = QtCore.pyqtSignal()
-    showChat = QtCore.pyqtSignal()
-    showMods = QtCore.pyqtSignal()
-    showCoop = QtCore.pyqtSignal()
 
     matchmakerInfo = QtCore.pyqtSignal(dict)
 
@@ -264,7 +255,9 @@ class ClientWindow(FormClass, BaseClass):
         self.mainGridLayout.addWidget(sizeGrip, 2, 2)
 
         # Wire all important signals
+        self._main_tab = -1
         self.mainTabs.currentChanged.connect(self.mainTabChanged)
+        self._vault_tab = -1
         self.topTabs.currentChanged.connect(self.vaultTabChanged)
 
         # Handy reference to the Player object representing the logged-in user.
@@ -962,42 +955,34 @@ class ClientWindow(FormClass, BaseClass):
             QtWidgets.QMessageBox.critical(self, "Error from FA", text)
         self.gameExit.emit()
 
-    @QtCore.pyqtSlot(int)
-    def mainTabChanged(self, index):
+    def _tabChanged(self, tab, curr, prev):
         """
         The main visible tab (module) of the client's UI has changed.
         In this case, other modules may want to load some data or cease
         particularly CPU-intensive interactive functionality.
-        LATER: This can be rewritten as a simple Signal that each module can then individually connect to.
         """
-        new_tab = self.mainTabs.widget(index)
-        if new_tab is self.gamesTab:
-            self.showGames.emit()
+        new_tab = tab.widget(curr)
+        old_tab = tab.widget(prev)
 
-        if new_tab is self.chatTab:
-            self.showChat.emit()
-
-        if new_tab is self.replaysTab:
-            self.showReplays.emit()
-
-        if new_tab is self.ladderTab:
-            self.showLadder.emit()
-
-        if new_tab is self.tourneyTab:
-            self.showTourneys.emit()
-
-        if new_tab is self.coopTab:
-            self.showCoop.emit()
+        if old_tab is not None:
+            tab = old_tab.layout().itemAt(0).widget()
+            if isinstance(tab, BusyWidget):
+                tab.busy_left()
+        if new_tab is not None:
+            tab = new_tab.layout().itemAt(0).widget()
+            if isinstance(tab, BusyWidget):
+                tab.busy_entered()
 
     @QtCore.pyqtSlot(int)
-    def vaultTabChanged(self, index):
-        new_tab = self.topTabs.widget(index)
+    def mainTabChanged(self, curr):
+        self._tabChanged(self.mainTabs, curr, self._main_tab)
+        self._main_tab = curr
 
-        if new_tab is self.mapsTab:
-            self.showMaps.emit()
+    @QtCore.pyqtSlot(int)
+    def vaultTabChanged(self, curr):
+        self._tabChanged(self.topTabs, curr, self._vault_tab)
+        self._vault_tab = curr
 
-        if new_tab is self.modsTab:
-            self.showMods.emit()
 
     @QtCore.pyqtSlot()
     def joinGameFromURL(self, url):

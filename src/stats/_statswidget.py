@@ -6,6 +6,8 @@ import client
 from util.qt import injectWebviewCSS
 import time
 
+from ui.busy_widget import BusyWidget
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -14,7 +16,7 @@ ANTIFLOOD = 0.1
 FormClass, BaseClass = util.loadUiType("stats/stats.ui")
 
 
-class StatsWidget(BaseClass, FormClass):
+class StatsWidget(BaseClass, FormClass, BusyWidget):
 
     # signals
     laddermaplist = QtCore.pyqtSignal(dict)
@@ -37,7 +39,6 @@ class StatsWidget(BaseClass, FormClass):
         self.LadderRatings.layout().addWidget(self.webview)
         
         self.loaded = False
-        self.client.showLadder.connect(self.updating)
         self.webview.loadFinished.connect(self.webview.show)
         self.webview.loadFinished.connect(self._injectCSS)
         self.leagues.currentChanged.connect(self.leagueUpdate)
@@ -187,7 +188,7 @@ class StatsWidget(BaseClass, FormClass):
             injectWebviewCSS(self.webview.page(), util.readstylesheet("ladder/style.css"))
 
     @QtCore.pyqtSlot()
-    def updating(self):
+    def busy_entered(self):
         # Don't display things when we're not logged in
         # FIXME - one day we'll have more obvious points of entry
         if self.client.state != client.ClientState.LOGGED_IN:

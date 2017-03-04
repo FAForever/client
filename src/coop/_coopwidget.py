@@ -9,6 +9,7 @@ from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest
 from games.gameitem import GameItem, GameItemDelegate
 from coop.coopmapitem import CoopMapItem, CoopMapItemDelegate
 from games.hostgamewidget import HostgameWidget
+from ui.busy_widget import BusyWidget
 from fa import factions
 import random
 import fa
@@ -22,7 +23,7 @@ logger = logging.getLogger(__name__)
 FormClass, BaseClass = util.loadUiType("coop/coop.ui")
 
 
-class CoopWidget(FormClass, BaseClass):
+class CoopWidget(FormClass, BaseClass, BusyWidget):
     def __init__(self, client, *args, **kwargs):
         
         BaseClass.__init__(self, *args, **kwargs)        
@@ -44,7 +45,6 @@ class CoopWidget(FormClass, BaseClass):
         
         self.options = []
         
-        self.client.showCoop.connect(self.coopChanged)
         self.client.lobby_info.coopInfo.connect(self.processCoopInfo)
         self.client.lobby_info.gameInfo.connect(self.processGameInfo)
         self.coopList.header().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
@@ -153,7 +153,7 @@ class CoopWidget(FormClass, BaseClass):
     def linkVanilla(self):    
         WizardSC(self).exec_()
 
-    def coopChanged(self):
+    def busy_entered(self):
         if not self.loaded:
             self.client.lobby_connection.send(dict(command="coop_list"))
             self.loaded = True

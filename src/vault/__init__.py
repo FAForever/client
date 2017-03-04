@@ -11,6 +11,8 @@ import urllib.request, urllib.error, urllib.parse
 import re
 from config import Settings
 
+from ui.busy_widget import BusyWidget
+
 logger = logging.getLogger(__name__)
 
 
@@ -22,7 +24,7 @@ class FAFPage(QtWebEngineWidgets.QWebEnginePage):
         return "FAForever"
 
 
-class MapVault(QtCore.QObject):
+class MapVault(QtCore.QObject, BusyWidget):
     def __init__(self, client, *args, **kwargs):
         QtCore.QObject.__init__(self, *args, **kwargs)
         self.client = client
@@ -40,11 +42,12 @@ class MapVault(QtCore.QObject):
         self.client.mapsTab.layout().addWidget(self.ui)
 
         self.loaded = False
-        self.client.showMaps.connect(self.reloadView)
         self.ui.loadFinished.connect(self.ui.show)
         self.reloadView()
 
-    @QtCore.pyqtSlot()
+    def busy_entered(self):
+        self.reloadView()
+
     def reloadView(self):
         if self.loaded:
             return
