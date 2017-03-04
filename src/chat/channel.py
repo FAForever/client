@@ -7,7 +7,7 @@ import time
 import chat
 from chat import logger
 from chat.chatter import Chatter
-import re          
+import re
 import json
 
 from client import Player
@@ -48,19 +48,19 @@ class Channel(FormClass, BaseClass):
         BaseClass.__init__(self, lobby, *args, **kwargs)
 
         self.setupUi(self)
-        
+
         # Special HTML formatter used to layout the chat lines written by people
         self.lobby = lobby
         self.chatters = {}
-        
+
         self.lasttimestamp= None
-        
+
         # Query flasher
         self.blinker = QtCore.QTimer()
-        self.blinker.timeout.connect(self.blink)    
+        self.blinker.timeout.connect(self.blink)
         self.blinked = False
-        
-        # Table width of each chatter's name cell...        
+
+        # Table width of each chatter's name cell...
         self.maxChatterWidth = 100  # TODO: This might / should auto-adapt
 
         # count the number of line currently in the chat
@@ -69,28 +69,28 @@ class Channel(FormClass, BaseClass):
         # Perform special setup for public channels as opposed to private ones
         self.name = name
         self.private = private
-        
+
         if not self.private:
             # Non-query channels have a sorted nicklist
             self.nickList.sortItems(Chatter.SORT_COLUMN)
-            
+
             # Properly and snugly snap all the columns
             self.nickList.horizontalHeader().setResizeMode(Chatter.RANK_COLUMN, QtGui.QHeaderView.Fixed)
             self.nickList.horizontalHeader().resizeSection(Chatter.RANK_COLUMN, Formatters.NICKLIST_COLUMNS['RANK'])
 
             self.nickList.horizontalHeader().setResizeMode(Chatter.AVATAR_COLUMN, QtGui.QHeaderView.Fixed)
             self.nickList.horizontalHeader().resizeSection(Chatter.AVATAR_COLUMN, Formatters.NICKLIST_COLUMNS['AVATAR'])
-            
+
             self.nickList.horizontalHeader().setResizeMode(Chatter.STATUS_COLUMN, QtGui.QHeaderView.Fixed)
             self.nickList.horizontalHeader().resizeSection(Chatter.STATUS_COLUMN, Formatters.NICKLIST_COLUMNS['STATUS'])
-            
+
             self.nickList.horizontalHeader().setResizeMode(Chatter.SORT_COLUMN, QtGui.QHeaderView.Stretch)
-            
+
             self.nickList.itemDoubleClicked.connect(self.nickDoubleClicked)
             self.nickList.itemPressed.connect(self.nickPressed)
-            
+
             self.nickFilter.textChanged.connect(self.filterNicks)
-            
+
             self.lobby.client.usersUpdated.connect(self.update_users)
         else:
             self.nickFrame.hide()
@@ -104,7 +104,7 @@ class Channel(FormClass, BaseClass):
 
         self.resizeTimer = QtCore.QTimer(self)
         self.resizeTimer.timeout.connect(self.canresize)
-                
+
     def joinChannel(self, index):
         """ join another channel """
         channel = self.channelsComboBox.itemText(index)
@@ -117,41 +117,41 @@ class Channel(FormClass, BaseClass):
         """
         if keyevent.key() == 67:
             self.chatArea.copy()
-    
+
     def canresize(self):
         if self.isVisible():
             self.chatArea.setLineWrapColumnOrWidth(self.chatArea.size().width() - 20)  # Hardcoded, but seems to be enough (tabstop was a bit large)
-            self.resizeTimer.stop()    
-        
+            self.resizeTimer.stop()
+
     def resizing(self):
         self.resizeTimer.start(10)
-    
+
     def showEvent(self, event):
         self.stopBlink()
         return BaseClass.showEvent(self, event)
-    
+
     @QtCore.pyqtSlot()
     def clearWindow(self):
         if self.isVisible():
             self.chatArea.setPlainText("")
-            self.lasttimestamp = 0 
-        
+            self.lasttimestamp = 0
+
     @QtCore.pyqtSlot()
     def filterNicks(self):
         for chatter in self.chatters.keys():
             self.chatters[chatter].setVisible(self.chatters[chatter].isFiltered(self.nickFilter.text().lower()))
-            
+
     def updateUserCount(self):
         count = len(self.chatters.keys())
         self.nickFilter.setPlaceholderText(str(count) + " users... (type to filter)")
-            
+
         if self.nickFilter.text():
             self.filterNicks()
-                        
+
     @QtCore.pyqtSlot()
     def blink(self):
         if (self.blinked):
-            self.blinked = False            
+            self.blinked = False
             self.lobby.tabBar().setTabText(self.lobby.indexOf(self), self.name)
         else:
             self.blinked = True
@@ -165,16 +165,16 @@ class Channel(FormClass, BaseClass):
     @QtCore.pyqtSlot()
     def startBlink(self):
         self.blinker.start(QUERY_BLINK_SPEED)
-                
+
     @QtCore.pyqtSlot()
     def pingWindow(self):
         QtGui.QApplication.alert(self.lobby.client)
-            
+
         if not self.isVisible() or QtGui.QApplication.activeWindow() != self.lobby.client:
             if self.oneMinuteOrOlder():
                 if self.lobby.client.soundeffects:
                     util.sound("chat/sfx/query.wav")
-             
+
         if not self.isVisible():
             if not self.blinker.isActive() and not self == self.lobby.currentWidget():
                     self.startBlink()
@@ -200,9 +200,9 @@ class Channel(FormClass, BaseClass):
         self.chatArea.setTextCursor(cursor)
 
         formatter = Formatters.FORMATTER_ANNOUNCEMENT
-        line = formatter.format(size=size, color=color, text=util.irc_escape(text, self.lobby.a_style))        
+        line = formatter.format(size=size, color=color, text=util.irc_escape(text, self.lobby.a_style))
         self.chatArea.insertHtml(line)
-        
+
         if scroll_needed:
             self.chatArea.verticalScrollBar().setValue(self.chatArea.verticalScrollBar().maximum())
         else:
@@ -336,7 +336,7 @@ class Channel(FormClass, BaseClass):
     def oneMinuteOrOlder(self):
         timestamp = time.strftime("%H:%M")
         return self.lasttimestamp != timestamp
-        
+
     @QtCore.pyqtSlot(QtGui.QTableWidgetItem)
     def nickDoubleClicked(self, item):
         chatter = self.nickList.item(item.row(), Chatter.SORT_COLUMN)  # Look up the associated chatter object
@@ -344,9 +344,9 @@ class Channel(FormClass, BaseClass):
 
     @QtCore.pyqtSlot(QtGui.QTableWidgetItem)
     def nickPressed(self, item):
-        if QtGui.QApplication.mouseButtons() == QtCore.Qt.RightButton:            
+        if QtGui.QApplication.mouseButtons() == QtCore.Qt.RightButton:
             # Look up the associated chatter object
-            chatter = self.nickList.item(item.row(), Chatter.SORT_COLUMN)           
+            chatter = self.nickList.item(item.row(), Chatter.SORT_COLUMN)
             chatter.pressed(item)
 
     @QtCore.pyqtSlot(list)
@@ -358,9 +358,9 @@ class Channel(FormClass, BaseClass):
                 name = id
             if name in self.chatters:
                 self.chatters[name].update()
-        
+
         self.updateUserCount()
-        
+
     def elevateChatter(self, name, modes):
         add = re.compile(".*\+([a-z]+)")
         remove = re.compile(".*\-([a-z]+)")
@@ -374,7 +374,7 @@ class Channel(FormClass, BaseClass):
                 if "o" in modes:
                     mode = "@"
                 if "q" in modes:
-                    mode = "~"                    
+                    mode = "~"
                 if mode in chat.colors.OPERATOR_COLORS:
                     self.chatters[name].elevation = mode
                     self.chatters[name].update()
@@ -391,7 +391,7 @@ class Channel(FormClass, BaseClass):
                 if "v" in modes and self.chatters[name].elevation == "+":
                     self.chatters[name].elevation = None
                     self.chatters[name].update()
-        
+
     def addChatter(self, name, id=-1, elevation='', hostname='', join=False):
         """
         Adds an user to this chat channel, and assigns an appropriate icon depending on friendship and FAF player status
@@ -399,17 +399,17 @@ class Channel(FormClass, BaseClass):
         if name not in self.chatters:
             item = Chatter(self.nickList, (name, id, elevation, hostname), self.lobby, None)
             self.chatters[name] = item
-            
+
         self.chatters[name].update()
 
         self.updateUserCount()
-        
+
         if join and self.lobby.client.joinsparts:
             self.printAction(name, "joined the channel.", server_action=True)
-    
+
     def removeChatter(self, name, server_action=None):
         if name in self.chatters:
-            self.nickList.removeRow(self.chatters[name].row())        
+            self.nickList.removeRow(self.chatters[name].row())
             del self.chatters[name]
 
             if server_action and (self.lobby.client.joinsparts or self.private):
@@ -422,27 +422,27 @@ class Channel(FormClass, BaseClass):
         self.announceLine.clear()
         self.announceLine.setText("<style>a{color:cornflowerblue}</style><b><font color=white>" + util.irc_escape(text) + "</font></b>")
 
-    
+
     @QtCore.pyqtSlot()
     def sendLine(self, target=None):
         self.stopBlink()
-        
+
         if not target:
             target = self.name  # pubmsg in channel
-                        
+
         line = self.chatEdit.text()
         # Split into lines if newlines are present
         fragments = line.split("\n")
-        for text in fragments:            
+        for text in fragments:
             # Compound wacky Whitespace
             text = re.sub('\s', ' ', text)
             text = text.strip()
-            
+
             # Reject empty messages
-            if not text: 
+            if not text:
                 continue
-                
-            # System commands        
+
+            # System commands
             if text.startswith("/"):
                 if text.startswith("/join "):
                     self.lobby.join(text[6:])
