@@ -348,10 +348,13 @@ class ReplaysWidget(BaseClass, FormClass):
                     # Parse replayinfo into data
                     if item.info.get('complete', False):
                         # 'game_time' is 'launched_at' for older replays (if that fails maybe 'game_end' is there)
-                        t = time.localtime(item.info.get('launched_at', item.info.get('game_time',
-                                           item.info.get('game_end', time.time()))))
-                        game_date = time.strftime("%Y-%m-%d", t)
-                        game_hour = time.strftime("%H:%M", t)
+                        t = item.info.get('launched_at', item.info.get('game_time', item.info.get('game_end')))
+                        if t is None:
+                            game_date = 'date missing'
+                            game_hour = '--:--'
+                        else:
+                            game_date = time.strftime("%Y-%m-%d", time.localtime(t))
+                            game_hour = time.strftime("%H:%M", time.localtime(t))
                         
                         bucket = buckets.setdefault(game_date, [])                    
                         
