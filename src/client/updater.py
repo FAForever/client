@@ -5,6 +5,7 @@ import json
 from semantic_version import Version
 import config
 import os
+from config import Settings
 
 from decorators import with_logger
 from PyQt4 import QtGui, QtCore
@@ -15,7 +16,7 @@ from PyQt4.QtNetwork import QNetworkRequest, QNetworkReply
 
 @with_logger
 class GithubUpdateChecker(QObject):
-    GH_RELEASE_URL = 'https://api.github.com/repos/FAForever/client/releases/latest'
+    gh_release_url = Settings.persisted_property('updater/gh_release_url', type=str, default_value='https://api.github.com/repos/FAForever/client/releases?per_page=1')
 
     update_found = QtCore.pyqtSignal(dict)
 
@@ -24,14 +25,14 @@ class GithubUpdateChecker(QObject):
         self._network_manager = client.NetworkManager
 
     def start(self):
-        url = QUrl(self.GH_RELEASE_URL)
+        url = QUrl(self.gh_release_url)
         self._rep = self._network_manager.get(QNetworkRequest(url))
         self._rep.finished.connect(self._req_done)
 
     def _req_done(self):
         try:
             body = self._rep.readAll()
-            js = json.loads(unicode(body))
+            js = json.loads(unicode(body))[0]
             tag = js.get('tag_name')
             self._logger.info('Found release on github: {}'.format(js.get('name')))
             if tag is not None:
@@ -89,6 +90,7 @@ class ClientUpdater(QObject):
                                             QtGui.QMessageBox.No,
                                             QtGui.QMessageBox.Yes)
         if result == QtGui.QMessageBox.Yes:
+            self._logger.info('Downloading {}'.format(url))
             self._setup_progress()
             self._prepare_download(url)
             self._progress.show()
@@ -134,7 +136,7 @@ class ClientUpdater(QObject):
             self._run_installer()
 
     def _run_installer(self):
-        command = r'msiexec /i "{msiname}" & del "{msiname}"'.format(msiname=self._tmp.name)
+        command = 'msiexec /i "{msiname}" & del "{msiname}"'.format(msiname=self._tmp.name)
         self._logger.debug(r'Running msi installation command: ' + command)
         subprocess.Popen(command, shell=True)
         self._progress.close()

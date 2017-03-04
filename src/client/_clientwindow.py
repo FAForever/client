@@ -598,7 +598,7 @@ class ClientWindow(FormClass, BaseClass):
         version = update['name']
         prerelease = update['prerelease']
         assets = update['assets']
-        url = update['url']
+        url = update['html_url']
         download_url = None
         for asset in assets:
             if '.msi' in asset['browser_download_url']:

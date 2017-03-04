@@ -6,9 +6,11 @@
 
 * Fix irc/notification recursion loop (#638, 641)
 * Fix movie file crc calculations (#640, #642)
+* Make Github updater see prereleases (#643, #645)
 
 Contributors:
   - Duke
+  - Wesmania
 
 0.12.3
 =====
