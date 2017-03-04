@@ -125,7 +125,10 @@ class ClientUpdater(QObject):
         redirected = self._rep.attribute(QNetworkRequest.RedirectionTargetAttribute)
         if redirected is not None:
             os.remove(self._tmp.name)
-            url = redirected.resolved()
+            if redirected.isRelative():
+                url = self._rep.url().resolved(redirected)
+            else:
+                url = redirected
             self._prepare_download(url)
         else:
             self._run_installer()
