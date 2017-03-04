@@ -4,6 +4,7 @@ import subprocess
 import json
 from semantic_version import Version
 import config
+import os
 
 from decorators import with_logger
 from PyQt4 import QtGui, QtCore
@@ -89,19 +90,23 @@ class ClientUpdater(QObject):
                                             QtGui.QMessageBox.Yes)
         if result == QtGui.QMessageBox.Yes:
             self._setup_progress()
-            self._tmp = tempfile.NamedTemporaryFile(mode='w+b',
-                                                    suffix=".msi",
-                                                    delete=False)
-            self._req = QNetworkRequest(QUrl(url))
-            self._rep = self._network_manager.get(self._req)
-            self._rep.setReadBufferSize(0)
-            self._rep.downloadProgress.connect(self.on_progress)
-            self._rep.finished.connect(self._run_installer)
-            self._rep.error.connect(self.error)
-            self._rep.readyRead.connect(self._buffer)
+            self._prepare_download(url)
             self._progress.show()
         elif self._outdated:
             QtGui.QApplication.quit()
+
+    def _prepare_download(self, url):
+        self._tmp = tempfile.NamedTemporaryFile(mode='w+b',
+                                                suffix=".msi",
+                                                delete=False)
+        self._req = QNetworkRequest(QUrl(url))
+        self._rep = self._network_manager.get(self._req)
+        self._rep.setReadBufferSize(0)
+        self._rep.downloadProgress.connect(self.on_progress)
+        self._rep.finished.connect(self._on_finished)
+        self._rep.error.connect(self.error)
+        self._rep.readyRead.connect(self._buffer)
+
 
     def error(self, code):
         self._logger.exception(self._rep.errorString())
@@ -109,15 +114,27 @@ class ClientUpdater(QObject):
     def _buffer(self):
         self._tmp.write(self._rep.read(self._rep.bytesAvailable()))
 
-    def _run_installer(self):
+    def _on_finished(self):
         assert self._tmp
         assert self._rep.atEnd()
-        if self._rep.error() == QNetworkReply.NoError:
-            self._tmp.close()
-            command = r'msiexec /i "{msiname}" & del "{msiname}"'.format(msiname=self._tmp.name)
-            self._logger.debug(r'Running msi installation command: ' + command)
-            subprocess.Popen(command, shell=True)
-            self._progress.close()
+        if self._rep.error() != QNetworkReply.NoError:
+            return          # FIXME - handle
+
+        self._tmp.close()
+
+        redirected = self._rep.attribute(QNetworkRequest.RedirectionTargetAttribute)
+        if redirected is not None:
+            os.remove(self._tmp.name)
+            url = redirected.resolved()
+            self._prepare_download(url)
+        else:
+            self._run_installer()
+
+    def _run_installer(self):
+        command = r'msiexec /i "{msiname}" & del "{msiname}"'.format(msiname=self._tmp.name)
+        self._logger.debug(r'Running msi installation command: ' + command)
+        subprocess.Popen(command, shell=True)
+        self._progress.close()
 
     def on_progress(self, current, max):
         self._progress.setMaximum(max)
