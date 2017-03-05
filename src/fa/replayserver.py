@@ -74,7 +74,7 @@ class ReplayRecorder(QtCore.QObject):
             #This prefix means "P"osting replay in the livereplay protocol of FA, this needs to be stripped from the local file            
             if data.startsWith("P/"):
                 rest = data.indexOf("\x00") + 1
-                self.__logger.info("Stripping prefix '" + str(data.left(rest)) + "' from replay.")
+                self.__logger.info("Stripping prefix '" + str(data.left(rest - 1)) + "' from replay.")
                 self.replayData.append(data.right(data.size() - rest))
             else:
                 self.replayData.append(data)
