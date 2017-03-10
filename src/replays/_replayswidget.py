@@ -416,18 +416,18 @@ class ReplaysWidget(BaseClass, FormClass):
         if len(cache_add) > 10 or len(cache) - len(cache_hit) > 10:
             self.saveLocalCache(cache_hit, cache_add)
         # Now, create a top level TreeWidgetItem for every bucket, and put the bucket's contents into them
-        for bucket in buckets.keys():
+        for bucket_key in buckets.keys():
             bucket_item = QtGui.QTreeWidgetItem()
             
-            if bucket == "broken":
+            if bucket_key == "broken":
                 bucket_item.setTextColor(0, QtGui.QColor("red"))  # FIXME: Needs to come from theme
                 bucket_item.setText(1, "(not watchable)")
                 bucket_item.setTextColor(1, QtGui.QColor(client.instance.getColor("default")))
-            elif bucket == "incomplete":
+            elif bucket_key == "incomplete":
                 bucket_item.setTextColor(0, QtGui.QColor("yellow"))  # FIXME: Needs to come from theme
                 bucket_item.setText(1, "(watchable)")
                 bucket_item.setTextColor(1, QtGui.QColor(client.instance.getColor("default")))
-            elif bucket == "legacy":
+            elif bucket_key == "legacy":
                 bucket_item.setTextColor(0, QtGui.QColor(client.instance.getColor("default")))
                 bucket_item.setTextColor(1, QtGui.QColor(client.instance.getColor("default")))
                 bucket_item.setText(1, "(old replay system)")
@@ -435,25 +435,25 @@ class ReplaysWidget(BaseClass, FormClass):
                 bucket_item.setTextColor(0, QtGui.QColor(client.instance.getColor("player")))
                 
             bucket_item.setIcon(0, util.icon("replays/bucket.png"))                                
-            bucket_item.setText(0, bucket)
-            if bucket == "directories":
-                if len(buckets[bucket]) == 1:
+            bucket_item.setText(0, bucket_key)
+            if bucket_key == "directories":
+                if len(buckets[bucket_key]) == 1:
                     bucket_item.setText(3, "1 folder")
                 else:
-                    bucket_item.setText(3, str(len(buckets[bucket])) + " folders")
+                    bucket_item.setText(3, str(len(buckets[bucket_key])) + " folders")
             else:
-                if len(buckets[bucket]) == 1:
+                if len(buckets[bucket_key]) == 1:
                     bucket_item.setText(3, "1 replay")
                 else:
-                    bucket_item.setText(3, str(len(buckets[bucket])) + " replays")
+                    bucket_item.setText(3, str(len(buckets[bucket_key])) + " replays")
             bucket_item.setTextColor(3, QtGui.QColor(client.instance.getColor("default")))
                 
             self.myTree.addTopLevelItem(bucket_item)
             #self.myTree.setFirstItemColumnSpanned(bucket_item, True)
                 
-            for replay in buckets[bucket]:
+            for replay in buckets[bucket_key]:
                 bucket_item.addChild(replay)
-            if bucket == "directories":  # no expand without the children ... precious
+            if bucket_key == "directories":  # no expand without the children ... precious
                 bucket_item.setExpanded(True)  # expand by default to show directories
 
         self.unsetCursor()  # undo the WaitCursor
