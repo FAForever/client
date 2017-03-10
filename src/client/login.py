@@ -18,16 +18,12 @@ class LoginWidget(FormClass, BaseClass):
         self.client = client
         if self.client.login:
             self.loginField.setText(self.client.login)
-        # FIXME !!! Since hash is no safer, we should just store the password in plain text
-        if self.client.password:
-            self.passwordField.setText("!!!password!!!")
 
     @QtCore.pyqtSlot()
     def on_accepted(self):
         password = self.passwordField.text()
-        if (password != "!!!password!!!"):
-            hashed_password = hashlib.sha256(password.strip().encode("utf-8")).hexdigest()
-            self.client.password = hashed_password
+        hashed_password = hashlib.sha256(password.strip().encode("utf-8")).hexdigest()
+        self.client.password = hashed_password
         # Else the client has a hashed password already
         # and the user didn't give us a different one
 
