@@ -200,4 +200,4 @@ class MapVault(QtCore.QObject):
                 QtGui.QMessageBox.Yes,
                 QtGui.QMessageBox.No)
             if show == QtGui.QMessageBox.Yes:
-                util.showInExplorer(maps.folderForMap(name))
+                util.showDirInFileBrowser(maps.folderForMap(name))

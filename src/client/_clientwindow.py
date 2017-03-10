@@ -807,7 +807,7 @@ class ClientWindow(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def linkShowLogs(self):
-        util.showInExplorer(util.LOG_DIR)
+        util.showDirInFileBrowser(util.LOG_DIR)
 
     @QtCore.pyqtSlot()
     def connectivityDialog(self):

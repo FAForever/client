@@ -5,11 +5,12 @@ import getpass
 from ctypes import *
 
 from PyQt4.QtGui import QDesktopServices, QMessageBox
+from PyQt4.QtCore import QUrl
+import subprocess
 
 from semantic_version import Version
 
 from config import Settings
-from PyQt4.QtGui import QDesktopServices
 if sys.platform == 'win32':
     import win32serviceutil
     import win32service
@@ -581,26 +582,17 @@ def wait(until):
 
     return not progress.wasCanceled()
 
+def showDirInFileBrowser(location):
+    QDesktopServices.openUrl(QUrl.fromLocalFile(location))
 
-def openInExplorer(location):
-    '''
-    Opens a given location in Windows Explorer
-    '''
-    import subprocess
-
-    _command = (u'explorer  "%s"' % location).encode(sys.getfilesystemencoding())
-    subprocess.Popen(_command)
-
-
-def showInExplorer(location):
-    """
-    Opens a given location's parent in Windows Explorer and focuses the location in it.
-    """
-    import subprocess
-
-    _command = (u'explorer  /select, "%s"' % location).encode(sys.getfilesystemencoding())
-    subprocess.Popen(_command)
-
+def showFileInFileBrowser(location):
+    if sys.platform == 'win32':
+        # Open the directory and highlight the picked file
+        _command = (u'explorer  /select, "%s"' % location).encode(sys.getfilesystemencoding())
+        subprocess.Popen(_command)
+    else:
+        # No highlighting on cross-platform, sorry!
+        showDirInFileBrowser(os.path.dirname(location))
 
 html_escape_table = {
     "&": "&amp;",

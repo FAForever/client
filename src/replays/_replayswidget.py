@@ -565,7 +565,7 @@ class ReplaysWidget(BaseClass, FormClass):
             
         # Triggers
         actionReplay.triggered.connect(lambda: self.myTreeDoubleClicked(item, 0))
-        actionExplorer.triggered.connect(lambda: util.showInExplorer(item.filename))
+        actionExplorer.triggered.connect(lambda: util.showFileInFileBrowser(item.filename))
       
         # Adding to menu
         menu.addAction(actionReplay)
