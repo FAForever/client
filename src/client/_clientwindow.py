@@ -21,6 +21,7 @@ from fa import GameSession
 from fa.factions import Factions
 from fa.game_session import GameSessionState
 from ui.status_logo import StatusLogo
+from client.login import LoginWidget
 
 '''
 Created on Dec 1, 2011
@@ -879,10 +880,9 @@ class ClientWindow(FormClass, BaseClass):
         return (self.remember or self._did_login) and self.password and self.login
 
     def show_login_wizard(self):
-        from loginwizards import LoginWizard
-        wizard = LoginWizard(self)
-        wizard.accepted.connect(self.perform_login)
-        wizard.exec_()
+        login_widget = LoginWidget(self)
+        login_widget.accepted.connect(self.perform_login)
+        login_widget.exec_()
 
     def doLogin(self):
         if not self.can_login:
