@@ -313,44 +313,44 @@ class GameItem(QtGui.QListWidgetItem):
 
     def editTooltip(self, teams, observers):
         
-        teamlist = []
+        teams_list = []
 
         i = 0
         for team in teams:
             
             i += 1
 
-            teamplayer = ["<td><table>"]
+            players_list = ["<td><table>"]
             for player in team:
 
                 if player == client.instance.me:
-                    playerStr = "<b><i>%s</b></i>" % player.login
+                    player_str = "<b><i>%s</b></i>" % player.login
                 else:
-                    playerStr = player.login
+                    player_str = player.login
 
                 if player.rating_deviation < 200:
-                    playerStr += " (%s)" % str(player.rating_estimate())
+                    player_str += " (%s)" % str(player.rating_estimate())
 
                 country = os.path.join(util.COMMON_DIR, "chat/countries/%s.png" % (player.country or '').lower())
 
                 if i == 1:
-                    player_tr = "<tr><td><img src='%s'></td>" \
-                                    "<td align='left' valign='middle' width='135'>%s</td></tr>" % (country, playerStr)
+                    player_html = "<tr><td><img src='%s'></td><td align='left' " \
+                                  "valign='middle' width='135'>%s</td></tr>" % (country, player_str)
                 elif i == self.nTeams:
-                    player_tr = "<tr><td align='right' valign='middle' width='135'>%s</td>" \
-                                    "<td><img src='%s'></td></tr>" % (playerStr, country)
+                    player_html = "<tr><td align='right' valign='middle' width='135'>%s</td>" \
+                                    "<td><img src='%s'></td></tr>" % (player_str, country)
                 else:
-                    player_tr = "<tr><td><img src='%s'></td>" \
-                                    "<td align='center' valign='middle' width='135'>%s</td></tr>" % (country, playerStr)
+                    player_html = "<tr><td><img src='%s'></td><td align='center' " \
+                                  "valign='middle' width='135'>%s</td></tr>" % (country, player_str)
 
-                teamplayer.append(player_tr)
+                players_list.append(player_html)
 
-            teamplayer.append("</table></td>")
-            members = "".join(teamplayer)
+            players_list.append("</table></td>")
+            team_html = "".join(players_list)
 
-            teamlist.append(members)
+            teams_list.append(team_html)
 
-        teams_str = "<td valign='middle' height='100%'><font color='black' size='+5'>VS</font></td>".join(teamlist)
+        teams_str = "<td valign='middle' height='100%'><font color='black' size='+5'>VS</font></td>".join(teams_list)
 
         if len(observers) != 0:
             observers_str = "Observers : "
