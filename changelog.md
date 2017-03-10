@@ -17,6 +17,8 @@
 * Purge last remains of (long removed) mumble integration (#681, #682)
 * Don't use eval in legacy updater (#715, #716)
 * Fix crash on opening files in explorer on non-Windows (#654, #655)
+* Clean up layout of login widget (#652, #653)
+* Use "foo" instead of user password in develop mode (#712, #653)
 
 Contributors:
   - Wesmania
