@@ -7,6 +7,7 @@ from fa.game_process import GameProcess, instance as game_process_instance
 
 from connectivity.IceAdapterClient import IceAdapterClient
 from connectivity.IceAdapterProcess import IceAdapterProcess
+from connectivity.IceServersPoller import IceServersPoller
 
 class GameSessionState(IntEnum):
     # Game services are entirely off
@@ -53,7 +54,7 @@ class GameSession(QObject):
         self.ice_adapter_process = IceAdapterProcess(player_id=self.player_id,
                                                      player_login=self.player_login)
         self.ice_adapter_client = IceAdapterClient(game_session=self)
-        self.ice_adapter_client.statusChanged.connect(self.onIceStatus)
+        self.ice_adapter_client.statusChanged.connect(self.onIceAdapterStarted)
         self.ice_adapter_client.connect("127.0.0.1", self.ice_adapter_process.rpc_port())
 
         self.ice_servers_poller = None

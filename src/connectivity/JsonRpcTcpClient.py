@@ -10,7 +10,7 @@ from decorators import with_logger
 class JsonRpcTcpClient(QObject):
     def __init__(self, request_handler_instance):
         QObject.__init__(self)
-        self.socket = QTcpSocket()
+        self.socket = QTcpSocket(self)
         self.connectionAttempts = 1
         self.socket.readyRead.connect(self.onData)
         self.socket.error.connect(self.onSocketError)
@@ -18,7 +18,6 @@ class JsonRpcTcpClient(QObject):
         self.nextid = 1
         self.callbacks_result = {}
         self.callbacks_error = {}
-        self.socket.waitForConnected(3000)
         self.buffer = ''
 
     def connect(self, host, port):
