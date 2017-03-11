@@ -7,6 +7,7 @@
 * Slightly decrease dependency of tabs on client class (#644)
 * Clean up theme-specific util code (#663, #664)
 * Cleanup receiving game info (#708, #709)
+* Add Friend/Foe feature for IRC users (#609, #657)
 
 Contributors:
  - Wesmania
