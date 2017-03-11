@@ -105,16 +105,17 @@ class Chatter(QtWidgets.QTableWidgetItem):
         # Default: Alphabetical
         return self.name.lower() < other.name.lower()
 
-    def getUserRank(self, other_chatter):
+    def getUserRank(self, other):
         # TODO: Add subdivision for admin?
+        me = self.lobby.client.me
 
-        if other_chatter.elevation:
+        if other.elevation:
             return self.RANK_ELEVATION
-        if self.lobby.client.me.isFriend(other_chatter.id):
+        if (other.id != -1 and me.isFriend(other.id)) or me.isIrcFriend(other.name):
             return self.RANK_FRIEND - (2 if self.lobby.client.friendsontop else 0)
-        if self.lobby.client.me.isFoe(other_chatter.id):
+        if (other.id != -1 and me.isFoe(other.id)) or me.isIrcFoe(other.name):
             return self.RANK_FOE
-        if self.lobby.client.players.isPlayer(other_chatter.id):
+        if self.lobby.client.players.isPlayer(other.id):
             return self.RANK_USER
 
         return self.RANK_NONPLAYER
