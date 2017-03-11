@@ -14,6 +14,7 @@ from client.connection import LobbyInfo, ServerConnection, \
 from model.gameset import Gameset
 from client.updater import ClientUpdater, GithubUpdateChecker
 from client.theme_menu import ThemeMenu
+from client.user import User
 import fa
 from connectivity.helper import ConnectivityHelper
 from fa import GameSession
@@ -264,11 +265,11 @@ class ClientWindow(FormClass, BaseClass):
         self._vault_tab = -1
         self.topTabs.currentChanged.connect(self.vaultTabChanged)
 
-        # Handy reference to the Player object representing the logged-in user.
-        self.me = None  # FIXME: Move it elsewhere
+        # Handy reference to the User object representing the logged-in user.
+        self.me = User()
+        self.me.relationsUpdated.connect(lambda x: self.usersUpdated.emit(list(x)))
 
-        self.players = Players(
-            self.me)  # Players known to the client, contains the player_info messages sent by the server
+        self.players = Players(self.me)  # Players known to the client, contains the player_info messages sent by the server
         self.urls = {}
 
         self.power = 0  # current user power
@@ -1073,27 +1074,23 @@ class ClientWindow(FormClass, BaseClass):
 
     def addFriend(self, friend_id):
         if friend_id in self.players:
-            self.players.friends.add(friend_id)
+            self.me.addFriend(int(friend_id))
             self.lobby_connection.send(dict(command="social_add", friend=friend_id))
-            self.usersUpdated.emit([friend_id])
 
     def addFoe(self, foe_id):
         if foe_id in self.players:
-            self.players.foes.add(foe_id)
+            self.me.addFoe(int(foe_id))
             self.lobby_connection.send(dict(command="social_add", foe=foe_id))
-            self.usersUpdated.emit([foe_id])
 
     def remFriend(self, friend_id):
         if friend_id in self.players:
-            self.players.friends.remove(friend_id)
+            self.me.remFriend(int(friend_id))
             self.lobby_connection.send(dict(command="social_remove", friend=friend_id))
-            self.usersUpdated.emit([friend_id])
 
     def remFoe(self, foe_id):
         if foe_id in self.players:
-            self.players.foes.remove(foe_id)
+            self.me.remFoe(int(foe_id))
             self.lobby_connection.send(dict(command="social_remove", foe=foe_id))
-            self.usersUpdated.emit([foe_id])
 
 
     def handle_session(self, message):
@@ -1115,9 +1112,8 @@ class ClientWindow(FormClass, BaseClass):
         self._autorelogin = True
         self.id = message["id"]
         self.login = message["login"]
-        self.me = Player(id=self.id, login=self.login)
-        self.players[self.me.id] = self.me  # FIXME
-        self.players.me = self.me  # FIXME
+        self.me.player = Player(id=self.id, login=self.login)
+        self.players[self.me.player.id] = self.me.player  # FIXME
         logger.debug("Login success")
 
         util.crash.CRASH_REPORT_USER = self.login
@@ -1127,7 +1123,7 @@ class ClientWindow(FormClass, BaseClass):
 
         self.updateOptions()
 
-        self.authorized.emit(self.me)
+        self.authorized.emit(self.me.player)
 
         # Run an initial connectivity test and initialize a gamesession object
         # when done
@@ -1215,9 +1211,9 @@ class ClientWindow(FormClass, BaseClass):
             arguments.append('/' + Factions.to_name(self.games.race))
             # Player 1v1 rating
             arguments.append('/mean')
-            arguments.append(str(self.me.ladder_rating_mean))
+            arguments.append(str(self.me.player.ladder_rating_mean))
             arguments.append('/deviation')
-            arguments.append(str(self.me.ladder_rating_deviation))
+            arguments.append(str(self.me.player.ladder_rating_deviation))
             arguments.append('/players 2')  # Always 2 players in 1v1 ladder
             arguments.append('/team 1')     # Always FFA team
 
@@ -1227,19 +1223,19 @@ class ClientWindow(FormClass, BaseClass):
         else:
             # Player global rating
             arguments.append('/mean')
-            arguments.append(str(self.me.rating_mean))
+            arguments.append(str(self.me.player.rating_mean))
             arguments.append('/deviation')
-            arguments.append(str(self.me.rating_deviation))
-            if self.me.country is not None:
+            arguments.append(str(self.me.player.rating_deviation))
+            if self.me.player.country is not None:
                 arguments.append('/country ')
-                arguments.append(self.me.country)
+                arguments.append(self.me.player.country)
 
             # Launch the normal lobby
             self.game_session.init_mode = 0
 
-        if self.me.clan is not None:
+        if self.me.player.clan is not None:
             arguments.append('/clan')
-            arguments.append(self.me.clan)
+            arguments.append(self.me.player.clan)
 
         # Ensure we have the map
         if "mapname" in message:
@@ -1267,18 +1263,18 @@ class ClientWindow(FormClass, BaseClass):
             self.game_session.game_visibility = game.visibility
 
     def handle_matchmaker_info(self, message):
-        if not self.me:
+        if not self.me.player:
             return
         if "action" in message:
             self.matchmakerInfo.emit(message)
         elif "queues" in message:
-            if self.me.ladder_rating_deviation > 200 or self.games.searching:
+            if self.me.player.ladder_rating_deviation > 200 or self.games.searching:
                 return
-            key = 'boundary_80s' if self.me.ladder_rating_deviation < 100 else 'boundary_75s'
+            key = 'boundary_80s' if self.me.player.ladder_rating_deviation < 100 else 'boundary_75s'
             show = False
             for q in message['queues']:
                 if q['queue_name'] == 'ladder1v1':
-                    mu = self.me.ladder_rating_mean
+                    mu = self.me.player.ladder_rating_mean
                     for min, max in q[key]:
                         if min < mu < max:
                             show = True
@@ -1289,12 +1285,10 @@ class ClientWindow(FormClass, BaseClass):
 
     def handle_social(self, message):
         if "friends" in message:
-            self.players.friends = set(message["friends"])
-            self.usersUpdated.emit(list(self.players.keys()))
+            self.me.setFriends(set([int(u) for u in message["friends"]]))
 
         if "foes" in message:
-            self.players.foes = set(message["foes"])
-            self.usersUpdated.emit(list(self.players.keys()))
+            self.me.setFoes(set([int(u) for u in message["foes"]]))
 
         if "channels" in message:
             # Add a delay to the notification system (insane cargo cult)
@@ -1314,7 +1308,7 @@ class ClientWindow(FormClass, BaseClass):
         # Firstly, find yourself. Things get easier once "me" is assigned.
         for player in players:
             if player["id"] == self.id:
-                self.me = Player(**player)
+                self.me.player = Player(**player)
 
         for player in players:
             id = player["id"]
@@ -1323,8 +1317,8 @@ class ClientWindow(FormClass, BaseClass):
             self.players[id] = new_player
             self.usersUpdated.emit([player['login']])
 
-            if self.me.clan is not None and new_player.clan == self.me.clan:
-                self.players.clanlist.add(player['id'])
+            if self.me.player.clan is not None and new_player.clan == self.me.player.clan:
+                self.me.addClannie(player['id'])
 
     def avatarManager(self):
         self.requestAvatars(0)

@@ -88,7 +88,7 @@ class StatsWidget(BaseClass, FormClass, BusyWidget):
         
     def createDivisionsTabs(self, divisions):
         userDivision = ""
-        me = self.client.me
+        me = self.client.me.player
         if me.league is not None:  # was me.division, but no there there
             userDivision = me.league[1]  # ? [0]=league and [1]=division
        

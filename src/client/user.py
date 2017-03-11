@@ -48,7 +48,6 @@ class User(QtCore.QObject):
         self._foes.updated.connect(self.relationsUpdated.emit)
         self._clannies.updated.connect(self.relationsUpdated.emit)
 
-
     @property
     def player(self):
         return self._player

@@ -24,7 +24,7 @@ def build_argument_list(game_info, port, arguments=None):
     arguments.append('/init')
     arguments.append('init_{}.lua'.format(game_info.get('featured_mod', 'faf')))
 
-    arguments.append('/numgames {}'.format(client.instance.me.number_of_games))
+    arguments.append('/numgames {}'.format(client.instance.me.player.number_of_games))
 
     # log file
     if Settings.get("game/logs", False, type=bool):

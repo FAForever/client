@@ -109,9 +109,9 @@ class Chatter(QtWidgets.QTableWidgetItem):
 
         if other_chatter.elevation:
             return self.RANK_ELEVATION
-        if self.lobby.client.players.isFriend(other_chatter.id):
+        if self.lobby.client.me.isFriend(other_chatter.id):
             return self.RANK_FRIEND - (2 if self.lobby.client.friendsontop else 0)
-        if self.lobby.client.players.isFoe(other_chatter.id):
+        if self.lobby.client.me.isFoe(other_chatter.id):
             return self.RANK_FOE
         if self.lobby.client.players.isPlayer(other_chatter.id):
             return self.RANK_USER
@@ -144,7 +144,6 @@ class Chatter(QtWidgets.QTableWidgetItem):
          according to its lobby and irc states
         """
         self.setText(self.name)
-
         # First make sure we've got the correct id for ourselves
         if self.id == -1 and self.lobby.client.players.isPlayer(self.name):
             self.id = self.lobby.client.players.getID(self.name)
@@ -210,7 +209,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
         if self.lobby.client.id == self.id and self.elevation in chat.OPERATOR_COLORS.keys():
             self.setForeground(QtGui.QColor(chat.get_color("self_mod")))
             return
-        if self.lobby.client.players.isFriend(self.id) and self.elevation in chat.OPERATOR_COLORS.keys():
+        if self.lobby.client.me.isFriend(self.id) and self.elevation in chat.OPERATOR_COLORS.keys():
             self.setForeground(QtGui.QColor(chat.get_color("friend_mod")))
             return
         if self.elevation in chat.colors.OPERATOR_COLORS.keys():
@@ -341,21 +340,21 @@ class Chatter(QtWidgets.QTableWidgetItem):
         actionRemFoe = QtWidgets.QAction("Remove foe", menu)
 
         # Don't allow self to be added or removed from friends or foes
-        if self.lobby.client.me.id == self.id:
+        if self.lobby.client.me.player.id == self.id:
             actionAddFriend.setDisabled(1)
             actionRemFriend.setDisabled(1)
             actionAddFoe.setDisabled(1)
             actionRemFoe.setDisabled(1)
 
         # Enable / Disable actions according to friend status
-        if self.lobby.client.players.isFriend(self.id):
+        if self.lobby.client.me.isFriend(self.id):
             actionAddFriend.setDisabled(1)
             actionRemFoe.setDisabled(1)
             actionAddFoe.setDisabled(1)
         else:
             actionRemFriend.setDisabled(1)
 
-        if self.lobby.client.players.isFoe(self.id):
+        if self.lobby.client.me.isFoe(self.id):
             actionAddFoe.setDisabled(1)
             actionAddFriend.setDisabled(1)
             actionRemFriend.setDisabled(1)

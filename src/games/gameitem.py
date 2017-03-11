@@ -146,7 +146,7 @@ class GameItemWidget(QtWidgets.QListWidgetItem):
             teamplayer = []
             teamplayer.append("<td><table>")
             for player in team:
-                if player == client.instance.me:
+                if player == client.instance.me.player:
                     playerStr = "<b><i>%s</b></i>" % player.login
                 else:
                     playerStr = player.login
@@ -258,7 +258,7 @@ class GameItem():
 
     @QtCore.pyqtSlot()
     def announceReplay(self):
-        if not client.instance.players.isFriend(self.hostid):
+        if not client.instance.me.isFriend(self.hostid):
             return
 
         g = self.game
@@ -279,7 +279,7 @@ class GameItem():
 
     @QtCore.pyqtSlot()
     def announceHosting(self):
-        if not client.instance.players.isFriend(self.hostid) or self.isHidden():
+        if not client.instance.me.isFriend(self.hostid) or self.isHidden():
             return
 
         g = self.game
@@ -444,8 +444,8 @@ class GameItem():
         if not client.instance: return True  # If not initialized...
 
         # Friend games are on top
-        if client.instance.players.isFriend(self.hostid) and not client.instance.players.isFriend(other.hostid): return True
-        if not client.instance.players.isFriend(self.hostid) and client.instance.players.isFriend(other.hostid): return False
+        if client.instance.me.isFriend(self.hostid) and not client.instance.me.isFriend(other.hostid): return True
+        if not client.instance.me.isFriend(self.hostid) and client.instance.me.isFriend(other.hostid): return False
 
         # Sort Games
         # 0: By Player Count

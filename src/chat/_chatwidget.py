@@ -193,7 +193,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
             # Add participants to private channel
             self.channels[name].addChatter(name, id)
-            self.channels[name].addChatter(self.client.login, self.client.me.id)
+            self.channels[name].addChatter(self.client.login, self.client.me.player.id)
 
         if activate:
             self.setCurrentWidget(self.channels[name])
@@ -357,7 +357,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         name, id, elevation, hostname = parse_irc_source(e.source())
         target = e.target()
 
-        if target in self.channels and not self.client.players.isFoe(id):
+        if target in self.channels and not self.client.me.isFoe(id):
             self.channels[target].printMsg(name, "\n".join(e.arguments()))
 
     def on_privnotice(self, c, e):
@@ -404,12 +404,12 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             self.serverLogArea.appendPlainText("IRC disconnected - reconnecting.")
             self.identified = False
             self._timer.stop()
-            self.connect(self.client.me)
+            self.connect(self.client.me.player)
 
     def on_privmsg(self, c, e):
         name, id, elevation, hostname = parse_irc_source(e.source())
 
-        if self.client.players.isFoe(id):
+        if self.client.me.isFoe(id):
             return
 
         # Create a Query if it's not open yet, and post to it if it exists.
@@ -420,7 +420,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         name, id, elevation, hostname = parse_irc_source(e.source())  # user2name(e.source())
         target = e.target()
 
-        if self.client.players.isFoe(id):
+        if self.client.me.isFoe(id):
             return
 
         # Create a Query if it's not an action intended for a channel

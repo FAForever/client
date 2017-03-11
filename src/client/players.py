@@ -16,9 +16,8 @@ class Players:
     
     Also responsible for general player logic, e.g remembering friendliness and colors of players.
     """
-    def __init__(self, me):
-        self.me = me
-        "Logged in player. Can be None if we're not connected."
+    def __init__(self, user):
+        self.user = user
         self.coloredNicknames = False
 
         # UID -> Player map
@@ -26,33 +25,10 @@ class Players:
         # Login -> Player map
         self._logins = {}
 
-        # ids of the client's friends
-        self.friends = set()
-
-        # ids of the client's foes
-        self.foes = set()
-
-        # names of the client's clanmates
-        self.clanlist = set()
-
-
-
     #Color table used by the following method
     # CAVEAT: This will break if the theme is loaded after the client package is imported
     colors = json.loads(util.THEME.readfile("client/colors.json"))
     randomcolors = json.loads(util.THEME.readfile("client/randomcolors.json"))
-
-    def isFriend(self, id):
-        '''
-        Convenience function for other modules to inquire about a user's friendliness.
-        '''
-        return id in self.friends
-
-    def isFoe(self, id):
-        '''
-        Convenience function for other modules to inquire about a user's foeliness.
-        '''
-        return id in self.foes
 
     def isPlayer(self, name):
         '''
@@ -64,17 +40,18 @@ class Players:
         '''
         Returns a user's color depending on their status with relation to the FAF client
         '''
+        user = self.user
         # Return default color if we're not logged in
-        if self.me is None:
+        if user.player is None:
             return self.getColor("default")
 
-        if id == self.me.id:
+        if id == user.player.id:
             return self.getColor("self")
-        if id in self.friends:
+        if user.isFriend(id):
             return self.getColor("friend")
-        if id in self.foes:
+        if user.isFoe(id):
             return self.getColor("foe")
-        if id in self.clanlist:
+        if user.isClannie(id):
             return self.getColor("clan")
         if self.coloredNicknames:
             return self.getRandomColor(id)

@@ -68,10 +68,10 @@ class Notifications:
 
         if eventType == self.USER_ONLINE:
             userid = data['user']
-            if self.settings.getCustomSetting(eventType, 'mode') == 'all' or self.client.players.isFriend(userid):
+            if self.settings.getCustomSetting(eventType, 'mode') == 'all' or self.client.me.isFriend(userid):
                 doAdd = True
         elif eventType == self.NEW_GAME:
-            if self.settings.getCustomSetting(eventType, 'mode') == 'all' or ('host' in data and self.client.players.isFriend(data['host'])):
+            if self.settings.getCustomSetting(eventType, 'mode') == 'all' or ('host' in data and self.client.me.isFriend(data['host'])):
                 doAdd = True
 
         if doAdd:

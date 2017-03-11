@@ -50,7 +50,6 @@ class GameSession(QObject):
         self.me = client.me
 
         self.game_port = client.gamePort
-        self.player = client.me
 
         # Use the normal lobby by default
         self.init_mode = 0
@@ -159,8 +158,8 @@ class GameSession(QObject):
                 self._game_connection.send("CreateLobby",
                                            self.init_mode,
                                            self.game_port + 1,
-                                           self.me.login,
-                                           self.me.id,
+                                           self.me.player.login,
+                                           self.me.player.id,
                                            1)
             elif args[0] == 'Lobby':
                 # TODO: Eagerly initialize the game by hosting/joining early

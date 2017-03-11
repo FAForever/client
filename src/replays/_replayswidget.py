@@ -498,7 +498,7 @@ class ReplaysWidget(BaseClass, FormClass):
                     playeritem.setToolTip(0, url.toString())
                     playeritem.setIcon(0, util.THEME.icon("replays/replay.png"))
 
-                elif client.instance.players.isFriend(playerid):
+                elif client.instance.me.isFriend(playerid):
                     if not mygame:
                         item.setForeground(1, QtGui.QColor(client.instance.getColor("friend")))
                     playeritem.setForeground(0, QtGui.QColor(client.instance.getColor("friend")))
