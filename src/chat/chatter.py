@@ -349,29 +349,6 @@ class Chatter(QtWidgets.QTableWidgetItem):
         actionAddFoe = QtWidgets.QAction("Add foe", menu)
         actionRemFoe = QtWidgets.QAction("Remove foe", menu)
 
-        # Don't allow self to be added or removed from friends or foes
-        if self.lobby.client.me.player.id == self.id:
-            actionAddFriend.setDisabled(1)
-            actionRemFriend.setDisabled(1)
-            actionAddFoe.setDisabled(1)
-            actionRemFoe.setDisabled(1)
-
-        # Enable / Disable actions according to friend status
-        me = self.lobby.client.me
-        if (self.id != -1 and me.isFriend(self.id)) or me.isIrcFriend(self.name):
-            actionAddFriend.setDisabled(1)
-            actionRemFoe.setDisabled(1)
-            actionAddFoe.setDisabled(1)
-        else:
-            actionRemFriend.setDisabled(1)
-
-        if (self.id != -1 and me.isFoe(self.id)) or me.isIrcFoe(self.name):
-            actionAddFoe.setDisabled(1)
-            actionAddFriend.setDisabled(1)
-            actionRemFriend.setDisabled(1)
-        else:
-            actionRemFoe.setDisabled(1)
-
         # Triggers
         if self.id != -1:
             actionAddFriend.triggered.connect(lambda: self.lobby.client.addFriend(self.id))
@@ -385,12 +362,30 @@ class Chatter(QtWidgets.QTableWidgetItem):
             actionAddFoe.triggered.connect(lambda: self.lobby.client.me.addIrcFoe(self.name))
             actionRemFoe.triggered.connect(lambda: self.lobby.client.me.remIrcFoe(self.name))
 
-        # Adding to menu
-        menu.addAction(actionAddFriend)
-        menu.addAction(actionRemFriend)
-        menu.addSeparator()
-        menu.addAction(actionAddFoe)
-        menu.addAction(actionRemFoe)
+        # Add actions according to friend status
+        actionAddFriend.setDisabled(True)
+        actionRemFriend.setDisabled(True)
+        actionAddFoe.setDisabled(True)
+        actionRemFoe.setDisabled(True)
+
+        me = self.lobby.client.me
+        if me.player.id == self.id:
+            pass    # We're ourselves
+        elif (self.id != -1 and me.isFriend(self.id)) or me.isIrcFriend(self.name):
+            actionRemFriend.setDisabled(False)# We're a friend
+            menu.addAction(actionRemFriend)
+        elif (self.id != -1 and me.isFoe(self.id)) or me.isIrcFoe(self.name):
+            actionRemFoe.setDisabled(False) # We're a foe
+            menu.addAction(actionRemFoe)
+        else:
+            actionAddFriend.setDisabled(False) # We're neither
+            actionAddFoe.setDisabled(False)
+            menu.addAction(actionAddFriend)
+            # FIXME - chatwidget sets mod status very inconsistently
+            # so disable foeing mods for now
+            if not self.isMod():
+                menu.addSeparator()
+                menu.addAction(actionAddFoe)
 
         # Finally: Show the popup
         menu.popup(QtGui.QCursor.pos())
