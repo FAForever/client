@@ -1320,7 +1320,7 @@ class ClientWindow(FormClass, BaseClass):
             id_ = new_player.id
 
             self.players[id_] = new_player
-            self.usersUpdated.emit([player['login']])
+            self.usersUpdated.emit([id_])
 
             if self.me.player.clan is not None and new_player.clan == self.me.player.clan:
                 self.me.addClannie(id_)

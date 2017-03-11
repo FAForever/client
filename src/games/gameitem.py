@@ -317,7 +317,7 @@ class GameItem():
 
         # Just jump out if we've left the game, but tell the client that all players need their states updated
         if g.state == GameState.CLOSED:
-            client.instance.usersUpdated.emit(self.players)
+            client.instance.usersUpdated.emit([player.id for player in self.players])
             return
 
         # Map preview code
@@ -329,7 +329,7 @@ class GameItem():
             refresh_icon = False
 
         # Used to differentiate between newly added / removed and previously present players
-        oldplayers = set([p.login for p in self.players])
+        oldplayers = set([p.id for p in self.players])
 
         # Following the convention used by the game, a team value of 1 represents "No team". Let's
         # desugar those into "real" teams now (and convert the dict to a list)
@@ -415,7 +415,7 @@ class GameItem():
             client.instance.urls[player.login] = self.url(player.id)
 
         # Determine which players are affected by this game's state change
-        newplayers = set([p.login for p in self.players])
+        newplayers = set([p.id for p in self.players])
         affectedplayers = oldplayers | newplayers
         client.instance.usersUpdated.emit(list(affectedplayers))
 
