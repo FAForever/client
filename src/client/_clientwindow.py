@@ -1112,7 +1112,7 @@ class ClientWindow(FormClass, BaseClass):
         self._autorelogin = True
         self.id = message["id"]
         self.login = message["login"]
-        self.me.player = Player(id=self.id, login=self.login)
+        self.me.player = Player(id_=self.id, login=self.login)
         self.players[self.me.player.id] = self.me.player  # FIXME
         logger.debug("Login success")
 
@@ -1305,20 +1305,25 @@ class ClientWindow(FormClass, BaseClass):
     def handle_player_info(self, message):
         players = message["players"]
 
+        # Fix id being a Python keyword
+        for player in players:
+            player["id_"] = player["id"]
+            del player["id"]
+
         # Firstly, find yourself. Things get easier once "me" is assigned.
         for player in players:
-            if player["id"] == self.id:
+            if player["id_"] == self.id:
                 self.me.player = Player(**player)
 
         for player in players:
-            id = player["id"]
             new_player = Player(**player)
+            id_ = new_player.id
 
-            self.players[id] = new_player
+            self.players[id_] = new_player
             self.usersUpdated.emit([player['login']])
 
             if self.me.player.clan is not None and new_player.clan == self.me.player.clan:
-                self.me.addClannie(player['id'])
+                self.me.addClannie(id_)
 
     def avatarManager(self):
         self.requestAvatars(0)

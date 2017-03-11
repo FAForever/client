@@ -4,7 +4,7 @@ class Player:
     Needs to be constructed using a player_info message sent from the server.
     """
     def __init__(self,
-                 id=None,
+                 id_=None,
                  login=None,
                  global_rating=(1500, 500),
                  ladder_rating=(1500, 500),
@@ -17,9 +17,9 @@ class Player:
         Initialize a Player
         """
         # Required fields
-        self.id = id
+        self.id = int(id_) if id_ is not None else None
         self.login = login
-        if not id or not login:
+        if not id_ or not login:
             raise KeyError("Player missing id or login attribute {}".format(self))
 
         # Optional fields
