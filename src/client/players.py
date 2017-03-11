@@ -2,6 +2,7 @@ import random
 
 from client import Player
 from util import logger
+from client.user import PlayerAffiliation
 
 import json
 
@@ -27,6 +28,22 @@ class PlayerColors:
         random.seed(id_)
         return random.choice(cls.randomcolors)
 
+    @classmethod
+    def getUserColor(cls, affiliation, irc, random, seed = None):
+        names = {
+            PlayerAffiliation.SELF: "self",
+            PlayerAffiliation.FRIEND: "friend",
+            PlayerAffiliation.FOE: "foe",
+            PlayerAffiliation.CLANNIE: "clan",
+        }
+        if affiliation in names:
+            return cls.getColor(names[affiliation])
+        if random:
+            return cls.getRandomColor(seed)
+
+        if not irc:
+            return cls.getColor("player")
+        return cls.getColor("default")
 
 class Players:
     """
@@ -49,29 +66,13 @@ class Players:
         '''
         return name in self
 
-    def getUserColor(self, id):
+    def getUserColor(self, id_):
         '''
         Returns a user's color depending on their status with relation to the FAF client
         '''
-        user = self.user
-        # Return default color if we're not logged in
-        if user.player is None:
-            return PlayerColors.getColor("default")
-
-        if id == user.player.id:
-            return PlayerColors.getColor("self")
-        if user.isFriend(id):
-            return PlayerColors.getColor("friend")
-        if user.isFoe(id):
-            return PlayerColors.getColor("foe")
-        if user.isClannie(id):
-            return PlayerColors.getColor("clan")
-        if self.coloredNicknames:
-            return PlayerColors.getRandomColor(id)
-        if id in self:
-            return PlayerColors.getColor("player")
-
-        return PlayerColors.getColor("default")
+        affil = self.user.getAffiliation(id_)
+        return PlayerColors.getUserColor(affil, irc=False,
+                random=self.coloredNicknames, seed=id_)
 
     def keys(self):
         return list(self._players.keys())

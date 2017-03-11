@@ -1,5 +1,6 @@
 from PyQt5 import QtCore
 from config import Settings
+from enum import Enum
 
 class UserRelation(QtCore.QObject):
     """
@@ -72,6 +73,14 @@ class IrcUserRelation(UserRelation):
     def key(self, value):
         self._key = value
         self._loadRelations()
+
+
+class PlayerAffiliation(Enum):
+    SELF = "self"
+    FRIEND = "friend"
+    FOE = "foe"
+    CLANNIE = "clan"
+    OTHER = "default"
 
 class User(QtCore.QObject):
     """
@@ -163,3 +172,21 @@ class User(QtCore.QObject):
         self._irc_foes.set(ids)
     def isIrcFoe(self, id_):
         return self._irc_foes.has(id_)
+
+    def getAffiliation(self, id_):
+        if self.player and self.player.id == id_:
+            return PlayerAffiliation.SELF
+        if self.isFriend(id_):
+            return PlayerAffiliation.FRIEND
+        if self.isFoe(id_):
+            return PlayerAffiliation.FOE
+        if self.isClannie(id_):
+            return PlayerAffiliation.CLANNIE
+        return PlayerAffiliation.OTHER
+
+    def getIrcAffiliation(self, name):
+        if self.isIrcFriend(name):
+            return PlayerAffiliation.FRIEND
+        if self.isIrcFoe(name):
+            return PlayerAffiliation.FOE
+        return PlayerAffiliation.OTHER
