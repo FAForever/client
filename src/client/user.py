@@ -1,4 +1,5 @@
 from PyQt5 import QtCore
+from config import Settings
 
 class UserRelation(QtCore.QObject):
     """
@@ -29,12 +30,56 @@ class UserRelation(QtCore.QObject):
     def has(self, value):
         return value in self._relations
 
+
+class IrcUserRelation(UserRelation):
+    """
+    Represents a relation user has with IRC users. Remembers the relation
+    in the Settings.
+    """
+
+    def __init__(self, key = None):
+        UserRelation.__init__(self)
+        self.key = key
+
+    def _loadRelations(self):
+        if self._key is not None:
+            rel = Settings.get(self._key)
+            self._relations = set(rel) if rel is not None else set()
+        else:
+            self._relations = set()
+
+    def _saveRelations(self):
+        if self._key is not None:
+            Settings.set(self._key, list(self._relations))
+
+    def add(self, value):
+        UserRelation.add(self, value)
+        self._saveRelations()
+
+    def rem(self, value):
+        UserRelation.rem(self, value)
+        self._saveRelations()
+
+    def set(self, values):
+        UserRelation.set(self, values)
+        self._saveRelations()
+
+    @property
+    def key(self):
+        return self._key
+
+    @key.setter
+    def key(self, value):
+        self._key = value
+        self._loadRelations()
+
 class User(QtCore.QObject):
     """
     Represents the person using the FAF Client. May have a player assigned to
     himself if he's logged in, has foes, friends and clannies.
     """
     relationsUpdated = QtCore.pyqtSignal(set)
+    ircRelationsUpdated = QtCore.pyqtSignal(set)
 
     def __init__(self):
         QtCore.QObject.__init__(self)
@@ -48,6 +93,12 @@ class User(QtCore.QObject):
         self._foes.updated.connect(self.relationsUpdated.emit)
         self._clannies.updated.connect(self.relationsUpdated.emit)
 
+        self._irc_friends = IrcUserRelation()
+        self._irc_foes = IrcUserRelation()
+
+        self._irc_friends.updated.connect(self.ircRelationsUpdated.emit)
+        self._irc_foes.updated.connect(self.ircRelationsUpdated.emit)
+
     @property
     def player(self):
         return self._player
@@ -55,6 +106,14 @@ class User(QtCore.QObject):
     @player.setter
     def player(self, value):
         self._player = value
+        # reload IRC friends from settings
+        self._irc_friends.key = self._irc_key("friends")
+        self._irc_foes.key = self._irc_key("foes")
+
+    def _irc_key(self, name):
+        if self.player is None:
+            return None
+        return "chat.irc_" + name + "/" + str(self.player.id)
 
     def resetPlayer():
         self._player = None
@@ -86,3 +145,21 @@ class User(QtCore.QObject):
         self._clannies.set(ids)
     def isClannie(self, id_):
         return self._clannies.has(id_)
+
+    def addIrcFriend(self, id_):
+        self._irc_friends.add(id_)
+    def remIrcFriend(self, id_):
+        self._irc_friends.rem(id_)
+    def setIrcFriends(self, ids):
+        self._irc_friends.set(ids)
+    def isIrcFriend(self, id_):
+        return self._irc_friends.has(id_)
+
+    def addIrcFoe(self, id_):
+        self._irc_foes.add(id_)
+    def remIrcFoe(self, id_):
+        self._irc_foes.rem(id_)
+    def setIrcFoes(self, ids):
+        self._irc_foes.set(ids)
+    def isIrcFoe(self, id_):
+        return self._irc_foes.has(id_)
