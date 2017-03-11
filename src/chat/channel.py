@@ -91,6 +91,7 @@ class Channel(FormClass, BaseClass):
             self.nickFilter.textChanged.connect(self.filterNicks)
 
             self.lobby.client.usersUpdated.connect(self.update_users)
+            self.lobby.client.me.ircRelationsUpdated.connect(self.update_irc_users)
         else:
             self.nickFrame.hide()
             self.announceLine.hide()
@@ -353,6 +354,12 @@ class Channel(FormClass, BaseClass):
             if name in self.chatters:
                 self.chatters[name].update()
 
+        self.updateUserCount()
+
+    def update_irc_users(self, updated_users):
+        for name in updated_users:
+            if name in self.chatters:
+                self.chatters[name].update()
         self.updateUserCount()
 
     def elevateChatter(self, name, modes):

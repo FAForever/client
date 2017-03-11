@@ -9,6 +9,7 @@ from fa.replay import replay
 import util
 import client
 from config import Settings
+from client.players import PlayerColors
 
 """
 A chatter is the representation of a person on IRC, in a channel's nick list.
@@ -220,7 +221,12 @@ class Chatter(QtWidgets.QTableWidgetItem):
             self.setForeground(QtGui.QColor(self.lobby.client.players.getUserColor(self.id)))
             return
 
-        self.setForeground(QtGui.QColor(chat.get_color("default")))
+        # FIXME - we should really get players and me in the constructor
+        affiliation = self.lobby.client.me.getIrcAffiliation(self.name)
+        self.setForeground(QtGui.QColor(PlayerColors.getUserColor(
+            affiliation, irc=True,
+            random=self.lobby.client.players.coloredNicknames, seed=self.name
+            )))
 
     def viewAliases(self):
         QtGui.QDesktopServices.openUrl(QUrl("{}?name={}".format(Settings.get("USER_ALIASES_URL"), self.name)))
@@ -347,14 +353,15 @@ class Chatter(QtWidgets.QTableWidgetItem):
             actionRemFoe.setDisabled(1)
 
         # Enable / Disable actions according to friend status
-        if self.lobby.client.me.isFriend(self.id):
+        me = self.lobby.client.me
+        if (self.id != -1 and me.isFriend(self.id)) or me.isIrcFriend(self.name):
             actionAddFriend.setDisabled(1)
             actionRemFoe.setDisabled(1)
             actionAddFoe.setDisabled(1)
         else:
             actionRemFriend.setDisabled(1)
 
-        if self.lobby.client.me.isFoe(self.id):
+        if (self.id != -1 and me.isFoe(self.id)) or me.isIrcFoe(self.name):
             actionAddFoe.setDisabled(1)
             actionAddFriend.setDisabled(1)
             actionRemFriend.setDisabled(1)
@@ -362,10 +369,17 @@ class Chatter(QtWidgets.QTableWidgetItem):
             actionRemFoe.setDisabled(1)
 
         # Triggers
-        actionAddFriend.triggered.connect(lambda: self.lobby.client.addFriend(self.id))
-        actionRemFriend.triggered.connect(lambda: self.lobby.client.remFriend(self.id))
-        actionAddFoe.triggered.connect(lambda: self.lobby.client.addFoe(self.id))
-        actionRemFoe.triggered.connect(lambda: self.lobby.client.remFoe(self.id))
+        if self.id != -1:
+            actionAddFriend.triggered.connect(lambda: self.lobby.client.addFriend(self.id))
+            actionRemFriend.triggered.connect(lambda: self.lobby.client.remFriend(self.id))
+            actionAddFoe.triggered.connect(lambda: self.lobby.client.addFoe(self.id))
+            actionRemFoe.triggered.connect(lambda: self.lobby.client.remFoe(self.id))
+        else:
+            # We're an IRC chatter
+            actionAddFriend.triggered.connect(lambda: self.lobby.client.me.addIrcFriend(self.name))
+            actionRemFriend.triggered.connect(lambda: self.lobby.client.me.remIrcFriend(self.name))
+            actionAddFoe.triggered.connect(lambda: self.lobby.client.me.addIrcFoe(self.name))
+            actionRemFoe.triggered.connect(lambda: self.lobby.client.me.remIrcFoe(self.name))
 
         # Adding to menu
         menu.addAction(actionAddFriend)
