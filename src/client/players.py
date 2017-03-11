@@ -8,13 +8,31 @@ import json
 import util
 
 
+class PlayerColors:
+    # Color table used by the following method
+    # CAVEAT: This will break if the theme is loaded after the client package is imported
+    colors = json.loads(util.THEME.readfile("client/colors.json"))
+    randomcolors = json.loads(util.THEME.readfile("client/randomcolors.json"))
+
+    @classmethod
+    def getColor(cls, name):
+        if name in cls.colors:
+            return cls.colors[name]
+        else:
+            return cls.colors["default"]
+
+    @classmethod
+    def getRandomColor(cls, id_):
+        '''Generate a random color from a name'''
+        random.seed(id_)
+        return random.choice(cls.randomcolors)
+
+
 class Players:
     """
     Wrapper for an id->Player map
 
     Used to lookup players either by id (cheap) or by login (expensive, don't do this).
-    
-    Also responsible for general player logic, e.g remembering friendliness and colors of players.
     """
     def __init__(self, user):
         self.user = user
@@ -24,11 +42,6 @@ class Players:
         self._players = {}
         # Login -> Player map
         self._logins = {}
-
-    #Color table used by the following method
-    # CAVEAT: This will break if the theme is loaded after the client package is imported
-    colors = json.loads(util.THEME.readfile("client/colors.json"))
-    randomcolors = json.loads(util.THEME.readfile("client/randomcolors.json"))
 
     def isPlayer(self, name):
         '''
@@ -43,33 +56,22 @@ class Players:
         user = self.user
         # Return default color if we're not logged in
         if user.player is None:
-            return self.getColor("default")
+            return PlayerColors.getColor("default")
 
         if id == user.player.id:
-            return self.getColor("self")
+            return PlayerColors.getColor("self")
         if user.isFriend(id):
-            return self.getColor("friend")
+            return PlayerColors.getColor("friend")
         if user.isFoe(id):
-            return self.getColor("foe")
+            return PlayerColors.getColor("foe")
         if user.isClannie(id):
-            return self.getColor("clan")
+            return PlayerColors.getColor("clan")
         if self.coloredNicknames:
-            return self.getRandomColor(id)
+            return PlayerColors.getRandomColor(id)
         if id in self:
-            return self.getColor("player")
+            return PlayerColors.getColor("player")
 
-        return self.getColor("default")
-
-    def getRandomColor(self, id):
-        '''Generate a random color from a name'''
-        random.seed(id)
-        return random.choice(self.randomcolors)
-
-    def getColor(self, name):
-        if name in self.colors:
-            return self.colors[name]
-        else:
-            return self.colors["default"]
+        return PlayerColors.getColor("default")
 
     def keys(self):
         return list(self._players.keys())
