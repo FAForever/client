@@ -47,4 +47,5 @@ defaults = {
     'STEAMLINK_URL': 'https://faforever.com/account/link',
     'PASSWORD_RECOVERY_URL': 'https://faforever.com/account/password/reset',
     'NAME_CHANGE_URL': 'https://faforever.com/account/username/change',
+    'USER_ALIASES_URL': 'http://app.faforever.com/faf/userName.php',
 }

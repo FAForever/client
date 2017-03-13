@@ -224,7 +224,7 @@ class Chatter(QtGui.QTableWidgetItem):
         self.setTextColor(QtGui.QColor(chat.get_color("default")))
 
     def viewAliases(self):
-        QtGui.QDesktopServices.openUrl(QUrl("{}?name={}".format(Settings.get("NAME_CHANGE_URL"), self.name)))
+        QtGui.QDesktopServices.openUrl(QUrl("{}?name={}".format(Settings.get("USER_ALIASES_URL"), self.name)))
 
     def selectAvatar(self):
         avatarSelection = avatarWidget(self.lobby.client, self.name, personal=True)
