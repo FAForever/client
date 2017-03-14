@@ -1,6 +1,7 @@
 import random
 from enum import Enum, unique
 
+
 @unique
 class Factions(Enum):
     """
@@ -22,7 +23,6 @@ class Factions(Enum):
         possibilities = list(Factions)
         possibilities.pop()
         return random.choice(possibilities)
-
 
     @staticmethod
     def from_name(name):
@@ -53,4 +53,3 @@ class Factions(Enum):
             return "random"
 
         raise ValueError("Invalid faction id provided: %i" % self)
-

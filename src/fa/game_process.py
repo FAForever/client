@@ -23,10 +23,10 @@ class GameProcess(QtCore.QProcess):
 
     @QtCore.pyqtSlot(list)
     def processGameInfo(self, message):
-        '''
+        """
         Processes game info events, sifting out the ones relevant to the game that's currently playing.
         If such a game is found, it will merge all its data on the first try, "completing" the game info.
-        '''
+        """
         if self.info and not self.info.setdefault('complete', False):
             if self.info['uid'] == message['uid']:
                 if message['state'] == "playing":

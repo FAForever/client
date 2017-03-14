@@ -1,37 +1,36 @@
 
 
-
-
 import struct
 
-class replayParser:
+
+class ReplayParser:
     def __init__(self, filepath):
         self.file = filepath
     
-    def __readLine(self, offset, bin):
+    def __readline(self, offset, binary):
         line = ''
-        while True :
+        while True:
             
-            char = struct.unpack("s", bin[offset:offset+1])
+            char = struct.unpack("s", binary[offset:offset+1])
     
-            offset = offset + 1
-            if char[0] == '\r' :
-                #offset = offset + 2
+            offset += 1
+            if char[0] == '\r':
+                # offset = offset + 2
                 break
-            elif char[0] == '\x00' :
-                #offset = offset + 3
+            elif char[0] == '\x00':
+                # offset = offset + 3
                 break
-            else :
+            else:
                 line = line + char[0]
         return offset, line
         
-    def getVersion(self):
+    def get_version(self):
         f = open(self.file, 'rb')
-        bin = f.read() 
-        offset= 0
-        offset, supcomVersion = self.__readLine(offset, bin)  
+        binary = f.read()
+        offset = 0
+        offset, supcom_version = self.__readline(offset, binary)
         f.close()
-        if (supcomVersion.startswith("Supreme Commander v1") == False) :     
+        if not supcom_version.startswith("Supreme Commander v1"):
             return None
-        else :
-            return supcomVersion.split(".")[-1]
+        else:
+            return supcom_version.split(".")[-1]

@@ -16,7 +16,7 @@ class GPGNetConnection(QObject):
     def __init__(self, tcp_connection):
         super(GPGNetConnection, self).__init__()
         self._socket = tcp_connection
-        self._socket.readyRead.connect(self._onReadyRead)
+        self._socket.readyRead.connect(self._on_ready_read)
         self._socket.disconnected.connect(lambda: self.closed.emit())
         self.header = None
         self.nchunks = -1
@@ -35,9 +35,9 @@ class GPGNetConnection(QObject):
         ds.writeUInt32(len(args))
 
         for chunk in args:
-            ds.writeRawData(self._packLuaVal(chunk))
+            ds.writeRawData(self._pack_lua_val(chunk))
 
-    def _packLuaVal(self, val):
+    def _pack_lua_val(self, val):
         if isinstance(val, int):
             return pack("=bi", 0, val)
         elif isinstance(val, unicode) or isinstance(val, str):
@@ -45,30 +45,30 @@ class GPGNetConnection(QObject):
         else:
             raise Exception("Unknown GameConnection Field Type: %s" % type(val))
 
-    def _readLuaVal(self, ds):
+    def _read_lua_val(self, ds):
         if self._socket.bytesAvailable() < 5:
             return None
 
-        fieldType, fieldSize = unpack('=bl', self._socket.peek(5))
+        field_type, field_size = unpack('=bl', self._socket.peek(5))
 
-        if fieldType == 0:
+        if field_type == 0:
             ds.readRawData(5)
-            return fieldSize
-        elif fieldType == 1:
-            if self._socket.bytesAvailable() < fieldSize + 5:
+            return field_size
+        elif field_type == 1:
+            if self._socket.bytesAvailable() < field_size + 5:
                 return None
 
             ds.readRawData(5)
 
-            datastring = ds.readRawData(fieldSize).decode('utf-8')
-            fixedStr = datastring.replace("/t","\t").replace("/n","\n")
+            data_str = ds.readRawData(field_size).decode('utf-8')
+            fixed_str = data_str.replace("/t", "\t").replace("/n", "\n")
 
-            return unicode(fixedStr)
+            return unicode(fixed_str)
         else:
-            raise Exception("Unknown GameConnection Field Type: %d" % fieldType)
+            raise Exception("Unknown GameConnection Field Type: %d" % field_type)
 
     # Non-reentrant
-    def _onReadyRead(self):
+    def _on_ready_read(self):
         while self._socket.bytesAvailable() >= 4:
             ds = QDataStream(self._socket)
             ds.setByteOrder(QDataStream.LittleEndian)
@@ -80,7 +80,7 @@ class GPGNetConnection(QObject):
                 if self._socket.bytesAvailable() < size + 4:
                     return
 
-                #Omit size
+                # Omit size
                 ds.readUInt32()
 
                 self.header = ds.readRawData(size).decode()
@@ -92,7 +92,7 @@ class GPGNetConnection(QObject):
                     self.chunks = []
 
                 while len(self.chunks) < self.nchunks:
-                    chunk = self._readLuaVal(ds)
+                    chunk = self._read_lua_val(ds)
 
                     if chunk is None:
                         return
