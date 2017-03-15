@@ -407,7 +407,7 @@ class ReplaysWidget(BaseClass, FormClass):
                 item = QtGui.QTreeWidgetItem()
                 item.setText(1, infile)
                 item.filename = os.path.join(replay_dir, infile)
-                item.setText(3, "(" + str(len(os.walk(item.filename).next()[2])) + " files)")  # takes time on first run
+                item.setText(3, "(" + str(len(os.listdir(item.filename))) + " files)")  # takes time on first run
                 item.setIcon(0, util.icon("replays/bucket.png"))
                 item.setTextColor(0, QtGui.QColor(client.instance.getColor("default")))
 
