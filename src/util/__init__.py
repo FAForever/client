@@ -289,6 +289,226 @@ class Theme():
         return self._themepath(filename)
 
 
+class ThemeSet:
+    '''
+    Represent a collection of themes to choose from, with a default theme and
+    an unthemed directory.
+    '''
+    def __init__(self, themeset, default_theme, settings,
+                 client_version, unthemed = None):
+        self._default_theme = default_theme
+        self._themeset = themeset
+        self._theme = default_theme
+        self._unthemed = Theme(None, '') if unthemed is None else unthemed
+        self._settings = settings
+        self._client_version = client_version
+
+        # For refreshing stylesheets
+        self._stylesheets = {}
+
+    @property
+    def theme(self):
+        return self._theme
+
+    def _getThemeByName(self, name):
+        if name is None:
+            return self._default_theme
+        matching_themes = [theme for theme in self._themeset if theme.name == name]
+        if not matching_themes:
+            return None
+        return matching_themes[0]
+
+    def loadTheme(self):
+        name = self._settings.get("theme/theme/name", None)
+        logger.debug("Loaded Theme: " + str(name))
+        self.setTheme(name, False)
+
+    def listThemes(self):
+        return [None] + [theme.name for theme in self._themeset]
+
+    def setTheme(self, name, restart = True):
+        theme = self._getThemeByName(name)
+        if theme is None:
+            return
+
+        set_theme = self._do_setTheme(theme)
+
+        self._settings.set("theme/theme/name", self._theme.name)
+        self._settings.sync()
+
+        if set_theme and restart:
+            QtGui.QMessageBox.information(None, "Restart Needed", "FAF will quit now.")
+            QtGui.QApplication.quit()
+
+
+    def _checkThemeVersion(self, theme):
+        "Returns a (potentially overridden) theme version."
+        version = theme.version()
+        if version is None:
+            # Malformed theme, we should not override it!
+            return None
+
+        override_config = "theme_version_override/" + str(theme)
+        override_version_str = self._settings.get(override_config, None)
+
+        if override_version_str is None:
+            return version
+
+        try:
+            override_version = Version(override_version_str)
+        except ValueError:
+            # Did someone manually mess with the override config?
+            logger.warn("Malformed theme version override setting: " + override_version_str)
+            self._settings.remove(override_config)
+            return version
+
+        if version >= override_version:
+            logger.info("New version " + str(version) + " of theme " + theme +
+                        ", removing override " + override_version_str)
+            self._settings.remove(override_config)
+            return version
+        else:
+            return override_version
+
+    def _checkThemeOutdated(self, theme_version):
+        faf_version = Version(self._client_version)
+        return faf_version > theme_version
+
+
+    def _do_setTheme(self, new_theme):
+        old_theme = self._theme
+        theme_changed = lambda: old_theme != self._theme
+
+        if new_theme == self._theme:
+            return theme_changed()
+
+        if new_theme == self._default_theme:
+            # No need for checks
+            self._theme = new_theme
+            return theme_changed()
+
+        theme_version = self._checkThemeVersion(new_theme)
+        if theme_version is None:
+            QtGui.QMessageBox.information(
+                    QtGui.QApplication.activeWindow(),
+                    "Invalid Theme",
+                    "Failed to read the version of the following theme:<br/><b>" +
+                    str(new_theme) +
+                    "</b><br/><i>Contact the maker of the theme for a fix!</i>")
+            logger.error("Error reading theme version: " + str(new_theme) +
+                         " in directory " + new_theme.themedir)
+            return theme_changed()
+
+        outdated = self._checkThemeOutdated(theme_version)
+
+        if not outdated:
+            logger.info("Using theme: " + str(new_theme) +
+                        " in directory " + new_theme.themedir)
+            self._theme = new_theme
+        else:
+            box = QtGui.QMessageBox(QtGui.QApplication.activeWindow())
+            box.setWindowTitle("Incompatible Theme")
+            box.setText(
+                    "The selected theme reports compatibility with a lower version of the FA client:<br/><b>" +
+                    str(new_theme) +
+                    "</b><br/><i>Contact the maker of the theme for an update!</i><br/>" +
+                    "<b>Do you want to try to apply the theme anyway?</b>")
+            b_yes = box.addButton("Apply this once", QtGui.QMessageBox.YesRole)
+            b_always = box.addButton("Always apply for this FA version", QtGui.QMessageBox.YesRole)
+            b_default = box.addButton("Use default theme", QtGui.QMessageBox.NoRole)
+            b_no = box.addButton("Abort", QtGui.QMessageBox.NoRole)
+            box.exec_()
+            result = box.clickedButton()
+
+            if result == b_always:
+                QtGui.QMessageBox.information(
+                        QtGui.QApplication.activeWindow(),
+                        "Notice",
+                        "If the applied theme causes crashes, clear the '[theme_version_override]'<br/>" +
+                        "section of your FA client config file.")
+                logger.info("Overriding version of theme " + str(new_theme) + "with " + self._client_version)
+                override_config = "theme_version_override/" + str(new_theme)
+                self._settings.set(override_config, self._client_version)
+
+            if result == b_always or result == b_yes:
+                logger.info("Using theme: " + str(new_theme) +
+                            " in directory " + new_theme.themedir)
+                self._theme = new_theme
+            elif result == b_default:
+                self._theme = self._default_theme
+            else:
+                pass
+        return theme_changed()
+
+
+    def _theme_callchain(fn_name):
+        """
+        Returns call of cls_fn chaining through theme / default theme / unthemed.
+        """
+        def chained_call(self, filename, themed = True):
+            if themed:
+                item = getattr(self._theme, fn_name)(filename)
+                if item is None:
+                    item = getattr(self._default_theme, fn_name)(filename)
+            else:
+                item = getattr(self._unthemed, fn_name)(filename)
+            return item
+
+        return chained_call
+
+
+    _pixmap = _theme_callchain("pixmap")
+    loadUi = _theme_callchain("loadUi")
+    loadUiType = _theme_callchain("loadUiType")
+    readlines = _theme_callchain("readlines")
+    readstylesheet = _theme_callchain("readstylesheet")
+    themeurl = _theme_callchain("themeurl")
+    readfile = _theme_callchain("readfile")
+    _sound = _theme_callchain("sound")
+
+    def pixmap(self, filename, themed = True):
+        # If we receive None, return the default pixmap
+        ret = self._pixmap(filename, themed)
+        if ret is None:
+            return QtGui.QPixmap()
+        return ret
+
+    def sound(self, filename, themed = True):
+        QSound.play(self._sound(filename, themed))
+
+
+    def setStyleSheet(self, obj, filename):
+        self._stylesheets[obj] = filename
+        obj.setStyleSheet(self.readstylesheet(filename))
+
+    def reloadStyleSheets(self):
+        for obj, filename in self._stylesheets.items():
+            obj.setStyleSheet(self.readstylesheet(filename))
+
+    def icon(self, filename, themed=True, pix=False):
+        '''
+        Convenience method returning an icon from a cached, optionally themed pixmap as returned by the pixmap(...) function
+        '''
+        if pix:
+            return self.pixmap(filename, themed)
+        else:
+            icon = QtGui.QIcon()
+            icon.addPixmap(self.pixmap(filename, themed), QtGui.QIcon.Normal)
+            splitExt = os.path.splitext(filename)
+            if len(splitExt) == 2:
+                pixDisabled = self.pixmap(splitExt[0] + "_disabled" + splitExt[1], themed)
+                if pixDisabled != None:
+                    icon.addPixmap(pixDisabled, QtGui.QIcon.Disabled, QtGui.QIcon.On)
+
+                pixActive = self.pixmap(splitExt[0] + "_active" + splitExt[1], themed)
+                if pixActive != None:
+                    icon.addPixmap(pixActive, QtGui.QIcon.Active, QtGui.QIcon.On)
+
+                pixSelected = self.pixmap(splitExt[0] + "_selected" + splitExt[1], themed)
+                if pixSelected != None:
+                    icon.addPixmap(pixSelected, QtGui.QIcon.Selected, QtGui.QIcon.On)
+            return icon
+
 def loadTheme():
     global __theme
     global __themedir
