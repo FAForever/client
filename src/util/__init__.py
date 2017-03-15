@@ -32,11 +32,7 @@ COMMON_DIR = fafpath.get_resdir()
 
 stylesheets = {} # map [qt obj] ->  filename of stylesheet
 
-# These directories are in Appdata (e.g. C:\ProgramData on some Win7 versions)
-if 'ALLUSERSPROFILE' in os.environ:
-    APPDATA_DIR = os.path.join(os.environ['ALLUSERSPROFILE'], "FAForever")
-else:
-    APPDATA_DIR = os.path.join(os.environ['HOME'], "FAForever")
+APPDATA_DIR = Settings.get('client/data_path')
 
 #This is used to store init_*.lua files
 LUA_DIR = os.path.join(APPDATA_DIR, "lua")
