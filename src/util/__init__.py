@@ -188,6 +188,107 @@ def clean_slate(path):
     os.makedirs(path)
 
 
+class Theme():
+    """
+    Represents a single FAF client theme.
+    """
+    def __init__(self, themedir, name):
+        """
+        A 'None' themedir represents no theming (no dir prepended to filename)
+        """
+        self._themedir = themedir
+        self.name = name
+        self._pixmapcache = {}
+
+    def __str__(self):
+        return str(self.name)
+
+    def _themepath(self, filename):
+        if self._themedir is None:
+            return filename
+        else:
+            return os.path.join(self._themedir, filename)
+
+    @property
+    def themedir(self):
+        return str(self._themedir)
+
+    def _noneIfNoFile(fun):
+        def _fun(self, filename):
+            if not os.path.isfile(self._themepath(filename)):
+                return None
+            return fun(self, filename)
+        return _fun
+
+    def version(self):
+        if self._themedir == None:
+            return None
+        try:
+            version_file = self._themepath("version")
+            with open(version_file) as f:
+                return Version(f.read().strip())
+        except (IOError, ValueError):
+            return None
+
+    def pixmap(self, filename):
+        '''
+        This function loads a pixmap from a themed directory, or anywhere.
+        It also stores them in a cache dictionary (may or may not be necessary depending on how Qt works under the hood)
+        '''
+        try:
+            return self._pixmapcache[filename]
+        except KeyError:
+            if os.path.isfile(self._themepath(filename)):
+                pix = QtGui.QPixmap(self._themepath(filename))
+            else:
+                pix = None
+
+        self._pixmapcache[filename] = pix
+        return pix
+
+    @_noneIfNoFile
+    def loadUi(self, filename):
+        'Loads and compiles a Qt Ui file via uic.'
+        return uic.loadUi(self._themepath(filename))
+
+    @_noneIfNoFile
+    def loadUiType(self, filename):
+        'Loads and compiles a Qt Ui file via uic, and returns the Type and Basetype as a tuple'
+        return uic.loadUiType(self._themepath(filename))
+
+    @_noneIfNoFile
+    def readlines(self, filename):
+        'Reads and returns the contents of a file in the theme dir.'
+        with open(self._themepath(filename)) as f:
+            logger.debug(u"Read themed file: " + filename)
+            return f.readLines()
+
+    @_noneIfNoFile
+    def readstylesheet(self, filename):
+        with open(self._themepath(filename)) as f:
+            logger.info(u"Read themed stylesheet: " + filename)
+            return f.read().replace("%THEMEPATH%", self._themedir.replace("\\", "/"))
+
+    @_noneIfNoFile
+    def themeurl(self, filename):
+        '''
+        This creates an url to use for a local stylesheet. It's a bit of a hack because Qt has a bug identifying proper localfile QUrls
+        '''
+        return QtCore.QUrl("file://" + self._themepath(filename).replace("\\", "/"))
+
+    @_noneIfNoFile
+    def readfile(self, filename):
+        'Reads and returns the contents of a file in the theme folder.'
+        with open(self._themepath(filename)) as f:
+            logger.debug(u"Read themed file: " + filename)
+            return f.read()
+
+    @_noneIfNoFile
+    def sound(self, filename):
+        'Returns a sound file string, from the themed folder.'
+        return self._themepath(filename)
+
+
 def loadTheme():
     global __theme
     global __themedir
