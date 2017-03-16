@@ -70,6 +70,10 @@ class Settings:
                         lambda s, v: Settings.set(key, v, persist=persist_if(s)),
                         doc='Persisted property: {}. Default: '.format(key, default_value))
 
+    @staticmethod
+    def sync():
+        _settings.sync()
+
 def set_data_path_permissions():
     """
     Set the owner of C:\ProgramData\FAForever recursively to the current user
