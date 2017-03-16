@@ -6,7 +6,7 @@ import secondaryServer
 from tourneys.tourneyitem import TourneyItem, TourneyItemDelegate
 
 
-FormClass, BaseClass = util.loadUiType("tournaments/tournaments.ui")
+FormClass, BaseClass = util.THEME.loadUiType("tournaments/tournaments.ui")
 
 
 class TournamentsWidget(FormClass, BaseClass):
@@ -33,7 +33,7 @@ class TournamentsWidget(FormClass, BaseClass):
         self.tourneysTab = {}
 
         #Special stylesheet       
-        util.setStyleSheet(self, "tournaments/formatters/style.css")
+        util.THEME.setStyleSheet(self, "tournaments/formatters/style.css")
 
         self.updateTimer = QtCore.QTimer(self)
         self.updateTimer.timeout.connect(self.updateTournaments)

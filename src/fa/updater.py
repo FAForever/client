@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 debugLog = []
 
 
-FormClass, BaseClass = util.loadUiType("fa/updater/updater.ui")
+FormClass, BaseClass = util.THEME.loadUiType("fa/updater/updater.ui")
 class UpdaterProgressDialog(FormClass, BaseClass):
     def __init__(self, parent):
         BaseClass.__init__(self, parent)

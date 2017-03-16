@@ -11,7 +11,7 @@ import fa.check
 import logging
 logger = logging.getLogger(__name__)
 
-FormClass, BaseClass = util.loadUiType("games/host.ui")
+FormClass, BaseClass = util.THEME.loadUiType("games/host.ui")
 
 class HostgameWidget(FormClass, BaseClass):
     def __init__(self, parent, item, iscoop=False, *args, **kwargs):

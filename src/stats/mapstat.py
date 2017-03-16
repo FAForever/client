@@ -6,7 +6,7 @@ import json
 import datetime
 from fa import maps
 
-FormClass, BaseClass = util.loadUiType("stats/mapstat.ui")
+FormClass, BaseClass = util.THEME.loadUiType("stats/mapstat.ui")
 
 class LadderMapStat(FormClass, BaseClass):
     """

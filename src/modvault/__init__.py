@@ -23,7 +23,7 @@ bugreports  - A python list containing dictionaries containing the keys as descr
 date        - A string describing the date the mod was uploaded. Format: "%Y-%m-%d %H:%M:%S" eg: 2012-10-28 16:50:28
 ui          - A boolean describing if it is a ui mod yay or nay.
 link        - Direct link to the zip file containing the mod.
-thumbnail   - A direct link to the thumbnail file. Should be something suitable for util.icon(). Not yet tested if this works correctly
+thumbnail   - A direct link to the thumbnail file. Should be something suitable for util.THEME.icon(). Not yet tested if this works correctly
 
 Additional stuff:
 fa.exe now has a CheckMods method, which is used in fa.exe.check
@@ -69,7 +69,7 @@ tempmod1 = dict(uid=1,name='Mod1', comments=[],bugreports=[], date = d,
                 description="""Lorem ipsum dolor sit amet, consectetur adipiscing elit. """,)
 '''
 
-FormClass, BaseClass = util.loadUiType("modvault/modvault.ui")
+FormClass, BaseClass = util.THEME.loadUiType("modvault/modvault.ui")
 
 class ModVault(FormClass, BaseClass, BusyWidget):
     def __init__(self, client, *args, **kwargs):
@@ -285,8 +285,8 @@ class ModItem(QtWidgets.QListWidgetItem):
     #DATA_PLAYERS = 32
     
     
-    FORMATTER_MOD = str(util.readfile("modvault/modinfo.qthtml"))
-    FORMATTER_MOD_UI = str(util.readfile("modvault/modinfoui.qthtml"))
+    FORMATTER_MOD = str(util.THEME.readfile("modvault/modinfo.qthtml"))
+    FORMATTER_MOD_UI = str(util.THEME.readfile("modvault/modinfoui.qthtml"))
     
     def __init__(self, parent, uid, *args, **kwargs):
         QtWidgets.QListWidgetItem.__init__(self, *args, **kwargs)
@@ -329,11 +329,11 @@ class ModItem(QtWidgets.QListWidgetItem):
 
         self.thumbnail = None
         if self.thumbstr == "":
-            self.setIcon(util.icon("games/unknown_map.png"))
+            self.setIcon(util.THEME.icon("games/unknown_map.png"))
         else:
             img = getIcon(os.path.basename(urllib.parse.unquote(self.thumbstr)))
             if img:
-                self.setIcon(util.icon(img, False))
+                self.setIcon(util.THEME.icon(img, False))
             else:
                 self.parent.client.downloader.downloadModPreview(self.thumbstr, self)
         self.updateVisibility()

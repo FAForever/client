@@ -7,11 +7,11 @@ from PyQt5 import QtCore, QtWidgets
 import modvault
 import util
 
-FormClass, BaseClass = util.loadUiType("modvault/uimod.ui")
+FormClass, BaseClass = util.THEME.loadUiType("modvault/uimod.ui")
 
 
 class UIModWidget(FormClass, BaseClass):
-    FORMATTER_UIMOD = str(util.readfile("modvault/uimod.qthtml"))
+    FORMATTER_UIMOD = str(util.THEME.readfile("modvault/uimod.qthtml"))
     def __init__(self, parent, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
 

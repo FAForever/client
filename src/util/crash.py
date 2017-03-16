@@ -11,7 +11,7 @@ from PyQt5.QtCore import QUrl
 
 CRASH_REPORT_USER = "pre-login"
 
-FormClass, BaseClass = util.loadUiType("client/crash.ui")
+FormClass, BaseClass = util.THEME.loadUiType("client/crash.ui")
 
 class CrashDialog(FormClass, BaseClass):
     def __init__(self, exc_info, *args, **kwargs):

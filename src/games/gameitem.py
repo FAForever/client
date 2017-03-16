@@ -69,9 +69,9 @@ class GameItem(QtWidgets.QListWidgetItem):
     ICONSIZE = 110
     PADDING = 10
 
-    FORMATTER_FAF  = str(util.readfile("games/formatters/faf.qthtml"))
-    FORMATTER_MOD  = str(util.readfile("games/formatters/mod.qthtml"))
-    FORMATTER_TOOL = str(util.readfile("games/formatters/tool.qthtml"))
+    FORMATTER_FAF  = str(util.THEME.readfile("games/formatters/faf.qthtml"))
+    FORMATTER_MOD  = str(util.THEME.readfile("games/formatters/mod.qthtml"))
+    FORMATTER_TOOL = str(util.THEME.readfile("games/formatters/tool.qthtml"))
     
     def __init__(self, uid, *args, **kwargs):
         QtWidgets.QListWidgetItem.__init__(self, *args, **kwargs)
@@ -254,12 +254,12 @@ class GameItem(QtWidgets.QListWidgetItem):
         # Alternate icon: If private game, use game_locked icon. Otherwise, use preview icon from map library.
         if refresh_icon:
             if self.password_protected:
-                icon = util.icon("games/private_game.png")
+                icon = util.THEME.icon("games/private_game.png")
             else:
                 icon = maps.preview(self.mapname)
                 if not icon:
                     client.instance.downloader.downloadMap(self.mapname, self)
-                    icon = util.icon("games/unknown_map.png")
+                    icon = util.THEME.icon("games/unknown_map.png")
 
             self.setIcon(icon)
 

@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 ANTIFLOOD = 0.1
 
-FormClass, BaseClass = util.loadUiType("stats/stats.ui")
+FormClass, BaseClass = util.THEME.loadUiType("stats/stats.ui")
 
 
 class StatsWidget(BaseClass, FormClass, BusyWidget):
@@ -50,10 +50,10 @@ class StatsWidget(BaseClass, FormClass, BusyWidget):
         self.currentLeague = 0
         self.currentDivision = 0
         
-        self.FORMATTER_LADDER        = str(util.readfile("stats/formatters/ladder.qthtml"))
-        self.FORMATTER_LADDER_HEADER = str(util.readfile("stats/formatters/ladder_header.qthtml"))
+        self.FORMATTER_LADDER        = str(util.THEME.readfile("stats/formatters/ladder.qthtml"))
+        self.FORMATTER_LADDER_HEADER = str(util.THEME.readfile("stats/formatters/ladder_header.qthtml"))
 
-        util.setStyleSheet(self.leagues, "stats/formatters/style.css")
+        util.THEME.setStyleSheet(self.leagues, "stats/formatters/style.css")
     
         # setup other tabs
         self.mapstat = mapstat.LadderMapStat(self.client, self)
@@ -183,8 +183,8 @@ class StatsWidget(BaseClass, FormClass, BusyWidget):
             self.laddermapstat.emit(message)
 
     def _injectCSS(self):
-        if util.themeurl("ladder/style.css"):
-            injectWebviewCSS(self.webview.page(), util.readstylesheet("ladder/style.css"))
+        if util.THEME.themeurl("ladder/style.css"):
+            injectWebviewCSS(self.webview.page(), util.THEME.readstylesheet("ladder/style.css"))
 
     @QtCore.pyqtSlot()
     def busy_entered(self):

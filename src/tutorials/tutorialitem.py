@@ -71,7 +71,7 @@ class TutorialItem(QtWidgets.QListWidgetItem):
     #DATA_PLAYERS = 32
     
     
-    FORMATTER_TUTORIAL = str(util.readfile("tutorials/formatters/tutorials.qthtml"))
+    FORMATTER_TUTORIAL = str(util.THEME.readfile("tutorials/formatters/tutorials.qthtml"))
     
     
     def __init__(self, uid, *args, **kwargs):
@@ -99,7 +99,7 @@ class TutorialItem(QtWidgets.QListWidgetItem):
 
             icon = maps.preview(self.mapname)
             if not icon:
-                icon = util.icon("games/unknown_map.png")
+                icon = util.THEME.icon("games/unknown_map.png")
                 self.client.downloader.downloadMap(self.mapname, self)
                                         
             self.setIcon(icon)

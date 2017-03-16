@@ -34,7 +34,7 @@ class NotificationPosition(Enum):
 
 
 # TODO: how to register hooks?
-FormClass2, BaseClass2 = util.loadUiType("notification_system/ns_settings.ui")
+FormClass2, BaseClass2 = util.THEME.loadUiType("notification_system/ns_settings.ui")
 class NsSettingsDialog(FormClass2, BaseClass2):
     def __init__(self, client):
         BaseClass2.__init__(self)

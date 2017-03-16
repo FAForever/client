@@ -9,7 +9,7 @@ from tutorials.tutorialitem import TutorialItem, TutorialItemDelegate
 import logging
 logger = logging.getLogger(__name__)
 
-FormClass, BaseClass = util.loadUiType("tutorials/tutorials.ui")
+FormClass, BaseClass = util.THEME.loadUiType("tutorials/tutorials.ui")
 
 
 class tutorialsWidget(FormClass, BaseClass):
@@ -59,7 +59,7 @@ class tutorialsWidget(FormClass, BaseClass):
             section = message["section"]
             desc = message["description"]
 
-            area = util.loadUi("tutorials/tutorialarea.ui")
+            area = util.THEME.loadUi("tutorials/tutorialarea.ui")
             tabIndex = self.addTab(area, section)      
             self.setTabToolTip(tabIndex, desc)
 

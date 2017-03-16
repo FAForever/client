@@ -387,10 +387,10 @@ def __exportPreviewFromMap(mapname, positions=None):
             return previews
         try:
             genPrevFromDDS(previewddsname, previewlargename, small=False)
-            mapimage = util.pixmap(previewlargename)
-            armyicon = util.pixmap("vault/map_icons/army.png").scaled(8, 9, 1, 1)
-            massicon = util.pixmap("vault/map_icons/mass.png").scaled(8, 8, 1, 1)
-            hydroicon = util.pixmap("vault/map_icons/hydro.png").scaled(10, 10, 1, 1)
+            mapimage = util.THEME.pixmap(previewlargename)
+            armyicon = util.THEME.pixmap("vault/map_icons/army.png").scaled(8, 9, 1, 1)
+            massicon = util.THEME.pixmap("vault/map_icons/mass.png").scaled(8, 8, 1, 1)
+            hydroicon = util.THEME.pixmap("vault/map_icons/hydro.png").scaled(10, 10, 1, 1)
 
             painter = QtWidgets.QPainter()
 
@@ -437,14 +437,14 @@ def preview(mapname, pixmap=False):
             img = os.path.join(util.CACHE_DIR, mapname + "." + extension)
             if os.path.isfile(img):
                 logger.log(5,"Using cached preview image for: " + mapname)
-                return util.icon(img, False, pixmap)
+                return util.THEME.icon(img, False, pixmap)
 
         # Try to find in local map folder
         img = __exportPreviewFromMap(mapname)
 
         if img and 'cache' in img and img['cache'] and os.path.isfile(img['cache']):
             logger.debug("Using fresh preview image for: " + mapname)
-            return util.icon(img['cache'], False, pixmap)
+            return util.THEME.icon(img['cache'], False, pixmap)
 
         return None
     except:

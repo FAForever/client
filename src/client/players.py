@@ -39,8 +39,8 @@ class Players:
 
     #Color table used by the following method
     # CAVEAT: This will break if the theme is loaded after the client package is imported
-    colors = json.loads(util.readfile("client/colors.json"))
-    randomcolors = json.loads(util.readfile("client/randomcolors.json"))
+    colors = json.loads(util.THEME.readfile("client/colors.json"))
+    randomcolors = json.loads(util.THEME.readfile("client/randomcolors.json"))
 
     def isFriend(self, id):
         '''

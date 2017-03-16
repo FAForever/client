@@ -26,7 +26,7 @@ class Notifications:
         client.gameEnter.connect(self.gameEnter)
         client.gameExit.connect(self.gameExit)
 
-        self.user = util.icon("client/user.png", pix=True)
+        self.user = util.THEME.icon("client/user.png", pix=True)
 
     def gameEnter(self):
         self.game_running = True

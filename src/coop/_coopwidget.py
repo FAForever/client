@@ -20,7 +20,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-FormClass, BaseClass = util.loadUiType("coop/coop.ui")
+FormClass, BaseClass = util.THEME.loadUiType("coop/coop.ui")
 
 
 class CoopWidget(FormClass, BaseClass, BusyWidget):
@@ -60,10 +60,10 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
         
         self.linkButton.clicked.connect(self.linkVanilla)
         self.leaderBoard.setVisible(0)
-        self.FORMATTER_LADDER        = str(util.readfile("coop/formatters/ladder.qthtml"))
-        self.FORMATTER_LADDER_HEADER = str(util.readfile("coop/formatters/ladder_header.qthtml"))
+        self.FORMATTER_LADDER        = str(util.THEME.readfile("coop/formatters/ladder.qthtml"))
+        self.FORMATTER_LADDER_HEADER = str(util.THEME.readfile("coop/formatters/ladder_header.qthtml"))
 
-        util.setStyleSheet(self.leaderBoard, "coop/formatters/style.css")
+        util.THEME.setStyleSheet(self.leaderBoard, "coop/formatters/style.css")
 
         self.leaderBoardTextGeneral.anchorClicked.connect(self.openUrl)
         self.leaderBoardTextOne.anchorClicked.connect(self.openUrl)

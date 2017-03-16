@@ -11,7 +11,7 @@ class UpgradePage(QtWidgets.QWizardPage):
         super(UpgradePage, self).__init__(parent)
 
         self.setTitle("Specify Forged Alliance folder")
-        self.setPixmap(QtWidgets.QWizard.WatermarkPixmap, util.pixmap("fa/updater/forged_alliance_watermark.png"))
+        self.setPixmap(QtWidgets.QWizard.WatermarkPixmap, util.THEME.pixmap("fa/updater/forged_alliance_watermark.png"))
 
         layout = QtWidgets.QVBoxLayout()
 
@@ -68,7 +68,7 @@ class UpgradePageSC(QtWidgets.QWizardPage):
         super(UpgradePageSC, self).__init__(parent)
 
         self.setTitle("Specify Supreme Commander folder")
-        self.setPixmap(QtWidgets.QWizard.WatermarkPixmap, util.pixmap("fa/updater/supreme_commander_watermark.png"))
+        self.setPixmap(QtWidgets.QWizard.WatermarkPixmap, util.THEME.pixmap("fa/updater/supreme_commander_watermark.png"))
 
         layout = QtWidgets.QVBoxLayout()
 
@@ -133,7 +133,7 @@ class WizardSC(QtWidgets.QWizard):
 
         self.setWizardStyle(QtWidgets.QWizard.ModernStyle)
         self.setWindowTitle("Supreme Commander Game Path")
-        self.setPixmap(QtWidgets.QWizard.WatermarkPixmap, util.pixmap("fa/updater/forged_alliance_watermark.png"))
+        self.setPixmap(QtWidgets.QWizard.WatermarkPixmap, util.THEME.pixmap("fa/updater/forged_alliance_watermark.png"))
 
         self.setOption(QtWidgets.QWizard.NoBackButtonOnStartPage, True)
 
@@ -156,7 +156,7 @@ class Wizard(QtWidgets.QWizard):
 
         self.setWizardStyle(QtWidgets.QWizard.ModernStyle)
         self.setWindowTitle("Forged Alliance Game Path")
-        self.setPixmap(QtWidgets.QWizard.WatermarkPixmap, util.pixmap("fa/updater/forged_alliance_watermark.png"))
+        self.setPixmap(QtWidgets.QWizard.WatermarkPixmap, util.THEME.pixmap("fa/updater/forged_alliance_watermark.png"))
 
         self.setOption(QtWidgets.QWizard.NoBackButtonOnStartPage, True)
 

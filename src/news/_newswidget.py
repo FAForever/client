@@ -39,12 +39,12 @@ class Hider(QtCore.QObject):
         if sender.isWidgetType():
             self.hide(sender)
 
-FormClass, BaseClass = util.loadUiType("news/news.ui")
+FormClass, BaseClass = util.THEME.loadUiType("news/news.ui")
 
 class NewsWidget(FormClass, BaseClass):
-    CSS = util.readstylesheet('news/news_webview.css')
+    CSS = util.THEME.readstylesheet('news/news_webview.css')
 
-    HTML = str(util.readfile('news/news_webview_frame.html'))
+    HTML = str(util.THEME.readfile('news/news_webview_frame.html'))
 
     def __init__(self, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)

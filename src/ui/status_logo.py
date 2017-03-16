@@ -17,7 +17,7 @@ class StatusLogo(QLabel):
         self.setScaledContents(True)
         self.setMargin(3)
 
-        normal, yellow, red = list(map(util.pixmap, [
+        normal, yellow, red = list(map(util.THEME.pixmap, [
             'window_icon.png',
             'window_icon_yellow.png',
             'window_icon_red.png'

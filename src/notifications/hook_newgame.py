@@ -15,7 +15,7 @@ class NsHookNewGame(NsHook):
         self.dialog = NewGameDialog(self, self.eventType)
         self.button.clicked.connect(self.dialog.show)
 
-FormClass, BaseClass = util.loadUiType("notification_system/new_game.ui")
+FormClass, BaseClass = util.THEME.loadUiType("notification_system/new_game.ui")
 class NewGameDialog(FormClass, BaseClass):
     def __init__(self, parent, eventType):
         BaseClass.__init__(self)

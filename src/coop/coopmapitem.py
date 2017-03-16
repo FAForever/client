@@ -59,7 +59,7 @@ class CoopMapItemDelegate(QtWidgets.QStyledItemDelegate):
 class CoopMapItem(QtWidgets.QTreeWidgetItem):
 
     
-    FORMATTER_COOP        = str(util.readfile("coop/formatters/coop.qthtml"))
+    FORMATTER_COOP        = str(util.THEME.readfile("coop/formatters/coop.qthtml"))
 
     
     def __init__(self, uid, parent, *args, **kwargs):
@@ -90,7 +90,7 @@ class CoopMapItem(QtWidgets.QTreeWidgetItem):
 #        self.icon = maps.preview(self.mapname)
 #        if not self.icon:
 #            self.client.downloader.downloadMap(self.mapname, self, True)
-#            self.icon = util.icon("games/unknown_map.png")        
+#            self.icon = util.THEME.icon("games/unknown_map.png")
         #self.setIcon(0, self.icon)
         
 

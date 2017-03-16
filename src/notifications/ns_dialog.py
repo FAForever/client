@@ -6,7 +6,7 @@ from .ns_settings import NotificationPosition
 """
 The UI popup of the notification system
 """
-FormClass, BaseClass = util.loadUiType("notification_system/dialog.ui")
+FormClass, BaseClass = util.THEME.loadUiType("notification_system/dialog.ui")
 
 
 class NotificationDialog(FormClass, BaseClass):
@@ -17,8 +17,8 @@ class NotificationDialog(FormClass, BaseClass):
         self.setupUi(self)
         self.client = client
 
-        self.labelIcon.setPixmap(util.icon("client/tray_icon.png", pix=True).scaled(32, 32))
-        self.standardIcon = util.icon("client/comment.png", pix=True)
+        self.labelIcon.setPixmap(util.THEME.icon("client/tray_icon.png", pix=True).scaled(32, 32))
+        self.standardIcon = util.THEME.icon("client/comment.png", pix=True)
 
         self.settings = settings
         self.updatePosition()
@@ -46,7 +46,7 @@ class NotificationDialog(FormClass, BaseClass):
         self.labelTime.setText(time.strftime("%H:%M:%S", time.gmtime()))
         QtCore.QTimer.singleShot(lifetime * 1000, self.hide)
         if sound:
-            util.sound("chat/sfx/query.wav")
+            util.THEME.sound("chat/sfx/query.wav")
 
         self.updatePosition()
         self.show()

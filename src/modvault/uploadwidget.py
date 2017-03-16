@@ -8,7 +8,7 @@ from PyQt5 import QtCore, QtWidgets
 import modvault
 import util
 
-FormClass, BaseClass = util.loadUiType("modvault/upload.ui")
+FormClass, BaseClass = util.THEME.loadUiType("modvault/upload.ui")
 
 class UploadModWidget(FormClass, BaseClass):
     def __init__(self, parent, modDir, modinfo, *args, **kwargs):
@@ -34,7 +34,7 @@ class UploadModWidget(FormClass, BaseClass):
             self.IconURI.setText(modvault.iconPathToFull(modinfo.icon))
             self.updateThumbnail()
         else:
-            self.Thumbnail.setPixmap(util.pixmap("games/unknown_map.png"))
+            self.Thumbnail.setPixmap(util.THEME.pixmap("games/unknown_map.png"))
         self.UploadButton.pressed.connect(self.upload)
 
     @QtCore.pyqtSlot()
@@ -83,7 +83,7 @@ class UploadModWidget(FormClass, BaseClass):
                         "Because FAF can't read DDS files, it tried to convert it to a png. This failed. Try something else")
                 return False
         try:
-            self.Thumbnail.setPixmap(util.pixmap(iconfilename,False))
+            self.Thumbnail.setPixmap(util.THEME.pixmap(iconfilename,False))
         except:
             QtWidgets.QMessageBox.information(self.client,"Invalid Icon File",
                         "This was not a valid icon file. Please pick a png or jpeg")

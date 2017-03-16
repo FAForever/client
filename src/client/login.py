@@ -3,7 +3,7 @@ from PyQt5 import QtCore, QtGui
 import util
 from config import Settings
 
-FormClass, BaseClass = util.loadUiType("client/login.ui")
+FormClass, BaseClass = util.THEME.loadUiType("client/login.ui")
 
 class LoginWidget(FormClass, BaseClass):
     finished = QtCore.pyqtSignal(str, str)
@@ -14,8 +14,8 @@ class LoginWidget(FormClass, BaseClass):
         # once we make some of our own css to go with it
         BaseClass.__init__(self)
         self.setupUi(self)
-        util.setStyleSheet(self, "client/login.css")
-        self.splash.setPixmap(util.pixmap("client/login_watermark.png"))
+        util.THEME.setStyleSheet(self, "client/login.css")
+        self.splash.setPixmap(util.THEME.pixmap("client/login_watermark.png"))
 
         if startLogin:
             self.loginField.setText(startLogin)

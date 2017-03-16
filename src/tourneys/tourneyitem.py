@@ -3,7 +3,7 @@ import util
 
 
 class TourneyItemDelegate(QtWidgets.QStyledItemDelegate):
-    #colors = json.loads(util.readfile("client/colors.json"))
+    #colors = json.loads(util.THEME.readfile("client/colors.json"))
     
     def __init__(self, *args, **kwargs):
         QtWidgets.QStyledItemDelegate.__init__(self, *args, **kwargs)
@@ -45,8 +45,7 @@ class QWebPageChrome(QtWebEngineWidgets.QWebEnginePage):
         return "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.121 Safari/535.2"
 
 class TourneyItem(QtWidgets.QListWidgetItem):
-    FORMATTER_SWISS_OPEN = str(util.readfile("tournaments/formatters/open.qthtml"))
-
+    FORMATTER_SWISS_OPEN = str(util.THEME.readfile("tournaments/formatters/open.qthtml"))
     
     def __init__(self, parent, uid, *args, **kwargs):
         QtWidgets.QListWidgetItem.__init__(self, *args, **kwargs)

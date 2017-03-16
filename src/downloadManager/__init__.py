@@ -59,10 +59,10 @@ class downloadManager(QtCore.QObject):
             for requester in reqlist:
                 if requester:
                     if requester in self.mapRequestsItem:
-                        requester.setIcon(0, util.icon(pathimg, False))
+                        requester.setIcon(0, util.THEME.icon(pathimg, False))
                         self.mapRequestsItem.remove(requester)
                     else:
-                        requester.setIcon(util.icon(pathimg, False))
+                        requester.setIcon(util.THEME.icon(pathimg, False))
             if urlstring in self.mapRequests: del self.mapRequests[urlstring]
             if urlstring in self.modRequests: del self.modRequests[urlstring]
 

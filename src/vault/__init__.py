@@ -54,9 +54,9 @@ class MapVault(QtCore.QObject, BusyWidget):
         self.ui.setVisible(False)
 
 #       If a local theme CSS exists, skin the WebView with it
-        if util.themeurl("vault/style.css"):
+        if util.THEME.themeurl("vault/style.css"):
             injectWebviewCSS(self.ui.page(),
-                             util.readstylesheet("vault/style.css"))
+                             util.THEME.readstylesheet("vault/style.css"))
 
         ROOT = Settings.get('content/host')
 

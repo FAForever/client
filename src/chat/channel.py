@@ -15,7 +15,7 @@ QUERY_BLINK_SPEED = 250
 CHAT_TEXT_LIMIT = 350
 CHAT_REMOVEBLOCK = 50
 
-FormClass, BaseClass = util.loadUiType("chat/channel.ui")
+FormClass, BaseClass = util.THEME.loadUiType("chat/channel.ui")
 
 
 class IRCPlayer(Player):
@@ -30,13 +30,13 @@ class IRCPlayer(Player):
 
 
 class Formatters(object):
-    FORMATTER_ANNOUNCEMENT   = str(util.readfile("chat/formatters/announcement.qthtml"))
-    FORMATTER_MESSAGE        = str(util.readfile("chat/formatters/message.qthtml"))
-    FORMATTER_MESSAGE_AVATAR = str(util.readfile("chat/formatters/messageAvatar.qthtml"))
-    FORMATTER_ACTION         = str(util.readfile("chat/formatters/action.qthtml"))
-    FORMATTER_ACTION_AVATAR  = str(util.readfile("chat/formatters/actionAvatar.qthtml"))
-    FORMATTER_RAW            = str(util.readfile("chat/formatters/raw.qthtml"))
-    NICKLIST_COLUMNS         = json.loads(util.readfile("chat/formatters/nicklist_columns.json"))
+    FORMATTER_ANNOUNCEMENT   = str(util.THEME.readfile("chat/formatters/announcement.qthtml"))
+    FORMATTER_MESSAGE        = str(util.THEME.readfile("chat/formatters/message.qthtml"))
+    FORMATTER_MESSAGE_AVATAR = str(util.THEME.readfile("chat/formatters/messageAvatar.qthtml"))
+    FORMATTER_ACTION         = str(util.THEME.readfile("chat/formatters/action.qthtml"))
+    FORMATTER_ACTION_AVATAR  = str(util.THEME.readfile("chat/formatters/actionAvatar.qthtml"))
+    FORMATTER_RAW            = str(util.THEME.readfile("chat/formatters/raw.qthtml"))
+    NICKLIST_COLUMNS         = json.loads(util.THEME.readfile("chat/formatters/nicklist_columns.json"))
 
 
 class Channel(FormClass, BaseClass):
@@ -167,7 +167,7 @@ class Channel(FormClass, BaseClass):
         if not self.isVisible() or QtWidgets.QApplication.activeWindow() != self.lobby.client:
             if self.oneMinuteOrOlder():
                 if self.lobby.client.soundeffects:
-                    util.sound("chat/sfx/query.wav")
+                    util.THEME.sound("chat/sfx/query.wav")
 
         if not self.isVisible():
             if not self.blinker.isActive() and not self == self.lobby.currentWidget():

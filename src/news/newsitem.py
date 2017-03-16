@@ -66,7 +66,7 @@ class NewsItem(QtWidgets.QListWidgetItem):
     TEXTHEIGHT = 85
     PADDING = 10
 
-    FORMATTER = str(util.readfile("news/formatters/newsitem.qhtml"))
+    FORMATTER = str(util.THEME.readfile("news/formatters/newsitem.qhtml"))
 
     def __init__(self, newsPost, *args, **kwargs):
         QtWidgets.QListWidgetItem.__init__(self, *args, **kwargs)

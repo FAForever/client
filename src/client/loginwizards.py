@@ -35,7 +35,7 @@ class GameSettings(QtWidgets.QWizardPage):
 
         self.parent = parent
         self.setTitle("Network Settings")
-        self.setPixmap(QtWidgets.QWizard.WatermarkPixmap, util.pixmap("client/settings_watermark.png"))
+        self.setPixmap(QtWidgets.QWizard.WatermarkPixmap, util.THEME.pixmap("client/settings_watermark.png"))
         
         self.label = QtWidgets.QLabel()
         self.label.setText('Forged Alliance needs an open UDP port to play. If you have trouble connecting to other players, try the UPnP option first. If that fails, you should try to open or forward the port on your router and firewall.<br/><br/>Visit the <a href="http://forums.faforever.com/forums/viewforum.php?f=3">Tech Support Forum</a> if you need help.<br/><br/>')

@@ -13,7 +13,7 @@ class ConnectivityDialog(QObject):
     def __init__(self, connectivity):
         QObject.__init__(self)
         self.connectivity = connectivity
-        self.dialog = util.loadUi('connectivity/connectivity.ui')
+        self.dialog = util.THEME.loadUi('connectivity/connectivity.ui')
         self.dialog.runTestButton.clicked.connect(self.run_relay_test)
 
     def update_relay_info(self):

@@ -7,7 +7,7 @@ from PyQt5 import QtCore, QtWidgets
 from util import strtodate, datetostr, now
 import util
 
-FormClass, BaseClass = util.loadUiType("modvault/mod.ui")
+FormClass, BaseClass = util.THEME.loadUiType("modvault/mod.ui")
 
 
 class ModWidget(FormClass, BaseClass):
@@ -30,7 +30,7 @@ class ModWidget(FormClass, BaseClass):
         self.Info.setText(modtext + "By %s\nUploaded %s" % (mod.author,
                                     str(mod.date)))
         if mod.thumbnail == None:
-            self.Picture.setPixmap(util.pixmap("games/unknown_map.png"))
+            self.Picture.setPixmap(util.THEME.pixmap("games/unknown_map.png"))
         else:
             self.Picture.setPixmap(mod.thumbnail.pixmap(100,100))
 
@@ -138,7 +138,7 @@ class CommentItemDelegate(QtWidgets.QStyledItemDelegate):
         return QtCore.QSize(self.TEXTWIDTH, self.TEXTHEIGHT)
 
 class CommentItem(QtWidgets.QListWidgetItem):
-    FORMATTER_COMMENT = str(util.readfile("modvault/comment.qthtml"))
+    FORMATTER_COMMENT = str(util.THEME.readfile("modvault/comment.qthtml"))
     def __init__(self, parent, uid, *args, **kwargs):
         QtWidgets.QListWidgetItem.__init__(self, *args, **kwargs)
 

@@ -66,7 +66,7 @@ class ReplayItemDelegate(QtWidgets.QStyledItemDelegate):
 
 class ReplayItem(QtWidgets.QTreeWidgetItem):
     # list element
-    FORMATTER_REPLAY                = str(util.readfile("replays/formatters/replay.qthtml"))
+    FORMATTER_REPLAY                = str(util.THEME.readfile("replays/formatters/replay.qthtml"))
     # replay-info elements
     FORMATTER_REPLAY_INFORMATION    = "<h2 align='center'>Replay UID : {uid}</h2><table border='0' cellpadding='0' cellspacing='5' align='center'><tbody>{teams}</tbody></table>"
     FORMATTER_REPLAY_TEAM_SPOILED   = "<tr><td colspan='3' align='center' valign='middle'><font size='+2'>{title}</font></td></tr>{players}"
@@ -146,7 +146,7 @@ class ReplayItem(QtWidgets.QTreeWidgetItem):
         self.icon = maps.preview(self.mapname)
         if not self.icon:
             self.client.downloader.downloadMap(self.mapname, self, True)
-            self.icon = util.icon("games/unknown_map.png")        
+            self.icon = util.THEME.icon("games/unknown_map.png")
 
         if self.mod in mods:
             self.moddisplayname = mods[self.mod].name 

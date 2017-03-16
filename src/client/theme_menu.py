@@ -18,13 +18,13 @@ class ThemeMenu(QtCore.QObject):
             self._themes[action] = theme
             action.setCheckable(True)
         self._menu.addSeparator()
-        self._menu.addAction("Reload Stylesheet", util.reloadStyleSheets)
+        self._menu.addAction("Reload Stylesheet", util.THEME.reloadStyleSheets)
 
         self._updateThemeChecks()
 
     def _updateThemeChecks(self):
         self._updating = True
-        new_theme = util.getTheme()
+        new_theme = util.THEME.theme.name
         for action in self._themes:
             action.setChecked(new_theme == self._themes[action])
         self._updating = False

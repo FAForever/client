@@ -25,9 +25,9 @@ class ModItem(QtWidgets.QListWidgetItem):
         tip = message["desc"]      
         self.setToolTip(tip)
 
-        icon = util.icon(os.path.join("games/mods/", self.mod + ".png"))
+        icon = util.THEME.icon(os.path.join("games/mods/", self.mod + ".png"))
         if icon.isNull():
-            icon = util.icon("games/mods/default.png")
+            icon = util.THEME.icon("games/mods/default.png")
         self.setIcon(icon)
 
         if self.mod in mod_crucial:

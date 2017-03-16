@@ -19,7 +19,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-FormClass, BaseClass = util.loadUiType("games/games.ui")
+FormClass, BaseClass = util.THEME.loadUiType("games/games.ui")
 
 
 class GamesWidget(FormClass, BaseClass):
@@ -50,10 +50,10 @@ class GamesWidget(FormClass, BaseClass):
             Factions.SERAPHIM: self.rankedSeraphim,
             Factions.UEF: self.rankedUEF,
         }
-        self.rankedAeon.setIcon(util.icon("games/automatch/aeon.png"))
-        self.rankedCybran.setIcon(util.icon("games/automatch/cybran.png"))
-        self.rankedSeraphim.setIcon(util.icon("games/automatch/seraphim.png"))
-        self.rankedUEF.setIcon(util.icon("games/automatch/uef.png"))
+        self.rankedAeon.setIcon(util.THEME.icon("games/automatch/aeon.png"))
+        self.rankedCybran.setIcon(util.THEME.icon("games/automatch/cybran.png"))
+        self.rankedSeraphim.setIcon(util.THEME.icon("games/automatch/seraphim.png"))
+        self.rankedUEF.setIcon(util.THEME.icon("games/automatch/uef.png"))
 
         # Fixup ini file type loss
         self.sub_factions = [True if x=='true' else False for x in self.sub_factions]

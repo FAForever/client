@@ -18,7 +18,7 @@ import notifications as ns
 
 PONG_INTERVAL = 60000  # milliseconds between pongs
 
-FormClass, BaseClass = util.loadUiType("chat/chat.ui")
+FormClass, BaseClass = util.THEME.loadUiType("chat/chat.ui")
 
 
 class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
@@ -45,7 +45,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
         # CAVEAT: These will fail if loaded before theming is loaded
         import json
-        chat.OPERATOR_COLORS = json.loads(util.readfile("chat/formatters/operator_colors.json"))
+        chat.OPERATOR_COLORS = json.loads(util.THEME.readfile("chat/formatters/operator_colors.json"))
 
         self.client = client
         self.channels = {}
@@ -65,7 +65,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.welcomed = False
 
         # Load colors and styles from theme
-        self.a_style = util.readfile("chat/formatters/a_style.qss")
+        self.a_style = util.THEME.readfile("chat/formatters/a_style.qss")
 
         # load UI perform some tweaks
         self.tabBar().setTabButton(0, 1, None)

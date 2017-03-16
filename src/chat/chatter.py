@@ -158,13 +158,13 @@ class Chatter(QtWidgets.QTableWidgetItem):
 
         # Weed out IRC users and those we don't know about early.
         if self.id == -1 or player is None:
-            self.rankItem.setIcon(util.icon("chat/rank/civilian.png"))
+            self.rankItem.setIcon(util.THEME.icon("chat/rank/civilian.png"))
             self.rankItem.setToolTip("IRC User")
             return
 
         country = player.country
         if country is not None:
-            self.setIcon(util.icon("chat/countries/%s.png" % country.lower()))
+            self.setIcon(util.THEME.icon("chat/countries/%s.png" % country.lower()))
             self.setToolTip(country)
 
         if player.avatar != self.avatar:
@@ -184,10 +184,10 @@ class Chatter(QtWidgets.QTableWidgetItem):
         url = client.instance.urls.get(player.login)
         if url:
             if url.scheme() == "fafgame":
-                self.statusItem.setIcon(util.icon("chat/status/lobby.png"))
+                self.statusItem.setIcon(util.THEME.icon("chat/status/lobby.png"))
                 self.statusItem.setToolTip("In Game Lobby<br/>"+url.toString())
             elif url.scheme() == "faflive":
-                self.statusItem.setIcon(util.icon("chat/status/playing.png"))
+                self.statusItem.setIcon(util.THEME.icon("chat/status/playing.png"))
                 self.statusItem.setToolTip("Playing Game<br/>"+url.toString())
         else:
             self.statusItem.setIcon(QtGui.QIcon())
@@ -202,9 +202,9 @@ class Chatter(QtWidgets.QTableWidgetItem):
         league = player.league
         if league is not None:
             self.rankItem.setToolTip("Division : " + league["division"] + "\nGlobal Rating: " + str(int(rating)))
-            self.rankItem.setIcon(util.icon("chat/rank/%s.png" % league["league"]))
+            self.rankItem.setIcon(util.THEME.icon("chat/rank/%s.png" % league["league"]))
         else:
-            self.rankItem.setIcon(util.icon("chat/rank/newplayer.png"))
+            self.rankItem.setIcon(util.THEME.icon("chat/rank/newplayer.png"))
 
     def set_color(self):
         if self.lobby.client.id == self.id and self.elevation in chat.OPERATOR_COLORS.keys():

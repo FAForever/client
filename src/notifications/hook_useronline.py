@@ -15,7 +15,7 @@ class NsHookUserOnline(NsHook):
         self.dialog = UserOnlineDialog(self, self.eventType)
         self.button.clicked.connect(self.dialog.show)
 
-FormClass, BaseClass = util.loadUiType("notification_system/user_online.ui")
+FormClass, BaseClass = util.THEME.loadUiType("notification_system/user_online.ui")
 class UserOnlineDialog(FormClass, BaseClass):
     def __init__(self, parent, eventType):
         BaseClass.__init__(self)

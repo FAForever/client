@@ -75,7 +75,7 @@ def AdminUserErrorDialog():
 
 def runFAF():
     # Load theme from settings (one of the first things to be done)
-    util.loadTheme()
+    util.THEME.loadTheme()
 
     # Create client singleton and connect
     import client
@@ -112,7 +112,7 @@ if __name__ == '__main__':
     logger.info(">>> --------------------------- Application Launch")
 
     # Set application icon to nicely stack in the system task bar
-    app.setWindowIcon(util.icon("window_icon.png", True))
+    app.setWindowIcon(util.THEME.icon("window_icon.png", True))
 
     # We can now set our excepthook since the app has been initialized
     sys.excepthook = excepthook

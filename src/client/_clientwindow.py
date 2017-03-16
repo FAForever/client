@@ -49,7 +49,7 @@ import time
 import random
 import notifications as ns
 
-FormClass, BaseClass = util.loadUiType("client/client.ui")
+FormClass, BaseClass = util.THEME.loadUiType("client/client.ui")
 
 
 class mousePosition(object):
@@ -135,7 +135,7 @@ class ClientWindow(FormClass, BaseClass):
 
         # Tray icon
         self.tray = QtWidgets.QSystemTrayIcon()
-        self.tray.setIcon(util.icon("client/tray_icon.png"))
+        self.tray.setIcon(util.THEME.icon("client/tray_icon.png"))
         self.tray.show()
 
         self._state = ClientState.NONE
@@ -188,7 +188,7 @@ class ClientWindow(FormClass, BaseClass):
 
         # create user interface (main window) and load theme
         self.setupUi(self)
-        util.setStyleSheet(self, "client/client.css")
+        util.THEME.setStyleSheet(self, "client/client.css")
 
         self.setWindowTitle("FA Forever " + util.VERSION_STRING)
 
@@ -201,13 +201,13 @@ class ClientWindow(FormClass, BaseClass):
         self.installEventFilter(self)
 
         self.minimize = QtWidgets.QToolButton(self)
-        self.minimize.setIcon(util.icon("client/minimize-button.png"))
+        self.minimize.setIcon(util.THEME.icon("client/minimize-button.png"))
 
         self.maximize = QtWidgets.QToolButton(self)
-        self.maximize.setIcon(util.icon("client/maximize-button.png"))
+        self.maximize.setIcon(util.THEME.icon("client/maximize-button.png"))
 
         close = QtWidgets.QToolButton(self)
-        close.setIcon(util.icon("client/close-button.png"))
+        close.setIcon(util.THEME.icon("client/close-button.png"))
 
         self.minimize.setMinimumHeight(10)
         close.setMinimumHeight(10)
@@ -273,16 +273,16 @@ class ClientWindow(FormClass, BaseClass):
         self.initMenus()
 
         # Load the icons for the tabs
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.whatNewTab), util.icon("client/feed.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.chatTab), util.icon("client/chat.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.gamesTab), util.icon("client/games.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.coopTab), util.icon("client/coop.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.vaultsTab), util.icon("client/mods.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.ladderTab), util.icon("client/ladder.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.tourneyTab), util.icon("client/tourney.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.unitdbTab), util.icon("client/twitch.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.replaysTab), util.icon("client/replays.png"))
-        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.tutorialsTab), util.icon("client/tutorials.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.whatNewTab), util.THEME.icon("client/feed.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.chatTab), util.THEME.icon("client/chat.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.gamesTab), util.THEME.icon("client/games.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.coopTab), util.THEME.icon("client/coop.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.vaultsTab), util.THEME.icon("client/mods.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.ladderTab), util.THEME.icon("client/ladder.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.tourneyTab), util.THEME.icon("client/tourney.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.unitdbTab), util.THEME.icon("client/twitch.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.replaysTab), util.THEME.icon("client/replays.png"))
+        self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.tutorialsTab), util.THEME.icon("client/tutorials.png"))
 
         # for moderator
         self.modMenu = None
@@ -517,7 +517,7 @@ class ClientWindow(FormClass, BaseClass):
         self.chat = chat.Lobby(self)
         # Color table used by the following method
         # CAVEAT: This will break if the theme is loaded after the client package is imported
-        chat.CHAT_COLORS = json.loads(util.readfile("client/colors.json"))
+        chat.CHAT_COLORS = json.loads(util.THEME.readfile("client/colors.json"))
 
         # build main window with the now active client
         self.news = news.NewsWidget(self)
@@ -570,7 +570,7 @@ class ClientWindow(FormClass, BaseClass):
         def add_warning_button(faction):
             button = QtWidgets.QToolButton(self)
             button.setMaximumSize(25, 25)
-            button.setIcon(util.icon("games/automatch/%s.png" % faction.to_name()))
+            button.setIcon(util.THEME.icon("games/automatch/%s.png" % faction.to_name()))
             button.clicked.connect(partial(self.games.startSearchRanked, faction))
             self.warning.addWidget(button)
             return button
@@ -746,8 +746,8 @@ class ClientWindow(FormClass, BaseClass):
         self.actionFriendsOnTop.triggered.connect(self.updateOptions)
 
         self._menuThemeHandler = ThemeMenu(self.menuTheme)
-        self._menuThemeHandler.setup(util.listThemes())
-        self._menuThemeHandler.themeSelected.connect(lambda theme: util.setTheme(theme, True))
+        self._menuThemeHandler.setup(util.THEME.listThemes())
+        self._menuThemeHandler.themeSelected.connect(lambda theme: util.THEME.setTheme(theme, True))
 
     @QtCore.pyqtSlot()
     def updateOptions(self):
@@ -817,7 +817,7 @@ class ClientWindow(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def linkAbout(self):
-        dialog = util.loadUi("client/about.ui")
+        dialog = util.THEME.loadUi("client/about.ui")
         dialog.version_label.setText("Version: {}".format(util.VERSION_STRING))
         dialog.exec_()
 
