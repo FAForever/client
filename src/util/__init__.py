@@ -289,7 +289,6 @@ class Theme():
         'Returns a sound file string, from the themed folder.'
         return self._themepath(filename)
 
-
 class ThemeSet:
     '''
     Represent a collection of themes to choose from, with a default theme and
@@ -442,30 +441,57 @@ class ThemeSet:
         return theme_changed()
 
 
-    def _theme_callchain(fn_name):
+    def _theme_callchain(self, fn_name, filename, themed):
         """
-        Returns call of cls_fn chaining through theme / default theme / unthemed.
+        Calls fn_name chaining through theme / default theme / unthemed.
         """
-        def chained_call(self, filename, themed = True):
-            if themed:
-                item = getattr(self._theme, fn_name)(filename)
-                if item is None:
-                    item = getattr(self._default_theme, fn_name)(filename)
-            else:
-                item = getattr(self._unthemed, fn_name)(filename)
-            return item
+        if themed:
+            item = getattr(self._theme, fn_name)(filename)
+            if item is None:
+                item = getattr(self._default_theme, fn_name)(filename)
+        else:
+            item = getattr(self._unthemed, fn_name)(filename)
+        return item
 
-        return chained_call
+    def _warn_resource_null(fn):
+        def _nullcheck(self, filename, themed = True):
+            ret = fn(self, filename, themed)
+            if ret is None:
+                logger.warn("Failed to load resource '" + filename + "' in theme." + fn.__name__)
+            return ret
+        return _nullcheck
 
 
-    _pixmap = _theme_callchain("pixmap")
-    loadUi = _theme_callchain("loadUi")
-    loadUiType = _theme_callchain("loadUiType")
-    readlines = _theme_callchain("readlines")
-    readstylesheet = _theme_callchain("readstylesheet")
-    themeurl = _theme_callchain("themeurl")
-    readfile = _theme_callchain("readfile")
-    _sound = _theme_callchain("sound")
+    def _pixmap(self, filename, themed = True):
+        return self._theme_callchain("pixmap", filename, themed)
+
+    @_warn_resource_null
+    def loadUi(self, filename, themed = True):
+        return self._theme_callchain("loadUi", filename, themed)
+
+    @_warn_resource_null
+    def loadUiType(self, filename, themed = True):
+        return self._theme_callchain("loadUiType", filename, themed)
+
+    @_warn_resource_null
+    def readlines(self, filename, themed = True):
+        return self._theme_callchain("readlines", filename, themed)
+
+    @_warn_resource_null
+    def readstylesheet(self, filename, themed = True):
+        return self._theme_callchain("readstylesheet", filename, themed)
+
+    @_warn_resource_null
+    def themeurl(self, filename, themed = True):
+        return self._theme_callchain("themeurl", filename, themed)
+
+    @_warn_resource_null
+    def readfile(self, filename, themed = True):
+        return self._theme_callchain("readfile", filename, themed)
+
+    @_warn_resource_null
+    def _sound(self, filename, themed = True):
+        return self._theme_callchain("sound", filename, themed)
 
     def pixmap(self, filename, themed = True):
         # If we receive None, return the default pixmap
