@@ -5,6 +5,10 @@
 ====
 
 * Slightly decrease dependency of tabs on client class (#644)
+* Clean up theme-specific util code (#663, #664)
+
+Contributors:
+ - Wesmania
 
 0.15.0
 ====
