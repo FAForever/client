@@ -97,7 +97,7 @@ QTabWidget#mainTabs::tab-bar
 QWidget#centralwidget, QProgressDialog, QWindow, QWizard
 {
     color: silver;
-    background-image: url('%THEMEPATH%/stripe.png');
+    background-image: url('%THEMEPATH%/client/stripe.png');
     background-position: top left;
     background-repeat:repeat-x;
     background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #FFFFFF, stop:0.1 #000000, stop:1 #1F1F1F);
@@ -309,7 +309,7 @@ QListWidget#modList::item:selected, QListWidget#newsList::item:selected
 /* for tournament*/
 QListWidget#tourneyList
 {
-    background-image: url('%THEMEPATH%/stripe.png');
+    background-image: url('%THEMEPATH%/client/stripe.png');
     background-position: top left;
     background-repeat:repeat-x;
 
@@ -366,7 +366,7 @@ QScrollBar {
     margin: 16px 0;
 }
 QScrollBar::handle {
-    background-image: url('%THEMEPATH%/drag3.png');
+    background-image: url('%THEMEPATH%/client/drag3.png');
     background-position: center center;
     background-repeat:no-repeat;
     background-color: #2e2d2d;
@@ -376,7 +376,7 @@ QScrollBar::handle {
 
 QScrollBar::handle:hover {
     border-radius : 2px;
-    background-image: url('%THEMEPATH%/drag2.png');
+    background-image: url('%THEMEPATH%/client/drag2.png');
     background-color: #d5d6d6;
     min-height: 24px;
 }
@@ -400,13 +400,13 @@ QScrollBar::add-line  {
 }
 
 QScrollBar:down-arrow {
-    background-image: url('%THEMEPATH%/scrollDown.png');
+    background-image: url('%THEMEPATH%/client/scrollDown.png');
     background-position: center center;
     background-repeat:no-repeat;
  }
 
  QScrollBar:up-arrow {
-    background-image: url('%THEMEPATH%/scrollUp.png');
+    background-image: url('%THEMEPATH%/client/scrollUp.png');
     background-position: center center;
     background-repeat:no-repeat;
 

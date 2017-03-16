@@ -8,7 +8,7 @@ QLabel
 QTabWidget::pane
 {
      /* The tab widget frame */
-    background-image: url('%THEMEPATH%/stripe.png');
+    background-image: url('%THEMEPATH%/coop/formatters/stripe.png');
     background-position: top left;
     background-repeat:repeat-x;
 
