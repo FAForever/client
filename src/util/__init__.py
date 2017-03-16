@@ -175,6 +175,7 @@ __pixmapcache = {}
 __theme = None
 __themedir = None
 
+THEME = None
 
 # Public settings object
 # Stolen from Config because reasons
@@ -508,6 +509,23 @@ class ThemeSet:
                 if pixSelected != None:
                     icon.addPixmap(pixSelected, QtGui.QIcon.Selected, QtGui.QIcon.On)
             return icon
+
+
+def _setup_theme():
+    global THEME
+    global VERSION_STRING
+
+    default = Theme(COMMON_DIR, None)
+    themes = []
+    if (os.path.isdir(THEME_DIR)):
+        for infile in os.listdir(THEME_DIR):
+            theme_path = os.path.join(THEME_DIR, infile)
+            if os.path.isdir(os.path.join(THEME_DIR, infile)):
+                themes.append(Theme(theme_path, infile))
+    THEME = ThemeSet(themes, default, Settings, VERSION_STRING)
+
+_setup_theme()
+
 
 def loadTheme():
     global __theme
