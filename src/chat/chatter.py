@@ -111,9 +111,9 @@ class Chatter(QtWidgets.QTableWidgetItem):
 
         if other.elevation:
             return self.RANK_ELEVATION
-        if (other.id != -1 and me.isFriend(other.id)) or me.isIrcFriend(other.name):
+        if me.isFriend(other.id, other.name):
             return self.RANK_FRIEND - (2 if self.lobby.client.friendsontop else 0)
-        if (other.id != -1 and me.isFoe(other.id)) or me.isIrcFoe(other.name):
+        if me.isFoe(other.id, other.name):
             return self.RANK_FOE
         if self.lobby.client.players.isPlayer(other.id):
             return self.RANK_USER
@@ -226,7 +226,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
             return
 
         # FIXME - we should really get players and me in the constructor
-        affiliation = self.lobby.client.me.getIrcAffiliation(self.name)
+        affiliation = self.lobby.client.me.getAffiliation(name = self.name)
         self.setForeground(QtGui.QColor(PlayerColors.getUserColor(
             affiliation, irc=True,
             random=self.lobby.client.players.coloredNicknames, seed=self.name
@@ -371,10 +371,10 @@ class Chatter(QtWidgets.QTableWidgetItem):
         me = self.lobby.client.me
         if me.player.id == self.id:
             pass    # We're ourselves
-        elif (self.id != -1 and me.isFriend(self.id)) or me.isIrcFriend(self.name):
+        elif me.isFriend(self.id, self.name):
             actionRemFriend.setDisabled(False)# We're a friend
             menu.addAction(actionRemFriend)
-        elif (self.id != -1 and me.isFoe(self.id)) or me.isIrcFoe(self.name):
+        elif me.isFoe(self.id, self.name):
             actionRemFoe.setDisabled(False) # We're a foe
             menu.addAction(actionRemFoe)
         else:

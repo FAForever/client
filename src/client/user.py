@@ -130,24 +130,6 @@ class User(QtCore.QObject):
         self._foes.clear()
         self._clannies.clear()
 
-    def addFriend(self, id_):
-        self._friends.add(id_)
-    def remFriend(self, id_):
-        self._friends.rem(id_)
-    def setFriends(self, ids):
-        self._friends.set(ids)
-    def isFriend(self, id_):
-        return self._friends.has(id_)
-
-    def addFoe(self, id_):
-        self._foes.add(id_)
-    def remFoe(self, id_):
-        self._foes.rem(id_)
-    def setFoes(self, ids):
-        self._foes.set(ids)
-    def isFoe(self, id_):
-        return self._foes.has(id_)
-
     def addClannie(self, id_):
         self._clannies.add(id_)
     def setClannies(self, ids):
@@ -155,14 +137,26 @@ class User(QtCore.QObject):
     def isClannie(self, id_):
         return self._clannies.has(id_)
 
+    def addFriend(self, id_):
+        self._friends.add(id_)
+    def remFriend(self, id_):
+        self._friends.rem(id_)
+    def setFriends(self, ids):
+        self._friends.set(ids)
+
+    def addFoe(self, id_):
+        self._foes.add(id_)
+    def remFoe(self, id_):
+        self._foes.rem(id_)
+    def setFoes(self, ids):
+        self._foes.set(ids)
+
     def addIrcFriend(self, id_):
         self._irc_friends.add(id_)
     def remIrcFriend(self, id_):
         self._irc_friends.rem(id_)
     def setIrcFriends(self, ids):
         self._irc_friends.set(ids)
-    def isIrcFriend(self, id_):
-        return self._irc_friends.has(id_)
 
     def addIrcFoe(self, id_):
         self._irc_foes.add(id_)
@@ -170,23 +164,28 @@ class User(QtCore.QObject):
         self._irc_foes.rem(id_)
     def setIrcFoes(self, ids):
         self._irc_foes.set(ids)
-    def isIrcFoe(self, id_):
-        return self._irc_foes.has(id_)
 
-    def getAffiliation(self, id_):
+    def isFriend(self, id_ = -1, name = None):
+        if id_ != -1:
+            return self._friends.has(id_)
+        elif name is not None:
+            return self._irc_friends.has(name)
+        return False
+
+    def isFoe(self, id_ = -1, name = None):
+        if id_ != -1:
+            return self._foes.has(id_)
+        elif name is not None:
+            return self._irc_foes.has(name)
+        return False
+
+    def getAffiliation(self, id_ = -1, name = None):
         if self.player and self.player.id == id_:
             return PlayerAffiliation.SELF
-        if self.isFriend(id_):
+        if self.isFriend(id_, name):
             return PlayerAffiliation.FRIEND
-        if self.isFoe(id_):
+        if self.isFoe(id_, name):
             return PlayerAffiliation.FOE
         if self.isClannie(id_):
             return PlayerAffiliation.CLANNIE
-        return PlayerAffiliation.OTHER
-
-    def getIrcAffiliation(self, name):
-        if self.isIrcFriend(name):
-            return PlayerAffiliation.FRIEND
-        if self.isIrcFoe(name):
-            return PlayerAffiliation.FOE
         return PlayerAffiliation.OTHER
