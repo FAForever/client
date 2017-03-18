@@ -219,6 +219,9 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
     def log_event(self, e):
         self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
 
+    def shouldIgnore(self, id_, name):
+        return self.client.me.isFoe(id_, name)
+
 # SimpleIRCClient Class Dispatcher Attributes follow here.
     def on_welcome(self, c, e):
         self.log_event(e)
@@ -357,7 +360,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         name, id, elevation, hostname = parse_irc_source(e.source())
         target = e.target()
 
-        if target in self.channels and not self.client.me.isFoe(id):
+        if target in self.channels and not self.shouldIgnore(id, name):
             self.channels[target].printMsg(name, "\n".join(e.arguments()))
 
     def on_privnotice(self, c, e):
@@ -409,7 +412,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
     def on_privmsg(self, c, e):
         name, id, elevation, hostname = parse_irc_source(e.source())
 
-        if self.client.me.isFoe(id):
+        if self.shouldIgnore(id, name):
             return
 
         # Create a Query if it's not open yet, and post to it if it exists.
@@ -420,7 +423,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         name, id, elevation, hostname = parse_irc_source(e.source())  # user2name(e.source())
         target = e.target()
 
-        if self.client.me.isFoe(id):
+        if self.shouldIgnore(id, name):
             return
 
         # Create a Query if it's not an action intended for a channel
