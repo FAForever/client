@@ -120,6 +120,9 @@ class Chatter(QtWidgets.QTableWidgetItem):
 
         return self.RANK_NONPLAYER
 
+    def isMod(self):
+        return self.elevation not in [None, ''] and self.elevation in "~&@%+"
+
     def updateAvatar(self):
         if self.avatar:
 
@@ -208,13 +211,13 @@ class Chatter(QtWidgets.QTableWidgetItem):
             self.rankItem.setIcon(util.THEME.icon("chat/rank/newplayer.png"))
 
     def set_color(self):
-        if self.lobby.client.id == self.id and self.elevation in chat.OPERATOR_COLORS.keys():
+        if self.lobby.client.id == self.id and self.isMod():
             self.setForeground(QtGui.QColor(chat.get_color("self_mod")))
             return
-        if self.lobby.client.me.isFriend(self.id) and self.elevation in chat.OPERATOR_COLORS.keys():
+        if self.lobby.client.me.isFriend(self.id) and self.isMod():
             self.setForeground(QtGui.QColor(chat.get_color("friend_mod")))
             return
-        if self.elevation in chat.colors.OPERATOR_COLORS.keys():
+        if self.isMod():
             self.setForeground(QtGui.QColor(chat.colors.OPERATOR_COLORS[self.elevation]))
             return
 
