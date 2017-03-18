@@ -14,6 +14,7 @@ from client.players import Players
 from client.connection import LobbyInfo, ServerConnection, \
         Dispatcher, ConnectionState, ServerReconnecter
 from client.updater import ClientUpdater, GithubUpdateChecker
+from client.theme_menu import ThemeMenu
 import fa
 from connectivity.helper import ConnectivityHelper
 from fa import GameSession
@@ -743,8 +744,9 @@ class ClientWindow(FormClass, BaseClass):
         self.actionColoredNicknames.triggered.connect(self.updateOptions)
         self.actionFriendsOnTop.triggered.connect(self.updateOptions)
 
-        self.menuTheme.setup(util.listThemes())
-        self.menuTheme.themeSelected.connect(lambda theme: util.setTheme(theme, True))
+        self._menuThemeHandler = ThemeMenu(self.menuTheme)
+        self._menuThemeHandler.setup(util.listThemes())
+        self._menuThemeHandler.themeSelected.connect(lambda theme: util.setTheme(theme, True))
 
     @QtCore.pyqtSlot()
     def updateOptions(self):

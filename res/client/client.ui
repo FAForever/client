@@ -367,7 +367,7 @@
      <addaction name="actionSetGamePort"/>
      <addaction name="actionSaveGamelogs"/>
     </widget>
-    <widget class="ThemeMenu" name="menuTheme">
+    <widget class="QMenu" name="menuTheme">
      <property name="tearOffEnabled">
       <bool>false</bool>
      </property>
@@ -694,11 +694,6 @@
    <class>QWebView</class>
    <extends>QWidget</extends>
    <header>QtWebKitWidgets/QWebView</header>
-  </customwidget>
-  <customwidget>
-   <class>ThemeMenu</class>
-   <extends>QMenu</extends>
-   <header location="global">client.theme_menu</header>
   </customwidget>
  </customwidgets>
  <resources/>

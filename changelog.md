@@ -6,6 +6,7 @@
 
 * Significantly refactor connection to lobby server (#620, #621)
 * Remove redundant APPDATA_DIR loading in util (#665, #666)
+* Fix theme breakage caused by a promoted widget (#669, #670)
 
 Contributors:
   - Wesmania
