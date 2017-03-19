@@ -110,7 +110,7 @@ class ServerReconnecter(QtCore.QObject):
 
     def _ping_connection(self):
         # If we're disconnected, we're already trying to reconnect often
-        if not self._enabled or self._connection.state != CONNECTED:
+        if not self._enabled or self._connection.state != ConnectionState.CONNECTED:
             self._waiting_for_pong = False
             return
 
