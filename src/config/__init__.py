@@ -5,7 +5,7 @@ import logging
 import trueskill
 import fafpath
 import traceback
-from PyQt4 import QtCore
+from PyQt5 import QtCore
 from logging.handlers import RotatingFileHandler, MemoryHandler
 
 if sys.platform == 'win32':

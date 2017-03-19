@@ -1,4 +1,4 @@
-from PyQt4 import QtCore, QtNetwork
+from PyQt5 import QtCore, QtNetwork
 import time
 import json
 import logging

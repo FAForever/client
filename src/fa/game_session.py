@@ -1,5 +1,5 @@
-from PyQt4.QtCore import QObject, pyqtSignal
-from PyQt4.QtNetwork import QTcpServer, QHostAddress
+from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5.QtNetwork import QTcpServer, QHostAddress
 from enum import IntEnum
 
 from connectivity.turn import TURNState

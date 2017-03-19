@@ -1,13 +1,13 @@
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtWidgets, QtGui
 import re
 from config import Settings
 import util
 
 import hashlib
 
-class LoginWizard(QtGui.QWizard):
+class LoginWizard(QtWidgets.QWizard):
     def __init__(self, client):
-        QtGui.QWizard.__init__(self)
+        QtWidgets.QWizard.__init__(self)
 
         self.client = client
         self.login = client.login
@@ -15,12 +15,12 @@ class LoginWizard(QtGui.QWizard):
         
         self.addPage(loginPage(self))
 
-        self.setWizardStyle(QtGui.QWizard.ModernStyle)
+        self.setWizardStyle(QtWidgets.QWizard.ModernStyle)
         self.setModal(True)
 
         buttons_layout = [
-            QtGui.QWizard.CancelButton,
-            QtGui.QWizard.FinishButton
+            QtWidgets.QWizard.CancelButton,
+            QtWidgets.QWizard.FinishButton
         ]
 
         self.setButtonLayout(buttons_layout)
@@ -42,32 +42,32 @@ class LoginWizard(QtGui.QWizard):
         pass
 
 
-class loginPage(QtGui.QWizardPage):
+class loginPage(QtWidgets.QWizardPage):
     def __init__(self, parent=None, *args, **kwargs):
-        QtGui.QWizardPage.__init__(self, *args, **kwargs)
+        QtWidgets.QWizardPage.__init__(self, *args, **kwargs)
 
         self.parent= parent
         self.client = parent.client
         
-        self.setButtonText(QtGui.QWizard.CancelButton, "Quit")
-        self.setButtonText(QtGui.QWizard.FinishButton, "Login")        
+        self.setButtonText(QtWidgets.QWizard.CancelButton, "Quit")
+        self.setButtonText(QtWidgets.QWizard.FinishButton, "Login")
         
         self.setTitle("ACU ready for combat.")
         self.setSubTitle("Log yourself in, commander.")
         
-        self.setPixmap(QtGui.QWizard.WatermarkPixmap, util.pixmap("client/login_watermark.png"))
+        self.setPixmap(QtWidgets.QWizard.WatermarkPixmap, util.pixmap("client/login_watermark.png"))
 
-        loginLabel = QtGui.QLabel("&User name :")
-        self.loginLineEdit = QtGui.QLineEdit()
+        loginLabel = QtWidgets.QLabel("&User name :")
+        self.loginLineEdit = QtWidgets.QLineEdit()
         loginLabel.setBuddy(self.loginLineEdit)
         self.loginLineEdit.setText(self.client.login)
 
-        passwordLabel = QtGui.QLabel("&Password :")
-        self.passwordLineEdit = QtGui.QLineEdit()
+        passwordLabel = QtWidgets.QLabel("&Password :")
+        self.passwordLineEdit = QtWidgets.QLineEdit()
         
         passwordLabel.setBuddy(self.passwordLineEdit)
         
-        self.passwordLineEdit.setEchoMode(QtGui.QLineEdit.Password)
+        self.passwordLineEdit.setEchoMode(QtWidgets.QLineEdit.Password)
                 
         if (self.client.password):
             self.passwordLineEdit.setText("!!!password!!!")
@@ -75,17 +75,17 @@ class loginPage(QtGui.QWizardPage):
         self.passwordLineEdit.selectionChanged.connect(self.passwordLineEdit.clear)               
 
 
-        self.rememberCheckBox = QtGui.QCheckBox("&Remember me")
+        self.rememberCheckBox = QtWidgets.QCheckBox("&Remember me")
         self.rememberCheckBox.setChecked(self.client.remember)
         
 
         self.rememberCheckBox.clicked.connect(self.rememberCheck)
 
-        self.createAccountBtn = QtGui.QPushButton("Create new Account")
-        self.renameAccountBtn = QtGui.QPushButton("Rename your account")
-        self.linkAccountBtn = QtGui.QPushButton("Link your account to Steam")
-        self.forgotPasswordBtn = QtGui.QPushButton("Forgot Login or Password")
-        self.reportBugBtn = QtGui.QPushButton("Report a Bug")
+        self.createAccountBtn = QtWidgets.QPushButton("Create new Account")
+        self.renameAccountBtn = QtWidgets.QPushButton("Rename your account")
+        self.linkAccountBtn = QtWidgets.QPushButton("Link your account to Steam")
+        self.forgotPasswordBtn = QtWidgets.QPushButton("Forgot Login or Password")
+        self.reportBugBtn = QtWidgets.QPushButton("Report a Bug")
 
         self.createAccountBtn.released.connect(self.createAccount)
         self.renameAccountBtn.released.connect(self.renameAccount)
@@ -98,7 +98,7 @@ class loginPage(QtGui.QWizardPage):
         self.registerField('remember', self.rememberCheckBox)
 
 
-        layout = QtGui.QGridLayout()
+        layout = QtWidgets.QGridLayout()
 
         layout.addWidget(loginLabel, 1, 0)
         layout.addWidget(self.loginLineEdit, 1, 1)
@@ -140,9 +140,9 @@ class loginPage(QtGui.QWizardPage):
         QtGui.QDesktopServices.openUrl(QtCore.QUrl(Settings.get("TICKET_URL")))
 
 
-class gameSettingsWizard(QtGui.QWizard):
+class gameSettingsWizard(QtWidgets.QWizard):
     def __init__(self, client, *args, **kwargs):
-        QtGui.QWizard.__init__(self, *args, **kwargs)
+        QtWidgets.QWizard.__init__(self, *args, **kwargs)
         
         self.client = client
 
@@ -153,22 +153,22 @@ class gameSettingsWizard(QtGui.QWizard):
 
         self.setWizardStyle(1)
 
-        self.setPixmap(QtGui.QWizard.BannerPixmap,
+        self.setPixmap(QtWidgets.QWizard.BannerPixmap,
                 QtGui.QPixmap('client/banner.png'))
-        self.setPixmap(QtGui.QWizard.BackgroundPixmap,
-                QtGui.QPixmap('client/background.png'))
+        self.setPixmap(QtWidgets.QWizard.BackgroundPixmap,
+                       QtGui.QPixmap('client/background.png'))
 
         self.setWindowTitle("Set Game Port")
 
     def accept(self):
         self.client.gamePort = self.settings.gamePortSpin.value()
         self.client.useUPnP = self.settings.checkUPnP.isChecked()
-        QtGui.QWizard.accept(self)
+        QtWidgets.QWizard.accept(self)
 
 
-class mumbleOptionsWizard(QtGui.QWizard):
+class mumbleOptionsWizard(QtWidgets.QWizard):
     def __init__(self, client, *args, **kwargs):
-        QtGui.QWizard.__init__(self, *args, **kwargs)
+        QtWidgets.QWizard.__init__(self, *args, **kwargs)
         
         self.client = client
 
@@ -178,44 +178,44 @@ class mumbleOptionsWizard(QtGui.QWizard):
 
         self.setWizardStyle(1)
 
-        self.setPixmap(QtGui.QWizard.BannerPixmap,
-                QtGui.QPixmap('client/banner.png'))
-        self.setPixmap(QtGui.QWizard.BackgroundPixmap,
-                QtGui.QPixmap('client/background.png'))
+        self.setPixmap(QtWidgets.QWizard.BannerPixmap,
+                QtWidgets.QPixmap('client/banner.png'))
+        self.setPixmap(QtWidgets.QWizard.BackgroundPixmap,
+                QtWidgets.QPixmap('client/background.png'))
 
         self.setWindowTitle("Configure Voice")
 
     def accept(self):
         self.client.enableMumble = self.settings.checkEnableMumble.isChecked()
         self.client.saveMumble()
-        QtGui.QWizard.accept(self)
+        QtWidgets.QWizard.accept(self)
 
-class GameSettings(QtGui.QWizardPage):
+class GameSettings(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
         super(GameSettings, self).__init__(parent)
 
         self.parent = parent
         self.setTitle("Network Settings")
-        self.setPixmap(QtGui.QWizard.WatermarkPixmap, util.pixmap("client/settings_watermark.png"))
+        self.setPixmap(QtWidgets.QWizard.WatermarkPixmap, util.pixmap("client/settings_watermark.png"))
         
-        self.label = QtGui.QLabel()
+        self.label = QtWidgets.QLabel()
         self.label.setText('Forged Alliance needs an open UDP port to play. If you have trouble connecting to other players, try the UPnP option first. If that fails, you should try to open or forward the port on your router and firewall.<br/><br/>Visit the <a href="http://forums.faforever.com/forums/viewforum.php?f=3">Tech Support Forum</a> if you need help.<br/><br/>')
         self.label.setOpenExternalLinks(True)
         self.label.setWordWrap(True)
 
-        self.labelport = QtGui.QLabel()
+        self.labelport = QtWidgets.QLabel()
         self.labelport.setText("<b>UDP Port</b> (default 6112)")
         self.labelport.setWordWrap(True)
         
-        self.gamePortSpin = QtGui.QSpinBox() 
+        self.gamePortSpin = QtWidgets.QSpinBox()
         self.gamePortSpin.setMinimum(1024)
         self.gamePortSpin.setMaximum(65535) 
         self.gamePortSpin.setValue(6112)
 
-        self.checkUPnP = QtGui.QCheckBox("use UPnP")
+        self.checkUPnP = QtWidgets.QCheckBox("use UPnP")
         self.checkUPnP.setToolTip("FAF can try to open and forward your game port automatically using UPnP.<br/><b>Caution: This doesn't work for all connections, but may help with some routers.</b>")
 
-        layout = QtGui.QVBoxLayout()
+        layout = QtWidgets.QVBoxLayout()
         layout.addWidget(self.label)
         layout.addWidget(self.labelport)
         layout.addWidget(self.gamePortSpin)
@@ -226,22 +226,22 @@ class GameSettings(QtGui.QWizardPage):
     def validatePage(self):        
         return 1
 
-class MumbleSettings(QtGui.QWizardPage):
+class MumbleSettings(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
         super(MumbleSettings, self).__init__(parent)
 
         self.parent = parent
         self.setTitle("Voice Settings")
-        self.setPixmap(QtGui.QWizard.WatermarkPixmap, util.pixmap("client/settings_watermark.png"))
+        self.setPixmap(QtWidgets.QWizard.WatermarkPixmap, util.pixmap("client/settings_watermark.png"))
         
-        self.label = QtGui.QLabel()
+        self.label = QtWidgets.QLabel()
         self.label.setText('FAF supports the automatic setup of voice connections between you and your team mates. It will automatically move you into a channel with your team mates anytime you enter a game lobby or start a game. To enable, download and install <a href="http://mumble.sourceforge.net/">Mumble</a> and tick the checkbox below.')
         self.label.setOpenExternalLinks(True)
         self.label.setWordWrap(True)
 
-        self.checkEnableMumble = QtGui.QCheckBox("Enable Mumble Connector")
+        self.checkEnableMumble = QtWidgets.QCheckBox("Enable Mumble Connector")
 
-        layout = QtGui.QVBoxLayout()
+        layout = QtWidgets.QVBoxLayout()
         layout.addWidget(self.label)
         layout.addWidget(self.checkEnableMumble)
         self.setLayout(layout)

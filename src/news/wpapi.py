@@ -1,5 +1,5 @@
-from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
-from PyQt4 import QtCore
+from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
+from PyQt5 import QtCore
 
 import json
 import logging

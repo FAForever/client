@@ -1,5 +1,5 @@
 
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtWidgets
 import util
 import secondaryServer
 
@@ -49,23 +49,23 @@ class TournamentsWidget(FormClass, BaseClass):
         self.tourneyServer.send(dict(command="get_tournaments"))
         
        
-    @QtCore.pyqtSlot(QtGui.QListWidgetItem)
+    @QtCore.pyqtSlot(QtWidgets.QListWidgetItem)
     def tourneyDoubleClicked(self, item):
         '''
         Slot that attempts to join or leave a tournament.
         ''' 
         if not self.client.login in item.playersname :
-            reply = QtGui.QMessageBox.question(self.client, "Register",
+            reply = QtWidgets.QMessageBox.question(self.client, "Register",
                 "Do you want to register to this tournament ?",
-                QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-            if reply == QtGui.QMessageBox.Yes:
+                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+            if reply == QtWidgets.QMessageBox.Yes:
                 self.tourneyServer.send(dict(command="add_participant", uid=item.uid, login=self.client.login))
 
         else :
-            reply = QtGui.QMessageBox.question(self.client, "Register",
+            reply = QtWidgets.QMessageBox.question(self.client, "Register",
                 "Do you want to leave this tournament ?",
-                QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-            if reply == QtGui.QMessageBox.Yes:   
+                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+            if reply == QtWidgets.QMessageBox.Yes:
                 self.tourneyServer.send(dict(command="remove_participant", uid=item.uid, login=self.client.login)) 
     
                 

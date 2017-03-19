@@ -1,10 +1,10 @@
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtWidgets
 import fa
 from fa.replay import replay
 from fa.wizards import WizardSC
 import util
 
-from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
+from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest
 
 from games.gameitem import GameItem, GameItemDelegate
 from coop.coopmapitem import CoopMapItem, CoopMapItemDelegate
@@ -47,7 +47,7 @@ class CoopWidget(FormClass, BaseClass):
         self.client.showCoop.connect(self.coopChanged)
         self.client.lobby_info.coopInfo.connect(self.processCoopInfo)
         self.client.lobby_info.gameInfo.connect(self.processGameInfo)
-        self.coopList.header().setResizeMode(0, QtGui.QHeaderView.ResizeToContents)
+        self.coopList.header().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
         self.coopList.setItemDelegate(CoopMapItemDelegate(self))
 
         self.gameList.setItemDelegate(GameItemDelegate(self))
@@ -117,7 +117,7 @@ class CoopWidget(FormClass, BaseClass):
         formatter = self.FORMATTER_LADDER
         formatter_header = self.FORMATTER_LADDER_HEADER
         cursor = w.textCursor()
-        cursor.movePosition(QtGui.QTextCursor.End)
+        cursor.movePosition(QtWidgets.QTextCursor.End)
         w.setTextCursor(cursor) 
         color = "lime"
         line = formatter_header.format(rank="rank", names="names", time="time", color=color)
@@ -210,7 +210,7 @@ class CoopWidget(FormClass, BaseClass):
             typeCoop = message["type"]
             
             if not typeCoop in self.cooptypes:
-                root_item = QtGui.QTreeWidgetItem()
+                root_item = QtWidgets.QTreeWidgetItem()
                 self.coopList.addTopLevelItem(root_item)
                 root_item.setText(0, "<font color='white' size=+3>%s</font>" % typeCoop)
                 self.cooptypes[typeCoop] = root_item
@@ -254,7 +254,7 @@ class CoopWidget(FormClass, BaseClass):
                 del self.games[uid]    
             return
 
-    @QtCore.pyqtSlot(QtGui.QListWidgetItem)
+    @QtCore.pyqtSlot(QtWidgets.QListWidgetItem)
     def gameDoubleClicked(self, item):
         '''
         Slot that attempts to join a game.
@@ -266,7 +266,7 @@ class CoopWidget(FormClass, BaseClass):
             return
 
         if item.password_protected:
-            passw, ok = QtGui.QInputDialog.getText(self.client, "Passworded game" , "Enter password :", QtGui.QLineEdit.Normal, "")
+            passw, ok = QtWidgets.QInputDialog.getText(self.client, "Passworded game" , "Enter password :", QtWidgets.QLineEdit.Normal, "")
             if ok:
                 self.client.join_game(uid=item.uid, password=passw)
         else :

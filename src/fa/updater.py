@@ -25,7 +25,7 @@ import json
 import config
 from config import Settings
 
-from PyQt4 import QtGui, QtCore, QtNetwork
+from PyQt5 import QtWidgets, QtCore, QtNetwork
 
 import util
 import modvault
@@ -61,7 +61,7 @@ class UpdaterProgressDialog(FormClass, BaseClass):
         for watch in self.watches:
             if not watch.isFinished():
                 return
-        self.done(QtGui.QDialog.Accepted)  #equivalent to self.accept(), but clearer
+        self.done(QtWidgets.QDialog.Accepted)  #equivalent to self.accept(), but clearer
 
 
 def clearLog():
@@ -143,7 +143,7 @@ class Updater(QtCore.QObject):
         self.destination = None
 
         self.silent = silent
-        self.progress = QtGui.QProgressDialog()
+        self.progress = QtWidgets.QProgressDialog()
         if self.silent:
             self.progress.setCancelButton(None)
         else:
@@ -163,7 +163,7 @@ class Updater(QtCore.QObject):
         log("Using appdata: " + util.APPDATA_DIR)
 
         self.progress.show()
-        QtGui.QApplication.processEvents()
+        QtWidgets.QApplication.processEvents()
 
 
         #Actual network code adapted from previous version
@@ -176,7 +176,7 @@ class Updater(QtCore.QObject):
         self.updateSocket.connectToHost(self.HOST, self.SOCKET)
 
         while not (self.updateSocket.state() == QtNetwork.QAbstractSocket.ConnectedState) and self.progress.isVisible():
-            QtGui.QApplication.processEvents()
+            QtWidgets.QApplication.processEvents()
 
         if not self.progress.wasCanceled():
             log("Connected to update server at " + timestamp())
@@ -196,7 +196,7 @@ class Updater(QtCore.QObject):
     def fetchFile(self, url, toFile):
         try:
             logger.info('Updater: Downloading {}'.format(url))
-            progress = QtGui.QProgressDialog()
+            progress = QtWidgets.QProgressDialog()
             progress.setCancelButtonText("Cancel")
             progress.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
             progress.setAutoClose(True)
@@ -212,7 +212,7 @@ class Updater(QtCore.QObject):
             progress.setMaximum(file_size)
             progress.setModal(1)
             progress.setWindowTitle("Downloading Update")
-            label = QtGui.QLabel()
+            label = QtWidgets.QLabel()
             label.setOpenExternalLinks(True)
             progress.setLabel(label)
             progress.setLabelText('Downloading FA file : <a href="' + url + '">' + url + '</a><br/>File size: ' + str(
@@ -227,7 +227,7 @@ class Updater(QtCore.QObject):
             block_sz = 4096
 
             while progress.isVisible():
-                QtGui.QApplication.processEvents()
+                QtWidgets.QApplication.processEvents()
                 read_buffer = downloadedfile.read(block_sz)
                 if not read_buffer:
                     break
@@ -245,12 +245,12 @@ class Updater(QtCore.QObject):
                 logger.debug("File downloaded successfully.")
                 return True
             else:
-                QtGui.QMessageBox.information(None, "Aborted", "Download not complete.")
+                QtWidgets.QMessageBox.information(None, "Aborted", "Download not complete.")
                 logger.warn("File download not complete.")
                 return False
         except:
             logger.error("Updater error: ", exc_info=sys.exc_info())
-            QtGui.QMessageBox.information(None, "Download Failed",
+            QtWidgets.QMessageBox.information(None, "Download Failed",
                                           "The file wasn't properly sent by the server. <br/><b>Try again later.</b>")
             return False
 
@@ -261,7 +261,7 @@ class Updater(QtCore.QObject):
         If existing=True, the existing contents of the directory will be added to the current self.filesToUpdate
         list. 
         """
-        QtGui.QApplication.processEvents()
+        QtWidgets.QApplication.processEvents()
 
         self.progress.setLabelText("Updating files: " + filegroup)
         self.destination = destination
@@ -322,7 +322,7 @@ class Updater(QtCore.QObject):
             if time.time() - self.lastData > self.TIMEOUT:
                 raise UpdaterTimeout("Operation timed out while waiting for sim mod path.")
 
-            QtGui.QApplication.processEvents()
+            QtWidgets.QApplication.processEvents()
 
 
     def waitForFileList(self):
@@ -345,7 +345,7 @@ class Updater(QtCore.QObject):
             if time.time() - self.lastData > self.TIMEOUT:
                 raise UpdaterTimeout("Operation timed out while waiting for file list.")
 
-            QtGui.QApplication.processEvents()
+            QtWidgets.QApplication.processEvents()
 
         log("Files to update: [" + ', '.join(self.filesToUpdate) + "]")
 
@@ -370,7 +370,7 @@ class Updater(QtCore.QObject):
             if (time.time() - self.lastData > self.TIMEOUT):
                 raise UpdaterTimeout("Connection timed out while waiting for data.")
 
-            QtGui.QApplication.processEvents()
+            QtWidgets.QApplication.processEvents()
 
         log("Updates applied successfully.")
 
@@ -447,10 +447,10 @@ class Updater(QtCore.QObject):
         if self.result == self.RESULT_CANCEL:
             pass  #The user knows damn well what happened here.
         elif self.result == self.RESULT_PASS:
-            QtGui.QMessageBox.information(QtGui.QApplication.activeWindow(), "Installation Required",
+            QtWidgets.QMessageBox.information(QtWidgets.QApplication.activeWindow(), "Installation Required",
                                           "You can't play without a legal version of Forged Alliance.")
         elif self.result == self.RESULT_BUSY:
-            QtGui.QMessageBox.information(QtGui.QApplication.activeWindow(), "Server Busy",
+            QtWidgets.QMessageBox.information(QtWidgets.QApplication.activeWindow(), "Server Busy",
                                           "The Server is busy preparing new patch files.<br/>Try again later.")
         elif self.result == self.RESULT_FAILURE:
             failureDialog()
@@ -641,7 +641,7 @@ class Updater(QtCore.QObject):
 
             # Update our Gui at least once before proceeding (we might be receiving a huge file and this is not the first time we get here)   
             self.lastData = time.time()
-            QtGui.QApplication.processEvents()
+            QtWidgets.QApplication.processEvents()
 
             #We have an incoming block, wait for enough bytes to accumulate                    
             if self.updateSocket.bytesAvailable() < self.blockSize:
@@ -653,7 +653,7 @@ class Updater(QtCore.QObject):
 
             # Update our Gui at least once before proceeding (we might have to write a big file)
             self.lastData = time.time()
-            QtGui.QApplication.processEvents()
+            QtWidgets.QApplication.processEvents()
 
             # Find out what the server just sent us, and process it.
             action = ins.readQString()
