@@ -1,6 +1,14 @@
 0.x.x
 =====
 
+0.12.5
+=====
+
+* Significantly refactor connection to lobby server (#620, #621)
+
+Contributors:
+  - Wesmania
+
 0.12.4
 =====
 
