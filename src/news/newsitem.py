@@ -1,4 +1,4 @@
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 import util
 import client
@@ -6,9 +6,9 @@ import client
 import logging
 logger = logging.getLogger(__name__)
 
-class NewsItemDelegate(QtGui.QStyledItemDelegate):
+class NewsItemDelegate(QtWidgets.QStyledItemDelegate):
     def __init__(self, *args, **kwargs):
-        QtGui.QStyledItemDelegate.__init__(self, *args, **kwargs)
+        QtWidgets.QStyledItemDelegate.__init__(self, *args, **kwargs)
 
         html = QtGui.QTextDocument()
         to = QtGui.QTextOption()
@@ -30,7 +30,7 @@ class NewsItemDelegate(QtGui.QStyledItemDelegate):
         # clear icon and text before letting the control draw itself because we're rendering these parts ourselves
         option.icon = QtGui.QIcon()
         option.text = ""  
-        option.widget.style().drawControl(QtGui.QStyle.CE_ItemViewItem, option, painter, option.widget)
+        option.widget.style().drawControl(QtWidgets.QStyle.CE_ItemViewItem, option, painter, option.widget)
 
         # Shadow (100x100 shifted 8 right and 8 down)
 #        painter.fillRect(option.rect.left()+8, option.rect.top()+8, 100, 100, QtGui.QColor("#202020"))
@@ -39,7 +39,7 @@ class NewsItemDelegate(QtGui.QStyledItemDelegate):
 #        icon.paint(painter, option.rect.adjusted(3, 3, -7, -7), QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
 
         # Frame around the icon (100x100 shifted 3 right and 3 down)
-#        pen = QtGui.QPen()
+#        pen = QtWidgets.QPen()
 #        pen.setWidth(1)
 #        pen.setBrush(QtGui.QColor("#303030"))  # FIXME: This needs to come from theme.
 #        pen.setCapStyle(QtCore.Qt.RoundCap)
@@ -61,7 +61,7 @@ class NewsItemDelegate(QtGui.QStyledItemDelegate):
         return QtCore.QSize(NewsItem.TEXTWIDTH + NewsItem.PADDING, NewsItem.TEXTHEIGHT)
 
 
-class NewsItem(QtGui.QListWidgetItem):
+class NewsItem(QtWidgets.QListWidgetItem):
     TEXTWIDTH = 230
     TEXTHEIGHT = 85
     PADDING = 10
@@ -69,7 +69,7 @@ class NewsItem(QtGui.QListWidgetItem):
     FORMATTER = str(util.readfile("news/formatters/newsitem.qhtml"))
 
     def __init__(self, newsPost, *args, **kwargs):
-        QtGui.QListWidgetItem.__init__(self, *args, **kwargs)
+        QtWidgets.QListWidgetItem.__init__(self, *args, **kwargs)
 
         self.newsPost = newsPost
 

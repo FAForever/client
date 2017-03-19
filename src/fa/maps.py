@@ -3,7 +3,7 @@ import logging
 import string
 import sys
 from urllib.error import HTTPError
-from PyQt4 import QtCore, QtGui, QtNetwork
+from PyQt5 import QtCore, QtWidgets, QtNetwork
 import io
 import util
 import os
@@ -243,20 +243,20 @@ def genPrevFromDDS(sourcename, destname, small=False):
 
         size = int((len(img)/3) ** (1.0/2))
         if small:
-            imageFile = QtGui.QImage(
+            imageFile = QtWidgets.QImage(
                 img,
                 size,
                 size,
-                QtGui.QImage.Format_RGB888).rgbSwapped().scaled(
+                QtWidgets.QImage.Format_RGB888).rgbSwapped().scaled(
                     100,
                     100,
                     transformMode=QtCore.Qt.SmoothTransformation)
         else:
-            imageFile = QtGui.QImage(
+            imageFile = QtWidgets.QImage(
                 img,
                 size,
                 size,
-                QtGui.QImage.Format_RGB888).rgbSwapped()
+                QtWidgets.QImage.Format_RGB888).rgbSwapped()
         imageFile.save(destname)
     except IOError:
         logger.debug('IOError exception in genPrevFromDDS', exc_info=True)
@@ -392,7 +392,7 @@ def __exportPreviewFromMap(mapname, positions=None):
             massicon = util.pixmap("vault/map_icons/mass.png").scaled(8, 8, 1, 1)
             hydroicon = util.pixmap("vault/map_icons/hydro.png").scaled(10, 10, 1, 1)
 
-            painter = QtGui.QPainter()
+            painter = QtWidgets.QPainter()
 
             painter.begin(mapimage)
             # icons should be drawn in certain order: first layer is hydros,
@@ -461,7 +461,7 @@ def downloadMap(name, silent=False):
     url = VAULT_DOWNLOAD_ROOT + link
     logger.debug("Getting map from: " + url)
 
-    progress = QtGui.QProgressDialog()
+    progress = QtWidgets.QProgressDialog()
     if not silent:
         progress.setCancelButtonText("Cancel")
     else:
@@ -515,14 +515,14 @@ def downloadMap(name, silent=False):
         if sys.exc_info()[0] is HTTPError:
             logger.warning("Vault download failed with HTTPError,"\
                 " map probably not in vault (or broken).")
-            QtGui.QMessageBox.information(
+            QtWidgets.QMessageBox.information(
                 None,
                 "Map not downloadable",
                 "<b>This map was not found in the vault (or is broken).</b>"\
                 "<br/>You need to get it from somewhere else in order to use it.")
         else:
             logger.error("Download Exception", exc_info=sys.exc_info())
-            QtGui.QMessageBox.information(
+            QtWidgets.QMessageBox.information(
                 None,
                 "Map installation failed",
                 "<b>This map could not be installed (please report this map or bug).</b>")

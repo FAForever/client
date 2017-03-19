@@ -1,6 +1,4 @@
-
-
-from PyQt4 import QtCore, QtGui, QtWebKit
+from PyQt5 import QtCore, QtWidgets, QtWebKit, QtWebKitWidgets
 import util
 from stats import mapstat
 from config import Settings
@@ -33,7 +31,7 @@ class StatsWidget(BaseClass, FormClass):
 
         self.client = client
 
-        self.webview = QtWebKit.QWebView()
+        self.webview = QtWebKitWidgets.QWebView()
         
         self.LadderRatings.layout().addWidget(self.webview)
         
@@ -61,7 +59,7 @@ class StatsWidget(BaseClass, FormClass):
     @QtCore.pyqtSlot(int)
     def leagueUpdate(self, index):
         self.currentLeague = index + 1
-        leagueTab = self.leagues.widget(index).findChild(QtGui.QTabWidget,"league"+str(index))
+        leagueTab = self.leagues.widget(index).findChild(QtWidgets.QTabWidget,"league"+str(index))
         if leagueTab:
             if leagueTab.currentIndex() == 0:
                 if time.time() - self.floodtimer > ANTIFLOOD:
@@ -92,7 +90,7 @@ class StatsWidget(BaseClass, FormClass):
         if me.league is not None:  # was me.division, but no there there
             userDivision = me.league[1]  # ? [0]=league and [1]=division
        
-        pages = QtGui.QTabWidget()
+        pages = QtWidgets.QTabWidget()
 
         foundDivision = False
         
@@ -100,7 +98,7 @@ class StatsWidget(BaseClass, FormClass):
             name = division["division"]
             index = division["number"]
             league = division["league"]
-            widget = QtGui.QTextBrowser()
+            widget = QtWidgets.QTextBrowser()
             
             if league not in self.pagesDivisionsResults:
                 self.pagesDivisionsResults[league] = {}
@@ -158,7 +156,7 @@ class StatsWidget(BaseClass, FormClass):
 
             if tab not in self.pagesDivisions:
                 self.pagesDivisions[tab] = self.createDivisionsTabs(message["values"])
-                leagueTab = self.leagues.widget(tab).findChild(QtGui.QTabWidget,"league"+str(tab))   
+                leagueTab = self.leagues.widget(tab).findChild(QtWidgets.QTabWidget,"league"+str(tab))
                 leagueTab.widget(1).layout().addWidget(self.pagesDivisions[tab])
 
         elif typeStat == "division_table":
@@ -173,9 +171,9 @@ class StatsWidget(BaseClass, FormClass):
             self.currentLeague = message["league"]
             tab = self.currentLeague - 1
             if tab not in self.pagesAllLeagues:
-                table = QtGui.QTextBrowser()
+                table = QtWidgets.QTextBrowser()
                 self.pagesAllLeagues[tab] = self.createResults(message["values"], table)
-                leagueTab = self.leagues.widget(tab).findChild(QtGui.QTabWidget,"league"+str(tab))
+                leagueTab = self.leagues.widget(tab).findChild(QtWidgets.QTabWidget,"league"+str(tab))
                 leagueTab.currentChanged.connect(self.divisionsUpdate)
                 leagueTab.widget(0).layout().addWidget(self.pagesAllLeagues[tab])
 

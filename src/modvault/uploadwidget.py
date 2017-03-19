@@ -3,7 +3,7 @@ import tempfile
 import zipfile
 import os
 
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtWidgets
 
 import modvault
 import util
@@ -41,7 +41,7 @@ class UploadModWidget(FormClass, BaseClass):
     def upload(self):
         n = self.Name.text()
         if any([(i in n) for i in '"<*>|?/\\:']):
-            QtGui.QMessageBox.information(self.client,"Invalid Name",
+            QtWidgets.QMessageBox.information(self.client,"Invalid Name",
                         "The mod name contains invalid characters: /\\<>|?:\"")
             return
 
@@ -51,7 +51,7 @@ class UploadModWidget(FormClass, BaseClass):
             localpath = modvault.fullPathToIcon(iconpath)
             infolder = True
         if iconpath != "" and not infolder:
-            QtGui.QMessageBox.information(self.client,"Invalid Icon File",
+            QtWidgets.QMessageBox.information(self.client,"Invalid Icon File",
                         "The file %s is not located inside the modfolder. Copy the icon file to your modfolder and change the mod_info.lua accordingly" % iconpath)
             return
 
@@ -62,7 +62,7 @@ class UploadModWidget(FormClass, BaseClass):
             zipped.close()
             temp.flush()
         except:
-            QtGui.QMessageBox.critical(self.client, "Mod uploading error", "Something went wrong zipping the mod files.")
+            QtWidgets.QMessageBox.critical(self.client, "Mod uploading error", "Something went wrong zipping the mod files.")
             return
         qfile =QtCore.QFile(temp.name)
 
@@ -79,13 +79,13 @@ class UploadModWidget(FormClass, BaseClass):
             iconfilename = os.path.join(self.modDir, os.path.splitext(os.path.basename(iconfilename))[0] + ".png")
             succes = modvault.generateThumbnail(old,iconfilename)
             if not succes:
-                QtGui.QMessageBox.information(self.client,"Invalid Icon File",
+                QtWidgets.QMessageBox.information(self.client,"Invalid Icon File",
                         "Because FAF can't read DDS files, it tried to convert it to a png. This failed. Try something else")
                 return False
         try:
             self.Thumbnail.setPixmap(util.pixmap(iconfilename,False))
         except:
-            QtGui.QMessageBox.information(self.client,"Invalid Icon File",
+            QtWidgets.QMessageBox.information(self.client,"Invalid Icon File",
                         "This was not a valid icon file. Please pick a png or jpeg")
             return False
         self.modinfo.thumbnail = modvault.fullPathToIcon(iconfilename)

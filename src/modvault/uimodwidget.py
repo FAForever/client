@@ -2,7 +2,7 @@
 
 import urllib.request, urllib.error, urllib.parse
 
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtWidgets
 
 import modvault
 import util
@@ -44,10 +44,10 @@ class UIModWidget(FormClass, BaseClass):
         selected_mods = [self.uimods[str(item.text())] for item in self.modList.selectedItems()]
         succes = modvault.setActiveMods(selected_mods, False)
         if not succes:
-            QtGui.QMessageBox.information(None, "Error", "Could not set the active UI mods. Maybe something is wrong with your game.prefs file. Please send your log.")
+            QtWidgets.QMessageBox.information(None, "Error", "Could not set the active UI mods. Maybe something is wrong with your game.prefs file. Please send your log.")
         self.done(1)
 
-    @QtCore.pyqtSlot(QtGui.QListWidgetItem)
+    @QtCore.pyqtSlot(QtWidgets.QListWidgetItem)
     def hoverOver(self, item):
         mod = self.uimods[str(item.text())]
         self.modInfo.setText(self.FORMATTER_UIMOD.format(name=mod.totalname, description=mod.description))

@@ -2,17 +2,17 @@ import os
 import time
 
 import util
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtWidgets, QtGui
 
 from config import Settings
 from fa import maps
 from games.moditem import mods
 
 
-class ReplayItemDelegate(QtGui.QStyledItemDelegate):
+class ReplayItemDelegate(QtWidgets.QStyledItemDelegate):
     
     def __init__(self, *args, **kwargs):
-        QtGui.QStyledItemDelegate.__init__(self, *args, **kwargs)
+        QtWidgets.QStyledItemDelegate.__init__(self, *args, **kwargs)
         
     def paint(self, painter, option, index, *args, **kwargs):
         self.initStyleOption(option, index)
@@ -26,9 +26,9 @@ class ReplayItemDelegate(QtGui.QStyledItemDelegate):
         iconsize = icon.actualSize(option.rect.size())
         
         # clear icon and text before letting the control draw itself because we're rendering these parts ourselves
-        option.icon = QtGui.QIcon()        
+        option.icon = QtGui.QIcon()
         option.text = ""  
-        option.widget.style().drawControl(QtGui.QStyle.CE_ItemViewItem, option, painter, option.widget)
+        option.widget.style().drawControl(QtWidgets.QStyle.CE_ItemViewItem, option, painter, option.widget)
         
         # Shadow
         # painter.fillRect(option.rect.left()+8-1, option.rect.top()+8-1, iconsize.width(), iconsize.height(), QtGui.QColor("#202020"))
@@ -37,7 +37,7 @@ class ReplayItemDelegate(QtGui.QStyledItemDelegate):
         icon.paint(painter, option.rect.adjusted(5-2, -2, 0, 0), QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
         
         # Frame around the icon
-#        pen = QtGui.QPen()
+#        pen = QtWidgets.QPen()
 #        pen.setWidth(1)
 #        pen.setBrush(QtGui.QColor("#303030"))  #FIXME: This needs to come from theme.
 #        pen.setCapStyle(QtCore.Qt.RoundCap)
@@ -64,7 +64,7 @@ class ReplayItemDelegate(QtGui.QStyledItemDelegate):
             return QtCore.QSize(215, 35)
 
 
-class ReplayItem(QtGui.QTreeWidgetItem):
+class ReplayItem(QtWidgets.QTreeWidgetItem):
     # list element
     FORMATTER_REPLAY                = str(util.readfile("replays/formatters/replay.qthtml"))
     # replay-info elements
@@ -78,7 +78,7 @@ class ReplayItem(QtGui.QTreeWidgetItem):
     FORMATTER_REPLAY_PLAYER_LABEL   = "<td align='{alignment}' valign='middle' width='130'>{player_name} ({player_rating})</td>"
 
     def __init__(self, uid, parent, *args, **kwargs):
-        QtGui.QTreeWidgetItem.__init__(self, *args, **kwargs)
+        QtWidgets.QTreeWidgetItem.__init__(self, *args, **kwargs)
 
         self.uid            = uid
         self.parent         = parent
@@ -347,14 +347,14 @@ class ReplayItem(QtGui.QTreeWidgetItem):
             self.parent.replayInfos.setMaximumHeight(self.extraInfoHeight)
 
     def pressed(self, item):
-        menu = QtGui.QMenu(self.parent)
-        actionDownload = QtGui.QAction("Download replay", menu)
+        menu = QtWidgets.QMenu(self.parent)
+        actionDownload = QtWidgets.QAction("Download replay", menu)
         actionDownload.triggered.connect(self.downloadReplay)
         menu.addAction(actionDownload)
-        menu.popup(QtGui.QCursor.pos())
+        menu.popup(QtWidgets.QCursor.pos())
 
     def downloadReplay(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(self.url))
+        QtWidgets.QDesktopServices.openUrl(QtCore.QUrl(self.url))
 
     def display(self, column):
         if column == 0:

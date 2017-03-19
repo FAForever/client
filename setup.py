@@ -10,7 +10,7 @@ sip.setapi('QStringList', 2)
 sip.setapi('QList', 2)
 sip.setapi('QProcess', 2)
 
-import PyQt4.uic
+import PyQt5.uic
 if sys.platform == 'win32':
     from cx_Freeze import setup, Executable
 else:
@@ -24,7 +24,7 @@ product_name = 'Forged Alliance Forever'
 
 if sys.platform == 'win32':
     import config.version as version
-    import PyQt4.uic
+    import PyQt5.uic
 
     root_dir = os.path.dirname(os.path.abspath(__file__))
     res_dir = os.path.join(root_dir, "res")
@@ -38,18 +38,17 @@ if sys.platform == 'win32':
           'Release version:', appveyor_build_version,
           'Build version:', msi_version)
 
-    # Ugly hack to fix broken PyQt4
-    import PyQt4
-    for module in ["invoke.py", "load_plugin.py"]:
-        try:
-            silly_file = Path(PyQt4.__path__[0]) / "uic" / "port_v2" / module
-            print("Removing {}".format(silly_file))
-            silly_file.unlink()
-        except OSError:
-            pass
+# Ugly hack to fix broken PyQt5 (FIXME - necessary?)
+for module in ["invoke.py", "load_plugin.py"]:
+    try:
+        silly_file = Path(PyQt5.__path__[0]) / "uic" / "port_v3" / module
+        print("Removing {}".format(silly_file))
+        silly_file.unlink()
+    except OSError:
+        pass
 
 # Dependencies are automatically detected, but it might need fine tuning.
-import PyQt4.uic
+import PyQt5.uic
 build_exe_options = {
     'include_files': ['res',
                       'imageformats',
@@ -108,9 +107,11 @@ if sys.platform == 'win32':
                           'src/__main__.py',
                           base=base,
                           targetName='FAForever.exe',
-                          icon='res/faf.ico'
+                          icon='res/faf.ico',
+                          includes=[os.path.join(os.path.dirname(PyQt5.uic.__file__), "widget-plugins"),
+                                  "PyQt5.uic.widget-plugins"]
                       )],
-        'requires': ['sip', 'PyQt4', 'cx_Freeze'],
+        'requires': ['sip', 'PyQt5', 'cx_Freeze'],
         'options': {'build_exe': build_exe_options,
                  'bdist_msi': bdist_msi_options},
         'version': msi_version,

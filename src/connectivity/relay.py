@@ -1,5 +1,5 @@
-from PyQt4.QtCore import QObject, pyqtSignal
-from PyQt4.QtNetwork import QUdpSocket, QHostAddress
+from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5.QtNetwork import QUdpSocket, QHostAddress
 
 from decorators import with_logger
 

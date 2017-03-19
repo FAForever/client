@@ -4,7 +4,7 @@ import urllib.request, urllib.error, urllib.parse
 import re
 import shutil
 
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtWidgets
 
 from util import PREFSFILENAME
 import util
@@ -327,7 +327,7 @@ def generateThumbnail(sourcename, destname):
         file.close()
 
         size = int((len(img)/3) ** (1.0/2))
-        imageFile = QtGui.QImage(img,size,size,QtGui.QImage.Format_RGB888).rgbSwapped().scaled(100,100,transformMode = QtCore.Qt.SmoothTransformation)
+        imageFile = QtWidgets.QImage(img,size,size,QtWidgets.QImage.Format_RGB888).rgbSwapped().scaled(100,100,transformMode = QtCore.Qt.SmoothTransformation)
         imageFile.save(destname)
     except IOError:
         return False
@@ -349,7 +349,7 @@ def downloadMod(item): #most of this function is stolen from fa.maps.downloadMap
     
 
     
-    progress = QtGui.QProgressDialog()
+    progress = QtWidgets.QProgressDialog()
     progress.setCancelButtonText("Cancel")
     progress.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
     progress.setAutoClose(False)
@@ -389,9 +389,9 @@ def downloadMod(item): #most of this function is stolen from fa.maps.downloadMap
             dirname = zfile.namelist()[0].split('/',1)[0]
             if os.path.exists(os.path.join(MODFOLDER, dirname)):
                 oldmod = getModInfoFromFolder(dirname)
-                result = QtGui.QMessageBox.question(None, "Modfolder already exists",
-                                "The mod is to be downloaded to the folder '%s'. This folder already exists and contains <b>%s</b>. Do you want to overwrite this mod?" % (dirname,oldmod.totalname), QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
-                if result == QtGui.QMessageBox.No:
+                result = QtWidgets.QMessageBox.question(None, "Modfolder already exists",
+                                "The mod is to be downloaded to the folder '%s'. This folder already exists and contains <b>%s</b>. Do you want to overwrite this mod?" % (dirname,oldmod.totalname), QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
+                if result == QtWidgets.QMessageBox.No:
                     return False
                 removeMod(oldmod)
             zfile.extractall(MODFOLDER)
@@ -405,10 +405,10 @@ def downloadMod(item): #most of this function is stolen from fa.maps.downloadMap
         logger.warn("Mod download or extraction failed for: " + link)        
         if sys.exc_info()[0] is urllib.error.HTTPError:
             logger.warning("ModVault download failed with HTTPError, mod probably not in vault (or broken).")
-            QtGui.QMessageBox.information(None, "Mod not downloadable", "<b>This mod was not found in the vault (or is broken).</b><br/>You need to get it from somewhere else in order to use it." )
+            QtWidgets.QMessageBox.information(None, "Mod not downloadable", "<b>This mod was not found in the vault (or is broken).</b><br/>You need to get it from somewhere else in order to use it." )
         else:                
             logger.error("Download Exception", exc_info=sys.exc_info())
-            QtGui.QMessageBox.information(None, "Mod installation failed", "<b>This mod could not be installed (please report this map or bug).</b>")
+            QtWidgets.QMessageBox.information(None, "Mod installation failed", "<b>This mod could not be installed (please report this map or bug).</b>")
         return False
 
     return True

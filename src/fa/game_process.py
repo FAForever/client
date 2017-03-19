@@ -1,7 +1,7 @@
 import os
 import sys
 
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtWidgets
 import config
 import re
 
@@ -21,7 +21,7 @@ class GameProcess(QtCore.QProcess):
         QtCore.QProcess.__init__(self, *args, **kwargs)
         self.info = None
 
-    @QtCore.pyqtSlot(list)
+    @QtCore.pyqtSlot(dict)
     def processGameInfo(self, message):
         '''
         Processes game info events, sifting out the ones relevant to the game that's currently playing.
@@ -67,7 +67,7 @@ class GameProcess(QtCore.QProcess):
                     self.startDetached(executable, arguments, os.path.dirname(executable))
                 return True
             else:
-                QtGui.QMessageBox.warning(None, "ForgedAlliance.exe", "Another instance of FA is already running.")
+                QtWidgets.QMessageBox.warning(None, "ForgedAlliance.exe", "Another instance of FA is already running.")
                 return False
 
     def running(self):
@@ -75,13 +75,13 @@ class GameProcess(QtCore.QProcess):
 
     def available(self):
         if self.running():
-            QtGui.QMessageBox.warning(QtGui.QApplication.activeWindow(), "ForgedAllianceForever.exe", "<b>Forged Alliance is already running.</b><br/>You can only run one instance of the game.")
+            QtWidgets.QMessageBox.warning(QtWidgets.QApplication.activeWindow(), "ForgedAllianceForever.exe", "<b>Forged Alliance is already running.</b><br/>You can only run one instance of the game.")
             return False
         return True
 
     def close(self):
         if self.running():
-            progress = QtGui.QProgressDialog()
+            progress = QtWidgets.QProgressDialog()
             progress.setCancelButtonText("Terminate")
             progress.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
             progress.setAutoClose(False)
@@ -95,7 +95,7 @@ class GameProcess(QtCore.QProcess):
             progress.show()
 
             while self.running() and progress.isVisible():
-                QtGui.QApplication.processEvents()
+                QtWidgets.QApplication.processEvents()
 
             progress.close()
 

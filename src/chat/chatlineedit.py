@@ -4,17 +4,17 @@ Created on Dec 8, 2011
 
 @author: thygrrr
 """
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtWidgets
 
 
-class ChatLineEdit(QtGui.QLineEdit):
+class ChatLineEdit(QtWidgets.QLineEdit):
     """
     A special promoted QLineEdit that is used in channel.ui to provide a mirc-style editing experience
     with completion and history.
     LATER: History and tab completion support
     """
     def __init__(self, parent):
-        QtGui.QLineEdit.__init__(self, parent)
+        QtWidgets.QLineEdit.__init__(self, parent)
         self.returnPressed.connect(self.onLineEntered)
         self.history = []
         self.currentHistoryIndex = None
@@ -35,7 +35,7 @@ class ChatLineEdit(QtGui.QLineEdit):
                 return True
             elif event.key() == QtCore.Qt.Key_Space:
                 self.acceptCompletion()
-                return QtGui.QLineEdit.event(self, event)
+                return QtWidgets.QLineEdit.event(self, event)
             elif event.key() == QtCore.Qt.Key_Up:
                 self.cancelCompletion()
                 self.prevHistory()
@@ -46,10 +46,10 @@ class ChatLineEdit(QtGui.QLineEdit):
                 return True
             else:
                 self.cancelCompletion()
-                return QtGui.QLineEdit.event(self, event)
+                return QtWidgets.QLineEdit.event(self, event)
 
         # All other events (non-keypress)
-        return QtGui.QLineEdit.event(self, event)
+        return QtWidgets.QLineEdit.event(self, event)
 
     @QtCore.pyqtSlot()
     def onLineEntered(self):
@@ -58,7 +58,7 @@ class ChatLineEdit(QtGui.QLineEdit):
 
     def showEvent(self, event):
         self.setFocus(True)
-        return QtGui.QLineEdit.showEvent(self, event)
+        return QtWidgets.QLineEdit.showEvent(self, event)
 
     def tryCompletion(self):
         if not self.completionStarted:

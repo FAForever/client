@@ -6,13 +6,12 @@ from config import Settings
 
 from . import APPDATA_DIR, PERSONAL_DIR, VERSION_STRING
 
-from PyQt4.QtGui import QDesktopServices
-from PyQt4.QtCore import QUrl
+from PyQt5.QtGui import QDesktopServices
+from PyQt5.QtCore import QUrl
 
 CRASH_REPORT_USER = "pre-login"
 
 FormClass, BaseClass = util.loadUiType("client/crash.ui")
-
 
 class CrashDialog(FormClass, BaseClass):
     def __init__(self, exc_info, *args, **kwargs):

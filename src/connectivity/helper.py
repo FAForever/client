@@ -2,8 +2,8 @@
 
 from functools import partial
 
-from PyQt4.QtCore import QObject, pyqtSignal, QTimer, Qt
-from PyQt4.QtNetwork import QUdpSocket, QHostAddress, QAbstractSocket
+from PyQt5.QtCore import QObject, pyqtSignal, QTimer, Qt
+from PyQt5.QtNetwork import QUdpSocket, QHostAddress, QAbstractSocket
 import time
 
 from connectivity import QTurnSocket
@@ -12,7 +12,7 @@ from connectivity.turn import TURNState
 from decorators import with_logger
 
 
-from PyQt4 import QtGui, uic
+from PyQt5 import QtWidgets, uic
 
 
 @with_logger
@@ -160,7 +160,7 @@ class ConnectivityHelper(QObject):
         state, addr = msg['args']
         if state == 'BLOCKED':
             self._logger.warning("Outbound traffic is blocked")
-            QtGui.QMessageBox.warning(None, "Traffic Blocked", "Your outbound traffic appears to be blocked. Try restarting FAF. <br/> If the error persists please contact a moderator and send your logs. <br/> We are already working on a solution to this problem.")
+            QtWidgets.QMessageBox.warning(None, "Traffic Blocked", "Your outbound traffic appears to be blocked. Try restarting FAF. <br/> If the error persists please contact a moderator and send your logs. <br/> We are already working on a solution to this problem.")
         else:
             host, port = addr.split(':')
             self.state, self.mapped_address = state, (host, port)

@@ -30,7 +30,7 @@ install:
   - ps: "$env:faf_version = \"$(&C:\\Miniconda\\python .\\src\\config\\version.py)\".Replace(' ','')"
   - ps: "$env:APPVEYOR_BUILD_VERSION = \"$($env:faf_version)+$($env:APPVEYOR_BUILD_NUMBER)\""
   - ps: "Write-Host \"$($env:faf_version) + $($env:APPVEYOR_BUILD_NUMBER) = $($env:APPVEYOR_BUILD_VERSION)\""
-  - ps: "$env:PYTEST_QT_API=\"pyqt4v2\""
+  - ps: "$env:PYTEST_QT_API=\"PyQt5v2\""
   - ps: "$env:FAF_FORCE_PRODUCTION=true"
   - ps: "Invoke-WebRequest -Uri \"https://github.com/FAForever/uid/releases/download/$($env:UID_VERSION)/faf-uid.exe\" -OutFile \".\\lib\\faf-uid.exe\""
 

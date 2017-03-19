@@ -5,7 +5,7 @@ import shutil
 import zipfile
 import binascii
 
-from PyQt4 import QtGui
+from PyQt5 import QtWidgets
 
 import fa
 import config
@@ -32,15 +32,15 @@ def map_(mapname, force=False, silent=False):
 
     auto = config.Settings.get('maps/autodownload', default=False, type=bool)
     if not auto:
-        msgbox = QtGui.QMessageBox()
+        msgbox = QtWidgets.QMessageBox()
         msgbox.setWindowTitle("Download Map")
         msgbox.setText("Seems that you don't have the map used this game. Do you want to download it?<br/><b>" + mapname + "</b>")
         msgbox.setInformativeText("If you respond 'Yes to All' maps will be downloaded automatically in the future")
-        msgbox.setStandardButtons(QtGui.QMessageBox.Yes | QtGui.QMessageBox.YesToAll | QtGui.QMessageBox.No)
+        msgbox.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.YesToAll | QtWidgets.QMessageBox.No)
         result = msgbox.exec_()
-        if result == QtGui.QMessageBox.No:
+        if result == QtWidgets.QMessageBox.No:
             return False
-        elif result == QtGui.QMessageBox.YesToAll:
+        elif result == QtWidgets.QMessageBox.YesToAll:
             config.Settings.set('maps/autodownload', True)
 
     return fa.maps.downloadMap(mapname, silent=silent)
@@ -58,7 +58,7 @@ def path(parent):
         logger.warn("Invalid game path: " + util.settings.value("ForgedAlliance/app/path", "", type=str))
         wizard = Wizard(parent)
         result = wizard.exec_()
-        if result == QtGui.QWizard.Rejected:
+        if result == QtWidgets.QWizard.Rejected:
             return False
 
     logger.info("Writing fa_path.lua config file.")

@@ -1,9 +1,9 @@
 from functools import partial
 
-from PyQt4 import Qt
-from PyQt4.QtCore import QUrl
-from PyQt4.QtGui import QLabel, QStyle, QAction
-from PyQt4.QtNetwork import QAbstractSocket
+from PyQt5 import Qt
+from PyQt5.QtCore import QUrl, QProcess
+from PyQt5.QtWidgets import QLabel, QStyle, QAction
+from PyQt5.QtNetwork import QAbstractSocket
 
 import config
 import connectivity
@@ -30,7 +30,7 @@ Created on Dec 1, 2011
 @author: thygrrr
 '''
 
-from PyQt4 import QtCore, QtGui, QtNetwork, QtWebKit
+from PyQt5 import QtCore, QtWidgets, QtNetwork, QtWebKit
 
 from client import ClientState, LOBBY_HOST, \
     LOBBY_PORT, LOCAL_REPLAY_PORT
@@ -95,7 +95,7 @@ class ClientWindow(FormClass, BaseClass):
     Its UI also houses all the other UIs for the sub-modules.
     """
 
-    topWidget = QtGui.QWidget()
+    topWidget = QtWidgets.QWidget()
 
     state_changed = QtCore.pyqtSignal(object)
     authorized = QtCore.pyqtSignal(object)
@@ -139,18 +139,18 @@ class ClientWindow(FormClass, BaseClass):
         logger.debug("Client instantiating")
 
         # Hook to Qt's application management system
-        QtGui.QApplication.instance().aboutToQuit.connect(self.cleanup)
+        QtWidgets.QApplication.instance().aboutToQuit.connect(self.cleanup)
 
         self.uniqueId = None
 
         self.sendFile = False
-        self.progress = QtGui.QProgressDialog()
+        self.progress = QtWidgets.QProgressDialog()
         self.progress.setMinimum(0)
         self.progress.setMaximum(0)
         self.warning_buttons = {}
 
         # Tray icon
-        self.tray = QtGui.QSystemTrayIcon()
+        self.tray = QtWidgets.QSystemTrayIcon()
         self.tray.setIcon(util.icon("client/tray_icon.png"))
         self.tray.show()
 
@@ -187,7 +187,7 @@ class ClientWindow(FormClass, BaseClass):
         # Process used to run Forged Alliance (managed in module fa)
         fa.instance.started.connect(self.startedFA)
         fa.instance.finished.connect(self.finishedFA)
-        fa.instance.error.connect(self.errorFA)
+        fa.instance.errorOccurred.connect(self.errorFA)
         self.lobby_info.gameInfo.connect(fa.instance.processGameInfo)
 
         # Local Replay Server
@@ -212,18 +212,18 @@ class ClientWindow(FormClass, BaseClass):
         self.setWindowFlags(
             QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowSystemMenuHint | QtCore.Qt.WindowMinimizeButtonHint)
 
-        self.rubberBand = QtGui.QRubberBand(QtGui.QRubberBand.Rectangle)
+        self.rubberBand = QtWidgets.QRubberBand(QtWidgets.QRubberBand.Rectangle)
 
         self.mousePosition = mousePosition(self)
         self.installEventFilter(self)
 
-        self.minimize = QtGui.QToolButton(self)
+        self.minimize = QtWidgets.QToolButton(self)
         self.minimize.setIcon(util.icon("client/minimize-button.png"))
 
-        self.maximize = QtGui.QToolButton(self)
+        self.maximize = QtWidgets.QToolButton(self)
         self.maximize.setIcon(util.icon("client/maximize-button.png"))
 
-        close = QtGui.QToolButton(self)
+        close = QtWidgets.QToolButton(self)
         close.setIcon(util.icon("client/close-button.png"))
 
         self.minimize.setMinimumHeight(10)
@@ -255,7 +255,7 @@ class ClientWindow(FormClass, BaseClass):
         self.topLayout.addWidget(self.maximize)
         self.topLayout.addWidget(close)
         self.topLayout.setSpacing(0)
-        self.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
+        self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         self.maxNormal = False
 
         close.clicked.connect(self.close)
@@ -268,7 +268,7 @@ class ClientWindow(FormClass, BaseClass):
         self.offset = None
         self.curSize = None
 
-        sizeGrip = QtGui.QSizeGrip(self)
+        sizeGrip = QtWidgets.QSizeGrip(self)
         self.mainGridLayout.addWidget(sizeGrip, 2, 2)
 
         # Wire all important signals
@@ -411,7 +411,7 @@ class ClientWindow(FormClass, BaseClass):
         else:
             self.maxNormal = True
             self.curSize = self.geometry()
-            self.setGeometry(QtGui.QDesktopWidget().availableGeometry(self))
+            self.setGeometry(QtWidgets.QDesktopWidget().availableGeometry(self))
 
     def mouseDoubleClickEvent(self, event):
         self.showMaxRestore()
@@ -442,7 +442,7 @@ class ClientWindow(FormClass, BaseClass):
             self.resizeWidget(event.globalPos())
 
         elif self.moving and self.offset != None:
-            desktop = QtGui.QDesktopWidget().availableGeometry(self)
+            desktop = QtWidgets.QDesktopWidget().availableGeometry(self)
             if event.globalPos().y() == 0:
                 self.rubberBand.setGeometry(desktop)
                 self.rubberBand.show()
@@ -465,7 +465,7 @@ class ClientWindow(FormClass, BaseClass):
 
     def resizeWidget(self, globalMousePos):
         if globalMousePos.y() == 0:
-            self.rubberBand.setGeometry(QtGui.QDesktopWidget().availableGeometry(self))
+            self.rubberBand.setGeometry(QtWidgets.QDesktopWidget().availableGeometry(self))
             self.rubberBand.show()
         else:
             self.rubberBand.hide()
@@ -555,7 +555,7 @@ class ClientWindow(FormClass, BaseClass):
         self.avatarAdmin = self.avatarSelection = avatarWidget(self, None)
 
         # warning setup
-        self.warning = QtGui.QHBoxLayout()
+        self.warning = QtWidgets.QHBoxLayout()
 
         # units database (ex. live streams)
         # old unitDB
@@ -563,7 +563,7 @@ class ClientWindow(FormClass, BaseClass):
         # spookys unitDB (will be moved to site)
         # self.unitdbWebView.setUrl(QtCore.QUrl("http://spooky.github.io/unitdb/#/"))
 
-        self.warnPlayer = QtGui.QLabel(self)
+        self.warnPlayer = QtWidgets.QLabel(self)
         self.warnPlayer.setText(
             "A player of your skill level is currently searching for a 1v1 game. Click a faction to join them! ")
         self.warnPlayer.setAlignment(QtCore.Qt.AlignHCenter)
@@ -573,7 +573,7 @@ class ClientWindow(FormClass, BaseClass):
         self.warning.addWidget(self.warnPlayer)
 
         def add_warning_button(faction):
-            button = QtGui.QToolButton(self)
+            button = QtWidgets.QToolButton(self)
             button.setMaximumSize(25, 25)
             button.setIcon(util.icon("games/automatch/%s.png" % faction.to_name()))
             button.clicked.connect(partial(self.games.startSearchRanked, faction))
@@ -692,13 +692,13 @@ class ClientWindow(FormClass, BaseClass):
         self.saveWindow()
 
         if fa.instance.running():
-            if QtGui.QMessageBox.question(self, "Are you sure?",
+            if QtWidgets.QMessageBox.question(self, "Are you sure?",
                                           "Seems like you still have Forged Alliance running!<br/><b>Close anyway?</b>",
-                                          QtGui.QMessageBox.Yes, QtGui.QMessageBox.No) == QtGui.QMessageBox.No:
+                                          QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No) == QtWidgets.QMessageBox.No:
                 event.ignore()
                 return
 
-        return QtGui.QMainWindow.closeEvent(self, event)
+        return QtWidgets.QMainWindow.closeEvent(self, event)
 
     def initMenus(self):
         self.actionLink_account_to_Steam.triggered.connect(partial(self.open_url, Settings.get("STEAMLINK_URL")))
@@ -776,14 +776,14 @@ class ClientWindow(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def clearSettings(self):
-        result = QtGui.QMessageBox.question(None, "Clear Settings",
+        result = QtWidgets.QMessageBox.question(None, "Clear Settings",
                                             "Are you sure you wish to clear all settings, login info, etc. used by this program?",
-                                            QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
-        if (result == QtGui.QMessageBox.Yes):
+                                            QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
+        if (result == QtWidgets.QMessageBox.Yes):
             util.settings.clear()
             util.settings.sync()
-            QtGui.QMessageBox.information(None, "Restart Needed", "FAF will quit now.")
-            QtGui.QApplication.quit()
+            QtWidgets.QMessageBox.information(None, "Restart Needed", "FAF will quit now.")
+            QtWidgets.QApplication.quit()
 
     @QtCore.pyqtSlot()
     def clearGameFiles(self):
@@ -794,8 +794,8 @@ class ClientWindow(FormClass, BaseClass):
     def clearCache(self):
         changed = util.clearDirectory(util.CACHE_DIR)
         if changed:
-            QtGui.QMessageBox.information(None, "Restart Needed", "FAF will quit now.")
-            QtGui.QApplication.quit()
+            QtWidgets.QMessageBox.information(None, "Restart Needed", "FAF will quit now.")
+            QtWidgets.QApplication.quit()
 
     # Clear the online users lists
     def clear_players(self):
@@ -806,7 +806,7 @@ class ClientWindow(FormClass, BaseClass):
 
     @QtCore.pyqtSlot(str)
     def open_url(self, url):
-        QtGui.QDesktopServices.openUrl(QUrl(url))
+        QtWidgets.QDesktopServices.openUrl(QUrl(url))
 
     @QtCore.pyqtSlot()
     def linkShowLogs(self):
@@ -952,7 +952,7 @@ class ClientWindow(FormClass, BaseClass):
             logger.warn("FA has finished with exit code: " + str(exit_code))
         self.gameExit.emit()
 
-    @QtCore.pyqtSlot(int)
+    @QtCore.pyqtSlot(QProcess.ProcessError)
     def errorFA(self, error_code):
         """
         Slot hooked up to fa.instance when the process has failed to start.
@@ -960,13 +960,13 @@ class ClientWindow(FormClass, BaseClass):
         logger.error("FA has died with error: " + fa.instance.errorString())
         if error_code == 0:
             logger.error("FA has failed to start")
-            QtGui.QMessageBox.critical(self, "Error from FA", "FA has failed to start.")
+            QtWidgets.QMessageBox.critical(self, "Error from FA", "FA has failed to start.")
         elif error_code == 1:
             logger.error("FA has crashed or killed after starting")
         else:
             text = "FA has failed to start with error code: " + str(error_code)
             logger.error(text)
-            QtGui.QMessageBox.critical(self, "Error from FA", text)
+            QtWidgets.QMessageBox.critical(self, "Error from FA", text)
         self.gameExit.emit()
 
     @QtCore.pyqtSlot(int)
@@ -1015,12 +1015,14 @@ class ClientWindow(FormClass, BaseClass):
         if fa.instance.available():
             add_mods = []
             try:
-                modstr = url.queryItemValue("mods")
+                modstr = QtCore.QUrlQuery(url).queryItemValue("mods")
                 add_mods = json.loads(modstr)  # should be a list
             except:
                 logger.info("Couldn't load urlquery value 'mods'")
             if fa.check.game(self):
-                uid, mod, map = url.queryItemValue('uid'), url.queryItemValue('mod'), url.queryItemValue('map')
+                uid, mod, map = QtCore.QUrlQuery(url).queryItemValue('uid'), \
+                                QtCore.QUrlQuery(url).queryItemValue('mod'), \
+                                QtCore.QUrlQuery(url).queryItemValue('map')
                 if fa.check.check(mod,
                                   map,
                                   sim_mods=add_mods):
@@ -1036,7 +1038,7 @@ class ClientWindow(FormClass, BaseClass):
             if self.modMenu == None:
                 self.modMenu = self.menu.addMenu("Administration")
 
-            actionAvatar = QtGui.QAction("Avatar manager", self.modMenu)
+            actionAvatar = QtWidgets.QAction("Avatar manager", self.modMenu)
             actionAvatar.triggered.connect(self.avatarManager)
             self.modMenu.addAction(actionAvatar)
 
@@ -1337,7 +1339,7 @@ class ClientWindow(FormClass, BaseClass):
         self.avatarSelection.show()
 
     def handle_authentication_failed(self, message):
-        QtGui.QMessageBox.warning(self, "Authentication failed", message["text"])
+        QtWidgets.QMessageBox.warning(self, "Authentication failed", message["text"])
         self._autorelogin = False
         self.get_creds_and_login()
 
@@ -1345,14 +1347,14 @@ class ClientWindow(FormClass, BaseClass):
         if "text" in message:
             style = message.get('style', None)
             if style == "error":
-                QtGui.QMessageBox.critical(self, "Error from Server", message["text"])
+                QtWidgets.QMessageBox.critical(self, "Error from Server", message["text"])
             elif style == "warning":
-                QtGui.QMessageBox.warning(self, "Warning from Server", message["text"])
+                QtWidgets.QMessageBox.warning(self, "Warning from Server", message["text"])
             elif style == "scores":
-                self.tray.showMessage("Scores", message["text"], QtGui.QSystemTrayIcon.Information, 3500)
+                self.tray.showMessage("Scores", message["text"], QtWidgets.QSystemTrayIcon.Information, 3500)
                 self.localBroadcast.emit("Scores", message["text"])
             else:
-                QtGui.QMessageBox.information(self, "Notice from Server", message["text"])
+                QtWidgets.QMessageBox.information(self, "Notice from Server", message["text"])
 
         if message["style"] == "kill":
             logger.info("Server has killed your Forged Alliance Process.")
