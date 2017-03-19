@@ -1,4 +1,4 @@
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtWidgets, QtGui
 import trueskill
 from trueskill import Rating
 from fa import maps
@@ -14,10 +14,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class GameItemDelegate(QtGui.QStyledItemDelegate):
+class GameItemDelegate(QtWidgets.QStyledItemDelegate):
     
     def __init__(self, *args, **kwargs):
-        QtGui.QStyledItemDelegate.__init__(self, *args, **kwargs)
+        QtWidgets.QStyledItemDelegate.__init__(self, *args, **kwargs)
         
     def paint(self, painter, option, index, *args, **kwargs):
         self.initStyleOption(option, index)
@@ -30,9 +30,9 @@ class GameItemDelegate(QtGui.QStyledItemDelegate):
         icon = QtGui.QIcon(option.icon)
 
         # clear icon and text before letting the control draw itself because we're rendering these parts ourselves
-        option.icon = QtGui.QIcon()        
+        option.icon = QtGui.QIcon()
         option.text = ""  
-        option.widget.style().drawControl(QtGui.QStyle.CE_ItemViewItem, option, painter, option.widget)
+        option.widget.style().drawControl(QtWidgets.QStyle.CE_ItemViewItem, option, painter, option.widget)
         
         # Shadow (100x100 shifted 8 right and 8 down)
         painter.fillRect(option.rect.left()+8, option.rect.top()+8, 100, 100, QtGui.QColor("#202020"))
@@ -64,7 +64,7 @@ class GameItemDelegate(QtGui.QStyledItemDelegate):
         return QtCore.QSize(GameItem.ICONSIZE + GameItem.TEXTWIDTH + GameItem.PADDING, GameItem.ICONSIZE)  
 
 
-class GameItem(QtGui.QListWidgetItem):
+class GameItem(QtWidgets.QListWidgetItem):
     TEXTWIDTH = 250
     ICONSIZE = 110
     PADDING = 10
@@ -74,7 +74,7 @@ class GameItem(QtGui.QListWidgetItem):
     FORMATTER_TOOL = str(util.readfile("games/formatters/tool.qthtml"))
     
     def __init__(self, uid, *args, **kwargs):
-        QtGui.QListWidgetItem.__init__(self, *args, **kwargs)
+        QtWidgets.QListWidgetItem.__init__(self, *args, **kwargs)
 
         self.uid            = uid
         self.mapname        = None
@@ -104,17 +104,21 @@ class GameItem(QtGui.QListWidgetItem):
             url.setScheme("faflive")
             url.setHost("lobby.faforever.com")
             url.setPath(str(self.uid) + "/" + str(player_id) + ".SCFAreplay")
-            url.addQueryItem("map", self.mapname)
-            url.addQueryItem("mod", self.mod)
+            query = QtCore.QUrlQuery()
+            query.addQueryItem("map", self.mapname)
+            query.addQueryItem("mod", self.mod)
+            url.setQuery(query)
             return url
         elif self.state == "open":
             url = QtCore.QUrl()
             url.setScheme("fafgame")
             url.setHost("lobby.faforever.com")
             url.setPath(str(player_id))
-            url.addQueryItem("map", self.mapname)
-            url.addQueryItem("mod", self.mod)
-            url.addQueryItem("uid", str(self.uid))
+            query = QtCore.QUrlQuery()
+            query.addQueryItem("map", self.mapname)
+            query.addQueryItem("mod", self.mod)
+            query.addQueryItem("uid", str(self.uid))
+            url.setQuery(query)
             return url
         return None 
         

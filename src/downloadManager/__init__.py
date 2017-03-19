@@ -1,5 +1,5 @@
-from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
-from PyQt4 import QtGui, QtCore
+from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
+from PyQt5 import QtWidgets, QtCore
 import urllib.request, urllib.error, urllib.parse
 import logging
 import os
@@ -47,7 +47,7 @@ class downloadManager(QtCore.QObject):
                 #Create alpha-mapped preview image
                 try:
                     pass # the server already sends 100x100 pic
-#                    img = QtGui.QImage(pathimg).scaled(100,100)
+#                    img = QtWidgets.QImage(pathimg).scaled(100,100)
 #                    img.save(pathimg)
                 except:
                     pathimg = "games/unknown_map.png"

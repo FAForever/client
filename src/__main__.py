@@ -6,13 +6,13 @@ Created on Dec 1, 2011
 """
 
 # CRUCIAL: This must remain on top.
-import sip
+#import sip
 
-sip.setapi('QString', 2)
-sip.setapi('QVariant', 2)
-sip.setapi('QStringList', 2)
-sip.setapi('QList', 2)
-sip.setapi('QProcess', 2)
+#sip.setapi('QString', 2)
+#sip.setapi('QVariant', 2)
+#sip.setapi('QStringList', 2)
+#sip.setapi('QList', 2)
+#sip.setapi('QProcess', 2)
 
 import os
 import sys
@@ -40,9 +40,10 @@ if os.path.isdir("lib"):
 elif os.path.isdir("../lib"):
     sys.path.insert(0, os.path.abspath("../lib"))
 
-from PyQt4 import QtGui, uic
+from PyQt5 import QtWidgets, uic
+from PyQt5.QtCore import Qt
 
-path = os.path.join(os.path.dirname(sys.argv[0]), "PyQt4.uic.widget-plugins")
+path = os.path.join(os.path.dirname(sys.argv[0]), "PyQt5.uic.widget-plugins")
 uic.widgetPluginPath.append(path)
 
 import util
@@ -60,8 +61,8 @@ def excepthook(exc_type, exc_value, traceback_object):
     dialog = util.CrashDialog((exc_type, exc_value, traceback_object))
     answer = dialog.exec_()
 
-    if answer == QtGui.QDialog.Rejected:
-        QtGui.QApplication.exit(1)
+    if answer == QtWidgets.QDialog.Rejected:
+        QtWidgets.QApplication.exit(1)
 
     sys.excepthook = excepthook
 
@@ -69,12 +70,12 @@ def AdminUserErrorDialog():
     from config import Settings
     ignore_admin = Settings.get("client/ignore_admin", False, bool)
     if not ignore_admin:
-        box = QtGui.QMessageBox()
+        box = QtWidgets.QMessageBox()
         box.setText("FAF should not be run as an administrator!<br><br>This probably means you need to fix the file permissions in C:\\ProgramData.<br>Proceed at your own risk.")
-        box.setStandardButtons(QtGui.QMessageBox.Ignore | QtGui.QMessageBox.Close)
-        box.setIcon(QtGui.QMessageBox.Critical)
+        box.setStandardButtons(QtWidgets.QMessageBox.Ignore | QtWidgets.QMessageBox.Close)
+        box.setIcon(QtWidgets.QMessageBox.Critical)
         box.setWindowTitle("FAF privilege error")
-        if (box.exec_() == QtGui.QMessageBox.Ignore):
+        if (box.exec_() == QtWidgets.QMessageBox.Ignore):
             Settings.set("client/ignore_admin", True)
 
 
@@ -94,13 +95,14 @@ def runFAF():
 
     faf_client.show()
     # Main update loop
-    QtGui.QApplication.exec_()
+    QtWidgets.QApplication.exec_()
 
 if __name__ == '__main__':
     import logging
     import config
 
-    app = QtGui.QApplication(sys.argv)
+    QtWidgets.QApplication.setAttribute(Qt.AA_ShareOpenGLContexts)
+    app = QtWidgets.QApplication(sys.argv)
 
     if sys.platform == 'win32':
         import platform

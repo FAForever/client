@@ -1,4 +1,4 @@
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtWidgets
 import util
 import time
 from .ns_settings import NotificationPosition
@@ -63,7 +63,7 @@ class NotificationDialog(FormClass, BaseClass):
             self.hide()
 
     def updatePosition(self):
-        screen = QtGui.QDesktopWidget().screenGeometry()
+        screen = QtWidgets.QDesktopWidget().screenGeometry()
         dialog_size = self.geometry()
         position = self.settings.popup_position  # self.client.notificationSystem.settings.popup_position
 

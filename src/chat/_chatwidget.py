@@ -2,9 +2,9 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-from PyQt4 import QtGui, QtCore
-from PyQt4.QtNetwork import QNetworkAccessManager
-from PyQt4.QtCore import QSocketNotifier, QTimer
+from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5.QtNetwork import QNetworkAccessManager
+from PyQt5.QtCore import QSocketNotifier, QTimer
 
 from config import Settings, defaults
 import util
@@ -290,7 +290,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
             if channel.lower() in self.crucialChannels:  # Make the crucial channels not closeable, and make the last one the active one
                 self.setCurrentWidget(self.channels[channel])
-                self.tabBar().setTabButton(self.currentIndex(), QtGui.QTabBar.RightSide, None)
+                self.tabBar().setTabButton(self.currentIndex(), QtWidgets.QTabBar.RightSide, None)
 
         name, id, elevation, hostname = parse_irc_source(e.source())
         self.channels[channel].addChatter(name, id, elevation, hostname, True)

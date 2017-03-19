@@ -1,4 +1,4 @@
-from PyQt4.QtCore import QObject, pyqtSignal, QDataStream
+from PyQt5.QtCore import QObject, pyqtSignal, QDataStream
 from struct import pack, unpack
 
 from decorators import with_logger

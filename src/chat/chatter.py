@@ -1,6 +1,6 @@
-from PyQt4 import QtGui, QtCore
-from PyQt4.QtCore import QUrl
-from PyQt4.QtNetwork import QNetworkRequest
+from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5.QtCore import QUrl
+from PyQt5.QtNetwork import QNetworkRequest
 from chat._avatarWidget import avatarWidget
 
 import urllib.request, urllib.error, urllib.parse
@@ -17,7 +17,7 @@ There can be multiple chatters for every Player in the Client.
 """
 
 
-class Chatter(QtGui.QTableWidgetItem):
+class Chatter(QtWidgets.QTableWidgetItem):
     SORT_COLUMN = 2
     AVATAR_COLUMN = 1
     RANK_COLUMN = 0
@@ -30,7 +30,7 @@ class Chatter(QtGui.QTableWidgetItem):
     RANK_FOE = 4
 
     def __init__(self, parent, user, lobby, *args, **kwargs):
-        QtGui.QTableWidgetItem.__init__(self, *args, **kwargs)
+        QtWidgets.QTableWidgetItem.__init__(self, *args, **kwargs)
 
         # TODO: for now, userflags and ranks aren't properly interpreted :-/
         # This is impractical if an operator reconnects too late.
@@ -56,15 +56,15 @@ class Chatter(QtGui.QTableWidgetItem):
 
         self.parent.setItem(row, Chatter.SORT_COLUMN, self)
 
-        self.avatarItem = QtGui.QTableWidgetItem()
+        self.avatarItem = QtWidgets.QTableWidgetItem()
         self.avatarItem.setFlags(QtCore.Qt.ItemIsEnabled)
         self.avatarItem.setTextAlignment(QtCore.Qt.AlignHCenter)
 
-        self.rankItem = QtGui.QTableWidgetItem()
+        self.rankItem = QtWidgets.QTableWidgetItem()
         self.rankItem.setFlags(QtCore.Qt.ItemIsEnabled)
         self.rankItem.setTextAlignment(QtCore.Qt.AlignHCenter)
 
-        self.statusItem = QtGui.QTableWidgetItem()
+        self.statusItem = QtWidgets.QTableWidgetItem()
         self.statusItem.setFlags(QtCore.Qt.ItemIsEnabled)
         self.statusItem.setTextAlignment(QtCore.Qt.AlignHCenter)
 
@@ -207,24 +207,24 @@ class Chatter(QtGui.QTableWidgetItem):
             self.rankItem.setIcon(util.icon("chat/rank/newplayer.png"))
 
     def set_color(self):
-        if self.lobby.client.id == self.id and self.elevation in list(chat.OPERATOR_COLORS.keys()):
-            self.setTextColor(QtGui.QColor(chat.get_color("self_mod")))
+        if self.lobby.client.id == self.id and self.elevation in chat.OPERATOR_COLORS.keys():
+            self.setForeground(QtGui.QColor(chat.get_color("self_mod")))
             return
-        if self.lobby.client.players.isFriend(self.id) and self.elevation in list(chat.OPERATOR_COLORS.keys()):
-            self.setTextColor(QtGui.QColor(chat.get_color("friend_mod")))
+        if self.lobby.client.players.isFriend(self.id) and self.elevation in chat.OPERATOR_COLORS.keys():
+            self.setForeground(QtGui.QColor(chat.get_color("friend_mod")))
             return
-        if self.elevation in list(chat.colors.OPERATOR_COLORS.keys()):
-            self.setTextColor(QtGui.QColor(chat.colors.OPERATOR_COLORS[self.elevation]))
+        if self.elevation in chat.colors.OPERATOR_COLORS.keys():
+            self.setForeground(QtGui.QColor(chat.colors.OPERATOR_COLORS[self.elevation]))
             return
 
         if self.id != -1:
-            self.setTextColor(QtGui.QColor(self.lobby.client.players.getUserColor(self.id)))
+            self.setForeground(QtGui.QColor(self.lobby.client.players.getUserColor(self.id)))
             return
 
-        self.setTextColor(QtGui.QColor(chat.get_color("default")))
+        self.setForeground(QtGui.QColor(chat.get_color("default")))
 
     def viewAliases(self):
-        QtGui.QDesktopServices.openUrl(QUrl("{}?name={}".format(Settings.get("USER_ALIASES_URL"), self.name)))
+        QtWidgets.QDesktopServices.openUrl(QUrl("{}?name={}".format(Settings.get("USER_ALIASES_URL"), self.name)))
 
     def selectAvatar(self):
         avatarSelection = avatarWidget(self.lobby.client, self.name, personal=True)
@@ -254,18 +254,18 @@ class Chatter(QtGui.QTableWidgetItem):
                     self.viewReplay()
 
     def pressed(self, item):
-        menu = QtGui.QMenu(self.parent)
+        menu = QtWidgets.QMenu(self.parent)
 
         # Actions for stats
-        actionSelectAvatar = QtGui.QAction("Select Avatar", menu)
+        actionSelectAvatar = QtWidgets.QAction("Select Avatar", menu)
 
         # Action for aliases link
-        actionViewAliases = QtGui.QAction("View Aliases", menu)
+        actionViewAliases = QtWidgets.QAction("View Aliases", menu)
 
         # Actions for Games and Replays
-        actionReplay = QtGui.QAction("View Live Replay", menu)
-        actionVaultReplay = QtGui.QAction("View Replays in Vault", menu)
-        actionJoin = QtGui.QAction("Join in Game", menu)
+        actionReplay = QtWidgets.QAction("View Live Replay", menu)
+        actionVaultReplay = QtWidgets.QAction("View Replays in Vault", menu)
+        actionJoin = QtWidgets.QAction("Join in Game", menu)
 
         # Default is all disabled, we figure out what we can do after this
         actionReplay.setDisabled(True)
@@ -295,29 +295,29 @@ class Chatter(QtGui.QTableWidgetItem):
         # power menu
         if self.lobby.client.power > 1:
             # admin and mod menus
-            actionAddAvatar = QtGui.QAction("Assign avatar", menu)
+            actionAddAvatar = QtWidgets.QAction("Assign avatar", menu)
             menu.addAction(actionAddAvatar)
             actionAddAvatar.triggered.connect(self.addAvatar)
 
             if self.lobby.client.power == 2:
-                action_inspect_in_mordor = QtGui.QAction("Send the Orcs", menu)
+                action_inspect_in_mordor = QtWidgets.QAction("Send the Orcs", menu)
                 menu.addAction(action_inspect_in_mordor)
 
                 def send_the_orcs():
                     route = Settings.get('mordor/host')
 
                     if self.id != -1:
-                        QtGui.QDesktopServices.openUrl(QUrl("{}/users/{}".format(route, self.id)))
+                        QtWidgets.QDesktopServices.openUrl(QUrl("{}/users/{}".format(route, self.id)))
                     else:
-                        QtGui.QDesktopServices.openUrl(QUrl("{}/users/{}".format(route, self.name)))
+                        QtWidgets.QDesktopServices.openUrl(QUrl("{}/users/{}".format(route, self.name)))
 
                 action_inspect_in_mordor.triggered.connect(send_the_orcs)
 
-                actionCloseFA = QtGui.QAction("Close Game", menu)
+                actionCloseFA = QtWidgets.QAction("Close Game", menu)
                 menu.addAction(actionCloseFA)
                 actionCloseFA.triggered.connect(lambda: self.lobby.client.closeFA(self.name))
 
-                actionCloseLobby = QtGui.QAction("Close FAF Client", menu)
+                actionCloseLobby = QtWidgets.QAction("Close FAF Client", menu)
                 menu.addAction(actionCloseLobby)
                 actionCloseLobby.triggered.connect(lambda: self.lobby.client.closeLobby(self.name))
 
@@ -333,12 +333,12 @@ class Chatter(QtGui.QTableWidgetItem):
         menu.addAction(actionJoin)
 
         # Actions for the Friends List
-        actionAddFriend = QtGui.QAction("Add friend", menu)
-        actionRemFriend = QtGui.QAction("Remove friend", menu)
+        actionAddFriend = QtWidgets.QAction("Add friend", menu)
+        actionRemFriend = QtWidgets.QAction("Remove friend", menu)
 
         # Actions for the Foes List
-        actionAddFoe = QtGui.QAction("Add foe", menu)
-        actionRemFoe = QtGui.QAction("Remove foe", menu)
+        actionAddFoe = QtWidgets.QAction("Add foe", menu)
+        actionRemFoe = QtWidgets.QAction("Remove foe", menu)
 
         # Don't allow self to be added or removed from friends or foes
         if self.lobby.client.me.id == self.id:
@@ -376,7 +376,7 @@ class Chatter(QtGui.QTableWidgetItem):
         menu.addAction(actionRemFoe)
 
         # Finally: Show the popup
-        menu.popup(QtGui.QCursor.pos())
+        menu.popup(QtWidgets.QCursor.pos())
 
     @QtCore.pyqtSlot()
     def viewReplay(self):

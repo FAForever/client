@@ -15,7 +15,7 @@ def application(qapp, request):
 
 @pytest.fixture(scope="function")
 def signal_receiver(application):
-    from PyQt4 import QtCore
+    from PyQt5 import QtCore
     class SignalReceiver(QtCore.QObject):
         def __init__(self, parent=None):
             QtCore.QObject.__init__(self, parent)

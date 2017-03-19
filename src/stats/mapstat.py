@@ -1,7 +1,7 @@
 
 
 import util
-from PyQt4 import QtGui, QtCore
+from PyQt5 import QtWidgets, QtCore
 import json
 import datetime
 from fa import maps
@@ -174,7 +174,7 @@ class LadderMapStat(FormClass, BaseClass):
             name = mp["mapname"]
             realname = mp["maprealname"]
             
-            item = QtGui.QListWidgetItem(name)
+            item = QtWidgets.QListWidgetItem(name)
             item.setData(32, (mapid, realname))
             self.maplist.addItem(item)
             

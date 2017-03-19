@@ -1,5 +1,5 @@
-from PyQt4 import QtCore, QtGui, QtWebKit
-from PyQt4.QtCore import Qt
+from PyQt5 import QtCore, QtWidgets, QtWebKit, QtWebKitWidgets
+from PyQt5.QtCore import Qt
 
 import webbrowser
 import util
@@ -58,7 +58,7 @@ class NewsWidget(FormClass, BaseClass):
                 'data:text/css;charset=utf-8;base64,' + base64.b64encode(self.CSS.encode('utf-8')).decode('ascii')
             ))
         # open all links in external browser
-        self.newsWebView.page().setLinkDelegationPolicy(QtWebKit.QWebPage.DelegateAllLinks)
+        self.newsWebView.page().setLinkDelegationPolicy(QtWebKitWidgets.QWebPage.DelegateAllLinks)
         self.newsWebView.page().linkClicked.connect(self.linkClicked)
 
         # hide webview until loaded to avoid FOUC

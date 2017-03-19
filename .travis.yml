@@ -19,7 +19,7 @@ before_script:
   - "sh -e /etc/init.d/xvfb start"
 
 script:
-  - export PYTEST_QT_API=pyqt4v2
+  - export PYTEST_QT_API=pyqt5
   - python2 runtests.py -xs --cov src --cov-report term-missing
 
 after_success:

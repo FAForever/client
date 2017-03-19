@@ -1,5 +1,5 @@
-from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
-from PyQt4 import QtGui, QtCore
+from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
+from PyQt5 import QtWidgets, QtCore
 
 from ._newswidget import NewsWidget
 from .newsitem import NewsItem

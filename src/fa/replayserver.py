@@ -2,7 +2,7 @@
 
 
 
-from PyQt4 import QtCore, QtNetwork, QtGui
+from PyQt5 import QtCore, QtNetwork, QtWidgets
 
 import os
 import logging
@@ -106,11 +106,11 @@ class ReplayRecorder(QtCore.QObject):
         if self.relaySocket.bytesToWrite():
             self.__logger.info("Waiting for replay transmission to finish: " + str(self.relaySocket.bytesToWrite()) + " bytes")
 
-            progress = QtGui.QProgressDialog("Finishing Replay Transmission", "Cancel", 0, 0)
+            progress = QtWidgets.QProgressDialog("Finishing Replay Transmission", "Cancel", 0, 0)
             progress.show()
 
             while self.relaySocket.bytesToWrite() and progress.isVisible():
-                QtGui.QApplication.processEvents()
+                QtWidgets.QApplication.processEvents()
 
             progress.close()
 
@@ -166,8 +166,8 @@ class ReplayServer(QtNetwork.QTcpServer):
                 self.__logger.info("listening on address " + self.serverAddress().toString() + ":" + str(self.serverPort()))
             else:
                 self.__logger.error("cannot listen, port probably used by another application: " + str(local_port))
-                answer = QtGui.QMessageBox.warning(None, "Port Occupied", "FAF couldn't start its local replay server, which is needed to play Forged Alliance online. Possible reasons:<ul><li><b>FAF is already running</b> (most likely)</li><li>another program is listening on port {port}</li></ul>".format(port=local_port), QtGui.QMessageBox.Retry, QtGui.QMessageBox.Abort)
-                if answer == QtGui.QMessageBox.Abort:
+                answer = QtWidgets.QMessageBox.warning(None, "Port Occupied", "FAF couldn't start its local replay server, which is needed to play Forged Alliance online. Possible reasons:<ul><li><b>FAF is already running</b> (most likely)</li><li>another program is listening on port {port}</li></ul>".format(port=local_port), QtWidgets.QMessageBox.Retry, QtWidgets.QMessageBox.Abort)
+                if answer == QtWidgets.QMessageBox.Abort:
                     return False
         return True
               
