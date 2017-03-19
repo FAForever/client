@@ -1,5 +1,5 @@
-from PyQt4 import QtCore
-from PyQt4.QtCore import QObject, Qt
+from PyQt5 import QtCore
+from PyQt5.QtCore import QObject, Qt
 
 from .newsitem import NewsItem
 from .wpapi import WPAPI

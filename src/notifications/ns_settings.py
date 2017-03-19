@@ -1,4 +1,4 @@
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtWidgets
 from enum import Enum
 from config import Settings
 import util
@@ -54,7 +54,7 @@ class NsSettingsDialog(FormClass2, BaseClass2):
         model = NotificationHooks(self, list(self.hooks.values()))
         self.tableView.setModel(model)
         # stretch first column
-        self.tableView.horizontalHeader().setResizeMode(0, QtGui.QHeaderView.Stretch)
+        self.tableView.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
 
         for row in range(0, model.rowCount(None)):
             self.tableView.setIndexWidget(model.createIndex(row, 3), model.getHook(row).settings())

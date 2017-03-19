@@ -1,14 +1,14 @@
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtWidgets, QtGui
 from fa import maps
 import util
 import os
 import client
 
 
-class CoopMapItemDelegate(QtGui.QStyledItemDelegate):
+class CoopMapItemDelegate(QtWidgets.QStyledItemDelegate):
     
     def __init__(self, *args, **kwargs):
-        QtGui.QStyledItemDelegate.__init__(self, *args, **kwargs)
+        QtWidgets.QStyledItemDelegate.__init__(self, *args, **kwargs)
         
     def paint(self, painter, option, index, *args, **kwargs):
         self.initStyleOption(option, index)
@@ -27,9 +27,9 @@ class CoopMapItemDelegate(QtGui.QStyledItemDelegate):
         iconsize = icon.actualSize(option.rect.size())
 #        
 #        #clear icon and text before letting the control draw itself because we're rendering these parts ourselves
-#        option.icon = QtGui.QIcon()        
+#        option.icon = QtGui.QIcon()
         option.text = ""  
-        option.widget.style().drawControl(QtGui.QStyle.CE_ItemViewItem, option, painter, option.widget)
+        option.widget.style().drawControl(QtWidgets.QStyle.CE_ItemViewItem, option, painter, option.widget)
 #        
 #        #Icon
 #        icon.paint(painter, option.rect.adjusted(5-2, -2, 0, 0), QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
@@ -56,14 +56,14 @@ class CoopMapItemDelegate(QtGui.QStyledItemDelegate):
         
 
 
-class CoopMapItem(QtGui.QTreeWidgetItem):
+class CoopMapItem(QtWidgets.QTreeWidgetItem):
 
     
     FORMATTER_COOP        = str(util.readfile("coop/formatters/coop.qthtml"))
 
     
     def __init__(self, uid, parent, *args, **kwargs):
-        QtGui.QTreeWidgetItem.__init__(self, *args, **kwargs)
+        QtWidgets.QTreeWidgetItem.__init__(self, *args, **kwargs)
 
         
         self.uid            = uid

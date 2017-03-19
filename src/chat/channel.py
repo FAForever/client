@@ -1,8 +1,7 @@
-
 from fa.replay import replay
 
 import util
-from PyQt4 import QtGui, QtCore
+from PyQt5 import QtWidgets, QtCore, QtGui
 import time
 import chat
 from chat import logger
@@ -75,16 +74,16 @@ class Channel(FormClass, BaseClass):
             self.nickList.sortItems(Chatter.SORT_COLUMN)
 
             # Properly and snugly snap all the columns
-            self.nickList.horizontalHeader().setResizeMode(Chatter.RANK_COLUMN, QtGui.QHeaderView.Fixed)
+            self.nickList.horizontalHeader().setSectionResizeMode(Chatter.RANK_COLUMN, QtWidgets.QHeaderView.Fixed)
             self.nickList.horizontalHeader().resizeSection(Chatter.RANK_COLUMN, Formatters.NICKLIST_COLUMNS['RANK'])
 
-            self.nickList.horizontalHeader().setResizeMode(Chatter.AVATAR_COLUMN, QtGui.QHeaderView.Fixed)
+            self.nickList.horizontalHeader().setSectionResizeMode(Chatter.AVATAR_COLUMN, QtWidgets.QHeaderView.Fixed)
             self.nickList.horizontalHeader().resizeSection(Chatter.AVATAR_COLUMN, Formatters.NICKLIST_COLUMNS['AVATAR'])
 
-            self.nickList.horizontalHeader().setResizeMode(Chatter.STATUS_COLUMN, QtGui.QHeaderView.Fixed)
+            self.nickList.horizontalHeader().setSectionResizeMode(Chatter.STATUS_COLUMN, QtWidgets.QHeaderView.Fixed)
             self.nickList.horizontalHeader().resizeSection(Chatter.STATUS_COLUMN, Formatters.NICKLIST_COLUMNS['STATUS'])
 
-            self.nickList.horizontalHeader().setResizeMode(Chatter.SORT_COLUMN, QtGui.QHeaderView.Stretch)
+            self.nickList.horizontalHeader().setSectionResizeMode(Chatter.SORT_COLUMN, QtWidgets.QHeaderView.Stretch)
 
             self.nickList.itemDoubleClicked.connect(self.nickDoubleClicked)
             self.nickList.itemPressed.connect(self.nickPressed)
@@ -163,9 +162,9 @@ class Channel(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def pingWindow(self):
-        QtGui.QApplication.alert(self.lobby.client)
+        QtWidgets.QApplication.alert(self.lobby.client)
 
-        if not self.isVisible() or QtGui.QApplication.activeWindow() != self.lobby.client:
+        if not self.isVisible() or QtWidgets.QApplication.activeWindow() != self.lobby.client:
             if self.oneMinuteOrOlder():
                 if self.lobby.client.soundeffects:
                     util.sound("chat/sfx/query.wav")
@@ -182,7 +181,7 @@ class Channel(FormClass, BaseClass):
         elif url.scheme() == "fafgame":
             self.lobby.client.joinGameFromURL(url)
         else:
-            QtGui.QDesktopServices.openUrl(url)
+            QtWidgets.QDesktopServices.openUrl(url)
 
     @QtCore.pyqtSlot(str, str)
     def printAnnouncement(self, text, color, size, scroll_forced = True):
@@ -206,8 +205,8 @@ class Channel(FormClass, BaseClass):
     def printLine(self, name, text, scroll_forced=False, formatter=Formatters.FORMATTER_MESSAGE):
         if self.lines > CHAT_TEXT_LIMIT:
             cursor = self.chatArea.textCursor()
-            cursor.movePosition(QtGui.QTextCursor.Start)
-            cursor.movePosition(QtGui.QTextCursor.Down, QtGui.QTextCursor.KeepAnchor, CHAT_REMOVEBLOCK)
+            cursor.movePosition(QtWidgets.QTextCursor.Start)
+            cursor.movePosition(QtWidgets.QTextCursor.Down, QtWidgets.QTextCursor.KeepAnchor, CHAT_REMOVEBLOCK)
             cursor.removeSelectedText()
             self.lines = self.lines - CHAT_REMOVEBLOCK
 
@@ -228,7 +227,7 @@ class Channel(FormClass, BaseClass):
         avatar = None
         if name in self.chatters:
             chatter = self.chatters[name]
-            color = chatter.textColor().name()
+            color = chatter.foreground().color().name()
             if chatter.avatar:
                 avatar = chatter.avatar["url"]
                 avatarTip = chatter.avatarTip or ""
@@ -307,7 +306,7 @@ class Channel(FormClass, BaseClass):
         scroll_needed = scroll_forced or ((self.chatArea.verticalScrollBar().maximum() - scroll_current) < 20)
 
         cursor = self.chatArea.textCursor()
-        cursor.movePosition(QtGui.QTextCursor.End)
+        cursor.movePosition(QtWidgets.QTextCursor.End)
         self.chatArea.setTextCursor(cursor)
 
         formatter = Formatters.FORMATTER_RAW
@@ -332,14 +331,14 @@ class Channel(FormClass, BaseClass):
         timestamp = time.strftime("%H:%M")
         return self.lasttimestamp != timestamp
 
-    @QtCore.pyqtSlot(QtGui.QTableWidgetItem)
+    @QtCore.pyqtSlot(QtWidgets.QTableWidgetItem)
     def nickDoubleClicked(self, item):
         chatter = self.nickList.item(item.row(), Chatter.SORT_COLUMN)  # Look up the associated chatter object
         chatter.doubleClicked(item)
 
-    @QtCore.pyqtSlot(QtGui.QTableWidgetItem)
+    @QtCore.pyqtSlot(QtWidgets.QTableWidgetItem)
     def nickPressed(self, item):
-        if QtGui.QApplication.mouseButtons() == QtCore.Qt.RightButton:
+        if QtWidgets.QApplication.mouseButtons() == QtCore.Qt.RightButton:
             # Look up the associated chatter object
             chatter = self.nickList.item(item.row(), Chatter.SORT_COLUMN)
             chatter.pressed(item)
