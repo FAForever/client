@@ -153,7 +153,6 @@ class ServerConnection(QtCore.QObject):
         self._state = ConnectionState.INITIAL
         self.blockSize = 0
         self._disconnect_requested = False
-        self.localIP = None
 
         self._dispatch = dispatch
 
@@ -197,7 +196,6 @@ class ServerConnection(QtCore.QObject):
 
     def on_connected(self):
         self.state = ConnectionState.CONNECTED
-        self.localIP = self.socket.localAddress()
         self.connected.emit()
 
     def socket_connected(self):
