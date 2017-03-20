@@ -51,6 +51,7 @@ except OSError:
 build_exe_options = {
     'include_files': ['res',
                       'imageformats',
+                      'platforms',
                       'libeay32.dll',
                       'ssleay32.dll',
                       ('lib/faf-uid.exe', 'faf-uid.exe'),
