@@ -15,7 +15,7 @@ This is the source code for the FA Forever Lobby.
 Pre-requisites are:
 
 - Python 3.4+
-- PyQt5 4.7+
+- PyQt5 >=5.8
 - Requirements as in the [requirements](requirements.txt) file.
 
 
@@ -85,7 +85,7 @@ Running unit tests
 -------
 Before running unit tests, set PYTEST_QT_API as follows:
 
-    export PYTEST_QT_API='PyQt5v2'
+    export PYTEST_QT_API='pyqt5'
 
 Run the lobby from the main directory using:
 
