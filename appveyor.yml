@@ -17,9 +17,10 @@ install:
   # dump version
   - git describe --tags --always
   # use conda for installing pyqt
-  - "%PYTHON%\\Scripts\\conda install --quiet -y pyqt=4.11.4 pywin32"
+  - "%PYTHON%\\Scripts\\conda install --quiet -y pyqt=5.6.0 pywin32"
   # copy required dlls for packaging in setup.py
   - "xcopy %PYTHON%\\Library\\plugins\\imageformats .\\imageformats /I"
+  - "xcopy %PYTHON%\\Library\\plugins\\platforms .\\platforms /I"
   - "xcopy %PYTHON%\\Library\\bin\\libeay32.dll ."
   - "xcopy %PYTHON%\\Library\\bin\\ssleay32.dll ."
   # install dependencies using pip
@@ -30,7 +31,7 @@ install:
   - ps: "$env:faf_version = \"$(&C:\\Miniconda\\python .\\src\\config\\version.py)\".Replace(' ','')"
   - ps: "$env:APPVEYOR_BUILD_VERSION = \"$($env:faf_version)+$($env:APPVEYOR_BUILD_NUMBER)\""
   - ps: "Write-Host \"$($env:faf_version) + $($env:APPVEYOR_BUILD_NUMBER) = $($env:APPVEYOR_BUILD_VERSION)\""
-  - ps: "$env:PYTEST_QT_API=\"PyQt5v2\""
+  - ps: "$env:PYTEST_QT_API=\"pyqt5\""
   - ps: "$env:FAF_FORCE_PRODUCTION=true"
   - ps: "Invoke-WebRequest -Uri \"https://github.com/FAForever/uid/releases/download/$($env:UID_VERSION)/faf-uid.exe\" -OutFile \".\\lib\\faf-uid.exe\""
 

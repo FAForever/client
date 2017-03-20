@@ -6,8 +6,8 @@ python:
 
 install:
   - "sudo apt-get update"
-  - "sudo apt-get install python-qt4 liblua5.1"
-  - "sudo apt-get install python-qt4 liblua5.1 libjpeg8-dev zlib1g-dev"
+  - "sudo apt-get install python-qt5 liblua5.1"
+  - "sudo apt-get install python-qt5 liblua5.1 libjpeg8-dev zlib1g-dev"
   - "pip install cx_Freeze"
   - "pip install python-coveralls"
   - "pip install -r requirements.txt --trusted-host content.faforever.com"
