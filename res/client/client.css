@@ -434,6 +434,14 @@ QCheckBox#spoilerCheckbox, QLabel#searchInfoLabel
     padding: 5px;
 }
 
+QLabel#searchInfoLabel
+{
+    color: gold;
+    font-weight: bold;
+    background-color: transparent;
+    padding: 5px;
+}
+
 QPushButton#RefreshResetButton, #searchButton, #UIButton, #uploadButton
 {
 	color: white;
@@ -453,20 +461,36 @@ QPushButton::pressed
     border: none;
     background-color: darkred;
 }
-/* Used for Ranked Buttons only at the moment*/
+
+QProgressBar#searchProgress
+{
+    background-color: transparent;
+    padding: 2px;
+	border-radius: 5px;
+	border: 1px solid grey;
+}
+
 QToolButton#rankedPlay
 {
 	color: silver;
+    font-weight: bold;
     padding:5px;
 	border-radius: 5px;
 	border: 1px solid grey;
 }
 
-/* Menu - Min, Max, Close */
+/* Menu - Min, Max, Close - ladder1v1 search&lure factions */
+QToolButton
+{
+    border: none;
+    background-color: transparent;
+    padding: 3px;
+	border-radius: 5px;
+}
+
 QToolButton::pressed
 {
     border: none;
-    color: black;
     padding:5px;
     background-color:#383838;
     border-radius : 5px;
@@ -475,7 +499,6 @@ QToolButton::pressed
 QToolButton::hover
 {
     border: none;
-    color: silver;
     padding:5px;
     background-color:#808080;
     border-radius : 5px;
@@ -484,10 +507,16 @@ QToolButton::hover
 QToolButton::checked
 {
     border: none;
-    border: 2px solid #353535;
-    color:black;
     padding:5px;
     background-color:#C0C0C0;
+    border-radius : 5px;
+ }
+
+QToolButton::checked::hover
+{
+    border: none;
+    padding:5px;
+    background-color:#A0A0A0;
     border-radius : 5px;
  }
 

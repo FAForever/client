@@ -563,7 +563,7 @@ class ClientWindow(FormClass, BaseClass):
 
         self.warnPlayer = QtGui.QLabel(self)
         self.warnPlayer.setText(
-            "A player of your skill level is currently searching for a 1v1 game. Click a faction to join them! ")
+            "A player of your skill level is currently searching for a 1v1 game. Click a faction to join! ")
         self.warnPlayer.setAlignment(QtCore.Qt.AlignHCenter)
         self.warnPlayer.setAlignment(QtCore.Qt.AlignVCenter)
         self.warnPlayer.setProperty("warning", True)
@@ -572,8 +572,9 @@ class ClientWindow(FormClass, BaseClass):
 
         def add_warning_button(faction):
             button = QtGui.QToolButton(self)
-            button.setMaximumSize(25, 25)
-            button.setIcon(util.icon("games/automatch/%s.png" % faction.to_name()))
+            button.setIconSize(QtCore.QSize(40, 20))
+            # button.setMaximumSize(25, 25)
+            button.setIcon(util.icon("replays/%s.png" % faction.to_name()))
             button.clicked.connect(partial(self.games.startSearchRanked, faction))
             self.warning.addWidget(button)
             return button
