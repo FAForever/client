@@ -221,7 +221,7 @@ class ServerConnection(QtCore.QObject):
                 return
 
             action = ins.readQString()
-            logger.debug("Server: '%s'" % action)
+            logger.log(9, "Server: '%s'" % action)
 
             if action == "PING":
                 self.writeToServer("PONG")
