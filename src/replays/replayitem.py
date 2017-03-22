@@ -289,7 +289,7 @@ class ReplayItem(QtGui.QTreeWidgetItem):
         playerLabel = self.FORMATTER_REPLAY_PLAYER_LABEL.format(player_name=player["name"],
                                                                 player_rating=player["rating"], alignment=alignment)
 
-        iconUrl = os.path.join(util.COMMON_DIR, "replays/%s.png" % self.retrieveIconFaction(player))
+        iconUrl = os.path.join(util.COMMON_DIR, "replays/%s.png" % self.retrieveIconFaction(player, self.mod))
 
         playerIcon = self.FORMATTER_REPLAY_PLAYER_ICON.format(faction_icon_uri=iconUrl)
 
@@ -300,7 +300,8 @@ class ReplayItem(QtGui.QTreeWidgetItem):
 
         return alignment, playerIcon, playerLabel, playerScore
 
-    def retrieveIconFaction(self, player):  # Factions does not contain Nomads
+    @staticmethod
+    def retrieveIconFaction(player, mod):
         if "faction" in player:
             if player["faction"] == 1:
                 faction = "UEF"
@@ -311,9 +312,19 @@ class ReplayItem(QtGui.QTreeWidgetItem):
             elif player["faction"] == 4:
                 faction = "Seraphim"
             elif player["faction"] == 5:
-                faction = "Nomads"
+                if mod == "nomads":
+                    faction = "Nomads"
+                else:
+                    faction = "Random"
+            elif player["faction"] == 6:
+                if mod == "nomads":
+                    faction = "Random"
+                else:
+                    faction = "Broken"
             else:
                 faction = "Broken"
+        else:
+            faction = "Missing"
         return faction
 
     def resize(self):
