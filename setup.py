@@ -99,7 +99,7 @@ bdist_msi_options = {
 # console application).
 base = None
 if sys.platform == 'win32':
-    base = 'Win32GUI'
+    base = 'Console'
 
 if sys.platform == 'win32':
     platform_options = {
