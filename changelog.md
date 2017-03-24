@@ -1,6 +1,8 @@
 0.x.x
 =====
 
+* Purge last remains of (long removed) mumble integration (#681, #682)
+
 0.12.5
 =====
 

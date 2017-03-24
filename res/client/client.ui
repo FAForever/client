@@ -481,11 +481,6 @@
     <string>&amp;Tech Support</string>
    </property>
   </action>
-  <action name="actionLinkMumble">
-   <property name="text">
-    <string>Mumble</string>
-   </property>
-  </action>
   <action name="actionSetAutoLogin">
    <property name="checkable">
     <bool>true</bool>
@@ -538,19 +533,6 @@
   <action name="actionSetGamePort">
    <property name="text">
     <string>Game &amp;Port...</string>
-   </property>
-  </action>
-  <action name="actionSetMumbleOptions">
-   <property name="text">
-    <string>Mumble Options</string>
-   </property>
-  </action>
-  <action name="actionActivateMumbleSwitching">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Automatic channel switching</string>
    </property>
   </action>
   <action name="actionSetSoundEffects">
