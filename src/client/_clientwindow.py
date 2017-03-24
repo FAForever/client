@@ -201,7 +201,7 @@ class ClientWindow(FormClass, BaseClass):
         self.connectivity = None  # type: ConnectivityHelper
 
         # stat server
-        self.statsServer = secondaryServer.SecondaryServer("Statistic", 11002, self)
+        self.statsServer = secondaryServer.SecondaryServer("Statistic", 11002, self.lobby_dispatch)
 
         # create user interface (main window) and load theme
         self.setupUi(self)

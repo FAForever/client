@@ -38,7 +38,7 @@ class SecondaryServer(QtCore.QObject):
     RESULT_BUSY = 4         # Server is currently busy
     RESULT_PASS = 5         # User refuses to update by canceling
     
-    def __init__(self, name, socket, requester, *args, **kwargs):
+    def __init__(self, name, socket, dispatcher, *args, **kwargs):
         """
         Constructor
         """
@@ -51,7 +51,7 @@ class SecondaryServer(QtCore.QObject):
         self.logger = logger
         
         self.socketPort = socket
-        self.requester = requester
+        self.dispatcher = dispatcher
 
         self.command = None
         self.message = None
@@ -141,10 +141,8 @@ class SecondaryServer(QtCore.QObject):
         A fairly pythonic way to process received strings as JSON messages.
         """
         message = json.loads(data_string)
-        cmd = "handle_" + message['command']
-        logger.debug("answering from server :" + str(cmd))
-        if hasattr(self.requester, cmd):
-            getattr(self.requester, cmd)(message)
+        logger.debug("answering from server :" + str(message["command"]))
+        self.dispatcher.dispatch(message)
 
     @QtCore.pyqtSlot('QAbstractSocket::SocketError')
     def handleServerError(self, socketError):
