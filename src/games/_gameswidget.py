@@ -79,7 +79,7 @@ class GamesWidget(FormClass, BaseClass):
         self.gameList.itemDoubleClicked.connect(self.gameDoubleClicked)
         self.gameList.sortBy = self.sort_games_index  # Default Sorting is By Players count
 
-        self.sortGamesComboBox.addItems(['By Players', 'By Game Quality', 'By avg. Player Rating'])
+        self.sortGamesComboBox.addItems(['By Players', 'By avg. Player Rating', 'By Map', 'By Host', 'By Age'])
         self.sortGamesComboBox.currentIndexChanged.connect(self.sortGamesComboChanged)
         self.sortGamesComboBox.setCurrentIndex(self.sort_games_index)
 

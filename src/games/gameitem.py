@@ -381,8 +381,10 @@ class GameItem(QtGui.QListWidgetItem):
 
         # Sort Games
         # 0: By Player Count
-        # 1: By Game Quality
-        # 2: By avg. Player Rating
+        # 1: By avg. Player Rating
+        # 2: By Map
+        # 3: By Host
+        # 4+: By age = uid
         try:
             sortby = self.listWidget().sortBy
         except AttributeError:
@@ -390,9 +392,11 @@ class GameItem(QtGui.QListWidgetItem):
         if sortby == 0:
             return len(self.players) > len(other.players)
         elif sortby == 1:
-            return self.gamequality > other.gamequality
-        elif sortby == 2:
             return self.average_rating > other.average_rating
+        elif sortby == 2:
+            return self.mapdisplayname.lower() < other.mapdisplayname.lower()
+        elif sortby == 3:
+            return self.host.lower() < other.host.lower()
         else:
             # Default: by UID.
             return self.uid < other.uid
