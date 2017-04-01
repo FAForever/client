@@ -169,26 +169,32 @@ class GameItem(QtGui.QListWidgetItem):
             logger.error('gamesitem.update called with 3 args')
             logger.error(traceback.format_stack())
 
-        if self.title is None:  # you can't change this...
+        if self.title is None:  # new game hosted
             self.title = message['title']
-            self.host = message['host']
             self.password_protected = message.get('password_protected', False)
             self.mod = message['featured_mod']
 
-            if 'host_id' in message:
-                self.hostid = message['host_id']
-            else:
-                self.hostid = client.instance.players.getID(self.host)
+        if self.host is None:  # new game hosted
+            self.host = message['host']
+        elif self.host != message['host']:  # somethings funny (offline)
+            self.host = message['host']
 
-        # Maps integral team numbers (from 2, with 1 "none") to lists of names.
-        teams_map = dict.copy(message['teams'])
-        self.modVersion = message.get('featured_mod_versions', [])
-        self.mods = message.get('sim_mods', {})
-        self.options = message.get('options', [])
-        num_players = message.get('num_players', 0)
-        self.slots = message.get('max_players', 12)
-        
-        oldstate = self.state
+        if 'host_id' in message:
+            self.hostid = message['host_id']
+        elif self.hostid == -1:  # fresh game
+            self.hostid = client.instance.players.getID(self.host)
+        elif self.hostid != client.instance.players.getID(self.host):  # somethings funny (offline)
+            self.hostid = client.instance.players.getID(self.host)
+
+        # Map preview code
+        if self.mapname != message['mapname']:
+            self.mapname = message['mapname']
+            self.mapdisplayname = maps.getDisplayName(self.mapname)
+            refresh_icon = True
+        else:
+            refresh_icon = False
+
+        old_state = self.state
         self.state = message['state']
 
         self.setHidden((self.state != 'open') or (self.mod in mod_invisible))
@@ -203,29 +209,23 @@ class GameItem(QtGui.QListWidgetItem):
             client.instance.usersUpdated.emit(self.players)
             return
 
-        # Map preview code
-        if self.mapname != message['mapname']:
-            self.mapname = message['mapname']
-            self.mapdisplayname = maps.getDisplayName(self.mapname)
-            refresh_icon = True
-        else:
-            refresh_icon = False
+        # Maps integral team numbers (from 2, with 1 "none") to lists of names.
+        teams_map = dict.copy(message['teams'])
 
         # Used to differentiate between newly added / removed and previously present players
-        oldplayers = set(map(lambda p: p.login, self.players))
+        old_players = set(map(lambda p: p.login, self.players))
 
         # Following the convention used by the game, a team value of 1 represents "No team". Let's
         # desugar those into "real" teams now (and convert the dict to a list)
         # Also, turn the lists of names into lists of players, and build a player name list.
-        self.players = []
-        teams = []
+        self.players = []  # list of all players in all teams (without observers)
+        teams = []  # list of teams of list of players in team (without observers)
+        observers = []  # list of observers
         for team_index, team in teams_map.iteritems():
-            if team_index == 1:
-                for ffa_player in team:
-                    if ffa_player in client.instance.players:
-                        self.players.append(client.instance.players[ffa_player])
-                        teams.append([client.instance.players[ffa_player]])
-            else:
+            if team_index == u'-1' or team_index == u'null':  # observers (we hope)
+                for name in team:
+                    observers.append(name)
+            else:  # everything else - faf, ffa and other mods
                 real_team = []
                 for name in team:
                     if name in client.instance.players:
@@ -233,56 +233,70 @@ class GameItem(QtGui.QListWidgetItem):
                         real_team.append(client.instance.players[name])
                 teams.append(real_team)
 
-        self.nTeams = len(teams)
+        if self.state == "open":  # things only needed while hosting
 
-        # Tuples for feeding into trueskill.
-        rating_tuples = []
-        for team in teams:
-            ratings_for_team = map(lambda player: Rating(player.rating_mean, player.rating_deviation), team)
-            rating_tuples.append(tuple(ratings_for_team))
+            # self.modVersion = message.get('featured_mod_versions', [])  # in message but not used
+            self.mods = message.get('sim_mods', {})  # -> editTooltip
+            # self.options = message.get('options', [])  # not in message and not used
+            num_players = message.get('num_players', 0)
+            slots = message.get('max_players', 12)
 
-        try:
-            self.gamequality = 100*round(trueskill.quality(rating_tuples), 2)
-        except ValueError:
-            self.gamequality = 0
+            self.nTeams = len(teams)
 
-        # Alternate icon: If private game, use game_locked icon. Otherwise, use preview icon from map library.
-        if refresh_icon:
-            if self.password_protected:
-                icon = util.icon("games/private_game.png")
+            # Tuples for feeding into trueskill.
+            team_list = []
+            rating_tuples = []
+            for team in teams:
+                ratings_for_team = map(lambda player: Rating(player.rating_mean, player.rating_deviation), team)
+                rating_tuples.append(tuple(ratings_for_team))
+                team_list.append(str(len(team)))
+
+            try:
+                self.gamequality = 100*round(trueskill.quality(rating_tuples), 2)
+            except ValueError:
+                self.gamequality = 0
+
+            # Alternate icon: If private game, use game_locked icon. Otherwise, use preview icon from map library.
+            if refresh_icon:
+                if self.password_protected:
+                    icon = util.icon("games/private_game.png")
+                else:
+                    icon = maps.preview(self.mapname)
+                    if not icon:
+                        client.instance.downloader.downloadMap(self.mapname, self)
+                        icon = util.icon("games/unknown_map.png")
+
+                self.setIcon(icon)
+
+            if self.gamequality == 0:
+                quality_str = "? %"
             else:
-                icon = maps.preview(self.mapname)
-                if not icon:
-                    client.instance.downloader.downloadMap(self.mapname, self)
-                    icon = util.icon("games/unknown_map.png")
+                quality_str = str(self.gamequality)+" %"
 
-            self.setIcon(icon)
+            if len(team_list) > 1:
+                team_str = "<font size='-1'> in </font>" + " vs ".join(team_list)
+            else:
+                team_str = ""
 
-        if self.gamequality == 0:
-            strQuality = "? %"
-        else:
-            strQuality = str(self.gamequality)+" %"
+            if self.hostid == -1:  # user offline (?)
+                self.host += " <font color='darkred'>(offline)</font>"
+            color = client.instance.players.getUserColor(self.hostid)
 
-        if num_players == 1:
-            playerstring = "player"
-        else:
-            playerstring = "players"
+            self.editTooltip(teams, observers)
 
-        color = client.instance.players.getUserColor(self.hostid)
-
-        self.editTooltip(teams)
-
-        if self.mod == "faf" or self.mod == "coop":
-            self.setText(self.FORMATTER_FAF.format(color=color, mapslots=self.slots, mapdisplayname=self.mapdisplayname,
-                                               title=self.title, host=self.host, players=num_players,
-                                               playerstring=playerstring, gamequality=strQuality))
-        else:
-            self.setText(self.FORMATTER_MOD.format(color=color, mapslots=self.slots, mapdisplayname=self.mapdisplayname,
-                                               title=self.title, host=self.host, players=num_players, mod=self.mod,
-                                               playerstring=playerstring, gamequality=strQuality))
+            if self.mod == "faf" or self.mod == "coop":
+                self.setText(self.FORMATTER_FAF.format(color=color, mapslots=slots, mapdisplayname=self.mapdisplayname,
+                                                       title=self.title, host=self.host, players=num_players,
+                                                       teams=team_str, gamequality=quality_str))
+            else:
+                self.setText(self.FORMATTER_MOD.format(color=color, mapslots=slots, mapdisplayname=self.mapdisplayname,
+                                                       title=self.title, host=self.host, players=num_players,
+                                                       teams=team_str, mod=self.mod, gamequality=quality_str))
+        elif self.state != "playing":  # that shouldn't happen
+            self.state = "funky"
 
         # Spawn announcers: IF we had a gamestate change, show replay and hosting announcements
-        if oldstate != self.state:
+        if old_state != self.state:
             if self.state == "playing":  # The delay is there because we have a 5 minutes delay in the livereplay server
                 QtCore.QTimer.singleShot(5*60000, self.announceReplay)
             elif self.state == "open":  # The 3.5s delay is there because the host needs time to choose a map
@@ -293,69 +307,64 @@ class GameItem(QtGui.QListWidgetItem):
             client.instance.urls[player.login] = self.url(player.id)
 
         # Determine which players are affected by this game's state change            
-        newplayers = set(map(lambda p: p.login, self.players))
-        affectedplayers = oldplayers | newplayers
-        client.instance.usersUpdated.emit(list(affectedplayers))
+        new_players = set(map(lambda p: p.login, self.players))
+        affected_players = old_players | new_players
+        client.instance.usersUpdated.emit(list(affected_players))
 
-    def editTooltip(self, teams):
+    def editTooltip(self, teams, observers):
         
-        observerlist = []
-        teamlist     = []
-
-        teams_string = ""
+        teams_list = []
 
         i = 0
         for team in teams:
             
-            if team != "-1":
-                i += 1
+            i += 1
 
-                teamplayer = []
-                teamplayer.append("<td><table>")
-                for player in team:
+            players_list = ["<td><table>"]
+            for player in team:
 
-                    if player == client.instance.me:
-                        playerStr = "<b><i>%s</b></i>" % player.login
-                    else:
-                        playerStr = player.login
+                if player == client.instance.me:
+                    player_str = "<b><i>%s</b></i>" % player.login
+                else:
+                    player_str = player.login
 
-                    if player.rating_deviation < 200:
-                        playerStr += " (%s)" % str(player.rating_estimate())
+                if player.rating_deviation < 200:
+                    player_str += " (%s)" % str(player.rating_estimate())
 
-                    country = os.path.join(util.COMMON_DIR, "chat/countries/%s.png" % (player.country or '').lower())
+                country = os.path.join(util.COMMON_DIR, "chat/countries/%s.png" % (player.country or '').lower())
 
-                    if i == 1:
-                        player_tr = "<tr><td><img src='%s'></td>" \
-                                        "<td align='left' valign='middle' width='135'>%s</td></tr>" % (country, playerStr)
-                    elif i == self.nTeams:
-                        player_tr = "<tr><td align='right' valign='middle' width='135'>%s</td>" \
-                                        "<td><img src='%s'></td></tr>" % (playerStr, country)
-                    else:
-                        player_tr = "<tr><td><img src='%s'></td>" \
-                                        "<td align='center' valign='middle' width='135'>%s</td></tr>" % (country, playerStr)
+                if i == 1:
+                    player_html = "<tr><td><img src='%s'></td><td align='left' " \
+                                  "valign='middle' width='135'>%s</td></tr>" % (country, player_str)
+                elif i == self.nTeams:
+                    player_html = "<tr><td align='right' valign='middle' width='135'>%s</td>" \
+                                    "<td><img src='%s'></td></tr>" % (player_str, country)
+                else:
+                    player_html = "<tr><td><img src='%s'></td><td align='center' " \
+                                  "valign='middle' width='135'>%s</td></tr>" % (country, player_str)
 
-                    teamplayer.append(player_tr)
+                players_list.append(player_html)
 
-                teamplayer.append("</table></td>")
-                members = "".join(teamplayer)
+            players_list.append("</table></td>")
+            team_html = "".join(players_list)
 
-                teamlist.append(members)
-            else:
-                observerlist.append(",".join(self.teams[team]))
+            teams_list.append(team_html)
 
-        teams_string += "<td valign='middle' height='100%'><font color='black' size='+5'>VS</font></td>".join(teamlist)
+        teams_str = "<td valign='middle' height='100%'><font color='black' size='+5'>VS</font></td>".join(teams_list)
 
-        observers = ""
-        if len(observerlist) != 0:
-            observers = "Observers : "
-            observers += ",".join(observerlist)
+        if len(observers) != 0:
+            observers_str = "Observers : "
+            observers_str += ", ".join(observers)
+            observers_str += "<br />"
+        else:
+            observers_str = ""
 
         if self.mods:
-            mods = "<br />With: " + "<br />".join(self.mods.values())
+            mod_str = "<br />With: " + "<br />".join(self.mods.values())
         else:
-            mods = ""
+            mod_str = ""
 
-        self.setToolTip(self.FORMATTER_TOOL.format(teams=teams_string, observers=observers, mods=mods))
+        self.setToolTip(self.FORMATTER_TOOL.format(teams=teams_str, observers=observers_str, mods=mod_str))
 
     def permutations(self, items):
         """ Yields all permutations of the items. """
