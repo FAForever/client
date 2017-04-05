@@ -8,6 +8,7 @@
 * Clean up theme-specific util code (#663, #664)
 * Cleanup receiving game info (#708, #709)
 * Add Friend/Foe feature for IRC users (#609, #657)
+* Replace game quality in the play tab (NOT in the lobby) by average rating (#687, #688)
 
 Contributors:
  - Wesmania
