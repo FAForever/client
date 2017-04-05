@@ -1,6 +1,4 @@
 from PyQt5 import QtCore, QtWidgets, QtGui
-import trueskill
-from trueskill import Rating
 from fa import maps
 import util
 import os
@@ -84,8 +82,8 @@ class GameItemWidget(QtWidgets.QListWidgetItem):
         self.maxPlayers = 0
         self.players = 0
         self.textColor = "grey"
-        self._gameQuality = "-"
         self.modName = ""
+        self.averageRating = 0
 
         self.tipTeams = ""
         self.tipObservers = ""
@@ -96,17 +94,6 @@ class GameItemWidget(QtWidgets.QListWidgetItem):
         return self._item < other._item
     def __ge__(self, other):
         return self._item >= other._item
-
-    @property
-    def gameQuality(self):
-        return self._gameQuality
-
-    @gameQuality.setter
-    def gameQuality(self, v):
-        if v is None:
-            self._gameQuality = "-"
-        else:
-            self._gameQuality = "{} %".format(v)
 
     def _officialMod(self):
         return self.modName in ["faf", "coop"]
@@ -121,7 +108,7 @@ class GameItemWidget(QtWidgets.QListWidgetItem):
                 host = self.host,
                 players = self.players,
                 playerstring = "player" if self.players == 1 else "players",
-                gamequality = self._gameQuality))
+                avgrating=self.averageRating))
         else:
             self.setText(self.FORMATTER_MOD.format(
                 color = self.textColor,
@@ -132,7 +119,7 @@ class GameItemWidget(QtWidgets.QListWidgetItem):
                 players=self.players,
                 mod=self.modName,
                 playerstring = "player" if self.players == 1 else "players",
-                gamequality=self._gameQuality))
+                avgrating=self.averageRating))
 
     def updateTooltip(self):
         self.setToolTip(self.FORMATTER_TOOL.format(
@@ -380,16 +367,6 @@ class GameItem():
                     checkappend(self, real_team, name)
                 teams.append(real_team)
 
-        # Tuples for feeding into trueskill.
-        rating_tuples = []
-        for team in teams:
-            ratings_for_team = [Rating(player.rating_mean, player.rating_deviation) for player in team]
-            rating_tuples.append(tuple(ratings_for_team))
-
-        try:
-            gamequality = 100*round(trueskill.quality(rating_tuples), 2)
-        except ValueError:
-            gamequality = None
 
         # Alternate icon: If private game, use game_locked icon. Otherwise, use preview icon from map library.
         if refresh_icon:
@@ -416,9 +393,9 @@ class GameItem():
         w.maxPlayers = g.max_players
         w.players = g.num_players
         w.textColor = color
-        w.gameQuality = gamequality
         w.modName = g.featured_mod
         w.privateIcon = g.password_protected
+        w.averageRating = int(self.average_rating)
 
         w.updateIcon()
         w.updateText()

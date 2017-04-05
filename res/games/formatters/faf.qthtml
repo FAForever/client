@@ -9,8 +9,8 @@
 <font size="-1">by</font>&nbsp;<font color="{color}"><b>{host}</b></font></font>
 </td>
 <td align="right">
-<b><font color="silver" size="-1">Game Quality</font><br/>
-<font color="silver" size="+2">{gamequality}</font></b>
+<b><font color="silver" size="-1">Avg. Rating</font><br/>
+<font color="silver" size="+2">{avgrating}</font></b>
 </td>
 </tr>
 </tbody>
