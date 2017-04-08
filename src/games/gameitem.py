@@ -169,8 +169,9 @@ class GameItem(QtGui.QListWidgetItem):
             logger.error('gamesitem.update called with 3 args')
             logger.error(traceback.format_stack())
 
-        if self.title is None:  # you can't change this...
-            self.title = message['title']
+        self.title = message['title']  # can be renamed in Lobby (now)
+
+        if self.host is None:  # new game
             self.host = message['host']
             self.password_protected = message.get('password_protected', False)
             self.mod = message['featured_mod']
