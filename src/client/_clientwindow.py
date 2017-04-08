@@ -563,7 +563,7 @@ class ClientWindow(FormClass, BaseClass):
 
         self.warnPlayer = QtGui.QLabel(self)
         self.warnPlayer.setText(
-            "A player of your skill level is currently searching for a 1v1 game. Click a faction to join them! ")
+            "A player of your skill level is currently searching for a 1v1 game. Click a faction to join! ")
         self.warnPlayer.setAlignment(QtCore.Qt.AlignHCenter)
         self.warnPlayer.setAlignment(QtCore.Qt.AlignVCenter)
         self.warnPlayer.setProperty("warning", True)
