@@ -78,9 +78,9 @@ class GameItem(QtGui.QListWidgetItem):
 
         self.uid            = uid
         self.mapname        = None
-        self.mapdisplayname = None
+        self.mapdisplayname = ""
         self.title          = None
-        self.host           = None
+        self.host           = ""
         self.hostid         = -1
         self.teams          = []
         self.password_protected = False
@@ -171,7 +171,7 @@ class GameItem(QtGui.QListWidgetItem):
 
         self.title = message['title']  # can be renamed in Lobby (now)
 
-        if self.host is None:  # new game
+        if self.host == "":  # new game
             self.host = message['host']
             self.password_protected = message.get('password_protected', False)
             self.mod = message['featured_mod']

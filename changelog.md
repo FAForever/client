@@ -11,6 +11,7 @@
 * Fix theme breakage caused by a promoted widget (#669, #670)
 * Fix random/nomads faction shown in replay info (#676)
 * Fix lobby name change not showing in Play (#690) 
+* Add sorting games after Map and Host to Play (#686)
 
 Contributors:
   - Wesmania
