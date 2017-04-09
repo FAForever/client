@@ -10,7 +10,7 @@ else:
     APPDATA_DIR = os.path.join(os.environ['HOME'], "FAForever")
 
 defaults = production_defaults.copy()
-defaults['host'] = 'test.faforever.com'
+#defaults['host'] = 'test.faforever.com'
 
 # FIXME: Temporary fix for broken https config on test server
 # Turns off certificate verification entirely

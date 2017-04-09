@@ -8,10 +8,10 @@ import os
 from config import Settings
 
 from decorators import with_logger
-from PyQt4 import QtGui, QtCore
-from PyQt4.QtGui import QLabel
-from PyQt4.QtCore import QUrl, QObject
-from PyQt4.QtNetwork import QNetworkRequest, QNetworkReply
+from PyQt5 import QtWidgets, QtCore
+from PyQt5.QtWidgets import QLabel
+from PyQt5.QtCore import QUrl, QObject
+from PyQt5.QtNetwork import QNetworkRequest, QNetworkReply
 
 
 @with_logger
@@ -84,18 +84,18 @@ class ClientUpdater(QObject):
                         )
                     )
                 }
-        result = QtGui.QMessageBox.question(None,
+        result = QtWidgets.QMessageBox.question(None,
                                             update_msg[self._outdated][0],
                                             update_msg[self._outdated][1],
-                                            QtGui.QMessageBox.No,
-                                            QtGui.QMessageBox.Yes)
-        if result == QtGui.QMessageBox.Yes:
+                                            QtWidgets.QMessageBox.No,
+                                            QtWidgets.QMessageBox.Yes)
+        if result == QtWidgets.QMessageBox.Yes:
             self._logger.info('Downloading {}'.format(url))
             self._setup_progress()
             self._prepare_download(url)
             self._progress.show()
         elif self._outdated:
-            QtGui.QApplication.quit()
+            QtWidgets.QApplication.quit()
 
     def _prepare_download(self, url):
         self._tmp = tempfile.NamedTemporaryFile(mode='w+b',
@@ -147,10 +147,10 @@ class ClientUpdater(QObject):
 
     def cancel(self):
         self._rep.abort()
-        QtGui.QApplication.quit()
+        QtWidgets.QApplication.quit()
 
     def _setup_progress(self):
-        progress = QtGui.QProgressDialog()
+        progress = QtWidgets.QProgressDialog()
         progress.setMinimumDuration(0)
         progress.setLabel(QLabel("Downloading update"))
         progress.setCancelButtonText("Cancel")

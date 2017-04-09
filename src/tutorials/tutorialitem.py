@@ -2,15 +2,15 @@
 
 
 
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtWidgets
 from fa import maps
 import util
 from config import Settings
 
-class TutorialItemDelegate(QtGui.QStyledItemDelegate):
+class TutorialItemDelegate(QtWidgets.QStyledItemDelegate):
     
     def __init__(self, *args, **kwargs):
-        QtGui.QStyledItemDelegate.__init__(self, *args, **kwargs)
+        QtWidgets.QStyledItemDelegate.__init__(self, *args, **kwargs)
         
     def paint(self, painter, option, index, *args, **kwargs):
         self.initStyleOption(option, index)
@@ -24,9 +24,9 @@ class TutorialItemDelegate(QtGui.QStyledItemDelegate):
         iconsize = icon.actualSize(option.rect.size())
         
         #clear icon and text before letting the control draw itself because we're rendering these parts ourselves
-        option.icon = QtGui.QIcon()        
+        option.icon = QtGui.QIcon()
         option.text = ""  
-        option.widget.style().drawControl(QtGui.QStyle.CE_ItemViewItem, option, painter, option.widget)
+        option.widget.style().drawControl(QtWidgets.QStyle.CE_ItemViewItem, option, painter, option.widget)
         
         #Shadow
         painter.fillRect(option.rect.left()+8-1, option.rect.top()+8-1, iconsize.width(), iconsize.height(), QtGui.QColor("#202020"))
@@ -35,7 +35,7 @@ class TutorialItemDelegate(QtGui.QStyledItemDelegate):
         icon.paint(painter, option.rect.adjusted(5-2, -2, 0, 0), QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
         
         #Frame around the icon
-        pen = QtGui.QPen()
+        pen = QtWidgets.QPen()
         pen.setWidth(1);
         pen.setBrush(QtGui.QColor("#303030"));  #FIXME: This needs to come from theme.
         pen.setCapStyle(QtCore.Qt.RoundCap);
@@ -62,7 +62,7 @@ class TutorialItemDelegate(QtGui.QStyledItemDelegate):
 
 
 
-class TutorialItem(QtGui.QListWidgetItem):
+class TutorialItem(QtWidgets.QListWidgetItem):
     TEXTWIDTH = 230
     ICONSIZE = 110
     PADDING = 10
@@ -75,7 +75,7 @@ class TutorialItem(QtGui.QListWidgetItem):
     
     
     def __init__(self, uid, *args, **kwargs):
-        QtGui.QListWidgetItem.__init__(self, *args, **kwargs)
+        QtWidgets.QListWidgetItem.__init__(self, *args, **kwargs)
 
         self.mapname = None
         self.mapdisplayname = None      

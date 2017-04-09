@@ -1,7 +1,7 @@
 import config
 
-from PyQt4.QtCore import QTimer, pyqtSignal
-from PyQt4.QtNetwork import QUdpSocket, QHostAddress, QHostInfo
+from PyQt5.QtCore import QTimer, pyqtSignal
+from PyQt5.QtNetwork import QUdpSocket, QHostAddress, QHostInfo
 
 from connectivity.stun import STUNMessage
 from connectivity.turn import TURNSession, TURNState

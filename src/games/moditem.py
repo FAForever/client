@@ -1,4 +1,4 @@
-from PyQt4 import QtGui
+from PyQt5 import QtWidgets, QtGui
 import util
 import client
 import os
@@ -13,9 +13,9 @@ mod_invisible = {}
 
 mod_favourites = {}  # LATER: Make these saveable and load them from settings
 
-class ModItem(QtGui.QListWidgetItem):
+class ModItem(QtWidgets.QListWidgetItem):
     def __init__(self, message, *args, **kwargs):
-        QtGui.QListWidgetItem.__init__(self, *args, **kwargs)
+        QtWidgets.QListWidgetItem.__init__(self, *args, **kwargs)
 
         self.mod  = message["name"]
         self.order = message.get("order", 0)
@@ -35,7 +35,7 @@ class ModItem(QtGui.QListWidgetItem):
         else:
             color = client.instance.getColor("player")
             
-        self.setTextColor(QtGui.QColor(color))
+        self.setForeground(QtGui.QColor(color))
         self.setText(self.name)
 
     def __eq__(self, other):
