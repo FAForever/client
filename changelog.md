@@ -13,6 +13,7 @@
 * Fix lobby name change not showing in Play (#690) 
 * Add sorting games By Map, Host and Age to Play (#686)
 * Fix set mod to 'All' from chat user 'View Replays in Vault' (#695)
+* Mod dropdown-list in Replays show all mods (no scrolling) (#696) 
 
 Contributors:
   - Wesmania
