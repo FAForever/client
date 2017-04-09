@@ -39,7 +39,7 @@ class playerAvatar(QtGui.QDialog):
     def removeThem(self):
         for user in self.checkBox :
             if self.checkBox[user].checkState() == 2:
-                self.parent.send(dict(command="admin", action="remove_avatar", iduser=user, idavatar=self.idavatar))
+                self.parent.lobby_connection.send(dict(command="admin", action="remove_avatar", iduser=user, idavatar=self.idavatar))
         self.close()
             
     def createUserSelection(self):
@@ -117,7 +117,7 @@ class avatarWidget(QtGui.QDialog):
                     fileDatas = base64.b64encode(zlib.compress(file.readAll()))
                     file.close()
                 
-                    self.parent.send(dict(command="avatar", action="upload_avatar", name=os.path.basename(fileName),
+                    self.parent.lobby_connection.send(dict(command="avatar", action="upload_avatar", name=os.path.basename(fileName),
                                           description=text, file=fileDatas))
                     
             else:
@@ -143,14 +143,14 @@ class avatarWidget(QtGui.QDialog):
     
     def doit(self, val):
         if self.personal:
-            self.parent.send(dict(command="avatar", action="select", avatar=val))
+            self.parent.lobby_connection.send(dict(command="avatar", action="select", avatar=val))
             self.close()
  
         else:
             if self.user is None:
-                self.parent.send(dict(command="admin", action="list_avatar_users", avatar=val))
+                self.parent.lobby_connection.send(dict(command="admin", action="list_avatar_users", avatar=val))
             else:
-                self.parent.send(dict(command="admin", action="add_avatar", user=self.user, avatar=val))
+                self.parent.lobby_connection.send(dict(command="admin", action="add_avatar", user=self.user, avatar=val))
                 self.close()
                 
     def doPlayerAvatarList(self, message):
