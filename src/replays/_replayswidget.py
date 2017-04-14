@@ -1,4 +1,4 @@
-from PyQt5 import QtCore, QtWidgets, QtNetwork, QtGui
+from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
 from fa.replay import replay
 from config import Settings
@@ -18,6 +18,7 @@ LIVEREPLAY_DELAY_QTIMER = LIVEREPLAY_DELAY * 60000  # livereplay delay for Qtime
 
 from replays.replayitem import ReplayItem, ReplayItemDelegate
 from model.game import GameState
+from replays.connection import ReplaysConnection
 
 # Replays uses the new Inheritance Based UI creation pattern
 # This allows us to do all sorts of awesome stuff by overriding methods etc.
@@ -40,8 +41,8 @@ class LiveReplayItem(QtWidgets.QTreeWidgetItem):
 
 
 class ReplaysWidget(BaseClass, FormClass):
-    SOCKET = 11002
     HOST   = "lobby.faforever.com"
+    PORT = 11002
 
     # connect to save/restore persistence settings for checkboxes & search parameters
     automatic = Settings.persisted_property("replay/automatic", default_value=False, type=bool)
@@ -97,12 +98,7 @@ class ReplaysWidget(BaseClass, FormClass):
         # replay vault connection to server
         self.searching = False
         self.searchInfo = "<font color='gold'><b>Searching...</b></font>"
-        self.blockSize = 0
-        self.replayVaultSocket = QtNetwork.QTcpSocket()
-        self.replayVaultSocket.error.connect(self.handleServerError)
-        self.replayVaultSocket.readyRead.connect(self.readDataFromServer)
-        self.replayVaultSocket.disconnected.connect(self.disconnected)
-        self.replayVaultSocket.error.connect(self.errored) 
+        self.vault_connection = ReplaysConnection(self._dispatcher, self.HOST, self.PORT)
 
         # restore persistent checkbox settings
         self.automaticCheckbox.setChecked(self.automatic)
@@ -120,17 +116,20 @@ class ReplaysWidget(BaseClass, FormClass):
         """ search for some replays """
         self.searchInfoLabel.setText(self.searchInfo)
         self.searching = True
-        self.connectToReplayVault()
-        self.send(dict(command="search", rating=self.minRating.value(), map=self.mapName.text(),
-                                player=self.playerName.text(), mod=self.modList.currentText()))
+        self.vault_connection.connect()
+        self.vault_connection.send(dict(command="search",
+                                        rating=self.minRating.value(),
+                                        map=self.mapName.text(),
+                                        player=self.playerName.text(),
+                                        mod=self.modList.currentText()))
         self.onlineTree.clear()
 
     def reloadView(self):
         if not self.searching:  # something else is already in the pipe from SearchVault
             if self.automatic or self.onlineReplays == {}:  # refresh on Tap change or only the first time
                 self.searchInfoLabel.setText(self.searchInfo)
-                self.connectToReplayVault()
-                self.send(dict(command="list"))
+                self.vault_connection.connect()
+                self.vault_connection.send(dict(command="list"))
 
     def finishRequest(self, reply):
         if reply.error() != QNetworkReply.NoError:
@@ -151,8 +150,8 @@ class ReplaysWidget(BaseClass, FormClass):
             self.selectedReplay = item
             if hasattr(item, "moreInfo"):
                 if item.moreInfo is False:
-                    self.connectToReplayVault()
-                    self.send(dict(command="info_replay", uid=item.uid))
+                    self.vault_connection.connect()
+                    self.vault_connection.send(dict(command="info_replay", uid=item.uid))
                 elif item.spoiled != self.spoilerCheckbox.isChecked():
                     self.replayInfos.clear()
                     self.replayInfos.setHtml(item.replayInfo)
@@ -192,8 +191,8 @@ class ReplaysWidget(BaseClass, FormClass):
 
     def ResetRefreshpressed(self):  # reset search parameter and reload recent Replays List
         self.searchInfoLabel.setText(self.searchInfo)
-        self.connectToReplayVault()
-        self.send(dict(command="list"))
+        self.vault_connection.connect()
+        self.vault_connection.send(dict(command="list"))
         self.minRating.setValue(0)
         self.mapName.setText("")
         self.playerName.setText("")
@@ -602,95 +601,3 @@ class ReplaysWidget(BaseClass, FormClass):
             # Notify other modules that we're watching a replay
             self.client.viewingReplay.emit(item.url)
             replay(item.url)
-            
-    def connectToReplayVault(self):
-        """ connect to the replay vault server """
-
-        if self.replayVaultSocket.state() != QtNetwork.QAbstractSocket.ConnectedState and self.replayVaultSocket.state() != QtNetwork.QAbstractSocket.ConnectingState:
-            self.replayVaultSocket.connectToHost(self.HOST, self.SOCKET)        
-
-    def send(self, message):
-        data = json.dumps(message)
-        logger.debug("Outgoing JSON Message: " + data)
-        self.writeToServer(data)
-
-    @QtCore.pyqtSlot()
-    def readDataFromServer(self):
-        ins = QtCore.QDataStream(self.replayVaultSocket)        
-        ins.setVersion(QtCore.QDataStream.Qt_4_2)
-        
-        while not ins.atEnd():
-            if self.blockSize == 0:
-                if self.replayVaultSocket.bytesAvailable() < 4:
-                    return
-                self.blockSize = ins.readUInt32()            
-            if self.replayVaultSocket.bytesAvailable() < self.blockSize:
-                return
-            
-            action = ins.readQString()
-            self.process(action, ins)
-            self.blockSize = 0
-
-    def process(self, action, stream):
-        logger.debug("Replay Vault Server: " + action)
-        self.receiveJSON(action, stream)
-        
-    def receiveJSON(self, data_string, stream):
-        """ A fairly pythonic way to process received strings as JSON messages. """
-
-        try:
-            message = json.loads(data_string)
-            self._dispatcher.dispatch(message)
-        except ValueError as e:
-            logger.error("Error decoding json ")
-            logger.error(e)
-        
-        self.replayVaultSocket.disconnectFromHost()
-        
-    def writeToServer(self, action, *args, **kw):
-        logger.debug(("writeToServer(" + action + ", [" + ', '.join(args) + "])"))
-        
-        block = QtCore.QByteArray()
-        out = QtCore.QDataStream(block, QtCore.QIODevice.ReadWrite)
-        out.setVersion(QtCore.QDataStream.Qt_4_2)
-        out.writeUInt32(0)
-        out.writeQString(action)
-        
-        for arg in args:
-            if type(arg) is int:
-                out.writeInt(arg)
-            elif isinstance(arg, str):
-                out.writeQString(arg)
-            elif type(arg) is float:
-                out.writeFloat(arg)
-            elif type(arg) is list:
-                out.writeQVariantList(arg)
-            else:
-                logger.warn("Uninterpreted Data Type: " + str(type(arg)) + " of value: " + str(arg))
-                out.writeQString(str(arg))
-
-        out.device().seek(0)
-        out.writeUInt32(block.size() - 4)
-
-        self.bytesToSend = block.size() - 4        
-        self.replayVaultSocket.write(block)
-
-    def handleServerError(self, socketError):
-        if socketError == QtNetwork.QAbstractSocket.RemoteHostClosedError:
-            logger.info("Replay Server down: The server is down for maintenance, please try later.")
-
-        elif socketError == QtNetwork.QAbstractSocket.HostNotFoundError:
-            logger.info("Connection to Host lost. Please check the host name and port settings.")
-            
-        elif socketError == QtNetwork.QAbstractSocket.ConnectionRefusedError:
-            logger.info("The connection was refused by the peer.")
-        else:
-            logger.info("The following error occurred: %s." % self.replayVaultSocket.errorString())    
-
-    @QtCore.pyqtSlot()
-    def disconnected(self):
-        logger.debug("Disconnected from server")
-
-    @QtCore.pyqtSlot(QtNetwork.QAbstractSocket.SocketError)
-    def errored(self, error):
-        logger.error("TCP Error " + self.replayVaultSocket.errorString())

@@ -338,7 +338,7 @@ class GamesWidget(FormClass, BaseClass):
         if not fa.check.game(self.client):
             return
 
-        game = [g for g in self.games.iteritems() if self.games[g].widget is item]
+        game = [g for g in self.games.keys() if self.games[g].widget is item]
         if not game:
             return
         game = game[0]

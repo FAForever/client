@@ -268,7 +268,7 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
         if not fa.instance.available():
             return
 
-        game = [g for g in self.games.iteritems() if self.games[g].widget is item]
+        game = [g for g in self.games.keys() if self.games[g].widget is item]
         if not game:
             return
         game = game[0]
