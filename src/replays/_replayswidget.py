@@ -401,7 +401,7 @@ class LocalReplaysWidgetHandler(object):
                 fh.write(filename + ":" + metadata)
 
 
-class ReplaysWidget(BaseClass, FormClass):
+class ReplayVaultWidgetHandler(object):
     HOST   = "lobby.faforever.com"
     PORT = 11002
 
@@ -409,80 +409,59 @@ class ReplaysWidget(BaseClass, FormClass):
     automatic = Settings.persisted_property("replay/automatic", default_value=False, type=bool)
     spoiler_free = Settings.persisted_property("replay/spoilerFree", default_value=True, type=bool)
 
-    def __init__(self, client, dispatcher, gameset):
-        super(BaseClass, self).__init__()
-
-        self.setupUi(self)
-
-        # self.replayVault.setVisible(False)
-        self.client = client
+    def __init__(self, widget, dispatcher, client):
+        self._w = widget
         self._dispatcher = dispatcher
-        client.lobby_info.replayVault.connect(self.replayVault)
-        
+        self.client = client
+
         self.onlineReplays = {}
-        self.onlineTree.setItemDelegate(ReplayItemDelegate(self))
+        self.selectedReplay = None
+        self.vault_connection = ReplaysConnection(self._dispatcher, self.HOST, self.PORT)
+        self.client.lobby_info.replayVault.connect(self.replayVault)
         self.replayDownload = QNetworkAccessManager()
         self.replayDownload.finished.connect(self.finishRequest)
-        
-        # sending request to replay vault
-        self.searchButton.pressed.connect(self.searchVault)
-        self.playerName.returnPressed.connect(self.searchVault)
-        self.mapName.returnPressed.connect(self.searchVault)
-        self.automaticCheckbox.stateChanged.connect(self.automaticCheckboxchange)
-        self.spoilerCheckbox.stateChanged.connect(self.spoilerCheckboxchange)
-        self.RefreshResetButton.pressed.connect(self.ResetRefreshpressed)
 
-        self.liveManager = LiveReplaysWidgetHandler(self.liveTree, self.client, gameset)
-        self.localManager = LocalReplaysWidgetHandler(self.myTree)
-        
-        self.onlineTree.itemDoubleClicked.connect(self.onlineTreeDoubleClicked)
-        self.onlineTree.itemPressed.connect(self.onlineTreeClicked)
-        self.selectedReplay = None
-
-        # replay vault connection to server
         self.searching = False
         self.searchInfo = "<font color='gold'><b>Searching...</b></font>"
-        self.vault_connection = ReplaysConnection(self._dispatcher, self.HOST, self.PORT)
+
+        _w = self._w
+        _w.onlineTree.setItemDelegate(ReplayItemDelegate(_w))
+        _w.onlineTree.itemDoubleClicked.connect(self.onlineTreeDoubleClicked)
+        _w.onlineTree.itemPressed.connect(self.onlineTreeClicked)
+
+        _w.searchButton.pressed.connect(self.searchVault)
+        _w.playerName.returnPressed.connect(self.searchVault)
+        _w.mapName.returnPressed.connect(self.searchVault)
+        _w.automaticCheckbox.stateChanged.connect(self.automaticCheckboxchange)
+        _w.spoilerCheckbox.stateChanged.connect(self.spoilerCheckboxchange)
+        _w.RefreshResetButton.pressed.connect(self.resetRefreshPressed)
 
         # restore persistent checkbox settings
-        self.automaticCheckbox.setChecked(self.automatic)
-        self.spoilerCheckbox.setChecked(self.spoiler_free)
-
-        logger.info("Replays Widget instantiated.")
+        _w.automaticCheckbox.setChecked(self.automatic)
+        _w.spoilerCheckbox.setChecked(self.spoiler_free)
 
     def searchVault(self):
         """ search for some replays """
-        self.searchInfoLabel.setText(self.searchInfo)
+        self._w.searchInfoLabel.setText(self.searchInfo)
         self.searching = True
         self.vault_connection.connect()
         self.vault_connection.send(dict(command="search",
-                                        rating=self.minRating.value(),
-                                        map=self.mapName.text(),
-                                        player=self.playerName.text(),
-                                        mod=self.modList.currentText()))
-        self.onlineTree.clear()
+                                        rating=self._w.minRating.value(),
+                                        map=self._w.mapName.text(),
+                                        player=self._w.playerName.text(),
+                                        mod=self._w.modList.currentText()))
+        self._w.onlineTree.clear()
 
     def reloadView(self):
         if not self.searching:  # something else is already in the pipe from SearchVault
-            if self.automatic or self.onlineReplays == {}:  # refresh on Tap change or only the first time
-                self.searchInfoLabel.setText(self.searchInfo)
+            if self.automatic or self.onlineReplays == {}:  # refresh on Tab change or only the first time
+                self._w.searchInfoLabel.setText(self.searchInfo)
                 self.vault_connection.connect()
                 self.vault_connection.send(dict(command="list"))
 
-    def finishRequest(self, reply):
-        if reply.error() != QNetworkReply.NoError:
-            QtWidgets.QMessageBox.warning(self, "Network Error", reply.errorString())
-        else:
-            faf_replay = QtCore.QFile(os.path.join(util.CACHE_DIR, "temp.fafreplay"))
-            faf_replay.open(QtCore.QIODevice.WriteOnly | QtCore.QIODevice.Truncate)                
-            faf_replay.write(reply.readAll())
-            faf_replay.flush()
-            faf_replay.close()  
-            replay(os.path.join(util.CACHE_DIR, "temp.fafreplay"))
-
     def onlineTreeClicked(self, item):
         if QtWidgets.QApplication.mouseButtons() == QtCore.Qt.RightButton:
-            if type(item.parent) == ReplaysWidget:
+            if type(item.parent) == ReplaysWidget:      # FIXME - hack
                 item.pressed(item)
         else:
             self.selectedReplay = item
@@ -490,14 +469,14 @@ class ReplaysWidget(BaseClass, FormClass):
                 if item.moreInfo is False:
                     self.vault_connection.connect()
                     self.vault_connection.send(dict(command="info_replay", uid=item.uid))
-                elif item.spoiled != self.spoilerCheckbox.isChecked():
-                    self.replayInfos.clear()
-                    self.replayInfos.setHtml(item.replayInfo)
+                elif item.spoiled != self._w.spoilerCheckbox.isChecked():
+                    self._w.replayInfos.clear()
+                    self._w.replayInfos.setHtml(item.replayInfo)
                     item.resize()
                 else:
-                    self.replayInfos.clear()
+                    self._w.replayInfos.clear()
                     item.generateInfoPlayersHtml()
-                
+
     def onlineTreeDoubleClicked(self, item):
         if hasattr(item, "duration"):
             if "playing" in item.duration:  # live game will not be in vault
@@ -519,41 +498,52 @@ class ReplaysWidget(BaseClass, FormClass):
                     self.replayDownload.get(QNetworkRequest(QtCore.QUrl(item.url)))
 
     def automaticCheckboxchange(self, state):
-        self.automatic = state  # save state .. no magic
+        self.automatic = state
 
     def spoilerCheckboxchange(self, state):
-        self.spoiler_free = state  # save state .. no magic
+        self.spoiler_free = state
         if self.selectedReplay:  # if something is selected in the tree to the left
             if type(self.selectedReplay) == ReplayItem:  # and if it is a game
                 self.selectedReplay.generateInfoPlayersHtml()  # then we redo it
 
-    def ResetRefreshpressed(self):  # reset search parameter and reload recent Replays List
-        self.searchInfoLabel.setText(self.searchInfo)
+    def resetRefreshPressed(self):  # reset search parameter and reload recent Replays List
+        self._w.searchInfoLabel.setText(self.searchInfo)
         self.vault_connection.connect()
         self.vault_connection.send(dict(command="list"))
-        self.minRating.setValue(0)
-        self.mapName.setText("")
-        self.playerName.setText("")
-        self.modList.setCurrentIndex(0)  # "All"
+        self._w.minRating.setValue(0)
+        self._w.mapName.setText("")
+        self._w.playerName.setText("")
+        self._w.modList.setCurrentIndex(0)  # "All"
+
+    def finishRequest(self, reply):
+        if reply.error() != QNetworkReply.NoError:
+            QtWidgets.QMessageBox.warning(self, "Network Error", reply.errorString())
+        else:
+            faf_replay = QtCore.QFile(os.path.join(util.CACHE_DIR, "temp.fafreplay"))
+            faf_replay.open(QtCore.QIODevice.WriteOnly | QtCore.QIODevice.Truncate)
+            faf_replay.write(reply.readAll())
+            faf_replay.flush()
+            faf_replay.close()
+            replay(os.path.join(util.CACHE_DIR, "temp.fafreplay"))
 
     def replayVault(self, message):
         action = message["action"]
-        self.searchInfoLabel.clear()
+        self._w.searchInfoLabel.clear()
         if action == "list_recents":
             self.onlineReplays = {}
             replays = message["replays"]
             for replay in replays:
                 uid = replay["id"]
-        
+
                 if uid not in self.onlineReplays:
-                    self.onlineReplays[uid] = ReplayItem(uid, self)
+                    self.onlineReplays[uid] = ReplayItem(uid, self._w)
                     self.onlineReplays[uid].update(replay, self.client)
                 else:
                     self.onlineReplays[uid].update(replay, self.client)
-                    
+
             self.updateOnlineTree()
-            self.replayInfos.clear()
-            self.RefreshResetButton.setText("Refresh Recent List")
+            self._w.replayInfos.clear()
+            self._w.RefreshResetButton.setText("Refresh Recent List")
 
         elif action == "info_replay":
             uid = message["uid"]
@@ -568,29 +558,19 @@ class ReplaysWidget(BaseClass, FormClass):
                 uid = replay["id"]
 
                 if uid not in self.onlineReplays:
-                    self.onlineReplays[uid] = ReplayItem(uid, self)
+                    self.onlineReplays[uid] = ReplayItem(uid, self._w)
                     self.onlineReplays[uid].update(replay, self.client)
                 else:
                     self.onlineReplays[uid].update(replay, self.client)
-                    
-            self.updateOnlineTree()
-            self.replayInfos.clear()
-            self.RefreshResetButton.setText("Reset Search to Recent")
 
-    def focusEvent(self, event):
-        self.localManager.updatemyTree()
-        self.reloadView()
-        return BaseClass.focusEvent(self, event)
-    
-    def showEvent(self, event):
-        self.localManager.updatemyTree()
-        self.reloadView()
-        return BaseClass.showEvent(self, event)
+            self.updateOnlineTree()
+            self._w.replayInfos.clear()
+            self._w.RefreshResetButton.setText("Reset Search to Recent")
 
     def updateOnlineTree(self):
         self.selectedReplay = None  # clear because won't be part of the new tree
-        self.replayInfos.clear()
-        self.onlineTree.clear()
+        self._w.replayInfos.clear()
+        self._w.onlineTree.clear()
         buckets = {}
         for uid in self.onlineReplays:
             bucket = buckets.setdefault(self.onlineReplays[uid].startDate, [])
@@ -598,8 +578,8 @@ class ReplaysWidget(BaseClass, FormClass):
 
         for bucket in buckets.keys():
             bucket_item = QtWidgets.QTreeWidgetItem()
-            self.onlineTree.addTopLevelItem(bucket_item)
-            
+            self._w.onlineTree.addTopLevelItem(bucket_item)
+
             bucket_item.setIcon(0, util.THEME.icon("replays/bucket.png"))
             bucket_item.setText(0, "<font color='white'>" + bucket+"</font>")
             bucket_item.setText(1, "<font color='white'>" + str(len(buckets[bucket])) + " replays</font>")
@@ -608,5 +588,31 @@ class ReplaysWidget(BaseClass, FormClass):
                 bucket_item.addChild(replay)
                 replay.setFirstColumnSpanned(True)
                 replay.setIcon(0, replay.icon)
-                
+
             bucket_item.setExpanded(True)
+
+
+class ReplaysWidget(BaseClass, FormClass):
+    def __init__(self, client, dispatcher, gameset):
+        super(BaseClass, self).__init__()
+
+        self.setupUi(self)
+
+        # self.replayVault.setVisible(False)
+        self.client = client
+
+        self.liveManager = LiveReplaysWidgetHandler(self.liveTree, self.client, gameset)
+        self.localManager = LocalReplaysWidgetHandler(self.myTree)
+        self.vaultManager = ReplayVaultWidgetHandler(self, dispatcher, client)
+
+        logger.info("Replays Widget instantiated.")
+
+    def focusEvent(self, event):
+        self.localManager.updatemyTree()
+        self.vaultManager.reloadView()
+        return BaseClass.focusEvent(self, event)
+
+    def showEvent(self, event):
+        self.localManager.updatemyTree()
+        self.vaultManager.reloadView()
+        return BaseClass.showEvent(self, event)
