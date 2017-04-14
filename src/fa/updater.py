@@ -37,11 +37,35 @@ logger = logging.getLogger(__name__)
 # This contains a complete dump of everything that was supplied to logOutput
 debugLog = []
 
+# Interface for the user of a connection.
+class ConnectionHandler(object):
+    def __init__(self):
+        pass
+
+    def atConnectionError(self, socketError):
+        pass
+
+    def atDisconnect(self):
+        pass
+
+    def atConnectionRead(self):
+        pass
+
+    def atNewBlock(self, blocksize):
+        pass
+
+    def atBlockProgress(self, avail, blocksize):
+        pass
+
+    def atBlockComplete(self, blocksize, block):
+        pass
+
+
 class UpdateConnection(object):
-    def __init__(self, updater, host, port):
+    def __init__(self, handler, host, port):
         self.host = host
         self.port = port
-        self.updater = updater
+        self.handler = handler
 
         self.blockSize = 0
         self.updateSocket = QtNetwork.QTcpSocket()
@@ -76,66 +100,41 @@ class UpdateConnection(object):
         else:
             log("The following error occurred: %s." % self.updateSocket.errorString())
 
-        self.updater.result = self.updater.RESULT_FAILURE
+        self.handler.atConnectionError(socketError)
 
     def disconnected(self):
         #This isn't necessarily an error so we won't change self.result here.
         log("Disconnected from server at " + timestamp())
+        self.handler.atDisconnect()
 
     def readDataFromServer(self):
-        self.updater.lastData = time.time()  # Keep resetting that timeout counter
+        self.handler.atConnectionRead()
 
         ins = QtCore.QDataStream(self.updateSocket)
         ins.setVersion(QtCore.QDataStream.Qt_4_2)
 
         while not ins.atEnd():
-            #log("Bytes Available: %d" % self.updateSocket.bytesAvailable())
-
             # Nothing was read yet, commence a new block.
             if self.blockSize == 0:
-                self.updater.progress.reset()
-
                 #wait for enough bytes to piece together block size information
                 if self.updateSocket.bytesAvailable() < 4:
                     return
 
                 self.blockSize = ins.readUInt32()
+                self.handler.atNewBlock(self.blockSize)
 
-                if (self.blockSize > 65536):
-                    self.updater.progress.setLabelText("Downloading...")
-                    self.updater.progress.setValue(0)
-                    self.updater.progress.setMaximum(self.blockSize)
-                else:
-                    self.updater.progress.setValue(0)
-                    self.updater.progress.setMinimum(0)
-                    self.updater.progress.setMaximum(0)
-
-            # Update our Gui at least once before proceeding (we might be receiving a huge file and this is not the first time we get here)
-            self.updater.lastData = time.time()
-            QtWidgets.QApplication.processEvents()
-
+            avail = self.updateSocket.bytesAvailable()
             #We have an incoming block, wait for enough bytes to accumulate
-            if self.updateSocket.bytesAvailable() < self.blockSize:
-                self.updater.progress.setValue(self.updateSocket.bytesAvailable())
+            if avail < self.blockSize:
+                self.handler.atBlockProgress(avail, self.blockSize)
                 return  #until later, this slot is reentrant
 
             #Enough bytes accumulated. Carry on.
-            self.updater.progress.setValue(self.blockSize)
-
-            # Update our Gui at least once before proceeding (we might have to write a big file)
-            self.updater.lastData = time.time()
-            QtWidgets.QApplication.processEvents()
-
-            # Find out what the server just sent us, and process it.
-            action = ins.readQString()
-            self.updater.handleAction(self.blockSize, action, ins)
+            self.handler.atBlockComplete(self.blockSize, ins)
 
             # Prepare to read the next block
             self.blockSize = 0
 
-            self.updater.progress.setValue(0)
-            self.updater.progress.setMinimum(0)
-            self.updater.progress.setMaximum(0)
 
     def writeToServer(self, action, *args, **kw):
         log(("writeToServer(" + action + ", [" + ', '.join(args) + "])"))
@@ -226,7 +225,7 @@ class UpdaterTimeout(Exception):
 
 
 
-class Updater(QtCore.QObject):
+class Updater(QtCore.QObject, ConnectionHandler):
     """
     This is the class that does the actual installation work.
     """
@@ -717,6 +716,44 @@ class Updater(QtCore.QObject):
         shutil.copy(toFile, original)
         os.remove(toFile)
         os.remove(patch)
+
+    # Connection handler methods start here
+
+    def atConnectionError(self, error):
+        self.result = self.RESULT_FAILURE
+
+    def atConnectionRead(self):
+        self.lastData = time.time()  # Keep resetting that timeout counter
+
+    def atNewBlock(self, blockSize):
+        if (blockSize > 65536):
+            self.progress.setLabelText("Downloading...")
+            self.progress.setValue(0)
+            self.progress.setMaximum(blockSize)
+        else:
+            self.progress.setValue(0)
+            self.progress.setMinimum(0)
+            self.progress.setMaximum(0)
+
+        # Update our Gui at least once before proceeding (we might be receiving a huge file and this is not the first time we get here)
+        self.lastData = time.time()
+        QtWidgets.QApplication.processEvents()
+
+    def atBlockProgress(self, avail, blockSize):
+        self.progress.setValue(avail)
+
+    def atBlockComplete(self, blockSize, block):
+        self.progress.setValue(blockSize)
+        # Update our Gui at least once before proceeding (we might have to write a big file)
+        self.lastData = time.time()
+        QtWidgets.QApplication.processEvents()
+
+        action = block.readQString()
+        self.handleAction(blockSize, action, block)
+        self.progress.setValue(0)
+        self.progress.setMinimum(0)
+        self.progress.setMaximum(0)
+        self.progress.reset()
 
 def timestamp():
     return time.strftime("%Y-%m-%d %H:%M:%S")
