@@ -216,6 +216,191 @@ class LiveReplaysWidgetHandler(object):
                 item.setHidden(False)
 
 
+class LocalReplaysWidgetHandler(object):
+    def __init__(self, myTree):
+        self.myTree = myTree
+        self.myTree.itemDoubleClicked.connect(self.myTreeDoubleClicked)
+        self.myTree.itemPressed.connect(self.myTreePressed)
+        self.myTree.header().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
+        self.myTree.header().setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
+        self.myTree.header().setSectionResizeMode(2, QtWidgets.QHeaderView.Stretch)
+        self.myTree.header().setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeToContents)
+
+    def myTreePressed(self, item):
+        if QtWidgets.QApplication.mouseButtons() != QtCore.Qt.RightButton:
+            return
+
+        if item.isDisabled():
+            return
+
+        if self.myTree.indexOfTopLevelItem(item) != -1:
+            return
+
+        menu = QtWidgets.QMenu(self.myTree)
+
+        # Actions for Games and Replays
+        actionReplay = QtWidgets.QAction("Replay", menu)
+        actionExplorer = QtWidgets.QAction("Show in Explorer", menu)
+
+        # Adding to menu
+        menu.addAction(actionReplay)
+        menu.addAction(actionExplorer)
+
+        # Triggers
+        actionReplay.triggered.connect(lambda: self.myTreeDoubleClicked(item))
+        actionExplorer.triggered.connect(lambda: util.showFileInFileBrowser(item.filename))
+
+        # Adding to menu
+        menu.addAction(actionReplay)
+        menu.addAction(actionExplorer)
+
+        # Finally: Show the popup
+        menu.popup(QtGui.QCursor.pos())
+
+    def myTreeDoubleClicked(self, item):
+        if item.isDisabled():
+            return
+
+        if self.myTree.indexOfTopLevelItem(item) == -1:
+            replay(item.filename)
+
+    def updatemyTree(self):
+        self.myTree.clear()
+
+        # We put the replays into buckets by day first, then we add them to the treewidget.
+        buckets = {}
+
+        cache = self.loadLocalCache()
+        cache_add = {}
+        cache_hit = {}
+        # Iterate
+        for infile in os.listdir(util.REPLAY_DIR):
+            if infile.endswith(".scfareplay"):
+                bucket = buckets.setdefault("legacy", [])
+
+                item = QtWidgets.QTreeWidgetItem()
+                item.setText(1, infile)
+                item.filename = os.path.join(util.REPLAY_DIR, infile)
+                item.setIcon(0, util.THEME.icon("replays/replay.png"))
+                item.setForeground(0, QtGui.QColor(client.instance.getColor("default")))
+
+                bucket.append(item)
+
+            elif infile.endswith(".fafreplay"):
+                item = QtWidgets.QTreeWidgetItem()
+                try:
+                    item.filename = os.path.join(util.REPLAY_DIR, infile)
+                    basename = os.path.basename(item.filename)
+                    if basename in cache:
+                        oneline = cache[basename]
+                        cache_hit[basename] = oneline
+                    else:
+                        with open(item.filename, "rt") as fh:
+                            oneline = fh.readline()
+                            cache_add[basename] = oneline
+
+                    item.info = json.loads(oneline)
+
+                    # Parse replayinfo into data
+                    if item.info.get('complete', False):
+                        t = time.localtime(item.info.get('launched_at', item.info.get('game_time', time.time())))
+                        game_date = time.strftime("%Y-%m-%d", t)
+                        game_hour = time.strftime("%H:%M", t)
+
+                        bucket = buckets.setdefault(game_date, [])
+
+                        icon = fa.maps.preview(item.info['mapname'])
+                        if icon:
+                            item.setIcon(0, icon)
+                        else:
+                            client.instance.downloader.downloadMap(item.info['mapname'], item, True)
+                            item.setIcon(0, util.THEME.icon("games/unknown_map.png"))
+                        item.setToolTip(0, fa.maps.getDisplayName(item.info['mapname']))
+                        item.setText(0, game_hour)
+                        item.setForeground(0, QtGui.QColor(client.instance.getColor("default")))
+
+                        item.setText(1, item.info['title'])
+                        item.setToolTip(1, infile)
+
+                        # Hacky way to quickly assemble a list of all the players, but including the observers
+                        playerlist = []
+                        for _, players in list(item.info['teams'].items()):
+                            playerlist.extend(players)
+                        item.setText(2, ", ".join(playerlist))
+                        item.setToolTip(2, ", ".join(playerlist))
+
+                        # Add additional info
+                        item.setText(3, item.info['featured_mod'])
+                        item.setTextAlignment(3, QtCore.Qt.AlignCenter)
+                        item.setForeground(1, QtGui.QColor(client.instance.players.getUserColor(item.info.get('recorder', ""))))
+                    else:
+                        bucket = buckets.setdefault("incomplete", [])
+                        item.setIcon(0, util.THEME.icon("replays/replay.png"))
+                        item.setText(1, infile)
+                        item.setText(2, "(replay doesn't have complete metadata)")
+                        item.setForeground(1, QtGui.QColor("yellow"))  # FIXME: Needs to come from theme
+
+                except Exception as ex:
+                    bucket = buckets.setdefault("broken", [])
+                    item.setIcon(0, util.THEME.icon("replays/broken.png"))
+                    item.setText(1, infile)
+                    item.setForeground(1, QtGui.QColor("red"))   # FIXME: Needs to come from theme
+                    item.setText(2, "(replay parse error)")
+                    item.setForeground(2, QtGui.QColor("gray"))  # FIXME: Needs to come from theme
+                    logger.exception("Exception parsing replay {}: {}".format(infile, ex))
+
+                bucket.append(item)
+
+        if len(cache_add) > 10 or len(cache) - len(cache_hit) > 10:
+            self.saveLocalCache(cache_hit, cache_add)
+        # Now, create a top level treewidgetitem for every bucket, and put the bucket's contents into them
+        for bucket in buckets.keys():
+            bucket_item = QtWidgets.QTreeWidgetItem()
+
+            if bucket == "broken":
+                bucket_item.setForeground(0, QtGui.QColor("red"))  # FIXME: Needs to come from theme
+                bucket_item.setText(1, "(not watchable)")
+                bucket_item.setForeground(1, QtGui.QColor(client.instance.getColor("default")))
+            elif bucket == "incomplete":
+                bucket_item.setForeground(0, QtGui.QColor("yellow"))  # FIXME: Needs to come from theme
+                bucket_item.setText(1, "(watchable)")
+                bucket_item.setForeground(1, QtGui.QColor(client.instance.getColor("default")))
+            elif bucket == "legacy":
+                bucket_item.setForeground(0, QtGui.QColor(client.instance.getColor("default")))
+                bucket_item.setForeground(1, QtGui.QColor(client.instance.getColor("default")))
+                bucket_item.setText(1, "(old replay system)")
+            else:
+                bucket_item.setForeground(0, QtGui.QColor(client.instance.getColor("player")))
+
+            bucket_item.setIcon(0, util.THEME.icon("replays/bucket.png"))
+            bucket_item.setText(0, bucket)
+            bucket_item.setText(3, str(len(buckets[bucket])) + " replays")
+            bucket_item.setForeground(3, QtGui.QColor(client.instance.getColor("default")))
+
+            self.myTree.addTopLevelItem(bucket_item)
+            #self.myTree.setFirstItemColumnSpanned(bucket_item, True)
+
+            for replay in buckets[bucket]:
+                bucket_item.addChild(replay)
+
+    def loadLocalCache(self):
+        cache_fname = os.path.join(util.CACHE_DIR, "local_replays_metadata")
+        cache = {}
+        if os.path.exists(cache_fname):
+            with open(cache_fname, "rt") as fh:
+                for line in fh:
+                    filename, metadata = line.split(':', 1)
+                    cache[filename] = metadata
+        return cache
+
+    def saveLocalCache(self, cache_hit, cache_add):
+        with open(os.path.join(util.CACHE_DIR, "local_replays_metadata"), "wt") as fh:
+            for filename, metadata in cache_hit.items():
+                fh.write(filename + ":" + metadata)
+            for filename, metadata in cache_add.items():
+                fh.write(filename + ":" + metadata)
+
+
 class ReplaysWidget(BaseClass, FormClass):
     HOST   = "lobby.faforever.com"
     PORT = 11002
@@ -247,14 +432,8 @@ class ReplaysWidget(BaseClass, FormClass):
         self.spoilerCheckbox.stateChanged.connect(self.spoilerCheckboxchange)
         self.RefreshResetButton.pressed.connect(self.ResetRefreshpressed)
 
-        self.myTree.itemDoubleClicked.connect(self.myTreeDoubleClicked)
-        self.myTree.itemPressed.connect(self.myTreePressed)
-        self.myTree.header().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
-        self.myTree.header().setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
-        self.myTree.header().setSectionResizeMode(2, QtWidgets.QHeaderView.Stretch)
-        self.myTree.header().setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeToContents)
-        
         self.liveManager = LiveReplaysWidgetHandler(self.liveTree, self.client, gameset)
+        self.localManager = LocalReplaysWidgetHandler(self.myTree)
         
         self.onlineTree.itemDoubleClicked.connect(self.onlineTreeDoubleClicked)
         self.onlineTree.itemPressed.connect(self.onlineTreeClicked)
@@ -399,12 +578,12 @@ class ReplaysWidget(BaseClass, FormClass):
             self.RefreshResetButton.setText("Reset Search to Recent")
 
     def focusEvent(self, event):
-        self.updatemyTree()
+        self.localManager.updatemyTree()
         self.reloadView()
         return BaseClass.focusEvent(self, event)
     
     def showEvent(self, event):
-        self.updatemyTree()
+        self.localManager.updatemyTree()
         self.reloadView()
         return BaseClass.showEvent(self, event)
 
@@ -431,180 +610,3 @@ class ReplaysWidget(BaseClass, FormClass):
                 replay.setIcon(0, replay.icon)
                 
             bucket_item.setExpanded(True)
-    
-    def loadLocalCache(self):
-        cache_fname = os.path.join(util.CACHE_DIR, "local_replays_metadata")
-        cache = {}
-        if os.path.exists(cache_fname):
-            with open(cache_fname, "rt") as fh:
-                for line in fh:
-                    filename, metadata = line.split(':', 1)
-                    cache[filename] = metadata
-        return cache
-
-    def saveLocalCache(self, cache_hit, cache_add):
-        with open(os.path.join(util.CACHE_DIR, "local_replays_metadata"), "wt") as fh:
-            for filename, metadata in cache_hit.items():
-                fh.write(filename + ":" + metadata)
-            for filename, metadata in cache_add.items():
-                fh.write(filename + ":" + metadata)
-
-    def updatemyTree(self):
-        self.myTree.clear()
-        
-        # We put the replays into buckets by day first, then we add them to the treewidget.
-        buckets = {}
-
-        cache = self.loadLocalCache()
-        cache_add = {}
-        cache_hit = {}
-        # Iterate
-        for infile in os.listdir(util.REPLAY_DIR):            
-            if infile.endswith(".scfareplay"):
-                bucket = buckets.setdefault("legacy", [])
-                
-                item = QtWidgets.QTreeWidgetItem()
-                item.setText(1, infile)
-                item.filename = os.path.join(util.REPLAY_DIR, infile)
-                item.setIcon(0, util.THEME.icon("replays/replay.png"))
-                item.setForeground(0, QtGui.QColor(client.instance.getColor("default")))
-                                
-                bucket.append(item)
-                
-            elif infile.endswith(".fafreplay"):
-                item = QtWidgets.QTreeWidgetItem()
-                try:
-                    item.filename = os.path.join(util.REPLAY_DIR, infile)
-                    basename = os.path.basename(item.filename)
-                    if basename in cache:
-                        oneline = cache[basename]
-                        cache_hit[basename] = oneline
-                    else:
-                        with open(item.filename, "rt") as fh:
-                            oneline = fh.readline()
-                            cache_add[basename] = oneline
-
-                    item.info = json.loads(oneline)
-
-                    # Parse replayinfo into data
-                    if item.info.get('complete', False):
-                        t = time.localtime(item.info.get('launched_at', item.info.get('game_time', time.time())))
-                        game_date = time.strftime("%Y-%m-%d", t)
-                        game_hour = time.strftime("%H:%M", t)
-                        
-                        bucket = buckets.setdefault(game_date, [])                    
-                        
-                        icon = fa.maps.preview(item.info['mapname'])
-                        if icon:
-                            item.setIcon(0, icon)
-                        else:
-                            self.client.downloader.downloadMap(item.info['mapname'], item, True)
-                            item.setIcon(0, util.THEME.icon("games/unknown_map.png"))
-                        item.setToolTip(0, fa.maps.getDisplayName(item.info['mapname']))
-                        item.setText(0, game_hour)
-                        item.setForeground(0, QtGui.QColor(client.instance.getColor("default")))
-                        
-                        item.setText(1, item.info['title'])
-                        item.setToolTip(1, infile)
-    
-                        # Hacky way to quickly assemble a list of all the players, but including the observers
-                        playerlist = []
-                        for _, players in list(item.info['teams'].items()):
-                            playerlist.extend(players)
-                        item.setText(2, ", ".join(playerlist))
-                        item.setToolTip(2, ", ".join(playerlist))
-                        
-                        # Add additional info
-                        item.setText(3, item.info['featured_mod'])
-                        item.setTextAlignment(3, QtCore.Qt.AlignCenter)
-                        item.setForeground(1, QtGui.QColor(client.instance.players.getUserColor(item.info.get('recorder', ""))))
-                    else:
-                        bucket = buckets.setdefault("incomplete", [])                    
-                        item.setIcon(0, util.THEME.icon("replays/replay.png"))
-                        item.setText(1, infile)
-                        item.setText(2, "(replay doesn't have complete metadata)")
-                        item.setForeground(1, QtGui.QColor("yellow"))  # FIXME: Needs to come from theme
-
-                except Exception as ex:
-                    bucket = buckets.setdefault("broken", [])                    
-                    item.setIcon(0, util.THEME.icon("replays/broken.png"))
-                    item.setText(1, infile)
-                    item.setForeground(1, QtGui.QColor("red"))   # FIXME: Needs to come from theme
-                    item.setText(2, "(replay parse error)")
-                    item.setForeground(2, QtGui.QColor("gray"))  # FIXME: Needs to come from theme
-                    logger.exception("Exception parsing replay {}: {}".format(infile, ex))
-
-                bucket.append(item)
-
-        if len(cache_add) > 10 or len(cache) - len(cache_hit) > 10:
-            self.saveLocalCache(cache_hit, cache_add)
-        # Now, create a top level treewidgetitem for every bucket, and put the bucket's contents into them         
-        for bucket in buckets.keys():
-            bucket_item = QtWidgets.QTreeWidgetItem()
-            
-            if bucket == "broken":
-                bucket_item.setForeground(0, QtGui.QColor("red"))  # FIXME: Needs to come from theme
-                bucket_item.setText(1, "(not watchable)")
-                bucket_item.setForeground(1, QtGui.QColor(client.instance.getColor("default")))
-            elif bucket == "incomplete":
-                bucket_item.setForeground(0, QtGui.QColor("yellow"))  # FIXME: Needs to come from theme
-                bucket_item.setText(1, "(watchable)")
-                bucket_item.setForeground(1, QtGui.QColor(client.instance.getColor("default")))
-            elif bucket == "legacy":
-                bucket_item.setForeground(0, QtGui.QColor(client.instance.getColor("default")))
-                bucket_item.setForeground(1, QtGui.QColor(client.instance.getColor("default")))
-                bucket_item.setText(1, "(old replay system)")
-            else:
-                bucket_item.setForeground(0, QtGui.QColor(client.instance.getColor("player")))
-                
-            bucket_item.setIcon(0, util.THEME.icon("replays/bucket.png"))
-            bucket_item.setText(0, bucket)
-            bucket_item.setText(3, str(len(buckets[bucket])) + " replays")
-            bucket_item.setForeground(3, QtGui.QColor(client.instance.getColor("default")))
-                
-            self.myTree.addTopLevelItem(bucket_item)
-            #self.myTree.setFirstItemColumnSpanned(bucket_item, True)
-                
-            for replay in buckets[bucket]:
-                bucket_item.addChild(replay)
-
-    @QtCore.pyqtSlot(QtWidgets.QTreeWidgetItem)
-    def myTreePressed(self, item):
-        if QtWidgets.QApplication.mouseButtons() != QtCore.Qt.RightButton:
-            return
-                    
-        if item.isDisabled():
-            return
-
-        if self.myTree.indexOfTopLevelItem(item) != -1:
-            return
-        
-        menu = QtWidgets.QMenu(self.myTree)
-        
-        # Actions for Games and Replays
-        actionReplay = QtWidgets.QAction("Replay", menu)
-        actionExplorer = QtWidgets.QAction("Show in Explorer", menu)
-        
-        # Adding to menu
-        menu.addAction(actionReplay)
-        menu.addAction(actionExplorer)
-            
-        # Triggers
-        actionReplay.triggered.connect(lambda: self.myTreeDoubleClicked(item))
-        actionExplorer.triggered.connect(lambda: util.showFileInFileBrowser(item.filename))
-      
-        # Adding to menu
-        menu.addAction(actionReplay)
-        menu.addAction(actionExplorer)
-
-        # Finally: Show the popup
-        menu.popup(QtGui.QCursor.pos())
-
-
-    @QtCore.pyqtSlot(QtWidgets.QTreeWidgetItem)
-    def myTreeDoubleClicked(self, item):
-        if item.isDisabled():
-            return
-
-        if self.myTree.indexOfTopLevelItem(item) == -1:
-            replay(item.filename)
