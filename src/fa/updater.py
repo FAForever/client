@@ -37,6 +37,136 @@ logger = logging.getLogger(__name__)
 # This contains a complete dump of everything that was supplied to logOutput
 debugLog = []
 
+class UpdateConnection(object):
+    def __init__(self, updater, host, port):
+        self.host = host
+        self.port = port
+        self.updater = updater
+
+        self.blockSize = 0
+        self.updateSocket = QtNetwork.QTcpSocket()
+        self.updateSocket.setSocketOption(QtNetwork.QTcpSocket.KeepAliveOption, 1)
+        self.updateSocket.setSocketOption(QtNetwork.QTcpSocket.LowDelayOption, 1)
+
+        self.updateSocket.error.connect(self.handleServerError)
+        self.updateSocket.readyRead.connect(self.readDataFromServer)
+        self.updateSocket.disconnected.connect(self.disconnected)
+
+    def connect(self):
+        self.updateSocket.connectToHost(self.host, self.port)
+
+    def connected(self):
+        return self.updateSocket.state() == QtNetwork.QAbstractSocket.ConnectedState
+
+    def disconnect(self):
+        self.updateSocket.close()
+
+    def handleServerError(self, socketError):
+        """
+        Simple error handler that flags the whole operation as failed, not very graceful but what can you do...
+        """
+        if socketError == QtNetwork.QAbstractSocket.RemoteHostClosedError:
+            log("FA Server down: The server is down for maintenance, please try later.")
+
+        elif socketError == QtNetwork.QAbstractSocket.HostNotFoundError:
+            log("Connection to Host lost. Please check the host name and port settings.")
+
+        elif socketError == QtNetwork.QAbstractSocket.ConnectionRefusedError:
+            log("The connection was refused by the peer.")
+        else:
+            log("The following error occurred: %s." % self.updateSocket.errorString())
+
+        self.updater.result = self.updater.RESULT_FAILURE
+
+    def disconnected(self):
+        #This isn't necessarily an error so we won't change self.result here.
+        log("Disconnected from server at " + timestamp())
+
+    def readDataFromServer(self):
+        self.updater.lastData = time.time()  # Keep resetting that timeout counter
+
+        ins = QtCore.QDataStream(self.updateSocket)
+        ins.setVersion(QtCore.QDataStream.Qt_4_2)
+
+        while not ins.atEnd():
+            #log("Bytes Available: %d" % self.updateSocket.bytesAvailable())
+
+            # Nothing was read yet, commence a new block.
+            if self.blockSize == 0:
+                self.updater.progress.reset()
+
+                #wait for enough bytes to piece together block size information
+                if self.updateSocket.bytesAvailable() < 4:
+                    return
+
+                self.blockSize = ins.readUInt32()
+
+                if (self.blockSize > 65536):
+                    self.updater.progress.setLabelText("Downloading...")
+                    self.updater.progress.setValue(0)
+                    self.updater.progress.setMaximum(self.blockSize)
+                else:
+                    self.updater.progress.setValue(0)
+                    self.updater.progress.setMinimum(0)
+                    self.updater.progress.setMaximum(0)
+
+            # Update our Gui at least once before proceeding (we might be receiving a huge file and this is not the first time we get here)
+            self.updater.lastData = time.time()
+            QtWidgets.QApplication.processEvents()
+
+            #We have an incoming block, wait for enough bytes to accumulate
+            if self.updateSocket.bytesAvailable() < self.blockSize:
+                self.updater.progress.setValue(self.updateSocket.bytesAvailable())
+                return  #until later, this slot is reentrant
+
+            #Enough bytes accumulated. Carry on.
+            self.updater.progress.setValue(self.blockSize)
+
+            # Update our Gui at least once before proceeding (we might have to write a big file)
+            self.updater.lastData = time.time()
+            QtWidgets.QApplication.processEvents()
+
+            # Find out what the server just sent us, and process it.
+            action = ins.readQString()
+            self.updater.handleAction(self.blockSize, action, ins)
+
+            # Prepare to read the next block
+            self.blockSize = 0
+
+            self.updater.progress.setValue(0)
+            self.updater.progress.setMinimum(0)
+            self.updater.progress.setMaximum(0)
+
+    def writeToServer(self, action, *args, **kw):
+        log(("writeToServer(" + action + ", [" + ', '.join(args) + "])"))
+        self.lastData = time.time()
+
+        block = QtCore.QByteArray()
+        out = QtCore.QDataStream(block, QtCore.QIODevice.ReadWrite)
+        out.setVersion(QtCore.QDataStream.Qt_4_2)
+        out.writeUInt32(0)
+        out.writeQString(action)
+
+        for arg in args:
+            if type(arg) is int:
+                out.writeInt(arg)
+            elif isinstance(arg, str):
+                out.writeQString(arg)
+            elif type(arg) is float:
+                out.writeFloat(arg)
+            elif type(arg) is list:
+                out.writeQVariantList(arg)
+            else:
+                log("Uninterpreted Data Type: " + str(type(arg)) + " of value: " + str(arg))
+                out.writeQString(str(arg))
+
+        out.device().seek(0)
+        out.writeUInt32(block.size() - 4)
+
+        self.bytesToSend = block.size() - 4
+        self.updateSocket.write(block)
+
+
 
 FormClass, BaseClass = util.THEME.loadUiType("fa/updater/updater.ui")
 class UpdaterProgressDialog(FormClass, BaseClass):
@@ -124,6 +254,7 @@ class Updater(QtCore.QObject):
         self.filesToUpdate = []
         self.updatedFiles = []
 
+        self.connection = UpdateConnection(self, self.HOST, self.SOCKET)
         self.lastData = time.time()
 
         self.featured_mod = featured_mod
@@ -132,11 +263,6 @@ class Updater(QtCore.QObject):
 
         self.sim = sim
         self.modpath = None
-
-        self.blockSize = 0
-        self.updateSocket = QtNetwork.QTcpSocket()
-        self.updateSocket.setSocketOption(QtNetwork.QTcpSocket.KeepAliveOption, 1)
-        self.updateSocket.setSocketOption(QtNetwork.QTcpSocket.LowDelayOption, 1)
 
         self.result = self.RESULT_NONE
 
@@ -168,14 +294,10 @@ class Updater(QtCore.QObject):
 
         #Actual network code adapted from previous version
         self.progress.setLabelText("Connecting to update server...")
-        self.updateSocket.error.connect(self.handleServerError)
-        self.updateSocket.readyRead.connect(self.readDataFromServer)
-        self.updateSocket.disconnected.connect(self.disconnected)
-        self.updateSocket.error.connect(self.errored)
 
-        self.updateSocket.connectToHost(self.HOST, self.SOCKET)
+        self.connection.connect()
 
-        while not (self.updateSocket.state() == QtNetwork.QAbstractSocket.ConnectedState) and self.progress.isVisible():
+        while not (self.connection.connected()) and self.progress.isVisible():
             QtWidgets.QApplication.processEvents()
 
         if not self.progress.wasCanceled():
@@ -184,7 +306,7 @@ class Updater(QtCore.QObject):
             self.doUpdate()
 
             self.progress.setLabelText("Cleaning up.")
-            self.updateSocket.close()
+            self.connection.disconnect()
             self.progress.close()
         else:
             log("Cancelled connecting to server.")
@@ -266,7 +388,7 @@ class Updater(QtCore.QObject):
         self.progress.setLabelText("Updating files: " + filegroup)
         self.destination = destination
 
-        self.writeToServer("GET_FILES_TO_UPDATE", filegroup)
+        self.connection.writeToServer("GET_FILES_TO_UPDATE", filegroup)
         self.waitForFileList()
 
         #Ensure our list is unique
@@ -281,23 +403,23 @@ class Updater(QtCore.QObject):
             if md5File == None:
                 if self.version:
                     if self.featured_mod == "faf" or self.featured_mod == "ladder1v1" or filegroup == "FAF" or filegroup == "FAFGAMEDATA":
-                        self.writeToServer("REQUEST_VERSION", destination, fileToUpdate, str(self.version))
+                        self.connection.writeToServer("REQUEST_VERSION", destination, fileToUpdate, str(self.version))
                     else:
-                        self.writeToServer("REQUEST_MOD_VERSION", destination, fileToUpdate,
+                        self.connection.writeToServer("REQUEST_MOD_VERSION", destination, fileToUpdate,
                                            json.dumps(self.modversions))
                 else:
 
-                    self.writeToServer("REQUEST_PATH", destination, fileToUpdate)
+                    self.connection.writeToServer("REQUEST_PATH", destination, fileToUpdate)
             else:
                 if self.version:
                     if self.featured_mod == "faf" or self.featured_mod == "ladder1v1" or filegroup == "FAF" or filegroup == "FAFGAMEDATA":
-                        self.writeToServer("PATCH_TO", destination, fileToUpdate, md5File, str(self.version))
+                        self.connection.writeToServer("PATCH_TO", destination, fileToUpdate, md5File, str(self.version))
                     else:
 
-                        self.writeToServer("MOD_PATCH_TO", destination, fileToUpdate, md5File,
+                        self.connection.writeToServer("MOD_PATCH_TO", destination, fileToUpdate, md5File,
                                            json.dumps(self.modversions))
                 else:
-                    self.writeToServer("UPDATE", destination, fileToUpdate, md5File)
+                    self.connection.writeToServer("UPDATE", destination, fileToUpdate, md5File)
 
         self.waitUntilFilesAreUpdated()
 
@@ -405,11 +527,11 @@ class Updater(QtCore.QObject):
         """ The core function that does most of the actual update work."""
         try:
             if self.sim:
-                self.writeToServer("REQUEST_SIM_PATH", self.featured_mod)
+                self.connection.writeToServer("REQUEST_SIM_PATH", self.featured_mod)
                 self.waitForSimModPath()
                 if self.result == self.RESULT_SUCCESS:
                     if modvault.downloadMod(self.modpath):
-                        self.writeToServer("ADD_DOWNLOAD_SIM_MOD", self.featured_mod)
+                        self.connection.writeToServer("ADD_DOWNLOAD_SIM_MOD", self.featured_mod)
 
             else:
                 #Prepare FAF directory & all necessary files
@@ -438,7 +560,7 @@ class Updater(QtCore.QObject):
         else:
             self.result = self.RESULT_SUCCESS
         finally:
-            self.updateSocket.close()
+            self.connection.disconnect()
 
         #Hide progress dialog if it's still showing.
         self.progress.close()
@@ -457,27 +579,6 @@ class Updater(QtCore.QObject):
 
         # If nothing terribly bad happened until now, the operation is a success and/or the client can display what's up.                           
         return self.result
-
-
-    @QtCore.pyqtSlot('QAbstractSocket::SocketError')
-    def handleServerError(self, socketError):
-        """
-        Simple error handler that flags the whole operation as failed, not very graceful but what can you do...
-        """
-        if socketError == QtNetwork.QAbstractSocket.RemoteHostClosedError:
-            log("FA Server down: The server is down for maintenance, please try later.")
-
-        elif socketError == QtNetwork.QAbstractSocket.HostNotFoundError:
-            log("Connection to Host lost. Please check the host name and port settings.")
-
-        elif socketError == QtNetwork.QAbstractSocket.ConnectionRefusedError:
-            log("The connection was refused by the peer.")
-        else:
-            log("The following error occurred: %s." % self.updateSocket.errorString())
-
-        self.result = self.RESULT_FAILURE
-
-
 
     def handleAction(self, bytecount, action, stream):
         """
@@ -519,19 +620,19 @@ class Updater(QtCore.QObject):
         elif action == "VERSION_PATCH_NOT_FOUND":
             response = stream.readQString()
             log("Error: Patch version %s not found for %s." % (self.version, response))
-            self.writeToServer("REQUEST_VERSION", self.destination, response, self.version)
+            self.connection.writeToServer("REQUEST_VERSION", self.destination, response, self.version)
             return
 
         elif action == "VERSION_MOD_PATCH_NOT_FOUND":
             response = stream.readQString()
             log("Error: Patch version %s not found for %s." % (str(self.modversions), response))
-            self.writeToServer("REQUEST_MOD_VERSION", self.destination, response, json.dumps(self.modversions))
+            self.connection.writeToServer("REQUEST_MOD_VERSION", self.destination, response, json.dumps(self.modversions))
             return
 
         elif action == "PATCH_NOT_FOUND":
             response = stream.readQString()
             log("Error: Patch not found for %s." % response)
-            self.writeToServer("REQUEST", self.destination, response)
+            self.connection.writeToServer("REQUEST", self.destination, response)
 
             return
 
@@ -617,106 +718,6 @@ class Updater(QtCore.QObject):
         os.remove(toFile)
         os.remove(patch)
 
-    @QtCore.pyqtSlot()
-    def readDataFromServer(self):
-        self.lastData = time.time()  # Keep resetting that timeout counter
-
-        ins = QtCore.QDataStream(self.updateSocket)
-        ins.setVersion(QtCore.QDataStream.Qt_4_2)
-
-        while not ins.atEnd():
-            #log("Bytes Available: %d" % self.updateSocket.bytesAvailable())                    
-
-            # Nothing was read yet, commence a new block.
-            if self.blockSize == 0:
-                self.progress.reset()
-
-                #wait for enough bytes to piece together block size information
-                if self.updateSocket.bytesAvailable() < 4:
-                    return
-
-                self.blockSize = ins.readUInt32()
-
-                if (self.blockSize > 65536):
-                    self.progress.setLabelText("Downloading...")
-                    self.progress.setValue(0)
-                    self.progress.setMaximum(self.blockSize)
-                else:
-                    self.progress.setValue(0)
-                    self.progress.setMinimum(0)
-                    self.progress.setMaximum(0)
-
-            # Update our Gui at least once before proceeding (we might be receiving a huge file and this is not the first time we get here)   
-            self.lastData = time.time()
-            QtWidgets.QApplication.processEvents()
-
-            #We have an incoming block, wait for enough bytes to accumulate                    
-            if self.updateSocket.bytesAvailable() < self.blockSize:
-                self.progress.setValue(self.updateSocket.bytesAvailable())
-                return  #until later, this slot is reentrant
-
-            #Enough bytes accumulated. Carry on.
-            self.progress.setValue(self.blockSize)
-
-            # Update our Gui at least once before proceeding (we might have to write a big file)
-            self.lastData = time.time()
-            QtWidgets.QApplication.processEvents()
-
-            # Find out what the server just sent us, and process it.
-            action = ins.readQString()
-            self.handleAction(self.blockSize, action, ins)
-
-            # Prepare to read the next block
-            self.blockSize = 0
-
-            self.progress.setValue(0)
-            self.progress.setMinimum(0)
-            self.progress.setMaximum(0)
-
-
-    def writeToServer(self, action, *args, **kw):
-        log(("writeToServer(" + action + ", [" + ', '.join(args) + "])"))
-        self.lastData = time.time()
-
-        block = QtCore.QByteArray()
-        out = QtCore.QDataStream(block, QtCore.QIODevice.ReadWrite)
-        out.setVersion(QtCore.QDataStream.Qt_4_2)
-        out.writeUInt32(0)
-        out.writeQString(action)
-
-        for arg in args:
-            if type(arg) is int:
-                out.writeInt(arg)
-            elif isinstance(arg, str):
-                out.writeQString(arg)
-            elif type(arg) is float:
-                out.writeFloat(arg)
-            elif type(arg) is list:
-                out.writeQVariantList(arg)
-            else:
-                log("Uninterpreted Data Type: " + str(type(arg)) + " of value: " + str(arg))
-                out.writeQString(str(arg))
-
-        out.device().seek(0)
-        out.writeUInt32(block.size() - 4)
-
-        self.bytesToSend = block.size() - 4
-        self.updateSocket.write(block)
-
-
-    @QtCore.pyqtSlot()
-    def disconnected(self):
-        #This isn't necessarily an error so we won't change self.result here.
-        log("Disconnected from server at " + timestamp())
-
-
-    @QtCore.pyqtSlot(QtNetwork.QAbstractSocket.SocketError)
-    def errored(self, error):
-        #This isn't necessarily an error so we won't change self.result here.
-        log("TCP Error " + self.updateSocket.errorString())
-        self.result = self.RESULT_FAILURE
-
-
 def timestamp():
     return time.strftime("%Y-%m-%d %H:%M:%S")
 
@@ -727,4 +728,3 @@ def failureDialog():
     The dialog that shows the user the log if something went wrong.
     """
     raise Exception(dumpPlainText())
-
