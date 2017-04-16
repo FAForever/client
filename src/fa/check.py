@@ -94,7 +94,11 @@ def checkMovies(files):
         origpath = os.path.join(gd, fname)
 
         if os.path.exists(origpath) and zipfile.is_zipfile(origpath):
-            zf = zipfile.ZipFile(origpath)
+            try:
+                zf = zipfile.ZipFile(origpath)
+            except:
+                logger.exception('Failed to open Game File {}'.format(origpath))
+                continue
 
             for zi in zf.infolist():
                 if zi.filename.startswith('movies'):
