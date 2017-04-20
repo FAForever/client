@@ -55,7 +55,7 @@ class NewsWidget(FormClass, BaseClass):
         self.newsManager = NewsManager(self)
 
         self.newsWebView.settings().setUserStyleSheetUrl(QtCore.QUrl(
-                'data:text/css;charset=utf-8;base64,' + base64.b64encode(self.CSS)
+                'data:text/css;charset=utf-8;base64,' + base64.b64encode(self.CSS.encode('utf-8')).decode('ascii')
             ))
         # open all links in external browser
         self.newsWebView.page().setLinkDelegationPolicy(QtWebKit.QWebPage.DelegateAllLinks)

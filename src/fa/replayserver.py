@@ -138,8 +138,8 @@ class ReplayRecorder(QtCore.QObject):
                
         replay  = QtCore.QFile(filename)
         replay.open(QtCore.QIODevice.WriteOnly | QtCore.QIODevice.Text)
-        replay.write(json.dumps(self.replayInfo))
-        replay.write('\n')
+        replay.write(json.dumps(self.replayInfo).encode('utf-8'))
+        replay.write(b'\n')
         replay.write(QtCore.qCompress(self.replayData).toBase64())
         replay.close()
         

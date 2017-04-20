@@ -31,7 +31,6 @@ Created on Dec 1, 2011
 '''
 
 from PyQt4 import QtCore, QtGui, QtNetwork, QtWebKit
-from types import IntType, FloatType, ListType, DictType
 
 from client import ClientState, LOBBY_HOST, \
     LOBBY_PORT, LOCAL_REPLAY_PORT
@@ -1248,7 +1247,7 @@ class ClientWindow(FormClass, BaseClass):
 
         # Ensure we have the map
         if "mapname" in message:
-            fa.check.map(message['mapname'], force=True, silent=silent)
+            fa.check.map_(message['mapname'], force=True, silent=silent)
 
         if "sim_mods" in message:
             fa.mods.checkMods(message['sim_mods'])
