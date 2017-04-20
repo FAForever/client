@@ -100,7 +100,7 @@ def check_data_path_permissions():
 
                 if (my_user != data_path_owner):
                     set_data_path_permissions()
-            except Exception, e:
+            except Exception as e:
                 # we encountered error 1332 in win32security.LookupAccountSid here: http://forums.faforever.com/viewtopic.php?f=3&t=13728
                 # https://msdn.microsoft.com/en-us/library/windows/desktop/aa379166(v=vs.85).aspx states:
                 # "It also occurs for SIDs that have no corresponding account name, such as a logon SID that identifies a logon session."
@@ -128,7 +128,7 @@ def make_dirs():
         if not os.path.isdir(path):
             try:
                 os.makedirs(path)
-            except IOError, e:
+            except IOError as e:
                 set_data_path_permissions()
                 os.makedirs(path)
 
@@ -151,11 +151,11 @@ if _settings.contains('client/force_environment'):
     environment = _settings.value('client/force_environment', 'development')
 
 if environment == 'production':
-    from production import defaults
+    from .production import defaults
 elif environment == 'development':
-    from develop import defaults
+    from .develop import defaults
 
-for k, v in defaults.iteritems():
+for k, v in defaults.items():
     if isinstance(v, str):
         defaults[k] = v.format(host = Settings.get('host'))
 
@@ -166,7 +166,7 @@ log_file = os.path.join(Settings.get('client/logs/path'), 'forever.log')
 try:
     with open(log_file, "a") as f:
         pass
-except IOError, e:
+except IOError as e:
     set_data_path_permissions()
 rotate = RotatingFileHandler(os.path.join(Settings.get('client/logs/path'), 'forever.log'),
                              maxBytes=int(Settings.get('client/logs/max_size')),

@@ -58,9 +58,9 @@ class HostgameWidget(FormClass, BaseClass):
         index = 0
         if not self.iscoop:
             allmaps = dict()
-            for map in maps.maps.keys() + maps.getUserMaps():
+            for map in list(maps.maps.keys()) + maps.getUserMaps():
                 allmaps[map] = maps.getDisplayName(map)
-            for (map, name) in sorted(allmaps.iteritems(), key=lambda x: x[1]):
+            for (map, name) in sorted(iter(allmaps.items()), key=lambda x: x[1]):
                 if map == self.mapname :
                     index = i
                 self.mapList.addItem(name, map)

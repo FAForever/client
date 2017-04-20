@@ -12,15 +12,15 @@ def log(string):
 
 
 # A set of exceptions we use to see what goes wrong during asynchronous data transfer waits
-class Cancellation(StandardError):
+class Cancellation(Exception):
     pass
 
 
-class Failure(StandardError):
+class Failure(Exception):
     pass    
 
 
-class Timeout(StandardError):
+class Timeout(Exception):
     pass
     
 
@@ -118,7 +118,7 @@ class SecondaryServer(QtCore.QObject):
         for arg in args:
             if type(arg) is int:
                 out.writeInt(arg)
-            elif isinstance(arg, basestring):
+            elif isinstance(arg, str):
                 out.writeQString(arg)
             elif type(arg) is float:
                 out.writeFloat(arg)

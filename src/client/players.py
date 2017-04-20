@@ -95,13 +95,13 @@ class Players:
             return self.colors["default"]
 
     def keys(self):
-        return self._players.keys()
+        return list(self._players.keys())
 
     def values(self):
-        return self._players.values()
+        return list(self._players.values())
 
     def items(self):
-        return self._players.items()
+        return list(self._players.items())
 
     def get(self, item, default):
         val = self.__getitem__(item)

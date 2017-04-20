@@ -3,7 +3,7 @@ from PyQt4.QtCore import QUrl
 from PyQt4.QtNetwork import QNetworkRequest
 from chat._avatarWidget import avatarWidget
 
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import chat
 from fa.replay import replay
 import util
@@ -122,7 +122,7 @@ class Chatter(QtGui.QTableWidgetItem):
         if self.avatar:
 
             self.avatarTip = self.avatar["tooltip"]
-            self.avatar["url"] = urllib2.unquote(self.avatar["url"])
+            self.avatar["url"] = urllib.parse.unquote(self.avatar["url"])
             url = self.avatar["url"]
 
             avatarPix = util.respix(url)
@@ -207,13 +207,13 @@ class Chatter(QtGui.QTableWidgetItem):
             self.rankItem.setIcon(util.icon("chat/rank/newplayer.png"))
 
     def set_color(self):
-        if self.lobby.client.id == self.id and self.elevation in chat.OPERATOR_COLORS.keys():
+        if self.lobby.client.id == self.id and self.elevation in list(chat.OPERATOR_COLORS.keys()):
             self.setTextColor(QtGui.QColor(chat.get_color("self_mod")))
             return
-        if self.lobby.client.players.isFriend(self.id) and self.elevation in chat.OPERATOR_COLORS.keys():
+        if self.lobby.client.players.isFriend(self.id) and self.elevation in list(chat.OPERATOR_COLORS.keys()):
             self.setTextColor(QtGui.QColor(chat.get_color("friend_mod")))
             return
-        if self.elevation in chat.colors.OPERATOR_COLORS.keys():
+        if self.elevation in list(chat.colors.OPERATOR_COLORS.keys()):
             self.setTextColor(QtGui.QColor(chat.colors.OPERATOR_COLORS[self.elevation]))
             return
 
