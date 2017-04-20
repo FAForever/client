@@ -16,7 +16,7 @@ if sys.platform == 'win32':
 
 # Developer mode flag
 def developer():
-    return sys.executable.endswith("python.exe")
+    return sys.executable.contains("python")
 
 from config import VERSION as VERSION_STRING
 
