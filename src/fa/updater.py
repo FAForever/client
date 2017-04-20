@@ -15,7 +15,6 @@ import stat
 import subprocess
 import time
 import shutil
-from types import FloatType, IntType, ListType
 import logging
 import urllib.request, urllib.error, urllib.parse
 import sys
@@ -41,7 +40,6 @@ debugLog = []
 FormClass, BaseClass = util.loadUiType("fa/updater/updater.ui")
 class UpdaterProgressDialog(FormClass, BaseClass):
     def __init__(self, parent):
-        FormClass.__init__(self, parent)
         BaseClass.__init__(self, parent)
         self.setupUi(self)
         self.logPlainTextEdit.setVisible(False)
@@ -208,7 +206,7 @@ class Updater(QtCore.QObject):
             meta = downloadedfile.info()
 
             #Fix for #241, sometimes the server sends an error and no content-length.
-            file_size = int(meta.getheaders("Content-Length")[0])
+            file_size = int(meta.get_all("Content-Length")[0])
             progress.setMinimum(0)
             progress.setMaximum(file_size)
             progress.setModal(1)
@@ -682,13 +680,13 @@ class Updater(QtCore.QObject):
         out.writeQString(action)
 
         for arg in args:
-            if type(arg) is IntType:
+            if type(arg) is int:
                 out.writeInt(arg)
             elif isinstance(arg, str):
                 out.writeQString(arg)
-            elif type(arg) is FloatType:
+            elif type(arg) is float:
                 out.writeFloat(arg)
-            elif type(arg) is ListType:
+            elif type(arg) is list:
                 out.writeQVariantList(arg)
             else:
                 log("Uninterpreted Data Type: " + str(type(arg)) + " of value: " + str(arg))

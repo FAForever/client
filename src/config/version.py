@@ -30,7 +30,7 @@ __all__ = ["get_git_version", "get_release_version", "write_version_file"]
 
 def call_git_describe():
     try:
-        lines = check_output(['git', 'describe', '--tags', '--always']).split(os.linesep)
+        lines = check_output(['git', 'describe', '--tags', '--always']).decode('utf-8').split(os.linesep)
         line = lines[0]
         return line
     except Exception as e:

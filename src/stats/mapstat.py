@@ -8,13 +8,11 @@ from fa import maps
 
 FormClass, BaseClass = util.loadUiType("stats/mapstat.ui")
 
-
 class LadderMapStat(FormClass, BaseClass):
     """
     This class list all the maps given by the server, and ask for more details when selected.
     """
     def __init__(self, client, parent, *args, **kwargs):
-        FormClass.__init__(self, client, *args, **kwargs)
         BaseClass.__init__(self, client, *args, **kwargs)
 
         self.setupUi(self)

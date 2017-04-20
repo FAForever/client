@@ -476,7 +476,7 @@ def downloadMap(name, silent=False):
         req = urllib.request.Request(url, headers={'User-Agent' : "FAF Client"})
         zipwebfile = urllib.request.urlopen(req)
         meta = zipwebfile.info()
-        file_size = int(meta.getheaders("Content-Length")[0])
+        file_size = int(meta.get_all("Content-Length")[0])
 
 
         progress.setMinimum(0)
@@ -487,7 +487,7 @@ def downloadMap(name, silent=False):
         progress.show()
 
         #Download the file as a series of 8 KiB chunks, then uncompress it.
-        output = io.StringIO()
+        output = io.BytesIO()
         file_size_dl = 0
         block_sz = 8192
 

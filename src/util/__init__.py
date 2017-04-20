@@ -98,7 +98,7 @@ DOWNLOADING_RES_PIX = {}
 PERSONAL_DIR = str(QDesktopServices.storageLocation(QDesktopServices.DocumentsLocation))
 logger.info('PERSONAL_DIR initial: ' + PERSONAL_DIR)
 try:
-    PERSONAL_DIR = PERSONAL_DIR.decode('ascii')
+    PERSONAL_DIR.encode("ascii")
 
     if not os.path.isdir(PERSONAL_DIR):
         raise Exception('No documents location. Will use APPDATA instead.')
@@ -645,7 +645,7 @@ def password_hash(password):
 
 def md5text(text):
     m = hashlib.md5()
-    m.update(text)
+    m.update(text.encode('utf-8'))
     return m.hexdigest()
 
 
@@ -689,7 +689,7 @@ def uniqueID(user, session):
                 logger.error(line)
             return None
         else:
-            return out
+            return out.decode('utf-8')
     except OSError as err:
         logger.error("UniqueID error finding the executable: {}".format(err))
         return None

@@ -9,20 +9,24 @@ class replayParser:
         self.file = filepath
     
     def __readLine(self, offset, bin):
-        line = ''
+        line = b''
         while True :
             
             char = struct.unpack("s", bin[offset:offset+1])
     
             offset = offset + 1
-            if char[0] == '\r' :
+            if char[0] == b'\r':
                 #offset = offset + 2
                 break
-            elif char[0] == '\x00' :
+            elif char[0] == b'\x00':
                 #offset = offset + 3
                 break
-            else :
+            else:
                 line = line + char[0]
+        try:
+            line = line.decode('utf-8')
+        except UnicodeDecodeError:
+            line = ''
         return offset, line
         
     def getVersion(self):

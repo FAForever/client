@@ -117,7 +117,7 @@ class HostgameWidget(FormClass, BaseClass):
         # Ensure all mods are up-to-date, and abort if the update process fails.
         if not fa.check.check(self.featured_mod):
             return
-        if self.iscoop and not fa.check.map(self.mapname, force=True):
+        if self.iscoop and not fa.check.map_(self.mapname, force=True):
             return
 
         modnames = [str(moditem.text()) for moditem in self.modList.selectedItems()]
