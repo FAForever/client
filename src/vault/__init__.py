@@ -2,12 +2,12 @@ from PyQt4 import QtCore, QtGui
 from PyQt4 import QtWebKit
 from stat import *
 import util
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import logging
 import os
 from fa import maps
 from vault import luaparser
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import re
 import json
 from config import Settings
@@ -188,7 +188,7 @@ class MapVault(QtCore.QObject):
 
     @QtCore.pyqtSlot(str)
     def downloadMap(self, link):
-        link = urllib2.unquote(link)
+        link = urllib.parse.unquote(link)
         name = maps.link2name(link)
         if not maps.isMapAvailable(name):
             maps.downloadMap(name)

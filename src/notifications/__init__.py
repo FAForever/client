@@ -113,8 +113,8 @@ class Notifications:
             if (mod != 'faf' or mods):
                 modstr = mod
                 if mods:
-                    if mod == 'faf':modstr = ", ".join(mods.values())
-                    else: modstr = mod + " & " + ", ".join(mods.values())
+                    if mod == 'faf':modstr = ", ".join(list(mods.values()))
+                    else: modstr = mod + " & " + ", ".join(list(mods.values()))
                     if len(modstr) > 20: modstr = modstr[:15] + "..."
 
             modhtml = '' if (modstr == '') else '<br><font size="-4"><font color="red">mods</font> %s</font>' % modstr

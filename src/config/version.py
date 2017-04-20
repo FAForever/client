@@ -125,4 +125,4 @@ if __name__ == "__main__":
     res = get_git_version()
     if res is None:
         exit(1)
-    print build_version(*res)
+    print(build_version(*res))

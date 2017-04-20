@@ -1,6 +1,6 @@
 import os
 import sys
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import re
 import shutil
 
@@ -12,7 +12,7 @@ import logging
 from vault import luaparser
 import warnings
 
-import cStringIO
+import io
 import zipfile
 from config import Settings
 
@@ -45,12 +45,12 @@ class ModInfo(object):
             s = str(self.version).rstrip("0")
             self.totalname = "%s v%s" % (self.name, s)
         else:
-            raise TypeError, "version is not an int or float"
+            raise TypeError("version is not an int or float")
 
     def to_dict(self):
         out = {}
-        for k,v in self.__dict__.items():
-            if isinstance(v, (unicode, str, int, float)) and not k[0] == '_':
+        for k,v in list(self.__dict__.items()):
+            if isinstance(v, (str, int, float)) and not k[0] == '_':
                 out[k] = v
         return out
 
@@ -92,7 +92,7 @@ def iconPathToFull(path):
     """
     Converts a path supplied in the icon field of mod_info with an absolute path to that file.
     So "/mods/modname/data/icons/icon.dds" becomes
-    "C:\Users\user\Documents\My Games\Gas Powered Games\Supreme Commander Forged Alliance\Mods\modname\data\icons\icon.dds"
+    "C:\\Users\\user\Documents\My Games\Gas Powered Games\Supreme Commander Forged Alliance\Mods\modname\data\icons\icon.dds"
     """
     if not (path.startswith("/mods") or path.startswith("mods")):
         logger.info("Something went wrong parsing the path %s" % path)
@@ -207,7 +207,7 @@ def getActiveMods(uimods=None, temporary=True): # returns a list of ModInfo's co
             if l.error:
                 logger.info("Error in reading the game.prefs file")
                 return []
-            uids = [uid for uid,b in modlist.items() if b == 'true']
+            uids = [uid for uid,b in list(modlist.items()) if b == 'true']
             #logger.debug("Active mods detected: %s" % str(uids))
         else:
             uids = selectedMods[:]
@@ -293,9 +293,9 @@ def updateModInfo(mod, info): #should probably not be used.
     else:
         f.close()
 
-    for k,v in info.items():
+    for k,v in list(info.items()):
         if type(v) in (bool,int): val = str(v).lower()
-        if type(v) in (unicode, str): val = '"' + v.replace('"', '\\"') + '"'
+        if type(v) in (str, str): val = '"' + v.replace('"', '\\"') + '"'
         if re.search(r'^\s*'+k, data , re.M):
             data = re.sub(r'^\s*' + k + r'\s*=.*$',"%s = %s" % (k,val), data, 1, re.M)
         else:
@@ -338,13 +338,13 @@ def generateThumbnail(sourcename, destname):
         return False
 
 def downloadMod(item): #most of this function is stolen from fa.maps.downloadMap
-    if isinstance(item,basestring):
-        link = MODVAULT_DOWNLOAD_ROOT + urllib2.quote(item)
+    if isinstance(item,str):
+        link = MODVAULT_DOWNLOAD_ROOT + urllib.parse.quote(item)
         logger.debug("Getting mod from: " + link)
     else:
         link = item.link
         logger.debug("Getting mod from: " + link)
-        link = urllib2.quote(link, "http://")
+        link = urllib.parse.quote(link, "http://")
     
     
 
@@ -356,8 +356,8 @@ def downloadMod(item): #most of this function is stolen from fa.maps.downloadMap
     progress.setAutoReset(False)
     
     try:
-        req = urllib2.Request(link, headers={'User-Agent' : "FAF Client"})         
-        zipwebfile  = urllib2.urlopen(req)
+        req = urllib.request.Request(link, headers={'User-Agent' : "FAF Client"})
+        zipwebfile  = urllib.request.urlopen(req)
 
         meta = zipwebfile.info()
         file_size = int(meta.getheaders("Content-Length")[0])
@@ -370,7 +370,7 @@ def downloadMod(item): #most of this function is stolen from fa.maps.downloadMap
         progress.show()
 
         #Download the file as a series of 8 KiB chunks, then uncompress it.
-        output = cStringIO.StringIO()
+        output = io.StringIO()
         file_size_dl = 0
         block_sz = 8192       
 
@@ -403,7 +403,7 @@ def downloadMod(item): #most of this function is stolen from fa.maps.downloadMap
 
     except:
         logger.warn("Mod download or extraction failed for: " + link)        
-        if sys.exc_type is urllib2.HTTPError:
+        if sys.exc_info()[0] is urllib.error.HTTPError:
             logger.warning("ModVault download failed with HTTPError, mod probably not in vault (or broken).")
             QtGui.QMessageBox.information(None, "Mod not downloadable", "<b>This mod was not found in the vault (or is broken).</b><br/>You need to get it from somewhere else in order to use it." )
         else:                

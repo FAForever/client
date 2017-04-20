@@ -1,6 +1,6 @@
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
 from PyQt4 import QtGui, QtCore
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import logging
 import os
 import util
@@ -87,7 +87,7 @@ class downloadManager(QtCore.QObject):
         if len(name) == 0:
             return
 
-        url = QtCore.QUrl(VAULT_PREVIEW_ROOT + urllib2.quote(name) + ".png")
+        url = QtCore.QUrl(VAULT_PREVIEW_ROOT + urllib.parse.quote(name) + ".png")
         if not url.toString() in self.mapRequests:
             logger.info("Searching map preview for: " + name + " from " + url.toString())
             self.mapRequests[url.toString()] = []

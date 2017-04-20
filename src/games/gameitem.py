@@ -69,9 +69,9 @@ class GameItem(QtGui.QListWidgetItem):
     ICONSIZE = 110
     PADDING = 10
 
-    FORMATTER_FAF  = unicode(util.readfile("games/formatters/faf.qthtml"))
-    FORMATTER_MOD  = unicode(util.readfile("games/formatters/mod.qthtml"))
-    FORMATTER_TOOL = unicode(util.readfile("games/formatters/tool.qthtml"))
+    FORMATTER_FAF  = str(util.readfile("games/formatters/faf.qthtml"))
+    FORMATTER_MOD  = str(util.readfile("games/formatters/mod.qthtml"))
+    FORMATTER_TOOL = str(util.readfile("games/formatters/tool.qthtml"))
     
     def __init__(self, uid, *args, **kwargs):
         QtGui.QListWidgetItem.__init__(self, *args, **kwargs)
@@ -213,14 +213,14 @@ class GameItem(QtGui.QListWidgetItem):
             refresh_icon = False
 
         # Used to differentiate between newly added / removed and previously present players
-        oldplayers = set(map(lambda p: p.login, self.players))
+        oldplayers = set([p.login for p in self.players])
 
         # Following the convention used by the game, a team value of 1 represents "No team". Let's
         # desugar those into "real" teams now (and convert the dict to a list)
         # Also, turn the lists of names into lists of players, and build a player name list.
         self.players = []
         teams = []
-        for team_index, team in teams_map.iteritems():
+        for team_index, team in teams_map.items():
             if team_index == 1:
                 for ffa_player in team:
                     if ffa_player in client.instance.players:
@@ -239,7 +239,7 @@ class GameItem(QtGui.QListWidgetItem):
         # Tuples for feeding into trueskill.
         rating_tuples = []
         for team in teams:
-            ratings_for_team = map(lambda player: Rating(player.rating_mean, player.rating_deviation), team)
+            ratings_for_team = [Rating(player.rating_mean, player.rating_deviation) for player in team]
             rating_tuples.append(tuple(ratings_for_team))
 
         try:
@@ -294,7 +294,7 @@ class GameItem(QtGui.QListWidgetItem):
             client.instance.urls[player.login] = self.url(player.id)
 
         # Determine which players are affected by this game's state change            
-        newplayers = set(map(lambda p: p.login, self.players))
+        newplayers = set([p.login for p in self.players])
         affectedplayers = oldplayers | newplayers
         client.instance.usersUpdated.emit(list(affectedplayers))
 
@@ -352,7 +352,7 @@ class GameItem(QtGui.QListWidgetItem):
             observers += ",".join(observerlist)
 
         if self.mods:
-            mods = "<br />With: " + "<br />".join(self.mods.values())
+            mods = "<br />With: " + "<br />".join(list(self.mods.values()))
         else:
             mods = ""
 
@@ -403,4 +403,4 @@ class GameItem(QtGui.QListWidgetItem):
 
     @property
     def average_rating(self):
-        return sum(map(lambda p: p.rating_estimate(), self.players)) / max(len(self.players), 1)
+        return sum([p.rating_estimate() for p in self.players]) / max(len(self.players), 1)

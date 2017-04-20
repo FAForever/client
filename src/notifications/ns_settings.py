@@ -51,7 +51,7 @@ class NsSettingsDialog(FormClass2, BaseClass2):
         self.hooks[ns.Notifications.USER_ONLINE] = NsHookUserOnline()
         self.hooks[ns.Notifications.NEW_GAME] = NsHookNewGame()
 
-        model = NotificationHooks(self, self.hooks.values())
+        model = NotificationHooks(self, list(self.hooks.values()))
         self.tableView.setModel(model)
         # stretch first column
         self.tableView.horizontalHeader().setResizeMode(0, QtGui.QHeaderView.Stretch)

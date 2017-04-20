@@ -22,7 +22,7 @@ STUN_METHODS = {
     "ChannelBindSuccess": 0x109,
     "ChannelData": 0x999,
 }
-STUN_METHOD_VALUES = {v: k for k, v in STUN_METHODS.items()}
+STUN_METHOD_VALUES = {v: k for k, v in list(STUN_METHODS.items())}
 STUN_ATTRIBUTES = {
     'MAPPED-ADDRESS': 0x0001,
     'CHANNEL-NUMBER': 0x000c,
@@ -40,7 +40,7 @@ STUN_ATTRIBUTES = {
     'RESPONSE-ORIGIN': 0x802b,
     'SOFTWARE': 0x8022
 }
-STUN_ATTRIBUTE_VALUES = {v: k for k, v in STUN_ATTRIBUTES.items()}
+STUN_ATTRIBUTE_VALUES = {v: k for k, v in list(STUN_ATTRIBUTES.items())}
 
 
 class STUNAttribute:
@@ -112,7 +112,7 @@ class STUNAttribute:
             return struct.pack('!HHHxx', type_val, 4, val)
         elif type == "XOR-PEER-ADDRESS":
             addr, port = val
-            addr = int(ipaddress.IPv4Address(unicode(addr)))
+            addr = int(ipaddress.IPv4Address(str(addr)))
             port ^= (STUN_MAGIC_COOKIE & 0xFFFF0000) >> 16
             addr ^= STUN_MAGIC_COOKIE
             return struct.pack('!HHxBHI', type_val, 8, 0x1, port, addr)
@@ -153,11 +153,11 @@ class STUNMessage:
         return buf
 
     def _make_body(self):
-        return b''.join(map(lambda t: STUNAttribute.encode(*t), self.attributes))
+        return b''.join([STUNAttribute.encode(*t) for t in self.attributes])
 
     @staticmethod
     def _make_transaction_id():
-        a = ''.join([random.choice('0123456789ABCDEF') for x in xrange(24)])
+        a = ''.join([random.choice('0123456789ABCDEF') for x in range(24)])
         return binascii.a2b_hex(a)
 
     @staticmethod
