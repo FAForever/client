@@ -254,7 +254,6 @@ class Channel(FormClass, BaseClass):
         self.chatArea.setTextCursor(cursor)
 
         # This whole block seems to be duplicated further up.
-        # For fucks sake.
         if avatar:
             pix = util.respix(avatar)
             if pix:
