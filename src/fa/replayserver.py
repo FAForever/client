@@ -62,8 +62,8 @@ class ReplayRecorder(QtCore.QObject):
     def readDatas(self):        
         read = self.inputSocket.read(self.inputSocket.bytesAvailable()) #CAVEAT: readAll() was seemingly truncating data here
         
-        if not isinstance(read, str):
-            self.__logger.warning("Read failure on inputSocket: " + str(bytes))
+        if not isinstance(read, bytes):
+            self.__logger.warning("Read failure on inputSocket: " + bytes.decode())
             return
         
         #Convert data into a bytearray for easier processing
@@ -72,8 +72,8 @@ class ReplayRecorder(QtCore.QObject):
         # Record locally
         if self.replayData.isEmpty():
             #This prefix means "P"osting replay in the livereplay protocol of FA, this needs to be stripped from the local file            
-            if data.startsWith("P/"):
-                rest = data.indexOf("\x00") + 1
+            if data.startsWith(b"P/"):
+                rest = data.indexOf(b"\x00") + 1
                 self.__logger.info("Stripping prefix '" + str(data.left(rest - 1)) + "' from replay.")
                 self.replayData.append(data.right(data.size() - rest))
             else:
@@ -138,8 +138,8 @@ class ReplayRecorder(QtCore.QObject):
                
         replay  = QtCore.QFile(filename)
         replay.open(QtCore.QIODevice.WriteOnly | QtCore.QIODevice.Text)
-        replay.write(json.dumps(self.replayInfo))
-        replay.write('\n')
+        replay.write(json.dumps(self.replayInfo).encode('utf-8'))
+        replay.write(b'\n')
         replay.write(QtCore.qCompress(self.replayData).toBase64())
         replay.close()
         

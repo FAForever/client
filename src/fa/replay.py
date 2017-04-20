@@ -31,7 +31,7 @@ def replay(source, detach=False):
                     replay = open(source, "rt")
                     info = json.loads(replay.readline())
 
-                    binary = QtCore.qUncompress(QtCore.QByteArray.fromBase64(replay.read()))
+                    binary = QtCore.qUncompress(QtCore.QByteArray.fromBase64(replay.read().encode('utf-8')))
                     logger.info("Extracted " + str(binary.size()) + " bytes of binary data from .fafreplay.")
                     replay.close()
 

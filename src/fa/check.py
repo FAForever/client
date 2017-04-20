@@ -17,7 +17,7 @@ import util
 logger = logging.getLogger(__name__)
 
 
-def map(mapname, force=False, silent=False):
+def map_(mapname, force=False, silent=False):
     """
     Assures that the map is available in FA, or returns false.
     """
@@ -140,7 +140,7 @@ def check(featured_mod, mapname=None, version=None, modVersions=None, sim_mods=N
 
     # Now it's down to having the right map
     if mapname:
-        if not list(map(mapname, silent=silent)):
+        if not map_(mapname, silent=silent):
             return False
 
     if sim_mods:

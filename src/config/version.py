@@ -71,7 +71,7 @@ def write_version_file(version, dir):
 def get_git_version(git_dir = None):
 
     def get_cmd_line(cmd):
-        lines = check_output(cmd).split(os.linesep)
+        lines = check_output(cmd).decode().split(os.linesep)
         line = lines[0]
         return line
 

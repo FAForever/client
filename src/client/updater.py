@@ -32,7 +32,7 @@ class GithubUpdateChecker(QObject):
     def _req_done(self):
         try:
             body = self._rep.readAll()
-            js = json.loads(str(body))[0]
+            js = json.loads(bytes(body).decode('utf-8'))[0]
             tag = js.get('tag_name')
             self._logger.info('Found release on github: {}'.format(js.get('name')))
             if tag is not None:

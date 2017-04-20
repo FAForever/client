@@ -29,8 +29,8 @@ def writeFAPathLua():
     if gamepath_sc:
         code = code + 'sc_path = "' + gamepath_sc.replace("\\", "\\\\") + '"' + "\n"
 
-    with open(name, "w+") as lua:
-        lua.write(code.encode("utf-8"))
+    with open(name, "w+", encoding = 'utf-8') as lua:
+        lua.write(code)
         lua.flush()
         os.fsync(lua.fileno())  # Ensuring the file is absolutely, positively on disk.
 
@@ -94,7 +94,10 @@ def typicalSupComPaths():
 def validatePath(path):
     try:
         # Supcom only supports Ascii Paths
-        if not path.decode("ascii"): return False
+        try:
+            path.encode("ascii")
+        except UnicodeEncodeError:
+            return False
 
         #We check whether the base path and a gamedata/lua.scd file exists. This is a mildly naive check, but should suffice
         if not os.path.isdir(path): return False
