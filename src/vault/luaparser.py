@@ -185,14 +185,14 @@ class luaParser:
                         #add new value into the resulting array
                         resultKey = self.__searchPattern[searchKey]
                         if valcmd == "count":
-                            if lua.has_key(key):
+                            if key in lua:
                                 if isinstance(lua[key], str):
                                     count = 1
                                 else:
                                     count = len(lua[key])
                             else:
                                 count = 0
-                            if self.__searchResult.has_key(resultKey):
+                            if resultKey in self.__searchResult:
                                 resultVal = self.__searchResult[resultKey] + count
                             else:
                                 resultVal = count
@@ -211,7 +211,7 @@ class luaParser:
                         if keydst == "__nowhere__":
                             self.__searchResult[resultKey] = resultVal
                         else:
-                            if self.__searchResult.has_key(keydst):
+                            if keydst in self.__searchResult:
                                 if isinstance(self.__searchResult[keydst], dict):
                                     self.__searchResult[keydst][resultKey] = resultVal
                             else:
@@ -256,7 +256,7 @@ class luaParser:
             resultKey = self.__searchPattern[key]
             if len(key.split(":")) == 2 or key.find("*") != -1:
                 if self.__foundItemsCount[key] == 0:
-                    if self.__defaultValues.has_key(resultKey):
+                    if resultKey in self.__defaultValues:
                         self.__searchResult[resultKey] = self.__defaultValues[resultKey]
                     else:
                         self.error = True
@@ -264,7 +264,7 @@ class luaParser:
                         self.errorMsg = self.errorMsg + "Error: no matches for '" + key + "' were found\n"
             else:
                 if self.__foundItemsCount[key] == 0:
-                    if self.__defaultValues.has_key(resultKey):
+                    if resultKey in self.__defaultValues:
                         self.__searchResult[resultKey] = self.__defaultValues[resultKey]
                     else:
                         self.error = True
@@ -278,7 +278,7 @@ class luaParser:
     def parse(self, luaSearch, defValues = dict()):
         self.__searchPattern.update(luaSearch)
         self.__defaultValues.update(defValues)
-        self.__foundItemsCount = {}.fromkeys(self.__searchPattern.keys(), 0)
+        self.__foundItemsCount = {}.fromkeys(list(self.__searchPattern.keys()), 0)
         self.__parsedData = self.__parseLua()
         self.__checkErrors()
         return self.__searchResult

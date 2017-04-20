@@ -3,6 +3,7 @@ __author__ = 'Thygrrr'
 from fa import updater
 from PyQt4 import QtGui, QtCore
 import pytest
+import collections
 
 class _TestObjectWithoutIsFinished(QtCore.QObject):
     finished = QtCore.pyqtSignal()
@@ -30,7 +31,7 @@ def test_updater_has_progress_bar_mod_progress(application):
 
 
 def test_updater_has_method_append_log(application):
-    assert callable(updater.UpdaterProgressDialog(None).appendLog)
+    assert isinstance(updater.UpdaterProgressDialog(None).appendLog, collections.Callable)
 
 
 def test_updater_append_log_accepts_string(application):
@@ -38,7 +39,7 @@ def test_updater_append_log_accepts_string(application):
 
 
 def test_updater_has_method_add_watch(application):
-    assert callable(updater.UpdaterProgressDialog(None).addWatch)
+    assert isinstance(updater.UpdaterProgressDialog(None).addWatch, collections.Callable)
 
 
 def test_updater_append_log_accepts_qobject_with_signals_finished(application):

@@ -598,7 +598,7 @@ class ClientWindow(FormClass, BaseClass):
         hide the warning bar for matchmaker
         """
         self.warnPlayer.hide()
-        for i in self.warning_buttons.values():
+        for i in list(self.warning_buttons.values()):
             i.hide()
 
     def warningShow(self):
@@ -606,7 +606,7 @@ class ClientWindow(FormClass, BaseClass):
         show the warning bar for matchmaker
         """
         self.warnPlayer.show()
-        for i in self.warning_buttons.values():
+        for i in list(self.warning_buttons.values()):
             i.show()
 
     def reconnect(self):
@@ -772,7 +772,7 @@ class ClientWindow(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def switchPort(self):
-        import loginwizards
+        from . import loginwizards
         loginwizards.gameSettingsWizard(self).exec_()
 
     @QtCore.pyqtSlot()
@@ -800,7 +800,7 @@ class ClientWindow(FormClass, BaseClass):
 
     # Clear the online users lists
     def clear_players(self):
-        oldplayers = self.players.keys()
+        oldplayers = list(self.players.keys())
         self.players = Players(self.me)
         self.urls = {}
         self.usersUpdated.emit(oldplayers)
@@ -1297,11 +1297,11 @@ class ClientWindow(FormClass, BaseClass):
     def handle_social(self, message):
         if "friends" in message:
             self.players.friends = set(message["friends"])
-            self.usersUpdated.emit(self.players.keys())
+            self.usersUpdated.emit(list(self.players.keys()))
 
         if "foes" in message:
             self.players.foes = set(message["foes"])
-            self.usersUpdated.emit(self.players.keys())
+            self.usersUpdated.emit(list(self.players.keys()))
 
         if "channels" in message:
             # Add a delay to the notification system (insane cargo cult)

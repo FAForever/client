@@ -17,7 +17,7 @@ import time
 import shutil
 from types import FloatType, IntType, ListType
 import logging
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import sys
 import tempfile
 import json
@@ -72,7 +72,7 @@ def clearLog():
 
 def log(string):
     logger.debug(string)
-    debugLog.append(unicode(string))
+    debugLog.append(str(string))
 
 
 def dumpPlainText():
@@ -84,15 +84,15 @@ def dumpHTML():
 
 
 # A set of exceptions we use to see what goes wrong during asynchronous data transfer waits
-class UpdaterCancellation(StandardError):
+class UpdaterCancellation(Exception):
     pass
 
 
-class UpdaterFailure(StandardError):
+class UpdaterFailure(Exception):
     pass
 
 
-class UpdaterTimeout(StandardError):
+class UpdaterTimeout(Exception):
     pass
 
 
@@ -203,8 +203,8 @@ class Updater(QtCore.QObject):
             progress.setAutoClose(True)
             progress.setAutoReset(False)
 
-            req = urllib2.Request(url, headers={'User-Agent': "FAF Client"})
-            downloadedfile = urllib2.urlopen(req)
+            req = urllib.request.Request(url, headers={'User-Agent': "FAF Client"})
+            downloadedfile = urllib.request.urlopen(req)
             meta = downloadedfile.info()
 
             #Fix for #241, sometimes the server sends an error and no content-length.
@@ -427,13 +427,13 @@ class Updater(QtCore.QObject):
                     self.updateFiles("bin", self.featured_mod)
                     self.updateFiles("gamedata", self.featured_mod + "Gamedata")
 
-        except UpdaterTimeout, e:
+        except UpdaterTimeout as e:
             log("TIMEOUT: {}".format(e))
             self.result = self.RESULT_FAILURE
-        except UpdaterCancellation, e:
+        except UpdaterCancellation as e:
             log("CANCELLED: {}".format(e))
             self.result = self.RESULT_CANCEL
-        except Exception, e:
+        except Exception as e:
             log("EXCEPTION: {}".format(e))
             self.result = self.RESULT_FAILURE
         else:
@@ -684,7 +684,7 @@ class Updater(QtCore.QObject):
         for arg in args:
             if type(arg) is IntType:
                 out.writeInt(arg)
-            elif isinstance(arg, basestring):
+            elif isinstance(arg, str):
                 out.writeQString(arg)
             elif type(arg) is FloatType:
                 out.writeFloat(arg)

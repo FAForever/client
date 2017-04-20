@@ -140,7 +140,7 @@ def check(featured_mod, mapname=None, version=None, modVersions=None, sim_mods=N
 
     # Now it's down to having the right map
     if mapname:
-        if not map(mapname, silent=silent):
+        if not list(map(mapname, silent=silent)):
             return False
 
     if sim_mods:

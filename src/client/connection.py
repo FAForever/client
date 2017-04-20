@@ -259,7 +259,7 @@ class ServerConnection(QtCore.QObject):
         data = json.dumps(message)
         if message.get('command') == 'hello':
             logger.info('Logging in with {}'.format({
-                                                        k: v for k, v in message.items() if k != 'password'
+                                                        k: v for k, v in list(message.items()) if k != 'password'
                                                         }))
         else:
             logger.info("Outgoing JSON Message: " + data)

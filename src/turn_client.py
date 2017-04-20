@@ -1,7 +1,7 @@
 import signal
 from PyQt4.QtCore import QCoreApplication, QTimer
 
-from connectivity import QTurnSocket
+from .connectivity import QTurnSocket
 
 if __name__ == '__main__':
     import logging

@@ -49,15 +49,15 @@ import zipfile
 from PyQt4 import QtCore, QtGui
 
 from modvault.utils import *
-from modwidget import ModWidget
-from uploadwidget import UploadModWidget
-from uimodwidget import UIModWidget
+from .modwidget import ModWidget
+from .uploadwidget import UploadModWidget
+from .uimodwidget import UIModWidget
 
 import util
 import logging
 import time
 logger = logging.getLogger(__name__)
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 from util import datetostr, now
 d = datetostr(now())
@@ -287,8 +287,8 @@ class ModItem(QtGui.QListWidgetItem):
     #DATA_PLAYERS = 32
     
     
-    FORMATTER_MOD = unicode(util.readfile("modvault/modinfo.qthtml"))
-    FORMATTER_MOD_UI = unicode(util.readfile("modvault/modinfoui.qthtml"))
+    FORMATTER_MOD = str(util.readfile("modvault/modinfo.qthtml"))
+    FORMATTER_MOD_UI = str(util.readfile("modvault/modinfoui.qthtml"))
     
     def __init__(self, parent, uid, *args, **kwargs):
         QtGui.QListWidgetItem.__init__(self, *args, **kwargs)
@@ -333,7 +333,7 @@ class ModItem(QtGui.QListWidgetItem):
         if self.thumbstr == "":
             self.setIcon(util.icon("games/unknown_map.png"))
         else:
-            img = getIcon(os.path.basename(urllib2.unquote(self.thumbstr)))
+            img = getIcon(os.path.basename(urllib.parse.unquote(self.thumbstr)))
             if img:
                 self.setIcon(util.icon(img, False))
             else:

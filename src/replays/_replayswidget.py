@@ -252,7 +252,7 @@ class ReplaysWidget(BaseClass, FormClass):
             bucket = buckets.setdefault(self.onlineReplays[uid].startDate, [])
             bucket.append(self.onlineReplays[uid])
 
-        for bucket in buckets.keys():
+        for bucket in list(buckets.keys()):
             bucket_item = QtGui.QTreeWidgetItem()
             self.onlineTree.addTopLevelItem(bucket_item)
             
@@ -279,9 +279,9 @@ class ReplaysWidget(BaseClass, FormClass):
 
     def saveLocalCache(self, cache_hit, cache_add):
         with open(os.path.join(util.CACHE_DIR, "local_replays_metadata"), "wt") as fh:
-            for filename, metadata in cache_hit.iteritems():
+            for filename, metadata in cache_hit.items():
                 fh.write(filename + ":" + metadata)
-            for filename, metadata in cache_add.iteritems():
+            for filename, metadata in cache_add.items():
                 fh.write(filename + ":" + metadata)
 
     def updatemyTree(self):
@@ -344,7 +344,7 @@ class ReplaysWidget(BaseClass, FormClass):
     
                         # Hacky way to quickly assemble a list of all the players, but including the observers
                         playerlist = []
-                        for _, players in item.info['teams'].items():
+                        for _, players in list(item.info['teams'].items()):
                             playerlist.extend(players)
                         item.setText(2, ", ".join(playerlist))
                         item.setToolTip(2, ", ".join(playerlist))
@@ -374,7 +374,7 @@ class ReplaysWidget(BaseClass, FormClass):
         if len(cache_add) > 10 or len(cache) - len(cache_hit) > 10:
             self.saveLocalCache(cache_hit, cache_add)
         # Now, create a top level treewidgetitem for every bucket, and put the bucket's contents into them         
-        for bucket in buckets.keys():
+        for bucket in list(buckets.keys()):
             bucket_item = QtGui.QTreeWidgetItem()
             
             if bucket == "broken":
@@ -435,8 +435,8 @@ class ReplaysWidget(BaseClass, FormClass):
             # so it contains a human-readable representation of the info dictionary
             item.info = info
             tip = ""            
-            for key in info.keys():
-                tip += "'" + unicode(key) + "' : '" + unicode(info[key]) + "'<br/>"
+            for key in list(info.keys()):
+                tip += "'" + str(key) + "' : '" + str(info[key]) + "'<br/>"
                              
             item.setToolTip(1, tip)
             
@@ -651,7 +651,7 @@ class ReplaysWidget(BaseClass, FormClass):
         for arg in args:
             if type(arg) is int:
                 out.writeInt(arg)
-            elif isinstance(arg, basestring):
+            elif isinstance(arg, str):
                 out.writeQString(arg)
             elif type(arg) is float:
                 out.writeFloat(arg)

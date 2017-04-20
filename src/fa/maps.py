@@ -2,15 +2,15 @@
 import logging
 import string
 import sys
-from urllib2 import HTTPError
+from urllib.error import HTTPError
 from PyQt4 import QtCore, QtGui, QtNetwork
-import cStringIO
+import io
 import util
 import os
 import stat
 import struct
 import shutil
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import zipfile
 import tempfile
 import re
@@ -118,7 +118,7 @@ def name2link(name):
     Returns a quoted link for use with the VAULT_xxxx Urls
     TODO: This could be cleaned up a little later.
     '''
-    return urllib2.quote("maps/" + name + ".zip")
+    return urllib.parse.quote("maps/" + name + ".zip")
 
 def link2name(link):
     '''
@@ -398,21 +398,21 @@ def __exportPreviewFromMap(mapname, positions=None):
             # icons should be drawn in certain order: first layer is hydros,
             # second - mass, and army on top. made so that previews not
             # look messed up.
-            if positions.has_key("hydro"):
+            if "hydro" in positions:
                 for pos in positions["hydro"]:
                     target = QtCore.QRectF(
                         positions["hydro"][pos][0]-5,
                         positions["hydro"][pos][1]-5, 10, 10)
                     source = QtCore.QRectF(0.0, 0.0, 10.0, 10.0)
                     painter.drawPixmap(target, hydroicon, source)
-            if positions.has_key("mass"):
+            if "mass" in positions:
                 for pos in positions["mass"]:
                     target = QtCore.QRectF(
                         positions["mass"][pos][0]-4,
                         positions["mass"][pos][1]-4, 8, 8)
                     source = QtCore.QRectF(0.0, 0.0, 8.0, 8.0)
                     painter.drawPixmap(target, massicon, source)
-            if positions.has_key("army"):
+            if "army" in positions:
                 for pos in positions["army"]:
                     target = QtCore.QRectF(
                         positions["army"][pos][0]-4,
@@ -473,8 +473,8 @@ def downloadMap(name, silent=False):
 
 
     try:
-        req = urllib2.Request(url, headers={'User-Agent' : "FAF Client"})
-        zipwebfile = urllib2.urlopen(req)
+        req = urllib.request.Request(url, headers={'User-Agent' : "FAF Client"})
+        zipwebfile = urllib.request.urlopen(req)
         meta = zipwebfile.info()
         file_size = int(meta.getheaders("Content-Length")[0])
 
@@ -487,7 +487,7 @@ def downloadMap(name, silent=False):
         progress.show()
 
         #Download the file as a series of 8 KiB chunks, then uncompress it.
-        output = cStringIO.StringIO()
+        output = io.StringIO()
         file_size_dl = 0
         block_sz = 8192
 
@@ -512,7 +512,7 @@ def downloadMap(name, silent=False):
 
     except:
         logger.warn("Map download or extraction failed for: " + url)
-        if sys.exc_type is HTTPError:
+        if sys.exc_info()[0] is HTTPError:
             logger.warning("Vault download failed with HTTPError,"\
                 " map probably not in vault (or broken).")
             QtGui.QMessageBox.information(
@@ -530,9 +530,9 @@ def downloadMap(name, silent=False):
 
     #Count the map downloads
     try:
-        url = VAULT_COUNTER_ROOT + "?map=" + urllib2.quote(link)
-        req = urllib2.Request(url, headers={'User-Agent' : "FAF Client"})
-        urllib2.urlopen(req)
+        url = VAULT_COUNTER_ROOT + "?map=" + urllib.parse.quote(link)
+        req = urllib.request.Request(url, headers={'User-Agent' : "FAF Client"})
+        urllib.request.urlopen(req)
         logger.debug("Successfully sent download counter request for: " + url)
 
     except:

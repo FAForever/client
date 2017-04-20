@@ -31,7 +31,7 @@ class WPAPI(QtCore.QObject):
         try:
             content = reply.readAll()
 
-            js = json.loads(unicode(content))
+            js = json.loads(str(content))
 
             posts = []
 

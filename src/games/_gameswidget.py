@@ -172,7 +172,7 @@ class GamesWidget(FormClass, BaseClass):
         self.rankedPlay.clicked.connect(self.startSubRandomRankedSearch)
         self.rankedPlay.show()
         self.labelRankedHint.show()
-        for faction, icon in self._ranked_icons.items():
+        for faction, icon in list(self._ranked_icons.items()):
             try:
                 icon.clicked.disconnect()
             except TypeError:

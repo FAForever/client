@@ -1,1 +1,1 @@
-from secondaryserver import SecondaryServer
+from .secondaryserver import SecondaryServer

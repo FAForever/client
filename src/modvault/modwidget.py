@@ -1,6 +1,6 @@
 
 
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 from PyQt4 import QtCore, QtGui
 
@@ -138,7 +138,7 @@ class CommentItemDelegate(QtGui.QStyledItemDelegate):
         return QtCore.QSize(self.TEXTWIDTH, self.TEXTHEIGHT)
 
 class CommentItem(QtGui.QListWidgetItem):
-    FORMATTER_COMMENT = unicode(util.readfile("modvault/comment.qthtml"))
+    FORMATTER_COMMENT = str(util.readfile("modvault/comment.qthtml"))
     def __init__(self, parent, uid, *args, **kwargs):
         QtGui.QListWidgetItem.__init__(self, *args, **kwargs)
 

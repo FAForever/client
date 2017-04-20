@@ -28,7 +28,7 @@ class ClientState(IntEnum):
     CONNECTED = 1
     LOGGED_IN = 2
 
-from _clientwindow import ClientWindow
+from ._clientwindow import ClientWindow
 
 # Do not remove - promoted widget, py2exe does not include it otherwise
 from client.theme_menu import ThemeMenu

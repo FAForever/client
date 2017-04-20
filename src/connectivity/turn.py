@@ -14,13 +14,12 @@ class TURNState(Enum):
     STOPPED = 3
 
 
-class TURNSession:
+class TURNSession(metaclass=ABCMeta):
     """
     Abstract TURN session abstraction.
 
     Handles details of the TURN protocol.
     """
-    __metaclass__ = ABCMeta
 
     def __init__(self):
         self._pending_tx = {}
@@ -130,7 +129,7 @@ class TURNSession:
 
     def _retransmit(self):
         if not self.state == TURNState.STOPPED:
-            for tx, msg in self._pending_tx.items():
+            for tx, msg in list(self._pending_tx.items()):
                 self.logger.debug("Retransmitting {}".format(tx))
                 # avoid retransmitting retransmissions
                 self._write(msg.to_bytes())
@@ -169,7 +168,7 @@ class TURNSession:
             self.lifetime, = attr.get('LIFETIME')
             self.state = TURNState.BOUND
             self.schedule_refresh()
-        if stun_msg.transaction_id in self._pending_tx.keys():
+        if stun_msg.transaction_id in list(self._pending_tx.keys()):
             del self._pending_tx[stun_msg.transaction_id]
 
     def handle_allocate_success(self, stun_msg):
@@ -188,7 +187,7 @@ class TURNSession:
 
     def refresh(self):
         self._write(STUNMessage('Refresh').to_bytes())
-        for addr, channel in self.bindings.items():
+        for addr, channel in list(self.bindings.items()):
             self._write(STUNMessage('ChannelBind',
                   [('CHANNEL-NUMBER', channel),
                    ('XOR-PEER-ADDRESS', addr)]).to_bytes())
