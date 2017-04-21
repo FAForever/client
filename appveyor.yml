@@ -8,7 +8,7 @@ environment:
     UID_VERSION: v4.0.4
   matrix:
     - PYTHON: "C:\\Miniconda"
-      PYWHEEL_INFIX: "cp27"
+      PYWHEEL_INFIX: "cp35"
 
 init:
   - "ECHO %PYTHON% %APPVEYOR_REPO_TAG_NAME%"
