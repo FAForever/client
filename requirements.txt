@@ -1,4 +1,4 @@
-cx_Freeze==4.3.4
+cx_Freeze
 ipaddress
 pathlib
 pytest
