@@ -1,7 +1,7 @@
 from PyQt4 import QtCore, QtNetwork
 
 import logging
-import config
+import time
 import fa
 import json
 import sys
@@ -370,9 +370,11 @@ class LobbyInfo(QtCore.QObject):
         self.modInfo.emit(message)
 
     def handle_game_info(self, message):
-        if 'games' in message:
+        if 'games' in message:  # initial bunch of games from server after client start
             for game in message['games']:
-                self.gameInfo.emit(game)
+                # ignore zombie games (>12 hours) (until server fix)
+                if not (game['state'] == 'playing' and time.time() - game['launched_at'] > 12 * 3600):
+                    self.gameInfo.emit(game)
         else:
             self.gameInfo.emit(message)
 

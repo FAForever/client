@@ -20,6 +20,7 @@
 * Clean up layout of login widget (#652, #653)
 * Use "foo" instead of user password in develop mode (#712, #653)
 * Remove unused label from GamesWidget (#717)
+* Fix for user in chat shown in long gone games (#705) 
 
 Contributors:
   - Wesmania
