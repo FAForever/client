@@ -40,7 +40,7 @@ if sys.platform == 'win32':
 # Ugly hack to fix broken PyQt5 (FIXME - necessary?)
 for module in ["invoke.py", "load_plugin.py"]:
     try:
-        silly_file = Path(PyQt5.__path__[0]) / "uic" / "port_v3" / module
+        silly_file = Path(PyQt5.__path__[0]) / "uic" / "port_v2" / module
         print("Removing {}".format(silly_file))
         silly_file.unlink()
     except OSError:
@@ -62,7 +62,10 @@ build_exe_options = {
     'packages': ['PyQt5', 'PyQt5.uic',
                  'PyQt5.QtWidgets', 'PyQt5.QtNetwork', 'win32com', 'win32com.client'],
     'silent': True,
-    'excludes': ['numpy', 'scipy', 'matplotlib', 'tcl', 'Tkinter']
+    'excludes': ['numpy', 'scipy', 'matplotlib', 'tcl', 'Tkinter'],
+
+    'zip_include_packages': ["*"],     # Place source files in zip archive, like in cx_freeze 4.3.4
+    'zip_exclude_packages': [],
 }
 
 shortcut_table = [
@@ -107,9 +110,7 @@ if sys.platform == 'win32':
                           'src/__main__.py',
                           base=base,
                           targetName='FAForever.exe',
-                          icon='res/faf.ico',
-                          includes=[os.path.join(os.path.dirname(PyQt5.uic.__file__), "widget-plugins"),
-                                  "PyQt5.uic.widget-plugins"]
+                          icon='res/faf.ico'
                       )],
         'requires': ['sip', 'PyQt5', 'cx_Freeze'],
         'options': {'build_exe': build_exe_options,
