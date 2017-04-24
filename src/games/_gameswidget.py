@@ -7,6 +7,7 @@ from PyQt5.QtCore import Qt
 import util
 from config import Settings
 from games.gameitem import GameItem, GameItemDelegate
+from model.game import GameState
 from games.moditem import ModItem, mod_invisible, mods
 from games.hostgamewidget import HostgameWidget
 from fa.factions import Factions
@@ -31,17 +32,14 @@ class GamesWidget(FormClass, BaseClass):
     sub_factions = Settings.persisted_property(
         "play/subFactions", default_value=[False, False, False, False])
 
-    def __init__(self, client, *args, **kwargs):
+    def __init__(self, client, gameset, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
 
         self.setupUi(self)
 
         self.client = client
-
+        self.gameset = gameset
         self.mods = {}
-
-        # Dictionary containing our actual games.
-        self.games = {}
 
         # Ranked search UI
         self._ranked_icons = {
@@ -68,7 +66,8 @@ class GamesWidget(FormClass, BaseClass):
         self.generateSelectSubset()
 
         self.client.lobby_info.modInfo.connect(self.processModInfo)
-        self.client.lobby_info.gameInfo.connect(self.processGameInfo)
+        self.gameset.newGame.connect(self._addGame)
+        self.gameset.newLobby.connect(self._watchOpenGames)
         self.client.lobby_connection.disconnected.connect(self.clear_games)
 
         self.client.gameEnter.connect(self.stopSearchRanked)
@@ -118,8 +117,8 @@ class GamesWidget(FormClass, BaseClass):
     def togglePrivateGames(self, state):
         self.hide_private_games = state
 
-        for game in [self.games[game] for game in self.games if self.games[game].state == 'open' and self.games[game].password_protected]:
-            game.setHidden(state == Qt.Checked)
+        for row in range(self.gameList.count()):
+            self.gameList.item(row).setHidePassworded(state == Qt.Checked)
 
     def selectFaction(self, enabled, factionID=0):
         logger.debug('selectFaction: enabled={}, factionID={}'.format(enabled, factionID))
@@ -182,35 +181,32 @@ class GamesWidget(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def clear_games(self):
-        self.games = {}
         self.gameList.clear()
 
-    @QtCore.pyqtSlot(dict)
-    def processGameInfo(self, message):
+    @QtCore.pyqtSlot(object)
+    def _addGame(self, game):
         """
-        Slot that interprets and propagates game_info messages into GameItems
+        Slot that interprets and propagates games into GameItems
         """
-        uid = message["uid"]
+        # CAVEAT - this relies on us receiving mod info before game info
+        if game.featured_mod in mod_invisible:
+            return
 
-        if uid not in self.games:
-            self.games[uid] = GameItem(uid)
-            self.gameList.addItem(self.games[uid])
-            self.games[uid].update(message)
-
-            if message['state'] == 'open' and not message['password_protected']:
-                self.client.notificationSystem.on_event(ns.Notifications.NEW_GAME, message)
-        else:
-            self.games[uid].update(message)
+        game_item = GameItem(uid)
+        game.gameClosed.connect(lambda: self._removeGame(game_item))
+        self.gameList.addItem(game_item)
+        game_item.update()
 
         # Hide private games
-        if self.hideGamesWithPw.isChecked() and message['state'] == 'open' and message['password_protected']:
-            self.games[uid].setHidden(True)
+        if self.hideGamesWithPw.isChecked():
+            game_item.setHidePassworded(True)
 
-        # Special case: removal of a game that has ended
-        if message['state'] == "closed":
-            if uid in self.games:
-                self.gameList.takeItem(self.gameList.row(self.games[uid]))
-                del self.games[uid]
+    def _watchOpenGames(self, game):
+        if not game.password_protected:
+            self.client.notificationSystem.on_event(ns.Notifications.NEW_GAME, game.to_dict())
+
+    def _removeGame(self, widget):
+        self.gameList.takeItem(self.gameList.row(widget))
 
     def updatePlayButton(self):
         if self.searching:

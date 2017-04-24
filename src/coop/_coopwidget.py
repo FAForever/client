@@ -239,7 +239,6 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
     def _removeGame(self, widget):
         self.gameList.takeItem(self.gameList.row(widget))
 
-
     @QtCore.pyqtSlot(QtWidgets.QListWidgetItem)
     def gameDoubleClicked(self, item):
         '''

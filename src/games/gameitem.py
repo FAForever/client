@@ -4,7 +4,8 @@ from trueskill import Rating
 from fa import maps
 import util
 import os
-from games.moditem import mod_invisible, mods
+from games.moditem import mods
+from model.game import GameState
 
 import traceback
 
@@ -90,12 +91,22 @@ class GameItem(QtWidgets.QListWidgetItem):
 
         self.setHidden(True)
 
+    # Stay hidden if our game is not open
+    def setHidePassworded(self, param):
+        self._hide_passworded = param
+        self._updateHidden()
+
+    def _updateHidden(self):
+        hide = (self.game.state != GameState.OPEN
+                or (self._hide_passworded and self.game.password_protected))
+        QtGui.QListWidgetItem.setHidden(hide)
+
     def url(self, player_id=None):
         g = self.game
         if not player_id:
             player_id = g.host
 
-        if g.state == "playing":
+        if g.state == GameState.PLAYING:
             url = QtCore.QUrl()
             url.setScheme("faflive")
             url.setHost("lobby.faforever.com")
@@ -105,7 +116,7 @@ class GameItem(QtWidgets.QListWidgetItem):
             query.addQueryItem("mod", g.featured_mod)
             url.setQuery(query)
             return url
-        elif g.state == "open":
+        elif g.state == GameState.OPEN:
             url = QtCore.QUrl()
             url.setScheme("fafgame")
             url.setHost("lobby.faforever.com")
@@ -124,7 +135,7 @@ class GameItem(QtWidgets.QListWidgetItem):
             return
 
         g = self.game
-        if not g.state == "playing":
+        if not g.state == GameState.PLAYING:
             return
 
         # User doesnt want to see this in chat
@@ -145,7 +156,7 @@ class GameItem(QtWidgets.QListWidgetItem):
             return
 
         g = self.game
-        if not g.state == "open":
+        if not g.state == GameState.OPEN:
             return
 
         url = self.url()
@@ -172,15 +183,13 @@ class GameItem(QtWidgets.QListWidgetItem):
         oldstate = self.oldstate
         self.oldstate = g.state
 
-        self.setHidden((g.state != 'open') or (g.featured_mod in mod_invisible))
-
         # Clear the status for all involved players (url may change, or players may have left, or game closed)
         for player in self.players:
             if player.login in client.instance.urls:
                 del client.instance.urls[player.login]
 
         # Just jump out if we've left the game, but tell the client that all players need their states updated
-        if g.state == "closed":
+        if g.state == GameState.CLOSED:
             client.instance.usersUpdated.emit(self.players)
             return
 
@@ -262,9 +271,9 @@ class GameItem(QtWidgets.QListWidgetItem):
 
         # Spawn announcers: IF we had a gamestate change, show replay and hosting announcements
         if oldstate != g.state:
-            if g.state == "playing":  # The delay is there because we have a 5 minutes delay in the livereplay server
+            if g.state == GameState.PLAYING:  # The delay is there because we have a 5 minutes delay in the livereplay server
                 QtCore.QTimer.singleShot(5*60000, self.announceReplay)
-            elif g.state == "open":  # The 3.5s delay is there because the host needs time to choose a map
+            elif g.state == GameState.OPEN:  # The 3.5s delay is there because the host needs time to choose a map
                 QtCore.QTimer.singleShot(35000, self.announceHosting)
 
         # Update player URLs
@@ -275,6 +284,8 @@ class GameItem(QtWidgets.QListWidgetItem):
         newplayers = set([p.login for p in self.players])
         affectedplayers = oldplayers | newplayers
         client.instance.usersUpdated.emit(list(affectedplayers))
+
+        self._updateHidden()
 
     def editTooltip(self, teams):
 
