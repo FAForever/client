@@ -156,6 +156,7 @@ class ClientWindow(FormClass, BaseClass):
         self.lobby_reconnecter = ServerReconnecter(self.lobby_connection)
 
         self.gameset = Gameset()
+        fa.instance.gameset = self.gameset  # FIXME
         self.lobby_info = LobbyInfo(self.lobby_dispatch, self.gameset)
         self.gameset.newGame.connect(self.fill_in_session_info)
 
@@ -174,7 +175,8 @@ class ClientWindow(FormClass, BaseClass):
         # Process used to run Forged Alliance (managed in module fa)
         fa.instance.started.connect(self.startedFA)
         fa.instance.finished.connect(self.finishedFA)
-        fa.instance.errorOccurred.connect(self.errorFA)
+        fa.instance.error.connect(self.errorFA)
+        self.gameset.newGame.connect(fa.instance.newServerGame)
 
         # Local Replay Server
         self.replayServer = fa.replayserver.ReplayServer(self)

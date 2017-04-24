@@ -9,6 +9,8 @@ import util
 import logging
 logger = logging.getLogger(__name__)
 
+from model.game import GameState
+
 __author__ = 'Thygrrr'
 
 
@@ -19,27 +21,65 @@ class GameArguments:
 class GameProcess(QtCore.QProcess):
     def __init__(self, *args, **kwargs):
         QtCore.QProcess.__init__(self, *args, **kwargs)
-        self.info = None
+        self._info = None
+        self._game = None
+        self.gameset = None
 
-    @QtCore.pyqtSlot(dict)
-    def processGameInfo(self, message):
-        '''
-        Processes game info events, sifting out the ones relevant to the game that's currently playing.
-        If such a game is found, it will merge all its data on the first try, "completing" the game info.
-        '''
-        if self.info and not self.info.setdefault('complete', False):
-            if self.info['uid'] == message['uid']:
-                if message['state'] == "playing":
-                    self.info = dict(list(self.info.items()) + list(message.items()))
-                    self.info['complete'] = True
-                    logger.info("Game Info Complete: " + str(self.info))
+    # Game which we track to update game info
+    @property
+    def game(self):
+        return self._game
+
+    @game.setter
+    def game(self, value):
+        if self._game is not None:
+            self._game.gameUpdated.disconnect(self._trackGameUpdate)
+            self._game.gameClosed.disconnect(self._clearGame)
+        self._game = value
+
+        if self._game is not None:
+            self._game.gameUpdated.connect(self._trackGameUpdate)
+            self._game.gameClosed.connect(self._clearGame)
+            self._trackGameUpdate()
+
+    # Check new games from the server to find one matching our uid
+    def newServerGame(self, game):
+        if not self._info or self._info['complete']:
+            return
+        if self._info['uid'] != game.uid:
+            return
+        self.game = game
+
+    def _clearGame(self, _ = None):
+        self.game = None
+
+    def _trackGameUpdate(self, _ = None):
+        if self.game.state != GameState.PLAYING:
+            return
+
+        self._info = dict(self._info.items() + self.game.to_dict().items())
+        self._info['complete'] = True
+        self.game = None
+        logger.info("Game Info Complete: " + str(self._info))
 
     def run(self, info, arguments, detach=False, init_file=None):
             """
             Performs the actual running of ForgedAlliance.exe
             in an attached process.
             """
-            self.info = info
+
+            if self._info is not None:  # Stop tracking current game
+                self.game = None
+
+            self._info = info    # This can be none if we're running a replay
+            if self._info is not None:
+                self._info.setdefault('complete', False)
+                if not self._info['complete']:
+                    uid = self._info['uid']
+                    try:
+                        self.game = self.gameset[uid]
+                    except KeyError:
+                        pass
 
             executable = os.path.join(config.Settings.get('game/bin/path'),
                                       "ForgedAlliance.exe")
