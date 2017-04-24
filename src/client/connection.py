@@ -327,7 +327,6 @@ class Dispatcher():
 class LobbyInfo(QtCore.QObject):
 
     # These signals propagate important client state changes to other modules
-    gameInfo = QtCore.pyqtSignal(dict)
     statsInfo = QtCore.pyqtSignal(dict)
     coopInfo = QtCore.pyqtSignal(dict)
     tutorialsInfo = QtCore.pyqtSignal(dict)
@@ -374,10 +373,8 @@ class LobbyInfo(QtCore.QObject):
     def handle_game_info(self, message):
         if 'games' in message:  # initial bunch of games from server after client start
             for game in message['games']:
-                self.gameInfo.emit(message)
                 self._gameset.update_set(game)
         else:
-            self.gameInfo.emit(message)
             self._gameset.update_set(message)
 
     def handle_modvault_list_info(self, message):
