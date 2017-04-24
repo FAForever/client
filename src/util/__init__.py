@@ -178,6 +178,15 @@ __themedir = None
 from config import _settings
 settings = _settings
 
+# initialize wine settings for non Windows platforms
+if sys.platform != 'win32':
+    wine_exe = settings.value("wine/exe", "wine", type=str)
+    wine_cmd_prefix = settings.value("wine/cmd_prefix", "", type=str)
+    if settings.contains("wine/prefix"):
+        wine_prefix = str(settings.value("wine/prefix", type=str))
+    else:
+        wine_prefix = os.path.join(os.path.expanduser("~"), ".wine")
+
 def clean_slate(path):
     if os.path.exists(path):
         logger.info("Wiping " + path)
