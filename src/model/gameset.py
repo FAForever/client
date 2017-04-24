@@ -29,12 +29,20 @@ class Gameset(QObject):
             self._logger.warn("No uid in game info message")
             return
 
+        self._fixup_message(message)
+
         uid = message["uid"]
         if uid not in self.games:
             self._add_game(message)
         else:
             g = self.games[uid]
             self._update_game(g, message)
+
+    def _fixup_message(self, m):
+        # FIXME - this should be fixed on the server
+        if 'featured_mod' in m and m["featured_mod"] == "coop":
+            if 'max_players' in m:
+                m["max_players"] = 4
 
     def clear_set(self):
         # Abort_game removes g from dict, so 'for g in values()' complains

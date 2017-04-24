@@ -532,7 +532,7 @@ class ClientWindow(FormClass, BaseClass):
         self.modvault = modvault.ModVault(self)
         self.replays = replays.Replays(self, self.lobby_dispatch)
         self.tutorials = tutorials.Tutorials(self)
-        self.Coop = coop.Coop(self)
+        self.Coop = coop.Coop(self, self.gameset)
         self.notificationSystem = ns.Notifications(self)
 
         #TODO: some day when the tabs only do UI we'll have all this in the .ui file

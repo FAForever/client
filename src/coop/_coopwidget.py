@@ -7,6 +7,7 @@ import util
 from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest
 
 from games.gameitem import GameItem, GameItemDelegate
+from model.game import GameState
 from coop.coopmapitem import CoopMapItem, CoopMapItemDelegate
 from games.hostgamewidget import HostgameWidget
 from ui.busy_widget import BusyWidget
@@ -24,16 +25,13 @@ FormClass, BaseClass = util.THEME.loadUiType("coop/coop.ui")
 
 
 class CoopWidget(FormClass, BaseClass, BusyWidget):
-    def __init__(self, client, *args, **kwargs):
+    def __init__(self, client, gameset, *args, **kwargs):
         
         BaseClass.__init__(self, *args, **kwargs)        
         
         self.setupUi(self)
 
         self.client = client
-        
-        #Dictionary containing our actual games.
-        self.games = {}
         
         #Ranked search UI
         self.ispassworded = False
@@ -45,7 +43,7 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
         self.options = []
         
         self.client.lobby_info.coopInfo.connect(self.processCoopInfo)
-        self.client.lobby_info.gameInfo.connect(self.processGameInfo)
+        gameset.newGame.connect(self._addGame)
         self.coopList.header().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
         self.coopList.setItemDelegate(CoopMapItemDelegate(self))
 
@@ -224,34 +222,23 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
 
             self.coop[uid] = itemCoop
 
-            
-    @QtCore.pyqtSlot(dict)
-    def processGameInfo(self, message):
-        '''
-        Slot that interprets and propagates game_info messages into GameItems 
-        '''
-        uid = message["uid"]
-        if message["featured_mod"] == "coop":
-            if 'max_players' in  message:
-                message["max_players"] = 4
 
-            if uid not in self.games:
-                self.games[uid] = GameItem(uid)
-                self.gameList.addItem(self.games[uid])
-                self.games[uid].update(message)
-            else:
-                self.games[uid].update(message)
-
-            if message['state'] == "open":
-                # force the display.
-                self.games[uid].setHidden(False)    
-    
-        #Special case: removal of a game that has ended         
-        if message['state'] == "closed":
-            if uid in self.games:
-                self.gameList.takeItem(self.gameList.row(self.games[uid]))
-                del self.games[uid]    
+    @QtCore.pyqtSlot(object)
+    def _addGame(self, game):
+        '''
+        Slot that interprets and propagates games into GameItems
+        '''
+        if game.featured_mod != "coop":
             return
+
+        game_item = GameItem(game)
+        game.gameClosed.connect(lambda: self._removeGame(game_item))
+        self.gameList.addItem(game_item)
+        game_item.update()
+
+    def _removeGame(self, widget):
+        self.gameList.takeItem(self.gameList.row(widget))
+
 
     @QtCore.pyqtSlot(QtWidgets.QListWidgetItem)
     def gameDoubleClicked(self, item):
