@@ -17,6 +17,7 @@ LIVEREPLAY_DELAY_TIME = LIVEREPLAY_DELAY * 60  # livereplay delay for time() (in
 LIVEREPLAY_DELAY_QTIMER = LIVEREPLAY_DELAY * 60000  # livereplay delay for Qtimer (in milliseconds)
 
 from replays.replayitem import ReplayItem, ReplayItemDelegate
+from model.game import GameState
 
 # Replays uses the new Inheritance Based UI creation pattern
 # This allows us to do all sorts of awesome stuff by overriding methods etc.
@@ -46,7 +47,7 @@ class ReplaysWidget(BaseClass, FormClass):
     automatic = Settings.persisted_property("replay/automatic", default_value=False, type=bool)
     spoiler_free = Settings.persisted_property("replay/spoilerFree", default_value=True, type=bool)
 
-    def __init__(self, client, dispatcher):
+    def __init__(self, client, dispatcher, gameset):
         super(BaseClass, self).__init__()
 
         self.setupUi(self)
@@ -54,8 +55,10 @@ class ReplaysWidget(BaseClass, FormClass):
         # self.replayVault.setVisible(False)
         self.client = client
         self._dispatcher = dispatcher
+
+        self.gameset = gameset
+        self.gameset.newLiveGame.connect(self._newGame)
         
-        client.lobby_info.gameInfo.connect(self.processGameInfo)
         client.lobby_info.replayVault.connect(self.replayVault)
         
         self.onlineReplays = {}
@@ -400,117 +403,113 @@ class ReplaysWidget(BaseClass, FormClass):
             for replay in buckets[bucket]:
                 bucket_item.addChild(replay)
 
-    def displayReplay(self):
-        for uid in self.games:
-            item = self.games[uid]
-            if time.time() - item.info.get('launched_at', time.time()) > LIVEREPLAY_DELAY_TIME and item.isHidden():
-                item.setHidden(False)
+    @QtCore.pyqtSlot(object)
+    def _newGame(self, game):
+        launched_at = game.launched_at if game.launched_at is not None else time.time()
 
-    @QtCore.pyqtSlot(dict)
-    def processGameInfo(self, info):
-        if info['state'] == "playing":
-            if info['uid'] in self.games:
-                # Updating an existing item
-                item = self.games[info['uid']]
-                
-                item.takeChildren()  # Clear the children of this item before we're updating it
-            else:
-                # Creating a fresh item
-                item = LiveReplayItem(info.get('launched_at', time.time()))
-                self.games[info['uid']] = item
-                
-                self.liveTree.insertTopLevelItem(0, item)
-                
-                if time.time() - info.get('launched_at', time.time()) < LIVEREPLAY_DELAY_TIME:
-                    item.setHidden(True)
-                    # to get the delay right on client start, subtract the already passed game time
-                    delay_time = LIVEREPLAY_DELAY_QTIMER - int(1000*(time.time() - info.get('launched_at', time.time())))
-                    QtCore.QTimer.singleShot(delay_time, self.displayReplay)
-                    # The delay is there because we have a delay in the livereplay server
+        item = LiveReplayItem(launched_at)
+        self.liveTree.insertTopLevelItem(0, item)
 
-            # For debugging purposes, format our tooltip for the top level items
-            # so it contains a human-readable representation of the info dictionary
-            item.info = info
-            tip = ""            
-            for key in list(info.keys()):
-                tip += "'" + str(key) + "' : '" + str(info[key]) + "'<br/>"
-                             
-            item.setToolTip(1, tip)
-            
-            icon = fa.maps.preview(info['mapname'])
-            item.setToolTip(0, fa.maps.getDisplayName(info['mapname']))
-            if not icon:           
-                self.client.downloader.downloadMap(item.info['mapname'], item, True)
-                icon = util.THEME.icon("games/unknown_map.png")
+        if time.time() - launched_at < LIVEREPLAY_DELAY_TIME:
+            item.setHidden(True)
+            # The delay is there because we have a delay in the livereplay server
+            # To get the delay right on client start, subtract the already passed game time
+            delay_time = LIVEREPLAY_DELAY_QTIMER - int(1000*(time.time() - launched_at))
+            QtCore.QTimer.singleShot(delay_time, lambda: item.setHidden(False))
 
-            item.setText(0, time.strftime("%Y-%m-%d  -  %H:%M", time.localtime(item.info.get('launched_at', time.time()))))
-            item.setForeground(0, QtGui.QColor(client.instance.getColor("default")))
-                                    
-            if info['featured_mod'] == "coop":  # no map icons for coop
-                item.setIcon(0, util.THEME.icon("games/unknown_map.png"))
-            else:
-                item.setIcon(0, icon)
-            if info['featured_mod'] == "ladder1v1":
-                item.setText(1, info['title'])
-            else:
-                item.setText(1, info['title'] + "    -    [host: " + info['host'] + "]")
-            item.setForeground(1, QtGui.QColor(client.instance.getColor("player")))
-            
-            item.setText(2, info['featured_mod'])
-            item.setTextAlignment(2, QtCore.Qt.AlignCenter)
+        game.gameUpdated.connect(lambda: self._updateGame(game, item, launched_at))
+        game.gameClosed.connect(lambda: self._removeGame(item))
+        self._updateGame(game, item, launched_at)
 
-            if not info['teams']:
-                item.setDisabled(True)
+    def _updateGame(self, game, item, launched_at):
+        item.takeChildren()  # Clear the children of this item before we're updating it
 
-            # This game is the game the player is currently in
-            mygame = False            
+        # For debugging purposes, format our tooltip for the top level items
+        # so it contains a human-readable representation of the info dictionary
+        info = game.to_dict()
+        tip = ""
+        for key in list(info.keys()):
+            tip += "'" + str(key) + "' : '" + str(info[key]) + "'<br/>"
 
-            # Create player entries for all the live players in a match
-            for team in info['teams']:
-                if team == "-1":  # skip observers, they don't seem to stream livereplays
-                    continue
-                
-                for name in info['teams'][team]:
-                    playeritem = QtWidgets.QTreeWidgetItem()
-                    playeritem.setText(0, name)
+        item.setToolTip(1, tip)
 
-                    playerid = self.client.players.getID(name)
+        icon = fa.maps.preview(game.mapname)
+        item.setToolTip(0, fa.maps.getDisplayName(game.mapname))
+        if not icon:
+            self.client.downloader.downloadMap(game.mapname, item, True)
+            icon = util.THEME.icon("games/unknown_map.png")
 
-                    url = QtCore.QUrl()
-                    url.setScheme("faflive")
-                    url.setHost("lobby.faforever.com")
-                    url.setPath("/" + str(info["uid"]) + "/" + name + ".SCFAreplay")
-                    query = QtCore.QUrlQuery()
-                    query.addQueryItem("map", info["mapname"])
-                    query.addQueryItem("mod", info["featured_mod"])
-                    url.setQuery(query)
+        item.setText(0, time.strftime("%Y-%m-%d  -  %H:%M", time.localtime(launched_at)))
+        item.setForeground(0, QtGui.QColor(client.instance.getColor("default")))
 
-                    playeritem.url = url
-                    if client.instance.login == name:
-                        mygame = True
-                        item.setForeground(1, QtGui.QColor(client.instance.getColor("self")))
-                        playeritem.setForeground(0, QtGui.QColor(client.instance.getColor("self")))
-                        playeritem.setToolTip(0, url.toString())
-                        playeritem.setIcon(0, util.THEME.icon("replays/replay.png"))
-                    elif client.instance.players.isFriend(playerid):
-                        if not mygame:
-                            item.setForeground(1, QtGui.QColor(client.instance.getColor("friend")))
-                        playeritem.setForeground(0, QtGui.QColor(client.instance.getColor("friend")))
-                        playeritem.setToolTip(0, url.toString())
-                        playeritem.setIcon(0, util.THEME.icon("replays/replay.png"))
-                    elif client.instance.players.isPlayer(playerid):
-                        playeritem.setForeground(0, QtGui.QColor(client.instance.getColor("player")))
-                        playeritem.setToolTip(0, url.toString())
-                        playeritem.setIcon(0, util.THEME.icon("replays/replay.png"))
-                    else:
-                        playeritem.setForeground(0, QtGui.QColor(client.instance.getColor("default")))
-                        playeritem.setDisabled(True)
+        if game.featured_mod == "coop":  # no map icons for coop
+            item.setIcon(0, util.THEME.icon("games/unknown_map.png"))
+        else:
+            item.setIcon(0, icon)
+        if game.featured_mod == "ladder1v1":
+            item.setText(1, game.title)
+        else:
+            item.setText(1, game.title + "    -    [host: " + game.host + "]")
+        item.setForeground(1, QtGui.QColor(client.instance.getColor("player")))
 
-                    item.addChild(playeritem)
-        elif info['state'] == "closed":
-            if info['uid'] in self.games:
-                self.liveTree.takeTopLevelItem(self.liveTree.indexOfTopLevelItem(self.games[info['uid']]))
-                
+        item.setText(2, game.featured_mod)
+        item.setTextAlignment(2, QtCore.Qt.AlignCenter)
+
+        if not game.teams:
+            item.setDisabled(True)
+
+        # This game is the game the player is currently in
+        mygame = False
+
+        # Create player entries for all the live players in a match
+        for team in game.teams:
+            if team == "-1":  # skip observers, they don't seem to stream livereplays
+                continue
+
+            for name in game.teams[team]:
+                playeritem = QtWidgets.QTreeWidgetItem()
+                playeritem.setText(0, name)
+
+                playerid = self.client.players.getID(name)
+
+                url = QtCore.QUrl()
+                url.setScheme("faflive")
+                url.setHost("lobby.faforever.com")
+                url.setPath("/" + str(game.uid) + "/" + name + ".SCFAreplay")
+                query = QtCore.QUrlQuery()
+                query.addQueryItem("map", game.mapname)
+                query.addQueryItem("mod", game.featured_mod)
+                url.setQuery(query)
+
+                playeritem.url = url
+                if client.instance.login == name:
+                    mygame = True
+                    item.setForeground(1, QtGui.QColor(client.instance.getColor("self")))
+                    playeritem.setForeground(0, QtGui.QColor(client.instance.getColor("self")))
+                    playeritem.setToolTip(0, url.toString())
+                    playeritem.setIcon(0, util.THEME.icon("replays/replay.png"))
+
+                elif client.instance.players.isFriend(playerid):
+                    if not mygame:
+                        item.setForeground(1, QtGui.QColor(client.instance.getColor("friend")))
+                    playeritem.setForeground(0, QtGui.QColor(client.instance.getColor("friend")))
+                    playeritem.setToolTip(0, url.toString())
+                    playeritem.setIcon(0, util.THEME.icon("replays/replay.png"))
+
+                elif client.instance.players.isPlayer(playerid):
+                    playeritem.setForeground(0, QtGui.QColor(client.instance.getColor("player")))
+                    playeritem.setToolTip(0, url.toString())
+                    playeritem.setIcon(0, util.THEME.icon("replays/replay.png"))
+
+                else:
+                    playeritem.setForeground(0, QtGui.QColor(client.instance.getColor("default")))
+                    playeritem.setDisabled(True)
+
+                item.addChild(playeritem)
+
+    def _removeGame(self, item):
+        self.liveTree.takeTopLevelItem(self.liveTree.indexOfTopLevelItem(item))
+
     @QtCore.pyqtSlot(QtWidgets.QTreeWidgetItem)
     def liveTreePressed(self, item):
         if QtWidgets.QApplication.mouseButtons() != QtCore.Qt.RightButton:
