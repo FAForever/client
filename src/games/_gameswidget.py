@@ -40,6 +40,7 @@ class GamesWidget(FormClass, BaseClass):
         self.client = client
         self.gameset = gameset
         self.mods = {}
+        self.games = set()
 
         # Ranked search UI
         self._ranked_icons = {
@@ -117,8 +118,8 @@ class GamesWidget(FormClass, BaseClass):
     def togglePrivateGames(self, state):
         self.hide_private_games = state
 
-        for row in range(self.gameList.count()):
-            self.gameList.item(row).setHidePassworded(state == Qt.Checked)
+        for item in self.games:
+            item.setHidePassworded(state == Qt.Checked)
 
     def selectFaction(self, enabled, factionID=0):
         logger.debug('selectFaction: enabled={}, factionID={}'.format(enabled, factionID))
@@ -192,9 +193,10 @@ class GamesWidget(FormClass, BaseClass):
         if game.featured_mod in mod_invisible:
             return
 
-        game_item = GameItem(uid)
+        game_item = GameItem(game)
+        self.games.add(game_item)
         game.gameClosed.connect(lambda: self._removeGame(game_item))
-        self.gameList.addItem(game_item)
+        self.gameList.addItem(game_item.widget)
         game_item.update()
 
         # Hide private games
@@ -205,8 +207,9 @@ class GamesWidget(FormClass, BaseClass):
         if not game.password_protected:
             self.client.notificationSystem.on_event(ns.Notifications.NEW_GAME, game.to_dict())
 
-    def _removeGame(self, widget):
-        self.gameList.takeItem(self.gameList.row(widget))
+    def _removeGame(self, item):
+        self.games.remove(item)
+        self.gameList.takeItem(self.gameList.row(item.widget))
 
     def updatePlayButton(self):
         if self.searching:

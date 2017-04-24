@@ -61,11 +61,11 @@ class GameItemDelegate(QtWidgets.QStyledItemDelegate):
         
         html = QtGui.QTextDocument()
         html.setHtml(option.text)
-        html.setTextWidth(GameItem.TEXTWIDTH)
-        return QtCore.QSize(GameItem.ICONSIZE + GameItem.TEXTWIDTH + GameItem.PADDING, GameItem.ICONSIZE)  
+        html.setTextWidth(GameItemWidget.TEXTWIDTH)
+        return QtCore.QSize(GameItemWidget.ICONSIZE + GameItemWidget.TEXTWIDTH + GameItemWidget.PADDING, GameItemWidget.ICONSIZE)
 
 
-class GameItem(QtWidgets.QListWidgetItem):
+class GameItemWidget(QtWidgets.QListWidgetItem):
     TEXTWIDTH = 250
     ICONSIZE = 110
     PADDING = 10
@@ -74,8 +74,142 @@ class GameItem(QtWidgets.QListWidgetItem):
     FORMATTER_MOD  = str(util.THEME.readfile("games/formatters/mod.qthtml"))
     FORMATTER_TOOL = str(util.THEME.readfile("games/formatters/tool.qthtml"))
     
-    def __init__(self, game, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         QtWidgets.QListWidgetItem.__init__(self, *args, **kwargs)
+
+        self.title = ""
+        self.host = ""
+        self.mapName = ""
+        self.maxPlayers = 0
+        self.players = 0
+        self.textColor = "grey"
+        self._gameQuality = "-"
+        self.modName = ""
+
+        self.tipTeams = ""
+        self.tipObservers = ""
+        self.tipMods = ""
+        self.privateIcon = False
+
+    @property
+    def gameQuality(self):
+        return self._gameQuality
+
+    @gameQuality.setter
+    def gameQuality(self, v):
+        if v is None:
+            self._gameQuality = "-"
+        else:
+            self._gameQuality = "{} %".format(v)
+
+    def _officialMod(self):
+        return self.modName not in ["faf", "coop"]
+
+    def updateText(self):
+        if self._officialMod():
+            self.setText(self.FORMATTER_FAF.format(
+                color = self.textColor,
+                mapslots = self.maxPlayers,
+                mapdisplayname = maps.getDisplayName(self.mapName),
+                title = self.title,
+                host = self.host,
+                players = self.players,
+                playerstring = "player" if self.players == 1 else "players",
+                gamequality = self._gameQuality))
+        else:
+            self.setText(self.FORMATTER_MOD.format(
+                color = self.textColor,
+                mapslots = self.maxPlayers,
+                mapdisplayname = self.mapName,
+                title = self.title,
+                host = self.host,
+                players=self.players,
+                mod=self.modName,
+                playerstring = "player" if self.players == 1 else "players",
+                gamequality=self._gameQuality))
+
+    def updateTooltip(self):
+        self.setToolTip(self.FORMATTER_TOOL.format(
+                teams = self.tipTeams,
+                observers = self.tipObservers,
+                mods = self.tipMods))
+    def clearTooltip(self):
+        self.setTooltip("")
+
+    def teamsToTooltip(self, teams):
+        observerlist = []
+        teamlist     = []
+
+        teams_string = ""
+
+        i = 0
+        for team in teams:
+
+            if team != "-1":
+                i += 1
+
+                teamplayer = []
+                teamplayer.append("<td><table>")
+                for player in team:
+
+                    if player == client.instance.me:
+                        playerStr = "<b><i>%s</b></i>" % player.login
+                    else:
+                        playerStr = player.login
+
+                    if player.rating_deviation < 200:
+                        playerStr += " (%s)" % str(player.rating_estimate())
+
+                    country = os.path.join(util.COMMON_DIR, "chat/countries/%s.png" % (player.country or '').lower())
+
+                    if i == 1:
+                        player_tr = "<tr><td><img src='%s'></td>" \
+                                        "<td align='left' valign='middle' width='135'>%s</td></tr>" % (country, playerStr)
+                    elif i == len(teams):
+                        player_tr = "<tr><td align='right' valign='middle' width='135'>%s</td>" \
+                                        "<td><img src='%s'></td></tr>" % (playerStr, country)
+                    else:
+                        player_tr = "<tr><td><img src='%s'></td>" \
+                                        "<td align='center' valign='middle' width='135'>%s</td></tr>" % (country, playerStr)
+
+                    teamplayer.append(player_tr)
+
+                teamplayer.append("</table></td>")
+                members = "".join(teamplayer)
+
+                teamlist.append(members)
+            else:
+                observerlist.append(",".join(teams[team]))
+
+        teams_string += "<td valign='middle' height='100%'><font color='black' size='+5'>VS</font></td>".join(teamlist)
+
+        observers = ""
+        if len(observerlist) != 0:
+            observers = "Observers : "
+            observers += ",".join(observerlist)
+
+        self.tipTeams = teams_string
+        self.tipObservers = observers
+
+    def modsToTooltip(self, mods):
+        if mods:
+            self.tipMods = "<br />With: " + "<br />".join(list(mods.values()))
+        else:
+            self.tipMods = ""
+
+
+    def updateIcon(self):
+        if self.privateIcon:
+            icon = util.THEME.icon("games/private_game.png")
+        else:
+            icon = maps.preview(self.mapName)
+            if not icon:
+                icon = util.THEME.icon("games/unknown_map.png")
+        self.setIcon(icon)
+
+class GameItem():
+    def __init__(self, game, *args, **kwargs):
+        self.widget = GameItemWidget()
 
         self.game = game
         self.game.gameUpdated.connect(self.update)
@@ -89,8 +223,6 @@ class GameItem(QtWidgets.QListWidgetItem):
         self.players = [] # Will get set at first update
         self._hide_passworded = False
 
-        self.setHidden(True)
-
     # Stay hidden if our game is not open
     def setHidePassworded(self, param):
         self._hide_passworded = param
@@ -99,7 +231,7 @@ class GameItem(QtWidgets.QListWidgetItem):
     def _updateHidden(self):
         hide = (self.game.state != GameState.OPEN
                 or (self._hide_passworded and self.game.password_protected))
-        QtGui.QListWidgetItem.setHidden(hide)
+        self.widget.setHidden(hide)
 
     def url(self, player_id=None):
         g = self.game
@@ -232,7 +364,7 @@ class GameItem(QtWidgets.QListWidgetItem):
         try:
             gamequality = 100*round(trueskill.quality(rating_tuples), 2)
         except ValueError:
-            gamequality = 0
+            gamequality = None
 
         # Alternate icon: If private game, use game_locked icon. Otherwise, use preview icon from map library.
         if refresh_icon:
@@ -241,33 +373,30 @@ class GameItem(QtWidgets.QListWidgetItem):
             else:
                 icon = maps.preview(g.mapname)
                 if not icon:
-                    client.instance.downloader.downloadMap(g.mapname, self)
+                    client.instance.downloader.downloadMap(g.mapname, self.widget)
                     icon = util.THEME.icon("games/unknown_map.png")
 
-            self.setIcon(icon)
+            self.widget.setIcon(icon)
 
-        if gamequality == 0:
-            strQuality = "? %"
-        else:
-            strQuality = str(gamequality)+" %"
+        w = self.widget
 
-        if g.num_players == 1:
-            playerstring = "player"
-        else:
-            playerstring = "players"
+        w.privateIcon = g.password_protected
+        w.updateIcon()
 
         color = client.instance.players.getUserColor(self.hostid)
 
         self.editTooltip(teams)
 
-        if g.featured_mod == "faf" or g.featured_mod == "coop":
-            self.setText(self.FORMATTER_FAF.format(color=color, mapslots=g.max_players, mapdisplayname=self.mapdisplayname,
-                                               title=g.title, host=g.host, players=g.num_players,
-                                               playerstring=playerstring, gamequality=strQuality))
-        else:
-            self.setText(self.FORMATTER_MOD.format(color=color, mapslots=g.max_players, mapdisplayname=self.mapdisplayname,
-                                               title=g.title, host=g.host, players=g.num_players, mod=g.featured_mod,
-                                               playerstring=playerstring, gamequality=strQuality))
+        w.title = g.title
+        w.host = g.host
+        w.mapName = g.mapname
+        w.maxPlayers = g.max_players
+        w.players = g.num_players
+        w.textColor = color
+        w.gameQuality = gamequality
+        w.modName = g.featured_mod
+
+        w.updateText()
 
         # Spawn announcers: IF we had a gamestate change, show replay and hosting announcements
         if oldstate != g.state:
@@ -288,64 +417,9 @@ class GameItem(QtWidgets.QListWidgetItem):
         self._updateHidden()
 
     def editTooltip(self, teams):
-
-        observerlist = []
-        teamlist     = []
-
-        teams_string = ""
-
-        i = 0
-        for team in teams:
-
-            if team != "-1":
-                i += 1
-
-                teamplayer = []
-                teamplayer.append("<td><table>")
-                for player in team:
-
-                    if player == client.instance.me:
-                        playerStr = "<b><i>%s</b></i>" % player.login
-                    else:
-                        playerStr = player.login
-
-                    if player.rating_deviation < 200:
-                        playerStr += " (%s)" % str(player.rating_estimate())
-
-                    country = os.path.join(util.COMMON_DIR, "chat/countries/%s.png" % (player.country or '').lower())
-
-                    if i == 1:
-                        player_tr = "<tr><td><img src='%s'></td>" \
-                                        "<td align='left' valign='middle' width='135'>%s</td></tr>" % (country, playerStr)
-                    elif i == len(teams):
-                        player_tr = "<tr><td align='right' valign='middle' width='135'>%s</td>" \
-                                        "<td><img src='%s'></td></tr>" % (playerStr, country)
-                    else:
-                        player_tr = "<tr><td><img src='%s'></td>" \
-                                        "<td align='center' valign='middle' width='135'>%s</td></tr>" % (country, playerStr)
-
-                    teamplayer.append(player_tr)
-
-                teamplayer.append("</table></td>")
-                members = "".join(teamplayer)
-
-                teamlist.append(members)
-            else:
-                observerlist.append(",".join(self.game.teams[team]))
-
-        teams_string += "<td valign='middle' height='100%'><font color='black' size='+5'>VS</font></td>".join(teamlist)
-
-        observers = ""
-        if len(observerlist) != 0:
-            observers = "Observers : "
-            observers += ",".join(observerlist)
-
-        if self.game.sim_mods:
-            mods = "<br />With: " + "<br />".join(list(self.game.sim_mods.values()))
-        else:
-            mods = ""
-
-        self.setToolTip(self.FORMATTER_TOOL.format(teams=teams_string, observers=observers, mods=mods))
+        self.widget.teamsToTooltip(teams)
+        self.widget.modsToTooltip(self.game.sim_mods)
+        self.widget.updateTooltip()
 
     def permutations(self, items):
         """ Yields all permutations of the items. """

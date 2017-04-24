@@ -233,11 +233,11 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
 
         game_item = GameItem(game)
         game.gameClosed.connect(lambda: self._removeGame(game_item))
-        self.gameList.addItem(game_item)
+        self.gameList.addItem(game_item.widget)
         game_item.update()
 
-    def _removeGame(self, widget):
-        self.gameList.takeItem(self.gameList.row(widget))
+    def _removeGame(self, item):
+        self.gameList.takeItem(self.gameList.row(item.widget))
 
     @QtCore.pyqtSlot(QtWidgets.QListWidgetItem)
     def gameDoubleClicked(self, item):
