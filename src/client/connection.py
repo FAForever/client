@@ -338,7 +338,7 @@ class LobbyInfo(QtCore.QObject):
     avatarList = QtCore.pyqtSignal(list)
     playerAvatarList = QtCore.pyqtSignal(dict)
 
-    def __init__(self, dispatcher):
+    def __init__(self, dispatcher, gameset):
         QtCore.QObject.__init__(self)
 
         self._dispatcher = dispatcher
@@ -354,6 +354,7 @@ class LobbyInfo(QtCore.QObject):
         self._dispatcher["coop_leaderboard"] = self.handle_coop_leaderboard
         self._dispatcher["avatar"] = self.handle_avatar
         self._dispatcher["admin"] = self.handle_admin
+        self._gameset = gameset
 
     def handle_updated_achievements(self, message):
         pass
@@ -373,9 +374,11 @@ class LobbyInfo(QtCore.QObject):
     def handle_game_info(self, message):
         if 'games' in message:  # initial bunch of games from server after client start
             for game in message['games']:
-                self.gameInfo.emit(game)
+                self.gameInfo.emit(message)
+                self._gameset.update_set(game)
         else:
             self.gameInfo.emit(message)
+            self._gameset.update_set(message)
 
     def handle_modvault_list_info(self, message):
         modList = message["modList"]

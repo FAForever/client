@@ -11,6 +11,7 @@ from client.player import Player
 from client.players import Players
 from client.connection import LobbyInfo, ServerConnection, \
         Dispatcher, ConnectionState, ServerReconnecter
+from model.gameset import Gameset
 from client.updater import ClientUpdater, GithubUpdateChecker
 from client.theme_menu import ThemeMenu
 import fa
@@ -153,7 +154,9 @@ class ClientWindow(FormClass, BaseClass):
                                                  self.lobby_dispatch.dispatch)
         self.lobby_connection.state_changed.connect(self.on_connection_state_changed)
         self.lobby_reconnecter = ServerReconnecter(self.lobby_connection)
-        self.lobby_info = LobbyInfo(self.lobby_dispatch)
+
+        self.gameset = Gameset()
+        self.lobby_info = LobbyInfo(self.lobby_dispatch, self.gameset)
         self.lobby_info.gameInfo.connect(self.fill_in_session_info)
 
         self.lobby_dispatch["session"] = self.handle_session
