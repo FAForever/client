@@ -73,145 +73,121 @@ class GameItem(QtWidgets.QListWidgetItem):
     FORMATTER_MOD  = str(util.THEME.readfile("games/formatters/mod.qthtml"))
     FORMATTER_TOOL = str(util.THEME.readfile("games/formatters/tool.qthtml"))
     
-    def __init__(self, uid, *args, **kwargs):
+    def __init__(self, game, *args, **kwargs):
         QtWidgets.QListWidgetItem.__init__(self, *args, **kwargs)
 
-        self.uid            = uid
-        self.mapname        = None
-        self.mapdisplayname = ""
-        self.title          = None
-        self.host           = ""
-        self.hostid         = -1
-        self.teams          = []
-        self.password_protected = False
-        self.mod            = None
-        self.mods           = None
-        self.moddisplayname = None
-        self.state          = None
-        self.gamequality    = 0
-        self.nTeams         = 0
-        self.options        = []
-        self.players        = []
+        self.game = game
+        self.game.gameUpdated.connect(self.update)
+
+        self.oldstate = self.game.state
+        self.oldplayers = []
+        self.oldmapname = None
+
+        self.mapdisplayname = None  # Will get set at first update
+        self.hostid = client.instance.players.getID(self.game.host) # Shouldn't change for a game
+        self.players = [] # Will get set at first update
+        self._hide_passworded = False
 
         self.setHidden(True)
-        
-    def url(self, player_id=None):
-        if not player_id:
-            player_id = self.host
 
-        if self.state == "playing":
+    def url(self, player_id=None):
+        g = self.game
+        if not player_id:
+            player_id = g.host
+
+        if g.state == "playing":
             url = QtCore.QUrl()
             url.setScheme("faflive")
             url.setHost("lobby.faforever.com")
-            url.setPath("/" + str(self.uid) + "/" + str(player_id) + ".SCFAreplay")
+            url.setPath("/" + str(g.uid) + "/" + str(player_id) + ".SCFAreplay")
             query = QtCore.QUrlQuery()
-            query.addQueryItem("map", self.mapname)
-            query.addQueryItem("mod", self.mod)
+            query.addQueryItem("map", g.mapname)
+            query.addQueryItem("mod", g.featured_mod)
             url.setQuery(query)
             return url
-        elif self.state == "open":
+        elif g.state == "open":
             url = QtCore.QUrl()
             url.setScheme("fafgame")
             url.setHost("lobby.faforever.com")
             url.setPath("/" + str(player_id))
             query = QtCore.QUrlQuery()
-            query.addQueryItem("map", self.mapname)
-            query.addQueryItem("mod", self.mod)
-            query.addQueryItem("uid", str(self.uid))
+            query.addQueryItem("map", g.mapname)
+            query.addQueryItem("mod", g.featured_mod)
+            query.addQueryItem("uid", str(g.uid))
             url.setQuery(query)
             return url
-        return None 
-        
+        return None
+
     @QtCore.pyqtSlot()
     def announceReplay(self):
         if not client.instance.players.isFriend(self.hostid):
             return
 
-        if not self.state == "playing":
+        g = self.game
+        if not g.state == "playing":
             return
-                
-        # User doesnt want to see this in chat   
+
+        # User doesnt want to see this in chat
         if not client.instance.livereplays:
             return
 
         url = self.url()
-        istr = client.instance.getColor("url") + '" href="' + url.toString() + '">' + self.title + '</a> (on "' + self.mapdisplayname + '")'
-        if self.mod == "faf":
-            client.instance.forwardLocalBroadcast(self.host, 'is playing live in <a style="color:' + istr)
+        istr = client.instance.getColor("url") + '" href="' + url.toString() + '">' + g.title + '</a> (on "' + self.mapdisplayname + '")'
+        if g.featured_mod == "faf":
+            client.instance.forwardLocalBroadcast(g.host, 'is playing live in <a style="color:' + istr)
         else:
-            client.instance.forwardLocalBroadcast(self.host, 'is playing ' + self.mod + ' in <a style="color:' + istr)
-        
-    
+            client.instance.forwardLocalBroadcast(g.host, 'is playing ' + g.featured_mod + ' in <a style="color:' + istr)
+
+
     @QtCore.pyqtSlot()
     def announceHosting(self):
         if not client.instance.players.isFriend(self.hostid) or self.isHidden():
             return
 
-        if not self.state == "open":
+        g = self.game
+        if not g.state == "open":
             return
 
         url = self.url()
 
         # Join url for single sword
-        client.instance.urls[self.host] = url
+        client.instance.urls[g.host] = url
 
-        # No visible message if not requested   
+        # No visible message if not requested
         if not client.instance.opengames:
             return
-                         
-        if self.mod == "faf":
-            client.instance.forwardLocalBroadcast(self.host, 'is hosting <a style="color:' + client.instance.getColor("url") + '" href="' + url.toString() + '">' + self.title + '</a> (on "' + self.mapdisplayname + '")')
-        else:
-            client.instance.forwardLocalBroadcast(self.host, 'is hosting ' + self.mod + ' <a style="color:' + client.instance.getColor("url") + '" href="' + url.toString() + '">' + self.title + '</a> (on "' + self.mapdisplayname + '")')
 
-    def update(self, message, old_client=None):
+        if g.featured_mod == "faf":
+            client.instance.forwardLocalBroadcast(g.host, 'is hosting <a style="color:' + client.instance.getColor("url") + '" href="' + url.toString() + '">' + g.title + '</a> (on "' + self.mapdisplayname + '")')
+        else:
+            client.instance.forwardLocalBroadcast(g.host, 'is hosting ' + g.featured_mod + ' <a style="color:' + client.instance.getColor("url") + '" href="' + url.toString() + '">' + g.title + '</a> (on "' + self.mapdisplayname + '")')
+
+    def update(self):
         """
         Updates this item from the message dictionary supplied
         """
 
-        if old_client:
-            logger.error('gamesitem.update called with 3 args')
-            logger.error(traceback.format_stack())
+        g = self.game
 
-        self.title = message['title']  # can be renamed in Lobby (now)
+        oldstate = self.oldstate
+        self.oldstate = g.state
 
-        if self.host == "":  # new game
-            self.host = message['host']
-            self.password_protected = message.get('password_protected', False)
-            self.mod = message['featured_mod']
+        self.setHidden((g.state != 'open') or (g.featured_mod in mod_invisible))
 
-            if 'host_id' in message:
-                self.hostid = message['host_id']
-            else:
-                self.hostid = client.instance.players.getID(self.host)
-
-        # Maps integral team numbers (from 2, with 1 "none") to lists of names.
-        teams_map = dict.copy(message['teams'])
-        self.modVersion = message.get('featured_mod_versions', [])
-        self.mods = message.get('sim_mods', {})
-        self.options = message.get('options', [])
-        num_players = message.get('num_players', 0)
-        self.slots = message.get('max_players', 12)
-        
-        oldstate = self.state
-        self.state = message['state']
-
-        self.setHidden((self.state != 'open') or (self.mod in mod_invisible))
-
-        # Clear the status for all involved players (url may change, or players may have left, or game closed)        
+        # Clear the status for all involved players (url may change, or players may have left, or game closed)
         for player in self.players:
             if player.login in client.instance.urls:
                 del client.instance.urls[player.login]
 
         # Just jump out if we've left the game, but tell the client that all players need their states updated
-        if self.state == "closed":
+        if g.state == "closed":
             client.instance.usersUpdated.emit(self.players)
             return
 
         # Map preview code
-        if self.mapname != message['mapname']:
-            self.mapname = message['mapname']
-            self.mapdisplayname = maps.getDisplayName(self.mapname)
+        if g.mapname != self.oldmapname:
+            self.oldmapname = g.mapname
+            self.mapdisplayname = maps.getDisplayName(g.mapname)
             refresh_icon = True
         else:
             refresh_icon = False
@@ -224,7 +200,7 @@ class GameItem(QtWidgets.QListWidgetItem):
         # Also, turn the lists of names into lists of players, and build a player name list.
         self.players = []
         teams = []
-        for team_index, team in teams_map.items():
+        for team_index, team in g.teams.items():
             if team_index == 1:
                 for ffa_player in team:
                     if ffa_player in client.instance.players:
@@ -238,8 +214,6 @@ class GameItem(QtWidgets.QListWidgetItem):
                         real_team.append(client.instance.players[name])
                 teams.append(real_team)
 
-        self.nTeams = len(teams)
-
         # Tuples for feeding into trueskill.
         rating_tuples = []
         for team in teams:
@@ -247,28 +221,28 @@ class GameItem(QtWidgets.QListWidgetItem):
             rating_tuples.append(tuple(ratings_for_team))
 
         try:
-            self.gamequality = 100*round(trueskill.quality(rating_tuples), 2)
+            gamequality = 100*round(trueskill.quality(rating_tuples), 2)
         except ValueError:
-            self.gamequality = 0
+            gamequality = 0
 
         # Alternate icon: If private game, use game_locked icon. Otherwise, use preview icon from map library.
         if refresh_icon:
-            if self.password_protected:
+            if g.password_protected:
                 icon = util.THEME.icon("games/private_game.png")
             else:
-                icon = maps.preview(self.mapname)
+                icon = maps.preview(g.mapname)
                 if not icon:
-                    client.instance.downloader.downloadMap(self.mapname, self)
+                    client.instance.downloader.downloadMap(g.mapname, self)
                     icon = util.THEME.icon("games/unknown_map.png")
 
             self.setIcon(icon)
 
-        if self.gamequality == 0:
+        if gamequality == 0:
             strQuality = "? %"
         else:
-            strQuality = str(self.gamequality)+" %"
+            strQuality = str(gamequality)+" %"
 
-        if num_players == 1:
+        if g.num_players == 1:
             playerstring = "player"
         else:
             playerstring = "players"
@@ -277,33 +251,33 @@ class GameItem(QtWidgets.QListWidgetItem):
 
         self.editTooltip(teams)
 
-        if self.mod == "faf" or self.mod == "coop":
-            self.setText(self.FORMATTER_FAF.format(color=color, mapslots=self.slots, mapdisplayname=self.mapdisplayname,
-                                               title=self.title, host=self.host, players=num_players,
+        if g.featured_mod == "faf" or g.featured_mod == "coop":
+            self.setText(self.FORMATTER_FAF.format(color=color, mapslots=g.max_players, mapdisplayname=self.mapdisplayname,
+                                               title=g.title, host=g.host, players=g.num_players,
                                                playerstring=playerstring, gamequality=strQuality))
         else:
-            self.setText(self.FORMATTER_MOD.format(color=color, mapslots=self.slots, mapdisplayname=self.mapdisplayname,
-                                               title=self.title, host=self.host, players=num_players, mod=self.mod,
+            self.setText(self.FORMATTER_MOD.format(color=color, mapslots=g.max_players, mapdisplayname=self.mapdisplayname,
+                                               title=g.title, host=g.host, players=g.num_players, mod=g.featured_mod,
                                                playerstring=playerstring, gamequality=strQuality))
 
         # Spawn announcers: IF we had a gamestate change, show replay and hosting announcements
-        if oldstate != self.state:
-            if self.state == "playing":  # The delay is there because we have a 5 minutes delay in the livereplay server
+        if oldstate != g.state:
+            if g.state == "playing":  # The delay is there because we have a 5 minutes delay in the livereplay server
                 QtCore.QTimer.singleShot(5*60000, self.announceReplay)
-            elif self.state == "open":  # The 3.5s delay is there because the host needs time to choose a map
+            elif g.state == "open":  # The 3.5s delay is there because the host needs time to choose a map
                 QtCore.QTimer.singleShot(35000, self.announceHosting)
 
         # Update player URLs
         for player in self.players:
             client.instance.urls[player.login] = self.url(player.id)
 
-        # Determine which players are affected by this game's state change            
+        # Determine which players are affected by this game's state change
         newplayers = set([p.login for p in self.players])
         affectedplayers = oldplayers | newplayers
         client.instance.usersUpdated.emit(list(affectedplayers))
 
     def editTooltip(self, teams):
-        
+
         observerlist = []
         teamlist     = []
 
@@ -311,7 +285,7 @@ class GameItem(QtWidgets.QListWidgetItem):
 
         i = 0
         for team in teams:
-            
+
             if team != "-1":
                 i += 1
 
@@ -332,7 +306,7 @@ class GameItem(QtWidgets.QListWidgetItem):
                     if i == 1:
                         player_tr = "<tr><td><img src='%s'></td>" \
                                         "<td align='left' valign='middle' width='135'>%s</td></tr>" % (country, playerStr)
-                    elif i == self.nTeams:
+                    elif i == len(teams):
                         player_tr = "<tr><td align='right' valign='middle' width='135'>%s</td>" \
                                         "<td><img src='%s'></td></tr>" % (playerStr, country)
                     else:
@@ -346,7 +320,7 @@ class GameItem(QtWidgets.QListWidgetItem):
 
                 teamlist.append(members)
             else:
-                observerlist.append(",".join(self.teams[team]))
+                observerlist.append(",".join(self.game.teams[team]))
 
         teams_string += "<td valign='middle' height='100%'><font color='black' size='+5'>VS</font></td>".join(teamlist)
 
@@ -355,8 +329,8 @@ class GameItem(QtWidgets.QListWidgetItem):
             observers = "Observers : "
             observers += ",".join(observerlist)
 
-        if self.mods:
-            mods = "<br />With: " + "<br />".join(list(self.mods.values()))
+        if self.game.sim_mods:
+            mods = "<br />With: " + "<br />".join(list(self.game.sim_mods.values()))
         else:
             mods = ""
 
@@ -400,10 +374,10 @@ class GameItem(QtWidgets.QListWidgetItem):
         elif sortby == 2:
             return self.mapdisplayname.lower() < other.mapdisplayname.lower()
         elif sortby == 3:
-            return self.host.lower() < other.host.lower()
+            return self.game.host.lower() < other.game.host.lower()
         else:
             # Default: by UID.
-            return self.uid < other.uid
+            return self.game.uid < other.game.uid
 
     @property
     def average_rating(self):
