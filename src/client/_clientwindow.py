@@ -157,7 +157,7 @@ class ClientWindow(FormClass, BaseClass):
 
         self.gameset = Gameset()
         self.lobby_info = LobbyInfo(self.lobby_dispatch, self.gameset)
-        self.lobby_info.gameInfo.connect(self.fill_in_session_info)
+        self.gameset.newGame.connect(self.fill_in_session_info)
 
         self.lobby_dispatch["session"] = self.handle_session
         self.lobby_dispatch["registration_response"] = self.handle_registration_response
@@ -175,7 +175,6 @@ class ClientWindow(FormClass, BaseClass):
         fa.instance.started.connect(self.startedFA)
         fa.instance.finished.connect(self.finishedFA)
         fa.instance.errorOccurred.connect(self.errorFA)
-        self.lobby_info.gameInfo.connect(fa.instance.processGameInfo)
 
         # Local Replay Server
         self.replayServer = fa.replayserver.ReplayServer(self)
@@ -1256,15 +1255,13 @@ class ClientWindow(FormClass, BaseClass):
 
         fa.run(info, self.game_session.relay_port, arguments)
 
-    def fill_in_session_info(self, message):
-        if 'games' in message:
-            return
+    def fill_in_session_info(self, game):
         # sometimes we get the game_info message before a game session was created
-        if self.game_session and message['uid'] == self.game_session.game_uid:
-            self.game_session.game_map = message['mapname']
-            self.game_session.game_mod = message['featured_mod']
-            self.game_session.game_name = message['title']
-            self.game_session.game_visibility = message['visibility']
+        if self.game_session and game.uid == self.game_session.game_uid:
+            self.game_session.game_map = game.mapname
+            self.game_session.game_mod = game.featured_mod
+            self.game_session.game_name = game.title
+            self.game_session.game_visibility = game.visibility
 
     def handle_matchmaker_info(self, message):
         if not self.me:
