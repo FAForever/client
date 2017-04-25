@@ -103,7 +103,7 @@ class GameItemWidget(QtWidgets.QListWidgetItem):
             self._gameQuality = "{} %".format(v)
 
     def _officialMod(self):
-        return self.modName not in ["faf", "coop"]
+        return self.modName in ["faf", "coop"]
 
     def updateText(self):
         if self._officialMod():
@@ -380,8 +380,6 @@ class GameItem():
 
         w = self.widget
 
-        w.privateIcon = g.password_protected
-        w.updateIcon()
 
         color = client.instance.players.getUserColor(self.hostid)
 
@@ -395,7 +393,9 @@ class GameItem():
         w.textColor = color
         w.gameQuality = gamequality
         w.modName = g.featured_mod
+        w.privateIcon = g.password_protected
 
+        w.updateIcon()
         w.updateText()
 
         # Spawn announcers: IF we had a gamestate change, show replay and hosting announcements
