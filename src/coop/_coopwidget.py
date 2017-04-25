@@ -44,7 +44,10 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
         self.options = []
         
         self.client.lobby_info.coopInfo.connect(self.processCoopInfo)
+
         gameset.newLobby.connect(self._addGame)
+        self._addExistingGames(gameset)
+
         self.coopList.header().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
         self.coopList.setItemDelegate(CoopMapItemDelegate(self))
 
@@ -74,6 +77,11 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
         self.replayDownload.finished.connect(self.finishRequest)
 
         self.selectedItem = None
+
+    def _addExistingGames(self, gameset):
+        for game in gameset:
+            if game.state == GameState.OPEN:
+                self._addGame(game)
 
     @QtCore.pyqtSlot(QtCore.QUrl)
     def openUrl(self, url):

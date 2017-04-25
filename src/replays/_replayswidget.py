@@ -58,7 +58,8 @@ class ReplaysWidget(BaseClass, FormClass):
 
         self.gameset = gameset
         self.gameset.newLiveGame.connect(self._newGame)
-        
+        self._addExistingGames(gameset)
+
         client.lobby_info.replayVault.connect(self.replayVault)
         
         self.onlineReplays = {}
@@ -108,6 +109,12 @@ class ReplaysWidget(BaseClass, FormClass):
         self.spoilerCheckbox.setChecked(self.spoiler_free)
 
         logger.info("Replays Widget instantiated.")
+
+    def _addExistingGames(self, gameset):
+        for game in gameset:
+            if game.state == GameState.PLAYING:
+                self._addGame(game)
+
 
     def searchVault(self):
         """ search for some replays """

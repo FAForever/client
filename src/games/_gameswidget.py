@@ -67,7 +67,9 @@ class GamesWidget(FormClass, BaseClass):
         self.generateSelectSubset()
 
         self.client.lobby_info.modInfo.connect(self.processModInfo)
+
         self.gameset.newLobby.connect(self._addGame)
+        self._addExistingGames(self.gameset)
 
         self.client.gameEnter.connect(self.stopSearchRanked)
         self.client.viewingReplay.connect(self.stopSearchRanked)
@@ -87,6 +89,10 @@ class GamesWidget(FormClass, BaseClass):
 
         self.updatePlayButton()
 
+    def _addExistingGames(self, gameset):
+        for game in gameset:
+            if game.state == GameState.OPEN:
+                self._addGame(game)
 
     @QtCore.pyqtSlot(dict)
     def processModInfo(self, message):
