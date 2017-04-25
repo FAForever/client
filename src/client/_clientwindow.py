@@ -534,7 +534,7 @@ class ClientWindow(FormClass, BaseClass):
         self.replays = replays.Replays(self, self.lobby_dispatch, self.gameset)
         self.tutorials = tutorials.Tutorials(self)
         self.Coop = coop.Coop(self, self.gameset)
-        self.notificationSystem = ns.Notifications(self)
+        self.notificationSystem = ns.Notifications(self, self.gameset)
 
         #TODO: some day when the tabs only do UI we'll have all this in the .ui file
         self.chatTab.layout().addWidget(self.chat)

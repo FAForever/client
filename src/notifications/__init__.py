@@ -13,7 +13,7 @@ class Notifications:
     USER_ONLINE = 'user_online'
     NEW_GAME = 'new_game'
 
-    def __init__(self, client):
+    def __init__(self, client, gameset):
         self.client = client
 
         self.settings = NsSettingsDialog(self.client)
@@ -25,6 +25,8 @@ class Notifications:
 
         client.gameEnter.connect(self.gameEnter)
         client.gameExit.connect(self.gameExit)
+
+        gameset.newLobby.connect(lambda g: self.on_event(self.NEW_GAME, g.to_dict()))
 
         self.user = util.THEME.icon("client/user.png", pix=True)
 

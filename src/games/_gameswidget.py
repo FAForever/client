@@ -68,7 +68,6 @@ class GamesWidget(FormClass, BaseClass):
 
         self.client.lobby_info.modInfo.connect(self.processModInfo)
         self.gameset.newGame.connect(self._addGame)
-        self.gameset.newLobby.connect(self._watchOpenGames)
 
         self.client.gameEnter.connect(self.stopSearchRanked)
         self.client.viewingReplay.connect(self.stopSearchRanked)
@@ -197,10 +196,6 @@ class GamesWidget(FormClass, BaseClass):
         # Hide private games
         if self.hideGamesWithPw.isChecked():
             game_item.setHidePassworded(True)
-
-    def _watchOpenGames(self, game):
-        if not game.password_protected:
-            self.client.notificationSystem.on_event(ns.Notifications.NEW_GAME, game.to_dict())
 
     def _removeGame(self, item):
         del self.games[item.widget]
