@@ -69,7 +69,6 @@ class GamesWidget(FormClass, BaseClass):
         self.client.lobby_info.modInfo.connect(self.processModInfo)
         self.gameset.newGame.connect(self._addGame)
         self.gameset.newLobby.connect(self._watchOpenGames)
-        self.client.lobby_connection.disconnected.connect(self.clear_games)
 
         self.client.gameEnter.connect(self.stopSearchRanked)
         self.client.viewingReplay.connect(self.stopSearchRanked)
@@ -179,10 +178,6 @@ class GamesWidget(FormClass, BaseClass):
 
             icon.setChecked(self.sub_factions[faction.value-1])
             icon.clicked.connect(partial(self.selectFaction, factionID=faction.value))
-
-    @QtCore.pyqtSlot()
-    def clear_games(self):
-        self.gameList.clear()
 
     @QtCore.pyqtSlot(object)
     def _addGame(self, game):
