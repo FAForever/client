@@ -136,60 +136,51 @@ class GameItemWidget(QtWidgets.QListWidgetItem):
     def clearTooltip(self):
         self.setTooltip("")
 
-    def teamsToTooltip(self, teams):
-        observerlist = []
+    def teamsToTooltip(self, teams, observers = []):
         teamlist     = []
 
         teams_string = ""
 
-        i = 0
-        for team in teams:
+        for i, team in enumerate(teams):
 
-            if team != "-1":
-                i += 1
+            teamplayer = []
+            teamplayer.append("<td><table>")
+            for player in team:
+                if player == client.instance.me:
+                    playerStr = "<b><i>%s</b></i>" % player.login
+                else:
+                    playerStr = player.login
 
-                teamplayer = []
-                teamplayer.append("<td><table>")
-                for player in team:
+                if player.rating_deviation < 200:
+                    playerStr += " (%s)" % str(player.rating_estimate())
 
-                    if player == client.instance.me:
-                        playerStr = "<b><i>%s</b></i>" % player.login
-                    else:
-                        playerStr = player.login
+                country = os.path.join(util.COMMON_DIR, "chat/countries/%s.png" % (player.country or '').lower())
 
-                    if player.rating_deviation < 200:
-                        playerStr += " (%s)" % str(player.rating_estimate())
+                if i == 1:
+                    player_tr = "<tr><td><img src='%s'></td>" \
+                                    "<td align='left' valign='middle' width='135'>%s</td></tr>" % (country, playerStr)
+                elif i == len(teams):
+                    player_tr = "<tr><td align='right' valign='middle' width='135'>%s</td>" \
+                                    "<td><img src='%s'></td></tr>" % (playerStr, country)
+                else:
+                    player_tr = "<tr><td><img src='%s'></td>" \
+                                    "<td align='center' valign='middle' width='135'>%s</td></tr>" % (country, playerStr)
 
-                    country = os.path.join(util.COMMON_DIR, "chat/countries/%s.png" % (player.country or '').lower())
+                teamplayer.append(player_tr)
 
-                    if i == 1:
-                        player_tr = "<tr><td><img src='%s'></td>" \
-                                        "<td align='left' valign='middle' width='135'>%s</td></tr>" % (country, playerStr)
-                    elif i == len(teams):
-                        player_tr = "<tr><td align='right' valign='middle' width='135'>%s</td>" \
-                                        "<td><img src='%s'></td></tr>" % (playerStr, country)
-                    else:
-                        player_tr = "<tr><td><img src='%s'></td>" \
-                                        "<td align='center' valign='middle' width='135'>%s</td></tr>" % (country, playerStr)
-
-                    teamplayer.append(player_tr)
-
-                teamplayer.append("</table></td>")
-                members = "".join(teamplayer)
-
-                teamlist.append(members)
-            else:
-                observerlist.append(",".join(teams[team]))
+            teamplayer.append("</table></td>")
+            members = "".join(teamplayer)
+            teamlist.append(members)
 
         teams_string += "<td valign='middle' height='100%'><font color='black' size='+5'>VS</font></td>".join(teamlist)
 
-        observers = ""
-        if len(observerlist) != 0:
-            observers = "Observers : "
-            observers += ",".join(observerlist)
+        observers_string = ""
+        if len(observers) != 0:
+            observers_string = "Observers : "
+            observers_string += ",".join(observers)
 
         self.tipTeams = teams_string
-        self.tipObservers = observers
+        self.tipObservers = observers_string
 
     def modsToTooltip(self, mods):
         if mods:
@@ -341,18 +332,28 @@ class GameItem():
         # Also, turn the lists of names into lists of players, and build a player name list.
         self.players = []
         teams = []
+        observers = []
+
+        def checkappend(self, team, pid):
+            if pid in client.instance.players:
+                player = client.instance.players[pid]
+                self.players.append(player)
+                team.append(player)
+
         for team_index, team in g.teams.items():
             if team_index == 1:
                 for ffa_player in team:
-                    if ffa_player in client.instance.players:
-                        self.players.append(client.instance.players[ffa_player])
-                        teams.append([client.instance.players[ffa_player]])
+                    ffa_team = []
+                    checkappend(self, ffa_team, ffa_player)
+                    if ffa_team:
+                        team.append(ffa_team)
+            elif team_index == -1:
+                for observer in team:
+                    checkappend(self, observers, observer)
             else:
                 real_team = []
                 for name in team:
-                    if name in client.instance.players:
-                        self.players.append(client.instance.players[name])
-                        real_team.append(client.instance.players[name])
+                    checkappend(self, real_team, name)
                 teams.append(real_team)
 
         # Tuples for feeding into trueskill.

@@ -52,7 +52,7 @@ class HostgameWidget(FormClass, BaseClass):
         w.players = 1
         w.maxPlayers = 1
         me = client.instance.players[self.parent.client.id]
-        w.teamsToTooltip({1:[me]})
+        w.teamsToTooltip([[me]])
         
         w.updateText()
         w.updateIcon()
