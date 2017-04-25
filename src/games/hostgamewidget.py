@@ -1,12 +1,13 @@
 import os
 
 from PyQt5 import QtCore, QtWidgets
-from games.gameitem import GameItem, GameItemDelegate
+from games.gameitem import GameItemWidget, GameItemDelegate
 import modvault
 
 from fa import maps
 import util
 import fa.check
+import client
 
 import logging
 logger = logging.getLogger(__name__)
@@ -38,21 +39,25 @@ class HostgameWidget(FormClass, BaseClass):
         self.setWindowTitle ( "Hosting Game : " + item.name )
         self.titleEdit.setText(self.title)
         self.passEdit.setText(self.password)
-        self.game = GameItem(0)
+        self.game = GameItemWidget()
         self.gamePreview.setItemDelegate(GameItemDelegate(self))
         self.gamePreview.addItem(self.game)
-        
-        self.message = {
-            "title": self.title,
-            "host": self.parent.client.login, # We will want to send our ID here at some point
-            "teams": {1:[self.parent.client.id]},
-            "featured_mod": self.featured_mod,
-            "mapname": self.mapname,
-            "state": "open",
-        }
 
-        self.game.update(self.message)
-        self.game.setHidden(False)
+        w = self.game
+        w.setHidden(True)
+        w.title = self.title
+        w.host = self.parent.client.login
+        w.modName = self.featured_mod
+        w.mapName = self.mapname
+        w.players = 1
+        w.maxPlayers = 1
+        me = client.instance.players[self.parent.client.id]
+        w.teamsToTooltip({1:[me]})
+        
+        w.updateText()
+        w.updateIcon()
+        w.updateTooltip()
+        w.setHidden(False)
         
         i = 0
         index = 0
@@ -92,9 +97,8 @@ class HostgameWidget(FormClass, BaseClass):
         #self.modList.itemClicked.connect(self.modclicked)
         
     def updateText(self, text):
-        self.message['title'] = text
-        self.game.update(self.message)
-        self.game.setHidden(False)
+        self.game.title = text
+        self.game.updateText()
 
     def hosting(self):
         name = self.titleEdit.text().strip()
@@ -138,8 +142,9 @@ class HostgameWidget(FormClass, BaseClass):
     def mapChanged(self, index):
         self.mapname = self.mapList.itemData(index)
 
-        self.message['mapname'] = self.mapname
-        self.game.update(self.message)
+        self.game.mapName = self.mapname
+        self.game.updateText()
+        self.game.updateIcon()
 
     def save_last_hosted_settings(self):
         util.settings.beginGroup("fa.games")
