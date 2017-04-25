@@ -203,7 +203,7 @@ class GameItem():
         self.widget = GameItemWidget()
 
         self.game = game
-        self.game.gameUpdated.connect(self.update)
+        self.game.gameUpdated.connect(self._gameUpdate)
 
         self.oldstate = self.game.state
         self.oldplayers = []
@@ -213,6 +213,10 @@ class GameItem():
         self.hostid = client.instance.players.getID(self.game.host) # Shouldn't change for a game
         self.players = [] # Will get set at first update
         self._hide_passworded = False
+
+    # For connecting to game slot
+    def _gameUpdate(self, _ = None):
+        self.update()
 
     # Stay hidden if our game is not open
     def setHidePassworded(self, param):

@@ -188,8 +188,8 @@ class GamesWidget(FormClass, BaseClass):
             return
 
         game_item = GameItem(game)
-        self.games[game_item.widget] = game_item
-        game.gameClosed.connect(lambda: self._removeGame(game_item))
+        self.games[game] = game_item
+        game.gameClosed.connect(self._removeGame)
         self.gameList.addItem(game_item.widget)
         game_item.update()
 
@@ -197,9 +197,9 @@ class GamesWidget(FormClass, BaseClass):
         if self.hideGamesWithPw.isChecked():
             game_item.setHidePassworded(True)
 
-    def _removeGame(self, item):
-        del self.games[item.widget]
-        self.gameList.takeItem(self.gameList.row(item.widget))
+    def _removeGame(self, game):
+        self.gameList.takeItem(self.gameList.row(self.games[game].widget))
+        del self.games[game]
 
     def updatePlayButton(self):
         if self.searching:
@@ -285,8 +285,11 @@ class GamesWidget(FormClass, BaseClass):
         if not fa.check.game(self.client):
             return
 
-        game_item = self.games[item]
-        game = game_item.game
+        game = [g for g in self.games.iteritems() if self.games[g].widget is item]
+        if not game:
+            return
+        game = game[0]
+
         if fa.check.check(game.featured_mod, mapname=game.mapname, version=None, sim_mods=game.sim_mods):
             if game.password_protected:
                 passw, ok = QtWidgets.QInputDialog.getText(

@@ -26,9 +26,12 @@ class Notifications:
         client.gameEnter.connect(self.gameEnter)
         client.gameExit.connect(self.gameExit)
 
-        gameset.newLobby.connect(lambda g: self.on_event(self.NEW_GAME, g.to_dict()))
+        gameset.newLobby.connect(self._newLobby)
 
         self.user = util.THEME.icon("client/user.png", pix=True)
+
+    def _newLobby(self, game):
+        self.on_event(self.NEW_GAME, game.to_dict())
 
     def gameEnter(self):
         self.game_running = True

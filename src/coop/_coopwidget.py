@@ -233,14 +233,14 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
             return
 
         game_item = GameItem(game)
-        self.games[game_item.widget] = game_item
-        game.gameClosed.connect(lambda: self._removeGame(game_item))
+        self.games[game] = game_item
+        game.gameClosed.connect(self._removeGame)
         self.gameList.addItem(game_item.widget)
         game_item.update()
 
-    def _removeGame(self, item):
-        del self.games[item.widget]
-        self.gameList.takeItem(self.gameList.row(item.widget))
+    def _removeGame(self, game):
+        self.gameList.takeItem(self.gameList.row(self.games[game].widget))
+        del self.games[game]
 
     @QtCore.pyqtSlot(QtWidgets.QListWidgetItem)
     def gameDoubleClicked(self, item):
@@ -250,8 +250,10 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
         if not fa.instance.available():
             return
 
-        game_item = self.games[item]
-        game = game_item.game
+        game = [g for g in self.games.iteritems() if self.games[g].widget is item]
+        if not game:
+            return
+        game = game[0]
 
         if not fa.check.check(game.featured_mod, game.mapname, None, game.sim_mods):
             return

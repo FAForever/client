@@ -59,9 +59,9 @@ class Gameset(QObject):
             return
 
         self.games[g.uid] = g
-        g.newState.connect(lambda: self._new_state(g))
+        g.newState.connect(self._new_state)
         self._new_state(g)   # new_state reports new games of given state, so let's report
-        g.gameClosed.connect(lambda: self._remove_game(g))
+        g.gameClosed.connect(self._remove_game)
         self.newGame.emit(g)
 
         self._logger.debug("Added game, uid {}".format(g.uid))

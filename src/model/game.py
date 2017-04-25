@@ -31,9 +31,9 @@ If an update is malformed / forbidden, an exception is thrown.
 @with_logger
 class Game(QObject):
 
-    gameUpdated = pyqtSignal()
-    gameClosed = pyqtSignal()
-    newState = pyqtSignal()
+    gameUpdated = pyqtSignal(object)
+    gameClosed = pyqtSignal(object)
+    newState = pyqtSignal(object)
 
     def __init__(self, *args, **kwargs):
         QObject.__init__(self)
@@ -133,11 +133,11 @@ class Game(QObject):
         self.password_protected = password_protected
         self.visibility = visibility
 
-        self.gameUpdated.emit()
+        self.gameUpdated.emit(self)
         if self.state != oldstate:
-            self.newState.emit()
+            self.newState.emit(self)
         if self.closed():
-            self.gameClosed.emit()
+            self.gameClosed.emit(self)
 
     def closed(self):
         return self.state == GameState.CLOSED or self._aborted
@@ -146,7 +146,7 @@ class Game(QObject):
     def abort_game(self):
         if not self.closed():
             self._aborted = True
-            self.gameClosed.emit()
+            self.gameClosed.emit(self)
 
     def to_dict(self):
         return {

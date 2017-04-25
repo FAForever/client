@@ -417,11 +417,13 @@ class ReplaysWidget(BaseClass, FormClass):
             delay_time = LIVEREPLAY_DELAY_QTIMER - int(1000*(time.time() - launched_at))
             QtCore.QTimer.singleShot(delay_time, lambda: item.setHidden(False))
 
-        game.gameUpdated.connect(lambda: self._updateGame(game, item, launched_at))
-        game.gameClosed.connect(lambda: self._removeGame(item))
-        self._updateGame(game, item, launched_at)
+        self.games[game] = (item, launched_at)
+        game.gameUpdated.connect(self._updateGame)
+        game.gameClosed.connect(self._removeGame)
+        self._updateGame(game)
 
-    def _updateGame(self, game, item, launched_at):
+    def _updateGame(self, game):
+        item, launched_at = self.games[game]
         item.takeChildren()  # Clear the children of this item before we're updating it
 
         # For debugging purposes, format our tooltip for the top level items
@@ -507,8 +509,9 @@ class ReplaysWidget(BaseClass, FormClass):
 
                 item.addChild(playeritem)
 
-    def _removeGame(self, item):
-        self.liveTree.takeTopLevelItem(self.liveTree.indexOfTopLevelItem(item))
+    def _removeGame(self, game):
+        self.liveTree.takeTopLevelItem(self.liveTree.indexOfTopLevelItem(self.games[game][0]))
+        del self.games[game]
 
     @QtCore.pyqtSlot(QtWidgets.QTreeWidgetItem)
     def liveTreePressed(self, item):
