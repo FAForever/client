@@ -40,7 +40,7 @@ class GamesWidget(FormClass, BaseClass):
         self.client = client
         self.gameset = gameset
         self.mods = {}
-        self.games = set()
+        self.games = {}
 
         # Ranked search UI
         self._ranked_icons = {
@@ -118,7 +118,7 @@ class GamesWidget(FormClass, BaseClass):
     def togglePrivateGames(self, state):
         self.hide_private_games = state
 
-        for item in self.games:
+        for item in self.games.values():
             item.setHidePassworded(state == Qt.Checked)
 
     def selectFaction(self, enabled, factionID=0):
@@ -194,7 +194,7 @@ class GamesWidget(FormClass, BaseClass):
             return
 
         game_item = GameItem(game)
-        self.games.add(game_item)
+        self.games[game_item.widget] = game_item
         game.gameClosed.connect(lambda: self._removeGame(game_item))
         self.gameList.addItem(game_item.widget)
         game_item.update()
@@ -208,7 +208,7 @@ class GamesWidget(FormClass, BaseClass):
             self.client.notificationSystem.on_event(ns.Notifications.NEW_GAME, game.to_dict())
 
     def _removeGame(self, item):
-        self.games.remove(item)
+        del self.games[item.widget]
         self.gameList.takeItem(self.gameList.row(item.widget))
 
     def updatePlayButton(self):
@@ -295,14 +295,16 @@ class GamesWidget(FormClass, BaseClass):
         if not fa.check.game(self.client):
             return
 
-        if fa.check.check(item.mod, mapname=item.mapname, version=None, sim_mods=item.mods):
-            if item.password_protected:
+        game_item = self.games[item]
+        game = game_item.game
+        if fa.check.check(game.featured_mod, mapname=game.mapname, version=None, sim_mods=game.sim_mods):
+            if game.password_protected:
                 passw, ok = QtWidgets.QInputDialog.getText(
                     self.client, "Passworded game", "Enter password :", QtWidgets.QLineEdit.Normal, "")
                 if ok:
-                    self.client.join_game(uid=item.uid, password=passw)
+                    self.client.join_game(uid=game.uid, password=passw)
             else:
-                self.client.join_game(uid=item.uid)
+                self.client.join_game(uid=game.uid)
 
     @QtCore.pyqtSlot(QtWidgets.QListWidgetItem)
     def hostGameClicked(self, item):

@@ -39,6 +39,7 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
         
         self.coop = {}
         self.cooptypes = {}
+        self.games = {}
         
         self.options = []
         
@@ -232,11 +233,13 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
             return
 
         game_item = GameItem(game)
+        self.games[game_item.widget] = game_item
         game.gameClosed.connect(lambda: self._removeGame(game_item))
         self.gameList.addItem(game_item.widget)
         game_item.update()
 
     def _removeGame(self, item):
+        del self.games[item.widget]
         self.gameList.takeItem(self.gameList.row(item.widget))
 
     @QtCore.pyqtSlot(QtWidgets.QListWidgetItem)
@@ -247,14 +250,17 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
         if not fa.instance.available():
             return
 
-        if not fa.check.check(item.mod, item.mapname, None, item.mods):
+        game_item = self.games[item]
+        game = game_item.game
+
+        if not fa.check.check(game.featured_mod, game.mapname, None, game.sim_mods):
             return
 
-        if item.password_protected:
+        if game.password_protected:
             passw, ok = QtWidgets.QInputDialog.getText(self.client, "Passworded game" , "Enter password :", QtWidgets.QLineEdit.Normal, "")
             if ok:
-                self.client.join_game(uid=item.uid, password=passw)
+                self.client.join_game(uid=game.uid, password=passw)
         else :
-            self.client.join_game(uid=item.uid)
+            self.client.join_game(uid=game.uid)
 
 
