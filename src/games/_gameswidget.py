@@ -67,7 +67,7 @@ class GamesWidget(FormClass, BaseClass):
         self.generateSelectSubset()
 
         self.client.lobby_info.modInfo.connect(self.processModInfo)
-        self.gameset.newGame.connect(self._addGame)
+        self.gameset.newLobby.connect(self._addGame)
 
         self.client.gameEnter.connect(self.stopSearchRanked)
         self.client.viewingReplay.connect(self.stopSearchRanked)
@@ -188,10 +188,13 @@ class GamesWidget(FormClass, BaseClass):
             return
 
         game_item = GameItem(game)
+
         self.games[game] = game_item
         game.gameClosed.connect(self._removeGame)
-        self.gameList.addItem(game_item.widget)
+        game.newState.connect(self._newGameState)
+
         game_item.update()
+        self.gameList.addItem(game_item.widget)
 
         # Hide private games
         if self.hideGamesWithPw.isChecked():
@@ -199,7 +202,14 @@ class GamesWidget(FormClass, BaseClass):
 
     def _removeGame(self, game):
         self.gameList.takeItem(self.gameList.row(self.games[game].widget))
+
+        game.gameClosed.disconnect(self._removeGame)
+        game.newState.disconnect(self._newGameState)
         del self.games[game]
+
+    def _newGameState(self, game):
+        if game.state != GameState.OPEN:
+            self._removeGame(game)
 
     def updatePlayButton(self):
         if self.searching:
