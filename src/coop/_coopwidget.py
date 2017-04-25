@@ -44,7 +44,7 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
         self.options = []
         
         self.client.lobby_info.coopInfo.connect(self.processCoopInfo)
-        gameset.newGame.connect(self._addGame)
+        gameset.newLobby.connect(self._addGame)
         self.coopList.header().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
         self.coopList.setItemDelegate(CoopMapItemDelegate(self))
 
@@ -233,14 +233,24 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
             return
 
         game_item = GameItem(game)
+
         self.games[game] = game_item
         game.gameClosed.connect(self._removeGame)
-        self.gameList.addItem(game_item.widget)
+        game.newState.connect(self._newGameState)
+
         game_item.update()
+        self.gameList.addItem(game_item.widget)
 
     def _removeGame(self, game):
         self.gameList.takeItem(self.gameList.row(self.games[game].widget))
+
+        game.gameClosed.disconnect(self._removeGame)
+        game.newState.disconnect(self._newGameState)
         del self.games[game]
+
+    def _newGameState(self, game):
+        if game.state != GameState.OPEN:
+            self._removeGame(game)
 
     @QtCore.pyqtSlot(QtWidgets.QListWidgetItem)
     def gameDoubleClicked(self, item):
