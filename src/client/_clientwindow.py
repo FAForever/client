@@ -880,7 +880,7 @@ class ClientWindow(FormClass, BaseClass):
         return (self.remember or self._did_login) and self.password and self.login
 
     def show_login_wizard(self):
-        login_widget = LoginWidget(self.login)
+        login_widget = LoginWidget(self.login, self.remember)
         login_widget.finished.connect(self.get_user_login)
         login_widget.remember.connect(self.set_remember)
         login_widget.exec_()
