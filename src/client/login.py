@@ -7,7 +7,10 @@ from config import Settings
 FormClass, BaseClass = util.loadUiType("client/login.ui")
 
 class LoginWidget(FormClass, BaseClass):
-    def __init__(self, client):
+    finished = QtCore.pyqtSignal(str, str)
+    remember = QtCore.pyqtSignal(bool)
+
+    def __init__(self, startLogin = None):
         # TODO - init with the parent to inherit the stylesheet
         # once we make some of our own css to go with it
         BaseClass.__init__(self)
@@ -15,19 +18,15 @@ class LoginWidget(FormClass, BaseClass):
         util.setStyleSheet(self, "client/login.css")
         self.splash.setPixmap(util.pixmap("client/login_watermark.png"))
 
-        self.client = client
-        if self.client.login:
-            self.loginField.setText(self.client.login)
+        if startLogin:
+            self.loginField.setText(startLogin)
 
     @QtCore.pyqtSlot()
     def on_accepted(self):
         password = self.passwordField.text()
         hashed_password = hashlib.sha256(password.strip().encode("utf-8")).hexdigest()
-        self.client.password = hashed_password
-        # Else the client has a hashed password already
-        # and the user didn't give us a different one
-
-        self.client.login = self.loginField.text().strip()
+        login = self.loginField.text().strip()
+        self.finished.emit(login, hashed_password)
         self.accept()
 
     @QtCore.pyqtSlot()
@@ -36,7 +35,7 @@ class LoginWidget(FormClass, BaseClass):
 
     @QtCore.pyqtSlot(bool)
     def on_remember_checked(self, checked):
-        self.client.remember = checked
+        self.remember.emit(checked)
 
     @QtCore.pyqtSlot()
     def on_new_account(self):

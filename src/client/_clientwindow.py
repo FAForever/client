@@ -880,9 +880,19 @@ class ClientWindow(FormClass, BaseClass):
         return (self.remember or self._did_login) and self.password and self.login
 
     def show_login_wizard(self):
-        login_widget = LoginWidget(self)
-        login_widget.accepted.connect(self.perform_login)
+        login_widget = LoginWidget(self.login)
+        login_widget.finished.connect(self.get_user_login)
+        login_widget.remember.connect(self.set_remember)
         login_widget.exec_()
+
+    def set_remember(self, remember):
+        self.remember = remember
+        self.actionSetAutoLogin.setChecked(self.remember) # FIXME - option updating is silly
+
+    def get_user_login(self, login, password):
+        self.login = login
+        self.password = password
+        self.perform_login()
 
     def doLogin(self):
         if not self.can_login:
