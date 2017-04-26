@@ -429,6 +429,9 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         else:
             self.channels[target].printAction(name, "\n".join(e.arguments()))
 
+    def on_nosuchnick(self, c, e):
+        self.nickservRegister()
+
     def on_default(self, c, e):
         self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
         if "Nickname is already in use." in "\n".join(e.arguments()):
