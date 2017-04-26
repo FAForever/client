@@ -892,7 +892,7 @@ class ClientWindow(FormClass, BaseClass):
     def get_user_login(self, login, password):
         self.login = login
         self.password = password
-        self.perform_login()
+        self.perform_login(login, password)
 
     def doLogin(self):
         if not self.can_login:
@@ -1058,16 +1058,18 @@ class ClientWindow(FormClass, BaseClass):
 
         self.session = str(message['session'])
         if self.can_login:
-            self.perform_login()
+            self.perform_login(self.login, self.password)
 
     @QtCore.pyqtSlot()
-    def perform_login(self):
+    def perform_login(self, login, password):
+        if config.is_beta():    # Replace for develop here to not clobber the real pass
+            password = util.password_hash("foo")
         self.uniqueId = util.uniqueID(self.login, self.session)
         if not self.uniqueId:
             return False
         self.lobby_connection.send(dict(command="hello",
-                       login=self.login,
-                       password=self.password,
+                       login=login,
+                       password=password,
                        unique_id=self.uniqueId,
                        session=self.session))
         self._did_login = True

@@ -1,5 +1,4 @@
 from PyQt4 import QtCore, QtGui
-import hashlib
 
 import util
 from config import Settings
@@ -24,7 +23,8 @@ class LoginWidget(FormClass, BaseClass):
     @QtCore.pyqtSlot()
     def on_accepted(self):
         password = self.passwordField.text()
-        hashed_password = hashlib.sha256(password.strip().encode("utf-8")).hexdigest()
+        print password
+        hashed_password = util.password_hash(password)
         login = self.loginField.text().strip()
         self.finished.emit(login, hashed_password)
         self.accept()

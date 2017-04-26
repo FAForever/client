@@ -639,6 +639,8 @@ def irc_escape(text, a_style=""):
         result.append(fragment)
     return " ".join(result)
 
+def password_hash(password):
+    return hashlib.sha256(password.strip().encode("utf-8")).hexdigest()
 
 def md5text(text):
     m = hashlib.md5()
