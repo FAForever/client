@@ -21,6 +21,7 @@ import urllib2
 import sys
 import tempfile
 import json
+import ast
 
 import config
 from config import Settings
@@ -498,7 +499,10 @@ class Updater(QtCore.QObject):
             return
 
         elif action == "LIST_FILES_TO_UP":
-            self.filesToUpdate = eval(str(stream.readQString()))
+            # Used to be an eval() here, this is a safe backwards-compatible fix
+            listStr = str(stream.readQString())
+            self.filesToUpdate = ast.literal_eval(listStr)
+
             if (self.filesToUpdate == None):
                 self.filesToUpdate = []
             return

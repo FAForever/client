@@ -15,6 +15,7 @@
 * Mod dropdown-list in Replays show all mods (no scrolling) (#696) 
 * Recognise `nosuchnick` irc server message
 * Purge last remains of (long removed) mumble integration (#681, #682)
+* Don't use eval in legacy updater (#715, #716)
 
 Contributors:
   - Wesmania
