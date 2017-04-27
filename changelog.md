@@ -1,7 +1,6 @@
 0.x.x
 =====
 
-* Purge last remains of (long removed) mumble integration (#681, #682)
 
 0.12.5
 =====
@@ -15,6 +14,7 @@
 * Fix set mod to 'All' from chat user 'View Replays in Vault' (#695)
 * Mod dropdown-list in Replays show all mods (no scrolling) (#696) 
 * Recognise `nosuchnick` irc server message
+* Purge last remains of (long removed) mumble integration (#681, #682)
 
 Contributors:
   - Wesmania
