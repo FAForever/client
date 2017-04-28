@@ -171,8 +171,7 @@ class GamesWidget(FormClass, BaseClass):
 
         self.rankedPlay.clicked.connect(self.startSubRandomRankedSearch)
         self.rankedPlay.show()
-        self.labelRankedHint.hide()
-        self.labelSubsetRankedHint.show()
+        self.labelRankedHint.show()
         for faction, icon in self._ranked_icons.items():
             try:
                 icon.clicked.disconnect()

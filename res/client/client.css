@@ -434,7 +434,7 @@ QLabel#labelSortGames,#labelJoinGame,#labelHostGame,#labelAutomatch,#labelMyRepl
     color:white;
 }
 
-QLabel#labelModHint,#labelMyHint,#labelLiveHint,#labelSubsetRankedHint,#labelRankedHint,#labelTeamManagementHint,#labelTeamManagementHint2,#labelTeamManagementHint3
+QLabel#labelModHint,#labelMyHint,#labelLiveHint,#labelRankedHint,#labelTeamManagementHint,#labelTeamManagementHint2,#labelTeamManagementHint3
 {
     color:#AAAAAA;
 }
