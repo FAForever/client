@@ -18,8 +18,13 @@ import re
 import fa
 # local imports
 from config import Settings
+from downloadManager import FileDownload
+from vault.dialogs import VaultDownloadDialog
 
 logger = logging.getLogger(__name__)
+
+# FIXME - one day we'll do it properly
+_global_nam = QtNetwork.QNetworkAccessManager()
 
 route = Settings.get('content/host')
 VAULT_PREVIEW_ROOT = "{}/faf/vault/map_previews/small/".format(route)
@@ -451,7 +456,6 @@ def preview(mapname, pixmap=False):
         logger.error("Error raised in maps.preview(...) for " + mapname)
         logger.error("Map Preview Exception", exc_info=sys.exc_info())
 
-
 def downloadMap(name, silent=False):
     '''
     Download a map from the vault with the given name
@@ -459,82 +463,47 @@ def downloadMap(name, silent=False):
     '''
     link = name2link(name)
     url = VAULT_DOWNLOAD_ROOT + link
+
+    global _global_nam
+    output = io.StringIO()
+
+    dler = FileDownload(_global_nam, url, output)
+    ddialog = VaultDownloadDialog(dler, "Downloading map", name, silent)
+
     logger.debug("Getting map from: " + url)
+    result = ddialog.run()
 
-    progress = QtWidgets.QProgressDialog()
-    if not silent:
-        progress.setCancelButtonText("Cancel")
-    else:
-        progress.setCancelButton(None)
-
-    progress.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
-    progress.setAutoClose(False)
-    progress.setAutoReset(False)
-
-
-    try:
-        req = urllib.request.Request(url, headers={'User-Agent' : "FAF Client"})
-        zipwebfile = urllib.request.urlopen(req)
-        meta = zipwebfile.info()
-        file_size = int(meta.get_all("Content-Length")[0])
-
-
-        progress.setMinimum(0)
-        progress.setMaximum(file_size)
-        progress.setModal(1)
-        progress.setWindowTitle("Downloading Map")
-        progress.setLabelText(name)
-        progress.show()
-
-        #Download the file as a series of 8 KiB chunks, then uncompress it.
-        output = io.BytesIO()
-        file_size_dl = 0
-        block_sz = 8192
-
-        while progress.isVisible():
-            read_buffer = zipwebfile.read(block_sz)
-            if not read_buffer:
-                break
-            file_size_dl += len(read_buffer)
-            output.write(read_buffer)
-            progress.setValue(file_size_dl)
-
-        progress.close()
-        if file_size_dl == file_size:
-            zfile = zipfile.ZipFile(output)
-            zfile.extractall(getUserMapsFolder())
-            zfile.close()
-
-            logger.debug("Successfully downloaded and extracted map from: " + url)
-        else:
-            logger.warn("Map download cancelled for: " + url)
-            return False
-
-    except:
-        logger.warn("Map download or extraction failed for: " + url)
-        if sys.exc_info()[0] is HTTPError:
-            logger.warning("Vault download failed with HTTPError,"\
-                " map probably not in vault (or broken).")
-            QtWidgets.QMessageBox.information(
-                None,
-                "Map not downloadable",
-                "<b>This map was not found in the vault (or is broken).</b>"\
-                "<br/>You need to get it from somewhere else in order to use it.")
-        else:
-            logger.error("Download Exception", exc_info=sys.exc_info())
-            QtWidgets.QMessageBox.information(
-                None,
-                "Map installation failed",
-                "<b>This map could not be installed (please report this map or bug).</b>")
+    if result == VaultDownloadDialog.CANCELED:
+        logger.warn("Map download canceled for: " + url)
+    if result in [VaultDownloadDialog.DL_ERROR, VaultDownloadDialog.UNKNOWN_ERROR]:
+        logger.warn("Vault download failed, map probably not in vault (or broken).")
+        QtGui.QMessageBox.information(
+            None,
+            "Map not downloadable",
+            "<b>This map was not found in the vault (or is broken).</b>"\
+            "<br/>You need to get it from somewhere else in order to use it.")
+    if result != VaultDownloadDialog.SUCCESS:
         return False
 
+    try:
+        zfile = zipfile.ZipFile(output)
+        zfile.extractall(getUserMapsFolder())
+        zfile.close()
+    except:
+        logger.error("Extract error")
+        QtWidgets.QMessageBox.information(
+            None,
+            "Map installation failed",
+            "<b>This map could not be installed (please report this map or bug).</b>")
+        return False
+
+    logger.debug("Successfully downloaded and extracted map from: " + url)
     #Count the map downloads
     try:
         url = VAULT_COUNTER_ROOT + "?map=" + urllib.parse.quote(link)
         req = urllib.request.Request(url, headers={'User-Agent' : "FAF Client"})
         urllib.request.urlopen(req)
         logger.debug("Successfully sent download counter request for: " + url)
-
     except:
         logger.warn("Request to map download counter failed for: " + url)
         logger.error("Download Count Exception", exc_info=sys.exc_info())
