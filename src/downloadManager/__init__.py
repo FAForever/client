@@ -119,52 +119,41 @@ class downloadManager(QtCore.QObject):
         self.client = parent
         self.nam = QNetworkAccessManager(self)
 
-        self.nam.finished.connect(self.finishedDownload)
-
         self.modRequests = {}
         self.mapRequests = {}
         self.mapRequestsItem = []
 
-    @QtCore.pyqtSlot(QNetworkReply)
-    def finishedDownload(self, reply):
-        ''' finishing downloads '''
-        # mark reply for collection by Qt
-        reply.deleteLater()
-        urlstring = reply.url().toString()
+    @QtCore.pyqtSlot(FileDownload)
+    def finishedDownload(self, dler):
+        urlstring = dler.addr
+        name = os.path.basename(urlstring)
         logger.info("Finished download from " + urlstring)
+        dler.dest.close()
+
         reqlist = []
         if urlstring in self.mapRequests: reqlist = self.mapRequests[urlstring]
         if urlstring in self.modRequests: reqlist = self.modRequests[urlstring]
-        if reqlist:
-            #save the map from cache
-            name = os.path.basename(reply.url().toString())
-            pathimg = os.path.join(util.CACHE_DIR, name)
-            img = QtCore.QFile(pathimg)
-            img.open(QtCore.QIODevice.WriteOnly)
-            img.write(reply.readAll())
-            img.close()
-            if os.path.exists(pathimg):
-                #Create alpha-mapped preview image
-                try:
-                    pass # the server already sends 100x100 pic
-#                    img = QtWidgets.QImage(pathimg).scaled(100,100)
-#                    img.save(pathimg)
-                except:
-                    pathimg = "games/unknown_map.png"
-                    logger.info("Failed to resize " + name)
-            else :
-                pathimg = "games/unknown_map.png"
-                logger.debug("Web Preview failed for: " + name)
-            logger.debug("Web Preview used for: " + name)
-            for requester in reqlist:
-                if requester:
-                    if requester in self.mapRequestsItem:
-                        requester.setIcon(0, util.THEME.icon(pathimg, False))
-                        self.mapRequestsItem.remove(requester)
-                    else:
-                        requester.setIcon(util.THEME.icon(pathimg, False))
-            if urlstring in self.mapRequests: del self.mapRequests[urlstring]
-            if urlstring in self.modRequests: del self.modRequests[urlstring]
+        if not reqlist:
+            dler.dest.remove()
+            return
+
+        if urlstring in self.mapRequests: del self.mapRequests[urlstring]
+        if urlstring in self.modRequests: del self.modRequests[urlstring]
+
+        #save the map from cache
+        if not dler.succeeded():
+            dler.dest.remove()
+            pathimg = "games/unknown_map.png"
+            logger.debug("Web Preview failed for: " + name)
+
+        logger.debug("Web Preview used for: " + name)
+        for requester in reqlist:
+            if requester:
+                if requester in self.mapRequestsItem:
+                    requester.setIcon(0, util.THEME.icon(pathimg, False))
+                    self.mapRequestsItem.remove(requester)
+                else:
+                    requester.setIcon(util.THEME.icon(pathimg, False))
 
     @QtCore.pyqtSlot(QNetworkReply.NetworkError)
     def downloadError(self, networkError):
@@ -178,6 +167,12 @@ class downloadManager(QtCore.QObject):
     def progress(self, rcv, total):
         logger.info("received " + rcv + "out of" + total + " bytes")
 
+    def _get_cachefile(self, name):
+        pathimg = os.path.join(util.CACHE_DIR, name)
+        img = QtCore.QFile(pathimg)
+        img.open(QtCore.QIODevice.WriteOnly)
+        return img
+
     def downloadMap(self, name, requester, item=False):
         '''
         Downloads a preview image from the web for the given map name
@@ -187,23 +182,28 @@ class downloadManager(QtCore.QObject):
         if len(name) == 0:
             return
 
-        url = QtCore.QUrl(VAULT_PREVIEW_ROOT + urllib.parse.quote(name) + ".png")
-        if not url.toString() in self.mapRequests:
-            logger.info("Searching map preview for: " + name + " from " + url.toString())
-            self.mapRequests[url.toString()] = []
-            request = QNetworkRequest(url)
-            rpl = self.nam.get(request)
-            self.mapRequests[url.toString()].append(requester)
-        else :
-            self.mapRequests[url.toString()].append(requester)
+        url = VAULT_PREVIEW_ROOT + urllib.parse.quote(name) + ".png"
+        if not url in self.mapRequests:
+            logger.info("Searching map preview for: " + name + " from " + url)
+            self.mapRequests[url] = []
+
+            img = self._get_cachefile(name)
+            downloader = FileDownload(self.nam, url, img, finished = self.finishedDownload)
+            downloader.blocksize = None
+            downloader.run()
+
+        self.mapRequests[url].append(requester)
         if item:
             self.mapRequestsItem.append(requester)
 
-    def downloadModPreview(self, strurl, requester):
-        url = QtCore.QUrl(strurl)
-        if not url.toString() in self.modRequests:
-            logger.debug("Searching mod preview for: " + os.path.basename(strurl).rsplit('.',1)[0])
-            self.modRequests[url.toString()] = []
-            request = QNetworkRequest(url)
-            rpl = self.nam.get(request)
-        self.modRequests[url.toString()].append(requester)
+    def downloadModPreview(self, url, requester):
+        if not url in self.modRequests:
+            logger.debug("Searching mod preview for: " + os.path.basename(url).rsplit('.',1)[0])
+            self.modRequests[url] = []
+
+            img = self._get_cachefile(name)
+            downloader = FileDownload(self.nam, url, img, finished = self.finishedDownload)
+            downloader.blocksize = None
+            downloader.run()
+
+        self.modRequests[url].append(requester)
