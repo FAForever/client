@@ -11,7 +11,8 @@ DEFAULT_LIVE_REPLAY = True
 DEFAULT_RECORD_REPLAY = True
 DEFAULT_WRITE_GAME_LOG = False
 
-# We only want one instance of Forged Alliance to run, so we use a singleton here (other modules may wish to connect to its signals so it needs persistence)
+# We only want one instance of Forged Alliance to run, so we use a singleton here
+# (other modules may wish to connect to its signals so it needs persistence)
 from game_process import instance as instance
 from .game_session import GameSession
 from play import run

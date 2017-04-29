@@ -3,10 +3,10 @@ from .game_process import instance
 from config import Settings
 import util
 
-__author__ = 'Thygrrr'
-
 import logging
 logger = logging.getLogger(__name__)
+
+__author__ = 'Thygrrr'
 
 
 def build_argument_list(game_info, port, arguments=None):

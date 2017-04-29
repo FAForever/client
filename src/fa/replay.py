@@ -3,9 +3,8 @@ import os
 from PyQt4 import QtCore, QtGui
 import fa
 from fa.check import check
-from fa.replayparser import replayParser
+from fa.replayparser import ReplayParser
 import util
-import mods
 
 import logging
 logger = logging.getLogger(__name__)
@@ -14,9 +13,9 @@ __author__ = 'Thygrrr'
 
 
 def replay(source, detach=False):
-    '''
+    """
     Launches FA streaming the replay from the given location. Source can be a QUrl or a string
-    '''
+    """
     logger.info("fa.exe.replay(" + str(source) + ", detach = " + str(detach))
 
     if fa.instance.available():
@@ -24,16 +23,18 @@ def replay(source, detach=False):
         featured_mod_versions = None
         arg_string = None
         replay_id = None
+        mod = None
+        mapname = None
         # Convert strings to URLs
         if isinstance(source, basestring):
             if os.path.isfile(source):
                 if source.endswith(".fafreplay"):  # the new way of doing things
-                    replay = open(source, "rt")
-                    info = json.loads(replay.readline())
+                    replay_file = open(source, "rt")
+                    info = json.loads(replay_file.readline())
 
-                    binary = QtCore.qUncompress(QtCore.QByteArray.fromBase64(replay.read()))
+                    binary = QtCore.qUncompress(QtCore.QByteArray.fromBase64(replay_file.read()))
                     logger.info("Extracted " + str(binary.size()) + " bytes of binary data from .fafreplay.")
-                    replay.close()
+                    replay_file.close()
 
                     if binary.size() == 0:
                         logger.info("Invalid replay")
@@ -52,8 +53,8 @@ def replay(source, detach=False):
                     featured_mod_versions = info.get('featured_mod_versions', None)
                     arg_string = scfa_replay.fileName()
 
-                    parser = replayParser(arg_string)
-                    version = parser.getVersion()
+                    parser = ReplayParser(arg_string)
+                    version = parser.get_version()
 
                 elif source.endswith(".scfareplay"):  # compatibility mode
                     filename = os.path.basename(source)
@@ -61,25 +62,24 @@ def replay(source, detach=False):
                         mod = filename.rsplit(".", 2)[1]
                         logger.info("mod guessed from " + source + " is " + mod)
                     else:
-                        mod = "faf"  #TODO: maybe offer a list of mods for the user.
+                        mod = "faf"  # TODO: maybe offer a list of mods for the user.
                         logger.warn("no mod could be guessed, using fallback ('faf') ")
 
-                    mapname = None
                     arg_string = source
-                    parser = replayParser(arg_string)
-                    version = parser.getVersion()
+                    parser = ReplayParser(arg_string)
+                    version = parser.get_version()
                 else:
-                    QtGui.QMessageBox.critical(None, "FA Forever Replay",
-                                               "Sorry, FAF has no idea how to replay this file:<br/><b>" + source + "</b>")
+                    QtGui.QMessageBox.critical(None, "FA Forever Replay", "Sorry, FAF has no idea how to replay"
+                                                                          " this file:<br/><b>" + source + "</b>")
 
                 logger.info("Replaying " + str(arg_string) + " with mod " + str(mod) + " on map " + str(mapname))
                 
-                #Wrap up file path in "" to ensure proper parsing by FA.exe
+                # Wrap up file path in "" to ensure proper parsing by FA.exe
                 arg_string = '"' + arg_string + '"'
                 
             else:
                 source = QtCore.QUrl(
-                    source)  #Try to interpret the string as an actual url, it may come from the command line
+                    source)  # Try to interpret the string as an actual url, it may come from the command line
 
         if isinstance(source, QtCore.QUrl):
             url = source
@@ -101,14 +101,13 @@ def replay(source, detach=False):
                 # We couldn't construct a decent argument format to tell ForgedAlliance for this replay
         if not arg_string:
             QtGui.QMessageBox.critical(None, "FA Forever Replay",
-                                       "App doesn't know how to play replays from that source:<br/><b>" + str(
-                                           source) + "</b>")
+                                       "App doesn't know how to play replays from that source:<br/><b>" + str(source) + "</b>")
             return False
 
         # Launch preparation: Start with an empty arguments list
         arguments = ['/replay', arg_string]
 
-        #Proper mod loading code
+        # Proper mod loading code
         mod = "faf" if mod == "ladder1v1" else mod
 
         if '/init' not in arguments:
@@ -118,7 +117,7 @@ def replay(source, detach=False):
         # Disable defunct bug reporter
         arguments.append('/nobugreport')
 
-        #log file
+        # log file
         arguments.append("/log")
         arguments.append('"' + util.LOG_FILE_REPLAY + '"')
 
