@@ -15,8 +15,14 @@ import warnings
 import io
 import zipfile
 from config import Settings
+from downloadManager import FileDownload
+from vault.dialogs import VaultDownloadDialog
+from PyQt4 import QtNetwork
 
 logger = logging.getLogger(__name__)
+
+# FIXME - one day we'll do it properly
+_global_nam = QtNetwork.QNetworkAccessManager()
 
 MODFOLDER = os.path.join(util.PERSONAL_DIR, "My Games", "Gas Powered Games", "Supreme Commander Forged Alliance", "Mods")
 MODVAULT_DOWNLOAD_ROOT = "{}/faf/vault/".format(Settings.get('content/host'))
@@ -345,74 +351,44 @@ def downloadMod(item): #most of this function is stolen from fa.maps.downloadMap
         link = item.link
         logger.debug("Getting mod from: " + link)
         link = urllib.parse.quote(link, "http://")
-    
-    
 
-    
-    progress = QtWidgets.QProgressDialog()
-    progress.setCancelButtonText("Cancel")
-    progress.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
-    progress.setAutoClose(False)
-    progress.setAutoReset(False)
-    
-    try:
-        req = urllib.request.Request(link, headers={'User-Agent' : "FAF Client"})
-        zipwebfile  = urllib.request.urlopen(req)
+    global _global_nam
+    output = io.StringIO()
 
-        meta = zipwebfile.info()
-        file_size = int(meta.get_all("Content-Length")[0])
-        progress.setMinimum(0)
-        progress.setMaximum(file_size)
-        progress.setModal(1)
-        progress.setWindowTitle("Downloading Mod")
-        progress.setLabelText(link)
-    
-        progress.show()
+    dler = FileDownload(_global_nam, link, output)
+    ddialog = VaultDownloadDialog(dler, "Downloading Mod", link, False)
+    result = ddialog.run()
 
-        #Download the file as a series of 8 KiB chunks, then uncompress it.
-        output = io.BytesIO()
-        file_size_dl = 0
-        block_sz = 8192       
-
-        while progress.isVisible():
-            read_buffer = zipwebfile.read(block_sz)
-            if not read_buffer:
-                break
-            file_size_dl += len(read_buffer)
-            output.write(read_buffer)
-            progress.setValue(file_size_dl)
-    
-        progress.close()
-        
-        if file_size_dl == file_size:
-            zfile = zipfile.ZipFile(output)
-            dirname = zfile.namelist()[0].split('/',1)[0]
-            if os.path.exists(os.path.join(MODFOLDER, dirname)):
-                oldmod = getModInfoFromFolder(dirname)
-                result = QtWidgets.QMessageBox.question(None, "Modfolder already exists",
-                                "The mod is to be downloaded to the folder '%s'. This folder already exists and contains <b>%s</b>. Do you want to overwrite this mod?" % (dirname,oldmod.totalname), QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
-                if result == QtWidgets.QMessageBox.No:
-                    return False
-                removeMod(oldmod)
-            zfile.extractall(MODFOLDER)
-            logger.debug("Successfully downloaded and extracted mod from: " + link)
-            return True
-        else:    
-            logger.warn("Mod download cancelled for: " + link)
-            return False
-
-    except:
-        logger.warn("Mod download or extraction failed for: " + link)        
-        if sys.exc_info()[0] is urllib.error.HTTPError:
-            logger.warning("ModVault download failed with HTTPError, mod probably not in vault (or broken).")
-            QtWidgets.QMessageBox.information(None, "Mod not downloadable", "<b>This mod was not found in the vault (or is broken).</b><br/>You need to get it from somewhere else in order to use it." )
-        else:                
-            logger.error("Download Exception", exc_info=sys.exc_info())
-            QtWidgets.QMessageBox.information(None, "Mod installation failed", "<b>This mod could not be installed (please report this map or bug).</b>")
+    if result == VaultDownloadDialog.CANCELED:
+        logger.warn("Mod download canceled for: " + link)
+    if result in [VaultDownloadDialog.DL_ERROR, VaultDownloadDialog.UNKNOWN_ERROR]:
+        logger.warn("Vault download failed, mod probably not in vault (or broken).")
+        QtWidgets.QMessageBox.information(
+            None,
+            "Mod not downloadable",
+            "<b>This mod was not found in the vault (or is broken).</b>"\
+            "<br/>You need to get it from somewhere else in order to use it.")
+    if result != VaultDownloadDialog.SUCCESS:
         return False
 
-    return True
-    
+    try:
+        zfile = zipfile.ZipFile(output)
+        dirname = zfile.namelist()[0].split('/',1)[0]
+        if os.path.exists(os.path.join(MODFOLDER, dirname)):
+            oldmod = getModInfoFromFolder(dirname)
+            result = QtWidgets.QMessageBox.question(None, "Modfolder already exists",
+                "The mod is to be downloaded to the folder '%s'. This folder already exists and contains <b>%s</b>. Do you want to overwrite this mod?" % (dirname,oldmod.totalname), QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
+            if result == QtWidgets.QMessageBox.No:
+                return False
+            removeMod(oldmod)
+        zfile.extractall(MODFOLDER)
+        logger.debug("Successfully downloaded and extracted mod from: " + link)
+        return True
+
+    except:
+        logger.error("Extract error")
+        QtWidgets.QMessageBox.information(None, "Mod installation failed", "<b>This mod could not be installed (please report this map or bug).</b>")
+        return False
 
 def removeMod(mod):
     logger.debug("removing mod %s" % mod.name)
