@@ -1,6 +1,11 @@
 from downloadManager import FileDownload
 from PyQt5 import QtCore, QtNetwork, QtWidgets
 import zipfile
+import os
+import io
+
+import logging
+logger = logging.getLogger(__name__)
 
 class VaultDownloadDialog(object):
     # Result codes
@@ -58,9 +63,59 @@ class VaultDownloadDialog(object):
                 self._result = self.DL_ERROR
                 return
             else:
+                print("Unknown error")
                 self._result = self.UNKNOWN_ERROR
                 return
 
         self._result = self.SUCCESS
         return
 
+# FIXME - one day we'll do it properly
+_global_nam = QtNetwork.QNetworkAccessManager()
+
+def downloadVaultAsset(url, target_dir, exist_handler, name, category, silent):
+    """
+    Download and unpack a zip from the vault, interacting with the user and
+    logging things.
+    """
+    global _global_nam
+    output = io.BytesIO()
+    capitCat = category[0].upper() + category[1:]
+
+    dler = FileDownload(_global_nam, url, output)
+    ddialog = VaultDownloadDialog(dler, "Downloading {}".format(category), name, silent)
+    result = ddialog.run()
+
+    if result == VaultDownloadDialog.CANCELED:
+        logger.warn("{} Download canceled for: {}".format(capitCat, url))
+    if result in [VaultDownloadDialog.DL_ERROR, VaultDownloadDialog.UNKNOWN_ERROR]:
+        logger.warn("Vault download failed, {} probably not in vault (or broken).".format(category))
+        QtGui.QMessageBox.information(
+            None,
+            "{} not downloadable".format(capitCat),
+            ("<b>This {} was not found in the vault (or is broken).</b>"
+            "<br/>You need to get it from somewhere else in order to use it.")
+                .format(category))
+    if result != VaultDownloadDialog.SUCCESS:
+        return False
+
+    try:
+        zfile = zipfile.ZipFile(output)
+        # FIXME - nothing in python 2.7 that can do that
+        dirname = zfile.namelist()[0].split(os.path.sep,1)[0]
+
+        if os.path.exists(os.path.join(target_dir, dirname)):
+            proceed = exist_handler(target_dir, dirname)
+            if not proceed:
+                return False
+        zfile.extractall(target_dir)
+        logger.debug("Successfully downloaded and extracted {} from: {}".format(category, url))
+        return True
+
+    except:
+        logger.error("Extract error")
+        QtGui.QMessageBox.information(None,
+            "{} installation failed".format(capitCat),
+            "<b>This {} could not be installed (please report this {} or bug).</b>"
+                .format(category, category))
+        return False

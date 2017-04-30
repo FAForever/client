@@ -3,7 +3,7 @@ import logging
 import string
 import sys
 from urllib.error import HTTPError
-from PyQt5 import QtCore, QtWidgets, QtNetwork
+from PyQt5 import QtCore, QtWidgets
 import io
 import util
 import os
@@ -19,12 +19,9 @@ import fa
 # local imports
 from config import Settings
 from downloadManager import FileDownload
-from vault.dialogs import VaultDownloadDialog
+from vault.dialogs import VaultDownloadDialog, downloadVaultAsset
 
 logger = logging.getLogger(__name__)
-
-# FIXME - one day we'll do it properly
-_global_nam = QtNetwork.QNetworkAccessManager()
 
 route = Settings.get('content/host')
 VAULT_PREVIEW_ROOT = "{}/faf/vault/map_previews/small/".format(route)
@@ -459,42 +456,14 @@ def preview(mapname, pixmap=False):
 def downloadMap(name, silent=False):
     '''
     Download a map from the vault with the given name
-    LATER: This type of method is so common, it could be put into a nice util method.
     '''
     link = name2link(name)
     url = VAULT_DOWNLOAD_ROOT + link
 
-    global _global_nam
-    output = io.StringIO()
+    # Silently override existing folders
+    result = downloadVaultAsset(url, getUserMapsFolder(), lambda: True, name, "map", silent)
 
-    dler = FileDownload(_global_nam, url, output)
-    ddialog = VaultDownloadDialog(dler, "Downloading map", name, silent)
-
-    logger.debug("Getting map from: " + url)
-    result = ddialog.run()
-
-    if result == VaultDownloadDialog.CANCELED:
-        logger.warn("Map download canceled for: " + url)
-    if result in [VaultDownloadDialog.DL_ERROR, VaultDownloadDialog.UNKNOWN_ERROR]:
-        logger.warn("Vault download failed, map probably not in vault (or broken).")
-        QtGui.QMessageBox.information(
-            None,
-            "Map not downloadable",
-            "<b>This map was not found in the vault (or is broken).</b>"\
-            "<br/>You need to get it from somewhere else in order to use it.")
-    if result != VaultDownloadDialog.SUCCESS:
-        return False
-
-    try:
-        zfile = zipfile.ZipFile(output)
-        zfile.extractall(getUserMapsFolder())
-        zfile.close()
-    except:
-        logger.error("Extract error")
-        QtWidgets.QMessageBox.information(
-            None,
-            "Map installation failed",
-            "<b>This map could not be installed (please report this map or bug).</b>")
+    if not result:
         return False
 
     logger.debug("Successfully downloaded and extracted map from: " + url)
