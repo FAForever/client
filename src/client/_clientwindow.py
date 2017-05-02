@@ -888,7 +888,7 @@ class ClientWindow(FormClass, BaseClass):
     def get_creds_and_login(self):
         "Try to autologin, or show login widget if we fail or can't do that."
         if self._autorelogin and self.password and self.login:
-            if self.send_login():
+            if self.send_login(self.login, self.password):
                 return
 
         self.show_login_widget()
