@@ -58,12 +58,15 @@ class MapVault(QtCore.QObject):
                 util.themeurl("vault/style.css"))
 
         ROOT = Settings.get('content/host')
-        self.ui.setUrl(
-            QtCore.QUrl("{route}/faf/vault/maps.php?username={user}"
-                        "&pwdhash={pwdhash}".format(
-                            route=Settings.get('content/host'),
-                            user=self.client.login,
-                            pwdhash=self.client.password)))
+
+        url = QtCore.QUrl(ROOT)
+        url.setPath("/faf/vault/maps.php")
+        url.addQueryItem('username', self.client.login)
+        url.addQueryItem('pwdhash', self.client.password)
+
+        logger.info(url)
+
+        self.ui.setUrl(url)
 
     @QtCore.pyqtSlot()
     def addScript(self):
