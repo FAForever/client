@@ -145,7 +145,6 @@ class ClientWindow(FormClass, BaseClass):
         QtGui.QApplication.instance().aboutToQuit.connect(self.cleanup)
 
         self.uniqueId = None
-        self._did_login = False
 
         self.sendFile = False
         self.progress = QtGui.QProgressDialog()
@@ -160,6 +159,13 @@ class ClientWindow(FormClass, BaseClass):
 
         self._state = ClientState.NONE
         self.session = None
+
+        # This dictates whether we login automatically in the beginning or
+        # after a disconnect. We turn it on if we're sure we have correct
+        # credentials and want to use them (if we were remembered or after
+        # login) and turn it off if we're getting fresh credentials or
+        # encounter a serious server error.
+        self._autorelogin = self.remember
 
         self.lobby_dispatch = Dispatcher()
         self.lobby_connection = ServerConnection(LOBBY_HOST, LOBBY_PORT,
@@ -875,28 +881,52 @@ class ClientWindow(FormClass, BaseClass):
         self.lobby_connection.doConnect()
         return True
 
-    @property
-    def can_login(self):
-        return (self.remember or self._did_login) and self.password and self.login
-
-    def show_login_wizard(self):
-        login_widget = LoginWidget(self.login, self.remember)
-        login_widget.finished.connect(self.get_user_login)
-        login_widget.remember.connect(self.set_remember)
-        login_widget.exec_()
-
     def set_remember(self, remember):
         self.remember = remember
         self.actionSetAutoLogin.setChecked(self.remember) # FIXME - option updating is silly
 
-    def get_user_login(self, login, password):
+    def get_creds_and_login(self):
+        "Try to autologin, or show login widget if we fail or can't do that."
+        if self._autorelogin and self.password and self.login:
+            if self.send_login():
+                return
+
+        self.show_login_widget()
+
+    def show_login_widget(self):
+        login_widget = LoginWidget(self.login, self.remember)
+        login_widget.finished.connect(self.on_widget_login_data)
+        login_widget.remember.connect(self.set_remember)
+        login_widget.exec_()
+
+    def on_widget_login_data(self, login, password):
         self.login = login
         self.password = password
-        self.perform_login(login, password)
 
-    def doLogin(self):
-        if not self.can_login:
-            self.show_login_wizard()
+        if self.send_login(login, password):
+            return
+        self.show_login_widget()
+
+    def send_login(self, login, password):
+        "Send login data once we have the creds."
+        self._autorelogin = False # Fresh credentials
+        if config.is_beta():    # Replace for develop here to not clobber the real pass
+            password = util.password_hash("foo")
+        self.uniqueId = util.uniqueID(self.login, self.session)
+        if not self.uniqueId:
+            QtGui.QMessageBox.critical(self,
+                "Failed to calculate UID",
+                "Failed to calculate your unique ID"
+                " (a part of our smurf prevention system).</br>"
+                "Please report this to the tech support forum!")
+            return False
+        self.lobby_connection.send(dict(command="hello",
+                       login=login,
+                       password=password,
+                       unique_id=self.uniqueId,
+                       session=self.session))
+        return True
+
 
     def getColor(self, name):
         return chat.get_color(name)
@@ -1055,25 +1085,8 @@ class ClientWindow(FormClass, BaseClass):
     def handle_session(self, message):
         # Getting here means our client is not outdated
         self._client_updater.notify_outdated(False)
-
         self.session = str(message['session'])
-        if self.can_login:
-            self.perform_login(self.login, self.password)
-
-    @QtCore.pyqtSlot()
-    def perform_login(self, login, password):
-        if config.is_beta():    # Replace for develop here to not clobber the real pass
-            password = util.password_hash("foo")
-        self.uniqueId = util.uniqueID(self.login, self.session)
-        if not self.uniqueId:
-            return False
-        self.lobby_connection.send(dict(command="hello",
-                       login=login,
-                       password=password,
-                       unique_id=self.uniqueId,
-                       session=self.session))
-        self._did_login = True
-        return True
+        self.get_creds_and_login()
 
     def handle_update(self, message):
         # Remove geometry settings prior to updating
@@ -1086,6 +1099,7 @@ class ClientWindow(FormClass, BaseClass):
 
     def handle_welcome(self, message):
         self.state = ClientState.LOGGED_IN
+        self._autorelogin = True
         self.id = message["id"]
         self.login = message["login"]
         self.me = Player(id=self.id, login=self.login)
@@ -1307,8 +1321,8 @@ class ClientWindow(FormClass, BaseClass):
 
     def handle_authentication_failed(self, message):
         QtGui.QMessageBox.warning(self, "Authentication failed", message["text"])
-        self.remember = False
-        self.show_login_wizard()
+        self._autorelogin = False
+        self.get_creds_and_login()
 
     def handle_notice(self, message):
         if "text" in message:
@@ -1329,6 +1343,10 @@ class ClientWindow(FormClass, BaseClass):
 
         if message["style"] == "kick":
             logger.info("Server has kicked you from the Lobby.")
+
+        # This is part of the protocol - in this case we should not relogin automatically.
+        if message["style"] in ["error", "kick"]:
+            self._autorelogin = False
 
     def handle_invalid(self, message):
         raise Exception(message)

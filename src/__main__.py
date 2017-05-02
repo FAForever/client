@@ -92,7 +92,6 @@ def runFAF():
     if not faf_client.doConnect():
         return
 
-    faf_client.doLogin()
     faf_client.show()
     # Main update loop
     QtGui.QApplication.exec_()
