@@ -26,8 +26,8 @@ class LoginWidget(FormClass, BaseClass):
         password = self.passwordField.text()
         hashed_password = util.password_hash(password)
         login = self.loginField.text().strip()
-        self.finished.emit(login, hashed_password)
         self.accept()
+        self.finished.emit(login, hashed_password)
 
     @QtCore.pyqtSlot()
     def on_rejected(self):
