@@ -333,6 +333,18 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>loginField</tabstop>
+  <tabstop>passwordField</tabstop>
+  <tabstop>loginButton</tabstop>
+  <tabstop>quitButton</tabstop>
+  <tabstop>rememberCheckbox</tabstop>
+  <tabstop>newAccountButton</tabstop>
+  <tabstop>renameAccountButton</tabstop>
+  <tabstop>steamLinkButton</tabstop>
+  <tabstop>forgotPasswordButton</tabstop>
+  <tabstop>bugreportButton</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
