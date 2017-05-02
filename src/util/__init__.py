@@ -2,6 +2,7 @@ import sys
 import os
 import subprocess
 import getpass
+import codecs
 from ctypes import *
 
 from PyQt4.QtGui import QDesktopServices, QMessageBox
@@ -480,13 +481,13 @@ def readfile(filename, themed=True):
     '''
     if themed:
         if __themedir and os.path.isfile(os.path.join(__themedir, filename)):
-            result = open(os.path.join(__themedir, filename))
+            result = codecs.open(os.path.join(__themedir, filename), encoding='utf-8')
             logger.debug(u"Read themed file: " + filename)
         else:
-            result = open(os.path.join(COMMON_DIR, filename))
+            result = codecs.open(os.path.join(COMMON_DIR, filename), encoding='utf-8')
             logger.debug(u"Read common file: " + filename)
     else:
-        result = open(filename)
+        result = codecs.open(filename, encoding='utf-8')
         logger.debug(u"Read unthemed file: " + filename)
 
     data = result.read()
