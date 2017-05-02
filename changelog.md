@@ -9,10 +9,10 @@
 * Remove redundant APPDATA_DIR loading in util (#665, #666)
 * Fix theme breakage caused by a promoted widget (#669, #670)
 * Fix random/nomads faction shown in replay info (#676)
-* Fix lobby name change not showing in Play (#690) 
+* Fix lobby name change not showing in Play (#690)
 * Add sorting games By Map, Host and Age to Play (#686)
 * Fix set mod to 'All' from chat user 'View Replays in Vault' (#695)
-* Mod dropdown-list in Replays show all mods (no scrolling) (#696) 
+* Mod dropdown-list in Replays show all mods (no scrolling) (#696)
 * Recognise `nosuchnick` irc server message
 * Purge last remains of (long removed) mumble integration (#681, #682)
 * Don't use eval in legacy updater (#715, #716)
@@ -20,7 +20,8 @@
 * Clean up layout of login widget (#652, #653)
 * Use "foo" instead of user password in develop mode (#712, #653)
 * Remove unused label from GamesWidget (#717)
-* Fix for user in chat shown in long gone games (#705) 
+* Fix for user in chat shown in long gone games (#705)
+* Fix some unicode handling problems (#689,  #721)
 
 Contributors:
   - Wesmania
