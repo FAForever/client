@@ -1047,6 +1047,16 @@ class ClientWindow(FormClass, BaseClass):
             actionAvatar.triggered.connect(self.avatarManager)
             self.modMenu.addAction(actionAvatar)
 
+            self.modMenu.addSeparator()
+
+            actionLobbyKick = QtGui.QAction("Close player's FAF Client...", self.modMenu)
+            actionLobbyKick.triggered.connect(lambda: util.userNameAction(self, 'Player to kick from Lobby (do not typo!)', lambda name: self.closeLobby(name)))
+            self.modMenu.addAction(actionLobbyKick)
+
+            actionCloseFA = QtGui.QAction("Close Player's Game...", self.modMenu)
+            actionCloseFA.triggered.connect(lambda: util.userNameAction(self, 'Player to close FA (do not typo!)', lambda name: self.closeFA(name)))
+            self.modMenu.addAction(actionCloseFA)
+
     def requestAvatars(self, personal):
         if personal:
             self.lobby_connection.send(dict(command="avatar", action="list_avatar"))
@@ -1059,10 +1069,12 @@ class ClientWindow(FormClass, BaseClass):
 
     def closeFA(self, username):
         """ Close FA remotely """
+        logger.info('closeFA for {}'.format(username))
         self.lobby_connection.send(dict(command="admin", action="closeFA", user_id=self.players.getID(username)))
 
     def closeLobby(self, username):
         """ Close lobby remotely """
+        logger.info('closeLobby for {}'.format(username))
         self.lobby_connection.send(dict(command="admin", action="closelobby", user_id=self.players.getID(username)))
 
     def addFriend(self, friend_id):

@@ -313,11 +313,11 @@ class Chatter(QtGui.QTableWidgetItem):
 
                 action_inspect_in_mordor.triggered.connect(send_the_orcs)
 
-                actionCloseFA = QtGui.QAction("Close FA", menu)
+                actionCloseFA = QtGui.QAction("Close Game", menu)
                 menu.addAction(actionCloseFA)
                 actionCloseFA.triggered.connect(lambda: self.lobby.client.closeFA(self.name))
 
-                actionCloseLobby = QtGui.QAction("Kick from Lobby", menu)
+                actionCloseLobby = QtGui.QAction("Close FAF Client", menu)
                 menu.addAction(actionCloseLobby)
                 actionCloseLobby.triggered.connect(lambda: self.lobby.client.closeLobby(self.name))
 

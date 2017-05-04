@@ -5,7 +5,7 @@ import getpass
 import codecs
 from ctypes import *
 
-from PyQt4.QtGui import QDesktopServices, QMessageBox
+from PyQt4.QtGui import QDesktopServices, QMessageBox, QInputDialog
 from PyQt4.QtCore import QUrl
 import subprocess
 
@@ -689,6 +689,12 @@ def uniqueID(user, session):
         logger.error("UniqueID executable error: {}".format(exc.output))
     return None
 
+
+def userNameAction(parent, caption, action):
+    """ Get a username and execute action with it"""
+    username, success = QInputDialog.getText(parent, 'Input Username', caption)
+    if success and username != '':
+        action(username)
 
 import datetime
 
