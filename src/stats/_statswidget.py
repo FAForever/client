@@ -184,6 +184,11 @@ class StatsWidget(BaseClass, FormClass):
 
     @QtCore.pyqtSlot()
     def updating(self):
+        # Don't display things when we're not logged in
+        # FIXME - one day we'll have more obvious points of entry
+        if self.client.state != client.ClientState.LOGGED_IN:
+            return
+
         me = self.client.players[self.client.login]
         if me.league is not None:
             self.leagues.setCurrentIndex(me.league - 1)
