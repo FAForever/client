@@ -352,6 +352,9 @@ class ClientWindow(FormClass, BaseClass):
             self.state = ClientState.CONNECTING
 
     def on_connected(self):
+        # Enable reconnect in case we used to explicitly stay offline
+        self.lobby_reconnecter.enabled = True
+
         self.lobby_connection.send(dict(command="ask_session",
                                         version=config.VERSION,
                                         user_agent="faf-client"))
@@ -618,6 +621,7 @@ class ClientWindow(FormClass, BaseClass):
         self.lobby_connection.doConnect()
 
     def disconnect(self):
+        "Used when the user explicitly demanded to stay offline."
         self.lobby_reconnecter.enabled = False
         self.lobby_connection.disconnect()
         self.chat.disconnect()
@@ -896,6 +900,7 @@ class ClientWindow(FormClass, BaseClass):
     def show_login_widget(self):
         login_widget = LoginWidget(self.login, self.remember)
         login_widget.finished.connect(self.on_widget_login_data)
+        login_widget.rejected.connect(self.on_widget_no_login)
         login_widget.remember.connect(self.set_remember)
         login_widget.exec_()
 
@@ -906,6 +911,9 @@ class ClientWindow(FormClass, BaseClass):
         if self.send_login(login, password):
             return
         self.show_login_widget()
+
+    def on_widget_no_login(self):
+        self.disconnect()
 
     def send_login(self, login, password):
         "Send login data once we have the creds."
