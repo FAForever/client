@@ -23,6 +23,7 @@
 * Fix for user in chat shown in long gone games (#705)
 * Fix some unicode handling problems (#689,  #721)
 * Rework autologin logic to fix loops at login error (#720, #722)
+* Allow the user to stay offline instead of logging in (#727, #728)
 
 Contributors:
   - Wesmania
