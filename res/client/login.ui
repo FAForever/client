@@ -242,7 +242,7 @@
          <item>
           <widget class="QPushButton" name="renameAccountButton">
            <property name="text">
-            <string>Rename your account</string>
+            <string>Rename your Account</string>
            </property>
           </widget>
          </item>
@@ -264,6 +264,13 @@
           <widget class="QPushButton" name="bugreportButton">
            <property name="text">
             <string>Report a Bug</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="stayOfflineButton">
+           <property name="text">
+            <string>Stay Offline</string>
            </property>
           </widget>
          </item>
@@ -344,6 +351,7 @@
   <tabstop>steamLinkButton</tabstop>
   <tabstop>forgotPasswordButton</tabstop>
   <tabstop>bugreportButton</tabstop>
+  <tabstop>stayOfflineButton</tabstop>
  </tabstops>
  <resources/>
  <connections>
@@ -488,6 +496,22 @@
     <hint type="destinationlabel">
      <x>345</x>
      <y>110</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>stayOfflineButton</sender>
+   <signal>released()</signal>
+   <receiver>Dialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>277</x>
+     <y>322</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>264</x>
+     <y>196</y>
     </hint>
    </hints>
   </connection>
