@@ -1,15 +1,14 @@
 from PyQt4 import QtCore, QtNetwork
 
 import logging
-import time
 import fa
 import json
 import sys
 
 from enum import IntEnum
-from client import LOBBY_HOST, LOBBY_PORT
 
 logger = logging.getLogger(__name__)
+
 
 class ConnectionState(IntEnum):
     INITIAL = -1
@@ -17,6 +16,7 @@ class ConnectionState(IntEnum):
     CONNECTING = 1
     # On this state automatically try and reconnect
     CONNECTED = 2
+
 
 class ServerReconnecter(QtCore.QObject):
     def __init__(self, connection):
@@ -42,6 +42,7 @@ class ServerReconnecter(QtCore.QObject):
     @property
     def enabled(self):
         return self._enabled
+
     @enabled.setter
     def enabled(self, value):
         self._enabled = value
@@ -62,6 +63,7 @@ class ServerReconnecter(QtCore.QObject):
     def _disable_keepalive(self):
         self._keepalive_timer.stop()
         self._waiting_for_pong = False
+
     def _enable_keepalive(self):
         if not self._keepalive_timer.isActive():
             self._keepalive_timer.start()
@@ -72,6 +74,7 @@ class ServerReconnecter(QtCore.QObject):
     @property
     def keepalive_interval(self):
         return self._keepalive_timer.interval()
+
     @keepalive_interval.setter
     def keepalive_interval(self, value):
         self._keepalive_timer.setInterval(value)
@@ -176,7 +179,6 @@ class ServerConnection(QtCore.QObject):
         else:
             self.on_disconnect()
 
-
     @property
     def state(self):
         return self._state
@@ -212,7 +214,7 @@ class ServerConnection(QtCore.QObject):
         ins = QtCore.QDataStream(self.socket)
         ins.setVersion(QtCore.QDataStream.Qt_4_2)
 
-        while ins.atEnd() == False:
+        while not ins.atEnd():
             if self.blockSize == 0:
                 if self.socket.bytesAvailable() < 4:
                     return
@@ -263,7 +265,6 @@ class ServerConnection(QtCore.QObject):
             logger.info("Outgoing JSON Message: " + data)
 
         self.writeToServer(data)
-
 
     def on_disconnect(self):
         logger.warn("Disconnected from lobby server.")
@@ -372,9 +373,7 @@ class LobbyInfo(QtCore.QObject):
     def handle_game_info(self, message):
         if 'games' in message:  # initial bunch of games from server after client start
             for game in message['games']:
-                # ignore zombie games (>12 hours) (until server fix)
-                if not (game['state'] == 'playing' and time.time() - game['launched_at'] > 12 * 3600):
-                    self.gameInfo.emit(game)
+                self.gameInfo.emit(game)
         else:
             self.gameInfo.emit(message)
 
