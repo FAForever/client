@@ -19,7 +19,8 @@ import fa
 from connectivity.helper import ConnectivityHelper
 from fa import GameSession
 from fa.factions import Factions
-from fa.game_session import GameSessionState
+from fa.maps import getUserMapsFolder
+from modvault.utils import MODFOLDER
 from ui.status_logo import StatusLogo
 from client.login import LoginWidget
 
@@ -738,6 +739,13 @@ class ClientWindow(FormClass, BaseClass):
 
         self.actionSetGamePath.triggered.connect(self.switchPath)
         self.actionSetGamePort.triggered.connect(self.switchPort)
+
+        self.actionShowMapsDir.triggered.connect(lambda: util.showDirInFileBrowser(getUserMapsFolder()))
+        self.actionShowModsDir.triggered.connect(lambda: util.showDirInFileBrowser(MODFOLDER))
+        self.actionShowReplaysDir.triggered.connect(lambda: util.showDirInFileBrowser(util.REPLAY_DIR))
+        # if game.prefs doesn't exist: show_dir -> empty folder / show_file -> 'file doesn't exist' message
+        self.actionShowGamePrefs.triggered.connect(lambda: util.showDirInFileBrowser(util.LOCALFOLDER))
+        #self.actionShowGamePrefs.triggered.connect(lambda: util.showFileInFileBrowser(util.PREFSFILENAME))
 
         # Toggle-Options
         self.actionSetAutoLogin.triggered.connect(self.updateOptions)
