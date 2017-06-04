@@ -3,9 +3,11 @@
 
 * Single-Line Mod-Vault toolbar (#730)
 * Pin UID version in appveyor
+* Log errors from faf-uid executable (#741, #742)
 
 Contributors:
   - Grothe
+  - Wesmania
 
 
 0.12.5
