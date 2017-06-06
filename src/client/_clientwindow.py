@@ -1363,4 +1363,7 @@ class ClientWindow(FormClass, BaseClass):
             self._autorelogin = False
 
     def handle_invalid(self, message):
+        # We did something wrong and the server will disconnect, let's not
+        # reconnect and potentially cause the same error again and again
+        self.lobby_reconnecter.enabled = False
         raise Exception(message)

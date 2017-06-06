@@ -6,6 +6,7 @@
 * Log errors from faf-uid executable (#741, #742)
 * Add menu option: Show paths for maps, mods & replays (#735)
 * Slightly clean up client resize logic (#747, #748)
+* Don't autoreconnect when sent invalid command to server (#743, #744)
 
 Contributors:
   - Grothe
