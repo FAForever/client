@@ -1,5 +1,10 @@
-0.x.x
+0.12.6
 =====
+
+* Single-Line Mod-Vault toolbar (#730)
+
+Contributors:
+  - Grothe
 
 
 0.12.5
