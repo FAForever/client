@@ -111,7 +111,7 @@ if sys.platform == 'win32':
                           includes=[os.path.join(os.path.dirname(PyQt4.uic.__file__), "widget-plugins"),
                                   "PyQt4.uic.widget-plugins"]
                       )],
-        'requires': ['bsdiff4', 'sip', 'PyQt4', 'cx_Freeze', 'cffi', 'py'],
+        'requires': ['sip', 'PyQt4', 'cx_Freeze', 'cffi', 'py'],
         'options': {'build_exe': build_exe_options,
                  'bdist_msi': bdist_msi_options},
         'version': msi_version,

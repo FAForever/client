@@ -23,7 +23,6 @@ install:
   - "xcopy %PYTHON%\\Library\\bin\\libeay32.dll ."
   - "xcopy %PYTHON%\\Library\\bin\\ssleay32.dll ."
   # install dependencies using pip
-  - "%PYTHON%\\Scripts\\pip install https://github.com/FAForever/python-wheels/releases/download/1.0.2/bsdiff4-1.1.5-%PYWHEEL_INFIX%-%PYWHEEL_INFIX%m-win32.whl"
   - "%PYTHON%\\Scripts\\pip install https://github.com/FAForever/python-wheels/releases/download/1.0.2/lupa-1.3-%PYWHEEL_INFIX%-%PYWHEEL_INFIX%m-win32.whl"
   - "%PYTHON%\\Scripts\\pip install wheel"
   - "%PYTHON%\\Scripts\\pip install pytest"
