@@ -204,8 +204,7 @@ class ClientWindow(FormClass, BaseClass):
         self.setWindowTitle("FA Forever " + util.VERSION_STRING)
 
         # Frameless
-        self.setWindowFlags(
-            QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowSystemMenuHint | QtCore.Qt.WindowMinimizeButtonHint)
+        self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.CustomizeWindowHint)
 
         self.rubberBand = QtWidgets.QRubberBand(QtWidgets.QRubberBand.Rectangle)
 
