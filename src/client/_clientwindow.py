@@ -93,8 +93,6 @@ class ClientWindow(FormClass, BaseClass):
     Its UI also houses all the other UIs for the sub-modules.
     """
 
-    topWidget = QtWidgets.QWidget()
-
     state_changed = QtCore.pyqtSignal(object)
     authorized = QtCore.pyqtSignal(object)
 
@@ -204,8 +202,7 @@ class ClientWindow(FormClass, BaseClass):
         self.setWindowTitle("FA Forever " + util.VERSION_STRING)
 
         # Frameless
-        self.setWindowFlags(
-            QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowSystemMenuHint | QtCore.Qt.WindowMinimizeButtonHint)
+        self.setWindowFlags(QtCore.Qt.CustomizeWindowHint)
 
         self.rubberBand = QtWidgets.QRubberBand(QtWidgets.QRubberBand.Rectangle)
 
