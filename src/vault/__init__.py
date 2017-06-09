@@ -64,8 +64,6 @@ class MapVault(QtCore.QObject):
         url.addQueryItem('username', self.client.login)
         url.addQueryItem('pwdhash', self.client.password)
 
-        logger.info(url)
-
         self.ui.setUrl(url)
 
     @QtCore.pyqtSlot()
