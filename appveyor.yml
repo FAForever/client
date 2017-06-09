@@ -7,8 +7,8 @@ environment:
       secure: Np481CGoJvTGB8O5rZTRswUZagGv7WtWT/TXTABQ184xUbL5vj9NoCtmtNRK6YxF
     UID_VERSION: v4.0.4
   matrix:
-    - PYTHON: "C:\\Miniconda"
-      PYWHEEL_INFIX: "cp35"
+    - PYTHON: "C:\\Python36"
+      PYWHEEL_INFIX: "cp36"
 
 init:
   - "ECHO %PYTHON% %APPVEYOR_REPO_TAG_NAME%"
@@ -16,22 +16,21 @@ init:
 install:
   # dump version
   - git describe --tags --always
-  # use conda for installing pyqt
-  - "%PYTHON%\\Scripts\\conda install --quiet -y pyqt=5.6.0 pywin32"
-  # copy required dlls for packaging in setup.py
-  - "xcopy %PYTHON%\\Library\\plugins\\imageformats .\\imageformats /I"
-  - "xcopy %PYTHON%\\Library\\plugins\\platforms .\\platforms /I"
-  - "xcopy %PYTHON%\\Library\\bin\\libeay32.dll ."
-  - "xcopy %PYTHON%\\Library\\bin\\ssleay32.dll ."
   # install dependencies using pip
-  - "%PYTHON%\\Scripts\\pip install https://github.com/FAForever/python-wheels/releases/download/1.0.2/bsdiff4-1.1.5-%PYWHEEL_INFIX%-%PYWHEEL_INFIX%m-win32.whl"
-  - "%PYTHON%\\Scripts\\pip install https://github.com/FAForever/python-wheels/releases/download/1.0.2/lupa-1.3-%PYWHEEL_INFIX%-%PYWHEEL_INFIX%m-win32.whl"
+  - "%PYTHON%\\Scripts\\pip install pyqt5"
+  - "%PYTHON%\\Scripts\\pip install https://github.com/FAForever/python-wheels/releases/download/2.0.0/pywin32-221-%PYWHEEL_INFIX%-%PYWHEEL_INFIX%m-win32.whl"
+  - "%PYTHON%\\Scripts\\pip install https://github.com/FAForever/python-wheels/releases/download/2.0.0/lupa-1.3-%PYWHEEL_INFIX%-%PYWHEEL_INFIX%m-win32.whl"
   - "%PYTHON%\\Scripts\\pip install wheel"
   - "%PYTHON%\\Scripts\\pip install pytest"
   - "%PYTHON%\\Scripts\\pip install cffi"
   - "%PYTHON%\\Scripts\\pip install cx_Freeze"
   - "%PYTHON%\\Scripts\\pip install -r requirements.txt --trusted-host content.faforever.com"
-  - ps: "$env:faf_version = \"$(&C:\\Miniconda\\python .\\src\\config\\version.py)\".Replace(' ','')"
+  # copy required dlls for packaging in setup.py
+  - "xcopy %PYTHON%\\Library\\plugins\\imageformats .\\imageformats /I"
+  - "xcopy %PYTHON%\\Library\\plugins\\platforms .\\platforms /I"
+  - "xcopy %PYTHON%\\Library\\bin\\libeay32.dll ."
+  - "xcopy %PYTHON%\\Library\\bin\\ssleay32.dll ."
+  - ps: "$env:faf_version = \"$(&C:\\Python36\\python .\\src\\config\\version.py)\".Replace(' ','')"
   - ps: "$env:APPVEYOR_BUILD_VERSION = \"$($env:faf_version)+$($env:APPVEYOR_BUILD_NUMBER)\""
   - ps: "Write-Host \"$($env:faf_version) + $($env:APPVEYOR_BUILD_NUMBER) = $($env:APPVEYOR_BUILD_VERSION)\""
   - ps: "$env:PYTEST_QT_API=\"pyqt5\""
