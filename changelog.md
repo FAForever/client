@@ -2,6 +2,7 @@
 =====
 
 * Single-Line Mod-Vault toolbar (#730)
+* Pin UID version in appveyor
 
 Contributors:
   - Grothe
