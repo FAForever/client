@@ -1,9 +1,7 @@
 from functools import partial
 
-from PyQt5 import Qt
 from PyQt5.QtCore import QUrl, QProcess
-from PyQt5.QtWidgets import QLabel, QStyle, QAction
-from PyQt5.QtNetwork import QAbstractSocket
+from PyQt5.QtWidgets import QLabel
 
 import config
 import connectivity
@@ -30,7 +28,7 @@ Created on Dec 1, 2011
 @author: thygrrr
 '''
 
-from PyQt5 import QtCore, QtWidgets, QtWebKit
+from PyQt5 import QtCore, QtWidgets, QtGui, QtWebKit
 
 from client import ClientState, LOBBY_HOST, \
     LOBBY_PORT, LOCAL_REPLAY_PORT
@@ -806,7 +804,7 @@ class ClientWindow(FormClass, BaseClass):
 
     @QtCore.pyqtSlot(str)
     def open_url(self, url):
-        QtWidgets.QDesktopServices.openUrl(QUrl(url))
+        QtGui.QDesktopServices.openUrl(QUrl(url))
 
     @QtCore.pyqtSlot()
     def linkShowLogs(self):
