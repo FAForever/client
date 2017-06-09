@@ -101,9 +101,6 @@ class ClientWindow(FormClass, BaseClass):
     state_changed = QtCore.pyqtSignal(object)
     authorized = QtCore.pyqtSignal(object)
 
-    # This signal is emitted when the client is done rezising
-    doneresize = QtCore.pyqtSignal()
-
     # These signals notify connected modules of game state changes (i.e. reasons why FA is launched)
     viewingReplay = QtCore.pyqtSignal(QtCore.QUrl)
 
@@ -187,11 +184,6 @@ class ClientWindow(FormClass, BaseClass):
         self.lobby_dispatch["update"] = self.handle_update
         self.lobby_dispatch["welcome"] = self.handle_welcome
         self.lobby_dispatch["authentication_failed"] = self.handle_authentication_failed
-
-        # Timer for resize events
-        self.resizeTimer = QtCore.QTimer(self)
-        self.resizeTimer.timeout.connect(self.resized)
-        self.preferedSize = 0
 
         # Process used to run Forged Alliance (managed in module fa)
         fa.instance.started.connect(self.startedFA)
@@ -708,13 +700,6 @@ class ClientWindow(FormClass, BaseClass):
                 return
 
         return QtGui.QMainWindow.closeEvent(self, event)
-
-    def resizeEvent(self, size):
-        self.resizeTimer.start(400)
-
-    def resized(self):
-        self.resizeTimer.stop()
-        self.doneresize.emit()
 
     def initMenus(self):
         self.actionLink_account_to_Steam.triggered.connect(partial(self.open_url, Settings.get("STEAMLINK_URL")))

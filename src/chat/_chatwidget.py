@@ -128,6 +128,11 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
                     self.channels[channel].chatters[player].avatarItem.setIcon(QtGui.QIcon(util.respix(reply.url().toString())))
                     self.channels[channel].chatters[player].avatarItem.setToolTip(self.channels[channel].chatters[player].avatarTip)
 
+    def addChannel(self, name, channel):
+        self.channels[name] = channel
+        self.addTab(self.channels[name], name)
+        channel.setTextWidth()
+
     def closeChannel(self, index):
         """
         Closes a channel tab.
@@ -184,8 +189,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             return False
 
         if name not in self.channels:
-            self.channels[name] = Channel(self, name, True)
-            self.addTab(self.channels[name], name)
+            self.addChannel(name, Channel(self, name, True))
 
             # Add participants to private channel
             self.channels[name].addChatter(name, id)
@@ -194,7 +198,6 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         if activate:
             self.setCurrentWidget(self.channels[name])
 
-        self.channels[name].resizing()
         return True
 
     @QtCore.pyqtSlot(list)
@@ -272,17 +275,16 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
         # If we're joining, we need to open the channel for us first.
         if channel not in self.channels:
-            self.channels[channel] = Channel(self, channel)
+            newch = Channel(self, channel)
             if channel.lower() in self.crucialChannels:
-                self.insertTab(1, self.channels[channel], channel)  # CAVEAT: This is assumes a server tab exists.
-                self.client.localBroadcast.connect(self.channels[channel].printRaw)
-                self.channels[channel].printAnnouncement("Welcome to Forged Alliance Forever!", "red", "+3")
-                self.channels[channel].printAnnouncement("Check out the wiki: http://wiki.faforever.com for help with common issues.", "white", "+1")
-                self.channels[channel].printAnnouncement("", "black", "+1")
-                self.channels[channel].printAnnouncement("", "black", "+1")
+                self.insertTab(1, newch, channel)  # CAVEAT: This is assumes a server tab exists.
+                self.client.localBroadcast.connect(newch.printRaw)
+                newch.printAnnouncement("Welcome to Forged Alliance Forever!", "red", "+3")
+                newch.printAnnouncement("Check out the wiki: http://wiki.faforever.com for help with common issues.", "white", "+1")
+                newch.printAnnouncement("", "black", "+1")
+                newch.printAnnouncement("", "black", "+1")
 
-            else:
-                self.addTab(self.channels[channel], channel)
+            self.addChannel(channel, newch)
 
             if channel.lower() in self.crucialChannels:  # Make the crucial channels not closeable, and make the last one the active one
                 self.setCurrentWidget(self.channels[channel])
@@ -295,7 +297,6 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             # TODO: search better solution, that html in nick & channel no rendered
             self.client.notificationSystem.on_event(ns.Notifications.USER_ONLINE,
                                                     {'user': id, 'channel': channel})
-        self.channels[channel].resizing()
 
     def on_part(self, c, e):
         channel = e.target()

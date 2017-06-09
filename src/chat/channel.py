@@ -100,11 +100,6 @@ class Channel(FormClass, BaseClass):
         self.chatEdit.returnPressed.connect(self.sendLine)
         self.chatEdit.setChatters(self.chatters)
 
-        self.lobby.client.doneresize.connect(self.resizing)
-
-        self.resizeTimer = QtCore.QTimer(self)
-        self.resizeTimer.timeout.connect(self.canresize)
-
     def joinChannel(self, index):
         """ join another channel """
         channel = self.channelsComboBox.itemText(index)
@@ -118,13 +113,12 @@ class Channel(FormClass, BaseClass):
         if keyevent.key() == 67:
             self.chatArea.copy()
 
-    def canresize(self):
-        if self.isVisible():
-            self.chatArea.setLineWrapColumnOrWidth(self.chatArea.size().width() - 20)  # Hardcoded, but seems to be enough (tabstop was a bit large)
-            self.resizeTimer.stop()
+    def resizeEvent(self, size):
+        BaseClass.resizeEvent(self, size)
+        self.setTextWidth()
 
-    def resizing(self):
-        self.resizeTimer.start(10)
+    def setTextWidth(self):
+        self.chatArea.setLineWrapColumnOrWidth(self.chatArea.size().width() - 20)  # Hardcoded, but seems to be enough (tabstop was a bit large)
 
     def showEvent(self, event):
         self.stopBlink()
