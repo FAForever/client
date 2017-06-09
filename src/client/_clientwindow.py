@@ -30,7 +30,7 @@ Created on Dec 1, 2011
 @author: thygrrr
 '''
 
-from PyQt5 import QtCore, QtWidgets, QtNetwork, QtWebKit
+from PyQt5 import QtCore, QtWidgets, QtWebKit
 
 from client import ClientState, LOBBY_HOST, \
     LOBBY_PORT, LOCAL_REPLAY_PORT
@@ -144,9 +144,6 @@ class ClientWindow(FormClass, BaseClass):
         self.uniqueId = None
 
         self.sendFile = False
-        self.progress = QtWidgets.QProgressDialog()
-        self.progress.setMinimum(0)
-        self.progress.setMaximum(0)
         self.warning_buttons = {}
 
         # Tray icon
@@ -639,53 +636,56 @@ class ClientWindow(FormClass, BaseClass):
         """
         self.state = ClientState.SHUTDOWN
 
-        self.progress.setWindowTitle("FAF is shutting down")
-        self.progress.setMinimum(0)
-        self.progress.setMaximum(0)
-        self.progress.setValue(0)
-        self.progress.setCancelButton(None)
-        self.progress.show()
+        progress = QtWidgets.QProgressDialog()
+        progress.setMinimum(0)
+        progress.setMaximum(0)
+        progress.setWindowTitle("FAF is shutting down")
+        progress.setMinimum(0)
+        progress.setMaximum(0)
+        progress.setValue(0)
+        progress.setCancelButton(None)
+        progress.show()
 
         # Important: If a game is running, offer to terminate it gently
-        self.progress.setLabelText("Closing ForgedAllianceForever.exe")
+        progress.setLabelText("Closing ForgedAllianceForever.exe")
         if fa.instance.running():
             fa.instance.close()
 
         # Terminate Lobby Server connection
         self.lobby_reconnecter.enabled = False
         if self.lobby_connection.socket_connected():
-            self.progress.setLabelText("Closing main connection.")
+            progress.setLabelText("Closing main connection.")
             self.lobby_connection.disconnect()
 
         # Clear UPnP Mappings...
         if self.useUPnP:
-            self.progress.setLabelText("Removing UPnP port mappings")
+            progress.setLabelText("Removing UPnP port mappings")
             fa.upnp.removePortMappings()
 
         # Terminate local ReplayServer
         if self.replayServer:
-            self.progress.setLabelText("Terminating local replay server")
+            progress.setLabelText("Terminating local replay server")
             self.replayServer.close()
             self.replayServer = None
 
         # Clean up Chat
         if self.chat:
-            self.progress.setLabelText("Disconnecting from IRC")
+            progress.setLabelText("Disconnecting from IRC")
             self.chat.disconnect()
             self.chat = None
 
         # Get rid of the Tray icon
         if self.tray:
-            self.progress.setLabelText("Removing System Tray icon")
+            progress.setLabelText("Removing System Tray icon")
             self.tray.deleteLater()
             self.tray = None
 
         # Terminate UI
         if self.isVisible():
-            self.progress.setLabelText("Closing main window")
+            progress.setLabelText("Closing main window")
             self.close()
 
-        self.progress.close()
+        progress.close()
 
     def closeEvent(self, event):
         logger.info("Close Event for Application Main Window")
@@ -1113,7 +1113,6 @@ class ClientWindow(FormClass, BaseClass):
         Settings.remove('window/geometry')
 
         logger.warn("Server says we need an update")
-        self.progress.close()
         self._client_updater.notify_outdated(True)
 
     def handle_welcome(self, message):
