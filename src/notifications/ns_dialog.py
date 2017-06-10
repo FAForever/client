@@ -44,7 +44,7 @@ class NotificationDialog(FormClass, BaseClass):
         self.labelImage.setPixmap(pixmap)
 
         self.labelTime.setText(time.strftime("%H:%M:%S", time.gmtime()))
-        QtCore.QTimer.singleShot(lifetime * 1000, self, QtCore.SLOT('hide()'))
+        QtCore.QTimer.singleShot(lifetime * 1000, self.hide)
         if sound:
             util.sound("chat/sfx/query.wav")
 
