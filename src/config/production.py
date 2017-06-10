@@ -16,6 +16,7 @@ defaults = {
     'client/logs/level': logging.INFO,
     'client/logs/max_size': 512*1024,
     'client/logs/buffer_size': 8*1024,
+    'client/logs/console': False,
     'content/host': 'http://content.{host}',
     'chat/enabled': True,
     'game/bin/path': join(APPDATA_DIR, 'bin'),

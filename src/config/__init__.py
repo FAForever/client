@@ -178,7 +178,7 @@ buffering_handler = MemoryHandler(int(Settings.get('client/logs/buffer_size')), 
 logging.getLogger().addHandler(buffering_handler)
 logging.getLogger().setLevel(Settings.get('client/logs/level', type=int))
 
-if environment == 'development':
+if Settings.get('client/logs/console', False, type=bool):
     # Setup logging output to console
     devh = logging.StreamHandler()
     devh.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))
