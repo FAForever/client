@@ -1,13 +1,12 @@
 import sys
 import os
-import subprocess
 import getpass
 import codecs
-from ctypes import *
 
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtCore import QUrl
+from PyQt5.QtMultimedia import QSound
 import subprocess
 
 from semantic_version import Version
@@ -564,11 +563,11 @@ def sound(filename, themed=True):
     '''
     if themed:
         if __themedir and os.path.isfile(os.path.join(__themedir, filename)):
-            QtWidgets.QSound.play(os.path.join(__themedir, filename))
+            QSound.play(os.path.join(__themedir, filename))
         else:
-            QtWidgets.QSound.play(os.path.join(COMMON_DIR, filename))
+            QSound.play(os.path.join(COMMON_DIR, filename))
     else:
-        QtWidgets.QSound.play(filename)
+        QSound.play(filename)
 
 
 def wait(until):
