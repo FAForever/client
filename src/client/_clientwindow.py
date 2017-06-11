@@ -973,6 +973,7 @@ class ClientWindow(FormClass, BaseClass):
         """
         Slot hooked up to fa.instance when the process has failed to start.
         """
+        logger.error("FA has died with error: " + fa.instance.errorString())
         if error_code == 0:
             logger.error("FA has failed to start")
             QtGui.QMessageBox.critical(self, "Error from FA", "FA has failed to start.")
