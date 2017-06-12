@@ -4,6 +4,7 @@
 * Single-Line Mod-Vault toolbar (#730)
 * Pin UID version in appveyor
 * Log errors from faf-uid executable (#741, #742)
+* Add menu option: Show paths for maps, mods & replays (#735)
 
 Contributors:
   - Grothe
