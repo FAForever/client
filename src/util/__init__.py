@@ -668,8 +668,6 @@ def md5(file_name):
 
 def uniqueID(user, session):
     ''' This is used to uniquely identify a user's machine to prevent smurfing. '''
-    env = os.environ
-    env['PATH'] += os.pathsep + os.path.join(os.getcwd(), "lib") # the default download location for travis/Appveyor
     # the UID check needs the WMI service running on Windows
     if sys.platform == 'win32':
         try:
@@ -679,8 +677,13 @@ def uniqueID(user, session):
                                      "Please run 'service.msc', open the 'Windows Management Instrumentation' service, set the startup type to automatic and restart FAF.")
         except Exception as e:
             QMessageBox.critical(None, "WMI service missing", "FAF requires the 'Windows Management Instrumentation' service for smurf protection. This service could not be found.")
+
+    if sys.platform == 'win32':
+        exe_path = os.path.join(os.getcwd(), "lib", "faf-uid.exe")
+    else:   # Expect it to be in PATH already
+        exe_path = "faf-uid"
     try:
-        uid_p = subprocess.Popen(["faf-uid", session], env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        uid_p = subprocess.Popen([exe_path, session], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = uid_p.communicate()
         if uid_p.returncode != 0:
             logger.error("UniqueID executable error:")
