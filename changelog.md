@@ -16,6 +16,7 @@ Contributors:
 * Add menu option: Show paths for maps, mods & replays (#735)
 * Slightly clean up client resize logic (#747, #748)
 * Don't autoreconnect when sent invalid command to server (#743, #744)
+* Don't modify env in order to launch faf-uid.exe (#736, #750)
 
 Contributors:
   - Grothe
