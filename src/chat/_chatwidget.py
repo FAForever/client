@@ -128,10 +128,12 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
                     self.channels[channel].chatters[player].avatarItem.setIcon(QtGui.QIcon(util.respix(reply.url().toString())))
                     self.channels[channel].chatters[player].avatarItem.setToolTip(self.channels[channel].chatters[player].avatarTip)
 
-    def addChannel(self, name, channel):
+    def addChannel(self, name, channel, index = None):
         self.channels[name] = channel
-        self.addTab(self.channels[name], name)
-        channel.setTextWidth()
+        if index is None:
+            self.addTab(self.channels[name], name)
+        else:
+            self.insertTab(index, self.channels[name], name)
 
     def closeChannel(self, index):
         """
@@ -277,14 +279,14 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         if channel not in self.channels:
             newch = Channel(self, channel)
             if channel.lower() in self.crucialChannels:
-                self.insertTab(1, newch, channel)  # CAVEAT: This is assumes a server tab exists.
+                self.addChannel(channel, newch, 1)  # CAVEAT: This is assumes a server tab exists.
                 self.client.localBroadcast.connect(newch.printRaw)
                 newch.printAnnouncement("Welcome to Forged Alliance Forever!", "red", "+3")
                 newch.printAnnouncement("Check out the wiki: http://wiki.faforever.com for help with common issues.", "white", "+1")
                 newch.printAnnouncement("", "black", "+1")
                 newch.printAnnouncement("", "black", "+1")
-
-            self.addChannel(channel, newch)
+            else:
+                self.addChannel(channel, newch)
 
             if channel.lower() in self.crucialChannels:  # Make the crucial channels not closeable, and make the last one the active one
                 self.setCurrentWidget(self.channels[channel])

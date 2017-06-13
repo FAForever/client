@@ -122,6 +122,7 @@ class Channel(FormClass, BaseClass):
 
     def showEvent(self, event):
         self.stopBlink()
+        self.setTextWidth()
         return BaseClass.showEvent(self, event)
 
     @QtCore.pyqtSlot()
