@@ -1044,7 +1044,7 @@ class ClientWindow(FormClass, BaseClass):
             self.modMenu.addSeparator()
 
             actionLobbyKick = QtGui.QAction("Close player's FAF Client...", self.modMenu)
-            actionLobbyKick.triggered.connect(lambda: util.userNameAction(self, 'Player to kick from Lobby (do not typo!)', lambda name: self.closeLobby(name)))
+            actionLobbyKick.triggered.connect(lambda: util.userNameAction(self, 'Player to kick from Client (do not typo!)', lambda name: self.closeLobby(name)))
             self.modMenu.addAction(actionLobbyKick)
 
             actionCloseFA = QtGui.QAction("Close Player's Game...", self.modMenu)
@@ -1064,12 +1064,16 @@ class ClientWindow(FormClass, BaseClass):
     def closeFA(self, username):
         """ Close FA remotely """
         logger.info('closeFA for {}'.format(username))
-        self.lobby_connection.send(dict(command="admin", action="closeFA", user_id=self.players.getID(username)))
+        user_id = self.players.getID(username)
+        if user_id != -1:
+            self.lobby_connection.send(dict(command="admin", action="closeFA", user_id=user_id))
 
     def closeLobby(self, username):
         """ Close lobby remotely """
         logger.info('closeLobby for {}'.format(username))
-        self.lobby_connection.send(dict(command="admin", action="closelobby", user_id=self.players.getID(username)))
+        user_id = self.players.getID(username)
+        if user_id != -1:
+            self.lobby_connection.send(dict(command="admin", action="closelobby", user_id=user_id))
 
     def addFriend(self, friend_id):
         if friend_id in self.players:
