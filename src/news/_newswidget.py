@@ -1,4 +1,4 @@
-from PyQt5 import QtCore, QtWidgets, QtWebKit, QtWebKitWidgets
+from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import Qt
 
 import webbrowser
@@ -7,6 +7,8 @@ import client
 import re
 from .newsitem import NewsItem, NewsItemDelegate
 from .newsmanager import NewsManager
+
+from util.qt import ExternalLinkPage
 
 import base64
 
@@ -54,12 +56,8 @@ class NewsWidget(FormClass, BaseClass):
 
         self.newsManager = NewsManager(self)
 
-        self.newsWebView.settings().setUserStyleSheetUrl(QtCore.QUrl(
-                'data:text/css;charset=utf-8;base64,' + base64.b64encode(self.CSS.encode('utf-8')).decode('ascii')
-            ))
         # open all links in external browser
-        self.newsWebView.page().setLinkDelegationPolicy(QtWebKitWidgets.QWebPage.DelegateAllLinks)
-        self.newsWebView.page().linkClicked.connect(self.linkClicked)
+        self.newsWebView.setPage(ExternalLinkPage(self))
 
         # hide webview until loaded to avoid FOUC
         self.hider = Hider()
@@ -73,10 +71,14 @@ class NewsWidget(FormClass, BaseClass):
     def addNews(self, newsPost):
         newsItem = NewsItem(newsPost, self.newsList)
 
+    # QtWebEngine has no user CSS support yet, so let's just prepend it to the HTML
+    def _injectCSS(self, body):
+        return '<style type="text/css">{}</style>'.format(self.CSS) + body
+
     def itemChanged(self, current, previous):
-        self.newsWebView.setHtml(self.HTML.format(
+        self.newsWebView.page().setHtml(self.HTML.format(
             title = current.newsPost['title'],
-            content = current.newsPost['body'],
+            content = self._injectCSS(current.newsPost['body']),
         ))
 
     def linkClicked(self, url):
