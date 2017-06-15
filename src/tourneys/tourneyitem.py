@@ -1,4 +1,4 @@
-from PyQt5 import QtCore, QtWidgets, QtWebKit, QtWebKitWidgets
+from PyQt5 import QtCore, QtWidgets, QtWebEngineWidgets
 import util
 
 
@@ -37,9 +37,9 @@ class TourneyItemDelegate(QtWidgets.QStyledItemDelegate):
         html.setHtml(option.text)
         return QtCore.QSize(int(html.size().width()), int(html.size().height()))
 
-class QWebPageChrome(QtWebKitWidgets.QWebPage):
+class QWebPageChrome(QtWebEngineWidgets.QWebEnginePage):
     def __init__(self, *args, **kwargs):
-        QtWebKit.QWebPage.__init__(self, *args, **kwargs)
+        QtWebEngine.QWebEnginePage.__init__(self, *args, **kwargs)
         
     def userAgentForUrl(self, url):
         return "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.121 Safari/535.2"
@@ -83,7 +83,7 @@ class TourneyItem(QtWidgets.QListWidgetItem):
         self.players        = message.get('participants', [])
 
         if old_state != self.state and self.state == "started" :
-            widget = QtWebKit.QWebView()
+            widget = QtWebEngineWidgets.QWebEngineView()
             webPage = QWebPageChrome()
             widget.setPage(webPage)
             widget.setUrl(QtCore.QUrl(self.url))
