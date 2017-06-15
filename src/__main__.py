@@ -46,6 +46,9 @@ from PyQt5.QtCore import Qt
 path = os.path.join(os.path.dirname(sys.argv[0]), "PyQt5.uic.widget-plugins")
 uic.widgetPluginPath.append(path)
 
+# According to PyQt5 docs we need to import this before we create QApplication
+from PyQt5 import QtWebEngineWidgets
+
 import util
 
 # Set up crash reporting
