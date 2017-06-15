@@ -1,8 +1,9 @@
-from PyQt5 import QtCore, QtWidgets, QtWebKit, QtWebKitWidgets
+from PyQt5 import QtCore, QtWidgets, QtWebEngineWidgets
 import util
 from stats import mapstat
 from config import Settings
 import client
+from util.qt import injectWebviewCSS
 import time
 
 import logging
@@ -31,13 +32,14 @@ class StatsWidget(BaseClass, FormClass):
 
         self.client = client
 
-        self.webview = QtWebKitWidgets.QWebView()
+        self.webview = QtWebEngineWidgets.QWebEngineView()
         
         self.LadderRatings.layout().addWidget(self.webview)
         
         self.loaded = False
         self.client.showLadder.connect(self.updating)
         self.webview.loadFinished.connect(self.webview.show)
+        self.webview.loadFinished.connect(self._injectCSS)
         self.leagues.currentChanged.connect(self.leagueUpdate)
         self.pagesDivisions = {}
         self.pagesDivisionsResults = {}
@@ -180,6 +182,10 @@ class StatsWidget(BaseClass, FormClass):
         elif typeStat == "ladder_map_stat":
             self.laddermapstat.emit(message)
 
+    def _injectCSS(self):
+        if util.themeurl("ladder/style.css"):
+            injectWebviewCSS(self.webview.page(), util.readstylesheet("ladder/style.css"))
+
     @QtCore.pyqtSlot()
     def updating(self):
         # Don't display things when we're not logged in
@@ -199,9 +205,5 @@ class StatsWidget(BaseClass, FormClass):
         self.loaded = True
         
         self.webview.setVisible(False)
-
-        # If a local theme CSS exists, skin the WebView with it
-        if util.themeurl("ladder/style.css"):
-            self.webview.settings().setUserStyleSheetUrl(util.themeurl("ladder/style.css"))
 
         self.webview.setUrl(QtCore.QUrl("{}/faf/leaderboards/read-leader.php?board=1v1&username={}".format(Settings.get('content/host'), me.login)))
