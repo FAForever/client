@@ -28,7 +28,7 @@ Created on Dec 1, 2011
 @author: thygrrr
 '''
 
-from PyQt5 import QtCore, QtWidgets, QtGui, QtWebKit
+from PyQt5 import QtCore, QtWidgets, QtGui
 
 from client import ClientState, LOBBY_HOST, \
     LOBBY_PORT, LOCAL_REPLAY_PORT
@@ -290,8 +290,6 @@ class ClientWindow(FormClass, BaseClass):
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.unitdbTab), util.icon("client/twitch.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.replaysTab), util.icon("client/replays.png"))
         self.mainTabs.setTabIcon(self.mainTabs.indexOf(self.tutorialsTab), util.icon("client/tutorials.png"))
-
-        QtWebKit.QWebSettings.globalSettings().setAttribute(QtWebKit.QWebSettings.PluginsEnabled, True)
 
         # for moderator
         self.modMenu = None
