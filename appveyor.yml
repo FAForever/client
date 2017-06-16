@@ -28,6 +28,8 @@ install:
   - "xcopy %PYTHON%\\lib\\site-packages\\PyQt5\\Qt\\plugins\\platforms .\\platforms /I"
   - "xcopy %PYTHON%\\lib\\site-packages\\PyQt5\\Qt\\bin\\libeay32.dll ."
   - "xcopy %PYTHON%\\lib\\site-packages\\PyQt5\\Qt\\bin\\ssleay32.dll ."
+  - "xcopy %PYTHON%\\lib\\site-packages\\pywin32_system32\\pywintypes36.dll ."
+  - "xcopy %PYTHON%\\lib\\site-packages\\pywin32_system32\\pythoncom36.dll ."
   - ps: "$env:faf_version = \"$(&C:\\Python36\\python .\\src\\config\\version.py)\".Replace(' ','')"
   - ps: "$env:APPVEYOR_BUILD_VERSION = \"$($env:faf_version)$($env:APPVEYOR_BUILD_NUMBER)\""
   - ps: "Write-Host \"$($env:faf_version) + $($env:APPVEYOR_BUILD_NUMBER) = $($env:APPVEYOR_BUILD_VERSION)\""
