@@ -7,3 +7,4 @@ pytest-mock
 pytest-qt
 trueskill
 semantic_version
+idna
