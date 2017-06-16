@@ -1,6 +1,7 @@
-from PyQt5 import QtCore, QtWidgets, QtWebKitWidgets
+from PyQt5 import QtCore, QtWidgets, QtWebChannel, QtWebEngineWidgets
 from stat import *
 import util
+from util.qt import injectWebviewCSS
 import urllib.request, urllib.parse, urllib.error
 import logging
 import os
@@ -13,9 +14,9 @@ from config import Settings
 logger = logging.getLogger(__name__)
 
 
-class FAFPage(QtWebKitWidgets.QWebPage):
-    def __init__(self):
-        super(QtWebKitWidgets.QWebPage, self).__init__()
+class FAFPage(QtWebEngineWidgets.QWebEnginePage):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def userAgentForUrl(self, url):
         return "FAForever"
@@ -25,15 +26,16 @@ class MapVault(QtCore.QObject):
     def __init__(self, client, *args, **kwargs):
         QtCore.QObject.__init__(self, *args, **kwargs)
         self.client = client
-
         logger.debug("Map Vault tab instantiating")
 
-        self.ui = QtWebKitWidgets.QWebView()
+        self._webChannel = QtWebChannel.QWebChannel(self)
+        self._webChannel.registerObject("webVault", self)
+        self._page = FAFPage(self)
+        self._page.setWebChannel(self._webChannel)
 
-        self.ui.setPage(FAFPage())
+        self.ui = QtWebEngineWidgets.QWebEngineView()
 
-        self.ui.page().mainFrame().javaScriptWindowObjectCleared. \
-            connect(self.addScript)
+        self.ui.setPage(self._page)
 
         self.client.mapsTab.layout().addWidget(self.ui)
 
@@ -52,24 +54,19 @@ class MapVault(QtCore.QObject):
 
 #       If a local theme CSS exists, skin the WebView with it
         if util.themeurl("vault/style.css"):
-            self.ui.settings().setUserStyleSheetUrl(
-                util.themeurl("vault/style.css"))
+            injectWebviewCSS(self.ui.page(),
+                             util.readstylesheet("vault/style.css"))
 
         ROOT = Settings.get('content/host')
 
         url = QtCore.QUrl(ROOT)
-        url.setPath("/faf/vault/maps.php")
+        url.setPath("/faf/vault/maps_qt5.php")
         query = QtCore.QUrlQuery(url.query())
         query.addQueryItem('username', self.client.login)
         query.addQueryItem('pwdhash', self.client.password)
         url.setQuery(query)
 
         self.ui.setUrl(url)
-
-    @QtCore.pyqtSlot()
-    def addScript(self):
-        frame = self.ui.page().mainFrame()
-        frame.addToJavaScriptWindowObject("webVault", self)
 
     def __preparePositions(self, positions, map_size):
         img_size = [256, 256]
