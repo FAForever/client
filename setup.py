@@ -62,6 +62,7 @@ build_exe_options = {
     'optimize': 2,
     'packages': ['PyQt4', 'PyQt4.uic',
                  'PyQt4.QtGui', 'PyQt4.QtNetwork', 'win32com', 'win32com.client'],
+    # cx_freeze >5.0.0 fails to add idna, we'll remove it once they fix it
     'silent': True,
     'excludes': ['numpy', 'scipy', 'matplotlib', 'tcl', 'Tkinter'],
 
