@@ -30,6 +30,17 @@ install:
   - "xcopy %PYTHON%\\lib\\site-packages\\PyQt5\\Qt\\bin\\ssleay32.dll ."
   - "xcopy %PYTHON%\\lib\\site-packages\\pywin32_system32\\pywintypes36.dll ."
   - "xcopy %PYTHON%\\lib\\site-packages\\pywin32_system32\\pythoncom36.dll ."
+  # for QtwebEngine until we get rid of it
+  - "xcopy %PYTHON%\\lib\\site-packages\\PyQt5\\Qt\\bin\\QtWebEngineProcess.exe . /I"
+  - "xcopy %PYTHON%\\lib\\site-packages\\PyQt5\\Qt\\bin\\Qt5WebEngine.dll . /I"
+  - "xcopy %PYTHON%\\lib\\site-packages\\PyQt5\\Qt\\bin\\Qt5WebEngineCore.dll . /I"
+  - "xcopy %PYTHON%\\lib\\site-packages\\PyQt5\\Qt\\bin\\Qt5WebEngineWidgets.dll . /I"
+  - "xcopy %PYTHON%\\lib\\site-packages\\PyQt5\\Qt\\bin\\Qt5WebChannel.dll . /I"
+  - "xcopy %PYTHON%\\lib\\site-packages\\PyQt5\\Qt\\bin\\libEGL.dll . /I"
+  - "xcopy %PYTHON%\\lib\\site-packages\\PyQt5\\Qt\\bin\\libGLESv2.dll . /I"
+  - "xcopy %PYTHON%\\lib\\site-packages\\PyQt5\\Qt\\resources\\icudtl.dat . /I"
+  - "xcopy %PYTHON%\\lib\\site-packages\\PyQt5\\Qt\\resources\\qtwebengine_resources.pak . /I" # Needed for JS to work
+
   - ps: "$env:faf_version = \"$(&C:\\Python36\\python .\\src\\config\\version.py)\".Replace(' ','')"
   - ps: "$env:APPVEYOR_BUILD_VERSION = \"$($env:faf_version)$($env:APPVEYOR_BUILD_NUMBER)\""
   - ps: "Write-Host \"$($env:faf_version) + $($env:APPVEYOR_BUILD_NUMBER) = $($env:APPVEYOR_BUILD_VERSION)\""
