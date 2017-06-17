@@ -57,7 +57,8 @@ build_exe_options = {
                       'ssleay32.dll',
                       ('lib/faf-uid.exe', 'faf-uid.exe'),
                       ('lib/qt.conf', 'qt.conf'),
-                      ('lib/xdelta3.exe', 'xdelta3.exe')],
+                      ('lib/xdelta3.exe', 'xdelta3.exe'),
+                      ('QtWebEngineProcess.exe', 'QtWebEngineProcess.exe')],
     'include_msvcr': True,
     'optimize': 2,
     # cx_freeze >5.0.0 fails to add idna, we'll remove it once they fix it
