@@ -7,6 +7,5 @@ pytest
 pytest-cov
 pytest-mock
 pytest-qt
-requests
 trueskill
 semantic_version
