@@ -91,7 +91,7 @@ def replay(source, detach=False):
                 # whip the URL into shape so ForgedAllianceForever.exe understands it
                 arg_url = QtCore.QUrl(url)
                 arg_url.setScheme("gpgnet")
-                arg_url.setEncodedQuery(QtCore.QByteArray())
+                arg_url.setQuery(QtCore.QUrlQuery(""))
                 arg_string = arg_url.toString()
             else:
                 QtWidgets.QMessageBox.critical(None, "FA Forever Replay",

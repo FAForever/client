@@ -351,10 +351,10 @@ class ReplayItem(QtWidgets.QTreeWidgetItem):
         actionDownload = QtWidgets.QAction("Download replay", menu)
         actionDownload.triggered.connect(self.downloadReplay)
         menu.addAction(actionDownload)
-        menu.popup(QtWidgets.QCursor.pos())
+        menu.popup(QtGui.QCursor.pos())
 
     def downloadReplay(self):
-        QtWidgets.QDesktopServices.openUrl(QtCore.QUrl(self.url))
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(self.url))
 
     def display(self, column):
         if column == 0:

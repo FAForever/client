@@ -224,7 +224,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
         self.setForeground(QtGui.QColor(chat.get_color("default")))
 
     def viewAliases(self):
-        QtWidgets.QDesktopServices.openUrl(QUrl("{}?name={}".format(Settings.get("USER_ALIASES_URL"), self.name)))
+        QtGui.QDesktopServices.openUrl(QUrl("{}?name={}".format(Settings.get("USER_ALIASES_URL"), self.name)))
 
     def selectAvatar(self):
         avatarSelection = avatarWidget(self.lobby.client, self.name, personal=True)
@@ -307,9 +307,9 @@ class Chatter(QtWidgets.QTableWidgetItem):
                     route = Settings.get('mordor/host')
 
                     if self.id != -1:
-                        QtWidgets.QDesktopServices.openUrl(QUrl("{}/users/{}".format(route, self.id)))
+                        QtGui.QDesktopServices.openUrl(QUrl("{}/users/{}".format(route, self.id)))
                     else:
-                        QtWidgets.QDesktopServices.openUrl(QUrl("{}/users/{}".format(route, self.name)))
+                        QtGui.QDesktopServices.openUrl(QUrl("{}/users/{}".format(route, self.name)))
 
                 action_inspect_in_mordor.triggered.connect(send_the_orcs)
 
@@ -376,14 +376,12 @@ class Chatter(QtWidgets.QTableWidgetItem):
         menu.addAction(actionRemFoe)
 
         # Finally: Show the popup
-        menu.popup(QtWidgets.QCursor.pos())
+        menu.popup(QtGui.QCursor.pos())
 
-    @QtCore.pyqtSlot()
     def viewReplay(self):
         if self.name in client.instance.urls:
             replay(client.instance.urls[self.name])
 
-    @QtCore.pyqtSlot()
     def viewVaultReplay(self):
         """ see the player replays in the vault """
         self.lobby.client.replays.setCurrentIndex(2)  # focus on Online Fault
@@ -394,7 +392,6 @@ class Chatter(QtWidgets.QTableWidgetItem):
         self.lobby.client.replays.searchVault()
         self.lobby.client.mainTabs.setCurrentIndex(self.lobby.client.mainTabs.indexOf(self.lobby.client.replaysTab))
 
-    @QtCore.pyqtSlot()
     def joinInGame(self):
         if self.name in client.instance.urls:
             client.instance.joinGameFromURL(client.instance.urls[self.name])

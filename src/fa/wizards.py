@@ -37,7 +37,6 @@ class UpgradePage(QtWidgets.QWizardPage):
 
         self.setCommitPage(True)
 
-    @QtCore.pyqtSlot()
     def comboChanged(self):
         self.completeChanged.emit()
 
@@ -95,8 +94,7 @@ class UpgradePageSC(QtWidgets.QWizardPage):
 
         self.setCommitPage(True)
 
-    @QtCore.pyqtSlot(int)
-    def comboChanged(self, index):
+    def comboChanged(self):
         self.completeChanged.emit()
 
     @QtCore.pyqtSlot()

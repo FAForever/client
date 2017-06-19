@@ -1,6 +1,4 @@
-
-
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest
 
 import base64, zlib, os

@@ -181,7 +181,7 @@ class Channel(FormClass, BaseClass):
         elif url.scheme() == "fafgame":
             self.lobby.client.joinGameFromURL(url)
         else:
-            QtWidgets.QDesktopServices.openUrl(url)
+            QtGui.QDesktopServices.openUrl(url)
 
     @QtCore.pyqtSlot(str, str)
     def printAnnouncement(self, text, color, size, scroll_forced = True):
@@ -205,8 +205,8 @@ class Channel(FormClass, BaseClass):
     def printLine(self, name, text, scroll_forced=False, formatter=Formatters.FORMATTER_MESSAGE):
         if self.lines > CHAT_TEXT_LIMIT:
             cursor = self.chatArea.textCursor()
-            cursor.movePosition(QtWidgets.QTextCursor.Start)
-            cursor.movePosition(QtWidgets.QTextCursor.Down, QtWidgets.QTextCursor.KeepAnchor, CHAT_REMOVEBLOCK)
+            cursor.movePosition(QtGui.QTextCursor.Start)
+            cursor.movePosition(QtGui.QTextCursor.Down, QtGui.QTextCursor.KeepAnchor, CHAT_REMOVEBLOCK)
             cursor.removeSelectedText()
             self.lines = self.lines - CHAT_REMOVEBLOCK
 
@@ -306,7 +306,7 @@ class Channel(FormClass, BaseClass):
         scroll_needed = scroll_forced or ((self.chatArea.verticalScrollBar().maximum() - scroll_current) < 20)
 
         cursor = self.chatArea.textCursor()
-        cursor.movePosition(QtWidgets.QTextCursor.End)
+        cursor.movePosition(QtGui.QTextCursor.End)
         self.chatArea.setTextCursor(cursor)
 
         formatter = Formatters.FORMATTER_RAW

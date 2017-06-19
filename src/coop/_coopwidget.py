@@ -1,4 +1,4 @@
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtGui, QtWidgets
 import fa
 from fa.replay import replay
 from fa.wizards import WizardSC
@@ -117,7 +117,7 @@ class CoopWidget(FormClass, BaseClass):
         formatter = self.FORMATTER_LADDER
         formatter_header = self.FORMATTER_LADDER_HEADER
         cursor = w.textCursor()
-        cursor.movePosition(QtWidgets.QTextCursor.End)
+        cursor.movePosition(QtGui.QTextCursor.End)
         w.setTextCursor(cursor) 
         color = "lime"
         line = formatter_header.format(rank="rank", names="names", time="time", color=color)

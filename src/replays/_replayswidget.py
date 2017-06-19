@@ -480,7 +480,7 @@ class ReplaysWidget(BaseClass, FormClass):
                     url = QtCore.QUrl()
                     url.setScheme("faflive")
                     url.setHost("lobby.faforever.com")
-                    url.setPath(str(info["uid"]) + "/" + name + ".SCFAreplay")
+                    url.setPath("/" + str(info["uid"]) + "/" + name + ".SCFAreplay")
                     query = QtCore.QUrlQuery()
                     query.addQueryItem("map", info["mapname"])
                     query.addQueryItem("mod", info["featured_mod"])
@@ -489,7 +489,7 @@ class ReplaysWidget(BaseClass, FormClass):
                     playeritem.url = url
                     if client.instance.login == name:
                         mygame = True
-                        item.setTextColor(1, QtGui.QColor(client.instance.getColor("self")))
+                        item.setForeground(1, QtGui.QColor(client.instance.getColor("self")))
                         playeritem.setForeground(0, QtGui.QColor(client.instance.getColor("self")))
                         playeritem.setToolTip(0, url.toString())
                         playeritem.setIcon(0, util.icon("replays/replay.png"))                        
@@ -540,7 +540,7 @@ class ReplaysWidget(BaseClass, FormClass):
         menu.addAction(actionLink)
     
         # Finally: Show the popup
-        menu.popup(QtWidgets.QCursor.pos())
+        menu.popup(QtGui.QCursor.pos())
 
     @QtCore.pyqtSlot(QtWidgets.QTreeWidgetItem)
     def myTreePressed(self, item):
@@ -572,7 +572,7 @@ class ReplaysWidget(BaseClass, FormClass):
         menu.addAction(actionExplorer)
 
         # Finally: Show the popup
-        menu.popup(QtWidgets.QCursor.pos())
+        menu.popup(QtGui.QCursor.pos())
 
 
     @QtCore.pyqtSlot(QtWidgets.QTreeWidgetItem, int)
