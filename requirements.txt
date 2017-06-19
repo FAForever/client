@@ -7,7 +7,6 @@ pytest
 pytest-cov
 pytest-mock
 pytest-qt
-python-dateutil==2.2
 requests
 trueskill
 semantic_version
