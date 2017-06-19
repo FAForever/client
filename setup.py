@@ -59,7 +59,7 @@ build_exe_options = {
     'icon': 'res/faf.ico',
     'include_msvcr': True,
     'optimize': 2,
-    'packages': ['cffi', 'PyQt4', 'PyQt4.uic',
+    'packages': ['PyQt4', 'PyQt4.uic',
                  'PyQt4.QtGui', 'PyQt4.QtNetwork', 'win32com', 'win32com.client'],
     'silent': True,
     'excludes': ['numpy', 'scipy', 'matplotlib', 'tcl', 'Tkinter']
@@ -111,7 +111,7 @@ if sys.platform == 'win32':
                           includes=[os.path.join(os.path.dirname(PyQt4.uic.__file__), "widget-plugins"),
                                   "PyQt4.uic.widget-plugins"]
                       )],
-        'requires': ['sip', 'PyQt4', 'cx_Freeze', 'cffi'],
+        'requires': ['sip', 'PyQt4', 'cx_Freeze'],
         'options': {'build_exe': build_exe_options,
                  'bdist_msi': bdist_msi_options},
         'version': msi_version,
