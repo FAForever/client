@@ -72,7 +72,6 @@ if (-not(Test-Path $pip_path)) {
 function InstallPackage ($pkg) {
     & $pip_path install $pkg
 }
-InstallPackage http://content.faforever.com/wheel/lupa-1.1-cp27-none-win32.whl
 InstallPackage wheel
 InstallPackage pytest
 InstallPackage cx_Freeze
