@@ -59,7 +59,7 @@ build_exe_options = {
     'icon': 'res/faf.ico',
     'include_msvcr': True,
     'optimize': 2,
-    'packages': ['cffi', 'pycparser', 'PyQt4', 'PyQt4.uic',
+    'packages': ['cffi', 'PyQt4', 'PyQt4.uic',
                  'PyQt4.QtGui', 'PyQt4.QtNetwork', 'win32com', 'win32com.client'],
     'silent': True,
     'excludes': ['numpy', 'scipy', 'matplotlib', 'tcl', 'Tkinter']

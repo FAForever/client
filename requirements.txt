@@ -3,7 +3,6 @@ enum34
 ipaddress
 pathlib
 py
-pycparser==2.10
 pytest
 pytest-cov
 pytest-mock
