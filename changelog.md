@@ -1,3 +1,11 @@
+0.x.x
+=====
+
+* Remove dependency on faftools (#756, #757)
+
+Contributors:
+ - Wesmania
+
 0.12.6
 =====
 
