@@ -36,9 +36,8 @@ class GithubUpdateChecker(QObject):
             tag = js.get('tag_name')
             self._logger.info('Found release on github: {}'.format(js.get('name')))
             if tag is not None:
-                curr_ver = config.VERSION.split('-')[0]
-                if Version(tag) > Version(curr_ver):
-                    self._logger.info('Should update {} -> {}'.format(curr_ver, tag))
+                if Version(tag) > Version(config.VERSION):
+                    self._logger.info('Should update {} -> {}'.format(config.VERSION, tag))
                     self.update_found.emit(js)
         except:
             self._logger.exception("Error parsing network reply")
