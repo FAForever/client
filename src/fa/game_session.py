@@ -94,6 +94,16 @@ class GameSession(QObject):
         else:
             self.connectivity.prepare()
 
+    def _needs_game_connection(fn):
+        def wrap(self, *args, **kwargs):
+            if self._game_connection is None:
+                self._logger.warn("{}.{}: tried to run without a game connection".format(
+                    self.__class__.__name__, fn.__name__))
+            else:
+                return fn(self, *args, **kwargs)
+        return wrap
+
+    @_needs_game_connection
     def handle_message(self, message):
         command, args = message.get('command'), message.get('args', [])
         if command == 'SendNatPacket':
@@ -123,6 +133,7 @@ class GameSession(QObject):
             'args': args or []
         })
 
+    @_needs_game_connection
     def _peer_bound(self, login, peer_id, port):
         self._logger.info("Bound peer {}/{} to {}".format(login, peer_id, port))
         if peer_id in self._connects:
@@ -139,6 +150,7 @@ class GameSession(QObject):
         self._game_connection.messageReceived.connect(self._on_game_message)
         self.state = GameSessionState.RUNNING
 
+    @_needs_game_connection
     def _on_game_message(self, command, args):
         self._logger.info("Incoming GPGNet: {} {}".format(command, args))
         if command == "GameState":
