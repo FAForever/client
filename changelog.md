@@ -1,12 +1,28 @@
 0.x.x
 =====
 
+0.14.0
+====
+
+
+0.13.1
+====
+
 * Remove dependency on faftools (#756, #757)
 * Remove many unused client dependencies (#566, 759)
 * Clean up usage of directory paths (#571)
 
 Contributors:
- - Wesmania
+  - Wesmania
+
+0.13.0
+=====
+
+* Update uid to 4.0.4
+* (Admin Menu) Check for valid user before kicking
+
+Contributors:
+  - Duke
 
 0.12.6
 =====
