@@ -12,6 +12,7 @@
 * Remove many unused client dependencies (#566, 759)
 * Clean up usage of directory paths (#571)
 * Rework versioning code (#615, #753, #765)
+* Check if game connection is null before using it (#764, #765)
 
 Contributors:
   - Wesmania
