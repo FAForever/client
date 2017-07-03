@@ -1,9 +1,16 @@
 0.x.x
 =====
 
-0.14.0
+0.15.0
 ====
 
+0.13.2
+====
+
+* Actually merge the versioning code
+
+Contributers:
+  - Wesmania
 
 0.13.1
 ====
