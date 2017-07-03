@@ -4,6 +4,37 @@
 0.15.0
 ====
 
+* Port the client to python3 and qt5 (#412, #474, #479, #509)
+
+  Qt4 has not been supported for the last 2.5 years, so it was high time for
+  us to move to Qt5. As PyQt5 only works with python3, this also prompted a
+  move from python2 to python3.
+
+  This port involved running the code through automated tools first, then
+  fixing whatever errors were left. Because of that, even though we tested the
+  client thoroughly, some leftovers might have slipped through and remain to be
+  caught and fixed.
+
+  Apart from the conversion work, the port makes some additional changes,
+  mostly needed for the port to work correctly:
+
+  * Add a setting to log to console (default true for development environment)
+  * Remove the SSL disable workaround for the test server
+  * Use QtWebEngine instead of QtWebkit
+  * Switch from miniconda back to python
+  * Move to cx\_freeze 5
+  * Move travis build to Trusty
+
+  Of these the switch to QtWebEngine is the most significant, as it adds around
+  20 megabytes to the installer. We hope to eventually eliminate the need to
+  use a web browser in the client in the future, as well as get rid of some
+  unneeded Qt libraries to further slim down the client.
+
+Contributors:
+  - Wesmania
+  - muellni
+  - Grothe
+
 0.13.2
 ====
 
