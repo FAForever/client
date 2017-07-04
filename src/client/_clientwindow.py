@@ -93,8 +93,6 @@ class ClientWindow(FormClass, BaseClass):
     Its UI also houses all the other UIs for the sub-modules.
     """
 
-    topWidget = QtWidgets.QWidget()
-
     state_changed = QtCore.pyqtSignal(object)
     authorized = QtCore.pyqtSignal(object)
 
