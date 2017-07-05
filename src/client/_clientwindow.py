@@ -1037,11 +1037,11 @@ class ClientWindow(FormClass, BaseClass):
 
             self.modMenu.addSeparator()
 
-            actionLobbyKick = QtGui.QAction("Close player's FAF Client...", self.modMenu)
+            actionLobbyKick = QtWidgets.QAction("Close player's FAF Client...", self.modMenu)
             actionLobbyKick.triggered.connect(lambda: util.userNameAction(self, 'Player to kick from Client (do not typo!)', lambda name: self.closeLobby(name)))
             self.modMenu.addAction(actionLobbyKick)
 
-            actionCloseFA = QtGui.QAction("Close Player's Game...", self.modMenu)
+            actionCloseFA = QtWidgets.QAction("Close Player's Game...", self.modMenu)
             actionCloseFA.triggered.connect(lambda: util.userNameAction(self, 'Player to close FA (do not typo!)', lambda name: self.closeFA(name)))
             self.modMenu.addAction(actionCloseFA)
 
