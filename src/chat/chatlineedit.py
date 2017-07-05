@@ -80,7 +80,7 @@ class ChatLineEdit(QtWidgets.QLineEdit):
                     self.LocalChatterNameList.append(name)
             
             if len(self.LocalChatterNameList) > 0:
-                self.LocalChatterNameList.sort(lambda a, b: cmp(a.lower(), b.lower()))
+                self.LocalChatterNameList.sort(key=lambda chatter: chatter.lower())
                 self.currenLocalChatter = 0
                 self.setText(self.completionLine + self.LocalChatterNameList[self.currenLocalChatter])
             else:
