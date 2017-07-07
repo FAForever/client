@@ -32,5 +32,7 @@ class Relay(QObject):
     def _ready_read(self):
         while self._socket.hasPendingDatagrams():
             data, host, port = self._socket.readDatagram(self._socket.pendingDatagramSize())
+            if data is None:    # Rare race condition when disconnecting
+                continue
             self._logger.debug("{}>>{}/{}".format(self._socket.localPort(), self.login, self.peer_id))
             self.recv(data)

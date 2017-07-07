@@ -12,6 +12,7 @@
 * Split replay widget to separate classes (#698, #699)
 * Cleanup and unify map & mod download behaviour (#718, #719)
 * Decouple update connection from updater (#701, #702)
+* Check for null datagrams in TURN relay \_ready\_read (#769, #770)
 
 Contributors:
  - Wesmania
