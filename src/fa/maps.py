@@ -18,8 +18,7 @@ import re
 import fa
 # local imports
 from config import Settings
-from downloadManager import FileDownload
-from vault.dialogs import VaultDownloadDialog, downloadVaultAsset
+from vault.dialogs import downloadVaultAssetNoMsg
 
 logger = logging.getLogger(__name__)
 
@@ -453,24 +452,25 @@ def preview(mapname, pixmap=False):
         logger.error("Error raised in maps.preview(...) for " + mapname)
         logger.error("Map Preview Exception", exc_info=sys.exc_info())
 
+
 def downloadMap(name, silent=False):
     '''
     Download a map from the vault with the given name
     '''
     link = name2link(name)
-    url = VAULT_DOWNLOAD_ROOT + link
+    ret, msg = _doDownloadMap(name, link, silent)
+    if not ret:
+        name = name.replace(" ", "_")
+        link = name2link(name)
+        ret, msg = _doDownloadMap(name, link, silent)
+        if not ret:
+            msg()
+            return ret
 
-    # Silently override existing folders
-    result = downloadVaultAsset(url, getUserMapsFolder(), lambda: True, name, "map", silent)
-
-    if not result:
-        return False
-
-    logger.debug("Successfully downloaded and extracted map from: " + url)
-    #Count the map downloads
+    # Count the map downloads
     try:
         url = VAULT_COUNTER_ROOT + "?map=" + urllib.parse.quote(link)
-        req = urllib.request.Request(url, headers={'User-Agent' : "FAF Client"})
+        req = urllib.request.Request(url, headers={'User-Agent': "FAF Client"})
         urllib.request.urlopen(req)
         logger.debug("Successfully sent download counter request for: " + url)
     except:
@@ -478,6 +478,14 @@ def downloadMap(name, silent=False):
         logger.error("Download Count Exception", exc_info=sys.exc_info())
 
     return True
+
+
+def _doDownloadMap(name, link, silent):
+    url = VAULT_DOWNLOAD_ROOT + link
+    logger.debug("Getting map from: " + url)
+    return downloadVaultAssetNoMsg(url, getUserMapsFolder(), lambda m, d: True,
+                                   name, "map", silent)
+
 
 def processMapFolderForUpload(mapDir, positions):
     """

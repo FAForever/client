@@ -188,7 +188,13 @@ class MapVault(QtCore.QObject, BusyWidget):
     def downloadMap(self, link):
         link = urllib.parse.unquote(link)
         name = maps.link2name(link)
-        if not maps.isMapAvailable(name):
+        alt_name = name.replace(" ", "_")
+        avail_name = None
+        if maps.isMapAvailable(name):
+            avail_name = name
+        elif maps.isMapAvailable(alt_name):
+            avail_name = alt_name
+        if avail_name is None:
             maps.downloadMap(name)
             maps.existMaps(True)
         else:
@@ -199,4 +205,4 @@ class MapVault(QtCore.QObject, BusyWidget):
                 QtWidgets.QMessageBox.Yes,
                 QtWidgets.QMessageBox.No)
             if show == QtWidgets.QMessageBox.Yes:
-                util.showDirInFileBrowser(maps.folderForMap(name))
+                util.showDirInFileBrowser(maps.folderForMap(avail_name))

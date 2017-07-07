@@ -73,12 +73,15 @@ class VaultDownloadDialog(object):
 # FIXME - one day we'll do it properly
 _global_nam = QtNetwork.QNetworkAccessManager()
 
-def downloadVaultAsset(url, target_dir, exist_handler, name, category, silent):
+
+def downloadVaultAssetNoMsg(url, target_dir, exist_handler, name, category,
+                            silent):
     """
     Download and unpack a zip from the vault, interacting with the user and
     logging things.
     """
     global _global_nam
+    msg = None
     output = io.BytesIO()
     capitCat = category[0].upper() + category[1:]
 
@@ -90,19 +93,19 @@ def downloadVaultAsset(url, target_dir, exist_handler, name, category, silent):
         logger.warn("{} Download canceled for: {}".format(capitCat, url))
     if result in [VaultDownloadDialog.DL_ERROR, VaultDownloadDialog.UNKNOWN_ERROR]:
         logger.warn("Vault download failed, {} probably not in vault (or broken).".format(category))
-        QtWidgets.QMessageBox.information(
+        msg = lambda: QtWidgets.QMessageBox.information(
             None,
             "{} not downloadable".format(capitCat),
             ("<b>This {} was not found in the vault (or is broken).</b>"
             "<br/>You need to get it from somewhere else in order to use it.")
-                .format(category))
+            .format(category))
     if result != VaultDownloadDialog.SUCCESS:
-        return False
+        return False, msg
 
     try:
         zfile = zipfile.ZipFile(output)
         # FIXME - nothing in python 2.7 that can do that
-        dirname = zfile.namelist()[0].split(os.path.sep,1)[0]
+        dirname = zfile.namelist()[0].split(os.path.sep, 1)[0]
 
         if os.path.exists(os.path.join(target_dir, dirname)):
             proceed = exist_handler(target_dir, dirname)
@@ -110,12 +113,23 @@ def downloadVaultAsset(url, target_dir, exist_handler, name, category, silent):
                 return False
         zfile.extractall(target_dir)
         logger.debug("Successfully downloaded and extracted {} from: {}".format(category, url))
-        return True
+        return True, msg
 
     except:
         logger.error("Extract error")
-        QtWidgets.QMessageBox.information(None,
+        msg = lambda: QtWidgets.QMessageBox.information(
+            None,
             "{} installation failed".format(capitCat),
             "<b>This {} could not be installed (please report this {} or bug).</b>"
                 .format(category, category))
-        return False
+        return False, msg
+
+
+def downloadVaultAsset(url, target_dir, exist_handler, name, category, silent):
+    ret, dialog = downloadVaultAssetNoMsg(url, target_dir, exist_handler,
+                                          name, category, silent)
+    if dialog is not None:
+        dialog()
+
+    return ret
+
