@@ -9,7 +9,7 @@ from fa.replay import replay
 import util
 import client
 from config import Settings
-from client.players import PlayerColors
+from client.players import PlayerColors, PlayerAffiliation
 
 """
 A chatter is the representation of a person on IRC, in a channel's nick list.
@@ -211,26 +211,26 @@ class Chatter(QtWidgets.QTableWidgetItem):
             self.rankItem.setIcon(util.THEME.icon("chat/rank/newplayer.png"))
 
     def set_color(self):
-        if self.lobby.client.id == self.id and self.isMod():
-            self.setForeground(QtGui.QColor(chat.get_color("self_mod")))
-            return
-        if self.lobby.client.me.isFriend(self.id) and self.isMod():
-            self.setForeground(QtGui.QColor(chat.get_color("friend_mod")))
-            return
+        # FIXME - we should really get players and me in the constructor
+        affiliation = self.lobby.client.me.getAffiliation(self.id, self.name)
         if self.isMod():
-            self.setForeground(QtGui.QColor(chat.colors.OPERATOR_COLORS[self.elevation]))
+            if affiliation == PlayerAffiliation.SELF:
+                self.setForeground(QtGui.QColor(chat.get_color("self_mod")))
+            elif affiliation in [PlayerAffiliation.FRIEND, PlayerAffiliation.CLANNIE]:
+                self.setForeground(QtGui.QColor(chat.get_color("friend_mod")))
+            else:
+                self.setForeground(QtGui.QColor(chat.colors.OPERATOR_COLORS[self.elevation]))
             return
 
         if self.id != -1:
-            self.setForeground(QtGui.QColor(self.lobby.client.players.getUserColor(self.id)))
-            return
+            seed = self.name
+        else:
+            seed = self.id
 
-        # FIXME - we should really get players and me in the constructor
-        affiliation = self.lobby.client.me.getAffiliation(name = self.name)
         self.setForeground(QtGui.QColor(PlayerColors.getUserColor(
-            affiliation, irc=True,
+            affiliation, irc=self.id == -1,
             random=self.lobby.client.players.coloredNicknames, seed=self.name
-            )))
+        )))
 
     def viewAliases(self):
         QtGui.QDesktopServices.openUrl(QUrl("{}?name={}".format(Settings.get("USER_ALIASES_URL"), self.name)))
