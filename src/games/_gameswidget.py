@@ -17,10 +17,46 @@ import notifications as ns
 from config import Settings
 
 import logging
+import client
 
 logger = logging.getLogger(__name__)
 
 FormClass, BaseClass = util.THEME.loadUiType("games/games.ui")
+
+
+class GameSorter:
+    def __init__(self):
+        self.sortby = 0
+
+    def lt(self, item1, item2):
+        """ Comparison operator used for item list sorting """
+        if not client.instance:
+            return True  # If not initialized...
+        me = client.instance.me
+
+        # Friend games are on top
+        if me.isFriend(item1.hostid) and not me.isFriend(item2.hostid):
+            return True
+        if not me.isFriend(item1.hostid) and me.isFriend(item2.hostid):
+            return False
+
+        # Sort Games
+        # 0: By Player Count
+        # 1: By avg. Player Rating
+        # 2: By Map
+        # 3: By Host
+        # 4+: By age = uid
+        if self.sortby == 0:
+            return len(item1.players) > len(item2.players)
+        elif self.sortby == 1:
+            return item1.average_rating > item2.average_rating
+        elif self.sortby == 2:
+            return item1.mapdisplayname.lower() < item2.mapdisplayname.lower()
+        elif self.sortby == 3:
+            return item1.game.host.lower() < item2.game.host.lower()
+        else:
+            # Default: by UID.
+            return item1.game.uid < item2.game.uid
 
 
 class GamesWidget(FormClass, BaseClass):
@@ -38,6 +74,7 @@ class GamesWidget(FormClass, BaseClass):
         self.setupUi(self)
 
         self.client = client
+        self.sorter = GameSorter()
         self.gameset = gameset
         self.mods = {}
         self.games = {}
@@ -193,7 +230,7 @@ class GamesWidget(FormClass, BaseClass):
         if game.featured_mod in mod_invisible:
             return
 
-        game_item = GameItem(game)
+        game_item = GameItem(game, self.sorter)
 
         self.games[game] = game_item
         game.gameClosed.connect(self._removeGame)
@@ -332,5 +369,5 @@ class GamesWidget(FormClass, BaseClass):
 
     def sortGamesComboChanged(self, index):
         self.sort_games_index = index
-        self.gameList.sortBy = index
+        self.sorter.sortBy = index
         self.gameList.sortItems()

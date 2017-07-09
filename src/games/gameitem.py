@@ -74,9 +74,10 @@ class GameItemWidget(QtWidgets.QListWidgetItem):
     FORMATTER_MOD  = str(util.THEME.readfile("games/formatters/mod.qthtml"))
     FORMATTER_TOOL = str(util.THEME.readfile("games/formatters/tool.qthtml"))
     
-    def __init__(self, *args, **kwargs):
+    def __init__(self, item, *args, **kwargs):
         QtWidgets.QListWidgetItem.__init__(self, *args, **kwargs)
 
+        self._item = item
         self.title = ""
         self.host = ""
         self.mapName = ""
@@ -90,6 +91,11 @@ class GameItemWidget(QtWidgets.QListWidgetItem):
         self.tipObservers = ""
         self.tipMods = ""
         self.privateIcon = False
+
+    def __lt__(self, other):
+        return self._item < other._item
+    def __ge__(self, other):
+        return self._item >= other._item
 
     @property
     def gameQuality(self):
@@ -198,9 +204,23 @@ class GameItemWidget(QtWidgets.QListWidgetItem):
                 icon = util.THEME.icon("games/unknown_map.png")
         self.setIcon(icon)
 
+
+class NullSorter:
+    def __init__(self):
+        pass
+
+    def lt(self, item1, item2):
+        return item1.game.uid < item2.game.uid
+
+
 class GameItem():
-    def __init__(self, game, *args, **kwargs):
-        self.widget = GameItemWidget()
+    def __init__(self, game, sorter = None):
+        self.widget = GameItemWidget(self)
+
+        if sorter is not None:
+            self.sorter = sorter
+        else:
+            self.sorter = NullSorter()
 
         self.game = game
         self.game.gameUpdated.connect(self._gameUpdate)
@@ -440,34 +460,7 @@ class GameItem():
         return not self.__lt__(other)
 
     def __lt__(self, other):
-        """ Comparison operator used for item list sorting """
-        if not client.instance: return True  # If not initialized...
-
-        # Friend games are on top
-        if client.instance.me.isFriend(self.hostid) and not client.instance.me.isFriend(other.hostid): return True
-        if not client.instance.me.isFriend(self.hostid) and client.instance.me.isFriend(other.hostid): return False
-
-        # Sort Games
-        # 0: By Player Count
-        # 1: By avg. Player Rating
-        # 2: By Map
-        # 3: By Host
-        # 4+: By age = uid
-        try:
-            sortby = self.listWidget().sortBy
-        except AttributeError:
-            sortby = 99
-        if sortby == 0:
-            return len(self.players) > len(other.players)
-        elif sortby == 1:
-            return self.average_rating > other.average_rating
-        elif sortby == 2:
-            return self.mapdisplayname.lower() < other.mapdisplayname.lower()
-        elif sortby == 3:
-            return self.game.host.lower() < other.game.host.lower()
-        else:
-            # Default: by UID.
-            return self.game.uid < other.game.uid
+        return self.sorter.lt(self, other)
 
     @property
     def average_rating(self):
