@@ -202,6 +202,11 @@ class GamesWidget(FormClass, BaseClass):
         else:
             self.games[uid].update(message)
 
+            # Notification if I am in the game and it is full
+            if self.client.login in message['teams'] \
+                    and message.get('num_players', 0) >= message.get('max_players', 12):
+                self.client.notificationSystem.on_event(ns.NotificationSystem.GAME_FULL,{})
+
         # Hide private games
         if self.hideGamesWithPw.isChecked() and message['state'] == 'open' and message['password_protected']:
             self.games[uid].setHidden(True)
