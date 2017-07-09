@@ -4,6 +4,8 @@
 0.15.1
 ====
 
+* Slightly decrease dependency of tabs on client class (#644)
+
 0.15.0
 ====
 
