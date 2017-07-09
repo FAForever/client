@@ -9,7 +9,7 @@ from games.moditem import mod_invisible, mods
 import traceback
 
 import client
-
+import time
 import logging
 logger = logging.getLogger(__name__)
 
@@ -88,6 +88,7 @@ class GameItem(QtWidgets.QListWidgetItem):
         self.mods           = None
         self.moddisplayname = None
         self.state          = None
+        self.launched_at = None
         self.gamequality    = 0
         self.nTeams         = 0
         self.options        = []
@@ -107,6 +108,7 @@ class GameItem(QtWidgets.QListWidgetItem):
             query = QtCore.QUrlQuery()
             query.addQueryItem("map", self.mapname)
             query.addQueryItem("mod", self.mod)
+            query.addQueryItem("uid", str(self.uid))
             url.setQuery(query)
             return url
         elif self.state == "open":
@@ -124,6 +126,9 @@ class GameItem(QtWidgets.QListWidgetItem):
         
     @QtCore.pyqtSlot()
     def announceReplay(self):
+
+        client.instance.usersUpdated.emit(list(self.players))  # change red cross to white cross in user status
+
         if not client.instance.players.isFriend(self.hostid):
             return
 
@@ -289,7 +294,11 @@ class GameItem(QtWidgets.QListWidgetItem):
         # Spawn announcers: IF we had a gamestate change, show replay and hosting announcements
         if oldstate != self.state:
             if self.state == "playing":  # The delay is there because we have a 5 minutes delay in the livereplay server
-                QtCore.QTimer.singleShot(5*60000, self.announceReplay)
+                self.launched_at = message['launched_at']
+                if time.time() - self.launched_at > 5*60:  # most already running games at client start
+                    self.announceReplay()
+                else:
+                    QtCore.QTimer.singleShot(5*60100 - 1000*(time.time() - self.launched_at), self.announceReplay)
             elif self.state == "open":  # The 3.5s delay is there because the host needs time to choose a map
                 QtCore.QTimer.singleShot(35000, self.announceHosting)
 

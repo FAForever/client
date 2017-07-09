@@ -2,7 +2,7 @@ from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtCore import QUrl
 from PyQt5.QtNetwork import QNetworkRequest
 from chat._avatarWidget import avatarWidget
-
+import time
 import urllib.request, urllib.error, urllib.parse
 import chat
 from fa.replay import replay
@@ -183,12 +183,27 @@ class Chatter(QtWidgets.QTableWidgetItem):
         # Status icon handling
         url = client.instance.urls.get(player.login)
         if url:
-            if url.scheme() == "fafgame":
-                self.statusItem.setIcon(util.icon("chat/status/lobby.png"))
-                self.statusItem.setToolTip("In Game Lobby<br/>"+url.toString())
-            elif url.scheme() == "faflive":
-                self.statusItem.setIcon(util.icon("chat/status/playing.png"))
-                self.statusItem.setToolTip("Playing Game<br/>"+url.toString())
+            if int(QtCore.QUrlQuery(url).queryItemValue("uid")) in client.instance.games.games:
+                game = client.instance.games.games[int(QtCore.QUrlQuery(url).queryItemValue("uid"))]
+                game_str = "  " + game.mod + "  on  '" + game.mapdisplayname + "'  (" + str(game.uid) + ") "
+                if url.scheme() == "fafgame":
+                    game_str = " Game Lobby:  '" + game.title + "'" + game_str
+                    if game.host == self.name:
+                        self.statusItem.setIcon(util.icon("chat/status/host.png"))
+                        self.statusItem.setToolTip("Hosting" + game_str)
+                    else:
+                        self.statusItem.setIcon(util.icon("chat/status/lobby.png"))
+                        self.statusItem.setToolTip("In" + game_str)
+                elif url.scheme() == "faflive":
+                    if time.time() - game.launched_at > 5 * 60:
+                        self.statusItem.setIcon(util.icon("chat/status/playing.png"))
+                        self.statusItem.setToolTip("Playing" + game_str)
+                    else:
+                        self.statusItem.setIcon(util.icon("chat/status/playing_delay.png"))
+                        self.statusItem.setToolTip("Playing" + game_str + " -  LIVE DELAY (5 Min)")
+            else:  # that shouldn't happen - but it does in rare cases
+                self.statusItem.setIcon(util.icon("chat/status/status_unclear.png"))
+                self.statusItem.setToolTip("(has url - but no matching running game found)<br/>" + url.toString())
         else:
             self.statusItem.setIcon(QtGui.QIcon())
             self.statusItem.setToolTip("Idle")
