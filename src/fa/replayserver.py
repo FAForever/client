@@ -38,7 +38,7 @@ class ReplayRecorder(QtCore.QObject):
               
         #Create a file to write the replay data into
         self.replayData = QtCore.QByteArray()
-        self.replayInfo = fa.instance.info
+        self.replayInfo = fa.instance._info
                  
         # Open the relay socket to our server
         self.relaySocket = QtNetwork.QTcpSocket(self.parent)
@@ -123,13 +123,13 @@ class ReplayRecorder(QtCore.QObject):
 
     def writeReplayFile(self):
         # Update info block if possible.
-        if fa.instance.info and fa.instance.info['uid'] == self.replayInfo['uid']:
-            if fa.instance.info.setdefault('complete', False):
+        if fa.instance._info and fa.instance._info['uid'] == self.replayInfo['uid']:
+            if fa.instance._info.setdefault('complete', False):
                 self.__logger.info("Found Complete Replay Info")
             else:
                 self.__logger.warn("Replay Info not Complete")
             
-            self.replayInfo = fa.instance.info
+            self.replayInfo = fa.instance._info
                  
         self.replayInfo['game_end'] = time.time()
         

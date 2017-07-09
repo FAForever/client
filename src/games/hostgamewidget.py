@@ -39,7 +39,7 @@ class HostgameWidget(FormClass, BaseClass):
         self.setWindowTitle ( "Hosting Game : " + item.name )
         self.titleEdit.setText(self.title)
         self.passEdit.setText(self.password)
-        self.game = GameItemWidget()
+        self.game = GameItemWidget(self)
         self.gamePreview.setItemDelegate(GameItemDelegate(self))
         self.gamePreview.addItem(self.game)
 

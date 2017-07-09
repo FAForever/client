@@ -57,7 +57,7 @@ class GameProcess(QtCore.QProcess):
         if self.game.state != GameState.PLAYING:
             return
 
-        self._info = dict(self._info.items() + self.game.to_dict().items())
+        self._info.update(self.game.to_dict())
         self._info['complete'] = True
         self.game = None
         logger.info("Game Info Complete: " + str(self._info))

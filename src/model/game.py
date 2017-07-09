@@ -151,7 +151,7 @@ class Game(QObject):
     def to_dict(self):
         return {
                 "uid": self.uid,
-                "state": self.state,
+                "state": self.state.name,
                 "launched_at": self.launched_at,
                 "num_players": self.num_players,
                 "max_players": self.max_players,
@@ -164,6 +164,6 @@ class Game(QObject):
                 "featured_mod_versions": self.featured_mod_versions,
                 "sim_mods": self.sim_mods,
                 "password_protected": self.password_protected,
-                "visibility": self.visibility,
+                "visibility": self.visibility.name,
                 "command": "game_info" # For compatibility
             }
