@@ -6,6 +6,7 @@
 
 * Slightly decrease dependency of tabs on client class (#644)
 * Clean up theme-specific util code (#663, #664)
+* Cleanup receiving game info (#708, #709)
 
 Contributors:
  - Wesmania
