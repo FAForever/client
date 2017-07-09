@@ -26,7 +26,7 @@ FormClass, BaseClass = util.THEME.loadUiType("games/games.ui")
 
 class GameSorter:
     def __init__(self):
-        self.sortby = 0
+        self.sortBy = 0
 
     def lt(self, item1, item2):
         """ Comparison operator used for item list sorting """
@@ -46,13 +46,13 @@ class GameSorter:
         # 2: By Map
         # 3: By Host
         # 4+: By age = uid
-        if self.sortby == 0:
+        if self.sortBy == 0:
             return len(item1.players) > len(item2.players)
-        elif self.sortby == 1:
+        elif self.sortBy == 1:
             return item1.average_rating > item2.average_rating
-        elif self.sortby == 2:
+        elif self.sortBy == 2:
             return item1.mapdisplayname.lower() < item2.mapdisplayname.lower()
-        elif self.sortby == 3:
+        elif self.sortBy == 3:
             return item1.game.host.lower() < item2.game.host.lower()
         else:
             # Default: by UID.
