@@ -25,9 +25,10 @@ class Chatter(QtWidgets.QTableWidgetItem):
 
     RANK_ELEVATION = 0
     RANK_FRIEND = 1
-    RANK_USER = 2
-    RANK_NONPLAYER = 3
-    RANK_FOE = 4
+    RANK_CLAN = 2
+    RANK_USER = 3
+    RANK_NONPLAYER = 4
+    RANK_FOE = 5
 
     def __init__(self, parent, user, lobby, *args, **kwargs):
         QtWidgets.QTableWidgetItem.__init__(self, *args, **kwargs)
@@ -91,11 +92,11 @@ class Chatter(QtWidgets.QTableWidgetItem):
 
     def __lt__(self, other):
         """ Comparison operator used for item list sorting """
-        firstStatus = self.getUserRank(self)
-        secondStatus = self.getUserRank(other)
-
         if self.name == self.lobby.client.login: return True
         if other.name == self.lobby.client.login: return False
+
+        firstStatus = self.getUserRank(self)
+        secondStatus = self.getUserRank(other)
 
         # if not same rank sort
         if firstStatus != secondStatus:
@@ -113,6 +114,8 @@ class Chatter(QtWidgets.QTableWidgetItem):
             return self.RANK_FRIEND - (2 if self.lobby.client.friendsontop else 0)
         if self.lobby.client.players.isFoe(other_chatter.id):
             return self.RANK_FOE
+        if self.lobby.client.me.clan and self.lobby.client.me.clan == other_chatter.clan:
+            return self.RANK_CLAN
         if self.lobby.client.players.isPlayer(other_chatter.id):
             return self.RANK_USER
 
