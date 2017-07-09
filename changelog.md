@@ -4,6 +4,10 @@
 0.14.0
 ====
 
+0.13.3
+======
+
+* Fix error on readDatagram returning None (#769, #770)
 
 0.13.1
 ====
