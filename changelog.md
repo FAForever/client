@@ -11,6 +11,7 @@
 * Replace game quality in the play tab (NOT in the lobby) by average rating (#687, #688)
 * Split replay widget to separate classes (#698, #699)
 * Cleanup and unify map & mod download behaviour (#718, #719)
+* Decouple update connection from updater (#701, #702)
 
 Contributors:
  - Wesmania
