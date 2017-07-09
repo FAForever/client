@@ -6,6 +6,8 @@ from chat._avatarWidget import avatarWidget
 import urllib.request, urllib.error, urllib.parse
 import chat
 from fa.replay import replay
+from fa import maps
+
 import util
 import client
 from config import Settings
@@ -183,15 +185,25 @@ class Chatter(QtWidgets.QTableWidgetItem):
         # Status icon handling
         url = client.instance.urls.get(player.login)
         if url:
+            icon_url = None
             if url.scheme() == "fafgame":
-                self.statusItem.setIcon(util.icon("chat/status/lobby.png"))
+                icon_url = "chat/status/lobby.png"
                 self.statusItem.setToolTip("In Game Lobby<br/>"+url.toString())
             elif url.scheme() == "faflive":
-                self.statusItem.setIcon(util.icon("chat/status/playing.png"))
+                icon_url = "chat/status/playing.png"
                 self.statusItem.setToolTip("Playing Game<br/>"+url.toString())
-        else:
-            self.statusItem.setIcon(QtGui.QIcon())
-            self.statusItem.setToolTip("Idle")
+
+            if icon_url:
+                mapname = url.queryItemValue('map')
+                icon = maps.preview(mapname)
+                if not icon:
+                    self.lobby.client.downloader.downloadMap(mapname, self)
+                    icon = util.icon(icon_url)
+
+                self.statusItem.setIcon(icon)
+            else:
+                self.statusItem.setIcon(QtGui.QIcon())
+                self.statusItem.setToolTip("Idle")
 
         # Rating icon choice  (chr(0xB1) = +-)
         self.rankItem.setToolTip("Global Rating: " + str(int(rating)) + " (" + str(player.number_of_games) + " Games) ["
