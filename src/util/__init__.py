@@ -299,8 +299,7 @@ def showDirInFileBrowser(location):
 def showFileInFileBrowser(location):
     if sys.platform == 'win32':
         # Open the directory and highlight the picked file
-        _command = (u'explorer  /select, "%s"' % location).encode(sys.getfilesystemencoding())
-        subprocess.Popen(_command)
+        subprocess.Popen('explorer /select,"{}"'.format(location))
     else:
         # No highlighting on cross-platform, sorry!
         showDirInFileBrowser(os.path.dirname(location))
