@@ -397,11 +397,8 @@ class Chatter(QtWidgets.QTableWidgetItem):
     def viewVaultReplay(self):
         """ see the player replays in the vault """
         self.lobby.client.replays.setCurrentIndex(2)  # focus on Online Fault
-        self.lobby.client.replays.mapName.setText("")
-        self.lobby.client.replays.playerName.setText(self.name)
-        self.lobby.client.replays.modList.setCurrentIndex(0)  # "All"
-        self.lobby.client.replays.minRating.setValue(0)
-        self.lobby.client.replays.searchVault()
+        replayHandler = self.lobby.client.replays.vaultManager
+        replayHandler.searchVault(0, "", self.name, 0)
         self.lobby.client.mainTabs.setCurrentIndex(self.lobby.client.mainTabs.indexOf(self.lobby.client.replaysTab))
 
     def joinInGame(self):

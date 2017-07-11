@@ -440,16 +440,28 @@ class ReplayVaultWidgetHandler(object):
         _w.automaticCheckbox.setChecked(self.automatic)
         _w.spoilerCheckbox.setChecked(self.spoiler_free)
 
-    def searchVault(self):
+    def searchVault(self, minRating=None, mapName=None,
+                    playerName=None, modListIndex=None):
+        w = self._w
+        if minRating:
+            w.minRating.setValue(minRating)
+        if mapName:
+            w.mapName.setText(mapName)
+        if playerName:
+            w.playerName.setText(playerName)
+        if modListIndex:
+            w.modList.setCurrentIndex(modListIndex)
+
+
         """ search for some replays """
         self._w.searchInfoLabel.setText(self.searchInfo)
         self.searching = True
         self.vault_connection.connect()
         self.vault_connection.send(dict(command="search",
-                                        rating=self._w.minRating.value(),
-                                        map=self._w.mapName.text(),
-                                        player=self._w.playerName.text(),
-                                        mod=self._w.modList.currentText()))
+                                        rating=w.minRating.value(),
+                                        map=w.mapName.text(),
+                                        player=w.playerName.text(),
+                                        mod=w.modList.currentText()))
         self._w.onlineTree.clear()
 
     def reloadView(self):
