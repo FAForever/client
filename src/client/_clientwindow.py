@@ -528,7 +528,7 @@ class ClientWindow(FormClass, BaseClass):
         # build main window with the now active client
         self.news = news.NewsWidget(self)
         self.ladder = stats.Stats(self)
-        self.games = games.Games(self, self.gameset)
+        self.games = games.Games(self, self.gameset, self.me)
         self.tourneys = tourneys.Tourneys(self)
         self.vault = vault.MapVault(self)
         self.modvault = modvault.ModVault(self)

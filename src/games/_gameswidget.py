@@ -25,14 +25,15 @@ FormClass, BaseClass = util.THEME.loadUiType("games/games.ui")
 
 
 class GameSorter:
-    def __init__(self):
+    def __init__(self, me):
         self.sortBy = 0
+        self._me = me
 
     def lt(self, item1, item2):
         """ Comparison operator used for item list sorting """
         if not client.instance:
             return True  # If not initialized...
-        me = client.instance.me
+        me = self._me
 
         # Friend games are on top
         if me.isFriend(item1.hostid) and not me.isFriend(item2.hostid):
@@ -68,16 +69,19 @@ class GamesWidget(FormClass, BaseClass):
     sub_factions = Settings.persisted_property(
         "play/subFactions", default_value=[False, False, False, False])
 
-    def __init__(self, client, gameset, *args, **kwargs):
+    def __init__(self, client, gameset, me, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
 
         self.setupUi(self)
 
         self.client = client
-        self.sorter = GameSorter()
+        self.sorter = GameSorter(me)
         self.gameset = gameset
         self.mods = {}
         self.games = {}
+
+        self._me = me
+        self._me.relationsUpdated.connect(self.sortGames)
 
         # Ranked search UI
         self._ranked_icons = {
@@ -370,4 +374,7 @@ class GamesWidget(FormClass, BaseClass):
     def sortGamesComboChanged(self, index):
         self.sort_games_index = index
         self.sorter.sortBy = index
+        self.sortGames()
+
+    def sortGames(self):
         self.gameList.sortItems()
