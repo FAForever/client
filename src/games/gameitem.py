@@ -113,7 +113,7 @@ class GameItemWidget(QtWidgets.QListWidgetItem):
             self.setText(self.FORMATTER_MOD.format(
                 color = self.textColor,
                 mapslots = self.maxPlayers,
-                mapdisplayname = self.mapName,
+                mapdisplayname = maps.getDisplayName(self.mapName),
                 title = self.title,
                 host = self.host,
                 players=self.players,

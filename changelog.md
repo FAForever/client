@@ -4,6 +4,11 @@
 0.15.2
 ====
 
+* Fix map names being displayed wrong in host window for a modded game (#786, #787)
+
+Contributors:
+ - Wesmania
+
 0.15.1
 ====
 
