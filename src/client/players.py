@@ -2,9 +2,12 @@ import random
 
 from PyQt5.QtCore import QObject, pyqtSignal
 
+import client
 from client import Player
 from util import logger
 from client.user import PlayerAffiliation
+
+from model.game import GameState
 
 import json
 
@@ -60,6 +63,7 @@ class Players(QObject):
         self.user = user
         self.coloredNicknames = False
         self.gameset = gameset
+        self.gameset.newGame.connect(self._onNewGame)
 
         # UID -> Player map
         self._players = {}
@@ -119,3 +123,24 @@ class Players(QObject):
         self.playersUpdated.emit(oldplayers)
         self._players = {}
         self._logins = {}
+
+    def _onNewGame(self, game):
+        game.playersUpdated.connect(self._onPlayersUpdate)
+        self._onPlayersUpdate(game, [])
+
+    def _onPlayersUpdate(self, game, old):
+        old = [self[name] for name in old if name in self]
+        new = [self[name] for name in game.players if name in self]
+
+        for player in old:
+            if player.login in client.instance.urls:
+                del client.instance.urls[player.login]
+
+        if game.state == GameState.CLOSED:
+            game.playersUpdated.disconnect(self._onPlayersUpdate)
+        else:
+            for player in new:
+                client.instance.urls[player.login] = game.url(player.id)
+
+        playersum = list(set(old + new))
+        self.playersUpdated.emit(playersum)

@@ -212,7 +212,6 @@ class GameItem():
         self.game.gameUpdated.connect(self._gameUpdate)
 
         self.oldstate = self.game.state
-        self.oldplayers = []
         self.oldmapname = None
 
         self.mapdisplayname = None  # Will get set at first update
@@ -272,9 +271,6 @@ class GameItem():
 
         url = self.url()
 
-        # Join url for single sword
-        client.instance.urls[g.host] = url
-
         # No visible message if not requested
         if not client.instance.opengames:
             return
@@ -294,16 +290,6 @@ class GameItem():
         oldstate = self.oldstate
         self.oldstate = g.state
 
-        # Clear the status for all involved players (url may change, or players may have left, or game closed)
-        for player in self.players:
-            if player.login in client.instance.urls:
-                del client.instance.urls[player.login]
-
-        # Just jump out if we've left the game, but tell the client that all players need their states updated
-        if g.state == GameState.CLOSED:
-            client.instance.usersUpdated.emit([player.id for player in self.players])
-            return
-
         # Map preview code
         if g.mapname != self.oldmapname:
             self.oldmapname = g.mapname
@@ -311,9 +297,6 @@ class GameItem():
             refresh_icon = True
         else:
             refresh_icon = False
-
-        # Used to differentiate between newly added / removed and previously present players
-        oldplayers = set([p.id for p in self.players])
 
         # Following the convention used by the game, a team value of 1 represents "No team". Let's
         # desugar those into "real" teams now (and convert the dict to a list)
@@ -374,15 +357,6 @@ class GameItem():
                 QtCore.QTimer.singleShot(5*60000, self.announceReplay)
             elif g.state == GameState.OPEN:  # The 35s delay is there because the host needs time to choose a map
                 QtCore.QTimer.singleShot(35000, self.announceHosting)
-
-        # Update player URLs
-        for player in self.players:
-            client.instance.urls[player.login] = self.url(player.id)
-
-        # Determine which players are affected by this game's state change
-        newplayers = set([p.id for p in self.players])
-        affectedplayers = oldplayers | newplayers
-        client.instance.usersUpdated.emit(list(affectedplayers))
 
         self._updateHidden()
 

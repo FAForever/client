@@ -34,6 +34,7 @@ class Game(QObject):
     gameUpdated = pyqtSignal(object)
     gameClosed = pyqtSignal(object)
     newState = pyqtSignal(object)
+    playersUpdated = pyqtSignal(object, list)
 
     def __init__(self, *args, **kwargs):
         QObject.__init__(self)
@@ -119,6 +120,7 @@ class Game(QObject):
         self.map_file_path = map_file_path
 
         # Dict of <teamname> : [list of player names]
+        oldplayers = self.players
         self.teams = teams
 
         # Actually a game mode like faf, coop, ladder etc.
@@ -133,6 +135,7 @@ class Game(QObject):
         self.password_protected = password_protected
         self.visibility = visibility
 
+        self.playersUpdated.emit(self, oldplayers)
         self.gameUpdated.emit(self)
         if self.state != oldstate:
             self.newState.emit(self)
@@ -188,3 +191,9 @@ class Game(QObject):
 
         url.setQuery(query)
         return url
+
+    @property
+    def players(self):
+        if self.teams is None:
+            return []
+        return [player for team in self.teams.values() for player in team]
