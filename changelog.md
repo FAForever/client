@@ -5,9 +5,11 @@
 ====
 
 * Fix map names being displayed wrong in host window for a modded game (#786, #787)
+* Fix and add observer in tooltip for hosted games (#711)
 
 Contributors:
  - Wesmania
+ - Grothe
 
 0.15.1
 ====

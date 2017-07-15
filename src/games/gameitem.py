@@ -132,12 +132,9 @@ class GameItemWidget(QtWidgets.QListWidgetItem):
     def teamsToTooltip(self, teams, observers = []):
         teamlist     = []
 
-        teams_string = ""
+        for i, team in enumerate(teams, start=1):
 
-        for i, team in enumerate(teams):
-
-            teamplayer = []
-            teamplayer.append("<td><table>")
+            teamplayer = ["<td><table>"]
             for player in team:
                 if player == client.instance.me.player:
                     playerStr = "<b><i>%s</b></i>" % player.login
@@ -165,12 +162,12 @@ class GameItemWidget(QtWidgets.QListWidgetItem):
             members = "".join(teamplayer)
             teamlist.append(members)
 
-        teams_string += "<td valign='middle' height='100%'><font color='black' size='+5'>VS</font></td>".join(teamlist)
+        teams_string = "<td valign='middle' height='100%'><font color='black' size='+5'>VS</font></td>".join(teamlist)
 
         observers_string = ""
         if len(observers) != 0:
             observers_string = "Observers : "
-            observers_string += ",".join(observers)
+            observers_string += ", ".join(observers)
 
         self.tipTeams = teams_string
         self.tipObservers = observers_string
@@ -178,6 +175,8 @@ class GameItemWidget(QtWidgets.QListWidgetItem):
     def modsToTooltip(self, mods):
         if mods:
             self.tipMods = "<br />With: " + "<br />".join(list(mods.values()))
+            if self.tipObservers:
+                self.tipObservers += "<br />"
         else:
             self.tipMods = ""
 
@@ -345,26 +344,17 @@ class GameItem():
         teams = []
         observers = []
 
-        def checkappend(self, team, pid):
-            if pid in client.instance.players:
-                player = client.instance.players[pid]
-                self.players.append(player)
-                team.append(player)
-
         for team_index, team in g.teams.items():
-            if team_index == 1:
-                for ffa_player in team:
-                    ffa_team = []
-                    checkappend(self, ffa_team, ffa_player)
-                    if ffa_team:
-                        team.append(ffa_team)
-            elif team_index == -1:
-                for observer in team:
-                    checkappend(self, observers, observer)
+            if team_index in ['-1', 'null']:
+                for name in team:
+                    observers.append(name)
             else:
                 real_team = []
                 for name in team:
-                    checkappend(self, real_team, name)
+                    if name in client.instance.players:
+                        player = client.instance.players[name]
+                        self.players.append(player)
+                        real_team.append(player)
                 teams.append(real_team)
 
 
@@ -385,7 +375,7 @@ class GameItem():
 
         color = client.instance.players.getUserColor(self.hostid)
 
-        self.editTooltip(teams)
+        self.editTooltip(teams, observers)
 
         w.title = g.title
         w.host = g.host
@@ -404,7 +394,7 @@ class GameItem():
         if oldstate != g.state:
             if g.state == GameState.PLAYING:  # The delay is there because we have a 5 minutes delay in the livereplay server
                 QtCore.QTimer.singleShot(5*60000, self.announceReplay)
-            elif g.state == GameState.OPEN:  # The 3.5s delay is there because the host needs time to choose a map
+            elif g.state == GameState.OPEN:  # The 35s delay is there because the host needs time to choose a map
                 QtCore.QTimer.singleShot(35000, self.announceHosting)
 
         # Update player URLs
@@ -418,8 +408,8 @@ class GameItem():
 
         self._updateHidden()
 
-    def editTooltip(self, teams):
-        self.widget.teamsToTooltip(teams)
+    def editTooltip(self, teams, observers):
+        self.widget.teamsToTooltip(teams, observers)
         self.widget.modsToTooltip(self.game.sim_mods)
         self.widget.updateTooltip()
 
