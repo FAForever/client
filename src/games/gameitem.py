@@ -235,32 +235,10 @@ class GameItem():
         self.widget.setHidden(hide)
 
     def url(self, player_id=None):
-        g = self.game
         if not player_id:
-            player_id = g.host
+            player_id = self.game.host
 
-        if g.state == GameState.PLAYING:
-            url = QtCore.QUrl()
-            url.setScheme("faflive")
-            url.setHost("lobby.faforever.com")
-            url.setPath("/" + str(g.uid) + "/" + str(player_id) + ".SCFAreplay")
-            query = QtCore.QUrlQuery()
-            query.addQueryItem("map", g.mapname)
-            query.addQueryItem("mod", g.featured_mod)
-            url.setQuery(query)
-            return url
-        elif g.state == GameState.OPEN:
-            url = QtCore.QUrl()
-            url.setScheme("fafgame")
-            url.setHost("lobby.faforever.com")
-            url.setPath("/" + str(player_id))
-            query = QtCore.QUrlQuery()
-            query.addQueryItem("map", g.mapname)
-            query.addQueryItem("mod", g.featured_mod)
-            query.addQueryItem("uid", str(g.uid))
-            url.setQuery(query)
-            return url
-        return None
+        return self.game.url(player_id)
 
     @QtCore.pyqtSlot()
     def announceReplay(self):

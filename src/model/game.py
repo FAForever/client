@@ -1,4 +1,4 @@
-from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5.QtCore import QObject, pyqtSignal, QUrl, QUrlQuery
 
 from enum import Enum
 from decorators import with_logger
@@ -167,3 +167,24 @@ class Game(QObject):
                 "visibility": self.visibility.name,
                 "command": "game_info" # For compatibility
             }
+
+    def url(self, player_id):
+        if self.state == GameState.CLOSED:
+            return None
+
+        url = QUrl()
+        url.setHost("lobby.faforever.com")
+        query = QUrlQuery()
+        query.addQueryItem("map", self.mapname)
+        query.addQueryItem("mod", self.featured_mod)
+
+        if self.state == GameState.OPEN:
+            url.setScheme("fafgame")
+            url.setPath("/" + str(player_id))
+            query.addQueryItem("uid", str(self.uid))
+        else:
+            url.setScheme("faflive")
+            url.setPath("/" + str(self.uid) + "/" + str(player_id) + ".SCFAreplay")
+
+        url.setQuery(query)
+        return url
