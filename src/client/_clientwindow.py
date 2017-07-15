@@ -269,7 +269,8 @@ class ClientWindow(FormClass, BaseClass):
         self.me = User()
         self.me.relationsUpdated.connect(lambda x: self.usersUpdated.emit(list(x)))
 
-        self.players = Players(self.me)  # Players known to the client, contains the player_info messages sent by the server
+        self.players = Players(self.me, self.gameset)  # Players known to the client, contains the player_info messages sent by the server
+        self.players.playersUpdated.connect(lambda p: self.usersUpdated.emit(p))
         self.urls = {}
 
         self.power = 0  # current user power
@@ -803,10 +804,8 @@ class ClientWindow(FormClass, BaseClass):
 
     # Clear the online users lists
     def clear_players(self):
-        oldplayers = list(self.players.keys())
-        self.players = Players(self.me)
+        self.players.clear()
         self.urls = {}
-        self.usersUpdated.emit(oldplayers)
 
     @QtCore.pyqtSlot(str)
     def open_url(self, url):

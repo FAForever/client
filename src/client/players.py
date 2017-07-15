@@ -1,5 +1,7 @@
 import random
 
+from PyQt5.QtCore import QObject, pyqtSignal
+
 from client import Player
 from util import logger
 from client.user import PlayerAffiliation
@@ -45,15 +47,19 @@ class PlayerColors:
             return cls.getColor("player")
         return cls.getColor("default")
 
-class Players:
+class Players(QObject):
     """
     Wrapper for an id->Player map
 
     Used to lookup players either by id (cheap) or by login (expensive, don't do this).
     """
-    def __init__(self, user):
+    playersUpdated = pyqtSignal(list)
+
+    def __init__(self, user, gameset):
+        QObject.__init__(self)
         self.user = user
         self.coloredNicknames = False
+        self.gameset = gameset
 
         # UID -> Player map
         self._players = {}
@@ -107,3 +113,9 @@ class Players:
         assert isinstance(key, int)
         self._players[key] = value
         self._logins[value.login] = value
+
+    def clear(self):
+        oldplayers = self.keys()
+        self.playersUpdated.emit(oldplayers)
+        self._players = {}
+        self._logins = {}
