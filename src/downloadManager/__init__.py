@@ -5,11 +5,11 @@ import logging
 import os
 import util
 import warnings
+from decorators import with_logger
 from config import Settings
 
-logger= logging.getLogger(__name__)
 
-
+@with_logger
 class FileDownload(object):
     """
     A simple async one-shot file downloader.
@@ -111,6 +111,7 @@ class FileDownload(object):
 
 VAULT_PREVIEW_ROOT = "{}/faf/vault/map_previews/small/".format(Settings.get('content/host'))
 
+@with_logger
 class downloadManager(QtCore.QObject):
     ''' This class allows downloading stuff in the background'''
 
@@ -127,7 +128,7 @@ class downloadManager(QtCore.QObject):
     def finishedDownload(self, dler):
         urlstring = dler.addr
         name = os.path.basename(urlstring)
-        logger.info("Finished download from " + urlstring)
+        self._logger.info("Finished download from " + urlstring)
         dler.dest.close()
 
         reqlist = []
@@ -144,9 +145,9 @@ class downloadManager(QtCore.QObject):
         if not dler.succeeded():
             dler.dest.remove()
             pathimg = "games/unknown_map.png"
-            logger.debug("Web Preview failed for: " + name)
+            self._logger.debug("Web Preview failed for: " + name)
 
-        logger.debug("Web Preview used for: " + name)
+        self._logger.debug("Web Preview used for: " + name)
         for requester in reqlist:
             if requester:
                 if requester in self.mapRequestsItem:
@@ -157,15 +158,15 @@ class downloadManager(QtCore.QObject):
 
     @QtCore.pyqtSlot(QNetworkReply.NetworkError)
     def downloadError(self, networkError):
-        logger.info("Network Error")
+        self._logger.info("Network Error")
 
     @QtCore.pyqtSlot()
     def readyRead(self):
-        logger.info("readyRead")
+        self._logger.info("readyRead")
 
     @QtCore.pyqtSlot(int, int)
     def progress(self, rcv, total):
-        logger.info("received " + rcv + "out of" + total + " bytes")
+        self._logger.info("received " + rcv + "out of" + total + " bytes")
 
     def _get_cachefile(self, name):
         pathimg = os.path.join(util.CACHE_DIR, name)
@@ -184,7 +185,7 @@ class downloadManager(QtCore.QObject):
 
         url = VAULT_PREVIEW_ROOT + urllib.parse.quote(name) + ".png"
         if not url in self.mapRequests:
-            logger.info("Searching map preview for: " + name + " from " + url)
+            self._logger.info("Searching map preview for: " + name + " from " + url)
             self.mapRequests[url] = []
 
             img = self._get_cachefile(name)
@@ -198,7 +199,7 @@ class downloadManager(QtCore.QObject):
 
     def downloadModPreview(self, url, requester):
         if not url in self.modRequests:
-            logger.debug("Searching mod preview for: " + os.path.basename(url).rsplit('.',1)[0])
+            self._logger.debug("Searching mod preview for: " + os.path.basename(url).rsplit('.',1)[0])
             self.modRequests[url] = []
 
             img = self._get_cachefile(name)
