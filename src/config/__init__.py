@@ -188,6 +188,5 @@ if Settings.get('client/logs/console', False, type=bool):
     devh = logging.StreamHandler()
     devh.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))
     logging.getLogger().addHandler(devh)
-    logging.getLogger().setLevel(Settings.get('client/logs/level', type=int))
 
 logging.getLogger().info("FAF version: {} Environment: {}".format(VERSION, environment))
