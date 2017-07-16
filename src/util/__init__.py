@@ -175,16 +175,6 @@ def clearDirectory(directory, confirm=True):
 
 THEME = None
 
-# Public settings object
-# Stolen from Config because reasons
-from config import _settings
-settings = _settings
-
-def clean_slate(path):
-    if os.path.exists(path):
-        logger.info("Wiping " + path)
-        shutil.rmtree(path)
-    os.makedirs(path)
 
 def _setup_theme():
     global THEME
@@ -201,11 +191,11 @@ def _setup_theme():
 
 _setup_theme()
 
-
 # Public settings object
 # Stolen from Config because reasons
 from config import _settings
 settings = _settings
+
 
 def clean_slate(path):
     if os.path.exists(path):

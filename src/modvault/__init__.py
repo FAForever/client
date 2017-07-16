@@ -331,11 +331,12 @@ class ModItem(QtWidgets.QListWidgetItem):
         if self.thumbstr == "":
             self.setIcon(util.THEME.icon("games/unknown_map.png"))
         else:
-            img = getIcon(os.path.basename(urllib.parse.unquote(self.thumbstr)))
+            name = os.path.basename(urllib.parse.unquote(self.thumbstr))
+            img = getIcon(name)
             if img:
                 self.setIcon(util.THEME.icon(img, False))
             else:
-                self.parent.client.downloader.downloadModPreview(self.thumbstr, self)
+                self.parent.client.downloader.downloadModPreview(self.thumbstr, name, self)
         self.updateVisibility()
 
     def updateIcon(self):
@@ -399,7 +400,9 @@ class ModItem(QtWidgets.QListWidgetItem):
                 return (self.date < other.date)
             return (self.downloads < other.downloads)
         elif self.parent.sortType == "date":
+            # guard
+            if self.date is None:
+                return other.date is not None
             if self.date == other.date:
                 return (self.name.lower() < other.name.lower())
             return (self.date < other.date)
-
