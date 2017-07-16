@@ -135,12 +135,14 @@ class Chatter(QtWidgets.QTableWidgetItem):
     def user_game(self, value):
         if self._user_game is not None:
             self._user_game.gameUpdated.disconnect(self.updateGame)
+            self._user_game.liveReplayAvailable.disconnect(self.updateGame)
 
         self._user_game = value
         self.updateGame()
 
         if self._user_game is not None:
             self._user_game.gameUpdated.connect(self.updateGame)
+            self._user_game.liveReplayAvailable.connect(self.updateGame)
 
     def _checkPlayerRelation(self, players):
         if self.user_player is None:
@@ -236,7 +238,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
                 self.avatarItem.setToolTip(self.avatarTip)
             else:
                 if util.addcurDownloadAvatar(url, self):
-                    self.chat_widget.nam.get(QNetworkRequest(QtCore.QUrl(url)))
+                    self.chat_widget.nam.get(QNetworkRequest(QUrl(url)))
         else:
             # No avatar set.
             self.avatarItem.setIcon(QtGui.QIcon())
@@ -248,8 +250,6 @@ class Chatter(QtWidgets.QTableWidgetItem):
         self._verifySortOrder()
 
     def updatePlayer(self):
-        self.set_color()
-
         player = self.user_player
         # Weed out IRC users and those we don't know about early.
         if player is None:
@@ -257,10 +257,10 @@ class Chatter(QtWidgets.QTableWidgetItem):
             self.rankItem.setToolTip("IRC User")
             return
 
-        country = player.country
-        if country is not None:
-            self.setIcon(util.THEME.icon("chat/countries/%s.png" % country.lower()))
-            self.setToolTip(country)
+        # server sends '' for no ip2country-resolution
+        country = player.country if not (player.country is None or player.country == '') else '__'
+        self.setIcon(util.THEME.icon("chat/countries/%s.png" % country.lower()))
+        self.setToolTip(country)
 
         self.updateAvatar()
 
@@ -273,47 +273,72 @@ class Chatter(QtWidgets.QTableWidgetItem):
         # Rating icon choice  (chr(0xB1) = +-)
         formatting = ("Global Rating: {} ({} Games) [{}\xb1{}]\n"
                       "Ladder Rating: {} [{}\xb1{}]")
-        self.rankItem.setToolTip(formatting.format(
-            str(int(rating)),
-            str(player.number_of_games),
-            str(int(player.rating_mean)),
-            str(int(player.rating_deviation)),
-            str(int(ladder_rating)),
-            str(int(player.ladder_rating_mean)),
-            str(int(player.ladder_rating_deviation))))
+        tooltip_str = formatting.format((int(rating)), player.number_of_games, int(player.rating_mean),
+                                        int(player.rating_deviation), int(ladder_rating),
+                                        int(player.ladder_rating_mean),int(player.ladder_rating_deviation))
 
         league = player.league
         if league is not None:
-            formatting = ("Division : {}\n"
-                          "Global Rating: {}")
-            self.rankItem.setToolTip(formatting.format(
-                league["division"],
-                str(int(rating))))
-            self.rankItem.setIcon(util.THEME.icon("chat/rank/%s.png" % league["league"]))
+            icon_str = league["league"]
+            tooltip_str = "Division : {}\n{}".format(league["division"], tooltip_str)
         else:
-            self.rankItem.setIcon(util.THEME.icon("chat/rank/newplayer.png"))
-
-        self._verifySortOrder()
+            icon_str = "newplayer"
+        self.rankItem.setIcon(util.THEME.icon("chat/rank/{}.png".format(icon_str)))
+        self.rankItem.setToolTip(tooltip_str)
 
     def updateGame(self):
+        self.update_status_tooltip()
+        self.update_status_icon()
+        self.update_map()
+
+    def update_status_tooltip(self):
+        # Status tooltip handling
+        game = self.user_game
+        if game is not None and not game.closed():
+            private_str = " (private)" if game.password_protected else ""
+            delay_str = ""
+            if game.state == GameState.OPEN:
+                if game.host == self.user.name:
+                    head_str = "Hosting{private} game</b>"
+                else:
+                    head_str = "In{private} Lobby</b> (host {host})"
+            elif game.state == GameState.PLAYING:
+                head_str = "Playing</b>{delay}"
+                if not game.has_live_replay:
+                    delay_str = " - LIVE DELAY (5 Min)"
+            else:  # game.state == something else
+                head_str = "Playing maybe ...</b>"
+            formatting = "<b>{}<br/>title: {}<br/>mod: {}<br/>map: {}<br/>players: {} / {}<br/>id: {}"
+            game_str = formatting.format(head_str.format(private=private_str, delay=delay_str, host=game.host),
+                                         game.title, game.featured_mod, maps.getDisplayName(game.mapname),
+                                         game.num_players, game.max_players, game.uid)
+        else:  # game is None or closed
+            game_str = "Idle"
+
+        self.statusItem.setToolTip(game_str)
+
+    def update_status_icon(self):
         # Status icon handling
         game = self.user_game
-        player = self.user_player
         if game is not None and not game.closed():
-            url = game.url(player.id)
             if game.state == GameState.OPEN:
-                self.statusItem.setIcon(util.THEME.icon("chat/status/lobby.png"))
-                self.statusItem.setToolTip("In Game Lobby<br/>"+url.toString())
+                if game.host == self.user.name:
+                    icon_str = "host"
+                else:
+                    icon_str = "lobby"
             elif game.state == GameState.PLAYING:
-                self.statusItem.setIcon(util.THEME.icon("chat/status/playing.png"))
-                self.statusItem.setToolTip("Playing Game<br/>"+url.toString())
-        else:
-            self.statusItem.setIcon(QtGui.QIcon())
-            self.statusItem.setToolTip("Idle")
+                if game.has_live_replay:
+                    icon_str = "playing"
+                else:
+                    icon_str = "playing5"
+            else:  # game.state == something else
+                icon_str = "unknown"
+        else:  # game is None or closed
+            icon_str = "none"
 
-        self.updateMap()
+        self.statusItem.setIcon(util.THEME.icon("chat/status/%s.png" % icon_str))
 
-    def updateMap(self):
+    def update_map(self):
         # Map icon handling - if we're in game, show the map if toggled on
         game = self.user_game
         if game is not None and not game.closed() and util.settings.value("chat/chatmaps", False):
@@ -432,12 +457,12 @@ class Chatter(QtWidgets.QTableWidgetItem):
                 menu_add("Join hosted Game", self._interactWithGame, True)
             elif game.state == GameState.PLAYING:
                 time_running = time.time() - game.launched_at
-                if time_running > 5 * 60:
+                if game.has_live_replay:
                     time_format = '%M:%S' if time_running < 60 * 60 else '%H:%M:%S'
                     duration_str = time.strftime(time_format, time.gmtime(time_running))
                     action_str = "View Live Replay (runs " + duration_str + ")"
                 else:
-                    wait_str = time.strftime('%M:%S', time.gmtime(5 * 60 - time_running))
+                    wait_str = time.strftime('%M:%S', time.gmtime(game.LIVE_REPLAY_DELAY_SECS - time_running))
                     action_str = "WAIT " + wait_str + " to view Live Replay"
                 menu_add(action_str, self._interactWithGame, True)
 

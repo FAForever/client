@@ -15,6 +15,7 @@
  * Notification when a game is full
  * Added map preview icon in chat. Toggle in the chat settings. (#870, #891)
  * Add menu Link to ladder map pool in forum (#882)
+ * Add host & live-game-delay to user status + nicer tooltip in Chat (#892)
 
 Contributors:
  - Wesmania
