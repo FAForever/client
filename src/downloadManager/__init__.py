@@ -196,7 +196,7 @@ class downloadManager(QtCore.QObject):
         if item:
             self.mapRequestsItem.append(requester)
 
-    def downloadModPreview(self, url, requester):
+    def downloadModPreview(self, url, name, requester):
         if not url in self.modRequests:
             logger.debug("Searching mod preview for: " + os.path.basename(url).rsplit('.',1)[0])
             self.modRequests[url] = []
