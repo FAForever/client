@@ -176,7 +176,7 @@ class GameItemWidget(QtWidgets.QListWidgetItem):
         if mods:
             self.tipMods = "<br />With: " + "<br />".join(list(mods.values()))
             if self.tipObservers:
-                self.tipObservers += "<br />"
+                self.tipObservers += "<br />"  # get some space between observer and mods
         else:
             self.tipMods = ""
 
