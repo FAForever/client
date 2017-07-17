@@ -6,6 +6,7 @@
 
 * Fix map names being displayed wrong in host window for a modded game (#786, #787)
 * Fix and add observer in tooltip for hosted games (#711)
+* Fix "in game" icons next to chatters not showing at client launch (#791, #792)
 
 Contributors:
  - Wesmania
