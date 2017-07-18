@@ -490,24 +490,42 @@ class ReplayVaultWidgetHandler(object):
                     item.generateInfoPlayersHtml()
 
     def onlineTreeDoubleClicked(self, item):
-        if hasattr(item, "duration"):
-            if "playing" in item.duration:  # live game will not be in vault
-                if not item.live_delay:  # live game under 5min
-                    if item.mod == "ladder1v1":
-                        name = item.name[:item.name.find(" ")]  # "name vs name"
-                    else:
-                        for team in item.teams:  # find a player...
-                            for player in item.teams[team]:
-                                name = player["name"]
-                                if name != "":
+        if hasattr(item, "url"):  # so it's not a date separator
+            if hasattr(item, "duration") and "playing" in item.duration:  # check if it's a live game
+                # find a player that is still in the game and online
+                player_in_game = False
+                for team in item.teams:
+                    for player in item.teams[team]:
+                        name = player["name"]
+                        if name in client.instance.urls:  # player (is indicated to be) still in a game
+                            # but is it this game, let's find out...
+                            url = client.instance.urls.get(name)
+                            if QtCore.QUrlQuery(url).hasQueryItem("uid"):
+                                if item.uid == int(QtCore.QUrlQuery(url).queryItemValue("uid")):
+                                    player_in_game = True  # yes it isss
                                     break
-                            if name != "":
-                                break
-                    if name in client.instance.urls:  # join live game
-                        replay(client.instance.urls[name])
+                        if player_in_game:
+                            break
+
+                if item.uid in client.instance.gameset.games:  # still running (or ended irregular)
+                    if not item.live_delay:  # live game under 5min will not be shown
+                        if player_in_game:  # have a player online and in this game
+                            replay(client.instance.urls[name])  # join live game
+                        else:  # a zombie game
+                            QtWidgets.QMessageBox.warning(client.instance, "Replay Error", "Game ended irregular",
+                                                          QtWidgets.QMessageBox.Ok)
+
+                else:  # game ended - so maybe start replay
+                    if player_in_game:  # still found player in game - not good
+                        QtWidgets.QMessageBox.warning(client.instance, "Replay Error", "Game ended irregular",
+                                                      QtWidgets.QMessageBox.Ok)
+                    else:  # ask to start replay
+                        if QtWidgets.QMessageBox.question(client.instance, "Live Game ended", "Want to try the Replay?",
+                                                          QtWidgets.QMessageBox.Yes,
+                                                          QtWidgets.QMessageBox.No) == QtWidgets.QMessageBox.Yes:
+                            self.replayDownload.get(QNetworkRequest(QtCore.QUrl(item.url)))
             else:  # start replay
-                if hasattr(item, "url"):
-                    self.replayDownload.get(QNetworkRequest(QtCore.QUrl(item.url)))
+                self.replayDownload.get(QNetworkRequest(QtCore.QUrl(item.url)))
 
     def automaticCheckboxchange(self, state):
         self.automatic = state
@@ -529,7 +547,7 @@ class ReplayVaultWidgetHandler(object):
 
     def finishRequest(self, reply):
         if reply.error() != QNetworkReply.NoError:
-            QtWidgets.QMessageBox.warning(self, "Network Error", reply.errorString())
+            QtWidgets.QMessageBox.warning(None, "Network Error", reply.errorString(), QtWidgets.QMessageBox.Ok)
         else:
             faf_replay = QtCore.QFile(os.path.join(util.CACHE_DIR, "temp.fafreplay"))
             faf_replay.open(QtCore.QIODevice.WriteOnly | QtCore.QIODevice.Truncate)
