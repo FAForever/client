@@ -114,7 +114,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
             return self.RANK_FRIEND - (2 if self.lobby.client.friendsontop else 0)
         if me.isFoe(other.id, other.name):
             return self.RANK_FOE
-        if self.lobby.client.players.isPlayer(other.id):
+        if other.id in self.lobby.client.players:
             return self.RANK_USER
 
         return self.RANK_NONPLAYER
@@ -149,7 +149,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
         """
         self.setText(self.name)
         # First make sure we've got the correct id for ourselves
-        if self.id == -1 and self.lobby.client.players.isPlayer(self.name):
+        if self.id == -1 and self.name in self.lobby.client.players:
             self.id = self.lobby.client.players.getID(self.name)
 
         # Color handling

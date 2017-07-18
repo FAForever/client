@@ -10,7 +10,7 @@ class Playerset(QObject):
     """
     Wrapper for an id->Player map
 
-    Used to lookup players either by id (cheap) or by login (expensive, don't do this).
+    Used to lookup players either by id or by login.
     """
     playersUpdated = pyqtSignal(list)
 
@@ -25,12 +25,6 @@ class Playerset(QObject):
         self._players = {}
         # Login -> Player map
         self._logins = {}
-
-    def isPlayer(self, name):
-        """
-        Convenience function for other modules to inquire about a user's civilian status.
-        """
-        return name in self
 
     def keys(self):
         return list(self._players.keys())

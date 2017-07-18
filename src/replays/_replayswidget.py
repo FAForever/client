@@ -199,7 +199,7 @@ class LiveReplaysWidgetHandler(object):
                     playeritem.setToolTip(0, url.toString())
                     playeritem.setIcon(0, util.THEME.icon("replays/replay.png"))
 
-                elif client.instance.players.isPlayer(playerid):
+                elif playerid in client.instance.players:
                     playeritem.setForeground(0, QtGui.QColor(client.instance.player_colors.getColor("player")))
                     playeritem.setToolTip(0, url.toString())
                     playeritem.setIcon(0, util.THEME.icon("replays/replay.png"))

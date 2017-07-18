@@ -211,7 +211,7 @@ class Channel(FormClass, BaseClass):
             cursor.removeSelectedText()
             self.lines = self.lines - CHAT_REMOVEBLOCK
 
-        if self.lobby.client.players.isPlayer(name):
+        if name in self.lobby.client.players:
             player = self.lobby.client.players[name]
         else:
             player = IRCPlayer(name)
