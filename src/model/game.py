@@ -180,11 +180,11 @@ class Game(QObject):
         query = QUrlQuery()
         query.addQueryItem("map", self.mapname)
         query.addQueryItem("mod", self.featured_mod)
+        query.addQueryItem("uid", str(self.uid))
 
         if self.state == GameState.OPEN:
             url.setScheme("fafgame")
             url.setPath("/" + str(player_id))
-            query.addQueryItem("uid", str(self.uid))
         else:
             url.setScheme("faflive")
             url.setPath("/" + str(self.uid) + "/" + str(player_id) + ".SCFAreplay")
