@@ -43,10 +43,6 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
         self.setupUi(self)
 
-        # CAVEAT: These will fail if loaded before theming is loaded
-        import json
-        chat.OPERATOR_COLORS = json.loads(util.THEME.readfile("chat/formatters/operator_colors.json"))
-
         self.client = client
         self.channels = {}
 

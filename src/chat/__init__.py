@@ -33,9 +33,3 @@ from ._chatwidget import ChatWidget as Lobby
 
 # CAVEAT: DO NOT REMOVE! These are promoted widgets and py2exe wouldn't include them otherwise
 from chat.chatlineedit import ChatLineEdit
-
-from .colors import OPERATOR_COLORS, CHAT_COLORS
-
-
-def get_color(kind):
-    return CHAT_COLORS.get(kind) or CHAT_COLORS['default']

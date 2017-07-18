@@ -235,10 +235,10 @@ class Channel(FormClass, BaseClass):
 
         else:
             # Fallback and ask the client. We have no Idea who this is.
-            color = self.lobby.client.players.getUserColor(player.id)
+            color = self.lobby.client.player_colors.getUserColor(player.id)
 
         if mentioned:
-            color = self.lobby.client.getColor("you")
+            color = self.lobby.client.player_colors.getColor("you")
 
         # scroll if close to the last line of the log
         scroll_current = self.chatArea.verticalScrollBar().value()
@@ -296,7 +296,7 @@ class Channel(FormClass, BaseClass):
         """
         id = self.lobby.client.players.getID(name)
 
-        color = self.lobby.client.players.getUserColor(id)
+        color = self.lobby.client.player_colors.getUserColor(id)
 
         # Play a ping sound
         if self.private and name != self.lobby.client.login:

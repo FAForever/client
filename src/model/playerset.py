@@ -1,53 +1,9 @@
-import random
-
 from PyQt5.QtCore import QObject, pyqtSignal
 
 import client
+
 from model.player import Player
-from util import logger
-from client.user import PlayerAffiliation
-
 from model.game import GameState
-
-import json
-import util
-
-
-class PlayerColors:
-    # Color table used by the following method
-    # CAVEAT: This will break if the theme is loaded after the client package is imported
-    colors = json.loads(util.THEME.readfile("client/colors.json"))
-    randomcolors = json.loads(util.THEME.readfile("client/randomcolors.json"))
-
-    @classmethod
-    def getColor(cls, name):
-        if name in cls.colors:
-            return cls.colors[name]
-        else:
-            return cls.colors["default"]
-
-    @classmethod
-    def getRandomColor(cls, id_):
-        """Generate a random color from a name"""
-        random.seed(id_)
-        return random.choice(cls.randomcolors)
-
-    @classmethod
-    def getUserColor(cls, affiliation, irc, random, seed=None):
-        names = {
-            PlayerAffiliation.SELF: "self",
-            PlayerAffiliation.FRIEND: "friend",
-            PlayerAffiliation.FOE: "foe",
-            PlayerAffiliation.CLANNIE: "clan",
-        }
-        if affiliation in names:
-            return cls.getColor(names[affiliation])
-        if random:
-            return cls.getRandomColor(seed)
-
-        if not irc:
-            return cls.getColor("player")
-        return cls.getColor("default")
 
 
 class Playerset(QObject):
@@ -75,13 +31,6 @@ class Playerset(QObject):
         Convenience function for other modules to inquire about a user's civilian status.
         """
         return name in self
-
-    def getUserColor(self, id_):
-        """
-        Returns a user's color depending on their status with relation to the FAF client
-        """
-        affil = self.user.getAffiliation(id_)
-        return PlayerColors.getUserColor(affil, irc=False, random=self.coloredNicknames, seed=id_)
 
     def keys(self):
         return list(self._players.keys())

@@ -1,3 +1,5 @@
+
+
 class Player:
     """
     Represents a player the client knows about, mirrors the similar class in the server.

@@ -9,8 +9,6 @@ from fa.replay import replay
 import util
 import client
 from config import Settings
-from model.playerset import PlayerColors
-from client.user import PlayerAffiliation
 
 """
 A chatter is the representation of a person on IRC, in a channel's nick list.
@@ -212,26 +210,13 @@ class Chatter(QtWidgets.QTableWidgetItem):
             self.rankItem.setIcon(util.THEME.icon("chat/rank/newplayer.png"))
 
     def set_color(self):
-        # FIXME - we should really get players and me in the constructor
-        affiliation = self.lobby.client.me.getAffiliation(self.id, self.name)
+        # FIXME - we should really get colors in the constructor
+        pcolors = self.lobby.client.player_colors
         if self.isMod():
-            if affiliation == PlayerAffiliation.SELF:
-                self.setForeground(QtGui.QColor(chat.get_color("self_mod")))
-            elif affiliation in [PlayerAffiliation.FRIEND, PlayerAffiliation.CLANNIE]:
-                self.setForeground(QtGui.QColor(chat.get_color("friend_mod")))
-            else:
-                self.setForeground(QtGui.QColor(chat.colors.OPERATOR_COLORS[self.elevation]))
-            return
-
-        if self.id != -1:
-            seed = self.name
+            color = pcolors.getModColor(self.elevation, self.id, self.name)
         else:
-            seed = self.id
-
-        self.setForeground(QtGui.QColor(PlayerColors.getUserColor(
-            affiliation, irc=self.id == -1,
-            random=self.lobby.client.players.coloredNicknames, seed=self.name
-        )))
+            color = pcolors.getUserColor(self.id, self.name)
+        self.setForeground(QtGui.QColor(color))
 
     def viewAliases(self):
         QtGui.QDesktopServices.openUrl(QUrl("{}?name={}".format(Settings.get("USER_ALIASES_URL"), self.name)))

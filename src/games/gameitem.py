@@ -253,7 +253,7 @@ class GameItem():
             return
 
         url = self.url()
-        istr = client.instance.getColor("url") + '" href="' + url.toString() + '">' + g.title + '</a> (on "' + self.mapdisplayname + '")'
+        istr = client.instance.player_colors.getColor("url") + '" href="' + url.toString() + '">' + g.title + '</a> (on "' + self.mapdisplayname + '")'
         if g.featured_mod == "faf":
             client.instance.forwardLocalBroadcast(g.host, 'is playing live in <a style="color:' + istr)
         else:
@@ -275,11 +275,11 @@ class GameItem():
 
         if g.featured_mod == "faf":
             client.instance.forwardLocalBroadcast(g.host, 'is hosting <a style="color:' +
-                                                  client.instance.getColor("url") + '" href="' + url.toString() + '">' +
+                                                  client.instance.player_colors.getColor("url") + '" href="' + url.toString() + '">' +
                                                   g.title + '</a> (on "' + self.mapdisplayname + '")')
         else:
             client.instance.forwardLocalBroadcast(g.host, 'is hosting ' + g.featured_mod + ' <a style="color:' +
-                                                  client.instance.getColor("url") + '" href="' + url.toString() + '">' +
+                                                  client.instance.player_colors.getColor("url") + '" href="' + url.toString() + '">' +
                                                   g.title + '</a> (on "' + self.mapdisplayname + '")')
 
     def update(self):
@@ -334,7 +334,7 @@ class GameItem():
 
         w = self.widget
 
-        color = client.instance.players.getUserColor(self.hostid)
+        color = client.instance.player_colors.getUserColor(self.hostid)
 
         self.editTooltip(teams, observers)
 

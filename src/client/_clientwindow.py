@@ -27,6 +27,7 @@ from ui.status_logo import StatusLogo
 from client.login import LoginWidget
 from ui.busy_widget import BusyWidget
 
+from client.playercolors import PlayerColors
 '''
 Created on Dec 1, 2011
 
@@ -50,7 +51,6 @@ import sys
 import replays
 
 import time
-import random
 import notifications as ns
 
 FormClass, BaseClass = util.THEME.loadUiType("client/client.ui")
@@ -274,6 +274,8 @@ class ClientWindow(FormClass, BaseClass):
         self.players = Playerset(self.me, self.gameset)  # Players known to the client, contains the player_info messages sent by the server
         self.players.playersUpdated.connect(lambda p: self.usersUpdated.emit(p))
         self.urls = {}
+
+        self.player_colors = PlayerColors(self.me)
 
         self.power = 0  # current user power
         self.id = 0
@@ -524,9 +526,6 @@ class ClientWindow(FormClass, BaseClass):
 
         # Initialize chat
         self.chat = chat.Lobby(self)
-        # Color table used by the following method
-        # CAVEAT: This will break if the theme is loaded after the client package is imported
-        chat.CHAT_COLORS = json.loads(util.THEME.readfile("client/colors.json"))
 
         # build main window with the now active client
         self.news = news.NewsWidget(self)
@@ -767,7 +766,7 @@ class ClientWindow(FormClass, BaseClass):
         self.livereplays = self.actionSetLiveReplays.isChecked()
 
         self.gamelogs = self.actionSaveGamelogs.isChecked()
-        self.players.coloredNicknames = self.actionColoredNicknames.isChecked()
+        self.player_colors.coloredNicknames = self.actionColoredNicknames.isChecked()
         self.friendsontop = self.actionFriendsOnTop.isChecked()
 
         self.saveChat()
@@ -850,7 +849,7 @@ class ClientWindow(FormClass, BaseClass):
         util.settings.setValue("livereplays", self.livereplays)
         util.settings.setValue("opengames", self.opengames)
         util.settings.setValue("joinsparts", self.joinsparts)
-        util.settings.setValue("coloredNicknames", self.players.coloredNicknames)
+        util.settings.setValue("coloredNicknames", self.player_colors.coloredNicknames)
         util.settings.setValue("friendsontop", self.friendsontop)
         util.settings.endGroup()
 
@@ -873,11 +872,11 @@ class ClientWindow(FormClass, BaseClass):
             self.opengames = (util.settings.value("opengames", "true") == "true")
             self.joinsparts = (util.settings.value("joinsparts", "false") == "true")
             self.livereplays = (util.settings.value("livereplays", "true") == "true")
-            self.players.coloredNicknames = (util.settings.value("coloredNicknames", "false") == "true")
+            self.player_colors.coloredNicknames = (util.settings.value("coloredNicknames", "false") == "true")
             self.friendsontop = (util.settings.value("friendsontop", "false") == "true")
 
             util.settings.endGroup()
-            self.actionColoredNicknames.setChecked(self.players.coloredNicknames)
+            self.actionColoredNicknames.setChecked(self.player_colors.coloredNicknames)
             self.actionFriendsOnTop.setChecked(self.friendsontop)
             self.actionSetSoundEffects.setChecked(self.soundeffects)
             self.actionSetLiveReplays.setChecked(self.livereplays)
@@ -946,9 +945,6 @@ class ClientWindow(FormClass, BaseClass):
                                         unique_id=self.uniqueId,
                                         session=self.session))
         return True
-
-    def getColor(self, name):
-        return chat.get_color(name)
 
     @QtCore.pyqtSlot()
     def startedFA(self):
