@@ -3,7 +3,7 @@ import logging
 import string
 import sys
 from urllib.error import HTTPError
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtGui
 import io
 import util
 import os
@@ -245,20 +245,20 @@ def genPrevFromDDS(sourcename, destname, small=False):
 
         size = int((len(img)/3) ** (1.0/2))
         if small:
-            imageFile = QtWidgets.QImage(
+            imageFile = QtGui.QImage(
                 img,
                 size,
                 size,
-                QtWidgets.QImage.Format_RGB888).rgbSwapped().scaled(
+                QtGui.QImage.Format_RGB888).rgbSwapped().scaled(
                     100,
                     100,
                     transformMode=QtCore.Qt.SmoothTransformation)
         else:
-            imageFile = QtWidgets.QImage(
+            imageFile = QtGui.QImage(
                 img,
                 size,
                 size,
-                QtWidgets.QImage.Format_RGB888).rgbSwapped()
+                QtGui.QImage.Format_RGB888).rgbSwapped()
         imageFile.save(destname)
     except IOError:
         logger.debug('IOError exception in genPrevFromDDS', exc_info=True)
@@ -394,7 +394,7 @@ def __exportPreviewFromMap(mapname, positions=None):
             massicon = util.THEME.pixmap("vault/map_icons/mass.png").scaled(8, 8, 1, 1)
             hydroicon = util.THEME.pixmap("vault/map_icons/hydro.png").scaled(10, 10, 1, 1)
 
-            painter = QtWidgets.QPainter()
+            painter = QtGui.QPainter()
 
             painter.begin(mapimage)
             # icons should be drawn in certain order: first layer is hydros,

@@ -8,6 +8,7 @@
 * Fix and add observer in tooltip for hosted games (#711)
 * Fix "in game" icons next to chatters not showing at client launch (#791, #792)
 * Fix join hosted game from chat user (#796)
+* Leftover Qt5 fixes
 
 Contributors:
  - Wesmania
