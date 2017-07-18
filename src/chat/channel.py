@@ -9,7 +9,7 @@ from chat.chatter import Chatter
 import re
 import json
 
-from client import Player
+from model.player import Player
 
 QUERY_BLINK_SPEED = 250
 CHAT_TEXT_LIMIT = 350

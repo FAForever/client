@@ -7,8 +7,8 @@ import config
 import connectivity
 from config import Settings
 import chat
-from client.player import Player
-from client.players import Players
+from model.player import Player
+from model.playerset import Playerset
 from client.connection import LobbyInfo, ServerConnection, \
         Dispatcher, ConnectionState, ServerReconnecter
 from model.gameset import Gameset
@@ -271,7 +271,7 @@ class ClientWindow(FormClass, BaseClass):
         self.me = User()
         self.me.relationsUpdated.connect(lambda x: self.usersUpdated.emit(list(x)))
 
-        self.players = Players(self.me, self.gameset)  # Players known to the client, contains the player_info messages sent by the server
+        self.players = Playerset(self.me, self.gameset)  # Players known to the client, contains the player_info messages sent by the server
         self.players.playersUpdated.connect(lambda p: self.usersUpdated.emit(p))
         self.urls = {}
 

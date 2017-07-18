@@ -3,7 +3,7 @@ import random
 from PyQt5.QtCore import QObject, pyqtSignal
 
 import client
-from client import Player
+from model.player import Player
 from util import logger
 from client.user import PlayerAffiliation
 
@@ -50,7 +50,7 @@ class PlayerColors:
         return cls.getColor("default")
 
 
-class Players(QObject):
+class Playerset(QObject):
     """
     Wrapper for an id->Player map
 

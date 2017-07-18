@@ -9,7 +9,8 @@ from fa.replay import replay
 import util
 import client
 from config import Settings
-from client.players import PlayerColors, PlayerAffiliation
+from model.playerset import PlayerColors
+from client.user import PlayerAffiliation
 
 """
 A chatter is the representation of a person on IRC, in a channel's nick list.

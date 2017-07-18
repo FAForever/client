@@ -5,7 +5,6 @@ from PyQt5.QtNetwork import QNetworkAccessManager
 from enum import IntEnum
 
 from config import Settings
-from .player import Player
 
 logger = logging.getLogger(__name__)
 # logger.setLevel(logging.DEBUG)
