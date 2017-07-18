@@ -1018,10 +1018,8 @@ class ClientWindow(FormClass, BaseClass):
                 uid, mod, map = QtCore.QUrlQuery(url).queryItemValue('uid'), \
                                 QtCore.QUrlQuery(url).queryItemValue('mod'), \
                                 QtCore.QUrlQuery(url).queryItemValue('map')
-                if fa.check.check(mod,
-                                  map,
-                                  sim_mods=add_mods):
-                    self.join_game(uid)
+                if fa.check.check(mod, map, sim_mods=add_mods):
+                    self.join_game(int(uid))
 
     @QtCore.pyqtSlot()
     def forwardLocalBroadcast(self, source, message):
