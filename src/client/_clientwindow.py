@@ -271,8 +271,8 @@ class ClientWindow(FormClass, BaseClass):
         self.me = User()
         self.me.relationsUpdated.connect(lambda x: self.usersUpdated.emit(list(x)))
 
-        self.players = Playerset(self.me, self.gameset)  # Players known to the client, contains the player_info messages sent by the server
-        self.players.playersUpdated.connect(lambda p: self.usersUpdated.emit(p))
+        self.players = Playerset(self.gameset)  # Players known to the client
+        self.players.playersUpdated.connect(lambda pl: self.usersUpdated.emit([p.id for p in pl]))
         self.urls = {}
 
         self.player_colors = PlayerColors(self.me)
@@ -1319,20 +1319,18 @@ class ClientWindow(FormClass, BaseClass):
             player["id_"] = player["id"]
             del player["id"]
 
-        # Firstly, find yourself. Things get easier once "me" is assigned.
         for player in players:
-            if player["id_"] == self.id:
-                self.me.player = Player(**player)
+            id_ = int(player["id_"])
+            if id_ in self.players:
+                self.players[id_].update(**player)
+            else:
+                new_player = Player(**player)
+                self.players[id_] = new_player
+                if self.me.player.clan is not None and new_player.clan == self.me.player.clan:
+                    self.me.addClannie(id_)
 
-        for player in players:
-            new_player = Player(**player)
-            id_ = new_player.id
-
-            self.players[id_] = new_player
             self.usersUpdated.emit([id_])
 
-            if self.me.player.clan is not None and new_player.clan == self.me.player.clan:
-                self.me.addClannie(id_)
 
     def avatarManager(self):
         self.requestAvatars(0)

@@ -35,7 +35,7 @@ class KickDialog(FormClass, BaseClass):
         self.cbPeriod.setEnabled(False)
         self.cbPeriod.setCurrentIndex(1)
 
-        online_players = self.client.players._logins.keys()
+        online_players = [p.login for p in self.client.players]
         completer = QCompleter(online_players, self)
         self.leUsername.setCompleter(completer)
 

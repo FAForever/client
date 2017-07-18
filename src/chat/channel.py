@@ -18,15 +18,11 @@ CHAT_REMOVEBLOCK = 50
 FormClass, BaseClass = util.THEME.loadUiType("chat/channel.ui")
 
 
-class IRCPlayer(Player):
+class IRCPlayer():
     def __init__(self, name):
-        Player.__init__(self, **{
-            "id_": -1,
-            "login": name,
-            "global_rating": (1500, 500),
-            "ladder_rating": (1500, 500),
-            "number_of_games": 0
-        })
+        self.name = name
+        self.id = -1
+        self.clan = None
 
 
 class Formatters(object):

@@ -13,11 +13,11 @@ class Playerset(QObject):
     Used to lookup players either by id or by login.
     """
     playersUpdated = pyqtSignal(list)
+    playerAdded = pyqtSignal(object)
+    playerRemoved = pyqtSignal(object)
 
-    def __init__(self, user, gameset):
+    def __init__(self, gameset):
         QObject.__init__(self)
-        self.user = user
-        self.coloredNicknames = False
         self.gameset = gameset
         self.gameset.newGame.connect(self._onNewGame)
 
@@ -26,43 +26,72 @@ class Playerset(QObject):
         # Login -> Player map
         self._logins = {}
 
+    def __getitem__(self, item):
+        if isinstance(item, int):
+            return self._players[item]
+        if isinstance(item, str):
+            return self._logins[item]
+        raise TypeError
+
+    def __len__(self):
+        return len(self._players)
+
+    def __iter__(self):
+        return iter(self._players)
+
+    # We need to define the below things - QObject
+    # doesn't allow for Mapping mixin
     def keys(self):
-        return list(self._players.keys())
+        return self._players.keys()
 
     def values(self):
-        return list(self._players.values())
+        return self._players.values()
 
     def items(self):
-        return list(self._players.items())
+        return self._players.items()
 
-    def get(self, item, default):
-        val = self.__getitem__(item)
-        return val if val else default
-
-    def getID(self, name):
-        if name in self._logins:
-            return self._logins[name].id
-        return -1
+    def get(self, item, default = None):
+        try:
+            return self[item]
+        except KeyError:
+            return default
 
     def __contains__(self, item):
-        return self.__getitem__(item) is not None
+        try:
+            self[item]
+            return True
+        except KeyError:
+            return False
 
-    def __getitem__(self, item):
-        if isinstance(item, Player):
-            return item
-        if isinstance(item, int) and item in self._players:
-            return self._players[item]
-        if item in self._logins:
-                return self._logins[item]
+    def getID(self, name):
+        if name in self:
+            return self[name].id
+        return -1
 
     def __setitem__(self, key, value):
-        assert isinstance(key, int)
+        if not isinstance(key, int) or not isinstance(value, Player):
+            raise TypeError
+
+        if key in self:     # disallow overwriting existing players
+            raise ValueError
+
         self._players[key] = value
         self._logins[value.login] = value
+        self.playerAdded.emit([value])
+
+    def __delitem__(self, item):
+        try:
+            player = self[item]
+        except KeyError:
+            return
+        del self._players[player.id]
+        del self._players[player.login]
+        self.playerRemoved.emit(player)
 
     def clear(self):
         oldplayers = self.keys()
-        self.playersUpdated.emit(oldplayers)
+        for player in oldplayers:
+            self.playerRemoved.emit(player)
         self._players = {}
         self._logins = {}
 

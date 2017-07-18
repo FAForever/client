@@ -6,11 +6,11 @@ class Player:
     Needs to be constructed using a player_info message sent from the server.
     """
     def __init__(self,
-                 id_=None,
-                 login=None,
-                 global_rating=(1500, 500),
-                 ladder_rating=(1500, 500),
-                 number_of_games=0,
+                 id_,
+                 login,
+                 global_rating=None,
+                 ladder_rating=None,
+                 number_of_games=None,
                  avatar=None,
                  country=None,
                  clan=None,
@@ -19,19 +19,47 @@ class Player:
         Initialize a Player
         """
         # Required fields
-        self.id = int(id_) if id_ is not None else None
+        self.id = int(id_)
         self.login = login
-        if not id_ or not login:
-            raise KeyError("Player missing id or login attribute {}".format(self))
 
-        # Optional fields
-        self.global_rating = global_rating
-        self.ladder_rating = ladder_rating
-        self.number_of_games = number_of_games
-        self.avatar = avatar or None
-        self.country = country or None
-        self.clan = clan or None
-        self.league = league or None
+        self.global_rating = (1500, 500)
+        self.ladder_rating = (1500, 500)
+        self.number_of_games = 0
+        self.avatar = None
+        self.country = None
+        self.clan = None
+        self.league = None
+
+        self.update(id_, login, global_rating, ladder_rating, number_of_games,
+                    avatar, country, clan, league)
+
+    def update(self,
+               id_=None,
+               login=None,
+               global_rating=None,
+               ladder_rating=None,
+               number_of_games=None,
+               avatar=None,
+               country=None,
+               clan=None,
+               league=None):
+
+        # Ignore id and login (they are be immutable)
+        # Login should be mutable, but we look up things by login right now
+        if global_rating:
+            self.global_rating = global_rating
+        if ladder_rating:
+            self.ladder_rating = ladder_rating
+        if number_of_games:
+            self.number_of_games = number_of_games
+        if avatar:
+            self.avatar = avatar
+        if country:
+            self.country = country
+        if clan:
+            self.clan = clan
+        if league:
+            self.league = league
 
     def __hash__(self):
         """

@@ -155,9 +155,9 @@ class Chatter(QtWidgets.QTableWidgetItem):
         # Color handling
         self.set_color()
 
-        player = self.lobby.client.players[self.id]
+        player = self.lobby.client.players.get(self.id)
         if not player and not self.id == -1:  # We should have a player object for this
-            player = self.lobby.client.players[self.name]
+            player = self.lobby.client.players.get(self.name)
 
         # Weed out IRC users and those we don't know about early.
         if self.id == -1 or player is None:
