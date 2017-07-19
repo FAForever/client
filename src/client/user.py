@@ -115,7 +115,12 @@ class User(QtCore.QObject):
 
     @player.setter
     def player(self, value):
+        if self._player is not None:
+            self._player.updated.disconnect(self._checkClanChange)
         self._player = value
+        if self._player is not None:
+            self._player.updated.connect(self._checkClanChange)
+
         # reload IRC friends from settings
         self._irc_friends.key = self._irc_key("friends")
         self._irc_foes.key = self._irc_key("foes")
@@ -132,16 +137,27 @@ class User(QtCore.QObject):
         self._clannies.clear()
 
     def isClannie(self, _id):
+        if not self._player:
+            return False
+        return self._isClannie(_id, self._player.clan)
+
+    def _isClannie(self, _id, my_clan):
+        if my_clan is None:
+            return False
         other = self._players.get(_id)
-        if not self._player or not other:
+        if other is None:
             return False
+        return my_clan == other.clan
 
-        if self._player.clan is None:
-            return False
-        return self._player.clan == other.clan
+    def _getClannies(self, clan):
+        return [p.id for p in self._players.values() if self._isClannie(p.id, clan)]
 
-    def getClannies(self):
-        return [p.id for p in self._players.values() if self.isClannie(p.id)]
+    def _checkClanChange(self, new, old):
+        if new.clan == old.clan:
+            return
+        oldClannies = self._getClannies(old.clan)
+        newClannies = self._getClannies(new.clan)
+        self.relationsUpdated.emit(set(oldClannies + newClannies))
 
     def addFriend(self, id_):
         self._friends.add(id_)
