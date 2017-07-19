@@ -1123,7 +1123,7 @@ class ClientWindow(FormClass, BaseClass):
         self.login = message["login"]
 
         self.me.player = Player(id_=self.id, login=self.login)
-        self.me.player.updated.connect(lambda _: self.usersUpdated.emit(self.me.getClannies()))
+        self.me.player.updated.connect(self.handle_me_change)
 
         self.players[self.me.player.id] = self.me.player  # FIXME
         logger.debug("Login success")
@@ -1142,6 +1142,10 @@ class ClientWindow(FormClass, BaseClass):
         self.connectivity = ConnectivityHelper(self, self.gamePort)
         self.connectivity.connectivity_status_established.connect(self.initialize_game_session)
         self.connectivity.start_test()
+
+    def handle_me_change(self, new, old):
+        if old.clan != new.clan:
+            self.usersUpdated.emit(self.me.getClannies())
 
     def initialize_game_session(self):
         self.game_session = GameSession(self, self.connectivity)
@@ -1327,8 +1331,7 @@ class ClientWindow(FormClass, BaseClass):
             if id_ in self.players:
                 self.players[id_].update(**player)
             else:
-                new_player = Player(**player)
-                self.players[id_] = new_player
+                self.players[id_] = Player(**player)
 
             self.usersUpdated.emit([id_])
 

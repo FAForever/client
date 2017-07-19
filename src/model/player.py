@@ -1,18 +1,17 @@
 from PyQt5.QtCore import QObject, pyqtSignal
 
 class Player(QObject):
-    updated = pyqtSignal(object)
+    updated = pyqtSignal(object, object)
 
     """
-    Represents a player the client knows about, mirrors the similar class in the server.
-    Needs to be constructed using a player_info message sent from the server.
+    Represents a player the client knows about.
     """
     def __init__(self,
                  id_,
                  login,
-                 global_rating=None,
-                 ladder_rating=None,
-                 number_of_games=None,
+                 global_rating=(1500, 500),
+                 ladder_rating=(1500, 500),
+                 number_of_games=0,
                  avatar=None,
                  country=None,
                  clan=None,
@@ -25,16 +24,18 @@ class Player(QObject):
         self.id = int(id_)
         self.login = login
 
-        self.global_rating = (1500, 500)
-        self.ladder_rating = (1500, 500)
-        self.number_of_games = 0
-        self.avatar = None
-        self.country = None
-        self.clan = None
-        self.league = None
+        self.global_rating = global_rating
+        self.ladder_rating = ladder_rating
+        self.number_of_games = number_of_games
+        self.avatar = avatar
+        self.country = country
+        self.clan = clan
+        self.league = league
 
-        self.update(id_, login, global_rating, ladder_rating, number_of_games,
-                    avatar, country, clan, league)
+    def copy(self):
+        s = self
+        return Player(s.id, s.login, s.global_rating, s.ladder_rating,
+                      s.number_of_games, s.avatar, s.country, s.clan, s.league)
 
     def update(self,
                id_=None,
@@ -47,6 +48,7 @@ class Player(QObject):
                clan=None,
                league=None):
 
+        old_data = self.copy()
         # Ignore id and login (they are be immutable)
         # Login should be mutable, but we look up things by login right now
         if global_rating:
@@ -64,7 +66,7 @@ class Player(QObject):
         if league:
             self.league = league
 
-        self.updated.emit(self)
+        self.updated.emit(self, old_data)
 
     def __hash__(self):
         """

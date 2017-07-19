@@ -141,7 +141,7 @@ class User(QtCore.QObject):
         return self._player.clan == other.clan
 
     def getClannies(self):
-        return [p for p in self._players.values() if self.isClannie(p.id)]
+        return [p.id for p in self._players.values() if self.isClannie(p.id)]
 
     def addFriend(self, id_):
         self._friends.add(id_)
