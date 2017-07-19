@@ -421,10 +421,11 @@ class ReplayVaultWidgetHandler(object):
     automatic = Settings.persisted_property("replay/automatic", default_value=False, type=bool)
     spoiler_free = Settings.persisted_property("replay/spoilerFree", default_value=True, type=bool)
 
-    def __init__(self, widget, dispatcher, client, playerset):
+    def __init__(self, widget, dispatcher, client, gameset, playerset):
         self._w = widget
         self._dispatcher = dispatcher
         self.client = client
+        self._gameset = gameset
         self._playerset = playerset
 
         self.onlineReplays = {}
@@ -501,19 +502,31 @@ class ReplayVaultWidgetHandler(object):
                     item.generateInfoPlayersHtml()
 
     def onlineTreeDoubleClicked(self, item):
-        if hasattr(item, "duration"):
+        if hasattr(item, "duration"):  # it's a game not a date separator
             if "playing" in item.duration:  # live game will not be in vault
-                if not item.live_delay:  # live game under 5min
-                    name = None
-                    if item.mod == "ladder1v1":
-                        name = item.name[:item.name.find(" ")]  # "name vs name"
-                    else:
-                        players = (p for t in item.teams for p in t)
-                        for player in players:
-                            name = player["name"]
-                            if name != "" and name in self._playerset:
+                # search result isn't updated automatically - so game status might have changed
+                if item.uid in self._gameset.games:  # game still running
+                    game = self._gameset.games[item.uid]
+                    if not game.launched_at:  # we frown upon those
+                        return
+                    if game.has_live_replay:  # live game over 5min
+                        for name in game.players:  # find a player ...
+                            if name in self._playerset:  # still logged in
+                                self._startReplay(name)
                                 break
-                    self._startReplay(name)
+                    else:
+                        wait_str = time.strftime('%M Min %S Sec', time.gmtime(game.LIVE_REPLAY_DELAY_SECS -
+                                                                              (time.time() - game.launched_at)))
+                        QtWidgets.QMessageBox.information(client.instance, "5 Minute Live Game Delay",
+                                                          "It is too early to join the Game.\n"
+                                                          "You have to wait " + wait_str + " to join.")
+                else:  # game ended - ask to start replay
+                    if QtWidgets.QMessageBox.question(client.instance, "Live Game ended",
+                                                      "Would you like to watch the replay from the vault?",
+                                                      QtWidgets.QMessageBox.Yes,
+                                                      QtWidgets.QMessageBox.No) == QtWidgets.QMessageBox.Yes:
+                        self.replayDownload.get(QNetworkRequest(QtCore.QUrl(item.url)))
+
             else:  # start replay
                 if hasattr(item, "url"):
                     self.replayDownload.get(QNetworkRequest(QtCore.QUrl(item.url)))
@@ -630,7 +643,7 @@ class ReplaysWidget(BaseClass, FormClass):
 
         self.liveManager = LiveReplaysWidgetHandler(self.liveTree, client, gameset)
         self.localManager = LocalReplaysWidgetHandler(self.myTree)
-        self.vaultManager = ReplayVaultWidgetHandler(self, dispatcher, client, playerset)
+        self.vaultManager = ReplayVaultWidgetHandler(self, dispatcher, client, gameset, playerset)
 
         logger.info("Replays Widget instantiated.")
 
