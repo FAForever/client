@@ -1,4 +1,5 @@
 from model import game
+from model.player import Player
 
 DEFAULT_GAMEDICT = {
     "uid":  1,
@@ -29,7 +30,6 @@ def test_average_rating(qtbot):
     import config
     config.no_dialogs = True
     import client
-    from client import Player
     from games.gameitem import GameItem
     players = [Player(id_=1, login='Test-1', global_rating=(2000, 200)),
               Player(id_=2, login='Test-2', global_rating=(1000, 150)),
