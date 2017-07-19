@@ -92,17 +92,16 @@ class User(QtCore.QObject):
     relationsUpdated = QtCore.pyqtSignal(set)
     ircRelationsUpdated = QtCore.pyqtSignal(set)
 
-    def __init__(self):
+    def __init__(self, playerset):
         QtCore.QObject.__init__(self)
 
         self._player = None
         self._friends = UserRelation()
         self._foes = UserRelation()
-        self._clannies = UserRelation()
+        self._players = playerset
 
         self._friends.updated.connect(self.relationsUpdated.emit)
         self._foes.updated.connect(self.relationsUpdated.emit)
-        self._clannies.updated.connect(self.relationsUpdated.emit)
 
         self._irc_friends = IrcUserRelation()
         self._irc_foes = IrcUserRelation()
@@ -132,14 +131,17 @@ class User(QtCore.QObject):
         self._foes.clear()
         self._clannies.clear()
 
-    def addClannie(self, id_):
-        self._clannies.add(id_)
+    def isClannie(self, _id):
+        other = self._players.get(_id)
+        if not self._player or not other:
+            return False
 
-    def setClannies(self, ids):
-        self._clannies.set(ids)
+        if self._player.clan is None:
+            return False
+        return self._player.clan == other.clan
 
-    def isClannie(self, id_):
-        return self._clannies.has(id_)
+    def getClannies(self):
+        return [p for p in self._players.values() if self.isClannie(p.id)]
 
     def addFriend(self, id_):
         self._friends.add(id_)

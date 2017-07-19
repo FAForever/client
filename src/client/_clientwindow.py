@@ -267,13 +267,13 @@ class ClientWindow(FormClass, BaseClass):
         self._vault_tab = -1
         self.topTabs.currentChanged.connect(self.vaultTabChanged)
 
-        # Handy reference to the User object representing the logged-in user.
-        self.me = User()
-        self.me.relationsUpdated.connect(lambda x: self.usersUpdated.emit(list(x)))
-
         self.players = Playerset(self.gameset)  # Players known to the client
         self.players.playersUpdated.connect(lambda pl: self.usersUpdated.emit([p.id for p in pl]))
         self.urls = {}
+
+        # Handy reference to the User object representing the logged-in user.
+        self.me = User(self.players)
+        self.me.relationsUpdated.connect(lambda x: self.usersUpdated.emit(list(x)))
 
         self.player_colors = PlayerColors(self.me)
 
@@ -1121,7 +1121,10 @@ class ClientWindow(FormClass, BaseClass):
         self._autorelogin = True
         self.id = message["id"]
         self.login = message["login"]
+
         self.me.player = Player(id_=self.id, login=self.login)
+        self.me.player.updated.connect(lambda _: self.usersUpdated.emit(self.me.getClannies()))
+
         self.players[self.me.player.id] = self.me.player  # FIXME
         logger.debug("Login success")
 
@@ -1326,8 +1329,6 @@ class ClientWindow(FormClass, BaseClass):
             else:
                 new_player = Player(**player)
                 self.players[id_] = new_player
-                if self.me.player.clan is not None and new_player.clan == self.me.player.clan:
-                    self.me.addClannie(id_)
 
             self.usersUpdated.emit([id_])
 

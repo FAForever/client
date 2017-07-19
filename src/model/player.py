@@ -1,6 +1,8 @@
+from PyQt5.QtCore import QObject, pyqtSignal
 
+class Player(QObject):
+    updated = pyqtSignal(object)
 
-class Player:
     """
     Represents a player the client knows about, mirrors the similar class in the server.
     Needs to be constructed using a player_info message sent from the server.
@@ -15,6 +17,7 @@ class Player:
                  country=None,
                  clan=None,
                  league=None):
+        QObject.__init__(self)
         """
         Initialize a Player
         """
@@ -60,6 +63,8 @@ class Player:
             self.clan = clan
         if league:
             self.league = league
+
+        self.updated.emit(self)
 
     def __hash__(self):
         """
