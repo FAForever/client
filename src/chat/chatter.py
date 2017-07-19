@@ -9,7 +9,6 @@ from fa.replay import replay
 from fa import maps
 
 import util
-import client
 from config import Settings
 
 from model.game import GameState
@@ -403,9 +402,9 @@ class Chatter(QtWidgets.QTableWidgetItem):
 
         url = game.url(self.user_player.id)
         if game.state == GameState.OPEN:
-            self.joinInGame(url)
+            self.join_in_game(url)
         elif game.state == GameState.PLAYING:
-            self.viewReplay(url)
+            self.view_replay(url)
 
     def pressed(self, item):
         menu = QtWidgets.QMenu(self.parent)
@@ -426,8 +425,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
         else:
             is_me = player.id == self._me.player.id
 
-        # only for us. Either way, it will display our avatar, not anyone avatar.
-        if is_me:
+        if is_me:  # only for us. Either way, it will display our avatar, not anyone avatar.
             menu_add("Select Avatar", self.selectAvatar)
 
         # power menu
@@ -448,8 +446,11 @@ class Chatter(QtWidgets.QTableWidgetItem):
                 menu_add("Close Game", lambda: self.chat_widget.client.closeFA(name))
                 menu_add("Close FAF Client", lambda: self.chat_widget.client.closeLobby(name))
 
-        # Aliases link
         menu_add("View Aliases", self.viewAliases, True)
+
+        if player is not None:  # not for irc user
+            if int(player.ladder_estimate()) != 0:  # not for 'never played ladder'
+                menu_add("View in Leaderboards", self.view_in_leaderboards)
 
         # Don't allow self to be invited to a game, or join one
         if game is not None and not is_me:
@@ -466,9 +467,8 @@ class Chatter(QtWidgets.QTableWidgetItem):
                     action_str = "WAIT " + wait_str + " to view Live Replay"
                 menu_add(action_str, self._interactWithGame, True)
 
-        # Replays in vault
         if player is not None:  # not for irc user
-            menu_add("View Replays in Vault", self.viewVaultReplay, True)
+            menu_add("View Replays in Vault", self.view_vault_replay, True)
 
         # Friends and Foes Lists
         def player_or_irc_action(f, irc_f):
@@ -495,15 +495,14 @@ class Chatter(QtWidgets.QTableWidgetItem):
         # Finally: Show the popup
         menu.popup(QtGui.QCursor.pos())
 
-    def viewVaultReplay(self):
-        """ see the player replays in the vault """
-        self.chat_widget.client.replays.setCurrentIndex(2)  # focus on Online Fault
-        replayHandler = self.chat_widget.client.replays.vaultManager
-        replayHandler.searchVault(-1400, "", self.user.name, 0)
-        self.chat_widget.client.mainTabs.setCurrentIndex(self.chat_widget.client.mainTabs.indexOf(self.chat_widget.client.replaysTab))
+    def view_vault_replay(self):
+        self.chat_widget.client.searchUserReplays(self.user.name)
 
-    def joinInGame(self, url):
-        client.instance.joinGameFromURL(url)
+    def join_in_game(self, url):
+        self.chat_widget.client.joinGameFromURL(url)
 
-    def viewReplay(self, url):
+    def view_replay(self, url):
         replay(url)
+
+    def view_in_leaderboards(self):
+        self.chat_widget.client.viewUserLeaderboards(self.user_player)

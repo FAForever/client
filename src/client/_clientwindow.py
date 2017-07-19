@@ -547,17 +547,16 @@ class ClientWindow(FormClass, BaseClass):
         self.news = news.NewsWidget(self)
         self.ladder = stats.StatsWidget(self)
         self.games = games.GamesWidget(self, self.game_model, self.me,
-                                 self.gameview_builder, self.game_launcher)
+                                       self.gameview_builder, self.game_launcher)
         self.tourneys = tourneys.TournamentsWidget(self)
         self.vault = vault.MapVault(self)
         self.modvault = modvault.ModVault(self)
         self.replays = replays.ReplaysWidget(self, self.lobby_dispatch,
-                                       self.gameset, self.players)
+                                             self.gameset, self.players)
         self.tutorials = tutorials.TutorialsWidget(self)
-        self.Coop = coop.CoopWidget(self, self.game_model, self.me,
-                              self.gameview_builder, self.game_launcher)
-        self.notificationSystem = ns.Notifications(self, self.gameset,
-                                                   self.players, self.me)
+        self.coop = coop.CoopWidget(self, self.game_model, self.me,
+                                    self.gameview_builder, self.game_launcher)
+        self.notificationSystem = ns.Notifications(self, self.gameset, self.players, self.me)
 
         # TODO: some day when the tabs only do UI we'll have all this in the .ui file
         self.chatTab.layout().addWidget(self.chat)
@@ -569,7 +568,7 @@ class ClientWindow(FormClass, BaseClass):
         self.modsTab.layout().addWidget(self.modvault)
         self.replaysTab.layout().addWidget(self.replays)
         self.tutorialsTab.layout().addWidget(self.tutorials)
-        self.coopTab.layout().addWidget(self.Coop)
+        self.coopTab.layout().addWidget(self.coop)
 
         # set menu states
         self.actionNsEnabled.setChecked(self.notificationSystem.settings.enabled)
@@ -1062,6 +1061,16 @@ class ClientWindow(FormClass, BaseClass):
                                 QtCore.QUrlQuery(url).queryItemValue('map')
                 if fa.check.check(mod, map, sim_mods=add_mods):
                     self.join_game(int(uid))
+
+    @QtCore.pyqtSlot()
+    def searchUserReplays(self, name):
+        self.replays.set_player(name)
+        self.mainTabs.setCurrentIndex(self.mainTabs.indexOf(self.replaysTab))
+
+    @QtCore.pyqtSlot()
+    def viewUserLeaderboards(self, user):
+        self.ladder.set_player(user)
+        self.mainTabs.setCurrentIndex(self.mainTabs.indexOf(self.ladderTab))
 
     @QtCore.pyqtSlot()
     def forwardLocalBroadcast(self, source, message):

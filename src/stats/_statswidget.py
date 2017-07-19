@@ -37,7 +37,8 @@ class StatsWidget(BaseClass, FormClass, BusyWidget):
         
         self.LadderRatings.layout().addWidget(self.webview)
         
-        self.loaded = False
+        self.selected_player = None
+        self.selected_player_loaded = False
         self.webview.loadFinished.connect(self.webview.show)
         self.webview.loadFinished.connect(self._injectCSS)
         self.leagues.currentChanged.connect(self.leagueUpdate)
@@ -187,6 +188,11 @@ class StatsWidget(BaseClass, FormClass, BusyWidget):
         if util.THEME.themeurl("ladder/style.css"):
             injectWebviewCSS(self.webview.page(), util.THEME.readstylesheet("ladder/style.css"))
 
+    def set_player(self, player):
+        if self.selected_player != player:
+            self.selected_player = player
+            self.selected_player_loaded = False
+
     @QtCore.pyqtSlot()
     def busy_entered(self):
         # Don't display things when we're not logged in
@@ -194,18 +200,17 @@ class StatsWidget(BaseClass, FormClass, BusyWidget):
         if self.client.state != client.ClientState.LOGGED_IN:
             return
 
-        me = self.client.players[self.client.login]
-        if me.league is not None:
-            self.leagues.setCurrentIndex(me.league - 1)
+        if self.selected_player is None:
+            self.selected_player = self.client.players[self.client.login]
+        if self.selected_player.league is not None:
+            self.leagues.setCurrentIndex(self.selected_player.league - 1)
         else:
             self.leagues.setCurrentIndex(5)  # -> 5 = direct to Ladder Ratings
 
-        if self.loaded:
+        if self.selected_player_loaded:
             return
 
-        self.loaded = True
-        
         self.webview.setVisible(False)
-
         self.webview.setUrl(QtCore.QUrl("{}/faf/leaderboards/read-leader.php?board=1v1&username={}".
-                                        format(Settings.get('content/host'), me.login)))
+                                        format(Settings.get('content/host'), self.selected_player.login)))
+        self.selected_player_loaded = True

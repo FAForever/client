@@ -634,6 +634,10 @@ class ReplaysWidget(BaseClass, FormClass):
 
         logger.info("Replays Widget instantiated.")
 
+    def set_player(self, name):
+        self.setCurrentIndex(2)  # focus on Online Fault
+        self.vaultManager.searchVault(-1400, "", name, 0)
+
     def focusEvent(self, event):
         self.localManager.updatemyTree()
         self.vaultManager.reloadView()
