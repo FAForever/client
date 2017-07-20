@@ -1,6 +1,7 @@
 cx_Freeze
 ipaddress
 pathlib
+pyqt5
 pytest
 pytest-cov
 pytest-mock
