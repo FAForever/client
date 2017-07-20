@@ -346,7 +346,7 @@ class ClientWindow(FormClass, BaseClass):
 
     def on_disconnected(self):
         logger.warning("Disconnected from lobby server.")
-        self.gameset.clear_set()
+        self.gameset.clear()
         self.clear_players()
 
     @QtCore.pyqtSlot(bool)

@@ -101,7 +101,7 @@ class LiveReplaysWidgetHandler(object):
             replay(item.url)
 
     def _addExistingGames(self, gameset):
-        for game in gameset:
+        for game in gameset.values():
             if game.state == GameState.PLAYING:
                 self._newGame(game)
 
@@ -120,10 +120,12 @@ class LiveReplaysWidgetHandler(object):
 
         self.games[game] = (item, launched_at)
         game.gameUpdated.connect(self._updateGame)
-        game.gameClosed.connect(self._removeGame)
         self._updateGame(game)
 
     def _updateGame(self, game):
+        if game.state == GameState.CLOSED:
+            return self._removeGame(game)
+
         item, launched_at = self.games[game]
         item.takeChildren()  # Clear the children of this item before we're updating it
 
@@ -212,6 +214,7 @@ class LiveReplaysWidgetHandler(object):
 
     def _removeGame(self, game):
         self.liveTree.takeTopLevelItem(self.liveTree.indexOfTopLevelItem(self.games[game][0]))
+        self.games[game].gameUpdated.disconnect(self._updateGame)
         del self.games[game]
 
     def displayReplay(self):

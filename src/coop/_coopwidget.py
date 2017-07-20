@@ -79,9 +79,8 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
         self.selectedItem = None
 
     def _addExistingGames(self, gameset):
-        for game in gameset:
-            if game.state == GameState.OPEN:
-                self._addGame(game)
+        for game in gameset.values():
+            self._addGame(game)
 
     @QtCore.pyqtSlot(QtCore.QUrl)
     def openUrl(self, url):
@@ -234,17 +233,16 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
 
     @QtCore.pyqtSlot(object)
     def _addGame(self, game):
-        """
-        Slot that interprets and propagates games into GameItems
-        """
+        if game.state != GameState.OPEN:
+            return
+
         if game.featured_mod != "coop":
             return
 
         game_item = GameItem(game)
 
         self.games[game] = game_item
-        game.gameClosed.connect(self._removeGame)
-        game.newState.connect(self._newGameState)
+        game.gameUpdated.connect(self._atGameUpdate)
 
         game_item.update()
         self.gameList.addItem(game_item.widget)
@@ -252,11 +250,10 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
     def _removeGame(self, game):
         self.gameList.takeItem(self.gameList.row(self.games[game].widget))
 
-        game.gameClosed.disconnect(self._removeGame)
-        game.newState.disconnect(self._newGameState)
+        game.gameUpdated.disconnect(self._atGameUpdate)
         del self.games[game]
 
-    def _newGameState(self, game):
+    def _atGameUpdate(self, game):
         if game.state != GameState.OPEN:
             self._removeGame(game)
 

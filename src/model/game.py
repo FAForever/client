@@ -16,38 +16,41 @@ class GameVisibility(Enum):
     FRIENDS = "friends"
 
 
-# For when we get an inconsistent game update.
-class BadUpdateException(Exception):
-    pass
-
 """
 Represents a game happening on the server. Updates for the game state are sent
 from the server, identified by game uid. Updates are propagated with signals.
 
 The game with a given uid starts when we receive the first game message and
-ends with some update, or is ended manually. Once the game ends, it can't be
-updated or ended again. Update and game end are propagated with signals.
-
-If an update is malformed / forbidden, an exception is thrown.
+ends with some update, or is ended manually. Once the game ends, it shouldn't
+be updated or ended again. Update and game end are propagated with signals.
 """
 
 
 @with_logger
 class Game(QObject):
 
-    gameUpdated = pyqtSignal(object)
-    gameClosed = pyqtSignal(object)
-    newState = pyqtSignal(object)
-    playersUpdated = pyqtSignal(object, list)
+    gameUpdated = pyqtSignal(object, object)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self,
+                 uid,
+                 state,
+                 launched_at,
+                 num_players,
+                 max_players,
+                 title,
+                 host,
+                 mapname,
+                 map_file_path,
+                 teams,
+                 featured_mod,
+                 featured_mod_versions,
+                 sim_mods,
+                 password_protected,
+                 visibility):
+
         QObject.__init__(self)
 
-        try:
-            self.uid = (lambda uid, *a, **kw: uid)(*args, **kwargs)  # Extract uid from args
-        except TypeError as e:
-            raise BadUpdateException(e.args[0])
-
+        self.uid = uid
         self.state = None
         self.launched_at = None
         self.num_players = None
@@ -64,16 +67,26 @@ class Game(QObject):
         self.visibility = None
         self._aborted = False
 
-        self.update(*args, **kwargs)
+        self._update(state, launched_at, num_players, max_players, title,
+                     host, mapname, map_file_path, teams, featured_mod,
+                     featured_mod_versions, sim_mods, password_protected,
+                     visibility)
+
+    def copy(self):
+        s = self
+        return Game(s.uid, s.state, s.launched_at, s.num_players,
+                    s.max_players, s.title, s.host, s.mapname, s.map_file_path,
+                    s.teams, s.featured_mod, s.featured_mod_versions,
+                    s.sim_mods, s.password_protected, s.visibility)
 
     def update(self, *args, **kwargs):
-        try:
-            self._update(*args, **kwargs)
-        except TypeError as e:
-            raise BadUpdateException(e.args[0])
+        if self._aborted:
+            return
+        old = self.copy()
+        self._update(*args, **kwargs)
+        self.gameUpdated.emit(self, old)
 
     def _update(self,
-                uid,
                 state,
                 launched_at,
                 num_players,
@@ -88,32 +101,9 @@ class Game(QObject):
                 sim_mods,
                 password_protected,
                 visibility,
-                command=None,    # Ignored, for convenience since server puts this in the game dict
+                uid=None,   # For convenienve
                 ):
 
-        if self.closed():
-            raise BadUpdateException("Cannot update a closed game {}!".format(self.uid))
-
-        if self.uid != uid:
-            raise BadUpdateException("Trying to update game {} with mismatching uid {}"
-                                     .format(self.uid, uid))
-
-        try:
-            state = GameState(state)
-        except ValueError:
-            raise BadUpdateException("Unknown game state {} for game {}"
-                                     .format(state, self.uid))
-
-        try:
-            visibility = GameVisibility(visibility)
-        except ValueError:
-            raise BadUpdateException("Unknown game {} visibility {}"
-                                     .format(self.uid, visibility))
-
-        if self.launched_at is not None and self.launched_at != launched_at:
-            self._logger.warning("Overwriting launch time for game {}".format(self.uid))
-
-        oldstate = self.state
         self.launched_at = launched_at
         self.state = state
         self.num_players = num_players
@@ -124,7 +114,6 @@ class Game(QObject):
         self.map_file_path = map_file_path
 
         # Dict of <teamname> : [list of player names]
-        oldplayers = self.players
         self.teams = teams
 
         # Actually a game mode like faf, coop, ladder etc.
@@ -139,21 +128,18 @@ class Game(QObject):
         self.password_protected = password_protected
         self.visibility = visibility
 
-        self.playersUpdated.emit(self, oldplayers)
-        self.gameUpdated.emit(self)
-        if self.state != oldstate:
-            self.newState.emit(self)
-        if self.closed():
-            self.gameClosed.emit(self)
-
     def closed(self):
         return self.state == GameState.CLOSED or self._aborted
 
     # Used when the server confuses us whether the game is valid anymore.
     def abort_game(self):
-        if not self.closed():
-            self._aborted = True
-            self.gameClosed.emit(self)
+        if self.closed():
+            return
+
+        old = self.copy()
+        self.state = GameState.CLOSED
+        self._aborted = True
+        self.gameUpdated.emit(self, old)
 
     def to_dict(self):
         return {
@@ -201,3 +187,21 @@ class Game(QObject):
         if self.teams is None:
             return []
         return [player for team in self.teams.values() for player in team]
+
+
+def message_to_game_args(m):
+    # FIXME - this should be fixed on the server
+    if 'featured_mod' in m and m["featured_mod"] == "coop":
+        if 'max_players' in m:
+            m["max_players"] = 4
+
+    if "command" in m:
+        del m["command"]
+
+    try:
+        m['state'] = GameState(m['state'])
+        m['visibility'] = GameVisibility(m['visibility'])
+    except (KeyError, ValueError):
+        return False
+
+    return True

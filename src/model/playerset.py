@@ -96,20 +96,25 @@ class Playerset(QObject):
         self._logins = {}
 
     def _onNewGame(self, game):
-        game.playersUpdated.connect(self._onPlayersUpdate)
-        self._onPlayersUpdate(game, [])
+        game.gameUpdated.connect(self._onGameUpdate)
+        self._onGameUpdate(game, None)
 
-    def _onPlayersUpdate(self, game, old):
+    def _onGameUpdate(self, game, old):
+
+        if old is None or set(game.players) != set(old.players):
+            self._onNewTeams(game, game.players, [] if old is None else old.players)
+
+        if game.state == GameState.CLOSED:
+            game.gameUpdated.disconnect(self._onGameUpdate)
+
+    def _onNewTeams(self, game, new, old):
         old = [self[name] for name in old if name in self]
-        new = [self[name] for name in game.players if name in self]
+        new = [self[name] for name in new if name in self]
 
         for player in old:
             if player.login in client.instance.urls:
                 del client.instance.urls[player.login]
-
-        if game.state == GameState.CLOSED:
-            game.playersUpdated.disconnect(self._onPlayersUpdate)
-        else:
+        if game.state != GameState.CLOSED:
             for player in new:
                 client.instance.urls[player.login] = game.url(player.id)
 

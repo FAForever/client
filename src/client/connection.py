@@ -7,6 +7,8 @@ import sys
 
 from enum import IntEnum
 
+from model.game import Game, message_to_game_args
+
 logger = logging.getLogger(__name__)
 
 
@@ -371,9 +373,20 @@ class LobbyInfo(QtCore.QObject):
     def handle_game_info(self, message):
         if 'games' in message:  # initial bunch of games from server after client start
             for game in message['games']:
-                self._gameset.update_set(game)
+                self._update_game(game)
         else:
-            self._gameset.update_set(message)
+            self._update_game(message)
+
+    def _update_game(self, m):
+        if not message_to_game_args(m):
+            return
+
+        uid = m["uid"]
+        if uid not in self._gameset:
+            game = Game(**m)
+            self._gameset[uid] = game
+        else:
+            self._gameset[uid].update(**m)
 
     def handle_modvault_list_info(self, message):
         modList = message["modList"]

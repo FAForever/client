@@ -131,9 +131,8 @@ class GamesWidget(FormClass, BaseClass):
         self.updatePlayButton()
 
     def _addExistingGames(self, gameset):
-        for game in gameset:
-            if game.state == GameState.OPEN:
-                self._addGame(game)
+        for game in gameset.values():
+            self._addGame(game)
 
     @QtCore.pyqtSlot(dict)
     def processModInfo(self, message):
@@ -227,9 +226,9 @@ class GamesWidget(FormClass, BaseClass):
 
     @QtCore.pyqtSlot(object)
     def _addGame(self, game):
-        """
-        Slot that interprets and propagates games into GameItems
-        """
+        if game.state != GameState.OPEN:
+            return
+
         # CAVEAT - this relies on us receiving mod info before game info
         if game.featured_mod in mod_invisible:
             return
@@ -237,8 +236,7 @@ class GamesWidget(FormClass, BaseClass):
         game_item = GameItem(game, self.sorter)
 
         self.games[game] = game_item
-        game.gameClosed.connect(self._removeGame)
-        game.newState.connect(self._newGameState)
+        game.gameUpdated.connect(self._atGameUpdated)
 
         game_item.update()
         self.gameList.addItem(game_item.widget)
@@ -249,12 +247,10 @@ class GamesWidget(FormClass, BaseClass):
 
     def _removeGame(self, game):
         self.gameList.takeItem(self.gameList.row(self.games[game].widget))
-
-        game.gameClosed.disconnect(self._removeGame)
-        game.newState.disconnect(self._newGameState)
+        game.gameUpdated.disconnect(self._atGameUpdated)
         del self.games[game]
 
-    def _newGameState(self, game):
+    def _atGameUpdated(self, game):
         if game.state != GameState.OPEN:
             self._removeGame(game)
 
