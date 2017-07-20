@@ -243,7 +243,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
     def nickservRegister(self):
         if hasattr(self, '_nickserv_registered'):
             return
-        self.connection.privmsg('NickServ', 'register %s %s' % (util.md5text(self.client.password), '{}@users.faforever.com'.format(self.client.me.login)))
+        self.connection.privmsg('NickServ', 'register %s %s' % (util.md5text(self.client.password), '{}@users.faforever.com'.format(self.client.me.player.login)))
         self._nickserv_registered = True
         self.autoJoin(self.optionalChannels)
         self.autoJoin(self.crucialChannels)
