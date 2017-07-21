@@ -3,7 +3,7 @@ from PyQt5.QtCore import QObject, pyqtSignal
 
 class Player(QObject):
     updated = pyqtSignal(object, object)
-    newCurrentGame = pyqtSignal(object, object)
+    newCurrentGame = pyqtSignal(object, object, object)
 
     """
     Represents a player the client knows about.
@@ -35,7 +35,7 @@ class Player(QObject):
         self.league = league
 
         # The game the player is currently playing
-        self.currentGame = None
+        self._currentGame = None
 
     def copy(self):
         s = self
@@ -94,7 +94,8 @@ class Player(QObject):
 
     def rounded_rating_estimate(self):
         """
-        Get the conservative estimate of the players global trueskill rating, rounded to nearest 100
+        Get the conservative estimate of the players global trueskill rating,
+        rounded to nearest 100
         """
         return round((self.rating_estimate()/100))*100
 
@@ -130,24 +131,26 @@ class Player(QObject):
         return self.__str__()
 
     def __str__(self):
-        return "Player(id={}, login={}, global_rating={}, ladder_rating={})".format(
+        return ("Player(id={}, login={}, global_rating={}, "
+                "ladder_rating={})").format(
             self.id,
             self.login,
             self.global_rating,
             self.ladder_rating
         )
 
-    def game_added(self, game):
-        if self.game == game:
+    @property
+    def currentGame(self):
+        return self._currentGame
+
+    @currentGame.setter
+    def currentGame(self, game):
+        self.set_current_game_defer_signal(game)()
+
+    def set_current_game_defer_signal(self, game):
+        if self.currentGame == game:
             return
 
-        old = self.game
-        self.game = game
-        self.newCurrentGame.emit(game, old)
-
-    def game_removed(self, game):
-        if self.game != game:
-            return
-        old = self.game
-        self.game = None
-        self.newCurrentGame.emit(game, old)
+        old = self._currentGame
+        self._currentGame = game
+        return lambda: self.newCurrentGame.emit(self, game, old)

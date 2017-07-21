@@ -16,20 +16,21 @@ class GameVisibility(Enum):
     FRIENDS = "friends"
 
 
-"""
-Represents a game happening on the server. Updates for the game state are sent
-from the server, identified by game uid. Updates are propagated with signals.
-
-The game with a given uid starts when we receive the first game message and
-ends with some update, or is ended manually. Once the game ends, it shouldn't
-be updated or ended again. Update and game end are propagated with signals.
-"""
-
-
 @with_logger
 class Game(QObject):
+    """
+    Represents a game happening on the server. Updates for the game state are
+    sent from the server, identified by game uid. Updates are propagated with
+    signals.
 
+    The game with a given uid starts when we receive the first game message and
+    ends with some update, or is ended manually. Once the game ends, it
+    shouldn't be updated or ended again. Update and game end are propagated
+    with signals.
+    """
     gameUpdated = pyqtSignal(object, object)
+    connectedPlayerAdded = pyqtSignal(object, object)
+    connectedPlayerRemoved = pyqtSignal(object, object)
 
     def __init__(self,
                  playerset,

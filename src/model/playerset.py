@@ -1,9 +1,6 @@
 from PyQt5.QtCore import QObject, pyqtSignal
 
-import client
-
 from model.player import Player
-from model.game import GameState
 
 
 class Playerset(QObject):
@@ -16,10 +13,8 @@ class Playerset(QObject):
     playerAdded = pyqtSignal(object)
     playerRemoved = pyqtSignal(object)
 
-    def __init__(self, gameset):
+    def __init__(self):
         QObject.__init__(self)
-        self.gameset = gameset
-        self.gameset.newGame.connect(self._onNewGame)
 
         # UID -> Player map
         self._players = {}
@@ -50,7 +45,7 @@ class Playerset(QObject):
     def items(self):
         return self._players.items()
 
-    def get(self, item, default = None):
+    def get(self, item, default=None):
         try:
             return self[item]
         except KeyError:
@@ -77,7 +72,9 @@ class Playerset(QObject):
 
         self._players[key] = value
         self._logins[value.login] = value
-        self.playerAdded.emit([value])
+        self.playerAdded.emit(value)
+        value.updated.connect(self._at_player_updated)
+        value.newCurrentGame.connect(self._at_player_updated)
 
     def __delitem__(self, item):
         try:
@@ -86,37 +83,14 @@ class Playerset(QObject):
             return
         del self._players[player.id]
         del self._players[player.login]
+        player.updated.disconnect(self._at_player_updated)
+        player.newCurrentGame.disconnect(self._at_player_updated)
         self.playerRemoved.emit(player)
 
+    def _at_player_updated(self, player):
+        self.playersUpdated.emit([player])
+
     def clear(self):
-        oldplayers = self.keys()
+        oldplayers = list(self.keys())
         for player in oldplayers:
-            self.playerRemoved.emit(player)
-        self._players = {}
-        self._logins = {}
-
-    def _onNewGame(self, game):
-        game.gameUpdated.connect(self._onGameUpdate)
-        self._onGameUpdate(game, None)
-
-    def _onGameUpdate(self, game, old):
-
-        if old is None or set(game.players) != set(old.players):
-            self._onNewTeams(game, game.players, [] if old is None else old.players)
-
-        if game.state == GameState.CLOSED:
-            game.gameUpdated.disconnect(self._onGameUpdate)
-
-    def _onNewTeams(self, game, new, old):
-        old = [self[name] for name in old if name in self]
-        new = [self[name] for name in new if name in self]
-
-        for player in old:
-            if player.login in client.instance.urls:
-                del client.instance.urls[player.login]
-        if game.state != GameState.CLOSED:
-            for player in new:
-                client.instance.urls[player.login] = game.url(player.id)
-
-        playersum = list(set(old + new))
-        self.playersUpdated.emit(playersum)
+            del self[oldplayers]

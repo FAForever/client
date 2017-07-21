@@ -354,7 +354,7 @@ class LobbyInfo(QtCore.QObject):
         self._dispatcher["avatar"] = self.handle_avatar
         self._dispatcher["admin"] = self.handle_admin
         self._gameset = gameset
-        self._playerset = gameset
+        self._playerset = playerset
 
     def handle_updated_achievements(self, message):
         pass
@@ -385,7 +385,10 @@ class LobbyInfo(QtCore.QObject):
         uid = m["uid"]
         if uid not in self._gameset:
             game = Game(playerset = self._playerset, **m)
-            self._gameset[uid] = game
+            try:
+                self._gameset[uid] = game
+            except ValueError:  # Closed game!
+                pass
         else:
             self._gameset[uid].update(**m)
 

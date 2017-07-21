@@ -158,12 +158,12 @@ class ClientWindow(FormClass, BaseClass):
         self.lobby_connection.state_changed.connect(self.on_connection_state_changed)
         self.lobby_reconnecter = ServerReconnecter(self.lobby_connection)
 
-        self.gameset = Gameset()
-        fa.instance.gameset = self.gameset  # FIXME
-
-        self.players = Playerset(self.gameset)  # Players known to the client
+        self.players = Playerset()  # Players known to the client
         self.players.playersUpdated.connect(lambda pl: self.usersUpdated.emit([p.id for p in pl]))
+
         self.urls = {}
+        self.gameset = Gameset(self, self.players)
+        fa.instance.gameset = self.gameset  # FIXME
 
         self.lobby_info = LobbyInfo(self.lobby_dispatch, self.gameset, self.players)
         self.gameset.newGame.connect(self.fill_in_session_info)
