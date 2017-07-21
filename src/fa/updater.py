@@ -349,6 +349,8 @@ class Updater(QtCore.QObject, ConnectionHandler):
 
             while progress.isVisible():
                 QtWidgets.QApplication.processEvents()
+                if not progress.isVisible():
+                    break
                 read_buffer = downloadedfile.read(block_sz)
                 if not read_buffer:
                     break
