@@ -337,7 +337,7 @@ class LobbyInfo(QtCore.QObject):
     avatarList = QtCore.pyqtSignal(list)
     playerAvatarList = QtCore.pyqtSignal(dict)
 
-    def __init__(self, dispatcher, gameset):
+    def __init__(self, dispatcher, gameset, playerset):
         QtCore.QObject.__init__(self)
 
         self._dispatcher = dispatcher
@@ -354,6 +354,7 @@ class LobbyInfo(QtCore.QObject):
         self._dispatcher["avatar"] = self.handle_avatar
         self._dispatcher["admin"] = self.handle_admin
         self._gameset = gameset
+        self._playerset = gameset
 
     def handle_updated_achievements(self, message):
         pass
@@ -383,7 +384,7 @@ class LobbyInfo(QtCore.QObject):
 
         uid = m["uid"]
         if uid not in self._gameset:
-            game = Game(**m)
+            game = Game(playerset = self._playerset, **m)
             self._gameset[uid] = game
         else:
             self._gameset[uid].update(**m)

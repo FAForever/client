@@ -57,6 +57,7 @@ class Gameset(QObject):
             raise ValueError
 
         self.games[key] = value
+        # We should be the first ones to connect to the signal
         value.gameUpdated.connect(self._at_game_update)
         self._new_state(value)
         self.newGame.emit(value)

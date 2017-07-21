@@ -1,7 +1,9 @@
 from PyQt5.QtCore import QObject, pyqtSignal
 
+
 class Player(QObject):
     updated = pyqtSignal(object, object)
+    newCurrentGame = pyqtSignal(object, object)
 
     """
     Represents a player the client knows about.
@@ -31,6 +33,9 @@ class Player(QObject):
         self.country = country
         self.clan = clan
         self.league = league
+
+        # The game the player is currently playing
+        self.currentGame = None
 
     def copy(self):
         s = self
@@ -131,3 +136,18 @@ class Player(QObject):
             self.global_rating,
             self.ladder_rating
         )
+
+    def game_added(self, game):
+        if self.game == game:
+            return
+
+        old = self.game
+        self.game = game
+        self.newCurrentGame.emit(game, old)
+
+    def game_removed(self, game):
+        if self.game != game:
+            return
+        old = self.game
+        self.game = None
+        self.newCurrentGame.emit(game, old)

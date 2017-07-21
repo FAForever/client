@@ -32,6 +32,7 @@ class Game(QObject):
     gameUpdated = pyqtSignal(object, object)
 
     def __init__(self,
+                 playerset,
                  uid,
                  state,
                  launched_at,
@@ -49,6 +50,8 @@ class Game(QObject):
                  visibility):
 
         QObject.__init__(self)
+
+        self._playerset = playerset
 
         self.uid = uid
         self.state = None
@@ -74,7 +77,7 @@ class Game(QObject):
 
     def copy(self):
         s = self
-        return Game(s.uid, s.state, s.launched_at, s.num_players,
+        return Game(s._playerset, s.uid, s.state, s.launched_at, s.num_players,
                     s.max_players, s.title, s.host, s.mapname, s.map_file_path,
                     s.teams, s.featured_mod, s.featured_mod_versions,
                     s.sim_mods, s.password_protected, s.visibility)
@@ -84,7 +87,7 @@ class Game(QObject):
             return
         old = self.copy()
         self._update(*args, **kwargs)
-        self.gameUpdated.emit(self, old)
+        self._after_update(old)
 
     def _update(self,
                 state,
@@ -128,6 +131,19 @@ class Game(QObject):
         self.password_protected = password_protected
         self.visibility = visibility
 
+    def _after_update(self, old):
+        self._update_players(old)
+        self.gameUpdated.emit(self, old)
+
+    def _update_players(self, old):
+        old_players = set() if old.closed() else set(old.connected_players)
+        new_players = set() if self.closed() else set(self.connected_players)
+
+        for added in new_players - old_players:
+            added.game_added(self)
+        for removed in old_players - new_players:
+            removed.game_removed(self)
+
     def closed(self):
         return self.state == GameState.CLOSED or self._aborted
 
@@ -139,7 +155,7 @@ class Game(QObject):
         old = self.copy()
         self.state = GameState.CLOSED
         self._aborted = True
-        self.gameUpdated.emit(self, old)
+        self._after_update(old)
 
     def to_dict(self):
         return {
@@ -187,6 +203,18 @@ class Game(QObject):
         if self.teams is None:
             return []
         return [player for team in self.teams.values() for player in team]
+
+    @property
+    def connected_players(self):
+        return [self._playerset[name] for name in self.players
+                if name in self._playerset]
+
+    @property
+    def ingame_players(self):
+        if self.closed():
+            return []
+        return [player for player in self.connected_players
+                if player.game == self]
 
 
 def message_to_game_args(m):

@@ -160,7 +160,12 @@ class ClientWindow(FormClass, BaseClass):
 
         self.gameset = Gameset()
         fa.instance.gameset = self.gameset  # FIXME
-        self.lobby_info = LobbyInfo(self.lobby_dispatch, self.gameset)
+
+        self.players = Playerset(self.gameset)  # Players known to the client
+        self.players.playersUpdated.connect(lambda pl: self.usersUpdated.emit([p.id for p in pl]))
+        self.urls = {}
+
+        self.lobby_info = LobbyInfo(self.lobby_dispatch, self.gameset, self.players)
         self.gameset.newGame.connect(self.fill_in_session_info)
 
         self.lobby_dispatch["session"] = self.handle_session
@@ -266,10 +271,6 @@ class ClientWindow(FormClass, BaseClass):
         self.mainTabs.currentChanged.connect(self.mainTabChanged)
         self._vault_tab = -1
         self.topTabs.currentChanged.connect(self.vaultTabChanged)
-
-        self.players = Playerset(self.gameset)  # Players known to the client
-        self.players.playersUpdated.connect(lambda pl: self.usersUpdated.emit([p.id for p in pl]))
-        self.urls = {}
 
         # Handy reference to the User object representing the logged-in user.
         self.me = User(self.players)
