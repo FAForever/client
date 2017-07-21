@@ -88,7 +88,7 @@ class Game(QObject):
             return
         old = self.copy()
         self._update(*args, **kwargs)
-        self._after_update(old)
+        self.gameUpdated.emit(self, old)
 
     def _update(self,
                 state,
@@ -132,19 +132,6 @@ class Game(QObject):
         self.password_protected = password_protected
         self.visibility = visibility
 
-    def _after_update(self, old):
-        self._update_players(old)
-        self.gameUpdated.emit(self, old)
-
-    def _update_players(self, old):
-        old_players = set() if old.closed() else set(old.connected_players)
-        new_players = set() if self.closed() else set(self.connected_players)
-
-        for added in new_players - old_players:
-            added.game_added(self)
-        for removed in old_players - new_players:
-            removed.game_removed(self)
-
     def closed(self):
         return self.state == GameState.CLOSED or self._aborted
 
@@ -156,7 +143,7 @@ class Game(QObject):
         old = self.copy()
         self.state = GameState.CLOSED
         self._aborted = True
-        self._after_update(old)
+        self.gameUpdated.emit(self, old)
 
     def to_dict(self):
         return {
@@ -215,7 +202,7 @@ class Game(QObject):
         if self.closed():
             return []
         return [player for player in self.connected_players
-                if player.game == self]
+                if player.currentGame == self]
 
 
 def message_to_game_args(m):

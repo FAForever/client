@@ -161,8 +161,7 @@ class ClientWindow(FormClass, BaseClass):
         self.players = Playerset()  # Players known to the client
         self.players.playersUpdated.connect(lambda pl: self.usersUpdated.emit([p.id for p in pl]))
 
-        self.urls = {}
-        self.gameset = Gameset(self, self.players)
+        self.gameset = Gameset(self.players)
         fa.instance.gameset = self.gameset  # FIXME
 
         self.lobby_info = LobbyInfo(self.lobby_dispatch, self.gameset, self.players)
@@ -535,7 +534,8 @@ class ClientWindow(FormClass, BaseClass):
         self.tourneys = tourneys.Tourneys(self)
         self.vault = vault.MapVault(self)
         self.modvault = modvault.ModVault(self)
-        self.replays = replays.Replays(self, self.lobby_dispatch, self.gameset)
+        self.replays = replays.Replays(self, self.lobby_dispatch,
+                                       self.gameset, self.players)
         self.tutorials = tutorials.Tutorials(self)
         self.Coop = coop.Coop(self, self.gameset)
         self.notificationSystem = ns.Notifications(self, self.gameset)
@@ -807,7 +807,6 @@ class ClientWindow(FormClass, BaseClass):
     # Clear the online users lists
     def clear_players(self):
         self.players.clear()
-        self.urls = {}
 
     @QtCore.pyqtSlot(str)
     def open_url(self, url):

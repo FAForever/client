@@ -4,11 +4,12 @@ from PyQt5.QtNetwork import QNetworkRequest
 from chat._avatarWidget import avatarWidget
 
 import urllib.request, urllib.error, urllib.parse
-import chat
 from fa.replay import replay
 import util
 import client
 from config import Settings
+
+from model.game import GameState
 
 """
 A chatter is the representation of a person on IRC, in a channel's nick list.
@@ -184,12 +185,13 @@ class Chatter(QtWidgets.QTableWidgetItem):
         ladder_rating = player.ladder_estimate()
 
         # Status icon handling
-        url = client.instance.urls.get(player.login)
-        if url:
-            if url.scheme() == "fafgame":
+        game = player.currentGame
+        if game is not None and not game.closed():
+            url = game.url(player.id)
+            if game.state == GameState.OPEN:
                 self.statusItem.setIcon(util.THEME.icon("chat/status/lobby.png"))
                 self.statusItem.setToolTip("In Game Lobby<br/>"+url.toString())
-            elif url.scheme() == "faflive":
+            elif game.state == GameState.PLAYING:
                 self.statusItem.setIcon(util.THEME.icon("chat/status/playing.png"))
                 self.statusItem.setToolTip("Playing Game<br/>"+url.toString())
         else:
@@ -241,12 +243,22 @@ class Chatter(QtWidgets.QTableWidgetItem):
             self.lobby.openQuery(self.name, self.id, activate=True)  # open and activate query window
 
         elif item == self.statusItem:
-            if self.name in client.instance.urls:
-                url = client.instance.urls[self.name]
-                if url.scheme() == "fafgame":
-                    self.joinInGame()
-                elif url.scheme() == "faflive":
-                    self.viewReplay()
+            self._interactWithGame()
+
+    def _interactWithGame(self):
+        player = self.lobby.client.players.get(self.id)
+        if not player:
+            return
+
+        game = player.currentGame
+        if game is None or game.closed():
+            return
+
+        url = game.url(player.id)
+        if game.state == GameState.OPEN:
+            self.joinInGame(url)
+        elif game.state == GameState.PLAYING:
+            self.viewReplay(url)
 
     def pressed(self, item):
         menu = QtWidgets.QMenu(self.parent)
@@ -258,8 +270,12 @@ class Chatter(QtWidgets.QTableWidgetItem):
             action.triggered.connect(action_connect)  # Triggers
             menu.addAction(action)
 
+        player = self.lobby.client.players.get(self.id)
+        game = None if player is None else player.currentGame
+        is_me = player.login == self.lobby.client.login
+
         # only for us. Either way, it will display our avatar, not anyone avatar.
-        if self.lobby.client.login == self.name:
+        if is_me:
             menu_add("Select Avatar", self.selectAvatar)
 
         # power menu
@@ -283,54 +299,40 @@ class Chatter(QtWidgets.QTableWidgetItem):
         # Aliases link
         menu_add("View Aliases", self.viewAliases, True)
 
-        # Joining hosted or live Game
-        if self.lobby.client.login != self.name:  # Don't allow self to be invited to a game, or join one
-            if self.name in client.instance.urls:
-
-                url = client.instance.urls[self.name]
-                if url.scheme() == "fafgame":
-                    menu_add("Join hosted Game", self.joinInGame, True)
-                elif url.scheme() == "faflive":
-                    menu_add("View live Replay", self.viewReplay, True)
+        # Don't allow self to be invited to a game, or join one
+        if game is not None and not is_me:
+            if game.state == GameState.OPEN:
+                menu_add("Join hosted Game", self.joinInGame, True)
+            elif game.state == GameState.PLAYING:
+                menu_add("View live Replay", self.viewReplay, True)
 
         # Replays in vault
-        if self.id != -1:  # not for irc user
+        if player is not None:  # not for irc user
             menu_add("View Replays in Vault", self.viewVaultReplay, True)
 
         # Friends and Foes Lists
-        def player_or_irc_action_connect(f, irc_f):  # Irc or not Irc, that's the Question
-            if self.id != -1:
+        def player_or_irc_action(f, irc_f):
+            if player is not None:
                 return lambda: f(self.id)
             else:
                 return lambda: irc_f(self.name)
 
         cl = self.lobby.client
         me = self.lobby.client.me
-        if me.player.id == self.id:  # We're ourselves
+        if is_me:  # We're ourselves
             pass
-
         elif me.isFriend(self.id, self.name):  # We're a friend
-
-            menu_add("Remove friend", player_or_irc_action_connect(cl.remFriend, me.remIrcFriend), True)
-
+            menu_add("Remove friend", player_or_irc_action(cl.remFriend, me.remIrcFriend), True)
         elif me.isFoe(self.id, self.name):  # We're a foe
-
-            menu_add("Remove foe", player_or_irc_action_connect(cl.remFoe, me.remIrcFoe), True)
-
+            menu_add("Remove foe", player_or_irc_action(cl.remFoe, me.remIrcFoe), True)
         else:  # We're neither
-
-            menu_add("Add friend", player_or_irc_action_connect(cl.addFriend, me.addIrcFriend), True)
-
+            menu_add("Add friend", player_or_irc_action(cl.addFriend, me.addIrcFriend), True)
             # FIXME - chatwidget sets mod status very inconsistently
             if not self.isMod():  # so disable foeing mods for now
-                menu_add("Add foe", player_or_irc_action_connect(cl.addFoe, me.addIrcFoe))
+                menu_add("Add foe", player_or_irc_action(cl.addFoe, me.addIrcFoe))
 
         # Finally: Show the popup
         menu.popup(QtGui.QCursor.pos())
-
-    def viewReplay(self):
-        if self.name in client.instance.urls:
-            replay(client.instance.urls[self.name])
 
     def viewVaultReplay(self):
         """ see the player replays in the vault """
@@ -339,6 +341,8 @@ class Chatter(QtWidgets.QTableWidgetItem):
         replayHandler.searchVault(0, "", self.name, 0)
         self.lobby.client.mainTabs.setCurrentIndex(self.lobby.client.mainTabs.indexOf(self.lobby.client.replaysTab))
 
-    def joinInGame(self):
-        if self.name in client.instance.urls:
-            client.instance.joinGameFromURL(client.instance.urls[self.name])
+    def joinInGame(self, url):
+        client.instance.joinGameFromURL(url)
+
+    def viewReplay(self, url):
+        replay(url)

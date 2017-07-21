@@ -34,12 +34,10 @@ class GameProcess(QtCore.QProcess):
     def game(self, value):
         if self._game is not None:
             self._game.gameUpdated.disconnect(self._trackGameUpdate)
-            self._game.gameClosed.disconnect(self._clearGame)
         self._game = value
 
         if self._game is not None:
             self._game.gameUpdated.connect(self._trackGameUpdate)
-            self._game.gameClosed.connect(self._clearGame)
             self._trackGameUpdate()
 
     # Check new games from the server to find one matching our uid
@@ -54,6 +52,9 @@ class GameProcess(QtCore.QProcess):
         self.game = None
 
     def _trackGameUpdate(self, _=None):
+        if self.game.state == GameState.CLOSED:
+            self.game = None
+            return
         if self.game.state != GameState.PLAYING:
             return
 

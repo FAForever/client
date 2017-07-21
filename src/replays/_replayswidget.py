@@ -124,6 +124,7 @@ class LiveReplaysWidgetHandler(object):
 
     def _updateGame(self, game):
         if game.state == GameState.CLOSED:
+            game.gameUpdated.disconnect(self._updateGame)
             return self._removeGame(game)
 
         item, launched_at = self.games[game]
@@ -214,7 +215,6 @@ class LiveReplaysWidgetHandler(object):
 
     def _removeGame(self, game):
         self.liveTree.takeTopLevelItem(self.liveTree.indexOfTopLevelItem(self.games[game][0]))
-        self.games[game].gameUpdated.disconnect(self._updateGame)
         del self.games[game]
 
     def displayReplay(self):
@@ -416,10 +416,11 @@ class ReplayVaultWidgetHandler(object):
     automatic = Settings.persisted_property("replay/automatic", default_value=False, type=bool)
     spoiler_free = Settings.persisted_property("replay/spoilerFree", default_value=True, type=bool)
 
-    def __init__(self, widget, dispatcher, client):
+    def __init__(self, widget, dispatcher, client, playerset):
         self._w = widget
         self._dispatcher = dispatcher
         self.client = client
+        self._playerset = playerset
 
         self.onlineReplays = {}
         self.selectedReplay = None
@@ -498,21 +499,28 @@ class ReplayVaultWidgetHandler(object):
         if hasattr(item, "duration"):
             if "playing" in item.duration:  # live game will not be in vault
                 if not item.live_delay:  # live game under 5min
+                    name = None
                     if item.mod == "ladder1v1":
                         name = item.name[:item.name.find(" ")]  # "name vs name"
                     else:
-                        for team in item.teams:  # find a player...
-                            for player in item.teams[team]:
-                                name = player["name"]
-                                if name != "":
-                                    break
-                            if name != "":
+                        players = (p for t in item.teams for p in t)
+                        for player in players:
+                            name = player["name"]
+                            if name != "" and name in self._playerset:
                                 break
-                    if name in client.instance.urls:  # join live game
-                        replay(client.instance.urls[name])
+                    self._startReplay(name)
             else:  # start replay
                 if hasattr(item, "url"):
                     self.replayDownload.get(QNetworkRequest(QtCore.QUrl(item.url)))
+
+    def _startReplay(self, name):
+        if name is None or name not in self._playerset:
+            return
+        player = self._playerset[name]
+
+        if not player.currentGame:
+            return
+        replay(player.currentGame.url(player.id))
 
     def automaticCheckboxchange(self, state):
         self.automatic = state
@@ -610,7 +618,7 @@ class ReplayVaultWidgetHandler(object):
 
 
 class ReplaysWidget(BaseClass, FormClass):
-    def __init__(self, client, dispatcher, gameset):
+    def __init__(self, client, dispatcher, gameset, playerset):
         super(BaseClass, self).__init__()
 
         self.setupUi(self)
@@ -618,9 +626,11 @@ class ReplaysWidget(BaseClass, FormClass):
         # self.replayVault.setVisible(False)
         self.client = client
 
-        self.liveManager = LiveReplaysWidgetHandler(self.liveTree, self.client, gameset)
+        self.liveManager = LiveReplaysWidgetHandler(self.liveTree, self.client,
+                                                    gameset)
         self.localManager = LocalReplaysWidgetHandler(self.myTree)
-        self.vaultManager = ReplayVaultWidgetHandler(self, dispatcher, client)
+        self.vaultManager = ReplayVaultWidgetHandler(self, dispatcher, client,
+                                                     playerset)
 
         logger.info("Replays Widget instantiated.")
 

@@ -30,7 +30,7 @@ def playerset(mocker):
 
 def test_add_update(mocker, playerset):
     data = copy.deepcopy(DEFAULT_DICT)
-    s = gameset.Gameset()
+    s = gameset.Gameset(playerset=playerset)
     newgame = mocker.Mock()
     s.newGame.connect(newgame)
 
@@ -56,7 +56,7 @@ def test_add_update(mocker, playerset):
 
 
 def test_iter(playerset):
-    s = gameset.Gameset()
+    s = gameset.Gameset(playerset=playerset)
     data = copy.deepcopy(DEFAULT_DICT)
     s[1] = game.Game(playerset=playerset, **data)
 
@@ -68,7 +68,7 @@ def test_iter(playerset):
 
 
 def test_clear(playerset):
-    s = gameset.Gameset()
+    s = gameset.Gameset(playerset=playerset)
     data = copy.deepcopy(DEFAULT_DICT)
     s[1] = game.Game(playerset=playerset, **data)
     s.clear()
@@ -80,7 +80,7 @@ def test_clear(playerset):
 
 
 def test_new_states_one_object(playerset, mocker):
-    s = gameset.Gameset()
+    s = gameset.Gameset(playerset=playerset)
     lobby = mocker.Mock()
     live = mocker.Mock()
     closed = mocker.Mock()
@@ -116,7 +116,7 @@ def test_new_states_one_object(playerset, mocker):
 
 
 def test_new_states_new_objects(playerset, mocker):
-    s = gameset.Gameset()
+    s = gameset.Gameset(playerset=playerset)
     lobby = mocker.Mock()
     live = mocker.Mock()
     closed = mocker.Mock()
@@ -154,7 +154,7 @@ def test_new_states_new_objects(playerset, mocker):
     assert not closed.called
 
 def test_no_state_changes(playerset, mocker):
-    s = gameset.Gameset()
+    s = gameset.Gameset(playerset=playerset)
     lobby = mocker.Mock()
     live = mocker.Mock()
     closed = mocker.Mock()

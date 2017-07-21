@@ -20,11 +20,11 @@ class Gameset(QObject):
     newLiveGame = pyqtSignal(object)
     newClosedGame = pyqtSignal(object)
 
-    def __init__(self, client, playerset):
+    def __init__(self, playerset):
         QObject.__init__(self)
         self.games = {}
         self._playerset = playerset
-        self._idx = PlayerGameIndex(client, self, playerset)
+        self._idx = PlayerGameIndex(self, playerset)
 
     def __getitem__(self, uid):
         return self.games[uid]
@@ -98,8 +98,7 @@ class Gameset(QObject):
 class PlayerGameIndex:
     # Helper class that keeps track of player / game relationship and helps
     # assign games to players that reconnected.
-    def __init__(self, client, gameset, playerset):
-        self._client = client
+    def __init__(self, gameset, playerset):
         self._playerset = playerset
         self._gameset = gameset
         self._idx = {}
@@ -122,15 +121,6 @@ class PlayerGameIndex:
             signals.append(self._set_player_game_defer_signal(p, None))
         for p in added:
             signals.append(self._set_player_game_defer_signal(p, new))
-
-        # FIXME
-        newps = set() if new.closed() else set(new.connected_players)
-        oldps = set() if old_closed else set(old.connected_players)
-        for player in oldps:
-            if player.login in self._client.urls:
-                del self._client.urls[player.login]
-        for player in newps:
-            self._client.urls[player.login] = new.url(player.id)
 
         for s in signals:
             s()
