@@ -24,14 +24,17 @@ DEFAULT_DICT = {
     "visibility": game.GameVisibility.PUBLIC,
 }
 
+@pytest.fixture
+def playerset(mocker):
+    return mocker.MagicMock()
 
-def test_add_update(mocker):
+def test_add_update(mocker, playerset):
     data = copy.deepcopy(DEFAULT_DICT)
     s = gameset.Gameset()
     newgame = mocker.Mock()
     s.newGame.connect(newgame)
 
-    s[1] = game.Game(**data)
+    s[1] = game.Game(playerset=playerset, **data)
     assert 1 in s
     g = s[1]
     newgame.assert_called_with(g)
@@ -45,17 +48,17 @@ def test_add_update(mocker):
     newgame.reset_mock()
 
     data["uid"] = 2
-    s[2] = game.Game(**data)
+    s[2] = game.Game(playerset=playerset, **data)
     assert 2 in s
     g2 = s[2]
     assert g is not g2
     newgame.assert_called_with(g2)
 
 
-def test_iter():
+def test_iter(playerset):
     s = gameset.Gameset()
     data = copy.deepcopy(DEFAULT_DICT)
-    s[1] = game.Game(**data)
+    s[1] = game.Game(playerset=playerset, **data)
 
     num = 0
     for g in s.values():
@@ -64,10 +67,10 @@ def test_iter():
     assert num == 1
 
 
-def test_clear():
+def test_clear(playerset):
     s = gameset.Gameset()
     data = copy.deepcopy(DEFAULT_DICT)
-    s[1] = game.Game(**data)
+    s[1] = game.Game(playerset=playerset, **data)
     s.clear()
 
     num = 0
@@ -76,7 +79,7 @@ def test_clear():
     assert num == 0
 
 
-def test_new_states_one_object(mocker):
+def test_new_states_one_object(playerset, mocker):
     s = gameset.Gameset()
     lobby = mocker.Mock()
     live = mocker.Mock()
@@ -91,7 +94,7 @@ def test_new_states_one_object(mocker):
         closed.reset_mock()
     data = copy.deepcopy(DEFAULT_DICT)
 
-    g = game.Game(**data)
+    g = game.Game(playerset=playerset, **data)
     s[1] = g
     assert lobby.called
     assert not live.called
@@ -112,7 +115,7 @@ def test_new_states_one_object(mocker):
     assert closed.called
 
 
-def test_new_states_new_objects(mocker):
+def test_new_states_new_objects(playerset, mocker):
     s = gameset.Gameset()
     lobby = mocker.Mock()
     live = mocker.Mock()
@@ -127,7 +130,7 @@ def test_new_states_new_objects(mocker):
     data = copy.deepcopy(DEFAULT_DICT)
     data["uid"] = 1
 
-    s[1] = game.Game(**data)
+    s[1] = game.Game(playerset=playerset, **data)
     assert lobby.called
     assert not live.called
     assert not closed.called
@@ -135,7 +138,7 @@ def test_new_states_new_objects(mocker):
 
     data["uid"] = 2
     data["state"] = game.GameState.PLAYING
-    s[2] = game.Game(**data)
+    s[2] = game.Game(playerset=playerset, **data)
     assert not lobby.called
     assert live.called
     assert not closed.called
@@ -144,13 +147,13 @@ def test_new_states_new_objects(mocker):
     data["uid"] = 3
     data["state"] = game.GameState.CLOSED
     with pytest.raises(ValueError):
-        s[3] = game.Game(**data)
+        s[3] = game.Game(playerset=playerset, **data)
     assert not lobby.called
     assert not live.called
     # A new closed game does *not* get reported.
     assert not closed.called
 
-def test_no_state_changes(mocker):
+def test_no_state_changes(playerset, mocker):
     s = gameset.Gameset()
     lobby = mocker.Mock()
     live = mocker.Mock()
@@ -164,7 +167,7 @@ def test_no_state_changes(mocker):
         closed.reset_mock()
     data = copy.deepcopy(DEFAULT_DICT)
 
-    s[1] = game.Game(**data)
+    s[1] = game.Game(playerset=playerset, **data)
     reset()
     data['title'] = "New"
     s[1].update(**data)

@@ -26,7 +26,7 @@ def conservative_estimate(rating):
     return rating[0]-(3*rating[1])
 
 
-def test_average_rating(qtbot):
+def test_average_rating(mocker, qtbot):
     import config
     config.no_dialogs = True
     import client
@@ -34,7 +34,7 @@ def test_average_rating(qtbot):
     players = [Player(id_=1, login='Test-1', global_rating=(2000, 200)),
               Player(id_=2, login='Test-2', global_rating=(1000, 150)),
               Player(id_=3, login='Test-3', global_rating=(1200, 100))]
-    g = GameItem(game.Game(**DEFAULT_GAMEDICT))
+    g = GameItem(game.Game(playerset = mocker.Mock(), **DEFAULT_GAMEDICT))
     client.players = dict([(p.id, p) for p in players])
     g.client = client
     g.players = players
@@ -43,13 +43,13 @@ def test_average_rating(qtbot):
     assert expected_average_rating == g.average_rating
 
 
-def test_average_rating_no_players(qtbot):
+def test_average_rating_no_players(mocker, qtbot):
     import config
     config.no_dialogs = True
     import client
     from games.gameitem import GameItem
     players = []
-    g = GameItem(game.Game(**DEFAULT_GAMEDICT))
+    g = GameItem(game.Game(playerset = mocker.Mock(), **DEFAULT_GAMEDICT))
     client.players = dict([(p.id, p) for p in players])
     g.client = client
     g.players = players
