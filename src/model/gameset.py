@@ -112,7 +112,8 @@ class PlayerGameIndex:
         news = set() if new.closed() else set(new.players)
         olds = set() if old_closed else set(old.players)
 
-        removed = [p for p in olds - news if self._idx[p] == new]
+        removed = [p for p in olds - news
+                   if p in self._idx and self._idx[p] == new]
         added = news - olds
 
         # Player games are part of state, so update all first before signals
