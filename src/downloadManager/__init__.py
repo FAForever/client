@@ -14,7 +14,7 @@ class FileDownload(object):
     """
     A simple async one-shot file downloader.
     """
-    def __init__(self, nam, addr, dest, destpath,
+    def __init__(self, nam, addr, dest, destpath=None,
                  start=lambda _: None, progress=lambda _: None, finished=lambda _: None):
         self._nam = nam
         self.addr = addr
@@ -199,8 +199,8 @@ class downloadManager(QtCore.QObject):
             logger.debug("Searching mod preview for: " + os.path.basename(url).rsplit('.',1)[0])
             self.modRequests[url] = []
 
-            img = self._get_cachefile(name)
-            downloader = FileDownload(self.nam, url, img, finished = self.finishedDownload)
+            img, imgpath = self._get_cachefile(name)
+            downloader = FileDownload(self.nam, url, img, imgpath, finished=self.finishedDownload)
             self.downloaders.add(downloader)
             downloader.blocksize = None
             downloader.run()
