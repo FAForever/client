@@ -24,27 +24,33 @@ DEFAULT_DICT = {
     "visibility": game.GameVisibility.PUBLIC,
 }
 
-@pytest.fixture
-def playerset(mocker):
-    return mocker.MagicMock()
 
 def test_simple_correct_init(playerset):
-    g = game.Game(playerset=playerset, **DEFAULT_DICT)
+    game.Game(playerset=playerset, **DEFAULT_DICT)
+
 
 def test_uid_required_for_init(playerset):
     data = copy.deepcopy(DEFAULT_DICT)
     del data["uid"]
     with pytest.raises(TypeError):
-        g = game.Game(playerset=playerset, **data)
+        game.Game(playerset=playerset, **data)
+
 
 def test_update_signal(playerset, mocker):
     data = copy.deepcopy(DEFAULT_DICT)
     g = game.Game(playerset=playerset, **data)
     updated = mocker.Mock()
+
+    def check_signal(new, old):
+        assert old.host == "IllIIIlIlIIIlI"
+        assert new.host == "OtherName"
+
     g.gameUpdated.connect(updated)
+    g.gameUpdated.connect(check_signal)
     data["host"] = "OtherName"
     g.update(**data)
     assert updated.called
+
 
 def test_closed_determined_by_gamestate(playerset):
     data = copy.deepcopy(DEFAULT_DICT)
@@ -60,9 +66,17 @@ def test_closed_determined_by_gamestate(playerset):
     g.update(**data)
     assert g.closed()
 
+
 def test_abort_closes(playerset, mocker):
     data = copy.deepcopy(DEFAULT_DICT)
     g = game.Game(playerset=playerset, **data)
     assert not g.closed()
     g.abort_game()
     assert g.closed()
+
+
+def test_copy(playerset, mocker):
+    data = copy.deepcopy(DEFAULT_DICT)
+    g = game.Game(playerset=playerset, **data)
+    gc = g.copy()
+    assert g.to_dict() == gc.to_dict()
