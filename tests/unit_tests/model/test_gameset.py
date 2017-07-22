@@ -24,9 +24,11 @@ DEFAULT_DICT = {
     "visibility": game.GameVisibility.PUBLIC,
 }
 
+
 @pytest.fixture
 def playerset(mocker):
     return mocker.MagicMock()
+
 
 def test_add_update(mocker, playerset):
     data = copy.deepcopy(DEFAULT_DICT)
@@ -123,6 +125,7 @@ def test_new_states_new_objects(playerset, mocker):
     s.newLobby.connect(lobby)
     s.newLiveGame.connect(live)
     s.newClosedGame.connect(closed)
+
     def reset():
         lobby.reset_mock()
         live.reset_mock()
@@ -153,6 +156,7 @@ def test_new_states_new_objects(playerset, mocker):
     # A new closed game does *not* get reported.
     assert not closed.called
 
+
 def test_no_state_changes(playerset, mocker):
     s = gameset.Gameset(playerset=playerset)
     lobby = mocker.Mock()
@@ -161,6 +165,7 @@ def test_no_state_changes(playerset, mocker):
     s.newLobby.connect(lobby)
     s.newLiveGame.connect(live)
     s.newClosedGame.connect(closed)
+
     def reset():
         lobby.reset_mock()
         live.reset_mock()
