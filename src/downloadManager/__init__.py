@@ -53,7 +53,6 @@ class FileDownload(object):
         self._stop()
 
     def _finish(self):
-        self.dest.close()
         self.cb_finished(self)
 
     def run(self):
@@ -127,6 +126,7 @@ class downloadManager(QtCore.QObject):
     @QtCore.pyqtSlot(FileDownload)
     def finishedDownload(self, dler):
         self.downloaders.remove(dler)
+        dler.dest.close()
         urlstring = dler.addr
 
         # Remove '.part'

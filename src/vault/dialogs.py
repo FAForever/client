@@ -90,7 +90,7 @@ def downloadVaultAsset(url, target_dir, exist_handler, name, category, silent):
         logger.warn("{} Download canceled for: {}".format(capitCat, url))
     if result in [VaultDownloadDialog.DL_ERROR, VaultDownloadDialog.UNKNOWN_ERROR]:
         logger.warn("Vault download failed, {} probably not in vault (or broken).".format(category))
-        QtGui.QMessageBox.information(
+        QtWidgets.QMessageBox.information(
             None,
             "{} not downloadable".format(capitCat),
             ("<b>This {} was not found in the vault (or is broken).</b>"
@@ -114,7 +114,7 @@ def downloadVaultAsset(url, target_dir, exist_handler, name, category, silent):
 
     except:
         logger.error("Extract error")
-        QtGui.QMessageBox.information(None,
+        QtWidgets.QMessageBox.information(None,
             "{} installation failed".format(capitCat),
             "<b>This {} could not be installed (please report this {} or bug).</b>"
                 .format(category, category))
