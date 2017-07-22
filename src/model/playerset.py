@@ -82,7 +82,7 @@ class Playerset(QObject):
         except KeyError:
             return
         del self._players[player.id]
-        del self._players[player.login]
+        del self._logins[player.login]
         player.updated.disconnect(self._at_player_updated)
         player.newCurrentGame.disconnect(self._at_player_updated)
         self.playerRemoved.emit(player)
@@ -93,4 +93,4 @@ class Playerset(QObject):
     def clear(self):
         oldplayers = list(self.keys())
         for player in oldplayers:
-            del self[oldplayers]
+            del self[player]
