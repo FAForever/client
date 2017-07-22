@@ -199,7 +199,7 @@ class downloadManager(QtCore.QObject):
             logger.debug("Searching mod preview for: " + os.path.basename(url).rsplit('.',1)[0])
             self.modRequests[url] = []
 
-            img, imgpath = self._get_cachefile(name)
+            img, imgpath = self._get_cachefile(name + '.part')
             downloader = FileDownload(self.nam, url, img, imgpath, finished=self.finishedDownload)
             self.downloaders.add(downloader)
             downloader.blocksize = None
