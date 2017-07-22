@@ -14,10 +14,12 @@ class FileDownload(object):
     """
     A simple async one-shot file downloader.
     """
-    def __init__(self, nam, addr, dest, start=lambda _: None, progress=lambda _: None, finished=lambda _: None):
+    def __init__(self, nam, addr, dest, destpath,
+                 start=lambda _: None, progress=lambda _: None, finished=lambda _: None):
         self._nam = nam
         self.addr = addr
         self.dest = dest
+        self.destpath = destpath
 
         self.canceled = False
         self.error = False
@@ -51,9 +53,7 @@ class FileDownload(object):
         self._stop()
 
     def _finish(self):
-        if self._dfile is not None:
-            self._dfile.close()
-            self._dfile = None
+        self.dest.close()
         self.cb_finished(self)
 
     def run(self):
@@ -96,7 +96,7 @@ class FileDownload(object):
             self._stop()
 
     def _readloop(self):
-            bs = self.blocksize if self.blocksize is not None else self._dfile.bytesAvailable() 
+            bs = self.blocksize if self.blocksize is not None else self._dfile.bytesAvailable()
             self.dest.write(self._dfile.read(bs))
             self.cb_progress(self)
 
@@ -122,13 +122,21 @@ class downloadManager(QtCore.QObject):
         self.modRequests = {}
         self.mapRequests = {}
         self.mapRequestsItem = []
+        self.downloaders = set()
 
     @QtCore.pyqtSlot(FileDownload)
     def finishedDownload(self, dler):
+        self.downloaders.remove(dler)
         urlstring = dler.addr
-        name = os.path.basename(urlstring)
+
+        # Remove '.part'
+        partpath = dler.destpath
+        filepath = partpath[:-5]
+        QtCore.QDir().rename(partpath, filepath)
+
+        local_path = False
+        filename = os.path.basename(filepath)
         logger.info("Finished download from " + urlstring)
-        dler.dest.close()
 
         reqlist = []
         if urlstring in self.mapRequests: reqlist = self.mapRequests[urlstring]
@@ -140,38 +148,27 @@ class downloadManager(QtCore.QObject):
         if urlstring in self.mapRequests: del self.mapRequests[urlstring]
         if urlstring in self.modRequests: del self.modRequests[urlstring]
 
-        #save the map from cache
         if not dler.succeeded():
             dler.dest.remove()
-            pathimg = "games/unknown_map.png"
-            logger.debug("Web Preview failed for: " + name)
+            filepath = "games/unknown_map.png"
+            local_path = True
+            logger.debug("Web Preview failed for: " + filename)
+        else:
+            logger.debug("Web Preview used for: " + filename)
 
-        logger.debug("Web Preview used for: " + name)
         for requester in reqlist:
             if requester:
                 if requester in self.mapRequestsItem:
-                    requester.setIcon(0, util.THEME.icon(pathimg, False))
+                    requester.setIcon(0, util.THEME.icon(filepath, local_path))
                     self.mapRequestsItem.remove(requester)
                 else:
-                    requester.setIcon(util.THEME.icon(pathimg, False))
-
-    @QtCore.pyqtSlot(QNetworkReply.NetworkError)
-    def downloadError(self, networkError):
-        logger.info("Network Error")
-
-    @QtCore.pyqtSlot()
-    def readyRead(self):
-        logger.info("readyRead")
-
-    @QtCore.pyqtSlot(int, int)
-    def progress(self, rcv, total):
-        logger.info("received " + rcv + "out of" + total + " bytes")
+                    requester.setIcon(util.THEME.icon(filepath, local_path))
 
     def _get_cachefile(self, name):
-        pathimg = os.path.join(util.CACHE_DIR, name)
-        img = QtCore.QFile(pathimg)
+        imgpath = os.path.join(util.CACHE_DIR, name)
+        img = QtCore.QFile(imgpath)
         img.open(QtCore.QIODevice.WriteOnly)
-        return img
+        return img, imgpath
 
     def downloadMap(self, name, requester, item=False):
         '''
@@ -187,8 +184,9 @@ class downloadManager(QtCore.QObject):
             logger.info("Searching map preview for: " + name + " from " + url)
             self.mapRequests[url] = []
 
-            img = self._get_cachefile(name)
-            downloader = FileDownload(self.nam, url, img, finished = self.finishedDownload)
+            img, imgpath = self._get_cachefile(name + ".png.part")
+            downloader = FileDownload(self.nam, url, img, imgpath, finished=self.finishedDownload)
+            self.downloaders.add(downloader)
             downloader.blocksize = None
             downloader.run()
 
@@ -203,6 +201,7 @@ class downloadManager(QtCore.QObject):
 
             img = self._get_cachefile(name)
             downloader = FileDownload(self.nam, url, img, finished = self.finishedDownload)
+            self.downloaders.add(downloader)
             downloader.blocksize = None
             downloader.run()
 

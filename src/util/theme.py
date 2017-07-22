@@ -351,4 +351,3 @@ class ThemeSet:
                 if pixSelected != None:
                     icon.addPixmap(pixSelected, QtGui.QIcon.Selected, QtGui.QIcon.On)
             return icon
-

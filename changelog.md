@@ -10,6 +10,7 @@
 * Fix join hosted game from chat user (#796)
 * Leftover Qt5 fixes
 * Fix fa updater not cancelling download (#802, #803)
+* Fix regression - map and mod previews not downloading correctly (#804, #805)
 
 Contributors:
  - Wesmania
