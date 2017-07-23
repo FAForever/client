@@ -57,6 +57,21 @@ def test_add_update(mocker, playerset):
     newgame.assert_called_with(g2)
 
 
+def test_cant_add_twice(mocker, playerset):
+    s = gameset.Gameset(playerset=playerset)
+    g = game.Game(playerset=playerset, **DEFAULT_DICT)
+    s[1] = g
+    with pytest.raises(ValueError):
+        s[1] = g
+
+
+def test_cant_add_mismatched_uid(mocker, playerset):
+    s = gameset.Gameset(playerset=playerset)
+    g = game.Game(playerset=playerset, **DEFAULT_DICT)
+    with pytest.raises(ValueError):
+        s[2] = g
+
+
 def test_iter(playerset):
     s = gameset.Gameset(playerset=playerset)
     data = copy.deepcopy(DEFAULT_DICT)

@@ -57,6 +57,9 @@ class Gameset(QObject):
         if key in self or value.closed():
             raise ValueError
 
+        if key != value.uid:
+            raise ValueError
+
         self.games[key] = value
         # We should be the first ones to connect to the signal
         value.gameUpdated.connect(self._at_game_update)
