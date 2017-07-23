@@ -70,6 +70,9 @@ class Playerset(QObject):
         if key in self:     # disallow overwriting existing players
             raise ValueError
 
+        if key != value.id:
+            raise ValueError
+
         self._players[key] = value
         self._logins[value.login] = value
         self.playerAdded.emit(value)
