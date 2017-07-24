@@ -149,8 +149,15 @@ class Player(QObject):
 
     def set_current_game_defer_signal(self, game):
         if self.currentGame == game:
-            return
+            return lambda: None
 
         old = self._currentGame
         self._currentGame = game
-        return lambda: self.newCurrentGame.emit(self, game, old)
+        return lambda: self._emit_game_change(game, old)
+
+    def _emit_game_change(self, game, old):
+        self.newCurrentGame.emit(self, game, old)
+        if old is not None:
+            old.ingamePlayerRemoved.emit(old, self)
+        if game is not None:
+            game.ingamePlayerAdded.emit(game, self)

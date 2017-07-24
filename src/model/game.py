@@ -32,6 +32,9 @@ class Game(QObject):
     connectedPlayerAdded = pyqtSignal(object, object)
     connectedPlayerRemoved = pyqtSignal(object, object)
 
+    ingamePlayerAdded = pyqtSignal(object, object)
+    ingamePlayerRemoved = pyqtSignal(object, object)
+
     def __init__(self,
                  playerset,
                  uid,
