@@ -73,11 +73,11 @@ class Gameset(QObject):
             g.abort_game()
 
     def _at_game_update(self, new, old):
+        if new.closed():
+            self._remove_game(new)
+        self._idx.at_game_update(new, old)
         if old is None or new.state != old.state:
             self._new_state(new)
-            if new.closed():
-                self._remove_game(new)
-        self._idx.at_game_update(new, old)
 
     def _new_state(self, g):
         self._logger.debug("New game state {}, uid {}".format(g.state, g.uid))
