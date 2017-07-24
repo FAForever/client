@@ -130,6 +130,10 @@ class PlayerGameIndex:
             s()
 
     def _set_player_game_defer_signal(self, pname, game):
+        oldgame = self._idx.get(pname)
+        if not self._should_update_player_game(game, oldgame):
+            return lambda: None
+
         if game is None:
             if pname in self._idx:
                 del self._idx[pname]
@@ -141,6 +145,25 @@ class PlayerGameIndex:
             return player.set_current_game_defer_signal(game)
         else:
             return lambda: None
+
+    def _should_update_player_game(self, new, old):
+        # Removing or setting new game should always happen
+        if new is None or old is None:
+            return True
+
+        # Games should be not closed now
+        # Lobbies always take precedence - if there are 2 at once, tough luck
+        if new.state == game.GameState.OPEN:
+            return True
+        if old.state == game.GameState.OPEN:
+            return False
+
+        # Both games have started, pick later one
+        if new.launched_at is None:
+            return False
+        if old.launched_at is None:
+            return True
+        return new.launched_at > old.launched_at
 
     def player_game(self, pname):
         return self._idx.get(pname)

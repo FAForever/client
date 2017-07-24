@@ -99,6 +99,12 @@ def test_player_at_another_game(mocker):
     ps, gs = setup()
 
     data = copy.deepcopy(GAME_DICT)
+
+    # Game starts
+    data["state"] = GameState.PLAYING
+    gs[1].update(**data)
+
+    data["state"] = GameState.OPEN
     data["uid"] = 2
     data["teams"] = {1: ["Guy"]}
     g2 = Game(playerset=ps, **data)
@@ -174,6 +180,12 @@ def test_game_at_another_game(mocker):
     ps, gs = setup()
 
     data = copy.deepcopy(GAME_DICT)
+
+    # Game starts
+    data["state"] = GameState.PLAYING
+    gs[1].update(**data)
+
+    data["state"] = GameState.OPEN
     data["uid"] = 2
     data["teams"] = {1: ["Guy"]}
     g2 = Game(playerset=ps, **data)
@@ -233,3 +245,64 @@ def test_game_closed_removes_only_own(mocker):
     assert ps[1].currentGame is gs[2]
     assert ps[2].currentGame is None
     assert ps[3].currentGame is None
+
+
+def override_tests(g1_dict, g2_dict, should):
+    ps, gs = setup()
+
+    data = copy.deepcopy(GAME_DICT)
+    data.update(g1_dict)
+    gs[1].update(**data)
+
+    data = copy.deepcopy(GAME_DICT)
+    data["uid"] = 2
+    data["teams"] = {1: ["Guy"]}
+    data.update(g2_dict)
+
+    g2 = Game(playerset=ps, **data)
+    gs[2] = g2
+    check_relation(gs[2], ps[1], should)
+
+
+def test_lobby_overrides_game_players():
+    g1 = {"state": GameState.PLAYING}
+    g2 = {"state": GameState.OPEN}
+    override_tests(g1, g2, True)
+
+
+def test_game_doesnt_override_lobby():
+    g1 = {"state": GameState.PLAYING}
+    g2 = {"state": GameState.OPEN}
+    override_tests(g1, g2, True)
+
+
+def test_later_game_overrides_earlier_game():
+    g1 = {"state": GameState.PLAYING,
+          "launched_at": 1000}
+    g2 = {"state": GameState.PLAYING,
+          "launched_at": 1200}
+    override_tests(g1, g2, True)
+
+
+def test_earlier_game_doesnt_override_later_game():
+    g1 = {"state": GameState.PLAYING,
+          "launched_at": 1200}
+    g2 = {"state": GameState.PLAYING,
+          "launched_at": 1000}
+    override_tests(g1, g2, False)
+
+
+def test_launchtime_overrides_no_launchtime():
+    g1 = {"state": GameState.PLAYING,
+          "launched_at": None}
+    g2 = {"state": GameState.PLAYING,
+          "launched_at": 1000}
+    override_tests(g1, g2, True)
+
+
+def test_no_launchtime_doesnt_override_launchtime():
+    g1 = {"state": GameState.PLAYING,
+          "launched_at": 1000}
+    g2 = {"state": GameState.PLAYING,
+          "launched_at": None}
+    override_tests(g1, g2, False)
