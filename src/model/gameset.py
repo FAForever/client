@@ -24,7 +24,7 @@ class Gameset(QObject):
         QObject.__init__(self)
         self.games = {}
         self._playerset = playerset
-        self._idx = PlayerGameIndex(self, playerset)
+        self._idx = PlayerGameIndex(playerset)
 
     def __getitem__(self, uid):
         return self.games[uid]
@@ -101,9 +101,8 @@ class Gameset(QObject):
 class PlayerGameIndex:
     # Helper class that keeps track of player / game relationship and helps
     # assign games to players that reconnected.
-    def __init__(self, gameset, playerset):
+    def __init__(self, playerset):
         self._playerset = playerset
-        self._gameset = gameset
         self._idx = {}
         self._playerset.playerAdded.connect(self._on_player_added)
         self._playerset.playerRemoved.connect(self._on_player_removed)
