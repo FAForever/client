@@ -139,8 +139,8 @@ class ClientUpdater(QObject):
         subprocess.Popen(command, shell=True)
         self._progress.close()
 
-    def on_progress(self, current, max):
-        self._progress.setMaximum(max)
+    def on_progress(self, current, maximum):
+        self._progress.setMaximum(maximum)
         self._progress.setValue(current)
 
     def cancel(self):

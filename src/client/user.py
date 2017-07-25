@@ -43,28 +43,28 @@ class IrcUserRelation(UserRelation):
         UserRelation.__init__(self)
         self.key = key
 
-    def _loadRelations(self):
+    def _load_relations(self):
         if self._key is not None:
             rel = Settings.get(self._key)
             self._relations = set(rel) if rel is not None else set()
         else:
             self._relations = set()
 
-    def _saveRelations(self):
+    def _save_relations(self):
         if self._key is not None:
             Settings.set(self._key, list(self._relations))
 
     def add(self, value):
         UserRelation.add(self, value)
-        self._saveRelations()
+        self._save_relations()
 
     def rem(self, value):
         UserRelation.rem(self, value)
-        self._saveRelations()
+        self._save_relations()
 
     def set(self, values):
         UserRelation.set(self, values)
-        self._saveRelations()
+        self._save_relations()
 
     @property
     def key(self):
@@ -73,7 +73,7 @@ class IrcUserRelation(UserRelation):
     @key.setter
     def key(self, value):
         self._key = value
-        self._loadRelations()
+        self._load_relations()
 
 
 class PlayerAffiliation(Enum):
@@ -126,7 +126,7 @@ class User(QtCore.QObject):
             return None
         return "chat.irc_" + name + "/" + str(self.player.id)
 
-    def resetPlayer():
+    def reset_player():
         self._player = None
         self._friends.clear()
         self._foes.clear()

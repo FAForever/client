@@ -211,7 +211,7 @@ class Channel(FormClass, BaseClass):
             cursor.removeSelectedText()
             self.lines = self.lines - CHAT_REMOVEBLOCK
 
-        if self.lobby.client.players.isPlayer(name):
+        if self.lobby.client.players.is_player(name):
             player = self.lobby.client.players[name]
         else:
             player = IRCPlayer(name)
@@ -235,10 +235,10 @@ class Channel(FormClass, BaseClass):
 
         else:
             # Fallback and ask the client. We have no Idea who this is.
-            color = self.lobby.client.players.getUserColor(player.id)
+            color = self.lobby.client.players.get_user_color(player.id)
 
         if mentioned:
-            color = self.lobby.client.getColor("you")
+            color = self.lobby.client.get_color("you")
 
         # scroll if close to the last line of the log
         scroll_current = self.chatArea.verticalScrollBar().value()
@@ -294,9 +294,9 @@ class Channel(FormClass, BaseClass):
         """
         Print an raw message in the chatArea of the channel
         """
-        id = self.lobby.client.players.getID(name)
+        id = self.lobby.client.players.get_id(name)
 
-        color = self.lobby.client.players.getUserColor(id)
+        color = self.lobby.client.players.get_user_color(id)
 
         # Play a ping sound
         if self.private and name != self.lobby.client.login:

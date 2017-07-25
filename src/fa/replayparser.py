@@ -2,7 +2,7 @@
 import struct
 
 
-class replayParser:
+class ReplayParser:
     def __init__(self, filepath):
         self.file = filepath
 

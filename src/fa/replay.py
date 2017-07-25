@@ -3,7 +3,7 @@ import os
 from PyQt5 import QtCore, QtWidgets
 import fa
 from fa.check import check
-from fa.replayparser import replayParser
+from fa.replayparser import ReplayParser
 import util
 from . import mods
 
@@ -52,7 +52,7 @@ def replay(source, detach=False):
                     featured_mod_versions = info.get('featured_mod_versions', None)
                     arg_string = scfa_replay.fileName()
 
-                    parser = replayParser(arg_string)
+                    parser = ReplayParser(arg_string)
                     version = parser.getVersion()
 
                 elif source.endswith(".scfareplay"):  # compatibility mode
@@ -66,7 +66,7 @@ def replay(source, detach=False):
 
                     mapname = None
                     arg_string = source
-                    parser = replayParser(arg_string)
+                    parser = ReplayParser(arg_string)
                     version = parser.getVersion()
                 else:
                     QtWidgets.QMessageBox.critical(None, "FA Forever Replay", "Sorry, FAF has no idea how to replay "

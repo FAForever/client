@@ -17,23 +17,23 @@ class PlayerColors:
     # Color table used by the following method
     # CAVEAT: This will break if the theme is loaded after the client package is imported
     colors = json.loads(util.THEME.readfile("client/colors.json"))
-    randomcolors = json.loads(util.THEME.readfile("client/randomcolors.json"))
+    random_colors = json.loads(util.THEME.readfile("client/randomcolors.json"))
 
     @classmethod
-    def getColor(cls, name):
+    def get_color(cls, name):
         if name in cls.colors:
             return cls.colors[name]
         else:
             return cls.colors["default"]
 
     @classmethod
-    def getRandomColor(cls, id_):
+    def get_random_color(cls, id_):
         """Generate a random color from a name"""
         random.seed(id_)
-        return random.choice(cls.randomcolors)
+        return random.choice(cls.random_colors)
 
     @classmethod
-    def getUserColor(cls, affiliation, irc, random, seed=None):
+    def get_user_color(cls, affiliation, irc, random_color, seed=None):
         names = {
             PlayerAffiliation.SELF: "self",
             PlayerAffiliation.FRIEND: "friend",
@@ -41,13 +41,13 @@ class PlayerColors:
             PlayerAffiliation.CLANNIE: "clan",
         }
         if affiliation in names:
-            return cls.getColor(names[affiliation])
-        if random:
-            return cls.getRandomColor(seed)
+            return cls.get_color(names[affiliation])
+        if random_color:
+            return cls.get_random_color(seed)
 
         if not irc:
-            return cls.getColor("player")
-        return cls.getColor("default")
+            return cls.get_color("player")
+        return cls.get_color("default")
 
 
 class Players(QObject):
@@ -63,25 +63,25 @@ class Players(QObject):
         self.user = user
         self.coloredNicknames = False
         self.gameset = gameset
-        self.gameset.newGame.connect(self._onNewGame)
+        self.gameset.newGame.connect(self._on_new_game)
 
         # UID -> Player map
         self._players = {}
         # Login -> Player map
         self._logins = {}
 
-    def isPlayer(self, name):
+    def is_player(self, name):
         """
         Convenience function for other modules to inquire about a user's civilian status.
         """
         return name in self
 
-    def getUserColor(self, id_):
+    def get_user_color(self, id_):
         """
         Returns a user's color depending on their status with relation to the FAF client
         """
         affil = self.user.getAffiliation(id_)
-        return PlayerColors.getUserColor(affil, irc=False, random=self.coloredNicknames, seed=id_)
+        return PlayerColors.get_user_color(affil, irc=False, random_color=self.coloredNicknames, seed=id_)
 
     def keys(self):
         return list(self._players.keys())
@@ -96,7 +96,7 @@ class Players(QObject):
         val = self.__getitem__(item)
         return val if val else default
 
-    def getID(self, name):
+    def get_id(self, name):
         if name in self._logins:
             return self._logins[name].id
         return -1
@@ -123,11 +123,11 @@ class Players(QObject):
         self._players = {}
         self._logins = {}
 
-    def _onNewGame(self, game):
-        game.playersUpdated.connect(self._onPlayersUpdate)
-        self._onPlayersUpdate(game, [])
+    def _on_new_game(self, game):
+        game.playersUpdated.connect(self._on_players_update)
+        self._on_players_update(game, [])
 
-    def _onPlayersUpdate(self, game, old):
+    def _on_players_update(self, game, old):
         old = [self[name] for name in old if name in self]
         new = [self[name] for name in game.players if name in self]
 
@@ -136,7 +136,7 @@ class Players(QObject):
                 del client.instance.urls[player.login]
 
         if game.state == GameState.CLOSED:
-            game.playersUpdated.disconnect(self._onPlayersUpdate)
+            game.playersUpdated.disconnect(self._on_players_update)
         else:
             for player in new:
                 client.instance.urls[player.login] = game.url(player.id)

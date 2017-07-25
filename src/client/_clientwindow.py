@@ -513,7 +513,7 @@ class ClientWindow(FormClass, BaseClass):
         import modvault
         import coop
         import news
-        from chat._avatarWidget import avatarWidget
+        from chat._avatarWidget import AvatarWidget
 
         # download manager
         self.downloader = downloadManager.downloadManager(self)
@@ -554,7 +554,7 @@ class ClientWindow(FormClass, BaseClass):
         self.actionNsEnabled.setChecked(self.notificationSystem.settings.enabled)
 
         # Other windows
-        self.avatarAdmin = self.avatarSelection = avatarWidget(self, None)
+        self.avatarAdmin = self.avatarSelection = AvatarWidget(self, None)
 
         # warning setup
         self.warning = QtWidgets.QHBoxLayout()
@@ -778,7 +778,7 @@ class ClientWindow(FormClass, BaseClass):
     @QtCore.pyqtSlot()
     def switchPort(self):
         from . import loginwizards
-        loginwizards.gameSettingsWizard(self).exec_()
+        loginwizards.GameSettingsWizard(self).exec_()
 
     @QtCore.pyqtSlot()
     def clearSettings(self):
@@ -1060,14 +1060,14 @@ class ClientWindow(FormClass, BaseClass):
     def closeFA(self, username):
         """ Close FA remotely """
         logger.info('closeFA for {}'.format(username))
-        user_id = self.players.getID(username)
+        user_id = self.players.get_id(username)
         if user_id != -1:
             self.lobby_connection.send(dict(command="admin", action="closeFA", user_id=user_id))
 
     def closeLobby(self, username):
         """ Close lobby remotely """
         logger.info('closeLobby for {}'.format(username))
-        user_id = self.players.getID(username)
+        user_id = self.players.get_id(username)
         if user_id != -1:
             self.lobby_connection.send(dict(command="admin", action="closelobby", user_id=user_id))
 

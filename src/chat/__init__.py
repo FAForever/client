@@ -14,19 +14,19 @@ def user2name(user):
 def parse_irc_source(src):
     """
     :param src: IRC source argument
-    :return: (username, id, elevation, hostname)
+    :return: (username, user_id, elevation, hostname)
     """
     username, tail = src.split('!')
     if username[0] in IRC_ELEVATION:
         elevation, username = username[0], username[1:]
     else:
         elevation = ''
-    id, hostname = tail.split('@')
+    user_id, hostname = tail.split('@')
     try:
-        id = int(id)
+        user_id = int(user_id)
     except ValueError:
-        id = -1
-    return username, id, elevation, hostname
+        user_id = -1
+    return username, user_id, elevation, hostname
 
 
 from ._chatwidget import ChatWidget as Lobby

@@ -1,7 +1,7 @@
 from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtCore import QUrl
 from PyQt5.QtNetwork import QNetworkRequest
-from chat._avatarWidget import avatarWidget
+from chat._avatarWidget import AvatarWidget
 
 import urllib.request, urllib.error, urllib.parse
 import chat
@@ -115,7 +115,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
             return self.RANK_FRIEND - (2 if self.lobby.client.friendsontop else 0)
         if me.isFoe(other.id, other.name):
             return self.RANK_FOE
-        if self.lobby.client.players.isPlayer(other.id):
+        if self.lobby.client.players.is_player(other.id):
             return self.RANK_USER
 
         return self.RANK_NONPLAYER
@@ -150,8 +150,8 @@ class Chatter(QtWidgets.QTableWidgetItem):
         """
         self.setText(self.name)
         # First make sure we've got the correct id for ourselves
-        if self.id == -1 and self.lobby.client.players.isPlayer(self.name):
-            self.id = self.lobby.client.players.getID(self.name)
+        if self.id == -1 and self.lobby.client.players.is_player(self.name):
+            self.id = self.lobby.client.players.get_id(self.name)
 
         # Color handling
         self.set_color()
@@ -227,20 +227,20 @@ class Chatter(QtWidgets.QTableWidgetItem):
         else:
             seed = self.id
 
-        self.setForeground(QtGui.QColor(PlayerColors.getUserColor(
+        self.setForeground(QtGui.QColor(PlayerColors.get_user_color(
             affiliation, irc=self.id == -1,
-            random=self.lobby.client.players.coloredNicknames, seed=self.name
+            random_color=self.lobby.client.players.coloredNicknames, seed=self.name
         )))
 
     def viewAliases(self):
         QtGui.QDesktopServices.openUrl(QUrl("{}?name={}".format(Settings.get("USER_ALIASES_URL"), self.name)))
 
     def selectAvatar(self):
-        avatarSelection = avatarWidget(self.lobby.client, self.name, personal=True)
+        avatarSelection = AvatarWidget(self.lobby.client, self.name, personal=True)
         avatarSelection.exec_()
 
     def addAvatar(self):
-        avatarSelection = avatarWidget(self.lobby.client, self.name)
+        avatarSelection = AvatarWidget(self.lobby.client, self.name)
         avatarSelection.exec_()
 
     def kick(self):

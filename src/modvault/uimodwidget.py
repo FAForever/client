@@ -43,8 +43,8 @@ class UIModWidget(FormClass, BaseClass):
     @QtCore.pyqtSlot()
     def doneClicked(self):
         selected_mods = [self.uimods[str(item.text())] for item in self.modList.selectedItems()]
-        succes = modvault.setActiveMods(selected_mods, False)
-        if not succes:
+        success = modvault.setActiveMods(selected_mods, False)
+        if not success:
             QtWidgets.QMessageBox.information(None, "Error", "Could not set the active UI mods. Maybe something is "
                                                              "wrong with your game.prefs file. Please send your log.")
         self.done(1)

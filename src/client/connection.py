@@ -376,8 +376,8 @@ class LobbyInfo(QtCore.QObject):
             self._gameset.update_set(message)
 
     def handle_modvault_list_info(self, message):
-        modList = message["modList"]
-        for mod in modList:
+        mod_list = message["modList"]
+        for mod in mod_list:
             self.handle_modvault_info(mod)
 
     def handle_modvault_info(self, message):

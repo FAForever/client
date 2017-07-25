@@ -173,7 +173,7 @@ class LiveReplaysWidgetHandler(object):
                 playeritem = QtWidgets.QTreeWidgetItem()
                 playeritem.setText(0, name)
 
-                playerid = self.client.players.getID(name)
+                playerid = self.client.players.get_id(name)
 
                 url = QtCore.QUrl()
                 url.setScheme("faflive")
@@ -199,7 +199,7 @@ class LiveReplaysWidgetHandler(object):
                     playeritem.setToolTip(0, url.toString())
                     playeritem.setIcon(0, util.THEME.icon("replays/replay.png"))
 
-                elif client.instance.players.isPlayer(playerid):
+                elif client.instance.players.is_player(playerid):
                     playeritem.setForeground(0, QtGui.QColor(client.instance.getColor("player")))
                     playeritem.setToolTip(0, url.toString())
                     playeritem.setIcon(0, util.THEME.icon("replays/replay.png"))
@@ -337,7 +337,7 @@ class LocalReplaysWidgetHandler(object):
                         # Add additional info
                         item.setText(3, item.info['featured_mod'])
                         item.setTextAlignment(3, QtCore.Qt.AlignCenter)
-                        item.setForeground(1, QtGui.QColor(client.instance.players.getUserColor(item.info.get('recorder', ""))))
+                        item.setForeground(1, QtGui.QColor(client.instance.players.get_user_color(item.info.get('recorder', ""))))
                     else:
                         bucket = buckets.setdefault("incomplete", [])
                         item.setIcon(0, util.THEME.icon("replays/replay.png"))

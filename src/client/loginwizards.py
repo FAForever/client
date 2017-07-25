@@ -2,7 +2,7 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 import util
 
 
-class gameSettingsWizard(QtWidgets.QWizard):
+class GameSettingsWizard(QtWidgets.QWizard):
     def __init__(self, client, *args, **kwargs):
         QtWidgets.QWizard.__init__(self, *args, **kwargs)
         

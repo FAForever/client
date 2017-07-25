@@ -108,7 +108,7 @@ class MapVault(QtCore.QObject, BusyWidget):
                 mapName = os.path.basename(mapDir)
                 zipName = mapName.lower()+".zip"
 
-                scenariolua = luaparser.luaParser(os.path.join(
+                scenariolua = luaparser.LuaParser(os.path.join(
                     mapDir,
                     maps.getScenarioFile(mapDir)))
                 scenarioInfos = scenariolua.parse({
@@ -143,7 +143,7 @@ class MapVault(QtCore.QObject, BusyWidget):
                     else:
                         uploadmap = QtWidgets.QMessageBox.Yes
                     if uploadmap == QtWidgets.QMessageBox.Yes:
-                        savelua = luaparser.luaParser(os.path.join(
+                        savelua = luaparser.LuaParser(os.path.join(
                             mapDir,
                             maps.getSaveFile(mapDir)
                             ))

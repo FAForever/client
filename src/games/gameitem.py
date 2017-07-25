@@ -132,39 +132,39 @@ class GameItemWidget(QtWidgets.QListWidgetItem):
         self.setTooltip("")
 
     def teamsToTooltip(self, teams, observers=[]):
-        teamlist = []
+        team_list = []
 
         for i, team in enumerate(teams, start=1):
 
-            teamplayer = ["<td><table>"]
+            team_player = ["<td><table>"]
             for player in team:
                 if player == client.instance.me.player:
-                    playerStr = "<b><i>%s</b></i>" % player.login
+                    player_str = "<b><i>%s</b></i>" % player.login
                 else:
-                    playerStr = player.login
+                    player_str = player.login
 
                 if player.rating_deviation < 200:
-                    playerStr += " (%s)" % str(player.rating_estimate())
+                    player_str += " (%s)" % str(player.rating_estimate())
 
                 country = os.path.join(util.COMMON_DIR, "chat/countries/%s.png" % (player.country or '').lower())
 
                 if i == 1:
                     player_tr = "<tr><td><img src='%s'></td>" \
-                                    "<td align='left' valign='middle' width='135'>%s</td></tr>" % (country, playerStr)
+                                    "<td align='left' valign='middle' width='135'>%s</td></tr>" % (country, player_str)
                 elif i == len(teams):
                     player_tr = "<tr><td align='right' valign='middle' width='135'>%s</td>" \
-                                    "<td><img src='%s'></td></tr>" % (playerStr, country)
+                                    "<td><img src='%s'></td></tr>" % (player_str, country)
                 else:
                     player_tr = "<tr><td><img src='%s'></td>" \
-                                    "<td align='center' valign='middle' width='135'>%s</td></tr>" % (country, playerStr)
+                                    "<td align='center' valign='middle' width='135'>%s</td></tr>" % (country, player_str)
 
-                teamplayer.append(player_tr)
+                team_player.append(player_tr)
 
-            teamplayer.append("</table></td>")
-            members = "".join(teamplayer)
-            teamlist.append(members)
+            team_player.append("</table></td>")
+            members = "".join(team_player)
+            team_list.append(members)
 
-        teams_string = "<td valign='middle' height='100%'><font color='black' size='+5'>VS</font></td>".join(teamlist)
+        teams_string = "<td valign='middle' height='100%'><font color='black' size='+5'>VS</font></td>".join(team_list)
 
         observers_string = ""
         if len(observers) != 0:
@@ -216,7 +216,7 @@ class GameItem():
         self.oldmapname = None
 
         self.mapdisplayname = None  # Will get set at first update
-        self.hostid = client.instance.players.getID(self.game.host)  # Shouldn't change for a game
+        self.hostid = client.instance.players.get_id(self.game.host)  # Shouldn't change for a game
         self.players = []  # Will get set at first update
         self._hide_passworded = False
 
@@ -253,11 +253,12 @@ class GameItem():
             return
 
         url = self.url()
-        istr = client.instance.getColor("url") + '" href="' + url.toString() + '">' + g.title + '</a> (on "' + self.mapdisplayname + '")'
+        istr = ' <a style="color:' + client.instance.getColor("url") + '" href="' + url.toString() + '">' + g.title + \
+               '</a> (on "' + self.mapdisplayname + '")'
         if g.featured_mod == "faf":
-            client.instance.forwardLocalBroadcast(g.host, 'is playing live in <a style="color:' + istr)
+            client.instance.forwardLocalBroadcast(g.host, 'is playing live in' + istr)
         else:
-            client.instance.forwardLocalBroadcast(g.host, 'is playing ' + g.featured_mod + ' in <a style="color:' + istr)
+            client.instance.forwardLocalBroadcast(g.host, 'is playing ' + g.featured_mod + ' in' + istr)
 
     def announceHosting(self):
         if not client.instance.me.isFriend(self.hostid) or self.widget.isHidden():
@@ -267,20 +268,17 @@ class GameItem():
         if not g.state == GameState.OPEN:
             return
 
-        url = self.url()
-
         # No visible message if not requested
         if not client.instance.opengames:
             return
 
+        url = self.url()
+        istr = ' <a style="color:' + client.instance.getColor("url") + '" href="' + url.toString() + '">' + g.title + \
+               '</a> (on "' + self.mapdisplayname + '")'
         if g.featured_mod == "faf":
-            client.instance.forwardLocalBroadcast(g.host, 'is hosting <a style="color:' +
-                                                  client.instance.getColor("url") + '" href="' + url.toString() + '">' +
-                                                  g.title + '</a> (on "' + self.mapdisplayname + '")')
+            client.instance.forwardLocalBroadcast(g.host, 'is hosting' + istr)
         else:
-            client.instance.forwardLocalBroadcast(g.host, 'is hosting ' + g.featured_mod + ' <a style="color:' +
-                                                  client.instance.getColor("url") + '" href="' + url.toString() + '">' +
-                                                  g.title + '</a> (on "' + self.mapdisplayname + '")')
+            client.instance.forwardLocalBroadcast(g.host, 'is hosting ' + g.featured_mod + istr)
 
     def update(self):
         """
@@ -334,9 +332,9 @@ class GameItem():
 
         w = self.widget
 
-        color = client.instance.players.getUserColor(self.hostid)
+        color = client.instance.players.get_user_color(self.hostid)
 
-        self.editTooltip(teams, observers)
+        self.edit_tooltip(teams, observers)
 
         w.title = g.title
         w.host = g.host
@@ -361,7 +359,7 @@ class GameItem():
 
         self._updateHidden()
 
-    def editTooltip(self, teams, observers):
+    def edit_tooltip(self, teams, observers):
         self.widget.teamsToTooltip(teams, observers)
         self.widget.modsToTooltip(self.game.sim_mods)
         self.widget.updateTooltip()

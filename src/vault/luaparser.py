@@ -39,7 +39,7 @@ import zipfile
 import os
 
 
-class luaParser:
+class LuaParser:
     
     def __init__(self, luaPath):
         self.iszip = False
