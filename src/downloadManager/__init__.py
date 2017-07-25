@@ -186,7 +186,7 @@ class downloadManager(QtCore.QObject):
             return
 
         url = VAULT_PREVIEW_ROOT + urllib.parse.quote(name) + ".png"
-        if not url in self.mapRequests:
+        if url not in self.mapRequests:
             logger.info("Searching map preview for: " + name + " from " + url)
             self.mapRequests[url] = []
 
@@ -202,7 +202,7 @@ class downloadManager(QtCore.QObject):
 
     def downloadModPreview(self, url, name, requester):
         if not url in self.modRequests:
-            logger.debug("Searching mod preview for: " + os.path.basename(url).rsplit('.',1)[0])
+            logger.debug("Searching mod preview for: " + os.path.basename(url).rsplit('.', 1)[0])
             self.modRequests[url] = []
 
             img, imgpath = self._get_cachefile(name + '.part')

@@ -398,20 +398,20 @@ class ModItem(QtWidgets.QListWidgetItem):
     def __lt__(self, other):
         if self.parent.sortType == "alphabetical":
             if self.name.lower() == other.name.lower():
-                return (self.uid < other.uid)
-            return (self.name.lower() > other.name.lower())
+                return self.uid < other.uid
+            return self.name.lower() > other.name.lower()
         elif self.parent.sortType == "rating":
             if self.likes == other.likes:
-                return (self.downloads < other.downloads)
-            return (self.likes < other.likes)
+                return self.downloads < other.downloads
+            return self.likes < other.likes
         elif self.parent.sortType == "downloads":
             if self.downloads == other.downloads:
-                return (self.date < other.date)
-            return (self.downloads < other.downloads)
+                return self.date < other.date
+            return self.downloads < other.downloads
         elif self.parent.sortType == "date":
             # guard
             if self.date is None:
                 return other.date is not None
             if self.date == other.date:
-                return (self.name.lower() < other.name.lower())
-            return (self.date < other.date)
+                return self.name.lower() < other.name.lower()
+            return self.date < other.date

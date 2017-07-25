@@ -33,7 +33,7 @@ class replayParser:
         offset = 0
         offset, supcomVersion = self.__readLine(offset, bin)  
         f.close()
-        if (supcomVersion.startswith("Supreme Commander v1") == False):
+        if not supcomVersion.startswith("Supreme Commander v1"):
             return None
         else:
             return supcomVersion.split(".")[-1]

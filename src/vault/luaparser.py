@@ -229,10 +229,10 @@ class luaParser:
 
     def __parseLua(self):
         # open file
-        if self.iszip == False:
+        if not self.iszip:
             f = open(self.__path, "r")
         else:
-            if self.zip.testzip() == None:
+            if self.zip.testzip() is None:
                 for member in self.zip.namelist() :
                     filename = os.path.basename(member)
                     if not filename:

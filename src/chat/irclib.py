@@ -254,9 +254,9 @@ class IRC:
         number is highest priority).  If a handler function returns
         \"NO MORE\", no more handlers will be called.
         """
-        if not event in self.handlers:
+        if event not in self.handlers:
             self.handlers[event] = []
-        bisect.insort(self.handlers[event], ((priority, handler)))
+        bisect.insort(self.handlers[event], (priority, handler))
 
     def remove_global_handler(self, event, handler):
         """Removes a global handler function.

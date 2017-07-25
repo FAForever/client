@@ -28,7 +28,7 @@ class ModWidget(FormClass, BaseClass):
         if mod.isuimod: modtext = "UI mod\n"
         self.Info.setText(modtext + "By %s\nUploaded %s" % (mod.author,
                                     str(mod.date)))
-        if mod.thumbnail == None:
+        if mod.thumbnail is None:
             self.Picture.setPixmap(util.THEME.pixmap("games/unknown_map.png"))
         else:
             self.Picture.setPixmap(mod.thumbnail.pixmap(100,100))
@@ -61,7 +61,7 @@ class ModWidget(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def download(self):
-        if not self.mod.uid in self.parent.uids:
+        if self.mod.uid not in self.parent.uids:
             self.parent.downloadMod(self.mod)
             self.done(1)
         else:
