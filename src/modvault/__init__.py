@@ -72,7 +72,7 @@ class ModVault(FormClass, BaseClass, BusyWidget):
         QtCore.QObject.__init__(self, *args, **kwargs)
 
         self.setupUi(self)
-        
+
         self.client = client
 
         logger.debug("Mod Vault tab instantiating")
@@ -88,7 +88,7 @@ class ModVault(FormClass, BaseClass, BusyWidget):
         self.SortType.setCurrentIndex(2)
         self.SortType.currentIndexChanged.connect(self.sortChanged)
         self.ShowType.currentIndexChanged.connect(self.showChanged)
-        
+
         self.client.lobby_info.modVaultInfo.connect(self.modInfo)
 
         self.sortType = "rating"
@@ -146,7 +146,7 @@ class ModVault(FormClass, BaseClass, BusyWidget):
 
     def search(self):
         """ Sending search to mod server"""
-        
+
         self.searchString = self.searchInput.text().lower()
         index = self.ShowType.currentIndex()
         typemod = 2
@@ -157,14 +157,14 @@ class ModVault(FormClass, BaseClass, BusyWidget):
             typemod = 0
 
         self.client.statsServer.send(dict(command="modvault_search", typemod=typemod, search=self.searchString))
-        
+
         self.updateVisibilities()
 
     @QtCore.pyqtSlot()
     def openUIModForm(self):
         dialog = UIModWidget(self)
         dialog.exec_()
-    
+
     @QtCore.pyqtSlot()
     def openUploadForm(self):
         modDir = QtWidgets.QFileDialog.getExistingDirectory(self.client, "Select the mod directory to upload",
@@ -195,12 +195,12 @@ class ModVault(FormClass, BaseClass, BusyWidget):
                         dialog = UploadModWidget(self, modDir, modinfo)
                         dialog.exec_()
             else:
-                QtWidgets.QMessageBox.information(self.client,"Mod selection",
+                QtWidgets.QMessageBox.information(self.client, "Mod selection",
                                                   "This folder doesn't contain a mod_info.lua file")
 
     @QtCore.pyqtSlot()
     def busy_entered(self):
-        self.client.lobby_connection.send(dict(command="modvault",type="start"))
+        self.client.lobby_connection.send(dict(command="modvault", type="start"))
 
     def updateVisibilities(self):
         logger.debug("Updating visibilities with sort '%s' and visibility '%s'" % (self.sortType, self.showType))
@@ -210,7 +210,7 @@ class ModVault(FormClass, BaseClass, BusyWidget):
 
     def downloadMod(self, mod):
         if downloadMod(mod):
-            self.client.lobby_connection.send(dict(command="modvault",type="download", uid=mod.uid))
+            self.client.lobby_connection.send(dict(command="modvault", type="download", uid=mod.uid))
             self.uids = [mod.uid for mod in getInstalledMods()]
             self.updateVisibilities()
             return True
@@ -225,10 +225,10 @@ class ModVault(FormClass, BaseClass, BusyWidget):
 
 # the drawing helper function for the modlist
 class ModItemDelegate(QtWidgets.QStyledItemDelegate):
-    
+
     def __init__(self, *args, **kwargs):
         QtWidgets.QStyledItemDelegate.__init__(self, *args, **kwargs)
-        
+
     def paint(self, painter, option, index, *args, **kwargs):
         self.initStyleOption(option, index)
 
@@ -263,12 +263,12 @@ class ModItemDelegate(QtWidgets.QStyledItemDelegate):
         painter.translate(option.rect.left() + iconsize.width() + 10, option.rect.top()+4)
         clip = QtCore.QRectF(0, 0, option.rect.width()-iconsize.width() - 10 - 5, option.rect.height())
         html.drawContents(painter, clip)
-  
+
         painter.restore()
 
     def sizeHint(self, option, index, *args, **kwargs):
         self.initStyleOption(option, index)
-        
+
         html = QtGui.QTextDocument()
         html.setHtml(option.text)
         html.setTextWidth(ModItem.TEXTWIDTH)
@@ -285,7 +285,7 @@ class ModItem(QtWidgets.QListWidgetItem):
 
     FORMATTER_MOD = str(util.THEME.readfile("modvault/modinfo.qthtml"))
     FORMATTER_MOD_UI = str(util.THEME.readfile("modvault/modinfoui.qthtml"))
-    
+
     def __init__(self, parent, uid, *args, **kwargs):
         QtWidgets.QListWidgetItem.__init__(self, *args, **kwargs)
 
@@ -344,7 +344,7 @@ class ModItem(QtWidgets.QListWidgetItem):
         p = self.parent
         if p.searchString != "":
             if not (self.author.lower().find(p.searchString) != -1 or self.name.lower().find(p.searchString) != -1 or
-                            self.description.lower().find(" " + p.searchString + " ") != -1):
+                    self.description.lower().find(" " + p.searchString + " ") != -1):
                 return False
         if p.showType == "all":
             return True
@@ -373,7 +373,7 @@ class ModItem(QtWidgets.QListWidgetItem):
             color = "green"
         else:
             color = "white"
-        
+
         if self.isuimod:
             self.setText(self.FORMATTER_MOD_UI.format(color=color, version=str(self.version), title=self.name,
                                                       description=descr, author=self.author,

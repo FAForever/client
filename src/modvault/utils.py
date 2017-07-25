@@ -152,7 +152,7 @@ def getModInfoFromZip(zfile):
     """get the mod info from a zip file"""
     if zfile in modCache:
         return modCache[zfile]
-    
+
     r = None
     if zipfile.is_zipfile(os.path.join(MODFOLDER, zfile)):
         zip = zipfile.ZipFile(os.path.join(MODFOLDER,zfile), "r", zipfile.ZIP_DEFLATED)
@@ -233,7 +233,7 @@ def getActiveMods(uimods=None, temporary=True):  # returns a list of ModInfo's c
         return active_mods
     except:
         return []
-    
+
 
 def setActiveMods(mods, keepuimods=True, temporary=True):  # uimods works the same as in getActiveMods
     """
@@ -325,7 +325,7 @@ def updateModInfo(mod, info):  # should probably not be used.
         return False
     else:
         f.close()
-        
+
     return True
 
 

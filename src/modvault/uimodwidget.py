@@ -15,9 +15,9 @@ class UIModWidget(FormClass, BaseClass):
 
         self.setupUi(self)
         self.parent = parent
-        
+
         self.setStyleSheet(self.parent.client.styleSheet())
-        
+
         self.setWindowTitle("Ui Mod Manager")
 
         self.doneButton.clicked.connect(self.doneClicked)

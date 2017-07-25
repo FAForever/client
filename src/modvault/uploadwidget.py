@@ -96,7 +96,7 @@ class UploadModWidget(FormClass, BaseClass):
         self.modinfo.thumbnail = modvault.fullPathToIcon(iconfilename)
         self.IconURI.setText(iconfilename)
         return True
-    
+
 
 # from http://stackoverflow.com/questions/1855095/how-to-create-a-zip-archive-of-a-directory-in-python
 def zipdir(path, zipf, fname):
