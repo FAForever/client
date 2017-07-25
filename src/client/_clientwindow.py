@@ -12,7 +12,8 @@ from client.players import Players
 from client.connection import LobbyInfo, ServerConnection, \
         Dispatcher, ConnectionState, ServerReconnecter
 from model.gameset import Gameset
-from client.updater import ClientUpdater, GithubUpdateChecker
+from client.updater import UpdateChecker, UpdateDialog, UpdateSettings
+from client.update_settings import UpdateSettingsDialog
 from client.theme_menu import ThemeMenu
 from client.user import User
 import fa
@@ -589,10 +590,9 @@ class ClientWindow(FormClass, BaseClass):
         self.mainGridLayout.addLayout(self.warning, 2, 0)
         self.warningHide()
 
-        self._client_updater = ClientUpdater()
-        self.githubUpdater = GithubUpdateChecker()
-        self.githubUpdater.update_found.connect(self.github_update)
-        self.githubUpdater.start()
+        self._update_checker = UpdateChecker(self)
+        self._update_checker.finished.connect(self.update_checked)
+        self._update_checker.start()
 
     def warningHide(self):
         """
@@ -611,6 +611,8 @@ class ClientWindow(FormClass, BaseClass):
             i.show()
 
     def reconnect(self):
+        self._update_checker.start()
+
         self.lobby_reconnecter.enabled = True
         self.lobby_connection.doConnect()
 
@@ -621,18 +623,10 @@ class ClientWindow(FormClass, BaseClass):
         self.chat.disconnect()
 
     @QtCore.pyqtSlot(dict)
-    def github_update(self, update):
-        logger.info('Got github update')
-        version = update['name']
-        prerelease = update['prerelease']
-        assets = update['assets']
-        url = update['html_url']
-        download_url = None
-        for asset in assets:
-            if '.msi' in asset['browser_download_url']:
-                download_url = asset['browser_download_url']
-        if download_url is not None:
-            self._client_updater.exec_(download_url, prerelease, url)
+    def update_checked(self, releases):
+        update_dialog = UpdateDialog(self)
+        update_dialog.setup(releases)
+        update_dialog.show()
 
     @QtCore.pyqtSlot()
     def cleanup(self):
@@ -706,6 +700,8 @@ class ClientWindow(FormClass, BaseClass):
         return QtWidgets.QMainWindow.closeEvent(self, event)
 
     def initMenus(self):
+        self.actionCheck_for_Updates.triggered.connect(self.check_for_updates)
+        self.actionUpdate_Settings.triggered.connect(self.show_update_settings)
         self.actionLink_account_to_Steam.triggered.connect(partial(self.open_url, Settings.get("STEAMLINK_URL")))
         self.actionLinkWebsite.triggered.connect(partial(self.open_url, Settings.get("WEBSITE_URL")))
         self.actionLinkWiki.triggered.connect(partial(self.open_url, Settings.get("WIKI_URL")))
@@ -825,6 +821,17 @@ class ClientWindow(FormClass, BaseClass):
         dialog = util.THEME.loadUi("client/about.ui")
         dialog.version_label.setText("Version: {}".format(util.VERSION_STRING))
         dialog.exec_()
+
+    @QtCore.pyqtSlot()
+    def check_for_updates(self):
+        self._update_checker.respect_notify = False
+        self._update_checker.start(reset_server = False)
+
+    @QtCore.pyqtSlot()
+    def show_update_settings(self):
+        dialog = UpdateSettingsDialog(self)
+        dialog.setup()
+        dialog.show()
 
     def saveWindow(self):
         util.settings.beginGroup("window")
@@ -1091,8 +1098,8 @@ class ClientWindow(FormClass, BaseClass):
 
 
     def handle_session(self, message):
-        # Getting here means our client is not outdated
-        self._client_updater.notify_outdated(False)
+        self._update_checker.server_session()
+
         self.session = str(message['session'])
         self.get_creds_and_login()
 
@@ -1102,7 +1109,7 @@ class ClientWindow(FormClass, BaseClass):
         Settings.remove('window/geometry')
 
         logger.warn("Server says we need an update")
-        self._client_updater.notify_outdated(True)
+        self._update_checker.server_update(message)
 
     def handle_welcome(self, message):
         self.state = ClientState.LOGGED_IN

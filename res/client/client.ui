@@ -171,8 +171,8 @@
          <number>0</number>
         </property>
         <item row="0" column="0">
-         <widget class="QWebEngineView" name="unitdbWebView">
-          <property name="url">
+         <widget class="QWebEngineView" name="unitdbWebView" native="true">
+          <property name="url" stdset="0">
            <url>
             <string>about:blank</string>
            </url>
@@ -238,7 +238,7 @@
      <x>0</x>
      <y>0</y>
      <width>817</width>
-     <height>18</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuOptions">
@@ -304,10 +304,18 @@
      <addaction name="actionShowReplaysDir"/>
      <addaction name="actionShowGamePrefs"/>
     </widget>
+    <widget class="QMenu" name="menuUpdates">
+     <property name="title">
+      <string>Updates...</string>
+     </property>
+     <addaction name="actionCheck_for_Updates"/>
+     <addaction name="actionUpdate_Settings"/>
+    </widget>
     <addaction name="menuSettings"/>
     <addaction name="menuChat"/>
     <addaction name="menuTheme"/>
     <addaction name="menuNotifications"/>
+    <addaction name="menuUpdates"/>
     <addaction name="separator"/>
     <addaction name="menuLocalPath"/>
     <addaction name="menuClear"/>
@@ -595,6 +603,16 @@
   <action name="actionShowGamePrefs">
    <property name="text">
     <string>Show game.prefs</string>
+   </property>
+  </action>
+  <action name="actionCheck_for_Updates">
+   <property name="text">
+    <string>Check for Updates</string>
+   </property>
+  </action>
+  <action name="actionUpdate_Settings">
+   <property name="text">
+    <string>Update Settings...</string>
    </property>
   </action>
  </widget>

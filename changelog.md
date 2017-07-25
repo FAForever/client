@@ -12,10 +12,12 @@
 * Fix fa updater not cancelling download (#802, #803)
 * Fix regression - map and mod previews not downloading correctly (#804, #805)
 * Fix maps with spaces in them sometimes failing to download in vault (#771, #772)
+* Rework client updater (#671, #672)
 
 Contributors:
  - Wesmania
  - Grothe
+ - Duke
 
 0.15.1
 ====
