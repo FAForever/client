@@ -172,19 +172,25 @@ class ModVault(FormClass, BaseClass, BusyWidget):
     
     @QtCore.pyqtSlot()
     def openUploadForm(self):
-        modDir = QtWidgets.QFileDialog.getExistingDirectory(self.client, "Select the mod directory to upload", MODFOLDER,  QtWidgets.QFileDialog.ShowDirsOnly)
+        modDir = QtWidgets.QFileDialog.getExistingDirectory(self.client, "Select the mod directory to upload",
+                                                            MODFOLDER,  QtWidgets.QFileDialog.ShowDirsOnly)
         logger.debug("Uploading mod from: " + modDir)
         if modDir != "":
             if isModFolderValid(modDir):
                 # os.chmod(modDir, S_IWRITE) Don't need this at the moment
                 modinfofile, modinfo = parseModInfo(modDir)
                 if modinfofile.error:
-                    logger.debug("There were " + str(modinfofile.errors) + " errors and " + str(modinfofile.warnings) + " warnings.")
+                    logger.debug("There were " + str(modinfofile.errors) + " errors and " + str(modinfofile.warnings) +
+                                 " warnings.")
                     logger.debug(modinfofile.errorMsg)
-                    QtWidgets.QMessageBox.critical(self.client, "Lua parsing error", modinfofile.errorMsg + "\nMod uploading cancelled.")
+                    QtWidgets.QMessageBox.critical(self.client, "Lua parsing error", modinfofile.errorMsg +
+                                                   "\nMod uploading cancelled.")
                 else:
                     if modinfofile.warning:
-                        uploadmod = QtWidgets.QMessageBox.question(self.client, "Lua parsing warning", modinfofile.errorMsg + "\nDo you want to upload the mod?", QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
+                        uploadmod = QtWidgets.QMessageBox.question(self.client, "Lua parsing warning",
+                                                                   modinfofile.errorMsg +
+                                                                   "\nDo you want to upload the mod?",
+                                                                   QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
                     else:
                         uploadmod = QtWidgets.QMessageBox.Yes
                     if uploadmod == QtWidgets.QMessageBox.Yes:
@@ -195,7 +201,7 @@ class ModVault(FormClass, BaseClass, BusyWidget):
                         dialog.exec_()
             else:
                 QtWidgets.QMessageBox.information(self.client,"Mod selection",
-                        "This folder doesn't contain a mod_info.lua file")
+                                                  "This folder doesn't contain a mod_info.lua file")
 
     @QtCore.pyqtSlot()
     def busy_entered(self):
@@ -213,7 +219,8 @@ class ModVault(FormClass, BaseClass, BusyWidget):
             self.uids = [mod.uid for mod in getInstalledMods()]
             self.updateVisibilities()
             return True
-        else: return False
+        else:
+            return False
 
     def removeMod(self, mod):
         if removeMod(mod):
@@ -341,7 +348,8 @@ class ModItem(QtWidgets.QListWidgetItem):
     def shouldBeVisible(self):
         p = self.parent
         if p.searchString != "":
-            if not (self.author.lower().find(p.searchString) != -1 or self.name.lower().find(p.searchString) != -1 or self.description.lower().find(" " + p.searchString +" ") != -1):
+            if not (self.author.lower().find(p.searchString) != -1 or self.name.lower().find(p.searchString) != -1 or
+                            self.description.lower().find(" " + p.searchString + " ") != -1):
                 return False
         if p.showType == "all":
             return True
@@ -364,18 +372,23 @@ class ModItem(QtWidgets.QListWidgetItem):
             descr = self.description[:197] + "..."
 
         modtype = ""
-        if self.isuimod: modtype = "UI mod"
-        if self.uid in self.parent.uids: color = "green"
-        else: color = "white"
+        if self.isuimod:
+            modtype = "UI mod"
+        if self.uid in self.parent.uids:
+            color = "green"
+        else:
+            color = "white"
         
         if self.isuimod:
-            self.setText(self.FORMATTER_MOD_UI.format(color=color,version=str(self.version),title=self.name,
-                description=descr, author=self.author,downloads=str(self.downloads),
-                likes=str(self.likes),date=str(self.date),modtype=modtype))
+            self.setText(self.FORMATTER_MOD_UI.format(color=color, version=str(self.version), title=self.name,
+                                                      description=descr, author=self.author,
+                                                      downloads=str(self.downloads), likes=str(self.likes),
+                                                      date=str(self.date), modtype=modtype))
         else:
-            self.setText(self.FORMATTER_MOD.format(color=color,version=str(self.version),title=self.name,
-                description=descr, author=self.author,downloads=str(self.downloads),
-                likes=str(self.likes),date=str(self.date),modtype=modtype,played=str(self.played)))
+            self.setText(self.FORMATTER_MOD.format(color=color, version=str(self.version), title=self.name,
+                                                   description=descr, author=self.author, downloads=str(self.downloads),
+                                                   likes=str(self.likes), date=str(self.date), modtype=modtype,
+                                                   played=str(self.played)))
 
         self.setToolTip('<p width="230">%s</p>' % self.description)
 

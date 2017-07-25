@@ -73,23 +73,23 @@ class Game(QObject):
             raise BadUpdateException(e.args[0])
 
     def _update(self,
-        uid,
-        state,
-        launched_at,
-        num_players,
-        max_players,
-        title,
-        host,
-        mapname,
-        map_file_path,
-        teams,
-        featured_mod,
-        featured_mod_versions,
-        sim_mods,
-        password_protected,
-        visibility,
-        command=None,    # Ignored, for convenience since server puts this in the game dict
-        ):
+                uid,
+                state,
+                launched_at,
+                num_players,
+                max_players,
+                title,
+                host,
+                mapname,
+                map_file_path,
+                teams,
+                featured_mod,
+                featured_mod_versions,
+                sim_mods,
+                password_protected,
+                visibility,
+                command=None,    # Ignored, for convenience since server puts this in the game dict
+                ):
 
         if self.closed():
             raise BadUpdateException("Cannot update a closed game {}!".format(self.uid))

@@ -27,7 +27,8 @@ class TutorialItemDelegate(QtWidgets.QStyledItemDelegate):
         option.widget.style().drawControl(QtWidgets.QStyle.CE_ItemViewItem, option, painter, option.widget)
         
         # Shadow
-        painter.fillRect(option.rect.left()+8-1, option.rect.top()+8-1, iconsize.width(), iconsize.height(), QtGui.QColor("#202020"))
+        painter.fillRect(option.rect.left()+8-1, option.rect.top()+8-1, iconsize.width(), iconsize.height(),
+                         QtGui.QColor("#202020"))
 
         # Icon
         icon.paint(painter, option.rect.adjusted(5-2, -2, 0, 0), QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
@@ -96,7 +97,8 @@ class TutorialItem(QtWidgets.QListWidgetItem):
 
             self.setIcon(icon)
 
-        self.setText(self.FORMATTER_TUTORIAL.format(mapdisplayname=self.mapdisplayname, title=self.tutorial, description=self.description))
+        self.setText(self.FORMATTER_TUTORIAL.format(mapdisplayname=self.mapdisplayname,
+                                                    title=self.tutorial, description=self.description))
 
     def permutations(self, items):
         """Yields all permutations of the items."""

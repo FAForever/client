@@ -69,8 +69,8 @@ def replay(source, detach=False):
                     parser = replayParser(arg_string)
                     version = parser.getVersion()
                 else:
-                    QtWidgets.QMessageBox.critical(None, "FA Forever Replay",
-                                               "Sorry, FAF has no idea how to replay this file:<br/><b>" + source + "</b>")
+                    QtWidgets.QMessageBox.critical(None, "FA Forever Replay", "Sorry, FAF has no idea how to replay "
+                                                                              "this file:<br/><b>" + source + "</b>")
 
                 logger.info("Replaying " + str(arg_string) + " with mod " + str(mod) + " on map " + str(mapname))
                 
@@ -94,15 +94,14 @@ def replay(source, detach=False):
                 arg_url.setQuery(QtCore.QUrlQuery(""))
                 arg_string = arg_url.toString()
             else:
-                QtWidgets.QMessageBox.critical(None, "FA Forever Replay",
-                                           "App doesn't know how to play replays from that scheme:<br/><b>" + url.scheme() + "</b>")
+                QtWidgets.QMessageBox.critical(None, "FA Forever Replay", "App doesn't know how to play replays from "
+                                                                          "that scheme:<br/><b>" + url.scheme() + "</b>")
                 return False
 
                 # We couldn't construct a decent argument format to tell ForgedAlliance for this replay
         if not arg_string:
-            QtWidgets.QMessageBox.critical(None, "FA Forever Replay",
-                                       "App doesn't know how to play replays from that source:<br/><b>" + str(
-                                           source) + "</b>")
+            QtWidgets.QMessageBox.critical(None, "FA Forever Replay", "App doesn't know how to play replays from that "
+                                                                      "source:<br/><b>" + str(source) + "</b>")
             return False
 
         # Launch preparation: Start with an empty arguments list

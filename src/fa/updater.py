@@ -396,7 +396,8 @@ class Updater(QtCore.QObject, ConnectionHandler):
             md5File = util.md5(os.path.join(util.APPDATA_DIR, destination, fileToUpdate))
             if md5File == None:
                 if self.version:
-                    if self.featured_mod == "faf" or self.featured_mod == "ladder1v1" or filegroup == "FAF" or filegroup == "FAFGAMEDATA":
+                    if self.featured_mod == "faf" or self.featured_mod == "ladder1v1" or \
+                                    filegroup == "FAF" or filegroup == "FAFGAMEDATA":
                         self.connection.writeToServer("REQUEST_VERSION", destination, fileToUpdate, str(self.version))
                     else:
                         self.connection.writeToServer("REQUEST_MOD_VERSION", destination, fileToUpdate,
@@ -406,7 +407,8 @@ class Updater(QtCore.QObject, ConnectionHandler):
                     self.connection.writeToServer("REQUEST_PATH", destination, fileToUpdate)
             else:
                 if self.version:
-                    if self.featured_mod == "faf" or self.featured_mod == "ladder1v1" or filegroup == "FAF" or filegroup == "FAFGAMEDATA":
+                    if self.featured_mod == "faf" or self.featured_mod == "ladder1v1" or \
+                                    filegroup == "FAF" or filegroup == "FAFGAMEDATA":
                         self.connection.writeToServer("PATCH_TO", destination, fileToUpdate, md5File, str(self.version))
                     else:
 
@@ -568,7 +570,8 @@ class Updater(QtCore.QObject, ConnectionHandler):
         elif self.result == self.RESULT_FAILURE:
             failureDialog()
 
-        # If nothing terribly bad happened until now, the operation is a success and/or the client can display what's up.
+        # If nothing terribly bad happened until now,
+        # the operation is a success and/or the client can display what's up.
         return self.result
 
     def handleAction(self, bytecount, action, stream):

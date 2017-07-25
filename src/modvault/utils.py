@@ -23,9 +23,11 @@ logger = logging.getLogger(__name__)
 MODFOLDER = os.path.join(util.PERSONAL_DIR, "My Games", "Gas Powered Games", "Supreme Commander Forged Alliance", "Mods")
 MODVAULT_DOWNLOAD_ROOT = "{}/faf/vault/".format(Settings.get('content/host'))
 
-installedMods = []  # This is a global list that should be kept intact. So it should be cleared using installedMods[:] = []
+installedMods = []  # This is a global list that should be kept intact.
+# So it should be cleared using installedMods[:] = []
 
-selectedMods = Settings.get('play/mods', default=[])  # mods selected by user, are not overwritten by temporary mods selected when joining game
+# mods selected by user, are not overwritten by temporary mods selected when joining game
+selectedMods = Settings.get('play/mods', default=[])
 
 
 class ModInfo(object):
@@ -310,12 +312,15 @@ def updateModInfo(mod, info):  # should probably not be used.
         f.close()
 
     for k, v in list(info.items()):
-        if type(v) in (bool, int): val = str(v).lower()
-        if type(v) in (str, str): val = '"' + v.replace('"', '\\"') + '"'
+        if type(v) in (bool, int):
+            val = str(v).lower()
+        if type(v) in (str, str):
+            val = '"' + v.replace('"', '\\"') + '"'
         if re.search(r'^\s*'+k, data, re.M):
             data = re.sub(r'^\s*' + k + r'\s*=.*$', "%s = %s" % (k, val), data, 1, re.M)
         else:
-            if data[-1] != '\n': data += '\n'
+            if data[-1] != '\n':
+                data += '\n'
             data += "%s = %s" % (k, val)
     try:
         f = open(fname, 'w')
@@ -343,7 +348,8 @@ def generateThumbnail(sourcename, destname):
         file.close()
 
         size = int((len(img)/3) ** (1.0/2))
-        imageFile = QtWidgets.QImage(img, size, size,QtWidgets.QImage.Format_RGB888).rgbSwapped().scaled(100, 100, transformMode=QtCore.Qt.SmoothTransformation)
+        imageFile = QtGui.QImage(img, size, size, QtGui.QImage.Format_RGB888).rgbSwapped().\
+            scaled(100, 100, transformMode=QtCore.Qt.SmoothTransformation)
         imageFile.save(destname)
     except IOError:
         return False
@@ -366,13 +372,11 @@ def downloadMod(item):
     def handle_exist(path, modname):
         modpath = os.path.join(path, modname)
         oldmod = getModInfoFromFolder(modpath)
-        result = QtWidgets.QMessageBox.question(None,
-            "Modfolder already exists",
-            ("The mod is to be downloaded to the folder '{}'. This folder already"
-            "exists and contains <b>{}</b>. Do you want to overwrite this mod?")
-                .format(modpath,oldmod.totalname),
-            QtWidgets.QMessageBox.Yes,
-            QtWidgets.QMessageBox.No)
+        result = QtWidgets.QMessageBox.question(None, "Modfolder already exists",
+                                                ("The mod is to be downloaded to the folder '{}'. This folder already "
+                                                 "exists and contains <b>{}</b>. Do you want to overwrite this mod?")
+                                                .format(modpath, oldmod.totalname), QtWidgets.QMessageBox.Yes,
+                                                QtWidgets.QMessageBox.No)
         if result == QtWidgets.QMessageBox.No:
             return False
         removeMod(oldmod)

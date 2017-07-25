@@ -104,7 +104,8 @@ class Notifications:
         if eventType == self.USER_ONLINE:
             userid = data['user']
             pixmap = self.user
-            text = '<html>%s<br><font color="silver" size="-2">joined</font> %s</html>' % (self.client.players[userid].login, data['channel'])
+            text = '<html>%s<br><font color="silver" size="-2">joined</font> %s</html>' % \
+                   (self.client.players[userid].login, data['channel'])
         elif eventType == self.NEW_GAME:
 
             preview = maps.preview(data['mapname'], pixmap=True)
@@ -119,12 +120,16 @@ class Notifications:
             if (mod != 'faf' or mods):
                 modstr = mod
                 if mods:
-                    if mod == 'faf':modstr = ", ".join(list(mods.values()))
-                    else: modstr = mod + " & " + ", ".join(list(mods.values()))
-                    if len(modstr) > 20: modstr = modstr[:15] + "..."
+                    if mod == 'faf':
+                        modstr = ", ".join(list(mods.values()))
+                    else:
+                        modstr = mod + " & " + ", ".join(list(mods.values()))
+                    if len(modstr) > 20:
+                        modstr = modstr[:15] + "..."
 
             modhtml = '' if (modstr == '') else '<br><font size="-4"><font color="red">mods</font> %s</font>' % modstr
-            text = '<html>%s<br><font color="silver" size="-2">on</font> %s%s</html>' % (data['title'], maps.getDisplayName(data['mapname']), modhtml)
+            text = '<html>%s<br><font color="silver" size="-2">on</font> %s%s</html>' % \
+                   (data['title'], maps.getDisplayName(data['mapname']), modhtml)
 
         self.dialog.newEvent(pixmap, text, self.settings.popup_lifetime, self.settings.soundEnabled(eventType))
 
@@ -138,10 +143,6 @@ class Notifications:
             * Game isn't running, or ingame notifications are enabled
 
         """
-        if (len(self.events) > 0 and self.dialog.isHidden()
-            and (
-                not self.game_running
-                or self.settings.ingame_notifications == IngameNotification.ENABLE
-                )
-            ):
+        if (len(self.events) > 0 and self.dialog.isHidden() and
+                (not self.game_running or self.settings.ingame_notifications == IngameNotification.ENABLE)):
             self.showEvent()

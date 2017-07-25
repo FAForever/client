@@ -81,8 +81,7 @@ class Players(QObject):
         Returns a user's color depending on their status with relation to the FAF client
         """
         affil = self.user.getAffiliation(id_)
-        return PlayerColors.getUserColor(affil, irc=False,
-                random=self.coloredNicknames, seed=id_)
+        return PlayerColors.getUserColor(affil, irc=False, random=self.coloredNicknames, seed=id_)
 
     def keys(self):
         return list(self._players.keys())

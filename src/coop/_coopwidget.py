@@ -112,7 +112,7 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
             w = self.leaderBoardTextFour
 
         doc = QtGui.QTextDocument()
-        doc.addResource(3, QtCore.QUrl("style.css"), self.leaderBoard.styleSheet() )
+        doc.addResource(3, QtCore.QUrl("style.css"), self.leaderBoard.styleSheet())
         html = ("<html><head><link rel='stylesheet' type='text/css' href='style.css'></head><body>")
 
         if self.selectedItem:
@@ -139,10 +139,12 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
             else:
                 secondary = "No"
             if rank % 2 == 0:
-                line = formatter.format(rank=str(rank), numplayers=numPlayers, gameuid=gameuid, players= players, objectives=secondary, timing=timing, type="even")
+                line = formatter.format(rank=str(rank), numplayers=numPlayers, gameuid=gameuid, players=players,
+                                        objectives=secondary, timing=timing, type="even")
             else:
-                line = formatter.format(rank=str(rank), numplayers=numPlayers, gameuid=gameuid, players= players, objectives=secondary, timing=timing, type="")
-            
+                line = formatter.format(rank=str(rank), numplayers=numPlayers, gameuid=gameuid, players=players,
+                                        objectives=secondary, timing=timing, type="")
+
             rank = rank + 1
 
             html += line
@@ -168,7 +170,8 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
         ask the server for stats
         """
         if self.selectedItem:
-            self.client.statsServer.send(dict(command="coop_stats", mission=self.selectedItem.uid, type=self.tabLeaderWidget.currentIndex()))
+            self.client.statsServer.send(dict(command="coop_stats", mission=self.selectedItem.uid,
+                                              type=self.tabLeaderWidget.currentIndex()))
 
     def coopListClicked(self, item):
         """
@@ -183,7 +186,8 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
 
         if item != self.selectedItem: 
             self.selectedItem = item
-            self.client.statsServer.send(dict(command="coop_stats", mission=item.uid, type=self.tabLeaderWidget.currentIndex()))
+            self.client.statsServer.send(dict(command="coop_stats", mission=item.uid,
+                                              type=self.tabLeaderWidget.currentIndex()))
 
     def coopListDoubleClicked(self, item):
         """
@@ -273,7 +277,8 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
             return
 
         if game.password_protected:
-            passw, ok = QtWidgets.QInputDialog.getText(self.client, "Passworded game" , "Enter password :", QtWidgets.QLineEdit.Normal, "")
+            passw, ok = QtWidgets.QInputDialog.getText(self.client, "Passworded game", "Enter password :",
+                                                       QtWidgets.QLineEdit.Normal, "")
             if ok:
                 self.client.join_game(uid=game.uid, password=passw)
         else:

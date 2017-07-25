@@ -114,7 +114,8 @@ class LadderMapStat(FormClass, BaseClass):
         self.mapstats.insertHtml("<br><font size='+1'>" + str(percentAeon) + " % Aeon ("+str(aeon_total) + " occurrences) </font>")
         self.mapstats.insertHtml("<br><font size='+1'>" + str(percentSera) + " % Seraphim ("+str(sera_total) + " occurrences) </font><br>")
 
-        # if a win was ignored, it's because of a mirror matchup. No win count, but we have to remove 2 times the occurences.
+        # if a win was ignored, it's because of a mirror matchup.
+        # No win count, but we have to remove 2 times the occurences.
         # once for each player..
         
         uefnomirror = (float(uef_total) - float(uef_ignore) * 2)
@@ -140,10 +141,14 @@ class LadderMapStat(FormClass, BaseClass):
         percentwinSera = round((sera_win / seranomirror) * 100.0, 2)
         
         self.mapstats.insertHtml("<br><font size='+1'>Win ratios : </font>")
-        self.mapstats.insertHtml("<br><font size='+1'>UEF : " + str(percentwinUef) + " % ("+str(uef_win) + " games won in "+str(int(uefnomirror)) + " no mirror matchup games)</font>")
-        self.mapstats.insertHtml("<br><font size='+1'>Cybran : " + str(percentwinCybran) + " % ("+str(cybran_win) + " games won in " + str(int(cybrannomirror)) + " no mirror matchup games)</font>")
-        self.mapstats.insertHtml("<br><font size='+1'>Aeon : " + str(percentwinAeon) + " % ("+str(aeon_win) + " games won in " + str(int(aeonnomirror)) + " no mirror matchup games)</font>")
-        self.mapstats.insertHtml("<br><font size='+1'>Seraphim : " + str(percentwinSera) + " % ("+str(sera_win) + " games won in " + str(int(seranomirror)) + " no mirror matchup games)</font>")
+        self.mapstats.insertHtml("<br><font size='+1'>UEF : " + str(percentwinUef) + " % ("+str(uef_win) +
+                                 " games won in "+str(int(uefnomirror)) + " no mirror matchup games)</font>")
+        self.mapstats.insertHtml("<br><font size='+1'>Cybran : " + str(percentwinCybran) + " % ("+str(cybran_win) +
+                                 " games won in " + str(int(cybrannomirror)) + " no mirror matchup games)</font>")
+        self.mapstats.insertHtml("<br><font size='+1'>Aeon : " + str(percentwinAeon) + " % ("+str(aeon_win) +
+                                 " games won in " + str(int(aeonnomirror)) + " no mirror matchup games)</font>")
+        self.mapstats.insertHtml("<br><font size='+1'>Seraphim : " + str(percentwinSera) + " % ("+str(sera_win) +
+                                 " games won in " + str(int(seranomirror)) + " no mirror matchup games)</font>")
 
     def mapselected(self, item):
         """ user has selected a map, we send the request to the server """
@@ -152,7 +157,8 @@ class LadderMapStat(FormClass, BaseClass):
         self.mapid = item.data(32)[0]
         realmap = item.data(32)[1].split("/")[1][:-4]
 
-        self.mapstats.document().addResource(QtGui.QTextDocument.ImageResource,  QtCore.QUrl("map.png"), maps.preview(realmap, True, force=True))
+        self.mapstats.document().addResource(QtGui.QTextDocument.ImageResource,  QtCore.QUrl("map.png"),
+                                             maps.preview(realmap, True, force=True))
 
         self.mapstats.insertHtml("<img src=\"map.png\" /><br><font size='+5'>" + item.text() + "</font><br><br>")
         self.client.statsServer.send(dict(command="stats", type="ladder_map_stat", mapid=self.mapid))

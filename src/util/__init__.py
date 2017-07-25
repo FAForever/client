@@ -160,9 +160,10 @@ except:
 def clearDirectory(directory, confirm=True):
     if (os.path.isdir(directory)):
         if (confirm):
-            result = QtWidgets.QMessageBox.question(None, "Clear Directory",
-                                                "Are you sure you wish to clear the following directory:<br/><b>&nbsp;&nbsp;" + directory + "</b>",
-                                                QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
+            result = QtWidgets.QMessageBox.question(None, "Clear Directory", "Are you sure you wish to clear the "
+                                                                             "following directory:<br/><b>&nbsp;&nbsp;"
+                                                    + directory + "</b>",
+                                                    QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
         else:
             result = QtWidgets.QMessageBox.Yes
 
@@ -364,7 +365,8 @@ def md5(file_name):
     IOErrors raised here are handled in doUpdate.
     """
     m = hashlib.md5()
-    if not os.path.isfile(file_name): return None
+    if not os.path.isfile(file_name):
+        return None
 
     with open(file_name, "rb") as fd:
         while True:
@@ -382,10 +384,16 @@ def uniqueID(user, session):
         try:
             _, wmi_state, _, _, _, _, _ = win32serviceutil.QueryServiceStatus('Winmgmt')
             if wmi_state != win32service.SERVICE_RUNNING:
-                QMessageBox.critical(None, "WMI service not running", "FAF requires the 'Windows Management Instrumentation' service for smurf protection to be running. "
-                                     "Please run 'service.msc', open the 'Windows Management Instrumentation' service, set the startup type to automatic and restart FAF.")
+                QMessageBox.critical(None, "WMI service not running", "FAF requires the 'Windows Management "
+                                                                      "Instrumentation' service for smurf protection "
+                                                                      "to be running. Please run 'service.msc', open "
+                                                                      "the 'Windows Management Instrumentation' "
+                                                                      "service, set the startup type to automatic and "
+                                                                      "restart FAF.")
         except Exception as e:
-            QMessageBox.critical(None, "WMI service missing", "FAF requires the 'Windows Management Instrumentation' service for smurf protection. This service could not be found.")
+            QMessageBox.critical(None, "WMI service missing", "FAF requires the 'Windows Management Instrumentation' "
+                                                              "service for smurf protection. This service could not "
+                                                              "be found.")
 
     if sys.platform == 'win32':
         exe_path = os.path.join(fafpath.get_libdir(), "faf-uid.exe")

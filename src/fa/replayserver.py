@@ -53,8 +53,9 @@ class ReplayRecorder(QtCore.QObject):
         self.relaySocket.deleteLater()
 
     def readDatas(self):
-        read = self.inputSocket.read(self.inputSocket.bytesAvailable())  # CAVEAT: readAll() was seemingly truncating data here
-        
+        # CAVEAT: readAll() was seemingly truncating data here
+        read = self.inputSocket.read(self.inputSocket.bytesAvailable())
+
         if not isinstance(read, bytes):
             self.__logger.warning("Read failure on inputSocket: " + bytes.decode())
             return
@@ -64,7 +65,8 @@ class ReplayRecorder(QtCore.QObject):
 
         # Record locally
         if self.replayData.isEmpty():
-            # This prefix means "P"osting replay in the livereplay protocol of FA, this needs to be stripped from the local file
+            # This prefix means "P"osting replay in the livereplay protocol of FA,
+            # this needs to be stripped from the local file
             if data.startsWith(b"P/"):
                 rest = data.indexOf(b"\x00") + 1
                 self.__logger.info("Stripping prefix '" + str(data.left(rest - 1)) + "' from replay.")
@@ -154,7 +156,14 @@ class ReplayServer(QtNetwork.QTcpServer):
                 self.__logger.info("listening on address " + self.serverAddress().toString() + ":" + str(self.serverPort()))
             else:
                 self.__logger.error("cannot listen, port probably used by another application: " + str(local_port))
-                answer = QtWidgets.QMessageBox.warning(None, "Port Occupied", "FAF couldn't start its local replay server, which is needed to play Forged Alliance online. Possible reasons:<ul><li><b>FAF is already running</b> (most likely)</li><li>another program is listening on port {port}</li></ul>".format(port=local_port), QtWidgets.QMessageBox.Retry, QtWidgets.QMessageBox.Abort)
+                answer = QtWidgets.QMessageBox.warning(None, "Port Occupied", "FAF couldn't start its local replay "
+                                                                              "server, which is needed to play Forged "
+                                                                              "Alliance online. Possible reasons:<ul>"
+                                                                              "<li><b>FAF is already running</b> (most "
+                                                                              "likely)</li><li>another program is "
+                                                                              "listening on port {port}</li></ul>"
+                                                       .format(port=local_port),
+                                                       QtWidgets.QMessageBox.Retry, QtWidgets.QMessageBox.Abort)
                 if answer == QtWidgets.QMessageBox.Abort:
                     return False
         return True

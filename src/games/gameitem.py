@@ -274,9 +274,13 @@ class GameItem():
             return
 
         if g.featured_mod == "faf":
-            client.instance.forwardLocalBroadcast(g.host, 'is hosting <a style="color:' + client.instance.getColor("url") + '" href="' + url.toString() + '">' + g.title + '</a> (on "' + self.mapdisplayname + '")')
+            client.instance.forwardLocalBroadcast(g.host, 'is hosting <a style="color:' +
+                                                  client.instance.getColor("url") + '" href="' + url.toString() + '">' +
+                                                  g.title + '</a> (on "' + self.mapdisplayname + '")')
         else:
-            client.instance.forwardLocalBroadcast(g.host, 'is hosting ' + g.featured_mod + ' <a style="color:' + client.instance.getColor("url") + '" href="' + url.toString() + '">' + g.title + '</a> (on "' + self.mapdisplayname + '")')
+            client.instance.forwardLocalBroadcast(g.host, 'is hosting ' + g.featured_mod + ' <a style="color:' +
+                                                  client.instance.getColor("url") + '" href="' + url.toString() + '">' +
+                                                  g.title + '</a> (on "' + self.mapdisplayname + '")')
 
     def update(self):
         """
@@ -349,7 +353,8 @@ class GameItem():
 
         # Spawn announcers: IF we had a gamestate change, show replay and hosting announcements
         if oldstate != g.state:
-            if g.state == GameState.PLAYING:  # The delay is there because we have a 5 minutes delay in the livereplay server
+            if g.state == GameState.PLAYING:
+                # The delay is there because we have a 5 minutes delay in the livereplay server
                 QtCore.QTimer.singleShot(5*60000, self.announceReplay)
             elif g.state == GameState.OPEN:  # The 35s delay is there because the host needs time to choose a map
                 QtCore.QTimer.singleShot(35000, self.announceHosting)

@@ -445,8 +445,7 @@ class ReplayVaultWidgetHandler(object):
         _w.automaticCheckbox.setChecked(self.automatic)
         _w.spoilerCheckbox.setChecked(self.spoiler_free)
 
-    def searchVault(self, minRating=None, mapName=None,
-                    playerName=None, modListIndex=None):
+    def searchVault(self, minRating=None, mapName=None, playerName=None, modListIndex=None):
         w = self._w
         if minRating:
             w.minRating.setValue(minRating)

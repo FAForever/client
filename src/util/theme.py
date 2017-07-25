@@ -327,7 +327,8 @@ class ThemeSet:
 
     def icon(self, filename, themed=True, pix=False):
         """
-        Convenience method returning an icon from a cached, optionally themed pixmap as returned by the pixmap(...) function
+        Convenience method returning an icon from a cached,
+        optionally themed pixmap as returned by the pixmap(...) function
         """
         if pix:
             return self.pixmap(filename, themed)

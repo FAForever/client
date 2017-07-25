@@ -697,9 +697,10 @@ class ClientWindow(FormClass, BaseClass):
         self.saveWindow()
 
         if fa.instance.running():
-            if QtWidgets.QMessageBox.question(self, "Are you sure?",
-                                          "Seems like you still have Forged Alliance running!<br/><b>Close anyway?</b>",
-                                          QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No) == QtWidgets.QMessageBox.No:
+            if QtWidgets.QMessageBox.question(self, "Are you sure?", "Seems like you still have Forged Alliance "
+                                                                     "running!<br/><b>Close anyway?</b>",
+                                              QtWidgets.QMessageBox.Yes,
+                                              QtWidgets.QMessageBox.No) == QtWidgets.QMessageBox.No:
                 event.ignore()
                 return
 
@@ -781,10 +782,10 @@ class ClientWindow(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def clearSettings(self):
-        result = QtWidgets.QMessageBox.question(None, "Clear Settings",
-                                            "Are you sure you wish to clear all settings, login info, etc. used by this program?",
-                                            QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
-        if (result == QtWidgets.QMessageBox.Yes):
+        result = QtWidgets.QMessageBox.question(None, "Clear Settings", "Are you sure you wish to clear all settings, "
+                                                                        "login info, etc. used by this program?",
+                                                QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
+        if result == QtWidgets.QMessageBox.Yes:
             util.settings.clear()
             util.settings.sync()
             QtWidgets.QMessageBox.information(None, "Restart Needed", "FAF will quit now.")
@@ -918,16 +919,16 @@ class ClientWindow(FormClass, BaseClass):
         self.uniqueId = util.uniqueID(self.login, self.session)
         if not self.uniqueId:
             QtWidgets.QMessageBox.critical(self,
-                "Failed to calculate UID",
-                "Failed to calculate your unique ID"
-                " (a part of our smurf prevention system).</br>"
-                "Please report this to the tech support forum!")
+                                           "Failed to calculate UID",
+                                           "Failed to calculate your unique ID"
+                                           " (a part of our smurf prevention system).</br>"
+                                           "Please report this to the tech support forum!")
             return False
         self.lobby_connection.send(dict(command="hello",
-                       login=login,
-                       password=password,
-                       unique_id=self.uniqueId,
-                       session=self.session))
+                                        login=login,
+                                        password=password,
+                                        unique_id=self.uniqueId,
+                                        session=self.session))
         return True
 
     def getColor(self, name):
@@ -1036,11 +1037,13 @@ class ClientWindow(FormClass, BaseClass):
             self.modMenu.addSeparator()
 
             actionLobbyKick = QtWidgets.QAction("Close player's FAF Client...", self.modMenu)
-            actionLobbyKick.triggered.connect(lambda: util.userNameAction(self, 'Player to kick from Client (do not typo!)', lambda name: self.closeLobby(name)))
+            actionLobbyKick.triggered.connect(lambda: util.userNameAction(self, 'Player to kick from Client (do not typo!)',
+                                                                          lambda name: self.closeLobby(name)))
             self.modMenu.addAction(actionLobbyKick)
 
             actionCloseFA = QtWidgets.QAction("Close Player's Game...", self.modMenu)
-            actionCloseFA.triggered.connect(lambda: util.userNameAction(self, 'Player to close FA (do not typo!)', lambda name: self.closeFA(name)))
+            actionCloseFA.triggered.connect(lambda: util.userNameAction(self, 'Player to close FA (do not typo!)',
+                                                                        lambda name: self.closeFA(name)))
             self.modMenu.addAction(actionCloseFA)
 
     def requestAvatars(self, personal):
@@ -1051,7 +1054,8 @@ class ClientWindow(FormClass, BaseClass):
 
     def joinChannel(self, username, channel):
         """ Join users to a channel """
-        self.lobby_connection.send(dict(command="admin", action="join_channel", user_ids=[self.players.getID(username)], channel=channel))
+        self.lobby_connection.send(dict(command="admin", action="join_channel",
+                                        user_ids=[self.players.get_id(username)], channel=channel))
 
     def closeFA(self, username):
         """ Close FA remotely """

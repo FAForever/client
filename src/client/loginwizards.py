@@ -16,7 +16,7 @@ class gameSettingsWizard(QtWidgets.QWizard):
         self.setWizardStyle(1)
 
         self.setPixmap(QtWidgets.QWizard.BannerPixmap,
-                QtGui.QPixmap('client/banner.png'))
+                       QtGui.QPixmap('client/banner.png'))
         self.setPixmap(QtWidgets.QWizard.BackgroundPixmap,
                        QtGui.QPixmap('client/background.png'))
 
@@ -37,7 +37,10 @@ class GameSettings(QtWidgets.QWizardPage):
         self.setPixmap(QtWidgets.QWizard.WatermarkPixmap, util.THEME.pixmap("client/settings_watermark.png"))
         
         self.label = QtWidgets.QLabel()
-        self.label.setText('Forged Alliance needs an open UDP port to play. If you have trouble connecting to other players, try the UPnP option first. If that fails, you should try to open or forward the port on your router and firewall.<br/><br/>Visit the <a href="http://forums.faforever.com/forums/viewforum.php?f=3">Tech Support Forum</a> if you need help.<br/><br/>')
+        self.label.setText('Forged Alliance needs an open UDP port to play. If you have trouble connecting to other '
+                           'players, try the UPnP option first. If that fails, you should try to open or forward the '
+                           'port on your router and firewall.<br/><br/>Visit the <a href="http://forums.faforever.com'
+                           '/forums/viewforum.php?f=3">Tech Support Forum</a> if you need help.<br/><br/>')
         self.label.setOpenExternalLinks(True)
         self.label.setWordWrap(True)
 
@@ -51,7 +54,8 @@ class GameSettings(QtWidgets.QWizardPage):
         self.gamePortSpin.setValue(6112)
 
         self.checkUPnP = QtWidgets.QCheckBox("use UPnP")
-        self.checkUPnP.setToolTip("FAF can try to open and forward your game port automatically using UPnP.<br/><b>Caution: This doesn't work for all connections, but may help with some routers.</b>")
+        self.checkUPnP.setToolTip("FAF can try to open and forward your game port automatically using UPnP.<br/><b>"
+                                  "Caution: This doesn't work for all connections, but may help with some routers.</b>")
 
         layout = QtWidgets.QVBoxLayout()
         layout.addWidget(self.label)

@@ -115,8 +115,9 @@ class avatarWidget(QtWidgets.QDialog):
                     fileDatas = base64.b64encode(zlib.compress(file.readAll()))
                     file.close()
 
-                    self.parent.lobby_connection.send(dict(command="avatar", action="upload_avatar", name=os.path.basename(fileName),
-                                          description=text, file=fileDatas))
+                    self.parent.lobby_connection.send(dict(command="avatar", action="upload_avatar",
+                                                           name=os.path.basename(fileName), description=text,
+                                                           file=fileDatas))
 
             else:
                 QtWidgets.QMessageBox.warning(self, "Bad image", "The image must be in png, format is 40x20 !")

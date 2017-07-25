@@ -88,7 +88,8 @@ class HostgameWidget(FormClass, BaseClass):
         for name in names:
             l = self.modList.findItems(name, QtCore.Qt.MatchExactly)
             logger.debug("found item: %s" % l[0].text())
-            if l: l[0].setSelected(True)
+            if l:
+                l[0].setSelected(True)
 
         self.radioFriends.setChecked(self.friends_only)
 
@@ -130,10 +131,10 @@ class HostgameWidget(FormClass, BaseClass):
         modvault.setActiveMods(mods, True, False)
 
         self.parent.client.host_game(title=self.title,
-                                 mod=self.featured_mod,
-                                 visibility="friends" if self.friends_only else "public",
-                                 mapname=self.mapname,
-                                 password=self.password)
+                                     mod=self.featured_mod,
+                                     visibility="friends" if self.friends_only else "public",
+                                     mapname=self.mapname,
+                                     password=self.password)
 
         self.done(1)
         return

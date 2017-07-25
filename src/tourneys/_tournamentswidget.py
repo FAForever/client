@@ -52,15 +52,15 @@ class TournamentsWidget(FormClass, BaseClass):
         """
         if self.client.login not in item.playersname:
             reply = QtWidgets.QMessageBox.question(self.client, "Register",
-                "Do you want to register to this tournament ?",
-                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+                                                   "Do you want to register to this tournament ?",
+                                                   QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
             if reply == QtWidgets.QMessageBox.Yes:
                 self.tourneyServer.send(dict(command="add_participant", uid=item.uid, login=self.client.login))
 
         else:
             reply = QtWidgets.QMessageBox.question(self.client, "Register",
-                "Do you want to leave this tournament ?",
-                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+                                                   "Do you want to leave this tournament ?",
+                                                   QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
             if reply == QtWidgets.QMessageBox.Yes:
                 self.tourneyServer.send(dict(command="remove_participant", uid=item.uid, login=self.client.login)) 
 

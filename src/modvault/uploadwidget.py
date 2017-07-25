@@ -27,8 +27,10 @@ class UploadModWidget(FormClass, BaseClass):
 
         self.Name.setText(modinfo.name)
         self.Version.setText(str(modinfo.version))
-        if modinfo.ui_only: self.isUILabel.setText("is UI Only")
-        else: self.isUILabel.setText("not UI Only")
+        if modinfo.ui_only:
+            self.isUILabel.setText("is UI Only")
+        else:
+            self.isUILabel.setText("not UI Only")
         self.UID.setText(modinfo.uid)
         self.Description.setPlainText(modinfo.description)
         if modinfo.icon != "":
@@ -43,17 +45,19 @@ class UploadModWidget(FormClass, BaseClass):
         n = self.Name.text()
         if any([(i in n) for i in '"<*>|?/\\:']):
             QtWidgets.QMessageBox.information(self.client, "Invalid Name",
-                        "The mod name contains invalid characters: /\\<>|?:\"")
+                                              "The mod name contains invalid characters: /\\<>|?:\"")
             return
 
         iconpath = modvault.iconPathToFull(self.modinfo.icon)
         infolder = False
-        if iconpath != "" and os.path.commonprefix([os.path.normcase(self.modDir),os.path.normcase(iconpath)]) == os.path.normcase(self.modDir): #the icon is in the game folder
+        if iconpath != "" and os.path.commonprefix([os.path.normcase(self.modDir), os.path.normcase(iconpath)]) == \
+                os.path.normcase(self.modDir):  # the icon is in the game folder
             localpath = modvault.fullPathToIcon(iconpath)
             infolder = True
         if iconpath != "" and not infolder:
             QtWidgets.QMessageBox.information(self.client, "Invalid Icon File",
-                        "The file %s is not located inside the modfolder. Copy the icon file to your modfolder and change the mod_info.lua accordingly" % iconpath)
+                                              "The file %s is not located inside the modfolder. Copy the icon file to "
+                                              "your modfolder and change the mod_info.lua accordingly" % iconpath)
             return
 
         try:
@@ -81,13 +85,14 @@ class UploadModWidget(FormClass, BaseClass):
             succes = modvault.generateThumbnail(old, iconfilename)
             if not succes:
                 QtWidgets.QMessageBox.information(self.client, "Invalid Icon File",
-                        "Because FAF can't read DDS files, it tried to convert it to a png. This failed. Try something else")
+                                                  "Because FAF can't read DDS files, it tried to convert it to a png. "
+                                                  "This failed. Try something else")
                 return False
         try:
             self.Thumbnail.setPixmap(util.THEME.pixmap(iconfilename, False))
         except:
             QtWidgets.QMessageBox.information(self.client, "Invalid Icon File",
-                        "This was not a valid icon file. Please pick a png or jpeg")
+                                              "This was not a valid icon file. Please pick a png or jpeg")
             return False
         self.modinfo.thumbnail = modvault.fullPathToIcon(iconfilename)
         self.IconURI.setText(iconfilename)
@@ -106,5 +111,6 @@ def zipdir(path, zipf, fname):
         for f in files:
             name = os.path.join(os.path.normcase(root), f)
             n = name[len(os.path.commonprefix([name, path])):]
-            if n[0] == "\\": n = n[1:]
+            if n[0] == "\\":
+                n = n[1:]
             zipf.write(name, os.path.join(fname, n))

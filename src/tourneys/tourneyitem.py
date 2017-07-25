@@ -95,11 +95,14 @@ class TourneyItem(QtWidgets.QListWidgetItem):
             if old_state != self.state and self.state == "started" and player["name"] == self.client.login:
                 channel = "#" + self.title.replace(" ", "_")
                 self.client.autoJoin.emit([channel])
-                QtWidgets.QMessageBox.information(self.client, "Tournament started !", "Your tournament has started !\nYou have automatically joined the tournament channel.")
+                QtWidgets.QMessageBox.information(self.client, "Tournament started !",
+                                                  "Your tournament has started !\n"
+                                                  "You have automatically joined the tournament channel.")
 
         playerstring = "<br/>".join(self.playersname)
 
-        self.viewtext = self.FORMATTER_SWISS_OPEN.format(title=self.title, description=self.description, numreg=str(len(self.players)), playerstring=playerstring)
+        self.viewtext = self.FORMATTER_SWISS_OPEN.format(title=self.title, description=self.description,
+                                                         numreg=str(len(self.players)), playerstring=playerstring)
         self.setText(self.viewtext)
 
     def display(self):
@@ -127,8 +130,10 @@ class TourneyItem(QtWidgets.QListWidgetItem):
 
     def __lt__(self, other):
         """ Comparison operator used for item list sorting """
-        if not self.client: return True  # If not initialized...
-        if not other.client: return False
+        if not self.client:
+            return True  # If not initialized...
+        if not other.client:
+            return False
 
         # Default: Alphabetical
         return self.title.lower() < other.title.lower()

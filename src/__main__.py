@@ -66,7 +66,8 @@ def AdminUserErrorDialog():
     ignore_admin = Settings.get("client/ignore_admin", False, bool)
     if not ignore_admin:
         box = QtWidgets.QMessageBox()
-        box.setText("FAF should not be run as an administrator!<br><br>This probably means you need to fix the file permissions in C:\\ProgramData.<br>Proceed at your own risk.")
+        box.setText("FAF should not be run as an administrator!<br><br>This probably means you need "
+                    "to fix the file permissions in C:\\ProgramData.<br>Proceed at your own risk.")
         box.setStandardButtons(QtWidgets.QMessageBox.Ignore | QtWidgets.QMessageBox.Close)
         box.setIcon(QtWidgets.QMessageBox.Critical)
         box.setWindowTitle("FAF privilege error")

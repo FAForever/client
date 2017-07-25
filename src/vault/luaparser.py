@@ -244,8 +244,9 @@ class luaParser:
             return
 
         self.__stream = f.readlines()
-        if self.__stream[-1][-1] != "\n": # file doesn't end in a newline
-                        self.__stream[-1] += "\n" # needed to prevent a bug happening when a file doesn't end with a newline.
+        if self.__stream[-1][-1] != "\n":  # file doesn't end in a newline
+            # needed to prevent a bug happening when a file doesn't end with a newline.
+                        self.__stream[-1] += "\n"
         f.close()
         # call recursive function
         result = self.__processLine()

@@ -99,15 +99,20 @@ def validatePath(path):
         except UnicodeEncodeError:
             return False
 
-        # We check whether the base path and a gamedata/lua.scd file exists. This is a mildly naive check, but should suffice
-        if not os.path.isdir(path): return False
-        if not os.path.isfile(os.path.join(path, r'gamedata', r'lua.scd')): return False
+        # We check whether the base path and a gamedata/lua.scd file exists.
+        # This is a mildly naive check, but should suffice
+        if not os.path.isdir(path):
+            return False
+        if not os.path.isfile(os.path.join(path, r'gamedata', r'lua.scd')):
+            return False
 
         # Reject or fix paths that end with a slash.
         # LATER: this can have all sorts of intelligent logic added
         # Suggested: Check if the files are actually the right ones, if not, tell the user what's wrong with them.
-        if path.endswith("/"): return False
-        if path.endswith("\\"): return False
+        if path.endswith("/"):
+            return False
+        if path.endswith("\\"):
+            return False
 
         return True
     except:

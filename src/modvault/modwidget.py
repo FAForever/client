@@ -65,18 +65,23 @@ class ModWidget(FormClass, BaseClass):
             self.parent.downloadMod(self.mod)
             self.done(1)
         else:
-            show = QtWidgets.QMessageBox.question(self.parent.client, "Delete Mod", "Are you sure you want to delete this mod?", QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
+            show = QtWidgets.QMessageBox.question(self.parent.client, "Delete Mod",
+                                                  "Are you sure you want to delete this mod?",
+                                                  QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
             if show == QtWidgets.QMessageBox.Yes:
                 self.parent.removeMod(self.mod)
                 self.done(1)
 
     @QtCore.pyqtSlot()
     def addComment(self):
-        if self.LineComment.text() == "": return
+        if self.LineComment.text() == "":
+            return
         comment = {"author": self.parent.client.login, "text": self.LineComment.text(),
-                   "date": datetostr(now()), "uid": "%s-%s" % (self.mod.uid, str(len(self.mod.bugreports) + len(self.mod.comments)).zfill(3))}
+                   "date": datetostr(now()), "uid": "%s-%s" % (self.mod.uid, str(len(self.mod.bugreports) +
+                                                                                 len(self.mod.comments)).zfill(3))}
         
-        self.parent.client.lobby_connection.send(dict(command="modvault", type="addcomment", moduid=self.mod.uid, comment=comment))
+        self.parent.client.lobby_connection.send(dict(command="modvault", type="addcomment", moduid=self.mod.uid,
+                                                      comment=comment))
         c = CommentItem(self, comment["uid"])
         c.update(comment)
         self.Comments.addItem(c)
@@ -85,11 +90,14 @@ class ModWidget(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def addBugReport(self):
-        if self.LineBugReport.text() == "": return
+        if self.LineBugReport.text() == "":
+            return
         bugreport = {"author": self.parent.client.login, "text": self.LineBugReport.text(),
-                   "date": datetostr(now()), "uid": "%s-%s" % (self.mod.uid, str(len(self.mod.bugreports) + + len(self.mod.comments)).zfill(3))}
+                     "date": datetostr(now()), "uid": "%s-%s" % (self.mod.uid, str(len(self.mod.bugreports) +
+                                                                                   len(self.mod.comments)).zfill(3))}
         
-        self.parent.client.lobby_connection.send(dict(command="modvault", type="addbugreport", moduid=self.mod.uid, bugreport=bugreport))
+        self.parent.client.lobby_connection.send(dict(command="modvault", type="addbugreport", moduid=self.mod.uid,
+                                                      bugreport=bugreport))
         c = CommentItem(self, bugreport["uid"])
         c.update(bugreport)
         self.BugReports.addItem(c)

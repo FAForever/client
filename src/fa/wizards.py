@@ -15,8 +15,12 @@ class UpgradePage(QtWidgets.QWizardPage):
 
         layout = QtWidgets.QVBoxLayout()
 
-        self.label = QtWidgets.QLabel(
-            "FAF needs a version of Supreme Commander: Forged Alliance to launch games and replays. <br/><br/><b>Please choose the installation you wish to use.</b><br/><br/>The following versions are <u>equally</u> supported:<ul><li>3596(Retail version)</li><li>3599 (Retail patch)</li><li>3603beta (GPGnet beta patch)</li><li>1.6.6 (Steam Version)</li></ul>FAF doesn't modify your existing files.<br/><br/>Select folder:")
+        self.label = QtWidgets.QLabel("FAF needs a version of Supreme Commander: Forged Alliance to launch games and "
+                                      "replays. <br/><br/><b>Please choose the installation you wish to use.</b><br/>"
+                                      "<br/>The following versions are <u>equally</u> supported:<ul><li>3596(Retail "
+                                      "version)</li><li>3599 (Retail patch)</li><li>3603beta (GPGnet beta patch)</li>"
+                                      "<li>1.6.6 (Steam Version)</li></ul>FAF doesn't modify your existing files.<br/>"
+                                      "<br/>Select folder:")
         self.label.setWordWrap(True)
         layout.addWidget(self.label)
 
@@ -43,8 +47,9 @@ class UpgradePage(QtWidgets.QWizardPage):
     @QtCore.pyqtSlot()
     def showChooser(self):
         path = QtWidgets.QFileDialog.getExistingDirectory(self, "Select Forged Alliance folder",
-                                                      self.comboBox.currentText(),
-                                                      QtWidgets.QFileDialog.DontResolveSymlinks | QtWidgets.QFileDialog.ShowDirsOnly)
+                                                          self.comboBox.currentText(),
+                                                          QtWidgets.QFileDialog.DontResolveSymlinks |
+                                                          QtWidgets.QFileDialog.ShowDirsOnly)
         if (path):
             self.comboBox.insertItem(0, path)
             self.comboBox.setCurrentIndex(0)
@@ -72,8 +77,8 @@ class UpgradePageSC(QtWidgets.QWizardPage):
 
         layout = QtWidgets.QVBoxLayout()
 
-        self.label = QtWidgets.QLabel(
-            "You can use any version of Supreme Commander.<br/><br/>FAF won't modify your existing files.<br/><br/>Select folder:")
+        self.label = QtWidgets.QLabel("You can use any version of Supreme Commander.<br/><br/>"
+                                      "FAF won't modify your existing files.<br/><br/>Select folder:")
         self.label.setWordWrap(True)
         layout.addWidget(self.label)
 
@@ -100,9 +105,10 @@ class UpgradePageSC(QtWidgets.QWizardPage):
     @QtCore.pyqtSlot()
     def showChooser(self):
         path = QtWidgets.QFileDialog.getExistingDirectory(self, "Select Supreme Commander folder",
-                                                      self.comboBox.currentText(),
-                                                      QtWidgets.QFileDialog.DontResolveSymlinks | QtWidgets.QFileDialog.ShowDirsOnly)
-        if (path):
+                                                          self.comboBox.currentText(),
+                                                          QtWidgets.QFileDialog.DontResolveSymlinks |
+                                                          QtWidgets.QFileDialog.ShowDirsOnly)
+        if path:
             self.comboBox.insertItem(0, path)
             self.comboBox.setCurrentIndex(0)
             self.completeChanged.emit()

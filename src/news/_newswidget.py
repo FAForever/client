@@ -75,10 +75,8 @@ class NewsWidget(FormClass, BaseClass):
         return '<style type="text/css">{}</style>'.format(self.CSS) + body
 
     def itemChanged(self, current, previous):
-        self.newsWebView.page().setHtml(self.HTML.format(
-            title=current.newsPost['title'],
-            content=self._injectCSS(current.newsPost['body']),
-        ))
+        self.newsWebView.page().setHtml(self.HTML.format(title=current.newsPost['title'],
+                                                         content=self._injectCSS(current.newsPost['body']),))
 
     def linkClicked(self, url):
         webbrowser.open(url.toString())
