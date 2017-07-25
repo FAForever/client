@@ -45,7 +45,6 @@ def runAsAdmin(cmdLine=None, wait=True):
     cmd = '"%s"' % (cmdLine[0],)
     # XXX TODO: isn't there a function or something we can call to massage command line params?
     params = " ".join(['"%s"' % (x,) for x in cmdLine[1:]])
-    cmdDir = ''
     showCmd = win32con.SW_SHOWNORMAL
     #showCmd = win32con.SW_HIDE
     lpVerb = 'runas'  # causes UAC elevation prompt.
@@ -84,7 +83,7 @@ def test():
     else:
         print("You are an admin!", os.getpid(), "params: ", sys.argv)
         rc = 0
-    x = input('Press Enter to exit.')
+    input('Press Enter to exit.')
     return rc
 
 

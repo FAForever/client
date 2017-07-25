@@ -1,5 +1,5 @@
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtWidgets, QtGui
 from fa import maps
 import util
 from config import Settings
@@ -34,7 +34,7 @@ class TutorialItemDelegate(QtWidgets.QStyledItemDelegate):
         icon.paint(painter, option.rect.adjusted(5-2, -2, 0, 0), QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
         
         # Frame around the icon
-        pen = QtWidgets.QPen()
+        pen = QtGui.QPen()
         pen.setWidth(1)
         pen.setBrush(QtGui.QColor("#303030"))  # FIXME: This needs to come from theme.
         pen.setCapStyle(QtCore.Qt.RoundCap)

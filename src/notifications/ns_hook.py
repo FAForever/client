@@ -13,7 +13,7 @@ self.button.clicked.connect(self.dialog.show)
 """
 
 
-class NsHook():
+class NsHook:
     def __init__(self, eventType):
         self.eventType = eventType
         self._settings_key = 'notifications/{}'.format(eventType)

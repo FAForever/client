@@ -197,7 +197,7 @@ class IRC:
             else:
                 break
 
-    def process_once(self, timeout=0):
+    def process_once(self, timeout=0.0):
         """Process data from connections once.
 
         Arguments:

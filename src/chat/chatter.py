@@ -333,7 +333,6 @@ class Chatter(QtWidgets.QTableWidgetItem):
             menu.addSeparator()
 
         # Adding to menu
-        menu.addSeparator
         menu.addAction(actionViewAliases)
         menu.addSeparator()
         menu.addAction(actionReplay)
@@ -342,6 +341,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
         menu.addAction(actionJoin)
 
         # Actions for the Friends List
+        menu.addSeparator()
         actionAddFriend = QtWidgets.QAction("Add friend", menu)
         actionRemFriend = QtWidgets.QAction("Remove friend", menu)
 

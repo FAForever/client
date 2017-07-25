@@ -59,7 +59,7 @@ def replay(source, detach=False):
                     filename = os.path.basename(source)
                     if len(filename.split(".")) > 2:
                         mod = filename.rsplit(".", 2)[1]
-                        logger.info("mod guessed from " + source + " is " + mod)
+                        logger.info("mod guessed from " + source + " is " + str(mod))
                     else:
                         mod = "faf"  # TODO: maybe offer a list of mods for the user.
                         logger.warn("no mod could be guessed, using fallback ('faf') ")

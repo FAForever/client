@@ -202,7 +202,7 @@ class downloadManager(QtCore.QObject):
 
     def downloadModPreview(self, url, name, requester):
         if not url in self.modRequests:
-            logger.debug("Searching mod preview for: " + os.path.basename(url).rsplit('.', 1)[0])
+            logger.debug("Searching mod preview for: " + str(os.path.basename(url).rsplit('.', 1)[0]))
             self.modRequests[url] = []
 
             img, imgpath = self._get_cachefile(name + '.part')

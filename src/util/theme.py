@@ -6,7 +6,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class Theme():
+class Theme:
     """
     Represents a single FAF client theme.
     """

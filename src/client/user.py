@@ -126,7 +126,7 @@ class User(QtCore.QObject):
             return None
         return "chat.irc_" + name + "/" + str(self.player.id)
 
-    def reset_player():
+    def reset_player(self):
         self._player = None
         self._friends.clear()
         self._foes.clear()

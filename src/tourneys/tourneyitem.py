@@ -1,4 +1,4 @@
-from PyQt5 import QtCore, QtWidgets, QtWebEngineWidgets
+from PyQt5 import QtCore, QtWidgets, QtWebEngineWidgets, QtGui
 import util
 
 
@@ -39,8 +39,8 @@ class TourneyItemDelegate(QtWidgets.QStyledItemDelegate):
 
 class QWebPageChrome(QtWebEngineWidgets.QWebEnginePage):
     def __init__(self, *args, **kwargs):
-        QtWebEngine.QWebEnginePage.__init__(self, *args, **kwargs)
-        
+        QtWebEngineWidgets.QWebEnginePage.__init__(self, *args, **kwargs)
+
     def userAgentForUrl(self, url):
         return "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.121 Safari/535.2"
 
@@ -114,15 +114,6 @@ class TourneyItem(QtWidgets.QListWidgetItem):
         elif role == QtCore.Qt.UserRole:
             return self
         return super(TourneyItem, self).data(role)
-
-    def permutations(self, items):
-        """Yields all permutations of the items."""
-        if items == []:
-            yield []
-        else:
-            for i in range(len(items)):
-                for j in self.permutations(items[:i] + items[i+1:]):
-                    yield [items[i]] + j
 
     def __ge__(self, other):
         """ Comparison operator used for item list sorting """
