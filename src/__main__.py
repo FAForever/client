@@ -24,7 +24,7 @@ if __package__ is None and not hasattr(sys, 'frozen'):
     # We are run by the interpreter. Are we run from source?
     file_dir = os.path.dirname(os.path.realpath(__file__))
     base_dir = os.path.basename(file_dir)
-    if (base_dir != 'src'):
+    if base_dir != 'src':
         # We're probably run as an installed file.
         import fafclient
         path = os.path.realpath(fafclient.__file__)
@@ -71,7 +71,7 @@ def AdminUserErrorDialog():
         box.setStandardButtons(QtWidgets.QMessageBox.Ignore | QtWidgets.QMessageBox.Close)
         box.setIcon(QtWidgets.QMessageBox.Critical)
         box.setWindowTitle("FAF privilege error")
-        if (box.exec_() == QtWidgets.QMessageBox.Ignore):
+        if box.exec_() == QtWidgets.QMessageBox.Ignore:
             Settings.set("client/ignore_admin", True)
 
 

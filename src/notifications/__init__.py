@@ -117,7 +117,7 @@ class Notifications:
             mods = data.get('sim_mods')
 
             modstr = ''
-            if (mod != 'faf' or mods):
+            if mod != 'faf' or mods:
                 modstr = mod
                 if mods:
                     if mod == 'faf':

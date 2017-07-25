@@ -301,7 +301,7 @@ class GamesWidget(FormClass, BaseClass):
             self.race = race
             self.searchProgress.setVisible(True)
             self.labelAutomatch.setText("Searching...")
-            self.updatePlayButton();
+            self.updatePlayButton()
             self.client.search_ranked(faction=self.race.value)
 
     @QtCore.pyqtSlot()

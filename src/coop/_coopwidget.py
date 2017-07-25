@@ -113,7 +113,7 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
 
         doc = QtGui.QTextDocument()
         doc.addResource(3, QtCore.QUrl("style.css"), self.leaderBoard.styleSheet())
-        html = ("<html><head><link rel='stylesheet' type='text/css' href='style.css'></head><body>")
+        html = "<html><head><link rel='stylesheet' type='text/css' href='style.css'></head><body>"
 
         if self.selectedItem:
             html += '<p class="division" align="center">'+self.selectedItem.name+'</p><hr/>'
@@ -216,7 +216,7 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
         if uid not in self.coop:
             typeCoop = message["type"]
 
-            if not typeCoop in self.cooptypes:
+            if typeCoop not in self.cooptypes:
                 root_item = QtWidgets.QTreeWidgetItem()
                 self.coopList.addTopLevelItem(root_item)
                 root_item.setText(0, "<font color='white' size=+3>%s</font>" % typeCoop)

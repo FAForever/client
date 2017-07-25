@@ -39,7 +39,7 @@ class Theme():
         return _fun
 
     def version(self):
-        if self._themedir == None:
+        if self._themedir is None:
             return None
         try:
             version_file = self._themepath("version")
@@ -338,14 +338,14 @@ class ThemeSet:
             splitExt = os.path.splitext(filename)
             if len(splitExt) == 2:
                 pixDisabled = self.pixmap(splitExt[0] + "_disabled" + splitExt[1], themed)
-                if pixDisabled != None:
+                if pixDisabled is not None:
                     icon.addPixmap(pixDisabled, QtGui.QIcon.Disabled, QtGui.QIcon.On)
 
                 pixActive = self.pixmap(splitExt[0] + "_active" + splitExt[1], themed)
-                if pixActive != None:
+                if pixActive is not None:
                     icon.addPixmap(pixActive, QtGui.QIcon.Active, QtGui.QIcon.On)
 
                 pixSelected = self.pixmap(splitExt[0] + "_selected" + splitExt[1], themed)
-                if pixSelected != None:
+                if pixSelected is not None:
                     icon.addPixmap(pixSelected, QtGui.QIcon.Selected, QtGui.QIcon.On)
             return icon

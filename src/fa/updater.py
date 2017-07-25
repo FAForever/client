@@ -394,7 +394,7 @@ class Updater(QtCore.QObject, ConnectionHandler):
 
         for fileToUpdate in self.filesToUpdate:
             md5File = util.md5(os.path.join(util.APPDATA_DIR, destination, fileToUpdate))
-            if md5File == None:
+            if md5File is None:
                 if self.version:
                     if self.featured_mod == "faf" or self.featured_mod == "ladder1v1" or \
                                     filegroup == "FAF" or filegroup == "FAFGAMEDATA":
@@ -429,7 +429,7 @@ class Updater(QtCore.QObject, ConnectionHandler):
         self.progress.setMinimum(0)
         self.progress.setMaximum(0)
 
-        while self.modpath == None:
+        while self.modpath is None:
             if self.progress.wasCanceled():
                 raise UpdaterCancellation("Operation aborted while waiting for sim mod path.")
 
@@ -479,10 +479,10 @@ class Updater(QtCore.QObject, ConnectionHandler):
             if self.progress.wasCanceled():
                 raise UpdaterCancellation("Operation aborted while waiting for data.")
 
-            if (self.result != self.RESULT_NONE):
+            if self.result != self.RESULT_NONE:
                 raise UpdaterFailure("Operation failed while waiting for data.")
 
-            if (time.time() - self.lastData > self.TIMEOUT):
+            if time.time() - self.lastData > self.TIMEOUT:
                 raise UpdaterTimeout("Connection timed out while waiting for data.")
 
             QtWidgets.QApplication.processEvents()
@@ -597,7 +597,7 @@ class Updater(QtCore.QObject, ConnectionHandler):
             listStr = str(stream.readQString())
             self.filesToUpdate = ast.literal_eval(listStr)
 
-            if (self.filesToUpdate == None):
+            if self.filesToUpdate is None:
                 self.filesToUpdate = []
             return
 
@@ -668,7 +668,7 @@ class Updater(QtCore.QObject, ConnectionHandler):
 
             writeFile = QtCore.QFile(toFile)
 
-            if (writeFile.open(QtCore.QIODevice.WriteOnly)):
+            if writeFile.open(QtCore.QIODevice.WriteOnly):
                 writeFile.write(fileDatas)
                 writeFile.close()
             else:
@@ -720,7 +720,7 @@ class Updater(QtCore.QObject, ConnectionHandler):
         self.lastData = time.time()  # Keep resetting that timeout counter
 
     def atNewBlock(self, blockSize):
-        if (blockSize > 65536):
+        if blockSize > 65536:
             self.progress.setLabelText("Downloading...")
             self.progress.setValue(0)
             self.progress.setMaximum(blockSize)

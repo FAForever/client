@@ -50,7 +50,7 @@ class UpgradePage(QtWidgets.QWizardPage):
                                                           self.comboBox.currentText(),
                                                           QtWidgets.QFileDialog.DontResolveSymlinks |
                                                           QtWidgets.QFileDialog.ShowDirsOnly)
-        if (path):
+        if path:
             self.comboBox.insertItem(0, path)
             self.comboBox.setCurrentIndex(0)
             self.completeChanged.emit()

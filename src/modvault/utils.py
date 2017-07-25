@@ -129,7 +129,7 @@ def getModInfo(modinfofile):
                                  "icon": "icon"},
                                 {"version": "1", "ui_only": "false", "description": "", "icon": "", "author": ""})
     modinfo["ui_only"] = (modinfo["ui_only"] == 'true')
-    if not "uid" in modinfo:
+    if "uid" not in modinfo:
         logger.warning("Couldn't find uid for mod %s" % modinfo["name"])
         return None
     #modinfo["uid"] = modinfo["uid"].lower()
@@ -141,7 +141,7 @@ def getModInfo(modinfofile):
         except:
             modinfo["version"] = 0
             logger.warning("Couldn't find version for mod %s" % modinfo["name"])
-    return (modinfofile, modinfo)    
+    return modinfofile, modinfo
 
 
 def parseModInfo(folder):
@@ -161,7 +161,7 @@ def getModInfoFromZip(zfile):
     r = None
     if zipfile.is_zipfile(os.path.join(MODFOLDER, zfile)):
         zip = zipfile.ZipFile(os.path.join(MODFOLDER,zfile), "r", zipfile.ZIP_DEFLATED)
-        if zip.testzip() == None:
+        if zip.testzip() is None:
             for member in zip.namelist():
                 filename = os.path.basename(member)
                 if not filename:
@@ -171,7 +171,7 @@ def getModInfoFromZip(zfile):
                     modinfofile.iszip = True
                     modinfofile.zip = zip
                     r = getModInfo(modinfofile)
-    if r == None:
+    if r is None:
         logger.debug("mod_info.lua not found in zip file %s" % zfile)
         return None
     f, info = r
@@ -190,7 +190,7 @@ def getModInfoFromFolder(modfolder):  # modfolder must be local to MODFOLDER
         return modCache[modfolder]
 
     r = parseModInfo(os.path.join(MODFOLDER, modfolder))
-    if r == None:
+    if r is None:
         logger.debug("mod_info.lua not found in %s folder" % modfolder)
         return None
     f, info = r
@@ -231,7 +231,7 @@ def getActiveMods(uimods=None, temporary=True):  # returns a list of ModInfo's c
 
         allmods = []
         for m in installedMods:
-            if ((uimods == True and m.ui_only) or (uimods == False and not m.ui_only) or uimods == None):
+            if (uimods and m.ui_only) or (not uimods and not m.ui_only) or uimods is None:
                 allmods.append(m)
         active_mods = [m for m in allmods if m.uid in uids]
         #logger.debug("Allmods uids: %s\n\nActive mods uids: %s\n" % (", ".join([mod.uid for mod in allmods]), ", ".join([mod.uid for mod in allmods])))
@@ -250,7 +250,7 @@ def setActiveMods(mods, keepuimods=True, temporary=True):  # uimods works the sa
     temporary:
         Set this when mods are activated due to joining a game.
     """
-    if keepuimods != None:
+    if keepuimods is not None:
         keepTheseMods = getActiveMods(keepuimods)  # returns the active UI mods if True, the active non-ui mods if False
     else:
         keepTheseMods = []

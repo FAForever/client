@@ -158,7 +158,7 @@ except:
 
 
 def clearDirectory(directory, confirm=True):
-    if (os.path.isdir(directory)):
+    if os.path.isdir(directory):
         if (confirm):
             result = QtWidgets.QMessageBox.question(None, "Clear Directory", "Are you sure you wish to clear the "
                                                                              "following directory:<br/><b>&nbsp;&nbsp;"
@@ -167,7 +167,7 @@ def clearDirectory(directory, confirm=True):
         else:
             result = QtWidgets.QMessageBox.Yes
 
-        if (result == QtWidgets.QMessageBox.Yes):
+        if result == QtWidgets.QMessageBox.Yes:
             shutil.rmtree(directory)
             return True
         else:
@@ -185,7 +185,7 @@ def _setup_theme():
 
     default = Theme(COMMON_DIR, None)
     themes = []
-    if (os.path.isdir(THEME_DIR)):
+    if os.path.isdir(THEME_DIR):
         for infile in os.listdir(THEME_DIR):
             theme_path = os.path.join(THEME_DIR, infile)
             if os.path.isdir(os.path.join(THEME_DIR, infile)):
