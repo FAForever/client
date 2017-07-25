@@ -4,7 +4,6 @@ from PyQt5.QtCore import QObject, pyqtSignal
 
 import client
 from client import Player
-from util import logger
 from client.user import PlayerAffiliation
 
 from model.game import GameState

@@ -2,7 +2,7 @@
 from functools import partial
 
 from PyQt5.QtCore import QObject, pyqtSignal, QTimer, Qt
-from PyQt5.QtNetwork import QUdpSocket, QHostAddress, QAbstractSocket
+from PyQt5.QtNetwork import QHostAddress, QAbstractSocket
 import time
 
 from connectivity import QTurnSocket
@@ -10,7 +10,7 @@ from connectivity.relay import Relay
 from connectivity.turn import TURNState
 from decorators import with_logger
 
-from PyQt5 import QtWidgets, uic
+from PyQt5 import QtWidgets
 
 
 @with_logger

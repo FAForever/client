@@ -5,7 +5,6 @@ Created on Mar 22, 2012
 """
 import logging
 import sys
-import util
 import platform
 logger = logging.getLogger(__name__)
 

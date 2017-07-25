@@ -42,11 +42,7 @@ It is here because the server doesn't yet send the mods info.
 The tempAddMods function should be removed after the server can return mods in the modvault.
 """
 
-import os
-
-import zipfile
-
-from PyQt5 import QtCore, QtWidgets, QtGui
+#from PyQt5 import QtGui
 
 from modvault.utils import *
 from .modwidget import ModWidget
@@ -56,7 +52,6 @@ from ui.busy_widget import BusyWidget
 
 import util
 import logging
-import time
 logger = logging.getLogger(__name__)
 import urllib.request, urllib.error, urllib.parse
 
@@ -236,26 +231,26 @@ class ModItemDelegate(QtWidgets.QStyledItemDelegate):
         
     def paint(self, painter, option, index, *args, **kwargs):
         self.initStyleOption(option, index)
-                
+
         painter.save()
-        
+
         html = QtGui.QTextDocument()
         html.setHtml(option.text)
-        
+
         icon = QtGui.QIcon(option.icon)
         iconsize = icon.actualSize(option.rect.size())
-        
+
         # clear icon and text before letting the control draw itself because we're rendering these parts ourselves
         option.icon = QtGui.QIcon()
         option.text = ""  
         option.widget.style().drawControl(QtWidgets.QStyle.CE_ItemViewItem, option, painter, option.widget)
-        
+
         # Shadow
         painter.fillRect(option.rect.left()+8-1, option.rect.top()+8-1, iconsize.width(), iconsize.height(), QtGui.QColor("#202020"))
 
         # Icon
         icon.paint(painter, option.rect.adjusted(5-2, -2, 0, 0), QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
-        
+
         # Frame around the icon
         pen = QtGui.QPen()
         pen.setWidth(1)

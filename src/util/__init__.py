@@ -1,15 +1,12 @@
 import sys
 import os
 import getpass
-import codecs
 
 from PyQt5.QtWidgets import QMessageBox
-from PyQt5.QtGui import QIcon, QPixmap, QDesktopServices
+from PyQt5.QtGui import QDesktopServices
 from PyQt5.QtCore import QUrl
-from PyQt5.QtMultimedia import QSound
 import subprocess
 
-from semantic_version import Version
 from util.theme import Theme, ThemeSet
 
 from config import Settings
@@ -137,7 +134,6 @@ if not os.path.isdir(EXTRA_DIR):
     os.makedirs(EXTRA_DIR)
 
 from PyQt5 import QtWidgets
-from PyQt5.uic import *
 import shutil
 import hashlib
 import re

@@ -1,5 +1,4 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-import fa
 from fa.replay import replay
 from fa.wizards import WizardSC
 import util
@@ -11,10 +10,7 @@ from model.game import GameState
 from coop.coopmapitem import CoopMapItem, CoopMapItemDelegate
 from games.hostgamewidget import HostGameWidget
 from ui.busy_widget import BusyWidget
-from fa import factions
-import random
 import fa
-import modvault
 import os
 
 import logging

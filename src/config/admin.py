@@ -6,7 +6,7 @@
 # Released under the same license as Python 2.6.5
 
 
-import sys, os, traceback, types
+import sys, os, traceback
 
 
 def isUserAdmin():

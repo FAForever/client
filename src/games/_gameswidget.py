@@ -5,15 +5,12 @@ from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import Qt
 
 import util
-from config import Settings
 from games.gameitem import GameItem, GameItemDelegate
 from model.game import GameState
-from games.moditem import ModItem, mod_invisible, mods
+from games.moditem import ModItem, mod_invisible
 from games.hostgamewidget import HostGameWidget
 from fa.factions import Factions
 import fa
-import modvault
-import notifications as ns
 from config import Settings
 
 import logging
