@@ -8,6 +8,7 @@
 
 import sys, os, traceback, types
 
+
 def isUserAdmin():
 
     if os.name == 'nt':
@@ -24,6 +25,7 @@ def isUserAdmin():
         return os.getuid() == 0
     else:
         raise RuntimeError("Unsupported operating system for this module: %s" % (os.name,))
+
 
 def runAsAdmin(cmdLine=None, wait=True):
 
@@ -71,6 +73,7 @@ def runAsAdmin(cmdLine=None, wait=True):
         rc = None
 
     return rc
+
 
 def test():
     rc = 0

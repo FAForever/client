@@ -96,7 +96,7 @@ class GamesWidget(FormClass, BaseClass):
         self.rankedUEF.setIcon(util.THEME.icon("games/automatch/uef.png"))
 
         # Fixup ini file type loss
-        self.sub_factions = [True if x=='true' else False for x in self.sub_factions]
+        self.sub_factions = [True if x == 'true' else False for x in self.sub_factions]
 
         self.searchProgress.hide()
 
@@ -263,7 +263,7 @@ class GamesWidget(FormClass, BaseClass):
             s = "Stop search"
         else:
             c = self.sub_factions.count(True)
-            if c in [0, 4]: # all or none selected
+            if c in [0, 4]:  # all or none selected
                 s = "Play as random!"
             else:
                 s = "Play!"
@@ -314,7 +314,6 @@ class GamesWidget(FormClass, BaseClass):
         self.updatePlayButton()
         self.searchProgress.setVisible(False)
         self.labelAutomatch.setText("1 vs 1 Automatch")
-
 
     @QtCore.pyqtSlot(bool)
     def toggle_search(self, enabled, race=None):

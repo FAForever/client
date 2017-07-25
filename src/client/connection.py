@@ -258,9 +258,7 @@ class ServerConnection(QtCore.QObject):
     def send(self, message):
         data = json.dumps(message)
         if message.get('command') == 'hello':
-            logger.info('Logging in with {}'.format({
-                                                        k: v for k, v in list(message.items()) if k != 'password'
-                                                        }))
+            logger.info('Logging in with {}'.format({k: v for k, v in list(message.items()) if k != 'password'}))
         else:
             logger.info("Outgoing JSON Message: " + data)
 
@@ -296,10 +294,10 @@ class Dispatcher():
     def __delitem__(self, key):
         del self._dispatchees[key]
 
-    def subscribe_to(self, target, fn, msg = None):
+    def subscribe_to(self, target, fn, msg=None):
         self._receivers[(target, msg)] = fn
 
-    def unsubscribe(self, target, msg = None):
+    def unsubscribe(self, target, msg=None):
         del self._receivers[(target, msg)]
 
     def dispatch(self, message):

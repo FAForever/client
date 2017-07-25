@@ -13,6 +13,7 @@ CRASH_REPORT_USER = "pre-login"
 
 FormClass, BaseClass = util.THEME.loadUiType("client/crash.ui")
 
+
 class CrashDialog(FormClass, BaseClass):
     def __init__(self, exc_info, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)

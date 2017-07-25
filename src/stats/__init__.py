@@ -1,7 +1,4 @@
 
-
-
-
 from PyQt5 import QtCore
 import logging
 import urllib.request, urllib.parse, urllib.error

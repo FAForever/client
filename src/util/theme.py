@@ -5,6 +5,7 @@ import os
 import logging
 logger = logging.getLogger(__name__)
 
+
 class Theme():
     """
     Represents a single FAF client theme.
@@ -48,10 +49,10 @@ class Theme():
             return None
 
     def pixmap(self, filename):
-        '''
+        """
         This function loads a pixmap from a themed directory, or anywhere.
         It also stores them in a cache dictionary (may or may not be necessary depending on how Qt works under the hood)
-        '''
+        """
         try:
             return self._pixmapcache[filename]
         except KeyError:
@@ -65,17 +66,17 @@ class Theme():
 
     @_noneIfNoFile
     def loadUi(self, filename):
-        'Loads and compiles a Qt Ui file via uic.'
+        # Loads and compiles a Qt Ui file via uic.
         return uic.loadUi(self._themepath(filename))
 
     @_noneIfNoFile
     def loadUiType(self, filename):
-        'Loads and compiles a Qt Ui file via uic, and returns the Type and Basetype as a tuple'
+        # Loads and compiles a Qt Ui file via uic, and returns the Type and Basetype as a tuple
         return uic.loadUiType(self._themepath(filename))
 
     @_noneIfNoFile
     def readlines(self, filename):
-        'Reads and returns the contents of a file in the theme dir.'
+        # Reads and returns the contents of a file in the theme dir.
         with open(self._themepath(filename)) as f:
             logger.debug(u"Read themed file: " + filename)
             return f.readLines()
@@ -88,28 +89,29 @@ class Theme():
 
     @_noneIfNoFile
     def themeurl(self, filename):
-        '''
+        """
         This creates an url to use for a local stylesheet. It's a bit of a hack because Qt has a bug identifying proper localfile QUrls
-        '''
+        """
         return QtCore.QUrl("file://" + self._themepath(filename).replace("\\", "/"))
 
     @_noneIfNoFile
     def readfile(self, filename):
-        'Reads and returns the contents of a file in the theme folder.'
+        # Reads and returns the contents of a file in the theme folder.
         with open(self._themepath(filename)) as f:
             logger.debug(u"Read themed file: " + filename)
             return f.read()
 
     @_noneIfNoFile
     def sound(self, filename):
-        'Returns a sound file string, from the themed folder.'
+        # Returns a sound file string, from the themed folder.
         return self._themepath(filename)
 
+
 class ThemeSet:
-    '''
+    """
     Represent a collection of themes to choose from, with a default theme and
     an unthemed directory.
-    '''
+    """
     def __init__(self, themeset, default_theme, settings,
                  client_version, unthemed = None):
         self._default_theme = default_theme
@@ -156,9 +158,8 @@ class ThemeSet:
             QtWidgets.QMessageBox.information(None, "Restart Needed", "FAF will quit now.")
             QtWidgets.QApplication.quit()
 
-
     def _checkThemeVersion(self, theme):
-        "Returns a (potentially overridden) theme version."
+        # Returns a (potentially overridden) theme version.
         version = theme.version()
         if version is None:
             # Malformed theme, we should not override it!
@@ -189,7 +190,6 @@ class ThemeSet:
     def _checkThemeOutdated(self, theme_version):
         faf_version = Version(self._client_version)
         return faf_version > theme_version
-
 
     def _do_setTheme(self, new_theme):
         old_theme = self._theme
@@ -256,7 +256,6 @@ class ThemeSet:
                 pass
         return theme_changed()
 
-
     def _theme_callchain(self, fn_name, filename, themed):
         """
         Calls fn_name chaining through theme / default theme / unthemed.
@@ -270,55 +269,53 @@ class ThemeSet:
         return item
 
     def _warn_resource_null(fn):
-        def _nullcheck(self, filename, themed = True):
+        def _nullcheck(self, filename, themed=True):
             ret = fn(self, filename, themed)
             if ret is None:
                 logger.warn("Failed to load resource '" + filename + "' in theme." + fn.__name__)
             return ret
         return _nullcheck
 
-
-    def _pixmap(self, filename, themed = True):
+    def _pixmap(self, filename, themed=True):
         return self._theme_callchain("pixmap", filename, themed)
 
     @_warn_resource_null
-    def loadUi(self, filename, themed = True):
+    def loadUi(self, filename, themed=True):
         return self._theme_callchain("loadUi", filename, themed)
 
     @_warn_resource_null
-    def loadUiType(self, filename, themed = True):
+    def loadUiType(self, filename, themed=True):
         return self._theme_callchain("loadUiType", filename, themed)
 
     @_warn_resource_null
-    def readlines(self, filename, themed = True):
+    def readlines(self, filename, themed=True):
         return self._theme_callchain("readlines", filename, themed)
 
     @_warn_resource_null
-    def readstylesheet(self, filename, themed = True):
+    def readstylesheet(self, filename, themed=True):
         return self._theme_callchain("readstylesheet", filename, themed)
 
     @_warn_resource_null
-    def themeurl(self, filename, themed = True):
+    def themeurl(self, filename, themed=True):
         return self._theme_callchain("themeurl", filename, themed)
 
     @_warn_resource_null
-    def readfile(self, filename, themed = True):
+    def readfile(self, filename, themed=True):
         return self._theme_callchain("readfile", filename, themed)
 
     @_warn_resource_null
-    def _sound(self, filename, themed = True):
+    def _sound(self, filename, themed=True):
         return self._theme_callchain("sound", filename, themed)
 
-    def pixmap(self, filename, themed = True):
+    def pixmap(self, filename, themed=True):
         # If we receive None, return the default pixmap
         ret = self._pixmap(filename, themed)
         if ret is None:
             return QtGui.QPixmap()
         return ret
 
-    def sound(self, filename, themed = True):
+    def sound(self, filename, themed=True):
         QtMultimedia.QSound.play(self._sound(filename, themed))
-
 
     def setStyleSheet(self, obj, filename):
         self._stylesheets[obj] = filename
@@ -329,9 +326,10 @@ class ThemeSet:
             obj.setStyleSheet(self.readstylesheet(filename))
 
     def icon(self, filename, themed=True, pix=False):
-        '''
-        Convenience method returning an icon from a cached, optionally themed pixmap as returned by the pixmap(...) function
-        '''
+        """
+        Convenience method returning an icon from a cached,
+        optionally themed pixmap as returned by the pixmap(...) function
+        """
         if pix:
             return self.pixmap(filename, themed)
         else:

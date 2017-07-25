@@ -16,6 +16,7 @@ from PyQt5.QtWidgets import QLabel, QLayout
 from PyQt5.QtCore import QUrl, QObject
 from PyQt5.QtNetwork import QNetworkRequest, QNetworkReply
 
+
 @with_logger
 class UpdateSettings:
     updater_branch = Settings.persisted_property('updater/branch', type=str, default_value=UpdateBranch.Prerelease.name)
@@ -39,17 +40,22 @@ class UpdateSettings:
         # null out build because we don't care about it
         current_version.build = ()
 
-        notify_stable = have_stable and self.updater_branch == UpdateBranch.Stable.name and Version(stable_releases[0]['new_version']) > current_version
-        notify_pre = have_pre and self.updater_branch == UpdateBranch.Prerelease.name and Version(pre_releases[0]['new_version']) > current_version
-        notify_beta = have_beta and self.updater_branch == UpdateBranch.Unstable.name and Version(beta_releases[0]['new_version']) > current_version
+        notify_stable = have_stable and self.updater_branch == UpdateBranch.Stable.name \
+            and Version(stable_releases[0]['new_version']) > current_version
+        notify_pre = have_pre and self.updater_branch == UpdateBranch.Prerelease.name \
+            and Version(pre_releases[0]['new_version']) > current_version
+        notify_beta = have_beta and self.updater_branch == UpdateBranch.Unstable.name \
+            and Version(beta_releases[0]['new_version']) > current_version
 
         return have_server or notify_stable or notify_pre or notify_beta
 
 FormClass, BaseClass = util.THEME.loadUiType("client/update.ui")
 
+
 @with_logger
 class UpdateDialog(FormClass, BaseClass):
-    changelog_url = Settings.persisted_property('updater/changelog_url', type=str, default_value='https://github.com/FAForever/client/releases/tag')
+    changelog_url = Settings.persisted_property('updater/changelog_url', type=str,
+                                                default_value='https://github.com/FAForever/client/releases/tag')
 
     def __init__(self, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
@@ -66,7 +72,7 @@ class UpdateDialog(FormClass, BaseClass):
 
         self.cbReleases.currentIndexChanged.connect(self.indexChanged)
 
-        self.layout().setSizeConstraint(QLayout.SetFixedSize);
+        self.layout().setSizeConstraint(QLayout.SetFixedSize)
 
         self.releases = releases
         self.reset_controls()
@@ -150,9 +156,12 @@ class UpdateDialog(FormClass, BaseClass):
         dialog.setup()
         dialog.show()
 
+
 @with_logger
 class UpdateChecker(QObject):
-    gh_releases_url = Settings.persisted_property('updater/gh_release_url', type=str, default_value='https://api.github.com/repos/FAForever/client/releases?per_page=20')
+    gh_releases_url = Settings.persisted_property('updater/gh_release_url', type=str,
+                                                  default_value='https://api.github.com/repos/'
+                                                                'FAForever/client/releases?per_page=20')
     updater_downgrade = Settings.persisted_property('updater/downgrade', type=bool, default_value=False)
 
     finished = QtCore.pyqtSignal(list)
@@ -240,6 +249,7 @@ class UpdateChecker(QObject):
                     ))
             if UpdateSettings().should_notify(releases, force = not self.respect_notify):
                 self.finished.emit(releases)
+
 
 @with_logger
 class ClientUpdater(QObject):

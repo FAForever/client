@@ -7,6 +7,7 @@ logger = logging.getLogger(__name__)
 # Connection to the replay vault. Given how this works, it will one day
 # be replaced with FAF API.
 
+
 class ReplaysConnection(QtCore.QObject):
     def __init__(self, dispatch, host, port):
         QtCore.QObject.__init__(self)

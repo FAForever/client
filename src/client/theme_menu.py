@@ -1,6 +1,7 @@
 from PyQt5 import QtWidgets, QtCore
 import util
 
+
 class ThemeMenu(QtCore.QObject):
     themeSelected = QtCore.pyqtSignal(object)
 

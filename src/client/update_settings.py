@@ -3,12 +3,14 @@ from config import Settings
 from enum import Enum
 from decorators import with_logger
 
+
 class UpdateBranch(Enum):
     Stable = 0
     Prerelease = 1
     Unstable = 2
 
 FormClass, BaseClass = util.THEME.loadUiType("client/update_settings.ui")
+
 
 @with_logger
 class UpdateSettingsDialog(FormClass, BaseClass):
@@ -34,5 +36,3 @@ class UpdateSettingsDialog(FormClass, BaseClass):
         self.updater_branch = branch.name
         self.updater_downgrade = self.cbDowngrade.isChecked()
         self.close()
-
-

@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 FormClass, BaseClass = util.THEME.loadUiType("games/host.ui")
 
+
 class HostgameWidget(FormClass, BaseClass):
     def __init__(self, parent, item, iscoop=False, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
@@ -36,7 +37,7 @@ class HostgameWidget(FormClass, BaseClass):
             self.mapname = util.settings.value("gamemap", "scmp_007")
         util.settings.endGroup()
 
-        self.setWindowTitle ( "Hosting Game : " + item.name )
+        self.setWindowTitle("Hosting Game : " + item.name)
         self.titleEdit.setText(self.title)
         self.passEdit.setText(self.password)
         self.game = GameItemWidget(self)
@@ -58,7 +59,7 @@ class HostgameWidget(FormClass, BaseClass):
         w.updateIcon()
         w.updateTooltip()
         w.setHidden(False)
-        
+
         i = 0
         index = 0
         if not self.iscoop:
@@ -66,7 +67,7 @@ class HostgameWidget(FormClass, BaseClass):
             for map in list(maps.maps.keys()) + maps.getUserMaps():
                 allmaps[map] = maps.getDisplayName(map)
             for (map, name) in sorted(iter(allmaps.items()), key=lambda x: x[1]):
-                if map == self.mapname :
+                if map == self.mapname:
                     index = i
                 self.mapList.addItem(name, map)
                 i = i + 1
@@ -75,7 +76,7 @@ class HostgameWidget(FormClass, BaseClass):
             self.mapList.hide()
 
         self.mods = {}
-        #this makes it so you can select every non-ui_only mod
+        # this makes it so you can select every non-ui_only mod
         for mod in modvault.getInstalledMods():
             if mod.ui_only:
                 continue
@@ -87,7 +88,8 @@ class HostgameWidget(FormClass, BaseClass):
         for name in names:
             l = self.modList.findItems(name, QtCore.Qt.MatchExactly)
             logger.debug("found item: %s" % l[0].text())
-            if l: l[0].setSelected(True)
+            if l:
+                l[0].setSelected(True)
 
         self.radioFriends.setChecked(self.friends_only)
 
@@ -95,7 +97,7 @@ class HostgameWidget(FormClass, BaseClass):
         self.hostButton.released.connect(self.hosting)
         self.titleEdit.textChanged.connect(self.updateText)
         #self.modList.itemClicked.connect(self.modclicked)
-        
+
     def updateText(self, text):
         self.game.title = text
         self.game.updateText()
@@ -129,15 +131,13 @@ class HostgameWidget(FormClass, BaseClass):
         modvault.setActiveMods(mods, True, False)
 
         self.parent.client.host_game(title=self.title,
-                                 mod=self.featured_mod,
-                                 visibility="friends" if self.friends_only else "public",
-                                 mapname=self.mapname,
-                                 password=self.password)
-
+                                     mod=self.featured_mod,
+                                     visibility="friends" if self.friends_only else "public",
+                                     mapname=self.mapname,
+                                     password=self.password)
 
         self.done(1)
         return
-
 
     def mapChanged(self, index):
         self.mapname = self.mapList.itemData(index)

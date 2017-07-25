@@ -11,6 +11,8 @@ connect on clicked event some actions, e.g.
 
 self.button.clicked.connect(self.dialog.show)
 """
+
+
 class NsHook():
     def __init__(self, eventType):
         self.eventType = eventType
@@ -20,10 +22,8 @@ class NsHook():
         self.button.setEnabled(False)
 
     def loadSettings(self):
-        self.popup = Settings.get(self._settings_key + '/popup',
-                                  True, type=bool)
-        self.sound = Settings.get(self._settings_key + '/sound',
-                                  True, type=bool)
+        self.popup = Settings.get(self._settings_key + '/popup', True, type=bool)
+        self.sound = Settings.get(self._settings_key + '/sound', True, type=bool)
 
     def saveSettings(self):
         Settings.set(self._settings_key+'/popup', self.popup)

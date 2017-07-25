@@ -9,6 +9,7 @@ from .helper import ConnectivityHelper
 
 logger = logging.getLogger(__name__)
 
+
 class ConnectivityDialog(QObject):
     def __init__(self, connectivity):
         QObject.__init__(self)
@@ -36,7 +37,6 @@ class ConnectivityDialog(QObject):
 
     def exec_(self):
         self.dialog.test_result_label.setText(
-                "State: {}. Resolved address: {}:{}".
-                    format(self.connectivity.state, *self.connectivity.mapped_address)
+                "State: {}. Resolved address: {}:{}".format(self.connectivity.state, *self.connectivity.mapped_address)
         )
         self.dialog.exec_()

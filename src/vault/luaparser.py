@@ -38,6 +38,7 @@ import re
 import zipfile
 import os
 
+
 class luaParser:
     
     def __init__(self, luaPath):
@@ -75,21 +76,21 @@ class luaParser:
             self.__stringChar = ")"
     
     def __processLine(self, parent=""):
-        #initialize item counter
+        # initialize item counter
         counter = 0
-        #initialize empty array
+        # initialize empty array
         lua = dict()
-        #initialize value
+        # initialize value
         value = ""
-        #start cycle
+        # start cycle
         while len(self.__stream):
-            #get a line from the list or read next line from the file
+            # get a line from the list or read next line from the file
             if len(self.__lines) == 0:
                 line = self.__stream.pop(0)
-                #cut commentary section (either start whit '#' or is a '--[[  ]]--' section
+                # cut commentary section (either start whit '#' or is a '--[[  ]]--' section
                 comment = re.compile("((#.*))$|((--\[\[).*(\]\]--)$)")
                 line = comment.sub("", line)
-                #process line to see if it one command or a stack of them
+                # process line to see if it one command or a stack of them
                 newLine = 0
                 pos = 0
                 self.__inString = False
@@ -102,7 +103,7 @@ class luaParser:
                         self.__checkUninterruptibleStr(char)
                         self.__lines.append(line[newLine:pos])
                         newLine = pos
-                    elif char == ","  and not self.__inString:
+                    elif char == "," and not self.__inString:
                         self.__lines.append(line[newLine:pos])
                         pos = pos + 1
                         char = line[pos]
@@ -121,68 +122,68 @@ class luaParser:
             else:
                 line = self.__lines.pop(0)
             line = line.strip()
-            #if the string is not empty, proceed
+            # if the string is not empty, proceed
             if line != "":
-                #split it by '='
+                # split it by '='
                 lineArray = line.split("=")
-                #if result is one element list
+                # if result is one element list
                 if len(lineArray) == 1:
-                    #this element is value
+                    # this element is value
                     value = lineArray[0].strip()
-                    #assign counter value to key
+                    # assign counter value to key
                     key = str(counter)
                 else:
-                    #first is key
+                    # first is key
                     if self.loweringKeys:
                         key = lineArray[0].lower()
                     else:
                         key = lineArray[0]
-                    #get rid of redundant chars in key
+                    # get rid of redundant chars in key
                     key = self.__keyFilter.sub("", key).strip()
-                    #second is value
+                    # second is value
                     value = lineArray[1].strip()
-                #if value is '}' - which is end of lua array, stop parsing
+                # if value is '}' - which is end of lua array, stop parsing
                 if value == "}":
                     break
                 unfinished = False
                 if len(value) != 0:
-                    #remove finishing comma if there is one
+                    # remove finishing comma if there is one
                     if value[-1] == ",":
                         value = value[:-1]
-                    #get rid of redundant chars in value
+                    # get rid of redundant chars in value
                     value = self.__valFilter.sub("", value)
                 if len(value) != 0:
-                    #parse value:
-                    #if the string starts with '{'
+                    # parse value:
+                    # if the string starts with '{'
                     if value[-1] == "{":
-                        #add new item into the array: recursive function call
+                        # add new item into the array: recursive function call
                         if self.__prevUnfinished:
                             self.__prevUnfinished = False
                             lua[prevkey] = self.__processLine(parent+">"+prevkey)
                         else:
                             lua[key] = self.__processLine(parent+">"+key)
                     else:
-                        #add new item into the array: value itself
+                        # add new item into the array: value itself
                         if value[0] == "\"" or value[0] == "'":
                             value = value[1:]
                         if value[-1] == "\"" or value[-1] == "'":
                             value = value[:-1]
                         lua[key] = value
                 elif len(value) != 0:
-                    #add new item into the array: value itself
+                    # add new item into the array: value itself
                     lua[key] = value
                 elif len(key) != 0:
                     self.__prevUnfinished = True
                     prevkey = key
-            #checking line if it suits searchPattern, and adding if so
+            # checking line if it suits searchPattern, and adding if so
                 for searchKey in self.__searchPattern:
-                    #regkey = re.compile(".*("+searchKey.split(":")[-1].replace("*", ".*")+")$")
-                    #if regkey.match(parent+">"+key):
+                    # regkey = re.compile(".*("+searchKey.split(":")[-1].replace("*", ".*")+")$")
+                    # if regkey.match(parent+">"+key):
                     if re.match(".*>("+searchKey.split(":")[-1].replace("*", ".*")+")$", parent+">"+key):
-                        #get command from key
+                        # get command from key
                         valcmd = searchKey.split(":")
                         valcmd = valcmd[0] if len(valcmd) == 2 else "none"
-                        #add new value into the resulting array
+                        # add new value into the resulting array
                         resultKey = self.__searchPattern[searchKey]
                         if valcmd == "count":
                             if key in lua:
@@ -201,13 +202,13 @@ class luaParser:
                         resultKey = resultKey.replace("__self__", key)
                         resultKey = resultKey.replace("__parent__", parent.split(">")[-1])
                         keycmd = resultKey.split(":")
-                        #unpack command from search key
+                        # unpack command from search key
                         if len(keycmd) == 2:
                             resultKey = keycmd[1]
                             keydst = keycmd[0]
                         else:
                             keydst = "__nowhere__"
-                        #write result into the array
+                        # write result into the array
                         if keydst == "__nowhere__":
                             self.__searchResult[resultKey] = resultVal
                         else:
@@ -221,17 +222,17 @@ class luaParser:
                             self.__foundItemsCount[searchKey] = self.__foundItemsCount[searchKey] + resultVal
                         else:
                             self.__foundItemsCount[searchKey] = self.__foundItemsCount[searchKey] + 1
-            #increase counter
+            # increase counter
             counter = counter + 1
-        #return resulting array
+        # return resulting array
         return lua
-        
+
     def __parseLua(self):
-        #open file
+        # open file
         if self.iszip == False:
             f = open(self.__path, "r")
         else:
-            if self.zip.testzip() == None :
+            if self.zip.testzip() == None:
                 for member in self.zip.namelist() :
                     filename = os.path.basename(member)
                     if not filename:
@@ -239,18 +240,18 @@ class luaParser:
                     if filename == self.__path:
                         f = self.zip.open(member)
                         break
-        if not f :
+        if not f:
             return
-            
 
         self.__stream = f.readlines()
-        if self.__stream[-1][-1] != "\n": # file doesn't end in a newline
-                        self.__stream[-1] += "\n" # needed to prevent a bug happening when a file doesn't end with a newline.
+        if self.__stream[-1][-1] != "\n":  # file doesn't end in a newline
+            # needed to prevent a bug happening when a file doesn't end with a newline.
+                        self.__stream[-1] += "\n"
         f.close()
-        #call recursive function
+        # call recursive function
         result = self.__processLine()
         return result
-    
+
     def __checkErrors(self):
         for key in self.__foundItemsCount:
             resultKey = self.__searchPattern[key]
@@ -274,8 +275,8 @@ class luaParser:
                     self.warning = True
                     self.warnings = self.warnings + 1
                     self.errorMsg = self.errorMsg + "Warning: there were duplicate occurrences for '" + key + "'\n"
-                    
-    def parse(self, luaSearch, defValues = dict()):
+
+    def parse(self, luaSearch, defValues=dict()):
         self.__searchPattern.update(luaSearch)
         self.__defaultValues.update(defValues)
         self.__foundItemsCount = {}.fromkeys(list(self.__searchPattern.keys()), 0)

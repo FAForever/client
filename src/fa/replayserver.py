@@ -1,7 +1,4 @@
 
-
-
-
 from PyQt5 import QtCore, QtNetwork, QtWidgets
 
 import os
@@ -34,9 +31,8 @@ class ReplayRecorder(QtCore.QObject):
         self.inputSocket.readyRead.connect(self.readDatas)
         self.inputSocket.disconnected.connect(self.inputDisconnected)
         self.__logger.info("FA connected locally.")  
-        
-              
-        #Create a file to write the replay data into
+
+        # Create a file to write the replay data into
         self.replayData = QtCore.QByteArray()
         self.replayInfo = fa.instance._info
                  
@@ -45,33 +41,32 @@ class ReplayRecorder(QtCore.QObject):
         self.relaySocket.connectToHost(INTERNET_REPLAY_SERVER_HOST, INTERNET_REPLAY_SERVER_PORT)
         
         if util.settings.value("fa.live_replay", DEFAULT_LIVE_REPLAY, type=bool):
-            if self.relaySocket.waitForConnected(1000): #Maybe make this asynchronous
+            if self.relaySocket.waitForConnected(1000):  # Maybe make this asynchronous
                 self.__logger.debug("internet replay server " + self.relaySocket.peerName() + ":" + str(self.relaySocket.peerPort()))
             else:
                 self.__logger.error("no connection to internet replay server")
 
-        
-        
     def __del__(self):
         # Clean up our socket objects, in accordance to the hint from the Qt docs (recommended practice)
         self.__logger.debug("destructor entered")
         self.inputSocket.deleteLater()
         self.relaySocket.deleteLater()
-           
-                 
-    def readDatas(self):        
-        read = self.inputSocket.read(self.inputSocket.bytesAvailable()) #CAVEAT: readAll() was seemingly truncating data here
-        
+
+    def readDatas(self):
+        # CAVEAT: readAll() was seemingly truncating data here
+        read = self.inputSocket.read(self.inputSocket.bytesAvailable())
+
         if not isinstance(read, bytes):
             self.__logger.warning("Read failure on inputSocket: " + bytes.decode())
             return
-        
-        #Convert data into a bytearray for easier processing
+
+        # Convert data into a bytearray for easier processing
         data = QtCore.QByteArray(read)
-        
+
         # Record locally
         if self.replayData.isEmpty():
-            #This prefix means "P"osting replay in the livereplay protocol of FA, this needs to be stripped from the local file            
+            # This prefix means "P"osting replay in the livereplay protocol of FA,
+            # this needs to be stripped from the local file
             if data.startsWith(b"P/"):
                 rest = data.indexOf(b"\x00") + 1
                 self.__logger.info("Stripping prefix '" + str(data.left(rest - 1)) + "' from replay.")
@@ -79,19 +74,16 @@ class ReplayRecorder(QtCore.QObject):
             else:
                 self.replayData.append(data)
         else:
-            #Write to buffer
+            # Write to buffer
             self.replayData.append(data)
 
         # Relay to faforever.com
         if self.relaySocket.isOpen():
             self.relaySocket.write(data)
-        
-
 
     def done(self):
         self.__logger.info("closing replay file")
         self.parent.removeRecorder(self)
-
 
     @QtCore.pyqtSlot()
     def inputDisconnected(self):
@@ -120,7 +112,6 @@ class ReplayRecorder(QtCore.QObject):
         
         self.done()
 
-
     def writeReplayFile(self):
         # Update info block if possible.
         if fa.instance._info and fa.instance._info['uid'] == self.replayInfo['uid']:
@@ -136,7 +127,7 @@ class ReplayRecorder(QtCore.QObject):
         filename = os.path.join(util.REPLAY_DIR, str(self.replayInfo['uid']) + "-" + self.replayInfo['recorder'] + ".fafreplay")
         self.__logger.info("Writing local replay as " + filename + ", containing " + str(self.replayData.size()) + " bytes of replay data.")
                
-        replay  = QtCore.QFile(filename)
+        replay = QtCore.QFile(filename)
         replay.open(QtCore.QIODevice.WriteOnly | QtCore.QIODevice.Text)
         replay.write(json.dumps(self.replayInfo).encode('utf-8'))
         replay.write(b'\n')
@@ -157,8 +148,7 @@ class ReplayServer(QtNetwork.QTcpServer):
         self.client = client                
         self.__logger.debug("initializing...")
         self.newConnection.connect(self.acceptConnection)
-        
-        
+
     def doListen(self,local_port):
         while not self.isListening():
             self.listen(QtNetwork.QHostAddress.LocalHost, local_port)
@@ -166,20 +156,24 @@ class ReplayServer(QtNetwork.QTcpServer):
                 self.__logger.info("listening on address " + self.serverAddress().toString() + ":" + str(self.serverPort()))
             else:
                 self.__logger.error("cannot listen, port probably used by another application: " + str(local_port))
-                answer = QtWidgets.QMessageBox.warning(None, "Port Occupied", "FAF couldn't start its local replay server, which is needed to play Forged Alliance online. Possible reasons:<ul><li><b>FAF is already running</b> (most likely)</li><li>another program is listening on port {port}</li></ul>".format(port=local_port), QtWidgets.QMessageBox.Retry, QtWidgets.QMessageBox.Abort)
+                answer = QtWidgets.QMessageBox.warning(None, "Port Occupied", "FAF couldn't start its local replay "
+                                                                              "server, which is needed to play Forged "
+                                                                              "Alliance online. Possible reasons:<ul>"
+                                                                              "<li><b>FAF is already running</b> (most "
+                                                                              "likely)</li><li>another program is "
+                                                                              "listening on port {port}</li></ul>"
+                                                       .format(port=local_port),
+                                                       QtWidgets.QMessageBox.Retry, QtWidgets.QMessageBox.Abort)
                 if answer == QtWidgets.QMessageBox.Abort:
                     return False
         return True
-              
-              
+
     def removeRecorder(self, recorder):
         if recorder in self.recorders:
             self.recorders.remove(recorder)
-            
-            
-    @QtCore.pyqtSlot()       
+
+    @QtCore.pyqtSlot()
     def acceptConnection(self):
         socket = self.nextPendingConnection()
         self.__logger.debug("incoming connection...")
         self.recorders.append(ReplayRecorder(self, socket))
-

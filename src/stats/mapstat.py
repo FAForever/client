@@ -1,5 +1,4 @@
 
-
 import util
 from PyQt5 import QtWidgets, QtCore
 import json
@@ -7,6 +6,7 @@ import datetime
 from fa import maps
 
 FormClass, BaseClass = util.THEME.loadUiType("stats/mapstat.ui")
+
 
 class LadderMapStat(FormClass, BaseClass):
     """
@@ -50,12 +50,12 @@ class LadderMapStat(FormClass, BaseClass):
             previous = datetime.datetime(now.year, 12, 21)
         
         return previous.strftime('%d %B %Y')
-    
+
     @QtCore.pyqtSlot(dict)
     def updatemapstat(self, message):
         """ fill all the data for that map """
 
-        if message["idmap"] != self.mapid :
+        if message["idmap"] != self.mapid:
             return
 
         values = message["values"]
@@ -94,7 +94,7 @@ class LadderMapStat(FormClass, BaseClass):
 
         self.mapstats.insertHtml("<br><font size='+1'>" + str(game_played) + " games played on this map </font><br>")
         
-        self.mapstats.insertHtml("<br><font size='+1'>" + str(round(float(draws)/float(game_played),2)) +
+        self.mapstats.insertHtml("<br><font size='+1'>" + str(round(float(draws)/float(game_played), 2)) +
                                  "% of the games end with a draw ("+str(draws) + " games) </font><br>")
 
         self.mapstats.insertHtml("<br><font size='+1'> Average time for a game : " + averagetime + "</font><br>")
@@ -104,18 +104,18 @@ class LadderMapStat(FormClass, BaseClass):
         if totalFaction == 0:
             totalFaction = 1
         
-        percentUef    = round((uef_total    / totalFaction) * 100.0, 2)
-        
-        percentAeon   = round((aeon_total   / totalFaction) * 100.0, 2)
+        percentUef = round((uef_total / totalFaction) * 100.0, 2)
+        percentAeon = round((aeon_total / totalFaction) * 100.0, 2)
         percentCybran = round((cybran_total / totalFaction) * 100.0, 2)
-        percentSera   = round((sera_total   / totalFaction) * 100.0, 2)
+        percentSera = round((sera_total / totalFaction) * 100.0, 2)
         
         self.mapstats.insertHtml("<br><font size='+1'>" + str(percentUef) + " % UEF ("+str(uef_total) + " occurrences) </font>")
         self.mapstats.insertHtml("<br><font size='+1'>" + str(percentCybran) + " % Cybran ("+str(cybran_total) + " occurrences) </font>")
         self.mapstats.insertHtml("<br><font size='+1'>" + str(percentAeon) + " % Aeon ("+str(aeon_total) + " occurrences) </font>")
         self.mapstats.insertHtml("<br><font size='+1'>" + str(percentSera) + " % Seraphim ("+str(sera_total) + " occurrences) </font><br>")
 
-        # if a win was ignored, it's because of a mirror matchup. No win count, but we have to remove 2 times the occurences.
+        # if a win was ignored, it's because of a mirror matchup.
+        # No win count, but we have to remove 2 times the occurences.
         # once for each player..
         
         uefnomirror = (float(uef_total) - float(uef_ignore) * 2)
@@ -135,16 +135,20 @@ class LadderMapStat(FormClass, BaseClass):
         if seranomirror == 0:
             seranomirror = 1
         
-        percentwinUef    = round((uef_win    / uefnomirror) * 100.0, 2)
+        percentwinUef = round((uef_win / uefnomirror) * 100.0, 2)
         percentwinCybran = round((cybran_win / cybrannomirror) * 100.0, 2)
-        percentwinAeon   = round((aeon_win   / aeonnomirror) * 100.0, 2)
-        percentwinSera   = round((sera_win   / seranomirror) * 100.0, 2)
+        percentwinAeon = round((aeon_win / aeonnomirror) * 100.0, 2)
+        percentwinSera = round((sera_win / seranomirror) * 100.0, 2)
         
         self.mapstats.insertHtml("<br><font size='+1'>Win ratios : </font>")
-        self.mapstats.insertHtml("<br><font size='+1'>UEF : " + str(percentwinUef) + " % ("+str(uef_win) + " games won in "+str(int(uefnomirror)) + " no mirror matchup games)</font>")
-        self.mapstats.insertHtml("<br><font size='+1'>Cybran : " + str(percentwinCybran) + " % ("+str(cybran_win) + " games won in " + str(int(cybrannomirror)) + " no mirror matchup games)</font>")
-        self.mapstats.insertHtml("<br><font size='+1'>Aeon : " + str(percentwinAeon) + " % ("+str(aeon_win) + " games won in " + str(int(aeonnomirror)) + " no mirror matchup games)</font>")
-        self.mapstats.insertHtml("<br><font size='+1'>Seraphim : " + str(percentwinSera) + " % ("+str(sera_win) + " games won in " + str(int(seranomirror)) + " no mirror matchup games)</font>")
+        self.mapstats.insertHtml("<br><font size='+1'>UEF : " + str(percentwinUef) + " % ("+str(uef_win) +
+                                 " games won in "+str(int(uefnomirror)) + " no mirror matchup games)</font>")
+        self.mapstats.insertHtml("<br><font size='+1'>Cybran : " + str(percentwinCybran) + " % ("+str(cybran_win) +
+                                 " games won in " + str(int(cybrannomirror)) + " no mirror matchup games)</font>")
+        self.mapstats.insertHtml("<br><font size='+1'>Aeon : " + str(percentwinAeon) + " % ("+str(aeon_win) +
+                                 " games won in " + str(int(aeonnomirror)) + " no mirror matchup games)</font>")
+        self.mapstats.insertHtml("<br><font size='+1'>Seraphim : " + str(percentwinSera) + " % ("+str(sera_win) +
+                                 " games won in " + str(int(seranomirror)) + " no mirror matchup games)</font>")
 
     def mapselected(self, item):
         """ user has selected a map, we send the request to the server """
@@ -153,7 +157,8 @@ class LadderMapStat(FormClass, BaseClass):
         self.mapid = item.data(32)[0]
         realmap = item.data(32)[1].split("/")[1][:-4]
 
-        self.mapstats.document().addResource(QtGui.QTextDocument.ImageResource,  QtCore.QUrl("map.png"), maps.preview(realmap, True, force=True))
+        self.mapstats.document().addResource(QtGui.QTextDocument.ImageResource,  QtCore.QUrl("map.png"),
+                                             maps.preview(realmap, True, force=True))
 
         self.mapstats.insertHtml("<img src=\"map.png\" /><br><font size='+5'>" + item.text() + "</font><br><br>")
         self.client.statsServer.send(dict(command="stats", type="ladder_map_stat", mapid=self.mapid))

@@ -41,7 +41,6 @@ class CoopMapItemDelegate(QtWidgets.QStyledItemDelegate):
         html.drawContents(painter, clip)
   
         painter.restore()
-        
 
     def sizeHint(self, option, index, *args, **kwargs):
         self.initStyleOption(option, index)
@@ -52,61 +51,54 @@ class CoopMapItemDelegate(QtWidgets.QStyledItemDelegate):
         html.setDefaultTextOption(textOption)
         html.setHtml(option.text)
         
-        return QtCore.QSize(int(html.size().width()) + 10, int(html.size().height() + 10))        
-        
+        return QtCore.QSize(int(html.size().width()) + 10, int(html.size().height() + 10))
 
 
 class CoopMapItem(QtWidgets.QTreeWidgetItem):
 
-    
-    FORMATTER_COOP        = str(util.THEME.readfile("coop/formatters/coop.qthtml"))
+    FORMATTER_COOP = str(util.THEME.readfile("coop/formatters/coop.qthtml"))
 
-    
     def __init__(self, uid, parent, *args, **kwargs):
         QtWidgets.QTreeWidgetItem.__init__(self, *args, **kwargs)
 
-        
-        self.uid            = uid
-        self.parent         = parent
+        self.uid = uid
+        self.parent = parent
 
-        self.name          = None
-        self.description    = None
-        self.mapUrl         = None
-        self.options        = []
-        
+        self.name = None
+        self.description = None
+        self.mapUrl = None
+        self.options = []
+
         self.setHidden(True)
 
-    
     def update(self, message):
-        '''
+        """
         Updates this item from the message dictionary supplied
-        '''
+        """
 
-        self.name           = message["name"]
-        self.mapUrl         = message["filename"]
-        self.description    = message["description"]
-        self.mod            = message["featured_mod"]
-      
+        self.name = message["name"]
+        self.mapUrl = message["filename"]
+        self.description = message["description"]
+        self.mod = message["featured_mod"]
+
 #        self.icon = maps.preview(self.mapname)
 #        if not self.icon:
 #            self.client.downloader.downloadMap(self.mapname, self, True)
 #            self.icon = util.THEME.icon("games/unknown_map.png")
-        #self.setIcon(0, self.icon)
-        
+#        self.setIcon(0, self.icon)
 
         self.viewtext = (self.FORMATTER_COOP.format(name=self.name, description=self.description))
-        
 
     def display(self, column):
-        if column == 0 :
+        if column == 0:
             return self.viewtext
-        if column == 1 :
+        if column == 1:
             return self.viewtext   
- 
+
     def data(self, column, role):
         if role == QtCore.Qt.DisplayRole:
             return self.display(column)  
-        elif role == QtCore.Qt.UserRole :
+        elif role == QtCore.Qt.UserRole:
             return self
         return super(CoopMapItem, self).data(column, role)
  
@@ -120,14 +112,10 @@ class CoopMapItem(QtWidgets.QTreeWidgetItem):
                     yield [items[i]] + j
 
     def __ge__(self, other):
-        ''' Comparison operator used for item list sorting '''        
+        """ Comparison operator used for item list sorting """
         return not self.__lt__(other)
-    
-    
+
     def __lt__(self, other):
-        ''' Comparison operator used for item list sorting '''        
+        """ Comparison operator used for item list sorting """
         # Default: uid
         return self.uid > other.uid
-    
-
-

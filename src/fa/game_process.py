@@ -50,10 +50,10 @@ class GameProcess(QtCore.QProcess):
             return
         self.game = game
 
-    def _clearGame(self, _ = None):
+    def _clearGame(self, _=None):
         self.game = None
 
-    def _trackGameUpdate(self, _ = None):
+    def _trackGameUpdate(self, _=None):
         if self.game.state != GameState.PLAYING:
             return
 
@@ -115,7 +115,9 @@ class GameProcess(QtCore.QProcess):
 
     def available(self):
         if self.running():
-            QtWidgets.QMessageBox.warning(QtWidgets.QApplication.activeWindow(), "ForgedAllianceForever.exe", "<b>Forged Alliance is already running.</b><br/>You can only run one instance of the game.")
+            QtWidgets.QMessageBox.warning(QtWidgets.QApplication.activeWindow(), "ForgedAllianceForever.exe",
+                                          "<b>Forged Alliance is already running.</b><br/>You can only run one "
+                                          "instance of the game.")
             return False
         return True
 
@@ -131,7 +133,10 @@ class GameProcess(QtCore.QProcess):
             progress.setValue(0)
             progress.setModal(1)
             progress.setWindowTitle("Waiting for Game to Close")
-            progress.setLabelText("FA Forever exited, but ForgedAlliance.exe is still running.<p align='left'><ul><b>Are you still in a game?</b><br/><br/>You may choose to:<li>press <b>ALT+TAB</b> to return to the game</li><li>kill ForgedAlliance.exe by clicking <b>Terminate</b></li></ul></p>")
+            progress.setLabelText("FA Forever exited, but ForgedAlliance.exe is still running.<p align='left'><ul><b>"
+                                  "Are you still in a game?</b><br/><br/>You may choose to:<li>press <b>ALT+TAB</b> "
+                                  "to return to the game</li><li>kill ForgedAlliance.exe by clicking <b>Terminate</b>"
+                                  "</li></ul></p>")
             progress.show()
 
             while self.running() and progress.isVisible():
@@ -145,4 +150,3 @@ class GameProcess(QtCore.QProcess):
             self.close()
 
 instance = GameProcess()
-

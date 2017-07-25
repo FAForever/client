@@ -18,6 +18,7 @@ if sys.platform == 'win32':
     import win32serviceutil
     import win32service
 
+
 # Developer mode flag
 def developer():
     return sys.executable.endswith("python.exe")
@@ -27,39 +28,39 @@ from config import VERSION as VERSION_STRING
 import logging
 logger = logging.getLogger(__name__)
 
-LOGFILE_MAX_SIZE = 256 * 1024  #256kb should be enough for anyone
+LOGFILE_MAX_SIZE = 256 * 1024  # 256kb should be enough for anyone
 
 UNITS_PREVIEW_ROOT = "{}/faf/unitsDB/icons/big/".format(Settings.get('content/host'))
 
 import fafpath
 COMMON_DIR = fafpath.get_resdir()
 
-stylesheets = {} # map [qt obj] ->  filename of stylesheet
+stylesheets = {}  # map [qt obj] ->  filename of stylesheet
 
 APPDATA_DIR = Settings.get('client/data_path')
 
-#This is used to store init_*.lua files
+# This is used to store init_*.lua files
 LUA_DIR = os.path.join(APPDATA_DIR, "lua")
 
-#This contains the themes
+# This contains the themes
 THEME_DIR = os.path.join(APPDATA_DIR, "themes")
 
-#This contains cached data downloaded while communicating with the lobby - at the moment, mostly map preview pngs.
+# This contains cached data downloaded while communicating with the lobby - at the moment, mostly map preview pngs.
 CACHE_DIR = os.path.join(APPDATA_DIR, "cache")
 
-#This contains cached data downloaded for FA extras
+# This contains cached data downloaded for FA extras
 EXTRA_DIR = os.path.join(APPDATA_DIR, "extra")
 
-#This contains the replays recorded by the local replay server
+# This contains the replays recorded by the local replay server
 REPLAY_DIR = os.path.join(APPDATA_DIR, "replays")
 
-#This contains all Lobby, Chat and Game logs
+# This contains all Lobby, Chat and Game logs
 LOG_DIR = os.path.join(APPDATA_DIR, "logs")
 LOG_FILE_FAF = os.path.join(LOG_DIR, 'forever.log')
 LOG_FILE_GAME = os.path.join(LOG_DIR, 'game.log')
 LOG_FILE_REPLAY = os.path.join(LOG_DIR, 'replay.log')
 
-#This contains the game binaries (old binFAF folder) and the game mods (.faf files)
+# This contains the game binaries (old binFAF folder) and the game mods (.faf files)
 BIN_DIR = os.path.join(APPDATA_DIR, "bin")
 GAMEDATA_DIR = os.path.join(APPDATA_DIR, "gamedata")
 REPO_DIR = os.path.join(APPDATA_DIR, "repo")
@@ -110,7 +111,7 @@ except:
 
 logger.info('PERSONAL_DIR final: ' + PERSONAL_DIR)
 
-#Ensure Application data directories exist
+# Ensure Application data directories exist
 if not os.path.isdir(APPDATA_DIR):
     os.makedirs(APPDATA_DIR)
 
@@ -144,7 +145,7 @@ import re
 
 # Dirty log rotation: Get rid of logs if larger than 1 MiB
 try:
-    #HACK: Clean up obsolete logs directory trees
+    # HACK: Clean up obsolete logs directory trees
     if os.path.isfile(os.path.join(LOG_DIR, "faforever.log")):
         shutil.rmtree(LOG_DIR)
         os.makedirs(LOG_DIR)
@@ -155,12 +156,14 @@ try:
 except:
     pass
 
+
 def clearDirectory(directory, confirm=True):
     if (os.path.isdir(directory)):
         if (confirm):
-            result = QtWidgets.QMessageBox.question(None, "Clear Directory",
-                                                "Are you sure you wish to clear the following directory:<br/><b>&nbsp;&nbsp;" + directory + "</b>",
-                                                QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
+            result = QtWidgets.QMessageBox.question(None, "Clear Directory", "Are you sure you wish to clear the "
+                                                                             "following directory:<br/><b>&nbsp;&nbsp;"
+                                                    + directory + "</b>",
+                                                    QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
         else:
             result = QtWidgets.QMessageBox.Yes
 
@@ -235,11 +238,13 @@ def respix(url):
         return DOWNLOADED_RES_PIX[url]
     return None
 
+
 def __downloadPreviewFromWeb(unitname):
-    '''
+    """
     Downloads a preview image from the web for the given unit name
-    '''
-    #This is done so generated previews always have a lower case name. This doesn't solve the underlying problem (case folding Windows vs. Unix vs. FAF)
+    """
+    # This is done so generated previews always have a lower case name.
+    # This doesn't solve the underlying problem (case folding Windows vs. Unix vs. FAF)
     import urllib.request, urllib.error, urllib.parse
     unitname = unitname.lower()
 
@@ -252,8 +257,9 @@ def __downloadPreviewFromWeb(unitname):
     with open(img, 'wb') as fp:
         shutil.copyfileobj(req, fp)
         fp.flush()
-        os.fsync(fp.fileno())  #probably works fine without the flush and fsync
+        os.fsync(fp.fileno())  # probably works fine without the flush and fsync
         fp.close()
+    return img
 
 
 def iconUnit(unitname):
@@ -269,10 +275,11 @@ def iconUnit(unitname):
         logger.debug("Using web preview image for: " + unitname)
         return THEME.icon(img, False)
 
+
 def wait(until):
-    '''
+    """
     Super-simple wait function that takes a callable and waits until the callable returns true or the user aborts.
-    '''
+    """
     progress = QtWidgets.QProgressDialog()
     progress.show()
 
@@ -283,8 +290,10 @@ def wait(until):
 
     return not progress.wasCanceled()
 
+
 def showDirInFileBrowser(location):
     QDesktopServices.openUrl(QUrl.fromLocalFile(location))
+
 
 def showFileInFileBrowser(location):
     if sys.platform == 'win32':
@@ -309,10 +318,10 @@ def html_escape(text):
 
 
 def irc_escape(text, a_style=""):
-    #first, strip any and all html
+    # first, strip any and all html
     text = html_escape(text)
 
-    #taken from django and adapted
+    # taken from django and adapted
     url_re = re.compile(
         r'^((https?|faflive|fafgame|fafmap|ftp|ts3server)://)?'  # protocols    
         r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+'  # domain name, then TLDs
@@ -329,7 +338,7 @@ def irc_escape(text, a_style=""):
     for fragment in strings:
         match = url_re.match(fragment)
         if match:
-            if "://" in fragment:  #slight hack to get those protocol-less URLs on board. Better: With groups!
+            if "://" in fragment:  # slight hack to get those protocol-less URLs on board. Better: With groups!
                 rpl = '<a href="{0}" style="{1}">{0}</a>'.format(fragment, a_style)
             else:
                 rpl = '<a href="http://{0}" style="{1}">{0}</a>'.format(fragment, a_style)
@@ -339,8 +348,10 @@ def irc_escape(text, a_style=""):
         result.append(fragment)
     return " ".join(result)
 
+
 def password_hash(password):
     return hashlib.sha256(password.strip().encode("utf-8")).hexdigest()
+
 
 def md5text(text):
     m = hashlib.md5()
@@ -354,7 +365,8 @@ def md5(file_name):
     IOErrors raised here are handled in doUpdate.
     """
     m = hashlib.md5()
-    if not os.path.isfile(file_name): return None
+    if not os.path.isfile(file_name):
+        return None
 
     with open(file_name, "rb") as fd:
         while True:
@@ -366,16 +378,22 @@ def md5(file_name):
 
 
 def uniqueID(user, session):
-    ''' This is used to uniquely identify a user's machine to prevent smurfing. '''
+    """ This is used to uniquely identify a user's machine to prevent smurfing. """
     # the UID check needs the WMI service running on Windows
     if sys.platform == 'win32':
         try:
             _, wmi_state, _, _, _, _, _ = win32serviceutil.QueryServiceStatus('Winmgmt')
             if wmi_state != win32service.SERVICE_RUNNING:
-                QMessageBox.critical(None, "WMI service not running", "FAF requires the 'Windows Management Instrumentation' service for smurf protection to be running. "
-                                     "Please run 'service.msc', open the 'Windows Management Instrumentation' service, set the startup type to automatic and restart FAF.")
+                QMessageBox.critical(None, "WMI service not running", "FAF requires the 'Windows Management "
+                                                                      "Instrumentation' service for smurf protection "
+                                                                      "to be running. Please run 'service.msc', open "
+                                                                      "the 'Windows Management Instrumentation' "
+                                                                      "service, set the startup type to automatic and "
+                                                                      "restart FAF.")
         except Exception as e:
-            QMessageBox.critical(None, "WMI service missing", "FAF requires the 'Windows Management Instrumentation' service for smurf protection. This service could not be found.")
+            QMessageBox.critical(None, "WMI service missing", "FAF requires the 'Windows Management Instrumentation' "
+                                                              "service for smurf protection. This service could not "
+                                                              "be found.")
 
     if sys.platform == 'win32':
         exe_path = os.path.join(fafpath.get_libdir(), "faf-uid.exe")

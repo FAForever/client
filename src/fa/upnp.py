@@ -10,18 +10,20 @@ import platform
 logger = logging.getLogger(__name__)
 
 UPNP_APP_NAME = "Forged Alliance Forever"
+# Fields in mappingPort
+# UpnpPort.Description
+# UpnpPort.ExternalPort
+# UpnpPort.ExternalIPAddress
+# UpnpPort.InternalClient
+# UpnpPort.InternalPort
+# UpnpPort.Protocol
+# UpnpPort.Enabled
 
-#Fields in mappingPort
-#UpnpPort.Description 
-#UpnpPort.ExternalPort
-#UpnpPort.ExternalIPAddress
-#UpnpPort.InternalClient
-#UpnpPort.InternalPort
-#UpnpPort.Protocol
-#UpnpPort.Enabled
 
 def dumpMapping(mappingPort):
-    logger.info("-> %s mapping of %s:%d to %s:%d" % (mappingPort.Protocol, mappingPort.InternalClient, mappingPort.InternalPort, mappingPort.ExternalIPAddress, mappingPort.ExternalPort))
+    logger.info("-> %s mapping of %s:%d to %s:%d" % (mappingPort.Protocol, mappingPort.InternalClient,
+                                                     mappingPort.InternalPort, mappingPort.ExternalIPAddress,
+                                                     mappingPort.ExternalPort))
 
 if platform.system() == "Windows":
     def createPortMapping(ip, port, protocol="UDP"):
