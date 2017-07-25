@@ -9,6 +9,8 @@ from notifications.ns_settings import NsSettingsDialog, IngameNotification
 The Notification Systems reacts on events and displays a popup.
 Each event_type has a NsHook to customize it.
 """
+
+
 class Notifications:
     USER_ONLINE = 'user_online'
     NEW_GAME = 'new_game'
@@ -17,11 +19,10 @@ class Notifications:
         self.client = client
 
         self.settings = NsSettingsDialog(self.client)
-        self.dialog = NotificationDialog(self.client,self.settings)
+        self.dialog = NotificationDialog(self.client, self.settings)
         self.events = []
         self.disabledStartup = True
         self.game_running = False
-
 
         client.gameEnter.connect(self.gameEnter)
         client.gameExit.connect(self.gameExit)
@@ -110,7 +111,7 @@ class Notifications:
             if preview:
                 pixmap = preview.scaled(80, 80)
 
-            #TODO: outsource as function?
+            # TODO: outsource as function?
             mod = data.get('featured_mod')
             mods = data.get('sim_mods')
 

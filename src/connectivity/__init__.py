@@ -9,6 +9,7 @@ from .helper import ConnectivityHelper
 
 logger = logging.getLogger(__name__)
 
+
 class ConnectivityDialog(QObject):
     def __init__(self, connectivity):
         QObject.__init__(self)

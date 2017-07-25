@@ -1,5 +1,4 @@
 
-
 import util
 from PyQt5 import QtWidgets, QtCore
 import json
@@ -7,6 +6,7 @@ import datetime
 from fa import maps
 
 FormClass, BaseClass = util.THEME.loadUiType("stats/mapstat.ui")
+
 
 class LadderMapStat(FormClass, BaseClass):
     """
@@ -50,12 +50,12 @@ class LadderMapStat(FormClass, BaseClass):
             previous = datetime.datetime(now.year, 12, 21)
         
         return previous.strftime('%d %B %Y')
-    
+
     @QtCore.pyqtSlot(dict)
     def updatemapstat(self, message):
         """ fill all the data for that map """
 
-        if message["idmap"] != self.mapid :
+        if message["idmap"] != self.mapid:
             return
 
         values = message["values"]
@@ -94,7 +94,7 @@ class LadderMapStat(FormClass, BaseClass):
 
         self.mapstats.insertHtml("<br><font size='+1'>" + str(game_played) + " games played on this map </font><br>")
         
-        self.mapstats.insertHtml("<br><font size='+1'>" + str(round(float(draws)/float(game_played),2)) +
+        self.mapstats.insertHtml("<br><font size='+1'>" + str(round(float(draws)/float(game_played), 2)) +
                                  "% of the games end with a draw ("+str(draws) + " games) </font><br>")
 
         self.mapstats.insertHtml("<br><font size='+1'> Average time for a game : " + averagetime + "</font><br>")
@@ -104,11 +104,10 @@ class LadderMapStat(FormClass, BaseClass):
         if totalFaction == 0:
             totalFaction = 1
         
-        percentUef    = round((uef_total    / totalFaction) * 100.0, 2)
-        
-        percentAeon   = round((aeon_total   / totalFaction) * 100.0, 2)
+        percentUef = round((uef_total / totalFaction) * 100.0, 2)
+        percentAeon = round((aeon_total / totalFaction) * 100.0, 2)
         percentCybran = round((cybran_total / totalFaction) * 100.0, 2)
-        percentSera   = round((sera_total   / totalFaction) * 100.0, 2)
+        percentSera = round((sera_total / totalFaction) * 100.0, 2)
         
         self.mapstats.insertHtml("<br><font size='+1'>" + str(percentUef) + " % UEF ("+str(uef_total) + " occurrences) </font>")
         self.mapstats.insertHtml("<br><font size='+1'>" + str(percentCybran) + " % Cybran ("+str(cybran_total) + " occurrences) </font>")
@@ -135,10 +134,10 @@ class LadderMapStat(FormClass, BaseClass):
         if seranomirror == 0:
             seranomirror = 1
         
-        percentwinUef    = round((uef_win    / uefnomirror) * 100.0, 2)
+        percentwinUef = round((uef_win / uefnomirror) * 100.0, 2)
         percentwinCybran = round((cybran_win / cybrannomirror) * 100.0, 2)
-        percentwinAeon   = round((aeon_win   / aeonnomirror) * 100.0, 2)
-        percentwinSera   = round((sera_win   / seranomirror) * 100.0, 2)
+        percentwinAeon = round((aeon_win / aeonnomirror) * 100.0, 2)
+        percentwinSera = round((sera_win / seranomirror) * 100.0, 2)
         
         self.mapstats.insertHtml("<br><font size='+1'>Win ratios : </font>")
         self.mapstats.insertHtml("<br><font size='+1'>UEF : " + str(percentwinUef) + " % ("+str(uef_win) + " games won in "+str(int(uefnomirror)) + " no mirror matchup games)</font>")

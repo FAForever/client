@@ -7,7 +7,7 @@ import config
 logger = logging.getLogger(__name__)
 
 
-def checkMods(mods):  #mods is a dictionary of uid-name pairs
+def checkMods(mods):  # mods is a dictionary of uid-name pairs
     """
     Assures that the specified mods are available in FA, or returns False.
     Also sets the correct active mods in the ingame mod manager.

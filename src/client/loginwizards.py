@@ -2,7 +2,6 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 import util
 
 
-
 class gameSettingsWizard(QtWidgets.QWizard):
     def __init__(self, client, *args, **kwargs):
         QtWidgets.QWizard.__init__(self, *args, **kwargs)
@@ -61,6 +60,5 @@ class GameSettings(QtWidgets.QWizardPage):
         layout.addWidget(self.checkUPnP)
         self.setLayout(layout)
 
-
-    def validatePage(self):        
+    def validatePage(self):
         return 1

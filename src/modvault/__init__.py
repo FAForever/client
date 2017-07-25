@@ -62,14 +62,15 @@ import urllib.request, urllib.error, urllib.parse
 
 from util import datetostr, now
 d = datetostr(now())
-'''
+"""
 tempmod1 = dict(uid=1,name='Mod1', comments=[],bugreports=[], date = d,
                 ui=True, downloads=0, likes=0,
-                thumbnail="",author='johnie102',
-                description="""Lorem ipsum dolor sit amet, consectetur adipiscing elit. """,)
-'''
+                thumbnail='',author='johnie102',
+                description='Lorem ipsum dolor sit amet, consectetur adipiscing elit. ',)
+"""
 
 FormClass, BaseClass = util.THEME.loadUiType("modvault/modvault.ui")
+
 
 class ModVault(FormClass, BaseClass, BusyWidget):
     def __init__(self, client, *args, **kwargs):
@@ -103,7 +104,7 @@ class ModVault(FormClass, BaseClass, BusyWidget):
         self.uids = [mod.uid for mod in getInstalledMods()]
 
     @QtCore.pyqtSlot(dict)
-    def modInfo(self, message): #this is called when the database has send a mod to us
+    def modInfo(self, message):  # this is called when the database has send a mod to us
         """
         See above for the keys neccessary in message.
         """
@@ -112,12 +113,10 @@ class ModVault(FormClass, BaseClass, BusyWidget):
             mod = ModItem(self, uid)
             self.mods[uid] = mod
             self.modList.addItem(mod)
-        else : 
+        else:
             mod = self.mods[uid]
         mod.update(message)
         self.modList.sortItems(1)
-        
-        
 
     @QtCore.pyqtSlot(int)
     def sortChanged(self, index):
@@ -144,7 +143,6 @@ class ModVault(FormClass, BaseClass, BusyWidget):
         elif index == 6:
             self.showType = "installed"
         self.updateVisibilities()
-    
 
     @QtCore.pyqtSlot(QtWidgets.QListWidgetItem)
     def modClicked(self, item):
@@ -152,7 +150,7 @@ class ModVault(FormClass, BaseClass, BusyWidget):
         widget.exec_()
 
     def search(self):
-        ''' Sending search to mod server'''
+        """ Sending search to mod server"""
         
         self.searchString = self.searchInput.text().lower()
         index = self.ShowType.currentIndex()
@@ -178,7 +176,7 @@ class ModVault(FormClass, BaseClass, BusyWidget):
         logger.debug("Uploading mod from: " + modDir)
         if modDir != "":
             if isModFolderValid(modDir):
-                #os.chmod(modDir, S_IWRITE) Don't need this at the moment
+                # os.chmod(modDir, S_IWRITE) Don't need this at the moment
                 modinfofile, modinfo = parseModInfo(modDir)
                 if modinfofile.error:
                     logger.debug("There were " + str(modinfofile.errors) + " errors and " + str(modinfofile.warnings) + " warnings.")
@@ -195,7 +193,7 @@ class ModVault(FormClass, BaseClass, BusyWidget):
                         modinfo.update()
                         dialog = UploadModWidget(self, modDir, modinfo)
                         dialog.exec_()
-            else :
+            else:
                 QtWidgets.QMessageBox.information(self.client,"Mod selection",
                         "This folder doesn't contain a mod_info.lua file")
 
@@ -221,10 +219,9 @@ class ModVault(FormClass, BaseClass, BusyWidget):
         if removeMod(mod):
             self.uids = [m.uid for m in installedMods]
             mod.updateVisibility()
-    
-        
 
-#the drawing helper function for the modlist
+
+# the drawing helper function for the modlist
 class ModItemDelegate(QtWidgets.QStyledItemDelegate):
     
     def __init__(self, *args, **kwargs):
@@ -241,32 +238,31 @@ class ModItemDelegate(QtWidgets.QStyledItemDelegate):
         icon = QtGui.QIcon(option.icon)
         iconsize = icon.actualSize(option.rect.size())
         
-        #clear icon and text before letting the control draw itself because we're rendering these parts ourselves
+        # clear icon and text before letting the control draw itself because we're rendering these parts ourselves
         option.icon = QtGui.QIcon()
         option.text = ""  
         option.widget.style().drawControl(QtWidgets.QStyle.CE_ItemViewItem, option, painter, option.widget)
         
-        #Shadow
+        # Shadow
         painter.fillRect(option.rect.left()+8-1, option.rect.top()+8-1, iconsize.width(), iconsize.height(), QtGui.QColor("#202020"))
 
-        #Icon
+        # Icon
         icon.paint(painter, option.rect.adjusted(5-2, -2, 0, 0), QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
         
-        #Frame around the icon
+        # Frame around the icon
         pen = QtGui.QPen()
-        pen.setWidth(1);
-        pen.setBrush(QtGui.QColor("#303030"));  #FIXME: This needs to come from theme.
-        pen.setCapStyle(QtCore.Qt.RoundCap);
+        pen.setWidth(1)
+        pen.setBrush(QtGui.QColor("#303030"))  # FIXME: This needs to come from theme.
+        pen.setCapStyle(QtCore.Qt.RoundCap)
         painter.setPen(pen)
         painter.drawRect(option.rect.left()+5-2, option.rect.top()+3, iconsize.width(), iconsize.height())
 
-        #Description
+        # Description
         painter.translate(option.rect.left() + iconsize.width() + 10, option.rect.top()+4)
         clip = QtCore.QRectF(0, 0, option.rect.width()-iconsize.width() - 10 - 5, option.rect.height())
         html.drawContents(painter, clip)
   
         painter.restore()
-        
 
     def sizeHint(self, option, index, *args, **kwargs):
         self.initStyleOption(option, index)
@@ -276,6 +272,7 @@ class ModItemDelegate(QtWidgets.QStyledItemDelegate):
         html.setTextWidth(ModItem.TEXTWIDTH)
         return QtCore.QSize(ModItem.ICONSIZE + ModItem.TEXTWIDTH + ModItem.PADDING, ModItem.ICONSIZE + ModItem.PADDING)   
 
+
 class ModItem(QtWidgets.QListWidgetItem):
     TEXTWIDTH = 230
     ICONSIZE = 100
@@ -283,8 +280,7 @@ class ModItem(QtWidgets.QListWidgetItem):
     
     WIDTH = ICONSIZE + TEXTWIDTH
     #DATA_PLAYERS = 32
-    
-    
+
     FORMATTER_MOD = str(util.THEME.readfile("modvault/modinfo.qthtml"))
     FORMATTER_MOD_UI = str(util.THEME.readfile("modvault/modinfoui.qthtml"))
     
@@ -300,8 +296,8 @@ class ModItem(QtWidgets.QListWidgetItem):
         self.downloads = 0
         self.likes = 0
         self.played = 0
-        self.comments = [] #every element is a dictionary with a 
-        self.bugreports = [] #text, author and date key
+        self.comments = []  # every element is a dictionary with a
+        self.bugreports = []  # text, author and date key
         self.date = None
         self.isuidmod = False
         self.uploadedbyuser = False
@@ -323,8 +319,8 @@ class ModItem(QtWidgets.QListWidgetItem):
         self.bugreports = dic["bugreports"]
         self.date = QtCore.QDateTime.fromTime_t(dic['date']).toString("yyyy-MM-dd")
         self.isuimod = dic["ui"]
-        self.link = dic["link"] #Direct link to the zip file.
-        self.thumbstr = dic["thumbnail"]# direct url to the thumbnail file.
+        self.link = dic["link"]  # Direct link to the zip file.
+        self.thumbstr = dic["thumbnail"]  # direct url to the thumbnail file.
         self.uploadedbyuser = (self.author == self.parent.client.login)
 
         self.thumbnail = None
@@ -357,7 +353,7 @@ class ModItem(QtWidgets.QListWidgetItem):
             return self.uploadedbyuser
         elif p.showType == "installed":
             return self.uid in self.parent.uids
-        else: #shouldn't happen
+        else:  # shouldn't happen
             return True
 
     def updateVisibility(self):
@@ -368,9 +364,9 @@ class ModItem(QtWidgets.QListWidgetItem):
             descr = self.description[:197] + "..."
 
         modtype = ""
-        if self.isuimod: modtype ="UI mod"
-        if self.uid in self.parent.uids: color="green"
-        else: color="white"
+        if self.isuimod: modtype = "UI mod"
+        if self.uid in self.parent.uids: color = "green"
+        else: color = "white"
         
         if self.isuimod:
             self.setText(self.FORMATTER_MOD_UI.format(color=color,version=str(self.version),title=self.name,

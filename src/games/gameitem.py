@@ -14,31 +14,31 @@ logger = logging.getLogger(__name__)
 
 
 class GameItemDelegate(QtWidgets.QStyledItemDelegate):
-    
+
     def __init__(self, *args, **kwargs):
         QtWidgets.QStyledItemDelegate.__init__(self, *args, **kwargs)
-        
+
     def paint(self, painter, option, index, *args, **kwargs):
         self.initStyleOption(option, index)
-                
+
         painter.save()
-        
+
         html = QtGui.QTextDocument()
         html.setHtml(option.text)
-        
+
         icon = QtGui.QIcon(option.icon)
 
         # clear icon and text before letting the control draw itself because we're rendering these parts ourselves
         option.icon = QtGui.QIcon()
         option.text = ""  
         option.widget.style().drawControl(QtWidgets.QStyle.CE_ItemViewItem, option, painter, option.widget)
-        
+
         # Shadow (100x100 shifted 8 right and 8 down)
         painter.fillRect(option.rect.left()+8, option.rect.top()+8, 100, 100, QtGui.QColor("#202020"))
 
         # Icon  (110x110 adjusted: shifts top,left 3 and bottom,right -7 -> makes/clips it to 100x100)
-        icon.paint(painter, option.rect.adjusted(3, 3, -7, -7), QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
-        
+        icon.paint(painter, option.rect.adjusted(3, 3, -7, -7), QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
+
         # Frame around the icon (100x100 shifted 3 right and 3 down)
         pen = QtGui.QPen()
         pen.setWidth(1)
@@ -51,12 +51,12 @@ class GameItemDelegate(QtWidgets.QStyledItemDelegate):
         painter.translate(option.rect.left() + 100 + 10, option.rect.top()+10)
         clip = QtCore.QRectF(0, 0, option.rect.width() - 100 - 10 - 5, option.rect.height())
         html.drawContents(painter, clip)
-  
+
         painter.restore()
 
     def sizeHint(self, option, index, *args, **kwargs):
         self.initStyleOption(option, index)
-        
+
         html = QtGui.QTextDocument()
         html.setHtml(option.text)
         html.setTextWidth(GameItemWidget.TEXTWIDTH)
@@ -68,10 +68,10 @@ class GameItemWidget(QtWidgets.QListWidgetItem):
     ICONSIZE = 110
     PADDING = 10
 
-    FORMATTER_FAF  = str(util.THEME.readfile("games/formatters/faf.qthtml"))
-    FORMATTER_MOD  = str(util.THEME.readfile("games/formatters/mod.qthtml"))
+    FORMATTER_FAF = str(util.THEME.readfile("games/formatters/faf.qthtml"))
+    FORMATTER_MOD = str(util.THEME.readfile("games/formatters/mod.qthtml"))
     FORMATTER_TOOL = str(util.THEME.readfile("games/formatters/tool.qthtml"))
-    
+
     def __init__(self, item, *args, **kwargs):
         QtWidgets.QListWidgetItem.__init__(self, *args, **kwargs)
 
@@ -92,6 +92,7 @@ class GameItemWidget(QtWidgets.QListWidgetItem):
 
     def __lt__(self, other):
         return self._item < other._item
+
     def __ge__(self, other):
         return self._item >= other._item
 
@@ -101,36 +102,37 @@ class GameItemWidget(QtWidgets.QListWidgetItem):
     def updateText(self):
         if self._officialMod():
             self.setText(self.FORMATTER_FAF.format(
-                color = self.textColor,
-                mapslots = self.maxPlayers,
-                mapdisplayname = maps.getDisplayName(self.mapName),
-                title = self.title,
-                host = self.host,
-                players = self.players,
-                playerstring = "player" if self.players == 1 else "players",
+                color=self.textColor,
+                mapslots=self.maxPlayers,
+                mapdisplayname=maps.getDisplayName(self.mapName),
+                title=self.title,
+                host=self.host,
+                players=self.players,
+                playerstring="player" if self.players == 1 else "players",
                 avgrating=self.averageRating))
         else:
             self.setText(self.FORMATTER_MOD.format(
-                color = self.textColor,
-                mapslots = self.maxPlayers,
-                mapdisplayname = maps.getDisplayName(self.mapName),
-                title = self.title,
-                host = self.host,
+                color=self.textColor,
+                mapslots=self.maxPlayers,
+                mapdisplayname=maps.getDisplayName(self.mapName),
+                title=self.title,
+                host=self.host,
                 players=self.players,
                 mod=self.modName,
-                playerstring = "player" if self.players == 1 else "players",
+                playerstring="player" if self.players == 1 else "players",
                 avgrating=self.averageRating))
 
     def updateTooltip(self):
         self.setToolTip(self.FORMATTER_TOOL.format(
-                teams = self.tipTeams,
-                observers = self.tipObservers,
-                mods = self.tipMods))
+                teams=self.tipTeams,
+                observers=self.tipObservers,
+                mods=self.tipMods))
+
     def clearTooltip(self):
         self.setTooltip("")
 
-    def teamsToTooltip(self, teams, observers = []):
-        teamlist     = []
+    def teamsToTooltip(self, teams, observers=[]):
+        teamlist = []
 
         for i, team in enumerate(teams, start=1):
 
@@ -180,7 +182,6 @@ class GameItemWidget(QtWidgets.QListWidgetItem):
         else:
             self.tipMods = ""
 
-
     def updateIcon(self):
         if self.privateIcon:
             icon = util.THEME.icon("games/private_game.png")
@@ -200,7 +201,7 @@ class NullSorter:
 
 
 class GameItem():
-    def __init__(self, game, sorter = None):
+    def __init__(self, game, sorter=None):
         self.widget = GameItemWidget(self)
 
         if sorter is not None:
@@ -215,12 +216,12 @@ class GameItem():
         self.oldmapname = None
 
         self.mapdisplayname = None  # Will get set at first update
-        self.hostid = client.instance.players.getID(self.game.host) # Shouldn't change for a game
-        self.players = [] # Will get set at first update
+        self.hostid = client.instance.players.getID(self.game.host)  # Shouldn't change for a game
+        self.players = []  # Will get set at first update
         self._hide_passworded = False
 
     # For connecting to game slot
-    def _gameUpdate(self, _ = None):
+    def _gameUpdate(self, _=None):
         self.update()
 
     # Stay hidden if our game is not open
@@ -315,7 +316,6 @@ class GameItem():
                         real_team.append(player)
                 teams.append(real_team)
 
-
         # Alternate icon: If private game, use game_locked icon. Otherwise, use preview icon from map library.
         if refresh_icon:
             if g.password_protected:
@@ -329,7 +329,6 @@ class GameItem():
             self.widget.setIcon(icon)
 
         w = self.widget
-
 
         color = client.instance.players.getUserColor(self.hostid)
 

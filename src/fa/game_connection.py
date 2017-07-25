@@ -80,7 +80,7 @@ class GPGNetConnection(QObject):
                 if self._socket.bytesAvailable() < size + 4:
                     return
 
-                #Omit size
+                # Omit size
                 ds.readUInt32()
 
                 self.header = ds.readRawData(size).decode()

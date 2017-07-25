@@ -11,6 +11,8 @@ connect on clicked event some actions, e.g.
 
 self.button.clicked.connect(self.dialog.show)
 """
+
+
 class NsHook():
     def __init__(self, eventType):
         self.eventType = eventType

@@ -50,10 +50,10 @@ class GameProcess(QtCore.QProcess):
             return
         self.game = game
 
-    def _clearGame(self, _ = None):
+    def _clearGame(self, _=None):
         self.game = None
 
-    def _trackGameUpdate(self, _ = None):
+    def _trackGameUpdate(self, _=None):
         if self.game.state != GameState.PLAYING:
             return
 
@@ -145,4 +145,3 @@ class GameProcess(QtCore.QProcess):
             self.close()
 
 instance = GameProcess()
-

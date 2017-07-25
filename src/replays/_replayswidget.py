@@ -25,6 +25,7 @@ from replays.connection import ReplaysConnection
 
 FormClass, BaseClass = util.THEME.loadUiType("replays/replays.ui")
 
+
 class LiveReplayItem(QtWidgets.QTreeWidgetItem):
     def __init__(self, time):
         QtWidgets.QTreeWidgetItem.__init__(self)
@@ -32,12 +33,16 @@ class LiveReplayItem(QtWidgets.QTreeWidgetItem):
 
     def __lt__(self, other):
         return self.time < other.time
+
     def __le__(self, other):
         return self.time <= other.time
+
     def __gt__(self, other):
         return self.time > other.time
+
     def __ge__(self, other):
         return self.time >= other.time
+
 
 class LiveReplaysWidgetHandler(object):
     def __init__(self, liveTree, client, gameset):
@@ -402,7 +407,7 @@ class LocalReplaysWidgetHandler(object):
 
 
 class ReplayVaultWidgetHandler(object):
-    HOST   = "lobby.faforever.com"
+    HOST = "lobby.faforever.com"
     PORT = 11002
 
     # connect to save/restore persistence settings for checkboxes & search parameters
@@ -451,7 +456,6 @@ class ReplayVaultWidgetHandler(object):
             w.playerName.setText(playerName)
         if modListIndex:
             w.modList.setCurrentIndex(modListIndex)
-
 
         """ search for some replays """
         self._w.searchInfoLabel.setText(self.searchInfo)

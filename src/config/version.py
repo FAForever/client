@@ -31,16 +31,19 @@
 # please add it to your top-level .gitignore file.
 
 from subprocess import check_output
-import sys, os
+import sys
+import os
 from semantic_version import Version
 
 __all__ = ["is_development_version", "is_prerelease_version",
            "get_git_version", "build_version", "get_release_version", "write_version_file"]
 
+
 def is_development_version(version):
     # We're on a dev build if metadata has more items than just a build id
     build = Version(version).build
     return build is not None and len(build) >= 2
+
 
 def is_prerelease_version(version):
     return Version(version).prerelease is not None
@@ -48,6 +51,7 @@ def is_prerelease_version(version):
 
 def version_filename(dir):
     return os.path.join(dir, "RELEASE-VERSION")
+
 
 def read_version_file(dir):
     try:
@@ -63,12 +67,13 @@ def read_version_file(dir):
     except IOError:
         return None
 
+
 def write_version_file(version, dir):
     with open(version_filename(dir), "w") as f:
         f.write("%s\n" % version)
 
 
-def get_git_version(git_dir = None):
+def get_git_version(git_dir=None):
 
     def get_cmd_line(cmd):
         lines = check_output(cmd).decode().splitlines()
@@ -88,16 +93,18 @@ def get_git_version(git_dir = None):
         # Strip leading hyphen
         commit_tag = version[len(tag) + 1:]
 
-        return (tag, commit_tag)
+        return tag, commit_tag
 
     except Exception as e:
         sys.stderr.write("Error grabbing git version: {}".format(e))
         return None
 
-def build_version(version, revision, build = None):
+
+def build_version(version, revision, build=None):
     return version + '+' + \
            (revision + '.' if revision else '') + \
            (build if build else '')
+
 
 # Distutils expect an x.y.z (non-semver) format
 def msi_version(version):
@@ -105,8 +112,9 @@ def msi_version(version):
     nopre_v.prerelease = None
     return str(nopre_v)
 
+
 # Used by FAF to read the version at runtime
-def get_release_version(dir = None, git_dir = None):
+def get_release_version(dir=None, git_dir=None):
     version = read_version_file(dir) if dir is not None else None
     if version is not None:
         return version
@@ -114,7 +122,7 @@ def get_release_version(dir = None, git_dir = None):
     # Maybe we are running from source?
     git_version = get_git_version(git_dir)
     if git_version is not None:
-        return build_version(*git_version, build = "git")
+        return build_version(*git_version, build="git")
     else:
         # If we still don't have anything, that's an error.
         sys.stderr.write("Could not get git version" + os.linesep)

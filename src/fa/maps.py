@@ -28,71 +28,71 @@ VAULT_DOWNLOAD_ROOT = "{}/faf/vault/".format(route)
 VAULT_COUNTER_ROOT = "{}/faf/vault/map_vault/inc_downloads.php".format(route)
 
 maps = { # A Lookup table for info (names, sizes, players) of the official Forged Alliance Maps
-    "scmp_001" : ["Burial Mounds", "1024x1024", 8],
-    "scmp_002" : ["Concord Lake", "1024x1024", 8],
-    "scmp_003" : ["Drake's Ravine", "1024x1024", 4],
-    "scmp_004" : ["Emerald Crater", "1024x1024", 4],
-    "scmp_005" : ["Gentleman's Reef", "2048x2048", 7],
-    "scmp_006" : ["Ian's Cross", "1024x1024", 4],
-    "scmp_007" : ["Open Palms", "512x512", 6],
-    "scmp_008" : ["Seraphim Glaciers", "1024x1024", 8],
-    "scmp_009" : ["Seton's Clutch", "1024x1024", 8],
-    "scmp_010" : ["Sung Island", "1024x1024", 5],
-    "scmp_011" : ["The Great Void", "2048x2048", 8],
-    "scmp_012" : ["Theta Passage", "256x256", 2],
-    "scmp_013" : ["Winter Duel", "256x256", 2],
-    "scmp_014" : ["The Bermuda Locket", "1024x1024", 8],
-    "scmp_015" : ["Fields Of Isis", "512x512", 4],
-    "scmp_016" : ["Canis River", "256x256", 2],
-    "scmp_017" : ["Syrtis Major", "512x512", 4],
-    "scmp_018" : ["Sentry Point", "256x256", 3],
-    "scmp_019" : ["Finn's Revenge", "512x512", 2],
-    "scmp_020" : ["Roanoke Abyss", "1024x1024", 6],
-    "scmp_021" : ["Alpha 7 Quarantine", "2048x2048", 8],
-    "scmp_022" : ["Artic Refuge", "512x512", 4],
-    "scmp_023" : ["Varga Pass", "512x512", 2],
-    "scmp_024" : ["Crossfire Canal", "1024x1024", 6],
-    "scmp_025" : ["Saltrock Colony", "512x512", 6],
-    "scmp_026" : ["Vya-3 Protectorate", "512x512", 4],
-    "scmp_027" : ["The Scar", "1024x1024", 6],
-    "scmp_028" : ["Hanna oasis", "2048x2048", 8],
-    "scmp_029" : ["Betrayal Ocean", "4096x4096", 8],
-    "scmp_030" : ["Frostmill Ruins", "4096x4096", 8],
-    "scmp_031" : ["Four-Leaf Clover", "512x512", 4],
-    "scmp_032" : ["The Wilderness", "512x512", 4],
-    "scmp_033" : ["White Fire", "512x512", 6],
-    "scmp_034" : ["High Noon", "512x512", 4],
-    "scmp_035" : ["Paradise", "512x512", 4],
-    "scmp_036" : ["Blasted Rock", "256x256", 4],
-    "scmp_037" : ["Sludge", "256x256", 3],
-    "scmp_038" : ["Ambush Pass", "256x256", 4],
-    "scmp_039" : ["Four-Corners", "256x256", 4],
-    "scmp_040" : ["The Ditch", "1024x1024", 6],
-    "x1mp_001" : ["Crag Dunes", "256x256", 2],
-    "x1mp_002" : ["Williamson's Bridge", "256x256", 2],
-    "x1mp_003" : ["Snoey Triangle", "512x512", 3],
-    "x1mp_004" : ["Haven Reef", "512x512", 4],
-    "x1mp_005" : ["The Dark Heart", "512x512", 6],
-    "x1mp_006" : ["Daroza's Sanctuary", "512x512", 4],
-    "x1mp_007" : ["Strip Mine", "1024x1024", 4],
-    "x1mp_008" : ["Thawing Glacier", "1024x1024", 6],
-    "x1mp_009" : ["Liberiam Battles", "1024x1024", 8],
-    "x1mp_010" : ["Shards", "2048x2048", 8],
-    "x1mp_011" : ["Shuriken Island", "2048x2048", 8],
-    "x1mp_012" : ["Debris", "4096x4096", 8],
-    "x1mp_014" : ["Flooded Strip Mine", "1024x1024", 4],
-    "x1mp_017" : ["Eye Of The Storm", "512x512", 4],
+    "scmp_001": ["Burial Mounds", "1024x1024", 8],
+    "scmp_002": ["Concord Lake", "1024x1024", 8],
+    "scmp_003": ["Drake's Ravine", "1024x1024", 4],
+    "scmp_004": ["Emerald Crater", "1024x1024", 4],
+    "scmp_005": ["Gentleman's Reef", "2048x2048", 7],
+    "scmp_006": ["Ian's Cross", "1024x1024", 4],
+    "scmp_007": ["Open Palms", "512x512", 6],
+    "scmp_008": ["Seraphim Glaciers", "1024x1024", 8],
+    "scmp_009": ["Seton's Clutch", "1024x1024", 8],
+    "scmp_010": ["Sung Island", "1024x1024", 5],
+    "scmp_011": ["The Great Void", "2048x2048", 8],
+    "scmp_012": ["Theta Passage", "256x256", 2],
+    "scmp_013": ["Winter Duel", "256x256", 2],
+    "scmp_014": ["The Bermuda Locket", "1024x1024", 8],
+    "scmp_015": ["Fields Of Isis", "512x512", 4],
+    "scmp_016": ["Canis River", "256x256", 2],
+    "scmp_017": ["Syrtis Major", "512x512", 4],
+    "scmp_018": ["Sentry Point", "256x256", 3],
+    "scmp_019": ["Finn's Revenge", "512x512", 2],
+    "scmp_020": ["Roanoke Abyss", "1024x1024", 6],
+    "scmp_021": ["Alpha 7 Quarantine", "2048x2048", 8],
+    "scmp_022": ["Artic Refuge", "512x512", 4],
+    "scmp_023": ["Varga Pass", "512x512", 2],
+    "scmp_024": ["Crossfire Canal", "1024x1024", 6],
+    "scmp_025": ["Saltrock Colony", "512x512", 6],
+    "scmp_026": ["Vya-3 Protectorate", "512x512", 4],
+    "scmp_027": ["The Scar", "1024x1024", 6],
+    "scmp_028": ["Hanna oasis", "2048x2048", 8],
+    "scmp_029": ["Betrayal Ocean", "4096x4096", 8],
+    "scmp_030": ["Frostmill Ruins", "4096x4096", 8],
+    "scmp_031": ["Four-Leaf Clover", "512x512", 4],
+    "scmp_032": ["The Wilderness", "512x512", 4],
+    "scmp_033": ["White Fire", "512x512", 6],
+    "scmp_034": ["High Noon", "512x512", 4],
+    "scmp_035": ["Paradise", "512x512", 4],
+    "scmp_036": ["Blasted Rock", "256x256", 4],
+    "scmp_037": ["Sludge", "256x256", 3],
+    "scmp_038": ["Ambush Pass", "256x256", 4],
+    "scmp_039": ["Four-Corners", "256x256", 4],
+    "scmp_040": ["The Ditch", "1024x1024", 6],
+    "x1mp_001": ["Crag Dunes", "256x256", 2],
+    "x1mp_002": ["Williamson's Bridge", "256x256", 2],
+    "x1mp_003": ["Snoey Triangle", "512x512", 3],
+    "x1mp_004": ["Haven Reef", "512x512", 4],
+    "x1mp_005": ["The Dark Heart", "512x512", 6],
+    "x1mp_006": ["Daroza's Sanctuary", "512x512", 4],
+    "x1mp_007": ["Strip Mine", "1024x1024", 4],
+    "x1mp_008": ["Thawing Glacier", "1024x1024", 6],
+    "x1mp_009": ["Liberiam Battles", "1024x1024", 8],
+    "x1mp_010": ["Shards", "2048x2048", 8],
+    "x1mp_011": ["Shuriken Island", "2048x2048", 8],
+    "x1mp_012": ["Debris", "4096x4096", 8],
+    "x1mp_014": ["Flooded Strip Mine", "1024x1024", 4],
+    "x1mp_017": ["Eye Of The Storm", "512x512", 4],
 }
 
 __exist_maps = None
 
 
-
 def isBase(mapname):
-    '''
+    """
     Returns true if mapname is the name of an official map
-    '''
+    """
     return mapname in maps
+
 
 def getUserMaps():
     maps = []
@@ -100,57 +100,63 @@ def getUserMaps():
         maps = os.listdir(getUserMapsFolder())
     return maps
 
+
 def getDisplayName(filename):
-    '''
+    """
     Tries to return a pretty name for the map (for official maps, it looks up the name)
     For nonofficial maps, it tries to clean up the filename
-    '''
+    """
     if str(filename) in maps:
         return maps[filename][0]
     else:
-        #cut off ugly version numbers, replace "_" with space.
+        # cut off ugly version numbers, replace "_" with space.
         pretty = filename.rsplit(".v0", 1)[0]
         pretty = pretty.replace("_", " ")
         pretty = string.capwords(pretty)
         return pretty
 
+
 def name2link(name):
-    '''
+    """
     Returns a quoted link for use with the VAULT_xxxx Urls
     TODO: This could be cleaned up a little later.
-    '''
+    """
     return urllib.parse.quote("maps/" + name + ".zip")
 
+
 def link2name(link):
-    '''
+    """
     Takes a link and tries to turn it into a local mapname
-    '''
+    """
     name = link.rsplit("/")[1].rsplit(".zip")[0]
     logger.info("Converted link '" + link + "' to name '" + name + "'")
     return name
 
+
 def getScenarioFile(folder):
-    '''
+    """
     Return the scenario.lua file
-    '''
+    """
     for infile in os.listdir(folder):
         if infile.lower().endswith("_scenario.lua"):
             return infile
     return None
 
+
 def getSaveFile(folder):
-    '''
+    """
     Return the save.lua file
-    '''
+    """
     for infile in os.listdir(folder):
         if infile.lower().endswith("_save.lua"):
             return infile
     return None
 
+
 def isMapFolderValid(folder):
-    '''
+    """
     Check if the folder got all the files needed to be a map folder.
-    '''
+    """
     baseName = os.path.basename(folder).split('.')[0]
     files_required = {
         baseName + ".scmap",
@@ -177,11 +183,10 @@ def existMaps(force=False):
     return __exist_maps
 
 
-
 def isMapAvailable(mapname):
-    '''
+    """
     Returns true if the map with the given name is available on the client
-    '''
+    """
     if isBase(mapname):
         return True
 
@@ -192,10 +197,11 @@ def isMapAvailable(mapname):
 
     return False
 
+
 def folderForMap(mapname):
-    '''
+    """
     Returns the folder where the application could find the map
-    '''
+    """
     if isBase(mapname):
         return os.path.join(getBaseMapsFolder(), mapname)
 
@@ -206,21 +212,22 @@ def folderForMap(mapname):
 
     return None
 
+
 def getBaseMapsFolder():
-    '''
+    """
     Returns the folder containing all the base maps for this client.
-    '''
+    """
     gamepath = util.settings.value("ForgedAlliance/app/path", None, type=str)
     if gamepath:
         return os.path.join(gamepath, "maps")
     else:
-        return "maps" #This most likely isn't the valid maps folder, but it's the best guess.
+        return "maps"  # This most likely isn't the valid maps folder, but it's the best guess.
 
 
 def getUserMapsFolder():
-    '''
+    """
     Returns to folder where the downloaded maps of the user are stored.
-    '''
+    """
     return os.path.join(
         util.PERSONAL_DIR,
         "My Games",
@@ -230,14 +237,14 @@ def getUserMapsFolder():
 
 
 def genPrevFromDDS(sourcename, destname, small=False):
-    '''
+    """
     this opens supcom's dds file (format: bgra8888) and saves to png
-    '''
+    """
     try:
         img = bytearray()
         buf = bytearray(16)
         file = open(sourcename, "rb")
-        file.seek(128) # skip header
+        file.seek(128)  # skip header
         while file.readinto(buf):
             img += buf[:3] + buf[4:7] + buf[8:11] + buf[12:15]
         file.close()
@@ -263,16 +270,17 @@ def genPrevFromDDS(sourcename, destname, small=False):
         logger.debug('IOError exception in genPrevFromDDS', exc_info=True)
         raise
 
+
 def __exportPreviewFromMap(mapname, positions=None):
-    '''
+    """
     This method auto-upgrades the maps to have small and large preview images
-    '''
+    """
     if mapname is None or mapname == "":
         return
     smallExists = False
     largeExists = False
     ddsExists = False
-    previews = {"cache":None, "tozip":list()}
+    previews = {"cache": None, "tozip": list()}
 
     if os.path.isdir(mapname):
         mapdir = mapname
@@ -303,7 +311,7 @@ def __exportPreviewFromMap(mapname, positions=None):
     logger.debug("Generating preview from user maps for: " + mapname)
     logger.debug("Using directory: " + mapdir)
 
-    #Unknown / Unavailable mapname?
+    # Unknown / Unavailable mapname?
     if not os.path.isfile(mapfilename):
         logger.warning(
             "Unable to find the .scmap for: {}, was looking here: {}".format(
@@ -311,27 +319,27 @@ def __exportPreviewFromMap(mapname, positions=None):
                 ))
         return previews
 
-    #Small preview already exists?
+    # Small preview already exists?
     if os.path.isfile(previewsmallname):
         logger.debug(mapname + " already has small preview")
         previews["tozip"].append(previewsmallname)
         smallExists = True
-        #save it in cache folder
+        # save it in cache folder
         shutil.copyfile(previewsmallname, cachepngname)
-        #checking if file was copied correctly, just in case
+        # checking if file was copied correctly, just in case
         if os.path.isfile(cachepngname):
             previews["cache"] = cachepngname
         else:
             logger.debug("Couldn't copy preview into cache folder")
             return previews
 
-    #Large preview already exists?
+    # Large preview already exists?
     if os.path.isfile(previewlargename):
         logger.debug(mapname + " already has large preview")
         previews["tozip"].append(previewlargename)
         largeExists = True
 
-    #Preview DDS already exists?
+    # Preview DDS already exists?
     if os.path.isfile(previewddsname):
         logger.debug(mapname + " already has DDS extracted")
         previews["tozip"].append(previewddsname)
@@ -350,18 +358,18 @@ def __exportPreviewFromMap(mapname, positions=None):
         unk_32 = struct.unpack('i', mapfile.read(4))[0]
         unk_16 = struct.unpack('h', mapfile.read(2))[0]
         """
-        mapfile.seek(30)    #Shortcut. Maybe want to clean out some of the magic numbers some day
+        mapfile.seek(30)  # Shortcut. Maybe want to clean out some of the magic numbers some day
         size = struct.unpack('i', mapfile.read(4))[0]
         data = mapfile.read(size)
-        #version_minor = struct.unpack('i', mapfile.read(4))[0]
+        # version_minor = struct.unpack('i', mapfile.read(4))[0]
         mapfile.close()
-        #logger.debug("SCMAP version %i.%i" % (version_major, version_minor))
+        # logger.debug("SCMAP version %i.%i" % (version_major, version_minor))
 
         try:
             with open(previewddsname, "wb") as previewfile:
                 previewfile.write(data)
 
-                #checking if file was created correctly, just in case
+                # checking if file was created correctly, just in case
                 if os.path.isfile(previewddsname):
                     previews["tozip"].append(previewddsname)
                 else:
@@ -429,7 +437,8 @@ def __exportPreviewFromMap(mapname, positions=None):
 
     return previews
 
-iconExtensions = ["png"] #, "jpg" removed to have fewer of those costly 404 misses.
+iconExtensions = ["png"]  # "jpg" removed to have fewer of those costly 404 misses.
+
 
 def preview(mapname, pixmap=False):
     try:
@@ -437,7 +446,7 @@ def preview(mapname, pixmap=False):
         for extension in iconExtensions:
             img = os.path.join(util.CACHE_DIR, mapname + "." + extension)
             if os.path.isfile(img):
-                logger.log(5,"Using cached preview image for: " + mapname)
+                logger.log(5, "Using cached preview image for: " + mapname)
                 return util.THEME.icon(img, False, pixmap)
 
         # Try to find in local map folder
@@ -454,9 +463,9 @@ def preview(mapname, pixmap=False):
 
 
 def downloadMap(name, silent=False):
-    '''
+    """
     Download a map from the vault with the given name
-    '''
+    """
     link = name2link(name)
     ret, msg = _doDownloadMap(name, link, silent)
     if not ret:
@@ -493,14 +502,14 @@ def processMapFolderForUpload(mapDir, positions):
     """
     # creating thumbnail
     files = __exportPreviewFromMap(mapDir, positions)["tozip"]
-    #abort zipping if there is insufficient previews
+    # abort zipping if there is insufficient previews
     if len(files) != 3:
         logger.debug("Insufficient previews for making an archive.")
         return None
 
-    #mapName = os.path.basename(mapDir).split(".v")[0]
+    # mapName = os.path.basename(mapDir).split(".v")[0]
 
-    #making sure we pack only necessary files and not random garbage
+    # making sure we pack only necessary files and not random garbage
     for filename in os.listdir(mapDir):
         endings = ['.lua', 'preview.jpg', '.scmap', '.dds']
         # stupid trick: False + False == 0, True + False == 1
@@ -509,7 +518,7 @@ def processMapFolderForUpload(mapDir, positions):
 
     temp = tempfile.NamedTemporaryFile(mode='w+b', suffix=".zip", delete=False)
 
-    #creating the zip
+    # creating the zip
     zipped = zipfile.ZipFile(temp, "w", zipfile.ZIP_DEFLATED)
 
     for filename in files:

@@ -74,6 +74,7 @@ class Settings:
     def sync():
         _settings.sync()
 
+
 def set_data_path_permissions():
     """
     Set the owner of C:\ProgramData\FAForever recursively to the current user
@@ -86,6 +87,7 @@ def set_data_path_permissions():
             my_user = win32api.GetUserNameEx(win32con.NameSamCompatible)
             admin.runAsAdmin(["icacls", data_path, "/setowner", my_user, "/T"])
             admin.runAsAdmin(["icacls", data_path, "/reset", "/T"])
+
 
 def check_data_path_permissions():
     """
@@ -102,7 +104,7 @@ def check_data_path_permissions():
                 name, domain, type = win32security.LookupAccountSid(None, owner_sid)
                 data_path_owner = "%s\\%s" % (domain, name)
 
-                if (my_user != data_path_owner):
+                if my_user != data_path_owner:
                     set_data_path_permissions()
             except Exception as e:
                 # we encountered error 1332 in win32security.LookupAccountSid here: http://forums.faforever.com/viewtopic.php?f=3&t=13728
@@ -115,6 +117,7 @@ def check_data_path_permissions():
                                     "Full stacktrace:\n{}".format(e, traceback.format_exc()),
                                     "Permission check exception")
                 set_data_path_permissions()
+
 
 def make_dirs():
     check_data_path_permissions()
@@ -136,8 +139,9 @@ def make_dirs():
                 set_data_path_permissions()
                 os.makedirs(path)
 
-VERSION = version.get_release_version(dir = fafpath.get_resdir(),
-                                      git_dir = fafpath.get_srcdir())
+VERSION = version.get_release_version(dir=fafpath.get_resdir(),
+                                      git_dir=fafpath.get_srcdir())
+
 
 def is_development_version():
     return version.is_development_version(VERSION)
@@ -166,7 +170,7 @@ for k, v in defaults.items():
 
 # Setup normal rotating log handler
 make_dirs()
-#check permissions of writing the log file first (which fails when changing users)
+# check permissions of writing the log file first (which fails when changing users)
 log_file = os.path.join(Settings.get('client/logs/path'), 'forever.log')
 try:
     with open(log_file, "a") as f:

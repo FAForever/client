@@ -44,6 +44,7 @@ import util
 # Set up crash reporting
 excepthook_original = sys.excepthook
 
+
 def excepthook(exc_type, exc_value, traceback_object):
     """
     This exception hook will stop the app if an uncaught error occurred, regardless where in the QApplication.
@@ -59,6 +60,7 @@ def excepthook(exc_type, exc_value, traceback_object):
 
     sys.excepthook = excepthook
 
+
 def AdminUserErrorDialog():
     from config import Settings
     ignore_admin = Settings.get("client/ignore_admin", False, bool)
@@ -70,7 +72,6 @@ def AdminUserErrorDialog():
         box.setWindowTitle("FAF privilege error")
         if (box.exec_() == QtWidgets.QMessageBox.Ignore):
             Settings.set("client/ignore_admin", True)
-
 
 
 def runFAF():
@@ -117,9 +118,8 @@ if __name__ == '__main__':
     # We can now set our excepthook since the app has been initialized
     sys.excepthook = excepthook
 
-
     if len(sys.argv) == 1:
-        #Do the magic
+        # Do the magic
         sys.path += ['.']
         runFAF()
     else:
@@ -128,10 +128,9 @@ if __name__ == '__main__':
             import fa
             fa.replay(sys.argv[1], True)  # Launch as detached process
 
-    #End of show
+    # End of show
     app.closeAllWindows()
     app.quit()
 
-    #End the application, perform some housekeeping
+    # End the application, perform some housekeeping
     logger.info("<<< --------------------------- Application Shutdown")
-

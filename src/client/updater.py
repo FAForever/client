@@ -108,7 +108,6 @@ class ClientUpdater(QObject):
         self._rep.error.connect(self.error)
         self._rep.readyRead.connect(self._buffer)
 
-
     def error(self, code):
         self._logger.exception(self._rep.errorString())
 

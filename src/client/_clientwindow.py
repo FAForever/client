@@ -538,7 +538,7 @@ class ClientWindow(FormClass, BaseClass):
         self.Coop = coop.Coop(self, self.gameset)
         self.notificationSystem = ns.Notifications(self, self.gameset)
 
-        #TODO: some day when the tabs only do UI we'll have all this in the .ui file
+        # TODO: some day when the tabs only do UI we'll have all this in the .ui file
         self.chatTab.layout().addWidget(self.chat)
         self.whatNewTab.layout().addWidget(self.news)
         self.ladderTab.layout().addWidget(self.ladder)
@@ -885,7 +885,7 @@ class ClientWindow(FormClass, BaseClass):
         self.actionSetAutoLogin.setChecked(self.remember) # FIXME - option updating is silly
 
     def get_creds_and_login(self):
-        "Try to autologin, or show login widget if we fail or can't do that."
+        # Try to autologin, or show login widget if we fail or can't do that.
         if self._autorelogin and self.password and self.login:
             if self.send_login(self.login, self.password):
                 return
@@ -911,7 +911,7 @@ class ClientWindow(FormClass, BaseClass):
         self.disconnect()
 
     def send_login(self, login, password):
-        "Send login data once we have the creds."
+        # Send login data once we have the creds.
         self._autorelogin = False # Fresh credentials
         if config.is_beta():    # Replace for develop here to not clobber the real pass
             password = util.password_hash("foo")
@@ -929,7 +929,6 @@ class ClientWindow(FormClass, BaseClass):
                        unique_id=self.uniqueId,
                        session=self.session))
         return True
-
 
     def getColor(self, name):
         return chat.get_color(name)
@@ -999,7 +998,6 @@ class ClientWindow(FormClass, BaseClass):
     def vaultTabChanged(self, curr):
         self._tabChanged(self.topTabs, curr, self._vault_tab)
         self._vault_tab = curr
-
 
     @QtCore.pyqtSlot()
     def joinGameFromURL(self, url):
@@ -1088,7 +1086,6 @@ class ClientWindow(FormClass, BaseClass):
         if foe_id in self.players:
             self.me.remFoe(int(foe_id))
             self.lobby_connection.send(dict(command="social_remove", foe=foe_id))
-
 
     def handle_session(self, message):
         # Getting here means our client is not outdated

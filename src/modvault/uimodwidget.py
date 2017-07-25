@@ -1,5 +1,4 @@
 
-
 import urllib.request, urllib.error, urllib.parse
 
 from PyQt5 import QtCore, QtWidgets
@@ -12,6 +11,7 @@ FormClass, BaseClass = util.THEME.loadUiType("modvault/uimod.ui")
 
 class UIModWidget(FormClass, BaseClass):
     FORMATTER_UIMOD = str(util.THEME.readfile("modvault/uimod.qthtml"))
+
     def __init__(self, parent, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
 
@@ -51,5 +51,3 @@ class UIModWidget(FormClass, BaseClass):
     def hoverOver(self, item):
         mod = self.uimods[str(item.text())]
         self.modInfo.setText(self.FORMATTER_UIMOD.format(name=mod.totalname, description=mod.description))
-        
-    

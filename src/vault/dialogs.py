@@ -7,6 +7,7 @@ import io
 import logging
 logger = logging.getLogger(__name__)
 
+
 class VaultDownloadDialog(object):
     # Result codes
     SUCCESS = 0
@@ -132,4 +133,3 @@ def downloadVaultAsset(url, target_dir, exist_handler, name, category, silent):
         dialog()
 
     return ret
-

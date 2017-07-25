@@ -1,5 +1,4 @@
 
-
 from functools import partial
 
 from PyQt5.QtCore import QObject, pyqtSignal, QTimer, Qt
@@ -10,7 +9,6 @@ from connectivity import QTurnSocket
 from connectivity.relay import Relay
 from connectivity.turn import TURNState
 from decorators import with_logger
-
 
 from PyQt5 import QtWidgets, uic
 

@@ -50,7 +50,6 @@ class ReplayItemDelegate(QtWidgets.QStyledItemDelegate):
         html.drawContents(painter, clip)
   
         painter.restore()
-        
 
     def sizeHint(self, option, index, *args, **kwargs):
         clip = index.model().data(index, QtCore.Qt.UserRole)

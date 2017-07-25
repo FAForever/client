@@ -137,7 +137,6 @@ class WizardSC(QtWidgets.QWizard):
 
         self.setOption(QtWidgets.QWizard.NoBackButtonOnStartPage, True)
 
-
     def accept(self):
         util.settings.setValue("SupremeCommander/app/path", self.upgrade.comboBox.currentText())
         QtWidgets.QWizard.accept(self)
@@ -160,7 +159,6 @@ class Wizard(QtWidgets.QWizard):
 
         self.setOption(QtWidgets.QWizard.NoBackButtonOnStartPage, True)
 
-
     def accept(self):
         util.settings.setValue("ForgedAlliance/app/path", self.upgrade.comboBox.currentText())
         QtWidgets.QWizard.accept(self)
@@ -174,4 +172,3 @@ def constructPathChoices(combobox, validated_choices):
     for path in validated_choices:
             if combobox.findText(path, QtCore.Qt.MatchFixedString) == -1:
                 combobox.addItem(path)
-

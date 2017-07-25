@@ -1,15 +1,15 @@
 
 
-
-
 # Initialize logging system
 import logging
 logger = logging.getLogger(__name__)
 
 IRC_ELEVATION = '%@~%+&'
 
+
 def user2name(user):
     return (user.split('!')[0]).strip(IRC_ELEVATION)
+
 
 def parse_irc_source(src):
     """
@@ -27,7 +27,6 @@ def parse_irc_source(src):
     except ValueError:
         id = -1
     return username, id, elevation, hostname
-
 
 
 from ._chatwidget import ChatWidget as Lobby

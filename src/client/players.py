@@ -10,7 +10,6 @@ from client.user import PlayerAffiliation
 from model.game import GameState
 
 import json
-
 import util
 
 
@@ -29,12 +28,12 @@ class PlayerColors:
 
     @classmethod
     def getRandomColor(cls, id_):
-        '''Generate a random color from a name'''
+        """Generate a random color from a name"""
         random.seed(id_)
         return random.choice(cls.randomcolors)
 
     @classmethod
-    def getUserColor(cls, affiliation, irc, random, seed = None):
+    def getUserColor(cls, affiliation, irc, random, seed=None):
         names = {
             PlayerAffiliation.SELF: "self",
             PlayerAffiliation.FRIEND: "friend",
@@ -49,6 +48,7 @@ class PlayerColors:
         if not irc:
             return cls.getColor("player")
         return cls.getColor("default")
+
 
 class Players(QObject):
     """
@@ -71,15 +71,15 @@ class Players(QObject):
         self._logins = {}
 
     def isPlayer(self, name):
-        '''
+        """
         Convenience function for other modules to inquire about a user's civilian status.
-        '''
+        """
         return name in self
 
     def getUserColor(self, id_):
-        '''
+        """
         Returns a user's color depending on their status with relation to the FAF client
-        '''
+        """
         affil = self.user.getAffiliation(id_)
         return PlayerColors.getUserColor(affil, irc=False,
                 random=self.coloredNicknames, seed=id_)

@@ -11,10 +11,12 @@ The UI of the Notification System Settings Frame.
 Each module/hook for the notification system must be registered here.
 """
 
+
 class IngameNotification(Enum):
     ENABLE = 0
     DISABLE = 1
     QUEUE = 2
+
 
 class NotificationPosition(Enum):
     BOTTOM_RIGHT = 0
@@ -35,6 +37,8 @@ class NotificationPosition(Enum):
 
 # TODO: how to register hooks?
 FormClass2, BaseClass2 = util.THEME.loadUiType("notification_system/ns_settings.ui")
+
+
 class NsSettingsDialog(FormClass2, BaseClass2):
     def __init__(self, client):
         BaseClass2.__init__(self)
@@ -61,7 +65,6 @@ class NsSettingsDialog(FormClass2, BaseClass2):
 
         self.loadSettings()
 
-
     def loadSettings(self):
         self.enabled = Settings.get('notifications/enabled', True, type=bool)
         self.popup_lifetime = Settings.get('notifications/popup_lifetime', 5, type=int)
@@ -72,7 +75,6 @@ class NsSettingsDialog(FormClass2, BaseClass2):
         self.nsPopLifetime.setValue(self.popup_lifetime)
         self.nsPositionComboBox.setCurrentIndex(self.popup_position.value)
         self.nsIngameComboBox.setCurrentIndex(self.ingame_notifications.value)
-
 
     def saveSettings(self):
         Settings.set('notifications/enabled', self.enabled)
@@ -117,6 +119,8 @@ class NsSettingsDialog(FormClass2, BaseClass2):
 Model Class for notification type table.
 Needs an NsHook.
 """
+
+
 class NotificationHooks(QtCore.QAbstractTableModel):
     POPUP = 1
     SOUND = 2
@@ -131,7 +135,7 @@ class NotificationHooks(QtCore.QAbstractTableModel):
     def flags(self, index):
         flags = super(QtCore.QAbstractTableModel, self).flags(index)
         if index.column() == self.POPUP or index.column() == self.SOUND:
-            return  flags | QtCore.Qt.ItemIsUserCheckable
+            return flags | QtCore.Qt.ItemIsUserCheckable
         if index.column() == self.SETTINGS:
             return flags | QtCore.Qt.ItemIsEditable
         return flags
@@ -149,7 +153,7 @@ class NotificationHooks(QtCore.QAbstractTableModel):
         if not index.isValid():
             return None
 
-        #if role == QtCore.Qt.TextAlignmentRole and index.column() != 0:
+        # if role == QtCore.Qt.TextAlignmentRole and index.column() != 0:
         #    return QtCore.Qt.AlignHCenter
 
         if role == QtCore.Qt.CheckStateRole:

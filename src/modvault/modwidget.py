@@ -1,5 +1,4 @@
 
-
 import urllib.request, urllib.error, urllib.parse
 
 from PyQt5 import QtCore, QtWidgets
@@ -60,7 +59,6 @@ class ModWidget(FormClass, BaseClass):
         self.LineComment.setEnabled(False)
         self.LineBugReport.setEnabled(False)
 
-        
     @QtCore.pyqtSlot()
     def download(self):
         if not self.mod.uid in self.parent.uids:
@@ -75,10 +73,10 @@ class ModWidget(FormClass, BaseClass):
     @QtCore.pyqtSlot()
     def addComment(self):
         if self.LineComment.text() == "": return
-        comment = {"author":self.parent.client.login, "text":self.LineComment.text(),
-                   "date":datetostr(now()), "uid":"%s-%s" % (self.mod.uid, str(len(self.mod.bugreports)+len(self.mod.comments)).zfill(3))}
+        comment = {"author": self.parent.client.login, "text": self.LineComment.text(),
+                   "date": datetostr(now()), "uid": "%s-%s" % (self.mod.uid, str(len(self.mod.bugreports) + len(self.mod.comments)).zfill(3))}
         
-        self.parent.client.lobby_connection.send(dict(command="modvault",type="addcomment",moduid=self.mod.uid,comment=comment))
+        self.parent.client.lobby_connection.send(dict(command="modvault", type="addcomment", moduid=self.mod.uid, comment=comment))
         c = CommentItem(self, comment["uid"])
         c.update(comment)
         self.Comments.addItem(c)
@@ -88,10 +86,10 @@ class ModWidget(FormClass, BaseClass):
     @QtCore.pyqtSlot()
     def addBugReport(self):
         if self.LineBugReport.text() == "": return
-        bugreport = {"author":self.parent.client.login, "text":self.LineBugReport.text(),
-                   "date":datetostr(now()), "uid":"%s-%s" % (self.mod.uid, str(len(self.mod.bugreports) + +len(self.mod.comments)).zfill(3))}
+        bugreport = {"author": self.parent.client.login, "text": self.LineBugReport.text(),
+                   "date": datetostr(now()), "uid": "%s-%s" % (self.mod.uid, str(len(self.mod.bugreports) + + len(self.mod.comments)).zfill(3))}
         
-        self.parent.client.lobby_connection.send(dict(command="modvault",type="addbugreport",moduid=self.mod.uid,bugreport=bugreport))
+        self.parent.client.lobby_connection.send(dict(command="modvault", type="addbugreport", moduid=self.mod.uid, bugreport=bugreport))
         c = CommentItem(self, bugreport["uid"])
         c.update(bugreport)
         self.BugReports.addItem(c)
@@ -99,13 +97,15 @@ class ModWidget(FormClass, BaseClass):
         self.LineBugReport.setText("")
 
     @QtCore.pyqtSlot()
-    def like(self): #the server should determine if the user hasn't already clicked the like button for this mod.
-        self.parent.client.lobby_connection.send(dict(command="modvault",type="like", uid=self.mod.uid))
+    def like(self):  # the server should determine if the user hasn't already clicked the like button for this mod.
+        self.parent.client.lobby_connection.send(dict(command="modvault", type="like", uid=self.mod.uid))
         self.likeButton.setEnabled(False)
+
 
 class CommentItemDelegate(QtWidgets.QStyledItemDelegate):
     TEXTWIDTH = 350
     TEXTHEIGHT = 60
+
     def __init__(self, *args, **kwargs):
         QtWidgets.QStyledItemDelegate.__init__(self, *args, **kwargs)
         
@@ -119,15 +119,13 @@ class CommentItemDelegate(QtWidgets.QStyledItemDelegate):
                 
         option.text = ""  
         option.widget.style().drawControl(QtWidgets.QStyle.CE_ItemViewItem, option, painter, option.widget)
-        
 
-        #Description
+        # Description
         painter.translate(option.rect.left() + 10, option.rect.top()+10)
         clip = QtCore.QRectF(0, 0, option.rect.width(), option.rect.height())
         html.drawContents(painter, clip)
   
         painter.restore()
-        
 
     def sizeHint(self, option, index, *args, **kwargs):
         self.initStyleOption(option, index)
@@ -137,8 +135,10 @@ class CommentItemDelegate(QtWidgets.QStyledItemDelegate):
         html.setTextWidth(self.TEXTWIDTH)
         return QtCore.QSize(self.TEXTWIDTH, self.TEXTHEIGHT)
 
+
 class CommentItem(QtWidgets.QListWidgetItem):
     FORMATTER_COMMENT = str(util.THEME.readfile("modvault/comment.qthtml"))
+
     def __init__(self, parent, uid, *args, **kwargs):
         QtWidgets.QListWidgetItem.__init__(self, *args, **kwargs)
 
@@ -152,7 +152,7 @@ class CommentItem(QtWidgets.QListWidgetItem):
         self.text = dic["text"]
         self.author = dic["author"]
         self.date = strtodate(dic["date"])
-        self.setText(self.FORMATTER_COMMENT.format(text=self.text,author=self.author,date=str(self.date)))
+        self.setText(self.FORMATTER_COMMENT.format(text=self.text, author=self.author, date=str(self.date)))
 
     def __ge__(self, other):
         return self.date > other.date

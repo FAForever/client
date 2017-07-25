@@ -10,4 +10,3 @@ OPERATOR_COLORS = {"~": "#FFFFFF",
 CHAT_COLORS = {
     "default": "grey"
 }
-

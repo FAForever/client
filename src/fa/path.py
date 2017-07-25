@@ -1,12 +1,11 @@
 import os
-
 import sys
 import logging
-
 import config
 import util
 
 logger = logging.getLogger(__name__)
+
 
 def steamPath():
     try:
@@ -15,6 +14,7 @@ def steamPath():
         return winreg.QueryValueEx(steam_key, "SteamPath")[0].replace("/", "\\")
     except Exception as e:
         return None
+
 
 def writeFAPathLua():
     """
@@ -29,7 +29,7 @@ def writeFAPathLua():
     if gamepath_sc:
         code = code + 'sc_path = "' + gamepath_sc.replace("\\", "\\\\") + '"' + "\n"
 
-    with open(name, "w+", encoding = 'utf-8') as lua:
+    with open(name, "w+", encoding='utf-8') as lua:
         lua.write(code)
         lua.flush()
         os.fsync(lua.fileno())  # Ensuring the file is absolutely, positively on disk.
@@ -42,20 +42,20 @@ def typicalForgedAlliancePaths():
     pathlist = [
         config.Settings.get("ForgedAlliance/app/path", "", type=str),
 
-        #Retail path
+        # Retail path
         os.path.expandvars("%ProgramFiles%\\THQ\\Gas Powered Games\\Supreme Commander - Forged Alliance"),
 
-        #Direct2Drive Paths
-        #... allegedly identical to impulse paths - need to confirm this
+        # Direct2Drive Paths
+        # ... allegedly identical to impulse paths - need to confirm this
 
-        #Impulse/GameStop Paths - might need confirmation yet
+        # Impulse/GameStop Paths - might need confirmation yet
         os.path.expandvars("%ProgramFiles%\\Supreme Commander - Forged Alliance"),
 
-        #Guessed Steam path
+        # Guessed Steam path
         os.path.expandvars("%ProgramFiles%\\Steam\\steamapps\\common\\supreme commander forged alliance")
     ]
 
-    #Registry Steam path
+    # Registry Steam path
     steam_path = steamPath()
     if steam_path:
         pathlist.append(os.path.join(steam_path, "SteamApps", "common", "Supreme Commander Forged Alliance"))
@@ -70,20 +70,20 @@ def typicalSupComPaths():
     pathlist = [
         config.Settings.get("SupremeCommander/app/path", None, type=str),
 
-        #Retail path
+        # Retail path
         os.path.expandvars("%ProgramFiles%\\THQ\\Gas Powered Games\\Supreme Commander"),
 
-        #Direct2Drive Paths
-        #... allegedly identical to impulse paths - need to confirm this
+        # Direct2Drive Paths
+        # ... allegedly identical to impulse paths - need to confirm this
 
-        #Impulse/GameStop Paths - might need confirmation yet
+        # Impulse/GameStop Paths - might need confirmation yet
         os.path.expandvars("%ProgramFiles%\\Supreme Commander"),
 
-        #Guessed Steam path
+        # Guessed Steam path
         os.path.expandvars("%ProgramFiles%\\Steam\\steamapps\\common\\supreme commander")
     ]
 
-    #Registry Steam path
+    # Registry Steam path
     steam_path = steamPath()
     if steam_path:
         pathlist.append(os.path.join(steam_path, "SteamApps", "common", "Supreme Commander"))
@@ -99,13 +99,13 @@ def validatePath(path):
         except UnicodeEncodeError:
             return False
 
-        #We check whether the base path and a gamedata/lua.scd file exists. This is a mildly naive check, but should suffice
+        # We check whether the base path and a gamedata/lua.scd file exists. This is a mildly naive check, but should suffice
         if not os.path.isdir(path): return False
         if not os.path.isfile(os.path.join(path, r'gamedata', r'lua.scd')): return False
 
-        #Reject or fix paths that end with a slash.
-        #LATER: this can have all sorts of intelligent logic added
-        #Suggested: Check if the files are actually the right ones, if not, tell the user what's wrong with them.
+        # Reject or fix paths that end with a slash.
+        # LATER: this can have all sorts of intelligent logic added
+        # Suggested: Check if the files are actually the right ones, if not, tell the user what's wrong with them.
         if path.endswith("/"): return False
         if path.endswith("\\"): return False
 

@@ -9,10 +9,12 @@ class GameState(Enum):
     PLAYING = "playing"
     CLOSED = "closed"
 
+
 # This enum has a counterpart on the server
 class GameVisibility(Enum):
     PUBLIC = "public"
     FRIENDS = "friends"
+
 
 # For when we get an inconsistent game update.
 class BadUpdateException(Exception):
@@ -28,6 +30,8 @@ updated or ended again. Update and game end are propagated with signals.
 
 If an update is malformed / forbidden, an exception is thrown.
 """
+
+
 @with_logger
 class Game(QObject):
 
@@ -40,7 +44,7 @@ class Game(QObject):
         QObject.__init__(self)
 
         try:
-            self.uid = (lambda uid, *a, **kw: uid) (*args, **kwargs) # Extract uid from args
+            self.uid = (lambda uid, *a, **kw: uid)(*args, **kwargs)  # Extract uid from args
         except TypeError as e:
             raise BadUpdateException(e.args[0])
 
@@ -84,7 +88,7 @@ class Game(QObject):
         sim_mods,
         password_protected,
         visibility,
-        command = None,    # Ignored, for convenience since server puts this in the game dict
+        command=None,    # Ignored, for convenience since server puts this in the game dict
         ):
 
         if self.closed():
@@ -168,7 +172,7 @@ class Game(QObject):
                 "sim_mods": self.sim_mods,
                 "password_protected": self.password_protected,
                 "visibility": self.visibility.name,
-                "command": "game_info" # For compatibility
+                "command": "game_info"  # For compatibility
             }
 
     def url(self, player_id):
