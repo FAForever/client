@@ -211,7 +211,7 @@ class GameItem():
         self.game = game
         self.game.gameUpdated.connect(self._gameUpdate)
 
-        self.oldstate = self.game.state
+        self.oldstate = None
         self.oldmapname = None
 
         self.mapdisplayname = None  # Will get set at first update
@@ -239,7 +239,6 @@ class GameItem():
 
         return self.game.url(player_id)
 
-    @QtCore.pyqtSlot()
     def announceReplay(self):
         if not client.instance.me.isFriend(self.hostid):
             return
@@ -259,10 +258,8 @@ class GameItem():
         else:
             client.instance.forwardLocalBroadcast(g.host, 'is playing ' + g.featured_mod + ' in <a style="color:' + istr)
 
-
-    @QtCore.pyqtSlot()
     def announceHosting(self):
-        if not client.instance.me.isFriend(self.hostid) or self.isHidden():
+        if not client.instance.me.isFriend(self.hostid) or self.widget.isHidden():
             return
 
         g = self.game
