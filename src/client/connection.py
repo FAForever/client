@@ -258,9 +258,7 @@ class ServerConnection(QtCore.QObject):
     def send(self, message):
         data = json.dumps(message)
         if message.get('command') == 'hello':
-            logger.info('Logging in with {}'.format({
-                                                        k: v for k, v in list(message.items()) if k != 'password'
-                                                        }))
+            logger.info('Logging in with {}'.format({k: v for k, v in list(message.items()) if k != 'password'}))
         else:
             logger.info("Outgoing JSON Message: " + data)
 
@@ -296,10 +294,10 @@ class Dispatcher():
     def __delitem__(self, key):
         del self._dispatchees[key]
 
-    def subscribe_to(self, target, fn, msg = None):
+    def subscribe_to(self, target, fn, msg=None):
         self._receivers[(target, msg)] = fn
 
-    def unsubscribe(self, target, msg = None):
+    def unsubscribe(self, target, msg=None):
         del self._receivers[(target, msg)]
 
     def dispatch(self, message):
@@ -378,8 +376,8 @@ class LobbyInfo(QtCore.QObject):
             self._gameset.update_set(message)
 
     def handle_modvault_list_info(self, message):
-        modList = message["modList"]
-        for mod in modList:
+        mod_list = message["modList"]
+        for mod in mod_list:
             self.handle_modvault_info(mod)
 
     def handle_modvault_info(self, message):

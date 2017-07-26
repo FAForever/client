@@ -73,21 +73,21 @@ class ClientUpdater(QObject):
         update_msg = {
                 True: (
                     "Update needed",
-                    "Your version of FAF is outdated. You need to download and install the most recent version to connect and play.<br/><br/><b>Do you want to download and install the update now?</b><br/><br/><a href='{}'>See changes</a>".format(info_url)
+                    "Your version of FAF is outdated. You need to download and install the most recent version to "
+                    "connect and play.<br/><br/><b>Do you want to download and install the update now?</b><br/><br/>"
+                    "<a href='{}'>See changes</a>".format(info_url)
                     ),
                 False: (
                     "Update available",
-                    "There is a new{} version of FAF.<br/><b>Would you like to download and install this update now?</b><br/><br/><a href='{}'>See information</a>".format(
-                        ' beta' if is_pre else ' release',
-                        info_url
-                        )
+                    "There is a new{} version of FAF.<br/><b>Would you like to download and install this update now?"
+                    "</b><br/><br/><a href='{}'>See information</a>".format(' beta' if is_pre else ' release', info_url)
                     )
                 }
         result = QtWidgets.QMessageBox.question(None,
-                                            update_msg[self._outdated][0],
-                                            update_msg[self._outdated][1],
-                                            QtWidgets.QMessageBox.No,
-                                            QtWidgets.QMessageBox.Yes)
+                                                update_msg[self._outdated][0],
+                                                update_msg[self._outdated][1],
+                                                QtWidgets.QMessageBox.No,
+                                                QtWidgets.QMessageBox.Yes)
         if result == QtWidgets.QMessageBox.Yes:
             self._logger.info('Downloading {}'.format(url))
             self._setup_progress()
@@ -107,7 +107,6 @@ class ClientUpdater(QObject):
         self._rep.finished.connect(self._on_finished)
         self._rep.error.connect(self.error)
         self._rep.readyRead.connect(self._buffer)
-
 
     def error(self, code):
         self._logger.exception(self._rep.errorString())
@@ -140,8 +139,8 @@ class ClientUpdater(QObject):
         subprocess.Popen(command, shell=True)
         self._progress.close()
 
-    def on_progress(self, current, max):
-        self._progress.setMaximum(max)
+    def on_progress(self, current, maximum):
+        self._progress.setMaximum(maximum)
         self._progress.setValue(current)
 
     def cancel(self):
@@ -154,8 +153,7 @@ class ClientUpdater(QObject):
         progress.setLabel(QLabel("Downloading update"))
         progress.setCancelButtonText("Cancel")
         progress.canceled.connect(self.cancel)
-        progress.setWindowFlags(QtCore.Qt.CustomizeWindowHint
-                                | QtCore.Qt.WindowTitleHint)
+        progress.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
         progress.setWindowModality(QtCore.Qt.WindowModal)
         progress.setAutoClose(True)
         progress.setAutoReset(False)

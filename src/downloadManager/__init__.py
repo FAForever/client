@@ -1,13 +1,12 @@
-from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
+from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest
 from PyQt5 import QtWidgets, QtCore
 import urllib.request, urllib.error, urllib.parse
 import logging
 import os
 import util
-import warnings
 from config import Settings
 
-logger= logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class FileDownload(object):
@@ -110,10 +109,11 @@ class FileDownload(object):
 
 VAULT_PREVIEW_ROOT = "{}/faf/vault/map_previews/small/".format(Settings.get('content/host'))
 
-class downloadManager(QtCore.QObject):
-    ''' This class allows downloading stuff in the background'''
 
-    def __init__(self, parent = None):
+class downloadManager(QtCore.QObject):
+    """ This class allows downloading stuff in the background"""
+
+    def __init__(self, parent=None):
         QtCore.QObject.__init__(self, parent)
         self.client = parent
         self.nam = QNetworkAccessManager(self)
@@ -139,14 +139,18 @@ class downloadManager(QtCore.QObject):
         logger.info("Finished download from " + urlstring)
 
         reqlist = []
-        if urlstring in self.mapRequests: reqlist = self.mapRequests[urlstring]
-        if urlstring in self.modRequests: reqlist = self.modRequests[urlstring]
+        if urlstring in self.mapRequests:
+            reqlist = self.mapRequests[urlstring]
+        if urlstring in self.modRequests:
+            reqlist = self.modRequests[urlstring]
         if not reqlist:
             dler.dest.remove()
             return
 
-        if urlstring in self.mapRequests: del self.mapRequests[urlstring]
-        if urlstring in self.modRequests: del self.modRequests[urlstring]
+        if urlstring in self.mapRequests:
+            del self.mapRequests[urlstring]
+        if urlstring in self.modRequests:
+            del self.modRequests[urlstring]
 
         if not dler.succeeded():
             dler.dest.remove()
@@ -171,16 +175,17 @@ class downloadManager(QtCore.QObject):
         return img, imgpath
 
     def downloadMap(self, name, requester, item=False):
-        '''
+        """
         Downloads a preview image from the web for the given map name
-        '''
-        #This is done so generated previews always have a lower case name. This doesn't solve the underlying problem (case folding Windows vs. Unix vs. FAF)
+        """
+        # This is done so generated previews always have a lower case name.
+        # This doesn't solve the underlying problem (case folding Windows vs. Unix vs. FAF)
         name = name.lower()
         if len(name) == 0:
             return
 
         url = VAULT_PREVIEW_ROOT + urllib.parse.quote(name) + ".png"
-        if not url in self.mapRequests:
+        if url not in self.mapRequests:
             logger.info("Searching map preview for: " + name + " from " + url)
             self.mapRequests[url] = []
 
@@ -196,7 +201,7 @@ class downloadManager(QtCore.QObject):
 
     def downloadModPreview(self, url, name, requester):
         if not url in self.modRequests:
-            logger.debug("Searching mod preview for: " + os.path.basename(url).rsplit('.',1)[0])
+            logger.debug("Searching mod preview for: " + str(os.path.basename(url).rsplit('.', 1)[0]))
             self.modRequests[url] = []
 
             img, imgpath = self._get_cachefile(name + '.part')

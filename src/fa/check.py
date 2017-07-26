@@ -1,7 +1,5 @@
 import logging
 import os
-import glob
-import shutil
 import zipfile
 import binascii
 
@@ -45,6 +43,7 @@ def map_(mapname, force=False, silent=False):
 
     return fa.maps.downloadMap(mapname, silent=silent)
 
+
 def featured_mod(featured_mod, version):
     pass
 
@@ -68,6 +67,7 @@ def path(parent):
 def game(parent):
     return True
 
+
 def crc32(fname):
     try:
         with open(fname) as stream:
@@ -75,6 +75,7 @@ def crc32(fname):
     except:
         logger.exception('CRC check fail!')
         return None
+
 
 def checkMovies(files):
     """
@@ -106,6 +107,7 @@ def checkMovies(files):
                     # copy only if file is different - check first if file exists, then if size is changed, then crc
                     if not os.path.exists(tgtpath) or os.stat(tgtpath).st_size != zi.file_size or crc32(tgtpath) != zi.CRC:
                         zf.extract(zi, util.APPDATA_DIR)
+
 
 def check(featured_mod, mapname=None, version=None, modVersions=None, sim_mods=None, silent=False):
     """
@@ -147,4 +149,3 @@ def check(featured_mod, mapname=None, version=None, modVersions=None, sim_mods=N
         return checkMods(sim_mods)
 
     return True
-

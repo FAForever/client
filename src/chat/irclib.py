@@ -68,7 +68,6 @@ import select
 import socket
 import string
 import time
-import types
 import ssl
 import logging
 
@@ -197,7 +196,7 @@ class IRC:
             else:
                 break
 
-    def process_once(self, timeout=0):
+    def process_once(self, timeout=0.0):
         """Process data from connections once.
 
         Arguments:
@@ -254,9 +253,9 @@ class IRC:
         number is highest priority).  If a handler function returns
         \"NO MORE\", no more handlers will be called.
         """
-        if not event in self.handlers:
+        if event not in self.handlers:
             self.handlers[event] = []
-        bisect.insort(self.handlers[event], ((priority, handler)))
+        bisect.insort(self.handlers[event], (priority, handler))
 
     def remove_global_handler(self, event, handler):
         """Removes a global handler function.

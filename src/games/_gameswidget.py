@@ -5,15 +5,12 @@ from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import Qt
 
 import util
-from config import Settings
 from games.gameitem import GameItem, GameItemDelegate
 from model.game import GameState
-from games.moditem import ModItem, mod_invisible, mods
-from games.hostgamewidget import HostgameWidget
+from games.moditem import ModItem, mod_invisible
+from games.hostgamewidget import HostGameWidget
 from fa.factions import Factions
 import fa
-import modvault
-import notifications as ns
 from config import Settings
 
 import logging
@@ -96,7 +93,7 @@ class GamesWidget(FormClass, BaseClass):
         self.rankedUEF.setIcon(util.THEME.icon("games/automatch/uef.png"))
 
         # Fixup ini file type loss
-        self.sub_factions = [True if x=='true' else False for x in self.sub_factions]
+        self.sub_factions = [True if x == 'true' else False for x in self.sub_factions]
 
         self.searchProgress.hide()
 
@@ -263,7 +260,7 @@ class GamesWidget(FormClass, BaseClass):
             s = "Stop search"
         else:
             c = self.sub_factions.count(True)
-            if c in [0, 4]: # all or none selected
+            if c in [0, 4]:  # all or none selected
                 s = "Play as random!"
             else:
                 s = "Play!"
@@ -301,7 +298,7 @@ class GamesWidget(FormClass, BaseClass):
             self.race = race
             self.searchProgress.setVisible(True)
             self.labelAutomatch.setText("Searching...")
-            self.updatePlayButton();
+            self.updatePlayButton()
             self.client.search_ranked(faction=self.race.value)
 
     @QtCore.pyqtSlot()
@@ -314,7 +311,6 @@ class GamesWidget(FormClass, BaseClass):
         self.updatePlayButton()
         self.searchProgress.setVisible(False)
         self.labelAutomatch.setText("1 vs 1 Automatch")
-
 
     @QtCore.pyqtSlot(bool)
     def toggle_search(self, enabled, race=None):
@@ -366,7 +362,7 @@ class GamesWidget(FormClass, BaseClass):
 
         self.stopSearchRanked()
 
-        hostgamewidget = HostgameWidget(self, item)
+        hostgamewidget = HostGameWidget(self, item)
         # Abort if the client cancelled the host game dialogue.
         if hostgamewidget.exec_() != 1:
             return

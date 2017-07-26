@@ -7,6 +7,7 @@ import io
 import logging
 logger = logging.getLogger(__name__)
 
+
 class VaultDownloadDialog(object):
     # Result codes
     SUCCESS = 0
@@ -96,8 +97,8 @@ def downloadVaultAssetNoMsg(url, target_dir, exist_handler, name, category,
         msg = lambda: QtWidgets.QMessageBox.information(
             None,
             "{} not downloadable".format(capitCat),
-            ("<b>This {} was not found in the vault (or is broken).</b>"
-            "<br/>You need to get it from somewhere else in order to use it.")
+            ("<b>This {} was not found in the vault (or is broken).</b><br/>"
+             "You need to get it from somewhere else in order to use it.")
             .format(category))
     if result != VaultDownloadDialog.SUCCESS:
         return False, msg
@@ -132,4 +133,3 @@ def downloadVaultAsset(url, target_dir, exist_handler, name, category, silent):
         dialog()
 
     return ret
-

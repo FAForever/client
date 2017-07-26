@@ -44,11 +44,9 @@ import util
 import secondaryServer
 
 import json
-import sys
 import replays
 
 import time
-import random
 import notifications as ns
 
 FormClass, BaseClass = util.THEME.loadUiType("client/client.ui")
@@ -513,7 +511,7 @@ class ClientWindow(FormClass, BaseClass):
         import modvault
         import coop
         import news
-        from chat._avatarWidget import avatarWidget
+        from chat._avatarWidget import AvatarWidget
 
         # download manager
         self.downloader = downloadManager.downloadManager(self)
@@ -538,7 +536,7 @@ class ClientWindow(FormClass, BaseClass):
         self.Coop = coop.Coop(self, self.gameset)
         self.notificationSystem = ns.Notifications(self, self.gameset)
 
-        #TODO: some day when the tabs only do UI we'll have all this in the .ui file
+        # TODO: some day when the tabs only do UI we'll have all this in the .ui file
         self.chatTab.layout().addWidget(self.chat)
         self.whatNewTab.layout().addWidget(self.news)
         self.ladderTab.layout().addWidget(self.ladder)
@@ -554,7 +552,7 @@ class ClientWindow(FormClass, BaseClass):
         self.actionNsEnabled.setChecked(self.notificationSystem.settings.enabled)
 
         # Other windows
-        self.avatarAdmin = self.avatarSelection = avatarWidget(self, None)
+        self.avatarAdmin = self.avatarSelection = AvatarWidget(self, None)
 
         # warning setup
         self.warning = QtWidgets.QHBoxLayout()
@@ -697,9 +695,10 @@ class ClientWindow(FormClass, BaseClass):
         self.saveWindow()
 
         if fa.instance.running():
-            if QtWidgets.QMessageBox.question(self, "Are you sure?",
-                                          "Seems like you still have Forged Alliance running!<br/><b>Close anyway?</b>",
-                                          QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No) == QtWidgets.QMessageBox.No:
+            if QtWidgets.QMessageBox.question(self, "Are you sure?", "Seems like you still have Forged Alliance "
+                                                                     "running!<br/><b>Close anyway?</b>",
+                                              QtWidgets.QMessageBox.Yes,
+                                              QtWidgets.QMessageBox.No) == QtWidgets.QMessageBox.No:
                 event.ignore()
                 return
 
@@ -777,14 +776,14 @@ class ClientWindow(FormClass, BaseClass):
     @QtCore.pyqtSlot()
     def switchPort(self):
         from . import loginwizards
-        loginwizards.gameSettingsWizard(self).exec_()
+        loginwizards.GameSettingsWizard(self).exec_()
 
     @QtCore.pyqtSlot()
     def clearSettings(self):
-        result = QtWidgets.QMessageBox.question(None, "Clear Settings",
-                                            "Are you sure you wish to clear all settings, login info, etc. used by this program?",
-                                            QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
-        if (result == QtWidgets.QMessageBox.Yes):
+        result = QtWidgets.QMessageBox.question(None, "Clear Settings", "Are you sure you wish to clear all settings, "
+                                                                        "login info, etc. used by this program?",
+                                                QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
+        if result == QtWidgets.QMessageBox.Yes:
             util.settings.clear()
             util.settings.sync()
             QtWidgets.QMessageBox.information(None, "Restart Needed", "FAF will quit now.")
@@ -885,7 +884,7 @@ class ClientWindow(FormClass, BaseClass):
         self.actionSetAutoLogin.setChecked(self.remember) # FIXME - option updating is silly
 
     def get_creds_and_login(self):
-        "Try to autologin, or show login widget if we fail or can't do that."
+        # Try to autologin, or show login widget if we fail or can't do that.
         if self._autorelogin and self.password and self.login:
             if self.send_login(self.login, self.password):
                 return
@@ -911,25 +910,24 @@ class ClientWindow(FormClass, BaseClass):
         self.disconnect()
 
     def send_login(self, login, password):
-        "Send login data once we have the creds."
+        # Send login data once we have the creds.
         self._autorelogin = False # Fresh credentials
         if config.is_beta():    # Replace for develop here to not clobber the real pass
             password = util.password_hash("foo")
         self.uniqueId = util.uniqueID(self.login, self.session)
         if not self.uniqueId:
             QtWidgets.QMessageBox.critical(self,
-                "Failed to calculate UID",
-                "Failed to calculate your unique ID"
-                " (a part of our smurf prevention system).</br>"
-                "Please report this to the tech support forum!")
+                                           "Failed to calculate UID",
+                                           "Failed to calculate your unique ID"
+                                           " (a part of our smurf prevention system).</br>"
+                                           "Please report this to the tech support forum!")
             return False
         self.lobby_connection.send(dict(command="hello",
-                       login=login,
-                       password=password,
-                       unique_id=self.uniqueId,
-                       session=self.session))
+                                        login=login,
+                                        password=password,
+                                        unique_id=self.uniqueId,
+                                        session=self.session))
         return True
-
 
     def getColor(self, name):
         return chat.get_color(name)
@@ -1000,7 +998,6 @@ class ClientWindow(FormClass, BaseClass):
         self._tabChanged(self.topTabs, curr, self._vault_tab)
         self._vault_tab = curr
 
-
     @QtCore.pyqtSlot()
     def joinGameFromURL(self, url):
         """
@@ -1038,11 +1035,13 @@ class ClientWindow(FormClass, BaseClass):
             self.modMenu.addSeparator()
 
             actionLobbyKick = QtWidgets.QAction("Close player's FAF Client...", self.modMenu)
-            actionLobbyKick.triggered.connect(lambda: util.userNameAction(self, 'Player to kick from Client (do not typo!)', lambda name: self.closeLobby(name)))
+            actionLobbyKick.triggered.connect(lambda: util.userNameAction(self, 'Player to kick from Client (do not typo!)',
+                                                                          lambda name: self.closeLobby(name)))
             self.modMenu.addAction(actionLobbyKick)
 
             actionCloseFA = QtWidgets.QAction("Close Player's Game...", self.modMenu)
-            actionCloseFA.triggered.connect(lambda: util.userNameAction(self, 'Player to close FA (do not typo!)', lambda name: self.closeFA(name)))
+            actionCloseFA.triggered.connect(lambda: util.userNameAction(self, 'Player to close FA (do not typo!)',
+                                                                        lambda name: self.closeFA(name)))
             self.modMenu.addAction(actionCloseFA)
 
     def requestAvatars(self, personal):
@@ -1053,19 +1052,20 @@ class ClientWindow(FormClass, BaseClass):
 
     def joinChannel(self, username, channel):
         """ Join users to a channel """
-        self.lobby_connection.send(dict(command="admin", action="join_channel", user_ids=[self.players.getID(username)], channel=channel))
+        self.lobby_connection.send(dict(command="admin", action="join_channel",
+                                        user_ids=[self.players.get_id(username)], channel=channel))
 
     def closeFA(self, username):
         """ Close FA remotely """
         logger.info('closeFA for {}'.format(username))
-        user_id = self.players.getID(username)
+        user_id = self.players.get_id(username)
         if user_id != -1:
             self.lobby_connection.send(dict(command="admin", action="closeFA", user_id=user_id))
 
     def closeLobby(self, username):
         """ Close lobby remotely """
         logger.info('closeLobby for {}'.format(username))
-        user_id = self.players.getID(username)
+        user_id = self.players.get_id(username)
         if user_id != -1:
             self.lobby_connection.send(dict(command="admin", action="closelobby", user_id=user_id))
 
@@ -1088,7 +1088,6 @@ class ClientWindow(FormClass, BaseClass):
         if foe_id in self.players:
             self.me.remFoe(int(foe_id))
             self.lobby_connection.send(dict(command="social_remove", foe=foe_id))
-
 
     def handle_session(self, message):
         # Getting here means our client is not outdated

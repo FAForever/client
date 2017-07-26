@@ -1,14 +1,13 @@
 from PyQt5 import QtCore
 from PyQt5.QtCore import QObject, Qt
 
-from .newsitem import NewsItem
 from .wpapi import WPAPI
 
 import client
 
-import math
 import logging
 logger = logging.getLogger(__name__)
+
 
 class NewsManager(QObject):
     FRAMES = 5
@@ -119,4 +118,3 @@ class NewsManager(QObject):
             self.newsFrames[frameIdx].set_content(nc[0], nc[1])
 
         self.resetFrames()
-

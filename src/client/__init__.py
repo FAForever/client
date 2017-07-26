@@ -17,9 +17,9 @@ LOCAL_REPLAY_PORT = Settings.get('lobby/relay/port')
 
 
 class ClientState(IntEnum):
-    '''
+    """
     Various states the client can be in.
-    '''
+    """
     SHUTDOWN = -666  # Going... DOWN!
 
     DISCONNECTED = -2

@@ -1,5 +1,4 @@
 from PyQt5 import QtCore, QtNetwork
-import time
 import json
 import logging
 

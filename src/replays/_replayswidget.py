@@ -25,6 +25,7 @@ from replays.connection import ReplaysConnection
 
 FormClass, BaseClass = util.THEME.loadUiType("replays/replays.ui")
 
+
 class LiveReplayItem(QtWidgets.QTreeWidgetItem):
     def __init__(self, time):
         QtWidgets.QTreeWidgetItem.__init__(self)
@@ -32,12 +33,16 @@ class LiveReplayItem(QtWidgets.QTreeWidgetItem):
 
     def __lt__(self, other):
         return self.time < other.time
+
     def __le__(self, other):
         return self.time <= other.time
+
     def __gt__(self, other):
         return self.time > other.time
+
     def __ge__(self, other):
         return self.time >= other.time
+
 
 class LiveReplaysWidgetHandler(object):
     def __init__(self, liveTree, client, gameset):
@@ -168,7 +173,7 @@ class LiveReplaysWidgetHandler(object):
                 playeritem = QtWidgets.QTreeWidgetItem()
                 playeritem.setText(0, name)
 
-                playerid = self.client.players.getID(name)
+                playerid = self.client.players.get_id(name)
 
                 url = QtCore.QUrl()
                 url.setScheme("faflive")
@@ -194,7 +199,7 @@ class LiveReplaysWidgetHandler(object):
                     playeritem.setToolTip(0, url.toString())
                     playeritem.setIcon(0, util.THEME.icon("replays/replay.png"))
 
-                elif client.instance.players.isPlayer(playerid):
+                elif client.instance.players.is_player(playerid):
                     playeritem.setForeground(0, QtGui.QColor(client.instance.getColor("player")))
                     playeritem.setToolTip(0, url.toString())
                     playeritem.setIcon(0, util.THEME.icon("replays/replay.png"))
@@ -332,7 +337,7 @@ class LocalReplaysWidgetHandler(object):
                         # Add additional info
                         item.setText(3, item.info['featured_mod'])
                         item.setTextAlignment(3, QtCore.Qt.AlignCenter)
-                        item.setForeground(1, QtGui.QColor(client.instance.players.getUserColor(item.info.get('recorder', ""))))
+                        item.setForeground(1, QtGui.QColor(client.instance.players.get_user_color(item.info.get('recorder', ""))))
                     else:
                         bucket = buckets.setdefault("incomplete", [])
                         item.setIcon(0, util.THEME.icon("replays/replay.png"))
@@ -402,7 +407,7 @@ class LocalReplaysWidgetHandler(object):
 
 
 class ReplayVaultWidgetHandler(object):
-    HOST   = "lobby.faforever.com"
+    HOST = "lobby.faforever.com"
     PORT = 11002
 
     # connect to save/restore persistence settings for checkboxes & search parameters
@@ -440,8 +445,7 @@ class ReplayVaultWidgetHandler(object):
         _w.automaticCheckbox.setChecked(self.automatic)
         _w.spoilerCheckbox.setChecked(self.spoiler_free)
 
-    def searchVault(self, minRating=None, mapName=None,
-                    playerName=None, modListIndex=None):
+    def searchVault(self, minRating=None, mapName=None, playerName=None, modListIndex=None):
         w = self._w
         if minRating:
             w.minRating.setValue(minRating)
@@ -451,7 +455,6 @@ class ReplayVaultWidgetHandler(object):
             w.playerName.setText(playerName)
         if modListIndex:
             w.modList.setCurrentIndex(modListIndex)
-
 
         """ search for some replays """
         self._w.searchInfoLabel.setText(self.searchInfo)

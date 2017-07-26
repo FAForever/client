@@ -1,6 +1,4 @@
-import os
-
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore
 from games.gameitem import GameItemWidget, GameItemDelegate
 import modvault
 
@@ -14,7 +12,8 @@ logger = logging.getLogger(__name__)
 
 FormClass, BaseClass = util.THEME.loadUiType("games/host.ui")
 
-class HostgameWidget(FormClass, BaseClass):
+
+class HostGameWidget(FormClass, BaseClass):
     def __init__(self, parent, item, iscoop=False, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
 
@@ -36,7 +35,7 @@ class HostgameWidget(FormClass, BaseClass):
             self.mapname = util.settings.value("gamemap", "scmp_007")
         util.settings.endGroup()
 
-        self.setWindowTitle ( "Hosting Game : " + item.name )
+        self.setWindowTitle("Hosting Game : " + item.name)
         self.titleEdit.setText(self.title)
         self.passEdit.setText(self.password)
         self.game = GameItemWidget(self)
@@ -58,45 +57,46 @@ class HostgameWidget(FormClass, BaseClass):
         w.updateIcon()
         w.updateTooltip()
         w.setHidden(False)
-        
+
         i = 0
         index = 0
         if not self.iscoop:
             allmaps = dict()
-            for map in list(maps.maps.keys()) + maps.getUserMaps():
-                allmaps[map] = maps.getDisplayName(map)
-            for (map, name) in sorted(iter(allmaps.items()), key=lambda x: x[1]):
-                if map == self.mapname :
+            for mapname in list(maps.maps.keys()) + maps.getUserMaps():
+                allmaps[mapname] = maps.getDisplayName(mapname)
+            for (mapname, mapdisplayname) in sorted(iter(allmaps.items()), key=lambda x: x[1]):
+                if mapname == self.mapname:
                     index = i
-                self.mapList.addItem(name, map)
+                self.mapList.addItem(mapdisplayname, mapname)
                 i = i + 1
             self.mapList.setCurrentIndex(index)
         else:
             self.mapList.hide()
 
         self.mods = {}
-        #this makes it so you can select every non-ui_only mod
+        # this makes it so you can select every non-ui_only mod
         for mod in modvault.getInstalledMods():
             if mod.ui_only:
                 continue
             self.mods[mod.totalname] = mod
             self.modList.addItem(mod.totalname)
 
-        names = [mod.totalname for mod in modvault.getActiveMods(uimods=False, temporary=False)]
-        logger.debug("Active Mods detected: %s" % str(names))
-        for name in names:
-            l = self.modList.findItems(name, QtCore.Qt.MatchExactly)
+        activemods = [mod.totalname for mod in modvault.getActiveMods(uimods=False, temporary=False)]
+        logger.debug("Active Mods detected: %s" % str(activemods))
+        for modname in activemods:
+            l = self.modList.findItems(modname, QtCore.Qt.MatchExactly)
             logger.debug("found item: %s" % l[0].text())
-            if l: l[0].setSelected(True)
+            if l:
+                l[0].setSelected(True)
 
         self.radioFriends.setChecked(self.friends_only)
 
-        self.mapList.currentIndexChanged.connect(self.mapChanged)
+        self.mapList.currentIndexChanged.connect(self.map_changed)
         self.hostButton.released.connect(self.hosting)
-        self.titleEdit.textChanged.connect(self.updateText)
+        self.titleEdit.textChanged.connect(self.update_title)
         #self.modList.itemClicked.connect(self.modclicked)
-        
-    def updateText(self, text):
+
+    def update_title(self, text):
         self.game.title = text
         self.game.updateText()
 
@@ -129,17 +129,15 @@ class HostgameWidget(FormClass, BaseClass):
         modvault.setActiveMods(mods, True, False)
 
         self.parent.client.host_game(title=self.title,
-                                 mod=self.featured_mod,
-                                 visibility="friends" if self.friends_only else "public",
-                                 mapname=self.mapname,
-                                 password=self.password)
-
+                                     mod=self.featured_mod,
+                                     visibility="friends" if self.friends_only else "public",
+                                     mapname=self.mapname,
+                                     password=self.password)
 
         self.done(1)
         return
 
-
-    def mapChanged(self, index):
+    def map_changed(self, index):
         self.mapname = self.mapList.itemData(index)
 
         self.game.mapName = self.mapname

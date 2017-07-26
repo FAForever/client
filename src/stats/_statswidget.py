@@ -84,7 +84,8 @@ class StatsWidget(BaseClass, FormClass, BusyWidget):
     def divisionUpdate(self, index):
         if time.time() - self.floodtimer > ANTIFLOOD:
             self.floodtimer = time.time()
-            self.client.statsServer.send(dict(command="stats", type="division_table", league=self.currentLeague, division=index))           
+            self.client.statsServer.send(dict(command="stats", type="division_table",
+                                              league=self.currentLeague, division=index))
         
     def createDivisionsTabs(self, divisions):
         userDivision = ""
@@ -206,4 +207,5 @@ class StatsWidget(BaseClass, FormClass, BusyWidget):
         
         self.webview.setVisible(False)
 
-        self.webview.setUrl(QtCore.QUrl("{}/faf/leaderboards/read-leader.php?board=1v1&username={}".format(Settings.get('content/host'), me.login)))
+        self.webview.setUrl(QtCore.QUrl("{}/faf/leaderboards/read-leader.php?board=1v1&username={}".
+                                        format(Settings.get('content/host'), me.login)))

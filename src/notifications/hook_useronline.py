@@ -1,6 +1,5 @@
 from PyQt5 import QtCore
 import util
-import config
 from config import Settings
 from notifications.ns_hook import NsHook
 import notifications as ns
@@ -8,6 +7,8 @@ import notifications as ns
 """
 Settings for notifications: if a player comes online
 """
+
+
 class NsHookUserOnline(NsHook):
     def __init__(self):
         NsHook.__init__(self, ns.Notifications.USER_ONLINE)
@@ -16,6 +17,8 @@ class NsHookUserOnline(NsHook):
         self.button.clicked.connect(self.dialog.show)
 
 FormClass, BaseClass = util.THEME.loadUiType("notification_system/user_online.ui")
+
+
 class UserOnlineDialog(FormClass, BaseClass):
     def __init__(self, parent, eventType):
         BaseClass.__init__(self)
@@ -28,7 +31,6 @@ class UserOnlineDialog(FormClass, BaseClass):
         self.setWindowFlags(self.windowFlags() & (~QtCore.Qt.WindowContextHelpButtonHint))
 
         self.loadSettings()
-
 
     def loadSettings(self):
         self.mode = Settings.get(self._settings_key+'/mode', 'friends')

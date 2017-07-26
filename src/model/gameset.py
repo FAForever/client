@@ -12,6 +12,8 @@ Note that it doesn't remember which games ended - the server may choose to
 send a game state for a uid, send a state that closes it, then send a state
 with the same uid again, and it will be reported as a new game.
 """
+
+
 @with_logger
 class Gameset(QObject):
     newGame = pyqtSignal(object)
@@ -82,7 +84,6 @@ class Gameset(QObject):
         elif g.state == game.GameState.CLOSED:
             self.newClosedGame.emit(g)
 
-
     def _remove_game(self, g):
         try:
             del self.games[g.uid]
@@ -92,7 +93,9 @@ class Gameset(QObject):
 
     def __getitem__(self, uid):
         return self.games[uid]
+
     def __contains__(self, uid):
         return uid in self.games
+
     def __iter__(self):
         return self.games.values().__iter__()

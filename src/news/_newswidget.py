@@ -1,19 +1,15 @@
-from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtCore import Qt
+from PyQt5 import QtCore
 
 import webbrowser
 import util
-import re
 from .newsitem import NewsItem, NewsItemDelegate
 from .newsmanager import NewsManager
-
 from util.qt import ExternalLinkPage
-
-import base64
 
 import logging
 
 logger = logging.getLogger(__name__)
+
 
 class Hider(QtCore.QObject):
     """
@@ -41,6 +37,7 @@ class Hider(QtCore.QObject):
 
 FormClass, BaseClass = util.THEME.loadUiType("news/news.ui")
 
+
 class NewsWidget(FormClass, BaseClass):
     CSS = util.THEME.readstylesheet('news/news_webview.css')
 
@@ -61,7 +58,7 @@ class NewsWidget(FormClass, BaseClass):
         self.hider.hide(self.newsWebView)
         self.newsWebView.loadFinished.connect(self.loadFinished)
 
-        self.newsList.setIconSize(QtCore.QSize(0,0))
+        self.newsList.setIconSize(QtCore.QSize(0, 0))
         self.newsList.setItemDelegate(NewsItemDelegate(self))
         self.newsList.currentItemChanged.connect(self.itemChanged)
 
@@ -73,10 +70,8 @@ class NewsWidget(FormClass, BaseClass):
         return '<style type="text/css">{}</style>'.format(self.CSS) + body
 
     def itemChanged(self, current, previous):
-        self.newsWebView.page().setHtml(self.HTML.format(
-            title = current.newsPost['title'],
-            content = self._injectCSS(current.newsPost['body']),
-        ))
+        self.newsWebView.page().setHtml(self.HTML.format(title=current.newsPost['title'],
+                                                         content=self._injectCSS(current.newsPost['body']),))
 
     def linkClicked(self, url):
         webbrowser.open(url.toString())
@@ -84,4 +79,3 @@ class NewsWidget(FormClass, BaseClass):
     def loadFinished(self, ok):
         self.hider.unhide(self.newsWebView)
         self.newsWebView.loadFinished.disconnect(self.loadFinished)
-

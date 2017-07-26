@@ -1,5 +1,6 @@
-from PyQt5 import QtWidgets, QtCore
+from PyQt5 import QtCore
 import util
+
 
 class ThemeMenu(QtCore.QObject):
     themeSelected = QtCore.pyqtSignal(object)
@@ -20,9 +21,9 @@ class ThemeMenu(QtCore.QObject):
         self._menu.addSeparator()
         self._menu.addAction("Reload Stylesheet", util.THEME.reloadStyleSheets)
 
-        self._updateThemeChecks()
+        self._update_theme_checks()
 
-    def _updateThemeChecks(self):
+    def _update_theme_checks(self):
         self._updating = True
         new_theme = util.THEME.theme.name
         for action in self._themes:
@@ -40,4 +41,4 @@ class ThemeMenu(QtCore.QObject):
             self._updating = False
         else:
             self.themeSelected.emit(self._themes[action])
-            self._updateThemeChecks()
+            self._update_theme_checks()

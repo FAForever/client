@@ -1,10 +1,10 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 import util
-import client
 
 import logging
 logger = logging.getLogger(__name__)
+
 
 class NewsItemDelegate(QtWidgets.QStyledItemDelegate):
     def __init__(self, *args, **kwargs):
@@ -72,7 +72,6 @@ class NewsItem(QtWidgets.QListWidgetItem):
         QtWidgets.QListWidgetItem.__init__(self, *args, **kwargs)
 
         self.newsPost = newsPost
-
 
         self.setText(self.FORMATTER.format(
             author=newsPost['author'][0]['name'],

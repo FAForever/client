@@ -2,6 +2,7 @@ from PyQt5 import QtCore
 from config import Settings
 from enum import Enum
 
+
 class UserRelation(QtCore.QObject):
     """
     Represents some sort of relation user has with other players.
@@ -38,32 +39,32 @@ class IrcUserRelation(UserRelation):
     in the Settings.
     """
 
-    def __init__(self, key = None):
+    def __init__(self, key=None):
         UserRelation.__init__(self)
         self.key = key
 
-    def _loadRelations(self):
+    def _load_relations(self):
         if self._key is not None:
             rel = Settings.get(self._key)
             self._relations = set(rel) if rel is not None else set()
         else:
             self._relations = set()
 
-    def _saveRelations(self):
+    def _save_relations(self):
         if self._key is not None:
             Settings.set(self._key, list(self._relations))
 
     def add(self, value):
         UserRelation.add(self, value)
-        self._saveRelations()
+        self._save_relations()
 
     def rem(self, value):
         UserRelation.rem(self, value)
-        self._saveRelations()
+        self._save_relations()
 
     def set(self, values):
         UserRelation.set(self, values)
-        self._saveRelations()
+        self._save_relations()
 
     @property
     def key(self):
@@ -72,7 +73,7 @@ class IrcUserRelation(UserRelation):
     @key.setter
     def key(self, value):
         self._key = value
-        self._loadRelations()
+        self._load_relations()
 
 
 class PlayerAffiliation(Enum):
@@ -81,6 +82,7 @@ class PlayerAffiliation(Enum):
     FOE = "foe"
     CLANNIE = "clan"
     OTHER = "default"
+
 
 class User(QtCore.QObject):
     """
@@ -124,7 +126,7 @@ class User(QtCore.QObject):
             return None
         return "chat.irc_" + name + "/" + str(self.player.id)
 
-    def resetPlayer():
+    def reset_player(self):
         self._player = None
         self._friends.clear()
         self._foes.clear()
@@ -132,54 +134,64 @@ class User(QtCore.QObject):
 
     def addClannie(self, id_):
         self._clannies.add(id_)
+
     def setClannies(self, ids):
         self._clannies.set(ids)
+
     def isClannie(self, id_):
         return self._clannies.has(id_)
 
     def addFriend(self, id_):
         self._friends.add(id_)
+
     def remFriend(self, id_):
         self._friends.rem(id_)
+
     def setFriends(self, ids):
         self._friends.set(ids)
 
     def addFoe(self, id_):
         self._foes.add(id_)
+
     def remFoe(self, id_):
         self._foes.rem(id_)
+
     def setFoes(self, ids):
         self._foes.set(ids)
 
     def addIrcFriend(self, id_):
         self._irc_friends.add(id_)
+
     def remIrcFriend(self, id_):
         self._irc_friends.rem(id_)
+
     def setIrcFriends(self, ids):
         self._irc_friends.set(ids)
 
     def addIrcFoe(self, id_):
         self._irc_foes.add(id_)
+
     def remIrcFoe(self, id_):
         self._irc_foes.rem(id_)
+
     def setIrcFoes(self, ids):
         self._irc_foes.set(ids)
 
-    def isFriend(self, id_ = -1, name = None):
+    def isFriend(self, id_=-1, name=None):
         if id_ != -1:
             return self._friends.has(id_)
         elif name is not None:
             return self._irc_friends.has(name)
         return False
 
-    def isFoe(self, id_ = -1, name = None):
+    def isFoe(self, id_=-1, name=None):
         if id_ != -1:
             return self._foes.has(id_)
         elif name is not None:
             return self._irc_foes.has(name)
         return False
 
-    def getAffiliation(self, id_ = -1, name = None):
+    def getAffiliation(self, id_=-1, name=None):
         if self.player and self.player.id == id_:
             return PlayerAffiliation.SELF
         if self.isFriend(id_, name):

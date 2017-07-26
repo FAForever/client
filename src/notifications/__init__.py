@@ -9,6 +9,8 @@ from notifications.ns_settings import NsSettingsDialog, IngameNotification
 The Notification Systems reacts on events and displays a popup.
 Each event_type has a NsHook to customize it.
 """
+
+
 class Notifications:
     USER_ONLINE = 'user_online'
     NEW_GAME = 'new_game'
@@ -17,11 +19,10 @@ class Notifications:
         self.client = client
 
         self.settings = NsSettingsDialog(self.client)
-        self.dialog = NotificationDialog(self.client,self.settings)
+        self.dialog = NotificationDialog(self.client, self.settings)
         self.events = []
         self.disabledStartup = True
         self.game_running = False
-
 
         client.gameEnter.connect(self.gameEnter)
         client.gameExit.connect(self.gameExit)
@@ -103,27 +104,32 @@ class Notifications:
         if eventType == self.USER_ONLINE:
             userid = data['user']
             pixmap = self.user
-            text = '<html>%s<br><font color="silver" size="-2">joined</font> %s</html>' % (self.client.players[userid].login, data['channel'])
+            text = '<html>%s<br><font color="silver" size="-2">joined</font> %s</html>' % \
+                   (self.client.players[userid].login, data['channel'])
         elif eventType == self.NEW_GAME:
 
             preview = maps.preview(data['mapname'], pixmap=True)
             if preview:
                 pixmap = preview.scaled(80, 80)
 
-            #TODO: outsource as function?
+            # TODO: outsource as function?
             mod = data.get('featured_mod')
             mods = data.get('sim_mods')
 
             modstr = ''
-            if (mod != 'faf' or mods):
+            if mod != 'faf' or mods:
                 modstr = mod
                 if mods:
-                    if mod == 'faf':modstr = ", ".join(list(mods.values()))
-                    else: modstr = mod + " & " + ", ".join(list(mods.values()))
-                    if len(modstr) > 20: modstr = modstr[:15] + "..."
+                    if mod == 'faf':
+                        modstr = ", ".join(list(mods.values()))
+                    else:
+                        modstr = mod + " & " + ", ".join(list(mods.values()))
+                    if len(modstr) > 20:
+                        modstr = modstr[:15] + "..."
 
             modhtml = '' if (modstr == '') else '<br><font size="-4"><font color="red">mods</font> %s</font>' % modstr
-            text = '<html>%s<br><font color="silver" size="-2">on</font> %s%s</html>' % (data['title'], maps.getDisplayName(data['mapname']), modhtml)
+            text = '<html>%s<br><font color="silver" size="-2">on</font> %s%s</html>' % \
+                   (data['title'], maps.getDisplayName(data['mapname']), modhtml)
 
         self.dialog.newEvent(pixmap, text, self.settings.popup_lifetime, self.settings.soundEnabled(eventType))
 
@@ -137,10 +143,6 @@ class Notifications:
             * Game isn't running, or ingame notifications are enabled
 
         """
-        if (len(self.events) > 0 and self.dialog.isHidden()
-            and (
-                not self.game_running
-                or self.settings.ingame_notifications == IngameNotification.ENABLE
-                )
-            ):
+        if (len(self.events) > 0 and self.dialog.isHidden() and
+                (not self.game_running or self.settings.ingame_notifications == IngameNotification.ENABLE)):
             self.showEvent()

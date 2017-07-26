@@ -5,6 +5,7 @@ from config import Settings
 
 FormClass, BaseClass = util.THEME.loadUiType("client/login.ui")
 
+
 class LoginWidget(FormClass, BaseClass):
     finished = QtCore.pyqtSignal(str, str)
     remember = QtCore.pyqtSignal(bool)
