@@ -265,127 +265,79 @@ class Chatter(QtWidgets.QTableWidgetItem):
     def pressed(self, item):
         menu = QtWidgets.QMenu(self.parent)
 
-        # Actions for stats
-        actionSelectAvatar = QtWidgets.QAction("Select Avatar", menu)
-
-        # Action for aliases link
-        actionViewAliases = QtWidgets.QAction("View Aliases", menu)
-
-        # Actions for Games and Replays
-        actionReplay = QtWidgets.QAction("View Live Replay", menu)
-        actionVaultReplay = QtWidgets.QAction("View Replays in Vault", menu)
-        actionJoin = QtWidgets.QAction("Join in Game", menu)
-
-        # Default is all disabled, we figure out what we can do after this
-        actionReplay.setDisabled(True)
-        actionJoin.setDisabled(True)
-
-        # Don't allow self to be invited to a game, or join one
-        if self.lobby.client.login != self.name:
-            if self.name in client.instance.urls:
-                url = client.instance.urls[self.name]
-                if url.scheme() == "fafgame":
-                    actionJoin.setEnabled(True)
-                elif url.scheme() == "faflive":
-                    actionReplay.setEnabled(True)
-
-        # Triggers
-        actionViewAliases.triggered.connect(self.viewAliases)
-        actionSelectAvatar.triggered.connect(self.selectAvatar)
-        actionReplay.triggered.connect(self.viewReplay)
-        actionVaultReplay.triggered.connect(self.viewVaultReplay)
-        actionJoin.triggered.connect(self.joinInGame)
+        def menu_add(action_str, action_connect, separator=False):
+            if separator:
+                menu.addSeparator()
+            action = QtWidgets.QAction(action_str, menu)
+            action.triggered.connect(action_connect)  # Triggers
+            menu.addAction(action)
 
         # only for us. Either way, it will display our avatar, not anyone avatar.
-        if self.lobby.client.login == self.name :
-            menu.addAction(actionSelectAvatar)
-            menu.addSeparator()
+        if self.lobby.client.login == self.name:
+            menu_add("Select Avatar", self.selectAvatar)
 
         # power menu
         if self.lobby.client.power > 1:
             # admin and mod menus
-            actionAddAvatar = QtWidgets.QAction("Assign avatar", menu)
-            menu.addAction(actionAddAvatar)
-            actionAddAvatar.triggered.connect(self.addAvatar)
+            menu_add("Assign avatar", self.addAvatar, True)
 
             if self.lobby.client.power == 2:
-                action_inspect_in_mordor = QtWidgets.QAction("Send the Orcs", menu)
-                menu.addAction(action_inspect_in_mordor)
 
                 def send_the_orcs():
                     route = Settings.get('mordor/host')
-
                     if self.id != -1:
                         QtGui.QDesktopServices.openUrl(QUrl("{}/users/{}".format(route, self.id)))
                     else:
                         QtGui.QDesktopServices.openUrl(QUrl("{}/users/{}".format(route, self.name)))
 
-                action_inspect_in_mordor.triggered.connect(send_the_orcs)
+                menu_add("Send the Orcs", send_the_orcs, True)
+                menu_add("Close Game", lambda: self.lobby.client.closeFA(self.name))
+                menu_add("Close FAF Client", lambda: self.lobby.client.closeLobby(self.name))
 
-                actionCloseFA = QtWidgets.QAction("Close Game", menu)
-                menu.addAction(actionCloseFA)
-                actionCloseFA.triggered.connect(lambda: self.lobby.client.closeFA(self.name))
+        # Aliases link
+        menu_add("View Aliases", self.viewAliases, True)
 
-                actionCloseLobby = QtWidgets.QAction("Close FAF Client", menu)
-                menu.addAction(actionCloseLobby)
-                actionCloseLobby.triggered.connect(lambda: self.lobby.client.closeLobby(self.name))
+        # Joining hosted or live Game
+        if self.lobby.client.login != self.name:  # Don't allow self to be invited to a game, or join one
+            if self.name in client.instance.urls:
 
-            menu.addSeparator()
+                url = client.instance.urls[self.name]
+                if url.scheme() == "fafgame":
+                    menu_add("Join hosted Game", self.joinInGame, True)
+                elif url.scheme() == "faflive":
+                    menu_add("View live Replay", self.viewReplay, True)
 
-        # Adding to menu
-        menu.addSeparator
-        menu.addAction(actionViewAliases)
-        menu.addSeparator()
-        menu.addAction(actionReplay)
-        menu.addAction(actionVaultReplay)
-        menu.addSeparator()
-        menu.addAction(actionJoin)
+        # Replays in vault
+        if self.id != -1:  # not for irc user
+            menu_add("View Replays in Vault", self.viewVaultReplay, True)
 
-        # Actions for the Friends List
-        actionAddFriend = QtWidgets.QAction("Add friend", menu)
-        actionRemFriend = QtWidgets.QAction("Remove friend", menu)
+        # Friends and Foes Lists
+        def player_or_irc_action_connect(f, irc_f):  # Irc or not Irc, that's the Question
+            if self.id != -1:
+                return lambda: f(self.id)
+            else:
+                return lambda: irc_f(self.name)
 
-        # Actions for the Foes List
-        actionAddFoe = QtWidgets.QAction("Add foe", menu)
-        actionRemFoe = QtWidgets.QAction("Remove foe", menu)
-
-        # Triggers
-        if self.id != -1:
-            actionAddFriend.triggered.connect(lambda: self.lobby.client.addFriend(self.id))
-            actionRemFriend.triggered.connect(lambda: self.lobby.client.remFriend(self.id))
-            actionAddFoe.triggered.connect(lambda: self.lobby.client.addFoe(self.id))
-            actionRemFoe.triggered.connect(lambda: self.lobby.client.remFoe(self.id))
-        else:
-            # We're an IRC chatter
-            actionAddFriend.triggered.connect(lambda: self.lobby.client.me.addIrcFriend(self.name))
-            actionRemFriend.triggered.connect(lambda: self.lobby.client.me.remIrcFriend(self.name))
-            actionAddFoe.triggered.connect(lambda: self.lobby.client.me.addIrcFoe(self.name))
-            actionRemFoe.triggered.connect(lambda: self.lobby.client.me.remIrcFoe(self.name))
-
-        # Add actions according to friend status
-        actionAddFriend.setDisabled(True)
-        actionRemFriend.setDisabled(True)
-        actionAddFoe.setDisabled(True)
-        actionRemFoe.setDisabled(True)
-
+        cl = self.lobby.client
         me = self.lobby.client.me
-        if me.player.id == self.id:
-            pass    # We're ourselves
-        elif me.isFriend(self.id, self.name):
-            actionRemFriend.setDisabled(False)# We're a friend
-            menu.addAction(actionRemFriend)
-        elif me.isFoe(self.id, self.name):
-            actionRemFoe.setDisabled(False) # We're a foe
-            menu.addAction(actionRemFoe)
-        else:
-            actionAddFriend.setDisabled(False) # We're neither
-            actionAddFoe.setDisabled(False)
-            menu.addAction(actionAddFriend)
+        if me.player.id == self.id:  # We're ourselves
+            pass
+
+        elif me.isFriend(self.id, self.name):  # We're a friend
+
+            menu_add("Remove friend", player_or_irc_action_connect(cl.remFriend, me.remIrcFriend), True)
+
+        elif me.isFoe(self.id, self.name):  # We're a foe
+
+            menu_add("Remove foe", player_or_irc_action_connect(cl.remFoe, me.remIrcFoe), True)
+
+        else:  # We're neither
+
+            menu_add("Add friend", player_or_irc_action_connect(cl.addFriend, me.addIrcFriend), True)
+
             # FIXME - chatwidget sets mod status very inconsistently
-            # so disable foeing mods for now
-            if not self.isMod():
-                menu.addSeparator()
-                menu.addAction(actionAddFoe)
+            if not self.isMod():  # so disable foeing mods for now
+                menu_add("Add foe", player_or_irc_action_connect(cl.addFoe, me.addIrcFoe))
 
         # Finally: Show the popup
         menu.popup(QtGui.QCursor.pos())
