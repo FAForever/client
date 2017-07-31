@@ -529,7 +529,7 @@ class ReplayVaultWidgetHandler(object):
 
     def finishRequest(self, reply):
         if reply.error() != QNetworkReply.NoError:
-            QtWidgets.QMessageBox.warning(self, "Network Error", reply.errorString())
+            QtWidgets.QMessageBox.warning(self._w, "Network Error", reply.errorString())
         else:
             faf_replay = QtCore.QFile(os.path.join(util.CACHE_DIR, "temp.fafreplay"))
             faf_replay.open(QtCore.QIODevice.WriteOnly | QtCore.QIODevice.Truncate)
