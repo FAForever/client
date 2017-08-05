@@ -15,6 +15,7 @@ from model.gameset import Gameset
 from client.updater import UpdateChecker, UpdateDialog, UpdateSettings
 from client.update_settings import UpdateSettingsDialog
 from client.theme_menu import ThemeMenu
+from client.kick_dialog import KickDialog
 from client.user import User
 import fa
 from connectivity.helper import ConnectivityHelper
@@ -1051,8 +1052,7 @@ class ClientWindow(FormClass, BaseClass):
             self.modMenu.addSeparator()
 
             actionLobbyKick = QtWidgets.QAction("Close player's FAF Client...", self.modMenu)
-            actionLobbyKick.triggered.connect(lambda: util.userNameAction(self, 'Player to kick from Client (do not typo!)',
-                                                                          lambda name: self.closeLobby(name)))
+            actionLobbyKick.triggered.connect(lambda: self.closeLobby())
             self.modMenu.addAction(actionLobbyKick)
 
             actionCloseFA = QtWidgets.QAction("Close Player's Game...", self.modMenu)
@@ -1078,12 +1078,12 @@ class ClientWindow(FormClass, BaseClass):
         if user_id != -1:
             self.lobby_connection.send(dict(command="admin", action="closeFA", user_id=user_id))
 
-    def closeLobby(self, username):
+    def closeLobby(self, username=""):
         """ Close lobby remotely """
-        logger.info('closeLobby for {}'.format(username))
-        user_id = self.players.getID(username)
-        if user_id != -1:
-            self.lobby_connection.send(dict(command="admin", action="closelobby", user_id=user_id))
+        logger.info('Opening kick dialog for {}'.format(username))
+        kick_dialog = KickDialog(self)
+        kick_dialog.reset(username)
+        kick_dialog.show()
 
     def addFriend(self, friend_id):
         if friend_id in self.players:
