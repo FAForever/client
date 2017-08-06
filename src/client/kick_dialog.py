@@ -1,5 +1,7 @@
 from PyQt5 import QtCore, QtWidgets, QtGui
 
+from PyQt5.QtWidgets import QCompleter
+
 import util
 import logging
 
@@ -32,6 +34,10 @@ class KickDialog(FormClass, BaseClass):
         self.sbDuration.setValue(1)
         self.cbPeriod.setEnabled(False)
         self.cbPeriod.setCurrentIndex(1)
+
+        online_players = self.client.players._logins.keys()
+        completer = QCompleter(online_players, self)
+        self.leUsername.setCompleter(completer)
 
     def banChanged(self, newState):
         checked = self.cbBan.isChecked()
