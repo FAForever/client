@@ -1,7 +1,7 @@
 0.x.x
 =====
 
-0.15.2
+0.16.0
 ====
 
 * Fix map names being displayed wrong in host window for a modded game (#786, #787)
