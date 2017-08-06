@@ -278,13 +278,13 @@ def __exportPreviewFromMap(mapname, positions=None):
         mapdir = mapname
     elif os.path.isdir(os.path.join(getUserMapsFolder(), mapname)):
         mapdir = os.path.join(getUserMapsFolder(), mapname)
-    elif os.path.isdir(os.path.join(getBaseMapsFolder(), mapname)):
-        mapdir = os.path.join(getBaseMapsFolder(), mapname)
+    elif os.path.isdir(os.path.join(getBaseMapsFolder(), mapname.upper())):
+        mapdir = os.path.join(getBaseMapsFolder(), mapname.upper())
     else:
         logger.debug("Can't find mapname in file system: " + mapname)
         return previews
 
-    mapname = os.path.basename(mapdir).lower()
+    mapname = os.path.basename(mapdir)
     mapfilename = os.path.join(mapdir, mapname.split(".")[0]+".scmap")
 
     mode = os.stat(mapdir)[0]
