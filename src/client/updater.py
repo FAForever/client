@@ -16,10 +16,12 @@ from PyQt5.QtWidgets import QLabel, QLayout
 from PyQt5.QtCore import QUrl, QObject
 from PyQt5.QtNetwork import QNetworkRequest, QNetworkReply
 
+@with_logger
 class UpdateSettings:
     updater_branch = Settings.persisted_property('updater/branch', type=str, default_value=UpdateBranch.Prerelease.name)
 
     def should_notify(self, releases, force=True):
+        self._logger.debug(releases)
         have_server = 'server' in releases
         have_stable = 'stable' in releases
         have_pre = 'pre' in releases
@@ -183,31 +185,31 @@ class UpdateChecker(QObject):
                 releases = [releases]
             self._logger.debug('Loaded {} github releases'.format(len(releases)))
 
-            beta = None
-            stable = None
-            pre = None
+
+            result = {}
 
             for release in releases:
                 tag = release.get('tag_name')
                 release_version = Version(tag)
-                if beta is None:
+                self._logger.debug("Checking release: {}".format(release_version))
+                if 'beta' not in result:
                     # odd minor version = unstable branch
                     if release_version.minor % 2 == 1:
-                        beta = _parse_release(release)
-                elif stable is None:
+                        self._logger.debug("Found beta: {}".format(release_version))
+                        result['beta'] = _parse_release(release)
+                if 'stable' not in result:
                     # even minor version = stable branch
                     if release_version.minor % 2 == 0 and release_version.prerelease == ():
-                        stable = _parse_release(release)
-                elif pre is None:
+                        self._logger.debug("Found stable: {}".format(release_version))
+                        result['stable'] = _parse_release(release)
+                if 'pre' not in result:
                     if release_version.minor % 2 == 0 and release_version.prerelease != ():
-                        pre = _parse_release(release)
-                else:
+                        self._logger.debug("Found pre: {}".format(release_version))
+                        result['pre'] = _parse_release(release)
+                if 'beta' in result and 'stable' in result and 'pre' in result:
                     break
 
-            return dict(
-                    beta=beta,
-                    stable=stable,
-                    pre=pre)
+            return result
         except:
             self._logger.exception("Error parsing network reply: {}".format(repr(release_info)))
             return dict()
