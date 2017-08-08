@@ -77,7 +77,7 @@ Note that the `faf-uid` smurf protection executable needs to run `xrandr`, `lspc
 
 Run the client:
 
-    cd ./faf-client && ../faf-client-venv/bin/python src/__main__.py
+    cd ./faf-client && PATH=$PATH:./lib ../faf-client-venv/bin/python src/__main__.py
 
 For more information see [the wiki](http://wiki.faforever.com/index.php?title=Setting_Up_FAF_Linux).
 
