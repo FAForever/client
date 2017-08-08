@@ -22,23 +22,28 @@ class UpdateSettings:
 
     def should_notify(self, releases, force=True):
         self._logger.debug(releases)
-        have_server = 'server' in releases
-        have_stable = 'stable' in releases
-        have_pre = 'pre' in releases
-        have_beta = 'beta' in releases
-
         if force:
-            return have_server or have_stable or have_pre or have_beta
-        else:
-            current_version = Version(config.VERSION)
-            # null out build because we don't care about it
-            current_version.build = ()
+            return True
 
-            notify_stable = have_stable and self.updater_branch == UpdateBranch.Stable.name and Version(releases['stable']['new_version']) > current_version
-            notify_pre = have_pre and self.updater_branch == UpdateBranch.Prerelease.name and Version(releases['pre']['new_version']) > current_version
-            notify_beta = have_beta and self.updater_branch == UpdateBranch.Unstable.name and Version(releases['beta']['new_version']) > current_version
+        server_releases = [release for release in releases if release['branch']=='server']
+        stable_releases = [release for release in releases if release['branch']=='stable']
+        pre_releases = [release for release in releases if release['branch']=='pre']
+        beta_releases = [release for release in releases if release['branch']=='beta']
 
-            return have_server or notify_stable or notify_pre or notify_beta
+        have_server = len(server_releases) > 0
+        have_stable = len(stable_releases) > 0
+        have_pre = len(pre_releases) > 0
+        have_beta = len(beta_releases) > 0
+
+        current_version = Version(config.VERSION)
+        # null out build because we don't care about it
+        current_version.build = ()
+
+        notify_stable = have_stable and self.updater_branch == UpdateBranch.Stable.name and Version(stable_releases[0]['new_version']) > current_version
+        notify_pre = have_pre and self.updater_branch == UpdateBranch.Prerelease.name and Version(pre_releases[0]['new_version']) > current_version
+        notify_beta = have_beta and self.updater_branch == UpdateBranch.Unstable.name and Version(beta_releases[0]['new_version']) > current_version
+
+        return have_server or notify_stable or notify_pre or notify_beta
 
 FormClass, BaseClass = util.THEME.loadUiType("client/update.ui")
 
@@ -71,30 +76,37 @@ class UpdateDialog(FormClass, BaseClass):
         self.btnCancel.hide()
         self.btnAbort.setEnabled(True)
 
-        if 'server' in self.releases:
+        current_version = Version(config.VERSION)
+
+        if any([release['branch']=='server' for release in self.releases]):
             self.lblUpdatesFound.setText('Your client version is outdated - you must update to play.')
         else:
-            self.lblUpdatesFound.setText('Client updates were found.')
+            self.lblUpdatesFound.setText('Client releases were found.')
 
         if len(self.releases) > 0:
             currIdx = 0
-            preferIdx = 0
+            preferIdx = None
 
+            labels = dict([('server', 'Server Version'), ('stable', 'Stable Version'), ('pre', 'Stable Prerelease'), ('beta', 'Unstable')])
             self.cbReleases.blockSignals(True)
             self.cbReleases.clear()
-            for release_key in [('server', 'Server Version'), ('stable', 'Stable Version'), ('pre', 'Stable Prerelease'), ('beta', 'Unstable')]:
-                key = release_key[0]
-                label = release_key[1]
-                if key in self.releases:
-                    self._logger.debug(self.releases[key])
-                    self.cbReleases.insertItem(99, '{} {}'.format(label, self.releases[key]['new_version']), self.releases[key])
+            for currIdx, release in enumerate(self.releases):
+                self._logger.debug(release)
 
-                    branch_to_key = dict(Stable='stable', Prerelease='pre', Unstable='beta')
+                key = release['branch']
+                label = labels[key]
+                branch_to_key = dict(Stable='stable', Prerelease='pre', Unstable='beta')
+                prefer = key == branch_to_key[UpdateSettings().updater_branch]
 
-                    if key == branch_to_key[UpdateSettings().updater_branch]:
-                        preferIdx = currIdx
+                is_update = ' [New!]' if Version(release['new_version']) > current_version else ''
 
-                    currIdx = currIdx + 1
+                self.cbReleases.insertItem(99, '{} {}{}'.format(label, release['new_version'], is_update), release)
+
+                if prefer and preferIdx is None:
+                    preferIdx = currIdx
+
+            if preferIdx is None:
+                preferIdx = 0
 
             self.cbReleases.setCurrentIndex(preferIdx)
             self.indexChanged(preferIdx)
@@ -141,13 +153,9 @@ class UpdateDialog(FormClass, BaseClass):
 @with_logger
 class UpdateChecker(QObject):
     gh_releases_url = Settings.persisted_property('updater/gh_release_url', type=str, default_value='https://api.github.com/repos/FAForever/client/releases?per_page=20')
+    updater_downgrade = Settings.persisted_property('updater/downgrade', type=bool, default_value=False)
 
-    # Signal that contains Unstable Release (from Github), Prerelease (from Github),
-    # Stable Release (from Github) and Minimum Release (from Server)
-    # dict members:
-    #   new_version: version string
-    #   update: url
-    finished = QtCore.pyqtSignal(dict)
+    finished = QtCore.pyqtSignal(list)
 
     def __init__(self, parent, respect_notify=True):
         QObject.__init__(self, parent)
@@ -172,11 +180,34 @@ class UpdateChecker(QObject):
 
     def _parse_releases(self, release_info):
         def _parse_release(release_dict):
+            client_version = Version(config.VERSION)
             for asset in release_dict['assets']:
                 if '.msi' in asset['browser_download_url']:
                     download_url = asset['browser_download_url']
                     tag = release_dict['tag_name']
+                    release_version = Version(tag)
+                    # We never want to return the current version itself,
+                    # but if `updater_downgrade` is set, we do return
+                    # older releases.
+                    # strange comparison logic is because of semantic_version
+                    # so that build info is ignored
+                    if self.updater_downgrade:
+                        if not (release_version < client_version or client_version < release_version):
+                            return None
+                    else:
+                        if not (release_version > client_version):
+                            return None
+
+                    branch = None
+                    if v.minor % 2 == 1:
+                        branch = 'beta'
+                    elif v.minor % 2 == 0:
+                        if v.prerelease == ():
+                            branch = 'stable'
+                        else:
+                            branch = 'pre'
                     return dict(
+                            branch=branch,
                             update=download_url,
                             new_version=tag)
         try:
@@ -185,40 +216,16 @@ class UpdateChecker(QObject):
                 releases = [releases]
             self._logger.debug('Loaded {} github releases'.format(len(releases)))
 
-
-            result = {}
-
-            for release in releases:
-                tag = release.get('tag_name')
-                release_version = Version(tag)
-                self._logger.debug("Checking release: {}".format(release_version))
-                if 'beta' not in result:
-                    # odd minor version = unstable branch
-                    if release_version.minor % 2 == 1:
-                        self._logger.debug("Found beta: {}".format(release_version))
-                        result['beta'] = _parse_release(release)
-                if 'stable' not in result:
-                    # even minor version = stable branch
-                    if release_version.minor % 2 == 0 and release_version.prerelease == ():
-                        self._logger.debug("Found stable: {}".format(release_version))
-                        result['stable'] = _parse_release(release)
-                if 'pre' not in result:
-                    if release_version.minor % 2 == 0 and release_version.prerelease != ():
-                        self._logger.debug("Found pre: {}".format(release_version))
-                        result['pre'] = _parse_release(release)
-                if 'beta' in result and 'stable' in result and 'pre' in result:
-                    break
-
-            return result
+            return [ release for release in [_parse_release(release) for release in releases] if release is not None]
         except:
             self._logger.exception("Error parsing network reply: {}".format(repr(release_info)))
-            return dict()
+            return []
 
     def _req_done(self):
         if self._rep.error() == QNetworkReply.NoError:
             self._releases = self._parse_releases(bytes(self._rep.readAll()))
         else:
-            self._releases = {}
+            self._releases = []
 
         self._check_updates_complete()
 
@@ -226,11 +233,13 @@ class UpdateChecker(QObject):
         if self._server_info is not None and self._releases is not None:
             releases = self._releases
             if self._server_info != {}:
-                releases['server'] = self._server_info
+                releases.append(dict(
+                    branch='server',
+                    update=self._server_info['update'],
+                    new_version=self._server_info['new_version']
+                    ))
             if UpdateSettings().should_notify(releases, force = not self.respect_notify):
                 self.finished.emit(releases)
-
-
 
 @with_logger
 class ClientUpdater(QObject):

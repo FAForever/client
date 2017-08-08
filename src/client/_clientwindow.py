@@ -1,7 +1,7 @@
 from functools import partial
 
 from PyQt5.QtCore import QUrl, QProcess
-from PyQt5.QtWidgets import QLabel
+from PyQt5.QtWidgets import QLabel, QMessageBox
 
 import config
 import connectivity
@@ -622,11 +622,14 @@ class ClientWindow(FormClass, BaseClass):
         self.lobby_connection.disconnect()
         self.chat.disconnect()
 
-    @QtCore.pyqtSlot(dict)
+    @QtCore.pyqtSlot(list)
     def update_checked(self, releases):
-        update_dialog = UpdateDialog(self)
-        update_dialog.setup(releases)
-        update_dialog.show()
+        if len(releases) > 0:
+            update_dialog = UpdateDialog(self)
+            update_dialog.setup(releases)
+            update_dialog.show()
+        else:
+            QMessageBox(self,"No updates found", "No client updates were found")
 
     @QtCore.pyqtSlot()
     def cleanup(self):
