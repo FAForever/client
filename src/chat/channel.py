@@ -19,6 +19,7 @@ FormClass, BaseClass = util.THEME.loadUiType("chat/channel.ui")
 
 
 class IRCPlayer(Player):
+
     def __init__(self, name):
         Player.__init__(self, **{
             "id_": -1,
@@ -30,19 +31,21 @@ class IRCPlayer(Player):
 
 
 class Formatters(object):
-    FORMATTER_ANNOUNCEMENT   = str(util.THEME.readfile("chat/formatters/announcement.qthtml"))
-    FORMATTER_MESSAGE        = str(util.THEME.readfile("chat/formatters/message.qthtml"))
+    FORMATTER_ANNOUNCEMENT = str(util.THEME.readfile("chat/formatters/announcement.qthtml"))
+    FORMATTER_MESSAGE = str(util.THEME.readfile("chat/formatters/message.qthtml"))
     FORMATTER_MESSAGE_AVATAR = str(util.THEME.readfile("chat/formatters/messageAvatar.qthtml"))
-    FORMATTER_ACTION         = str(util.THEME.readfile("chat/formatters/action.qthtml"))
-    FORMATTER_ACTION_AVATAR  = str(util.THEME.readfile("chat/formatters/actionAvatar.qthtml"))
-    FORMATTER_RAW            = str(util.THEME.readfile("chat/formatters/raw.qthtml"))
-    NICKLIST_COLUMNS         = json.loads(util.THEME.readfile("chat/formatters/nicklist_columns.json"))
+    FORMATTER_ACTION = str(util.THEME.readfile("chat/formatters/action.qthtml"))
+    FORMATTER_ACTION_AVATAR = str(util.THEME.readfile("chat/formatters/actionAvatar.qthtml"))
+    FORMATTER_RAW = str(util.THEME.readfile("chat/formatters/raw.qthtml"))
+    NICKLIST_COLUMNS = json.loads(util.THEME.readfile("chat/formatters/nicklist_columns.json"))
 
 
 class Channel(FormClass, BaseClass):
+
     """
     This is an actual chat channel object, representing an IRC chat room and the users currently present.
     """
+
     def __init__(self, lobby, name, private=False, *args, **kwargs):
         BaseClass.__init__(self, lobby, *args, **kwargs)
 
@@ -52,7 +55,7 @@ class Channel(FormClass, BaseClass):
         self.lobby = lobby
         self.chatters = {}
 
-        self.lasttimestamp= None
+        self.lasttimestamp = None
 
         # Query flasher
         self.blinker = QtCore.QTimer()
@@ -172,7 +175,7 @@ class Channel(FormClass, BaseClass):
 
         if not self.isVisible():
             if not self.blinker.isActive() and not self == self.lobby.currentWidget():
-                    self.startBlink()
+                self.startBlink()
 
     @QtCore.pyqtSlot(QtCore.QUrl)
     def openUrl(self, url):
@@ -185,7 +188,7 @@ class Channel(FormClass, BaseClass):
             QtGui.QDesktopServices.openUrl(url)
 
     @QtCore.pyqtSlot(str, str)
-    def printAnnouncement(self, text, color, size, scroll_forced = True):
+    def printAnnouncement(self, text, color, size, scroll_forced=True):
         # scroll if close to the last line of the log
         scroll_current = self.chatArea.verticalScrollBar().value()
         scroll_needed = scroll_forced or ((self.chatArea.verticalScrollBar().maximum() - scroll_current) < 20)
@@ -254,7 +257,7 @@ class Channel(FormClass, BaseClass):
             pix = util.respix(avatar)
             if pix:
                 if not self.chatArea.document().resource(QtGui.QTextDocument.ImageResource, QtCore.QUrl(avatar)):
-                    self.chatArea.document().addResource(QtGui.QTextDocument.ImageResource,  QtCore.QUrl(avatar), pix)
+                    self.chatArea.document().addResource(QtGui.QTextDocument.ImageResource, QtCore.QUrl(avatar), pix)
                 line = formatter.format(time=self.timestamp(), avatar=avatar, avatarTip=avatarTip, name=displayName,
                                         color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))
             else:
@@ -415,7 +418,6 @@ class Channel(FormClass, BaseClass):
             self.chatters[newname] = chatter
             chatter.update()
 
-
     def removeChatter(self, name, server_action=None):
         if name in self.chatters:
             self.nickList.removeRow(self.chatters[name].row())
@@ -427,10 +429,9 @@ class Channel(FormClass, BaseClass):
 
         self.updateUserCount()
 
-    def setAnnounceText(self,text):
+    def setAnnounceText(self, text):
         self.announceLine.clear()
         self.announceLine.setText("<style>a{color:cornflowerblue}</style><b><font color=white>" + util.irc_escape(text) + "</font></b>")
-
 
     @QtCore.pyqtSlot()
     def sendLine(self, target=None):

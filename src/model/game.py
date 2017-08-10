@@ -157,23 +157,23 @@ class Game(QObject):
 
     def to_dict(self):
         return {
-                "uid": self.uid,
-                "state": self.state.name,
-                "launched_at": self.launched_at,
-                "num_players": self.num_players,
-                "max_players": self.max_players,
-                "title": self.title,
-                "host": self.host,
-                "mapname": self.mapname,
-                "map_file_path": self.map_file_path,
-                "teams": self.teams,
-                "featured_mod": self.featured_mod,
-                "featured_mod_versions": self.featured_mod_versions,
-                "sim_mods": self.sim_mods,
-                "password_protected": self.password_protected,
-                "visibility": self.visibility.name,
-                "command": "game_info"  # For compatibility
-            }
+            "uid": self.uid,
+            "state": self.state.name,
+            "launched_at": self.launched_at,
+            "num_players": self.num_players,
+            "max_players": self.max_players,
+            "title": self.title,
+            "host": self.host,
+            "mapname": self.mapname,
+            "map_file_path": self.map_file_path,
+            "teams": self.teams,
+            "featured_mod": self.featured_mod,
+            "featured_mod_versions": self.featured_mod_versions,
+            "sim_mods": self.sim_mods,
+            "password_protected": self.password_protected,
+            "visibility": self.visibility.name,
+            "command": "game_info"  # For compatibility
+        }
 
     def url(self, player_id):
         if self.state == GameState.CLOSED:

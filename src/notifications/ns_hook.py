@@ -14,6 +14,7 @@ self.button.clicked.connect(self.dialog.show)
 
 
 class NsHook():
+
     def __init__(self, eventType):
         self.eventType = eventType
         self._settings_key = 'notifications/{}'.format(eventType)
@@ -26,8 +27,8 @@ class NsHook():
         self.sound = Settings.get(self._settings_key + '/sound', True, type=bool)
 
     def saveSettings(self):
-        Settings.set(self._settings_key+'/popup', self.popup)
-        Settings.set(self._settings_key+'/sound', self.sound)
+        Settings.set(self._settings_key + '/popup', self.popup)
+        Settings.set(self._settings_key + '/sound', self.sound)
 
     def getEventDisplayName(self):
         return self.eventType

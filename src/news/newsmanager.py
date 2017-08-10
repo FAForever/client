@@ -111,7 +111,7 @@ class NewsManager(QObject):
         elif idx == self.npages - 1:
             client.instance.nextPageButton.setEnabled(False)
             # download next page
-            self.WpApi.download(page=self.npages+1, perpage=self.FRAMES)
+            self.WpApi.download(page=self.npages + 1, perpage=self.FRAMES)
 
         firstNewsIdx = idx * self.FRAMES
 

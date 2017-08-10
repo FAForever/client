@@ -11,6 +11,7 @@ Settings for notifications: if a player comes online
 
 
 class NsHookUserOnline(NsHook):
+
     def __init__(self):
         NsHook.__init__(self, ns.Notifications.USER_ONLINE)
         self.button.setEnabled(True)
@@ -21,6 +22,7 @@ FormClass, BaseClass = util.THEME.loadUiType("notification_system/user_online.ui
 
 
 class UserOnlineDialog(FormClass, BaseClass):
+
     def __init__(self, parent, eventType):
         BaseClass.__init__(self)
         self.parent = parent
@@ -34,7 +36,7 @@ class UserOnlineDialog(FormClass, BaseClass):
         self.loadSettings()
 
     def loadSettings(self):
-        self.mode = Settings.get(self._settings_key+'/mode', 'friends')
+        self.mode = Settings.get(self._settings_key + '/mode', 'friends')
 
         if self.mode == 'friends':
             self.radioButtonFriends.setChecked(True)
@@ -43,7 +45,7 @@ class UserOnlineDialog(FormClass, BaseClass):
         self.parent.mode = self.mode
 
     def saveSettings(self):
-        Settings.set(self._settings_key+'/mode', self.mode)
+        Settings.set(self._settings_key + '/mode', self.mode)
         self.parent.mode = self.mode
 
     @QtCore.pyqtSlot()

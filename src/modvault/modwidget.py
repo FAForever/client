@@ -1,5 +1,7 @@
 
-import urllib.request, urllib.error, urllib.parse
+import urllib.request
+import urllib.error
+import urllib.parse
 
 from PyQt5 import QtCore, QtWidgets
 
@@ -10,6 +12,7 @@ FormClass, BaseClass = util.THEME.loadUiType("modvault/mod.ui")
 
 
 class ModWidget(FormClass, BaseClass):
+
     def __init__(self, parent, mod, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
 
@@ -25,15 +28,16 @@ class ModWidget(FormClass, BaseClass):
         self.Title.setText(mod.name)
         self.Description.setText(mod.description)
         modtext = ""
-        if mod.isuimod: modtext = "UI mod\n"
+        if mod.isuimod:
+            modtext = "UI mod\n"
         self.Info.setText(modtext + "By %s\nUploaded %s" % (mod.author, str(mod.date)))
         if mod.thumbnail == None:
             self.Picture.setPixmap(util.THEME.pixmap("games/unknown_map.png"))
         else:
             self.Picture.setPixmap(mod.thumbnail.pixmap(100, 100))
 
-        #self.Comments.setItemDelegate(CommentItemDelegate(self))
-        #self.BugReports.setItemDelegate(CommentItemDelegate(self))
+        # self.Comments.setItemDelegate(CommentItemDelegate(self))
+        # self.BugReports.setItemDelegate(CommentItemDelegate(self))
 
         self.tabWidget.setEnabled(False)
 
@@ -41,15 +45,15 @@ class ModWidget(FormClass, BaseClass):
             self.DownloadButton.setText("Remove Mod")
         self.DownloadButton.clicked.connect(self.download)
 
-        #self.likeButton.clicked.connect(self.like)
-        #self.LineComment.returnPressed.connect(self.addComment)
-        #self.LineBugReport.returnPressed.connect(self.addBugReport)
+        # self.likeButton.clicked.connect(self.like)
+        # self.LineComment.returnPressed.connect(self.addComment)
+        # self.LineBugReport.returnPressed.connect(self.addBugReport)
 
-        #for item in mod.comments:
+        # for item in mod.comments:
         #    comment = CommentItem(self,item["uid"])
         #    comment.update(item)
         #    self.Comments.addItem(comment)
-        #for item in mod.bugreports:
+        # for item in mod.bugreports:
         #    comment = CommentItem(self,item["uid"])
         #    comment.update(item)
         #    self.BugReports.addItem(comment)
@@ -124,11 +128,11 @@ class CommentItemDelegate(QtWidgets.QStyledItemDelegate):
         html = QtGui.QTextDocument()
         html.setHtml(option.text)
 
-        option.text = ""  
+        option.text = ""
         option.widget.style().drawControl(QtWidgets.QStyle.CE_ItemViewItem, option, painter, option.widget)
 
         # Description
-        painter.translate(option.rect.left() + 10, option.rect.top()+10)
+        painter.translate(option.rect.left() + 10, option.rect.top() + 10)
         clip = QtCore.QRectF(0, 0, option.rect.width(), option.rect.height())
         html.drawContents(painter, clip)
 

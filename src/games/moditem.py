@@ -15,6 +15,7 @@ mod_favourites = {}  # LATER: Make these saveable and load them from settings
 
 
 class ModItem(QtWidgets.QListWidgetItem):
+
     def __init__(self, message, *args, **kwargs):
         QtWidgets.QListWidgetItem.__init__(self, *args, **kwargs)
 
@@ -23,7 +24,7 @@ class ModItem(QtWidgets.QListWidgetItem):
         self.name = message["fullname"]
         # Load Icon and Tooltip
 
-        tip = message["desc"]      
+        tip = message["desc"]
         self.setToolTip(tip)
 
         icon = util.THEME.icon(os.path.join("games/mods/", self.mod + ".png"))
@@ -35,7 +36,7 @@ class ModItem(QtWidgets.QListWidgetItem):
             color = client.instance.getColor("self")
         else:
             color = client.instance.getColor("player")
-            
+
         self.setForeground(QtGui.QColor(color))
         self.setText(self.name)
 

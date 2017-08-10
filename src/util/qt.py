@@ -3,6 +3,7 @@ from PyQt5.QtGui import QDesktopServices
 
 
 class ExternalLinkPage(QWebEnginePage):
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

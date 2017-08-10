@@ -58,7 +58,9 @@ import util
 import logging
 import time
 logger = logging.getLogger(__name__)
-import urllib.request, urllib.error, urllib.parse
+import urllib.request
+import urllib.error
+import urllib.parse
 
 from util import datetostr, now
 d = datetostr(now())
@@ -73,6 +75,7 @@ FormClass, BaseClass = util.THEME.loadUiType("modvault/modvault.ui")
 
 
 class ModVault(FormClass, BaseClass, BusyWidget):
+
     def __init__(self, client, *args, **kwargs):
         QtCore.QObject.__init__(self, *args, **kwargs)
 
@@ -173,7 +176,7 @@ class ModVault(FormClass, BaseClass, BusyWidget):
     @QtCore.pyqtSlot()
     def openUploadForm(self):
         modDir = QtWidgets.QFileDialog.getExistingDirectory(self.client, "Select the mod directory to upload",
-                                                            MODFOLDER,  QtWidgets.QFileDialog.ShowDirsOnly)
+                                                            MODFOLDER, QtWidgets.QFileDialog.ShowDirsOnly)
         logger.debug("Uploading mod from: " + modDir)
         if modDir != "":
             if isModFolderValid(modDir):
@@ -247,14 +250,14 @@ class ModItemDelegate(QtWidgets.QStyledItemDelegate):
 
         # clear icon and text before letting the control draw itself because we're rendering these parts ourselves
         option.icon = QtGui.QIcon()
-        option.text = ""  
+        option.text = ""
         option.widget.style().drawControl(QtWidgets.QStyle.CE_ItemViewItem, option, painter, option.widget)
 
         # Shadow
-        painter.fillRect(option.rect.left()+8-1, option.rect.top()+8-1, iconsize.width(), iconsize.height(), QtGui.QColor("#202020"))
+        painter.fillRect(option.rect.left() + 8 - 1, option.rect.top() + 8 - 1, iconsize.width(), iconsize.height(), QtGui.QColor("#202020"))
 
         # Icon
-        icon.paint(painter, option.rect.adjusted(5-2, -2, 0, 0), QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
+        icon.paint(painter, option.rect.adjusted(5 - 2, -2, 0, 0), QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
 
         # Frame around the icon
         pen = QtGui.QPen()
@@ -262,11 +265,11 @@ class ModItemDelegate(QtWidgets.QStyledItemDelegate):
         pen.setBrush(QtGui.QColor("#303030"))  # FIXME: This needs to come from theme.
         pen.setCapStyle(QtCore.Qt.RoundCap)
         painter.setPen(pen)
-        painter.drawRect(option.rect.left()+5-2, option.rect.top()+3, iconsize.width(), iconsize.height())
+        painter.drawRect(option.rect.left() + 5 - 2, option.rect.top() + 3, iconsize.width(), iconsize.height())
 
         # Description
-        painter.translate(option.rect.left() + iconsize.width() + 10, option.rect.top()+4)
-        clip = QtCore.QRectF(0, 0, option.rect.width()-iconsize.width() - 10 - 5, option.rect.height())
+        painter.translate(option.rect.left() + iconsize.width() + 10, option.rect.top() + 4)
+        clip = QtCore.QRectF(0, 0, option.rect.width() - iconsize.width() - 10 - 5, option.rect.height())
         html.drawContents(painter, clip)
 
         painter.restore()
@@ -277,14 +280,14 @@ class ModItemDelegate(QtWidgets.QStyledItemDelegate):
         html = QtGui.QTextDocument()
         html.setHtml(option.text)
         html.setTextWidth(ModItem.TEXTWIDTH)
-        return QtCore.QSize(ModItem.ICONSIZE + ModItem.TEXTWIDTH + ModItem.PADDING, ModItem.ICONSIZE + ModItem.PADDING)   
+        return QtCore.QSize(ModItem.ICONSIZE + ModItem.TEXTWIDTH + ModItem.PADDING, ModItem.ICONSIZE + ModItem.PADDING)
 
 
 class ModItem(QtWidgets.QListWidgetItem):
     TEXTWIDTH = 230
     ICONSIZE = 100
     PADDING = 10
-    
+
     WIDTH = ICONSIZE + TEXTWIDTH
     #DATA_PLAYERS = 32
 
@@ -349,7 +352,7 @@ class ModItem(QtWidgets.QListWidgetItem):
         p = self.parent
         if p.searchString != "":
             if not (self.author.lower().find(p.searchString) != -1 or self.name.lower().find(p.searchString) != -1 or
-                            self.description.lower().find(" " + p.searchString + " ") != -1):
+                    self.description.lower().find(" " + p.searchString + " ") != -1):
                 return False
         if p.showType == "all":
             return True

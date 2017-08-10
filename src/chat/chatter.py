@@ -3,7 +3,9 @@ from PyQt5.QtCore import QUrl
 from PyQt5.QtNetwork import QNetworkRequest
 from chat._avatarWidget import avatarWidget
 
-import urllib.request, urllib.error, urllib.parse
+import urllib.request
+import urllib.error
+import urllib.parse
 import chat
 from fa.replay import replay
 import util
@@ -95,8 +97,10 @@ class Chatter(QtWidgets.QTableWidgetItem):
         firstStatus = self.getUserRank(self)
         secondStatus = self.getUserRank(other)
 
-        if self.name == self.lobby.client.login: return True
-        if other.name == self.lobby.client.login: return False
+        if self.name == self.lobby.client.login:
+            return True
+        if other.name == self.lobby.client.login:
+            return False
 
         # if not same rank sort
         if firstStatus != secondStatus:
@@ -179,7 +183,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
 
         self.clan = player.clan
         if self.clan is not None:
-            self.setText("[%s]%s" % (self.clan,self.name))
+            self.setText("[%s]%s" % (self.clan, self.name))
 
         rating = self.rating
         ladder_rating = player.ladder_estimate()
@@ -189,10 +193,10 @@ class Chatter(QtWidgets.QTableWidgetItem):
         if url:
             if url.scheme() == "fafgame":
                 self.statusItem.setIcon(util.THEME.icon("chat/status/lobby.png"))
-                self.statusItem.setToolTip("In Game Lobby<br/>"+url.toString())
+                self.statusItem.setToolTip("In Game Lobby<br/>" + url.toString())
             elif url.scheme() == "faflive":
                 self.statusItem.setIcon(util.THEME.icon("chat/status/playing.png"))
-                self.statusItem.setToolTip("Playing Game<br/>"+url.toString())
+                self.statusItem.setToolTip("Playing Game<br/>" + url.toString())
         else:
             self.statusItem.setIcon(QtGui.QIcon())
             self.statusItem.setToolTip("Idle")

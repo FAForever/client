@@ -92,10 +92,12 @@ DEBUG = 0
 
 
 class IRCError(Exception):
+
     """Represents an IRC exception."""
 
 
 class IRC:
+
     """Class that handles one or several IRC server connections.
 
     When an IRC object has been instantiated, it can be used to create
@@ -287,7 +289,7 @@ class IRC:
 
             arguments -- Arguments to give the function.
         """
-        self.execute_delayed(at-time.time(), function, arguments)
+        self.execute_delayed(at - time.time(), function, arguments)
 
     def execute_delayed(self, delay, function, arguments=()):
         """Execute a function after a specified time.
@@ -300,7 +302,7 @@ class IRC:
 
             arguments -- Arguments to give the function.
         """
-        bisect.insort(self.delayed_commands, (delay+time.time(), function, arguments))
+        bisect.insort(self.delayed_commands, (delay + time.time(), function, arguments))
         if self.fn_to_add_timeout:
             self.fn_to_add_timeout(delay)
 
@@ -335,10 +337,12 @@ _rfc_1459_command_regexp = re.compile("^(:(?P<prefix>[^ ]+) +)?(?P<command>[^ ]+
 
 
 class Connection:
+
     """Base class for IRC connections.
 
     Must be overridden.
     """
+
     def __init__(self, irclibobj):
         self.irclibobj = irclibobj
 
@@ -369,6 +373,7 @@ _linesep_regexp = re.compile(b"\r?\n")
 
 
 class ServerConnection(Connection):
+
     """This class represents an IRC server connection.
 
     ServerConnection objects are instantiated by calling the server
@@ -493,9 +498,9 @@ class ServerConnection(Connection):
         """[Internal]"""
         try:
             if self.ssl:
-                new_data = self.ssl.read(2**14)
+                new_data = self.ssl.read(2 ** 14)
             else:
-                new_data = self.socket.recv(2**14)
+                new_data = self.socket.recv(2 ** 14)
         except socket.timeout:
             # Nothing was interesting
             pass
@@ -518,10 +523,10 @@ class ServerConnection(Connection):
 
             try:
                 line = line.decode("utf-8", "replace")   # utf-8 support hacked in by thygrrr (may break in some scenarios - see chardet python package)
-            except:            
+            except:
                 print("irclib: non-utf-8 line, unexpected encoding error " + line)
                 line = "** encoding error - replaced by irclib.py **"
-                
+
             prefix = None
             command = None
             arguments = None
@@ -798,9 +803,9 @@ class ServerConnection(Connection):
             raise ServerNotConnectedError("Not connected.")
         try:
             if self.ssl:
-                self.ssl.write((string + "\r\n").encode("utf-8"))     #FIXME utf-8 support hacked in by thygrrrc(may break in some scenarios)
+                self.ssl.write((string + "\r\n").encode("utf-8"))  # FIXME utf-8 support hacked in by thygrrrc(may break in some scenarios)
             else:
-                self.socket.send((string + "\r\n").encode("utf-8"))   #FIXME utf-8 support hacked in by thygrrr (may break in some scenarios)
+                self.socket.send((string + "\r\n").encode("utf-8"))  # FIXME utf-8 support hacked in by thygrrr (may break in some scenarios)
             if DEBUG:
                 print("TO SERVER:", string)
         except socket.error as x:
@@ -870,11 +875,13 @@ class DCCConnectionError(IRCError):
 
 
 class DCCConnection(Connection):
+
     """This class represents a DCC connection.
 
     DCCConnection objects are instantiated by calling the dcc
     method on an IRC object.
     """
+
     def __init__(self, irclibobj, dcctype):
         Connection.__init__(self, irclibobj)
         self.connected = 0
@@ -969,7 +976,7 @@ class DCCConnection(Connection):
             return
 
         try:
-            new_data = self.socket.recv(2**14)
+            new_data = self.socket.recv(2 ** 14)
         except socket.error as x:
             # The server hung up.
             self.disconnect("Connection reset by peer")
@@ -986,7 +993,7 @@ class DCCConnection(Connection):
 
             # Save the last, unfinished line.
             self.previous_buffer = chunks[-1]
-            if len(self.previous_buffer) > 2**14:
+            if len(self.previous_buffer) > 2 ** 14:
                 # Bad peer! Naughty peer!
                 self.disconnect()
                 return
@@ -1030,6 +1037,7 @@ class DCCConnection(Connection):
 
 
 class SimpleIRCClient:
+
     """A simple single-server IRC client class.
 
     This is an example of an object-oriented wrapper of the IRC
@@ -1050,6 +1058,7 @@ class SimpleIRCClient:
 
         dcc_connections -- A list of DCCConnection instances.
     """
+
     def __init__(self):
         self.ircobj = IRC()
         self.connection = self.ircobj.server()
@@ -1071,7 +1080,7 @@ class SimpleIRCClient:
         self.dcc_connections.remove(c)
 
     def irc_connect(self, server, port, nickname, password=None, username=None,
-                ircname=None, localaddress="", localport=0, ssl=False, ipv6=False):
+                    ircname=None, localaddress="", localport=0, ssl=False, ipv6=False):
         """Connect/reconnect to a server.
 
         Arguments:
@@ -1104,7 +1113,7 @@ class SimpleIRCClient:
 
     def irc_disconnect(self, message="ctrl-k"):
         self.connection.disconnect(message)
-        
+
     def dcc_connect(self, address, port, dcctype="chat"):
         """Connect to a DCC peer.
 
@@ -1141,7 +1150,9 @@ class SimpleIRCClient:
 
 
 class Event:
+
     """Class representing an IRC event."""
+
     def __init__(self, eventtype, source, target, arguments=None):
         """Constructor of Event objects.
 
@@ -1257,14 +1268,14 @@ def _ctcp_dequote(message):
 
         messages = []
         i = 0
-        while i < len(chunks)-1:
+        while i < len(chunks) - 1:
             # Add message if it's non-empty.
             if len(chunks[i]) > 0:
                 messages.append(chunks[i])
 
-            if i < len(chunks)-2:
+            if i < len(chunks) - 2:
                 # Aye!  CTCP tagged data ahead!
-                messages.append(tuple(chunks[i+1].split(" ", 1)))
+                messages.append(tuple(chunks[i + 1].split(" ", 1)))
 
             i = i + 2
 
@@ -1292,7 +1303,7 @@ def ip_numstr_to_quad(num):
     (e.g. '192.168.0.1')."""
     n = int(num)
     p = list(map(str, list(map(int, [n >> 24 & 0xFF, n >> 16 & 0xFF,
-                           n >> 8 & 0xFF, n & 0xFF]))))
+                                     n >> 8 & 0xFF, n & 0xFF]))))
     return ".".join(p)
 
 
@@ -1533,7 +1544,7 @@ numeric_events = {
     "423": "noadmininfo",
     "424": "fileerror",
     "431": "nonicknamegiven",
-    "432": "erroneusnickname", # Thiss iz how its speld in thee RFC.
+    "432": "erroneusnickname",  # Thiss iz how its speld in thee RFC.
     "433": "nicknameinuse",
     "436": "nickcollision",
     "437": "unavailresource",  # "Nick temporally unavailable"
@@ -1548,7 +1559,7 @@ numeric_events = {
     "462": "alreadyregistered",
     "463": "nopermforhost",
     "464": "passwdmismatch",
-    "465": "yourebannedcreep", # I love this one...
+    "465": "yourebannedcreep",  # I love this one...
     "466": "youwillbebanned",
     "467": "keyset",
     "471": "channelisfull",

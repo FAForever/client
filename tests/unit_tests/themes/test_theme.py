@@ -4,15 +4,15 @@ from util import Theme
 from semantic_version import Version
 
 THEME_FILE_FUNS = [
-        "pixmap",
-        "loadUi",
-        "loadUiType",
-        "readlines",
-        "readstylesheet",
-        "themeurl",
-        "readfile",
-        "sound",
-        ]
+    "pixmap",
+    "loadUi",
+    "loadUiType",
+    "readlines",
+    "readstylesheet",
+    "themeurl",
+    "readfile",
+    "sound",
+]
 
 
 def test_theme_with_empty_dir_keeps_filename(tmpdir):
@@ -71,7 +71,7 @@ def test_version_correctly_read(tmpdir):
 
 
 def test_pixmap_cache_caches(tmpdir, mocker):
-    with mocker.patch('PyQt5.QtGui.QPixmap', side_effect = [1, 2]) as pixmock:
+    with mocker.patch('PyQt5.QtGui.QPixmap', side_effect=[1, 2]) as pixmock:
         themedir = tmpdir.mkdir("theme")
         themedir.join("file").write("content")
         themedir.join("second_file").write("content")

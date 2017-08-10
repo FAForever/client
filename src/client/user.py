@@ -4,6 +4,7 @@ from enum import Enum
 
 
 class UserRelation(QtCore.QObject):
+
     """
     Represents some sort of relation user has with other players.
     """
@@ -34,6 +35,7 @@ class UserRelation(QtCore.QObject):
 
 
 class IrcUserRelation(UserRelation):
+
     """
     Represents a relation user has with IRC users. Remembers the relation
     in the Settings.
@@ -85,6 +87,7 @@ class PlayerAffiliation(Enum):
 
 
 class User(QtCore.QObject):
+
     """
     Represents the person using the FAF Client. May have a player assigned to
     himself if he's logged in, has foes, friends and clannies.

@@ -10,45 +10,45 @@ from games.moditem import mods
 
 
 class ReplayItemDelegate(QtWidgets.QStyledItemDelegate):
-    
+
     def __init__(self, *args, **kwargs):
         QtWidgets.QStyledItemDelegate.__init__(self, *args, **kwargs)
-        
+
     def paint(self, painter, option, index, *args, **kwargs):
         self.initStyleOption(option, index)
-                
+
         painter.save()
-        
+
         html = QtGui.QTextDocument()
         html.setHtml(option.text)
-        
+
         icon = QtGui.QIcon(option.icon)
         iconsize = icon.actualSize(option.rect.size())
-        
+
         # clear icon and text before letting the control draw itself because we're rendering these parts ourselves
         option.icon = QtGui.QIcon()
-        option.text = ""  
+        option.text = ""
         option.widget.style().drawControl(QtWidgets.QStyle.CE_ItemViewItem, option, painter, option.widget)
-        
+
         # Shadow
         # painter.fillRect(option.rect.left()+8-1, option.rect.top()+8-1, iconsize.width(), iconsize.height(), QtGui.QColor("#202020"))
 
         # Icon
-        icon.paint(painter, option.rect.adjusted(5-2, -2, 0, 0), QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
-        
+        icon.paint(painter, option.rect.adjusted(5 - 2, -2, 0, 0), QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
+
         # Frame around the icon
 #        pen = QtWidgets.QPen()
 #        pen.setWidth(1)
-#        pen.setBrush(QtGui.QColor("#303030"))  #FIXME: This needs to come from theme.
+# pen.setBrush(QtGui.QColor("#303030"))  #FIXME: This needs to come from theme.
 #        pen.setCapStyle(QtCore.Qt.RoundCap)
 #        painter.setPen(pen)
 #        painter.drawRect(option.rect.left()+5-2, option.rect.top()+5-2, iconsize.width(), iconsize.height())
 
         # Description
         painter.translate(option.rect.left() + iconsize.width() + 10, option.rect.top() + 10)
-        clip = QtCore.QRectF(0, 0, option.rect.width()-iconsize.width() - 10 - 5, option.rect.height())
+        clip = QtCore.QRectF(0, 0, option.rect.width() - iconsize.width() - 10 - 5, option.rect.height())
         html.drawContents(painter, clip)
-  
+
         painter.restore()
 
     def sizeHint(self, option, index, *args, **kwargs):
@@ -65,65 +65,65 @@ class ReplayItemDelegate(QtWidgets.QStyledItemDelegate):
 
 class ReplayItem(QtWidgets.QTreeWidgetItem):
     # list element
-    FORMATTER_REPLAY                = str(util.THEME.readfile("replays/formatters/replay.qthtml"))
+    FORMATTER_REPLAY = str(util.THEME.readfile("replays/formatters/replay.qthtml"))
     # replay-info elements
-    FORMATTER_REPLAY_INFORMATION    = "<h2 align='center'>Replay UID : {uid}</h2><table border='0' cellpadding='0' cellspacing='5' align='center'><tbody>{teams}</tbody></table>"
-    FORMATTER_REPLAY_TEAM_SPOILED   = "<tr><td colspan='3' align='center' valign='middle'><font size='+2'>{title}</font></td></tr>{players}"
-    FORMATTER_REPLAY_FFA_SPOILED    = "<tr><td colspan='3' align='center' valign='middle'><font size='+2'>Win</font></td></tr>{winner}<tr><td colspan=3 align='center' valign='middle'><font size='+2'>Lose</font></td></tr>{players}"
+    FORMATTER_REPLAY_INFORMATION = "<h2 align='center'>Replay UID : {uid}</h2><table border='0' cellpadding='0' cellspacing='5' align='center'><tbody>{teams}</tbody></table>"
+    FORMATTER_REPLAY_TEAM_SPOILED = "<tr><td colspan='3' align='center' valign='middle'><font size='+2'>{title}</font></td></tr>{players}"
+    FORMATTER_REPLAY_FFA_SPOILED = "<tr><td colspan='3' align='center' valign='middle'><font size='+2'>Win</font></td></tr>{winner}<tr><td colspan=3 align='center' valign='middle'><font size='+2'>Lose</font></td></tr>{players}"
     FORMATTER_REPLAY_TEAM2_SPOILED = "<td><table border=0><tr><td colspan='3' align='center' valign='middle'><font size='+2'>{title}</font></td></tr>{players}</table></td>"
-    FORMATTER_REPLAY_TEAM2         = "<td><table border=0>{players}</table></td>"
-    FORMATTER_REPLAY_PLAYER_SCORE   = "<td align='center' valign='middle' width='20'>{player_score}</td>"
-    FORMATTER_REPLAY_PLAYER_ICON    = "<td width='40'><img src='{faction_icon_uri}' width='40' height='20'></td>"
-    FORMATTER_REPLAY_PLAYER_LABEL   = "<td align='{alignment}' valign='middle' width='130'>{player_name} ({player_rating})</td>"
+    FORMATTER_REPLAY_TEAM2 = "<td><table border=0>{players}</table></td>"
+    FORMATTER_REPLAY_PLAYER_SCORE = "<td align='center' valign='middle' width='20'>{player_score}</td>"
+    FORMATTER_REPLAY_PLAYER_ICON = "<td width='40'><img src='{faction_icon_uri}' width='40' height='20'></td>"
+    FORMATTER_REPLAY_PLAYER_LABEL = "<td align='{alignment}' valign='middle' width='130'>{player_name} ({player_rating})</td>"
 
     def __init__(self, uid, parent, *args, **kwargs):
         QtWidgets.QTreeWidgetItem.__init__(self, *args, **kwargs)
 
-        self.uid            = uid
-        self.parent         = parent
-        self.height         = 70
-        self.viewtext       = None
+        self.uid = uid
+        self.parent = parent
+        self.height = 70
+        self.viewtext = None
         self.viewtextPlayer = None
-        self.mapname        = None
+        self.mapname = None
         self.mapdisplayname = None
-        self.client         = None
-        self.title          = None
-        self.host           = None
-        
-        self.startDate      = None
-        self.duration       = None
-        self.live_delay     = False
+        self.client = None
+        self.title = None
+        self.host = None
 
-        self.moreInfo       = False
-        self.replayInfo     = False
-        self.spoiled        = False
-        self.url            = "{}/faf/vault/replay_vault/replay.php?id={}".format(Settings.get('content/host'), self.uid)
+        self.startDate = None
+        self.duration = None
+        self.live_delay = False
 
-        self.teams          = {}
-        self.access         = None
-        self.mod            = None
+        self.moreInfo = False
+        self.replayInfo = False
+        self.spoiled = False
+        self.url = "{}/faf/vault/replay_vault/replay.php?id={}".format(Settings.get('content/host'), self.uid)
+
+        self.teams = {}
+        self.access = None
+        self.mod = None
         self.moddisplayname = None
 
-        self.options        = []
-        self.players        = []
-        self.numberplayers  = 0
-        self.biggestTeam    = 0
-        self.winner         = None
-        self.teamWin        = None
+        self.options = []
+        self.players = []
+        self.numberplayers = 0
+        self.biggestTeam = 0
+        self.winner = None
+        self.teamWin = None
 
         self.setHidden(True)
-        self.extraInfoWidth  = 0  # panel with more information
+        self.extraInfoWidth = 0  # panel with more information
         self.extraInfoHeight = 0  # panel with more information
-    
+
     def update(self, message, client):
         """ Updates this item from the message dictionary supplied """
-        
+
         self.client = client
-        
-        self.name      = message["name"]
-        self.mapname   = message["map"]
+
+        self.name = message["name"]
+        self.mapname = message["map"]
         if message['end'] == 4294967295:  # = FFFF FFFF (year 2106) aka still playing
-            seconds = time.time()-message['start']
+            seconds = time.time() - message['start']
             if seconds > 86400:  # more than 24 hours
                 self.duration = "<font color='darkgrey'>end time<br />&nbsp;missing</font>"
             elif seconds > 7200:  # more than 2 hours
@@ -137,18 +137,18 @@ class ReplayItem(QtWidgets.QTreeWidgetItem):
             self.duration = time.strftime('%H:%M:%S', time.gmtime(message["duration"]))
         self.startHour = time.strftime("%H:%M", time.localtime(message['start']))
         self.startDate = time.strftime("%Y-%m-%d", time.localtime(message['start']))
-        self.mod       = message["mod"]
+        self.mod = message["mod"]
 
         # Map preview code
         self.mapdisplayname = maps.getDisplayName(self.mapname)
-      
+
         self.icon = maps.preview(self.mapname)
         if not self.icon:
             self.client.downloader.downloadMap(self.mapname, self, True)
             self.icon = util.THEME.icon("games/unknown_map.png")
 
         if self.mod in mods:
-            self.moddisplayname = mods[self.mod].name 
+            self.moddisplayname = mods[self.mod].name
         else:
             self.moddisplayname = self.mod
 
@@ -158,7 +158,7 @@ class ReplayItem(QtWidgets.QTreeWidgetItem):
 #        self.mod        = message['featured_mod']
 #        self.host       = message["host"]
 #        self.options    = message.get('options', [])
-#        self.numplayers = message.get('num_players', 0) 
+#        self.numplayers = message.get('num_players', 0)
 #        self.slots      = message.get('max_players',12)
 
         self.viewtext = self.FORMATTER_REPLAY.format(time=self.startHour, name=self.name, map=self.mapdisplayname,
@@ -197,7 +197,7 @@ class ReplayItem(QtWidgets.QTreeWidgetItem):
                 self.teams[team].append(player)
 
         if self.numberplayers == len(self.teams):  # some kind of FFA
-            self.teams ={}
+            self.teams = {}
             scores = {}
             team = 1
             for player in players:  # player -> team (1)
@@ -374,7 +374,7 @@ class ReplayItem(QtWidgets.QTreeWidgetItem):
             yield []
         else:
             for i in range(len(items)):
-                for j in self.permutations(items[:i] + items[i+1:]):
+                for j in self.permutations(items[:i] + items[i + 1:]):
                     yield [items[i]] + j
 
     def __ge__(self, other):
@@ -383,7 +383,9 @@ class ReplayItem(QtWidgets.QTreeWidgetItem):
 
     def __lt__(self, other):
         """ Comparison operator used for item list sorting """
-        if not self.client: return True  # If not initialized...
-        if not other.client: return False
+        if not self.client:
+            return True  # If not initialized...
+        if not other.client:
+            return False
         # Default: uid
         return self.uid < other.uid

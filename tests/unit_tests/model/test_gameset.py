@@ -4,25 +4,26 @@ import copy
 from model import gameset, game
 
 DEFAULT_DICT = {
-    "uid":  1,
+    "uid": 1,
     "state": game.GameState.OPEN,
     "launched_at": 10000,
     "num_players": 3,
     "max_players": 8,
     "title": "Sentons sucks",
-    "host":  "IllIIIlIlIIIlI",
+    "host": "IllIIIlIlIIIlI",
     "mapname": "Sentons Ultimate 6v6",
     "map_file_path": "xrca_co_000001.scfamap",
     "teams": {
         1: ["IllIIIlIlIIIlI", "TableNoob"],
         2: ["Kraut"]
-        },
+    },
     "featured_mod": "faf",
     "featured_mod_versions": {},
     "sim_mods": {},
     "password_protected": False,
     "visibility": game.GameVisibility.PUBLIC,
 }
+
 
 def test_add_update(mocker):
     data = copy.deepcopy(DEFAULT_DICT)
@@ -50,6 +51,7 @@ def test_add_update(mocker):
     assert g is not g2
     newgame.assert_called_with(g2)
 
+
 def test_fail_to_add(mocker):
     s = gameset.Gameset()
     newgame = mocker.Mock()
@@ -60,6 +62,7 @@ def test_fail_to_add(mocker):
     assert 1 not in s
     with pytest.raises(KeyError):
         g = s[1]
+
 
 def test_fail_to_add_no_uid(mocker):
     s = gameset.Gameset()
@@ -90,6 +93,7 @@ def test_abort_at_bad_update(mocker):
     with pytest.raises(KeyError):
         g = s[1]
 
+
 def test_iter():
     s = gameset.Gameset()
     data = copy.deepcopy(DEFAULT_DICT)
@@ -100,6 +104,7 @@ def test_iter():
         assert g is s[1]
         num += 1
     assert num == 1
+
 
 def test_clear():
     s = gameset.Gameset()
@@ -112,6 +117,7 @@ def test_clear():
         num += 1
     assert num == 0
 
+
 def test_new_states_one_object(mocker):
     s = gameset.Gameset()
     lobby = mocker.Mock()
@@ -120,6 +126,7 @@ def test_new_states_one_object(mocker):
     s.newLobby.connect(lobby)
     s.newLiveGame.connect(live)
     s.newClosedGame.connect(closed)
+
     def reset():
         lobby.reset_mock()
         live.reset_mock()
@@ -145,6 +152,7 @@ def test_new_states_one_object(mocker):
     assert not live.called
     assert closed.called
 
+
 def test_new_states_new_objects(mocker):
     s = gameset.Gameset()
     lobby = mocker.Mock()
@@ -153,6 +161,7 @@ def test_new_states_new_objects(mocker):
     s.newLobby.connect(lobby)
     s.newLiveGame.connect(live)
     s.newClosedGame.connect(closed)
+
     def reset():
         lobby.reset_mock()
         live.reset_mock()
@@ -182,6 +191,7 @@ def test_new_states_new_objects(mocker):
     # A new closed game does *not* get reported.
     assert not closed.called
 
+
 def test_no_state_changes(mocker):
     s = gameset.Gameset()
     lobby = mocker.Mock()
@@ -190,6 +200,7 @@ def test_no_state_changes(mocker):
     s.newLobby.connect(lobby)
     s.newLiveGame.connect(live)
     s.newClosedGame.connect(closed)
+
     def reset():
         lobby.reset_mock()
         live.reset_mock()

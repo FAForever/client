@@ -40,6 +40,7 @@ FormClass2, BaseClass2 = util.THEME.loadUiType("notification_system/ns_settings.
 
 
 class NsSettingsDialog(FormClass2, BaseClass2):
+
     def __init__(self, client):
         BaseClass2.__init__(self)
         #BaseClass2.__init__(self, client)
@@ -70,8 +71,8 @@ class NsSettingsDialog(FormClass2, BaseClass2):
         self.popup_lifetime = Settings.get('notifications/popup_lifetime', 5, type=int)
         self.popup_position = NotificationPosition(Settings.get('notifications/popup_position',
                                                                 NotificationPosition.BOTTOM_RIGHT.value, type=int))
-        self.ingame_notifications =  IngameNotification(Settings.get('notifications/ingame',
-                                                                     IngameNotification.ENABLE, type=int))
+        self.ingame_notifications = IngameNotification(Settings.get('notifications/ingame',
+                                                                    IngameNotification.ENABLE, type=int))
 
         self.nsEnabled.setChecked(self.enabled)
         self.nsPopLifetime.setValue(self.popup_lifetime)
@@ -151,7 +152,7 @@ class NotificationHooks(QtCore.QAbstractTableModel):
     def getHook(self, row):
         return self.hooks[row]
 
-    def data(self, index, role = QtCore.Qt.EditRole):
+    def data(self, index, role=QtCore.Qt.EditRole):
         if not index.isValid():
             return None
 
@@ -175,7 +176,7 @@ class NotificationHooks(QtCore.QAbstractTableModel):
     def returnChecked(self, state):
         return QtCore.Qt.Checked if state else QtCore.Qt.Unchecked
 
-    def setData(self, index, value, role = QtCore.Qt.EditRole):
+    def setData(self, index, value, role=QtCore.Qt.EditRole):
         if index.column() == self.POPUP:
             self.hooks[index.row()].switchPopup()
             self.dataChanged.emit(index, index)

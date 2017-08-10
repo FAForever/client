@@ -40,7 +40,7 @@ import os
 
 
 class luaParser:
-    
+
     def __init__(self, luaPath):
         self.iszip = False
         self.zip = None
@@ -63,7 +63,7 @@ class luaParser:
         self.warning = False
         self.errorMsg = ""
         self.loweringKeys = True
-    
+
     def __checkUninterruptibleStr(self, char):
         if char == "\"" or char == "'":
             if not self.__inString:
@@ -74,7 +74,7 @@ class luaParser:
         elif not self.__inString and char == "(":
             self.__inString = True
             self.__stringChar = ")"
-    
+
     def __processLine(self, parent=""):
         # initialize item counter
         counter = 0
@@ -159,9 +159,9 @@ class luaParser:
                         # add new item into the array: recursive function call
                         if self.__prevUnfinished:
                             self.__prevUnfinished = False
-                            lua[prevkey] = self.__processLine(parent+">"+prevkey)
+                            lua[prevkey] = self.__processLine(parent + ">" + prevkey)
                         else:
-                            lua[key] = self.__processLine(parent+">"+key)
+                            lua[key] = self.__processLine(parent + ">" + key)
                     else:
                         # add new item into the array: value itself
                         if value[0] == "\"" or value[0] == "'":
@@ -179,7 +179,7 @@ class luaParser:
                 for searchKey in self.__searchPattern:
                     # regkey = re.compile(".*("+searchKey.split(":")[-1].replace("*", ".*")+")$")
                     # if regkey.match(parent+">"+key):
-                    if re.match(".*>("+searchKey.split(":")[-1].replace("*", ".*")+")$", parent+">"+key):
+                    if re.match(".*>(" + searchKey.split(":")[-1].replace("*", ".*") + ")$", parent + ">" + key):
                         # get command from key
                         valcmd = searchKey.split(":")
                         valcmd = valcmd[0] if len(valcmd) == 2 else "none"
@@ -233,7 +233,7 @@ class luaParser:
             f = open(self.__path, "r")
         else:
             if self.zip.testzip() == None:
-                for member in self.zip.namelist() :
+                for member in self.zip.namelist():
                     filename = os.path.basename(member)
                     if not filename:
                         continue
@@ -246,7 +246,7 @@ class luaParser:
         self.__stream = f.readlines()
         if self.__stream[-1][-1] != "\n":  # file doesn't end in a newline
             # needed to prevent a bug happening when a file doesn't end with a newline.
-                        self.__stream[-1] += "\n"
+            self.__stream[-1] += "\n"
         f.close()
         # call recursive function
         result = self.__processLine()

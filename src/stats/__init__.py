@@ -1,7 +1,9 @@
 
 from PyQt5 import QtCore
 import logging
-import urllib.request, urllib.parse, urllib.error
+import urllib.request
+import urllib.parse
+import urllib.error
 import util
 
 logger = logging.getLogger(__name__)

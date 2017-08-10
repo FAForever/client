@@ -25,6 +25,7 @@ FormClass, BaseClass = util.THEME.loadUiType("games/games.ui")
 
 
 class GameSorter:
+
     def __init__(self, me):
         self.sortBy = 0
         self._me = me
@@ -173,7 +174,7 @@ class GamesWidget(FormClass, BaseClass):
             return
 
         logger.debug('selectFaction: selected was {}'.format(self.sub_factions))
-        self.sub_factions[factionID-1] = enabled
+        self.sub_factions[factionID - 1] = enabled
 
         Settings.set("play/subFactions", self.sub_factions)
         logger.debug('selectFaction: selected is {}'.format(self.sub_factions))
@@ -222,7 +223,7 @@ class GamesWidget(FormClass, BaseClass):
             except TypeError:
                 pass
 
-            icon.setChecked(self.sub_factions[faction.value-1])
+            icon.setChecked(self.sub_factions[faction.value - 1])
             icon.clicked.connect(partial(self.selectFaction, factionID=faction.value))
 
     @QtCore.pyqtSlot(object)
@@ -289,7 +290,7 @@ class GamesWidget(FormClass, BaseClass):
             logger.info("Switching Ranked Search to Race " + str(race))
             self.race = race
             self.client.lobby_connection.send(dict(command="game_matchmaking", mod="ladder1v1", state="settings",
-                                  faction=self.race.value))
+                                                   faction=self.race.value))
         else:
             # Experimental UPnP Mapper - mappings are removed on app exit
             if self.client.useUPnP:
@@ -301,7 +302,7 @@ class GamesWidget(FormClass, BaseClass):
             self.race = race
             self.searchProgress.setVisible(True)
             self.labelAutomatch.setText("Searching...")
-            self.updatePlayButton();
+            self.updatePlayButton()
             self.client.search_ranked(faction=self.race.value)
 
     @QtCore.pyqtSlot()

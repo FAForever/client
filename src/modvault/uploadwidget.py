@@ -1,4 +1,6 @@
-import urllib.request, urllib.error, urllib.parse
+import urllib.request
+import urllib.error
+import urllib.parse
 import tempfile
 import zipfile
 import os
@@ -12,6 +14,7 @@ FormClass, BaseClass = util.THEME.loadUiType("modvault/upload.ui")
 
 
 class UploadModWidget(FormClass, BaseClass):
+
     def __init__(self, parent, modDir, modinfo, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
 

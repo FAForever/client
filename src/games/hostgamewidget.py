@@ -16,6 +16,7 @@ FormClass, BaseClass = util.THEME.loadUiType("games/host.ui")
 
 
 class HostgameWidget(FormClass, BaseClass):
+
     def __init__(self, parent, item, iscoop=False, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
 
@@ -54,7 +55,7 @@ class HostgameWidget(FormClass, BaseClass):
         w.maxPlayers = 1
         me = client.instance.players[self.parent.client.id]
         w.teamsToTooltip([[me]])
-        
+
         w.updateText()
         w.updateIcon()
         w.updateTooltip()
@@ -96,7 +97,7 @@ class HostgameWidget(FormClass, BaseClass):
         self.mapList.currentIndexChanged.connect(self.mapChanged)
         self.hostButton.released.connect(self.hosting)
         self.titleEdit.textChanged.connect(self.updateText)
-        #self.modList.itemClicked.connect(self.modclicked)
+        # self.modList.itemClicked.connect(self.modclicked)
 
     def updateText(self, text):
         self.game.title = text

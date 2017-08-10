@@ -6,7 +6,10 @@
 # Released under the same license as Python 2.6.5
 
 
-import sys, os, traceback, types
+import sys
+import os
+import traceback
+import types
 
 
 def isUserAdmin():
@@ -32,7 +35,10 @@ def runAsAdmin(cmdLine=None, wait=True):
     if os.name != 'nt':
         raise RuntimeError("This function is only implemented on Windows.")
 
-    import win32api, win32con, win32event, win32process
+    import win32api
+    import win32con
+    import win32event
+    import win32process
     from win32com.shell.shell import ShellExecuteEx
     from win32com.shell import shellcon
 
@@ -40,7 +46,7 @@ def runAsAdmin(cmdLine=None, wait=True):
 
     if cmdLine is None:
         cmdLine = [python_exe] + sys.argv
-    elif type(cmdLine) not in (tuple,list):
+    elif type(cmdLine) not in (tuple, list):
         raise ValueError("cmdLine is not a sequence.")
     cmd = '"%s"' % (cmdLine[0],)
     # XXX TODO: isn't there a function or something we can call to massage command line params?
@@ -68,7 +74,7 @@ def runAsAdmin(cmdLine=None, wait=True):
         procHandle = procInfo['hProcess']
         obj = win32event.WaitForSingleObject(procHandle, win32event.INFINITE)
         rc = win32process.GetExitCodeProcess(procHandle)
-        #print "Process handle %s returned code %s" % (procHandle, rc)
+        # print "Process handle %s returned code %s" % (procHandle, rc)
     else:
         rc = None
 

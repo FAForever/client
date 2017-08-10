@@ -27,7 +27,7 @@ if sys.platform == 'win32':
     root_dir = os.path.dirname(os.path.abspath(__file__))
     res_dir = os.path.join(root_dir, "res")
     appveyor_build_version = os.getenv('APPVEYOR_BUILD_VERSION')
-    appveyor_build_version = appveyor_build_version.replace(' ','')
+    appveyor_build_version = appveyor_build_version.replace(' ', '')
     version.write_version_file(appveyor_build_version, res_dir)
 
     faf_version, git_revision = version.get_git_version()
@@ -54,11 +54,11 @@ build_exe_options = {
                       'platforms',
                       'libeay32.dll',
                       'ssleay32.dll',
-                      'libEGL.dll', # For QtWebEngine
-                      'libGLESv2.dll', # ditto
-                      'icudtl.dat', #ditto
-                      'qtwebengine_resources.pak', # ditto
-                      'QtWebEngineProcess.exe', # ditto
+                      'libEGL.dll',  # For QtWebEngine
+                      'libGLESv2.dll',  # ditto
+                      'icudtl.dat',  # ditto
+                      'qtwebengine_resources.pak',  # ditto
+                      'QtWebEngineProcess.exe',  # ditto
                       ('lib/faf-uid.exe', 'lib/faf-uid.exe'),
                       ('lib/qt.conf', 'qt.conf'),
                       ('lib/xdelta3.exe', 'lib/xdelta3.exe')],
@@ -113,23 +113,23 @@ if sys.platform == 'win32':
 if sys.platform == 'win32':
     platform_options = {
         'executables': [Executable(
-                          'src/__main__.py',
-                          base=base,
-                          targetName='FAForever.exe',
-                          icon='res/faf.ico'
-                      )],
+            'src/__main__.py',
+            base=base,
+            targetName='FAForever.exe',
+            icon='res/faf.ico'
+        )],
         'requires': ['sip', 'PyQt5', 'cx_Freeze'],
         'options': {'build_exe': build_exe_options,
-                 'bdist_msi': bdist_msi_options},
+                    'bdist_msi': bdist_msi_options},
         'version': msi_version,
-                 }
-        
+    }
+
 else:
     from setuptools import find_packages
     platform_options = {
         'packages': find_packages(),
         'version': os.getenv('FAFCLIENT_VERSION'),
-        }
+    }
 
 setup(
     name=product_name,

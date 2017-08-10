@@ -19,6 +19,7 @@ class ConnectionState(IntEnum):
 
 
 class ServerReconnecter(QtCore.QObject):
+
     def __init__(self, connection):
         QtCore.QObject.__init__(self)
         self._connection = connection
@@ -52,6 +53,7 @@ class ServerReconnecter(QtCore.QObject):
     @property
     def keepalive(self):
         return self._keepalive
+
     @keepalive.setter
     def keepalive(self, value):
         self._keepalive = value
@@ -284,6 +286,7 @@ class ServerConnection(QtCore.QObject):
 
 
 class Dispatcher():
+
     def __init__(self):
         self._receivers = {}
         self._dispatchees = {}

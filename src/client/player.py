@@ -1,8 +1,10 @@
 class Player:
+
     """
     Represents a player the client knows about, mirrors the similar class in the server.
     Needs to be constructed using a player_info message sent from the server.
     """
+
     def __init__(self,
                  id_=None,
                  login=None,
@@ -54,7 +56,7 @@ class Player:
         """
         Get the conservative estimate of the players global trueskill rating, rounded to nearest 100
         """
-        return round((self.rating_estimate()/100))*100
+        return round((self.rating_estimate() / 100)) * 100
 
     def rating_estimate(self):
         """

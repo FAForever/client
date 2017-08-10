@@ -1,11 +1,14 @@
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest
 
-import base64, zlib, os
+import base64
+import zlib
+import os
 import util
 
 
 class playerAvatar(QtWidgets.QDialog):
+
     def __init__(self, users=[], idavatar=0, parent=None, *args, **kwargs):
         QtWidgets.QDialog.__init__(self, *args, **kwargs)
 
@@ -25,7 +28,7 @@ class playerAvatar(QtWidgets.QDialog):
         self.removeButton.clicked.connect(self.removeThem)
 
         self.setWindowTitle("Users using this avatar")
-        self.resize(480, 320)         
+        self.resize(480, 320)
 
     def processList(self, users, idavatar):
         self.checkBox = {}
@@ -35,7 +38,7 @@ class playerAvatar(QtWidgets.QDialog):
         self.grid.addWidget(self.userlist, 0, 0)
 
     def removeThem(self):
-        for user in self.checkBox :
+        for user in self.checkBox:
             if self.checkBox[user].checkState() == 2:
                 self.parent.lobby_connection.send(dict(command="admin", action="remove_avatar", iduser=user, idavatar=self.idavatar))
         self.close()
@@ -52,9 +55,10 @@ class playerAvatar(QtWidgets.QDialog):
         groupBox.setLayout(vbox)
 
         return groupBox
-            
+
 
 class avatarWidget(QtWidgets.QDialog):
+
     def __init__(self, parent, user, personal=False, *args, **kwargs):
 
         QtWidgets.QDialog.__init__(self, *args, **kwargs)
@@ -65,10 +69,10 @@ class avatarWidget(QtWidgets.QDialog):
 
         self.setStyleSheet(self.parent.styleSheet())
         self.setWindowTitle("Avatar manager")
-        
+
         self.group_layout = QtWidgets.QVBoxLayout(self)
         self.listAvatars = QtWidgets.QListWidget()
-         
+
         self.listAvatars.setWrapping(1)
         self.listAvatars.setSpacing(5)
         self.listAvatars.setResizeMode(1)
@@ -129,7 +133,7 @@ class avatarWidget(QtWidgets.QDialog):
             img.loadFromData(reply.readAll())
             pix = QtGui.QPixmap(img)
             self.avatars[reply.url().toString()].setIcon(QtGui.QIcon(pix))
-            self.avatars[reply.url().toString()].setIconSize(pix.rect().size())     
+            self.avatars[reply.url().toString()].setIconSize(pix.rect().size())
 
             util.addrespix(reply.url().toString(), QtGui.QPixmap(img))
 
@@ -165,7 +169,7 @@ class avatarWidget(QtWidgets.QDialog):
         self.avatars["None"] = button
 
         item = QtWidgets.QListWidgetItem()
-        item.setSizeHint(QtCore.QSize(40,20))
+        item.setSizeHint(QtCore.QSize(40, 20))
 
         self.item.append(item)
 
@@ -188,7 +192,7 @@ class avatarWidget(QtWidgets.QDialog):
             self.listAvatars.addItem(item)
 
             button.setToolTip(avatar["tooltip"])
-            url = QtCore.QUrl(avatar["url"])            
+            url = QtCore.QUrl(avatar["url"])
             self.avatars[avatar["url"]] = button
 
             self.listAvatars.setItemWidget(item, self.avatars[avatar["url"]])
@@ -199,7 +203,7 @@ class avatarWidget(QtWidgets.QDialog):
                 self.nams[url].get(QNetworkRequest(url))
             else:
                 self.avatars[avatar["url"]].setIcon(QtGui.QIcon(avatarPix))
-                self.avatars[avatar["url"]].setIconSize(avatarPix.rect().size())           
+                self.avatars[avatar["url"]].setIconSize(avatarPix.rect().size())
 
     def cleaning(self):
         if self != self.parent.avatarAdmin:

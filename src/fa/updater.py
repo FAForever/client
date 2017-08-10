@@ -13,7 +13,9 @@ import subprocess
 import time
 import shutil
 import logging
-import urllib.request, urllib.error, urllib.parse
+import urllib.request
+import urllib.error
+import urllib.parse
 import sys
 import tempfile
 import json
@@ -37,6 +39,7 @@ debugLog = []
 
 # Interface for the user of a connection.
 class ConnectionHandler(object):
+
     def __init__(self):
         pass
 
@@ -60,6 +63,7 @@ class ConnectionHandler(object):
 
 
 class UpdateConnection(object):
+
     def __init__(self, handler, host, port):
         self.host = host
         self.port = port
@@ -167,6 +171,7 @@ FormClass, BaseClass = util.THEME.loadUiType("fa/updater/updater.ui")
 
 
 class UpdaterProgressDialog(FormClass, BaseClass):
+
     def __init__(self, parent):
         BaseClass.__init__(self, parent)
         self.setupUi(self)
@@ -223,12 +228,13 @@ class UpdaterTimeout(Exception):
 
 
 class Updater(QtCore.QObject, ConnectionHandler):
+
     """
     This is the class that does the actual installation work.
     """
     # Network configuration
-    SOCKET  = 9001
-    HOST    = Settings.get('lobby/host')
+    SOCKET = 9001
+    HOST = Settings.get('lobby/host')
     TIMEOUT = 20  # seconds
 
     # Return codes to expect from run()
@@ -397,23 +403,23 @@ class Updater(QtCore.QObject, ConnectionHandler):
             if md5File == None:
                 if self.version:
                     if self.featured_mod == "faf" or self.featured_mod == "ladder1v1" or \
-                                    filegroup == "FAF" or filegroup == "FAFGAMEDATA":
+                            filegroup == "FAF" or filegroup == "FAFGAMEDATA":
                         self.connection.writeToServer("REQUEST_VERSION", destination, fileToUpdate, str(self.version))
                     else:
                         self.connection.writeToServer("REQUEST_MOD_VERSION", destination, fileToUpdate,
-                                           json.dumps(self.modversions))
+                                                      json.dumps(self.modversions))
                 else:
 
                     self.connection.writeToServer("REQUEST_PATH", destination, fileToUpdate)
             else:
                 if self.version:
                     if self.featured_mod == "faf" or self.featured_mod == "ladder1v1" or \
-                                    filegroup == "FAF" or filegroup == "FAFGAMEDATA":
+                            filegroup == "FAF" or filegroup == "FAFGAMEDATA":
                         self.connection.writeToServer("PATCH_TO", destination, fileToUpdate, md5File, str(self.version))
                     else:
 
                         self.connection.writeToServer("MOD_PATCH_TO", destination, fileToUpdate, md5File,
-                                           json.dumps(self.modversions))
+                                                      json.dumps(self.modversions))
                 else:
                     self.connection.writeToServer("UPDATE", destination, fileToUpdate, md5File)
 
@@ -558,7 +564,7 @@ class Updater(QtCore.QObject, ConnectionHandler):
         # Hide progress dialog if it's still showing.
         self.progress.close()
 
-        # Integrated handlers for the various things that could go wrong                              
+        # Integrated handlers for the various things that could go wrong
         if self.result == self.RESULT_CANCEL:
             pass  # The user knows damn well what happened here.
         elif self.result == self.RESULT_PASS:
@@ -673,7 +679,7 @@ class Updater(QtCore.QObject, ConnectionHandler):
                 writeFile.close()
             else:
                 logger.warn("%s is not writeable in in %s. Skipping." % (
-                fileToCopy, path))  # This may or may not be desirable behavior
+                    fileToCopy, path))  # This may or may not be desirable behavior
 
             log("%s is copied in %s." % (fileToCopy, path))
             self.filesToUpdate.remove(str(fileToCopy))

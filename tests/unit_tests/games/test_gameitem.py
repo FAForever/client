@@ -1,19 +1,19 @@
 from model import game
 
 DEFAULT_GAMEDICT = {
-    "uid":  1,
+    "uid": 1,
     "state": game.GameState.OPEN,
     "launched_at": 10000,
     "num_players": 3,
     "max_players": 8,
     "title": "Sentons sucks",
-    "host":  "IllIIIlIlIIIlI",
+    "host": "IllIIIlIlIIIlI",
     "mapname": "Sentons Ultimate 6v6",
     "map_file_path": "xrca_co_000001.scfamap",
     "teams": {
         1: ["IllIIIlIlIIIlI", "TableNoob"],
         2: ["Kraut"]
-        },
+    },
     "featured_mod": "faf",
     "featured_mod_versions": {},
     "sim_mods": {},
@@ -21,8 +21,9 @@ DEFAULT_GAMEDICT = {
     "visibility": game.GameVisibility.PUBLIC,
 }
 
+
 def conservative_estimate(rating):
-    return rating[0]-(3*rating[1])
+    return rating[0] - (3 * rating[1])
 
 
 def test_average_rating(qtbot):
@@ -32,8 +33,8 @@ def test_average_rating(qtbot):
     from client import Player
     from games.gameitem import GameItem
     players = [Player(id_=1, login='Test-1', global_rating=(2000, 200)),
-              Player(id_=2, login='Test-2', global_rating=(1000, 150)),
-              Player(id_=3, login='Test-3', global_rating=(1200, 100))]
+               Player(id_=2, login='Test-2', global_rating=(1000, 150)),
+               Player(id_=3, login='Test-3', global_rating=(1200, 100))]
     g = GameItem(game.Game(**DEFAULT_GAMEDICT))
     client.players = dict([(p.id, p) for p in players])
     g.client = client

@@ -27,6 +27,7 @@ FormClass, BaseClass = util.THEME.loadUiType("replays/replays.ui")
 
 
 class LiveReplayItem(QtWidgets.QTreeWidgetItem):
+
     def __init__(self, time):
         QtWidgets.QTreeWidgetItem.__init__(self)
         self.time = time
@@ -45,6 +46,7 @@ class LiveReplayItem(QtWidgets.QTreeWidgetItem):
 
 
 class LiveReplaysWidgetHandler(object):
+
     def __init__(self, liveTree, client, gameset):
         self.liveTree = liveTree
         self.liveTree.itemDoubleClicked.connect(self.liveTreeDoubleClicked)
@@ -115,7 +117,7 @@ class LiveReplaysWidgetHandler(object):
             item.setHidden(True)
             # The delay is there because we have a delay in the livereplay server
             # To get the delay right on client start, subtract the already passed game time
-            delay_time = LIVEREPLAY_DELAY_QTIMER - int(1000*(time.time() - launched_at))
+            delay_time = LIVEREPLAY_DELAY_QTIMER - int(1000 * (time.time() - launched_at))
             QtCore.QTimer.singleShot(delay_time, lambda: item.setHidden(False))
 
         self.games[game] = (item, launched_at)
@@ -222,6 +224,7 @@ class LiveReplaysWidgetHandler(object):
 
 
 class LocalReplaysWidgetHandler(object):
+
     def __init__(self, myTree):
         self.myTree = myTree
         self.myTree.itemDoubleClicked.connect(self.myTreeDoubleClicked)
@@ -596,7 +599,7 @@ class ReplayVaultWidgetHandler(object):
             self._w.onlineTree.addTopLevelItem(bucket_item)
 
             bucket_item.setIcon(0, util.THEME.icon("replays/bucket.png"))
-            bucket_item.setText(0, "<font color='white'>" + bucket+"</font>")
+            bucket_item.setText(0, "<font color='white'>" + bucket + "</font>")
             bucket_item.setText(1, "<font color='white'>" + str(len(buckets[bucket])) + " replays</font>")
 
             for replay in buckets[bucket]:
@@ -608,6 +611,7 @@ class ReplayVaultWidgetHandler(object):
 
 
 class ReplaysWidget(BaseClass, FormClass):
+
     def __init__(self, client, dispatcher, gameset):
         super(BaseClass, self).__init__()
 

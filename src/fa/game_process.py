@@ -19,6 +19,7 @@ class GameArguments:
 
 
 class GameProcess(QtCore.QProcess):
+
     def __init__(self, *args, **kwargs):
         QtCore.QProcess.__init__(self, *args, **kwargs)
         self._info = None
@@ -63,52 +64,52 @@ class GameProcess(QtCore.QProcess):
         logger.info("Game Info Complete: " + str(self._info))
 
     def run(self, info, arguments, detach=False, init_file=None):
-            """
-            Performs the actual running of ForgedAlliance.exe
-            in an attached process.
-            """
+        """
+        Performs the actual running of ForgedAlliance.exe
+        in an attached process.
+        """
 
-            if self._info is not None:  # Stop tracking current game
-                self.game = None
+        if self._info is not None:  # Stop tracking current game
+            self.game = None
 
-            self._info = info    # This can be none if we're running a replay
-            if self._info is not None:
-                self._info.setdefault('complete', False)
-                if not self._info['complete']:
-                    uid = self._info['uid']
-                    try:
-                        self.game = self.gameset[uid]
-                    except KeyError:
-                        pass
+        self._info = info    # This can be none if we're running a replay
+        if self._info is not None:
+            self._info.setdefault('complete', False)
+            if not self._info['complete']:
+                uid = self._info['uid']
+                try:
+                    self.game = self.gameset[uid]
+                except KeyError:
+                    pass
 
-            executable = os.path.join(config.Settings.get('game/bin/path'),
-                                      "ForgedAlliance.exe")
-            if sys.platform == 'win32':
-                command = '"' + executable + '" ' + " ".join(arguments)
+        executable = os.path.join(config.Settings.get('game/bin/path'),
+                                  "ForgedAlliance.exe")
+        if sys.platform == 'win32':
+            command = '"' + executable + '" ' + " ".join(arguments)
+        else:
+            command = util.wine_cmd_prefix + " " + util.wine_exe + ' "' + executable + '" ' + " ".join(arguments)
+            if util.wine_prefix:
+                wine_env = QtCore.QProcessEnvironment.systemEnvironment()
+                wine_env.insert("WINEPREFIX", util.wine_prefix)
+                QtCore.QProcess.setProcessEnvironment(self, wine_env)
+        logger.info("Running FA with info: " + str(info))
+        logger.info("Running FA via command: " + command)
+        logger.info("Running FA via executable: " + executable)
+
+        # Launch the game as a stand alone process
+        if not instance.running():
+
+            self.setWorkingDirectory(os.path.dirname(executable))
+            if not detach:
+                self.start(command)
             else:
-                command = util.wine_cmd_prefix + " " + util.wine_exe + ' "' + executable + '" ' + " ".join(arguments)
-                if util.wine_prefix:
-                    wine_env = QtCore.QProcessEnvironment.systemEnvironment()
-                    wine_env.insert("WINEPREFIX", util.wine_prefix)
-                    QtCore.QProcess.setProcessEnvironment(self, wine_env)
-            logger.info("Running FA with info: " + str(info))
-            logger.info("Running FA via command: " + command)
-            logger.info("Running FA via executable: " + executable)
-
-            # Launch the game as a stand alone process
-            if not instance.running():
-
-                self.setWorkingDirectory(os.path.dirname(executable))
-                if not detach:
-                    self.start(command)
-                else:
-                    # Remove the wrapping " at the start and end of some arguments as QT will double wrap when launching
-                    arguments = [re.sub('(^"|"$)', '', element) for element in arguments]
-                    self.startDetached(executable, arguments, os.path.dirname(executable))
-                return True
-            else:
-                QtWidgets.QMessageBox.warning(None, "ForgedAlliance.exe", "Another instance of FA is already running.")
-                return False
+                # Remove the wrapping " at the start and end of some arguments as QT will double wrap when launching
+                arguments = [re.sub('(^"|"$)', '', element) for element in arguments]
+                self.startDetached(executable, arguments, os.path.dirname(executable))
+            return True
+        else:
+            QtWidgets.QMessageBox.warning(None, "ForgedAlliance.exe", "Another instance of FA is already running.")
+            return False
 
     def running(self):
         return self.state() == QtCore.QProcess.Running

@@ -10,7 +10,7 @@ import chat
 from client.player import Player
 from client.players import Players
 from client.connection import LobbyInfo, ServerConnection, \
-        Dispatcher, ConnectionState, ServerReconnecter
+    Dispatcher, ConnectionState, ServerReconnecter
 from model.gameset import Gameset
 from client.updater import UpdateChecker, UpdateDialog, UpdateSettings
 from client.update_settings import UpdateSettingsDialog
@@ -56,6 +56,7 @@ FormClass, BaseClass = util.THEME.loadUiType("client/client.ui")
 
 
 class mousePosition(object):
+
     def __init__(self, parent):
         self.parent = parent
         self.onLeftEdge = False
@@ -91,6 +92,7 @@ class mousePosition(object):
 
 
 class ClientWindow(FormClass, BaseClass):
+
     """
     This is the main lobby client that manages the FAF-related connection and data,
     in particular players, games, ranking, etc.
@@ -295,19 +297,18 @@ class ClientWindow(FormClass, BaseClass):
         self.modMenu = None
 
         #self.nFrame = NewsFrame()
-        #self.whatsNewLayout.addWidget(self.nFrame)
-        #self.nFrame.collapse()
+        # self.whatsNewLayout.addWidget(self.nFrame)
+        # self.nFrame.collapse()
 
         #self.nFrame = NewsFrame()
-        #self.whatsNewLayout.addWidget(self.nFrame)
+        # self.whatsNewLayout.addWidget(self.nFrame)
 
         #self.nFrame = NewsFrame()
-        #self.whatsNewLayout.addWidget(self.nFrame)
-
+        # self.whatsNewLayout.addWidget(self.nFrame)
 
         #self.WPApi = WPAPI(self)
-        #self.WPApi.newsDone.connect(self.on_wpapi_done)
-        #self.WPApi.download()
+        # self.WPApi.newsDone.connect(self.on_wpapi_done)
+        # self.WPApi.download()
 
         #self.controlsContainerLayout.setAlignment(self.pageControlFrame, QtCore.Qt.AlignRight)
 
@@ -629,7 +630,7 @@ class ClientWindow(FormClass, BaseClass):
             update_dialog.setup(releases)
             update_dialog.show()
         else:
-            QMessageBox(self,"No updates found", "No client updates were found")
+            QMessageBox(self, "No updates found", "No client updates were found")
 
     @QtCore.pyqtSlot()
     def cleanup(self):
@@ -923,7 +924,7 @@ class ClientWindow(FormClass, BaseClass):
 
     def send_login(self, login, password):
         # Send login data once we have the creds.
-        self._autorelogin = False # Fresh credentials
+        self._autorelogin = False  # Fresh credentials
         if config.is_beta():    # Replace for develop here to not clobber the real pass
             password = util.password_hash("foo")
         self.uniqueId = util.uniqueID(self.login, self.session)
@@ -1025,8 +1026,8 @@ class ClientWindow(FormClass, BaseClass):
                 logger.info("Couldn't load urlquery value 'mods'")
             if fa.check.game(self):
                 uid, mod, map = QtCore.QUrlQuery(url).queryItemValue('uid'), \
-                                QtCore.QUrlQuery(url).queryItemValue('mod'), \
-                                QtCore.QUrlQuery(url).queryItemValue('map')
+                    QtCore.QUrlQuery(url).queryItemValue('mod'), \
+                    QtCore.QUrlQuery(url).queryItemValue('map')
                 if fa.check.check(mod, map, sim_mods=add_mods):
                     self.join_game(int(uid))
 

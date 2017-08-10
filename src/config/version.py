@@ -102,8 +102,8 @@ def get_git_version(git_dir=None):
 
 def build_version(version, revision, build=None):
     return version + '+' + \
-           (revision + '.' if revision else '') + \
-           (build if build else '')
+        (revision + '.' if revision else '') + \
+        (build if build else '')
 
 
 # Distutils expect an x.y.z (non-semver) format

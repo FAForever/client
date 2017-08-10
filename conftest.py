@@ -9,14 +9,18 @@ elif os.path.isdir("../src"):
 
 import config
 
+
 @pytest.fixture(scope="module")
 def application(qapp, request):
     return qapp
 
+
 @pytest.fixture(scope="function")
 def signal_receiver(application):
     from PyQt5 import QtCore
+
     class SignalReceiver(QtCore.QObject):
+
         def __init__(self, parent=None):
             QtCore.QObject.__init__(self, parent)
             self.int_values = []

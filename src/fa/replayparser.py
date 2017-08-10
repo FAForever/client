@@ -3,6 +3,7 @@ import struct
 
 
 class replayParser:
+
     def __init__(self, filepath):
         self.file = filepath
 
@@ -10,7 +11,7 @@ class replayParser:
         line = b''
         while True:
 
-            char = struct.unpack("s", bin[offset:offset+1])
+            char = struct.unpack("s", bin[offset:offset + 1])
 
             offset = offset + 1
             if char[0] == b'\r':
@@ -29,9 +30,9 @@ class replayParser:
 
     def getVersion(self):
         f = open(self.file, 'rb')
-        bin = f.read() 
+        bin = f.read()
         offset = 0
-        offset, supcomVersion = self.__readLine(offset, bin)  
+        offset, supcomVersion = self.__readLine(offset, bin)
         f.close()
         if (supcomVersion.startswith("Supreme Commander v1") == False):
             return None

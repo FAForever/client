@@ -74,7 +74,7 @@ class STUNAttribute:
         header_sz = 4
         type, value_length = STUNAttribute._header_format.unpack_from(buffer[:header_sz])
         type_str = STUN_ATTRIBUTE_VALUES.get(type)
-        padding = 4-(value_length % 4)  # align to 32-bit boundaries
+        padding = 4 - (value_length % 4)  # align to 32-bit boundaries
         if padding == 4:
             padding = 0
         total_length = header_sz + padding + value_length
@@ -88,7 +88,7 @@ class STUNAttribute:
         elif type_str == 'LIFETIME':
             val = struct.unpack_from('!I', buffer[header_sz:])
         elif type_str == 'DATA':
-            val = buffer[header_sz:header_sz+value_length]
+            val = buffer[header_sz:header_sz + value_length]
         return type_str, total_length, val
 
     @staticmethod
@@ -192,7 +192,7 @@ class STUNMessage:
         if 0x4000 <= channel <= 0x7FFF:
             return STUNMessage('ChannelData',
                                [('CHANNEL-NUMBER', channel),
-                                ('DATA', buffer[4:4+len])])
+                                ('DATA', buffer[4:4 + len])])
 
         header = buffer[:20]
         method, length, magic, tx_id = STUNMessage.parse_header(header)
