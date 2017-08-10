@@ -199,10 +199,10 @@ class UpdateChecker(QObject):
                             return None
 
                     branch = None
-                    if v.minor % 2 == 1:
+                    if release_version.minor % 2 == 1:
                         branch = 'beta'
-                    elif v.minor % 2 == 0:
-                        if v.prerelease == ():
+                    elif release_version.minor % 2 == 0:
+                        if release_version.prerelease == ():
                             branch = 'stable'
                         else:
                             branch = 'pre'
