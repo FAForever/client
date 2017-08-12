@@ -56,19 +56,19 @@ class Player(QObject):
         old_data = self.copy()
         # Ignore id and login (they are be immutable)
         # Login should be mutable, but we look up things by login right now
-        if global_rating:
+        if global_rating is not None:
             self.global_rating = global_rating
-        if ladder_rating:
+        if ladder_rating is not None:
             self.ladder_rating = ladder_rating
-        if number_of_games:
+        if number_of_games is not None:
             self.number_of_games = number_of_games
-        if avatar:
+        if avatar is not None:
             self.avatar = avatar
-        if country:
+        if country is not None:
             self.country = country
-        if clan:
+        if clan is not None:
             self.clan = clan
-        if league:
+        if league is not None:
             self.league = league
 
         self.updated.emit(self, old_data)
