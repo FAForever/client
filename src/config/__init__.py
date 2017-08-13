@@ -21,6 +21,7 @@ _unpersisted_settings = {}
 
 
 class Settings:
+
     """
     This wraps QSettings, fetching default values from the
     selected configuration module if the key isn't found.
@@ -165,7 +166,7 @@ elif environment == 'development':
 
 for k, v in defaults.items():
     if isinstance(v, str):
-        defaults[k] = v.format(host = Settings.get('host'))
+        defaults[k] = v.format(host=Settings.get('host'))
 
 # Setup normal rotating log handler
 make_dirs()

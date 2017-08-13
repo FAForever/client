@@ -9,6 +9,7 @@ from decorators import with_logger
 
 
 class QTurnSession(TURNSession):
+
     def __init__(self, turn_client):
         super(QTurnSession, self).__init__()
         self.turn_client = turn_client  # type: QTurnSocket
@@ -34,6 +35,7 @@ class QTurnSession(TURNSession):
 
 @with_logger
 class QTurnSocket(QUdpSocket):
+
     """
     Qt based TURN client, abstracts a normal socket
     and provides transparent TURN tunnelling functionality.
@@ -72,7 +74,7 @@ class QTurnSocket(QUdpSocket):
         self.initial_port = port
         self._data_cb = data_cb
         self.turn_host, self.turn_port = config.Settings.get('turn/host', type=str, default='dev.faforever.com'), \
-                               config.Settings.get('turn/port', type=int, default=3478)
+            config.Settings.get('turn/port', type=int, default=3478)
         self._logger.info("Turn socket initialized: {}".format(self.turn_host))
         self.turn_address = None
         QHostInfo.lookupHost(self.turn_host, self._looked_up)
@@ -156,5 +158,5 @@ class QTurnSocket(QUdpSocket):
     def _readyRead(self):
         while self.hasPendingDatagrams():
             data, host, port = self.readDatagram(self.pendingDatagramSize())
-            ipv4_address_string = QHostAddress(host.toIPv4Address()).toString() # host.toString() is expressed as IPv6 otherwise e.g. ::ffff:91.64.56.230
+            ipv4_address_string = QHostAddress(host.toIPv4Address()).toString()  # host.toString() is expressed as IPv6 otherwise e.g. ::ffff:91.64.56.230
             self.handle_data((ipv4_address_string, int(port)), data)

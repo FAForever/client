@@ -1,5 +1,7 @@
 
-import urllib.request, urllib.error, urllib.parse
+import urllib.request
+import urllib.error
+import urllib.parse
 
 from PyQt5 import QtCore, QtWidgets
 

@@ -17,11 +17,13 @@ logger = logging.getLogger(__name__)
 
 
 class Hider(QtCore.QObject):
+
     """
     Hides a widget by blocking its paint event. This is useful if a
     widget is in a layout that you do not want to change when the
     widget is hidden.
     """
+
     def __init__(self, parent=None):
         super(Hider, self).__init__(parent)
 

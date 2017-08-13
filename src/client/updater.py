@@ -26,10 +26,10 @@ class UpdateSettings:
         if force:
             return True
 
-        server_releases = [release for release in releases if release['branch']=='server']
-        stable_releases = [release for release in releases if release['branch']=='stable']
-        pre_releases = [release for release in releases if release['branch']=='pre']
-        beta_releases = [release for release in releases if release['branch']=='beta']
+        server_releases = [release for release in releases if release['branch'] == 'server']
+        stable_releases = [release for release in releases if release['branch'] == 'stable']
+        pre_releases = [release for release in releases if release['branch'] == 'pre']
+        beta_releases = [release for release in releases if release['branch'] == 'beta']
 
         have_server = len(server_releases) > 0
         have_stable = len(stable_releases) > 0
@@ -84,7 +84,7 @@ class UpdateDialog(FormClass, BaseClass):
 
         current_version = Version(config.VERSION)
 
-        if any([release['branch']=='server' for release in self.releases]):
+        if any([release['branch'] == 'server' for release in self.releases]):
             self.lblUpdatesFound.setText('Your client version is outdated - you must update to play.')
         else:
             self.lblUpdatesFound.setText('Client releases were found.')
@@ -216,16 +216,16 @@ class UpdateChecker(QObject):
                         else:
                             branch = 'pre'
                     return dict(
-                            branch=branch,
-                            update=download_url,
-                            new_version=tag)
+                        branch=branch,
+                        update=download_url,
+                        new_version=tag)
         try:
             releases = json.loads(release_info.decode('utf-8'))
             if not isinstance(releases, list):
                 releases = [releases]
             self._logger.debug('Loaded {} github releases'.format(len(releases)))
 
-            return [ release for release in [_parse_release(release) for release in releases] if release is not None]
+            return [release for release in [_parse_release(release) for release in releases] if release is not None]
         except:
             self._logger.exception("Error parsing network reply: {}".format(repr(release_info)))
             return []
@@ -246,8 +246,8 @@ class UpdateChecker(QObject):
                     branch='server',
                     update=self._server_info['update'],
                     new_version=self._server_info['new_version']
-                    ))
-            if UpdateSettings().should_notify(releases, force = not self.respect_notify):
+                ))
+            if UpdateSettings().should_notify(releases, force=not self.respect_notify):
                 self.finished.emit(releases)
 
 
@@ -326,7 +326,7 @@ class ClientUpdater(QObject):
 
     def _on_progress(self, bytesReceived, bytesTotal):
         # only show for "real" download, i.e. bytesTotal > 5MB
-        if (bytesTotal > 5*1024**2):
+        if (bytesTotal > 5 * 1024 ** 2):
             self._progress_bar.setMaximum(bytesTotal)
             self._progress_bar.setValue(bytesReceived)
 

@@ -7,9 +7,11 @@ logger = logging.getLogger(__name__)
 
 
 class Theme():
+
     """
     Represents a single FAF client theme.
     """
+
     def __init__(self, themedir, name):
         """
         A 'None' themedir represents no theming (no dir prepended to filename)
@@ -108,12 +110,14 @@ class Theme():
 
 
 class ThemeSet:
+
     """
     Represent a collection of themes to choose from, with a default theme and
     an unthemed directory.
     """
+
     def __init__(self, themeset, default_theme, settings,
-                 client_version, unthemed = None):
+                 client_version, unthemed=None):
         self._default_theme = default_theme
         self._themeset = themeset
         self._theme = default_theme
@@ -144,7 +148,7 @@ class ThemeSet:
     def listThemes(self):
         return [None] + [theme.name for theme in self._themeset]
 
-    def setTheme(self, name, restart = True):
+    def setTheme(self, name, restart=True):
         theme = self._getThemeByName(name)
         if theme is None:
             return
@@ -206,11 +210,11 @@ class ThemeSet:
         theme_version = self._checkThemeVersion(new_theme)
         if theme_version is None:
             QtWidgets.QMessageBox.information(
-                    QtWidgets.QApplication.activeWindow(),
-                    "Invalid Theme",
-                    "Failed to read the version of the following theme:<br/><b>" +
-                    str(new_theme) +
-                    "</b><br/><i>Contact the maker of the theme for a fix!</i>")
+                QtWidgets.QApplication.activeWindow(),
+                "Invalid Theme",
+                "Failed to read the version of the following theme:<br/><b>" +
+                str(new_theme) +
+                "</b><br/><i>Contact the maker of the theme for a fix!</i>")
             logger.error("Error reading theme version: " + str(new_theme) +
                          " in directory " + new_theme.themedir)
             return theme_changed()
@@ -225,10 +229,10 @@ class ThemeSet:
             box = QtWidgets.QMessageBox(QtWidgets.QApplication.activeWindow())
             box.setWindowTitle("Incompatible Theme")
             box.setText(
-                    "The selected theme reports compatibility with a lower version of the FA client:<br/><b>" +
-                    str(new_theme) +
-                    "</b><br/><i>Contact the maker of the theme for an update!</i><br/>" +
-                    "<b>Do you want to try to apply the theme anyway?</b>")
+                "The selected theme reports compatibility with a lower version of the FA client:<br/><b>" +
+                str(new_theme) +
+                "</b><br/><i>Contact the maker of the theme for an update!</i><br/>" +
+                "<b>Do you want to try to apply the theme anyway?</b>")
             b_yes = box.addButton("Apply this once", QtWidgets.QMessageBox.YesRole)
             b_always = box.addButton("Always apply for this FA version", QtWidgets.QMessageBox.YesRole)
             b_default = box.addButton("Use default theme", QtWidgets.QMessageBox.NoRole)
@@ -238,10 +242,10 @@ class ThemeSet:
 
             if result == b_always:
                 QtWidgets.QMessageBox.information(
-                        QtWidgets.QApplication.activeWindow(),
-                        "Notice",
-                        "If the applied theme causes crashes, clear the '[theme_version_override]'<br/>" +
-                        "section of your FA client config file.")
+                    QtWidgets.QApplication.activeWindow(),
+                    "Notice",
+                    "If the applied theme causes crashes, clear the '[theme_version_override]'<br/>" +
+                    "section of your FA client config file.")
                 logger.info("Overriding version of theme " + str(new_theme) + "with " + self._client_version)
                 override_config = "theme_version_override/" + str(new_theme)
                 self._settings.set(override_config, self._client_version)

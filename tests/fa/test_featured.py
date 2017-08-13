@@ -5,11 +5,13 @@ from PyQt5 import QtWidgets, QtCore
 import pytest
 import collections
 
+
 class _TestObjectWithoutIsFinished(QtCore.QObject):
     finished = QtCore.pyqtSignal()
 
 
 class _TestThreadNoOp(QtCore.QThread):
+
     def run(self):
         self.yieldCurrentThread()
 

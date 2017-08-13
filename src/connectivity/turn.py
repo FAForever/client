@@ -15,6 +15,7 @@ class TURNState(Enum):
 
 
 class TURNSession(metaclass=ABCMeta):
+
     """
     Abstract TURN session abstraction.
 
@@ -71,7 +72,7 @@ class TURNSession(metaclass=ABCMeta):
         self.logger.info("Requesting relay allocation")
         # Remove any previous allocation we may have
         self._write(STUNMessage('Refresh',
-                               [('LIFETIME', 0)]).to_bytes())
+                                [('LIFETIME', 0)]).to_bytes())
         # Allocate a new UDP relay address
         self._send(STUNMessage('Allocate',
                                [('REQUESTED-TRANSPORT', 17)]))
@@ -115,6 +116,7 @@ class TURNSession(metaclass=ABCMeta):
         self._write(stun_msg.to_bytes())
 
     _channeldata_format = struct.Struct('!HH')
+
     def send_to(self, data, addr):
         if isinstance(addr, int):
             msg = struct.pack('!HH', addr, len(data))
@@ -125,7 +127,7 @@ class TURNSession(metaclass=ABCMeta):
         else:
             self._write(STUNMessage('Send',
                                     [('XOR-PEER-ADDRESS', addr),
-                               ('DATA', data)]).to_bytes())
+                                     ('DATA', data)]).to_bytes())
 
     def _retransmit(self):
         if not self.state == TURNState.STOPPED:
@@ -160,7 +162,7 @@ class TURNSession(metaclass=ABCMeta):
                     self.logger.info("Successfully bound {}:{} to {}".format(addr, port, channel_id))
                     self.bindings[(addr, port)] = channel_id
                     self.channel_bound((addr, port), channel_id)
-                    self._pending_bindings.remove((txid, (addr,port), channel_id))
+                    self._pending_bindings.remove((txid, (addr, port), channel_id))
         elif stun_msg.method_str == 'CreatePermissionSuccess':
             pass
         elif stun_msg.method_str == 'RefreshSuccess':
@@ -189,8 +191,8 @@ class TURNSession(metaclass=ABCMeta):
         self._write(STUNMessage('Refresh').to_bytes())
         for addr, channel in list(self.bindings.items()):
             self._write(STUNMessage('ChannelBind',
-                  [('CHANNEL-NUMBER', channel),
-                   ('XOR-PEER-ADDRESS', addr)]).to_bytes())
+                                    [('CHANNEL-NUMBER', channel),
+                                     ('XOR-PEER-ADDRESS', addr)]).to_bytes())
 
     def __str__(self):
         return "TURNSession({}, {}, {}, {})".format(self.state, self.mapped_addr, self.relayed_addr, self.lifetime)

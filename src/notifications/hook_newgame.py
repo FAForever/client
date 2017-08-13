@@ -11,6 +11,7 @@ Settings for notifications: if a new game is hosted.
 
 
 class NsHookNewGame(NsHook):
+
     def __init__(self):
         NsHook.__init__(self, ns.Notifications.NEW_GAME)
         self.button.setEnabled(True)
@@ -21,6 +22,7 @@ FormClass, BaseClass = util.THEME.loadUiType("notification_system/new_game.ui")
 
 
 class NewGameDialog(FormClass, BaseClass):
+
     def __init__(self, parent, eventType):
         BaseClass.__init__(self)
         self.parent = parent
@@ -34,13 +36,13 @@ class NewGameDialog(FormClass, BaseClass):
         self.loadSettings()
 
     def loadSettings(self):
-        self.mode = Settings.get(self._settings_key+'/mode', 'friends')
+        self.mode = Settings.get(self._settings_key + '/mode', 'friends')
 
         self.checkBoxFriends.setCheckState(QtCore.Qt.Checked if self.mode == 'friends' else QtCore.Qt.Unchecked)
         self.parent.mode = self.mode
 
     def saveSettings(self):
-        config.Settings.set(self._settings_key+'/mode', self.mode)
+        config.Settings.set(self._settings_key + '/mode', self.mode)
         self.parent.mode = self.mode
 
     @QtCore.pyqtSlot()

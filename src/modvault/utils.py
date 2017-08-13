@@ -1,6 +1,8 @@
 import os
 import sys
-import urllib.request, urllib.error, urllib.parse
+import urllib.request
+import urllib.error
+import urllib.parse
 import re
 import shutil
 
@@ -31,6 +33,7 @@ selectedMods = Settings.get('play/mods', default=[])
 
 
 class ModInfo(object):
+
     def __init__(self, **kwargs):
         self.name = "Not filled in"
         self.version = 0
@@ -64,10 +67,10 @@ class ModInfo(object):
 
 
 def getAllModFolders():  # returns a list of names of installed mods
-        mods = []
-        if os.path.isdir(MODFOLDER):
-            mods = os.listdir(MODFOLDER)
-        return mods
+    mods = []
+    if os.path.isdir(MODFOLDER):
+        mods = os.listdir(MODFOLDER)
+    return mods
 
 
 def getInstalledMods():
@@ -107,12 +110,12 @@ def iconPathToFull(path):
     if not (path.startswith("/mods") or path.startswith("mods")):
         logger.info("Something went wrong parsing the path %s" % path)
         return ""
-    return os.path.join(MODFOLDER, os.path.normpath(path[5+int(path[0] == "/"):]))  # yay for dirty hacks
+    return os.path.join(MODFOLDER, os.path.normpath(path[5 + int(path[0] == "/"):]))  # yay for dirty hacks
 
 
 def fullPathToIcon(path):
     p = os.path.normpath(os.path.abspath(path))
-    return p[len(MODFOLDER)-5:].replace('\\', '/')
+    return p[len(MODFOLDER) - 5:].replace('\\', '/')
 
 
 def getIcon(name):
@@ -141,13 +144,13 @@ def getModInfo(modinfofile):
         except:
             modinfo["version"] = 0
             logger.warn("Couldn't find version for mod %s" % modinfo["name"])
-    return (modinfofile, modinfo)    
+    return (modinfofile, modinfo)
 
 
 def parseModInfo(folder):
     if not isModFolderValid(folder):
         return None
-    modinfofile = luaparser.luaParser(os.path.join(folder,"mod_info.lua"))
+    modinfofile = luaparser.luaParser(os.path.join(folder, "mod_info.lua"))
     return getModInfo(modinfofile)
 
 modCache = {}
@@ -160,7 +163,7 @@ def getModInfoFromZip(zfile):
 
     r = None
     if zipfile.is_zipfile(os.path.join(MODFOLDER, zfile)):
-        zip = zipfile.ZipFile(os.path.join(MODFOLDER,zfile), "r", zipfile.ZIP_DEFLATED)
+        zip = zipfile.ZipFile(os.path.join(MODFOLDER, zfile), "r", zipfile.ZIP_DEFLATED)
         if zip.testzip() == None:
             for member in zip.namelist():
                 filename = os.path.basename(member)
@@ -220,11 +223,11 @@ def getActiveMods(uimods=None, temporary=True):  # returns a list of ModInfo's c
         if temporary:
             l = luaparser.luaParser(PREFSFILENAME)
             l.loweringKeys = False
-            modlist = l.parse({"active_mods":"active_mods"}, {"active_mods": {}})["active_mods"]
+            modlist = l.parse({"active_mods": "active_mods"}, {"active_mods": {}})["active_mods"]
             if l.error:
                 logger.info("Error in reading the game.prefs file")
                 return []
-            uids = [uid for uid,b in list(modlist.items()) if b == 'true']
+            uids = [uid for uid, b in list(modlist.items()) if b == 'true']
             #logger.debug("Active mods detected: %s" % str(uids))
         else:
             uids = selectedMods[:]
@@ -316,7 +319,7 @@ def updateModInfo(mod, info):  # should probably not be used.
             val = str(v).lower()
         if type(v) in (str, str):
             val = '"' + v.replace('"', '\\"') + '"'
-        if re.search(r'^\s*'+k, data, re.M):
+        if re.search(r'^\s*' + k, data, re.M):
             data = re.sub(r'^\s*' + k + r'\s*=.*$', "%s = %s" % (k, val), data, 1, re.M)
         else:
             if data[-1] != '\n':
@@ -347,7 +350,7 @@ def generateThumbnail(sourcename, destname):
             img += buf[:3] + buf[4:7] + buf[8:11] + buf[12:15]
         file.close()
 
-        size = int((len(img)/3) ** (1.0/2))
+        size = int((len(img) / 3) ** (1.0 / 2))
         imageFile = QtGui.QImage(img, size, size, QtGui.QImage.Format_RGB888).rgbSwapped().\
             scaled(100, 100, transformMode=QtCore.Qt.SmoothTransformation)
         imageFile.save(destname)

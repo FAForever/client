@@ -30,11 +30,11 @@ class GameItemDelegate(QtWidgets.QStyledItemDelegate):
 
         # clear icon and text before letting the control draw itself because we're rendering these parts ourselves
         option.icon = QtGui.QIcon()
-        option.text = ""  
+        option.text = ""
         option.widget.style().drawControl(QtWidgets.QStyle.CE_ItemViewItem, option, painter, option.widget)
 
         # Shadow (100x100 shifted 8 right and 8 down)
-        painter.fillRect(option.rect.left()+8, option.rect.top()+8, 100, 100, QtGui.QColor("#202020"))
+        painter.fillRect(option.rect.left() + 8, option.rect.top() + 8, 100, 100, QtGui.QColor("#202020"))
 
         # Icon  (110x110 adjusted: shifts top,left 3 and bottom,right -7 -> makes/clips it to 100x100)
         icon.paint(painter, option.rect.adjusted(3, 3, -7, -7), QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
@@ -48,7 +48,7 @@ class GameItemDelegate(QtWidgets.QStyledItemDelegate):
         painter.drawRect(option.rect.left() + 3, option.rect.top() + 3, 100, 100)
 
         # Description (text right of map icon(100), shifted 10 more right and 10 down)
-        painter.translate(option.rect.left() + 100 + 10, option.rect.top()+10)
+        painter.translate(option.rect.left() + 100 + 10, option.rect.top() + 10)
         clip = QtCore.QRectF(0, 0, option.rect.width() - 100 - 10 - 5, option.rect.height())
         html.drawContents(painter, clip)
 
@@ -124,9 +124,9 @@ class GameItemWidget(QtWidgets.QListWidgetItem):
 
     def updateTooltip(self):
         self.setToolTip(self.FORMATTER_TOOL.format(
-                teams=self.tipTeams,
-                observers=self.tipObservers,
-                mods=self.tipMods))
+            teams=self.tipTeams,
+            observers=self.tipObservers,
+            mods=self.tipMods))
 
     def clearTooltip(self):
         self.setTooltip("")
@@ -150,13 +150,13 @@ class GameItemWidget(QtWidgets.QListWidgetItem):
 
                 if i == 1:
                     player_tr = "<tr><td><img src='%s'></td>" \
-                                    "<td align='left' valign='middle' width='135'>%s</td></tr>" % (country, playerStr)
+                        "<td align='left' valign='middle' width='135'>%s</td></tr>" % (country, playerStr)
                 elif i == len(teams):
                     player_tr = "<tr><td align='right' valign='middle' width='135'>%s</td>" \
-                                    "<td><img src='%s'></td></tr>" % (playerStr, country)
+                        "<td><img src='%s'></td></tr>" % (playerStr, country)
                 else:
                     player_tr = "<tr><td><img src='%s'></td>" \
-                                    "<td align='center' valign='middle' width='135'>%s</td></tr>" % (country, playerStr)
+                        "<td align='center' valign='middle' width='135'>%s</td></tr>" % (country, playerStr)
 
                 teamplayer.append(player_tr)
 
@@ -193,6 +193,7 @@ class GameItemWidget(QtWidgets.QListWidgetItem):
 
 
 class NullSorter:
+
     def __init__(self):
         pass
 
@@ -201,6 +202,7 @@ class NullSorter:
 
 
 class GameItem():
+
     def __init__(self, game, sorter=None):
         self.widget = GameItemWidget(self)
 
@@ -355,7 +357,7 @@ class GameItem():
         if oldstate != g.state:
             if g.state == GameState.PLAYING:
                 # The delay is there because we have a 5 minutes delay in the livereplay server
-                QtCore.QTimer.singleShot(5*60000, self.announceReplay)
+                QtCore.QTimer.singleShot(5 * 60000, self.announceReplay)
             elif g.state == GameState.OPEN:  # The 35s delay is there because the host needs time to choose a map
                 QtCore.QTimer.singleShot(35000, self.announceHosting)
 
@@ -372,7 +374,7 @@ class GameItem():
             yield []
         else:
             for i in range(len(items)):
-                for j in self.permutations(items[:i] + items[i+1:]):
+                for j in self.permutations(items[:i] + items[i + 1:]):
                     yield [items[i]] + j
 
     def __ge__(self, other):

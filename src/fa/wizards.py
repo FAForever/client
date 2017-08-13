@@ -7,6 +7,7 @@ __author__ = 'Thygrrr'
 
 
 class UpgradePage(QtWidgets.QWizardPage):
+
     def __init__(self, parent=None):
         super(UpgradePage, self).__init__(parent)
 
@@ -69,6 +70,7 @@ class UpgradePage(QtWidgets.QWizardPage):
 
 
 class UpgradePageSC(QtWidgets.QWizardPage):
+
     def __init__(self, parent=None):
         super(UpgradePageSC, self).__init__(parent)
 
@@ -127,6 +129,7 @@ class UpgradePageSC(QtWidgets.QWizardPage):
 
 
 class WizardSC(QtWidgets.QWizard):
+
     """
     The actual Wizard which walks the user through the install.
     """
@@ -149,6 +152,7 @@ class WizardSC(QtWidgets.QWizard):
 
 
 class Wizard(QtWidgets.QWizard):
+
     """
     The actual Wizard which walks the user through the install.
     """
@@ -176,5 +180,5 @@ def constructPathChoices(combobox, validated_choices):
     """
     combobox.clear()
     for path in validated_choices:
-            if combobox.findText(path, QtCore.Qt.MatchFixedString) == -1:
-                combobox.addItem(path)
+        if combobox.findText(path, QtCore.Qt.MatchFixedString) == -1:
+            combobox.addItem(path)

@@ -25,9 +25,10 @@ FormClass, BaseClass = util.THEME.loadUiType("coop/coop.ui")
 
 
 class CoopWidget(FormClass, BaseClass, BusyWidget):
+
     def __init__(self, client, gameset, *args, **kwargs):
 
-        BaseClass.__init__(self, *args, **kwargs)        
+        BaseClass.__init__(self, *args, **kwargs)
 
         self.setupUi(self)
 
@@ -62,7 +63,7 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
 
         self.linkButton.clicked.connect(self.linkVanilla)
         self.leaderBoard.setVisible(0)
-        self.FORMATTER_LADDER        = str(util.THEME.readfile("coop/formatters/ladder.qthtml"))
+        self.FORMATTER_LADDER = str(util.THEME.readfile("coop/formatters/ladder.qthtml"))
         self.FORMATTER_LADDER_HEADER = str(util.THEME.readfile("coop/formatters/ladder_header.qthtml"))
 
         util.THEME.setStyleSheet(self.leaderBoard, "coop/formatters/style.css")
@@ -89,10 +90,10 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
 
     def finishRequest(self, reply):
         faf_replay = QtCore.QFile(os.path.join(util.CACHE_DIR, "temp.fafreplay"))
-        faf_replay.open(QtCore.QIODevice.WriteOnly | QtCore.QIODevice.Truncate)                
+        faf_replay.open(QtCore.QIODevice.WriteOnly | QtCore.QIODevice.Truncate)
         faf_replay.write(reply.readAll())
         faf_replay.flush()
-        faf_replay.close()  
+        faf_replay.close()
         replay(os.path.join(util.CACHE_DIR, "temp.fafreplay"))
 
     def processLeaderBoardInfos(self, message):
@@ -116,21 +117,21 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
         html = ("<html><head><link rel='stylesheet' type='text/css' href='style.css'></head><body>")
 
         if self.selectedItem:
-            html += '<p class="division" align="center">'+self.selectedItem.name+'</p><hr/>'
+            html += '<p class="division" align="center">' + self.selectedItem.name + '</p><hr/>'
         html += "<table class='players' cellspacing='0' cellpadding='0' width='630' height='100%'>"
 
         formatter = self.FORMATTER_LADDER
         formatter_header = self.FORMATTER_LADDER_HEADER
         cursor = w.textCursor()
         cursor.movePosition(QtGui.QTextCursor.End)
-        w.setTextCursor(cursor) 
+        w.setTextCursor(cursor)
         color = "lime"
         line = formatter_header.format(rank="rank", names="names", time="time", color=color)
         html += line
         rank = 1
         for val in values:
             # val = values[uid]
-            players = ", ".join(val["players"]) 
+            players = ", ".join(val["players"])
             numPlayers = str(len(val["players"]))
             timing = val["time"]
             gameuid = str(val["gameuid"])
@@ -157,7 +158,7 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
         self.leaderBoard.setVisible(True)
 
     @QtCore.pyqtSlot()
-    def linkVanilla(self):    
+    def linkVanilla(self):
         WizardSC(self).exec_()
 
     def busy_entered(self):
@@ -184,7 +185,7 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
                 item.setExpanded(True)
             return
 
-        if item != self.selectedItem: 
+        if item != self.selectedItem:
             self.selectedItem = item
             self.client.statsServer.send(dict(command="coop_stats", mission=item.uid,
                                               type=self.tabLeaderWidget.currentIndex()))
@@ -207,7 +208,7 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
             hostgamewidget.exec_()
 
     @QtCore.pyqtSlot(dict)
-    def processCoopInfo(self, message): 
+    def processCoopInfo(self, message):
         """
         Slot that interprets and propagates coop_info messages into the coop list 
         """
@@ -223,7 +224,7 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
                 self.cooptypes[typeCoop] = root_item
                 root_item.setExpanded(False)
             else:
-                root_item = self.cooptypes[typeCoop] 
+                root_item = self.cooptypes[typeCoop]
 
             itemCoop = CoopMapItem(uid, self)
             itemCoop.update(message)

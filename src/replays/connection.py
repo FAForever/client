@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 class ReplaysConnection(QtCore.QObject):
+
     def __init__(self, dispatch, host, port):
         QtCore.QObject.__init__(self)
 

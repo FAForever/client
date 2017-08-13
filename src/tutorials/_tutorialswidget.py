@@ -13,8 +13,9 @@ FormClass, BaseClass = util.THEME.loadUiType("tutorials/tutorials.ui")
 
 
 class tutorialsWidget(FormClass, BaseClass):
+
     def __init__(self, client, *args, **kwargs):
-        BaseClass.__init__(self, *args, **kwargs)        
+        BaseClass.__init__(self, *args, **kwargs)
 
         self.setupUi(self)
 
@@ -43,7 +44,7 @@ class tutorialsWidget(FormClass, BaseClass):
 
         self.nam = QNetworkAccessManager()
         self.nam.finished.connect(self.finishReplay)
-        self.nam.get(QNetworkRequest(QtCore.QUrl(item.url)))            
+        self.nam.get(QNetworkRequest(QtCore.QUrl(item.url)))
 
     def processTutorialInfo(self, message):
         """
@@ -58,7 +59,7 @@ class tutorialsWidget(FormClass, BaseClass):
             desc = message["description"]
 
             area = util.THEME.loadUi("tutorials/tutorialarea.ui")
-            tabIndex = self.addTab(area, section)      
+            tabIndex = self.addTab(area, section)
             self.setTabToolTip(tabIndex, desc)
 
             # Set up the List that contains the tutorial items

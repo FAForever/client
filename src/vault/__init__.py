@@ -2,12 +2,16 @@ from PyQt5 import QtCore, QtWidgets, QtWebChannel, QtWebEngineWidgets
 from stat import *
 import util
 from util.qt import injectWebviewCSS
-import urllib.request, urllib.parse, urllib.error
+import urllib.request
+import urllib.parse
+import urllib.error
 import logging
 import os
 from fa import maps
 from vault import luaparser
-import urllib.request, urllib.error, urllib.parse
+import urllib.request
+import urllib.error
+import urllib.parse
 import re
 from config import Settings
 
@@ -17,6 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 class FAFPage(QtWebEngineWidgets.QWebEnginePage):
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -25,6 +30,7 @@ class FAFPage(QtWebEngineWidgets.QWebEnginePage):
 
 
 class MapVault(QtCore.QObject, BusyWidget):
+
     def __init__(self, client, *args, **kwargs):
         QtCore.QObject.__init__(self, *args, **kwargs)
         self.client = client
@@ -76,22 +82,22 @@ class MapVault(QtCore.QObject, BusyWidget):
         off_y = 0
 
         if size[1] > size[0]:
-            img_size[0] = img_size[0]/2
-            off_x = img_size[0]/2
+            img_size[0] = img_size[0] / 2
+            off_x = img_size[0] / 2
         elif size[0] > size[1]:
-            img_size[1] = img_size[1]/2
-            off_y = img_size[1]/2
+            img_size[1] = img_size[1] / 2
+            off_y = img_size[1] / 2
 
-        cf_x = size[0]/img_size[0]
-        cf_y = size[1]/img_size[1]
+        cf_x = size[0] / img_size[0]
+        cf_y = size[1] / img_size[1]
 
         regexp = re.compile(" \\d+\\.\\d*| \\d+")
 
         for postype in positions:
             for pos in positions[postype]:
                 values = regexp.findall(positions[postype][pos])
-                x = off_x + float(values[0].strip())/cf_x
-                y = off_y + float(values[2].strip())/cf_y
+                x = off_x + float(values[0].strip()) / cf_x
+                y = off_y + float(values[2].strip()) / cf_y
                 positions[postype][pos] = [int(x), int(y)]
 
     @QtCore.pyqtSlot()
@@ -106,25 +112,25 @@ class MapVault(QtCore.QObject, BusyWidget):
             if maps.isMapFolderValid(mapDir):
                 os.chmod(mapDir, S_IWRITE)
                 mapName = os.path.basename(mapDir)
-                zipName = mapName.lower()+".zip"
+                zipName = mapName.lower() + ".zip"
 
                 scenariolua = luaparser.luaParser(os.path.join(
                     mapDir,
                     maps.getScenarioFile(mapDir)))
                 scenarioInfos = scenariolua.parse({
-                    'scenarioinfo>name':'name', 'size':'map_size',
-                    'description':'description',
-                    'count:armies':'max_players',
-                    'map_version':'version',
-                    'type':'map_type',
-                    'teams>0>name':'battle_type'
-                    }, {'version':'1'})
+                    'scenarioinfo>name': 'name', 'size': 'map_size',
+                    'description': 'description',
+                    'count:armies': 'max_players',
+                    'map_version': 'version',
+                    'type': 'map_type',
+                    'teams>0>name': 'battle_type'
+                }, {'version': '1'})
 
                 if scenariolua.error:
                     logger.debug("There were {} errors and {} warnings".format(
                         scenariolua.errors,
                         scenariolua.warnings
-                        ))
+                    ))
                     logger.debug(scenariolua.errorMsg)
                     QtWidgets.QMessageBox.critical(
                         self.client,
@@ -146,16 +152,16 @@ class MapVault(QtCore.QObject, BusyWidget):
                         savelua = luaparser.luaParser(os.path.join(
                             mapDir,
                             maps.getSaveFile(mapDir)
-                            ))
+                        ))
                         saveInfos = savelua.parse({
-                            'markers>mass*>position':'mass:__parent__',
-                            'markers>hydro*>position':'hydro:__parent__',
-                            'markers>army*>position':'army:__parent__'})
+                            'markers>mass*>position': 'mass:__parent__',
+                            'markers>hydro*>position': 'hydro:__parent__',
+                            'markers>army*>position': 'army:__parent__'})
                         if savelua.error or savelua.warning:
                             logger.debug("There were {} errors and {} warnings".format(
                                 scenariolua.errors,
                                 scenariolua.warnings
-                                ))
+                            ))
                             logger.debug(scenariolua.errorMsg)
 
                         self.__preparePositions(
@@ -176,7 +182,7 @@ class MapVault(QtCore.QObject, BusyWidget):
                         qfile = QtCore.QFile(tmpFile.name)
                         self.client.lobby_connection.writeToServer("UPLOAD_MAP", zipName, scenarioInfos, qfile)
 
-                        #removing temporary files
+                        # removing temporary files
                         qfile.remove()
             else:
                 QtWidgets.QMessageBox.information(

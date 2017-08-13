@@ -49,10 +49,10 @@ class RelayTest(QObject):
     @property
     def report(self):
         return "Relay address: {}\nReceived {} packets in {}s. {}% loss.". \
-                    format("{}:{}".format(*self.addr),
-                           len(self.received),
-                           round((time.time()-self.start_time), 2),
-                           round(100-(len(self.received)/self._sent) * 100), 2)
+            format("{}:{}".format(*self.addr),
+                   len(self.received),
+                   round((time.time() - self.start_time), 2),
+                   round(100 - (len(self.received) / self._sent) * 100), 2)
 
     def send(self):
         self._socket.writeDatagram(('{}'.format(self._sent)).encode(), self.host, self.port)
@@ -94,7 +94,7 @@ class ConnectivityHelper(QObject):
         QObject.__init__(self)
         self._client = client
         self._port = port
-        self.game_port = port+1
+        self.game_port = port + 1
 
         self._socket = QTurnSocket(port, self._on_data)
         self._socket.state_changed.connect(self.turn_state_changed)
@@ -152,7 +152,7 @@ class ConnectivityHelper(QObject):
         host, port = target.split(':')
         if self.state is None and self._socket.localPort() == self._port:
             self._socket.randomize_port()
-        self._socket.writeDatagram(b'\x08'+message.encode(), QHostAddress(host), int(port))
+        self._socket.writeDatagram(b'\x08' + message.encode(), QHostAddress(host), int(port))
 
     def handle_ConnectivityState(self, msg):
         state, addr = msg['args']

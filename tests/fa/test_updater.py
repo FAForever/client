@@ -5,11 +5,13 @@ from PyQt5 import QtWidgets, QtCore
 import pytest
 import collections
 
+
 class NoIsFinished(QtCore.QObject):
     finished = QtCore.pyqtSignal()
 
 
 class NoOpThread(QtCore.QThread):
+
     def run(self):
         self.yieldCurrentThread()
 
@@ -90,4 +92,3 @@ def test_updater_does_not_hide_and_accept_before_all_watches_are_finished(applic
     application.processEvents()
     assert u.isVisible()
     assert not u.result() == QtWidgets.QDialog.Accepted
-

@@ -15,7 +15,7 @@ class VaultDownloadDialog(object):
     DL_ERROR = 2
     UNKNOWN_ERROR = 3
 
-    def __init__(self, dler, title, label, silent = False):
+    def __init__(self, dler, title, label, silent=False):
         self._silent = silent
         self._result = None
 
@@ -122,7 +122,7 @@ def downloadVaultAssetNoMsg(url, target_dir, exist_handler, name, category,
             None,
             "{} installation failed".format(capitCat),
             "<b>This {} could not be installed (please report this {} or bug).</b>"
-                .format(category, category))
+            .format(category, category))
         return False, msg
 
 

@@ -3,9 +3,10 @@ import util
 
 
 class gameSettingsWizard(QtWidgets.QWizard):
+
     def __init__(self, client, *args, **kwargs):
         QtWidgets.QWizard.__init__(self, *args, **kwargs)
-        
+
         self.client = client
 
         self.settings = GameSettings()
@@ -29,13 +30,14 @@ class gameSettingsWizard(QtWidgets.QWizard):
 
 
 class GameSettings(QtWidgets.QWizardPage):
+
     def __init__(self, parent=None):
         super(GameSettings, self).__init__(parent)
 
         self.parent = parent
         self.setTitle("Network Settings")
         self.setPixmap(QtWidgets.QWizard.WatermarkPixmap, util.THEME.pixmap("client/settings_watermark.png"))
-        
+
         self.label = QtWidgets.QLabel()
         self.label.setText('Forged Alliance needs an open UDP port to play. If you have trouble connecting to other '
                            'players, try the UPnP option first. If that fails, you should try to open or forward the '
@@ -47,10 +49,10 @@ class GameSettings(QtWidgets.QWizardPage):
         self.labelport = QtWidgets.QLabel()
         self.labelport.setText("<b>UDP Port</b> (default 6112)")
         self.labelport.setWordWrap(True)
-        
+
         self.gamePortSpin = QtWidgets.QSpinBox()
         self.gamePortSpin.setMinimum(1024)
-        self.gamePortSpin.setMaximum(65535) 
+        self.gamePortSpin.setMaximum(65535)
         self.gamePortSpin.setValue(6112)
 
         self.checkUPnP = QtWidgets.QCheckBox("use UPnP")

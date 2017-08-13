@@ -51,6 +51,7 @@ class PlayerColors:
 
 
 class Players(QObject):
+
     """
     Wrapper for an id->Player map
 
@@ -110,7 +111,7 @@ class Players(QObject):
         if isinstance(item, int) and item in self._players:
             return self._players[item]
         if item in self._logins:
-                return self._logins[item]
+            return self._logins[item]
 
     def __setitem__(self, key, value):
         assert isinstance(key, int)

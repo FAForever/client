@@ -50,7 +50,7 @@ def checkMods(mods):  # mods is a dictionary of uid-name pairs
     for uid in mods:
         if uid not in uids:
             QtWidgets.QMessageBox.warning(None, "Mod not Found",
-                                      "%s was apparently not installed correctly. Please check this." % mods[uid])
+                                          "%s was apparently not installed correctly. Please check this." % mods[uid])
             return
         actual_mods.append(uids[uid])
     if not modvault.setActiveMods(actual_mods):

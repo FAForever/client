@@ -10,7 +10,7 @@ class LoginWidget(FormClass, BaseClass):
     finished = QtCore.pyqtSignal(str, str)
     remember = QtCore.pyqtSignal(bool)
 
-    def __init__(self, startLogin = None, remember = False):
+    def __init__(self, startLogin=None, remember=False):
         # TODO - init with the parent to inherit the stylesheet
         # once we make some of our own css to go with it
         BaseClass.__init__(self)

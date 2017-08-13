@@ -32,6 +32,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
     This is the chat lobby module for the FAF client.
     It manages a list of channels and dispatches IRC events (lobby inherits from irclib's client class)
     """
+
     def __init__(self, client, *args, **kwargs):
         if not self.use_chat:
             logger.info("Disabling chat")
@@ -122,11 +123,11 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
         for player in util.curDownloadAvatar(reply.url().toString()):
             for channel in self.channels:
-                if player in self.channels[channel].chatters :
+                if player in self.channels[channel].chatters:
                     self.channels[channel].chatters[player].avatarItem.setIcon(QtGui.QIcon(util.respix(reply.url().toString())))
                     self.channels[channel].chatters[player].avatarItem.setToolTip(self.channels[channel].chatters[player].avatarTip)
 
-    def addChannel(self, name, channel, index = None):
+    def addChannel(self, name, channel, index=None):
         self.channels[name] = channel
         if index is None:
             self.addTab(self.channels[name], name)
@@ -139,15 +140,15 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         """
         channel = self.widget(index)
         for name in self.channels:
-                if self.channels[name] is channel:
-                    if not self.channels[name].private and self.connection.is_connected():  # Channels must be parted (if still connected)
-                        self.connection.part([name], "tab closed")
-                    else:
-                        # Queries and disconnected channel windows can just be closed
-                        self.removeTab(index)
-                        del self.channels[name]
+            if self.channels[name] is channel:
+                if not self.channels[name].private and self.connection.is_connected():  # Channels must be parted (if still connected)
+                    self.connection.part([name], "tab closed")
+                else:
+                    # Queries and disconnected channel windows can just be closed
+                    self.removeTab(index)
+                    del self.channels[name]
 
-                    break
+                break
 
     @QtCore.pyqtSlot(str)
     def announce(self, broadcast):
@@ -158,8 +159,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         for channel in self.crucialChannels:
             self.sendMsg(channel, broadcast)
 
-    def setTopic(self,chan,topic):
-        self.connection.topic(chan,topic)
+    def setTopic(self, chan, topic):
+        self.connection.topic(chan, topic)
 
     def sendMsg(self, target, text):
         if self.connection.is_connected():
@@ -233,7 +234,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             self.connection.privmsg('NickServ', 'identify %s %s' % (self.client.login, util.md5text(self.client.password)))
 
     def on_identified(self):
-        if self.connection.get_nickname() != self.client.login :
+        if self.connection.get_nickname() != self.client.login:
             self.serverLogArea.appendPlainText("[Retrieving our nickname : %s]" % (self.client.login))
             self.connection.privmsg('NickServ', 'recover %s %s' % (self.client.login, util.md5text(self.client.password)))
         # Perform any pending autojoins (client may have emitted autoJoin signals before we talked to the IRC server)
@@ -428,7 +429,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
         # Create a Query if it's not an action intended for a channel
         if target not in self.channels:
-            self.openQuery(name,id)
+            self.openQuery(name, id)
             self.channels[name].printAction(name, "\n".join(e.arguments()))
         else:
             self.channels[target].printAction(name, "\n".join(e.arguments()))

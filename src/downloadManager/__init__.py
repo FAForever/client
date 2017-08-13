@@ -1,6 +1,8 @@
 from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
 from PyQt5 import QtWidgets, QtCore
-import urllib.request, urllib.error, urllib.parse
+import urllib.request
+import urllib.error
+import urllib.parse
 import logging
 import os
 import util
@@ -11,9 +13,11 @@ logger = logging.getLogger(__name__)
 
 
 class FileDownload(object):
+
     """
     A simple async one-shot file downloader.
     """
+
     def __init__(self, nam, addr, dest, destpath=None,
                  start=lambda _: None, progress=lambda _: None, finished=lambda _: None):
         self._nam = nam
@@ -95,9 +99,9 @@ class FileDownload(object):
             self._stop()
 
     def _readloop(self):
-            bs = self.blocksize if self.blocksize is not None else self._dfile.bytesAvailable()
-            self.dest.write(self._dfile.read(bs))
-            self.cb_progress(self)
+        bs = self.blocksize if self.blocksize is not None else self._dfile.bytesAvailable()
+        self.dest.write(self._dfile.read(bs))
+        self.cb_progress(self)
 
     def succeeded(self):
         return not self.error and not self.canceled
@@ -112,6 +116,7 @@ VAULT_PREVIEW_ROOT = "{}/faf/vault/map_previews/small/".format(Settings.get('con
 
 
 class downloadManager(QtCore.QObject):
+
     """ This class allows downloading stuff in the background"""
 
     def __init__(self, parent=None):
@@ -202,7 +207,7 @@ class downloadManager(QtCore.QObject):
 
     def downloadModPreview(self, url, name, requester):
         if not url in self.modRequests:
-            logger.debug("Searching mod preview for: " + os.path.basename(url).rsplit('.',1)[0])
+            logger.debug("Searching mod preview for: " + os.path.basename(url).rsplit('.', 1)[0])
             self.modRequests[url] = []
 
             img, imgpath = self._get_cachefile(name + '.part')

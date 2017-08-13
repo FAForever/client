@@ -6,6 +6,7 @@ from decorators import with_logger
 
 @with_logger
 class GPGNetConnection(QObject):
+
     """
     Represents a local 'GPGNet' connection from the game
     """
@@ -61,7 +62,7 @@ class GPGNetConnection(QObject):
             ds.readRawData(5)
 
             datastring = ds.readRawData(fieldSize).decode('utf-8')
-            fixedStr = datastring.replace("/t","\t").replace("/n","\n")
+            fixedStr = datastring.replace("/t", "\t").replace("/n", "\n")
 
             return str(fixedStr)
         else:

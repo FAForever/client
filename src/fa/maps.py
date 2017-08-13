@@ -10,7 +10,9 @@ import os
 import stat
 import struct
 import shutil
-import urllib.request, urllib.error, urllib.parse
+import urllib.request
+import urllib.error
+import urllib.parse
 import zipfile
 import tempfile
 import re
@@ -27,7 +29,7 @@ VAULT_PREVIEW_ROOT = "{}/faf/vault/map_previews/small/".format(route)
 VAULT_DOWNLOAD_ROOT = "{}/faf/vault/".format(route)
 VAULT_COUNTER_ROOT = "{}/faf/vault/map_vault/inc_downloads.php".format(route)
 
-maps = { # A Lookup table for info (names, sizes, players) of the official Forged Alliance Maps
+maps = {  # A Lookup table for info (names, sizes, players) of the official Forged Alliance Maps
     "scmp_001": ["Burial Mounds", "1024x1024", 8],
     "scmp_002": ["Concord Lake", "1024x1024", 8],
     "scmp_003": ["Drake's Ravine", "1024x1024", 4],
@@ -249,7 +251,7 @@ def genPrevFromDDS(sourcename, destname, small=False):
             img += buf[:3] + buf[4:7] + buf[8:11] + buf[12:15]
         file.close()
 
-        size = int((len(img)/3) ** (1.0/2))
+        size = int((len(img) / 3) ** (1.0 / 2))
         if small:
             imageFile = QtGui.QImage(
                 img,
@@ -293,7 +295,7 @@ def __exportPreviewFromMap(mapname, positions=None):
         return previews
 
     mapname = os.path.basename(mapdir).lower()
-    mapfilename = os.path.join(mapdir, mapname.split(".")[0]+".scmap")
+    mapfilename = os.path.join(mapdir, mapname.split(".")[0] + ".scmap")
 
     mode = os.stat(mapdir)[0]
     if not (mode and stat.S_IWRITE):
@@ -316,7 +318,7 @@ def __exportPreviewFromMap(mapname, positions=None):
         logger.warning(
             "Unable to find the .scmap for: {}, was looking here: {}".format(
                 mapname, mapfilename
-                ))
+            ))
         return previews
 
     # Small preview already exists?
@@ -410,22 +412,22 @@ def __exportPreviewFromMap(mapname, positions=None):
             if "hydro" in positions:
                 for pos in positions["hydro"]:
                     target = QtCore.QRectF(
-                        positions["hydro"][pos][0]-5,
-                        positions["hydro"][pos][1]-5, 10, 10)
+                        positions["hydro"][pos][0] - 5,
+                        positions["hydro"][pos][1] - 5, 10, 10)
                     source = QtCore.QRectF(0.0, 0.0, 10.0, 10.0)
                     painter.drawPixmap(target, hydroicon, source)
             if "mass" in positions:
                 for pos in positions["mass"]:
                     target = QtCore.QRectF(
-                        positions["mass"][pos][0]-4,
-                        positions["mass"][pos][1]-4, 8, 8)
+                        positions["mass"][pos][0] - 4,
+                        positions["mass"][pos][1] - 4, 8, 8)
                     source = QtCore.QRectF(0.0, 0.0, 8.0, 8.0)
                     painter.drawPixmap(target, massicon, source)
             if "army" in positions:
                 for pos in positions["army"]:
                     target = QtCore.QRectF(
-                        positions["army"][pos][0]-4,
-                        positions["army"][pos][1]-4, 8, 9)
+                        positions["army"][pos][0] - 4,
+                        positions["army"][pos][1] - 4, 8, 9)
                     source = QtCore.QRectF(0.0, 0.0, 8.0, 9.0)
                     painter.drawPixmap(target, armyicon, source)
             painter.end()
