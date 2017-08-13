@@ -1268,7 +1268,7 @@ class ClientWindow(FormClass, BaseClass):
             self.game_session.game_map = game.mapname
             self.game_session.game_mod = game.featured_mod
             self.game_session.game_name = game.title
-            self.game_session.game_visibility = game.visibility
+            self.game_session.game_visibility = game.visibility.value
 
     def handle_matchmaker_info(self, message):
         if not self.me.player:
