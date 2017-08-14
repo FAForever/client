@@ -629,7 +629,7 @@ class ClientWindow(FormClass, BaseClass):
             update_dialog.setup(releases)
             update_dialog.show()
         else:
-            QMessageBox(self,"No updates found", "No client updates were found")
+            QMessageBox.information(self,"No updates found", "No client updates were found")
 
     @QtCore.pyqtSlot()
     def cleanup(self):
