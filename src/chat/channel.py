@@ -43,13 +43,14 @@ class Channel(FormClass, BaseClass):
     """
     This is an actual chat channel object, representing an IRC chat room and the users currently present.
     """
-    def __init__(self, lobby, name, private=False, *args, **kwargs):
-        BaseClass.__init__(self, lobby, *args, **kwargs)
+
+    def __init__(self, chat_widget, name, private=False, *args, **kwargs):
+        BaseClass.__init__(self, chat_widget, *args, **kwargs)
 
         self.setupUi(self)
 
         # Special HTML formatter used to layout the chat lines written by people
-        self.lobby = lobby
+        self.chat_widget = chat_widget
         self.chatters = {}
 
         self.lasttimestamp= None
@@ -90,8 +91,8 @@ class Channel(FormClass, BaseClass):
 
             self.nickFilter.textChanged.connect(self.filterNicks)
 
-            self.lobby.client.usersUpdated.connect(self.update_users)
-            self.lobby.client.me.ircRelationsUpdated.connect(self.update_irc_users)
+            self.chat_widget.client.usersUpdated.connect(self.update_users)
+            self.chat_widget.client.me.ircRelationsUpdated.connect(self.update_irc_users)
         else:
             self.nickFrame.hide()
             self.announceLine.hide()
@@ -104,7 +105,7 @@ class Channel(FormClass, BaseClass):
         """ join another channel """
         channel = self.channelsComboBox.itemText(index)
         if channel.startswith('#'):
-            self.lobby.autoJoin([channel])
+            self.chat_widget.autoJoin([channel])
 
     def keyReleaseEvent(self, keyevent):
         """
@@ -147,15 +148,15 @@ class Channel(FormClass, BaseClass):
     def blink(self):
         if (self.blinked):
             self.blinked = False
-            self.lobby.tabBar().setTabText(self.lobby.indexOf(self), self.name)
+            self.chat_widget.tabBar().setTabText(self.chat_widget.indexOf(self), self.name)
         else:
             self.blinked = True
-            self.lobby.tabBar().setTabText(self.lobby.indexOf(self), "")
+            self.chat_widget.tabBar().setTabText(self.chat_widget.indexOf(self), "")
 
     @QtCore.pyqtSlot()
     def stopBlink(self):
         self.blinker.stop()
-        self.lobby.tabBar().setTabText(self.lobby.indexOf(self), self.name)
+        self.chat_widget.tabBar().setTabText(self.chat_widget.indexOf(self), self.name)
 
     @QtCore.pyqtSlot()
     def startBlink(self):
@@ -163,16 +164,16 @@ class Channel(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def pingWindow(self):
-        QtWidgets.QApplication.alert(self.lobby.client)
+        QtWidgets.QApplication.alert(self.chat_widget.client)
 
-        if not self.isVisible() or QtWidgets.QApplication.activeWindow() != self.lobby.client:
+        if not self.isVisible() or QtWidgets.QApplication.activeWindow() != self.chat_widget.client:
             if self.oneMinuteOrOlder():
-                if self.lobby.client.soundeffects:
+                if self.chat_widget.client.soundeffects:
                     util.THEME.sound("chat/sfx/query.wav")
 
         if not self.isVisible():
-            if not self.blinker.isActive() and not self == self.lobby.currentWidget():
-                    self.startBlink()
+            if not self.blinker.isActive() and not self == self.chat_widget.currentWidget():
+                self.startBlink()
 
     @QtCore.pyqtSlot(QtCore.QUrl)
     def openUrl(self, url):
@@ -180,7 +181,7 @@ class Channel(FormClass, BaseClass):
         if url.scheme() == "faflive":
             replay(url)
         elif url.scheme() == "fafgame":
-            self.lobby.client.joinGameFromURL(url)
+            self.chat_widget.client.joinGameFromURL(url)
         else:
             QtGui.QDesktopServices.openUrl(url)
 
@@ -195,7 +196,7 @@ class Channel(FormClass, BaseClass):
         self.chatArea.setTextCursor(cursor)
 
         formatter = Formatters.FORMATTER_ANNOUNCEMENT
-        line = formatter.format(size=size, color=color, text=util.irc_escape(text, self.lobby.a_style))
+        line = formatter.format(size=size, color=color, text=util.irc_escape(text, self.chat_widget.a_style))
         self.chatArea.insertHtml(line)
 
         if scroll_needed:
@@ -211,8 +212,8 @@ class Channel(FormClass, BaseClass):
             cursor.removeSelectedText()
             self.lines = self.lines - CHAT_REMOVEBLOCK
 
-        if self.lobby.client.players.isPlayer(name):
-            player = self.lobby.client.players[name]
+        if self.chat_widget.client.players.isPlayer(name):
+            player = self.chat_widget.client.players[name]
         else:
             player = IRCPlayer(name)
 
@@ -221,7 +222,7 @@ class Channel(FormClass, BaseClass):
             displayName = "<b>[%s]</b>%s" % (player.clan, name)
 
         # Play a ping sound and flash the title under certain circumstances
-        mentioned = text.find(self.lobby.client.login) != -1
+        mentioned = text.find(self.chat_widget.client.login) != -1
         if mentioned or (self.private and not (formatter is Formatters.FORMATTER_RAW and text == "quit.")):
             self.pingWindow()
 
@@ -235,10 +236,10 @@ class Channel(FormClass, BaseClass):
 
         else:
             # Fallback and ask the client. We have no Idea who this is.
-            color = self.lobby.client.players.getUserColor(player.id)
+            color = self.chat_widget.client.players.getUserColor(player.id)
 
         if mentioned:
-            color = self.lobby.client.getColor("you")
+            color = self.chat_widget.client.getColor("you")
 
         # scroll if close to the last line of the log
         scroll_current = self.chatArea.verticalScrollBar().value()
@@ -256,12 +257,15 @@ class Channel(FormClass, BaseClass):
                 if not self.chatArea.document().resource(QtGui.QTextDocument.ImageResource, QtCore.QUrl(avatar)):
                     self.chatArea.document().addResource(QtGui.QTextDocument.ImageResource,  QtCore.QUrl(avatar), pix)
                 line = formatter.format(time=self.timestamp(), avatar=avatar, avatarTip=avatarTip, name=displayName,
-                                        color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))
+                                        color=color, width=self.maxChatterWidth,
+                                        text=util.irc_escape(text, self.chat_widget.a_style))
             else:
                 formatter = Formatters.FORMATTER_MESSAGE
-                line = formatter.format(time=self.timestamp(), name=displayName, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))
+                line = formatter.format(time=self.timestamp(), name=displayName, color=color, width=self.maxChatterWidth,
+                                        text=util.irc_escape(text, self.chat_widget.a_style))
         else:
-            line = formatter.format(time=self.timestamp(), name=displayName, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.lobby.a_style))
+            line = formatter.format(time=self.timestamp(), name=displayName, color=color, width=self.maxChatterWidth,
+                                    text=util.irc_escape(text, self.chat_widget.a_style))
 
         self.chatArea.insertHtml(line)
         self.lines += 1
@@ -294,12 +298,12 @@ class Channel(FormClass, BaseClass):
         """
         Print an raw message in the chatArea of the channel
         """
-        id = self.lobby.client.players.getID(name)
+        id = self.chat_widget.client.players.getID(name)
 
-        color = self.lobby.client.players.getUserColor(id)
+        color = self.chat_widget.client.players.getUserColor(id)
 
         # Play a ping sound
-        if self.private and name != self.lobby.client.login:
+        if self.private and name != self.chat_widget.client.login:
             self.pingWindow()
 
         # scroll if close to the last line of the log
@@ -347,8 +351,8 @@ class Channel(FormClass, BaseClass):
     @QtCore.pyqtSlot(list)
     def update_users(self, updated_users):
         for id in updated_users:
-            if id in self.lobby.client.players:
-                name = self.lobby.client.players[id].login
+            if id in self.chat_widget.client.players:
+                name = self.chat_widget.client.players[id].login
             else:
                 name = id
             if name in self.chatters:
@@ -398,14 +402,14 @@ class Channel(FormClass, BaseClass):
         Adds an user to this chat channel, and assigns an appropriate icon depending on friendship and FAF player status
         """
         if name not in self.chatters:
-            item = Chatter(self.nickList, (name, id, elevation, hostname), self.lobby, None)
+            item = Chatter(self.nickList, (name, id, elevation, hostname), self.chat_widget, None)
             self.chatters[name] = item
 
         self.chatters[name].update()
 
         self.updateUserCount()
 
-        if join and self.lobby.client.joinsparts:
+        if join and self.chat_widget.client.joinsparts:
             self.printAction(name, "joined the channel.", server_action=True)
 
     def renameChatter(self, oldname, newname):
@@ -421,7 +425,7 @@ class Channel(FormClass, BaseClass):
             self.nickList.removeRow(self.chatters[name].row())
             del self.chatters[name]
 
-            if server_action and (self.lobby.client.joinsparts or self.private):
+            if server_action and (self.chat_widget.client.joinsparts or self.private):
                 self.printAction(name, server_action, server_action=True)
                 self.stopBlink()
 
@@ -454,23 +458,23 @@ class Channel(FormClass, BaseClass):
             # System commands
             if text.startswith("/"):
                 if text.startswith("/join "):
-                    self.lobby.join(text[6:])
+                    self.chat_widget.join(text[6:])
                 elif text.startswith("/topic "):
-                    self.lobby.setTopic(self.name, text[7:])
+                    self.chat_widget.setTopic(self.name, text[7:])
                 elif text.startswith("/msg "):
                     blobs = text.split(" ")
-                    self.lobby.sendMsg(blobs[1], " ".join(blobs[2:]))
+                    self.chat_widget.sendMsg(blobs[1], " ".join(blobs[2:]))
                 elif text.startswith("/me "):
-                    if self.lobby.sendAction(target, text[4:]):
-                        self.printAction(self.lobby.client.login, text[4:], True)
+                    if self.chat_widget.sendAction(target, text[4:]):
+                        self.printAction(self.chat_widget.client.login, text[4:], True)
                     else:
                         self.printAction("IRC", "action not supported", True)
                 elif text.startswith("/seen "):
-                    if self.lobby.sendMsg("nickserv", "info %s" % (text[6:])):
+                    if self.chat_widget.sendMsg("nickserv", "info %s" % (text[6:])):
                         self.printAction("IRC", "info requested on %s" % (text[6:]), True)
                     else:
                         self.printAction("IRC", "not connected", True)
             else:
-                if self.lobby.sendMsg(target, text):
-                    self.printMsg(self.lobby.client.login, text, True)
+                if self.chat_widget.sendMsg(target, text):
+                    self.printMsg(self.chat_widget.client.login, text, True)
         self.chatEdit.clear()

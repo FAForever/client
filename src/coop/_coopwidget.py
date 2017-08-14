@@ -9,7 +9,7 @@ from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest
 from games.gameitem import GameItem, GameItemDelegate
 from model.game import GameState
 from coop.coopmapitem import CoopMapItem, CoopMapItemDelegate
-from games.hostgamewidget import HostgameWidget
+from games.hostgamewidget import HostGameWidget
 from ui.busy_widget import BusyWidget
 from fa import factions
 import random
@@ -203,7 +203,7 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
 
         # A simple Hosting dialog.
         if fa.check.check("coop"):
-            hostgamewidget = HostgameWidget(self, item, iscoop=True)
+            hostgamewidget = HostGameWidget(self, item, iscoop=True)
             hostgamewidget.exec_()
 
     @QtCore.pyqtSlot(dict)

@@ -5,7 +5,7 @@ import base64, zlib, os
 import util
 
 
-class playerAvatar(QtWidgets.QDialog):
+class PlayerAvatar(QtWidgets.QDialog):
     def __init__(self, users=[], idavatar=0, parent=None, *args, **kwargs):
         QtWidgets.QDialog.__init__(self, *args, **kwargs)
 
@@ -54,7 +54,7 @@ class playerAvatar(QtWidgets.QDialog):
         return groupBox
             
 
-class avatarWidget(QtWidgets.QDialog):
+class AvatarWidget(QtWidgets.QDialog):
     def __init__(self, parent, user, personal=False, *args, **kwargs):
 
         QtWidgets.QDialog.__init__(self, *args, **kwargs)
@@ -84,7 +84,7 @@ class avatarWidget(QtWidgets.QDialog):
         self.parent.lobby_info.avatarList.connect(self.avatarList)
         self.parent.lobby_info.playerAvatarList.connect(self.doPlayerAvatarList)
 
-        self.playerList = playerAvatar(parent=self.parent)
+        self.playerList = PlayerAvatar(parent=self.parent)
 
         self.nams = {}
         self.avatars = {}
@@ -153,7 +153,7 @@ class avatarWidget(QtWidgets.QDialog):
                 self.close()
 
     def doPlayerAvatarList(self, message):
-        self.playerList = playerAvatar(parent=self.parent)
+        self.playerList = PlayerAvatar(parent=self.parent)
         player_avatar_list = message["player_avatar_list"]
         idavatar = message["avatar_id"]
         self.playerList.processList(player_avatar_list, idavatar)

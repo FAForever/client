@@ -56,7 +56,7 @@ import notifications as ns
 FormClass, BaseClass = util.THEME.loadUiType("client/client.ui")
 
 
-class mousePosition(object):
+class MousePosition(object):
     def __init__(self, parent):
         self.parent = parent
         self.onLeftEdge = False
@@ -204,7 +204,7 @@ class ClientWindow(FormClass, BaseClass):
 
         self.rubberBand = QtWidgets.QRubberBand(QtWidgets.QRubberBand.Rectangle)
 
-        self.mousePosition = mousePosition(self)
+        self.mousePosition = MousePosition(self)
         self.installEventFilter(self)
 
         self.minimize = QtWidgets.QToolButton(self)
@@ -515,7 +515,7 @@ class ClientWindow(FormClass, BaseClass):
         import modvault
         import coop
         import news
-        from chat._avatarWidget import avatarWidget
+        from chat._avatarWidget import AvatarWidget
 
         # download manager
         self.downloader = downloadManager.downloadManager(self)
@@ -523,40 +523,40 @@ class ClientWindow(FormClass, BaseClass):
         self.loadSettings()
 
         # Initialize chat
-        self.chat = chat.Lobby(self)
+        self.chat_widget = chat.ChatWidget(self)
         # Color table used by the following method
         # CAVEAT: This will break if the theme is loaded after the client package is imported
         chat.CHAT_COLORS = json.loads(util.THEME.readfile("client/colors.json"))
 
         # build main window with the now active client
-        self.news = news.NewsWidget(self)
-        self.ladder = stats.Stats(self)
-        self.games = games.Games(self, self.gameset, self.me)
-        self.tourneys = tourneys.Tourneys(self)
-        self.vault = vault.MapVault(self)
-        self.modvault = modvault.ModVault(self)
-        self.replays = replays.Replays(self, self.lobby_dispatch, self.gameset)
-        self.tutorials = tutorials.Tutorials(self)
-        self.Coop = coop.Coop(self, self.gameset)
+        self.news_widget = news.NewsWidget(self)
+        self.ladder_widget = stats.StatsWidget(self)
+        self.games_widget = games.GamesWidget(self, self.gameset, self.me)
+        self.tourneys_widget = tourneys.TournamentsWidget(self)
+        self.mapvault_widget = vault.MapVaultWidget(self)
+        self.modvault_widget = modvault.ModVaultWidget(self)
+        self.replays_widget = replays.ReplaysWidget(self, self.lobby_dispatch, self.gameset)
+        self.tutorials_widget = tutorials.TutorialsWidget(self)
+        self.coop_widget = coop.CoopWidget(self, self.gameset)
         self.notificationSystem = ns.Notifications(self, self.gameset)
 
         # TODO: some day when the tabs only do UI we'll have all this in the .ui file
-        self.chatTab.layout().addWidget(self.chat)
-        self.whatNewTab.layout().addWidget(self.news)
-        self.ladderTab.layout().addWidget(self.ladder)
-        self.gamesTab.layout().addWidget(self.games)
-        self.tourneyTab.layout().addWidget(self.tourneys)
-        self.mapsTab.layout().addWidget(self.vault.ui)
-        self.modsTab.layout().addWidget(self.modvault)
-        self.replaysTab.layout().addWidget(self.replays)
-        self.tutorialsTab.layout().addWidget(self.tutorials)
-        self.coopTab.layout().addWidget(self.Coop)
+        self.chatTab.layout().addWidget(self.chat_widget)
+        self.whatNewTab.layout().addWidget(self.news_widget)
+        self.ladderTab.layout().addWidget(self.ladder_widget)
+        self.gamesTab.layout().addWidget(self.games_widget)
+        self.tourneyTab.layout().addWidget(self.tourneys_widget)
+        self.mapsTab.layout().addWidget(self.mapvault_widget.ui)
+        self.modsTab.layout().addWidget(self.modvault_widget)
+        self.replaysTab.layout().addWidget(self.replays_widget)
+        self.tutorialsTab.layout().addWidget(self.tutorials_widget)
+        self.coopTab.layout().addWidget(self.coop_widget)
 
         # set menu states
         self.actionNsEnabled.setChecked(self.notificationSystem.settings.enabled)
 
         # Other windows
-        self.avatarAdmin = self.avatarSelection = avatarWidget(self, None)
+        self.avatarAdmin = self.avatarSelection = AvatarWidget(self, None)
 
         # warning setup
         self.warning = QtWidgets.QHBoxLayout()
@@ -580,7 +580,7 @@ class ClientWindow(FormClass, BaseClass):
             button = QtWidgets.QToolButton(self)
             button.setMaximumSize(25, 25)
             button.setIcon(util.THEME.icon("games/automatch/%s.png" % faction.to_name()))
-            button.clicked.connect(partial(self.games.startSearchRanked, faction))
+            button.clicked.connect(partial(self.games_widget.startSearchRanked, faction))
             self.warning.addWidget(button)
             return button
 
@@ -621,7 +621,7 @@ class ClientWindow(FormClass, BaseClass):
         # Used when the user explicitly demanded to stay offline.
         self.lobby_reconnecter.enabled = False
         self.lobby_connection.disconnect()
-        self.chat.disconnect()
+        self.chat_widget.disconnect()
 
     @QtCore.pyqtSlot(list)
     def update_checked(self, releases):
@@ -672,10 +672,10 @@ class ClientWindow(FormClass, BaseClass):
             self.replayServer = None
 
         # Clean up Chat
-        if self.chat:
+        if self.chat_widget:
             progress.setLabelText("Disconnecting from IRC")
-            self.chat.disconnect()
-            self.chat = None
+            self.chat_widget.disconnect()
+            self.chat_widget = None
 
         # Get rid of the Tray icon
         if self.tray:
@@ -1221,7 +1221,7 @@ class ClientWindow(FormClass, BaseClass):
         # HACK: Ideally, this comes from the server, too. LATER: search_ranked message
         arguments = []
         if message["mod"] == "ladder1v1":
-            arguments.append('/' + Factions.to_name(self.games.race))
+            arguments.append('/' + Factions.to_name(self.games_widget.race))
             # Player 1v1 rating
             arguments.append('/mean')
             arguments.append(str(self.me.player.ladder_rating_mean))
@@ -1281,7 +1281,7 @@ class ClientWindow(FormClass, BaseClass):
         if "action" in message:
             self.matchmakerInfo.emit(message)
         elif "queues" in message:
-            if self.me.player.ladder_rating_deviation > 200 or self.games.searching:
+            if self.me.player.ladder_rating_deviation > 200 or self.games_widget.searching:
                 return
             key = 'boundary_80s' if self.me.player.ladder_rating_deviation < 100 else 'boundary_75s'
             show = False

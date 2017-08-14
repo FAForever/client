@@ -9,7 +9,7 @@ from config import Settings
 from games.gameitem import GameItem, GameItemDelegate
 from model.game import GameState
 from games.moditem import ModItem, mod_invisible, mods
-from games.hostgamewidget import HostgameWidget
+from games.hostgamewidget import HostGameWidget
 from fa.factions import Factions
 import fa
 import modvault
@@ -157,7 +157,7 @@ class GamesWidget(FormClass, BaseClass):
         else:
             mod_invisible[mod] = self.mods[mod]
 
-        self.client.replays.modList.addItem(message["name"])
+        self.client.replays_widget.modList.addItem(message["name"])
 
     @QtCore.pyqtSlot(int)
     def togglePrivateGames(self, state):
@@ -365,7 +365,7 @@ class GamesWidget(FormClass, BaseClass):
 
         self.stopSearchRanked()
 
-        hostgamewidget = HostgameWidget(self, item)
+        hostgamewidget = HostGameWidget(self, item)
         # Abort if the client cancelled the host game dialogue.
         if hostgamewidget.exec_() != 1:
             return

@@ -147,7 +147,7 @@ def getModInfo(modinfofile):
 def parseModInfo(folder):
     if not isModFolderValid(folder):
         return None
-    modinfofile = luaparser.luaParser(os.path.join(folder,"mod_info.lua"))
+    modinfofile = luaparser.LuaParser(os.path.join(folder, "mod_info.lua"))
     return getModInfo(modinfofile)
 
 modCache = {}
@@ -167,7 +167,7 @@ def getModInfoFromZip(zfile):
                 if not filename:
                     continue
                 if filename == "mod_info.lua":
-                    modinfofile = luaparser.luaParser("mod_info.lua")
+                    modinfofile = luaparser.LuaParser("mod_info.lua")
                     modinfofile.iszip = True
                     modinfofile.zip = zip
                     r = getModInfo(modinfofile)
@@ -218,7 +218,7 @@ def getActiveMods(uimods=None, temporary=True):  # returns a list of ModInfo's c
             logger.info("No game.prefs file found")
             return []
         if temporary:
-            l = luaparser.luaParser(PREFSFILENAME)
+            l = luaparser.LuaParser(PREFSFILENAME)
             l.loweringKeys = False
             modlist = l.parse({"active_mods":"active_mods"}, {"active_mods": {}})["active_mods"]
             if l.error:

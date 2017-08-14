@@ -1,7 +1,7 @@
 from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtCore import QUrl
 from PyQt5.QtNetwork import QNetworkRequest
-from chat._avatarWidget import avatarWidget
+from chat._avatarWidget import AvatarWidget
 
 import urllib.request, urllib.error, urllib.parse
 import chat
@@ -30,13 +30,13 @@ class Chatter(QtWidgets.QTableWidgetItem):
     RANK_NONPLAYER = 3
     RANK_FOE = 4
 
-    def __init__(self, parent, user, lobby, *args, **kwargs):
+    def __init__(self, parent, user, chat_widget, *args, **kwargs):
         QtWidgets.QTableWidgetItem.__init__(self, *args, **kwargs)
 
         # TODO: for now, userflags and ranks aren't properly interpreted :-/
         # This is impractical if an operator reconnects too late.
         self.parent = parent
-        self.lobby = lobby
+        self.chat_widget = chat_widget
 
         self.name, self.id, self.elevation, self.hostname = user
 
@@ -92,30 +92,32 @@ class Chatter(QtWidgets.QTableWidgetItem):
 
     def __lt__(self, other):
         """ Comparison operator used for item list sorting """
-        firstStatus = self.getUserRank(self)
-        secondStatus = self.getUserRank(other)
+        if self.name == client.instance.login:
+            return True
+        if other.name == client.instance.login:
+            return False
 
-        if self.name == self.lobby.client.login: return True
-        if other.name == self.lobby.client.login: return False
+        first_status = self.get_user_rank(self)
+        second_status = self.get_user_rank(other)
 
         # if not same rank sort
-        if firstStatus != secondStatus:
-            return firstStatus < secondStatus
+        if first_status != second_status:
+            return first_status < second_status
 
         # Default: Alphabetical
         return self.name.lower() < other.name.lower()
 
-    def getUserRank(self, other):
+    def get_user_rank(self, user):
         # TODO: Add subdivision for admin?
-        me = self.lobby.client.me
+        me = client.instance.me
 
-        if other.elevation:
+        if user.elevation:
             return self.RANK_ELEVATION
-        if me.isFriend(other.id, other.name):
-            return self.RANK_FRIEND - (2 if self.lobby.client.friendsontop else 0)
-        if me.isFoe(other.id, other.name):
+        if me.isFriend(user.id, user.name):
+            return self.RANK_FRIEND - (2 if client.instance.friendsontop else 0)
+        if me.isFoe(user.id, user.name):
             return self.RANK_FOE
-        if self.lobby.client.players.isPlayer(other.id):
+        if client.instance.players.isPlayer(user.id):
             return self.RANK_USER
 
         return self.RANK_NONPLAYER
@@ -137,7 +139,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
                 self.avatarItem.setToolTip(self.avatarTip)
             else:
                 if util.addcurDownloadAvatar(url, self.name):
-                    self.lobby.nam.get(QNetworkRequest(QtCore.QUrl(url)))
+                    self.chat_widget.nam.get(QNetworkRequest(QtCore.QUrl(url)))
         else:
             # No avatar set.
             self.avatarItem.setIcon(QtGui.QIcon())
@@ -150,15 +152,15 @@ class Chatter(QtWidgets.QTableWidgetItem):
         """
         self.setText(self.name)
         # First make sure we've got the correct id for ourselves
-        if self.id == -1 and self.lobby.client.players.isPlayer(self.name):
-            self.id = self.lobby.client.players.getID(self.name)
+        if self.id == -1 and client.instance.players.isPlayer(self.name):
+            self.id = client.instance.players.getID(self.name)
 
         # Color handling
         self.set_color()
 
-        player = self.lobby.client.players[self.id]
+        player = client.instance.players[self.id]
         if not player and not self.id == -1:  # We should have a player object for this
-            player = self.lobby.client.players[self.name]
+            player = client.instance.players[self.name]
 
         # Weed out IRC users and those we don't know about early.
         if self.id == -1 or player is None:
@@ -212,7 +214,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
 
     def set_color(self):
         # FIXME - we should really get players and me in the constructor
-        affiliation = self.lobby.client.me.getAffiliation(self.id, self.name)
+        affiliation = client.instance.me.getAffiliation(self.id, self.name)
         if self.isMod():
             if affiliation == PlayerAffiliation.SELF:
                 self.setForeground(QtGui.QColor(chat.get_color("self_mod")))
@@ -229,18 +231,18 @@ class Chatter(QtWidgets.QTableWidgetItem):
 
         self.setForeground(QtGui.QColor(PlayerColors.getUserColor(
             affiliation, irc=self.id == -1,
-            random=self.lobby.client.players.coloredNicknames, seed=self.name
+            random=client.instance.players.coloredNicknames, seed=self.name
         )))
 
     def viewAliases(self):
         QtGui.QDesktopServices.openUrl(QUrl("{}?name={}".format(Settings.get("USER_ALIASES_URL"), self.name)))
 
     def selectAvatar(self):
-        avatarSelection = avatarWidget(self.lobby.client, self.name, personal=True)
+        avatarSelection = AvatarWidget(client.instance, self.name, personal=True)
         avatarSelection.exec_()
 
     def addAvatar(self):
-        avatarSelection = avatarWidget(self.lobby.client, self.name)
+        avatarSelection = AvatarWidget(client.instance, self.name)
         avatarSelection.exec_()
 
     def kick(self):
@@ -248,11 +250,11 @@ class Chatter(QtWidgets.QTableWidgetItem):
 
     def doubleClicked(self, item):
         # filter yourself
-        if self.lobby.client.login == self.name:
+        if client.instance.login == self.name:
             return
         # Chatter name clicked
         if item == self:
-            self.lobby.openQuery(self.name, self.id, activate=True)  # open and activate query window
+            self.chat_widget.openQuery(self.name, self.id, activate=True)  # open and activate query window
 
         elif item == self.statusItem:
             if self.name in client.instance.urls:
@@ -273,15 +275,15 @@ class Chatter(QtWidgets.QTableWidgetItem):
             menu.addAction(action)
 
         # only for us. Either way, it will display our avatar, not anyone avatar.
-        if self.lobby.client.login == self.name:
+        if client.instance.login == self.name:
             menu_add("Select Avatar", self.selectAvatar)
 
         # power menu
-        if self.lobby.client.power > 1:
+        if client.instance.power > 1:
             # admin and mod menus
             menu_add("Assign avatar", self.addAvatar, True)
 
-            if self.lobby.client.power == 2:
+            if client.instance.power == 2:
 
                 def send_the_orcs():
                     route = Settings.get('mordor/host')
@@ -291,14 +293,14 @@ class Chatter(QtWidgets.QTableWidgetItem):
                         QtGui.QDesktopServices.openUrl(QUrl("{}/users/{}".format(route, self.name)))
 
                 menu_add("Send the Orcs", send_the_orcs, True)
-                menu_add("Close Game", lambda: self.lobby.client.closeFA(self.name))
-                menu_add("Close FAF Client", lambda: self.lobby.client.closeLobby(self.name))
+                menu_add("Close Game", lambda: client.instance.closeFA(self.name))
+                menu_add("Close FAF Client", lambda: client.instance.closeLobby(self.name))
 
         # Aliases link
         menu_add("View Aliases", self.viewAliases, True)
 
         # Joining hosted or live Game
-        if self.lobby.client.login != self.name:  # Don't allow self to be invited to a game, or join one
+        if client.instance.login != self.name:  # Don't allow self to be invited to a game, or join one
             if self.name in client.instance.urls:
 
                 url = client.instance.urls[self.name]
@@ -318,8 +320,8 @@ class Chatter(QtWidgets.QTableWidgetItem):
             else:
                 return lambda: irc_f(self.name)
 
-        cl = self.lobby.client
-        me = self.lobby.client.me
+        cl = client.instance
+        me = client.instance.me
         if me.player.id == self.id:  # We're ourselves
             pass
 
@@ -348,10 +350,9 @@ class Chatter(QtWidgets.QTableWidgetItem):
 
     def viewVaultReplay(self):
         """ see the player replays in the vault """
-        self.lobby.client.replays.setCurrentIndex(2)  # focus on Online Fault
-        replayHandler = self.lobby.client.replays.vaultManager
-        replayHandler.searchVault(0, "", self.name, 0)
-        self.lobby.client.mainTabs.setCurrentIndex(self.lobby.client.mainTabs.indexOf(self.lobby.client.replaysTab))
+        client.instance.replays_widget.setCurrentIndex(2)  # focus on Online Fault
+        client.instance.replays_widget.vaultManager.searchVault(0, "", self.name, 0)
+        client.instance.mainTabs.setCurrentIndex(client.instance.mainTabs.indexOf(client.instance.replaysTab))
 
     def joinInGame(self):
         if self.name in client.instance.urls:
