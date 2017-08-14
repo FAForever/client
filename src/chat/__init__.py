@@ -20,7 +20,7 @@ def parse_irc_source(src):
     if username[0] in IRC_ELEVATION:
         elevation, username = username[0], username[1:]
     else:
-        elevation = ''
+        elevation = None
     id, hostname = tail.split('@')
     try:
         id = int(id)

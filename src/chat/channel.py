@@ -39,7 +39,7 @@ class Channel(FormClass, BaseClass):
     """
     This is an actual chat channel object, representing an IRC chat room and the users currently present.
     """
-    def __init__(self, lobby, name, private=False, *args, **kwargs):
+    def __init__(self, lobby, name, chatterset, private=False, *args, **kwargs):
         BaseClass.__init__(self, lobby, *args, **kwargs)
 
         self.setupUi(self)
@@ -47,6 +47,9 @@ class Channel(FormClass, BaseClass):
         # Special HTML formatter used to layout the chat lines written by people
         self.lobby = lobby
         self.chatters = {}
+        self.items = {}
+        self._chatterset = chatterset
+        chatterset.userRemoved.connect(self._checkUserQuit)
 
         self.lasttimestamp= None
 
@@ -129,11 +132,11 @@ class Channel(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def filterNicks(self):
-        for chatter in list(self.chatters.keys()):
-            self.chatters[chatter].setVisible(self.chatters[chatter].isFiltered(self.nickFilter.text().lower()))
+        for chatter in self.chatters.values():
+            chatter.setVisible(chatter.isFiltered(self.nickFilter.text().lower()))
 
     def updateUserCount(self):
-        count = len(list(self.chatters.keys()))
+        count = len(self.chatters)
         self.nickFilter.setPlaceholderText(str(count) + " users... (type to filter)")
 
         if self.nickFilter.text():
@@ -168,7 +171,7 @@ class Channel(FormClass, BaseClass):
 
         if not self.isVisible():
             if not self.blinker.isActive() and not self == self.lobby.currentWidget():
-                    self.startBlink()
+                self.startBlink()
 
     @QtCore.pyqtSlot(QtCore.QUrl)
     def openUrl(self, url):
@@ -180,7 +183,6 @@ class Channel(FormClass, BaseClass):
         else:
             QtGui.QDesktopServices.openUrl(url)
 
-    @QtCore.pyqtSlot(str, str)
     def printAnnouncement(self, text, color, size, scroll_forced = True):
         # scroll if close to the last line of the log
         scroll_current = self.chatArea.verticalScrollBar().value()
@@ -199,7 +201,7 @@ class Channel(FormClass, BaseClass):
         else:
             self.chatArea.verticalScrollBar().setValue(scroll_current)
 
-    def printLine(self, name, text, scroll_forced=False, formatter=Formatters.FORMATTER_MESSAGE):
+    def printLine(self, chname, text, scroll_forced=False, formatter=Formatters.FORMATTER_MESSAGE):
         if self.lines > CHAT_TEXT_LIMIT:
             cursor = self.chatArea.textCursor()
             cursor.movePosition(QtGui.QTextCursor.Start)
@@ -207,14 +209,15 @@ class Channel(FormClass, BaseClass):
             cursor.removeSelectedText()
             self.lines = self.lines - CHAT_REMOVEBLOCK
 
-        if name in self.lobby.client.players:
-            player = self.lobby.client.players[name]
+        chatter = self._chatterset.get(chname)
+        if chatter is not None and chatter.player is not None:
+            player = chatter.player
         else:
-            player = IRCPlayer(name)
+            player = IRCPlayer(chname)
 
-        displayName = name
+        displayName = chname
         if player.clan is not None:
-            displayName = "<b>[%s]</b>%s" % (player.clan, name)
+            displayName = "<b>[%s]</b>%s" % (player.clan, chname)
 
         # Play a ping sound and flash the title under certain circumstances
         mentioned = text.find(self.lobby.client.login) != -1
@@ -222,13 +225,14 @@ class Channel(FormClass, BaseClass):
             self.pingWindow()
 
         avatar = None
-        if name in self.chatters:
-            chatter = self.chatters[name]
-            color = chatter.foreground().color().name()
-            if chatter.avatar:
-                avatar = chatter.avatar["url"]
-                avatarTip = chatter.avatarTip or ""
-
+        if chatter is not None and chatter in self.chatters:
+            chatwidget = self.chatters[chatter]
+            color = chatwidget.foreground().color().name()
+            avatarTip = chatwidget.avatarTip or ""
+            if chatter.player is not None:
+                avatar = chatter.player.avatar
+                if avatar is not None:
+                    avatar = avatar["url"]
         else:
             # Fallback and ask the client. We have no Idea who this is.
             color = self.lobby.client.player_colors.getUserColor(player.id)
@@ -246,7 +250,7 @@ class Channel(FormClass, BaseClass):
 
         # This whole block seems to be duplicated further up.
         # For fucks sake.
-        if avatar:
+        if avatar is not None:
             pix = util.respix(avatar)
             if pix:
                 if not self.chatArea.document().resource(QtGui.QTextDocument.ImageResource, QtCore.QUrl(avatar)):
@@ -267,35 +271,43 @@ class Channel(FormClass, BaseClass):
         else:
             self.chatArea.verticalScrollBar().setValue(scroll_current)
 
-    @QtCore.pyqtSlot(str, str)
-    def printMsg(self, name, text, scroll_forced=False):
-        if name in self.chatters and self.chatters[name].avatar:
+    def _chname_has_avatar(self, chname):
+        if chname not in self._chatterset:
+            return False
+        chatter = self._chatterset[chname]
+
+        if chatter.player is None:
+            return False
+        if chatter.player.avatar is None:
+            return False
+        return True
+
+    def printMsg(self, chname, text, scroll_forced=False):
+        if self._chname_has_avatar(chname):
             fmt = Formatters.FORMATTER_MESSAGE_AVATAR
         else:
             fmt = Formatters.FORMATTER_MESSAGE
-        self.printLine(name, text, scroll_forced, fmt)
+        self.printLine(chname, text, scroll_forced, fmt)
 
-    @QtCore.pyqtSlot(str, str)
-    def printAction(self, name, text, scroll_forced=False, server_action=False):
+    def printAction(self, chname, text, scroll_forced=False, server_action=False):
         if server_action:
             fmt = Formatters.FORMATTER_RAW
-        elif name in self.chatters and self.chatters[name].avatar:
+        elif self._chname_has_avatar(chname):
             fmt = Formatters.FORMATTER_ACTION_AVATAR
         else:
             fmt = Formatters.FORMATTER_ACTION
-        self.printLine(name, text, scroll_forced, fmt)
+        self.printLine(chname, text, scroll_forced, fmt)
 
-    @QtCore.pyqtSlot(str, str)
-    def printRaw(self, name, text, scroll_forced=False):
+    def printRaw(self, chname, text, scroll_forced=False):
         """
         Print an raw message in the chatArea of the channel
         """
-        id = self.lobby.client.players.getID(name)
+        id = self.lobby.client.players.getID(chatter.name)
 
         color = self.lobby.client.player_colors.getUserColor(id)
 
         # Play a ping sound
-        if self.private and name != self.lobby.client.login:
+        if self.private and chatter.name != self.lobby.client.login:
             self.pingWindow()
 
         # scroll if close to the last line of the log
@@ -307,7 +319,7 @@ class Channel(FormClass, BaseClass):
         self.chatArea.setTextCursor(cursor)
 
         formatter = Formatters.FORMATTER_RAW
-        line = formatter.format(time=self.timestamp(), name=name, color=color, width=self.maxChatterWidth, text=text)
+        line = formatter.format(time=self.timestamp(), name=chatter.name, color=color, width=self.maxChatterWidth, text=text)
         self.chatArea.insertHtml(line)
 
         if scroll_needed:
@@ -342,91 +354,42 @@ class Channel(FormClass, BaseClass):
 
     @QtCore.pyqtSlot(list)
     def update_users(self, updated_users):
-        for id in updated_users:
-            if id in self.lobby.client.players:
-                name = self.lobby.client.players[id].login
-            else:
-                name = id
-            if name in self.chatters:
-                self.chatters[name].update()
-
-        self.updateUserCount()
+        # FIXME - only needed for affiliations
+        pass
 
     def update_irc_users(self, updated_users):
-        for name in updated_users:
-            if name in self.chatters:
-                self.chatters[name].update()
-        self.updateUserCount()
+        # FIXME - only needed for affiliations
+        pass
 
-    def elevateChatter(self, name, modes):
-        add = re.compile(".*\+([a-z]+)")
-        remove = re.compile(".*\-([a-z]+)")
-        if name in self.chatters:
-            addmatch = re.search(add, modes)
-            if addmatch:
-                modes = addmatch.group(1)
-                mode = ""
-                if "v" in modes:
-                    mode = "+"
-                if "o" in modes:
-                    mode = "@"
-                if "q" in modes:
-                    mode = "~"
-                if mode in chat.colors.OPERATOR_COLORS:
-                    self.chatters[name].elevation = mode
-                    self.chatters[name].update()
-            removematch = re.search(remove, modes)
-            if removematch:
-                modes = removematch.group(1)
-                mode = ""
-                if "o" in modes and self.chatters[name].elevation == "@":
-                    self.chatters[name].elevation = None
-                    self.chatters[name].update()
-                if "q" in modes and self.chatters[name].elevation == "~":
-                    self.chatters[name].elevation = None
-                    self.chatters[name].update()
-                if "v" in modes and self.chatters[name].elevation == "+":
-                    self.chatters[name].elevation = None
-                    self.chatters[name].update()
-
-    def addChatter(self, name, id=-1, elevation='', hostname='', join=False):
+    def addChatter(self, chatter, join=False):
         """
         Adds an user to this chat channel, and assigns an appropriate icon depending on friendship and FAF player status
         """
-        if name not in self.chatters:
-            item = Chatter(self.nickList, (name, id, elevation, hostname), self.lobby, None)
-            self.chatters[name] = item
+        if chatter not in self.chatters:
+            item = Chatter(self.nickList, chatter, self.name, self.lobby)
+            self.chatters[chatter] = item
 
-        self.chatters[name].update()
+        self.chatters[chatter].update()
 
         self.updateUserCount()
 
         if join and self.lobby.client.joinsparts:
-            self.printAction(name, "joined the channel.", server_action=True)
+            self.printAction(chatter.name, "joined the channel.", server_action=True)
 
-    def renameChatter(self, oldname, newname):
-        if oldname in self.chatters:
-            chatter = self.chatters.pop(oldname)
-            chatter.name = newname
-            self.chatters[newname] = chatter
-            chatter.update()
-
-
-    def removeChatter(self, name, server_action=None):
-        if name in self.chatters:
-            self.nickList.removeRow(self.chatters[name].row())
-            del self.chatters[name]
+    def removeChatter(self, chatter, server_action=None):
+        if chatter in self.chatters:
+            self.nickList.removeRow(self.chatters[chatter].row())
+            del self.chatters[chatter]
 
             if server_action and (self.lobby.client.joinsparts or self.private):
-                self.printAction(name, server_action, server_action=True)
+                self.printAction(chatter.name, server_action, server_action=True)
                 self.stopBlink()
 
         self.updateUserCount()
 
-    def setAnnounceText(self,text):
+    def setAnnounceText(self, text):
         self.announceLine.clear()
         self.announceLine.setText("<style>a{color:cornflowerblue}</style><b><font color=white>" + util.irc_escape(text) + "</font></b>")
-
 
     @QtCore.pyqtSlot()
     def sendLine(self, target=None):
@@ -470,3 +433,6 @@ class Channel(FormClass, BaseClass):
                 if self.lobby.sendMsg(target, text):
                     self.printMsg(self.lobby.client.login, text, True)
         self.chatEdit.clear()
+
+    def _checkUserQuit(self, chatter):
+        self.removeChatter(chatter)

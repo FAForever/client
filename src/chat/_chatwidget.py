@@ -9,12 +9,16 @@ from PyQt5.QtCore import QSocketNotifier, QTimer
 from config import Settings, defaults
 import util
 
+import re
 import sys
 import chat
 from chat import user2name, parse_irc_source
 from chat.channel import Channel
 from chat.irclib import SimpleIRCClient
 import notifications as ns
+
+from model.ircuserset import IrcUserset
+from model.ircuser import IrcUser
 
 PONG_INTERVAL = 60000  # milliseconds between pongs
 
@@ -32,7 +36,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
     This is the chat lobby module for the FAF client.
     It manages a list of channels and dispatches IRC events (lobby inherits from irclib's client class)
     """
-    def __init__(self, client, *args, **kwargs):
+
+    def __init__(self, client, playerset, *args, **kwargs):
         if not self.use_chat:
             logger.info("Disabling chat")
             return
@@ -44,6 +49,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.setupUi(self)
 
         self.client = client
+        self._chatters = IrcUserset(playerset)
         self.channels = {}
 
         # avatar downloader
@@ -179,20 +185,25 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
                     self.channels[channel].printAction("IRC", "was disconnected.")
             return False
 
-    def openQuery(self, name, id=-1, activate=False):
+    def openQuery(self, chatter, activate=False):
         # Ignore ourselves.
-        if name == self.client.login:
+        if chatter.name == self.client.login:
             return False
 
-        if name not in self.channels:
-            self.addChannel(name, Channel(self, name, True))
+        if chatter.name not in self.channels:
+            priv_chan = Channel(self, chatter.name, self._chatters, True)
+            self.addChannel(chatter.name, priv_chan)
 
             # Add participants to private channel
-            self.channels[name].addChatter(name, id)
-            self.channels[name].addChatter(self.client.login, self.client.me.player.id)
+            priv_chan.addChatter(chatter)
+
+            if self.client.me.player is not None:
+                my_login = self._chatters.get(self.client.me.player.login)
+                if my_login in self._chatters:
+                    priv_chan.addChatter(self._chatters[my_login])
 
         if activate:
-            self.setCurrentWidget(self.channels[name])
+            self.setCurrentWidget(priv_chan)
 
         return True
 
@@ -215,8 +226,14 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
     def log_event(self, e):
         self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
 
-    def shouldIgnore(self, id_, name):
-        return self.client.me.isFoe(id_, name)
+    def shouldIgnore(self, chatter):
+        # Don't ignore mods from any crucial channels
+        if any(c in chatter.elevation for c in self.crucialChannels):
+            return False
+        if chatter.player is None:
+            return self.client.me.isFoe(chatter.name)
+        else:
+            return self.client.me.isFoe(chatter.player.id)
 
 # SimpleIRCClient Class Dispatcher Attributes follow here.
     def on_welcome(self, c, e):
@@ -261,10 +278,33 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
         for user in listing:
             name = user.strip(chat.IRC_ELEVATION)
-            id = self.client.players.getID(name)
-            self.channels[channel].addChatter(name, id, user[0] if user[0] in chat.IRC_ELEVATION else None, '')
+            elevation = user[0] if user[0] in chat.IRC_ELEVATION else None
+            hostname = ''
+            self._add_chatter(name, hostname)
+            self._add_chatter_channel(self._chatters[name], elevation,
+                                      channel, False)
 
         logger.debug("Added " + str(len(listing)) + " Chatters")
+
+    def _add_chatter(self, name, hostname):
+        if name not in self._chatters:
+            self._chatters[name] = IrcUser(name, hostname)
+        else:
+            self._chatters[name].update(hostname=hostname)
+
+    def _remove_chatter(self, name):
+        if name not in self._chatters:
+            return
+        del self._chatters[name]
+        # Channels listen to 'chatter removed' signal on their own
+
+    def _add_chatter_channel(self, chatter, elevation, channel, join):
+        chatter.set_elevation(channel, elevation)
+        self.channels[channel].addChatter(chatter, join)
+
+    def _remove_chatter_channel(self, chatter, channel, msg):
+        chatter.set_elevation(channel, None)
+        self.channels[channel].removeChatter(msg)
 
     def on_whoisuser(self, c, e):
         self.log_event(e)
@@ -274,7 +314,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
         # If we're joining, we need to open the channel for us first.
         if channel not in self.channels:
-            newch = Channel(self, channel)
+            newch = Channel(self, channel, self._chatters)
             if channel.lower() in self.crucialChannels:
                 self.addChannel(channel, newch, 1)  # CAVEAT: This is assumes a server tab exists.
                 self.client.localBroadcast.connect(newch.printRaw)
@@ -289,43 +329,78 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
                 self.setCurrentWidget(self.channels[channel])
                 self.tabBar().setTabButton(self.currentIndex(), QtWidgets.QTabBar.RightSide, None)
 
-        name, id, elevation, hostname = parse_irc_source(e.source())
-        self.channels[channel].addChatter(name, id, elevation, hostname, True)
+        name, _id, elevation, hostname = parse_irc_source(e.source())
+        self._add_chatter(name, hostname)
+        self._add_chatter_channel(self._chatters[name], elevation,
+                                  channel, True)
 
         if channel.lower() in self.crucialChannels and name != self.client.login:
             # TODO: search better solution, that html in nick & channel no rendered
             self.client.notificationSystem.on_event(ns.Notifications.USER_ONLINE,
-                                                    {'user': id, 'channel': channel})
+                                                    {'user': _id, 'channel': channel})
 
     def on_part(self, c, e):
         channel = e.target()
         name = user2name(e.source())
+        if name not in self._chatters:
+            return
+        chatter = self._chatters[name]
+
         if name == self.client.login:   # We left ourselves.
             self.removeTab(self.indexOf(self.channels[channel]))
             del self.channels[channel]
         else:                           # Someone else left
-            self.channels[channel].removeChatter(name, "left.")
+            self._remove_chatter_channel(self, chatter, channel, "left.")
 
     def on_quit(self, c, e):
         name = user2name(e.source())
-        for channel in self.channels:
-            if (not self.channels[channel].private) or (self.channels[channel].name == user2name(name)):
-                self.channels[channel].removeChatter(name, "quit.")
+        self._remove_chatter(name)
 
     def on_nick(self, c, e):
         oldnick = user2name(e.source())
         newnick = e.target()
-        for channel in self.channels:
-            self.channels[channel].renameChatter(oldnick, newnick)
+        if oldnick not in self._chatters:
+            return
 
+        self._chatters[oldnick].update(name=newnick)
         self.log_event(e)
 
     def on_mode(self, c, e):
+        if e.target() not in self.channels:
+            return
         if len(e.arguments()) < 2:
             return
         name = user2name(e.arguments()[1])
-        if e.target() in self.channels:
-            self.channels[e.target()].elevateChatter(name, e.arguments()[0])
+        if name not in self._chatters:
+            return
+        chatter = self._chatters[name]
+
+        self.elevateChatter(chatter, e.target(), e.arguments()[0])
+
+    def elevateChatter(self, chatter, channel, modes):
+        add = re.compile(".*\+([a-z]+)")
+        remove = re.compile(".*\-([a-z]+)")
+
+        addmatch = re.search(add, modes)
+        if addmatch:
+            modes = addmatch.group(1)
+            mode = None
+            if "v" in modes:
+                mode = "+"
+            if "o" in modes:
+                mode = "@"
+            if "q" in modes:
+                mode = "~"
+            if mode is not None:
+                chatter.set_elevation(channel, mode)
+
+        removematch = re.search(remove, modes)
+        if removematch:
+            modes = removematch.group(1)
+            el = chatter.elevation[channel]
+            chatter_mode = {"@": "o", "~": "q", "+": "v"}[el]
+            if chatter_mode in modes:
+                chatter.set_elevation(channel, None)
 
     def on_umode(self, c, e):
         self.log_event(e)
@@ -355,8 +430,10 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
     def on_pubmsg(self, c, e):
         name, id, elevation, hostname = parse_irc_source(e.source())
         target = e.target()
+        if name not in self._chatters or target not in self.channels:
+            return
 
-        if target in self.channels and not self.shouldIgnore(id, name):
+        if not self.shouldIgnore(self._chatters[name]):
             self.channels[target].printMsg(name, "\n".join(e.arguments()))
 
     def on_privnotice(self, c, e):
@@ -407,24 +484,30 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
     def on_privmsg(self, c, e):
         name, id, elevation, hostname = parse_irc_source(e.source())
+        if name not in self._chatters:
+            return
+        chatter = self._chatters[name]
 
-        if self.shouldIgnore(id, name):
+        if self.shouldIgnore(chatter):
             return
 
         # Create a Query if it's not open yet, and post to it if it exists.
-        if self.openQuery(name, id):
+        if self.openQuery(chatter):
             self.channels[name].printMsg(name, "\n".join(e.arguments()))
 
     def on_action(self, c, e):
-        name, id, elevation, hostname = parse_irc_source(e.source())  # user2name(e.source())
+        name, id, elevation, hostname = parse_irc_source(e.source())
+        if name not in self._chatters:
+            return
+        chatter = self._chatters[name]
         target = e.target()
 
-        if self.shouldIgnore(id, name):
+        if self.shouldIgnore(chatter):
             return
 
         # Create a Query if it's not an action intended for a channel
         if target not in self.channels:
-            self.openQuery(name,id)
+            self.openQuery(chatter)
             self.channels[name].printAction(name, "\n".join(e.arguments()))
         else:
             self.channels[target].printAction(name, "\n".join(e.arguments()))
