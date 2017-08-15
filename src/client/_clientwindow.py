@@ -907,6 +907,7 @@ class ClientWindow(FormClass, BaseClass):
         login_widget = LoginWidget(self.login, self.remember)
         login_widget.finished.connect(self.on_widget_login_data)
         login_widget.rejected.connect(self.on_widget_no_login)
+        login_widget.request_quit.connect(self.on_login_widget_quit)
         login_widget.remember.connect(self.set_remember)
         login_widget.exec_()
 
@@ -920,6 +921,9 @@ class ClientWindow(FormClass, BaseClass):
 
     def on_widget_no_login(self):
         self.disconnect()
+
+    def on_login_widget_quit(self):
+        QtWidgets.QApplication.quit()
 
     def send_login(self, login, password):
         # Send login data once we have the creds.

@@ -84,11 +84,9 @@ def runFAF():
 
     faf_client = client.instance
     faf_client.setup()
-
-    if not faf_client.doConnect():
-        return
-
     faf_client.show()
+    faf_client.doConnect()
+
     # Main update loop
     QtWidgets.QApplication.exec_()
 

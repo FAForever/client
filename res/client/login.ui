@@ -215,7 +215,7 @@
             </sizepolicy>
            </property>
            <property name="inputMethodHints">
-            <set>Qt::ImhHiddenText|Qt::ImhNoAutoUppercase|Qt::ImhNoPredictiveText</set>
+            <set>Qt::ImhHiddenText|Qt::ImhNoAutoUppercase|Qt::ImhNoPredictiveText|Qt::ImhSensitiveData</set>
            </property>
            <property name="echoMode">
             <enum>QLineEdit::Password</enum>
@@ -407,7 +407,7 @@
    <sender>quitButton</sender>
    <signal>released()</signal>
    <receiver>Dialog</receiver>
-   <slot>on_rejected()</slot>
+   <slot>on_request_quit()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>147</x>
@@ -518,12 +518,12 @@
  </connections>
  <slots>
   <slot>on_accepted()</slot>
-  <slot>on_rejected()</slot>
   <slot>on_new_account()</slot>
   <slot>on_rename_account()</slot>
   <slot>on_steamlink_account()</slot>
   <slot>on_forgot_password()</slot>
   <slot>on_bugreport()</slot>
   <slot>on_remember_checked(bool)</slot>
+  <slot>on_request_quit()</slot>
  </slots>
 </ui>

@@ -8,6 +8,7 @@ FormClass, BaseClass = util.THEME.loadUiType("client/login.ui")
 
 class LoginWidget(FormClass, BaseClass):
     finished = QtCore.pyqtSignal(str, str)
+    request_quit = QtCore.pyqtSignal()
     remember = QtCore.pyqtSignal(bool)
 
     def __init__(self, startLogin = None, remember = False):
@@ -31,7 +32,8 @@ class LoginWidget(FormClass, BaseClass):
         self.finished.emit(login, hashed_password)
 
     @QtCore.pyqtSlot()
-    def on_rejected(self):
+    def on_request_quit(self):
+        self.request_quit.emit()
         self.reject()
 
     @QtCore.pyqtSlot(bool)
