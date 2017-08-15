@@ -68,7 +68,6 @@ import select
 import socket
 import string
 import time
-import types
 import ssl
 import logging
 
