@@ -109,7 +109,6 @@ class ClientWindow(FormClass, BaseClass):
     gameExit = QtCore.pyqtSignal()
 
     # These signals propagate important client state changes to other modules
-    usersUpdated = QtCore.pyqtSignal(list)
     localBroadcast = QtCore.pyqtSignal(str, str)
     autoJoin = QtCore.pyqtSignal(list)
     channelsUpdated = QtCore.pyqtSignal(list)
@@ -159,7 +158,6 @@ class ClientWindow(FormClass, BaseClass):
         self.lobby_reconnecter = ServerReconnecter(self.lobby_connection)
 
         self.players = Playerset()  # Players known to the client
-        self.players.playersUpdated.connect(lambda pl: self.usersUpdated.emit([p.id for p in pl]))
 
         self.gameset = Gameset(self.players)
         fa.instance.gameset = self.gameset  # FIXME
@@ -273,7 +271,6 @@ class ClientWindow(FormClass, BaseClass):
 
         # Handy reference to the User object representing the logged-in user.
         self.me = User(self.players)
-        self.me.relationsUpdated.connect(lambda x: self.usersUpdated.emit(list(x)))
 
         self.player_colors = PlayerColors(self.me)
 
@@ -525,7 +522,7 @@ class ClientWindow(FormClass, BaseClass):
         self.loadSettings()
 
         # Initialize chat
-        self.chat = chat.Lobby(self, self.players)
+        self.chat = chat.ChatWidget(self, self.players, self.me)
 
         # build main window with the now active client
         self.news = news.NewsWidget(self)
@@ -1327,9 +1324,6 @@ class ClientWindow(FormClass, BaseClass):
                 self.players[id_].update(**player)
             else:
                 self.players[id_] = Player(**player)
-
-            self.usersUpdated.emit([id_])
-
 
     def avatarManager(self):
         self.requestAvatars(0)

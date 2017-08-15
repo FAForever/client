@@ -9,7 +9,6 @@ class Playerset(QObject):
 
     Used to lookup players either by id or by login.
     """
-    playersUpdated = pyqtSignal(list)
     playerAdded = pyqtSignal(object)
     playerRemoved = pyqtSignal(object)
 
@@ -76,8 +75,6 @@ class Playerset(QObject):
         self._players[key] = value
         self._logins[value.login] = value
         self.playerAdded.emit(value)
-        value.updated.connect(self._at_player_updated)
-        value.newCurrentGame.connect(self._at_player_updated)
 
     def __delitem__(self, item):
         try:
@@ -86,12 +83,7 @@ class Playerset(QObject):
             return
         del self._players[player.id]
         del self._logins[player.login]
-        player.updated.disconnect(self._at_player_updated)
-        player.newCurrentGame.disconnect(self._at_player_updated)
         self.playerRemoved.emit(player)
-
-    def _at_player_updated(self, player):
-        self.playersUpdated.emit([player])
 
     def clear(self):
         oldplayers = list(self.keys())

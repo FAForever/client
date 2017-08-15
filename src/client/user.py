@@ -76,14 +76,6 @@ class IrcUserRelation(UserRelation):
         self._loadRelations()
 
 
-class PlayerAffiliation(Enum):
-    SELF = "self"
-    FRIEND = "friend"
-    FOE = "foe"
-    CLANNIE = "clan"
-    OTHER = "default"
-
-
 class User(QtCore.QObject):
     """
     Represents the person using the FAF Client. May have a player assigned to
@@ -208,14 +200,3 @@ class User(QtCore.QObject):
         elif name is not None:
             return self._irc_foes.has(name)
         return False
-
-    def getAffiliation(self, id_=-1, name=None):
-        if self.player and self.player.id == id_:
-            return PlayerAffiliation.SELF
-        if self.isFriend(id_, name):
-            return PlayerAffiliation.FRIEND
-        if self.isFoe(id_, name):
-            return PlayerAffiliation.FOE
-        if self.isClannie(id_):
-            return PlayerAffiliation.CLANNIE
-        return PlayerAffiliation.OTHER

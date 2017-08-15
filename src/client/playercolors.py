@@ -1,11 +1,19 @@
 import util
 import json
 import random
-from client.user import PlayerAffiliation
+from enum import Enum
 
 
 def _loadcolors(filename):
     return json.loads(util.THEME.readfile(filename))
+
+
+class PlayerAffiliation(Enum):
+    SELF = "self"
+    FRIEND = "friend"
+    FOE = "foe"
+    CLANNIE = "clan"
+    OTHER = "default"
 
 
 class PlayerColors:
@@ -30,8 +38,19 @@ class PlayerColors:
         random.seed(seed)
         return random.choice(self.randomcolors)
 
+    def getAffiliation(self, id_=-1, name=None):
+        if self._user.player and self._user.player.id == id_:
+            return PlayerAffiliation.SELF
+        if self._user.isFriend(id_, name):
+            return PlayerAffiliation.FRIEND
+        if self._user.isFoe(id_, name):
+            return PlayerAffiliation.FOE
+        if self._user.isClannie(id_):
+            return PlayerAffiliation.CLANNIE
+        return PlayerAffiliation.OTHER
+
     def getUserColor(self, _id=-1, name=None):
-        affil = self._user.getAffiliation(_id, name)
+        affil = self.getAffiliation(_id, name)
         names = {
             PlayerAffiliation.SELF: "self",
             PlayerAffiliation.FRIEND: "friend",
@@ -49,7 +68,7 @@ class PlayerColors:
         return self.getColor("player")
 
     def getModColor(self, elevation, _id=-1, name=None):
-        affil = self._user.getAffiliation(_id, name)
+        affil = self.getAffiliation(_id, name)
         names = {
             PlayerAffiliation.SELF: "self_mod",
             PlayerAffiliation.FRIEND: "friend_mod",

@@ -37,7 +37,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
     It manages a list of channels and dispatches IRC events (lobby inherits from irclib's client class)
     """
 
-    def __init__(self, client, playerset, *args, **kwargs):
+    def __init__(self, client, playerset, me, *args, **kwargs):
         if not self.use_chat:
             logger.info("Disabling chat")
             return
@@ -49,6 +49,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.setupUi(self)
 
         self.client = client
+        self._me = me
         self._chatters = IrcUserset(playerset)
         self.channels = {}
 
@@ -191,7 +192,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             return False
 
         if chatter.name not in self.channels:
-            priv_chan = Channel(self, chatter.name, self._chatters, True)
+            priv_chan = Channel(self, chatter.name, self._chatters,
+                                self._me, True)
             self.addChannel(chatter.name, priv_chan)
 
             # Add participants to private channel
@@ -314,7 +316,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
         # If we're joining, we need to open the channel for us first.
         if channel not in self.channels:
-            newch = Channel(self, channel, self._chatters)
+            newch = Channel(self, channel, self._chatters, self._me)
             if channel.lower() in self.crucialChannels:
                 self.addChannel(channel, newch, 1)  # CAVEAT: This is assumes a server tab exists.
                 self.client.localBroadcast.connect(newch.printRaw)

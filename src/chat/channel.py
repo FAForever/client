@@ -39,8 +39,8 @@ class Channel(FormClass, BaseClass):
     """
     This is an actual chat channel object, representing an IRC chat room and the users currently present.
     """
-    def __init__(self, lobby, name, chatterset, private=False, *args, **kwargs):
-        BaseClass.__init__(self, lobby, *args, **kwargs)
+    def __init__(self, lobby, name, chatterset, me, private=False):
+        BaseClass.__init__(self, lobby)
 
         self.setupUi(self)
 
@@ -49,9 +49,10 @@ class Channel(FormClass, BaseClass):
         self.chatters = {}
         self.items = {}
         self._chatterset = chatterset
+        self._me = me
         chatterset.userRemoved.connect(self._checkUserQuit)
 
-        self.lasttimestamp= None
+        self.lasttimestamp = None
 
         # Query flasher
         self.blinker = QtCore.QTimer()
@@ -89,8 +90,6 @@ class Channel(FormClass, BaseClass):
 
             self.nickFilter.textChanged.connect(self.filterNicks)
 
-            self.lobby.client.usersUpdated.connect(self.update_users)
-            self.lobby.client.me.ircRelationsUpdated.connect(self.update_irc_users)
         else:
             self.nickFrame.hide()
             self.announceLine.hide()
@@ -352,21 +351,13 @@ class Channel(FormClass, BaseClass):
             chatter = self.nickList.item(item.row(), Chatter.SORT_COLUMN)
             chatter.pressed(item)
 
-    @QtCore.pyqtSlot(list)
-    def update_users(self, updated_users):
-        # FIXME - only needed for affiliations
-        pass
-
-    def update_irc_users(self, updated_users):
-        # FIXME - only needed for affiliations
-        pass
-
     def addChatter(self, chatter, join=False):
         """
         Adds an user to this chat channel, and assigns an appropriate icon depending on friendship and FAF player status
         """
         if chatter not in self.chatters:
-            item = Chatter(self.nickList, chatter, self.name, self.lobby)
+            item = Chatter(self.nickList, chatter, self.name,
+                           self.lobby, self._me)
             self.chatters[chatter] = item
 
         self.chatters[chatter].update()

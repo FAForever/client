@@ -30,7 +30,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
     RANK_NONPLAYER = 3
     RANK_FOE = 4
 
-    def __init__(self, parent, user, channel, lobby):
+    def __init__(self, parent, user, channel, lobby, me):
         QtWidgets.QTableWidgetItem.__init__(self, None)
 
         # TODO: for now, userflags and ranks aren't properly interpreted :-/
@@ -38,6 +38,10 @@ class Chatter(QtWidgets.QTableWidgetItem):
         self.parent = parent
         self.lobby = lobby
         self.channel = channel
+
+        self._me = me
+        self._me.relationsUpdated.connect(self._checkPlayerRelation)
+        self._me.ircRelationsUpdated.connect(self._checkUserRelation)
 
         self.setFlags(QtCore.Qt.ItemIsEnabled)
         self.setTextAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
@@ -129,6 +133,17 @@ class Chatter(QtWidgets.QTableWidgetItem):
         if self._user_game is not None:
             self._user_game.gameUpdated.connect(self.updateGame)
 
+    def _checkPlayerRelation(self, players):
+        if self.user_player is None:
+            return
+
+        if self.user_player.id in players:
+            self.set_color()
+
+    def _checkUserRelation(self, users):
+        if self.user.name in users:
+            self.set_color()
+
     def isFiltered(self, _filter):
         clan = None if self.user_player is None else self.user_player.clan
         clan = clan if clan is not None else ""
@@ -171,7 +186,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
 
     def getUserRank(self, other):
         # TODO: Add subdivision for admin?
-        me = self.lobby.client.me
+        me = self._me
         _id, name = self._getIdName()
         if other.modElevation():
             return self.RANK_ELEVATION
@@ -394,7 +409,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
                 return lambda: irc_f(name)
 
         cl = self.lobby.client
-        me = self.lobby.client.me
+        me = self._me
         if is_me:  # We're ourselves
             pass
         elif me.isFriend(_id, name):  # We're a friend
