@@ -62,9 +62,9 @@ class Chatter(QtWidgets.QTableWidgetItem):
         self._user = None
         self._user_player = None
         self._user_game = None
-
         # This updates the above three and the widget
         self.user = user
+
         row = self.parent.rowCount()
         self.parent.insertRow(row)
 
@@ -139,10 +139,12 @@ class Chatter(QtWidgets.QTableWidgetItem):
 
         if self.user_player.id in players:
             self.set_color()
+            self._verifySortOrder()
 
     def _checkUserRelation(self, users):
         if self.user.name in users:
             self.set_color()
+            self._verifySortOrder()
 
     def isFiltered(self, _filter):
         clan = None if self.user_player is None else self.user_player.clan
@@ -167,10 +169,11 @@ class Chatter(QtWidgets.QTableWidgetItem):
         firstStatus = self.getUserRank(self)
         secondStatus = self.getUserRank(other)
 
-        if self.user.name == self.lobby.client.login:
-            return True
-        if other.user.name == self.lobby.client.login:
-            return False
+        if self._me.player is not None:
+            if self.user.name == self._me.player.login:
+                return True
+            if other.user.name == self._me.player.login:
+                return False
 
         # if not same rank sort
         if firstStatus != secondStatus:
@@ -178,6 +181,10 @@ class Chatter(QtWidgets.QTableWidgetItem):
 
         # Default: Alphabetical
         return self.user.name.lower() < other.user.name.lower()
+
+    def _verifySortOrder(self):
+        if self.row() != -1:
+            self.channel.verifySortOrder(self)
 
     def _getIdName(self):
         _id = -1 if self.user_player is None else self.user_player.id
@@ -187,21 +194,21 @@ class Chatter(QtWidgets.QTableWidgetItem):
     def getUserRank(self, other):
         # TODO: Add subdivision for admin?
         me = self._me
-        _id, name = self._getIdName()
+        _id, name = other._getIdName()
         if other.modElevation():
             return self.RANK_ELEVATION
         if me.isFriend(_id, name):
             return self.RANK_FRIEND - (2 if self.lobby.client.friendsontop else 0)
         if me.isFoe(_id, name):
             return self.RANK_FOE
-        if _id in self.lobby.client.players:
+        if other.user_player is not None:
             return self.RANK_USER
 
         return self.RANK_NONPLAYER
 
     def modElevation(self):
         try:
-            elevation = self.user.elevation[self.channel]
+            elevation = self.user.elevation[self.channel.name]
             return elevation if elevation in "~&@%+" else None
         except KeyError:
             return None
@@ -231,6 +238,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
     def updateUser(self):
         self.setText(self.user.name)
         self.set_color()
+        self._verifySortOrder()
 
     def updatePlayer(self):
         self.set_color()
@@ -278,6 +286,8 @@ class Chatter(QtWidgets.QTableWidgetItem):
         else:
             self.rankItem.setIcon(util.THEME.icon("chat/rank/newplayer.png"))
 
+        self._verifySortOrder()
+
     def updateGame(self):
         # Status icon handling
         game = self.user_game
@@ -293,6 +303,8 @@ class Chatter(QtWidgets.QTableWidgetItem):
         else:
             self.statusItem.setIcon(QtGui.QIcon())
             self.statusItem.setToolTip("Idle")
+
+        self._verifySortOrder()
 
     def update(self):
         self.updateUser()
@@ -362,7 +374,11 @@ class Chatter(QtWidgets.QTableWidgetItem):
         player = self.user_player
         game = self.user_game
         _id, name = self._getIdName()
-        is_me = player is not None and player.login == self.lobby.client.login
+
+        if player is None or self._me.player is None:
+            is_me = False
+        else:
+            is_me = player.id == self._me.player.id
 
         # only for us. Either way, it will display our avatar, not anyone avatar.
         if is_me:
@@ -419,7 +435,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
         else:  # We're neither
             menu_add("Add friend", player_or_irc_action(cl.addFriend, me.addIrcFriend), True)
             # FIXME - chatwidget sets mod status very inconsistently
-            if self.modElevation() is not None:  # so disable foeing mods for now
+            if self.modElevation() is None:  # so disable foeing mods for now
                 menu_add("Add foe", player_or_irc_action(cl.addFoe, me.addIrcFoe))
 
         # Finally: Show the popup

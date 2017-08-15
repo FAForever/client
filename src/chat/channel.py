@@ -35,6 +35,27 @@ class Formatters(object):
     NICKLIST_COLUMNS         = json.loads(util.THEME.readfile("chat/formatters/nicklist_columns.json"))
 
 
+# Helper class to schedule single event loop calls.
+class ScheduledCall(QtCore.QObject):
+    _call = QtCore.pyqtSignal()
+
+    def __init__(self, fn):
+        QtCore.QObject.__init__(self)
+        self._fn = fn
+        self._called = False
+        self._call.connect(self._runCall, QtCore.Qt.QueuedConnection)
+
+    def scheduleCall(self):
+        if self._called:
+            return
+        self._called = True
+        self._call.emit()
+
+    def _runCall(self):
+        self._called = False
+        self._fn()
+
+
 class Channel(FormClass, BaseClass):
     """
     This is an actual chat channel object, representing an IRC chat room and the users currently present.
@@ -69,10 +90,9 @@ class Channel(FormClass, BaseClass):
         self.name = name
         self.private = private
 
-        if not self.private:
-            # Non-query channels have a sorted nicklist
-            self.nickList.sortItems(Chatter.SORT_COLUMN)
+        self.sortCall = ScheduledCall(self._sortChatters)
 
+        if not self.private:
             # Properly and snugly snap all the columns
             self.nickList.horizontalHeader().setSectionResizeMode(Chatter.RANK_COLUMN, QtWidgets.QHeaderView.Fixed)
             self.nickList.horizontalHeader().resizeSection(Chatter.RANK_COLUMN, Formatters.NICKLIST_COLUMNS['RANK'])
@@ -97,6 +117,9 @@ class Channel(FormClass, BaseClass):
         self.chatArea.anchorClicked.connect(self.openUrl)
         self.chatEdit.returnPressed.connect(self.sendLine)
         self.chatEdit.setChatters(self.chatters)
+
+    def _sortChatters(self):
+        self.nickList.sortItems(Chatter.SORT_COLUMN)
 
     def joinChannel(self, index):
         """ join another channel """
@@ -356,7 +379,7 @@ class Channel(FormClass, BaseClass):
         Adds an user to this chat channel, and assigns an appropriate icon depending on friendship and FAF player status
         """
         if chatter not in self.chatters:
-            item = Chatter(self.nickList, chatter, self.name,
+            item = Chatter(self.nickList, chatter, self,
                            self.lobby, self._me)
             self.chatters[chatter] = item
 
@@ -377,6 +400,15 @@ class Channel(FormClass, BaseClass):
                 self.stopBlink()
 
         self.updateUserCount()
+
+    def verifySortOrder(self, chatter):
+        row = chatter.row()
+        next_chatter = self.nickList.item(row + 1, Chatter.SORT_COLUMN)
+        prev_chatter = self.nickList.item(row - 1, Chatter.SORT_COLUMN)
+
+        if (next_chatter is not None and chatter > next_chatter or
+           prev_chatter is not None and chatter < prev_chatter):
+            self.sortCall.scheduleCall()
 
     def setAnnounceText(self, text):
         self.announceLine.clear()
