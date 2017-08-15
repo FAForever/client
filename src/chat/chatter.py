@@ -228,7 +228,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
                 self.avatarItem.setIcon(QtGui.QIcon(avatarPix))
                 self.avatarItem.setToolTip(self.avatarTip)
             else:
-                if util.addcurDownloadAvatar(url, self.user.name):
+                if util.addcurDownloadAvatar(url, self):
                     self.lobby.nam.get(QNetworkRequest(QtCore.QUrl(url)))
         else:
             # No avatar set.

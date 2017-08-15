@@ -117,17 +117,13 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         """ this take care of updating the avatars of players once they are downloaded """
         img = QtGui.QImage()
         img.loadFromData(reply.readAll())
-        pix = util.respix(reply.url().toString())
-        if pix:
-            pix = QtGui.QIcon(QtGui.QPixmap(img))
-        else:
-            util.addrespix(reply.url().toString(), QtGui.QPixmap(img))
+        url = reply.url().toString()
+        if not util.respix(url):
+            util.addrespix(url, QtGui.QPixmap(img))
 
-        for player in util.curDownloadAvatar(reply.url().toString()):
-            for channel in self.channels:
-                if player in self.channels[channel].chatters :
-                    self.channels[channel].chatters[player].avatarItem.setIcon(QtGui.QIcon(util.respix(reply.url().toString())))
-                    self.channels[channel].chatters[player].avatarItem.setToolTip(self.channels[channel].chatters[player].avatarTip)
+        for caller in util.curDownloadAvatar(url):
+            caller.updateAvatar()
+        util.delDownloadAvatar(url)
 
     def addChannel(self, name, channel, index = None):
         self.channels[name] = channel

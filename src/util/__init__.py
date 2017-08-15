@@ -213,19 +213,26 @@ def curDownloadAvatar(url):
     return None
 
 
-def removeCurrentDownloadAvatar(url, player, item):
-    if url in DOWNLOADING_RES_PIX:
-        DOWNLOADING_RES_PIX[url].remove(player)
+def delDownloadAvatar(url):
+    try:
+        del DOWNLOADING_RES_PIX[url]
+    except KeyError:
+        pass
 
 
-def addcurDownloadAvatar(url, player):
+def removeCurrentDownloadAvatar(url, caller, item):
     if url in DOWNLOADING_RES_PIX:
-        if not player in DOWNLOADING_RES_PIX[url]:
-            DOWNLOADING_RES_PIX[url].append(player)
+        DOWNLOADING_RES_PIX[url].remove(caller)
+
+
+def addcurDownloadAvatar(url, caller):
+    if url in DOWNLOADING_RES_PIX:
+        if caller not in DOWNLOADING_RES_PIX[url]:
+            DOWNLOADING_RES_PIX[url].append(caller)
         return False
     else:
         DOWNLOADING_RES_PIX[url] = []
-        DOWNLOADING_RES_PIX[url].append(player)
+        DOWNLOADING_RES_PIX[url].append(caller)
         return True
 
 
