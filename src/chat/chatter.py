@@ -339,13 +339,13 @@ class Chatter(QtWidgets.QTableWidgetItem):
         pass
 
     def doubleClicked(self, item):
-        _id, name = self._getIdName()
         # filter yourself
-        if self.lobby.client.login == name:
-            return
+        if self._me.player is not None:
+            if self._me.player.login == self.user.name:
+                return
         # Chatter name clicked
         if item == self:
-            self.lobby.openQuery(name, _id, activate=True)  # open and activate query window
+            self.lobby.openQuery(self.user, activate=True)  # open and activate query window
 
         elif item == self.statusItem:
             self._interactWithGame()
