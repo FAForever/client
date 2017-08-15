@@ -91,9 +91,9 @@ def downloadVaultAssetNoMsg(url, target_dir, exist_handler, name, category,
     result = ddialog.run()
 
     if result == VaultDownloadDialog.CANCELED:
-        logger.warn("{} Download canceled for: {}".format(capitCat, url))
+        logger.warning("{} Download canceled for: {}".format(capitCat, url))
     if result in [VaultDownloadDialog.DL_ERROR, VaultDownloadDialog.UNKNOWN_ERROR]:
-        logger.warn("Vault download failed, {} probably not in vault (or broken).".format(category))
+        logger.warning("Vault download failed, {} probably not in vault (or broken).".format(category))
         msg = lambda: QtWidgets.QMessageBox.information(
             None,
             "{} not downloadable".format(capitCat),

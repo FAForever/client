@@ -28,7 +28,7 @@ class Gameset(QObject):
 
     def update_set(self, message):
         if "uid" not in message:
-            self._logger.warn("No uid in game info message")
+            self._logger.warning("No uid in game info message")
             return
 
         self._fixup_message(message)
@@ -57,7 +57,7 @@ class Gameset(QObject):
             if g.closed():  # Don't register an already closed game
                 return
         except game.BadUpdateException as e:
-            self._logger.warn("Bad game info update: " + e.args[0])
+            self._logger.warning("Bad game info update: " + e.args[0])
             return
 
         self.games[g.uid] = g
@@ -72,7 +72,7 @@ class Gameset(QObject):
         try:
             g.update(**message)
         except game.BadUpdateException as e:
-            self._logger.warn("Bad game info update: " + e.args[0])
+            self._logger.warning("Bad game info update: " + e.args[0])
             g.abort_game()
 
     def _new_state(self, g):

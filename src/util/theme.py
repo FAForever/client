@@ -175,7 +175,7 @@ class ThemeSet:
             override_version = Version(override_version_str)
         except ValueError:
             # Did someone manually mess with the override config?
-            logger.warn("Malformed theme version override setting: " + override_version_str)
+            logger.warning("Malformed theme version override setting: " + override_version_str)
             self._settings.remove(override_config)
             return version
 
@@ -272,7 +272,7 @@ class ThemeSet:
         def _nullcheck(self, filename, themed=True):
             ret = fn(self, filename, themed)
             if ret is None:
-                logger.warn("Failed to load resource '" + filename + "' in theme." + fn.__name__)
+                logger.warning("Failed to load resource '" + filename + "' in theme." + fn.__name__)
             return ret
         return _nullcheck
 

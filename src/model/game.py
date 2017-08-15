@@ -111,7 +111,7 @@ class Game(QObject):
                                      .format(self.uid, visibility))
 
         if self.launched_at is not None and self.launched_at != launched_at:
-            self._logger.warn("Overwriting launch time for game {}".format(self.uid))
+            self._logger.warning("Overwriting launch time for game {}".format(self.uid))
 
         oldstate = self.state
         self.launched_at = launched_at

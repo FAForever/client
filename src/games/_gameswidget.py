@@ -169,7 +169,7 @@ class GamesWidget(FormClass, BaseClass):
     def selectFaction(self, enabled, factionID=0):
         logger.debug('selectFaction: enabled={}, factionID={}'.format(enabled, factionID))
         if len(self.sub_factions) < factionID:
-            logger.warn('selectFaction: len(self.sub_factions) < factionID, aborting')
+            logger.warning('selectFaction: len(self.sub_factions) < factionID, aborting')
             return
 
         logger.debug('selectFaction: selected was {}'.format(self.sub_factions))

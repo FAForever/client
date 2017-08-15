@@ -363,7 +363,7 @@ class Updater(QtCore.QObject, ConnectionHandler):
                 return True
             else:
                 QtWidgets.QMessageBox.information(None, "Aborted", "Download not complete.")
-                logger.warn("File download not complete.")
+                logger.warning("File download not complete.")
                 return False
         except:
             logger.error("Updater error: ", exc_info=sys.exc_info())
@@ -672,7 +672,7 @@ class Updater(QtCore.QObject, ConnectionHandler):
                 writeFile.write(fileDatas)
                 writeFile.close()
             else:
-                logger.warn("%s is not writeable in in %s. Skipping." % (
+                logger.warning("%s is not writeable in in %s. Skipping." % (
                 fileToCopy, path))  # This may or may not be desirable behavior
 
             log("%s is copied in %s." % (fileToCopy, path))

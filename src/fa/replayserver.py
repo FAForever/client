@@ -118,7 +118,7 @@ class ReplayRecorder(QtCore.QObject):
             if fa.instance._info.setdefault('complete', False):
                 self.__logger.info("Found Complete Replay Info")
             else:
-                self.__logger.warn("Replay Info not Complete")
+                self.__logger.warning("Replay Info not Complete")
             
             self.replayInfo = fa.instance._info
                  

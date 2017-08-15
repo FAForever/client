@@ -96,7 +96,7 @@ class GameSession(QObject):
     def _needs_game_connection(fn):
         def wrap(self, *args, **kwargs):
             if self._game_connection is None:
-                self._logger.warn("{}.{}: tried to run without a game connection".format(
+                self._logger.warning("{}.{}: tried to run without a game connection".format(
                     self.__class__.__name__, fn.__name__))
             else:
                 return fn(self, *args, **kwargs)

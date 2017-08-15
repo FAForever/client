@@ -342,7 +342,7 @@ class ClientWindow(FormClass, BaseClass):
                                         user_agent="faf-client"))
 
     def on_disconnected(self):
-        logger.warn("Disconnected from lobby server.")
+        logger.warning("Disconnected from lobby server.")
         self.gameset.clear_set()
         self.clear_players()
 
@@ -966,7 +966,7 @@ class ClientWindow(FormClass, BaseClass):
         if not exit_code:
             logger.info("FA has finished with exit code: " + str(exit_code))
         else:
-            logger.warn("FA has finished with exit code: " + str(exit_code))
+            logger.warning("FA has finished with exit code: " + str(exit_code))
         self.gameExit.emit()
 
     @QtCore.pyqtSlot(QProcess.ProcessError)
@@ -1116,7 +1116,7 @@ class ClientWindow(FormClass, BaseClass):
         # could be incompatible with an updated client.
         Settings.remove('window/geometry')
 
-        logger.warn("Server says we need an update")
+        logger.warning("Server says we need an update")
         self._update_checker.server_update(message)
 
     def handle_welcome(self, message):

@@ -265,7 +265,7 @@ class ServerConnection(QtCore.QObject):
         self.writeToServer(data)
 
     def on_disconnect(self):
-        logger.warn("Disconnected from lobby server.")
+        logger.warning("Disconnected from lobby server.")
         self.blockSize = 0
         self.state = ConnectionState.DISCONNECTED
         self.disconnected.emit()
@@ -312,7 +312,7 @@ class Dispatcher():
             if fn is not None:
                 fn(message)
             else:
-                logger.warn("No receiver for message {}".format(message))
+                logger.warning("No receiver for message {}".format(message))
         else:
             fn = self._dispatchees.get(cmd)
             if fn is not None:

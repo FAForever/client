@@ -54,7 +54,7 @@ def checkMods(mods):  # mods is a dictionary of uid-name pairs
             return
         actual_mods.append(uids[uid])
     if not modvault.setActiveMods(actual_mods):
-        logger.warn("Couldn't set the active mods in the game.prefs file")
+        logger.warning("Couldn't set the active mods in the game.prefs file")
         return False
 
     return True

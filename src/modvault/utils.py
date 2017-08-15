@@ -130,7 +130,7 @@ def getModInfo(modinfofile):
                                 {"version": "1", "ui_only": "false", "description": "", "icon": "", "author": ""})
     modinfo["ui_only"] = (modinfo["ui_only"] == 'true')
     if not "uid" in modinfo:
-        logger.warn("Couldn't find uid for mod %s" % modinfo["name"])
+        logger.warning("Couldn't find uid for mod %s" % modinfo["name"])
         return None
     #modinfo["uid"] = modinfo["uid"].lower()
     try:
@@ -140,7 +140,7 @@ def getModInfo(modinfofile):
             modinfo["version"] = float(modinfo["version"])
         except:
             modinfo["version"] = 0
-            logger.warn("Couldn't find version for mod %s" % modinfo["name"])
+            logger.warning("Couldn't find version for mod %s" % modinfo["name"])
     return (modinfofile, modinfo)    
 
 
@@ -301,7 +301,7 @@ def updateModInfo(mod, info):  # should probably not be used.
     Because those files can be random lua this function can fail if the file is complicated enough
     If every value however is on a seperate line, this should work.
     """
-    logger.warn("updateModInfo called. Probably not a good idea")
+    logger.warning("updateModInfo called. Probably not a good idea")
     fname = mod.mod_info
     try:
         f = open(fname, 'r')

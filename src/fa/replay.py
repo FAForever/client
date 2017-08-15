@@ -62,7 +62,7 @@ def replay(source, detach=False):
                         logger.info("mod guessed from " + source + " is " + str(mod))
                     else:
                         mod = "faf"  # TODO: maybe offer a list of mods for the user.
-                        logger.warn("no mod could be guessed, using fallback ('faf') ")
+                        logger.warning("no mod could be guessed, using fallback ('faf') ")
 
                     mapname = None
                     arg_string = source

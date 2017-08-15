@@ -56,7 +56,7 @@ def sim_mod(sim_mod, version):
 
 def path(parent):
     while not validatePath(util.settings.value("ForgedAlliance/app/path", "", type=str)):
-        logger.warn("Invalid game path: " + util.settings.value("ForgedAlliance/app/path", "", type=str))
+        logger.warning("Invalid game path: " + util.settings.value("ForgedAlliance/app/path", "", type=str))
         wizard = Wizard(parent)
         result = wizard.exec_()
         if result == QtWidgets.QWizard.Rejected:

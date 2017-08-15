@@ -82,7 +82,7 @@ class ReplaysConnection(QtCore.QObject):
             elif type(arg) is list:
                 out.writeQVariantList(arg)
             else:
-                logger.warn("Uninterpreted Data Type: " + str(type(arg)) + " of value: " + str(arg))
+                logger.warning("Uninterpreted Data Type: " + str(type(arg)) + " of value: " + str(arg))
                 out.writeQString(str(arg))
 
         out.device().seek(0)

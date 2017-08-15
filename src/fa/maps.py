@@ -483,7 +483,7 @@ def downloadMap(name, silent=False):
         urllib.request.urlopen(req)
         logger.debug("Successfully sent download counter request for: " + url)
     except:
-        logger.warn("Request to map download counter failed for: " + url)
+        logger.warning("Request to map download counter failed for: " + url)
         logger.error("Download Count Exception", exc_info=sys.exc_info())
 
     return True
