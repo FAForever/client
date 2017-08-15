@@ -2,6 +2,7 @@ from PyQt5 import QtCore, QtNetwork
 import time
 import json
 import logging
+from config import Settings
 
 
 logger = logging.getLogger(__name__)
@@ -27,7 +28,7 @@ class Timeout(Exception):
 class SecondaryServer(QtCore.QObject):
 
     # Network configuration
-    HOST = "lobby.faforever.com"
+    HOST = "lobby." + Settings.get('host')
     TIMEOUT = 5  # seconds
 
     # Return codes to expect from run()
