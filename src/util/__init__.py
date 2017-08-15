@@ -268,7 +268,7 @@ def iconUnit(unitname):
     img = os.path.join(CACHE_DIR, unitname)
     if os.path.isfile(img):
         logger.log(5, "Using cached preview image for: " + unitname)
-        return icon(img, False)
+        return THEME.icon(img, False)
     # Try to download from web
     img = __downloadPreviewFromWeb(unitname)
     if img and os.path.isfile(img):

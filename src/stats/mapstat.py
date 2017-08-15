@@ -1,6 +1,6 @@
 
 import util
-from PyQt5 import QtWidgets, QtCore
+from PyQt5 import QtWidgets, QtCore, QtGui
 import json
 import datetime
 from fa import maps

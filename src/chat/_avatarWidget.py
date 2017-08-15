@@ -102,7 +102,7 @@ class avatarWidget(QtWidgets.QDialog):
         fileName = QtWidgets.QFileDialog.getOpenFileName(self, "Select the PNG file", "", "png Files (*.png)", options)
         if fileName:
             # check the properties of that file
-            pixmap = QtWidgets.QPixmap(fileName)
+            pixmap = QtGui.QPixmap(fileName)
             if pixmap.height() == 20 and pixmap.width() == 40:
 
                 text, ok = QtWidgets.QInputDialog.getText(self, "Avatar description",

@@ -4,7 +4,7 @@ import urllib.request, urllib.error, urllib.parse
 import re
 import shutil
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtWidgets, QtGui
 
 from util import PREFSFILENAME
 import util
