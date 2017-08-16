@@ -46,11 +46,9 @@ import util
 import secondaryServer
 
 import json
-import sys
 import replays
 
 import time
-import random
 import notifications as ns
 
 FormClass, BaseClass = util.THEME.loadUiType("client/client.ui")

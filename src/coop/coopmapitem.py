@@ -1,8 +1,5 @@
 from PyQt5 import QtCore, QtWidgets, QtGui
-from fa import maps
 import util
-import os
-import client
 
 
 class CoopMapItemDelegate(QtWidgets.QStyledItemDelegate):

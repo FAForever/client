@@ -1,10 +1,9 @@
-from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
+from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest
 from PyQt5 import QtWidgets, QtCore
 import urllib.request, urllib.error, urllib.parse
 import logging
 import os
 import util
-import warnings
 from config import Settings
 
 logger = logging.getLogger(__name__)
