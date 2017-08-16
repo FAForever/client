@@ -262,8 +262,9 @@ def setActiveMods(mods, keepuimods=True, temporary=True):  # uimods works the sa
     s += "}"
 
     if not temporary:
+        global selectedMods
         logger.debug('selectedMods was: {}'.format(Settings.get('play/mods')))
-        selectedMods = list([str(mod.uid) for mods in allmods])
+        selectedMods = [str(mod.uid) for mod in allmods]
         logger.debug('Writing selectedMods: {}'.format(selectedMods))
         Settings.set('play/mods', selectedMods)
         logger.debug('selectedMods written: {}'.format(Settings.get('play/mods')))

@@ -14,6 +14,7 @@
 * Fix maps with spaces in them sometimes failing to download in vault (#771, #772)
 * Rework client updater (#671, #672)
 * Fixup rehosting throwing an exception (#828, #829)
+* Fix mods selected in game host window not remembered properly (#840, #841)
 
 Contributors:
  - Wesmania
