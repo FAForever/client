@@ -432,7 +432,7 @@ class ClientWindow(FormClass, BaseClass):
         if self.dragging and self.draggingHover == False:
             self.resizeWidget(event.globalPos())
 
-        elif self.moving and self.offset != None:
+        elif self.moving and self.offset is not None:
             desktop = QtWidgets.QDesktopWidget().availableGeometry(self)
             if event.globalPos().y() == 0:
                 self.rubberBand.setGeometry(desktop)
@@ -514,7 +514,7 @@ class ClientWindow(FormClass, BaseClass):
         import modvault
         import coop
         import news
-        from chat._avatarWidget import avatarWidget
+        from chat._avatarWidget import AvatarWidget
 
         # download manager
         self.downloader = downloadManager.downloadManager(self)
@@ -553,7 +553,7 @@ class ClientWindow(FormClass, BaseClass):
         self.actionNsEnabled.setChecked(self.notificationSystem.settings.enabled)
 
         # Other windows
-        self.avatarAdmin = self.avatarSelection = avatarWidget(self, None)
+        self.avatarAdmin = self.avatarSelection = AvatarWidget(self, None)
 
         # warning setup
         self.warning = QtWidgets.QHBoxLayout()
@@ -1036,7 +1036,7 @@ class ClientWindow(FormClass, BaseClass):
     def manage_power(self):
         """ update the interface accordingly to the power of the user """
         if self.power >= 1:
-            if self.modMenu == None:
+            if self.modMenu is None:
                 self.modMenu = self.menu.addMenu("Administration")
 
             actionAvatar = QtWidgets.QAction("Avatar manager", self.modMenu)

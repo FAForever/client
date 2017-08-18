@@ -188,8 +188,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             return False
 
         if chatter.name not in self.channels:
-            priv_chan = Channel(self, chatter.name, self._chatters,
-                                self._me, True)
+            priv_chan = Channel(self, chatter.name, self._chatters, self._me, True)
             self.addChannel(chatter.name, priv_chan)
 
             # Add participants to private channel
@@ -348,7 +347,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             self.removeTab(self.indexOf(self.channels[channel]))
             del self.channels[channel]
         else:                           # Someone else left
-            self._remove_chatter_channel(self, chatter, channel, "left.")
+            self._remove_chatter_channel(chatter, channel, "left.")
 
     def on_quit(self, c, e):
         name = user2name(e.source())

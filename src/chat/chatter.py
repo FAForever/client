@@ -1,8 +1,8 @@
 from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtCore import QUrl
 from PyQt5.QtNetwork import QNetworkRequest
-from chat._avatarWidget import avatarWidget
-
+from chat._avatarWidget import AvatarWidget
+import time
 import urllib.request, urllib.error, urllib.parse
 from fa.replay import replay
 import util
@@ -30,13 +30,13 @@ class Chatter(QtWidgets.QTableWidgetItem):
     RANK_NONPLAYER = 3
     RANK_FOE = 4
 
-    def __init__(self, parent, user, channel, lobby, me):
+    def __init__(self, parent, user, channel, chat_widget, me):
         QtWidgets.QTableWidgetItem.__init__(self, None)
 
         # TODO: for now, userflags and ranks aren't properly interpreted :-/
         # This is impractical if an operator reconnects too late.
         self.parent = parent
-        self.lobby = lobby
+        self.chat_widget = chat_widget
         self.channel = channel
 
         self._me = me
@@ -191,17 +191,17 @@ class Chatter(QtWidgets.QTableWidgetItem):
         name = self.user.name
         return _id, name
 
-    def getUserRank(self, other):
+    def getUserRank(self, user):
         # TODO: Add subdivision for admin?
         me = self._me
-        _id, name = other._getIdName()
-        if other.modElevation():
+        _id, name = user._getIdName()
+        if user.modElevation():
             return self.RANK_ELEVATION
         if me.isFriend(_id, name):
-            return self.RANK_FRIEND - (2 if self.lobby.client.friendsontop else 0)
+            return self.RANK_FRIEND - (2 if self.chat_widget.client.friendsontop else 0)
         if me.isFoe(_id, name):
             return self.RANK_FOE
-        if other.user_player is not None:
+        if user.user_player is not None:
             return self.RANK_USER
 
         return self.RANK_NONPLAYER
@@ -229,7 +229,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
                 self.avatarItem.setToolTip(self.avatarTip)
             else:
                 if util.addcurDownloadAvatar(url, self):
-                    self.lobby.nam.get(QNetworkRequest(QtCore.QUrl(url)))
+                    self.chat_widget.nam.get(QNetworkRequest(QtCore.QUrl(url)))
         else:
             # No avatar set.
             self.avatarItem.setIcon(QtGui.QIcon())
@@ -313,7 +313,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
 
     def set_color(self):
         # FIXME - we should really get colors in the constructor
-        pcolors = self.lobby.client.player_colors
+        pcolors = self.chat_widget.client.player_colors
         elevation = self.modElevation()
         _id, name = self._getIdName()
         if elevation is not None:
@@ -323,16 +323,14 @@ class Chatter(QtWidgets.QTableWidgetItem):
         self.setForeground(QtGui.QColor(color))
 
     def viewAliases(self):
-        QtGui.QDesktopServices.openUrl(QUrl("{}?name={}".format(
-            Settings.get("USER_ALIASES_URL"),
-            self.user.name)))
+        QtGui.QDesktopServices.openUrl(QUrl("{}?name={}".format(Settings.get("USER_ALIASES_URL"), self.user.name)))
 
     def selectAvatar(self):
-        avatarSelection = avatarWidget(self.lobby.client, self.user.name, personal=True)
+        avatarSelection = AvatarWidget(self.chat_widget.client, self.user.name, personal=True)
         avatarSelection.exec_()
 
     def addAvatar(self):
-        avatarSelection = avatarWidget(self.lobby.client, self.user.name)
+        avatarSelection = AvatarWidget(self.chat_widget.client, self.user.name)
         avatarSelection.exec_()
 
     def kick(self):
@@ -345,7 +343,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
                 return
         # Chatter name clicked
         if item == self:
-            self.lobby.openQuery(self.user, activate=True)  # open and activate query window
+            self.chat_widget.openQuery(self.user, activate=True)  # open and activate query window
 
         elif item == self.statusItem:
             self._interactWithGame()
@@ -385,11 +383,11 @@ class Chatter(QtWidgets.QTableWidgetItem):
             menu_add("Select Avatar", self.selectAvatar)
 
         # power menu
-        if self.lobby.client.power > 1:
+        if self.chat_widget.client.power > 1:
             # admin and mod menus
             menu_add("Assign avatar", self.addAvatar, True)
 
-            if self.lobby.client.power == 2:
+            if self.chat_widget.client.power == 2:
 
                 def send_the_orcs():
                     route = Settings.get('mordor/host')
@@ -399,8 +397,8 @@ class Chatter(QtWidgets.QTableWidgetItem):
                         QtGui.QDesktopServices.openUrl(QUrl("{}/users/{}".format(route, name)))
 
                 menu_add("Send the Orcs", send_the_orcs, True)
-                menu_add("Close Game", lambda: self.lobby.client.closeFA(name))
-                menu_add("Close FAF Client", lambda: self.lobby.client.closeLobby(name))
+                menu_add("Close Game", lambda: self.chat_widget.client.closeFA(name))
+                menu_add("Close FAF Client", lambda: self.chat_widget.client.closeLobby(name))
 
         # Aliases link
         menu_add("View Aliases", self.viewAliases, True)
@@ -408,9 +406,17 @@ class Chatter(QtWidgets.QTableWidgetItem):
         # Don't allow self to be invited to a game, or join one
         if game is not None and not is_me:
             if game.state == GameState.OPEN:
-                menu_add("Join hosted Game", self.joinInGame, True)
+                menu_add("Join hosted Game", self._interactWithGame, True)
             elif game.state == GameState.PLAYING:
-                menu_add("View live Replay", self.viewReplay, True)
+                time_running = time.time() - game.launched_at
+                if time_running > 5 * 60:
+                    time_format = '%M:%S' if time_running < 60 * 60 else '%H:%M:%S'
+                    duration_str = time.strftime(time_format, time.gmtime(time_running))
+                    action_str = "View Live Replay (runs " + duration_str + ")"
+                else:
+                    wait_str = time.strftime('%M:%S', time.gmtime(5 * 60 - time_running))
+                    action_str = "WAIT " + wait_str + " to view Live Replay"
+                menu_add(action_str, self._interactWithGame, True)
 
         # Replays in vault
         if player is not None:  # not for irc user
@@ -424,7 +430,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
             else:
                 return lambda: irc_f(name)
 
-        cl = self.lobby.client
+        cl = self.chat_widget.client
         me = self._me
         if is_me:  # We're ourselves
             pass
@@ -443,10 +449,10 @@ class Chatter(QtWidgets.QTableWidgetItem):
 
     def viewVaultReplay(self):
         """ see the player replays in the vault """
-        self.lobby.client.replays.setCurrentIndex(2)  # focus on Online Fault
-        replayHandler = self.lobby.client.replays.vaultManager
+        self.chat_widget.client.replays.setCurrentIndex(2)  # focus on Online Fault
+        replayHandler = self.chat_widget.client.replays.vaultManager
         replayHandler.searchVault(0, "", self.user.name, 0)
-        self.lobby.client.mainTabs.setCurrentIndex(self.lobby.client.mainTabs.indexOf(self.lobby.client.replaysTab))
+        self.chat_widget.client.mainTabs.setCurrentIndex(self.chat_widget.client.mainTabs.indexOf(self.chat_widget.client.replaysTab))
 
     def joinInGame(self, url):
         client.instance.joinGameFromURL(url)
