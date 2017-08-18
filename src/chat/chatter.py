@@ -355,7 +355,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
         if game is None or game.closed():
             return
 
-        url = game.url(self.user_player._id)
+        url = game.url(self.user_player.id)
         if game.state == GameState.OPEN:
             self.joinInGame(url)
         elif game.state == GameState.PLAYING:
