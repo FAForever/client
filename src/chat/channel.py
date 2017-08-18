@@ -324,12 +324,16 @@ class Channel(FormClass, BaseClass):
         """
         Print an raw message in the chatArea of the channel
         """
-        id = self.lobby.client.players.getID(chatter.name)
+        chatter = self._chatterset.get(chname)
+        try:
+            _id = chatter.player.id
+        except AttributeError:
+            _id = -1
 
-        color = self.lobby.client.player_colors.getUserColor(id)
+        color = self.lobby.client.player_colors.getUserColor(_id)
 
         # Play a ping sound
-        if self.private and chatter.name != self.lobby.client.login:
+        if self.private and chname != self.lobby.client.login:
             self.pingWindow()
 
         # scroll if close to the last line of the log
@@ -341,7 +345,7 @@ class Channel(FormClass, BaseClass):
         self.chatArea.setTextCursor(cursor)
 
         formatter = Formatters.FORMATTER_RAW
-        line = formatter.format(time=self.timestamp(), name=chatter.name, color=color, width=self.maxChatterWidth, text=text)
+        line = formatter.format(time=self.timestamp(), name=chname, color=color, width=self.maxChatterWidth, text=text)
         self.chatArea.insertHtml(line)
 
         if scroll_needed:
