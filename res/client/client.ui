@@ -302,6 +302,7 @@
      <addaction name="actionShowMapsDir"/>
      <addaction name="actionShowModsDir"/>
      <addaction name="actionShowReplaysDir"/>
+     <addaction name="actionShowThemesDir"/>
      <addaction name="actionShowGamePrefs"/>
     </widget>
     <widget class="QMenu" name="menuUpdates">
@@ -613,6 +614,11 @@
   <action name="actionUpdate_Settings">
    <property name="text">
     <string>Update Settings...</string>
+   </property>
+  </action>
+  <action name="actionShowThemesDir">
+   <property name="text">
+    <string>Show themes folder</string>
    </property>
   </action>
  </widget>

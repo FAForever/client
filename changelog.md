@@ -15,6 +15,7 @@
 * Rework client updater (#671, #672)
 * Fixup rehosting throwing an exception (#828, #829)
 * Fix mods selected in game host window not remembered properly (#840, #841)
+* Add menu option: Show paths for themes (#844)
 
 Contributors:
  - Wesmania
