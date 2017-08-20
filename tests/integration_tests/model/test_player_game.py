@@ -29,7 +29,7 @@ GAME_DICT = {
 
 def check_relation(game, player, exists):
     assert (player.currentGame is game) == exists
-    assert (player in game.ingame_players) == exists
+    assert game.is_ingame(player.login) == exists
 
 
 def setup():
@@ -53,12 +53,12 @@ def test_setup():
     for i in range(1, 3):
         assert ps[i].currentGame is gs[1]
 
-    gps = gs[1].connected_players
+    gps = [gs[1].to_player(n) for n in gs[1].players if gs[1].is_connected(n)]
     assert len(gps) == 3
     for i in range(1, 3):
         assert ps[1] in gps
 
-    gps = gs[1].ingame_players
+    gps = [gs[1].to_player(n) for n in gs[1].players if gs[1].is_ingame(n)]
     assert len(gps) == 3
     for i in range(1, 3):
         assert ps[1] in gps
@@ -139,18 +139,20 @@ def test_game_at_missing_player(mocker):
 
     gs[1] = g1
     assert len(g1.players) == 3
-    assert len(g1.connected_players) == 2
-    assert ps[1] in g1.connected_players
-    assert ps[2] in g1.connected_players
+    gps = [g1.to_player(n) for n in g1.players if g1.is_connected(n)]
+    assert len(gps) == 2
+    assert ps[1] in gps
+    assert ps[2] in gps
 
     assert not pAdd.called
     p = Player(**{"id_": 3, "login": "Kraut"})
     ps[p.id] = p
     pAdd.assert_called_with(g1, ps[3])
 
-    assert len(g1.connected_players) == 3
-    assert ps[3] in g1.connected_players
-    assert ps[3] in g1.ingame_players
+    gps = [g1.to_player(n) for n in g1.players if g1.is_connected(n)]
+    assert len(gps) == 3
+    assert ps[3] in gps
+    assert g1.is_ingame(ps[3].login)
     assert ps[3].currentGame is g1
 
 
@@ -166,14 +168,14 @@ def test_remove_add_player(mocker):
     del ps[3]
     pRem.assert_called_with(gs[1], p3)
     assert not pAdd.called
-    assert p3 not in gs[1].connected_players
+    assert not gs[1].is_connected(p3.login)
 
     pRem.reset_mock()
 
     ps[3] = p3
     pAdd.assert_called_with(gs[1], p3)
     assert not pRem.called
-    assert p3 in gs[1].connected_players
+    assert gs[1].is_connected(p3.login)
 
 
 def test_game_at_another_game(mocker):
@@ -209,7 +211,7 @@ def test_game_abort_removes_relation(mocker):
     gUpd.assert_called_with(ps[1], None, g1)
     for i in range(1, 3):
         assert ps[i].currentGame is None
-    assert g1.ingame_players == []
+    assert [p for p in g1.players if g1.is_ingame(p)] == []
 
 
 def test_game_closed_removes_relation(mocker):
@@ -226,7 +228,7 @@ def test_game_closed_removes_relation(mocker):
     gUpd.assert_called_with(ps[1], None, g1)
     for i in range(1, 3):
         assert ps[i].currentGame is None
-    assert g1.ingame_players == []
+    assert [p for p in g1.players if g1.is_ingame(p)] == []
 
 
 def test_game_closed_removes_only_own(mocker):

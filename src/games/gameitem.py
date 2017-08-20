@@ -2,10 +2,7 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 from fa import maps
 import util
 import os
-from games.moditem import mods
 from model.game import GameState
-
-import traceback
 
 import client
 
@@ -30,7 +27,7 @@ class GameItemDelegate(QtWidgets.QStyledItemDelegate):
 
         # clear icon and text before letting the control draw itself because we're rendering these parts ourselves
         option.icon = QtGui.QIcon()
-        option.text = ""  
+        option.text = ""
         option.widget.style().drawControl(QtWidgets.QStyle.CE_ItemViewItem, option, painter, option.widget)
 
         # Shadow (100x100 shifted 8 right and 8 down)
@@ -201,7 +198,7 @@ class NullSorter:
 
 
 class GameItem():
-    def __init__(self, game, sorter=None):
+    def __init__(self, game, me, sorter=None):
         self.widget = GameItemWidget(self)
 
         if sorter is not None:
@@ -212,17 +209,12 @@ class GameItem():
         self.game = game
         self.game.gameUpdated.connect(self._gameUpdate)
 
-        self.oldstate = None
-        self.oldmapname = None
+        self._me = me
+        self._me.relationsUpdated.connect(self._relationsUpdate)
 
         self.mapdisplayname = None  # Will get set at first update
-        self.hostid = client.instance.players.getID(self.game.host)  # Shouldn't change for a game
-        self.players = []  # Will get set at first update
         self._hide_passworded = False
-
-    # For connecting to game slot
-    def _gameUpdate(self, _=None):
-        self.update()
+        self._gameUpdate(self.game, None)
 
     # Stay hidden if our game is not open
     def setHidePassworded(self, param):
@@ -241,7 +233,9 @@ class GameItem():
         return self.game.url(player_id)
 
     def announceReplay(self):
-        if not client.instance.me.isFriend(self.hostid):
+        if self.game.host_player is None:
+            return
+        if not client.instance.me.isFriend(self.game.host_player.id):
             return
 
         g = self.game
@@ -260,7 +254,9 @@ class GameItem():
             client.instance.forwardLocalBroadcast(g.host, 'is playing ' + g.featured_mod + ' in <a style="color:' + istr)
 
     def announceHosting(self):
-        if not client.instance.me.isFriend(self.hostid) or self.widget.isHidden():
+        if self.game.host_player is None:
+            return
+        if not client.instance.me.isFriend(self.game.host_player.id) or self.widget.isHidden():
             return
 
         g = self.game
@@ -282,84 +278,68 @@ class GameItem():
                                                   client.instance.player_colors.getColor("url") + '" href="' + url.toString() + '">' +
                                                   g.title + '</a> (on "' + self.mapdisplayname + '")')
 
-    def update(self):
-        """
-        Updates this item from the message dictionary supplied
-        """
+    def _hostColor(self):
+        hostid = self.game.host_player.id if self.game.host_player is not None else -1
+        return client.instance.player_colors.getUserColor(hostid)
 
-        g = self.game
-
-        oldstate = self.oldstate
-        self.oldstate = g.state
-
-        # Map preview code
-        if g.mapname != self.oldmapname:
-            self.oldmapname = g.mapname
-            self.mapdisplayname = maps.getDisplayName(g.mapname)
-            refresh_icon = True
-        else:
-            refresh_icon = False
-
-        # Following the convention used by the game, a team value of 1 represents "No team". Let's
-        # desugar those into "real" teams now (and convert the dict to a list)
-        # Also, turn the lists of names into lists of players, and build a player name list.
-        self.players = []
-        teams = []
-        observers = []
-
-        for team_index, team in g.teams.items():
-            if team_index in ['-1', 'null']:
-                for name in team:
-                    observers.append(name)
-            else:
-                real_team = []
-                for name in team:
-                    if name in client.instance.players:
-                        player = client.instance.players[name]
-                        self.players.append(player)
-                        real_team.append(player)
-                teams.append(real_team)
-
-        # Alternate icon: If private game, use game_locked icon. Otherwise, use preview icon from map library.
-        if refresh_icon:
-            if g.password_protected:
-                icon = util.THEME.icon("games/private_game.png")
-            else:
-                icon = maps.preview(g.mapname)
-                if not icon:
-                    client.instance.downloader.downloadMap(g.mapname, self.widget)
-                    icon = util.THEME.icon("games/unknown_map.png")
-
-            self.widget.setIcon(icon)
-
+    def _gameUpdate(self, game, old):
         w = self.widget
 
-        color = client.instance.player_colors.getUserColor(self.hostid)
+        # Map preview code
+        # Alternate icon: If private game, use game_locked icon. Otherwise,
+        # use preview icon from map library.
+        if old is None or game.mapname != old.mapname:
+            self.mapdisplayname = maps.getDisplayName(game.mapname)
+            if game.password_protected:
+                icon = util.THEME.icon("games/private_game.png")
+            else:
+                icon = maps.preview(game.mapname)
+                if not icon:
+                    client.instance.downloader.downloadMap(game.mapname, w)
+                    icon = util.THEME.icon("games/unknown_map.png")
+            w.setIcon(icon)
 
-        self.editTooltip(teams, observers)
+        teams = {index: [game.to_player(name) for name in team
+                         if game.is_connected(name)]
+                 for index, team in game.playing_teams.items()}
 
-        w.title = g.title
-        w.host = g.host
-        w.mapName = g.mapname
-        w.maxPlayers = g.max_players
-        w.players = g.num_players
-        w.textColor = color
-        w.modName = g.featured_mod
-        w.privateIcon = g.password_protected
+        # Sort teams into a list
+        teamlist = [indexed_team for indexed_team in teams.items()]
+        teamlist.sort()
+        teamlist = [team for index, team in teamlist]
+
+        self.editTooltip(teamlist, game.observers)
+
+        w.title = game.title
+        w.host = game.host
+        w.mapName = game.mapname
+        w.maxPlayers = game.max_players
+        w.players = game.num_players
+        w.textColor = self._hostColor()
+        w.modName = game.featured_mod
+        w.privateIcon = game.password_protected
         w.averageRating = int(self.average_rating)
 
         w.updateIcon()
         w.updateText()
 
         # Spawn announcers: IF we had a gamestate change, show replay and hosting announcements
-        if oldstate != g.state:
-            if g.state == GameState.PLAYING:
+        if old is None or old.state != game.state:
+            if game.state == GameState.PLAYING:
                 # The delay is there because we have a 5 minutes delay in the livereplay server
                 QtCore.QTimer.singleShot(5*60000, self.announceReplay)
-            elif g.state == GameState.OPEN:  # The 35s delay is there because the host needs time to choose a map
+            elif game.state == GameState.OPEN:  # The 35s delay is there because the host needs time to choose a map
                 QtCore.QTimer.singleShot(35000, self.announceHosting)
 
         self._updateHidden()
+
+    def _relationsUpdate(self, players):
+        if self.game.host_player is None:
+            return
+        if self.game.host_player.id not in players:
+            return
+        self.widget.textColor = self._hostColor()
+        self.widget.updateText()
 
     def editTooltip(self, teams, observers):
         self.widget.teamsToTooltip(teams, observers)
@@ -375,4 +355,11 @@ class GameItem():
 
     @property
     def average_rating(self):
-        return sum([p.rating_estimate() for p in self.players]) / max(len(self.players), 1)
+        players = [name for team in self.game.playing_teams.values()
+                   for name in team]
+        players = [self.game.to_player(name) for name in players
+                   if self.game.is_connected(name)]
+        if not players:
+            return 0
+        else:
+            return sum([p.rating_estimate() for p in players]) / len(players)

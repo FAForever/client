@@ -36,9 +36,11 @@ class GameSorter:
         me = self._me
 
         # Friend games are on top
-        if me.isFriend(item1.hostid) and not me.isFriend(item2.hostid):
+        host1 = -1 if item1.game.host_player is None else item1.game.host_player.id
+        host2 = -1 if item2.game.host_player is None else item2.game.host_player.id
+        if me.isFriend(host1) and not me.isFriend(host2):
             return True
-        if not me.isFriend(item1.hostid) and me.isFriend(item2.hostid):
+        if not me.isFriend(host1) and me.isFriend(host2):
             return False
 
         # Sort Games
@@ -48,7 +50,7 @@ class GameSorter:
         # 3: By Host
         # 4+: By age = uid
         if self.sortBy == 0:
-            return len(item1.players) > len(item2.players)
+            return len(item1.game.players) > len(item2.game.players)
         elif self.sortBy == 1:
             return item1.average_rating > item2.average_rating
         elif self.sortBy == 2:
@@ -233,12 +235,11 @@ class GamesWidget(FormClass, BaseClass):
         if game.featured_mod in mod_invisible:
             return
 
-        game_item = GameItem(game, self.sorter)
+        game_item = GameItem(game, self.client.me, self.sorter)
 
         self.games[game] = game_item
         game.gameUpdated.connect(self._atGameUpdated)
 
-        game_item.update()
         self.gameList.addItem(game_item.widget)
 
         # Hide private games

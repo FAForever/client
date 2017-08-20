@@ -239,12 +239,11 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
         if game.featured_mod != "coop":
             return
 
-        game_item = GameItem(game)
+        game_item = GameItem(game, self.client.me)
 
         self.games[game] = game_item
         game.gameUpdated.connect(self._atGameUpdate)
 
-        game_item.update()
         self.gameList.addItem(game_item.widget)
 
     def _removeGame(self, game):

@@ -35,6 +35,8 @@ class Game(QObject):
     ingamePlayerAdded = pyqtSignal(object, object)
     ingamePlayerRemoved = pyqtSignal(object, object)
 
+    OBSERVER_TEAMS = ['-1', 'null']
+
     def __init__(self,
                  playerset,
                  uid,
@@ -189,23 +191,52 @@ class Game(QObject):
         url.setQuery(query)
         return url
 
+    # Utility functions start here.
+
+    def is_connected(self, name):
+        return name in self._playerset
+
+    def is_ingame(self, name):
+        return (not self.closed()
+                and self.is_connected(name)
+                and self._playerset[name].currentGame == self)
+
+    def to_player(self, name):
+        if not self.is_connected(name):
+            return None
+        return self._playerset[name]
+
     @property
     def players(self):
         if self.teams is None:
             return []
-        return [player for team in self.teams.values() for player in team]
+        return [name for team in self.teams.values() for name in team]
 
     @property
-    def connected_players(self):
-        return [self._playerset[name] for name in self.players
-                if name in self._playerset]
-
-    @property
-    def ingame_players(self):
-        if self.closed():
+    def observers(self):
+        if self.teams is None:
             return []
-        return [player for player in self.connected_players
-                if player.currentGame == self]
+        return [name for tname, team in self.teams.items()
+                if tname in self.OBSERVER_TEAMS
+                for name in team]
+
+    @property
+    def playing_teams(self):
+        if self.teams is None:
+            return {}
+        return {n: t for n, t in self.teams.items()
+                if n not in self.OBSERVER_TEAMS}
+
+    @property
+    def playing_players(self):
+        return [name for team in self.playing_teams.values() for name in team]
+
+    @property
+    def host_player(self):
+        try:
+            return self._playerset[self.host]
+        except KeyError:
+            return None
 
 
 def message_to_game_args(m):
