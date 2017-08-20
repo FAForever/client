@@ -196,6 +196,8 @@ class NullSorter:
     def lt(self, item1, item2):
         return item1.game.uid < item2.game.uid
 
+    def verifySortOrder(self, chatter):
+        pass
 
 class GameItem():
     def __init__(self, game, me, sorter=None):
@@ -332,6 +334,7 @@ class GameItem():
                 QtCore.QTimer.singleShot(35000, self.announceHosting)
 
         self._updateHidden()
+        self.sorter.verifySortOrder(self)
 
     def _relationsUpdate(self, players):
         if self.game.host_player is None:
@@ -340,6 +343,7 @@ class GameItem():
             return
         self.widget.textColor = self._hostColor()
         self.widget.updateText()
+        self.sorter.verifySortOrder(self)
 
     def editTooltip(self, teams, observers):
         self.widget.teamsToTooltip(teams, observers)

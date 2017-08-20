@@ -25,9 +25,10 @@ FormClass, BaseClass = util.THEME.loadUiType("games/games.ui")
 
 
 class GameSorter:
-    def __init__(self, me):
+    def __init__(self, me, gamelist):
         self.sortBy = 0
         self._me = me
+        self._gamelist = gamelist
 
     def lt(self, item1, item2):
         """ Comparison operator used for item list sorting """
@@ -61,6 +62,8 @@ class GameSorter:
             # Default: by UID.
             return item1.game.uid < item2.game.uid
 
+    def verifySortOrder(self, item):
+        self._gamelist.verifySortOrder(item)
 
 class GamesWidget(FormClass, BaseClass):
 
@@ -77,13 +80,12 @@ class GamesWidget(FormClass, BaseClass):
         self.setupUi(self)
 
         self.client = client
-        self.sorter = GameSorter(me)
+        self.sorter = GameSorter(me, self)
         self.gameset = gameset
         self.mods = {}
         self.games = {}
 
         self._me = me
-        self._me.relationsUpdated.connect(self.sortGames)
 
         # Ranked search UI
         self._ranked_icons = {
@@ -235,7 +237,7 @@ class GamesWidget(FormClass, BaseClass):
         if game.featured_mod in mod_invisible:
             return
 
-        game_item = GameItem(game, self.client.me, self.sorter)
+        game_item = GameItem(game, self._me, self.sorter)
 
         self.games[game] = game_item
         game.gameUpdated.connect(self._atGameUpdated)
@@ -374,3 +376,12 @@ class GamesWidget(FormClass, BaseClass):
 
     def sortGames(self):
         self.gameList.sortItems()
+
+    def verifySortOrder(self, gameitem):
+        row = self.gameList.row(gameitem.widget)
+        item = gameitem.widget
+        next_item = self.gameList.item(row + 1)
+        prev_item = self.gameList.item(row - 1)
+        if (next_item is not None and item > next_item or
+           prev_item is not None and item < prev_item):
+            self.sortGames()
