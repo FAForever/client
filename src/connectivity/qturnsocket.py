@@ -157,4 +157,5 @@ class QTurnSocket(QUdpSocket):
         while self.hasPendingDatagrams():
             data, host, port = self.readDatagram(self.pendingDatagramSize())
             ipv4_address_string = QHostAddress(host.toIPv4Address()).toString() # host.toString() is expressed as IPv6 otherwise e.g. ::ffff:91.64.56.230
-            self.handle_data((ipv4_address_string, int(port)), data)
+            if data is not None:
+                self.handle_data((ipv4_address_string, int(port)), data)
