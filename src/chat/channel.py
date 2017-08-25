@@ -87,7 +87,7 @@ class Channel(FormClass, BaseClass):
         self.name = name
         self.private = private
 
-        self.sortCall = ScheduledCall(self._sortChatters)
+        self.sortCall = ScheduledCall(self.sortChatters)
 
         if not self.private:
             # Properly and snugly snap all the columns
@@ -118,7 +118,7 @@ class Channel(FormClass, BaseClass):
         self.chatEdit.returnPressed.connect(self.sendLine)
         self.chatEdit.setChatters(self.chatters)
 
-    def _sortChatters(self):
+    def sortChatters(self):
         self.nickList.sortItems(Chatter.SORT_COLUMN)
 
     def joinChannel(self, index):

@@ -132,8 +132,12 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         else:
             self.insertTab(index, self.channels[name], name)
 
+    def sortChannels(self):
+        for channel in self.channels.values():
+            channel.sortChatters()
+
     def updateChannels(self):
-        for _, channel in self.channels.items():
+        for channel in self.channels.values():
             channel.updateChatters()
 
     def closeChannel(self, index):

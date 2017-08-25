@@ -790,7 +790,9 @@ class ClientWindow(FormClass, BaseClass):
 
         self.gamelogs = self.actionSaveGamelogs.isChecked()
         self.player_colors.coloredNicknames = self.actionColoredNicknames.isChecked()
-        self.friendsontop = self.actionFriendsOnTop.isChecked()
+        if self.friendsontop != self.actionFriendsOnTop.isChecked():
+            self.friendsontop = self.actionFriendsOnTop.isChecked()
+            self.chat.sortChannels()
 
         self.saveChat()
 

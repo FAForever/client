@@ -175,8 +175,8 @@ class Chatter(QtWidgets.QTableWidgetItem):
 
     def __lt__(self, other):
         """ Comparison operator used for item list sorting """
-        firstStatus = self.getUserRank(self)
-        secondStatus = self.getUserRank(other)
+        self_rank = self.get_user_rank(self)
+        other_rank = self.get_user_rank(other)
 
         if self._me.player is not None:
             if self.user.name == self._me.player.login:
@@ -185,8 +185,8 @@ class Chatter(QtWidgets.QTableWidgetItem):
                 return False
 
         # if not same rank sort
-        if firstStatus != secondStatus:
-            return firstStatus < secondStatus
+        if self_rank != other_rank:
+            return self_rank < other_rank
 
         # Default: Alphabetical
         return self.user.name.lower() < other.user.name.lower()
@@ -200,7 +200,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
         name = self.user.name
         return _id, name
 
-    def getUserRank(self, user):
+    def get_user_rank(self, user):
         # TODO: Add subdivision for admin?
         me = self._me
         _id, name = user._getIdName()
@@ -318,7 +318,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
                 else:
                     self.mapItem.setIcon(icon)
 
-                self.mapItem.setToolTip(mapname)
+                self.mapItem.setToolTip(game.mapdisplayname)
             else:
                 self.mapItem.setIcon(QtGui.QIcon())
                 self.mapItem.setToolTip("")
