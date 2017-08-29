@@ -1,7 +1,8 @@
-from PyQt5.QtCore import QObject, pyqtSignal, QUrl, QUrlQuery
+from PyQt5.QtCore import QObject, pyqtSignal, QUrl, QUrlQuery, QTimer
 
 from enum import Enum
 from decorators import with_logger
+import time
 
 
 class GameState(Enum):
@@ -29,6 +30,8 @@ class Game(QObject):
     with signals.
     """
     gameUpdated = pyqtSignal(object, object)
+    liveReplayAvailable = pyqtSignal(object)
+
     connectedPlayerAdded = pyqtSignal(object, object)
     connectedPlayerRemoved = pyqtSignal(object, object)
 
@@ -36,6 +39,7 @@ class Game(QObject):
     ingamePlayerRemoved = pyqtSignal(object, object)
 
     OBSERVER_TEAMS = ['-1', 'null']
+    LIVE_REPLAY_DELAY_SECS = 60 * 5
 
     def __init__(self,
                  playerset,
@@ -75,6 +79,12 @@ class Game(QObject):
         self.password_protected = None
         self.visibility = None
         self._aborted = False
+
+        self._live_replay_timer = QTimer()
+        self._live_replay_timer.setSingleShot(True)
+        self._live_replay_timer.setInterval(self.LIVE_REPLAY_DELAY_SECS * 1000)
+        self._live_replay_timer.timeout.connect(self._emit_live_replay)
+        self.has_live_replay = False
 
         self._update(state, launched_at, num_players, max_players, title,
                      host, mapname, map_file_path, teams, featured_mod,
@@ -136,6 +146,27 @@ class Game(QObject):
         self.sim_mods = sim_mods
         self.password_protected = password_protected
         self.visibility = visibility
+
+        self._check_live_replay_timer()
+
+    def _check_live_replay_timer(self):
+        if (self.state != GameState.PLAYING or
+           self._live_replay_timer.isActive() or
+           self.launched_at is None):
+            return
+
+        if self.has_live_replay:
+            return
+
+        time_elapsed = time.time() - self.launched_at
+        time_to_replay = max(self.LIVE_REPLAY_DELAY_SECS - time_elapsed, 0)
+        self._live_replay_timer.start(time_to_replay * 1000)
+
+    def _emit_live_replay(self):
+        if self.state != GameState.PLAYING:
+            return
+        self.has_live_replay = True
+        self.liveReplayAvailable.emit(self)
 
     def closed(self):
         return self.state == GameState.CLOSED or self._aborted

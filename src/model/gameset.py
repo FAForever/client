@@ -19,6 +19,7 @@ class Gameset(QObject):
     newLobby = pyqtSignal(object)
     newLiveGame = pyqtSignal(object)
     newClosedGame = pyqtSignal(object)
+    newLiveReplay = pyqtSignal(object)
 
     def __init__(self, playerset):
         QObject.__init__(self)
@@ -63,6 +64,7 @@ class Gameset(QObject):
         self.games[key] = value
         # We should be the first ones to connect to the signal
         value.gameUpdated.connect(self._at_game_update)
+        value.liveReplayAvailable.connect(self._at_live_replay)
         self._at_game_update(value, None)
         self.newGame.emit(value)
         self._logger.debug("Added game, uid {}".format(value.uid))
@@ -88,10 +90,14 @@ class Gameset(QObject):
         elif g.state == game.GameState.CLOSED:
             self.newClosedGame.emit(g)
 
+    def _at_live_replay(self, game):
+        self.newLiveReplay.emit(game)
+
     def _remove_game(self, g):
         try:
             g = self.games[g.uid]
             g.gameUpdated.disconnect(self._at_game_update)
+            g.liveReplayAvailable.disconnect(self._at_live_replay)
             del self.games[g.uid]
             self._logger.debug("Removed game, uid {}".format(g.uid))
         except KeyError:
