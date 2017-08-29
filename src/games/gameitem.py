@@ -228,58 +228,6 @@ class GameItem():
                 or (self._hide_passworded and self.game.password_protected))
         self.widget.setHidden(hide)
 
-    def url(self, player_id=None):
-        if not player_id:
-            player_id = self.game.host
-
-        return self.game.url(player_id)
-
-    def announceReplay(self):
-        if self.game.host_player is None:
-            return
-        if not client.instance.me.isFriend(self.game.host_player.id):
-            return
-
-        g = self.game
-        if not g.state == GameState.PLAYING:
-            return
-
-        # User doesnt want to see this in chat
-        if not client.instance.livereplays:
-            return
-
-        url = self.url()
-        istr = client.instance.player_colors.getColor("url") + '" href="' + url.toString() + '">' + g.title + '</a> (on "' + self.mapdisplayname + '")'
-        if g.featured_mod == "faf":
-            client.instance.forwardLocalBroadcast(g.host, 'is playing live in <a style="color:' + istr)
-        else:
-            client.instance.forwardLocalBroadcast(g.host, 'is playing ' + g.featured_mod + ' in <a style="color:' + istr)
-
-    def announceHosting(self):
-        if self.game.host_player is None:
-            return
-        if not client.instance.me.isFriend(self.game.host_player.id) or self.widget.isHidden():
-            return
-
-        g = self.game
-        if not g.state == GameState.OPEN:
-            return
-
-        url = self.url()
-
-        # No visible message if not requested
-        if not client.instance.opengames:
-            return
-
-        if g.featured_mod == "faf":
-            client.instance.forwardLocalBroadcast(g.host, 'is hosting <a style="color:' +
-                                                  client.instance.player_colors.getColor("url") + '" href="' + url.toString() + '">' +
-                                                  g.title + '</a> (on "' + self.mapdisplayname + '")')
-        else:
-            client.instance.forwardLocalBroadcast(g.host, 'is hosting ' + g.featured_mod + ' <a style="color:' +
-                                                  client.instance.player_colors.getColor("url") + '" href="' + url.toString() + '">' +
-                                                  g.title + '</a> (on "' + self.mapdisplayname + '")')
-
     def _hostColor(self):
         hostid = self.game.host_player.id if self.game.host_player is not None else -1
         return client.instance.player_colors.getUserColor(hostid)
@@ -324,14 +272,6 @@ class GameItem():
 
         w.updateIcon()
         w.updateText()
-
-        # Spawn announcers: IF we had a gamestate change, show replay and hosting announcements
-        if old is None or old.state != game.state:
-            if game.state == GameState.PLAYING:
-                # The delay is there because we have a 5 minutes delay in the livereplay server
-                QtCore.QTimer.singleShot(5*60000, self.announceReplay)
-            elif game.state == GameState.OPEN:  # The 35s delay is there because the host needs time to choose a map
-                QtCore.QTimer.singleShot(35000, self.announceHosting)
 
         self._updateHidden()
         self.sorter.verifySortOrder(self)

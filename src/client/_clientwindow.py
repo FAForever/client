@@ -28,6 +28,7 @@ from client.login import LoginWidget
 from ui.busy_widget import BusyWidget
 
 from client.playercolors import PlayerColors
+from client.gameannouncer import GameAnnouncer
 '''
 Created on Dec 1, 2011
 
@@ -273,6 +274,9 @@ class ClientWindow(FormClass, BaseClass):
         self.me = User(self.players)
 
         self.player_colors = PlayerColors(self.me)
+
+        self.game_announcer = GameAnnouncer(self.gameset, self.me,
+                                            self.player_colors, self)
 
         self.power = 0  # current user power
         self.id = 0
@@ -759,9 +763,9 @@ class ClientWindow(FormClass, BaseClass):
     def updateOptions(self):
         self.remember = self.actionSetAutoLogin.isChecked()
         self.soundeffects = self.actionSetSoundEffects.isChecked()
-        self.opengames = self.actionSetOpenGames.isChecked()
+        self.game_announcer.announce_games = self.actionSetOpenGames.isChecked()
         self.joinsparts = self.actionSetJoinsParts.isChecked()
-        self.livereplays = self.actionSetLiveReplays.isChecked()
+        self.game_announcer.announce_replays = self.actionSetLiveReplays.isChecked()
 
         self.gamelogs = self.actionSaveGamelogs.isChecked()
         self.player_colors.coloredNicknames = self.actionColoredNicknames.isChecked()
@@ -843,8 +847,8 @@ class ClientWindow(FormClass, BaseClass):
     def saveChat(self):
         util.settings.beginGroup("chat")
         util.settings.setValue("soundeffects", self.soundeffects)
-        util.settings.setValue("livereplays", self.livereplays)
-        util.settings.setValue("opengames", self.opengames)
+        util.settings.setValue("livereplays", self.game_announcer.announce_replays)
+        util.settings.setValue("opengames", self.game_announcer.announce_games)
         util.settings.setValue("joinsparts", self.joinsparts)
         util.settings.setValue("coloredNicknames", self.player_colors.coloredNicknames)
         util.settings.setValue("friendsontop", self.friendsontop)
@@ -866,9 +870,9 @@ class ClientWindow(FormClass, BaseClass):
         try:
             util.settings.beginGroup("chat")
             self.soundeffects = (util.settings.value("soundeffects", "true") == "true")
-            self.opengames = (util.settings.value("opengames", "true") == "true")
+            self.game_announcer.announce_games = (util.settings.value("opengames", "true") == "true")
             self.joinsparts = (util.settings.value("joinsparts", "false") == "true")
-            self.livereplays = (util.settings.value("livereplays", "true") == "true")
+            self.game_announcer.announce_replays = (util.settings.value("livereplays", "true") == "true")
             self.player_colors.coloredNicknames = (util.settings.value("coloredNicknames", "false") == "true")
             self.friendsontop = (util.settings.value("friendsontop", "false") == "true")
 
@@ -876,8 +880,8 @@ class ClientWindow(FormClass, BaseClass):
             self.actionColoredNicknames.setChecked(self.player_colors.coloredNicknames)
             self.actionFriendsOnTop.setChecked(self.friendsontop)
             self.actionSetSoundEffects.setChecked(self.soundeffects)
-            self.actionSetLiveReplays.setChecked(self.livereplays)
-            self.actionSetOpenGames.setChecked(self.opengames)
+            self.actionSetLiveReplays.setChecked(self.game_announcer.announce_replays)
+            self.actionSetOpenGames.setChecked(self.game_announcer.announce_games)
             self.actionSetJoinsParts.setChecked(self.joinsparts)
         except:
             pass
