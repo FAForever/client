@@ -4,6 +4,8 @@ from enum import Enum
 from decorators import with_logger
 import time
 
+import string
+
 
 class GameState(Enum):
     OPEN = "open"
@@ -269,6 +271,28 @@ class Game(QObject):
         except KeyError:
             return None
 
+    @property
+    def average_rating(self):
+        players = [name for team in self.playing_teams.values()
+                   for name in team]
+        players = [self.to_player(name) for name in players
+                   if self.is_connected(name)]
+        if not players:
+            return 0
+        else:
+            return sum([p.rating_estimate() for p in players]) / len(players)
+
+    @property
+    def mapdisplayname(self):
+        if self.mapname in OFFICIAL_MAPS:
+            return OFFICIAL_MAPS[self.mapname][0]
+
+        # cut off ugly version numbers, replace "_" with space.
+        pretty = self.mapname.rsplit(".v0", 1)[0]
+        pretty = pretty.replace("_", " ")
+        pretty = string.capwords(pretty)
+        return pretty
+
 
 def message_to_game_args(m):
     # FIXME - this should be fixed on the server
@@ -286,3 +310,61 @@ def message_to_game_args(m):
         return False
 
     return True
+
+
+OFFICIAL_MAPS = {  # official Forged Alliance Maps
+    "scmp_001": ["Burial Mounds", "1024x1024", 8],
+    "scmp_002": ["Concord Lake", "1024x1024", 8],
+    "scmp_003": ["Drake's Ravine", "1024x1024", 4],
+    "scmp_004": ["Emerald Crater", "1024x1024", 4],
+    "scmp_005": ["Gentleman's Reef", "2048x2048", 7],
+    "scmp_006": ["Ian's Cross", "1024x1024", 4],
+    "scmp_007": ["Open Palms", "512x512", 6],
+    "scmp_008": ["Seraphim Glaciers", "1024x1024", 8],
+    "scmp_009": ["Seton's Clutch", "1024x1024", 8],
+    "scmp_010": ["Sung Island", "1024x1024", 5],
+    "scmp_011": ["The Great Void", "2048x2048", 8],
+    "scmp_012": ["Theta Passage", "256x256", 2],
+    "scmp_013": ["Winter Duel", "256x256", 2],
+    "scmp_014": ["The Bermuda Locket", "1024x1024", 8],
+    "scmp_015": ["Fields Of Isis", "512x512", 4],
+    "scmp_016": ["Canis River", "256x256", 2],
+    "scmp_017": ["Syrtis Major", "512x512", 4],
+    "scmp_018": ["Sentry Point", "256x256", 3],
+    "scmp_019": ["Finn's Revenge", "512x512", 2],
+    "scmp_020": ["Roanoke Abyss", "1024x1024", 6],
+    "scmp_021": ["Alpha 7 Quarantine", "2048x2048", 8],
+    "scmp_022": ["Artic Refuge", "512x512", 4],
+    "scmp_023": ["Varga Pass", "512x512", 2],
+    "scmp_024": ["Crossfire Canal", "1024x1024", 6],
+    "scmp_025": ["Saltrock Colony", "512x512", 6],
+    "scmp_026": ["Vya-3 Protectorate", "512x512", 4],
+    "scmp_027": ["The Scar", "1024x1024", 6],
+    "scmp_028": ["Hanna oasis", "2048x2048", 8],
+    "scmp_029": ["Betrayal Ocean", "4096x4096", 8],
+    "scmp_030": ["Frostmill Ruins", "4096x4096", 8],
+    "scmp_031": ["Four-Leaf Clover", "512x512", 4],
+    "scmp_032": ["The Wilderness", "512x512", 4],
+    "scmp_033": ["White Fire", "512x512", 6],
+    "scmp_034": ["High Noon", "512x512", 4],
+    "scmp_035": ["Paradise", "512x512", 4],
+    "scmp_036": ["Blasted Rock", "256x256", 4],
+    "scmp_037": ["Sludge", "256x256", 3],
+    "scmp_038": ["Ambush Pass", "256x256", 4],
+    "scmp_039": ["Four-Corners", "256x256", 4],
+    "scmp_040": ["The Ditch", "1024x1024", 6],
+    "x1mp_001": ["Crag Dunes", "256x256", 2],
+    "x1mp_002": ["Williamson's Bridge", "256x256", 2],
+    "x1mp_003": ["Snoey Triangle", "512x512", 3],
+    "x1mp_004": ["Haven Reef", "512x512", 4],
+    "x1mp_005": ["The Dark Heart", "512x512", 6],
+    "x1mp_006": ["Daroza's Sanctuary", "512x512", 4],
+    "x1mp_007": ["Strip Mine", "1024x1024", 4],
+    "x1mp_008": ["Thawing Glacier", "1024x1024", 6],
+    "x1mp_009": ["Liberiam Battles", "1024x1024", 8],
+    "x1mp_010": ["Shards", "2048x2048", 8],
+    "x1mp_011": ["Shuriken Island", "2048x2048", 8],
+    "x1mp_012": ["Debris", "4096x4096", 8],
+    "x1mp_014": ["Flooded Strip Mine", "1024x1024", 4],
+    "x1mp_017": ["Eye Of The Storm", "512x512", 4],
+}
