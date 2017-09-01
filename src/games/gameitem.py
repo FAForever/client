@@ -60,6 +60,166 @@ class GameItemDelegate(QtWidgets.QStyledItemDelegate):
         return QtCore.QSize(GameItemWidget.ICONSIZE + GameItemWidget.TEXTWIDTH + GameItemWidget.PADDING, GameItemWidget.ICONSIZE)
 
 
+class GameItemFormatter:
+    FORMATTER_FAF = str(util.THEME.readfile("games/formatters/faf.qthtml"))
+    FORMATTER_MOD = str(util.THEME.readfile("games/formatters/mod.qthtml"))
+
+    def __init__(self, playercolors, me):
+        self._colors = playercolors
+        self._me = me
+        self._tooltip_formatter = GameTooltipFormatter(self._me)
+
+    def _featured_mod(self, game):
+        return game.featured_mod in ["faf", "coop"]
+
+    def _host_color(self, game):
+        hostid = game.host_player.id if game.host_player is not None else -1
+        return self._colors.getUserColor(hostid)
+
+    def text(self, data):
+        game = data.game
+        formatting = {
+            "color": self._host_color(game),
+            "mapslots": game.max_players,
+            "mapdisplayname": game.mapdisplayname,
+            "title": game.title,
+            "host": game.host,
+            "players": game.num_players,
+            "playerstring": "player" if game.num_players == 1 else "players",
+            "avgrating": int(game.average_rating)
+        }
+        if self._featured_mod(game):
+            return self.FORMATTER_FAF.format(**formatting)
+        else:
+            formatting["mod"] = game.featured_mod
+            return self.FORMATTER_MOD.format(**formatting)
+
+    def icon(self, data):
+        game = data.game
+        if game.password_protected:
+            return util.THEME.icon("games/private_game.png")
+
+        icon = maps.preview(game.mapname)
+        if icon is not None:
+            return icon
+
+        return util.THEME.icon("games/unknown_map.png")
+
+    def needs_icon(self, data):
+        game = data.game
+        return (not game.password_protected
+                and maps.preview(game.mapname) is None)
+
+    def _game_teams(self, game):
+        teams = {index: [game.to_player(name) for name in team
+                         if game.is_connected(name)]
+                 for index, team in game.playing_teams.items()}
+
+        # Sort teams into a list
+        # TODO - I believe there's a convention where team 1 is 'no team'
+        teamlist = [indexed_team for indexed_team in teams.items()]
+        teamlist.sort()
+        teamlist = [team for index, team in teamlist]
+        return teamlist
+
+    def _game_observers(self, game):
+        return [game.to_player(name) for name in game.observers
+                if game.is_connected(name)]
+
+    def tooltip(self, data):
+        game = data.game
+        teams = self._game_teams(game)
+        observers = self._game_observers(game)
+        return self._tooltip_formatter.format(teams, observers, game.sim_mods)
+
+
+class GameTooltipFormatter:
+    TIP_FORMAT = str(util.THEME.readfile("games/formatters/tool.qthtml"))
+
+    def __init__(self, me):
+        self._me = me
+
+    def _teams_tooltip(self, teams):
+        versus_string = (
+            "<td valign='middle' height='100%'>"
+            "<font color='black' size='+5'>VS</font>"
+            "</td>")
+        return versus_string.join([self._team_table(team) for team in teams])
+
+    def _team_table(self, team):
+        team_table_start = "<td><table>"
+        team_table_end = "</table></td>"
+
+        def alignment(team):
+            for i, player in enumerate(team):
+                if i == 0:
+                    yield 'left', player
+                elif i == len(team) - 1:
+                    yield 'right', player
+                else:
+                    yield 'middle', player
+
+        rows = [self._player_table_row(player, align)
+                for align, player in alignment(team)]
+        return team_table_start + "".join(rows) + team_table_end
+
+    def _player_table_row(self, player, alignment):
+        player_row = (
+            "<tr>"
+            "<td>{country_icon}</td>"
+            "<td align='{align}' valign='middle' width='135'>{player}</td>"
+            "</tr>")
+
+        return player_row.format(
+            country_icon=self._country_icon_fmt(player),
+            align=alignment,
+            player=self._player_fmt(player))
+
+    def _country_icon_fmt(self, player):
+        country_icon = "chat/countries/{}.png".format(player.country)
+        icon_path = os.path.join(util.COMMON_DIR, country_icon)
+        return "<img src={}>".format(icon_path)
+
+    def _player_fmt(self, player):
+        if player == self._me.player:
+            pformat = "<b><i>{}</b></i>"
+        else:
+            pformat = "{}"
+        player_string = pformat.format(player.login)
+        if player.rating_deviation < 200:   # FIXME: magic number
+            player_string += " ({})".format(player.rating_estimate())
+        return player_string
+
+    def _observers_tooltip(self, observers):
+        if not observers:
+            return ""
+
+        observer_fmt = "{country_icon} {observer}"
+
+        observer_strings = [observer_fmt.format(
+            country_icon=self._country_icon_fmt(observer),
+            observer=observer.login)
+            for observer in observers]
+        return "Observers: " + ", ".join(observer_strings)
+
+    def _mods_tooltip(self, mods):
+        if not mods:
+            return ""
+        return "<br/>With: " + "<br/>".join(mods.values())
+
+    def format(self, teams, observers, mods):
+        teamtip = self._teams_tooltip(teams)
+        obstip = self._observers_tooltip(observers)
+        modtip = self._mods_tooltip(mods)
+
+        if modtip:
+            modtip = "<br/>" + modtip
+
+        return self.TIP_FORMAT.format(teams=teamtip,
+                                      observers=obstip,
+                                      mods=modtip)
+
+
 class GameItemWidget(QtWidgets.QListWidgetItem):
     TEXTWIDTH = 250
     ICONSIZE = 110
@@ -198,6 +358,7 @@ class NullSorter:
 
     def verifySortOrder(self, chatter):
         pass
+
 
 class GameItem():
     def __init__(self, game, me, sorter=None):
