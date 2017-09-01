@@ -20,6 +20,7 @@ import os
 import logging
 logger = logging.getLogger(__name__)
 
+from downloadManager import IconCallback
 
 FormClass, BaseClass = util.THEME.loadUiType("coop/coop.ui")
 
@@ -239,7 +240,7 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
         if game.featured_mod != "coop":
             return
 
-        game_item = GameItem(game, self.client.me)
+        game_item = GameItem(game, self.client.me, self)
 
         self.games[game] = game_item
         game.gameUpdated.connect(self._atGameUpdate)
@@ -279,3 +280,12 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
                 self.client.join_game(uid=game.uid, password=passw)
         else:
             self.client.join_game(uid=game.uid)
+
+    def downloadMap(self, mapname):
+        cb = IconCallback(mapname, self.mapIconDownloaded)
+        self.client.downloader.downloadMap(mapname, cb)
+
+    def mapIconDownloaded(self, mapname, icon):
+        for game, item in self.games.items():
+            if game.mapname == mapname:
+                item.updateIcon()

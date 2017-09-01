@@ -212,3 +212,13 @@ class downloadManager(QtCore.QObject):
             downloader.run()
 
         self.modRequests[url].append(requester)
+
+
+# Temporary utility class for catching download callbacks
+class IconCallback:
+    def __init__(self, mapname, cb):
+        self.mapname = mapname
+        self.cb = cb
+
+    def setIcon(self, icon):
+        self.cb(self.mapname, icon)

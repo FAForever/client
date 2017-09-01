@@ -361,7 +361,7 @@ class NullSorter:
 
 
 class GameItem():
-    def __init__(self, game, me, sorter=None):
+    def __init__(self, game, me, dler, sorter=None):
         self.widget = GameItemWidget(self)
 
         if sorter is not None:
@@ -374,6 +374,8 @@ class GameItem():
 
         self._me = me
         self._me.relationsUpdated.connect(self._relationsUpdate)
+
+        self._dler = dler
 
         self.mapdisplayname = None  # Will get set at first update
         self._hide_passworded = False
@@ -406,7 +408,7 @@ class GameItem():
             else:
                 icon = maps.preview(game.mapname)
                 if not icon:
-                    client.instance.downloader.downloadMap(game.mapname, w)
+                    self._dler.downloadMap(game.mapname)
                     icon = util.THEME.icon("games/unknown_map.png")
             w.setIcon(icon)
 
@@ -468,3 +470,6 @@ class GameItem():
             return 0
         else:
             return sum([p.rating_estimate() for p in players]) / len(players)
+
+    def updateIcon(self):
+        self.widget.updateIcon()

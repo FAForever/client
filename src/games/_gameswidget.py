@@ -19,6 +19,8 @@ from config import Settings
 import logging
 import client
 
+from downloadManager import IconCallback
+
 logger = logging.getLogger(__name__)
 
 FormClass, BaseClass = util.THEME.loadUiType("games/games.ui")
@@ -237,7 +239,7 @@ class GamesWidget(FormClass, BaseClass):
         if game.featured_mod in mod_invisible:
             return
 
-        game_item = GameItem(game, self._me, self.sorter)
+        game_item = GameItem(game, self._me, self, self.sorter)
 
         self.games[game] = game_item
         game.gameUpdated.connect(self._atGameUpdated)
@@ -385,3 +387,12 @@ class GamesWidget(FormClass, BaseClass):
         if (next_item is not None and item > next_item or
            prev_item is not None and item < prev_item):
             self.sortGames()
+
+    def downloadMap(self, mapname):
+        cb = IconCallback(mapname, self.mapIconDownloaded)
+        self.client.downloader.downloadMap(mapname, cb)
+
+    def mapIconDownloaded(self, mapname, icon):
+        for game, item in self.games.items():
+            if game.mapname == mapname:
+                item.updateIcon()
