@@ -9,9 +9,50 @@ import client
 import logging
 logger = logging.getLogger(__name__)
 
+from downloadManager import IconCallback
+
+
+class GameView(QtCore.QObject):
+    """
+    Helps with displaying games in the game widget. Handles updates to view
+    unrelated to underlying data, like downloading map previews. Forwards
+    interaction with the view.
+    """
+    game_double_clicked = QtCore.pyqtSignal(object)
+
+    def __init__(self, model, view, delegate, dler):
+        QtCore.QObject.__init__(self)
+        self._model = model
+        self._view = view
+        self._delegate = delegate
+        self._dler = dler
+
+        self._view.setModel(self._model)
+        self._view.setItemDelegate(self._delegate)
+        self._delegate.map_preview_missing.connect(self.download_map_preview)
+        self._view.doubleClicked.connect(self._game_double_clicked)
+
+    def download_map_preview(self, mapname):
+        cb = IconCallback(mapname, self._map_preview_downloaded)
+        self._dler.downloadMap(mapname, cb)
+
+    # TODO make it a utility function?
+    def _model_items(self):
+        model = self._model
+        for i in range(model.rowCount()):
+            yield model.index(i, 0)
+
+    def _map_preview_downloaded(self, mapname, icon):
+        for idx in self._model_items():
+            game = idx.data().game
+            if game.mapname == game:
+                self._view.update(idx)
+
+    def _game_double_clicked(self, idx):
+        self.game_double_clicked.emit(idx.data().game)
+
 
 class GameItemDelegate(QtWidgets.QStyledItemDelegate):
-
     def __init__(self, *args, **kwargs):
         QtWidgets.QStyledItemDelegate.__init__(self, *args, **kwargs)
 
