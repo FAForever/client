@@ -52,6 +52,100 @@ class GameView(QtCore.QObject):
         self.game_double_clicked.emit(idx.data().game)
 
 
+class GameItemDelegate2(QtWidgets.QStyledItemDelegate):
+    map_preview_missing = QtCore.pyqtSignal(str)
+
+    ICON_RECT = 100
+    ICON_CLIP_TOP_LEFT = 3
+    ICON_CLIP_BOTTOM_RIGHT = -7
+    ICON_SHADOW_OFFSET = 8
+    SHADOW_COLOR = QtGui.QColor("#202020")
+    FRAME_THICKNESS = 1
+    FRAME_COLOR = QtGui.QColor("#303030")
+    TEXT_OFFSET = 10
+    TEXT_RIGHT_MARGIN = 5
+
+    TEXT_WIDTH = 250
+    ICON_SIZE = 110
+    PADDING = 10
+
+    def __init__(self, formatter):
+        QtWidgets.QStyledItemDelegate.__init__(self)
+        self._formatter = formatter
+
+    def paint(self, painter, option, index):
+        painter.save()
+
+        data = index.data()
+        text = self._formatter.text(data)
+        icon = self._formatter.icon(data)
+
+        self._check_map_preview(data)
+
+        self._draw_clear_option(painter, option)
+        self._draw_icon_shadow(painter, option)
+        self._draw_icon(painter, option, icon)
+        self._draw_frame(painter, option)
+        self._draw_text(painter, option, text)
+
+        painter.restore()
+
+    def _check_map_preview(self, data):
+        needed_preview = self._formatter.needed_map_preview(data)
+        if needed_preview is not None:
+            self.map_preview_missing.emit(needed_preview)
+
+    def _draw_clear_option(self, painter, option):
+        option.icon = QtGui.QIcon()
+        option.text = ""
+        option.widget.style().drawControl(QtWidgets.QStyle.CE_ItemViewItem,
+                                          option, painter, option.widget)
+
+    def _draw_icon_shadow(self, painter, option):
+        painter.fillRect(option.rect.left() + self.ICON_SHADOW_OFFSET,
+                         option.rect.top() + self.ICON_SHADOW_OFFSET,
+                         self.ICON_RECT,
+                         self.ICON_RECT,
+                         self.SHADOW_COLOR)
+
+    def _draw_icon(self, painter, option, icon):
+        rect = option.rect.adjusted(self.ICON_CLIP_TOP_LEFT,
+                                    self.ICON_CLIP_TOP_LEFT,
+                                    self.ICON_CLIP_BOTTOM_RIGHT,
+                                    self.ICON_CLIP_BOTTOM_RIGHT)
+        icon.paint(painter, rect, QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
+
+    def _draw_frame(self, painter, option):
+        pen = QtGui.QPen()
+        pen.setWidth(self.FRAME_THICKNESS)
+        pen.setBrush(self.FRAME_COLOR)
+        pen.setCapStyle(QtCore.Qt.RoundCap)
+        painter.setPen(pen)
+        painter.drawRect(option.rect.left() + self.ICON_CLIP_TOP_LEFT,
+                         option.rect.top() + self.ICON_CLIP_TOP_LEFT,
+                         self.ICON_RECT,
+                         self.ICON_RECT)
+
+    def _draw_text(self, painter, option, text):
+        left_off = self.ICON_RECT + self.TEXT_OFFSET
+        top_off = self.TEXT_OFFSET
+        right_off = self.TEXT_RIGHT_MARGIN
+        bottom_off = 0
+        painter.translate(option.rect.left() + left_off,
+                          option.rect.top() + top_off)
+        clip = QtCore.QRectF(0,
+                             0,
+                             option.rect.width() - left_off - right_off,
+                             option.rect.height() - top_off - bottom_off)
+        html = QtGui.QTextDocument()
+        html.setHtml(text)
+        html.drawContents(painter, clip)
+
+    def sizeHint(self, option, index):
+        return QtCore.QSize(self.ICON_SIZE + self.TEXT_WIDTH + self.PADDING,
+                            self.ICON_SIZE)
+
+
 class GameItemDelegate(QtWidgets.QStyledItemDelegate):
     def __init__(self, *args, **kwargs):
         QtWidgets.QStyledItemDelegate.__init__(self, *args, **kwargs)
@@ -146,10 +240,11 @@ class GameItemFormatter:
 
         return util.THEME.icon("games/unknown_map.png")
 
-    def needs_icon(self, data):
+    def needed_map_preview(self, data):
         game = data.game
-        return (not game.password_protected
-                and maps.preview(game.mapname) is None)
+        if game.password_protected or maps.preview(game.mapname) is not None:
+            return None
+        return game.mapname
 
     def _game_teams(self, game):
         teams = {index: [game.to_player(name) for name in team
