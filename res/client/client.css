@@ -226,7 +226,7 @@ QSpinBox#minRating, QLineEdit#mapName, QLineEdit#playerName, QComboBox#modList
 }
 
 /* Text controls */
-QTextEdit, QPlainTextEdit, QLineEdit, QListWidget, QTableWidget, QTreeWidget, QFrame#rankedFrame, QFrame#teamFaction, QFrame#teamSearch
+QTextEdit, QPlainTextEdit, QLineEdit, QListWidget, QListView, QTableWidget, QTreeWidget, QFrame#rankedFrame, QFrame#teamFaction, QFrame#teamSearch
 {
     border-style:solid;
     border-width:1px;
@@ -272,7 +272,7 @@ QTableWidget::item::hover
 }
 
 
-QTableWidget::item:selected, QListWidget::item:previously-selected
+QTableWidget::item:selected, QListWidget::item:previously-selected, QListView::item:previously-selected
 {
     border: none;
 }
@@ -287,14 +287,14 @@ QLineEdit
 
 
 
-QListWidget::item:hover
+QListWidget::item:hover, QListView::item:hover
 {
     border: none;
     background: #606060;
     border-radius: 3px;
 }
 
-QListWidget::item:selected, QTreeWidget::item:previously-selected
+QListWidget::item:selected, QListView::item:selected, QTreeWidget::item:previously-selected
 {
     border: none;
 }
