@@ -583,7 +583,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QListWidget" name="gameList">
+       <widget class="QListView" name="gameList">
         <property name="focusPolicy">
          <enum>Qt::NoFocus</enum>
         </property>
@@ -618,9 +618,6 @@
          <enum>QListView::IconMode</enum>
         </property>
         <property name="uniformItemSizes">
-         <bool>true</bool>
-        </property>
-        <property name="sortingEnabled">
          <bool>true</bool>
         </property>
        </widget>

@@ -6,66 +6,20 @@ from PyQt5.QtCore import Qt
 
 import util
 from config import Settings
-from games.gameitem import GameItem, GameItemDelegate
-from model.game import GameState
-from games.moditem import ModItem, mod_invisible, mods
+from games.gameitem import GameView, GameItemDelegate2, GameItemFormatter
+from games.moditem import ModItem, mod_invisible
 from games.hostgamewidget import HostgameWidget
 from fa.factions import Factions
 import fa
-import modvault
-import notifications as ns
-from config import Settings
 
 import logging
-import client
 
-from downloadManager import IconCallback
+from games.gamemodel import CustomGameFilterModel
 
 logger = logging.getLogger(__name__)
 
 FormClass, BaseClass = util.THEME.loadUiType("games/games.ui")
 
-
-class GameSorter:
-    def __init__(self, me, gamelist):
-        self.sortBy = 0
-        self._me = me
-        self._gamelist = gamelist
-
-    def lt(self, item1, item2):
-        """ Comparison operator used for item list sorting """
-        if not client.instance:
-            return True  # If not initialized...
-        me = self._me
-
-        # Friend games are on top
-        host1 = -1 if item1.game.host_player is None else item1.game.host_player.id
-        host2 = -1 if item2.game.host_player is None else item2.game.host_player.id
-        if me.isFriend(host1) and not me.isFriend(host2):
-            return True
-        if not me.isFriend(host1) and me.isFriend(host2):
-            return False
-
-        # Sort Games
-        # 0: By Player Count
-        # 1: By avg. Player Rating
-        # 2: By Map
-        # 3: By Host
-        # 4+: By age = uid
-        if self.sortBy == 0:
-            return len(item1.game.players) > len(item2.game.players)
-        elif self.sortBy == 1:
-            return item1.average_rating > item2.average_rating
-        elif self.sortBy == 2:
-            return item1.mapdisplayname.lower() < item2.mapdisplayname.lower()
-        elif self.sortBy == 3:
-            return item1.game.host.lower() < item2.game.host.lower()
-        else:
-            # Default: by UID.
-            return item1.game.uid < item2.game.uid
-
-    def verifySortOrder(self, item):
-        self._gamelist.verifySortOrder(item)
 
 class GamesWidget(FormClass, BaseClass):
 
@@ -76,18 +30,21 @@ class GamesWidget(FormClass, BaseClass):
     sub_factions = Settings.persisted_property(
         "play/subFactions", default_value=[False, False, False, False])
 
-    def __init__(self, client, gameset, me, *args, **kwargs):
+    def __init__(self, client, game_model, me, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
 
         self.setupUi(self)
 
         self.client = client
-        self.sorter = GameSorter(me, self)
-        self.gameset = gameset
         self.mods = {}
-        self.games = {}
-
         self._me = me
+        self._game_model = CustomGameFilterModel(self._me, game_model)
+
+        game_formatter = GameItemFormatter(self.client.player_colors, self._me)
+        game_delegate = GameItemDelegate2(game_formatter)
+        self.gameview = GameView(self._game_model, self.gameList,
+                                 game_delegate, self.client.downloader)
+        self.gameview.game_double_clicked.connect(self.gameDoubleClicked)
 
         # Ranked search UI
         self._ranked_icons = {
@@ -115,15 +72,8 @@ class GamesWidget(FormClass, BaseClass):
 
         self.client.lobby_info.modInfo.connect(self.processModInfo)
 
-        self.gameset.newLobby.connect(self._addGame)
-        self._addExistingGames(self.gameset)
-
         self.client.gameEnter.connect(self.stopSearchRanked)
         self.client.viewingReplay.connect(self.stopSearchRanked)
-
-        self.gameList.setItemDelegate(GameItemDelegate(self))
-        self.gameList.itemDoubleClicked.connect(self.gameDoubleClicked)
-        self.gameList.sortBy = self.sort_games_index  # Default Sorting is By Players count
 
         self.sortGamesComboBox.addItems(['By Players', 'By avg. Player Rating', 'By Map', 'By Host', 'By Age'])
         self.sortGamesComboBox.currentIndexChanged.connect(self.sortGamesComboChanged)
@@ -135,10 +85,6 @@ class GamesWidget(FormClass, BaseClass):
         self.modList.itemDoubleClicked.connect(self.hostGameClicked)
 
         self.updatePlayButton()
-
-    def _addExistingGames(self, gameset):
-        for game in gameset.values():
-            self._addGame(game)
 
     @QtCore.pyqtSlot(dict)
     def processModInfo(self, message):
@@ -167,9 +113,7 @@ class GamesWidget(FormClass, BaseClass):
     @QtCore.pyqtSlot(int)
     def togglePrivateGames(self, state):
         self.hide_private_games = state
-
-        for item in self.games.values():
-            item.setHidePassworded(state == Qt.Checked)
+        self._game_model.hide_private_games = state
 
     def selectFaction(self, enabled, factionID=0):
         logger.debug('selectFaction: enabled={}, factionID={}'.format(enabled, factionID))
@@ -229,35 +173,6 @@ class GamesWidget(FormClass, BaseClass):
 
             icon.setChecked(self.sub_factions[faction.value-1])
             icon.clicked.connect(partial(self.selectFaction, factionID=faction.value))
-
-    @QtCore.pyqtSlot(object)
-    def _addGame(self, game):
-        if game.state != GameState.OPEN:
-            return
-
-        # CAVEAT - this relies on us receiving mod info before game info
-        if game.featured_mod in mod_invisible:
-            return
-
-        game_item = GameItem(game, self._me, self, self.sorter)
-
-        self.games[game] = game_item
-        game.gameUpdated.connect(self._atGameUpdated)
-
-        self.gameList.addItem(game_item.widget)
-
-        # Hide private games
-        if self.hideGamesWithPw.isChecked():
-            game_item.setHidePassworded(True)
-
-    def _removeGame(self, game):
-        self.gameList.takeItem(self.gameList.row(self.games[game].widget))
-        game.gameUpdated.disconnect(self._atGameUpdated)
-        del self.games[game]
-
-    def _atGameUpdated(self, game):
-        if game.state != GameState.OPEN:
-            self._removeGame(game)
 
     def updatePlayButton(self):
         if self.searching:
@@ -329,8 +244,7 @@ class GamesWidget(FormClass, BaseClass):
         else:
             self.stopSearchRanked()
 
-    @QtCore.pyqtSlot(QtWidgets.QListWidgetItem)
-    def gameDoubleClicked(self, item):
+    def gameDoubleClicked(self, game):
         """
         Slot that attempts to join a game.
         """
@@ -341,11 +255,6 @@ class GamesWidget(FormClass, BaseClass):
 
         if not fa.check.game(self.client):
             return
-
-        game = [g for g in self.games.keys() if self.games[g].widget is item]
-        if not game:
-            return
-        game = game[0]
 
         if fa.check.check(game.featured_mod, mapname=game.mapname, version=None, sim_mods=game.sim_mods):
             if game.password_protected:
@@ -373,26 +282,4 @@ class GamesWidget(FormClass, BaseClass):
 
     def sortGamesComboChanged(self, index):
         self.sort_games_index = index
-        self.sorter.sortBy = index
-        self.sortGames()
-
-    def sortGames(self):
-        self.gameList.sortItems()
-
-    def verifySortOrder(self, gameitem):
-        row = self.gameList.row(gameitem.widget)
-        item = gameitem.widget
-        next_item = self.gameList.item(row + 1)
-        prev_item = self.gameList.item(row - 1)
-        if (next_item is not None and item > next_item or
-           prev_item is not None and item < prev_item):
-            self.sortGames()
-
-    def downloadMap(self, mapname):
-        cb = IconCallback(mapname, self.mapIconDownloaded)
-        self.client.downloader.downloadMap(mapname, cb)
-
-    def mapIconDownloaded(self, mapname, icon):
-        for game, item in self.games.items():
-            if game.mapname == mapname:
-                item.updateIcon()
+        self._game_model.sort_type = CustomGameFilterModel.SortType(index)
