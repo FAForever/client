@@ -31,6 +31,7 @@ class GameView(QtCore.QObject):
         self._view.setItemDelegate(self._delegate)
         self._delegate.map_preview_missing.connect(self.download_map_preview)
         self._view.doubleClicked.connect(self._game_double_clicked)
+        self._view.viewport().installEventFilter(self._delegate.tooltip_filter)
 
     def download_map_preview(self, mapname):
         cb = IconCallback(mapname, self._map_preview_downloaded)
@@ -72,6 +73,7 @@ class GameItemDelegate2(QtWidgets.QStyledItemDelegate):
     def __init__(self, formatter):
         QtWidgets.QStyledItemDelegate.__init__(self)
         self._formatter = formatter
+        self.tooltip_filter = GameTooltipFilter(self._formatter)
 
     def paint(self, painter, option, index):
         painter.save()
@@ -144,6 +146,28 @@ class GameItemDelegate2(QtWidgets.QStyledItemDelegate):
     def sizeHint(self, option, index):
         return QtCore.QSize(self.ICON_SIZE + self.TEXT_WIDTH + self.PADDING,
                             self.ICON_SIZE)
+
+
+class GameTooltipFilter(QtCore.QObject):
+    def __init__(self, formatter):
+        QtCore.QObject.__init__(self)
+        self._formatter = formatter
+
+    def eventFilter(self, obj, event):
+        if event.type() == QtCore.QEvent.ToolTip:
+            return self._handle_tooltip(obj, event)
+        else:
+            return super().eventFilter(obj, event)
+
+    def _handle_tooltip(self, widget, event):
+        view = widget.parent()
+        idx = view.indexAt(event.pos())
+        if not idx.isValid():
+            return False
+
+        tooltip_text = self._formatter.tooltip(idx.data())
+        QtWidgets.QToolTip.showText(event.globalPos(), tooltip_text, widget)
+        return True
 
 
 class GameItemDelegate(QtWidgets.QStyledItemDelegate):
@@ -280,39 +304,41 @@ class GameTooltipFormatter:
             "<td valign='middle' height='100%'>"
             "<font color='black' size='+5'>VS</font>"
             "</td>")
-        return versus_string.join([self._team_table(team) for team in teams])
 
-    def _team_table(self, team):
+        def alignment(teams):
+            for i, team in enumerate(teams):
+                if i == 0:
+                    yield 'left', team
+                elif i == len(teams) - 1:
+                    yield 'right', team
+                else:
+                    yield 'middle', team
+
+        team_tables = [self._team_table(team, align)
+                       for align, team in alignment(teams)]
+        return versus_string.join(team_tables)
+
+    def _team_table(self, team, align):
         team_table_start = "<td><table>"
         team_table_end = "</table></td>"
-
-        def alignment(team):
-            for i, player in enumerate(team):
-                if i == 0:
-                    yield 'left', player
-                elif i == len(team) - 1:
-                    yield 'right', player
-                else:
-                    yield 'middle', player
-
-        rows = [self._player_table_row(player, align)
-                for align, player in alignment(team)]
+        rows = [self._player_table_row(player, align) for player in team]
         return team_table_start + "".join(rows) + team_table_end
 
-    def _player_table_row(self, player, alignment):
-        player_row = (
-            "<tr>"
-            "<td>{country_icon}</td>"
-            "<td align='{align}' valign='middle' width='135'>{player}</td>"
-            "</tr>")
+    def _player_table_row(self, player, align):
+        country = "<td>{country_icon}</td>"
+        pname = ("<td align='{alignment}' valign='middle' width='135'>"
+                 "{player}"
+                 "</td>")
+        order = [pname, country] if align == 'right' else [country, pname]
+        player_row = "<tr>{}{}</tr>".format(*order)
 
         return player_row.format(
             country_icon=self._country_icon_fmt(player),
-            align=alignment,
+            alignment=align,
             player=self._player_fmt(player))
 
     def _country_icon_fmt(self, player):
-        country_icon = "chat/countries/{}.png".format(player.country)
+        country_icon = "chat/countries/{}.png".format(player.country.lower())
         icon_path = os.path.join(util.COMMON_DIR, country_icon)
         return "<img src={}>".format(icon_path)
 
