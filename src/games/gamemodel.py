@@ -71,7 +71,7 @@ class GameModel(QAbstractListModel):
         self.dataChanged.emit(index, index)
 
 
-class CustomGameFilterModel(QSortFilterProxyModel):
+class GameSortModel(QSortFilterProxyModel):
     class SortType(Enum):
         PLAYER_NUMBER = 0
         AVERAGE_RATING = 1
@@ -82,7 +82,6 @@ class CustomGameFilterModel(QSortFilterProxyModel):
     def __init__(self, me, model):
         QSortFilterProxyModel.__init__(self)
         self._sort_type = self.SortType.AGE
-        self._hide_private_games = False
         self._me = me
         self.setSourceModel(model)
         self.sort(0)
@@ -138,6 +137,18 @@ class CustomGameFilterModel(QSortFilterProxyModel):
             return False
         game = index.data().game
 
+        return self.filter_accepts_game(game)
+
+    def filter_accepts_game(self, game):
+        return True
+
+
+class CustomGameFilterModel(GameSortModel):
+    def __init__(self, me, model):
+        GameSortModel.__init__(self, me, model)
+        self._hide_private_games = False
+
+    def filter_accepts_game(self, game):
         if game.state != GameState.OPEN:
             return False
         if game.featured_mod in mod_invisible:
