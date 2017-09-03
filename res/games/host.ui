@@ -68,7 +68,7 @@
     </widget>
    </item>
    <item row="4" column="0" colspan="3">
-    <widget class="QListWidget" name="gamePreview">
+    <widget class="QListView" name="gamePreview">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
        <horstretch>0</horstretch>
@@ -127,9 +127,6 @@
       <enum>QListView::IconMode</enum>
      </property>
      <property name="uniformItemSizes">
-      <bool>true</bool>
-     </property>
-     <property name="sortingEnabled">
       <bool>true</bool>
      </property>
     </widget>

@@ -1,11 +1,11 @@
 from PyQt5 import QtCore
-from games.gameitem import GameItemWidget, GameItemDelegate
 import modvault
 
 from fa import maps
 import util
 import fa.check
 from model.game import Game, GameState, GameVisibility
+from games.gamemodel import GameModel
 
 import logging
 logger = logging.getLogger(__name__)
@@ -14,10 +14,11 @@ FormClass, BaseClass = util.THEME.loadUiType("games/host.ui")
 
 
 class GameLauncher:
-    def __init__(self, playerset, me, client):
+    def __init__(self, playerset, me, client, gameview_builder):
         self._playerset = playerset
         self._me = me
         self._client = client
+        self._gameview_builder = gameview_builder
 
     def _build_hosted_game(self, main_mod, mapname=None):
         if mapname is None:
@@ -53,7 +54,8 @@ class GameLauncher:
 
     def host_game(self, title, main_mod, mapname=None):
         game = self._build_hosted_game(main_mod, mapname)
-        host_widget = HostgameWidget(self._client, title, game)
+        host_widget = HostgameWidget(self._client, self._gameview_builder,
+                                     title, game, self._me)
         host_widget.launch.connect(self._launch_game)
         return host_widget.exec_()
 
@@ -81,12 +83,13 @@ class GameLauncher:
 class HostgameWidget(FormClass, BaseClass):
     launch = QtCore.pyqtSignal(object, str, list)
 
-    def __init__(self, client, title, game):
+    def __init__(self, client, gameview_builder, title, game, me):
         BaseClass.__init__(self, client)
 
         self.setupUi(self)
         self.client = client
         self.game = game
+        self._gameview_builder = gameview_builder
 
         self.setStyleSheet(self.client.styleSheet())
         self.password = util.settings.value("fa.games/password", "")
@@ -94,27 +97,14 @@ class HostgameWidget(FormClass, BaseClass):
         self.setWindowTitle("Hosting Game : " + title)
         self.titleEdit.setText(game.title)
         self.passEdit.setText(self.password)
-        self.gameitem = GameItemWidget(self)
-        self.gamePreview.setItemDelegate(GameItemDelegate(self))
-        self.gamePreview.addItem(self.gameitem)
+        self.passCheck.setChecked(self.game.password_protected)
+        self.radioFriends.setChecked(
+            self.game.visibility == GameVisibility.FRIENDS)
 
-        self.game.password_protected = self.passCheck.isChecked()
-
-        w = self.gameitem
-        w.setHidden(True)
-        w.title = self.game.title
-        w.host = self.client.login
-        w.modName = self.game.featured_mod
-        w.mapName = self.game.mapname
-        w.players = self.game.num_players
-        w.maxPlayers = self.game.max_players
-        me = self.client.me.player
-        w.teamsToTooltip([[me]])
-
-        w.updateText()
-        w.updateIcon()
-        w.updateTooltip()
-        w.setHidden(False)
+        preview_model = GameModel(me)
+        preview_model.add_game(self.game)
+        self.game_preview_logic = self._gameview_builder(preview_model,
+                                                         self.gamePreview)
 
         i = 0
         index = 0
@@ -147,9 +137,6 @@ class HostgameWidget(FormClass, BaseClass):
             if l:
                 l[0].setSelected(True)
 
-        self.radioFriends.setChecked(
-            self.game.visibility == GameVisibility.FRIENDS)
-
         self.mapList.currentIndexChanged.connect(self.mapChanged)
         self.hostButton.released.connect(self.hosting)
         self.titleEdit.textChanged.connect(self.update_text)
@@ -157,16 +144,18 @@ class HostgameWidget(FormClass, BaseClass):
         self.radioFriends.toggled.connect(self.update_visibility)
 
     def update_text(self, text):
-        self.gameitem.title = text
-        self.gameitem.updateText()
-        self.game.title = text.strip()
+        self.game.update(title=text.strip())
 
     def update_pass_check(self, checked):
-        self.game.password_protected = checked
+        self.game.update(password_protected=checked)
 
     def update_visibility(self, friends):
-        self.game.visibility = (GameVisibility.FRIENDS if friends
-                                else GameVisibility.PUBLIC)
+        self.game.update(visibility=(GameVisibility.FRIENDS if friends
+                                     else GameVisibility.PUBLIC))
+
+    def mapChanged(self, index):
+        mapname = self.mapList.itemData(index)
+        self.game.update(mapname=mapname)
 
     def hosting(self):
         if len(self.game.title) == 0:
@@ -186,14 +175,6 @@ class HostgameWidget(FormClass, BaseClass):
         self.launch.emit(self.game, password, mods)
         self.done(1)
         return
-
-    def mapChanged(self, index):
-        mapname = self.mapList.itemData(index)
-        self.game.mapname = mapname
-
-        self.gameitem.mapName = mapname
-        self.gameitem.updateText()
-        self.gameitem.updateIcon()
 
     def save_last_hosted_settings(self, password):
         util.settings.beginGroup("fa.games")

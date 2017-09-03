@@ -174,8 +174,6 @@ class ClientWindow(FormClass, BaseClass):
         # Qt model for displaying active games.
         self.game_model = GameModel(self.me, self.gameset)
 
-        self.game_launcher = GameLauncher(self.players, self.me, self)
-
         self.lobby_info = LobbyInfo(self.lobby_dispatch, self.gameset, self.players)
         self.gameset.newGame.connect(self.fill_in_session_info)
 
@@ -541,6 +539,8 @@ class ClientWindow(FormClass, BaseClass):
         self.gameview_builder = GameViewBuilder(self.me,
                                                 self.player_colors,
                                                 self.downloader)
+        self.game_launcher = GameLauncher(self.players, self.me,
+                                          self, self.gameview_builder)
 
         # build main window with the now active client
         self.news = news.NewsWidget(self)
