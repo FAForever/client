@@ -6,11 +6,7 @@ import util
 
 from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest
 
-from games.gameitem import GameItem, GameItemDelegate
-from model.game import GameState
 from coop.coopmapitem import CoopMapItem, CoopMapItemDelegate
-from games.hostgamewidget import HostgameWidget
-from games.gameitem import GameView, GameItemDelegate2, GameItemFormatter
 from coop.coopmodel import CoopGameFilterModel
 from ui.busy_widget import BusyWidget
 import os
@@ -18,13 +14,12 @@ import os
 import logging
 logger = logging.getLogger(__name__)
 
-from downloadManager import IconCallback
-
 FormClass, BaseClass = util.THEME.loadUiType("coop/coop.ui")
 
 
 class CoopWidget(FormClass, BaseClass, BusyWidget):
-    def __init__(self, client, game_model, me, game_launcher):
+    def __init__(self, client, game_model, me,
+                 gameview_builder, game_launcher):
 
         BaseClass.__init__(self)
 
@@ -34,6 +29,7 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
         self._me = me
         self._game_model = CoopGameFilterModel(self._me, game_model)
         self._game_launcher = game_launcher
+        self._gameview_builder = gameview_builder
 
         # Ranked search UI
         self.ispassworded = False
@@ -49,10 +45,7 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
         self.coopList.header().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
         self.coopList.setItemDelegate(CoopMapItemDelegate(self))
 
-        game_formatter = GameItemFormatter(self.client.player_colors, self._me)
-        game_delegate = GameItemDelegate2(game_formatter)
-        self.gameview = GameView(self._game_model, self.gameList,
-                                 game_delegate, self.client.downloader)
+        self.gameview = self._gameview_builder(self._game_model, self.gameList)
         self.gameview.game_double_clicked.connect(self.gameDoubleClicked)
 
         self.coopList.itemDoubleClicked.connect(self.coopListDoubleClicked)

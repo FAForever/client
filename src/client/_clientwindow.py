@@ -11,9 +11,12 @@ from model.player import Player
 from model.playerset import Playerset
 from client.connection import LobbyInfo, ServerConnection, \
         Dispatcher, ConnectionState, ServerReconnecter
+
 from model.gameset import Gameset
 from games.gamemodel import GameModel
 from games.hostgamewidget import GameLauncher
+from games.gameitem import GameViewBuilder
+
 from client.updater import UpdateChecker, UpdateDialog, UpdateSettings
 from client.update_settings import UpdateSettingsDialog
 from client.theme_menu import ThemeMenu
@@ -535,11 +538,15 @@ class ClientWindow(FormClass, BaseClass):
         # Initialize chat
         self.chat = chat.ChatWidget(self, self.players, self.me)
 
+        self.gameview_builder = GameViewBuilder(self.me,
+                                                self.player_colors,
+                                                self.downloader)
+
         # build main window with the now active client
         self.news = news.NewsWidget(self)
         self.ladder = stats.Stats(self)
         self.games = games.Games(self, self.game_model, self.me,
-                                 self.game_launcher)
+                                 self.gameview_builder, self.game_launcher)
         self.tourneys = tourneys.Tourneys(self)
         self.vault = vault.MapVault(self)
         self.modvault = modvault.ModVault(self)
@@ -547,7 +554,7 @@ class ClientWindow(FormClass, BaseClass):
                                        self.gameset, self.players)
         self.tutorials = tutorials.Tutorials(self)
         self.Coop = coop.Coop(self, self.game_model, self.me,
-                              self.game_launcher)
+                              self.gameview_builder, self.game_launcher)
         self.notificationSystem = ns.Notifications(self, self.gameset)
 
         # TODO: some day when the tabs only do UI we'll have all this in the .ui file

@@ -635,3 +635,17 @@ class GameItem():
 
     def updateIcon(self):
         self.widget.updateIcon()
+
+
+class GameViewBuilder:
+    def __init__(self, me, player_colors, preview_dler):
+        self._me = me
+        self._player_colors = player_colors
+        self._preview_dler = preview_dler
+
+    def __call__(self, model, view):
+        game_formatter = GameItemFormatter(self._player_colors, self._me)
+        game_delegate = GameItemDelegate2(game_formatter)
+        gameview = GameView(model, view, game_delegate,
+                            self._preview_dler)
+        return gameview

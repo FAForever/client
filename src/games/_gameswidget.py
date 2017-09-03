@@ -2,13 +2,10 @@ from functools import partial
 import random
 
 from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtCore import Qt
 
 import util
 from config import Settings
-from games.gameitem import GameView, GameItemDelegate2, GameItemFormatter
 from games.moditem import ModItem, mod_invisible
-from games.hostgamewidget import HostgameWidget
 from fa.factions import Factions
 import fa
 
@@ -30,21 +27,20 @@ class GamesWidget(FormClass, BaseClass):
     sub_factions = Settings.persisted_property(
         "play/subFactions", default_value=[False, False, False, False])
 
-    def __init__(self, client, game_model, me, game_launcher):
+    def __init__(self, client, game_model, me,
+                 gameview_builder, game_launcher):
         BaseClass.__init__(self)
 
         self.setupUi(self)
 
+        self._me = me
         self.client = client
         self.mods = {}
-        self._me = me
+        self._gameview_builder = gameview_builder
         self._game_model = CustomGameFilterModel(self._me, game_model)
         self._game_launcher = game_launcher
 
-        game_formatter = GameItemFormatter(self.client.player_colors, self._me)
-        game_delegate = GameItemDelegate2(game_formatter)
-        self.gameview = GameView(self._game_model, self.gameList,
-                                 game_delegate, self.client.downloader)
+        self.gameview = self._gameview_builder(self._game_model, self.gameList)
         self.gameview.game_double_clicked.connect(self.gameDoubleClicked)
 
         # Ranked search UI
