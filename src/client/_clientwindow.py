@@ -542,7 +542,7 @@ class ClientWindow(FormClass, BaseClass):
         self.replays = replays.Replays(self, self.lobby_dispatch,
                                        self.gameset, self.players)
         self.tutorials = tutorials.Tutorials(self)
-        self.Coop = coop.Coop(self, self.gameset)
+        self.Coop = coop.Coop(self, self.game_model, self.me)
         self.notificationSystem = ns.Notifications(self, self.gameset)
 
         # TODO: some day when the tabs only do UI we'll have all this in the .ui file

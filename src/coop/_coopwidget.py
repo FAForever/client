@@ -10,11 +10,9 @@ from games.gameitem import GameItem, GameItemDelegate
 from model.game import GameState
 from coop.coopmapitem import CoopMapItem, CoopMapItemDelegate
 from games.hostgamewidget import HostgameWidget
+from games.gameitem import GameView, GameItemDelegate2, GameItemFormatter
+from coop.coopmodel import CoopGameFilterModel
 from ui.busy_widget import BusyWidget
-from fa import factions
-import random
-import fa
-import modvault
 import os
 
 import logging
@@ -26,13 +24,15 @@ FormClass, BaseClass = util.THEME.loadUiType("coop/coop.ui")
 
 
 class CoopWidget(FormClass, BaseClass, BusyWidget):
-    def __init__(self, client, gameset, *args, **kwargs):
+    def __init__(self, client, game_model, me):
 
-        BaseClass.__init__(self, *args, **kwargs)        
+        BaseClass.__init__(self)
 
         self.setupUi(self)
 
         self.client = client
+        self._me = me
+        self._game_model = CoopGameFilterModel(self._me, game_model)
 
         # Ranked search UI
         self.ispassworded = False
@@ -40,20 +40,19 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
 
         self.coop = {}
         self.cooptypes = {}
-        self.games = {}
 
         self.options = []
 
         self.client.lobby_info.coopInfo.connect(self.processCoopInfo)
 
-        gameset.newLobby.connect(self._addGame)
-        self._addExistingGames(gameset)
-
         self.coopList.header().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
         self.coopList.setItemDelegate(CoopMapItemDelegate(self))
 
-        self.gameList.setItemDelegate(GameItemDelegate(self))
-        self.gameList.itemDoubleClicked.connect(self.gameDoubleClicked)
+        game_formatter = GameItemFormatter(self.client.player_colors, self._me)
+        game_delegate = GameItemDelegate2(game_formatter)
+        self.gameview = GameView(self._game_model, self.gameList,
+                                 game_delegate, self.client.downloader)
+        self.gameview.game_double_clicked.connect(self.gameDoubleClicked)
 
         self.coopList.itemDoubleClicked.connect(self.coopListDoubleClicked)
         self.coopList.itemClicked.connect(self.coopListClicked)
@@ -232,43 +231,12 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
 
             self.coop[uid] = itemCoop
 
-    @QtCore.pyqtSlot(object)
-    def _addGame(self, game):
-        if game.state != GameState.OPEN:
-            return
-
-        if game.featured_mod != "coop":
-            return
-
-        game_item = GameItem(game, self.client.me, self)
-
-        self.games[game] = game_item
-        game.gameUpdated.connect(self._atGameUpdate)
-
-        self.gameList.addItem(game_item.widget)
-
-    def _removeGame(self, game):
-        self.gameList.takeItem(self.gameList.row(self.games[game].widget))
-
-        game.gameUpdated.disconnect(self._atGameUpdate)
-        del self.games[game]
-
-    def _atGameUpdate(self, game):
-        if game.state != GameState.OPEN:
-            self._removeGame(game)
-
-    @QtCore.pyqtSlot(QtWidgets.QListWidgetItem)
-    def gameDoubleClicked(self, item):
+    def gameDoubleClicked(self, game):
         """
         Slot that attempts to join a game.
         """
         if not fa.instance.available():
             return
-
-        game = [g for g in self.games.keys() if self.games[g].widget is item]
-        if not game:
-            return
-        game = game[0]
 
         if not fa.check.check(game.featured_mod, game.mapname, None, game.sim_mods):
             return
@@ -280,12 +248,3 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
                 self.client.join_game(uid=game.uid, password=passw)
         else:
             self.client.join_game(uid=game.uid)
-
-    def downloadMap(self, mapname):
-        cb = IconCallback(mapname, self.mapIconDownloaded)
-        self.client.downloader.downloadMap(mapname, cb)
-
-    def mapIconDownloaded(self, mapname, icon):
-        for game, item in self.games.items():
-            if game.mapname == mapname:
-                item.updateIcon()
