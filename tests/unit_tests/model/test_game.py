@@ -80,3 +80,23 @@ def test_copy(playerset, mocker):
     g = game.Game(playerset=playerset, **data)
     gc = g.copy()
     assert g.to_dict() == gc.to_dict()
+
+
+def test_can_update_partially(playerset, mocker):
+    data = copy.deepcopy(DEFAULT_DICT)
+    g = game.Game(playerset=playerset, **data)
+    d1 = g.to_dict()
+    g.update(launched_at=20000)
+    d2 = g.to_dict()
+
+    assert d2["launched_at"] == 20000
+    del d1["launched_at"]
+    del d2["launched_at"]
+    assert d1 == d2
+
+
+def test_can_update_to_none(playerset, mocker):
+    data = copy.deepcopy(DEFAULT_DICT)
+    g = game.Game(playerset=playerset, **data)
+    g.update(launched_at=None)
+    assert g.launched_at is None

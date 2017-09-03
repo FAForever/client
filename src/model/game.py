@@ -43,6 +43,8 @@ class Game(QObject):
     OBSERVER_TEAMS = ['-1', 'null']
     LIVE_REPLAY_DELAY_SECS = 60 * 5
 
+    SENTINEL = object()
+
     def __init__(self,
                  playerset,
                  uid,
@@ -108,46 +110,63 @@ class Game(QObject):
         self.gameUpdated.emit(self, old)
 
     def _update(self,
-                state,
-                launched_at,
-                num_players,
-                max_players,
-                title,
-                host,
-                mapname,
-                map_file_path,
-                teams,
-                featured_mod,
-                featured_mod_versions,
-                sim_mods,
-                password_protected,
-                visibility,
-                uid=None,   # For convenienve
+                state=SENTINEL,
+                launched_at=SENTINEL,
+                num_players=SENTINEL,
+                max_players=SENTINEL,
+                title=SENTINEL,
+                host=SENTINEL,
+                mapname=SENTINEL,
+                map_file_path=SENTINEL,
+                teams=SENTINEL,
+                featured_mod=SENTINEL,
+                featured_mod_versions=SENTINEL,
+                sim_mods=SENTINEL,
+                password_protected=SENTINEL,
+                visibility=SENTINEL,
+                uid=SENTINEL,   # For convenience
                 ):
 
-        self.launched_at = launched_at
-        self.state = state
-        self.num_players = num_players
-        self.max_players = max_players
-        self.title = title
-        self.host = host
-        self.mapname = mapname
-        self.map_file_path = map_file_path
+        def changed(item):
+            return item is not self.SENTINEL
+
+        if changed(launched_at):
+            self.launched_at = launched_at
+        if changed(state):
+            self.state = state
+        if changed(num_players):
+            self.num_players = num_players
+        if changed(max_players):
+            self.max_players = max_players
+        if changed(title):
+            self.title = title
+        if changed(host):
+            self.host = host
+        if changed(mapname):
+            self.mapname = mapname
+        if changed(map_file_path):
+            self.map_file_path = map_file_path
 
         # Dict of <teamname> : [list of player names]
-        self.teams = teams
+        if changed(teams):
+            self.teams = teams
 
         # Actually a game mode like faf, coop, ladder etc.
-        self.featured_mod = featured_mod
+        if changed(featured_mod):
+            self.featured_mod = featured_mod
 
         # Featured mod versions for this game used to update FA before joining
         # TODO - investigate if this is actually necessary
-        self.featured_mod_versions = featured_mod_versions
+        if changed(featured_mod_versions):
+            self.featured_mod_versions = featured_mod_versions
 
         # Dict of mod uid: mod version for each mod used by the game
-        self.sim_mods = sim_mods
-        self.password_protected = password_protected
-        self.visibility = visibility
+        if changed(sim_mods):
+            self.sim_mods = sim_mods
+        if changed(password_protected):
+            self.password_protected = password_protected
+        if changed(visibility):
+            self.visibility = visibility
 
         self._check_live_replay_timer()
 
