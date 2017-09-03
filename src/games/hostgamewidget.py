@@ -152,27 +152,29 @@ class HostgameWidget(FormClass, BaseClass):
 
         self.mapList.currentIndexChanged.connect(self.mapChanged)
         self.hostButton.released.connect(self.hosting)
-        self.titleEdit.textChanged.connect(self.updateText)
+        self.titleEdit.textChanged.connect(self.update_text)
+        self.passCheck.toggled.connect(self.update_pass_check)
+        self.radioFriends.toggled.connect(self.update_visibility)
 
-    def updateText(self, text):
+    def update_text(self, text):
         self.gameitem.title = text
         self.gameitem.updateText()
-        self.game.title = text
+        self.game.title = text.strip()
+
+    def update_pass_check(self, checked):
+        self.game.password_protected = checked
+
+    def update_visibility(self, friends):
+        self.game.visibility = (GameVisibility.FRIENDS if friends
+                                else GameVisibility.PUBLIC)
 
     def hosting(self):
-        name = self.titleEdit.text().strip()
-        if len(name) == 0:
+        if len(self.game.title) == 0:
             # TODO: Feedback to the UI that the name must not be blank.
             return
-        self.game.title = name
-
-        self.game.visibility = (
-            GameVisibility.FRIENDS if self.radioFriends.isChecked()
-            else GameVisibility.PUBLIC)
 
         password = None
-        if self.passCheck.isChecked():
-            self.game.password_protected = True
+        if self.game.password_protected:
             password = self.passEdit.text()
 
         self.save_last_hosted_settings(password)
