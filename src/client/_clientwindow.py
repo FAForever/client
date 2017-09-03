@@ -13,6 +13,7 @@ from client.connection import LobbyInfo, ServerConnection, \
         Dispatcher, ConnectionState, ServerReconnecter
 from model.gameset import Gameset
 from games.gamemodel import GameModel
+from games.hostgamewidget import GameLauncher
 from client.updater import UpdateChecker, UpdateDialog, UpdateSettings
 from client.update_settings import UpdateSettingsDialog
 from client.theme_menu import ThemeMenu
@@ -169,6 +170,8 @@ class ClientWindow(FormClass, BaseClass):
 
         # Qt model for displaying active games.
         self.game_model = GameModel(self.gameset, self.me)
+
+        self.game_launcher = GameLauncher(self.players, self.me, self)
 
         self.lobby_info = LobbyInfo(self.lobby_dispatch, self.gameset, self.players)
         self.gameset.newGame.connect(self.fill_in_session_info)
@@ -535,14 +538,16 @@ class ClientWindow(FormClass, BaseClass):
         # build main window with the now active client
         self.news = news.NewsWidget(self)
         self.ladder = stats.Stats(self)
-        self.games = games.Games(self, self.game_model, self.me)
+        self.games = games.Games(self, self.game_model, self.me,
+                                 self.game_launcher)
         self.tourneys = tourneys.Tourneys(self)
         self.vault = vault.MapVault(self)
         self.modvault = modvault.ModVault(self)
         self.replays = replays.Replays(self, self.lobby_dispatch,
                                        self.gameset, self.players)
         self.tutorials = tutorials.Tutorials(self)
-        self.Coop = coop.Coop(self, self.game_model, self.me)
+        self.Coop = coop.Coop(self, self.game_model, self.me,
+                              self.game_launcher)
         self.notificationSystem = ns.Notifications(self, self.gameset)
 
         # TODO: some day when the tabs only do UI we'll have all this in the .ui file

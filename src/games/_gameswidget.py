@@ -30,8 +30,8 @@ class GamesWidget(FormClass, BaseClass):
     sub_factions = Settings.persisted_property(
         "play/subFactions", default_value=[False, False, False, False])
 
-    def __init__(self, client, game_model, me, *args, **kwargs):
-        BaseClass.__init__(self, *args, **kwargs)
+    def __init__(self, client, game_model, me, game_launcher):
+        BaseClass.__init__(self)
 
         self.setupUi(self)
 
@@ -39,6 +39,7 @@ class GamesWidget(FormClass, BaseClass):
         self.mods = {}
         self._me = me
         self._game_model = CustomGameFilterModel(self._me, game_model)
+        self._game_launcher = game_launcher
 
         game_formatter = GameItemFormatter(self.client.player_colors, self._me)
         game_delegate = GameItemDelegate2(game_formatter)
@@ -272,13 +273,8 @@ class GamesWidget(FormClass, BaseClass):
         """
         if not fa.instance.available():
             return
-
         self.stopSearchRanked()
-
-        hostgamewidget = HostgameWidget(self, item)
-        # Abort if the client cancelled the host game dialogue.
-        if hostgamewidget.exec_() != 1:
-            return
+        self._game_launcher.host_game(item.name, item.mod)
 
     def sortGamesComboChanged(self, index):
         self.sort_games_index = index

@@ -24,7 +24,7 @@ FormClass, BaseClass = util.THEME.loadUiType("coop/coop.ui")
 
 
 class CoopWidget(FormClass, BaseClass, BusyWidget):
-    def __init__(self, client, game_model, me):
+    def __init__(self, client, game_model, me, game_launcher):
 
         BaseClass.__init__(self)
 
@@ -33,6 +33,7 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
         self.client = client
         self._me = me
         self._game_model = CoopGameFilterModel(self._me, game_model)
+        self._game_launcher = game_launcher
 
         # Ranked search UI
         self.ispassworded = False
@@ -194,16 +195,17 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
         """
         if not hasattr(item, "mapUrl"):
             return
+        mapname = fa.maps.link2name(item.mapUrl)
 
         if not fa.instance.available():
             return
 
         self.client.games.stopSearchRanked()
 
-        # A simple Hosting dialog.
-        if fa.check.check("coop"):
-            hostgamewidget = HostgameWidget(self, item, iscoop=True)
-            hostgamewidget.exec_()
+        if not fa.check.check("coop"):
+            return
+
+        self._game_launcher.host_game(item.name, item.mod, mapname)
 
     @QtCore.pyqtSlot(dict)
     def processCoopInfo(self, message): 

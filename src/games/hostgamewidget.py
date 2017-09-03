@@ -1,13 +1,11 @@
-import os
-
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore
 from games.gameitem import GameItemWidget, GameItemDelegate
 import modvault
 
 from fa import maps
 import util
 import fa.check
-import client
+from model.game import Game, GameState, GameVisibility
 
 import logging
 logger = logging.getLogger(__name__)
@@ -15,46 +13,104 @@ logger = logging.getLogger(__name__)
 FormClass, BaseClass = util.THEME.loadUiType("games/host.ui")
 
 
+class GameLauncher:
+    def __init__(self, playerset, me, client):
+        self._playerset = playerset
+        self._me = me
+        self._client = client
+
+    def _build_hosted_game(self, main_mod, mapname=None):
+        if mapname is None:
+            mapname = util.settings.value("fa.games/gamemap", "scmp_007")
+
+        if self._me.player is not None:
+            host = self._me.player.login
+        else:
+            host = "Unknown"
+
+        title = util.settings.value("fa.games/gamename", host + "'s game")
+        friends_only = util.settings.value("friends_only", False, type=bool)
+
+        return Game(
+            playerset=self._playerset,
+            uid=0,  # Mock
+            state=GameState.OPEN,   # Mock
+            launched_at=None,
+            num_players=1,
+            max_players=12,
+            title=title,
+            host=host,
+            mapname=mapname,
+            map_file_path="",   # Mock
+            teams={1: [host]},
+            featured_mod=main_mod,
+            featured_mod_versions={},
+            sim_mods={},
+            password_protected=False,   # Filled in later
+            visibility=(GameVisibility.FRIENDS if friends_only
+                        else GameVisibility.PUBLIC)
+            )
+
+    def host_game(self, title, main_mod, mapname=None):
+        game = self._build_hosted_game(main_mod, mapname)
+        host_widget = HostgameWidget(self._client, title, game)
+        host_widget.launch.connect(self._launch_game)
+        return host_widget.exec_()
+
+    def _launch_game(self, game, password, mods):
+        # Make sure the binaries are all up to date, and abort if the update fails or is cancelled.
+        if not fa.check.game(self._client):
+            return
+
+        # Ensure all mods are up-to-date, and abort if the update process fails.
+        if not fa.check.check(game.featured_mod):
+            return
+        if (game.featured_mod == "coop"
+           and not fa.check.map_(game.mapname, force=True)):
+            return
+
+        modvault.setActiveMods(mods, True, False)
+
+        self._client.host_game(title=game.title,
+                               mod=game.featured_mod,
+                               visibility=game.visibility.value,
+                               mapname=game.mapname,
+                               password=password)
+
+
 class HostgameWidget(FormClass, BaseClass):
-    def __init__(self, parent, item, iscoop=False, *args, **kwargs):
-        BaseClass.__init__(self, *args, **kwargs)
+    launch = QtCore.pyqtSignal(object, str, list)
+
+    def __init__(self, client, title, game):
+        BaseClass.__init__(self, client)
 
         self.setupUi(self)
-        self.parent = parent
-        self.iscoop = iscoop
-        self.featured_mod = item.mod
+        self.client = client
+        self.game = game
 
-        self.setStyleSheet(self.parent.client.styleSheet())
-        # load settings
-        util.settings.beginGroup("fa.games")
-        # Default of "password"
-        self.password = util.settings.value("password", "password")
-        self.title = util.settings.value("gamename", (self.parent.client.login or "") + "'s game")
-        self.friends_only = util.settings.value("friends_only", False, type=bool)
-        if self.iscoop:
-            self.mapname = fa.maps.link2name(item.mapUrl)
-        else:
-            self.mapname = util.settings.value("gamemap", "scmp_007")
-        util.settings.endGroup()
+        self.setStyleSheet(self.client.styleSheet())
+        self.password = util.settings.value("fa.games/password", "")
 
-        self.setWindowTitle("Hosting Game : " + item.name)
-        self.titleEdit.setText(self.title)
+        self.setWindowTitle("Hosting Game : " + title)
+        self.titleEdit.setText(game.title)
         self.passEdit.setText(self.password)
-        self.game = GameItemWidget(self)
+        self.gameitem = GameItemWidget(self)
         self.gamePreview.setItemDelegate(GameItemDelegate(self))
-        self.gamePreview.addItem(self.game)
+        self.gamePreview.addItem(self.gameitem)
 
-        w = self.game
+        self.game.password_protected = self.passCheck.isChecked()
+
+        w = self.gameitem
         w.setHidden(True)
-        w.title = self.title
-        w.host = self.parent.client.login
-        w.modName = self.featured_mod
-        w.mapName = self.mapname
-        w.players = 1
-        w.maxPlayers = 1
-        me = client.instance.players[self.parent.client.id]
+        w.title = self.game.title
+        w.host = self.client.login
+        w.modName = self.game.featured_mod
+        w.mapName = self.game.mapname
+        w.players = self.game.num_players
+        w.maxPlayers = self.game.max_players
+        me = self.client.me.player
         w.teamsToTooltip([[me]])
-        
+
         w.updateText()
         w.updateIcon()
         w.updateTooltip()
@@ -62,14 +118,14 @@ class HostgameWidget(FormClass, BaseClass):
 
         i = 0
         index = 0
-        if not self.iscoop:
-            allmaps = dict()
-            for map in list(maps.maps.keys()) + maps.getUserMaps():
-                allmaps[map] = maps.getDisplayName(map)
-            for (map, name) in sorted(iter(allmaps.items()), key=lambda x: x[1]):
-                if map == self.mapname:
+        if game.featured_mod != "coop":
+            allmaps = {}
+            for map_ in list(maps.maps.keys()) + maps.getUserMaps():
+                allmaps[map_] = maps.getDisplayName(map_)
+            for (map_, name) in sorted(iter(allmaps.items()), key=lambda x: x[1]):
+                if map_ == game.mapname:
                     index = i
-                self.mapList.addItem(name, map)
+                self.mapList.addItem(name, map_)
                 i = i + 1
             self.mapList.setCurrentIndex(index)
         else:
@@ -91,69 +147,59 @@ class HostgameWidget(FormClass, BaseClass):
             if l:
                 l[0].setSelected(True)
 
-        self.radioFriends.setChecked(self.friends_only)
+        self.radioFriends.setChecked(
+            self.game.visibility == GameVisibility.FRIENDS)
 
         self.mapList.currentIndexChanged.connect(self.mapChanged)
         self.hostButton.released.connect(self.hosting)
         self.titleEdit.textChanged.connect(self.updateText)
-        #self.modList.itemClicked.connect(self.modclicked)
 
     def updateText(self, text):
+        self.gameitem.title = text
+        self.gameitem.updateText()
         self.game.title = text
-        self.game.updateText()
 
     def hosting(self):
         name = self.titleEdit.text().strip()
         if len(name) == 0:
             # TODO: Feedback to the UI that the name must not be blank.
             return
-        self.title = name
+        self.game.title = name
 
-        self.friends_only = self.radioFriends.isChecked()
+        self.game.visibility = (
+            GameVisibility.FRIENDS if self.radioFriends.isChecked()
+            else GameVisibility.PUBLIC)
+
+        password = None
         if self.passCheck.isChecked():
-            self.password = self.passEdit.text()
-        else:
-            self.password = None
-        self.save_last_hosted_settings()
+            self.game.password_protected = True
+            password = self.passEdit.text()
 
-        # Make sure the binaries are all up to date, and abort if the update fails or is cancelled.
-        if not fa.check.game(self.parent.client):
-            return
-
-        # Ensure all mods are up-to-date, and abort if the update process fails.
-        if not fa.check.check(self.featured_mod):
-            return
-        if self.iscoop and not fa.check.map_(self.mapname, force=True):
-            return
+        self.save_last_hosted_settings(password)
 
         modnames = [str(moditem.text()) for moditem in self.modList.selectedItems()]
         mods = [self.mods[modstr] for modstr in modnames]
         modvault.setActiveMods(mods, True, False)
 
-        self.parent.client.host_game(title=self.title,
-                                     mod=self.featured_mod,
-                                     visibility="friends" if self.friends_only else "public",
-                                     mapname=self.mapname,
-                                     password=self.password)
-
+        self.launch.emit(self.game, password, mods)
         self.done(1)
         return
 
     def mapChanged(self, index):
-        self.mapname = self.mapList.itemData(index)
+        mapname = self.mapList.itemData(index)
+        self.game.mapname = mapname
 
-        self.game.mapName = self.mapname
-        self.game.updateText()
-        self.game.updateIcon()
+        self.gameitem.mapName = mapname
+        self.gameitem.updateText()
+        self.gameitem.updateIcon()
 
-    def save_last_hosted_settings(self):
+    def save_last_hosted_settings(self, password):
         util.settings.beginGroup("fa.games")
-        if not self.iscoop:
-            util.settings.setValue("gamemap", self.mapname)
-        if self.title != "Nobody's game":
-            util.settings.setValue("gamename", self.title)
+        if self.game.featured_mod != "coop":
+            util.settings.setValue("gamemap", self.game.mapname)
+        util.settings.setValue("gamename", self.game.title)
         util.settings.setValue("friends_only", self.radioFriends.isChecked())
 
-        if self.password is not None:
+        if password is not None:
             util.settings.setValue("password", self.password)
         util.settings.endGroup()
