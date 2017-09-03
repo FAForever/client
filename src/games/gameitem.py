@@ -46,7 +46,8 @@ class GameView(QtCore.QObject):
     def _map_preview_downloaded(self, mapname, icon):
         for idx in self._model_items():
             game = idx.data().game
-            if game.mapname == game:
+            if game.mapname.lower() == mapname.lower():
+                # Previews are not case-preserving
                 self._view.update(idx)
 
     def _game_double_clicked(self, idx):
@@ -255,10 +256,11 @@ class GameItemFormatter:
 
     def icon(self, data):
         game = data.game
+        name = game.mapname.lower()
         if game.password_protected:
             return util.THEME.icon("games/private_game.png")
 
-        icon = maps.preview(game.mapname)
+        icon = maps.preview(name)
         if icon is not None:
             return icon
 
@@ -266,9 +268,10 @@ class GameItemFormatter:
 
     def needed_map_preview(self, data):
         game = data.game
-        if game.password_protected or maps.preview(game.mapname) is not None:
+        name = game.mapname.lower()
+        if game.password_protected or maps.preview(name) is not None:
             return None
-        return game.mapname
+        return name
 
     def _game_teams(self, game):
         teams = {index: [game.to_player(name) for name in team
