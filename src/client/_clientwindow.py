@@ -172,7 +172,7 @@ class ClientWindow(FormClass, BaseClass):
         self.me = User(self.players)
 
         # Qt model for displaying active games.
-        self.game_model = GameModel(self.gameset, self.me)
+        self.game_model = GameModel(self.me, self.gameset)
 
         self.game_launcher = GameLauncher(self.players, self.me, self)
 

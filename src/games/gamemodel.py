@@ -8,7 +8,7 @@ from model.game import GameState
 
 
 class GameModel(QAbstractListModel):
-    def __init__(self, gameset, me):
+    def __init__(self, me, gameset=None):
         QAbstractListModel.__init__(self)
         self._me = me
 
@@ -18,11 +18,12 @@ class GameModel(QAbstractListModel):
         self._itemlist = []
 
         self._gameset = gameset
-        self._gameset.newGame.connect(self._addGame)
-        self._gameset.newClosedGame.connect(self._removeGame)
+        if self._gameset is not None:
+            self._gameset.newGame.connect(self.add_game)
+            self._gameset.newClosedGame.connect(self.remove_game)
 
-        for game in self._gameset.values():
-            self._addGame(game)
+            for game in self._gameset.values():
+                self.add_game(game)
 
     def rowCount(self, parent):
         if parent.isValid():
@@ -39,7 +40,7 @@ class GameModel(QAbstractListModel):
     # TODO - insertion and removal are O(n). Server bandwidth would probably
     # become a bigger issue if number of games increased too much though.
 
-    def _addGame(self, game):
+    def add_game(self, game):
         assert game.uid not in self._gameitems
 
         next_index = len(self._itemlist)
@@ -53,7 +54,7 @@ class GameModel(QAbstractListModel):
 
         self.endInsertRows()
 
-    def _removeGame(self, game):
+    def remove_game(self, game):
         assert game.uid in self._gameitems
 
         item = self._gameitems[game.uid]
