@@ -40,7 +40,7 @@ class GameView(QtCore.QObject):
     # TODO make it a utility function?
     def _model_items(self):
         model = self._model
-        for i in range(model.rowCount()):
+        for i in range(model.rowCount(QtCore.QModelIndex())):
             yield model.index(i, 0)
 
     def _map_preview_downloaded(self, mapname, icon):
