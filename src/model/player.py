@@ -39,8 +39,10 @@ class Player(QObject):
 
     def copy(self):
         s = self
-        return Player(s.id, s.login, s.global_rating, s.ladder_rating,
-                      s.number_of_games, s.avatar, s.country, s.clan, s.league)
+        p = Player(s.id, s.login, s.global_rating, s.ladder_rating,
+                   s.number_of_games, s.avatar, s.country, s.clan, s.league)
+        p.currentGame = self._currentGame
+        return p
 
     def update(self,
                id_=None,
