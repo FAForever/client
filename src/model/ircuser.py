@@ -49,3 +49,8 @@ class IrcUser(QObject):
         oldplayer = self._player
         self._player = val
         self.newPlayer.emit(self, val, oldplayer)
+
+    def is_mod(self, channel):
+        if channel not in self.elevation:
+            return False
+        return self.elevation[channel] in "~&@%+"

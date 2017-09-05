@@ -207,11 +207,9 @@ class Chatter(QtWidgets.QTableWidgetItem):
         return self.RANK_NONPLAYER
 
     def modElevation(self):
-        try:
-            elevation = self.user.elevation[self.channel.name]
-            return elevation if elevation in "~&@%+" else None
-        except KeyError:
+        if not self.user.is_mod(self.channel.name):
             return None
+        return self.user.elevation[self.channel.name]
 
     def updateAvatar(self):
         try:

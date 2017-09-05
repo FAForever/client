@@ -225,12 +225,12 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
     def shouldIgnore(self, chatter):
         # Don't ignore mods from any crucial channels
-        if any(c in chatter.elevation for c in self.crucialChannels):
+        if any(chatter.is_mod(c) for c in self.crucialChannels):
             return False
         if chatter.player is None:
-            return self.client.me.isFoe(chatter.name)
+            return self.client.me.isFoe(name=chatter.name)
         else:
-            return self.client.me.isFoe(chatter.player.id)
+            return self.client.me.isFoe(id_=chatter.player.id)
 
 # SimpleIRCClient Class Dispatcher Attributes follow here.
     def on_welcome(self, c, e):
