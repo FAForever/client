@@ -1,6 +1,21 @@
 0.x.x
 =====
 
+0.17.0
+====
+ * Introduce new object model:
+   - Game, Player and IrcUser classes track corresponding info from the server,
+     giving the client singular representations of online users, games and
+     chatters
+   - Most of the client using the above data converted to utilize new classes
+   - Game and chat tabs converted from QListWidgets to QListViews based on a
+     single model, ensuring proper game tracking, filtering and sorting
+   - Many small refactors necessary to introduce the model
+
+Contributors:
+ - Wesmania
+ - Grothe
+
 0.16.0
 ====
 
