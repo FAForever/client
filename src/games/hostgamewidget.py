@@ -81,7 +81,7 @@ class GameLauncher:
 
 
 class HostgameWidget(FormClass, BaseClass):
-    launch = QtCore.pyqtSignal(object, str, list)
+    launch = QtCore.pyqtSignal(object, object, list)
 
     def __init__(self, client, gameview_builder, title, game, me):
         BaseClass.__init__(self, client)
