@@ -286,9 +286,10 @@ class GameTooltipFormatter:
             player=self._player_fmt(player))
 
     def _country_icon_fmt(self, player):
-        country_icon = "chat/countries/{}.png".format(player.country.lower())
-        icon_path = os.path.join(util.COMMON_DIR, country_icon)
-        return "<img src={}>".format(icon_path)
+        icon_path_fmt = os.path.join("chat", "countries", "{}.png")
+        icon_path = icon_path_fmt.format(player.country.lower())
+        icon_abs_path = os.path.join(util.COMMON_DIR, icon_path)
+        return "<img src='{}'>".format(icon_abs_path)
 
     def _player_fmt(self, player):
         if player == self._me.player:
