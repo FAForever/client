@@ -75,9 +75,9 @@ class ChatLineEdit(QtWidgets.QLineEdit):
             self.completionLine = self.text().rstrip(self.completionText)  # store line to be completed without the completion string
             
             # make a copy of users because the list might change frequently giving all kind of problems
-            for name in self.chatters:
-                if name.lower().startswith(self.completionText.lower()):
-                    self.LocalChatterNameList.append(name)
+            for chatter in self.chatters:
+                if chatter.name.lower().startswith(self.completionText.lower()):
+                    self.LocalChatterNameList.append(chatter.name)
             
             if len(self.LocalChatterNameList) > 0:
                 self.LocalChatterNameList.sort(key=lambda chatter: chatter.lower())
