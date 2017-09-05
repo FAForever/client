@@ -1083,7 +1083,7 @@ class ClientWindow(FormClass, BaseClass):
     def joinChannel(self, username, channel):
         """ Join users to a channel """
         self.lobby_connection.send(dict(command="admin", action="join_channel",
-                                        user_ids=[self.players.get_id(username)], channel=channel))
+                                        user_ids=[self.players.getID(username)], channel=channel))
 
     def closeFA(self, username):
         """ Close FA remotely """
