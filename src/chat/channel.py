@@ -267,8 +267,7 @@ class Channel(FormClass, BaseClass):
         cursor.movePosition(QtGui.QTextCursor.End)
         self.chatArea.setTextCursor(cursor)
 
-        # This whole block seems to be duplicated further up.
-        # For fucks sake.
+        line = None
         if avatar is not None:
             pix = util.respix(avatar)
             if pix:
@@ -276,11 +275,10 @@ class Channel(FormClass, BaseClass):
                     self.chatArea.document().addResource(QtGui.QTextDocument.ImageResource,  QtCore.QUrl(avatar), pix)
                 line = formatter.format(time=self.timestamp(), avatar=avatar, avatarTip=avatarTip, name=displayName,
                                         color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.chat_widget.a_style))
-            else:
-                formatter = Formatters.FORMATTER_MESSAGE
-                line = formatter.format(time=self.timestamp(), name=displayName, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.chat_widget.a_style))
-        else:
-            line = formatter.format(time=self.timestamp(), name=displayName, color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.chat_widget.a_style))
+        if line is None:
+            formatter = Formatters.FORMATTER_MESSAGE
+            line = formatter.format(time=self.timestamp(), name=displayName, color=color,
+                                    width=self.maxChatterWidth, text=util.irc_escape(text, self.chat_widget.a_style))
 
         self.chatArea.insertHtml(line)
         self.lines += 1
