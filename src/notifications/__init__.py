@@ -1,4 +1,4 @@
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore
 
 import util
 from fa import maps
@@ -15,8 +15,9 @@ class Notifications:
     USER_ONLINE = 'user_online'
     NEW_GAME = 'new_game'
 
-    def __init__(self, client, gameset):
+    def __init__(self, client, gameset, playerset, me):
         self.client = client
+        self.me = me
 
         self.settings = NsSettingsDialog(self.client)
         self.dialog = NotificationDialog(self.client, self.settings)
@@ -28,11 +29,36 @@ class Notifications:
         client.gameExit.connect(self.gameExit)
 
         gameset.newLobby.connect(self._newLobby)
+        playerset.playerAdded.connect(self._newPlayer)
 
         self.user = util.THEME.icon("client/user.png", pix=True)
 
+    def _newPlayer(self, player):
+        if self.isDisabled() or not self.settings.popupEnabled(self.USER_ONLINE):
+            return
+
+        if self.me.player is not None and self.me.player == player:
+            return
+
+        notify_mode = self.settings.getCustomSetting(self.USER_ONLINE, 'mode')
+        if notify_mode != 'all' and not self.me.isFriend(player.id):
+            return
+
+        self.events.append((self.USER_ONLINE, player.copy()))
+        self.checkEvent()
+
     def _newLobby(self, game):
-        self.on_event(self.NEW_GAME, game.to_dict())
+        if self.isDisabled() or not self.settings.popupEnabled(self.NEW_GAME):
+            return
+
+        host = game.host_player
+        notify_mode = self.settings.getCustomSetting(self.NEW_GAME, 'mode')
+        if notify_mode != 'all':
+            if host is None or not self.me.isFriend(host):
+                return
+
+        self.events.append((self.NEW_GAME, game.copy()))
+        self.checkEvent()
 
     def gameEnter(self):
         self.game_running = True
@@ -53,32 +79,6 @@ class Notifications:
     def setNotificationEnabled(self, enabled):
         self.settings.enabled = enabled
         self.settings.saveSettings()
-
-    @QtCore.pyqtSlot()
-    def on_event(self, eventType, data):
-        """
-        Puts an event in a queue, can trigger a popup.
-        Keyword arguments:
-        eventType -- Type of the event
-        data -- Custom data that is used by the system to show a detailed popup
-        """
-        if self.isDisabled() or not self.settings.popupEnabled(eventType):
-            return
-
-        doAdd = False
-
-        if eventType == self.USER_ONLINE:
-            userid = data['user']
-            if self.settings.getCustomSetting(eventType, 'mode') == 'all' or self.client.me.isFriend(userid):
-                doAdd = True
-        elif eventType == self.NEW_GAME:
-            if self.settings.getCustomSetting(eventType, 'mode') == 'all' or ('host' in data and self.client.me.isFriend(data['host'])):
-                doAdd = True
-
-        if doAdd:
-            self.events.append((eventType, data))
-
-        self.checkEvent()
 
     @QtCore.pyqtSlot()
     def on_showSettings(self):
@@ -102,19 +102,19 @@ class Notifications:
         pixmap = None
         text = str(data)
         if eventType == self.USER_ONLINE:
-            userid = data['user']
+            player = data
             pixmap = self.user
-            text = '<html>%s<br><font color="silver" size="-2">joined</font> %s</html>' % \
-                   (self.client.players[userid].login, data['channel'])
+            text = '<html>%s<br><font color="silver" size="-2">is online</font></html>' % \
+                   (player.login)
         elif eventType == self.NEW_GAME:
-
-            preview = maps.preview(data['mapname'], pixmap=True)
+            game = data
+            preview = maps.preview(game.mapname, pixmap=True)
             if preview:
                 pixmap = preview.scaled(80, 80)
 
             # TODO: outsource as function?
-            mod = data.get('featured_mod')
-            mods = data.get('sim_mods')
+            mod = game.featured_mod
+            mods = game.sim_mods
 
             modstr = ''
             if mod != 'faf' or mods:
@@ -129,7 +129,7 @@ class Notifications:
 
             modhtml = '' if (modstr == '') else '<br><font size="-4"><font color="red">mods</font> %s</font>' % modstr
             text = '<html>%s<br><font color="silver" size="-2">on</font> %s%s</html>' % \
-                   (data['title'], maps.getDisplayName(data['mapname']), modhtml)
+                   (game.title, maps.getDisplayName(game.mapname), modhtml)
 
         self.dialog.newEvent(pixmap, text, self.settings.popup_lifetime, self.settings.soundEnabled(eventType))
 

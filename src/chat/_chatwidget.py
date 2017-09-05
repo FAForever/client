@@ -331,11 +331,6 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self._add_chatter_channel(self._chatters[name], elevation,
                                   channel, True)
 
-        if channel.lower() in self.crucialChannels and name != self.client.login:
-            # TODO: search better solution, that html in nick & channel no rendered
-            self.client.notificationSystem.on_event(ns.Notifications.USER_ONLINE,
-                                                    {'user': _id, 'channel': channel})
-
     def on_part(self, c, e):
         channel = e.target()
         name = user2name(e.source())

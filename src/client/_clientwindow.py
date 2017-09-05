@@ -555,7 +555,8 @@ class ClientWindow(FormClass, BaseClass):
         self.tutorials = tutorials.Tutorials(self)
         self.Coop = coop.Coop(self, self.game_model, self.me,
                               self.gameview_builder, self.game_launcher)
-        self.notificationSystem = ns.Notifications(self, self.gameset)
+        self.notificationSystem = ns.Notifications(self, self.gameset,
+                                                   self.players, self.me)
 
         # TODO: some day when the tabs only do UI we'll have all this in the .ui file
         self.chatTab.layout().addWidget(self.chat)
