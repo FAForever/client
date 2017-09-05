@@ -5,7 +5,7 @@ from fa import maps
 
 
 class GameAnnouncer:
-    ANOUNCE_DELAY_SECS = 35
+    ANNOUNCE_DELAY_SECS = 35
 
     def __init__(self, gameset, me, colors, client):
         self._gameset = gameset
@@ -57,5 +57,6 @@ class GameAnnouncer:
             modname = ""
         else:
             modname = game.featured_mod + " "
-        msg = fmt.format(activity, modname, url_color, url, mapname)
+        msg = fmt.format(activity, modname, url_color, url,
+                         game.title, mapname)
         self._client.forwardLocalBroadcast(game.host, msg)
