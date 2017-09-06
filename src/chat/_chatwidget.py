@@ -58,7 +58,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.identified = False
 
         # IRC parameters
-        self.crucialChannels = ["#aeolus"]
+        self.crucialChannels = ["#aeolus","#announcements"]
         self.optionalChannels = []
 
         # We can't send command until the welcome message is received
