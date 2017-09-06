@@ -219,8 +219,8 @@ class GameItemFormatter:
         return name
 
     def _game_teams(self, game):
-        teams = {index: [game.to_player(name) for name in team
-                         if game.is_connected(name)]
+        teams = {index: [game.to_player(name) if game.is_connected(name)
+                         else name for name in team]
                  for index, team in game.playing_teams.items()}
 
         # Sort teams into a list
@@ -273,17 +273,23 @@ class GameTooltipFormatter:
         return team_table_start + "".join(rows) + team_table_end
 
     def _player_table_row(self, player, align):
-        country = "<td>{country_icon}</td>"
+        if isinstance(player, str):
+            country = "<td></td>"
+        else:
+            country = "<td>{country_icon}</td>"
         pname = ("<td align='{alignment}' valign='middle' width='135'>"
                  "{player}"
                  "</td>")
         order = [pname, country] if align == 'right' else [country, pname]
         player_row = "<tr>{}{}</tr>".format(*order)
 
-        return player_row.format(
-            country_icon=self._country_icon_fmt(player),
-            alignment=align,
-            player=self._player_fmt(player))
+        if isinstance(player, str):
+            return player_row.format(alignment=align, player=player)
+        else:
+            return player_row.format(
+                country_icon=self._country_icon_fmt(player),
+                alignment=align,
+                player=self._player_fmt(player))
 
     def _country_icon_fmt(self, player):
         icon_path_fmt = os.path.join("chat", "countries", "{}.png")
