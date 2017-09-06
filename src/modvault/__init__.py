@@ -42,21 +42,17 @@ It is here because the server doesn't yet send the mods info.
 The tempAddMods function should be removed after the server can return mods in the modvault.
 """
 
-import os
-
-import zipfile
-
-from PyQt5 import QtCore, QtWidgets, QtGui
-
-from modvault.utils import *
+from .utils import *  # TODO: avoid import *
 from .modwidget import ModWidget
 from .uploadwidget import UploadModWidget
 from .uimodwidget import UIModWidget
 from ui.busy_widget import BusyWidget
 
+from PyQt5 import QtCore, QtWidgets, QtGui
+
+import os
 import util
 import logging
-import time
 logger = logging.getLogger(__name__)
 import urllib.request, urllib.error, urllib.parse
 

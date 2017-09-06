@@ -1,7 +1,5 @@
 import logging
 import os
-import glob
-import shutil
 import zipfile
 import binascii
 

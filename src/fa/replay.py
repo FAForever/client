@@ -5,7 +5,6 @@ import fa
 from fa.check import check
 from fa.replayparser import replayParser
 import util
-from . import mods
 
 import logging
 logger = logging.getLogger(__name__)

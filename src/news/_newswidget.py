@@ -1,15 +1,10 @@
-from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtCore import Qt
+from PyQt5 import QtCore
 
 import webbrowser
 import util
-import re
 from .newsitem import NewsItem, NewsItemDelegate
 from .newsmanager import NewsManager
-
 from util.qt import ExternalLinkPage
-
-import base64
 
 import logging
 

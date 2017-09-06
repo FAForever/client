@@ -3,7 +3,6 @@ from PyQt5 import QtCore
 
 import json
 import logging
-import sys
 
 logger = logging.getLogger(__name__)
 

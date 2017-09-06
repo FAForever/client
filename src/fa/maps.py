@@ -2,9 +2,7 @@
 import logging
 import string
 import sys
-from urllib.error import HTTPError
 from PyQt5 import QtCore, QtGui
-import io
 import util
 import os
 import stat
@@ -13,9 +11,6 @@ import shutil
 import urllib.request, urllib.error, urllib.parse
 import zipfile
 import tempfile
-import re
-# module imports
-import fa
 # local imports
 from config import Settings
 from vault.dialogs import downloadVaultAssetNoMsg

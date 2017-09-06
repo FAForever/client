@@ -1,12 +1,10 @@
 from PyQt5 import QtCore
 from PyQt5.QtCore import QObject, Qt
 
-from .newsitem import NewsItem
 from .wpapi import WPAPI
 
 import client
 
-import math
 import logging
 logger = logging.getLogger(__name__)
 

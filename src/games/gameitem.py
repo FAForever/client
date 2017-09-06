@@ -2,10 +2,7 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 from fa import maps
 import util
 import os
-from games.moditem import mods
 from model.game import GameState
-
-import traceback
 
 import client
 

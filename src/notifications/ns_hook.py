@@ -1,5 +1,4 @@
 from PyQt5 import QtWidgets
-import util
 from config import Settings
 
 """

@@ -1,6 +1,5 @@
 from PyQt5 import QtCore
 import util
-import config
 from config import Settings
 from notifications.ns_hook import NsHook
 import notifications as ns

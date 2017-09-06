@@ -1,6 +1,4 @@
 
-import urllib.request, urllib.error, urllib.parse
-
 from PyQt5 import QtCore, QtWidgets, QtGui
 
 from util import strtodate, datetostr, now

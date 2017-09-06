@@ -1,5 +1,4 @@
 import os
-import sys
 import urllib.request, urllib.error, urllib.parse
 import re
 import shutil
@@ -10,13 +9,9 @@ from util import PREFSFILENAME
 import util
 import logging
 from vault import luaparser
-import warnings
-
-import io
 import zipfile
 from config import Settings
-from downloadManager import FileDownload
-from vault.dialogs import VaultDownloadDialog, downloadVaultAsset
+from vault.dialogs import downloadVaultAsset
 
 logger = logging.getLogger(__name__)
 
