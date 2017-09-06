@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 FormClass, BaseClass = util.THEME.loadUiType("games/host.ui")
 
 
-class HostgameWidget(FormClass, BaseClass):
+class HostGameWidget(FormClass, BaseClass):
     def __init__(self, parent, item, iscoop=False, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
 

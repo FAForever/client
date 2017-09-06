@@ -72,7 +72,7 @@ tempmod1 = dict(uid=1,name='Mod1', comments=[],bugreports=[], date = d,
 FormClass, BaseClass = util.THEME.loadUiType("modvault/modvault.ui")
 
 
-class ModVault(FormClass, BaseClass, BusyWidget):
+class ModVaultWidget(FormClass, BaseClass, BusyWidget):
     def __init__(self, client, *args, **kwargs):
         QtCore.QObject.__init__(self, *args, **kwargs)
 

@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 FormClass, BaseClass = util.THEME.loadUiType("tutorials/tutorials.ui")
 
 
-class tutorialsWidget(FormClass, BaseClass):
+class TutorialsWidget(FormClass, BaseClass):
     def __init__(self, client, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)        
 
