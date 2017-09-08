@@ -15,9 +15,11 @@
  * Hotfix race condition between downloading avatars and removing chatters (#957)
  * Don't proceed with game launch if FA path is invalid (#933, #959)
  * Hotfix an irclib exception popping up in some cases (#958)
+ * Fix missing handling of 404 status when downloading map previews (#852)
 
 Contributors:
  - Wesmania
+ - Duke
 
 0.16.1-rc.2
 ====
