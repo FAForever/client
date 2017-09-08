@@ -369,6 +369,9 @@
              <height>25</height>
             </size>
            </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
            <property name="acceptDrops">
             <bool>false</bool>
            </property>
@@ -545,10 +548,16 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
           </widget>
          </item>
          <item>
           <widget class="QCheckBox" name="hideGamesWithPw">
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
            <property name="text">
             <string>Hide Private Games</string>
            </property>

@@ -11,6 +11,7 @@
    - Game and chat tabs converted from QListWidgets to QListViews based on a
      single model, ensuring proper game tracking, filtering and sorting
    - Many small refactors necessary to introduce the model
+ * Pressing spacebar on games tab will no longer start ladder search (#860, #861)
 
 Contributors:
  - Wesmania
