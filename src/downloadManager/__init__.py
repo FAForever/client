@@ -53,6 +53,11 @@ class FileDownload(object):
         self._stop()
 
     def _finish(self):
+        # check status code
+        statusCode = self._dfile.attribute(QNetworkRequest.HttpStatusCodeAttribute)
+        if statusCode != 200:
+            logger.warning('Download failed: %s -> %s', self.addr, statusCode)
+            self.error = True
         self.cb_finished(self)
 
     def run(self):
@@ -155,6 +160,7 @@ class downloadManager(QtCore.QObject):
 
         if not dler.succeeded():
             dler.dest.remove()
+            os.unlink(filepath)
             filepath = "games/unknown_map.png"
             local_path = True
             logger.debug("Web Preview failed for: " + filename)

@@ -7,6 +7,7 @@
  * Fix replay search map - automatic replacement of blanks with * (#955, #599)
  * Redirect some larger game messages to a separate logfile (#952)
  * Send logs from every game to a separate log file (#875, #975)
+ * Refactor downloading previews to fix issues with broken previews (#852)
 
 Contributors:
  - MathieuB8
