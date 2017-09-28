@@ -411,7 +411,7 @@ def uniqueID(user, session):
         out, err = uid_p.communicate()
         if uid_p.returncode != 0:
             logger.error("UniqueID executable error:")
-            for line in err.split('\n'):
+            for line in err.decode('utf-8').split('\n'):
                 logger.error(line)
             return None
         else:
