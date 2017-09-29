@@ -30,6 +30,10 @@ if __package__ is None and not hasattr(sys, 'frozen'):
         path = os.path.realpath(fafclient.__file__)
         sys.path.insert(0, os.path.dirname(path))
 
+if sys.platform == 'win32':
+    os.environ.setdefault('QT_OPENGL', 'angle')
+    os.environ.setdefault('QT_ANGLE_PLATFORM', 'd3d9')
+
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtCore import Qt
 
