@@ -12,10 +12,12 @@
      single model, ensuring proper game tracking, filtering and sorting
    - Many small refactors necessary to introduce the model
  * Pressing spacebar on games tab will no longer start ladder search (#860, #861)
+ * Notification when a game is full
 
 Contributors:
  - Wesmania
  - Grothe
+ - Surtsan
 
 0.16.0
 ====

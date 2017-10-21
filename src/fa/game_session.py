@@ -24,6 +24,7 @@ class GameSessionState(IntEnum):
 @with_logger
 class GameSession(QObject):
     ready = pyqtSignal()
+    gameFullSignal = pyqtSignal()
 
     def __init__(self, client, connectivity):
         QObject.__init__(self)
@@ -166,7 +167,8 @@ class GameSession(QObject):
                 pass
         elif command == 'Rehost':
             self._rehost = True
-
+        elif command == 'GameFull':
+            self.gameFullSignal.emit()
         self.send(command, args)
 
     def _turn_state_changed(self, val):

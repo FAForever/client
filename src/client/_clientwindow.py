@@ -113,6 +113,7 @@ class ClientWindow(FormClass, BaseClass):
     # Game state controls
     gameEnter = QtCore.pyqtSignal()
     gameExit = QtCore.pyqtSignal()
+    gameFull = QtCore.pyqtSignal()
 
     # These signals propagate important client state changes to other modules
     localBroadcast = QtCore.pyqtSignal(str, str)
@@ -1162,6 +1163,7 @@ class ClientWindow(FormClass, BaseClass):
 
     def initialize_game_session(self):
         self.game_session = GameSession(self, self.connectivity)
+        self.game_session.gameFullSignal.connect(self.game_full)
 
     def handle_registration_response(self, message):
         if message["result"] == "SUCCESS":
@@ -1384,3 +1386,6 @@ class ClientWindow(FormClass, BaseClass):
         # reconnect and potentially cause the same error again and again
         self.lobby_reconnecter.enabled = False
         raise Exception(message)
+
+    def game_full(self):
+        self.gameFull.emit()

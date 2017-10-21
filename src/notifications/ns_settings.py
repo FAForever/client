@@ -5,6 +5,7 @@ import util
 import notifications as ns
 from notifications.hook_useronline import NsHookUserOnline
 from notifications.hook_newgame import NsHookNewGame
+from notifications.hook_gamefull import NsHookGameFull
 
 """
 The UI of the Notification System Settings Frame.
@@ -54,6 +55,7 @@ class NsSettingsDialog(FormClass2, BaseClass2):
         self.hooks = {}
         self.hooks[ns.Notifications.USER_ONLINE] = NsHookUserOnline()
         self.hooks[ns.Notifications.NEW_GAME] = NsHookNewGame()
+        self.hooks[ns.Notifications.GAME_FULL] = NsHookGameFull()
 
         model = NotificationHooks(self, list(self.hooks.values()))
         self.tableView.setModel(model)

@@ -14,6 +14,7 @@ Each event_type has a NsHook to customize it.
 class Notifications:
     USER_ONLINE = 'user_online'
     NEW_GAME = 'new_game'
+    GAME_FULL = 'game_full'
 
     def __init__(self, client, gameset, playerset, me):
         self.client = client
@@ -27,7 +28,7 @@ class Notifications:
 
         client.gameEnter.connect(self.gameEnter)
         client.gameExit.connect(self.gameExit)
-
+        client.gameFull.connect(self._gamefull)
         gameset.newLobby.connect(self._newLobby)
         playerset.playerAdded.connect(self._newPlayer)
 
@@ -58,6 +59,12 @@ class Notifications:
                 return
 
         self.events.append((self.NEW_GAME, game.copy()))
+        self.checkEvent()
+
+    def _gamefull(self):
+        if self.isDisabled() or not self.settings.popupEnabled(self.GAME_FULL):
+            return
+        self.events.append((self.GAME_FULL, None))
         self.checkEvent()
 
     def gameEnter(self):
@@ -130,7 +137,9 @@ class Notifications:
             modhtml = '' if (modstr == '') else '<br><font size="-4"><font color="red">mods</font> %s</font>' % modstr
             text = '<html>%s<br><font color="silver" size="-2">on</font> %s%s</html>' % \
                    (game.title, maps.getDisplayName(game.mapname), modhtml)
-
+        elif eventType == self.GAME_FULL:
+            pixmap = self.user
+            text = '<html><br><font color="silver" size="-2">Game is full.</font></html>'
         self.dialog.newEvent(pixmap, text, self.settings.popup_lifetime, self.settings.soundEnabled(eventType))
 
     def checkEvent(self):
