@@ -100,6 +100,9 @@ class Channel(FormClass, BaseClass):
             self.nickList.horizontalHeader().setSectionResizeMode(Chatter.STATUS_COLUMN, QtWidgets.QHeaderView.Fixed)
             self.nickList.horizontalHeader().resizeSection(Chatter.STATUS_COLUMN, Formatters.NICKLIST_COLUMNS['STATUS'])
 
+            self.nickList.horizontalHeader().setSectionResizeMode(Chatter.MAP_COLUMN, QtWidgets.QHeaderView.Fixed)
+            self.resizeMapColumn()  # The map column can be toggled. Make sure it respects the settings
+
             self.nickList.horizontalHeader().setSectionResizeMode(Chatter.SORT_COLUMN, QtWidgets.QHeaderView.Stretch)
 
             self.nickList.itemDoubleClicked.connect(self.nickDoubleClicked)
@@ -372,6 +375,12 @@ class Channel(FormClass, BaseClass):
             # Look up the associated chatter object
             chatter = self.nickList.item(item.row(), Chatter.SORT_COLUMN)
             chatter.pressed(item)
+
+    def resizeMapColumn(self):
+        if util.settings.value("chat/chatmaps", False):
+            self.nickList.horizontalHeader().resizeSection(Chatter.MAP_COLUMN, Formatters.NICKLIST_COLUMNS['MAP'])
+        else:
+            self.nickList.horizontalHeader().resizeSection(Chatter.MAP_COLUMN, 0)
 
     def addChatter(self, chatter, join=False):
         """

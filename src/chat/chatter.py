@@ -4,7 +4,10 @@ from PyQt5.QtNetwork import QNetworkRequest
 from chat._avatarWidget import AvatarWidget
 import time
 import urllib.request, urllib.error, urllib.parse
+
 from fa.replay import replay
+from fa import maps
+
 import util
 import client
 from config import Settings
@@ -23,6 +26,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
     AVATAR_COLUMN = 1
     RANK_COLUMN = 0
     STATUS_COLUMN = 3
+    MAP_COLUMN = 4
 
     RANK_ELEVATION = 0
     RANK_FRIEND = 1
@@ -59,6 +63,10 @@ class Chatter(QtWidgets.QTableWidgetItem):
         self.statusItem.setFlags(QtCore.Qt.ItemIsEnabled)
         self.statusItem.setTextAlignment(QtCore.Qt.AlignHCenter)
 
+        self.mapItem = QtWidgets.QTableWidgetItem()
+        self.mapItem.setFlags(QtCore.Qt.ItemIsEnabled)
+        self.mapItem.setTextAlignment(QtCore.Qt.AlignHCenter)
+
         self._user = None
         self._user_player = None
         self._user_game = None
@@ -73,6 +81,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
         self.parent.setItem(self.row(), Chatter.RANK_COLUMN, self.rankItem)
         self.parent.setItem(self.row(), Chatter.AVATAR_COLUMN, self.avatarItem)
         self.parent.setItem(self.row(), Chatter.STATUS_COLUMN, self.statusItem)
+        self.parent.setItem(self.row(), Chatter.MAP_COLUMN, self.mapItem)
 
     @property
     def user(self):
@@ -298,6 +307,14 @@ class Chatter(QtWidgets.QTableWidgetItem):
             elif game.state == GameState.PLAYING:
                 self.statusItem.setIcon(util.THEME.icon("chat/status/playing.png"))
                 self.statusItem.setToolTip("Playing Game<br/>"+url.toString())
+                mapname = game.mapname
+                icon = maps.preview(mapname)
+                if not icon:
+                    self.chat_widget.client.downloader.downloadMapPreview(mapname, self.mapItem)  # Calls setIcon
+                else:
+                    self.mapItem.setIcon(icon)
+
+                self.mapItem.setToolTip(mapname)
         else:
             self.statusItem.setIcon(QtGui.QIcon())
             self.statusItem.setToolTip("Idle")
