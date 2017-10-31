@@ -142,7 +142,7 @@ class LiveReplaysWidgetHandler(object):
         icon = fa.maps.preview(game.mapname)
         item.setToolTip(0, fa.maps.getDisplayName(game.mapname))
         if not icon:
-            self.client.downloader.downloadMap(game.mapname, item, True)
+            self.client.downloader.downloadMapPreview(game.mapname, item, True)
             icon = util.THEME.icon("games/unknown_map.png")
 
         item.setText(0, time.strftime("%Y-%m-%d  -  %H:%M", time.localtime(launched_at)))
@@ -321,7 +321,7 @@ class LocalReplaysWidgetHandler(object):
                         if icon:
                             item.setIcon(0, icon)
                         else:
-                            client.instance.downloader.downloadMap(item.info['mapname'], item, True)
+                            client.instance.downloader.downloadMapPreview(item.info['mapname'], item, True)
                             item.setIcon(0, util.THEME.icon("games/unknown_map.png"))
                         item.setToolTip(0, fa.maps.getDisplayName(item.info['mapname']))
                         item.setText(0, game_hour)

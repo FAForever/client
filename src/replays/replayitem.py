@@ -144,7 +144,7 @@ class ReplayItem(QtWidgets.QTreeWidgetItem):
       
         self.icon = maps.preview(self.mapname)
         if not self.icon:
-            self.client.downloader.downloadMap(self.mapname, self, True)
+            self.client.downloader.downloadMapPreview(self.mapname, self, True)
             self.icon = util.THEME.icon("games/unknown_map.png")
 
         if self.mod in mods:

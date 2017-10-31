@@ -93,7 +93,7 @@ class TutorialItem(QtWidgets.QListWidgetItem):
             icon = maps.preview(self.mapname)
             if not icon:
                 icon = util.THEME.icon("games/unknown_map.png")
-                self.client.downloader.downloadMap(self.mapname, self)
+                self.client.downloader.downloadMapPreview(self.mapname, self)
 
             self.setIcon(icon)
 

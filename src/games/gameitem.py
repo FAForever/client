@@ -29,7 +29,7 @@ class GameView(QtCore.QObject):
 
     def download_map_preview(self, mapname):
         cb = IconCallback(mapname, self._map_preview_downloaded)
-        self._dler.downloadMap(mapname, cb)
+        self._dler.downloadMapPreview(mapname, cb)
 
     # TODO make it a utility function?
     def _model_items(self):

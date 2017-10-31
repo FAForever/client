@@ -175,7 +175,7 @@ class downloadManager(QtCore.QObject):
         img.open(QtCore.QIODevice.WriteOnly)
         return img, imgpath
 
-    def downloadMap(self, name, requester, item=False):
+    def downloadMapPreview(self, name, requester, item=False):
         """
         Downloads a preview image from the web for the given map name
         """
