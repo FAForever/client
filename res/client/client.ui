@@ -286,6 +286,7 @@
      <addaction name="actionSetOpenGames"/>
      <addaction name="actionSetLiveReplays"/>
      <addaction name="actionSetSoundEffects"/>
+     <addaction name="actionSetChatMaps"/>
      <addaction name="separator"/>
     </widget>
     <widget class="QMenu" name="menuNotifications">
@@ -492,6 +493,14 @@
    </property>
    <property name="text">
     <string>&amp;Joins / Parts</string>
+   </property>
+  </action>
+  <action name="actionSetChatMaps">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Map icons in chat</string>
    </property>
   </action>
   <action name="actionSetOpenGames">

@@ -376,6 +376,15 @@ class Channel(FormClass, BaseClass):
             chatter = self.nickList.item(item.row(), Chatter.SORT_COLUMN)
             chatter.pressed(item)
 
+    def updateChatters(self):
+        """
+        Triggers all chatters to update their status. Called when toggling map icon display in settings
+        """
+        for _, chatter in self.chatters.items():
+            chatter.update()
+
+        self.resizeMapColumn()
+
     def resizeMapColumn(self):
         if util.settings.value("chat/chatmaps", False):
             self.nickList.horizontalHeader().resizeSection(Chatter.MAP_COLUMN, Formatters.NICKLIST_COLUMNS['MAP'])

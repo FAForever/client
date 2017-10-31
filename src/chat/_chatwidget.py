@@ -132,6 +132,10 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         else:
             self.insertTab(index, self.channels[name], name)
 
+    def updateChannels(self):
+        for _, channel in self.channels.items():
+            channel.updateChatters()
+
     def closeChannel(self, index):
         """
         Closes a channel tab.

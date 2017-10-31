@@ -768,6 +768,7 @@ class ClientWindow(FormClass, BaseClass):
         self.actionSetOpenGames.triggered.connect(self.updateOptions)
         self.actionSetJoinsParts.triggered.connect(self.updateOptions)
         self.actionSetLiveReplays.triggered.connect(self.updateOptions)
+        self.actionSetChatMaps.triggered.connect(self.toggleChatMaps)
         self.actionSaveGamelogs.toggled.connect(self.on_actionSavegamelogs_toggled)
         self.actionSaveGamelogs.setChecked(self.gamelogs)
         self.actionColoredNicknames.triggered.connect(self.updateOptions)
@@ -783,6 +784,7 @@ class ClientWindow(FormClass, BaseClass):
         self.soundeffects = self.actionSetSoundEffects.isChecked()
         self.game_announcer.announce_games = self.actionSetOpenGames.isChecked()
         self.joinsparts = self.actionSetJoinsParts.isChecked()
+        self.chatmaps = self.actionSetChatMaps.isChecked()
         self.game_announcer.announce_replays = self.actionSetLiveReplays.isChecked()
 
         self.gamelogs = self.actionSaveGamelogs.isChecked()
@@ -790,6 +792,10 @@ class ClientWindow(FormClass, BaseClass):
         self.friendsontop = self.actionFriendsOnTop.isChecked()
 
         self.saveChat()
+
+    def toggleChatMaps(self):
+        self.updateOptions()
+        self.chat.updateChannels()
 
     @QtCore.pyqtSlot()
     def switchPath(self):
@@ -868,6 +874,7 @@ class ClientWindow(FormClass, BaseClass):
         util.settings.setValue("livereplays", self.game_announcer.announce_replays)
         util.settings.setValue("opengames", self.game_announcer.announce_games)
         util.settings.setValue("joinsparts", self.joinsparts)
+        util.settings.setValue("chatmaps", self.chatmaps)
         util.settings.setValue("coloredNicknames", self.player_colors.coloredNicknames)
         util.settings.setValue("friendsontop", self.friendsontop)
         util.settings.endGroup()
@@ -890,6 +897,7 @@ class ClientWindow(FormClass, BaseClass):
             self.soundeffects = (util.settings.value("soundeffects", "true") == "true")
             self.game_announcer.announce_games = (util.settings.value("opengames", "true") == "true")
             self.joinsparts = (util.settings.value("joinsparts", "false") == "true")
+            self.chatmaps = (util.settings.value("chatmaps", "false") == "true")
             self.game_announcer.announce_replays = (util.settings.value("livereplays", "true") == "true")
             self.player_colors.coloredNicknames = (util.settings.value("coloredNicknames", "false") == "true")
             self.friendsontop = (util.settings.value("friendsontop", "false") == "true")
@@ -901,6 +909,7 @@ class ClientWindow(FormClass, BaseClass):
             self.actionSetLiveReplays.setChecked(self.game_announcer.announce_replays)
             self.actionSetOpenGames.setChecked(self.game_announcer.announce_games)
             self.actionSetJoinsParts.setChecked(self.joinsparts)
+            self.actionSetChatMaps.setChecked(self.chatmaps)
         except:
             pass
 
