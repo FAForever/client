@@ -53,7 +53,7 @@ Small fixes by contributors who "own" (have recently made commits on) the part o
 Running on Windows
 -------
 
-https://github.com/faforever/client/wiki/Windows-Dev-Environment-with-Miniconda
+https://github.com/FAForever/client/wiki/Windows-Dev-Py36
 
 Running on Linux
 -------
@@ -62,7 +62,7 @@ This guide is about runnning the client from source repository. For a [ready-mad
 Clone this repository locally:
 
     git clone https://github.com/FAForever/client.git faf-client
-    
+
 Create a python3(!) virtualenv for installing its dependencies:
 
     virtualenv ./faf-client-venv --system-site-packages
