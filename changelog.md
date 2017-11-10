@@ -13,11 +13,13 @@
    - Many small refactors necessary to introduce the model
  * Pressing spacebar on games tab will no longer start ladder search (#860, #861)
  * Notification when a game is full
+ * Added new map preview icon in chat. Toggle in the chat settings.
 
 Contributors:
  - Wesmania
  - Grothe
  - Surtsan
+ - IceDreamer
 
 0.16.0
 ====
