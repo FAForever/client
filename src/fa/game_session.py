@@ -7,6 +7,9 @@ from decorators import with_logger
 from fa.game_connection import GPGNetConnection
 from fa.game_process import instance
 
+from fa.game_process import GameProcess, instance as game_process_instance
+import util
+import os
 
 class GameSessionState(IntEnum):
     # Game services are entirely off
@@ -36,6 +39,7 @@ class GameSession(QObject):
         self.game_visibility = None
         self.game_map = None
         self.game_password = None
+        self.game_has_started = 0
 
         # Subscribe to messages targeted at 'game' from the server
         client.lobby_dispatch.subscribe_to('game', self.handle_message)
@@ -165,6 +169,8 @@ class GameSession(QObject):
             elif args[0] == 'Lobby':
                 # TODO: Eagerly initialize the game by hosting/joining early
                 pass
+            elif args[0] == 'Launching':
+                self.game_has_started = 1
         elif command == 'Rehost':
             self._rehost = True
         elif command == 'GameFull':
@@ -177,12 +183,45 @@ class GameSession(QObject):
 
     def _launched(self):
         self._logger.info("Game has started")
+        self._add_to_full_gamelog()
+
+    def _limit_replayid_gamelogs(self):
+        nb_replayid_files = 0
+        files = os.listdir(util.LOG_DIR)
+        files = map(lambda f: os.path.join(util.LOG_DIR, f), files)
+        files = sorted(files, key = os.path.getmtime)
+        files = list(map(os.path.basename, files))
+        replay_files = [e for e in files if "Replayid" in e]
+        while len(replay_files) >= util.MAX_NUMBER_REPLAYID_LOG_FILE:
+            os.remove(os.path.join(util.LOG_DIR,replay_files[0]))
+            replay_files.pop(0)
+
+    def _add_to_full_gamelog(self):
+        if os.path.isfile(util.LOG_FILE_GAME):
+            with open(util.LOG_FILE_GAME, 'r') as src, open(util.LOG_FILE_GAME + '.full.log', 'a+') as dst: dst.write(src.read())
+
+    def _clear_initial_gamelog(self):
+        with open(util.LOG_FILE_GAME, 'w') as src : pass
+
+    def _write_new_replayid_gamelogs(self, replay_ID):
+        if self.game_has_started == 1:
+            if os.path.isfile(util.LOG_FILE_GAME):
+                with open(util.LOG_FILE_GAME, 'r') as src, open(util.LOG_FILE_GAME + '.Replayid'
+                + str(replay_ID) + '.log', 'w+') as dst: dst.write(src.read())
+            else:
+                self._logger.error('No game log found to create the replayid game log file')
 
     def _exited(self, status):
         self._game_connection = None
         self.state = GameSessionState.OFF
         self._logger.info("Game has exited with status code: {}".format(status))
         self.send('GameState', ['Ended'])
+
+        self._limit_replayid_gamelogs()
+        self._write_new_replayid_gamelogs(self.game_uid)
+        self.game_has_started = 0
+        self._add_to_full_gamelog()
+        self._clear_initial_gamelog()
 
         if self._rehost:
             self._client.host_game(title=self.game_name,
