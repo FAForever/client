@@ -1307,7 +1307,7 @@ class ClientWindow(FormClass, BaseClass):
 
         self.game_session.game_uid = message['uid']
 
-        fa.run(info, self.game_session.relay_port, arguments)
+        fa.run(info, self.game_session.relay_port, arguments, self.game_session.game_uid)
 
     def fill_in_session_info(self, game):
         # sometimes we get the game_info message before a game session was created
