@@ -25,10 +25,6 @@ def writeFAPathLua():
 
     code = 'fa_path = "' + gamepath_fa.replace("\\", "\\\\") + '"' + "\n"
 
-    gamepath_sc = config.Settings.get("SupremeCommander/app/path", type=str)
-    if gamepath_sc:
-        code = code + 'sc_path = "' + gamepath_sc.replace("\\", "\\\\") + '"' + "\n"
-
     with open(name, "w+", encoding='utf-8') as lua:
         lua.write(code)
         lua.flush()
@@ -59,34 +55,6 @@ def typicalForgedAlliancePaths():
     steam_path = steamPath()
     if steam_path:
         pathlist.append(os.path.join(steam_path, "SteamApps", "common", "Supreme Commander Forged Alliance"))
-
-    return list(filter(validatePath, pathlist))
-
-
-def typicalSupComPaths():
-    """
-    Returns a list of the most probable paths where Supreme Commander might be installed
-    """
-    pathlist = [
-        config.Settings.get("SupremeCommander/app/path", None, type=str),
-
-        # Retail path
-        os.path.expandvars("%ProgramFiles%\\THQ\\Gas Powered Games\\Supreme Commander"),
-
-        # Direct2Drive Paths
-        # ... allegedly identical to impulse paths - need to confirm this
-
-        # Impulse/GameStop Paths - might need confirmation yet
-        os.path.expandvars("%ProgramFiles%\\Supreme Commander"),
-
-        # Guessed Steam path
-        os.path.expandvars("%ProgramFiles%\\Steam\\steamapps\\common\\supreme commander")
-    ]
-
-    # Registry Steam path
-    steam_path = steamPath()
-    if steam_path:
-        pathlist.append(os.path.join(steam_path, "SteamApps", "common", "Supreme Commander"))
 
     return list(filter(validatePath, pathlist))
 

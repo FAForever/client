@@ -1,7 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 import fa
 from fa.replay import replay
-from fa.wizards import WizardSC
 import util
 
 from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest
@@ -54,7 +53,6 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
         self.client.lobby_info.coopLeaderBoard.connect(self.processLeaderBoardInfos)
         self.tabLeaderWidget.currentChanged.connect(self.askLeaderBoard)
 
-        self.linkButton.clicked.connect(self.linkVanilla)
         self.leaderBoard.setVisible(0)
         self.FORMATTER_LADDER        = str(util.THEME.readfile("coop/formatters/ladder.qthtml"))
         self.FORMATTER_LADDER_HEADER = str(util.THEME.readfile("coop/formatters/ladder_header.qthtml"))
@@ -148,10 +146,6 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
         w.setDocument(doc)
 
         self.leaderBoard.setVisible(True)
-
-    @QtCore.pyqtSlot()
-    def linkVanilla(self):    
-        WizardSC(self).exec_()
 
     def busy_entered(self):
         if not self.loaded:
