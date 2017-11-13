@@ -990,7 +990,7 @@ class ClientWindow(FormClass, BaseClass):
             QtWidgets.QMessageBox.critical(self,
                                            "Failed to calculate UID",
                                            "Failed to calculate your unique ID"
-                                           " (a part of our smurf prevention system).</br>"
+                                           " (a part of our smurf prevention system).\n"
                                            "Please report this to the tech support forum!")
             return False
         self.lobby_connection.send(dict(command="hello",

@@ -3,6 +3,10 @@
 
 0.17.0
 =====
+ * Fixed the error message "failed to get uid" which has bad spacing
+
+Contributors:
+ - MathieuB8
 
 0.16.1
 ====
