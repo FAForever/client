@@ -40,6 +40,7 @@ defaults = {
     'FORUMS_URL': 'http://forums.faforever.com/',
     'WEBSITE_URL': 'http://www.faforever.com',
     'UNITDB_URL': 'http://direct.faforever.com/faf/unitsDB/',
+    'MAPPOOL_URL': 'http://forums.faforever.com/viewtopic.php?f=2&t=13742',
     'GITHUB_URL': 'http://www.github.com/FAForever',
     'WIKI_URL': 'http://wiki.faforever.com/index.php?title=Main_Page',
     'SUPPORT_URL': 'http://forums.faforever.com/viewforum.php?f=3',

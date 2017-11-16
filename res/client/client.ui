@@ -338,6 +338,7 @@
      <string>&amp;Links</string>
     </property>
     <addaction name="actionLinkUnitDB"/>
+    <addaction name="actionLinkMapPool"/>
     <addaction name="separator"/>
     <addaction name="actionLinkWebsite"/>
     <addaction name="actionLinkForums"/>
@@ -628,6 +629,11 @@
   <action name="actionShowThemesDir">
    <property name="text">
     <string>Show themes folder</string>
+   </property>
+  </action>
+  <action name="actionLinkMapPool">
+   <property name="text">
+    <string>Ladder Map Pool</string>
    </property>
   </action>
  </widget>

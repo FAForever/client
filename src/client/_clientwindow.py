@@ -731,6 +731,7 @@ class ClientWindow(FormClass, BaseClass):
         self.actionLinkWiki.triggered.connect(partial(self.open_url, Settings.get("WIKI_URL")))
         self.actionLinkForums.triggered.connect(partial(self.open_url, Settings.get("FORUMS_URL")))
         self.actionLinkUnitDB.triggered.connect(partial(self.open_url, Settings.get("UNITDB_URL")))
+        self.actionLinkMapPool.triggered.connect(partial(self.open_url, Settings.get("MAPPOOL_URL")))
         self.actionLinkGitHub.triggered.connect(partial(self.open_url, Settings.get("GITHUB_URL")))
 
         self.actionNsSettings.triggered.connect(lambda: self.notificationSystem.on_showSettings())
