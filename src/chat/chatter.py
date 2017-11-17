@@ -4,6 +4,7 @@ from PyQt5.QtNetwork import QNetworkRequest
 from chat._avatarWidget import AvatarWidget
 import time
 import urllib.request, urllib.error, urllib.parse
+import json
 
 from fa.replay import replay
 from fa import maps
@@ -11,8 +12,10 @@ from fa import maps
 import util
 import client
 from config import Settings
-
 from model.game import GameState
+
+import logging
+logger = logging.getLogger(__name__)
 
 """
 A chatter is the representation of a person on IRC, in a channel's nick list.
@@ -344,8 +347,63 @@ class Chatter(QtWidgets.QTableWidgetItem):
             color = pcolors.getUserColor(_id, name)
         self.setForeground(QtGui.QColor(color))
 
+    def returnDecodedJson(self, link, method):
+        try:
+            with urllib.request.urlopen(link) as response :
+                return json.loads(response.read().decode())
+        except urllib.error.URLError as e:
+            logger.error(method+" method error (link : " + link + " ) : "+str(e.reason))
+            QtWidgets.QMessageBox.about(self.parent, "Aliases", "Error getting info, report the issue with logs on the faf forum")
+            return 'err'
+        except urllib.error.HTTPError as e:
+            logger.error(method+" method error (link : " + link + " ) : "+str(e.code+ ':' +e.reason))
+            QtWidgets.QMessageBox.about(self.parent, "Aliases", "Error getting info, report the issue with logs on the faf forum")
+            return 'err'
+
+    def nickUsedByOther(self, resp):
+        result=''
+        apiLink='https://api.faforever.com/data/player?include=names&filter=(login=='+self.user.name+',names.name=='+self.user.name+')'
+        resp=self.returnDecodedJson(apiLink,'nickUsedByOther')
+        if resp =='err':
+            return result
+        if resp.get('data')!= None and len(resp['data']) >= 1:
+            for ply in resp['data']:
+                if ply['type']=='player':
+                    if ply['attributes']['login'] != self.user.name:
+                        result+=(ply['attributes']['login']+'\n')
+        if len(result) > 1:
+            result = 'It has been previously been used by :\n' + str(result)
+        else:
+            result='It has never been used by anyone else.'
+        return result
+
+    def namesPreviouslyKnown(self):
+        nicklists=''
+        apiLink='https://api.faforever.com/data/player?include=names&fields[player]=login,names&fields[nameRecord]=name,changeTime&&filter[player]=login=='+self.user.name
+        response=self.returnDecodedJson(apiLink,'namesPreviouslyKnown')
+        if response == 'err':
+            return nicklists
+        if response.get('included')!= None and len(response['included']) >= 1:
+            nicklists='The player ' + self.user.name + ' has previously been known as :'
+            for allnicks in response['included']:
+                if allnicks['type']=='nameRecord':
+                    nicklists=nicklists+'\n'+allnicks['attributes']['name']
+        else:
+            nicklists='The name'+ '_Barracuda_' +'is not currently owned by any player.'
+        return nicklists
+
     def viewAliases(self):
-        QtGui.QDesktopServices.openUrl(QUrl("{}?name={}".format(Settings.get("USER_ALIASES_URL"), self.user.name)))
+        apiLink='https://api.faforever.com/data/nameRecord?include=player&fields[player]=login&fields[nameRecord]=player,changeTime&filter[nameRecord]=name=='+self.user.name
+        result=''
+        response=self.returnDecodedJson(apiLink,'viewAliases')
+        if response=='err':
+            return
+        result=self.nickUsedByOther(response)
+        if len(response['data']) < 1:
+            result='The name ' + self.user.name + ' has never been used or the user has never changed its name'+'\n\n'+result
+        else:
+            result=self.namesPreviouslyKnown()+'\n\n'+result
+        QtWidgets.QMessageBox.about(self.parent, "Aliases", str(result))
 
     def selectAvatar(self):
         avatarSelection = AvatarWidget(self.chat_widget.client, self.user.name, personal=True)
