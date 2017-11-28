@@ -13,7 +13,7 @@
    - Many small refactors necessary to introduce the model
  * Pressing spacebar on games tab will no longer start ladder search (#860, #861)
  * Notification when a game is full
- * Added new map preview icon in chat. Toggle in the chat settings.
+ * Added map preview icon in chat. Toggle in the chat settings. (#870, #891)
  * Add menu Link to ladder map pool in forum (#882)
 
 Contributors:

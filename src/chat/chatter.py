@@ -308,23 +308,23 @@ class Chatter(QtWidgets.QTableWidgetItem):
             elif game.state == GameState.PLAYING:
                 self.statusItem.setIcon(util.THEME.icon("chat/status/playing.png"))
                 self.statusItem.setToolTip("Playing Game<br/>"+url.toString())
-
-            # We're in game, show the map if toggled on
-            if util.settings.value("chat/chatmaps", False):
-                mapname = game.mapname
-                icon = maps.preview(mapname)
-                if not icon:
-                    self.chat_widget.client.downloader.downloadMapPreview(mapname, self.mapItem)  # Calls setIcon
-                else:
-                    self.mapItem.setIcon(icon)
-
-                self.mapItem.setToolTip(game.mapdisplayname)
-            else:
-                self.mapItem.setIcon(QtGui.QIcon())
-                self.mapItem.setToolTip("")
         else:
             self.statusItem.setIcon(QtGui.QIcon())
             self.statusItem.setToolTip("Idle")
+
+        # Map icon handling - if we're in game, show the map if toggled on
+        if game is not None and not game.closed() and util.settings.value("chat/chatmaps", False):
+            mapname = game.mapname
+            icon = maps.preview(mapname)
+            if not icon:
+                self.chat_widget.client.downloader.downloadMapPreview(mapname, self.mapItem)  # Calls setIcon
+            else:
+                self.mapItem.setIcon(icon)
+
+            self.mapItem.setToolTip(game.mapdisplayname)
+        else:
+            self.mapItem.setIcon(QtGui.QIcon())
+            self.mapItem.setToolTip("")
 
         self._verifySortOrder()
 
