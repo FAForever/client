@@ -297,7 +297,6 @@ class Chatter(QtWidgets.QTableWidgetItem):
 
     def updateGame(self):
         # Status icon handling
-
         game = self.user_game
         player = self.user_player
         if game is not None and not game.closed():
@@ -312,7 +311,11 @@ class Chatter(QtWidgets.QTableWidgetItem):
             self.statusItem.setIcon(QtGui.QIcon())
             self.statusItem.setToolTip("Idle")
 
+        self.updateMap()
+
+    def updateMap(self):
         # Map icon handling - if we're in game, show the map if toggled on
+        game = self.user_game
         if game is not None and not game.closed() and util.settings.value("chat/chatmaps", False):
             mapname = game.mapname
             icon = maps.preview(mapname)
@@ -325,8 +328,6 @@ class Chatter(QtWidgets.QTableWidgetItem):
         else:
             self.mapItem.setIcon(QtGui.QIcon())
             self.mapItem.setToolTip("")
-
-        self._verifySortOrder()
 
     def update(self):
         self.updateUser()
