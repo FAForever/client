@@ -16,6 +16,7 @@
  * Added map preview icon in chat. Toggle in the chat settings. (#870, #891)
  * Add menu Link to ladder map pool in forum (#882)
  * Add host & live-game-delay to user status + nicer tooltip in Chat (#892)
+ * Add a button to see the ladder maps pool from play tab (#882)
 
 Contributors:
  - Wesmania

@@ -477,6 +477,12 @@ QToolButton#rankedPlay
 	border-radius: 5px;
 	border: 1px solid grey;
 }
+QToolButton#laddermapspool
+{
+	color: silver;
+	border-radius: 5px;
+	border: 1px solid grey;
+}
 
 QToolButton::pressed
 {

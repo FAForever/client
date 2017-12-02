@@ -12,7 +12,8 @@ import fa
 import logging
 
 from games.gamemodel import CustomGameFilterModel
-
+from PyQt5 import QtGui
+from PyQt5.QtCore import QUrl
 logger = logging.getLogger(__name__)
 
 FormClass, BaseClass = util.THEME.loadUiType("games/games.ui")
@@ -155,12 +156,16 @@ class GamesWidget(FormClass, BaseClass):
                 self.startSearchRanked(Factions.from_name(
                     factionSubset[random.randint(0, l - 1)]))
 
+    def startViewLadderMapsPool(self):
+        QtGui.QDesktopServices.openUrl(QUrl(Settings.get("MAPPOOL_URL")))
+
     def generateSelectSubset(self):
         if self.searching:  # you cannot search for a match while changing/creating the UI
             self.stopSearchRanked()
 
         self.rankedPlay.clicked.connect(self.startSubRandomRankedSearch)
         self.rankedPlay.show()
+        self.laddermapspool.clicked.connect(self.startViewLadderMapsPool)
         self.labelRankedHint.show()
         for faction, icon in list(self._ranked_icons.items()):
             try:
