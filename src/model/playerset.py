@@ -1,9 +1,10 @@
-from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5.QtCore import pyqtSignal
 
+from model.qobjectmapping import QObjectMapping
 from model.player import Player
 
 
-class Playerset(QObject):
+class Playerset(QObjectMapping):
     """
     Wrapper for an id->Player map
 
@@ -13,7 +14,7 @@ class Playerset(QObject):
     playerRemoved = pyqtSignal(object)
 
     def __init__(self):
-        QObject.__init__(self)
+        QObjectMapping.__init__(self)
 
         # UID -> Player map
         self._players = {}
@@ -32,30 +33,6 @@ class Playerset(QObject):
 
     def __iter__(self):
         return iter(self._players)
-
-    # We need to define the below things - QObject
-    # doesn't allow for Mapping mixin
-    def keys(self):
-        return self._players.keys()
-
-    def values(self):
-        return self._players.values()
-
-    def items(self):
-        return self._players.items()
-
-    def get(self, item, default=None):
-        try:
-            return self[item]
-        except KeyError:
-            return default
-
-    def __contains__(self, item):
-        try:
-            self[item]
-            return True
-        except KeyError:
-            return False
 
     def getID(self, name):
         if name in self:

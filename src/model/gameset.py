@@ -1,11 +1,12 @@
-from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5.QtCore import pyqtSignal
 from decorators import with_logger
 
+from model.qobjectmapping import QObjectMapping
 from model import game
 
 
 @with_logger
-class Gameset(QObject):
+class Gameset(QObjectMapping):
     """
     Keeps track of currently active games. Removes games that closed. Reports
     creation and state change of games. Gives access to active games.
@@ -22,7 +23,7 @@ class Gameset(QObject):
     newLiveReplay = pyqtSignal(object)
 
     def __init__(self, playerset):
-        QObject.__init__(self)
+        QObjectMapping.__init__(self)
         self.games = {}
         self._playerset = playerset
         self._idx = PlayerGameIndex(playerset)
@@ -30,26 +31,8 @@ class Gameset(QObject):
     def __getitem__(self, uid):
         return self.games[uid]
 
-    def __contains__(self, uid):
-        return uid in self.games
-
     def __iter__(self):
         return iter(self.games)
-
-    def keys(self):
-        return self.games.keys()
-
-    def values(self):
-        return self.games.values()
-
-    def items(self):
-        return self.games.items()
-
-    def get(self, item, default=None):
-        try:
-            return self[item]
-        except KeyError:
-            return default
 
     def __setitem__(self, key, value):
         if not isinstance(key, int) or not isinstance(value, game.Game):
@@ -76,7 +59,7 @@ class Gameset(QObject):
 
     def _at_game_update(self, new, old):
         if new.closed():
-            self._remove_game(new)
+            del self[new.uid]
         self._idx.at_game_update(new, old)
         if old is None or new.state != old.state:
             self._new_state(new)
@@ -93,9 +76,9 @@ class Gameset(QObject):
     def _at_live_replay(self, game):
         self.newLiveReplay.emit(game)
 
-    def _remove_game(self, g):
+    def __delitem__(self, uid):
         try:
-            g = self.games[g.uid]
+            g = self.games[uid]
             g.gameUpdated.disconnect(self._at_game_update)
             g.liveReplayAvailable.disconnect(self._at_live_replay)
             del self.games[g.uid]
