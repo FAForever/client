@@ -5,7 +5,7 @@ from enum import IntEnum
 from connectivity.turn import TURNState
 from decorators import with_logger
 from fa.game_connection import GPGNetConnection
-from fa.game_process import GameProcess, instance as game_process_instance
+from fa.game_process import instance
 
 
 class GameSessionState(IntEnum):
@@ -64,7 +64,7 @@ class GameSession(QObject):
         # We only allow one game connection at a time
         self._game_connection = None
 
-        self._process = game_process_instance  # type: GameProcess
+        self._process = instance  # type:'GameProcess'
         self._process.started.connect(self._launched)
         self._process.finished.connect(self._exited)
 

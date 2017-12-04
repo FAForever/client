@@ -150,4 +150,5 @@ class GameProcess(QtCore.QProcess):
 
             self.close()
 
+
 instance = GameProcess()

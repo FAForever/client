@@ -545,16 +545,16 @@ class ClientWindow(FormClass, BaseClass):
 
         # build main window with the now active client
         self.news = news.NewsWidget(self)
-        self.ladder = stats.Stats(self)
-        self.games = games.Games(self, self.game_model, self.me,
+        self.ladder = stats.StatsWidget(self)
+        self.games = games.GamesWidget(self, self.game_model, self.me,
                                  self.gameview_builder, self.game_launcher)
-        self.tourneys = tourneys.Tourneys(self)
+        self.tourneys = tourneys.TournamentsWidget(self)
         self.vault = vault.MapVault(self)
         self.modvault = modvault.ModVault(self)
-        self.replays = replays.Replays(self, self.lobby_dispatch,
+        self.replays = replays.ReplaysWidget(self, self.lobby_dispatch,
                                        self.gameset, self.players)
-        self.tutorials = tutorials.Tutorials(self)
-        self.Coop = coop.Coop(self, self.game_model, self.me,
+        self.tutorials = tutorials.TutorialsWidget(self)
+        self.Coop = coop.CoopWidget(self, self.game_model, self.me,
                               self.gameview_builder, self.game_launcher)
         self.notificationSystem = ns.Notifications(self, self.gameset,
                                                    self.players, self.me)
