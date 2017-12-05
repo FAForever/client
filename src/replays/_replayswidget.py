@@ -233,6 +233,7 @@ class LocalReplaysWidgetHandler(object):
         self.myTree.header().setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
         self.myTree.header().setSectionResizeMode(2, QtWidgets.QHeaderView.Stretch)
         self.myTree.header().setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeToContents)
+        self.myTree.modification_time = 0
 
     def myTreePressed(self, item):
         if QtWidgets.QApplication.mouseButtons() != QtCore.Qt.RightButton:
@@ -273,6 +274,10 @@ class LocalReplaysWidgetHandler(object):
             replay(item.filename)
 
     def updatemyTree(self):
+        modification_time = os.path.getmtime(util.REPLAY_DIR)
+        if self.myTree.modification_time == modification_time:  # anything changed?
+            return  # nothing changed -> don't redo
+        self.myTree.modification_time = modification_time
         self.myTree.clear()
 
         # We put the replays into buckets by day first, then we add them to the treewidget.
@@ -360,7 +365,7 @@ class LocalReplaysWidgetHandler(object):
 
         if len(cache_add) > 10 or len(cache) - len(cache_hit) > 10:
             self.saveLocalCache(cache_hit, cache_add)
-        # Now, create a top level treewidgetitem for every bucket, and put the bucket's contents into them
+        # Now, create a top level treeWidgetItem for every bucket, and put the bucket's contents into them
         for bucket in buckets.keys():
             bucket_item = QtWidgets.QTreeWidgetItem()
 
@@ -623,14 +628,9 @@ class ReplaysWidget(BaseClass, FormClass):
 
         self.setupUi(self)
 
-        # self.replayVault.setVisible(False)
-        self.client = client
-
-        self.liveManager = LiveReplaysWidgetHandler(self.liveTree, self.client,
-                                                    gameset)
+        self.liveManager = LiveReplaysWidgetHandler(self.liveTree, client, gameset)
         self.localManager = LocalReplaysWidgetHandler(self.myTree)
-        self.vaultManager = ReplayVaultWidgetHandler(self, dispatcher, client,
-                                                     playerset)
+        self.vaultManager = ReplayVaultWidgetHandler(self, dispatcher, client, playerset)
 
         logger.info("Replays Widget instantiated.")
 
