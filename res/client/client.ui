@@ -282,6 +282,8 @@
      </property>
      <addaction name="actionColoredNicknames"/>
      <addaction name="actionFriendsOnTop"/>
+     <addaction name="actionSetNewbiesChannel"/>
+     <addaction name="actionSetAutoJoinChannels"/>
      <addaction name="actionSetJoinsParts"/>
      <addaction name="actionSetOpenGames"/>
      <addaction name="actionSetLiveReplays"/>
@@ -400,6 +402,19 @@
    </property>
    <property name="text">
     <string>&amp;Automatic Login</string>
+   </property>
+  </action>
+   <action name="actionSetNewbiesChannel">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Use Newbies Channel</string>
+   </property>
+  </action>
+   <action name="actionSetAutoJoinChannels">
+   <property name="text">
+    <string>Set autojoin channels</string>
    </property>
   </action>
   <action name="actionSetAutoDownloadMods">

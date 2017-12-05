@@ -41,6 +41,7 @@ Created on Dec 1, 2011
 '''
 
 from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt5.QtWidgets import QInputDialog, QLineEdit
 
 from client import ClientState, LOBBY_HOST, \
     LOBBY_PORT, LOCAL_REPLAY_PORT
@@ -767,6 +768,8 @@ class ClientWindow(FormClass, BaseClass):
         self.actionSetSoundEffects.triggered.connect(self.updateOptions)
         self.actionSetOpenGames.triggered.connect(self.updateOptions)
         self.actionSetJoinsParts.triggered.connect(self.updateOptions)
+        self.actionSetNewbiesChannel.triggered.connect(self.updateOptions)
+        self.actionSetAutoJoinChannels.triggered.connect(self.show_autojoin_settings_dialog)
         self.actionSetLiveReplays.triggered.connect(self.updateOptions)
         self.actionSetChatMaps.triggered.connect(self.toggleChatMaps)
         self.actionSaveGamelogs.toggled.connect(self.on_actionSavegamelogs_toggled)
@@ -784,6 +787,7 @@ class ClientWindow(FormClass, BaseClass):
         self.soundeffects = self.actionSetSoundEffects.isChecked()
         self.game_announcer.announce_games = self.actionSetOpenGames.isChecked()
         self.joinsparts = self.actionSetJoinsParts.isChecked()
+        self.useNewbiesChannel = self.actionSetNewbiesChannel.isChecked()
         self.chatmaps = self.actionSetChatMaps.isChecked()
         self.game_announcer.announce_replays = self.actionSetLiveReplays.isChecked()
 
@@ -870,12 +874,26 @@ class ClientWindow(FormClass, BaseClass):
         util.settings.setValue("geometry", self.saveGeometry())
         util.settings.endGroup()
 
+    def show_autojoin_settings_dialog(self):
+        autojoin_channels_list = []
+        autojoin_channels_list = Settings.get('chat/auto_join_channels')
+        text_of_autojoin_settings_dialog = """
+        Enter the list of channels you want to autojoin at startup, separated by ;
+        For example: #poker;#newbie
+        To disable autojoining channels, leave the box empty and press OK.
+        """
+        channels_input_of_user, ok = QInputDialog.getText(self, 'Set autojoin channels',
+            text_of_autojoin_settings_dialog, QLineEdit.Normal, ';'.join(autojoin_channels_list))
+        if ok:
+            Settings.set('chat/auto_join_channels', list(map(str.strip, channels_input_of_user.split(';'))))
+
     def saveChat(self):
         util.settings.beginGroup("chat")
         util.settings.setValue("soundeffects", self.soundeffects)
         util.settings.setValue("livereplays", self.game_announcer.announce_replays)
         util.settings.setValue("opengames", self.game_announcer.announce_games)
         util.settings.setValue("joinsparts", self.joinsparts)
+        util.settings.setValue("newbiesChannel", self.useNewbiesChannel)
         util.settings.setValue("chatmaps", self.chatmaps)
         util.settings.setValue("coloredNicknames", self.player_colors.coloredNicknames)
         util.settings.setValue("friendsontop", self.friendsontop)
@@ -903,6 +921,7 @@ class ClientWindow(FormClass, BaseClass):
             self.game_announcer.announce_replays = (util.settings.value("livereplays", "true") == "true")
             self.player_colors.coloredNicknames = (util.settings.value("coloredNicknames", "false") == "true")
             self.friendsontop = (util.settings.value("friendsontop", "false") == "true")
+            self.useNewbiesChannel = (util.settings.value("newbiesChannel","true") == "true")
 
             util.settings.endGroup()
             self.actionColoredNicknames.setChecked(self.player_colors.coloredNicknames)
@@ -912,6 +931,7 @@ class ClientWindow(FormClass, BaseClass):
             self.actionSetOpenGames.setChecked(self.game_announcer.announce_games)
             self.actionSetJoinsParts.setChecked(self.joinsparts)
             self.actionSetChatMaps.setChecked(self.chatmaps)
+            self.actionSetNewbiesChannel.setChecked(self.useNewbiesChannel)
         except:
             pass
 

@@ -18,6 +18,7 @@
  * Add host & live-game-delay to user status + nicer tooltip in Chat (#892)
  * Add a button to see the ladder maps pool from play tab (#882)
  * Add 'view in leaderboard' to chat user context menu (#893)
+ * Add autojoin #newbie channel and the possibility to autojoin other channels (#899)
 
 Contributors:
  - Wesmania

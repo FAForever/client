@@ -32,6 +32,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
     irc_host = Settings.persisted_property('chat/host', type=str, default_value='irc.' + defaults['host'])
     irc_tls = Settings.persisted_property('chat/tls', type=bool, default_value=False)
 
+    auto_join_channels = Settings.persisted_property('chat/auto_join_channels', type=list, default_value=[])
+
     """
     This is the chat lobby module for the FAF client.
     It manages a list of channels and dispatches IRC events (lobby inherits from irclib's client class)
@@ -257,6 +259,11 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         # Perform any pending autojoins (client may have emitted autoJoin signals before we talked to the IRC server)
         self.autoJoin(self.optionalChannels)
         self.autoJoin(self.crucialChannels)
+        self.autoJoin(self.auto_join_channels)
+
+        max_number_of_games_to_be_considered_newbie = 51
+        if self.client.useNewbiesChannel and self.client.me.player.number_of_games < max_number_of_games_to_be_considered_newbie:
+            self.autoJoin(["#newbie"])
 
     def nickservRegister(self):
         if hasattr(self, '_nickserv_registered'):
