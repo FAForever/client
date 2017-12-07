@@ -249,9 +249,13 @@ class Channel(FormClass, BaseClass):
         if player.clan is not None:
             displayName = "<b>[%s]</b>%s" % (player.clan, chname)
 
+        sender_is_not_me = chatter.name != self._me.login
+
         # Play a ping sound and flash the title under certain circumstances
         mentioned = text.find(self.chat_widget.client.login) != -1
-        if mentioned or (self.private and not (formatter is Formatters.FORMATTER_RAW and text == "quit.")):
+        is_quit_msg = formatter is Formatters.FORMATTER_RAW and text == "quit."
+        private_msg = self.private and not is_quit_msg
+        if (mentioned or private_msg) and sender_is_not_me:
             self.pingWindow()
 
         avatar = None
@@ -268,7 +272,7 @@ class Channel(FormClass, BaseClass):
             # Fallback and ask the client. We have no Idea who this is.
             color = self.chat_widget.client.player_colors.getUserColor(player.id)
 
-        if mentioned:
+        if mentioned and sender_is_not_me:
             color = self.chat_widget.client.player_colors.getColor("you")
 
         # scroll if close to the last line of the log
