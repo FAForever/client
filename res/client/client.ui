@@ -284,6 +284,7 @@
      <addaction name="actionFriendsOnTop"/>
      <addaction name="actionSetNewbiesChannel"/>
      <addaction name="actionSetAutoJoinChannels"/>
+     <addaction name="actionSetBlinkChannelWhenNewMessage"/>
      <addaction name="actionSetJoinsParts"/>
      <addaction name="actionSetOpenGames"/>
      <addaction name="actionSetLiveReplays"/>
@@ -415,6 +416,14 @@
    <action name="actionSetAutoJoinChannels">
    <property name="text">
     <string>Set autojoin channels</string>
+   </property>
+  </action>
+   <action name="actionSetBlinkChannelWhenNewMessage">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Blink channels when new message</string>
    </property>
   </action>
   <action name="actionSetAutoDownloadMods">

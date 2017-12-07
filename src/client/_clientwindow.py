@@ -769,6 +769,7 @@ class ClientWindow(FormClass, BaseClass):
         self.actionSetOpenGames.triggered.connect(self.updateOptions)
         self.actionSetJoinsParts.triggered.connect(self.updateOptions)
         self.actionSetNewbiesChannel.triggered.connect(self.updateOptions)
+        self.actionSetBlinkChannelWhenNewMessage.triggered.connect(self.updateOptions)
         self.actionSetAutoJoinChannels.triggered.connect(self.show_autojoin_settings_dialog)
         self.actionSetLiveReplays.triggered.connect(self.updateOptions)
         self.actionSetChatMaps.triggered.connect(self.toggleChatMaps)
@@ -788,6 +789,7 @@ class ClientWindow(FormClass, BaseClass):
         self.game_announcer.announce_games = self.actionSetOpenGames.isChecked()
         self.joinsparts = self.actionSetJoinsParts.isChecked()
         self.useNewbiesChannel = self.actionSetNewbiesChannel.isChecked()
+        self.useBlinkChannelWhenNewMessage = self.actionSetBlinkChannelWhenNewMessage.isChecked()
         self.chatmaps = self.actionSetChatMaps.isChecked()
         self.game_announcer.announce_replays = self.actionSetLiveReplays.isChecked()
 
@@ -894,6 +896,7 @@ class ClientWindow(FormClass, BaseClass):
         util.settings.setValue("opengames", self.game_announcer.announce_games)
         util.settings.setValue("joinsparts", self.joinsparts)
         util.settings.setValue("newbiesChannel", self.useNewbiesChannel)
+        util.settings.setValue("blinkChannelWhenNewMessage", self.useBlinkChannelWhenNewMessage)
         util.settings.setValue("chatmaps", self.chatmaps)
         util.settings.setValue("coloredNicknames", self.player_colors.coloredNicknames)
         util.settings.setValue("friendsontop", self.friendsontop)
@@ -922,6 +925,7 @@ class ClientWindow(FormClass, BaseClass):
             self.player_colors.coloredNicknames = (util.settings.value("coloredNicknames", "false") == "true")
             self.friendsontop = (util.settings.value("friendsontop", "false") == "true")
             self.useNewbiesChannel = (util.settings.value("newbiesChannel","true") == "true")
+            self.useBlinkChannelWhenNewMessage = (util.settings.value("blinkChannelWhenNewMessage","true") == "true")
 
             util.settings.endGroup()
             self.actionColoredNicknames.setChecked(self.player_colors.coloredNicknames)
@@ -932,6 +936,7 @@ class ClientWindow(FormClass, BaseClass):
             self.actionSetJoinsParts.setChecked(self.joinsparts)
             self.actionSetChatMaps.setChecked(self.chatmaps)
             self.actionSetNewbiesChannel.setChecked(self.useNewbiesChannel)
+            self.actionSetBlinkChannelWhenNewMessage.setChecked(self.useBlinkChannelWhenNewMessage)
         except:
             pass
 
