@@ -224,6 +224,12 @@ class Channel(FormClass, BaseClass):
             self.chatArea.verticalScrollBar().setValue(scroll_current)
 
     def printLine(self, chname, text, scroll_forced=False, formatter=Formatters.FORMATTER_MESSAGE):
+        if self.chat_widget.client.useBlinkChannelWhenNewMessage and str(self.name) != '#aeolus' :
+            if not self.isVisible():
+                if not self.blinker.isActive() and not self == self.chat_widget.currentWidget():
+                    QtWidgets.QApplication.alert(self.chat_widget.client)
+                    self.startBlink()
+
         if self.lines > CHAT_TEXT_LIMIT:
             cursor = self.chatArea.textCursor()
             cursor.movePosition(QtGui.QTextCursor.Start)

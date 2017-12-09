@@ -19,6 +19,8 @@
  * Add a button to see the ladder maps pool from play tab (#882)
  * Add 'view in leaderboard' to chat user context menu (#893)
  * Add autojoin #newbie channel and the possibility to autojoin other channels (#899)
+ * Add an option where you choose to blink channels when there is a new message
+    in non-aeolus channel(#904)
 
 Contributors:
  - Wesmania
