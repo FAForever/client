@@ -118,7 +118,7 @@ class ReplayItem(QtWidgets.QTreeWidgetItem):
 
         self._map_dl_request = PreviewDownloadRequest()
         self._map_dl_request.done.connect(self._on_map_preview_downloaded)
-    
+
     def update(self, message, client):
         """ Updates this item from the message dictionary supplied """
         

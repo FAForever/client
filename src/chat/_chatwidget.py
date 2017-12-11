@@ -15,7 +15,6 @@ import chat
 from chat import user2name, parse_irc_source
 from chat.channel import Channel
 from chat.irclib import SimpleIRCClient, ServerConnectionError
-import notifications as ns
 
 from model.ircuserset import IrcUserset
 from model.ircuser import IrcUser
@@ -57,7 +56,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
         # avatar downloader
         self.nam = QNetworkAccessManager()
-        self.nam.finished.connect(self.finishDownloadAvatar)
+        self.nam.finished.connect(self.finish_download_avatar)
 
         # nickserv stuff
         self.identified = False
@@ -75,11 +74,11 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         # load UI perform some tweaks
         self.tabBar().setTabButton(0, 1, None)
 
-        self.tabCloseRequested.connect(self.closeChannel)
+        self.tabCloseRequested.connect(self.close_channel)
 
         # Hook with client's connection and autojoin mechanisms
         self.client.authorized.connect(self.connect)
-        self.client.autoJoin.connect(self.autoJoin)
+        self.client.autoJoin.connect(self.auto_join)
         self.channelsAvailable = []
 
         self._notifier = None
@@ -118,7 +117,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             self.serverLogArea.appendPlainText("Unable to connect to the chat server, but you should still be able to host and join games.")
             logger.error("IRC Exception", exc_info=sys.exc_info())
 
-    def finishDownloadAvatar(self, reply):
+    def finish_download_avatar(self, reply):
         """ this take care of updating the avatars of players once they are downloaded """
         img = QtGui.QImage()
         img.loadFromData(reply.readAll())
@@ -131,25 +130,25 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             channel = chatter.channel
             ircuser = chatter.user
             if ircuser in channel.chatters:
-                chatter.updateAvatar()
+                chatter.update_avatar()
         util.delDownloadAvatar(url)
 
-    def addChannel(self, name, channel, index = None):
+    def add_channel(self, name, channel, index = None):
         self.channels[name] = channel
         if index is None:
             self.addTab(self.channels[name], name)
         else:
             self.insertTab(index, self.channels[name], name)
 
-    def sortChannels(self):
+    def sort_channels(self):
         for channel in self.channels.values():
-            channel.sortChatters()
+            channel.sort_chatters()
 
-    def updateChannels(self):
+    def update_channels(self):
         for channel in self.channels.values():
-            channel.updateChatters()
+            channel.update_chatters()
 
-    def closeChannel(self, index):
+    def close_channel(self, index):
         """
         Closes a channel tab.
         """
@@ -172,12 +171,12 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         """
         logger.debug("BROADCAST:" + broadcast)
         for channel in self.crucialChannels:
-            self.sendMsg(channel, broadcast)
+            self.send_msg(channel, broadcast)
 
-    def setTopic(self,chan,topic):
-        self.connection.topic(chan,topic)
+    def set_topic(self, chan, topic):
+        self.connection.topic(chan, topic)
 
-    def sendMsg(self, target, text):
+    def send_msg(self, target, text):
         if self.connection.is_connected():
             self.connection.privmsg(target, text)
             return True
@@ -185,10 +184,10 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             logger.error("IRC connection lost.")
             for channel in self.crucialChannels:
                 if channel in self.channels:
-                    self.channels[channel].printRaw("Server", "IRC is disconnected")
+                    self.channels[channel].print_raw("Server", "IRC is disconnected")
             return False
 
-    def sendAction(self, target, text):
+    def send_action(self, target, text):
         if self.connection.is_connected():
             self.connection.action(target, text)
             return True
@@ -196,25 +195,25 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             logger.error("IRC connection lost.")
             for channel in self.crucialChannels:
                 if channel in self.channels:
-                    self.channels[channel].printAction("IRC", "was disconnected.")
+                    self.channels[channel].print_action("IRC", "was disconnected.")
             return False
 
-    def openQuery(self, chatter, activate=False):
+    def open_query(self, chatter, activate=False):
         # Ignore ourselves.
         if chatter.name == self.client.login:
             return False
 
         if chatter.name not in self.channels:
             priv_chan = Channel(self, chatter.name, self._chatters, self._me, True)
-            self.addChannel(chatter.name, priv_chan)
+            self.add_channel(chatter.name, priv_chan)
 
             # Add participants to private channel
-            priv_chan.addChatter(chatter)
+            priv_chan.add_chatter(chatter)
 
             if self.client.me.login is not None:
                 my_login = self.client.me.login
                 if my_login in self._chatters:
-                    priv_chan.addChatter(self._chatters[my_login])
+                    priv_chan.add_chatter(self._chatters[my_login])
 
             if activate:
                 self.setCurrentWidget(priv_chan)
@@ -222,7 +221,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         return True
 
     @QtCore.pyqtSlot(list)
-    def autoJoin(self, channels):
+    def auto_join(self, channels):
         for channel in channels:
             if channel in self.channels:
                 continue
@@ -240,7 +239,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
     def log_event(self, e):
         self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))
 
-    def shouldIgnore(self, chatter):
+    def should_ignore(self, chatter):
         # Don't ignore mods from any crucial channels
         if any(chatter.is_mod(c) for c in self.crucialChannels):
             return False
@@ -254,7 +253,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.log_event(e)
         self.welcomed = True
 
-    def nickservIdentify(self):
+    def nickserv_identify(self):
         if not self.identified:
             self.serverLogArea.appendPlainText("[Identify as : %s]" % self.client.login)
             self.connection.privmsg('NickServ', 'identify %s %s' % (self.client.login, util.md5text(self.client.password)))
@@ -264,9 +263,9 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             self.serverLogArea.appendPlainText("[Retrieving our nickname : %s]" % (self.client.login))
             self.connection.privmsg('NickServ', 'recover %s %s' % (self.client.login, util.md5text(self.client.password)))
         # Perform any pending autojoins (client may have emitted autoJoin signals before we talked to the IRC server)
-        self.autoJoin(self.optionalChannels)
-        self.autoJoin(self.crucialChannels)
-        self.autoJoin(self.auto_join_channels)
+        self.auto_join(self.optionalChannels)
+        self.auto_join(self.crucialChannels)
+        self.auto_join(self.auto_join_channels)
         self._schedule_actions_at_player_available()
 
     def _schedule_actions_at_player_available(self):
@@ -283,22 +282,22 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             return
         game_number_threshold = 50
         if self.client.me.player.number_of_games <= game_number_threshold:
-            self.autoJoin(["#newbie"])
+            self.auto_join(["#newbie"])
 
-    def nickservRegister(self):
+    def nickserv_register(self):
         if hasattr(self, '_nickserv_registered'):
             return
         self.connection.privmsg('NickServ', 'register %s %s' % (util.md5text(self.client.password), '{}@users.faforever.com'.format(self.client.me.login)))
         self._nickserv_registered = True
-        self.autoJoin(self.optionalChannels)
-        self.autoJoin(self.crucialChannels)
+        self.auto_join(self.optionalChannels)
+        self.auto_join(self.crucialChannels)
 
     def on_version(self, c, e):
         self.connection.privmsg(e.source(), "Forged Alliance Forever " + util.VERSION_STRING)
 
     def on_motd(self, c, e):
         self.log_event(e)
-        self.nickservIdentify()
+        self.nickserv_identify()
 
     def on_endofmotd(self, c, e):
         self.log_event(e)
@@ -332,11 +331,11 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
     def _add_chatter_channel(self, chatter, elevation, channel, join):
         chatter.set_elevation(channel, elevation)
-        self.channels[channel].addChatter(chatter, join)
+        self.channels[channel].add_chatter(chatter, join)
 
     def _remove_chatter_channel(self, chatter, channel, msg):
         chatter.set_elevation(channel, None)
-        self.channels[channel].removeChatter(msg)
+        self.channels[channel].remove_chatter(msg)
 
     def on_whoisuser(self, c, e):
         self.log_event(e)
@@ -348,16 +347,16 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         if channel not in self.channels:
             newch = Channel(self, channel, self._chatters, self._me)
             if channel.lower() in self.crucialChannels:
-                self.addChannel(channel, newch, 1)  # CAVEAT: This is assumes a server tab exists.
-                self.client.localBroadcast.connect(newch.printRaw)
-                newch.printAnnouncement("Welcome to Forged Alliance Forever!", "red", "+3")
+                self.add_channel(channel, newch, 1)  # CAVEAT: This is assumes a server tab exists.
+                self.client.localBroadcast.connect(newch.print_raw)
+                newch.print_announcement("Welcome to Forged Alliance Forever!", "red", "+3")
                 wiki_link = Settings.get("WIKI_URL")
                 wiki_msg = "Check out the wiki: {} for help with common issues.".format(wiki_link)
-                newch.printAnnouncement(wiki_msg, "white", "+1")
-                newch.printAnnouncement("", "black", "+1")
-                newch.printAnnouncement("", "black", "+1")
+                newch.print_announcement(wiki_msg, "white", "+1")
+                newch.print_announcement("", "black", "+1")
+                newch.print_announcement("", "black", "+1")
             else:
-                self.addChannel(channel, newch)
+                self.add_channel(channel, newch)
 
             if channel.lower() in self.crucialChannels:  # Make the crucial channels not closeable, and make the last one the active one
                 self.setCurrentWidget(self.channels[channel])
@@ -404,9 +403,9 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             return
         chatter = self._chatters[name]
 
-        self.elevateChatter(chatter, e.target(), e.arguments()[0])
+        self.elevate_chatter(chatter, e.target(), e.arguments()[0])
 
-    def elevateChatter(self, chatter, channel, modes):
+    def elevate_chatter(self, chatter, channel, modes):
         add = re.compile(".*\+([a-z]+)")
         remove = re.compile(".*\-([a-z]+)")
 
@@ -440,12 +439,12 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
     def on_topic(self, c, e):
         channel = e.target()
         if channel in self.channels:
-            self.channels[channel].setAnnounceText(" ".join(e.arguments()))
+            self.channels[channel].set_announce_text(" ".join(e.arguments()))
 
     def on_currenttopic(self, c, e):
         channel = e.arguments()[0]
         if channel in self.channels:
-            self.channels[channel].setAnnounceText(" ".join(e.arguments()[1:]))
+            self.channels[channel].set_announce_text(" ".join(e.arguments()[1:]))
 
     def on_topicinfo(self, c, e):
         self.log_event(e)
@@ -462,8 +461,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         if name not in self._chatters or target not in self.channels:
             return
 
-        if not self.shouldIgnore(self._chatters[name]):
-            self.channels[target].printMsg(name, "\n".join(e.arguments()))
+        if not self.should_ignore(self._chatters[name]):
+            self.channels[target].print_msg(name, "\n".join(e.arguments()))
 
     def on_privnotice(self, c, e):
         source = user2name(e.source())
@@ -479,7 +478,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
                     self.on_identified()
 
             elif notice.find("isn't registered") >= 0:
-                self.nickservRegister()
+                self.nickserv_register()
 
             elif notice.find("RELEASE") >= 0:
                 self.connection.privmsg('nickserv', 'release %s %s' % (self.client.login, util.md5text(self.client.password)))
@@ -489,17 +488,17 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
         message = "\n".join(e.arguments()).lstrip(prefix)
         if target in self.channels:
-            self.channels[target].printMsg(source, message)
+            self.channels[target].print_msg(source, message)
         elif source == "Global":
             for channel in self.channels:
                 if not channel in self.crucialChannels:
                     continue
-                self.channels[channel].printAnnouncement(message, "yellow", "+2")
+                self.channels[channel].print_announcement(message, "yellow", "+2")
         elif source == "AeonCommander":
             for channel in self.channels:
                 if not channel in self.crucialChannels:
                     continue
-                self.channels[channel].printMsg(source, message)
+                self.channels[channel].print_msg(source, message)
         else:
             self.serverLogArea.appendPlainText("%s: %s" % (source, notice))
 
@@ -517,12 +516,12 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             return
         chatter = self._chatters[name]
 
-        if self.shouldIgnore(chatter):
+        if self.should_ignore(chatter):
             return
 
         # Create a Query if it's not open yet, and post to it if it exists.
-        if self.openQuery(chatter):
-            self.channels[name].printMsg(name, "\n".join(e.arguments()))
+        if self.open_query(chatter):
+            self.channels[name].print_msg(name, "\n".join(e.arguments()))
 
     def on_action(self, c, e):
         name, id, elevation, hostname = parse_irc_source(e.source())
@@ -531,18 +530,18 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         chatter = self._chatters[name]
         target = e.target()
 
-        if self.shouldIgnore(chatter):
+        if self.should_ignore(chatter):
             return
 
         # Create a Query if it's not an action intended for a channel
         if target not in self.channels:
-            self.openQuery(chatter)
-            self.channels[name].printAction(name, "\n".join(e.arguments()))
+            self.open_query(chatter)
+            self.channels[name].print_action(name, "\n".join(e.arguments()))
         else:
-            self.channels[target].printAction(name, "\n".join(e.arguments()))
+            self.channels[target].print_action(name, "\n".join(e.arguments()))
 
     def on_nosuchnick(self, c, e):
-        self.nickservRegister()
+        self.nickserv_register()
 
     def on_default(self, c, e):
         self.serverLogArea.appendPlainText("[%s: %s->%s]" % (e.eventtype(), e.source(), e.target()) + "\n".join(e.arguments()))

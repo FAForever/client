@@ -29,8 +29,7 @@ from model.player import Player
 from model.playerset import Playerset
 from modvault.utils import MODFOLDER
 import notifications as ns
-import replays
-import secondaryServer
+from secondaryServer import SecondaryServer
 import time
 import util
 from ui.status_logo import StatusLogo
@@ -195,7 +194,7 @@ class ClientWindow(FormClass, BaseClass):
         self.connectivity = None  # type: ConnectivityHelper
 
         # stat server
-        self.statsServer = secondaryServer.SecondaryServer("Statistic", 11002, self.lobby_dispatch)
+        self.statsServer = SecondaryServer("Statistic", 11002, self.lobby_dispatch)
 
         # create user interface (main window) and load theme
         self.setupUi(self)
@@ -422,7 +421,7 @@ class ClientWindow(FormClass, BaseClass):
 
     def mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
-            if self.mousePosition.isOnEdge() and self.maxNormal == False:
+            if self.mousePosition.isOnEdge() and not self.maxNormal:
                 self.dragging = True
                 return
             else:
@@ -452,7 +451,7 @@ class ClientWindow(FormClass, BaseClass):
 
             else:
                 self.rubberBand.hide()
-                if self.maxNormal == True:
+                if self.maxNormal:
                     self.showMaxRestore()
 
             self.move(event.globalPos() - self.offset)
@@ -507,16 +506,16 @@ class ClientWindow(FormClass, BaseClass):
             self.setGeometry(newRect)
 
     def setup(self):
-        import news
-        import chat
-        import coop
-        import games
-        import tutorials
-        import stats
-        import tourneys
-        import vault
-        import modvault
-        import downloadManager
+        from news import NewsWidget
+        from chat import ChatWidget
+        from coop import CoopWidget
+        from games import GamesWidget
+        from tutorials import TutorialsWidget
+        from stats import StatsWidget
+        from tourneys import TournamentsWidget
+        from vault import MapVault
+        from modvault import ModVault
+        from replays import ReplaysWidget
         from chat._avatarWidget import AvatarWidget
 
         self.loadSettings()
@@ -528,19 +527,19 @@ class ClientWindow(FormClass, BaseClass):
                                             self.map_downloader)
 
         # build main window with the now active client
-        self.news = news.NewsWidget(self)
-        self.chat = chat.ChatWidget(self, self.players, self.me)
-        self.coop = coop.CoopWidget(self, self.game_model, self.me,
-                                    self.gameview_builder, self.game_launcher)
-        self.games = games.GamesWidget(self, self.game_model, self.me,
-                                       self.gameview_builder, self.game_launcher)
-        self.tutorials = tutorials.TutorialsWidget(self)
-        self.ladder = stats.StatsWidget(self)
-        self.tourneys = tourneys.TournamentsWidget(self)
-        self.replays = replays.ReplaysWidget(self, self.lobby_dispatch,
-                                             self.gameset, self.players)
-        self.mapvault = vault.MapVault(self)
-        self.modvault = modvault.ModVault(self)
+        self.news = NewsWidget(self)
+        self.chat = ChatWidget(self, self.players, self.me)
+        self.coop = CoopWidget(self, self.game_model, self.me,
+                               self.gameview_builder, self.game_launcher)
+        self.games = GamesWidget(self, self.game_model, self.me,
+                                 self.gameview_builder, self.game_launcher)
+        self.tutorials = TutorialsWidget(self)
+        self.ladder = StatsWidget(self)
+        self.tourneys = TournamentsWidget(self)
+        self.replays = ReplaysWidget(self, self.lobby_dispatch,
+                                     self.gameset, self.players)
+        self.mapvault = MapVault(self)
+        self.modvault = ModVault(self)
         self.notificationSystem = ns.Notifications(self, self.gameset,
                                                    self.players, self.me)
 
@@ -780,13 +779,13 @@ class ClientWindow(FormClass, BaseClass):
         self.player_colors.coloredNicknames = self.actionColoredNicknames.isChecked()
         if self.friendsontop != self.actionFriendsOnTop.isChecked():
             self.friendsontop = self.actionFriendsOnTop.isChecked()
-            self.chat.sortChannels()
+            self.chat.sort_channels()
 
         self.saveChat()
 
     def toggleChatMaps(self):
         self.updateOptions()
-        self.chat.updateChannels()
+        self.chat.update_channels()
 
     @QtCore.pyqtSlot()
     def switchPath(self):

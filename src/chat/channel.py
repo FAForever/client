@@ -48,15 +48,15 @@ class ScheduledCall(QtCore.QObject):
         QtCore.QObject.__init__(self)
         self._fn = fn
         self._called = False
-        self._call.connect(self._runCall, QtCore.Qt.QueuedConnection)
+        self._call.connect(self._run_call, QtCore.Qt.QueuedConnection)
 
-    def scheduleCall(self):
+    def schedule_call(self):
         if self._called:
             return
         self._called = True
         self._call.emit()
 
-    def _runCall(self):
+    def _run_call(self):
         self._called = False
         self._fn()
 
@@ -76,7 +76,7 @@ class Channel(FormClass, BaseClass):
         self.items = {}
         self._chatterset = chatterset
         self._me = me
-        chatterset.userRemoved.connect(self._checkUserQuit)
+        chatterset.userRemoved.connect(self._check_user_quit)
 
         self.last_timestamp = None
 
@@ -86,7 +86,7 @@ class Channel(FormClass, BaseClass):
         self.blinked = False
 
         # Table width of each chatter's name cell...
-        self.maxChatterWidth = 100  # TODO: This might / should auto-adapt
+        self.max_chatter_width = 100  # TODO: This might / should auto-adapt
 
         # count the number of line currently in the chat
         self.lines = 0
@@ -95,7 +95,7 @@ class Channel(FormClass, BaseClass):
         self.name = name
         self.private = private
 
-        self.sortCall = ScheduledCall(self.sortChatters)
+        self.sort_call = ScheduledCall(self.sort_chatters)
 
         if not self.private:
             # Properly and snugly snap all the columns
@@ -109,31 +109,31 @@ class Channel(FormClass, BaseClass):
             self.nickList.horizontalHeader().resizeSection(Chatter.STATUS_COLUMN, Formatters.NICKLIST_COLUMNS['STATUS'])
 
             self.nickList.horizontalHeader().setSectionResizeMode(Chatter.MAP_COLUMN, QtWidgets.QHeaderView.Fixed)
-            self.resizeMapColumn()  # The map column can be toggled. Make sure it respects the settings
+            self.resize_map_column()  # The map column can be toggled. Make sure it respects the settings
 
             self.nickList.horizontalHeader().setSectionResizeMode(Chatter.SORT_COLUMN, QtWidgets.QHeaderView.Stretch)
 
-            self.nickList.itemDoubleClicked.connect(self.nickDoubleClicked)
-            self.nickList.itemPressed.connect(self.nickPressed)
+            self.nickList.itemDoubleClicked.connect(self.nick_double_clicked)
+            self.nickList.itemPressed.connect(self.nick_pressed)
 
-            self.nickFilter.textChanged.connect(self.filterNicks)
+            self.nickFilter.textChanged.connect(self.filter_nicks)
 
         else:
             self.nickFrame.hide()
             self.announceLine.hide()
 
-        self.chatArea.anchorClicked.connect(self.openUrl)
-        self.chatEdit.returnPressed.connect(self.sendLine)
-        self.chatEdit.setChatters(self.chatters)
+        self.chatArea.anchorClicked.connect(self.open_url)
+        self.chatEdit.returnPressed.connect(self.send_line)
+        self.chatEdit.set_chatters(self.chatters)
 
-    def sortChatters(self):
+    def sort_chatters(self):
         self.nickList.sortItems(Chatter.SORT_COLUMN)
 
-    def joinChannel(self, index):
+    def join_channel(self, index):
         """ join another channel """
         channel = self.channelsComboBox.itemText(index)
         if channel.startswith('#'):
-            self.chat_widget.autoJoin([channel])
+            self.chat_widget.auto_join([channel])
 
     def keyReleaseEvent(self, keyevent):
         """
@@ -144,14 +144,14 @@ class Channel(FormClass, BaseClass):
 
     def resizeEvent(self, size):
         BaseClass.resizeEvent(self, size)
-        self.setTextWidth()
+        self.set_text_width()
 
-    def setTextWidth(self):
+    def set_text_width(self):
         self.chatArea.setLineWrapColumnOrWidth(self.chatArea.size().width() - 20)  # Hardcoded, but seems to be enough (tabstop was a bit large)
 
     def showEvent(self, event):
-        self.stopBlink()
-        self.setTextWidth()
+        self.stop_blink()
+        self.set_text_width()
         return BaseClass.showEvent(self, event)
 
     @QtCore.pyqtSlot()
@@ -161,16 +161,16 @@ class Channel(FormClass, BaseClass):
             self.last_timestamp = 0
 
     @QtCore.pyqtSlot()
-    def filterNicks(self):
+    def filter_nicks(self):
         for chatter in self.chatters.values():
-            chatter.setVisible(chatter.isFiltered(self.nickFilter.text().lower()))
+            chatter.set_visible(chatter.is_filtered(self.nickFilter.text().lower()))
 
-    def updateUserCount(self):
+    def update_user_count(self):
         count = len(self.chatters)
         self.nickFilter.setPlaceholderText(str(count) + " users... (type to filter)")
 
         if self.nickFilter.text():
-            self.filterNicks()
+            self.filter_nicks()
 
     @QtCore.pyqtSlot()
     def blink(self):
@@ -182,29 +182,29 @@ class Channel(FormClass, BaseClass):
             self.chat_widget.tabBar().setTabText(self.chat_widget.indexOf(self), "")
 
     @QtCore.pyqtSlot()
-    def stopBlink(self):
+    def stop_blink(self):
         self.blinker.stop()
         self.chat_widget.tabBar().setTabText(self.chat_widget.indexOf(self), self.name)
 
     @QtCore.pyqtSlot()
-    def startBlink(self):
+    def start_blink(self):
         self.blinker.start(QUERY_BLINK_SPEED)
 
     @QtCore.pyqtSlot()
-    def pingWindow(self):
+    def ping_window(self):
         QtWidgets.QApplication.alert(self.chat_widget.client)
 
         if not self.isVisible() or QtWidgets.QApplication.activeWindow() != self.chat_widget.client:
-            if self.oneMinuteOrOlder():
+            if self.one_minute_or_older():
                 if self.chat_widget.client.soundeffects:
                     util.THEME.sound("chat/sfx/query.wav")
 
         if not self.isVisible():
             if not self.blinker.isActive() and not self == self.chat_widget.currentWidget():
-                self.startBlink()
+                self.start_blink()
 
     @QtCore.pyqtSlot(QtCore.QUrl)
-    def openUrl(self, url):
+    def open_url(self, url):
         logger.debug("Clicked on URL: " + url.toString())
         if url.scheme() == "faflive":
             replay(url)
@@ -213,7 +213,7 @@ class Channel(FormClass, BaseClass):
         else:
             QtGui.QDesktopServices.openUrl(url)
 
-    def printAnnouncement(self, text, color, size, scroll_forced = True):
+    def print_announcement(self, text, color, size, scroll_forced=True):
         # scroll if close to the last line of the log
         scroll_current = self.chatArea.verticalScrollBar().value()
         scroll_needed = scroll_forced or ((self.chatArea.verticalScrollBar().maximum() - scroll_current) < 20)
@@ -231,7 +231,7 @@ class Channel(FormClass, BaseClass):
         else:
             self.chatArea.verticalScrollBar().setValue(scroll_current)
 
-    def printLine(self, chname, text, scroll_forced=False, formatter=Formatters.FORMATTER_MESSAGE):
+    def print_line(self, chname, text, scroll_forced=False, formatter=Formatters.FORMATTER_MESSAGE):
         if self.lines > CHAT_TEXT_LIMIT:
             cursor = self.chatArea.textCursor()
             cursor.movePosition(QtGui.QTextCursor.Start)
@@ -256,7 +256,7 @@ class Channel(FormClass, BaseClass):
         is_quit_msg = formatter is Formatters.FORMATTER_RAW and text == "quit."
         private_msg = self.private and not is_quit_msg
         if (mentioned or private_msg) and sender_is_not_me:
-            self.pingWindow()
+            self.ping_window()
 
         avatar = None
         avatarTip = ""
@@ -295,7 +295,7 @@ class Channel(FormClass, BaseClass):
             formatter = Formatters.convert_to_no_avatar(formatter)
 
         line = formatter.format(time=self.timestamp(), avatar=avatar, avatarTip=avatarTip, name=displayName,
-                                color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.chat_widget.a_style))
+                                color=color, width=self.max_chatter_width, text=util.irc_escape(text, self.chat_widget.a_style))
         self.chatArea.insertHtml(line)
         self.lines += 1
 
@@ -322,23 +322,23 @@ class Channel(FormClass, BaseClass):
             return False
         return True
 
-    def printMsg(self, chname, text, scroll_forced=False):
+    def print_msg(self, chname, text, scroll_forced=False):
         if self._chname_has_avatar(chname) and not self.private:
             fmt = Formatters.FORMATTER_MESSAGE_AVATAR
         else:
             fmt = Formatters.FORMATTER_MESSAGE
-        self.printLine(chname, text, scroll_forced, fmt)
+        self.print_line(chname, text, scroll_forced, fmt)
 
-    def printAction(self, chname, text, scroll_forced=False, server_action=False):
+    def print_action(self, chname, text, scroll_forced=False, server_action=False):
         if server_action:
             fmt = Formatters.FORMATTER_RAW
         elif self._chname_has_avatar(chname) and not self.private:
             fmt = Formatters.FORMATTER_ACTION_AVATAR
         else:
             fmt = Formatters.FORMATTER_ACTION
-        self.printLine(chname, text, scroll_forced, fmt)
+        self.print_line(chname, text, scroll_forced, fmt)
 
-    def printRaw(self, chname, text, scroll_forced=False):
+    def print_raw(self, chname, text, scroll_forced=False):
         """
         Print an raw message in the chatArea of the channel
         """
@@ -352,7 +352,7 @@ class Channel(FormClass, BaseClass):
 
         # Play a ping sound
         if self.private and chname != self.chat_widget.client.login:
-            self.pingWindow()
+            self.ping_window()
 
         # scroll if close to the last line of the log
         scroll_current = self.chatArea.verticalScrollBar().value()
@@ -363,7 +363,7 @@ class Channel(FormClass, BaseClass):
         self.chatArea.setTextCursor(cursor)
 
         formatter = Formatters.FORMATTER_RAW
-        line = formatter.format(time=self.timestamp(), name=chname, color=color, width=self.maxChatterWidth, text=text)
+        line = formatter.format(time=self.timestamp(), name=chname, color=color, width=self.max_chatter_width, text=text)
         self.chatArea.insertHtml(line)
 
         if scroll_needed:
@@ -380,38 +380,38 @@ class Channel(FormClass, BaseClass):
         else:
             return ""
 
-    def oneMinuteOrOlder(self):
+    def one_minute_or_older(self):
         timestamp = time.strftime("%H:%M")
         return self.last_timestamp != timestamp
 
     @QtCore.pyqtSlot(QtWidgets.QTableWidgetItem)
-    def nickDoubleClicked(self, item):
+    def nick_double_clicked(self, item):
         chatter = self.nickList.item(item.row(), Chatter.SORT_COLUMN)  # Look up the associated chatter object
-        chatter.doubleClicked(item)
+        chatter.double_clicked(item)
 
     @QtCore.pyqtSlot(QtWidgets.QTableWidgetItem)
-    def nickPressed(self, item):
+    def nick_pressed(self, item):
         if QtWidgets.QApplication.mouseButtons() == QtCore.Qt.RightButton:
             # Look up the associated chatter object
             chatter = self.nickList.item(item.row(), Chatter.SORT_COLUMN)
             chatter.pressed(item)
 
-    def updateChatters(self):
+    def update_chatters(self):
         """
         Triggers all chatters to update their status. Called when toggling map icon display in settings
         """
         for _, chatter in self.chatters.items():
             chatter.update()
 
-        self.resizeMapColumn()
+        self.resize_map_column()
 
-    def resizeMapColumn(self):
+    def resize_map_column(self):
         if util.settings.value("chat/chatmaps", False):
             self.nickList.horizontalHeader().resizeSection(Chatter.MAP_COLUMN, Formatters.NICKLIST_COLUMNS['MAP'])
         else:
             self.nickList.horizontalHeader().resizeSection(Chatter.MAP_COLUMN, 0)
 
-    def addChatter(self, chatter, join=False):
+    def add_chatter(self, chatter, join=False):
         """
         Adds an user to this chat channel, and assigns an appropriate icon depending on friendship and FAF player status
         """
@@ -422,38 +422,38 @@ class Channel(FormClass, BaseClass):
 
         self.chatters[chatter].update()
 
-        self.updateUserCount()
+        self.update_user_count()
 
         if join and self.chat_widget.client.joinsparts:
-            self.printAction(chatter.name, "joined the channel.", server_action=True)
+            self.print_action(chatter.name, "joined the channel.", server_action=True)
 
-    def removeChatter(self, chatter, server_action=None):
+    def remove_chatter(self, chatter, server_action=None):
         if chatter in self.chatters:
             self.nickList.removeRow(self.chatters[chatter].row())
             del self.chatters[chatter]
 
             if server_action and (self.chat_widget.client.joinsparts or self.private):
-                self.printAction(chatter.name, server_action, server_action=True)
-                self.stopBlink()
+                self.print_action(chatter.name, server_action, server_action=True)
+                self.stop_blink()
 
-        self.updateUserCount()
+        self.update_user_count()
 
-    def verifySortOrder(self, chatter):
+    def verify_sort_order(self, chatter):
         row = chatter.row()
         next_chatter = self.nickList.item(row + 1, Chatter.SORT_COLUMN)
         prev_chatter = self.nickList.item(row - 1, Chatter.SORT_COLUMN)
 
         if (next_chatter is not None and chatter > next_chatter or
            prev_chatter is not None and chatter < prev_chatter):
-            self.sortCall.scheduleCall()
+            self.sort_call.schedule_call()
 
-    def setAnnounceText(self, text):
+    def set_announce_text(self, text):
         self.announceLine.clear()
         self.announceLine.setText("<style>a{color:cornflowerblue}</style><b><font color=white>" + util.irc_escape(text) + "</font></b>")
 
     @QtCore.pyqtSlot()
-    def sendLine(self, target=None):
-        self.stopBlink()
+    def send_line(self, target=None):
+        self.stop_blink()
 
         if not target:
             target = self.name  # pubmsg in channel
@@ -475,24 +475,24 @@ class Channel(FormClass, BaseClass):
                 if text.startswith("/join "):
                     self.chat_widget.join(text[6:])
                 elif text.startswith("/topic "):
-                    self.chat_widget.setTopic(self.name, text[7:])
+                    self.chat_widget.set_topic(self.name, text[7:])
                 elif text.startswith("/msg "):
                     blobs = text.split(" ")
-                    self.chat_widget.sendMsg(blobs[1], " ".join(blobs[2:]))
+                    self.chat_widget.send_msg(blobs[1], " ".join(blobs[2:]))
                 elif text.startswith("/me "):
-                    if self.chat_widget.sendAction(target, text[4:]):
-                        self.printAction(self.chat_widget.client.login, text[4:], True)
+                    if self.chat_widget.send_action(target, text[4:]):
+                        self.print_action(self.chat_widget.client.login, text[4:], True)
                     else:
-                        self.printAction("IRC", "action not supported", True)
+                        self.print_action("IRC", "action not supported", True)
                 elif text.startswith("/seen "):
-                    if self.chat_widget.sendMsg("nickserv", "info %s" % (text[6:])):
-                        self.printAction("IRC", "info requested on %s" % (text[6:]), True)
+                    if self.chat_widget.send_msg("nickserv", "info %s" % (text[6:])):
+                        self.print_action("IRC", "info requested on %s" % (text[6:]), True)
                     else:
-                        self.printAction("IRC", "not connected", True)
+                        self.print_action("IRC", "not connected", True)
             else:
-                if self.chat_widget.sendMsg(target, text):
-                    self.printMsg(self.chat_widget.client.login, text, True)
+                if self.chat_widget.send_msg(target, text):
+                    self.print_msg(self.chat_widget.client.login, text, True)
         self.chatEdit.clear()
 
-    def _checkUserQuit(self, chatter):
-        self.removeChatter(chatter, 'quit.')
+    def _check_user_quit(self, chatter):
+        self.remove_chatter(chatter, 'quit.')

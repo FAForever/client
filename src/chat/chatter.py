@@ -46,8 +46,8 @@ class Chatter(QtWidgets.QTableWidgetItem):
         self.channel = channel
 
         self._me = me
-        self._me.relationsUpdated.connect(self._checkPlayerRelation)
-        self._me.ircRelationsUpdated.connect(self._checkUserRelation)
+        self._me.relationsUpdated.connect(self._check_player_relation)
+        self._me.ircRelationsUpdated.connect(self._check_user_relation)
 
         self._map_dl_request = PreviewDownloadRequest()
         self._map_dl_request.done.connect(self._on_map_downloaded)
@@ -99,14 +99,14 @@ class Chatter(QtWidgets.QTableWidgetItem):
     def user(self, value):
         if self._user is not None:
             self.user_player = None  # Clears game as well
-            self._user.updated.disconnect(self.updateUser)
+            self._user.updated.disconnect(self.update_user)
             self._user.newPlayer.disconnect(self._set_user_player)
 
         self._user = value
-        self.updateUser()
+        self.update_user()
 
         if self._user is not None:
-            self._user.updated.connect(self.updateUser)
+            self._user.updated.connect(self.update_user)
             self._user.newPlayer.connect(self._set_user_player)
             self.user_player = self._user.player
 
@@ -121,14 +121,14 @@ class Chatter(QtWidgets.QTableWidgetItem):
     def user_player(self, value):
         if self._user_player is not None:
             self.user_game = None
-            self._user_player.updated.disconnect(self.updatePlayer)
+            self._user_player.updated.disconnect(self.update_player)
             self._user_player.newCurrentGame.disconnect(self._set_user_game)
 
         self._user_player = value
-        self.updatePlayer()
+        self.update_player()
 
         if self._user_player is not None:
-            self._user_player.updated.connect(self.updatePlayer)
+            self._user_player.updated.connect(self.update_player)
             self._user_player.newCurrentGame.connect(self._set_user_game)
             self.user_game = self._user_player.currentGame
 
@@ -142,30 +142,30 @@ class Chatter(QtWidgets.QTableWidgetItem):
     @user_game.setter
     def user_game(self, value):
         if self._user_game is not None:
-            self._user_game.gameUpdated.disconnect(self.updateGame)
-            self._user_game.liveReplayAvailable.disconnect(self.updateGame)
+            self._user_game.gameUpdated.disconnect(self.update_game)
+            self._user_game.liveReplayAvailable.disconnect(self.update_game)
 
         self._user_game = value
-        self.updateGame()
+        self.update_game()
 
         if self._user_game is not None:
-            self._user_game.gameUpdated.connect(self.updateGame)
-            self._user_game.liveReplayAvailable.connect(self.updateGame)
+            self._user_game.gameUpdated.connect(self.update_game)
+            self._user_game.liveReplayAvailable.connect(self.update_game)
 
-    def _checkPlayerRelation(self, players):
+    def _check_player_relation(self, players):
         if self.user_player is None:
             return
 
         if self.user_player.id in players:
             self.set_color()
-            self._verifySortOrder()
+            self._verify_sort_order()
 
-    def _checkUserRelation(self, users):
+    def _check_user_relation(self, users):
         if self.user.name in users:
             self.set_color()
-            self._verifySortOrder()
+            self._verify_sort_order()
 
-    def isFiltered(self, _filter):
+    def is_filtered(self, _filter):
         clan = None if self.user_player is None else self.user_player.clan
         clan = clan if clan is not None else ""
         name = self.user.name
@@ -173,7 +173,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
             return True
         return False
 
-    def setVisible(self, visible):
+    def set_visible(self, visible):
         if visible:
             self.tableWidget().showRow(self.row())
         else:
@@ -201,11 +201,11 @@ class Chatter(QtWidgets.QTableWidgetItem):
         # Default: Alphabetical
         return self.user.name.lower() < other.user.name.lower()
 
-    def _verifySortOrder(self):
+    def _verify_sort_order(self):
         if self.row() != -1:
-            self.channel.verifySortOrder(self)
+            self.channel.verify_sort_order(self)
 
-    def _getIdName(self):
+    def _get_id_name(self):
         _id = -1 if self.user_player is None else self.user_player.id
         name = self.user.name
         return _id, name
@@ -213,8 +213,8 @@ class Chatter(QtWidgets.QTableWidgetItem):
     def get_user_rank(self, user):
         # TODO: Add subdivision for admin?
         me = self._me
-        _id, name = user._getIdName()
-        if user.modElevation():
+        _id, name = user._get_id_name()
+        if user.mod_elevation():
             return self.RANK_ELEVATION
         if me.isFriend(_id, name):
             return self.RANK_FRIEND - (2 if self.chat_widget.client.friendsontop else 0)
@@ -225,12 +225,12 @@ class Chatter(QtWidgets.QTableWidgetItem):
 
         return self.RANK_NONPLAYER
 
-    def modElevation(self):
+    def mod_elevation(self):
         if not self.user.is_mod(self.channel.name):
             return None
         return self.user.elevation[self.channel.name]
 
-    def updateAvatar(self):
+    def update_avatar(self):
         # FIXME: prodding the underlying C++ object to see if it exists
         # Needed if we're gone while downloading our avatar
         # We don't subclass QObject, so we have to do it this way
@@ -238,7 +238,6 @@ class Chatter(QtWidgets.QTableWidgetItem):
             self.isSelected()
         except RuntimeError:
             return
-
         try:
             avatar = self.user_player.avatar
         except AttributeError:
@@ -267,16 +266,16 @@ class Chatter(QtWidgets.QTableWidgetItem):
         else:
             self.setText(self.user.name)
 
-    def updateUser(self):
+    def update_user(self):
         self.set_chatter_name()
         self.set_color()
-        self._verifySortOrder()
+        self._verify_sort_order()
 
-    def updatePlayer(self):
+    def update_player(self):
         self.set_chatter_name()
         self.update_rank()
         self.update_country()
-        self.updateAvatar()
+        self.update_avatar()
 
     def update_country(self):
         player = self.user_player
@@ -318,7 +317,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
         self.rankItem.setIcon(util.THEME.icon("chat/rank/{}.png".format(icon_str)))
         self.rankItem.setToolTip(tooltip_str)
 
-    def updateGame(self):
+    def update_game(self):
         self.update_status_tooltip()
         self.update_status_icon()
         self.update_map()
@@ -406,52 +405,52 @@ class Chatter(QtWidgets.QTableWidgetItem):
         self.mapItem.setIcon(util.THEME.icon(path, is_local))
 
     def update(self):
-        self.updateUser()
-        self.updatePlayer()
-        self.updateGame()
+        self.update_user()
+        self.update_player()
+        self.update_game()
 
     def set_color(self):
         # FIXME - we should really get colors in the constructor
         pcolors = self.chat_widget.client.player_colors
-        elevation = self.modElevation()
-        _id, name = self._getIdName()
+        elevation = self.mod_elevation()
+        _id, name = self._get_id_name()
         if elevation is not None:
             color = pcolors.getModColor(elevation, _id, name)
         else:
             color = pcolors.getUserColor(_id, name)
         self.setForeground(QtGui.QColor(color))
 
-    def viewAliases(self):
+    def view_aliases(self):
         if self.user_player is not None:
             player_id = self.user_player.id
         else:
             player_id = None
         self._aliases.view_aliases(self.user.name, player_id)
 
-    def selectAvatar(self):
+    def select_avatar(self):
         avatarSelection = AvatarWidget(self.chat_widget.client, self.user.name, personal=True)
         avatarSelection.exec_()
 
-    def addAvatar(self):
+    def add_avatar(self):
         avatarSelection = AvatarWidget(self.chat_widget.client, self.user.name)
         avatarSelection.exec_()
 
     def kick(self):
         pass
 
-    def doubleClicked(self, item):
+    def double_clicked(self, item):
         # filter yourself
         if self._me.login is not None:
             if self._me.login == self.user.name:
                 return
         # Chatter name clicked
         if item == self:
-            self.chat_widget.openQuery(self.user, activate=True)  # open and activate query window
+            self.chat_widget.open_query(self.user, activate=True)  # open and activate query window
 
         elif item == self.statusItem:
-            self._interactWithGame()
+            self._interact_with_game()
 
-    def _interactWithGame(self):
+    def _interact_with_game(self):
         game = self.user_game
         if game is None or game.closed():
             return
@@ -474,7 +473,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
 
         player = self.user_player
         game = self.user_game
-        _id, name = self._getIdName()
+        _id, name = self._get_id_name()
 
         if player is None or self._me.player is None:
             is_me = False
@@ -482,12 +481,12 @@ class Chatter(QtWidgets.QTableWidgetItem):
             is_me = player.id == self._me.player.id
 
         if is_me:  # only for us. Either way, it will display our avatar, not anyone avatar.
-            menu_add("Select Avatar", self.selectAvatar)
+            menu_add("Select Avatar", self.select_avatar)
 
         # power menu
         if self.chat_widget.client.power > 1:
             # admin and mod menus
-            menu_add("Assign avatar", self.addAvatar, True)
+            menu_add("Assign avatar", self.add_avatar, True)
 
             if self.chat_widget.client.power == 2:
 
@@ -502,7 +501,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
                 menu_add("Close Game", lambda: self.chat_widget.client.closeFA(name))
                 menu_add("Close FAF Client", lambda: self.chat_widget.client.closeLobby(name))
 
-        menu_add("View Aliases", self.viewAliases, True)
+        menu_add("View Aliases", self.view_aliases, True)
         if player is not None:  # not for irc user
             if int(player.ladder_estimate()) != 0:  # not for 'never played ladder'
                 menu_add("View in Leaderboards", self.view_in_leaderboards)
@@ -510,7 +509,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
         # Don't allow self to be invited to a game, or join one
         if game is not None and not is_me:
             if game.state == GameState.OPEN:
-                menu_add("Join hosted Game", self._interactWithGame, True)
+                menu_add("Join hosted Game", self._interact_with_game, True)
             elif game.state == GameState.PLAYING:
                 time_running = time.time() - game.launched_at
                 if game.has_live_replay:
@@ -520,14 +519,14 @@ class Chatter(QtWidgets.QTableWidgetItem):
                 else:
                     wait_str = time.strftime('%M:%S', time.gmtime(game.LIVE_REPLAY_DELAY_SECS - time_running))
                     action_str = "WAIT " + wait_str + " to view Live Replay"
-                menu_add(action_str, self._interactWithGame, True)
+                menu_add(action_str, self._interact_with_game, True)
 
         if player is not None:  # not for irc user
             menu_add("View Replays in Vault", self.view_vault_replay, True)
 
         # Friends and Foes Lists
         def player_or_irc_action(f, irc_f):
-            _id, name = self._getIdName()
+            _id, name = self._get_id_name()
             if player is not None:
                 return lambda: f(_id)
             else:
@@ -544,7 +543,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
         else:  # We're neither
             menu_add("Add friend", player_or_irc_action(cl.addFriend, me.addIrcFriend), True)
             # FIXME - chatwidget sets mod status very inconsistently
-            if self.modElevation() is None:  # so disable foeing mods for now
+            if self.mod_elevation() is None:  # so disable foeing mods for now
                 menu_add("Add foe", player_or_irc_action(cl.addFoe, me.addIrcFoe))
 
         # Finally: Show the popup
