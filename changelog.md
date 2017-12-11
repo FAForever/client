@@ -19,6 +19,10 @@
  * Add a button to see the ladder maps pool from play tab (#882)
  * Add 'view in leaderboard' to chat user context menu (#893)
  * Add autojoin #newbie channel and the possibility to autojoin other channels (#899)
+=======
+ * Added new map preview icon in chat. Toggle in the chat settings.
+ * Fix view aliases (right click on an user in chat then view aliases), show
+ the aliases in a popup
 
 Contributors:
  - Wesmania
