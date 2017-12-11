@@ -57,7 +57,7 @@ REPLAY_DIR = os.path.join(APPDATA_DIR, "replays")
 # This contains all Lobby, Chat and Game logs
 LOG_DIR = os.path.join(APPDATA_DIR, "logs")
 LOG_FILE_FAF = os.path.join(LOG_DIR, 'forever.log')
-LOG_FILE_GAME = os.path.join(LOG_DIR, 'game.log')
+LOG_FILE_GAME = os.path.join(LOG_DIR, 'temporary.log')
 LOG_FILE_REPLAY = os.path.join(LOG_DIR, 'replay.log')
 MAX_NUMBER_REPLAYID_LOG_FILE = 10
 
@@ -154,9 +154,9 @@ try:
     if os.path.isfile(LOG_FILE_FAF):
         if os.path.getsize(LOG_FILE_FAF) > LOGFILE_MAX_SIZE:
             os.remove(LOG_FILE_FAF)
-    if os.path.isfile(LOG_FILE_GAME + '.full.log'):
-        if os.path.getsize(LOG_FILE_GAME + '.full.log') > LOGFILE_MAX_SIZE:
-            os.remove(LOG_FILE_GAME + '.full.log')
+    if os.path.isfile(os.path.join(LOG_DIR, "game.log")):
+        if os.path.getsize(os.path.join(LOG_DIR, "game.log")) > LOGFILE_MAX_SIZE:
+            os.remove(os.path.join(LOG_DIR, "game.log"))
 except:
     pass
 

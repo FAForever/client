@@ -39,7 +39,7 @@ class GameSession(QObject):
         self.game_visibility = None
         self.game_map = None
         self.game_password = None
-        self.game_has_started = 0
+        self.game_has_started = False
 
         # Subscribe to messages targeted at 'game' from the server
         client.lobby_dispatch.subscribe_to('game', self.handle_message)
@@ -170,7 +170,7 @@ class GameSession(QObject):
                 # TODO: Eagerly initialize the game by hosting/joining early
                 pass
             elif args[0] == 'Launching':
-                self.game_has_started = 1
+                self.game_has_started = True
         elif command == 'Rehost':
             self._rehost = True
         elif command == 'GameFull':
@@ -186,28 +186,27 @@ class GameSession(QObject):
         self._add_to_full_gamelog()
 
     def _limit_replayid_gamelogs(self):
-        nb_replayid_files = 0
         files = os.listdir(util.LOG_DIR)
         files = map(lambda f: os.path.join(util.LOG_DIR, f), files)
-        files = sorted(files, key = os.path.getmtime)
+        files = sorted(files, key=os.path.getmtime)
         files = list(map(os.path.basename, files))
         replay_files = [e for e in files if "Replayid" in e]
         while len(replay_files) >= util.MAX_NUMBER_REPLAYID_LOG_FILE:
-            os.remove(os.path.join(util.LOG_DIR,replay_files[0]))
+            os.remove(os.path.join(util.LOG_DIR, replay_files[0]))
             replay_files.pop(0)
 
     def _add_to_full_gamelog(self):
         if os.path.isfile(util.LOG_FILE_GAME):
-            with open(util.LOG_FILE_GAME, 'r') as src, open(util.LOG_FILE_GAME + '.full.log', 'a+') as dst: dst.write(src.read())
+            with open(util.LOG_FILE_GAME, 'r') as src, open(os.path.join(util.LOG_DIR, 'game.log'), 'a+') as dst: dst.write(src.read())
 
     def _clear_initial_gamelog(self):
         with open(util.LOG_FILE_GAME, 'w') as src : pass
 
     def _write_new_replayid_gamelogs(self, replay_ID):
-        if self.game_has_started == 1:
+        if self.game_has_started:
             if os.path.isfile(util.LOG_FILE_GAME):
-                with open(util.LOG_FILE_GAME, 'r') as src, open(util.LOG_FILE_GAME + '.Replayid'
-                + str(replay_ID) + '.log', 'w+') as dst: dst.write(src.read())
+                end_logname = "{}{}".format(str(replay_ID), '.log')
+                with open(util.LOG_FILE_GAME, 'r') as src, open("{}{}".format(os.path.join(util.LOG_DIR, 'Replayid'), end_logname), 'w+') as dst: dst.write(src.read())
             else:
                 self._logger.error('No game log found to create the replayid game log file')
 
@@ -219,7 +218,7 @@ class GameSession(QObject):
 
         self._limit_replayid_gamelogs()
         self._write_new_replayid_gamelogs(self.game_uid)
-        self.game_has_started = 0
+        self.game_has_started = False
         self._add_to_full_gamelog()
         self._clear_initial_gamelog()
 
