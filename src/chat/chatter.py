@@ -12,6 +12,11 @@ import util
 from config import Settings
 
 from model.game import GameState
+from client.aliasviewer import AliasWindow
+
+import logging
+logger = logging.getLogger(__name__)
+
 
 """
 A chatter is the representation of a person on IRC, in a channel's nick list.
@@ -45,6 +50,8 @@ class Chatter(QtWidgets.QTableWidgetItem):
         self._me = me
         self._me.relationsUpdated.connect(self._checkPlayerRelation)
         self._me.ircRelationsUpdated.connect(self._checkUserRelation)
+
+        self._aliases = AliasWindow(self.parent)
 
         self.setFlags(QtCore.Qt.ItemIsEnabled)
         self.setTextAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
@@ -370,7 +377,11 @@ class Chatter(QtWidgets.QTableWidgetItem):
         self.setForeground(QtGui.QColor(color))
 
     def viewAliases(self):
-        QtGui.QDesktopServices.openUrl(QUrl("{}?name={}".format(Settings.get("USER_ALIASES_URL"), self.user.name)))
+        if self.user_player is not None:
+            player_id = self.user_player.id
+        else:
+            player_id = None
+        self._aliases.view_aliases(self.user.name, player_id)
 
     def selectAvatar(self):
         avatarSelection = AvatarWidget(self.chat_widget.client, self.user.name, personal=True)
@@ -447,7 +458,6 @@ class Chatter(QtWidgets.QTableWidgetItem):
                 menu_add("Close FAF Client", lambda: self.chat_widget.client.closeLobby(name))
 
         menu_add("View Aliases", self.viewAliases, True)
-
         if player is not None:  # not for irc user
             if int(player.ladder_estimate()) != 0:  # not for 'never played ladder'
                 menu_add("View in Leaderboards", self.view_in_leaderboards)

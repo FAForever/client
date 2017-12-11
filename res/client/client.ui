@@ -45,7 +45,16 @@
     </size>
    </property>
    <layout class="QGridLayout" name="mainGridLayout">
-    <property name="margin">
+    <property name="leftMargin">
+     <number>9</number>
+    </property>
+    <property name="topMargin">
+     <number>9</number>
+    </property>
+    <property name="rightMargin">
+     <number>9</number>
+    </property>
+    <property name="bottomMargin">
      <number>9</number>
     </property>
     <property name="spacing">
@@ -101,7 +110,16 @@
         <property name="spacing">
          <number>0</number>
         </property>
-        <property name="margin">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
          <number>0</number>
         </property>
        </layout>
@@ -111,7 +129,16 @@
         <string>Chat Lobby</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout">
-        <property name="margin">
+        <property name="leftMargin">
+         <number>6</number>
+        </property>
+        <property name="topMargin">
+         <number>6</number>
+        </property>
+        <property name="rightMargin">
+         <number>6</number>
+        </property>
+        <property name="bottomMargin">
          <number>6</number>
         </property>
        </layout>
@@ -127,7 +154,16 @@
         <string>Play</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_7">
-        <property name="margin">
+        <property name="leftMargin">
+         <number>6</number>
+        </property>
+        <property name="topMargin">
+         <number>6</number>
+        </property>
+        <property name="rightMargin">
+         <number>6</number>
+        </property>
+        <property name="bottomMargin">
          <number>6</number>
         </property>
        </layout>
@@ -137,7 +173,16 @@
         <string>Tutorials</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_5">
-        <property name="margin">
+        <property name="leftMargin">
+         <number>6</number>
+        </property>
+        <property name="topMargin">
+         <number>6</number>
+        </property>
+        <property name="rightMargin">
+         <number>6</number>
+        </property>
+        <property name="bottomMargin">
          <number>6</number>
         </property>
        </layout>
@@ -147,7 +192,16 @@
         <string>Leaderboards</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_4">
-        <property name="margin">
+        <property name="leftMargin">
+         <number>6</number>
+        </property>
+        <property name="topMargin">
+         <number>6</number>
+        </property>
+        <property name="rightMargin">
+         <number>6</number>
+        </property>
+        <property name="bottomMargin">
          <number>6</number>
         </property>
        </layout>
@@ -157,7 +211,16 @@
         <string>Tournaments</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_13">
-        <property name="margin">
+        <property name="leftMargin">
+         <number>6</number>
+        </property>
+        <property name="topMargin">
+         <number>6</number>
+        </property>
+        <property name="rightMargin">
+         <number>6</number>
+        </property>
+        <property name="bottomMargin">
          <number>6</number>
         </property>
        </layout>
@@ -167,12 +230,21 @@
         <string>Units Database</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_10">
-        <property name="margin">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
          <number>0</number>
         </property>
         <item row="0" column="0">
-         <widget class="QWebEngineView" name="unitdbWebView" native="true">
-          <property name="url" stdset="0">
+         <widget class="QWebEngineView" name="unitdbWebView">
+          <property name="url">
            <url>
             <string>about:blank</string>
            </url>
@@ -186,7 +258,16 @@
         <string>Replays</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_2">
-        <property name="margin">
+        <property name="leftMargin">
+         <number>6</number>
+        </property>
+        <property name="topMargin">
+         <number>6</number>
+        </property>
+        <property name="rightMargin">
+         <number>6</number>
+        </property>
+        <property name="bottomMargin">
          <number>6</number>
         </property>
        </layout>
@@ -196,7 +277,16 @@
         <string>Vaults</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_9">
-        <property name="margin">
+        <property name="leftMargin">
+         <number>6</number>
+        </property>
+        <property name="topMargin">
+         <number>6</number>
+        </property>
+        <property name="rightMargin">
+         <number>6</number>
+        </property>
+        <property name="bottomMargin">
          <number>6</number>
         </property>
         <item row="0" column="0">
@@ -209,7 +299,16 @@
             <string>Maps</string>
            </attribute>
            <layout class="QGridLayout" name="gridLayout_11">
-            <property name="margin">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
              <number>0</number>
             </property>
            </layout>
@@ -219,7 +318,16 @@
             <string>Mods</string>
            </attribute>
            <layout class="QGridLayout" name="gridLayout_12">
-            <property name="margin">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
              <number>0</number>
             </property>
            </layout>
@@ -238,7 +346,7 @@
      <x>0</x>
      <y>0</y>
      <width>817</width>
-     <height>22</height>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuOptions">
@@ -310,7 +418,7 @@
     </widget>
     <widget class="QMenu" name="menuUpdates">
      <property name="title">
-      <string>Updates...</string>
+      <string>&amp;Updates...</string>
      </property>
      <addaction name="actionCheck_for_Updates"/>
      <addaction name="actionUpdate_Settings"/>
@@ -347,8 +455,15 @@
     <addaction name="actionLinkWiki"/>
     <addaction name="actionLinkGitHub"/>
    </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+    <addaction name="actionCheckPlayerAliases"/>
+   </widget>
    <addaction name="menuLinks"/>
    <addaction name="menuOptions"/>
+   <addaction name="menuTools"/>
    <addaction name="menuHelp"/>
   </widget>
   <action name="actionAbout">
@@ -404,17 +519,17 @@
     <string>&amp;Automatic Login</string>
    </property>
   </action>
-   <action name="actionSetNewbiesChannel">
+  <action name="actionSetNewbiesChannel">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Use Newbies Channel</string>
+    <string>&amp;Use Newbies Channel</string>
    </property>
   </action>
-   <action name="actionSetAutoJoinChannels">
+  <action name="actionSetAutoJoinChannels">
    <property name="text">
-    <string>Set autojoin channels</string>
+    <string>Set &amp;autojoin channels</string>
    </property>
   </action>
   <action name="actionSetAutoDownloadMods">
@@ -608,17 +723,17 @@
   </action>
   <action name="actionShowModsDir">
    <property name="text">
-    <string>Show mods folder</string>
+    <string>Show &amp;mods folder</string>
    </property>
   </action>
   <action name="actionShowReplaysDir">
    <property name="text">
-    <string>Show replays folder</string>
+    <string>Show &amp;replays folder</string>
    </property>
   </action>
   <action name="actionShowMapsDir">
    <property name="text">
-    <string>Show maps folder</string>
+    <string>&amp;Show maps folder</string>
    </property>
   </action>
   <action name="actionPath">
@@ -628,27 +743,32 @@
   </action>
   <action name="actionShowGamePrefs">
    <property name="text">
-    <string>Show game.prefs</string>
+    <string>Show &amp;game.prefs</string>
    </property>
   </action>
   <action name="actionCheck_for_Updates">
    <property name="text">
-    <string>Check for Updates</string>
+    <string>&amp;Check for Updates</string>
    </property>
   </action>
   <action name="actionUpdate_Settings">
    <property name="text">
-    <string>Update Settings...</string>
+    <string>&amp;Update Settings...</string>
    </property>
   </action>
   <action name="actionShowThemesDir">
    <property name="text">
-    <string>Show themes folder</string>
+    <string>Show &amp;themes folder</string>
    </property>
   </action>
   <action name="actionLinkMapPool">
    <property name="text">
-    <string>Ladder Map Pool</string>
+    <string>&amp;Ladder Map Pool</string>
+   </property>
+  </action>
+  <action name="actionCheckPlayerAliases">
+   <property name="text">
+    <string>Check player aliases</string>
    </property>
   </action>
  </widget>

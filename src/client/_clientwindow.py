@@ -30,6 +30,7 @@ from fa.maps import getUserMapsFolder
 from modvault.utils import MODFOLDER
 from ui.status_logo import StatusLogo
 from client.login import LoginWidget
+from client.aliasviewer import AliasSearchWindow
 from ui.busy_widget import BusyWidget
 
 from client.playercolors import PlayerColors
@@ -308,6 +309,7 @@ class ClientWindow(FormClass, BaseClass):
         # for moderator
         self.modMenu = None
 
+        self._alias_window = AliasSearchWindow(self)
         #self.nFrame = NewsFrame()
         #self.whatsNewLayout.addWidget(self.nFrame)
         #self.nFrame.collapse()
@@ -777,6 +779,8 @@ class ClientWindow(FormClass, BaseClass):
         self.actionColoredNicknames.triggered.connect(self.updateOptions)
         self.actionFriendsOnTop.triggered.connect(self.updateOptions)
 
+        self.actionCheckPlayerAliases.triggered.connect(self.checkPlayerAliases)
+
         self._menuThemeHandler = ThemeMenu(self.menuTheme)
         self._menuThemeHandler.setup(util.THEME.listThemes())
         self._menuThemeHandler.themeSelected.connect(lambda theme: util.THEME.setTheme(theme, True))
@@ -868,6 +872,9 @@ class ClientWindow(FormClass, BaseClass):
         dialog = UpdateSettingsDialog(self)
         dialog.setup()
         dialog.show()
+
+    def checkPlayerAliases(self):
+        self._alias_window.run()
 
     def saveWindow(self):
         util.settings.beginGroup("window")
