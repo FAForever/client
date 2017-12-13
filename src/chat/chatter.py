@@ -73,6 +73,8 @@ class Chatter(QtWidgets.QTableWidgetItem):
         self.mapItem.setFlags(QtCore.Qt.ItemIsEnabled)
         self.mapItem.setTextAlignment(QtCore.Qt.AlignHCenter)
 
+        self._ladder_hide = False
+
         self._user = None
         self._user_player = None
         self._user_game = None
@@ -317,14 +319,31 @@ class Chatter(QtWidgets.QTableWidgetItem):
         self.rankItem.setToolTip(tooltip_str)
 
     def updateGame(self):
+        self.check_game_status()
         self.update_status_tooltip()
         self.update_status_icon()
         self.update_map()
+
+    def check_game_status(self):
+        self._ladder_hide = False
+        if self._me.player is None or self._me.player.login != self.user.name:
+            return
+        game = self.user_game
+        if game is None or game.closed():
+            return
+        if game.featured_mod == "ladder1v1" and game.state == GameState.OPEN:
+            self._ladder_hide = True
 
     def update_status_tooltip(self):
         # Status tooltip handling
         game = self.user_game
         if game is not None and not game.closed():
+            if self._ladder_hide:
+                game_map = "<i>[delayed reveal]</i>"
+                game_title = "<i>[delayed reveal]</i>"
+            else:
+                game_map = game.mapdisplayname
+                game_title = game.title
             private_str = " (private)" if game.password_protected else ""
             delay_str = ""
             if game.state == GameState.OPEN:
@@ -340,7 +359,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
                 head_str = "Playing maybe ...</b>"
             formatting = "<b>{}<br/>title: {}<br/>mod: {}<br/>map: {}<br/>players: {} / {}<br/>id: {}"
             game_str = formatting.format(head_str.format(private=private_str, delay=delay_str, host=game.host),
-                                         game.title, game.featured_mod, maps.getDisplayName(game.mapname),
+                                         game_title, game.featured_mod, game_map,
                                          game.num_players, game.max_players, game.uid)
         else:  # game is None or closed
             game_str = "Idle"
@@ -372,14 +391,18 @@ class Chatter(QtWidgets.QTableWidgetItem):
         # Map icon handling - if we're in game, show the map if toggled on
         game = self.user_game
         if game is not None and not game.closed() and util.settings.value("chat/chatmaps", False):
-            mapname = game.mapname
-            icon = maps.preview(mapname)
-            if not icon:
-                self.chat_widget.client.downloader.downloadMapPreview(mapname, self.mapItem)  # Calls setIcon
+            if self._ladder_hide:
+                self.mapItem.setIcon(util.THEME.icon("chat/status/unknown.png"))
+                self.mapItem.setToolTip("<i>[delayed reveal]</i>")
             else:
-                self.mapItem.setIcon(icon)
+                mapname = game.mapname
+                icon = maps.preview(mapname)
+                if not icon:
+                    self.chat_widget.client.downloader.downloadMapPreview(mapname, self.mapItem)  # Calls setIcon
+                else:
+                    self.mapItem.setIcon(icon)
 
-            self.mapItem.setToolTip(game.mapdisplayname)
+                self.mapItem.setToolTip(game.mapdisplayname)
         else:
             self.mapItem.setIcon(QtGui.QIcon())
             self.mapItem.setToolTip("")
