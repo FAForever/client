@@ -13,6 +13,10 @@ from config import Settings
 
 from model.game import GameState
 
+import json
+import logging
+logger = logging.getLogger(__name__)
+
 """
 A chatter is the representation of a person on IRC, in a channel's nick list.
 There are multiple chatters per channel.
@@ -369,8 +373,67 @@ class Chatter(QtWidgets.QTableWidgetItem):
             color = pcolors.getUserColor(_id, name)
         self.setForeground(QtGui.QColor(color))
 
+    # TODO once api async is implemented viewAlias should be refactored
+    def return_decoded_json(self, link, method):
+        try:
+            with urllib.request.urlopen(link) as response:
+                return json.loads(response.read().decode())
+        except urllib.error.URLError as e:
+            logger.error("{} method error (link : {}) : {}".format(method, link, e.reason))
+            QtWidgets.QMessageBox.about(self.parent, "Aliases", "Error getting info, "
+                                                                "report the issue with logs on the faf forum")
+            return None
+
+    def name_used_by_other(self):
+        api_link = 'https://api.faforever.com/data/player?include=names&' \
+                   'filter=(login=={},names.name=={})'.format(self.user.name, self.user.name)
+        response = self.return_decoded_json(api_link, 'name_used_by_other')
+        if response is None:
+            return ''
+        result = ''
+        if response.get('data') is not None and len(response['data']) >= 1:
+            for ply in response['data']:
+                if ply['type'] == 'player':
+                    if ply['attributes']['login'] != self.user.name:
+                        result += '{}<br/>'.format(ply['attributes']['login'])
+        if len(result) > 1:
+            result = 'The name has previously been used by :<br/><br/>{}'.format(result)
+        else:
+            result = 'The name has never been used by anyone else.'
+        return result
+
+    def names_previously_known(self):
+        api_link = 'https://api.faforever.com/data/player?include=names&fields[player]=login,names&' \
+                   'fields[nameRecord]=name,changeTime&&filter[player]=login=={}'.format(self.user.name)
+        response = self.return_decoded_json(api_link, 'names_previously_known')
+        if response is None:
+            return ''
+        if response.get('included') is not None and len(response['included']) >= 1:
+            nick_list = 'The player has previously been known as :' \
+                        '<br/><table border="0" cellpadding="0" cellspacing="0" width= "180"><tbody>' \
+                        '<tr><th align="left">Name</th><th align="right">used until</th></tr>'
+            for nicks in response['included']:
+                if nicks['type'] == 'nameRecord':
+                    nick_list += '<tr><td>{}</td><td align="right">{}</td></tr>'\
+                        .format(nicks['attributes']['name'], nicks['attributes']['changeTime'][:10])
+            nick_list += '<tr><td>{}</td><td align="right">currently used</td></tr>' \
+                         '</tbody></table><br/>'.format(self.user.name)
+        else:
+            nick_list = 'The name is not currently owned by any player.<br/>'
+        return nick_list
+
     def viewAliases(self):
-        QtGui.QDesktopServices.openUrl(QUrl("{}?name={}".format(Settings.get("USER_ALIASES_URL"), self.user.name)))
+        api_link = 'https://api.faforever.com/data/nameRecord?include=player&fields[player]=login&' \
+                   'fields[nameRecord]=player,changeTime&filter[nameRecord]=name=={}'.format(self.user.name)
+        response = self.return_decoded_json(api_link, 'viewAliases')
+        if response == 'err':
+            return
+        result = self.name_used_by_other()
+        if len(response['data']) < 1:
+            result = 'The user has never changed its name.\n\n{}'.format(result)
+        else:
+            result = '{}<br/>{}'.format(self.names_previously_known(), result)
+        QtWidgets.QMessageBox.about(self.parent, "Aliases : {}".format(self.user.name), str(result))
 
     def selectAvatar(self):
         avatarSelection = AvatarWidget(self.chat_widget.client, self.user.name, personal=True)
