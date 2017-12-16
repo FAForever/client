@@ -15,9 +15,11 @@
  * Hotfix race condition between downloading avatars and removing chatters (#957)
  * Don't proceed with game launch if FA path is invalid (#933, #959)
  * Hotfix an irclib exception popping up in some cases (#958)
+ * Delay displaying of user's ladder game info until launch (#360, #912)
 
 Contributors:
  - Wesmania
+ - Grothe
 
 0.16.1-rc.2
 ====

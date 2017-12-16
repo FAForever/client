@@ -13,10 +13,7 @@ from config import Settings
 
 from model.game import GameState
 from client.aliasviewer import AliasWindow
-
-import logging
-logger = logging.getLogger(__name__)
-
+from chat.gameinfo import SensitiveMapInfoChecker
 
 """
 A chatter is the representation of a person on IRC, in a channel's nick list.
@@ -52,6 +49,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
         self._me.ircRelationsUpdated.connect(self._checkUserRelation)
 
         self._aliases = AliasWindow(self.parent)
+        self._game_info_hider = SensitiveMapInfoChecker(self._me)
 
         self.setFlags(QtCore.Qt.ItemIsEnabled)
         self.setTextAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
@@ -72,8 +70,6 @@ class Chatter(QtWidgets.QTableWidgetItem):
         self.mapItem = QtWidgets.QTableWidgetItem()
         self.mapItem.setFlags(QtCore.Qt.ItemIsEnabled)
         self.mapItem.setTextAlignment(QtCore.Qt.AlignHCenter)
-
-        self._ladder_hide = False
 
         self._user = None
         self._user_player = None
@@ -319,26 +315,16 @@ class Chatter(QtWidgets.QTableWidgetItem):
         self.rankItem.setToolTip(tooltip_str)
 
     def updateGame(self):
-        self.check_game_status()
         self.update_status_tooltip()
         self.update_status_icon()
         self.update_map()
 
-    def check_game_status(self):
-        self._ladder_hide = False
-        if self._me.player is None or self._me.player.login != self.user.name:
-            return
-        game = self.user_game
-        if game is None or game.closed():
-            return
-        if game.featured_mod == "ladder1v1" and game.state == GameState.OPEN:
-            self._ladder_hide = True
-
     def update_status_tooltip(self):
         # Status tooltip handling
         game = self.user_game
+        should_hide_info = self._game_info_hider.has_sensitive_data(game)
         if game is not None and not game.closed():
-            if self._ladder_hide:
+            if should_hide_info:
                 game_map = "<i>[delayed reveal]</i>"
                 game_title = "<i>[delayed reveal]</i>"
             else:
@@ -390,8 +376,9 @@ class Chatter(QtWidgets.QTableWidgetItem):
     def update_map(self):
         # Map icon handling - if we're in game, show the map if toggled on
         game = self.user_game
+        should_hide_info = self._game_info_hider.has_sensitive_data(game)
         if game is not None and not game.closed() and util.settings.value("chat/chatmaps", False):
-            if self._ladder_hide:
+            if should_hide_info:
                 self.mapItem.setIcon(util.THEME.icon("chat/status/unknown.png"))
                 self.mapItem.setToolTip("<i>[delayed reveal]</i>")
             else:
