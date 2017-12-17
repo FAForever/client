@@ -30,6 +30,17 @@ if __package__ is None and not hasattr(sys, 'frozen'):
         path = os.path.realpath(fafclient.__file__)
         sys.path.insert(0, os.path.dirname(path))
 
+import argparse
+
+cmd_parser = argparse.ArgumentParser(description='FAF client commandline arguments.')
+cmd_parser.add_argument('--qt-angle-workaround',
+                        action='store_true',
+                        help='Use Qt5 ANGLE backend. Enable if some client tabs appear frozen.')
+args, trailing_args = cmd_parser.parse_known_args()
+if args.qt_angle_workaround and sys.platform == 'win32':
+    os.environ.setdefault('QT_OPENGL', 'angle')
+    os.environ.setdefault('QT_ANGLE_PLATFORM', 'd3d9')
+
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtCore import Qt
 
@@ -96,7 +107,7 @@ if __name__ == '__main__':
     import config
 
     QtWidgets.QApplication.setAttribute(Qt.AA_ShareOpenGLContexts)
-    app = QtWidgets.QApplication(sys.argv)
+    app = QtWidgets.QApplication(trailing_args)
 
     if sys.platform == 'win32':
         import platform
@@ -118,15 +129,15 @@ if __name__ == '__main__':
     # We can now set our excepthook since the app has been initialized
     sys.excepthook = excepthook
 
-    if len(sys.argv) == 1:
+    if len(trailing_args) == 0:
         # Do the magic
         sys.path += ['.']
         runFAF()
     else:
         # Try to interpret the argument as a replay.
-        if sys.argv[1].lower().endswith(".fafreplay") or sys.argv[1].lower().endswith(".scfareplay"):
+        if trailing_args[0].lower().endswith(".fafreplay") or trailing_args[0].lower().endswith(".scfareplay"):
             import fa
-            fa.replay(sys.argv[1], True)  # Launch as detached process
+            fa.replay(trailing_args[0], True)  # Launch as detached process
 
     # End of show
     app.closeAllWindows()
