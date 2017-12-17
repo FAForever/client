@@ -1,7 +1,7 @@
 0.x.x
 =====
 
-0.16.0-rc.2
+0.16.1-rc.2
 ====
  * Introduce new object model:
    - Game, Player and IrcUser classes track corresponding info from the server,
