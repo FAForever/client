@@ -73,7 +73,7 @@ class AliasViewer:
         api_link = 'https://api.faforever.com/data/player' \
                    '?include=names' \
                    '&filter=(login=={name},names.name=={name})' \
-                   '&fields[player]=login' \
+                   '&fields[player]=login,names' \
                    '&fields[nameRecord]=name,changeTime'
         query = api_link.format(name=checked_name)
         response = self._api_request(query)
