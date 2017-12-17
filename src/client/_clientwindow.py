@@ -882,8 +882,7 @@ class ClientWindow(FormClass, BaseClass):
         util.settings.endGroup()
 
     def show_autojoin_settings_dialog(self):
-        autojoin_channels_list = []
-        autojoin_channels_list = Settings.get('chat/auto_join_channels')
+        autojoin_channels_list = Settings.get('chat/auto_join_channels', [])
         text_of_autojoin_settings_dialog = """
         Enter the list of channels you want to autojoin at startup, separated by ;
         For example: #poker;#newbie
