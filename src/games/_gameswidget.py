@@ -75,7 +75,12 @@ class GamesWidget(FormClass, BaseClass):
 
         self.sortGamesComboBox.addItems(['By Players', 'By avg. Player Rating', 'By Map', 'By Host', 'By Age'])
         self.sortGamesComboBox.currentIndexChanged.connect(self.sortGamesComboChanged)
-        self.sortGamesComboBox.setCurrentIndex(self.sort_games_index)
+        try:
+            CustomGameFilterModel.SortType(self.sort_games_index)
+            safe_sort_index = self.sort_games_index
+        except ValueError:
+            safe_sort_index = 0
+        self.sortGamesComboBox.setCurrentIndex(safe_sort_index)
 
         self.hideGamesWithPw.stateChanged.connect(self.togglePrivateGames)
         self.hideGamesWithPw.setChecked(self.hide_private_games)
