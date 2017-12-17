@@ -1,6 +1,13 @@
 0.x.x
 =====
 
+0.16.1-rc.3
+====
+ * Fix game sorting sometimes not matching saved settings at startup (#918, #919)
+
+Contributors:
+ - Wesmania
+
 0.16.1-rc.2
 ====
  * Introduce new object model:

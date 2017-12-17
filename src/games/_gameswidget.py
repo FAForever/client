@@ -80,7 +80,10 @@ class GamesWidget(FormClass, BaseClass):
             safe_sort_index = self.sort_games_index
         except ValueError:
             safe_sort_index = 0
+        # This only triggers the signal if the index actually changes,
+        # so let's initialize it ourselves
         self.sortGamesComboBox.setCurrentIndex(safe_sort_index)
+        self.sortGamesComboChanged(safe_sort_index)
 
         self.hideGamesWithPw.stateChanged.connect(self.togglePrivateGames)
         self.hideGamesWithPw.setChecked(self.hide_private_games)
