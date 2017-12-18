@@ -705,7 +705,7 @@ class Updater(QtCore.QObject, ConnectionHandler):
         if sys.platform == 'win32':
             xdelta = os.path.join(fafpath.get_libdir(), "xdelta3.exe")
         else:
-            xdelta = "xdelta3"
+            xdelta = "xdelta3.exe"
         subprocess.call([xdelta, '-d', '-f', '-s', original, patch, toFile], stdout=subprocess.PIPE)
         shutil.copy(toFile, original)
         os.remove(toFile)
