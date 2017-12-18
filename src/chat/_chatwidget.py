@@ -32,7 +32,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
     irc_host = Settings.persisted_property('chat/host', type=str, default_value='irc.' + defaults['host'])
     irc_tls = Settings.persisted_property('chat/tls', type=bool, default_value=False)
 
-    auto_join_channels = Settings.persisted_property('chat/auto_join_channels', type=list, default_value=[])
+    auto_join_channels = Settings.persisted_property('chat/auto_join_channels', default_value=[])
 
     """
     This is the chat lobby module for the FAF client.
