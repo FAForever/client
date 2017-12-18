@@ -250,43 +250,59 @@ class Chatter(QtWidgets.QTableWidgetItem):
             self.avatarItem.setIcon(QtGui.QIcon())
             self.avatarItem.setToolTip(None)
 
+    def set_chatter_name(self):
+        if self.user_player is not None and self.user_player.clan is not None:
+            self.setText("[{}]{}".format(self.user_player.clan,
+                                         self.user.name))
+        else:
+            self.setText(self.user.name)
+
     def updateUser(self):
-        self.setText(self.user.name)
+        self.set_chatter_name()
         self.set_color()
         self._verifySortOrder()
 
     def updatePlayer(self):
+        self.set_chatter_name()
+        self.update_rank()
+        self.update_country()
+        self.updateAvatar()
+
+    def update_country(self):
         player = self.user_player
-        # Weed out IRC users and those we don't know about early.
+        if player is None:
+            self.setIcon(QtGui.QIcon())
+            self.setToolTip("")
+            return
+        # server sends '' for no ip2country-resolution
+        if player.country is None or player.country == '':
+            country = '__'
+        else:
+            country = player.country.lower()
+        self.setIcon(util.THEME.icon("chat/countries/{}.png".format(country)))
+        self.setToolTip(country)
+
+    def update_rank(self):
+        player = self.user_player
         if player is None:
             self.rankItem.setIcon(util.THEME.icon("chat/rank/civilian.png"))
             self.rankItem.setToolTip("IRC User")
             return
-
-        # server sends '' for no ip2country-resolution
-        country = player.country if not (player.country is None or player.country == '') else '__'
-        self.setIcon(util.THEME.icon("chat/countries/%s.png" % country.lower()))
-        self.setToolTip(country)
-
-        self.updateAvatar()
-
-        if player.clan is not None:
-            self.setText("[%s]%s" % (player.clan, self.user.name))
-
-        rating = player.rating_estimate()
-        ladder_rating = player.ladder_estimate()
-
-        # Rating icon choice  (chr(0xB1) = +-)
+        # chr(0xB1) = +-
         formatting = ("Global Rating: {} ({} Games) [{}\xb1{}]\n"
                       "Ladder Rating: {} [{}\xb1{}]")
-        tooltip_str = formatting.format((int(rating)), player.number_of_games, int(player.rating_mean),
-                                        int(player.rating_deviation), int(ladder_rating),
-                                        int(player.ladder_rating_mean),int(player.ladder_rating_deviation))
-
+        tooltip_str = formatting.format((int(player.rating_estimate())),
+                                        player.number_of_games,
+                                        int(player.rating_mean),
+                                        int(player.rating_deviation),
+                                        int(player.ladder_estimate()),
+                                        int(player.ladder_rating_mean),
+                                        int(player.ladder_rating_deviation))
         league = player.league
         if league is not None:
             icon_str = league["league"]
-            tooltip_str = "Division : {}\n{}".format(league["division"], tooltip_str)
+            tooltip_str = "Division : {}\n{}".format(league["division"],
+                                                     tooltip_str)
         else:
             icon_str = "newplayer"
         self.rankItem.setIcon(util.THEME.icon("chat/rank/{}.png".format(icon_str)))

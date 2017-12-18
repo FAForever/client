@@ -4,6 +4,7 @@
 0.16.1-rc.3
 ====
  * Fix game sorting sometimes not matching saved settings at startup (#918, #919)
+ * Fix players in chat sometimes not displayed with their clan tags (#922, #923)
 
 Contributors:
  - Wesmania
