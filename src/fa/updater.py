@@ -707,8 +707,7 @@ class Updater(QtCore.QObject, ConnectionHandler):
         else:
             xdelta = "xdelta3"
             if not shutil.which(xdelta):
-                QtWidgets.QMessageBox.information(None, "xdelta3 not found", 
-                                    "Please install xdelta3 on your system.")
+                logger.error("%s not found on the system" % xdelta)
         subprocess.call([xdelta, '-d', '-f', '-s', original, patch, toFile], stdout=subprocess.PIPE)
         shutil.copy(toFile, original)
         os.remove(toFile)
