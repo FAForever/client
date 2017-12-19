@@ -13,8 +13,8 @@ class GameAnnouncer:
         self._colors = colors
         self._client = client
 
-        self._gameset.newLobby.connect(self._announceHosting)
-        self._gameset.newLiveReplay.connect(self._announceReplay)
+        self._gameset.newLobby.connect(self._announce_hosting)
+        self._gameset.newLiveReplay.connect(self._announce_replay)
 
         self.announce_games = True
         self.announce_replays = True
@@ -24,7 +24,7 @@ class GameAnnouncer:
         return (game.host_player is not None
                 and self._me.isFriend(game.host_player.id))
 
-    def _announceHosting(self, game):
+    def _announce_hosting(self, game):
         if not self._is_friend_host(game) or not self.announce_games:
             return
         announce_delay = QTimer()
@@ -39,17 +39,17 @@ class GameAnnouncer:
 
         if (not self._is_friend_host(game) or
            not self.announce_games or
-           game.state != GameState.PLAYING):
+           game.state != GameState.OPEN):
             return
         self._announce(game, "hosting")
 
-    def _announceReplay(self, game):
+    def _announce_replay(self, game):
         if not self._is_friend_host(game) or not self.announce_replays:
             return
         self._announce(game, "playing live")
 
     def _announce(self, game, activity):
-        url = game.url(game.host_player.id)
+        url = game.url(game.host_player.id).toString()
         url_color = self._colors.getColor("url")
         mapname = maps.getDisplayName(game.mapname)
         fmt = 'is {} {}<a style="color:{}" href="{}">{}</a> (on {})'
@@ -57,6 +57,5 @@ class GameAnnouncer:
             modname = ""
         else:
             modname = game.featured_mod + " "
-        msg = fmt.format(activity, modname, url_color, url,
-                         game.title, mapname)
+        msg = fmt.format(activity, modname, url_color, url, game.title, mapname)
         self._client.forwardLocalBroadcast(game.host, msg)
