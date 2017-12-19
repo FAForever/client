@@ -120,22 +120,20 @@ class AliasFormatter:
         current_times = [t for t in times if t['time'] is None]
 
         past_times.sort(key=lambda t: t['time'])
-        name_format = "<b>{}</b>"
-        past_format = "until {}"
         current_format = "now"
-        past_strings = [(name_format.format(e['name']),
-                        past_format.format(time.strftime('%X %x', e['time'])))
+        past_strings = [("{}".format(e['name']),
+                         "{}".format(time.strftime('%Y-%m-%d &nbsp; %H:%M', e['time'])))
                         for e in past_times]
-        current_strings = [(name_format.format(e['name']),
+        current_strings = [("{}".format(e['name']),
                            current_format)
                            for e in current_times]
         return past_strings + current_strings
 
     def nick_time_table(self, nicks):
-        table = '<br/><table border="0" cellpadding="0" cellspacing="0" width="250"><tbody>' \
+        table = '<br/><table border="0" cellpadding="0" cellspacing="1" width="230"><tbody>' \
                 '{}' \
                 '</tbody></table>'
-        head = '<tr><th align="left">Name</th><th align="right">Used</th></tr>'
+        head = '<tr><th align="left"> Name</th><th align="right">used until </th></tr>'
         line_fmt = '<tr><td>{}</td><td align="right">{}</td></tr>'
         lines = [line_fmt.format(*n) for n in nicks]
         return table.format(head + "".join(lines))
@@ -172,6 +170,7 @@ class AliasWindow:
     def view_aliases(self, name, id_=None):
         player_aliases = None
         other_users = None
+        user = None
         try:
             other_users = self._api.name_used_by_others(name)
             if id_ is None:
@@ -179,6 +178,7 @@ class AliasWindow:
                 if len(users_now) > 0:
                     id_ = users_now[0]['id']
             if id_ is not None:
+                user = name
                 player_aliases = self._api.names_previously_known(id_)
         except ApiError as e:
             logger.error(e.reason)
@@ -194,7 +194,7 @@ class AliasWindow:
             return
 
         alias_format = self._fmt.names_previously_known(player_aliases)
-        others_format = self._fmt.name_used_by_others(other_users, name)
+        others_format = self._fmt.name_used_by_others(other_users, user)
         result = '{}<br/><br/>{}'.format(alias_format, others_format)
         QtWidgets.QMessageBox.about(self._parent,
                                     "Aliases : {}".format(name),
@@ -215,6 +215,6 @@ class AliasSearchWindow:
         self._search_window = QtWidgets.QInputDialog(self._parent)
         self._search_window.setInputMode(QtWidgets.QInputDialog.TextInput)
         self._search_window.textValueSelected.connect(self.search_alias)
-        self._search_window.setLabelText("User name / alias:")
+        self._search_window.setLabelText("User name / alias (case sensitive):")
         self._search_window.setWindowTitle("Alias search")
         self._search_window.open()
