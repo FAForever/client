@@ -173,6 +173,9 @@ class Chatter(QtWidgets.QTableWidgetItem):
             return True
         return False
 
+    def isVisible(self):
+        return not self.tableWidget().isRowHidden(self.row())
+
     def set_visible(self, visible):
         if visible:
             self.tableWidget().showRow(self.row())
@@ -321,6 +324,32 @@ class Chatter(QtWidgets.QTableWidgetItem):
         self.update_status_tooltip()
         self.update_status_icon()
         self.update_map()
+        if self.channel.status_filter or self.channel.game_filter \
+                and self.tableWidget() is not None:
+            self.channel.filter_nick(self)
+            self.channel.update_user_count()
+
+    def status(self):
+        # Game Status
+        game = self.user_game
+        if game is not None and not game.closed():
+            if game.state == GameState.OPEN:
+                if game.host == self.user.name:
+                    return "host"
+                else:
+                    return "lobby"
+            elif game.state == GameState.PLAYING:
+                if game.has_live_replay:
+                    return "playing"
+                else:
+                    return "playing5"
+            else:  # game.state == something else
+                return "unknown"
+        else:
+            if self.user_player:  # game is None or closed
+                return "none"
+            else:  # irc user
+                return None
 
     def update_status_tooltip(self):
         # Status tooltip handling
@@ -346,10 +375,14 @@ class Chatter(QtWidgets.QTableWidgetItem):
                     delay_str = " - LIVE DELAY (5 Min)"
             else:  # game.state == something else
                 head_str = "Playing maybe ...</b>"
-            formatting = "<b>{}<br/>title: {}<br/>mod: {}<br/>map: {}<br/>players: {} / {}<br/>id: {}"
-            game_str = formatting.format(head_str.format(private=private_str, delay=delay_str, host=game.host),
-                                         game_title, game.featured_mod, game_map,
-                                         game.num_players, game.max_players, game.uid)
+            formatting = "<b>{}<br/>title: {}<br/>mod: {}<br/>map: {}<br/>" \
+                         "players: {} / {}<br/>id: {}"
+            game_str = formatting.format(head_str.format(private=private_str,
+                                                         delay=delay_str,
+                                                         host=game.host),
+                                         game_title, game.featured_mod,
+                                         game_map, game.num_players,
+                                         game.max_players, game.uid)
         else:  # game is None or closed
             game_str = "Idle"
 
@@ -380,7 +413,8 @@ class Chatter(QtWidgets.QTableWidgetItem):
         # Map icon handling - if we're in game, show the map if toggled on
         game = self.user_game
         should_hide_info = self._game_info_hider.has_sensitive_data(game)
-        if game is not None and not game.closed() and util.settings.value("chat/chatmaps", False):
+        if game is not None and not game.closed() \
+                and util.settings.value("chat/chatmaps", False):
             if should_hide_info:
                 self.mapItem.setIcon(util.THEME.icon("chat/status/unknown.png"))
                 self.mapItem.setToolTip("<i>[delayed reveal]</i>")
@@ -444,8 +478,8 @@ class Chatter(QtWidgets.QTableWidgetItem):
             if self._me.login == self.user.name:
                 return
         # Chatter name clicked
-        if item == self:
-            self.chat_widget.open_query(self.user, activate=True)  # open and activate query window
+        if item == self:  # open and activate query window
+            self.chat_widget.open_query(self.user, activate=True)
 
         elif item == self.statusItem:
             self._interact_with_game()
