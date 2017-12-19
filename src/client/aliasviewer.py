@@ -120,11 +120,11 @@ class AliasFormatter:
         current_times = [t for t in times if t['time'] is None]
 
         past_times.sort(key=lambda t: t['time'])
-        name_format = "<b>{}</b>"
-        past_format = "until {}"
+        name_format = "{}"
+        past_format = "{}"
         current_format = "now"
         past_strings = [(name_format.format(e['name']),
-                        past_format.format(time.strftime('%X %x', e['time'])))
+                        past_format.format(time.strftime('%Y-%m-%d &nbsp; %H:%M', e['time'])))
                         for e in past_times]
         current_strings = [(name_format.format(e['name']),
                            current_format)
@@ -132,10 +132,10 @@ class AliasFormatter:
         return past_strings + current_strings
 
     def nick_time_table(self, nicks):
-        table = '<br/><table border="0" cellpadding="0" cellspacing="0" width="250"><tbody>' \
+        table = '<br/><table border="0" cellpadding="0" cellspacing="1" width="220"><tbody>' \
                 '{}' \
                 '</tbody></table>'
-        head = '<tr><th align="left">Name</th><th align="right">Used</th></tr>'
+        head = '<tr><th align="left"> Name</th><th align="center"> used until</th></tr>'
         line_fmt = '<tr><td>{}</td><td align="right">{}</td></tr>'
         lines = [line_fmt.format(*n) for n in nicks]
         return table.format(head + "".join(lines))
