@@ -194,7 +194,7 @@ class AliasWindow:
             return
 
         alias_format = self._fmt.names_previously_known(player_aliases)
-        others_format = self._fmt.name_used_by_others(other_users)
+        others_format = self._fmt.name_used_by_others(other_users, name)
         result = '{}<br/><br/>{}'.format(alias_format, others_format)
         QtWidgets.QMessageBox.about(self._parent,
                                     "Aliases : {}".format(name),

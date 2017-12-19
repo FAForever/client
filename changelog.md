@@ -6,6 +6,7 @@
  * Fix game sorting sometimes not matching saved settings at startup (#918, #919)
  * Fix players in chat sometimes not displayed with their clan tags (#922, #923)
  * Fix channel autojoin settings not loading properly
+ * Don't show checked user's name among other alias users
 
 Contributors:
  - Wesmania
