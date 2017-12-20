@@ -241,6 +241,12 @@ QTextEdit, QPlainTextEdit, QLineEdit, QListWidget, QListView, QTableWidget, QTre
 
 }
 
+QListView#countryList
+{
+    font-size:6pt;
+    padding:0px;
+}
+
 /* Modlist */
 QFrame#rankedFrame
 {
