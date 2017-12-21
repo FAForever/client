@@ -1,19 +1,20 @@
+<font color="{bcolor}">
 <font color="white" size="+2"><b>{title}</b></font><br/>
-<font color="silver" size="-1">on map</font>&nbsp;<font color="GoldenRod"><b>{mapdisplayname}</b></font>
-<table border="0" cellpadding="0" cellspacing="0" width= "250">
+<font size="-1">on map</font>&nbsp;<font color="GoldenRod"><b>{mapdisplayname}</b></font>
+<table border="0" cellpadding="0" cellspacing="0" width= "270">
 <tbody>
 <tr>
 <td>
-<font color="silver"><font size="-1">with</font>&nbsp;<b>{players} / {mapslots} {playerstring}</b><br/>
+<font size="-1">with</font>&nbsp;<font color="{pcolor}"><b>{players} / {mapslots} {playerstring}</b>{teams}</font><br/>
 <br/>
-<font size="-1">by</font>&nbsp;<font color="{color}"><b>{host}</b></font></font>
+<font size="-1">by</font>&nbsp;<font color="{hcolor}"><b>{host}</b></font><br/>
+<font size='-1'>{sim_mods}</font>
 </td>
 <td align="right">
-<b><font color="silver" size="-1">Avg. Rating</font><br/>
-<font color="silver" size="+1">{avgrating}</font></b>
+<b><font size="-1">Avg. Rating</font><br/>
+<font size="+1">{avgrating}</font></b>
 </td>
 </tr>
 </tbody>
 </table>
-
-
+</font>
