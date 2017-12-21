@@ -1,7 +1,10 @@
 import os
+import time
 import util
 from PyQt5 import QtCore, QtWidgets, QtGui
 from fa import maps
+import modvault
+from downloadManager import IconCallback
 
 
 class GameView(QtCore.QObject):
@@ -43,7 +46,7 @@ class GameItemDelegate(QtWidgets.QStyledItemDelegate):
     TEXT_OFFSET = 10
     TEXT_RIGHT_MARGIN = 5
 
-    TEXT_WIDTH = 250
+    TEXT_WIDTH = 275
     ICON_SIZE = 110
     PADDING = 10
 
@@ -156,16 +159,65 @@ class GameItemFormatter:
         hostid = game.host_player.id if game.host_player is not None else -1
         return self._colors.getUserColor(hostid)
 
+    def _player_color(self, game):
+        if game.num_players < game.max_players:
+            pcolor = "silver"  # 'not enough people'
+        else:
+            pcolor = "limegreen"  # #32CD32
+            teams = self._game_teams(game)
+            if len(teams) > 1:
+                # list of team sizes
+                team_list = []
+                for team in teams:
+                    team_list.append(str(len(team)))
+                if len(set(team_list)) > 1:  # not all teams equal
+                    pcolor = "#CACD32"  # ~yellowgreen
+        return pcolor
+
+    def _teams_obs(self, game):
+        teams = self._game_teams(game)
+        observers = self._game_observers(game)
+        if len(teams) == 0 and len(observers) == 0:
+            return ""
+        s_font = "<font size='-1'>"
+        e_font = "</font>"
+        if len(teams) > 0:
+            team_list = []  # list of team sizes
+            for team in teams:
+                team_list.append(str(len(team)))
+            team_str = " in " + " vs ".join(team_list) + (" +" if len(observers) > 0 else "")
+        else:
+            team_str = ""
+        if len(observers) > 0:
+            team_str += " {} O.".format(len(observers))
+        return s_font + team_str + e_font
+
+    def _host_time(self, data):
+        if data.hosted_at is None:
+            data.hosted_at = time.time()
+        return time.strftime("%H:%M", time.localtime(data.hosted_at))
+
+    def _sim_mods(self, game):
+        if game.sim_mods:
+            return "with sim mods (hover for list)"
+        else:
+            return ""
+
     def text(self, data):
         game = data.game
         formatting = {
-            "color": self._host_color(game),
-            "mapslots": game.max_players,
-            "mapdisplayname": game.mapdisplayname,
+            "bcolor": "white" if data.highlight else "silver",
             "title": game.title,
-            "host": game.host,
+            "mapdisplayname": game.mapdisplayname,
+            "pcolor": self._player_color(game),
             "players": game.num_players,
+            "mapslots": game.max_players,
             "playerstring": "player" if game.num_players == 1 else "players",
+            "teams": self._teams_obs(game),
+            "hcolor": self._host_color(game),
+            "host": game.host,
+            "hosttime": self._host_time(data),
+            "sim_mods": self._sim_mods(game),
             "avgrating": int(game.average_rating)
         }
         if self._featured_mod(game):
@@ -209,11 +261,27 @@ class GameItemFormatter:
         return [game.to_player(name) for name in game.observers
                 if game.is_connected(name)]
 
+    def _game_sim_mods(self, game):
+        if not game.sim_mods:
+            return None
+        inst = modvault.getInstalledMods()
+        uids = [mod.uid for mod in inst]
+        mods = ([], [])
+        for uid in game.sim_mods:
+            if uid in uids:
+                mods[0].append(game.sim_mods[uid])
+            else:
+                mods[1].append(game.sim_mods[uid])
+            mods[0].sort()
+            mods[1].sort()
+        return mods
+
     def tooltip(self, data):
         game = data.game
         teams = self._game_teams(game)
         observers = self._game_observers(game)
-        return self._tooltip_formatter.format(teams, observers, game.sim_mods)
+        sim_mods = self._game_sim_mods(game)
+        return self._tooltip_formatter.format(teams, observers, sim_mods)
 
 
 class GameTooltipFormatter:
@@ -235,7 +303,7 @@ class GameTooltipFormatter:
                 elif i == len(teams) - 1:
                     yield 'right', team
                 else:
-                    yield 'middle', team
+                    yield 'center', team
 
         team_tables = [self._team_table(team, align)
                        for align, team in alignment(teams)]
@@ -248,13 +316,18 @@ class GameTooltipFormatter:
         return team_table_start + "".join(rows) + team_table_end
 
     def _player_table_row(self, player, align):
-        if isinstance(player, str):
-            country = "<td></td>"
+        if align == 'center':
+            if isinstance(player, str):
+                country = "<td align='right' width='25'></td>"
+            else:
+                country = "<td align='right' width='25'>{country_icon}</td>"
+            pname = "<td align='left' valign='middle' width='120'>{player}</td>"
         else:
-            country = "<td>{country_icon}</td>"
-        pname = ("<td align='{alignment}' valign='middle' width='135'>"
-                 "{player}"
-                 "</td>")
+            if isinstance(player, str):
+                country = "<td></td>"
+            else:
+                country = "<td>{country_icon}</td>"
+            pname = "<td align='{alignment}' valign='middle' width='135'>{player}</td>"
         order = [pname, country] if align == 'right' else [country, pname]
         player_row = "<tr>{}{}</tr>".format(*order)
 
@@ -268,13 +341,17 @@ class GameTooltipFormatter:
 
     def _country_icon_fmt(self, player):
         icon_path_fmt = os.path.join("chat", "countries", "{}.png")
-        icon_path = icon_path_fmt.format(player.country.lower())
+        if player.country is None or player.country == '':
+            country = '__'
+        else:
+            country = player.country.lower()
+        icon_path = icon_path_fmt.format(country)
         icon_abs_path = os.path.join(util.COMMON_DIR, icon_path)
         return "<img src='{}'>".format(icon_abs_path)
 
     def _player_fmt(self, player):
         if player == self._me.player:
-            pformat = "<b><i>{}</b></i>"
+            pformat = "<b><i>{}</i></b>"
         else:
             pformat = "{}"
         player_string = pformat.format(player.login)
@@ -286,30 +363,31 @@ class GameTooltipFormatter:
         if not observers:
             return ""
 
-        observer_fmt = "{country_icon} {observer}"
+        obs_table_start = "<table><tr><td valign='middle'>Observers:</td>"
+        obs_table_end = "</td></tr></table>"
+        observer_fmt = "<td>{country_icon}</td><td valign='middle'>{observer}"
 
         observer_strings = [observer_fmt.format(
             country_icon=self._country_icon_fmt(observer),
             observer=observer.login)
             for observer in observers]
-        return "Observers: " + ", ".join(observer_strings)
+        return obs_table_start + ",</td>".join(observer_strings) + obs_table_end
 
     def _mods_tooltip(self, mods):
         if not mods:
             return ""
-        return "<br/>With: " + "<br/>".join(mods.values())
+        mods_start = "<br/>With Sim Mods:"
+        mods_inst = "<br/><font color='green'><i>Installed:</i><br/>" + \
+                    "<br/>".join(mods[0]) + "</font>" if mods[0] else ""
+        mods_not_inst = "<br/><i>Not installed:</i><br/>" + "<br/>".join(mods[1]) if mods[1] else ""
+        return mods_start + mods_inst + mods_not_inst
 
     def format(self, teams, observers, mods):
         teamtip = self._teams_tooltip(teams)
         obstip = self._observers_tooltip(observers)
         modtip = self._mods_tooltip(mods)
 
-        if modtip:
-            modtip = "<br/>" + modtip
-
-        return self.TIP_FORMAT.format(teams=teamtip,
-                                      observers=obstip,
-                                      mods=modtip)
+        return self.TIP_FORMAT.format(teams=teamtip, observers=obstip, mods=modtip)
 
 
 class GameViewBuilder:
