@@ -209,8 +209,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
                 if my_login in self._chatters:
                     priv_chan.addChatter(self._chatters[my_login])
 
-        if activate:
-            self.setCurrentWidget(priv_chan)
+            if activate:
+                self.setCurrentWidget(priv_chan)
 
         return True
 
