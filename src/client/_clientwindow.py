@@ -272,9 +272,6 @@ class ClientWindow(FormClass, BaseClass):
 
         self.player_colors = PlayerColors(self.me)
 
-        self.game_announcer = GameAnnouncer(self.gameset, self.me,
-                                            self.player_colors, self)
-
         self.power = 0  # current user power
         self.id = 0
         # Initialize the Menu Bar according to settings etc.
@@ -296,22 +293,8 @@ class ClientWindow(FormClass, BaseClass):
         self.modMenu = None
 
         self._alias_window = AliasSearchWindow(self)
-        #self.nFrame = NewsFrame()
-        #self.whatsNewLayout.addWidget(self.nFrame)
-        #self.nFrame.collapse()
 
-        #self.nFrame = NewsFrame()
-        #self.whatsNewLayout.addWidget(self.nFrame)
-
-        #self.nFrame = NewsFrame()
-        #self.whatsNewLayout.addWidget(self.nFrame)
-
-
-        #self.WPApi = WPAPI(self)
-        #self.WPApi.newsDone.connect(self.on_wpapi_done)
-        #self.WPApi.download()
-
-        #self.controlsContainerLayout.setAlignment(self.pageControlFrame, QtCore.Qt.AlignRight)
+        self.game_announcer = GameAnnouncer(self.players, self.me, self.player_colors, self)
 
     @property
     def state(self):

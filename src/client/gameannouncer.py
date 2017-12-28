@@ -1,61 +1,86 @@
-from PyQt5.QtCore import QTimer
-from model.game import GameState
-
-from fa import maps
+from chat.friendtracker import build_friends_tracker, FriendEvents
+import time
 
 
 class GameAnnouncer:
-    ANNOUNCE_DELAY_SECS = 35
 
-    def __init__(self, gameset, me, colors, client):
-        self._gameset = gameset
+    def __init__(self, playerset, me, colors, client):
         self._me = me
         self._colors = colors
         self._client = client
 
-        self._gameset.newLobby.connect(self._announce_hosting)
-        self._gameset.newLiveReplay.connect(self._announce_replay)
+        self._friends_event_tracker = build_friends_tracker(me, playerset)
+        self._friends_event_tracker.friendEvent.connect(self._friend_event)
 
         self.announce_games = True
         self.announce_replays = True
-        self._delayed_host_list = []
+        self._delayed_event_list = []
+        self.delay_friend_events = True
 
-    def _is_friend_host(self, game):
-        return (game.host_player is not None
-                and self._me.isFriend(game.host_player.id))
+    def _friend_event(self, player, event):
+        if self.delay_friend_events:
+            self._delayed_event_list.append((player, event))
+        else:
+            self._friend_announce(player, event)
 
-    def _announce_hosting(self, game):
-        if not self._is_friend_host(game) or not self.announce_games:
+    def delayed_friend_events(self, player):
+        if not self.delay_friend_events:
             return
-        announce_delay = QTimer()
-        announce_delay.setSingleShot(True)
-        announce_delay.setInterval(self.ANNOUNCE_DELAY_SECS * 1000)
-        announce_delay.timeout.connect(self._delayed_announce_hosting)
-        announce_delay.start()
-        self._delayed_host_list.append((announce_delay, game))
-
-    def _delayed_announce_hosting(self):
-        timer, game = self._delayed_host_list.pop(0)
-
-        if (not self._is_friend_host(game) or
-           not self.announce_games or
-           game.state != GameState.OPEN):
+        if len(self._delayed_event_list) == 0:
+            self.delay_friend_events = False
             return
-        self._announce(game, "hosting")
+        i = 0
+        for event in self._delayed_event_list:
+            if player in event:
+                player, event = self._delayed_event_list.pop(i)
+                self._friend_announce(player, event)
+            i += 1
 
-    def _announce_replay(self, game):
-        if not self._is_friend_host(game) or not self.announce_replays:
+    def _friend_announce(self, player, event):
+        if player.currentGame is None:
             return
-        self._announce(game, "playing live")
+        game = player.currentGame
+        if event == FriendEvents.HOSTING_GAME:
+            if not self.announce_games:  # Menu Option Chat
+                return
+            if game.featured_mod == "ladder1v1":
+                activity = "started"
+            else:
+                activity = "is <font color='GoldenRod'>hosting</font>"
+        elif event == FriendEvents.JOINED_GAME:
+            if not self.announce_games:  # Menu Option Chat
+                return
+            if game.featured_mod == "ladder1v1":
+                activity = "started"
+            else:
+                activity = "joined"
+        elif event == FriendEvents.REPLAY_AVAILABLE:
+            if not self.announce_replays:  # Menu Option Chat
+                return
+            activity = "is playing live"
+        else:  # that shouldn't happen
+            return
 
-    def _announce(self, game, activity):
-        url = game.url(game.host_player.id).toString()
-        url_color = self._colors.getColor("url")
-        mapname = maps.getDisplayName(game.mapname)
-        fmt = 'is {} {}<a style="color:{}" href="{}">{}</a> (on {})'
         if game.featured_mod == "faf":
             modname = ""
         else:
             modname = game.featured_mod + " "
-        msg = fmt.format(activity, modname, url_color, url, game.title, mapname)
-        self._client.forwardLocalBroadcast(game.host, msg)
+        if game.featured_mod != "ladder1v1":
+            player_info = " [{}/{}]".format(game.num_players, game.max_players)
+        else:
+            player_info = ""
+        time_info = ""
+        if game.has_live_replay:
+            time_running = time.time() - game.launched_at
+            if time_running > 6 * 60:  # already running games on client start
+                time_format = '%M:%S' if time_running < 60 * 60 else '%H:%M:%S'
+                time_info = " runs {}"\
+                    .format(time.strftime(time_format, time.gmtime(time_running)))
+        url_color = self._colors.getColor("url")
+        url = game.url(player.id).toString()
+
+        fmt = '{} {}<a style="color:{}" href="{}">{}</a> ' \
+              '(on <font color="GoldenRod">{}</font> {}{})'
+        msg = fmt.format(activity, modname, url_color, url, game.title,
+                         game.mapdisplayname, player_info, time_info)
+        self._client.forwardLocalBroadcast(player.login, msg)
