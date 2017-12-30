@@ -9,6 +9,7 @@
  * Don't show checked user's name among other alias users
  * Fix host and link in announcements in chat (#930, #934)
  * Fix '/me' message formatting for senders with no avatars (#936, #940)
+ * Restore the 'quit' server message when a chatter quits chat (#937, #939)
 
 Contributors:
  - Wesmania

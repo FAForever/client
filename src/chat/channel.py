@@ -491,4 +491,4 @@ class Channel(FormClass, BaseClass):
         self.chatEdit.clear()
 
     def _checkUserQuit(self, chatter):
-        self.removeChatter(chatter)
+        self.removeChatter(chatter, 'quit.')
