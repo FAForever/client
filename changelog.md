@@ -8,6 +8,7 @@
  * Fix channel autojoin settings not loading properly
  * Don't show checked user's name among other alias users
  * Fix host and link in announcements in chat (#930, #934)
+ * Fix '/me' message formatting for senders with no avatars (#936, #940)
 
 Contributors:
  - Wesmania

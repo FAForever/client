@@ -31,6 +31,14 @@ class Formatters(object):
     FORMATTER_RAW            = str(util.THEME.readfile("chat/formatters/raw.qthtml"))
     NICKLIST_COLUMNS         = json.loads(util.THEME.readfile("chat/formatters/nicklist_columns.json"))
 
+    @classmethod
+    def convert_to_no_avatar(cls, formatter):
+        if formatter == cls.FORMATTER_MESSAGE_AVATAR:
+            return cls.FORMATTER_MESSAGE
+        if formatter == cls.FORMATTER_ACTION_AVATAR:
+            return cls.FORMATTER_ACTION
+        return formatter
+
 
 # Helper class to schedule single event loop calls.
 class ScheduledCall(QtCore.QObject):
@@ -247,6 +255,7 @@ class Channel(FormClass, BaseClass):
             self.pingWindow()
 
         avatar = None
+        avatarTip = ""
         if chatter is not None and chatter in self.chatters:
             chatwidget = self.chatters[chatter]
             color = chatwidget.foreground().color().name()
@@ -270,19 +279,19 @@ class Channel(FormClass, BaseClass):
         cursor.movePosition(QtGui.QTextCursor.End)
         self.chatArea.setTextCursor(cursor)
 
+        chatter_has_avatar = False
         line = None
         if avatar is not None:
             pix = util.respix(avatar)
             if pix:
-                if not self.chatArea.document().resource(QtGui.QTextDocument.ImageResource, QtCore.QUrl(avatar)):
-                    self.chatArea.document().addResource(QtGui.QTextDocument.ImageResource,  QtCore.QUrl(avatar), pix)
-                line = formatter.format(time=self.timestamp(), avatar=avatar, avatarTip=avatarTip, name=displayName,
-                                        color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.chat_widget.a_style))
-        if line is None:
-            formatter = Formatters.FORMATTER_MESSAGE
-            line = formatter.format(time=self.timestamp(), name=displayName, color=color,
-                                    width=self.maxChatterWidth, text=util.irc_escape(text, self.chat_widget.a_style))
+                self._add_avatar_resource_to_chat_area(avatar, pix)
+                chatter_has_avatar = True
 
+        if not chatter_has_avatar:
+            formatter = Formatters.convert_to_no_avatar(formatter)
+
+        line = formatter.format(time=self.timestamp(), avatar=avatar, avatarTip=avatarTip, name=displayName,
+                                color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.chat_widget.a_style))
         self.chatArea.insertHtml(line)
         self.lines += 1
 
@@ -290,6 +299,13 @@ class Channel(FormClass, BaseClass):
             self.chatArea.verticalScrollBar().setValue(self.chatArea.verticalScrollBar().maximum())
         else:
             self.chatArea.verticalScrollBar().setValue(scroll_current)
+
+    def _add_avatar_resource_to_chat_area(self, avatar, pic):
+        doc = self.chatArea.document()
+        avatar_link = QtCore.QUrl(avatar)
+        image_enum = QtGui.QTextDocument.ImageResource
+        if not doc.resource(image_enum, avatar_link):
+            doc.addResource(image_enum, avatar_link, pic)
 
     def _chname_has_avatar(self, chname):
         if chname not in self._chatterset:
