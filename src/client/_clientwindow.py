@@ -1186,9 +1186,7 @@ class ClientWindow(FormClass, BaseClass):
         self.id = message["id"]
         self.login = message["login"]
 
-        self.me.player = Player(id_=self.id, login=self.login)
-
-        self.players[self.me.player.id] = self.me.player  # FIXME
+        self.me.onLogin(message["login"], message["id"])
         logger.debug("Login success")
 
         util.crash.CRASH_REPORT_USER = self.login
@@ -1198,7 +1196,7 @@ class ClientWindow(FormClass, BaseClass):
 
         self.updateOptions()
 
-        self.authorized.emit(self.me.player)
+        self.authorized.emit(self.me)
 
         # Run an initial connectivity test and initialize a gamesession object
         # when done

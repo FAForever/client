@@ -83,21 +83,26 @@ class User(QtCore.QObject):
     """
     relationsUpdated = QtCore.pyqtSignal(set)
     ircRelationsUpdated = QtCore.pyqtSignal(set)
+    playerAvailable = QtCore.pyqtSignal()
 
     def __init__(self, playerset):
         QtCore.QObject.__init__(self)
 
         self._player = None
+        self.id = None
+        self.login = None
+
+        self._players = playerset
+        self._players.playerAdded.connect(self._on_player_change)
+        self._players.playerRemoved.connect(self._on_player_change)
+
         self._friends = UserRelation()
         self._foes = UserRelation()
-        self._players = playerset
-
         self._friends.updated.connect(self.relationsUpdated.emit)
         self._foes.updated.connect(self.relationsUpdated.emit)
 
         self._irc_friends = IrcUserRelation()
         self._irc_foes = IrcUserRelation()
-
         self._irc_friends.updated.connect(self.ircRelationsUpdated.emit)
         self._irc_foes.updated.connect(self.ircRelationsUpdated.emit)
 
@@ -105,17 +110,24 @@ class User(QtCore.QObject):
     def player(self):
         return self._player
 
-    @player.setter
-    def player(self, value):
-        if self._player is not None:
-            self._player.updated.disconnect(self._checkClanChange)
-        self._player = value
-        if self._player is not None:
-            self._player.updated.connect(self._checkClanChange)
+    def onLogin(self, login, id_):
+        self.login = login
+        self.id = id_
+        self._update_player()
 
-        # reload IRC friends from settings
-        self._irc_friends.key = self._irc_key("friends")
-        self._irc_foes.key = self._irc_key("foes")
+    def _update_player(self):
+        if self.id is None or self.id not in self._players:
+            self._player = None
+            return
+        if self._player is not None:
+            return
+        self._player = self._players[self.id]
+        self.playerAvailable.emit()
+
+    def _on_player_change(self, player):
+        if self.id is None or player.id != self.id:
+            return
+        self._update_player()
 
     def _irc_key(self, name):
         if self.player is None:

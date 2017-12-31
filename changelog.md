@@ -11,6 +11,7 @@
  * Fix '/me' message formatting for senders with no avatars (#936, #940)
  * Restore the 'quit' server message when a chatter quits chat (#937, #939)
  * Fix exception in the mod kick dialog (#941)
+ * Fix race condition causing autojoining #newbie at random (#949, #950)
 
 Contributors:
  - Wesmania

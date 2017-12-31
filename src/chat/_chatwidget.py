@@ -97,15 +97,15 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             self._notifier = None
 
     @QtCore.pyqtSlot(object)
-    def connect(self, player):
+    def connect(self, me):
         try:
             logger.info("Connecting to IRC at: {}:{}. TLS: {}".format(self.irc_host, self.irc_port, self.irc_tls))
             self.irc_connect(self.irc_host,
                              self.irc_port,
-                             player.login,
+                             me.login,
                              ssl=self.irc_tls,
-                             ircname=player.login,
-                             username=player.id)
+                             ircname=me.login,
+                             username=me.id)
             self._notifier = QSocketNotifier(self.ircobj.connections[0]._get_socket().fileno(), QSocketNotifier.Read, self)
             self._notifier.activated.connect(self.once)
             self._timer.start(PONG_INTERVAL)
@@ -204,8 +204,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             # Add participants to private channel
             priv_chan.addChatter(chatter)
 
-            if self.client.me.player is not None:
-                my_login = self._chatters.get(self.client.me.player.login)
+            if self.client.me.login is not None:
+                my_login = self.client.me.login
                 if my_login in self._chatters:
                     priv_chan.addChatter(self._chatters[my_login])
 
@@ -260,15 +260,28 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.autoJoin(self.optionalChannels)
         self.autoJoin(self.crucialChannels)
         self.autoJoin(self.auto_join_channels)
+        self._schedule_actions_at_player_available()
 
-        max_number_of_games_to_be_considered_newbie = 51
-        if self.client.useNewbiesChannel and self.client.me.player.number_of_games < max_number_of_games_to_be_considered_newbie:
+    def _schedule_actions_at_player_available(self):
+        self._me.playerAvailable.connect(self._at_player_available)
+        if self._me.player is not None:
+            self._at_player_available()
+
+    def _at_player_available(self):
+        self._me.playerAvailable.disconnect(self._at_player_available)
+        self._autojoin_newbie_channel()
+
+    def _autojoin_newbie_channel(self):
+        if not self.client.useNewbiesChannel:
+            return
+        game_number_threshold = 50
+        if self.client.me.player.number_of_games <= game_number_threshold:
             self.autoJoin(["#newbie"])
 
     def nickservRegister(self):
         if hasattr(self, '_nickserv_registered'):
             return
-        self.connection.privmsg('NickServ', 'register %s %s' % (util.md5text(self.client.password), '{}@users.faforever.com'.format(self.client.me.player.login)))
+        self.connection.privmsg('NickServ', 'register %s %s' % (util.md5text(self.client.password), '{}@users.faforever.com'.format(self.client.me.login)))
         self._nickserv_registered = True
         self.autoJoin(self.optionalChannels)
         self.autoJoin(self.crucialChannels)
@@ -489,7 +502,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             self.serverLogArea.appendPlainText("IRC disconnected - reconnecting.")
             self.identified = False
             self._timer.stop()
-            self.connect(self.client.me.player)
+            self.connect(self.client.me)
 
     def on_privmsg(self, c, e):
         name, id, elevation, hostname = parse_irc_source(e.source())
