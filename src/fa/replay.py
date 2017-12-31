@@ -87,7 +87,7 @@ def replay(source, detach=False):
             if url.scheme() == "faflive":
                 mod = QtCore.QUrlQuery(url).queryItemValue("mod")
                 mapname = QtCore.QUrlQuery(url).queryItemValue("map")
-                replay_id = url.path().split("/")[0]
+                replay_id = QtCore.QUrlQuery(url).queryItemValue("uid")
                 # whip the URL into shape so ForgedAllianceForever.exe understands it
                 arg_url = QtCore.QUrl(url)
                 arg_url.setScheme("gpgnet")
