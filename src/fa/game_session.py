@@ -3,10 +3,16 @@ from PyQt5.QtNetwork import QTcpServer, QHostAddress
 from enum import IntEnum
 
 from connectivity.turn import TURNState
-from decorators import with_logger
+from config import setup_file_handler
 from fa.game_connection import GPGNetConnection
 from fa.game_process import instance
 
+import logging
+logger = logging.getLogger(__name__)
+
+# Log to a separate file to not pollute normal log with huge json dumps
+logger.propagate = False
+logger.addHandler(setup_file_handler('gamesession.log'))
 
 class GameSessionState(IntEnum):
     # Game services are entirely off
@@ -21,7 +27,6 @@ class GameSessionState(IntEnum):
     RUNNING = 4
 
 
-@with_logger
 class GameSession(QObject):
     ready = pyqtSignal()
     gameFullSignal = pyqtSignal()
@@ -97,7 +102,7 @@ class GameSession(QObject):
     def _needs_game_connection(fn):
         def wrap(self, *args, **kwargs):
             if self._game_connection is None:
-                self._logger.warning("{}.{}: tried to run without a game connection".format(
+                logger.warning("{}.{}: tried to run without a game connection".format(
                     self.__class__.__name__, fn.__name__))
             else:
                 return fn(self, *args, **kwargs)
@@ -126,7 +131,7 @@ class GameSession(QObject):
             self._game_connection.send(command, *args)
 
     def send(self, command_id, args):
-        self._logger.info("Outgoing relay message {} {}".format(command_id, args))
+        logger.info("Outgoing relay message {} {}".format(command_id, args))
         self._client.lobby_connection.send({
             'command': command_id,
             'target': 'game',
@@ -135,7 +140,7 @@ class GameSession(QObject):
 
     @_needs_game_connection
     def _peer_bound(self, login, peer_id, port):
-        self._logger.info("Bound peer {}/{} to {}".format(login, peer_id, port))
+        logger.info("Bound peer {}/{} to {}".format(login, peer_id, port))
         if peer_id in self._connects:
             self._game_connection.send('ConnectToPeer', '127.0.0.1:{}'.format(port), login, peer_id)
             self._connects.remove(peer_id)
@@ -144,7 +149,7 @@ class GameSession(QObject):
             self._joins.remove(peer_id)
 
     def _new_game_connection(self):
-        self._logger.info("Game connected through GPGNet")
+        logger.info("Game connected through GPGNet")
         assert not self._game_connection
         self._game_connection = GPGNetConnection(self._game_listener.nextPendingConnection())
         self._game_connection.messageReceived.connect(self._on_game_message)
@@ -152,7 +157,7 @@ class GameSession(QObject):
 
     @_needs_game_connection
     def _on_game_message(self, command, args):
-        self._logger.info("Incoming GPGNet: {} {}".format(command, args))
+        logger.info("Incoming GPGNet: {} {}".format(command, args))
         if command == "GameState":
             if args[0] == 'Idle':
                 # autolobby, port, nickname, uid, hasSupcom
@@ -176,12 +181,12 @@ class GameSession(QObject):
             self.ready.emit()
 
     def _launched(self):
-        self._logger.info("Game has started")
+        logger.info("Game has started")
 
     def _exited(self, status):
         self._game_connection = None
         self.state = GameSessionState.OFF
-        self._logger.info("Game has exited with status code: {}".format(status))
+        logger.info("Game has exited with status code: {}".format(status))
         self.send('GameState', ['Ended'])
 
         if self._rehost:

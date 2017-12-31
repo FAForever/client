@@ -5,9 +5,12 @@
 =====
  * Fix the error message "failed to get uid" which has bad spacing
  * Fix replay search map - automatic replacement of blanks with * (#955, #599)
+ * Redirect some larger game messages to a separate logfile (#952)
 
 Contributors:
  - MathieuB8
+ - Grothe
+ - Wesmania
 
 0.16.1
 ====

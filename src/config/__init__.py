@@ -166,21 +166,24 @@ for k, v in defaults.items():
 
 # Setup normal rotating log handler
 make_dirs()
-# check permissions of writing the log file first (which fails when changing users)
-log_file = os.path.join(Settings.get('client/logs/path'), 'forever.log')
-try:
-    with open(log_file, "a") as f:
-        pass
-except IOError as e:
-    set_data_path_permissions()
-rotate = RotatingFileHandler(os.path.join(Settings.get('client/logs/path'), 'forever.log'),
-                             maxBytes=int(Settings.get('client/logs/max_size')),
-                             backupCount=1)
-rotate.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))
 
-buffering_handler = MemoryHandler(int(Settings.get('client/logs/buffer_size')), target=rotate)
+def setup_file_handler(filename):
+    # check permissions of writing the log file first (which fails when changing users)
+    log_file = os.path.join(Settings.get('client/logs/path'), filename)
+    try:
+        with open(log_file, "a") as f:
+            pass
+    except IOError as e:
+        set_data_path_permissions()
+    rotate = RotatingFileHandler(os.path.join(Settings.get('client/logs/path'), filename),
+                                 maxBytes=int(Settings.get('client/logs/max_size')),
+                                 backupCount=1)
+    rotate.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))
+    return MemoryHandler(int(Settings.get('client/logs/buffer_size')), target=rotate)
 
-logging.getLogger().addHandler(buffering_handler)
+client_handler = setup_file_handler('forever.log')
+
+logging.getLogger().addHandler(client_handler)
 logging.getLogger().setLevel(Settings.get('client/logs/level', type=int))
 
 if Settings.get('client/logs/console', False, type=bool):
