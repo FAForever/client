@@ -278,8 +278,8 @@ class Chatter(QtWidgets.QTableWidgetItem):
         if player.country is None or player.country == '':
             country = '__'
         else:
-            country = player.country.lower()
-        self.setIcon(util.THEME.icon("chat/countries/{}.png".format(country)))
+            country = player.country
+        self.setIcon(util.THEME.icon("chat/countries/{}.png".format(country.lower())))
         self.setToolTip(country)
 
     def update_rank(self):
