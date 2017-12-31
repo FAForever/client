@@ -186,10 +186,10 @@ class Chatter(QtWidgets.QTableWidgetItem):
         self_rank = self.get_user_rank(self)
         other_rank = self.get_user_rank(other)
 
-        if self._me.player is not None:
-            if self.user.name == self._me.player.login:
+        if self._me.login is not None:
+            if self.user.name == self._me.login:
                 return True
-            if other.user.name == self._me.player.login:
+            if other.user.name == self._me.login:
                 return False
 
         # if not same rank sort
@@ -412,8 +412,8 @@ class Chatter(QtWidgets.QTableWidgetItem):
 
     def doubleClicked(self, item):
         # filter yourself
-        if self._me.player is not None:
-            if self._me.player.login == self.user.name:
+        if self._me.login is not None:
+            if self._me.login == self.user.name:
                 return
         # Chatter name clicked
         if item == self:
