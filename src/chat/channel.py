@@ -319,7 +319,7 @@ class Channel(FormClass, BaseClass):
         return True
 
     def printMsg(self, chname, text, scroll_forced=False):
-        if self._chname_has_avatar(chname):
+        if self._chname_has_avatar(chname) and not self.private:
             fmt = Formatters.FORMATTER_MESSAGE_AVATAR
         else:
             fmt = Formatters.FORMATTER_MESSAGE
@@ -328,7 +328,7 @@ class Channel(FormClass, BaseClass):
     def printAction(self, chname, text, scroll_forced=False, server_action=False):
         if server_action:
             fmt = Formatters.FORMATTER_RAW
-        elif self._chname_has_avatar(chname):
+        elif self._chname_has_avatar(chname) and not self.private:
             fmt = Formatters.FORMATTER_ACTION_AVATAR
         else:
             fmt = Formatters.FORMATTER_ACTION
