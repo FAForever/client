@@ -456,13 +456,13 @@ class ReplayVaultWidgetHandler(object):
 
     def searchVault(self, minRating=None, mapName=None, playerName=None, modListIndex=None):
         w = self._w
-        if minRating:
+        if minRating is not None:
             w.minRating.setValue(minRating)
-        if mapName:
+        if mapName is not None:
             w.mapName.setText(mapName)
-        if playerName:
+        if playerName is not None:
             w.playerName.setText(playerName)
-        if modListIndex:
+        if modListIndex is not None:
             w.modList.setCurrentIndex(modListIndex)
 
         """ search for some replays """
