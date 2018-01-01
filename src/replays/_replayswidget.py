@@ -465,13 +465,16 @@ class ReplayVaultWidgetHandler(object):
         if modListIndex is not None:
             w.modList.setCurrentIndex(modListIndex)
 
+        # Map Search helper - the secondary server has a problem with blanks (fix until change to api)
+        map_name = w.mapName.text().replace(" ", "*")
+
         """ search for some replays """
         self._w.searchInfoLabel.setText(self.searchInfo)
         self.searching = True
         self.vault_connection.connect()
         self.vault_connection.send(dict(command="search",
                                         rating=w.minRating.value(),
-                                        map=w.mapName.text(),
+                                        map=map_name,
                                         player=w.playerName.text(),
                                         mod=w.modList.currentText()))
         self._w.onlineTree.clear()

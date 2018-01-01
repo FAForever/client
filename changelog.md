@@ -3,7 +3,8 @@
 
 0.17.0
 =====
- * Fixed the error message "failed to get uid" which has bad spacing
+ * Fix the error message "failed to get uid" which has bad spacing
+ * Fix replay search map - automatic replacement of blanks with * (#955, #599)
 
 Contributors:
  - MathieuB8
