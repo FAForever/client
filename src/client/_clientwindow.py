@@ -584,9 +584,7 @@ class ClientWindow(FormClass, BaseClass):
 
         # units database (ex. live streams)
         # old unitDB
-        self.unitdbWebView.setUrl(QtCore.QUrl("http://direct.faforever.com/faf/unitsDB"))
-        # spookys unitDB (will be moved to site)
-        # self.unitdbWebView.setUrl(QtCore.QUrl("http://spooky.github.io/unitdb/#/"))
+        self.unitdbWebView.setUrl(QUrl(Settings.get("UNITDB_URL")))
 
         self.warnPlayer = QtWidgets.QLabel(self)
         self.warnPlayer.setText(

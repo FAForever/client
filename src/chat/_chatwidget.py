@@ -331,7 +331,9 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
                 self.addChannel(channel, newch, 1)  # CAVEAT: This is assumes a server tab exists.
                 self.client.localBroadcast.connect(newch.printRaw)
                 newch.printAnnouncement("Welcome to Forged Alliance Forever!", "red", "+3")
-                newch.printAnnouncement("Check out the wiki: http://wiki.faforever.com for help with common issues.", "white", "+1")
+                wiki_link = Settings.get("WIKI_URL")
+                wiki_msg = "Check out the wiki: {} for help with common issues.".format(wiki_link)
+                newch.printAnnouncement(wiki_msg, "white", "+1")
                 newch.printAnnouncement("", "black", "+1")
                 newch.printAnnouncement("", "black", "+1")
             else:

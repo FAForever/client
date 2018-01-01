@@ -42,7 +42,7 @@ defaults = {
     'UNITDB_URL': 'http://direct.faforever.com/faf/unitsDB/',
     'MAPPOOL_URL': 'http://forums.faforever.com/viewtopic.php?f=2&t=13742',
     'GITHUB_URL': 'http://www.github.com/FAForever',
-    'WIKI_URL': 'http://wiki.faforever.com/index.php?title=Main_Page',
+    'WIKI_URL': 'http://wiki.faforever.com',
     'SUPPORT_URL': 'http://forums.faforever.com/viewforum.php?f=3',
     'TICKET_URL': 'http://forums.faforever.com/viewforum.php?f=3',
     'CREATE_ACCOUNT_URL': 'https://faforever.com/account/register',
