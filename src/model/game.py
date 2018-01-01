@@ -90,6 +90,13 @@ class Game(QObject):
         self._live_replay_timer.timeout.connect(self._emit_live_replay)
         self.has_live_replay = False
 
+        # Update highlight
+        self._highlight_timer = QTimer()
+        self._highlight_timer.setSingleShot(True)
+        self._highlight_timer.setInterval(250)
+        self._highlight_timer.timeout.connect(self.update)
+        self.highlight = False
+
         self._update(state, launched_at, num_players, max_players, title,
                      host, mapname, map_file_path, teams, featured_mod,
                      featured_mod_versions, sim_mods, password_protected,
@@ -169,6 +176,16 @@ class Game(QObject):
             self.visibility = visibility
 
         self._check_live_replay_timer()
+        self._check_highlight()
+
+    def _check_highlight(self):
+        if self.state != GameState.OPEN or self._highlight_timer.isActive():
+            return
+        if self.highlight:
+            self.highlight = False
+        else:
+            self.highlight = True
+            self._highlight_timer.start()
 
     def _check_live_replay_timer(self):
         if (self.state != GameState.PLAYING or

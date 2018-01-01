@@ -223,7 +223,7 @@ class GameItemFormatter:
     def text(self, data):
         game = data.game
         formatting = {
-            "bcolor": "silver",
+            "bcolor": "white" if game.highlight else "silver",
             "title": game.title,
             "mapdisplayname": game.mapdisplayname,
             "pcolor": self._player_color(game),
