@@ -13,6 +13,7 @@
  * Fix exception in the mod kick dialog (#941)
  * Fix race condition causing autojoining #newbie at random (#949, #950)
  * Hotfix race condition between downloading avatars and removing chatters (#957)
+ * Don't proceed with game launch if FA path is invalid (#933, #959)
 
 Contributors:
  - Wesmania

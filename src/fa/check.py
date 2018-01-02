@@ -1,7 +1,5 @@
 import logging
 import os
-import glob
-import shutil
 import zipfile
 import binascii
 
@@ -64,6 +62,7 @@ def path(parent):
 
     logger.info("Writing fa_path.lua config file.")
     writeFAPathLua()
+    return True
 
 
 def game(parent):
@@ -125,8 +124,9 @@ def check(featured_mod, mapname=None, version=None, modVersions=None, sim_mods=N
     # Perform the actual comparisons and updating
     logger.info("Updating FA for mod: " + str(featured_mod) + ", version " + str(version))
 
-    import client
-    path(client.instance)
+    import client # FIXME: forced by circular imports
+    if not path(client.instance):
+        return False
 
     # Spawn an update for the required mod
     game_updater = fa.updater.Updater(featured_mod, version, modVersions, silent=silent)
