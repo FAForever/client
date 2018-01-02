@@ -14,7 +14,7 @@ import sys
 import chat
 from chat import user2name, parse_irc_source
 from chat.channel import Channel
-from chat.irclib import SimpleIRCClient
+from chat.irclib import SimpleIRCClient, ServerConnectionError
 import notifications as ns
 
 from model.ircuserset import IrcUserset
@@ -91,7 +91,10 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
     def disconnect(self):
         self.canDisconnect = True
-        self.irc_disconnect()
+        try:
+            self.irc_disconnect()
+        except ServerConnectionError:
+            pass
         if self._notifier:
             self._notifier.activated.disconnect(self.once)
             self._notifier = None

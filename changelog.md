@@ -14,6 +14,7 @@
  * Fix race condition causing autojoining #newbie at random (#949, #950)
  * Hotfix race condition between downloading avatars and removing chatters (#957)
  * Don't proceed with game launch if FA path is invalid (#933, #959)
+ * Hotfix an irclib exception popping up in some cases (#958)
 
 Contributors:
  - Wesmania
