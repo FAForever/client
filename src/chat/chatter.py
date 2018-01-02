@@ -229,6 +229,14 @@ class Chatter(QtWidgets.QTableWidgetItem):
         return self.user.elevation[self.channel.name]
 
     def updateAvatar(self):
+        # FIXME: prodding the underlying C++ object to see if it exists
+        # Needed if we're gone while downloading our avatar
+        # We don't subclass QObject, so we have to do it this way
+        try:
+            self.isSelected()
+        except RuntimeError:
+            return
+
         try:
             avatar = self.user_player.avatar
         except AttributeError:

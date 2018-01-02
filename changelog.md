@@ -12,6 +12,7 @@
  * Restore the 'quit' server message when a chatter quits chat (#937, #939)
  * Fix exception in the mod kick dialog (#941)
  * Fix race condition causing autojoining #newbie at random (#949, #950)
+ * Hotfix race condition between downloading avatars and removing chatters (#957)
 
 Contributors:
  - Wesmania
