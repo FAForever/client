@@ -29,6 +29,16 @@
       <number>5</number>
      </property>
      <item>
+      <widget class="QLabel" name="labelmodVaultInfo">
+       <property name="text">
+        <string>Pressing Enter in the search box will only filter the list of mods. A click on 'Server Search' will make a new server request with the search box as filter. The server response is limited to 100, but the client adds newly received mods to his distinct list, so the list will grow beyond 100. The search is case insensitive and is taken as one string (even incl. blanks), and no wildcards (? *).</string>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
       <layout class="QHBoxLayout" name="horizontalLayout_6">
        <property name="spacing">
         <number>5</number>
@@ -49,7 +59,7 @@
         <widget class="QLineEdit" name="searchInput">
          <property name="minimumSize">
           <size>
-           <width>110</width>
+           <width>100</width>
            <height>0</height>
           </size>
          </property>
@@ -85,7 +95,7 @@
         <widget class="QComboBox" name="SortType">
          <property name="minimumSize">
           <size>
-           <width>110</width>
+           <width>100</width>
            <height>0</height>
           </size>
          </property>
@@ -128,7 +138,7 @@
         <widget class="QComboBox" name="ShowType">
          <property name="minimumSize">
           <size>
-           <width>110</width>
+           <width>100</width>
            <height>0</height>
           </size>
          </property>
@@ -150,17 +160,7 @@
          </item>
          <item>
           <property name="text">
-           <string>Sim only</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Big Mods</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Small Mods</string>
+           <string>Sim Only</string>
           </property>
          </item>
          <item>
@@ -173,6 +173,19 @@
            <string>Installed</string>
           </property>
          </item>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="labelInfo">
+         <property name="minimumSize">
+          <size>
+           <width>50</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Info</string>
+         </property>
         </widget>
        </item>
        <item>
@@ -205,7 +218,7 @@
       </layout>
      </item>
      <item>
-      <widget class="QListWidget" name="modList">
+      <widget class="QListView" name="modList">
        <property name="focusPolicy">
         <enum>Qt::NoFocus</enum>
        </property>
@@ -240,9 +253,6 @@
         <enum>QListView::ListMode</enum>
        </property>
        <property name="uniformItemSizes">
-        <bool>true</bool>
-       </property>
-       <property name="sortingEnabled">
         <bool>true</bool>
        </property>
       </widget>

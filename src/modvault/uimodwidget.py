@@ -1,9 +1,6 @@
-
-import urllib.request, urllib.error, urllib.parse
-
 from PyQt5 import QtCore, QtWidgets
 
-import modvault
+from modvault.utils import getInstalledMods, getActiveMods, setActiveMods
 import util
 
 FormClass, BaseClass = util.THEME.loadUiType("modvault/uimod.ui")
@@ -24,14 +21,14 @@ class UIModWidget(FormClass, BaseClass):
 
         self.doneButton.clicked.connect(self.doneClicked)
         self.modList.itemEntered.connect(self.hoverOver)
-        allmods = modvault.getInstalledMods()
+        allmods = getInstalledMods()
         self.uimods = {}
         for mod in allmods:
             if mod.ui_only:
                 self.uimods[mod.totalname] = mod
                 self.modList.addItem(mod.totalname)
 
-        names = [mod.totalname for mod in modvault.getActiveMods(uimods=True)]
+        names = [mod.totalname for mod in getActiveMods(uimods=True)]
         for name in names:
             l = self.modList.findItems(name, QtCore.Qt.MatchExactly)
             if l:
@@ -43,7 +40,7 @@ class UIModWidget(FormClass, BaseClass):
     @QtCore.pyqtSlot()
     def doneClicked(self):
         selected_mods = [self.uimods[str(item.text())] for item in self.modList.selectedItems()]
-        succes = modvault.setActiveMods(selected_mods, False)
+        succes = setActiveMods(selected_mods, False)
         if not succes:
             QtWidgets.QMessageBox.information(None, "Error", "Could not set the active UI mods. Maybe something is "
                                                              "wrong with your game.prefs file. Please send your log.")

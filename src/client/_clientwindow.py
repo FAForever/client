@@ -26,6 +26,9 @@ import json
 from model.gameset import Gameset
 from model.player import Player
 from model.playerset import Playerset
+from model.modset import Modset
+from modvault.modmodel import ModModel
+from modvault.moditem import ModViewBuilder
 from modvault.utils import MODFOLDER
 import notifications as ns
 import replays
@@ -152,6 +155,7 @@ class ClientWindow(FormClass, BaseClass):
         self.players = Playerset()  # Players known to the client
 
         self.gameset = Gameset(self.players)
+        self.modset = Modset()
         fa.instance.gameset = self.gameset  # FIXME (needed fa/game_process L81 for self.game = self.gameset[uid])
 
         # Handy reference to the User object representing the logged-in user.
@@ -159,8 +163,8 @@ class ClientWindow(FormClass, BaseClass):
 
         # Qt model for displaying active games.
         self.game_model = GameModel(self.me, self.gameset)
-
-        self.lobby_info = LobbyInfo(self.lobby_dispatch, self.gameset, self.players)
+        self.mod_model = ModModel(self.me, self.modset)
+        self.lobby_info = LobbyInfo(self.lobby_dispatch, self.gameset, self.players, self.modset)
         self.gameset.newGame.connect(self.fill_in_session_info)
 
         self.lobby_dispatch["session"] = self.handle_session
@@ -538,7 +542,9 @@ class ClientWindow(FormClass, BaseClass):
         self.replays = replays.ReplaysWidget(self, self.lobby_dispatch,
                                              self.gameset, self.players)
         self.mapvault = vault.MapVault(self)
-        self.modvault = modvault.ModVault(self)
+        self.modview_builder = ModViewBuilder(self.downloader)
+        self.modvault = modvault.ModVault(self, self.mod_model,
+                                          self.modview_builder)
         self.notificationSystem = ns.Notifications(self, self.gameset,
                                                    self.players, self.me)
 

@@ -26,7 +26,7 @@ import fafpath
 from PyQt5 import QtWidgets, QtCore, QtNetwork
 
 import util
-import modvault
+from modvault.utils import downloadMod
 
 
 logger = logging.getLogger(__name__)
@@ -523,7 +523,7 @@ class Updater(QtCore.QObject, ConnectionHandler):
                 self.connection.writeToServer("REQUEST_SIM_PATH", self.featured_mod)
                 self.waitForSimModPath()
                 if self.result == self.RESULT_SUCCESS:
-                    if modvault.downloadMod(self.modpath):
+                    if downloadMod(self.modpath):
                         self.connection.writeToServer("ADD_DOWNLOAD_SIM_MOD", self.featured_mod)
 
             else:

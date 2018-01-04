@@ -8,6 +8,7 @@ import sys
 from enum import IntEnum
 
 from model.game import Game, message_to_game_args
+from model.mod import Mod
 
 logger = logging.getLogger(__name__)
 
@@ -337,7 +338,7 @@ class LobbyInfo(QtCore.QObject):
     avatarList = QtCore.pyqtSignal(list)
     playerAvatarList = QtCore.pyqtSignal(dict)
 
-    def __init__(self, dispatcher, gameset, playerset):
+    def __init__(self, dispatcher, gameset, playerset, modset):
         QtCore.QObject.__init__(self)
 
         self._dispatcher = dispatcher
@@ -355,6 +356,7 @@ class LobbyInfo(QtCore.QObject):
         self._dispatcher["admin"] = self.handle_admin
         self._gameset = gameset
         self._playerset = playerset
+        self._modset = modset
 
     def handle_updated_achievements(self, message):
         pass
@@ -393,12 +395,25 @@ class LobbyInfo(QtCore.QObject):
             self._gameset[uid].update(**m)
 
     def handle_modvault_list_info(self, message):
-        modList = message["modList"]
-        for mod in modList:
-            self.handle_modvault_info(mod)
+        for mod_message in message['modList']:
+            self._update_mod(mod_message)
 
     def handle_modvault_info(self, message):
-        self.modVaultInfo.emit(message)
+        self._update_mod(message)
+
+    def _update_mod(self, m):
+        if "command" in m:
+            del m["command"]
+
+        uid = m["uid"]
+        if uid not in self._modset:
+            mod = Mod(**m)
+            try:
+                self._modset[uid] = mod
+            except ValueError:
+                pass
+        else:
+            self._modset[uid].update(**m)
 
     def handle_replay_vault(self, message):
         self.replayVault.emit(message)

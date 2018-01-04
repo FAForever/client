@@ -1,11 +1,10 @@
-import urllib.request, urllib.error, urllib.parse
+from PyQt5 import QtCore, QtWidgets
+
 import tempfile
 import zipfile
 import os
 
-from PyQt5 import QtCore, QtWidgets
-
-import modvault
+from modvault import utils
 import util
 
 FormClass, BaseClass = util.THEME.loadUiType("modvault/upload.ui")
@@ -34,7 +33,7 @@ class UploadModWidget(FormClass, BaseClass):
         self.UID.setText(modinfo.uid)
         self.Description.setPlainText(modinfo.description)
         if modinfo.icon != "":
-            self.IconURI.setText(modvault.iconPathToFull(modinfo.icon))
+            self.IconURI.setText(utils.iconPathToFull(modinfo.icon))
             self.updateThumbnail()
         else:
             self.Thumbnail.setPixmap(util.THEME.pixmap("games/unknown_map.png"))
@@ -48,11 +47,11 @@ class UploadModWidget(FormClass, BaseClass):
                                               "The mod name contains invalid characters: /\\<>|?:\"")
             return
 
-        iconpath = modvault.iconPathToFull(self.modinfo.icon)
+        iconpath = utils.iconPathToFull(self.modinfo.icon)
         infolder = False
         if iconpath != "" and os.path.commonprefix([os.path.normcase(self.modDir), os.path.normcase(iconpath)]) == \
                 os.path.normcase(self.modDir):  # the icon is in the game folder
-            localpath = modvault.fullPathToIcon(iconpath)
+            localpath = utils.fullPathToIcon(iconpath)
             infolder = True
         if iconpath != "" and not infolder:
             QtWidgets.QMessageBox.information(self.client, "Invalid Icon File",
@@ -76,13 +75,13 @@ class UploadModWidget(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def updateThumbnail(self):
-        iconfilename = modvault.iconPathToFull(self.modinfo.icon)
+        iconfilename = utils.iconPathToFull(self.modinfo.icon)
         if iconfilename == "":
             return False
         if os.path.splitext(iconfilename)[1].lower() == ".dds":
             old = iconfilename
             iconfilename = os.path.join(self.modDir, os.path.splitext(os.path.basename(iconfilename))[0] + ".png")
-            succes = modvault.generateThumbnail(old, iconfilename)
+            succes = utils.generateThumbnail(old, iconfilename)
             if not succes:
                 QtWidgets.QMessageBox.information(self.client, "Invalid Icon File",
                                                   "Because FAF can't read DDS files, it tried to convert it to a png. "
@@ -94,7 +93,7 @@ class UploadModWidget(FormClass, BaseClass):
             QtWidgets.QMessageBox.information(self.client, "Invalid Icon File",
                                               "This was not a valid icon file. Please pick a png or jpeg")
             return False
-        self.modinfo.thumbnail = modvault.fullPathToIcon(iconfilename)
+        self.modinfo.thumbnail = utils.fullPathToIcon(iconfilename)
         self.IconURI.setText(iconfilename)
         return True
 
