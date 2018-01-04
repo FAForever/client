@@ -13,7 +13,6 @@ class GameModelItem(QObject):
 
         self.game = game
         self.game.gameUpdated.connect(self._game_updated)
-
         self._me = me
         self._me.relationsUpdated.connect(self._check_host_relation_changed)
 

@@ -54,7 +54,7 @@ class GameLauncher:
 
     def host_game(self, title, main_mod, mapname=None):
         game = self._build_hosted_game(main_mod, mapname)
-        host_widget = HostgameWidget(self._client, self._gameview_builder,
+        host_widget = HostGameWidget(self._client, self._gameview_builder,
                                      title, game, self._me)
         host_widget.launch.connect(self._launch_game)
         return host_widget.exec_()
@@ -71,7 +71,7 @@ class GameLauncher:
            and not fa.check.map_(game.mapname, force=True)):
             return
 
-        modvault.setActiveMods(mods, True, False)
+        modvault.utils.setActiveMods(mods, True, False)
 
         self._client.host_game(title=game.title,
                                mod=game.featured_mod,
@@ -80,7 +80,7 @@ class GameLauncher:
                                password=password)
 
 
-class HostgameWidget(FormClass, BaseClass):
+class HostGameWidget(FormClass, BaseClass):
     launch = QtCore.pyqtSignal(object, object, list)
 
     def __init__(self, client, gameview_builder, title, game, me):
@@ -123,21 +123,21 @@ class HostgameWidget(FormClass, BaseClass):
 
         self.mods = {}
         # this makes it so you can select every non-ui_only mod
-        for mod in modvault.getInstalledMods():
+        for mod in modvault.utils.getInstalledMods():
             if mod.ui_only:
                 continue
             self.mods[mod.totalname] = mod
             self.modList.addItem(mod.totalname)
 
-        names = [mod.totalname for mod in modvault.getActiveMods(uimods=False, temporary=False)]
+        names = [mod.totalname for mod in modvault.utils.getActiveMods(uimods=False, temporary=False)]
         logger.debug("Active Mods detected: %s" % str(names))
         for name in names:
-            l = self.modList.findItems(name, QtCore.Qt.MatchExactly)
-            logger.debug("found item: %s" % l[0].text())
-            if l:
-                l[0].setSelected(True)
+            ml = self.modList.findItems(name, QtCore.Qt.MatchExactly)
+            logger.debug("found item: %s" % ml[0].text())
+            if ml:
+                ml[0].setSelected(True)
 
-        self.mapList.currentIndexChanged.connect(self.mapChanged)
+        self.mapList.currentIndexChanged.connect(self.map_changed)
         self.hostButton.released.connect(self.hosting)
         self.titleEdit.textChanged.connect(self.update_text)
         self.passCheck.toggled.connect(self.update_pass_check)
@@ -153,7 +153,7 @@ class HostgameWidget(FormClass, BaseClass):
         self.game.update(visibility=(GameVisibility.FRIENDS if friends
                                      else GameVisibility.PUBLIC))
 
-    def mapChanged(self, index):
+    def map_changed(self, index):
         mapname = self.mapList.itemData(index)
         self.game.update(mapname=mapname)
 
@@ -170,7 +170,7 @@ class HostgameWidget(FormClass, BaseClass):
 
         modnames = [str(moditem.text()) for moditem in self.modList.selectedItems()]
         mods = [self.mods[modstr] for modstr in modnames]
-        modvault.setActiveMods(mods, True, False)
+        modvault.utils.setActiveMods(mods, True, False)
 
         self.launch.emit(self.game, password, mods)
         self.done(1)

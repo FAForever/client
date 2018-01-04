@@ -1,19 +1,19 @@
 from functools import partial
 import random
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtWidgets
+from PyQt5.QtGui import QDesktopServices
+from PyQt5.QtCore import QUrl, pyqtSlot
 
 import util
 from config import Settings
 from games.moditem import ModItem, mod_invisible
+from games.gamemodel import CustomGameFilterModel
 from fa.factions import Factions
 import fa
 
 import logging
 
-from games.gamemodel import CustomGameFilterModel
-from PyQt5 import QtGui
-from PyQt5.QtCore import QUrl
 logger = logging.getLogger(__name__)
 
 FormClass, BaseClass = util.THEME.loadUiType("games/games.ui")
@@ -28,20 +28,17 @@ class GamesWidget(FormClass, BaseClass):
     sub_factions = Settings.persisted_property(
         "play/subFactions", default_value=[False, False, False, False])
 
-    def __init__(self, client, game_model, me,
-                 gameview_builder, game_launcher):
+    def __init__(self, client, game_model, me, gameview_builder, game_launcher):
         BaseClass.__init__(self)
-
         self.setupUi(self)
 
         self._me = me
         self.client = client
         self.mods = {}
-        self._gameview_builder = gameview_builder
         self._game_model = CustomGameFilterModel(self._me, game_model)
         self._game_launcher = game_launcher
 
-        self.gameview = self._gameview_builder(self._game_model, self.gameList)
+        self.gameview = gameview_builder(self._game_model, self.gameList)
         self.gameview.game_double_clicked.connect(self.gameDoubleClicked)
 
         # Ranked search UI
@@ -92,7 +89,7 @@ class GamesWidget(FormClass, BaseClass):
 
         self.updatePlayButton()
 
-    @QtCore.pyqtSlot(dict)
+    @pyqtSlot(dict)
     def processModInfo(self, message):
         """
         Slot that interprets and propagates mod_info messages into the mod list
@@ -116,7 +113,7 @@ class GamesWidget(FormClass, BaseClass):
 
         self.client.replays.modList.addItem(message["name"])
 
-    @QtCore.pyqtSlot(int)
+    @pyqtSlot(int)
     def togglePrivateGames(self, state):
         self.hide_private_games = state
         self._game_model.hide_private_games = state
@@ -165,7 +162,7 @@ class GamesWidget(FormClass, BaseClass):
                     factionSubset[random.randint(0, l - 1)]))
 
     def startViewLadderMapsPool(self):
-        QtGui.QDesktopServices.openUrl(QUrl(Settings.get("MAPPOOL_URL")))
+        QDesktopServices.openUrl(QUrl(Settings.get("MAPPOOL_URL")))
 
     def generateSelectSubset(self):
         if self.searching:  # you cannot search for a match while changing/creating the UI
@@ -230,7 +227,7 @@ class GamesWidget(FormClass, BaseClass):
             self.updatePlayButton()
             self.client.search_ranked(faction=self.race.value)
 
-    @QtCore.pyqtSlot()
+    @pyqtSlot()
     def stopSearchRanked(self, *args):
         if self.searching:
             logger.debug("Stopping Ranked Search")
@@ -241,7 +238,7 @@ class GamesWidget(FormClass, BaseClass):
         self.searchProgress.setVisible(False)
         self.labelAutomatch.setText("1 vs 1 Automatch")
 
-    @QtCore.pyqtSlot(bool)
+    @pyqtSlot(bool)
     def toggle_search(self, enabled, race=None):
         """
         Handler called when a ladder search button is pressed. They're really checkboxes, and the
@@ -275,7 +272,7 @@ class GamesWidget(FormClass, BaseClass):
             else:
                 self.client.join_game(uid=game.uid)
 
-    @QtCore.pyqtSlot(QtWidgets.QListWidgetItem)
+    @pyqtSlot(QtWidgets.QListWidgetItem)
     def hostGameClicked(self, item):
         """
         Hosting a game event

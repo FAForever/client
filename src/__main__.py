@@ -106,6 +106,7 @@ def runFAF():
     # Main update loop
     QtWidgets.QApplication.exec_()
 
+
 if __name__ == '__main__':
     import logging
     import config

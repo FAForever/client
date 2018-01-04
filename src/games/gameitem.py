@@ -1,9 +1,8 @@
 import os
-
-from PyQt5 import QtCore, QtWidgets, QtGui
-from fa import maps
-from downloadManager import IconCallback
 import util
+from PyQt5 import QtCore, QtWidgets, QtGui
+from downloadManager import IconCallback
+from fa import maps
 
 
 class GameView(QtCore.QObject):
@@ -346,6 +345,5 @@ class GameViewBuilder:
     def __call__(self, model, view):
         game_formatter = GameItemFormatter(self._player_colors, self._me)
         game_delegate = GameItemDelegate(game_formatter)
-        gameview = GameView(model, view, game_delegate,
-                            self._preview_dler)
+        gameview = GameView(model, view, game_delegate, self._preview_dler)
         return gameview

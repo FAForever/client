@@ -3,7 +3,7 @@ from PyQt5.QtCore import QUrl
 from PyQt5.QtNetwork import QNetworkRequest
 from chat._avatarWidget import AvatarWidget
 import time
-import urllib.request, urllib.error, urllib.parse
+from urllib import parse
 
 from fa.replay import replay
 from fa import maps
@@ -242,7 +242,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
 
         if avatar is not None:
             self.avatarTip = avatar["tooltip"]
-            url = urllib.parse.unquote(avatar["url"])
+            url = parse.unquote(avatar["url"])
             avatarPix = util.respix(url)
 
             if avatarPix:

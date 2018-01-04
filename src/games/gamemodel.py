@@ -1,5 +1,4 @@
-from PyQt5.QtCore import QAbstractListModel, Qt, QSortFilterProxyModel
-from PyQt5.QtCore import QModelIndex
+from PyQt5.QtCore import QAbstractListModel, Qt, QSortFilterProxyModel, QModelIndex
 from .gamemodelitem import GameModelItem
 from enum import Enum
 
@@ -11,11 +10,8 @@ class GameModel(QAbstractListModel):
     def __init__(self, me, gameset=None):
         QAbstractListModel.__init__(self)
         self._me = me
-
         self._gameitems = {}
-
-        # For queries
-        self._itemlist = []
+        self._itemlist = []  # For queries
 
         self._gameset = gameset
         if self._gameset is not None:

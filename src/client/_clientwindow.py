@@ -1,65 +1,48 @@
-from functools import partial
-
-from PyQt5.QtCore import QUrl, QProcess
-from PyQt5.QtWidgets import QLabel, QMessageBox
+from PyQt5 import QtCore, QtWidgets, QtGui
 
 import config
 import connectivity
-from config import Settings
-import chat
-from model.player import Player
-from model.playerset import Playerset
+from connectivity.helper import ConnectivityHelper
+from client import ClientState, LOBBY_HOST, LOBBY_PORT, LOCAL_REPLAY_PORT
+from client.aliasviewer import AliasSearchWindow
 from client.connection import LobbyInfo, ServerConnection, \
         Dispatcher, ConnectionState, ServerReconnecter
-
-from model.gameset import Gameset
-from games.gamemodel import GameModel
-from games.hostgamewidget import GameLauncher
-from games.gameitem import GameViewBuilder
-
-from client.updater import UpdateChecker, UpdateDialog, UpdateSettings
-from client.update_settings import UpdateSettingsDialog
-from client.theme_menu import ThemeMenu
+from client.gameannouncer import GameAnnouncer
 from client.kick_dialog import KickDialog
+from client.login import LoginWidget
+from client.playercolors import PlayerColors
+from client.theme_menu import ThemeMenu
+from client.updater import UpdateChecker, UpdateDialog
+from client.update_settings import UpdateSettingsDialog
 from client.user import User
 import fa
-from connectivity.helper import ConnectivityHelper
-from fa import GameSession
 from fa.factions import Factions
 from fa.maps import getUserMapsFolder
+from functools import partial
+from games.gamemodel import GameModel
+from games.gameitem import GameViewBuilder
+from games.hostgamewidget import GameLauncher
+import json
+from model.gameset import Gameset
+from model.player import Player
+from model.playerset import Playerset
 from modvault.utils import MODFOLDER
+import notifications as ns
+import replays
+import secondaryServer
+import time
+import util
 from ui.status_logo import StatusLogo
-from client.login import LoginWidget
-from client.aliasviewer import AliasSearchWindow
 from ui.busy_widget import BusyWidget
 
-from client.playercolors import PlayerColors
-from client.gameannouncer import GameAnnouncer
 '''
 Created on Dec 1, 2011
 
 @author: thygrrr
 '''
 
-from PyQt5 import QtCore, QtWidgets, QtGui
-from PyQt5.QtWidgets import QInputDialog, QLineEdit
-
-from client import ClientState, LOBBY_HOST, \
-    LOBBY_PORT, LOCAL_REPLAY_PORT
-
 import logging
-
 logger = logging.getLogger(__name__)
-
-import util
-import secondaryServer
-
-import json
-import sys
-import replays
-
-import time
-import notifications as ns
 
 FormClass, BaseClass = util.THEME.loadUiType("client/client.ui")
 
@@ -124,13 +107,13 @@ class ClientWindow(FormClass, BaseClass):
 
     matchmakerInfo = QtCore.pyqtSignal(dict)
 
-    remember = Settings.persisted_property('user/remember', type=bool, default_value=True)
-    login = Settings.persisted_property('user/login', persist_if=lambda self: self.remember)
-    password = Settings.persisted_property('user/password', persist_if=lambda self: self.remember)
+    remember = config.Settings.persisted_property('user/remember', type=bool, default_value=True)
+    login = config.Settings.persisted_property('user/login', persist_if=lambda self: self.remember)
+    password = config.Settings.persisted_property('user/password', persist_if=lambda self: self.remember)
 
-    gamelogs = Settings.persisted_property('game/logs', type=bool, default_value=True)
-    useUPnP = Settings.persisted_property('game/upnp', type=bool, default_value=True)
-    gamePort = Settings.persisted_property('game/port', type=int, default_value=6112)
+    gamelogs = config.Settings.persisted_property('game/logs', type=bool, default_value=True)
+    useUPnP = config.Settings.persisted_property('game/upnp', type=bool, default_value=True)
+    gamePort = config.Settings.persisted_property('game/port', type=int, default_value=6112)
 
     def __init__(self, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
@@ -169,7 +152,7 @@ class ClientWindow(FormClass, BaseClass):
         self.players = Playerset()  # Players known to the client
 
         self.gameset = Gameset(self.players)
-        fa.instance.gameset = self.gameset  # FIXME
+        fa.instance.gameset = self.gameset  # FIXME (needed fa/game_process L81 for self.game = self.gameset[uid])
 
         # Handy reference to the User object representing the logged-in user.
         self.me = User(self.players)
@@ -202,7 +185,7 @@ class ClientWindow(FormClass, BaseClass):
         self.replayServer = fa.replayserver.ReplayServer(self)
 
         # GameSession
-        self.game_session = None  # type: GameSession
+        self.game_session = None  # type: fa.GameSession
 
         # ConnectivityTest
         self.connectivity = None  # type: ConnectivityHelper
@@ -253,7 +236,7 @@ class ClientWindow(FormClass, BaseClass):
 
         self.menu = self.menuBar()
         self.topLayout.addWidget(self.logo)
-        titleLabel = QLabel("FA Forever" if not config.is_beta() else "FA Forever BETA")
+        titleLabel = QtWidgets.QLabel("FA Forever" if not config.is_beta() else "FA Forever BETA")
         titleLabel.setProperty('titleLabel', True)
         self.topLayout.addWidget(titleLabel)
         self.topLayout.addStretch(500)
@@ -368,14 +351,14 @@ class ClientWindow(FormClass, BaseClass):
 
     @QtCore.pyqtSlot(bool)
     def on_actionAutoDownloadMods_toggled(self, value):
-        Settings.set('mods/autodownload', value is True)
+        config.Settings.set('mods/autodownload', value is True)
 
     @QtCore.pyqtSlot(bool)
     def on_actionAutoDownloadMaps_toggled(self, value):
-        Settings.set('maps/autodownload', value is True)
+        config.Settings.set('maps/autodownload', value is True)
 
     def eventFilter(self, obj, event):
-        if (event.type() == QtCore.QEvent.HoverMove):
+        if event.type() == QtCore.QEvent.HoverMove:
             self.draggingHover = self.dragging
             if self.dragging:
                 self.resizeWidget(self.mapToGlobal(event.pos()))
@@ -520,16 +503,16 @@ class ClientWindow(FormClass, BaseClass):
             self.setGeometry(newRect)
 
     def setup(self):
+        import news
         import chat
-        import tourneys
-        import stats
-        import vault
+        import coop
         import games
         import tutorials
-        import downloadManager
+        import stats
+        import tourneys
+        import vault
         import modvault
-        import coop
-        import news
+        import downloadManager
         from chat._avatarWidget import AvatarWidget
 
         # download manager
@@ -537,54 +520,51 @@ class ClientWindow(FormClass, BaseClass):
 
         self.loadSettings()
 
-        # Initialize chat
-        self.chat = chat.ChatWidget(self, self.players, self.me)
-
-        self.gameview_builder = GameViewBuilder(self.me,
-                                                self.player_colors,
+        self.gameview_builder = GameViewBuilder(self.me, self.player_colors,
                                                 self.downloader)
         self.game_launcher = GameLauncher(self.players, self.me,
                                           self, self.gameview_builder)
 
         # build main window with the now active client
         self.news = news.NewsWidget(self)
-        self.ladder = stats.StatsWidget(self)
-        self.games = games.GamesWidget(self, self.game_model, self.me,
-                                       self.gameview_builder, self.game_launcher)
-        self.tourneys = tourneys.TournamentsWidget(self)
-        self.vault = vault.MapVault(self)
-        self.modvault = modvault.ModVault(self)
-        self.replays = replays.ReplaysWidget(self, self.lobby_dispatch,
-                                             self.gameset, self.players)
-        self.tutorials = tutorials.TutorialsWidget(self)
+        self.chat = chat.ChatWidget(self, self.players, self.me)
         self.coop = coop.CoopWidget(self, self.game_model, self.me,
                                     self.gameview_builder, self.game_launcher)
-        self.notificationSystem = ns.Notifications(self, self.gameset, self.players, self.me)
+        self.games = games.GamesWidget(self, self.game_model, self.me,
+                                       self.gameview_builder, self.game_launcher)
+        self.tutorials = tutorials.TutorialsWidget(self)
+        self.ladder = stats.StatsWidget(self)
+        self.tourneys = tourneys.TournamentsWidget(self)
+        self.replays = replays.ReplaysWidget(self, self.lobby_dispatch,
+                                             self.gameset, self.players)
+        self.mapvault = vault.MapVault(self)
+        self.modvault = modvault.ModVault(self)
+        self.notificationSystem = ns.Notifications(self, self.gameset,
+                                                   self.players, self.me)
 
         # TODO: some day when the tabs only do UI we'll have all this in the .ui file
-        self.chatTab.layout().addWidget(self.chat)
         self.whatNewTab.layout().addWidget(self.news)
-        self.ladderTab.layout().addWidget(self.ladder)
-        self.gamesTab.layout().addWidget(self.games)
-        self.tourneyTab.layout().addWidget(self.tourneys)
-        self.mapsTab.layout().addWidget(self.vault.ui)
-        self.modsTab.layout().addWidget(self.modvault)
-        self.replaysTab.layout().addWidget(self.replays)
-        self.tutorialsTab.layout().addWidget(self.tutorials)
+        self.chatTab.layout().addWidget(self.chat)
         self.coopTab.layout().addWidget(self.coop)
-
+        self.gamesTab.layout().addWidget(self.games)
+        self.tutorialsTab.layout().addWidget(self.tutorials)
+        self.ladderTab.layout().addWidget(self.ladder)
+        self.tourneyTab.layout().addWidget(self.tourneys)
+        self.replaysTab.layout().addWidget(self.replays)
+        self.mapsTab.layout().addWidget(self.mapvault.ui)
+        self.modsTab.layout().addWidget(self.modvault)
         # set menu states
         self.actionNsEnabled.setChecked(self.notificationSystem.settings.enabled)
 
         # Other windows
         self.avatarAdmin = self.avatarSelection = AvatarWidget(self, None)
 
-        # warning setup
-        self.warning = QtWidgets.QHBoxLayout()
-
         # units database (ex. live streams)
         # old unitDB
-        self.unitdbWebView.setUrl(QUrl(Settings.get("UNITDB_URL")))
+        self.unitdbWebView.setUrl(QtCore.QUrl(config.Settings.get("UNITDB_URL")))
+
+        # warning setup
+        self.warning = QtWidgets.QHBoxLayout()
 
         self.warnPlayer = QtWidgets.QLabel(self)
         self.warnPlayer.setText(
@@ -649,7 +629,8 @@ class ClientWindow(FormClass, BaseClass):
             update_dialog.setup(releases)
             update_dialog.show()
         else:
-            QMessageBox.information(self,"No updates found", "No client updates were found")
+            QtWidgets.QMessageBox.information(self,"No updates found",
+                                              "No client updates were found")
 
     @QtCore.pyqtSlot()
     def cleanup(self):
@@ -726,21 +707,21 @@ class ClientWindow(FormClass, BaseClass):
     def initMenus(self):
         self.actionCheck_for_Updates.triggered.connect(self.check_for_updates)
         self.actionUpdate_Settings.triggered.connect(self.show_update_settings)
-        self.actionLink_account_to_Steam.triggered.connect(partial(self.open_url, Settings.get("STEAMLINK_URL")))
-        self.actionLinkWebsite.triggered.connect(partial(self.open_url, Settings.get("WEBSITE_URL")))
-        self.actionLinkWiki.triggered.connect(partial(self.open_url, Settings.get("WIKI_URL")))
-        self.actionLinkForums.triggered.connect(partial(self.open_url, Settings.get("FORUMS_URL")))
-        self.actionLinkUnitDB.triggered.connect(partial(self.open_url, Settings.get("UNITDB_URL")))
-        self.actionLinkMapPool.triggered.connect(partial(self.open_url, Settings.get("MAPPOOL_URL")))
-        self.actionLinkGitHub.triggered.connect(partial(self.open_url, Settings.get("GITHUB_URL")))
+        self.actionLink_account_to_Steam.triggered.connect(partial(self.open_url, config.Settings.get("STEAMLINK_URL")))
+        self.actionLinkWebsite.triggered.connect(partial(self.open_url, config.Settings.get("WEBSITE_URL")))
+        self.actionLinkWiki.triggered.connect(partial(self.open_url, config.Settings.get("WIKI_URL")))
+        self.actionLinkForums.triggered.connect(partial(self.open_url, config.Settings.get("FORUMS_URL")))
+        self.actionLinkUnitDB.triggered.connect(partial(self.open_url, config.Settings.get("UNITDB_URL")))
+        self.actionLinkMapPool.triggered.connect(partial(self.open_url, config.Settings.get("MAPPOOL_URL")))
+        self.actionLinkGitHub.triggered.connect(partial(self.open_url, config.Settings.get("GITHUB_URL")))
 
         self.actionNsSettings.triggered.connect(lambda: self.notificationSystem.on_showSettings())
         self.actionNsEnabled.triggered.connect(lambda enabled: self.notificationSystem.setNotificationEnabled(enabled))
 
-        self.actionWiki.triggered.connect(partial(self.open_url, Settings.get("WIKI_URL")))
-        self.actionReportBug.triggered.connect(partial(self.open_url, Settings.get("TICKET_URL")))
+        self.actionWiki.triggered.connect(partial(self.open_url, config.Settings.get("WIKI_URL")))
+        self.actionReportBug.triggered.connect(partial(self.open_url, config.Settings.get("TICKET_URL")))
         self.actionShowLogs.triggered.connect(self.linkShowLogs)
-        self.actionTechSupport.triggered.connect(partial(self.open_url, Settings.get("SUPPORT_URL")))
+        self.actionTechSupport.triggered.connect(partial(self.open_url, config.Settings.get("SUPPORT_URL")))
         self.actionAbout.triggered.connect(self.linkAbout)
 
         self.actionClearCache.triggered.connect(self.clearCache)
@@ -762,9 +743,9 @@ class ClientWindow(FormClass, BaseClass):
         self.actionSetAutoLogin.triggered.connect(self.updateOptions)
         self.actionSetAutoLogin.setChecked(self.remember)
         self.actionSetAutoDownloadMods.toggled.connect(self.on_actionAutoDownloadMods_toggled)
-        self.actionSetAutoDownloadMods.setChecked(Settings.get('mods/autodownload', type=bool, default=False))
+        self.actionSetAutoDownloadMods.setChecked(config.Settings.get('mods/autodownload', type=bool, default=False))
         self.actionSetAutoDownloadMaps.toggled.connect(self.on_actionAutoDownloadMaps_toggled)
-        self.actionSetAutoDownloadMaps.setChecked(Settings.get('maps/autodownload', type=bool, default=False))
+        self.actionSetAutoDownloadMaps.setChecked(config.Settings.get('maps/autodownload', type=bool, default=False))
         self.actionSetSoundEffects.triggered.connect(self.updateOptions)
         self.actionSetOpenGames.triggered.connect(self.updateOptions)
         self.actionSetJoinsParts.triggered.connect(self.updateOptions)
@@ -843,7 +824,7 @@ class ClientWindow(FormClass, BaseClass):
 
     @QtCore.pyqtSlot(str)
     def open_url(self, url):
-        QtGui.QDesktopServices.openUrl(QUrl(url))
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(url))
 
     @QtCore.pyqtSlot()
     def linkShowLogs(self):
@@ -880,16 +861,16 @@ class ClientWindow(FormClass, BaseClass):
         util.settings.endGroup()
 
     def show_autojoin_settings_dialog(self):
-        autojoin_channels_list = Settings.get('chat/auto_join_channels', [])
+        autojoin_channels_list = config.Settings.get('chat/auto_join_channels', [])
         text_of_autojoin_settings_dialog = """
         Enter the list of channels you want to autojoin at startup, separated by ;
         For example: #poker;#newbie
         To disable autojoining channels, leave the box empty and press OK.
         """
-        channels_input_of_user, ok = QInputDialog.getText(self, 'Set autojoin channels',
-            text_of_autojoin_settings_dialog, QLineEdit.Normal, ';'.join(autojoin_channels_list))
+        channels_input_of_user, ok = QtWidgets.QInputDialog.getText(self, 'Set autojoin channels',
+            text_of_autojoin_settings_dialog, QtWidgets.QLineEdit.Normal, ';'.join(autojoin_channels_list))
         if ok:
-            Settings.set('chat/auto_join_channels', list(map(str.strip, channels_input_of_user.split(';'))))
+            config.Settings.set('chat/auto_join_channels', list(map(str.strip, channels_input_of_user.split(';'))))
 
     def saveChat(self):
         util.settings.beginGroup("chat")
@@ -983,7 +964,7 @@ class ClientWindow(FormClass, BaseClass):
     def send_login(self, login, password):
         # Send login data once we have the creds.
         self._autorelogin = False # Fresh credentials
-        if config.is_beta():    # Replace for develop here to not clobber the real pass
+        if config.is_beta():  # Replace for develop here to not clobber the real pass
             password = util.password_hash("foo")
         self.uniqueId = util.uniqueID(self.login, self.session)
         if not self.uniqueId:
@@ -1021,7 +1002,7 @@ class ClientWindow(FormClass, BaseClass):
             logger.warning("FA has finished with exit code: " + str(exit_code))
         self.gameExit.emit()
 
-    @QtCore.pyqtSlot(QProcess.ProcessError)
+    @QtCore.pyqtSlot(QtCore.QProcess.ProcessError)
     def errorFA(self, error_code):
         """
         Slot hooked up to fa.instance when the process has failed to start.
@@ -1175,7 +1156,7 @@ class ClientWindow(FormClass, BaseClass):
     def handle_update(self, message):
         # Remove geometry settings prior to updating
         # could be incompatible with an updated client.
-        Settings.remove('window/geometry')
+        config.Settings.remove('window/geometry')
 
         logger.warning("Server says we need an update")
         self._update_checker.server_update(message)
@@ -1205,7 +1186,7 @@ class ClientWindow(FormClass, BaseClass):
         self.connectivity.start_test()
 
     def initialize_game_session(self):
-        self.game_session = GameSession(self, self.connectivity)
+        self.game_session = fa.GameSession(self, self.connectivity)
         self.game_session.gameFullSignal.connect(self.game_full)
 
     def handle_registration_response(self, message):
