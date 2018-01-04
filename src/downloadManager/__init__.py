@@ -220,6 +220,111 @@ class downloadManager(QtCore.QObject):
         self.modRequests[url].append(requester)
 
 
+class MapDownload(QtCore.QObject):
+    done = QtCore.pyqtSignal(object, object)
+
+    def __init__(self, nam, mapname):
+        QtCore.QObject.__init__(self)
+        self.requests = set()
+        self.mapname = mapname
+        self._dl = self._prepare_dl(nam, mapname)
+
+    def _prepare_dl(self, nam, mapname):
+        url = VAULT_PREVIEW_ROOT + urllib.parse.quote(mapname) + ".png"
+        img, imgpath = self._get_cachefile(mapname + ".png.part")
+        dl = FileDownload(nam, url, img, imgpath)
+        dl.cb_finished = self._finished
+        dl.blocksize = None
+        dl.run()
+        return dl
+
+    def _get_cachefile(self, name):
+        imgpath = os.path.join(util.CACHE_DIR, name)
+        img = QtCore.QFile(imgpath)
+        img.open(QtCore.QIODevice.WriteOnly)
+        return img, imgpath
+
+    def remove_request(self, req):
+        self.requests.remove(req)
+
+    def add_request(self, req):
+        self.requests.add(req)
+
+    def _finished(self, dl):
+        dl.dest.close()
+        logger.info("Finished download from " + dl.addr)
+        if not dl.succeeded():
+            logger.debug("Web Preview failed for: {}".format(self.mapname))
+            os.unlink(dl.destpath)
+            filepath = "games/unknown_map.png"
+            is_local = True
+        else:
+            logger.debug("Web Preview used for: {}".format(self.mapname))
+            # Remove '.part'
+            partpath = dl.destpath
+            filepath = partpath[:-5]
+            QtCore.QDir().rename(partpath, filepath)
+            is_local = False
+        self.done.emit(self, (filepath, is_local))
+
+
+class MapDownloadRequest(QtCore.QObject):
+    done = QtCore.pyqtSignal(object, object)
+
+    def __init__(self):
+        QtCore.QObject.__init__(self)
+        self._dl = None
+
+    @property
+    def dl(self):
+        return self._dl
+
+    @dl.setter
+    def dl(self, value):
+        if self._dl is not None:
+            self._dl.remove_request(self)
+        self._dl = value
+        if self._dl is not None:
+            self._dl.add_request(self)
+
+    def finished(self, mapname, result):
+        self.done.emit(mapname, result)
+
+
+class MapDownloader(QtCore.QObject):
+    """
+    Class for downloading maps. Clients ask to download by giving download
+    requests, which are stored by mapname. After download is complete, all
+    download requests get notified (neatly avoiding the 'requester died while
+    we were downloading' issue).
+
+    Requests can be resubmitted. That reclassifies them to a new mapname.
+    """
+    def __init__(self):
+        QtCore.QObject.__init__(self)
+        self._nam = QNetworkAccessManager(self)
+        self._downloads = {}
+
+    def download_map(self, mapname, req):
+        self._add_request(mapname, req)
+
+    def _add_request(self, mapname, req):
+        if mapname not in self._downloads:
+            dl = MapDownload(self._nam, mapname)
+            dl.done.connect(self._finished_download)
+            self._downloads[mapname] = dl
+        dl = self._downloads[mapname]
+        req.dl = dl
+
+    def _finished_download(self, dl, result):
+        requests = set(dl.requests)     # Don't change it during iteration
+        for req in requests:
+            req.dl = None
+        del self._downloads[dl.mapname]
+        for req in requests:
+            req.finished(dl.mapname, result)
+
+
 # Temporary utility class for catching download callbacks
 class IconCallback:
     def __init__(self, mapname, cb):
