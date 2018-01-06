@@ -1,34 +1,26 @@
 import os
 import util
 from PyQt5 import QtCore, QtWidgets, QtGui
-from downloadManager import IconCallback
 from fa import maps
 
 
 class GameView(QtCore.QObject):
     """
-    Helps with displaying games in the game widget. Handles updates to view
-    unrelated to underlying data, like downloading map previews. Forwards
+    Helps with displaying games in the game widget. Forwards
     interaction with the view.
     """
     game_double_clicked = QtCore.pyqtSignal(object)
 
-    def __init__(self, model, view, delegate, dler):
+    def __init__(self, model, view, delegate):
         QtCore.QObject.__init__(self)
         self._model = model
         self._view = view
         self._delegate = delegate
-        self._dler = dler
 
         self._view.setModel(self._model)
         self._view.setItemDelegate(self._delegate)
-        self._delegate.map_preview_missing.connect(self.download_map_preview)
         self._view.doubleClicked.connect(self._game_double_clicked)
         self._view.viewport().installEventFilter(self._delegate.tooltip_filter)
-
-    def download_map_preview(self, mapname):
-        cb = IconCallback(mapname, self._map_preview_downloaded)
-        self._dler.downloadMapPreview(mapname, cb)
 
     # TODO make it a utility function?
     def _model_items(self):
@@ -36,20 +28,11 @@ class GameView(QtCore.QObject):
         for i in range(model.rowCount(QtCore.QModelIndex())):
             yield model.index(i, 0)
 
-    def _map_preview_downloaded(self, mapname, icon):
-        for idx in self._model_items():
-            game = idx.data().game
-            if game.mapname.lower() == mapname.lower():
-                # Previews are not case-preserving
-                self._view.update(idx)
-
     def _game_double_clicked(self, idx):
         self.game_double_clicked.emit(idx.data().game)
 
 
 class GameItemDelegate(QtWidgets.QStyledItemDelegate):
-    map_preview_missing = QtCore.pyqtSignal(str)
-
     ICON_RECT = 100
     ICON_CLIP_TOP_LEFT = 3
     ICON_CLIP_BOTTOM_RIGHT = -7
@@ -76,8 +59,6 @@ class GameItemDelegate(QtWidgets.QStyledItemDelegate):
         text = self._formatter.text(data)
         icon = self._formatter.icon(data)
 
-        self._check_map_preview(data)
-
         self._draw_clear_option(painter, option)
         self._draw_icon_shadow(painter, option)
         self._draw_icon(painter, option, icon)
@@ -85,11 +66,6 @@ class GameItemDelegate(QtWidgets.QStyledItemDelegate):
         self._draw_text(painter, option, text)
 
         painter.restore()
-
-    def _check_map_preview(self, data):
-        needed_preview = self._formatter.needed_map_preview(data)
-        if needed_preview is not None:
-            self.map_preview_missing.emit(needed_preview)
 
     def _draw_clear_option(self, painter, option):
         option.icon = QtGui.QIcon()
@@ -337,13 +313,12 @@ class GameTooltipFormatter:
 
 
 class GameViewBuilder:
-    def __init__(self, me, player_colors, preview_dler):
+    def __init__(self, me, player_colors):
         self._me = me
         self._player_colors = player_colors
-        self._preview_dler = preview_dler
 
     def __call__(self, model, view):
         game_formatter = GameItemFormatter(self._player_colors, self._me)
         game_delegate = GameItemDelegate(game_formatter)
-        gameview = GameView(model, view, game_delegate, self._preview_dler)
+        gameview = GameView(model, view, game_delegate)
         return gameview

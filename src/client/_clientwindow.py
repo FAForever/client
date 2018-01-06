@@ -15,6 +15,7 @@ from client.theme_menu import ThemeMenu
 from client.updater import UpdateChecker, UpdateDialog
 from client.update_settings import UpdateSettingsDialog
 from client.user import User
+from downloadManager import MapDownloader
 import fa
 from fa.factions import Factions
 from fa.maps import getUserMapsFolder
@@ -157,8 +158,10 @@ class ClientWindow(FormClass, BaseClass):
         # Handy reference to the User object representing the logged-in user.
         self.me = User(self.players)
 
+        self.map_downloader = MapDownloader()
+
         # Qt model for displaying active games.
-        self.game_model = GameModel(self.me, self.gameset)
+        self.game_model = GameModel(self.me, self.map_downloader, self.gameset)
 
         self.lobby_info = LobbyInfo(self.lobby_dispatch, self.gameset, self.players)
         self.gameset.newGame.connect(self.fill_in_session_info)
@@ -520,10 +523,11 @@ class ClientWindow(FormClass, BaseClass):
 
         self.loadSettings()
 
-        self.gameview_builder = GameViewBuilder(self.me, self.player_colors,
-                                                self.downloader)
+        self.gameview_builder = GameViewBuilder(self.me,
+                                                self.player_colors)
         self.game_launcher = build_launcher(self.players, self.me,
-                                            self, self.gameview_builder)
+                                            self, self.gameview_builder,
+                                            self.map_downloader)
 
         # build main window with the now active client
         self.news = news.NewsWidget(self)

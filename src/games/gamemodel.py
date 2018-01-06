@@ -7,9 +7,11 @@ from model.game import GameState
 
 
 class GameModel(QAbstractListModel):
-    def __init__(self, me, gameset=None):
+    def __init__(self, me, preview_dler, gameset=None):
         QAbstractListModel.__init__(self)
         self._me = me
+        self._preview_dler = preview_dler
+
         self._gameitems = {}
         self._itemlist = []  # For queries
 
@@ -42,7 +44,7 @@ class GameModel(QAbstractListModel):
         next_index = len(self._itemlist)
         self.beginInsertRows(QModelIndex(), next_index, next_index)
 
-        item = GameModelItem(game, self._me)
+        item = GameModelItem(game, self._me, self._preview_dler)
         item.updated.connect(self._at_item_updated)
 
         self._gameitems[game.uid] = item

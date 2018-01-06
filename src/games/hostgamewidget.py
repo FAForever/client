@@ -190,8 +190,8 @@ class HostGameWidget(FormClass, BaseClass):
         util.settings.endGroup()
 
 
-def build_launcher(playerset, me, client, view_builder):
-    model = GameModel(me)
+def build_launcher(playerset, me, client, view_builder, map_preview_dler):
+    model = GameModel(me, map_preview_dler)
     widget = HostGameWidget(client, view_builder, model)
     launcher = GameLauncher(playerset, me, client, widget)
     return launcher
