@@ -14,11 +14,12 @@ FormClass, BaseClass = util.THEME.loadUiType("games/host.ui")
 
 
 class GameLauncher:
-    def __init__(self, playerset, me, client, gameview_builder):
+    def __init__(self, playerset, me, client, game_widget):
         self._playerset = playerset
         self._me = me
         self._client = client
-        self._gameview_builder = gameview_builder
+        self._game_widget = game_widget
+        self._game_widget.launch.connect(self._launch_game)
 
     def _build_hosted_game(self, main_mod, mapname=None):
         if mapname is None:
@@ -54,10 +55,8 @@ class GameLauncher:
 
     def host_game(self, title, main_mod, mapname=None):
         game = self._build_hosted_game(main_mod, mapname)
-        host_widget = HostGameWidget(self._client, self._gameview_builder,
-                                     title, game, self._me)
-        host_widget.launch.connect(self._launch_game)
-        return host_widget.exec_()
+        self._game_widget.setup(title, game)
+        return self._game_widget.exec_()
 
     def _launch_game(self, game, password, mods):
         # Make sure the binaries are all up to date, and abort if the update fails or is cancelled.
@@ -83,15 +82,26 @@ class GameLauncher:
 class HostGameWidget(FormClass, BaseClass):
     launch = QtCore.pyqtSignal(object, object, list)
 
-    def __init__(self, client, gameview_builder, title, game, me):
+    def __init__(self, client, gameview_builder, preview_model):
         BaseClass.__init__(self, client)
 
         self.setupUi(self)
         self.client = client
-        self.game = game
-        self._gameview_builder = gameview_builder
+        self.game = None
+        self._preview_model = preview_model
+        self.game_preview_logic = gameview_builder(preview_model,
+                                                   self.gamePreview)
 
         self.setStyleSheet(self.client.styleSheet())
+        self.mapList.currentIndexChanged.connect(self.map_changed)
+        self.hostButton.released.connect(self.hosting)
+        self.titleEdit.textChanged.connect(self.update_text)
+        self.passCheck.toggled.connect(self.update_pass_check)
+        self.radioFriends.toggled.connect(self.update_visibility)
+
+    def setup(self, title, game):
+        self.game = game
+
         self.password = util.settings.value("fa.games/password", "")
 
         self.setWindowTitle("Hosting Game : " + title)
@@ -101,10 +111,8 @@ class HostGameWidget(FormClass, BaseClass):
         self.radioFriends.setChecked(
             self.game.visibility == GameVisibility.FRIENDS)
 
-        preview_model = GameModel(me)
-        preview_model.add_game(self.game)
-        self.game_preview_logic = self._gameview_builder(preview_model,
-                                                         self.gamePreview)
+        self._preview_model.clear_games()
+        self._preview_model.add_game(self.game)
 
         i = 0
         index = 0
@@ -136,12 +144,6 @@ class HostGameWidget(FormClass, BaseClass):
             logger.debug("found item: %s" % ml[0].text())
             if ml:
                 ml[0].setSelected(True)
-
-        self.mapList.currentIndexChanged.connect(self.map_changed)
-        self.hostButton.released.connect(self.hosting)
-        self.titleEdit.textChanged.connect(self.update_text)
-        self.passCheck.toggled.connect(self.update_pass_check)
-        self.radioFriends.toggled.connect(self.update_visibility)
 
     def update_text(self, text):
         self.game.update(title=text.strip())
@@ -186,3 +188,10 @@ class HostGameWidget(FormClass, BaseClass):
         if password is not None:
             util.settings.setValue("password", self.password)
         util.settings.endGroup()
+
+
+def build_launcher(playerset, me, client, view_builder):
+    model = GameModel(me)
+    widget = HostGameWidget(client, view_builder, model)
+    launcher = GameLauncher(playerset, me, client, widget)
+    return launcher

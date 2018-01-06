@@ -21,7 +21,7 @@ from fa.maps import getUserMapsFolder
 from functools import partial
 from games.gamemodel import GameModel
 from games.gameitem import GameViewBuilder
-from games.hostgamewidget import GameLauncher
+from games.hostgamewidget import build_launcher
 import json
 from model.gameset import Gameset
 from model.player import Player
@@ -522,8 +522,8 @@ class ClientWindow(FormClass, BaseClass):
 
         self.gameview_builder = GameViewBuilder(self.me, self.player_colors,
                                                 self.downloader)
-        self.game_launcher = GameLauncher(self.players, self.me,
-                                          self, self.gameview_builder)
+        self.game_launcher = build_launcher(self.players, self.me,
+                                            self, self.gameview_builder)
 
         # build main window with the now active client
         self.news = news.NewsWidget(self)

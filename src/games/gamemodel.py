@@ -62,6 +62,10 @@ class GameModel(QAbstractListModel):
         self._itemlist.pop(item_index)
         self.endRemoveRows()
 
+    def clear_games(self):
+        for data in list(self._gameitems.values()):
+            self.remove_game(data.game)
+
     def _at_item_updated(self, item):
         item_index = self._itemlist.index(item)
         index = self.index(item_index, 0)
