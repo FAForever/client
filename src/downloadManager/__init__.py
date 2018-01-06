@@ -223,11 +223,23 @@ class downloadManager(QtCore.QObject):
 class MapDownload(QtCore.QObject):
     done = QtCore.pyqtSignal(object, object)
 
-    def __init__(self, nam, mapname):
+    def __init__(self, nam, mapname, delay_timer=None):
         QtCore.QObject.__init__(self)
         self.requests = set()
         self.mapname = mapname
-        self._dl = self._prepare_dl(nam, mapname)
+        self._nam = nam
+        self._delay_timer = delay_timer
+        self._dl = None
+        if delay_timer is None:
+            self._start_download()
+        else:
+            delay_timer.timeout.connect(self._start_download)
+
+    def _start_download(self):
+        if self._delay_timer is not None:
+            self._delay_timer.disconnect(self._start_download)
+        self._dl = self._prepare_dl(self._nam, self.mapname)
+        self._dl.run()
 
     def _prepare_dl(self, nam, mapname):
         url = VAULT_PREVIEW_ROOT + urllib.parse.quote(mapname) + ".png"
@@ -235,7 +247,6 @@ class MapDownload(QtCore.QObject):
         dl = FileDownload(nam, url, img, imgpath)
         dl.cb_finished = self._finished
         dl.blocksize = None
-        dl.run()
         return dl
 
     def _get_cachefile(self, name):
@@ -253,7 +264,7 @@ class MapDownload(QtCore.QObject):
     def _finished(self, dl):
         dl.dest.close()
         logger.info("Finished download from " + dl.addr)
-        if not dl.succeeded():
+        if self.failed():
             logger.debug("Web Preview failed for: {}".format(self.mapname))
             os.unlink(dl.destpath)
             filepath = "games/unknown_map.png"
@@ -266,6 +277,9 @@ class MapDownload(QtCore.QObject):
             QtCore.QDir().rename(partpath, filepath)
             is_local = False
         self.done.emit(self, (filepath, is_local))
+
+    def failed(self):
+        return not self._dl.succeeded()
 
 
 class MapDownloadRequest(QtCore.QObject):
@@ -300,29 +314,72 @@ class MapDownloader(QtCore.QObject):
 
     Requests can be resubmitted. That reclassifies them to a new mapname.
     """
+    MAP_REDOWNLOAD_TIMEOUT = 5 * 60 * 1000
+    MAP_DOWNLOAD_FAILS_TO_TIMEOUT = 3
+
     def __init__(self):
         QtCore.QObject.__init__(self)
         self._nam = QNetworkAccessManager(self)
         self._downloads = {}
+        self._timeouts = DownloadTimeouts(self.MAP_REDOWNLOAD_TIMEOUT,
+                                          self.MAP_DOWNLOAD_FAILS_TO_TIMEOUT)
 
     def download_map(self, mapname, req):
         self._add_request(mapname, req)
 
     def _add_request(self, mapname, req):
         if mapname not in self._downloads:
-            dl = MapDownload(self._nam, mapname)
-            dl.done.connect(self._finished_download)
-            self._downloads[mapname] = dl
+            self._add_download(mapname)
         dl = self._downloads[mapname]
         req.dl = dl
 
+    def _add_download(self, mapname):
+        if self._timeouts.on_timeout(mapname):
+            delay = self._timeouts.timer
+        else:
+            delay = None
+        dl = MapDownload(self._nam, mapname, delay)
+        dl.done.connect(self._finished_download)
+        self._downloads[mapname] = dl
+
     def _finished_download(self, dl, result):
+        self._timeouts.update_fail_count(dl.mapname, dl.failed())
         requests = set(dl.requests)     # Don't change it during iteration
         for req in requests:
             req.dl = None
         del self._downloads[dl.mapname]
         for req in requests:
             req.finished(dl.mapname, result)
+
+
+class DownloadTimeouts:
+    def __init__(self, timeout_interval, fail_count_to_timeout):
+        self._fail_count_to_timeout = fail_count_to_timeout
+        self._timed_out_items = {}
+        self.timer = QtCore.QTimer()
+        self.timer.setInterval(timeout_interval)
+        self.timer.timeout.connect(self._clear_timeouts)
+
+    def __getitem__(self, item):
+        return self._timed_out_items.get(item, 0)
+
+    def __setitem__(self, item, value):
+        if value == 0:
+            self._timed_out_items.pop(item, None)
+        else:
+            self._timed_out_items[item] = value
+
+    def on_timeout(self, item):
+        return self[item] >= self._fail_count_to_timeout
+
+    def update_fail_count(self, item, failed):
+        if failed:
+            self[item] += 1
+        else:
+            self[item] = 0
+
+    def _clear_timeouts(self):
+        self._timed_out_items.clear()
 
 
 # Temporary utility class for catching download callbacks
