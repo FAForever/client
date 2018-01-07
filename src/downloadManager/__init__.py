@@ -113,29 +113,25 @@ class FileDownload(object):
             QtWidgets.QApplication.processEvents(waitFlag)
 
 
-VAULT_PREVIEW_ROOT = "{}/faf/vault/map_previews/small/".format(Settings.get('content/host'))
+MAP_PREVIEW_ROOT = "{}/faf/vault/map_previews/small/".format(Settings.get('content/host'))
 
 
 class PreviewDownload(QtCore.QObject):
     done = QtCore.pyqtSignal(object, object)
 
-    def __init__(self, nam, name, url, delay_timer=None):
+    def __init__(self, nam, name, url, target_dir, delay_timer=None):
         QtCore.QObject.__init__(self)
         self.requests = set()
         self.name = name
         self._url = url
         self._nam = nam
+        self._target_dir = target_dir
         self._delay_timer = delay_timer
         self._dl = None
         if delay_timer is None:
             self._start_download()
         else:
             delay_timer.timeout.connect(self._start_download)
-
-    def _download_url(self):
-        if self._url is not None:
-            return self._url
-        return VAULT_PREVIEW_ROOT + urllib.parse.quote(self.name) + ".png"
 
     def _start_download(self):
         if self._delay_timer is not None:
@@ -144,15 +140,14 @@ class PreviewDownload(QtCore.QObject):
         self._dl.run()
 
     def _prepare_dl(self):
-        url = self._download_url()
         img, imgpath = self._get_cachefile(self.name + ".png.part")
-        dl = FileDownload(self._nam, url, img, imgpath)
+        dl = FileDownload(self._nam, self._url, img, imgpath)
         dl.cb_finished = self._finished
         dl.blocksize = None
         return dl
 
     def _get_cachefile(self, name):
-        imgpath = os.path.join(util.CACHE_DIR, name)
+        imgpath = os.path.join(self._target_dir, name)
         img = QtCore.QFile(imgpath)
         img.open(QtCore.QIODevice.WriteOnly)
         return img, imgpath
@@ -219,15 +214,23 @@ class PreviewDownloader(QtCore.QObject):
     PREVIEW_REDOWNLOAD_TIMEOUT = 5 * 60 * 1000
     PREVIEW_DOWN_FAILS_TO_TIMEOUT = 3
 
-    def __init__(self):
+    def __init__(self, target_dir, default_url_prefix):
         QtCore.QObject.__init__(self)
         self._nam = QNetworkAccessManager(self)
+        self._target_dir = target_dir
+        self._default_url_prefix = default_url_prefix
         self._downloads = {}
         self._timeouts = DownloadTimeouts(self.PREVIEW_REDOWNLOAD_TIMEOUT,
                                           self.PREVIEW_DOWN_FAILS_TO_TIMEOUT)
 
     def download_preview(self, name, req, url=None):
-        self._add_request(name, req, url)
+        target_url = self._target_url(name, url)
+        self._add_request(name, req, target_url)
+
+    def _target_url(self, name, url):
+        if url is not None:
+            return url
+        return self._default_url_prefix + urllib.parse.quote(name) + ".png"
 
     def _add_request(self, name, req, url):
         if name not in self._downloads:
@@ -240,7 +243,7 @@ class PreviewDownloader(QtCore.QObject):
             delay = self._timeouts.timer
         else:
             delay = None
-        dl = PreviewDownload(self._nam, name, url, delay)
+        dl = PreviewDownload(self._nam, name, url, self._target_dir, delay)
         dl.done.connect(self._finished_download)
         self._downloads[name] = dl
 
