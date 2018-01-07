@@ -188,10 +188,11 @@ class downloadManager(QtCore.QObject):
 class MapDownload(QtCore.QObject):
     done = QtCore.pyqtSignal(object, object)
 
-    def __init__(self, nam, mapname, delay_timer=None):
+    def __init__(self, nam, mapname, url, delay_timer=None):
         QtCore.QObject.__init__(self)
         self.requests = set()
         self.mapname = mapname
+        self._url = url
         self._nam = nam
         self._delay_timer = delay_timer
         self._dl = None
@@ -200,6 +201,11 @@ class MapDownload(QtCore.QObject):
         else:
             delay_timer.timeout.connect(self._start_download)
 
+    def _download_url(self):
+        if self._url is not None:
+            return self._url
+        return VAULT_PREVIEW_ROOT + urllib.parse.quote(self.mapname) + ".png"
+
     def _start_download(self):
         if self._delay_timer is not None:
             self._delay_timer.disconnect(self._start_download)
@@ -207,7 +213,7 @@ class MapDownload(QtCore.QObject):
         self._dl.run()
 
     def _prepare_dl(self, nam, mapname):
-        url = VAULT_PREVIEW_ROOT + urllib.parse.quote(mapname) + ".png"
+        url = self._download_url()
         img, imgpath = self._get_cachefile(mapname + ".png.part")
         dl = FileDownload(nam, url, img, imgpath)
         dl.cb_finished = self._finished
@@ -289,21 +295,21 @@ class MapDownloader(QtCore.QObject):
         self._timeouts = DownloadTimeouts(self.MAP_REDOWNLOAD_TIMEOUT,
                                           self.MAP_DOWNLOAD_FAILS_TO_TIMEOUT)
 
-    def download_map(self, mapname, req):
-        self._add_request(mapname, req)
+    def download_map(self, mapname, req, url=None):
+        self._add_request(mapname, req, url)
 
-    def _add_request(self, mapname, req):
+    def _add_request(self, mapname, req, url):
         if mapname not in self._downloads:
-            self._add_download(mapname)
+            self._add_download(mapname, url)
         dl = self._downloads[mapname]
         req.dl = dl
 
-    def _add_download(self, mapname):
+    def _add_download(self, mapname, url):
         if self._timeouts.on_timeout(mapname):
             delay = self._timeouts.timer
         else:
             delay = None
-        dl = MapDownload(self._nam, mapname, delay)
+        dl = MapDownload(self._nam, mapname, url, delay)
         dl.done.connect(self._finished_download)
         self._downloads[mapname] = dl
 
