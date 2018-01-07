@@ -225,11 +225,16 @@ class PreviewDownloader(QtCore.QObject):
 
     def download_preview(self, name, req, url=None):
         target_url = self._target_url(name, url)
+        if target_url is None:
+            msg = "Missing url for a preview download {}".format(name)
+            raise ValueError(msg)
         self._add_request(name, req, target_url)
 
     def _target_url(self, name, url):
         if url is not None:
             return url
+        if self._default_url_prefix is None:
+            return None
         return self._default_url_prefix + urllib.parse.quote(name) + ".png"
 
     def _add_request(self, name, req, url):
