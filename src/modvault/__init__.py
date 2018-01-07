@@ -345,7 +345,7 @@ class ModItem(QtWidgets.QListWidgetItem):
             if img:
                 self.setIcon(util.THEME.icon(img, False))
             else:
-                self.parent.client.map_downloader.download_preview(name, self._map_dl_request, self.thumbstr)
+                self.parent.client.mod_downloader.download_preview(name, self._map_dl_request, self.thumbstr)
         self.updateVisibility()
 
     def _on_mod_downloaded(self, modname, result):

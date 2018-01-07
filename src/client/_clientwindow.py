@@ -158,7 +158,8 @@ class ClientWindow(FormClass, BaseClass):
         # Handy reference to the User object representing the logged-in user.
         self.me = User(self.players)
 
-        self.map_downloader = PreviewDownloader(util.CACHE_DIR, MAP_PREVIEW_ROOT)
+        self.map_downloader = PreviewDownloader(util.MAP_PREVIEW_DIR, MAP_PREVIEW_ROOT)
+        self.mod_downloader = PreviewDownloader(util.MOD_PREVIEW_DIR, None)
 
         # Qt model for displaying active games.
         self.game_model = GameModel(self.me, self.map_downloader, self.gameset)

@@ -48,6 +48,9 @@ THEME_DIR = os.path.join(APPDATA_DIR, "themes")
 # This contains cached data downloaded while communicating with the lobby - at the moment, mostly map preview pngs.
 CACHE_DIR = os.path.join(APPDATA_DIR, "cache")
 
+MAP_PREVIEW_DIR = os.path.join(CACHE_DIR, "map_previews")
+MOD_PREVIEW_DIR = os.path.join(CACHE_DIR, "mod_previews")
+
 # This contains cached data downloaded for FA extras
 EXTRA_DIR = os.path.join(APPDATA_DIR, "extra")
 
@@ -114,29 +117,12 @@ except:
 logger.info('PERSONAL_DIR final: ' + PERSONAL_DIR)
 
 # Ensure Application data directories exist
-if not os.path.isdir(APPDATA_DIR):
-    os.makedirs(APPDATA_DIR)
 
-if not os.path.isdir(PERSONAL_DIR):
-    os.makedirs(PERSONAL_DIR)
-
-if not os.path.isdir(LUA_DIR):
-    os.makedirs(LUA_DIR)
-
-if not os.path.isdir(CACHE_DIR):
-    os.makedirs(CACHE_DIR)
-
-if not os.path.isdir(THEME_DIR):
-    os.makedirs(THEME_DIR)
-
-if not os.path.isdir(REPLAY_DIR):
-    os.makedirs(REPLAY_DIR)
-
-if not os.path.isdir(LOG_DIR):
-    os.makedirs(LOG_DIR)
-
-if not os.path.isdir(EXTRA_DIR):
-    os.makedirs(EXTRA_DIR)
+for data_dir in [APPDATA_DIR, PERSONAL_DIR, LUA_DIR, CACHE_DIR,
+                 MAP_PREVIEW_DIR, MOD_PREVIEW_DIR, THEME_DIR, REPLAY_DIR,
+                 LOG_DIR, EXTRA_DIR]:
+    if not os.path.isdir(data_dir):
+        os.makedirs(data_dir)
 
 from PyQt5 import QtWidgets
 from PyQt5.uic import *
