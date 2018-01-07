@@ -14,6 +14,7 @@ from config import Settings
 from model.game import GameState
 from client.aliasviewer import AliasWindow
 from chat.gameinfo import SensitiveMapInfoChecker
+from downloadManager import MapDownloadRequest
 
 """
 A chatter is the representation of a person on IRC, in a channel's nick list.
@@ -47,6 +48,9 @@ class Chatter(QtWidgets.QTableWidgetItem):
         self._me = me
         self._me.relationsUpdated.connect(self._checkPlayerRelation)
         self._me.ircRelationsUpdated.connect(self._checkUserRelation)
+
+        self._map_dl_request = MapDownloadRequest()
+        self._map_dl_request.done.connect(self._on_map_downloaded)
 
         self._aliases = AliasWindow(self.parent)
         self._game_info_hider = SensitiveMapInfoChecker(self._me)
@@ -385,7 +389,8 @@ class Chatter(QtWidgets.QTableWidgetItem):
                 mapname = game.mapname
                 icon = maps.preview(mapname)
                 if not icon:
-                    self.chat_widget.client.downloader.downloadMapPreview(mapname, self.mapItem)  # Calls setIcon
+                    dler = self.chat_widget.client.map_downloader
+                    dler.download_map(mapname, self._map_dl_request)
                 else:
                     self.mapItem.setIcon(icon)
 
@@ -393,6 +398,12 @@ class Chatter(QtWidgets.QTableWidgetItem):
         else:
             self.mapItem.setIcon(QtGui.QIcon())
             self.mapItem.setToolTip("")
+
+    def _on_map_downloaded(self, mapname, result):
+        if self.user_game is None or self.user_game.mapname != mapname:
+            return
+        path, is_local = result
+        self.mapItem.setIcon(util.THEME.icon(path, is_local))
 
     def update(self):
         self.updateUser()
