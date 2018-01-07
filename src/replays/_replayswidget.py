@@ -269,6 +269,10 @@ class LocalReplaysWidgetHandler(object):
         self.myTree.header().setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeToContents)
         self.myTree.modification_time = 0
 
+        replay_cache = os.path.join(util.CACHE_DIR, "local_replays_metadata")
+        self.replay_files = LocalReplayMetadataCache(util.REPLAY_DIR,
+                                                     replay_cache)
+
     def myTreePressed(self, item):
         if QtWidgets.QApplication.mouseButtons() != QtCore.Qt.RightButton:
             return
@@ -317,9 +321,9 @@ class LocalReplaysWidgetHandler(object):
         # We put the replays into buckets by day first, then we add them to the treewidget.
         buckets = {}
 
-        cache = self.loadLocalCache()
-        cache_add = {}
-        cache_hit = {}
+        if not self.replay_files.cache_loaded:
+            self.replay_files.load_cache()
+
         # Iterate
         for infile in os.listdir(util.REPLAY_DIR):
             if infile.endswith(".scfareplay"):
@@ -338,14 +342,7 @@ class LocalReplaysWidgetHandler(object):
                 try:
                     item.filename = os.path.join(util.REPLAY_DIR, infile)
                     basename = os.path.basename(item.filename)
-                    if basename in cache:
-                        oneline = cache[basename]
-                        cache_hit[basename] = oneline
-                    else:
-                        with open(item.filename, "rt") as fh:
-                            oneline = fh.readline()
-                            cache_add[basename] = oneline
-
+                    oneline = self.replay_files[basename]
                     item.info = json.loads(oneline)
 
                     # Parse replayinfo into data
@@ -397,8 +394,7 @@ class LocalReplaysWidgetHandler(object):
 
                 bucket.append(item)
 
-        if len(cache_add) > 10 or len(cache) - len(cache_hit) > 10:
-            self.saveLocalCache(cache_hit, cache_add)
+        self.replay_files.save_cache()
         # Now, create a top level treeWidgetItem for every bucket, and put the bucket's contents into them
         for bucket in buckets.keys():
             bucket_item = QtWidgets.QTreeWidgetItem()
@@ -429,22 +425,53 @@ class LocalReplaysWidgetHandler(object):
             for replay in buckets[bucket]:
                 bucket_item.addChild(replay)
 
-    def loadLocalCache(self):
-        cache_fname = os.path.join(util.CACHE_DIR, "local_replays_metadata")
-        cache = {}
-        if os.path.exists(cache_fname):
-            with open(cache_fname, "rt") as fh:
+
+class LocalReplayMetadataCache:
+    CACHE_DIFF_THRESHOLD = 20
+
+    def __init__(self, cache_dir, cache_file):
+        self._cache_dir = cache_dir
+        self._cache_file = cache_file
+        self._cache = {}
+        self._new_cache_entries = set()
+        self._used_cache_entries = set()
+        self.cache_loaded = False
+
+    def load_cache(self):
+        if os.path.exists(self._cache_file):
+            with open(self._cache_file, "rt") as fh:
                 for line in fh:
                     filename, metadata = line.split(':', 1)
-                    cache[filename] = metadata
-        return cache
+                    self._cache[filename] = metadata
+        self.cache_loaded = True
 
-    def saveLocalCache(self, cache_hit, cache_add):
-        with open(os.path.join(util.CACHE_DIR, "local_replays_metadata"), "wt") as fh:
-            for filename, metadata in cache_hit.items():
-                fh.write(filename + ":" + metadata)
-            for filename, metadata in cache_add.items():
-                fh.write(filename + ":" + metadata)
+    def save_cache(self):
+        if not self._cache_differs_much_from_files():
+            return
+        with open(self._cache_file, "wt") as fh:
+            for filename in self._used_cache_entries:
+                fh.write(filename + ":" + self._cache[filename])
+
+    def _cache_differs_much_from_files(self):
+        new_entries = len(self._new_cache_entries)
+        all_entries = len(self._cache)
+        all_used_entries = len(self._used_cache_entries)
+        unused_entries = all_entries - all_used_entries
+        return new_entries + unused_entries > self.CACHE_DIFF_THRESHOLD
+
+    def __getitem__(self, filename):
+        if filename not in self._cache:
+            try:
+                target_file = os.path.join(self._cache_dir, filename)
+                with open(target_file, "rt") as fh:
+                    metadata = fh.readline()
+                    self._cache[filename] = metadata
+                self._new_cache_entries.add(filename)
+            except IOError:
+                raise KeyError
+
+        self._used_cache_entries.add(filename)
+        return self._cache[filename]
 
 
 class ReplayVaultWidgetHandler(object):
