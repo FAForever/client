@@ -7,6 +7,7 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 from config import Settings
 from fa import maps
 from games.moditem import mods
+from downloadManager import MapDownloadRequest
 
 
 class ReplayItemDelegate(QtWidgets.QStyledItemDelegate):
@@ -114,6 +115,9 @@ class ReplayItem(QtWidgets.QTreeWidgetItem):
         self.setHidden(True)
         self.extraInfoWidth  = 0  # panel with more information
         self.extraInfoHeight = 0  # panel with more information
+
+        self._map_dl_request = MapDownloadRequest()
+        self._map_dl_request.done.connect(self._on_map_preview_downloaded)
     
     def update(self, message, client):
         """ Updates this item from the message dictionary supplied """
@@ -144,7 +148,7 @@ class ReplayItem(QtWidgets.QTreeWidgetItem):
       
         self.icon = maps.preview(self.mapname)
         if not self.icon:
-            self.client.downloader.downloadMapPreview(self.mapname, self, True)
+            self.client.map_downloader.download_map(self.mapname, self._map_dl_request)
             self.icon = util.THEME.icon("games/unknown_map.png")
 
         if self.mod in mods:
@@ -152,17 +156,13 @@ class ReplayItem(QtWidgets.QTreeWidgetItem):
         else:
             self.moddisplayname = self.mod
 
-#        self.title      = message['title']
-#        self.teams      = message['teams']
-#        self.access     = message.get('access', 'public')
-#        self.mod        = message['featured_mod']
-#        self.host       = message["host"]
-#        self.options    = message.get('options', [])
-#        self.numplayers = message.get('num_players', 0) 
-#        self.slots      = message.get('max_players',12)
-
         self.viewtext = self.FORMATTER_REPLAY.format(time=self.startHour, name=self.name, map=self.mapdisplayname,
                                                      duration=self.duration, mod=self.moddisplayname)
+
+    def _on_map_preview_downloaded(self, mapname, result):
+        path, is_local = result
+        self.icon = util.THEME.icon(path, is_local)
+        self.setIcon(0, self.icon)
 
     def infoPlayers(self, players):
         """ processes information from the server about a replay into readable extra information for the user,

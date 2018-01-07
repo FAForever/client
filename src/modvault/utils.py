@@ -116,7 +116,7 @@ def fullPathToIcon(path):
 
 
 def getIcon(name):
-    img = os.path.join(util.CACHE_DIR, name)
+    img = os.path.join(util.MOD_PREVIEW_DIR, name)
     if os.path.isfile(img):
         logger.log(5, "Using cached preview image for: " + name)
         return img
