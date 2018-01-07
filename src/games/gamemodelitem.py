@@ -1,5 +1,5 @@
 from PyQt5.QtCore import QObject, pyqtSignal
-from downloadManager import MapDownloadRequest
+from downloadManager import PreviewDownloadRequest
 from fa import maps
 
 
@@ -18,7 +18,7 @@ class GameModelItem(QObject):
         self._me = me
         self._me.relationsUpdated.connect(self._check_host_relation_changed)
         self._preview_dler = preview_dler
-        self._preview_dl_request = MapDownloadRequest()
+        self._preview_dl_request = PreviewDownloadRequest()
         self._preview_dl_request.done.connect(self._at_preview_downloaded)
 
     def _game_updated(self):
@@ -38,7 +38,7 @@ class GameModelItem(QObject):
         name = self.game.mapname.lower()
         if self.game.password_protected or maps.preview(name) is not None:
             return
-        self._preview_dler.download_map(name, self._preview_dl_request)
+        self._preview_dler.download_preview(name, self._preview_dl_request)
 
     def _at_preview_downloaded(self, mapname):
         if mapname == self.game.mapname:

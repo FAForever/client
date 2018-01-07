@@ -13,7 +13,7 @@ import jsonschema
 from replays.replayitem import ReplayItem, ReplayItemDelegate
 from model.game import GameState
 from replays.connection import ReplaysConnection
-from downloadManager import MapDownloadRequest
+from downloadManager import PreviewDownloadRequest
 
 import logging
 logger = logging.getLogger(__name__)
@@ -34,7 +34,7 @@ class LiveReplayItem(QtWidgets.QTreeWidgetItem):
             self.launch_time = game.launched_at
         else:
             self.launch_time = time.time()
-        self._map_dl_request = MapDownloadRequest()
+        self._map_dl_request = PreviewDownloadRequest()
         self._map_dl_request.done.connect(self._map_preview_downloaded)
 
         self._game.gameUpdated.connect(self._update_game)
@@ -84,7 +84,7 @@ class LiveReplayItem(QtWidgets.QTreeWidgetItem):
             icon = fa.maps.preview(game.mapname)
             if not icon:
                 dler = client.instance.map_downloader
-                dler.download_map(game.mapname, self._map_dl_request)
+                dler.download_preview(game.mapname, self._map_dl_request)
                 icon = util.THEME.icon("games/unknown_map.png")
         self.setIcon(0, icon)
 
@@ -328,7 +328,7 @@ class LocalReplayItem(QtWidgets.QTreeWidgetItem):
         QtWidgets.QTreeWidgetItem.__init__(self)
         self._replay_file = replay_file
         self._metadata = metadata
-        self._map_dl_request = MapDownloadRequest()
+        self._map_dl_request = PreviewDownloadRequest()
         self._map_dl_request.done.connect(self._map_preview_downloaded)
         self._setup_appearance()
 
@@ -377,7 +377,7 @@ class LocalReplayItem(QtWidgets.QTreeWidgetItem):
             self.setIcon(0, icon)
         else:
             dler = client.instance.map_downloader
-            dler.download_map(data['mapname'], self._map_dl_request)
+            dler.download_preview(data['mapname'], self._map_dl_request)
             self.setIcon(0, util.THEME.icon("games/unknown_map.png"))
 
         self.setToolTip(0, fa.maps.getDisplayName(data['mapname']))

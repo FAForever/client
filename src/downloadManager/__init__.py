@@ -116,13 +116,13 @@ class FileDownload(object):
 VAULT_PREVIEW_ROOT = "{}/faf/vault/map_previews/small/".format(Settings.get('content/host'))
 
 
-class MapDownload(QtCore.QObject):
+class PreviewDownload(QtCore.QObject):
     done = QtCore.pyqtSignal(object, object)
 
-    def __init__(self, nam, mapname, url, delay_timer=None):
+    def __init__(self, nam, name, url, delay_timer=None):
         QtCore.QObject.__init__(self)
         self.requests = set()
-        self.mapname = mapname
+        self.name = name
         self._url = url
         self._nam = nam
         self._delay_timer = delay_timer
@@ -135,18 +135,18 @@ class MapDownload(QtCore.QObject):
     def _download_url(self):
         if self._url is not None:
             return self._url
-        return VAULT_PREVIEW_ROOT + urllib.parse.quote(self.mapname) + ".png"
+        return VAULT_PREVIEW_ROOT + urllib.parse.quote(self.name) + ".png"
 
     def _start_download(self):
         if self._delay_timer is not None:
             self._delay_timer.disconnect(self._start_download)
-        self._dl = self._prepare_dl(self._nam, self.mapname)
+        self._dl = self._prepare_dl()
         self._dl.run()
 
-    def _prepare_dl(self, nam, mapname):
+    def _prepare_dl(self):
         url = self._download_url()
-        img, imgpath = self._get_cachefile(mapname + ".png.part")
-        dl = FileDownload(nam, url, img, imgpath)
+        img, imgpath = self._get_cachefile(self.name + ".png.part")
+        dl = FileDownload(self._nam, url, img, imgpath)
         dl.cb_finished = self._finished
         dl.blocksize = None
         return dl
@@ -167,12 +167,12 @@ class MapDownload(QtCore.QObject):
         dl.dest.close()
         logger.info("Finished download from " + dl.addr)
         if self.failed():
-            logger.debug("Web Preview failed for: {}".format(self.mapname))
+            logger.debug("Web Preview failed for: {}".format(self.name))
             os.unlink(dl.destpath)
             filepath = "games/unknown_map.png"
             is_local = True
         else:
-            logger.debug("Web Preview used for: {}".format(self.mapname))
+            logger.debug("Web Preview used for: {}".format(self.name))
             # Remove '.part'
             partpath = dl.destpath
             filepath = partpath[:-5]
@@ -184,7 +184,7 @@ class MapDownload(QtCore.QObject):
         return not self._dl.succeeded()
 
 
-class MapDownloadRequest(QtCore.QObject):
+class PreviewDownloadRequest(QtCore.QObject):
     done = QtCore.pyqtSignal(object, object)
 
     def __init__(self):
@@ -203,55 +203,55 @@ class MapDownloadRequest(QtCore.QObject):
         if self._dl is not None:
             self._dl.add_request(self)
 
-    def finished(self, mapname, result):
-        self.done.emit(mapname, result)
+    def finished(self, name, result):
+        self.done.emit(name, result)
 
 
-class MapDownloader(QtCore.QObject):
+class PreviewDownloader(QtCore.QObject):
     """
-    Class for downloading maps. Clients ask to download by giving download
-    requests, which are stored by mapname. After download is complete, all
+    Class for downloading previews. Clients ask to download by giving download
+    requests, which are stored by name. After download is complete, all
     download requests get notified (neatly avoiding the 'requester died while
     we were downloading' issue).
 
-    Requests can be resubmitted. That reclassifies them to a new mapname.
+    Requests can be resubmitted. That reclassifies them to a new name.
     """
-    MAP_REDOWNLOAD_TIMEOUT = 5 * 60 * 1000
-    MAP_DOWNLOAD_FAILS_TO_TIMEOUT = 3
+    PREVIEW_REDOWNLOAD_TIMEOUT = 5 * 60 * 1000
+    PREVIEW_DOWN_FAILS_TO_TIMEOUT = 3
 
     def __init__(self):
         QtCore.QObject.__init__(self)
         self._nam = QNetworkAccessManager(self)
         self._downloads = {}
-        self._timeouts = DownloadTimeouts(self.MAP_REDOWNLOAD_TIMEOUT,
-                                          self.MAP_DOWNLOAD_FAILS_TO_TIMEOUT)
+        self._timeouts = DownloadTimeouts(self.PREVIEW_REDOWNLOAD_TIMEOUT,
+                                          self.PREVIEW_DOWN_FAILS_TO_TIMEOUT)
 
-    def download_map(self, mapname, req, url=None):
-        self._add_request(mapname, req, url)
+    def download_preview(self, name, req, url=None):
+        self._add_request(name, req, url)
 
-    def _add_request(self, mapname, req, url):
-        if mapname not in self._downloads:
-            self._add_download(mapname, url)
-        dl = self._downloads[mapname]
+    def _add_request(self, name, req, url):
+        if name not in self._downloads:
+            self._add_download(name, url)
+        dl = self._downloads[name]
         req.dl = dl
 
-    def _add_download(self, mapname, url):
-        if self._timeouts.on_timeout(mapname):
+    def _add_download(self, name, url):
+        if self._timeouts.on_timeout(name):
             delay = self._timeouts.timer
         else:
             delay = None
-        dl = MapDownload(self._nam, mapname, url, delay)
+        dl = PreviewDownload(self._nam, name, url, delay)
         dl.done.connect(self._finished_download)
-        self._downloads[mapname] = dl
+        self._downloads[name] = dl
 
     def _finished_download(self, dl, result):
-        self._timeouts.update_fail_count(dl.mapname, dl.failed())
+        self._timeouts.update_fail_count(dl.name, dl.failed())
         requests = set(dl.requests)     # Don't change it during iteration
         for req in requests:
             req.dl = None
-        del self._downloads[dl.mapname]
+        del self._downloads[dl.name]
         for req in requests:
-            req.finished(dl.mapname, result)
+            req.finished(dl.name, result)
 
 
 class DownloadTimeouts:

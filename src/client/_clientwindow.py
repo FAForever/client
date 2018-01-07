@@ -15,7 +15,7 @@ from client.theme_menu import ThemeMenu
 from client.updater import UpdateChecker, UpdateDialog
 from client.update_settings import UpdateSettingsDialog
 from client.user import User
-from downloadManager import MapDownloader
+from downloadManager import PreviewDownloader
 import fa
 from fa.factions import Factions
 from fa.maps import getUserMapsFolder
@@ -158,7 +158,7 @@ class ClientWindow(FormClass, BaseClass):
         # Handy reference to the User object representing the logged-in user.
         self.me = User(self.players)
 
-        self.map_downloader = MapDownloader()
+        self.map_downloader = PreviewDownloader()
 
         # Qt model for displaying active games.
         self.game_model = GameModel(self.me, self.map_downloader, self.gameset)
