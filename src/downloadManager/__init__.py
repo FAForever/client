@@ -125,8 +125,6 @@ class downloadManager(QtCore.QObject):
         self.nam = QNetworkAccessManager(self)
 
         self.modRequests = {}
-        self.mapRequests = {}
-        self.mapRequestsItem = []
         self.downloaders = set()
 
     @QtCore.pyqtSlot(FileDownload)
@@ -145,16 +143,12 @@ class downloadManager(QtCore.QObject):
         logger.info("Finished download from " + urlstring)
 
         reqlist = []
-        if urlstring in self.mapRequests:
-            reqlist = self.mapRequests[urlstring]
         if urlstring in self.modRequests:
             reqlist = self.modRequests[urlstring]
         if not reqlist:
             dler.dest.remove()
             return
 
-        if urlstring in self.mapRequests:
-            del self.mapRequests[urlstring]
         if urlstring in self.modRequests:
             del self.modRequests[urlstring]
 
@@ -169,42 +163,13 @@ class downloadManager(QtCore.QObject):
 
         for requester in reqlist:
             if requester:
-                if requester in self.mapRequestsItem:
-                    requester.setIcon(0, util.THEME.icon(filepath, local_path))
-                    self.mapRequestsItem.remove(requester)
-                else:
-                    requester.setIcon(util.THEME.icon(filepath, local_path))
+                requester.setIcon(util.THEME.icon(filepath, local_path))
 
     def _get_cachefile(self, name):
         imgpath = os.path.join(util.CACHE_DIR, name)
         img = QtCore.QFile(imgpath)
         img.open(QtCore.QIODevice.WriteOnly)
         return img, imgpath
-
-    def downloadMapPreview(self, name, requester, item=False):
-        """
-        Downloads a preview image from the web for the given map name
-        """
-        # This is done so generated previews always have a lower case name.
-        # This doesn't solve the underlying problem (case folding Windows vs. Unix vs. FAF)
-        name = name.lower()
-        if len(name) == 0:
-            return
-
-        url = VAULT_PREVIEW_ROOT + urllib.parse.quote(name) + ".png"
-        if url not in self.mapRequests:
-            logger.info("Searching map preview for: " + name + " from " + url)
-            self.mapRequests[url] = []
-
-            img, imgpath = self._get_cachefile(name + ".png.part")
-            downloader = FileDownload(self.nam, url, img, imgpath, finished=self.finishedDownload)
-            self.downloaders.add(downloader)
-            downloader.blocksize = None
-            downloader.run()
-
-        self.mapRequests[url].append(requester)
-        if item:
-            self.mapRequestsItem.append(requester)
 
     def downloadModPreview(self, url, name, requester):
         if not url in self.modRequests:
