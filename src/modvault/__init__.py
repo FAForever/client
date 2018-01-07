@@ -62,6 +62,9 @@ import urllib.request, urllib.error, urllib.parse
 
 from util import datetostr, now
 d = datetostr(now())
+
+from downloadManager import MapDownloadRequest
+
 """
 tempmod1 = dict(uid=1,name='Mod1', comments=[],bugreports=[], date = d,
                 ui=True, downloads=0, likes=0,
@@ -314,6 +317,9 @@ class ModItem(QtWidgets.QListWidgetItem):
         self.loadThread = None
         self.setHidden(True)
 
+        self._map_dl_request = MapDownloadRequest()
+        self._map_dl_request.done.connect(self._on_mod_downloaded)
+
     def update(self, dic):
         self.name = dic["name"]
         self.played = dic["played"]
@@ -339,8 +345,13 @@ class ModItem(QtWidgets.QListWidgetItem):
             if img:
                 self.setIcon(util.THEME.icon(img, False))
             else:
-                self.parent.client.downloader.downloadModPreview(self.thumbstr, name, self)
+                self.parent.client.map_downloader.download_map(name, self._map_dl_request, self.thumbstr)
         self.updateVisibility()
+
+    def _on_mod_downloaded(self, modname, result):
+        path, is_local = result
+        icon = util.THEME.icon(path, is_local)
+        self.setIcon(icon)
 
     def updateIcon(self):
         self.setIcon(self.thumbnail)
