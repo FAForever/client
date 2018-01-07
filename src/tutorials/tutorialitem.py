@@ -3,6 +3,7 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 from fa import maps
 import util
 from config import Settings
+from downloadManager import MapDownloadRequest
 
 
 class TutorialItemDelegate(QtWidgets.QStyledItemDelegate):
@@ -75,6 +76,9 @@ class TutorialItem(QtWidgets.QListWidgetItem):
         self.client = None
         self.title = None
    
+        self._map_dl_request = MapDownloadRequest()
+        self._map_dl_request.done.connect(self._on_map_preview_downloaded)
+
     def update(self, message, client):
         """
         Updates this item from the message dictionary supplied
@@ -93,12 +97,16 @@ class TutorialItem(QtWidgets.QListWidgetItem):
             icon = maps.preview(self.mapname)
             if not icon:
                 icon = util.THEME.icon("games/unknown_map.png")
-                self.client.downloader.downloadMapPreview(self.mapname, self)
+                self.client.map_downloader.download_map(self.mapname, self._map_dl_request)
 
             self.setIcon(icon)
 
         self.setText(self.FORMATTER_TUTORIAL.format(mapdisplayname=self.mapdisplayname,
                                                     title=self.tutorial, description=self.description))
+
+    def _on_map_preview_downloaded(self, mapname, result):
+        path, is_local = result
+        self.setIcon(util.THEME.icon(path, is_local))
 
     def permutations(self, items):
         """Yields all permutations of the items."""
