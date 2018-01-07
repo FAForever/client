@@ -328,6 +328,8 @@ class LocalReplayItem(QtWidgets.QTreeWidgetItem):
         QtWidgets.QTreeWidgetItem.__init__(self)
         self._replay_file = replay_file
         self._metadata = metadata
+        self._map_dl_request = MapDownloadRequest()
+        self._map_dl_request.done.connect(self._map_preview_downloaded)
         self._setup_appearance()
 
     def replay_path(self):
@@ -374,7 +376,8 @@ class LocalReplayItem(QtWidgets.QTreeWidgetItem):
         if icon:
             self.setIcon(0, icon)
         else:
-            client.instance.downloader.downloadMapPreview(data['mapname'], self, True)
+            dler = client.instance.map_downloader
+            dler.download_map(data['mapname'], self._map_dl_request)
             self.setIcon(0, util.THEME.icon("games/unknown_map.png"))
 
         self.setToolTip(0, fa.maps.getDisplayName(data['mapname']))
@@ -404,6 +407,9 @@ class LocalReplayItem(QtWidgets.QTreeWidgetItem):
             return time.strftime("%Y-%m-%d", t)
         except ValueError:
             return "broken"
+
+    def _map_preview_downloaded(self):
+        self._setup_appearance()
 
 
 class LocalReplayBucketItem(QtWidgets.QTreeWidgetItem):
