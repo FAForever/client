@@ -116,75 +116,6 @@ class FileDownload(object):
 VAULT_PREVIEW_ROOT = "{}/faf/vault/map_previews/small/".format(Settings.get('content/host'))
 
 
-class downloadManager(QtCore.QObject):
-    """ This class allows downloading stuff in the background"""
-
-    def __init__(self, parent=None):
-        QtCore.QObject.__init__(self, parent)
-        self.client = parent
-        self.nam = QNetworkAccessManager(self)
-
-        self.modRequests = {}
-        self.downloaders = set()
-
-    @QtCore.pyqtSlot(FileDownload)
-    def finishedDownload(self, dler):
-        self.downloaders.remove(dler)
-        dler.dest.close()
-        urlstring = dler.addr
-
-        # Remove '.part'
-        partpath = dler.destpath
-        filepath = partpath[:-5]
-        QtCore.QDir().rename(partpath, filepath)
-
-        local_path = False
-        filename = os.path.basename(filepath)
-        logger.info("Finished download from " + urlstring)
-
-        reqlist = []
-        if urlstring in self.modRequests:
-            reqlist = self.modRequests[urlstring]
-        if not reqlist:
-            dler.dest.remove()
-            return
-
-        if urlstring in self.modRequests:
-            del self.modRequests[urlstring]
-
-        if not dler.succeeded():
-            dler.dest.remove()
-            os.unlink(filepath)
-            filepath = "games/unknown_map.png"
-            local_path = True
-            logger.debug("Web Preview failed for: " + filename)
-        else:
-            logger.debug("Web Preview used for: " + filename)
-
-        for requester in reqlist:
-            if requester:
-                requester.setIcon(util.THEME.icon(filepath, local_path))
-
-    def _get_cachefile(self, name):
-        imgpath = os.path.join(util.CACHE_DIR, name)
-        img = QtCore.QFile(imgpath)
-        img.open(QtCore.QIODevice.WriteOnly)
-        return img, imgpath
-
-    def downloadModPreview(self, url, name, requester):
-        if not url in self.modRequests:
-            logger.debug("Searching mod preview for: " + str(os.path.basename(url).rsplit('.', 1)[0]))
-            self.modRequests[url] = []
-
-            img, imgpath = self._get_cachefile(name + '.part')
-            downloader = FileDownload(self.nam, url, img, imgpath, finished=self.finishedDownload)
-            self.downloaders.add(downloader)
-            downloader.blocksize = None
-            downloader.run()
-
-        self.modRequests[url].append(requester)
-
-
 class MapDownload(QtCore.QObject):
     done = QtCore.pyqtSignal(object, object)
 
@@ -351,13 +282,3 @@ class DownloadTimeouts:
 
     def _clear_timeouts(self):
         self._timed_out_items.clear()
-
-
-# Temporary utility class for catching download callbacks
-class IconCallback:
-    def __init__(self, mapname, cb):
-        self.mapname = mapname
-        self.cb = cb
-
-    def setIcon(self, icon):
-        self.cb(self.mapname, icon)

@@ -518,9 +518,6 @@ class ClientWindow(FormClass, BaseClass):
         import downloadManager
         from chat._avatarWidget import AvatarWidget
 
-        # download manager
-        self.downloader = downloadManager.downloadManager(self)
-
         self.loadSettings()
 
         self.gameview_builder = GameViewBuilder(self.me,
