@@ -12,6 +12,7 @@ import json
 from replays.replayitem import ReplayItem, ReplayItemDelegate
 from model.game import GameState
 from replays.connection import ReplaysConnection
+from downloadManager import MapDownloadRequest
 
 import logging
 logger = logging.getLogger(__name__)
@@ -32,6 +33,9 @@ class LiveReplayItem(QtWidgets.QTreeWidgetItem):
             self.launch_time = game.launched_at
         else:
             self.launch_time = time.time()
+        self._map_dl_request = MapDownloadRequest()
+        self._map_dl_request.done.connect(self._map_preview_downloaded)
+
         self._game.gameUpdated.connect(self._update_game)
         self._set_show_delay()
         self._update_game(self._game)
@@ -46,6 +50,13 @@ class LiveReplayItem(QtWidgets.QTreeWidgetItem):
 
     def _show_item(self):
         self.setHidden(False)
+
+    def _map_preview_downloaded(self, mapname, result):
+        if mapname != self._game.mapname:
+            return
+        path, is_local = result
+        icon = util.THEME.icon(path, is_local)
+        self.setIcon(0, icon)
 
     def _update_game(self, game):
         if game.state == GameState.CLOSED:
@@ -71,8 +82,8 @@ class LiveReplayItem(QtWidgets.QTreeWidgetItem):
         else:
             icon = fa.maps.preview(game.mapname)
             if not icon:
-                dler = client.instance.downloader
-                dler.downloadMapPreview(game.mapname, self, True)
+                dler = client.instance.map_downloader
+                dler.download_map(game.mapname, self._map_dl_request)
                 icon = util.THEME.icon("games/unknown_map.png")
         self.setIcon(0, icon)
 
