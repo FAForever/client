@@ -8,6 +8,7 @@ import fa
 import time
 import client
 import json
+import jsonschema
 
 from replays.replayitem import ReplayItem, ReplayItemDelegate
 from model.game import GameState
@@ -258,6 +259,195 @@ class LiveReplaysWidgetHandler(object):
         del self.games[game]
 
 
+class ReplayMetadata:
+    def __init__(self, data):
+        self.raw_data = data
+        self.data = None
+        self.is_broken = False
+        self.is_incomplete = False
+
+        try:
+            self.data = json.loads(data)
+        except json.decoder.JSONDecodeError:
+            self.is_broken = True
+            return
+
+        self._validate_data()
+
+    # FIXME - this is what the widget uses so far, we should define this
+    # schema precisely in the future
+    def _validate_data(self):
+        if not isinstance(self.data, dict):
+            self.is_broken = True
+            return
+        if not self.data.get('complete', False):
+            self.is_incomplete = True
+            return
+
+        replay_schema = {
+            "type": "object",
+            "properties": {
+                "num_players": {"type": "number"},
+                "launched_at": {"type": "number"},
+                "game_time": {
+                    "type": "number",
+                    "minimum": 0
+                },
+                "mapname": {"type": "string"},
+                "title": {"type": "string"},
+                "teams": {
+                    "type": "object",
+                    "patternProperties": {
+                        ".*": {
+                            "type": "array",
+                            "items": {"type": "string"}
+                            }
+                        }
+                    },
+                "featured_mod": {"type": "string"}
+                },
+            "required": ["num_players", "mapname", "title", "teams",
+                         "featured_mod"]
+        }
+        try:
+            jsonschema.validate(self.data, replay_schema)
+        except jsonschema.ValidationError:
+            self.is_broken = True
+
+    def launch_time(self):
+        if 'launched_at' in self.data:
+            return self.data['launched_at']
+        elif 'game_time' in self.data:
+            return self.data['game_time']
+        else:
+            return time.time()  # FIXME
+
+
+class LocalReplayItem(QtWidgets.QTreeWidgetItem):
+    def __init__(self, replay_file, metadata=None):
+        QtWidgets.QTreeWidgetItem.__init__(self)
+        self._replay_file = replay_file
+        self._metadata = metadata
+        self._setup_appearance()
+
+    def replay_path(self):
+        return os.path.join(util.REPLAY_DIR, self._replay_file)
+
+    def _setup_appearance(self):
+        if self._metadata is None:
+            self._setup_no_metadata_appearance()
+        elif self._metadata.is_broken:
+            self._setup_broken_appearance()
+        elif self._metadata.is_incomplete:
+            self._setup_incomplete_appearance()
+        else:
+            self._setup_complete_appearance()
+
+    def _setup_no_metadata_appearance(self):
+        self.setText(1, self._replay_file)
+        self.setIcon(0, util.THEME.icon("replays/replay.png"))
+        colors = client.instance.player_colors
+        self.setForeground(0, QtGui.QColor(colors.getColor("default")))
+
+    def _setup_broken_appearance(self):
+        self.setIcon(0, util.THEME.icon("replays/broken.png"))
+        self.setText(1, self._replay_file)
+        self.setForeground(1, QtGui.QColor("red"))   # FIXME: Needs to come from theme
+        self.setText(2, "(replay parse error)")
+        self.setForeground(2, QtGui.QColor("gray"))  # FIXME: Needs to come from theme
+
+    def _setup_incomplete_appearance(self):
+        self.setIcon(0, util.THEME.icon("replays/replay.png"))
+        self.setText(1, self._replay_file)
+        self.setText(2, "(replay doesn't have complete metadata)")
+        self.setForeground(1, QtGui.QColor("yellow"))  # FIXME: Needs to come from theme
+
+    def _setup_complete_appearance(self):
+        data = self._metadata.data
+        launch_time = time.localtime(self._metadata.launch_time())
+        try:
+            game_time = time.strftime("%H:%M", launch_time)
+        except ValueError:
+            game_time = "Unknown"
+
+        icon = fa.maps.preview(data['mapname'])
+        if icon:
+            self.setIcon(0, icon)
+        else:
+            client.instance.downloader.downloadMapPreview(data['mapname'], self, True)
+            self.setIcon(0, util.THEME.icon("games/unknown_map.png"))
+
+        self.setToolTip(0, fa.maps.getDisplayName(data['mapname']))
+        self.setText(0, game_time)
+        self.setForeground(0, QtGui.QColor(client.instance.player_colors.getColor("default")))
+        self.setText(1, data['title'])
+        self.setToolTip(1, self._replay_file)
+
+        playerlist = []
+        for players in list(data['teams'].values()):
+            playerlist.extend(players)
+        self.setText(2, ", ".join(playerlist))
+        self.setToolTip(2, ", ".join(playerlist))
+
+        self.setText(3, data['featured_mod'])
+        self.setTextAlignment(3, QtCore.Qt.AlignCenter)
+
+    def replay_bucket(self):
+        if self._metadata is None:
+            return "legacy"
+        if self._metadata.is_broken:
+            return "broken"
+        if self._metadata.is_incomplete:
+            return "incomplete"
+        try:
+            t = time.localtime(self._metadata.launch_time())
+            return time.strftime("%Y-%m-%d", t)
+        except ValueError:
+            return "broken"
+
+
+class LocalReplayBucketItem(QtWidgets.QTreeWidgetItem):
+    def __init__(self, kind, children):
+        QtWidgets.QTreeWidgetItem.__init__(self)
+        self._setup_appearance(kind, children)
+
+    def _setup_appearance(self, kind, children):
+        if kind == "broken":
+            self._setup_broken_appearance()
+        elif kind == "incomplete":
+            self._setup_incomplete_appearance()
+        elif kind == "legacy":
+            self._setup_legacy_appearance()
+        else:
+            self._setup_date_appearance()
+
+        self.setIcon(0, util.THEME.icon("replays/bucket.png"))
+        self.setText(0, kind)
+        self.setText(3, "{} replays".format(len(children)))
+        self.setForeground(3, QtGui.QColor(client.instance.player_colors.getColor("default")))
+
+        for item in children:
+            self.addChild(item)
+
+    def _setup_broken_appearance(self):
+        self.setForeground(0, QtGui.QColor("red"))  # FIXME: Needs to come from theme
+        self.setText(1, "(not watchable)")
+        self.setForeground(1, QtGui.QColor(client.instance.player_colors.getColor("default")))
+
+    def _setup_incomplete_appearance(self):
+        self.setForeground(0, QtGui.QColor("yellow"))  # FIXME: Needs to come from theme
+        self.setText(1, "(watchable)")
+        self.setForeground(1, QtGui.QColor(client.instance.player_colors.getColor("default")))
+
+    def _setup_legacy_appearance(self):
+        self.setForeground(0, QtGui.QColor(client.instance.player_colors.getColor("default")))
+        self.setForeground(1, QtGui.QColor(client.instance.player_colors.getColor("default")))
+        self.setText(1, "(old replay system)")
+
+    def _setup_date_appearance(self):
+        self.setForeground(0, QtGui.QColor(client.instance.player_colors.getColor("player")))
+
+
 class LocalReplaysWidgetHandler(object):
     def __init__(self, myTree):
         self.myTree = myTree
@@ -295,7 +485,7 @@ class LocalReplaysWidgetHandler(object):
 
         # Triggers
         actionReplay.triggered.connect(lambda: self.myTreeDoubleClicked(item))
-        actionExplorer.triggered.connect(lambda: util.showFileInFileBrowser(item.filename))
+        actionExplorer.triggered.connect(lambda: util.showFileInFileBrowser(item.replay_path()))
 
         # Adding to menu
         menu.addAction(actionReplay)
@@ -309,7 +499,7 @@ class LocalReplaysWidgetHandler(object):
             return
 
         if self.myTree.indexOfTopLevelItem(item) == -1:
-            replay(item.filename)
+            replay(item.replay_path())
 
     def updatemyTree(self):
         modification_time = os.path.getmtime(util.REPLAY_DIR)
@@ -327,103 +517,21 @@ class LocalReplaysWidgetHandler(object):
         # Iterate
         for infile in os.listdir(util.REPLAY_DIR):
             if infile.endswith(".scfareplay"):
-                bucket = buckets.setdefault("legacy", [])
-
-                item = QtWidgets.QTreeWidgetItem()
-                item.setText(1, infile)
-                item.filename = os.path.join(util.REPLAY_DIR, infile)
-                item.setIcon(0, util.THEME.icon("replays/replay.png"))
-                item.setForeground(0, QtGui.QColor(client.instance.player_colors.getColor("default")))
-
-                bucket.append(item)
-
+                metadata = None
             elif infile.endswith(".fafreplay"):
-                item = QtWidgets.QTreeWidgetItem()
-                try:
-                    item.filename = os.path.join(util.REPLAY_DIR, infile)
-                    basename = os.path.basename(item.filename)
-                    oneline = self.replay_files[basename]
-                    item.info = json.loads(oneline)
-
-                    # Parse replayinfo into data
-                    if item.info.get('complete', False):
-                        t = time.localtime(item.info.get('launched_at', item.info.get('game_time', time.time())))
-                        game_date = time.strftime("%Y-%m-%d", t)
-                        game_hour = time.strftime("%H:%M", t)
-
-                        bucket = buckets.setdefault(game_date, [])
-
-                        icon = fa.maps.preview(item.info['mapname'])
-                        if icon:
-                            item.setIcon(0, icon)
-                        else:
-                            client.instance.downloader.downloadMapPreview(item.info['mapname'], item, True)
-                            item.setIcon(0, util.THEME.icon("games/unknown_map.png"))
-                        item.setToolTip(0, fa.maps.getDisplayName(item.info['mapname']))
-                        item.setText(0, game_hour)
-                        item.setForeground(0, QtGui.QColor(client.instance.player_colors.getColor("default")))
-
-                        item.setText(1, item.info['title'])
-                        item.setToolTip(1, infile)
-
-                        # Hacky way to quickly assemble a list of all the players, but including the observers
-                        playerlist = []
-                        for _, players in list(item.info['teams'].items()):
-                            playerlist.extend(players)
-                        item.setText(2, ", ".join(playerlist))
-                        item.setToolTip(2, ", ".join(playerlist))
-
-                        # Add additional info
-                        item.setText(3, item.info['featured_mod'])
-                        item.setTextAlignment(3, QtCore.Qt.AlignCenter)
-                    else:
-                        bucket = buckets.setdefault("incomplete", [])
-                        item.setIcon(0, util.THEME.icon("replays/replay.png"))
-                        item.setText(1, infile)
-                        item.setText(2, "(replay doesn't have complete metadata)")
-                        item.setForeground(1, QtGui.QColor("yellow"))  # FIXME: Needs to come from theme
-
-                except Exception as ex:
-                    bucket = buckets.setdefault("broken", [])
-                    item.setIcon(0, util.THEME.icon("replays/broken.png"))
-                    item.setText(1, infile)
-                    item.setForeground(1, QtGui.QColor("red"))   # FIXME: Needs to come from theme
-                    item.setText(2, "(replay parse error)")
-                    item.setForeground(2, QtGui.QColor("gray"))  # FIXME: Needs to come from theme
-                    logger.exception("Exception parsing replay {}: {}".format(infile, ex))
-
-                bucket.append(item)
+                metadata = self.replay_files[infile]
+            else:
+                continue
+            item = LocalReplayItem(infile, metadata)
+            bucket = item.replay_bucket()
+            buckets.setdefault(bucket, [])
+            buckets[bucket].append(item)
 
         self.replay_files.save_cache()
         # Now, create a top level treeWidgetItem for every bucket, and put the bucket's contents into them
-        for bucket in buckets.keys():
-            bucket_item = QtWidgets.QTreeWidgetItem()
-
-            if bucket == "broken":
-                bucket_item.setForeground(0, QtGui.QColor("red"))  # FIXME: Needs to come from theme
-                bucket_item.setText(1, "(not watchable)")
-                bucket_item.setForeground(1, QtGui.QColor(client.instance.player_colors.getColor("default")))
-            elif bucket == "incomplete":
-                bucket_item.setForeground(0, QtGui.QColor("yellow"))  # FIXME: Needs to come from theme
-                bucket_item.setText(1, "(watchable)")
-                bucket_item.setForeground(1, QtGui.QColor(client.instance.player_colors.getColor("default")))
-            elif bucket == "legacy":
-                bucket_item.setForeground(0, QtGui.QColor(client.instance.player_colors.getColor("default")))
-                bucket_item.setForeground(1, QtGui.QColor(client.instance.player_colors.getColor("default")))
-                bucket_item.setText(1, "(old replay system)")
-            else:
-                bucket_item.setForeground(0, QtGui.QColor(client.instance.player_colors.getColor("player")))
-
-            bucket_item.setIcon(0, util.THEME.icon("replays/bucket.png"))
-            bucket_item.setText(0, bucket)
-            bucket_item.setText(3, str(len(buckets[bucket])) + " replays")
-            bucket_item.setForeground(3, QtGui.QColor(client.instance.player_colors.getColor("default")))
-
+        for bucket, items in buckets.items():
+            bucket_item = LocalReplayBucketItem(bucket, items)
             self.myTree.addTopLevelItem(bucket_item)
-            #self.myTree.setFirstItemColumnSpanned(bucket_item, True)
-
-            for replay in buckets[bucket]:
-                bucket_item.addChild(replay)
 
 
 class LocalReplayMetadataCache:
@@ -442,7 +550,7 @@ class LocalReplayMetadataCache:
             with open(self._cache_file, "rt") as fh:
                 for line in fh:
                     filename, metadata = line.split(':', 1)
-                    self._cache[filename] = metadata
+                    self._cache[filename] = ReplayMetadata(metadata)
         self.cache_loaded = True
 
     def save_cache(self):
@@ -450,7 +558,7 @@ class LocalReplayMetadataCache:
             return
         with open(self._cache_file, "wt") as fh:
             for filename in self._used_cache_entries:
-                fh.write(filename + ":" + self._cache[filename])
+                fh.write(filename + ":" + self._cache[filename].raw_data)
 
     def _cache_differs_much_from_files(self):
         new_entries = len(self._new_cache_entries)
@@ -465,7 +573,7 @@ class LocalReplayMetadataCache:
                 target_file = os.path.join(self._cache_dir, filename)
                 with open(target_file, "rt") as fh:
                     metadata = fh.readline()
-                    self._cache[filename] = metadata
+                    self._cache[filename] = ReplayMetadata(metadata)
                 self._new_cache_entries.add(filename)
             except IOError:
                 raise KeyError
