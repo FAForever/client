@@ -459,6 +459,30 @@ QLabel
     color: silver;
 }
 
+QToolButton#sortName, #sortGlobal, #sortLadder
+{
+    border: none;
+    color: silver;
+    background-color: #202025;
+    padding: 1px;
+	border-radius: 5px;
+}
+
+QToolButton#sortName::hover, #sortGlobal::hover, #sortLadder::hover
+{
+    background-color:#505055;
+}
+
+QToolButton#sortName::checked, #sortGlobal::checked, #sortLadder::checked
+{
+    background-color:#808080;
+}
+
+QToolButton#sortName::checked::hover, #sortGlobal::checked::hover, #sortLadder::checked::hover
+{
+    background-color:#A0A0A0;
+}
+
 /* Used for dialogs*/
 QDialog
 {
