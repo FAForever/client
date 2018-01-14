@@ -4,6 +4,11 @@
 0.16.1
 ====
 
+ * Fix rare race condition between avatar download and user leaving (#969, #970)
+
+Contributors:
+ - Wesmania
+
 0.16.1-rc.3
 ====
  * Fix game sorting sometimes not matching saved settings at startup (#918, #919)

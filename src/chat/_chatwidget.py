@@ -126,8 +126,12 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         if not util.respix(url):
             util.addrespix(url, QtGui.QPixmap(img))
 
-        for caller in util.curDownloadAvatar(url):
-            caller.updateAvatar()
+        for chatter in util.curDownloadAvatar(url):
+            # FIXME - hack to prevent touching chatter if it was removed
+            channel = chatter.channel
+            ircuser = chatter.user
+            if ircuser in channel.chatters:
+                chatter.updateAvatar()
         util.delDownloadAvatar(url)
 
     def addChannel(self, name, channel, index = None):
