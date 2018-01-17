@@ -1,6 +1,8 @@
 from PyQt5.QtCore import pyqtSignal
 from decorators import with_logger
 from connectivity.JsonRpcTcpClient import JsonRpcTcpClient
+import client
+from client.connection import ConnectionState
 
 @with_logger
 class IceAdapterClient(JsonRpcTcpClient):
@@ -13,10 +15,18 @@ class IceAdapterClient(JsonRpcTcpClient):
         self.connected = False
         self.game_session = game_session
         self.socket.connected.connect(self.onSocketConnected)
+        self.iceMsgCache = []
+        client.instance.lobby_connection.connected.connect(self.onLobbyConnected)
 
     def onIceMsg(self, localId, remoteId, iceMsg):
         self._logger.debug("onIceMsg {} {} {}".format(localId, remoteId, iceMsg))
-        self.game_session.send("IceMsg", [remoteId, iceMsg])
+        if client.instance.lobby_connection.state == ConnectionState.CONNECTED:
+            self.game_session.send("IceMsg", [remoteId, iceMsg])
+        else:
+            if iceMsg["type"] != "candidate":
+                self.iceMsgCache.clear()
+            self.iceMsgCache.append((remoteId, iceMsg))
+            self._logger.debug("lobby disconnected, caching ICE message %d" % len(self.iceMsgCache))
 
     def onConnectionStateChanged(self, newState):
         self._logger.debug("onConnectionStateChanged {}".format(newState))
@@ -46,3 +56,11 @@ class IceAdapterClient(JsonRpcTcpClient):
 
     def onStatus(self, status):
         self.statusChanged.emit(status)
+
+    def onLobbyConnected(self):
+        if len(self.iceMsgCache) > 0:
+            self._logger.debug("sending %i cached ICE messages" % len(self.iceMsgCache))
+        for remoteId, iceMsg in self.iceMsgCache:
+            self.game_session.send("IceMsg", [remoteId, iceMsg])
+        self.iceMsgCache.clear()
+
