@@ -57,8 +57,9 @@ REPLAY_DIR = os.path.join(APPDATA_DIR, "replays")
 # This contains all Lobby, Chat and Game logs
 LOG_DIR = os.path.join(APPDATA_DIR, "logs")
 LOG_FILE_FAF = os.path.join(LOG_DIR, 'forever.log')
-LOG_FILE_GAME = os.path.join(LOG_DIR, 'game.log')
+LOG_FILE_GAME = os.path.join(LOG_DIR, 'temporary.log')
 LOG_FILE_REPLAY = os.path.join(LOG_DIR, 'replay.log')
+MAX_NUMBER_REPLAYID_LOG_FILE = 10
 
 # This contains the game binaries (old binFAF folder) and the game mods (.faf files)
 BIN_DIR = os.path.join(APPDATA_DIR, "bin")
@@ -153,6 +154,9 @@ try:
     if os.path.isfile(LOG_FILE_FAF):
         if os.path.getsize(LOG_FILE_FAF) > LOGFILE_MAX_SIZE:
             os.remove(LOG_FILE_FAF)
+    if os.path.isfile(os.path.join(LOG_DIR, "game.log")):
+        if os.path.getsize(os.path.join(LOG_DIR, "game.log")) > LOGFILE_MAX_SIZE:
+            os.remove(os.path.join(LOG_DIR, "game.log"))
 except:
     pass
 
@@ -330,7 +334,7 @@ def irc_escape(text, a_style=""):
 
     # taken from django and adapted
     url_re = re.compile(
-        r'^((https?|faflive|fafgame|fafmap|ftp|ts3server)://)?'  # protocols    
+        r'^((https?|faflive|fafgame|fafmap|ftp|ts3server)://)?'  # protocols
         r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+'  # domain name, then TLDs
         r'(?:ac|ad|ae|aero|af|ag|ai|al|am|an|ao|aq|ar|arpa|as|asia|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|biz|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cat|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|com|coop|cr|cu|cv|cw|cx|cy|cz|de|dj|dk|dm|do|dz|ec|edu|ee|eg|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gov|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|info|int|io|iq|ir|is|it|je|jm|jo|jobs|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mil|mk|ml|mm|mn|mo|mobi|mp|mq|mr|ms|mt|mu|museum|mv|mw|mx|my|mz|na|name|nc|ne|net|nf|ng|ni|nl|no|np|nr|nu|nz|om|org|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|pro|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|st|su|sv|sx|sy|sz|tc|td|tel|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|travel|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|xxx|ye|yt|za|zm|zw)'
         r'|localhost'  # localhost...
