@@ -18,7 +18,7 @@ import re
 import fa
 # local imports
 from config import Settings
-from vault.dialogs import downloadVaultAssetNoMsg
+from mapvault.dialogs import downloadVaultAssetNoMsg
 
 logger = logging.getLogger(__name__)
 
@@ -342,9 +342,9 @@ def __exportPreviewFromMap(mapname, positions=None):
         try:
             genPrevFromDDS(previewddsname, previewlargename, small=False)
             mapimage = util.THEME.pixmap(previewlargename)
-            armyicon = util.THEME.pixmap("vault/map_icons/army.png").scaled(8, 9, 1, 1)
-            massicon = util.THEME.pixmap("vault/map_icons/mass.png").scaled(8, 8, 1, 1)
-            hydroicon = util.THEME.pixmap("vault/map_icons/hydro.png").scaled(10, 10, 1, 1)
+            armyicon = util.THEME.pixmap("mapvault/map_icons/army.png").scaled(8, 9, 1, 1)
+            massicon = util.THEME.pixmap("mapvault/map_icons/mass.png").scaled(8, 8, 1, 1)
+            hydroicon = util.THEME.pixmap("mapvault/map_icons/hydro.png").scaled(10, 10, 1, 1)
 
             painter = QtGui.QPainter()
 

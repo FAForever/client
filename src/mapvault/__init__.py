@@ -6,7 +6,7 @@ import urllib.request, urllib.parse, urllib.error
 import logging
 import os
 from fa import maps
-from vault import luaparser
+from mapvault import luaparser
 import urllib.request, urllib.error, urllib.parse
 import re
 from config import Settings
@@ -54,9 +54,9 @@ class MapVault(QtCore.QObject, BusyWidget):
         self.ui.setVisible(False)
 
 #       If a local theme CSS exists, skin the WebView with it
-        if util.THEME.themeurl("vault/style.css"):
+        if util.THEME.themeurl("mapvault/style.css"):
             injectWebviewCSS(self.ui.page(),
-                             util.THEME.readstylesheet("vault/style.css"))
+                             util.THEME.readstylesheet("mapvault/style.css"))
 
         ROOT = Settings.get('content/host')
 

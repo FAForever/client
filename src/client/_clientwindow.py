@@ -513,7 +513,7 @@ class ClientWindow(FormClass, BaseClass):
         from tutorials import TutorialsWidget
         from stats import StatsWidget
         from tourneys import TournamentsWidget
-        from vault import MapVault
+        from mapvault import MapVault
         from modvault import ModVault
         from replays import ReplaysWidget
         from chat._avatarWidget import AvatarWidget

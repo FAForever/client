@@ -9,14 +9,14 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 from util import PREFSFILENAME
 import util
 import logging
-from vault import luaparser
+from mapvault import luaparser
 import warnings
 
 import io
 import zipfile
 from config import Settings
 from downloadManager import FileDownload
-from vault.dialogs import VaultDownloadDialog, downloadVaultAsset
+from mapvault.dialogs import VaultDownloadDialog, downloadVaultAsset
 
 logger = logging.getLogger(__name__)
 
