@@ -241,21 +241,6 @@ QTextEdit, QPlainTextEdit, QLineEdit, QListWidget, QListView, QTableWidget, QTre
 
 }
 
-/* Modlist */
-QFrame#rankedFrame
-{
-    border-style:solid;
-    border-width:1px;
-    border-color:#353535;
-    color:silver;
-    padding:5px;
-    background-color:#303038;
-    border-bottom-left-radius : 5px;
-    border-bottom-right-radius : 5px;
-}
-
-
-
 /* Nicklist controls */
 
 QTableWidget::item
@@ -477,6 +462,15 @@ QToolButton#rankedPlay
 	border-radius: 5px;
 	border: 1px solid grey;
 }
+
+QProgressBar#searchProgress
+{
+    background-color: silver;
+    padding: 2px;
+	border-radius: 5px;
+	border: 1px solid grey;
+}
+
 QToolButton#laddermapspool
 {
 	color: silver;
@@ -499,7 +493,7 @@ QToolButton::hover
 
     color:silver;
     padding:5px;
-    background-color:#808080;
+    background-color:#606060;
     border-radius : 5px;
  }
 
