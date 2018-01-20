@@ -8,7 +8,7 @@ import string
 
 from model.transaction import transactional
 from model.modelitem import ModelItem
-
+from util.gameurl import GameUrl, GameUrlType
 
 class GameState(Enum):
     OPEN = "open"
@@ -156,23 +156,13 @@ class Game(ModelItem):
     def url(self, player_id):
         if self.state == GameState.CLOSED:
             return None
-
-        url = QUrl()
-        url.setHost("lobby.faforever.com")
-        query = QUrlQuery()
-        query.addQueryItem("map", self.mapname)
-        query.addQueryItem("mod", self.featured_mod)
-
         if self.state == GameState.OPEN:
-            url.setScheme("fafgame")
-            url.setPath("/" + str(player_id))
-            query.addQueryItem("uid", str(self.uid))
+            gtype = GameUrlType.OPEN_GAME
         else:
-            url.setScheme("faflive")
-            url.setPath("/{}/{}.SCFAreplay".format(self.uid, player_id))
+            gtype = GameUrlType.LIVE_REPLAY
 
-        url.setQuery(query)
-        return url
+        return GameUrl(gtype, self.mapname, self.featured_mod,
+                       self.uid, player_id)
 
     # Utility functions start here.
 

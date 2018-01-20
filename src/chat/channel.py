@@ -1,4 +1,5 @@
 from fa.replay import replay
+from util.gameurl import GameUrl, GameUrlType
 
 import util
 from PyQt5 import QtWidgets, QtCore, QtGui
@@ -206,12 +207,19 @@ class Channel(FormClass, BaseClass):
     @QtCore.pyqtSlot(QtCore.QUrl)
     def open_url(self, url):
         logger.debug("Clicked on URL: " + url.toString())
-        if url.scheme() == "faflive":
-            replay(url)
-        elif url.scheme() == "fafgame":
-            self.chat_widget.client.joinGameFromURL(url)
-        else:
+        if not GameUrl.is_game_url(url):
             QtGui.QDesktopServices.openUrl(url)
+            return
+
+        try:
+            gurl = GameUrl(url)
+        except ValueError:
+            return
+
+        if gurl.game_type == GameUrlType.LIVE_REPLAY:
+            replay(gurl)
+        else:
+            self.chat_widget.client.joinGameFromURL(gurl)
 
     def print_announcement(self, text, color, size, scroll_forced=True):
         # scroll if close to the last line of the log

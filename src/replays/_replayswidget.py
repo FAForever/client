@@ -1,6 +1,7 @@
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
 from fa.replay import replay
+from util.gameurl import GameUrl, GameUrlType
 from config import Settings
 import util
 import os
@@ -151,23 +152,16 @@ class LiveReplayItem(QtWidgets.QTreeWidgetItem):
         item.setForeground(0, QtGui.QColor(colors.getColor(player_color)))
 
         if self._is_online(name):
-            item.url = self._generate_livereplay_link(game, name)
-            item.setToolTip(0, item.url.toString())
+            item.gurl = self._generate_livereplay_link(game, name)
+            item.setToolTip(0, item.gurl.to_url().toString())
             item.setIcon(0, util.THEME.icon("replays/replay.png"))
         else:
             item.setDisabled(True)
         return item
 
     def _generate_livereplay_link(self, game, name):
-        url = QtCore.QUrl()
-        url.setScheme("faflive")
-        url.setHost("lobby.faforever.com")
-        url.setPath("/" + str(game.uid) + "/" + name + ".SCFAreplay")
-        query = QtCore.QUrlQuery()
-        query.addQueryItem("map", game.mapname)
-        query.addQueryItem("mod", game.featured_mod)
-        url.setQuery(query)
-        return url
+        return GameUrl(GameUrlType.LIVE_REPLAY, game.mapname, game.featured_mod,
+                       game.uid, name)
 
     def __lt__(self, other):
         return self.launch_time < other.launch_time
@@ -235,8 +229,8 @@ class LiveReplaysWidgetHandler(object):
 
         if self.liveTree.indexOfTopLevelItem(item) == -1:
             # Notify other modules that we're watching a replay
-            self.client.viewingReplay.emit(item.url)
-            replay(item.url)
+            self.client.viewingReplay.emit(item.gurl)
+            replay(item.gurl)
 
     def _addExistingGames(self, gameset):
         for game in gameset.values():

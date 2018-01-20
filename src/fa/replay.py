@@ -4,6 +4,8 @@ from PyQt5 import QtCore, QtWidgets
 import fa
 from fa.check import check
 from fa.replayparser import replayParser
+from util.gameurl import GameUrl, GameUrlType
+
 import util
 from . import mods
 
@@ -81,18 +83,17 @@ def replay(source, detach=False):
                 source = QtCore.QUrl(
                     source)  # Try to interpret the string as an actual url, it may come from the command line
 
-        if isinstance(source, QtCore.QUrl):
-            url = source
+        if isinstance(source, GameUrl):
+            url = source.to_url()
             # Determine if it's a faflive url
-            if url.scheme() == "faflive":
-                mod = QtCore.QUrlQuery(url).queryItemValue("mod")
-                mapname = QtCore.QUrlQuery(url).queryItemValue("map")
-                replay_id = url.path().split("/")[0]
+            if source.game_type == GameUrlType.LIVE_REPLAY:
+                mod = source.mod
+                mapname = source.map
+                replay_id = source.uid
                 # whip the URL into shape so ForgedAllianceForever.exe understands it
-                arg_url = QtCore.QUrl(url)
-                arg_url.setScheme("gpgnet")
-                arg_url.setQuery(QtCore.QUrlQuery(""))
-                arg_string = arg_url.toString()
+                url.setScheme("gpgnet")
+                url.setQuery(QtCore.QUrlQuery(""))
+                arg_string = url.toString()
             else:
                 QtWidgets.QMessageBox.critical(None, "FA Forever Replay", "App doesn't know how to play replays from "
                                                                           "that scheme:<br/><b>" + url.scheme() + "</b>")

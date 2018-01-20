@@ -455,11 +455,13 @@ class Chatter(QtWidgets.QTableWidgetItem):
         if game is None or game.closed():
             return
 
-        url = game.url(self.user_player.id)
+        gurl = game.url(self.user_player.id)
+        if gurl is None:
+            return
         if game.state == GameState.OPEN:
-            self.join_in_game(url)
+            self.join_in_game(gurl)
         elif game.state == GameState.PLAYING:
-            self.view_replay(url)
+            self.view_replay(gurl)
 
     def pressed(self, item):
         menu = QtWidgets.QMenu(self.parent)
@@ -552,11 +554,11 @@ class Chatter(QtWidgets.QTableWidgetItem):
     def view_vault_replay(self):
         self.chat_widget.client.searchUserReplays(self.user.name)
 
-    def join_in_game(self, url):
-        self.chat_widget.client.joinGameFromURL(url)
+    def join_in_game(self, gurl):
+        self.chat_widget.client.joinGameFromURL(gurl)
 
-    def view_replay(self, url):
-        replay(url)
+    def view_replay(self, gurl):
+        replay(gurl)
 
     def view_in_leaderboards(self):
         self.chat_widget.client.viewUserLeaderboards(self.user_player)

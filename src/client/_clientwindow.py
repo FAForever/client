@@ -93,7 +93,7 @@ class ClientWindow(FormClass, BaseClass):
     authorized = QtCore.pyqtSignal(object)
 
     # These signals notify connected modules of game state changes (i.e. reasons why FA is launched)
-    viewingReplay = QtCore.pyqtSignal(QtCore.QUrl)
+    viewingReplay = QtCore.pyqtSignal(object)
 
     # Game state controls
     gameEnter = QtCore.pyqtSignal()
@@ -1050,24 +1050,20 @@ class ClientWindow(FormClass, BaseClass):
         self._vault_tab = curr
 
     @QtCore.pyqtSlot()
-    def joinGameFromURL(self, url):
+    def joinGameFromURL(self, gurl):
         """
         Tries to join the game at the given URL
         """
-        logger.debug("joinGameFromURL: " + url.toString())
+        logger.debug("joinGameFromURL: " + gurl.to_url().toString())
         if fa.instance.available():
             add_mods = []
             try:
-                modstr = QtCore.QUrlQuery(url).queryItemValue("mods")
-                add_mods = json.loads(modstr)  # should be a list
-            except:
+                add_mods = json.loads(gurl.mods)  # should be a list
+            except json.JSONDecodeError:
                 logger.info("Couldn't load urlquery value 'mods'")
             if fa.check.game(self):
-                uid, mod, map = QtCore.QUrlQuery(url).queryItemValue('uid'), \
-                                QtCore.QUrlQuery(url).queryItemValue('mod'), \
-                                QtCore.QUrlQuery(url).queryItemValue('map')
-                if fa.check.check(mod, map, sim_mods=add_mods):
-                    self.join_game(int(uid))
+                if fa.check.check(gurl.mod, gurl.map, sim_mods=add_mods):
+                    self.join_game(gurl.uid)
 
     @QtCore.pyqtSlot()
     def searchUserReplays(self, name):
