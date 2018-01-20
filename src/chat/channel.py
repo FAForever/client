@@ -5,6 +5,7 @@ from PyQt5 import QtWidgets, QtCore, QtGui
 import time
 from chat import logger
 from chat.chatter import Chatter
+import client
 import re
 import json
 
@@ -80,6 +81,18 @@ class Channel(FormClass, BaseClass):
 
         self.last_timestamp = None
 
+        self.country_filter_enabled = False
+        self.country_filter = None
+        self.countryFilter.clicked.connect(self.set_country_filter_enabled)
+        self.status_filter = None
+        self.statusIdle.clicked.connect(self.set_status_filter)
+        self.statusHost.clicked.connect(self.set_status_filter)
+        self.statusLobby.clicked.connect(self.set_status_filter)
+        self.statusPlay5.clicked.connect(self.set_status_filter)
+        self.statusPlay.clicked.connect(self.set_status_filter)
+        self.game_filter = None
+        client.instance.gameset.newClosedGame.connect(self.new_closed_game)
+
         # Query flasher
         self.blinker = QtCore.QTimer()
         self.blinker.timeout.connect(self.blink)
@@ -114,7 +127,7 @@ class Channel(FormClass, BaseClass):
             self.nickList.horizontalHeader().setSectionResizeMode(Chatter.SORT_COLUMN, QtWidgets.QHeaderView.Stretch)
 
             self.nickList.itemDoubleClicked.connect(self.nick_double_clicked)
-            self.nickList.itemPressed.connect(self.nick_pressed)
+            self.nickList.cellPressed.connect(self.nick_pressed)
 
             self.nickFilter.textChanged.connect(self.filter_nicks)
 
@@ -160,17 +173,111 @@ class Channel(FormClass, BaseClass):
             self.chatArea.setPlainText("")
             self.last_timestamp = 0
 
+    @QtCore.pyqtSlot(bool)
+    def set_country_filter_enabled(self, state):
+        if self.country_filter_enabled:
+            if self.country_filter is not None:
+                self.country_filter = None
+                self.filter_nicks()
+        self.country_filter_enabled = state
+
+    def set_country_filter(self, chatter):
+        if not self.country_filter_enabled:
+            return
+        if self.country_filter is None:
+            if chatter.user_player is None:
+                return
+            self.country_filter = chatter.user_player.country
+        else:
+            self.country_filter = None
+        self.filter_nicks()
+
+    def set_game_filter(self, chatter):
+        if self.game_filter is None:
+            if chatter.user_game is None:
+                return
+            self.game_filter = chatter.user_game.uid
+        else:
+            self.game_filter = None
+        self.filter_nicks()
+
+    def new_closed_game(self, game):
+        if self.game_filter is None:
+            return
+        if self.game_filter == game.uid:
+            self.game_filter = None
+            self.filter_nicks()
+
+    def set_status_filter_enabled(self, chatter):
+        status = chatter.status()
+        if status is None:
+            return
+        if status == "none":
+            self.statusIdle.setChecked(not self.statusIdle.isChecked())
+        elif status == "host":
+            self.statusHost.setChecked(not self.statusHost.isChecked())
+        elif status == "lobby":
+            self.statusLobby.setChecked(not self.statusLobby.isChecked())
+        elif status == "playing5":
+            self.statusPlay5.setChecked(not self.statusPlay5.isChecked())
+        elif status == "playing":
+            self.statusPlay.setChecked(not self.statusPlay.isChecked())
+        self.set_status_filter()
+
+    @QtCore.pyqtSlot()
+    def set_status_filter(self):
+        status_filter = []
+        if self.statusIdle.isChecked():
+            status_filter.append("none")
+        if self.statusHost.isChecked():
+            status_filter.append("host")
+        if self.statusLobby.isChecked():
+            status_filter.append("lobby")
+        if self.statusPlay5.isChecked():
+            status_filter.append("playing5")
+        if self.statusPlay.isChecked():
+            status_filter.append("playing")
+        if len(status_filter) > 0:
+            self.status_filter = status_filter
+        else:
+            self.status_filter = None
+        self.filter_nicks()
+
     @QtCore.pyqtSlot()
     def filter_nicks(self):
         for chatter in self.chatters.values():
-            chatter.set_visible(chatter.is_filtered(self.nickFilter.text().lower()))
+            self.filter_nick(chatter)
+        self.update_user_count()
+
+    def filter_nick(self, chatter):
+        if self.status_filter:
+            status = chatter.status() in self.status_filter
+        else:
+            status = True
+        if self.country_filter is not None:
+            if chatter.user_player is None:
+                country = False
+            else:
+                country = chatter.user_player.country == self.country_filter
+        else:
+            country = True
+        if self.game_filter:
+            if chatter.user_game is None:
+                game = False
+            else:
+                game = chatter.user_game.uid == self.game_filter
+        else:
+            game = True
+        chatter.set_visible(status and country and game and
+                            chatter.is_filtered(self.nickFilter.text().lower()))
 
     def update_user_count(self):
-        count = len(self.chatters)
-        self.nickFilter.setPlaceholderText(str(count) + " users... (type to filter)")
-
-        if self.nickFilter.text():
-            self.filter_nicks()
+        visible_count = len([c for c in self.chatters.values() if c.isVisible()])
+        irc_count = len([c for c in self.chatters if c._player is None])
+        user_count = len(self.chatters)
+        self.chatInfo.setText("{} users = (showing {} of) {} players + {} ircs"
+                              .format(user_count, visible_count,
+                                      user_count - irc_count, irc_count))
 
     @QtCore.pyqtSlot()
     def blink(self):
@@ -245,9 +352,9 @@ class Channel(FormClass, BaseClass):
         else:
             player = IRCPlayer(chname)
 
-        displayName = chname
+        display_name = chname
         if player.clan is not None:
-            displayName = "<b>[%s]</b>%s" % (player.clan, chname)
+            display_name = "<b>[%s]</b>%s" % (player.clan, chname)
 
         sender_is_not_me = chatter.name != self._me.login
 
@@ -259,11 +366,11 @@ class Channel(FormClass, BaseClass):
             self.ping_window()
 
         avatar = None
-        avatarTip = ""
+        avatar_tip = ""
         if chatter is not None and chatter in self.chatters:
             chatwidget = self.chatters[chatter]
             color = chatwidget.foreground().color().name()
-            avatarTip = chatwidget.avatarTip or ""
+            avatar_tip = chatwidget.avatarTip or ""
             if chatter.player is not None:
                 avatar = chatter.player.avatar
                 if avatar is not None:
@@ -294,8 +401,10 @@ class Channel(FormClass, BaseClass):
         if not chatter_has_avatar:
             formatter = Formatters.convert_to_no_avatar(formatter)
 
-        line = formatter.format(time=self.timestamp(), avatar=avatar, avatarTip=avatarTip, name=displayName,
-                                color=color, width=self.max_chatter_width, text=util.irc_escape(text, self.chat_widget.a_style))
+        line = formatter.format(time=self.timestamp(), avatar=avatar,
+                                avatarTip=avatar_tip, name=display_name,
+                                color=color, width=self.max_chatter_width,
+                                text=util.irc_escape(text, self.chat_widget.a_style))
         self.chatArea.insertHtml(line)
         self.lines += 1
 
@@ -389,12 +498,20 @@ class Channel(FormClass, BaseClass):
         chatter = self.nickList.item(item.row(), Chatter.SORT_COLUMN)  # Look up the associated chatter object
         chatter.double_clicked(item)
 
-    @QtCore.pyqtSlot(QtWidgets.QTableWidgetItem)
-    def nick_pressed(self, item):
+    @QtCore.pyqtSlot(int, int)
+    def nick_pressed(self, row, column):
         if QtWidgets.QApplication.mouseButtons() == QtCore.Qt.RightButton:
             # Look up the associated chatter object
-            chatter = self.nickList.item(item.row(), Chatter.SORT_COLUMN)
-            chatter.pressed(item)
+            chatter = self.nickList.item(row, Chatter.SORT_COLUMN)
+            chatter.pressed(chatter)
+        elif QtWidgets.QApplication.mouseButtons() == QtCore.Qt.LeftButton:
+            chatter = self.nickList.item(row, Chatter.SORT_COLUMN)
+            if column == Chatter.SORT_COLUMN:
+                self.set_country_filter(chatter)
+            elif column == Chatter.STATUS_COLUMN:
+                self.set_status_filter_enabled(chatter)
+            elif column == Chatter.MAP_COLUMN:
+                self.set_game_filter(chatter)
 
     def update_chatters(self):
         """
@@ -413,7 +530,8 @@ class Channel(FormClass, BaseClass):
 
     def add_chatter(self, chatter, join=False):
         """
-        Adds an user to this chat channel, and assigns an appropriate icon depending on friendship and FAF player status
+        Adds an user to this chat channel, and assigns an appropriate
+        icon depending on friendship and FAF player status
         """
         if chatter not in self.chatters:
             item = Chatter(self.nickList, chatter, self,
@@ -421,6 +539,10 @@ class Channel(FormClass, BaseClass):
             self.chatters[chatter] = item
 
         self.chatters[chatter].update()
+
+        if self.country_filter is not None or self.status_filter \
+                or self.game_filter or self.nickFilter.text():
+            self.filter_nick(self.chatters[chatter])
 
         self.update_user_count()
 
@@ -449,7 +571,9 @@ class Channel(FormClass, BaseClass):
 
     def set_announce_text(self, text):
         self.announceLine.clear()
-        self.announceLine.setText("<style>a{color:cornflowerblue}</style><b><font color=white>" + util.irc_escape(text) + "</font></b>")
+        self.announceLine.setText("<style>a{color:cornflowerblue}</style><b>"
+                                  "<font color=white>" + util.irc_escape(text)
+                                  + "</font></b>")
 
     @QtCore.pyqtSlot()
     def send_line(self, target=None):

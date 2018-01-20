@@ -283,6 +283,7 @@ QTableWidget::item:selected, QListWidget::item:previously-selected, QListView::i
 QLineEdit
 {
     color:orange;
+    padding: 4px;
 }
 
 
@@ -469,6 +470,29 @@ QCheckBox#spoilerCheckbox, #automaticCheckbox
 {
     color: silver;
 }
+
+QToolButton#countryFilter, #statusIdle, #statusHost, #statusLobby, #statusPlay5, #statusPlay
+{
+    border: none;
+    background-color: #202025;
+    padding: 1px;
+	border-radius: 5px;
+}
+
+QToolButton#countryFilter::hover, #statusIdle::hover, #statusHost::hover, #statusLobby::hover, #statusPlay5::hover, #statusPlay::hover
+{
+    background-color:#505055;
+}
+
+QToolButton#countryFilter::checked, #statusIdle::checked, #statusHost::checked, #statusLobby::checked, #statusPlay5::checked, #statusPlay::checked
+{
+    background-color:#808080;
+ }
+
+QToolButton#countryFilter::checked::hover, #statusIdle::checked::hover, #statusHost::checked::hover, #statusLobby::checked::hover, #statusPlay5::checked::hover, #statusPlay::checked::hover
+{
+    background-color:#B0B0B0;
+ }
 
 /* Used for Ranked Buttons only at the moment*/
 QToolButton#rankedPlay
