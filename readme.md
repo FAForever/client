@@ -68,12 +68,14 @@ Create a python3(!) virtualenv for installing its dependencies:
     virtualenv ./faf-client-venv --system-site-packages
     ./faf-client-venv/bin/pip install -r ./faf-client/requirements.txt
 
+**Note that many distributions have separate names for Python 2 and Python 3 virtualenv, such as "virtualenv" and "virtualenv3" - ensure you're using the Python 3 specific version on your distribution!**
+
 Now download the `faf-uid` executable:
 
-    wget https://github.com/FAForever/uid/releases/download/v3.0.0/faf-uid -O ./faf-client/lib/faf-uid
+    wget https://github.com/FAForever/uid/releases/download/v4.0.4/faf-uid -O ./faf-client/lib/faf-uid
     chmod +x ./faf-client/lib/faf-uid
 
-Note that the `faf-uid` smurf protection executable needs to run `xrandr`, `lspci`, `lsblk` and `uname` to gather unique system information.
+Note that the `faf-uid` smurf protection executable needs to run `xrandr`, `lspci`, `lsblk` and `uname` to gather unique system information. Additionally the `lsblk` command must support the "--json" flag, which was added in util-linux-2.27.
 
 Run the client:
 

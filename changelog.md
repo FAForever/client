@@ -9,6 +9,7 @@
  * Send logs from every game to a separate log file (#875, #975)
  * Refactor downloading previews to fix issues with broken previews (#852)
  * User's own messages can no longer ping him (#906)
+ * Update "run from source" instructions for Linux (#980)
 
 Contributors:
  - MathieuB8
