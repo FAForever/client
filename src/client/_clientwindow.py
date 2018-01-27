@@ -164,7 +164,7 @@ class ClientWindow(FormClass, BaseClass):
         self.game_model = GameModel(self.me, self.map_downloader, self.gameset)
 
         self.lobby_info = LobbyInfo(self.lobby_dispatch, self.gameset, self.players)
-        self.gameset.newGame.connect(self.fill_in_session_info)
+        self.gameset.added.connect(self.fill_in_session_info)
 
         self.lobby_dispatch["session"] = self.handle_session
         self.lobby_dispatch["registration_response"] = self.handle_registration_response
@@ -182,7 +182,7 @@ class ClientWindow(FormClass, BaseClass):
         fa.instance.started.connect(self.startedFA)
         fa.instance.finished.connect(self.finishedFA)
         fa.instance.error.connect(self.errorFA)
-        self.gameset.newGame.connect(fa.instance.newServerGame)
+        self.gameset.added.connect(fa.instance.newServerGame)
 
         # Local Replay Server
         self.replayServer = fa.replayserver.ReplayServer(self)

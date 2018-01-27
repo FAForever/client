@@ -34,7 +34,7 @@ def test_add_update(mocker, playerset):
     data = copy.deepcopy(DEFAULT_DICT)
     s = gameset.Gameset(playerset=playerset)
     newgame = mocker.Mock()
-    s.newGame.connect(newgame)
+    s.added.connect(newgame)
 
     s[1] = game.Game(playerset=playerset, **data)
     assert 1 in s

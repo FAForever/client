@@ -18,10 +18,10 @@ def test_add_remove(playerset, mocker):
 
     newuser = mocker.Mock()
     goneuser = mocker.Mock()
-    ps.userAdded.connect(newuser)
-    ps.userAdded.connect(test_user_signal)
-    ps.userRemoved.connect(goneuser)
-    ps.userRemoved.connect(test_user_signal)
+    ps.added.connect(newuser)
+    ps.added.connect(test_user_signal)
+    ps.removed.connect(goneuser)
+    ps.removed.connect(test_user_signal)
 
     ps[p.name] = p
     assert newuser.called

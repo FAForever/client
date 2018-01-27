@@ -93,8 +93,8 @@ class User(QtCore.QObject):
         self.login = None
 
         self._players = playerset
-        self._players.playerAdded.connect(self._on_player_change)
-        self._players.playerRemoved.connect(self._on_player_change)
+        self._players.added.connect(self._on_player_change)
+        self._players.removed.connect(self._on_player_change)
 
         self._friends = UserRelation()
         self._foes = UserRelation()

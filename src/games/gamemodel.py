@@ -17,7 +17,7 @@ class GameModel(QAbstractListModel):
 
         self._gameset = gameset
         if self._gameset is not None:
-            self._gameset.newGame.connect(self.add_game)
+            self._gameset.added.connect(self.add_game)
             self._gameset.newClosedGame.connect(self.remove_game)
 
             for game in self._gameset.values():

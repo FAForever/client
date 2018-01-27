@@ -15,7 +15,8 @@ class Gameset(QObjectMapping):
     send a game state for a uid, send a state that closes it, then send a state
     with the same uid again, and it will be reported as a new game.
     """
-    newGame = pyqtSignal(object)
+    added = pyqtSignal(object)
+    removed = pyqtSignal(object)
 
     newLobby = pyqtSignal(object)
     newLiveGame = pyqtSignal(object)
@@ -49,7 +50,7 @@ class Gameset(QObjectMapping):
         value.gameUpdated.connect(self._at_game_update)
         value.liveReplayAvailable.connect(self._at_live_replay)
         self._at_game_update(value, None)
-        self.newGame.emit(value)
+        self.added.emit(value)
         self._logger.debug("Added game, uid {}".format(value.uid))
 
     def clear(self):
@@ -83,6 +84,7 @@ class Gameset(QObjectMapping):
             g.liveReplayAvailable.disconnect(self._at_live_replay)
             del self.games[g.uid]
             self._logger.debug("Removed game, uid {}".format(g.uid))
+            self.removed.emit(g)
         except KeyError:
             pass
 
@@ -93,8 +95,8 @@ class PlayerGameIndex:
     def __init__(self, playerset):
         self._playerset = playerset
         self._idx = {}
-        self._playerset.playerAdded.connect(self._on_player_added)
-        self._playerset.playerRemoved.connect(self._on_player_removed)
+        self._playerset.added.connect(self._on_player_added)
+        self._playerset.removed.connect(self._on_player_removed)
 
     # Called by gameset
     def at_game_update(self, new, old):

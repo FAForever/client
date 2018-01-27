@@ -76,7 +76,7 @@ class Channel(FormClass, BaseClass):
         self.items = {}
         self._chatterset = chatterset
         self._me = me
-        chatterset.userRemoved.connect(self._check_user_quit)
+        chatterset.removed.connect(self._check_user_quit)
 
         self.last_timestamp = None
 

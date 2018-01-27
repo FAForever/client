@@ -10,8 +10,8 @@ class Playerset(QObjectMapping):
 
     Used to lookup players either by id or by login.
     """
-    playerAdded = pyqtSignal(object)
-    playerRemoved = pyqtSignal(object)
+    added = pyqtSignal(object)
+    removed = pyqtSignal(object)
 
     def __init__(self):
         QObjectMapping.__init__(self)
@@ -51,7 +51,7 @@ class Playerset(QObjectMapping):
 
         self._players[key] = value
         self._logins[value.login] = value
-        self.playerAdded.emit(value)
+        self.added.emit(value)
 
     def __delitem__(self, item):
         try:
@@ -60,7 +60,7 @@ class Playerset(QObjectMapping):
             return
         del self._players[player.id]
         del self._logins[player.login]
-        self.playerRemoved.emit(player)
+        self.removed.emit(player)
 
     def clear(self):
         oldplayers = list(self.keys())

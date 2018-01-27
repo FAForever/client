@@ -30,7 +30,7 @@ class Notifications:
         client.gameExit.connect(self.gameExit)
         client.gameFull.connect(self._gamefull)
         gameset.newLobby.connect(self._newLobby)
-        playerset.playerAdded.connect(self._newPlayer)
+        playerset.added.connect(self._newPlayer)
 
         self.user = util.THEME.icon("client/user.png", pix=True)
 

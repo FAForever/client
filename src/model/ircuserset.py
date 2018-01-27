@@ -3,15 +3,15 @@ from model.qobjectmapping import QObjectMapping
 
 
 class IrcUserset(QObjectMapping):
-    userAdded = pyqtSignal(object)
-    userRemoved = pyqtSignal(object)
+    added = pyqtSignal(object)
+    removed = pyqtSignal(object)
 
     def __init__(self, playerset):
         QObjectMapping.__init__(self)
         self._users = {}
         self._playerset = playerset
-        playerset.playerAdded.connect(self._at_player_added)
-        playerset.playerRemoved.connect(self._at_player_removed)
+        playerset.added.connect(self._at_player_added)
+        playerset.removed.connect(self._at_player_removed)
 
     def __getitem__(self, item):
         return self._users[item]
@@ -37,7 +37,7 @@ class IrcUserset(QObjectMapping):
         # We're first to connect, so first to get called
         value.updated.connect(self._at_user_updated)
 
-        self.userAdded.emit(value)
+        self.added.emit(value)
 
     def __delitem__(self, item):
         try:
@@ -46,7 +46,7 @@ class IrcUserset(QObjectMapping):
             return
         del self._users[user.name]
         user.updated.disconnect(self._at_user_updated)
-        self.userRemoved.emit(user)
+        self.removed.emit(user)
 
     def clear(self):
         oldusers = list(self.keys())
