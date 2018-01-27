@@ -683,8 +683,8 @@ class ReplayVaultWidgetHandler(object):
         if hasattr(item, "duration"):  # it's a game not a date separator
             if "playing" in item.duration:  # live game will not be in vault
                 # search result isn't updated automatically - so game status might have changed
-                if item.uid in self._gameset.games:  # game still running
-                    game = self._gameset.games[item.uid]
+                if item.uid in self._gameset:  # game still running
+                    game = self._gameset[item.uid]
                     if not game.launched_at:  # we frown upon those
                         return
                     if game.has_live_replay:  # live game over 5min

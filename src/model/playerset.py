@@ -17,22 +17,22 @@ class Playerset(QObjectMapping):
         QObjectMapping.__init__(self)
 
         # UID -> Player map
-        self._players = {}
+        self._items = {}
         # Login -> Player map
         self._logins = {}
 
     def __getitem__(self, item):
         if isinstance(item, int):
-            return self._players[item]
+            return self._items[item]
         if isinstance(item, str):
             return self._logins[item]
         raise TypeError
 
     def __len__(self):
-        return len(self._players)
+        return len(self._items)
 
     def __iter__(self):
-        return iter(self._players)
+        return iter(self._items)
 
     def getID(self, name):
         if name in self:
@@ -49,7 +49,7 @@ class Playerset(QObjectMapping):
         if key != value.id:
             raise ValueError
 
-        self._players[key] = value
+        self._items[key] = value
         self._logins[value.login] = value
         self.added.emit(value)
 
@@ -58,7 +58,7 @@ class Playerset(QObjectMapping):
             player = self[item]
         except KeyError:
             return
-        del self._players[player.id]
+        del self._items[player.id]
         del self._logins[player.login]
         self.removed.emit(player)
 

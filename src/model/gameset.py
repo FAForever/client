@@ -25,15 +25,15 @@ class Gameset(QObjectMapping):
 
     def __init__(self, playerset):
         QObjectMapping.__init__(self)
-        self.games = {}
+        self._items = {}
         self._playerset = playerset
         self._idx = PlayerGameIndex(playerset)
 
     def __getitem__(self, uid):
-        return self.games[uid]
+        return self._items[uid]
 
     def __iter__(self):
-        return iter(self.games)
+        return iter(self._items)
 
     def __setitem__(self, key, value):
         if not isinstance(key, int) or not isinstance(value, game.Game):
@@ -45,7 +45,7 @@ class Gameset(QObjectMapping):
         if key != value.uid:
             raise ValueError
 
-        self.games[key] = value
+        self._items[key] = value
         # We should be the first ones to connect to the signal
         value.gameUpdated.connect(self._at_game_update)
         value.liveReplayAvailable.connect(self._at_live_replay)
@@ -55,7 +55,7 @@ class Gameset(QObjectMapping):
 
     def clear(self):
         # Abort_game removes g from dict, so 'for g in values()' complains
-        for g in list(self.games.values()):
+        for g in list(self._items.values()):
             g.abort_game()
 
     def _at_game_update(self, new, old):
@@ -79,10 +79,10 @@ class Gameset(QObjectMapping):
 
     def __delitem__(self, uid):
         try:
-            g = self.games[uid]
+            g = self._items[uid]
             g.gameUpdated.disconnect(self._at_game_update)
             g.liveReplayAvailable.disconnect(self._at_live_replay)
-            del self.games[g.uid]
+            del self._items[g.uid]
             self._logger.debug("Removed game, uid {}".format(g.uid))
             self.removed.emit(g)
         except KeyError:

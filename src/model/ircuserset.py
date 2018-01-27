@@ -8,19 +8,19 @@ class IrcUserset(QObjectMapping):
 
     def __init__(self, playerset):
         QObjectMapping.__init__(self)
-        self._users = {}
+        self._items = {}
         self._playerset = playerset
         playerset.added.connect(self._at_player_added)
         playerset.removed.connect(self._at_player_removed)
 
     def __getitem__(self, item):
-        return self._users[item]
+        return self._items[item]
 
     def __len__(self):
-        return len(self._users)
+        return len(self._items)
 
     def __iter__(self):
-        return iter(self._users)
+        return iter(self._items)
 
     def __setitem__(self, key, value):
         if key in self:     # disallow overwriting existing chatters
@@ -29,7 +29,7 @@ class IrcUserset(QObjectMapping):
         if key != value.name:
             raise ValueError
 
-        self._users[key] = value
+        self._items[key] = value
 
         if value.name in self._playerset:
             value.player = self._playerset[value.name]
@@ -44,7 +44,7 @@ class IrcUserset(QObjectMapping):
             user = self[item]
         except KeyError:
             return
-        del self._users[user.name]
+        del self._items[user.name]
         user.updated.disconnect(self._at_user_updated)
         self.removed.emit(user)
 
@@ -70,9 +70,9 @@ class IrcUserset(QObjectMapping):
         if user.name in self:
             del self[user.name]
 
-        if olduser.name in self._users:
-            del self._users[olduser.name]
-        self._users[user.name] = user
+        if olduser.name in self._items:
+            del self._items[olduser.name]
+        self._items[user.name] = user
 
         newplayer = self._playerset.get(user.name)
         user.player = newplayer
