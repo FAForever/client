@@ -46,7 +46,7 @@ class Playerset(QObjectMapping):
         if key in self:     # disallow overwriting existing players
             raise ValueError
 
-        if key != value.id:
+        if key != value.id_key:
             raise ValueError
 
         self._items[key] = value
@@ -58,7 +58,7 @@ class Playerset(QObjectMapping):
             player = self[item]
         except KeyError:
             return
-        del self._items[player.id]
+        del self._items[player.id_key]
         del self._logins[player.login]
         self.removed.emit(player)
 

@@ -75,11 +75,12 @@ class Player(QObject):
 
         self.updated.emit(self, old_data)
 
+    @property
+    def id_key(self):
+        return self.id
+
     def __hash__(self):
-        """
-        Index by id
-        """
-        return self.id.__hash__()
+        return hash(self.id_key)
 
     def __index__(self):
         return self.id

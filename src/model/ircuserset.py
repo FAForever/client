@@ -26,13 +26,13 @@ class IrcUserset(QObjectMapping):
         if key in self:     # disallow overwriting existing chatters
             raise ValueError
 
-        if key != value.name:
+        if key != value.id_key:
             raise ValueError
 
         self._items[key] = value
 
-        if value.name in self._playerset:
-            value.player = self._playerset[value.name]
+        if value.id_key in self._playerset:
+            value.player = self._playerset[value.id_key]
 
         # We're first to connect, so first to get called
         value.updated.connect(self._at_user_updated)
@@ -44,7 +44,7 @@ class IrcUserset(QObjectMapping):
             user = self[item]
         except KeyError:
             return
-        del self._items[user.name]
+        del self._items[user.id_key]
         user.updated.disconnect(self._at_user_updated)
         self.removed.emit(user)
 

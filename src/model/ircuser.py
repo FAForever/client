@@ -15,6 +15,13 @@ class IrcUser(QObject):
 
         self._player = None
 
+    @property
+    def id_key(self):
+        return self.name
+
+    def __hash__(self):
+        return hash(self.id_key)
+
     def copy(self):
         old = IrcUser(self.name, self.hostname)
         for channel in self.elevation:

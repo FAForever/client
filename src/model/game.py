@@ -95,6 +95,13 @@ class Game(QObject):
                      featured_mod_versions, sim_mods, password_protected,
                      visibility)
 
+    @property
+    def id_key(self):
+        return self.uid
+
+    def __hash__(self):
+        return hash(self.id_key)
+
     def copy(self):
         s = self
         return Game(s._playerset, s.uid, s.state, s.launched_at, s.num_players,

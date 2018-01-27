@@ -42,7 +42,7 @@ class Gameset(QObjectMapping):
         if key in self or value.closed():
             raise ValueError
 
-        if key != value.uid:
+        if key != value.id_key:
             raise ValueError
 
         self._items[key] = value
@@ -51,7 +51,7 @@ class Gameset(QObjectMapping):
         value.liveReplayAvailable.connect(self._at_live_replay)
         self._at_game_update(value, None)
         self.added.emit(value)
-        self._logger.debug("Added game, uid {}".format(value.uid))
+        self._logger.debug("Added game, uid {}".format(value.id_key))
 
     def clear(self):
         # Abort_game removes g from dict, so 'for g in values()' complains
@@ -60,13 +60,13 @@ class Gameset(QObjectMapping):
 
     def _at_game_update(self, new, old):
         if new.closed():
-            del self[new.uid]
+            del self[new.id_key]
         self._idx.at_game_update(new, old)
         if old is None or new.state != old.state:
             self._new_state(new)
 
     def _new_state(self, g):
-        self._logger.debug("New game state {}, uid {}".format(g.state, g.uid))
+        self._logger.debug("New game state {}, uid {}".format(g.state, g.id_key))
         if g.state == game.GameState.OPEN:
             self.newLobby.emit(g)
         elif g.state == game.GameState.PLAYING:
@@ -82,8 +82,8 @@ class Gameset(QObjectMapping):
             g = self._items[uid]
             g.gameUpdated.disconnect(self._at_game_update)
             g.liveReplayAvailable.disconnect(self._at_live_replay)
-            del self._items[g.uid]
-            self._logger.debug("Removed game, uid {}".format(g.uid))
+            del self._items[g.id_key]
+            self._logger.debug("Removed game, uid {}".format(g.id_key))
             self.removed.emit(g)
         except KeyError:
             pass
