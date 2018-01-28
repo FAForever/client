@@ -122,6 +122,8 @@ class Channel(FormClass, BaseClass):
             self.nickFrame.hide()
             self.announceLine.hide()
 
+        self.enablePlayerCountryList()
+
         self.chatArea.anchorClicked.connect(self.open_url)
         self.chatEdit.returnPressed.connect(self.send_line)
         self.chatEdit.set_chatters(self.chatters)
@@ -165,12 +167,36 @@ class Channel(FormClass, BaseClass):
         for chatter in self.chatters.values():
             chatter.set_visible(chatter.is_filtered(self.nickFilter.text().lower()))
 
+    def update_country_list(self):
+        if util.settings.value("chat/playercountrylist", False):
+            country_list = {}
+            for c in self.chatters:
+                if c._player is not None:
+                    if c._player.country not in country_list:
+                        country_list[c._player.country] = 0
+                    country_list[c._player.country] += 1
+            country_list = sorted(country_list.items(), key=lambda t: t[1], reverse=True)
+
+            countryList_model = QtGui.QStandardItemModel(self.countryList)
+
+            for country in country_list:
+                if country[0] is None or country[0] == '':
+                    country_name = '__'
+                else:
+                    country_name = country[0].lower()
+                place = QtGui.QStandardItem(util.THEME.icon("chat/countries/{}.png".format(country_name)), "{}".format(country[1]))
+                place.setSizeHint(QtCore.QSize(20, 24))
+                countryList_model.appendRow(place)
+
+            self.countryList.setModel(countryList_model)
+
     def update_user_count(self):
         count = len(self.chatters)
         self.nickFilter.setPlaceholderText(str(count) + " users... (type to filter)")
 
         if self.nickFilter.text():
             self.filter_nicks()
+        self.update_country_list()
 
     @QtCore.pyqtSlot()
     def blink(self):
@@ -404,6 +430,15 @@ class Channel(FormClass, BaseClass):
             chatter.update()
 
         self.resize_map_column()
+        self.enablePlayerCountryList()
+
+    def enablePlayerCountryList(self):
+        if util.settings.value("chat/playercountrylist", False):
+            self.countryList.show()
+            self.maxChatterWidth = 120
+        else:
+            self.countryList.hide()
+            self.maxChatterWidth = 100
 
     def resize_map_column(self):
         if util.settings.value("chat/chatmaps", False):

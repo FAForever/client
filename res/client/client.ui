@@ -397,7 +397,7 @@
      <addaction name="actionSetLiveReplays"/>
      <addaction name="actionSetSoundEffects"/>
      <addaction name="actionSetChatMaps"/>
-     <addaction name="separator"/>
+     <addaction name="actionPlayerCountryList"/>
     </widget>
     <widget class="QMenu" name="menuNotifications">
      <property name="title">
@@ -769,6 +769,14 @@
   <action name="actionCheckPlayerAliases">
    <property name="text">
     <string>Check player aliases</string>
+   </property>
+  </action>
+  <action name="actionPlayerCountryList">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Player/Country List</string>
    </property>
   </action>
  </widget>
