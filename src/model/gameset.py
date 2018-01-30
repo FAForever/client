@@ -1,13 +1,13 @@
 from PyQt5.QtCore import pyqtSignal
 from decorators import with_logger
 
-from model.qobjectmapping import QObjectMapping
 from model import game
 from model.transaction import transactional
+from model.modelitemset import ModelItemSet
 
 
 @with_logger
-class Gameset(QObjectMapping):
+class Gameset(ModelItemSet):
     """
     Keeps track of currently active games. Removes games that closed. Reports
     creation and state change of games. Gives access to active games.
@@ -16,49 +16,36 @@ class Gameset(QObjectMapping):
     send a game state for a uid, send a state that closes it, then send a state
     with the same uid again, and it will be reported as a new game.
     """
-    before_added = pyqtSignal(object, object)
-    before_removed = pyqtSignal(object, object)
-    added = pyqtSignal(object)
-    removed = pyqtSignal(object)
-
     newLobby = pyqtSignal(object)
     newLiveGame = pyqtSignal(object)
     newClosedGame = pyqtSignal(object)
     newLiveReplay = pyqtSignal(object)
 
     def __init__(self, playerset):
-        QObjectMapping.__init__(self)
-        self._items = {}
+        ModelItemSet.__init__(self)
         self._playerset = playerset
-
-    def __getitem__(self, uid):
-        return self._items[uid]
-
-    def __iter__(self):
-        return iter(self._items)
 
     @transactional
     def set_item(self, key, value, _transaction=None):
         if not isinstance(key, int) or not isinstance(value, game.Game):
             raise TypeError
-
-        if key in self or value.closed():
+        if value.closed():
             raise ValueError
 
-        if key != value.id_key:
-            raise ValueError
-
-        self._items[key] = value
+        ModelItemSet.set_item(self, key, value, _transaction)
         value.before_updated.connect(self._at_game_update)
         value.before_replay_available.connect(self._at_live_replay)
         self._at_game_update(value, None, _transaction)
         self._logger.debug("Added game, uid {}".format(value.id_key))
-        _transaction.emit(self.added, value)
-        self.before_added.emit(value, _transaction)
+        self.emit_added(value, _transaction)
 
-    def __setitem__(self, key, value):
-        # CAVEAT: use only as an entry point for model changes.
-        self.set_item(key, value)
+    @transactional
+    def del_item(self, key, _transaction=None):
+        g = ModelItemSet.del_item(self, key, _transaction)
+        g.before_updated.disconnect(self._at_game_update)
+        g.before_replay_available.disconnect(self._at_live_replay)
+        self._logger.debug("Removed game, uid {}".format(g.id_key))
+        self.emit_removed(g, _transaction)
 
     @transactional
     def clear(self, _transaction=None):
@@ -84,23 +71,6 @@ class Gameset(QObjectMapping):
 
     def _at_live_replay(self, game, _transaction=None):
         _transaction.emit(self.newLiveReplay, game)
-
-    def __delitem__(self, uid):
-        # CAVEAT: use only as an entry point for model changes.
-        self.del_item(uid)
-
-    @transactional
-    def del_item(self, uid, _transaction=None):
-        try:
-            g = self._items[uid]
-            g.before_updated.disconnect(self._at_game_update)
-            g.before_replay_available.disconnect(self._at_live_replay)
-            del self._items[g.id_key]
-            self._logger.debug("Removed game, uid {}".format(g.id_key))
-            _transaction.emit(self.removed, g)
-            self.before_removed.emit(g, _transaction)
-        except KeyError:
-            pass
 
 
 class PlayerGameIndex:
