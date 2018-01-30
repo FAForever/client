@@ -33,11 +33,11 @@ class GameProcess(QtCore.QProcess):
     @game.setter
     def game(self, value):
         if self._game is not None:
-            self._game.gameUpdated.disconnect(self._trackGameUpdate)
+            self._game.updated.disconnect(self._trackGameUpdate)
         self._game = value
 
         if self._game is not None:
-            self._game.gameUpdated.connect(self._trackGameUpdate)
+            self._game.updated.connect(self._trackGameUpdate)
             self._trackGameUpdate()
 
     # Check new games from the server to find one matching our uid

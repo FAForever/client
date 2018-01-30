@@ -142,14 +142,14 @@ class Chatter(QtWidgets.QTableWidgetItem):
     @user_game.setter
     def user_game(self, value):
         if self._user_game is not None:
-            self._user_game.gameUpdated.disconnect(self.update_game)
+            self._user_game.updated.disconnect(self.update_game)
             self._user_game.liveReplayAvailable.disconnect(self.update_game)
 
         self._user_game = value
         self.update_game()
 
         if self._user_game is not None:
-            self._user_game.gameUpdated.connect(self.update_game)
+            self._user_game.updated.connect(self.update_game)
             self._user_game.liveReplayAvailable.connect(self.update_game)
 
     def _check_player_relation(self, players):

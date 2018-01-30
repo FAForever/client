@@ -34,7 +34,7 @@ class Game(QObject):
     with signals.
     """
     before_updated = pyqtSignal(object, object, object)
-    gameUpdated = pyqtSignal(object, object)
+    updated = pyqtSignal(object, object)
     before_replay_available = pyqtSignal(object, object)
     liveReplayAvailable = pyqtSignal(object)
 
@@ -119,7 +119,7 @@ class Game(QObject):
         del kwargs["_transaction"]
         old = self.copy()
         self._update(*args, **kwargs)
-        _transaction.emit(self.gameUpdated, self, old)
+        _transaction.emit(self.updated, self, old)
         self.before_updated.emit(self, old, _transaction)
 
     def _update(self,
@@ -216,7 +216,7 @@ class Game(QObject):
         old = self.copy()
         self.state = GameState.CLOSED
         self._aborted = True
-        _transaction.emit(self.gameUpdated, self, old)
+        _transaction.emit(self.updated, self, old)
         self.before_updated.emit(self, old, _transaction)
 
     def to_dict(self):

@@ -45,8 +45,8 @@ def test_update_signal(playerset, mocker):
         assert old.host == "IllIIIlIlIIIlI"
         assert new.host == "OtherName"
 
-    g.gameUpdated.connect(updated)
-    g.gameUpdated.connect(check_signal)
+    g.updated.connect(updated)
+    g.updated.connect(check_signal)
     data["host"] = "OtherName"
     g.update(**data)
     assert updated.called

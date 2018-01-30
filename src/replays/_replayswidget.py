@@ -37,7 +37,7 @@ class LiveReplayItem(QtWidgets.QTreeWidgetItem):
         self._map_dl_request = PreviewDownloadRequest()
         self._map_dl_request.done.connect(self._map_preview_downloaded)
 
-        self._game.gameUpdated.connect(self._update_game)
+        self._game.updated.connect(self._update_game)
         self._set_show_delay()
         self._update_game(self._game)
 
@@ -247,11 +247,11 @@ class LiveReplaysWidgetHandler(object):
         item = LiveReplayItem(game)
         self.games[game] = item
         self.liveTree.insertTopLevelItem(0, item)
-        game.gameUpdated.connect(self._check_game_closed)
+        game.updated.connect(self._check_game_closed)
 
     def _check_game_closed(self, game):
         if game.state == GameState.CLOSED:
-            game.gameUpdated.disconnect(self._check_game_closed)
+            game.updated.disconnect(self._check_game_closed)
             self._removeGame(game)
 
     def _removeGame(self, game):
