@@ -24,7 +24,7 @@ from games.gamemodel import GameModel
 from games.gameitem import GameViewBuilder
 from games.hostgamewidget import build_launcher
 import json
-from model.gameset import Gameset
+from model.gameset import Gameset, PlayerGameIndex
 from model.player import Player
 from model.playerset import Playerset
 from modvault.utils import MODFOLDER
@@ -150,8 +150,9 @@ class ClientWindow(FormClass, BaseClass):
         self.lobby_reconnecter = ServerReconnecter(self.lobby_connection)
 
         self.players = Playerset()  # Players known to the client
-
         self.gameset = Gameset(self.players)
+        self._player_game_relation = PlayerGameIndex(self.gameset, self.players)
+
         fa.instance.gameset = self.gameset  # FIXME (needed fa/game_process L81 for self.game = self.gameset[uid])
 
         # Handy reference to the User object representing the logged-in user.

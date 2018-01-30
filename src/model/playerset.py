@@ -2,6 +2,7 @@ from PyQt5.QtCore import pyqtSignal
 
 from model.qobjectmapping import QObjectMapping
 from model.player import Player
+from model.transaction import transactional
 
 
 class Playerset(QObjectMapping):
@@ -12,6 +13,8 @@ class Playerset(QObjectMapping):
     """
     added = pyqtSignal(object)
     removed = pyqtSignal(object)
+    before_added = pyqtSignal(object, object)
+    before_removed = pyqtSignal(object, object)
 
     def __init__(self):
         QObjectMapping.__init__(self)
@@ -39,7 +42,8 @@ class Playerset(QObjectMapping):
             return self[name].id
         return -1
 
-    def __setitem__(self, key, value):
+    @transactional
+    def set_item(self, key, value, _transaction=None):
         if not isinstance(key, int) or not isinstance(value, Player):
             raise TypeError
 
@@ -51,18 +55,30 @@ class Playerset(QObjectMapping):
 
         self._items[key] = value
         self._logins[value.login] = value
-        self.added.emit(value)
+        _transaction.emit(self.added, value)
+        self.before_added.emit(value, _transaction)
 
-    def __delitem__(self, item):
+    def __setitem__(self, key, value):
+        # CAVEAT: use only as an entry point for model changes.
+        self.set_item(key, value)
+
+    @transactional
+    def del_item(self, item, _transaction=None):
         try:
             player = self[item]
         except KeyError:
             return
         del self._items[player.id_key]
         del self._logins[player.login]
-        self.removed.emit(player)
+        _transaction.emit(self.removed, player)
+        self.before_removed.emit(player, _transaction)
 
-    def clear(self):
+    def __delitem__(self, item):
+        # CAVEAT: use only as an entry point for model changes.
+        self.del_item(item)
+
+    @transactional
+    def clear(self, _transaction=None):
         oldplayers = list(self.keys())
         for player in oldplayers:
-            del self[player]
+            self.del_item(player, _transaction)

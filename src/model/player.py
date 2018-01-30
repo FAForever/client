@@ -1,8 +1,10 @@
 from PyQt5.QtCore import QObject, pyqtSignal
-
+from model.transaction import transactional
 
 class Player(QObject):
+    before_updated = pyqtSignal(object, object, object)
     updated = pyqtSignal(object, object)
+
     newCurrentGame = pyqtSignal(object, object, object)
 
     """
@@ -44,6 +46,7 @@ class Player(QObject):
         p.currentGame = self._currentGame
         return p
 
+    @transactional
     def update(self,
                id_=None,
                login=None,
@@ -53,7 +56,8 @@ class Player(QObject):
                avatar=None,
                country=None,
                clan=None,
-               league=None):
+               league=None,
+               _transaction=None):
 
         old_data = self.copy()
         # Ignore id and login (they are be immutable)
@@ -73,7 +77,8 @@ class Player(QObject):
         if league is not None:
             self.league = league
 
-        self.updated.emit(self, old_data)
+        _transaction.emit(self.updated, self, old_data)
+        self.before_updated.emit(self, old_data, _transaction)
 
     @property
     def id_key(self):
@@ -146,21 +151,15 @@ class Player(QObject):
     def currentGame(self):
         return self._currentGame
 
-    @currentGame.setter
-    def currentGame(self, game):
-        self.set_current_game_defer_signal(game)()
-
-    def set_current_game_defer_signal(self, game):
+    @transactional
+    def set_currentGame(self, game, _transaction=None):
         if self.currentGame == game:
-            return lambda: None
-
+            return
         old = self._currentGame
         self._currentGame = game
-        return lambda: self._emit_game_change(game, old)
+        _transaction.emit(self.newCurrentGame, self, game, old)
 
-    def _emit_game_change(self, game, old):
-        self.newCurrentGame.emit(self, game, old)
-        if old is not None:
-            old.ingamePlayerRemoved.emit(old, self)
-        if game is not None:
-            game.ingamePlayerAdded.emit(game, self)
+    @currentGame.setter
+    def currentGame(self, val):
+        # CAVEAT: this will emit signals immediately!
+        self.set_currentGame(val)

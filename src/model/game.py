@@ -6,6 +6,8 @@ import time
 
 import string
 
+from model.transaction import transactional
+
 
 class GameState(Enum):
     OPEN = "open"
@@ -31,11 +33,10 @@ class Game(QObject):
     shouldn't be updated or ended again. Update and game end are propagated
     with signals.
     """
+    before_updated = pyqtSignal(object, object, object)
     gameUpdated = pyqtSignal(object, object)
+    before_replay_available = pyqtSignal(object, object)
     liveReplayAvailable = pyqtSignal(object)
-
-    connectedPlayerAdded = pyqtSignal(object, object)
-    connectedPlayerRemoved = pyqtSignal(object, object)
 
     ingamePlayerAdded = pyqtSignal(object, object)
     ingamePlayerRemoved = pyqtSignal(object, object)
@@ -109,12 +110,17 @@ class Game(QObject):
                     s.teams, s.featured_mod, s.featured_mod_versions,
                     s.sim_mods, s.password_protected, s.visibility)
 
+    @transactional
     def update(self, *args, **kwargs):
         if self._aborted:
             return
+
+        _transaction = kwargs["_transaction"]
+        del kwargs["_transaction"]
         old = self.copy()
         self._update(*args, **kwargs)
-        self.gameUpdated.emit(self, old)
+        _transaction.emit(self.gameUpdated, self, old)
+        self.before_updated.emit(self, old, _transaction)
 
     def _update(self,
                 state=SENTINEL,
@@ -190,24 +196,28 @@ class Game(QObject):
         time_to_replay = max(self.LIVE_REPLAY_DELAY_SECS - time_elapsed, 0)
         self._live_replay_timer.start(time_to_replay * 1000)
 
-    def _emit_live_replay(self):
+    @transactional
+    def _emit_live_replay(self, _transaction=None):
         if self.state != GameState.PLAYING:
             return
         self.has_live_replay = True
-        self.liveReplayAvailable.emit(self)
+        _transaction.emit(self.liveReplayAvailable, self)
+        self.before_replay_available.emit(self, _transaction)
 
     def closed(self):
         return self.state == GameState.CLOSED or self._aborted
 
     # Used when the server confuses us whether the game is valid anymore.
-    def abort_game(self):
+    @transactional
+    def abort_game(self, _transaction=None):
         if self.closed():
             return
 
         old = self.copy()
         self.state = GameState.CLOSED
         self._aborted = True
-        self.gameUpdated.emit(self, old)
+        _transaction.emit(self.gameUpdated, self, old)
+        self.before_updated.emit(self, old, _transaction)
 
     def to_dict(self):
         return {
@@ -245,7 +255,7 @@ class Game(QObject):
             query.addQueryItem("uid", str(self.uid))
         else:
             url.setScheme("faflive")
-            url.setPath("/" + str(self.uid) + "/" + str(player_id) + ".SCFAreplay")
+            url.setPath("/{}/{}.SCFAreplay".format(self.uid, player_id))
 
         url.setQuery(query)
         return url
@@ -296,6 +306,14 @@ class Game(QObject):
             return self._playerset[self.host]
         except KeyError:
             return None
+
+    @transactional
+    def ingame_player_added(self, player, _transaction=None):
+        _transaction.emit(self.ingamePlayerAdded, self, player)
+
+    @transactional
+    def ingame_player_removed(self, player, _transaction=None):
+        _transaction.emit(self.ingamePlayerRemoved, self, player)
 
     @property
     def average_rating(self):
