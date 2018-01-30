@@ -1,19 +1,17 @@
-from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5.QtCore import pyqtSignal
 from model.transaction import transactional
+from model.modelitem import ModelItem
 
 
-class IrcUser(QObject):
-    before_updated = pyqtSignal(object, object, object)
-    updated = pyqtSignal(object, object)
+class IrcUser(ModelItem):
     newPlayer = pyqtSignal(object, object, object)
 
     def __init__(self, name, hostname):
-        QObject.__init__(self)
-
-        self.name = name
+        ModelItem.__init__(self)
 
         self.elevation = {}
-        self.hostname = hostname
+        self.add_field("name", name)
+        self.add_field("hostname", hostname)
 
         self._player = None
 
@@ -21,26 +19,18 @@ class IrcUser(QObject):
     def id_key(self):
         return self.name
 
-    def __hash__(self):
-        return hash(self.id_key)
-
     def copy(self):
-        old = IrcUser(self.name, self.hostname)
+        old = IrcUser(**self.field_dict)
         for channel in self.elevation:
             old.set_elevation(channel, self.elevation[channel])
         return old
 
     @transactional
-    def update(self, name=None, hostname=None, _transaction=None):
+    def update(self, **kwargs):
+        _transaction = kwargs.pop("_transaction")
         olduser = self.copy()
-
-        if name is not None:
-            self.name = name
-        if hostname is not None:
-            self.hostname = hostname
-
-        _transaction.emit(self.updated, self, olduser)
-        self.before_updated.emit(self, olduser, _transaction)
+        ModelItem.update(self, **kwargs)
+        self.emit_update(olduser, _transaction)
 
     @transactional
     def set_elevation(self, channel, elevation, _transaction=None):
@@ -50,8 +40,7 @@ class IrcUser(QObject):
                 del self.elevation[channel]
         else:
             self.elevation[channel] = elevation
-        _transaction.emit(self.updated, self, olduser)
-        self.before_updated.emit(self, olduser, _transaction)
+        self.emit_update(olduser, _transaction)
 
     @property
     def player(self):

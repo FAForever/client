@@ -1,10 +1,9 @@
-from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5.QtCore import pyqtSignal
 from model.transaction import transactional
+from model.modelitem import ModelItem
 
-class Player(QObject):
-    before_updated = pyqtSignal(object, object, object)
-    updated = pyqtSignal(object, object)
 
+class Player(ModelItem):
     newCurrentGame = pyqtSignal(object, object, object)
 
     """
@@ -20,85 +19,45 @@ class Player(QObject):
                  country=None,
                  clan=None,
                  league=None):
-        QObject.__init__(self)
+        ModelItem.__init__(self)
         """
         Initialize a Player
         """
         # Required fields
+        # Login should be mutable, but we look up things by login right now
         self.id = int(id_)
         self.login = login
 
-        self.global_rating = global_rating
-        self.ladder_rating = ladder_rating
-        self.number_of_games = number_of_games
-        self.avatar = avatar
-        self.country = country
-        self.clan = clan
-        self.league = league
+        self.add_field("global_rating", global_rating)
+        self.add_field("ladder_rating", ladder_rating)
+        self.add_field("number_of_games", number_of_games)
+        self.add_field("avatar", avatar)
+        self.add_field("country", country)
+        self.add_field("clan", clan)
+        self.add_field("league", league)
 
         # The game the player is currently playing
         self._currentGame = None
-
-    def copy(self):
-        s = self
-        p = Player(s.id, s.login, s.global_rating, s.ladder_rating,
-                   s.number_of_games, s.avatar, s.country, s.clan, s.league)
-        p.currentGame = self._currentGame
-        return p
-
-    @transactional
-    def update(self,
-               id_=None,
-               login=None,
-               global_rating=None,
-               ladder_rating=None,
-               number_of_games=None,
-               avatar=None,
-               country=None,
-               clan=None,
-               league=None,
-               _transaction=None):
-
-        old_data = self.copy()
-        # Ignore id and login (they are be immutable)
-        # Login should be mutable, but we look up things by login right now
-        if global_rating is not None:
-            self.global_rating = global_rating
-        if ladder_rating is not None:
-            self.ladder_rating = ladder_rating
-        if number_of_games is not None:
-            self.number_of_games = number_of_games
-        if avatar is not None:
-            self.avatar = avatar
-        if country is not None:
-            self.country = country
-        if clan is not None:
-            self.clan = clan
-        if league is not None:
-            self.league = league
-
-        _transaction.emit(self.updated, self, old_data)
-        self.before_updated.emit(self, old_data, _transaction)
 
     @property
     def id_key(self):
         return self.id
 
-    def __hash__(self):
-        return hash(self.id_key)
+    def copy(self):
+        p = Player(self.id, self.login, **self.field_dict)
+        p.currentGame = self.currentGame
+        return p
+
+    @transactional
+    def update(self, **kwargs):
+        _transaction = kwargs.pop("_transaction")
+
+        old_data = self.copy()
+        ModelItem.update(self, **kwargs)
+        self.emit_update(old_data, _transaction)
 
     def __index__(self):
         return self.id
-
-    def __eq__(self, other):
-        """
-        Equality by id
-
-        :param other: player object to compare with
-        """
-        if not isinstance(other, Player):
-            return False
-        return other.id == self.id
 
     def rounded_rating_estimate(self):
         """
