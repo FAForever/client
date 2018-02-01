@@ -52,6 +52,9 @@ from chat.chatter_model import ChatterLayoutElements
 
 from client.user import UserRelationModel, UserRelationController, \
         UserRelationTrackers, UserRelations
+
+from unitdb import unitdbtab
+
 '''
 Created on Dec 1, 2011
 
@@ -742,6 +745,10 @@ class ClientWindow(FormClass, BaseClass):
         self.notificationSystem = ns.Notifications(self, self.gameset,
                                                    self.players, self.me)
 
+        self._unitdb = unitdbtab.build_db_tab(
+                            config.Settings.get("UNITDB_URL"),
+                            config.UNITDB_CONFIG_FILE)
+
         # TODO: some day when the tabs only do UI we'll have all this in the .ui file
         self.whatNewTab.layout().addWidget(self.news)
         self.chatTab.layout().addWidget(self._chatMVC.view.widget.base)
@@ -752,13 +759,13 @@ class ClientWindow(FormClass, BaseClass):
         self.tourneyTab.layout().addWidget(self.tourneys)
         self.replaysTab.layout().addWidget(self.replays)
         self.mapsTab.layout().addWidget(self.mapvault.ui)
+        self.unitdbTab.layout().addWidget(self._unitdb.db_widget)
         self.modsTab.layout().addWidget(self.modvault)
+
+        self.mainTabs.setCurrentIndex(self.mainTabs.indexOf(self.whatNewTab))
+
         # set menu states
         self.actionNsEnabled.setChecked(self.notificationSystem.settings.enabled)
-
-        # units database (ex. live streams)
-        # old unitDB
-        self.unitdbWebView.setUrl(QtCore.QUrl(config.Settings.get("UNITDB_URL")))
 
         # warning setup
         self.warning = QtWidgets.QHBoxLayout()

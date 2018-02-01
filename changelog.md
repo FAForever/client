@@ -1,6 +1,13 @@
 0.x.x
 =====
 
+0.17.4
+=====
+ * Integrate client with new Rackover's database
+
+ Contributors:
+ - Wesmania
+
 0.17.3
 =====
  * Fix all players being displayed as clannies if user is not in a clan (#1011)
