@@ -10,6 +10,7 @@
  * Refactor downloading previews to fix issues with broken previews (#852)
  * User's own messages can no longer ping him (#906)
  * Update "run from source" instructions for Linux (#980)
+ * Standarize client data model classes (#981)
 
 Contributors:
  - MathieuB8
