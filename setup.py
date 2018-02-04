@@ -65,7 +65,7 @@ build_exe_options = {
     'include_msvcr': True,
     'optimize': 2,
     # cx_freeze >5.0.0 fails to add idna, we'll remove it once they fix it
-    'packages': ['PyQt5', 'PyQt5.uic', 'idna',
+    'packages': ['PyQt5', 'PyQt5.uic', 'idna', 'jsonschema',
                  'PyQt5.QtWidgets', 'PyQt5.QtNetwork', 'win32com', 'win32com.client'],
     'silent': True,
     'excludes': ['numpy', 'scipy', 'matplotlib', 'tcl', 'Tkinter'],
