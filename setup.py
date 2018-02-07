@@ -1,5 +1,6 @@
 import os
 import sys
+import site
 
 import sip
 from pathlib import Path
@@ -46,33 +47,10 @@ for module in ["invoke.py", "load_plugin.py"]:
     except OSError:
         pass
 
-# Dependencies are automatically detected, but it might need fine tuning.
-import PyQt5.uic
-build_exe_options = {
-    'include_files': ['res',
-                      'imageformats',
-                      'platforms',
-                      'libeay32.dll',
-                      'ssleay32.dll',
-                      'libEGL.dll', # For QtWebEngine
-                      'libGLESv2.dll', # ditto
-                      'icudtl.dat', #ditto
-                      'qtwebengine_resources.pak', # ditto
-                      'QtWebEngineProcess.exe', # ditto
-                      ('lib/faf-uid.exe', 'lib/faf-uid.exe'),
-                      ('lib/qt.conf', 'qt.conf'),
-                      ('lib/xdelta3.exe', 'lib/xdelta3.exe')],
-    'include_msvcr': True,
-    'optimize': 2,
-    # cx_freeze >5.0.0 fails to add idna, we'll remove it once they fix it
-    'packages': ['PyQt5', 'PyQt5.uic', 'idna',
-                 'PyQt5.QtWidgets', 'PyQt5.QtNetwork', 'win32com', 'win32com.client'],
-    'silent': True,
-    'excludes': ['numpy', 'scipy', 'matplotlib', 'tcl', 'Tkinter'],
-
-    'zip_include_packages': ["*"],     # Place source files in zip archive, like in cx_freeze 4.3.4
-    'zip_exclude_packages': [],
-}
+def get_jsonschema_includes():
+    schemas = os.path.join(site.getsitepackages()[1], "jsonschema", "schemas")
+    onlyfiles = [f for f in os.listdir(schemas) if os.path.isfile(os.path.join(schemas, f))]
+    return [(os.path.join(schemas, f), os.path.join("jsonschema", "schemas", f)) for f in onlyfiles]
 
 shortcut_table = [
     ('DesktopShortcut',           # Shortcut
@@ -111,6 +89,34 @@ if sys.platform == 'win32':
     base = 'Win32GUI'
 
 if sys.platform == 'win32':
+    # Dependencies are automatically detected, but it might need fine tuning.
+    build_exe_options = {
+        'include_files': ['res',
+                          'imageformats',
+                          'platforms',
+                          'libeay32.dll',
+                          'ssleay32.dll',
+                          'libEGL.dll', # For QtWebEngine
+                          'libGLESv2.dll', # ditto
+                          'icudtl.dat', #ditto
+                          'qtwebengine_resources.pak', # ditto
+                          'QtWebEngineProcess.exe', # ditto
+                          ('lib/faf-uid.exe', 'lib/faf-uid.exe'),
+                          ('lib/qt.conf', 'qt.conf'),
+                          ('lib/xdelta3.exe', 'lib/xdelta3.exe')],
+        'zip_includes': get_jsonschema_includes(),
+        'include_msvcr': True,
+        'optimize': 2,
+        # cx_freeze >5.0.0 fails to add idna, we'll remove it once they fix it
+        'packages': ['PyQt5', 'PyQt5.uic', 'idna',
+                     'PyQt5.QtWidgets', 'PyQt5.QtNetwork', 'win32com', 'win32com.client'],
+        'silent': True,
+        'excludes': ['numpy', 'scipy', 'matplotlib', 'tcl', 'Tkinter'],
+
+        'zip_include_packages': ["*"],     # Place source files in zip archive, like in cx_freeze 4.3.4
+        'zip_exclude_packages': [],
+    }
+
     platform_options = {
         'executables': [Executable(
                           'src/__main__.py',
