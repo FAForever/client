@@ -48,7 +48,7 @@ class ModelItemSet(QObjectMapping):
         try:
             value = self[item]
         except KeyError:
-            return
+            return None
         del self._items[value.id_key]
         return value
 

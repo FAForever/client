@@ -33,6 +33,8 @@ class Playerset(ModelItemSet):
     @transactional
     def del_item(self, key, _transaction=None):
         player = ModelItemSet.del_item(self, key, _transaction)
+        if player is None:
+            return
         del self._logins[player.login]
         self.emit_removed(player, _transaction)
 

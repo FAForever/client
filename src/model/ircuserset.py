@@ -23,6 +23,8 @@ class IrcUserset(ModelItemSet):
     @transactional
     def del_item(self, key, _transaction=None):
         user = ModelItemSet.del_item(self, key, _transaction)
+        if user is None:
+            return
         user.before_updated.disconnect(self._at_user_updated)
         self.emit_removed(user, _transaction)
 

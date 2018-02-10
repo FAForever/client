@@ -42,6 +42,9 @@ class Gameset(ModelItemSet):
     @transactional
     def del_item(self, key, _transaction=None):
         g = ModelItemSet.del_item(self, key, _transaction)
+        if g is None:
+            return
+
         g.before_updated.disconnect(self._at_game_update)
         g.before_replay_available.disconnect(self._at_live_replay)
         self._logger.debug("Removed game, uid {}".format(g.id_key))
