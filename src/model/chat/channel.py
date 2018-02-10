@@ -54,11 +54,15 @@ class Lines(QObject):
 
 
 class Channel(ModelItem):
+    added_chatter = pyqtSignal(object)
+    removed_chatter = pyqtSignal(object)
+
     def __init__(self, id_, lines, topic):
         ModelItem.__init__(self)
         self.add_field("topic", topic)
         self.lines = lines
         self.id = id_
+        self.chatters = {}
 
     @property
     def id_key(self):
@@ -78,3 +82,13 @@ class Channel(ModelItem):
     @transactional
     def set_topic(self, topic, _transaction=None):
         self.update(topic=topic, _transaction=_transaction)
+
+    @transactional
+    def add_chatter(self, cc, _transaction=None):
+        self.chatters[cc.id_key] = cc
+        _transaction.emit(self.added_chatter, cc)
+
+    @transactional
+    def remove_chatter(self, cc, _transaction=None):
+        del self.chatters[cc.id_key]
+        _transaction.emit(self.removed_chatter, cc)

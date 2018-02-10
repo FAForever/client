@@ -5,12 +5,15 @@ from model.transaction import transactional
 
 class Chatter(ModelItem):
     newPlayer = pyqtSignal(object, object, object)
+    added_channel = pyqtSignal(object)
+    removed_channel = pyqtSignal(object)
 
     def __init__(self, name, hostname):
         ModelItem.__init__(self)
         self.add_field("name", name)
         self.add_field("hostname", hostname)
         self._player = None
+        self.channels = {}
 
     @property
     def id_key(self):
@@ -40,3 +43,13 @@ class Chatter(ModelItem):
     def player(self, val):
         # CAVEAT: this will emit signals immediately!
         self.set_player(val)
+
+    @transactional
+    def add_channel(self, cc, _transaction=None):
+        self.channels[cc.id_key] = cc
+        _transaction.emit(self.added_channel, cc)
+
+    @transactional
+    def remove_channel(self, cc, _transaction=None):
+        del self.channels[cc.id_key]
+        _transaction.emit(self.removed_channel, cc)
