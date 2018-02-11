@@ -115,6 +115,8 @@ class ClientWindow(FormClass, BaseClass):
     useUPnP = config.Settings.persisted_property('game/upnp', type=bool, default_value=True)
     gamePort = config.Settings.persisted_property('game/port', type=int, default_value=6112)
 
+    use_chat = config.Settings.persisted_property('chat/enabled', type=bool, default_value=True)
+
     def __init__(self, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
 
@@ -508,7 +510,7 @@ class ClientWindow(FormClass, BaseClass):
 
     def setup(self):
         from news import NewsWidget
-        from chat import ChatWidget
+        from chat import ChatMVC
         from coop import CoopWidget
         from games import GamesWidget
         from tutorials import TutorialsWidget
@@ -527,9 +529,11 @@ class ClientWindow(FormClass, BaseClass):
                                             self, self.gameview_builder,
                                             self.map_downloader)
 
+        self._chatMVC = ChatMVC(self.players)
+        self.authorized.connect(self._connect_chat)
+
         # build main window with the now active client
         self.news = NewsWidget(self)
-        self.chat = ChatWidget(self, self.players, self.me)
         self.coop = CoopWidget(self, self.game_model, self.me,
                                self.gameview_builder, self.game_launcher)
         self.games = GamesWidget(self, self.game_model, self.me,
@@ -546,7 +550,7 @@ class ClientWindow(FormClass, BaseClass):
 
         # TODO: some day when the tabs only do UI we'll have all this in the .ui file
         self.whatNewTab.layout().addWidget(self.news)
-        self.chatTab.layout().addWidget(self.chat)
+        self.chatTab.layout().addWidget(self._chatMVC.view.widget)
         self.coopTab.layout().addWidget(self.coop)
         self.gamesTab.layout().addWidget(self.games)
         self.tutorialsTab.layout().addWidget(self.tutorials)
@@ -596,6 +600,11 @@ class ClientWindow(FormClass, BaseClass):
         self._update_checker.finished.connect(self.update_checked)
         self._update_checker.start()
 
+    def _connect_chat(self, me):
+        if not self.use_chat:
+            return
+        self._chatMVC.connection.connect(me.login, me.id, self.password)
+
     def warningHide(self):
         """
         hide the warning bar for matchmaker
@@ -622,7 +631,7 @@ class ClientWindow(FormClass, BaseClass):
         # Used when the user explicitly demanded to stay offline.
         self.lobby_reconnecter.enabled = False
         self.lobby_connection.disconnect()
-        self.chat.disconnect()
+        self._chatMVC.connection.disconnect()
 
     @QtCore.pyqtSlot(list)
     def update_checked(self, releases):
@@ -674,10 +683,10 @@ class ClientWindow(FormClass, BaseClass):
             self.replayServer = None
 
         # Clean up Chat
-        if self.chat:
+        if self._chatMVC:
             progress.setLabelText("Disconnecting from IRC")
-            self.chat.disconnect()
-            self.chat = None
+            self._chatMVC.connection.disconnect()
+            self._chatMVC = None
 
         # Get rid of the Tray icon
         if self.tray:
