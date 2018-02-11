@@ -4,9 +4,10 @@ from model.chat.channelchatter import ChannelChatter
 
 
 class ChatController:
-    def __init__(self, connection, model):
+    def __init__(self, connection, model, autojoin_channels):
         self._connection = connection
         self._model = model
+        self._autojoin_channels = autojoin_channels
 
         c = connection
         c.new_line.connect(self._at_new_line)
@@ -17,6 +18,7 @@ class ChatController:
         c.chatter_renamed.connect(self._at_chatter_renamed)
         c.new_chatter_elevation.connect(self._at_new_chatter_elevation)
         c.new_channel_topic.connect(self._at_new_channel_topic)
+        c.connected.connect(self._at_connected)
         c.disconnected.connect(self._at_disconnected)
         c.new_server_message.connect(self._at_new_server_message)
 
@@ -97,6 +99,10 @@ class ChatController:
         if channel is None:
             return
         channel.update(topic=topic)
+
+    def _at_connected(self):
+        for channel in self._autojoin_channels:
+            self._connection.join(channel)
 
     def _at_disconnected(self):
         self._channels.clear()

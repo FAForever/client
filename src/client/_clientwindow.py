@@ -529,7 +529,7 @@ class ClientWindow(FormClass, BaseClass):
                                             self, self.gameview_builder,
                                             self.map_downloader)
 
-        self._chatMVC = ChatMVC(self.players)
+        self._chatMVC = ChatMVC(self.players, ['#aeolus'])
         self.authorized.connect(self._connect_chat)
 
         # build main window with the now active client

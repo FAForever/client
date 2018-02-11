@@ -64,6 +64,7 @@ class IrcSignals(QObject):
     chatter_renamed = pyqtSignal(str, str)
     new_chatter_elevation = pyqtSignal(object, object, str, str)
     new_channel_topic = pyqtSignal(object, str)
+    connected = pyqtSignal()
     disconnected = pyqtSignal()
 
     def __init__(self):
@@ -179,6 +180,7 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
     def on_identified(self):
         if self.connection.get_nickname != self._nick:
             self._send_nickserv_creds('recover {} {}')
+        self.connected.emit()
 
     def on_version(self, c, e):
         msg = "Forged Alliance Forever " + util.VERSION_STRING
