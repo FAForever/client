@@ -23,3 +23,6 @@ class ChatWidget(FormClass, BaseClass):
             return
         self._channels.remove(channel)
         self.removeTab(self.indexOf(channel))
+
+    def write_server_message(self, msg):
+        self.serverLogArea.appendPlainText(msg)

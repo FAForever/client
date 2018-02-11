@@ -18,6 +18,7 @@ class ChatController:
         c.new_chatter_elevation.connect(self._at_new_chatter_elevation)
         c.new_channel_topic.connect(self._at_new_channel_topic)
         c.disconnected.connect(self._at_disconnected)
+        c.new_server_message.connect(self._at_new_server_message)
 
     @property
     def _channels(self):
@@ -101,3 +102,6 @@ class ChatController:
         self._channels.clear()
         self._chatters.clear()
         self._ccs.clear()
+
+    def _at_new_server_message(self, msg):
+        self._model.add_server_message(msg)

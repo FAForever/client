@@ -9,6 +9,7 @@ class ChatView:
         self.widget = ChatWidget()
         self._chat.channels.added.connect(self._add_channel)
         self._chat.channels.removed.connect(self._remove_channel)
+        self._chat.new_server_message.connect(self._new_server_message)
         self._add_channels()
 
     def _add_channels(self):
@@ -28,3 +29,6 @@ class ChatView:
         view = self._channels[channel.id_key]
         self.widget.remove_channel(view.widget)
         del self._channels[channel.id_key]
+
+    def _new_server_message(self, msg):
+        self.widget.write_server_message(msg)
