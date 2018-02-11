@@ -29,6 +29,7 @@ defaults = {
     'proxy/port': 9124,
     'lobby/host': 'lobby.{host}',
     'lobby/port': 8001,
+    'updater/host': 'lobby.{host}',
     'mordor/host': 'http://mordor.{host}',
     'turn/host': '{host}',
     'turn/port': 3478,
