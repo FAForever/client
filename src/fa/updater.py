@@ -228,7 +228,7 @@ class Updater(QtCore.QObject, ConnectionHandler):
     """
     # Network configuration
     SOCKET  = 9001
-    HOST    = Settings.get('lobby/host')
+    HOST    = Settings.get('updater/host')
     TIMEOUT = 20  # seconds
 
     # Return codes to expect from run()
