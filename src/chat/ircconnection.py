@@ -2,7 +2,6 @@ from PyQt5.QtCore import QObject, QSocketNotifier, QTimer, pyqtSignal
 import logging
 import sys
 
-import chat
 from chat import irclib
 from chat.irclib import SimpleIRCClient, IRCError
 from model.chat.chatline import ChatLine
@@ -12,6 +11,29 @@ import re
 
 logger = logging.getLogger(__name__)
 PONG_INTERVAL = 60000  # milliseconds between pongs
+IRC_ELEVATION = '%@~%+&'
+
+
+def user2name(user):
+    return (user.split('!')[0]).strip(IRC_ELEVATION)
+
+
+def parse_irc_source(src):
+    """
+    :param src: IRC source argument
+    :return: (username, id, elevation, hostname)
+    """
+    username, tail = src.split('!')
+    if username[0] in IRC_ELEVATION:
+        elevation, username = username[0], username[1:]
+    else:
+        elevation = None
+    id, hostname = tail.split('@')
+    try:
+        id = int(id)
+    except ValueError:
+        id = -1
+    return username, id, elevation, hostname
 
 
 class ChatterInfo:
@@ -164,8 +186,8 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
         listing = e.arguments()[2].split()
 
         def userdata(data):
-            name = data.strip(chat.IRC_ELEVATION)
-            elevation = data[0] if data[0] in chat.IRC_ELEVATION else None
+            name = data.strip(IRC_ELEVATION)
+            elevation = data[0] if data[0] in IRC_ELEVATION else None
             hostname = ''
             return ChatterInfo(name, hostname, elevation)
 
@@ -176,7 +198,7 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
         self._log_event(e)
 
     def _event_to_chatter(self, e):
-        name, _id, elevation, hostname = chat.parse_irc_source(e.source())
+        name, _id, elevation, hostname = parse_irc_source(e.source())
         return ChatterInfo(name, hostname, elevation)
 
     def on_join(self, c, e):
@@ -196,7 +218,7 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
         self.chatters_quit.emit([chatter])
 
     def on_nick(self, c, e):
-        oldnick = chat.user2name(e.source())
+        oldnick = user2name(e.source())
         newnick = e.target()
 
         self.chatter_renamed(oldnick, newnick)
@@ -206,7 +228,7 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
         if len(e.arguments()) < 2:
             return
 
-        name, _, elevation, hostname = chat.parse_irc_source(e.arguments()[1])
+        name, _, elevation, hostname = parse_irc_source(e.arguments()[1])
         chatter = ChatterInfo(name, hostname, elevation)
         modes = e.arguments()[0]
         channel = ChannelID(ChannelType.PUBLIC, e.target())

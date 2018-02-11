@@ -11,8 +11,7 @@ import util
 
 import re
 import sys
-import chat
-from chat import user2name, parse_irc_source
+from chat.ircconnection import user2name, parse_irc_source, IRC_ELEVATION
 from chat.channel import Channel
 from chat.irclib import SimpleIRCClient, ServerConnectionError
 
@@ -308,8 +307,8 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         listing = e.arguments()[2].split()
 
         for user in listing:
-            name = user.strip(chat.IRC_ELEVATION)
-            elevation = user[0] if user[0] in chat.IRC_ELEVATION else None
+            name = user.strip(IRC_ELEVATION)
+            elevation = user[0] if user[0] in IRC_ELEVATION else None
             hostname = ''
             self._add_chatter(name, hostname)
             self._add_chatter_channel(self._chatters[name], elevation,
