@@ -24,4 +24,4 @@ class ChatMVC:
         self.connection = IrcConnection(self.irc_host, self.irc_port)
         self.controller = ChatController(self.connection, self.model,
                                          autojoin_channels)
-        self.view = ChatView(self.model)
+        self.view = ChatView(self.model, self.controller)

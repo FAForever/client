@@ -20,12 +20,12 @@ class ChatLineEdit(QtWidgets.QLineEdit):
         self.currentHistoryIndex = None
         self.historyShown = False
         self.completionStarted = False
-        self.chatters = {}
+        self.channel = None
         self.LocalChatterNameList = []
         self.currenLocalChatter = None
 
-    def set_chatters(self, chatters):
-        self.chatters = chatters
+    def set_channel(self, channel):
+        self.channel = channel
 
     def event(self, event):
         if event.type() == QtCore.QEvent.KeyPress:
@@ -75,9 +75,11 @@ class ChatLineEdit(QtWidgets.QLineEdit):
             self.completionLine = self.text().rstrip(self.completionText)  # store line to be completed without the completion string
             
             # make a copy of users because the list might change frequently giving all kind of problems
-            for chatter in self.chatters:
-                if chatter.name.lower().startswith(self.completionText.lower()):
-                    self.LocalChatterNameList.append(chatter.name)
+            if self.channel is not None:
+                for cc in self.channel.chatters.values():
+                    name = cc.chatter.name
+                    if name.lower().startswith(self.completionText.lower()):
+                        self.LocalChatterNameList.append(name)
             
             if len(self.LocalChatterNameList) > 0:
                 self.LocalChatterNameList.sort(key=lambda chatter: chatter.lower())

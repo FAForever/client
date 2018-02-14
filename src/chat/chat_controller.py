@@ -1,6 +1,7 @@
 from model.chat.channel import Channel, Lines
 from model.chat.chatter import Chatter
 from model.chat.channelchatter import ChannelChatter
+from enum import Enum
 
 
 class ChatController:
@@ -111,3 +112,45 @@ class ChatController:
 
     def _at_new_server_message(self, msg):
         self._model.add_server_message(msg)
+
+    # User actions start here.
+    def send_message(self, cid, message):
+        action, msg = MessageAction.parse_message(message)
+        if action == MessageAction.MSG:
+            self._connection.send_message(cid.name, msg)
+        elif action == MessageAction.PRIVMSG:
+            chatter_name, msg = msg.split(" ", 1)
+            self._connection.send_message(chatter_name, msg)
+        elif action == MessageAction.ME:
+            self._connection.send_action(cid.name, msg)
+        elif action == MessageAction.SEEN:
+            self._connection.send_action("nickserv", "info {}".format(msg))
+        elif action == MessageAction.TOPIC:
+            self._connection.set_topic(cid.name, msg)
+        elif action == MessageAction.JOIN:
+            self._connection.join(msg)
+        else:
+            pass    # TODO - raise 'Sending failed' error back to the view?
+
+
+class MessageAction(Enum):
+    MSG = "message"
+    UNKNOWN = "unknown"
+    PRIVMSG = "/msg "
+    ME = "/me "
+    SEEN = "/seen "
+    TOPIC = "/topic "
+    JOIN = "/join "
+
+    @classmethod
+    def parse_message(cls, msg):
+        if not msg.startswith("/"):
+            return cls.MSG, msg
+
+        for cmd in cls:
+            if cmd in [cls.MSG, cls.UNKNOWN]:
+                continue
+            if msg.startswith(cmd.value):
+                return cmd, msg[len(cmd.value):]
+
+        return cls.UNKNOWN, msg
