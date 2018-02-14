@@ -20,6 +20,10 @@ class ChannelID:
     def __hash__(self):
         return hash((self.name, self.type))
 
+    @classmethod
+    def private_cid(cls, name):
+        return cls(ChannelType.PRIVATE, name)
+
 
 class Lines(QObject):
     added = pyqtSignal(int)

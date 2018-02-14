@@ -1,5 +1,6 @@
-from model.chat.channel import Channel, Lines
+from model.chat.channel import Channel, Lines, ChannelID
 from model.chat.chatter import Chatter
+from model.chat.chatline import ChatLine
 from model.chat.channelchatter import ChannelChatter
 from enum import Enum
 
@@ -117,12 +118,16 @@ class ChatController:
     def send_message(self, cid, message):
         action, msg = MessageAction.parse_message(message)
         if action == MessageAction.MSG:
-            self._connection.send_message(cid.name, msg)
+            if self._connection.send_message(cid.name, msg):
+                self._at_new_line(self._user_chat_line(msg), cid)
         elif action == MessageAction.PRIVMSG:
             chatter_name, msg = msg.split(" ", 1)
-            self._connection.send_message(chatter_name, msg)
+            if self._connection.send_message(chatter_name, msg):
+                cid = ChannelID.private_cid(chatter_name)
+                self._at_new_line(self._user_chat_line(msg), cid)
         elif action == MessageAction.ME:
-            self._connection.send_action(cid.name, msg)
+            if self._connection.send_action(cid.name, msg):
+                self._at_new_line(self._user_chat_line(msg), cid)
         elif action == MessageAction.SEEN:
             self._connection.send_action("nickserv", "info {}".format(msg))
         elif action == MessageAction.TOPIC:
@@ -131,6 +136,9 @@ class ChatController:
             self._connection.join(msg)
         else:
             pass    # TODO - raise 'Sending failed' error back to the view?
+
+    def _user_chat_line(self, msg):
+        return ChatLine(self._connection.nickname, msg)
 
 
 class MessageAction(Enum):

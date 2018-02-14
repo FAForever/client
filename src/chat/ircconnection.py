@@ -146,6 +146,10 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
     def join(self, channel):
         self.connection.join(channel)
 
+    @property
+    def nickname(self):
+        return self._nick
+
     def _log_event(self, e):
         text = '\n'.join(e.arguments())
         self.new_server_message.emit("[{}: {}->{}] {}".format(e.eventtype(),
