@@ -6,7 +6,7 @@ class ChannelView:
     def __init__(self, channel, controller):
         self._channel = channel
         self._controller = controller
-        self.widget = ChannelWidget()
+        self.widget = ChannelWidget(channel.id_key)
         self.widget.set_chatter_delegate(ChatterItemDelegate())
         self.widget.set_chatter_model(ChatterModel(channel))
         self.widget.line_typed.connect(self._at_line_typed)

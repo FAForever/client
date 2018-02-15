@@ -1,4 +1,4 @@
-from model.chat.channel import Channel, Lines, ChannelID
+from model.chat.channel import Channel, Lines, ChannelID, ChannelType
 from model.chat.chatter import Chatter
 from model.chat.chatline import ChatLine
 from model.chat.channelchatter import ChannelChatter
@@ -80,7 +80,7 @@ class ChatController:
             del self._chatters[c.name]
 
     def _at_quit_channel(self, cid):
-        del self._channels[cid]
+        self._delete_channel_ignoring_connection(cid)
 
     def _at_chatter_renamed(self, old, new):
         if old not in self._chatters:
@@ -139,6 +139,18 @@ class ChatController:
 
     def _user_chat_line(self, msg):
         return ChatLine(self._connection.nickname, msg)
+
+    def leave_channel(self, cid, reason):
+        if cid.type == ChannelType.PRIVATE:
+            self._delete_channel_ignoring_connection(cid)
+        else:
+            if not self._connection.part(cid.name, reason):
+                # We're disconnected from IRC - allow user to close tabs anyway
+                self._delete_channel_ignoring_connection(cid)
+
+    def _delete_channel_ignoring_connection(self, cid):
+        if cid in self._channels:
+            del self._channels[cid]
 
 
 class MessageAction(Enum):

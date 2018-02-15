@@ -60,7 +60,7 @@ class IrcSignals(QObject):
     new_channel_chatters = pyqtSignal(object, list)
     channel_chatters_left = pyqtSignal(object, list)
     chatters_quit = pyqtSignal(list)
-    quit_channel = pyqtSignal(str)
+    quit_channel = pyqtSignal(object)
     chatter_renamed = pyqtSignal(str, str)
     new_chatter_elevation = pyqtSignal(object, object, str, str)
     new_channel_topic = pyqtSignal(object, str)
@@ -145,6 +145,10 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
     @_only_if_connected
     def join(self, channel):
         self.connection.join(channel)
+
+    @_only_if_connected
+    def part(self, channel, reason=""):
+        self.connection.part([channel], reason)
 
     @property
     def nickname(self):

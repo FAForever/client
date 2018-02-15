@@ -11,6 +11,7 @@ class ChatView:
         self._chat.channels.added.connect(self._add_channel)
         self._chat.channels.removed.connect(self._remove_channel)
         self._chat.new_server_message.connect(self._new_server_message)
+        self.widget.channel_quit_request.connect(self._at_channel_quit_request)
         self._add_channels()
 
     def _add_channels(self):
@@ -25,7 +26,7 @@ class ChatView:
         self.widget.add_channel(view.widget, channel.id_key.name)
 
     def _remove_channel(self, channel):
-        if channel.id_key in self._channels:
+        if channel.id_key not in self._channels:
             return
         view = self._channels[channel.id_key]
         self.widget.remove_channel(view.widget)
@@ -33,3 +34,6 @@ class ChatView:
 
     def _new_server_message(self, msg):
         self.widget.write_server_message(msg)
+
+    def _at_channel_quit_request(self, cid):
+        self._controller.leave_channel(cid, "tab closed")

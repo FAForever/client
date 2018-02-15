@@ -1,13 +1,17 @@
+from PyQt5.QtCore import pyqtSignal
 import util
 
 FormClass, BaseClass = util.THEME.loadUiType("chat/chat.ui")
 
 
 class ChatWidget(FormClass, BaseClass):
+    channel_quit_request = pyqtSignal(object)
+
     def __init__(self):
         BaseClass.__init__(self)
         self.setupUi(self)
         self._channels = set()
+        self.tabCloseRequested.connect(self._at_tab_close_request)
 
     def add_channel(self, channel, name, index=None):
         if channel in self._channels:
@@ -26,3 +30,6 @@ class ChatWidget(FormClass, BaseClass):
 
     def write_server_message(self, msg):
         self.serverLogArea.appendPlainText(msg)
+
+    def _at_tab_close_request(self, idx):
+        self.channel_quit_request.emit(self.widget(idx).cid)

@@ -10,10 +10,11 @@ FormClass, BaseClass = util.THEME.loadUiType("chat/channel.ui")
 class ChannelWidget(FormClass, BaseClass):
     line_typed = pyqtSignal(str)
 
-    def __init__(self):
+    def __init__(self, cid):
         BaseClass.__init__(self)
         self.setupUi(self)
         self.chatEdit.returnPressed.connect(self._at_line_typed)
+        self.cid = cid
 
     def set_chatter_model(self, model):
         self.nickList.setModel(model)
