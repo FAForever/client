@@ -32,7 +32,7 @@ def parse_irc_source(src):
     if username[0] in IRC_ELEVATION:
         elevation, username = username[0], username[1:]
     else:
-        elevation = None
+        elevation = ""
 
     if tail is not None:
         id, hostname = tail.split('@')
@@ -208,7 +208,7 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
 
         def userdata(data):
             name = data.strip(IRC_ELEVATION)
-            elevation = data[0] if data[0] in IRC_ELEVATION else None
+            elevation = data[0] if data[0] in IRC_ELEVATION else ""
             hostname = ''
             return ChatterInfo(name, hostname, elevation)
 
