@@ -77,7 +77,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self.tabCloseRequested.connect(self.close_channel)
 
         # Hook with client's connection and autojoin mechanisms
-        self.client.authorized.connect(self.connect)
+        self.client.authorized.connect(self.connect_)
         self.client.autoJoin.connect(self.auto_join)
         self.channelsAvailable = []
 
@@ -99,15 +99,15 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             self._notifier = None
 
     @QtCore.pyqtSlot(object)
-    def connect(self, me):
+    def connect_(self, player):
         try:
             logger.info("Connecting to IRC at: {}:{}. TLS: {}".format(self.irc_host, self.irc_port, self.irc_tls))
             self.irc_connect(self.irc_host,
                              self.irc_port,
-                             me.login,
+                             player.login,
                              ssl=self.irc_tls,
-                             ircname=me.login,
-                             username=me.id)
+                             ircname=player.login,
+                             username=player.id)
             self._notifier = QSocketNotifier(self.ircobj.connections[0]._get_socket().fileno(), QSocketNotifier.Read, self)
             self._notifier.activated.connect(self.once)
             self._timer.start(PONG_INTERVAL)
@@ -508,7 +508,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
             self.serverLogArea.appendPlainText("IRC disconnected - reconnecting.")
             self.identified = False
             self._timer.stop()
-            self.connect(self.client.me)
+            self.connect_(self.client.me.player)
 
     def on_privmsg(self, c, e):
         name, id, elevation, hostname = parse_irc_source(e.source())

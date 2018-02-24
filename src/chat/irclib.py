@@ -882,7 +882,7 @@ class DCCConnection(Connection):
         self.peeraddress = None
         self.peerport = None
 
-    def connect(self, address, port):
+    def connect_to_chat(self, address, port):
         """Connect/reconnect to a DCC peer.
 
         Arguments:

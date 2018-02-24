@@ -20,7 +20,7 @@ class JsonRpcTcpClient(QObject):
         self.callbacks_error = {}
         self.buffer = b''
 
-    def connect(self, host, port):
+    def connect_(self, host, port):
         self.host = host
         self.port = port
         self.socket.connectToHost(host, port)
