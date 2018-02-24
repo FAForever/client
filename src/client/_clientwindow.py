@@ -599,7 +599,7 @@ class ClientWindow(FormClass, BaseClass):
         self.authorized.connect(self._connect_chat)
 
         self.logo = StatusLogo(self, self._chatMVC.model)
-        self.logo.disconnect_requested.connect(self.disconnect)
+        self.logo.disconnect_requested.connect(self.disconnect_)
         self.logo.reconnect_requested.connect(self.reconnect)
         self.logo.chat_reconnect_requested.connect(self.chat_reconnect)
         self.logo.about_dialog_requested.connect(self.linkAbout)
@@ -712,11 +712,11 @@ class ClientWindow(FormClass, BaseClass):
         self.lobby_reconnector.enabled = True
         self.lobby_connection.do_connect()
 
-    def disconnect(self):
+    def disconnect_(self):
         # Used when the user explicitly demanded to stay offline.
         self.lobby_reconnector.enabled = False
-        self.lobby_connection.disconnect()
-        self._chatMVC.connection.disconnect()
+        self.lobby_connection.disconnect_()
+        self._chatMVC.connection.disconnect_()
 
     def chat_reconnect(self):
         self._connect_chat(self.me)
@@ -747,7 +747,7 @@ class ClientWindow(FormClass, BaseClass):
         self.lobby_reconnector.enabled = False
         if self.lobby_connection.socket_connected():
             progress.setLabelText("Closing main connection.")
-            self.lobby_connection.disconnect()
+            self.lobby_connection.disconnect_()
 
         # Close connectivity dialog
         if self.connectivity_dialog is not None:
@@ -767,7 +767,7 @@ class ClientWindow(FormClass, BaseClass):
         # Clean up Chat
         if self._chatMVC:
             progress.setLabelText("Disconnecting from IRC")
-            self._chatMVC.connection.disconnect()
+            self._chatMVC.connection.disconnect_()
             self._chatMVC = None
 
         # Get rid of the Tray icon
@@ -1059,7 +1059,7 @@ class ClientWindow(FormClass, BaseClass):
         self.show_login_widget()
 
     def on_widget_no_login(self):
-        self.disconnect()
+        self.disconnect_()
 
     def on_login_widget_quit(self):
         QtWidgets.QApplication.quit()

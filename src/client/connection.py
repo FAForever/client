@@ -127,7 +127,7 @@ class ServerReconnecter(QtCore.QObject):
             # Force disconnect
             # Note that it will force disconnect and reconnect if we
             # reconnected on our own since last ping!
-            self._connection.disconnect()
+            self._connection.disconnect_()
 
         else:
             self._waiting_for_pong = True
@@ -205,7 +205,7 @@ class ServerConnection(QtCore.QObject):
     def socket_connected(self):
         return self.socket.state() == QtNetwork.QTcpSocket.ConnectedState
 
-    def disconnect(self):
+    def disconnect_(self):
         self.socket.disconnectFromHost()
 
     def set_upnp(self, port):
