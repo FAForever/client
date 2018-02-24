@@ -88,7 +88,7 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         # disconnection checks
         self.canDisconnect = False
 
-    def disconnect(self):
+    def disconnect_(self):
         self.canDisconnect = True
         try:
             self.irc_disconnect()
