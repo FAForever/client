@@ -116,7 +116,7 @@ class JsonRpcTcpClient(QObject):
                         complete_json_buf = buf[:i+1]
                         remaining_buf = buf[i+1:]
                         try:
-                            request = json.loads(complete_json_buf)
+                            request = json.loads(complete_json_buf.decode('utf-8'))
                         except ValueError:
                             self._logger.error("json.loads failed for {}".format(complete_json_buf))
                             return b''
