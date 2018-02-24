@@ -61,7 +61,7 @@ class GameSession(QObject):
                                                      player_login=self.player_login)
         self.ice_adapter_client = IceAdapterClient(game_session=self)
         self.ice_adapter_client.statusChanged.connect(self.onIceAdapterStarted)
-        self.ice_adapter_client.connect("127.0.0.1", self.ice_adapter_process.rpc_port())
+        self.ice_adapter_client.connect_("127.0.0.1", self.ice_adapter_process.rpc_port())
 
         self.ice_servers_poller = None
 

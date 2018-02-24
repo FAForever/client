@@ -810,7 +810,7 @@ class ClientWindow(FormClass, BaseClass):
     def _connect_chat(self, me):
         if not self.use_chat:
             return
-        self._chatMVC.connection.connect(me.login, me.id, self.password)
+        self._chatMVC.connection.connect_(me.login, me.id, self.password)
 
     def warningHide(self):
         """

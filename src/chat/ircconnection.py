@@ -103,7 +103,7 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
             self._notifier.activated.disconnect(self.once)
             self._notifier = None
 
-    def connect(self, nick, username, password):
+    def connect_(self, nick, username, password):
         logger.info("Connecting to IRC at: {}:{}. TLS: {}".format(
             self.host, self.port, self.ssl))
 
