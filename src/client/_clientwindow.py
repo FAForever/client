@@ -819,7 +819,7 @@ class ClientWindow(FormClass, BaseClass):
             # FIXME: we didn't authorize with the server for some reason.
             # We'll do this check in a more organized fashion in the future.
             return
-        self._chatMVC.connection.connect(me.login, me.id, self.password)
+        self._chatMVC.connection.connect_(me.login, me.id, self.password)
 
     def warningHide(self):
         """
