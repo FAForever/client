@@ -22,7 +22,7 @@ class ReplaysConnection(QtCore.QObject):
         self.replayVaultSocket.error.connect(self._handleServerError)
         self.replayVaultSocket.disconnected.connect(self._disconnected)
 
-    def connect(self):
+    def connect_(self):
         """ connect to the replay vault server """
         state = self.replayVaultSocket.state()
         states = QtNetwork.QAbstractSocket

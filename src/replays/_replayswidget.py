@@ -640,7 +640,7 @@ class ReplayVaultWidgetHandler(object):
         """ search for some replays """
         self._w.searchInfoLabel.setText(self.searchInfo)
         self.searching = True
-        self.vault_connection.connect()
+        self.vault_connection.connect_()
         self.vault_connection.send(dict(command="search",
                                         rating=w.minRating.value(),
                                         map=map_name,
@@ -652,7 +652,7 @@ class ReplayVaultWidgetHandler(object):
         if not self.searching:  # something else is already in the pipe from SearchVault
             if self.automatic or self.onlineReplays == {}:  # refresh on Tab change or only the first time
                 self._w.searchInfoLabel.setText(self.searchInfo)
-                self.vault_connection.connect()
+                self.vault_connection.connect_()
                 self.vault_connection.send(dict(command="list"))
 
     def onlineTreeClicked(self, item):
@@ -663,7 +663,7 @@ class ReplayVaultWidgetHandler(object):
             self.selectedReplay = item
             if hasattr(item, "moreInfo"):
                 if item.moreInfo is False:
-                    self.vault_connection.connect()
+                    self.vault_connection.connect_()
                     self.vault_connection.send(dict(command="info_replay", uid=item.uid))
                 elif item.spoiled != self._w.spoilerCheckbox.isChecked():
                     self._w.replayInfos.clear()
@@ -723,7 +723,7 @@ class ReplayVaultWidgetHandler(object):
 
     def resetRefreshPressed(self):  # reset search parameter and reload recent Replays List
         self._w.searchInfoLabel.setText(self.searchInfo)
-        self.vault_connection.connect()
+        self.vault_connection.connect_()
         self.vault_connection.send(dict(command="list"))
         self._w.minRating.setValue(0)
         self._w.mapName.setText("")
