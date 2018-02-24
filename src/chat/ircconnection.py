@@ -97,7 +97,7 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
         host = settings.get('chat/host', 'irc.' + config.defaults['host'], str)
         return cls(host, port, ssl)
 
-    def disconnect(self):
+    def disconnect_(self):
         self.irc_disconnect()
         if self._notifier is not None:
             self._notifier.activated.disconnect(self.once)
