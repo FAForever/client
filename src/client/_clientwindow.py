@@ -1066,7 +1066,7 @@ class ClientWindow(FormClass, BaseClass):
 
     def send_login(self, login, password):
         # Send login data once we have the creds.
-        self._auto_relogin = False  # Fresh credentials
+        self._autorelogin = False # Fresh credentials
         if config.is_beta():  # Replace for develop here to not clobber the real pass
             password = util.password_hash("foo")
         self.unique_id = util.uniqueID(self.login, self.session)
