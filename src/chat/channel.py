@@ -249,7 +249,7 @@ class Channel(FormClass, BaseClass):
         if player.clan is not None:
             displayName = "<b>[%s]</b>%s" % (player.clan, chname)
 
-        sender_is_not_me = chatter.name != self._me.login
+        sender_is_not_me = chatter is None or chatter.name != self._me.login
 
         # Play a ping sound and flash the title under certain circumstances
         mentioned = text.find(self.chat_widget.client.login) != -1
