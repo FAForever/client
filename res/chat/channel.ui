@@ -45,8 +45,8 @@
      </property>
      <widget class="QFrame" name="chatFrame">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-        <horstretch>0</horstretch>
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+        <horstretch>5</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
@@ -104,6 +104,12 @@
        </item>
        <item>
         <widget class="QTextBrowser" name="chatArea">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="font">
           <font>
            <family>Segoe UI</family>
@@ -170,9 +176,18 @@ p, li { white-space: pre-wrap; }
       </layout>
      </widget>
      <widget class="QFrame" name="nickFrame">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+        <horstretch>1</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="maximumSize">
        <size>
-        <width>300</width>
+        <width>16777215</width>
         <height>16777215</height>
        </size>
       </property>
@@ -221,9 +236,9 @@ p, li { white-space: pre-wrap; }
         </widget>
        </item>
        <item row="1" column="0">
-        <widget class="QListView" name="nickList">
+        <widget class="ChatterListView" name="nickList">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -275,6 +290,9 @@ p, li { white-space: pre-wrap; }
          <property name="horizontalScrollMode">
           <enum>QAbstractItemView::ScrollPerItem</enum>
          </property>
+         <property name="uniformItemSizes">
+          <bool>true</bool>
+         </property>
         </widget>
        </item>
       </layout>
@@ -288,6 +306,11 @@ p, li { white-space: pre-wrap; }
    <class>ChatLineEdit</class>
    <extends>QLineEdit</extends>
    <header location="global">chat.chatlineedit</header>
+  </customwidget>
+  <customwidget>
+   <class>ChatterListView</class>
+   <extends>QListView</extends>
+   <header location="global">chat.chatterlistview</header>
   </customwidget>
  </customwidgets>
  <tabstops>
