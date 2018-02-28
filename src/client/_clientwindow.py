@@ -15,7 +15,8 @@ from client.theme_menu import ThemeMenu
 from client.updater import UpdateChecker, UpdateDialog
 from client.update_settings import UpdateSettingsDialog
 from client.user import User
-from downloadManager import PreviewDownloader, MAP_PREVIEW_ROOT
+from downloadManager import PreviewDownloader, AvatarDownloader, \
+        MAP_PREVIEW_ROOT
 import fa
 from fa.factions import Factions
 from fa.maps import getUserMapsFolder
@@ -162,6 +163,7 @@ class ClientWindow(FormClass, BaseClass):
 
         self.map_downloader = PreviewDownloader(util.MAP_PREVIEW_DIR, MAP_PREVIEW_ROOT)
         self.mod_downloader = PreviewDownloader(util.MOD_PREVIEW_DIR, None)
+        self.avatar_downloader = AvatarDownloader()
 
         # Qt model for displaying active games.
         self.game_model = GameModel(self.me, self.map_downloader, self.gameset)
@@ -529,7 +531,8 @@ class ClientWindow(FormClass, BaseClass):
                                             self, self.gameview_builder,
                                             self.map_downloader)
 
-        self._chatMVC = ChatMVC(self.players, ['#aeolus'], self.map_downloader)
+        self._chatMVC = ChatMVC(self.players, ['#aeolus'], self.map_downloader,
+                                self.avatar_downloader)
         self.authorized.connect(self._connect_chat)
 
         # build main window with the now active client

@@ -295,8 +295,8 @@ class DownloadTimeouts:
 
 
 class AvatarDownloader:
-    def __init__(self, nam):
-        self._nam = nam
+    def __init__(self):
+        self._nam = QNetworkAccessManager()
         self._requests = {}
         self.avatars = {}
         self._nam.finished.connect(self._avatar_download_finished)
@@ -308,7 +308,7 @@ class AvatarDownloader:
         should_download = url not in self._requests
         self._requests.setdefault(url, set()).add(req)
         if should_download:
-            self._nam.get(QNetworkRequest(QUrl(url))
+            self._nam.get(QNetworkRequest(QUrl(url)))
 
     def _avatar_download_finished(self, reply):
         img = QtGui.QImage()
@@ -319,4 +319,4 @@ class AvatarDownloader:
 
         reqs = self._requests.pop(url, [])
         for req in reqs:
-            req.done(url, self.avatars[url])
+            req.finished(url, self.avatars[url])

@@ -15,7 +15,7 @@ class ChatterModelItem(QObject):
     """
     updated = pyqtSignal(object)
 
-    def __init__(self, cc, preview_dler):
+    def __init__(self, cc, preview_dler, avatar_dler):
         QObject.__init__(self)
 
         self._player = None
@@ -25,11 +25,13 @@ class ChatterModelItem(QObject):
         self.chatter.newPlayer.connect(self._set_player)
 
         self._preview_dler = preview_dler
+        self._avatar_dler = avatar_dler
         self._map_request = DownloadRequest()
         self._map_request.done.connect(self._updated)
+        self._avatar_request = DownloadRequest()
+        self._avatar_request.done.connect(self._updated)
 
         self.player = self.chatter.player
-
 
     def _updated(self):
         self.updated.emit(self)
@@ -83,7 +85,6 @@ class ChatterModelItem(QObject):
 
         if self._game is not None:
             self._game.updated.connect(self._at_game_updated)
-            # TODO - request download
             self._game.liveReplayAvailable.connect(self._updated)
             self._download_map_preview_if_needed()
 
@@ -133,8 +134,9 @@ class ChatterModelItem(QObject):
         avatar_url = self._avatar_url()
         if avatar_url is None:
             return
-        if not util.respix(avatar_url):
-            pass
+        if avatar_url in self._avatar_dler.avatars:
+            return
+        self._avatar_dler.download_avatar(avatar_url, self._avatar_request)
 
     def _avatar_url(self):
         try:
@@ -147,7 +149,9 @@ class ChatterModelItem(QObject):
         avatar_url = self._avatar_url()
         if avatar_url is None:
             return None
-        return util.respix(avatar_url)
+        if avatar_url not in self._avatar_dler.avatars:
+            return
+        return QtGui.QIcon(self._avatar_dler.avatars[avatar_url])
 
     def chatter_country(self):
         if self.player is None:
@@ -159,12 +163,13 @@ class ChatterModelItem(QObject):
 
 
 class ChatterModel(QAbstractListModel):
-    def __init__(self, channel, map_preview_dler):
+    def __init__(self, channel, map_preview_dler, avatar_dler):
         QAbstractListModel.__init__(self)
         self._channel = channel
         self._itemlist = []
         self._items = {}
         self._map_preview_dler = map_preview_dler
+        self._avatar_dler = avatar_dler
 
         if self._channel is not None:
             self._channel.added_chatter.connect(self.add_chatter)
@@ -191,7 +196,8 @@ class ChatterModel(QAbstractListModel):
         next_index = len(self._itemlist)
         self.beginInsertRows(QModelIndex(), next_index, next_index)
 
-        item = ChatterModelItem(chatter, self._map_preview_dler)
+        item = ChatterModelItem(chatter, self._map_preview_dler,
+                               self._avatar_dler)
         item.updated.connect(self._at_item_updated)
 
         self._items[chatter.id_key] = item
