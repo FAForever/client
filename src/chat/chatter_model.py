@@ -75,6 +75,48 @@ class ChatterModelItem(QObject):
             # TODO - request download
             self._game.liveReplayAvailable.connect(self._updated)
 
+    def chatter_status(self):
+        game = self.game
+        if game is None or game.closed():
+            return "none"
+        if game.state == GameState.OPEN:
+            if game.host == self.chatter.name:
+                return "host"
+            return "lobby"
+        if game.state == GameState.PLAYING:
+            if game.has_live_replay:
+                return "playing"
+            return "playing5"
+        return "unknown"
+
+    def map_icon(self):
+        game = self.game
+        if game is None or game.closed():
+            return None
+        # TODO - handle info hiding
+        return maps.preview(game.mapname)
+
+    def chatter_rank(self):
+        try:
+            return self.player.league["league"]
+        except (TypeError, AttributeError, KeyError):
+            return "civilian"
+
+    def chatter_avatar_icon(self):
+        try:
+            avatar_url = self.player.avatar["url"]
+        except (TypeError, AttributeError, KeyError):
+            return None
+        return util.respix(avatar_url)
+
+    def chatter_country(self):
+        if self.player is None:
+            return '__'
+        country = self.player.country
+        if country is None or country == '':
+            return '__'
+        return country
+
 
 class ChatterModel(QAbstractListModel):
     def __init__(self, channel):
@@ -154,14 +196,13 @@ class ChatterItemDelegate(QtWidgets.QStyledItemDelegate):
         painter.save()
 
         data = index.data()
-        text = self._get_text(data)
 
         self._draw_clear_option(painter, option)
         self._handle_highlight(painter, option)
 
         painter.translate(option.rect.left(), option.rect.top())
 
-        self._draw_nick(painter, text)
+        self._draw_nick(painter, data)
         self._draw_status(painter, data)
         self._draw_map(painter, data)
         self._draw_rank(painter, data)
@@ -169,9 +210,6 @@ class ChatterItemDelegate(QtWidgets.QStyledItemDelegate):
         self._draw_country(painter, data)
 
         painter.restore()
-
-    def _get_text(self, data):
-        return data.cc.chatter.name
 
     def _draw_clear_option(self, painter, option):
         option.icon = QtGui.QIcon()
@@ -183,7 +221,8 @@ class ChatterItemDelegate(QtWidgets.QStyledItemDelegate):
         if option.state & QtWidgets.QStyle.State_Selected:
             painter.fillRect(option.rect, option.palette.highlight)
 
-    def _draw_nick(self, painter, text):
+    def _draw_nick(self, painter, data):
+        text = data.chatter.name
         clip = QRectF(self.layout.sizes[ChatterLayoutElements.NICK])
         top_left = clip.topLeft()
         clip.moveTopLeft(QPoint(0, 0))
@@ -195,63 +234,31 @@ class ChatterItemDelegate(QtWidgets.QStyledItemDelegate):
         painter.translate(top_left * -1)
 
     def _draw_status(self, painter, data):
-        game = data.game
-        if game is None or game.closed():
-            status = "none"
-        elif game.state == GameState.OPEN:
-            if game.host == data.chatter.name:
-                status = "host"
-            else:
-                status = "lobby"
-        elif game.state == GameState.PLAYING:
-            if game.has_live_replay:
-                status = "playing"
-            else:
-                status = "playing5"
-        else:
-            status = "unknown"
-
+        status = data.chatter_status()
         icon = util.THEME.icon("chat/status/{}.png".format(status))
         self._draw_icon(painter, icon, ChatterLayoutElements.STATUS)
 
     # TODO - handle optionality of maps
     def _draw_map(self, painter, data):
-        game = data.game
-        if game is None or game.closed():
-            return
-        # TODO - handle info hiding
-        icon = maps.preview(game.mapname)
+        icon = data.map_icon()
         if not icon:
             return
         self._draw_icon(painter, icon, ChatterLayoutElements.MAP)
 
     def _draw_rank(self, painter, data):
-        if data.player is None or data.player.league is None:
-            icon = util.THEME.icon("chat/rank/civilian.png")
-        else:
-            league = data.player.league
-            icon = util.THEME.icon("chat/rank/{}.png".format(league["league"]))
+        rank = data.chatter_rank()
+        icon = util.THEME.icon("chat/rank/{}.png".format(rank))
         self._draw_icon(painter, icon, ChatterLayoutElements.RANK)
 
     # TODO - download avatar when missing
     def _draw_avatar(self, painter, data):
-        if data.player is None or data.player.avatar is None:
-            return
-
-        avatar = data.player.avatar
-        avatar_url = parse.unquote(avatar["url"])
-        icon = util.respix(avatar_url)
+        icon = data.chatter_avatar_icon()
         if not icon:
             return
-        icon = util.THEME.icon("chat/status/playing.png")
         self._draw_icon(painter, icon, ChatterLayoutElements.AVATAR)
 
     def _draw_country(self, painter, data):
-        if data.player is None:
-            return
-        country = data.player.country
-        if country is None or country == '':
-            country = '__'
+        country = data.chatter_country()
         icon = util.THEME.icon("chat/countries/{}.png".format(country.lower()))
         self._draw_icon(painter, icon, ChatterLayoutElements.COUNTRY)
 
