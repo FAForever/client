@@ -161,6 +161,92 @@ class ChatterModelItem(QObject):
             return '__'
         return country
 
+    def tooltip(self, item):
+        if item == ChatterLayoutElements.RANK:
+            return self._rank_tooltip()
+        elif item == ChatterLayoutElements.STATUS:
+            return self._status_tooltip()
+        elif item == ChatterLayoutElements.AVATAR:
+            return self._avatar_tooltip()
+        elif item == ChatterLayoutElements.MAP:
+            return self._map_tooltip()
+        elif item == ChatterLayoutElements.COUNTRY:
+            return self._country_tooltip()
+        elif item == ChatterLayoutElements.NICK:
+            return self._nick_tooltip()
+
+    def _rank_tooltip(self):
+        if self.player is None:
+            return "IRC User"
+        player = self.player
+        # chr(0xB1) = +-
+        formatting = ("Global Rating: {} ({} Games) [{}\xb1{}]\n"
+                      "Ladder Rating: {} [{}\xb1{}]")
+        tooltip_str = formatting.format((int(player.rating_estimate())),
+                                        player.number_of_games,
+                                        int(player.rating_mean),
+                                        int(player.rating_deviation),
+                                        int(player.ladder_estimate()),
+                                        int(player.ladder_rating_mean),
+                                        int(player.ladder_rating_deviation))
+        league = player.league
+        if league is not None and "division" in league:
+            tooltip_str = "Division : {}\n{}".format(league["division"],
+                                                     tooltip_str)
+        return tooltip_str
+
+    def _status_tooltip(self):
+        # Status tooltip handling
+        game = self.game
+        if game is None or game.closed():
+            return "Idle"
+
+        private_str = " (private)" if game.password_protected else ""
+        if game.state == GameState.PLAYING and not game.has_live_replay:
+            delay_str = " - LIVE DELAY (5 Min)"
+        else:
+            delay_str = ""
+
+        head_str = ""
+        if game.state == GameState.OPEN:
+            if game.host == self.player.login:
+                head_str = "Hosting{private} game</b>"
+            else:
+                head_str = "In{private} Lobby</b> (host {host})"
+        elif game.state == GameState.PLAYING:
+            head_str = "Playing</b>{delay}"
+        header = head_str.format(private=private_str, delay=delay_str,
+                                 host=game.host)
+
+        formatting = ("<b>{}<br/>"
+                      "title: {}<br/>"
+                      "mod: {}<br/>"
+                      "map: {}<br/>"
+                      "players: {} / {}<br/>"
+                      "id: {}")
+
+        game_str = formatting.format(header, game.title, game.featured_mod,
+                                     game.mapdisplayname, game.num_players,
+                                     game.max_players, game.uid)
+        return game_str
+
+    def _avatar_tooltip(self):
+        try:
+            return self.player.avatar["tooltip"]
+        except (TypeError, AttributeError, KeyError):
+            return None
+
+    def _map_tooltip(self):
+        if self.game is None:
+            return None
+        return self.game.mapdisplayname
+
+    def _country_tooltip(self):
+        return self.chatter_country()
+
+    def _nick_tooltip(self):
+        return self._country_tooltip()
+
 
 class ChatterModel(QAbstractListModel):
     def __init__(self, channel, map_preview_dler, avatar_dler):
@@ -232,6 +318,7 @@ class ChatterItemDelegate(QtWidgets.QStyledItemDelegate):
     def __init__(self, layout):
         QtWidgets.QStyledItemDelegate.__init__(self)
         self.layout = layout
+        self.tooltip = ChatterTooltipFilter(self)
 
     def update_width(self, size):
         current_size = self.layout.size
@@ -297,7 +384,6 @@ class ChatterItemDelegate(QtWidgets.QStyledItemDelegate):
         icon = util.THEME.icon("chat/rank/{}.png".format(rank))
         self._draw_icon(painter, icon, ChatterLayoutElements.RANK)
 
-    # TODO - download avatar when missing
     def _draw_avatar(self, painter, data):
         icon = data.chatter_avatar_icon()
         if not icon:
@@ -315,6 +401,13 @@ class ChatterItemDelegate(QtWidgets.QStyledItemDelegate):
 
     def sizeHint(self, option, index):
         return self.layout.size
+
+    def get_tooltip(self, index, pos):
+        data = index.data()
+        for elem in ChatterLayoutElements:
+            if self.layout.sizes[elem].contains(pos):
+                return data.tooltip(elem)
+        return None
 
 
 class ChatterLayoutElements(Enum):
@@ -380,3 +473,30 @@ class ChatterLayout(QObject):
 def build_delegate(size):
     layout = ChatterLayout(util.THEME, "chat/chatter.ui", size)
     return ChatterItemDelegate(layout)
+
+
+class ChatterTooltipFilter(QObject):
+    def __init__(self, handler):
+        QObject.__init__(self)
+        self._handler = handler
+
+    def eventFilter(self, obj, event):
+        if event.type() == QtCore.QEvent.ToolTip:
+            return self._handle_tooltip(obj, event)
+        else:
+            return super().eventFilter(obj, event)
+
+    def _handle_tooltip(self, widget, event):
+        view = widget.parent()
+        idx = view.indexAt(event.pos())
+        if not idx.isValid():
+            return False
+
+        item_rect = view.visualRect(idx)
+        point = event.pos() - item_rect.topLeft()
+        tooltip_text = self._handler.get_tooltip(idx, point)
+        if tooltip_text is None:
+            return False
+
+        QtWidgets.QToolTip.showText(event.globalPos(), tooltip_text, widget)
+        return True

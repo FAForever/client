@@ -24,6 +24,9 @@ class ChannelWidget(FormClass, BaseClass):
     def set_chatter_delegate(self, delegate):
         self.nickList.setItemDelegate(delegate)
 
+    def set_chatter_tooltips(self, tooltip_filter):
+        self.nickList.viewport().installEventFilter(tooltip_filter)
+
     def append_line(self, line):
         cursor = self.chatArea.textCursor()
         cursor.movePosition(QtGui.QTextCursor.End)

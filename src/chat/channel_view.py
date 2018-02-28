@@ -13,6 +13,7 @@ class ChannelView:
         self.widget = ChannelWidget(channel.id_key)
         self._delegate = build_delegate(QSize(150, 30))
         self.widget.set_chatter_delegate(self._delegate)
+        self.widget.set_chatter_tooltips(self._delegate.tooltip)
 
         model = ChatterModel(channel, map_preview_dler, avatar_dler)
         self.widget.set_chatter_model(model)
