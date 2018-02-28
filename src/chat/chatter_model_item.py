@@ -1,6 +1,7 @@
 from urllib import parse
 from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QMenu, QAction
 from downloadManager import DownloadRequest
 from fa import maps
 from model.game import GameState
@@ -229,3 +230,42 @@ class ChatterModelItem(QObject):
 
     def nick_tooltip(self):
         return self._country_tooltip()
+
+    def context_menu(self):
+        return ChatterContextMenu(self, self.chatter, self.player, self.game)
+
+
+class ChatterContextMenu(QMenu):
+    def __init__(self, parent, chatter, player, game):
+        QMenu.__init__(self, parent)
+        self.chatter = chatter
+        self.player = player
+        self.game = game
+        self._init_entries()
+
+    # TODO - add mod entries
+    # TODO - add entries for me
+    # TODO - friend entries
+    def _init_entries(self):
+        if self.chatter is not None:
+            self._init_chatter_entries()
+        if self.player is not None:
+            self.add_seperator()
+            self._init_player_entries()
+        if self.game is not None:
+            self.add_separator()
+            self._init_game_entries()
+
+    def _init_chatter_entries(self):
+        pass
+
+    def _init_player_entries(self):
+        pass
+
+    def _init_game_entries(self):
+        pass
+
+    def _add_menu(self, name, callback):
+        action = QAction(name, self)
+        action.triggered.connect(callback)
+        self.addAction(action)

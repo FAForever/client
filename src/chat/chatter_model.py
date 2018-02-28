@@ -76,7 +76,7 @@ class ChatterItemDelegate(QtWidgets.QStyledItemDelegate):
     def __init__(self, layout):
         QtWidgets.QStyledItemDelegate.__init__(self)
         self.layout = layout
-        self.tooltip = ChatterTooltipFilter(self)
+        self.tooltip = ChatterEventFilter(self)
 
     def update_width(self, size):
         current_size = self.layout.size
@@ -181,6 +181,10 @@ class ChatterItemDelegate(QtWidgets.QStyledItemDelegate):
         elif item == ChatterLayoutElements.NICK:
             return data.nick_tooltip()
 
+    def get_context_menu(self, index, pos):
+        data = index.data()
+        return data.context_menu()
+
 
 class ChatterLayoutElements(Enum):
     RANK = "rankBox"
@@ -247,7 +251,7 @@ def build_delegate(size):
     return ChatterItemDelegate(layout)
 
 
-class ChatterTooltipFilter(QObject):
+class ChatterEventFilter(QObject):
     def __init__(self, handler):
         QObject.__init__(self)
         self._handler = handler
@@ -255,20 +259,34 @@ class ChatterTooltipFilter(QObject):
     def eventFilter(self, obj, event):
         if event.type() == QtCore.QEvent.ToolTip:
             return self._handle_tooltip(obj, event)
-        else:
-            return super().eventFilter(obj, event)
+        elif event.type() == QtCore.QEvent.MouseButtonRelease:
+            if event.buttons() & QtCore.Qt.RightButton:
+                return self._handle_context_menu(obj, event)
+        return super().eventFilter(obj, event)
 
-    def _handle_tooltip(self, widget, event):
+    def _get_index_and_point(self, widget, event):
         view = widget.parent()
         idx = view.indexAt(event.pos())
         if not idx.isValid():
-            return False
-
+            return None, None
         item_rect = view.visualRect(idx)
         point = event.pos() - item_rect.topLeft()
+        return idx, point
+
+    def _handle_tooltip(self, widget, event):
+        idx, point = self._get_index_and_point(widget, event)
+        if idx is None:
+            return False
         tooltip_text = self._handler.get_tooltip(idx, point)
         if tooltip_text is None:
             return False
 
         QtWidgets.QToolTip.showText(event.globalPos(), tooltip_text, widget)
         return True
+
+    def _handle_context_menu(self, widget, event):
+        idx, point = self._get_index_and_point(widget, event)
+        if idx is None:
+            return False
+
+        self._handler.get_context_menu(idx, point)
