@@ -1,5 +1,6 @@
 from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
 from PyQt5 import QtWidgets, QtCore
+from PyQt5.QtCore import QObject, pyqtSignal
 import urllib.request, urllib.error, urllib.parse
 import logging
 import os
@@ -10,12 +11,16 @@ from config import Settings
 logger = logging.getLogger(__name__)
 
 
-class FileDownload(object):
+class FileDownload(QObject):
     """
     A simple async one-shot file downloader.
     """
-    def __init__(self, nam, addr, dest, destpath=None,
-                 start=lambda _: None, progress=lambda _: None, finished=lambda _: None):
+    start = pyqtSignal(object)
+    progress = pyqtSignal(object)
+    finished = pyqtSignal(object)
+
+    def __init__(self, nam, addr, dest, destpath=None):
+        QObject.__init__(self)
         self._nam = nam
         self.addr = addr
         self.dest = dest
@@ -29,10 +34,6 @@ class FileDownload(object):
         self.bytes_progress = 0
 
         self._dfile = None
-
-        self.cb_start = start
-        self.cb_progress = progress
-        self.cb_finished = finished
 
         self._reading = False
         self._running = False
@@ -58,7 +59,7 @@ class FileDownload(object):
         if statusCode != 200:
             logger.warning('Download failed: %s -> %s', self.addr, statusCode)
             self.error = True
-        self.cb_finished(self)
+        self.finished.emit(self)
 
     def run(self):
         self._running = True
@@ -67,7 +68,7 @@ class FileDownload(object):
         req.setAttribute(QNetworkRequest.FollowRedirectsAttribute, True)
         req.setMaximumRedirectsAllowed(3)
 
-        self.cb_start(self)
+        self.start.emit(self)
 
         self._dfile = self._nam.get(req)
         self._dfile.error.connect(self._error)
@@ -102,7 +103,7 @@ class FileDownload(object):
     def _readloop(self):
             bs = self.blocksize if self.blocksize is not None else self._dfile.bytesAvailable()
             self.dest.write(self._dfile.read(bs))
-            self.cb_progress(self)
+            self.progress.emit(self)
 
     def succeeded(self):
         return not self.error and not self.canceled
@@ -142,7 +143,7 @@ class PreviewDownload(QtCore.QObject):
     def _prepare_dl(self):
         img, imgpath = self._get_cachefile(self.name + ".png.part")
         dl = FileDownload(self._nam, self._url, img, imgpath)
-        dl.cb_finished = self._finished
+        dl.finished.connect(self._finished)
         dl.blocksize = None
         return dl
 

@@ -20,9 +20,9 @@ class VaultDownloadDialog(object):
         self._result = None
 
         self._dler = dler
-        self._dler.cb_start = self._start
-        self._dler.cb_progress = self._cont
-        self._dler.cb_finished = self._finished
+        self._dler.start.connect(self._start)
+        self._dler.progress.connect(self._cont)
+        self._dler.finished.connect(self._finished)
         self._dler.blocksize = 8192
 
         self._progress = QtWidgets.QProgressDialog()
