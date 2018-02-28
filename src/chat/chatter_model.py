@@ -166,6 +166,7 @@ class ChatterItemDelegate(QtWidgets.QStyledItemDelegate):
         self._draw_map(painter, data)
         self._draw_rank(painter, data)
         self._draw_avatar(painter, data)
+        self._draw_country(painter, data)
 
         painter.restore()
 
@@ -211,8 +212,7 @@ class ChatterItemDelegate(QtWidgets.QStyledItemDelegate):
             status = "unknown"
 
         icon = util.THEME.icon("chat/status/{}.png".format(status))
-        rect = self.layout.sizes[ChatterLayoutElements.STATUS]
-        icon.paint(painter, rect, QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
+        self._draw_icon(painter, icon, ChatterLayoutElements.STATUS)
 
     # TODO - handle optionality of maps
     def _draw_map(self, painter, data):
@@ -223,9 +223,7 @@ class ChatterItemDelegate(QtWidgets.QStyledItemDelegate):
         icon = maps.preview(game.mapname)
         if not icon:
             return
-
-        rect = self.layout.sizes[ChatterLayoutElements.MAP]
-        icon.paint(painter, rect, QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
+        self._draw_icon(painter, icon, ChatterLayoutElements.MAP)
 
     def _draw_rank(self, painter, data):
         if data.player is None or data.player.league is None:
@@ -233,9 +231,7 @@ class ChatterItemDelegate(QtWidgets.QStyledItemDelegate):
         else:
             league = data.player.league
             icon = util.THEME.icon("chat/rank/{}.png".format(league["league"]))
-
-        rect = self.layout.sizes[ChatterLayoutElements.RANK]
-        icon.paint(painter, rect, QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
+        self._draw_icon(painter, icon, ChatterLayoutElements.RANK)
 
     # TODO - download avatar when missing
     def _draw_avatar(self, painter, data):
@@ -247,10 +243,21 @@ class ChatterItemDelegate(QtWidgets.QStyledItemDelegate):
         icon = util.respix(avatar_url)
         if not icon:
             return
-
         icon = util.THEME.icon("chat/status/playing.png")
-        rect = self.layout.sizes[ChatterLayoutElements.AVATAR]
-        icon.paint(painter, rect, QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
+        self._draw_icon(painter, icon, ChatterLayoutElements.AVATAR)
+
+    def _draw_country(self, painter, data):
+        if data.player is None:
+            return
+        country = data.player.country
+        if country is None or country == '':
+            country = '__'
+        icon = util.THEME.icon("chat/countries/{}.png".format(country.lower()))
+        self._draw_icon(painter, icon, ChatterLayoutElements.COUNTRY)
+
+    def _draw_icon(self, painter, icon, element):
+        rect = self.layout.sizes[element]
+        icon.paint(painter, rect, QtCore.Qt.AlignCenter)
 
     def sizeHint(self, option, index):
         return self.layout.size
@@ -261,6 +268,7 @@ class ChatterLayoutElements(Enum):
     STATUS = "statusBox"
     AVATAR = "avatarBox"
     MAP = "mapBox"
+    COUNTRY = "countryBox"
     NICK = "nickBox"
 
 
