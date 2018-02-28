@@ -231,8 +231,8 @@ class ChatterModelItem(QObject):
     def nick_tooltip(self):
         return self._country_tooltip()
 
-    def context_menu(self):
-        return ChatterContextMenu(self, self.chatter, self.player, self.game)
+    def context_menu(self, parent):
+        return ChatterContextMenu(parent, self.chatter, self.player, self.game)
 
 
 class ChatterContextMenu(QMenu):
@@ -250,14 +250,14 @@ class ChatterContextMenu(QMenu):
         if self.chatter is not None:
             self._init_chatter_entries()
         if self.player is not None:
-            self.add_seperator()
+            self.addSeparator()
             self._init_player_entries()
         if self.game is not None:
-            self.add_separator()
+            self.addSeparator()
             self._init_game_entries()
 
     def _init_chatter_entries(self):
-        pass
+        self._add_menu("Dummy", lambda: None)
 
     def _init_player_entries(self):
         pass

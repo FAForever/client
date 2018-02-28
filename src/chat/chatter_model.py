@@ -73,9 +73,10 @@ class ChatterModel(QAbstractListModel):
 
 
 class ChatterItemDelegate(QtWidgets.QStyledItemDelegate):
-    def __init__(self, layout):
+    def __init__(self, layout, parent):
         QtWidgets.QStyledItemDelegate.__init__(self)
         self.layout = layout
+        self._parent = parent
         self.tooltip = ChatterEventFilter(self)
 
     def update_width(self, size):
@@ -183,7 +184,7 @@ class ChatterItemDelegate(QtWidgets.QStyledItemDelegate):
 
     def get_context_menu(self, index, pos):
         data = index.data()
-        return data.context_menu()
+        return data.context_menu(self._parent)
 
 
 class ChatterLayoutElements(Enum):
@@ -246,9 +247,9 @@ class ChatterLayout(QObject):
         return size
 
 
-def build_delegate(size):
+def build_delegate(size, parent):
     layout = ChatterLayout(util.THEME, "chat/chatter.ui", size)
-    return ChatterItemDelegate(layout)
+    return ChatterItemDelegate(layout, parent)
 
 
 class ChatterEventFilter(QObject):
@@ -260,7 +261,7 @@ class ChatterEventFilter(QObject):
         if event.type() == QtCore.QEvent.ToolTip:
             return self._handle_tooltip(obj, event)
         elif event.type() == QtCore.QEvent.MouseButtonRelease:
-            if event.buttons() & QtCore.Qt.RightButton:
+            if event.button() == QtCore.Qt.RightButton:
                 return self._handle_context_menu(obj, event)
         return super().eventFilter(obj, event)
 
@@ -289,4 +290,6 @@ class ChatterEventFilter(QObject):
         if idx is None:
             return False
 
-        self._handler.get_context_menu(idx, point)
+        menu = self._handler.get_context_menu(idx, point)
+        menu.popup(QtGui.QCursor.pos())
+        return True
