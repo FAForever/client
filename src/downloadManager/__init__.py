@@ -1,6 +1,7 @@
 from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
-from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5.QtCore import QObject, pyqtSignal, QUrl
+from PyQt5.QtNetwork import QNetworkRequest
 import urllib.request, urllib.error, urllib.parse
 import logging
 import os
@@ -63,7 +64,7 @@ class FileDownload(QObject):
 
     def run(self):
         self._running = True
-        req = QNetworkRequest(QtCore.QUrl(self.addr))
+        req = QNetworkRequest(QUrl(self.addr))
         req.setRawHeader(b'User-Agent', b"FAF Client")
         req.setAttribute(QNetworkRequest.FollowRedirectsAttribute, True)
         req.setMaximumRedirectsAllowed(3)
@@ -291,3 +292,31 @@ class DownloadTimeouts:
 
     def _clear_timeouts(self):
         self._timed_out_items.clear()
+
+
+class AvatarDownloader:
+    def __init__(self, nam):
+        self._nam = nam
+        self._requests = {}
+        self.avatars = {}
+        self._nam.finished.connect(self._avatar_download_finished)
+
+    def download_avatar(self, url, req):
+        self._add_request(url, req)
+
+    def _add_request(self, url, req):
+        should_download = url not in self._requests
+        self._requests.setdefault(url, set()).add(req)
+        if should_download:
+            self._nam.get(QNetworkRequest(QUrl(url))
+
+    def _avatar_download_finished(self, reply):
+        img = QtGui.QImage()
+        img.loadFromData(reply.readAll())
+        url = reply.url().toString()
+        if url not in self.avatars:
+            self.avatars[url] = QtGui.QPixmap(img)
+
+        reqs = self._requests.pop(url, [])
+        for req in reqs:
+            req.done(url, self.avatars[url])
