@@ -17,7 +17,7 @@ class ChatMVC:
     irc_port = config.Settings.persisted_property('chat/port', type=int, default_value=6667)
     irc_host = config.Settings.persisted_property('chat/host', type=str, default_value='irc.' + config.defaults['host'])
 
-    def __init__(self, playerset, autojoin_channels):
+    def __init__(self, playerset, autojoin_channels, map_preview_dler):
         channels = Channelset()
         chatters = Chatterset(playerset)
         channelchatters = ChannelChatterset()
@@ -25,4 +25,4 @@ class ChatMVC:
         self.connection = IrcConnection(self.irc_host, self.irc_port)
         self.controller = ChatController(self.connection, self.model,
                                          autojoin_channels)
-        self.view = ChatView(self.model, self.controller)
+        self.view = ChatView(self.model, self.controller, map_preview_dler)

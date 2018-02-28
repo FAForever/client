@@ -4,13 +4,15 @@ from chat.chatter_model import ChatterModel, build_delegate
 
 
 class ChannelView:
-    def __init__(self, channel, controller):
+    def __init__(self, channel, controller, map_preview_dler):
         self._channel = channel
         self._controller = controller
+        self._map_preview_dler = map_preview_dler
+
         self.widget = ChannelWidget(channel.id_key)
         self._delegate = build_delegate(QSize(150, 30))
         self.widget.set_chatter_delegate(self._delegate)
-        self.widget.set_chatter_model(ChatterModel(channel))
+        self.widget.set_chatter_model(ChatterModel(channel, map_preview_dler))
         self.widget.line_typed.connect(self._at_line_typed)
         self.widget.set_autocompletion_source(self._channel)
         self.widget.chatter_list_resized.connect(self._update_chatter_width)

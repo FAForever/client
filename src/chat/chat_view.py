@@ -3,9 +3,10 @@ from chat.channel_view import ChannelView
 
 
 class ChatView:
-    def __init__(self, chat, controller):
+    def __init__(self, chat, controller, map_preview_dler):
         self._chat = chat
         self._controller = controller
+        self._map_preview_dler = map_preview_dler
         self._channels = {}
         self.widget = ChatWidget()
         self._chat.channels.added.connect(self._add_channel)
@@ -21,7 +22,7 @@ class ChatView:
     def _add_channel(self, channel):
         if channel.id_key in self._channels:
             return
-        view = ChannelView(channel, self._controller)
+        view = ChannelView(channel, self._controller, self._map_preview_dler)
         self._channels[channel.id_key] = view
         self.widget.add_channel(view.widget, channel.id_key.name)
 

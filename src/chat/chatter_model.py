@@ -6,6 +6,7 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 import util
 from fa import maps
 from model.game import GameState
+from downloadManager import PreviewDownloadRequest
 
 
 class ChatterModelItem(QObject):
@@ -14,7 +15,7 @@ class ChatterModelItem(QObject):
     """
     updated = pyqtSignal(object)
 
-    def __init__(self, cc):
+    def __init__(self, cc, preview_dler):
         QObject.__init__(self)
 
         self._player = None
@@ -23,7 +24,12 @@ class ChatterModelItem(QObject):
         self.chatter.updated.connect(self._updated)
         self.chatter.newPlayer.connect(self._set_player)
 
+        self._preview_dler = preview_dler
+        self._map_request = PreviewDownloadRequest()
+        self._map_request.done.connect(self._updated)
+
         self.player = self.chatter.player
+
 
     def _updated(self):
         self.updated.emit(self)
@@ -65,15 +71,38 @@ class ChatterModelItem(QObject):
     @game.setter
     def game(self, value):
         if self._game is not None:
-            self._game.updated.disconnect(self._updated)
+            self._game.updated.disconnect(self._at_game_updated)
             self._game.liveReplayAvailable.disconnect(self._updated)
 
         self._game = value
 
         if self._game is not None:
-            self._game.updated.connect(self._updated)
+            self._game.updated.connect(self._at_game_updated)
             # TODO - request download
             self._game.liveReplayAvailable.connect(self._updated)
+            self._download_map_preview_if_needed()
+
+    def _at_game_updated(self, new, old):
+        if new.mapname != old.mapname:
+            self._download_map_preview_if_needed()
+        self._updated()
+
+    def _download_map_preview_if_needed(self):
+        name = self._map_name()
+        if name is None:
+            return
+        if not maps.preview(name):
+            self._preview_dler.download_preview(name, self._map_request)
+
+    def _map_name(self):
+        game = self.game
+        if game is None or game.closed() or game.mapname is None:
+            return None
+        return self.game.mapname.lower()
+
+    def map_icon(self):
+        name = self._map_name()
+        return None if name is None else maps.preview(name)
 
     def chatter_status(self):
         game = self.game
@@ -88,13 +117,6 @@ class ChatterModelItem(QObject):
                 return "playing"
             return "playing5"
         return "unknown"
-
-    def map_icon(self):
-        game = self.game
-        if game is None or game.closed():
-            return None
-        # TODO - handle info hiding
-        return maps.preview(game.mapname)
 
     def chatter_rank(self):
         try:
@@ -119,11 +141,12 @@ class ChatterModelItem(QObject):
 
 
 class ChatterModel(QAbstractListModel):
-    def __init__(self, channel):
+    def __init__(self, channel, map_preview_dler):
         QAbstractListModel.__init__(self)
         self._channel = channel
         self._itemlist = []
         self._items = {}
+        self._map_preview_dler = map_preview_dler
 
         if self._channel is not None:
             self._channel.added_chatter.connect(self.add_chatter)
@@ -150,7 +173,7 @@ class ChatterModel(QAbstractListModel):
         next_index = len(self._itemlist)
         self.beginInsertRows(QModelIndex(), next_index, next_index)
 
-        item = ChatterModelItem(chatter)
+        item = ChatterModelItem(chatter, self._map_preview_dler)
         item.updated.connect(self._at_item_updated)
 
         self._items[chatter.id_key] = item
