@@ -50,15 +50,20 @@ class ChatterModelItem(QObject):
     def player(self, value):
         if self._player is not None:
             self.game = None
-            self._player.updated.disconnect(self._updated)
+            self._player.updated.disconnect(self._at_player_updated)
             self._player.newCurrentGame.disconnect(self._set_game)
 
         self._player = value
 
         if self._player is not None:
-            self._player.updated.connect(self._updated)
+            self._player.updated.connect(self._at_player_updated)
             self._player.newCurrentGame.connect(self._set_game)
             self.game = self._player.currentGame
+            self._download_avatar_if_needed()
+
+    def _at_player_updated(self):
+        self._download_avatar_if_needed()
+        self._updated()
 
     def _set_game(self, player, game):
         self.game = game
@@ -124,10 +129,23 @@ class ChatterModelItem(QObject):
         except (TypeError, AttributeError, KeyError):
             return "civilian"
 
-    def chatter_avatar_icon(self):
+    def _download_avatar_if_needed(self):
+        avatar_url = self._avatar_url()
+        if avatar_url is None:
+            return
+        if not util.respix(avatar_url):
+            pass
+
+    def _avatar_url(self):
         try:
-            avatar_url = self.player.avatar["url"]
+            url = self.player.avatar["url"]
         except (TypeError, AttributeError, KeyError):
+            return None
+        return parse.unquote(url)
+
+    def chatter_avatar_icon(self):
+        avatar_url = self._avatar_url()
+        if avatar_url is None:
             return None
         return util.respix(avatar_url)
 
