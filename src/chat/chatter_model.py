@@ -1,8 +1,11 @@
+from enum import Enum
+from urllib import parse
 from PyQt5.QtCore import QObject, pyqtSignal, QAbstractListModel, Qt, \
         QModelIndex, QRectF, QPoint
 from PyQt5 import QtWidgets, QtGui, QtCore
-from enum import Enum
 import util
+from fa import maps
+from model.game import GameState
 
 
 class ChatterModelItem(QObject):
@@ -13,11 +16,64 @@ class ChatterModelItem(QObject):
 
     def __init__(self, cc):
         QObject.__init__(self)
-        self.cc = cc
-        self.cc.chatter.updated.connect(self._chatter_updated)
 
-    def _chatter_updated(self):
+        self._player = None
+        self._game = None
+        self.cc = cc
+        self.chatter.updated.connect(self._updated)
+        self.chatter.newPlayer.connect(self._set_player)
+
+        self.player = self.chatter.player
+
+    def _updated(self):
         self.updated.emit(self)
+
+    @property
+    def chatter(self):
+        return self.cc.chatter
+
+    def _set_player(self, chatter, new_player, old_player):
+        self.player = new_player
+        self._updated()
+
+    @property
+    def player(self):
+        return self._player
+
+    @player.setter
+    def player(self, value):
+        if self._player is not None:
+            self.game = None
+            self._player.updated.disconnect(self._updated)
+            self._player.newCurrentGame.disconnect(self._set_game)
+
+        self._player = value
+
+        if self._player is not None:
+            self._player.updated.connect(self._updated)
+            self._player.newCurrentGame.connect(self._set_game)
+            self.game = self._player.currentGame
+
+    def _set_game(self, player, game):
+        self.game = game
+        self._updated()
+
+    @property
+    def game(self):
+        return self._game
+
+    @game.setter
+    def game(self, value):
+        if self._game is not None:
+            self._game.updated.disconnect(self._updated)
+            self._game.liveReplayAvailable.disconnect(self._updated)
+
+        self._game = value
+
+        if self._game is not None:
+            self._game.updated.connect(self._updated)
+            # TODO - request download
+            self._game.liveReplayAvailable.connect(self._updated)
 
 
 class ChatterModel(QAbstractListModel):
@@ -106,10 +162,10 @@ class ChatterItemDelegate(QtWidgets.QStyledItemDelegate):
         painter.translate(option.rect.left(), option.rect.top())
 
         self._draw_nick(painter, text)
-        self._draw_status(painter)
-        self._draw_map(painter)
-        self._draw_rank(painter)
-        self._draw_avatar(painter)
+        self._draw_status(painter, data)
+        self._draw_map(painter, data)
+        self._draw_rank(painter, data)
+        self._draw_avatar(painter, data)
 
         painter.restore()
 
@@ -137,22 +193,61 @@ class ChatterItemDelegate(QtWidgets.QStyledItemDelegate):
         html.drawContents(painter, clip)
         painter.translate(top_left * -1)
 
-    def _draw_status(self, painter):
-        icon = util.THEME.icon("chat/status/playing.png")
+    def _draw_status(self, painter, data):
+        game = data.game
+        if game is None or game.closed():
+            status = "none"
+        elif game.state == GameState.OPEN:
+            if game.host == data.chatter.name:
+                status = "host"
+            else:
+                status = "lobby"
+        elif game.state == GameState.PLAYING:
+            if game.has_live_replay:
+                status = "playing"
+            else:
+                status = "playing5"
+        else:
+            status = "unknown"
+
+        icon = util.THEME.icon("chat/status/{}.png".format(status))
         rect = self.layout.sizes[ChatterLayoutElements.STATUS]
         icon.paint(painter, rect, QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
 
-    def _draw_map(self, painter):
-        icon = util.THEME.icon("chat/status/playing.png")
+    # TODO - handle optionality of maps
+    def _draw_map(self, painter, data):
+        game = data.game
+        if game is None or game.closed():
+            return
+        # TODO - handle info hiding
+        icon = maps.preview(game.mapname)
+        if not icon:
+            return
+
         rect = self.layout.sizes[ChatterLayoutElements.MAP]
         icon.paint(painter, rect, QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
 
-    def _draw_rank(self, painter):
-        icon = util.THEME.icon("chat/status/playing.png")
+    def _draw_rank(self, painter, data):
+        if data.player is None or data.player.league is None:
+            icon = util.THEME.icon("chat/rank/civilian.png")
+        else:
+            league = data.player.league
+            icon = util.THEME.icon("chat/rank/{}.png".format(league["league"]))
+
         rect = self.layout.sizes[ChatterLayoutElements.RANK]
         icon.paint(painter, rect, QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
 
-    def _draw_avatar(self, painter):
+    # TODO - download avatar when missing
+    def _draw_avatar(self, painter, data):
+        if data.player is None or data.player.avatar is None:
+            return
+
+        avatar = data.player.avatar
+        avatar_url = parse.unquote(avatar["url"])
+        icon = util.respix(avatar_url)
+        if not icon:
+            return
+
         icon = util.THEME.icon("chat/status/playing.png")
         rect = self.layout.sizes[ChatterLayoutElements.AVATAR]
         icon.paint(painter, rect, QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
