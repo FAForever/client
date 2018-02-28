@@ -7,7 +7,7 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 from config import Settings
 from fa import maps
 from games.moditem import mods
-from downloadManager import PreviewDownloadRequest
+from downloadManager import DownloadRequest
 
 
 class ReplayItemDelegate(QtWidgets.QStyledItemDelegate):
@@ -116,7 +116,7 @@ class ReplayItem(QtWidgets.QTreeWidgetItem):
         self.extraInfoWidth  = 0  # panel with more information
         self.extraInfoHeight = 0  # panel with more information
 
-        self._map_dl_request = PreviewDownloadRequest()
+        self._map_dl_request = DownloadRequest()
         self._map_dl_request.done.connect(self._on_map_preview_downloaded)
 
     def update(self, message, client):

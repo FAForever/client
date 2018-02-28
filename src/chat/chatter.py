@@ -14,7 +14,7 @@ from config import Settings
 from model.game import GameState
 from client.aliasviewer import AliasWindow
 from chat.gameinfo import SensitiveMapInfoChecker
-from downloadManager import PreviewDownloadRequest
+from downloadManager import DownloadRequest
 
 """
 A chatter is the representation of a person on IRC, in a channel's nick list.
@@ -49,7 +49,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
         self._me.relationsUpdated.connect(self._check_player_relation)
         self._me.ircRelationsUpdated.connect(self._check_user_relation)
 
-        self._map_dl_request = PreviewDownloadRequest()
+        self._map_dl_request = DownloadRequest()
         self._map_dl_request.done.connect(self._on_map_downloaded)
 
         self._aliases = AliasWindow(self.parent)

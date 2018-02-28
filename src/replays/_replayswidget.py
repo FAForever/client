@@ -14,7 +14,7 @@ import jsonschema
 from replays.replayitem import ReplayItem, ReplayItemDelegate
 from model.game import GameState
 from replays.connection import ReplaysConnection
-from downloadManager import PreviewDownloadRequest
+from downloadManager import DownloadRequest
 
 import logging
 logger = logging.getLogger(__name__)
@@ -35,7 +35,7 @@ class LiveReplayItem(QtWidgets.QTreeWidgetItem):
             self.launch_time = game.launched_at
         else:
             self.launch_time = time.time()
-        self._map_dl_request = PreviewDownloadRequest()
+        self._map_dl_request = DownloadRequest()
         self._map_dl_request.done.connect(self._map_preview_downloaded)
 
         self._game.updated.connect(self._update_game)
@@ -322,7 +322,7 @@ class LocalReplayItem(QtWidgets.QTreeWidgetItem):
         QtWidgets.QTreeWidgetItem.__init__(self)
         self._replay_file = replay_file
         self._metadata = metadata
-        self._map_dl_request = PreviewDownloadRequest()
+        self._map_dl_request = DownloadRequest()
         self._map_dl_request.done.connect(self._map_preview_downloaded)
         self._setup_appearance()
 

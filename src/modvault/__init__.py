@@ -63,7 +63,7 @@ import urllib.request, urllib.error, urllib.parse
 from util import datetostr, now
 d = datetostr(now())
 
-from downloadManager import PreviewDownloadRequest
+from downloadManager import DownloadRequest
 
 """
 tempmod1 = dict(uid=1,name='Mod1', comments=[],bugreports=[], date = d,
@@ -317,7 +317,7 @@ class ModItem(QtWidgets.QListWidgetItem):
         self.loadThread = None
         self.setHidden(True)
 
-        self._map_dl_request = PreviewDownloadRequest()
+        self._map_dl_request = DownloadRequest()
         self._map_dl_request.done.connect(self._on_mod_downloaded)
 
     def update(self, dic):

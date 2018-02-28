@@ -6,7 +6,7 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 import util
 from fa import maps
 from model.game import GameState
-from downloadManager import PreviewDownloadRequest
+from downloadManager import DownloadRequest
 
 
 class ChatterModelItem(QObject):
@@ -25,7 +25,7 @@ class ChatterModelItem(QObject):
         self.chatter.newPlayer.connect(self._set_player)
 
         self._preview_dler = preview_dler
-        self._map_request = PreviewDownloadRequest()
+        self._map_request = DownloadRequest()
         self._map_request.done.connect(self._updated)
 
         self.player = self.chatter.player

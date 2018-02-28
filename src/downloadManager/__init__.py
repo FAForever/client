@@ -180,7 +180,7 @@ class PreviewDownload(QtCore.QObject):
         return not self._dl.succeeded()
 
 
-class PreviewDownloadRequest(QtCore.QObject):
+class DownloadRequest(QtCore.QObject):
     done = QtCore.pyqtSignal(object, object)
 
     def __init__(self):

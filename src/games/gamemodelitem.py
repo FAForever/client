@@ -1,5 +1,5 @@
 from PyQt5.QtCore import QObject, pyqtSignal
-from downloadManager import PreviewDownloadRequest
+from downloadManager import DownloadRequest
 from fa import maps
 
 
@@ -18,7 +18,7 @@ class GameModelItem(QObject):
         self._me = me
         self._me.relationsUpdated.connect(self._check_host_relation_changed)
         self._preview_dler = preview_dler
-        self._preview_dl_request = PreviewDownloadRequest()
+        self._preview_dl_request = DownloadRequest()
         self._preview_dl_request.done.connect(self._at_preview_downloaded)
 
     def _game_updated(self):
