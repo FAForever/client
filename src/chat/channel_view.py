@@ -1,6 +1,7 @@
 from chat.channel_widget import ChannelWidget
 from chat.chatter_model import ChatterModel, ChatterEventFilter, \
     ChatterItemDelegate
+from chat.chatter_menu import ChatterMenu
 
 
 class ChannelView:
@@ -50,7 +51,9 @@ class ChattersView:
 
     @classmethod
     def build(cls, channel, widget, **kwargs):
+        chatter_menu = ChatterMenu.build(**kwargs)
         delegate = ChatterItemDelegate.build(**kwargs)
-        event_filter = ChatterEventFilter.build(delegate, **kwargs)
+        event_filter = ChatterEventFilter.build(delegate, chatter_menu,
+                                                **kwargs)
         model = ChatterModel.build(channel, **kwargs)
         return cls(widget, delegate, model, event_filter)

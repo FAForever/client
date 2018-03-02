@@ -542,6 +542,8 @@ class ClientWindow(FormClass, BaseClass):
                                       theme=util.THEME,
                                       playerset=self.players,
                                       parent_widget=self,
+                                      me=self.me,
+                                      power_tools=self.power_tools,
                                       autojoin_channels=['#aeolus'],
                                       map_preview_dler=self.map_downloader,
                                       avatar_dler=self.avatar_downloader,

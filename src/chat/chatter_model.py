@@ -3,12 +3,10 @@ from PyQt5.QtCore import QObject, QAbstractListModel, Qt, QModelIndex, \
     QRectF, QPoint
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QMenu, QAction
 from chat.chatter_model_item import ChatterModelItem
 from fa import maps
 from model.game import GameState
 import util
-from chat.chatter_model_item import ChatterModelItem
 
 
 class ChatterModel(QAbstractListModel):
@@ -201,61 +199,17 @@ class ChatterItemFormatter:
         return self.country_tooltip(data)
 
 
-class ChatterContextMenu(QMenu):
-    def __init__(self, parent_widget, chatter, player, game):
-        QMenu.__init__(self, parent_widget)
-        self.chatter = chatter
-        self.player = player
-        self.game = game
-        self._init_entries()
-
-    @classmethod
-    def builder(cls, parent_widget, **kwargs):
-        def make(data):
-            return cls(parent_widget, data.chatter, data.player, data.game)
-        return make
-
-    # TODO - add mod entries
-    # TODO - add entries for me
-    # TODO - friend entries
-    def _init_entries(self):
-        if self.chatter is not None:
-            self._init_chatter_entries()
-        if self.player is not None:
-            self.addSeparator()
-            self._init_player_entries()
-        if self.game is not None:
-            self.addSeparator()
-            self._init_game_entries()
-
-    def _init_chatter_entries(self):
-        self._add_menu("Dummy", lambda: None)
-
-    def _init_player_entries(self):
-        pass
-
-    def _init_game_entries(self):
-        pass
-
-    def _add_menu(self, name, callback):
-        action = QAction(name, self)
-        action.triggered.connect(callback)
-        self.addAction(action)
-
-
 class ChatterItemDelegate(QtWidgets.QStyledItemDelegate):
-    def __init__(self, layout, formatter, context_menu_builder):
+    def __init__(self, layout, formatter):
         QtWidgets.QStyledItemDelegate.__init__(self)
         self.layout = layout
-        self._context_menu_builder = context_menu_builder
         self._formatter = formatter
 
     @classmethod
     def build(cls, **kwargs):
         layout = ChatterLayout.build(**kwargs)
         formatter = ChatterItemFormatter.build(**kwargs)
-        context_menu_builder = ChatterContextMenu.builder(**kwargs)
-        return cls(layout, formatter, context_menu_builder)
+        return cls(layout, formatter)
 
     def update_width(self, size):
         current_size = self.layout.size
@@ -339,8 +293,7 @@ class ChatterItemDelegate(QtWidgets.QStyledItemDelegate):
     def sizeHint(self, option, index):
         return self.layout.size
 
-    def get_tooltip(self, index, pos):
-        data = index.data()
+    def get_tooltip(self, data, pos):
         for elem in ChatterLayoutElements:
             if self.layout.sizes[elem].contains(pos):
                 return self._tooltip(data, elem)
@@ -359,10 +312,6 @@ class ChatterItemDelegate(QtWidgets.QStyledItemDelegate):
             return self._formatter.country_tooltip(data)
         elif item == ChatterLayoutElements.NICK:
             return self._formatter.nick_tooltip(data)
-
-    def get_context_menu(self, index, pos):
-        data = index.data()
-        return self._context_menu_builder(data)
 
 
 class ChatterLayoutElements(Enum):
@@ -425,13 +374,14 @@ class ChatterLayout(QObject):
 
 
 class ChatterEventFilter(QObject):
-    def __init__(self, handler):
+    def __init__(self, tooltip_handler, menu_handler):
         QObject.__init__(self)
-        self._handler = handler
+        self._tooltip_handler = tooltip_handler
+        self._menu_handler = menu_handler
 
     @classmethod
-    def build(cls, handler, **kwargs):
-        return cls(handler)
+    def build(cls, tooltip_handler, menu_handler, **kwargs):
+        return cls(tooltip_handler, menu_handler)
 
     def eventFilter(self, obj, event):
         if event.type() == QtCore.QEvent.ToolTip:
@@ -441,20 +391,20 @@ class ChatterEventFilter(QObject):
                 return self._handle_context_menu(obj, event)
         return super().eventFilter(obj, event)
 
-    def _get_index_and_point(self, widget, event):
+    def _get_data_and_point(self, widget, event):
         view = widget.parent()
         idx = view.indexAt(event.pos())
         if not idx.isValid():
             return None, None
         item_rect = view.visualRect(idx)
         point = event.pos() - item_rect.topLeft()
-        return idx, point
+        return idx.data(), point
 
     def _handle_tooltip(self, widget, event):
-        idx, point = self._get_index_and_point(widget, event)
-        if idx is None:
+        data, point = self._get_data_and_point(widget, event)
+        if data is None:
             return False
-        tooltip_text = self._handler.get_tooltip(idx, point)
+        tooltip_text = self._tooltip_handler.get_tooltip(data, point)
         if tooltip_text is None:
             return False
 
@@ -462,10 +412,10 @@ class ChatterEventFilter(QObject):
         return True
 
     def _handle_context_menu(self, widget, event):
-        idx, point = self._get_index_and_point(widget, event)
-        if idx is None:
+        data, point = self._get_data_and_point(widget, event)
+        if data is None:
             return False
 
-        menu = self._handler.get_context_menu(idx, point)
+        menu = self._menu_handler.get_context_menu(data, point)
         menu.popup(QtGui.QCursor.pos())
         return True
