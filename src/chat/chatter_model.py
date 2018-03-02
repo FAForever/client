@@ -2,18 +2,22 @@ from enum import Enum
 from PyQt5.QtCore import QObject, QAbstractListModel, Qt, QModelIndex, \
     QRectF, QPoint
 from PyQt5 import QtWidgets, QtGui, QtCore
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QMenu, QAction
 from chat.chatter_model_item import ChatterModelItem
+from fa import maps
+from model.game import GameState
 import util
+from chat.chatter_model_item import ChatterModelItem
 
 
 class ChatterModel(QAbstractListModel):
-    def __init__(self, channel, map_preview_dler, avatar_dler):
+    def __init__(self, channel, item_builder):
         QAbstractListModel.__init__(self)
         self._channel = channel
         self._itemlist = []
         self._items = {}
-        self._map_preview_dler = map_preview_dler
-        self._avatar_dler = avatar_dler
+        self._item_builder = item_builder
 
         if self._channel is not None:
             self._channel.added_chatter.connect(self.add_chatter)
@@ -21,6 +25,11 @@ class ChatterModel(QAbstractListModel):
 
         for chatter in self._channel.chatters:
             self.add_chatter(chatter)
+
+    @classmethod
+    def build(cls, channel, **kwargs):
+        builder = ChatterModelItem.builder(**kwargs)
+        return cls(channel, builder)
 
     def data(self, index, role):
         if not index.isValid() or index.row() >= len(self._itemlist):
@@ -40,8 +49,7 @@ class ChatterModel(QAbstractListModel):
         next_index = len(self._itemlist)
         self.beginInsertRows(QModelIndex(), next_index, next_index)
 
-        item = ChatterModelItem(chatter, self._map_preview_dler,
-                                self._avatar_dler)
+        item = self._item_builder(chatter)
         item.updated.connect(self._at_item_updated)
 
         self._items[chatter.id_key] = item
@@ -72,12 +80,182 @@ class ChatterModel(QAbstractListModel):
         self.dataChanged.emit(index, index)
 
 
+class ChatterItemFormatter:
+    def __init__(self, avatars):
+        self._avatars = avatars
+
+    @classmethod
+    def build(cls, avatar_dler, **kwargs):
+        return cls(avatar_dler)
+
+    def map_icon(self, data):
+        name = data.map_name()
+        return None if name is None else maps.preview(name)
+
+    def chatter_status(self, data):
+        game = data.game
+        if game is None or game.closed():
+            return "none"
+        if game.state == GameState.OPEN:
+            if game.host == data.chatter.name:
+                return "host"
+            return "lobby"
+        if game.state == GameState.PLAYING:
+            if game.has_live_replay:
+                return "playing"
+            return "playing5"
+        return "unknown"
+
+    def chatter_rank(self, data):
+        try:
+            return data.player.league["league"]
+        except (TypeError, AttributeError, KeyError):
+            return "civilian"
+
+    def chatter_avatar_icon(self, data):
+        avatar_url = data.avatar_url()
+        if avatar_url is None:
+            return None
+        if avatar_url not in self._avatars.avatars:
+            return
+        return QIcon(self._avatars.avatars[avatar_url])
+
+    def chatter_country(self, data):
+        if data.player is None:
+            return '__'
+        country = data.player.country
+        if country is None or country == '':
+            return '__'
+        return country
+
+    def rank_tooltip(self, data):
+        if data.player is None:
+            return "IRC User"
+        player = data.player
+        # chr(0xB1) = +-
+        formatting = ("Global Rating: {} ({} Games) [{}\xb1{}]\n"
+                      "Ladder Rating: {} [{}\xb1{}]")
+        tooltip_str = formatting.format((int(player.rating_estimate())),
+                                        player.number_of_games,
+                                        int(player.rating_mean),
+                                        int(player.rating_deviation),
+                                        int(player.ladder_estimate()),
+                                        int(player.ladder_rating_mean),
+                                        int(player.ladder_rating_deviation))
+        league = player.league
+        if league is not None and "division" in league:
+            tooltip_str = "Division : {}\n{}".format(league["division"],
+                                                     tooltip_str)
+        return tooltip_str
+
+    def status_tooltip(self, data):
+        # Status tooltip handling
+        game = data.game
+        if game is None or game.closed():
+            return "Idle"
+
+        private_str = " (private)" if game.password_protected else ""
+        if game.state == GameState.PLAYING and not game.has_live_replay:
+            delay_str = " - LIVE DELAY (5 Min)"
+        else:
+            delay_str = ""
+
+        head_str = ""
+        if game.state == GameState.OPEN:
+            if game.host == data.player.login:
+                head_str = "Hosting{private} game</b>"
+            else:
+                head_str = "In{private} Lobby</b> (host {host})"
+        elif game.state == GameState.PLAYING:
+            head_str = "Playing</b>{delay}"
+        header = head_str.format(private=private_str, delay=delay_str,
+                                 host=game.host)
+
+        formatting = ("<b>{}<br/>"
+                      "title: {}<br/>"
+                      "mod: {}<br/>"
+                      "map: {}<br/>"
+                      "players: {} / {}<br/>"
+                      "id: {}")
+
+        game_str = formatting.format(header, game.title, game.featured_mod,
+                                     game.mapdisplayname, game.num_players,
+                                     game.max_players, game.uid)
+        return game_str
+
+    def avatar_tooltip(self, data):
+        try:
+            return data.player.avatar["tooltip"]
+        except (TypeError, AttributeError, KeyError):
+            return None
+
+    def map_tooltip(self, data):
+        if data.game is None:
+            return None
+        return data.game.mapdisplayname
+
+    def country_tooltip(self, data):
+        return self.chatter_country(data)
+
+    def nick_tooltip(self, data):
+        return self.country_tooltip(data)
+
+
+class ChatterContextMenu(QMenu):
+    def __init__(self, parent_widget, chatter, player, game):
+        QMenu.__init__(self, parent_widget)
+        self.chatter = chatter
+        self.player = player
+        self.game = game
+        self._init_entries()
+
+    @classmethod
+    def builder(cls, parent_widget, **kwargs):
+        def make(data):
+            return cls(parent_widget, data.chatter, data.player, data.game)
+        return make
+
+    # TODO - add mod entries
+    # TODO - add entries for me
+    # TODO - friend entries
+    def _init_entries(self):
+        if self.chatter is not None:
+            self._init_chatter_entries()
+        if self.player is not None:
+            self.addSeparator()
+            self._init_player_entries()
+        if self.game is not None:
+            self.addSeparator()
+            self._init_game_entries()
+
+    def _init_chatter_entries(self):
+        self._add_menu("Dummy", lambda: None)
+
+    def _init_player_entries(self):
+        pass
+
+    def _init_game_entries(self):
+        pass
+
+    def _add_menu(self, name, callback):
+        action = QAction(name, self)
+        action.triggered.connect(callback)
+        self.addAction(action)
+
+
 class ChatterItemDelegate(QtWidgets.QStyledItemDelegate):
-    def __init__(self, layout, parent):
+    def __init__(self, layout, formatter, context_menu_builder):
         QtWidgets.QStyledItemDelegate.__init__(self)
         self.layout = layout
-        self._parent = parent
-        self.tooltip = ChatterEventFilter(self)
+        self._context_menu_builder = context_menu_builder
+        self._formatter = formatter
+
+    @classmethod
+    def build(cls, **kwargs):
+        layout = ChatterLayout.build(**kwargs)
+        formatter = ChatterItemFormatter.build(**kwargs)
+        context_menu_builder = ChatterContextMenu.builder(**kwargs)
+        return cls(layout, formatter, context_menu_builder)
 
     def update_width(self, size):
         current_size = self.layout.size
@@ -127,30 +305,30 @@ class ChatterItemDelegate(QtWidgets.QStyledItemDelegate):
         painter.translate(top_left * -1)
 
     def _draw_status(self, painter, data):
-        status = data.chatter_status()
+        status = self._formatter.chatter_status(data)
         icon = util.THEME.icon("chat/status/{}.png".format(status))
         self._draw_icon(painter, icon, ChatterLayoutElements.STATUS)
 
     # TODO - handle optionality of maps
     def _draw_map(self, painter, data):
-        icon = data.map_icon()
+        icon = self._formatter.map_icon(data)
         if not icon:
             return
         self._draw_icon(painter, icon, ChatterLayoutElements.MAP)
 
     def _draw_rank(self, painter, data):
-        rank = data.chatter_rank()
+        rank = self._formatter.chatter_rank(data)
         icon = util.THEME.icon("chat/rank/{}.png".format(rank))
         self._draw_icon(painter, icon, ChatterLayoutElements.RANK)
 
     def _draw_avatar(self, painter, data):
-        icon = data.chatter_avatar_icon()
+        icon = self._formatter.chatter_avatar_icon(data)
         if not icon:
             return
         self._draw_icon(painter, icon, ChatterLayoutElements.AVATAR)
 
     def _draw_country(self, painter, data):
-        country = data.chatter_country()
+        country = self._formatter.chatter_country(data)
         icon = util.THEME.icon("chat/countries/{}.png".format(country.lower()))
         self._draw_icon(painter, icon, ChatterLayoutElements.COUNTRY)
 
@@ -170,21 +348,21 @@ class ChatterItemDelegate(QtWidgets.QStyledItemDelegate):
 
     def _tooltip(self, data, item):
         if item == ChatterLayoutElements.RANK:
-            return data.rank_tooltip()
+            return self._formatter.rank_tooltip(data)
         elif item == ChatterLayoutElements.STATUS:
-            return data.status_tooltip()
+            return self._formatter.status_tooltip(data)
         elif item == ChatterLayoutElements.AVATAR:
-            return data.avatar_tooltip()
+            return self._formatter.avatar_tooltip(data)
         elif item == ChatterLayoutElements.MAP:
-            return data.map_tooltip()
+            return self._formatter.map_tooltip(data)
         elif item == ChatterLayoutElements.COUNTRY:
-            return data.country_tooltip()
+            return self._formatter.country_tooltip(data)
         elif item == ChatterLayoutElements.NICK:
-            return data.nick_tooltip()
+            return self._formatter.nick_tooltip(data)
 
     def get_context_menu(self, index, pos):
         data = index.data()
-        return data.context_menu(self._parent)
+        return self._context_menu_builder(data)
 
 
 class ChatterLayoutElements(Enum):
@@ -198,22 +376,21 @@ class ChatterLayoutElements(Enum):
 
 class ChatterLayout(QObject):
     """Provides layout info for delegate using Qt widget layouts."""
+    LAYOUT_FILE = "chat/chatter.ui"
 
-    def __init__(self, theme, layout_file, size):
+    def __init__(self, size, theme):
         QObject.__init__(self)
         self.theme = theme
         self._size = size
         self.sizes = {}
-        self.layout = layout_file
+        self.load_layout()
 
-    @property
-    def layout(self):
-        return self._layout
+    @classmethod
+    def build(cls, chatter_size, theme, **kwargs):
+        return cls(chatter_size, theme)
 
-    @layout.setter
-    def layout(self, layout):
-        self._layout = layout
-        formc, basec = self.theme.loadUiType(layout)
+    def load_layout(self):
+        formc, basec = self.theme.loadUiType(self.LAYOUT_FILE)
         self._form = formc()
         self._base = basec()
         self._form.setupUi(self._base)
@@ -247,15 +424,14 @@ class ChatterLayout(QObject):
         return size
 
 
-def build_delegate(size, parent):
-    layout = ChatterLayout(util.THEME, "chat/chatter.ui", size)
-    return ChatterItemDelegate(layout, parent)
-
-
 class ChatterEventFilter(QObject):
     def __init__(self, handler):
         QObject.__init__(self)
         self._handler = handler
+
+    @classmethod
+    def build(cls, handler, **kwargs):
+        return cls(handler)
 
     def eventFilter(self, obj, event):
         if event.type() == QtCore.QEvent.ToolTip:

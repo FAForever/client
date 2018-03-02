@@ -24,6 +24,10 @@ class ChatController:
         c.disconnected.connect(self._at_disconnected)
         c.new_server_message.connect(self._at_new_server_message)
 
+    @classmethod
+    def build(cls, connection, model, autojoin_channels, **kwargs):
+        return cls(connection, model, autojoin_channels)
+
     @property
     def _channels(self):
         return self._model.channels

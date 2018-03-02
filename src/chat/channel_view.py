@@ -1,19 +1,29 @@
-from PyQt5.QtCore import QSize
 from chat.channel_widget import ChannelWidget
-from chat.chatter_model import ChatterModel, build_delegate
+from chat.chatter_model import ChatterModel, ChatterEventFilter, \
+    ChatterItemDelegate
 
 
 class ChannelView:
-    def __init__(self, channel, controller, map_preview_dler, avatar_dler):
+    def __init__(self, channel, controller, widget, chatter_list_view):
         self._channel = channel
         self._controller = controller
-        self.widget = ChannelWidget(channel.id_key)
-        self._chatter_list = ChatterList(self.widget, map_preview_dler,
-                                         avatar_dler)
+        self._chatter_list_view = chatter_list_view
+        self.widget = widget
 
         self.widget.line_typed.connect(self._at_line_typed)
-        self.widget.set_autocompletion_source(self._channel)
         channel.lines.added.connect(self._add_line)
+
+    @classmethod
+    def build(cls, channel, controller, **kwargs):
+        widget = ChannelWidget.build(channel, **kwargs)
+        chatter_list_view = ChattersView.build(channel, widget, **kwargs)
+        return cls(channel, controller, widget, chatter_list_view)
+
+    @classmethod
+    def builder(cls, controller, **kwargs):
+        def make(channel):
+            return cls.build(channel, controller, **kwargs)
+        return make
 
     def _add_line(self, number):
         for line in self._channel.lines[-number:]:
@@ -23,19 +33,24 @@ class ChannelView:
         self._controller.send_message(self._channel.id_key, line)
 
 
-class ChatterList:
-    def __init__(self, widget, map_previev_dler, avatar_dler):
-        self._widget = widget
-        self._map_preview_dler = map_preview_dler
-        self._avatar_dler = avatar_dler
+class ChattersView:
+    def __init__(self, widget, delegate, model, event_filter):
+        self.delegate = delegate
+        self.model = model
+        self.event_filter = event_filter
+        self.widget = widget
 
-        self._delegate = build_delegate(QSize(150, 30), self._widget)
-        self._widget.set_chatter_delegate(self._delegate)
-        self._widget.set_chatter_tooltips(self._delegate.tooltip)
+        widget.set_chatter_delegate(self.delegate)
+        widget.set_chatter_model(self.model)
+        widget.set_chatter_event_filter(self.event_filter)
+        widget.chatter_list_resized.connect(self.at_chatter_list_resized)
 
-        model = ChatterModel(channel, map_preview_dler, avatar_dler)
-        self.widget.set_chatter_model(model)
-        self.widget.chatter_list_resized.connect(self._update_chatter_width)
+    def at_chatter_list_resized(self, size):
+        self.delegate.update_width(size)
 
-    def _update_chatter_width(self, size):
-        self._delegate.update_width(size)
+    @classmethod
+    def build(cls, channel, widget, **kwargs):
+        delegate = ChatterItemDelegate.build(**kwargs)
+        event_filter = ChatterEventFilter.build(delegate, **kwargs)
+        model = ChatterModel.build(channel, **kwargs)
+        return cls(widget, delegate, model, event_filter)

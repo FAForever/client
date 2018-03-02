@@ -531,8 +531,14 @@ class ClientWindow(FormClass, BaseClass):
                                             self, self.gameview_builder,
                                             self.map_downloader)
 
-        self._chatMVC = ChatMVC(self.players, ['#aeolus'], self.map_downloader,
-                                self.avatar_downloader)
+        self._chatMVC = ChatMVC.build(settings=config.Settings,
+                                      theme=util.THEME,
+                                      playerset=self.players,
+                                      parent_widget=self,
+                                      autojoin_channels=['#aeolus'],
+                                      map_preview_dler=self.map_downloader,
+                                      avatar_dler=self.avatar_downloader,
+                                      chatter_size=QtCore.QSize(150, 30))
         self.authorized.connect(self._connect_chat)
 
         # build main window with the now active client
@@ -553,7 +559,7 @@ class ClientWindow(FormClass, BaseClass):
 
         # TODO: some day when the tabs only do UI we'll have all this in the .ui file
         self.whatNewTab.layout().addWidget(self.news)
-        self.chatTab.layout().addWidget(self._chatMVC.view.widget)
+        self.chatTab.layout().addWidget(self._chatMVC.view.widget.base)
         self.coopTab.layout().addWidget(self.coop)
         self.gamesTab.layout().addWidget(self.games)
         self.tutorialsTab.layout().addWidget(self.tutorials)

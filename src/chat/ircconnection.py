@@ -73,7 +73,7 @@ class IrcSignals(QObject):
 
 class IrcConnection(IrcSignals, SimpleIRCClient):
 
-    def __init__(self, host, port, ssl=False):
+    def __init__(self, host, port, ssl):
         IrcSignals.__init__(self)
         SimpleIRCClient.__init__(self)
 
@@ -89,6 +89,10 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
 
         self._nickserv_registered = False
         self._identified = False
+
+    @classmethod
+    def build(cls, host, port, ssl=False, **kwargs):
+        return cls(host, port, ssl)
 
     def disconnect(self):
         self.irc_disconnect()

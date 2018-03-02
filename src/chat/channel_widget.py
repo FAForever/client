@@ -1,44 +1,63 @@
-import util
 from PyQt5 import QtGui
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import QObject, pyqtSignal
 import re
 
 
-FormClass, BaseClass = util.THEME.loadUiType("chat/channel.ui")
-
-
-class ChannelWidget(FormClass, BaseClass):
+class ChannelWidget(QObject):
     line_typed = pyqtSignal(str)
     chatter_list_resized = pyqtSignal(object)
 
-    def __init__(self, cid):
-        BaseClass.__init__(self)
-        self.setupUi(self)
-        self.chatEdit.returnPressed.connect(self._at_line_typed)
-        self.nickList.resized.connect(self.chatter_list_resized.emit)
-        self.cid = cid
+    def __init__(self, channel, theme):
+        QObject.__init__(self)
+        self.channel = channel
+        self.set_theme(theme)
 
-    def set_chatter_model(self, model):
-        self.nickList.setModel(model)
+    @classmethod
+    def build(cls, channel, theme, **kwargs):
+        return cls(channel, theme)
 
-    def set_chatter_delegate(self, delegate):
-        self.nickList.setItemDelegate(delegate)
+    @property
+    def chat_area(self):
+        return self.form.chatArea
 
-    def set_chatter_tooltips(self, tooltip_filter):
-        self.nickList.viewport().installEventFilter(tooltip_filter)
+    @property
+    def chat_edit(self):
+        return self.form.chatEdit
+
+    @property
+    def nick_list(self):
+        return self.form.nickList
+
+    def set_theme(self, theme):
+        formc, basec = theme.loadUiType("chat/channel.ui")
+        self.form = formc()
+        self.base = basec()
+        self.form.setupUi(self.base)
+
+        # Used by chat widget so it knows it corresponds to this widget
+        self.base.cid = self.channel.id_key
+        self.chat_edit.returnPressed.connect(self._at_line_typed)
+        self.nick_list.resized.connect(self.chatter_list_resized.emit)
+        self.chat_edit.set_channel(self.channel)
 
     def append_line(self, line):
-        cursor = self.chatArea.textCursor()
+        cursor = self.chat_area.textCursor()
         cursor.movePosition(QtGui.QTextCursor.End)
-        self.chatArea.setTextCursor(cursor)
-        self.chatArea.insertHtml("{}: {}<br>".format(line.sender, line.text))
+        self.chat_area.setTextCursor(cursor)
+        self.chat_area.insertHtml("{}: {}<br>".format(line.sender, line.text))
 
-    def set_autocompletion_source(self, channel):
-        self.chatEdit.set_channel(channel)
+    def set_chatter_delegate(self, delegate):
+        self.nick_list.setItemDelegate(delegate)
+
+    def set_chatter_model(self, model):
+        self.nick_list.setModel(model)
+
+    def set_chatter_event_filter(self, event_filter):
+        self.nick_list.viewport().installEventFilter(event_filter)
 
     def _at_line_typed(self):
-        text = self.chatEdit.text()
-        self.chatEdit.clear()
+        text = self.chat_edit.text()
+        self.chat_edit.clear()
         fragments = text.split("\n")
         for line in fragments:
             # Compound wacky Whitespace

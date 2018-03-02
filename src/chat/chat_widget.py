@@ -1,35 +1,42 @@
-from PyQt5.QtCore import pyqtSignal
-import util
-
-FormClass, BaseClass = util.THEME.loadUiType("chat/chat.ui")
+from PyQt5.QtCore import QObject, pyqtSignal
 
 
-class ChatWidget(FormClass, BaseClass):
+class ChatWidget(QObject):
     channel_quit_request = pyqtSignal(object)
 
-    def __init__(self):
-        BaseClass.__init__(self)
-        self.setupUi(self)
+    def __init__(self, theme):
+        QObject.__init__(self)
         self._channels = set()
-        self.tabCloseRequested.connect(self._at_tab_close_request)
+        self.set_theme(theme)
+
+    @classmethod
+    def build(cls, theme, **kwargs):
+        return cls(theme)
+
+    def set_theme(self, theme):
+        formc, basec = theme.loadUiType("chat/chat.ui")
+        self.form = formc()
+        self.base = basec()
+        self.form.setupUi(self.base)
+        self.base.tabCloseRequested.connect(self._at_tab_close_request)
 
     def add_channel(self, channel, name, index=None):
         if channel in self._channels:
             return
         self._channels.add(channel)
         if index is None:
-            self.addTab(channel, name)
+            self.base.addTab(channel.base, name)
         else:
-            self.insertTab(index, channel, name)
+            self.base.insertTab(index, channel.base, name)
 
     def remove_channel(self, channel):
         if channel not in self._channels:
             return
         self._channels.remove(channel)
-        self.removeTab(self.indexOf(channel))
+        self.base.removeTab(self.base.indexOf(channel.base))
 
     def write_server_message(self, msg):
-        self.serverLogArea.appendPlainText(msg)
+        self.form.serverLogArea.appendPlainText(msg)
 
     def _at_tab_close_request(self, idx):
-        self.channel_quit_request.emit(self.widget(idx).cid)
+        self.channel_quit_request.emit(self.base.widget(idx).cid)

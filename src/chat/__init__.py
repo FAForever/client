@@ -14,17 +14,18 @@ import config
 
 
 class ChatMVC:
-    irc_port = config.Settings.persisted_property('chat/port', type=int, default_value=6667)
-    irc_host = config.Settings.persisted_property('chat/host', type=str, default_value='irc.' + config.defaults['host'])
+    def __init__(self, model, connection, controller, view):
+        self.model = model
+        self.connection = connection
+        self.controller = controller
+        self.view = view
 
-    def __init__(self, playerset, autojoin_channels, map_preview_dler,
-                 avatar_dler):
-        channels = Channelset()
-        chatters = Chatterset(playerset)
-        channelchatters = ChannelChatterset()
-        self.model = Chat(chatters, channels, channelchatters)
-        self.connection = IrcConnection(self.irc_host, self.irc_port)
-        self.controller = ChatController(self.connection, self.model,
-                                         autojoin_channels)
-        self.view = ChatView(self.model, self.controller, map_preview_dler,
-                             avatar_dler)
+    @classmethod
+    def build(cls, settings, **kwargs):
+        model = Chat.build(**kwargs)
+        irc_port = settings.get('chat/port', 6667, int)
+        irc_host = settings.get('chat/host', 'irc.' + config.defaults['host'], str)
+        connection = IrcConnection.build(irc_host, irc_port, ssl=False, **kwargs)
+        controller = ChatController.build(connection, model, **kwargs)
+        view = ChatView.build(model, controller, **kwargs)
+        return cls(model, connection, controller, view)
