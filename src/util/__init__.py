@@ -429,12 +429,6 @@ def uniqueID(user, session):
         return None
 
 
-def userNameAction(parent, caption, action):
-    """ Get a username and execute action with it"""
-    username, success = QtWidgets.QInputDialog.getText(parent, 'Input Username', caption)
-    if success and username != '':
-        action(username)
-
 import datetime
 
 _dateDummy = datetime.datetime(2013, 5, 27)

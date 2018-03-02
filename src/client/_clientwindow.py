@@ -8,7 +8,6 @@ from client.aliasviewer import AliasSearchWindow
 from client.connection import LobbyInfo, ServerConnection, \
         Dispatcher, ConnectionState, ServerReconnecter
 from client.gameannouncer import GameAnnouncer
-from client.kick_dialog import KickDialog
 from client.login import LoginWidget
 from client.playercolors import PlayerColors
 from client.theme_menu import ThemeMenu
@@ -30,6 +29,7 @@ from model.player import Player
 from model.playerset import Playerset
 from modvault.utils import MODFOLDER
 import notifications as ns
+from power import PowerTools
 from secondaryServer import SecondaryServer
 import time
 import util
@@ -299,6 +299,13 @@ class ClientWindow(FormClass, BaseClass):
 
         # for moderator
         self.modMenu = None
+        self.power_tools = PowerTools.build(
+                power=0,
+                playerset=self.players,
+                lobby_connection=self.lobby_connection,
+                theme=util.THEME,
+                parent_widget=self,
+                settings=config.Settings)
 
         self._alias_window = AliasSearchWindow(self)
         #self.nFrame = NewsFrame()
@@ -1099,7 +1106,7 @@ class ClientWindow(FormClass, BaseClass):
 
     def manage_power(self):
         """ update the interface accordingly to the power of the user """
-        if self.power >= 1:
+        if self.power_tools.power >= 1:
             if self.modMenu is None:
                 self.modMenu = self.menu.addMenu("Administration")
 
@@ -1110,12 +1117,11 @@ class ClientWindow(FormClass, BaseClass):
             self.modMenu.addSeparator()
 
             actionLobbyKick = QtWidgets.QAction("Close player's FAF Client...", self.modMenu)
-            actionLobbyKick.triggered.connect(lambda: self.closeLobby())
+            actionLobbyKick.triggered.connect(self.power_tools.kick_dialog)
             self.modMenu.addAction(actionLobbyKick)
 
             actionCloseFA = QtWidgets.QAction("Close Player's Game...", self.modMenu)
-            actionCloseFA.triggered.connect(lambda: util.userNameAction(self, 'Player to close FA (do not typo!)',
-                                                                        lambda name: self.closeFA(name)))
+            actionCloseFA.triggered.connect(self.power_tools.close_game_dialog.show)
             self.modMenu.addAction(actionCloseFA)
 
     def requestAvatars(self, personal):
@@ -1130,18 +1136,10 @@ class ClientWindow(FormClass, BaseClass):
                                         user_ids=[self.players.getID(username)], channel=channel))
 
     def closeFA(self, username):
-        """ Close FA remotely """
-        logger.info('closeFA for {}'.format(username))
-        user_id = self.players.getID(username)
-        if user_id != -1:
-            self.lobby_connection.send(dict(command="admin", action="closeFA", user_id=user_id))
+        self.power_tools.actions.close_fa(username)
 
     def closeLobby(self, username=""):
-        """ Close lobby remotely """
-        logger.info('Opening kick dialog for {}'.format(username))
-        kick_dialog = KickDialog(self)
-        kick_dialog.reset(username)
-        kick_dialog.show()
+        self.power_tools.actions.kick_player(username)
 
     def addFriend(self, friend_id):
         if friend_id in self.players:
@@ -1370,7 +1368,7 @@ class ClientWindow(FormClass, BaseClass):
             self.autoJoin.emit(message["autojoin"])
 
         if "power" in message:
-            self.power = message["power"]
+            self.power_tools.power = message["power"]
             self.manage_power()
 
     def handle_player_info(self, message):
