@@ -335,7 +335,6 @@ class LobbyInfo(QtCore.QObject):
     replayVault = QtCore.pyqtSignal(dict)
     coopLeaderBoard = QtCore.pyqtSignal(dict)
     avatarList = QtCore.pyqtSignal(list)
-    playerAvatarList = QtCore.pyqtSignal(dict)
 
     def __init__(self, dispatcher, gameset, playerset):
         QtCore.QObject.__init__(self)
@@ -413,6 +412,3 @@ class LobbyInfo(QtCore.QObject):
     def handle_admin(self, message):
         if "avatarlist" in message:
             self.avatarList.emit(message["avatarlist"])
-
-        elif "player_avatar_list" in message:
-            self.playerAvatarList.emit(message)

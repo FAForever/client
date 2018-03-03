@@ -428,10 +428,6 @@ class Chatter(QtWidgets.QTableWidgetItem):
         self._aliases.view_aliases(self.user.name, player_id)
 
     def select_avatar(self):
-        avatarSelection = AvatarWidget(self.chat_widget.client, self.user.name, personal=True)
-        avatarSelection.exec_()
-
-    def add_avatar(self):
         avatarSelection = AvatarWidget(self.chat_widget.client, self.user.name)
         avatarSelection.exec_()
 
@@ -487,9 +483,6 @@ class Chatter(QtWidgets.QTableWidgetItem):
 
         # power menu
         if self.chat_widget.client.power > 1:
-            # admin and mod menus
-            menu_add("Assign avatar", self.add_avatar, True)
-
             if self.chat_widget.client.power == 2:
 
                 def send_the_orcs():

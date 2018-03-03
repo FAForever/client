@@ -528,7 +528,6 @@ class ClientWindow(FormClass, BaseClass):
         from vault import MapVault
         from modvault import ModVault
         from replays import ReplaysWidget
-        from chat._avatarWidget import AvatarWidget
 
         self.loadSettings()
 
@@ -579,9 +578,6 @@ class ClientWindow(FormClass, BaseClass):
         self.modsTab.layout().addWidget(self.modvault)
         # set menu states
         self.actionNsEnabled.setChecked(self.notificationSystem.settings.enabled)
-
-        # Other windows
-        self.avatarAdmin = self.avatarSelection = AvatarWidget(self, None)
 
         # units database (ex. live streams)
         # old unitDB
@@ -1112,12 +1108,6 @@ class ClientWindow(FormClass, BaseClass):
             if self.modMenu is None:
                 self.modMenu = self.menu.addMenu("Administration")
 
-            actionAvatar = QtWidgets.QAction("Avatar manager", self.modMenu)
-            actionAvatar.triggered.connect(self.avatarManager)
-            self.modMenu.addAction(actionAvatar)
-
-            self.modMenu.addSeparator()
-
             actionLobbyKick = QtWidgets.QAction("Close player's FAF Client...", self.modMenu)
             actionLobbyKick.triggered.connect(self.power_tools.kick_dialog)
             self.modMenu.addAction(actionLobbyKick)
@@ -1126,11 +1116,8 @@ class ClientWindow(FormClass, BaseClass):
             actionCloseFA.triggered.connect(self.power_tools.close_game_dialog.show)
             self.modMenu.addAction(actionCloseFA)
 
-    def requestAvatars(self, personal):
-        if personal:
-            self.lobby_connection.send(dict(command="avatar", action="list_avatar"))
-        else:
-            self.lobby_connection.send(dict(command="admin", action="requestavatars"))
+    def requestAvatars(self):
+        self.lobby_connection.send(dict(command="avatar", action="list_avatar"))
 
     def joinChannel(self, username, channel):
         """ Join users to a channel """
@@ -1387,10 +1374,6 @@ class ClientWindow(FormClass, BaseClass):
                 self.players[id_].update(**player)
             else:
                 self.players[id_] = Player(**player)
-
-    def avatarManager(self):
-        self.requestAvatars(0)
-        self.avatarSelection.show()
 
     def handle_authentication_failed(self, message):
         QtWidgets.QMessageBox.warning(self, "Authentication failed", message["text"])
