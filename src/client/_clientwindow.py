@@ -35,6 +35,7 @@ import time
 import util
 from ui.status_logo import StatusLogo
 from ui.busy_widget import BusyWidget
+from chat._avatarWidget import AvatarWidget
 
 '''
 Created on Dec 1, 2011
@@ -300,7 +301,6 @@ class ClientWindow(FormClass, BaseClass):
         # for moderator
         self.modMenu = None
         self.power_tools = PowerTools.build(
-                power=0,
                 playerset=self.players,
                 lobby_connection=self.lobby_connection,
                 theme=util.THEME,
@@ -536,17 +536,26 @@ class ClientWindow(FormClass, BaseClass):
         self.game_launcher = build_launcher(self.players, self.me,
                                             self, self.gameview_builder,
                                             self.map_downloader)
+        self._avatar_widget_builder = AvatarWidget.builder(
+                parent_widget=self,
+                lobby_connection=self.lobby_connection,
+                lobby_info=self.lobby_info,
+                avatar_dler=self.avatar_downloader,
+                theme=util.THEME)
 
-        self._chatMVC = ChatMVC.build(settings=config.Settings,
-                                      theme=util.THEME,
-                                      playerset=self.players,
-                                      parent_widget=self,
-                                      me=self.me,
-                                      power_tools=self.power_tools,
-                                      autojoin_channels=['#aeolus'],
-                                      map_preview_dler=self.map_downloader,
-                                      avatar_dler=self.avatar_downloader,
-                                      chatter_size=QtCore.QSize(150, 30))
+        self._chatMVC = ChatMVC.build(
+                settings=config.Settings,
+                theme=util.THEME,
+                playerset=self.players,
+                parent_widget=self,
+                me=self.me,
+                power_tools=self.power_tools,
+                autojoin_channels=['#aeolus'],
+                map_preview_dler=self.map_downloader,
+                avatar_dler=self.avatar_downloader,
+                chatter_size=QtCore.QSize(150, 30),
+                avatar_widget_builder=self._avatar_widget_builder)
+
         self.authorized.connect(self._connect_chat)
 
         # build main window with the now active client

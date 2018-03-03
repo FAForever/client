@@ -9,7 +9,6 @@ logger = logging.getLogger(__name__)
 
 class ChatterMenuItems(Enum):
     SELECT_AVATAR = "Select avatar"
-    ASSIGN_AVATAR = "Assign avatar"
     SEND_ORCS = "Send the Orcs"
     CLOSE_GAME = "Close Game"
     KICK_PLAYER = "Close FAF Client"
@@ -25,14 +24,16 @@ class ChatterMenuItems(Enum):
 
 
 class ChatterMenu:
-    def __init__(self, me, power_tools, parent_widget):
+    def __init__(self, me, power_tools, parent_widget, avatar_widget_builder):
         self._me = me
         self._power_tools = power_tools
         self._parent_widget = parent_widget
+        self._avatar_widget_builder = avatar_widget_builder
 
     @classmethod
-    def build(cls, me, power_tools, parent_widget, **kwargs):
-        return cls(me, power_tools, parent_widget)
+    def build(cls, me, power_tools, parent_widget, avatar_widget_builder,
+              **kwargs):
+        return cls(me, power_tools, parent_widget, avatar_widget_builder)
 
     def actions(self, chatter):
         player = chatter.player
@@ -124,5 +125,7 @@ class ChatterMenu:
             self._power_tools.view.close_game_dialog.show(chatter.name)
         elif kind == Items.KICK_PLAYER:
             self._power_tools.view.kick_dialog(chatter.name)
+        elif kind == Items.SELECT_AVATAR:
+            self._avatar_widget_builder().show()
         else:
             pass
