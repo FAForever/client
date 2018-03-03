@@ -1,0 +1,24 @@
+[[source]]
+
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+
+
+[packages]
+
+cx-freeze = "==5.0.2"
+ipaddress = "*"
+pathlib = "*"
+"pyqt5" = "*"
+semantic-version = "*"
+idna = "*"
+jsonschema = "*"
+
+
+[dev-packages]
+
+python-coveralls = "*"
+pytest = "*"
+pytest-cov = "*"
+pytest-mock = "*"
+pytest-qt = "*"

@@ -25,3 +25,4 @@ client_venv
 *.egg-info
 .vagrant
 .cache
+.venv

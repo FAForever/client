@@ -9,10 +9,8 @@ install:
   - "sudo apt-get update"
   - "sudo apt-get install libjpeg8-dev zlib1g-dev python3-pytest"
   - "sudo apt-get install libpulse-mainloop-glib0"      # For qtmultimedia
-  - "pip3 install cx_Freeze"
-  - "pip3 install PyQt5"
-  - "pip3 install python-coveralls"
-  - "pip3 install -r requirements.txt --trusted-host content.faforever.com"
+  - "pip3 install pipenv"
+  - "pipenv install --dev"
   - curl -s https://api.github.com/repos/FAForever/uid/releases/latest | jq -r '.assets[] | select(.name == "faf-uid") | .browser_download_url' | wget -i - -O ./lib/faf-uid
 
 
@@ -22,7 +20,7 @@ before_script:
 
 script:
   - export PYTEST_QT_API=pyqt5
-  - python3 runtests.py -xs --cov src --cov-report term-missing
+  - pipenv run pytest -xs --cov src --cov-report term-missing
 
 after_success:
   - coveralls
