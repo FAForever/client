@@ -1,14 +1,13 @@
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QListWidget, QPushButton, \
-        QListWidgetItem
-from PyQt5.QtCore import QSize
+from PyQt5.QtWidgets import QPushButton, QListWidgetItem
+from PyQt5.QtCore import QSize, QObject
 from PyQt5.QtGui import QIcon
 from downloadManager import DownloadRequest
 
 
-class AvatarWidget(QDialog):
+class AvatarWidget(QObject):
     def __init__(self, parent_widget, lobby_connection, lobby_info,
-                 avatar_dler):
-        QDialog.__init__(self, parent_widget)
+                 avatar_dler, theme):
+        QObject.__init__(self, parent_widget)
 
         self._parent_widget = parent_widget
         self._lobby_connection = lobby_connection
@@ -19,29 +18,33 @@ class AvatarWidget(QDialog):
         self.requests = {}
         self.buttons = {}
 
-        self.setStyleSheet(self._parent_widget.styleSheet())
-        self.setWindowTitle("Avatar manager")
-        self.groupLayout = QVBoxLayout(self)
-        self.avatarList = QListWidget()
-        self.avatarList.setWrapping(1)
-        self.avatarList.setSpacing(5)
-        self.avatarList.setResizeMode(1)
-        self.groupLayout.addWidget(self.avatarList)
+        self.set_theme(theme)
 
-        self._lobby_info.avatarList.connect(self.avatar_list)
-        self.finished.connect(self.clean)
+        self._lobby_info.avatarList.connect(self.set_avatar_list)
+        self.base.finished.connect(self.clean)
 
     @classmethod
     def builder(cls, parent_widget, lobby_connection, lobby_info, avatar_dler,
-                **kwargs):
+                theme, **kwargs):
         return lambda: cls(parent_widget, lobby_connection, lobby_info,
-                           avatar_dler)
+                           avatar_dler, theme)
 
-    def showEvent(self, event):
+    def set_theme(self, theme):
+        formc, basec = theme.loadUiType("dialogs/avatar.ui")
+        self.form = formc()
+        self.base = basec(self._parent_widget)
+        self.form.setupUi(self.base)
+
+    @property
+    def avatar_list(self):
+        return self.form.avatarList
+
+    def show(self):
         self._lobby_connection.send({
             "command": "avatar",
             "action": "list_avatar"
         })
+        self.base.show()
 
     def select_avatar(self, val):
         self._lobby_connection.send({
@@ -49,13 +52,13 @@ class AvatarWidget(QDialog):
             "action": "select",
             "avatar": val
         })
-        self.close()
+        self.base.close()
 
-    def avatar_list(self, avatar_list):
-        self.avatarList.clear()
+    def set_avatar_list(self, avatars):
+        self.avatar_list.clear()
 
         self._add_avatar_item(None)
-        for avatar in avatar_list:
+        for avatar in avatars:
             self._add_avatar_item(avatar)
             url = avatar["url"]
             icon = self._avatar_dler.avatars.get(url, None)
@@ -79,8 +82,8 @@ class AvatarWidget(QDialog):
         item.setSizeHint(QSize(40, 20))
         self.items[val] = item
 
-        self.avatarList.addItem(item)
-        self.avatarList.setItemWidget(item, button)
+        self.avatar_list.addItem(item)
+        self.avatar_list.setItemWidget(item, button)
 
     def _set_avatar_icon(self, val, icon):
         button = self.buttons[val]
