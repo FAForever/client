@@ -1116,9 +1116,6 @@ class ClientWindow(FormClass, BaseClass):
             actionCloseFA.triggered.connect(self.power_tools.close_game_dialog.show)
             self.modMenu.addAction(actionCloseFA)
 
-    def requestAvatars(self):
-        self.lobby_connection.send(dict(command="avatar", action="list_avatar"))
-
     def joinChannel(self, username, channel):
         """ Join users to a channel """
         self.lobby_connection.send(dict(command="admin", action="join_channel",
