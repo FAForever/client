@@ -176,13 +176,14 @@ class ClientWindow(FormClass, BaseClass):
         self.lobby_dispatch["registration_response"] = self.handle_registration_response
         self.lobby_dispatch["game_launch"] = self.handle_game_launch
         self.lobby_dispatch["matchmaker_info"] = self.handle_matchmaker_info
-        self.lobby_dispatch["social"] = self.handle_social
         self.lobby_dispatch["player_info"] = self.handle_player_info
         self.lobby_dispatch["notice"] = self.handle_notice
         self.lobby_dispatch["invalid"] = self.handle_invalid
         self.lobby_dispatch["update"] = self.handle_update
         self.lobby_dispatch["welcome"] = self.handle_welcome
         self.lobby_dispatch["authentication_failed"] = self.handle_authentication_failed
+
+        self.lobby_info.social.connect(self.handle_social)
 
         # Process used to run Forged Alliance (managed in module fa)
         fa.instance.started.connect(self.startedFA)
