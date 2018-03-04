@@ -268,12 +268,14 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         self._schedule_actions_at_player_available()
 
     def _schedule_actions_at_player_available(self):
-        self._me.playerAvailable.connect(self._at_player_available)
+        self._me.playerChanged.connect(self._at_player_available)
         if self._me.player is not None:
             self._at_player_available()
 
-    def _at_player_available(self):
-        self._me.playerAvailable.disconnect(self._at_player_available)
+    def _at_player_available(self, player):
+        if player is None:
+            return
+        self._me.playerChanged.disconnect(self._at_player_available)
         self._autojoin_newbie_channel()
 
     def _autojoin_newbie_channel(self):

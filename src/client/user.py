@@ -93,7 +93,7 @@ class User(QtCore.QObject):
     """
     relationsUpdated = QtCore.pyqtSignal(set)
     ircRelationsUpdated = QtCore.pyqtSignal(set)
-    playerAvailable = QtCore.pyqtSignal()
+    playerChanged = QtCore.pyqtSignal(object)
 
     def __init__(self, playerset):
         QtCore.QObject.__init__(self)
@@ -142,9 +142,9 @@ class User(QtCore.QObject):
             return
         else:
             self._player = self._players[self.id]
-            self.playerAvailable.emit()
         self._irc_friends.key = self._irc_key("friends")
         self._irc_foes.key = self._irc_key("foes")
+        self.playerChanged.emit(self._player)
 
     def _on_player_change(self, player):
         if self.id is None or player.id != self.id:
