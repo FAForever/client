@@ -1,69 +1,79 @@
 from PyQt5 import QtCore
+from PyQt5.QtCore import QObject, pyqtSignal
+from collections.abc import MutableSet
 from config import Settings
-from enum import Enum
 
 
-class UserRelation(QtCore.QObject):
+class SetSignals(QObject):
     """
-    Represents some sort of relation user has with other players.
+    Defined separately since QObject and MutableSet metaclasses clash.
     """
-    updated = QtCore.pyqtSignal(set)
+    added = pyqtSignal(object)
+    removed = pyqtSignal(object)
 
     def __init__(self):
-        QtCore.QObject.__init__(self)
-        self._relations = set()
+        QObject.__init__(self)
+
+
+class SignallingSet(MutableSet):
+    def __init__(self):
+        MutableSet.__init__(self)
+        self._set = set()
+        self._signals = SetSignals()
+
+    @property
+    def added(self):
+        return self._signals.added
+
+    @property
+    def removed(self):
+        return self._signals.removed
+
+    def __contains__(self, value):
+        return value in self._set
+
+    def __iter__(self):
+        return iter(self._set)
+
+    def __len__(self):
+        return len(self._set)
 
     def add(self, value):
-        self._relations.add(value)
-        self.updated.emit(set([value]))
+        if value not in self._set:
+            self._set.add(value)
+            self.added.emit(value)
 
-    def rem(self, value):
-        self._relations.discard(value)
-        self.updated.emit(set([value]))
-
-    def set(self, values):
-        changed = self._relations.union(set(values))
-        self._relations = set(values)
-        self.updated.emit(changed)
-
-    def clear(self):
-        self.set(set())
-
-    def has(self, value):
-        return value in self._relations
+    def discard(self, value):
+        if value in self._set:
+            self._set.discard(value)
+            self.removed.emit(value)
 
 
-class IrcUserRelation(UserRelation):
-    """
-    Represents a relation user has with IRC users. Remembers the relation
-    in the Settings.
-    """
-
-    def __init__(self, key=None):
-        UserRelation.__init__(self)
+class SavingSignallingSet(SignallingSet):
+    def __init__(self, key, settings):
+        SignallingSet.__init__(self)
+        self._settings = settings
         self.key = key
 
     def _loadRelations(self):
-        if self._key is not None:
-            rel = Settings.get(self._key)
-            self._relations = set(rel) if rel is not None else set()
-        else:
-            self._relations = set()
+        self.clear()
+        if self._key is None:
+            return
+        rel = self._settings.get(self._key)
+        if rel is not None:
+            self |= set(rel)
 
     def _saveRelations(self):
-        if self._key is not None:
-            Settings.set(self._key, list(self._relations))
+        if self._key is None:
+            return
+        self._settings.set(self._key, list(self))
 
     def add(self, value):
-        UserRelation.add(self, value)
+        SignallingSet.add(self, value)
         self._saveRelations()
 
-    def rem(self, value):
-        UserRelation.rem(self, value)
-        self._saveRelations()
-
-    def set(self, values):
-        UserRelation.set(self, values)
+    def discard(self, value):
+        SignallingSet.discard(self, value)
         self._saveRelations()
 
     @property
@@ -96,15 +106,25 @@ class User(QtCore.QObject):
         self._players.added.connect(self._on_player_change)
         self._players.removed.connect(self._on_player_change)
 
-        self._friends = UserRelation()
-        self._foes = UserRelation()
-        self._friends.updated.connect(self.relationsUpdated.emit)
-        self._foes.updated.connect(self.relationsUpdated.emit)
+        self._friends = SignallingSet()
+        self._foes = SignallingSet()
+        self._friends.added.connect(self._updated)
+        self._friends.removed.connect(self._updated)
+        self._foes.added.connect(self._updated)
+        self._foes.removed.connect(self._updated)
 
-        self._irc_friends = IrcUserRelation()
-        self._irc_foes = IrcUserRelation()
-        self._irc_friends.updated.connect(self.ircRelationsUpdated.emit)
-        self._irc_foes.updated.connect(self.ircRelationsUpdated.emit)
+        self._irc_friends = SavingSignallingSet(None, Settings)
+        self._irc_foes = SavingSignallingSet(None, Settings)
+        self._irc_friends.added.connect(self._irc_updated)
+        self._irc_friends.removed.connect(self._irc_updated)
+        self._irc_foes.added.connect(self._irc_updated)
+        self._irc_foes.removed.connect(self._irc_updated)
+
+    def _updated(self, value):
+        self.relationsUpdated.emit(set(value))
+
+    def _irc_updated(self, value):
+        self.ircRelationsUpdated.emit(set(value))
 
     @property
     def player(self):
@@ -116,13 +136,15 @@ class User(QtCore.QObject):
         self._update_player()
 
     def _update_player(self):
-        if self.id is None or self.id not in self._players:
+        if self.id not in self._players:
             self._player = None
+        elif self._player is not None:
             return
-        if self._player is not None:
-            return
-        self._player = self._players[self.id]
-        self.playerAvailable.emit()
+        else:
+            self._player = self._players[self.id]
+            self.playerAvailable.emit()
+        self._irc_friends.key = self._irc_key("friends")
+        self._irc_foes.key = self._irc_key("foes")
 
     def _on_player_change(self, player):
         if self.id is None or player.id != self.id:
@@ -167,48 +189,52 @@ class User(QtCore.QObject):
         self._friends.add(id_)
 
     def remFriend(self, id_):
-        self._friends.rem(id_)
+        self._friends.discard(id_)
 
     def setFriends(self, ids):
-        self._friends.set(ids)
+        self._friends.clear()
+        self._friends |= set(ids)
 
     def addFoe(self, id_):
         self._foes.add(id_)
 
     def remFoe(self, id_):
-        self._foes.rem(id_)
+        self._foes.discard(id_)
 
     def setFoes(self, ids):
-        self._foes.set(ids)
+        self._foes.clear()
+        self._foes |= set(ids)
 
     def addIrcFriend(self, id_):
         self._irc_friends.add(id_)
 
     def remIrcFriend(self, id_):
-        self._irc_friends.rem(id_)
+        self._irc_friends.discard(id_)
 
     def setIrcFriends(self, ids):
-        self._irc_friends.set(ids)
+        self._irc_friends.clear()
+        self._irc_friends |= set(ids)
 
     def addIrcFoe(self, id_):
         self._irc_foes.add(id_)
 
     def remIrcFoe(self, id_):
-        self._irc_foes.rem(id_)
+        self._irc_foes.discard(id_)
 
     def setIrcFoes(self, ids):
-        self._irc_foes.set(ids)
+        self._irc_foes.clear()
+        self._irc_foes |= set(ids)
 
     def isFriend(self, id_=-1, name=None):
         if id_ != -1:
-            return self._friends.has(id_)
+            return id_ in self._friends
         elif name is not None:
-            return self._irc_friends.has(name)
+            return name in self._irc_friends
         return False
 
     def isFoe(self, id_=-1, name=None):
         if id_ != -1:
-            return self._foes.has(id_)
+            return id_ in self._foes
         elif name is not None:
-            return self._irc_foes.has(name)
+            return name in self._irc_foes
         return False
