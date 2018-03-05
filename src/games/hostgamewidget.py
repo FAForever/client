@@ -56,6 +56,11 @@ class GameLauncher:
     def host_game(self, title, main_mod, mapname=None):
         game = self._build_hosted_game(main_mod, mapname)
         self._game_widget.setup(title, game)
+
+        mapname = util.settings.value("fa.games/gamemap", None)
+        if mapname is not None:
+            self._game_widget.set_map(mapname)
+
         return self._game_widget.exec_()
 
     def _launch_game(self, game, password, mods):
@@ -144,6 +149,13 @@ class HostGameWidget(FormClass, BaseClass):
             logger.debug("found item: %s" % ml[0].text())
             if ml:
                 ml[0].setSelected(True)
+
+    def set_map(self, mapname):
+        for i in range(self.mapList.count()):
+            print(self.mapList.itemData(i))
+            if self.mapList.itemData(i) == mapname:
+                self.mapList.setCurrentIndex(i)
+                return
 
     def update_text(self, text):
         self.game.update(title=text.strip())
