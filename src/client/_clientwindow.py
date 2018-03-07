@@ -37,6 +37,13 @@ from ui.status_logo import StatusLogo
 from ui.busy_widget import BusyWidget
 from chat._avatarWidget import AvatarWidget
 
+from model.chat.chat import Chat
+from chat.ircconnection import IrcConnection
+from chat.chat_view import ChatView
+from chat.chat_controller import ChatController
+
+from client.user import UserRelationModel, UserRelationController, \
+        UserRelationTrackers, UserRelations
 '''
 Created on Dec 1, 2011
 
@@ -159,8 +166,29 @@ class ClientWindow(FormClass, BaseClass):
 
         fa.instance.gameset = self.gameset  # FIXME (needed fa/game_process L81 for self.game = self.gameset[uid])
 
+        self.lobby_info = LobbyInfo(self.lobby_dispatch, self.gameset, self.players)
+
         # Handy reference to the User object representing the logged-in user.
         self.me = User(self.players)
+
+        self._chat_model = Chat.build(playerset=self.players)
+
+        relation_model = UserRelationModel.build()
+        relation_controller = UserRelationController.build(
+                relation_model,
+                me=self.me,
+                settings=config.Settings,
+                lobby_info=self.lobby_info,
+                lobby_connection=self.lobby_connection
+                )
+        relation_trackers = UserRelationTrackers.build(
+                relation_model,
+                playerset=self.players,
+                chatterset=self._chat_model.chatters
+                )
+        self.user_relations = UserRelations(
+                relation_model, relation_controller, relation_trackers)
+        self.me.relations = self.user_relations
 
         self.map_downloader = PreviewDownloader(util.MAP_PREVIEW_DIR, MAP_PREVIEW_ROOT)
         self.mod_downloader = PreviewDownloader(util.MOD_PREVIEW_DIR, None)
@@ -169,7 +197,6 @@ class ClientWindow(FormClass, BaseClass):
         # Qt model for displaying active games.
         self.game_model = GameModel(self.me, self.map_downloader, self.gameset)
 
-        self.lobby_info = LobbyInfo(self.lobby_dispatch, self.gameset, self.players)
         self.gameset.added.connect(self.fill_in_session_info)
 
         self.lobby_dispatch["session"] = self.handle_session
@@ -544,18 +571,25 @@ class ClientWindow(FormClass, BaseClass):
                 avatar_dler=self.avatar_downloader,
                 theme=util.THEME)
 
-        self._chatMVC = ChatMVC.build(
-                settings=config.Settings,
-                theme=util.THEME,
-                playerset=self.players,
+        chat_connection = IrcConnection.build(settings=config.Settings)
+        chat_controller = ChatController.build(
+                connection=chat_connection,
+                model=self._chat_model,
+                autojoin_channels=['#aeolus'])
+        chat_view = ChatView.build(
+                model=self._chat_model,
+                controller=chat_controller,
                 parent_widget=self,
+                theme=util.THEME,
                 me=self.me,
                 power_tools=self.power_tools,
-                autojoin_channels=['#aeolus'],
                 map_preview_dler=self.map_downloader,
                 avatar_dler=self.avatar_downloader,
                 chatter_size=QtCore.QSize(150, 30),
                 avatar_widget_builder=self._avatar_widget_builder)
+
+        self._chatMVC = ChatMVC(self._chat_model, chat_connection,
+                                chat_controller, chat_view)
 
         self.authorized.connect(self._connect_chat)
 
@@ -1137,26 +1171,6 @@ class ClientWindow(FormClass, BaseClass):
     def closeLobby(self, username=""):
         self.power_tools.actions.kick_player(username)
 
-    def addFriend(self, friend_id):
-        if friend_id in self.players:
-            self.me.addFriend(int(friend_id))
-            self.lobby_connection.send(dict(command="social_add", friend=friend_id))
-
-    def addFoe(self, foe_id):
-        if foe_id in self.players:
-            self.me.addFoe(int(foe_id))
-            self.lobby_connection.send(dict(command="social_add", foe=foe_id))
-
-    def remFriend(self, friend_id):
-        if friend_id in self.players:
-            self.me.remFriend(int(friend_id))
-            self.lobby_connection.send(dict(command="social_remove", friend=friend_id))
-
-    def remFoe(self, foe_id):
-        if foe_id in self.players:
-            self.me.remFoe(int(foe_id))
-            self.lobby_connection.send(dict(command="social_remove", foe=foe_id))
-
     def handle_session(self, message):
         self._update_checker.server_session()
 
@@ -1349,12 +1363,6 @@ class ClientWindow(FormClass, BaseClass):
                 self.warningHide()
 
     def handle_social(self, message):
-        if "friends" in message:
-            self.me.setFriends(set([int(u) for u in message["friends"]]))
-
-        if "foes" in message:
-            self.me.setFoes(set([int(u) for u in message["foes"]]))
-
         if "channels" in message:
             # Add a delay to the notification system (insane cargo cult)
             self.notificationSystem.disabledStartup = False

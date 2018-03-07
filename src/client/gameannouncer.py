@@ -22,7 +22,7 @@ class GameAnnouncer:
 
     def _is_friend_host(self, game):
         return (game.host_player is not None
-                and self._me.isFriend(game.host_player.id))
+                and self._me.relations.model.is_friend(game.host_player.id))
 
     def _announce_hosting(self, game):
         if not self._is_friend_host(game) or not self.announce_games:

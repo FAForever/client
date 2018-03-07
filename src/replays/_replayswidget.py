@@ -111,7 +111,7 @@ class LiveReplayItem(QtWidgets.QTreeWidgetItem):
 
     def _is_friend(self, name):
         playerid = client.instance.players.getID(name)
-        return client.instance.me.isFriend(playerid)
+        return client.instance.me.relations.model.is_friend(playerid)
 
     def _is_online(self, name):
         return name in client.instance.players

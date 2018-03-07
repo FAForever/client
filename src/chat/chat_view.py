@@ -3,26 +3,26 @@ from chat.channel_view import ChannelView
 
 
 class ChatView:
-    def __init__(self, chat, controller, widget, channel_view_builder):
-        self._chat = chat
+    def __init__(self, model, controller, widget, channel_view_builder):
+        self._model = model
         self._controller = controller
         self.widget = widget
         self._channel_view_builder = channel_view_builder
         self._channels = {}
-        self._chat.channels.added.connect(self._add_channel)
-        self._chat.channels.removed.connect(self._remove_channel)
-        self._chat.new_server_message.connect(self._new_server_message)
+        self._model.channels.added.connect(self._add_channel)
+        self._model.channels.removed.connect(self._remove_channel)
+        self._model.new_server_message.connect(self._new_server_message)
         self.widget.channel_quit_request.connect(self._at_channel_quit_request)
         self._add_channels()
 
     @classmethod
-    def build(cls, chat, controller, **kwargs):
+    def build(cls, model, controller, **kwargs):
         chat_widget = ChatWidget.build(**kwargs)
         channel_view_builder = ChannelView.builder(controller, **kwargs)
-        return cls(chat, controller, chat_widget, channel_view_builder)
+        return cls(model, controller, chat_widget, channel_view_builder)
 
     def _add_channels(self):
-        for channel in self._chat.channels.values():
+        for channel in self._model.channels.values():
             self._add_channel(channel)
 
     def _add_channel(self, channel):

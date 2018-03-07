@@ -46,8 +46,6 @@ class Chatter(QtWidgets.QTableWidgetItem):
         self.channel = channel
 
         self._me = me
-        self._me.relationsUpdated.connect(self._check_player_relation)
-        self._me.ircRelationsUpdated.connect(self._check_user_relation)
 
         self._map_dl_request = DownloadRequest()
         self._map_dl_request.done.connect(self._on_map_downloaded)
@@ -216,9 +214,9 @@ class Chatter(QtWidgets.QTableWidgetItem):
         _id, name = user._get_id_name()
         if user.mod_elevation():
             return self.RANK_ELEVATION
-        if me.isFriend(_id, name):
+        if me.relations.model.is_friend(_id, name):
             return self.RANK_FRIEND - (2 if self.chat_widget.client.friendsontop else 0)
-        if me.isFoe(_id, name):
+        if me.relations.model.is_foe(_id, name):
             return self.RANK_FOE
         if user.user_player is not None:
             return self.RANK_USER
@@ -531,9 +529,9 @@ class Chatter(QtWidgets.QTableWidgetItem):
         me = self._me
         if is_me:  # We're ourselves
             pass
-        elif me.isFriend(_id, name):  # We're a friend
+        elif me.relations.model.is_friend(_id, name):
             menu_add("Remove friend", player_or_irc_action(cl.remFriend, me.remIrcFriend), True)
-        elif me.isFoe(_id, name):  # We're a foe
+        elif me.relations.model.is_foe(_id, name):
             menu_add("Remove foe", player_or_irc_action(cl.remFoe, me.remIrcFoe), True)
         else:  # We're neither
             menu_add("Add friend", player_or_irc_action(cl.addFriend, me.addIrcFriend), True)

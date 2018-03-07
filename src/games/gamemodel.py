@@ -105,7 +105,8 @@ class GameSortModel(QSortFilterProxyModel):
     def _lt_friend(self, left, right):
         hostl = -1 if left.host_player is None else left.host_player.id
         hostr = -1 if right.host_player is None else right.host_player.id
-        return self._me.isFriend(hostl) and not self._me.isFriend(hostr)
+        return (self._me.relations.model.is_friend(hostl) and
+                not self._me.relations.model.is_friend(hostr))
 
     def _lt_type(self, left, right):
         stype = self._sort_type

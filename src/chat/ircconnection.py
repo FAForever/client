@@ -1,13 +1,14 @@
 from PyQt5.QtCore import QObject, QSocketNotifier, QTimer, pyqtSignal
 import logging
 import sys
+import re
 
 from chat import irclib
 from chat.irclib import SimpleIRCClient, IRCError
 from model.chat.chatline import ChatLine
 from model.chat.channel import ChannelID, ChannelType
 import util
-import re
+import config
 
 logger = logging.getLogger(__name__)
 PONG_INTERVAL = 60000  # milliseconds between pongs
@@ -91,7 +92,9 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
         self._identified = False
 
     @classmethod
-    def build(cls, host, port, ssl=False, **kwargs):
+    def build(cls, settings, ssl=False, **kwargs):
+        port = settings.get('chat/port', 6667, int)
+        host = settings.get('chat/host', 'irc.' + config.defaults['host'], str)
         return cls(host, port, ssl)
 
     def disconnect(self):

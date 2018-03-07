@@ -243,9 +243,9 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
         if any(chatter.is_mod(c) for c in self.crucialChannels):
             return False
         if chatter.player is None:
-            return self.client.me.isFoe(name=chatter.name)
+            return self.client.me.relations.model.is_foe(name=chatter.name)
         else:
-            return self.client.me.isFoe(id_=chatter.player.id)
+            return self.client.me.relations.model.is_foe(id_=chatter.player.id)
 
 # SimpleIRCClient Class Dispatcher Attributes follow here.
     def on_welcome(self, c, e):

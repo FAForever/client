@@ -41,11 +41,11 @@ class PlayerColors:
     def getAffiliation(self, id_=-1, name=None):
         if self._user.player and self._user.player.id == id_:
             return PlayerAffiliation.SELF
-        if self._user.isFriend(id_, name):
+        if self._user.relations.model.is_friend(id_, name):
             return PlayerAffiliation.FRIEND
-        if self._user.isFoe(id_, name):
+        if self._user.relations.model.is_foe(id_, name):
             return PlayerAffiliation.FOE
-        if self._user.isClannie(id_):
+        if self._user.is_clannie(id_):
             return PlayerAffiliation.CLANNIE
         return PlayerAffiliation.OTHER
 

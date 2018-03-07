@@ -42,7 +42,7 @@ class Notifications:
             return
 
         notify_mode = self.settings.getCustomSetting(self.USER_ONLINE, 'mode')
-        if notify_mode != 'all' and not self.me.isFriend(player.id):
+        if notify_mode != 'all' and not self.me.relations.model.is_friend(player.id):
             return
 
         self.events.append((self.USER_ONLINE, player.copy()))
@@ -55,7 +55,7 @@ class Notifications:
         host = game.host_player
         notify_mode = self.settings.getCustomSetting(self.NEW_GAME, 'mode')
         if notify_mode != 'all':
-            if host is None or not self.me.isFriend(host):
+            if host is None or not self.me.relations.model.is_friend(host):
                 return
 
         self.events.append((self.NEW_GAME, game.copy()))

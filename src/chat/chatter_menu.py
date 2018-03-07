@@ -82,9 +82,9 @@ class ChatterMenu:
             return
         id_ = -1 if player is None else player.id
         name = chatter.name
-        if self._me.isFriend(id_, name):
+        if self._me.relations.model.is_friend(id_, name):
             yield ChatterMenuItems.REMOVE_FRIEND
-        elif self._me.isFoe(id_, name):
+        elif self._me.relations.model.is_foe(id_, name):
             yield ChatterMenuItems.REMOVE_FOE
         else:
             yield ChatterMenuItems.ADD_FRIEND
