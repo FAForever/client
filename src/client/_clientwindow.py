@@ -572,7 +572,8 @@ class ClientWindow(FormClass, BaseClass):
                 avatar_dler=self.avatar_downloader,
                 chatter_size=QtCore.QSize(150, 30),
                 avatar_widget_builder=self._avatar_widget_builder,
-                alias_viewer=self._alias_viewer)
+                alias_viewer=self._alias_viewer,
+                client_window=self)
 
         self._chatMVC = ChatMVC(self._chat_model, chat_connection,
                                 chat_controller, chat_view)
@@ -1118,13 +1119,11 @@ class ClientWindow(FormClass, BaseClass):
                 if fa.check.check(gurl.mod, gurl.map, sim_mods=add_mods):
                     self.join_game(gurl.uid)
 
-    @QtCore.pyqtSlot()
-    def searchUserReplays(self, name):
+    def view_replays(self, name):
         self.replays.set_player(name)
         self.mainTabs.setCurrentIndex(self.mainTabs.indexOf(self.replaysTab))
 
-    @QtCore.pyqtSlot()
-    def viewUserLeaderboards(self, user):
+    def view_in_leaderboards(self, user):
         self.ladder.set_player(user)
         self.mainTabs.setCurrentIndex(self.mainTabs.indexOf(self.ladderTab))
 

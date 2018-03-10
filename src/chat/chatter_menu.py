@@ -25,18 +25,19 @@ class ChatterMenuItems(Enum):
 
 class ChatterMenu:
     def __init__(self, me, power_tools, parent_widget, avatar_widget_builder,
-                 alias_viewer):
+                 alias_viewer, client_window):
         self._me = me
         self._power_tools = power_tools
         self._parent_widget = parent_widget
         self._avatar_widget_builder = avatar_widget_builder
         self._alias_viewer = alias_viewer
+        self._client_window = client_window
 
     @classmethod
     def build(cls, me, power_tools, parent_widget, avatar_widget_builder,
-              alias_viewer, **kwargs):
+              alias_viewer, client_window, **kwargs):
         return cls(me, power_tools, parent_widget, avatar_widget_builder,
-                   alias_viewer)
+                   alias_viewer, client_window)
 
     def actions(self, chatter):
         player = chatter.player
@@ -135,6 +136,10 @@ class ChatterMenu:
             self._handle_friends(chatter, player, kind)
         elif kind == Items.VIEW_ALIASES:
             self._view_aliases(chatter, player)
+        elif kind == Items.VIEW_REPLAYS:
+            self._client_window.view_replays(player.login)
+        elif kind == Items.VIEW_IN_LEADERBOARDS:
+            self._client_window.view_in_leaderboards(player)
 
     def _handle_friends(self, chatter, player, kind):
         ctl = self._me.relations.controller
