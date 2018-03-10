@@ -23,6 +23,12 @@ class GameModelItem(QObject):
         self._preview_dl_request = DownloadRequest()
         self._preview_dl_request.done.connect(self._at_preview_downloaded)
 
+    @classmethod
+    def builder(cls, me, preview_dler):
+        def build(game):
+            return cls(game, me, preview_dler)
+        return build
+
     def _game_updated(self):
         self.updated.emit(self)
         self._download_preview_if_needed()
