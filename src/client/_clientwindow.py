@@ -4,7 +4,7 @@ import config
 import connectivity
 from connectivity.helper import ConnectivityHelper
 from client import ClientState, LOBBY_HOST, LOBBY_PORT, LOCAL_REPLAY_PORT
-from client.aliasviewer import AliasSearchWindow
+from client.aliasviewer import AliasWindow, AliasSearchWindow
 from client.connection import LobbyInfo, ServerConnection, \
         Dispatcher, ConnectionState, ServerReconnecter
 from client.gameannouncer import GameAnnouncer
@@ -335,7 +335,8 @@ class ClientWindow(FormClass, BaseClass):
                 parent_widget=self,
                 settings=config.Settings)
 
-        self._alias_window = AliasSearchWindow.build(parent_widget=self)
+        self._alias_viewer = AliasWindow.build(parent_widget=self)
+        self._alias_search_window = AliasSearchWindow(self, self._alias_viewer)
 
     @property
     def state(self):
@@ -570,7 +571,8 @@ class ClientWindow(FormClass, BaseClass):
                 map_preview_dler=self.map_downloader,
                 avatar_dler=self.avatar_downloader,
                 chatter_size=QtCore.QSize(150, 30),
-                avatar_widget_builder=self._avatar_widget_builder)
+                avatar_widget_builder=self._avatar_widget_builder,
+                alias_viewer=self._alias_viewer)
 
         self._chatMVC = ChatMVC(self._chat_model, chat_connection,
                                 chat_controller, chat_view)
@@ -906,7 +908,7 @@ class ClientWindow(FormClass, BaseClass):
         dialog.show()
 
     def checkPlayerAliases(self):
-        self._alias_window.run()
+        self._alias_search_window.run()
 
     def saveWindow(self):
         util.settings.beginGroup("window")

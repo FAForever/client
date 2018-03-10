@@ -24,16 +24,19 @@ class ChatterMenuItems(Enum):
 
 
 class ChatterMenu:
-    def __init__(self, me, power_tools, parent_widget, avatar_widget_builder):
+    def __init__(self, me, power_tools, parent_widget, avatar_widget_builder,
+                 alias_viewer):
         self._me = me
         self._power_tools = power_tools
         self._parent_widget = parent_widget
         self._avatar_widget_builder = avatar_widget_builder
+        self._alias_viewer = alias_viewer
 
     @classmethod
     def build(cls, me, power_tools, parent_widget, avatar_widget_builder,
-              **kwargs):
-        return cls(me, power_tools, parent_widget, avatar_widget_builder)
+              alias_viewer, **kwargs):
+        return cls(me, power_tools, parent_widget, avatar_widget_builder,
+                   alias_viewer)
 
     def actions(self, chatter):
         player = chatter.player
@@ -130,6 +133,8 @@ class ChatterMenu:
         elif kind in [Items.ADD_FRIEND, Items.ADD_FOE, Items.REMOVE_FRIEND,
                       Items.REMOVE_FOE]:
             self._handle_friends(chatter, player, kind)
+        elif kind == Items.VIEW_ALIASES:
+            self._view_aliases(chatter, player)
 
     def _handle_friends(self, chatter, player, kind):
         ctl = self._me.relations.controller
@@ -145,3 +150,7 @@ class ChatterMenu:
             ctl.foes.add(uid)
         elif kind == Items.REMOVE_FOE:
             ctl.foes.remove(uid)
+
+    def _view_aliases(self, chatter, player):
+        id_ = None if player is None else player.id
+        self._alias_viewer.view_aliases(chatter.name, id_)
