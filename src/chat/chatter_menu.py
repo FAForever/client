@@ -1,7 +1,7 @@
 from enum import Enum
-from model.game import GameState
-
 from PyQt5.QtWidgets import QMenu, QAction
+
+from model.game import GameState
 
 import logging
 logger = logging.getLogger(__name__)
@@ -25,19 +25,20 @@ class ChatterMenuItems(Enum):
 
 class ChatterMenu:
     def __init__(self, me, power_tools, parent_widget, avatar_widget_builder,
-                 alias_viewer, client_window):
+                 alias_viewer, client_window, game_runner):
         self._me = me
         self._power_tools = power_tools
         self._parent_widget = parent_widget
         self._avatar_widget_builder = avatar_widget_builder
         self._alias_viewer = alias_viewer
         self._client_window = client_window
+        self._game_runner = game_runner
 
     @classmethod
     def build(cls, me, power_tools, parent_widget, avatar_widget_builder,
-              alias_viewer, client_window, **kwargs):
+              alias_viewer, client_window, game_runner, **kwargs):
         return cls(me, power_tools, parent_widget, avatar_widget_builder,
-                   alias_viewer, client_window)
+                   alias_viewer, client_window, game_runner)
 
     def actions(self, chatter):
         player = chatter.player
@@ -140,6 +141,8 @@ class ChatterMenu:
             self._client_window.view_replays(player.login)
         elif kind == Items.VIEW_IN_LEADERBOARDS:
             self._client_window.view_in_leaderboards(player)
+        elif kind in [Items.JOIN_GAME, Items.VIEW_LIVEREPLAY]:
+            self._game_runner.run_game_with_url(game, player.id)
 
     def _handle_friends(self, chatter, player, kind):
         ctl = self._me.relations.controller

@@ -19,6 +19,7 @@ from downloadManager import PreviewDownloader, AvatarDownloader, \
 import fa
 from fa.factions import Factions
 from fa.maps import getUserMapsFolder
+from fa.game_runner import GameRunner
 from functools import partial
 from games.gamemodel import GameModel
 from games.gameitem import GameViewBuilder
@@ -337,6 +338,7 @@ class ClientWindow(FormClass, BaseClass):
 
         self._alias_viewer = AliasWindow.build(parent_widget=self)
         self._alias_search_window = AliasSearchWindow(self, self._alias_viewer)
+        self._game_runner = GameRunner(self)
 
     @property
     def state(self):
@@ -573,7 +575,8 @@ class ClientWindow(FormClass, BaseClass):
                 chatter_size=QtCore.QSize(150, 30),
                 avatar_widget_builder=self._avatar_widget_builder,
                 alias_viewer=self._alias_viewer,
-                client_window=self)
+                client_window=self,
+                game_runner=self._game_runner)
 
         self._chatMVC = ChatMVC(self._chat_model, chat_connection,
                                 chat_controller, chat_view)
