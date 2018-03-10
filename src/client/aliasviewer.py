@@ -164,10 +164,16 @@ class AliasFormatter:
 
 
 class AliasWindow:
-    def __init__(self, parent):
-        self._parent = parent
+    def __init__(self, parent_widget, api, formatter):
+        self._parent_widget = parent_widget
         self._api = AliasViewer()
         self._fmt = AliasFormatter()
+
+    @classmethod
+    def build(cls, parent_widget, **kwargs):
+        api = AliasViewer()
+        formatter = AliasFormatter()
+        return cls(parent_widget, api, formatter)
 
     def view_aliases(self, name, id_=None):
         player_aliases = None
@@ -196,23 +202,28 @@ class AliasWindow:
         alias_format = self._fmt.names_previously_known(player_aliases)
         others_format = self._fmt.name_used_by_others(other_users, name)
         result = '{}<br/><br/>{}'.format(alias_format, others_format)
-        QtWidgets.QMessageBox.about(self._parent,
+        QtWidgets.QMessageBox.about(self._parent_widget,
                                     "Aliases : {}".format(name),
                                     result)
 
 
 class AliasSearchWindow:
-    def __init__(self, parent):
-        self._parent = parent
-        self._alias_window = AliasWindow(parent)
+    def __init__(self, parent_widget, alias_window):
+        self._parent_widget = parent_widget
+        self._alias_window = alias_window
         self._search_window = None
+
+    @classmethod
+    def build(cls, parent_widget, **kwargs):
+        alias_window = AliasWindow.build(parent_widget, **kwargs)
+        return cls(alias_window)
 
     def search_alias(self, name):
         self._alias_window.view_aliases(name)
         self._search_window = None
 
     def run(self):
-        self._search_window = QtWidgets.QInputDialog(self._parent)
+        self._search_window = QtWidgets.QInputDialog(self._parent_widget)
         self._search_window.setInputMode(QtWidgets.QInputDialog.TextInput)
         self._search_window.textValueSelected.connect(self.search_alias)
         self._search_window.setLabelText("User name / alias:")

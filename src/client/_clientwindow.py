@@ -335,23 +335,7 @@ class ClientWindow(FormClass, BaseClass):
                 parent_widget=self,
                 settings=config.Settings)
 
-        self._alias_window = AliasSearchWindow(self)
-        #self.nFrame = NewsFrame()
-        #self.whatsNewLayout.addWidget(self.nFrame)
-        #self.nFrame.collapse()
-
-        #self.nFrame = NewsFrame()
-        #self.whatsNewLayout.addWidget(self.nFrame)
-
-        #self.nFrame = NewsFrame()
-        #self.whatsNewLayout.addWidget(self.nFrame)
-
-
-        #self.WPApi = WPAPI(self)
-        #self.WPApi.newsDone.connect(self.on_wpapi_done)
-        #self.WPApi.download()
-
-        #self.controlsContainerLayout.setAlignment(self.pageControlFrame, QtCore.Qt.AlignRight)
+        self._alias_window = AliasSearchWindow.build(parent_widget=self)
 
     @property
     def state(self):

@@ -50,7 +50,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
         self._map_dl_request = DownloadRequest()
         self._map_dl_request.done.connect(self._on_map_downloaded)
 
-        self._aliases = AliasWindow(self.parent)
+        self._aliases = AliasWindow.build(parent_widget=self.parent)
         self._game_info_hider = SensitiveMapInfoChecker(self._me)
 
         self.setFlags(QtCore.Qt.ItemIsEnabled)
