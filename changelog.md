@@ -1,6 +1,13 @@
 0.x.x
 =====
 
+0.17.1
+=====
+ * Fix missing audio plugin causing sounds not to be played on Windows (#995)
+
+ Contributors:
+ - Wesmania
+
 0.17.0
 =====
  * Fix the error message "failed to get uid" which has bad spacing

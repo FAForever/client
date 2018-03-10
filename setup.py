@@ -94,6 +94,7 @@ if sys.platform == 'win32':
         'include_files': ['res',
                           'imageformats',
                           'platforms',
+                          'audio',
                           'libeay32.dll',
                           'ssleay32.dll',
                           'libEGL.dll', # For QtWebEngine

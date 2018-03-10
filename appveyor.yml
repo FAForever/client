@@ -26,6 +26,7 @@ install:
   # copy required dlls for packaging in setup.py
   - "xcopy %PYTHON%\\lib\\site-packages\\PyQt5\\Qt\\plugins\\imageformats .\\imageformats /I"
   - "xcopy %PYTHON%\\lib\\site-packages\\PyQt5\\Qt\\plugins\\platforms .\\platforms /I"
+  - "xcopy %PYTHON%\\lib\\site-packages\\PyQt5\\Qt\\plugins\\audio .\\audio /I"
   - "xcopy %PYTHON%\\lib\\site-packages\\PyQt5\\Qt\\bin\\libeay32.dll ."
   - "xcopy %PYTHON%\\lib\\site-packages\\PyQt5\\Qt\\bin\\ssleay32.dll ."
   - "xcopy %PYTHON%\\lib\\site-packages\\pywin32_system32\\pywintypes36.dll ."
