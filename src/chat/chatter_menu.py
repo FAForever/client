@@ -127,5 +127,21 @@ class ChatterMenu:
             self._power_tools.view.kick_dialog(chatter.name)
         elif kind == Items.SELECT_AVATAR:
             self._avatar_widget_builder().show()
-        else:
-            pass
+        elif kind in [Items.ADD_FRIEND, Items.ADD_FOE, Items.REMOVE_FRIEND,
+                      Items.REMOVE_FOE]:
+            self._handle_friends(chatter, player, kind)
+
+    def _handle_friends(self, chatter, player, kind):
+        ctl = self._me.relations.controller
+        ctl = ctl.faf if player is not None else ctl.irc
+        uid = player.id if player is not None else chatter.name
+
+        Items = ChatterMenuItems
+        if kind == Items.ADD_FRIEND:
+            ctl.friends.add(uid)
+        elif kind == Items.REMOVE_FRIEND:
+            ctl.friends.remove(uid)
+        if kind == Items.ADD_FOE:
+            ctl.foes.add(uid)
+        elif kind == Items.REMOVE_FOE:
+            ctl.foes.remove(uid)
