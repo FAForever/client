@@ -413,9 +413,9 @@ class Chatter(QtWidgets.QTableWidgetItem):
         elevation = self.mod_elevation()
         _id, name = self._get_id_name()
         if elevation is not None:
-            color = pcolors.getModColor(elevation, _id, name)
+            color = pcolors.get_mod_color(elevation, _id, name)
         else:
-            color = pcolors.getUserColor(_id, name)
+            color = pcolors.get_user_color(_id, name)
         self.setForeground(QtGui.QColor(color))
 
     def view_aliases(self):

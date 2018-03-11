@@ -305,7 +305,8 @@ class ClientWindow(FormClass, BaseClass):
         self._vault_tab = -1
         self.topTabs.currentChanged.connect(self.vaultTabChanged)
 
-        self.player_colors = PlayerColors(self.me)
+        self.player_colors = PlayerColors(self.me, self.user_relations.model,
+                                          util.THEME)
 
         self.game_announcer = GameAnnouncer(self.gameset, self.me,
                                             self.player_colors, self)
@@ -835,7 +836,7 @@ class ClientWindow(FormClass, BaseClass):
         self.game_announcer.announce_replays = self.actionSetLiveReplays.isChecked()
 
         self.gamelogs = self.actionSaveGamelogs.isChecked()
-        self.player_colors.coloredNicknames = self.actionColoredNicknames.isChecked()
+        self.player_colors.colored_nicknames = self.actionColoredNicknames.isChecked()
         if self.friendsontop != self.actionFriendsOnTop.isChecked():
             self.friendsontop = self.actionFriendsOnTop.isChecked()
             self.chat.sort_channels()
@@ -940,7 +941,7 @@ class ClientWindow(FormClass, BaseClass):
         util.settings.setValue("joinsparts", self.joinsparts)
         util.settings.setValue("newbiesChannel", self.useNewbiesChannel)
         util.settings.setValue("chatmaps", self.chatmaps)
-        util.settings.setValue("coloredNicknames", self.player_colors.coloredNicknames)
+        util.settings.setValue("coloredNicknames", self.player_colors.colored_nicknames)
         util.settings.setValue("friendsontop", self.friendsontop)
         util.settings.endGroup()
 
@@ -964,12 +965,12 @@ class ClientWindow(FormClass, BaseClass):
             self.joinsparts = (util.settings.value("joinsparts", "false") == "true")
             self.chatmaps = (util.settings.value("chatmaps", "false") == "true")
             self.game_announcer.announce_replays = (util.settings.value("livereplays", "true") == "true")
-            self.player_colors.coloredNicknames = (util.settings.value("coloredNicknames", "false") == "true")
+            self.player_colors.colored_nicknames = (util.settings.value("coloredNicknames", "false") == "true")
             self.friendsontop = (util.settings.value("friendsontop", "false") == "true")
             self.useNewbiesChannel = (util.settings.value("newbiesChannel","true") == "true")
 
             util.settings.endGroup()
-            self.actionColoredNicknames.setChecked(self.player_colors.coloredNicknames)
+            self.actionColoredNicknames.setChecked(self.player_colors.colored_nicknames)
             self.actionFriendsOnTop.setChecked(self.friendsontop)
             self.actionSetSoundEffects.setChecked(self.soundeffects)
             self.actionSetLiveReplays.setChecked(self.game_announcer.announce_replays)

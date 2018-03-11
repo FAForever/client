@@ -278,10 +278,10 @@ class Channel(FormClass, BaseClass):
                     avatar = avatar["url"]
         else:
             # Fallback and ask the client. We have no Idea who this is.
-            color = self.chat_widget.client.player_colors.getUserColor(player.id)
+            color = self.chat_widget.client.player_colors.get_user_color(player.id)
 
         if mentioned and sender_is_not_me:
-            color = self.chat_widget.client.player_colors.getColor("you")
+            color = self.chat_widget.client.player_colors.get_color("you")
 
         # scroll if close to the last line of the log
         scroll_current = self.chatArea.verticalScrollBar().value()
@@ -356,7 +356,7 @@ class Channel(FormClass, BaseClass):
         except AttributeError:
             _id = -1
 
-        color = self.chat_widget.client.player_colors.getUserColor(_id)
+        color = self.chat_widget.client.player_colors.get_user_color(_id)
 
         # Play a ping sound
         if self.private and chname != self.chat_widget.client.login:

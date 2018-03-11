@@ -1,11 +1,6 @@
-import util
 import json
 import random
 from enum import Enum
-
-
-def _loadcolors(filename):
-    return json.loads(util.THEME.readfile(filename))
 
 
 class PlayerAffiliation(Enum):
@@ -17,40 +12,43 @@ class PlayerAffiliation(Enum):
 
 
 class PlayerColors:
-    # Color table used by the following method
-    # CAVEAT: will break if theme is loaded after client module is imported
-    colors = _loadcolors("client/colors.json")
-    operatorColors = _loadcolors("chat/formatters/operator_colors.json")
-    randomcolors = _loadcolors("client/randomcolors.json")
+    def __init__(self, me, user_relations, theme):
+        self._me = me
+        self._user_relations = user_relations
+        self._theme = theme
+        self.colored_nicknames = False
+        self._colors = self._load_colors("client/colors.json")
+        self._operator_colors = self._load_colors(
+                "chat/formatters/operator_colors.json")
+        self._random_colors = self._load_colors("client/randomcolors.json")
 
-    def __init__(self, user):
-        self._user = user
-        self.coloredNicknames = False
+    def _load_colors(self, filename):
+        return json.loads(self._theme.readfile(filename))
 
-    def getColor(self, name):
-        if name in self.colors:
-            return self.colors[name]
+    def get_color(self, name):
+        if name in self._colors:
+            return self._colors[name]
         else:
-            return self.colors["default"]
+            return self._colors["default"]
 
-    def getRandomColor(self, seed):
+    def get_random_color(self, seed):
         '''Generate a random color from a seed'''
         random.seed(seed)
-        return random.choice(self.randomcolors)
+        return random.choice(self._random_colors)
 
-    def getAffiliation(self, id_=-1, name=None):
-        if self._user.player and self._user.player.id == id_:
+    def _get_affiliation(self, id_=-1, name=None):
+        if self._me.player is not None and self._me.player.id == id_:
             return PlayerAffiliation.SELF
-        if self._user.relations.model.is_friend(id_, name):
+        if self._user_relations.is_friend(id_, name):
             return PlayerAffiliation.FRIEND
-        if self._user.relations.model.is_foe(id_, name):
+        if self._user_relations.is_foe(id_, name):
             return PlayerAffiliation.FOE
-        if self._user.is_clannie(id_):
+        if self._me.is_clannie(id_):
             return PlayerAffiliation.CLANNIE
         return PlayerAffiliation.OTHER
 
-    def getUserColor(self, _id=-1, name=None):
-        affil = self.getAffiliation(_id, name)
+    def get_user_color(self, _id=-1, name=None):
+        affil = self._get_affiliation(_id, name)
         names = {
             PlayerAffiliation.SELF: "self",
             PlayerAffiliation.FRIEND: "friend",
@@ -59,16 +57,16 @@ class PlayerColors:
         }
 
         if affil in names:
-            return self.getColor(names[affil])
-        if self.coloredNicknames:
-            return self.getRandomColor(_id if _id != -1 else name)
+            return self.get_color(names[affil])
+        if self.colored_nicknames:
+            return self.get_random_color(_id if _id != -1 else name)
 
         if _id == -1:   # IRC user
-            return self.getColor("default")
-        return self.getColor("player")
+            return self.get_color("default")
+        return self.get_color("player")
 
-    def getModColor(self, elevation, _id=-1, name=None):
-        affil = self.getAffiliation(_id, name)
+    def get_mod_color(self, elevation, _id=-1, name=None):
+        affil = self._get_affiliation(_id, name)
         names = {
             PlayerAffiliation.SELF: "self_mod",
             PlayerAffiliation.FRIEND: "friend_mod",
@@ -76,9 +74,9 @@ class PlayerColors:
         }
 
         if affil in names:
-            return self.getColor(names[affil])
+            return self.get_color(names[affil])
 
-        if elevation in self.operatorColors:
-                return self.operatorColors[elevation]
+        if elevation in self._operator_colors:
+                return self._operator_colors[elevation]
 
-        return self.getColor("player")
+        return self.get_color("player")

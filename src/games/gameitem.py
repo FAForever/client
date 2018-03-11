@@ -154,7 +154,7 @@ class GameItemFormatter:
 
     def _host_color(self, game):
         hostid = game.host_player.id if game.host_player is not None else -1
-        return self._colors.getUserColor(hostid)
+        return self._colors.get_user_color(hostid)
 
     def text(self, data):
         game = data.game

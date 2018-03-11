@@ -97,12 +97,12 @@ class LiveReplayItem(QtWidgets.QTreeWidgetItem):
         self.setText(0, launch_time)
 
         colors = client.instance.player_colors
-        self.setForeground(0, QtGui.QColor(colors.getColor("default")))
+        self.setForeground(0, QtGui.QColor(colors.get_color("default")))
         if game.featured_mod == "ladder1v1":
             self.setText(1, game.title)
         else:
             self.setText(1, game.title + "    -    [host: " + game.host + "]")
-        self.setForeground(1, QtGui.QColor(colors.getColor("player")))
+        self.setForeground(1, QtGui.QColor(colors.get_color("player")))
         self.setText(2, game.featured_mod)
         self.setTextAlignment(2, QtCore.Qt.AlignCenter)
 
@@ -126,7 +126,7 @@ class LiveReplayItem(QtWidgets.QTreeWidgetItem):
         else:
             my_color = "player"
         colors = client.instance.player_colors
-        self.setForeground(1, QtGui.QColor(colors.getColor(my_color)))
+        self.setForeground(1, QtGui.QColor(colors.get_color(my_color)))
 
     def _generate_player_subitems(self, game):
         if not game.teams:
@@ -149,7 +149,7 @@ class LiveReplayItem(QtWidgets.QTreeWidgetItem):
         else:
             player_color = "default"
         colors = client.instance.player_colors
-        item.setForeground(0, QtGui.QColor(colors.getColor(player_color)))
+        item.setForeground(0, QtGui.QColor(colors.get_color(player_color)))
 
         if self._is_online(name):
             item.gurl = self._generate_livereplay_link(game, name)
@@ -343,7 +343,7 @@ class LocalReplayItem(QtWidgets.QTreeWidgetItem):
         self.setText(1, self._replay_file)
         self.setIcon(0, util.THEME.icon("replays/replay.png"))
         colors = client.instance.player_colors
-        self.setForeground(0, QtGui.QColor(colors.getColor("default")))
+        self.setForeground(0, QtGui.QColor(colors.get_color("default")))
 
     def _setup_broken_appearance(self):
         self.setIcon(0, util.THEME.icon("replays/broken.png"))
@@ -376,7 +376,7 @@ class LocalReplayItem(QtWidgets.QTreeWidgetItem):
 
         self.setToolTip(0, fa.maps.getDisplayName(data['mapname']))
         self.setText(0, game_time)
-        self.setForeground(0, QtGui.QColor(client.instance.player_colors.getColor("default")))
+        self.setForeground(0, QtGui.QColor(client.instance.player_colors.get_color("default")))
         self.setText(1, data['title'])
         self.setToolTip(1, self._replay_file)
 
@@ -424,7 +424,7 @@ class LocalReplayBucketItem(QtWidgets.QTreeWidgetItem):
         self.setIcon(0, util.THEME.icon("replays/bucket.png"))
         self.setText(0, kind)
         self.setText(3, "{} replays".format(len(children)))
-        self.setForeground(3, QtGui.QColor(client.instance.player_colors.getColor("default")))
+        self.setForeground(3, QtGui.QColor(client.instance.player_colors.get_color("default")))
 
         for item in children:
             self.addChild(item)
@@ -432,20 +432,20 @@ class LocalReplayBucketItem(QtWidgets.QTreeWidgetItem):
     def _setup_broken_appearance(self):
         self.setForeground(0, QtGui.QColor("red"))  # FIXME: Needs to come from theme
         self.setText(1, "(not watchable)")
-        self.setForeground(1, QtGui.QColor(client.instance.player_colors.getColor("default")))
+        self.setForeground(1, QtGui.QColor(client.instance.player_colors.get_color("default")))
 
     def _setup_incomplete_appearance(self):
         self.setForeground(0, QtGui.QColor("yellow"))  # FIXME: Needs to come from theme
         self.setText(1, "(watchable)")
-        self.setForeground(1, QtGui.QColor(client.instance.player_colors.getColor("default")))
+        self.setForeground(1, QtGui.QColor(client.instance.player_colors.get_color("default")))
 
     def _setup_legacy_appearance(self):
-        self.setForeground(0, QtGui.QColor(client.instance.player_colors.getColor("default")))
-        self.setForeground(1, QtGui.QColor(client.instance.player_colors.getColor("default")))
+        self.setForeground(0, QtGui.QColor(client.instance.player_colors.get_color("default")))
+        self.setForeground(1, QtGui.QColor(client.instance.player_colors.get_color("default")))
         self.setText(1, "(old replay system)")
 
     def _setup_date_appearance(self):
-        self.setForeground(0, QtGui.QColor(client.instance.player_colors.getColor("player")))
+        self.setForeground(0, QtGui.QColor(client.instance.player_colors.get_color("player")))
 
 
 class LocalReplaysWidgetHandler(object):

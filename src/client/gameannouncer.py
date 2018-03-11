@@ -50,7 +50,7 @@ class GameAnnouncer:
 
     def _announce(self, game, activity):
         url = game.url(game.host_player.id).toString()
-        url_color = self._colors.getColor("url")
+        url_color = self._colors.get_color("url")
         mapname = maps.getDisplayName(game.mapname)
         fmt = 'is {} {}<a style="color:{}" href="{}">{}</a> (on {})'
         if game.featured_mod == "faf":

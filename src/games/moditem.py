@@ -32,9 +32,9 @@ class ModItem(QtWidgets.QListWidgetItem):
         self.setIcon(icon)
 
         if self.mod in mod_crucial:
-            color = client.instance.player_colors.getColor("self")
+            color = client.instance.player_colors.get_color("self")
         else:
-            color = client.instance.player_colors.getColor("player")
+            color = client.instance.player_colors.get_color("player")
             
         self.setForeground(QtGui.QColor(color))
         self.setText(self.name)
