@@ -316,7 +316,6 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
         chatter = self._event_to_chatter(e)
         target = e.target()
         text = "\n".join(e.arguments())
-
         self._emit_line(chatter, target, ChannelType.PUBLIC, text)
 
     def on_privnotice(self, c, e):
@@ -334,6 +333,9 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
             self._log_event(e)
         else:
             text = "\n".join(e.arguments()).lstrip(prefix)
+        if chatter.name == self.host:
+            self.new_server_message.emit(text)
+        else:
             self._emit_line(chatter, target, ChannelType.PRIVATE, text)
 
     def _handle_nickserv_message(self, notice):
@@ -357,7 +359,7 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
     def on_privmsg(self, c, e):
         chatter = self._event_to_chatter(e)
         text = "\n".join(e.arguments())
-        self._emit_line(chatter.name, None, ChannelType.PRIVATE, text)
+        self._emit_line(chatter, None, ChannelType.PRIVATE, text)
 
     def on_action(self, c, e):
         chatter = self._event_to_chatter(e)

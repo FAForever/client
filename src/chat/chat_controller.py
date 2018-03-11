@@ -67,8 +67,7 @@ class ChatController:
         del self._ccs[key]
 
     def _at_new_line(self, line, cid):
-        if cid not in self._channels:
-            return
+        channel = self._check_add_new_channel(cid)
         self._channels[cid].lines.add_line(line)
 
     def _at_new_channel_chatters(self, cid, chatters):
