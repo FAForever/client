@@ -44,7 +44,20 @@ class ChatController:
         if cid not in self._channels:
             channel = Channel(cid, Lines(), "")
             self._channels[cid] = channel
+            if cid.type == ChannelType.PRIVATE:
+                self._add_private_chatters(channel)
         return self._channels[cid]
+
+    def _add_private_chatters(self, channel):
+        my_name = self._connection.nickname
+        other_name = channel.id_key.name
+        me = None if my_name is None else self._chatters.get(my_name, None)
+        other = self._chatters.get(other_name)
+        for chatter in [me, other]:
+            if chatter is None:
+                continue
+            cc = ChannelChatter(channel, chatter, "")
+            self._ccs[(channel.id_key, chatter.id_key)] = cc
 
     def _check_add_new_chatter(self, cinfo):
         if cinfo.name not in self._chatters:
@@ -67,7 +80,7 @@ class ChatController:
         del self._ccs[key]
 
     def _at_new_line(self, line, cid):
-        channel = self._check_add_new_channel(cid)
+        self._check_add_new_channel(cid)
         self._channels[cid].lines.add_line(line)
 
     def _at_new_channel_chatters(self, cid, chatters):
