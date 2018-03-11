@@ -13,15 +13,17 @@ from util.qt_list_model import QtListModel
 class GlobalChatterUpdateTracker(QObject):
     updated = pyqtSignal()
 
-    def __init__(self, me):
+    def __init__(self, me, player_colors):
         QObject.__init__(self)
         self._me = me
         self._me.playerChanged.connect(self.updated.emit)
         self._me.clan_changed.connect(self.updated.emit)
+        self._player_colors = player_colors
+        self._player_colors.changed.connect(self.updated.emit)
 
     @classmethod
-    def build(cls, me, **kwargs):
-        return cls(me)
+    def build(cls, me, player_colors, **kwargs):
+        return cls(me, player_colors)
 
 
 class ChatterModel(QtListModel):

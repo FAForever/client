@@ -1,7 +1,7 @@
 import json
 import random
 from enum import Enum
-
+from PyQt5.QtCore import QObject, pyqtSignal
 
 class PlayerAffiliation(Enum):
     SELF = "self"
@@ -11,16 +11,28 @@ class PlayerAffiliation(Enum):
     OTHER = "default"
 
 
-class PlayerColors:
+class PlayerColors(QObject):
+    changed = pyqtSignal()
+
     def __init__(self, me, user_relations, theme):
+        QObject.__init__(self)
         self._me = me
         self._user_relations = user_relations
         self._theme = theme
-        self.colored_nicknames = False
+        self._colored_nicknames = False
         self._colors = self._load_colors("client/colors.json")
         self._operator_colors = self._load_colors(
                 "chat/formatters/operator_colors.json")
         self._random_colors = self._load_colors("client/randomcolors.json")
+
+    @property
+    def colored_nicknames(self):
+        return self._colored_nicknames
+
+    @colored_nicknames.setter
+    def colored_nicknames(self, value):
+        self._colored_nicknames = value
+        self.changed.emit()
 
     def _load_colors(self, filename):
         return json.loads(self._theme.readfile(filename))
