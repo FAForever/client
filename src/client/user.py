@@ -70,6 +70,8 @@ class User(QtCore.QObject):
         self._player = None
 
     def is_clannie(self, pid):
+        if pid is None:
+            return False
         player = self._players.get(pid, None)
         if player is None or self._player is None:
             return False

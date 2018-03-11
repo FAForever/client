@@ -3,6 +3,8 @@ from model.transaction import transactional
 
 
 class ChannelChatter(ModelItem):
+    MOD_ELEVATIONS = "~&@%+"
+
     def __init__(self, channel, chatter, elevation):
         ModelItem.__init__(self)
         self.channel = channel
@@ -26,3 +28,7 @@ class ChannelChatter(ModelItem):
     @transactional
     def set_elevation(self, value, _transaction=None):
         self.update(elevation=value, _transaction=_transaction)
+
+    def is_mod(self):
+        e = self.elevation
+        return e and e in self.MOD_ELEVATIONS

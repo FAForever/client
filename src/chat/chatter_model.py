@@ -1,5 +1,5 @@
-from enum import Enum
-from PyQt5.QtCore import QObject, QRectF, QPoint
+from enum import Enum, IntEnum
+from PyQt5.QtCore import QObject, QRectF, QPoint, QSortFilterProxyModel, Qt
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtGui import QIcon
 from chat.chatter_model_item import ChatterModelItem
@@ -34,6 +34,78 @@ class ChatterModel(QtListModel):
 
     def clear_chatters(self):
         self._clear_items()
+
+
+class ChatterRank(IntEnum):
+    ELEVATED = 0
+    FRIEND = 1
+    CLANNIE = 2
+    USER = 3
+    NONPLAYER = 4
+    FOE = 5
+
+
+class ChatterSortFilterModel(QSortFilterProxyModel):
+    def __init__(self, model, me, user_relations):
+        QSortFilterProxyModel.__init__(self)
+        self._me = me
+        self._user_relations = user_relations
+        self.setSourceModel(model)
+        self.sort(0)
+
+    @classmethod
+    def build(cls, model, me, user_relations, **kwargs):
+        return cls(model, me, user_relations)
+
+    def lessThan(self, leftIndex, rightIndex):
+        source = self.sourceModel()
+        left = source.data(leftIndex, Qt.DisplayRole)
+        right = source.data(rightIndex, Qt.DisplayRole)
+
+        comp_list = [self._lt_me, self._lt_rank, self._lt_alphabetical]
+        for lt in comp_list:
+            if lt(left, right):
+                return True
+            elif lt(right, left):
+                return False
+        return False
+
+    def _lt_me(self, left, right):
+        if self._me.login is None:
+            return False
+        return (left.chatter.name == self._me.login and
+                right.chatter.name != self._me.login)
+
+    def _lt_rank(self, left, right):
+        left_rank = self._get_user_rank(left)
+        right_rank = self._get_user_rank(right)
+        return left_rank < right_rank
+
+    def _lt_alphabetical(self, left, right):
+        return left.chatter.name.lower() < right.chatter.name.lower()
+
+    def _get_user_rank(self, item):
+        pid = item.player.id if item.player is not None else None
+        name = item.chatter.name
+        if item.cc.is_mod():
+            return ChatterRank.ELEVATED
+        if self._user_relations.is_friend(pid, name):
+            return ChatterRank.FRIEND
+        if self._me.is_clannie(pid):
+            return ChatterRank.CLANNIE
+        if self._user_relations.is_foe(pid, name):
+            return ChatterRank.FOE
+        if item.player is not None:
+            return ChatterRank.USER
+        return ChatterRank.NONPLAYER
+
+    def filterAcceptsRow(self, row, parent):
+        source = self.sourceModel()
+        index = source.index(row, 0, parent)
+        if not index.isValid():
+            return False
+        data = source.data(index, Qt.DisplayRole)
+        return self.filterRegExp().indexIn(data.chatter.name) != -1
 
 
 class ChatterItemFormatter:

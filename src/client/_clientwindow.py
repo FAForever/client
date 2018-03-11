@@ -569,6 +569,7 @@ class ClientWindow(FormClass, BaseClass):
                 parent_widget=self,
                 theme=util.THEME,
                 me=self.me,
+                user_relations=self.user_relations.model,
                 power_tools=self.power_tools,
                 map_preview_dler=self.map_downloader,
                 avatar_dler=self.avatar_downloader,
