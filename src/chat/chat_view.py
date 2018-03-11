@@ -1,5 +1,6 @@
 from chat.chat_widget import ChatWidget
 from chat.channel_view import ChannelView
+from model.chat.channel import ChannelID, ChannelType
 
 
 class ChatView:
@@ -30,6 +31,7 @@ class ChatView:
         if channel.id_key in self._channels:
             return
         view = self._channel_view_builder(channel)
+        view.privmsg_requested.connect(self._request_privmsg)
         self._channels[channel.id_key] = view
         self.widget.add_channel(view.widget, channel.id_key.name)
 
@@ -37,6 +39,7 @@ class ChatView:
         if channel.id_key not in self._channels:
             return
         view = self._channels[channel.id_key]
+        view.privmsg_requested.disconnect(self._request_privmsg)
         self.widget.remove_channel(view.widget)
         del self._channels[channel.id_key]
 
@@ -45,3 +48,7 @@ class ChatView:
 
     def _at_channel_quit_request(self, cid):
         self._controller.leave_channel(cid, "tab closed")
+
+    def _request_privmsg(self, name):
+        cid = ChannelID(ChannelType.PRIVATE, name)
+        self._controller.join_channel(cid)

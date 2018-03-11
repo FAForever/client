@@ -141,6 +141,12 @@ class ChatController:
         else:
             pass    # TODO - raise 'Sending failed' error back to the view?
 
+    def join_channel(self, cid):
+        if cid.type == ChannelType.PUBLIC:
+            self._connection.join(cid.name)
+        else:
+            self._check_add_new_channel(cid)
+
     def _user_chat_line(self, msg):
         return ChatLine(self._connection.nickname, msg)
 

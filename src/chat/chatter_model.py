@@ -445,6 +445,8 @@ class ChatterLayout(QObject):
 
 
 class ChatterEventFilter(QObject):
+    double_clicked = pyqtSignal(object, object)
+
     def __init__(self, tooltip_handler, menu_handler):
         QObject.__init__(self)
         self._tooltip_handler = tooltip_handler
@@ -460,6 +462,9 @@ class ChatterEventFilter(QObject):
         elif event.type() == QtCore.QEvent.MouseButtonRelease:
             if event.button() == QtCore.Qt.RightButton:
                 return self._handle_context_menu(obj, event)
+        elif event.type() == QtCore.QEvent.MouseButtonDblClick:
+            if event.button() == QtCore.Qt.LeftButton:
+                return self._handle_double_click(obj, event)
         return super().eventFilter(obj, event)
 
     def _get_data_and_point(self, widget, event):
@@ -489,4 +494,11 @@ class ChatterEventFilter(QObject):
 
         menu = self._menu_handler.get_context_menu(data, point)
         menu.popup(QtGui.QCursor.pos())
+        return True
+
+    def _handle_double_click(self, widget, event):
+        data, point = self._get_data_and_point(widget, event)
+        if data is None:
+            return False
+        self.double_clicked.emit(data, point)
         return True

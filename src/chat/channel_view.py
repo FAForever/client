@@ -1,3 +1,5 @@
+from PyQt5.QtCore import QObject, pyqtSignal
+
 from chat.channel_widget import ChannelWidget
 from chat.chatter_model import ChatterModel, ChatterEventFilter, \
     ChatterItemDelegate, ChatterSortFilterModel
@@ -5,9 +7,12 @@ from chat.chatter_menu import ChatterMenu
 from util.magic_dict import MagicDict
 
 
-class ChannelView:
+class ChannelView(QObject):
+    privmsg_requested = pyqtSignal(str)
+
     def __init__(self, channel, controller, widget, chatter_list_view,
                  lines_view):
+        QObject.__init__(self)
         self._channel = channel
         self._controller = controller
         self._chatter_list_view = chatter_list_view
@@ -15,6 +20,8 @@ class ChannelView:
         self.widget = widget
 
         self.widget.line_typed.connect(self._at_line_typed)
+        self._chatter_list_view.double_clicked.connect(
+            self._at_chatter_double_clicked)
 
     @classmethod
     def build(cls, channel, controller, **kwargs):
@@ -31,6 +38,9 @@ class ChannelView:
 
     def _at_line_typed(self, line):
         self._controller.send_message(self._channel.id_key, line)
+
+    def _at_chatter_double_clicked(self, data):
+        self.privmsg_requested.emit(data.chatter.name)
 
 
 class ChatAreaView:
@@ -131,3 +141,7 @@ class ChattersView:
                                                 **kwargs)
 
         return cls(widget, delegate, sort_filter_model, event_filter)
+
+    @property
+    def double_clicked(self):
+        return self.event_filter.double_clicked
