@@ -45,7 +45,8 @@ class ChannelWidget(QObject):
         self.chat_edit.set_channel(self.channel)
         self.nick_filter.textChanged.connect(self._set_chatter_filter)
 
-    def append_line(self, line):
+    def append_line(self, meta):
+        line = meta.line
         cursor = self.chat_area.textCursor()
         cursor.movePosition(QtGui.QTextCursor.End)
         self.chat_area.setTextCursor(cursor)

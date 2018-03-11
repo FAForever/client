@@ -18,7 +18,8 @@ class ChatView:
     @classmethod
     def build(cls, model, controller, **kwargs):
         chat_widget = ChatWidget.build(**kwargs)
-        channel_view_builder = ChannelView.builder(controller, **kwargs)
+        channel_view_builder = ChannelView.builder(
+            controller, channelchatterset=model.channelchatters, **kwargs)
         return cls(model, controller, chat_widget, channel_view_builder)
 
     def _add_channels(self):

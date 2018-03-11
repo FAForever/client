@@ -5,20 +5,22 @@ from chat.chatter_menu import ChatterMenu
 
 
 class ChannelView:
-    def __init__(self, channel, controller, widget, chatter_list_view):
+    def __init__(self, channel, controller, widget, chatter_list_view,
+                 lines_view):
         self._channel = channel
         self._controller = controller
         self._chatter_list_view = chatter_list_view
+        self._lines_view = lines_view
         self.widget = widget
 
         self.widget.line_typed.connect(self._at_line_typed)
-        channel.lines.added.connect(self._add_line)
 
     @classmethod
     def build(cls, channel, controller, **kwargs):
         widget = ChannelWidget.build(channel, **kwargs)
+        lines_view = ChatAreaView.build(channel, widget, **kwargs)
         chatter_list_view = ChattersView.build(channel, widget, **kwargs)
-        return cls(channel, controller, widget, chatter_list_view)
+        return cls(channel, controller, widget, chatter_list_view, lines_view)
 
     @classmethod
     def builder(cls, controller, **kwargs):
@@ -26,12 +28,44 @@ class ChannelView:
             return cls.build(channel, controller, **kwargs)
         return make
 
-    def _add_line(self, number):
-        for line in self._channel.lines[-number:]:
-            self.widget.append_line(line)
-
     def _at_line_typed(self, line):
         self._controller.send_message(self._channel.id_key, line)
+
+
+class ChatAreaView:
+    def __init__(self, channel, widget, metadata_builder):
+        self._channel = channel
+        self._widget = widget
+        self._metadata_builder = metadata_builder
+        self._channel.lines.added.connect(self._add_line)
+        self._meta_lines = []
+
+    @classmethod
+    def build(cls, channel, widget, **kwargs):
+        metadata_builder = ChatLineMetadata.builder(**kwargs)
+        return cls(channel, widget, metadata_builder)
+
+    def _add_line(self, number):
+        for line in self._channel.lines[-number:]:
+            meta = self._metadata_builder(line, self._channel)
+            self._meta_lines.append(meta)
+            self._widget.append_line(meta)
+
+
+class ChatLineMetadata:
+    def __init__(self, line, channel, channelchatterset, me, user_relations):
+        self.line = line
+        self._make_metadata(channel, channelchatterset, me, user_relations)
+
+    @classmethod
+    def builder(cls, channelchatterset, me, user_relations, **kwargs):
+        def make(line, channel):
+            return cls(line, channel, channelchatterset, me,
+                       user_relations.model)
+        return make
+
+    def _make_metadata(self, channel, channelchatterset, me, user_relations):
+        pass
 
 
 class ChattersView:
