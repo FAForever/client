@@ -96,7 +96,20 @@
     </widget>
    </item>
    <item>
-    <widget class="QWidget" name="nickBox" native="true"/>
+    <layout class="QHBoxLayout" name="_nickLayout">
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <property name="leftMargin">
+      <number>2</number>
+     </property>
+     <property name="rightMargin">
+      <number>2</number>
+     </property>
+     <item>
+      <widget class="QWidget" name="nickBox" native="true"/>
+     </item>
+    </layout>
    </item>
    <item>
     <widget class="QWidget" name="statusBox" native="true">

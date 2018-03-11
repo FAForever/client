@@ -10,17 +10,23 @@ class ChatterModelItem(QObject):
     """
     updated = pyqtSignal(object)
 
-    def __init__(self, cc, map_preview_dler, avatar_dler):
+    def __init__(self, cc, map_preview_dler, avatar_dler, relation_trackers):
         QObject.__init__(self)
-
-        self._player = None
-        self._game = None
-        self.cc = cc
-        self.chatter.updated.connect(self._updated)
-        self.chatter.newPlayer.connect(self._set_player)
 
         self._preview_dler = map_preview_dler
         self._avatar_dler = avatar_dler
+        self._relation = relation_trackers
+
+        self._player = None
+        self._player_rel = None
+        self._game = None
+        self.cc = cc
+
+        self.chatter.updated.connect(self._updated)
+        self.chatter.newPlayer.connect(self._set_player)
+        self._chatter_rel = self._relation.chatters[self.chatter.id_key]
+        self._chatter_rel.updated.connect(self._updated)
+
         self._map_request = DownloadRequest()
         self._map_request.done.connect(self._updated)
         self._avatar_request = DownloadRequest()
@@ -29,9 +35,10 @@ class ChatterModelItem(QObject):
         self.player = self.chatter.player
 
     @classmethod
-    def builder(cls, map_preview_dler, avatar_dler, **kwargs):
+    def builder(cls, map_preview_dler, avatar_dler, relation_trackers,
+                **kwargs):
         def make(cc):
-            return cls(cc, map_preview_dler, avatar_dler)
+            return cls(cc, map_preview_dler, avatar_dler, relation_trackers)
         return make
 
     def _updated(self):
@@ -55,12 +62,16 @@ class ChatterModelItem(QObject):
             self.game = None
             self._player.updated.disconnect(self._at_player_updated)
             self._player.newCurrentGame.disconnect(self._set_game)
+            self._player_rel.updated.disconnect(self._updated)
+            self._player_rel = None
 
         self._player = value
 
         if self._player is not None:
             self._player.updated.connect(self._at_player_updated)
             self._player.newCurrentGame.connect(self._set_game)
+            self._player_rel = self._relation.players[self._player.id_key]
+            self._player_rel.updated.connect(self._updated)
             self.game = self._player.currentGame
             self._download_avatar_if_needed()
 

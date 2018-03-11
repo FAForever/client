@@ -1,7 +1,8 @@
 from enum import Enum, IntEnum
-from PyQt5.QtCore import QObject, QRectF, QPoint, QSortFilterProxyModel, Qt
+from PyQt5.QtCore import QObject, QRectF, QSortFilterProxyModel, Qt, \
+    pyqtSignal
 from PyQt5 import QtWidgets, QtGui, QtCore
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QColor
 from chat.chatter_model_item import ChatterModelItem
 from fa import maps
 from model.game import GameState
@@ -9,10 +10,26 @@ import util
 from util.qt_list_model import QtListModel
 
 
+class GlobalChatterUpdateTracker(QObject):
+    updated = pyqtSignal()
+
+    def __init__(self, me):
+        QObject.__init__(self)
+        self._me = me
+        self._me.playerChanged.connect(self.updated.emit)
+        self._me.clan_changed.connect(self.updated.emit)
+
+    @classmethod
+    def build(cls, me, **kwargs):
+        return cls(me)
+
+
 class ChatterModel(QtListModel):
-    def __init__(self, channel, item_builder):
+    def __init__(self, channel, item_builder, global_update_tracker):
         QtListModel.__init__(self, item_builder)
         self._channel = channel
+        self._global_update_tracker = global_update_tracker
+        self._global_update_tracker.updated.connect(self._invalidate_model)
 
         if self._channel is not None:
             self._channel.added_chatter.connect(self.add_chatter)
@@ -24,7 +41,8 @@ class ChatterModel(QtListModel):
     @classmethod
     def build(cls, channel, **kwargs):
         builder = ChatterModelItem.builder(**kwargs)
-        return cls(channel, builder)
+        global_update_tracker = GlobalChatterUpdateTracker.build(**kwargs)
+        return cls(channel, builder, global_update_tracker)
 
     def add_chatter(self, chatter):
         self._add_item(chatter, chatter.id_key)
@@ -34,6 +52,11 @@ class ChatterModel(QtListModel):
 
     def clear_chatters(self):
         self._clear_items()
+
+    def _invalidate_model(self):
+        start = self.index(0)
+        end = self.index(len(self._itemlist) - 1)
+        self.dataChanged.emit(start, end)
 
 
 class ChatterRank(IntEnum):
@@ -109,16 +132,30 @@ class ChatterSortFilterModel(QSortFilterProxyModel):
 
 
 class ChatterItemFormatter:
-    def __init__(self, avatars):
+    def __init__(self, avatars, player_colors):
         self._avatars = avatars
+        self._player_colors = player_colors
 
     @classmethod
-    def build(cls, avatar_dler, **kwargs):
-        return cls(avatar_dler)
+    def build(cls, avatar_dler, player_colors, **kwargs):
+        return cls(avatar_dler, player_colors)
 
     def map_icon(self, data):
         name = data.map_name()
         return None if name is None else maps.preview(name)
+
+    def chatter_name(self, data):
+        return data.chatter.name
+
+    def chatter_color(self, data):
+        pid = -1 if data.player is None else data.player.id
+        colors = self._player_colors
+        cc = data.cc
+        if cc.is_mod():
+            return colors.get_mod_color(cc.elevation, pid, data.chatter.name)
+        else:
+            return colors.get_user_color(pid, data.chatter.name)
+
 
     def chatter_status(self, data):
         game = data.game
@@ -277,16 +314,18 @@ class ChatterItemDelegate(QtWidgets.QStyledItemDelegate):
             painter.fillRect(option.rect, option.palette.highlight)
 
     def _draw_nick(self, painter, data):
-        text = data.chatter.name
+        text = self._formatter.chatter_name(data)
+        color = QColor(self._formatter.chatter_color(data))
         clip = QRectF(self.layout.sizes[ChatterLayoutElements.NICK])
-        top_left = clip.topLeft()
-        clip.moveTopLeft(QPoint(0, 0))
 
-        painter.translate(top_left)
-        html = QtGui.QTextDocument()
-        html.setHtml(text)
-        html.drawContents(painter, clip)
-        painter.translate(top_left * -1)
+        painter.save()
+        pen = painter.pen()
+        pen.setColor(color)
+        painter.setPen(pen)
+
+        painter.drawText(clip, Qt.AlignLeft | Qt.AlignVCenter, text)
+
+        painter.restore()
 
     def _draw_status(self, painter, data):
         status = self._formatter.chatter_status(data)

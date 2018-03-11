@@ -50,11 +50,15 @@ class ChattersView:
         self.delegate.update_width(size)
 
     @classmethod
-    def build(cls, channel, widget, **kwargs):
+    def build(cls, channel, widget, user_relations, **kwargs):
+        model = ChatterModel.build(
+            channel, relation_trackers=user_relations.trackers, **kwargs)
+        sort_filter_model = ChatterSortFilterModel.build(
+            model, user_relations=user_relations.model, **kwargs)
+
         chatter_menu = ChatterMenu.build(**kwargs)
         delegate = ChatterItemDelegate.build(**kwargs)
         event_filter = ChatterEventFilter.build(delegate, chatter_menu,
                                                 **kwargs)
-        model = ChatterModel.build(channel, **kwargs)
-        sort_filter_model = ChatterSortFilterModel.build(model, **kwargs)
+
         return cls(widget, delegate, sort_filter_model, event_filter)
