@@ -25,6 +25,10 @@ class ChannelWidget(QObject):
         return self.form.chatEdit
 
     @property
+    def nick_frame(self):
+        return self.form.nickFrame
+
+    @property
     def nick_list(self):
         return self.form.nickList
 
@@ -44,6 +48,9 @@ class ChannelWidget(QObject):
         self.nick_list.resized.connect(self.chatter_list_resized.emit)
         self.chat_edit.set_channel(self.channel)
         self.nick_filter.textChanged.connect(self._set_chatter_filter)
+
+    def show_chatter_list(self, should_show):
+        self.nick_frame.setVisible(should_show)
 
     def append_line(self, meta):
         line = meta.line

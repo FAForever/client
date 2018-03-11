@@ -4,6 +4,7 @@ from chat.channel_widget import ChannelWidget
 from chat.chatter_model import ChatterModel, ChatterEventFilter, \
     ChatterItemDelegate, ChatterSortFilterModel
 from chat.chatter_menu import ChatterMenu
+from model.chat.channel import ChannelType
 from util.magic_dict import MagicDict
 
 
@@ -22,6 +23,8 @@ class ChannelView(QObject):
         self.widget.line_typed.connect(self._at_line_typed)
         self._chatter_list_view.double_clicked.connect(
             self._at_chatter_double_clicked)
+        if self._channel.id_key.type == ChannelType.PRIVATE:
+            self.widget.show_chatter_list(False)
 
     @classmethod
     def build(cls, channel, controller, **kwargs):
