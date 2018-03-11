@@ -39,6 +39,7 @@ from ui.busy_widget import BusyWidget
 from chat._avatarWidget import AvatarWidget
 
 from model.chat.chat import Chat
+from model.chat.channel import ChannelID, ChannelType
 from chat.ircconnection import IrcConnection
 from chat.chat_view import ChatView
 from chat.chat_controller import ChatController
@@ -560,11 +561,15 @@ class ClientWindow(FormClass, BaseClass):
                 theme=util.THEME)
 
         chat_connection = IrcConnection.build(settings=config.Settings)
+
         chat_controller = ChatController.build(
                 connection=chat_connection,
                 model=self._chat_model,
                 autojoin_channels=['#aeolus'])
+
+        target_channel = ChannelID(ChannelType.PUBLIC, '#aeolus')
         chat_view = ChatView.build(
+                target_viewed_channel=target_channel,
                 model=self._chat_model,
                 controller=chat_controller,
                 parent_widget=self,

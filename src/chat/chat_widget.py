@@ -40,3 +40,8 @@ class ChatWidget(QObject):
 
     def _at_tab_close_request(self, idx):
         self.channel_quit_request.emit(self.base.widget(idx).cid)
+
+    def switch_to_channel(self, channel):
+        if channel not in self._channels:
+            return
+        self.base.setCurrentIndex(self.base.indexOf(channel.base))

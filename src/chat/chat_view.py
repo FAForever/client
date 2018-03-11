@@ -4,7 +4,9 @@ from model.chat.channel import ChannelID, ChannelType
 
 
 class ChatView:
-    def __init__(self, model, controller, widget, channel_view_builder):
+    def __init__(self, target_viewed_channel, model, controller, widget,
+                 channel_view_builder):
+        self._target_viewed_channel = None
         self._model = model
         self._controller = controller
         self.widget = widget
@@ -16,12 +18,15 @@ class ChatView:
         self.widget.channel_quit_request.connect(self._at_channel_quit_request)
         self._add_channels()
 
+        self.target_viewed_channel = target_viewed_channel
+
     @classmethod
-    def build(cls, model, controller, **kwargs):
+    def build(cls, target_viewed_channel, model, controller, **kwargs):
         chat_widget = ChatWidget.build(**kwargs)
         channel_view_builder = ChannelView.builder(
             controller, channelchatterset=model.channelchatters, **kwargs)
-        return cls(model, controller, chat_widget, channel_view_builder)
+        return cls(target_viewed_channel, model, controller, chat_widget,
+                   channel_view_builder)
 
     def _add_channels(self):
         for channel in self._model.channels.values():
@@ -34,6 +39,7 @@ class ChatView:
         view.privmsg_requested.connect(self._request_privmsg)
         self._channels[channel.id_key] = view
         self.widget.add_channel(view.widget, channel.id_key.name)
+        self._try_to_join_target_channel()
 
     def _remove_channel(self, channel):
         if channel.id_key not in self._channels:
@@ -52,3 +58,22 @@ class ChatView:
     def _request_privmsg(self, name):
         cid = ChannelID(ChannelType.PRIVATE, name)
         self._controller.join_channel(cid)
+        self.target_viewed_channel = cid
+
+    @property
+    def target_viewed_channel(self):
+        return self._target_viewed_channel
+
+    @target_viewed_channel.setter
+    def target_viewed_channel(self, value):
+        self._target_viewed_channel = value
+        self._try_to_join_target_channel()
+
+    def _try_to_join_target_channel(self):
+        if self._target_viewed_channel is None:
+            return
+        view = self._channels.get(self._target_viewed_channel, None)
+        if view is None:
+            return
+        self.widget.switch_to_channel(view.widget)
+        self._target_viewed_channel = None
