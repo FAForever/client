@@ -28,6 +28,10 @@ class ChannelWidget(QObject):
     def nick_list(self):
         return self.form.nickList
 
+    @property
+    def nick_filter(self):
+        return self.form.nickFilter
+
     def set_theme(self, theme):
         formc, basec = theme.loadUiType("chat/channel.ui")
         self.form = formc()
@@ -39,6 +43,7 @@ class ChannelWidget(QObject):
         self.chat_edit.returnPressed.connect(self._at_line_typed)
         self.nick_list.resized.connect(self.chatter_list_resized.emit)
         self.chat_edit.set_channel(self.channel)
+        self.nick_filter.textChanged.connect(self._set_chatter_filter)
 
     def append_line(self, line):
         cursor = self.chat_area.textCursor()
@@ -65,3 +70,6 @@ class ChannelWidget(QObject):
             if not line:
                 continue
             self.line_typed.emit(line)
+
+    def _set_chatter_filter(self, text):
+        self.nick_list.model().setFilterFixedString(text)
