@@ -321,6 +321,11 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
     def on_privnotice(self, c, e):
         chatter = self._event_to_chatter(e)
         notice = e.arguments()[0]
+
+        # This privnotice behaviour is inherited from existing chat code,
+        # it might be a bit too specific. Apparently non-global privnotices
+        # are supposed to always carry channel name at the start? Can't this
+        # be abused?
         prefix = notice.split(" ")[0]
         target = prefix.strip("[]")
 
@@ -328,7 +333,6 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
             self._log_event(e)
             self._handle_nickserv_message(notice)
             return
-
         if target == '*':
             self._log_event(e)
         else:
@@ -336,7 +340,11 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
         if chatter.name == self.host:
             self.new_server_message.emit(text)
         else:
-            self._emit_line(chatter, target, ChannelType.PRIVATE, text)
+            if irclib.is_channel(target):
+                channel_type = ChannelType.PUBLIC
+            else:
+                channel_type == ChannelType.PRIVATE
+            self._emit_line(chatter, target, channel_type, text)
 
     def _handle_nickserv_message(self, notice):
         if (notice.find("registered under your account") >= 0 or
