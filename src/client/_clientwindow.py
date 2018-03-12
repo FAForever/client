@@ -43,6 +43,7 @@ from model.chat.channel import ChannelID, ChannelType
 from chat.ircconnection import IrcConnection
 from chat.chat_view import ChatView
 from chat.chat_controller import ChatController
+from chat.channel_autojoiner import ChannelAutojoiner
 
 from client.user import UserRelationModel, UserRelationController, \
         UserRelationTrackers, UserRelations
@@ -564,8 +565,7 @@ class ClientWindow(FormClass, BaseClass):
 
         chat_controller = ChatController.build(
                 connection=chat_connection,
-                model=self._chat_model,
-                autojoin_channels=['#aeolus'])
+                model=self._chat_model)
 
         target_channel = ChannelID(ChannelType.PUBLIC, '#aeolus')
         chat_view = ChatView.build(
@@ -585,9 +585,15 @@ class ClientWindow(FormClass, BaseClass):
                 alias_viewer=self._alias_viewer,
                 client_window=self,
                 game_runner=self._game_runner)
+        channel_autojoiner = ChannelAutojoiner.build(
+                base_channels=['#aeolus'],
+                model=self._chat_model,
+                controller=chat_controller,
+                settings=config.Settings,
+                lobby_info=self.lobby_info)
 
         self._chatMVC = ChatMVC(self._chat_model, chat_connection,
-                                chat_controller, chat_view)
+                                chat_controller, channel_autojoiner, chat_view)
 
         self.authorized.connect(self._connect_chat)
 
@@ -1363,9 +1369,6 @@ class ClientWindow(FormClass, BaseClass):
             # Add a delay to the notification system (insane cargo cult)
             self.notificationSystem.disabledStartup = False
             self.channelsUpdated.emit(message["channels"])
-
-        if "autojoin" in message:
-            self.autoJoin.emit(message["autojoin"])
 
         if "power" in message:
             self.power_tools.power = message["power"]

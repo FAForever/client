@@ -6,10 +6,9 @@ from enum import Enum
 
 
 class ChatController:
-    def __init__(self, connection, model, autojoin_channels):
+    def __init__(self, connection, model):
         self._connection = connection
         self._model = model
-        self._autojoin_channels = autojoin_channels
 
         c = connection
         c.new_line.connect(self._at_new_line)
@@ -25,8 +24,8 @@ class ChatController:
         c.new_server_message.connect(self._at_new_server_message)
 
     @classmethod
-    def build(cls, connection, model, autojoin_channels, **kwargs):
-        return cls(connection, model, autojoin_channels)
+    def build(cls, connection, model, **kwargs):
+        return cls(connection, model)
 
     @property
     def _channels(self):
@@ -119,10 +118,10 @@ class ChatController:
         channel.update(topic=topic)
 
     def _at_connected(self):
-        for channel in self._autojoin_channels:
-            self._connection.join(channel)
+        self._model.connected = True
 
     def _at_disconnected(self):
+        self._model.connected = False
         self._channels.clear()
         self._chatters.clear()
         self._ccs.clear()
@@ -158,6 +157,9 @@ class ChatController:
             self._connection.join(cid.name)
         else:
             self._check_add_new_channel(cid)
+
+    def join_public_channel(self, name):
+        self.join_channel(ChannelID(ChannelType.PUBLIC, name))
 
     def _user_chat_line(self, msg):
         return ChatLine(self._connection.nickname, msg)

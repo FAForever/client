@@ -7,6 +7,8 @@ from model.chat.channelchatterset import ChannelChatterRelation
 
 class Chat(QObject):
     new_server_message = pyqtSignal(str)
+    connect_event = pyqtSignal()
+    disconnect_event = pyqtSignal()
 
     def __init__(self, channelset, chatterset, channelchatterset, cc_relation):
         QObject.__init__(self)
@@ -14,6 +16,7 @@ class Chat(QObject):
         self.chatters = chatterset
         self.channelchatters = channelchatterset
         self._cc_relation = cc_relation
+        self._connected = False
 
     @classmethod
     def build(cls, playerset, **kwargs):
@@ -26,3 +29,16 @@ class Chat(QObject):
 
     def add_server_message(self, msg):
         self.new_server_message.emit(msg)
+
+    # Does not affect model contents, only tells if the user is connected.
+    @property
+    def connected(self):
+        return self._connected
+
+    @connected.setter
+    def connected(self, value):
+        self._connected = value
+        if self._connected:
+            self.connect_event.emit()
+        else:
+            self.disconnect_event.emit()

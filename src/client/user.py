@@ -77,6 +77,9 @@ class User(QtCore.QObject):
             return False
         return player.clan == self._player.clan
 
+    def player_clan(self):
+        return None if self.player is None else self.player.clan
+
 
 class SetSignals(QObject):
     """
