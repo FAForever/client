@@ -26,6 +26,14 @@ class ChannelView(QObject):
         if self._channel.id_key.type == ChannelType.PRIVATE:
             self.widget.show_chatter_list(False)
 
+        self._channel.added_chatter.connect(self._update_chatter_count)
+        self._channel.removed_chatter.connect(self._update_chatter_count)
+        self._update_chatter_count()
+
+    def _update_chatter_count(self):
+        text = "{} users (type to filter)".format(len(self._channel.chatters))
+        self.widget.set_nick_edit_label(text)
+
     @classmethod
     def build(cls, channel, controller, **kwargs):
         widget = ChannelWidget.build(channel, **kwargs)

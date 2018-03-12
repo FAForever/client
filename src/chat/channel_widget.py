@@ -49,6 +49,20 @@ class ChannelWidget(QObject):
         self.chat_edit.set_channel(self.channel)
         self.nick_filter.textChanged.connect(self._set_chatter_filter)
 
+    def _set_chatter_filter(self, text):
+        self.nick_list.model().setFilterFixedString(text)
+
+    def _at_line_typed(self):
+        text = self.chat_edit.text()
+        self.chat_edit.clear()
+        fragments = text.split("\n")
+        for line in fragments:
+            # Compound wacky Whitespace
+            line = re.sub('\s', ' ', text).strip()
+            if not line:
+                continue
+            self.line_typed.emit(line)
+
     def show_chatter_list(self, should_show):
         self.nick_frame.setVisible(should_show)
 
@@ -68,16 +82,5 @@ class ChannelWidget(QObject):
     def set_chatter_event_filter(self, event_filter):
         self.nick_list.viewport().installEventFilter(event_filter)
 
-    def _at_line_typed(self):
-        text = self.chat_edit.text()
-        self.chat_edit.clear()
-        fragments = text.split("\n")
-        for line in fragments:
-            # Compound wacky Whitespace
-            line = re.sub('\s', ' ', text).strip()
-            if not line:
-                continue
-            self.line_typed.emit(line)
-
-    def _set_chatter_filter(self, text):
-        self.nick_list.model().setFilterFixedString(text)
+    def set_nick_edit_label(self, text):
+        self.nick_filter.setPlaceholderText(text)
