@@ -1,0 +1,41 @@
+/* See src/chat/channel_view.py for supported tags.
+ * Unfortunately Qt does not support setting the width attribute through CSS.
+ */
+
+.col_sender, .col_text, .col_time {
+	color: grey;
+	padding-top: 3; /* align with avatar icon */
+}
+
+.col_sender {
+	text-align: right;
+}
+
+.col_time {
+	text-align: right;
+}
+
+
+.friend .col_sender, .friend .col_text {
+	color: green;
+}
+
+.foe .col_sender, .foe.col_text {
+	color: red;
+}
+
+.clannie .col_sender, .clannie .col_text {
+	color: purple;
+}
+
+.mod .col_sender, .mod .col_text {
+	color: white;
+}
+
+.mentions_me .col_sender, .mentions_me .col_text {
+	color: red;
+}
+
+.me .col_sender, .me .col_text {
+	color: orange;
+}
