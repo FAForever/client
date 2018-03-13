@@ -1,5 +1,6 @@
 from PyQt5 import QtGui
-from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5.QtCore import QObject, pyqtSignal, QUrl
+from PyQt5.QtGui import QTextDocument
 import re
 
 
@@ -42,12 +43,24 @@ class ChannelWidget(QObject):
         self.base = basec()
         self.form.setupUi(self.base)
 
+        self._chat_area_css = theme.readfile("chat/channel.css")
+        self.reload_css()
+
         # Used by chat widget so it knows it corresponds to this widget
         self.base.cid = self.channel.id_key
         self.chat_edit.returnPressed.connect(self._at_line_typed)
         self.nick_list.resized.connect(self.chatter_list_resized.emit)
         self.chat_edit.set_channel(self.channel)
         self.nick_filter.textChanged.connect(self._set_chatter_filter)
+
+    def reload_css(self):
+        self.chat_area.document().setDefaultStyleSheet(self._chat_area_css)
+
+    def add_avatar_resource(self, url, pix):
+        doc = self.chat_area.document()
+        link = QUrl(url)
+        if not doc.resource(QTextDocument.ImageResource, link):
+            doc.addResource(QTextDocument.ImageResource, link, pix)
 
     def _set_chatter_filter(self, text):
         self.nick_list.model().setFilterFixedString(text)
@@ -66,12 +79,11 @@ class ChannelWidget(QObject):
     def show_chatter_list(self, should_show):
         self.nick_frame.setVisible(should_show)
 
-    def append_line(self, meta):
-        line = meta.line
+    def append_line(self, text):
         cursor = self.chat_area.textCursor()
         cursor.movePosition(QtGui.QTextCursor.End)
         self.chat_area.setTextCursor(cursor)
-        self.chat_area.insertHtml("{}: {}<br>".format(line.sender, line.text))
+        self.chat_area.insertHtml(text)
 
     def set_chatter_delegate(self, delegate):
         self.nick_list.setItemDelegate(delegate)

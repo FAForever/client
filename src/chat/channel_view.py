@@ -1,3 +1,5 @@
+import time
+import html
 from PyQt5.QtCore import QObject, pyqtSignal
 
 from chat.channel_widget import ChannelWidget
@@ -5,7 +7,9 @@ from chat.chatter_model import ChatterModel, ChatterEventFilter, \
     ChatterItemDelegate, ChatterSortFilterModel
 from chat.chatter_menu import ChatterMenu
 from model.chat.channel import ChannelType
+from model.chat.chatline import ChatLineType
 from util.magic_dict import MagicDict
+from downloadManager import DownloadRequest
 
 
 class ChannelView(QObject):
@@ -55,23 +59,57 @@ class ChannelView(QObject):
 
 
 class ChatAreaView:
-    def __init__(self, channel, widget, metadata_builder):
+    def __init__(self, channel, widget, metadata_builder, avatar_adder,
+                 formatter):
         self._channel = channel
         self._widget = widget
         self._metadata_builder = metadata_builder
         self._channel.lines.added.connect(self._add_line)
         self._meta_lines = []
+        self._avatar_adder = avatar_adder
+        self._formatter = formatter
 
     @classmethod
     def build(cls, channel, widget, **kwargs):
         metadata_builder = ChatLineMetadata.builder(**kwargs)
-        return cls(channel, widget, metadata_builder)
+        avatar_adder = ChatAvatarPixAdder.build(widget, **kwargs)
+        formatter = ChatLineFormatter.build(**kwargs)
+        return cls(channel, widget, metadata_builder, avatar_adder, formatter)
 
     def _add_line(self, number):
         for line in self._channel.lines[-number:]:
-            meta = self._metadata_builder(line, self._channel)
-            self._meta_lines.append(meta)
-            self._widget.append_line(meta)
+            data = self._metadata_builder(line, self._channel)
+            if data.meta.player.avatar.url:
+                self._avatar_adder.add_avatar(data.meta.player.avatar.url())
+            self._meta_lines.append(data)
+            text = self._formatter.format(data)
+            self._widget.append_line(text)
+
+
+class ChatAvatarPixAdder:
+    def __init__(self, widget, avatar_dler):
+        self._avatar_dler = avatar_dler
+        self._widget = widget
+        self._requests = {}
+
+    @classmethod
+    def build(cls, widget, avatar_dler, **kwargs):
+        return cls(widget, avatar_dler)
+
+    def add_avatar(self, url):
+        avatar_pix = self._avatar_dler.avatars.get(url, None)
+        if avatar_pix is not None:
+            self._add_avatar_resource(url, avatar_pix)
+        elif url not in self._requests:
+            req = DownloadRequest()
+            req.done.connect(self._add_avatar_resource)
+            self._requests[url] = req
+            self._avatar_dler.download_avatar(url, req)
+
+    def _add_avatar_resource(self, url, pix):
+        if url in self._requests:
+            del self._requests[url]
+        self._widget.add_avatar_resource(url, pix)
 
 
 class ChatLineMetadata:
@@ -110,6 +148,7 @@ class ChatLineMetadata:
         if player is None:
             return
         self.meta.put("player")
+        self._avatar_metadata(player.avatar)
 
     def _relation_metadata(self, chatter, player, me, user_relations):
         name = None if chatter is None else chatter.name
@@ -122,6 +161,85 @@ class ChatLineMetadata:
     def _mention_metadata(self, me):
         self.meta.mentions_me = (me.login is not None and
                                  me.login in self.line.text)
+
+    def _avatar_metadata(self, ava):
+        if ava is None:
+            return
+        tip = ava.get("tooltip", "")
+        url = ava.get("url", None)
+
+        self.meta.player.put("avatar")
+        self.meta.player.avatar.tip = tip
+        if url is not None:
+            self.meta.player.avatar.url = url
+
+
+class ChatLineFormatter:
+    def __init__(self, theme):
+        self._set_theme(theme)
+        self._last_timestamp = None
+
+    @classmethod
+    def build(cls, theme, **kwargs):
+        return cls(theme)
+
+    def _set_theme(self, theme):
+        self._chatline_template = theme.readfile("chat/chatline.qhtml")
+        self._avatar_template = theme.readfile("chat/chatline_avatar.qhtml")
+
+    def _line_tags(self, data):
+        line = data.line
+        meta = data.meta
+        if line.type == ChatLineType.NOTICE:
+            yield "notice"
+        if not self._check_timestamp(line.time):
+            yield "notimestamp"
+        if meta.chatter:
+            yield "chatter"
+        if meta.player:
+            yield "player"
+        if meta.is_friend and meta.is_friend():
+            yield "friend"
+        if meta.is_foe and meta.is_foe():
+            yield "foe"
+        if meta.is_me and meta.is_me():
+            yield "me"
+        if meta.is_clannie and meta.is_clannie():
+            yield "clannie"
+        if meta.is_mod and meta.is_mod():
+            yield "mod"
+        if meta.mentions_me and meta.mentions_me():
+            yield "mentions_me"
+        if meta.player.avatar and meta.player.avatar():
+            yield "avatar"
+
+    def format(self, data):
+        tags = " ".join(self._line_tags(data))
+        if data.meta.player.avatar.url:
+            ava_meta = data.meta.player.avatar
+            avatar_url = ava_meta.url()
+            avatar_tip = ava_meta.tip() if ava_meta.tip else ""
+            avatar = self._avatar_template.format(
+                url=avatar_url,
+                tip=avatar_tip)
+        else:
+            avatar = ""
+
+        return self._chatline_template.format(
+            time=time.strftime('%H:%M', time.localtime(data.line.time)),
+            sender=html.escape(data.line.sender),
+            text=html.escape(data.line.text),
+            avatar=avatar,
+            tags=tags)
+
+    def _check_timestamp(self, stamp):
+        local = time.localtime(stamp)
+        new_stamp = (self._last_timestamp is None or
+                     local.tm_hour != self._last_timestamp.tm_hour or
+                     local.tm_min != self._last_timestamp.tm_min)
+        if new_stamp:
+            self._last_timestamp = local
+        return new_stamp
 
 
 class ChattersView:
