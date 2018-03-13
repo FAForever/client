@@ -5,7 +5,7 @@ import re
 
 from chat import irclib
 from chat.irclib import SimpleIRCClient, IRCError
-from model.chat.chatline import ChatLine
+from model.chat.chatline import ChatLine, ChatLineType
 from model.chat.channel import ChannelID, ChannelType
 import util
 import config
@@ -73,7 +73,6 @@ class IrcSignals(QObject):
 
 
 class IrcConnection(IrcSignals, SimpleIRCClient):
-
     def __init__(self, host, port, ssl):
         IrcSignals.__init__(self)
         SimpleIRCClient.__init__(self)
@@ -303,13 +302,14 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
     def on_bannedfromchan(self, c, e):
         self._log_event(e)
 
-    def _emit_line(self, chatter, target, channel_type, text):
+    def _emit_line(self, chatter, target, channel_type, text,
+                   type_=ChatLineType.MESSAGE):
         if channel_type == ChannelType.PUBLIC:
             channel_name = target
         else:
             channel_name = chatter.name
         chid = ChannelID(channel_type, channel_name)
-        line = ChatLine(chatter.name, text)
+        line = ChatLine(chatter.name, text, type_)
         self.new_line.emit(line, chid)
 
     def on_pubmsg(self, c, e):
@@ -319,32 +319,39 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
         self._emit_line(chatter, target, ChannelType.PUBLIC, text)
 
     def on_privnotice(self, c, e):
+        if e.target() == '*':
+            self._log_event(e)
+            return
+
         chatter = self._event_to_chatter(e)
         notice = e.arguments()[0]
-
-        # This privnotice behaviour is inherited from existing chat code,
-        # it might be a bit too specific. Apparently non-global privnotices
-        # are supposed to always carry channel name at the start? Can't this
-        # be abused?
-        prefix = notice.split(" ")[0]
-        target = prefix.strip("[]")
-
         if chatter.name.lower() == 'nickserv':
             self._log_event(e)
             self._handle_nickserv_message(notice)
             return
-        if target == '*':
-            self._log_event(e)
+
+        text = "\n".join(e.arguments())
+        msg_target, text = self._parse_target_from_privnotice_message(text)
+        if msg_target is not None:
+            channel_type = ChannelType.PUBLIC
         else:
-            text = "\n".join(e.arguments()).lstrip(prefix)
-        if chatter.name == self.host:
-            self.new_server_message.emit(text)
-        else:
-            if irclib.is_channel(target):
-                channel_type = ChannelType.PUBLIC
-            else:
-                channel_type == ChannelType.PRIVATE
-            self._emit_line(chatter, target, channel_type, text)
+            channel_type = ChannelType.PRIVATE
+        self._emit_line(chatter, msg_target, channel_type, text,
+                        ChatLineType.NOTICE)
+
+    # Parsing message to get target channel instead is non-standard.  To limit
+    # abuse potential, we match the pattern used by bots as closely as
+    # possible, and mark the line as notice so views can display them
+    # differently.
+    def _parse_target_from_privnotice_message(self, text):
+        if re.match('\[[^ ]+\] ', text) is None:
+            return None, text
+        prefix, rest = text.split(" ", 1)
+        prefix = prefix[1:-1]
+        target = prefix.strip("[]")
+        if not irclib.is_channel(target):
+            return None, text
+        return target, rest
 
     def _handle_nickserv_message(self, notice):
         if (notice.find("registered under your account") >= 0 or

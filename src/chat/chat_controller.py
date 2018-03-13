@@ -1,6 +1,6 @@
 from model.chat.channel import Channel, Lines, ChannelID, ChannelType
 from model.chat.chatter import Chatter
-from model.chat.chatline import ChatLine
+from model.chat.chatline import ChatLine, ChatLineType
 from model.chat.channelchatter import ChannelChatter
 from enum import Enum
 
@@ -79,6 +79,12 @@ class ChatController:
         del self._ccs[key]
 
     def _at_new_line(self, line, cid):
+        # Private notices printed in public channels are our own invention.
+        # Such a notice NEVER indicates joining a channel.
+        if (line.type == ChatLineType.NOTICE and
+                cid.type == ChannelType.PUBLIC and
+                cid not in self._channels):
+            return
         self._check_add_new_channel(cid)
         self._channels[cid].lines.add_line(line)
 
@@ -162,7 +168,7 @@ class ChatController:
         self.join_channel(ChannelID(ChannelType.PUBLIC, name))
 
     def _user_chat_line(self, msg):
-        return ChatLine(self._connection.nickname, msg)
+        return ChatLine(self._connection.nickname, msg, ChatLineType.MESSAGE)
 
     def leave_channel(self, cid, reason):
         if cid.type == ChannelType.PRIVATE:
