@@ -9,3 +9,4 @@ pytest-qt
 semantic_version
 idna
 jsonschema
+jinja2

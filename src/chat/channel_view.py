@@ -1,5 +1,6 @@
 import time
 import html
+import jinja2
 from PyQt5.QtCore import QObject, pyqtSignal
 
 from chat.channel_widget import ChannelWidget
@@ -40,7 +41,8 @@ class ChannelView(QObject):
 
     @classmethod
     def build(cls, channel, controller, **kwargs):
-        widget = ChannelWidget.build(channel, **kwargs)
+        chat_css_template = ChatLineCssTemplate.build(**kwargs)
+        widget = ChannelWidget.build(channel, chat_css_template, **kwargs)
         lines_view = ChatAreaView.build(channel, widget, **kwargs)
         chatter_list_view = ChattersView.build(channel, widget, **kwargs)
         return cls(channel, controller, widget, chatter_list_view, lines_view)
@@ -174,6 +176,31 @@ class ChatLineMetadata:
             self.meta.player.avatar.url = url
 
 
+class ChatLineCssTemplate(QObject):
+    changed = pyqtSignal()
+
+    def __init__(self, theme, player_colors):
+        QObject.__init__(self)
+        self._player_colors = player_colors
+        self._player_colors.changed.connect(self._reload_css)
+        self._load_template(theme)
+
+    @classmethod
+    def build(cls, theme, player_colors, **kwargs):
+        return cls(theme, player_colors)
+
+    def _load_template(self, theme):
+        self._env = jinja2.Environment()
+        template_str = theme.readfile("chat/channel.css")
+        self._template = self._env.from_string(template_str)
+        self._reload_css()
+
+    def _reload_css(self):
+        colors = self._player_colors.colors
+        self.css = self._template.render(colors=colors)
+        self.changed.emit()
+
+
 class ChatLineFormatter:
     def __init__(self, theme):
         self._set_theme(theme)
@@ -196,6 +223,8 @@ class ChatLineFormatter:
             yield "notimestamp"
         if meta.chatter:
             yield "chatter"
+            if meta.chatter.is_mod and meta.chatter.is_mod():
+                yield "mod"
         if meta.player:
             yield "player"
         if meta.is_friend and meta.is_friend():
@@ -206,8 +235,6 @@ class ChatLineFormatter:
             yield "me"
         if meta.is_clannie and meta.is_clannie():
             yield "clannie"
-        if meta.is_mod and meta.is_mod():
-            yield "mod"
         if meta.mentions_me and meta.mentions_me():
             yield "mentions_me"
         if meta.player.avatar and meta.player.avatar():

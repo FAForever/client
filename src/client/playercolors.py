@@ -3,6 +3,7 @@ import random
 from enum import Enum
 from PyQt5.QtCore import QObject, pyqtSignal
 
+
 class PlayerAffiliation(Enum):
     SELF = "self"
     FRIEND = "friend"
@@ -20,9 +21,7 @@ class PlayerColors(QObject):
         self._user_relations = user_relations
         self._theme = theme
         self._colored_nicknames = False
-        self._colors = self._load_colors("client/colors.json")
-        self._operator_colors = self._load_colors(
-                "chat/formatters/operator_colors.json")
+        self.colors = self._load_colors("client/colors.json")
         self._random_colors = self._load_colors("client/randomcolors.json")
 
     @property
@@ -38,10 +37,10 @@ class PlayerColors(QObject):
         return json.loads(self._theme.readfile(filename))
 
     def get_color(self, name):
-        if name in self._colors:
-            return self._colors[name]
+        if name in self.colors:
+            return self.colors[name]
         else:
-            return self._colors["default"]
+            return self.colors["default"]
 
     def get_random_color(self, seed):
         '''Generate a random color from a seed'''
@@ -77,18 +76,13 @@ class PlayerColors(QObject):
             return self.get_color("default")
         return self.get_color("player")
 
-    def get_mod_color(self, elevation, _id=-1, name=None):
+    def get_mod_color(self, _id=-1, name=None):
         affil = self._get_affiliation(_id, name)
         names = {
             PlayerAffiliation.SELF: "self_mod",
             PlayerAffiliation.FRIEND: "friend_mod",
             PlayerAffiliation.CLANNIE: "friend_mod",
         }
-
         if affil in names:
             return self.get_color(names[affil])
-
-        if elevation in self._operator_colors:
-                return self._operator_colors[elevation]
-
-        return self.get_color("player")
+        return self.get_color("mod")

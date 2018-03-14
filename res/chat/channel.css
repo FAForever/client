@@ -1,10 +1,15 @@
-/* See src/chat/channel_view.py for supported tags.
+/* Jinja template for chat line CSS.
+ * See src/chat/channel_view.py for supported tags.
  * Unfortunately Qt does not support setting the width attribute through CSS.
  */
 
 .col_sender, .col_text, .col_time {
-	color: grey;
+	color: {{ colors['default'] }};
 	padding-top: 3; /* align with avatar icon */
+}
+
+.player .col_sender, .player .col_text, .player .col_time {
+	color: {{ colors['player'] }}
 }
 
 .col_sender {
@@ -15,27 +20,34 @@
 	text-align: right;
 }
 
-
 .friend .col_sender, .friend .col_text {
-	color: green;
+	color: {{ colors['friend'] }};
 }
 
 .foe .col_sender, .foe.col_text {
-	color: red;
+	color: {{ colors['foe'] }};
 }
 
 .clannie .col_sender, .clannie .col_text {
-	color: purple;
-}
-
-.mod .col_sender, .mod .col_text {
-	color: white;
-}
-
-.mentions_me .col_sender, .mentions_me .col_text {
-	color: red;
+	color: {{ colors['clan'] }};
 }
 
 .me .col_sender, .me .col_text {
-	color: orange;
+	color: {{ colors['self'] }};
+}
+
+.mod .col_sender, .mod .col_text {
+	color: {{ colors['mod'] }};
+}
+
+.friend.mod .col_sender, .friend.mod .col_text, .me.mod .col_sender, .me.mod .col_text {
+	color: {{ colors['friend_mod'] }};
+}
+
+.me.mod .col_sender, .me.mod .col_text {
+	color: {{ colors['self_mod'] }};
+}
+
+.mentions_me .col_sender, .mentions_me .col_text {
+	color: {{ colors['you'] }};
 }

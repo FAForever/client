@@ -8,14 +8,16 @@ class ChannelWidget(QObject):
     line_typed = pyqtSignal(str)
     chatter_list_resized = pyqtSignal(object)
 
-    def __init__(self, channel, theme):
+    def __init__(self, channel, chat_area_css, theme):
         QObject.__init__(self)
         self.channel = channel
+        self._chat_area_css = chat_area_css
+        self._chat_area_css.changed.connect(self.reload_css)
         self.set_theme(theme)
 
     @classmethod
-    def build(cls, channel, theme, **kwargs):
-        return cls(channel, theme)
+    def build(cls, channel, chat_area_css, theme, **kwargs):
+        return cls(channel, chat_area_css, theme)
 
     @property
     def chat_area(self):
@@ -43,18 +45,16 @@ class ChannelWidget(QObject):
         self.base = basec()
         self.form.setupUi(self.base)
 
-        self._chat_area_css = theme.readfile("chat/channel.css")
-        self.reload_css()
-
         # Used by chat widget so it knows it corresponds to this widget
         self.base.cid = self.channel.id_key
         self.chat_edit.returnPressed.connect(self._at_line_typed)
         self.nick_list.resized.connect(self.chatter_list_resized.emit)
         self.chat_edit.set_channel(self.channel)
         self.nick_filter.textChanged.connect(self._set_chatter_filter)
+        self.reload_css()
 
     def reload_css(self):
-        self.chat_area.document().setDefaultStyleSheet(self._chat_area_css)
+        self.chat_area.document().setDefaultStyleSheet(self._chat_area_css.css)
 
     def add_avatar_resource(self, url, pix):
         doc = self.chat_area.document()

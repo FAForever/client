@@ -154,10 +154,9 @@ class ChatterItemFormatter:
         colors = self._player_colors
         cc = data.cc
         if cc.is_mod():
-            return colors.get_mod_color(cc.elevation, pid, data.chatter.name)
+            return colors.get_mod_color(pid, data.chatter.name)
         else:
             return colors.get_user_color(pid, data.chatter.name)
-
 
     def chatter_status(self, data):
         game = data.game
