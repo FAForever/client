@@ -220,8 +220,6 @@ class ChatLineFormatter:
         meta = data.meta
         if line.type == ChatLineType.NOTICE:
             yield "notice"
-        if not self._check_timestamp(line.time):
-            yield "notimestamp"
         if meta.chatter:
             yield "chatter"
             if meta.chatter.is_mod and meta.chatter.is_mod():
@@ -253,9 +251,14 @@ class ChatLineFormatter:
         else:
             avatar = ""
 
+        if self._check_timestamp(data.line.time):
+            stamp = time.strftime('%H:%M', time.localtime(data.line.time))
+        else:
+            stamp = ""
+
         sender = ChatterFormat.name(data.line.sender, data.meta.player.clan())
         return self._chatline_template.format(
-            time=time.strftime('%H:%M', time.localtime(data.line.time)),
+            time=stamp,
             sender=html.escape(sender),
             text=html.escape(data.line.text),
             avatar=avatar,
