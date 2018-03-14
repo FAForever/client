@@ -574,6 +574,7 @@ class ClientWindow(FormClass, BaseClass):
                 controller=chat_controller,
                 parent_widget=self,
                 theme=util.THEME,
+                channel_blink_interval=500,
                 player_colors=self.player_colors,
                 me=self.me,
                 user_relations=self.user_relations,

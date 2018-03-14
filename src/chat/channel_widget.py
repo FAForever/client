@@ -96,3 +96,7 @@ class ChannelWidget(QObject):
 
     def set_nick_edit_label(self, text):
         self.nick_filter.setPlaceholderText(text)
+
+    @property
+    def hidden(self):
+        return self.base.isHidden()

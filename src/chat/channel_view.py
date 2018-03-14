@@ -16,14 +16,15 @@ from downloadManager import DownloadRequest
 class ChannelView(QObject):
     privmsg_requested = pyqtSignal(str)
 
-    def __init__(self, channel, controller, widget, chatter_list_view,
-                 lines_view):
+    def __init__(self, channel, controller, widget, channel_tab,
+                 chatter_list_view, lines_view):
         QObject.__init__(self)
         self._channel = channel
         self._controller = controller
         self._chatter_list_view = chatter_list_view
         self._lines_view = lines_view
         self.widget = widget
+        self._channel_tab = channel_tab
 
         self.widget.line_typed.connect(self._at_line_typed)
         self._chatter_list_view.double_clicked.connect(
@@ -40,17 +41,18 @@ class ChannelView(QObject):
         self.widget.set_nick_edit_label(text)
 
     @classmethod
-    def build(cls, channel, controller, **kwargs):
+    def build(cls, channel, controller, channel_tab, **kwargs):
         chat_css_template = ChatLineCssTemplate.build(**kwargs)
         widget = ChannelWidget.build(channel, chat_css_template, **kwargs)
-        lines_view = ChatAreaView.build(channel, widget, **kwargs)
+        lines_view = ChatAreaView.build(channel, widget, channel_tab, **kwargs)
         chatter_list_view = ChattersView.build(channel, widget, **kwargs)
-        return cls(channel, controller, widget, chatter_list_view, lines_view)
+        return cls(channel, controller, widget, channel_tab, chatter_list_view,
+                   lines_view)
 
     @classmethod
     def builder(cls, controller, **kwargs):
-        def make(channel):
-            return cls.build(channel, controller, **kwargs)
+        def make(channel, channel_tab):
+            return cls.build(channel, controller, channel_tab, **kwargs)
         return make
 
     def _at_line_typed(self, line):
@@ -59,12 +61,16 @@ class ChannelView(QObject):
     def _at_chatter_double_clicked(self, data):
         self.privmsg_requested.emit(data.chatter.name)
 
+    def on_switched_to(self):
+        self._channel_tab.stop_blinking()
+
 
 class ChatAreaView:
-    def __init__(self, channel, widget, metadata_builder, avatar_adder,
-                 formatter):
+    def __init__(self, channel, widget, widget_tab, metadata_builder,
+                 avatar_adder, formatter):
         self._channel = channel
         self._widget = widget
+        self._widget_tab = widget_tab
         self._metadata_builder = metadata_builder
         self._channel.lines.added.connect(self._add_line)
         self._meta_lines = []
@@ -72,11 +78,12 @@ class ChatAreaView:
         self._formatter = formatter
 
     @classmethod
-    def build(cls, channel, widget, **kwargs):
+    def build(cls, channel, widget, widget_tab, **kwargs):
         metadata_builder = ChatLineMetadata.builder(**kwargs)
         avatar_adder = ChatAvatarPixAdder.build(widget, **kwargs)
         formatter = ChatLineFormatter.build(**kwargs)
-        return cls(channel, widget, metadata_builder, avatar_adder, formatter)
+        return cls(channel, widget, widget_tab, metadata_builder, avatar_adder,
+                   formatter)
 
     def _add_line(self, number):
         for line in self._channel.lines[-number:]:
@@ -86,6 +93,21 @@ class ChatAreaView:
             self._meta_lines.append(data)
             text = self._formatter.format(data)
             self._widget.append_line(text)
+            self._blink_if_needed(data)
+
+    def _should_blink(self, data):
+        if not self._widget.hidden:
+            return False
+        if self._channel.id_key.type == ChannelType.PRIVATE:
+            return True
+        if data.meta.mentions_me and data.meta.mentions_me():
+            return True
+        return False
+
+    def _blink_if_needed(self, data):
+        if not self._should_blink(data):
+            return
+        self._widget_tab.start_blinking()
 
 
 class ChatAvatarPixAdder:
