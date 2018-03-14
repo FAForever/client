@@ -5,7 +5,7 @@ from PyQt5.QtCore import QObject, pyqtSignal
 
 from chat.channel_widget import ChannelWidget
 from chat.chatter_model import ChatterModel, ChatterEventFilter, \
-    ChatterItemDelegate, ChatterSortFilterModel
+    ChatterItemDelegate, ChatterSortFilterModel, ChatterFormat
 from chat.chatter_menu import ChatterMenu
 from model.chat.channel import ChannelType
 from model.chat.chatline import ChatLineType
@@ -150,6 +150,7 @@ class ChatLineMetadata:
         if player is None:
             return
         self.meta.put("player")
+        self.meta.player.clan = player.clan
         self._avatar_metadata(player.avatar)
 
     def _relation_metadata(self, chatter, player, me, user_relations):
@@ -252,9 +253,10 @@ class ChatLineFormatter:
         else:
             avatar = ""
 
+        sender = ChatterFormat.name(data.line.sender, data.meta.player.clan())
         return self._chatline_template.format(
             time=time.strftime('%H:%M', time.localtime(data.line.time)),
-            sender=html.escape(data.line.sender),
+            sender=html.escape(sender),
             text=html.escape(data.line.text),
             avatar=avatar,
             tags=tags)

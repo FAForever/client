@@ -133,6 +133,16 @@ class ChatterSortFilterModel(QSortFilterProxyModel):
         return self.filterRegExp().indexIn(data.chatter.name) != -1
 
 
+# TODO - place in some separate file?
+class ChatterFormat:
+    @staticmethod
+    def name(chatter, clan):
+        if clan is not None:
+            return "[{}]{}".format(clan, chatter)
+        else:
+            return chatter
+
+
 class ChatterItemFormatter:
     def __init__(self, avatars, player_colors):
         self._avatars = avatars
@@ -147,7 +157,8 @@ class ChatterItemFormatter:
         return None if name is None else maps.preview(name)
 
     def chatter_name(self, data):
-        return data.chatter.name
+        clan = None if data.player is None else data.player.clan
+        return ChatterFormat.name(data.chatter.name, clan)
 
     def chatter_color(self, data):
         pid = -1 if data.player is None else data.player.id
