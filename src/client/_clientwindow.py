@@ -396,7 +396,7 @@ class ClientWindow(FormClass, BaseClass):
 
         self._alias_viewer = AliasWindow.build(parent_widget=self)
         self._alias_search_window = AliasSearchWindow(self, self._alias_viewer)
-        self._game_runner = GameRunner(self)
+        self._game_runner = GameRunner(self.gameset, self)
 
     @property
     def state(self):

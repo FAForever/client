@@ -7,6 +7,7 @@ import re
 class ChannelWidget(QObject):
     line_typed = pyqtSignal(str)
     chatter_list_resized = pyqtSignal(object)
+    url_clicked = pyqtSignal(QUrl)
 
     def __init__(self, channel, chat_area_css, theme):
         QObject.__init__(self)
@@ -51,6 +52,7 @@ class ChannelWidget(QObject):
         self.nick_list.resized.connect(self.chatter_list_resized.emit)
         self.chat_edit.set_channel(self.channel)
         self.nick_filter.textChanged.connect(self._set_chatter_filter)
+        self.chat_area.anchorClicked.connect(self.url_clicked.emit)
         self.reload_css()
 
     def reload_css(self):

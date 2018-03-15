@@ -9,13 +9,21 @@ logger = logging.getLogger(__name__)
 
 
 class GameRunner:
-    def __init__(self, client_window):
+    def __init__(self, gameset, client_window):
+        self._gameset = gameset
         self._client_window = client_window     # FIXME
 
     def run_game_with_url(self, game, pid):
         gurl = game.url(pid)
         if gurl is None:
             return
+        self.run_game_from_url(gurl)
+
+    def run_game_from_url(self, gurl):
+        game = self._gameset.get(gurl.uid, None)
+        if game is None or game.closed():
+            return
+
         if game.state == GameState.OPEN:
             self._join_game_from_url(gurl)
         elif game.state == GameState.PLAYING:

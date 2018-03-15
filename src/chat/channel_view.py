@@ -2,6 +2,7 @@ import time
 import html
 import jinja2
 from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5.QtGui import QDesktopServices
 
 from chat.channel_widget import ChannelWidget
 from chat.chatter_model import ChatterModel, ChatterEventFilter, \
@@ -9,6 +10,7 @@ from chat.chatter_model import ChatterModel, ChatterEventFilter, \
 from chat.chatter_menu import ChatterMenu
 from model.chat.channel import ChannelType
 from model.chat.chatline import ChatLineType
+from util.gameurl import GameUrl
 from util.magic_dict import MagicDict
 from downloadManager import DownloadRequest
 
@@ -66,24 +68,26 @@ class ChannelView(QObject):
 
 
 class ChatAreaView:
-    def __init__(self, channel, widget, widget_tab, metadata_builder,
-                 avatar_adder, formatter):
+    def __init__(self, channel, widget, widget_tab, game_runner,
+                 metadata_builder, avatar_adder, formatter):
         self._channel = channel
         self._widget = widget
         self._widget_tab = widget_tab
+        self._game_runner = game_runner
         self._metadata_builder = metadata_builder
         self._channel.lines.added.connect(self._add_line)
+        self._widget.url_clicked.connect(self._at_url_clicked)
         self._meta_lines = []
         self._avatar_adder = avatar_adder
         self._formatter = formatter
 
     @classmethod
-    def build(cls, channel, widget, widget_tab, **kwargs):
+    def build(cls, channel, widget, widget_tab, game_runner, **kwargs):
         metadata_builder = ChatLineMetadata.builder(**kwargs)
         avatar_adder = ChatAvatarPixAdder.build(widget, **kwargs)
         formatter = ChatLineFormatter.build(**kwargs)
-        return cls(channel, widget, widget_tab, metadata_builder, avatar_adder,
-                   formatter)
+        return cls(channel, widget, widget_tab, game_runner, metadata_builder,
+                   avatar_adder, formatter)
 
     def _add_line(self, number):
         for line in self._channel.lines[-number:]:
@@ -94,6 +98,16 @@ class ChatAreaView:
             text = self._formatter.format(data)
             self._widget.append_line(text)
             self._blink_if_needed(data)
+
+    def _at_url_clicked(self, url):
+        if not GameUrl.is_game_url(url):
+            QDesktopServices.openUrl(url)
+            return
+        try:
+            gurl = GameUrl.from_url(url)
+        except ValueError:
+            return
+        self._game_runner.run_game_from_url(gurl)
 
     def _should_blink(self, data):
         if not self._widget.hidden:
