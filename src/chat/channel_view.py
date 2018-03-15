@@ -78,6 +78,7 @@ class ChatAreaView:
         self._metadata_builder = metadata_builder
         self._channel.lines.added.connect(self._add_line)
         self._widget.url_clicked.connect(self._at_url_clicked)
+        self._widget.css_reloaded.connect(self._at_css_reloaded)
         self._meta_lines = []
         self._avatar_adder = avatar_adder
         self._formatter = formatter
@@ -123,6 +124,12 @@ class ChatAreaView:
         if not self._should_blink(data):
             return
         self._widget_tab.start_blinking()
+
+    def _at_css_reloaded(self):
+        self._widget.clear_chat()
+        for line in self._meta_lines:
+            text = self._formatter.format(line)
+            self._widget.append_line(text)
 
 
 class ChatAvatarPixAdder:
