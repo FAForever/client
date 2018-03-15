@@ -330,20 +330,41 @@ class ChatLineFormatter:
         return new_stamp
 
 
+class ChattersViewParameters(QObject):
+    updated = pyqtSignal()
+
+    def __init__(self, me, player_colors):
+        QObject.__init__(self)
+        self._me = me
+        self._me.playerChanged.connect(self.updated.emit)
+        self._me.clan_changed.connect(self.updated.emit)
+        self._player_colors = player_colors
+        self._player_colors.changed.connect(self.updated.emit)
+
+    @classmethod
+    def build(cls, me, player_colors, **kwargs):
+        return cls(me, player_colors)
+
+
 class ChattersView:
-    def __init__(self, widget, delegate, model, event_filter):
+    def __init__(self, widget, delegate, model, event_filter, view_parameters):
         self.delegate = delegate
         self.model = model
         self.event_filter = event_filter
+        self._view_parameters = view_parameters
         self.widget = widget
 
         widget.set_chatter_delegate(self.delegate)
         widget.set_chatter_model(self.model)
         widget.set_chatter_event_filter(self.event_filter)
-        widget.chatter_list_resized.connect(self.at_chatter_list_resized)
+        widget.chatter_list_resized.connect(self._at_chatter_list_resized)
+        view_parameters.updated.connect(self._at_view_parameters_updated)
 
-    def at_chatter_list_resized(self, size):
+    def _at_chatter_list_resized(self, size):
         self.delegate.update_width(size)
+
+    def _at_view_parameters_updated(self):
+        self.model.invalidate_items()
 
     @classmethod
     def build(cls, channel, widget, user_relations, **kwargs):
@@ -356,8 +377,10 @@ class ChattersView:
         delegate = ChatterItemDelegate.build(**kwargs)
         event_filter = ChatterEventFilter.build(delegate, chatter_menu,
                                                 **kwargs)
+        view_parameters = ChattersViewParameters.build(**kwargs)
 
-        return cls(widget, delegate, sort_filter_model, event_filter)
+        return cls(widget, delegate, sort_filter_model, event_filter,
+                   view_parameters)
 
     @property
     def double_clicked(self):

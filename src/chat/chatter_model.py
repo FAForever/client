@@ -10,28 +10,10 @@ import util
 from util.qt_list_model import QtListModel
 
 
-class GlobalChatterUpdateTracker(QObject):
-    updated = pyqtSignal()
-
-    def __init__(self, me, player_colors):
-        QObject.__init__(self)
-        self._me = me
-        self._me.playerChanged.connect(self.updated.emit)
-        self._me.clan_changed.connect(self.updated.emit)
-        self._player_colors = player_colors
-        self._player_colors.changed.connect(self.updated.emit)
-
-    @classmethod
-    def build(cls, me, player_colors, **kwargs):
-        return cls(me, player_colors)
-
-
 class ChatterModel(QtListModel):
-    def __init__(self, channel, item_builder, global_update_tracker):
+    def __init__(self, channel, item_builder):
         QtListModel.__init__(self, item_builder)
         self._channel = channel
-        self._global_update_tracker = global_update_tracker
-        self._global_update_tracker.updated.connect(self._invalidate_model)
 
         if self._channel is not None:
             self._channel.added_chatter.connect(self.add_chatter)
@@ -43,8 +25,7 @@ class ChatterModel(QtListModel):
     @classmethod
     def build(cls, channel, **kwargs):
         builder = ChatterModelItem.builder(**kwargs)
-        global_update_tracker = GlobalChatterUpdateTracker.build(**kwargs)
-        return cls(channel, builder, global_update_tracker)
+        return cls(channel, builder)
 
     def add_chatter(self, chatter):
         self._add_item(chatter, chatter.id_key)
@@ -55,7 +36,7 @@ class ChatterModel(QtListModel):
     def clear_chatters(self):
         self._clear_items()
 
-    def _invalidate_model(self):
+    def invalidate_items(self):
         start = self.index(0)
         end = self.index(len(self._itemlist) - 1)
         self.dataChanged.emit(start, end)
