@@ -408,23 +408,22 @@ class ChatterLayout(QObject):
     """Provides layout info for delegate using Qt widget layouts."""
     LAYOUT_FILE = "chat/chatter.ui"
 
-    def __init__(self, size, theme):
+    def __init__(self, theme):
         QObject.__init__(self)
-        self.theme = theme
-        self._size = size
+        self._theme = theme
         self.sizes = {}
         self.load_layout()
 
     @classmethod
-    def build(cls, chatter_size, theme, **kwargs):
-        return cls(chatter_size, theme)
+    def build(cls, theme, **kwargs):
+        return cls(theme)
 
     def load_layout(self):
-        formc, basec = self.theme.loadUiType(self.LAYOUT_FILE)
+        formc, basec = self._theme.loadUiType(self.LAYOUT_FILE)
         self._form = formc()
         self._base = basec()
         self._form.setupUi(self._base)
-        self._update_layout()
+        self._size = self._base.size()
 
     @property
     def size(self):

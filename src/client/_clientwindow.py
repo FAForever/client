@@ -581,7 +581,6 @@ class ClientWindow(FormClass, BaseClass):
                 power_tools=self.power_tools,
                 map_preview_dler=self.map_downloader,
                 avatar_dler=self.avatar_downloader,
-                chatter_size=QtCore.QSize(150, 30),
                 avatar_widget_builder=self._avatar_widget_builder,
                 alias_viewer=self._alias_viewer,
                 client_window=self,
