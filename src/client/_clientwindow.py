@@ -94,7 +94,8 @@ class mousePosition(object):
         return self.onEdges
 
 
-def signal_property(pub, priv):
+def signal_property(pub):
+    priv = "_" + pub
     def get(self):
         return getattr(self, priv)
 
@@ -102,19 +103,20 @@ def signal_property(pub, priv):
         old = getattr(self, priv)
         if v != old:
             setattr(self, priv, v)
-            self.updated.emit(pub, v, old)
+            self.updated.emit(pub)
 
     return property(get, set_)
 
 
 class ChatConfig(QtCore.QObject):
-    updated = QtCore.pyqtSignal(str, object, object)
+    updated = QtCore.pyqtSignal(str)
 
-    soundeffects = signal_property("soundeffects", "_soundeffects")
-    joinsparts = signal_property("joinsparts", "_joinsparts")
-    chatmaps = signal_property("chatmaps", "_chatmaps")
-    friendsontop = signal_property("friendsontop", "_friendsontop")
-    newbies_channel = signal_property("newbies_channel", "_newbies_channel")
+    soundeffects = signal_property("soundeffects")
+    joinsparts = signal_property("joinsparts")
+    chatmaps = signal_property("chatmaps")
+    friendsontop = signal_property("friendsontop")
+    newbies_channel = signal_property("newbies_channel")
+    channel_blink_interval = signal_property("channel_blink_interval")
 
     def __init__(self, settings):
         QtCore.QObject.__init__(self)
@@ -124,6 +126,7 @@ class ChatConfig(QtCore.QObject):
         self._chatmaps = None
         self._friendsontop = None
         self._newbies_channel = None
+        self._channel_blink_interval = None
         self.load_settings()
 
     def load_settings(self):
@@ -599,6 +602,7 @@ class ClientWindow(FormClass, BaseClass):
 
         self._chat_config = ChatConfig(util.settings)
         self.loadSettings()
+        self._chat_config.channel_blink_interval = 500
 
         self.gameview_builder = GameViewBuilder(self.me,
                                                 self.player_colors)
@@ -625,7 +629,7 @@ class ClientWindow(FormClass, BaseClass):
                 controller=chat_controller,
                 parent_widget=self,
                 theme=util.THEME,
-                channel_blink_interval=500,
+                chat_config=self._chat_config,
                 player_colors=self.player_colors,
                 me=self.me,
                 user_relations=self.user_relations,

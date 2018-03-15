@@ -88,18 +88,25 @@ class ChatView:
 
 
 class ChannelTab:
-    def __init__(self, channel_blink_interval, cid, widget):
+    def __init__(self, cid, widget, chat_config):
         self._cid = cid
         self._widget = widget
+        self._chat_config = chat_config
         self._timer = QTimer()
-        self._timer.setInterval(channel_blink_interval)
+        self._timer.setInterval(self._chat_config.channel_blink_interval)
         self._timer.timeout.connect(self._switch_blink)
         self._blink_phase = False
+        self._chat_config.updated.connect(self._load_blink_interval)
+
+    def _load_blink_interval(self, option):
+        if option != "channel_blink_interval":
+            return
+        self._timer.setInterval(self._chat_config.channel_blink_interval)
 
     @classmethod
-    def builder(cls, channel_blink_interval, **kwargs):
+    def builder(cls, chat_config, **kwargs):
         def make(cid, widget):
-            return cls(channel_blink_interval, cid, widget)
+            return cls(cid, widget, chat_config)
         return make
 
     def start_blinking(self):
