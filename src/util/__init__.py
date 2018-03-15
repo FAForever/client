@@ -332,7 +332,7 @@ def html_escape(text):
     return "".join(html_escape_table.get(c, c) for c in text)
 
 
-def irc_escape(text, a_style=""):
+def irc_escape(text):
     # first, strip any and all html
     text = html_escape(text)
 
@@ -348,15 +348,15 @@ def irc_escape(text, a_style=""):
 
     # Tired of bothering with end-of-word cases in this regex
     # I'm splitting the whole string and matching each fragment start-to-end as a whole
-    strings = text.split()
+    strings = text.split(" ")
     result = []
     for fragment in strings:
         match = url_re.match(fragment)
         if match:
             if "://" in fragment:  # slight hack to get those protocol-less URLs on board. Better: With groups!
-                rpl = '<a href="{0}" style="{1}">{0}</a>'.format(fragment, a_style)
+                rpl = '<a href="{0}">{0}</a>'.format(fragment)
             else:
-                rpl = '<a href="http://{0}" style="{1}">{0}</a>'.format(fragment, a_style)
+                rpl = '<a href="http://{0}">{0}</a>'.format(fragment)
 
             fragment = fragment.replace(match.group(0), rpl)
 

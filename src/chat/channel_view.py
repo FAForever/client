@@ -12,6 +12,7 @@ from model.chat.channel import ChannelType
 from model.chat.chatline import ChatLineType
 from util.gameurl import GameUrl
 from util.magic_dict import MagicDict
+from util import irc_escape
 from downloadManager import DownloadRequest
 
 
@@ -296,7 +297,7 @@ class ChatLineFormatter:
         return self._chatline_template.format(
             time=stamp,
             sender=html.escape(sender),
-            text=html.escape(data.line.text),
+            text=irc_escape(data.line.text),
             avatar=avatar,
             tags=tags)
 

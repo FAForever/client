@@ -51,3 +51,7 @@
 .mentions_me .col_sender, .mentions_me .col_text {
 	color: {{ colors['you'] }};
 }
+
+a {
+	color: cornflowerblue;
+}
