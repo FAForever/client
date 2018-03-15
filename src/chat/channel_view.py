@@ -182,12 +182,14 @@ class ChatLineMetadata:
             return
         cmeta = self.meta.put("chatter")
         cmeta.is_mod = cc.is_mod()
+        cmeta.name = cc.chatter.name
 
     def _player_metadata(self, player):
         if player is None:
             return
         self.meta.put("player")
         self.meta.player.clan = player.clan
+        self.meta.player.id = player.id
         self._avatar_metadata(player.avatar)
 
     def _relation_metadata(self, chatter, player, me, user_relations):
@@ -235,18 +237,24 @@ class ChatLineCssTemplate(QObject):
 
     def _reload_css(self):
         colors = self._player_colors.colors
-        self.css = self._template.render(colors=colors)
+        if self._player_colors.colored_nicknames:
+            random_colors = self._player_colors.random_colors
+        else:
+            random_colors = None
+        self.css = self._template.render(colors=colors,
+                                         random_colors=random_colors)
         self.changed.emit()
 
 
 class ChatLineFormatter:
-    def __init__(self, theme):
+    def __init__(self, theme, player_colors):
         self._set_theme(theme)
+        self._player_colors = player_colors
         self._last_timestamp = None
 
     @classmethod
-    def build(cls, theme, **kwargs):
-        return cls(theme)
+    def build(cls, theme, player_colors, **kwargs):
+        return cls(theme, player_colors)
 
     def _set_theme(self, theme):
         self._chatline_template = theme.readfile("chat/chatline.qhtml")
@@ -261,6 +269,10 @@ class ChatLineFormatter:
             yield "chatter"
             if meta.chatter.is_mod and meta.chatter.is_mod():
                 yield "mod"
+            name = meta.chatter.name()
+            id_ = meta.player.id() if meta.player.id else None
+            yield ("randomcolor-{}".format(
+                   self._player_colors.get_random_color_index(id_, name)))
         if meta.player:
             yield "player"
         if meta.is_friend and meta.is_friend():

@@ -142,6 +142,9 @@ class ChatterSortFilterModel(QSortFilterProxyModel):
         if option == "friendsontop":
             self.invalidate()
 
+    def invalidate_items(self):
+        self.sourceModel().invalidate_items()
+
 
 # TODO - place in some separate file?
 class ChatterFormat:

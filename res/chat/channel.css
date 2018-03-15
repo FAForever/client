@@ -16,6 +16,14 @@
 	color: {{ colors['player'] }}
 }
 
+{% if random_colors is not none %}
+               {% for name in random_colors %}
+                       .randomcolor-{{loop.index0}} .col_sender, .randomcolor-{{loop.index0}} .col_text {
+                               color: {{name}};
+                       }
+               {% endfor %}
+{% endif %}
+
 .col_sender {
 	text-align: right;
 }

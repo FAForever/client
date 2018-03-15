@@ -22,7 +22,7 @@ class PlayerColors(QObject):
         self._theme = theme
         self._colored_nicknames = False
         self.colors = self._load_colors("client/colors.json")
-        self._random_colors = self._load_colors("client/randomcolors.json")
+        self.random_colors = self._load_colors("client/randomcolors.json")
 
     @property
     def colored_nicknames(self):
@@ -42,10 +42,16 @@ class PlayerColors(QObject):
         else:
             return self.colors["default"]
 
-    def get_random_color(self, seed):
-        '''Generate a random color from a seed'''
-        random.seed(seed)
-        return random.choice(self._random_colors)
+    def _seed(self, id_, name):
+        return id_ if id_ not in [-1, None] else name
+
+    def get_random_color(self, id_, name):
+        random.seed(self._seed(id_, name))
+        return random.choice(self.random_colors)
+
+    def get_random_color_index(self, id_, name):
+        random.seed(self._seed(id_, name))
+        return random.choice(range(len(self.random_colors)))
 
     def _get_affiliation(self, id_=-1, name=None):
         if self._me.player is not None and self._me.player.id == id_:
@@ -70,7 +76,7 @@ class PlayerColors(QObject):
         if affil in names:
             return self.get_color(names[affil])
         if self.colored_nicknames:
-            return self.get_random_color(_id if _id != -1 else name)
+            return self.get_random_color(_id, name)
 
         if _id == -1:   # IRC user
             return self.get_color("default")
