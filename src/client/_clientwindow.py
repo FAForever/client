@@ -94,6 +94,56 @@ class mousePosition(object):
         return self.onEdges
 
 
+def signal_property(pub, priv):
+    def get(self):
+        return getattr(self, priv)
+
+    def set_(self, v):
+        old = getattr(self, priv)
+        if v != old:
+            setattr(self, priv, v)
+            self.updated.emit(pub, v, old)
+
+    return property(get, set_)
+
+
+class ChatConfig(QtCore.QObject):
+    updated = QtCore.pyqtSignal(str, object, object)
+
+    soundeffects = signal_property("soundeffects", "_soundeffects")
+    joinsparts = signal_property("joinsparts", "_joinsparts")
+    chatmaps = signal_property("chatmaps", "_chatmaps")
+    friendsontop = signal_property("friendsontop", "_friendsontop")
+    newbies_channel = signal_property("newbies_channel", "_newbies_channel")
+
+    def __init__(self, settings):
+        QtCore.QObject.__init__(self)
+        self._settings = settings
+        self._soundeffects = None
+        self._joinsparts = None
+        self._chatmaps = None
+        self._friendsontop = None
+        self._newbies_channel = None
+        self.load_settings()
+
+    def load_settings(self):
+        s = self._settings
+        self.soundeffects = (s.value("chat/soundeffects", "true") == "true")
+        self.joinsparts = (s.value("chat/joinsparts", "false") == "true")
+        self.chatmaps = (s.value("chat/chatmaps", "false") == "true")
+        self.friendsontop = (s.value("chat/friendsontop", "false") == "true")
+        self.newbies_channel = (s.value("chat/newbiesChannel", "true") ==
+                                "true")
+
+    def save_settings(self):
+        s = self._settings
+        s.setValue("chat/soundeffects", self.soundeffects)
+        s.setValue("chat/joinsparts", self.joinsparts)
+        s.setValue("chat/newbiesChannel", self.newbies_channel)
+        s.setValue("chat/chatmaps", self.chatmaps)
+        s.setValue("chat/friendsontop", self.friendsontop)
+
+
 class ClientWindow(FormClass, BaseClass):
     """
     This is the main lobby client that manages the FAF-related connection and data,
@@ -547,6 +597,7 @@ class ClientWindow(FormClass, BaseClass):
         from modvault import ModVault
         from replays import ReplaysWidget
 
+        self._chat_config = ChatConfig(util.settings)
         self.loadSettings()
 
         self.gameview_builder = GameViewBuilder(self.me,
@@ -825,7 +876,7 @@ class ClientWindow(FormClass, BaseClass):
         self.actionSetNewbiesChannel.triggered.connect(self.updateOptions)
         self.actionSetAutoJoinChannels.triggered.connect(self.show_autojoin_settings_dialog)
         self.actionSetLiveReplays.triggered.connect(self.updateOptions)
-        self.actionSetChatMaps.triggered.connect(self.toggleChatMaps)
+        self.actionSetChatMaps.triggered.connect(self.updateOptions)
         self.actionSaveGamelogs.toggled.connect(self.on_actionSavegamelogs_toggled)
         self.actionSaveGamelogs.setChecked(self.gamelogs)
         self.actionColoredNicknames.triggered.connect(self.updateOptions)
@@ -839,25 +890,21 @@ class ClientWindow(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def updateOptions(self):
+        cc = self._chat_config
+
         self.remember = self.actionSetAutoLogin.isChecked()
-        self.soundeffects = self.actionSetSoundEffects.isChecked()
+        cc.soundeffects = self.actionSetSoundEffects.isChecked()
+        cc.joinsparts = self.actionSetJoinsParts.isChecked()
+        cc.chatmaps = self.actionSetChatMaps.isChecked()
+        cc.newbies_channel = self.actionSetNewbiesChannel.isChecked()
+        cc.friendsontop = self.actionFriendsOnTop.isChecked()
         self.game_announcer.announce_games = self.actionSetOpenGames.isChecked()
-        self.joinsparts = self.actionSetJoinsParts.isChecked()
-        self.useNewbiesChannel = self.actionSetNewbiesChannel.isChecked()
-        self.chatmaps = self.actionSetChatMaps.isChecked()
         self.game_announcer.announce_replays = self.actionSetLiveReplays.isChecked()
 
         self.gamelogs = self.actionSaveGamelogs.isChecked()
         self.player_colors.colored_nicknames = self.actionColoredNicknames.isChecked()
-        if self.friendsontop != self.actionFriendsOnTop.isChecked():
-            self.friendsontop = self.actionFriendsOnTop.isChecked()
-            self.chat.sort_channels()
 
         self.saveChat()
-
-    def toggleChatMaps(self):
-        self.updateOptions()
-        self.chat.update_channels()
 
     @QtCore.pyqtSlot()
     def switchPath(self):
@@ -947,15 +994,11 @@ class ClientWindow(FormClass, BaseClass):
 
     def saveChat(self):
         util.settings.beginGroup("chat")
-        util.settings.setValue("soundeffects", self.soundeffects)
         util.settings.setValue("livereplays", self.game_announcer.announce_replays)
         util.settings.setValue("opengames", self.game_announcer.announce_games)
-        util.settings.setValue("joinsparts", self.joinsparts)
-        util.settings.setValue("newbiesChannel", self.useNewbiesChannel)
-        util.settings.setValue("chatmaps", self.chatmaps)
         util.settings.setValue("coloredNicknames", self.player_colors.colored_nicknames)
-        util.settings.setValue("friendsontop", self.friendsontop)
         util.settings.endGroup()
+        self._chat_config.save_settings()
 
     def loadSettings(self):
         self.loadChat()
@@ -970,26 +1013,22 @@ class ClientWindow(FormClass, BaseClass):
         util.settings.endGroup()
 
     def loadChat(self):
+        cc = self._chat_config
         try:
             util.settings.beginGroup("chat")
-            self.soundeffects = (util.settings.value("soundeffects", "true") == "true")
             self.game_announcer.announce_games = (util.settings.value("opengames", "true") == "true")
-            self.joinsparts = (util.settings.value("joinsparts", "false") == "true")
-            self.chatmaps = (util.settings.value("chatmaps", "false") == "true")
             self.game_announcer.announce_replays = (util.settings.value("livereplays", "true") == "true")
             self.player_colors.colored_nicknames = (util.settings.value("coloredNicknames", "false") == "true")
-            self.friendsontop = (util.settings.value("friendsontop", "false") == "true")
-            self.useNewbiesChannel = (util.settings.value("newbiesChannel","true") == "true")
-
             util.settings.endGroup()
+            cc.load_settings()
             self.actionColoredNicknames.setChecked(self.player_colors.colored_nicknames)
-            self.actionFriendsOnTop.setChecked(self.friendsontop)
-            self.actionSetSoundEffects.setChecked(self.soundeffects)
+            self.actionFriendsOnTop.setChecked(cc.friendsontop)
+            self.actionSetSoundEffects.setChecked(cc.soundeffects)
             self.actionSetLiveReplays.setChecked(self.game_announcer.announce_replays)
             self.actionSetOpenGames.setChecked(self.game_announcer.announce_games)
-            self.actionSetJoinsParts.setChecked(self.joinsparts)
-            self.actionSetChatMaps.setChecked(self.chatmaps)
-            self.actionSetNewbiesChannel.setChecked(self.useNewbiesChannel)
+            self.actionSetJoinsParts.setChecked(cc.joinsparts)
+            self.actionSetChatMaps.setChecked(cc.chatmaps)
+            self.actionSetNewbiesChannel.setChecked(cc.newbies_channel)
         except:
             pass
 
