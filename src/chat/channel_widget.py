@@ -1,6 +1,5 @@
-from PyQt5 import QtGui
 from PyQt5.QtCore import QObject, pyqtSignal, QUrl
-from PyQt5.QtGui import QTextDocument
+from PyQt5.QtGui import QTextDocument, QTextCursor
 import re
 
 import logging
@@ -98,9 +97,16 @@ class ChannelWidget(QObject):
 
     def append_line(self, text):
         cursor = self.chat_area.textCursor()
-        cursor.movePosition(QtGui.QTextCursor.End)
+        cursor.movePosition(QTextCursor.End)
         self.chat_area.setTextCursor(cursor)
         self.chat_area.insertHtml(text)
+
+    def pop_line(self):
+        cursor = self.chat_area.textCursor()
+        cursor.movePosition(QTextCursor.Start)
+        cursor.movePosition(QTextCursor.Down, n=1)  # Skip HTML header
+        cursor.movePosition(QTextCursor.Down, QTextCursor.KeepAnchor, 1)
+        cursor.removeSelectedText()
 
     def set_chatter_delegate(self, delegate):
         self.nick_list.setItemDelegate(delegate)

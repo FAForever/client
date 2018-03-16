@@ -77,6 +77,7 @@ class ChatAreaView:
         self._game_runner = game_runner
         self._metadata_builder = metadata_builder
         self._channel.lines.added.connect(self._add_line)
+        self._channel.lines.removed.connect(self._remove_line)
         self._widget.url_clicked.connect(self._at_url_clicked)
         self._widget.css_reloaded.connect(self._at_css_reloaded)
         self._meta_lines = []
@@ -100,6 +101,9 @@ class ChatAreaView:
         text = self._formatter.format(data)
         self._widget.append_line(text)
         self._blink_if_needed(data)
+
+    def _remove_line(self):
+        self._widget.pop_line()
 
     def _at_url_clicked(self, url):
         if not GameUrl.is_game_url(url):

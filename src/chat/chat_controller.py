@@ -11,6 +11,7 @@ class ChatController:
         self._model = model
         self._user_relations = user_relations
         self._chat_config = chat_config
+        self._chat_config.updated.connect(self._at_config_updated)
 
         c = connection
         c.new_line.connect(self._at_new_line)
@@ -81,6 +82,10 @@ class ChatController:
         key = (cid, cinfo.name)
         self._ccs.pop(key, None)
 
+    def _add_line(self, channel, line):
+        channel.lines.add_line(line)
+        self._trim_channel_lines(channel, self._chat_config.max_chat_lines)
+
     def _at_new_line(self, line, cid):
         # Private notices printed in public channels are our own invention.
         # Such a notice NEVER indicates joining a channel.
@@ -91,7 +96,7 @@ class ChatController:
         if self._should_ignore_chatter(line.sender):
             return
         self._check_add_new_channel(cid)
-        self._channels[cid].lines.add_line(line)
+        self._add_line(self._channels[cid], line)
 
     def _at_new_channel_chatters(self, cid, chatters):
         for c in chatters:
@@ -127,7 +132,7 @@ class ChatController:
 
     def _announce_chatter(self, channel, chatter, text):
         line = ChatLine(chatter.name, text, ChatLineType.INFO)
-        channel.lines.add_line(line)
+        self._add_line(channel, line)
 
     @_joinpart
     def _announce_join(self, channel, chatter):
@@ -180,6 +185,16 @@ class ChatController:
 
     def _at_new_server_message(self, msg):
         self._model.add_server_message(msg)
+
+    def _at_config_updated(self, option):
+        if option == "max_chat_lines":
+            max_lines = self._chat_config.max_chat_lines
+            for channel in self._channels.values:
+                self._trim_channel_lines(channel, max_lines)
+
+    def _trim_channel_lines(self, channel, max_):
+        while len(channel.lines) > max_:
+            channel.lines.remove_line()
 
     # User actions start here.
     def send_message(self, cid, message):

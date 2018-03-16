@@ -118,6 +118,7 @@ class ChatConfig(QtCore.QObject):
     newbies_channel = signal_property("newbies_channel")
     channel_blink_interval = signal_property("channel_blink_interval")
     channel_ping_timeout = signal_property("channel_ping_timeout")
+    max_chat_lines = signal_property("max_chat_lines")
 
     def __init__(self, settings):
         QtCore.QObject.__init__(self)
@@ -129,6 +130,7 @@ class ChatConfig(QtCore.QObject):
         self._newbies_channel = None
         self._channel_blink_interval = None
         self._channel_ping_timeout = None
+        self._max_chat_lines = None
         self.load_settings()
 
     def load_settings(self):
@@ -606,6 +608,7 @@ class ClientWindow(FormClass, BaseClass):
         self.loadSettings()
         self._chat_config.channel_blink_interval = 500
         self._chat_config.channel_ping_timeout = 60 * 1000
+        self._chat_config.max_chat_lines = 100
 
         self.gameview_builder = GameViewBuilder(self.me,
                                                 self.player_colors)
