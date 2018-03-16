@@ -113,7 +113,6 @@ class ChatConfig(QtCore.QObject):
 
     soundeffects = signal_property("soundeffects")
     joinsparts = signal_property("joinsparts")
-    chatmaps = signal_property("chatmaps")
     friendsontop = signal_property("friendsontop")
     newbies_channel = signal_property("newbies_channel")
     channel_blink_interval = signal_property("channel_blink_interval")
@@ -125,7 +124,6 @@ class ChatConfig(QtCore.QObject):
         self._settings = settings
         self._soundeffects = None
         self._joinsparts = None
-        self._chatmaps = None
         self._friendsontop = None
         self._newbies_channel = None
         self._channel_blink_interval = None
@@ -138,7 +136,6 @@ class ChatConfig(QtCore.QObject):
         s = self._settings
         self.soundeffects = (s.value("chat/soundeffects", "true") == "true")
         self.joinsparts = (s.value("chat/joinsparts", "false") == "true")
-        self.chatmaps = (s.value("chat/chatmaps", "false") == "true")
         self.friendsontop = (s.value("chat/friendsontop", "false") == "true")
         self.newbies_channel = (s.value("chat/newbiesChannel", "true") ==
                                 "true")
@@ -148,7 +145,6 @@ class ChatConfig(QtCore.QObject):
         s.setValue("chat/soundeffects", self.soundeffects)
         s.setValue("chat/joinsparts", self.joinsparts)
         s.setValue("chat/newbiesChannel", self.newbies_channel)
-        s.setValue("chat/chatmaps", self.chatmaps)
         s.setValue("chat/friendsontop", self.friendsontop)
 
 
@@ -890,7 +886,6 @@ class ClientWindow(FormClass, BaseClass):
         self.actionSetNewbiesChannel.triggered.connect(self.updateOptions)
         self.actionSetAutoJoinChannels.triggered.connect(self.show_autojoin_settings_dialog)
         self.actionSetLiveReplays.triggered.connect(self.updateOptions)
-        self.actionSetChatMaps.triggered.connect(self.updateOptions)
         self.actionSaveGamelogs.toggled.connect(self.on_actionSavegamelogs_toggled)
         self.actionSaveGamelogs.setChecked(self.gamelogs)
         self.actionColoredNicknames.triggered.connect(self.updateOptions)
@@ -909,7 +904,6 @@ class ClientWindow(FormClass, BaseClass):
         self.remember = self.actionSetAutoLogin.isChecked()
         cc.soundeffects = self.actionSetSoundEffects.isChecked()
         cc.joinsparts = self.actionSetJoinsParts.isChecked()
-        cc.chatmaps = self.actionSetChatMaps.isChecked()
         cc.newbies_channel = self.actionSetNewbiesChannel.isChecked()
         cc.friendsontop = self.actionFriendsOnTop.isChecked()
         self.game_announcer.announce_games = self.actionSetOpenGames.isChecked()
@@ -1041,7 +1035,6 @@ class ClientWindow(FormClass, BaseClass):
             self.actionSetLiveReplays.setChecked(self.game_announcer.announce_replays)
             self.actionSetOpenGames.setChecked(self.game_announcer.announce_games)
             self.actionSetJoinsParts.setChecked(cc.joinsparts)
-            self.actionSetChatMaps.setChecked(cc.chatmaps)
             self.actionSetNewbiesChannel.setChecked(cc.newbies_channel)
         except:
             pass
