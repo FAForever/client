@@ -12,16 +12,18 @@ class ChannelWidget(QObject):
     url_clicked = pyqtSignal(QUrl)
     css_reloaded = pyqtSignal()
 
-    def __init__(self, channel, chat_area_css, theme):
+    def __init__(self, channel, chat_area_css, theme, chat_config):
         QObject.__init__(self)
         self.channel = channel
         self._chat_area_css = chat_area_css
         self._chat_area_css.changed.connect(self._reload_css)
+        self._chat_config = chat_config
+        self._saved_scroll = None
         self.set_theme(theme)
 
     @classmethod
-    def build(cls, channel, chat_area_css, theme, **kwargs):
-        return cls(channel, chat_area_css, theme)
+    def build(cls, channel, chat_area_css, theme, chat_config, **kwargs):
+        return cls(channel, chat_area_css, theme, chat_config)
 
     @property
     def chat_area(self):
@@ -95,10 +97,12 @@ class ChannelWidget(QObject):
         self.nick_frame.setVisible(should_show)
 
     def append_line(self, text):
+        self._save_scroll()
         cursor = self.chat_area.textCursor()
         cursor.movePosition(QTextCursor.End)
         self.chat_area.setTextCursor(cursor)
         self.chat_area.insertHtml(text)
+        self._scroll_to_bottom_if_needed()
 
     def pop_line(self):
         cursor = self.chat_area.textCursor()
@@ -121,3 +125,19 @@ class ChannelWidget(QObject):
     @property
     def hidden(self):
         return self.base.isHidden()
+
+    def _save_scroll(self):
+        scrollbar = self.chat_area.verticalScrollBar()
+        self._saved_scroll = scrollbar.value()
+
+    def _scroll_to_bottom_if_needed(self):
+        if self._saved_scroll is None:
+            return
+        scrollbar = self.chat_area.verticalScrollBar()
+        max_scroll = scrollbar.maximum()
+        snap_distance = self._chat_config.chat_scroll_snap_distance
+        if max_scroll < self._saved_scroll + snap_distance:
+            scrollbar.setValue(max_scroll)
+        else:
+            scrollbar.setValue(self._saved_scroll)
+        self._saved_scroll = None
