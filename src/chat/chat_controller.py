@@ -151,7 +151,9 @@ class ChatController:
                 self._at_new_line(self._user_chat_line(msg), cid)
         elif action == MessageAction.ME:
             if self._connection.send_action(cid.name, msg):
-                self._at_new_line(self._user_chat_line(msg), cid)
+                self._at_new_line(self._user_chat_line(msg,
+                                                       ChatLineType.ACTION),
+                                  cid)
         elif action == MessageAction.SEEN:
             self._connection.send_action("nickserv", "info {}".format(msg))
         elif action == MessageAction.TOPIC:
@@ -170,8 +172,8 @@ class ChatController:
     def join_public_channel(self, name):
         self.join_channel(ChannelID(ChannelType.PUBLIC, name))
 
-    def _user_chat_line(self, msg):
-        return ChatLine(self._connection.nickname, msg, ChatLineType.MESSAGE)
+    def _user_chat_line(self, msg, type_=ChatLineType.MESSAGE):
+        return ChatLine(self._connection.nickname, msg, type_)
 
     def leave_channel(self, cid, reason):
         if cid.type == ChannelType.PRIVATE:

@@ -272,6 +272,8 @@ class ChatLineFormatter:
         meta = data.meta
         if line.type == ChatLineType.NOTICE:
             yield "notice"
+        if line.type == ChatLineType.ACTION:
+            yield "action"
         if meta.chatter:
             yield "chatter"
             if meta.chatter.is_mod and meta.chatter.is_mod():
@@ -312,13 +314,20 @@ class ChatLineFormatter:
         else:
             stamp = ""
 
-        sender = ChatterFormat.name(data.line.sender, data.meta.player.clan())
         return self._chatline_template.format(
             time=stamp,
-            sender=html.escape(sender),
+            sender=self._sender_name(data),
             text=irc_escape(data.line.text),
             avatar=avatar,
             tags=tags)
+
+    def _sender_name(self, data):
+        mtype = data.line.type
+        sender = ChatterFormat.name(data.line.sender, data.meta.player.clan())
+        sender = html.escape(sender)
+        if mtype != ChatLineType.ACTION:
+            sender += ":&nbsp;"
+        return sender
 
     def _check_timestamp(self, stamp):
         local = time.localtime(stamp)

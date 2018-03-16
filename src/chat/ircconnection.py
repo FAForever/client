@@ -382,7 +382,7 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
         text = "\n".join(e.arguments())
         chtype = (ChannelType.PUBLIC if irclib.is_channel(target)
                   else ChannelType.PRIVATE)
-        self._emit_line(chatter, target, chtype, text)
+        self._emit_line(chatter, target, chtype, text, ChatLineType.ACTION)
 
     def on_nosuchnick(self, c, e):
         self._nickserv_register()

@@ -16,6 +16,11 @@
 	color: {{ colors['player'] }}
 }
 
+.action .col_sender, .action .col_text {
+	font-style: italic;
+}
+
+
 {% if random_colors is not none %}
                {% for name in random_colors %}
                        .randomcolor-{{loop.index0}} .col_sender, .randomcolor-{{loop.index0}} .col_text {

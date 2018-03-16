@@ -1,1 +1,1 @@
-<tr class="{tags}" width=100%><td class="col_avatar" width=42>{avatar}</td><td class="col_sender" width=100>{sender}:&nbsp;</td><td width=100% class="col_text">{text}</td><td class="col_time" width=32>{time}</td></tr>
+<tr class="{tags}" width=100%><td class="col_avatar" width=42>{avatar}</td><td class="col_sender" width=100>{sender}</td><td width=100% class="col_text">{text}</td><td class="col_time" width=32>{time}</td></tr>

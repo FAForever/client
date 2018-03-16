@@ -8,6 +8,7 @@ import time
 class ChatLineType(Enum):
     MESSAGE = 0
     NOTICE = 1
+    ACTION = 2
 
 
 class ChatLine:
