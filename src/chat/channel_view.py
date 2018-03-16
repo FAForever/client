@@ -91,15 +91,15 @@ class ChatAreaView:
         return cls(channel, widget, widget_tab, game_runner, metadata_builder,
                    avatar_adder, formatter)
 
-    def _add_line(self, number):
-        for line in self._channel.lines[-number:]:
-            data = self._metadata_builder(line, self._channel)
-            if data.meta.player.avatar.url:
-                self._avatar_adder.add_avatar(data.meta.player.avatar.url())
-            self._meta_lines.append(data)
-            text = self._formatter.format(data)
-            self._widget.append_line(text)
-            self._blink_if_needed(data)
+    def _add_line(self):
+        line = self._channel.lines[-1]
+        data = self._metadata_builder(line, self._channel)
+        if data.meta.player.avatar.url:
+            self._avatar_adder.add_avatar(data.meta.player.avatar.url())
+        self._meta_lines.append(data)
+        text = self._formatter.format(data)
+        self._widget.append_line(text)
+        self._blink_if_needed(data)
 
     def _at_url_clicked(self, url):
         if not GameUrl.is_game_url(url):
