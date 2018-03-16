@@ -78,11 +78,14 @@ class ChatAreaView:
         self._metadata_builder = metadata_builder
         self._channel.lines.added.connect(self._add_line)
         self._channel.lines.removed.connect(self._remove_line)
+        self._channel.updated.connect(self._at_channel_updated)
         self._widget.url_clicked.connect(self._at_url_clicked)
         self._widget.css_reloaded.connect(self._at_css_reloaded)
         self._meta_lines = []
         self._avatar_adder = avatar_adder
         self._formatter = formatter
+
+        self._set_topic(self._channel.topic)
 
     @classmethod
     def build(cls, channel, widget, widget_tab, game_runner, **kwargs):
@@ -104,6 +107,19 @@ class ChatAreaView:
 
     def _remove_line(self):
         self._widget.pop_line()
+
+    def _at_channel_updated(self, new, old):
+        if new.topic != old.topic:
+            self._set_topic(new.topic)
+
+    def _set_topic(self, topic):
+        self._widget.set_topic(self._format_topic(topic))
+
+    def _format_topic(self, topic):
+        # FIXME - use CSS for this
+        fmt = ("<style>a{{color:cornflowerblue}}</style>" +
+               "<b><font color=white>{}</font></b>")
+        return fmt.format(irc_escape(topic))
 
     def _at_url_clicked(self, url):
         if not GameUrl.is_game_url(url):

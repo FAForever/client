@@ -45,6 +45,10 @@ class ChannelWidget(QObject):
     def nick_filter(self):
         return self.form.nickFilter
 
+    @property
+    def announce_line(self):
+        return self.form.announceLine
+
     def set_theme(self, theme):
         formc, basec = theme.loadUiType("chat/channel.ui")
         self.form = formc()
@@ -141,3 +145,6 @@ class ChannelWidget(QObject):
         else:
             scrollbar.setValue(self._saved_scroll)
         self._saved_scroll = None
+
+    def set_topic(self, topic):
+        self.announce_line.setText(topic)
