@@ -56,7 +56,6 @@ class ChannelWidget(QObject):
         self.chat_edit.set_channel(self.channel)
         self.nick_filter.textChanged.connect(self._set_chatter_filter)
         self.chat_area.anchorClicked.connect(self.url_clicked.emit)
-        self._default_html = self.chat_area.document().toHtml()
         self._load_css()
 
     # This might be fairly expensive, as we reapply all chat lines to the area.
@@ -70,7 +69,7 @@ class ChannelWidget(QObject):
         self.chat_area.document().setDefaultStyleSheet(self._chat_area_css.css)
 
     def clear_chat(self):
-        self.chat_area.document().setHtml(self._default_html)
+        self.chat_area.document().setHtml("")
 
     def add_avatar_resource(self, url, pix):
         doc = self.chat_area.document()
@@ -104,7 +103,6 @@ class ChannelWidget(QObject):
     def pop_line(self):
         cursor = self.chat_area.textCursor()
         cursor.movePosition(QTextCursor.Start)
-        cursor.movePosition(QTextCursor.Down, n=1)  # Skip HTML header
         cursor.movePosition(QTextCursor.Down, QTextCursor.KeepAnchor, 1)
         cursor.removeSelectedText()
 
