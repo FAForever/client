@@ -6,9 +6,10 @@ from enum import Enum
 
 
 class ChatController:
-    def __init__(self, connection, model):
+    def __init__(self, connection, model, user_relations):
         self._connection = connection
         self._model = model
+        self._user_relations = user_relations
 
         c = connection
         c.new_line.connect(self._at_new_line)
@@ -24,8 +25,8 @@ class ChatController:
         c.new_server_message.connect(self._at_new_server_message)
 
     @classmethod
-    def build(cls, connection, model, **kwargs):
-        return cls(connection, model)
+    def build(cls, connection, model, user_relations, **kwargs):
+        return cls(connection, model, user_relations)
 
     @property
     def _channels(self):
@@ -84,6 +85,8 @@ class ChatController:
         if (line.type == ChatLineType.NOTICE and
                 cid.type == ChannelType.PUBLIC and
                 cid not in self._channels):
+            return
+        if self._should_ignore_chatter(line.sender):
             return
         self._check_add_new_channel(cid)
         self._channels[cid].lines.add_line(line)
@@ -181,6 +184,14 @@ class ChatController:
     def _delete_channel_ignoring_connection(self, cid):
         if cid in self._channels:
             del self._channels[cid]
+
+    def _should_ignore_chatter(self, name):
+        chatter = self._chatters.get(name, None)
+        if chatter is None:
+            return False
+        name = chatter.name
+        id_ = None if chatter.player is None else chatter.player.id
+        return self._user_relations.is_foe(id_, name)
 
 
 class MessageAction(Enum):
