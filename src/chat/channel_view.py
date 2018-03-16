@@ -114,6 +114,8 @@ class ChatAreaView:
     def _should_blink(self, data):
         if not self._widget.hidden:
             return False
+        if data.line.type is ChatLineType.INFO:
+            return False
         if self._channel.id_key.type == ChannelType.PRIVATE:
             return True
         if data.meta.mentions_me and data.meta.mentions_me():
@@ -274,6 +276,8 @@ class ChatLineFormatter:
             yield "notice"
         if line.type == ChatLineType.ACTION:
             yield "action"
+        if line.type == ChatLineType.INFO:
+            yield "info"
         if meta.chatter:
             yield "chatter"
             if meta.chatter.is_mod and meta.chatter.is_mod():
@@ -299,15 +303,7 @@ class ChatLineFormatter:
 
     def format(self, data):
         tags = " ".join(self._line_tags(data))
-        if data.meta.player.avatar.url:
-            ava_meta = data.meta.player.avatar
-            avatar_url = ava_meta.url()
-            avatar_tip = ava_meta.tip() if ava_meta.tip else ""
-            avatar = self._avatar_template.format(
-                url=avatar_url,
-                tip=avatar_tip)
-        else:
-            avatar = ""
+        avatar = self._avatar(data)
 
         if self._check_timestamp(data.line.time):
             stamp = time.strftime('%H:%M', time.localtime(data.line.time))
@@ -321,11 +317,21 @@ class ChatLineFormatter:
             avatar=avatar,
             tags=tags)
 
+    def _avatar(self, data):
+        if data.line.type == ChatLineType.INFO:
+            return ""
+        if not data.meta.player.avatar.url:
+            return ""
+        ava_meta = data.meta.player.avatar
+        avatar_url = ava_meta.url()
+        avatar_tip = ava_meta.tip() if ava_meta.tip else ""
+        return self._avatar_template.format(url=avatar_url, tip=avatar_tip)
+
     def _sender_name(self, data):
         mtype = data.line.type
         sender = ChatterFormat.name(data.line.sender, data.meta.player.clan())
         sender = html.escape(sender)
-        if mtype != ChatLineType.ACTION:
+        if mtype not in [ChatLineType.ACTION, ChatLineType.INFO]:
             sender += ":&nbsp;"
         return sender
 

@@ -624,7 +624,8 @@ class ClientWindow(FormClass, BaseClass):
         chat_controller = ChatController.build(
                 connection=chat_connection,
                 model=self._chat_model,
-                user_relations=self.user_relations.model)
+                user_relations=self.user_relations.model,
+                chat_config=self._chat_config)
 
         target_channel = ChannelID(ChannelType.PUBLIC, '#aeolus')
         chat_view = ChatView.build(

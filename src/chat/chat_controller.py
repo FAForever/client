@@ -6,10 +6,11 @@ from enum import Enum
 
 
 class ChatController:
-    def __init__(self, connection, model, user_relations):
+    def __init__(self, connection, model, user_relations, chat_config):
         self._connection = connection
         self._model = model
         self._user_relations = user_relations
+        self._chat_config = chat_config
 
         c = connection
         c.new_line.connect(self._at_new_line)
@@ -26,8 +27,8 @@ class ChatController:
         c.new_server_message.connect(self._at_new_server_message)
 
     @classmethod
-    def build(cls, connection, model, user_relations, **kwargs):
-        return cls(connection, model, user_relations)
+    def build(cls, connection, model, user_relations, chat_config, **kwargs):
+        return cls(connection, model, user_relations, chat_config)
 
     @property
     def _channels(self):
@@ -98,12 +99,52 @@ class ChatController:
 
     def _at_channel_chatter_joined(self, cid, chatter):
         self._at_new_channel_chatters(cid, [chatter])
+        self._announce_join(cid, chatter)
 
     def _at_channel_chatter_left(self, cid, chatter):
+        self._announce_part(cid, chatter)
         self._remove_cc(cid, chatter)
 
-    def _at_chatter_quit(self, chatter):
-        self._chatters.pop(chatter, None)
+    def _at_chatter_quit(self, chatter, msg):
+        chatter_obj = self._chatters.get(chatter.name, None)
+        if chatter_obj is None:
+            return
+        for cc in chatter_obj.channels.values():
+            self._announce_quit(cc.channel.id_key, chatter, msg)
+        self._chatters.pop(chatter.name, None)
+
+    def _joinpart(fn):
+        def wrap(self, cid, chatter, *args, **kwargs):
+            if not self._chat_config.joinsparts:
+                return
+            if self._should_ignore_chatter(chatter.name):
+                return
+            channel = self._channels.get(cid, None)
+            if channel is None:
+                return
+            return fn(self, channel, chatter, *args, **kwargs)
+        return wrap
+
+    def _announce_chatter(self, channel, chatter, text):
+        line = ChatLine(chatter.name, text, ChatLineType.INFO)
+        channel.lines.add_line(line)
+
+    @_joinpart
+    def _announce_join(self, channel, chatter):
+        self._announce_chatter(channel, chatter, "joined the channel.")
+
+    @_joinpart
+    def _announce_part(self, channel, chatter):
+        self._announce_chatter(channel, chatter, "left the channel.")
+
+    @_joinpart
+    def _announce_quit(self, channel, chatter, message):
+        prefix = "quit"
+        if message == chatter.name:     # Silence default messages
+            message = "{}.".format(prefix)
+        else:
+            message = "{}: {}".format(prefix, message)
+        self._announce_chatter(channel, chatter, message)
 
     def _at_quit_channel(self, cid):
         self._delete_channel_ignoring_connection(cid)

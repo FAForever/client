@@ -61,7 +61,7 @@ class IrcSignals(QObject):
     new_channel_chatters = pyqtSignal(object, list)
     channel_chatter_joined = pyqtSignal(object, object)
     channel_chatter_left = pyqtSignal(object, object)
-    chatter_quit = pyqtSignal(object)
+    chatter_quit = pyqtSignal(object, str)
     quit_channel = pyqtSignal(object)
     chatter_renamed = pyqtSignal(str, str)
     new_chatter_elevation = pyqtSignal(object, object, str, str)
@@ -243,7 +243,7 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
 
     def on_quit(self, c, e):
         chatter = self._event_to_chatter(e)
-        self.chatter_quit.emit(chatter)
+        self.chatter_quit.emit(chatter, e.arguments()[0])
 
     def on_nick(self, c, e):
         oldnick = user2name(e.source())

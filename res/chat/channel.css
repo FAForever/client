@@ -69,6 +69,10 @@
 	color: {{ colors['you'] }};
 }
 
+.info .col_sender, .info .col_text, .info .col_time {
+	color: {{ colors['default'] }};
+}
+
 a {
 	color: cornflowerblue;
 }
