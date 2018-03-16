@@ -27,6 +27,19 @@ class QObjectMapping(QObject):
     def __delitem__(self, key):
         raise KeyError
 
+    __marker = object()
+
+    def pop(self, key, default=__marker):
+        try:
+            value = self[key]
+        except KeyError:
+            if default is self.__marker:
+                raise
+            return default
+        else:
+            del self[key]
+            return value
+
     def get(self, key, default=None):
         try:
             return self[key]

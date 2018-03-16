@@ -59,8 +59,9 @@ class IrcSignals(QObject):
     new_line = pyqtSignal(object, object)
     new_server_message = pyqtSignal(str)
     new_channel_chatters = pyqtSignal(object, list)
-    channel_chatters_left = pyqtSignal(object, list)
-    chatters_quit = pyqtSignal(list)
+    channel_chatter_joined = pyqtSignal(object, object)
+    channel_chatter_left = pyqtSignal(object, object)
+    chatter_quit = pyqtSignal(object)
     quit_channel = pyqtSignal(object)
     chatter_renamed = pyqtSignal(str, str)
     new_chatter_elevation = pyqtSignal(object, object, str, str)
@@ -231,18 +232,18 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
     def on_join(self, c, e):
         channel = ChannelID(ChannelType.PUBLIC, e.target())
         chatter = self._event_to_chatter(e)
-        self.new_channel_chatters.emit(channel, [chatter])
+        self.channel_chatter_joined.emit(channel, chatter)
 
     def on_part(self, c, e):
         channel = ChannelID(ChannelType.PUBLIC, e.target())
         chatter = self._event_to_chatter(e)
-        self.channel_chatters_left.emit(channel, [chatter])
+        self.channel_chatter_left.emit(channel, chatter)
         if chatter.name == self._nick:
             self.quit_channel.emit(channel)
 
     def on_quit(self, c, e):
         chatter = self._event_to_chatter(e)
-        self.chatters_quit.emit([chatter])
+        self.chatter_quit.emit(chatter)
 
     def on_nick(self, c, e):
         oldnick = user2name(e.source())

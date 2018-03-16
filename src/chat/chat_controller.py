@@ -14,8 +14,9 @@ class ChatController:
         c = connection
         c.new_line.connect(self._at_new_line)
         c.new_channel_chatters.connect(self._at_new_channel_chatters)
-        c.channel_chatters_left.connect(self._at_channel_chatters_left)
-        c.chatters_quit.connect(self._at_chatters_quit)
+        c.channel_chatter_left.connect(self._at_channel_chatter_left)
+        c.channel_chatter_joined.connect(self._at_channel_chatter_joined)
+        c.chatter_quit.connect(self._at_chatter_quit)
         c.quit_channel.connect(self._at_quit_channel)
         c.chatter_renamed.connect(self._at_chatter_renamed)
         c.new_chatter_elevation.connect(self._at_new_chatter_elevation)
@@ -77,7 +78,7 @@ class ChatController:
 
     def _remove_cc(self, cid, cinfo):
         key = (cid, cinfo.name)
-        del self._ccs[key]
+        self._ccs.pop(key, None)
 
     def _at_new_line(self, line, cid):
         # Private notices printed in public channels are our own invention.
@@ -95,13 +96,14 @@ class ChatController:
         for c in chatters:
             self._add_or_update_cc(cid, c)
 
-    def _at_channel_chatters_left(self, cid, chatters):
-        for c in chatters:
-            self._remove_cc(cid, c)
+    def _at_channel_chatter_joined(self, cid, chatter):
+        self._at_new_channel_chatters(cid, [chatter])
 
-    def _at_chatters_quit(self, chatters):
-        for c in chatters:
-            del self._chatters[c.name]
+    def _at_channel_chatter_left(self, cid, chatter):
+        self._remove_cc(cid, chatter)
+
+    def _at_chatter_quit(self, chatter):
+        self._chatters.pop(chatter, None)
 
     def _at_quit_channel(self, cid):
         self._delete_channel_ignoring_connection(cid)
@@ -184,8 +186,7 @@ class ChatController:
                 self._delete_channel_ignoring_connection(cid)
 
     def _delete_channel_ignoring_connection(self, cid):
-        if cid in self._channels:
-            del self._channels[cid]
+        self._channels.pop(cid, None)
 
     def _should_ignore_chatter(self, name):
         chatter = self._chatters.get(name, None)
