@@ -84,7 +84,7 @@ class ChatController:
 
     def _add_line(self, channel, line):
         channel.lines.add_line(line)
-        self._trim_channel_lines(channel, self._chat_config.max_chat_lines)
+        self._trim_channel_lines(channel)
 
     def _at_new_line(self, line, cid):
         # Private notices printed in public channels are our own invention.
@@ -188,13 +188,16 @@ class ChatController:
 
     def _at_config_updated(self, option):
         if option == "max_chat_lines":
-            max_lines = self._chat_config.max_chat_lines
             for channel in self._channels.values:
-                self._trim_channel_lines(channel, max_lines)
+                self._trim_channel_lines(channel)
 
-    def _trim_channel_lines(self, channel, max_):
-        while len(channel.lines) > max_:
-            channel.lines.remove_line()
+    def _trim_channel_lines(self, channel):
+        max_ = self._chat_config.max_chat_lines
+        trim_count = self._chat_config.chat_line_trim_count
+        if len(channel.lines) <= max_:
+            return
+        trim_amount = min(len(channel.lines), trim_count)
+        channel.lines.remove_lines(trim_amount)
 
     # User actions start here.
     def send_message(self, cid, message):

@@ -108,10 +108,10 @@ class ChannelWidget(QObject):
         self.chat_area.insertHtml(text)
         self._scroll_to_bottom_if_needed()
 
-    def pop_line(self):
+    def remove_lines(self, number):
         cursor = self.chat_area.textCursor()
         cursor.movePosition(QTextCursor.Start)
-        cursor.movePosition(QTextCursor.Down, QTextCursor.KeepAnchor, 1)
+        cursor.movePosition(QTextCursor.Down, QTextCursor.KeepAnchor, number)
         cursor.removeSelectedText()
 
     def set_chatter_delegate(self, delegate):

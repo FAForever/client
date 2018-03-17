@@ -77,7 +77,7 @@ class ChatAreaView:
         self._game_runner = game_runner
         self._metadata_builder = metadata_builder
         self._channel.lines.added.connect(self._add_line)
-        self._channel.lines.removed.connect(self._remove_line)
+        self._channel.lines.removed.connect(self._remove_lines)
         self._channel.updated.connect(self._at_channel_updated)
         self._widget.url_clicked.connect(self._at_url_clicked)
         self._widget.css_reloaded.connect(self._at_css_reloaded)
@@ -105,8 +105,9 @@ class ChatAreaView:
         self._widget.append_line(text)
         self._blink_if_needed(data)
 
-    def _remove_line(self):
-        self._widget.pop_line()
+    def _remove_lines(self, number):
+        del self._meta_lines[0:number]
+        self._widget.remove_lines(number)
 
     def _at_channel_updated(self, new, old):
         if new.topic != old.topic:

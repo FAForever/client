@@ -129,6 +129,7 @@ class ChatConfig(QtCore.QObject):
         self._channel_blink_interval = None
         self._channel_ping_timeout = None
         self._max_chat_lines = None
+        self.chat_line_trim_count = 1
         self.chat_scroll_snap_distance = 0
         self.load_settings()
 
@@ -605,7 +606,8 @@ class ClientWindow(FormClass, BaseClass):
         self.loadSettings()
         self._chat_config.channel_blink_interval = 500
         self._chat_config.channel_ping_timeout = 60 * 1000
-        self._chat_config.max_chat_lines = 100
+        self._chat_config.max_chat_lines = 200
+        self._chat_config.chat_line_trim_count = 50
         self._chat_config.chat_scroll_snap_distance = 40
 
         self.gameview_builder = GameViewBuilder(self.me,

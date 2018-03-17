@@ -27,7 +27,7 @@ class ChannelID:
 
 class Lines(QObject):
     added = pyqtSignal()
-    removed = pyqtSignal()
+    removed = pyqtSignal(int)
 
     def __init__(self):
         QObject.__init__(self)
@@ -37,11 +37,14 @@ class Lines(QObject):
         self._lines.append(line)
         self.added.emit()
 
-    def remove_line(self):
-        if len(self) == 0:
+    def remove_lines(self, number):
+        number = min(number, len(self))
+        if number < 0:
+            raise ValueError
+        if number == 0:
             return
-        del self._lines[0]
-        self.removed.emit()
+        del self._lines[0:number]
+        self.removed.emit(number)
 
     def __getitem__(self, n):
         return self._lines[n]
