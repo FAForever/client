@@ -1,17 +1,19 @@
 from model.chat.channel import Channel, Lines, ChannelID, ChannelType
 from model.chat.chatter import Chatter
-from model.chat.chatline import ChatLine, ChatLineType
+from model.chat.chatline import ChatLine, ChatLineType, ChatLineMetadataBuilder
 from model.chat.channelchatter import ChannelChatter
 from enum import Enum
 
 
 class ChatController:
-    def __init__(self, connection, model, user_relations, chat_config):
+    def __init__(self, connection, model, user_relations, chat_config,
+                 line_metadata_builder):
         self._connection = connection
         self._model = model
         self._user_relations = user_relations
         self._chat_config = chat_config
         self._chat_config.updated.connect(self._at_config_updated)
+        self._line_metadata_builder = line_metadata_builder
 
         c = connection
         c.new_line.connect(self._at_new_line)
@@ -29,7 +31,10 @@ class ChatController:
 
     @classmethod
     def build(cls, connection, model, user_relations, chat_config, **kwargs):
-        return cls(connection, model, user_relations, chat_config)
+        line_metadata_builder = ChatLineMetadataBuilder.build(
+            user_relations=user_relations, **kwargs)
+        return cls(connection, model, user_relations, chat_config,
+                   line_metadata_builder)
 
     @property
     def _channels(self):
@@ -83,7 +88,8 @@ class ChatController:
         self._ccs.pop(key, None)
 
     def _add_line(self, channel, line):
-        channel.lines.add_line(line)
+        data = self._line_metadata_builder.get_meta(channel, line)
+        channel.lines.add_line(data)
         self._trim_channel_lines(channel)
 
     def _at_new_line(self, line, cid):

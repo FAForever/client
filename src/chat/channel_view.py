@@ -11,7 +11,6 @@ from chat.chatter_menu import ChatterMenu
 from model.chat.channel import ChannelType
 from model.chat.chatline import ChatLineType
 from util.gameurl import GameUrl
-from util.magic_dict import MagicDict
 from util import irc_escape
 from downloadManager import DownloadRequest
 
@@ -69,19 +68,17 @@ class ChannelView(QObject):
 
 
 class ChatAreaView:
-    def __init__(self, channel, widget, widget_tab, game_runner,
-                 metadata_builder, avatar_adder, formatter):
+    def __init__(self, channel, widget, widget_tab, game_runner, avatar_adder,
+                 formatter):
         self._channel = channel
         self._widget = widget
         self._widget_tab = widget_tab
         self._game_runner = game_runner
-        self._metadata_builder = metadata_builder
         self._channel.lines.added.connect(self._add_line)
         self._channel.lines.removed.connect(self._remove_lines)
         self._channel.updated.connect(self._at_channel_updated)
         self._widget.url_clicked.connect(self._at_url_clicked)
         self._widget.css_reloaded.connect(self._at_css_reloaded)
-        self._meta_lines = []
         self._avatar_adder = avatar_adder
         self._formatter = formatter
 
@@ -89,24 +86,20 @@ class ChatAreaView:
 
     @classmethod
     def build(cls, channel, widget, widget_tab, game_runner, **kwargs):
-        metadata_builder = ChatLineMetadata.builder(**kwargs)
         avatar_adder = ChatAvatarPixAdder.build(widget, **kwargs)
         formatter = ChatLineFormatter.build(**kwargs)
-        return cls(channel, widget, widget_tab, game_runner, metadata_builder,
-                   avatar_adder, formatter)
+        return cls(channel, widget, widget_tab, game_runner, avatar_adder,
+                   formatter)
 
     def _add_line(self):
-        line = self._channel.lines[-1]
-        data = self._metadata_builder(line, self._channel)
+        data = self._channel.lines[-1]
         if data.meta.player.avatar.url:
             self._avatar_adder.add_avatar(data.meta.player.avatar.url())
-        self._meta_lines.append(data)
         text = self._formatter.format(data)
         self._widget.append_line(text)
         self._blink_if_needed(data)
 
     def _remove_lines(self, number):
-        del self._meta_lines[0:number]
         self._widget.remove_lines(number)
 
     def _at_channel_updated(self, new, old):
@@ -150,7 +143,7 @@ class ChatAreaView:
 
     def _at_css_reloaded(self):
         self._widget.clear_chat()
-        for line in self._meta_lines:
+        for line in self._channel.lines:
             text = self._formatter.format(line)
             self._widget.append_line(text)
 
@@ -179,75 +172,6 @@ class ChatAvatarPixAdder:
         if url in self._requests:
             del self._requests[url]
         self._widget.add_avatar_resource(url, pix)
-
-
-class ChatLineMetadata:
-    def __init__(self, line, channel, channelchatterset, me, user_relations):
-        self.line = line
-        self._make_metadata(channel, channelchatterset, me, user_relations)
-
-    @classmethod
-    def builder(cls, channelchatterset, me, user_relations, **kwargs):
-        def make(line, channel):
-            return cls(line, channel, channelchatterset, me,
-                       user_relations.model)
-        return make
-
-    def _make_metadata(self, channel, channelchatterset, me, user_relations):
-        self.meta = MagicDict()
-        if self.line.sender is None:
-            cc = None
-        else:
-            key = (channel.id_key, self.line.sender)
-            cc = channelchatterset.get(key, None)
-        chatter = None
-        player = None
-        if cc is not None:
-            chatter = cc.chatter
-            player = chatter.player
-
-        self._chatter_metadata(cc)
-        self._player_metadata(player)
-        self._relation_metadata(chatter, player, me, user_relations)
-        self._mention_metadata(me)
-
-    def _chatter_metadata(self, cc):
-        if cc is None:
-            return
-        cmeta = self.meta.put("chatter")
-        cmeta.is_mod = cc.is_mod()
-        cmeta.name = cc.chatter.name
-
-    def _player_metadata(self, player):
-        if player is None:
-            return
-        self.meta.put("player")
-        self.meta.player.clan = player.clan
-        self.meta.player.id = player.id
-        self._avatar_metadata(player.avatar)
-
-    def _relation_metadata(self, chatter, player, me, user_relations):
-        name = None if chatter is None else chatter.name
-        id_ = None if player is None else player.id
-        self.meta.is_friend = user_relations.is_friend(id_, name)
-        self.meta.is_foe = user_relations.is_foe(id_, name)
-        self.meta.is_me = me.player is not None and me.player.login == name
-        self.meta.is_clannie = me.is_clannie(id_)
-
-    def _mention_metadata(self, me):
-        self.meta.mentions_me = (me.login is not None and
-                                 me.login in self.line.text)
-
-    def _avatar_metadata(self, ava):
-        if ava is None:
-            return
-        tip = ava.get("tooltip", "")
-        url = ava.get("url", None)
-
-        self.meta.player.put("avatar")
-        self.meta.player.avatar.tip = tip
-        if url is not None:
-            self.meta.player.avatar.url = url
 
 
 class ChatLineCssTemplate(QObject):
