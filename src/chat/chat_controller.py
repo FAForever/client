@@ -61,7 +61,16 @@ class ChatController:
         other_name = channel.id_key.name
         me = None if my_name is None else self._chatters.get(my_name, None)
         other = self._chatters.get(other_name)
-        for chatter in [me, other]:
+
+        # In case we ever message ourselves
+        if (me is not None and
+                other is not None and
+                me.id_key == other.id_key):
+            chatters = [me]
+        else:
+            chatters = [me, other]
+
+        for chatter in chatters:
             if chatter is None:
                 continue
             cc = ChannelChatter(channel, chatter, "")
@@ -227,6 +236,11 @@ class ChatController:
             pass    # TODO - raise 'Sending failed' error back to the view?
 
     def join_channel(self, cid):
+        # Don't join a private channel with ourselves
+        if (cid.type == ChannelType.PRIVATE and
+                cid.name == self._connection.nickname):
+            return
+
         if cid.type == ChannelType.PUBLIC:
             self._connection.join(cid.name)
         else:
