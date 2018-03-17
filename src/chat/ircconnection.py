@@ -56,7 +56,7 @@ class ChatterInfo:
 
 
 class IrcSignals(QObject):
-    new_line = pyqtSignal(object, object)
+    new_line = pyqtSignal(object, object, object)
     new_server_message = pyqtSignal(str)
     new_channel_chatters = pyqtSignal(object, list)
     channel_chatter_joined = pyqtSignal(object, object)
@@ -311,7 +311,7 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
             channel_name = chatter.name
         chid = ChannelID(channel_type, channel_name)
         line = ChatLine(chatter.name, text, type_)
-        self.new_line.emit(line, chid)
+        self.new_line.emit(chid, chatter, line)
 
     def on_pubmsg(self, c, e):
         chatter = self._event_to_chatter(e)

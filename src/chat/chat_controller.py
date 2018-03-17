@@ -53,28 +53,15 @@ class ChatController:
             channel = Channel(cid, Lines(), "")
             self._channels[cid] = channel
             if cid.type == ChannelType.PRIVATE:
-                self._add_private_chatters(channel)
+                self._add_me_to_channel(channel)
         return self._channels[cid]
 
-    def _add_private_chatters(self, channel):
+    def _add_me_to_channel(self, channel):
         my_name = self._connection.nickname
-        other_name = channel.id_key.name
         me = None if my_name is None else self._chatters.get(my_name, None)
-        other = self._chatters.get(other_name)
-
-        # In case we ever message ourselves
-        if (me is not None and
-                other is not None and
-                me.id_key == other.id_key):
-            chatters = [me]
-        else:
-            chatters = [me, other]
-
-        for chatter in chatters:
-            if chatter is None:
-                continue
-            cc = ChannelChatter(channel, chatter, "")
-            self._ccs[(channel.id_key, chatter.id_key)] = cc
+        if me is not None:
+            cc = ChannelChatter(channel, me, "")
+            self._ccs[(channel.id_key, me.id_key)] = cc
 
     def _check_add_new_chatter(self, cinfo):
         if cinfo.name not in self._chatters:
@@ -101,12 +88,19 @@ class ChatController:
         channel.lines.add_line(data)
         self._trim_channel_lines(channel)
 
-    def _at_new_line(self, line, cid):
+    def _at_new_line(self, cid, cinfo, line):
         if (cid.type == ChannelType.PUBLIC and cid not in self._channels):
             return
         if self._should_ignore_chatter(line.sender):
             return
         self._check_add_new_channel(cid)
+
+        # If a chatter messages us without having joined any channel, this is
+        # where we first hear of him
+        if cinfo is not None and cinfo.name not in self._chatters:
+            self._check_add_new_chatter(cinfo)
+            self._add_or_update_cc(cid, cinfo)
+
         self._add_line(self._channels[cid], line)
 
     def _at_new_channel_chatters(self, cid, chatters):
@@ -215,17 +209,16 @@ class ChatController:
         action, msg = MessageAction.parse_message(message)
         if action == MessageAction.MSG:
             if self._connection.send_message(cid.name, msg):
-                self._at_new_line(self._user_chat_line(msg), cid)
+                self._at_new_line(cid, None, self._user_chat_line(msg))
         elif action == MessageAction.PRIVMSG:
             chatter_name, msg = msg.split(" ", 1)
             if self._connection.send_message(chatter_name, msg):
                 cid = ChannelID.private_cid(chatter_name)
-                self._at_new_line(self._user_chat_line(msg), cid)
+                self._at_new_line(cid, None, self._user_chat_line(msg))
         elif action == MessageAction.ME:
             if self._connection.send_action(cid.name, msg):
-                self._at_new_line(self._user_chat_line(msg,
-                                                       ChatLineType.ACTION),
-                                  cid)
+                self._at_new_line(cid, None, self._user_chat_line(
+                    msg, ChatLineType.ACTION))
         elif action == MessageAction.SEEN:
             self._connection.send_action("nickserv", "info {}".format(msg))
         elif action == MessageAction.TOPIC:
