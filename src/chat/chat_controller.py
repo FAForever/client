@@ -87,11 +87,7 @@ class ChatController:
         self._trim_channel_lines(channel)
 
     def _at_new_line(self, line, cid):
-        # Private notices printed in public channels are our own invention.
-        # Such a notice NEVER indicates joining a channel.
-        if (line.type == ChatLineType.NOTICE and
-                cid.type == ChannelType.PUBLIC and
-                cid not in self._channels):
+        if (cid.type == ChannelType.PUBLIC and cid not in self._channels):
             return
         if self._should_ignore_chatter(line.sender):
             return
@@ -248,6 +244,8 @@ class ChatController:
         self._channels.pop(cid, None)
 
     def _should_ignore_chatter(self, name):
+        if name is None:
+            return False
         chatter = self._chatters.get(name, None)
         if chatter is None:
             return False

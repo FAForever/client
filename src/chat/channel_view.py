@@ -135,7 +135,7 @@ class ChatAreaView:
     def _should_blink(self, data):
         if not self._widget.hidden:
             return False
-        if data.line.type is ChatLineType.INFO:
+        if data.line.type in [ChatLineType.INFO, ChatLineType.ANNOUNCEMENT]:
             return False
         if self._channel.id_key.type == ChannelType.PRIVATE:
             return True
@@ -195,19 +195,23 @@ class ChatLineMetadata:
 
     def _make_metadata(self, channel, channelchatterset, me, user_relations):
         self.meta = MagicDict()
-        cc = channelchatterset.get((channel.id_key, self.line.sender), None)
+        if self.line.sender is None:
+            cc = None
+        else:
+            key = (channel.id_key, self.line.sender)
+            cc = channelchatterset.get(key, None)
         chatter = None
         player = None
         if cc is not None:
             chatter = cc.chatter
             player = chatter.player
 
-        self._chatter_metadata(cc, chatter)
+        self._chatter_metadata(cc)
         self._player_metadata(player)
         self._relation_metadata(chatter, player, me, user_relations)
         self._mention_metadata(me)
 
-    def _chatter_metadata(self, cc, chatter):
+    def _chatter_metadata(self, cc):
         if cc is None:
             return
         cmeta = self.meta.put("chatter")
@@ -299,6 +303,9 @@ class ChatLineFormatter:
             yield "action"
         if line.type == ChatLineType.INFO:
             yield "info"
+        if line.type == ChatLineType.ANNOUNCEMENT:
+            yield "announcement"
+            return      # Let announcements decorate themselves
         if meta.chatter:
             yield "chatter"
             if meta.chatter.is_mod and meta.chatter.is_mod():
@@ -331,15 +338,19 @@ class ChatLineFormatter:
         else:
             stamp = ""
 
+        text = data.line.text
+        if data.line.type != ChatLineType.ANNOUNCEMENT:
+            text = irc_escape(text)
+
         return self._chatline_template.format(
             time=stamp,
             sender=self._sender_name(data),
-            text=irc_escape(data.line.text),
+            text=text,
             avatar=avatar,
             tags=tags)
 
     def _avatar(self, data):
-        if data.line.type == ChatLineType.INFO:
+        if data.line.type in [ChatLineType.INFO, ChatLineType.ANNOUNCEMENT]:
             return ""
         if not data.meta.player.avatar.url:
             return ""
@@ -349,10 +360,12 @@ class ChatLineFormatter:
         return self._avatar_template.format(url=avatar_url, tip=avatar_tip)
 
     def _sender_name(self, data):
+        if data.line.sender is None:
+            return ""
         mtype = data.line.type
         sender = ChatterFormat.name(data.line.sender, data.meta.player.clan())
         sender = html.escape(sender)
-        if mtype not in [ChatLineType.ACTION, ChatLineType.INFO]:
+        if mtype in [ChatLineType.MESSAGE, ChatLineType.NOTICE]:
             sender += ":&nbsp;"
         return sender
 
