@@ -177,13 +177,13 @@ class ChatController:
         channel.update(topic=topic)
 
     def _at_connected(self):
+        self._channels.clear()
+        self._chatters.clear()
+        self._ccs.clear()
         self._model.connected = True
 
     def _at_disconnected(self):
         self._model.connected = False
-        self._channels.clear()
-        self._chatters.clear()
-        self._ccs.clear()
 
     def _at_new_server_message(self, msg):
         self._model.add_server_message(msg)
