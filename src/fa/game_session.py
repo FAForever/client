@@ -47,7 +47,7 @@ class GameSession(QObject):
 
         # Connectivity helper
         self.connectivity = connectivity
-        self.connectivity.ready.connect(self.ready.emit)
+        self.connectivity.ready.connect(self._ready)
         self.connectivity.peer_bound.connect(self._peer_bound)
 
         # Keep a parent pointer so we can use it to send
@@ -72,6 +72,9 @@ class GameSession(QObject):
         self._process = instance  # type:'GameProcess'
         self._process.started.connect(self._launched)
         self._process.finished.connect(self._exited)
+
+    def _ready(self):
+        self.ready.emit()
 
     @property
     def relay_port(self):

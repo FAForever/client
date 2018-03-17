@@ -123,8 +123,8 @@ class ConnectivityHelper(QObject):
     def start_relay_test(self):
         if not self._relay_test:
             self._relay_test = RelayTest(self._socket)
-            self._relay_test.finished.connect(self.relay_test_finished.emit)
-            self._relay_test.progress.connect(self.relay_test_progress.emit)
+            self._relay_test.finished.connect(self._relay_test_finished)
+            self._relay_test.progress.connect(self._relay_test_progress)
 
         if not self._socket.turn_state == TURNState.BOUND:
             self._socket.connect_to_relay()
@@ -140,6 +140,12 @@ class ConnectivityHelper(QObject):
             self._relay_test.finished.connect(_cleanup, Qt.UniqueConnection)
         else:
             self._relay_test.start_relay_test(self.mapped_address)
+
+    def _relay_test_finished(self):
+        self.relay_test_finished.emit()
+
+    def _relay_test_progress(self, prog):
+        self._relay_test_progress.emit(prog)
 
     def turn_state_changed(self, state):
         if state == TURNState.BOUND:

@@ -58,11 +58,17 @@ class ChannelWidget(QObject):
         # Used by chat widget so it knows it corresponds to this widget
         self.base.cid = self.channel.id_key
         self.chat_edit.returnPressed.connect(self._at_line_typed)
-        self.nick_list.resized.connect(self.chatter_list_resized.emit)
+        self.nick_list.resized.connect(self._chatter_list_resized)
         self.chat_edit.set_channel(self.channel)
         self.nick_filter.textChanged.connect(self._set_chatter_filter)
-        self.chat_area.anchorClicked.connect(self.url_clicked.emit)
+        self.chat_area.anchorClicked.connect(self._url_clicked)
         self._load_css()
+
+    def _chatter_list_resized(self, size):
+        self.chatter_list_resized.emit(size)
+
+    def _url_clicked(self, url):
+        self.url_clicked.emit(url)
 
     # This might be fairly expensive, as we reapply all chat lines to the area.
     # Make sure it's not called really often!

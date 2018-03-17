@@ -385,10 +385,13 @@ class ChattersViewParameters(QObject):
     def __init__(self, me, player_colors):
         QObject.__init__(self)
         self._me = me
-        self._me.playerChanged.connect(self.updated.emit)
-        self._me.clan_changed.connect(self.updated.emit)
+        self._me.playerChanged.connect(self._updated)
+        self._me.clan_changed.connect(self._updated)
         self._player_colors = player_colors
-        self._player_colors.changed.connect(self.updated.emit)
+        self._player_colors.changed.connect(self._updated)
+
+    def _updated(self):
+        self.updated.emit()
 
     @classmethod
     def build(cls, me, player_colors, **kwargs):
