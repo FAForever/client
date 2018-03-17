@@ -4,9 +4,13 @@ from chat.chatterlistview import ChatterListView
 
 
 class ChatMVC:
-    def __init__(self, model, connection, controller, autojoiner, view):
+    def __init__(self, model, connection, controller, autojoiner, restorer,
+                 view):
         self.model = model
         self.connection = connection
         self.controller = controller
-        self.autojoiner = autojoiner    # Technically part of controller?
+        # Technically part of controller?
+        self.autojoiner = autojoiner
+        # Ditto, also don't confuse with the other Restorer
+        self.restorer = restorer
         self.view = view

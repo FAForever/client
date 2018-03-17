@@ -44,6 +44,7 @@ from chat.ircconnection import IrcConnection
 from chat.chat_view import ChatView
 from chat.chat_controller import ChatController
 from chat.channel_autojoiner import ChannelAutojoiner
+from chat.line_restorer import ChatLineRestorer
 
 from client.user import UserRelationModel, UserRelationController, \
         UserRelationTrackers, UserRelations
@@ -655,9 +656,11 @@ class ClientWindow(FormClass, BaseClass):
                 controller=chat_controller,
                 settings=config.Settings,
                 lobby_info=self.lobby_info)
+        chat_restorer = ChatLineRestorer(self._chat_model)
 
         self._chatMVC = ChatMVC(self._chat_model, chat_connection,
-                                chat_controller, channel_autojoiner, chat_view)
+                                chat_controller, channel_autojoiner,
+                                chat_restorer, chat_view)
 
         self.authorized.connect(self._connect_chat)
 
