@@ -193,7 +193,7 @@ class ChatterItemFormatter:
 
     def chatter_country(self, data):
         if data.player is None:
-            return '__'
+            return None
         country = data.player.country
         if country is None or country == '':
             return '__'
@@ -358,6 +358,8 @@ class ChatterItemDelegate(QtWidgets.QStyledItemDelegate):
 
     def _draw_country(self, painter, data):
         country = self._formatter.chatter_country(data)
+        if country is None:
+            return
         icon = util.THEME.icon("chat/countries/{}.png".format(country.lower()))
         self._draw_icon(painter, icon, ChatterLayoutElements.COUNTRY)
 
