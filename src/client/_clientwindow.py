@@ -1041,7 +1041,8 @@ class ClientWindow(FormClass, BaseClass):
         channels_input_of_user, ok = QtWidgets.QInputDialog.getText(self, 'Set autojoin channels',
             text_of_autojoin_settings_dialog, QtWidgets.QLineEdit.Normal, ';'.join(autojoin_channels_list))
         if ok:
-            config.Settings.set('chat/auto_join_channels', list(map(str.strip, channels_input_of_user.split(';'))))
+            channels = [c.strip() for c in channels_input_of_user.split(';') if c]
+            config.Settings.set('chat/auto_join_channels', channels)
 
     def saveChat(self):
         util.settings.beginGroup("chat")
