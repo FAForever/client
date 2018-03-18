@@ -1252,11 +1252,11 @@ class ClientWindow(FormClass, BaseClass):
                 self.modMenu = self.menu.addMenu("Administration")
 
             actionLobbyKick = QtWidgets.QAction("Close player's FAF Client...", self.modMenu)
-            actionLobbyKick.triggered.connect(self.power_tools.kick_dialog)
+            actionLobbyKick.triggered.connect(self.power_tools.view.kick_dialog)
             self.modMenu.addAction(actionLobbyKick)
 
             actionCloseFA = QtWidgets.QAction("Close Player's Game...", self.modMenu)
-            actionCloseFA.triggered.connect(self.power_tools.close_game_dialog.show)
+            actionCloseFA.triggered.connect(self.power_tools.view.close_game_dialog.show)
             self.modMenu.addAction(actionCloseFA)
 
     def joinChannel(self, username, channel):

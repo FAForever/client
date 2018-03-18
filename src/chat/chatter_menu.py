@@ -60,8 +60,6 @@ class ChatterMenu:
             yield ChatterMenuItems.SELECT_AVATAR
 
     def power_actions(self, power):
-        if power > 1:
-            yield ChatterMenuItems.ASSIGN_AVATAR
         if power == 2:
             yield ChatterMenuItems.SEND_ORCS
             yield ChatterMenuItems.CLOSE_GAME
