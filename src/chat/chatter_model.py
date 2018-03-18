@@ -44,6 +44,7 @@ class ChatterModel(QtListModel):
 
 
 class ChatterRank(IntEnum):
+    FRIEND_ON_TOP = -1
     ELEVATED = 0
     FRIEND = 1
     CLANNIE = 2
@@ -93,17 +94,16 @@ class ChatterSortFilterModel(QSortFilterProxyModel):
     def _lt_alphabetical(self, left, right):
         return left.chatter.name.lower() < right.chatter.name.lower()
 
-    def _ranked_as_friend(self, pid, name):
-        return (self._chat_config.friendsontop and
-                self._user_relations.is_friend(pid, name))
-
     def _get_user_rank(self, item):
         pid = item.player.id if item.player is not None else None
         name = item.chatter.name
         if item.cc.is_mod():
             return ChatterRank.ELEVATED
-        if self._ranked_as_friend(pid, name):
-            return ChatterRank.FRIEND
+        if self._user_relations.is_friend(pid, name):
+            if self._chat_config.friendsontop:
+                return ChatterRank.FRIEND_ON_TOP
+            else:
+                return ChatterRank.FRIEND
         if self._me.is_clannie(pid):
             return ChatterRank.CLANNIE
         if self._user_relations.is_foe(pid, name):
