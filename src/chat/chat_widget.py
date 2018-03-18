@@ -1,4 +1,5 @@
 from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5.QtWidgets import QTabBar
 
 
 class ChatWidget(QObject):
@@ -21,6 +22,10 @@ class ChatWidget(QObject):
         self.form.setupUi(self.base)
         self.base.tabCloseRequested.connect(self._at_tab_close_request)
         self.base.currentChanged.connect(self._at_tab_changed)
+        self.remove_server_tab_close_button()
+
+    def remove_server_tab_close_button(self):
+        self.base.tabBar().setTabButton(0, QTabBar.RightSide, None)
 
     def add_channel(self, widget, key, index=None):
         if key in self._channels:
