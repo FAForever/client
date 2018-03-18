@@ -90,7 +90,7 @@ class ChatController:
     def _at_new_line(self, cid, cinfo, line):
         if (cid.type == ChannelType.PUBLIC and cid not in self._channels):
             return
-        if self._should_ignore_chatter(line.sender):
+        if self._should_ignore_chatter(cid, line.sender):
             return
         self._check_add_new_channel(cid)
 
@@ -126,7 +126,7 @@ class ChatController:
         def wrap(self, cid, chatter, *args, **kwargs):
             if not self._chat_config.joinsparts:
                 return
-            if self._should_ignore_chatter(chatter.name):
+            if self._should_ignore_chatter(cid, chatter.name):
                 return
             channel = self._channels.get(cid, None)
             if channel is None:
@@ -255,14 +255,16 @@ class ChatController:
     def _delete_channel_ignoring_connection(self, cid):
         self._channels.pop(cid, None)
 
-    def _should_ignore_chatter(self, name):
+    def _should_ignore_chatter(self, cid, name):
         if name is None:
             return False
-        chatter = self._chatters.get(name, None)
-        if chatter is None:
+        cc = self._ccs.get((cid, name), None)
+        if cc is None:
             return False
-        name = chatter.name
-        id_ = None if chatter.player is None else chatter.player.id
+        if cc.is_mod():
+            return False
+        name = cc.chatter.name
+        id_ = None if cc.chatter.player is None else cc.chatter.player.id
         return self._user_relations.is_foe(id_, name)
 
 
