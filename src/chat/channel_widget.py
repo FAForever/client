@@ -1,4 +1,4 @@
-from PyQt5.QtCore import QObject, pyqtSignal, QUrl
+from PyQt5.QtCore import QObject, pyqtSignal, QUrl, Qt
 from PyQt5.QtGui import QTextDocument, QTextCursor
 import re
 
@@ -125,6 +125,7 @@ class ChannelWidget(QObject):
 
     def set_chatter_model(self, model):
         self.nick_list.setModel(model)
+        model.setFilterCaseSensitivity(Qt.CaseInsensitive)
 
     def set_chatter_event_filter(self, event_filter):
         self.nick_list.viewport().installEventFilter(event_filter)
