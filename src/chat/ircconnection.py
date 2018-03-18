@@ -162,7 +162,7 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
         return self._nick
 
     def _log_event(self, e):
-        text = '\n'.join(e.arguments())
+        text = '  |  '.join(e.arguments())
         self.new_server_message.emit("[{}: {}->{}] {}".format(e.eventtype(),
                                                               e.source(),
                                                               e.target(),
