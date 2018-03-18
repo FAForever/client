@@ -128,7 +128,8 @@ class ChatAreaView:
     def _should_blink(self, data):
         if not self._widget.hidden:
             return False
-        if data.line.type in [ChatLineType.INFO, ChatLineType.ANNOUNCEMENT]:
+        if data.line.type in [ChatLineType.INFO, ChatLineType.ANNOUNCEMENT,
+                              ChatLineType.RAW]:
             return False
         if self._channel.id_key.type == ChannelType.PRIVATE:
             return True
@@ -230,6 +231,9 @@ class ChatLineFormatter:
         if line.type == ChatLineType.ANNOUNCEMENT:
             yield "announcement"
             return      # Let announcements decorate themselves
+        if line.type == ChatLineType.RAW:
+            yield "raw"
+            return      # Ditto
         if meta.chatter:
             yield "chatter"
             if meta.chatter.is_mod and meta.chatter.is_mod():
@@ -263,8 +267,10 @@ class ChatLineFormatter:
             stamp = ""
 
         text = data.line.text
-        if data.line.type != ChatLineType.ANNOUNCEMENT:
+        if data.line.type not in [ChatLineType.ANNOUNCEMENT, ChatLineType.RAW]:
             text = irc_escape(text)
+        if data.line.type == ChatLineType.RAW:
+            return text
 
         return self._chatline_template.format(
             time=stamp,
@@ -274,7 +280,8 @@ class ChatLineFormatter:
             tags=tags)
 
     def _avatar(self, data):
-        if data.line.type in [ChatLineType.INFO, ChatLineType.ANNOUNCEMENT]:
+        if data.line.type in [ChatLineType.INFO, ChatLineType.ANNOUNCEMENT,
+                              ChatLineType.RAW]:
             return ""
         if not data.meta.player.avatar.url:
             return ""

@@ -12,6 +12,7 @@ class ChatLineType(Enum):
     ACTION = 2
     INFO = 3
     ANNOUNCEMENT = 4
+    RAW = 5
 
 
 class ChatLine:

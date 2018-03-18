@@ -47,6 +47,7 @@ from chat.chat_controller import ChatController
 from chat.channel_autojoiner import ChannelAutojoiner
 from chat.line_restorer import ChatLineRestorer
 from chat.chat_announcer import ChatAnnouncer
+from chat.chat_greeter import ChatGreeter
 
 from client.user import UserRelationModel, UserRelationController, \
         UserRelationTrackers, UserRelations
@@ -135,6 +136,8 @@ class ChatConfig(QtCore.QObject):
         self.chat_line_trim_count = 1
         self.chat_scroll_snap_distance = 0
         self.announcement_channels = []
+        self.channel_greeting = []
+        self.channels_to_greet_in = []
         self.load_settings()
 
     def load_settings(self):
@@ -614,6 +617,16 @@ class ClientWindow(FormClass, BaseClass):
         self._chat_config.chat_line_trim_count = 50
         self._chat_config.chat_scroll_snap_distance = 40
         self._chat_config.announcement_channels = ['#aeolus']
+        self._chat_config.channels_to_greet_in = ['#aeolus']
+
+        wiki_link = util.Settings.get("WIKI_URL")
+        wiki_msg = "Check out the wiki: {} for help with common issues.".format(wiki_link)
+
+        self._chat_config.channel_greeting = [
+            ("Welcome to Forged Alliance Forever!", "red", "+3"),
+            (wiki_msg, "white", "+1"),
+            ("", "black", "+1"),
+            ("", "black", "+1")]
 
         self.gameview_builder = GameViewBuilder(self.me,
                                                 self.player_colors)
@@ -658,12 +671,18 @@ class ClientWindow(FormClass, BaseClass):
                 alias_viewer=self._alias_viewer,
                 client_window=self,
                 game_runner=self._game_runner)
+
         channel_autojoiner = ChannelAutojoiner.build(
                 base_channels=['#aeolus'],
                 model=self._chat_model,
                 controller=chat_controller,
                 settings=config.Settings,
                 lobby_info=self.lobby_info)
+        chat_greeter = ChatGreeter(
+                model=self._chat_model,
+                theme=util.THEME,
+                chat_config=self._chat_config,
+                line_metadata_builder=line_metadata_builder)
         chat_restorer = ChatLineRestorer(self._chat_model)
         chat_announcer = ChatAnnouncer(
             model=self._chat_model,
@@ -673,8 +692,8 @@ class ClientWindow(FormClass, BaseClass):
 
         self._chatMVC = ChatMVC(self._chat_model, line_metadata_builder,
                                 chat_connection, chat_controller,
-                                channel_autojoiner, chat_restorer,
-                                chat_announcer, chat_view)
+                                channel_autojoiner, chat_greeter,
+                                chat_restorer, chat_announcer, chat_view)
 
         self.authorized.connect(self._connect_chat)
 
