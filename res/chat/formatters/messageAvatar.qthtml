@@ -1,1 +1,0 @@
-<tr style="width:100%;"><td width="42"><img src="{avatar}" title="{avatarTip}"/></td><td align="right" width="{width}" style="padding-top:3;"><font color="{color}">{name}:&nbsp;</font></td><td style="padding-top:3;" width="100%"><font color="{color}">{text}</font></td><td style="padding-top:3;" align="right" width="32"><font color="grey">{time}</font></td></tr>
