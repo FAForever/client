@@ -25,7 +25,7 @@ span {
 }
 
 .col_sender, .col_text, .col_time {
-	color: {{ colors['default'] }};
+	color: "{{ colors['default'] }}";
 	padding-top: 3; /* align with avatar icon */
 }
 
@@ -34,7 +34,7 @@ span {
 }
 
 .player .col_sender, .player .col_text, .player .col_time {
-	color: {{ colors['player'] }}
+	color: "{{ colors['player'] }}"
 }
 
 .action .col_sender, .action .col_text {
@@ -45,7 +45,7 @@ span {
 {% if random_colors is not none %}
                {% for name in random_colors %}
                        .randomcolor-{{loop.index0}} .col_sender, .randomcolor-{{loop.index0}} .col_text {
-                               color: {{name}};
+                               color: "{{name}}";
                        }
                {% endfor %}
 {% endif %}
@@ -59,39 +59,39 @@ span {
 }
 
 .friend .col_sender, .friend .col_text {
-	color: {{ colors['friend'] }};
+	color: "{{ colors['friend'] }}";
 }
 
 .foe .col_sender, .foe.col_text {
-	color: {{ colors['foe'] }};
+	color: "{{ colors['foe'] }}";
 }
 
 .clannie .col_sender, .clannie .col_text {
-	color: {{ colors['clan'] }};
+	color: "{{ colors['clan'] }}";
 }
 
 .me .col_sender, .me .col_text {
-	color: {{ colors['self'] }};
+	color: "{{ colors['self'] }}";
 }
 
 .mod .col_sender, .mod .col_text {
-	color: {{ colors['mod'] }};
+	color: "{{ colors['mod'] }}";
 }
 
 .friend.mod .col_sender, .friend.mod .col_text, .me.mod .col_sender, .me.mod .col_text {
-	color: {{ colors['friend_mod'] }};
+	color: "{{ colors['friend_mod'] }}";
 }
 
 .me.mod .col_sender, .me.mod .col_text {
-	color: {{ colors['self_mod'] }};
+	color: "{{ colors['self_mod'] }}";
 }
 
 .mentions_me .col_sender, .mentions_me .col_text {
-	color: {{ colors['you'] }};
+	color: "{{ colors['you'] }}";
 }
 
 .info .col_sender, .info .col_text, .info .col_time {
-	color: {{ colors['default'] }};
+	color: "{{ colors['default'] }}";
 }
 
 a {
