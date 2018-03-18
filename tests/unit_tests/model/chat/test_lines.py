@@ -27,7 +27,7 @@ def test_lines_emit_add_remove_signals(mocker):
     lines.removed.connect(removed)
 
     lines.add_line("a")
-    added.assert_called_with(1)
+    assert added.called
     assert not removed.called
     added.reset_mock()
 
