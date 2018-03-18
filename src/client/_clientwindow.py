@@ -40,11 +40,13 @@ from chat._avatarWidget import AvatarWidget
 
 from model.chat.chat import Chat
 from model.chat.channel import ChannelID, ChannelType
+from model.chat.chatline import ChatLineMetadataBuilder
 from chat.ircconnection import IrcConnection
 from chat.chat_view import ChatView
 from chat.chat_controller import ChatController
 from chat.channel_autojoiner import ChannelAutojoiner
 from chat.line_restorer import ChatLineRestorer
+from chat.chat_announcer import ChatAnnouncer
 
 from client.user import UserRelationModel, UserRelationController, \
         UserRelationTrackers, UserRelations
@@ -132,6 +134,7 @@ class ChatConfig(QtCore.QObject):
         self._max_chat_lines = None
         self.chat_line_trim_count = 1
         self.chat_scroll_snap_distance = 0
+        self.announcement_channels = []
         self.load_settings()
 
     def load_settings(self):
@@ -367,7 +370,7 @@ class ClientWindow(FormClass, BaseClass):
                                           util.THEME)
 
         self.game_announcer = GameAnnouncer(self.gameset, self.me,
-                                            self.player_colors, self)
+                                            self.player_colors)
 
         self.power = 0  # current user power
         self.id = 0
@@ -610,6 +613,7 @@ class ClientWindow(FormClass, BaseClass):
         self._chat_config.max_chat_lines = 200
         self._chat_config.chat_line_trim_count = 50
         self._chat_config.chat_scroll_snap_distance = 40
+        self._chat_config.announcement_channels = ['#aeolus']
 
         self.gameview_builder = GameViewBuilder(self.me,
                                                 self.player_colors)
@@ -624,13 +628,17 @@ class ClientWindow(FormClass, BaseClass):
                 theme=util.THEME)
 
         chat_connection = IrcConnection.build(settings=config.Settings)
+        line_metadata_builder = ChatLineMetadataBuilder.build(
+            me=self.me,
+            user_relations=self.user_relations.model)
 
         chat_controller = ChatController.build(
                 connection=chat_connection,
                 model=self._chat_model,
                 user_relations=self.user_relations.model,
                 chat_config=self._chat_config,
-                me=self.me)
+                me=self.me,
+                line_metadata_builder=line_metadata_builder)
 
         target_channel = ChannelID(ChannelType.PUBLIC, '#aeolus')
         chat_view = ChatView.build(
@@ -657,10 +665,16 @@ class ClientWindow(FormClass, BaseClass):
                 settings=config.Settings,
                 lobby_info=self.lobby_info)
         chat_restorer = ChatLineRestorer(self._chat_model)
+        chat_announcer = ChatAnnouncer(
+            model=self._chat_model,
+            chat_config=self._chat_config,
+            game_announcer=self.game_announcer,
+            line_metadata_builder=line_metadata_builder)
 
-        self._chatMVC = ChatMVC(self._chat_model, chat_connection,
-                                chat_controller, channel_autojoiner,
-                                chat_restorer, chat_view)
+        self._chatMVC = ChatMVC(self._chat_model, line_metadata_builder,
+                                chat_connection, chat_controller,
+                                channel_autojoiner, chat_restorer,
+                                chat_announcer, chat_view)
 
         self.authorized.connect(self._connect_chat)
 

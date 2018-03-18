@@ -1,17 +1,19 @@
-from PyQt5.QtCore import QTimer
+from PyQt5.QtCore import QObject, pyqtSignal, QTimer
 from model.game import GameState
 
 from fa import maps
 
 
-class GameAnnouncer:
+class GameAnnouncer(QObject):
+    announce = pyqtSignal(str, str)
+
     ANNOUNCE_DELAY_SECS = 35
 
-    def __init__(self, gameset, me, colors, client):
+    def __init__(self, gameset, me, colors):
+        QObject.__init__(self)
         self._gameset = gameset
         self._me = me
         self._colors = colors
-        self._client = client
 
         self._gameset.newLobby.connect(self._announce_hosting)
         self._gameset.newLiveReplay.connect(self._announce_replay)
@@ -49,7 +51,9 @@ class GameAnnouncer:
         self._announce(game, "playing live")
 
     def _announce(self, game, activity):
-        url = game.url(game.host_player.id).toString()
+        if game.host_player is None:
+            return
+        url = game.url(game.host_player.id).to_url().toString()
         url_color = self._colors.get_color("url")
         mapname = maps.getDisplayName(game.mapname)
         fmt = 'is {} {}<a style="color:{}" href="{}">{}</a> (on {})'
@@ -57,5 +61,6 @@ class GameAnnouncer:
             modname = ""
         else:
             modname = game.featured_mod + " "
-        msg = fmt.format(activity, modname, url_color, url, game.title, mapname)
-        self._client.forwardLocalBroadcast(game.host, msg)
+        msg = fmt.format(activity, modname, url_color, url, game.title,
+                         mapname)
+        self.announce.emit(msg, game.host)

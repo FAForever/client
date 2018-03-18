@@ -1,6 +1,6 @@
 from model.chat.channel import Channel, Lines, ChannelID, ChannelType
 from model.chat.chatter import Chatter
-from model.chat.chatline import ChatLine, ChatLineType, ChatLineMetadataBuilder
+from model.chat.chatline import ChatLine, ChatLineType
 from model.chat.channelchatter import ChannelChatter
 from enum import Enum
 
@@ -30,9 +30,8 @@ class ChatController:
         c.new_server_message.connect(self._at_new_server_message)
 
     @classmethod
-    def build(cls, connection, model, user_relations, chat_config, **kwargs):
-        line_metadata_builder = ChatLineMetadataBuilder.build(
-            user_relations=user_relations, **kwargs)
+    def build(cls, connection, model, user_relations, chat_config,
+              line_metadata_builder, **kwargs):
         return cls(connection, model, user_relations, chat_config,
                    line_metadata_builder)
 
