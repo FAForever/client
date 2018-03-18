@@ -1,10 +1,14 @@
 class ChannelAutojoiner:
-    def __init__(self, base_channels, model, controller, settings, lobby_info):
+    def __init__(self, base_channels, model, controller, settings, lobby_info,
+                 chat_config, me):
         self.base_channels = base_channels
         self._model = model
         self._controller = controller
         self._settings = settings
         self._lobby_info = lobby_info
+        self._chat_config = chat_config
+        self._me = me
+        self._me.playerChanged.connect(self._autojoin_newbie)
 
         self._lobby_info.social.connect(self._autojoin_lobby)
         self._saved_lobby_channels = []
@@ -15,13 +19,15 @@ class ChannelAutojoiner:
 
     @classmethod
     def build(cls, base_channels, model, controller, settings, lobby_info,
-              **kwargs):
-        return cls(base_channels, model, controller, settings, lobby_info)
+              chat_config, me, **kwargs):
+        return cls(base_channels, model, controller, settings, lobby_info,
+                   chat_config, me)
 
     def _autojoin_all(self):
         self._autojoin_base()
         self._autojoin_saved_lobby()
         self._autojoin_custom()
+        self._autojoin_newbie()
 
     def _join_all(self, channels):
         for name in channels:
@@ -49,3 +55,15 @@ class ChannelAutojoiner:
     def _autojoin_saved_lobby(self):
         self._join_all(self._saved_lobby_channels)
         self._saved_lobby_channels = []
+
+    def _autojoin_newbie(self):
+        if not self._model.connected:
+            return
+        if not self._chat_config.newbies_channel:
+            return
+        if self._me.player is None:
+            return
+        threshold = self._chat_config.newbie_channel_game_threshold
+        if self._me.player.number_of_games > threshold:
+            return
+        self._join_all(["#newbie"])

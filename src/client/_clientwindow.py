@@ -138,6 +138,7 @@ class ChatConfig(QtCore.QObject):
         self.announcement_channels = []
         self.channel_greeting = []
         self.channels_to_greet_in = []
+        self.newbie_channel_game_threshold = 0
         self.load_settings()
 
     def load_settings(self):
@@ -618,6 +619,7 @@ class ClientWindow(FormClass, BaseClass):
         self._chat_config.chat_scroll_snap_distance = 40
         self._chat_config.announcement_channels = ['#aeolus']
         self._chat_config.channels_to_greet_in = ['#aeolus']
+        self._chat_config.newbie_channel_game_threshold = 50
 
         wiki_link = util.Settings.get("WIKI_URL")
         wiki_msg = "Check out the wiki: {} for help with common issues.".format(wiki_link)
@@ -677,7 +679,9 @@ class ClientWindow(FormClass, BaseClass):
                 model=self._chat_model,
                 controller=chat_controller,
                 settings=config.Settings,
-                lobby_info=self.lobby_info)
+                lobby_info=self.lobby_info,
+                chat_config=self._chat_config,
+                me=self.me)
         chat_greeter = ChatGreeter(
                 model=self._chat_model,
                 theme=util.THEME,
