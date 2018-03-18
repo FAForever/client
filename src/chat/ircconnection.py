@@ -320,7 +320,7 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
         self._emit_line(chatter, target, ChannelType.PUBLIC, text)
 
     def on_privnotice(self, c, e):
-        if e.target() == '*':
+        if e.source() == self.host:
             self._log_event(e)
             return
 
