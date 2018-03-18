@@ -109,10 +109,11 @@ if sys.platform == 'win32':
         'include_msvcr': True,
         'optimize': 2,
         # cx_freeze >5.0.0 fails to add idna, we'll remove it once they fix it
-        'packages': ['PyQt5', 'PyQt5.uic', 'idna',
+        # jinja2 dies with 'cannot import compat' without asyncio
+        'packages': ['asyncio', 'PyQt5', 'PyQt5.uic', 'idna',
                      'PyQt5.QtWidgets', 'PyQt5.QtNetwork', 'win32com', 'win32com.client'],
         'silent': True,
-        'excludes': ['numpy', 'scipy', 'matplotlib', 'tcl', 'Tkinter'],
+        'excludes': ['numpy', 'scipy', 'matplotlib', 'tcl', 'tkinter'],
 
         'zip_include_packages': ["*"],     # Place source files in zip archive, like in cx_freeze 4.3.4
         'zip_exclude_packages': [],
