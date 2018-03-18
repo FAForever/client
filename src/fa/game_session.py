@@ -119,7 +119,7 @@ class GameSession(QObject):
             peer_id, ice_msg = args
             self.ice_adapter_client.call("iceMsg", [peer_id, ice_msg])
         else:
-            self._logger.warn("sending unhandled GPGNet message {} {}".format(command, args))
+            logger.warning("sending unhandled GPGNet message {} {}".format(command, args))
             self.ice_adapter_client.call("sendToGpgNet", [command, args])
 
     def send(self, command_id, args):
@@ -134,7 +134,7 @@ class GameSession(QObject):
         # to do: make this call synchronous/blocking, because init_mode must be set before game_launch.
         # See ClientWindow.handle_game_launch()
         if not self.ice_adapter_client or not self.ice_adapter_client.connected:
-            self._logger.error("ICE adapter client not connected")
+            logger.error("ICE adapter client not connected when calling setLobbyInitMode")
             return
         self.ice_adapter_client.call("setLobbyInitMode", [lobby_init_mode])
 
