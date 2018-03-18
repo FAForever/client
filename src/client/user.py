@@ -98,13 +98,19 @@ class User(QtCore.QObject):
 
         self._friends = UserRelation()
         self._foes = UserRelation()
-        self._friends.updated.connect(self.relationsUpdated.emit)
-        self._foes.updated.connect(self.relationsUpdated.emit)
+        self._friends.updated.connect(self._relations_updated)
+        self._foes.updated.connect(self._relations_updated)
 
         self._irc_friends = IrcUserRelation()
         self._irc_foes = IrcUserRelation()
-        self._irc_friends.updated.connect(self.ircRelationsUpdated.emit)
-        self._irc_foes.updated.connect(self.ircRelationsUpdated.emit)
+        self._irc_friends.updated.connect(self._irc_relations_updated)
+        self._irc_foes.updated.connect(self._irc_relations_updated)
+
+    def _relations_updated(self, items):
+        self.relationsUpdated.emit(items)
+
+    def _irc_relations_updated(self, items):
+        self.ircRelationsUpdated.emit(items)
 
     @property
     def player(self):
