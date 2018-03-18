@@ -209,7 +209,6 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
         self._log_event(e)
 
     def on_namreply(self, c, e):
-        self._log_event(e)
         channel = ChannelID(ChannelType.PUBLIC, e.arguments()[1])
         listing = e.arguments()[2].split()
 
