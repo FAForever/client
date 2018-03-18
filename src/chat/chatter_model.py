@@ -4,6 +4,7 @@ from PyQt5.QtCore import QObject, QRectF, QSortFilterProxyModel, Qt, \
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtGui import QIcon, QColor
 from chat.chatter_model_item import ChatterModelItem
+from chat.gameinfo import SensitiveMapInfoChecker
 from fa import maps
 from model.game import GameState
 import util
@@ -138,15 +139,25 @@ class ChatterFormat:
 
 
 class ChatterItemFormatter:
-    def __init__(self, avatars, player_colors):
+    def __init__(self, avatars, player_colors, info_hider):
         self._avatars = avatars
         self._player_colors = player_colors
+        self._info_hider = info_hider
 
     @classmethod
     def build(cls, avatar_dler, player_colors, **kwargs):
-        return cls(avatar_dler, player_colors)
+        info_hider = SensitiveMapInfoChecker.build(**kwargs)
+        return cls(avatar_dler, player_colors, info_hider)
 
     def map_icon(self, data):
+        game = data.game
+        if game is None or game.closed():
+            should_hide_info = False
+        else:
+            should_hide_info = self._info_hider.has_sensitive_data(game)
+        if should_hide_info:
+            return None
+
         name = data.map_name()
         return None if name is None else maps.preview(name)
 
@@ -225,6 +236,13 @@ class ChatterItemFormatter:
         if game is None or game.closed():
             return "Idle"
 
+        if self._info_hider.has_sensitive_data(game):
+            game_map = "<i>[delayed reveal]</i>"
+            game_title = "<i>[delayed reveal]</i>"
+        else:
+            game_map = game.mapdisplayname
+            game_title = game.title
+
         private_str = " (private)" if game.password_protected else ""
         if game.state == GameState.PLAYING and not game.has_live_replay:
             delay_str = " - LIVE DELAY (5 Min)"
@@ -249,8 +267,8 @@ class ChatterItemFormatter:
                       "players: {} / {}<br/>"
                       "id: {}")
 
-        game_str = formatting.format(header, game.title, game.featured_mod,
-                                     game.mapdisplayname, game.num_players,
+        game_str = formatting.format(header, game_title, game.featured_mod,
+                                     game_map, game.num_players,
                                      game.max_players, game.uid)
         return game_str
 
@@ -263,6 +281,8 @@ class ChatterItemFormatter:
     def map_tooltip(self, data):
         if data.game is None:
             return None
+        if self._info_hider.has_sensitive_data(data.game):
+            return "<i>[delayed reveal]</i>"
         return data.game.mapdisplayname
 
     def country_tooltip(self, data):
