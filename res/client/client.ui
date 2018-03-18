@@ -396,7 +396,7 @@
      <addaction name="actionSetOpenGames"/>
      <addaction name="actionSetLiveReplays"/>
      <addaction name="actionSetSoundEffects"/>
-     <addaction name="separator"/>
+     <addaction name="actionIgnoreFoes"/>
     </widget>
     <widget class="QMenu" name="menuNotifications">
      <property name="title">
@@ -760,6 +760,17 @@
   <action name="actionCheckPlayerAliases">
    <property name="text">
     <string>&amp;Check player aliases</string>
+   </property>
+  </action>
+  <action name="actionIgnoreFoes">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Ignore foes</string>
    </property>
   </action>
  </widget>

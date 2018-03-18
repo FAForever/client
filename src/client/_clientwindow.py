@@ -122,6 +122,7 @@ class ChatConfig(QtCore.QObject):
     channel_blink_interval = signal_property("channel_blink_interval")
     channel_ping_timeout = signal_property("channel_ping_timeout")
     max_chat_lines = signal_property("max_chat_lines")
+    ignore_foes = signal_property("ignore_foes")
 
     def __init__(self, settings):
         QtCore.QObject.__init__(self)
@@ -133,6 +134,7 @@ class ChatConfig(QtCore.QObject):
         self._channel_blink_interval = None
         self._channel_ping_timeout = None
         self._max_chat_lines = None
+        self._ignore_foes = None
         self.chat_line_trim_count = 1
         self.chat_scroll_snap_distance = 0
         self.announcement_channels = []
@@ -148,6 +150,7 @@ class ChatConfig(QtCore.QObject):
         self.friendsontop = (s.value("chat/friendsontop", "false") == "true")
         self.newbies_channel = (s.value("chat/newbiesChannel", "true") ==
                                 "true")
+        self.ignore_foes = (s.value("chat/ignoreFoes", "true") == "true")
 
     def save_settings(self):
         s = self._settings
@@ -155,6 +158,7 @@ class ChatConfig(QtCore.QObject):
         s.setValue("chat/joinsparts", self.joinsparts)
         s.setValue("chat/newbiesChannel", self.newbies_channel)
         s.setValue("chat/friendsontop", self.friendsontop)
+        s.setValue("chat/ignoreFoes", self.ignore_foes)
 
 
 class ClientWindow(FormClass, BaseClass):
@@ -927,6 +931,7 @@ class ClientWindow(FormClass, BaseClass):
         self.actionSetOpenGames.triggered.connect(self.updateOptions)
         self.actionSetJoinsParts.triggered.connect(self.updateOptions)
         self.actionSetNewbiesChannel.triggered.connect(self.updateOptions)
+        self.actionIgnoreFoes.triggered.connect(self.updateOptions)
         self.actionSetAutoJoinChannels.triggered.connect(self.show_autojoin_settings_dialog)
         self.actionSetLiveReplays.triggered.connect(self.updateOptions)
         self.actionSaveGamelogs.toggled.connect(self.on_actionSavegamelogs_toggled)
@@ -948,6 +953,7 @@ class ClientWindow(FormClass, BaseClass):
         cc.soundeffects = self.actionSetSoundEffects.isChecked()
         cc.joinsparts = self.actionSetJoinsParts.isChecked()
         cc.newbies_channel = self.actionSetNewbiesChannel.isChecked()
+        cc.ignore_foes = self.actionIgnoreFoes.isChecked()
         cc.friendsontop = self.actionFriendsOnTop.isChecked()
         self.game_announcer.announce_games = self.actionSetOpenGames.isChecked()
         self.game_announcer.announce_replays = self.actionSetLiveReplays.isChecked()
@@ -1080,6 +1086,7 @@ class ClientWindow(FormClass, BaseClass):
             self.actionSetOpenGames.setChecked(self.game_announcer.announce_games)
             self.actionSetJoinsParts.setChecked(cc.joinsparts)
             self.actionSetNewbiesChannel.setChecked(cc.newbies_channel)
+            self.actionIgnoreFoes.setChecked(cc.ignore_foes)
         except:
             pass
 

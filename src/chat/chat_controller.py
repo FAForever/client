@@ -88,17 +88,20 @@ class ChatController:
         self._trim_channel_lines(channel)
 
     def _at_new_line(self, cid, cinfo, line):
-        if (cid.type == ChannelType.PUBLIC and cid not in self._channels):
+        if cid.type == ChannelType.PUBLIC and cid not in self._channels:
             return
+
         if self._should_ignore_chatter(cid, line.sender):
             return
-        self._check_add_new_channel(cid)
 
-        # If a chatter messages us without having joined any channel, this is
-        # where we first hear of him
-        if cinfo is not None and cinfo.name not in self._chatters:
-            self._check_add_new_chatter(cinfo)
-            self._add_or_update_cc(cid, cinfo)
+        if cid.type == ChannelType.PRIVATE:
+            self._check_add_new_channel(cid)
+            # If a chatter messages us without having joined any channel, this
+            # is where we first hear of him
+            if cinfo is not None:
+                if cinfo.name not in self._chatters:
+                    self._check_add_new_chatter(cinfo)
+                self._add_or_update_cc(cid, cinfo)
 
         self._add_line(self._channels[cid], line)
 
@@ -258,13 +261,18 @@ class ChatController:
     def _should_ignore_chatter(self, cid, name):
         if name is None:
             return False
-        cc = self._ccs.get((cid, name), None)
-        if cc is None:
+        if cid.type == ChannelType.PUBLIC:
+            cc = self._ccs.get((cid, name), None)
+            if cc is None or cc.is_mod():
+                return False
+
+        if not self._chat_config.ignore_foes:
             return False
-        if cc.is_mod():
+        chatter = self._chatters.get(name, None)
+        if chatter is None:
             return False
-        name = cc.chatter.name
-        id_ = None if cc.chatter.player is None else cc.chatter.player.id
+        name = chatter.name
+        id_ = None if chatter.player is None else chatter.player.id
         return self._user_relations.is_foe(id_, name)
 
 
