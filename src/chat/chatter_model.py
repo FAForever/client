@@ -118,7 +118,8 @@ class ChatterSortFilterModel(QSortFilterProxyModel):
         if not index.isValid():
             return False
         data = source.data(index, Qt.DisplayRole)
-        return self.filterRegExp().indexIn(data.chatter.name) != -1
+        displayed_name = ChatterFormat.chatter_name(data.chatter)
+        return self.filterRegExp().indexIn(displayed_name) != -1
 
     def _check_sort_changed(self, option):
         if option == "friendsontop":
@@ -130,12 +131,17 @@ class ChatterSortFilterModel(QSortFilterProxyModel):
 
 # TODO - place in some separate file?
 class ChatterFormat:
-    @staticmethod
-    def name(chatter, clan):
+    @classmethod
+    def name(cls, chatter, clan):
         if clan is not None:
             return "[{}]{}".format(clan, chatter)
         else:
             return chatter
+
+    @classmethod
+    def chatter_name(cls, chatter):
+        clan = None if chatter.player is None else chatter.player.clan
+        return cls.name(chatter.name, clan)
 
 
 class ChatterItemFormatter:
@@ -162,8 +168,7 @@ class ChatterItemFormatter:
         return None if name is None else maps.preview(name)
 
     def chatter_name(self, data):
-        clan = None if data.player is None else data.player.clan
-        return ChatterFormat.name(data.chatter.name, clan)
+        return ChatterFormat.chatter_name(data.chatter)
 
     def chatter_color(self, data):
         pid = -1 if data.player is None else data.player.id
