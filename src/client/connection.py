@@ -255,7 +255,9 @@ class ServerConnection(QtCore.QObject):
         out.writeUInt32(2 * len(action) + 4)
         out.writeQString(action)
 
-        self.socket.write(block)
+        # it looks like there's a crash in Qt when sending to an unconnected socket
+        if self.socket.state() == QtNetwork.QAbstractSocket.ConnectedState:
+            self.socket.write(block)
 
     def send(self, message):
         data = json.dumps(message)
