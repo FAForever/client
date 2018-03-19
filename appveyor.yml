@@ -6,7 +6,7 @@ environment:
     GITHUB_TOKEN:
       secure: Np481CGoJvTGB8O5rZTRswUZagGv7WtWT/TXTABQ184xUbL5vj9NoCtmtNRK6YxF
     UID_VERSION: v4.0.4
-    ICE_ADAPTER_VERSION: v6.2.1
+    ICE_ADAPTER_VERSION: v6.2.2
   matrix:
     - PYTHON: "C:\\Python36"
       PYWHEEL_INFIX: "cp36"
