@@ -193,7 +193,7 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
         self._nickserv_registered = True
 
     def on_identified(self):
-        if self.connection.get_nickname != self._nick:
+        if self.connection.get_nickname() != self._nick:
             self._send_nickserv_creds('recover {} {}')
         self.connected.emit()
 
