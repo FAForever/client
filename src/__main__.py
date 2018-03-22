@@ -65,6 +65,8 @@ def excepthook(exc_type, exc_value, traceback_object):
     This exception hook will stop the app if an uncaught error occurred, regardless where in the QApplication.
     """
     sys.excepthook = excepthook_original
+    if exc_type is KeyboardInterrupt:
+        raise exc_value
 
     logger.error("Uncaught exception", exc_info=(exc_type, exc_value, traceback_object))
     logger.error("Runtime Info:\n%s", util.runtime_info())
