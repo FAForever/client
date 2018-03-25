@@ -348,6 +348,7 @@ class ChatterItemDelegate(QtWidgets.QStyledItemDelegate):
         text = self._formatter.chatter_name(data)
         color = QColor(self._formatter.chatter_color(data))
         clip = QRectF(self.layout.sizes[ChatterLayoutElements.NICK])
+        text = self._get_elided_text(painter, text, clip.width())
 
         painter.save()
         pen = painter.pen()
@@ -357,6 +358,10 @@ class ChatterItemDelegate(QtWidgets.QStyledItemDelegate):
         painter.drawText(clip, Qt.AlignLeft | Qt.AlignVCenter, text)
 
         painter.restore()
+
+    def _get_elided_text(self, painter, text, width):
+        metrics = painter.fontMetrics()
+        return metrics.elidedText(text, Qt.ElideRight, width)
 
     def _draw_status(self, painter, data):
         status = self._formatter.chatter_status(data)
