@@ -318,6 +318,9 @@ def showFileInFileBrowser(location):
         # No highlighting on cross-platform, sorry!
         showDirInFileBrowser(os.path.dirname(location))
 
+def showConfigFile():
+    showFileInFileBrowser(Settings.fileName())
+
 html_escape_table = {
     "&": "&amp;",
     '"': "&quot;",

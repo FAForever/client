@@ -414,6 +414,7 @@
      <addaction name="actionShowReplaysDir"/>
      <addaction name="actionShowThemesDir"/>
      <addaction name="actionShowGamePrefs"/>
+     <addaction name="actionShowClientConfigFile"/>
     </widget>
     <widget class="QMenu" name="menuUpdates">
      <property name="title">
@@ -771,6 +772,11 @@
    </property>
    <property name="text">
     <string>Ignore foes</string>
+   </property>
+  </action>
+  <action name="actionShowClientConfigFile">
+   <property name="text">
+    <string>Show client config file</string>
    </property>
   </action>
  </widget>

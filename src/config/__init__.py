@@ -71,6 +71,10 @@ class Settings:
     def sync():
         _settings.sync()
 
+    @staticmethod
+    def fileName():
+        return _settings.fileName()
+
 
 def set_data_path_permissions():
     """

@@ -6,6 +6,7 @@
  * Rewrite chat from the ground up. No changes in functionality, but should fix
    plenty of chat mubs and make it easier to add new features.
  * Ctrl-C now quits the client when ran from console (#1001, #1008)
+ * Add config file location entry to client menu.
 
  Contributors:
  - Wesmania
