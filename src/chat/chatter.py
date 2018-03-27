@@ -65,7 +65,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
 
         self.rankItem = QtWidgets.QTableWidgetItem()
         self.rankItem.setFlags(QtCore.Qt.ItemIsEnabled)
-        self.rankItem.setTextAlignment(QtCore.Qt.AlignHCenter)
+        self.rankItem.setTextAlignment(QtCore.Qt.AlignRight)
 
         self.statusItem = QtWidgets.QTableWidgetItem()
         self.statusItem.setFlags(QtCore.Qt.ItemIsEnabled)
@@ -185,6 +185,21 @@ class Chatter(QtWidgets.QTableWidgetItem):
 
     def __lt__(self, other):
         """ Comparison operator used for item list sorting """
+        if self.channel.sorting != "name":
+            if self.user_player is not None and other.user_player is not None:
+                if self.channel.sorting == "global":
+                    self_rating = self.user_player.rating_estimate()
+                    other_rating = other.user_player.rating_estimate()
+                else:
+                    self_rating = self.user_player.ladder_estimate()
+                    other_rating = other.user_player.ladder_estimate()
+                if self_rating != other_rating:
+                    return self_rating > other_rating
+                else:
+                    return self.user.name.lower() < other.user.name.lower()
+            elif self.user_player is not None or other.user_player is not None:
+                return self.user_player is not None
+
         self_rank = self.get_user_rank(self)
         other_rank = self.get_user_rank(other)
 
@@ -289,7 +304,7 @@ class Chatter(QtWidgets.QTableWidgetItem):
         else:
             country = player.country
         self.setIcon(util.THEME.icon("chat/countries/{}.png".format(country.lower())))
-        self.setToolTip(country)
+        self.setToolTip("{} - [{}]{}".format(country, self.user_player.clan, self.user.name))
 
     def update_rank(self):
         player = self.user_player
@@ -314,7 +329,15 @@ class Chatter(QtWidgets.QTableWidgetItem):
                                                      tooltip_str)
         else:
             icon_str = "newplayer"
-        self.rankItem.setIcon(util.THEME.icon("chat/rank/{}.png".format(icon_str)))
+        if self.channel.sorting == "name":
+            self.rankItem.setText("")
+            self.rankItem.setIcon(util.THEME.icon("chat/rank/{}.png".format(icon_str)))
+        else:
+            self.rankItem.setIcon(QtGui.QIcon())
+            if self.channel.sorting == "global":
+                self.rankItem.setText(str(int(player.rating_estimate())))
+            else:
+                self.rankItem.setText(str(int(player.ladder_estimate())))
         self.rankItem.setToolTip(tooltip_str)
 
     def update_game(self):

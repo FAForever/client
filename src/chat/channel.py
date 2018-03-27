@@ -91,6 +91,12 @@ class Channel(FormClass, BaseClass):
         # count the number of line currently in the chat
         self.lines = 0
 
+        self.sorting = "name"
+        self.sortName.setChecked(True)
+        self.sortName.clicked.connect(self.set_sort_name)
+        self.sortGlobal.clicked.connect(self.set_sort_global)
+        self.sortLadder.clicked.connect(self.set_sort_ladder)
+
         # Perform special setup for public channels as opposed to private ones
         self.name = name
         self.private = private
@@ -159,6 +165,29 @@ class Channel(FormClass, BaseClass):
         if self.isVisible():
             self.chatArea.setPlainText("")
             self.last_timestamp = 0
+
+    def set_sort_name(self):
+        if self.sortName.isChecked():
+            self.sorting = "name"
+            self.set_chatter_rank()
+
+    def set_sort_global(self):
+        if self.sortGlobal.isChecked():
+            self.sorting = "global"
+            self.set_chatter_rank()
+
+    def set_sort_ladder(self):
+        if self.sortLadder.isChecked():
+            self.sorting = "ladder"
+            self.set_chatter_rank()
+
+    def set_chatter_rank(self):
+        self.sortName.setChecked(self.sorting == "name")
+        self.sortGlobal.setChecked(self.sorting == "global")
+        self.sortLadder.setChecked(self.sorting == "ladder")
+        for chatter in self.chatters.values():
+            chatter.update_rank()
+        self.sortChatters()
 
     @QtCore.pyqtSlot()
     def filter_nicks(self):
