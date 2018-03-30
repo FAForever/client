@@ -1,5 +1,5 @@
 from fa.replay import replay
-
+from model.game import GameState
 import util
 from PyQt5 import QtWidgets, QtCore, QtGui
 import time
@@ -206,10 +206,36 @@ class Channel(FormClass, BaseClass):
     @QtCore.pyqtSlot(QtCore.QUrl)
     def open_url(self, url):
         logger.debug("Clicked on URL: " + url.toString())
-        if url.scheme() == "faflive":
-            replay(url)
-        elif url.scheme() == "fafgame":
-            self.chat_widget.client.joinGameFromURL(url)
+        if url.scheme() == "faflive" or url.scheme() == "fafgame":
+            replay_id = int(QtCore.QUrlQuery(url).queryItemValue("uid"))
+            if replay_id in self.chat_widget.client.gameset:
+                game = self.chat_widget.client.gameset[replay_id]
+                if game.state == GameState.OPEN:  # and url.scheme() == "fafgame"
+                    self.chat_widget.client.joinGameFromURL(url)
+                elif game.state == GameState.PLAYING:
+                    if game.has_live_replay:
+                        if url.scheme() == "faflive" or QtWidgets.QMessageBox.question(
+                                QtWidgets.QApplication.activeWindow(), "Live Game started",
+                                "Would you like to join and watch the live game?",
+                                QtWidgets.QMessageBox.Yes,
+                                QtWidgets.QMessageBox.No) == QtWidgets.QMessageBox.Yes:
+                            replay(game.url(game.host_player.id))
+                    else:
+                        QtWidgets.QMessageBox.information(
+                            QtWidgets.QApplication.activeWindow(), "Live Game started",
+                            "But ... it is to early to join (5 minute delay)\n"
+                            "(Wait for the user/player status cross to turn silver)")
+            elif url.scheme() == "faflive" and QtWidgets.QMessageBox.question(
+                    QtWidgets.QApplication.activeWindow(), "Live Game ended",
+                    "Would you like to look for it in Replays?",
+                    QtWidgets.QMessageBox.Yes,
+                    QtWidgets.QMessageBox.No) == QtWidgets.QMessageBox.Yes:
+                player = QtCore.QUrlQuery(url).queryItemValue("player")
+                self.chat_widget.client.searchUserReplays(player)
+            elif url.scheme() == "fafgame":
+                QtWidgets.QMessageBox.information(
+                    QtWidgets.QApplication.activeWindow(), "Game ended",
+                    "Host has abandoned game or the game already ended")
         else:
             QtGui.QDesktopServices.openUrl(url)
 
