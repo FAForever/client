@@ -413,7 +413,8 @@ class Channel(FormClass, BaseClass):
 
     def add_chatter(self, chatter, join=False):
         """
-        Adds an user to this chat channel, and assigns an appropriate icon depending on friendship and FAF player status
+        Adds an user to this chat channel, and assigns an appropriate icon
+        depending on friendship and FAF player status
         """
         if chatter not in self.chatters:
             item = Chatter(self.nickList, chatter, self,
@@ -426,6 +427,9 @@ class Channel(FormClass, BaseClass):
 
         if join and self.chat_widget.client.joinsparts:
             self.print_action(chatter.name, "joined the channel.", server_action=True)
+
+        if chatter.player is not None and chatter.player.currentGame is not None:
+            self.chat_widget.client.game_announcer.delayed_friend_events(chatter.player)
 
     def remove_chatter(self, chatter, server_action=None):
         if chatter in self.chatters:
