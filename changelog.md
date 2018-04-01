@@ -1,6 +1,14 @@
 0.x.x
 =====
 
+0.17.2
+=====
+ * Rewrite chat from the ground up. No changes in functionality, but should fix
+   plenty of chat mubs and make it easier to add new features.
+
+ Contributors:
+ - Wesmania
+
 0.17.1
 =====
  * Fix missing audio plugin causing sounds not to be played on Windows (#995)
