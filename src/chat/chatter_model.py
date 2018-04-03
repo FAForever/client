@@ -324,12 +324,17 @@ class ChatterItemDelegate(QtWidgets.QStyledItemDelegate):
 
         painter.translate(option.rect.left(), option.rect.top())
 
-        self._draw_nick(painter, data)
-        self._draw_status(painter, data)
-        self._draw_map(painter, data)
-        self._draw_rank(painter, data)
-        self._draw_avatar(painter, data)
-        self._draw_country(painter, data)
+        Elems = ChatterLayoutElements
+        draw = {
+            Elems.NICK: self._draw_nick,
+            Elems.STATUS: self._draw_status,
+            Elems.MAP: self._draw_map,
+            Elems.RANK: self._draw_rank,
+            Elems.AVATAR: self._draw_avatar,
+            Elems.COUNTRY: self._draw_country
+        }
+        for item in self.layout.visible_items():
+            draw[item](painter, data)
 
         painter.restore()
 
@@ -432,15 +437,18 @@ class ChatterLayout(QObject):
     """Provides layout info for delegate using Qt widget layouts."""
     LAYOUT_FILE = "chat/chatter.ui"
 
-    def __init__(self, theme):
+    def __init__(self, theme, chat_config):
         QObject.__init__(self)
         self._theme = theme
+        self._chat_config = chat_config
         self.sizes = {}
         self.load_layout()
+        self._chat_config.updated.connect(self._at_chat_config_updated)
+        self._set_visibility()
 
     @classmethod
-    def build(cls, theme, **kwargs):
-        return cls(theme)
+    def build(cls, theme, chat_config, **kwargs):
+        return cls(theme, chat_config)
 
     def load_layout(self):
         formc, basec = self._theme.loadUiType(self.LAYOUT_FILE)
@@ -448,6 +456,24 @@ class ChatterLayout(QObject):
         self._base = basec()
         self._form.setupUi(self._base)
         self._size = self._base.size()
+
+    def _at_chat_config_updated(self, setting):
+        if setting == "hide_chatter_items":
+            self._set_visibility()
+
+    def _set_visibility(self):
+        for item in ChatterLayoutElements:
+            self._set_visible(item)
+        self._update_layout()
+
+    def _set_visible(self, item):
+        getattr(self._form, item.value).setVisible(self.is_visible(item))
+
+    def is_visible(self, item):
+        return item not in self._chat_config.hide_chatter_items
+
+    def visible_items(self):
+        return [i for i in ChatterLayoutElements if self.is_visible(i)]
 
     @property
     def size(self):
@@ -460,7 +486,7 @@ class ChatterLayout(QObject):
 
     def element_at_point(self, point):
         for elem in ChatterLayoutElements:
-            if self.sizes[elem].contains(point):
+            if self.sizes[elem].contains(point) and self.is_visible(elem):
                 return elem
         return None
 

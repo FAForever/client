@@ -13,7 +13,7 @@ from client.playercolors import PlayerColors
 from client.theme_menu import ThemeMenu
 from client.updater import UpdateChecker, UpdateDialog
 from client.update_settings import UpdateSettingsDialog
-from client.user import User
+from client.user import User, SignallingSet     # TODO - move to util
 from downloadManager import PreviewDownloader, AvatarDownloader, \
         MAP_PREVIEW_ROOT
 import fa
@@ -48,6 +48,7 @@ from chat.channel_autojoiner import ChannelAutojoiner
 from chat.line_restorer import ChatLineRestorer
 from chat.chat_announcer import ChatAnnouncer
 from chat.chat_greeter import ChatGreeter
+from chat.chatter_model import ChatterLayoutElements
 
 from client.user import UserRelationModel, UserRelationController, \
         UserRelationTrackers, UserRelations
@@ -135,6 +136,11 @@ class ChatConfig(QtCore.QObject):
         self._channel_ping_timeout = None
         self._max_chat_lines = None
         self._ignore_foes = None
+
+        self.hide_chatter_items = SignallingSet()
+        self.hide_chatter_items.added.connect(self._emit_hidden_items)
+        self.hide_chatter_items.removed.connect(self._emit_hidden_items)
+
         self.chat_line_trim_count = 1
         self.chat_scroll_snap_distance = 0
         self.announcement_channels = []
@@ -142,6 +148,9 @@ class ChatConfig(QtCore.QObject):
         self.channels_to_greet_in = []
         self.newbie_channel_game_threshold = 0
         self.load_settings()
+
+    def _emit_hidden_items(self):
+        self.updated.emit("hide_chatter_items")
 
     def load_settings(self):
         s = self._settings
@@ -152,6 +161,15 @@ class ChatConfig(QtCore.QObject):
                                 "true")
         self.ignore_foes = (s.value("chat/ignoreFoes", "true") == "true")
 
+        items = s.value("chat/hide_chatter_items", "")
+        items = items.split()
+        for item in items:
+            try:
+                enum_val = ChatterLayoutElements(item)
+                self.hide_chatter_items.add(enum_val)
+            except ValueError:
+                pass
+
     def save_settings(self):
         s = self._settings
         s.setValue("chat/soundeffects", self.soundeffects)
@@ -159,6 +177,9 @@ class ChatConfig(QtCore.QObject):
         s.setValue("chat/newbiesChannel", self.newbies_channel)
         s.setValue("chat/friendsontop", self.friendsontop)
         s.setValue("chat/ignoreFoes", self.ignore_foes)
+
+        items = " ".join(item.value for item in self.hide_chatter_items)
+        s.setValue("chat/hide_chatter_items", items)
 
 
 class ClientWindow(FormClass, BaseClass):
@@ -946,6 +967,17 @@ class ClientWindow(FormClass, BaseClass):
         self._menuThemeHandler.setup(util.THEME.listThemes())
         self._menuThemeHandler.themeSelected.connect(lambda theme: util.THEME.setTheme(theme, True))
 
+        self._chat_vis_actions = {
+            ChatterLayoutElements.RANK: self.actionHideChatterRank,
+            ChatterLayoutElements.AVATAR: self.actionHideChatterAvatar,
+            ChatterLayoutElements.COUNTRY: self.actionHideChatterCountry,
+            ChatterLayoutElements.NICK: self.actionHideChatterNick,
+            ChatterLayoutElements.STATUS: self.actionHideChatterStatus,
+            ChatterLayoutElements.MAP: self.actionHideChatterMap,
+        }
+        for a in self._chat_vis_actions.values():
+            a.triggered.connect(self.updateOptions)
+
     @QtCore.pyqtSlot()
     def updateOptions(self):
         cc = self._chat_config
@@ -956,6 +988,12 @@ class ClientWindow(FormClass, BaseClass):
         cc.newbies_channel = self.actionSetNewbiesChannel.isChecked()
         cc.ignore_foes = self.actionIgnoreFoes.isChecked()
         cc.friendsontop = self.actionFriendsOnTop.isChecked()
+
+        invisible_items = [i for i, a in self._chat_vis_actions.items()
+                           if a.isChecked()]
+        cc.hide_chatter_items.clear()
+        cc.hide_chatter_items |= invisible_items
+
         self.game_announcer.announce_games = self.actionSetOpenGames.isChecked()
         self.game_announcer.announce_replays = self.actionSetLiveReplays.isChecked()
 
@@ -963,6 +1001,7 @@ class ClientWindow(FormClass, BaseClass):
         self.player_colors.colored_nicknames = self.actionColoredNicknames.isChecked()
 
         self.saveChat()
+
 
     @QtCore.pyqtSlot()
     def switchPath(self):
@@ -1082,6 +1121,9 @@ class ClientWindow(FormClass, BaseClass):
             cc.load_settings()
             self.actionColoredNicknames.setChecked(self.player_colors.colored_nicknames)
             self.actionFriendsOnTop.setChecked(cc.friendsontop)
+
+            for item in ChatterLayoutElements:
+                self._chat_vis_actions[item].setChecked(item in cc.hide_chatter_items)
             self.actionSetSoundEffects.setChecked(cc.soundeffects)
             self.actionSetLiveReplays.setChecked(self.game_announcer.announce_replays)
             self.actionSetOpenGames.setChecked(self.game_announcer.announce_games)

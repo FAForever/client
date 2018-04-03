@@ -388,6 +388,17 @@
      <property name="title">
       <string>&amp;Chat...</string>
      </property>
+     <widget class="QMenu" name="menuHide_chatter">
+      <property name="title">
+       <string>&amp;Hide chatter...</string>
+      </property>
+      <addaction name="actionHideChatterRank"/>
+      <addaction name="actionHideChatterAvatar"/>
+      <addaction name="actionHideChatterCountry"/>
+      <addaction name="actionHideChatterNick"/>
+      <addaction name="actionHideChatterStatus"/>
+      <addaction name="actionHideChatterMap"/>
+     </widget>
      <addaction name="actionColoredNicknames"/>
      <addaction name="actionFriendsOnTop"/>
      <addaction name="actionSetNewbiesChannel"/>
@@ -397,6 +408,7 @@
      <addaction name="actionSetLiveReplays"/>
      <addaction name="actionSetSoundEffects"/>
      <addaction name="actionIgnoreFoes"/>
+     <addaction name="menuHide_chatter"/>
     </widget>
     <widget class="QMenu" name="menuNotifications">
      <property name="title">
@@ -771,12 +783,60 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Ignore foes</string>
+    <string>&amp;Ignore foes</string>
    </property>
   </action>
   <action name="actionShowClientConfigFile">
    <property name="text">
-    <string>Show client config file</string>
+    <string>Show &amp;client config file</string>
+   </property>
+  </action>
+  <action name="actionHideChatterNick">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Nick</string>
+   </property>
+  </action>
+  <action name="actionHideChatterMap">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Map</string>
+   </property>
+  </action>
+  <action name="actionHideChatterRank">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Rank</string>
+   </property>
+  </action>
+  <action name="actionHideChatterAvatar">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Avatar</string>
+   </property>
+  </action>
+  <action name="actionHideChatterCountry">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Country</string>
+   </property>
+  </action>
+  <action name="actionHideChatterStatus">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Status</string>
    </property>
   </action>
  </widget>
