@@ -97,13 +97,13 @@ class ChatterSortFilterModel(QSortFilterProxyModel):
     def _get_user_rank(self, item):
         pid = item.player.id if item.player is not None else None
         name = item.chatter.name
+        is_friend = self._user_relations.is_friend(pid, name)
+        if self._chat_config.friendsontop and is_friend:
+            return ChatterRank.FRIEND_ON_TOP
         if item.cc.is_mod():
             return ChatterRank.ELEVATED
-        if self._user_relations.is_friend(pid, name):
-            if self._chat_config.friendsontop:
-                return ChatterRank.FRIEND_ON_TOP
-            else:
-                return ChatterRank.FRIEND
+        if is_friend:
+            return ChatterRank.FRIEND
         if self._me.is_clannie(pid):
             return ChatterRank.CLANNIE
         if self._user_relations.is_foe(pid, name):
