@@ -22,6 +22,7 @@ class ChatterModelItem(QObject):
         self._game = None
         self.cc = cc
 
+        self.cc.updated.connect(self._updated)
         self.chatter.updated.connect(self._updated)
         self.chatter.newPlayer.connect(self._set_player)
         self._chatter_rel = self._relation.chatters[self.chatter.id_key]
