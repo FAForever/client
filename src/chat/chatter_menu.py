@@ -40,7 +40,8 @@ class ChatterMenu:
         return cls(me, power_tools, parent_widget, avatar_widget_builder,
                    alias_viewer, client_window, game_runner)
 
-    def actions(self, chatter):
+    def actions(self, cc):
+        chatter = cc.chatter
         player = chatter.player
         game = None if player is None else player.currentGame
 
@@ -53,7 +54,7 @@ class ChatterMenu:
         yield list(self.power_actions(self._power_tools.power))
         yield list(self.alias_actions())
         yield list(self.player_actions(player, game, is_me))
-        yield list(self.friend_actions(player, chatter, is_me))
+        yield list(self.friend_actions(player, chatter, cc, is_me))
 
     def me_actions(self, is_me):
         if is_me:
@@ -80,7 +81,7 @@ class ChatterMenu:
                 yield ChatterMenuItems.VIEW_IN_LEADERBOARDS
             yield ChatterMenuItems.VIEW_REPLAYS
 
-    def friend_actions(self, player, chatter, is_me):
+    def friend_actions(self, player, chatter, cc, is_me):
         if is_me:
             return
         id_ = -1 if player is None else player.id
@@ -91,21 +92,22 @@ class ChatterMenu:
             yield ChatterMenuItems.REMOVE_FOE
         else:
             yield ChatterMenuItems.ADD_FRIEND
-            yield ChatterMenuItems.ADD_FOE
+            if not cc.is_mod():
+                yield ChatterMenuItems.ADD_FOE
 
     def get_context_menu(self, data, point):
-        return self.menu(data.chatter)
+        return self.menu(data.cc)
 
-    def menu(self, chatter):
+    def menu(self, cc):
         menu = QMenu(self._parent_widget)
 
         def add_entry(item):
             action = QAction(item.value, menu)
-            action.triggered.connect(self.handler(chatter, item))
+            action.triggered.connect(self.handler(cc, item))
             menu.addAction(action)
 
         first = True
-        for category in self.actions(chatter):
+        for category in self.actions(cc):
             if not category:
                 continue
             if not first:
@@ -115,7 +117,8 @@ class ChatterMenu:
             first = False
         return menu
 
-    def handler(self, chatter, kind):
+    def handler(self, cc, kind):
+        chatter = cc.chatter
         player = chatter.player
         game = None if player is None else player.currentGame
         return lambda: self._handle_action(chatter, player, game, kind)
