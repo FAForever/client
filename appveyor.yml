@@ -17,7 +17,7 @@ install:
   # dump version
   - git describe --tags --always
   # install dependencies using pip
-  - "%PYTHON%\\Scripts\\pip install pyqt5==5.9.1"
+  - "%PYTHON%\\Scripts\\pip install pyqt5==5.7.1"
   - "%PYTHON%\\Scripts\\pip install https://github.com/FAForever/python-wheels/releases/download/2.0.0/pywin32-221-%PYWHEEL_INFIX%-%PYWHEEL_INFIX%m-win32.whl"
   - "%PYTHON%\\Scripts\\pip install wheel"
   - "%PYTHON%\\Scripts\\pip install pytest"
