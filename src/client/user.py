@@ -75,6 +75,8 @@ class User(QtCore.QObject):
         player = self._players.get(pid, None)
         if player is None or self._player is None:
             return False
+        if self._player.clan is None:
+            return False
         return player.clan == self._player.clan
 
     def player_clan(self):
