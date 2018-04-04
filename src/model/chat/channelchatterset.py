@@ -71,7 +71,7 @@ class ChannelChatterRelation:
     def _removed_chatter(self, chatter, _transaction):
         ccs = set(self._index.ccs_by_chatter(chatter))
         for cc in ccs:
-            self._channelchatters.del_item(cc, _transaction)
+            self._channelchatters.del_item(cc.id_key, _transaction)
 
     def _removed_channel(self, channel, _transaction):
         ccs = set(self._index.ccs_by_channel(channel))
