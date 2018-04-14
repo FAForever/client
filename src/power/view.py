@@ -41,8 +41,8 @@ class KickDialog(QObject):
 
     def set_theme(self, theme):
         formc, basec = theme.loadUiType("client/kick.ui")
-        self.form = formc
-        self.base = basec
+        self.form = formc()
+        self.base = basec()
         self.form.setupUi(self.base)
 
         self.form.cbBan.stateChanged.connect(self.banChanged)
