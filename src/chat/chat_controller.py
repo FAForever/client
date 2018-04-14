@@ -1,3 +1,5 @@
+from PyQt5.QtCore import QObject, pyqtSignal
+
 from model.chat.channel import Channel, Lines, ChannelID, ChannelType
 from model.chat.chatter import Chatter
 from model.chat.chatline import ChatLine, ChatLineType
@@ -5,9 +7,12 @@ from model.chat.channelchatter import ChannelChatter
 from enum import Enum
 
 
-class ChatController:
+class ChatController(QObject):
+    join_requested = pyqtSignal(object)
+
     def __init__(self, connection, model, user_relations, chat_config,
                  line_metadata_builder):
+        QObject.__init__(self)
         self._connection = connection
         self._model = model
         self._user_relations = user_relations
@@ -236,6 +241,7 @@ class ChatController:
                 cid.name == self._connection.nickname):
             return
 
+        self.join_requested.emit(cid)
         if cid.type == ChannelType.PUBLIC:
             self._connection.join(cid.name)
         else:
@@ -243,6 +249,9 @@ class ChatController:
 
     def join_public_channel(self, name):
         self.join_channel(ChannelID(ChannelType.PUBLIC, name))
+
+    def join_private_channel(self, name):
+        self.join_channel(ChannelID(ChannelType.PRIVATE, name))
 
     def _user_chat_line(self, msg, type_=ChatLineType.MESSAGE):
         return ChatLine(self._connection.nickname, msg, type_)

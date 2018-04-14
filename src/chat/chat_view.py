@@ -2,7 +2,7 @@ from PyQt5.QtCore import QTimer
 
 from chat.chat_widget import ChatWidget
 from chat.channel_view import ChannelView
-from model.chat.channel import ChannelID, ChannelType
+from model.chat.channel import ChannelType
 
 
 class ChatView:
@@ -11,6 +11,7 @@ class ChatView:
         self._target_viewed_channel = None
         self._model = model
         self._controller = controller
+        self._controller.join_requested.connect(self._at_join_requested)
         self.widget = widget
         self._channel_view_builder = channel_view_builder
         self._channel_tab_builder = channel_tab_builder
@@ -42,7 +43,6 @@ class ChatView:
             return
         tab = self._channel_tab_builder(channel.id_key, self.widget)
         view = self._channel_view_builder(channel, tab)
-        view.privmsg_requested.connect(self._request_privmsg)
         self._channels[channel.id_key] = view
         self.widget.add_channel(view.widget, channel.id_key)
         self._try_to_join_target_channel()
@@ -50,8 +50,6 @@ class ChatView:
     def _remove_channel(self, channel):
         if channel.id_key not in self._channels:
             return
-        view = self._channels[channel.id_key]
-        view.privmsg_requested.disconnect(self._request_privmsg)
         self.widget.remove_channel(channel.id_key)
         del self._channels[channel.id_key]
 
@@ -64,10 +62,9 @@ class ChatView:
     def _at_tab_changed(self, cid):
         self._channels[cid].on_switched_to()
 
-    def _request_privmsg(self, name):
-        cid = ChannelID(ChannelType.PRIVATE, name)
-        self._controller.join_channel(cid)
-        self.target_viewed_channel = cid
+    def _at_join_requested(self, cid):
+        if cid.type == ChannelType.PRIVATE:
+            self.target_viewed_channel = cid
 
     @property
     def target_viewed_channel(self):

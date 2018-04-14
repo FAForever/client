@@ -15,12 +15,9 @@ from util import irc_escape
 from downloadManager import DownloadRequest
 
 
-class ChannelView(QObject):
-    privmsg_requested = pyqtSignal(str)
-
+class ChannelView:
     def __init__(self, channel, controller, widget, channel_tab,
                  chatter_list_view, lines_view):
-        QObject.__init__(self)
         self._channel = channel
         self._controller = controller
         self._chatter_list_view = chatter_list_view
@@ -29,8 +26,6 @@ class ChannelView(QObject):
         self._channel_tab = channel_tab
 
         self.widget.line_typed.connect(self._at_line_typed)
-        self._chatter_list_view.double_clicked.connect(
-            self._at_chatter_double_clicked)
         if self._channel.id_key.type == ChannelType.PRIVATE:
             self.widget.show_chatter_list(False)
 
@@ -47,7 +42,8 @@ class ChannelView(QObject):
         chat_css_template = ChatLineCssTemplate.build(**kwargs)
         widget = ChannelWidget.build(channel, chat_css_template, **kwargs)
         lines_view = ChatAreaView.build(channel, widget, channel_tab, **kwargs)
-        chatter_list_view = ChattersView.build(channel, widget, **kwargs)
+        chatter_list_view = ChattersView.build(channel, widget, controller,
+                                               **kwargs)
         return cls(channel, controller, widget, channel_tab, chatter_list_view,
                    lines_view)
 
@@ -59,9 +55,6 @@ class ChannelView(QObject):
 
     def _at_line_typed(self, line):
         self._controller.send_message(self._channel.id_key, line)
-
-    def _at_chatter_double_clicked(self, data):
-        self.privmsg_requested.emit(data.chatter.name)
 
     def on_switched_to(self):
         self._channel_tab.stop_blinking()
@@ -330,11 +323,12 @@ class ChattersViewParameters(QObject):
 
 
 class ChattersView:
-    def __init__(self, widget, chatter_layout, delegate, model, event_filter,
-                 view_parameters):
+    def __init__(self, widget, chatter_layout, delegate, model, controller,
+                 event_filter, view_parameters):
         self.chatter_layout = chatter_layout
         self.delegate = delegate
         self.model = model
+        self._controller = controller
         self.event_filter = event_filter
         self._view_parameters = view_parameters
         self.widget = widget
@@ -344,6 +338,8 @@ class ChattersView:
         widget.set_chatter_event_filter(self.event_filter)
         widget.chatter_list_resized.connect(self._at_chatter_list_resized)
         view_parameters.updated.connect(self._at_view_parameters_updated)
+        self.event_filter.double_clicked.connect(
+            self._at_chatter_double_clicked)
 
     def _at_chatter_list_resized(self, size):
         self.delegate.update_width(size)
@@ -351,8 +347,11 @@ class ChattersView:
     def _at_view_parameters_updated(self):
         self.model.invalidate_items()
 
+    def _at_chatter_double_clicked(self, data):
+        self._controller.join_private_channel(data.chatter.name)
+
     @classmethod
-    def build(cls, channel, widget, user_relations, **kwargs):
+    def build(cls, channel, widget, controller, user_relations, **kwargs):
         model = ChatterModel.build(
             channel, relation_trackers=user_relations.trackers, **kwargs)
         sort_filter_model = ChatterSortFilterModel.build(
@@ -366,8 +365,4 @@ class ChattersView:
         view_parameters = ChattersViewParameters.build(**kwargs)
 
         return cls(widget, chatter_layout, delegate, sort_filter_model,
-                   event_filter, view_parameters)
-
-    @property
-    def double_clicked(self):
-        return self.event_filter.double_clicked
+                   controller, event_filter, view_parameters)
