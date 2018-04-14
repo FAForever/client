@@ -23,5 +23,5 @@ class SelectPlayerDialog:
 
 class PlayerCompleter(QCompleter):
     def __init__(self, playerset, parent_widget):
-        online_players = [p.login for p in self._playerset.values()]
+        online_players = [p.login for p in playerset.values()]
         QCompleter.__init__(self, online_players, parent_widget)
