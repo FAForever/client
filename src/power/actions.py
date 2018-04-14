@@ -44,7 +44,7 @@ class PowerActions:
         logger.info('Closing lobby for {}'.format(player.login))
         self._lobby_connection.send({
             "command": "admin",
-            "action": "closeLobby",
+            "action": "closelobby",
             "user_id": player.id
         })
         return True
@@ -55,7 +55,7 @@ class PowerActions:
             return False
         message = {
             "command": "admin",
-            "action": "closeLobby",
+            "action": "closelobby",
             "ban": {
                 "reason": reason,
                 "duration": duration,
