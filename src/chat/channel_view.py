@@ -6,10 +6,12 @@ from PyQt5.QtGui import QDesktopServices
 
 from chat.channel_widget import ChannelWidget
 from chat.chatter_model import ChatterModel, ChatterEventFilter, \
-    ChatterItemDelegate, ChatterSortFilterModel, ChatterFormat, ChatterLayout
+    ChatterItemDelegate, ChatterSortFilterModel, ChatterFormat, \
+    ChatterLayout, ChatterLayoutElements
 from chat.chatter_menu import ChatterMenu
 from model.chat.channel import ChannelType
 from model.chat.chatline import ChatLineType
+from model.game import GameState
 from util.gameurl import GameUrl
 from util import irc_escape
 from downloadManager import DownloadRequest
@@ -324,12 +326,13 @@ class ChattersViewParameters(QObject):
 
 class ChattersView:
     def __init__(self, widget, chatter_layout, delegate, model, controller,
-                 event_filter, view_parameters):
+                 event_filter, double_click_handler, view_parameters):
         self.chatter_layout = chatter_layout
         self.delegate = delegate
         self.model = model
         self._controller = controller
         self.event_filter = event_filter
+        self._double_click_handler = double_click_handler
         self._view_parameters = view_parameters
         self.widget = widget
 
@@ -339,16 +342,13 @@ class ChattersView:
         widget.chatter_list_resized.connect(self._at_chatter_list_resized)
         view_parameters.updated.connect(self._at_view_parameters_updated)
         self.event_filter.double_clicked.connect(
-            self._at_chatter_double_clicked)
+            self._double_click_handler.handle)
 
     def _at_chatter_list_resized(self, size):
         self.delegate.update_width(size)
 
     def _at_view_parameters_updated(self):
         self.model.invalidate_items()
-
-    def _at_chatter_double_clicked(self, data):
-        self._controller.join_private_channel(data.chatter.name)
 
     @classmethod
     def build(cls, channel, widget, controller, user_relations, **kwargs):
@@ -362,7 +362,36 @@ class ChattersView:
         delegate = ChatterItemDelegate.build(chatter_layout, **kwargs)
         event_filter = ChatterEventFilter.build(chatter_layout, delegate,
                                                 chatter_menu, **kwargs)
+        double_click_handler = ChatterDoubleClickHandler.build(controller,
+                                                               **kwargs)
         view_parameters = ChattersViewParameters.build(**kwargs)
 
         return cls(widget, chatter_layout, delegate, sort_filter_model,
-                   controller, event_filter, view_parameters)
+                   controller, event_filter, double_click_handler,
+                   view_parameters)
+
+
+class ChatterDoubleClickHandler:
+    def __init__(self, controller, game_runner):
+        self._controller = controller
+        self._game_runner = game_runner
+
+    @classmethod
+    def build(cls, controller, game_runner, **kwargs):
+        return cls(controller, game_runner)
+
+    def handle(self, data, elem):
+        if elem == ChatterLayoutElements.STATUS:
+            self._game_action(data)
+        else:
+            self._privmsg(data)
+
+    def _privmsg(self, data):
+        self._controller.join_private_channel(data.chatter.name)
+
+    def _game_action(self, data):
+        game = data.game
+        player = data.player
+        if game is None or player is None:
+            return
+        self._game_runner.run_game_with_url(game, player.id)
