@@ -1,6 +1,7 @@
 from PyQt5.QtCore import QObject, pyqtSignal, QUrl, Qt
 from PyQt5.QtGui import QTextDocument, QTextCursor
 import re
+from util.qt import monkeypatch_method
 
 import logging
 logger = logging.getLogger(__name__)
@@ -62,7 +63,17 @@ class ChannelWidget(QObject):
         self.chat_edit.set_channel(self.channel)
         self.nick_filter.textChanged.connect(self._set_chatter_filter)
         self.chat_area.anchorClicked.connect(self._url_clicked)
+        self._override_widget_methods()
         self._load_css()
+
+    def _override_widget_methods(self):
+
+        def on_key_release(obj, old_fn, keyevent):
+            if keyevent.key() == 67:    # Ctrl-C
+                self.chat_area.copy()
+            else:
+                old_fn(keyevent)
+        monkeypatch_method(self.base, "keyReleaseEvent", on_key_release)
 
     def _chatter_list_resized(self, size):
         self.chatter_list_resized.emit(size)
