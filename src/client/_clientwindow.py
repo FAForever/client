@@ -1295,12 +1295,16 @@ class ClientWindow(FormClass, BaseClass):
                 self.modMenu = self.menu.addMenu("Administration")
 
             actionLobbyKick = QtWidgets.QAction("Close player's FAF Client...", self.modMenu)
-            actionLobbyKick.triggered.connect(self.power_tools.view.kick_dialog)
+            actionLobbyKick.triggered.connect(self._on_lobby_kick_triggered)
             self.modMenu.addAction(actionLobbyKick)
 
             actionCloseFA = QtWidgets.QAction("Close Player's Game...", self.modMenu)
             actionCloseFA.triggered.connect(self.power_tools.view.close_game_dialog.show)
             self.modMenu.addAction(actionCloseFA)
+
+    # Needed so that we ignore the bool from the triggered() signal
+    def _on_lobby_kick_triggered(self):
+        self.power_tools.view.kick_dialog()
 
     def joinChannel(self, username, channel):
         """ Join users to a channel """
