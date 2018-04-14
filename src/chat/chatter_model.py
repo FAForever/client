@@ -304,8 +304,7 @@ class ChatterItemDelegate(QtWidgets.QStyledItemDelegate):
         self._formatter = formatter
 
     @classmethod
-    def build(cls, **kwargs):
-        layout = ChatterLayout.build(**kwargs)
+    def build(cls, layout, **kwargs):
         formatter = ChatterItemFormatter.build(**kwargs)
         return cls(layout, formatter)
 
@@ -400,11 +399,10 @@ class ChatterItemDelegate(QtWidgets.QStyledItemDelegate):
     def sizeHint(self, option, index):
         return self.layout.size
 
-    def get_tooltip(self, data, pos):
-        for elem in ChatterLayoutElements:
-            if self.layout.sizes[elem].contains(pos):
-                return self._tooltip(data, elem)
-        return None
+    def get_tooltip(self, data, elem):
+        if elem is None:
+            return None
+        return self._tooltip(data, elem)
 
     def _tooltip(self, data, item):
         if item == ChatterLayoutElements.RANK:
@@ -460,6 +458,12 @@ class ChatterLayout(QObject):
         self._size = size
         self._update_layout()
 
+    def element_at_point(self, point):
+        for elem in ChatterLayoutElements:
+            if self.sizes[elem].contains(point):
+                return elem
+        return None
+
     def _update_layout(self):
         self._base.resize(self._size)
         self._force_layout_recalculation()
@@ -482,14 +486,15 @@ class ChatterLayout(QObject):
 class ChatterEventFilter(QObject):
     double_clicked = pyqtSignal(object, object)
 
-    def __init__(self, tooltip_handler, menu_handler):
+    def __init__(self, chatter_layout, tooltip_handler, menu_handler):
         QObject.__init__(self)
+        self._chatter_layout = chatter_layout
         self._tooltip_handler = tooltip_handler
         self._menu_handler = menu_handler
 
     @classmethod
-    def build(cls, tooltip_handler, menu_handler, **kwargs):
-        return cls(tooltip_handler, menu_handler)
+    def build(cls, chatter_layout, tooltip_handler, menu_handler, **kwargs):
+        return cls(chatter_layout, tooltip_handler, menu_handler)
 
     def eventFilter(self, obj, event):
         if event.type() == QtCore.QEvent.ToolTip:
@@ -502,20 +507,21 @@ class ChatterEventFilter(QObject):
                 return self._handle_double_click(obj, event)
         return super().eventFilter(obj, event)
 
-    def _get_data_and_point(self, widget, event):
+    def _get_data_and_elem(self, widget, event):
         view = widget.parent()
         idx = view.indexAt(event.pos())
         if not idx.isValid():
             return None, None
         item_rect = view.visualRect(idx)
         point = event.pos() - item_rect.topLeft()
-        return idx.data(), point
+        elem = self._chatter_layout.element_at_point(point)
+        return idx.data(), elem
 
     def _handle_tooltip(self, widget, event):
-        data, point = self._get_data_and_point(widget, event)
+        data, elem = self._get_data_and_elem(widget, event)
         if data is None:
             return False
-        tooltip_text = self._tooltip_handler.get_tooltip(data, point)
+        tooltip_text = self._tooltip_handler.get_tooltip(data, elem)
         if tooltip_text is None:
             return False
 
@@ -523,17 +529,17 @@ class ChatterEventFilter(QObject):
         return True
 
     def _handle_context_menu(self, widget, event):
-        data, point = self._get_data_and_point(widget, event)
+        data, elem = self._get_data_and_elem(widget, event)
         if data is None:
             return False
 
-        menu = self._menu_handler.get_context_menu(data, point)
+        menu = self._menu_handler.get_context_menu(data, elem)
         menu.popup(QtGui.QCursor.pos())
         return True
 
     def _handle_double_click(self, widget, event):
-        data, point = self._get_data_and_point(widget, event)
+        data, elem = self._get_data_and_elem(widget, event)
         if data is None:
             return False
-        self.double_clicked.emit(data, point)
+        self.double_clicked.emit(data, elem)
         return True

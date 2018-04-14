@@ -6,7 +6,7 @@ from PyQt5.QtGui import QDesktopServices
 
 from chat.channel_widget import ChannelWidget
 from chat.chatter_model import ChatterModel, ChatterEventFilter, \
-    ChatterItemDelegate, ChatterSortFilterModel, ChatterFormat
+    ChatterItemDelegate, ChatterSortFilterModel, ChatterFormat, ChatterLayout
 from chat.chatter_menu import ChatterMenu
 from model.chat.channel import ChannelType
 from model.chat.chatline import ChatLineType
@@ -330,7 +330,9 @@ class ChattersViewParameters(QObject):
 
 
 class ChattersView:
-    def __init__(self, widget, delegate, model, event_filter, view_parameters):
+    def __init__(self, widget, chatter_layout, delegate, model, event_filter,
+                 view_parameters):
+        self.chatter_layout = chatter_layout
         self.delegate = delegate
         self.model = model
         self.event_filter = event_filter
@@ -356,14 +358,15 @@ class ChattersView:
         sort_filter_model = ChatterSortFilterModel.build(
             model, user_relations=user_relations.model, **kwargs)
 
+        chatter_layout = ChatterLayout.build(**kwargs)
         chatter_menu = ChatterMenu.build(**kwargs)
-        delegate = ChatterItemDelegate.build(**kwargs)
-        event_filter = ChatterEventFilter.build(delegate, chatter_menu,
-                                                **kwargs)
+        delegate = ChatterItemDelegate.build(chatter_layout, **kwargs)
+        event_filter = ChatterEventFilter.build(chatter_layout, delegate,
+                                                chatter_menu, **kwargs)
         view_parameters = ChattersViewParameters.build(**kwargs)
 
-        return cls(widget, delegate, sort_filter_model, event_filter,
-                   view_parameters)
+        return cls(widget, chatter_layout, delegate, sort_filter_model,
+                   event_filter, view_parameters)
 
     @property
     def double_clicked(self):
