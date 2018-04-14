@@ -4,6 +4,13 @@
 0.17.3
 =====
  * Fix all players being displayed as clannies if user is not in a clan (#1011)
+ * Fix player count in chat ignoring leaving players
+ * Restore copying text in chat area with Ctrl-C
+ * Restore joining game / replay when doubleclicking player status
+ * Fix several bugs in mod tools
+ * Add a "copy username" entry to chatter menu
+ * Allow to hide parts of chatter list interface:
+   - Options -> chat -> hide chatter controls the hiding of UI items.
 
  Contributors:
  - Wesmania
