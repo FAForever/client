@@ -1,5 +1,5 @@
 from enum import Enum
-from PyQt5.QtWidgets import QMenu, QAction
+from PyQt5.QtWidgets import QMenu, QAction, QApplication
 
 from model.game import GameState
 
@@ -21,6 +21,7 @@ class ChatterMenuItems(Enum):
     ADD_FOE = "Add foe"
     REMOVE_FRIEND = "Remove friend"
     REMOVE_FOE = "Remove foe"
+    COPY_USERNAME = "Copy username"
 
 
 class ChatterMenu:
@@ -52,9 +53,13 @@ class ChatterMenu:
 
         yield list(self.me_actions(is_me))
         yield list(self.power_actions(self._power_tools.power))
-        yield list(self.alias_actions())
+        yield list(self.chatter_actions())
         yield list(self.player_actions(player, game, is_me))
         yield list(self.friend_actions(player, chatter, cc, is_me))
+
+    def chatter_actions(self):
+        yield ChatterMenuItems.COPY_USERNAME
+        yield ChatterMenuItems.VIEW_ALIASES
 
     def me_actions(self, is_me):
         if is_me:
@@ -65,9 +70,6 @@ class ChatterMenu:
             yield ChatterMenuItems.SEND_ORCS
             yield ChatterMenuItems.CLOSE_GAME
             yield ChatterMenuItems.KICK_PLAYER
-
-    def alias_actions(self):
-        yield ChatterMenuItems.VIEW_ALIASES
 
     def player_actions(self, player, game, is_me):
         if game is not None and not is_me:
@@ -125,7 +127,9 @@ class ChatterMenu:
 
     def _handle_action(self, chatter, player, game, kind):
         Items = ChatterMenuItems
-        if kind == Items.SEND_ORCS:
+        if kind == Items.COPY_USERNAME:
+            self._copy_username(chatter)
+        elif kind == Items.SEND_ORCS:
             self._power_tools.actions.send_the_orcs(chatter.name)
         elif kind == Items.CLOSE_GAME:
             self._power_tools.view.close_game_dialog.show(chatter.name)
@@ -144,6 +148,9 @@ class ChatterMenu:
             self._client_window.view_in_leaderboards(player)
         elif kind in [Items.JOIN_GAME, Items.VIEW_LIVEREPLAY]:
             self._game_runner.run_game_with_url(game, player.id)
+
+    def _copy_username(self, chatter):
+        QApplication.clipboard().setText(chatter.name)
 
     def _handle_friends(self, chatter, player, kind):
         ctl = self._me.relations.controller
