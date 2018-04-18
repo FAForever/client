@@ -175,26 +175,28 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
         self._log_event(e)
 
     def _send_nickserv_creds(self, fmt):
-        self._log_client_message(fmt.format(self._nick,
-                                            '[password_hash]'))
+        self._log_client_message(fmt.format(nick=self._nick,
+                                            password='[password_hash]'))
 
-        msg = fmt.format(self._nick, util.md5text(self._password))
+        msg = fmt.format(nick=self._nick,
+                         password=util.md5text(self._password))
         self.connection.privmsg('NickServ', msg)
 
     def _nickserv_identify(self):
         if self._identified:
             return
-        self._send_nickserv_creds('identify {} {}')
+        self._send_nickserv_creds('identify {nick} {password}')
 
     def _nickserv_register(self):
         if self._nickserv_registered:
             return
-        self._send_nickserv_creds('register {} {}@users.faforever.com')
+        self._send_nickserv_creds(
+            'register {password} {nick}@users.faforever.com')
         self._nickserv_registered = True
 
     def on_identified(self):
         if self.connection.get_nickname() != self._nick:
-            self._send_nickserv_creds('recover {} {}')
+            self._send_nickserv_creds('recover {nick} {password}')
         self.connected.emit()
 
     def on_version(self, c, e):
