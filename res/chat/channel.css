@@ -58,16 +58,16 @@ span {
 	text-align: right;
 }
 
-.friend .col_sender, .friend .col_text {
-	color: "{{ colors['friend'] }}";
+.clannie .col_sender, .clannie .col_text {
+	color: "{{ colors['clan'] }}";
 }
 
 .foe .col_sender, .foe .col_text {
 	color: "{{ colors['foe'] }}";
 }
 
-.clannie .col_sender, .clannie .col_text {
-	color: "{{ colors['clan'] }}";
+.friend .col_sender, .friend .col_text {
+	color: "{{ colors['friend'] }}";
 }
 
 .me .col_sender, .me .col_text {
