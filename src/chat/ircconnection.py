@@ -363,6 +363,8 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
                 self.on_identified()
         elif notice.find("isn't registered") >= 0:
             self._nickserv_register()
+        elif notice.find("Nickname {} registered.".format(self._nick)):
+            self._nickserv_identify()
         elif notice.find("RELEASE") >= 0:
             self.connection.privmsg('release {} {}')
         elif notice.find("hold on") >= 0:
