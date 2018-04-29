@@ -176,16 +176,18 @@ class ChatLineCssTemplate(QObject):
     def __init__(self, theme, player_colors):
         QObject.__init__(self)
         self._player_colors = player_colors
+        self._theme = theme
         self._player_colors.changed.connect(self._reload_css)
-        self._load_template(theme)
+        self._theme.stylesheets_reloaded.connect(self._load_template)
+        self._load_template()
 
     @classmethod
     def build(cls, theme, player_colors, **kwargs):
         return cls(theme, player_colors)
 
-    def _load_template(self, theme):
+    def _load_template(self):
         self._env = jinja2.Environment()
-        template_str = theme.readfile("chat/channel.css")
+        template_str = self._theme.readfile("chat/channel.css")
         self._template = self._env.from_string(template_str)
         self._reload_css()
 
