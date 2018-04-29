@@ -194,10 +194,12 @@ class ChatterItemFormatter:
         return "unknown"
 
     def chatter_rank(self, data):
-        try:
-            return data.player.league["league"]
-        except (TypeError, AttributeError, KeyError):
+        if data.player is None:
             return "civilian"
+        league = data.player.league
+        if league is None or "league" not in league:
+            return "newplayer"
+        return league["league"]
 
     def chatter_avatar_icon(self, data):
         avatar_url = data.avatar_url()
