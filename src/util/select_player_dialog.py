@@ -12,6 +12,7 @@ class SelectPlayerDialog:
         dialog.setWindowTitle(title)
         dialog.setLabelText(label)
         dialog.textValueSelected.connect(self._at_value)
+        dialog.setTextValue(name)
         dialog.show()
 
         completer = PlayerCompleter(self._playerset, dialog)
