@@ -202,27 +202,4 @@ def test_theme_call_order(mocker):
     test_run([unthemed], False) # Use unthemed
 
 
-def test_stylesheets(mocker):
-    def_mock = mocker.Mock()
-    def_mock.configure_mock(version = lambda: Version("1.0.0"), name = "default", themedir = "")
-    theme_mock = mocker.Mock()
-    theme_mock.configure_mock(version = lambda: Version("1.0.0"), name = "theme", themedir = "")
-
-    setting_mock = mocker.Mock()
-    setting_mock.configure_mock(get = lambda x, y = None: None)
-
-    style_mock = mocker.Mock()
-    sheet_mock = mocker.Mock()
-    style_mock.attach_mock(sheet_mock, "setStyleSheet")
-
-    ts = ThemeSet([theme_mock], def_mock, setting_mock, "1.0.0")
-
-    ts.setStyleSheet(style_mock, "filename")
-    assert sheet_mock.called
-    sheet_mock.reset_mock()
-
-    ts.reloadStyleSheets()
-    assert sheet_mock.called
-
-
 # TODO - add more setTheme tests once we remove using qt dialogs from themeset

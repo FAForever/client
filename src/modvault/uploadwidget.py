@@ -21,7 +21,8 @@ class UploadModWidget(FormClass, BaseClass):
         self.modinfo = modinfo
         self.modDir = modDir
 
-        self.setStyleSheet(self.parent.client.styleSheet())
+        util.THEME.stylesheets_reloaded.connect(self.load_stylesheet)
+        self.load_stylesheet()
 
         self.setWindowTitle("Uploading Mod")
 
@@ -39,6 +40,9 @@ class UploadModWidget(FormClass, BaseClass):
         else:
             self.Thumbnail.setPixmap(util.THEME.pixmap("games/unknown_map.png"))
         self.UploadButton.pressed.connect(self.upload)
+
+    def load_stylesheet(self):
+        self.setStyleSheet(util.THEME.readstylesheet("client/client.css"))
 
     @QtCore.pyqtSlot()
     def upload(self):

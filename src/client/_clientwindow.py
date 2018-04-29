@@ -326,7 +326,8 @@ class ClientWindow(FormClass, BaseClass):
 
         # create user interface (main window) and load theme
         self.setupUi(self)
-        util.THEME.setStyleSheet(self, "client/client.css")
+        util.THEME.stylesheets_reloaded.connect(self.load_stylesheet)
+        self.load_stylesheet()
 
         self.setWindowTitle("FA Forever " + util.VERSION_STRING)
 
@@ -433,6 +434,9 @@ class ClientWindow(FormClass, BaseClass):
         self._alias_viewer = AliasWindow.build(parent_widget=self)
         self._alias_search_window = AliasSearchWindow(self, self._alias_viewer)
         self._game_runner = GameRunner(self.gameset, self)
+
+    def load_stylesheet(self):
+        self.setStyleSheet(util.THEME.readstylesheet("client/client.css"))
 
     @property
     def state(self):

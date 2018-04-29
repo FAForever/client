@@ -18,7 +18,8 @@ class UIModWidget(FormClass, BaseClass):
         self.setupUi(self)
         self.parent = parent
 
-        self.setStyleSheet(self.parent.client.styleSheet())
+        util.THEME.stylesheets_reloaded.connect(self.load_stylesheet)
+        self.load_stylesheet()
 
         self.setWindowTitle("Ui Mod Manager")
 
@@ -39,6 +40,9 @@ class UIModWidget(FormClass, BaseClass):
 
         if len(self.uimods) != 0:
             self.hoverOver(self.modList.item(0))
+
+    def load_stylesheet(self):
+        self.setStyleSheet(util.THEME.readstylesheet("client/client.css"))
 
     @QtCore.pyqtSlot()
     def doneClicked(self):

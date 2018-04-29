@@ -107,22 +107,22 @@ class Theme():
         return self._themepath(filename)
 
 
-class ThemeSet:
+class ThemeSet(QtCore.QObject):
     """
     Represent a collection of themes to choose from, with a default theme and
     an unthemed directory.
     """
+    stylesheets_reloaded = QtCore.pyqtSignal()
+
     def __init__(self, themeset, default_theme, settings,
-                 client_version, unthemed = None):
+                 client_version, unthemed=None):
+        QtCore.QObject.__init__(self)
         self._default_theme = default_theme
         self._themeset = themeset
         self._theme = default_theme
         self._unthemed = Theme(None, '') if unthemed is None else unthemed
         self._settings = settings
         self._client_version = client_version
-
-        # For refreshing stylesheets
-        self._stylesheets = {}
 
     @property
     def theme(self):
@@ -317,13 +317,8 @@ class ThemeSet:
     def sound(self, filename, themed=True):
         QtMultimedia.QSound.play(self._sound(filename, themed))
 
-    def setStyleSheet(self, obj, filename):
-        self._stylesheets[obj] = filename
-        obj.setStyleSheet(self.readstylesheet(filename))
-
     def reloadStyleSheets(self):
-        for obj, filename in self._stylesheets.items():
-            obj.setStyleSheet(self.readstylesheet(filename))
+        self.stylesheets_reloaded.emit()
 
     def icon(self, filename, themed=True, pix=False):
         """

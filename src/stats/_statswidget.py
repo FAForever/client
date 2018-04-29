@@ -54,10 +54,14 @@ class StatsWidget(BaseClass, FormClass, BusyWidget):
         self.FORMATTER_LADDER        = str(util.THEME.readfile("stats/formatters/ladder.qthtml"))
         self.FORMATTER_LADDER_HEADER = str(util.THEME.readfile("stats/formatters/ladder_header.qthtml"))
 
-        util.THEME.setStyleSheet(self.leagues, "stats/formatters/style.css")
+        util.THEME.stylesheets_reloaded.connect(self.load_stylesheet)
+        self.load_stylesheet()
     
         # setup other tabs
         self.mapstat = mapstat.LadderMapStat(self.client, self)
+
+    def load_stylesheet(self):
+        self.setStyleSheet(util.THEME.readstylesheet("stats/formatters/style.css"))
 
     @QtCore.pyqtSlot(int)
     def leagueUpdate(self, index):

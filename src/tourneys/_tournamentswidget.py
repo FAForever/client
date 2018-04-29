@@ -10,33 +10,36 @@ FormClass, BaseClass = util.THEME.loadUiType("tournaments/tournaments.ui")
 
 class TournamentsWidget(FormClass, BaseClass):
     """ list and manage the main tournament lister """
-    
+
     def __init__(self, client, *args, **kwargs):
-        BaseClass.__init__(self, *args, **kwargs)        
-        
+        BaseClass.__init__(self, *args, **kwargs)
+
         self.setupUi(self)
 
         self.client = client
-        
+
         # tournament server
         self.tourneyServer = secondaryServer.SecondaryServer("Tournament", 11001, self)
         self.tourneyServer.setInvisible()
 
         # Dictionary containing our actual tournaments.
         self.tourneys = {}
-  
+
         self.tourneyList.setItemDelegate(TourneyItemDelegate(self))
-        
+
         self.tourneyList.itemDoubleClicked.connect(self.tourneyDoubleClicked)
-        
+
         self.tourneysTab = {}
 
-        # Special stylesheet
-        util.THEME.setStyleSheet(self, "tournaments/formatters/style.css")
+        util.THEME.stylesheets_reloaded.connect(self.load_stylesheet)
+        self.load_stylesheet()
 
         self.updateTimer = QtCore.QTimer(self)
         self.updateTimer.timeout.connect(self.updateTournaments)
         self.updateTimer.start(600000)
+
+    def load_stylesheet(self):
+        self.setStyleSheet(util.THEME.readstylesheet("tournaments/formatters/style.css"))
 
     def showEvent(self, event):
         self.updateTournaments()

@@ -97,12 +97,16 @@ class HostGameWidget(FormClass, BaseClass):
         self.game_preview_logic = gameview_builder(preview_model,
                                                    self.gamePreview)
 
-        self.setStyleSheet(self.client.styleSheet())
+        util.THEME.stylesheets_reloaded.connect(self.load_stylesheet)
+        self.load_stylesheet()
         self.mapList.currentIndexChanged.connect(self.map_changed)
         self.hostButton.released.connect(self.hosting)
         self.titleEdit.textChanged.connect(self.update_text)
         self.passCheck.toggled.connect(self.update_pass_check)
         self.radioFriends.toggled.connect(self.update_visibility)
+
+    def load_stylesheet(self):
+        self.setStyleSheet(util.THEME.readstylesheet("client/client.css"))
 
     def setup(self, title, game):
         self.game = game

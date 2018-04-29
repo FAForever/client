@@ -16,7 +16,8 @@ class ModWidget(FormClass, BaseClass):
         self.setupUi(self)
         self.parent = parent
 
-        self.setStyleSheet(self.parent.client.styleSheet())
+        util.THEME.stylesheets_reloaded.connect(self.load_stylesheet)
+        self.load_stylesheet()
 
         self.setWindowTitle(mod.name)
 
@@ -57,6 +58,9 @@ class ModWidget(FormClass, BaseClass):
         self.likeButton.setEnabled(False)
         self.LineComment.setEnabled(False)
         self.LineBugReport.setEnabled(False)
+
+    def load_stylesheet(self):
+        self.setStyleSheet(util.THEME.readstylesheet("client/client.css"))
 
     @QtCore.pyqtSlot()
     def download(self):

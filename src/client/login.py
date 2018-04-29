@@ -11,17 +11,21 @@ class LoginWidget(FormClass, BaseClass):
     request_quit = QtCore.pyqtSignal()
     remember = QtCore.pyqtSignal(bool)
 
-    def __init__(self, startLogin = None, remember = False):
+    def __init__(self, startLogin=None, remember=False):
         # TODO - init with the parent to inherit the stylesheet
         # once we make some of our own css to go with it
         BaseClass.__init__(self)
         self.setupUi(self)
-        util.THEME.setStyleSheet(self, "client/login.css")
+        util.THEME.stylesheets_reloaded.connect(self.load_stylesheet)
+        self.load_stylesheet()
         self.splash.setPixmap(util.THEME.pixmap("client/login_watermark.png"))
 
         if startLogin:
             self.loginField.setText(startLogin)
         self.rememberCheckbox.setChecked(remember)
+
+    def load_stylesheet(self, stylesheet):
+        self.setStyleSheet(util.THEME.readstylesheet("client/login.css"))
 
     @QtCore.pyqtSlot()
     def on_accepted(self):

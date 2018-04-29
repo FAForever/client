@@ -57,7 +57,8 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
         self.FORMATTER_LADDER        = str(util.THEME.readfile("coop/formatters/ladder.qthtml"))
         self.FORMATTER_LADDER_HEADER = str(util.THEME.readfile("coop/formatters/ladder_header.qthtml"))
 
-        util.THEME.setStyleSheet(self.leaderBoard, "coop/formatters/style.css")
+        util.THEME.stylesheets_reloaded.connect(self.load_stylesheet)
+        self.load_stylesheet()
 
         self.leaderBoardTextGeneral.anchorClicked.connect(self.openUrl)
         self.leaderBoardTextOne.anchorClicked.connect(self.openUrl)
@@ -69,6 +70,9 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
         self.replayDownload.finished.connect(self.finishRequest)
 
         self.selectedItem = None
+
+    def load_stylesheet(self):
+        self.setStyleSheet(util.THEME.readstylesheet("coop/formatters/style.css"))
 
     def _addExistingGames(self, gameset):
         for game in gameset.values():
