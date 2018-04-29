@@ -97,3 +97,7 @@ span {
 a {
 	color: cornflowerblue;
 }
+
+a.game_link {
+	color "{{ colors['url'] }}"
+}

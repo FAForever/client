@@ -54,13 +54,11 @@ class GameAnnouncer(QObject):
         if game.host_player is None:
             return
         url = game.url(game.host_player.id).to_url().toString()
-        url_color = self._colors.get_color("url")
         mapname = maps.getDisplayName(game.mapname)
-        fmt = 'is {} {}<a style="color:{}" href="{}">{}</a> (on {})'
+        fmt = 'is {} {}<a class=game_link href="{}">{}</a> (on {})'
         if game.featured_mod == "faf":
             modname = ""
         else:
             modname = game.featured_mod + " "
-        msg = fmt.format(activity, modname, url_color, url, game.title,
-                         mapname)
+        msg = fmt.format(activity, modname, url, game.title, mapname)
         self.announce.emit(msg, game.host)
