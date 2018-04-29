@@ -29,7 +29,7 @@ class KickDialog(QObject):
         QObject.__init__(self, parent_widget)
         self._mod_actions = mod_actions
         self._playerset = playerset
-        self.set_theme(theme)
+        self.set_theme(theme, parent_widget)
         self.form.leUsername.setText(username)
         self.base.show()
 
@@ -39,10 +39,10 @@ class KickDialog(QObject):
             return cls(username, mod_actions, playerset, theme, parent_widget)
         return make
 
-    def set_theme(self, theme):
+    def set_theme(self, theme, parent_widget):
         formc, basec = theme.loadUiType("client/kick.ui")
         self.form = formc()
-        self.base = basec()
+        self.base = basec(parent_widget)
         self.form.setupUi(self.base)
 
         self.form.cbBan.stateChanged.connect(self.banChanged)
