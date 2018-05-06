@@ -6,6 +6,7 @@ from semantic_version import Version
 import config
 import os
 from config import Settings
+from enum import Enum
 import util
 
 from client.update_settings import UpdateBranch, UpdateSettingsDialog
@@ -157,6 +158,22 @@ class UpdateDialog(FormClass, BaseClass):
         dialog.show()
 
 
+class VersionType(Enum):
+    STABLE = "stable"
+    PRERELEASE = "pre"
+    UNSTABLE = "beta"
+
+    @classmethod
+    def get(cls, version):
+        if version.minor % 2 == 1:
+            return cls.UNSTABLE
+        else:
+            if release_version.prerelease == ():
+                return cls.STABLE
+            else:
+                return PRERELEASE
+
+
 @with_logger
 class UpdateChecker(QObject):
     gh_releases_url = Settings.persisted_property('updater/gh_release_url', type=str,
@@ -207,16 +224,9 @@ class UpdateChecker(QObject):
                         if not (release_version > client_version):
                             return None
 
-                    branch = None
-                    if release_version.minor % 2 == 1:
-                        branch = 'beta'
-                    elif release_version.minor % 2 == 0:
-                        if release_version.prerelease == ():
-                            branch = 'stable'
-                        else:
-                            branch = 'pre'
+                    branch = VersionType.get(release_version)
                     return dict(
-                            branch=branch,
+                            branch=branch.value,
                             update=download_url,
                             new_version=tag)
         try:
