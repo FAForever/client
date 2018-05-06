@@ -134,8 +134,6 @@ class UpdateDialog(FormClass, BaseClass):
         self.lblInfo.setText(_format_changelog(release['new_version']))
 
     def startUpdate(self):
-        sender = self.sender()
-
         release = self.cbReleases.itemData(self.cbReleases.currentIndex())
         url = release['update']
 
@@ -162,6 +160,7 @@ class VersionType(Enum):
     STABLE = "stable"
     PRERELEASE = "pre"
     UNSTABLE = "beta"
+    MINIMUM = "server"
 
     @classmethod
     def get(cls, version):
@@ -204,48 +203,48 @@ class UpdateChecker(QObject):
         self._server_info = {}
         self._check_updates_complete()
 
-    def _parse_releases(self, release_info):
-        def _parse_release(release_dict):
-            client_version = Version(config.VERSION)
-            for asset in release_dict['assets']:
-                if '.msi' in asset['browser_download_url']:
-                    download_url = asset['browser_download_url']
-                    tag = release_dict['tag_name']
-                    release_version = Version(tag)
-                    # We never want to return the current version itself,
-                    # but if `updater_downgrade` is set, we do return
-                    # older releases.
-                    # strange comparison logic is because of semantic_version
-                    # so that build info is ignored
-                    if self.updater_downgrade:
-                        if not (release_version < client_version or client_version < release_version):
-                            return None
-                    else:
-                        if not (release_version > client_version):
-                            return None
+    def _parse_release(self, release_dict):
+        client_version = Version(config.VERSION)
+        for asset in release_dict['assets']:
+            if '.msi' in asset['browser_download_url']:
+                download_url = asset['browser_download_url']
+                tag = release_dict['tag_name']
+                release_version = Version(tag)
+                # We never want to return the current version itself,
+                # but if `updater_downgrade` is set, we do return
+                # older releases.
+                # strange comparison logic is because of semantic_version
+                # so that build info is ignored
+                if self.updater_downgrade:
+                    if not (release_version < client_version or client_version < release_version):
+                        return None
+                else:
+                    if not (release_version > client_version):
+                        return None
+                branch = VersionType.get(release_version)
+                return dict(
+                        branch=branch.value,
+                        update=download_url,
+                        new_version=tag)
 
-                    branch = VersionType.get(release_version)
-                    return dict(
-                            branch=branch.value,
-                            update=download_url,
-                            new_version=tag)
-        try:
-            releases = json.loads(release_info.decode('utf-8'))
-            if not isinstance(releases, list):
-                releases = [releases]
-            self._logger.debug('Loaded {} github releases'.format(len(releases)))
-
-            return [ release for release in [_parse_release(release) for release in releases] if release is not None]
-        except:
-            self._logger.exception("Error parsing network reply: {}".format(repr(release_info)))
-            return []
+    def _parse_releases(self, releases):
+        if not isinstance(releases, list):
+            releases = [releases]
+        for release_dict in releases:
+            release = self._parse_release(release_dict)
+            if release is not None:
+                yield release
 
     def _req_done(self):
         if self._rep.error() == QNetworkReply.NoError:
-            self._releases = self._parse_releases(bytes(self._rep.readAll()))
+            release_data = bytes(self._rep.readAll())
+            try:
+                releases = json.loads(release_data.decode('utf-8'))
+            except:
+                self._logger.exception("Error parsing network reply: {}".format(repr(release_data)))
+            self._releases = list(self._parse_releases(releases))
         else:
             self._releases = []
-
         self._check_updates_complete()
 
     def _check_updates_complete(self):
@@ -253,11 +252,11 @@ class UpdateChecker(QObject):
             releases = self._releases
             if self._server_info != {}:
                 releases.append(dict(
-                    branch='server',
+                    branch=VersionType.MINIMUM.value,
                     update=self._server_info['update'],
                     new_version=self._server_info['new_version']
                     ))
-            if UpdateSettings().should_notify(releases, force = not self.respect_notify):
+            if UpdateSettings().should_notify(releases, force=not self.respect_notify):
                 self.finished.emit(releases)
 
 
