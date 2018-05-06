@@ -8,15 +8,15 @@ from semantic_version import Version
 from config import Settings
 
 
-class UpdateBranch(Enum):
+class UpdateChannel(Enum):
     Stable = 0
     Prerelease = 1
     Unstable = 2
 
     def to_version(self):
-        d = {UpdateBranch.Stable: VersionBranch.STABLE,
-             UpdateBranch.Prerelease: VersionBranch.PRERELEASE,
-             UpdateBranch.Unstable: VersionBranch.UNSTABLE}
+        d = {UpdateChannel.Stable: VersionBranch.STABLE,
+             UpdateChannel.Prerelease: VersionBranch.PRERELEASE,
+             UpdateChannel.Unstable: VersionBranch.UNSTABLE}
         return d[self]
 
 
@@ -103,7 +103,7 @@ class Releases:
 class UpdateSettings:
     _updater_branch = Settings.persisted_property(
         'updater/branch', type=str,
-        default_value=UpdateBranch.Prerelease.name)
+        default_value=UpdateChannel.Prerelease.name)
     updater_downgrade = Settings.persisted_property(
         'updater/downgrade', type=bool, default_value=False)
     gh_releases_url = Settings.persisted_property(
@@ -121,9 +121,9 @@ class UpdateSettings:
     @property
     def updater_branch(self):
         try:
-            return UpdateBranch[self._updater_branch]
+            return UpdateChannel[self._updater_branch]
         except ValueError:
-            return UpdateBranch.Prerelease
+            return UpdateChannel.Prerelease
 
     @updater_branch.setter
     def updater_branch(self, value):

@@ -1,5 +1,5 @@
 import util
-from updater.base import UpdateBranch, VersionBranch
+from updater.base import UpdateChannel, VersionBranch
 from updater.process import ClientUpdater
 from decorators import with_logger
 from PyQt5.QtWidgets import QLayout
@@ -123,7 +123,7 @@ class UpdateSettingsDialog(FormClass, BaseClass):
         self.buttonBox.rejected.connect(lambda: self.close())
 
     def accept(self):
-        branch = UpdateBranch(self.cbChannel.currentIndex())
+        branch = UpdateChannel(self.cbChannel.currentIndex())
         self._settings.updater_branch = branch
         self._settings.updater_downgrade = self.cbDowngrade.isChecked()
         super().accept()
