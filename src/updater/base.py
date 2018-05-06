@@ -13,14 +13,14 @@ class UpdateChannel(Enum):
     Prerelease = 1
     Unstable = 2
 
-    def to_version(self):
-        d = {UpdateChannel.Stable: VersionBranch.STABLE,
-             UpdateChannel.Prerelease: VersionBranch.PRERELEASE,
-             UpdateChannel.Unstable: VersionBranch.UNSTABLE}
+    def to_reltype(self):
+        d = {UpdateChannel.Stable: ReleaseType.STABLE,
+             UpdateChannel.Prerelease: ReleaseType.PRERELEASE,
+             UpdateChannel.Unstable: ReleaseType.UNSTABLE}
         return d[self]
 
 
-class VersionBranch(Enum):
+class ReleaseType(Enum):
     STABLE = "stable"
     PRERELEASE = "pre"
     UNSTABLE = "beta"
@@ -37,10 +37,10 @@ class VersionBranch(Enum):
                 return cls.PRERELEASE
 
     def included_channels(self):
-        order = [VersionBranch.MINIMUM,
-                 VersionBranch.STABLE,
-                 VersionBranch.PRERELEASE,
-                 VersionBranch.UNSTABLE]
+        order = [ReleaseType.MINIMUM,
+                 ReleaseType.STABLE,
+                 ReleaseType.PRERELEASE,
+                 ReleaseType.UNSTABLE]
         for item in order:
             yield item
             if item == self:
@@ -57,7 +57,7 @@ class Release:
     def branch(self):
         if self._branch is not None:
             return self._branch
-        return VersionBranch.get(self.version)
+        return ReleaseType.get(self.version)
 
     def __lt__(self, other):
         return self.version < other.version
@@ -67,7 +67,7 @@ class Releases:
     def __init__(self, release_list, current_version):
         self._current_version = current_version
         self.branches = {}
-        for branch in VersionBranch:
+        for branch in ReleaseType:
             b_releases = [r for r in release_list if r.branch == branch]
             b_releases.sort(reverse=True)
             self.branches[branch] = b_releases
@@ -93,7 +93,7 @@ class Releases:
         return versions
 
     def mandatory_update(self):
-        return self.optional_update(VersionBranch.MINIMUM)
+        return self.optional_update(ReleaseType.MINIMUM)
 
     def optional_update(self, channel):
         newest = self.newest(channel)
@@ -205,7 +205,7 @@ class ServerUpdateChecker(QObject):
     def _server_update(self, msg):
         self.release = Release(Version(msg['new_version']),
                                msg['update'],
-                               VersionBranch.MINIMUM)
+                               ReleaseType.MINIMUM)
         self.done = True
         self.finished.emit()
 
@@ -278,5 +278,5 @@ class UpdateNotifier(QObject):
         elif releases.mandatory_update():
             self.update.emit(releases, True)
         elif releases.optional_update(
-                self._settings.updater_branch.to_version()):
+                self._settings.updater_branch.to_reltype()):
             self.update.emit(releases, False)

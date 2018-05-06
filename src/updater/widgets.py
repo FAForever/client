@@ -1,5 +1,5 @@
 import util
-from updater.base import UpdateChannel, VersionBranch
+from updater.base import UpdateChannel, ReleaseType
 from updater.process import ClientUpdater
 from decorators import with_logger
 from PyQt5.QtWidgets import QLayout
@@ -38,7 +38,7 @@ class UpdateDialog(FormClass, BaseClass):
         self.btnCancel.hide()
         self.btnAbort.setEnabled(True)
 
-        branch = self._settings.updater_branch.to_version()
+        branch = self._settings.updater_branch.to_reltype()
         if self._releases.mandatory_update():
             text = 'Your client version is outdated - you must update to play.'
         elif self._releases.optional_update(branch):
@@ -52,10 +52,10 @@ class UpdateDialog(FormClass, BaseClass):
         newest_version = self._releases.newest(branch)
 
         labels = {
-            VersionBranch.MINIMUM: 'Server Version',
-            VersionBranch.STABLE: 'Stable Version',
-            VersionBranch.PRERELEASE: 'Stable Prerelease',
-            VersionBranch.UNSTABLE: 'Unstable'
+            ReleaseType.MINIMUM: 'Server Version',
+            ReleaseType.STABLE: 'Stable Version',
+            ReleaseType.PRERELEASE: 'Stable Prerelease',
+            ReleaseType.UNSTABLE: 'Unstable'
         }
 
         self.cbReleases.blockSignals(True)

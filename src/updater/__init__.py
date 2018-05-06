@@ -32,7 +32,7 @@ class ClientUpdateTools(QObject):
         return cls(update_settings, checker, notifier, dialog, parent_widget)
 
     def _handle_update(self, releases, mandatory):
-        branch = self.update_settings.updater_branch.to_version()
+        branch = self.update_settings.updater_branch.to_reltype()
         versions = releases.versions(branch,
                                      self.update_settings.updater_downgrade)
         if not versions:
