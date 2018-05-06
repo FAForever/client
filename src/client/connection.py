@@ -340,41 +340,39 @@ class LobbyInfo(QtCore.QObject):
     coopLeaderBoard = QtCore.pyqtSignal(dict)
     avatarList = QtCore.pyqtSignal(list)
     social = QtCore.pyqtSignal(dict)
+    serverSession = QtCore.pyqtSignal(dict)
+    serverUpdate = QtCore.pyqtSignal(dict)
 
     def __init__(self, dispatcher, gameset, playerset):
         QtCore.QObject.__init__(self)
 
         self._dispatcher = dispatcher
         self._dispatcher["updated_achievements"] = self.handle_updated_achievements
-        self._dispatcher["stats"] = self.handle_stats
-        self._dispatcher["coop_info"] = self.handle_coop_info
-        self._dispatcher["tutorials_info"] = self.handle_tutorials_info
-        self._dispatcher["mod_info"] = self.handle_mod_info
+        self._dispatcher["stats"] = self._simple_emit(self.statsInfo)
+        self._dispatcher["coop_info"] = self._simple_emit(self.coopInfo)
+        self._dispatcher["tutorials_info"] = self._simple_emit(self.tutorialsInfo)
+        self._dispatcher["mod_info"] = self._simple_emit(self.modInfo)
         self._dispatcher["game_info"] = self.handle_game_info
         self._dispatcher["modvault_list_info"] = self.handle_modvault_list_info
-        self._dispatcher["modvault_info"] = self.handle_modvault_info
-        self._dispatcher["replay_vault"] = self.handle_replay_vault
-        self._dispatcher["coop_leaderboard"] = self.handle_coop_leaderboard
+        self._dispatcher["modvault_info"] = self._simple_emit(self.modVaultInfo)
+        self._dispatcher["replay_vault"] = self._simple_emit(self.replayVault)
+        self._dispatcher["coop_leaderboard"] = self._simple_emit(self.coopLeaderBoard)
         self._dispatcher["avatar"] = self.handle_avatar
         self._dispatcher["admin"] = self.handle_admin
-        self._dispatcher["social"] = self.handle_social
+        self._dispatcher["social"] = self._simple_emit(self.social)
+        self._dispatcher["session"] = self._simple_emit(self.serverSession)
+        self._dispatcher["update"] = self._simple_emit(self.serverUpdate)
+
         self._gameset = gameset
         self._playerset = playerset
 
+    def _simple_emit(self, signal):
+        def _emit(message):
+            signal.emit(message)
+        return _emit
+
     def handle_updated_achievements(self, message):
         pass
-
-    def handle_stats(self, message):
-        self.statsInfo.emit(message)
-
-    def handle_coop_info(self, message):
-        self.coopInfo.emit(message)
-
-    def handle_tutorials_info(self, message):
-        self.tutorialsInfo.emit(message)
-
-    def handle_mod_info(self, message):
-        self.modInfo.emit(message)
 
     def handle_game_info(self, message):
         if 'games' in message:  # initial bunch of games from server after client start
@@ -401,16 +399,7 @@ class LobbyInfo(QtCore.QObject):
     def handle_modvault_list_info(self, message):
         modList = message["modList"]
         for mod in modList:
-            self.handle_modvault_info(mod)
-
-    def handle_modvault_info(self, message):
-        self.modVaultInfo.emit(message)
-
-    def handle_replay_vault(self, message):
-        self.replayVault.emit(message)
-
-    def handle_coop_leaderboard(self, message):
-        self.coopLeaderBoard.emit(message)
+            self.modVaultInfo.emit(mod)
 
     def handle_avatar(self, message):
         if "avatarlist" in message:
@@ -419,6 +408,3 @@ class LobbyInfo(QtCore.QObject):
     def handle_admin(self, message):
         if "avatarlist" in message:
             self.avatarList.emit(message["avatarlist"])
-
-    def handle_social(self, message):
-        self.social.emit(message)

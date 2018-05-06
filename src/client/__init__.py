@@ -32,5 +32,3 @@ from ._clientwindow import ClientWindow
 from client.theme_menu import ThemeMenu
 
 instance = ClientWindow()
-
-NetworkManager = QNetworkAccessManager(instance)

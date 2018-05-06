@@ -1,4 +1,5 @@
 from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt5.QtNetwork import QNetworkAccessManager
 
 import config
 import connectivity
@@ -11,8 +12,6 @@ from client.gameannouncer import GameAnnouncer
 from client.login import LoginWidget
 from client.playercolors import PlayerColors
 from client.theme_menu import ThemeMenu
-from client.updater import UpdateChecker, UpdateDialog
-from client.update_settings import UpdateSettingsDialog
 from client.user import User, SignallingSet     # TODO - move to util
 from downloadManager import PreviewDownloader, AvatarDownloader, \
         MAP_PREVIEW_ROOT
@@ -53,6 +52,7 @@ from chat.language_channel_config import LanguageChannelConfig
 
 from client.user import UserRelationModel, UserRelationController, \
         UserRelationTrackers, UserRelations
+from updater import ClientUpdateTools
 
 from unitdb import unitdbtab
 
@@ -228,6 +228,8 @@ class ClientWindow(FormClass, BaseClass):
         # Hook to Qt's application management system
         QtWidgets.QApplication.instance().aboutToQuit.connect(self.cleanup)
 
+        self._nam = QNetworkAccessManager(self)
+
         self.uniqueId = None
 
         self.sendFile = False
@@ -294,14 +296,14 @@ class ClientWindow(FormClass, BaseClass):
 
         self.gameset.added.connect(self.fill_in_session_info)
 
-        self.lobby_dispatch["session"] = self.handle_session
+        self.lobby_info.serverSession.connect(self.handle_session)
+        self.lobby_info.serverUpdate.connect(self.handle_update)
         self.lobby_dispatch["registration_response"] = self.handle_registration_response
         self.lobby_dispatch["game_launch"] = self.handle_game_launch
         self.lobby_dispatch["matchmaker_info"] = self.handle_matchmaker_info
         self.lobby_dispatch["player_info"] = self.handle_player_info
         self.lobby_dispatch["notice"] = self.handle_notice
         self.lobby_dispatch["invalid"] = self.handle_invalid
-        self.lobby_dispatch["update"] = self.handle_update
         self.lobby_dispatch["welcome"] = self.handle_welcome
         self.lobby_dispatch["authentication_failed"] = self.handle_authentication_failed
 
@@ -459,7 +461,6 @@ class ClientWindow(FormClass, BaseClass):
     def on_connected(self):
         # Enable reconnect in case we used to explicitly stay offline
         self.lobby_reconnecter.enabled = True
-
         self.lobby_connection.send(dict(command="ask_session",
                                         version=config.VERSION,
                                         user_agent="faf-client"))
@@ -806,9 +807,12 @@ class ClientWindow(FormClass, BaseClass):
         self.mainGridLayout.addLayout(self.warning, 2, 0)
         self.warningHide()
 
-        self._update_checker = UpdateChecker(self)
-        self._update_checker.finished.connect(self.update_checked)
-        self._update_checker.start()
+        self._update_tools = ClientUpdateTools.build(config.VERSION, self,
+                                                     self._nam,
+                                                     self.lobby_info)
+        self._update_tools.mandatory_update_aborted.connect(
+            self.close)
+        self._update_tools.checker.check()
 
     def _connect_chat(self, me):
         if not self.use_chat:
@@ -836,8 +840,6 @@ class ClientWindow(FormClass, BaseClass):
             i.show()
 
     def reconnect(self):
-        self._update_checker.start()
-
         self.lobby_reconnecter.enabled = True
         self.lobby_connection.doConnect()
 
@@ -849,16 +851,6 @@ class ClientWindow(FormClass, BaseClass):
 
     def chat_reconnect(self):
         self._connect_chat(self.me)
-
-    @QtCore.pyqtSlot(list)
-    def update_checked(self, releases):
-        if len(releases) > 0:
-            update_dialog = UpdateDialog(self)
-            update_dialog.setup(releases)
-            update_dialog.show()
-        else:
-            QtWidgets.QMessageBox.information(self,"No updates found",
-                                              "No client updates were found")
 
     @QtCore.pyqtSlot()
     def cleanup(self):
@@ -1090,13 +1082,12 @@ class ClientWindow(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def check_for_updates(self):
-        self._update_checker.respect_notify = False
-        self._update_checker.start(reset_server=False)
+        self._update_tools.checker.check(reset_server=False,
+                                         always_notify=True)
 
     @QtCore.pyqtSlot()
     def show_update_settings(self):
-        dialog = UpdateSettingsDialog(self)
-        dialog.setup()
+        dialog = self._update_tools.settings_dialog()
         dialog.show()
 
     def checkPlayerAliases(self):
@@ -1357,8 +1348,6 @@ class ClientWindow(FormClass, BaseClass):
         self.power_tools.actions.kick_player(username)
 
     def handle_session(self, message):
-        self._update_checker.server_session()
-
         self.session = str(message['session'])
         self.get_creds_and_login()
 
@@ -1366,9 +1355,7 @@ class ClientWindow(FormClass, BaseClass):
         # Remove geometry settings prior to updating
         # could be incompatible with an updated client.
         config.Settings.remove('window/geometry')
-
         logger.warning("Server says we need an update")
-        self._update_checker.server_update(message)
 
     def handle_welcome(self, message):
         self.state = ClientState.LOGGED_IN
