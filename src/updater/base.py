@@ -28,13 +28,11 @@ class ReleaseType(Enum):
 
     @classmethod
     def get(cls, version):
-        if version.minor % 2 == 1:
+        if any(p in version.prerelease for p in ['alpha', 'beta']):
             return cls.UNSTABLE
-        else:
-            if version.prerelease == ():
-                return cls.STABLE
-            else:
-                return cls.PRERELEASE
+        if any(p in version.prerelease for p in ['pre', 'rc']):
+            return cls.PRERELEASE
+        return cls.STABLE
 
     def included_channels(self):
         order = [ReleaseType.MINIMUM,
