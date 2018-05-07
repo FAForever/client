@@ -268,7 +268,7 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
     def _parse_elevation(self, modes):
         add = re.compile(".*\+([a-z]+)")
         remove = re.compile(".*\-([a-z]+)")
-        mode_to_elevation = {"o": "Q", "q": "~", "v": "+"}
+        mode_to_elevation = {"o": "@", "q": "~", "v": "+"}
 
         def get_elevations(expr):
             match = re.search(expr, modes)
