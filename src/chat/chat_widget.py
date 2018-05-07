@@ -1,5 +1,6 @@
 from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtWidgets import QTabBar
+from model.chat.channel import ChannelType
 
 
 class ChatWidget(QObject):
@@ -32,9 +33,33 @@ class ChatWidget(QObject):
             return
         self._channels[key] = widget
         if index is None:
-            self.base.addTab(widget.base, key.name)
+            self._add_tab_in_default_spot(widget, key)
         else:
             self.base.insertTab(index, widget.base, key.name)
+
+    def _add_tab_in_default_spot(self, widget, key):
+        if key.type == ChannelType.PRIVATE:
+            self.base.addTab(widget.base, key.name)
+            return
+        try:
+            last_public_tab = max([self.base.indexOf(w.base)
+                                   for cid, w in self._channels.items()
+                                   if cid.type == ChannelType.PUBLIC
+                                   and cid != key])
+            self.base.insertTab(last_public_tab + 1, widget.base, key.name)
+            return
+        except ValueError:
+            pass
+        try:
+            first_private_tab = min([self.base.indexOf(w.base)
+                                     for cid, w in self._channels.items()
+                                     if cid.type == ChannelType.PRIVATE
+                                     and cid != key])
+            self.base.insertTab(first_private_tab, widget.base, key.name)
+            return
+        except ValueError:
+            pass
+        self.base.addTab(widget.base, key.name)
 
     def remove_channel(self, key):
         widget = self._channels.pop(key, None)
