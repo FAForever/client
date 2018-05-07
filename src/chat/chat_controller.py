@@ -58,6 +58,7 @@ class ChatController(QObject):
             self._channels[cid] = channel
             if cid.type == ChannelType.PRIVATE:
                 self._add_me_to_channel(channel)
+                self._join_chatter_to_his_privchannel(cid.name)
         return self._channels[cid]
 
     def _add_me_to_channel(self, channel):
@@ -67,10 +68,22 @@ class ChatController(QObject):
             cc = ChannelChatter(channel, me, "")
             self._ccs[(channel.id_key, me.id_key)] = cc
 
+    def _join_chatter_to_his_privchannel(self, name):
+        channel = self._channels.get(ChannelID.private_cid(name), None)
+        if channel is None:
+            return
+        chatter = self._chatters.get(name, None)
+        if chatter is None:
+            return
+        key = (channel.id_key, chatter.id_key)
+        if key not in self._ccs:
+            self._ccs[key] = ChannelChatter(channel, chatter, "")
+
     def _check_add_new_chatter(self, cinfo):
         if cinfo.name not in self._chatters:
             chatter = Chatter(cinfo.name, cinfo.hostname)
             self._chatters[chatter.name] = chatter
+            self._join_chatter_to_his_privchannel(chatter.name)
         return self._chatters[cinfo.name]
 
     def _add_or_update_cc(self, cid, cinfo):
@@ -187,10 +200,19 @@ class ChatController(QObject):
         channel.update(topic=topic)
 
     def _at_connected(self):
+        privchannels = self._save_privchannels()
         self._channels.clear()
         self._chatters.clear()
         self._ccs.clear()
         self._model.connected = True
+        self._restore_privchannels(privchannels)
+
+    def _save_privchannels(self):
+        return [c for c in self._channels if c.type == ChannelType.PRIVATE]
+
+    def _restore_privchannels(self, cids):
+        for cid in cids:
+            self.join_channel(cid)
 
     def _at_disconnected(self):
         self._model.connected = False
