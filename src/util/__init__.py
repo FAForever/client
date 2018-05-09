@@ -1,41 +1,37 @@
 import sys
 import os
 import getpass
-import codecs
 import locale
+import shutil
+import hashlib
+import re
+import subprocess
+import datetime
 
 from PyQt5.QtWidgets import QMessageBox
-from PyQt5.QtGui import QIcon, QPixmap, QDesktopServices
-from PyQt5.QtCore import QUrl
-from PyQt5.QtMultimedia import QSound
-import subprocess
+from PyQt5.QtGui import QDesktopServices
+from PyQt5.QtCore import QUrl, QStandardPaths
+from PyQt5 import QtWidgets
+from PyQt5.uic import *
 
-from semantic_version import Version
 from util.theme import Theme, ThemeSet
 
 from config import Settings
-from PyQt5.QtCore import QStandardPaths
+from config import VERSION as VERSION_STRING
+import fafpath
+import logging
 
 if sys.platform == 'win32':
     import win32serviceutil
     import win32service
     import ctypes
 
-
-# Developer mode flag
-def developer():
-    return sys.executable.endswith("python.exe")
-
-from config import VERSION as VERSION_STRING
-
-import logging
 logger = logging.getLogger(__name__)
 
 LOGFILE_MAX_SIZE = 256 * 1024  # 256kb should be enough for anyone
 
 UNITS_PREVIEW_ROOT = "{}/faf/unitsDB/icons/big/".format(Settings.get('content/host'))
 
-import fafpath
 COMMON_DIR = fafpath.get_resdir()
 
 stylesheets = {}  # map [qt obj] ->  filename of stylesheet
@@ -127,11 +123,6 @@ for data_dir in [APPDATA_DIR, PERSONAL_DIR, LUA_DIR, CACHE_DIR,
     if not os.path.isdir(data_dir):
         os.makedirs(data_dir)
 
-from PyQt5 import QtWidgets
-from PyQt5.uic import *
-import shutil
-import hashlib
-import re
 
 
 def get_files_by_mod_date(location):
@@ -203,58 +194,8 @@ def _setup_theme():
                 themes.append(Theme(theme_path, infile))
     THEME = ThemeSet(themes, default, Settings, VERSION_STRING)
 
+
 _setup_theme()
-
-# Public settings object
-# Stolen from Config because reasons
-from config import _settings
-settings = _settings
-
-
-def clean_slate(path):
-    if os.path.exists(path):
-        logger.info("Wiping " + path)
-        shutil.rmtree(path)
-    os.makedirs(path)
-
-
-def curDownloadAvatar(url):
-    if url in DOWNLOADING_RES_PIX:
-        return DOWNLOADING_RES_PIX[url]
-    return None
-
-
-def delDownloadAvatar(url):
-    try:
-        del DOWNLOADING_RES_PIX[url]
-    except KeyError:
-        pass
-
-
-def removeCurrentDownloadAvatar(url, caller, item):
-    if url in DOWNLOADING_RES_PIX:
-        DOWNLOADING_RES_PIX[url].remove(caller)
-
-
-def addcurDownloadAvatar(url, caller):
-    if url in DOWNLOADING_RES_PIX:
-        if caller not in DOWNLOADING_RES_PIX[url]:
-            DOWNLOADING_RES_PIX[url].append(caller)
-        return False
-    else:
-        DOWNLOADING_RES_PIX[url] = []
-        DOWNLOADING_RES_PIX[url].append(caller)
-        return True
-
-
-def addrespix(url, pixmap):
-    DOWNLOADED_RES_PIX[url] = pixmap
-
-
-def respix(url):
-    if url in DOWNLOADED_RES_PIX:
-        return DOWNLOADED_RES_PIX[url]
-    return None
 
 
 def __downloadPreviewFromWeb(unitname):
@@ -280,35 +221,6 @@ def __downloadPreviewFromWeb(unitname):
     return img
 
 
-def iconUnit(unitname):
-    # Try to load directly from cache
-
-    img = os.path.join(CACHE_DIR, unitname)
-    if os.path.isfile(img):
-        logger.log(5, "Using cached preview image for: " + unitname)
-        return THEME.icon(img, False)
-    # Try to download from web
-    img = __downloadPreviewFromWeb(unitname)
-    if img and os.path.isfile(img):
-        logger.debug("Using web preview image for: " + unitname)
-        return THEME.icon(img, False)
-
-
-def wait(until):
-    """
-    Super-simple wait function that takes a callable and waits until the callable returns true or the user aborts.
-    """
-    progress = QtWidgets.QProgressDialog()
-    progress.show()
-
-    while not until() and progress.isVisible():
-        QtWidgets.QApplication.processEvents()
-
-    progress.close()
-
-    return not progress.wasCanceled()
-
-
 def showDirInFileBrowser(location):
     QDesktopServices.openUrl(QUrl.fromLocalFile(location))
 
@@ -321,8 +233,10 @@ def showFileInFileBrowser(location):
         # No highlighting on cross-platform, sorry!
         showDirInFileBrowser(os.path.dirname(location))
 
+
 def showConfigFile():
     showFileInFileBrowser(Settings.fileName())
+
 
 html_escape_table = {
     "&": "&amp;",
@@ -392,7 +306,8 @@ def md5(file_name):
     with open(file_name, "rb") as fd:
         while True:
             content = fd.read(1024 * 1024)
-            if not content: break
+            if not content:
+                break
             m.update(content)
 
     return m.hexdigest()
@@ -435,14 +350,12 @@ def uniqueID(user, session):
         return None
 
 
-import datetime
-
-
 def strtodate(s):
     return datetime.datetime.strptime(s, "%Y-%m-%d %H:%M:%S")
 
 
 def datetostr(d):
     return d.strftime("%Y-%m-%d %H:%M:%S")
+
 
 from .crash import CrashDialog, runtime_info
