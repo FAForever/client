@@ -3,7 +3,8 @@ import urllib.request, urllib.error, urllib.parse
 
 from PyQt5 import QtCore, QtWidgets, QtGui
 
-from util import strtodate, datetostr, now
+import datetime
+from util import strtodate, datetostr
 import util
 
 FormClass, BaseClass = util.THEME.loadUiType("modvault/mod.ui")
@@ -79,9 +80,11 @@ class ModWidget(FormClass, BaseClass):
     def addComment(self):
         if self.LineComment.text() == "":
             return
-        comment = {"author": self.parent.client.login, "text": self.LineComment.text(),
-                   "date": datetostr(now()), "uid": "%s-%s" % (self.mod.uid, str(len(self.mod.bugreports) +
-                                                                                 len(self.mod.comments)).zfill(3))}
+        comment = {"author": self.parent.client.login,
+                   "text": self.LineComment.text(),
+                   "date": datetostr(datetime.now()),
+                   "uid": "%s-%s" % (self.mod.uid, str(len(self.mod.bugreports) +
+                                                       len(self.mod.comments)).zfill(3))}
 
         self.parent.client.lobby_connection.send(dict(command="modvault", type="addcomment", moduid=self.mod.uid,
                                                       comment=comment))
@@ -95,9 +98,11 @@ class ModWidget(FormClass, BaseClass):
     def addBugReport(self):
         if self.LineBugReport.text() == "":
             return
-        bugreport = {"author": self.parent.client.login, "text": self.LineBugReport.text(),
-                     "date": datetostr(now()), "uid": "%s-%s" % (self.mod.uid, str(len(self.mod.bugreports) +
-                                                                                   len(self.mod.comments)).zfill(3))}
+        bugreport = {"author": self.parent.client.login,
+                     "text": self.LineBugReport.text(),
+                     "date": datetostr(datetime.now()),
+                     "uid": "%s-%s" % (self.mod.uid, str(len(self.mod.bugreports) +
+                                                         len(self.mod.comments)).zfill(3))}
 
         self.parent.client.lobby_connection.send(dict(command="modvault", type="addbugreport", moduid=self.mod.uid,
                                                       bugreport=bugreport))

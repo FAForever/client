@@ -437,18 +437,12 @@ def uniqueID(user, session):
 
 import datetime
 
-_dateDummy = datetime.datetime(2013, 5, 27)
-
 
 def strtodate(s):
-    return _dateDummy.strptime(s, "%Y-%m-%d %H:%M:%S")
+    return datetime.datetime.strptime(s, "%Y-%m-%d %H:%M:%S")
 
 
 def datetostr(d):
-    return str(d)[:-7]
-
-
-def now():
-    return _dateDummy.now()
+    return d.strftime("%Y-%m-%d %H:%M:%S")
 
 from .crash import CrashDialog, runtime_info

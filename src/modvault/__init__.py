@@ -43,7 +43,7 @@ The tempAddMods function should be removed after the server can return mods in t
 """
 
 import os
-
+from datetime import datetime
 import zipfile
 
 from PyQt5 import QtCore, QtWidgets, QtGui
@@ -60,17 +60,7 @@ import time
 logger = logging.getLogger(__name__)
 import urllib.request, urllib.error, urllib.parse
 
-from util import datetostr, now
-d = datetostr(now())
-
 from downloadManager import DownloadRequest
-
-"""
-tempmod1 = dict(uid=1,name='Mod1', comments=[],bugreports=[], date = d,
-                ui=True, downloads=0, likes=0,
-                thumbnail='',author='johnie102',
-                description='Lorem ipsum dolor sit amet, consectetur adipiscing elit. ',)
-"""
 
 FormClass, BaseClass = util.THEME.loadUiType("modvault/modvault.ui")
 
