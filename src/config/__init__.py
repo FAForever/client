@@ -1,6 +1,7 @@
 from . import version
 import os
 import sys
+import locale
 import logging
 import fafpath
 import traceback
@@ -11,6 +12,7 @@ if sys.platform == 'win32':
     import win32api
     import win32con
     import win32security
+    import ctypes
     from . import admin
 
 _settings = QtCore.QSettings(QtCore.QSettings.IniFormat, QtCore.QSettings.UserScope, "ForgedAllianceForever", "FA Lobby")
@@ -18,6 +20,7 @@ _unpersisted_settings = {}
 
 CONFIG_PATH = os.path.dirname(_settings.fileName())
 UNITDB_CONFIG_FILE = os.path.join(CONFIG_PATH, "unitdb.conf")
+
 
 class Settings:
     """
@@ -76,6 +79,10 @@ class Settings:
     @staticmethod
     def fileName():
         return _settings.fileName()
+
+    @staticmethod
+    def contains(key):
+        return key in _unpersisted_settings or _settings.contains(key)
 
 
 def set_data_path_permissions():
@@ -158,6 +165,8 @@ environment = 'production'
 def is_beta():
     return environment == 'development'
 
+# TODO: move stuff below to Settings __init__ once we make it an actual object
+
 if _settings.contains('client/force_environment'):
     environment = _settings.value('client/force_environment', 'development')
 
@@ -169,6 +178,31 @@ elif environment == 'development':
 for k, v in defaults.items():
     if isinstance(v, str):
         defaults[k] = v.format(host = Settings.get('host'))
+
+
+def os_language():
+    # locale is unreliable on Windows
+    if sys.platform == 'win32':
+        windll = ctypes.windll.kernel32
+        locale_code = windll.GetUserDefaultUILanguage()
+        os_locale = locale.windows_locale.get(locale_code, None)
+    else:
+        os_locale = locale.getlocale()[0]
+
+    # sanity checks
+    if os_locale is None:
+        return None
+    if len(os_locale) < 2:
+        return None
+    country = os_locale[:2].lower()
+    if not country.isalpha():
+        return None
+    return country
+
+
+if not Settings.contains('client/language'):
+    Settings.set('client/language', os_language())
+
 
 # Setup normal rotating log handler
 make_dirs()

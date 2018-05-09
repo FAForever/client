@@ -2,6 +2,7 @@ import sys
 import os
 import getpass
 import codecs
+import locale
 
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtGui import QIcon, QPixmap, QDesktopServices
@@ -14,9 +15,11 @@ from util.theme import Theme, ThemeSet
 
 from config import Settings
 from PyQt5.QtCore import QStandardPaths
+
 if sys.platform == 'win32':
     import win32serviceutil
     import win32service
+    import ctypes
 
 
 # Developer mode flag
