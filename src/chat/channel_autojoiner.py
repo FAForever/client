@@ -1,4 +1,17 @@
 class ChannelAutojoiner:
+    DEFAULT_LANGUAGE_CHANNELS = {
+        "#french": ["fr"],
+        "#russian": ["ru", "be"],    # Be conservative here
+        "#german": ["de"]
+    }
+
+    # Flip around for easier use
+    DEFAULT_LANGUAGE_CHANNELS = {
+        code: channel
+        for channel, codes in DEFAULT_LANGUAGE_CHANNELS.items()
+        for code in codes
+    }
+
     def __init__(self, base_channels, model, controller, settings, lobby_info,
                  chat_config, me):
         self.base_channels = base_channels
@@ -28,6 +41,7 @@ class ChannelAutojoiner:
         self._autojoin_saved_lobby()
         self._autojoin_custom()
         self._autojoin_newbie()
+        self._autojoin_lang()
 
     def _join_all(self, channels):
         for name in channels:
@@ -67,3 +81,21 @@ class ChannelAutojoiner:
         if self._me.player.number_of_games > threshold:
             return
         self._join_all(["#newbie"])
+
+    def _autojoin_lang(self):
+        if not self._settings.contains('client/lang_channels'):
+            self._set_default_language_channel()
+        lang_channels = self._settings.get('client/lang_channels', None)
+        if lang_channels is None:
+            return
+        lang_channels = lang_channels.split(';')
+        self._join_all(l for l in lang_channels if l)
+
+    def _set_default_language_channel(self):
+        lang = self._settings.get('client/language', None)
+        if lang is None:
+            return
+        chan = self.DEFAULT_LANGUAGE_CHANNELS.get(lang, None)
+        if chan is None:
+            return
+        self._settings.set('client/lang_channels', chan)
