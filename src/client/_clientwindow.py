@@ -1310,8 +1310,11 @@ class ClientWindow(FormClass, BaseClass):
             self.modMenu.addAction(actionLobbyKick)
 
             actionCloseFA = QtWidgets.QAction("Close Player's Game...", self.modMenu)
-            actionCloseFA.triggered.connect(self.power_tools.view.close_game_dialog.show)
+            actionCloseFA.triggered.connect(self._close_game_dialog)
             self.modMenu.addAction(actionCloseFA)
+
+    def _close_game_dialog(self):
+        self.power_tools.view.close_game_dialog.show()
 
     # Needed so that we ignore the bool from the triggered() signal
     def _on_lobby_kick_triggered(self):
