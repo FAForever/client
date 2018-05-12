@@ -1,4 +1,4 @@
-DEFAULT_LANGUAGE_CHANNELS = {
+LANGUAGE_CHANNELS = {
     "#french": ["fr"],
     "#russian": ["ru", "by"],    # Be conservative here
     "#german": ["de"]
@@ -6,6 +6,6 @@ DEFAULT_LANGUAGE_CHANNELS = {
 # Flip around for easier use
 DEFAULT_LANGUAGE_CHANNELS = {
     code: channel
-    for channel, codes in DEFAULT_LANGUAGE_CHANNELS.items()
+    for channel, codes in LANGUAGE_CHANNELS.items()
     for code in codes
 }

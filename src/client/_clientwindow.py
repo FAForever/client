@@ -49,6 +49,7 @@ from chat.line_restorer import ChatLineRestorer
 from chat.chat_announcer import ChatAnnouncer
 from chat.chat_greeter import ChatGreeter
 from chat.chatter_model import ChatterLayoutElements
+from chat.language_channel_config import LanguageChannelConfig
 
 from client.user import UserRelationModel, UserRelationController, \
         UserRelationTrackers, UserRelations
@@ -408,6 +409,8 @@ class ClientWindow(FormClass, BaseClass):
         self.power = 0  # current user power
         self.id = 0
         # Initialize the Menu Bar according to settings etc.
+        self._language_channel_config = LanguageChannelConfig(
+            self, config.Settings, util.THEME)
         self.initMenus()
 
         # Load the icons for the tabs
@@ -971,6 +974,7 @@ class ClientWindow(FormClass, BaseClass):
         self.actionSaveGamelogs.setChecked(self.gamelogs)
         self.actionColoredNicknames.triggered.connect(self.updateOptions)
         self.actionFriendsOnTop.triggered.connect(self.updateOptions)
+        self.actionLanguageChannels.triggered.connect(self._language_channel_config.run)
 
         self.actionCheckPlayerAliases.triggered.connect(self.checkPlayerAliases)
 

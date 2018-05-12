@@ -392,6 +392,7 @@
      <addaction name="actionSetLiveReplays"/>
      <addaction name="actionSetSoundEffects"/>
      <addaction name="actionIgnoreFoes"/>
+     <addaction name="actionLanguageChannels"/>
      <addaction name="menuHide_chatter"/>
     </widget>
     <widget class="QMenu" name="menuNotifications">
@@ -821,6 +822,11 @@
    </property>
    <property name="text">
     <string>&amp;Status</string>
+   </property>
+  </action>
+  <action name="actionLanguageChannels">
+   <property name="text">
+    <string>Language channels</string>
    </property>
   </action>
  </widget>
