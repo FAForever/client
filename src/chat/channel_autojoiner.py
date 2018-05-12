@@ -1,3 +1,7 @@
+from util.lang import COUNTRY_TO_LANGUAGE
+from chat.lang import DEFAULT_LANGUAGE_CHANNELS
+
+
 class ChannelAutojoiner:
     DEFAULT_LANGUAGE_CHANNELS = {
         "#french": ["fr"],
@@ -93,31 +97,6 @@ class ChannelAutojoiner:
 
 
 class LanguageChannelChecker:
-    DEFAULT_LANGUAGE_CHANNELS = {
-        "#french": ["fr"],
-        "#russian": ["ru", "by"],    # Be conservative here
-        "#german": ["de"]
-    }
-    # Flip around for easier use
-    DEFAULT_LANGUAGE_CHANNELS = {
-        code: channel
-        for channel, codes in DEFAULT_LANGUAGE_CHANNELS.items()
-        for code in codes
-    }
-
-    # TODO: Python has no "reasonably guess language from country"
-    # package, so use this rough guesstimate
-    COUNTRY_TO_LANGUAGE = {
-        "ru": ["ru", "kz", "kg"],
-        "by": ["by"],
-        "de": ["de", "au"],
-    }
-    COUNTRY_TO_LANGUAGE = {
-        country: lang
-        for lang, countries in COUNTRY_TO_LANGUAGE.items()
-        for country in countries
-    }
-
     def __init__(self, settings):
         self._settings = settings
 
@@ -139,11 +118,11 @@ class LanguageChannelChecker:
 
     def _channel_from_os_language(self):
         lang = self._settings.get('client/language', None)
-        return self.DEFAULT_LANGUAGE_CHANNELS.get(lang, None)
+        return DEFAULT_LANGUAGE_CHANNELS.get(lang, None)
 
     def _channel_from_geoip(self, player):
         if player is None:
             return None
         flag = player.country
-        lang = self.COUNTRY_TO_LANGUAGE.get(flag, None)
-        return self.DEFAULT_LANGUAGE_CHANNELS.get(lang, None)
+        lang = COUNTRY_TO_LANGUAGE.get(flag, None)
+        return DEFAULT_LANGUAGE_CHANNELS.get(lang, None)
