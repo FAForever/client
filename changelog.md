@@ -4,6 +4,11 @@
 0.17.4
 =====
  * Integrate client with new Rackover's database
+ * Implement autojoining language channels
+   - Currently supports #german, #french and #russian.
+   - At first run, checks system UI language on Windows and LANG on unix. If no
+     matching channel is found, uses user's geoIP.
+   - Language channels to join configurable through settings.
 
  Contributors:
  - Wesmania
