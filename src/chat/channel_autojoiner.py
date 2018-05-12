@@ -4,7 +4,6 @@ class ChannelAutojoiner:
         "#russian": ["ru", "be"],    # Be conservative here
         "#german": ["de"]
     }
-
     # Flip around for easier use
     DEFAULT_LANGUAGE_CHANNELS = {
         code: channel
@@ -13,7 +12,7 @@ class ChannelAutojoiner:
     }
 
     def __init__(self, base_channels, model, controller, settings, lobby_info,
-                 chat_config, me):
+                 chat_config, lang_channel_checker, me):
         self.base_channels = base_channels
         self._model = model
         self._controller = controller
@@ -21,7 +20,8 @@ class ChannelAutojoiner:
         self._lobby_info = lobby_info
         self._chat_config = chat_config
         self._me = me
-        self._me.playerChanged.connect(self._autojoin_newbie)
+        self._me.playerChanged.connect(self._at_player_changed)
+        self._lang_channel_checker = lang_channel_checker
 
         self._lobby_info.social.connect(self._autojoin_lobby)
         self._saved_lobby_channels = []
@@ -33,13 +33,22 @@ class ChannelAutojoiner:
     @classmethod
     def build(cls, base_channels, model, controller, settings, lobby_info,
               chat_config, me, **kwargs):
+        lang_channel_checker = LanguageChannelChecker(settings)
         return cls(base_channels, model, controller, settings, lobby_info,
-                   chat_config, me)
+                   chat_config, lang_channel_checker, me)
 
     def _autojoin_all(self):
         self._autojoin_base()
         self._autojoin_saved_lobby()
         self._autojoin_custom()
+        self._autojoin_newbie()
+        self._autojoin_lang()
+
+    def _at_player_changed(self):
+        if not self._model.connected:
+            return
+        if self._me.player is None:
+            return
         self._autojoin_newbie()
         self._autojoin_lang()
 
@@ -71,11 +80,7 @@ class ChannelAutojoiner:
         self._saved_lobby_channels = []
 
     def _autojoin_newbie(self):
-        if not self._model.connected:
-            return
         if not self._chat_config.newbies_channel:
-            return
-        if self._me.player is None:
             return
         threshold = self._chat_config.newbie_channel_game_threshold
         if self._me.player.number_of_games > threshold:
@@ -83,19 +88,62 @@ class ChannelAutojoiner:
         self._join_all(["#newbie"])
 
     def _autojoin_lang(self):
-        if not self._settings.contains('client/lang_channels'):
-            self._set_default_language_channel()
-        lang_channels = self._settings.get('client/lang_channels', None)
-        if lang_channels is None:
-            return
-        lang_channels = lang_channels.split(';')
-        self._join_all(l for l in lang_channels if l)
+        player = self._me.player
+        self._join_all(self._lang_channel_checker.get_channels(player))
 
-    def _set_default_language_channel(self):
-        lang = self._settings.get('client/language', None)
-        if lang is None:
-            return
-        chan = self.DEFAULT_LANGUAGE_CHANNELS.get(lang, None)
+
+class LanguageChannelChecker:
+    DEFAULT_LANGUAGE_CHANNELS = {
+        "#french": ["fr"],
+        "#russian": ["ru", "by"],    # Be conservative here
+        "#german": ["de"]
+    }
+    # Flip around for easier use
+    DEFAULT_LANGUAGE_CHANNELS = {
+        code: channel
+        for channel, codes in DEFAULT_LANGUAGE_CHANNELS.items()
+        for code in codes
+    }
+
+    # TODO: Python has no "reasonably guess language from country"
+    # package, so use this rough guesstimate
+    COUNTRY_TO_LANGUAGE = {
+        "ru": ["ru", "kz", "kg"],
+        "by": ["by"],
+        "de": ["de", "au"],
+    }
+    COUNTRY_TO_LANGUAGE = {
+        country: lang
+        for lang, countries in COUNTRY_TO_LANGUAGE.items()
+        for country in countries
+    }
+
+    def __init__(self, settings):
+        self._settings = settings
+
+    def get_channels(self, player):
+        if not self._settings.contains('client/lang_channels'):
+            self._set_default_language_channel(player)
+        chan = self._settings.get('client/lang_channels')
         if chan is None:
+            return []
+        return [c for c in chan.split(';') if c]
+
+    def _set_default_language_channel(self, player):
+        from_os = self._channel_from_os_language()
+        from_ip = self._channel_from_geoip(player)
+        default = from_os or from_ip
+        if default is None:
             return
-        self._settings.set('client/lang_channels', chan)
+        self._settings.set('client/lang_channels', default)
+
+    def _channel_from_os_language(self):
+        lang = self._settings.get('client/language', None)
+        return self.DEFAULT_LANGUAGE_CHANNELS.get(lang, None)
+
+    def _channel_from_geoip(self, player):
+        if player is None:
+            return None
+        flag = player.country
+        lang = self.COUNTRY_TO_LANGUAGE.get(flag, None)
+        return self.DEFAULT_LANGUAGE_CHANNELS.get(lang, None)
