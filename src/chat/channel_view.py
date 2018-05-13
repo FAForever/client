@@ -8,6 +8,7 @@ from chat.channel_widget import ChannelWidget
 from chat.chatter_model import ChatterModel, ChatterEventFilter, \
     ChatterItemDelegate, ChatterSortFilterModel, ChatterFormat, \
     ChatterLayout, ChatterLayoutElements
+from chat.channel_tab import TabInfo
 from chat.chatter_menu import ChatterMenu
 from model.chat.channel import ChannelType
 from model.chat.chatline import ChatLineType
@@ -58,7 +59,7 @@ class ChannelView:
         self._controller.send_message(self._channel.id_key, line)
 
     def on_shown(self):
-        self._channel_tab.stop_blinking()
+        self._channel_tab.info = TabInfo.IDLE
 
 
 class ChatAreaView:
@@ -91,7 +92,7 @@ class ChatAreaView:
             self._avatar_adder.add_avatar(data.meta.player.avatar.url())
         text = self._formatter.format(data)
         self._widget.append_line(text)
-        self._blink_if_needed(data)
+        self._set_tab_info(data)
 
     def _remove_lines(self, number):
         self._widget.remove_lines(number)
@@ -119,9 +120,17 @@ class ChatAreaView:
             return
         self._game_runner.run_game_from_url(gurl)
 
-    def _should_blink(self, data):
+    def _set_tab_info(self, data):
+        self._widget_tab.info = self._tab_info(data)
+
+    def _tab_info(self, data):
         if not self._widget.hidden:
-            return False
+            return TabInfo.IDLE
+        if self._line_is_important(data):
+            return TabInfo.IMPORTANT
+        return TabInfo.NEW_MESSAGES
+
+    def _line_is_important(self, data):
         if data.line.type in [ChatLineType.INFO, ChatLineType.ANNOUNCEMENT,
                               ChatLineType.RAW]:
             return False
@@ -130,11 +139,6 @@ class ChatAreaView:
         if data.meta.mentions_me and data.meta.mentions_me():
             return True
         return False
-
-    def _blink_if_needed(self, data):
-        if not self._should_blink(data):
-            return
-        self._widget_tab.start_blinking()
 
     def _at_css_reloaded(self):
         self._widget.clear_chat()

@@ -1,6 +1,14 @@
+from enum import Enum
 from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtWidgets import QTabBar
 from model.chat.channel import ChannelType
+
+
+class TabIcon(Enum):
+    IDLE = "idle"
+    NEW_MESSAGE = "new_message"
+    BLINK_ACTIVE = "blink_active"
+    BLINK_INACTIVE = "blink_inactive"
 
 
 class ChatWidget(QObject):
@@ -10,14 +18,15 @@ class ChatWidget(QObject):
     def __init__(self, theme):
         QObject.__init__(self)
         self._channels = {}
-        self.set_theme(theme)
+        self._theme = theme
+        self.set_theme()
 
     @classmethod
     def build(cls, theme, **kwargs):
         return cls(theme)
 
-    def set_theme(self, theme):
-        formc, basec = theme.loadUiType("chat/chat.ui")
+    def set_theme(self):
+        formc, basec = self._theme.loadUiType("chat/chat.ui")
         self.form = formc()
         self.base = basec()
         self.form.setupUi(self.base)
@@ -36,6 +45,7 @@ class ChatWidget(QObject):
             self._add_tab_in_default_spot(widget, key)
         else:
             self.base.insertTab(index, widget.base, key.name)
+        self.set_tab_icon(key, TabIcon.IDLE)
 
     def _add_tab_in_default_spot(self, widget, key):
         if key.type == ChannelType.PRIVATE:
@@ -79,12 +89,13 @@ class ChatWidget(QObject):
             return
         self.base.setCurrentIndex(self.base.indexOf(widget.base))
 
-    def set_tab_text(self, key, text):
+    def set_tab_icon(self, key, name):
+        icon = self._theme.icon("chat/tabicon/{}.png".format(name.value))
         widget = self._channels.get(key, None)
         if widget is None:
             return
         idx = self.base.indexOf(widget.base)
-        self.base.setTabText(idx, text)
+        self.base.setTabIcon(idx, icon)
 
     def _index_to_cid(self, idx):
         for cid in self._channels:

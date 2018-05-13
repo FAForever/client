@@ -1,7 +1,6 @@
-from PyQt5.QtCore import QTimer
-
 from chat.chat_widget import ChatWidget
 from chat.channel_view import ChannelView
+from chat.channel_tab import ChannelTab
 from model.chat.channel import ChannelType
 
 
@@ -88,59 +87,3 @@ class ChatView:
             return
         self.widget.switch_to_channel(self._target_viewed_channel)
         self._target_viewed_channel = None
-
-
-class ChannelTab:
-    def __init__(self, cid, widget, theme, chat_config):
-        self._cid = cid
-        self._widget = widget
-        self._theme = theme
-        self._chat_config = chat_config
-
-        self._timer = QTimer()
-        self._timer.setInterval(self._chat_config.channel_blink_interval)
-        self._timer.timeout.connect(self._switch_blink)
-        self._blink_phase = False
-        self._chat_config.updated.connect(self._config_updated)
-
-        self._ping_timer = QTimer()
-        self._ping_timer.setSingleShot(True)
-        self._ping_timer.setInterval(self._chat_config.channel_ping_timeout)
-
-    def _config_updated(self, option):
-        c = self._chat_config
-        if option == "channel_blink_interval":
-            self._timer.setInterval(c.channel_blink_interval)
-        if option == "channel_ping_timeout":
-            self._ping_timer.setInterval(c.channel_ping_timeout)
-
-    @classmethod
-    def builder(cls, theme, chat_config, **kwargs):
-        def make(cid, widget):
-            return cls(cid, widget, theme, chat_config)
-        return make
-
-    def start_blinking(self):
-        if not self._timer.isActive():
-            self._timer.start()
-        self._ping()
-
-    def _ping(self):
-        if not self._chat_config.soundeffects:
-            return
-        if self._ping_timer.isActive():
-            return
-        self._ping_timer.start()
-        self._theme.sound("chat/sfx/query.wav")
-
-    def stop_blinking(self):
-        self._timer.stop()
-        self._ping_timer.stop()
-        self._switch_blink(False)
-
-    def _switch_blink(self, val=None):
-        if val is None:
-            val = not self._blink_phase
-        self._blink_phase = val
-        text = "" if val else self._cid.name
-        self._widget.set_tab_text(self._cid, text)
