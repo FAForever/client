@@ -262,3 +262,23 @@ if Settings.get('client/logs/console', False, type=bool):
 
 logging.getLogger().info("FAF version: {} Environment: {}".format(
     VERSION, environment))
+
+
+def qt_log_handler(type_, context, text):
+    loglvl = None
+    if type_ == QtCore.QtDebugMsg:
+        loglvl = logging.DEBUG
+    elif type_ == QtCore.QtInfoMsg:
+        loglvl = logging.INFO
+    elif type_ == QtCore.QtWarningMsg:
+        loglvl = logging.WARNING
+    elif type_ == QtCore.QtCriticalMsg:
+        loglvl = logging.ERROR
+    elif type_ == QtCore.QtFatalMsg:
+        loglvl = logging.CRITICAL
+    if loglvl is None:
+        return
+    logging.getLogger().log(loglvl, "Qt: " + text)
+
+
+QtCore.qInstallMessageHandler(qt_log_handler)
