@@ -11,6 +11,8 @@
    - Language channels to join configurable through settings.
  * Log qt messages to FAF client log, silence some noisier messages.
  * Re-add chat disconnect notifications.
+ * Temporarily hide Tutorials and Tournaments tabs. We'll re-add them once
+   they're in working state.
 
  Contributors:
  - Wesmania

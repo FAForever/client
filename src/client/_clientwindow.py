@@ -770,6 +770,11 @@ class ClientWindow(FormClass, BaseClass):
         self.unitdbTab.layout().addWidget(self._unitdb.db_widget)
         self.modsTab.layout().addWidget(self.modvault)
 
+        # TODO: hiding some non-functional tabs. Either prune them or implement
+        # something useful in them.
+        self.mainTabs.removeTab(self.mainTabs.indexOf(self.tutorialsTab))
+        self.mainTabs.removeTab(self.mainTabs.indexOf(self.tourneyTab))
+
         self.mainTabs.setCurrentIndex(self.mainTabs.indexOf(self.whatNewTab))
 
         # set menu states
