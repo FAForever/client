@@ -9,6 +9,7 @@
    - At first run, checks system UI language on Windows and LANG on unix. If no
      matching channel is found, uses user's geoIP.
    - Language channels to join configurable through settings.
+ * Log qt messages to FAF client log, silence some noisier messages.
 
  Contributors:
  - Wesmania
