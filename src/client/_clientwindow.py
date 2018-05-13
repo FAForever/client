@@ -361,14 +361,7 @@ class ClientWindow(FormClass, BaseClass):
         self.maximize.setProperty("windowControlBtn", True)
         self.minimize.setProperty("windowControlBtn", True)
 
-        self.logo = StatusLogo(self)
-        self.logo.disconnect_requested.connect(self.disconnect)
-        self.logo.reconnect_requested.connect(self.reconnect)
-        self.logo.about_dialog_requested.connect(self.linkAbout)
-        self.logo.connectivity_dialog_requested.connect(self.connectivityDialog)
-
         self.menu = self.menuBar()
-        self.topLayout.addWidget(self.logo)
         titleLabel = QtWidgets.QLabel("FA Forever" if not config.is_beta() else "FA Forever BETA")
         titleLabel.setProperty('titleLabel', True)
         self.topLayout.addWidget(titleLabel)
@@ -736,6 +729,14 @@ class ClientWindow(FormClass, BaseClass):
 
         self.authorized.connect(self._connect_chat)
 
+        self.logo = StatusLogo(self, self._chatMVC.model)
+        self.logo.disconnect_requested.connect(self.disconnect)
+        self.logo.reconnect_requested.connect(self.reconnect)
+        self.logo.chat_reconnect_requested.connect(self.chat_reconnect)
+        self.logo.about_dialog_requested.connect(self.linkAbout)
+        self.logo.connectivity_dialog_requested.connect(self.connectivityDialog)
+        self.topLayout.insertWidget(0, self.logo)
+
         # build main window with the now active client
         self.news = NewsWidget(self)
         self.coop = CoopWidget(self, self.game_model, self.me,
@@ -837,6 +838,9 @@ class ClientWindow(FormClass, BaseClass):
         self.lobby_reconnecter.enabled = False
         self.lobby_connection.disconnect()
         self._chatMVC.connection.disconnect()
+
+    def chat_reconnect(self):
+        self._connect_chat(self.me)
 
     @QtCore.pyqtSlot(list)
     def update_checked(self, releases):

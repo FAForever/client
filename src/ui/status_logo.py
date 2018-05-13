@@ -7,12 +7,14 @@ from client import ClientState
 class StatusLogo(QLabel):
     disconnect_requested = pyqtSignal()
     reconnect_requested = pyqtSignal()
+    chat_reconnect_requested = pyqtSignal()
     about_dialog_requested = pyqtSignal()
     connectivity_dialog_requested = pyqtSignal()
 
-    def __init__(self, client, logo_file='window_icon.png'):
+    def __init__(self, client, chat_model, logo_file='window_icon.png'):
         QLabel.__init__(self)
 
+        self._chat_model = chat_model
         self.state = client.state
         self.setScaledContents(True)
         self.setMargin(3)
@@ -49,10 +51,13 @@ class StatusLogo(QLabel):
 
         dc = QAction('Disconnect', None)
         rc = QAction('Reconnect', None)
+        crc = QAction('Reconnect with chat', None)
         about = QAction('About', None)
 
         if self.state != ClientState.DISCONNECTED:
             menu.addAction(dc)
+            if not self._chat_model.connected:
+                menu.addAction(crc)
         if self.state not in [
                 ClientState.CONNECTING,
                 ClientState.CONNECTED,
@@ -66,6 +71,8 @@ class StatusLogo(QLabel):
             self.disconnect_requested.emit()
         elif action == rc:
             self.reconnect_requested.emit()
+        elif action == crc:
+            self.chat_reconnect_requested.emit()
         elif action == about:
             self.about_dialog_requested.emit()
 

@@ -10,6 +10,7 @@ class ChatAnnouncer:
         self._game_announcer = game_announcer
         self._line_metadata_builder = line_metadata_builder
         self._game_announcer.announce.connect(self._announce)
+        self._model.disconnect_event.connect(self._at_chat_disconnected)
 
     @property
     def _announcement_channels(self):
@@ -24,3 +25,8 @@ class ChatAnnouncer:
                 continue
             data = self._line_metadata_builder.get_meta(channel, line)
             channel.lines.add_line(data)
+
+    def _at_chat_disconnected(self):
+        self._announce(
+            ("Disconnected from chat! Right-click on the FAF icon "
+             "in the top-left to reconnect."))
