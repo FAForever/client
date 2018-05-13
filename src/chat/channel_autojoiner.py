@@ -24,7 +24,7 @@ class ChannelAutojoiner:
         self._lobby_info = lobby_info
         self._chat_config = chat_config
         self._me = me
-        self._me.playerChanged.connect(self._at_player_changed)
+        self._me.playerChanged.connect(self._autojoin_player_dependent)
         self._lang_channel_checker = lang_channel_checker
 
         self._lobby_info.social.connect(self._autojoin_lobby)
@@ -45,10 +45,9 @@ class ChannelAutojoiner:
         self._autojoin_base()
         self._autojoin_saved_lobby()
         self._autojoin_custom()
-        self._autojoin_newbie()
-        self._autojoin_lang()
+        self._autojoin_player_dependent()
 
-    def _at_player_changed(self):
+    def _autojoin_player_dependent(self):
         if not self._model.connected:
             return
         if self._me.player is None:
