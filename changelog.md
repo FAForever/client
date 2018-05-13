@@ -10,6 +10,7 @@
      matching channel is found, uses user's geoIP.
    - Language channels to join configurable through settings.
  * Log qt messages to FAF client log, silence some noisier messages.
+ * Re-add chat disconnect notifications.
 
  Contributors:
  - Wesmania
