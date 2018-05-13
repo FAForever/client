@@ -13,9 +13,11 @@
  * Re-add chat disconnect notifications.
  * Temporarily hide Tutorials and Tournaments tabs. We'll re-add them once
    they're in working state.
+ * Add icons to chat tabs to indicate activity in the channel.
 
  Contributors:
  - Wesmania
+ - Giebmasse
 
 0.17.3
 =====
