@@ -58,7 +58,7 @@ class FileDownload(QObject):
         # check status code
         statusCode = self._dfile.attribute(QNetworkRequest.HttpStatusCodeAttribute)
         if statusCode != 200:
-            logger.warning('Download failed: %s -> %s', self.addr, statusCode)
+            logger.debug('Download failed: %s -> %s', self.addr, statusCode)
             self.error = True
         self.finished.emit(self)
 
@@ -162,7 +162,7 @@ class PreviewDownload(QtCore.QObject):
 
     def _finished(self, dl):
         dl.dest.close()
-        logger.info("Finished download from " + dl.addr)
+        logger.debug("Finished download from " + dl.addr)
         if self.failed():
             logger.debug("Web Preview failed for: {}".format(self.name))
             os.unlink(dl.destpath)
