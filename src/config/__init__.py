@@ -282,3 +282,7 @@ def qt_log_handler(type_, context, text):
 
 
 QtCore.qInstallMessageHandler(qt_log_handler)
+
+
+def clear_qt_handler():
+    QtCore.qInstallMessageHandler(None)

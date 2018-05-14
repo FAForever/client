@@ -908,6 +908,9 @@ class ClientWindow(FormClass, BaseClass):
             self.tray.deleteLater()
             self.tray = None
 
+        # Clear qt message handler to avoid crash at exit
+        config.clear_qt_handler()
+
         # Terminate UI
         if self.isVisible():
             progress.setLabelText("Closing main window")
