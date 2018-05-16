@@ -146,7 +146,6 @@ class ChatConfig(QtCore.QObject):
         self.hide_chatter_items.removed.connect(self._emit_hidden_items)
 
         self.chat_line_trim_count = 1
-        self.chat_scroll_snap_distance = 0
         self.announcement_channels = []
         self.channel_greeting = []
         self.channels_to_greet_in = []
@@ -644,7 +643,6 @@ class ClientWindow(FormClass, BaseClass):
         self._chat_config.channel_ping_timeout = 60 * 1000
         self._chat_config.max_chat_lines = 200
         self._chat_config.chat_line_trim_count = 50
-        self._chat_config.chat_scroll_snap_distance = 40
         self._chat_config.announcement_channels = ['#aeolus']
         self._chat_config.channels_to_greet_in = ['#aeolus']
         self._chat_config.newbie_channel_game_threshold = 50

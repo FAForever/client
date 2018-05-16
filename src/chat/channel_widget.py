@@ -19,7 +19,7 @@ class ChannelWidget(QObject):
         self._chat_area_css = chat_area_css
         self._chat_area_css.changed.connect(self._reload_css)
         self._chat_config = chat_config
-        self._saved_scroll = None
+        self._scroll_at_bottom = False
         self.set_theme(theme)
 
     @classmethod
@@ -150,19 +150,13 @@ class ChannelWidget(QObject):
 
     def _save_scroll(self):
         scrollbar = self.chat_area.verticalScrollBar()
-        self._saved_scroll = scrollbar.value()
+        self._scroll_at_bottom = scrollbar.value() == scrollbar.maximum()
 
     def _scroll_to_bottom_if_needed(self):
-        if self._saved_scroll is None:
+        if not self._scroll_at_bottom:
             return
         scrollbar = self.chat_area.verticalScrollBar()
-        max_scroll = scrollbar.maximum()
-        snap_distance = self._chat_config.chat_scroll_snap_distance
-        if max_scroll < self._saved_scroll + snap_distance:
-            scrollbar.setValue(max_scroll)
-        else:
-            scrollbar.setValue(self._saved_scroll)
-        self._saved_scroll = None
+        scrollbar.setValue(scrollbar.maximum())
 
     def set_topic(self, topic):
         self.announce_line.setText(topic)
