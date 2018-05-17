@@ -151,7 +151,7 @@ class ChannelWidget(QObject):
 
     @property
     def hidden(self):
-        return self.base.isHidden()
+        return not self.base.isVisible()
 
     def set_topic(self, topic):
         self.announce_line.setText(topic)

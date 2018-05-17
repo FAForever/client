@@ -1274,6 +1274,12 @@ class ClientWindow(FormClass, BaseClass):
             tab = new_tab.layout().itemAt(0).widget()
             if isinstance(tab, BusyWidget):
                 tab.busy_entered()
+        # FIXME - special concession for chat tab. In the future we should
+        # separate widgets from controlling classes, just like chat tab does -
+        # then we'll refactor this part.
+        if new_tab is self.chatTab:
+            self._chatMVC.view.entered()
+
 
     @QtCore.pyqtSlot(int)
     def mainTabChanged(self, curr):

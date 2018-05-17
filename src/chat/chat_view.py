@@ -60,11 +60,17 @@ class ChatView:
         self._controller.leave_channel(cid, "tab closed")
 
     def _at_tab_changed(self, cid):
-        self._channels[cid].on_switched_to()
+        self._channels[cid].on_shown()
 
     def _at_join_requested(self, cid):
         if cid.type == ChannelType.PRIVATE:
             self.target_viewed_channel = cid
+
+    def entered(self):
+        current = self.widget.current_channel()
+        if current is None:
+            return
+        self._channels[current].on_shown()
 
     @property
     def target_viewed_channel(self):

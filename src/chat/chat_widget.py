@@ -86,9 +86,18 @@ class ChatWidget(QObject):
         idx = self.base.indexOf(widget.base)
         self.base.setTabText(idx, text)
 
-    def _at_tab_changed(self, idx):
-        if idx == -1:
-            return
+    def _index_to_cid(self, idx):
         for cid in self._channels:
             if idx == self.base.indexOf(self._channels[cid].base):
-                self.tab_changed.emit(cid)
+                return cid
+        return None
+
+    def _at_tab_changed(self, idx):
+        cid = self._index_to_cid(idx)
+        if cid is None:
+            return
+        self.tab_changed.emit(cid)
+
+    def current_channel(self):
+        current_idx = self.base.currentIndex()
+        return self._index_to_cid(current_idx)

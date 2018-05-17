@@ -11,7 +11,6 @@ from chat.chatter_model import ChatterModel, ChatterEventFilter, \
 from chat.chatter_menu import ChatterMenu
 from model.chat.channel import ChannelType
 from model.chat.chatline import ChatLineType
-from model.game import GameState
 from util.gameurl import GameUrl
 from util import irc_escape
 from downloadManager import DownloadRequest
@@ -58,7 +57,7 @@ class ChannelView:
     def _at_line_typed(self, line):
         self._controller.send_message(self._channel.id_key, line)
 
-    def on_switched_to(self):
+    def on_shown(self):
         self._channel_tab.stop_blinking()
 
 
