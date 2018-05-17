@@ -68,6 +68,7 @@ class ChannelTab:
         self._ping()
 
     def _ping(self):
+        self._widget.alert_tab()
         if not self._chat_config.soundeffects:
             return
         if self._ping_timer.isActive():

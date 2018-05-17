@@ -1,6 +1,6 @@
 from enum import Enum
 from PyQt5.QtCore import QObject, pyqtSignal
-from PyQt5.QtWidgets import QTabBar
+from PyQt5.QtWidgets import QTabBar, QApplication
 from model.chat.channel import ChannelType
 
 
@@ -96,6 +96,9 @@ class ChatWidget(QObject):
             return
         idx = self.base.indexOf(widget.base)
         self.base.setTabIcon(idx, icon)
+
+    def alert_tab(self):
+        QApplication.alert(self.base)
 
     def _index_to_cid(self, idx):
         for cid in self._channels:
