@@ -19,7 +19,6 @@ class ChannelWidget(QObject):
         self._chat_area_css = chat_area_css
         self._chat_area_css.changed.connect(self._reload_css)
         self._chat_config = chat_config
-        self._scroll_at_bottom = False
         self.set_theme(theme)
 
     @classmethod
@@ -65,6 +64,8 @@ class ChannelWidget(QObject):
         self.chat_area.anchorClicked.connect(self._url_clicked)
         self._override_widget_methods()
         self._load_css()
+        self._sticky_scroll = ChatAreaStickyScroll(
+            self.chat_area.verticalScrollBar())
 
     def _override_widget_methods(self):
 
@@ -118,12 +119,16 @@ class ChannelWidget(QObject):
         self.nick_frame.setVisible(should_show)
 
     def append_line(self, text):
-        self._save_scroll()
+        # QTextEdit has its own ideas about scrolling and does not stay
+        # in place when adding content
+        self._sticky_scroll.save_scroll()
+
         cursor = self.chat_area.textCursor()
         cursor.movePosition(QTextCursor.End)
         self.chat_area.setTextCursor(cursor)
         self.chat_area.insertHtml(text)
-        self._scroll_to_bottom_if_needed()
+
+        self._sticky_scroll.restore_scroll()
 
     def remove_lines(self, number):
         cursor = self.chat_area.textCursor()
@@ -148,15 +153,34 @@ class ChannelWidget(QObject):
     def hidden(self):
         return self.base.isHidden()
 
-    def _save_scroll(self):
-        scrollbar = self.chat_area.verticalScrollBar()
-        self._scroll_at_bottom = scrollbar.value() == scrollbar.maximum()
-
-    def _scroll_to_bottom_if_needed(self):
-        if not self._scroll_at_bottom:
-            return
-        scrollbar = self.chat_area.verticalScrollBar()
-        scrollbar.setValue(scrollbar.maximum())
-
     def set_topic(self, topic):
         self.announce_line.setText(topic)
+
+
+class ChatAreaStickyScroll:
+    def __init__(self, scrollbar):
+        self._scrollbar = scrollbar
+        self._scrollbar.valueChanged.connect(self._track_maximum)
+        self._scrollbar.rangeChanged.connect(self._stick_at_range_changed)
+        self._is_set_to_maximum = True
+        self._old_value = self._scrollbar.value()
+        self._saved_scroll = 0
+
+    def save_scroll(self):
+        self._saved_scroll = self._scrollbar.value()
+
+    def restore_scroll(self):
+        if self._is_set_to_maximum:
+            self._scrollbar.setValue(self._scrollbar.maximum())
+        else:
+            self._scrollbar.setValue(self._saved_scroll)
+
+    def _track_maximum(self, val):
+        self._is_set_to_maximum = val == self._scrollbar.maximum()
+        self._old_value = val
+
+    def _stick_at_range_changed(self, min_, max_):
+        if self._is_set_to_maximum:
+            self._scrollbar.setValue(max_)
+        else:
+            self._scrollbar.setValue(self._old_value)
