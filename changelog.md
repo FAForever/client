@@ -14,6 +14,8 @@
  * Temporarily hide Tutorials and Tournaments tabs. We'll re-add them once
    they're in working state.
  * Add icons to chat tabs to indicate activity in the channel.
+ * Restore private chat channels after reconnecting to chat.
+ * Fix a bunch of chat and mod tool bugs.
 
  Contributors:
  - Wesmania
