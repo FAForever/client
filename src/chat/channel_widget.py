@@ -110,7 +110,7 @@ class ChannelWidget(QObject):
         fragments = text.split("\n")
         for line in fragments:
             # Compound wacky Whitespace
-            line = re.sub('\s', ' ', text).strip()
+            line = re.sub('\s', ' ', line).strip()
             if not line:
                 continue
             self.line_typed.emit(line)
