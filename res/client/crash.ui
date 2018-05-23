@@ -18,7 +18,7 @@
     <enum>QLayout::SetDefaultConstraint</enum>
    </property>
    <item>
-    <widget class="QLabel" name="label">
+    <widget class="QLabel" name="infoBlurb">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
        <horstretch>0</horstretch>
@@ -26,12 +26,10 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>An uncaught exception has occured in the client. You can continue if you want, but the client might become unstable.
-
-If you want, you can help us fix the issue - post the below snippet in the technical help forum linked below with the description of the problem.</string>
+      <string>An uncaught exception has occured in the client. You can continue if you want, but the client might become unstable.&lt;br&gt;&lt;br&gt;If you want, you can help us fix the issue - post the below snippet in the technical help forum linked below with the description of the problem.</string>
      </property>
      <property name="textFormat">
-      <enum>Qt::AutoText</enum>
+      <enum>Qt::RichText</enum>
      </property>
      <property name="scaledContents">
       <bool>true</bool>

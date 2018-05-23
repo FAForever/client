@@ -49,6 +49,19 @@ class CrashDialog(FormClass, BaseClass):
         self.helpButton.clicked.connect(self.tech_support)
         self.continueButton.clicked.connect(self.accept)
         self.quitButton.clicked.connect(self.reject)
+        self.add_theme_caveat()
 
     def tech_support(self):
         QDesktopServices().openUrl(QUrl(Settings.get("SUPPORT_URL")))
+
+    def add_theme_caveat(self):
+        text = self.infoBlurb.text()
+        try:
+            config_loc = "(located at {}) ".format(util.Settings.fileName())
+        except Exception:
+            config_loc = ""
+        text += ("<br><br><b>If you're seeing this message after overiding "
+                 "an obsolete theme, go to the client config file {}and "
+                 "remove the [theme_version_override] section.</b>").format(
+                    config_loc)
+        self.infoBlurb.setText(text)
