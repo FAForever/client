@@ -9,6 +9,7 @@ environment:
   matrix:
     - PYTHON: "C:\\Python36"
       PYWHEEL_INFIX: "cp36"
+  PATH: "%PYTHON%\\Scripts;%PATH%"
 
 init:
   - "ECHO %PYTHON% %APPVEYOR_REPO_TAG_NAME%"
@@ -17,12 +18,10 @@ install:
   # dump version
   - git describe --tags --always
   # install dependencies using pip
-  - "%PYTHON%\\Scripts\\pip install pyqt5==5.7.1"
+  - "pip install pipenv"
+  - "pipenv --version"
+  - "pipenv --system install -d"
   - "%PYTHON%\\Scripts\\pip install https://github.com/FAForever/python-wheels/releases/download/2.0.0/pywin32-221-%PYWHEEL_INFIX%-%PYWHEEL_INFIX%m-win32.whl"
-  - "%PYTHON%\\Scripts\\pip install wheel"
-  - "%PYTHON%\\Scripts\\pip install pytest"
-  - "%PYTHON%\\Scripts\\pip install cx_Freeze==5.0.2"
-  - "%PYTHON%\\Scripts\\pip install -r requirements.txt --trusted-host content.faforever.com"
   # copy required dlls for packaging in setup.py
   - "xcopy %PYTHON%\\lib\\site-packages\\PyQt5\\Qt\\plugins\\imageformats .\\imageformats /I"
   - "xcopy %PYTHON%\\lib\\site-packages\\PyQt5\\Qt\\plugins\\platforms .\\platforms /I"
