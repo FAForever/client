@@ -1,6 +1,14 @@
 0.x.x
 =====
 
+0.18.0-rc.2
+=====
+ * Fix an issue with login dialog not starting
+ * Add a caveat about themes to the exception dialog
+
+ Contributors:
+ - Wesmania
+
 0.17.4
 =====
  * Integrate client with new Rackover's database
