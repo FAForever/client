@@ -24,7 +24,7 @@ class LoginWidget(FormClass, BaseClass):
             self.loginField.setText(startLogin)
         self.rememberCheckbox.setChecked(remember)
 
-    def load_stylesheet(self, stylesheet):
+    def load_stylesheet(self):
         self.setStyleSheet(util.THEME.readstylesheet("client/login.css"))
 
     @QtCore.pyqtSlot()
