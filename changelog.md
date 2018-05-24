@@ -3,6 +3,13 @@
 
 0.18.0-rc.2
 =====
+ * Fix an uncaught exception when handling unknown IRC chatter mode
+
+ Contributors:
+ - Wesmania
+
+0.18.0-rc.2
+=====
  * Fix an issue with login dialog not starting
  * Add a caveat about themes to the exception dialog
 

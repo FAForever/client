@@ -275,7 +275,7 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
             if not match:
                 return ""
             match = match.group(1)
-            return ''.join(mode_to_elevation[c] for c in match)
+            return ''.join(mode_to_elevation.get(c, '') for c in match)
 
         return get_elevations(add), get_elevations(remove)
 
