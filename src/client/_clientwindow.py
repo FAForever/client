@@ -907,7 +907,7 @@ class ClientWindow(FormClass, BaseClass):
             self.tray = None
 
         # Clear qt message handler to avoid crash at exit
-        config.clear_qt_handler()
+        config.clear_logging_handlers()
 
         # Terminate UI
         if self.isVisible():

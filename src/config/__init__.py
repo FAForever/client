@@ -5,6 +5,7 @@ import locale
 import logging
 import fafpath
 import traceback
+import faulthandler
 from PyQt5 import QtCore
 from logging.handlers import RotatingFileHandler, MemoryHandler
 
@@ -283,6 +284,36 @@ def qt_log_handler(type_, context, text):
 
 QtCore.qInstallMessageHandler(qt_log_handler)
 
+fault_handler_file = None
 
-def clear_qt_handler():
+
+def setup_fault_handler():
+    global fault_handler_file
+    log_path = os.path.join(Settings.get('client/logs/path'), 'crash.log')
+    try:
+        rotate = RotatingFileHandler(
+            log_path,
+            maxBytes=int(Settings.get('client/logs/max_size')),
+            backupCount=1)
+        rotate.doRollover()
+        rotate.close()
+
+        # This file must be kept open so that faulthandler can write to the
+        # same file descriptor no matter the circumstances
+        fault_handler_file = open(log_path, 'a')
+    except IOError as e:
+        logging.getLogger().log_error(
+            'Failed to setup crash.log for the fault handler: ' + e.strerror)
+        return
+
+    faulthandler.enable(fault_handler_file)
+
+
+setup_fault_handler()
+
+
+def clear_logging_handlers():
+    global fault_handler_file
     QtCore.qInstallMessageHandler(None)
+    faulthandler.disable()
+    fault_handler_file.close()

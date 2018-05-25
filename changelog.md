@@ -4,6 +4,7 @@
 0.18.0-rc.2
 =====
  * Fix an uncaught exception when handling unknown IRC chatter mode
+ * Log fatal errors like segmentation faults to crash.log
 
  Contributors:
  - Wesmania
