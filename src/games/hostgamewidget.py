@@ -156,7 +156,6 @@ class HostGameWidget(FormClass, BaseClass):
 
     def set_map(self, mapname):
         for i in range(self.mapList.count()):
-            print(self.mapList.itemData(i))
             if self.mapList.itemData(i) == mapname:
                 self.mapList.setCurrentIndex(i)
                 return
