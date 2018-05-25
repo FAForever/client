@@ -382,12 +382,13 @@ class LobbyInfo(QtCore.QObject):
             self._update_game(message)
 
     def _update_game(self, m):
+        logger.debug('Received info about game {}'.format(m.get("uid", None)))
         if not message_to_game_args(m):
             return
 
         uid = m["uid"]
         if uid not in self._gameset:
-            game = Game(playerset = self._playerset, **m)
+            game = Game(playerset=self._playerset, **m)
             try:
                 self._gameset[uid] = game
             except ValueError:  # Closed game!
