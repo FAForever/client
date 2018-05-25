@@ -1,5 +1,6 @@
 from PyQt5 import QtCore
 import modvault
+import html
 
 from fa import maps
 import util
@@ -161,7 +162,9 @@ class HostGameWidget(FormClass, BaseClass):
                 return
 
     def update_text(self, text):
-        self.game.update(title=text.strip())
+        # Game names from server come already escaped,
+        # so we do our escaping here
+        self.game.update(title=html.escape(text.strip()))
 
     def update_pass_check(self, checked):
         self.game.update(password_protected=checked)
