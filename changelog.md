@@ -1,7 +1,14 @@
 0.x.x
 =====
 
-0.18.0-rc.2
+0.18.0-rc.4
+=====
+ * Fix wrong chat line colors in some rare cases
+
+ Contributors:
+ - Wesmania
+
+0.18.0-rc.3
 =====
  * Fix an uncaught exception when handling unknown IRC chatter mode
  * Log fatal errors like segmentation faults to crash.log

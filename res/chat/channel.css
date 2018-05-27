@@ -3,6 +3,17 @@
  * Unfortunately Qt does not support setting the width attribute through CSS.
  */
 
+/* CAVEAT: remember about CSS rules for overriding styles, otherwise you might
+ * end up with wrong colors!
+ *
+ * CSS specifity comes first. As a rule of thumb, rules with more classes
+ * override rules with less classes. If you have a general rule that should
+ * override specific rules, repeat the class a few times to give it more
+ * specifity.
+ *
+ * When specifity is equal, a later rule overrides eariler rules.
+ */
+
 body {
 	font-family: 'Segoe UI';
 	font-size: 9pt;
@@ -78,6 +89,10 @@ span {
 	color: "{{ colors['mod'] }}";
 }
 
+.info .col_sender, .info .col_text, .info .col_time {
+	color: "{{ colors['default'] }}";
+}
+
 .friend.mod .col_sender, .friend.mod .col_text, .clannie.mod .col_sender, .clannie.mod .col_text {
 	color: "{{ colors['friend_mod'] }}";
 }
@@ -86,12 +101,10 @@ span {
 	color: "{{ colors['self_mod'] }}";
 }
 
-.mentions_me .col_sender, .mentions_me .col_text {
-	color: "{{ colors['you'] }}";
-}
+/* Increase CSS specifity of 'mentions_me' tags to override selectors with 3 classes */
 
-.info .col_sender, .info .col_text, .info .col_time {
-	color: "{{ colors['default'] }}";
+.mentions_me.mentions_me .col_sender, .mentions_me.mentions_me .col_text {
+	color: "{{ colors['you'] }}";
 }
 
 a {
