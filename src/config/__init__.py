@@ -310,7 +310,7 @@ def setup_fault_handler():
         # same file descriptor no matter the circumstances
         fault_handler_file = open(log_path, 'a')
     except IOError as e:
-        logging.getLogger().log_error(
+        logging.getLogger().error(
             'Failed to setup crash.log for the fault handler: ' + e.strerror)
         return
 
