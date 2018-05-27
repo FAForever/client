@@ -291,11 +291,19 @@ def setup_fault_handler():
     global fault_handler_file
     log_path = os.path.join(Settings.get('client/logs/path'), 'crash.log')
     try:
+        max_sz = int(Settings.get('client/logs/max_size'))
         rotate = RotatingFileHandler(
             log_path,
-            maxBytes=int(Settings.get('client/logs/max_size')),
+            maxBytes=max_sz,
             backupCount=1)
-        rotate.doRollover()
+        # Rollover does it unconditionally, not looking at max size,
+        # so we need to check it manually
+        try:
+            finfo = os.stat(log_path)
+            if finfo.st_size > max_sz:
+                rotate.doRollover()
+        except FileNotFoundError:
+            pass
         rotate.close()
 
         # This file must be kept open so that faulthandler can write to the
