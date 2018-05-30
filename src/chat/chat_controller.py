@@ -167,8 +167,15 @@ class ChatController(QObject):
     def _announce_part(self, channel, chatter):
         self._announce_chatter(channel, chatter, "left the channel.")
 
-    @_joinpart
-    def _announce_quit(self, channel, chatter, message):
+    def _announce_quit(self, cid, chatter, message):
+        if (not self._chat_config.joinsparts
+                and cid.type != ChannelType.PRIVATE):
+            return
+        if self._should_ignore_chatter(cid, chatter.name):
+            return
+        channel = self._channels.get(cid, None)
+        if channel is None:
+            return
         prefix = "quit"
         if message == chatter.name:     # Silence default messages
             message = "{}.".format(prefix)
