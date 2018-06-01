@@ -812,6 +812,10 @@ class ClientWindow(FormClass, BaseClass):
     def _connect_chat(self, me):
         if not self.use_chat:
             return
+        if me.login is None or me.id is None or self.password is None:
+            # FIXME: we didn't authorize with the server for some reason.
+            # We'll do this check in a more organized fashion in the future.
+            return
         self._chatMVC.connection.connect(me.login, me.id, self.password)
 
     def warningHide(self):
