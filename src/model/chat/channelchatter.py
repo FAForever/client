@@ -31,4 +31,4 @@ class ChannelChatter(ModelItem):
 
     def is_mod(self):
         e = self.elevation
-        return e and e in self.MOD_ELEVATIONS
+        return e != '' and e in self.MOD_ELEVATIONS
