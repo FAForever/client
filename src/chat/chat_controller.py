@@ -301,7 +301,7 @@ class ChatController(QObject):
             return False
         if cid.type == ChannelType.PUBLIC:
             cc = self._ccs.get((cid, name), None)
-            if cc is None or cc.is_mod():
+            if cc is None or cc.is_mod() or cc.chatter.is_base_channel_mod():
                 return False
 
         if not self._chat_config.ignore_foes:

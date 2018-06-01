@@ -94,7 +94,7 @@ class ChatterMenu:
             yield ChatterMenuItems.REMOVE_FOE
         else:
             yield ChatterMenuItems.ADD_FRIEND
-            if not cc.is_mod():
+            if not cc.is_mod() and not chatter.is_base_channel_mod():
                 yield ChatterMenuItems.ADD_FOE
 
     def get_context_menu(self, data, point):

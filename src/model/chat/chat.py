@@ -20,7 +20,7 @@ class Chat(QObject):
 
     @classmethod
     def build(cls, playerset, **kwargs):
-        channels = Channelset()
+        channels = Channelset.build(**kwargs)
         chatters = Chatterset(playerset)
         channelchatters = ChannelChatterset()
         cc_relation = ChannelChatterRelation(channels, chatters,

@@ -60,9 +60,10 @@ class Channel(ModelItem):
     added_chatter = pyqtSignal(object)
     removed_chatter = pyqtSignal(object)
 
-    def __init__(self, id_, lines, topic):
+    def __init__(self, id_, lines, topic, is_base=False):
         ModelItem.__init__(self)
         self.add_field("topic", topic)
+        self.add_field("is_base", is_base)
         self.lines = lines
         self.id = id_
         self.chatters = {}
