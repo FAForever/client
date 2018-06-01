@@ -4,9 +4,12 @@
 0.18.0-rc.4
 =====
  * Fix wrong chat line colors in some rare cases
+ * Fix client crash at some points during live game when connection to
+   lobbyserver was lost
 
  Contributors:
  - Wesmania
+ - muellni
 
 0.18.0-rc.3
 =====
