@@ -356,18 +356,19 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
         return target, rest
 
     def _handle_nickserv_message(self, notice):
-        if (notice.find("registered under your account") >= 0 or
-           notice.find("Password accepted") >= 0):
+        ident_strings = ["registered under your account", "Password accepted",
+                         "You are already identified."]
+        if any(s in notice for s in ident_strings):
             if not self._identified:
                 self._identified = True
                 self.on_identified()
-        elif notice.find("isn't registered") >= 0:
+        elif "isn't registered" in notice:
             self._nickserv_register()
-        elif notice.find("Nickname {} registered.".format(self._nick)):
+        elif "Nickname {} registered.".format(self._nick) in notice:
             self._nickserv_identify()
-        elif notice.find("RELEASE") >= 0:
+        elif "RELEASE" in notice:
             self.connection.privmsg('release {} {}')
-        elif notice.find("hold on") >= 0:
+        elif "hold on" in notice:
             self.connection.nick(self._nick)
 
     def on_disconnect(self, c, e):
