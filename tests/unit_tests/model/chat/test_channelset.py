@@ -9,7 +9,7 @@ class MockChannels():
         self._mock = mock
 
     def get(self, cid):
-        mock_channel = self._mock.Mock(spec_set=["id_key"])
+        mock_channel = self._mock.Mock(spec_set=["id_key", "is_base"])
         mock_channel.id_key = cid
         return mock_channel
 
@@ -21,7 +21,7 @@ def channels(mocker):
 
 def test_adding_channel(channels, mocker):
     added = mocker.Mock()
-    channelset = Channelset()
+    channelset = Channelset([])
     channelset.added.connect(added)
 
     cid = ChannelID(ChannelType.PUBLIC, "aeolus")
@@ -36,7 +36,7 @@ def test_adding_channel(channels, mocker):
 
 def test_removing_channel(channels, mocker):
     removed = mocker.Mock()
-    channelset = Channelset()
+    channelset = Channelset([])
     channelset.removed.connect(removed)
 
     cid = ChannelID(ChannelType.PUBLIC, "aeolus")
@@ -52,7 +52,7 @@ def test_removing_channel(channels, mocker):
 
 
 def test_adding_mismatched_cid_is_value_error(channels):
-    channelset = Channelset()
+    channelset = Channelset([])
     cid = ChannelID(ChannelType.PUBLIC, "aeolus")
     cid2 = ChannelID(ChannelType.PUBLIC, "odysseus")
     cid3 = ChannelID(ChannelType.PRIVATE, "aeolus")
@@ -65,7 +65,7 @@ def test_adding_mismatched_cid_is_value_error(channels):
 
 
 def test_adding_same_cid_twice_is_value_error(channels):
-    channelset = Channelset()
+    channelset = Channelset([])
     cid1 = ChannelID(ChannelType.PUBLIC, "aeolus")
     cid2 = ChannelID(ChannelType.PUBLIC, "aeolus")
     new_channel1 = channels.get(cid1)
