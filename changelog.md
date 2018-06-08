@@ -1,6 +1,15 @@
 0.x.x
 =====
 
+0.18.0-rc.5
+=====
+ * Prevent being able to foe or igore aeolus mods
+ * Fix game names being accidentally HTML-escaped
+ * Fix communication with nickserv sometimes breaking
+
+ Contributors:
+ - Wesmania
+
 0.18.0-rc.4
 =====
  * Fix wrong chat line colors in some rare cases
