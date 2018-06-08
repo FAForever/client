@@ -3,6 +3,7 @@ from PyQt5.QtCore import pyqtSignal, QUrl, QUrlQuery, QTimer
 from enum import Enum
 from decorators import with_logger
 import time
+import html
 
 import string
 
@@ -254,6 +255,8 @@ def message_to_game_args(m):
     try:
         m['state'] = GameState(m['state'])
         m['visibility'] = GameVisibility(m['visibility'])
+        # Server sends HTML-escaped names, which is needlessly confusing
+        m['title'] = html.unescape(m['title'])
     except (KeyError, ValueError):
         return False
 

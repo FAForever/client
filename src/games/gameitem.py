@@ -2,6 +2,7 @@ import os
 import util
 from PyQt5 import QtCore, QtWidgets, QtGui
 from fa import maps
+import html
 
 
 class GameView(QtCore.QObject):
@@ -161,9 +162,9 @@ class GameItemFormatter:
         formatting = {
             "color": self._host_color(game),
             "mapslots": game.max_players,
-            "mapdisplayname": game.mapdisplayname,
-            "title": game.title,
-            "host": game.host,
+            "mapdisplayname": html.escape(game.mapdisplayname),
+            "title": html.escape(game.title),
+            "host": html.escape(game.host),
             "players": game.num_players,
             "playerstring": "player" if game.num_players == 1 else "players",
             "avgrating": int(game.average_rating)
@@ -171,7 +172,7 @@ class GameItemFormatter:
         if self._featured_mod(game):
             return self.FORMATTER_FAF.format(**formatting)
         else:
-            formatting["mod"] = game.featured_mod
+            formatting["mod"] = html.escape(game.featured_mod)
             return self.FORMATTER_MOD.format(**formatting)
 
     def icon(self, data):
