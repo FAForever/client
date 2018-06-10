@@ -1,3 +1,4 @@
+import os
 from PyQt5 import QtWidgets, QtCore
 from fa.path import validatePath, typicalForgedAlliancePaths
 
@@ -42,6 +43,12 @@ class UpgradePage(QtWidgets.QWizardPage):
         self.setCommitPage(True)
 
     def comboChanged(self):
+        tgt_dir = self.comboBox.currentText()
+        if not validatePath(tgt_dir):
+            # User picked some subdirectory (most likely bin)
+            parent = os.path.dirname(tgt_dir)
+            if validatePath(parent):
+                self.comboBox.setCurrentText(parent)
         self.completeChanged.emit()
 
     @QtCore.pyqtSlot()
@@ -56,16 +63,10 @@ class UpgradePage(QtWidgets.QWizardPage):
             self.completeChanged.emit()
 
     def isComplete(self, *args, **kwargs):
-        if validatePath(self.comboBox.currentText()):
-            return True
-        else:
-            return False
+        return validatePath(self.comboBox.currentText())
 
     def validatePage(self, *args, **kwargs):
-        if validatePath(self.comboBox.currentText()):
-            return True
-        else:
-            return False
+        return validatePath(self.comboBox.currentText())
 
 
 class Wizard(QtWidgets.QWizard):
