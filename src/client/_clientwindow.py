@@ -3,7 +3,7 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 import config
 import connectivity
 from connectivity.helper import ConnectivityHelper
-from client import ClientState, LOBBY_HOST, LOBBY_PORT, LOCAL_REPLAY_PORT
+from client import ClientState, LOBBY_HOST, LOBBY_PORT
 from client.aliasviewer import AliasWindow, AliasSearchWindow
 from client.connection import LobbyInfo, ServerConnection, \
         Dispatcher, ConnectionState, ServerReconnecter
@@ -1164,7 +1164,7 @@ class ClientWindow(FormClass, BaseClass):
             pass
 
     def doConnect(self):
-        if not self.replayServer.doListen(LOCAL_REPLAY_PORT):
+        if not self.replayServer.doListen():
             return False
 
         self.lobby_connection.doConnect()
@@ -1516,7 +1516,7 @@ class ClientWindow(FormClass, BaseClass):
 
         self.game_session.game_uid = message['uid']
 
-        fa.run(info, self.game_session.relay_port, arguments, self.game_session.game_uid)
+        fa.run(info, self.game_session.relay_port, self.replayServer.serverPort(), arguments, self.game_session.game_uid)
 
     def fill_in_session_info(self, game):
         # sometimes we get the game_info message before a game session was created

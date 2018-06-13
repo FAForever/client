@@ -149,20 +149,20 @@ class ReplayServer(QtNetwork.QTcpServer):
         self.__logger.debug("initializing...")
         self.newConnection.connect(self.acceptConnection)
 
-    def doListen(self,local_port):
+    def doListen(self):
         while not self.isListening():
-            self.listen(QtNetwork.QHostAddress.LocalHost, local_port)
+            self.listen(QtNetwork.QHostAddress.LocalHost, 0)
             if self.isListening():
                 self.__logger.info("listening on address " + self.serverAddress().toString() + ":" + str(self.serverPort()))
             else:
-                self.__logger.error("cannot listen, port probably used by another application: " + str(local_port))
+                self.__logger.error("cannot listen, port probably used by another application: " + str(self.serverPort()))
                 answer = QtWidgets.QMessageBox.warning(None, "Port Occupied", "FAF couldn't start its local replay "
                                                                               "server, which is needed to play Forged "
                                                                               "Alliance online. Possible reasons:<ul>"
                                                                               "<li><b>FAF is already running</b> (most "
                                                                               "likely)</li><li>another program is "
                                                                               "listening on port {port}</li></ul>"
-                                                       .format(port=local_port),
+                                                       .format(port=self.serverPort()),
                                                        QtWidgets.QMessageBox.Retry, QtWidgets.QMessageBox.Abort)
                 if answer == QtWidgets.QMessageBox.Abort:
                     return False

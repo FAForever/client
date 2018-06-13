@@ -27,7 +27,6 @@ defaults = {
     'host': 'faforever.com',
     'proxy/host': 'proxy.{host}',
     'proxy/port': 9124,
-    'lobby/relay/port': 15000,
     'lobby/host': 'lobby.{host}',
     'lobby/port': 8001,
     'mordor/host': 'http://mordor.{host}',
