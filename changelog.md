@@ -1,6 +1,16 @@
 0.x.x
 =====
 
+0.18.0
+=====
+ * Refactor updater code. Although tested to work, let's still pray that it
+   doesn't break everything!
+ * Pick the right SupCom directory even if the user picked some subdirectory of
+   it like 'bin'
+
+ Contributors:
+ - Wesmania
+
 0.18.0-rc.5
 =====
  * Prevent being able to foe or igore aeolus mods
