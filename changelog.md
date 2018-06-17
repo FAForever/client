@@ -11,6 +11,10 @@
  Contributors:
  - Wesmania
 
+0.18.0-rc.6
+=====
+Transitional version due to broken old updater.
+
 0.18.0-rc.5
 =====
  * Prevent being able to foe or igore aeolus mods
