@@ -28,6 +28,23 @@ class ReleaseType(Enum):
 
     @classmethod
     def get(cls, version):
+        if version < Version("0.18.0"):
+            return cls.legacy_versioning(version)
+        else:
+            return cls.new_versioning(version)
+
+    @classmethod
+    def legacy_versioning(cls, version):
+        if version.minor % 2 == 1:
+            return cls.UNSTABLE
+        else:
+            if version.prerelease == ():
+                return cls.STABLE
+            else:
+                return cls.PRERELEASE
+
+    @classmethod
+    def new_versioning(cls, version):
         if any(p in version.prerelease for p in ['alpha', 'beta']):
             return cls.UNSTABLE
         if any(p in version.prerelease for p in ['pre', 'rc']):
