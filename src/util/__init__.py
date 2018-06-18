@@ -226,6 +226,8 @@ def showDirInFileBrowser(location):
 
 def showFileInFileBrowser(location):
     if sys.platform == 'win32':
+        # Ensure that the path is in Windows format
+        location = os.path.normpath(location)
         # Open the directory and highlight the picked file
         subprocess.Popen('explorer /select,"{}"'.format(location))
     else:
