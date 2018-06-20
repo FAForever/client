@@ -5,11 +5,11 @@ import util
 class gameSettingsWizard(QtWidgets.QWizard):
     def __init__(self, client, *args, **kwargs):
         QtWidgets.QWizard.__init__(self, *args, **kwargs)
-        
-        self.client = client
+
+        self.client = client  # type: ClientWindow
 
         self.settings = GameSettings()
-        self.settings.gamePortSpin.setValue(self.client.gamePort)
+        self.settings.gamePortSpin.setValue(self.client.game_port)
         self.settings.checkUPnP.setChecked(self.client.useUPnP)
         self.addPage(self.settings)
 
@@ -23,7 +23,7 @@ class gameSettingsWizard(QtWidgets.QWizard):
         self.setWindowTitle("Set Game Port")
 
     def accept(self):
-        self.client.gamePort = self.settings.gamePortSpin.value()
+        self.client.game_port = self.settings.gamePortSpin.value()
         self.client.useUPnP = self.settings.checkUPnP.isChecked()
         QtWidgets.QWizard.accept(self)
 

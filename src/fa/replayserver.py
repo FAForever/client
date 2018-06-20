@@ -16,7 +16,7 @@ INTERNET_REPLAY_SERVER_PORT = Settings.get('replay_server/port')
 from . import DEFAULT_LIVE_REPLAY
 from . import DEFAULT_RECORD_REPLAY
 
-class ReplayRecorder(QtCore.QObject): 
+class ReplayRecorder(QtCore.QObject):
     """
     This is a simple class that takes all the FA replay data input from its inputSocket, writes it to a file,
     and relays it to an internet server via its relaySocket.
@@ -145,7 +145,7 @@ class ReplayServer(QtNetwork.QTcpServer):
     def __init__(self, client, *args, **kwargs):
         QtNetwork.QTcpServer.__init__(self, *args, **kwargs)
         self.recorders = []
-        self.client = client                
+        self.client = client  # type: ClientWindow
         self.__logger.debug("initializing...")
         self.newConnection.connect(self.acceptConnection)
 

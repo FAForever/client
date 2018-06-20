@@ -17,7 +17,7 @@ class UploadModWidget(FormClass, BaseClass):
 
         self.setupUi(self)
         self.parent = parent
-        self.client = self.parent.client
+        self.client = self.parent.client  # type: ClientWindow
         self.modinfo = modinfo
         self.modDir = modDir
 

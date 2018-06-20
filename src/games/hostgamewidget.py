@@ -91,7 +91,7 @@ class HostGameWidget(FormClass, BaseClass):
         BaseClass.__init__(self, client)
 
         self.setupUi(self)
-        self.client = client
+        self.client = client  # type: ClientWindow
         self.game = None
         self._preview_model = preview_model
         self.game_preview_logic = gameview_builder(preview_model,

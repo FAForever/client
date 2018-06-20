@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 logger.propagate = False
 logger.addHandler(setup_file_handler('gamesession.log'))
 
+
 class GameSessionState(IntEnum):
     # Game services are entirely off
     OFF = 0
@@ -52,10 +53,10 @@ class GameSession(QObject):
 
         # Keep a parent pointer so we can use it to send
         # relay messages about the game state
-        self._client = client  # type: Client
+        self._client = client  # type: ClientWindow
         self.me = client.me
 
-        self.game_port = client.gamePort
+        self.game_port = client.game_port
 
         # Use the normal lobby by default
         self.init_mode = 0
@@ -69,7 +70,7 @@ class GameSession(QObject):
         # We only allow one game connection at a time
         self._game_connection = None
 
-        self._process = instance  # type:'GameProcess'
+        self._process = instance  # type: GameProcess
         self._process.started.connect(self._launched)
         self._process.finished.connect(self._exited)
 

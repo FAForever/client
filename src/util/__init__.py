@@ -124,7 +124,6 @@ for data_dir in [APPDATA_DIR, PERSONAL_DIR, LUA_DIR, CACHE_DIR,
         os.makedirs(data_dir)
 
 
-
 def get_files_by_mod_date(location):
     files = os.listdir(location)
     files = map(lambda f: os.path.join(location, f), files)

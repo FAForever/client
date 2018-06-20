@@ -26,9 +26,9 @@ class Notifications:
         self.disabledStartup = True
         self.game_running = False
 
-        client.gameEnter.connect(self.gameEnter)
-        client.gameExit.connect(self.gameExit)
-        client.gameFull.connect(self._gamefull)
+        client.game_enter.connect(self.gameEnter)
+        client.game_exit.connect(self.gameExit)
+        client.game_full.connect(self._gamefull)
         gameset.newLobby.connect(self._newLobby)
         playerset.added.connect(self._newPlayer)
 

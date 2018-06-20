@@ -94,7 +94,7 @@ class TourneyItem(QtWidgets.QListWidgetItem):
             self.playersname.append(player["name"])
             if old_state != self.state and self.state == "started" and player["name"] == self.client.login:
                 channel = "#" + self.title.replace(" ", "_")
-                self.client.autoJoin.emit([channel])
+                self.client.auto_join.emit([channel])
                 QtWidgets.QMessageBox.information(self.client, "Tournament started !",
                                                   "Your tournament has started !\n"
                                                   "You have automatically joined the tournament channel.")

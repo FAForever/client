@@ -79,7 +79,7 @@ def excepthook(exc_type, exc_value, traceback_object):
     sys.excepthook = excepthook
 
 
-def AdminUserErrorDialog():
+def admin_user_error_dialog():
     from config import Settings
     ignore_admin = Settings.get("client/ignore_admin", False, bool)
     if not ignore_admin:
@@ -93,7 +93,7 @@ def AdminUserErrorDialog():
             Settings.set("client/ignore_admin", True)
 
 
-def runFAF():
+def run_faf():
     # Load theme from settings (one of the first things to be done)
     util.THEME.loadTheme()
 
@@ -103,7 +103,7 @@ def runFAF():
     faf_client = client.instance
     faf_client.setup()
     faf_client.show()
-    faf_client.doConnect()
+    faf_client.do_connect()
 
     # Main update loop
     QtWidgets.QApplication.exec_()
@@ -121,7 +121,7 @@ if __name__ == '__main__':
         import ctypes
         if platform.release() != "XP":  # legacy special :-)
             if config.admin.isUserAdmin():
-                AdminUserErrorDialog()
+                admin_user_error_dialog()
 
         if getattr(ctypes.windll.shell32, "SetCurrentProcessExplicitAppUserModelID", None) is not None:
             myappid = 'com.faforever.lobby'
@@ -139,7 +139,7 @@ if __name__ == '__main__':
     if len(trailing_args) == 0:
         # Do the magic
         sys.path += ['.']
-        runFAF()
+        run_faf()
     else:
         # Try to interpret the argument as a replay.
         if trailing_args[0].lower().endswith(".fafreplay") or trailing_args[0].lower().endswith(".scfareplay"):

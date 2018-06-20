@@ -24,7 +24,7 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
 
         self.setupUi(self)
 
-        self.client = client
+        self.client = client  # type: ClientWindow
         self._me = me
         self._game_model = CoopGameFilterModel(self._me, game_model)
         self._game_launcher = game_launcher

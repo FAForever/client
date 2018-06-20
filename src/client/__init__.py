@@ -1,7 +1,5 @@
 # Initialize logging system
 import logging
-
-from PyQt5.QtNetwork import QNetworkAccessManager
 from enum import IntEnum
 
 from config import Settings
@@ -12,6 +10,7 @@ logger = logging.getLogger(__name__)
 # Initialize all important globals
 LOBBY_HOST = Settings.get('lobby/host')
 LOBBY_PORT = Settings.get('lobby/port')
+
 
 class ClientState(IntEnum):
     """

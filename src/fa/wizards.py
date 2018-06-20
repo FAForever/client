@@ -76,7 +76,7 @@ class Wizard(QtWidgets.QWizard):
 
     def __init__(self, client, *args, **kwargs):
         QtWidgets.QWizard.__init__(self, client, *args, **kwargs)
-        self.client = client
+        self.client = client  # type: ClientWindow
         self.upgrade = UpgradePage()
         self.addPage(self.upgrade)
 
