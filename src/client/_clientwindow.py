@@ -1525,7 +1525,7 @@ class ClientWindow(FormClass, BaseClass):
             show = False
             for q in message['queues']:
                 if q['queue_name'] == 'ladder1v1':
-                    mu = self.me.player.ladder_rating_mean
+                    mu = self.me.player.ladder_rating_newbie_adjusted_mean
                     for min, max in q[key]:
                         if min < mu < max:
                             show = True

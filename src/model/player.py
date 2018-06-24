@@ -91,6 +91,17 @@ class Player(ModelItem):
         return self.ladder_rating[0]
 
     @property
+    def ladder_rating_newbie_adjusted_mean(self):
+        GAMES_TILL_NOT_NEWBIE = 30
+        mean = self.ladder_rating_mean
+        games = self.number_of_games
+        if games >= GAMES_TILL_NOT_NEWBIE:
+            return mean
+        else:
+            # Weighted average between real rating and 0
+            return (mean * games) / GAMES_TILL_NOT_NEWBIE
+
+    @property
     def ladder_rating_deviation(self):
         return self.ladder_rating[1]
 
