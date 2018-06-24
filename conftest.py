@@ -1,21 +1,22 @@
 import os
-import pytest
 import sys
 
-if os.path.isdir("src"):
-    sys.path.insert(0, os.path.abspath("src"))
-elif os.path.isdir("../src"):
-    sys.path.insert(0, os.path.abspath("../src"))
+import pytest
 
-import config
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), "src")))
+
+__all__ = ('application', 'signal_receiver')
+
 
 @pytest.fixture(scope="module")
 def application(qapp, request):
     return qapp
 
+
 @pytest.fixture(scope="function")
 def signal_receiver(application):
     from PyQt5 import QtCore
+
     class SignalReceiver(QtCore.QObject):
         def __init__(self, parent=None):
             QtCore.QObject.__init__(self, parent)

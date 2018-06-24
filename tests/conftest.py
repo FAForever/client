@@ -7,6 +7,12 @@ from model.playerset import Playerset
 
 
 @pytest.fixture
+def client_instance():
+    from client import instance
+    return instance
+
+
+@pytest.fixture
 def player(mocker):
     return mocker.MagicMock(spec=Player)
 
@@ -24,3 +30,9 @@ def playerset(mocker):
 @pytest.fixture
 def gameset(mocker):
     return mocker.MagicMock(spec=Gameset)
+
+
+@pytest.fixture
+def mouse_position(client_instance):
+    from client.mouse_position import MousePosition
+    return MousePosition(client_instance)

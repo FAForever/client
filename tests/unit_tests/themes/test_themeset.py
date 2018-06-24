@@ -1,7 +1,6 @@
-import pytest
+from semantic_version import Version
 
 from util import ThemeSet
-from semantic_version import Version
 
 THEME_FILE_FUNS = [
         "pixmap",

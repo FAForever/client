@@ -16,6 +16,7 @@ def test_client_sends_current_version(qtbot, mocker):
     assert args[0]['version'] == config.VERSION
 
 
+# TODO: bad test, should be rewritten
 @pytest.mark.skipif(True, reason="Run this manually to test client update downloading")
 def test_client_updater(qtbot):
     from client.updater import ClientUpdater

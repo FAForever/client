@@ -5,6 +5,7 @@ from PyQt5 import QtWidgets, QtCore
 import pytest
 import collections
 
+
 class _TestObjectWithoutIsFinished(QtCore.QObject):
     finished = QtCore.pyqtSignal()
 
