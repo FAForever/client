@@ -9,6 +9,6 @@ class CoopGameFilterModel(GameSortModel):
     def filter_accepts_game(self, game):
         if game.state != GameState.OPEN:
             return False
-        if game.featured_mod != "coop":
+        if game.featured_mod != ("coop" or "nomadscoop"):
             return False
         return True

@@ -71,7 +71,7 @@ class GameLauncher:
         # Ensure all mods are up-to-date, and abort if the update process fails.
         if not fa.check.check(game.featured_mod):
             return
-        if (game.featured_mod == "coop"
+        if (game.featured_mod == ("coop" or "nomadscoop")
            and not fa.check.map_(game.mapname, force=True)):
             return
 
@@ -125,7 +125,7 @@ class HostGameWidget(FormClass, BaseClass):
 
         i = 0
         index = 0
-        if game.featured_mod != "coop":
+        if game.featured_mod != ("coop" or "nomadscoop"):
             allmaps = {}
             for map_ in list(maps.maps.keys()) + maps.getUserMaps():
                 allmaps[map_] = maps.getDisplayName(map_)
@@ -195,7 +195,7 @@ class HostGameWidget(FormClass, BaseClass):
 
     def save_last_hosted_settings(self, password):
         util.settings.beginGroup("fa.games")
-        if self.game.featured_mod != "coop":
+        if self.game.featured_mod != ("coop" or "nomadscoop"):
             util.settings.setValue("gamemap", self.game.mapname)
         util.settings.setValue("gamename", self.game.title)
         util.settings.setValue("friends_only", self.radioFriends.isChecked())
