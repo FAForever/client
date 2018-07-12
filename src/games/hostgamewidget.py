@@ -96,6 +96,7 @@ class HostGameWidget(FormClass, BaseClass):
         self._preview_model = preview_model
         self.game_preview_logic = gameview_builder(preview_model,
                                                    self.gamePreview)
+        self.mods = {}
 
         util.THEME.stylesheets_reloaded.connect(self.load_stylesheet)
         self.load_stylesheet()
@@ -109,6 +110,7 @@ class HostGameWidget(FormClass, BaseClass):
         self.setStyleSheet(util.THEME.readstylesheet("client/client.css"))
 
     def setup(self, title, game):
+        self._reset()
         self.game = game
 
         self.password = util.settings.value("fa.games/password", "")
@@ -120,7 +122,6 @@ class HostGameWidget(FormClass, BaseClass):
         self.radioFriends.setChecked(
             self.game.visibility == GameVisibility.FRIENDS)
 
-        self._preview_model.clear_games()
         self._preview_model.add_game(self.game)
 
         i = 0
@@ -138,7 +139,6 @@ class HostGameWidget(FormClass, BaseClass):
         else:
             self.mapList.hide()
 
-        self.mods = {}
         # this makes it so you can select every non-ui_only mod
         for mod in modvault.utils.getInstalledMods():
             if mod.ui_only:
@@ -153,6 +153,13 @@ class HostGameWidget(FormClass, BaseClass):
             logger.debug("found item: %s" % ml[0].text())
             if ml:
                 ml[0].setSelected(True)
+
+    def _reset(self):
+        self._preview_model.clear_games()
+        self.mapList.clear()
+        self.mods.clear()
+        self.modList.clear()
+
 
     def set_map(self, mapname):
         for i in range(self.mapList.count()):
