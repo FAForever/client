@@ -41,7 +41,7 @@ defaults = {
     # FIXME - temporary address below
     # The base64 settings string disables expensive loading of all previews
     'UNITDB_URL': 'http://direct.faforever.com/faf/unitsDB/index.php?settings64=eyJwcmV2aWV3Q29ybmVyIjoiTm9uZSJ9',
-    'MAPPOOL_URL': 'http://forums.faforever.com/viewtopic.php?f=2&t=13742',
+    'MAPPOOL_URL': 'http://forums.faforever.com/viewtopic.php?f=2&t=16382',
     'GITHUB_URL': 'http://www.github.com/FAForever',
     'WIKI_URL': 'http://wiki.faforever.com',
     'SUPPORT_URL': 'http://forums.faforever.com/viewforum.php?f=3',
