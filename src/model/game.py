@@ -229,7 +229,7 @@ class Game(ModelItem):
         if not players:
             return 0
         else:
-            return sum([p.rating_estimate() for p in players]) / len(players)
+            return sum([p.rating_estimate for p in players]) / len(players)
 
     @property
     def mapdisplayname(self):

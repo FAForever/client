@@ -224,7 +224,7 @@ class ChatterItemFormatter:
         # chr(0xB1) = +-
         formatting = ("Global Rating: {} ({} Games) [{}\xb1{}]\n"
                       "Ladder Rating: {} [{}\xb1{}]")
-        tooltip_str = formatting.format((int(player.rating_estimate())),
+        tooltip_str = formatting.format((int(player.rating_estimate)),
                                         player.number_of_games,
                                         int(player.rating_mean),
                                         int(player.rating_deviation),

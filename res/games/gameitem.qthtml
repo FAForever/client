@@ -1,0 +1,129 @@
+{# Jinja template for the game tooltip #}
+{%- macro playermacro(player, me, iconpath, teamalign) %}
+        {% if player.login is defined %}
+            {% set player_login = player.login %}
+            {% set player_country = player.country | lower %}
+            {% set player_country_path = iconpath~player_country~".png" %}
+            {% set player_global_rating = player.rating_estimate %}
+        {% else %}
+            {% set player_login = player %}
+            {% set player_country_path = "" %}
+            {% set player_global_rating = "???" %}
+        {% endif %}
+
+        {% if me.login is defined %}
+            {% set me_login = me.login %}
+        {% else %}
+            {% set me_login = me %}
+        {% endif %}
+
+        {# This is needed to prevent a new line created on every "-" #}
+        {% if "-" in player_login %}
+            {% set player_login = player_login | replace("-", "&#8209;") %}
+        {% endif %}
+        {% if "-" in me_login %}
+            {% set me_login = me_login | replace("-", "&#8209;") %}
+        {% endif %}
+
+
+        {% if player.clan == me.clan and player.clan is not none and player.clan is defined and player != me %}
+            {% set player_login = "<font color='blue'>"~player_login~"</font>" %}
+        {% elif player_login == me_login %}
+            {% set player_login = "<b><i>"~player_login~"</b></i>" %}
+        {% endif %}
+
+        {% set width = 0 %}
+        <tr>
+        {% if teamalign == "left" -%}
+            <td align='right' width='{{ width }}'>
+                {{ player_login }}
+            </td>
+            <td>
+                <img src='{{ player_country_path }}'>
+            </td>
+            <td align='right' width='10'>
+                ({{ player_global_rating }})
+            </td>
+        {% else %}
+            <td align='left' width='10'>
+                ({{ player_global_rating }})
+            </td>
+            <td>
+                <img src='{{ player_country_path }}'>
+            </td>
+            <td align='left' width={{ width }}>
+                {{ player_login }}
+            </td>
+        {% endif %}
+         </tr>
+{% endmacro -%}
+
+
+{%- macro versus_string(fontsize) %}
+    <td valign='middle'>
+        <font color ='black' size={{ fontsize }}>VS</font>
+    </td>
+{% endmacro -%}
+
+
+{%- macro modtip(mods) %}
+    <b><br/>With:</b><br/>
+    {{"<br />".join(mods)}}
+{% endmacro -%}
+
+
+{%- macro observertooltip(observer) %}
+     {% if observer.login is defined %}
+        {% set observer_country = iconpath~observer.country~".png" %}
+        {% set observer_global_rating = observer.rating_estimate %}
+        {% set observer_login = observer.login %}
+        <br/>{{ observer_login }} <img src='{{ observer_country }}'> ({{ observer_global_rating }})
+    {% else %}
+        <br/>{{ observer }}
+    {% endif %}
+{% endmacro -%}
+
+
+{%- macro TooltipFormatting(teams, mods, observers, me, iconpath) %}
+    <table border="0" cellpadding="0" cellspacing="5">
+    <tbody>
+    <tr>
+        {% for team in teams %}
+            {% if loop.last %}
+                <td><table>
+                    {% for player in team %}
+                        {{ playermacro(player, me, iconpath, teamalign="right") }}
+                    {% endfor %}
+                </table><td>
+            {% else %}
+                <td><table>
+                    {% for player in team %}
+                        {{ playermacro(player, me, iconpath, teamalign="left") }}
+                    {% endfor %}
+                </table><td>
+                {{ versus_string(fontsize='+{}'.format(1 + (((teams[0])|length + (teams[1])|length)/2)|int)) }}
+            {% endif %}
+        {% endfor %}
+    </tr>
+        {% if observers %}
+            <tr>
+            <td>
+                <b>Observers:</b>
+                {% for observer in observers %}
+                    {{ observertooltip(observer) }}
+                {% endfor %}
+            </td>
+            </tr>
+        {% endif %}
+        {% if mods %}
+            <tr>
+                <td>
+                    {{ modtip(mods) }}
+                </td>
+            </tr>
+        {% endif %}
+{% endmacro -%}
+
+{% if teams[0] is defined or observers is defined %}
+    {{ TooltipFormatting(teams, mods, observers, me, iconpath) }}
+{% endif %}

@@ -64,8 +64,9 @@ class Player(ModelItem):
         Get the conservative estimate of the players global trueskill rating,
         rounded to nearest 100
         """
-        return round((self.rating_estimate()/100))*100
+        return round((self.rating_estimate/100))*100
 
+    @property
     def rating_estimate(self):
         """
         Get the conservative estimate of the players global trueskill rating
