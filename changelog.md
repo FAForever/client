@@ -3,10 +3,14 @@
 
 0.18.1
 =====
- * Change unitdb icon from Twitch to something more reasonable
  * Fix repeated opening of 'host game' widget filling mod selection with
    duplicate entries
  * Fix 'open config file' button opening the wrong directory on Windows
+ * Update ladder map pool forum link
+
+Contributors:
+ - Wesmania
+ - EvanGalea
 
 0.18.0
 =====
