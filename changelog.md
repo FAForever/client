@@ -1,6 +1,13 @@
 0.x.x
 =====
 
+0.18.1
+=====
+ * Change unitdb icon from Twitch to something more reasonable
+ * Fix repeated opening of 'host game' widget filling mod selection with
+   duplicate entries
+ * Fix 'open config file' button opening the wrong directory on Windows
+
 0.18.0
 =====
  * Refactor updater code. Although tested to work, let's still pray that it
