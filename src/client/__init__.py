@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 # Initialize all important globals
 LOBBY_HOST = Settings.get('lobby/host')
-LOBBY_PORT = Settings.get('lobby/port')
+LOBBY_PORT = Settings.get('lobby/port', type=int)
 
 
 class ClientState(IntEnum):
