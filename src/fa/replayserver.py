@@ -11,7 +11,7 @@ import time
 from config import Settings
 
 INTERNET_REPLAY_SERVER_HOST = Settings.get('replay_server/host')
-INTERNET_REPLAY_SERVER_PORT = Settings.get('replay_server/port')
+INTERNET_REPLAY_SERVER_PORT = Settings.get('replay_server/port', type=int)
 
 from . import DEFAULT_LIVE_REPLAY
 from . import DEFAULT_RECORD_REPLAY
