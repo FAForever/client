@@ -10,3 +10,4 @@ semantic_version
 idna
 jsonschema
 jinja2
+bugsnag==3.4.2
