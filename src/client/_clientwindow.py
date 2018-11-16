@@ -1074,7 +1074,9 @@ class ClientWindow(FormClass, BaseClass):
                                            "Failed to calculate UID",
                                            "Failed to calculate your unique ID"
                                            " (a part of our smurf prevention system).\n"
-                                           "Please report this to the tech support forum!")
+                                           "It is very likely this happens due to your antivirus software deleting the faf-uid.exe file."
+                                           "If this has happened, please add an exception and restore the file."
+                                           "The file can also be restored by installing the client again.")
             return False
         self.lobby_connection.send(dict(command="hello",
                                         login=login,
