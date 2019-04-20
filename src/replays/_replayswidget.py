@@ -229,7 +229,7 @@ class LiveReplaysWidgetHandler(object):
 
         if self.liveTree.indexOfTopLevelItem(item) == -1:
             # Notify other modules that we're watching a replay
-            self.client.viewingReplay.emit(item.gurl)
+            self.client.viewing_replay.emit(item.gurl)
             replay(item.gurl)
 
     def _addExistingGames(self, gameset):

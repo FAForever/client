@@ -215,7 +215,7 @@ class GamesWidget(FormClass, BaseClass):
                                   faction=self.race.value))
         else:
             # Experimental UPnP Mapper - mappings are removed on app exit
-            if self.client.useUPnP:
+            if self.client.use_upnp:
                 self.client.lobby_connection.set_upnp(self.client.game_port)
 
             logger.info("Starting Ranked Search as " + str(race) +

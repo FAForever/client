@@ -10,7 +10,7 @@ class gameSettingsWizard(QtWidgets.QWizard):
 
         self.settings = GameSettings()
         self.settings.gamePortSpin.setValue(self.client.game_port)
-        self.settings.checkUPnP.setChecked(self.client.useUPnP)
+        self.settings.checkUPnP.setChecked(self.client.use_upnp)
         self.addPage(self.settings)
 
         self.setWizardStyle(1)
@@ -24,7 +24,7 @@ class gameSettingsWizard(QtWidgets.QWizard):
 
     def accept(self):
         self.client.game_port = self.settings.gamePortSpin.value()
-        self.client.useUPnP = self.settings.checkUPnP.isChecked()
+        self.client.use_upnp = self.settings.checkUPnP.isChecked()
         QtWidgets.QWizard.accept(self)
 
 
