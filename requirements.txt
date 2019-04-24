@@ -8,5 +8,5 @@ pytest-mock
 pytest-qt
 semantic_version
 idna
-jsonschema
+jsonschema==2.6.0
 jinja2

@@ -112,7 +112,8 @@ if sys.platform == 'win32':
         # cx_freeze >5.0.0 fails to add idna, we'll remove it once they fix it
         # jinja2 dies with 'cannot import compat' without asyncio
         'packages': ['asyncio', 'PyQt5', 'PyQt5.uic', 'idna',
-                     'PyQt5.QtWidgets', 'PyQt5.QtNetwork', 'win32com', 'win32com.client'],
+                     'PyQt5.QtWidgets', 'PyQt5.QtNetwork', 'win32com', 'win32com.client',
+                     'pkg_resources._vendor'],
         'silent': True,
         'excludes': ['numpy', 'scipy', 'matplotlib', 'tcl', 'tkinter'],
 
