@@ -1,6 +1,16 @@
 0.x.x
 =====
 
+0.18.2
+=====
+ * ICE adapter integration
+ * Don't disable autorelogin after sending credentials
+ * Fix 'connect'/'disconnect' naming
+
+Contributors:
+ - Wesmania
+ - muellni
+
 0.18.1
 =====
  * Fix repeated opening of 'host game' widget filling mod selection with
