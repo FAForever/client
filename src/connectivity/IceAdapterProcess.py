@@ -1,5 +1,5 @@
 from decorators import with_logger
-from PyQt5.QtCore import QProcess
+from PyQt5.QtCore import QProcess, QProcessEnvironment
 from PyQt5.QtNetwork import QTcpServer, QHostAddress
 from PyQt5.QtWidgets import QMessageBox
 import os
@@ -33,12 +33,17 @@ class IceAdapterProcess(object):
                 "--gpgnet-port", "0",
                 "--info-window",
                 "--delay-ui", "10000",
-                "--log-level" , "debug",
-                "--log-directory", Settings.get('client/logs/path', type=str)]
+                "--log-level" , "debug"]
         if Settings.contains('iceadapter/args'):
             args += Settings.get('iceadapter/args', "", type=str).split(" ")
 
         self._logger.debug("running ice adapter with {} {}".format(exe_path, " ".join(args)))
+
+        # set log directory via ENV
+        env = QProcessEnvironment.systemEnvironment()
+        env.insert("LOG_DIR", Settings.get('client/logs/path', type=str))
+        self.ice_adapter_process.setProcessEnvironment(env)
+
         self.ice_adapter_process.start(exe_path, args)
 
         # wait for the first message which usually means the ICE adapter is listening for JSONRPC connections
