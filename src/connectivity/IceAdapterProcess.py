@@ -31,6 +31,8 @@ class IceAdapterProcess(object):
                 "--login", player_login,
                 "--rpc-port", str(self._rpc_server_port),
                 "--gpgnet-port", "0",
+                "--info-window",
+                "--delay-ui", "10000",
                 "--log-level" , "debug",
                 "--log-directory", Settings.get('client/logs/path', type=str)]
         if Settings.contains('iceadapter/args'):
