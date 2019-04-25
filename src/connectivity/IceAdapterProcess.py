@@ -41,7 +41,7 @@ class IceAdapterProcess(object):
 
         # set log directory via ENV
         env = QProcessEnvironment.systemEnvironment()
-        env.insert("LOG_DIR", Settings.get('client/logs/path', type=str))
+        env.insert("LOG_DIR", os.path.join(Settings.get('client/logs/path', type=str), 'iceAdapterLogs'))
         self.ice_adapter_process.setProcessEnvironment(env)
 
         self.ice_adapter_process.start(exe_path, args)
