@@ -7,13 +7,15 @@ import util
 import os
 import fa
 import time
+import datetime
 import client
 import json
 import jsonschema
+import threading
 
 from replays.replayitem import ReplayItem, ReplayItemDelegate
 from model.game import GameState
-from replays.connection import ReplaysConnection
+from replays.replaysapi import ReplaysApiConnector
 from downloadManager import DownloadRequest
 
 import logging
@@ -599,7 +601,8 @@ class ReplayVaultWidgetHandler(object):
 
         self.onlineReplays = {}
         self.selectedReplay = None
-        self.vault_connection = ReplaysConnection(self._dispatcher, self.HOST, self.PORT)
+        self.apiConnector = ReplaysApiConnector(self._dispatcher)
+        self.apiRequestThread = None
         self.client.lobby_info.replayVault.connect(self.replayVault)
         self.replayDownload = QNetworkAccessManager()
         self.replayDownload.finished.connect(self.finishRequest)
@@ -625,6 +628,11 @@ class ReplayVaultWidgetHandler(object):
 
     def searchVault(self, minRating=None, mapName=None, playerName=None, modListIndex=None):
         w = self._w
+        
+        if self.searching == True:
+            QtWidgets.QMessageBox.critical(None, "Replay vault", "Please, wait for previous search to finish.")
+            return
+        
         if minRating is not None:
             w.minRating.setValue(minRating)
         if mapName is not None:
@@ -634,26 +642,76 @@ class ReplayVaultWidgetHandler(object):
         if modListIndex is not None:
             w.modList.setCurrentIndex(modListIndex)
 
-        # Map Search helper - the secondary server has a problem with blanks (fix until change to api)
-        map_name = w.mapName.text().replace(" ", "*")
+        filters = self.prepareFilters(w.minRating.value(), w.mapName.text(), w.playerName.text(), w.modList.currentText())
 
-        """ search for some replays """
+        # """ search for some replays """
+        self._w.onlineTree.clear()
         self._w.searchInfoLabel.setText(self.searchInfo)
         self.searching = True
-        self.vault_connection.connect_()
-        self.vault_connection.send(dict(command="search",
-                                        rating=w.minRating.value(),
-                                        map=map_name,
-                                        player=w.playerName.text(),
-                                        mod=w.modList.currentText()))
-        self._w.onlineTree.clear()
+        
+        parameters = {  "page[number]": 1,
+                        "page[size]": 50,
+                        #"filter": filters,
+                        "sort": "-startTime",
+                        "endTime": "isnull=false",
+                        "include": "featuredMod,mapVersion,mapVersion.map,playerStats,playerStats.player"}
+                
+        if filters:
+            parameters["filter"] = filters
+
+        self.apiRequestThread = threading.Thread(target=self.apiConnector.requestData, kwargs={'args' : parameters})
+        self.apiRequestThread.start()
+
+
+    def prepareFilters (self, minRating, mapName, playerName, modListIndex, timePeriod = None):
+        # Making filter string here + some logic to exclude "heavy" requests which may overload database (>30 sec searches)
+        # it might looks weak (and probably it is), but hey, it works! =)
+
+        filters = []
+    
+        if minRating and minRating > 0:
+            if modListIndex != "ladder1v1":
+                filters.append('playerStats.player.globalRating.rating=gt="' + str(minRating) + '"')
+            else:
+                filters.append('playerStats.player.ladder1v1Rating.rating=gt="' + str(minRating) + '"')
+        if mapName:
+            filters.append('mapVersion.map.displayName=="*' + mapName + '*"')
+        if playerName:
+            filters.append('playerStats.player.login=="*' + playerName + '*"')
+        if modListIndex and modListIndex != "All":     
+            filters.append('featuredMod.technicalName=="*' + modListIndex + '*"')
+        
+        # take info for the last 3 months. Makes life easier for database especially when filter contains only minRating
+        # I will add ability to choose time period later   
+        if not timePeriod and len(filters) > 0 :
+            if not playerName:
+                t = datetime.datetime.fromtimestamp(time.time() - 2600000 * 3)
+                filters.append('startTime=gt="' + str(t.year) + '-' + str('%02d' % t.month) + '-' + str('%02d' % t.day) + 'T21:00:00Z"')
+            else:
+                t = datetime.datetime.fromtimestamp(time.time() - 2600000 * 6) #6 month if there is player name
+                filters.append('startTime=gt="' + str(t.year) + '-' + str('%02d' % t.month) + '-' + str('%02d' % t.day) + 'T21:00:00Z"')
+        
+        filterFinal = None
+        
+        if len(filters) > 0:
+            filterFinal = ";".join(filters)
+            filterFinal = "(" + filterFinal + ")"
+
+        return filterFinal
 
     def reloadView(self):
         if not self.searching:  # something else is already in the pipe from SearchVault
             if self.automatic or self.onlineReplays == {}:  # refresh on Tab change or only the first time
                 self._w.searchInfoLabel.setText(self.searchInfo)
-                self.vault_connection.connect_()
-                self.vault_connection.send(dict(command="list"))
+                self.searching = True
+                parameters = {  "page[number]": 1,
+                                "page[size]": 50,
+                                "sort": "-startTime",
+                                "endTime": "isnull=false",
+                                "include": "featuredMod,mapVersion,mapVersion.map,playerStats,playerStats.player"}
+                                
+                self.apiRequestThread = threading.Thread(target=self.apiConnector.requestData, kwargs={'args' : parameters})
+                self.apiRequestThread.start()
 
     def onlineTreeClicked(self, item):
         if QtWidgets.QApplication.mouseButtons() == QtCore.Qt.RightButton:
@@ -663,8 +721,7 @@ class ReplayVaultWidgetHandler(object):
             self.selectedReplay = item
             if hasattr(item, "moreInfo"):
                 if item.moreInfo is False:
-                    self.vault_connection.connect_()
-                    self.vault_connection.send(dict(command="info_replay", uid=item.uid))
+                    item.infoPlayers()
                 elif item.spoiled != self._w.spoilerCheckbox.isChecked():
                     self._w.replayInfos.clear()
                     self._w.replayInfos.setHtml(item.replayInfo)
@@ -722,13 +779,23 @@ class ReplayVaultWidgetHandler(object):
                 self.selectedReplay.generateInfoPlayersHtml()  # then we redo it
 
     def resetRefreshPressed(self):  # reset search parameter and reload recent Replays List
-        self._w.searchInfoLabel.setText(self.searchInfo)
-        self.vault_connection.connect_()
-        self.vault_connection.send(dict(command="list"))
-        self._w.minRating.setValue(0)
-        self._w.mapName.setText("")
-        self._w.playerName.setText("")
-        self._w.modList.setCurrentIndex(0)  # "All"
+        if not self.searching:
+            self._w.searchInfoLabel.setText(self.searchInfo)
+            self.searching = True
+            
+            parameters = {  "page[number]": 1,
+                            "page[size]": 50,
+                            "sort": "-startTime",
+                            "endTime": "isnull=false",
+                            "include": "featuredMod,mapVersion,mapVersion.map,playerStats,playerStats.player"}
+
+            self.apiRequestThread = threading.Thread(target=self.apiConnector.requestData, kwargs={'args' : parameters})
+            self.apiRequestThread.start()
+            
+            self._w.minRating.setValue(0)
+            self._w.mapName.setText("")
+            self._w.playerName.setText("")
+            self._w.modList.setCurrentIndex(0)  # "All"  
 
     def finishRequest(self, reply):
         if reply.error() != QNetworkReply.NoError:
@@ -744,43 +811,24 @@ class ReplayVaultWidgetHandler(object):
     def replayVault(self, message):
         action = message["action"]
         self._w.searchInfoLabel.clear()
-        if action == "list_recents":
-            self.onlineReplays = {}
-            replays = message["replays"]
-            for replay in replays:
-                uid = replay["id"]
+        self._w.replayInfos.clear()
+        self.searching = False
+        if action == "search_result":
+            if "No_replays" not in message:
+                self.onlineReplays = {}
+                replays = message["replays"]
+                for replay in replays:
+                    uid = int(replay["id"])
+                    if uid not in self.onlineReplays:
+                        self.onlineReplays[uid] = ReplayItem(uid, self._w)
+                        self.onlineReplays[uid].update(replay, message, self.client)
+                    else:
+                        self.onlineReplays[uid].update(replay, message, self.client)
 
-                if uid not in self.onlineReplays:
-                    self.onlineReplays[uid] = ReplayItem(uid, self._w)
-                    self.onlineReplays[uid].update(replay, self.client)
-                else:
-                    self.onlineReplays[uid].update(replay, self.client)
-
-            self.updateOnlineTree()
-            self._w.replayInfos.clear()
-            self._w.RefreshResetButton.setText("Refresh Recent List")
-
-        elif action == "info_replay":
-            uid = message["uid"]
-            if uid in self.onlineReplays:
-                self.onlineReplays[uid].infoPlayers(message["players"])
-
-        elif action == "search_result":
-            self.searching = False
-            self.onlineReplays = {}
-            replays = message["replays"]
-            for replay in replays:
-                uid = replay["id"]
-
-                if uid not in self.onlineReplays:
-                    self.onlineReplays[uid] = ReplayItem(uid, self._w)
-                    self.onlineReplays[uid].update(replay, self.client)
-                else:
-                    self.onlineReplays[uid].update(replay, self.client)
-
-            self.updateOnlineTree()
-            self._w.replayInfos.clear()
-            self._w.RefreshResetButton.setText("Reset Search to Recent")
+                self.updateOnlineTree()
+                self._w.RefreshResetButton.setText("Reset Search to Recent")
+            else:
+                self._w.searchInfoLabel.setText("<font color='gold'><b>No replays found</b></font>")
 
     def updateOnlineTree(self):
         self.selectedReplay = None  # clear because won't be part of the new tree

@@ -11,6 +11,7 @@ else:
 
 
 defaults = {
+    'api': 'https://api.faforever.com',
     'client/data_path': APPDATA_DIR,
     'client/logs/path': join(APPDATA_DIR, 'logs'),
     'client/logs/level': logging.INFO,

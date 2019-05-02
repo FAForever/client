@@ -1,5 +1,6 @@
 import os
 import time
+from datetime import datetime, timezone
 
 import util
 from PyQt5 import QtCore, QtWidgets, QtGui
@@ -119,15 +120,26 @@ class ReplayItem(QtWidgets.QTreeWidgetItem):
         self._map_dl_request = DownloadRequest()
         self._map_dl_request.done.connect(self._on_map_preview_downloaded)
 
-    def update(self, message, client):
+    def update(self, replay, message, client):
         """ Updates this item from the message dictionary supplied """
+        self.replay = replay
+        self.message = message
         
         self.client = client
+        self.name   = replay["attributes"]["name"]
         
-        self.name      = message["name"]
-        self.mapname   = message["map"]
-        if message['end'] == 4294967295:  # = FFFF FFFF (year 2106) aka still playing
-            seconds = time.time()-message['start']
+        try:
+            self.mapid     = replay["relationships"]["mapVersion"]["data"]["id"]
+            self.mapname   = message["maps"][self.mapid]["folderName"]
+        except:
+            # coop games
+            self.mapname   = "unknown"
+
+        startDt = datetime.strptime(replay["attributes"]["startTime"], '%Y-%m-%dT%H:%M:%SZ')
+        startDt = startDt.replace(tzinfo=timezone.utc).astimezone(tz=None) #local time
+        
+        if replay["attributes"]["endTime"] is None:
+            seconds = time.time() - startDt.timestamp()
             if seconds > 86400:  # more than 24 hours
                 self.duration = "<font color='darkgrey'>end time<br />&nbsp;missing</font>"
             elif seconds > 7200:  # more than 2 hours
@@ -138,18 +150,26 @@ class ReplayItem(QtWidgets.QTreeWidgetItem):
             else:
                 self.duration = time.strftime('%H:%M:%S', time.gmtime(seconds)) + "<br />&nbsp;playing"
         else:
-            self.duration = time.strftime('%H:%M:%S', time.gmtime(message["duration"]))
-        self.startHour = time.strftime("%H:%M", time.localtime(message['start']))
-        self.startDate = time.strftime("%Y-%m-%d", time.localtime(message['start']))
-        self.mod       = message["mod"]
+            endDt   = datetime.strptime(replay["attributes"]["endTime"], '%Y-%m-%dT%H:%M:%SZ') 
+            endDt   = endDt.replace(tzinfo=timezone.utc).astimezone(tz=None) #local time
+            self.duration = time.strftime('%H:%M:%S', time.gmtime((endDt - startDt).total_seconds()))
+            
+        self.startHour = startDt.strftime("%H:%M")
+        self.startDate = startDt.strftime("%Y-%m-%d")
+        
+        self.modid     = replay["relationships"]["featuredMod"]["data"]["id"]
+        self.mod       = message["featuredMods"][self.modid]["technicalName"]
 
         # Map preview code
         self.mapdisplayname = maps.getDisplayName(self.mapname)
       
         self.icon = maps.preview(self.mapname)
         if not self.icon:
-            self.client.map_downloader.download_preview(self.mapname, self._map_dl_request)
-            self.icon = util.THEME.icon("games/unknown_map.png")
+            if self.mapname == "unknown":
+                self.icon = util.THEME.icon("games/unknown_map.png")
+            else:    
+                self.client.map_downloader.download_preview(self.mapname, self._map_dl_request)
+                self.icon = util.THEME.icon("games/unknown_map.png")
 
         if self.mod in mods:
             self.moddisplayname = mods[self.mod].name 
@@ -164,12 +184,25 @@ class ReplayItem(QtWidgets.QTreeWidgetItem):
         self.icon = util.THEME.icon(path, is_local)
         self.setIcon(0, self.icon)
 
-    def infoPlayers(self, players):
+    def infoPlayers(self):
         """ processes information from the server about a replay into readable extra information for the user,
                 also calls method to show the information """
-
+        
         self.moreInfo = True
-        self.numberplayers = len(players)
+        playersList = self.replay['relationships']['playerStats']['data']
+        self.numberplayers = len(playersList)
+        
+        players = []
+        
+        for player in playersList:
+            #this is just SAD
+            playerStats = self.message["playerStats"][player['id']]
+            realId = playerStats["playerID"]
+            
+            playerName = self.message["players"][realId]["login"]
+            playerStats['name'] = playerName
+            players.append(playerStats)    
+
         mvpscore = 0
         mvp = None
         scores = {}
@@ -286,7 +319,8 @@ class ReplayItem(QtWidgets.QTreeWidgetItem):
             alignment = "left"
 
         playerLabel = self.FORMATTER_REPLAY_PLAYER_LABEL.format(player_name=player["name"],
-                                                                player_rating=player["rating"], alignment=alignment)
+                                                                player_rating= int(round((player["beforeMean"] - player["beforeDeviation"] * 3)/100) * 100),
+                                                                alignment=alignment)
 
         iconUrl = os.path.join(util.COMMON_DIR, "replays/%s.png" % self.retrieveIconFaction(player, self.mod))
 
