@@ -623,7 +623,9 @@ class ReplayVaultWidgetHandler(object):
         _w.onlineTree.itemPressed.connect(self.onlineTreeClicked)
 
         _w.searchButton.pressed.connect(self.searchVault)
+        _w.playerName.cursorPositionChanged.connect(lambda: self.showToolTip(_w.playerName, "Case sensitive!"))
         _w.playerName.returnPressed.connect(self.searchVault)
+        _w.mapName.cursorPositionChanged.connect(lambda: self.showToolTip(_w.mapName, "Case sensitive!"))
         _w.mapName.returnPressed.connect(self.searchVault)
         _w.automaticCheckbox.stateChanged.connect(self.automaticCheckboxchange)
         _w.spoilerCheckbox.stateChanged.connect(self.spoilerCheckboxchange)
@@ -632,6 +634,12 @@ class ReplayVaultWidgetHandler(object):
         # restore persistent checkbox settings
         _w.automaticCheckbox.setChecked(self.automatic)
         _w.spoilerCheckbox.setChecked(self.spoiler_free)
+
+    def showToolTip(self, widget, msg):
+        """Default tooltips are too slow and disappear when user starts typing"""
+
+        position = widget.mapToGlobal(QtCore.QPoint(0 + widget.width(),0 - widget.height()/2))
+        QtWidgets.QToolTip.showText(position, msg)
 
     def searchVault(self, minRating=None, mapName=None, playerName=None, modListIndex=None):
         w = self._w
