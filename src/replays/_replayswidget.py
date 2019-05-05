@@ -609,6 +609,13 @@ class ReplayVaultWidgetHandler(object):
 
         self.searching = False
         self.searchInfo = "<font color='gold'><b>Searching...</b></font>"
+        self.defaultSearchParams = {  
+            "page[number]": 1,
+            "page[size]": 50,
+            "sort": "-startTime",
+            "endTime": "isnull=false",
+            "include": "featuredMod,mapVersion,mapVersion.map,playerStats,playerStats.player"
+        }
 
         _w = self._w
         _w.onlineTree.setItemDelegate(ReplayItemDelegate(_w))
@@ -629,7 +636,7 @@ class ReplayVaultWidgetHandler(object):
     def searchVault(self, minRating=None, mapName=None, playerName=None, modListIndex=None):
         w = self._w
         
-        if self.searching == True:
+        if self.searching:
             QtWidgets.QMessageBox.critical(None, "Replay vault", "Please, wait for previous search to finish.")
             return
         
@@ -649,12 +656,7 @@ class ReplayVaultWidgetHandler(object):
         self._w.searchInfoLabel.setText(self.searchInfo)
         self.searching = True
         
-        parameters = {  "page[number]": 1,
-                        "page[size]": 50,
-                        #"filter": filters,
-                        "sort": "-startTime",
-                        "endTime": "isnull=false",
-                        "include": "featuredMod,mapVersion,mapVersion.map,playerStats,playerStats.player"}
+        parameters = self.defaultSearchParams
                 
         if filters:
             parameters["filter"] = filters
@@ -662,54 +664,52 @@ class ReplayVaultWidgetHandler(object):
         self.apiRequestThread = threading.Thread(target=self.apiConnector.requestData, kwargs={'args' : parameters})
         self.apiRequestThread.start()
 
-
     def prepareFilters (self, minRating, mapName, playerName, modListIndex, timePeriod = None):
-        # Making filter string here + some logic to exclude "heavy" requests which may overload database (>30 sec searches)
-        # it might looks weak (and probably it is), but hey, it works! =)
+        '''
+        Making filter string here + some logic to exclude "heavy" requests which may overload database 
+        (>30 sec searches). It might looks weak (and probably it is), but hey, it works! =)
+        '''
 
         filters = []
-    
-        if minRating and minRating > 0:
-            if modListIndex != "ladder1v1":
-                filters.append('playerStats.player.globalRating.rating=gt="' + str(minRating) + '"')
-            else:
-                filters.append('playerStats.player.ladder1v1Rating.rating=gt="' + str(minRating) + '"')
-        if mapName:
-            filters.append('mapVersion.map.displayName=="*' + mapName + '*"')
-        if playerName:
-            filters.append('playerStats.player.login=="*' + playerName + '*"')
-        if modListIndex and modListIndex != "All":     
-            filters.append('featuredMod.technicalName=="' + modListIndex + '"')
-        
-        # take info for the last 3 months. Makes life easier for database especially when filter contains only minRating
-        # I will add ability to choose time period later   
-        if not timePeriod and len(filters) > 0 :
-            if not playerName:
-                t = datetime.datetime.fromtimestamp(time.time() - 2600000 * 3)
-                filters.append('startTime=gt="' + str(t.year) + '-' + str('%02d' % t.month) + '-' + str('%02d' % t.day) + 'T21:00:00Z"')
-            else:
-                t = datetime.datetime.fromtimestamp(time.time() - 2600000 * 6) #6 month if there is player name
-                filters.append('startTime=gt="' + str(t.year) + '-' + str('%02d' % t.month) + '-' + str('%02d' % t.day) + 'T21:00:00Z"')
-        
-        filterFinal = None
-        
-        if len(filters) > 0:
-            filterFinal = ";".join(filters)
-            filterFinal = "(" + filterFinal + ")"
 
-        return filterFinal
+        if minRating and minRating > 0:
+            if modListIndex == "ladder1v1":
+                filters.append('playerStats.player.ladder1v1Rating.rating=gt="{}"'.format(minRating))
+            else:
+                filters.append('playerStats.player.globalRating.rating=gt="{}"'.format(minRating))
+                
+        if mapName:
+            filters.append('mapVersion.map.displayName=="*{}*"'.format(mapName))
+            
+        if playerName:
+            filters.append('playerStats.player.login=="*{}*"'.format(playerName))
+            
+        if modListIndex and modListIndex != "All":     
+            filters.append('featuredMod.technicalName=="{}"'.format(modListIndex))
+        
+        # take info for the last 3 months. Makes life easier for database 
+        # especially when filter contains only minRating
+        # I will add ability to choose time period later   
+        if len(filters) > 0 :
+            months = 3
+            if playerName:
+                months = 6
+                
+            dateTimePeriod = datetime.datetime.fromtimestamp(time.time() - 2628000 * months)
+            filters.append('startTime=gt="{}"'.format(dateTimePeriod.strftime('%Y-%m-%dT%H:%M:%SZ')))
+
+        if len(filters) > 0:
+            return "({})".format(";".join(filters))
+
+        return None
 
     def reloadView(self):
         if not self.searching:  # something else is already in the pipe from SearchVault
             if self.automatic or self.onlineReplays == {}:  # refresh on Tab change or only the first time
                 self._w.searchInfoLabel.setText(self.searchInfo)
                 self.searching = True
-                parameters = {  "page[number]": 1,
-                                "page[size]": 50,
-                                "sort": "-startTime",
-                                "endTime": "isnull=false",
-                                "include": "featuredMod,mapVersion,mapVersion.map,playerStats,playerStats.player"}
-                                
+                parameters = self.defaultSearchParams
+                
                 self.apiRequestThread = threading.Thread(target=self.apiConnector.requestData, kwargs={'args' : parameters})
                 self.apiRequestThread.start()
 
@@ -782,12 +782,8 @@ class ReplayVaultWidgetHandler(object):
         if not self.searching:
             self._w.searchInfoLabel.setText(self.searchInfo)
             self.searching = True
-            
-            parameters = {  "page[number]": 1,
-                            "page[size]": 50,
-                            "sort": "-startTime",
-                            "endTime": "isnull=false",
-                            "include": "featuredMod,mapVersion,mapVersion.map,playerStats,playerStats.player"}
+
+            parameters = self.defaultSearchParams
 
             self.apiRequestThread = threading.Thread(target=self.apiConnector.requestData, kwargs={'args' : parameters})
             self.apiRequestThread.start()

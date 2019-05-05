@@ -165,11 +165,9 @@ class ReplayItem(QtWidgets.QTreeWidgetItem):
       
         self.icon = maps.preview(self.mapname)
         if not self.icon:
-            if self.mapname == "unknown":
-                self.icon = util.THEME.icon("games/unknown_map.png")
-            else:    
+            self.icon = util.THEME.icon("games/unknown_map.png")
+            if self.mapname != "unknown":  
                 self.client.map_downloader.download_preview(self.mapname, self._map_dl_request)
-                self.icon = util.THEME.icon("games/unknown_map.png")
 
         if self.mod in mods:
             self.moddisplayname = mods[self.mod].name 
@@ -195,12 +193,10 @@ class ReplayItem(QtWidgets.QTreeWidgetItem):
         players = []
         
         for player in playersList:
-            #this is just SAD
             playerStats = self.message["playerStats"][player['id']]
             realId = playerStats["playerID"]
             
-            playerName = self.message["players"][realId]["login"]
-            playerStats['name'] = playerName
+            playerStats['name'] = self.message["players"][realId]["login"]
             players.append(playerStats)    
 
         mvpscore = 0
