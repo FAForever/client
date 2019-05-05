@@ -679,7 +679,7 @@ class ReplayVaultWidgetHandler(object):
         if playerName:
             filters.append('playerStats.player.login=="*' + playerName + '*"')
         if modListIndex and modListIndex != "All":     
-            filters.append('featuredMod.technicalName=="*' + modListIndex + '*"')
+            filters.append('featuredMod.technicalName=="' + modListIndex + '"')
         
         # take info for the last 3 months. Makes life easier for database especially when filter contains only minRating
         # I will add ability to choose time period later   
