@@ -17,6 +17,7 @@ from replays.replayitem import ReplayItem, ReplayItemDelegate
 from model.game import GameState
 from api.replaysapi import ReplaysApiConnector
 from downloadManager import DownloadRequest
+from replays.replayToolbox import ReplayToolboxHandler
 
 import logging
 logger = logging.getLogger(__name__)
@@ -588,7 +589,8 @@ class ReplayVaultWidgetHandler(object):
     # connect to save/restore persistence settings for checkboxes & search parameters
     automatic = Settings.persisted_property("replay/automatic", default_value=False, type=bool)
     spoiler_free = Settings.persisted_property("replay/spoilerFree", default_value=True, type=bool)
-
+    hide_unranked = Settings.persisted_property("replay/hideUnranked", default_value=False, type=bool)
+    
     def __init__(self, widget, dispatcher, client, gameset, playerset):
         self._w = widget
         self._dispatcher = dispatcher
@@ -602,14 +604,15 @@ class ReplayVaultWidgetHandler(object):
         self.client.lobby_info.replayVault.connect(self.replayVault)
         self.replayDownload = QNetworkAccessManager()
         self.replayDownload.finished.connect(self.onDownloadFinished)
+        self.toolboxHandler = ReplayToolboxHandler(self, widget, dispatcher, client, gameset, playerset)
 
+        self.showLatest = True
         self.searching = False
         self.searchInfo = "<font color='gold'><b>Searching...</b></font>"
         self.defaultSearchParams = {  
             "page[number]": 1,
-            "page[size]": 50,
+            "page[size]": 100,
             "sort": "-startTime",
-            "endTime": "isnull=false",
             "include": "featuredMod,mapVersion,mapVersion.map,playerStats,playerStats.player"
         }
 
@@ -625,11 +628,14 @@ class ReplayVaultWidgetHandler(object):
         _w.mapName.returnPressed.connect(self.searchVault)
         _w.automaticCheckbox.stateChanged.connect(self.automaticCheckboxchange)
         _w.spoilerCheckbox.stateChanged.connect(self.spoilerCheckboxchange)
+        _w.showLatestCheckbox.stateChanged.connect(self.showLatestCheckboxchange)
+        _w.hideUnrCheckbox.stateChanged.connect(self.hideUnrCheckboxchange)
         _w.RefreshResetButton.pressed.connect(self.resetRefreshPressed)
 
         # restore persistent checkbox settings
         _w.automaticCheckbox.setChecked(self.automatic)
         _w.spoilerCheckbox.setChecked(self.spoiler_free)
+        _w.hideUnrCheckbox.setChecked(self.hide_unranked)
 
     def showToolTip(self, widget, msg):
         """Default tooltips are too slow and disappear when user starts typing"""
@@ -637,31 +643,47 @@ class ReplayVaultWidgetHandler(object):
         position = widget.mapToGlobal(QtCore.QPoint(0 + widget.width(),0 - widget.height()/2))
         QtWidgets.QToolTip.showText(position, msg)
 
-    def searchVault(self, minRating=None, mapName=None, playerName=None, modListIndex=None):
+    def searchVault(self, minRating=None, mapName=None, playerName=None, modListIndex=None, quantity=None, reset=None):
         w = self._w
-        
+        timePeriod = None
+
         if self.searching:
             QtWidgets.QMessageBox.critical(None, "Replay vault", "Please, wait for previous search to finish.")
             return
-        
-        if minRating is not None:
-            w.minRating.setValue(minRating)
-        if mapName is not None:
-            w.mapName.setText(mapName)
-        if playerName is not None:
-            w.playerName.setText(playerName)
-        if modListIndex is not None:
-            w.modList.setCurrentIndex(modListIndex)
 
-        filters = self.prepareFilters(w.minRating.value(), w.mapName.text(), w.playerName.text(), w.modList.currentText())
+        if reset:
+            w.minRating.setValue(0)
+            w.mapName.setText("")
+            w.playerName.setText("")
+            w.modList.setCurrentIndex(0)
+            w.quantity.setValue(100)
+            w.showLatestCheckbox.setChecked(True)
+        else:
+            if minRating is not None:
+                w.minRating.setValue(minRating)
+            if mapName is not None:
+                w.mapName.setText(mapName)
+            if playerName is not None:
+                w.playerName.setText(playerName)
+            if modListIndex is not None:
+                w.modList.setCurrentIndex(modListIndex)
+            if quantity is not None:
+                w.quantity.setValue(quantity)
+            if not self.showLatest:
+                timePeriod = []
+                timePeriod.append(w.dateStart.date().toString('yyyy-MM-dd'))
+                timePeriod.append(w.dateEnd.date().toString('yyyy-MM-dd'))
+
+        filters = self.prepareFilters(w.minRating.value(), w.mapName.text(), w.playerName.text(), w.modList.currentText(), timePeriod)
 
         # """ search for some replays """
         self._w.onlineTree.clear()
         self._w.searchInfoLabel.setText(self.searchInfo)
         self.searching = True
         
-        parameters = self.defaultSearchParams
-                
+        parameters = self.defaultSearchParams.copy()
+        parameters["page[size]"] = w.quantity.value()
+
         if filters:
             parameters["filter"] = filters
 
@@ -674,6 +696,9 @@ class ReplayVaultWidgetHandler(object):
         '''
 
         filters = []
+        
+        if self.hide_unranked:
+            filters.append('validity=="VALID"')
 
         if minRating and minRating > 0:
             if modListIndex == "ladder1v1":
@@ -690,10 +715,10 @@ class ReplayVaultWidgetHandler(object):
         if modListIndex and modListIndex != "All":     
             filters.append('featuredMod.technicalName=="{}"'.format(modListIndex))
         
-        # take info for the last 3 months. Makes life easier for database 
-        # especially when filter contains only minRating
-        # I will add ability to choose time period later   
-        if len(filters) > 0 :
+        if timePeriod:
+            filters.append('startTime=gt="{}T00:00:00Z"'.format(timePeriod[0]))
+            filters.append('startTime=lt="{}T23:59:59Z"'.format(timePeriod[1]))
+        elif len(filters) > 0:
             months = 3
             if playerName:
                 months = 6
@@ -709,10 +734,7 @@ class ReplayVaultWidgetHandler(object):
     def reloadView(self):
         if not self.searching:  # something else is already in the pipe from SearchVault
             if self.automatic or self.onlineReplays == {}:  # refresh on Tab change or only the first time
-                self._w.searchInfoLabel.setText(self.searchInfo)
-                self.searching = True
-                parameters = self.defaultSearchParams
-                self.apiConnector.requestData(parameters)
+                self.searchVault(reset = True)
 
     def onlineTreeClicked(self, item):
         if QtWidgets.QApplication.mouseButtons() == QtCore.Qt.RightButton:
@@ -730,6 +752,8 @@ class ReplayVaultWidgetHandler(object):
                 else:
                     self._w.replayInfos.clear()
                     item.generateInfoPlayersHtml()
+            if self.toolboxHandler.mapPreview:
+                self.toolboxHandler.updateMapPreview()
 
     def onlineTreeDoubleClicked(self, item):
         if hasattr(item, "duration"):  # it's a game not a date separator
@@ -778,20 +802,26 @@ class ReplayVaultWidgetHandler(object):
         if self.selectedReplay:  # if something is selected in the tree to the left
             if type(self.selectedReplay) == ReplayItem:  # and if it is a game
                 self.selectedReplay.generateInfoPlayersHtml()  # then we redo it
+    
+    def showLatestCheckboxchange(self, state):
+        self.showLatest = state
+        if state: # disable date edit fields if True
+            self._w.dateStart.setEnabled(False)
+            self._w.dateEnd.setEnabled(False)
+        else: # enable date edit and set current date
+            self._w.dateStart.setEnabled(True)
+            self._w.dateEnd.setEnabled(True)
+            
+            date = QtCore.QDate.currentDate()
+            self._w.dateStart.setDate(date)
+            self._w.dateEnd.setDate(date)
+
+    def hideUnrCheckboxchange (self, state):
+        self.hide_unranked = state
 
     def resetRefreshPressed(self):  # reset search parameter and reload recent Replays List
         if not self.searching:
-            self._w.searchInfoLabel.setText(self.searchInfo)
-            self.searching = True
-
-            parameters = self.defaultSearchParams
-
-            self.apiConnector.requestData(parameters)
-            
-            self._w.minRating.setValue(0)
-            self._w.mapName.setText("")
-            self._w.playerName.setText("")
-            self._w.modList.setCurrentIndex(0)  # "All"  
+            self.searchVault(reset = True)
 
     def onDownloadFinished(self, reply):
         if reply.error() != QNetworkReply.NoError:
@@ -863,7 +893,7 @@ class ReplaysWidget(BaseClass, FormClass):
 
     def set_player(self, name):
         self.setCurrentIndex(2)  # focus on Online Fault
-        self.vaultManager.searchVault(-1400, "", name, 0)
+        self.vaultManager.searchVault(0, "", name, 0, 100)
 
     def focusEvent(self, event):
         self.localManager.updatemyTree()

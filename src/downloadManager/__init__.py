@@ -216,21 +216,22 @@ class PreviewDownloader(QtCore.QObject):
     PREVIEW_REDOWNLOAD_TIMEOUT = 5 * 60 * 1000
     PREVIEW_DOWN_FAILS_TO_TIMEOUT = 3
 
-    def __init__(self, target_dir, default_url_prefix):
+    def __init__(self, target_dir, target_dir_large, default_url_prefix):
         QtCore.QObject.__init__(self)
         self._nam = QNetworkAccessManager(self)
         self._target_dir = target_dir
+        self._target_dir_large = target_dir_large
         self._default_url_prefix = default_url_prefix
         self._downloads = {}
         self._timeouts = DownloadTimeouts(self.PREVIEW_REDOWNLOAD_TIMEOUT,
                                           self.PREVIEW_DOWN_FAILS_TO_TIMEOUT)
 
-    def download_preview(self, name, req, url=None):
+    def download_preview(self, name, req, url=None, large=None):
         target_url = self._target_url(name, url)
         if target_url is None:
             msg = "Missing url for a preview download {}".format(name)
             raise ValueError(msg)
-        self._add_request(name, req, target_url)
+        self._add_request(name, req, target_url, large)
 
     def _target_url(self, name, url):
         if url is not None:
@@ -239,18 +240,22 @@ class PreviewDownloader(QtCore.QObject):
             return None
         return self._default_url_prefix + urllib.parse.quote(name) + ".png"
 
-    def _add_request(self, name, req, url):
+    def _add_request(self, name, req, url, large):
         if name not in self._downloads:
-            self._add_download(name, url)
+            self._add_download(name, url, large)
         dl = self._downloads[name]
         req.dl = dl
 
-    def _add_download(self, name, url):
+    def _add_download(self, name, url, large):
         if self._timeouts.on_timeout(name):
             delay = self._timeouts.timer
         else:
             delay = None
-        dl = PreviewDownload(self._nam, name, url, self._target_dir, delay)
+            
+        targetDir = self._target_dir
+        if large:
+            targetDir = self._target_dir_large
+        dl = PreviewDownload(self._nam, name, url, targetDir, delay)
         dl.done.connect(self._finished_download)
         self._downloads[name] = dl
 
