@@ -29,7 +29,7 @@ class ReplaysApiConnector(QtCore.QObject):
         if reply.error() != QtNetwork.QNetworkReply.NoError:
             logger.error("API request error:", reply.error())
         else:
-            self.handleData(reply.readAll().data().decode('utf-8'))
+            self.handleData(reply.readAll().data().decode('utf-8', errors="ignore"))
 
     def handleData(self, data_string):
         preparedData = dict(command = "replay_vault", 

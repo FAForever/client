@@ -219,10 +219,13 @@ QSplitter::handle:hover
      background-color: #606060;
  }
 
-QSpinBox#minRating, QLineEdit#mapName, QLineEdit#playerName, QComboBox#modList
+QSpinBox#minRating, QLineEdit#mapName, QLineEdit#playerName, QComboBox#modList, QDateEdit#dateEnd, QDateEdit#dateStart, QSpinBox#quantity
 {
     background-color: #353535;
     color: orange;
+}
+QDateEdit#dateEnd:disabled, #dateStart:disabled {
+    color: #8D8B85;
 }
 
 /* Text controls */
@@ -482,10 +485,19 @@ QDialog
     background-color: #575656;
 }
 
-QCheckBox#spoilerCheckbox, #automaticCheckbox
+QCheckBox#spoilerCheckbox, #automaticCheckbox, #showLatestCheckbox, #hideUnrCheckbox
 {
     color: silver;
 }
+QCheckBox#spoilerCheckbox::indicator:unchecked, #automaticCheckbox::indicator:unchecked, #showLatestCheckbox::indicator:unchecked, #hideUnrCheckbox::indicator:unchecked 
+{
+    image: url('%THEMEPATH%/client/chboxUncheked.png');
+ }
+
+QCheckBox#spoilerCheckbox::indicator:checked, #automaticCheckbox::indicator:checked, #showLatestCheckbox::indicator:checked, #hideUnrCheckbox::indicator:checked
+{
+    image: url('%THEMEPATH%/client/chboxCheked.png');
+ }
 
 /* Used for Ranked Buttons only at the moment*/
 QToolButton#rankedPlay

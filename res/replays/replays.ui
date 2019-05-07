@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1057</width>
-    <height>686</height>
+    <width>1171</width>
+    <height>638</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -316,7 +316,7 @@
       <property name="minimumSize">
        <size>
         <width>400</width>
-        <height>200</height>
+        <height>300</height>
        </size>
       </property>
       <property name="sizeIncrement">
@@ -326,61 +326,6 @@
        </size>
       </property>
       <layout class="QGridLayout" name="gridLayout_5">
-       <item row="1" column="0">
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>10</width>
-           <height>0</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="1" column="2">
-        <spacer name="horizontalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Expanding</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>10</width>
-           <height>0</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="0" column="1">
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>0</width>
-           <height>5</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="2" column="1">
-        <spacer name="verticalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>0</width>
-           <height>5</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
        <item row="1" column="1">
         <widget class="QGroupBox" name="groupBox">
          <property name="sizePolicy">
@@ -392,13 +337,13 @@
          <property name="minimumSize">
           <size>
            <width>380</width>
-           <height>180</height>
+           <height>260</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
            <width>380</width>
-           <height>180</height>
+           <height>260</height>
           </size>
          </property>
          <property name="title">
@@ -411,30 +356,28 @@
           <bool>true</bool>
          </property>
          <layout class="QFormLayout" name="formLayout">
-          <property name="fieldGrowthPolicy">
-           <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-          </property>
-          <property name="rowWrapPolicy">
-           <enum>QFormLayout::DontWrapRows</enum>
-          </property>
-          <property name="horizontalSpacing">
-           <number>25</number>
-          </property>
-          <property name="verticalSpacing">
-           <number>5</number>
-          </property>
-          <property name="leftMargin">
-           <number>10</number>
-          </property>
-          <property name="topMargin">
-           <number>10</number>
-          </property>
-          <property name="rightMargin">
-           <number>10</number>
-          </property>
-          <property name="bottomMargin">
-           <number>10</number>
-          </property>
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="spoilerCheckbox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>80</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Spoiler Free</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
           <item row="0" column="1">
            <layout class="QHBoxLayout" name="horizontalLayout">
             <property name="spacing">
@@ -458,6 +401,31 @@
             </item>
            </layout>
           </item>
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="automaticCheckbox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>80</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>reloads recent Replays on Tab reentry&lt;br&gt;'...same as it ever was ... same as it ever was'</string>
+            </property>
+            <property name="text">
+             <string>Automatic Refresh</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
           <item row="1" column="1">
            <layout class="QHBoxLayout" name="horizontalLayout_2">
             <property name="spacing">
@@ -480,6 +448,13 @@
              <widget class="QLineEdit" name="mapName"/>
             </item>
            </layout>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="searchInfoLabel">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
           </item>
           <item row="2" column="1">
            <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -525,6 +500,34 @@
             </item>
            </layout>
           </item>
+          <item row="3" column="0">
+           <widget class="QCheckBox" name="hideUnrCheckbox">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>80</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string/>
+            </property>
+            <property name="text">
+             <string>Hide unranked</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
           <item row="3" column="1">
            <layout class="QHBoxLayout" name="horizontalLayout_4">
             <property name="spacing">
@@ -555,7 +558,7 @@
                <string notr="true"/>
               </property>
               <property name="minimum">
-               <number>-1400</number>
+               <number>0</number>
               </property>
               <property name="maximum">
                <number>3000</number>
@@ -564,34 +567,14 @@
                <number>100</number>
               </property>
               <property name="value">
-               <number>-1400</number>
+               <number>0</number>
               </property>
              </widget>
             </item>
            </layout>
           </item>
-          <item row="4" column="1">
-           <widget class="QPushButton" name="searchButton">
-            <property name="text">
-             <string>Search</string>
-            </property>
-           </widget>
-          </item>
           <item row="4" column="0">
-           <widget class="QPushButton" name="RefreshResetButton">
-            <property name="minimumSize">
-             <size>
-              <width>128</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Refresh Recent List</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QCheckBox" name="automaticCheckbox">
+           <widget class="QCheckBox" name="showLatestCheckbox">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -605,47 +588,220 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>reloads recent Replays on Tab reentry&lt;br&gt;'...same as it ever was ... same as it ever was'</string>
+             <string/>
             </property>
             <property name="text">
-             <string>Automatic Refresh</string>
-            </property>
-            <property name="checked">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QCheckBox" name="spoilerCheckbox">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>80</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Spoiler Free</string>
+             <string>Show latest</string>
             </property>
             <property name="checked">
              <bool>true</bool>
             </property>
            </widget>
           </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="searchInfoLabel">
+          <item row="4" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_5">
+            <property name="spacing">
+             <number>10</number>
+            </property>
+            <item>
+             <widget class="QDateEdit" name="dateStart">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="dateTime">
+               <datetime>
+                <hour>0</hour>
+                <minute>0</minute>
+                <second>0</second>
+                <year>2019</year>
+                <month>1</month>
+                <day>1</day>
+               </datetime>
+              </property>
+              <property name="maximumDate">
+               <date>
+                <year>2050</year>
+                <month>12</month>
+                <day>31</day>
+               </date>
+              </property>
+              <property name="minimumDate">
+               <date>
+                <year>2010</year>
+                <month>1</month>
+                <day>1</day>
+               </date>
+              </property>
+              <property name="calendarPopup">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QDateEdit" name="dateEnd">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="dateTime">
+               <datetime>
+                <hour>23</hour>
+                <minute>59</minute>
+                <second>59</second>
+                <year>2019</year>
+                <month>1</month>
+                <day>1</day>
+               </datetime>
+              </property>
+              <property name="time">
+               <time>
+                <hour>23</hour>
+                <minute>59</minute>
+                <second>59</second>
+               </time>
+              </property>
+              <property name="maximumDate">
+               <date>
+                <year>2050</year>
+                <month>12</month>
+                <day>31</day>
+               </date>
+              </property>
+              <property name="minimumDate">
+               <date>
+                <year>2010</year>
+                <month>1</month>
+                <day>1</day>
+               </date>
+              </property>
+              <property name="calendarPopup">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="5" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_6">
+            <property name="spacing">
+             <number>10</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="label_6">
+              <property name="autoFillBackground">
+               <bool>false</bool>
+              </property>
+              <property name="styleSheet">
+               <string notr="true"/>
+              </property>
+              <property name="text">
+               <string>Quantity:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="quantity">
+              <property name="minimumSize">
+               <size>
+                <width>50</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true"/>
+              </property>
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>300</number>
+              </property>
+              <property name="singleStep">
+               <number>50</number>
+              </property>
+              <property name="value">
+               <number>100</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="6" column="0">
+           <widget class="QPushButton" name="RefreshResetButton">
+            <property name="minimumSize">
+             <size>
+              <width>128</width>
+              <height>0</height>
+             </size>
+            </property>
             <property name="text">
-             <string/>
+             <string>Refresh Recent List</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="1">
+           <widget class="QPushButton" name="searchButton">
+            <property name="text">
+             <string>Search</string>
             </property>
            </widget>
           </item>
          </layout>
         </widget>
+       </item>
+       <item row="2" column="1">
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>0</width>
+           <height>5</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="0">
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>10</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="2">
+        <spacer name="horizontalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Expanding</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>10</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="1">
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>0</width>
+           <height>5</height>
+          </size>
+         </property>
+        </spacer>
        </item>
       </layout>
       <zorder>groupBox</zorder>
