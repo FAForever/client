@@ -251,7 +251,7 @@ def __exportPreviewFromMap(mapname, positions=None):
     previewsmallname = os.path.join(mapdir, mapname + ".small.png")
     previewlargename = os.path.join(mapdir, mapname + ".large.png")
     previewddsname = os.path.join(mapdir, mapname + ".dds")
-    cachepngname = os.path.join(util.MAP_PREVIEW_DIR, mapname + ".png")
+    cachepngname = os.path.join(util.MAP_PREVIEW_SMALL_DIR, mapname + ".png")
 
     logger.debug("Generating preview from user maps for: " + mapname)
     logger.debug("Using directory: " + mapdir)
@@ -389,7 +389,7 @@ def preview(mapname, pixmap=False):
     try:
         # Try to load directly from cache
         for extension in iconExtensions:
-            img = os.path.join(util.MAP_PREVIEW_DIR, mapname + "." + extension)
+            img = os.path.join(util.MAP_PREVIEW_SMALL_DIR, mapname + "." + extension)
             if os.path.isfile(img):
                 logger.log(5, "Using cached preview image for: " + mapname)
                 return util.THEME.icon(img, False, pixmap)

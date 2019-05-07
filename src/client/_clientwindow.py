@@ -176,8 +176,8 @@ class ClientWindow(FormClass, BaseClass):
                 relation_model, relation_controller, relation_trackers)
         self.me.relations = self.user_relations
 
-        self.map_downloader = PreviewDownloader(util.MAP_PREVIEW_DIR, MAP_PREVIEW_ROOT)
-        self.mod_downloader = PreviewDownloader(util.MOD_PREVIEW_DIR, None)
+        self.map_downloader = PreviewDownloader(util.MAP_PREVIEW_SMALL_DIR, util.MAP_PREVIEW_LARGE_DIR, MAP_PREVIEW_ROOT)
+        self.mod_downloader = PreviewDownloader(util.MOD_PREVIEW_DIR, None, None)
         self.avatar_downloader = AvatarDownloader()
 
         # Qt model for displaying active games.

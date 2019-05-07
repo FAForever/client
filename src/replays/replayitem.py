@@ -126,13 +126,13 @@ class ReplayItem(QtWidgets.QTreeWidgetItem):
         
         self.client = client
         self.name   = replay["name"]
-        
-        try:
+
+        if "id" in  replay["mapVersion"]:
             self.mapid     = replay["mapVersion"]["id"]
             self.mapname   = replay["mapVersion"]["folderName"]
-        except:
-            # coop games
-            self.mapname   = "unknown"
+            self.previewUrlLarge = replay["mapVersion"]["thumbnailUrlLarge"]
+        else:
+            self.mapname = "unknown"
 
         startDt = datetime.strptime(replay["startTime"], '%Y-%m-%dT%H:%M:%SZ')
         startDt = startDt.replace(tzinfo=timezone.utc).astimezone(tz=None) #local time
