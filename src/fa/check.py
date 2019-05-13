@@ -24,7 +24,13 @@ def map_(mapname, force=False, silent=False):
     if fa.maps.isMapAvailable(mapname):
         logger.info("Map is available.")
         return True
-
+ 
+    if "neroxis_map_generator" in mapname:
+        import client # FIXME
+        if not path(client.instance):
+            return False
+        return client.instance.map_generator.generateMap(mapname)
+ 
     if force:
         return fa.maps.downloadMap(mapname, silent=silent)
 

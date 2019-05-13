@@ -241,6 +241,19 @@
      </property>
     </widget>
    </item>
+   <item row="7" column="0">
+    <widget class="QPushButton" name="generateButton">
+     <property name="maximumSize">
+      <size>
+       <width>100</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>Generate map</string>
+     </property>
+    </widget>
+   </item>
   </layout>
   <zorder>label</zorder>
   <zorder>titleEdit</zorder>
@@ -252,6 +265,7 @@
   <zorder>gamePreview</zorder>
   <zorder>hostButton</zorder>
   <zorder>modList</zorder>
+  <zorder>generateButton</zorder>
  </widget>
  <resources/>
  <connections>

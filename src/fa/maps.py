@@ -238,7 +238,13 @@ def __exportPreviewFromMap(mapname, positions=None):
         return previews
 
     mapname = os.path.basename(mapdir).lower()
-    mapfilename = os.path.join(mapdir, mapname.split(".")[0]+".scmap")
+    
+    # All these mapgen checks in name here and there
+    # but what can we do? :)
+    if "neroxis_map_generator" in mapname:
+        mapfilename = os.path.join(mapdir, mapname+".scmap")    
+    else:
+        mapfilename = os.path.join(mapdir, mapname.split(".")[0]+".scmap")
 
     mode = os.stat(mapdir)[0]
     if not (mode and stat.S_IWRITE):
