@@ -3,6 +3,7 @@ from PyQt5.QtCore import QProcess, QProcessEnvironment, QEventLoop, Qt
 from PyQt5.QtWidgets import QMessageBox, QApplication, QProgressDialog
 import os
 import fafpath
+from util import getJavaPath
 
 @with_logger
 class MapGeneratorProcess(object):
@@ -23,7 +24,7 @@ class MapGeneratorProcess(object):
         self.map_generator_process.readyReadStandardError.connect(self.on_error_ready)
         self.map_generator_process.finished.connect(self.on_exit)
         
-        self.java_path = os.path.join(fafpath.get_libdir(), "ice-adapter", "jre", "bin", "java.exe")
+        self.java_path = getJavaPath()
         args = ["-jar", gen_path, out_path, seed, version, mapName]
 
         self._logger.debug("running map generator with {} {}".format(self.java_path, " ".join(args)))

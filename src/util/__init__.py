@@ -363,3 +363,7 @@ def datetostr(d):
 
 
 from .crash import CrashDialog, runtime_info
+
+def getJavaPath():
+    return os.path.join(fafpath.get_libdir(), "ice-adapter", "jre", "bin", "java.exe")
+    

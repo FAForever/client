@@ -20,6 +20,8 @@ import fa
 from config import Settings
 from vault.dialogs import downloadVaultAssetNoMsg
 
+from mapGenerator.mapgenUtils import isGeneratedMap
+
 logger = logging.getLogger(__name__)
 
 route = Settings.get('content/host')
@@ -239,9 +241,7 @@ def __exportPreviewFromMap(mapname, positions=None):
 
     mapname = os.path.basename(mapdir).lower()
     
-    # All these mapgen checks in name here and there
-    # but what can we do? :)
-    if "neroxis_map_generator" in mapname:
+    if isGeneratedMap(mapname):
         mapfilename = os.path.join(mapdir, mapname+".scmap")    
     else:
         mapfilename = os.path.join(mapdir, mapname.split(".")[0]+".scmap")

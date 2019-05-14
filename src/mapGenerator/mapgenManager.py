@@ -12,19 +12,22 @@ from config import Settings
 import fafpath
 from vault.dialogs import downloadFile
 from mapGenerator.mapgenProcess import MapGeneratorProcess
+from mapGenerator.mapgenUtils import isGeneratedMap, versionPattern, generatedMapPattern
 from fa.maps import getUserMapsFolder
 
 logger = logging.getLogger(__name__)
 
+releaseUrl = "https://github.com/FAForever/Neroxis-Map-Generator/releases/"
+generatorJarName = "NeroxisGen_{}.jar"
+
+
 class MapGeneratorManager(object):
     def __init__(self):
-        self.releaseUrl = "https://github.com/FAForever/Neroxis-Map-Generator/releases/download/{}/NeroxisGen_{}.jar"
-        self.latestRelease = "https://github.com/FAForever/Neroxis-Map-Generator/releases/latest"
         self.latestVersion = None
         self.response = None
 
         self.currentVersion = Settings.get('mapGenerator/version', "0", str)
-        self.previousMaps = Settings.get('mapGenerator/deleteMaps')
+        self.previousMaps = Settings.get('mapGenerator/mapsToDelete')
         self.generatorPath = os.path.join(fafpath.get_libdir(), "map-generator")
         self.mapsFolder = getUserMapsFolder()
 
@@ -32,10 +35,8 @@ class MapGeneratorManager(object):
             self.deletePreviousMaps()
 
     def generateMap(self, mapname):
-        dataString =  mapname.split("neroxis_map_generator",1)[1]
-        version = re.search(r'\_(.*?)\_',dataString).group(1)
-        seed = dataString.rsplit('_', 1)[1]
-
+        version = re.search(versionPattern, mapname)[0]
+        seed = mapname.rsplit('_', 1)[1]
         actualPath = self.versionController(version)
 
         if actualPath:
@@ -43,8 +44,8 @@ class MapGeneratorManager(object):
             if not auto:
                 msgbox = QtWidgets.QMessageBox()
                 msgbox.setWindowTitle("Generate map")
-                msgbox.setText("Seems that you don't have the map used this game. Do you want to generate it?<br/><b>" + mapname + "</b>")
-                msgbox.setInformativeText("Map generation is CPU intensive task and may take some time.")
+                msgbox.setText("It looks like you don't have the map being used by this lobby. Do you want to generate it? <br/><b>" + mapname + "</b>")
+                msgbox.setInformativeText("Map generation is a CPU intensive task and may take some time.")
                 msgbox.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.YesToAll | QtWidgets.QMessageBox.No)
                 result = msgbox.exec_()
                 if result == QtWidgets.QMessageBox.No:
@@ -61,7 +62,7 @@ class MapGeneratorManager(object):
                     self.previousMaps = self.previousMaps + ";" + mapname
                 else:
                     self.previousMaps = mapname
-                Settings.set('mapGenerator/deleteMaps', self.previousMaps)
+                Settings.set('mapGenerator/mapsToDelete', self.previousMaps)
                 
                 return mapname
             else:
@@ -84,14 +85,14 @@ class MapGeneratorManager(object):
             elif self.currentVersion == "0":               # if not "0", use older version
                 return False                               # otherwise we don't have any generator at all
 
-        seed = ''.join(["%s" % random.randint(0, 9) for num in range(0, 19)])
+        seed = random.getrandbits(64) - 2**63
         mapName = "neroxis_map_generator_{}_{}".format(self.currentVersion, seed)
 
         return self.generateMap(mapName)
    
     def versionController(self, version):
-        name = "NeroxisGen_{}.jar".format(version)
-        filePath = self.generatorPath + "\\" + name
+        name = generatorJarName.format(version)
+        filePath = os.path.join(self.generatorPath, name)
         
         # Check if required version is already in folder
         if os.path.isdir(self.generatorPath):
@@ -100,15 +101,15 @@ class MapGeneratorManager(object):
                     return filePath
 
         # Download from github if not            
-        url = self.releaseUrl.format(version,version)
+        url = releaseUrl + "download/{}/NeroxisGen_{}.jar".format(version,version)
         return downloadFile(url, filePath, name, "map generator", silent = False)
- 
+
     def deletePreviousMaps(self):
         '''Delete maps that were created at previous session'''
         try:
             maps = self.previousMaps.split(";")
             for map in maps:
-                if "neroxis_map_generator" in map: #just in case
+                if isGeneratedMap(map): #just in case
                     mapPath = (os.path.join(self.mapsFolder, map))
                     if os.path.isdir(mapPath):
                         shutil.rmtree(os.path.join(mapPath), ignore_errors=True)
@@ -127,7 +128,7 @@ class MapGeneratorManager(object):
         self.manager = QtNetwork.QNetworkAccessManager()
         self.manager.finished.connect(self.onRequestFinished)
 
-        request = QtNetwork.QNetworkRequest(QtCore.QUrl(self.latestRelease))
+        request = QtNetwork.QNetworkRequest(QtCore.QUrl(releaseUrl + "latest"))
         self.manager.get(request)
         
         progress = QtWidgets.QProgressDialog()
