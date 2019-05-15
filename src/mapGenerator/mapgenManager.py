@@ -85,7 +85,7 @@ class MapGeneratorManager(object):
             elif self.currentVersion == "0":               # if not "0", use older version
                 return False                               # otherwise we don't have any generator at all
 
-        seed = random.getrandbits(64) - 2**63
+        seed = random.randint(-9223372036854775808, 9223372036854775807)
         mapName = "neroxis_map_generator_{}_{}".format(self.currentVersion, seed)
 
         return self.generateMap(mapName)
