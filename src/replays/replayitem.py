@@ -120,25 +120,24 @@ class ReplayItem(QtWidgets.QTreeWidgetItem):
         self._map_dl_request = DownloadRequest()
         self._map_dl_request.done.connect(self._on_map_preview_downloaded)
 
-    def update(self, replay, message, client):
+    def update(self, replay, client):
         """ Updates this item from the message dictionary supplied """
         self.replay = replay
-        self.message = message
         
         self.client = client
-        self.name   = replay["attributes"]["name"]
+        self.name   = replay["name"]
         
         try:
-            self.mapid     = replay["relationships"]["mapVersion"]["data"]["id"]
-            self.mapname   = message["maps"][self.mapid]["folderName"]
+            self.mapid     = replay["mapVersion"]["id"]
+            self.mapname   = replay["mapVersion"]["folderName"]
         except:
             # coop games
             self.mapname   = "unknown"
 
-        startDt = datetime.strptime(replay["attributes"]["startTime"], '%Y-%m-%dT%H:%M:%SZ')
+        startDt = datetime.strptime(replay["startTime"], '%Y-%m-%dT%H:%M:%SZ')
         startDt = startDt.replace(tzinfo=timezone.utc).astimezone(tz=None) #local time
         
-        if replay["attributes"]["endTime"] is None:
+        if replay["endTime"] is None:
             seconds = time.time() - startDt.timestamp()
             if seconds > 86400:  # more than 24 hours
                 self.duration = "<font color='darkgrey'>end time<br />&nbsp;missing</font>"
@@ -150,15 +149,15 @@ class ReplayItem(QtWidgets.QTreeWidgetItem):
             else:
                 self.duration = time.strftime('%H:%M:%S', time.gmtime(seconds)) + "<br />&nbsp;playing"
         else:
-            endDt   = datetime.strptime(replay["attributes"]["endTime"], '%Y-%m-%dT%H:%M:%SZ') 
+            endDt   = datetime.strptime(replay["endTime"], '%Y-%m-%dT%H:%M:%SZ')
             endDt   = endDt.replace(tzinfo=timezone.utc).astimezone(tz=None) #local time
             self.duration = time.strftime('%H:%M:%S', time.gmtime((endDt - startDt).total_seconds()))
             
         self.startHour = startDt.strftime("%H:%M")
         self.startDate = startDt.strftime("%Y-%m-%d")
         
-        self.modid     = replay["relationships"]["featuredMod"]["data"]["id"]
-        self.mod       = message["featuredMods"][self.modid]["technicalName"]
+        self.modid     = replay["featuredMod"]["id"]
+        self.mod       = replay["featuredMod"]["technicalName"]
 
         # Map preview code
         self.mapdisplayname = maps.getDisplayName(self.mapname)
@@ -187,29 +186,20 @@ class ReplayItem(QtWidgets.QTreeWidgetItem):
                 also calls method to show the information """
         
         self.moreInfo = True
-        playersList = self.replay['relationships']['playerStats']['data']
+        playersList = self.replay['playerStats']
         self.numberplayers = len(playersList)
-        
-        players = []
-        
-        for player in playersList:
-            playerStats = self.message["playerStats"][player['id']]
-            realId = playerStats["playerID"]
-            
-            playerStats['name'] = self.message["players"][realId]["login"]
-            players.append(playerStats)    
 
         mvpscore = 0
         mvp = None
         scores = {}
 
-        for player in players:  # player highscore
+        for player in playersList:  # player highscore
             if "score" in player:
                 if player["score"] > mvpscore:
                     mvp = player
                     mvpscore = player["score"]
 
-        for player in players:  # player -> teams & playerscore -> teamscore
+        for player in playersList:  # player -> teams & playerscore -> teamscore
             if self.mod == "phantomx" or self.mod == "murderparty":  # get ffa like into one team
                 team = 1
             else:
@@ -229,13 +219,13 @@ class ReplayItem(QtWidgets.QTreeWidgetItem):
             self.teams ={}
             scores = {}
             team = 1
-            for player in players:  # player -> team (1)
+            for player in playersList:  # player -> team (1)
                 if team not in self.teams:
                     self.teams[team] = [player]
                 else:
                     self.teams[team].append(player)
 
-        if len(self.teams) == 1 or len(self.teams) == len(players):  # it's FFA
+        if len(self.teams) == 1 or len(self.teams) == len(playersList):  # it's FFA
             self.winner = mvp
         elif len(scores) > 0:  # team highscore
             mvt = 0
@@ -314,7 +304,7 @@ class ReplayItem(QtWidgets.QTreeWidgetItem):
         else:
             alignment = "left"
 
-        playerLabel = self.FORMATTER_REPLAY_PLAYER_LABEL.format(player_name=player["name"],
+        playerLabel = self.FORMATTER_REPLAY_PLAYER_LABEL.format(player_name=player["player"]["login"],
                                                                 player_rating= int(round((player["beforeMean"] - player["beforeDeviation"] * 3)/100) * 100),
                                                                 alignment=alignment)
 

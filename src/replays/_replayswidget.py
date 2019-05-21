@@ -15,7 +15,7 @@ import threading
 
 from replays.replayitem import ReplayItem, ReplayItemDelegate
 from model.game import GameState
-from replays.replaysapi import ReplaysApiConnector
+from api.replaysapi import ReplaysApiConnector
 from downloadManager import DownloadRequest
 
 import logging
@@ -585,9 +585,6 @@ class LocalReplayMetadataCache:
 
 
 class ReplayVaultWidgetHandler(object):
-    HOST = "lobby.faforever.com"
-    PORT = 11002
-
     # connect to save/restore persistence settings for checkboxes & search parameters
     automatic = Settings.persisted_property("replay/automatic", default_value=False, type=bool)
     spoiler_free = Settings.persisted_property("replay/spoilerFree", default_value=True, type=bool)
@@ -604,7 +601,7 @@ class ReplayVaultWidgetHandler(object):
         self.apiConnector = ReplaysApiConnector(self._dispatcher)
         self.client.lobby_info.replayVault.connect(self.replayVault)
         self.replayDownload = QNetworkAccessManager()
-        self.replayDownload.finished.connect(self.finishRequest)
+        self.replayDownload.finished.connect(self.onDownloadFinished)
 
         self.searching = False
         self.searchInfo = "<font color='gold'><b>Searching...</b></font>"
@@ -796,7 +793,7 @@ class ReplayVaultWidgetHandler(object):
             self._w.playerName.setText("")
             self._w.modList.setCurrentIndex(0)  # "All"  
 
-    def finishRequest(self, reply):
+    def onDownloadFinished(self, reply):
         if reply.error() != QNetworkReply.NoError:
             QtWidgets.QMessageBox.warning(self._w, "Network Error", reply.errorString())
         else:
@@ -820,9 +817,7 @@ class ReplayVaultWidgetHandler(object):
                     uid = int(replay["id"])
                     if uid not in self.onlineReplays:
                         self.onlineReplays[uid] = ReplayItem(uid, self._w)
-                        self.onlineReplays[uid].update(replay, message, self.client)
-                    else:
-                        self.onlineReplays[uid].update(replay, message, self.client)
+                    self.onlineReplays[uid].update(replay, self.client)
 
                 self.updateOnlineTree()
                 self._w.RefreshResetButton.setText("Reset Search to Recent")
