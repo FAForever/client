@@ -6,7 +6,6 @@ pytest
 pytest-cov
 pytest-mock
 pytest-qt
-requests
 semantic_version
 idna
 jsonschema==2.6.0
