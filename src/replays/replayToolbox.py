@@ -274,11 +274,11 @@ class ReplayToolboxHandler(object):
      
     def updateMapPreview(self):
         selectedReplay = self.widgetHandler.selectedReplay
-        if selectedReplay and selectedReplay.mapname != "unknown":
-            preview = self._w.mapPreviewLabel
-            imgPath = os.path.join(MAP_PREVIEW_LARGE_DIR, selectedReplay.mapname + ".png")
-            
-            if selectedReplay.mapname != preview.currentMap:
+        if selectedReplay and hasattr(selectedReplay, "mapname"):
+            if selectedReplay.mapname != "unknown" and selectedReplay.mapname != preview.currentMap:
+                preview = self._w.mapPreviewLabel
+                imgPath = os.path.join(MAP_PREVIEW_LARGE_DIR, selectedReplay.mapname + ".png")
+
                 if os.path.isfile(imgPath):
                     pix = QtGui.QPixmap(imgPath)
                     preview.setPixmap(pix)
