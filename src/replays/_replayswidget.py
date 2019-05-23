@@ -646,7 +646,7 @@ class ReplayVaultWidgetHandler(object):
         position = widget.mapToGlobal(QtCore.QPoint(0 + widget.width(),0 - widget.height()/2))
         QtWidgets.QToolTip.showText(position, msg)
 
-    def searchVault(self, reset=None, minRating=None, mapName=None, playerName=None, modListIndex=None, quantity=None):
+    def searchVault(self, minRating=None, mapName=None, playerName=None, modListIndex=None, quantity=None, reset=None):
         w = self._w
         timePeriod = None
 
