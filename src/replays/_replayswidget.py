@@ -17,6 +17,7 @@ from replays.replayitem import ReplayItem, ReplayItemDelegate
 from model.game import GameState
 from replays.replaysapi import ReplaysApiConnector
 from downloadManager import DownloadRequest
+from replays.replayToolbox import ReplayToolboxHandler
 
 import logging
 logger = logging.getLogger(__name__)
@@ -606,6 +607,7 @@ class ReplayVaultWidgetHandler(object):
         self.client.lobby_info.replayVault.connect(self.replayVault)
         self.replayDownload = QNetworkAccessManager()
         self.replayDownload.finished.connect(self.finishRequest)
+        self.toolboxHandler = ReplayToolboxHandler(self, widget, dispatcher, client, gameset, playerset)
 
         self.showLatest = True
         self.searching = False
@@ -753,6 +755,8 @@ class ReplayVaultWidgetHandler(object):
                 else:
                     self._w.replayInfos.clear()
                     item.generateInfoPlayersHtml()
+            if self.toolboxHandler.mapPreview:
+                self.toolboxHandler.updateMapPreview()
 
     def onlineTreeDoubleClicked(self, item):
         if hasattr(item, "duration"):  # it's a game not a date separator
