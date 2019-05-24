@@ -9,8 +9,6 @@ import faulthandler
 from PyQt5 import QtCore
 from logging.handlers import RotatingFileHandler, MemoryHandler
 
-import bugsnag
-
 if sys.platform == 'win32':
     import win32api
     import win32con
@@ -201,24 +199,6 @@ elif environment == 'development':
 for k, v in defaults.items():
     if isinstance(v, str):
         defaults[k] = v.format(host=Settings.get('host'))
-
-
-def configure_bugsnag():
-    """
-    Configures bugsnag
-    """
-    global environment
-    global VERSION
-
-    bugsnag.configure(
-        api_key="64c6415828aafefdadf1c2c58557e012",
-        project_root=fafpath.get_srcdir(),
-        release_stage=environment,
-        app_version=VERSION,
-    )
-
-
-configure_bugsnag()
 
 
 def os_language():
