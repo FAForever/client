@@ -16,7 +16,6 @@ Created on Dec 1, 2011
 
 import os
 import sys
-import bugsnag
 
 # Some linux distros (like Gentoo) make package scripts available
 # by copying and modifying them. This breaks path to our modules.
@@ -70,13 +69,7 @@ def excepthook(exc_type, exc_value, traceback_object):
         raise exc_value
 
     logger.error("Uncaught exception", exc_info=(exc_type, exc_value, traceback_object))
-    runtime_info = util.runtime_info()
-    logger.error("Runtime Info:\n%s", runtime_info)
-    try:
-        bugsnag.notify(exc_value, meta_data={"runtime_info": runtime_info})
-    except Exception:
-        logger.error("Couldn't send error to bugnag")
-
+    logger.error("Runtime Info:\n%s", util.runtime_info())
     dialog = util.CrashDialog((exc_type, exc_value, traceback_object))
     answer = dialog.exec_()
 
