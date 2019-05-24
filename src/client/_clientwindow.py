@@ -32,7 +32,6 @@ from client.theme_menu import ThemeMenu
 from client.user import User
 from client.user import UserRelationModel, UserRelationController, \
     UserRelationTrackers, UserRelations
-from connectivity.helper import ConnectivityHelper
 from downloadManager import PreviewDownloader, AvatarDownloader, \
     MAP_PREVIEW_ROOT
 from fa.factions import Factions
