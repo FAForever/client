@@ -1,6 +1,22 @@
 0.x.x
 =====
 
+0.18.4
+=====
+ * Replay vault update for JSONAPI
+
+Contributors:
+ - Strogo
+ - muellni
+ 
+0.18.3
+=====
+ * ICE adapter debug window fixes
+
+Contributors:
+ - Geosearchef
+ - muellni
+ 
 0.18.2
 =====
  * ICE adapter integration
