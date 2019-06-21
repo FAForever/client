@@ -46,7 +46,6 @@ class GameLauncher:
             map_file_path="",   # Mock
             teams={1: [host]},
             featured_mod=main_mod,
-            featured_mod_versions={},
             sim_mods={},
             password_protected=False,   # Filled in later
             visibility=(GameVisibility.FRIENDS if friends_only
