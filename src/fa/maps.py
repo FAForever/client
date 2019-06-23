@@ -73,7 +73,7 @@ def link2name(link):
     """
     Takes a link and tries to turn it into a local mapname
     """
-    name = link.rsplit("/")[1].rsplit(".zip")[0]
+    name = link.rsplit("/", 1)[1].rsplit(".zip")[0]
     logger.info("Converted link '" + link + "' to name '" + name + "'")
     return name
 
