@@ -57,7 +57,6 @@ class Game(ModelItem):
                  map_file_path,
                  teams,
                  featured_mod,
-                 featured_mod_versions,
                  sim_mods,
                  password_protected,
                  visibility):
@@ -77,7 +76,6 @@ class Game(ModelItem):
         self.add_field("map_file_path", map_file_path)
         self.add_field("teams", teams)
         self.add_field("featured_mod", featured_mod)
-        self.add_field("featured_mod_versions", featured_mod_versions)
         self.add_field("sim_mods", sim_mods)
         self.add_field("password_protected", password_protected)
         self.add_field("visibility", visibility)
