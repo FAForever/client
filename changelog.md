@@ -1,6 +1,14 @@
 0.x.x
 =====
 
+0.18.5
+=====
+ * map vault fixes
+ * fix featured_mod_versions server problem
+
+Contributors:
+ - Strogo
+
 0.18.4
 =====
  * Replay vault update for JSONAPI
