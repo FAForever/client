@@ -20,7 +20,6 @@ GAME_DICT = {
         2: ["Kraut"]
         },
     "featured_mod": "faf",
-    "featured_mod_versions": {},
     "sim_mods": {},
     "password_protected": False,
     "visibility": GameVisibility.PUBLIC,
