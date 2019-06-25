@@ -6,6 +6,7 @@ from PyQt5.QtGui import QDesktopServices
 from PyQt5.QtCore import QUrl, pyqtSlot
 
 import util
+from api.featured_mod_api import FeaturedModApiConnector
 from config import Settings
 from games.moditem import ModItem, mod_invisible
 from games.gamemodel import CustomGameFilterModel
@@ -37,6 +38,8 @@ class GamesWidget(FormClass, BaseClass):
         self.mods = {}
         self._game_model = CustomGameFilterModel(self._me, game_model)
         self._game_launcher = game_launcher
+
+        self.apiConnector = FeaturedModApiConnector(self.client.lobby_dispatch)
 
         self.gameview = gameview_builder(self._game_model, self.gameList)
         self.gameview.game_double_clicked.connect(self.gameDoubleClicked)
@@ -88,6 +91,7 @@ class GamesWidget(FormClass, BaseClass):
         self.modList.itemDoubleClicked.connect(self.hostGameClicked)
 
         self.updatePlayButton()
+        self.apiConnector.requestData()
 
     @pyqtSlot(dict)
     def processModInfo(self, message):

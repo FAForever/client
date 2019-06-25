@@ -351,7 +351,8 @@ class LobbyInfo(QtCore.QObject):
         self._dispatcher["stats"] = self._simple_emit(self.statsInfo)
         self._dispatcher["coop_info"] = self._simple_emit(self.coopInfo)
         self._dispatcher["tutorials_info"] = self._simple_emit(self.tutorialsInfo)
-        self._dispatcher["mod_info"] = self._simple_emit(self.modInfo)
+        self._dispatcher["mod_info_api"] = self._simple_emit(self.modInfo)
+        self._dispatcher["mod_info"] = lambda _: None
         self._dispatcher["game_info"] = self.handle_game_info
         self._dispatcher["modvault_list_info"] = self.handle_modvault_list_info
         self._dispatcher["modvault_info"] = self._simple_emit(self.modVaultInfo)
