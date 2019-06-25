@@ -31,7 +31,7 @@ class ApiBase(QtCore.QObject):
 
     def onRequestFinished(self, reply):
         if reply.error() != QtNetwork.QNetworkReply.NoError:
-            logger.error("API request error:", reply.error())
+            logger.error("API request error: %s", reply.error())
         else:
             message_bytes = reply.readAll().data()
             message = json.loads(message_bytes.decode('utf-8'))
@@ -89,4 +89,3 @@ class ApiBase(QtCore.QObject):
         except:
             logger.error("error parsing ", data)
         return result
-
