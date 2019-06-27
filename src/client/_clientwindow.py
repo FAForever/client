@@ -1379,7 +1379,7 @@ class ClientWindow(FormClass, BaseClass):
     def handle_authentication_failed(self, message):
         QtWidgets.QMessageBox.warning(self, "Authentication failed", message["text"])
         self._auto_relogin = False
-        self.get_creds_and_login()
+        self.show_login_widget()
 
     def handle_notice(self, message):
         if "text" in message:
