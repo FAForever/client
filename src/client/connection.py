@@ -145,7 +145,7 @@ class ServerConnection(QtCore.QObject):
     disconnected = QtCore.pyqtSignal()
     received_pong = QtCore.pyqtSignal()
 
-    def __init__(self, host, port, dispatch):
+    def __init__(self, dispatch):
         QtCore.QObject.__init__(self)
         self.socket = QtNetwork.QTcpSocket()
         self.socket.readyRead.connect(self.readFromServer)
@@ -153,8 +153,6 @@ class ServerConnection(QtCore.QObject):
         self.socket.setSocketOption(QtNetwork.QTcpSocket.KeepAliveOption, 1)
         self.socket.stateChanged.connect(self.on_socket_state_change)
 
-        self._host = host
-        self._port = port
         self._state = ConnectionState.INITIAL
         self.blockSize = 0
         self._disconnect_requested = False
@@ -190,10 +188,10 @@ class ServerConnection(QtCore.QObject):
         self._state = value
         self.state_changed.emit(value)
 
-    def do_connect(self):
+    def do_connect(self, host, port):
         self._disconnect_requested = False
         self.state = ConnectionState.CONNECTING
-        self.socket.connectToHost(self._host, self._port)
+        self.socket.connectToHost(host, port)
 
     def on_connecting(self):
         self.state = ConnectionState.CONNECTING

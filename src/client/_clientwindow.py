@@ -3,7 +3,7 @@ import logging
 import time
 from functools import partial
 
-from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt5 import QtCore, QtWidgets, QtGui, QtTest
 from PyQt5.QtNetwork import QNetworkAccessManager
 
 import config
@@ -140,8 +140,9 @@ class ClientWindow(FormClass, BaseClass):
         self._auto_relogin = self.remember
 
         self.lobby_dispatch = Dispatcher()
-        self.lobby_connection = ServerConnection(LOBBY_HOST, LOBBY_PORT,
-                                                 self.lobby_dispatch.dispatch)
+        self.host = LOBBY_HOST
+        self.port = LOBBY_PORT
+        self.lobby_connection = ServerConnection(self.lobby_dispatch.dispatch)
         self.lobby_connection.state_changed.connect(self.on_connection_state_changed)
         self.lobby_reconnector = ServerReconnecter(self.lobby_connection)
 
@@ -709,7 +710,7 @@ class ClientWindow(FormClass, BaseClass):
 
     def reconnect(self):
         self.lobby_reconnector.enabled = True
-        self.lobby_connection.do_connect()
+        self.lobby_connection.do_connect(self.host, self.port)
 
     def disconnect_(self):
         # Used when the user explicitly demanded to stay offline.
@@ -1026,32 +1027,41 @@ class ClientWindow(FormClass, BaseClass):
         if not self.replayServer.doListen():
             return False
 
-        self.lobby_connection.do_connect()
-        return True
+        self.lobby_connection.do_connect(self.host, self.port)
+        for _ in range(5):
+            if self.session:
+                return True
+            QtTest.QTest.qWait(1000)
+        return False
 
     def set_remember(self, remember):
         self.remember = remember
         self.actionSetAutoLogin.setChecked(self.remember)  # FIXME - option updating is silly
 
-    def get_creds_and_login(self):
-        # Try to autologin, or show login widget if we fail or can't do that.
+    def show_login(self):
         if self._auto_relogin and self.password and self.login:
+            self.do_connect()
             if self.send_login(self.login, self.password):
                 return
 
         self.show_login_widget()
 
     def show_login_widget(self):
-        login_widget = LoginWidget(self.login, self.remember)
+        login_widget = LoginWidget(self, self.login, self.remember)
         login_widget.finished.connect(self.on_widget_login_data)
         login_widget.rejected.connect(self.on_widget_no_login)
         login_widget.request_quit.connect(self.on_login_widget_quit)
         login_widget.remember.connect(self.set_remember)
-        login_widget.exec_()
+        login_widget.show()
 
-    def on_widget_login_data(self, login, password):
+    def on_widget_login_data(self, login, password, host, port, api_url):
         self.login = login
         self.password = password
+        self.host = host
+        self.port = port
+        # TODO: Use the other api url
+
+        self.do_connect()
 
         if self.send_login(login, password):
             return
@@ -1189,7 +1199,6 @@ class ClientWindow(FormClass, BaseClass):
 
     def handle_session(self, message):
         self.session = str(message['session'])
-        self.get_creds_and_login()
 
     def handle_update(self, message):
         # Remove geometry settings prior to updating
@@ -1208,17 +1217,15 @@ class ClientWindow(FormClass, BaseClass):
 
         util.crash.CRASH_REPORT_USER = self.login
 
-
         self.update_options()
 
         self.authorized.emit(self.me)
 
         if self.game_session is None:
             self.game_session = GameSession(player_id=message["id"], player_login=message["login"])
-        elif self.game_session.game_uid != None:
+        elif self.game_session.game_uid is not None:
             self.lobby_connection.send({'command': 'restore_game_session',
                                         'game_id': self.game_session.game_uid})
-
 
         self.game_session.gameFullSignal.connect(self.emit_game_full)
 

@@ -102,8 +102,8 @@ def run_faf():
 
     faf_client = client.instance
     faf_client.setup()
+    faf_client.show_login()
     faf_client.show()
-    faf_client.do_connect()
 
     # Main update loop
     QtWidgets.QApplication.exec_()
