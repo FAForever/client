@@ -1,5 +1,5 @@
 
- *[warning="true"]
+*[warning="true"]
 {
     color:lightgrey;
     font-size:8pt;
@@ -20,6 +20,8 @@
     height: 18px;
 
 }
+
+/* Menu items */
 
 QMenuBar
 {
@@ -79,6 +81,7 @@ QMenuBar::item
      height: 13px;
  }
 
+/* Tab widgets */
 
 QTabWidget #lobbyTab,#gamesTab,#ladderTab,#tournamentTab,#coopTab,#replaysTab,#vaultsTab,#mapsTab,#modsTab
 { /* sets background color for every widget under a tab */
@@ -155,11 +158,11 @@ QTabWidget#topTabs::pane
  }
 
 
- QTabWidget#topTabs::tab-bar
+QTabWidget#topTabs::tab-bar
 {
     top: 0px;
     left: 25px; /* move to the right by 25px */
- }
+}
 
 
 /* Style the tab using the tab sub-control. Note that it reads QTabBar _not_ QTabWidget */
@@ -197,6 +200,8 @@ QTabWidget#topTabs > QTabBar::tab:selected
 
 }
 
+/* Splitters */
+
 QSplitter::handle
 {
     background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #0F0F0F, stop:1 #2f2f2f);
@@ -217,7 +222,141 @@ QSplitter::handle:vertical
 QSplitter::handle:hover
 {
      background-color: #606060;
+}
+
+/* Inputs */
+
+QPushButton, QLineEdit, QComboBox {
+  	color: silver;
+    font: bold 12px;
+    padding: 2px;
+  	border: 1px solid rgb(70, 70, 70);
+    min-height: 20px;
+    background-color: rgb(39, 39, 45);
+}
+
+
+QCheckBox#hideGamesWithPw
+{
+    color:white;
+    background-color: #111111;
+}
+
+QLabel#labelSortGames,#labelJoinGame,#labelHostGame,#labelAutomatch,#labelMyReplays,#labelLiveReplays,#labelHostTournament,#labelJoinTournament,#joinLabel,#labelTeamManagement
+{
+    color:white;
+}
+
+QLabel#labelModHint,#labelMyHint,#labelLiveHint,#labelRankedHint,#labelTeamManagementHint,#labelTeamManagementHint2,#labelTeamManagementHint3
+{
+    color:#AAAAAA;
+}
+
+QLabel#titleLabel
+{
+    color:black;
+    font-weight:bold;
+}
+
+QGroupBox
+{
+    margin: 5px;
+    border: 1px solid #353535;
+    border-radius: 5px;
+    background-color: rgb(32, 32, 37);
+    color: silver;
+    padding: 5px;
+    padding-top: 15px;
+}
+
+QLabel
+{
+    color: silver;
+}
+
+/* Used for dialogs*/
+QDialog
+{
+    background-color: #575656;
+}
+
+QCheckBox#spoilerCheckbox, #automaticCheckbox, #showLatestCheckbox, #hideUnrCheckbox
+{
+    color: silver;
+}
+QCheckBox#spoilerCheckbox::indicator:unchecked, #automaticCheckbox::indicator:unchecked, #showLatestCheckbox::indicator:unchecked,
+#hideUnrCheckbox::indicator:unchecked
+{
+    image: url('%THEMEPATH%/client/chboxUncheked.png');
  }
+
+QCheckBox#spoilerCheckbox::indicator:checked, #automaticCheckbox::indicator:checked, #showLatestCheckbox::indicator:checked,
+#hideUnrCheckbox::indicator:checked
+{
+    image: url('%THEMEPATH%/client/chboxCheked.png');
+ }
+
+/* Used for Ranked Buttons only at the moment*/
+QToolButton#rankedPlay
+{
+	color: silver;
+	border-radius: 5px;
+	border: 1px solid grey;
+}
+QToolButton#laddermapspool
+{
+	color: silver;
+	border-radius: 5px;
+	border: 1px solid grey;
+}
+
+QToolButton::pressed
+{
+    border: none;
+    color: black;
+    padding:5px;
+    background-color:#383838;
+    border-radius : 5px;
+}
+
+QToolButton::hover
+{
+    border: none;
+
+    color:silver;
+    padding:5px;
+    background-color:#808080;
+    border-radius : 5px;
+ }
+
+QToolButton::checked
+{
+    border: none;
+    border: 2px solid #353535;
+
+    color:black;
+    padding:5px;
+    background-color:#C0C0C0;
+    border-radius : 5px;
+}
+
+QPushButton#searchButton, #advSearchButton
+{
+  	border: 2px;
+    font: bold 12px;
+}
+
+QPushButton#RefreshResetButton, #advResetButton
+{
+    font: 11px;
+}
+
+
+QComboBox QAbstractItemView {
+    border: 2px solid darkgray;
+    selection-background-color: #575656;
+    background-color: #575656;
+}
 
 QSpinBox#minRating, QLineEdit#mapName, #playerName, QDateEdit#dateEnd, #dateStart, QSpinBox#quantity, #advQuantity,
 QComboBox#modList, #value1, #value2, #value3, #value4, #value5, #value6
@@ -226,7 +365,7 @@ QComboBox#modList, #value1, #value2, #value3, #value4, #value5, #value6
     color: orange;
 }
 
-QComboBox#filter1, #filter2, #filter3, #filter4, #filter5, #filter6, 
+QComboBox#filter1, #filter2, #filter3, #filter4, #filter5, #filter6,
 #operator1, #operator2, #operator3, #operator4, #operator5, #operator6
 {
     background-color: #353535;
@@ -243,7 +382,7 @@ QToolBox#replayToolBox::tab
     color: silver;
     border-radius: 3px;
     padding-left: 145px; /* "alignment: center" doesn't work with toolboxes :| */
-} 
+}
 
 #advancedSearch, #mapPreview
 {
@@ -260,10 +399,6 @@ QTextEdit, QPlainTextEdit, QLineEdit, QListWidget, QListView, QTableWidget, QTre
     padding:5px;
     background-color:#202025;
     alternate-background-color: #303035;
-    border-top-right-radius : 5px;
-    border-top-left-radius : 5px;
-    border-bottom-left-radius : 5px;
-    border-bottom-right-radius : 5px;
 }
 
 /* used in ConnectivityDialog */
@@ -316,15 +451,6 @@ QTableWidget::item:selected, QListWidget::item:previously-selected, QListView::i
 {
     border: none;
 }
-
-
-
-
-QLineEdit
-{
-    color:orange;
-}
-
 
 
 QListWidget::item:hover, QListView::item:hover
@@ -461,144 +587,4 @@ QScrollBar::add-page
 QScrollBar::sub-page
 {
     background-color: #1f1f1f;
-}
-
-QCheckBox#hideGamesWithPw
-{
-    color:white;
-    background-color: #111111;
-}
-
-QLabel#labelSortGames,#labelJoinGame,#labelHostGame,#labelAutomatch,#labelMyReplays,#labelLiveReplays,#labelHostTournament,#labelJoinTournament,#joinLabel,#labelTeamManagement
-{
-    color:white;
-}
-
-QLabel#labelModHint,#labelMyHint,#labelLiveHint,#labelRankedHint,#labelTeamManagementHint,#labelTeamManagementHint2,#labelTeamManagementHint3
-{
-    color:#AAAAAA;
-}
-
-QLabel#titleLabel
-{
-    color:black;
-    font-weight:bold;
-}
-
-QGroupBox
-{
-    margin: 5px;
-    border: 1px solid #353535;
-    border-radius: 5px;
-    background-color: rgb(32, 32, 37);
-    color: silver;
-    padding: 5px;
-    padding-top: 15px;
-}
-
-QLabel
-{
-    color: silver;
-}
-
-/* Used for dialogs*/
-QDialog
-{
-    background-color: #575656;
-}
-
-QCheckBox#spoilerCheckbox, #automaticCheckbox, #showLatestCheckbox, #hideUnrCheckbox
-{
-    color: silver;
-}
-QCheckBox#spoilerCheckbox::indicator:unchecked, #automaticCheckbox::indicator:unchecked, #showLatestCheckbox::indicator:unchecked, 
-#hideUnrCheckbox::indicator:unchecked
-{
-    image: url('%THEMEPATH%/client/chboxUncheked.png');
- }
-
-QCheckBox#spoilerCheckbox::indicator:checked, #automaticCheckbox::indicator:checked, #showLatestCheckbox::indicator:checked, 
-#hideUnrCheckbox::indicator:checked
-{
-    image: url('%THEMEPATH%/client/chboxCheked.png');
- }
-
-/* Used for Ranked Buttons only at the moment*/
-QToolButton#rankedPlay
-{
-	color: silver;
-	border-radius: 5px;
-	border: 1px solid grey;
-}
-QToolButton#laddermapspool
-{
-	color: silver;
-	border-radius: 5px;
-	border: 1px solid grey;
-}
-
-QToolButton::pressed
-{
-    border: none;
-    color: black;
-    padding:5px;
-    background-color:#383838;
-    border-radius : 5px;
-}
-
-QToolButton::hover
-{
-    border: none;
-
-    color:silver;
-    padding:5px;
-    background-color:#808080;
-    border-radius : 5px;
- }
-
-QToolButton::checked
-{
-    border: none;
-    border: 2px solid #353535;
-
-    color:black;
-    padding:5px;
-    background-color:#C0C0C0;
-    border-radius : 5px;
- }
- 
-QPushButton#searchButton, #advSearchButton
-{
-	color: silver;
-	border-radius: 5px;
-	border: 2px solid rgb(70, 70, 70);
-    font: bold 12px;
-    min-height: 20px;
-    background-color: rgb(39, 39, 45);
-}
-
-QPushButton#RefreshResetButton, #advResetButton
-{
-	color: silver;
-	border-radius: 5px;
-	border: 1px solid rgb(70, 70, 70);
-    font: 11px;
-    min-height: 20px;
-    background-color: rgb(39, 39, 45);
-}
-
-QComboBox, QComboBox:selected
-{
-    color:orange;
-    selection-color:orange;
-    background-color: #575656;
-    selection-background-color: #575656;
-}
-
-
-
-QComboBox QAbstractItemView {
-    border: 2px solid darkgray;
-    selection-background-color: #575656;
-    background-color: #575656;
 }
