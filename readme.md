@@ -29,11 +29,11 @@ By contributing, you agree to license your work to the FAForever project in such
 
 ### Code-Style
 
-[Downlord's FAF Client Contribution Guidelines](https://github.com/FAForever/downlords-faf-client/wiki/Contribution-guidelines#write-readable-code)
-* [Quality has highest priority](https://github.com/FAForever/downlords-faf-client/wiki/Contribution-guidelines#choose-quality-over-quantity)
-* [Write readable code](https://github.com/FAForever/downlords-faf-client/wiki/Contribution-guidelines#write-readable-code)
-* [Use comments only when absolutely necessary to explain complex algorithms or inherently unintuitive reasons for how or why your code functions](https://github.com/FAForever/downlords-faf-client/wiki/Contribution-guidelines#avoid-javadoc-and-comments)
-* Use the logger
+[Downlord's FAF Client Contribution Guidelines](https://github.com/FAForever/java-guidelines/wiki/Contribution-Guidelines)
+* [Quality has highest priority](https://github.com/FAForever/java-guidelines/wiki/Contribution-Guidelines#quality-has-highest-priority)
+* [Write readable code](https://github.com/FAForever/java-guidelines/wiki/Contribution-Guidelines#write-readable-code)
+* [Use comments only when absolutely necessary to explain complex algorithms or inherently unintuitive reasons for how or why your code functions](https://github.com/FAForever/java-guidelines/wiki/Contribution-Guidelines#avoid-javadoc-and-comments)
+* [Use the logger](https://github.com/FAForever/java-guidelines/wiki/Contribution-Guidelines#logging)
 
 ### Issues, PRs, and commit formatting
 
