@@ -25,12 +25,16 @@ class NotificationDialog(FormClass, BaseClass):
 
         # Frameless, always on top, steal no focus & no entry at the taskbar
         self.setWindowFlags(QtCore.Qt.ToolTip)
+        self.labelEvent.setOpenExternalLinks(True)
+
+        self.baseHeight = 165
+        self.baseWidth = 375
 
         # TODO: integrate into client.css
         # self.setStyleSheet(self.client.styleSheet())
 
     @QtCore.pyqtSlot()
-    def newEvent(self, pixmap, text, lifetime, sound):
+    def newEvent(self, pixmap, text, lifetime, sound, height = None, width = None):
         """ Called to display a new popup
         Keyword arguments:
         pixmap -- Icon for the event (displayed left)
@@ -47,6 +51,8 @@ class NotificationDialog(FormClass, BaseClass):
         QtCore.QTimer.singleShot(lifetime * 1000, self.hide)
         if sound:
             util.THEME.sound("chat/sfx/query.wav")
+        self.setFixedHeight(height or self.baseHeight)
+        self.setFixedWidth(width or self.baseWidth)
 
         self.updatePosition()
         self.show()
