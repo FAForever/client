@@ -4,6 +4,7 @@ import util
 from fa import maps
 from notifications.ns_dialog import NotificationDialog
 from notifications.ns_settings import NsSettingsDialog, IngameNotification
+from config import Settings
 
 """
 The Notification Systems reacts on events and displays a popup.
@@ -15,6 +16,7 @@ class Notifications:
     USER_ONLINE = 'user_online'
     NEW_GAME = 'new_game'
     GAME_FULL = 'game_full'
+    UNOFFICIAL_CLIENT = 'unofficial_client'
 
     def __init__(self, client, gameset, playerset, me):
         self.client = client
@@ -25,10 +27,12 @@ class Notifications:
         self.events = []
         self.disabledStartup = True
         self.game_running = False
+        self.unofficialClientDate = Settings.get('notifications/unofficialClientDate', 0, type=int)
 
         client.game_enter.connect(self.gameEnter)
         client.game_exit.connect(self.gameExit)
         client.game_full.connect(self._gamefull)
+        client.unofficial_client.connect(self.unofficialClient)
         gameset.newLobby.connect(self._newLobby)
         playerset.added.connect(self._newPlayer)
 
@@ -65,6 +69,16 @@ class Notifications:
         if self.isDisabled() or not self.settings.popupEnabled(self.GAME_FULL):
             return
         self.events.append((self.GAME_FULL, None))
+        self.checkEvent()
+        
+    def unofficialClient(self, msg):
+        date = QtCore.QDate.currentDate().dayOfYear()
+        if date == self.unofficialClientDate: # Show once per day
+            return
+
+        self.unofficialClientDate = date
+        Settings.set('notifications/unofficialClientDate', self.unofficialClientDate)
+        self.events.append((self.UNOFFICIAL_CLIENT, msg))
         self.checkEvent()
 
     def gameEnter(self):
@@ -140,6 +154,13 @@ class Notifications:
         elif eventType == self.GAME_FULL:
             pixmap = self.user
             text = '<html><br><font color="silver" size="-2">Game is full.</font></html>'
+        elif eventType == self.UNOFFICIAL_CLIENT:
+            pixmap = self.user
+            text = '<html><br><font color="silver" size="-2">%s</font></html>' % \
+                    (data)
+            self.dialog.newEvent(pixmap, text, 10, False, 200)
+            return
+
         self.dialog.newEvent(pixmap, text, self.settings.popup_lifetime, self.settings.soundEnabled(eventType))
 
     def checkEvent(self):
