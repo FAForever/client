@@ -1,6 +1,16 @@
 0.x.x
 =====
 
+0.18.7
+=====
+ * Fix units database
+ * Add Spooky database as an alternative
+
+Contributors:
+ - Brutus5000
+ - Strogo
+ - Dragonite
+
 0.18.6
 =====
  * Show "unofficial client" message via notifications and only once per day.
