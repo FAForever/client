@@ -70,18 +70,18 @@ def test_version_correctly_read(tmpdir):
 
 
 def test_pixmap_cache_caches(tmpdir, mocker):
-    with mocker.patch('PyQt5.QtGui.QPixmap', side_effect = [1, 2]) as pixmock:
-        themedir = tmpdir.mkdir("theme")
-        themedir.join("file").write("content")
-        themedir.join("second_file").write("content")
-        theme = Theme(str(themedir), "")
+    mocker.patch('PyQt5.QtGui.QPixmap', side_effect = [1, 2])
+    themedir = tmpdir.mkdir("theme")
+    themedir.join("file").write("content")
+    themedir.join("second_file").write("content")
+    theme = Theme(str(themedir), "")
 
-        first = theme.pixmap("file")
-        still_first = theme.pixmap("file")
-        second = theme.pixmap("second_file")
+    first = theme.pixmap("file")
+    still_first = theme.pixmap("file")
+    second = theme.pixmap("second_file")
 
-        assert first is not None and second is not None
-        assert first is still_first
-        assert first is not second
+    assert first is not None and second is not None
+    assert first is still_first
+    assert first is not second
 
 # TODO - tests for specific results of functions
