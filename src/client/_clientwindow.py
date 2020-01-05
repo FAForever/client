@@ -622,9 +622,7 @@ class ClientWindow(FormClass, BaseClass):
         self.notificationSystem = ns.Notifications(self, self.gameset,
                                                    self.players, self.me)
 
-        self._unitdb = unitdbtab.build_db_tab(
-                            config.Settings.get("UNITDB_URL"),
-                            config.UNITDB_CONFIG_FILE)
+        self._unitdb = unitdbtab.build_db_tab(config.UNITDB_CONFIG_FILE)
 
         # TODO: some day when the tabs only do UI we'll have all this in the .ui file
         self.whatNewTab.layout().addWidget(self.news)

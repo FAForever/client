@@ -567,7 +567,7 @@ QToolButton::checked
     border-radius : 5px;
  }
  
-QPushButton#searchButton, #advSearchButton
+QPushButton#searchButton, #advSearchButton, #fafDbButton, #spookyDbButton
 {
 	color: silver;
 	border-radius: 5px;
