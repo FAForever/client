@@ -8,6 +8,7 @@ from .newsitem import NewsItem, NewsItemDelegate
 from .newsmanager import NewsManager
 
 from util.qt import ExternalLinkPage
+from config import Settings
 
 import base64
 
@@ -54,6 +55,7 @@ class NewsWidget(FormClass, BaseClass):
         self.setupUi(self)
 
         self.newsManager = NewsManager(self)
+        self.newsItems = []
 
         # open all links in external browser
         self.newsWebView.setPage(ExternalLinkPage(self))
@@ -63,12 +65,20 @@ class NewsWidget(FormClass, BaseClass):
         self.hider.hide(self.newsWebView)
         self.newsWebView.loadFinished.connect(self.loadFinished)
 
+        self.settingsFrame.hide()
+        self.hideNewsEdit.setText(Settings.get('news/hideWords', ""))
+
         self.newsList.setIconSize(QtCore.QSize(0, 0))
         self.newsList.setItemDelegate(NewsItemDelegate(self))
         self.newsList.currentItemChanged.connect(self.itemChanged)
+        self.newsSettings.pressed.connect(self.showSettings)
+        self.showAllButton.pressed.connect(self.showAll)
+        self.hideNewsEdit.textEdited.connect(self.updateNewsFilter)
+        self.hideNewsEdit.cursorPositionChanged.connect(self.showEditToolTip)
 
     def addNews(self, newsPost):
         newsItem = NewsItem(newsPost, self.newsList)
+        self.newsItems .append(newsItem)
 
     # QtWebEngine has no user CSS support yet, so let's just prepend it to the HTML
     def _injectCSS(self, body):
@@ -84,3 +94,45 @@ class NewsWidget(FormClass, BaseClass):
     def loadFinished(self, ok):
         self.hider.unhide(self.newsWebView)
         self.newsWebView.loadFinished.disconnect(self.loadFinished)
+
+    def showAll(self):
+        for item in self.newsItems:
+            item.setHidden(False)
+        self.updateLabel(0)
+
+    def showEditToolTip(self):
+        """Default tooltips are too slow and disappear when user starts typing"""
+        widget = self.hideNewsEdit
+        position = widget.mapToGlobal(QtCore.QPoint(0 + widget.width(), 0 - widget.height() / 2))
+        QtWidgets.QToolTip.showText(position, "To separate multiple words use commas: nomads,server,dev")
+
+    def showSettings(self):
+        if self.settingsFrame.isHidden():
+            self.settingsFrame.show()
+        else:
+            self.settingsFrame.hide()
+
+    def updateNewsFilter(self, text=False):
+        if text is not False:
+            Settings.set('news/hideWords', text)
+
+        filterList = Settings.get('news/hideWords', "").lower().split(",")
+        newsHidden = 0
+
+        if filterList[0]:
+            for item in self.newsItems:
+                for word in filterList:
+                    if word in item.text().lower():
+                        item.setHidden(True)
+                        newsHidden += 1
+                        break
+                    else:
+                        item.setHidden(False)
+        else:
+            for item in self.newsItems:
+                item.setHidden(False)
+
+        self.updateLabel(newsHidden)
+
+    def updateLabel(self, number):
+        self.totalHidden.setText("NEWS HIDDEN: " + str(number))
