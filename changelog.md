@@ -1,6 +1,14 @@
 0.x.x
 =====
 
+0.18.8
+=====
+ * News tab: disable automatic urls
+ * News tab: add filtering
+
+Contributors:
+ - Strogo
+
 0.18.7
 =====
  * Fix units database
