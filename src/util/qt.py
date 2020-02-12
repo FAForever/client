@@ -7,11 +7,18 @@ class ExternalLinkPage(QWebEnginePage):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.linkHovered.connect(self.saveHoveredLink)
+        self.linkUnderCursor = ""
+
     def acceptNavigationRequest(self, url, navtype, isMainFrame):
         if navtype == QWebEnginePage.NavigationTypeLinkClicked:
-            QDesktopServices.openUrl(url)
+            if url.toString() == self.linkUnderCursor:
+                QDesktopServices.openUrl(url)
             return False
         return True
+
+    def saveHoveredLink(self, url):
+        self.linkUnderCursor = url
 
 
 def injectWebviewCSS(page, css):
