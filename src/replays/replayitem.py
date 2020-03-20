@@ -304,6 +304,9 @@ class ReplayItem(QtWidgets.QTreeWidgetItem):
         else:
             alignment = "left"
 
+        if "login" not in player["player"]:
+            player["player"]["login"] = "No data"
+
         playerLabel = self.FORMATTER_REPLAY_PLAYER_LABEL.format(player_name=player["player"]["login"],
                                                                 player_rating= int(round((player["beforeMean"] - player["beforeDeviation"] * 3)/100) * 100),
                                                                 alignment=alignment)
