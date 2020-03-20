@@ -3,6 +3,13 @@
 
 0.18.8
 =====
+ * Online vault: display player name as "No data" instead of throwing an error
+
+Contributors:
+ - Strogo
+
+0.18.8
+=====
  * News tab: disable automatic urls
  * News tab: add filtering
 
