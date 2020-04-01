@@ -1,6 +1,40 @@
 0.x.x
 =====
 
+0.18.8
+=====
+ * Online vault: display player name as "No data" instead of throwing an error
+
+Contributors:
+ - Strogo
+
+0.18.8
+=====
+ * News tab: disable automatic urls
+ * News tab: add filtering
+
+Contributors:
+ - Strogo
+
+0.18.7
+=====
+ * Fix units database
+ * Add Spooky database as an alternative
+
+Contributors:
+ - Brutus5000
+ - Strogo
+ - Dragonite
+
+0.18.6
+=====
+ * Show "unofficial client" message via notifications and only once per day.
+ * Fetch featured mod info from API instead of lobby server
+
+Contributors:
+ - Askaholic
+ - Strogo
+
 0.18.5
 =====
  * map vault fixes

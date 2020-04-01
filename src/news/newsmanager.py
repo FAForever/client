@@ -47,7 +47,12 @@ class NewsManager(QObject):
         """
         for item in items:
             self.widget.addNews(item)
-        self.widget.newsList.setCurrentItem(self.widget.newsList.item(0))
+
+        self.widget.updateNewsFilter()
+        for i in range(0, 10):
+            if not self.widget.newsList.item(i).isHidden():
+                self.widget.newsList.setCurrentItem(self.widget.newsList.item(i))
+                break
 #        self.newsContent = self.newsContent + items
 #
 #        self.npages = int(math.ceil(len(self.newsContent) / self.FRAMES))

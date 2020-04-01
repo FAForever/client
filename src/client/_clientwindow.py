@@ -96,6 +96,7 @@ class ClientWindow(FormClass, BaseClass):
     local_broadcast = QtCore.pyqtSignal(str, str)
     auto_join = QtCore.pyqtSignal(list)
     channels_updated = QtCore.pyqtSignal(list)
+    unofficial_client = QtCore.pyqtSignal(str)
 
     matchmaker_info = QtCore.pyqtSignal(dict)
 
@@ -621,9 +622,7 @@ class ClientWindow(FormClass, BaseClass):
         self.notificationSystem = ns.Notifications(self, self.gameset,
                                                    self.players, self.me)
 
-        self._unitdb = unitdbtab.build_db_tab(
-                            config.Settings.get("UNITDB_URL"),
-                            config.UNITDB_CONFIG_FILE)
+        self._unitdb = unitdbtab.build_db_tab(config.UNITDB_CONFIG_FILE)
 
         # TODO: some day when the tabs only do UI we'll have all this in the .ui file
         self.whatNewTab.layout().addWidget(self.news)
@@ -1074,7 +1073,9 @@ class ClientWindow(FormClass, BaseClass):
                                            "Failed to calculate UID",
                                            "Failed to calculate your unique ID"
                                            " (a part of our smurf prevention system).\n"
-                                           "Please report this to the tech support forum!")
+                                           "It is very likely this happens due to your antivirus software deleting the faf-uid.exe file."
+                                           "If this has happened, please add an exception and restore the file."
+                                           "The file can also be restored by installing the client again.")
             return False
         self.lobby_connection.send(dict(command="hello",
                                         login=login,
@@ -1384,6 +1385,8 @@ class ClientWindow(FormClass, BaseClass):
             elif style == "scores":
                 self.tray.showMessage("Scores", message["text"], QtWidgets.QSystemTrayIcon.Information, 3500)
                 self.local_broadcast.emit("Scores", message["text"])
+            elif "You are using an unofficial client version" in message["text"]:
+                self.unofficial_client.emit(message["text"])
             else:
                 QtWidgets.QMessageBox.information(self, "Notice from Server", message["text"])
 

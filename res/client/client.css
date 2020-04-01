@@ -567,7 +567,7 @@ QToolButton::checked
     border-radius : 5px;
  }
  
-QPushButton#searchButton, #advSearchButton
+QPushButton#searchButton, #advSearchButton, #fafDbButton, #spookyDbButton
 {
 	color: silver;
 	border-radius: 5px;
@@ -587,6 +587,22 @@ QPushButton#RefreshResetButton, #advResetButton
     background-color: rgb(39, 39, 45);
 }
 
+QPushButton#newsSettings
+{
+    qproperty-icon: url('%THEMEPATH%/client/settings.png');
+    background-color: rgb(39, 39, 45);
+    border: 1px solid rgb(70, 70, 70);
+    border-radius: 2px;
+}
+
+QPushButton#showAllButton
+{
+    qproperty-icon: url('%THEMEPATH%/client/showAll.png');
+    background-color: rgb(39, 39, 45);
+    border: 1px solid rgb(70, 70, 70);
+    border-radius: 2px;
+}
+
 QComboBox, QComboBox:selected
 {
     color:orange;
@@ -601,4 +617,16 @@ QComboBox QAbstractItemView {
     border: 2px solid darkgray;
     selection-background-color: #575656;
     background-color: #575656;
+}
+
+QFrame#settingsFrame {
+    border-style:solid;
+    border-width:1px;
+    border-color:#353535;
+    background-color:#404040;
+    color:silver;
+    border-top-right-radius : 5px;
+    border-top-left-radius : 5px;
+    border-bottom-left-radius : 5px;
+    border-bottom-right-radius : 5px;
 }
