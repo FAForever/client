@@ -13,6 +13,9 @@ import json
 import jsonschema
 import threading
 
+import requests
+from requests.exceptions import Timeout
+
 from replays.replayitem import ReplayItem, ReplayItemDelegate
 from model.game import GameState
 from api.replaysapi import ReplaysApiConnector
@@ -602,8 +605,8 @@ class ReplayVaultWidgetHandler(object):
         self.selectedReplay = None
         self.apiConnector = ReplaysApiConnector(self._dispatcher)
         self.client.lobby_info.replayVault.connect(self.replayVault)
-        self.replayDownload = QNetworkAccessManager()
-        self.replayDownload.finished.connect(self.onDownloadFinished)
+        #self.replayDownload = QNetworkAccessManager()
+        #self.replayDownload.finished.connect(self.onDownloadFinished)
         self.toolboxHandler = ReplayToolboxHandler(self, widget, dispatcher, client, gameset, playerset)
 
         self.showLatest = True
@@ -755,6 +758,13 @@ class ReplayVaultWidgetHandler(object):
             if self.toolboxHandler.mapPreview:
                 self.toolboxHandler.updateMapPreview()
 
+    def downloadReplay(self, item):
+        try:
+            response = requests.get(item.url, timeout=(5,5)) #FIXME: set appropriate timeouts
+            self.onDownloadFinished(response)
+        except Timeout:
+            QtWidgets.QMessageBox.warning(self._w, "Timeout Error")
+
     def onlineTreeDoubleClicked(self, item):
         if hasattr(item, "duration"):  # it's a game not a date separator
             if "playing" in item.duration:  # live game will not be in vault
@@ -779,11 +789,12 @@ class ReplayVaultWidgetHandler(object):
                                                       "Would you like to watch the replay from the vault?",
                                                       QtWidgets.QMessageBox.Yes,
                                                       QtWidgets.QMessageBox.No) == QtWidgets.QMessageBox.Yes:
-                        self.replayDownload.get(QNetworkRequest(QtCore.QUrl(item.url)))
-
+                        #self.replayDownload.get(QNetworkRequest(QtCore.QUrl(item.url))) -- this is gets the response 'Found' and no file
+                        self.downloadReplay(item)
             else:  # start replay
                 if hasattr(item, "url"):
-                    self.replayDownload.get(QNetworkRequest(QtCore.QUrl(item.url)))
+                    #self.replayDownload.get(QNetworkRequest(QtCore.QUrl(item.url)))
+                    self.downloadReplay(item)
 
     def _startReplay(self, name):
         if name is None or name not in self._playerset:
@@ -824,12 +835,12 @@ class ReplayVaultWidgetHandler(object):
             self.searchVault(reset = True)
 
     def onDownloadFinished(self, reply):
-        if reply.error() != QNetworkReply.NoError:
-            QtWidgets.QMessageBox.warning(self._w, "Network Error", reply.errorString())
+        if not reply:
+            QtWidgets.QMessageBox.warning(self._w, "Network Error", str(reply.status_code))
         else:
             faf_replay = QtCore.QFile(os.path.join(util.CACHE_DIR, "temp.fafreplay"))
             faf_replay.open(QtCore.QIODevice.WriteOnly | QtCore.QIODevice.Truncate)
-            faf_replay.write(reply.readAll())
+            faf_replay.write(reply.content)
             faf_replay.flush()
             faf_replay.close()
             replay(os.path.join(util.CACHE_DIR, "temp.fafreplay"))
