@@ -26,3 +26,13 @@ client_venv
 *.egg-info
 .vagrant
 .cache
+#new
+*.dll
+*.exe
+*.pac
+*.conf
+*.dat
+audio
+imageformats
+platforms
+*.json
