@@ -59,7 +59,8 @@ class Game(ModelItem):
                  featured_mod,
                  sim_mods,
                  password_protected,
-                 visibility):
+                 visibility,
+                 **kwargs):
 
         ModelItem.__init__(self)
 
