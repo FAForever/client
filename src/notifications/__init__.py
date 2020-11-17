@@ -173,6 +173,8 @@ class Notifications:
             * Game isn't running, or ingame notifications are enabled
 
         """
+        #gamefull notifications show up to 6 times (with the set up to 2, but still not only once)
+        self.events = list(set(self.events))
         if (len(self.events) > 0 and self.dialog.isHidden() and
                 (not self.game_running or self.settings.ingame_notifications == IngameNotification.ENABLE)):
             self.showEvent()
