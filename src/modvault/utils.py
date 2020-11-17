@@ -362,13 +362,8 @@ def generateThumbnail(sourcename, destname):
 
 
 def downloadMod(item):
-    if isinstance(item, str):
-        link = MODVAULT_DOWNLOAD_ROOT + urllib.parse.quote(item)
-        logger.debug("Getting mod from: " + link)
-    else:
-        link = item.link
-        logger.debug("Getting mod from: " + link)
-        link = urllib.parse.quote(link, "http://")
+    link = item
+    logger.debug("Getting mod from: " + link)
 
     def handle_exist(path, modname):
         modpath = os.path.join(path, modname)

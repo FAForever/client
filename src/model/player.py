@@ -12,6 +12,7 @@ class Player(ModelItem):
     def __init__(self,
                  id_,
                  login,
+                 ratings={'global_rating': (1500,500),'ladder_rating': (1500,500)},
                  global_rating=(1500, 500),
                  ladder_rating=(1500, 500),
                  number_of_games=0,
@@ -35,6 +36,7 @@ class Player(ModelItem):
         self.add_field("country", country)
         self.add_field("clan", clan)
         self.add_field("league", league)
+        self.add_field("ratings", ratings)
 
         # The game the player is currently playing
         self._currentGame = None
