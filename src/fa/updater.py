@@ -391,7 +391,7 @@ class Updater(QtCore.QObject):
                     #update featuredMod then
                     id = self.getFeaturedModId(self.featured_mod)
                     if self.modversions:
-                        modversion = sorted(self.modversions.items())[0][1]
+                        modversion = sorted(self.modversions.items(), key=lambda item: item[1], reverse=True)[0][1]
                     else:
                         modversion = 'latest'
                     toUpdate = self.getFilesToUpdate(id, modversion)
