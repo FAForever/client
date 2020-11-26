@@ -28,6 +28,8 @@ from PyQt5 import QtWidgets, QtCore, QtNetwork
 import util
 import modvault
 
+from api.featured_mod_updater import FeaturedModFiles, FeaturedModId
+from api.sim_mod_updater import SimModFiles
 
 logger = logging.getLogger(__name__)
 
@@ -173,22 +175,15 @@ class Updater(QtCore.QObject):
         return self.result
 
     def getFilesToUpdate(self, id, version):
-        reply = urllib.request.urlopen('https://api.faforever.com/featuredMods/'+ id + '/files/' + str(version))
-        files = json.loads(reply.read())['data']
-        toUpdate = []
-        for _file in files:
-            toUpdate.append(_file)
-        return toUpdate
+        return FeaturedModFiles(id, version).requestData()
     
     def getFeaturedModId(self, technicalName):
-        reply = urllib.request.urlopen('https://api.faforever.com/data/featuredMod?filter[featuredMod]=technicalName=='+technicalName)
-        files = json.loads(reply.read())['data']
-        return files[0]['id']
+        queryDict = dict(filter = 'technicalName==' + technicalName)
+        return FeaturedModId().requestData(queryDict)
     
     def requestSimPath(self, uid):
-        reply = urllib.request.urlopen('https://api.faforever.com/data/modVersion?filter[modVersion]=uid=='+uid)
-        url = json.loads(reply.read())['data'][0]['attributes']['downloadUrl']
-        return url
+        queryDict = dict(filter = 'uid==' + uid)
+        return SimModFiles().requestData(queryDict)
         
     def fetchFile(self, url, toFile):
         try:
@@ -268,14 +263,14 @@ class Updater(QtCore.QObject):
             os.makedirs(targetdir)
 
         for fileToUpdate in filegroup:
-            md5File = util.md5(os.path.join(util.APPDATA_DIR, destination, fileToUpdate['attributes']['name']))
-            md5NewFile = fileToUpdate['attributes']['md5']
+            md5File = util.md5(os.path.join(util.APPDATA_DIR, destination, fileToUpdate['name']))
+            md5NewFile = fileToUpdate['md5']
             if md5File == md5NewFile:
                 self.filesToUpdate.remove(fileToUpdate)
             else:
-                self.fetchFile(fileToUpdate['attributes']['url'], os.path.join(util.APPDATA_DIR, destination, fileToUpdate['attributes']['name']))
+                self.fetchFile(fileToUpdate['url'], os.path.join(util.APPDATA_DIR, destination, fileToUpdate['name']))
                 self.filesToUpdate.remove(fileToUpdate)
-                self.updatedFiles.append(fileToUpdate)
+                self.updatedFiles.append(fileToUpdate['name'])
 
         self.waitUntilFilesAreUpdated()
 
@@ -335,7 +330,7 @@ class Updater(QtCore.QObject):
         """ The core function that does most of the actual update work."""
         try:
             if self.sim:
-                if modvault.downloadMod(self.request_sim_path(self.featured_mod)):
+                if modvault.downloadMod(self.requestSimPath(self.featured_mod)):
                     self.result = self.RESULT_SUCCESS
                 else:
                     self.result = self.RESULT_FAILURE
@@ -357,7 +352,7 @@ class Updater(QtCore.QObject):
                         toUpdate = self.getFilesToUpdate('0', 'latest')
 
                     for _file in toUpdate:
-                        if _file['attributes']['group'] == 'bin':
+                        if _file['group'] == 'bin':
                             filesToUpdateInBin.append(_file)
                         else:
                             filesToUpdateInGamedata.append(_file)
@@ -366,7 +361,48 @@ class Updater(QtCore.QObject):
                     self.updateFiles("bin", filesToUpdateInBin)
                     self.filesToUpdate = filesToUpdateInGamedata.copy()
                     self.updateFiles("gamedata", filesToUpdateInGamedata)
-                elif self.featured_mod:
+
+                elif self.featured_mod == 'fafbeta' or self.featured_mod == 'fafdevelop':
+                    #no need to update faf first for these mods
+                    id = self.getFeaturedModId(self.featured_mod)
+                    if self.modversions:
+                        modversion = sorted(self.modversions.items(), key=lambda item: item[1], reverse=True)[0][1]
+                    else:
+                        modversion = 'latest'
+                        
+                    toUpdate = self.getFilesToUpdate(id, modversion)
+                    toUpdate.sort(key=lambda item: item['version'], reverse=True)
+                    
+                    #file lists for fafbeta and fafdevelop contain wrong version of ForgedAlliance.exe
+                    if self.version:
+                        faf_version = self.version
+                    else:
+                        faf_version = toUpdate[0]['version']
+                    
+                    for _file in toUpdate:
+                        if _file['group'] == 'bin':
+                            if _file['name'] != 'ForgedAlliance.exe':
+                                filesToUpdateInBin.append(_file)
+                        else:
+                            filesToUpdateInGamedata.append(_file)
+                    
+                    self.filesToUpdate = filesToUpdateInBin.copy()
+                    self.updateFiles('bin', filesToUpdateInBin)
+                    self.filesToUpdate = filesToUpdateInGamedata.copy()
+                    self.updateFiles('gamedata', filesToUpdateInGamedata)
+
+                    #update proper version of bin
+                    toUpdate = self.getFilesToUpdate('0', faf_version)
+
+                    for _file in toUpdate:
+                        if _file['group'] == 'bin':
+                            filesToUpdateInBin.append(_file)
+                    
+                    self.filesToUpdate = filesToUpdateInBin.copy()
+                    self.updateFiles('bin', filesToUpdateInBin)
+
+
+                else:
                     #update faf first    
                     #id for faf (or ladder1v1) is 0
                     if self.version:
@@ -375,7 +411,7 @@ class Updater(QtCore.QObject):
                         toUpdate = self.getFilesToUpdate('0', 'latest')
 
                     for _file in toUpdate:
-                        if _file['attributes']['group'] == 'bin':
+                        if _file['group'] == 'bin':
                             filesToUpdateInBin.append(_file)
                         else:
                             filesToUpdateInGamedata.append(_file)
@@ -394,10 +430,11 @@ class Updater(QtCore.QObject):
                         modversion = sorted(self.modversions.items(), key=lambda item: item[1], reverse=True)[0][1]
                     else:
                         modversion = 'latest'
+                        
                     toUpdate = self.getFilesToUpdate(id, modversion)
 
                     for _file in toUpdate:
-                        if _file['attributes']['group'] == 'bin':
+                        if _file['group'] == 'bin':
                             filesToUpdateInBin.append(_file)
                         else:
                             filesToUpdateInGamedata.append(_file)
