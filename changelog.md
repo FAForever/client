@@ -1,6 +1,10 @@
 0.x.x
 =====
 
+0.18.11
+=====
+ * Implement somewhat of a cache system like in the Java client
+
 0.18.10
 =====
  * Fix broken compatibility with server
