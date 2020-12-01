@@ -132,7 +132,12 @@ class Updater(QtCore.QObject):
 
         self.result = self.RESULT_NONE
 
-        self.destination = None
+        self.keep_cache = not Settings.get('cache/do_not_keep', type=bool, default=True)
+        self.in_session_cache = Settings.get('cache/in_session', type=bool, default=False)
+        self.fmod_cache_dir = os.path.join(util.CACHE_DIR, 'featured_mod')
+        if self.keep_cache or self.in_session_cache:
+            if not os.path.exists(self.fmod_cache_dir):
+                os.mkdir(self.fmod_cache_dir)
 
         self.silent = silent
         self.progress = QtWidgets.QProgressDialog()
@@ -247,30 +252,76 @@ class Updater(QtCore.QObject):
                                                                        "<br/><b>Try again later.</b>")
             return False
 
-    def updateFiles(self, destination, filegroup):
+    def moveFromCache(self, files, filegroup):
+        src_dir = os.path.join(util.APPDATA_DIR, filegroup)
+        cache_dir = os.path.join(self.fmod_cache_dir, filegroup)
+        for _file in files:
+            if os.path.exists(os.path.join(cache_dir, _file['md5'])):
+                shutil.move(os.path.join(cache_dir, _file['md5']), os.path.join(src_dir, _file['name']))
+
+    def moveToCache(self, files, filegroup):
+        src_dir = os.path.join(util.APPDATA_DIR, filegroup)
+        cache_dir = os.path.join(self.fmod_cache_dir, filegroup)
+        for _file in files:
+            if os.path.exists(os.path.join(src_dir, _file['name'])):
+                md5 = util.md5(os.path.join(src_dir, _file['name']))
+                shutil.move(os.path.join(src_dir, _file['name']), os.path.join(cache_dir, md5))
+                util.setAccessTime(os.path.join(cache_dir, md5))
+
+    def replaceFromCache(self, files, filegroup):
+        self.moveToCache(files, filegroup)
+        self.moveFromCache(files, filegroup)
+
+    def checkCache(self, filegroup, files_to_check):
+        dir = os.path.join(self.fmod_cache_dir, filegroup)
+        if not os.path.exists(dir):
+            os.mkdir(dir)
+        for src_dir, _, _files in os.walk(dir):
+            files_in_cache = _files
+        replaceable_files, need_to_download = [], []
+        for _file in files_to_check:
+            if _file['md5'] in files_in_cache:
+                replaceable_files.append(_file)
+                self.filesToUpdate.remove(_file)
+            else:
+                need_to_download.append(_file)
+        return replaceable_files, need_to_download
+
+    def updateFiles(self, filegroup, files):
         """
         Updates the files in a given file group, in the destination subdirectory of the Forged Alliance path.
-        If existing=True, the existing contents of the directory will be added to the current self.filesToUpdate
-        list. 
         """
         QtWidgets.QApplication.processEvents()
 
-        self.progress.setLabelText("Updating files: " + destination)
-        self.destination = destination
+        self.progress.setLabelText("Updating files: " + filegroup)
 
-        targetdir = os.path.join(util.APPDATA_DIR, destination)
+        targetdir = os.path.join(util.APPDATA_DIR, filegroup)
         if not os.path.exists(targetdir):
             os.makedirs(targetdir)
 
-        for fileToUpdate in filegroup:
-            md5File = util.md5(os.path.join(util.APPDATA_DIR, destination, fileToUpdate['name']))
-            md5NewFile = fileToUpdate['md5']
+        files_to_check = []
+
+        for _file in files:
+            md5File = util.md5(os.path.join(util.APPDATA_DIR, filegroup, _file['name']))
+            md5NewFile = _file['md5']
             if md5File == md5NewFile:
-                self.filesToUpdate.remove(fileToUpdate)
+                self.filesToUpdate.remove(_file)
             else:
-                self.fetchFile(fileToUpdate['url'], os.path.join(util.APPDATA_DIR, destination, fileToUpdate['name']))
-                self.filesToUpdate.remove(fileToUpdate)
-                self.updatedFiles.append(fileToUpdate['name'])
+                if self.keep_cache or self.in_session_cache:
+                    files_to_check.append(_file)
+                else:
+                    self.fetchFile(_file['url'], os.path.join(util.APPDATA_DIR, filegroup, _file['name']))
+                    self.filesToUpdate.remove(_file)
+                    self.updatedFiles.append(_file['name'])
+
+        if len(files_to_check) > 0:
+            replaceable_files, need_to_download = self.checkCache(filegroup, files_to_check)
+            self.replaceFromCache(replaceable_files, filegroup)
+            for _file in need_to_download:
+                self.moveToCache([_file], filegroup)
+                self.fetchFile(_file['url'], os.path.join(util.APPDATA_DIR, filegroup, _file['name']))
+                self.filesToUpdate.remove(_file)
+                self.updatedFiles.append(_file['name'])
 
         self.waitUntilFilesAreUpdated()
 
@@ -334,7 +385,6 @@ class Updater(QtCore.QObject):
                     self.result = self.RESULT_SUCCESS
                 else:
                     self.result = self.RESULT_FAILURE
-
             else:
                 # Prepare FAF directory & all necessary files
                 self.prepareBinFAF()
@@ -391,6 +441,9 @@ class Updater(QtCore.QObject):
                     self.filesToUpdate = filesToUpdateInGamedata.copy()
                     self.updateFiles('gamedata', filesToUpdateInGamedata)
 
+                    filesToUpdateInBin.clear()
+                    filesToUpdateInGamedata.clear()
+
                     #update proper version of bin
                     toUpdate = self.getFilesToUpdate('0', faf_version)
 
@@ -400,7 +453,6 @@ class Updater(QtCore.QObject):
                     
                     self.filesToUpdate = filesToUpdateInBin.copy()
                     self.updateFiles('bin', filesToUpdateInBin)
-
 
                 else:
                     #update faf first    
