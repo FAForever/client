@@ -419,11 +419,24 @@
      <addaction name="actionCheck_for_Updates"/>
      <addaction name="actionUpdate_Settings"/>
     </widget>
+    <widget class="QMenu" name="menuKeep_game_files_in_cache">
+     <property name="title">
+      <string>Keep game files in cache...</string>
+     </property>
+     <addaction name="actionDoNotKeep"/>
+     <addaction name="actionForever"/>
+     <addaction name="separator"/>
+     <addaction name="actionSetYourOwnTimeInterval"/>
+     <addaction name="separator"/>
+     <addaction name="actionKeepCacheWhileInSession"/>
+    </widget>
     <addaction name="menuSettings"/>
     <addaction name="menuChat"/>
     <addaction name="menuTheme"/>
     <addaction name="menuNotifications"/>
     <addaction name="menuUpdates"/>
+    <addaction name="separator"/>
+    <addaction name="menuKeep_game_files_in_cache"/>
     <addaction name="separator"/>
     <addaction name="menuLocalPath"/>
     <addaction name="menuClear"/>
@@ -821,6 +834,65 @@
   <action name="actionLanguageChannels">
    <property name="text">
     <string>Language channels</string>
+   </property>
+  </action>
+  <action name="actionDoNotKeep">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Do not keep</string>
+   </property>
+  </action>
+  <action name="action15Days">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>15 days</string>
+   </property>
+  </action>
+  <action name="action30Days">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>30 days</string>
+   </property>
+  </action>
+  <action name="action60Days">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>60 days</string>
+   </property>
+  </action>
+  <action name="actionForever">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Forever</string>
+   </property>
+  </action>
+  <action name="actionSetYourOwnTimeInterval">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Set your own time interval</string>
+   </property>
+  </action>
+  <action name="actionKeepCacheWhileInSession">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Keep cache while in session</string>
    </property>
   </action>
  </widget>
