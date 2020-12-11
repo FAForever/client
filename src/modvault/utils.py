@@ -362,8 +362,12 @@ def generateThumbnail(sourcename, destname):
 
 
 def downloadMod(item):
-    link = item
-    logger.debug("Getting mod from: " + link)
+    if isinstance(item, str):
+        link = item
+        logger.debug("Getting mod from: " + link)
+    else:
+        link = item.link
+        logger.debug("Getting mod from: " + link)
 
     def handle_exist(path, modname):
         modpath = os.path.join(path, modname)

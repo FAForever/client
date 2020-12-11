@@ -36,7 +36,12 @@ class ApiBase(QtCore.QObject):
             message_bytes = reply.readAll().data()
             message = json.loads(message_bytes.decode('utf-8'))
             included = self.parseIncluded(message)
-            self.handlers[reply](self.parseData(message, included))
+            meta = self.parseMeta(message)
+            result = self.parseData(message, included)
+            if len(meta) > 0:
+                self.handlers[reply](result, meta)
+            else:
+                self.handlers[reply](result)
         self.handlers.pop(reply)
         reply.deleteLater()
 
@@ -79,7 +84,8 @@ class ApiBase(QtCore.QObject):
             if data["type"] in included and data["id"] in included[data["type"]]:
                 result = included[data["type"]][data["id"]]
             result["id"] = data["id"]
-            result["type"] = data["type"]
+            if "type" not in result:
+                result["type"] = data["type"]
             if "attributes" in data:
                 for key, value in data["attributes"].items():
                     result[key] = value
@@ -88,4 +94,10 @@ class ApiBase(QtCore.QObject):
                     result[key] = self.parseData(value, included)
         except:
             logger.error("error parsing ", data)
+        return result
+
+    def parseMeta(self, message):
+        result = {}
+        if "meta" in message:
+            result["meta"] = message["meta"]
         return result
