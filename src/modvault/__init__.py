@@ -54,6 +54,8 @@ from .uploadwidget import UploadModWidget
 from .uimodwidget import UIModWidget
 from ui.busy_widget import BusyWidget
 
+from api.modvault_api import ModApiConnector
+
 import util
 import logging
 import time
@@ -83,18 +85,80 @@ class ModVault(FormClass, BaseClass, BusyWidget):
         self.uploadButton.clicked.connect(self.openUploadForm)
         self.UIButton.clicked.connect(self.openUIModForm)
 
-        self.SortType.setCurrentIndex(2)
+        self.SortType.setCurrentIndex(0)
         self.SortType.currentIndexChanged.connect(self.sortChanged)
         self.ShowType.currentIndexChanged.connect(self.showChanged)
 
         self.client.lobby_info.modVaultInfo.connect(self.modInfo)
+        self.client.lobby_info.modVaultMeta.connect(self.metaInfo)
 
-        self.sortType = "rating"
+        self.sortType = "alphabetical"
         self.showType = "all"
         self.searchString = ""
+        self.searchQuery = {}
+
+        self.pageSize = self.quantityBox.value()
+        self.pageNumber = 1
+
+        self.goToPageButton.clicked.connect(lambda: self.goToPage(self.pageBox.value()))
+        self.pageBox.setValue(self.pageNumber)
+        self.pageBox.valueChanged.connect(self.checkTotalPages)
+        self.totalPages = None
+        self.totalRecords = None
+        self.quantityBox.valueChanged.connect(self.checkPageSize)
+        self.nextButton.clicked.connect(lambda: self.goToPage(self.pageBox.value() + 1))
+        self.previousButton.clicked.connect(lambda: self.goToPage(self.pageBox.value() - 1))
+        self.firstButton.clicked.connect(lambda: self.goToPage(1))
+        self.lastButton.clicked.connect(lambda: self.goToPage(self.totalPages))
+        self.resetButton.clicked.connect(self.resetSearch)
 
         self.mods = {}
         self.uids = [mod.uid for mod in getInstalledMods()]
+
+        self.apiConnector = ModApiConnector(self.client.lobby_dispatch)
+
+    @QtCore.pyqtSlot(int)
+    def checkPageSize(self):
+        self.pageSize = self.quantityBox.value()
+
+    @QtCore.pyqtSlot(int)
+    def checkTotalPages(self):
+        if self.pageBox.value() > self.totalPages:
+            self.pageBox.setValue(self.totalPages)
+
+    def updateQuery(self, pageNumber):
+        self.pageNumber = pageNumber
+        self.searchQuery['page[size]'] = self.pageSize
+        self.searchQuery['page[number]'] = pageNumber
+        self.searchQuery['page[totals]'] = None
+
+    @QtCore.pyqtSlot(bool)
+    def goToPage(self, page):
+        self.mods.clear()
+        self.modList.clear()
+        self.pageBox.setValue(page)
+        self.pageNumber = self.pageBox.value()
+        maxPages = -(-self.totalRecords//self.pageSize)
+        if maxPages > 0 and maxPages < self.pageNumber:
+            self.pageNumber = maxPages
+        self.pageBox.setValue(self.pageNumber)
+        self.updateQuery(self.pageNumber)
+        self.apiConnector.requestMod(self.searchQuery)
+        self.updateVisibilities()
+
+    @QtCore.pyqtSlot(dict)
+    def metaInfo(self, message):
+        #self.pageNumber = message['page']['number']
+        self.totalPages = message['page']['totalPages']
+        self.totalRecords = message['page']['totalRecords']
+        self.labelTotalPages.setText(str(self.totalPages))
+
+    @QtCore.pyqtSlot(bool)
+    def resetSearch(self):
+        self.searchString = ''
+        self.searchInput.clear()
+        self.searchQuery = dict(include = 'latestVersion')
+        self.goToPage(1)
 
     @QtCore.pyqtSlot(dict)
     def modInfo(self, message):  # this is called when the database has send a mod to us
@@ -144,7 +208,8 @@ class ModVault(FormClass, BaseClass, BusyWidget):
 
     def search(self):
         """ Sending search to mod server"""
-
+        self.mods.clear()
+        self.modList.clear()
         self.searchString = self.searchInput.text().lower()
         index = self.ShowType.currentIndex()
         typemod = 2
@@ -154,8 +219,11 @@ class ModVault(FormClass, BaseClass, BusyWidget):
         elif index == 2:
             typemod = 0
 
-        self.client.statsServer.send(dict(command="modvault_search", typemod=typemod, search=self.searchString))
-
+        #self.client.statsServer.send(dict(command="modvault_search", typemod=typemod, search=self.searchString))
+        self.searchQuery = dict(include = 'latestVersion', filter = 'displayName=='+ '"*'+ self.searchString + '*"')
+        self.updateQuery(1)
+        self.apiConnector.requestMod(self.searchQuery)
+        
         self.updateVisibilities()
 
     @QtCore.pyqtSlot()
@@ -198,7 +266,12 @@ class ModVault(FormClass, BaseClass, BusyWidget):
 
     @QtCore.pyqtSlot()
     def busy_entered(self):
+        self.searchInput.clear()
+        self.searchString = ""
         self.client.lobby_connection.send(dict(command="modvault", type="start"))
+        self.searchQuery = dict(include = 'latestVersion')
+        self.updateQuery(1)
+        self.apiConnector.requestMod(self.searchQuery)
 
     def updateVisibilities(self):
         logger.debug("Updating visibilities with sort '%s' and visibility '%s'" % (self.sortType, self.showType))
@@ -312,21 +385,25 @@ class ModItem(QtWidgets.QListWidgetItem):
 
     def update(self, dic):
         self.name = dic["name"]
-        self.played = dic["played"]
+        #self.played = dic["played"]
         self.description = dic["description"]
         self.version = dic["version"]
         self.author = dic["author"]
-        self.downloads = dic["downloads"]
-        self.likes = dic["likes"]
-        self.comments = dic["comments"]
-        self.bugreports = dic["bugreports"]
-        self.date = QtCore.QDateTime.fromTime_t(dic['date']).toString("yyyy-MM-dd")
+        #self.downloads = dic["downloads"]
+        #self.likes = dic["likes"]
+        #self.comments = dic["comments"]
+        #self.bugreports = dic["bugreports"]
+        #self.date = QtCore.QDateTime.fromString(dic['date'],"yyyy-MM-dd'T'hh:mm:ss'Z'").toString("yyyy-MM-dd")
+        try:
+            self.date = dic['date'][:10]
+        except:
+            self.date = QtCore.QDateTime.fromTime_t(dic['date']).toString("yyyy-MM-dd")
         self.isuimod = dic["ui"]
         self.link = dic["link"]  # Direct link to the zip file.
         self.thumbstr = dic["thumbnail"]  # direct url to the thumbnail file.
         self.uploadedbyuser = (self.author == self.parent.client.login)
 
-        self.thumbnail = None
+        self.thumbnail = utils.getIcon(os.path.basename(urllib.parse.unquote(self.thumbstr)))
         if self.thumbstr == "":
             self.setIcon(util.THEME.icon("games/unknown_map.png"))
         else:

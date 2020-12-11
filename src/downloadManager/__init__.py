@@ -142,7 +142,7 @@ class PreviewDownload(QtCore.QObject):
         self._dl.run()
 
     def _prepare_dl(self):
-        img, imgpath = self._get_cachefile(self.name + ".png.part")
+        img, imgpath = self._get_cachefile(self.name + ".part")
         dl = FileDownload(self._nam, self._url, img, imgpath)
         dl.finished.connect(self._finished)
         dl.blocksize = None
