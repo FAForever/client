@@ -1,6 +1,10 @@
 0.x.x
 =====
 
+0.18.12
+=====
+ * Fix basic searching in vaults
+
 0.18.11
 =====
  * Implement somewhat of a cache system like in the Java client
