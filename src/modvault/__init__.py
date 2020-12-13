@@ -134,15 +134,14 @@ class ModVault(FormClass, BaseClass, BusyWidget):
 
     @QtCore.pyqtSlot(bool)
     def goToPage(self, page):
-        if page != self.pageNumber:
-            self.mods.clear()
-            self.modList.clear()
-            self.pageBox.setValue(page)
-            self.pageNumber = self.pageBox.value()
-            self.pageBox.setValue(self.pageNumber)
-            self.updateQuery(self.pageNumber)
-            self.apiConnector.requestMod(self.searchQuery)
-            self.updateVisibilities()
+        self.mods.clear()
+        self.modList.clear()
+        self.pageBox.setValue(page)
+        self.pageNumber = self.pageBox.value()
+        self.pageBox.setValue(self.pageNumber)
+        self.updateQuery(self.pageNumber)
+        self.apiConnector.requestMod(self.searchQuery)
+        self.updateVisibilities()
 
     @QtCore.pyqtSlot(dict)
     def metaInfo(self, message):

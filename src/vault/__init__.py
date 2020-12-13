@@ -95,15 +95,14 @@ class MapVault(FormClass, BaseClass, BusyWidget):
 
     @QtCore.pyqtSlot(bool)
     def goToPage(self, page):
-        if page != self.pageNumber:
-            self._maps.clear()
-            self.mapList.clear()
-            self.pageBox.setValue(page)
-            self.pageNumber = self.pageBox.value()
-            self.pageBox.setValue(self.pageNumber)
-            self.updateQuery(self.pageNumber)
-            self.apiConnector.requestMap(self.searchQuery)
-            self.updateVisibilities()
+        self._maps.clear()
+        self.mapList.clear()
+        self.pageBox.setValue(page)
+        self.pageNumber = self.pageBox.value()
+        self.pageBox.setValue(self.pageNumber)
+        self.updateQuery(self.pageNumber)
+        self.apiConnector.requestMap(self.searchQuery)
+        self.updateVisibilities()
 
     @QtCore.pyqtSlot(dict)
     def metaInfo(self, message):
