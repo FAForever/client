@@ -633,7 +633,7 @@ class ClientWindow(FormClass, BaseClass):
         self.ladderTab.layout().addWidget(self.ladder)
         self.tourneyTab.layout().addWidget(self.tourneys)
         self.replaysTab.layout().addWidget(self.replays)
-        self.mapsTab.layout().addWidget(self.mapvault.ui)
+        self.mapsTab.layout().addWidget(self.mapvault)
         self.unitdbTab.layout().addWidget(self._unitdb.db_widget)
         self.modsTab.layout().addWidget(self.modvault)
 
