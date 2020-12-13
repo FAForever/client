@@ -433,7 +433,7 @@ class MapItem(QtWidgets.QListWidgetItem):
     def shouldBeVisible(self):
         p = self.parent
         if p.searchString != "":
-            if not (self.author.lower().find(p.searchString) != -1 or self.name.lower().find(p.searchString) != -1 or
+            if not (self.name.lower().find(p.searchString) != -1 or
                             self.description.lower().find(" " + p.searchString + " ") != -1):
                 return False
         if p.showType == "all":
