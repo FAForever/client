@@ -41,7 +41,10 @@ class WPAPI(QtCore.QObject):
                     'body': post.get('content', {}).get('rendered'),
                     'date': post.get('date'),
                     'excerpt': post.get('excerpt', {}).get('rendered'),
-                    'author': post.get('_embedded', {}).get('author')
+                    'author': post.get('_embedded', {}).get('author'),
+                    'link': post.get('link'),
+                    'external_link': post.get('newshub_externalLinkUrl'),
+                    'img_url': post['_embedded']['wp:featuredmedia'][0]['source_url']
                 }
                 posts.append(content)
 
