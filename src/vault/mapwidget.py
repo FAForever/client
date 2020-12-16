@@ -38,6 +38,8 @@ class MapWidget(FormClass, BaseClass):
         self._map_dl_request = downloadManager.DownloadRequest()
         self._map_dl_request.done.connect(self._on_preview_downloaded)
 
+        #ensure that pixmap is set
+        self.Picture.setPixmap(util.THEME.pixmap("games/unknown_map.png"))
         self.updatePreview()
 
         if self._map.folderName in self.parent.installed_maps:

@@ -55,7 +55,7 @@ class MapVault(FormClass, BaseClass, BusyWidget):
         self.sortType = "alphabetical"
         self.showType = "all"
         self.searchString = ""
-        self.searchQuery = {}
+        self.searchQuery = dict(include = 'latestVersion,reviewsSummary')
 
         self.pageSize = self.quantityBox.value()
         self.pageNumber = 1
@@ -88,7 +88,6 @@ class MapVault(FormClass, BaseClass, BusyWidget):
             self.pageBox.setValue(self.totalPages)
 
     def updateQuery(self, pageNumber):
-        self.pageNumber = pageNumber
         self.searchQuery['page[size]'] = self.pageSize
         self.searchQuery['page[number]'] = pageNumber
         self.searchQuery['page[totals]'] = None
@@ -165,23 +164,17 @@ class MapVault(FormClass, BaseClass, BusyWidget):
 
     def search(self):
         """ Sending search to mod server"""
-        self._maps.clear()
-        self.mapList.clear()
         self.searchString = self.searchInput.text().lower()
-
-        self.searchQuery = dict(include = 'latestVersion,reviewsSummary', filter = 'displayName=='+ '"*'+ self.searchString + '*"')
-        self.updateQuery(1)
-        self.apiConnector.requestMap(self.searchQuery)
-        
-        self.updateVisibilities()
+        if self.searchString == '' or self.searchString.replace(' ', '') == '':
+            self.resetSearch()
+        else:
+            self.searchString = self.searchString.strip()
+            self.searchQuery = dict(include = 'latestVersion,reviewsSummary', filter = 'displayName==' + '"*' + self.searchString + '*"')
+            self.goToPage(1)
 
     @QtCore.pyqtSlot()
     def busy_entered(self):
-        self.searchInput.clear()
-        self.searchString = ""
-        self.searchQuery = dict(include = 'latestVersion,reviewsSummary')
-        self.updateQuery(1)
-        self.apiConnector.requestMap(self.searchQuery)
+        self.goToPage(self.pageNumber)
 
     def updateVisibilities(self):
         logger.debug("Updating visibilities with sort '%s' and visibility '%s'" % (self.sortType, self.showType))
@@ -419,13 +412,24 @@ class MapItem(QtWidgets.QListWidgetItem):
             if self.thumbstrSmall == "":
                 self.setIcon(util.THEME.icon("games/unknown_map.png"))
             else:
-                self.parent.client.map_downloader.download_preview(self.folderName, self._map_dl_request, self.thumbstrSmall)
+                self.parent.client.map_downloader.download_preview(self.folderName, self._map_dl_request, self.thumbstrSmall)\
+        
+        #ensure that the icon is set
+        self.ensureIcon()
+
         self.updateVisibility()
+
+    def ensureIcon(self):
+        if self.icon() is None:
+            self.setIcon(util.THEME.icon("games/unknown_map.png"))
+        elif self.icon().isNull():
+            self.setIcon(util.THEME.icon("games/unknown_map.png"))
 
     def _on_map_downloaded(self, mapname, result):
         path, is_local = result
         icon = util.THEME.icon(path, is_local)
         self.setIcon(icon)
+        self.ensureIcon()
 
     def updateIcon(self):
         self.setIcon(self.thumbnail)

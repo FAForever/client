@@ -95,7 +95,7 @@ class ModVault(FormClass, BaseClass, BusyWidget):
         self.sortType = "alphabetical"
         self.showType = "all"
         self.searchString = ""
-        self.searchQuery = {}
+        self.searchQuery = dict(include = 'latestVersion,reviewsSummary')
 
         self.pageSize = self.quantityBox.value()
         self.pageNumber = 1
@@ -127,7 +127,6 @@ class ModVault(FormClass, BaseClass, BusyWidget):
             self.pageBox.setValue(self.totalPages)
 
     def updateQuery(self, pageNumber):
-        self.pageNumber = pageNumber
         self.searchQuery['page[size]'] = self.pageSize
         self.searchQuery['page[number]'] = pageNumber
         self.searchQuery['page[totals]'] = None
@@ -204,22 +203,13 @@ class ModVault(FormClass, BaseClass, BusyWidget):
 
     def search(self):
         """ Sending search to mod server"""
-        self.mods.clear()
-        self.modList.clear()
         self.searchString = self.searchInput.text().lower()
-        index = self.ShowType.currentIndex()
-        typemod = 2
-
-        if index == 1:
-            typemod = 1
-        elif index == 2:
-            typemod = 0
-
-        self.searchQuery = dict(include = 'latestVersion,reviewsSummary', filter = 'displayName=='+ '"*'+ self.searchString + '*"')
-        self.updateQuery(1)
-        self.apiConnector.requestMod(self.searchQuery)
-        
-        self.updateVisibilities()
+        if self.searchString == '' or self.searchString.replace(' ', '') == '':
+            self.resetSearch()
+        else:
+            self.searchString = self.searchString.strip()
+            self.searchQuery = dict(include = 'latestVersion,reviewsSummary', filter = 'displayName==' + '"*' + self.searchString + '*"')
+            self.goToPage(1)
 
     @QtCore.pyqtSlot()
     def openUIModForm(self):
@@ -261,11 +251,7 @@ class ModVault(FormClass, BaseClass, BusyWidget):
 
     @QtCore.pyqtSlot()
     def busy_entered(self):
-        self.searchInput.clear()
-        self.searchString = ""
-        self.searchQuery = dict(include = 'latestVersion,reviewsSummary')
-        self.updateQuery(1)
-        self.apiConnector.requestMod(self.searchQuery)
+        self.goToPage(self.pageNumber)
 
     def updateVisibilities(self):
         logger.debug("Updating visibilities with sort '%s' and visibility '%s'" % (self.sortType, self.showType))
@@ -401,15 +387,23 @@ class ModItem(QtWidgets.QListWidgetItem):
                 self.setIcon(util.THEME.icon(img, False))
             else:
                 self.parent.client.mod_downloader.download_preview(name[:-4], self._map_dl_request, self.thumbstr)
+                
+        #ensure that the icon is set
+        self.ensureIcon()
+
         self.updateVisibility()
+
+    def ensureIcon(self):
+        if self.icon() is None:
+            self.setIcon(util.THEME.icon("games/unknown_map.png"))
+        elif self.icon().isNull():
+            self.setIcon(util.THEME.icon("games/unknown_map.png"))
 
     def _on_mod_downloaded(self, modname, result):
         path, is_local = result
         icon = util.THEME.icon(path, is_local)
         self.setIcon(icon)
-
-    def updateIcon(self):
-        self.setIcon(self.thumbnail)
+        self.ensureIcon()
 
     def shouldBeVisible(self):
         p = self.parent
