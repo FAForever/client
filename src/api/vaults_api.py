@@ -61,28 +61,27 @@ class MapApiConnector(ApiBase):
                 ,page = meta['meta']['page']
             )
             self.dispatch.dispatch(data)
-        for map in message:
+        for _map in message:
             preparedData = dict(
                  command = 'mapvault_info'
-                ,name = map['displayName']
-                ,folderName = map['latestVersion']['folderName']
-                ,link = map['latestVersion']['downloadUrl']
-                ,description = map['latestVersion']['description']
-                ,maxPlayers = map['latestVersion']['maxPlayers']
-                ,version = map['latestVersion']['version']
-                ,ranked = map['latestVersion']['ranked']
-                ,thumbnailSmall = map['latestVersion']['thumbnailUrlSmall']
-                ,thumbnailLarge = map['latestVersion']['thumbnailUrlLarge']
-                ,date = map['latestVersion']['updateTime']
-                ,height = map['latestVersion']['height']
-                ,width = map['latestVersion']['width']
+                ,name = _map['displayName']
+                ,folderName = _map['latestVersion']['folderName']
+                ,link = _map['latestVersion']['downloadUrl']
+                ,description = _map['latestVersion']['description']
+                ,maxPlayers = _map['latestVersion']['maxPlayers']
+                ,version = _map['latestVersion']['version']
+                ,ranked = _map['latestVersion']['ranked']
+                ,thumbnailSmall = _map['latestVersion']['thumbnailUrlSmall']
+                ,thumbnailLarge = _map['latestVersion']['thumbnailUrlLarge']
+                ,date = _map['latestVersion']['updateTime']
+                ,height = _map['latestVersion']['height']
+                ,width = _map['latestVersion']['width']
                 ,rating = 0
                 ,reviews = 0
-
             )
-            if len(map['reviewsSummary']) > 0:
-                score = map['reviewsSummary']['score']
-                reviews = map['reviewsSummary']['reviews']
+            if len(_map['reviewsSummary']) > 0:
+                score = _map['reviewsSummary']['score']
+                reviews = _map['reviewsSummary']['reviews']
                 if reviews > 0:
                     preparedData['rating'] = float('{:1.2f}'.format(score/reviews))
                     preparedData['reviews'] = reviews
