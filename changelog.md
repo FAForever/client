@@ -1,6 +1,12 @@
 0.x.x
 =====
 
+0.18.13
+=====
+ * Display the leaderboards web page from the FAF website as leaderboards
+ * Newstab: display images and links
+ * Vaults tab: items' icons (known or unknown) are always shown
+
 0.18.12
 =====
  * Fix basic searching in vaults
