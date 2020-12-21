@@ -1,18 +1,15 @@
 0.x.x
 =====
 
-0.18.12
-=====
- * Fix basic searching in vaults
-
-0.18.11
-=====
- * Implement somewhat of a cache system like in the Java client
-
-0.18.10
+0.19.0
 =====
  * Fix broken compatibility with server
+ * Fix basic searching in vaults
+ * Implement somewhat of a cache system like in the Java client
  * Online replay vault: fix downloading replays
+ 
+Contributors:
+ - Gatsik
 
 0.18.9
 =====
