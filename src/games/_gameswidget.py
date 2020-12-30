@@ -26,8 +26,12 @@ class GamesWidget(FormClass, BaseClass):
         "play/hidePrivateGames", default_value=False, type=bool)
     sort_games_index = Settings.persisted_property(
         "play/sortGames", default_value=0, type=int)  # Default is by player count
-    sub_factions = Settings.persisted_property(
+    
+
+    sub_factions_ladder = Settings.persisted_property(
         "play/subFactions", default_value=[False, False, False, False])
+    sub_factions_tmm = Settings.persisted_property(
+        "play/tmmFactions", default_value=[False, False, False, False])
 
     def __init__(self, client, game_model, me, gameview_builder, game_launcher):
         BaseClass.__init__(self)
@@ -46,32 +50,51 @@ class GamesWidget(FormClass, BaseClass):
 
         # Ranked search UI
         self._ranked_icons = {
-            Factions.AEON: self.rankedAeon,
-            Factions.CYBRAN: self.rankedCybran,
-            Factions.SERAPHIM: self.rankedSeraphim,
-            Factions.UEF: self.rankedUEF,
+            "ladder1v1": {
+                Factions.AEON: self.rankedAeon,
+                Factions.CYBRAN: self.rankedCybran,
+                Factions.SERAPHIM: self.rankedSeraphim,
+                Factions.UEF: self.rankedUEF,
+            }, 
+            "tmm2v2": {
+                Factions.AEON: self.tmmAeon,
+                Factions.CYBRAN: self.tmmCybran,
+                Factions.SERAPHIM: self.tmmSeraphim,
+                Factions.UEF: self.tmmUEF,
+            }
         }
         self.rankedAeon.setIcon(util.THEME.icon("games/automatch/aeon.png"))
         self.rankedCybran.setIcon(util.THEME.icon("games/automatch/cybran.png"))
         self.rankedSeraphim.setIcon(util.THEME.icon("games/automatch/seraphim.png"))
         self.rankedUEF.setIcon(util.THEME.icon("games/automatch/uef.png"))
 
+        self.tmmAeon.setIcon(util.THEME.icon("games/automatch/aeon.png"))
+        self.tmmCybran.setIcon(util.THEME.icon("games/automatch/cybran.png"))
+        self.tmmSeraphim.setIcon(util.THEME.icon("games/automatch/seraphim.png"))
+        self.tmmUEF.setIcon(util.THEME.icon("games/automatch/uef.png"))
+
         # Fixup ini file type loss
-        self.sub_factions = [True if x == 'true' else False for x in self.sub_factions]
+        self.sub_factions_ladder = [True if x == 'true' else False for x in self.sub_factions_ladder]
+        self.sub_factions_tmm = [True if x == 'true' else False for x in self.sub_factions_tmm]
+        self.sub_factions = {"ladder1v1": self.sub_factions_ladder, "tmm2v2": self.sub_factions_tmm}
 
         self.searchProgress.hide()
+        self.tmmProgress.hide()
 
         # Ranked search state variables
-        self.searching = False
-        self.race = None
+        self.searching = {"ladder1v1": False, "tmm2v2": False}
+        self.race = {"ladder1v1": None, "tmm2v2": None}
         self.ispassworded = False
 
-        self.generateSelectSubset()
+        self.match_found = {"ladder1v1": False, "tmm2v2": False}
+
+        self.generateSelectSubset("ladder1v1")
+        self.generateSelectSubset("tmm2v2")
 
         self.client.lobby_info.modInfo.connect(self.processModInfo)
 
-        self.client.game_enter.connect(self.stopSearchRanked)
-        self.client.viewing_replay.connect(self.stopSearchRanked)
+        self.client.game_enter.connect(self.stopSearch)
+        self.client.viewing_replay.connect(self.stopSearch)
 
         self.sortGamesComboBox.addItems(['By Players', 'By avg. Player Rating', 'By Map', 'By Host', 'By Age'])
         self.sortGamesComboBox.currentIndexChanged.connect(self.sortGamesComboChanged)
@@ -90,7 +113,8 @@ class GamesWidget(FormClass, BaseClass):
 
         self.modList.itemDoubleClicked.connect(self.hostGameClicked)
 
-        self.updatePlayButton()
+        self.updatePlayButton("ladder1v1")
+        self.updatePlayButton("tmm2v2")
         self.apiConnector.requestData()
 
     @pyqtSlot(dict)
@@ -122,133 +146,153 @@ class GamesWidget(FormClass, BaseClass):
         self.hide_private_games = state
         self._game_model.hide_private_games = state
 
-    def selectFaction(self, enabled, factionID=0):
+    def selectFaction(self, enabled, mod, factionID=0):
         logger.debug('selectFaction: enabled={}, factionID={}'.format(enabled, factionID))
-        if len(self.sub_factions) < factionID:
+        if len(self.sub_factions[mod]) < factionID:
             logger.warning('selectFaction: len(self.sub_factions) < factionID, aborting')
             return
 
-        logger.debug('selectFaction: selected was {}'.format(self.sub_factions))
-        self.sub_factions[factionID-1] = enabled
+        logger.debug('selectFaction: selected was {}'.format(self.sub_factions[mod]))
+        self.sub_factions[mod][factionID-1] = enabled
+        if mod == "ladder1v1":
+            Settings.set("play/subFactions", self.sub_factions[mod])
+        else:
+            Settings.set("play/tmmFactions", self.sub_factions[mod])
+        logger.debug('selectFaction: selected is {}'.format(self.sub_factions[mod]))
 
-        Settings.set("play/subFactions", self.sub_factions)
-        logger.debug('selectFaction: selected is {}'.format(self.sub_factions))
+        if self.searching[mod]:
+            self.stopSearchRanked(mod)
 
-        if self.searching:
-            self.stopSearchRanked()
+        self.updatePlayButton(mod)
 
-        self.updatePlayButton()
-
-    def startSubRandomRankedSearch(self):
+    def startSubRandomRankedSearch(self, mod):
         """
         This is a wrapper around startRankedSearch where a faction will be chosen based on the selected checkboxes
         """
-        if self.searching:
-            self.stopSearchRanked()
+        if self.searching[mod]:
+            self.stopSearchRanked(mod)
         else:
             factionSubset = []
-
-            if self.rankedUEF.isChecked():
-                factionSubset.append("uef")
-            if self.rankedCybran.isChecked():
-                factionSubset.append("cybran")
-            if self.rankedAeon.isChecked():
-                factionSubset.append("aeon")
-            if self.rankedSeraphim.isChecked():
-                factionSubset.append("seraphim")
+            if mod == "ladder1v1":
+                if self.rankedUEF.isChecked():
+                    factionSubset.append("uef")
+                if self.rankedCybran.isChecked():
+                    factionSubset.append("cybran")
+                if self.rankedAeon.isChecked():
+                    factionSubset.append("aeon")
+                if self.rankedSeraphim.isChecked():
+                    factionSubset.append("seraphim")
+            else:
+                if self.tmmUEF.isChecked():
+                    factionSubset.append("uef")
+                if self.tmmCybran.isChecked():
+                    factionSubset.append("cybran")
+                if self.tmmAeon.isChecked():
+                    factionSubset.append("aeon")
+                if self.tmmSeraphim.isChecked():
+                    factionSubset.append("seraphim")
 
             l = len(factionSubset)
             if l in [0, 4]:
-                self.startSearchRanked(Factions.RANDOM)
+                self.startSearchRanked(race=Factions.RANDOM, mod=mod)
             else:
                 # chooses a random factionstring from factionsubset and converts it to a Faction
-                self.startSearchRanked(Factions.from_name(
-                    factionSubset[random.randint(0, l - 1)]))
+                self.startSearchRanked(race=Factions.from_name(
+                    factionSubset[random.randint(0, l - 1)]), mod=mod)
 
     def startViewLadderMapsPool(self):
         QDesktopServices.openUrl(QUrl(Settings.get("MAPPOOL_URL")))
 
-    def generateSelectSubset(self):
-        if self.searching:  # you cannot search for a match while changing/creating the UI
-            self.stopSearchRanked()
+    def generateSelectSubset(self, mod):
+        if self.searching[mod]:  # you cannot search for a match while changing/creating the UI
+            self.stopSearchRanked(mod)
 
-        self.rankedPlay.clicked.connect(self.startSubRandomRankedSearch)
-        self.rankedPlay.show()
-        self.laddermapspool.clicked.connect(self.startViewLadderMapsPool)
-        self.labelRankedHint.show()
-        for faction, icon in list(self._ranked_icons.items()):
+        if mod == "ladder1v1":
+            self.rankedPlay.clicked.connect(partial(self.startSubRandomRankedSearch,mod=mod))
+            self.rankedPlay.show()
+            self.laddermapspool.clicked.connect(self.startViewLadderMapsPool)
+            self.labelRankedHint.show()
+        else:
+            self.tmmPlay.clicked.connect(partial(self.startSubRandomRankedSearch,mod=mod))
+            self.tmmPlay.show()
+        
+        for faction, icon in list(self._ranked_icons[mod].items()):
             try:
                 icon.clicked.disconnect()
             except TypeError:
                 pass
 
-            icon.setChecked(self.sub_factions[faction.value-1])
-            icon.clicked.connect(partial(self.selectFaction, factionID=faction.value))
+            icon.setChecked(self.sub_factions[mod][faction.value-1])
+            icon.clicked.connect(partial(self.selectFaction, factionID=faction.value, mod=mod))
 
-    def updatePlayButton(self):
-        if self.searching:
+    def updatePlayButton(self, mod):
+        if self.searching[mod]:
             s = "Stop search"
         else:
-            c = self.sub_factions.count(True)
+            c = self.sub_factions[mod].count(True)
             if c in [0, 4]:  # all or none selected
                 s = "Play as random!"
             else:
                 s = "Play!"
+        if mod == "ladder1v1":
+            self.rankedPlay.setText(s)
+        else:
+            self.tmmPlay.setText(s)
 
-        self.rankedPlay.setText(s)
-
-    def startSearchRanked(self, race):
+    def startSearchRanked(self, race, mod):
         if race == Factions.RANDOM:
             race = Factions.get_random_faction()
 
         if fa.instance.running():
             QtWidgets.QMessageBox.information(
                 None, "ForgedAllianceForever.exe", "FA is already running.")
-            self.stopSearchRanked()
+            self.stopSearchRanked(mod)
             return
 
         if not fa.check.check("ladder1v1"):
-            self.stopSearchRanked()
+            self.stopSearchRanked(mod)
             logger.error("Can't play ranked without successfully updating Forged Alliance.")
             return
 
-        if self.searching:
+        if self.searching[mod]:
             logger.info("Switching Ranked Search to Race " + str(race))
-            self.race = race
-            self.client.lobby_connection.send(dict(command="game_matchmaking", mod="ladder1v1", state="settings",
-                                  faction=self.race.value))
+            self.race[mod] = race
+            self.client.lobby_connection.send(dict(command="game_matchmaking", mod=mod, state="settings",
+                                  faction=self.race[mod].value))
         else:
             logger.info("Starting Ranked Search as " + str(race))
-            self.searching = True
-            self.race = race
-            self.searchProgress.setVisible(True)
-            self.labelAutomatch.setText("Searching...")
-            self.updatePlayButton()
-            self.client.search_ranked(faction=self.race.value)
+            self.searching[mod] = True
+            self.race[mod] = race
+            if mod == "ladder1v1":
+                self.searchProgress.setVisible(True)
+                self.labelAutomatch.setText("Searching...")
+
+            else:
+                self.tmmProgress.setVisible(True)
+                self.labelTMM.setText("Searching...")
+            
+            self.updatePlayButton(mod)
+            self.client.search_ranked(faction=self.race[mod].value, mod=mod) 
+
+    def stopSearchRanked(self, mod, *args):
+        if self.searching[mod]:
+            logger.debug("Stopping Ranked Search")
+            self.client.lobby_connection.send(dict(command="game_matchmaking", mod=mod, state="stop"))
+            self.searching[mod] = False
+            self.match_found[mod] = False
+
+        self.updatePlayButton(mod)
+        if mod == "ladder1v1":
+            self.searchProgress.setVisible(False)
+            self.labelAutomatch.setText("1 vs 1 Automatch")
+        else:
+            self.tmmProgress.setVisible(False)
+            self.labelTMM.setText("2 vs 2 Automatch")
 
     @pyqtSlot()
-    def stopSearchRanked(self, *args):
-        if self.searching:
-            logger.debug("Stopping Ranked Search")
-            self.client.lobby_connection.send(dict(command="game_matchmaking", mod="ladder1v1", state="stop"))
-            self.searching = False
-
-        self.updatePlayButton()
-        self.searchProgress.setVisible(False)
-        self.labelAutomatch.setText("1 vs 1 Automatch")
-
-    @pyqtSlot(bool)
-    def toggle_search(self, enabled, race=None):
-        """
-        Handler called when a ladder search button is pressed. They're really checkboxes, and the
-        state flag is used to decide whether to start or stop the search.
-        :param state: The checkedness state of the search checkbox that was pushed
-        :param player_faction: The faction corresponding to that checkbox
-        """
-        if enabled and not self.searching:
-            self.startSearchRanked(race)
-        else:
-            self.stopSearchRanked()
+    def stopSearch(self, *args):
+        self.stopSearchRanked("ladder1v1")
+        self.stopSearchRanked("tmm2v2")
 
     def gameDoubleClicked(self, game):
         """
@@ -257,7 +301,7 @@ class GamesWidget(FormClass, BaseClass):
         if not fa.instance.available():
             return
 
-        self.stopSearchRanked()  # Actually a workaround
+        self.stopSearch()  # Actually a workaround
 
         if not fa.check.game(self.client):
             return
@@ -278,7 +322,7 @@ class GamesWidget(FormClass, BaseClass):
         """
         if not fa.instance.available():
             return
-        self.stopSearchRanked()
+        self.stopSearch()
         self._game_launcher.host_game(item.name, item.mod)
 
     def sortGamesComboChanged(self, index):
