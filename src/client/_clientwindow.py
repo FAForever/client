@@ -196,7 +196,10 @@ class ClientWindow(FormClass, BaseClass):
         self.lobby_dispatch["invalid"] = self.handle_invalid
         self.lobby_dispatch["welcome"] = self.handle_welcome
         self.lobby_dispatch["authentication_failed"] = self.handle_authentication_failed
-
+        ###############################################################################################
+        # Need to be done properly
+        self.lobby_dispatch["match_found"] = self.handle_match_found_message
+        ###############################################################################################
         self.lobby_info.social.connect(self.handle_social)
 
         # Process used to run Forged Alliance (managed in module fa)
@@ -1280,15 +1283,20 @@ class ClientWindow(FormClass, BaseClass):
 
         self.handle_notice({"style": "notice", "text": message["error"]})
 
-    def search_ranked(self, faction):
+    def search_ranked(self, mod, faction):
         msg = {
             'command': 'game_matchmaking',
-            'mod': 'ladder1v1',
+            'mod': mod,
             'state': 'start',
             'gameport': 0,
             'faction': faction
         }
         self.lobby_connection.send(msg)
+
+    def handle_match_found_message(self, message):
+            logger.info("Handling match_found via JSON {}".format(message))
+            queue_name = message["queue_name"]
+            self.games.match_found[queue_name] = True
 
     def host_game(self, title, mod, visibility, mapname, password, is_rehost=False):
         msg = {
@@ -1324,15 +1332,38 @@ class ClientWindow(FormClass, BaseClass):
 
         # HACK: Ideally, this comes from the server, too. LATER: search_ranked message
         arguments = []
-        if message["mod"] == "ladder1v1":
-            arguments.append('/' + Factions.to_name(self.games.race))
+        if self.games.match_found["ladder1v1"]:
+            arguments.append('/' + Factions.to_name(self.games.race["ladder1v1"]))
             # Player 1v1 rating
             arguments.append('/mean')
             arguments.append(str(self.me.player.ladder_rating_mean))
             arguments.append('/deviation')
             arguments.append(str(self.me.player.ladder_rating_deviation))
+
+            arguments.append('/numgames')
+            arguments.append(str(message["args"][1])) # example: 'args': ['/numgames', 100]
             arguments.append('/players 2')  # Always 2 players in 1v1 ladder
-            arguments.append('/team 1')     # Always FFA team
+            #arguments.append('/team 1')     # Always FFA team
+            arguments.append('/team')
+            arguments.append(str(message["team"]))
+
+            # Launch the auto lobby
+            self.game_session.setLobbyInitMode("auto")
+
+        elif self.games.match_found["tmm2v2"]:
+            arguments.append('/' + Factions.to_name(self.games.race["tmm2v2"]))
+            arguments.append('/mean')
+            arguments.append(str(self.me.player.rating_mean))
+            arguments.append('/deviation')
+            arguments.append(str(self.me.player.rating_deviation))
+
+            arguments.append('/numgames')
+            arguments.append(str(message["args"][1]))
+            arguments.append('/players 4') # 2v2 match - must be 4 players
+            arguments.append('/team')
+            arguments.append(str(message["team"]))
+            arguments.append('/startspot')
+            arguments.append(str(message["map_position"]))
 
             # Launch the auto lobby
             self.game_session.setLobbyInitMode("auto")
@@ -1380,7 +1411,7 @@ class ClientWindow(FormClass, BaseClass):
         if "action" in message:
             self.matchmaker_info.emit(message)
         elif "queues" in message:
-            if self.me.player.ladder_rating_deviation > 200 or self.games.searching:
+            if self.me.player.ladder_rating_deviation > 200 or self.games.searching["ladder1v1"]:
                 return
             key = 'boundary_80s' if self.me.player.ladder_rating_deviation < 100 else 'boundary_75s'
             show = False
