@@ -668,7 +668,7 @@ class ClientWindow(FormClass, BaseClass):
             button = QtWidgets.QToolButton(self)
             button.setMaximumSize(25, 25)
             button.setIcon(util.THEME.icon("games/automatch/%s.png" % faction.to_name()))
-            button.clicked.connect(partial(self.games.startSearchRanked, faction))
+            button.clicked.connect(partial(self.games.startSearchRanked, faction, mod="ladder1v1"))
             self.warning.addWidget(button)
             return button
 

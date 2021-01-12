@@ -246,8 +246,8 @@ class GamesWidget(FormClass, BaseClass):
                     QtWidgets.QMessageBox.information(None, "Playing game", "Can't start searching. Your previous game is not over yet.")
                     return
             factions = self.setFactionSubset(mod=mod)
-            self.race[mod] = Factions.from_name(factions[random.randint(0, len(factions) - 1)])
-            self.startSearchRanked(race=self.race[mod], mod=mod)
+            race = Factions.from_name(factions[random.randint(0, len(factions) - 1)])
+            self.startSearchRanked(race=race, mod=mod)
 
     def startViewLadderMapsPool(self):
         QDesktopServices.openUrl(QUrl(Settings.get("MAPPOOL_URL")))
@@ -309,6 +309,9 @@ class GamesWidget(FormClass, BaseClass):
                 self.tmmPlay.setText(s)           
 
     def startSearchRanked(self, race, mod):
+        if race == Factions.RANDOM:
+            race = Factions.get_random_faction()
+
         if fa.instance.running():
             QtWidgets.QMessageBox.information(
                 None, "ForgedAllianceForever.exe", "FA is already running.")
@@ -321,12 +324,14 @@ class GamesWidget(FormClass, BaseClass):
             return
 
         if self.searching[mod]:
+            self.race[mod] = race
             logger.info("Switching Ranked Search to Race " + str(race))
             self.client.lobby_connection.send(dict(command="game_matchmaking", mod=mod, state="settings",
                                   faction=self.race[mod].value))
         else:
             logger.info("Starting Ranked Search as " + str(race))
             self.searching[mod] = True
+            self.race[mod] = race
             if mod == "ladder1v1":
                 self.searchProgress.setVisible(True)
                 self.labelAutomatch.setText("Searching...")
