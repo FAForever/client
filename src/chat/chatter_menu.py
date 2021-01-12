@@ -22,6 +22,7 @@ class ChatterMenuItems(Enum):
     REMOVE_FRIEND = "Remove friend"
     REMOVE_FOE = "Remove foe"
     COPY_USERNAME = "Copy username"
+    INVITE_TO_PARTY = "Invite to party"
 
 
 class ChatterMenu:
@@ -56,6 +57,7 @@ class ChatterMenu:
         yield list(self.chatter_actions())
         yield list(self.player_actions(player, game, is_me))
         yield list(self.friend_actions(player, chatter, cc, is_me))
+        yield list(self.party_actions(player, is_me))
 
     def chatter_actions(self):
         yield ChatterMenuItems.COPY_USERNAME
@@ -96,6 +98,17 @@ class ChatterMenu:
             yield ChatterMenuItems.ADD_FRIEND
             if not cc.is_mod() and not chatter.is_base_channel_mod():
                 yield ChatterMenuItems.ADD_FOE
+
+    def party_actions(self, player, is_me):
+        if is_me:
+            return
+        if player is None:
+            return
+        else:
+            if self._client_window.games.labelTeammate.text() == player.login: #probably better to find a way to compare id
+                return
+            else:
+                yield ChatterMenuItems.INVITE_TO_PARTY
 
     def get_context_menu(self, data, point):
         return self.menu(data.cc)
@@ -148,6 +161,8 @@ class ChatterMenu:
             self._client_window.view_in_leaderboards(player)
         elif kind in [Items.JOIN_GAME, Items.VIEW_LIVEREPLAY]:
             self._game_runner.run_game_with_url(game, player.id)
+        elif kind == Items.INVITE_TO_PARTY:
+            self._client_window.invite_to_party(player.id)
 
     def _copy_username(self, chatter):
         QApplication.clipboard().setText(chatter.name)

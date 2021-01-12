@@ -30,11 +30,14 @@ class NotificationDialog(FormClass, BaseClass):
         self.baseHeight = 165
         self.baseWidth = 375
 
+        self.sender_id = None
+        self.acceptButton.clicked.connect(lambda: self.acceptPartyInvite(sender_id=self.sender_id))
+
         # TODO: integrate into client.css
         # self.setStyleSheet(self.client.styleSheet())
 
     @QtCore.pyqtSlot()
-    def newEvent(self, pixmap, text, lifetime, sound, height = None, width = None):
+    def newEvent(self, pixmap, text, lifetime, sound, height = None, width = None, hide_accept = True, sender_id = None):
         """ Called to display a new popup
         Keyword arguments:
         pixmap -- Icon for the event (displayed left)
@@ -53,6 +56,12 @@ class NotificationDialog(FormClass, BaseClass):
             util.THEME.sound("chat/sfx/query.wav")
         self.setFixedHeight(height or self.baseHeight)
         self.setFixedWidth(width or self.baseWidth)
+
+        if hide_accept:
+            self.acceptButton.hide()
+        else:
+            self.sender_id = sender_id
+            self.acceptButton.show()
 
         self.updatePosition()
         self.show()
@@ -81,3 +90,9 @@ class NotificationDialog(FormClass, BaseClass):
             self.move(0, screen.height() - dialog_size.height())
         else:
             self.move(screen.width() - dialog_size.width(), screen.height() - dialog_size.height())
+
+    @QtCore.pyqtSlot()
+    def acceptPartyInvite(self, sender_id):
+        self.client.games.accept_party_invite(sender_id)
+        self.client.mainTabs.setCurrentIndex(self.client.mainTabs.indexOf(self.client.gamesTab))
+        self.hide()

@@ -19,6 +19,35 @@ logger = logging.getLogger(__name__)
 
 FormClass, BaseClass = util.THEME.loadUiType("games/games.ui")
 
+class Party:
+    def __init__(self, owner_id, members):
+        self.owner_id = owner_id
+        self.members = [members]
+        self.teammates = []
+        self.size = len(self.members)
+
+    @property
+    def partySize(self):
+        return self.size
+    
+    def setPartySize(self, value):
+        self.size = value
+    
+    def addTeammate(self, teammate):
+        self.teammates.append(teammate)
+    
+    @property
+    def getTeammate(self):
+        if len(self.teammates) > 0:
+            return self.teammates[0]
+        else:
+            return []
+
+class PartyMember:
+    def __init__(self, _id, factions=None):
+        self._id = _id
+        self.factions = ["uef", "cybran", "aeon", "seraphim"]
+        self.login = None
 
 class GamesWidget(FormClass, BaseClass):
 
@@ -88,6 +117,8 @@ class GamesWidget(FormClass, BaseClass):
 
         self.match_found = {"ladder1v1": False, "tmm2v2": False}
 
+        self.party = Party(self._me.id, PartyMember(self._me.id))
+
         self.generateSelectSubset("ladder1v1")
         self.generateSelectSubset("tmm2v2")
 
@@ -112,6 +143,12 @@ class GamesWidget(FormClass, BaseClass):
         self.hideGamesWithPw.setChecked(self.hide_private_games)
 
         self.modList.itemDoubleClicked.connect(self.hostGameClicked)
+
+        self.labelInQueue.setText("-")
+        self.hideTmmFrame()
+        self.showTMM.clicked.connect(self.setTmmFrame)
+        self.kickButton.clicked.connect(self.kick_player_from_party)
+        self.leaveButton.clicked.connect(self.leave_party)
 
         self.updatePlayButton("ladder1v1")
         self.updatePlayButton("tmm2v2")
@@ -160,10 +197,42 @@ class GamesWidget(FormClass, BaseClass):
             Settings.set("play/tmmFactions", self.sub_factions[mod])
         logger.debug('selectFaction: selected is {}'.format(self.sub_factions[mod]))
 
-        if self.searching[mod]:
-            self.stopSearchRanked(mod)
+        if self.party.size > 1:
+            factions = self.setFactionSubset(mod)
+            self.client.set_faction(factions)
+            self.race[mod] = Factions.from_name(factions[random.randint(0, len(factions) - 1)])
+        else:
+            if self.searching[mod]:
+                self.stopSearchRanked(mod)
 
         self.updatePlayButton(mod)
+
+    def setFactionSubset(self, mod):
+        factionSubset = []
+        if mod == "ladder1v1":
+            if self.rankedUEF.isChecked():
+                factionSubset.append("uef")
+            if self.rankedCybran.isChecked():
+                factionSubset.append("cybran")
+            if self.rankedAeon.isChecked():
+                factionSubset.append("aeon")
+            if self.rankedSeraphim.isChecked():
+                factionSubset.append("seraphim")
+        else:
+            if self.tmmUEF.isChecked():
+                factionSubset.append("uef")
+            if self.tmmCybran.isChecked():
+                factionSubset.append("cybran")
+            if self.tmmAeon.isChecked():
+                factionSubset.append("aeon")
+            if self.tmmSeraphim.isChecked():
+                factionSubset.append("seraphim")
+
+        l = len(factionSubset)
+        if l == 0:
+            factionSubset = ["uef", "cybran", "aeon", "seraphim"]
+
+        return factionSubset
 
     def startSubRandomRankedSearch(self, mod):
         """
@@ -172,33 +241,13 @@ class GamesWidget(FormClass, BaseClass):
         if self.searching[mod]:
             self.stopSearchRanked(mod)
         else:
-            factionSubset = []
-            if mod == "ladder1v1":
-                if self.rankedUEF.isChecked():
-                    factionSubset.append("uef")
-                if self.rankedCybran.isChecked():
-                    factionSubset.append("cybran")
-                if self.rankedAeon.isChecked():
-                    factionSubset.append("aeon")
-                if self.rankedSeraphim.isChecked():
-                    factionSubset.append("seraphim")
-            else:
-                if self.tmmUEF.isChecked():
-                    factionSubset.append("uef")
-                if self.tmmCybran.isChecked():
-                    factionSubset.append("cybran")
-                if self.tmmAeon.isChecked():
-                    factionSubset.append("aeon")
-                if self.tmmSeraphim.isChecked():
-                    factionSubset.append("seraphim")
-
-            l = len(factionSubset)
-            if l in [0, 4]:
-                self.startSearchRanked(race=Factions.RANDOM, mod=mod)
-            else:
-                # chooses a random factionstring from factionsubset and converts it to a Faction
-                self.startSearchRanked(race=Factions.from_name(
-                    factionSubset[random.randint(0, l - 1)]), mod=mod)
+            if self.party.size > 1:
+                if self.isInGame(self._me.id):
+                    QtWidgets.QMessageBox.information(None, "Playing game", "Can't start searching. Your previous game is not over yet.")
+                    return
+            factions = self.setFactionSubset(mod=mod)
+            self.race[mod] = Factions.from_name(factions[random.randint(0, len(factions) - 1)])
+            self.startSearchRanked(race=self.race[mod], mod=mod)
 
     def startViewLadderMapsPool(self):
         QDesktopServices.openUrl(QUrl(Settings.get("MAPPOOL_URL")))
@@ -235,14 +284,31 @@ class GamesWidget(FormClass, BaseClass):
             else:
                 s = "Play!"
         if mod == "ladder1v1":
-            self.rankedPlay.setText(s)
-        else:
-            self.tmmPlay.setText(s)
+            if self.party.size > 1:
+                self.rankedPlay.setEnabled(False)
+                self.rankedPlay.setText("Can't search ladder while in party")
+            else:
+                self.rankedPlay.setEnabled(True)
+                self.rankedPlay.setText(s)
+        elif mod == "tmm2v2":
+            if self.party.size > 1:
+                if self.party.owner_id == self._me.id:
+                    self.tmmPlay.setText(s)
+                    self.tmmPlay.setEnabled(True)
+                    self.kickButton.show()
+                else:
+                    if self.searching[mod]:
+                        self.tmmPlay.setText("Party leader will stop searching")
+                    else:
+                        self.tmmPlay.setText("Party leader will start searching")
+                    self.tmmPlay.setEnabled(False)
+                    self.kickButton.hide()
+                self.partyInfo.show()
+            else:
+                self.partyInfo.hide()
+                self.tmmPlay.setText(s)           
 
     def startSearchRanked(self, race, mod):
-        if race == Factions.RANDOM:
-            race = Factions.get_random_faction()
-
         if fa.instance.running():
             QtWidgets.QMessageBox.information(
                 None, "ForgedAllianceForever.exe", "FA is already running.")
@@ -256,13 +322,11 @@ class GamesWidget(FormClass, BaseClass):
 
         if self.searching[mod]:
             logger.info("Switching Ranked Search to Race " + str(race))
-            self.race[mod] = race
             self.client.lobby_connection.send(dict(command="game_matchmaking", mod=mod, state="settings",
                                   faction=self.race[mod].value))
         else:
             logger.info("Starting Ranked Search as " + str(race))
             self.searching[mod] = True
-            self.race[mod] = race
             if mod == "ladder1v1":
                 self.searchProgress.setVisible(True)
                 self.labelAutomatch.setText("Searching...")
@@ -301,6 +365,9 @@ class GamesWidget(FormClass, BaseClass):
         if not fa.instance.available():
             return
 
+        if self.party.size > 1:
+            if not self.leave_party():
+                return
         self.stopSearch()  # Actually a workaround
 
         if not fa.check.game(self.client):
@@ -322,9 +389,128 @@ class GamesWidget(FormClass, BaseClass):
         """
         if not fa.instance.available():
             return
+       
+        if self.party.size > 1:
+            if not self.leave_party():
+                return
         self.stopSearch()
         self._game_launcher.host_game(item.name, item.mod)
 
     def sortGamesComboChanged(self, index):
         self.sort_games_index = index
         self._game_model.sort_type = CustomGameFilterModel.SortType(index)
+
+    def updateParty(self, message):
+        players_ids = []
+        for member in message["members"]:
+            players_ids.append(member["player"])
+
+        if self.party.owner_id != message["owner"]:
+            self.stopSearch()
+
+        if self.party.size != len(message["members"]):
+            self.stopSearch()
+        else:
+            for member in self.party.members:
+                if member._id not in players_ids:
+                    self.stopSearch()
+
+        self.party.members.clear()
+        self.party.teammates.clear()
+
+        if len(message["members"]) > 1:
+            self.party.owner_id = message["owner"]
+            self.showTmmFrame()
+            for member in message["members"]:
+                players_id = member["player"]
+                self.party.members.append(PartyMember(_id=players_id, factions=member["factions"]))
+                if players_id != self._me.id:
+                    self.labelTeammate.setText(str(self.client.players[players_id].login))
+                    self.party.teammates.append(PartyMember(_id=players_id, factions=member["factions"]))
+        else:
+            self.party.owner_id = self._me.id
+            self.party.members.append(PartyMember(_id=self._me.id))
+            self.labelTeammate.setText('')
+        
+        self.party.size = len(self.party.members)
+
+        self.updatePlayButton("ladder1v1")
+        self.updatePlayButton("tmm2v2")
+
+    
+    def showTmmFrame(self):
+        self.labelTMM.show()
+        self.tmmFrame.show()
+        self.showTMM.setText("Hide 2 vs 2 section")
+    
+    def hideTmmFrame(self):
+        self.labelTMM.hide()
+        self.tmmFrame.hide()
+        self.showTMM.setText("Show 2 vs 2 section")
+    
+    def setTmmFrame(self):
+        if self.tmmFrame.isVisible():
+            self.hideTmmFrame()
+        else:
+            self.showTmmFrame()
+
+
+    def accept_party_invite(self, sender_id):
+        logger.info("Accepting paryt invite from {}".format(sender_id))
+        msg = {
+            'command': 'accept_party_invite',
+            'sender_id': sender_id,
+        }
+        self.client.lobby_connection.send(msg)
+
+        factions = self.setFactionSubset("tmm2v2")
+        self.race["tmm2v2"] = Factions.from_name(factions[random.randint(0, len(factions) - 1)])
+        self.client.set_faction(factions)
+
+
+    def kick_player_from_party(self):
+        if self.isInGame(self._me.id):
+            QtWidgets.QMessageBox.information(None, "Playing game", "Can't kick. Your party is still in game!")
+        else:
+            kicked_player_id = self.party.teammates[0]._id
+            result = QtWidgets.QMessageBox.question(None, "Kick Player", "Are you sure you want to kick your teammate from party?",
+                                                        QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
+            if result == QtWidgets.QMessageBox.Yes:
+                msg = {
+                    'command': 'kick_player_from_party',
+                    'kicked_player_id': kicked_player_id,
+                }
+                self.client.lobby_connection.send(msg)
+    
+    def leave_party(self):
+        result = QtWidgets.QMessageBox.question(None, "Leaving Party", "Are you sure you want to leave party?",
+                                                  QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
+        if result == QtWidgets.QMessageBox.Yes:   
+            msg = {
+                'command': 'leave_party'
+            }
+            self.client.lobby_connection.send(msg)
+            
+            if self.isInGame(self._me.id):
+                self.client.players[self._me.id]._currentGame = None
+            return True
+        else:
+            return False
+    
+    def handle_tmm_search_info(self, message):
+        if self.party.size > 1:
+            if self.party.owner_id != self._me.id:
+                if message["state"] == "start":
+                    self.searching["tmm2v2"] = True
+                    self.tmmProgress.show()
+                    self.updatePlayButton("tmm2v2")
+                elif message["state"] == "stop":
+                    self.searching["tmm2v2"] = False
+                    self.tmmProgress.hide()
+                    self.updatePlayButton("tmm2v2")
+
+    def isInGame(self, player_id):
+        if self.client.players[player_id].currentGame is None:
+            return False
+        else:
+            return True

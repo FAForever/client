@@ -530,7 +530,7 @@ QToolButton#rankedPlay, #tmmPlay
 	border-radius: 5px;
 	border: 1px solid grey;
 }
-QToolButton#laddermapspool
+QToolButton#laddermapspool,#showTMM
 {
 	color: silver;
 	border-radius: 5px;
@@ -567,7 +567,7 @@ QToolButton::checked
     border-radius : 5px;
  }
  
-QPushButton#searchButton, #advSearchButton, #fafDbButton, #spookyDbButton
+QPushButton#searchButton, #advSearchButton, #fafDbButton, #spookyDbButton, #kickButton, #leaveButton
 {
 	color: silver;
 	border-radius: 5px;
