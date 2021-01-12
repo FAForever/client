@@ -99,6 +99,7 @@ class ClientWindow(FormClass, BaseClass):
     unofficial_client = QtCore.pyqtSignal(str)
 
     matchmaker_info = QtCore.pyqtSignal(dict)
+    party_invite = QtCore.pyqtSignal(dict)
 
     remember = config.Settings.persisted_property('user/remember', type=bool, default_value=True)
     login = config.Settings.persisted_property('user/login', persist_if=lambda self: self.remember)
@@ -196,10 +197,11 @@ class ClientWindow(FormClass, BaseClass):
         self.lobby_dispatch["invalid"] = self.handle_invalid
         self.lobby_dispatch["welcome"] = self.handle_welcome
         self.lobby_dispatch["authentication_failed"] = self.handle_authentication_failed
-        ###############################################################################################
-        # Need to be done properly
+        self.lobby_dispatch["update_party"] = self.handle_update_party
+        self.lobby_dispatch["kicked_from_party"] = self.handle_kicked_from_party
+        self.lobby_dispatch["party_invite"] = self.handle_party_invite
         self.lobby_dispatch["match_found"] = self.handle_match_found_message
-        ###############################################################################################
+        self.lobby_dispatch["search_info"] = self.handle_search_info
         self.lobby_info.social.connect(self.handle_social)
 
         # Process used to run Forged Alliance (managed in module fa)
@@ -1421,6 +1423,8 @@ class ClientWindow(FormClass, BaseClass):
                     for min, max in q[key]:
                         if min < mu < max:
                             show = True
+                elif q['queue_name'] == 'tmm2v2':
+                    self.games.labelInQueue.setText(str(q['num_players']))
             if show:
                 self.warningShow()
             else:
@@ -1491,3 +1495,43 @@ class ClientWindow(FormClass, BaseClass):
 
     def emit_game_full(self):
         self.game_full.emit()
+
+    def invite_to_party(self, recipient_id):
+        msg = {
+            'command': 'invite_to_party',
+            'recipient_id': recipient_id,
+        }
+        self.lobby_connection.send(msg)
+    
+    def handle_party_invite(self, message):
+        logger.info("Handling party_invite via JSON {}".format(message))
+        self.party_invite.emit(message)
+        
+    def handle_update_party(self, message):
+        logger.info("Handling update_party via JSON {}".format(message))
+        self.games.updateParty(message)
+
+    def handle_kicked_from_party(self, message):
+        QtWidgets.QMessageBox.information(None, "Kicked", "You were kicked from party")
+        msg = {
+            "owner": self.me.id,
+            "members": [
+                {
+                    "player": self.me.id,
+                    "factions": ["uef", "cybran", "aeon", "seraphim"]
+                }
+            ]
+        }
+        self.games.updateParty(msg)
+    
+    def set_faction(self, faction):
+        logger.info("Setting party factions to {}".format(faction))
+        msg = {
+            'command': 'set_party_factions',
+            'factions': faction
+        }
+        self.lobby_connection.send(msg)
+    
+    def handle_search_info(self, message):
+        if message["queue_name"] == "tmm2v2":
+            self.games.handle_tmm_search_info(message)

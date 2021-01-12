@@ -230,6 +230,10 @@ class LiveReplaysWidgetHandler(object):
         if item.isDisabled():
             return
 
+        if self.client.games.party.size > 1:
+            if not self.client.games.leave_party():
+                return
+        
         if self.liveTree.indexOfTopLevelItem(item) == -1:
             # Notify other modules that we're watching a replay
             self.client.viewing_replay.emit(item.gurl)
@@ -756,6 +760,10 @@ class ReplayVaultWidgetHandler(object):
                 self.toolboxHandler.updateMapPreview()
 
     def onlineTreeDoubleClicked(self, item):
+        if self.client.games.party.size > 1:
+            if not self.client.games.leave_party():
+                return
+        
         if hasattr(item, "duration"):  # it's a game not a date separator
             if "playing" in item.duration:  # live game will not be in vault
                 # search result isn't updated automatically - so game status might have changed
