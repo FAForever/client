@@ -10,7 +10,7 @@ class ReplaysApiConnector(ApiBase):
     def requestData(self, args):
         self.request(args, self.handleData)
 
-    def handleData(self, message):
+    def handleData(self, message, meta):
         preparedData = dict(command = "replay_vault", 
                             action = "search_result",
                             replays = {},

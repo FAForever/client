@@ -34,13 +34,14 @@ class StatsWidget(BaseClass, FormClass, BusyWidget):
         self.client = client
 
         self.webview = QtWebEngineWidgets.QWebEngineView()
+        self.webpage = WebEnginePage()
         
         self.LadderRatings.layout().addWidget(self.webview)
         
         self.selected_player = None
         self.selected_player_loaded = False
         self.webview.loadFinished.connect(self.webview.show)
-        self.webview.loadFinished.connect(self._injectCSS)
+        #self.webview.loadFinished.connect(self._injectCSS)
         self.leagues.currentChanged.connect(self.leagueUpdate)
         self.pagesDivisions = {}
         self.pagesDivisionsResults = {}
@@ -59,6 +60,10 @@ class StatsWidget(BaseClass, FormClass, BusyWidget):
     
         # setup other tabs
         self.mapstat = mapstat.LadderMapStat(self.client, self)
+
+        self.webview.setVisible(False) #this seems to do nothing, but as it was present before editor decided to keep the line
+        self.webpage.setUrl(QtCore.QUrl("https://faforever.com/competitive/leaderboards/1v1"))
+        self.webview.setPage(self.webpage)
 
     def load_stylesheet(self):
         self.setStyleSheet(util.THEME.readstylesheet("stats/formatters/style.css"))
@@ -201,20 +206,37 @@ class StatsWidget(BaseClass, FormClass, BusyWidget):
     def busy_entered(self):
         # Don't display things when we're not logged in
         # FIXME - one day we'll have more obvious points of entry
-        if self.client.state != client.ClientState.LOGGED_IN:
-            return
+        #if self.client.state != client.ClientState.LOGGED_IN:
+        #    return
 
-        if self.selected_player is None:
-            self.selected_player = self.client.players[self.client.login]
-        if self.selected_player.league is not None:
-            self.leagues.setCurrentIndex(self.selected_player.league - 1)
+        #if self.selected_player is None:
+        #    self.selected_player = self.client.players[self.client.login]
+        #if self.selected_player.league is not None:
+        #    self.leagues.setCurrentIndex(self.selected_player.league - 1)
+        #else:
+        #    self.leagues.setCurrentIndex(5)  # -> 5 = direct to Ladder Ratings
+
+        #if self.selected_player_loaded:
+        #    return
+
+        #self.webview.setVisible(False)
+        #self.webview.setUrl(QtCore.QUrl("{}/faf/leaderboards/read-leader.php?board=1v1&username={}".
+        #                                format(Settings.get('content/host'), self.selected_player.login)))
+        #self.selected_player_loaded = True
+        self.leagues.setCurrentIndex(5)
+
+class WebEnginePage(QtWebEngineWidgets.QWebEnginePage):
+    def __init__(self):
+        super().__init__()
+        self.valid_urls = [
+                           QtCore.QUrl("https://faforever.com/competitive/leaderboards/1v1")
+                          ,QtCore.QUrl("https://faforever.com/competitive/leaderboards/global")
+                          ,QtCore.QUrl("https://faforever.com/competitive/leaderboards/leagues")
+                          ,QtCore.QUrl("https://faforever.com/competitive/tournaments")
+        ]
+
+    def acceptNavigationRequest(self, url, type, isMainFrame):
+        if url in self.valid_urls or url.url()[:22] == "https://challonge.com/":
+            return True
         else:
-            self.leagues.setCurrentIndex(5)  # -> 5 = direct to Ladder Ratings
-
-        if self.selected_player_loaded:
-            return
-
-        self.webview.setVisible(False)
-        self.webview.setUrl(QtCore.QUrl("{}/faf/leaderboards/read-leader.php?board=1v1&username={}".
-                                        format(Settings.get('content/host'), self.selected_player.login)))
-        self.selected_player_loaded = True
+            return False

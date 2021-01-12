@@ -779,11 +779,15 @@ class ReplayVaultWidgetHandler(object):
                                                       "Would you like to watch the replay from the vault?",
                                                       QtWidgets.QMessageBox.Yes,
                                                       QtWidgets.QMessageBox.No) == QtWidgets.QMessageBox.Yes:
-                        self.replayDownload.get(QNetworkRequest(QtCore.QUrl(item.url)))
+                        req = QNetworkRequest(QtCore.QUrl(item.url))
+                        req.setAttribute(QNetworkRequest.FollowRedirectsAttribute, True)
+                        self.replayDownload.get(req)
 
             else:  # start replay
                 if hasattr(item, "url"):
-                    self.replayDownload.get(QNetworkRequest(QtCore.QUrl(item.url)))
+                    req = QNetworkRequest(QtCore.QUrl(item.url))
+                    req.setAttribute(QNetworkRequest.FollowRedirectsAttribute, True)
+                    self.replayDownload.get(req)
 
     def _startReplay(self, name):
         if name is None or name not in self._playerset:

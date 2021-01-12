@@ -1,4 +1,4 @@
-from PyQt5 import QtCore, QtNetwork
+import urllib
 import logging
 import json
 
@@ -6,44 +6,33 @@ from config import Settings
 
 logger = logging.getLogger(__name__)
 
-class ApiBase(QtCore.QObject):
+class UpdaterBase:
     def __init__(self, route):
-        QtCore.QObject.__init__(self)
-
-        self.url = QtCore.QUrl(Settings.get('api') + route)
-        self.manager = QtNetwork.QNetworkAccessManager()
-        self.manager.finished.connect(self.onRequestFinished)
+        self.url = Settings.get('api') + route
 
         self.handlers = {}
 
-    # query arguments like filter=login==Rhyza
     def request(self, queryDict, responseHandler):
-        query = QtCore.QUrlQuery()
-        for key, value in queryDict.items():
-          query.addQueryItem(key, str(value))
-        url = QtCore.QUrl(self.url)
-        url.setQuery(query)
-        request = QtNetwork.QNetworkRequest(url)
-        request.setRawHeader(b'User-Agent', b"FAF Client")
-        request.setRawHeader(b'Content-Type', b'application/vnd.api+json')
-        reply = self.manager.get(request)
+        url = urllib.parse.urlparse(self.url)
+        query = urllib.parse.urlencode(queryDict)
+        url = url._replace(query = query)
+        url = urllib.parse.urlunparse(url)
+        
+        request = urllib.request.Request(url)
+        request.add_header('User-Agent', 'FAF Client')
+        request.add_header('Content-Type', 'application/vnd.api+json')
+        reply = urllib.request.urlopen(request)
         self.handlers[reply] = responseHandler
+        return self.onRequestFinished(reply)
 
     def onRequestFinished(self, reply):
-        if reply.error() != QtNetwork.QNetworkReply.NoError:
-            logger.error("API request error: %s", reply.error())
+        if reply.status != 200:
+            logger.error("API request error: %s", reply.status)
         else:
-            message_bytes = reply.readAll().data()
+            message_bytes = reply.read()
             message = json.loads(message_bytes.decode('utf-8'))
             included = self.parseIncluded(message)
-            meta = self.parseMeta(message)
-            result = self.parseData(message, included)
-            if len(meta) > 0:
-                self.handlers[reply](result, meta)
-            else:
-                self.handlers[reply](result)
-        self.handlers.pop(reply)
-        reply.deleteLater()
+            return self.handlers[reply](self.parseData(message, included))
 
     def parseIncluded(self, message):
         result = {}
@@ -84,8 +73,7 @@ class ApiBase(QtCore.QObject):
             if data["type"] in included and data["id"] in included[data["type"]]:
                 result = included[data["type"]][data["id"]]
             result["id"] = data["id"]
-            if "type" not in result:
-                result["type"] = data["type"]
+            result["type"] = data["type"]
             if "attributes" in data:
                 for key, value in data["attributes"].items():
                     result[key] = value
@@ -94,10 +82,4 @@ class ApiBase(QtCore.QObject):
                     result[key] = self.parseData(value, included)
         except:
             logger.error("error parsing ", data)
-        return result
-
-    def parseMeta(self, message):
-        result = {}
-        if "meta" in message:
-            result["meta"] = message["meta"]
         return result

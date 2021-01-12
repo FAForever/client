@@ -54,6 +54,8 @@ from .uploadwidget import UploadModWidget
 from .uimodwidget import UIModWidget
 from ui.busy_widget import BusyWidget
 
+from api.vaults_api import ModApiConnector
+
 import util
 import logging
 import time
@@ -83,18 +85,77 @@ class ModVault(FormClass, BaseClass, BusyWidget):
         self.uploadButton.clicked.connect(self.openUploadForm)
         self.UIButton.clicked.connect(self.openUIModForm)
 
-        self.SortType.setCurrentIndex(2)
+        self.SortType.setCurrentIndex(0)
         self.SortType.currentIndexChanged.connect(self.sortChanged)
         self.ShowType.currentIndexChanged.connect(self.showChanged)
 
         self.client.lobby_info.modVaultInfo.connect(self.modInfo)
+        self.client.lobby_info.vaultMeta.connect(self.metaInfo)
 
-        self.sortType = "rating"
+        self.sortType = "alphabetical"
         self.showType = "all"
         self.searchString = ""
+        self.searchQuery = dict(include = 'latestVersion,reviewsSummary')
+
+        self.pageSize = self.quantityBox.value()
+        self.pageNumber = 1
+
+        self.goToPageButton.clicked.connect(lambda: self.goToPage(self.pageBox.value()))
+        self.pageBox.setValue(self.pageNumber)
+        self.pageBox.valueChanged.connect(self.checkTotalPages)
+        self.totalPages = 1
+        self.totalRecords = None
+        self.quantityBox.valueChanged.connect(self.checkPageSize)
+        self.nextButton.clicked.connect(lambda: self.goToPage(self.pageBox.value() + 1))
+        self.previousButton.clicked.connect(lambda: self.goToPage(self.pageBox.value() - 1))
+        self.firstButton.clicked.connect(lambda: self.goToPage(1))
+        self.lastButton.clicked.connect(lambda: self.goToPage(self.totalPages))
+        self.resetButton.clicked.connect(self.resetSearch)
 
         self.mods = {}
         self.uids = [mod.uid for mod in getInstalledMods()]
+
+        self.apiConnector = ModApiConnector(self.client.lobby_dispatch)
+
+    @QtCore.pyqtSlot(int)
+    def checkPageSize(self):
+        self.pageSize = self.quantityBox.value()
+
+    @QtCore.pyqtSlot(int)
+    def checkTotalPages(self):
+        if self.pageBox.value() > self.totalPages:
+            self.pageBox.setValue(self.totalPages)
+
+    def updateQuery(self, pageNumber):
+        self.searchQuery['page[size]'] = self.pageSize
+        self.searchQuery['page[number]'] = pageNumber
+        self.searchQuery['page[totals]'] = None
+
+    @QtCore.pyqtSlot(bool)
+    def goToPage(self, page):
+        self.mods.clear()
+        self.modList.clear()
+        self.pageBox.setValue(page)
+        self.pageNumber = self.pageBox.value()
+        self.pageBox.setValue(self.pageNumber)
+        self.updateQuery(self.pageNumber)
+        self.apiConnector.requestMod(self.searchQuery)
+        self.updateVisibilities()
+
+    @QtCore.pyqtSlot(dict)
+    def metaInfo(self, message):
+        self.totalPages = message['page']['totalPages']
+        self.totalRecords = message['page']['totalRecords']
+        if self.totalPages < 1:
+            self.totalPages = 1
+        self.labelTotalPages.setText(str(self.totalPages))
+
+    @QtCore.pyqtSlot(bool)
+    def resetSearch(self):
+        self.searchString = ''
+        self.searchInput.clear()
+        self.searchQuery = dict(include = 'latestVersion,reviewsSummary')
+        self.goToPage(1)
 
     @QtCore.pyqtSlot(dict)
     def modInfo(self, message):  # this is called when the database has send a mod to us
@@ -119,8 +180,6 @@ class ModVault(FormClass, BaseClass, BusyWidget):
             self.sortType = "date"
         elif index == 2:
             self.sortType = "rating"
-        elif index == 3:
-            self.sortType = "downloads"
         self.updateVisibilities()
 
     @QtCore.pyqtSlot(int)
@@ -131,9 +190,9 @@ class ModVault(FormClass, BaseClass, BusyWidget):
             self.showType = "ui"
         elif index == 2:
             self.showType = "sim"
-        elif index == 5:
+        elif index == 3:
             self.showType = "yours"
-        elif index == 6:
+        elif index == 4:
             self.showType = "installed"
         self.updateVisibilities()
 
@@ -144,19 +203,13 @@ class ModVault(FormClass, BaseClass, BusyWidget):
 
     def search(self):
         """ Sending search to mod server"""
-
         self.searchString = self.searchInput.text().lower()
-        index = self.ShowType.currentIndex()
-        typemod = 2
-
-        if index == 1:
-            typemod = 1
-        elif index == 2:
-            typemod = 0
-
-        self.client.statsServer.send(dict(command="modvault_search", typemod=typemod, search=self.searchString))
-
-        self.updateVisibilities()
+        if self.searchString == '' or self.searchString.replace(' ', '') == '':
+            self.resetSearch()
+        else:
+            self.searchString = self.searchString.strip()
+            self.searchQuery = dict(include = 'latestVersion,reviewsSummary', filter = 'displayName==' + '"*' + self.searchString + '*"')
+            self.goToPage(1)
 
     @QtCore.pyqtSlot()
     def openUIModForm(self):
@@ -198,7 +251,7 @@ class ModVault(FormClass, BaseClass, BusyWidget):
 
     @QtCore.pyqtSlot()
     def busy_entered(self):
-        self.client.lobby_connection.send(dict(command="modvault", type="start"))
+        self.goToPage(self.pageNumber)
 
     def updateVisibilities(self):
         logger.debug("Updating visibilities with sort '%s' and visibility '%s'" % (self.sortType, self.showType))
@@ -293,9 +346,8 @@ class ModItem(QtWidgets.QListWidgetItem):
         self.description = ""
         self.author = ""
         self.version = 0
-        self.downloads = 0
-        self.likes = 0
-        self.played = 0
+        self.rating = 0
+        self.reviews = 0
         self.comments = []  # every element is a dictionary with a
         self.bugreports = []  # text, author and date key
         self.date = None
@@ -312,21 +364,20 @@ class ModItem(QtWidgets.QListWidgetItem):
 
     def update(self, dic):
         self.name = dic["name"]
-        self.played = dic["played"]
         self.description = dic["description"]
         self.version = dic["version"]
         self.author = dic["author"]
-        self.downloads = dic["downloads"]
-        self.likes = dic["likes"]
-        self.comments = dic["comments"]
-        self.bugreports = dic["bugreports"]
-        self.date = QtCore.QDateTime.fromTime_t(dic['date']).toString("yyyy-MM-dd")
+        self.rating = dic["rating"]
+        self.reviews = dic["reviews"]
+        #self.comments = dic["comments"]
+        #self.bugreports = dic["bugreports"]
+        self.date = dic['date'][:10]
         self.isuimod = dic["ui"]
         self.link = dic["link"]  # Direct link to the zip file.
         self.thumbstr = dic["thumbnail"]  # direct url to the thumbnail file.
         self.uploadedbyuser = (self.author == self.parent.client.login)
 
-        self.thumbnail = None
+        self.thumbnail = utils.getIcon(os.path.basename(urllib.parse.unquote(self.thumbstr)))
         if self.thumbstr == "":
             self.setIcon(util.THEME.icon("games/unknown_map.png"))
         else:
@@ -335,16 +386,24 @@ class ModItem(QtWidgets.QListWidgetItem):
             if img:
                 self.setIcon(util.THEME.icon(img, False))
             else:
-                self.parent.client.mod_downloader.download_preview(name, self._map_dl_request, self.thumbstr)
+                self.parent.client.mod_downloader.download_preview(name[:-4], self._map_dl_request, self.thumbstr)
+                
+        #ensure that the icon is set
+        self.ensureIcon()
+
         self.updateVisibility()
+
+    def ensureIcon(self):
+        if self.icon() is None:
+            self.setIcon(util.THEME.icon("games/unknown_map.png"))
+        elif self.icon().isNull():
+            self.setIcon(util.THEME.icon("games/unknown_map.png"))
 
     def _on_mod_downloaded(self, modname, result):
         path, is_local = result
         icon = util.THEME.icon(path, is_local)
         self.setIcon(icon)
-
-    def updateIcon(self):
-        self.setIcon(self.thumbnail)
+        self.ensureIcon()
 
     def shouldBeVisible(self):
         p = self.parent
@@ -380,16 +439,9 @@ class ModItem(QtWidgets.QListWidgetItem):
         else:
             color = "white"
 
-        if self.isuimod:
-            self.setText(self.FORMATTER_MOD_UI.format(color=color, version=str(self.version), title=self.name,
-                                                      description=descr, author=self.author,
-                                                      downloads=str(self.downloads), likes=str(self.likes),
-                                                      date=str(self.date), modtype=modtype))
-        else:
-            self.setText(self.FORMATTER_MOD.format(color=color, version=str(self.version), title=self.name,
-                                                   description=descr, author=self.author, downloads=str(self.downloads),
-                                                   likes=str(self.likes), date=str(self.date), modtype=modtype,
-                                                   played=str(self.played)))
+        self.setText(self.FORMATTER_MOD.format(color=color, version=str(self.version), title=self.name,
+                                               description=descr, author=self.author, rating=str(self.rating),
+                                               reviews=str(self.reviews), date=str(self.date), modtype=modtype))
 
         self.setToolTip('<p width="230">%s</p>' % self.description)
 
@@ -402,17 +454,13 @@ class ModItem(QtWidgets.QListWidgetItem):
                 return self.uid < other.uid
             return self.name.lower() > other.name.lower()
         elif self.parent.sortType == "rating":
-            if self.likes == other.likes:
-                return self.downloads < other.downloads
-            return self.likes < other.likes
-        elif self.parent.sortType == "downloads":
-            if self.downloads == other.downloads:
-                return self.date < other.date
-            return self.downloads < other.downloads
+            if self.rating == other.rating:
+                return self.reviews < other.reviews
+            return self.rating < other.rating
         elif self.parent.sortType == "date":
             # guard
             if self.date is None:
                 return other.date is not None
             if self.date == other.date:
-                return self.name.lower() < other.name.lower()
+                return self.name.lower() > other.name.lower()
             return self.date < other.date

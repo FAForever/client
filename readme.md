@@ -1,3 +1,7 @@
+Development status
+==================
+This is the legacy client. The offically supported version can be found [here](https://github.com/FAForever/downlords-faf-client). The development is more or less discontinued.
+
 FA Forever Client
 =================
 

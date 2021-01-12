@@ -633,7 +633,7 @@ class ClientWindow(FormClass, BaseClass):
         self.ladderTab.layout().addWidget(self.ladder)
         self.tourneyTab.layout().addWidget(self.tourneys)
         self.replaysTab.layout().addWidget(self.replays)
-        self.mapsTab.layout().addWidget(self.mapvault.ui)
+        self.mapsTab.layout().addWidget(self.mapvault)
         self.unitdbTab.layout().addWidget(self._unitdb.db_widget)
         self.modsTab.layout().addWidget(self.modvault)
 
@@ -768,6 +768,9 @@ class ClientWindow(FormClass, BaseClass):
             self._chatMVC.connection.disconnect_()
             self._chatMVC = None
 
+        # Clear cached game files if needed
+        util.clearGameCache()
+
         # Get rid of the Tray icon
         if self.tray:
             progress.setLabelText("Removing System Tray icon")
@@ -852,6 +855,16 @@ class ClientWindow(FormClass, BaseClass):
         self.actionColoredNicknames.triggered.connect(self.update_options)
         self.actionFriendsOnTop.triggered.connect(self.update_options)
         self.actionLanguageChannels.triggered.connect(self._language_channel_config.run)
+
+        self.actionDoNotKeep.setChecked(config.Settings.get('cache/do_not_keep', type=bool, default=True))
+        self.actionForever.setChecked(config.Settings.get('cache/forever', type=bool, default=False))
+        self.actionSetYourOwnTimeInterval.setChecked(config.Settings.get('cache/own_settings', type=bool, default=False))
+        self.actionKeepCacheWhileInSession.setChecked(config.Settings.get('cache/in_session', type=bool, default=False))
+        self.actionKeepCacheWhileInSession.setVisible(config.Settings.get('cache/do_not_keep', type=bool, default=True))
+        self.actionDoNotKeep.triggered.connect(lambda: self.saveCacheSettings())
+        self.actionForever.triggered.connect(lambda: self.saveCacheSettings(own=False, forever=True))
+        self.actionSetYourOwnTimeInterval.triggered.connect(lambda: self.saveCacheSettings(own=True, forever=False))
+        self.actionKeepCacheWhileInSession.toggled.connect(self.inSessionCache)
 
         self.actionCheckPlayerAliases.triggered.connect(self.checkPlayerAliases)
 
@@ -977,6 +990,44 @@ class ClientWindow(FormClass, BaseClass):
         if ok:
             channels = [c.strip() for c in channels_input_of_user.split(';') if c]
             config.Settings.set('chat/auto_join_channels', channels)
+
+    @QtCore.pyqtSlot(bool)
+    def inSessionCache(self, value):
+        config.Settings.set('cache/in_session', value is True)
+
+    @QtCore.pyqtSlot()
+    def saveCacheSettings(self, own=False, forever=False):
+        if forever:
+            util.settings.beginGroup('cache')
+            util.settings.setValue('do_not_keep', False)
+            util.settings.setValue('forever', True)
+            util.settings.setValue('own_settings', False)
+            util.settings.setValue('number_of_days', -1)
+            util.settings.endGroup()
+            self.actionKeepCacheWhileInSession.setChecked(False)
+        elif own:
+            days, ok = QtWidgets.QInputDialog().getInt(None, 'Set time interval', 'Enter the number of days that the game data '
+                        'files will be stored', config.Settings.get('cache/number_of_days', type=int, default=30), 1, 2147483647, 10)
+            if ok and days:
+                util.settings.beginGroup('cache')
+                util.settings.setValue('do_not_keep', False)
+                util.settings.setValue('forever', False)
+                util.settings.setValue('own_settings', True)
+                util.settings.setValue('number_of_days', days)
+                util.settings.endGroup()
+                self.actionKeepCacheWhileInSession.setChecked(False)
+        else:
+            util.settings.beginGroup('cache')
+            util.settings.setValue('do_not_keep', True)
+            util.settings.setValue('forever', False)
+            util.settings.setValue('own_settings', False)
+            util.settings.setValue('number_of_days', 0)
+            util.settings.endGroup()
+        self.actionDoNotKeep.setChecked(config.Settings.get('cache/do_not_keep', type=bool, default=True))
+        self.actionForever.setChecked(config.Settings.get('cache/forever', type=bool, default=False))
+        self.actionSetYourOwnTimeInterval.setChecked(config.Settings.get('cache/own_settings', type=bool, default=False))
+
+        self.actionKeepCacheWhileInSession.setVisible(config.Settings.get('cache/do_not_keep', type=bool, default=True))
 
     def saveChat(self):
         util.settings.beginGroup("chat")

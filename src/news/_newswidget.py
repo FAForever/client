@@ -81,12 +81,26 @@ class NewsWidget(FormClass, BaseClass):
         self.newsItems .append(newsItem)
 
     # QtWebEngine has no user CSS support yet, so let's just prepend it to the HTML
-    def _injectCSS(self, body):
-        return '<style type="text/css">{}</style>'.format(self.CSS) + body
+    def _injectCSS(self, body, link, img):
+        img = '<div style="float:left;"><p style="float:left;"><img src=' + img + ' border="1px" hspace=20></p>'
+        body = body + '</div>'
+        link = '<div style="clear:left;"><a href=' + link + ' style="margin: 0px 0px 0px 20px">Open in your Web browser</a></div>'
+        return '<style type="text/css">{}</style>'.format(self.CSS) + img + body + link
+
+
 
     def itemChanged(self, current, previous):
+        if current.newsPost['external_link'] == '':
+            link = current.newsPost['link']
+        else:
+            link = current.newsPost['external_link']
         self.newsWebView.page().setHtml(self.HTML.format(title=current.newsPost['title'],
-                                                         content=self._injectCSS(current.newsPost['body']),))
+                                                         content=self._injectCSS(current.newsPost['excerpt'],
+                                                                                 link,
+                                                                                 current.newsPost['img_url']
+                                                                                 )
+                                                        )
+                                        )
 
     def linkClicked(self, url):
         webbrowser.open(url.toString())

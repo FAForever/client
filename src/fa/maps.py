@@ -42,7 +42,8 @@ def isBase(mapname):
 def getUserMaps():
     maps = []
     if os.path.isdir(getUserMapsFolder()):
-        maps = os.listdir(getUserMapsFolder())
+        for _dir in os.listdir(getUserMapsFolder()):
+            maps.append(_dir.lower())
     return maps
 
 
@@ -216,7 +217,7 @@ def genPrevFromDDS(sourcename, destname, small=False):
         raise
 
 
-def __exportPreviewFromMap(mapname, positions=None):
+def exportPreviewFromMap(mapname, positions=None):
     """
     This method auto-upgrades the maps to have small and large preview images
     """
@@ -395,7 +396,7 @@ def preview(mapname, pixmap=False):
                 return util.THEME.icon(img, False, pixmap)
 
         # Try to find in local map folder
-        img = __exportPreviewFromMap(mapname)
+        img = exportPreviewFromMap(mapname)
 
         if img and 'cache' in img and img['cache'] and os.path.isfile(img['cache']):
             logger.debug("Using fresh preview image for: " + mapname)
@@ -446,7 +447,7 @@ def processMapFolderForUpload(mapDir, positions):
     Zipping the file and creating thumbnails
     """
     # creating thumbnail
-    files = __exportPreviewFromMap(mapDir, positions)["tozip"]
+    files = exportPreviewFromMap(mapDir, positions)["tozip"]
     # abort zipping if there is insufficient previews
     if len(files) != 3:
         logger.debug("Insufficient previews for making an archive.")

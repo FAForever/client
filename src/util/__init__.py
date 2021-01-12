@@ -160,6 +160,31 @@ try:
 except:
     pass
 
+# Ensure that access time is modified (needed for cache system)
+def setAccessTime(file):
+    if os.path.exists(file):
+        curr_time = datetime.datetime.timestamp(datetime.datetime.now())
+        mtime = os.stat(file).st_mtime
+        os.utime(file, times=(curr_time, mtime))
+
+# Get rid of cached files that are stored for too long
+def clearGameCache():
+    fmod_dir = os.path.join(CACHE_DIR, 'featured_mod')
+    if os.path.exists(fmod_dir):
+        curr_time = datetime.datetime.now()
+        max_storage_time = Settings.get('cache/number_of_days', type=int, default=0)
+        if max_storage_time > -1: # -1 stands for keeping files forever
+            for _dir in ['bin', 'gamedata']:
+                dir_to_check = os.path.join(fmod_dir, _dir)
+                if os.path.exists(dir_to_check):
+                    files_to_check = []
+                    for dir, _, files in os.walk(dir_to_check):
+                        files_to_check = files
+                    for _file in files_to_check:
+                        access_time = os.path.getatime(os.path.join(dir_to_check, _file))
+                        access_time = datetime.datetime.fromtimestamp(access_time)
+                        if (curr_time - access_time).days >= max_storage_time:
+                            os.remove(os.path.join(dir_to_check, _file))
 
 def clearDirectory(directory, confirm=True):
     if os.path.isdir(directory):

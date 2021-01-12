@@ -109,6 +109,11 @@
          <string>Rating</string>
         </property>
        </item>
+       <item>
+        <property name="text">
+         <string>Size</string>
+        </property>
+       </item>
       </widget>
      </item>
      <item>
@@ -139,17 +144,12 @@
        </item>
        <item>
         <property name="text">
-         <string>UI Only</string>
+         <string>Unranked only</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>Sim only</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Uploaded by You</string>
+         <string>Ranked Only</string>
         </property>
        </item>
        <item>
@@ -173,23 +173,16 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="UIButton">
-       <property name="text">
-        <string>Manage UI Mods</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QPushButton" name="uploadButton">
        <property name="text">
-        <string>Upload Mod</string>
+        <string>Upload Map</string>
        </property>
       </widget>
      </item>
     </layout>
    </item>
    <item>
-    <widget class="QListWidget" name="modList">
+    <widget class="QListWidget" name="mapList">
      <property name="focusPolicy">
       <enum>Qt::NoFocus</enum>
      </property>

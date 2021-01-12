@@ -1,7 +1,17 @@
 0.x.x
 =====
 
-0.18.8
+0.19.0
+=====
+ * Fix broken compatibility with server
+ * Fix basic searching in vaults
+ * Implement somewhat of a cache system like in the Java client
+ * Online replay vault: fix downloading replays
+ 
+Contributors:
+ - Gatsik
+
+0.18.9
 =====
  * Online vault: display player name as "No data" instead of throwing an error
 
@@ -620,7 +630,7 @@ Bugfixes
 - Fixed colouring problem with certain names
 - Automatic login will now get disabled if login fails
 - Fixed exceptions popping up related to corrupted replays
-- Logs will no longer fill to unreasonable sizes
+- Logs will no longer fill to unreasonable sizes	
 - Many other small issues fixed
 
 

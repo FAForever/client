@@ -6,6 +6,8 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 import datetime
 from util import strtodate, datetostr
 import util
+from modvault import utils
+import os
 
 FormClass, BaseClass = util.THEME.loadUiType("modvault/mod.ui")
 
@@ -29,10 +31,17 @@ class ModWidget(FormClass, BaseClass):
         modtext = ""
         if mod.isuimod: modtext = "UI mod\n"
         self.Info.setText(modtext + "By %s\nUploaded %s" % (mod.author, str(mod.date)))
+        mod.thumbnail = utils.getIcon(os.path.basename(urllib.parse.unquote(mod.thumbstr)))
         if mod.thumbnail is None:
             self.Picture.setPixmap(util.THEME.pixmap("games/unknown_map.png"))
         else:
-            self.Picture.setPixmap(mod.thumbnail.pixmap(100, 100))
+            self.Picture.setPixmap(util.THEME.pixmap(mod.thumbnail))
+        
+        #ensure that pixmap is set
+        if self.Picture.pixmap() is None:
+            self.Picture.setPixmap(util.THEME.pixmap("games/unknown_map.png"))
+        elif self.Picture.pixmap().isNull():
+            self.Picture.setPixmap(util.THEME.pixmap("games/unknown_map.png"))
 
         #self.Comments.setItemDelegate(CommentItemDelegate(self))
         #self.BugReports.setItemDelegate(CommentItemDelegate(self))
