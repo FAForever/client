@@ -105,7 +105,7 @@ class ChatterMenu:
         if player is None:
             return
         else:
-            if self._client_window.games.labelTeammate.text() == player.login: #probably better to find a way to compare id
+            if self._client_window.games.labelTeammate.text() == player.login or player.currentGame is not None: #probably better to find a way to compare id
                 return
             else:
                 yield ChatterMenuItems.INVITE_TO_PARTY
