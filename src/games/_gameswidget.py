@@ -346,7 +346,11 @@ class GamesWidget(FormClass, BaseClass):
     def stopSearchRanked(self, mod, *args):
         if self.searching[mod]:
             logger.debug("Stopping Ranked Search")
-            self.client.lobby_connection.send(dict(command="game_matchmaking", mod=mod, state="stop"))
+            if self.party.size > 1:          
+                if self.party.owner_id == self._me.id:
+                    self.client.lobby_connection.send(dict(command="game_matchmaking", mod=mod, state="stop"))
+            else:
+                self.client.lobby_connection.send(dict(command="game_matchmaking", mod=mod, state="stop"))
             self.searching[mod] = False
             self.match_found[mod] = False
 
