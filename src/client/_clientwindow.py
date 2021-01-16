@@ -1355,9 +1355,9 @@ class ClientWindow(FormClass, BaseClass):
         elif self.games.match_found["tmm2v2"]:
             arguments.append('/' + Factions.to_name(self.games.race["tmm2v2"]))
             arguments.append('/mean')
-            arguments.append(str(self.me.player.rating_mean))
+            arguments.append(str(self.me.player.tmm_rating_mean))
             arguments.append('/deviation')
-            arguments.append(str(self.me.player.rating_deviation))
+            arguments.append(str(self.me.player.tmm_rating_deviation))
 
             arguments.append('/numgames')
             arguments.append(str(message["args"][1]))
