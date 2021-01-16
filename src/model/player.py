@@ -12,7 +12,7 @@ class Player(ModelItem):
     def __init__(self,
                  id_,
                  login,
-                 ratings={'global_rating': (1500,500),'ladder_rating': (1500,500)},
+                 ratings={},
                  global_rating=(1500, 500),
                  ladder_rating=(1500, 500),
                  number_of_games=0,
@@ -82,6 +82,16 @@ class Player(ModelItem):
         return int(max(0, (self.ladder_rating[0] - 3 * self.ladder_rating[1])))
 
     @property
+    def tmm_estimate(self):
+        """
+        Get the conservative estimate of the players tmm2v2 trueskill rating
+        """
+        try:
+            return int(max(0, (self.ratings["tmm_2v2"]["rating"][0] - 3 * self.ratings["tmm_2v2"]["rating"][1])))
+        except:
+            return 0
+
+    @property
     def rating_mean(self):
         return self.global_rating[0]
 
@@ -96,6 +106,31 @@ class Player(ModelItem):
     @property
     def ladder_rating_deviation(self):
         return self.ladder_rating[1]
+
+    @property
+    def ladder_number_of_games(self):
+        return self.ratings["ladder_1v1"]["number_of_games"]
+
+    @property
+    def tmm_rating_mean(self):
+        try:
+            return self.ratings["tmm_2v2"]["rating"][0]
+        except:
+            return 1500
+    
+    @property
+    def tmm_rating_deviation(self):
+        try:
+            return self.ratings["tmm_2v2"]["rating"][1]
+        except:
+            return 500
+    
+    @property
+    def tmm_number_of_games(self):
+        try:
+            return self.ratings["tmm_2v2"]["number_of_games"]
+        except:
+            return 0
 
     def __repr__(self):
         return self.__str__()
