@@ -251,7 +251,7 @@ QToolBox#replayToolBox::tab
 }
 
 /* Text controls */
-QTextEdit, QPlainTextEdit, QLineEdit, QListWidget, QListView, QTableWidget, QTreeWidget, QFrame#rankedFrame, QFrame#teamFaction, QFrame#teamSearch
+QTextEdit, QPlainTextEdit, QLineEdit, QListWidget, QListView, QTableWidget, QTreeWidget, QFrame#rankedFrame, #teamFaction, #teamSearch, #tmmFrame
 {
     border-style:solid;
     border-width:1px;
@@ -282,7 +282,7 @@ QHeaderView::section {
 }
 
 /* Modlist */
-QFrame#rankedFrame
+QFrame#rankedFrame, #tmmFrame
 {
     border-style:solid;
     border-width:1px;
@@ -469,7 +469,7 @@ QCheckBox#hideGamesWithPw
     background-color: #111111;
 }
 
-QLabel#labelSortGames,#labelJoinGame,#labelHostGame,#labelAutomatch,#labelMyReplays,#labelLiveReplays,#labelHostTournament,#labelJoinTournament,#joinLabel,#labelTeamManagement
+QLabel#labelSortGames,#labelJoinGame,#labelHostGame,#labelAutomatch,#labelMyReplays,#labelLiveReplays,#labelHostTournament,#labelJoinTournament,#joinLabel,#labelTeamManagement,#labelTMM
 {
     color:white;
 }
@@ -524,13 +524,13 @@ QCheckBox#spoilerCheckbox::indicator:checked, #automaticCheckbox::indicator:chec
  }
 
 /* Used for Ranked Buttons only at the moment*/
-QToolButton#rankedPlay
+QToolButton#rankedPlay, #tmmPlay
 {
 	color: silver;
 	border-radius: 5px;
 	border: 1px solid grey;
 }
-QToolButton#laddermapspool
+QToolButton#laddermapspool,#showTMM
 {
 	color: silver;
 	border-radius: 5px;
@@ -567,7 +567,7 @@ QToolButton::checked
     border-radius : 5px;
  }
  
-QPushButton#searchButton, #advSearchButton, #fafDbButton, #spookyDbButton
+QPushButton#searchButton, #advSearchButton, #fafDbButton, #spookyDbButton, #kickButton, #leaveButton
 {
 	color: silver;
 	border-radius: 5px;

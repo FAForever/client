@@ -17,6 +17,7 @@ class Notifications:
     NEW_GAME = 'new_game'
     GAME_FULL = 'game_full'
     UNOFFICIAL_CLIENT = 'unofficial_client'
+    PARTY_INVITE = 'party_invite'
 
     def __init__(self, client, gameset, playerset, me):
         self.client = client
@@ -33,6 +34,7 @@ class Notifications:
         client.game_exit.connect(self.gameExit)
         client.game_full.connect(self._gamefull)
         client.unofficial_client.connect(self.unofficialClient)
+        client.party_invite.connect(self.partyInvite)
         gameset.newLobby.connect(self._newLobby)
         playerset.added.connect(self._newPlayer)
 
@@ -68,7 +70,8 @@ class Notifications:
     def _gamefull(self):
         if self.isDisabled() or not self.settings.popupEnabled(self.GAME_FULL):
             return
-        self.events.append((self.GAME_FULL, None))
+        if (self.GAME_FULL, None) not in self.events:
+            self.events.append((self.GAME_FULL, None))
         self.checkEvent()
         
     def unofficialClient(self, msg):
@@ -81,6 +84,13 @@ class Notifications:
         self.events.append((self.UNOFFICIAL_CLIENT, msg))
         self.checkEvent()
 
+    def partyInvite(self, message):
+        notify_mode = self.settings.getCustomSetting(self.PARTY_INVITE, 'mode')
+        if notify_mode != 'all' and not self.me.relations.model.is_friend(message["sender"]):
+            return
+        self.events.append((self.PARTY_INVITE, message))
+        self.checkEvent()
+    
     def gameEnter(self):
         self.game_running = True
 
@@ -159,6 +169,13 @@ class Notifications:
             text = '<html><br><font color="silver" size="-2">%s</font></html>' % \
                     (data)
             self.dialog.newEvent(pixmap, text, 10, False, 200)
+            return
+        elif eventType == self.PARTY_INVITE:
+            pixmap = self.user
+            
+            text = '<html>%s<br><font color="silver" size="-2">invites you to his party</font></html>' % \
+                   (str(self.client.players[data["sender"]].login))
+            self.dialog.newEvent(pixmap, text, 15, self.settings.soundEnabled(eventType), hide_accept = False, sender_id = data["sender"])
             return
 
         self.dialog.newEvent(pixmap, text, self.settings.popup_lifetime, self.settings.soundEnabled(eventType))

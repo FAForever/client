@@ -99,6 +99,7 @@ class ClientWindow(FormClass, BaseClass):
     unofficial_client = QtCore.pyqtSignal(str)
 
     matchmaker_info = QtCore.pyqtSignal(dict)
+    party_invite = QtCore.pyqtSignal(dict)
 
     remember = config.Settings.persisted_property('user/remember', type=bool, default_value=True)
     login = config.Settings.persisted_property('user/login', persist_if=lambda self: self.remember)
@@ -196,7 +197,11 @@ class ClientWindow(FormClass, BaseClass):
         self.lobby_dispatch["invalid"] = self.handle_invalid
         self.lobby_dispatch["welcome"] = self.handle_welcome
         self.lobby_dispatch["authentication_failed"] = self.handle_authentication_failed
-
+        self.lobby_dispatch["update_party"] = self.handle_update_party
+        self.lobby_dispatch["kicked_from_party"] = self.handle_kicked_from_party
+        self.lobby_dispatch["party_invite"] = self.handle_party_invite
+        self.lobby_dispatch["match_found"] = self.handle_match_found_message
+        self.lobby_dispatch["search_info"] = self.handle_search_info
         self.lobby_info.social.connect(self.handle_social)
 
         # Process used to run Forged Alliance (managed in module fa)
@@ -663,7 +668,7 @@ class ClientWindow(FormClass, BaseClass):
             button = QtWidgets.QToolButton(self)
             button.setMaximumSize(25, 25)
             button.setIcon(util.THEME.icon("games/automatch/%s.png" % faction.to_name()))
-            button.clicked.connect(partial(self.games.startSearchRanked, faction))
+            button.clicked.connect(partial(self.games.startSearchRanked, faction, mod="ladder1v1"))
             self.warning.addWidget(button)
             return button
 
@@ -1280,15 +1285,20 @@ class ClientWindow(FormClass, BaseClass):
 
         self.handle_notice({"style": "notice", "text": message["error"]})
 
-    def search_ranked(self, faction):
+    def search_ranked(self, mod, faction):
         msg = {
             'command': 'game_matchmaking',
-            'mod': 'ladder1v1',
+            'mod': mod,
             'state': 'start',
             'gameport': 0,
             'faction': faction
         }
         self.lobby_connection.send(msg)
+
+    def handle_match_found_message(self, message):
+            logger.info("Handling match_found via JSON {}".format(message))
+            queue_name = message["queue_name"]
+            self.games.match_found[queue_name] = True
 
     def host_game(self, title, mod, visibility, mapname, password, is_rehost=False):
         msg = {
@@ -1324,15 +1334,38 @@ class ClientWindow(FormClass, BaseClass):
 
         # HACK: Ideally, this comes from the server, too. LATER: search_ranked message
         arguments = []
-        if message["mod"] == "ladder1v1":
-            arguments.append('/' + Factions.to_name(self.games.race))
+        if self.games.match_found["ladder1v1"]:
+            arguments.append('/' + Factions.to_name(self.games.race["ladder1v1"]))
             # Player 1v1 rating
             arguments.append('/mean')
             arguments.append(str(self.me.player.ladder_rating_mean))
             arguments.append('/deviation')
             arguments.append(str(self.me.player.ladder_rating_deviation))
+
+            arguments.append('/numgames')
+            arguments.append(str(message["args"][1])) # example: 'args': ['/numgames', 100]
             arguments.append('/players 2')  # Always 2 players in 1v1 ladder
-            arguments.append('/team 1')     # Always FFA team
+            #arguments.append('/team 1')     # Always FFA team
+            arguments.append('/team')
+            arguments.append(str(message["team"]))
+
+            # Launch the auto lobby
+            self.game_session.setLobbyInitMode("auto")
+
+        elif self.games.match_found["tmm2v2"]:
+            arguments.append('/' + Factions.to_name(self.games.race["tmm2v2"]))
+            arguments.append('/mean')
+            arguments.append(str(self.me.player.tmm_rating_mean))
+            arguments.append('/deviation')
+            arguments.append(str(self.me.player.tmm_rating_deviation))
+
+            arguments.append('/numgames')
+            arguments.append(str(message["args"][1]))
+            arguments.append('/players 4') # 2v2 match - must be 4 players
+            arguments.append('/team')
+            arguments.append(str(message["team"]))
+            arguments.append('/startspot')
+            arguments.append(str(message["map_position"]))
 
             # Launch the auto lobby
             self.game_session.setLobbyInitMode("auto")
@@ -1380,7 +1413,7 @@ class ClientWindow(FormClass, BaseClass):
         if "action" in message:
             self.matchmaker_info.emit(message)
         elif "queues" in message:
-            if self.me.player.ladder_rating_deviation > 200 or self.games.searching:
+            if self.me.player.ladder_rating_deviation > 200 or self.games.searching["ladder1v1"]:
                 return
             key = 'boundary_80s' if self.me.player.ladder_rating_deviation < 100 else 'boundary_75s'
             show = False
@@ -1390,6 +1423,8 @@ class ClientWindow(FormClass, BaseClass):
                     for min, max in q[key]:
                         if min < mu < max:
                             show = True
+                elif q['queue_name'] == 'tmm2v2':
+                    self.games.labelInQueue.setText(str(q['num_players']))
             if show:
                 self.warningShow()
             else:
@@ -1460,3 +1495,43 @@ class ClientWindow(FormClass, BaseClass):
 
     def emit_game_full(self):
         self.game_full.emit()
+
+    def invite_to_party(self, recipient_id):
+        msg = {
+            'command': 'invite_to_party',
+            'recipient_id': recipient_id,
+        }
+        self.lobby_connection.send(msg)
+    
+    def handle_party_invite(self, message):
+        logger.info("Handling party_invite via JSON {}".format(message))
+        self.party_invite.emit(message)
+        
+    def handle_update_party(self, message):
+        logger.info("Handling update_party via JSON {}".format(message))
+        self.games.updateParty(message)
+
+    def handle_kicked_from_party(self, message):
+        QtWidgets.QMessageBox.information(None, "Kicked", "You were kicked from party")
+        msg = {
+            "owner": self.me.id,
+            "members": [
+                {
+                    "player": self.me.id,
+                    "factions": ["uef", "cybran", "aeon", "seraphim"]
+                }
+            ]
+        }
+        self.games.updateParty(msg)
+    
+    def set_faction(self, faction):
+        logger.info("Setting party factions to {}".format(faction))
+        msg = {
+            'command': 'set_party_factions',
+            'factions': faction
+        }
+        self.lobby_connection.send(msg)
+    
+    def handle_search_info(self, message):
+        if message["queue_name"] == "tmm2v2":
+            self.games.handle_tmm_search_info(message)
