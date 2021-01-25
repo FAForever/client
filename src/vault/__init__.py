@@ -13,6 +13,7 @@ from config import Settings
 
 from ui.busy_widget import BusyWidget
 from api.vaults_api import MapApiConnector
+from api.vaults_api import MapPoolApiConnector
 from downloadManager import DownloadRequest
 from .mapwidget import MapWidget
 import shutil
@@ -75,7 +76,10 @@ class MapVault(FormClass, BaseClass, BusyWidget):
         self._maps = {}
         self.installed_maps = maps.getUserMaps()
 
-        self.apiConnector = MapApiConnector(self.client.lobby_dispatch)
+        self.mapApiConnector = MapApiConnector(self.client.lobby_dispatch)
+        self.mapPoolApiConnector = MapPoolApiConnector(1, self.client.lobby_dispatch)
+
+        self.apiConnector = self.mapApiConnector
         self.busy_entered()
 
     @QtCore.pyqtSlot(int)
@@ -100,7 +104,7 @@ class MapVault(FormClass, BaseClass, BusyWidget):
         self.pageNumber = self.pageBox.value()
         self.pageBox.setValue(self.pageNumber)
         self.updateQuery(self.pageNumber)
-        self.apiConnector.requestMap(self.searchQuery)
+        self.apiConnector.requestData(self.searchQuery)
         self.updateVisibilities()
 
     @QtCore.pyqtSlot(dict)
@@ -113,6 +117,7 @@ class MapVault(FormClass, BaseClass, BusyWidget):
 
     @QtCore.pyqtSlot(bool)
     def resetSearch(self):
+        self.apiConnector = self.mapApiConnector
         self.searchString = ''
         self.searchInput.clear()
         self.searchQuery = dict(include = 'latestVersion,reviewsSummary')
@@ -168,9 +173,15 @@ class MapVault(FormClass, BaseClass, BusyWidget):
         if self.searchString == '' or self.searchString.replace(' ', '') == '':
             self.resetSearch()
         else:
+            self.apiConnector = self.mapApiConnector
             self.searchString = self.searchString.strip()
             self.searchQuery = dict(include = 'latestVersion,reviewsSummary', filter = 'displayName==' + '"*' + self.searchString + '*"')
             self.goToPage(1)
+    
+    def requestMapPool(self, id):
+        self.apiConnector = MapPoolApiConnector(id, self.client.lobby_dispatch)
+        self.searchQuery = dict(include = 'map,reviewsSummary')
+        self.goToPage(1)
 
     @QtCore.pyqtSlot()
     def busy_entered(self):
@@ -388,7 +399,7 @@ class MapItem(QtWidgets.QListWidgetItem):
         self._map_dl_request.done.connect(self._on_map_downloaded)
 
     def update(self, dic):
-        self.name = dic["name"]
+        self.name = maps.getDisplayName(dic["folderName"])
         self.description = dic["description"]
         self.version = dic["version"]
         self.maxPlayers = dic["maxPlayers"]
@@ -447,7 +458,7 @@ class MapItem(QtWidgets.QListWidgetItem):
         elif p.showType == "ranked":
             return not self.unranked
         elif p.showType == "installed":
-            return self.folderName in self.parent.installed_maps
+            return maps.isMapAvailable(self.folderName)
         else:  # shouldn't happen
             return True
 
@@ -461,7 +472,7 @@ class MapItem(QtWidgets.QListWidgetItem):
         maptype = ""
         if self.unranked:
             maptype = "Unranked map"
-        if self.folderName in self.parent.installed_maps:
+        if maps.isMapAvailable(self.folderName):
             color = "green"
         else:
             color = "white"
