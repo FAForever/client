@@ -42,7 +42,10 @@ class MapWidget(FormClass, BaseClass):
         self.Picture.setPixmap(util.THEME.pixmap("games/unknown_map.png"))
         self.updatePreview()
 
-        if self._map.folderName in self.parent.installed_maps:
+        if maps.isBase(self._map.folderName):
+            self.DownloadButton.setText("This is a base map")
+            self.DownloadButton.setEnabled(False)            
+        elif maps.isMapAvailable(self._map.folderName):
             self.DownloadButton.setText("Remove Map")
 
         self.DownloadButton.clicked.connect(self.download)
@@ -52,7 +55,7 @@ class MapWidget(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def download(self):
-        if self._map.folderName not in self.parent.installed_maps:
+        if not maps.isMapAvailable(self._map.folderName):
             self.parent.downloadMap(self._map.link)
             self.done(1)
         else:
