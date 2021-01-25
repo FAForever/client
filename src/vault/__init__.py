@@ -447,7 +447,7 @@ class MapItem(QtWidgets.QListWidgetItem):
         elif p.showType == "ranked":
             return not self.unranked
         elif p.showType == "installed":
-            return self.folderName in self.parent.installed_maps
+            return maps.isMapAvailable(self.folderName)
         else:  # shouldn't happen
             return True
 
@@ -461,7 +461,7 @@ class MapItem(QtWidgets.QListWidgetItem):
         maptype = ""
         if self.unranked:
             maptype = "Unranked map"
-        if self.folderName in self.parent.installed_maps:
+        if maps.isMapAvailable(self.folderName):
             color = "green"
         else:
             color = "white"
