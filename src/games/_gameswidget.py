@@ -250,7 +250,17 @@ class GamesWidget(FormClass, BaseClass):
             self.startSearchRanked(race=race, mod=mod)
 
     def startViewLadderMapsPool(self):
-        QDesktopServices.openUrl(QUrl(Settings.get("MAPPOOL_URL")))
+        if self._me.id is None:
+            QDesktopServices.openUrl(QUrl(Settings.get("MAPPOOL_URL")))
+        else:
+            pool = (self.client.players[self._me.id].ladder_estimate() + 700) // 500
+            if pool < 1:
+                pool = 1
+            elif pool > 5:
+                pool = 5
+            self.client.mapvault.requestMapPool(pool)
+            self.client.mainTabs.setCurrentIndex(self.client.mainTabs.indexOf(self.client.vaultsTab))
+            self.client.topTabs.setCurrentIndex(0)
 
     def generateSelectSubset(self, mod):
         if self.searching[mod]:  # you cannot search for a match while changing/creating the UI
