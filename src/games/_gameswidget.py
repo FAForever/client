@@ -261,6 +261,20 @@ class GamesWidget(FormClass, BaseClass):
             self.client.mapvault.requestMapPool(pool)
             self.client.mainTabs.setCurrentIndex(self.client.mainTabs.indexOf(self.client.vaultsTab))
             self.client.topTabs.setCurrentIndex(0)
+    
+    def startViewTmmMapsPool(self):
+        if self._me.id is None:
+            QDesktopServices.openUrl(QUrl("https://forum.faforever.com/topic/854/team-matchmaker-beta-release-now-available")) #still has no proper link on forum
+        else:
+            pool = (self.client.players[self._me.id].tmm_estimate + 700) // 500
+            if pool < 1:
+                pool = 1
+            elif pool > 5:
+                pool = 5
+            pool += 5
+            self.client.mapvault.requestMapPool(pool)
+            self.client.mainTabs.setCurrentIndex(self.client.mainTabs.indexOf(self.client.vaultsTab))
+            self.client.topTabs.setCurrentIndex(0)
 
     def generateSelectSubset(self, mod):
         if self.searching[mod]:  # you cannot search for a match while changing/creating the UI
@@ -274,6 +288,7 @@ class GamesWidget(FormClass, BaseClass):
         else:
             self.tmmPlay.clicked.connect(partial(self.startSubRandomRankedSearch,mod=mod))
             self.tmmPlay.show()
+            self.tmmmapspool.clicked.connect(self.startViewTmmMapsPool)
         
         for faction, icon in list(self._ranked_icons[mod].items()):
             try:
@@ -460,11 +475,13 @@ class GamesWidget(FormClass, BaseClass):
     def showTmmFrame(self):
         self.labelTMM.show()
         self.tmmFrame.show()
+        self.tmmmapspool.show()
         self.showTMM.setText("Hide 2 vs 2 section")
     
     def hideTmmFrame(self):
         self.labelTMM.hide()
         self.tmmFrame.hide()
+        self.tmmmapspool.hide()
         self.showTMM.setText("Show 2 vs 2 section")
     
     def setTmmFrame(self):

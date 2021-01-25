@@ -474,6 +474,12 @@
           <height>25</height>
          </size>
         </property>
+        <property name="whatsThis">
+         <string extracomment="Show the team matchmaking maps pool"/>
+        </property>
+        <property name="autoFillBackground">
+         <bool>true</bool>
+        </property>
         <property name="text">
          <string>Show 2 vs 2 section</string>
         </property>
@@ -491,6 +497,31 @@
         </property>
         <property name="text">
          <string>2 vs 2 Automatch</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="tmmmapspool">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="whatsThis">
+         <string extracomment="Show the team matchmaker maps pool"/>
+        </property>
+        <property name="autoFillBackground">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string>View TMM maps pool</string>
         </property>
        </widget>
       </item>
