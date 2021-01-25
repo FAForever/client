@@ -530,11 +530,17 @@ QToolButton#rankedPlay, #tmmPlay
 	border-radius: 5px;
 	border: 1px solid grey;
 }
-QToolButton#laddermapspool,#showTMM
+QToolButton#laddermapspool,#tmmmapspool
 {
 	color: silver;
 	border-radius: 5px;
 	border: 1px solid grey;
+}
+
+QToolButton#showTMM
+{
+    color: silver;
+    border: 0.5px solid black;
 }
 
 QToolButton::pressed
