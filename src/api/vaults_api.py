@@ -47,11 +47,8 @@ class MapApiConnector(ApiBase):
     def __init__(self, dispatch):
         ApiBase.__init__(self, '/data/map')
         self.dispatch = dispatch
-
-    def requestData(self):
-        self.request({}, self.handleData)
     
-    def requestMap(self, query={}):
+    def requestData(self, query={}):
         self.request(query, self.handleData)
 
     def handleData(self, message, meta):
@@ -85,4 +82,45 @@ class MapApiConnector(ApiBase):
                 if reviews > 0:
                     preparedData['rating'] = float('{:1.2f}'.format(score/reviews))
                     preparedData['reviews'] = reviews
-            self.dispatch.dispatch(preparedData)   
+            self.dispatch.dispatch(preparedData)
+
+class MapPoolApiConnector(ApiBase):
+    def __init__(self, id, dispatch):
+        ApiBase.__init__(self, '/data/mapPool/' + str(id) + '/mapVersions')
+        self.dispatch = dispatch
+    
+    def requestData(self, query={}):
+        self.request(query, self.handleData)
+    
+    def handleData(self, message, meta):
+        if len(meta)>0:
+            data = dict(
+                 command = 'vault_meta'
+                ,page = meta['meta']['page']
+            )
+            self.dispatch.dispatch(data)
+        for _map in message:
+            preparedData = dict(
+                 command = 'mapvault_info'
+                ,name = _map['map']['displayName']
+                ,folderName = _map['folderName']
+                ,link = _map['downloadUrl']
+                ,description = _map['description']
+                ,maxPlayers = _map['maxPlayers']
+                ,version = _map['version']
+                ,ranked = _map['ranked']
+                ,thumbnailSmall = _map['thumbnailUrlSmall']
+                ,thumbnailLarge = _map['thumbnailUrlLarge']
+                ,date = _map['updateTime']
+                ,height = _map['height']
+                ,width = _map['width']
+                ,rating = 0
+                ,reviews = 0
+            )
+            if len(_map['reviewsSummary']) > 0:
+                score = _map['reviewsSummary']['score']
+                reviews = _map['reviewsSummary']['reviews']
+                if reviews > 0:
+                    preparedData['rating'] = float('{:1.2f}'.format(score/reviews))
+                    preparedData['reviews'] = reviews
+            self.dispatch.dispatch(preparedData)
