@@ -388,7 +388,7 @@ class MapItem(QtWidgets.QListWidgetItem):
         self._map_dl_request.done.connect(self._on_map_downloaded)
 
     def update(self, dic):
-        self.name = dic["name"]
+        self.name = maps.getDisplayName(dic["folderName"])
         self.description = dic["description"]
         self.version = dic["version"]
         self.maxPlayers = dic["maxPlayers"]
