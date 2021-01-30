@@ -1413,16 +1413,17 @@ class ClientWindow(FormClass, BaseClass):
         if "action" in message:
             self.matchmaker_info.emit(message)
         elif "queues" in message:
-            if self.me.player.ladder_rating_deviation > 200 or self.games.searching["ladder1v1"]:
-                return
             key = 'boundary_80s' if self.me.player.ladder_rating_deviation < 100 else 'boundary_75s'
             show = False
             for q in message['queues']:
                 if q['queue_name'] == 'ladder1v1':
-                    mu = self.me.player.ladder_rating_mean
-                    for min, max in q[key]:
-                        if min < mu < max:
-                            show = True
+                    if self.me.player.ladder_rating_deviation > 200 or self.games.searching["ladder1v1"]:
+                        show = False
+                    else:
+                        mu = self.me.player.ladder_rating_mean
+                        for min, max in q[key]:
+                            if min < mu < max:
+                                show = True
                 elif q['queue_name'] == 'tmm2v2':
                     self.games.labelInQueue.setText(str(q['num_players']))
             if show:
