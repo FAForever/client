@@ -1465,8 +1465,10 @@ class ClientWindow(FormClass, BaseClass):
         if "text" in message:
             style = message.get('style', None)
             if style == "error":
+                logger.error("Received an error message from server: {}".format(message))
                 QtWidgets.QMessageBox.critical(self, "Error from Server", message["text"])
             elif style == "warning":
+                logger.warning("Received warning message from server: {}".format(message))
                 QtWidgets.QMessageBox.warning(self, "Warning from Server", message["text"])
             elif style == "scores":
                 self.tray.showMessage("Scores", message["text"], QtWidgets.QSystemTrayIcon.Information, 3500)
@@ -1533,5 +1535,6 @@ class ClientWindow(FormClass, BaseClass):
         self.lobby_connection.send(msg)
     
     def handle_search_info(self, message):
+        logger.info("Handling search_info via JSON: {}".format(message))
         if message["queue_name"] == "tmm2v2":
             self.games.handle_tmm_search_info(message)
