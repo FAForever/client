@@ -55,4 +55,5 @@ class WPAPI(QtCore.QObject):
     def download(self, page=1, perpage=10):
         url = QtCore.QUrl(WPAPI_ROOT.format(page=page, perpage=perpage))
         request = QNetworkRequest(url)
+        request.setAttribute(QNetworkRequest.FollowRedirectsAttribute, True)
         self.nam.get(request)
