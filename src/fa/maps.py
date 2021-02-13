@@ -415,9 +415,10 @@ def downloadMap(name, silent=False):
     link = name2link(name)
     ret, msg = _doDownloadMap(name, link, silent)
     if not ret:
-        name = name.replace(" ", "_")
-        link = name2link(name)
-        ret, msg = _doDownloadMap(name, link, silent)
+        if msg is None:
+            name = name.replace(" ", "_")
+            link = name2link(name)
+            ret, msg = _doDownloadMap(name, link, silent)
         if not ret:
             msg()
             return ret
