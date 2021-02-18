@@ -101,6 +101,7 @@ class HostGameWidget(FormClass, BaseClass):
         self.load_stylesheet()
         self.mapList.currentIndexChanged.connect(self.map_changed)
         self.hostButton.released.connect(self.hosting)
+        self.generateButton.released.connect(self.generateMap)
         self.titleEdit.textChanged.connect(self.update_text)
         self.passCheck.toggled.connect(self.update_pass_check)
         self.radioFriends.toggled.connect(self.update_visibility)
@@ -123,20 +124,7 @@ class HostGameWidget(FormClass, BaseClass):
 
         self._preview_model.add_game(self.game)
 
-        i = 0
-        index = 0
-        if game.featured_mod != "coop":
-            allmaps = {}
-            for map_ in list(maps.maps.keys()) + maps.getUserMaps():
-                allmaps[map_] = maps.getDisplayName(map_)
-            for (map_, name) in sorted(iter(allmaps.items()), key=lambda x: x[1]):
-                if map_ == game.mapname:
-                    index = i
-                self.mapList.addItem(name, map_)
-                i = i + 1
-            self.mapList.setCurrentIndex(index)
-        else:
-            self.mapList.hide()
+        self.setupMapList()
 
         # this makes it so you can select every non-ui_only mod
         for mod in modvault.utils.getInstalledMods():
@@ -159,6 +147,27 @@ class HostGameWidget(FormClass, BaseClass):
         self.mods.clear()
         self.modList.clear()
 
+    def setupMapList(self):
+        '''
+        Need this as separate function so it can be called after generateMap()
+        '''
+        self.mapList.clear()
+
+        game = self.game
+        i = 0
+        index = 0
+        if game.featured_mod != "coop":
+            allmaps = {}
+            for map_ in list(maps.maps.keys()) + maps.getUserMaps():
+                allmaps[map_] = maps.getDisplayName(map_)
+            for (map_, name) in sorted(iter(allmaps.items()), key=lambda x: x[1]):
+                if map_ == game.mapname:
+                    index = i
+                self.mapList.addItem(name, map_)
+                i = i + 1
+            self.mapList.setCurrentIndex(index)
+        else:
+            self.mapList.hide()   
 
     def set_map(self, mapname):
         for i in range(self.mapList.count()):
@@ -210,6 +219,11 @@ class HostGameWidget(FormClass, BaseClass):
             util.settings.setValue("password", self.password)
         util.settings.endGroup()
 
+    def generateMap(self):
+        map = self.client.map_generator.generateRandomMap()
+        if map:
+            self.setupMapList()
+            self.set_map(map)
 
 def build_launcher(playerset, me, client, view_builder, map_preview_dler):
     model = GameModel(me, map_preview_dler)

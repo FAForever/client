@@ -11,6 +11,8 @@ from fa.mods import checkMods
 from fa.path import writeFAPathLua, validatePath
 from fa.wizards import Wizard
 import util
+from mapGenerator.mapgenUtils import isGeneratedMap
+import client
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +26,9 @@ def map_(mapname, force=False, silent=False):
     if fa.maps.isMapAvailable(mapname):
         logger.info("Map is available.")
         return True
+
+    if isGeneratedMap(mapname):
+        return client.instance.map_generator.generateMap(mapname)
 
     if force:
         return fa.maps.downloadMap(mapname, silent=silent)

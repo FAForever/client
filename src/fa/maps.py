@@ -20,6 +20,8 @@ import fa
 from config import Settings
 from vault.dialogs import downloadVaultAssetNoMsg
 
+from mapGenerator.mapgenUtils import isGeneratedMap
+
 logger = logging.getLogger(__name__)
 
 route = Settings.get('content/host')
@@ -239,7 +241,10 @@ def exportPreviewFromMap(mapname, positions=None):
         return previews
 
     mapname = os.path.basename(mapdir).lower()
-    mapfilename = os.path.join(mapdir, mapname.split(".")[0]+".scmap")
+    if isGeneratedMap(mapname):
+        mapfilename = os.path.join(mapdir, mapname+".scmap")    
+    else:
+        mapfilename = os.path.join(mapdir, mapname.split(".")[0]+".scmap")
 
     mode = os.stat(mapdir)[0]
     if not (mode and stat.S_IWRITE):
