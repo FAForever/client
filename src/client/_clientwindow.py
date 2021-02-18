@@ -37,6 +37,7 @@ from downloadManager import PreviewDownloader, AvatarDownloader, \
 from fa.factions import Factions
 from fa.game_runner import GameRunner
 from fa.maps import getUserMapsFolder
+from mapGenerator.mapgenManager import MapGeneratorManager
 from games.gameitem import GameViewBuilder
 from games.gamemodel import GameModel
 from games.hostgamewidget import build_launcher
@@ -181,6 +182,9 @@ class ClientWindow(FormClass, BaseClass):
         self.map_downloader = PreviewDownloader(util.MAP_PREVIEW_SMALL_DIR, util.MAP_PREVIEW_LARGE_DIR, MAP_PREVIEW_ROOT)
         self.mod_downloader = PreviewDownloader(util.MOD_PREVIEW_DIR, None, None)
         self.avatar_downloader = AvatarDownloader()
+
+        # Map generator
+        self.map_generator = MapGeneratorManager()
 
         # Qt model for displaying active games.
         self.game_model = GameModel(self.me, self.map_downloader, self.gameset)
