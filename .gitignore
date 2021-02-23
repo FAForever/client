@@ -11,9 +11,7 @@
 *.pydev*
 *.vcproj
 .idea/
-lib/faf-uid
-lib/faf-uid.exe
-ice-adapter/
+lib/
 build/
 dist/
 Thumbs.db
@@ -26,7 +24,6 @@ client_venv
 *.egg-info
 .vagrant
 .cache
-#new
 *.dll
 *.exe
 *.pac
