@@ -250,7 +250,7 @@
       </size>
      </property>
      <property name="text">
-      <string>Generate map</string>
+      <string>Map Generator</string>
      </property>
     </widget>
    </item>

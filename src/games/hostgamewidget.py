@@ -6,6 +6,7 @@ import util
 import fa.check
 from model.game import Game, GameState, GameVisibility
 from games.gamemodel import GameModel
+import games.mapgenoptionsdialog as MapGenDialog
 
 import logging
 logger = logging.getLogger(__name__)
@@ -219,11 +220,10 @@ class HostGameWidget(FormClass, BaseClass):
             util.settings.setValue("password", self.password)
         util.settings.endGroup()
 
+    @QtCore.pyqtSlot()
     def generateMap(self):
-        map = self.client.map_generator.generateRandomMap()
-        if map:
-            self.setupMapList()
-            self.set_map(map)
+        dialog = MapGenDialog.MapGenDialog(self)
+        dialog.exec_()
 
 def build_launcher(playerset, me, client, view_builder, map_preview_dler):
     model = GameModel(me, map_preview_dler)
