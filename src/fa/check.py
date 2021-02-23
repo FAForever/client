@@ -12,7 +12,6 @@ from fa.path import writeFAPathLua, validatePath
 from fa.wizards import Wizard
 import util
 from mapGenerator.mapgenUtils import isGeneratedMap
-import client
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +27,7 @@ def map_(mapname, force=False, silent=False):
         return True
 
     if isGeneratedMap(mapname):
+        import client
         return client.instance.map_generator.generateMap(mapname)
 
     if force:
