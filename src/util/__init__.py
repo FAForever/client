@@ -21,6 +21,8 @@ from config import VERSION as VERSION_STRING
 import fafpath
 import logging
 
+from mapGenerator import mapgenUtils
+
 if sys.platform == 'win32':
     import win32serviceutil
     import win32service
@@ -192,6 +194,20 @@ def clearGameCache():
                         access_time = datetime.datetime.fromtimestamp(access_time)
                         if (curr_time - access_time).days >= max_storage_time:
                             os.remove(os.path.join(dir_to_check, _file))
+
+#Get rid of generated maps
+def clearGeneratedMaps():
+    map_dir = os.path.join(
+         PERSONAL_DIR
+        ,"My Games"
+        ,"Gas Powered Games"
+        ,"Supreme Commander Forged Alliance"
+        ,"Maps")
+    if os.path.exists(map_dir):
+        for entry in os.scandir(map_dir):
+            if re.match(mapgenUtils.generatedMapPattern, entry.name):
+                if entry.is_dir():
+                    shutil.rmtree(os.path.join(map_dir, entry.name))
 
 def clearDirectory(directory, confirm=True):
     if os.path.isdir(directory):
