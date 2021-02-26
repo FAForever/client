@@ -37,6 +37,7 @@ from downloadManager import PreviewDownloader, AvatarDownloader, \
 from fa.factions import Factions
 from fa.game_runner import GameRunner
 from fa.maps import getUserMapsFolder
+from mapGenerator.mapgenManager import MapGeneratorManager
 from games.gameitem import GameViewBuilder
 from games.gamemodel import GameModel
 from games.hostgamewidget import build_launcher
@@ -181,6 +182,9 @@ class ClientWindow(FormClass, BaseClass):
         self.map_downloader = PreviewDownloader(util.MAP_PREVIEW_SMALL_DIR, util.MAP_PREVIEW_LARGE_DIR, MAP_PREVIEW_ROOT)
         self.mod_downloader = PreviewDownloader(util.MOD_PREVIEW_DIR, None, None)
         self.avatar_downloader = AvatarDownloader()
+
+        # Map generator
+        self.map_generator = MapGeneratorManager()
 
         # Qt model for displaying active games.
         self.game_model = GameModel(self.me, self.map_downloader, self.gameset)
@@ -371,6 +375,10 @@ class ClientWindow(FormClass, BaseClass):
     @QtCore.pyqtSlot(bool)
     def on_action_auto_download_maps_toggled(self, value):
         config.Settings.set('maps/autodownload', value is True)
+
+    @QtCore.pyqtSlot(bool)
+    def on_action_auto_generate_maps_toggled(self, value):
+        config.Settings.set('mapGenerator/autostart', value is True)
 
     def eventFilter(self, obj, event):
         if event.type() == QtCore.QEvent.HoverMove:
@@ -776,6 +784,9 @@ class ClientWindow(FormClass, BaseClass):
         # Clear cached game files if needed
         util.clearGameCache()
 
+        # Get rid of generated maps
+        util.clearGeneratedMaps()
+
         # Get rid of the Tray icon
         if self.tray:
             progress.setLabelText("Removing System Tray icon")
@@ -829,6 +840,7 @@ class ClientWindow(FormClass, BaseClass):
         self.actionClearCache.triggered.connect(self.clearCache)
         self.actionClearSettings.triggered.connect(self.clearSettings)
         self.actionClearGameFiles.triggered.connect(self.clearGameFiles)
+        self.actionClearMapGenerators.triggered.connect(self.clearMapGenerators)
 
         self.actionSetGamePath.triggered.connect(self.switchPath)
 
@@ -848,6 +860,8 @@ class ClientWindow(FormClass, BaseClass):
         self.actionSetAutoDownloadMods.setChecked(config.Settings.get('mods/autodownload', type=bool, default=False))
         self.actionSetAutoDownloadMaps.toggled.connect(self.on_action_auto_download_maps_toggled)
         self.actionSetAutoDownloadMaps.setChecked(config.Settings.get('maps/autodownload', type=bool, default=False))
+        self.actionSetAutoGenerateMaps.toggled.connect(self.on_action_auto_generate_maps_toggled)
+        self.actionSetAutoGenerateMaps.setChecked(config.Settings.get('mapGenerator/autostart', type=bool, default=False))
         self.actionSetSoundEffects.triggered.connect(self.update_options)
         self.actionSetOpenGames.triggered.connect(self.update_options)
         self.actionSetJoinsParts.triggered.connect(self.update_options)
@@ -938,6 +952,10 @@ class ClientWindow(FormClass, BaseClass):
         if changed:
             QtWidgets.QMessageBox.information(None, "Restart Needed", "FAF will quit now.")
             QtWidgets.QApplication.quit()
+
+    @QtCore.pyqtSlot()
+    def clearMapGenerators(self):
+        util.clearDirectory(util.MAPGEN_DIR)
 
     # Clear the online users lists
     def clear_players(self):

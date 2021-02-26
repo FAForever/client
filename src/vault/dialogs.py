@@ -137,3 +137,41 @@ def downloadVaultAsset(url, target_dir, exist_handler, name, category, silent):
         dialog()
 
     return ret
+
+def downloadFile(url, target_dir, name, category, silent):
+    """
+    Basically a copy of downloadVaultAssetNoMsg without zip
+    """
+
+    global _global_nam
+    msg = None
+    output = io.BytesIO()
+    capitCat = category[0].upper() + category[1:]
+
+    dler = FileDownload(_global_nam, url, output)
+    ddialog = VaultDownloadDialog(dler, "Downloading {}".format(category), name, silent)
+    result = ddialog.run()
+
+    if result == VaultDownloadDialog.CANCELED:
+        logger.warning("{} Download canceled for: {}".format(capitCat, url))
+    if result in [VaultDownloadDialog.DL_ERROR, VaultDownloadDialog.UNKNOWN_ERROR]:
+        logger.warning("Download failed. {}".format(url))
+        msg = lambda: QtWidgets.QMessageBox.information(
+            None,
+            "{} not downloadable".format(capitCat),
+            ("<b>Failed to download {} from</b><br/>"
+             "{}")
+            .format(category, url))
+
+    if result != VaultDownloadDialog.SUCCESS:
+        if msg:
+            msg()
+        return False
+
+    if not os.path.exists(os.path.dirname(target_dir)):
+        os.makedirs(os.path.dirname(target_dir))
+
+    with open(target_dir, "w+b") as f:
+        f.write(output.getvalue())
+
+    return target_dir

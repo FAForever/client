@@ -507,18 +507,28 @@ QDialog
     background-color: #575656;
 }
 
-QCheckBox#spoilerCheckbox, #automaticCheckbox, #showLatestCheckbox, #hideUnrCheckbox
+QDialog#MapGenOptionsDialog
+{
+    background-color:#202025;
+    alternate-background-color: #303035;
+}
+QCheckBox#spoilerCheckbox, #automaticCheckbox, #showLatestCheckbox, #hideUnrCheckbox, #landRandomDensity::enabled, #plateausRandomDensity::enabled,
+         #mountainsRandomDensity::enabled, #rampsRandomDensity::enabled, #mexRandomDensity::enabled, #reclaimRandomDensity::enabled
 {
     color: silver;
 }
 QCheckBox#spoilerCheckbox::indicator:unchecked, #automaticCheckbox::indicator:unchecked, #showLatestCheckbox::indicator:unchecked, 
 #hideUnrCheckbox::indicator:unchecked
+,#landRandomDensity::indicator::unchecked, #plateausRandomDensity::indicator::unchecked, #mountainsRandomDensity::indicator::unchecked
+,#rampsRandomDensity::indicator::unchecked, #mexRandomDensity::indicator::unchecked ,#reclaimRandomDensity::indicator::unchecked
 {
     image: url('%THEMEPATH%/client/chboxUncheked.png');
  }
 
 QCheckBox#spoilerCheckbox::indicator:checked, #automaticCheckbox::indicator:checked, #showLatestCheckbox::indicator:checked, 
 #hideUnrCheckbox::indicator:checked
+,#landRandomDensity::indicator::checked, #plateausRandomDensity::indicator::checked, #mountainsRandomDensity::indicator::checked
+,#rampsRandomDensity::indicator::checked, #mexRandomDensity::indicator::checked ,#reclaimRandomDensity::indicator::checked
 {
     image: url('%THEMEPATH%/client/chboxCheked.png');
  }
@@ -593,6 +603,30 @@ QPushButton#RefreshResetButton, #advResetButton
     background-color: rgb(39, 39, 45);
 }
 
+QPushButton#generateMapButton
+{
+    color: silver;
+	border-radius: 2px;
+	border: 0.5px solid rgb(70, 70, 70);
+    font: bold 14px;
+    min-height: 30px;
+    background-color: rgb(39, 39, 45);
+}
+QPushButton#saveMapGenSettingsButton, #resetMapGenSettingsButton
+{
+    color: silver;
+    border: 0.5px solid rgb(70, 70, 70);
+    background-color: rgb(39, 39, 45);
+}
+QPushButton#saveMapGenSettingsButton::hover, #resetMapGenSettingsButton::hover,#generateMapButton::hover
+{
+    border: none;
+
+    color:silver;
+    padding:5px;
+    background-color:#808080;
+    border-radius : 5px;
+ }
 QPushButton#newsSettings
 {
     qproperty-icon: url('%THEMEPATH%/client/settings.png');

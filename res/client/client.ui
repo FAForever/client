@@ -344,6 +344,7 @@
      <addaction name="actionSetAutoLogin"/>
      <addaction name="actionSetAutoDownloadMods"/>
      <addaction name="actionSetAutoDownloadMaps"/>
+     <addaction name="actionSetAutoGenerateMaps"/>
      <addaction name="separator"/>
      <addaction name="actionLink_account_to_Steam"/>
      <addaction name="separator"/>
@@ -366,6 +367,7 @@
      <addaction name="actionClearSettings"/>
      <addaction name="separator"/>
      <addaction name="actionClearGameFiles"/>
+     <addaction name="actionClearMapGenerators"/>
     </widget>
     <widget class="QMenu" name="menuChat">
      <property name="title">
@@ -893,6 +895,19 @@
    </property>
    <property name="text">
     <string>Keep cache while in session</string>
+   </property>
+  </action>
+  <action name="actionSetAutoGenerateMaps">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Automatic Generating of Maps</string>
+   </property>
+  </action>
+  <action name="actionClearMapGenerators">
+   <property name="text">
+    <string>Map Generators</string>
    </property>
   </action>
  </widget>

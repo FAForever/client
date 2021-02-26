@@ -21,6 +21,8 @@ from config import VERSION as VERSION_STRING
 import fafpath
 import logging
 
+from mapGenerator import mapgenUtils
+
 if sys.platform == 'win32':
     import win32serviceutil
     import win32service
@@ -62,6 +64,7 @@ REPLAY_DIR = os.path.join(APPDATA_DIR, "replays")
 # This contains all Lobby, Chat and Game logs
 LOG_DIR = os.path.join(APPDATA_DIR, "logs")
 LOG_FILE_FAF = os.path.join(LOG_DIR, 'forever.log')
+LOG_FILE_MAPGEN = os.path.join(LOG_DIR, 'map_generator.log')
 LOG_FILE_GAME_PREFIX = os.path.join(LOG_DIR, 'game')
 LOG_FILE_GAME = LOG_FILE_GAME_PREFIX + ".log"
 LOG_FILE_GAME_INFIX = ".uid."
@@ -71,6 +74,9 @@ LOG_FILE_REPLAY = os.path.join(LOG_DIR, 'replay.log')
 BIN_DIR = os.path.join(APPDATA_DIR, "bin")
 GAMEDATA_DIR = os.path.join(APPDATA_DIR, "gamedata")
 REPO_DIR = os.path.join(APPDATA_DIR, "repo")
+
+# This contains java executables of map generators
+MAPGEN_DIR = os.path.join(APPDATA_DIR, "map_generator")
 
 if not os.path.exists(REPO_DIR):
     os.makedirs(REPO_DIR)
@@ -156,6 +162,9 @@ try:
     if os.path.isfile(LOG_FILE_GAME):
         if os.path.getsize(LOG_FILE_GAME) > LOGFILE_MAX_SIZE:
             os.remove(LOG_FILE_GAME)
+    if os.path.isfile(LOG_FILE_MAPGEN):
+        if os.path.getsize(LOG_FILE_MAPGEN) > LOGFILE_MAX_SIZE:
+            os.remove(LOG_FILE_MAPGEN)
     remove_obsolete_logs(LOG_DIR, LOG_FILE_GAME_INFIX, 30)
 except:
     pass
@@ -185,6 +194,20 @@ def clearGameCache():
                         access_time = datetime.datetime.fromtimestamp(access_time)
                         if (curr_time - access_time).days >= max_storage_time:
                             os.remove(os.path.join(dir_to_check, _file))
+
+#Get rid of generated maps
+def clearGeneratedMaps():
+    map_dir = os.path.join(
+         PERSONAL_DIR
+        ,"My Games"
+        ,"Gas Powered Games"
+        ,"Supreme Commander Forged Alliance"
+        ,"Maps")
+    if os.path.exists(map_dir):
+        for entry in os.scandir(map_dir):
+            if re.match(mapgenUtils.generatedMapPattern, entry.name):
+                if entry.is_dir():
+                    shutil.rmtree(os.path.join(map_dir, entry.name))
 
 def clearDirectory(directory, confirm=True):
     if os.path.isdir(directory):
@@ -388,3 +411,6 @@ def datetostr(d):
 
 
 from .crash import CrashDialog, runtime_info
+
+def getJavaPath():
+    return os.path.join(fafpath.get_libdir(), "ice-adapter", "jre", "bin", "java.exe")
