@@ -62,6 +62,7 @@ REPLAY_DIR = os.path.join(APPDATA_DIR, "replays")
 # This contains all Lobby, Chat and Game logs
 LOG_DIR = os.path.join(APPDATA_DIR, "logs")
 LOG_FILE_FAF = os.path.join(LOG_DIR, 'forever.log')
+LOG_FILE_MAPGEN = os.path.join(LOG_DIR, 'map_generator.log')
 LOG_FILE_GAME_PREFIX = os.path.join(LOG_DIR, 'game')
 LOG_FILE_GAME = LOG_FILE_GAME_PREFIX + ".log"
 LOG_FILE_GAME_INFIX = ".uid."
@@ -159,6 +160,9 @@ try:
     if os.path.isfile(LOG_FILE_GAME):
         if os.path.getsize(LOG_FILE_GAME) > LOGFILE_MAX_SIZE:
             os.remove(LOG_FILE_GAME)
+    if os.path.isfile(LOG_FILE_MAPGEN):
+        if os.path.getsize(LOG_FILE_MAPGEN) > LOGFILE_MAX_SIZE:
+            os.remove(LOG_FILE_MAPGEN)
     remove_obsolete_logs(LOG_DIR, LOG_FILE_GAME_INFIX, 30)
 except:
     pass
