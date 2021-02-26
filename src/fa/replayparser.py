@@ -37,3 +37,14 @@ class replayParser:
             return None
         else:
             return supcomVersion.split(".")[-1]
+
+    def getMapName(self):
+        f = open(self.file, 'rb')
+        bin = f.read()
+        offset = 45
+        offset, mapname = self.__readLine(offset, bin)
+        f.close()
+        if not mapname.strip().startswith("/maps/"):
+            return 'None'
+        else:
+            return mapname.split('/')[2]

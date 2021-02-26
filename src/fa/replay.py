@@ -56,6 +56,8 @@ def replay(source, detach=False):
 
                     parser = replayParser(arg_string)
                     version = parser.getVersion()
+                    if mapname == "None":
+                        mapname = parser.getMapName()
 
                 elif source.endswith(".scfareplay"):  # compatibility mode
                     filename = os.path.basename(source)
