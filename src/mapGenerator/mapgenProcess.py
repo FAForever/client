@@ -4,6 +4,8 @@ from PyQt5.QtWidgets import QMessageBox, QApplication, QProgressDialog
 import os
 import fafpath
 from util import getJavaPath
+import re
+from . import mapgenUtils
 
 @with_logger
 class MapGeneratorProcess(object):
@@ -23,6 +25,7 @@ class MapGeneratorProcess(object):
         self.map_generator_process.readyReadStandardOutput.connect(self.on_log_ready)
         self.map_generator_process.readyReadStandardError.connect(self.on_error_ready)
         self.map_generator_process.finished.connect(self.on_exit)
+        self.map_name = None
 
         self.java_path = getJavaPath()
         args = ["-jar", gen_path, out_path, seed, version, mapName]
@@ -39,14 +42,20 @@ class MapGeneratorProcess(object):
             self._running = True
             self.waitForCompletion()
 
+    @property
+    def mapname(self):
+        return str(self.map_name)
+    
     def on_log_ready(self):
-        rawLine = self.map_generator_process.readAllStandardOutput().data().decode('utf8').split('\n', 1)[0]
-
-        # Kinda fake progress bar. Better than nothing :)
-        if len(rawLine) > 4:
-            self._progress.setLabelText(rawLine[:25] + "...")
-            self.progressCounter += 1
-            self._progress.setValue(self.progressCounter)
+        data = self.map_generator_process.readAllStandardOutput().data().decode('utf8').split('\n')
+        for line in data:
+            if re.match(mapgenUtils.generatedMapPattern, line) and self.map_name is None:
+                self.map_name = line.strip()
+            # Kinda fake progress bar. Better than nothing :)
+            if len(line) > 4:
+                self._progress.setLabelText(line[:25] + "...")
+                self.progressCounter += 1
+                self._progress.setValue(self.progressCounter)
 
     def on_error_ready(self):
         for line in str(self.map_generator_process.readAllStandardError()).splitlines():
