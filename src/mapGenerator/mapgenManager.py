@@ -34,14 +34,32 @@ class MapGeneratorManager(object):
         if self.previousMaps:
             self.deletePreviousMaps()
 
-    def generateMap(self, mapname):
-        version = re.search(versionPattern, mapname)[0]
-        seed = mapname.rsplit('_', 1)[1]
+    def generateMap(self, mapname=None, args=None):
+        if mapname is None:
+            '''
+             Requests latest version once per session
+            '''
+            if self.currentVersion == "0" or not self.latestVersion:
+                self.checkUpdates()
+
+                if self.latestVersion and self.versionController(self.latestVersion):
+                    self.currentVersion = self.latestVersion   # mapgen is up-to-date
+                    Settings.set('mapGenerator/version', self.currentVersion)
+                elif self.currentVersion == "0":               # if not "0", use older version
+                    return False                               # otherwise we don't have any generator at all
+            version = self.currentVersion
+            args = args
+        else:
+            matcher = generatedMapPattern.match(mapname)
+            version = matcher.group(1)
+            seed = matcher.group(2) #not used here because often it is not numeric
+            args = ['--map-name', mapname]
+        
         actualPath = self.versionController(version)
 
         if actualPath:
             auto = Settings.get('mapGenerator/autostart', default=False, type=bool)
-            if not auto:
+            if not auto and mapname is not None:
                 msgbox = QtWidgets.QMessageBox()
                 msgbox.setWindowTitle("Generate map")
                 msgbox.setText("It looks like you don't have the map being used by this lobby. Do you want to generate it? <br/><b>" + mapname + "</b>")
@@ -53,18 +71,19 @@ class MapGeneratorManager(object):
                 elif result == QtWidgets.QMessageBox.YesToAll:
                     Settings.set('mapGenerator/autostart', True)
             
-            # Start generator with progress bar      
-            self.generatorProcess = MapGeneratorProcess(actualPath, self.mapsFolder, seed, version, mapname)
+            # Start generator with progress bar
+            self.generatorProcess = MapGeneratorProcess(actualPath, self.mapsFolder, args)
             
+            map_ = self.generatorProcess.mapname
             # Check if map exists or generator failed
-            if os.path.isdir(os.path.join(self.mapsFolder, mapname)):
+            if os.path.isdir(os.path.join(self.mapsFolder, map_)):
                 if self.previousMaps:
-                    self.previousMaps = self.previousMaps + ";" + mapname
+                    self.previousMaps = self.previousMaps + ";" + map_
                 else:
-                    self.previousMaps = mapname
+                    self.previousMaps = map_
                 Settings.set('mapGenerator/mapsToDelete', self.previousMaps)
                 
-                return mapname
+                return map_
             else:
                 return False
         else:
