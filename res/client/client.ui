@@ -367,6 +367,7 @@
      <addaction name="actionClearSettings"/>
      <addaction name="separator"/>
      <addaction name="actionClearGameFiles"/>
+     <addaction name="actionClearMapGenerators"/>
     </widget>
     <widget class="QMenu" name="menuChat">
      <property name="title">
@@ -902,6 +903,11 @@
    </property>
    <property name="text">
     <string>Automatic Generating of Maps</string>
+   </property>
+  </action>
+  <action name="actionClearMapGenerators">
+   <property name="text">
+    <string>Map Generators</string>
    </property>
   </action>
  </widget>

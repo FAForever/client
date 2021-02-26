@@ -840,6 +840,7 @@ class ClientWindow(FormClass, BaseClass):
         self.actionClearCache.triggered.connect(self.clearCache)
         self.actionClearSettings.triggered.connect(self.clearSettings)
         self.actionClearGameFiles.triggered.connect(self.clearGameFiles)
+        self.actionClearMapGenerators.triggered.connect(self.clearMapGenerators)
 
         self.actionSetGamePath.triggered.connect(self.switchPath)
 
@@ -951,6 +952,10 @@ class ClientWindow(FormClass, BaseClass):
         if changed:
             QtWidgets.QMessageBox.information(None, "Restart Needed", "FAF will quit now.")
             QtWidgets.QApplication.quit()
+
+    @QtCore.pyqtSlot()
+    def clearMapGenerators(self):
+        util.clearDirectory(util.MAPGEN_DIR)
 
     # Clear the online users lists
     def clear_players(self):
