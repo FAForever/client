@@ -15,7 +15,7 @@ class MapGeneratorProcess(object):
         self._progress.setAutoReset(False)
         self._progress.setModal(1)
         self._progress.setMinimum(0)
-        self._progress.setMaximum(250)
+        self._progress.setMaximum(30)
         self._progress.canceled.connect(self.close)
         self.progressCounter = 1
 
