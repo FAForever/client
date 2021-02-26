@@ -28,11 +28,7 @@ class MapGeneratorManager(object):
         self.response = None
 
         self.currentVersion = Settings.get('mapGenerator/version', "0", str)
-        self.previousMaps = Settings.get('mapGenerator/mapsToDelete')
         self.mapsFolder = getUserMapsFolder()
-
-        if self.previousMaps:
-            self.deletePreviousMaps()
 
     def generateMap(self, mapname=None, args=None):
         if mapname is None:
@@ -77,12 +73,6 @@ class MapGeneratorManager(object):
             map_ = self.generatorProcess.mapname
             # Check if map exists or generator failed
             if os.path.isdir(os.path.join(self.mapsFolder, map_)):
-                if self.previousMaps:
-                    self.previousMaps = self.previousMaps + ";" + map_
-                else:
-                    self.previousMaps = map_
-                Settings.set('mapGenerator/mapsToDelete', self.previousMaps)
-                
                 return map_
             else:
                 return False
@@ -123,22 +113,6 @@ class MapGeneratorManager(object):
         url = releaseUrl + "download/{}/NeroxisGen_{}.jar".format(version,version)
         return downloadFile(url, filePath, name, "map generator", silent = False)
 
-    def deletePreviousMaps(self):
-        '''Delete maps that were created at previous session'''
-        try:
-            maps = self.previousMaps.split(";")
-            for map in maps:
-                if isGeneratedMap(map): #just in case
-                    mapPath = (os.path.join(self.mapsFolder, map))
-                    if os.path.isdir(mapPath):
-                        shutil.rmtree(os.path.join(mapPath), ignore_errors=True)
-        except ValueError as e:
-            logger.error("Error deleting maps created by map generator")
-            logger.error(e)
-
-        self.previousMaps = None
-        Settings.set('mapGenerator/deleteMaps', self.previousMaps)
-        
     def checkUpdates(self):
         '''
         Not downloading anything here.

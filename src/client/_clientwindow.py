@@ -784,6 +784,9 @@ class ClientWindow(FormClass, BaseClass):
         # Clear cached game files if needed
         util.clearGameCache()
 
+        # Get rid of generated maps
+        util.clearGeneratedMaps()
+
         # Get rid of the Tray icon
         if self.tray:
             progress.setLabelText("Removing System Tray icon")
