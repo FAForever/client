@@ -72,6 +72,9 @@ BIN_DIR = os.path.join(APPDATA_DIR, "bin")
 GAMEDATA_DIR = os.path.join(APPDATA_DIR, "gamedata")
 REPO_DIR = os.path.join(APPDATA_DIR, "repo")
 
+# This contains java executables of map generators
+MAPGEN_DIR = os.path.join(APPDATA_DIR, "map_generator")
+
 if not os.path.exists(REPO_DIR):
     os.makedirs(REPO_DIR)
 

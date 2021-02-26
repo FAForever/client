@@ -14,11 +14,12 @@ from vault.dialogs import downloadFile
 from mapGenerator.mapgenProcess import MapGeneratorProcess
 from mapGenerator.mapgenUtils import isGeneratedMap, versionPattern, generatedMapPattern
 from fa.maps import getUserMapsFolder
+import util
 
 logger = logging.getLogger(__name__)
 
 releaseUrl = "https://github.com/FAForever/Neroxis-Map-Generator/releases/"
-generatorJarName = "NeroxisGen_{}.jar"
+generatorJarName = "MapGenerator_{}.jar"
 
 
 class MapGeneratorManager(object):
@@ -28,7 +29,6 @@ class MapGeneratorManager(object):
 
         self.currentVersion = Settings.get('mapGenerator/version', "0", str)
         self.previousMaps = Settings.get('mapGenerator/mapsToDelete')
-        self.generatorPath = os.path.join(fafpath.get_libdir(), "map-generator")
         self.mapsFolder = getUserMapsFolder()
 
         if self.previousMaps:
@@ -92,11 +92,11 @@ class MapGeneratorManager(object):
    
     def versionController(self, version):
         name = generatorJarName.format(version)
-        filePath = os.path.join(self.generatorPath, name)
+        filePath = os.path.join(util.MAPGEN_DIR, name)
         
         # Check if required version is already in folder
-        if os.path.isdir(self.generatorPath):
-            for infile in os.listdir(self.generatorPath):
+        if os.path.isdir(util.MAPGEN_DIR):
+            for infile in os.listdir(util.MAPGEN_DIR):
                 if infile.lower() == name.lower():
                     return filePath
 
