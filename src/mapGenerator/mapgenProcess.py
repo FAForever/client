@@ -6,8 +6,15 @@ import fafpath
 from util import getJavaPath
 import re
 from . import mapgenUtils
+import logging
+from config import setup_file_handler
 
-@with_logger
+logger = logging.getLogger(__name__)
+#Separate log file for map generator
+generatorLogger = logging.getLogger(__name__)
+generatorLogger.propagate = False
+generatorLogger.addHandler(setup_file_handler('map_generator.log'))
+
 class MapGeneratorProcess(object):
     def __init__(self, gen_path, out_path, seed, version, mapName):
         self._progress = QProgressDialog()
@@ -30,12 +37,13 @@ class MapGeneratorProcess(object):
         self.java_path = getJavaPath()
         args = ["-jar", gen_path, out_path, seed, version, mapName]
 
-        self._logger.debug("running map generator with {} {}".format(self.java_path, " ".join(args)))
+        logger.info("Starting map generator with {} {}".format(self.java_path, " ".join(args)))
+        generatorLogger.info(">>> --------------------------- MapGenerator Launch")
 
         self.map_generator_process.start(self.java_path, args)
 
         if not self.map_generator_process.waitForStarted(5000):
-            self._logger.error("error starting the map generator process")
+            logger.error("error starting the map generator process")
             QMessageBox.critical(None, "Map generator error", "The map generator did not start.")
         else:
             self._progress.show()
@@ -51,6 +59,8 @@ class MapGeneratorProcess(object):
         for line in data:
             if re.match(mapgenUtils.generatedMapPattern, line) and self.map_name is None:
                 self.map_name = line.strip()
+            if line != '':
+                generatorLogger.info(line.strip())
             # Kinda fake progress bar. Better than nothing :)
             if len(line) > 4:
                 self._progress.setLabelText(line[:25] + "...")
@@ -59,21 +69,22 @@ class MapGeneratorProcess(object):
 
     def on_error_ready(self):
         for line in str(self.map_generator_process.readAllStandardError()).splitlines():
-            self._logger.debug("MapGenERROR: " + line)
+            logger.debug("MapGenERROR: " + line)
 
     def on_exit(self, code, status):
         self._progress.reset()
         self._running = False
+        generatorLogger.info("<<< --------------------------- MapGenerator Shutdown")
 
     def close(self):
         if self.map_generator_process.state() == QProcess.Running:
-            self._logger.info("Waiting for map generator process shutdown")
+            logger.info("Waiting for map generator process shutdown")
             if not self.map_generator_process.waitForFinished(300):
                 if self.map_generator_process.state() == QProcess.Running:
-                    self._logger.error("Terminating map generator process")
+                    logger.error("Terminating map generator process")
                     self.map_generator_process.terminate()
                     if not self.map_generator_process.waitForFinished(300):
-                        self._logger.error("Killing map generator process")
+                        logger.error("Killing map generator process")
                         self.map_generator_process.kill()
 
     def waitForCompletion(self):
