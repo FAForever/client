@@ -10,3 +10,4 @@ semantic_version
 idna
 jsonschema==2.6.0
 jinja2
+zstandard
