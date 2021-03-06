@@ -5,6 +5,7 @@ import fa
 from fa.check import check
 from fa.replayparser import replayParser
 from util.gameurl import GameUrl, GameUrlType
+import zstandard
 
 import util
 from . import mods
@@ -26,14 +27,20 @@ def replay(source, detach=False):
         featured_mod_versions = None
         arg_string = None
         replay_id = None
+        compression_type = None
         # Convert strings to URLs
         if isinstance(source, str):
             if os.path.isfile(source):
                 if source.endswith(".fafreplay"):  # the new way of doing things
-                    replay = open(source, "rt")
+                    replay = open(source, "rb")
                     info = json.loads(replay.readline())
-
-                    binary = QtCore.qUncompress(QtCore.QByteArray.fromBase64(replay.read().encode('utf-8')))
+                    if "compression" in info.keys():
+                        compression_type = info["compression"]
+                    if compression_type == "zstd":
+                        decompressor = zstandard.ZstdDecompressor()
+                        binary = QtCore.QByteArray(decompressor.decompress(replay.read()))
+                    else:
+                        binary = QtCore.qUncompress(QtCore.QByteArray.fromBase64(replay.read()))
                     logger.info("Extracted " + str(binary.size()) + " bytes of binary data from .fafreplay.")
                     replay.close()
 
