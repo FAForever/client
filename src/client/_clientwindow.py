@@ -1431,23 +1431,25 @@ class ClientWindow(FormClass, BaseClass):
         if "action" in message:
             self.matchmaker_info.emit(message)
         elif "queues" in message:
-            key = 'boundary_80s' if self.me.player.ladder_rating_deviation < 100 else 'boundary_75s'
-            show = False
+            show = None
             for q in message['queues']:
                 if q['queue_name'] == 'ladder1v1':
-                    if self.me.player.ladder_rating_deviation > 200 or self.games.searching["ladder1v1"]:
-                        show = False
-                    else:
-                        mu = self.me.player.ladder_rating_mean
-                        for min, max in q[key]:
-                            if min < mu < max:
-                                show = True
+                    show = False
+                    mu = self.me.player.ladder_rating_mean
+                    key = 'boundary_80s' if self.me.player.ladder_rating_deviation < 100 else 'boundary_75s'
+                    for min, max in q[key]:
+                        if min < mu < max:
+                            show = True
                 elif q['queue_name'] == 'tmm2v2':
                     self.games.labelInQueue.setText(str(q['num_players']))
-            if show:
-                self.warningShow()
-            else:
-                self.warningHide()
+            
+            if self.me.player.ladder_rating_deviation > 200 or self.games.searching["ladder1v1"]:
+                return
+            if show is not None:
+                if show:
+                    self.warningShow()
+                else:
+                    self.warningHide()
 
     def handle_social(self, message):
         if "channels" in message:
