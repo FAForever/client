@@ -253,7 +253,7 @@ class GamesWidget(FormClass, BaseClass):
         if self._me.id is None:
             QDesktopServices.openUrl(QUrl(Settings.get("MAPPOOL_URL")))
         else:
-            pool = int((self.client.players[self._me.id].ladder_rating_mean + 700) // 500)
+            pool = int((self.client.players[self._me.id].ladder_rating_mean + 500) // 500)
             if pool < 1:
                 pool = 1
             elif pool > 5:
@@ -266,7 +266,7 @@ class GamesWidget(FormClass, BaseClass):
         if self._me.id is None:
             QDesktopServices.openUrl(QUrl(Settings.get("MAPPOOL_URL")))
         else:
-            pool = int((self.client.players[self._me.id].tmm_rating_mean + 700) // 500)
+            pool = int((self.client.players[self._me.id].tmm_rating_mean + 500) // 500)
             if pool < 1:
                 pool = 1
             elif pool > 5:
