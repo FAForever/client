@@ -6,33 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>527</width>
-    <height>461</height>
+    <width>512</width>
+    <height>475</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Map Generator Options</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="0">
-    <spacer name="verticalSpacer">
-     <property name="font">
-      <font>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>451</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="4" column="0">
+   <item row="6" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
       <widget class="QPushButton" name="saveMapGenSettingsButton">
@@ -137,6 +119,120 @@
         <string>Generate map</string>
        </property>
       </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="2" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout_13">
+     <item>
+      <widget class="QLabel" name="labelMapStyle">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Map Style</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="mapStyle">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>150</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="sizeAdjustPolicy">
+        <enum>QComboBox::AdjustToContents</enum>
+       </property>
+       <property name="minimumContentsLength">
+        <number>2</number>
+       </property>
+       <item>
+        <property name="text">
+         <string>RANDOM</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>DEFAULT</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>ONE_ISLAND</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>BIG_ISLANDS</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>SMALL_ISLANDS</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>CENTER_LAKE</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>VALLEY</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>DROP_PLATEAU</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>LITTLE_MOUNTAIN</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>MOUNTAIN_RANGE</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>LAND_BRIDGE</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>270</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </item>
@@ -300,7 +396,43 @@
      </item>
     </layout>
    </item>
-   <item row="2" column="0">
+   <item row="5" column="0">
+    <spacer name="verticalSpacer_2">
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="1" column="0">
+    <spacer name="verticalSpacer">
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>451</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="4" column="0">
     <layout class="QVBoxLayout" name="verticalLayout_4">
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_8">
@@ -1073,7 +1205,7 @@
     </layout>
    </item>
    <item row="3" column="0">
-    <spacer name="verticalSpacer_2">
+    <spacer name="verticalSpacer_3">
      <property name="font">
       <font>
        <pointsize>9</pointsize>
@@ -1084,8 +1216,8 @@
      </property>
      <property name="sizeHint" stdset="0">
       <size>
-       <width>20</width>
-       <height>40</height>
+       <width>451</width>
+       <height>20</height>
       </size>
      </property>
     </spacer>

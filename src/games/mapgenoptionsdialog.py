@@ -1,8 +1,26 @@
+from enum import Enum
 from PyQt5 import QtCore, QtWidgets, QtGui
+import random
 import util
 import config
 
 FormClass, BaseClass = util.THEME.loadUiType("games/mapgen.ui")
+
+class MapStyle(Enum):
+	RANDOM = "RANDOM"
+	DEFAULT = "DEFAULT"
+	ONE_ISLAND = "ONE_ISLAND"
+	BIG_ISLANDS = "BIG_ISLANDS"
+	SMALL_ISLANDS = "SMALL_ISLANDS"
+	CENTER_LAKE = "CENTER_LAKE"
+	VALLEY = "VALLEY"
+	DROP_PLATEAU = "DROP_PLATEAU"
+	LITTLE_MOUNTAIN = "LITTLE_MOUNTAIN"
+	MOUNTAIN_RANGE = "MOUNTAIN_RANGE"
+	LAND_BRIDGE = "LAND_BRIDGE"
+	
+	def getMapStyle(index):
+		return list(MapStyle)[index]
 
 class MapGenDialog(FormClass, BaseClass):
 	def __init__(self, parent, *args, **kwargs):
@@ -18,6 +36,7 @@ class MapGenDialog(FormClass, BaseClass):
 		self.generationType.currentIndexChanged.connect(self.generationTypeChanged)
 		self.numberOfSpawns.currentIndexChanged.connect(self.numberOfSpawnsChanged)
 		self.mapSize.currentIndexChanged.connect(self.mapSizeChanged)
+		self.mapStyle.currentIndexChanged.connect(self.mapStyleChanged)
 		self.generateMapButton.clicked.connect(self.generateMap)
 		self.saveMapGenSettingsButton.clicked.connect(self.saveMapGenPrefs)
 		self.resetMapGenSettingsButton.clicked.connect(self.resetMapGenPrefs)
@@ -50,19 +69,21 @@ class MapGenDialog(FormClass, BaseClass):
 
 		for random_button in self.random_buttons:
 			random_button.setChecked(config.Settings.get("mapGenerator/{}".format(random_button.objectName()), type=bool, default=True))
-			random_button.toggled.connect(self.updateVisibilities)
+			random_button.toggled.connect(self.configOptionFrames)
 
 		for slider in self.sliders:
 			slider.setValue(config.Settings.get("mapGenerator/{}".format(slider.objectName()), type=int, default=0))
 		
-		self.generation_type = None
-		self.number_of_spawns = None
-		self.map_size = None
+		self.generation_type = "casual"
+		self.number_of_spawns = 2
+		self.map_size = 256
+		self.map_style = MapStyle.RANDOM
 		self.generationType.setCurrentIndex(config.Settings.get("mapGenerator/generationTypeIndex", type=int, default=0))
 		self.numberOfSpawns.setCurrentIndex(config.Settings.get("mapGenerator/numberOfSpawnsIndex", type=int, default=0))
 		self.mapSize.setCurrentIndex(config.Settings.get("mapGenerator/mapSizeIndex", type=int, default=0))
-		
-		self.updateVisibilities()
+		self.mapStyle.setCurrentIndex(config.Settings.get("mapGenerator/mapStyleIndex", type=int, default=0))
+
+		self.configOptionFrames()
 
 	def load_stylesheet(self):
 		self.setStyleSheet(util.THEME.readstylesheet("client/client.css"))
@@ -91,28 +112,50 @@ class MapGenDialog(FormClass, BaseClass):
 		elif index == 3:
 			self.generation_type = "unexplored"
 
-		self.updateVisibilities()
+		if index == -1 or index == 0:
+			self.mapStyle.setEnabled(True)
+			self.mapStyle.setCurrentIndex(config.Settings.get("mapGenerator/mapStyleIndex", type=int, default=0))
+		else:
+			self.mapStyle.setEnabled(False)
+			self.mapStyle.setCurrentIndex(0)
+
+		self.checkRandomButtons()
 	
+	@QtCore.pyqtSlot(int)
+	def mapStyleChanged(self, index):
+		if index == -1 or index == 0:
+			self.map_style = MapStyle.RANDOM
+		else:
+			self.map_style = MapStyle.getMapStyle(index)
+		
+		self.checkRandomButtons()
+
 	@QtCore.pyqtSlot()
-	def updateVisibilities(self):
+	def checkRandomButtons(self):
 		for random_button in self.random_buttons:
 			option_frame = self.option_frames[self.random_buttons.index(random_button)]
-			if self.generation_type == "tournament":
+			if self.generation_type != "casual" or self.map_style != MapStyle.RANDOM:
 				random_button.setEnabled(False)
 				random_button.setChecked(True)
-				option_frame.setEnabled(False)
 			else:
 				random_button.setEnabled(True)
-				if random_button.isChecked():
-					option_frame.setEnabled(False)
-				else:
-					option_frame.setEnabled(True)
+				random_button.setChecked(config.Settings.get("mapGenerator/{}".format(random_button.objectName()), type=bool, default=True))
+
+	@QtCore.pyqtSlot()
+	def configOptionFrames(self):
+		for random_button in self.random_buttons:
+			option_frame = self.option_frames[self.random_buttons.index(random_button)]
+			if random_button.isChecked():
+				option_frame.setEnabled(False)
+			else:
+				option_frame.setEnabled(True)
 	
 	@QtCore.pyqtSlot()
 	def saveMapGenPrefs(self):
 		config.Settings.set("mapGenerator/generationTypeIndex", self.generationType.currentIndex())
 		config.Settings.set("mapGenerator/mapSizeIndex", self.mapSize.currentIndex())
 		config.Settings.set("mapGenerator/numberOfSpawnsIndex", self.numberOfSpawns.currentIndex())
+		config.Settings.set("mapGenerator/mapStyleIndex", self.mapStyle.currentIndex())
 		for random_button in self.random_buttons:
 			config.Settings.set("mapGenerator/{}".format(random_button.objectName()), random_button.isChecked())
 		for slider in self.sliders:
@@ -121,14 +164,16 @@ class MapGenDialog(FormClass, BaseClass):
 
 	@QtCore.pyqtSlot()
 	def resetMapGenPrefs(self):
+		self.generationType.setCurrentIndex(0)
+		self.mapSize.setCurrentIndex(0)
+		self.numberOfSpawns.setCurrentIndex(0)
+		self.mapStyle.setCurrentIndex(0)
+
 		for random_button in self.random_buttons:
 			random_button.setChecked(True)
 		for slider in self.sliders:
 			slider.setValue(0)
 
-		self.generationType.setCurrentIndex(0)
-		self.mapSize.setCurrentIndex(0)
-		self.numberOfSpawns.setCurrentIndex(0)
 
 	@QtCore.pyqtSlot()
 	def generateMap(self):
@@ -145,31 +190,35 @@ class MapGenDialog(FormClass, BaseClass):
 		args.append("--spawn-count")
 		args.append(str(self.number_of_spawns))
 
-		if self.generation_type == "tournament":
-			args.append("--tournament-style")
-		elif self.generation_type == "blind":
-			args.append("--blind")
-		elif self.generation_type == "unexplored":
-			args.append("--unexplored")
+		if self.map_style != MapStyle.RANDOM:
+			args.append("--style")
+			args.append(self.map_style.value)
+		else:
+			if self.generation_type == "tournament":
+				args.append("--tournament-style")
+			elif self.generation_type == "blind":
+				args.append("--blind")
+			elif self.generation_type == "unexplored":
+				args.append("--unexplored")
 
-		slider_args = [
-			 ["--land-density", None]
-			,["--plateau-density", None]
-			,["--mountain-density", None]
-			,["--ramp-density", None]
-			,["--mex-density", None]
-			,["--reclaim-density", None]
-		]
-		for slider in self.sliders:
-			if slider.isEnabled():
-				if slider == self.landDensity:
-					slider_args[self.sliders.index(slider)][1] = float(1 - (slider.value() / 127))
-				else:
-					slider_args[self.sliders.index(slider)][1] = float(slider.value() / 127)
-		
-		for arg_key, arg_value in slider_args:
-			if arg_value is not None:
-				args.append(arg_key)
-				args.append(str(arg_value))
+			slider_args = [
+				["--land-density", None]
+				,["--plateau-density", None]
+				,["--mountain-density", None]
+				,["--ramp-density", None]
+				,["--mex-density", None]
+				,["--reclaim-density", None]
+			]
+			for slider in self.sliders:
+				if slider.isEnabled():
+					if slider == self.landDensity:
+						slider_args[self.sliders.index(slider)][1] = float(1 - (slider.value() / 127))
+					else:
+						slider_args[self.sliders.index(slider)][1] = float(slider.value() / 127)
+			
+			for arg_key, arg_value in slider_args:
+				if arg_value is not None:
+					args.append(arg_key)
+					args.append(str(arg_value))
 
 		return args
