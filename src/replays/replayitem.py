@@ -99,7 +99,7 @@ class ReplayItem(QtWidgets.QTreeWidgetItem):
         self.moreInfo       = False
         self.replayInfo     = False
         self.spoiled        = False
-        self.url            = "{}/faf/vault/replay_vault/replay.php?id={}".format(Settings.get('content/host'), self.uid)
+        self.url            = "{}/{}".format(Settings.get('replay_vault/host'), self.uid)
 
         self.teams          = {}
         self.access         = None

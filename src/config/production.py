@@ -34,6 +34,7 @@ defaults = {
     'mordor/host': 'http://mordor.{host}',
     'turn/host': '{host}',
     'turn/port': 3478,
+    'replay_vault/host': 'https://replay.{host}',
     'replay_server/host': 'lobby.{host}',
     'replay_server/port': 15000,
     'relay_server/host': 'lobby.{host}',
