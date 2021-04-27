@@ -21,6 +21,8 @@ class ChatterMenuItems(Enum):
     ADD_FOE = "Add foe"
     REMOVE_FRIEND = "Remove friend"
     REMOVE_FOE = "Remove foe"
+    ADD_CHATTERBOX = "Ignore"
+    REMOVE_CHATTERBOX = "Unignore"
     COPY_USERNAME = "Copy username"
     INVITE_TO_PARTY = "Invite to party"
 
@@ -57,6 +59,7 @@ class ChatterMenu:
         yield list(self.chatter_actions())
         yield list(self.player_actions(player, game, is_me))
         yield list(self.friend_actions(player, chatter, cc, is_me))
+        yield list(self.ignore_actions(player, chatter, cc, is_me))
         yield list(self.party_actions(player, is_me))
 
     def chatter_actions(self):
@@ -98,6 +101,17 @@ class ChatterMenu:
             yield ChatterMenuItems.ADD_FRIEND
             if not cc.is_mod() and not chatter.is_base_channel_mod():
                 yield ChatterMenuItems.ADD_FOE
+
+    def ignore_actions(self, player, chatter, cc, is_me):
+        if is_me:
+            return
+        id_ = -1 if player is None else player.id
+        name = chatter.name
+        if self._me.relations.model.is_chatterbox(id_, name):
+            yield ChatterMenuItems.REMOVE_CHATTERBOX
+        else:
+            if not cc.is_mod() and not chatter.is_base_channel_mod():
+                yield ChatterMenuItems.ADD_CHATTERBOX
 
     def party_actions(self, player, is_me):
         if is_me:
@@ -153,6 +167,8 @@ class ChatterMenu:
         elif kind in [Items.ADD_FRIEND, Items.ADD_FOE, Items.REMOVE_FRIEND,
                       Items.REMOVE_FOE]:
             self._handle_friends(chatter, player, kind)
+        elif kind in [Items.ADD_CHATTERBOX, Items.REMOVE_CHATTERBOX]:
+            self._handle_chatterboxes(chatter, player, kind)
         elif kind == Items.VIEW_ALIASES:
             self._view_aliases(chatter, player)
         elif kind == Items.VIEW_REPLAYS:
@@ -181,6 +197,17 @@ class ChatterMenu:
             ctl.foes.add(uid)
         elif kind == Items.REMOVE_FOE:
             ctl.foes.remove(uid)
+
+    def _handle_chatterboxes(self, chatter, player, kind):
+        ctl = self._me.relations.controller
+        ctl = ctl.faf if player is not None else ctl.irc
+        uid = player.id if player is not None else chatter.name
+
+        Items = ChatterMenuItems
+        if kind == Items.ADD_CHATTERBOX:
+            ctl.chatterboxes.add(uid)
+        elif kind == Items.REMOVE_CHATTERBOX:
+            ctl.chatterboxes.remove(uid)
 
     def _view_aliases(self, chatter, player):
         id_ = None if player is None else player.id

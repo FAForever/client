@@ -129,15 +129,17 @@ class SignallingSet(MutableSet):
 
 
 class FriendFoeModel:
-    def __init__(self, friends, foes):
+    def __init__(self, friends, foes, chatterboxes):
         self.friends = friends
         self.foes = foes
+        self.chatterboxes = chatterboxes
 
     @classmethod
     def build(cls, **kwargs):
         friends = SignallingSet()
         foes = SignallingSet()
-        return cls(friends, foes)
+        chatterboxes = SignallingSet()
+        return cls(friends, foes, chatterboxes)
 
 
 class UserRelationModel:
@@ -165,6 +167,12 @@ class UserRelationModel:
             return name in self.irc.foes
         return False
 
+    def is_chatterbox(self, id_=None, name=None):
+        if id_ not in [None, -1]:
+            return id_ in self.faf.chatterboxes
+        if name is not None:
+            return name in self.irc.chatterboxes
+        return False
 
 class IrcRelationController:
     def __init__(self, keyname, set_, me, settings):
@@ -186,7 +194,10 @@ class IrcRelationController:
         else:
             loaded = self._settings.get(self._key, [])
         self._set.clear()
-        self._set |= loaded
+        if self._keyname == "chatterboxes":
+            self._set |= (int(pid) for pid in loaded)
+        else:
+            self._set |= loaded
 
     def _save(self):
         if self._key is not None:
@@ -207,7 +218,7 @@ class IrcRelationController:
     def _irc_key(self, player):
         if player is None:
             return None
-        return "chat.irc_{}/{}".format(self._keyname, player.id)
+        return "chat.{}/{}".format(self._keyname, player.id)
 
     def add(self, item):
         self._set.add(item)
@@ -257,23 +268,27 @@ class FafRelationController:
 
 
 class IrcFriendFoeController:
-    def __init__(self, friends, foes):
+    def __init__(self, friends, foes, chatterboxes):
         self.friends = friends
         self.foes = foes
+        self.chatterboxes = chatterboxes
 
     @classmethod
     def build(cls, irc_relations, **kwargs):
-        friends = IrcRelationController.build("friends", irc_relations.friends,
+        friends = IrcRelationController.build("irc_friends", irc_relations.friends,
                                               **kwargs)
-        foes = IrcRelationController.build("foes", irc_relations.foes,
+        foes = IrcRelationController.build("irc_foes", irc_relations.foes,
                                            **kwargs)
-        return cls(friends, foes)
+        chatterboxes = IrcRelationController.build("irc_chatterboxes", irc_relations.chatterboxes,
+                                           **kwargs)
+        return cls(friends, foes, chatterboxes)
 
 
 class FafFriendFoeController:
-    def __init__(self, friends, foes):
+    def __init__(self, friends, foes, chatterboxes):
         self.friends = friends
         self.foes = foes
+        self.chatterboxes = chatterboxes
 
     @classmethod
     def build(cls, faf_relations, **kwargs):
@@ -281,7 +296,9 @@ class FafFriendFoeController:
                                               faf_relations.friends, **kwargs)
         foes = FafRelationController.build("foes", "foe",
                                            faf_relations.foes, **kwargs)
-        return cls(friends, foes)
+        chatterboxes = IrcRelationController.build("chatterboxes",
+                                           faf_relations.chatterboxes, **kwargs)
+        return cls(friends, foes, chatterboxes)
 
 
 class UserRelationController:
@@ -355,7 +372,7 @@ class FriendFoeTracker(RelationshipTracker):
     def __init__(self, friendfoes, item_set):
         RelationshipTracker.__init__(self, item_set)
         self._friendfoes = friendfoes
-        for s in [friendfoes.friends, friendfoes.foes]:
+        for s in [friendfoes.friends, friendfoes.foes, friendfoes.chatterboxes]:
             for sig in [s.added, s.removed]:
                 sig.connect(self._at_relation_updated)
 

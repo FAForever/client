@@ -50,7 +50,8 @@ class ChatterRank(IntEnum):
     CLANNIE = 2
     USER = 3
     NONPLAYER = 4
-    FOE = 5
+    CHATTERBOX = 5
+    FOE = 6
 
 
 class ChatterSortFilterModel(QSortFilterProxyModel):
@@ -108,6 +109,8 @@ class ChatterSortFilterModel(QSortFilterProxyModel):
             return ChatterRank.CLANNIE
         if self._user_relations.is_foe(pid, name):
             return ChatterRank.FOE
+        if self._user_relations.is_chatterbox(pid, name):
+            return ChatterRank.CHATTERBOX
         if item.player is not None:
             return ChatterRank.USER
         return ChatterRank.NONPLAYER

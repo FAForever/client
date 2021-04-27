@@ -304,14 +304,17 @@ class ChatController(QObject):
             if cc is None or cc.is_mod() or cc.chatter.is_base_channel_mod():
                 return False
 
-        if not self._chat_config.ignore_foes:
-            return False
         chatter = self._chatters.get(name, None)
         if chatter is None:
             return False
         name = chatter.name
         id_ = None if chatter.player is None else chatter.player.id
-        return self._user_relations.is_foe(id_, name)
+        if self._user_relations.is_foe(id_, name):
+            if self._user_relations.is_chatterbox(id_, name):
+                return True
+            else:
+                return self._chat_config.ignore_foes
+        return self._user_relations.is_chatterbox(id_, name)
 
 
 class MessageAction(Enum):
