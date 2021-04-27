@@ -9,6 +9,7 @@ class PlayerAffiliation(Enum):
     FRIEND = "friend"
     FOE = "foe"
     CLANNIE = "clan"
+    CHATTERBOX = "chatterbox"
     OTHER = "default"
 
 
@@ -65,6 +66,9 @@ class PlayerColors(QObject):
         return PlayerAffiliation.OTHER
 
     def get_user_color(self, _id=-1, name=None):
+        if self._user_relations.is_chatterbox(_id, name):
+            return self.get_chatterbox_color(_id, name)
+
         affil = self._get_affiliation(_id, name)
         names = {
             PlayerAffiliation.SELF: "self",
@@ -92,3 +96,14 @@ class PlayerColors(QObject):
         if affil in names:
             return self.get_color(names[affil])
         return self.get_color("mod")
+
+    def get_chatterbox_color(self, _id=-1, name=None):
+        affil = self._get_affiliation(_id, name)
+        names = {
+            PlayerAffiliation.FRIEND: "friend_chatterbox",
+            PlayerAffiliation.FOE: "foe_chatterbox",
+            PlayerAffiliation.CLANNIE: "clan_chatterbox",
+        }
+        if affil in names:
+            return self.get_color(names[affil])
+        return self.get_color("chatterbox")
