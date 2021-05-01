@@ -407,6 +407,9 @@ def preview(mapname, pixmap=False):
             logger.debug("Using fresh preview image for: " + mapname)
             return util.THEME.icon(img['cache'], False, pixmap)
 
+        if isGeneratedMap(mapname):
+            return util.THEME.icon("games/generated_map.png")
+
         return None
     except:
         logger.error("Error raised in maps.preview(...) for " + mapname)
