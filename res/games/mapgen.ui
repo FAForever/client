@@ -216,6 +216,11 @@
          <string>LAND_BRIDGE</string>
         </property>
        </item>
+       <item>
+        <property name="text">
+         <string>LOW_MEX</string>
+        </property>
+       </item>
       </widget>
      </item>
      <item>

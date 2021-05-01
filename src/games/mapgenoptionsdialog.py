@@ -18,6 +18,7 @@ class MapStyle(Enum):
 	LITTLE_MOUNTAIN = "LITTLE_MOUNTAIN"
 	MOUNTAIN_RANGE = "MOUNTAIN_RANGE"
 	LAND_BRIDGE = "LAND_BRIDGE"
+	LOW_MEX = "LOW_MEX"
 	
 	def getMapStyle(index):
 		return list(MapStyle)[index]
