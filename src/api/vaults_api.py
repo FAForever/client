@@ -130,7 +130,7 @@ class MapPoolApiConnector(ApiBase):
                 preparedData = dict(
                      command = 'mapvault_info'
                     ,name = "Neroxis Map Generator"
-                    ,folderName = 'neroxis_map_generator_{}_size={}km,_spawns={}'.format(_map['version'],
+                    ,folderName = 'neroxis_map_generator_{}_size={}km_spawns={}'.format(_map['version'],
                                                                                          int(_map['size']/51.2),
                                                                                          _map['spawns'])
                     ,link = ''
