@@ -84,7 +84,8 @@
 {% endmacro -%}
 
 
-{%- macro TooltipFormatting(teams, mods, observers, me, iconpath) %}
+{%- macro TooltipFormatting(title, teams, mods, observers, me, iconpath) %}
+    <b><center>{{title}}</center></b>
     <table border="0" cellpadding="0" cellspacing="5">
     <tbody>
     <tr>
@@ -125,5 +126,5 @@
 {% endmacro -%}
 
 {% if teams[0] is defined or observers is defined %}
-    {{ TooltipFormatting(teams, mods, observers, me, iconpath) }}
+    {{ TooltipFormatting(title, teams, mods, observers, me, iconpath) }}
 {% endif %}

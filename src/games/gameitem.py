@@ -214,7 +214,10 @@ class GameItemFormatter:
         game = data.game
         teams = self._game_teams(game)
         observers = self._game_observers(game)
-        return self._tooltip_formatter.format(teams, observers, game.sim_mods)
+        title = game.title
+        title = title.replace("<", "&lt;")
+        title = title.replace(">", "&gt;")
+        return self._tooltip_formatter.format(title, teams, observers, game.sim_mods)
 
 
 class GameTooltipFormatter:
@@ -225,10 +228,10 @@ class GameTooltipFormatter:
         with open(template_abs_path, "r") as templatefile:
             self._template = jinja2.Template(templatefile.read())
 
-    def format(self, teams, observers, mods):
+    def format(self, title, teams, observers, mods):
         icon_path = os.path.join("chat", "countries/")
         icon_abs_path = os.path.join(util.COMMON_DIR, icon_path)
-        return self._template.render(teams=teams, mods=mods.values(), observers=observers, me=self._me.player, iconpath=icon_abs_path)
+        return self._template.render(title=title, teams=teams, mods=mods.values(), observers=observers, me=self._me.player, iconpath=icon_abs_path)
 
 
 class GameViewBuilder:
