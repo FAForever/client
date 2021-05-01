@@ -15,6 +15,7 @@ from ui.busy_widget import BusyWidget
 from api.vaults_api import MapApiConnector
 from api.vaults_api import MapPoolApiConnector
 from downloadManager import DownloadRequest
+from mapGenerator import mapgenUtils
 from .mapwidget import MapWidget
 import shutil
 
@@ -422,7 +423,10 @@ class MapItem(QtWidgets.QListWidgetItem):
             self.updateIcon()
         else:
             if self.thumbstrSmall == "":
-                self.setIcon(util.THEME.icon("games/unknown_map.png"))
+                if mapgenUtils.isGeneratedMap(self.folderName):
+                    self.setIcon(util.THEME.icon("games/generated_map.png"))
+                else:
+                    self.setIcon(util.THEME.icon("games/unknown_map.png"))
             else:
                 self.parent.client.map_downloader.download_preview(self.folderName, self._map_dl_request, self.thumbstrSmall)\
         

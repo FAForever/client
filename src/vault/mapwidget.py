@@ -74,6 +74,8 @@ class MapWidget(FormClass, BaseClass):
         if os.path.isfile(imgPath):
             pix = QtGui.QPixmap(imgPath)
             self.Picture.setPixmap(pix)
+        elif mapgenUtils.isGeneratedMap(self._map.folderName):
+            self.Picture.setPixmap(util.THEME.pixmap("games/generated_map.png"))
         else:
             self.map_downloader.download_preview(self._map.folderName, self._map_dl_request, 
                                                         url = self._map.thumbnailLarge, large = True)
