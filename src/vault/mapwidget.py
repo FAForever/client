@@ -7,6 +7,7 @@ import datetime
 from util import strtodate, datetostr
 import util
 from fa import maps
+from mapGenerator import mapgenUtils
 import os
 import downloadManager
 
@@ -44,7 +45,9 @@ class MapWidget(FormClass, BaseClass):
 
         if maps.isBase(self._map.folderName):
             self.DownloadButton.setText("This is a base map")
-            self.DownloadButton.setEnabled(False)            
+            self.DownloadButton.setEnabled(False)
+        elif mapgenUtils.isGeneratedMap(self._map.folderName):
+            self.DownloadButton.setEnabled(False)
         elif maps.isMapAvailable(self._map.folderName):
             self.DownloadButton.setText("Remove Map")
 
