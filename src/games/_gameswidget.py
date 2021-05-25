@@ -58,9 +58,9 @@ class GamesWidget(FormClass, BaseClass):
     
 
     sub_factions_ladder = Settings.persisted_property(
-        "play/subFactions", default_value=[False, False, False, False])
+        "play/subFactions", default_value=[False, False, False, False], type=bool)
     sub_factions_tmm = Settings.persisted_property(
-        "play/tmmFactions", default_value=[False, False, False, False])
+        "play/tmmFactions", default_value=[False, False, False, False], type=bool)
 
     def __init__(self, client, game_model, me, gameview_builder, game_launcher):
         BaseClass.__init__(self)
@@ -102,9 +102,6 @@ class GamesWidget(FormClass, BaseClass):
         self.tmmSeraphim.setIcon(util.THEME.icon("games/automatch/seraphim.png"))
         self.tmmUEF.setIcon(util.THEME.icon("games/automatch/uef.png"))
 
-        # Fixup ini file type loss
-        self.sub_factions_ladder = [True if x == 'true' else False for x in self.sub_factions_ladder]
-        self.sub_factions_tmm = [True if x == 'true' else False for x in self.sub_factions_tmm]
         self.sub_factions = {"ladder1v1": self.sub_factions_ladder, "tmm2v2": self.sub_factions_tmm}
 
         self.searchProgress.hide()
