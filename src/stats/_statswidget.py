@@ -212,6 +212,7 @@ class StatsWidget(BaseClass, FormClass, BusyWidget):
                                             LeaderboardWidget(self.client, self, self.leaderboardNames[i]),
                                             self.leaderboardNames[i].capitalize().replace("_", " ")
                 )
+                self.client.replays.leaderboardList.addItem(self.leaderboardNames[i])
 
             self.leaderboards.setCurrentIndex(1)
             self.leaderboards.currentChanged.connect(self.leaderboardsTabChanged)
