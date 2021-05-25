@@ -187,7 +187,8 @@ class MapVault(FormClass, BaseClass, BusyWidget):
 
     @QtCore.pyqtSlot()
     def busy_entered(self):
-        self.goToPage(self.pageNumber)
+        if not self._maps:
+            self.goToPage(self.pageNumber)
 
     def updateVisibilities(self):
         logger.debug("Updating visibilities with sort '%s' and visibility '%s'" % (self.sortType, self.showType))
