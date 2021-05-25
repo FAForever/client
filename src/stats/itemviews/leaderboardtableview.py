@@ -40,6 +40,21 @@ class LeaderboardTableView(QtWidgets.QTableView):
         self.verticalHeader().updateHoverSection(event)
     
     def mousePressEvent(self, event):
-        QtWidgets.QTableView.mousePressEvent(self, event)
+        if event.button() == QtCore.Qt.RightButton:
+            row = self.indexAt(event.pos()).row()
+            index = self.model().index(row, 0)
+            name = self.model().data(index)
+            self.selectRow(row)
+            self.viewReplays(event, name)
+        else:
+            QtWidgets.QTableView.mousePressEvent(self, event)
         self.updateHoverRow(event)
         self.verticalHeader().updateHoverSection(event)
+
+    def viewReplays(self, event, name):
+        menu = QtWidgets.QMenu(self)
+        viewReplaysAction = QtWidgets.QAction("View Replays", self)
+        leaderboardName = self.parent().parent().leaderboardName
+        viewReplaysAction.triggered.connect(lambda: self.parent().parent().client.view_replays(name, leaderboardName))
+        menu.addAction(viewReplaysAction)
+        menu.popup(QtGui.QCursor.pos())
