@@ -28,7 +28,6 @@ class MapGeneratorManager(object):
         self.response = None
 
         self.currentVersion = Settings.get('mapGenerator/version', "0", str)
-        self.mapsFolder = getUserMapsFolder()
 
     def generateMap(self, mapname=None, args=None):
         if mapname is None:
@@ -67,12 +66,16 @@ class MapGeneratorManager(object):
                 elif result == QtWidgets.QMessageBox.YesToAll:
                     Settings.set('mapGenerator/autostart', True)
             
+            mapsFolder = getUserMapsFolder()
+            if not os.path.exists(mapsFolder):
+                os.makedirs(mapsFolder)
+
             # Start generator with progress bar
-            self.generatorProcess = MapGeneratorProcess(actualPath, self.mapsFolder, args)
+            self.generatorProcess = MapGeneratorProcess(actualPath, mapsFolder, args)
             
             map_ = self.generatorProcess.mapname
             # Check if map exists or generator failed
-            if os.path.isdir(os.path.join(self.mapsFolder, map_)):
+            if os.path.isdir(os.path.join(mapsFolder, map_)):
                 return map_
             else:
                 return False
