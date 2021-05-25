@@ -237,7 +237,7 @@ QSplitter::handle:hover
  }
 
 QSpinBox#minRating, QLineEdit#mapName, #playerName, QSpinBox#quantity, #advQuantity,
-QComboBox#modList, #value1, #value2, #value3, #value4, #value5, #value6
+QComboBox#modList, #value1, #value2, #value3, #value4, #value5, #value6, #leaderboardList
 {
     background-color: #353535;
     color: orange;
@@ -646,7 +646,7 @@ QCheckBox#spoilerCheckbox::indicator:checked, #automaticCheckbox::indicator:chec
  {
     image: url('%THEMEPATH%/client/chboxUnchecked.png');
  }
- 
+
  QCheckBox::indicator:checked
  {
     image: url('%THEMEPATH%/client/chboxChecked.png');
