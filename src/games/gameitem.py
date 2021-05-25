@@ -159,14 +159,15 @@ class GameItemFormatter:
 
     def text(self, data):
         game = data.game
+        players = game.num_players - len(self._game_observers(game))
         formatting = {
             "color": self._host_color(game),
             "mapslots": game.max_players,
             "mapdisplayname": html.escape(game.mapdisplayname),
             "title": html.escape(game.title),
             "host": html.escape(game.host),
-            "players": game.num_players,
-            "playerstring": "player" if game.num_players == 1 else "players",
+            "players": players,
+            "playerstring": "player" if players == 1 else "players",
             "avgrating": int(game.average_rating)
         }
         if self._featured_mod(game):
