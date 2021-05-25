@@ -20,7 +20,12 @@ from vault.dialogs import VaultDownloadDialog, downloadVaultAsset
 
 logger = logging.getLogger(__name__)
 
-MODFOLDER = os.path.join(util.PERSONAL_DIR, "My Games", "Gas Powered Games", "Supreme Commander Forged Alliance", "Mods")
+def getModFolder():
+    return os.path.join(util.PERSONAL_DIR, "My Games", "Gas Powered Games", "Supreme Commander Forged Alliance", "Mods")
+def setModFolder():
+    global MODFOLDER
+    MODFOLDER = getModFolder()
+setModFolder()
 MODVAULT_DOWNLOAD_ROOT = "{}/faf/vault/".format(Settings.get('content/host'))
 
 installedMods = []  # This is a global list that should be kept intact.

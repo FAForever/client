@@ -350,6 +350,8 @@
      <addaction name="separator"/>
      <addaction name="actionSetGamePath"/>
      <addaction name="actionSaveGamelogs"/>
+     <addaction name="separator"/>
+     <addaction name="actionVaultFallback"/>
     </widget>
     <widget class="QMenu" name="menuTheme">
      <property name="tearOffEnabled">
@@ -908,6 +910,17 @@
   <action name="actionClearMapGenerators">
    <property name="text">
     <string>Map Generators</string>
+   </property>
+  </action>
+  <action name="actionVaultFallback">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Vault fallback location</string>
+   </property>
+   <property name="toolTip">
+    <string>Sets &quot;ProgramData/FAForever/user&quot; instead of &quot;User/Documents&quot; folder as personal directory</string>
    </property>
   </action>
  </widget>
