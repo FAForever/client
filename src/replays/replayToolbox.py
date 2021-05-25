@@ -250,11 +250,11 @@ class ReplayToolboxHandler(object):
                 filterString = filtersSettings[filterName]["filterString"]
 
                 if filterName == "Start time":
-                    startDate = filterBox.dateEdit.date().toString('yyyy-MM-dd')
+                    startDate = filterBox.dateEdit.dateTime().toUTC().toString(QtCore.Qt.ISODate)
                     if opName == ">":
-                        finalFilters.append(filterString + operators[opName].format(startDate+"T00:00:00Z"))
+                        finalFilters.append(filterString + operators[opName].format(startDate))
                     else:
-                        finalFilters.append(filterString + operators[opName].format(startDate+"T23:59:59Z"))
+                        finalFilters.append(filterString + operators[opName].format(startDate))
                 elif value:
                     finalFilters.append(filterString + operators[opName].format(value))
                     

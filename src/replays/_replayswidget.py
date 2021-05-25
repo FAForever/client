@@ -675,8 +675,8 @@ class ReplayVaultWidgetHandler(object):
                 w.quantity.setValue(quantity)
             if not self.showLatest:
                 timePeriod = []
-                timePeriod.append(w.dateStart.date().toString('yyyy-MM-dd'))
-                timePeriod.append(w.dateEnd.date().toString('yyyy-MM-dd'))
+                timePeriod.append(w.dateStart.dateTime().toUTC().toString(QtCore.Qt.ISODate))
+                timePeriod.append(w.dateEnd.dateTime().toUTC().toString(QtCore.Qt.ISODate))
 
         filters = self.prepareFilters(w.minRating.value(), w.mapName.text(), w.playerName.text(), w.modList.currentText(), timePeriod)
 
@@ -720,15 +720,15 @@ class ReplayVaultWidgetHandler(object):
             filters.append('featuredMod.technicalName=="{}"'.format(modListIndex))
         
         if timePeriod:
-            filters.append('startTime=gt="{}T00:00:00Z"'.format(timePeriod[0]))
-            filters.append('startTime=lt="{}T23:59:59Z"'.format(timePeriod[1]))
+            filters.append('startTime=ge="{}"'.format(timePeriod[0]))
+            filters.append('startTime=le="{}"'.format(timePeriod[1]))
         elif len(filters) > 0:
             months = 3
             if playerName:
                 months = 6
                 
-            dateTimePeriod = datetime.datetime.fromtimestamp(time.time() - 2628000 * months)
-            filters.append('startTime=gt="{}"'.format(dateTimePeriod.strftime('%Y-%m-%dT%H:%M:%SZ')))
+            startTime = QtCore.QDateTime.currentDateTimeUtc().addMonths(-months).toString(QtCore.Qt.ISODate)
+            filters.append('startTime=ge="{}"'.format(startTime))
 
         if len(filters) > 0:
             return "({})".format(";".join(filters))
