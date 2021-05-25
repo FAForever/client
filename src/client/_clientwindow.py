@@ -1243,7 +1243,11 @@ class ClientWindow(FormClass, BaseClass):
         self.mainTabs.setCurrentIndex(self.mainTabs.indexOf(self.replaysTab))
 
     def view_in_leaderboards(self, user):
-        self.ladder.set_player(user)
+        self.ladder.setCurrentIndex(self.ladder.indexOf(self.ladder.leaderboardsTab))
+        self.ladder.leaderboards.widget(0).searchPlayerInLeaderboard(user)
+        self.ladder.leaderboards.widget(1).searchPlayerInLeaderboard(user)
+        self.ladder.leaderboards.widget(2).searchPlayerInLeaderboard(user)
+        self.ladder.leaderboards.setCurrentIndex(1)
         self.mainTabs.setCurrentIndex(self.mainTabs.indexOf(self.ladderTab))
 
     def manage_power(self):
