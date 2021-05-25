@@ -55,6 +55,12 @@
      </item>
      <item>
       <widget class="QPushButton" name="searchButton">
+       <property name="minimumSize">
+        <size>
+         <width>75</width>
+         <height>25</height>
+        </size>
+       </property>
        <property name="text">
         <string>Server Search</string>
        </property>
@@ -62,6 +68,12 @@
      </item>
      <item>
       <widget class="QPushButton" name="resetButton">
+       <property name="minimumSize">
+        <size>
+         <width>75</width>
+         <height>25</height>
+        </size>
+       </property>
        <property name="text">
         <string>Reset Search</string>
        </property>
@@ -379,6 +391,12 @@
      </item>
      <item>
       <widget class="QPushButton" name="firstButton">
+       <property name="minimumSize">
+        <size>
+         <width>30</width>
+         <height>23</height>
+        </size>
+       </property>
        <property name="maximumSize">
         <size>
          <width>30</width>
@@ -445,6 +463,12 @@
      </item>
      <item>
       <widget class="QPushButton" name="lastButton">
+       <property name="minimumSize">
+        <size>
+         <width>30</width>
+         <height>23</height>
+        </size>
+       </property>
        <property name="maximumSize">
         <size>
          <width>30</width>
