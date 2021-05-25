@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 route = Settings.get('content/host')
 VAULT_PREVIEW_ROOT = "{}/faf/vault/map_previews/small/".format(route)
-VAULT_DOWNLOAD_ROOT = "{}/faf/vault/".format(route)
+VAULT_DOWNLOAD_ROOT = "{}/".format(route)
 VAULT_COUNTER_ROOT = "{}/faf/vault/map_vault/inc_downloads.php".format(route)
 
 from model.game import OFFICIAL_MAPS as maps
