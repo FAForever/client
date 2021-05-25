@@ -47,7 +47,7 @@ from model.chat.chatline import ChatLineMetadataBuilder
 from model.gameset import Gameset, PlayerGameIndex
 from model.player import Player
 from model.playerset import Playerset
-from modvault.utils import MODFOLDER
+from modvault.utils import getModFolder, setModFolder
 from power import PowerTools
 from fa.game_session import GameSession, GameSessionState
 from secondaryServer import SecondaryServer
@@ -379,6 +379,12 @@ class ClientWindow(FormClass, BaseClass):
     @QtCore.pyqtSlot(bool)
     def on_action_auto_generate_maps_toggled(self, value):
         config.Settings.set('mapGenerator/autostart', value is True)
+    
+    @QtCore.pyqtSlot(bool)
+    def on_action_fault_fallback_toggled(self, value):
+        config.Settings.set('vault/fallback', value is True)
+        util.setPersonalDir()
+        setModFolder()
 
     def eventFilter(self, obj, event):
         if event.type() == QtCore.QEvent.HoverMove:
@@ -845,7 +851,7 @@ class ClientWindow(FormClass, BaseClass):
         self.actionSetGamePath.triggered.connect(self.switchPath)
 
         self.actionShowMapsDir.triggered.connect(lambda: util.showDirInFileBrowser(getUserMapsFolder()))
-        self.actionShowModsDir.triggered.connect(lambda: util.showDirInFileBrowser(MODFOLDER))
+        self.actionShowModsDir.triggered.connect(lambda: util.showDirInFileBrowser(getModFolder()))
         self.actionShowReplaysDir.triggered.connect(lambda: util.showDirInFileBrowser(util.REPLAY_DIR))
         self.actionShowThemesDir.triggered.connect(lambda: util.showDirInFileBrowser(util.THEME_DIR))
         # if game.prefs doesn't exist: show_dir -> empty folder / show_file -> 'file doesn't exist' message
@@ -871,6 +877,8 @@ class ClientWindow(FormClass, BaseClass):
         self.actionSetLiveReplays.triggered.connect(self.update_options)
         self.actionSaveGamelogs.toggled.connect(self.on_action_save_game_logs_toggled)
         self.actionSaveGamelogs.setChecked(self.game_logs)
+        self.actionVaultFallback.toggled.connect(self.on_action_fault_fallback_toggled)
+        self.actionVaultFallback.setChecked(config.Settings.get('vault/fallback', type=bool, default=False))
         self.actionColoredNicknames.triggered.connect(self.update_options)
         self.actionFriendsOnTop.triggered.connect(self.update_options)
         self.actionLanguageChannels.triggered.connect(self._language_channel_config.run)

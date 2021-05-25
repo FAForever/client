@@ -111,16 +111,28 @@ if not os.path.exists(PREFSFILENAME):
 DOWNLOADED_RES_PIX = {}
 DOWNLOADING_RES_PIX = {}
 
-PERSONAL_DIR = str(QStandardPaths.standardLocations(QStandardPaths.DocumentsLocation)[0])
-logger.info('PERSONAL_DIR initial: ' + PERSONAL_DIR)
-try:
-    PERSONAL_DIR.encode("ascii")
+def getPersonalDir():
+    fallback = Settings.get('vault/fallback', type=bool, default=False)
+    if fallback:
+        dir_ = os.path.join(APPDATA_DIR, "user")
+    else:
+        dir_ = str(QStandardPaths.standardLocations(QStandardPaths.DocumentsLocation)[0])
+        try:
+            dir_.encode("ascii")
 
-    if not os.path.isdir(PERSONAL_DIR):
-        raise Exception('No documents location. Will use APPDATA instead.')
-except:
-    logger.exception('PERSONAL_DIR not ok, falling back.')
-    PERSONAL_DIR = os.path.join(APPDATA_DIR, "user")
+            if not os.path.isdir(dir_):
+                raise Exception('No documents location. Will use APPDATA instead.')
+        except:
+            logger.exception('PERSONAL_DIR not ok, falling back.')
+            dir_ = os.path.join(APPDATA_DIR, "user")
+    return dir_
+
+def setPersonalDir():
+    global PERSONAL_DIR
+    PERSONAL_DIR = getPersonalDir()
+    logger.info('PERSONAL_DIR set to: ' + PERSONAL_DIR)
+
+setPersonalDir()
 
 logger.info('PERSONAL_DIR final: ' + PERSONAL_DIR)
 
