@@ -221,6 +221,11 @@
          <string>LOW_MEX</string>
         </property>
        </item>
+       <item>
+        <property name="text">
+         <string>FLOODED</string>
+        </property>
+       </item>
       </widget>
      </item>
      <item>
