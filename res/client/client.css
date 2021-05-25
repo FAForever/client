@@ -219,11 +219,48 @@ QSplitter::handle:hover
      background-color: #606060;
  }
 
-QSpinBox#minRating, QLineEdit#mapName, #playerName, QDateEdit#dateEnd, #dateStart, QSpinBox#quantity, #advQuantity,
+ QDateEdit
+ {
+     margin: 0;
+     background-color: #353535;
+     color: orange;
+ }
+ 
+ QDateEdit:disabled
+ {
+     color: #8D8B85;
+ }
+ 
+ QDateEdit::down-arrow
+ {
+     color: orange;
+ }
+
+QSpinBox#minRating, QLineEdit#mapName, #playerName, QSpinBox#quantity, #advQuantity,
 QComboBox#modList, #value1, #value2, #value3, #value4, #value5, #value6
 {
     background-color: #353535;
     color: orange;
+}
+
+QSpinBox#quantityBox, #pageBox
+{
+    background-color: #353535;
+    color: orange;
+    border: 1 solid;
+    border-color: #555450;
+}
+
+QSpinBox#minRating, QSpinBox#quantity, #advQuantity
+{
+    border-style: solid;
+    border-color: #353535;
+}
+
+QSpinBox#minRating::disabled
+{
+    color: #8D8B85;
+    background-color: #4b4b4b;
 }
 
 QComboBox#filter1, #filter2, #filter3, #filter4, #filter5, #filter6, 
@@ -231,10 +268,6 @@ QComboBox#filter1, #filter2, #filter3, #filter4, #filter5, #filter6,
 {
     background-color: #353535;
     color: silver;
-}
-
-QDateEdit#dateEnd:disabled, #dateStart:disabled {
-    color: #8D8B85;
 }
 
 QToolBox#replayToolBox::tab
@@ -248,6 +281,17 @@ QToolBox#replayToolBox::tab
 #advancedSearch, #mapPreview
 {
     background-color: rgb(32, 32, 37);
+}
+
+QTableView::item:hover
+{
+    background-color: #606060;
+}
+
+QTableView::item:selected
+{
+    background-color: #306030;
+    border:none;
 }
 
 /* Text controls */
@@ -266,19 +310,74 @@ QTextEdit, QPlainTextEdit, QLineEdit, QListWidget, QListView, QTableWidget, QTre
     border-bottom-right-radius : 5px;
 }
 
+QTableView
+{
+    border-style:solid;
+    border-width:1px;
+    border-color:#353535;
+    color:silver;
+    padding:5px;
+    background-color:#202025;
+    alternate-background-color: #303035;
+    border-top-right-radius : 5px;
+    border-top-left-radius : 5px;
+    border-bottom-left-radius : 5px;
+    border-bottom-right-radius : 5px;
+}
+
 /* used in ConnectivityDialog */
 QTableCornerButton::section {
-    background-color:#606060;
+    background-color:#333333;
 }
 
 QHeaderView {
     background-color:#202025;
 }
 
-QHeaderView::section {
+QHeaderView::section
+{
+    color: white;
+    background-color: #4b4b4b;
+    font: bold;
+    border-left: 1 solid;
+    
+}
+
+QHeaderView::down-arrow
+{
+    image: url('%THEMEPATH%/client/arrowDown.png');
+}
+
+QHeaderView::up-arrow
+{
+    image: url('%THEMEPATH%/client/arrowUp.png');
+}
+
+QHeaderView#VerticalHeader::section {
     color:silver;
-    background-color: #606060;
+    background-color: #333333;
     border: none;
+    font: normal;
+    min-width: 50px;
+}
+
+QHeaderView#VerticalHeader::section:checked
+{
+    color:white;
+    background-color: #306030;
+    border-bottom: 1px solid;
+    border-color: #202025;
+    width: auto;
+}
+
+QHeaderView#VerticalHeader::section:hover
+{
+    color:silver;
+    font: bold;
+    background-color: #606060;
+    border-bottom: 1px solid;
+    border-color: #202025;
+    width: auto;
 }
 
 /* Modlist */
@@ -485,6 +584,11 @@ QLabel#titleLabel
     font-weight:bold;
 }
 
+QLabel#labelLoading
+{
+    color: gold;
+}
+
 QGroupBox
 {
     margin: 5px;
@@ -531,6 +635,21 @@ QCheckBox#spoilerCheckbox::indicator:checked, #automaticCheckbox::indicator:chec
 ,#rampsRandomDensity::indicator::checked, #mexRandomDensity::indicator::checked ,#reclaimRandomDensity::indicator::checked
 {
     image: url('%THEMEPATH%/client/chboxCheked.png');
+ }
+
+ QCheckBox::enabled
+ {
+     color: silver;
+ }
+
+ QCheckBox::indicator:unchecked
+ {
+    image: url('%THEMEPATH%/client/chboxUnchecked.png');
+ }
+ 
+ QCheckBox::indicator:checked
+ {
+    image: url('%THEMEPATH%/client/chboxChecked.png');
  }
 
 /* Used for Ranked Buttons only at the moment*/
@@ -583,6 +702,21 @@ QToolButton::checked
     border-radius : 5px;
  }
  
+QPushButton#refreshButton, #nextButton, #previousButton, #goToPageButton, #firstButton, #lastButton,
+#resetButton, #searchPlayerButton
+{
+    color: silver;
+    background: #202025;
+    border: 1 solid #555450;
+    border-radius: 2;
+}
+
+QPushButton#refreshButton::hover, #nextButton::hover, #previousButton::hover, #goToPageButton::hover,
+#firstButton::hover, #lastButton::hover, #resetButton::hover, #searchPlayerButton::hover
+{
+    background-color: #808080;
+}
+
 QPushButton#searchButton, #advSearchButton, #fafDbButton, #spookyDbButton, #kickButton, #leaveButton
 {
 	color: silver;

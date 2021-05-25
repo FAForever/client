@@ -6,6 +6,8 @@ import client
 from util.qt import injectWebviewCSS
 import time
 
+from .leaderboard_widget import LeaderboardWidget
+from api.stats_api import LeaderboardApiConnector
 from ui.busy_widget import BusyWidget
 
 import logging
@@ -31,18 +33,16 @@ class StatsWidget(BaseClass, FormClass, BusyWidget):
         
         self.client.lobby_info.statsInfo.connect(self.processStatsInfos)
 
-        self.client = client
-
         self.webview = QtWebEngineWidgets.QWebEngineView()
         self.webpage = WebEnginePage()
         
-        self.LadderRatings.layout().addWidget(self.webview)
+        self.websiteTab.layout().addWidget(self.webview)
         
         self.selected_player = None
         self.selected_player_loaded = False
         self.webview.loadFinished.connect(self.webview.show)
-        #self.webview.loadFinished.connect(self._injectCSS)
         self.leagues.currentChanged.connect(self.leagueUpdate)
+        self.currentChanged.connect(self.busy_entered)
         self.pagesDivisions = {}
         self.pagesDivisionsResults = {}
         self.pagesAllLeagues = {}
@@ -61,9 +61,15 @@ class StatsWidget(BaseClass, FormClass, BusyWidget):
         # setup other tabs
         self.mapstat = mapstat.LadderMapStat(self.client, self)
 
-        self.webview.setVisible(False) #this seems to do nothing, but as it was present before editor decided to keep the line
         self.webpage.setUrl(QtCore.QUrl("https://faforever.com/competitive/leaderboards/1v1"))
         self.webview.setPage(self.webpage)
+
+        self.apiConnector = LeaderboardApiConnector(self.client.lobby_dispatch)
+        self.apiConnector.requestData(dict(sort="id"))
+
+        # hiding some non-functional tabs
+        self.removeTab(self.indexOf(self.ladderTab))
+        self.removeTab(self.indexOf(self.laddermapTab))
 
     def load_stylesheet(self):
         self.setStyleSheet(util.THEME.readstylesheet("stats/formatters/style.css"))
@@ -159,6 +165,10 @@ class StatsWidget(BaseClass, FormClass, BusyWidget):
         table.verticalScrollBar().setValue(table.verticalScrollBar().minimum())
         return table
 
+    @QtCore.pyqtSlot(int)
+    def leaderboardsTabChanged(self, curr):
+        self.leaderboards.widget(curr).entered()
+
     @QtCore.pyqtSlot(dict)
     def processStatsInfos(self, message):
 
@@ -193,37 +203,27 @@ class StatsWidget(BaseClass, FormClass, BusyWidget):
         elif typeStat == "ladder_map_stat":
             self.laddermapstat.emit(message)
 
+        elif typeStat == "leaderboard":
+            self.leaderboardNames = []
+            for value in message["values"]:
+                self.leaderboardNames.append(value["technicalName"])
+            for i in range(len(self.leaderboardNames)):
+                self.leaderboards.insertTab(i, 
+                                            LeaderboardWidget(self.client, self, self.leaderboardNames[i]),
+                                            self.leaderboardNames[i].capitalize().replace("_", " ")
+                )
+
+            self.leaderboards.setCurrentIndex(1)
+            self.leaderboards.currentChanged.connect(self.leaderboardsTabChanged)
+
     def _injectCSS(self):
         if util.THEME.themeurl("ladder/style.css"):
             injectWebviewCSS(self.webview.page(), util.THEME.readstylesheet("ladder/style.css"))
 
-    def set_player(self, player):
-        if self.selected_player != player:
-            self.selected_player = player
-            self.selected_player_loaded = False
-
     @QtCore.pyqtSlot()
     def busy_entered(self):
-        # Don't display things when we're not logged in
-        # FIXME - one day we'll have more obvious points of entry
-        #if self.client.state != client.ClientState.LOGGED_IN:
-        #    return
-
-        #if self.selected_player is None:
-        #    self.selected_player = self.client.players[self.client.login]
-        #if self.selected_player.league is not None:
-        #    self.leagues.setCurrentIndex(self.selected_player.league - 1)
-        #else:
-        #    self.leagues.setCurrentIndex(5)  # -> 5 = direct to Ladder Ratings
-
-        #if self.selected_player_loaded:
-        #    return
-
-        #self.webview.setVisible(False)
-        #self.webview.setUrl(QtCore.QUrl("{}/faf/leaderboards/read-leader.php?board=1v1&username={}".
-        #                                format(Settings.get('content/host'), self.selected_player.login)))
-        #self.selected_player_loaded = True
-        self.leagues.setCurrentIndex(5)
+        if self.currentIndex() == self.indexOf(self.leaderboardsTab):
+            self.leaderboards.currentChanged.emit(self.leaderboards.currentIndex())
 
 class WebEnginePage(QtWebEngineWidgets.QWebEnginePage):
     def __init__(self):
