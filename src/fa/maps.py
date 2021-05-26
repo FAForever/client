@@ -431,16 +431,6 @@ def downloadMap(name, silent=False):
             msg()
             return ret
 
-    # Count the map downloads
-    try:
-        url = VAULT_COUNTER_ROOT + "?map=" + urllib.parse.quote(link)
-        req = urllib.request.Request(url, headers={'User-Agent': "FAF Client"})
-        urllib.request.urlopen(req)
-        logger.debug("Successfully sent download counter request for: " + url)
-    except:
-        logger.warning("Request to map download counter failed for: " + url)
-        logger.error("Download Count Exception", exc_info=sys.exc_info())
-
     return True
 
 
