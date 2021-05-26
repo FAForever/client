@@ -159,7 +159,7 @@ class GameItemFormatter:
 
     def text(self, data):
         game = data.game
-        players = game.num_players - len(self._game_observers(game))
+        players = game.num_players - len(game.observers)
         formatting = {
             "color": self._host_color(game),
             "mapslots": game.max_players,
