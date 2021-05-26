@@ -1,4 +1,5 @@
 from PyQt5 import QtCore
+import re
 
 class LeaderboardFilterModel(QtCore.QSortFilterProxyModel):
     def lessThan(self, leftIndex, rightIndex):
