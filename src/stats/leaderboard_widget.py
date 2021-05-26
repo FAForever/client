@@ -1,7 +1,4 @@
 from PyQt5 import QtWidgets, QtCore, QtGui
-import json
-import datetime
-import re
 
 from api.player_api import PlayerApiConnector
 from api.stats_api import LeaderboardRatingApiConnector
