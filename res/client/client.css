@@ -703,7 +703,7 @@ QToolButton::checked
  }
  
 QPushButton#refreshButton, #nextButton, #previousButton, #goToPageButton, #firstButton, #lastButton,
-#resetButton, #searchPlayerButton
+#resetButton, #searchPlayerButton, #UIButton, #uploadButton
 {
     color: silver;
     background: #202025;
@@ -712,7 +712,8 @@ QPushButton#refreshButton, #nextButton, #previousButton, #goToPageButton, #first
 }
 
 QPushButton#refreshButton::hover, #nextButton::hover, #previousButton::hover, #goToPageButton::hover,
-#firstButton::hover, #lastButton::hover, #resetButton::hover, #searchPlayerButton::hover
+#firstButton::hover, #lastButton::hover, #resetButton::hover, #searchPlayerButton::hover,
+#UIButton::hover, #uploadButton::hover
 {
     background-color: #808080;
 }
