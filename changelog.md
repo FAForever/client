@@ -1,5 +1,49 @@
 0.x.x
+0.x.xx
 =====
+
+0.19.19
+ * Fix broken map downloader
+ * Add leaderboards from API
+ * Add option to force switching to vault fallback location
+   (to be compatible with the Java client's settings)
+ * Exclude observers from game player count
+
+0.19.18
+ * Separate 'ignore' from 'add fore' option
+ * Add full game title to the game tooltip
+
+0.19.17
+ * Add map styles to map generator UI
+
+0.19.16
+ * Support zstandard compression in replay files
+
+0.19.15
+ * Add map generator support
+
+Contributors:
+ - [Strogoo](https://github.com/FAForever/client/pull/1085)
+
+0.19.14
+ * Fix handling events in notifications
+
+0.19.13
+ * Use mean rating for map pools
+ * Fix download cancellation in vaults
+ * Fix diplaying news
+
+0.19.12
+ * Fix the ability to view map pools
+
+0.19.11
+ * Forbid inviting those who are currently in game to party
+ * Do not send "stop search" command as party guest
+ * Display TMM ratings in the chatter's rank tooltip
+ * Append correct TMM rating at game launch
+
+0.19.1
+ * Add teammatchmaking, basic party system
 
 0.19.0
 =====
