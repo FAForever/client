@@ -7,3 +7,5 @@ import util
 logger = logging.getLogger(__name__)
 
 from ._statswidget import StatsWidget
+from stats.itemviews.leaderboardtableview import LeaderboardTableView
+from stats.leaderboardlineedit import LeaderboardLineEdit
