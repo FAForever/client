@@ -75,6 +75,7 @@ class Player(ModelItem):
         """
         return int(max(0, (self.global_rating[0] - 3 * self.global_rating[1])))
 
+    @property
     def ladder_estimate(self):
         """
         Get the conservative estimate of the players ladder trueskill rating

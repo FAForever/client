@@ -84,7 +84,7 @@ class ChatterMenu:
                 yield ChatterMenuItems.VIEW_LIVEREPLAY
 
         if player is not None:
-            if int(player.ladder_estimate()) != 0:
+            if player.ladder_estimate != 0:
                 yield ChatterMenuItems.VIEW_IN_LEADERBOARDS
             yield ChatterMenuItems.VIEW_REPLAYS
 
