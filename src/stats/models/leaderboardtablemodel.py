@@ -40,9 +40,9 @@ class LeaderboardTableModel(QAbstractTableModel):
             elif column == 1:
                 return "{}".format(int(self.values[row]["rating"]))
             elif column == 2:
-                return "{}".format(int(self.values[row]["mean"]))
+                return "{:.2f}".format(round(self.values[row]["mean"], 2))
             elif column == 3:
-                return "{}".format(int(self.values[row]["deviation"]))
+                return "{:.2f}".format(round(self.values[row]["deviation"], 2))
             elif column == 4:
                 return "{}".format(self.values[row]["totalGames"])
             elif column == 5:
