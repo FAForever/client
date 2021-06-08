@@ -12,9 +12,9 @@ class LeaderboardFilterModel(QtCore.QSortFilterProxyModel):
         elif column == 1: #Rating
             return int(leftData) < int(rightData)
         elif column == 2: #Mean
-            return int(leftData) < int(rightData)
+            return float(leftData) < float(rightData)
         elif column == 3: #Deviation
-            return int(leftData) < int(rightData)
+            return float(leftData) < float(rightData)
         elif column == 4: #Total Games
             return int(leftData) < int(rightData)
         elif column == 5: #Won Games
