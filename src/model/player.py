@@ -93,19 +93,19 @@ class Player(ModelItem):
 
     @property
     def rating_mean(self):
-        return self.global_rating[0]
+        return round(self.global_rating[0])
 
     @property
     def rating_deviation(self):
-        return self.global_rating[1]
+        return round(self.global_rating[1])
 
     @property
     def ladder_rating_mean(self):
-        return self.ladder_rating[0]
+        return round(self.ladder_rating[0])
 
     @property
     def ladder_rating_deviation(self):
-        return self.ladder_rating[1]
+        return round(self.ladder_rating[1])
 
     @property
     def ladder_number_of_games(self):
@@ -114,14 +114,14 @@ class Player(ModelItem):
     @property
     def tmm_rating_mean(self):
         try:
-            return self.ratings["tmm_2v2"]["rating"][0]
+            return round(self.ratings["tmm_2v2"]["rating"][0])
         except:
             return 1500
     
     @property
     def tmm_rating_deviation(self):
         try:
-            return self.ratings["tmm_2v2"]["rating"][1]
+            return round(self.ratings["tmm_2v2"]["rating"][1])
         except:
             return 500
     
