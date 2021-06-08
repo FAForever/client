@@ -228,18 +228,20 @@ class ChatterItemFormatter:
         formatting = ("Global Rating: {} ({} Games) [{}\xb1{}]\n"
                       "Ladder Rating: {} ({} Games) [{}\xb1{}]\n"
                       "TMM Rating: {} ({} Games) [{}\xb1{}]")
-        tooltip_str = formatting.format((int(player.rating_estimate)),
-                                        player.number_of_games,
-                                        int(player.rating_mean),
-                                        int(player.rating_deviation),
-                                        int(player.ladder_estimate()),
-                                        int(player.ladder_number_of_games),
-                                        int(player.ladder_rating_mean),
-                                        int(player.ladder_rating_deviation),
-                                        int(player.tmm_estimate),
-                                        int(player.tmm_number_of_games),
-                                        int(player.tmm_rating_mean),
-                                        int(player.tmm_rating_deviation))
+        tooltip_str = formatting.format(
+            player.rating_estimate,
+            player.number_of_games,
+            player.rating_mean,
+            player.rating_deviation,
+            player.ladder_estimate(),
+            player.ladder_number_of_games,
+            player.ladder_rating_mean,
+            player.ladder_rating_deviation,
+            player.tmm_estimate,
+            player.tmm_number_of_games,
+            player.tmm_rating_mean,
+            player.tmm_rating_deviation
+        )
         league = player.league
         if league is not None and "division" in league:
             tooltip_str = "Division : {}\n{}".format(league["division"],

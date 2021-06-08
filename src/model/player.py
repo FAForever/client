@@ -109,7 +109,7 @@ class Player(ModelItem):
 
     @property
     def ladder_number_of_games(self):
-        return self.ratings["ladder_1v1"]["number_of_games"]
+        return int(self.ratings["ladder_1v1"]["number_of_games"])
 
     @property
     def tmm_rating_mean(self):
@@ -128,7 +128,7 @@ class Player(ModelItem):
     @property
     def tmm_number_of_games(self):
         try:
-            return self.ratings["tmm_2v2"]["number_of_games"]
+            return int(self.ratings["tmm_2v2"]["number_of_games"])
         except:
             return 0
 
