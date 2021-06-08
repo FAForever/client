@@ -648,7 +648,7 @@ class ReplayVaultWidgetHandler(object):
         position = widget.mapToGlobal(QtCore.QPoint(0 + widget.width(),0 - widget.height()/2))
         QtWidgets.QToolTip.showText(position, msg)
 
-    def searchVault(self, minRating=None, mapName=None, playerName=None, leaderboardId=None, modListIndex=None, quantity=None, reset=None, exactName=None):
+    def searchVault(self, minRating=None, mapName=None, playerName=None, leaderboardId=None, modListIndex=None, quantity=None, reset=None, exactPlayerName=None):
         w = self._w
         timePeriod = None
 
@@ -682,7 +682,7 @@ class ReplayVaultWidgetHandler(object):
                 timePeriod.append(w.dateStart.dateTime().toUTC().toString(QtCore.Qt.ISODate))
                 timePeriod.append(w.dateEnd.dateTime().toUTC().toString(QtCore.Qt.ISODate))
 
-        filters = self.prepareFilters(w.minRating.value(), w.mapName.text(), w.playerName.text(), w.leaderboardList.currentIndex(), w.modList.currentText(), timePeriod, exactName)
+        filters = self.prepareFilters(w.minRating.value(), w.mapName.text(), w.playerName.text(), w.leaderboardList.currentIndex(), w.modList.currentText(), timePeriod, exactPlayerName)
 
         # """ search for some replays """
         self._w.onlineTree.clear()
@@ -697,7 +697,7 @@ class ReplayVaultWidgetHandler(object):
 
         self.apiConnector.requestData(parameters)
 
-    def prepareFilters (self, minRating, mapName, playerName, leaderboardId, modListIndex, timePeriod = None, exactName=None):
+    def prepareFilters (self, minRating, mapName, playerName, leaderboardId, modListIndex, timePeriod = None, exactPlayerName=None):
         '''
         Making filter string here + some logic to exclude "heavy" requests which may overload database 
         (>30 sec searches). It might looks weak (and probably it is), but hey, it works! =)
@@ -727,7 +727,7 @@ class ReplayVaultWidgetHandler(object):
             filters.append('mapVersion.map.displayName=="*{}*"'.format(mapName))
             
         if playerName:
-            if exactName:
+            if exactPlayerName:
                 filters.append('playerStats.player.login=="{}"'.format(playerName))
             else:
                 filters.append('playerStats.player.login=="*{}*"'.format(playerName))
@@ -929,13 +929,13 @@ class ReplaysWidget(BaseClass, FormClass):
         self.setCurrentIndex(2)  # focus on Online Fault
         if leaderboardName is not None:
             if leaderboardName == "ladder_1v1":
-                modListIndex = self.vaultManager._w.modList.findText("ladder1v1")
-                self.vaultManager.searchVault(0, "", name, 0, modListIndex, 100, exactName=True)
+                modListIndex = self.modList.findText("ladder1v1")
+                self.vaultManager.searchVault(0, "", name, 0, modListIndex, 100, exactPlayerName=True)
             else:
-                leaderboardId = self.vaultManager._w.leaderboardList.findText(leaderboardName)
-                self.vaultManager.searchVault(0, "", name, leaderboardId, 0, 100, exactName=True)
+                leaderboardId = self.leaderboardList.findText(leaderboardName)
+                self.vaultManager.searchVault(0, "", name, leaderboardId, 0, 100, exactPlayerName=True)
         else:
-            self.vaultManager.searchVault(0, "", name, 0, 0, 100, exactName=True)
+            self.vaultManager.searchVault(0, "", name, 0, 0, 100, exactPlayerName=True)
 
     def focusEvent(self, event):
         self.localManager.updatemyTree()
