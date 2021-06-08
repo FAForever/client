@@ -233,7 +233,7 @@ class ChatterItemFormatter:
             player.number_of_games,
             player.rating_mean,
             player.rating_deviation,
-            player.ladder_estimate(),
+            player.ladder_estimate,
             player.ladder_number_of_games,
             player.ladder_rating_mean,
             player.ladder_rating_deviation,
