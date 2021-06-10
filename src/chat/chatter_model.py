@@ -286,7 +286,7 @@ class ChatterItemFormatter:
                       "id: {}")
 
         game_str = formatting.format(header, game_title, game.featured_mod,
-                                     game_map, game.num_players,
+                                     game_map, game.num_players - len(game.observers),
                                      game.max_players, game.uid)
         return game_str
 
