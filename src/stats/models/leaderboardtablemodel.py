@@ -48,7 +48,10 @@ class LeaderboardTableModel(QAbstractTableModel):
             elif column == 5:
                 return "{}".format(self.values[row]["wonGames"])
             elif column == 6:
-                return "{:.2f}%".format(100 * self.values[row]["wonGames"]/self.values[row]["totalGames"])
+                if self.values[row]["totalGames"] == 0:
+                    return "{:.2f}%".format(0)
+                else:
+                    return "{:.2f}%".format(100 * self.values[row]["wonGames"]/self.values[row]["totalGames"])
             elif column == 7:
                 dateUTC = QDateTime.fromString(self.values[row]["updateTime"], Qt.ISODate)
                 dateLocal = dateUTC.toLocalTime().toString("yyyy-MM-dd")
