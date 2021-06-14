@@ -50,6 +50,7 @@ class LeaderboardWidget(BaseClass, FormClass):
 
         self.client.lobby_info.statsInfo.connect(self.processStatsInfos)
         self.findInPageLine.textChanged.connect(self.findEntry)
+        self.findInPageLine.returnPressed.connect(lambda: self.findEntry(self.findInPageLine.text()))
 
         self.searchPlayerLine.textEdited.connect(self.searchPlayer)
         self.searchPlayerLine.returnPressed.connect(self.searchPlayerInLeaderboard)
