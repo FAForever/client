@@ -93,6 +93,10 @@ span {
 	color: "{{ colors['default'] }}";
 }
 
+.foe.mod .col_sender, .foe.mod .col_text {
+	color: "{{ colors['foe_mod'] }}";
+}
+
 .friend.mod .col_sender, .friend.mod .col_text, .clannie.mod .col_sender, .clannie.mod .col_text {
 	color: "{{ colors['friend_mod'] }}";
 }
