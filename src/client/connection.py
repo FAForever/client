@@ -344,6 +344,7 @@ class LobbyInfo(QtCore.QObject):
     serverUpdate = QtCore.pyqtSignal(dict)
     mapVaultInfo = QtCore.pyqtSignal(dict)
     vaultMeta = QtCore.pyqtSignal(dict)
+    aliasInfo = QtCore.pyqtSignal(dict)
 
     def __init__(self, dispatcher, gameset, playerset):
         QtCore.QObject.__init__(self)
@@ -367,6 +368,7 @@ class LobbyInfo(QtCore.QObject):
         self._dispatcher["update"] = self._simple_emit(self.serverUpdate)
         self._dispatcher["mapvault_info"] = self._simple_emit(self.mapVaultInfo)
         self._dispatcher["vault_meta"] = self._simple_emit(self.vaultMeta)
+        self._dispatcher["alias_info"] = self._simple_emit(self.aliasInfo)
 
         self._gameset = gameset
         self._playerset = playerset

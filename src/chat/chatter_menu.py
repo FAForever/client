@@ -169,7 +169,7 @@ class ChatterMenu:
         elif kind in [Items.ADD_CHATTERBOX, Items.REMOVE_CHATTERBOX]:
             self._handle_chatterboxes(chatter, player, kind)
         elif kind == Items.VIEW_ALIASES:
-            self._view_aliases(chatter, player)
+            self._view_aliases(chatter)
         elif kind == Items.VIEW_REPLAYS:
             self._client_window.view_replays(player.login)
         elif kind == Items.VIEW_IN_LEADERBOARDS:
@@ -208,6 +208,5 @@ class ChatterMenu:
         elif kind == Items.REMOVE_CHATTERBOX:
             ctl.chatterboxes.remove(uid)
 
-    def _view_aliases(self, chatter, player):
-        id_ = None if player is None else player.id
-        self._alias_viewer.view_aliases(chatter.name, id_)
+    def _view_aliases(self, chatter):
+        self._alias_viewer.view_aliases(chatter.name)
