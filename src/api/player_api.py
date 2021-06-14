@@ -20,3 +20,19 @@ class PlayerApiConnector(ApiBase):
             ,meta = meta['meta']
         )
         self.dispatch.dispatch(preparedData)
+
+    def requestDataForAliasViewer(self, nameToFind):
+        queryDict = {
+            'include' : 'names',
+            'filter' : '(login=="{name}",names.name=="{name}")'.format(name=nameToFind),
+            'fields[player]' : 'login,names',
+            'fields[nameRecord]' : 'name,changeTime,player'
+        }
+        self.request(queryDict, self.handleDataForAliasViewer)
+
+    def handleDataForAliasViewer(self, message, meta=None):
+        preparedData = dict(
+             command = 'alias_info'
+            ,values = message
+        )
+        self.dispatch.dispatch(preparedData)
