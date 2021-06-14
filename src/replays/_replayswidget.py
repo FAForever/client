@@ -687,8 +687,10 @@ class ReplayVaultWidgetHandler(object):
         # """ search for some replays """
         self._w.onlineTree.clear()
         self._w.searchInfoLabel.setText(self.searchInfo)
+        self._w.searchInfoLabel.setVisible(True)
+        self._w.advSearchInfoLabel.setVisible(False)
         self.searching = True
-        
+
         parameters = self.defaultSearchParams.copy()
         parameters["page[size]"] = w.quantity.value()
 
@@ -871,22 +873,22 @@ class ReplayVaultWidgetHandler(object):
     def replayVault(self, message):
         action = message["action"]
         self._w.searchInfoLabel.clear()
+        self._w.advSearchInfoLabel.clear()
         self._w.replayInfos.clear()
         self.searching = False
         if action == "search_result":
-            if "No_replays" not in message:
-                self.onlineReplays = {}
-                replays = message["replays"]
-                for replay in replays:
-                    uid = int(replay["id"])
-                    if uid not in self.onlineReplays:
-                        self.onlineReplays[uid] = ReplayItem(uid, self._w)
-                    self.onlineReplays[uid].update(replay, self.client)
+            self.onlineReplays = {}
+            replays = message["replays"]
+            for replay in replays:
+                uid = int(replay["id"])
+                if uid not in self.onlineReplays:
+                    self.onlineReplays[uid] = ReplayItem(uid, self._w)
+                self.onlineReplays[uid].update(replay, self.client)
+            self.updateOnlineTree()
 
-                self.updateOnlineTree()
-                self._w.RefreshResetButton.setText("Reset Search to Recent")
-            else:
+            if len(message["replays"]) == 0:
                 self._w.searchInfoLabel.setText("<font color='gold'><b>No replays found</b></font>")
+                self._w.advSearchInfoLabel.setText("<font color='gold'><b>No replays found</b></font>")
 
     def updateOnlineTree(self):
         self.selectedReplay = None  # clear because won't be part of the new tree
