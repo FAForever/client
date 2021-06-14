@@ -1,5 +1,6 @@
 from PyQt5 import QtCore, QtWidgets, QtWebEngineWidgets, QtGui
 from .leaderboardheaderview import VerticalHeaderView
+from .leaderboardtablemenu import LeaderboardTableMenu
 
 class LeaderboardTableView(QtWidgets.QTableView):
     def __init__(self, *args, **kwargs):
@@ -42,19 +43,21 @@ class LeaderboardTableView(QtWidgets.QTableView):
     def mousePressEvent(self, event):
         if event.button() == QtCore.Qt.RightButton:
             row = self.indexAt(event.pos()).row()
-            index = self.model().index(row, 0)
-            name = self.model().data(index)
-            self.selectRow(row)
-            self.viewReplays(event, name)
+            if row != -1:
+                name_index = self.model().index(row, 0)
+                id_index = self.model().index(row, 8)
+                name = self.model().data(name_index)
+                uid = int(self.model().data(id_index))
+                self.selectRow(row)
+                self.contextMenu(event, name, uid)
         else:
             QtWidgets.QTableView.mousePressEvent(self, event)
         self.updateHoverRow(event)
         self.verticalHeader().updateHoverSection(event)
 
-    def viewReplays(self, event, name):
-        menu = QtWidgets.QMenu(self)
-        viewReplaysAction = QtWidgets.QAction("View Replays", self)
+    def contextMenu(self, event, name, uid):
+        client = self.parent().parent().client
         leaderboardName = self.parent().parent().leaderboardName
-        viewReplaysAction.triggered.connect(lambda: self.parent().parent().client.view_replays(name, leaderboardName))
-        menu.addAction(viewReplaysAction)
+        menuHandler = LeaderboardTableMenu.build(self, client, leaderboardName)
+        menu = menuHandler.getMenu(name, uid)
         menu.popup(QtGui.QCursor.pos())
