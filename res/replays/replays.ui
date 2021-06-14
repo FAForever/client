@@ -425,7 +425,7 @@
              </size>
             </property>
             <property name="text">
-             <string>Refresh Recent List</string>
+             <string>Reset Search to Recent</string>
             </property>
            </widget>
           </item>
@@ -1294,6 +1294,19 @@
              </widget>
             </item>
            </layout>
+          </widget>
+          <widget class="QLabel" name="advSearchInfoLabel">
+           <property name="geometry">
+            <rect>
+             <x>20</x>
+             <y>190</y>
+             <width>128</width>
+             <height>19</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
           </widget>
          </widget>
          <widget class="QWidget" name="mapPreview">

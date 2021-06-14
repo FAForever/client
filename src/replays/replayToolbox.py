@@ -232,7 +232,17 @@ class ReplayToolboxHandler(object):
         filterWidget.layout.addWidget(filterWidget.dateEdit)
 
     def advancedSearch(self):
+        if self.widgetHandler.searching:
+            QtWidgets.QMessageBox.critical(None, "Replay vault", "Please, wait for previous search to finish.")
+            return
+
+        self._w.advSearchInfoLabel.setText(self.widgetHandler.searchInfo)
+        self._w.advSearchInfoLabel.setVisible(True)
+        self._w.searchInfoLabel.setVisible(False)
+        self.widgetHandler.searching = True
+
         parameters = self.widgetHandler.defaultSearchParams.copy()
+        parameters["page[size]"] = self._w.advQuantity.value()
         
         filters = self.prepareFilters()
 
