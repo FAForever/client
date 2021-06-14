@@ -25,6 +25,9 @@ filtersSettings = {
     "Game mod name": dict(
         filterString = "featuredMod.technicalName", 
         operators = ["contains", "is", "is not"]),
+    "Leaderboard name": dict(
+        filterString = "playerStats.ratingChanges.leaderboard.technicalName",
+        operators = ["contains", "is", "is not"]),
     "Map name": dict(
         filterString = "mapVersion.map.displayName", 
         operators = ["contains", "is", "is not"]),
