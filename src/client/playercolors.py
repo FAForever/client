@@ -91,6 +91,7 @@ class PlayerColors(QObject):
         names = {
             PlayerAffiliation.SELF: "self_mod",
             PlayerAffiliation.FRIEND: "friend_mod",
+            PlayerAffiliation.FOE: "foe_mod",
             PlayerAffiliation.CLANNIE: "friend_mod",
         }
         if affil in names:

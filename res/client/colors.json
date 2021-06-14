@@ -1,5 +1,6 @@
 {  "you" : "red"
  , "foe" : "crimson"
+ , "foe_mod" : "lightslategrey"
  , "foe_chatterbox" : "darkred"
  , "friend" : "lightskyblue"
  , "friend_mod" : "medium orchid"
