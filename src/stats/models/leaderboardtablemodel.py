@@ -12,7 +12,7 @@ class LeaderboardTableModel(QAbstractTableModel):
         self.logins = []
         for value in self.values:
             self.logins.append(value["player"]["login"])
-        self.column_count = 8
+        self.column_count = 9
         self.row_count = len(data["values"])
 
     def rowCount(self, parent=QModelIndex()):
@@ -24,7 +24,7 @@ class LeaderboardTableModel(QAbstractTableModel):
     def headerData(self, section, orientation, role):
         if role == Qt.DisplayRole:
             if orientation == Qt.Horizontal:
-                return ("Name", "Rating", "Mean", "Deviation", "Games", "Won", "Win rate", "Updated")[section]
+                return ("Name", "Rating", "Mean", "Deviation", "Games", "Won", "Win rate", "Updated", "Player Id")[section]
             else:
                 return "{}".format(int(self.meta["page"]["number"] - 1) * int(self.meta["page"]["limit"]) + section + 1)
         elif role == Qt.TextAlignmentRole:
@@ -56,5 +56,7 @@ class LeaderboardTableModel(QAbstractTableModel):
                 dateUTC = QDateTime.fromString(self.values[row]["updateTime"], Qt.ISODate)
                 dateLocal = dateUTC.toLocalTime().toString("yyyy-MM-dd")
                 return "{}".format(dateLocal)
+            elif column == 8:
+                return "{}".format(self.values[row]["player"]["id"])
 
         return None

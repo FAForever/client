@@ -114,6 +114,8 @@ class LeaderboardWidget(BaseClass, FormClass):
         self.showColumns()
 
     def showColumns(self):
+        self.tableView.setColumnHidden(8, True)
+
         self.showAllCheckBox.blockSignals(True)
         self.showAllCheckBox.setChecked(self.showAllColumns)
         self.showAllCheckBox.blockSignals(False)
