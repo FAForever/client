@@ -250,6 +250,7 @@ class ReplayToolboxHandler(object):
             parameters["filter"] = filters
 
         self.widgetHandler.apiConnector.requestData(parameters)
+        self.widgetHandler.timer.start(90000)
         
     def prepareFilters(self):
         finalFilters = []

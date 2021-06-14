@@ -642,11 +642,20 @@ class ReplayVaultWidgetHandler(object):
         _w.spoilerCheckbox.setChecked(self.spoiler_free)
         _w.hideUnrCheckbox.setChecked(self.hide_unranked)
 
+        self.timer = QtCore.QTimer()
+        self.timer.timeout.connect(self.stopSearchVault)
+
     def showToolTip(self, widget, msg):
         """Default tooltips are too slow and disappear when user starts typing"""
 
         position = widget.mapToGlobal(QtCore.QPoint(0 + widget.width(),0 - widget.height()/2))
         QtWidgets.QToolTip.showText(position, msg)
+
+    def stopSearchVault(self):
+        self.searching = False
+        self._w.searchInfoLabel.clear()
+        self._w.advSearchInfoLabel.clear()
+        self.timer.stop()
 
     def searchVault(self, minRating=None, mapName=None, playerName=None, leaderboardId=None, modListIndex=None, quantity=None, reset=None, exactPlayerName=None):
         w = self._w
@@ -698,6 +707,7 @@ class ReplayVaultWidgetHandler(object):
             parameters["filter"] = filters
 
         self.apiConnector.requestData(parameters)
+        self.timer.start(90000)
 
     def prepareFilters (self, minRating, mapName, playerName, leaderboardId, modListIndex, timePeriod = None, exactPlayerName=None):
         '''
@@ -872,10 +882,8 @@ class ReplayVaultWidgetHandler(object):
 
     def replayVault(self, message):
         action = message["action"]
-        self._w.searchInfoLabel.clear()
-        self._w.advSearchInfoLabel.clear()
+        self.stopSearchVault()
         self._w.replayInfos.clear()
-        self.searching = False
         if action == "search_result":
             self.onlineReplays = {}
             replays = message["replays"]
