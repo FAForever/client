@@ -1,17 +1,22 @@
 from decorators import with_logger
 from util import THEME
-from PyQt5.QtWidgets import QTableWidgetItem, QInputDialog
+from PyQt5.QtWidgets import QTableWidgetItem, QInputDialog, QHeaderView
 from PyQt5.QtCore import Qt, QTimer
 import client as clientwindow
 import pprint
 
 @with_logger
 class ConnectivityDialog(object):
-    COLUMN_LOGIN = 0
-    COLUMN_CONNECTED = 1
-    COLUMN_DIRECTCON = 2
-    COLUMN_ICESTATE = 3
-    COLUMN_REMOTE_ADDR = 4
+    COLUMN_ID = 0
+    COLUMN_LOGIN = 1
+    COLUMN_CONNECTED = 2
+    COLUMN_LOCAL = 3
+    COLUMN_REMOTE = 4
+    COLUMN_ICESTATE = 5
+    COLUMN_LOCALOFFER = 6
+    COLUMN_TIMETOCONNECTED = 7
+
+    columnCount = 8
 
     def __init__(self, ice_adapter_client):
         self.client = ice_adapter_client
@@ -33,6 +38,10 @@ class ConnectivityDialog(object):
             }
         """
         self.dialog.table_relays.horizontalHeader().setStyleSheet(stylesheet)
+        self.dialog.table_relays.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.dialog.table_relays.horizontalHeader().setFixedHeight(30)
+        self.dialog.table_relays.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
+        self.dialog.table_relays.verticalHeader().hide()
 
         self.dialog.finished.connect(self.close)
 
@@ -64,9 +73,16 @@ class ConnectivityDialog(object):
     def onStatus(self, status):
         self.status = status
         self.dialog.label_version.setText(str(status["version"]))
+        self.dialog.label_user.setText(
+            "{} ({})".format(status["options"]["player_login"], status["options"]["player_id"])
+        )
         self.dialog.label_rpc_port.setText(str(status["options"]["rpc_port"]))
+        self.dialog.label_gpgnet_port.setText(str(status["options"]["gpgnet_port"]))
+        self.dialog.label_lobby_port.setText(str(status["lobby_port"]))
         if "log_file" in status["options"]:
             self.dialog.label_log_file.setText(str(status["options"]["log_file"]))
+        else:
+            self.dialog.label_log_file.setText("")
         self.dialog.label_connected.setText(str(status["gpgnet"]["connected"]))
         self.dialog.label_gamestate.setText(str(status["gpgnet"]["game_state"]))
 
@@ -74,33 +90,19 @@ class ConnectivityDialog(object):
 
         self.dialog.table_relays.setRowCount(len(status["relays"]))
         for row, relay in enumerate(status["relays"]):
-            self.dialog.table_relays.setItem(row, self.COLUMN_LOGIN, QTableWidgetItem(relay["remote_player_login"]))
+            self.dialog.table_relays.setItem(row, self.COLUMN_ID, self.tableItem(str(relay["remote_player_id"])))
+            self.dialog.table_relays.setItem(row, self.COLUMN_LOGIN, self.tableItem(relay["remote_player_login"]))
 
-            connected_item = QTableWidgetItem("yes") if relay["ice"]["connected"] else QTableWidgetItem("no")
-            self.dialog.table_relays.setItem(row, self.COLUMN_CONNECTED, connected_item)
+            connected_item = self.tableItem("yes") if relay["ice"]["connected"] else self.tableItem("no")
+            self.dialog.table_relays.setItem(row, self.COLUMN_CONNECTED, self.tableItem(str(relay["ice"]["connected"])))
 
-            self.dialog.table_relays.setItem(row, self.COLUMN_ICESTATE, QTableWidgetItem(relay["ice"]["state"]))
+            self.dialog.table_relays.setItem(row, self.COLUMN_LOCAL, self.tableItem(relay["ice"]["loc_cand_type"]))
+            self.dialog.table_relays.setItem(row, self.COLUMN_REMOTE, self.tableItem(relay["ice"]["rem_cand_type"]))
+            self.dialog.table_relays.setItem(row, self.COLUMN_ICESTATE, self.tableItem(relay["ice"]["state"]))
+            self.dialog.table_relays.setItem(row, self.COLUMN_LOCALOFFER, self.tableItem(str(relay["ice"]["offerer"])))
+            self.dialog.table_relays.setItem(row, self.COLUMN_TIMETOCONNECTED, self.tableItem(str(relay["ice"]["time_to_connected"])))
 
-            if relay["ice"]["rem_cand_type"] == 'local':
-                direct_connected_item = QTableWidgetItem("direct (local)")
-            elif relay["ice"]["rem_cand_type"] == 'stun':
-                direct_connected_item = QTableWidgetItem("direct (stun)")
-            elif relay["ice"]["rem_cand_type"] == 'srflx':
-                direct_connected_item = QTableWidgetItem("direct (srflx)")
-            elif relay["ice"]["rem_cand_type"] == 'prflx':
-                direct_connected_item = QTableWidgetItem("direct (prflx)")
-            elif relay["ice"]["rem_cand_type"] == 'relay':
-                direct_connected_item = QTableWidgetItem("proxy")
-            elif relay["ice"]["rem_cand_type"] == 'host':
-                direct_connected_item = QTableWidgetItem("direct (host)")
-            else:
-                direct_connected_item = QTableWidgetItem("unknown ({})".format(relay["ice"]["rem_cand_type"]))
-            self.dialog.table_relays.setItem(row, self.COLUMN_DIRECTCON, direct_connected_item)
-
-            self.dialog.table_relays.setItem(row, self.COLUMN_REMOTE_ADDR, QTableWidgetItem(str(relay["ice"]["rem_cand_addr"])))
-        for col in range(self.COLUMN_REMOTE_ADDR):
-            self.dialog.table_relays.resizeColumnToContents(col)
-
-
-
-
+    def tableItem(self, data):
+        item = QTableWidgetItem(str(data))
+        item.setTextAlignment(Qt.AlignCenter)
+        return item
