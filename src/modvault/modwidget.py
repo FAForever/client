@@ -13,6 +13,8 @@ FormClass, BaseClass = util.THEME.loadUiType("modvault/mod.ui")
 
 
 class ModWidget(FormClass, BaseClass):
+    ICONSIZE = QtCore.QSize(100, 100)
+
     def __init__(self, parent, mod, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
 
@@ -35,12 +37,11 @@ class ModWidget(FormClass, BaseClass):
         if mod.thumbnail is None:
             self.Picture.setPixmap(util.THEME.pixmap("games/unknown_map.png"))
         else:
-            self.Picture.setPixmap(util.THEME.pixmap(mod.thumbnail))
+            pixmap = util.THEME.pixmap(mod.thumbnail, False)
+            self.Picture.setPixmap(pixmap.scaled(self.ICONSIZE))
         
         #ensure that pixmap is set
-        if self.Picture.pixmap() is None:
-            self.Picture.setPixmap(util.THEME.pixmap("games/unknown_map.png"))
-        elif self.Picture.pixmap().isNull():
+        if self.Picture.pixmap() is None or self.Picture.pixmap().isNull():
             self.Picture.setPixmap(util.THEME.pixmap("games/unknown_map.png"))
 
         #self.Comments.setItemDelegate(CommentItemDelegate(self))
