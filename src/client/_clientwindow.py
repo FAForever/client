@@ -364,28 +364,6 @@ class ClientWindow(FormClass, BaseClass):
         self.gameset.clear()
         self.clear_players()
 
-    @QtCore.pyqtSlot(bool)
-    def on_action_save_game_logs_toggled(self, value):
-        self.game_logs = value
-
-    @QtCore.pyqtSlot(bool)
-    def on_action_auto_download_mods_toggled(self, value):
-        config.Settings.set('mods/autodownload', value is True)
-
-    @QtCore.pyqtSlot(bool)
-    def on_action_auto_download_maps_toggled(self, value):
-        config.Settings.set('maps/autodownload', value is True)
-
-    @QtCore.pyqtSlot(bool)
-    def on_action_auto_generate_maps_toggled(self, value):
-        config.Settings.set('mapGenerator/autostart', value is True)
-    
-    @QtCore.pyqtSlot(bool)
-    def on_action_fault_fallback_toggled(self, value):
-        config.Settings.set('vault/fallback', value is True)
-        util.setPersonalDir()
-        setModFolder()
-
     def eventFilter(self, obj, event):
         if event.type() == QtCore.QEvent.HoverMove:
             self.dragging_hover = self.dragging
@@ -881,6 +859,10 @@ class ClientWindow(FormClass, BaseClass):
         self.actionFriendsOnTop.triggered.connect(self.update_options)
         self.actionLanguageChannels.triggered.connect(self._language_channel_config.run)
 
+        self.actionEnableIceAdapterInfoWindow.triggered.connect(self.on_action_enable_ice_adapter_info_window)
+        self.actionEnableIceAdapterInfoWindow.setChecked(config.Settings.get('iceadapter/info_window', type=bool, default=False))
+        self.actionSetIceAdapterWindowLaunchDelay.triggered.connect(self.set_ice_adapter_window_launch_delay)
+
         self.actionDoNotKeep.setChecked(config.Settings.get('cache/do_not_keep', type=bool, default=True))
         self.actionForever.setChecked(config.Settings.get('cache/forever', type=bool, default=False))
         self.actionSetYourOwnTimeInterval.setChecked(config.Settings.get('cache/own_settings', type=bool, default=False))
@@ -934,6 +916,43 @@ class ClientWindow(FormClass, BaseClass):
         self.player_colors.colored_nicknames = self.actionColoredNicknames.isChecked()
 
         self.saveChat()
+
+    @QtCore.pyqtSlot(bool)
+    def on_action_save_game_logs_toggled(self, value):
+        self.game_logs = value
+
+    @QtCore.pyqtSlot(bool)
+    def on_action_auto_download_mods_toggled(self, value):
+        config.Settings.set('mods/autodownload', value is True)
+
+    @QtCore.pyqtSlot(bool)
+    def on_action_auto_download_maps_toggled(self, value):
+        config.Settings.set('maps/autodownload', value is True)
+
+    @QtCore.pyqtSlot(bool)
+    def on_action_auto_generate_maps_toggled(self, value):
+        config.Settings.set('mapGenerator/autostart', value is True)
+    
+    @QtCore.pyqtSlot(bool)
+    def on_action_fault_fallback_toggled(self, value):
+        config.Settings.set('vault/fallback', value is True)
+        util.setPersonalDir()
+        setModFolder()
+
+    @QtCore.pyqtSlot(bool)
+    def on_action_enable_ice_adapter_info_window(self, value):
+        config.Settings.set('iceadapter/info_window', value is True)
+
+    @QtCore.pyqtSlot()
+    def set_ice_adapter_window_launch_delay(self):
+        seconds, ok = QtWidgets.QInputDialog().getInt(
+            None,
+            'Set time interval',
+            'Delay the launch of the info window by seconds:',
+            config.Settings.get('iceadapter/delay_ui_seconds', type=int, default=10), 1, 2147483647, 1
+        )
+        if ok and seconds:
+            config.Settings.set('iceadapter/delay_ui_seconds', seconds)
 
     @QtCore.pyqtSlot()
     def switchPath(self):

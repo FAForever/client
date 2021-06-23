@@ -26,14 +26,16 @@ class IceAdapterProcess(object):
         else:  # Expect it to be in PATH already
             exe_path = "faf-ice-adapter"
 
+        show_adapter_window = Settings.get("iceadapter/info_window", default=False, type=bool)
+        delay_adapter_ui = 1000 * Settings.get("iceadapter/delay_ui_seconds", default=10, type=int)
         self.ice_adapter_process = QProcess()
         args = ["--id", str(player_id),
                 "--login", player_login,
                 "--rpc-port", str(self._rpc_server_port),
                 "--gpgnet-port", "0",
-                "--info-window",
-                "--delay-ui", "10000",
                 "--log-level" , "debug"]
+        if show_adapter_window:
+            args += ["--info-window", "--delay-ui", str(delay_adapter_ui)]
         if Settings.contains('iceadapter/args'):
             args += Settings.get('iceadapter/args', "", type=str).split(" ")
 
