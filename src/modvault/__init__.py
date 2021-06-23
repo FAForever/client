@@ -158,18 +158,16 @@ class ModVault(FormClass, BaseClass, BusyWidget):
         self.goToPage(1)
 
     @QtCore.pyqtSlot(dict)
-    def modInfo(self, message):  # this is called when the database has send a mod to us
-        """
-        See above for the keys neccessary in message.
-        """
-        uid = message["uid"]
-        if not uid in self.mods:
-            mod = ModItem(self, uid)
-            self.mods[uid] = mod
-            self.modList.addItem(mod)
-        else:
-            mod = self.mods[uid]
-        mod.update(message)
+    def modInfo(self, message):
+        for value in message["values"]:
+            uid = value["uid"]
+            if not uid in self.mods:
+                mod = ModItem(self, uid)
+                self.mods[uid] = mod
+                self.modList.addItem(mod)
+            else:
+                mod = self.mods[uid]
+            mod.update(value)
         self.modList.sortItems(1)
 
     @QtCore.pyqtSlot(int)
