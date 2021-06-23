@@ -191,7 +191,7 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
         if not fa.instance.available():
             return
 
-        self.client.games.stopSearchRanked()
+        self.client.games.stopSearch()
 
         if not fa.check.check("coop"):
             return
