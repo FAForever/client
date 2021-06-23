@@ -78,7 +78,7 @@ class NewsWidget(FormClass, BaseClass):
 
     def addNews(self, newsPost):
         newsItem = NewsItem(newsPost, self.newsList)
-        self.newsItems .append(newsItem)
+        self.newsItems.append(newsItem)
 
     # QtWebEngine has no user CSS support yet, so let's just prepend it to the HTML
     def _injectCSS(self, body, link, img):
@@ -87,20 +87,25 @@ class NewsWidget(FormClass, BaseClass):
         link = '<div style="clear:left;"><a href=' + link + ' style="margin: 0px 0px 0px 20px">Open in your Web browser</a></div>'
         return '<style type="text/css">{}</style>'.format(self.CSS) + img + body + link
 
-
+    def updateNews(self):
+        self.hider.hide(self.newsWebView)
+        self.newsItems = []
+        self.newsList.clear()
+        self.newsManager.WpApi.download()
 
     def itemChanged(self, current, previous):
-        if current.newsPost['external_link'] == '':
-            link = current.newsPost['link']
-        else:
-            link = current.newsPost['external_link']
-        self.newsWebView.page().setHtml(self.HTML.format(title=current.newsPost['title'],
-                                                         content=self._injectCSS(current.newsPost['excerpt'],
-                                                                                 link,
-                                                                                 current.newsPost['img_url']
-                                                                                 )
-                                                        )
-                                        )
+        if current is not None:
+            if current.newsPost['external_link'] == '':
+                link = current.newsPost['link']
+            else:
+                link = current.newsPost['external_link']
+            self.newsWebView.page().setHtml(self.HTML.format(title=current.newsPost['title'],
+                                                             content=self._injectCSS(current.newsPost['excerpt'],
+                                                                                     link,
+                                                                                     current.newsPost['img_url']
+                                                             )
+                                            )
+            )
 
     def linkClicked(self, url):
         webbrowser.open(url.toString())

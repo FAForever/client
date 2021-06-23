@@ -1,6 +1,6 @@
 import os
 
-from .production import defaults as production_defaults
+from .production import default_values as production_defaults
 
 # These directories are in Appdata (e.g. C:\ProgramData on some Win7 versions)
 if 'ALLUSERSPROFILE' in os.environ:
@@ -8,7 +8,6 @@ if 'ALLUSERSPROFILE' in os.environ:
 else:
     APPDATA_DIR = os.path.join(os.environ['HOME'], "FAForever")
 
-defaults = production_defaults.copy()
-defaults['host'] = 'test.faforever.com'
-defaults['client/logs/console'] = True
-defaults['api'] = 'http://api.test.faforever.com'
+default_values = production_defaults.copy()
+default_values['host'] = 'test.faforever.com'
+default_values['client/logs/console'] = True

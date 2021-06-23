@@ -71,6 +71,16 @@ class StatsWidget(BaseClass, FormClass, BusyWidget):
         self.removeTab(self.indexOf(self.ladderTab))
         self.removeTab(self.indexOf(self.laddermapTab))
 
+    def refreshLeaderboards(self):
+        while self.client.replays.leaderboardList.count() != 1:
+            self.client.replays.leaderboardList.removeItem(1)
+        self.leaderboards.blockSignals(True)
+        while self.leaderboards.widget(0) is not None:
+            self.leaderboards.widget(0).deleteLater()
+            self.leaderboards.removeTab(0)
+        self.apiConnector.requestData(dict(sort="id"))
+        self.leaderboards.blockSignals(False)
+
     def load_stylesheet(self):
         self.setStyleSheet(util.THEME.readstylesheet("stats/formatters/style.css"))
 
@@ -167,7 +177,8 @@ class StatsWidget(BaseClass, FormClass, BusyWidget):
 
     @QtCore.pyqtSlot(int)
     def leaderboardsTabChanged(self, curr):
-        self.leaderboards.widget(curr).entered()
+        if self.leaderboards.widget(curr) is not None:
+            self.leaderboards.widget(curr).entered()
 
     @QtCore.pyqtSlot(dict)
     def processStatsInfos(self, message):

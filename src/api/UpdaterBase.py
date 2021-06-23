@@ -8,19 +8,20 @@ logger = logging.getLogger(__name__)
 
 class UpdaterBase:
     def __init__(self, route):
-        self.url = Settings.get('api') + route
+        self.route = route
 
         self.handlers = {}
 
     def request(self, queryDict, responseHandler):
-        url = urllib.parse.urlparse(self.url)
+        url = urllib.parse.urlparse(Settings.get('api') + self.route)
         query = urllib.parse.urlencode(queryDict)
         url = url._replace(query = query)
         url = urllib.parse.urlunparse(url)
-        
+
         request = urllib.request.Request(url)
         request.add_header('User-Agent', 'FAF Client')
         request.add_header('Content-Type', 'application/vnd.api+json')
+        logger.debug("Sending API request with URL: {}".format(url))
         reply = urllib.request.urlopen(request)
         self.handlers[reply] = responseHandler
         return self.onRequestFinished(reply)

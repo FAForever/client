@@ -434,8 +434,8 @@ class ServerConnection(Connection):
             self.socket.bind((self.localaddress, self.localport))
             self.socket.connect((self.server, self.port))
             if use_ssl:
-                self.ssl = ssl.wrap_socket(self.socket)
-                self.ssl.settimeout(0.0)
+                self.socket = ssl.wrap_socket(self.socket)
+                self.socket.settimeout(1.0)
             else:
                 self.socket.settimeout(0.0)
         except socket.error as x:

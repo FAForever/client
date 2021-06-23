@@ -103,7 +103,7 @@ def run_faf():
     faf_client = client.instance
     faf_client.setup()
     faf_client.show()
-    faf_client.do_connect()
+    faf_client.try_to_auto_login()
 
     # Main update loop
     QtWidgets.QApplication.exec_()
@@ -148,6 +148,7 @@ if __name__ == '__main__':
 
     # End of show
     app.closeAllWindows()
+    app.deleteLater()
     app.quit()
 
     # End the application, perform some housekeeping
