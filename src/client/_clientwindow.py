@@ -631,9 +631,7 @@ class ClientWindow(FormClass, BaseClass):
                                self.gameview_builder, self.game_launcher)
         self.games = GamesWidget(self, self.game_model, self.me,
                                  self.gameview_builder, self.game_launcher)
-        self.tutorials = TutorialsWidget(self)
         self.ladder = StatsWidget(self)
-        self.tourneys = TournamentsWidget(self)
         self.replays = ReplaysWidget(self, self.lobby_dispatch,
                                      self.gameset, self.players)
         self.mapvault = MapVault(self)
@@ -648,9 +646,7 @@ class ClientWindow(FormClass, BaseClass):
         self.chatTab.layout().addWidget(self._chatMVC.view.widget.base)
         self.coopTab.layout().addWidget(self.coop)
         self.gamesTab.layout().addWidget(self.games)
-        self.tutorialsTab.layout().addWidget(self.tutorials)
         self.ladderTab.layout().addWidget(self.ladder)
-        self.tourneyTab.layout().addWidget(self.tourneys)
         self.replaysTab.layout().addWidget(self.replays)
         self.mapsTab.layout().addWidget(self.mapvault)
         self.unitdbTab.layout().addWidget(self._unitdb.db_widget)
