@@ -1393,6 +1393,43 @@
    </layout>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>playerName</tabstop>
+  <tabstop>mapName</tabstop>
+  <tabstop>leaderboardList</tabstop>
+  <tabstop>modList</tabstop>
+  <tabstop>minRating</tabstop>
+  <tabstop>hideUnrCheckbox</tabstop>
+  <tabstop>showLatestCheckbox</tabstop>
+  <tabstop>dateStart</tabstop>
+  <tabstop>dateEnd</tabstop>
+  <tabstop>quantity</tabstop>
+  <tabstop>RefreshResetButton</tabstop>
+  <tabstop>searchButton</tabstop>
+  <tabstop>filter1</tabstop>
+  <tabstop>operator1</tabstop>
+  <tabstop>value1</tabstop>
+  <tabstop>filter2</tabstop>
+  <tabstop>operator2</tabstop>
+  <tabstop>value2</tabstop>
+  <tabstop>filter3</tabstop>
+  <tabstop>operator3</tabstop>
+  <tabstop>value3</tabstop>
+  <tabstop>filter4</tabstop>
+  <tabstop>operator4</tabstop>
+  <tabstop>value4</tabstop>
+  <tabstop>filter5</tabstop>
+  <tabstop>operator5</tabstop>
+  <tabstop>value5</tabstop>
+  <tabstop>filter6</tabstop>
+  <tabstop>operator6</tabstop>
+  <tabstop>value6</tabstop>
+  <tabstop>advQuantity</tabstop>
+  <tabstop>advResetButton</tabstop>
+  <tabstop>advSearchButton</tabstop>
+  <tabstop>replayInfos</tabstop>
+  <tabstop>onlineTree</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
