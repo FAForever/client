@@ -31,8 +31,9 @@ class PlayerColors(QObject):
 
     @colored_nicknames.setter
     def colored_nicknames(self, value):
-        self._colored_nicknames = value
-        self.changed.emit()
+        if self._colored_nicknames != value:
+            self._colored_nicknames = value
+            self.changed.emit()
 
     def _load_colors(self, filename):
         return json.loads(self._theme.readfile(filename))
