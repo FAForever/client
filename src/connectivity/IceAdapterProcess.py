@@ -83,10 +83,10 @@ class IceAdapterProcess(object):
     def close(self):
         if self.ice_adapter_process.state() == QProcess.Running:
             self._logger.info("Waiting for ice adapter process shutdown")
-            if not self.ice_adapter_process.waitForFinished(300):
+            if not self.ice_adapter_process.waitForFinished(1000):
                 if self.ice_adapter_process.state() == QProcess.Running:
                     self._logger.error("Terminating ice adapter process")
                     self.ice_adapter_process.terminate()
-                    if not self.ice_adapter_process.waitForFinished(300):
+                    if not self.ice_adapter_process.waitForFinished(1000):
                         self._logger.error("Killing ice adapter process")
                         self.ice_adapter_process.kill()
