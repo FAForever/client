@@ -14,6 +14,8 @@ import downloadManager
 FormClass, BaseClass = util.THEME.loadUiType("vault/map.ui")
 
 class MapWidget(FormClass, BaseClass):
+    ICONSIZE = QtCore.QSize(256, 256)
+
     def __init__(self, parent, _map, *args, **kwargs):
         BaseClass.__init__(self, *args, **kwargs)
 
@@ -72,7 +74,7 @@ class MapWidget(FormClass, BaseClass):
     def updatePreview(self):
         imgPath = os.path.join(util.MAP_PREVIEW_LARGE_DIR, self._map.folderName + ".png")
         if os.path.isfile(imgPath):
-            pix = QtGui.QPixmap(imgPath)
+            pix = QtGui.QPixmap(imgPath).scaled(self.ICONSIZE)
             self.Picture.setPixmap(pix)
         elif mapgenUtils.isGeneratedMap(self._map.folderName):
             self.Picture.setPixmap(util.THEME.pixmap("games/generated_map.png"))
@@ -81,4 +83,9 @@ class MapWidget(FormClass, BaseClass):
                                                         url = self._map.thumbnailLarge, large = True)
 
     def _on_preview_downloaded(self, mapname, result):
-        self.updatePreview()
+        filename, themed = result
+        pixmap = util.THEME.pixmap(filename, themed)
+        if themed:
+            self.Picture.setPixmap(pixmap)
+        else:
+            self.Picture.setPixmap(pixmap.scaled(self.ICONSIZE))

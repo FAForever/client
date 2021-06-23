@@ -290,8 +290,7 @@ class ModItemDelegate(QtWidgets.QStyledItemDelegate):
         html.setHtml(option.text)
 
         icon = QtGui.QIcon(option.icon)
-        iconsize = icon.actualSize(option.rect.size())
-
+        iconsize = QtCore.QSize(ModItem.ICONSIZE, ModItem.ICONSIZE)
         # clear icon and text before letting the control draw itself because we're rendering these parts ourselves
         option.icon = QtGui.QIcon()
         option.text = ""  
@@ -300,8 +299,10 @@ class ModItemDelegate(QtWidgets.QStyledItemDelegate):
         # Shadow
         painter.fillRect(option.rect.left()+8-1, option.rect.top()+8-1, iconsize.width(), iconsize.height(), QtGui.QColor("#202020"))
 
+        iconrect = option.rect.adjusted(3,3,0,0)
+        iconrect.setSize(iconsize)
         # Icon
-        icon.paint(painter, option.rect.adjusted(5-2, -2, 0, 0), QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
+        icon.paint(painter, iconrect, QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
 
         # Frame around the icon
         pen = QtGui.QPen()
@@ -309,7 +310,7 @@ class ModItemDelegate(QtWidgets.QStyledItemDelegate):
         pen.setBrush(QtGui.QColor("#303030"))  # FIXME: This needs to come from theme.
         pen.setCapStyle(QtCore.Qt.RoundCap)
         painter.setPen(pen)
-        painter.drawRect(option.rect.left()+5-2, option.rect.top()+3, iconsize.width(), iconsize.height())
+        painter.drawRect(iconrect)
 
         # Description
         painter.translate(option.rect.left() + iconsize.width() + 10, option.rect.top()+4)
@@ -355,7 +356,6 @@ class ModItem(QtWidgets.QListWidgetItem):
         self.isuidmod = False
         self.uploadedbyuser = False
 
-        self.thumbnail = None
         self.link = ""
         self.loadThread = None
         self.setHidden(True)
@@ -378,14 +378,13 @@ class ModItem(QtWidgets.QListWidgetItem):
         self.thumbstr = dic["thumbnail"]  # direct url to the thumbnail file.
         self.uploadedbyuser = (self.author == self.parent.client.login)
 
-        self.thumbnail = utils.getIcon(os.path.basename(urllib.parse.unquote(self.thumbstr)))
         if self.thumbstr == "":
-            self.setIcon(util.THEME.icon("games/unknown_map.png"))
+            self.setItemIcon("games/unknown_map.png")
         else:
             name = os.path.basename(urllib.parse.unquote(self.thumbstr))
             img = getIcon(name)
             if img:
-                self.setIcon(util.THEME.icon(img, False))
+                self.setItemIcon(img, False)
             else:
                 self.parent.client.mod_downloader.download_preview(name[:-4], self._map_dl_request, self.thumbstr)
                 
@@ -394,16 +393,21 @@ class ModItem(QtWidgets.QListWidgetItem):
 
         self.updateVisibility()
 
+    def setItemIcon(self, filename, themed=True):
+        icon = util.THEME.icon(filename, themed)
+        if not themed:
+            pixmap = QtGui.QPixmap(filename)
+            if not pixmap.isNull():
+                icon.addPixmap(pixmap.scaled(QtCore.QSize(self.ICONSIZE, self.ICONSIZE)))
+        self.setIcon(icon)
+
     def ensureIcon(self):
-        if self.icon() is None:
-            self.setIcon(util.THEME.icon("games/unknown_map.png"))
-        elif self.icon().isNull():
-            self.setIcon(util.THEME.icon("games/unknown_map.png"))
+        if self.icon() is None or self.icon().isNull():
+            self.setItemIcon("games/unknown_map.png")
 
     def _on_mod_downloaded(self, modname, result):
         path, is_local = result
-        icon = util.THEME.icon(path, is_local)
-        self.setIcon(icon)
+        self.setItemIcon(path, is_local)
         self.ensureIcon()
 
     def shouldBeVisible(self):

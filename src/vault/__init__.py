@@ -332,7 +332,7 @@ class MapItemDelegate(QtWidgets.QStyledItemDelegate):
         html.setHtml(option.text)
 
         icon = QtGui.QIcon(option.icon)
-        iconsize = icon.actualSize(option.rect.size())
+        iconsize = QtCore.QSize(MapItem.ICONSIZE, MapItem.ICONSIZE)
 
         # clear icon and text before letting the control draw itself because we're rendering these parts ourselves
         option.icon = QtGui.QIcon()
@@ -342,8 +342,10 @@ class MapItemDelegate(QtWidgets.QStyledItemDelegate):
         # Shadow
         painter.fillRect(option.rect.left()+8-1, option.rect.top()+8-1, iconsize.width(), iconsize.height(), QtGui.QColor("#202020"))
 
+        iconrect = QtCore.QRect(option.rect.adjusted(3,3,0,0))
+        iconrect.setSize(iconsize)
         # Icon
-        icon.paint(painter, option.rect.adjusted(5-2, -2, 0, 0), QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
+        icon.paint(painter, iconrect, QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
 
         # Frame around the icon
         pen = QtGui.QPen()
@@ -351,7 +353,7 @@ class MapItemDelegate(QtWidgets.QStyledItemDelegate):
         pen.setBrush(QtGui.QColor("#303030"))  # FIXME: This needs to come from theme.
         pen.setCapStyle(QtCore.Qt.RoundCap)
         painter.setPen(pen)
-        painter.drawRect(option.rect.left()+5-2, option.rect.top()+3, iconsize.width(), iconsize.height())
+        painter.drawRect(iconrect)
 
         # Description
         painter.translate(option.rect.left() + iconsize.width() + 10, option.rect.top()+4)
@@ -421,35 +423,37 @@ class MapItem(QtWidgets.QListWidgetItem):
 
         self.thumbnail = maps.preview(self.folderName)
         if self.thumbnail:
-            self.updateIcon()
+            self.setIcon(self.thumbnail)
         else:
             if self.thumbstrSmall == "":
                 if mapgenUtils.isGeneratedMap(self.folderName):
-                    self.setIcon(util.THEME.icon("games/generated_map.png"))
+                    self.setItemIcon("games/generated_map.png")
                 else:
-                    self.setIcon(util.THEME.icon("games/unknown_map.png"))
+                    self.setItemIcon("games/unknown_map.png")
             else:
-                self.parent.client.map_downloader.download_preview(self.folderName, self._map_dl_request, self.thumbstrSmall)\
-        
+                self.parent.client.map_downloader.download_preview(self.folderName, self._map_dl_request, self.thumbstrSmall)
+
         #ensure that the icon is set
         self.ensureIcon()
 
         self.updateVisibility()
 
+    def setItemIcon(self, filename, themed=True):
+        icon = util.THEME.icon(filename)
+        if not themed:
+            pixmap = QtGui.QPixmap(filename)
+            if not pixmap.isNull():
+                icon.addPixmap(pixmap.scaled(QtCore.QSize(self.ICONSIZE, self.ICONSIZE)))
+        self.setIcon(icon)
+
     def ensureIcon(self):
-        if self.icon() is None:
-            self.setIcon(util.THEME.icon("games/unknown_map.png"))
-        elif self.icon().isNull():
-            self.setIcon(util.THEME.icon("games/unknown_map.png"))
+        if self.icon() is None or self.icon().isNull():
+            self.setItemIcon("games/unknown_map.png")
 
     def _on_map_downloaded(self, mapname, result):
-        path, is_local = result
-        icon = util.THEME.icon(path, is_local)
-        self.setIcon(icon)
+        filename, themed = result
+        self.setItemIcon(filename, themed)
         self.ensureIcon()
-
-    def updateIcon(self):
-        self.setIcon(self.thumbnail)
 
     def shouldBeVisible(self):
         p = self.parent
