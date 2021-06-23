@@ -434,11 +434,19 @@
      <addaction name="separator"/>
      <addaction name="actionKeepCacheWhileInSession"/>
     </widget>
+    <widget class="QMenu" name="menuICE_Adapter">
+     <property name="title">
+      <string>ICE Adapter...</string>
+     </property>
+     <addaction name="actionEnableIceAdapterInfoWindow"/>
+     <addaction name="actionSetIceAdapterWindowLaunchDelay"/>
+    </widget>
     <addaction name="menuSettings"/>
     <addaction name="menuChat"/>
     <addaction name="menuTheme"/>
     <addaction name="menuNotifications"/>
     <addaction name="menuUpdates"/>
+    <addaction name="menuICE_Adapter"/>
     <addaction name="separator"/>
     <addaction name="menuKeep_game_files_in_cache"/>
     <addaction name="separator"/>
@@ -921,6 +929,25 @@
    </property>
    <property name="toolTip">
     <string>Sets &quot;ProgramData/FAForever/user&quot; instead of &quot;User/Documents&quot; folder as personal directory</string>
+   </property>
+  </action>
+  <action name="actionEnableIceAdapterInfoWindow">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Enable info window</string>
+   </property>
+  </action>
+  <action name="actionSetIceAdapterWindowLaunchDelay">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Set window launch delay...</string>
    </property>
   </action>
  </widget>
