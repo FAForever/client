@@ -10,8 +10,11 @@ else:
     APPDATA_DIR = join(environ['HOME'], "FAForever")
 
 
-defaults = {
-    'api': 'https://api.faforever.com',
+default_values = {
+    'display_name': 'Main Server (recommended)',
+    'api': 'https://api.{host}',
+    'chat/host': 'irc.{host}',
+    'chat/port': 6697,
     'client/data_path': APPDATA_DIR,
     'client/logs/path': join(APPDATA_DIR, 'logs'),
     'client/logs/level': logging.INFO,
@@ -32,6 +35,7 @@ defaults = {
     'lobby/port': 8001,
     'updater/host': 'lobby.{host}',
     'mordor/host': 'http://mordor.{host}',
+    'news/host': 'https://direct.{host}',
     'turn/host': '{host}',
     'turn/port': 3478,
     'replay_vault/host': 'https://replay.{host}',
@@ -40,7 +44,7 @@ defaults = {
     'relay_server/host': 'lobby.{host}',
     'relay_server/port': 8000,
     'FORUMS_URL': 'https://forums.faforever.com/',
-    'WEBSITE_URL': 'https://www.faforever.com',
+    'WEBSITE_URL': 'https://www.{host}',
     # FIXME - temporary address below
     # The base64 settings string disables expensive loading of all previews
     'UNITDB_URL': 'https://unitdb.faforever.com?settings64=eyJwcmV2aWV3Q29ybmVyIjoiTm9uZSJ9',

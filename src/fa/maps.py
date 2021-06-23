@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 route = Settings.get('content/host')
 VAULT_PREVIEW_ROOT = "{}/faf/vault/map_previews/small/".format(route)
-VAULT_DOWNLOAD_ROOT = "{}/".format(route)
+VAULT_DOWNLOAD_ROOT = "{}/maps/"
 VAULT_COUNTER_ROOT = "{}/faf/vault/map_vault/inc_downloads.php".format(route)
 
 from model.game import OFFICIAL_MAPS as maps
@@ -69,7 +69,7 @@ def name2link(name):
     Returns a quoted link for use with the VAULT_xxxx Urls
     TODO: This could be cleaned up a little later.
     """
-    return urllib.parse.quote("maps/" + name + ".zip")
+    return urllib.parse.quote(name + ".zip")
 
 
 def link2name(link):
@@ -435,7 +435,7 @@ def downloadMap(name, silent=False):
 
 
 def _doDownloadMap(name, link, silent):
-    url = VAULT_DOWNLOAD_ROOT + link
+    url = VAULT_DOWNLOAD_ROOT.format(Settings.get('content/host')) + link
     logger.debug("Getting map from: " + url)
     return downloadVaultAssetNoMsg(url, getUserMapsFolder(), lambda m, d: True,
                                    name, "map", silent)

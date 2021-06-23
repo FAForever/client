@@ -10,9 +10,6 @@ import time
 
 from config import Settings
 
-INTERNET_REPLAY_SERVER_HOST = Settings.get('replay_server/host')
-INTERNET_REPLAY_SERVER_PORT = Settings.get('replay_server/port', type=int)
-
 from . import DEFAULT_LIVE_REPLAY
 from . import DEFAULT_RECORD_REPLAY
 
@@ -35,11 +32,13 @@ class ReplayRecorder(QtCore.QObject):
         # Create a file to write the replay data into
         self.replayData = QtCore.QByteArray()
         self.replayInfo = fa.instance._info
-                 
+
+        self._host = Settings.get('replay_server/host')
+        self._port = Settings.get('replay_server/port', type=int)
         # Open the relay socket to our server
         self.relaySocket = QtNetwork.QTcpSocket(self.parent)
-        self.relaySocket.connectToHost(INTERNET_REPLAY_SERVER_HOST, INTERNET_REPLAY_SERVER_PORT)
-        
+        self.relaySocket.connectToHost(self._host, self._port)
+
         if util.settings.value("fa.live_replay", DEFAULT_LIVE_REPLAY, type=bool):
             if self.relaySocket.waitForConnected(1000):  # Maybe make this asynchronous
                 self.__logger.debug("internet replay server " + self.relaySocket.peerName() + ":" + str(self.relaySocket.peerPort()))

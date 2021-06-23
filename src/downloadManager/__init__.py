@@ -115,7 +115,7 @@ class FileDownload(QObject):
             QtWidgets.QApplication.processEvents(waitFlag)
 
 
-MAP_PREVIEW_ROOT = "{}/faf/vault/map_previews/small/".format(Settings.get('content/host'))
+MAP_PREVIEW_ROOT = "{}/maps/previews/small/"
 
 
 class PreviewDownload(QtCore.QObject):
@@ -216,15 +216,21 @@ class PreviewDownloader(QtCore.QObject):
     PREVIEW_REDOWNLOAD_TIMEOUT = 5 * 60 * 1000
     PREVIEW_DOWN_FAILS_TO_TIMEOUT = 3
 
-    def __init__(self, target_dir, target_dir_large, default_url_prefix):
+    def __init__(self, target_dir, target_dir_large, route):
         QtCore.QObject.__init__(self)
         self._nam = QNetworkAccessManager(self)
         self._target_dir = target_dir
         self._target_dir_large = target_dir_large
-        self._default_url_prefix = default_url_prefix
+        self._route = route
+        self._default_url_prefix = None
         self._downloads = {}
         self._timeouts = DownloadTimeouts(self.PREVIEW_REDOWNLOAD_TIMEOUT,
                                           self.PREVIEW_DOWN_FAILS_TO_TIMEOUT)
+        self.update_url_prefix()
+
+    def update_url_prefix(self):
+        if self._route:
+            self._default_url_prefix = self._route.format(Settings.get('content/host'))
 
     def download_preview(self, name, req, url=None, large=None):
         target_url = self._target_url(name, url)

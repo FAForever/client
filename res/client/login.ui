@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>530</width>
+    <width>580</width>
     <height>394</height>
    </rect>
   </property>
@@ -32,7 +32,16 @@
    <property name="spacing">
     <number>0</number>
    </property>
-   <property name="margin">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
     <number>0</number>
    </property>
    <item>
@@ -226,6 +235,104 @@
           </widget>
          </item>
          <item>
+          <widget class="QPushButton" name="extraOptionsToggle">
+           <property name="text">
+            <string>Advanced</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QFrame" name="extraOptionsFrame">
+           <property name="hidden">
+            <bool>true</bool>
+           </property>
+           <layout class="QGridLayout" name="extraOptionsLayout" columnstretch="2,1">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item row="0" column="1">
+             <widget class="QLineEdit" name="serverPortField">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="placeholderText">
+               <string>Server port</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLineEdit" name="replayServerPortField">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="placeholderText">
+               <string>Replay server port</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0" colspan="2">
+             <widget class="QLineEdit" name="apiURLField">
+              <property name="placeholderText">
+               <string>API URL</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0" colspan="2">
+             <widget class="QComboBox" name="environmentBox"/>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLineEdit" name="replayServerHostField">
+              <property name="placeholderText">
+               <string>Replay server host</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLineEdit" name="serverHostField">
+              <property name="placeholderText">
+               <string>Server host</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLineEdit" name="ircServerHostField">
+              <property name="placeholderText">
+               <string>IRC server host</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QLineEdit" name="ircServerPortField">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="placeholderText">
+               <string>IRC server port</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
           <widget class="QCheckBox" name="rememberCheckbox">
            <property name="text">
             <string>Remember me</string>
@@ -344,7 +451,15 @@
   <tabstop>loginField</tabstop>
   <tabstop>passwordField</tabstop>
   <tabstop>loginButton</tabstop>
-  <tabstop>quitButton</tabstop>
+  <tabstop>extraOptionsToggle</tabstop>
+  <tabstop>serverHostField</tabstop>
+  <tabstop>serverPortField</tabstop>
+  <tabstop>replayServerHostField</tabstop>
+  <tabstop>replayServerPortField</tabstop>
+  <tabstop>ircServerHostField</tabstop>
+  <tabstop>ircServerPortField</tabstop>
+  <tabstop>apiURLField</tabstop>
+  <tabstop>environmentBox</tabstop>
   <tabstop>rememberCheckbox</tabstop>
   <tabstop>newAccountButton</tabstop>
   <tabstop>renameAccountButton</tabstop>
@@ -352,6 +467,7 @@
   <tabstop>forgotPasswordButton</tabstop>
   <tabstop>bugreportButton</tabstop>
   <tabstop>stayOfflineButton</tabstop>
+  <tabstop>quitButton</tabstop>
  </tabstops>
  <resources/>
  <connections>
@@ -370,6 +486,18 @@
      <y>253</y>
     </hint>
    </hints>
+  </connection>
+  <connection>
+   <sender>extraOptionsToggle</sender>
+   <signal>released()</signal>
+   <receiver>Dialog</receiver>
+   <slot>on_toggle_extra_options()</slot>
+  </connection>
+  <connection>
+   <sender>environmentBox</sender>
+   <signal>currentIndexChanged()</signal>
+   <receiver>Dialog</receiver>
+   <slot>on_fill_extra_options()</slot>
   </connection>
   <connection>
    <sender>steamLinkButton</sender>

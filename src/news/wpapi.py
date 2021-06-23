@@ -5,10 +5,12 @@ import json
 import logging
 import sys
 
+from config import Settings
+
 logger = logging.getLogger(__name__)
 
 # FIXME: Make setting
-WPAPI_ROOT = 'http://direct.faforever.com/wp-json/wp/v2/posts?per_page={perpage}&page={page}&_embed=1'
+WPAPI_ROOT = '{host}/wp-json/wp/v2/posts?per_page={perpage}&page={page}&_embed=1'
 
 
 class WPAPI(QtCore.QObject):
@@ -44,7 +46,7 @@ class WPAPI(QtCore.QObject):
                     'author': post.get('_embedded', {}).get('author'),
                     'link': post.get('link'),
                     'external_link': post.get('newshub_externalLinkUrl'),
-                    'img_url': post['_embedded']['wp:featuredmedia'][0]['source_url']
+                    'img_url': post.get('_embedded', {}).get('wp:featuredmedia', [{}])[0].get('source_url', "")
                 }
                 posts.append(content)
 
@@ -53,7 +55,7 @@ class WPAPI(QtCore.QObject):
             logger.exception('Error handling wp data')
 
     def download(self, page=1, perpage=10):
-        url = QtCore.QUrl(WPAPI_ROOT.format(page=page, perpage=perpage))
+        url = QtCore.QUrl(WPAPI_ROOT.format(host=Settings.get('news/host'),page=page, perpage=perpage))
         request = QNetworkRequest(url)
         request.setAttribute(QNetworkRequest.FollowRedirectsAttribute, True)
         self.nam.get(request)

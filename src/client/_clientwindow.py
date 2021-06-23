@@ -727,13 +727,15 @@ class ClientWindow(FormClass, BaseClass):
 
     def reconnect(self):
         self.lobby_reconnector.enabled = True
-        self.lobby_connection.do_connect()
+        self.try_to_auto_login()
 
     def disconnect_(self):
-        # Used when the user explicitly demanded to stay offline.
-        self.lobby_reconnector.enabled = False
-        self.lobby_connection.disconnect_()
-        self._chatMVC.connection.disconnect_()
+        if self.state != ClientState.DISCONNECTED:
+            # Used when the user explicitly demanded to stay offline.
+            self._auto_relogin = self.remember
+            self.lobby_reconnector.enabled = False
+            self.lobby_connection.disconnect_()
+            self._chatMVC.connection.disconnect_()
 
     def chat_reconnect(self):
         self._connect_chat(self.me)
@@ -915,6 +917,9 @@ class ClientWindow(FormClass, BaseClass):
         chat_config = self._chat_config
 
         self.remember = self.actionSetAutoLogin.isChecked()
+        if self.remember and self.login and self.password:
+            config.Settings.set('user/login', self.login)
+            config.Settings.set('user/password', self.password)
         chat_config.soundeffects = self.actionSetSoundEffects.isChecked()
         chat_config.joinsparts = self.actionSetJoinsParts.isChecked()
         chat_config.newbies_channel = self.actionSetNewbiesChannel.isChecked()
@@ -1114,9 +1119,14 @@ class ClientWindow(FormClass, BaseClass):
         self.remember = remember
         self.actionSetAutoLogin.setChecked(self.remember)  # FIXME - option updating is silly
 
+    def try_to_auto_login(self):
+        if self._auto_relogin and self.login and self.password:
+            self.do_connect()
+        else:
+            self.show_login_widget()
+
     def get_creds_and_login(self):
-        # Try to autologin, or show login widget if we fail or can't do that.
-        if self._auto_relogin and self.password and self.login:
+        if self.password and self.login:
             if self.send_login(self.login, self.password):
                 return
 
@@ -1126,20 +1136,30 @@ class ClientWindow(FormClass, BaseClass):
         login_widget = LoginWidget(self.login, self.remember)
         login_widget.finished.connect(self.on_widget_login_data)
         login_widget.rejected.connect(self.on_widget_no_login)
-        login_widget.request_quit.connect(self.on_login_widget_quit)
+        login_widget.request_quit.connect(self.on_login_widget_quit, QtCore.Qt.QueuedConnection)
         login_widget.remember.connect(self.set_remember)
         login_widget.exec_()
 
-    def on_widget_login_data(self, login, password):
+    def on_widget_login_data(self, login, password, api_changed):
         self.login = login
         self.password = password
+        self.lobby_connection.setHostFromConfig()
+        self.lobby_connection.setPortFromConfig()
+        self._chatMVC.connection.setHostFromConfig()
+        self._chatMVC.connection.setPortFromConfig()
+        if api_changed:
+            self.ladder.refreshLeaderboards()
+            self.map_downloader.update_url_prefix()
+            self.news.updateNews()
+        self.warningHide()
 
-        if self.send_login(login, password):
-            return
-        self.show_login_widget()
+        if self.password and self.login:
+            self.do_connect()
+        else:
+            self.show_login_widget()
 
     def on_widget_no_login(self):
-        self.disconnect_()
+        self.state = ClientState.DISCONNECTED
 
     def on_login_widget_quit(self):
         QtWidgets.QApplication.quit()
@@ -1291,7 +1311,7 @@ class ClientWindow(FormClass, BaseClass):
         self.login = message["login"]
 
         self.me.onLogin(message["login"], message["id"])
-        logger.debug("Login success")
+        logger.info("Login success")
 
         util.crash.CRASH_REPORT_USER = self.login
 
@@ -1300,9 +1320,9 @@ class ClientWindow(FormClass, BaseClass):
 
         self.authorized.emit(self.me)
 
-        if self.game_session is None:
+        if self.game_session is None or self.game_session.game_uid is None:
             self.game_session = GameSession(player_id=message["id"], player_login=message["login"])
-        elif self.game_session.game_uid != None:
+        elif self.game_session.game_uid is not None:
             self.lobby_connection.send({'command': 'restore_game_session',
                                         'game_id': self.game_session.game_uid})
 
@@ -1492,7 +1512,8 @@ class ClientWindow(FormClass, BaseClass):
     def handle_authentication_failed(self, message):
         QtWidgets.QMessageBox.warning(self, "Authentication failed", message["text"])
         self._auto_relogin = False
-        self.get_creds_and_login()
+        self.disconnect_()
+        self.show_login_widget()
 
     def handle_notice(self, message):
         if "text" in message:

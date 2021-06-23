@@ -191,15 +191,21 @@ def is_beta():
 if _settings.contains('client/force_environment'):
     environment = _settings.value('client/force_environment', 'development')
 
+from .production import default_values as production_defaults
+from .develop import default_values as develop_defaults
+from .testing import default_values as testing_defaults
+
+for defaults in [production_defaults, develop_defaults, testing_defaults]:
+    for key, value in defaults.items():
+        if isinstance(value, str):
+            defaults[key] = value.format(host=Settings.get('host'))
+
 if environment == 'production':
-    from .production import defaults
+    defaults = production_defaults
 elif environment == 'development':
-    from .develop import defaults
-
-for k, v in defaults.items():
-    if isinstance(v, str):
-        defaults[k] = v.format(host=Settings.get('host'))
-
+    defaults = develop_defaults
+elif environment == 'test':
+    defaults = testing_defaults
 
 def os_language():
     # locale is unreliable on Windows

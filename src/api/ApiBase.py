@@ -6,11 +6,14 @@ from config import Settings
 
 logger = logging.getLogger(__name__)
 
+DO_NOT_ENCODE = QtCore.QByteArray()
+DO_NOT_ENCODE.append(":/?&=.,")
+
 class ApiBase(QtCore.QObject):
     def __init__(self, route):
         QtCore.QObject.__init__(self)
 
-        self.url = QtCore.QUrl(Settings.get('api') + route)
+        self.route = route
         self.manager = QtNetwork.QNetworkAccessManager()
         self.manager.finished.connect(self.onRequestFinished)
 
@@ -21,11 +24,15 @@ class ApiBase(QtCore.QObject):
         query = QtCore.QUrlQuery()
         for key, value in queryDict.items():
           query.addQueryItem(key, str(value))
-        url = QtCore.QUrl(self.url)
-        url.setQuery(query)
+        stringQuery = query.toString(QtCore.QUrl.FullyDecoded)
+        percentEncodedByteArrayQuery = QtCore.QUrl.toPercentEncoding(stringQuery, exclude=DO_NOT_ENCODE)
+        percentEncodedStringQuery = percentEncodedByteArrayQuery.data().decode()
+        url = QtCore.QUrl(Settings.get('api') + self.route)
+        url.setQuery(percentEncodedStringQuery)
         request = QtNetwork.QNetworkRequest(url)
         request.setRawHeader(b'User-Agent', b"FAF Client")
         request.setRawHeader(b'Content-Type', b'application/vnd.api+json')
+        logger.debug("Sending API request with URL: {}".format(url.toString()))
         reply = self.manager.get(request)
         self.handlers[reply] = responseHandler
 

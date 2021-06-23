@@ -1,12 +1,13 @@
 from PyQt5 import QtCore, QtNetwork
 
 import logging
-import fa
 import json
 import sys
 
 from enum import IntEnum
 
+import fa
+from config import Settings
 from model.game import Game, message_to_game_args
 
 logger = logging.getLogger(__name__)
@@ -33,7 +34,7 @@ class ServerReconnecter(QtCore.QObject):
         self._reconnect_timer.timeout.connect(self._connection.do_connect)
 
         # For explicit disconnect UI
-        self._enabled = True
+        self._enabled = False
 
         self._keepalive = False
         self._keepalive_timer = QtCore.QTimer(self)
@@ -189,6 +190,28 @@ class ServerConnection(QtCore.QObject):
     def state(self, value):
         self._state = value
         self.state_changed.emit(value)
+
+    @property
+    def host(self):
+        return self._host
+
+    @host.setter
+    def host(self, value):
+        self._host = value
+
+    @property
+    def port(self):
+        return self._port
+    
+    @port.setter
+    def port(self, value):
+        self._port = value
+
+    def setHostFromConfig(self):
+        self.host = Settings.get('lobby/host', type=str)
+
+    def setPortFromConfig(self):
+        self.port = Settings.get('lobby/port', type=int)
 
     def do_connect(self):
         self._disconnect_requested = False

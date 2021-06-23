@@ -92,10 +92,16 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
         self._identified = False
 
     @classmethod
-    def build(cls, settings, ssl=False, **kwargs):
-        port = settings.get('chat/port', 6667, int)
+    def build(cls, settings, ssl=True, **kwargs):
+        port = settings.get('chat/port', 6697 if ssl else 6667, int)
         host = settings.get('chat/host', 'irc.' + config.defaults['host'], str)
         return cls(host, port, ssl)
+
+    def setPortFromConfig(self):
+        self.port = config.Settings.get('chat/port', type=int)
+
+    def setHostFromConfig(self):
+        self.host = config.Settings.get('chat/host', type=str)
 
     def disconnect_(self):
         self.irc_disconnect()
