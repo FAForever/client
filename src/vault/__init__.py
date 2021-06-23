@@ -125,18 +125,16 @@ class MapVault(FormClass, BaseClass, BusyWidget):
         self.goToPage(1)
 
     @QtCore.pyqtSlot(dict)
-    def mapInfo(self, message):  # this is called when the database has send a map to us
-        """
-        See above for the keys neccessary in message.
-        """
-        folderName = message["folderName"]
-        if not folderName in self._maps:
-            _map = MapItem(self, folderName)
-            self._maps[folderName] = _map
-            self.mapList.addItem(_map)
-        else:
-            _map = self._maps[folderName]
-        _map.update(message)
+    def mapInfo(self, message):
+        for value in message["values"]:
+            folderName = value["folderName"]
+            if not folderName in self._maps:
+                _map = MapItem(self, folderName)
+                self._maps[folderName] = _map
+                self.mapList.addItem(_map)
+            else:
+                _map = self._maps[folderName]
+            _map.update(value)
         self.mapList.sortItems(1)
 
     @QtCore.pyqtSlot(int)

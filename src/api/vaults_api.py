@@ -20,10 +20,13 @@ class ModApiConnector(ApiBase):
                 ,page = meta['meta']['page']
             )
             self.dispatch.dispatch(data)
+        preparedData = dict(
+             command = 'modvault_info'
+            ,values = []
+        )
         for mod in message:
-            preparedData = dict(
-                 command = 'modvault_info'
-                ,name = mod['displayName']
+            preparedMod = dict(
+                 name = mod['displayName']
                 ,uid = mod['latestVersion']['uid']
                 ,link = mod['latestVersion']['downloadUrl']
                 ,description = mod['latestVersion']['description']
@@ -39,9 +42,10 @@ class ModApiConnector(ApiBase):
                 score = mod['reviewsSummary']['score']
                 reviews = mod['reviewsSummary']['reviews']
                 if reviews > 0:
-                    preparedData['rating'] = float('{:1.2f}'.format(score/reviews))
-                    preparedData['reviews'] = reviews
-            self.dispatch.dispatch(preparedData)
+                    preparedMod['rating'] = float('{:1.2f}'.format(score/reviews))
+                    preparedMod['reviews'] = reviews
+            preparedData["values"].append(preparedMod)
+        self.dispatch.dispatch(preparedData)
 
 class MapApiConnector(ApiBase):
     def __init__(self, dispatch):
@@ -58,10 +62,13 @@ class MapApiConnector(ApiBase):
                 ,page = meta['meta']['page']
             )
             self.dispatch.dispatch(data)
+        preparedData = dict(
+             command = 'mapvault_info'
+            ,values = []
+        )
         for _map in message:
-            preparedData = dict(
-                 command = 'mapvault_info'
-                ,name = _map['displayName']
+            preparedMap = dict(
+                 name = _map['displayName']
                 ,folderName = _map['latestVersion']['folderName']
                 ,link = _map['latestVersion']['downloadUrl']
                 ,description = _map['latestVersion']['description']
@@ -80,9 +87,10 @@ class MapApiConnector(ApiBase):
                 score = _map['reviewsSummary']['score']
                 reviews = _map['reviewsSummary']['reviews']
                 if reviews > 0:
-                    preparedData['rating'] = float('{:1.2f}'.format(score/reviews))
-                    preparedData['reviews'] = reviews
-            self.dispatch.dispatch(preparedData)
+                    preparedMap['rating'] = float('{:1.2f}'.format(score/reviews))
+                    preparedMap['reviews'] = reviews
+            preparedData["values"].append(preparedMap)
+        self.dispatch.dispatch(preparedData)
 
 class MapPoolApiConnector(ApiBase):
     def __init__(self, dispatch):
