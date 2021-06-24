@@ -5,7 +5,7 @@ pyqt5
 pytest
 pytest-cov
 pytest-mock
-pytest-qt
+pytest-qt==3.3.0
 semantic_version
 idna
 jsonschema==2.6.0
