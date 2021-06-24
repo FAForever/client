@@ -328,7 +328,8 @@ class GamesWidget(FormClass, BaseClass):
                 self.partyInfo.show()
             else:
                 self.partyInfo.hide()
-                self.tmmPlay.setText(s)           
+                self.tmmPlay.setText(s)
+                self.tmmPlay.setEnabled(True)
 
     def startSearchRanked(self, race, mod):
         if race == Factions.RANDOM:
