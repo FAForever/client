@@ -52,11 +52,10 @@ default_values = {
     'MAPPOOL_URL': 'https://forum.faforever.com/topic/148/matchmaker-pools-thread',
     'GITHUB_URL': 'https://www.github.com/FAForever',
     'WIKI_URL': 'https://wiki.faforever.com',
-    'SUPPORT_URL': 'https://forums.faforever.com/viewforum.php?f=3',
-    'TICKET_URL': 'https://forums.faforever.com/viewforum.php?f=3',
+    'SUPPORT_URL': 'https://forum.faforever.com/category/9/faf-support-client-and-account-issues',
+    'TICKET_URL': 'https://forum.faforever.com/category/9/faf-support-client-and-account-issues',
     'CREATE_ACCOUNT_URL': 'https://faforever.com/account/register',
     'STEAMLINK_URL': 'https://faforever.com/account/link',
     'PASSWORD_RECOVERY_URL': 'https://faforever.com/account/password/reset',
     'NAME_CHANGE_URL': 'https://faforever.com/account/username/change',
-    'USER_ALIASES_URL': 'http://app.faforever.com/faf/userName.php',
 }
