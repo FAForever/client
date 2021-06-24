@@ -311,7 +311,8 @@ class ReplayItem(QtWidgets.QTreeWidgetItem):
                                                                 player_rating= int(round((player["beforeMean"] - player["beforeDeviation"] * 3)/100) * 100),
                                                                 alignment=alignment)
 
-        iconUrl = os.path.join(util.COMMON_DIR, "replays/%s.png" % self.retrieveIconFaction(player, self.mod))
+        iconPath = os.path.join(util.COMMON_DIR, "replays/%s.png" % self.retrieveIconFaction(player, self.mod))
+        iconUrl = QtCore.QUrl.fromLocalFile(iconPath).url()
 
         playerIcon = self.FORMATTER_REPLAY_PLAYER_ICON.format(faction_icon_uri=iconUrl)
 
