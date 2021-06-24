@@ -830,7 +830,6 @@ class ClientWindow(FormClass, BaseClass):
         self.actionShowModsDir.triggered.connect(lambda: util.showDirInFileBrowser(getModFolder()))
         self.actionShowReplaysDir.triggered.connect(lambda: util.showDirInFileBrowser(util.REPLAY_DIR))
         self.actionShowThemesDir.triggered.connect(lambda: util.showDirInFileBrowser(util.THEME_DIR))
-        # if game.prefs doesn't exist: show_dir -> empty folder / show_file -> 'file doesn't exist' message
         self.actionShowGamePrefs.triggered.connect(lambda: util.showDirInFileBrowser(util.LOCALFOLDER))
         self.actionShowClientConfigFile.triggered.connect(util.showConfigFile)
         #self.actionShowGamePrefs.triggered.connect(lambda: util.showFileInFileBrowser(util.PREFSFILENAME))

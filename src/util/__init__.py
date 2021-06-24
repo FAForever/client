@@ -283,16 +283,29 @@ def __downloadPreviewFromWeb(unitname):
     return img
 
 
+def wrongPathNotice():
+    msgBox = QtWidgets.QMessageBox()
+    msgBox.setWindowTitle("Location not found")
+    msgBox.setIcon(QtWidgets.QMessageBox.Information)
+    msgBox.setText("Folder or file does not exist")
+    msgBox.exec()
+
+
 def showDirInFileBrowser(location):
-    QDesktopServices.openUrl(QUrl.fromLocalFile(location))
+    if not QDesktopServices.openUrl(QUrl.fromLocalFile(location)):
+        wrongPathNotice()
 
 
 def showFileInFileBrowser(location):
     if sys.platform == 'win32':
         # Ensure that the path is in Windows format
         location = os.path.normpath(location)
-        # Open the directory and highlight the picked file
-        subprocess.Popen('explorer /select,"{}"'.format(location))
+
+        if os.path.exists(location):
+            # Open the directory and highlight the picked file
+            subprocess.Popen('explorer /select,"{}"'.format(location))
+        else:
+            wrongPathNotice()
     else:
         # No highlighting on cross-platform, sorry!
         showDirInFileBrowser(os.path.dirname(location))
