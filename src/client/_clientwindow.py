@@ -117,6 +117,7 @@ class ClientWindow(FormClass, BaseClass):
 
         # Hook to Qt's application management system
         QtWidgets.QApplication.instance().aboutToQuit.connect(self.cleanup)
+        QtWidgets.QApplication.instance().applicationStateChanged.connect(self.appStateChanged)
 
         self._network_access_manager = QNetworkAccessManager(self)
 
@@ -129,6 +130,19 @@ class ClientWindow(FormClass, BaseClass):
         # Tray icon
         self.tray = QtWidgets.QSystemTrayIcon()
         self.tray.setIcon(util.THEME.icon("client/tray_icon.png"))
+        self.tray.setToolTip("FAF Python Client")
+        self.tray.activated.connect(self.handle_tray_icon_activation)
+        tray_menu = QtWidgets.QMenu()
+        tray_menu.addAction("Open Client", self.show_normal)
+        tray_menu.addAction("Quit Client", self.close)
+        self.tray.setContextMenu(tray_menu)
+        # Mouse down on tray icon deactivates the application.
+        # So there is no way to know for sure if the tray icon was clicked from
+        # active application or from inactive application. So we assume that
+        # if the application was deactivated less than 0.5s ago, then the tray
+        # icon click (both left or right button) was made from the active app.
+        self._lastDeactivateTime = None
+        self.keepActiveForTrayIcon = 0.5
         self.tray.show()
 
         self._state = ClientState.NONE
@@ -231,7 +245,7 @@ class ClientWindow(FormClass, BaseClass):
         self.setWindowTitle("FA Forever {}".format(util.VERSION_STRING))
 
         # Frameless
-        self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.CustomizeWindowHint)
+        self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowSystemMenuHint | QtCore.Qt.WindowMinimizeButtonHint)
 
         self.rubber_band = QtWidgets.QRubberBand(QtWidgets.QRubberBand.Rectangle)
 
@@ -364,6 +378,10 @@ class ClientWindow(FormClass, BaseClass):
         self.gameset.clear()
         self.clear_players()
 
+    def appStateChanged(self, state):
+        if state == QtCore.Qt.ApplicationInactive:
+            self._lastDeactivateTime = time.time()
+
     def eventFilter(self, obj, event):
         if event.type() == QtCore.QEvent.HoverMove:
             self.dragging_hover = self.dragging
@@ -395,6 +413,25 @@ class ClientWindow(FormClass, BaseClass):
             if self.mouse_position.cursor_shape_change:
                 self.unsetCursor()
                 self.mouse_position.cursor_shape_change = False
+
+    def handle_tray_icon_activation(self, reason):
+        if reason == QtWidgets.QSystemTrayIcon.Trigger:
+            if self.isMinimized():
+                self.show_normal()
+                self._lastDeactivateTime = None
+            elif self._lastDeactivateTime and time.time() - self._lastDeactivateTime >= self.keepActiveForTrayIcon:
+                self.show_normal()
+                self._lastDeactivateTime = None
+            else:
+                self.showMinimized()
+        elif reason == QtWidgets.QSystemTrayIcon.Context:
+            position = QtGui.QCursor.pos()
+            position.setY(position.y() - self.tray.contextMenu().height())
+            self.tray.contextMenu().popup(position)
+
+    def show_normal(self):
+        self.showNormal()
+        self.activateWindow()
 
     def show_max_restore(self):
         if self.is_window_maximized:
