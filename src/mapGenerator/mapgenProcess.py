@@ -36,12 +36,13 @@ class MapGeneratorProcess(object):
         self.map_name = None
 
         self.java_path = getJavaPath()
-        args = ["-jar", gen_path] + args
+        self.args = ["-jar", gen_path]
+        self.args.extend(args)
 
-        logger.info("Starting map generator with {} {}".format(self.java_path, " ".join(args)))
+        logger.info("Starting map generator with {} {}".format(self.java_path, " ".join(self.args)))
         generatorLogger.info(">>> --------------------------- MapGenerator Launch")
 
-        self.map_generator_process.start(self.java_path, args)
+        self.map_generator_process.start(self.java_path, self.args)
 
         if not self.map_generator_process.waitForStarted(5000):
             logger.error("error starting the map generator process")
