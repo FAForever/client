@@ -71,7 +71,7 @@ class SecondaryServer(QtCore.QObject):
 
     def send(self, command, *args, **kwargs):
         """ actually do the settings  """
-        self._requests += [{'command': command, 'args': args, 'kwargs': kwargs}]
+        self._requests.extend([{'command': command, 'args': args, 'kwargs': kwargs}])
         self.logger.info("Pending requests: {}".format(len(self._requests)))
         if not self.serverSocket.state() == QtNetwork.QAbstractSocket.ConnectedState:
             self.logger.info("Connecting to {} {}:{}".format(self.name, self.HOST, self.socketPort))

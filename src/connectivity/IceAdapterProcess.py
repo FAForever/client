@@ -35,9 +35,9 @@ class IceAdapterProcess(object):
                 "--gpgnet-port", "0",
                 "--log-level" , "debug"]
         if show_adapter_window:
-            args += ["--info-window", "--delay-ui", str(delay_adapter_ui)]
+            args.extend(["--info-window", "--delay-ui", str(delay_adapter_ui)])
         if Settings.contains('iceadapter/args'):
-            args += Settings.get('iceadapter/args', "", type=str).split(" ")
+            args.extend(Settings.get('iceadapter/args', "", type=str).split(" "))
 
         self._logger.debug("running ice adapter with {} {}".format(exe_path, " ".join(args)))
 

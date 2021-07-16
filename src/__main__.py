@@ -138,7 +138,7 @@ if __name__ == '__main__':
 
     if len(trailing_args) == 0:
         # Do the magic
-        sys.path += ['.']
+        sys.path.extend(['.'])
         run_faf()
     else:
         # Try to interpret the argument as a replay.
