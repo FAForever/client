@@ -51,7 +51,7 @@ class MapApiConnector(ApiBase):
     def __init__(self, dispatch):
         ApiBase.__init__(self, '/data/map')
         self.dispatch = dispatch
-    
+
     def requestData(self, query={}):
         self.request(query, self.handleData)
 
@@ -89,17 +89,17 @@ class MapApiConnector(ApiBase):
                 if reviews > 0:
                     preparedMap['rating'] = float('{:1.2f}'.format(score/reviews))
                     preparedMap['reviews'] = reviews
-            preparedData["values"].append(preparedMap)
+            preparedData['values'].append(preparedMap)
         self.dispatch.dispatch(preparedData)
 
 class MapPoolApiConnector(ApiBase):
     def __init__(self, dispatch):
         ApiBase.__init__(self, '/data/mapPoolAssignment')
         self.dispatch = dispatch
-    
+
     def requestData(self, query={}):
         self.request(query, self.handleData)
-    
+
     def handleData(self, message, meta):
         if len(meta)>0:
             data = dict(
@@ -107,12 +107,15 @@ class MapPoolApiConnector(ApiBase):
                 ,page = meta['meta']['page']
             )
             self.dispatch.dispatch(data)
+        preparedData = dict(
+             command = 'mapvault_info'
+            ,values = []
+        )
         for data in message:
             if len(data['mapVersion']) > 0:
                 _map = data['mapVersion']
-                preparedData = dict(
-                     command = 'mapvault_info'
-                    ,name = _map['map']['displayName']
+                preparedMap = dict(
+                     name = _map['map']['displayName']
                     ,folderName = _map['folderName']
                     ,link = _map['downloadUrl']
                     ,description = _map['description']
@@ -131,16 +134,15 @@ class MapPoolApiConnector(ApiBase):
                     score = _map['reviewsSummary']['score']
                     reviews = _map['reviewsSummary']['reviews']
                     if reviews > 0:
-                        preparedData['rating'] = float('{:1.2f}'.format(score/reviews))
-                        preparedData['reviews'] = reviews
+                        preparedMap['rating'] = float('{:1.2f}'.format(score/reviews))
+                        preparedMap['reviews'] = reviews
             elif data['mapParams'] is not None:
                 _map = data['mapParams']
-                preparedData = dict(
-                     command = 'mapvault_info'
-                    ,name = "Neroxis Map Generator"
+                preparedMap = dict(
+                     name = "Neroxis Map Generator"
                     ,folderName = 'neroxis_map_generator_{}_size={}km_spawns={}'.format(_map['version'],
-                                                                                         int(_map['size']/51.2),
-                                                                                         _map['spawns'])
+                                                                                        int(_map['size']/51.2),
+                                                                                        _map['spawns'])
                     ,link = ''
                     ,description = 'Randomly generated map'
                     ,maxPlayers = _map['spawns']
@@ -154,4 +156,5 @@ class MapPoolApiConnector(ApiBase):
                     ,rating = 0
                     ,reviews = 0
                 )
-            self.dispatch.dispatch(preparedData)
+            preparedData['values'].append(preparedMap)
+        self.dispatch.dispatch(preparedData)
