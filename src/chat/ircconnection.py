@@ -2,13 +2,14 @@ from PyQt5.QtCore import QObject, QSocketNotifier, QTimer, pyqtSignal
 import logging
 import sys
 import re
+import ssl
 
-from chat import irclib
-from chat.irclib import SimpleIRCClient, IRCError
 from model.chat.chatline import ChatLine, ChatLineType
 from model.chat.channel import ChannelID, ChannelType
 import util
 import config
+import irc
+import irc.client
 
 logger = logging.getLogger(__name__)
 PONG_INTERVAL = 60000  # milliseconds between pongs
@@ -73,29 +74,34 @@ class IrcSignals(QObject):
         QObject.__init__(self)
 
 
-class IrcConnection(IrcSignals, SimpleIRCClient):
-    def __init__(self, host, port, ssl):
+class IrcConnection(IrcSignals, irc.client.SimpleIRCClient):
+    def __init__(self, host, port, use_ssl):
         IrcSignals.__init__(self)
-        SimpleIRCClient.__init__(self)
+        irc.client.SimpleIRCClient.__init__(self)
 
         self.host = host
         self.port = port
-        self.ssl = ssl
+        self.use_ssl = use_ssl
+        if self.use_ssl:
+            self.factory = irc.connection.Factory(wrapper=ssl.wrap_socket)
+        else:
+            self.factory = irc.connection.Factory()
+
         self._password = None
         self._nick = None
 
         self._notifier = None
         self._timer = QTimer()
-        self._timer.timeout.connect(self.once)
+        self._timer.timeout.connect(self.reactor.process_once)
 
         self._nickserv_registered = False
         self._identified = False
 
     @classmethod
-    def build(cls, settings, ssl=True, **kwargs):
+    def build(cls, settings, use_ssl=True, **kwargs):
         port = settings.get('chat/port', 6697 if ssl else 6667, int)
         host = settings.get('chat/host', 'irc.' + config.defaults['host'], str)
-        return cls(host, port, ssl)
+        return cls(host, port, use_ssl)
 
     def setPortFromConfig(self):
         self.port = config.Settings.get('chat/port', type=int)
@@ -104,30 +110,31 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
         self.host = config.Settings.get('chat/host', type=str)
 
     def disconnect_(self):
-        self.irc_disconnect()
+        self.connection.disconnect()
         if self._notifier is not None:
-            self._notifier.activated.disconnect(self.once)
+            self._notifier.activated.disconnect()
             self._notifier = None
 
     def connect_(self, nick, username, password):
         logger.info("Connecting to IRC at: {}:{}. TLS: {}".format(
-            self.host, self.port, self.ssl))
+            self.host, self.port, self.use_ssl))
 
         self._nick = nick
         self._username = username
         self._password = password
 
         try:
-            self.irc_connect(self.host, self.port, nick, ssl=self.ssl,
+            self.connect(self.host, self.port, nick, connect_factory=self.factory,
                              ircname=nick, username=username)
             self._notifier = QSocketNotifier(
-                    self.ircobj.connections[0]._get_socket().fileno(),
+                    self.connection.socket.fileno(),
                     QSocketNotifier.Read,
-                    self)
-            self._notifier.activated.connect(self.once)
+                    self
+            )
+            self._notifier.activated.connect(self.reactor.process_once)
             self._timer.start(PONG_INTERVAL)
             return True
-        except IRCError:
+        except irc.client.IRCError:
             logger.debug("Unable to connect to IRC server.")
             logger.error("IRC Exception", exc_info=sys.exc_info())
             return False
@@ -168,10 +175,10 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
         return self._nick
 
     def _log_event(self, e):
-        text = '  |  '.join(e.arguments())
-        self.new_server_message.emit("[{}: {}->{}] {}".format(e.eventtype(),
-                                                              e.source(),
-                                                              e.target(),
+        text = '  |  '.join(e.arguments)
+        self.new_server_message.emit("[{}: {}->{}] {}".format(e.type,
+                                                              e.source,
+                                                              e.target,
                                                               text))
 
     def _log_client_message(self, text):
@@ -207,7 +214,7 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
 
     def on_version(self, c, e):
         msg = "Forged Alliance Forever " + util.VERSION_STRING
-        self.connection.privmsg(e.source(), msg)
+        self.connection.privmsg(e.source, msg)
 
     def on_motd(self, c, e):
         self._log_event(e)
@@ -217,8 +224,8 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
         self._log_event(e)
 
     def on_namreply(self, c, e):
-        channel = ChannelID(ChannelType.PUBLIC, e.arguments()[1])
-        listing = e.arguments()[2].split()
+        channel = ChannelID(ChannelType.PUBLIC, e.arguments[1])
+        listing = e.arguments[2].split()
 
         def userdata(data):
             name = data.strip(IRC_ELEVATION)
@@ -233,16 +240,16 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
         self._log_event(e)
 
     def _event_to_chatter(self, e):
-        name, _id, elevation, hostname = parse_irc_source(e.source())
+        name, _id, elevation, hostname = parse_irc_source(e.source)
         return ChatterInfo(name, hostname, elevation)
 
     def on_join(self, c, e):
-        channel = ChannelID(ChannelType.PUBLIC, e.target())
+        channel = ChannelID(ChannelType.PUBLIC, e.target)
         chatter = self._event_to_chatter(e)
         self.channel_chatter_joined.emit(channel, chatter)
 
     def on_part(self, c, e):
-        channel = ChannelID(ChannelType.PUBLIC, e.target())
+        channel = ChannelID(ChannelType.PUBLIC, e.target)
         chatter = self._event_to_chatter(e)
         self.channel_chatter_left.emit(channel, chatter)
         if chatter.name == self._nick:
@@ -250,23 +257,23 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
 
     def on_quit(self, c, e):
         chatter = self._event_to_chatter(e)
-        self.chatter_quit.emit(chatter, e.arguments()[0])
+        self.chatter_quit.emit(chatter, e.arguments[0])
 
     def on_nick(self, c, e):
-        oldnick = user2name(e.source())
-        newnick = e.target()
+        oldnick = user2name(e.source)
+        newnick = e.target
 
         self.chatter_renamed(oldnick, newnick)
         self._log_event(e)
 
     def on_mode(self, c, e):
-        if len(e.arguments()) < 2:
+        if len(e.arguments) < 2:
             return
 
-        name, _, elevation, hostname = parse_irc_source(e.arguments()[1])
+        name, _, elevation, hostname = parse_irc_source(e.arguments[1])
         chatter = ChatterInfo(name, hostname, elevation)
-        modes = e.arguments()[0]
-        channel = ChannelID(ChannelType.PUBLIC, e.target())
+        modes = e.arguments[0]
+        channel = ChannelID(ChannelType.PUBLIC, e.target)
         added, removed = self._parse_elevation(modes)
         self.new_chatter_elevation.emit(channel, chatter,
                                         added, removed)
@@ -292,13 +299,13 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
         self._log_event(e)
 
     def on_topic(self, c, e):
-        channel = ChannelID(ChannelType.PUBLIC, e.target())
-        announcement = " ".join(e.arguments())
+        channel = ChannelID(ChannelType.PUBLIC, e.target)
+        announcement = " ".join(e.arguments)
         self.new_channel_topic.emit(channel, announcement)
 
     def on_currenttopic(self, c, e):
-        channel = ChannelID(ChannelType.PUBLIC, e.arguments()[0])
-        announcement = " ".join(e.arguments()[1:])
+        channel = ChannelID(ChannelType.PUBLIC, e.arguments[0])
+        announcement = " ".join(e.arguments[1:])
         self.new_channel_topic.emit(channel, announcement)
 
     def on_topicinfo(self, c, e):
@@ -322,23 +329,23 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
 
     def on_pubmsg(self, c, e):
         chatter = self._event_to_chatter(e)
-        target = e.target()
-        text = "\n".join(e.arguments())
+        target = e.target
+        text = "\n".join(e.arguments)
         self._emit_line(chatter, target, ChannelType.PUBLIC, text)
 
     def on_privnotice(self, c, e):
-        if e.source() == self.host:
+        if e.source == self.host:
             self._log_event(e)
             return
 
         chatter = self._event_to_chatter(e)
-        notice = e.arguments()[0]
+        notice = e.arguments[0]
         if chatter.name.lower() == 'nickserv':
             self._log_event(e)
             self._handle_nickserv_message(notice)
             return
 
-        text = "\n".join(e.arguments())
+        text = "\n".join(e.arguments)
         msg_target, text = self._parse_target_from_privnotice_message(text)
         if msg_target is not None:
             channel_type = ChannelType.PUBLIC
@@ -357,7 +364,7 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
         prefix, rest = text.split(" ", 1)
         prefix = prefix[1:-1]
         target = prefix.strip("[]")
-        if not irclib.is_channel(target):
+        if not irc.client.is_channel(target):
             return None, text
         return target, rest
 
@@ -384,14 +391,14 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
 
     def on_privmsg(self, c, e):
         chatter = self._event_to_chatter(e)
-        text = "\n".join(e.arguments())
+        text = "\n".join(e.arguments)
         self._emit_line(chatter, None, ChannelType.PRIVATE, text)
 
     def on_action(self, c, e):
         chatter = self._event_to_chatter(e)
-        target = e.target()
-        text = "\n".join(e.arguments())
-        chtype = (ChannelType.PUBLIC if irclib.is_channel(target)
+        target = e.target
+        text = "\n".join(e.arguments)
+        chtype = (ChannelType.PUBLIC if irc.client.is_channel(target)
                   else ChannelType.PRIVATE)
         self._emit_line(chatter, target, chtype, text, ChatLineType.ACTION)
 
@@ -400,7 +407,7 @@ class IrcConnection(IrcSignals, SimpleIRCClient):
 
     def on_default(self, c, e):
         self._log_event(e)
-        if "Nickname is already in use." in "\n".join(e.arguments()):
+        if "Nickname is already in use." in "\n".join(e.arguments):
             self.connection.nick(self._nick + "_")
 
     def on_kick(self, c, e):

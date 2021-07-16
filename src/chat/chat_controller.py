@@ -155,6 +155,10 @@ class ChatController(QObject):
             return fn(self, channel, chatter, *args, **kwargs)
         return wrap
 
+    def _announce(self, channel, text):
+        line = ChatLine(None, text, ChatLineType.INFO)
+        self._add_line(channel, line)
+
     def _announce_chatter(self, channel, chatter, text):
         line = ChatLine(chatter.name, text, ChatLineType.INFO)
         self._add_line(channel, line)
@@ -177,7 +181,7 @@ class ChatController(QObject):
         if channel is None:
             return
         prefix = "quit"
-        if message == chatter.name:     # Silence default messages
+        if chatter.name in message:     # Silence default messages
             message = "{}.".format(prefix)
         else:
             message = "{}: {}".format(prefix, message)
@@ -243,26 +247,31 @@ class ChatController(QObject):
     # User actions start here.
     def send_message(self, cid, message):
         action, msg = MessageAction.parse_message(message)
-        if action == MessageAction.MSG:
-            if self._connection.send_message(cid.name, msg):
-                self._at_new_line(cid, None, self._user_chat_line(msg))
-        elif action == MessageAction.PRIVMSG:
-            chatter_name, msg = msg.split(" ", 1)
-            if self._connection.send_message(chatter_name, msg):
-                cid = ChannelID.private_cid(chatter_name)
-                self._at_new_line(cid, None, self._user_chat_line(msg))
-        elif action == MessageAction.ME:
-            if self._connection.send_action(cid.name, msg):
-                self._at_new_line(cid, None, self._user_chat_line(
-                    msg, ChatLineType.ACTION))
-        elif action == MessageAction.SEEN:
-            self._connection.send_action("nickserv", "info {}".format(msg))
-        elif action == MessageAction.TOPIC:
-            self._connection.set_topic(cid.name, msg)
-        elif action == MessageAction.JOIN:
-            self._connection.join(msg)
-        else:
-            pass    # TODO - raise 'Sending failed' error back to the view?
+        try:
+            if action == MessageAction.MSG:
+                if self._connection.send_message(cid.name, msg):
+                    self._at_new_line(cid, None, self._user_chat_line(msg))
+            elif action == MessageAction.PRIVMSG:
+                chatter_name, msg = msg.split(" ", 1)
+                if self._connection.send_message(chatter_name, msg):
+                    cid = ChannelID.private_cid(chatter_name)
+                    self._at_new_line(cid, None, self._user_chat_line(msg))
+            elif action == MessageAction.ME:
+                if self._connection.send_action(cid.name, msg):
+                    self._at_new_line(cid, None, self._user_chat_line(
+                        msg, ChatLineType.ACTION))
+            elif action == MessageAction.SEEN:
+                self._connection.send_action("nickserv", "info {}".format(msg))
+            elif action == MessageAction.TOPIC:
+                self._connection.set_topic(cid.name, msg)
+            elif action == MessageAction.JOIN:
+                self._connection.join(msg)
+            else:
+                pass    # TODO - raise 'Sending failed' error back to the view?
+        except ValueError:
+            self._announce(self._channels[cid], "Sending failed. Message is too long or contains invalid character.")
+        except Exception:
+            self._announce(self._channels[cid], "Sending failed. Check your connection.")
 
     def join_channel(self, cid):
         # Don't join a private channel with ourselves
