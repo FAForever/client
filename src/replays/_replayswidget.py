@@ -230,7 +230,10 @@ class LiveReplaysWidgetHandler(object):
         if item.isDisabled():
             return
 
-        if self.client.games.party.size > 1:
+        if (
+                self.client.games.party and
+                self.client.games.party.memberCount > 1
+        ):
             if not self.client.games.leave_party():
                 return
         
@@ -788,7 +791,10 @@ class ReplayVaultWidgetHandler(object):
                 self.toolboxHandler.updateMapPreview()
 
     def onlineTreeDoubleClicked(self, item):
-        if self.client.games.party.size > 1:
+        if (
+                self.client.games.party and
+                self.client.games.party.memberCount > 1
+        ):
             if not self.client.games.leave_party():
                 return
         

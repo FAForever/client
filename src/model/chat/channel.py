@@ -3,6 +3,8 @@ from PyQt5.QtCore import QObject, pyqtSignal
 from model.modelitem import ModelItem
 from model.transaction import transactional
 
+PARTY_CHANNEL_SUFFIX = "'sParty"
+
 
 class ChannelType(Enum):
     PUBLIC = 1

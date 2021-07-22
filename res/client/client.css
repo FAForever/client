@@ -79,6 +79,40 @@ QMenuBar::item
      height: 13px;
  }
 
+QTabWidget#matchmakerQueues::pane
+{
+    background-color: none;
+    border: none;
+}
+
+QTabWidget#matchmakerQueues::tab-bar
+{
+    min-width: 10000000;
+    alignment: center;
+}
+
+QTabWidget#matchmakerQueues > QTabBar::tab
+{
+    min-width: 60px;
+    min-height: 25px;
+    background-color:#383838;
+    /* color: silver; */
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+}
+
+QTabWidget#matchmakerQueues > QTabBar::tab::hover
+{
+    color: silver;
+    background-color: #808080;
+}
+
+QTabWidget#matchmakerQueues > QTabBar::tab::selected
+{
+    color: white;
+    background-color: #758fa0;
+}
+
 
 QTabWidget #lobbyTab,#gamesTab,#ladderTab,#tournamentTab,#coopTab,#replaysTab,#vaultsTab,#mapsTab,#modsTab
 { /* sets background color for every widget under a tab */
@@ -295,7 +329,7 @@ QTableView::item:selected
 }
 
 /* Text controls */
-QTextEdit, QPlainTextEdit, QLineEdit, QListWidget, QListView, QTableWidget, QTreeWidget, QFrame#rankedFrame, #teamFaction, #teamSearch, #tmmFrame
+QTextEdit, QPlainTextEdit, QLineEdit, QListWidget, QListView, QTableWidget, QTreeWidget, QFrame#rankedFrame, #teamFaction, #teamSearch, #partyInfo
 {
     border-style:solid;
     border-width:1px;
@@ -381,7 +415,7 @@ QHeaderView#VerticalHeader::section:hover
 }
 
 /* Modlist */
-QFrame#rankedFrame, #tmmFrame
+QFrame#rankedFrame, #partyInfo
 {
     border-style:solid;
     border-width:1px;
@@ -443,6 +477,22 @@ QListWidget#modList::item:selected, QListWidget#newsList::item:selected
 {
     background-color: #505050;
     color: #20A080;
+}
+
+QListWidget#teamList
+{
+    outline: 0;
+}
+
+QListWidget#teamList::item::selected
+{
+    color: white;
+    background-color: #353535;
+}
+
+QListWidget#teamList::item::selected:!active
+{
+    color: silver;
 }
 
 /* for tournament*/
@@ -653,13 +703,21 @@ QCheckBox#spoilerCheckbox::indicator:checked, #automaticCheckbox::indicator:chec
  }
 
 /* Used for Ranked Buttons only at the moment*/
-QToolButton#rankedPlay, #tmmPlay
+QToolButton#rankedPlay
 {
 	color: silver;
 	border-radius: 5px;
 	border: 1px solid grey;
 }
-QToolButton#laddermapspool,#tmmmapspool
+
+QToolButton#rankedPlay::disabled
+{
+    color: grey;
+    border-radius: 5px;
+    border: 1px solid darkslategrey;
+}
+
+QToolButton#mapsPool
 {
 	color: silver;
 	border-radius: 5px;
@@ -703,7 +761,7 @@ QToolButton::checked
  }
  
 QPushButton#refreshButton, #nextButton, #previousButton, #goToPageButton, #firstButton, #lastButton,
-#resetButton, #searchPlayerButton, #UIButton, #uploadButton
+#resetButton, #searchPlayerButton, #UIButton, #uploadButton, #kickButton, #leaveButton
 {
     color: silver;
     background: #202025;
@@ -713,12 +771,12 @@ QPushButton#refreshButton, #nextButton, #previousButton, #goToPageButton, #first
 
 QPushButton#refreshButton::hover, #nextButton::hover, #previousButton::hover, #goToPageButton::hover,
 #firstButton::hover, #lastButton::hover, #resetButton::hover, #searchPlayerButton::hover,
-#UIButton::hover, #uploadButton::hover
+#UIButton::hover, #uploadButton::hover,  #kickButton::hover, #leaveButton::hover
 {
     background-color: #808080;
 }
 
-QPushButton#searchButton, #advSearchButton, #fafDbButton, #spookyDbButton, #kickButton, #leaveButton
+QPushButton#searchButton, #advSearchButton, #fafDbButton, #spookyDbButton
 {
 	color: silver;
 	border-radius: 5px;

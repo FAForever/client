@@ -4,7 +4,7 @@
             {% set player_login = player.login %}
             {% set player_country = player.country | lower %}
             {% set player_country_path = iconpath~player_country~".png" %}
-            {% set player_global_rating = player.rating_estimate %}
+            {% set player_global_rating = player.global_estimate %}
         {% else %}
             {% set player_login = player %}
             {% set player_country_path = "" %}
@@ -75,7 +75,7 @@
 {%- macro observertooltip(observer) %}
      {% if observer.login is defined %}
         {% set observer_country = iconpath~observer.country~".png" %}
-        {% set observer_global_rating = observer.rating_estimate %}
+        {% set observer_global_rating = observer.global_estimate %}
         {% set observer_login = observer.login %}
         <br/>{{ observer_login }} <img src='{{ observer_country }}'> ({{ observer_global_rating }})
     {% else %}

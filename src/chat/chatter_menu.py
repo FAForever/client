@@ -25,6 +25,7 @@ class ChatterMenuItems(Enum):
     REMOVE_CHATTERBOX = "Unignore"
     COPY_USERNAME = "Copy username"
     INVITE_TO_PARTY = "Invite to party"
+    KICK_FROM_PARTY = "Kick from party"
 
 
 class ChatterMenu:
@@ -118,7 +119,13 @@ class ChatterMenu:
         if player is None:
             return
         else:
-            if self._client_window.games.labelTeammate.text() == player.login or player.currentGame is not None: #probably better to find a way to compare id
+            if player.id in self._client_window.games.party.memberIds:
+                if (
+                        self._me.player.id ==
+                        self._client_window.games.party.owner_id
+                ):
+                    yield ChatterMenuItems.KICK_FROM_PARTY
+            elif player.currentGame is not None:
                 return
             else:
                 yield ChatterMenuItems.INVITE_TO_PARTY
@@ -178,6 +185,8 @@ class ChatterMenu:
             self._game_runner.run_game_with_url(game, player.id)
         elif kind == Items.INVITE_TO_PARTY:
             self._client_window.invite_to_party(player.id)
+        elif kind == Items.KICK_FROM_PARTY:
+            self._client_window.games.kickPlayerFromParty(player.id)
 
     def _copy_username(self, chatter):
         QApplication.clipboard().setText(chatter.name)

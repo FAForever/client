@@ -25,6 +25,17 @@ class Factions(Enum):
         return random.choice(possibilities)
 
     @staticmethod
+    def set_faction(sub_factions=[]):
+        if any(sub_factions):
+            possibilities = []
+            for faction, selected in zip(list(Factions)[:-1], sub_factions):
+                if selected:
+                    possibilities.append(faction)
+        else:
+            possibilities = list(Factions)[:-1]
+        return random.choice(possibilities)
+
+    @staticmethod
     def from_name(name):
         name = name.lower()
         if name == "uef":

@@ -1,7 +1,7 @@
 from enum import Enum
 from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtWidgets import QTabBar, QApplication
-from model.chat.channel import ChannelType
+from model.chat.channel import ChannelType, PARTY_CHANNEL_SUFFIX
 
 
 class TabIcon(Enum):
@@ -48,15 +48,19 @@ class ChatWidget(QObject):
         self.set_tab_icon(key, TabIcon.IDLE)
 
     def _add_tab_in_default_spot(self, widget, key):
+        if key.name.endswith(PARTY_CHANNEL_SUFFIX):
+            tab_name = "Party Channel"
+        else:
+            tab_name = key.name
         if key.type == ChannelType.PRIVATE:
-            self.base.addTab(widget.base, key.name)
+            self.base.addTab(widget.base, tab_name)
             return
         try:
             last_public_tab = max([self.base.indexOf(w.base)
                                    for cid, w in self._channels.items()
                                    if cid.type == ChannelType.PUBLIC
                                    and cid != key])
-            self.base.insertTab(last_public_tab + 1, widget.base, key.name)
+            self.base.insertTab(last_public_tab + 1, widget.base, tab_name)
             return
         except ValueError:
             pass
@@ -65,11 +69,11 @@ class ChatWidget(QObject):
                                      for cid, w in self._channels.items()
                                      if cid.type == ChannelType.PRIVATE
                                      and cid != key])
-            self.base.insertTab(first_private_tab, widget.base, key.name)
+            self.base.insertTab(first_private_tab, widget.base, tab_name)
             return
         except ValueError:
             pass
-        self.base.addTab(widget.base, key.name)
+        self.base.addTab(widget.base, tab_name)
 
     def remove_channel(self, key):
         widget = self._channels.pop(key, None)
