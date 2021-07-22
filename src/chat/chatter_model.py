@@ -7,6 +7,7 @@ from chat.chatter_model_item import ChatterModelItem
 from chat.gameinfo import SensitiveMapInfoChecker
 from fa import maps
 from model.game import GameState
+from model.rating import RatingType
 import util
 from util.qt_list_model import QtListModel
 
@@ -225,28 +226,31 @@ class ChatterItemFormatter:
             return "IRC User"
         player = data.player
         # chr(0xB1) = +-
-        formatting = ("Global Rating: {} ({} Games) [{}\xb1{}]\n"
-                      "Ladder Rating: {} ({} Games) [{}\xb1{}]\n"
-                      "TMM Rating: {} ({} Games) [{}\xb1{}]")
-        tooltip_str = formatting.format(
-            player.rating_estimate,
-            player.number_of_games,
-            player.rating_mean,
-            player.rating_deviation,
-            player.ladder_estimate,
-            player.ladder_number_of_games,
-            player.ladder_rating_mean,
-            player.ladder_rating_deviation,
-            player.tmm_estimate,
-            player.tmm_number_of_games,
-            player.tmm_rating_mean,
-            player.tmm_rating_deviation
+        formatting = (
+            ("{} Rating: {} ({} Games) [{}\xb1{}]\n") * len(player.ratings)
         )
+        tooltip_info_list = []
+        for rating_type in player.ratings.keys():
+            if rating_type == RatingType.LADDER.value:
+                rating_name = "Ladder"
+            else:
+                rating_name = (
+                    rating_type.replace("_", " ").capitalize()
+                )
+            tooltip_info_list.extend([
+                rating_name,
+                player.rating_estimate(rating_type),
+                player.quantity_of_games(rating_type),
+                player.rating_mean(rating_type),
+                player.rating_deviation(rating_type),
+            ])
+
+        tooltip_str = formatting.format(*tooltip_info_list)
         league = player.league
         if league is not None and "division" in league:
             tooltip_str = "Division : {}\n{}".format(league["division"],
                                                      tooltip_str)
-        return tooltip_str
+        return tooltip_str.strip()
 
     def status_tooltip(self, data):
         # Status tooltip handling

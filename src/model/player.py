@@ -1,6 +1,7 @@
 from PyQt5.QtCore import pyqtSignal
 from model.transaction import transactional
 from model.modelitem import ModelItem
+from model.rating import RatingType
 
 
 class Player(ModelItem):
@@ -61,15 +62,8 @@ class Player(ModelItem):
     def __index__(self):
         return self.id
 
-    def rounded_rating_estimate(self):
-        """
-        Get the conservative estimate of the players global trueskill rating,
-        rounded to nearest 100
-        """
-        return round((self.rating_estimate/100))*100
-
     @property
-    def rating_estimate(self):
+    def global_estimate(self):
         """
         Get the conservative estimate of the players global trueskill rating
         """
@@ -83,21 +77,11 @@ class Player(ModelItem):
         return int(max(0, (self.ladder_rating[0] - 3 * self.ladder_rating[1])))
 
     @property
-    def tmm_estimate(self):
-        """
-        Get the conservative estimate of the players tmm2v2 trueskill rating
-        """
-        try:
-            return int(max(0, (self.ratings["tmm_2v2"]["rating"][0] - 3 * self.ratings["tmm_2v2"]["rating"][1])))
-        except:
-            return 0
-
-    @property
-    def rating_mean(self):
+    def global_rating_mean(self):
         return round(self.global_rating[0])
 
     @property
-    def rating_deviation(self):
+    def global_rating_deviation(self):
         return round(self.global_rating[1])
 
     @property
@@ -108,29 +92,30 @@ class Player(ModelItem):
     def ladder_rating_deviation(self):
         return round(self.ladder_rating[1])
 
-    @property
-    def ladder_number_of_games(self):
-        return int(self.ratings["ladder_1v1"]["number_of_games"])
+    def rating_estimate(self, rating_type=RatingType.GLOBAL.value):
+        try:
+            mean = self.ratings[rating_type]["rating"][0]
+            deviation = self.ratings[rating_type]["rating"][1]
+            return int(max(0, (mean - 3 * deviation)))
+        except Exception:
+            return 0
 
-    @property
-    def tmm_rating_mean(self):
+    def rating_mean(self, rating_type=RatingType.GLOBAL.value):
         try:
-            return round(self.ratings["tmm_2v2"]["rating"][0])
-        except:
+            return round(self.ratings[rating_type]["rating"][0])
+        except Exception:
             return 1500
-    
-    @property
-    def tmm_rating_deviation(self):
+
+    def rating_deviation(self, rating_type=RatingType.GLOBAL.value):
         try:
-            return round(self.ratings["tmm_2v2"]["rating"][1])
-        except:
+            return round(self.ratings[rating_type]["rating"][1])
+        except Exception:
             return 500
-    
-    @property
-    def tmm_number_of_games(self):
+
+    def quantity_of_games(self, rating_type=RatingType.GLOBAL.value):
         try:
-            return int(self.ratings["tmm_2v2"]["number_of_games"])
-        except:
+            return int(self.ratings[rating_type]["number_of_games"])
+        except Exception:
             return 0
 
     def __repr__(self):

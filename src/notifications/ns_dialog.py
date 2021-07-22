@@ -94,5 +94,4 @@ class NotificationDialog(FormClass, BaseClass):
     @QtCore.pyqtSlot()
     def acceptPartyInvite(self, sender_id):
         self.client.games.accept_party_invite(sender_id)
-        self.client.mainTabs.setCurrentIndex(self.client.mainTabs.indexOf(self.client.gamesTab))
         self.hide()

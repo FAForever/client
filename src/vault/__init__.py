@@ -177,10 +177,19 @@ class MapVault(FormClass, BaseClass, BusyWidget):
             self.searchQuery = dict(include = 'latestVersion,reviewsSummary', filter = 'displayName==' + '"*' + self.searchString + '*"')
             self.goToPage(1)
     
-    def requestMapPool(self, pool):
+    def requestMapPool(self, queueName, minRating):
         self.apiConnector = MapPoolApiConnector(self.client.lobby_dispatch)
-        self.searchQuery = dict(include = 'mapVersion,mapVersion.map.latestVersion,mapVersion.reviewsSummary',
-                                filter='mapPool.id==' + str(pool))
+        self.searchQuery = dict(
+            include='mapVersion,mapVersion.map.latestVersion,'
+                    'mapVersion.reviewsSummary',
+            filter=(
+                'mapPool.matchmakerQueueMapPool.matchmakerQueue.'
+                'technicalName=="{}";'
+                '(mapPool.matchmakerQueueMapPool.minRating=le="{}",'
+                'mapPool.matchmakerQueueMapPool.minRating=isnull="true")'
+                .format(queueName, minRating)
+            )
+        )
         self.goToPage(1)
 
     @QtCore.pyqtSlot()

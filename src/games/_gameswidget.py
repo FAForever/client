@@ -1,16 +1,14 @@
-from functools import partial
-import random
-
 from PyQt5 import QtWidgets
-from PyQt5.QtGui import QDesktopServices
-from PyQt5.QtCore import QUrl, pyqtSlot
+from PyQt5.QtGui import QCursor, QColor
+from PyQt5.QtCore import pyqtSignal, pyqtSlot, Qt
 
 import util
 from api.featured_mod_api import FeaturedModApiConnector
 from config import Settings
+from games.automatchframe import MatchmakerQueue
 from games.moditem import ModItem, mod_invisible
 from games.gamemodel import CustomGameFilterModel
-from fa.factions import Factions
+from model.chat.channel import PARTY_CHANNEL_SUFFIX
 import fa
 
 import logging
@@ -19,35 +17,46 @@ logger = logging.getLogger(__name__)
 
 FormClass, BaseClass = util.THEME.loadUiType("games/games.ui")
 
+
 class Party:
-    def __init__(self, owner_id, members):
+    def __init__(self, owner_id=-1, owner=None):
         self.owner_id = owner_id
-        self.members = [members]
-        self.teammates = []
-        self.size = len(self.members)
+        self.members = [owner] if owner else []
 
     @property
-    def partySize(self):
-        return self.size
-    
-    def setPartySize(self, value):
-        self.size = value
-    
-    def addTeammate(self, teammate):
-        self.teammates.append(teammate)
-    
+    def memberCount(self):
+        return len(self.memberList)
+
     @property
-    def getTeammate(self):
-        if len(self.teammates) > 0:
-            return self.teammates[0]
+    def memberList(self):
+        return self.members
+
+    def addMember(self, member):
+        self.memberList.append(member)
+
+    @property
+    def memberIds(self):
+        uids = []
+        if len(self.members) > 0:
+            for member in self.members:
+                uids.append(member.id_)
+        return uids
+
+    def __eq__(self, other):
+        if (
+            sorted(self.memberIds) == sorted(other.memberIds) and
+            self.owner_id == other.owner_id
+        ):
+            return True
         else:
-            return []
+            return False
+
 
 class PartyMember:
-    def __init__(self, _id, factions=None):
-        self._id = _id
+    def __init__(self, id_=-1, factions=None):
+        self.id_ = id_
         self.factions = ["uef", "cybran", "aeon", "seraphim"]
-        self.login = None
+
 
 class GamesWidget(FormClass, BaseClass):
 
@@ -55,15 +64,13 @@ class GamesWidget(FormClass, BaseClass):
         "play/hidePrivateGames", default_value=False, type=bool)
     sort_games_index = Settings.persisted_property(
         "play/sortGames", default_value=0, type=int)  # Default is by player count
-    
 
-    sub_factions_ladder = Settings.persisted_property(
-        "play/subFactions", default_value=[False, False, False, False], type=bool)
-    sub_factions_tmm = Settings.persisted_property(
-        "play/tmmFactions", default_value=[False, False, False, False], type=bool)
+    matchmaker_search_info = pyqtSignal(dict)
+    stop_search_ranked_game = pyqtSignal()
+    party_updated = pyqtSignal()
 
     def __init__(self, client, game_model, me, gameview_builder, game_launcher):
-        BaseClass.__init__(self)
+        BaseClass.__init__(self, client)
         self.setupUi(self)
 
         self._me = me
@@ -77,50 +84,13 @@ class GamesWidget(FormClass, BaseClass):
         self.gameview = gameview_builder(self._game_model, self.gameList)
         self.gameview.game_double_clicked.connect(self.gameDoubleClicked)
 
-        # Ranked search UI
-        self._ranked_icons = {
-            "ladder1v1": {
-                Factions.AEON: self.rankedAeon,
-                Factions.CYBRAN: self.rankedCybran,
-                Factions.SERAPHIM: self.rankedSeraphim,
-                Factions.UEF: self.rankedUEF,
-            }, 
-            "tmm2v2": {
-                Factions.AEON: self.tmmAeon,
-                Factions.CYBRAN: self.tmmCybran,
-                Factions.SERAPHIM: self.tmmSeraphim,
-                Factions.UEF: self.tmmUEF,
-            }
-        }
-        self.rankedAeon.setIcon(util.THEME.icon("games/automatch/aeon.png"))
-        self.rankedCybran.setIcon(util.THEME.icon("games/automatch/cybran.png"))
-        self.rankedSeraphim.setIcon(util.THEME.icon("games/automatch/seraphim.png"))
-        self.rankedUEF.setIcon(util.THEME.icon("games/automatch/uef.png"))
-
-        self.tmmAeon.setIcon(util.THEME.icon("games/automatch/aeon.png"))
-        self.tmmCybran.setIcon(util.THEME.icon("games/automatch/cybran.png"))
-        self.tmmSeraphim.setIcon(util.THEME.icon("games/automatch/seraphim.png"))
-        self.tmmUEF.setIcon(util.THEME.icon("games/automatch/uef.png"))
-
-        self.sub_factions = {"ladder1v1": self.sub_factions_ladder, "tmm2v2": self.sub_factions_tmm}
-
-        self.searchProgress.hide()
-        self.tmmProgress.hide()
-
-        # Ranked search state variables
-        self.searching = {"ladder1v1": False, "tmm2v2": False}
-        self.race = {"ladder1v1": None, "tmm2v2": None}
+        self.matchFoundQueueName = ""
         self.ispassworded = False
-
-        self.match_found = {"ladder1v1": False, "tmm2v2": False}
-
-        self.party = Party(self._me.id, PartyMember(self._me.id))
-
-        self.generateSelectSubset("ladder1v1")
-        self.generateSelectSubset("tmm2v2")
+        self.party = None
 
         self.client.lobby_info.modInfo.connect(self.processModInfo)
 
+        self.client.matchmaker_info.connect(self.handleMatchmakerInfo)
         self.client.game_enter.connect(self.stopSearch)
         self.client.viewing_replay.connect(self.stopSearch)
 
@@ -140,16 +110,30 @@ class GamesWidget(FormClass, BaseClass):
         self.hideGamesWithPw.setChecked(self.hide_private_games)
 
         self.modList.itemDoubleClicked.connect(self.hostGameClicked)
+        self.teamList.itemPressed.connect(self.teamListItemClicked)
 
-        self.labelInQueue.setText("-")
-        self.hideTmmFrame()
-        self.showTMM.clicked.connect(self.setTmmFrame)
-        self.kickButton.clicked.connect(self.kick_player_from_party)
+        self.hidePartyInfo()
         self.leaveButton.clicked.connect(self.leave_party)
 
-        self.updatePlayButton("ladder1v1")
-        self.updatePlayButton("tmm2v2")
         self.apiConnector.requestData()
+
+        self.searching = {"ladder1v1": False}
+
+        self.matchmakerFramesInitialized = False
+        self.client.authorized.connect(self.onAuthorized)
+
+    def onAuthorized(self, me):
+        if self.party is None:
+            self.party = Party(me.id, PartyMember(me.id))
+        if not self.matchmakerFramesInitialized:
+            self.client.lobby_connection.send(dict(command="matchmaker_info"))
+
+    def onLogOut(self):
+        self.party = None
+        while self.matchmakerQueues.widget(0) is not None:
+            self.matchmakerQueues.widget(0).deleteLater()
+            self.matchmakerQueues.removeTab(0)
+        self.matchmakerFramesInitialized = False
 
     @pyqtSlot(dict)
     def processModInfo(self, message):
@@ -180,215 +164,10 @@ class GamesWidget(FormClass, BaseClass):
         self.hide_private_games = state
         self._game_model.hide_private_games = state
 
-    def selectFaction(self, enabled, mod, factionID=0):
-        logger.debug('selectFaction: enabled={}, factionID={}'.format(enabled, factionID))
-        if len(self.sub_factions[mod]) < factionID:
-            logger.warning('selectFaction: len(self.sub_factions) < factionID, aborting')
-            return
-
-        logger.debug('selectFaction: selected was {}'.format(self.sub_factions[mod]))
-        self.sub_factions[mod][factionID-1] = enabled
-        if mod == "ladder1v1":
-            Settings.set("play/subFactions", self.sub_factions[mod])
-        else:
-            Settings.set("play/tmmFactions", self.sub_factions[mod])
-        logger.debug('selectFaction: selected is {}'.format(self.sub_factions[mod]))
-
-        if self.party.size > 1:
-            factions = self.setFactionSubset(mod)
-            self.client.set_faction(factions)
-            self.race[mod] = Factions.from_name(factions[random.randint(0, len(factions) - 1)])
-        else:
-            if self.searching[mod]:
-                self.stopSearchRanked(mod)
-
-        self.updatePlayButton(mod)
-
-    def setFactionSubset(self, mod):
-        factionSubset = []
-        if mod == "ladder1v1":
-            if self.rankedUEF.isChecked():
-                factionSubset.append("uef")
-            if self.rankedCybran.isChecked():
-                factionSubset.append("cybran")
-            if self.rankedAeon.isChecked():
-                factionSubset.append("aeon")
-            if self.rankedSeraphim.isChecked():
-                factionSubset.append("seraphim")
-        else:
-            if self.tmmUEF.isChecked():
-                factionSubset.append("uef")
-            if self.tmmCybran.isChecked():
-                factionSubset.append("cybran")
-            if self.tmmAeon.isChecked():
-                factionSubset.append("aeon")
-            if self.tmmSeraphim.isChecked():
-                factionSubset.append("seraphim")
-
-        l = len(factionSubset)
-        if l == 0:
-            factionSubset = ["uef", "cybran", "aeon", "seraphim"]
-
-        return factionSubset
-
-    def startSubRandomRankedSearch(self, mod):
-        """
-        This is a wrapper around startRankedSearch where a faction will be chosen based on the selected checkboxes
-        """
-        if self.searching[mod]:
-            self.stopSearchRanked(mod)
-        else:
-            if self.party.size > 1:
-                if self.isInGame(self._me.id):
-                    QtWidgets.QMessageBox.information(None, "Playing game", "Can't start searching. Your previous game is not over yet.")
-                    return
-            factions = self.setFactionSubset(mod=mod)
-            race = Factions.from_name(factions[random.randint(0, len(factions) - 1)])
-            self.startSearchRanked(race=race, mod=mod)
-
-    def startViewLadderMapsPool(self):
-        if self._me.id is None:
-            QDesktopServices.openUrl(QUrl(Settings.get("MAPPOOL_URL")))
-        else:
-            pool = int((self.client.players[self._me.id].ladder_rating_mean + 500) // 500)
-            if pool < 1:
-                pool = 1
-            elif pool > 5:
-                pool = 5
-            self.client.mapvault.requestMapPool(pool)
-            self.client.mainTabs.setCurrentIndex(self.client.mainTabs.indexOf(self.client.vaultsTab))
-            self.client.topTabs.setCurrentIndex(0)
-    
-    def startViewTmmMapsPool(self):
-        if self._me.id is None:
-            QDesktopServices.openUrl(QUrl(Settings.get("MAPPOOL_URL")))
-        else:
-            pool = int((self.client.players[self._me.id].tmm_rating_mean + 500) // 500)
-            if pool < 1:
-                pool = 1
-            elif pool > 5:
-                pool = 5
-            pool += 5
-            self.client.mapvault.requestMapPool(pool)
-            self.client.mainTabs.setCurrentIndex(self.client.mainTabs.indexOf(self.client.vaultsTab))
-            self.client.topTabs.setCurrentIndex(0)
-
-    def generateSelectSubset(self, mod):
-        if self.searching[mod]:  # you cannot search for a match while changing/creating the UI
-            self.stopSearchRanked(mod)
-
-        if mod == "ladder1v1":
-            self.rankedPlay.clicked.connect(partial(self.startSubRandomRankedSearch,mod=mod))
-            self.rankedPlay.show()
-            self.laddermapspool.clicked.connect(self.startViewLadderMapsPool)
-            self.labelRankedHint.show()
-        else:
-            self.tmmPlay.clicked.connect(partial(self.startSubRandomRankedSearch,mod=mod))
-            self.tmmPlay.show()
-            self.tmmmapspool.clicked.connect(self.startViewTmmMapsPool)
-        
-        for faction, icon in list(self._ranked_icons[mod].items()):
-            try:
-                icon.clicked.disconnect()
-            except TypeError:
-                pass
-
-            icon.setChecked(self.sub_factions[mod][faction.value-1])
-            icon.clicked.connect(partial(self.selectFaction, factionID=faction.value, mod=mod))
-
-    def updatePlayButton(self, mod):
-        if self.searching[mod]:
-            s = "Stop search"
-        else:
-            c = self.sub_factions[mod].count(True)
-            if c in [0, 4]:  # all or none selected
-                s = "Play as random!"
-            else:
-                s = "Play!"
-        if mod == "ladder1v1":
-            if self.party.size > 1:
-                self.rankedPlay.setEnabled(False)
-                self.rankedPlay.setText("Can't search ladder while in party")
-            else:
-                self.rankedPlay.setEnabled(True)
-                self.rankedPlay.setText(s)
-        elif mod == "tmm2v2":
-            if self.party.size > 1:
-                if self.party.owner_id == self._me.id:
-                    self.tmmPlay.setText(s)
-                    self.tmmPlay.setEnabled(True)
-                    self.kickButton.show()
-                else:
-                    if self.searching[mod]:
-                        self.tmmPlay.setText("Party leader will stop searching")
-                    else:
-                        self.tmmPlay.setText("Party leader will start searching")
-                    self.tmmPlay.setEnabled(False)
-                    self.kickButton.hide()
-                self.partyInfo.show()
-            else:
-                self.partyInfo.hide()
-                self.tmmPlay.setText(s)
-                self.tmmPlay.setEnabled(True)
-
-    def startSearchRanked(self, race, mod):
-        if race == Factions.RANDOM:
-            race = Factions.get_random_faction()
-
-        if fa.instance.running():
-            QtWidgets.QMessageBox.information(
-                None, "ForgedAllianceForever.exe", "FA is already running.")
-            self.stopSearchRanked(mod)
-            return
-
-        if not fa.check.check("ladder1v1"):
-            self.stopSearchRanked(mod)
-            logger.error("Can't play ranked without successfully updating Forged Alliance.")
-            return
-
-        if self.searching[mod]:
-            self.race[mod] = race
-            logger.info("Switching Ranked Search to Race " + str(race))
-            self.client.lobby_connection.send(dict(command="game_matchmaking", mod=mod, state="settings",
-                                  faction=self.race[mod].value))
-        else:
-            logger.info("Starting Ranked Search as " + str(race))
-            self.searching[mod] = True
-            self.race[mod] = race
-            if mod == "ladder1v1":
-                self.searchProgress.setVisible(True)
-                self.labelAutomatch.setText("Searching...")
-
-            else:
-                self.tmmProgress.setVisible(True)
-                self.labelTMM.setText("Searching...")
-            
-            self.updatePlayButton(mod)
-            self.client.search_ranked(faction=self.race[mod].value, mod=mod) 
-
-    def stopSearchRanked(self, mod, *args):
-        if self.searching[mod]:
-            logger.debug("Stopping Ranked Search")
-            if self.party.size > 1:          
-                if self.party.owner_id == self._me.id:
-                    self.client.lobby_connection.send(dict(command="game_matchmaking", mod=mod, state="stop"))
-            else:
-                self.client.lobby_connection.send(dict(command="game_matchmaking", mod=mod, state="stop"))
-            self.searching[mod] = False
-            self.match_found[mod] = False
-
-        self.updatePlayButton(mod)
-        if mod == "ladder1v1":
-            self.searchProgress.setVisible(False)
-            self.labelAutomatch.setText("1 vs 1 Automatch")
-        else:
-            self.tmmProgress.setVisible(False)
-            self.labelTMM.setText("2 vs 2 Automatch")
-
-    @pyqtSlot()
-    def stopSearch(self, *args):
-        self.stopSearchRanked("ladder1v1")
-        self.stopSearchRanked("tmm2v2")
+    def stopSearch(self):
+        if self.matchFoundQueueName:
+            self.matchFoundQueueName = ""
+        self.stop_search_ranked_game.emit()
 
     def gameDoubleClicked(self, game):
         """
@@ -397,10 +176,12 @@ class GamesWidget(FormClass, BaseClass):
         if not fa.instance.available():
             return
 
-        if self.party.size > 1:
-            if not self.leave_party():
-                return
-        self.stopSearch()  # Actually a workaround
+        if (
+                self.party is not None and
+                self.party.memberCount > 1 and not self.leave_party()
+        ):
+            return
+        self.stopSearch()
 
         if not fa.check.game(self.client):
             return
@@ -421,10 +202,12 @@ class GamesWidget(FormClass, BaseClass):
         """
         if not fa.instance.available():
             return
-       
-        if self.party.size > 1:
-            if not self.leave_party():
-                return
+
+        if (
+                self.party is not None and
+                self.party.memberCount > 1 and not self.leave_party()
+        ):
+            return
         self.stopSearch()
         self._game_launcher.host_game(item.name, item.mod)
 
@@ -432,64 +215,93 @@ class GamesWidget(FormClass, BaseClass):
         self.sort_games_index = index
         self._game_model.sort_type = CustomGameFilterModel.SortType(index)
 
+    def teamListItemClicked(self, item):
+        if QtWidgets.QApplication.mouseButtons() == Qt.LeftButton:
+            # for no good reason doesn't always work as expected
+            item.setSelected(False)
+
+        if (
+            QtWidgets.QApplication.mouseButtons() == Qt.RightButton and
+            self.party.owner_id == self._me.id
+        ):
+            self.teamList.setCurrentItem(item)
+            playerLogin = item.data(0)
+            playerId = self.client.players[playerLogin].id
+            menu = QtWidgets.QMenu(self)
+            actionKick = QtWidgets.QAction("Kick from party", menu)
+            actionKick.triggered.connect(
+                lambda: self.kickPlayerFromParty(playerId)
+            )
+            menu.addAction(actionKick)
+            menu.popup(QCursor.pos())
+
     def updateParty(self, message):
         players_ids = []
         for member in message["members"]:
             players_ids.append(member["player"])
 
-        if self.party.owner_id != message["owner"]:
-            self.stopSearch()
+        old_owner = self.client.players[self.party.owner_id]
+        new_owner = self.client.players[message["owner"]]
+        if (
+            old_owner.id != new_owner.id or
+            self._me.id not in players_ids or
+            len(message["members"]) < 2
+        ):
+            self.client._chatMVC.connection.part(
+                "#{}{}".format(old_owner.login, PARTY_CHANNEL_SUFFIX)
+            )
 
-        if self.party.size != len(message["members"]):
-            self.stopSearch()
-        else:
-            for member in self.party.members:
-                if member._id not in players_ids:
-                    self.stopSearch()
-
-        self.party.members.clear()
-        self.party.teammates.clear()
-
-        if len(message["members"]) > 1:
-            self.party.owner_id = message["owner"]
-            self.showTmmFrame()
+        new_party = Party()
+        if len(message["members"]) > 1 and self._me.id in players_ids:
+            new_party.owner_id = new_owner.id
             for member in message["members"]:
                 players_id = member["player"]
-                self.party.members.append(PartyMember(_id=players_id, factions=member["factions"]))
-                if players_id != self._me.id:
-                    self.labelTeammate.setText(str(self.client.players[players_id].login))
-                    self.party.teammates.append(PartyMember(_id=players_id, factions=member["factions"]))
+                new_party.addMember(
+                    PartyMember(id_=players_id, factions=member["factions"])
+                )
         else:
-            self.party.owner_id = self._me.id
-            self.party.members.append(PartyMember(_id=self._me.id))
-            self.labelTeammate.setText('')
-        
-        self.party.size = len(self.party.members)
+            new_party.owner_id = self._me.id
+            new_party.addMember(PartyMember(id_=self._me.id))
 
-        self.updatePlayButton("ladder1v1")
-        self.updatePlayButton("tmm2v2")
+        if self.party != new_party:
+            self.stopSearch()
+            self.party = new_party
+            if self.party.memberCount > 1:
+                self.client._chatMVC.connection.join(
+                    "#{}{}".format(new_owner.login, PARTY_CHANNEL_SUFFIX)
+                )
+            self.updateTeamList()
 
-    
-    def showTmmFrame(self):
-        self.labelTMM.show()
-        self.tmmFrame.show()
-        self.tmmmapspool.show()
-        self.showTMM.setText("Hide 2 vs 2 section")
-    
-    def hideTmmFrame(self):
-        self.labelTMM.hide()
-        self.tmmFrame.hide()
-        self.tmmmapspool.hide()
-        self.showTMM.setText("Show 2 vs 2 section")
-    
-    def setTmmFrame(self):
-        if self.tmmFrame.isVisible():
-            self.hideTmmFrame()
+        self.updatePartyInfoFrame()
+        self.party_updated.emit()
+
+    def showPartyInfo(self):
+        self.partyInfo.show()
+
+    def hidePartyInfo(self):
+        self.partyInfo.hide()
+
+    def updatePartyInfoFrame(self):
+        if self.party.memberCount > 1:
+            self.showPartyInfo()
         else:
-            self.showTmmFrame()
+            self.hidePartyInfo()
 
+    def updateTeamList(self):
+        self.teamList.clear()
+        for member_id in self.party.memberIds:
+            if member_id != self._me.id:
+                item = QtWidgets.QListWidgetItem(
+                    self.client.players[member_id].login
+                )
+                if member_id == self.party.owner_id:
+                    item.setIcon(util.THEME.icon("chat/rank/partyleader.png"))
+                else:
+                    item.setIcon(util.THEME.icon("chat/rank/newplayer.png"))
+                self.teamList.addItem(item)
 
     def accept_party_invite(self, sender_id):
+        self.stopSearch()
         logger.info("Accepting paryt invite from {}".format(sender_id))
         msg = {
             'command': 'accept_party_invite',
@@ -497,54 +309,72 @@ class GamesWidget(FormClass, BaseClass):
         }
         self.client.lobby_connection.send(msg)
 
-        factions = self.setFactionSubset("tmm2v2")
-        self.race["tmm2v2"] = Factions.from_name(factions[random.randint(0, len(factions) - 1)])
-        self.client.set_faction(factions)
+    def kickPlayerFromParty(self, playerId):
+        login = self.client.players[playerId].login
+        result = QtWidgets.QMessageBox.question(
+            self, "Kick Player: {}".format(login),
+            "Are you sure you want to kick {} from party?".format(login),
+            QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No
+        )
+        if result == QtWidgets.QMessageBox.Yes:
+            self.stopSearch()
+            msg = {
+                'command': 'kick_player_from_party',
+                'kicked_player_id': playerId,
+            }
+            self.client.lobby_connection.send(msg)
 
-
-    def kick_player_from_party(self):
-        if self.isInGame(self._me.id):
-            QtWidgets.QMessageBox.information(None, "Playing game", "Can't kick. Your party is still in game!")
-        else:
-            kicked_player_id = self.party.teammates[0]._id
-            result = QtWidgets.QMessageBox.question(None, "Kick Player", "Are you sure you want to kick your teammate from party?",
-                                                        QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
-            if result == QtWidgets.QMessageBox.Yes:
-                msg = {
-                    'command': 'kick_player_from_party',
-                    'kicked_player_id': kicked_player_id,
-                }
-                self.client.lobby_connection.send(msg)
-    
     def leave_party(self):
-        result = QtWidgets.QMessageBox.question(None, "Leaving Party", "Are you sure you want to leave party?",
-                                                  QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
-        if result == QtWidgets.QMessageBox.Yes:   
+        result = QtWidgets.QMessageBox.question(
+            self, "Leaving Party", "Are you sure you want to leave party?",
+            QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No
+        )
+        if result == QtWidgets.QMessageBox.Yes:
             msg = {
                 'command': 'leave_party'
             }
             self.client.lobby_connection.send(msg)
-            
+
             if self.isInGame(self._me.id):
                 self.client.players[self._me.id]._currentGame = None
             return True
         else:
             return False
-    
-    def handle_tmm_search_info(self, message):
-        if self.party.size > 1:
-            if self.party.owner_id != self._me.id:
-                if message["state"] == "start":
-                    self.searching["tmm2v2"] = True
-                    self.tmmProgress.show()
-                    self.updatePlayButton("tmm2v2")
-                elif message["state"] == "stop":
-                    self.searching["tmm2v2"] = False
-                    self.tmmProgress.hide()
-                    self.updatePlayButton("tmm2v2")
+
+    def handleMatchmakerSearchInfo(self, message):
+        self.matchmaker_search_info.emit(message)
 
     def isInGame(self, player_id):
         if self.client.players[player_id].currentGame is None:
             return False
         else:
             return True
+
+    def handleMatchmakerInfo(self, message):
+        # there were cases when ladder info came earlier than the answer
+        # to client's matchmaker_info request, so probably it will need to be
+        # fully hardcoded when everything comes out, but for now just
+        # need to be sure that there are at least 2 queues in message
+        if (
+            not self.matchmakerFramesInitialized and
+            len(message.get("queues", {})) > 1
+        ):
+            logger.info("Initializing matchmaker queue frames")
+            queues = message.get("queues", {})
+            queues.sort(key=lambda queue: queue["team_size"])
+            for index, queue in enumerate(queues):
+                self.matchmakerQueues.insertTab(
+                    index,
+                    MatchmakerQueue(
+                        self, self.client,
+                        queue["queue_name"], queue["team_size"]
+                    ),
+                    "&{teamSize} vs {teamSize}".format(
+                        teamSize=queue["team_size"]
+                    )
+                )
+            for index in range(self.matchmakerQueues.tabBar().count()):
+                self.matchmakerQueues.tabBar().setTabTextColor(
+                    index, QColor("silver")
+                )
+            self.matchmakerFramesInitialized = True
