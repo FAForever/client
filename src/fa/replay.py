@@ -11,8 +11,6 @@ from fa.check import check
 from fa.replayparser import replayParser
 from util.gameurl import GameUrl, GameUrlType
 
-from . import mods
-
 logger = logging.getLogger(__name__)
 
 __author__ = 'Thygrrr'

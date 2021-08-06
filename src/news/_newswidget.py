@@ -1,10 +1,7 @@
-import base64
 import logging
-import re
 import webbrowser
 
 from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtCore import Qt
 
 import util
 from config import Settings

@@ -36,7 +36,6 @@ If there is default value for a search entry, error will not be generated. Defau
 """
 import os
 import re
-import zipfile
 
 
 class luaParser:

@@ -9,7 +9,6 @@
 import os
 import sys
 import traceback
-import types
 
 
 def isUserAdmin():

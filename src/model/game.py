@@ -3,7 +3,7 @@ import string
 import time
 from enum import Enum
 
-from PyQt5.QtCore import QTimer, QUrl, QUrlQuery, pyqtSignal
+from PyQt5.QtCore import QTimer, pyqtSignal
 
 from decorators import with_logger
 from model.modelitem import ModelItem

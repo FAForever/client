@@ -1,8 +1,6 @@
 # system imports
-import io
 import logging
 import os
-import re
 import shutil
 import stat
 import string
@@ -13,12 +11,10 @@ import urllib.error
 import urllib.parse
 import urllib.request
 import zipfile
-from urllib.error import HTTPError
 
 from PyQt5 import QtCore, QtGui
 
 # module imports
-import fa
 import util
 # local imports
 from config import Settings

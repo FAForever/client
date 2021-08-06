@@ -3,10 +3,8 @@ import time
 
 from PyQt5 import QtCore, QtWebEngineWidgets, QtWidgets
 
-import client
 import util
 from api.stats_api import LeaderboardApiConnector
-from config import Settings
 from stats import mapstat
 from ui.busy_widget import BusyWidget
 from util.qt import injectWebviewCSS

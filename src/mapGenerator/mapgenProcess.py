@@ -1,13 +1,10 @@
 import logging
-import os
 import re
 
-from PyQt5.QtCore import QEventLoop, QProcess, QProcessEnvironment, Qt
+from PyQt5.QtCore import QEventLoop, QProcess, Qt
 from PyQt5.QtWidgets import QApplication, QMessageBox, QProgressDialog
 
-import fafpath
 from config import setup_file_handler
-from decorators import with_logger
 from util import getJavaPath
 
 from . import mapgenUtils

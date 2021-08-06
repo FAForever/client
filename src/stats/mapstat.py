@@ -1,6 +1,5 @@
 
 import datetime
-import json
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 

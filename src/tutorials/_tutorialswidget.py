@@ -7,7 +7,6 @@ from PyQt5.QtNetwork import (QNetworkAccessManager, QNetworkReply,
 
 import fa
 import util
-from fa.replay import replay
 from tutorials.tutorialitem import TutorialItem, TutorialItemDelegate
 
 logger = logging.getLogger(__name__)

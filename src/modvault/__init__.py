@@ -44,9 +44,6 @@ The tempAddMods function should be removed after the server can return mods in t
 
 import logging
 import os
-import time
-import zipfile
-from datetime import datetime
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 

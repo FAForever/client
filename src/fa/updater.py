@@ -7,13 +7,10 @@ patched, and all required files for a given mod are installed
 
 @author thygrrr
 """
-import ast
-import json
 import logging
 import os
 import shutil
 import stat
-import subprocess
 import sys
 import tempfile
 import time
@@ -21,10 +18,9 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-from PyQt5 import QtCore, QtNetwork, QtWidgets
+from PyQt5 import QtCore, QtWidgets
 
 import config
-import fafpath
 import modvault
 import util
 from api.featured_mod_updater import FeaturedModFiles, FeaturedModId

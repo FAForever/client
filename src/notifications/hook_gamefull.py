@@ -1,9 +1,4 @@
-from PyQt5 import QtCore
-
-import config
 import notifications as ns
-import util
-from config import Settings
 from notifications.ns_hook import NsHook
 
 """

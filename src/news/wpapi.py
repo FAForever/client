@@ -1,6 +1,5 @@
 import json
 import logging
-import sys
 
 from PyQt5 import QtCore
 from PyQt5.QtNetwork import (QNetworkAccessManager, QNetworkReply,
