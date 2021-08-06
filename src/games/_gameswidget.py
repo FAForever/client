@@ -118,6 +118,7 @@ class GamesWidget(FormClass, BaseClass):
         self.apiConnector.requestData()
 
         self.searching = {"ladder1v1": False}
+        self.matchmakerShortcuts = []
 
         self.matchmakerFramesInitialized = False
         self.client.authorized.connect(self.onAuthorized)
@@ -138,6 +139,10 @@ class GamesWidget(FormClass, BaseClass):
         while self.matchmakerQueues.widget(0) is not None:
             self.matchmakerQueues.widget(0).deleteLater()
             self.matchmakerQueues.removeTab(0)
+        for shortcut in self.matchmakerShortcuts:
+            shortcut.setEnabled(False)
+            shortcut.deleteLater()
+        self.matchmakerShortcuts.clear()
         self.matchmakerFramesInitialized = False
 
     @pyqtSlot(dict)
