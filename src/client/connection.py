@@ -132,7 +132,7 @@ class ServerReconnecter(QtCore.QObject):
 
         else:
             self._waiting_for_pong = True
-            self._connection.writeToServer("PING")
+            self._connection.send(dict(command="ping"))
 
     def _receive_pong(self):
         self._waiting_for_pong = False
@@ -157,7 +157,7 @@ class ServerConnection(QtCore.QObject):
         self._host = host
         self._port = port
         self._state = ConnectionState.INITIAL
-        self.blockSize = 0
+        self._data = ""
         self._disconnect_requested = False
 
         self._dispatch = dispatch
@@ -234,60 +234,53 @@ class ServerConnection(QtCore.QObject):
     def set_upnp(self, port):
         fa.upnp.createPortMapping(self.socket.localAddress().toString(), port, "UDP")
 
+    def processDataFromServer(self, data):
+        self._data = ""
+        for line in data.splitlines():
+            action = json.loads(line)
+            command = action.get("command", "").lower()
+            if command == "ping":
+                logger.debug("Server: PING")
+                self.send(dict(command="pong"))
+            elif command == "pong":
+                logger.debug("Server: PONG")
+                self.received_pong.emit()
+            else:
+                try:
+                    self._dispatch(action)
+                except Exception:
+                    logger.error(
+                        "Error dispatching JSON: " + line,
+                        exc_info=sys.exc_info()
+                    )
+
     @QtCore.pyqtSlot()
     def readFromServer(self):
-        ins = QtCore.QDataStream(self.socket)
-        ins.setVersion(QtCore.QDataStream.Qt_4_2)
-
-        while not ins.atEnd():
-            if self.blockSize == 0:
-                if self.socket.bytesAvailable() < 4:
-                    return
-                self.blockSize = ins.readUInt32()
-            if self.socket.bytesAvailable() < self.blockSize:
+        while not self.socket.atEnd():
+            if self.socket.bytesAvailable() == 0:
                 return
 
-            action = ins.readQString()
-#            logger.debug("Server: '%s'" % action)
-
-            if action == "PING":
-                self.writeToServer("PONG")
-                self.blockSize = 0
-                return
-            elif action == "PONG":
-                self.blockSize = 0
-                self.received_pong.emit()
-                return
-            try:
-                self._dispatch(json.loads(action))
-            except:
-                logger.error("Error dispatching JSON: " + action, exc_info=sys.exc_info())
-
-            self.blockSize = 0
+            data = self.socket.readAll().data().decode()
+            logger.debug("Server: '{}'".format(data))
+            self._data += data
+        if self._data.endswith("\n"):
+            self.processDataFromServer(self._data)
 
     def writeToServer(self, action, *args, **kw):
-        """
-        Writes data to the deprecated stream API. Do not use.
-        """
-        logger.debug("Client: " + action)
-
-        block = QtCore.QByteArray()
-        out = QtCore.QDataStream(block, QtCore.QIODevice.ReadWrite)
-        out.setVersion(QtCore.QDataStream.Qt_4_2)
-
-        out.writeUInt32(2 * len(action) + 4)
-        out.writeQString(action)
-
-        # it looks like there's a crash in Qt when sending to an unconnected socket
+        message = (action + "\n").encode()
+        # it looks like there's a crash in Qt
+        # when sending to an unconnected socket
         if self.socket.state() == QtNetwork.QAbstractSocket.ConnectedState:
-            self.socket.write(block)
+            self.socket.write(message)
 
     def send(self, message):
         data = json.dumps(message)
-        if message.get('command') == 'hello':
-            logger.info('Logging in with {}'.format({
+        if message.get("command") == "auth":
+            logger.info("Logging in with {}".format({
                 k: v for k, v in list(message.items())
-                if k not in ['password', 'unique_id']}))
+                if k not in ["token", "unique_id"]}))
+        elif message.get("command") in ("ping", "pong"):
+            logger.debug("Outgoing message: {}".format(message.get("command")))
         else:
             logger.info("Outgoing JSON Message: " + data)
 
@@ -295,8 +288,8 @@ class ServerConnection(QtCore.QObject):
 
     def on_disconnect(self):
         logger.warning("Disconnected from lobby server.")
-        self.blockSize = 0
         self.state = ConnectionState.DISCONNECTED
+        self._data = ""
         self.disconnected.emit()
         if self._disconnect_requested:
             return
