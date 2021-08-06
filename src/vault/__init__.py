@@ -83,6 +83,8 @@ class MapVault(FormClass, BaseClass, BusyWidget):
         self.apiConnector = self.mapApiConnector
         self.busy_entered()
 
+        self.client.authorized.connect(self.busy_entered)
+
     @QtCore.pyqtSlot(int)
     def checkPageSize(self):
         self.pageSize = self.quantityBox.value()

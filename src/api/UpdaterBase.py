@@ -1,6 +1,7 @@
 import urllib
 import logging
 import json
+import time
 
 from config import Settings
 
@@ -19,6 +20,13 @@ class UpdaterBase:
         url = urllib.parse.urlunparse(url)
 
         request = urllib.request.Request(url)
+
+        api_token = Settings.get('oauth/token', None)
+        if api_token is not None and api_token.get('expires_at') > time.time():
+            access_token = api_token.get('access_token')
+            bearer = 'Bearer {}'.format(access_token)
+            request.add_header('Authorization', bearer)
+
         request.add_header('User-Agent', 'FAF Client')
         request.add_header('Content-Type', 'application/vnd.api+json')
         logger.debug("Sending API request with URL: {}".format(url))

@@ -71,6 +71,13 @@ class StatsWidget(BaseClass, FormClass, BusyWidget):
         self.removeTab(self.indexOf(self.ladderTab))
         self.removeTab(self.indexOf(self.laddermapTab))
 
+        self.leaderboardNames = []
+        self.client.authorized.connect(self.onAuthorized)
+
+    def onAuthorized(self):
+        if not self.leaderboardNames:
+            self.refreshLeaderboards()
+
     def refreshLeaderboards(self):
         while self.client.replays.leaderboardList.count() != 1:
             self.client.replays.leaderboardList.removeItem(1)
@@ -215,7 +222,7 @@ class StatsWidget(BaseClass, FormClass, BusyWidget):
             self.laddermapstat.emit(message)
 
         elif typeStat == "leaderboard":
-            self.leaderboardNames = []
+            self.leaderboardNames.clear()
             for value in message["values"]:
                 self.leaderboardNames.append(value["technicalName"])
             for i in range(len(self.leaderboardNames)):

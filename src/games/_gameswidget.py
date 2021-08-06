@@ -122,7 +122,12 @@ class GamesWidget(FormClass, BaseClass):
         self.matchmakerFramesInitialized = False
         self.client.authorized.connect(self.onAuthorized)
 
+    def refreshMods(self):
+        self.apiConnector.requestData()
+
     def onAuthorized(self, me):
+        if not self.mods:
+            self.refreshMods()
         if self.party is None:
             self.party = Party(me.id, PartyMember(me.id))
         if not self.matchmakerFramesInitialized:
@@ -151,6 +156,9 @@ class GamesWidget(FormClass, BaseClass):
                 if self.modList.item(i) == old_mod:
                     self.modList.takeItem(i)
                     continue
+            for i in range(self.client.replays.modList.count()):
+                if self.client.replays.modList.itemText(i) == old_mod.mod:
+                    self.client.replays.modList.removeItem(i)
 
         if message["publish"]:
             self.modList.addItem(self.mods[mod])
