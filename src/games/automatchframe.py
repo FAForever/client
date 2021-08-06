@@ -66,6 +66,7 @@ class MatchmakerQueue(FormClass, BaseClass):
             self.client,
             self.startSearchRanked
         )
+        self.games.matchmakerShortcuts.append(self.shortcut)
 
     def setFactionIcons(self, subFactions):
         for faction, icon in self._rankedIcons.items():
