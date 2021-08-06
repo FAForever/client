@@ -1,15 +1,4 @@
 """
-Modvault database documentation:
-command = "modvault"
-possible commands (value for the 'type' key):
-    start: <no args> - given when the tab is opened. Signals that the server should send the possible mods.
-    addcomment: moduid=<uid of the mod the comment belongs to>, comment={"or","uid","date","text"} 
-    addbugreport: moduid=<uid of the mod the comment belongs to>, comment={"author","uid","date","text"}
-    like: uid-<the uid of the mod that was liked>
-
-Can also send a UPLOAD_MOD command directly using writeToServer
-"UPLOAD_MOD","modname.zip",{mod info}, qfile
-
 modInfo function is called when the client recieves a modvault_info command.
 It should have a message dict with the following keys:
 uid         - Unique identifier for a mod. Also needed ingame.
@@ -259,7 +248,6 @@ class ModVault(FormClass, BaseClass, BusyWidget):
 
     def downloadMod(self, mod):
         if downloadMod(mod):
-            self.client.lobby_connection.send(dict(command="modvault", type="download", uid=mod.uid))
             self.uids = [mod.uid for mod in getInstalledMods()]
             self.updateVisibilities()
             return True
