@@ -1,6 +1,7 @@
 from PyQt5 import QtCore, QtNetwork
 import logging
 import json
+import time
 
 from config import Settings
 
@@ -8,6 +9,7 @@ logger = logging.getLogger(__name__)
 
 DO_NOT_ENCODE = QtCore.QByteArray()
 DO_NOT_ENCODE.append(":/?&=.,")
+
 
 class ApiBase(QtCore.QObject):
     def __init__(self, route):
@@ -23,13 +25,23 @@ class ApiBase(QtCore.QObject):
     def request(self, queryDict, responseHandler):
         query = QtCore.QUrlQuery()
         for key, value in queryDict.items():
-          query.addQueryItem(key, str(value))
+            query.addQueryItem(key, str(value))
         stringQuery = query.toString(QtCore.QUrl.FullyDecoded)
-        percentEncodedByteArrayQuery = QtCore.QUrl.toPercentEncoding(stringQuery, exclude=DO_NOT_ENCODE)
-        percentEncodedStringQuery = percentEncodedByteArrayQuery.data().decode()
+        percentEncodedByteArrayQuery = QtCore.QUrl.toPercentEncoding(
+            stringQuery,
+            exclude=DO_NOT_ENCODE,
+        )
+        percentEncodedStrQuery = percentEncodedByteArrayQuery.data().decode()
         url = QtCore.QUrl(Settings.get('api') + self.route)
-        url.setQuery(percentEncodedStringQuery)
+        url.setQuery(percentEncodedStrQuery)
         request = QtNetwork.QNetworkRequest(url)
+
+        api_token = Settings.get('oauth/token', None)
+        if api_token is not None and api_token.get('expires_at') > time.time():
+            access_token = api_token.get('access_token')
+            bearer = 'Bearer {}'.format(access_token).encode('utf-8')
+            request.setRawHeader(b'Authorization', bearer)
+
         request.setRawHeader(b'User-Agent', b"FAF Client")
         request.setRawHeader(b'Content-Type', b'application/vnd.api+json')
         logger.debug("Sending API request with URL: {}".format(url.toString()))

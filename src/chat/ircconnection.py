@@ -99,12 +99,18 @@ class IrcConnection(IrcSignals, irc.client.SimpleIRCClient):
 
     @classmethod
     def build(cls, settings, use_ssl=True, **kwargs):
-        port = settings.get('chat/port', 6697 if ssl else 6667, int)
+        port = settings.get('chat/port', 6697 if use_ssl else 6667, int)
         host = settings.get('chat/host', 'irc.' + config.defaults['host'], str)
         return cls(host, port, use_ssl)
 
     def setPortFromConfig(self):
         self.port = config.Settings.get('chat/port', type=int)
+        if self.port == 6697:
+            self.use_ssl = True
+            self.factory = irc.connection.Factory(wrapper=ssl.wrap_socket)
+        else:
+            self.use_ssl = False
+            self.factory = irc.connection.Factory()
 
     def setHostFromConfig(self):
         self.host = config.Settings.get('chat/host', type=str)
@@ -124,8 +130,15 @@ class IrcConnection(IrcSignals, irc.client.SimpleIRCClient):
         self._password = password
 
         try:
-            self.connect(self.host, self.port, nick, connect_factory=self.factory,
-                             ircname=nick, username=username)
+            self.connect(
+                    self.host,
+                    self.port,
+                    nick,
+                    connect_factory=self.factory,
+                    ircname=nick,
+                    username=username,
+                    password=password,
+            )
             self._notifier = QSocketNotifier(
                     self.connection.socket.fileno(),
                     QSocketNotifier.Read,
@@ -191,8 +204,7 @@ class IrcConnection(IrcSignals, irc.client.SimpleIRCClient):
         self._log_client_message(fmt.format(nick=self._nick,
                                             password='[password_hash]'))
 
-        msg = fmt.format(nick=self._nick,
-                         password=util.md5text(self._password))
+        msg = fmt.format(nick=self._nick, password=self._password)
         self.connection.privmsg('NickServ', msg)
 
     def _nickserv_identify(self):
@@ -218,7 +230,6 @@ class IrcConnection(IrcSignals, irc.client.SimpleIRCClient):
 
     def on_motd(self, c, e):
         self._log_event(e)
-        self._nickserv_identify()
 
     def on_endofmotd(self, c, e):
         self._log_event(e)
@@ -369,8 +380,10 @@ class IrcConnection(IrcSignals, irc.client.SimpleIRCClient):
         return target, rest
 
     def _handle_nickserv_message(self, notice):
-        ident_strings = ["registered under your account", "Password accepted",
-                         "You are already identified."]
+        ident_strings = [
+            "registered under your account", "Password accepted",
+            "You are already identified.", "choose a different nick"
+        ]
         if any(s in notice for s in ident_strings):
             if not self._identified:
                 self._identified = True

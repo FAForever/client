@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>580</width>
-    <height>394</height>
+    <height>460</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -196,7 +196,7 @@
       <item>
        <widget class="QWidget" name="widget_4" native="true">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -209,35 +209,15 @@
           <number>6</number>
          </property>
          <item>
-          <widget class="QLineEdit" name="loginField">
-           <property name="placeholderText">
-            <string>Username</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="passwordField">
+          <widget class="QPushButton" name="extraOptionsToggle">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <property name="inputMethodHints">
-            <set>Qt::ImhHiddenText|Qt::ImhNoAutoUppercase|Qt::ImhNoPredictiveText|Qt::ImhSensitiveData</set>
-           </property>
-           <property name="echoMode">
-            <enum>QLineEdit::Password</enum>
-           </property>
-           <property name="placeholderText">
-            <string>Password</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="extraOptionsToggle">
            <property name="text">
-            <string>Advanced</string>
+            <string>Login parameters</string>
            </property>
           </widget>
          </item>
@@ -438,7 +418,7 @@
       <item>
        <widget class="QPushButton" name="loginButton">
         <property name="text">
-         <string>Login</string>
+         <string>Continue</string>
         </property>
        </widget>
       </item>
@@ -448,8 +428,6 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>loginField</tabstop>
-  <tabstop>passwordField</tabstop>
   <tabstop>loginButton</tabstop>
   <tabstop>extraOptionsToggle</tabstop>
   <tabstop>serverHostField</tabstop>
@@ -608,22 +586,6 @@
     <hint type="destinationlabel">
      <x>332</x>
      <y>261</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>passwordField</sender>
-   <signal>selectionChanged()</signal>
-   <receiver>passwordField</receiver>
-   <slot>clear()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>345</x>
-     <y>110</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>345</x>
-     <y>110</y>
     </hint>
    </hints>
   </connection>

@@ -13,7 +13,7 @@ FormClass, BaseClass = util.THEME.loadUiType("client/login.ui")
 
 
 class LoginWidget(FormClass, BaseClass):
-    finished = QtCore.pyqtSignal(str, str, bool)
+    finished = QtCore.pyqtSignal(bool)
     request_quit = QtCore.pyqtSignal()
     remember = QtCore.pyqtSignal(bool)
     environments = dict(
@@ -21,7 +21,7 @@ class LoginWidget(FormClass, BaseClass):
         test = testing_environment,
     )
 
-    def __init__(self, startLogin=None, remember=False):
+    def __init__(self, remember=False):
         # TODO - init with the parent to inherit the stylesheet
         # once we make some of our own css to go with it
         BaseClass.__init__(self)
@@ -30,8 +30,6 @@ class LoginWidget(FormClass, BaseClass):
         self.load_stylesheet()
         self.splash.setPixmap(util.THEME.pixmap("client/login_watermark.png"))
 
-        if startLogin:
-            self.loginField.setText(startLogin)
         self.rememberCheckbox.setChecked(remember)
         self.serverPortField.setValidator(QtGui.QIntValidator(1, 65535))
         self.replayServerPortField.setValidator(QtGui.QIntValidator(1, 65535))
@@ -49,10 +47,8 @@ class LoginWidget(FormClass, BaseClass):
     def on_toggle_extra_options(self):
         if self.extraOptionsFrame.isVisible():
             self.extraOptionsFrame.hide()
-            self.setFixedHeight(395)
         else:
             self.extraOptionsFrame.show()
-            self.setFixedHeight(520)
 
     @QtCore.pyqtSlot()
     def on_fill_extra_options(self):
@@ -67,9 +63,6 @@ class LoginWidget(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def on_accepted(self):
-        password = self.passwordField.text()
-        hashed_password = util.password_hash(password)
-        login = self.loginField.text().strip()
         host = self.serverHostField.text()
         port = int(self.serverPortField.text())
         replay_host = self.replayServerHostField.text().strip()
@@ -78,26 +71,25 @@ class LoginWidget(FormClass, BaseClass):
         irc_port = int(self.ircServerPortField.text())
         api_url = self.apiURLField.text()
 
-        if login and hashed_password:
-            logger.info(
-                "Setting connection options: [server: {}:{}, IRC: {}:{}, " \
-                "replay_server: {}:{}, api_url: {}]".format(
-                                                        host, port, irc_host, irc_port,
-                                                        replay_host, replay_port, api_url
-                                                    )
+        logger.info(
+            "Setting connection options: [server: {}:{}, IRC: {}:{}, "
+            "replay_server: {}:{}, api_url: {}]".format(
+                host, port, irc_host, irc_port,
+                replay_host, replay_port, api_url
             )
+        )
 
-            Settings.set('lobby/host', host, persist=False)
-            Settings.set('lobby/port', port, persist=False)
-            Settings.set('chat/host', irc_host, persist=False)
-            Settings.set('chat/port', irc_port, persist=False)
-            Settings.set('replay_server/host', replay_host, persist=False)
-            Settings.set('replay_server/port', replay_port, persist=False)
-            api_changed = Settings.get('api') != api_url
-            Settings.set('api', api_url, persist=False)
-            config.defaults = self.environments[self.environmentBox.currentData()]
-            self.accept()
-            self.finished.emit(login, hashed_password, api_changed)
+        Settings.set('lobby/host', host, persist=False)
+        Settings.set('lobby/port', port, persist=False)
+        Settings.set('chat/host', irc_host, persist=False)
+        Settings.set('chat/port', irc_port, persist=False)
+        Settings.set('replay_server/host', replay_host, persist=False)
+        Settings.set('replay_server/port', replay_port, persist=False)
+        api_changed = Settings.get('api') != api_url
+        Settings.set('api', api_url, persist=False)
+        config.defaults = self.environments[self.environmentBox.currentData()]
+        self.accept()
+        self.finished.emit(api_changed)
 
     @QtCore.pyqtSlot()
     def on_request_quit(self):

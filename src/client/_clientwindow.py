@@ -6,6 +6,11 @@ from functools import partial
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtNetwork import QNetworkAccessManager
 
+from oauthlib.oauth2 import LegacyApplicationClient, WebApplicationClient
+from requests_oauthlib import OAuth2Session
+
+from .oauth_dialog import OAuthWidget
+
 import config
 import fa
 import notifications as ns
@@ -73,6 +78,9 @@ from replays import ReplaysWidget
 from connectivity.ConnectivityDialog import ConnectivityDialog
 logger = logging.getLogger(__name__)
 
+OAUTH_TOKEN_PATH = "/oauth2/token"
+OAUTH_AUTH_PATH = "/oauth2/auth"
+
 FormClass, BaseClass = util.THEME.loadUiType("client/client.ui")
 
 
@@ -104,8 +112,7 @@ class ClientWindow(FormClass, BaseClass):
     party_invite = QtCore.pyqtSignal(dict)
 
     remember = config.Settings.persisted_property('user/remember', type=bool, default_value=True)
-    login = config.Settings.persisted_property('user/login', persist_if=lambda self: self.remember)
-    password = config.Settings.persisted_property('user/password', persist_if=lambda self: self.remember)
+    refresh_token = config.Settings.persisted_property('user/refreshToken', persist_if=lambda self: self.remember)
 
     game_logs = config.Settings.persisted_property('game/logs', type=bool, default_value=True)
 
@@ -121,6 +128,9 @@ class ClientWindow(FormClass, BaseClass):
         QtWidgets.QApplication.instance().applicationStateChanged.connect(self.appStateChanged)
 
         self._network_access_manager = QNetworkAccessManager(self)
+        self.OAuthSession = None
+        self.tokenTimer = QtCore.QTimer()
+        self.tokenTimer.timeout.connect(self.checkOAuthToken)
 
         self.unique_id = None
         self._chat_config = ChatConfig(util.settings)
@@ -216,6 +226,7 @@ class ClientWindow(FormClass, BaseClass):
         self.lobby_dispatch["invalid"] = self.handle_invalid
         self.lobby_dispatch["welcome"] = self.handle_welcome
         self.lobby_dispatch["authentication_failed"] = self.handle_authentication_failed
+        self.lobby_dispatch["irc_password"] = self.handle_irc_password
         self.lobby_dispatch["update_party"] = self.handle_update_party
         self.lobby_dispatch["kicked_from_party"] = self.handle_kicked_from_party
         self.lobby_dispatch["party_invite"] = self.handle_party_invite
@@ -715,11 +726,7 @@ class ClientWindow(FormClass, BaseClass):
     def _connect_chat(self, me):
         if not self.use_chat:
             return
-        if me.login is None or me.id is None or self.password is None:
-            # FIXME: we didn't authorize with the server for some reason.
-            # We'll do this check in a more organized fashion in the future.
-            return
-        self._chatMVC.connection.connect_(me.login, me.id, self.password)
+        self._chatMVC.connection.connect_(me.login, me.id, self.irc_password)
 
     def warningHide(self):
         """
@@ -749,6 +756,8 @@ class ClientWindow(FormClass, BaseClass):
             self.lobby_connection.disconnect_()
             self._chatMVC.connection.disconnect_()
             self.games.onLogOut()
+            self.tokenTimer.stop()
+            config.Settings.set("oauth/token", None, persist=False)
 
     def chat_reconnect(self):
         self._connect_chat(self.me)
@@ -933,9 +942,8 @@ class ClientWindow(FormClass, BaseClass):
         chat_config = self._chat_config
 
         self.remember = self.actionSetAutoLogin.isChecked()
-        if self.remember and self.login and self.password:
-            config.Settings.set('user/login', self.login)
-            config.Settings.set('user/password', self.password)
+        if self.remember and self.refresh_token:
+            config.Settings.set('user/refreshToken', self.refresh_token)
         chat_config.soundeffects = self.actionSetSoundEffects.isChecked()
         chat_config.joinsparts = self.actionSetJoinsParts.isChecked()
         chat_config.newbies_channel = self.actionSetNewbiesChannel.isChecked()
@@ -1173,29 +1181,77 @@ class ClientWindow(FormClass, BaseClass):
         self.actionSetAutoLogin.setChecked(self.remember)  # FIXME - option updating is silly
 
     def try_to_auto_login(self):
-        if self._auto_relogin and self.login and self.password:
+        if (
+                self._auto_relogin and
+                self.refresh_token and
+                self.refreshOAuthToken()
+        ):
             self.do_connect()
         else:
             self.show_login_widget()
 
     def get_creds_and_login(self):
-        if self.password and self.login:
-            if self.send_login(self.login, self.password):
+        if self.OAuthSession.token and self.checkOAuthToken():
+            if self.send_token(self.OAuthSession.token.get("access_token")):
                 return
-
+        QtWidgets.QMessageBox.warning(
+            self, "Log In", "OAuth token verification failed, please relogin"
+        )
         self.show_login_widget()
 
+    def createOAuthSession(self):
+        client_id = config.Settings.get("oauth/client_id")
+        refresh_kwargs = dict(client_id=client_id)
+        redirect_uri = config.Settings.get("oauth/redirect_uri")
+        scope = config.Settings.get("oauth/scope")
+        app_client = WebApplicationClient(client_id=client_id)
+        OAuth = OAuth2Session(
+            client=app_client,
+            redirect_uri=redirect_uri,
+            scope=scope,
+            auto_refresh_kwargs=refresh_kwargs,
+        )
+        return OAuth
+
+    def checkOAuthToken(self):
+        if self.OAuthSession.token.get("expires_at", 0) < time.time() + 5:
+            self.tokenTimer.stop()
+            logger.info("Token expired, going to refresh")
+            return self.refreshOAuthToken()
+        return True
+
+    def refreshOAuthToken(self):
+        token_url = config.Settings.get('oauth/host') + OAUTH_TOKEN_PATH
+        if not self.OAuthSession:
+            self.OAuthSession = self.createOAuthSession()
+        try:
+            logger.debug("Refreshing OAuth token")
+            token = self.OAuthSession.refresh_token(
+                token_url,
+                refresh_token=self.refresh_token,
+            )
+            self.saveOAuthToken(token)
+            return True
+        except Exception:
+            logger.error("Error during refreshing token")
+            return False
+
+    def saveOAuthToken(self, token):
+        config.Settings.set("oauth/token", token, persist=False)
+        self.refresh_token = token.get("refresh_token")
+        self.tokenTimer.start(1 * 1000)
+
     def show_login_widget(self):
-        login_widget = LoginWidget(self.login, self.remember)
+        login_widget = LoginWidget(self.remember)
         login_widget.finished.connect(self.on_widget_login_data)
         login_widget.rejected.connect(self.on_widget_no_login)
-        login_widget.request_quit.connect(self.on_login_widget_quit, QtCore.Qt.QueuedConnection)
+        login_widget.request_quit.connect(
+            self.on_login_widget_quit, QtCore.Qt.QueuedConnection
+        )
         login_widget.remember.connect(self.set_remember)
         login_widget.exec_()
 
-    def on_widget_login_data(self, login, password, api_changed):
-        self.login = login
-        self.password = password
+    def on_widget_login_data(self, api_changed):
         self.lobby_connection.setHostFromConfig()
         self.lobby_connection.setPortFromConfig()
         self._chatMVC.connection.setHostFromConfig()
@@ -1206,10 +1262,44 @@ class ClientWindow(FormClass, BaseClass):
             self.news.updateNews()
         self.warningHide()
 
-        if self.password and self.login:
-            self.do_connect()
-        else:
-            self.show_login_widget()
+        oauth_host = config.Settings.get("oauth/host")
+        authorization_endpoint = oauth_host + OAUTH_AUTH_PATH
+        self.OAuthSession = self.createOAuthSession()
+        authorization_url, oauth_state = self.OAuthSession.authorization_url(
+            authorization_endpoint
+        )
+        oauth_widget = OAuthWidget(
+            oauth_state=oauth_state,
+            url=authorization_url,
+        )
+        oauth_widget.finished.connect(self.oauth_finished)
+        oauth_widget.rejected.connect(self.on_widget_no_login)
+        oauth_widget.exec_()
+
+    def oauth_finished(self, state, code, error):
+        token_url = config.Settings.get("oauth/host") + OAUTH_TOKEN_PATH
+        if state:
+            try:
+                logger.debug("Fetching OAuth token")
+                token = self.OAuthSession.fetch_token(
+                    token_url,
+                    code=code,
+                    include_client_id=True,
+                )
+                self.saveOAuthToken(token)
+                self.do_connect()
+                return
+            except Exception:
+                logger.error(
+                    "Fetching token failed: ",
+                    exc_info=sys.exc_info(),
+                )
+        elif error:
+            logger.error("Error during logging in: {}".format(error))
+
+        QtWidgets.QMessageBox.warning(
+            self, "Log In", "Error occured, please retry"
+        )
 
     def on_widget_no_login(self):
         self.state = ClientState.DISCONNECTED
@@ -1217,26 +1307,28 @@ class ClientWindow(FormClass, BaseClass):
     def on_login_widget_quit(self):
         QtWidgets.QApplication.quit()
 
-    def send_login(self, login, password):
-        # Send login data once we have the creds.
+    def send_token(self, token):
+        # Send data once we have the creds.
         self._autorelogin = False # Fresh credentials
-        if config.is_beta():  # Replace for develop here to not clobber the real pass
-            password = util.password_hash("foo")
-        self.unique_id = util.uniqueID(self.login, self.session)
+        self.unique_id = util.uniqueID(self.session)
         if not self.unique_id:
-            QtWidgets.QMessageBox.critical(self,
-                                           "Failed to calculate UID",
-                                           "Failed to calculate your unique ID"
-                                           " (a part of our smurf prevention system).\n"
-                                           "It is very likely this happens due to your antivirus software deleting the faf-uid.exe file."
-                                           "If this has happened, please add an exception and restore the file."
-                                           "The file can also be restored by installing the client again.")
+            QtWidgets.QMessageBox.critical(
+                self,
+                "Failed to calculate UID",
+                "Failed to calculate your unique ID"
+                " (a part of our smurf prevention system).\n"
+                "It is very likely this happens due to your antivirus software"
+                " deleting the faf-uid.exe file. If this has happened, please "
+                "add an exception and restore the file. "
+                "The file can also be restored by installing the client again."
+            )
             return False
-        self.lobby_connection.send(dict(command="hello",
-                                        login=login,
-                                        password=password,
-                                        unique_id=self.unique_id,
-                                        session=self.session))
+        self.lobby_connection.send(dict(
+            command="auth",
+            token=token,
+            unique_id=self.unique_id,
+            session=self.session,
+        ))
         return True
 
     @QtCore.pyqtSlot()
@@ -1381,6 +1473,9 @@ class ClientWindow(FormClass, BaseClass):
 
 
         self.game_session.gameFullSignal.connect(self.emit_game_full)
+
+    def handle_irc_password(self, message):
+        self.irc_password = message.get("password", "")
 
     def handle_registration_response(self, message):
         if message["result"] == "SUCCESS":
