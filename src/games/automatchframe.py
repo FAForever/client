@@ -174,7 +174,7 @@ class MatchmakerQueue(FormClass, BaseClass):
             )
         else:
             ratingType = RatingType.fromMatchmakerQueue(self.queueName)
-            rating = self.client.me.player.player_rating_mean(ratingType)
+            rating = self.client.me.player.rating_mean(ratingType)
             self.client.mapvault.requestMapPool(self.queueName, rating)
             self.client.mainTabs.setCurrentIndex(
                 self.client.mainTabs.indexOf(self.client.vaultsTab)
