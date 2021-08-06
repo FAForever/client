@@ -11,8 +11,12 @@ class FeaturedModApiConnector(ApiBase):
         self.request({}, self.handleData)
 
     def handleData(self, message):
+        preparedData = {
+            "command": "mod_info_api",
+            "values": [],
+        }
         for mod in message:
-            preparedData = {
+            preparedMod = {
                 "command": "mod_info_api",
                 "name": mod["technicalName"],
                 "fullname": mod["displayName"],
@@ -20,4 +24,5 @@ class FeaturedModApiConnector(ApiBase):
                 "order": mod.get("order", 0),
                 "desc": mod.get("description", "<i>No description provided</i>")
             }
-            self.dispatch.dispatch(preparedData)
+            preparedData["values"].append(preparedMod)
+        self.dispatch.dispatch(preparedData)
