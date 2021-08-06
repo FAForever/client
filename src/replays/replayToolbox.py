@@ -1,10 +1,6 @@
 from PyQt5 import QtCore, QtWidgets, QtGui
-import util
 import os
-import time
-import datetime
 
-from util.gameurl import GameUrl, GameUrlType
 from config import Settings
 from util import MAP_PREVIEW_LARGE_DIR
 from downloadManager import DownloadRequest
@@ -14,54 +10,74 @@ logger = logging.getLogger(__name__)
 
 filtersSettings = {
     "Player name": dict(
-        filterString = "playerStats.player.login", 
-        operators = ["contains", "is", "is not"]),
+        filterString="playerStats.player.login",
+        operators=["contains", "is", "is not"],
+    ),
     "One of global ratings": dict(
-        filterString = "playerStats.player.globalRating.rating", 
-        operators = [">", "<"]),
+        filterString="playerStats.player.globalRating.rating",
+        operators=[">", "<"],
+    ),
     "One of ladder ratings": dict(
-        filterString = "playerStats.player.ladder1v1Rating.rating", 
-        operators = [">", "<"]),
+        filterString="playerStats.player.ladder1v1Rating.rating",
+        operators=[">", "<"],
+    ),
     "One of ratings": dict(
-        filterString = "playerStats.ratingChanges.meanBefore",
-        operators = [">", "<"]),
+        filterString="playerStats.ratingChanges.meanBefore",
+        operators=[">", "<"],
+    ),
     "Game mod name": dict(
-        filterString = "featuredMod.technicalName", 
-        operators = ["contains", "is", "is not"]),
+        filterString="featuredMod.technicalName",
+        operators=["contains", "is", "is not"],
+    ),
     "Leaderboard name": dict(
-        filterString = "playerStats.ratingChanges.leaderboard.technicalName",
-        operators = ["contains", "is", "is not"]),
+        filterString="playerStats.ratingChanges.leaderboard.technicalName",
+        operators=["contains", "is", "is not"],
+    ),
     "Map name": dict(
-        filterString = "mapVersion.map.displayName", 
-        operators = ["contains", "is", "is not"]),
+        filterString="mapVersion.map.displayName",
+        operators=["contains", "is", "is not"],
+    ),
     "Player faction": dict(
-        filterString = "playerStats.faction", 
-        operators = ["is", "is not"],
-        values = ["AEON", "CYBRAN", "UEF", "SERAPHIM", "NOMAD", "CIVILIAN"]),
+        filterString="playerStats.faction",
+        operators=["is", "is not"],
+        values=["AEON", "CYBRAN", "UEF", "SERAPHIM", "NOMAD", "CIVILIAN"],
+    ),
     "Player start position": dict(
-        filterString = "playerStats.startSpot", 
-        operators = ["is", "is not"]),
+        filterString="playerStats.startSpot",
+        operators=["is", "is not"],
+    ),
     "Max players (map)": dict(
-        filterString = "mapVersion.maxPlayers", 
-        operators = ["is", "is not", ">", "<"]),
+        filterString="mapVersion.maxPlayers",
+        operators=["is", "is not", ">", "<"],
+    ),
     "Replay ID": dict(
-        filterString = "id", 
-        operators = ["is"]),
+        filterString="id",
+        operators=["is"],
+    ),
     "Title": dict(
-        filterString = "name", 
-        operators = ["contains", "is", "is not"]),
+        filterString="name",
+        operators=["contains", "is", "is not"],
+    ),
     "Start time": dict(
-        filterString = "startTime", 
-        operators = [">", "<"]),
+        filterString="startTime",
+        operators=[">", "<"],
+    ),
     "Validity": dict(
-        filterString = "validity", 
-        operators = ["is"],
-        values = ["VALID", "TOO_MANY_DESYNCS", "WRONG_VICTORY_CONDITION", "NO_FOG_OF_WAR", "CHEATS_ENABLED",
-                  "PREBUILT_ENABLED", "NORUSH_ENABLED", "BAD_UNIT_RESTRICTIONS", "BAD_MAP", "TOO_SHORT"]),
+        filterString="validity",
+        operators=["is"],
+        values=[
+            "VALID", "TOO_MANY_DESYNCS", "WRONG_VICTORY_CONDITION",
+            "NO_FOG_OF_WAR", "CHEATS_ENABLED", "PREBUILT_ENABLED",
+            "NORUSH_ENABLED", "BAD_UNIT_RESTRICTIONS", "BAD_MAP", "TOO_SHORT"
+        ],
+    ),
     "Victory condition": dict(
-        filterString = "victoryCondition", 
-        operators = ["is", "is not"],
-        values = ["DEMORALIZATION", "DOMINATION", "ERADICATION", "SANDBOX", "UNKNOWN"])
+        filterString="victoryCondition",
+        operators=["is", "is not"],
+        values=[
+            "DEMORALIZATION", "DOMINATION", "ERADICATION", "SANDBOX", "UNKNOWN"
+        ],
+    ),
 }
 
 operators = {
@@ -76,19 +92,27 @@ operators = {
 class ReplayToolboxHandler(object):
     activePage = Settings.get('replay/activeTboxPage', "Hide all", str)
 
-    def __init__(self, wigetHandler, widget, dispatcher, client, gameset, playerset):
+    def __init__(
+        self,
+        wigetHandler,
+        widget,
+        dispatcher,
+        client,
+        gameset,
+        playerset
+    ):
         self._w = widget
         self._dispatcher = dispatcher
         self.client = client
         self._gameset = gameset
         self._playerset = playerset
         self.widgetHandler = wigetHandler
-        
+
         self._map_dl_request = DownloadRequest()
         self._map_dl_request.done.connect(self._on_map_preview_downloaded)
-        
+
         w = self._w
-        
+
         self.hidden = False
         self.pageChanged = False
         self.mapPreview = False
@@ -108,8 +132,8 @@ class ReplayToolboxHandler(object):
         self.setupComboBoxes()
 
     def setupTboxPages(self):
-        ''' 
-        A hack to imitate 'collapse all' function 
+        '''
+        A hack to imitate 'collapse all' function
         + some style tweaks that can't be done via css or QtDesigner.
         Ideally, we should rewrite QToolBox and make our own :)
         '''
@@ -122,37 +146,39 @@ class ReplayToolboxHandler(object):
                 widget.setStyleSheet("font-size:9pt")
 
         # make our empty page invisible
-        children[-1].setStyleSheet("background-color: transparent; border-width: 0px")
+        children[-1].setStyleSheet(
+            "background-color: transparent; border-width: 0px"
+        )
         children[-2].setStyleSheet("max-height: 0px")
 
-        for n in range (0, self.numOfPages):
+        for n in range(self.numOfPages):
             if w.replayToolBox.itemText(n) == self.activePage:
                 w.replayToolBox.setCurrentIndex(n)
                 break
-                
+
         if self.activePage == "Hide all":
-            self.adjustTboxSize(hide = True)
+            self.adjustTboxSize(hide=True)
         elif self.activePage == "Map Preview":
             self.mapPreview = True
-            
-    def adjustTboxSize(self, hide = None):
+
+    def adjustTboxSize(self, hide=None):
         ''' a part of "collapse all" hack'''
         if hide:
             self.hidden = True
             height = 35 * self.numOfPages
             self._w.widget_3.setMaximumHeight(height)
             self._w.widget_3.setMinimumHeight(0)
-            
+
             self._w.replayToolBox.setMaximumHeight(height)
             self._w.replayToolBox.setMinimumHeight(0)
         else:
             self.hidden = False
             self._w.widget_3.setMaximumHeight(1000)
             self._w.widget_3.setMinimumHeight(self.widgetMinHeight)
-            
+
             self._w.replayToolBox.setMaximumHeight(1000)
             self._w.replayToolBox.setMinimumHeight(self.tboxMinHeight)
-            
+
     def tboxChanged(self, index):
         page = self._w.replayToolBox.itemText(index)
         if page == "Map Preview":
@@ -162,29 +188,31 @@ class ReplayToolboxHandler(object):
 
         Settings.set('replay/activeTboxPage', page)
         self.pageChanged = True
-    
+
     def tboxTitleClicked(self, arg):
         if not self.pageChanged:
-            self.adjustTboxSize(hide = True)
+            self.adjustTboxSize(hide=True)
             self._w.replayToolBox.setCurrentIndex(self.hideAllIndex)
         elif self.hidden:
-            self.adjustTboxSize(hide = False)
+            self.adjustTboxSize(hide=False)
 
         self.pageChanged = False
 
-
-    ####    Advanced search section   ####
-    ######################################
+    # Advanced search section
 
     def setupComboBoxes(self):
-        for n in range (1, self.numOfFiltersLines + 1):
+        for n in range(1, self.numOfFiltersLines + 1):
             filterComboBox = getattr(self._w, "filter{}".format(n))
-            filterComboBox.operatorBox = getattr(self._w, "operator{}".format(n))
+            filterComboBox.operatorBox = getattr(
+                self._w, "operator{}".format(n)
+            )
             filterComboBox.valueBox = getattr(self._w, "value{}".format(n))
-            filterComboBox.layout = getattr(self._w, "filterHorizontal{}".format(n))
+            filterComboBox.layout = getattr(
+                self._w, "filterHorizontal{}".format(n)
+            )
             filterComboBox.dateEdit = None
             filterComboBox.dateIsActive = False
-            
+
             filterComboBox.currentIndexChanged.connect(self.filterChanged)
             filterComboBox.addItem("")
 
@@ -193,7 +221,7 @@ class ReplayToolboxHandler(object):
             self.filtersList.append(filterComboBox)
 
         self._w.filter1.setCurrentIndex(1)
-    
+
     def filterChanged(self):
         '''Setup operator and value comboBoxes according to selected filter'''
         filterWidget = self._w.sender()
@@ -205,7 +233,7 @@ class ReplayToolboxHandler(object):
         valueBox.clear()
 
         if filterName:
-            if filterName == "Start time": #show date edit and hide valueBox
+            if filterName == "Start time":  # show date edit and hide valueBox
                 filterWidget.valueBox.hide()
                 if not filterWidget.dateEdit:
                     self.createDateEdit(filterWidget, valueBox)
@@ -230,13 +258,19 @@ class ReplayToolboxHandler(object):
             filterWidget.valueBox.show()
 
     def createDateEdit(self, filterWidget, valueBox):
-        filterWidget.dateEdit = QtWidgets.QDateEdit(QtCore.QDate.currentDate(), valueBox)
+        filterWidget.dateEdit = QtWidgets.QDateEdit(
+            QtCore.QDate.currentDate(), valueBox
+        )
         filterWidget.dateEdit.setCalendarPopup(True)
         filterWidget.layout.addWidget(filterWidget.dateEdit)
 
     def advancedSearch(self):
         if self.widgetHandler.searching:
-            QtWidgets.QMessageBox.critical(None, "Replay vault", "Please, wait for previous search to finish.")
+            QtWidgets.QMessageBox.critical(
+                None,
+                "Replay vault",
+                "Please, wait for previous search to finish.",
+            )
             return
 
         self._w.advSearchInfoLabel.setText(self.widgetHandler.searchInfo)
@@ -246,7 +280,7 @@ class ReplayToolboxHandler(object):
 
         parameters = self.widgetHandler.defaultSearchParams.copy()
         parameters["page[size]"] = self._w.advQuantity.value()
-        
+
         filters = self.prepareFilters()
 
         if filters:
@@ -254,7 +288,7 @@ class ReplayToolboxHandler(object):
 
         self.widgetHandler.apiConnector.requestData(parameters)
         self.widgetHandler.timer.start(90000)
-        
+
     def prepareFilters(self):
         finalFilters = []
 
@@ -293,30 +327,37 @@ class ReplayToolboxHandler(object):
             return "({})".format(";".join(finalFilters))
 
         return None
-    
+
     def resetAll(self):
         for filterWidget in self.filtersList:
             filterWidget.setCurrentIndex(0)
             filterWidget.valueBox.setEditText("")
 
-           
-     ####    Map preview section   ####
-     ##################################
-     
+    # Map preview section
+
     def updateMapPreview(self):
         selectedReplay = self.widgetHandler.selectedReplay
         if selectedReplay and hasattr(selectedReplay, "mapname"):
             preview = self._w.mapPreviewLabel
-            if selectedReplay.mapname != "unknown" and selectedReplay.mapname != preview.currentMap:
-                imgPath = os.path.join(MAP_PREVIEW_LARGE_DIR, selectedReplay.mapname + ".png")
+            if (
+                    selectedReplay.mapname.lower() != "unknown" and
+                    selectedReplay.mapname != preview.currentMap
+            ):
+                imgPath = os.path.join(
+                    MAP_PREVIEW_LARGE_DIR, selectedReplay.mapname + ".png"
+                )
 
                 if os.path.isfile(imgPath):
                     pix = QtGui.QPixmap(imgPath)
                     preview.setPixmap(pix)
                     preview.currentMap = selectedReplay.mapname
                 else:
-                    self.client.map_downloader.download_preview(selectedReplay.mapname, self._map_dl_request, 
-                                                                url = selectedReplay.previewUrlLarge, large = True)
+                    self.client.map_downloader.download_preview(
+                        selectedReplay.mapname,
+                        self._map_dl_request,
+                        url=selectedReplay.previewUrlLarge,
+                        large=True,
+                    )
 
     def _on_map_preview_downloaded(self, mapname, result):
         if mapname == self.widgetHandler.selectedReplay.mapname:
