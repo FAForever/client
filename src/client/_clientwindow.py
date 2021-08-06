@@ -1,9 +1,8 @@
-import json
 import logging
 import time
 from functools import partial
 
-from oauthlib.oauth2 import LegacyApplicationClient, WebApplicationClient
+from oauthlib.oauth2 import WebApplicationClient
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtNetwork import QNetworkAccessManager
 from requests_oauthlib import OAuth2Session
@@ -40,7 +39,7 @@ from downloadManager import (MAP_PREVIEW_ROOT, AvatarDownloader,
                              PreviewDownloader)
 from fa.factions import Factions
 from fa.game_runner import GameRunner
-from fa.game_session import GameSession, GameSessionState
+from fa.game_session import GameSession
 from fa.maps import getUserMapsFolder
 from games import GamesWidget
 from games.gameitem import GameViewBuilder
@@ -61,8 +60,6 @@ from power import PowerTools
 from replays import ReplaysWidget
 from secondaryServer import SecondaryServer
 from stats import StatsWidget
-from tourneys import TournamentsWidget
-from tutorials import TutorialsWidget
 from ui.busy_widget import BusyWidget
 from ui.status_logo import StatusLogo
 from unitdb import unitdbtab

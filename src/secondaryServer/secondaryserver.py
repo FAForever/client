@@ -1,6 +1,5 @@
 import json
 import logging
-import time
 
 from PyQt5 import QtCore, QtNetwork
 

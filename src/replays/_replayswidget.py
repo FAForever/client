@@ -1,8 +1,6 @@
-import datetime
 import json
 import logging
 import os
-import threading
 import time
 
 import jsonschema

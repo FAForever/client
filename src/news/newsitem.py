@@ -2,7 +2,6 @@ import logging
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-import client
 import util
 
 logger = logging.getLogger(__name__)

@@ -1,4 +1,4 @@
-from PyQt5 import QtCore, QtGui, QtWebEngineWidgets, QtWidgets
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 from .leaderboardheaderview import VerticalHeaderView
 from .leaderboardtablemenu import LeaderboardTableMenu

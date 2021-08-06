@@ -1,8 +1,5 @@
 import os
 import tempfile
-import urllib.error
-import urllib.parse
-import urllib.request
 import zipfile
 
 from PyQt5 import QtCore, QtWidgets

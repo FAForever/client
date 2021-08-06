@@ -2,20 +2,15 @@
 import logging
 import os
 import random
-import re
-import shutil
-import sys
 
-from PyQt5 import QtCore, QtGui, QtNetwork, QtWidgets
+from PyQt5 import QtCore, QtNetwork, QtWidgets
 
-import fafpath
 import util
 # local imports
 from config import Settings
 from fa.maps import getUserMapsFolder
 from mapGenerator.mapgenProcess import MapGeneratorProcess
-from mapGenerator.mapgenUtils import (generatedMapPattern, isGeneratedMap,
-                                      versionPattern)
+from mapGenerator.mapgenUtils import generatedMapPattern
 from vault.dialogs import downloadFile
 
 logger = logging.getLogger(__name__)
