@@ -1,4 +1,5 @@
 import logging
+import sys
 import time
 from functools import partial
 
@@ -1247,6 +1248,7 @@ class ClientWindow(FormClass, BaseClass):
             token = self.OAuthSession.refresh_token(
                 token_url,
                 refresh_token=self.refresh_token,
+                verify=False,
             )
             self.saveOAuthToken(token)
             return True
@@ -1303,6 +1305,7 @@ class ClientWindow(FormClass, BaseClass):
                     token_url,
                     code=code,
                     include_client_id=True,
+                    verify=False,
                 )
                 self.saveOAuthToken(token)
                 self.do_connect()
@@ -1318,6 +1321,7 @@ class ClientWindow(FormClass, BaseClass):
         QtWidgets.QMessageBox.warning(
             self, "Log In", "Error occured, please retry"
         )
+        self.on_widget_no_login()
 
     def on_widget_no_login(self):
         self.state = ClientState.DISCONNECTED
