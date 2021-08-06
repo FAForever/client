@@ -34,13 +34,19 @@ def replay(source, detach=False):
                 if source.endswith(".fafreplay"):  # the new way of doing things
                     replay = open(source, "rb")
                     info = json.loads(replay.readline())
-                    if "compression" in info.keys():
-                        compression_type = info["compression"]
+                    compression_type = info.get("compression")
                     if compression_type == "zstd":
-                        decompressor = zstandard.ZstdDecompressor()
-                        binary = QtCore.QByteArray(decompressor.decompress(replay.read()))
+                        decompress = lambda data: QtCore.QByteArray(
+                            zstandard.ZstdDecompressor().decompress(data)
+                        )
                     else:
-                        binary = QtCore.qUncompress(QtCore.QByteArray.fromBase64(replay.read()))
+                        decompress = lambda data: QtCore.qUncompress(
+                            QtCore.QByteArray.fromBase64(data)
+                        )
+                    try:
+                        binary = decompress(replay.read())
+                    except Exception:
+                        binary = QtCore.QByteArray()
                     logger.info("Extracted " + str(binary.size()) + " bytes of binary data from .fafreplay.")
                     replay.close()
 
