@@ -992,10 +992,15 @@ class ClientWindow(FormClass, BaseClass):
     @QtCore.pyqtSlot()
     def set_ice_adapter_window_launch_delay(self):
         seconds, ok = QtWidgets.QInputDialog().getInt(
-            None,
+            self,
             'Set time interval',
             'Delay the launch of the info window by seconds:',
-            config.Settings.get('iceadapter/delay_ui_seconds', type=int, default=10), 1, 2147483647, 1
+            config.Settings.get(
+                'iceadapter/delay_ui_seconds', type=int, default=10
+            ),
+            min=0,
+            max=2147483647,
+            step=1,
         )
         if ok and seconds:
             config.Settings.set('iceadapter/delay_ui_seconds', seconds)
@@ -1006,13 +1011,20 @@ class ClientWindow(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def clearSettings(self):
-        result = QtWidgets.QMessageBox.question(None, "Clear Settings", "Are you sure you wish to clear all settings, "
-                                                                        "login info, etc. used by this program?",
-                                                QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
+        result = QtWidgets.QMessageBox.question(
+            self,
+            "Clear Settings",
+            "Are you sure you wish to clear all settings, "
+            "login info, etc. used by this program?",
+            QtWidgets.QMessageBox.Yes,
+            QtWidgets.QMessageBox.No,
+        )
         if result == QtWidgets.QMessageBox.Yes:
             util.settings.clear()
             util.settings.sync()
-            QtWidgets.QMessageBox.information(None, "Restart Needed", "FAF will quit now.")
+            QtWidgets.QMessageBox.information(
+                self, "Restart Needed", "FAF will quit now."
+            )
             QtWidgets.QApplication.quit()
 
     @QtCore.pyqtSlot()
@@ -1024,7 +1036,9 @@ class ClientWindow(FormClass, BaseClass):
     def clearCache(self):
         changed = util.clearDirectory(util.CACHE_DIR)
         if changed:
-            QtWidgets.QMessageBox.information(None, "Restart Needed", "FAF will quit now.")
+            QtWidgets.QMessageBox.information(
+                self, "Restart Needed", "FAF will quit now."
+            )
             QtWidgets.QApplication.quit()
 
     @QtCore.pyqtSlot()
@@ -1103,8 +1117,17 @@ class ClientWindow(FormClass, BaseClass):
             util.settings.endGroup()
             self.actionKeepCacheWhileInSession.setChecked(False)
         elif own:
-            days, ok = QtWidgets.QInputDialog().getInt(None, 'Set time interval', 'Enter the number of days that the game data '
-                        'files will be stored', config.Settings.get('cache/number_of_days', type=int, default=30), 1, 2147483647, 10)
+            days, ok = QtWidgets.QInputDialog().getInt(
+                self,
+                'Set time interval',
+                'Keep game files in cache for this number of days:',
+                config.Settings.get(
+                    'cache/number_of_days', type=int, default=30
+                ),
+                min=1,
+                max=2147483647,
+                step=10,
+            )
             if ok and days:
                 util.settings.beginGroup('cache')
                 util.settings.setValue('do_not_keep', False)
