@@ -176,6 +176,8 @@ class ClientWindow(FormClass, BaseClass):
 
         # Handy reference to the User object representing the logged-in user.
         self.me = User(self.players)
+        self.login = None
+        self.id = None
 
         self._chat_model = Chat.build(playerset=self.players,
                                       base_channels=['#aeolus'])
