@@ -1,4 +1,5 @@
 import signal
+
 from PyQt5.QtCore import QCoreApplication, QTimer
 
 from .connectivity import QTurnSocket

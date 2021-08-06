@@ -1,18 +1,17 @@
+import base64
+import logging
+import re
+import webbrowser
+
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import Qt
 
-import webbrowser
 import util
-import re
+from config import Settings
+from util.qt import ExternalLinkPage
+
 from .newsitem import NewsItem, NewsItemDelegate
 from .newsmanager import NewsManager
-
-from util.qt import ExternalLinkPage
-from config import Settings
-
-import base64
-
-import logging
 
 logger = logging.getLogger(__name__)
 

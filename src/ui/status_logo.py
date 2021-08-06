@@ -1,5 +1,6 @@
 from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtWidgets import QLabel, QAction, QMenu
+from PyQt5.QtWidgets import QAction, QLabel, QMenu
+
 import util
 from client import ClientState
 

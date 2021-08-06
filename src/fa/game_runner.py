@@ -1,10 +1,10 @@
 import json
+import logging
 
 import fa
 from fa.replay import replay
 from model.game import GameState
 
-import logging
 logger = logging.getLogger(__name__)
 
 

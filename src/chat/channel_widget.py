@@ -1,9 +1,11 @@
-from PyQt5.QtCore import QObject, pyqtSignal, QUrl, Qt
-from PyQt5.QtGui import QTextDocument, QTextCursor
+import logging
 import re
+
+from PyQt5.QtCore import QObject, Qt, QUrl, pyqtSignal
+from PyQt5.QtGui import QTextCursor, QTextDocument
+
 from util.qt import monkeypatch_method
 
-import logging
 logger = logging.getLogger(__name__)
 
 

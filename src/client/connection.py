@@ -1,10 +1,9 @@
-from PyQt5 import QtCore, QtNetwork
-
-import logging
 import json
+import logging
 import sys
-
 from enum import IntEnum
+
+from PyQt5 import QtCore, QtNetwork
 
 import fa
 from config import Settings

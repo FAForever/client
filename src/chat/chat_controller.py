@@ -1,10 +1,11 @@
+from enum import Enum
+
 from PyQt5.QtCore import QObject, pyqtSignal
 
-from model.chat.channel import Channel, Lines, ChannelID, ChannelType
-from model.chat.chatter import Chatter
-from model.chat.chatline import ChatLine, ChatLineType
+from model.chat.channel import Channel, ChannelID, ChannelType, Lines
 from model.chat.channelchatter import ChannelChatter
-from enum import Enum
+from model.chat.chatline import ChatLine, ChatLineType
+from model.chat.chatter import Chatter
 
 
 class ChatController(QObject):

@@ -1,16 +1,16 @@
+import binascii
 import logging
 import os
 import zipfile
-import binascii
 
 from PyQt5 import QtWidgets
 
-import fa
 import config
-from fa.mods import checkMods
-from fa.path import writeFAPathLua, validatePath
-from fa.wizards import Wizard
+import fa
 import util
+from fa.mods import checkMods
+from fa.path import validatePath, writeFAPathLua
+from fa.wizards import Wizard
 from mapGenerator.mapgenUtils import isGeneratedMap
 
 logger = logging.getLogger(__name__)
@@ -129,7 +129,7 @@ def check(featured_mod, mapname=None, version=None, modVersions=None, sim_mods=N
     # Perform the actual comparisons and updating
     logger.info("Updating FA for mod: " + str(featured_mod) + ", version " + str(version))
 
-    import client # FIXME: forced by circular imports
+    import client  # FIXME: forced by circular imports
     if not path(client.instance):
         return False
 

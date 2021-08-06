@@ -1,10 +1,11 @@
-from PyQt5.QtNetwork import QTcpSocket, QAbstractSocket
-from PyQt5 import QtCore
-from PyQt5.QtCore import QObject
-
 import json
 
+from PyQt5 import QtCore
+from PyQt5.QtCore import QObject
+from PyQt5.QtNetwork import QAbstractSocket, QTcpSocket
+
 from decorators import with_logger
+
 
 @with_logger
 class JsonRpcTcpClient(QObject):

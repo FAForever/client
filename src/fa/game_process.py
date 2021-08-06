@@ -1,12 +1,13 @@
+import logging
 import os
+import re
 import sys
 
 from PyQt5 import QtCore, QtWidgets
-import config
-import re
 
+import config
 import util
-import logging
+
 logger = logging.getLogger(__name__)
 
 from model.game import GameState

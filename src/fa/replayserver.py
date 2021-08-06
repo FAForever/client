@@ -1,17 +1,17 @@
 
-from PyQt5 import QtCore, QtNetwork, QtWidgets
-
-import os
-import logging
-import util
-import fa
 import json
+import logging
+import os
 import time
 
+from PyQt5 import QtCore, QtNetwork, QtWidgets
+
+import fa
+import util
 from config import Settings
 
-from . import DEFAULT_LIVE_REPLAY
-from . import DEFAULT_RECORD_REPLAY
+from . import DEFAULT_LIVE_REPLAY, DEFAULT_RECORD_REPLAY
+
 
 class ReplayRecorder(QtCore.QObject):
     """

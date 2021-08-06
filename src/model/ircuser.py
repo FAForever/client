@@ -1,6 +1,7 @@
 from PyQt5.QtCore import pyqtSignal
-from model.transaction import transactional
+
 from model.modelitem import ModelItem
+from model.transaction import transactional
 
 
 class IrcUser(ModelItem):

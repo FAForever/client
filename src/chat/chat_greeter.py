@@ -2,6 +2,7 @@ from model.chat.channel import ChannelType
 from model.chat.chatline import ChatLine, ChatLineType
 from util import irc_escape
 
+
 class ChatGreeter:
     def __init__(self, model, theme, chat_config, line_metadata_builder):
         self._model = model

@@ -1,8 +1,10 @@
 
-import util
-from PyQt5 import QtWidgets, QtCore, QtGui
-import json
 import datetime
+import json
+
+from PyQt5 import QtCore, QtGui, QtWidgets
+
+import util
 from fa import maps
 
 FormClass, BaseClass = util.THEME.loadUiType("stats/mapstat.ui")

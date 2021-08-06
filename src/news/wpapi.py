@@ -1,9 +1,10 @@
-from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
-from PyQt5 import QtCore
-
 import json
 import logging
 import sys
+
+from PyQt5 import QtCore
+from PyQt5.QtNetwork import (QNetworkAccessManager, QNetworkReply,
+                             QNetworkRequest)
 
 from config import Settings
 

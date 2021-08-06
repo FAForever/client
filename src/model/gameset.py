@@ -1,9 +1,9 @@
 from PyQt5.QtCore import pyqtSignal
-from decorators import with_logger
 
+from decorators import with_logger
 from model import game
-from model.transaction import transactional
 from model.modelitemset import ModelItemSet
+from model.transaction import transactional
 
 
 @with_logger

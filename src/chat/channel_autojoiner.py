@@ -1,5 +1,5 @@
-from util.lang import COUNTRY_TO_LANGUAGE
 from chat.lang import DEFAULT_LANGUAGE_CHANNELS
+from util.lang import COUNTRY_TO_LANGUAGE
 
 
 class ChannelAutojoiner:

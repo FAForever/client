@@ -1,9 +1,9 @@
+import logging
 from enum import Enum
 
 from PyQt5.QtCore import QUrl
 from PyQt5.QtGui import QDesktopServices
 
-import logging
 logger = logging.getLogger(__name__)
 
 

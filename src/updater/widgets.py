@@ -1,9 +1,9 @@
-import util
-from updater.base import UpdateChannel, ReleaseType
-from updater.process import ClientUpdater
-from decorators import with_logger
 from PyQt5.QtWidgets import QLayout
 
+import util
+from decorators import with_logger
+from updater.base import ReleaseType, UpdateChannel
+from updater.process import ClientUpdater
 
 FormClass, BaseClass = util.THEME.loadUiType("client/update.ui")
 

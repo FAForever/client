@@ -1,11 +1,12 @@
-from PyQt5.QtCore import QObject, pyqtSignal, QCoreApplication
+import logging
 from enum import IntEnum
+
+from PyQt5.QtCore import QCoreApplication, QObject, pyqtSignal
 
 import client
 from config import setup_file_handler
 from fa.game_process import instance as game_process_instance
 
-import logging
 logger = logging.getLogger(__name__)
 # Log to a separate file to not pollute normal log with huge json dumps
 logger.propagate = False
@@ -14,6 +15,7 @@ logger.addHandler(setup_file_handler('gamesession.log'))
 from connectivity.IceAdapterClient import IceAdapterClient
 from connectivity.IceAdapterProcess import IceAdapterProcess
 from connectivity.IceServersPoller import IceServersPoller
+
 
 class GameSessionState(IntEnum):
     # Game services are entirely off

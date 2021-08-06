@@ -1,12 +1,14 @@
-from PyQt5 import QtCore, QtWidgets
 from enum import Enum
-from config import Settings
-import util
+
+from PyQt5 import QtCore, QtWidgets
+
 import notifications as ns
-from notifications.hook_useronline import NsHookUserOnline
-from notifications.hook_newgame import NsHookNewGame
+import util
+from config import Settings
 from notifications.hook_gamefull import NsHookGameFull
+from notifications.hook_newgame import NsHookNewGame
 from notifications.hook_partyinvite import NsHookPartyInvite
+from notifications.hook_useronline import NsHookUserOnline
 
 """
 The UI of the Notification System Settings Frame.

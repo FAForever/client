@@ -1,8 +1,9 @@
-from PyQt5 import QtGui, QtWidgets, QtCore, QtMultimedia, uic
-from semantic_version import Version
+import logging
 import os
 
-import logging
+from PyQt5 import QtCore, QtGui, QtMultimedia, QtWidgets, uic
+from semantic_version import Version
+
 logger = logging.getLogger(__name__)
 
 

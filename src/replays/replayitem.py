@@ -2,13 +2,13 @@ import os
 import time
 from datetime import datetime, timezone
 
-import util
-from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt5 import QtCore, QtGui, QtWidgets
 
+import util
 from config import Settings
+from downloadManager import DownloadRequest
 from fa import maps
 from games.moditem import mods
-from downloadManager import DownloadRequest
 
 
 class ReplayItemDelegate(QtWidgets.QStyledItemDelegate):

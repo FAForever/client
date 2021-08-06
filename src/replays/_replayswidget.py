@@ -1,25 +1,27 @@
-from PyQt5 import QtCore, QtWidgets, QtGui
-from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
-from fa.replay import replay
-from util.gameurl import GameUrl, GameUrlType
-from config import Settings
-import util
-import os
-import fa
-import time
 import datetime
-import client
 import json
-import jsonschema
-import threading
-
-from replays.replayitem import ReplayItem, ReplayItemDelegate
-from model.game import GameState
-from api.replaysapi import ReplaysApiConnector
-from downloadManager import DownloadRequest
-from replays.replayToolbox import ReplayToolboxHandler
-
 import logging
+import os
+import threading
+import time
+
+import jsonschema
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtNetwork import (QNetworkAccessManager, QNetworkReply,
+                             QNetworkRequest)
+
+import client
+import fa
+import util
+from api.replaysapi import ReplaysApiConnector
+from config import Settings
+from downloadManager import DownloadRequest
+from fa.replay import replay
+from model.game import GameState
+from replays.replayitem import ReplayItem, ReplayItemDelegate
+from replays.replayToolbox import ReplayToolboxHandler
+from util.gameurl import GameUrl, GameUrlType
+
 logger = logging.getLogger(__name__)
 
 # Replays uses the new Inheritance Based UI creation pattern

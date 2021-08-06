@@ -1,6 +1,6 @@
-from model.transaction import transactional
-from model.modelitemset import ModelItemSet
 from model.ircuser import IrcUser
+from model.modelitemset import ModelItemSet
+from model.transaction import transactional
 
 
 class IrcUserset(ModelItemSet):

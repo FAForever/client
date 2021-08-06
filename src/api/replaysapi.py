@@ -1,5 +1,7 @@
-from .ApiBase import ApiBase
 import logging
+
+from .ApiBase import ApiBase
+
 logger = logging.getLogger(__name__)
 
 class ReplaysApiConnector(ApiBase):

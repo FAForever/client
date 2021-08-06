@@ -1,16 +1,18 @@
-from PyQt5 import QtCore, QtWidgets, QtWebEngineWidgets
-import util
-from stats import mapstat
-from config import Settings
-import client
-from util.qt import injectWebviewCSS
+import logging
 import time
 
-from .leaderboard_widget import LeaderboardWidget
-from api.stats_api import LeaderboardApiConnector
-from ui.busy_widget import BusyWidget
+from PyQt5 import QtCore, QtWebEngineWidgets, QtWidgets
 
-import logging
+import client
+import util
+from api.stats_api import LeaderboardApiConnector
+from config import Settings
+from stats import mapstat
+from ui.busy_widget import BusyWidget
+from util.qt import injectWebviewCSS
+
+from .leaderboard_widget import LeaderboardWidget
+
 logger = logging.getLogger(__name__)
 
 ANTIFLOOD = 0.1

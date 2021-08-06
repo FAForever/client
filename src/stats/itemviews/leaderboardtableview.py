@@ -1,6 +1,8 @@
-from PyQt5 import QtCore, QtWidgets, QtWebEngineWidgets, QtGui
+from PyQt5 import QtCore, QtGui, QtWebEngineWidgets, QtWidgets
+
 from .leaderboardheaderview import VerticalHeaderView
 from .leaderboardtablemenu import LeaderboardTableMenu
+
 
 class LeaderboardTableView(QtWidgets.QTableView):
     def __init__(self, *args, **kwargs):

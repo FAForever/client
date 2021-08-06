@@ -1,5 +1,6 @@
 from PyQt5 import QtCore, QtWidgets
 
+
 class LeaderboardLineEdit(QtWidgets.QLineEdit):
     def __init__(self, parent):
         super().__init__(parent)

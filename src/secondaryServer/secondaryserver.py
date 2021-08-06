@@ -1,9 +1,10 @@
-from PyQt5 import QtCore, QtNetwork
-import time
 import json
 import logging
-from config import Settings
+import time
 
+from PyQt5 import QtCore, QtNetwork
+
+from config import Settings
 
 logger = logging.getLogger(__name__)
 

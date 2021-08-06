@@ -1,10 +1,12 @@
-from PyQt5.QtCore import Qt, QSortFilterProxyModel
-from .gamemodelitem import GameModelItem
 from enum import Enum
+
+from PyQt5.QtCore import QSortFilterProxyModel, Qt
 
 from games.moditem import mod_invisible
 from model.game import GameState
 from util.qt_list_model import QtListModel
+
+from .gamemodelitem import GameModelItem
 
 
 class GameModel(QtListModel):

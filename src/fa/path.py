@@ -1,6 +1,7 @@
+import logging
 import os
 import sys
-import logging
+
 import config
 import util
 

@@ -1,4 +1,5 @@
 from enum import Enum
+
 from PyQt5.QtCore import QUrl, QUrlQuery
 
 

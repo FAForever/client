@@ -1,8 +1,8 @@
 
 from PyQt5 import QtCore, QtWidgets
-import util
-import secondaryServer
 
+import secondaryServer
+import util
 from tourneys.tourneyitem import TourneyItem, TourneyItemDelegate
 
 FormClass, BaseClass = util.THEME.loadUiType("tournaments/tournaments.ui")

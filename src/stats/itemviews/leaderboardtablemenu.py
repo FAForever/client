@@ -1,5 +1,7 @@
-from PyQt5 import QtWidgets
 from enum import Enum
+
+from PyQt5 import QtWidgets
+
 
 class LeaderboardTableMenuItems(Enum):
     VIEW_ALIASES = "View aliases"

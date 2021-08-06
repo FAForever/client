@@ -1,15 +1,15 @@
-from PyQt5.QtCore import pyqtSignal, QUrl, QUrlQuery, QTimer
-
-from enum import Enum
-from decorators import with_logger
-import time
 import html
-
 import string
+import time
+from enum import Enum
 
-from model.transaction import transactional
+from PyQt5.QtCore import QTimer, QUrl, QUrlQuery, pyqtSignal
+
+from decorators import with_logger
 from model.modelitem import ModelItem
+from model.transaction import transactional
 from util.gameurl import GameUrl, GameUrlType
+
 
 class GameState(Enum):
     OPEN = "open"

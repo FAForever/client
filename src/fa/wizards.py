@@ -1,8 +1,9 @@
 import os
-from PyQt5 import QtWidgets, QtCore
-from fa.path import validatePath, typicalForgedAlliancePaths
+
+from PyQt5 import QtCore, QtWidgets
 
 import util
+from fa.path import typicalForgedAlliancePaths, validatePath
 
 __author__ = 'Thygrrr'
 

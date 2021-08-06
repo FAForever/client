@@ -1,7 +1,6 @@
+import logging
 from os import environ
 from os.path import join
-
-import logging
 
 # These directories are in Appdata (e.g. C:\ProgramData on some Win7 versions)
 if 'ALLUSERSPROFILE' in environ:

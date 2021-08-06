@@ -1,7 +1,8 @@
-from PyQt5 import QtCore, QtNetwork
-import logging
 import json
+import logging
 import time
+
+from PyQt5 import QtCore, QtNetwork
 
 from config import Settings
 

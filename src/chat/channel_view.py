@@ -1,20 +1,22 @@
-import time
 import html
+import time
+
 import jinja2
 from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtGui import QDesktopServices
 
-from chat.channel_widget import ChannelWidget
-from chat.chatter_model import ChatterModel, ChatterEventFilter, \
-    ChatterItemDelegate, ChatterSortFilterModel, ChatterFormat, \
-    ChatterLayout, ChatterLayoutElements
 from chat.channel_tab import TabInfo
+from chat.channel_widget import ChannelWidget
 from chat.chatter_menu import ChatterMenu
+from chat.chatter_model import (ChatterEventFilter, ChatterFormat,
+                                ChatterItemDelegate, ChatterLayout,
+                                ChatterLayoutElements, ChatterModel,
+                                ChatterSortFilterModel)
+from downloadManager import DownloadRequest
 from model.chat.channel import ChannelType
 from model.chat.chatline import ChatLineType
-from util.gameurl import GameUrl
 from util import irc_escape
-from downloadManager import DownloadRequest
+from util.gameurl import GameUrl
 
 
 class ChannelView:

@@ -1,7 +1,7 @@
-import urllib
-import logging
 import json
+import logging
 import time
+import urllib
 
 from config import Settings
 

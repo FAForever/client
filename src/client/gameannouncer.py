@@ -1,7 +1,7 @@
-from PyQt5.QtCore import QObject, pyqtSignal, QTimer
-from model.game import GameState
+from PyQt5.QtCore import QObject, QTimer, pyqtSignal
 
 from fa import maps
+from model.game import GameState
 
 
 class GameAnnouncer(QObject):

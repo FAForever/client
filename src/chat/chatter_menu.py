@@ -1,9 +1,10 @@
+import logging
 from enum import Enum
-from PyQt5.QtWidgets import QMenu, QAction, QApplication
+
+from PyQt5.QtWidgets import QAction, QApplication, QMenu
 
 from model.game import GameState
 
-import logging
 logger = logging.getLogger(__name__)
 
 

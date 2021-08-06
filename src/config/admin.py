@@ -6,13 +6,17 @@
 # Released under the same license as Python 2.6.5
 
 
-import sys, os, traceback, types
+import os
+import sys
+import traceback
+import types
 
 
 def isUserAdmin():
 
     if os.name == 'nt':
         import ctypes
+
         # WARNING: requires Windows XP SP2 or higher!
         try:
             return ctypes.windll.shell32.IsUserAnAdmin()
@@ -32,9 +36,12 @@ def runAsAdmin(cmdLine=None, wait=True):
     if os.name != 'nt':
         raise RuntimeError("This function is only implemented on Windows.")
 
-    import win32api, win32con, win32event, win32process
-    from win32com.shell.shell import ShellExecuteEx
+    import win32api
+    import win32con
+    import win32event
+    import win32process
     from win32com.shell import shellcon
+    from win32com.shell.shell import ShellExecuteEx
 
     python_exe = sys.executable
 

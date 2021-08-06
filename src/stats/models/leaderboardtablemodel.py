@@ -1,5 +1,7 @@
-from PyQt5.QtCore import QAbstractTableModel, QModelIndex, Qt, QDateTime, QDate, QTime
-from PyQt5.QtGui import QColor, QFont, QBrush
+from PyQt5.QtCore import (QAbstractTableModel, QDate, QDateTime, QModelIndex,
+                          Qt, QTime)
+from PyQt5.QtGui import QBrush, QColor, QFont
+
 
 class LeaderboardTableModel(QAbstractTableModel):
     def __init__(self, data=None):

@@ -3,18 +3,16 @@ import logging
 import time
 from functools import partial
 
-from PyQt5 import QtCore, QtWidgets, QtGui
-from PyQt5.QtNetwork import QNetworkAccessManager
-
 from oauthlib.oauth2 import LegacyApplicationClient, WebApplicationClient
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtNetwork import QNetworkAccessManager
 from requests_oauthlib import OAuth2Session
-
-from .oauth_dialog import OAuthWidget
 
 import config
 import fa
 import notifications as ns
 import util
+from chat import ChatMVC
 from chat._avatarWidget import AvatarWidget
 from chat.channel_autojoiner import ChannelAutojoiner
 from chat.chat_announcer import ChatAnnouncer
@@ -25,57 +23,55 @@ from chat.chatter_model import ChatterLayoutElements
 from chat.ircconnection import IrcConnection
 from chat.language_channel_config import LanguageChannelConfig
 from chat.line_restorer import ChatLineRestorer
-from client import ClientState, LOBBY_HOST, LOBBY_PORT
-from client.aliasviewer import AliasWindow, AliasSearchWindow
+from client import LOBBY_HOST, LOBBY_PORT, ClientState
+from client.aliasviewer import AliasSearchWindow, AliasWindow
 from client.chat_config import ChatConfig
-from client.connection import LobbyInfo, ServerConnection, \
-    Dispatcher, ConnectionState, ServerReconnecter
+from client.connection import (ConnectionState, Dispatcher, LobbyInfo,
+                               ServerConnection, ServerReconnecter)
 from client.gameannouncer import GameAnnouncer
 from client.login import LoginWidget
 from client.playercolors import PlayerColors
 from client.theme_menu import ThemeMenu
-from client.user import User
-from client.user import UserRelationModel, UserRelationController, \
-    UserRelationTrackers, UserRelations
-from downloadManager import PreviewDownloader, AvatarDownloader, \
-    MAP_PREVIEW_ROOT
+from client.user import (User, UserRelationController, UserRelationModel,
+                         UserRelations, UserRelationTrackers)
+from connectivity.ConnectivityDialog import ConnectivityDialog
+from coop import CoopWidget
+from downloadManager import (MAP_PREVIEW_ROOT, AvatarDownloader,
+                             PreviewDownloader)
 from fa.factions import Factions
 from fa.game_runner import GameRunner
+from fa.game_session import GameSession, GameSessionState
 from fa.maps import getUserMapsFolder
-from mapGenerator.mapgenManager import MapGeneratorManager
+from games import GamesWidget
 from games.gameitem import GameViewBuilder
 from games.gamemodel import GameModel
 from games.hostgamewidget import build_launcher
+from mapGenerator.mapgenManager import MapGeneratorManager
 from model.chat.channel import ChannelID, ChannelType
 from model.chat.chat import Chat
 from model.chat.chatline import ChatLineMetadataBuilder
 from model.gameset import Gameset, PlayerGameIndex
 from model.player import Player
 from model.playerset import Playerset
-from model.rating import RatingType, MatchmakerQueueType
+from model.rating import MatchmakerQueueType, RatingType
+from modvault import ModVault
 from modvault.utils import getModFolder, setModFolder
+from news import NewsWidget
 from power import PowerTools
-from fa.game_session import GameSession, GameSessionState
+from replays import ReplaysWidget
 from secondaryServer import SecondaryServer
+from stats import StatsWidget
+from tourneys import TournamentsWidget
+from tutorials import TutorialsWidget
 from ui.busy_widget import BusyWidget
 from ui.status_logo import StatusLogo
 from unitdb import unitdbtab
 from updater import ClientUpdateTools
-from .mouse_position import MousePosition
-
-from news import NewsWidget
-from chat import ChatMVC
-from coop import CoopWidget
-from games import GamesWidget
-from tutorials import TutorialsWidget
-from stats import StatsWidget
-from tourneys import TournamentsWidget
 from vault import MapVault
-from modvault import ModVault
-from replays import ReplaysWidget
 
+from .mouse_position import MousePosition
+from .oauth_dialog import OAuthWidget
 
-from connectivity.ConnectivityDialog import ConnectivityDialog
 logger = logging.getLogger(__name__)
 
 OAUTH_TOKEN_PATH = "/oauth2/token"

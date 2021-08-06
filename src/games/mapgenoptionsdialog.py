@@ -1,8 +1,10 @@
-from enum import Enum
-from PyQt5 import QtCore, QtWidgets, QtGui
 import random
-import util
+from enum import Enum
+
+from PyQt5 import QtCore, QtGui, QtWidgets
+
 import config
+import util
 
 FormClass, BaseClass = util.THEME.loadUiType("games/mapgen.ui")
 

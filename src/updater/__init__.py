@@ -1,8 +1,10 @@
-from updater.base import UpdateSettings, UpdateChecker, UpdateNotifier
-from updater.widgets import UpdateDialog, UpdateSettingsDialog
 from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtWidgets import QDialog, QMessageBox
 from semantic_version import Version
+
+from updater.base import UpdateChecker, UpdateNotifier, UpdateSettings
+from updater.widgets import UpdateDialog, UpdateSettingsDialog
+
 
 class ClientUpdateTools(QObject):
     mandatory_update_aborted = pyqtSignal()

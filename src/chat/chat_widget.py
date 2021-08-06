@@ -1,7 +1,9 @@
 from enum import Enum
+
 from PyQt5.QtCore import QObject, pyqtSignal
-from PyQt5.QtWidgets import QTabBar, QApplication
-from model.chat.channel import ChannelType, PARTY_CHANNEL_SUFFIX
+from PyQt5.QtWidgets import QApplication, QTabBar
+
+from model.chat.channel import PARTY_CHANNEL_SUFFIX, ChannelType
 
 
 class TabIcon(Enum):

@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QListView
 from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtWidgets import QListView
 
 
 class ChatterListView(QListView):

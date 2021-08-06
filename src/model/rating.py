@@ -2,7 +2,6 @@
 
 from enum import Enum
 
-
 # copied from the server code according to which
 # this will need be fixed when the database
 # gets migrated

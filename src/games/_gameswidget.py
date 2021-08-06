@@ -1,17 +1,17 @@
-from PyQt5 import QtWidgets
-from PyQt5.QtGui import QCursor, QColor
-from PyQt5.QtCore import pyqtSignal, pyqtSlot, Qt
+import logging
 
+from PyQt5 import QtWidgets
+from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
+from PyQt5.QtGui import QColor, QCursor
+
+import fa
 import util
 from api.featured_mod_api import FeaturedModApiConnector
 from config import Settings
 from games.automatchframe import MatchmakerQueue
-from games.moditem import ModItem, mod_invisible
 from games.gamemodel import CustomGameFilterModel
+from games.moditem import ModItem, mod_invisible
 from model.chat.channel import PARTY_CHANNEL_SUFFIX
-import fa
-
-import logging
 
 logger = logging.getLogger(__name__)
 

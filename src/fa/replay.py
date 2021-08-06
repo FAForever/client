@@ -1,16 +1,18 @@
 import json
+import logging
 import os
+
+import zstandard
 from PyQt5 import QtCore, QtWidgets
+
 import fa
+import util
 from fa.check import check
 from fa.replayparser import replayParser
 from util.gameurl import GameUrl, GameUrlType
-import zstandard
 
-import util
 from . import mods
 
-import logging
 logger = logging.getLogger(__name__)
 
 __author__ = 'Thygrrr'
