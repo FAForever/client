@@ -1,23 +1,25 @@
-from PyQt5 import QtCore, QtWidgets, QtWebChannel, QtWebEngineWidgets, QtGui
-from stat import *
-import util
-from util.qt import injectWebviewCSS
-import urllib.request, urllib.parse, urllib.error
 import logging
 import os
-from fa import maps
-from vault import luaparser
-import urllib.request, urllib.error, urllib.parse
 import re
-from config import Settings
-
-from ui.busy_widget import BusyWidget
-from api.vaults_api import MapApiConnector
-from api.vaults_api import MapPoolApiConnector
-from downloadManager import DownloadRequest
-from mapGenerator import mapgenUtils
-from .mapwidget import MapWidget
 import shutil
+import urllib.error
+import urllib.parse
+import urllib.request
+from stat import *
+
+from PyQt5 import QtCore, QtGui, QtWebChannel, QtWebEngineWidgets, QtWidgets
+
+import util
+from api.vaults_api import MapApiConnector, MapPoolApiConnector
+from config import Settings
+from downloadManager import DownloadRequest
+from fa import maps
+from mapGenerator import mapgenUtils
+from ui.busy_widget import BusyWidget
+from util.qt import injectWebviewCSS
+from vault import luaparser
+
+from .mapwidget import MapWidget
 
 logger = logging.getLogger(__name__)
 

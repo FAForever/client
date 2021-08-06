@@ -1,4 +1,5 @@
-from PyQt5 import QtCore, QtWidgets, QtGui, QtWebEngineWidgets
+from PyQt5 import QtCore, QtGui, QtWebEngineWidgets, QtWidgets
+
 import util
 
 

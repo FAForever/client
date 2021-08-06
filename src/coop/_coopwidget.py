@@ -1,16 +1,16 @@
-from PyQt5 import QtCore, QtGui, QtWidgets
-import fa
-from fa.replay import replay
-import util
-
-from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest
-
-from coop.coopmapitem import CoopMapItem, CoopMapItemDelegate
-from coop.coopmodel import CoopGameFilterModel
-from ui.busy_widget import BusyWidget
+import logging
 import os
 
-import logging
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest
+
+import fa
+import util
+from coop.coopmapitem import CoopMapItem, CoopMapItemDelegate
+from coop.coopmodel import CoopGameFilterModel
+from fa.replay import replay
+from ui.busy_widget import BusyWidget
+
 logger = logging.getLogger(__name__)
 
 FormClass, BaseClass = util.THEME.loadUiType("coop/coop.ui")

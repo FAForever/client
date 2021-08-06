@@ -1,9 +1,11 @@
-import tempfile
-import client
-import subprocess
 import os
-from PyQt5.QtCore import QUrl, QObject, pyqtSignal
-from PyQt5.QtNetwork import QNetworkRequest, QNetworkReply
+import subprocess
+import tempfile
+
+from PyQt5.QtCore import QObject, QUrl, pyqtSignal
+from PyQt5.QtNetwork import QNetworkReply, QNetworkRequest
+
+import client
 from decorators import with_logger
 
 

@@ -1,9 +1,12 @@
-import os
-import util
-from PyQt5 import QtCore, QtWidgets, QtGui
-from fa import maps
 import html
+import os
+
 import jinja2
+from PyQt5 import QtCore, QtGui, QtWidgets
+
+import util
+from fa import maps
+
 
 class GameView(QtCore.QObject):
     """

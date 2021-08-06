@@ -1,19 +1,24 @@
-from . import version
-import os
-import sys
+import faulthandler
 import locale
 import logging
-import fafpath
+import os
+import sys
 import traceback
-import faulthandler
+from logging.handlers import MemoryHandler, RotatingFileHandler
+
 from PyQt5 import QtCore
-from logging.handlers import RotatingFileHandler, MemoryHandler
+
+import fafpath
+
+from . import version
 
 if sys.platform == 'win32':
+    import ctypes
+
     import win32api
     import win32con
     import win32security
-    import ctypes
+
     from . import admin
 
 _settings = QtCore.QSettings(QtCore.QSettings.IniFormat,
@@ -191,8 +196,8 @@ def is_beta():
 if _settings.contains('client/force_environment'):
     environment = _settings.value('client/force_environment', 'development')
 
-from .production import default_values as production_defaults
 from .develop import default_values as develop_defaults
+from .production import default_values as production_defaults
 from .testing import default_values as testing_defaults
 
 for defaults in [production_defaults, develop_defaults, testing_defaults]:

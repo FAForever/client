@@ -1,6 +1,7 @@
 import json
 import random
 from enum import Enum
+
 from PyQt5.QtCore import QObject, pyqtSignal
 
 

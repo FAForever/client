@@ -1,15 +1,17 @@
 
-import urllib.request, urllib.error, urllib.parse
-
-from PyQt5 import QtCore, QtWidgets, QtGui
-
 import datetime
-from util import strtodate, datetostr
+import os
+import urllib.error
+import urllib.parse
+import urllib.request
+
+from PyQt5 import QtCore, QtGui, QtWidgets
+
+import downloadManager
 import util
 from fa import maps
 from mapGenerator import mapgenUtils
-import os
-import downloadManager
+from util import datetostr, strtodate
 
 FormClass, BaseClass = util.THEME.loadUiType("vault/map.ui")
 

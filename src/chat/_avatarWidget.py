@@ -1,6 +1,7 @@
-from PyQt5.QtWidgets import QPushButton, QListWidgetItem
-from PyQt5.QtCore import QSize, QObject
+from PyQt5.QtCore import QObject, QSize
 from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QListWidgetItem, QPushButton
+
 from downloadManager import DownloadRequest
 
 

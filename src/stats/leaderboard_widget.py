@@ -1,12 +1,13 @@
-from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5 import QtCore, QtGui, QtWidgets
 
+import util
 from api.player_api import PlayerApiConnector
 from api.stats_api import LeaderboardRatingApiConnector
-from .itemviews.leaderboarditemdelegate import LeaderboardItemDelegate
-from .models.leaderboardtablemodel import LeaderboardTableModel
-from .models.leaderboardfiltermodel import LeaderboardFilterModel
 from config import Settings
-import util
+
+from .itemviews.leaderboarditemdelegate import LeaderboardItemDelegate
+from .models.leaderboardfiltermodel import LeaderboardFilterModel
+from .models.leaderboardtablemodel import LeaderboardTableModel
 
 FormClass, BaseClass = util.THEME.loadUiType("stats/leaderboard.ui")
 

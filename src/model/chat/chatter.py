@@ -1,4 +1,5 @@
 from PyQt5.QtCore import pyqtSignal
+
 from model.modelitem import ModelItem
 from model.transaction import transactional
 

@@ -1,6 +1,6 @@
-from chat.chat_widget import ChatWidget
-from chat.channel_view import ChannelView
 from chat.channel_tab import ChannelTab
+from chat.channel_view import ChannelView
+from chat.chat_widget import ChatWidget
 from model.chat.channel import ChannelType
 
 

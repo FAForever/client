@@ -1,8 +1,10 @@
+import logging
+
 from PyQt5 import QtWidgets
+
+import config
 import fa
 import modvault
-import logging
-import config
 
 logger = logging.getLogger(__name__)
 

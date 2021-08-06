@@ -1,13 +1,16 @@
-from decorators import with_logger
-from PyQt5.QtCore import QProcess, QProcessEnvironment, QEventLoop, Qt
-from PyQt5.QtWidgets import QMessageBox, QApplication, QProgressDialog
-import os
-import fafpath
-from util import getJavaPath
-import re
-from . import mapgenUtils
 import logging
+import os
+import re
+
+from PyQt5.QtCore import QEventLoop, QProcess, QProcessEnvironment, Qt
+from PyQt5.QtWidgets import QApplication, QMessageBox, QProgressDialog
+
+import fafpath
 from config import setup_file_handler
+from decorators import with_logger
+from util import getJavaPath
+
+from . import mapgenUtils
 
 logger = logging.getLogger(__name__)
 #Separate log file for map generator

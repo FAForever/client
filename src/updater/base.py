@@ -1,11 +1,12 @@
-from enum import Enum
-from decorators import with_logger
 import json
-from PyQt5.QtCore import QObject, pyqtSignal, QUrl
-from PyQt5.QtNetwork import QNetworkRequest, QNetworkReply
+from enum import Enum
+
+from PyQt5.QtCore import QObject, QUrl, pyqtSignal
+from PyQt5.QtNetwork import QNetworkReply, QNetworkRequest
 from semantic_version import Version
 
 from config import Settings
+from decorators import with_logger
 
 
 class UpdateChannel(Enum):

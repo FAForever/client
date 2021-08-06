@@ -1,5 +1,6 @@
-from enum import Enum
 import time
+from enum import Enum
+
 from util.magic_dict import MagicDict
 
 

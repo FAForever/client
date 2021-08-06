@@ -1,5 +1,7 @@
 from enum import Enum
+
 from PyQt5.QtCore import QObject, pyqtSignal
+
 from model.modelitem import ModelItem
 from model.transaction import transactional
 

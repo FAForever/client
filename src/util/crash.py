@@ -1,14 +1,15 @@
 # Bug Reporting
-import config
+import platform
 import traceback
+
+from PyQt5.QtCore import QUrl
+from PyQt5.QtGui import QDesktopServices
+
+import config
 import util
 from config import Settings
-import platform
 
 from . import APPDATA_DIR, PERSONAL_DIR, VERSION_STRING
-
-from PyQt5.QtGui import QDesktopServices
-from PyQt5.QtCore import QUrl
 
 CRASH_REPORT_USER = "pre-login"
 

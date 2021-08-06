@@ -1,9 +1,10 @@
 
-from PyQt5 import QtCore, QtWidgets, QtGui
-from fa import maps
+from PyQt5 import QtCore, QtGui, QtWidgets
+
 import util
 from config import Settings
 from downloadManager import DownloadRequest
+from fa import maps
 
 
 class TutorialItemDelegate(QtWidgets.QStyledItemDelegate):

@@ -1,4 +1,5 @@
-from PyQt5 import QtCore, QtWidgets, QtWebEngineWidgets, QtGui
+from PyQt5 import QtCore, QtGui, QtWebEngineWidgets, QtWidgets
+
 
 class VerticalHeaderView(QtWidgets.QHeaderView):
     def __init__(self, *args, **kwargs):

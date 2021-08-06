@@ -1,9 +1,12 @@
+import pprint
+
+from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtWidgets import QHeaderView, QInputDialog, QTableWidgetItem
+
+import client as clientwindow
 from decorators import with_logger
 from util import THEME
-from PyQt5.QtWidgets import QTableWidgetItem, QInputDialog, QHeaderView
-from PyQt5.QtCore import Qt, QTimer
-import client as clientwindow
-import pprint
+
 
 @with_logger
 class ConnectivityDialog(object):

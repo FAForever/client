@@ -7,29 +7,29 @@ patched, and all required files for a given mod are installed
 
 @author thygrrr
 """
+import ast
+import json
+import logging
 import os
+import shutil
 import stat
 import subprocess
-import time
-import shutil
-import logging
-import urllib.request, urllib.error, urllib.parse
 import sys
 import tempfile
-import json
-import ast
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
+
+from PyQt5 import QtCore, QtNetwork, QtWidgets
 
 import config
-from config import Settings
 import fafpath
-
-from PyQt5 import QtWidgets, QtCore, QtNetwork
-
-import util
 import modvault
-
+import util
 from api.featured_mod_updater import FeaturedModFiles, FeaturedModId
 from api.sim_mod_updater import SimModFiles
+from config import Settings
 
 logger = logging.getLogger(__name__)
 

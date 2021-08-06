@@ -1,4 +1,5 @@
 from PyQt5.QtCore import QObject
+
 from model.game import GameState
 
 

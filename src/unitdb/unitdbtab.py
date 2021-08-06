@@ -1,11 +1,13 @@
+import logging
+
+from PyQt5.QtCore import QObject, QUrl, pyqtSignal
 from PyQt5.QtNetwork import QNetworkCookie
-from PyQt5.QtCore import QObject, pyqtSignal, QUrl
-from PyQt5.QtWebEngineWidgets import QWebEngineProfile, QWebEnginePage
-from ui.busy_widget import BusyWidget
+from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineProfile
+
 import util
 from config import Settings
+from ui.busy_widget import BusyWidget
 
-import logging
 logger = logging.getLogger(__name__)
 
 FormClass, BaseClass = util.THEME.loadUiType("unitdb/unitdb.ui")

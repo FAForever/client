@@ -1,6 +1,7 @@
+from collections.abc import MutableSet
+
 from PyQt5 import QtCore
 from PyQt5.QtCore import QObject, pyqtSignal
-from collections.abc import MutableSet
 
 
 class User(QtCore.QObject):

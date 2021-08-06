@@ -1,5 +1,6 @@
+from collections.abc import ItemsView, KeysView, ValuesView
+
 from PyQt5.QtCore import QObject
-from collections.abc import KeysView, ItemsView, ValuesView
 
 
 class QObjectMapping(QObject):

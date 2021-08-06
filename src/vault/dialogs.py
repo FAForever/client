@@ -1,10 +1,12 @@
-from downloadManager import FileDownload
-from PyQt5 import QtCore, QtNetwork, QtWidgets
-import zipfile
-import os
 import io
-
 import logging
+import os
+import zipfile
+
+from PyQt5 import QtCore, QtNetwork, QtWidgets
+
+from downloadManager import FileDownload
+
 logger = logging.getLogger(__name__)
 
 

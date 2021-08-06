@@ -1,9 +1,11 @@
-from PyQt5 import QtWidgets, QtCore
-
 import logging
+
+from PyQt5 import QtCore, QtWidgets
+
 logger = logging.getLogger(__name__)
 
 from api.player_api import PlayerApiConnector
+
 
 class AliasViewer:
     def __init__(self, client, alias_formatter):

@@ -1,12 +1,13 @@
+import logging
+
 from PyQt5 import QtCore, QtGui
 
-import util
 import config
+import util
+from config import Settings
 from config.production import default_values as main_environment
 from config.testing import default_values as testing_environment
-from config import Settings
 
-import logging
 logger = logging.getLogger(__name__)
 
 FormClass, BaseClass = util.THEME.loadUiType("client/login.ui")

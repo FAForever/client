@@ -1,6 +1,7 @@
 import types
-from PyQt5.QtWebEngineWidgets import QWebEnginePage
+
 from PyQt5.QtGui import QDesktopServices
+from PyQt5.QtWebEngineWidgets import QWebEnginePage
 
 
 class ExternalLinkPage(QWebEnginePage):

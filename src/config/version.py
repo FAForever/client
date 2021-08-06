@@ -30,9 +30,10 @@
 # Note that the RELEASE-VERSION file should *not* be checked into git;
 # please add it to your top-level .gitignore file.
 
-from subprocess import check_output
-import sys
 import os
+import sys
+from subprocess import check_output
+
 from semantic_version import Version
 
 __all__ = ["is_development_version", "is_prerelease_version",

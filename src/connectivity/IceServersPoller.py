@@ -1,6 +1,9 @@
-from PyQt5.QtCore import QObject, QTimer
-from decorators import with_logger
 from datetime import datetime, timedelta
+
+from PyQt5.QtCore import QObject, QTimer
+
+from decorators import with_logger
+
 
 @with_logger
 class IceServersPoller(QObject):

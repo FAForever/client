@@ -1,21 +1,22 @@
+import io
+import logging
 import os
-import sys
-import urllib.request, urllib.error, urllib.parse
 import re
 import shutil
-
-from PyQt5 import QtCore, QtWidgets, QtGui
-
-from util import PREFSFILENAME
-import util
-import logging
-from vault import luaparser
+import sys
+import urllib.error
+import urllib.parse
+import urllib.request
 import warnings
-
-import io
 import zipfile
+
+from PyQt5 import QtCore, QtGui, QtWidgets
+
+import util
 from config import Settings
 from downloadManager import FileDownload
+from util import PREFSFILENAME
+from vault import luaparser
 from vault.dialogs import VaultDownloadDialog, downloadVaultAsset
 
 logger = logging.getLogger(__name__)

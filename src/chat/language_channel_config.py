@@ -1,4 +1,5 @@
 from PyQt5.QtCore import QAbstractListModel, Qt
+
 from chat.lang import LANGUAGE_CHANNELS
 
 

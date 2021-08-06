@@ -1,14 +1,15 @@
 from enum import Enum, IntEnum
-from PyQt5.QtCore import QObject, QRectF, QSortFilterProxyModel, Qt, \
-    pyqtSignal
-from PyQt5 import QtWidgets, QtGui, QtCore
-from PyQt5.QtGui import QIcon, QColor
+
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import QObject, QRectF, QSortFilterProxyModel, Qt, pyqtSignal
+from PyQt5.QtGui import QColor, QIcon
+
+import util
 from chat.chatter_model_item import ChatterModelItem
 from chat.gameinfo import SensitiveMapInfoChecker
 from fa import maps
 from model.game import GameState
 from model.rating import RatingType
-import util
 from util.qt_list_model import QtListModel
 
 

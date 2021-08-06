@@ -1,12 +1,15 @@
-from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
-from fa.replay import replay
-import util
+import logging
 import os
+
+from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtNetwork import (QNetworkAccessManager, QNetworkReply,
+                             QNetworkRequest)
+
 import fa
+import util
+from fa.replay import replay
 from tutorials.tutorialitem import TutorialItem, TutorialItemDelegate
 
-import logging
 logger = logging.getLogger(__name__)
 
 FormClass, BaseClass = util.THEME.loadUiType("tutorials/tutorials.ui")

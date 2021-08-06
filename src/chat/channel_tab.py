@@ -1,5 +1,7 @@
-from PyQt5.QtCore import QTimer
 from enum import IntEnum
+
+from PyQt5.QtCore import QTimer
+
 from chat.chat_widget import TabIcon
 
 

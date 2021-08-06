@@ -1,26 +1,29 @@
 # system imports
-import logging
-import string
-import sys
-from urllib.error import HTTPError
-from PyQt5 import QtCore, QtGui
 import io
-import util
+import logging
 import os
-import stat
-import struct
-import shutil
-import urllib.request, urllib.error, urllib.parse
-import zipfile
-import tempfile
 import re
+import shutil
+import stat
+import string
+import struct
+import sys
+import tempfile
+import urllib.error
+import urllib.parse
+import urllib.request
+import zipfile
+from urllib.error import HTTPError
+
+from PyQt5 import QtCore, QtGui
+
 # module imports
 import fa
+import util
 # local imports
 from config import Settings
-from vault.dialogs import downloadVaultAssetNoMsg
-
 from mapGenerator.mapgenUtils import isGeneratedMap
+from vault.dialogs import downloadVaultAssetNoMsg
 
 logger = logging.getLogger(__name__)
 

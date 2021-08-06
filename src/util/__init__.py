@@ -1,32 +1,31 @@
-import sys
-import os
-import getpass
-import locale
-import shutil
-import hashlib
-import re
-import subprocess
 import datetime
+import getpass
+import hashlib
+import locale
+import logging
+import os
+import re
+import shutil
+import subprocess
+import sys
 
-from PyQt5.QtWidgets import QMessageBox
-from PyQt5.QtGui import QDesktopServices
-from PyQt5.QtCore import QUrl, QStandardPaths
 from PyQt5 import QtWidgets
+from PyQt5.QtCore import QStandardPaths, QUrl
+from PyQt5.QtGui import QDesktopServices
+from PyQt5.QtWidgets import QMessageBox
 from PyQt5.uic import *
 
+import fafpath
+from config import VERSION as VERSION_STRING
+from config import Settings
+from mapGenerator import mapgenUtils
 from util.theme import Theme, ThemeSet
 
-from config import Settings
-from config import VERSION as VERSION_STRING
-import fafpath
-import logging
-
-from mapGenerator import mapgenUtils
-
 if sys.platform == 'win32':
-    import win32serviceutil
-    import win32service
     import ctypes
+
+    import win32service
+    import win32serviceutil
 
 logger = logging.getLogger(__name__)
 
@@ -84,6 +83,7 @@ if not os.path.exists(REPO_DIR):
 # Public settings object
 # Stolen from Config because reasons
 from config import _settings
+
 settings = _settings
 
 # initialize wine settings for non Windows platforms
@@ -266,7 +266,9 @@ def __downloadPreviewFromWeb(unitname):
     """
     # This is done so generated previews always have a lower case name.
     # This doesn't solve the underlying problem (case folding Windows vs. Unix vs. FAF)
-    import urllib.request, urllib.error, urllib.parse
+    import urllib.error
+    import urllib.parse
+    import urllib.request
     unitname = unitname.lower()
 
     logger.debug("Searching web preview for: " + unitname)
@@ -448,6 +450,7 @@ def datetostr(d):
 
 
 from .crash import CrashDialog, runtime_info
+
 
 def getJavaPath():
     return os.path.join(fafpath.get_libdir(), "ice-adapter", "jre", "bin", "java.exe")

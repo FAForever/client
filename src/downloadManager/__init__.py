@@ -1,12 +1,16 @@
-from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
-from PyQt5 import QtWidgets, QtCore, QtGui
-from PyQt5.QtCore import QObject, pyqtSignal, QUrl
-from PyQt5.QtNetwork import QNetworkRequest
-import urllib.request, urllib.error, urllib.parse
 import logging
 import os
-import util
+import urllib.error
+import urllib.parse
+import urllib.request
 import warnings
+
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import QObject, QUrl, pyqtSignal
+from PyQt5.QtNetwork import (QNetworkAccessManager, QNetworkReply,
+                             QNetworkRequest)
+
+import util
 from config import Settings
 
 logger = logging.getLogger(__name__)

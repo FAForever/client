@@ -1,14 +1,15 @@
-from PyQt5 import QtCore
-import modvault
-
-from fa import maps
-import util
-import fa.check
-from model.game import Game, GameState, GameVisibility
-from games.gamemodel import GameModel
-import games.mapgenoptionsdialog as MapGenDialog
-
 import logging
+
+from PyQt5 import QtCore
+
+import fa.check
+import games.mapgenoptionsdialog as MapGenDialog
+import modvault
+import util
+from fa import maps
+from games.gamemodel import GameModel
+from model.game import Game, GameState, GameVisibility
+
 logger = logging.getLogger(__name__)
 
 FormClass, BaseClass = util.THEME.loadUiType("games/host.ui")

@@ -1,13 +1,15 @@
 
-import urllib.request, urllib.error, urllib.parse
-
-from PyQt5 import QtCore, QtWidgets, QtGui
-
 import datetime
-from util import strtodate, datetostr
+import os
+import urllib.error
+import urllib.parse
+import urllib.request
+
+from PyQt5 import QtCore, QtGui, QtWidgets
+
 import util
 from modvault import utils
-import os
+from util import datetostr, strtodate
 
 FormClass, BaseClass = util.THEME.loadUiType("modvault/mod.ui")
 

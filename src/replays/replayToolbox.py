@@ -1,11 +1,12 @@
-from PyQt5 import QtCore, QtWidgets, QtGui
+import logging
 import os
 
-from config import Settings
-from util import MAP_PREVIEW_LARGE_DIR
-from downloadManager import DownloadRequest
+from PyQt5 import QtCore, QtGui, QtWidgets
 
-import logging
+from config import Settings
+from downloadManager import DownloadRequest
+from util import MAP_PREVIEW_LARGE_DIR
+
 logger = logging.getLogger(__name__)
 
 filtersSettings = {

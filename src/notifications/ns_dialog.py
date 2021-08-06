@@ -1,6 +1,9 @@
-from PyQt5 import QtCore, QtWidgets
-import util
 import time
+
+from PyQt5 import QtCore, QtWidgets
+
+import util
+
 from .ns_settings import NotificationPosition
 
 """

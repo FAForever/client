@@ -1,4 +1,5 @@
 from PyQt5.QtCore import QObject, pyqtSignal
+
 from downloadManager import DownloadRequest
 from fa import maps
 

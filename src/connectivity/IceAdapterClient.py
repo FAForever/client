@@ -1,9 +1,12 @@
+import json
+
 from PyQt5.QtCore import pyqtSignal
-from decorators import with_logger
-from connectivity.JsonRpcTcpClient import JsonRpcTcpClient
+
 import client
 from client.connection import ConnectionState
-import json
+from connectivity.JsonRpcTcpClient import JsonRpcTcpClient
+from decorators import with_logger
+
 
 @with_logger
 class IceAdapterClient(JsonRpcTcpClient):

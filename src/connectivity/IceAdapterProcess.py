@@ -1,12 +1,14 @@
-from decorators import with_logger
-from PyQt5.QtCore import QProcess, QProcessEnvironment
-from PyQt5.QtNetwork import QTcpServer, QHostAddress
-from PyQt5.QtWidgets import QMessageBox
 import os
 import sys
-from config import Settings
-import fafpath
 from typing import List
+
+from PyQt5.QtCore import QProcess, QProcessEnvironment
+from PyQt5.QtNetwork import QHostAddress, QTcpServer
+from PyQt5.QtWidgets import QMessageBox
+
+import fafpath
+from config import Settings
+from decorators import with_logger
 
 if sys.platform != 'win32':
     from distutils.spawn import find_executable

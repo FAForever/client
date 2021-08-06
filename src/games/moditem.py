@@ -1,7 +1,9 @@
-from PyQt5 import QtWidgets, QtGui
-import util
-import client
 import os
+
+from PyQt5 import QtGui, QtWidgets
+
+import client
+import util
 
 # Maps names of featured mods to ModItem objects.
 mods = {}

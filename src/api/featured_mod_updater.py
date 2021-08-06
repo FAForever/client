@@ -1,5 +1,7 @@
-from .UpdaterBase import UpdaterBase
 import logging
+
+from .UpdaterBase import UpdaterBase
+
 logger = logging.getLogger(__name__)
 
 class FeaturedModFiles(UpdaterBase):

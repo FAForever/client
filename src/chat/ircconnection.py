@@ -1,15 +1,16 @@
-from PyQt5.QtCore import QObject, QSocketNotifier, QTimer, pyqtSignal
 import logging
-import sys
 import re
 import ssl
+import sys
 
-from model.chat.chatline import ChatLine, ChatLineType
-from model.chat.channel import ChannelID, ChannelType
-import util
-import config
 import irc
 import irc.client
+from PyQt5.QtCore import QObject, QSocketNotifier, QTimer, pyqtSignal
+
+import config
+import util
+from model.chat.channel import ChannelID, ChannelType
+from model.chat.chatline import ChatLine, ChatLineType
 
 logger = logging.getLogger(__name__)
 PONG_INTERVAL = 60000  # milliseconds between pongs
