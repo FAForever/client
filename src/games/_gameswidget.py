@@ -145,27 +145,27 @@ class GamesWidget(FormClass, BaseClass):
         """
         Slot that interprets and propagates mod_info messages into the mod list
         """
-        mod = message['name']
-        old_mod = self.mods.get(mod, None)
-        self.mods[mod] = ModItem(message)
+        for value in message["values"]:
+            mod = value['name']
+            old_mod = self.mods.get(mod, None)
+            self.mods[mod] = ModItem(value)
 
-        if old_mod:
-            if mod in mod_invisible:
-                del mod_invisible[mod]
-            for i in range(0, self.modList.count()):
-                if self.modList.item(i) == old_mod:
-                    self.modList.takeItem(i)
-                    continue
-            for i in range(self.client.replays.modList.count()):
-                if self.client.replays.modList.itemText(i) == old_mod.mod:
-                    self.client.replays.modList.removeItem(i)
+            if old_mod:
+                if mod in mod_invisible:
+                    del mod_invisible[mod]
+                for i in range(0, self.modList.count()):
+                    if self.modList.item(i) == old_mod:
+                        self.modList.takeItem(i)
+                for i in range(self.client.replays.modList.count()):
+                    if self.client.replays.modList.itemText(i) == old_mod.mod:
+                        self.client.replays.modList.removeItem(i)
 
-        if message["publish"]:
-            self.modList.addItem(self.mods[mod])
-        else:
-            mod_invisible[mod] = self.mods[mod]
+            if value["publish"]:
+                self.modList.addItem(self.mods[mod])
+            else:
+                mod_invisible[mod] = self.mods[mod]
 
-        self.client.replays.modList.addItem(message["name"])
+            self.client.replays.modList.addItem(value["name"])
 
     @pyqtSlot(int)
     def togglePrivateGames(self, state):
