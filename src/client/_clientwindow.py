@@ -1283,7 +1283,7 @@ class ClientWindow(FormClass, BaseClass):
             self.ladder.refreshLeaderboards()
             self.map_downloader.update_url_prefix()
             self.news.updateNews()
-        self.warningHide()
+            self.games.refreshMods()
 
         oauth_host = config.Settings.get("oauth/host")
         authorization_endpoint = oauth_host + OAUTH_AUTH_PATH
