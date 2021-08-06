@@ -135,6 +135,7 @@ class GamesWidget(FormClass, BaseClass):
             self.client.lobby_connection.send(dict(command="matchmaker_info"))
 
     def onLogOut(self):
+        self.stopSearch()
         self.party = None
         while self.matchmakerQueues.widget(0) is not None:
             self.matchmakerQueues.widget(0).deleteLater()
@@ -178,6 +179,7 @@ class GamesWidget(FormClass, BaseClass):
         self._game_model.hide_private_games = state
 
     def stopSearch(self):
+        self.searching = {"ladder1v1": False}
         if self.matchFoundQueueName:
             self.matchFoundQueueName = ""
         self.stop_search_ranked_game.emit()
