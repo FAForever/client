@@ -638,7 +638,6 @@ class ReplayVaultWidgetHandler(object):
         _w.showLatestCheckbox.stateChanged.connect(self.showLatestCheckboxchange)
         _w.hideUnrCheckbox.stateChanged.connect(self.hideUnrCheckboxchange)
         _w.RefreshResetButton.pressed.connect(self.resetRefreshPressed)
-        _w.leaderboardList.currentIndexChanged.connect(self.leaderboardIdChanged)
 
         # restore persistent checkbox settings
         _w.automaticCheckbox.setChecked(self.automatic)
@@ -727,10 +726,12 @@ class ReplayVaultWidgetHandler(object):
             filters.append('playerStats.ratingChanges.leaderboard.id=="{}"'.format(leaderboardId))
 
             if minRating and minRating > 0:
-                if leaderboardId == 2:
-                    filters.append('playerStats.player.ladder1v1Rating.rating=ge="{}"'.format(minRating))
-                elif leaderboardId == 1:
+                if leaderboardId == 1:
                     filters.append('playerStats.player.globalRating.rating=ge="{}"'.format(minRating))
+                elif leaderboardId == 2:
+                    filters.append('playerStats.player.ladder1v1Rating.rating=ge="{}"'.format(minRating))
+                else:
+                    filters.append('playerStats.ratingChanges.meanBefore=ge="{}"'.format(minRating + 300))
         else:
             if minRating and minRating > 0:
                 if modListIndex == "ladder1v1":
@@ -864,12 +865,6 @@ class ReplayVaultWidgetHandler(object):
 
     def hideUnrCheckboxchange (self, state):
         self.hide_unranked = state
-
-    def leaderboardIdChanged(self, index):
-        if index == 3:
-            self._w.minRating.setEnabled(False)
-        else:
-            self._w.minRating.setEnabled(True)
 
     def resetRefreshPressed(self):  # reset search parameter and reload recent Replays List
         if not self.searching:

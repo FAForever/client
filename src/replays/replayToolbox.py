@@ -22,6 +22,9 @@ filtersSettings = {
     "One of ladder ratings": dict(
         filterString = "playerStats.player.ladder1v1Rating.rating", 
         operators = [">", "<"]),
+    "One of ratings": dict(
+        filterString = "playerStats.ratingChanges.meanBefore",
+        operators = [">", "<"]),
     "Game mod name": dict(
         filterString = "featuredMod.technicalName", 
         operators = ["contains", "is", "is not"]),
@@ -264,14 +267,28 @@ class ReplayToolboxHandler(object):
                 filterString = filtersSettings[filterName]["filterString"]
 
                 if filterName == "Start time":
-                    startDate = filterBox.dateEdit.dateTime().toUTC().toString(QtCore.Qt.ISODate)
+                    startDate = filterBox.dateEdit.dateTime().toUTC().toString(
+                        QtCore.Qt.ISODate
+                    )
                     if opName == ">":
-                        finalFilters.append(filterString + operators[opName].format(startDate))
+                        finalFilters.append(
+                            filterString + operators[opName].format(startDate)
+                        )
                     else:
-                        finalFilters.append(filterString + operators[opName].format(startDate))
+                        finalFilters.append(
+                            filterString + operators[opName].format(startDate)
+                        )
+                elif filterName == "One of ratings":
+                    finalFilters.append(
+                        filterString + operators[opName].format(
+                            int(value) + 300
+                        )
+                    )
                 elif value:
-                    finalFilters.append(filterString + operators[opName].format(value))
-                    
+                    finalFilters.append(
+                        filterString + operators[opName].format(value)
+                    )
+
         if len(finalFilters) > 0:
             return "({})".format(";".join(finalFilters))
 
