@@ -385,6 +385,7 @@ class ClientWindow(FormClass, BaseClass):
         logger.warning("Disconnected from lobby server.")
         self.gameset.clear()
         self.clear_players()
+        self.games.stopSearch()
 
     def appStateChanged(self, state):
         if state == QtCore.Qt.ApplicationInactive:
