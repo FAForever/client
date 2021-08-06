@@ -32,7 +32,7 @@ default_values = {
     'proxy/host': 'proxy.{host}',
     'proxy/port': 9124,
     'lobby/host': 'lobby.{host}',
-    'lobby/port': 8001,
+    'lobby/port': 8002,
     'updater/host': 'lobby.{host}',
     'mordor/host': 'http://mordor.{host}',
     'news/host': 'https://direct.{host}',

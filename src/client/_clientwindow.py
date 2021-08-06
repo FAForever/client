@@ -1452,10 +1452,10 @@ class ClientWindow(FormClass, BaseClass):
     def handle_welcome(self, message):
         self.state = ClientState.LOGGED_IN
         self._auto_relogin = True
-        self.id = message["id"]
-        self.login = message["login"]
+        self.id = message["me"]["id"]
+        self.login = message["me"]["login"]
 
-        self.me.onLogin(message["login"], message["id"])
+        self.me.onLogin(self.login, self.id)
         logger.info("Login success")
 
         util.crash.CRASH_REPORT_USER = self.login
@@ -1466,7 +1466,10 @@ class ClientWindow(FormClass, BaseClass):
         self.authorized.emit(self.me)
 
         if self.game_session is None or self.game_session.game_uid is None:
-            self.game_session = GameSession(player_id=message["id"], player_login=message["login"])
+            self.game_session = GameSession(
+                player_id=self.id,
+                player_login=self.login,
+            )
         elif self.game_session.game_uid is not None:
             self.lobby_connection.send({'command': 'restore_game_session',
                                         'game_id': self.game_session.game_uid})
