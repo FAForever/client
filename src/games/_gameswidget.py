@@ -66,6 +66,7 @@ class GamesWidget(FormClass, BaseClass):
         "play/sortGames", default_value=0, type=int)  # Default is by player count
 
     matchmaker_search_info = pyqtSignal(dict)
+    match_found_message = pyqtSignal(dict)
     stop_search_ranked_game = pyqtSignal()
     party_updated = pyqtSignal()
 
@@ -93,6 +94,7 @@ class GamesWidget(FormClass, BaseClass):
         self.client.matchmaker_info.connect(self.handleMatchmakerInfo)
         self.client.game_enter.connect(self.stopSearch)
         self.client.viewing_replay.connect(self.stopSearch)
+        self.client.authorized.connect(self.onAuthorized)
 
         self.sortGamesComboBox.addItems(['By Players', 'By avg. Player Rating', 'By Map', 'By Host', 'By Age'])
         self.sortGamesComboBox.currentIndexChanged.connect(self.sortGamesComboChanged)
@@ -121,7 +123,6 @@ class GamesWidget(FormClass, BaseClass):
         self.matchmakerShortcuts = []
 
         self.matchmakerFramesInitialized = False
-        self.client.authorized.connect(self.onAuthorized)
 
     def refreshMods(self):
         self.apiConnector.requestData()
@@ -180,6 +181,7 @@ class GamesWidget(FormClass, BaseClass):
 
     def stopSearch(self):
         self.searching = {"ladder1v1": False}
+        self.labelAutomatchInfo.setText("")
         if self.matchFoundQueueName:
             self.matchFoundQueueName = ""
         self.stop_search_ranked_game.emit()
@@ -358,6 +360,18 @@ class GamesWidget(FormClass, BaseClass):
 
     def handleMatchmakerSearchInfo(self, message):
         self.matchmaker_search_info.emit(message)
+
+    def handleMatchFound(self, message):
+        self.matchFoundQueueName = message.get("queue_name", "")
+        self.labelAutomatchInfo.setText("Match found! Waiting for launch...")
+        self.match_found_message.emit(message)
+
+    def handleMatchCancelled(self, message):
+        # the match cancelled message from the server can appear way too late,
+        # so any notifications or actions may be confusing if the user found a
+        # match but then aborted it and found a new one or joined/hosted a
+        # custom game
+        ...
 
     def isInGame(self, player_id):
         if self.client.players[player_id].currentGame is None:

@@ -182,6 +182,16 @@
          <number>0</number>
         </property>
         <item>
+         <widget class="QLabel" name="labelMatchingIn">
+          <property name="text">
+           <string>Matching In:-</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QLabel" name="labelInQueue">
           <property name="text">
            <string>In Queue: -</string>
