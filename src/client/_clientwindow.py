@@ -213,7 +213,6 @@ class ClientWindow(FormClass, BaseClass):
         self.gameset.added.connect(self.fill_in_session_info)
 
         self.lobby_info.serverSession.connect(self.handle_session)
-        self.lobby_info.serverUpdate.connect(self.handle_update)
         self.lobby_dispatch["registration_response"] = self.handle_registration_response
         self.lobby_dispatch["game_launch"] = self.handle_game_launch
         self.lobby_dispatch["matchmaker_info"] = self.handle_matchmaker_info
@@ -713,9 +712,9 @@ class ClientWindow(FormClass, BaseClass):
         self.mainGridLayout.addLayout(self.warning, 2, 0)
         self.warningHide()
 
-        self._update_tools = ClientUpdateTools.build(config.VERSION, self,
-                                                     self._network_access_manager,
-                                                     self.lobby_info)
+        self._update_tools = ClientUpdateTools.build(
+            config.VERSION, self, self._network_access_manager
+        )
         self._update_tools.mandatory_update_aborted.connect(
             self.close)
         self._update_tools.checker.check()
@@ -1070,8 +1069,7 @@ class ClientWindow(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def check_for_updates(self):
-        self._update_tools.checker.check(reset_server=False,
-                                         always_notify=True)
+        self._update_tools.checker.check(always_notify=True)
 
     @QtCore.pyqtSlot()
     def show_update_settings(self):
@@ -1465,12 +1463,6 @@ class ClientWindow(FormClass, BaseClass):
     def handle_session(self, message):
         self.session = str(message['session'])
         self.get_creds_and_login()
-
-    def handle_update(self, message):
-        # Remove geometry settings prior to updating
-        # could be incompatible with an updated client.
-        config.Settings.remove('window/geometry')
-        logger.warning("Server says we need an update")
 
     def handle_welcome(self, message):
         self.state = ClientState.LOGGED_IN

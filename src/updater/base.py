@@ -196,76 +196,36 @@ class GithubUpdateChecker(QObject):
                     yield Release(version, download_url)
 
 
-class ServerUpdateChecker(QObject):
-    finished = pyqtSignal()
-
-    def __init__(self, lobby_info):
-        QObject.__init__(self)
-        self._lobby_info = lobby_info
-        self.release = None
-        self.done = False
-        self._lobby_info.serverSession.connect(self._server_session)
-        self._lobby_info.serverUpdate.connect(self._server_update)
-
-    @classmethod
-    def builder(cls, lobby_info, **kwargs):
-        def build():
-            return cls(lobby_info)
-        return build
-
-    def _server_session(self):
-        self.server_version = None
-        self.done = True
-        self.finished.emit()
-
-    def _server_update(self, msg):
-        self.release = Release(Version(msg['new_version']),
-                               msg['update'],
-                               ReleaseType.MINIMUM)
-        self.done = True
-        self.finished.emit()
-
-
 @with_logger
 class UpdateChecker(QObject):
     finished = pyqtSignal(object, bool)
 
-    def __init__(self, current_version, github_check_builder,
-                 server_check_builder):
+    def __init__(self, current_version, github_check_builder):
         QObject.__init__(self)
         self._current_version = current_version
         self._github_check_builder = github_check_builder
-        self._server_check_builder = server_check_builder
         self._github_checker = None
-        self._server_checker = None
         self.releases = None
         self._always_notify = False
 
     @classmethod
     def build(cls, current_version, **kwargs):
         github_check_builder = GithubUpdateChecker.builder(**kwargs)
-        server_check_builder = ServerUpdateChecker.builder(**kwargs)
-        return cls(current_version, github_check_builder, server_check_builder)
+        return cls(current_version, github_check_builder)
 
-    def check(self, reset_server=True, always_notify=False):
+    def check(self, always_notify=False):
         self._always_notify = always_notify
         self._start_github_check()
-        if reset_server or self._server_checker is None:
-            self._start_server_check()
 
     def _start_github_check(self):
         self._github_checker = self._github_check_builder()
         self._github_checker.finished.connect(self._check_all_checks_finished)
         self._github_checker.start()
 
-    def _start_server_check(self):
-        self._server_checker = self._server_check_builder()
-        self._server_checker.finished.connect(self._check_all_checks_finished)
-
     def _check_all_checks_finished(self):
-        if self._github_checker is None or self._server_checker is None:
+        if self._github_checker is None:
             return
-        if not self._github_checker.done or not self._server_checker.done:
+        if not self._github_checker.done:
             return
         self._set_releases()
         self.finished.emit(self.releases, self._always_notify)
@@ -273,9 +233,7 @@ class UpdateChecker(QObject):
     def _set_releases(self):
         releases = []
         if self._github_checker.releases is not None:
-            releases += self._github_checker.releases
-        if self._server_checker.release is not None:
-            releases.append(self._server_checker.release)
+            releases.extend(self._github_checker.releases)
         self.releases = Releases(releases, self._current_version)
 
 

@@ -20,12 +20,10 @@ class ClientUpdateTools(QObject):
         self.notifier.update.connect(self._handle_update)
 
     @classmethod
-    def build(cls, current_version, parent_widget, network_manager,
-              lobby_info):
+    def build(cls, current_version, parent_widget, network_manager):
         current_version = Version(current_version)
         update_settings = UpdateSettings()
         checker = UpdateChecker.build(current_version=current_version,
-                                      lobby_info=lobby_info,
                                       settings=update_settings,
                                       network_manager=network_manager)
         notifier = UpdateNotifier(update_settings, checker)
