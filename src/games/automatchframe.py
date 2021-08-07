@@ -31,6 +31,7 @@ class MatchmakerQueue(FormClass, BaseClass):
         self.client = client
         self.client.matchmaker_info.connect(self.handleQueueInfo)
         self.games.matchmaker_search_info.connect(self.handleSearchInfo)
+        self.games.match_found_message.connect(self.handleMatchFound)
         self.games.stop_search_ranked_game.connect(self.stopSearchRanked)
         self.games.party_updated.connect(self.handlePartyUpdate)
 
@@ -68,6 +69,10 @@ class MatchmakerQueue(FormClass, BaseClass):
         )
         self.games.matchmakerShortcuts.append(self.shortcut)
 
+        self.matchmakerTimer = QtCore.QTimer()
+        self.matchmakerTimer.timeout.connect(self.updateMatchmakerTimer)
+        self.secondsToAutomatch = 0
+
     def setFactionIcons(self, subFactions):
         for faction, icon in self._rankedIcons.items():
             try:
@@ -85,12 +90,33 @@ class MatchmakerQueue(FormClass, BaseClass):
                 self.labelInQueue.setText(
                     "In Queue: {}".format(queue["num_players"])
                 )
+                self.secondsToAutomatch = int(queue["queue_pop_time_delta"])
+                self.updateLabelMatchingIn()
+                self.matchmakerTimer.start(1 * 1000)
 
     def handleSearchInfo(self, message):
         if message["queue_name"] == self.queueName:
             self.searching = message["state"] == "start"
             self.games.searching[self.queueName] = self.searching
             self.updatePlayButton()
+
+    def handleMatchFound(self, message):
+        if message.get("queue_name", "") == self.queueName:
+            # clear but do not cancel search
+            self.searching = False
+            self.games.searching[self.queueName] = False
+            self.updatePlayButton()
+
+    def updateMatchmakerTimer(self):
+        if self.secondsToAutomatch > 0:
+            self.secondsToAutomatch -= 1
+            self.updateLabelMatchingIn()
+
+    def updateLabelMatchingIn(self):
+        minutes, seconds = divmod(self.secondsToAutomatch, 60)
+        self.labelMatchingIn.setText(
+            "Matching In: {:02}:{:02}".format(int(minutes), int(seconds))
+        )
 
     def startSearchRanked(self):
         if (

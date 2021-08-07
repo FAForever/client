@@ -226,6 +226,7 @@ class ClientWindow(FormClass, BaseClass):
         self.lobby_dispatch["kicked_from_party"] = self.handle_kicked_from_party
         self.lobby_dispatch["party_invite"] = self.handle_party_invite
         self.lobby_dispatch["match_found"] = self.handle_match_found_message
+        self.lobby_dispatch["match_cancelled"] = self.handle_match_cancelled
         self.lobby_dispatch["search_info"] = self.handle_search_info
         self.lobby_info.social.connect(self.handle_social)
 
@@ -1529,7 +1530,11 @@ class ClientWindow(FormClass, BaseClass):
 
     def handle_match_found_message(self, message):
         logger.info("Handling match_found via JSON {}".format(message))
-        self.games.matchFoundQueueName = message.get("queue_name", "")
+        self.games.handleMatchFound(message)
+
+    def handle_match_cancelled(self, message):
+        logger.info("Received match_cancelled via JSON {}".format(message))
+        self.games.handleMatchCancelled(message)
 
     def host_game(self, title, mod, visibility, mapname, password, is_rehost=False):
         msg = {
@@ -1566,6 +1571,7 @@ class ClientWindow(FormClass, BaseClass):
         # LATER: search_ranked message
         arguments = []
         if self.games.matchFoundQueueName:
+            self.games.labelAutomatchInfo.setText("Launching the game...")
             ratingType = message.get("rating_type", RatingType.GLOBAL.value)
             factionSubset = config.Settings.get(
                 "play/{}Factions".format(self.games.matchFoundQueueName),

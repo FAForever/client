@@ -634,7 +634,7 @@ QLabel#titleLabel
     font-weight:bold;
 }
 
-QLabel#labelLoading
+QLabel#labelLoading,#labelAutomatchInfo
 {
     color: gold;
 }
