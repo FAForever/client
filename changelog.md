@@ -1,6 +1,17 @@
 0.x.x
-0.x.xx
 =====
+
+0.20.0
+ * Login with OAuth tokens
+ * Use new server protocol
+ * Add advanced login parameters (#1096)
+ * Remove some deprecations
+ * Replace hardcoded irclib with external library
+ * Rework matchmaking
+ * Fix window flags (#867)
+ * Add more options to leaderboards context menu
+ * Allow to foe moderators
+ * Disable ICE adapter info window by default
 
 0.19.19
  * Fix broken map downloader
