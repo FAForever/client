@@ -1,6 +1,37 @@
 0.x.x
 =====
 
+0.20.0
+=====
+ * Features:
+    * Add advanced login parameters (#1096)
+    * Add full game title to the game tooltip
+    * Add leaderboards from API
+    * Add map generator support
+    * Add option to force switching to vault fallback location
+    * Add teammatchmaking, basic party system
+    * Allow to foe moderators
+    * Disable ICE adapter info window by default
+    * Exclude observers from game player count
+    * Separate 'ignore' from 'add fore' option
+ * Technical
+    * Login with OAuth tokens
+    * Use new server protocol
+    * Replace hardcoded irclib with external library
+ * Fixes:
+    * Fix broken map downloader
+    * Fix diplaying news
+    * Fix download cancellation in vaults
+    * Fix icon sizes in vaults
+    * Fix window flags (#867)
+    * Remove some deprecations
+    * Support zstandard compression in replay files
+
+Contributors:
+ - Askaholic
+ - Strogo
+ - Gatsik
+
 0.19.0
 =====
  * Fix broken compatibility with server
