@@ -27,16 +27,11 @@ if sys.platform == 'win32':
 
     root_dir = os.path.dirname(os.path.abspath(__file__))
     res_dir = os.path.join(root_dir, "res")
-    appveyor_build_version = os.getenv('APPVEYOR_BUILD_VERSION')
-    appveyor_build_version = appveyor_build_version.replace(' ','')
-    version.write_version_file(appveyor_build_version, res_dir)
+    build_version = os.getenv('BUILD_VERSION')
+    build_version = build_version.replace(' ','')
+    version.write_version_file(build_version, res_dir)
 
-    faf_version, git_revision = version.get_git_version()
-    msi_version = version.msi_version(faf_version)
-    print('Release version:', faf_version,
-          'Build version:', appveyor_build_version)
-    if git_revision:
-        print('Git revision:', git_revision)
+    msi_version = version.msi_version(build_version)
 
 # Ugly hack to fix broken PyQt5 (FIXME - necessary?)
 for module in ["invoke.py", "load_plugin.py"]:
