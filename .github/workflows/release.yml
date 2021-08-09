@@ -1,0 +1,106 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release Version'
+        required: true
+
+jobs:
+  release:
+    environment: deploy
+    runs-on: windows-latest
+    env:
+      UID_VERSION: v4.0.4
+      ICE_ADAPTER_VERSION: v3.1.1
+      PYWHEEL_INFIX: "cp36"
+      BUILD_VERSION: ${{ github.event.inputs.version }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python 3.6.7
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.6.7
+          architecture: x86
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install sip==4.19.8
+          pip install pyqt5==5.7.1
+          pip install https://github.com/FAForever/python-wheels/releases/download/2.0.0/pywin32-221-${{ env.PYWHEEL_INFIX }}-${{ env.PYWHEEL_INFIX }}m-win32.whl
+          pip install wheel
+          pip install pytest
+          pip install cx_Freeze==5.0.2
+          pip install -r requirements.txt
+
+      - name: Copy required files for packaging in setup.py
+        run: |
+          xcopy ${{ env.pythonLocation }}\\lib\\site-packages\\PyQt5\\Qt\\plugins\\imageformats .\\imageformats /I
+          xcopy ${{ env.pythonLocation }}\\lib\\site-packages\\PyQt5\\Qt\\plugins\\platforms .\\platforms /I
+          xcopy ${{ env.pythonLocation }}\\lib\\site-packages\\PyQt5\\Qt\\plugins\\audio .\\audio /I
+          xcopy ${{ env.pythonLocation }}\\lib\\site-packages\\PyQt5\\Qt\\bin .
+          xcopy ${{ env.pythonLocation }}\\lib\\site-packages\\pywin32_system32 .
+          xcopy ${{ env.pythonLocation }}\\lib\\site-packages\\PyQt5\\Qt\\resources . /I
+
+      - name: Download ICE adapter and UID calculator
+        run: |
+          mkdir lib\ice-adapter
+          Invoke-WebRequest -Uri "https://github.com/FAForever/uid/releases/download/$($env:UID_VERSION)/faf-uid.exe" -OutFile ".\\lib\\faf-uid.exe"
+          Invoke-WebRequest -Uri "https://github.com/FAForever/java-ice-adapter/releases/download/v1.0.0/faf-ice-adapter-jre-base.7z" -OutFile ".\\faf-ice-adapter-jre-base.7z"
+          7z x faf-ice-adapter-jre-base.7z -olib
+          Invoke-WebRequest -Uri "https://github.com/FAForever/java-ice-adapter/releases/download/$($env:ICE_ADAPTER_VERSION)/faf-ice-adapter.jar" -OutFile ".\\lib\\ice-adapter\\faf-ice-adapter.jar"
+
+      - name: Test with pytest
+        run: |
+          python runtests.py -vv --full-trace
+
+      - name: Build application
+        run: |
+          python setup.py bdist_msi
+
+      - name: Get Artifact Paths
+        id: artifact_paths
+        run: |
+          function getMsiPath {
+            $files = Get-ChildItem *.msi -Recurse | Select -First 1
+            (Get-Item $files).FullName
+          }
+          $WINDOWS_MSI = getMsiPath
+          Write-Host $WINDOWS_MSI
+          $WINDOWS_MSI_NAME = (Get-Item $WINDOWS_MSI).Name
+          Write-Host $WINDOWS_MSI_NAME
+          echo "::set-output name=WINDOWS_MSI::${WINDOWS_MSI}"
+          echo "::set-output name=WINDOWS_MSI_NAME::${WINDOWS_MSI_NAME}"
+
+      - name: Create draft release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.event.inputs.version }}
+          release_name: ${{ github.event.inputs.version }}
+          draft: true
+          prerelease: true
+
+      - name: Check release paths
+        run: |
+          echo "MSI path:"
+          Write-Host ${{ steps.artifact_paths.outputs.WINDOWS_MSI }}
+          echo "MSI filename:"
+          Write-Host ${{ steps.artifact_paths.outputs.WINDOWS_MSI_NAME }}
+
+      - name: Upload Windows msi
+        id: upload-msi
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ steps.artifact_paths.outputs.WINDOWS_MSI }}
+          asset_name: ${{ steps.artifact_paths.outputs.WINDOWS_MSI_NAME }}
+          asset_content_type: application/vnd.microsoft.portable-executable
