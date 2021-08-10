@@ -18,6 +18,7 @@
     * Login with OAuth tokens
     * Use new server protocol
     * Replace hardcoded irclib with external library
+    * Migrate to GitHub Actions
  * Fixes:
     * Fix broken map downloader
     * Fix diplaying news
