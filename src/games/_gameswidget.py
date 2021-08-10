@@ -181,7 +181,8 @@ class GamesWidget(FormClass, BaseClass):
 
     def stopSearch(self):
         self.searching = {"ladder1v1": False}
-        self.labelAutomatchInfo.setText("")
+        self.client.labelAutomatchInfo.setText("")
+        self.client.labelAutomatchInfo.hide()
         if self.matchFoundQueueName:
             self.matchFoundQueueName = ""
         self.stop_search_ranked_game.emit()
@@ -363,7 +364,6 @@ class GamesWidget(FormClass, BaseClass):
 
     def handleMatchFound(self, message):
         self.matchFoundQueueName = message.get("queue_name", "")
-        self.labelAutomatchInfo.setText("Match found! Waiting for launch...")
         self.match_found_message.emit(message)
 
     def handleMatchCancelled(self, message):

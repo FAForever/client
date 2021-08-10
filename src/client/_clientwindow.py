@@ -687,6 +687,7 @@ class ClientWindow(FormClass, BaseClass):
         self.actionNsEnabled.setChecked(self.notificationSystem.settings.enabled)
 
         # warning setup
+        self.labelAutomatchInfo.hide()
         self.warning = QtWidgets.QHBoxLayout()
 
         self.warnPlayer = QtWidgets.QLabel(self)
@@ -1530,10 +1531,15 @@ class ClientWindow(FormClass, BaseClass):
 
     def handle_match_found_message(self, message):
         logger.info("Handling match_found via JSON {}".format(message))
+        self.warningHide()
+        self.labelAutomatchInfo.setText("Match found! Pending game launch...")
+        self.labelAutomatchInfo.show()
         self.games.handleMatchFound(message)
 
     def handle_match_cancelled(self, message):
         logger.info("Received match_cancelled via JSON {}".format(message))
+        self.labelAutomatchInfo.setText("")
+        self.labelAutomatchInfo.hide()
         self.games.handleMatchCancelled(message)
 
     def host_game(self, title, mod, visibility, mapname, password, is_rehost=False):
@@ -1571,7 +1577,7 @@ class ClientWindow(FormClass, BaseClass):
         # LATER: search_ranked message
         arguments = []
         if self.games.matchFoundQueueName:
-            self.games.labelAutomatchInfo.setText("Launching the game...")
+            self.labelAutomatchInfo.setText("Launching the game...")
             ratingType = message.get("rating_type", RatingType.GLOBAL.value)
             factionSubset = config.Settings.get(
                 "play/{}Factions".format(self.games.matchFoundQueueName),
@@ -1673,7 +1679,7 @@ class ClientWindow(FormClass, BaseClass):
             ):
                 return
             if show is not None:
-                if show:
+                if show and not self.games.matchFoundQueueName:
                     self.warningShow()
                 else:
                     self.warningHide()
