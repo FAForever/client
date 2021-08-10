@@ -231,6 +231,7 @@ class IrcConnection(IrcSignals, irc.client.SimpleIRCClient):
 
     def on_motd(self, c, e):
         self._log_event(e)
+        self._nickserv_register()
 
     def on_endofmotd(self, c, e):
         self._log_event(e)
@@ -391,7 +392,7 @@ class IrcConnection(IrcSignals, irc.client.SimpleIRCClient):
                 self.on_identified()
         elif "isn't registered" in notice:
             self._nickserv_register()
-        elif "Nickname {} registered.".format(self._nick) in notice:
+        elif "registered." in notice:
             self._nickserv_identify()
         elif "RELEASE" in notice:
             self.connection.privmsg('release {} {}')
