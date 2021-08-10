@@ -50,10 +50,12 @@ class OAuthWebPage(QtWebEngineWidgets.QWebEnginePage):
     def __init__(self):
         QtWebEngineWidgets.QWebEnginePage.__init__(self)
 
-    def acceptNavigationRequest(self, url, type, isMainFrame):
+    def acceptNavigationRequest(self, url, type_, isMainFrame):
         if "oauth" in url.url() or "localhost" in url.url():
             self.navigationRequestAccepted.emit(url)
             return True
+        elif type_ == 1:
+            return False
         else:
             QtGui.QDesktopServices.openUrl(url)
             return False
