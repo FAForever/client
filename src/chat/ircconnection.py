@@ -276,7 +276,7 @@ class IrcConnection(IrcSignals, irc.client.SimpleIRCClient):
         oldnick = user2name(e.source)
         newnick = e.target
 
-        self.chatter_renamed(oldnick, newnick)
+        self.chatter_renamed.emit(oldnick, newnick)
         self._log_event(e)
 
     def on_mode(self, c, e):
