@@ -7,7 +7,6 @@ on:
 
 jobs:
   checks:
-    environment: deploy
     runs-on: windows-latest
     env:
       PYWHEEL_INFIX: "cp36"
