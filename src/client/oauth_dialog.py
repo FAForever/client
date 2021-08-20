@@ -25,7 +25,7 @@ class OAuthWidget(FormClass, BaseClass):
         self.webview.setPage(self.webpage)
 
         self.webpage.navigationRequestAccepted.connect(
-            self.navigationRequestAccepted
+            self.navigationRequestAccepted,
         )
 
     def navigationRequestAccepted(self, url):

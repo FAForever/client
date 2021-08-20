@@ -12,8 +12,13 @@ from util.gameurl import GameUrl, GameUrlType
 
 
 def test_example_format_passes():
-    live_url = 'faflive://lobby.faforever.com/342423/3453.SCFAreplay?map=Canis River&mod=faf'
-    open_url = 'fafgame://lobby.faforever.com/9876?map=Sedongs&mod=coop&uid=123456'
+    live_url = (
+        'faflive://lobby.faforever.com/342423/3453.SCFAreplay?map=Canis River'
+        '&mod=faf'
+    )
+    open_url = (
+        'fafgame://lobby.faforever.com/9876?map=Sedongs&mod=coop&uid=123456'
+    )
 
     gurl = GameUrl.from_url(live_url)
     assert gurl.game_type == GameUrlType.LIVE_REPLAY
@@ -21,7 +26,7 @@ def test_example_format_passes():
     assert gurl.mod == "faf"
     assert gurl.uid == 342423
     assert gurl.player == "3453"
-    assert gurl.mods == None
+    assert gurl.mods is None
 
     gurl = GameUrl.from_url(open_url)
     assert gurl.game_type == GameUrlType.OPEN_GAME
@@ -29,7 +34,7 @@ def test_example_format_passes():
     assert gurl.mod == "coop"
     assert gurl.uid == 123456
     assert gurl.player == "9876"
-    assert gurl.mods == None
+    assert gurl.mods is None
 
 
 def test_to_url_and_back_works():
@@ -43,31 +48,68 @@ def test_to_url_and_back_works():
         assert gurl2.mod == mod
         assert gurl2.uid == uid
         assert gurl2.player == pid
-    test_values(GameUrlType.LIVE_REPLAY, "Canis River", "faf", 342423, "3453", "[]")
-    test_values(GameUrlType.OPEN_GAME, "Sedongs", "coop", 123456, "Wesmania", "[]")
+    test_values(
+        GameUrlType.LIVE_REPLAY,
+        "Canis River",
+        "faf",
+        342423,
+        "3453",
+        "[]",
+    )
+    test_values(
+        GameUrlType.OPEN_GAME,
+        "Sedongs",
+        "coop",
+        123456,
+        "Wesmania",
+        "[]",
+    )
 
 
 def test_playername_accepts_both_uid_and_name():
-    live_url = 'faflive://lobby.faforever.com/342423/Wesmania.SCFAreplay?map=Canis River&mod=faf'
-    live_url2 = 'faflive://lobby.faforever.com/342423/12346.SCFAreplay?map=Canis River&mod=faf'
-    open_url = 'fafgame://lobby.faforever.com/Wesmania?map=Sedongs&mod=coop&uid=123456'
-    open_url2 = 'fafgame://lobby.faforever.com/123456?map=Sedongs&mod=coop&uid=123456'
+    live_url = (
+        'faflive://lobby.faforever.com/342423/Wesmania.SCFAreplay?map=Canis '
+        'River&mod=faf'
+    )
+    live_url2 = (
+        'faflive://lobby.faforever.com/342423/12346.SCFAreplay?map=Canis '
+        'River&mod=faf'
+    )
+    open_url = (
+        'fafgame://lobby.faforever.com/Wesmania?map=Sedongs&mod=coop'
+        '&uid=123456'
+    )
+    open_url2 = (
+        'fafgame://lobby.faforever.com/123456?map=Sedongs&mod=coop&uid=123456'
+    )
     for u in [live_url, live_url2, open_url, open_url2]:
         GameUrl.from_url(u)
 
 
 def test_mods_parameter_is_optional():
-    live_url = 'faflive://lobby.faforever.com/342423/3453.SCFAreplay?map=Canis River&mod=faf'
+    live_url = (
+        'faflive://lobby.faforever.com/342423/3453.SCFAreplay?map=Canis River'
+        '&mod=faf'
+    )
     gurl = GameUrl.from_url(live_url)
-    assert gurl.mods == None
+    assert gurl.mods is None
 
-    live_url = 'faflive://lobby.faforever.com/342423/3453.SCFAreplay?map=Canis River&mod=faf&mods=[]'
+    live_url = (
+        'faflive://lobby.faforever.com/342423/3453.SCFAreplay?map=Canis River'
+        '&mod=faf&mods=[]'
+    )
     gurl = GameUrl.from_url(live_url)
     assert gurl.mods == '[]'
 
+
 def test_invalid_scheme_throws_value_error():
-    live_url = 'http://lobby.faforever.com/342423/3453.SCFAreplay?map=Canis River&mod=faf'
-    open_url = 'https://lobby.faforever.com/9876?map=Sedongs&mod=coop&uid=123456'
+    live_url = (
+        'http://lobby.faforever.com/342423/3453.SCFAreplay?map=Canis River'
+        '&mod=faf'
+    )
+    open_url = (
+        'https://lobby.faforever.com/9876?map=Sedongs&mod=coop&uid=123456'
+    )
     for u in [live_url, open_url]:
         with pytest.raises(ValueError):
             GameUrl.from_url(u)
@@ -82,7 +124,10 @@ def test_missing_map_throws_value_error():
 
 
 def test_missing_mod_throws_value_error():
-    live_url = 'faflive://lobby.faforever.com/342423/3453.SCFAreplay?map=Canis River'
+    live_url = (
+        'faflive://lobby.faforever.com/342423/3453.SCFAreplay'
+        '?map=Canis River'
+    )
     open_url = 'fafgame://lobby.faforever.com/9876?map=Sedongs&uid=123456'
     for u in [live_url, open_url]:
         with pytest.raises(ValueError):
@@ -90,7 +135,9 @@ def test_missing_mod_throws_value_error():
 
 
 def test_missing_uid_throws_value_error():
-    live_url = 'faflive://lobby.faforever.com/3453.SCFAreplay?map=Canis River&mod=faf'
+    live_url = (
+        'faflive://lobby.faforever.com/3453.SCFAreplay?map=Canis River&mod=faf'
+    )
     open_url = 'fafgame://lobby.faforever.com/9876?map=Sedongs&mod=coop'
     for u in [live_url, open_url]:
         with pytest.raises(ValueError):
@@ -98,13 +145,18 @@ def test_missing_uid_throws_value_error():
 
 
 def test_bad_replay_suffix_throws_value_error():
-    live_url = 'faflive://lobby.faforever.com/342423/3453.blahblah?map=Canis River&mod=faf'
+    live_url = (
+        'faflive://lobby.faforever.com/342423/3453.blahblah?map=Canis River'
+        '&mod=faf'
+    )
     with pytest.raises(ValueError):
         GameUrl.from_url(live_url)
 
 
 def test_too_short_path_throws_value_error():
-    live_url = 'faflive://lobby.faforever.com/3453.SCFAreplay?map=Canis River&mod=faf'
+    live_url = (
+        'faflive://lobby.faforever.com/3453.SCFAreplay?map=Canis River&mod=faf'
+    )
     open_url = 'fafgame://lobby.faforever.com?map=Sedongs&mod=coop&uid=123456'
     for u in [live_url, open_url]:
         with pytest.raises(ValueError):

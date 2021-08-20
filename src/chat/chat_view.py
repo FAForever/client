@@ -5,8 +5,10 @@ from model.chat.channel import ChannelType
 
 
 class ChatView:
-    def __init__(self, target_viewed_channel, model, controller, widget,
-                 channel_view_builder, channel_tab_builder):
+    def __init__(
+        self, target_viewed_channel, model, controller, widget,
+        channel_view_builder, channel_tab_builder,
+    ):
         self._target_viewed_channel = None
         self._model = model
         self._controller = controller
@@ -28,10 +30,13 @@ class ChatView:
     def build(cls, target_viewed_channel, model, controller, **kwargs):
         chat_widget = ChatWidget.build(**kwargs)
         channel_view_builder = ChannelView.builder(
-            controller, channelchatterset=model.channelchatters, **kwargs)
+            controller, channelchatterset=model.channelchatters, **kwargs
+        )
         channel_tab_builder = ChannelTab.builder(**kwargs)
-        return cls(target_viewed_channel, model, controller, chat_widget,
-                   channel_view_builder, channel_tab_builder)
+        return cls(
+            target_viewed_channel, model, controller, chat_widget,
+            channel_view_builder, channel_tab_builder,
+        )
 
     def _add_channels(self):
         for channel in self._model.channels.values():

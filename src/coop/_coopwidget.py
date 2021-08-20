@@ -17,14 +17,15 @@ FormClass, BaseClass = util.THEME.loadUiType("coop/coop.ui")
 
 
 class CoopWidget(FormClass, BaseClass, BusyWidget):
-    def __init__(self, client, game_model, me,
-                 gameview_builder, game_launcher):
+    def __init__(
+        self, client, game_model, me, gameview_builder, game_launcher,
+    ):
 
         BaseClass.__init__(self)
 
         self.setupUi(self)
 
-        self.client = client  # type: ClientWindow
+        self.client = client  # type - ClientWindow
         self._me = me
         self._game_model = CoopGameFilterModel(self._me, game_model)
         self._game_launcher = game_launcher
@@ -41,7 +42,9 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
 
         self.client.lobby_info.coopInfo.connect(self.processCoopInfo)
 
-        self.coopList.header().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
+        self.coopList.header().setSectionResizeMode(
+            0, QtWidgets.QHeaderView.ResizeToContents,
+        )
         self.coopList.setItemDelegate(CoopMapItemDelegate(self))
 
         self.gameview = self._gameview_builder(self._game_model, self.gameList)
@@ -50,12 +53,18 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
         self.coopList.itemDoubleClicked.connect(self.coopListDoubleClicked)
         self.coopList.itemClicked.connect(self.coopListClicked)
 
-        self.client.lobby_info.coopLeaderBoard.connect(self.processLeaderBoardInfos)
+        self.client.lobby_info.coopLeaderBoard.connect(
+            self.processLeaderBoardInfos,
+        )
         self.tabLeaderWidget.currentChanged.connect(self.askLeaderBoard)
 
         self.leaderBoard.setVisible(0)
-        self.FORMATTER_LADDER        = str(util.THEME.readfile("coop/formatters/ladder.qthtml"))
-        self.FORMATTER_LADDER_HEADER = str(util.THEME.readfile("coop/formatters/ladder_header.qthtml"))
+        self.FORMATTER_LADDER = str(
+            util.THEME.readfile("coop/formatters/ladder.qthtml"),
+        )
+        self.FORMATTER_LADDER_HEADER = str(
+            util.THEME.readfile("coop/formatters/ladder_header.qthtml"),
+        )
 
         util.THEME.stylesheets_reloaded.connect(self.load_stylesheet)
         self.load_stylesheet()
@@ -72,7 +81,9 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
         self.selectedItem = None
 
     def load_stylesheet(self):
-        self.setStyleSheet(util.THEME.readstylesheet("coop/formatters/style.css"))
+        self.setStyleSheet(
+            util.THEME.readstylesheet("coop/formatters/style.css"),
+        )
 
     def _addExistingGames(self, gameset):
         for game in gameset.values():
@@ -83,11 +94,16 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
         self.replayDownload.get(QNetworkRequest(url))
 
     def finishRequest(self, reply):
-        faf_replay = QtCore.QFile(os.path.join(util.CACHE_DIR, "temp.fafreplay"))
-        faf_replay.open(QtCore.QIODevice.WriteOnly | QtCore.QIODevice.Truncate)                
+        faf_replay = QtCore.QFile(
+            os.path.join(
+                util.CACHE_DIR,
+                "temp.fafreplay",
+            ),
+        )
+        faf_replay.open(QtCore.QIODevice.WriteOnly | QtCore.QIODevice.Truncate)
         faf_replay.write(reply.readAll())
         faf_replay.flush()
-        faf_replay.close()  
+        faf_replay.close()
         replay(os.path.join(util.CACHE_DIR, "temp.fafreplay"))
 
     def processLeaderBoardInfos(self, message):
@@ -107,25 +123,38 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
             w = self.leaderBoardTextFour
 
         doc = QtGui.QTextDocument()
-        doc.addResource(3, QtCore.QUrl("style.css"), self.leaderBoard.styleSheet())
-        html = "<html><head><link rel='stylesheet' type='text/css' href='style.css'></head><body>"
+        doc.addResource(
+            3, QtCore.QUrl("style.css"), self.leaderBoard.styleSheet(),
+        )
+        html = (
+            "<html><head><link rel='stylesheet' type='text/css' href="
+            "'style.css'></head><body>"
+        )
 
         if self.selectedItem:
-            html += '<p class="division" align="center">'+self.selectedItem.name+'</p><hr/>'
-        html += "<table class='players' cellspacing='0' cellpadding='0' width='630' height='100%'>"
+            html += (
+                '<p class="division" align="center"> {} </p><hr/>'
+                .format(self.selectedItem.name)
+            )
+        html += (
+            "<table class='players' cellspacing='0' cellpadding='0'"
+            "width='630' height='100%'>"
+        )
 
         formatter = self.FORMATTER_LADDER
         formatter_header = self.FORMATTER_LADDER_HEADER
         cursor = w.textCursor()
         cursor.movePosition(QtGui.QTextCursor.End)
-        w.setTextCursor(cursor) 
+        w.setTextCursor(cursor)
         color = "lime"
-        line = formatter_header.format(rank="rank", names="names", time="time", color=color)
+        line = formatter_header.format(
+            rank="rank", names="names", time="time", color=color,
+        )
         html += line
         rank = 1
         for val in values:
             # val = values[uid]
-            players = ", ".join(val["players"]) 
+            players = ", ".join(val["players"])
             numPlayers = str(len(val["players"]))
             timing = val["time"]
             gameuid = str(val["gameuid"])
@@ -134,11 +163,17 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
             else:
                 secondary = "No"
             if rank % 2 == 0:
-                line = formatter.format(rank=str(rank), numplayers=numPlayers, gameuid=gameuid, players=players,
-                                        objectives=secondary, timing=timing, type="even")
+                line = formatter.format(
+                    rank=str(rank), numplayers=numPlayers,
+                    gameuid=gameuid, players=players,
+                    objectives=secondary, timing=timing, type="even",
+                )
             else:
-                line = formatter.format(rank=str(rank), numplayers=numPlayers, gameuid=gameuid, players=players,
-                                        objectives=secondary, timing=timing, type="")
+                line = formatter.format(
+                    rank=str(rank), numplayers=numPlayers,
+                    gameuid=gameuid, players=players,
+                    objectives=secondary, timing=timing, type="",
+                )
 
             rank = rank + 1
 
@@ -161,8 +196,13 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
         ask the server for stats
         """
         if self.selectedItem:
-            self.client.statsServer.send(dict(command="coop_stats", mission=self.selectedItem.uid,
-                                              type=self.tabLeaderWidget.currentIndex()))
+            self.client.statsServer.send(
+                dict(
+                    command="coop_stats",
+                    mission=self.selectedItem.uid,
+                    type=self.tabLeaderWidget.currentIndex(),
+                ),
+            )
 
     def coopListClicked(self, item):
         """
@@ -175,10 +215,15 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
                 item.setExpanded(True)
             return
 
-        if item != self.selectedItem: 
+        if item != self.selectedItem:
             self.selectedItem = item
-            self.client.statsServer.send(dict(command="coop_stats", mission=item.uid,
-                                              type=self.tabLeaderWidget.currentIndex()))
+            self.client.statsServer.send(
+                dict(
+                    command="coop_stats",
+                    mission=item.uid,
+                    type=self.tabLeaderWidget.currentIndex(),
+                ),
+            )
 
     def coopListDoubleClicked(self, item):
         """
@@ -199,9 +244,10 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
         self._game_launcher.host_game(item.name, item.mod, mapname)
 
     @QtCore.pyqtSlot(dict)
-    def processCoopInfo(self, message): 
+    def processCoopInfo(self, message):
         """
-        Slot that interprets and propagates coop_info messages into the coop list 
+        Slot that interprets and propagates coop_info messages into the
+        coop list
         """
         uid = message["uid"]
 
@@ -211,11 +257,14 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
             if typeCoop not in self.cooptypes:
                 root_item = QtWidgets.QTreeWidgetItem()
                 self.coopList.addTopLevelItem(root_item)
-                root_item.setText(0, "<font color='white' size=+3>%s</font>" % typeCoop)
+                root_item.setText(
+                    0,
+                    "<font color='white' size=+3>{}</font>".format(typeCoop),
+                )
                 self.cooptypes[typeCoop] = root_item
                 root_item.setExpanded(False)
             else:
-                root_item = self.cooptypes[typeCoop] 
+                root_item = self.cooptypes[typeCoop]
 
             itemCoop = CoopMapItem(uid, self)
             itemCoop.update(message)
@@ -231,12 +280,16 @@ class CoopWidget(FormClass, BaseClass, BusyWidget):
         if not fa.instance.available():
             return
 
-        if not fa.check.check(game.featured_mod, game.mapname, None, game.sim_mods):
+        if not fa.check.check(
+            game.featured_mod, game.mapname, None, game.sim_mods,
+        ):
             return
 
         if game.password_protected:
-            passw, ok = QtWidgets.QInputDialog.getText(self.client, "Passworded game", "Enter password :",
-                                                       QtWidgets.QLineEdit.Normal, "")
+            passw, ok = QtWidgets.QInputDialog.getText(
+                self.client, "Passworded game", "Enter password :",
+                QtWidgets.QLineEdit.Normal, "",
+            )
             if ok:
                 self.client.join_game(uid=game.uid, password=passw)
         else:

@@ -18,7 +18,8 @@ class GameModelItem(QObject):
         self.game.updated.connect(self._game_updated)
         self._me = me
         self._me.relations.trackers.players.updated.connect(
-                self._host_relation_changed)
+            self._host_relation_changed,
+        )
         self._me.clan_changed.connect(self._host_relation_changed)
         self._preview_dler = preview_dler
         self._preview_dl_request = DownloadRequest()

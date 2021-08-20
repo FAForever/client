@@ -1,7 +1,8 @@
 from PyQt5.QtCore import QObject, pyqtSignal
 
-from model.chat.channelchatterset import (ChannelChatterRelation,
-                                          ChannelChatterset)
+from model.chat.channelchatterset import (
+    ChannelChatterRelation, ChannelChatterset,
+)
 from model.chat.channelset import Channelset
 from model.chat.chatterset import Chatterset
 
@@ -24,8 +25,9 @@ class Chat(QObject):
         channels = Channelset.build(**kwargs)
         chatters = Chatterset(playerset)
         channelchatters = ChannelChatterset()
-        cc_relation = ChannelChatterRelation(channels, chatters,
-                                             channelchatters)
+        cc_relation = ChannelChatterRelation(
+            channels, chatters, channelchatters,
+        )
         return cls(channels, chatters, channelchatters, cc_relation)
 
     def add_server_message(self, msg):

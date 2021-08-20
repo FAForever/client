@@ -1,19 +1,20 @@
 from model.player import Player
 
 DEFAULT_DICT = {
-    "id_":  17,
+    "id_": 17,
     "login": "TesterNoob",
     "global_rating": (1455, 160),
     "ladder_rating": (1192, 216),
     "number_of_games": 374,
     "avatar": {
         'url': 'http://content.faforever.com/faf/avatars/GW_Cybran.png',
-        'tooltip': 'Liberate !'},
-    "country":  "PL",
+        'tooltip': 'Liberate !',
+    },
+    "country": "PL",
 }
 
 NONOPTIONAL_DICT = {
-    "id_":  17,
+    "id_": 17,
     "login": "TesterNoob",
 }
 

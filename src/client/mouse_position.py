@@ -20,9 +20,13 @@ class MousePosition(object):
 
     def update_mouse_position(self, pos):
         self.on_left_edge = pos.x() < MousePosition.PADDING
-        self.on_right_edge = pos.x() > self.parent.size().width() - MousePosition.PADDING
+        self.on_right_edge = (
+            pos.x() > self.parent.size().width() - MousePosition.PADDING
+        )
         self.on_top_edge = pos.y() < MousePosition.PADDING
-        self.on_bottom_edge = pos.y() > self.parent.size().height() - MousePosition.PADDING
+        self.on_bottom_edge = (
+            pos.y() > self.parent.size().height() - MousePosition.PADDING
+        )
 
     def reset_to_false(self):
         self.on_left_edge = False
@@ -48,4 +52,9 @@ class MousePosition(object):
         return self.on_bottom_edge and self.on_right_edge
 
     def is_on_edge(self):
-        return self.on_left_edge or self.on_right_edge or self.on_top_edge or self.on_bottom_edge
+        return (
+            self.on_left_edge
+            or self.on_right_edge
+            or self.on_top_edge
+            or self.on_bottom_edge
+        )

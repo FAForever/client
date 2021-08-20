@@ -35,15 +35,21 @@ class UnitDBTab:
         self._cookie_store = cookie_store
         self._db_url = Settings.get("UNITDB_URL")
         self._db_url_alt = Settings.get("UNITDB_SPOOKY_URL")
-        self._current_cookie = CurrentCookie(self._qt_cookie_store,
-                                             b"unitDB-settings")
+        self._current_cookie = CurrentCookie(
+            self._qt_cookie_store, b"unitDB-settings",
+        )
         self._current_cookie.new_cookie.connect(self._new_cookie)
 
-        self.alternativeDB = Settings.get('unitDB/alternative', type=bool, default=False)
+        self.alternativeDB = Settings.get(
+            'unitDB/alternative', type=bool, default=False,
+        )
         self._first_entered = True
         self.db_widget.entered.connect(self.entered)
         self.db_widget.fafDbButton.pressed.connect(self.open_default_tab)
-        self.db_widget.spookyDbButton.pressed.connect(self.open_alternative_tab)
+        self.db_widget.spookyDbButton.pressed.connect(
+            self.open_alternative_tab,
+        )
+
     @property
     def _db_view(self):
         return self.db_widget.unitdbWebView
@@ -90,6 +96,7 @@ class UnitDBTab:
             self.alternativeDB = True
             Settings.set('unitDB/alternative', True)
         self._db_view.setUrl(QUrl(self._db_url_alt))
+
 
 class UnitDBCookieStorage:
     def __init__(self, store_file):

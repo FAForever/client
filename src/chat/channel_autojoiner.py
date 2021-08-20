@@ -6,7 +6,7 @@ class ChannelAutojoiner:
     DEFAULT_LANGUAGE_CHANNELS = {
         "#french": ["fr"],
         "#russian": ["ru", "be"],    # Be conservative here
-        "#german": ["de"]
+        "#german": ["de"],
     }
     # Flip around for easier use
     DEFAULT_LANGUAGE_CHANNELS = {
@@ -15,8 +15,10 @@ class ChannelAutojoiner:
         for code in codes
     }
 
-    def __init__(self, base_channels, model, controller, settings, lobby_info,
-                 chat_config, lang_channel_checker, me):
+    def __init__(
+        self, base_channels, model, controller, settings, lobby_info,
+        chat_config, lang_channel_checker, me,
+    ):
         self.base_channels = base_channels
         self._model = model
         self._controller = controller
@@ -35,11 +37,15 @@ class ChannelAutojoiner:
             self._autojoin_all()
 
     @classmethod
-    def build(cls, base_channels, model, controller, settings, lobby_info,
-              chat_config, me, **kwargs):
+    def build(
+        cls, base_channels, model, controller, settings, lobby_info,
+        chat_config, me, **kwargs
+    ):
         lang_channel_checker = LanguageChannelChecker(settings)
-        return cls(base_channels, model, controller, settings, lobby_info,
-                   chat_config, lang_channel_checker, me)
+        return cls(
+            base_channels, model, controller, settings, lobby_info,
+            chat_config, lang_channel_checker, me,
+        )
 
     def _autojoin_all(self):
         self._autojoin_base()

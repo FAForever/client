@@ -67,7 +67,8 @@ class ChannelWidget(QObject):
         self._override_widget_methods()
         self._load_css()
         self._sticky_scroll = ChatAreaStickyScroll(
-            self.chat_area.verticalScrollBar())
+            self.chat_area.verticalScrollBar(),
+        )
 
     def _override_widget_methods(self):
 
@@ -112,7 +113,7 @@ class ChannelWidget(QObject):
         fragments = text.split("\n")
         for line in fragments:
             # Compound wacky Whitespace
-            line = re.sub('\s', ' ', line).strip()
+            line = re.sub(r'\s', ' ', line).strip()
             if not line:
                 continue
             self.line_typed.emit(line)

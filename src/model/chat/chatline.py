@@ -85,9 +85,11 @@ class ChatLineMetadataBuilder:
         meta.is_clannie = me.is_clannie(id_)
 
     def _mention_metadata(self, line, meta):
-        meta.mentions_me = (self._me.login is not None and
-                            self._me.login in line.text and
-                            line.sender != self._me.login)
+        meta.mentions_me = (
+            self._me.login is not None
+            and self._me.login in line.text
+            and line.sender != self._me.login
+        )
 
     def _avatar_metadata(self, pmeta, avatar):
         if avatar is None:

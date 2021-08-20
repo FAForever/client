@@ -8,10 +8,12 @@ from PyQt5.QtGui import QDesktopServices
 from chat.channel_tab import TabInfo
 from chat.channel_widget import ChannelWidget
 from chat.chatter_menu import ChatterMenu
-from chat.chatter_model import (ChatterEventFilter, ChatterFormat,
-                                ChatterItemDelegate, ChatterLayout,
-                                ChatterLayoutElements, ChatterModel,
-                                ChatterSortFilterModel)
+from chat.chatter_model import (
+    ChatterEventFilter, ChatterFormat,
+    ChatterItemDelegate, ChatterLayout,
+    ChatterLayoutElements, ChatterModel,
+    ChatterSortFilterModel,
+)
 from downloadManager import DownloadRequest
 from model.chat.channel import ChannelType
 from model.chat.chatline import ChatLineType
@@ -20,8 +22,10 @@ from util.gameurl import GameUrl
 
 
 class ChannelView:
-    def __init__(self, channel, controller, widget, channel_tab,
-                 chatter_list_view, lines_view):
+    def __init__(
+        self, channel, controller, widget, channel_tab,
+        chatter_list_view, lines_view,
+    ):
         self._channel = channel
         self._controller = controller
         self._chatter_list_view = chatter_list_view
@@ -46,10 +50,13 @@ class ChannelView:
         chat_css_template = ChatLineCssTemplate.build(**kwargs)
         widget = ChannelWidget.build(channel, chat_css_template, **kwargs)
         lines_view = ChatAreaView.build(channel, widget, channel_tab, **kwargs)
-        chatter_list_view = ChattersView.build(channel, widget, controller,
-                                               **kwargs)
-        return cls(channel, controller, widget, channel_tab, chatter_list_view,
-                   lines_view)
+        chatter_list_view = ChattersView.build(
+            channel, widget, controller, **kwargs
+        )
+        return cls(
+            channel, controller, widget, channel_tab, chatter_list_view,
+            lines_view,
+        )
 
     @classmethod
     def builder(cls, controller, **kwargs):
@@ -65,8 +72,10 @@ class ChannelView:
 
 
 class ChatAreaView:
-    def __init__(self, channel, widget, widget_tab, game_runner, avatar_adder,
-                 formatter):
+    def __init__(
+        self, channel, widget, widget_tab, game_runner, avatar_adder,
+        formatter,
+    ):
         self._channel = channel
         self._widget = widget
         self._widget_tab = widget_tab
@@ -85,8 +94,9 @@ class ChatAreaView:
     def build(cls, channel, widget, widget_tab, game_runner, **kwargs):
         avatar_adder = ChatAvatarPixAdder.build(widget, **kwargs)
         formatter = ChatLineFormatter.build(**kwargs)
-        return cls(channel, widget, widget_tab, game_runner, avatar_adder,
-                   formatter)
+        return cls(
+            channel, widget, widget_tab, game_runner, avatar_adder, formatter,
+        )
 
     def _add_line(self):
         data = self._channel.lines[-1]
@@ -108,8 +118,10 @@ class ChatAreaView:
 
     def _format_topic(self, topic):
         # FIXME - use CSS for this
-        fmt = ("<style>a{{color:cornflowerblue}}</style>" +
-               "<b><font color=white>{}</font></b>")
+        fmt = (
+            "<style>a{{color:cornflowerblue}}</style>"
+            "<b><font color=white>{}</font></b>"
+        )
         return fmt.format(irc_escape(topic))
 
     def _at_url_clicked(self, url):
@@ -133,8 +145,9 @@ class ChatAreaView:
         return TabInfo.NEW_MESSAGES
 
     def _line_is_important(self, data):
-        if data.line.type in [ChatLineType.INFO, ChatLineType.ANNOUNCEMENT,
-                              ChatLineType.RAW]:
+        if data.line.type in [
+            ChatLineType.INFO, ChatLineType.ANNOUNCEMENT, ChatLineType.RAW,
+        ]:
             return False
         if self._channel.id_key.type == ChannelType.PRIVATE:
             return True
@@ -202,8 +215,10 @@ class ChatLineCssTemplate(QObject):
             random_colors = self._player_colors.random_colors
         else:
             random_colors = None
-        self.css = self._template.render(colors=colors,
-                                         random_colors=random_colors)
+        self.css = self._template.render(
+            colors=colors,
+            random_colors=random_colors,
+        )
         self.changed.emit()
 
 
@@ -242,8 +257,11 @@ class ChatLineFormatter:
                 yield "mod"
             name = meta.chatter.name()
             id_ = meta.player.id() if meta.player.id else None
-            yield ("randomcolor-{}".format(
-                   self._player_colors.get_random_color_index(id_, name)))
+            yield (
+                "randomcolor-{}".format(
+                    self._player_colors.get_random_color_index(id_, name),
+                )
+            )
         if meta.player:
             yield "player"
         if meta.is_friend and meta.is_friend():
@@ -279,11 +297,13 @@ class ChatLineFormatter:
             sender=self._sender_name(data),
             text=text,
             avatar=avatar,
-            tags=tags)
+            tags=tags,
+        )
 
     def _avatar(self, data):
-        if data.line.type in [ChatLineType.INFO, ChatLineType.ANNOUNCEMENT,
-                              ChatLineType.RAW]:
+        if data.line.type in [
+            ChatLineType.INFO, ChatLineType.ANNOUNCEMENT, ChatLineType.RAW,
+        ]:
             return ""
         if not data.meta.player.avatar.url:
             return ""
@@ -304,9 +324,11 @@ class ChatLineFormatter:
 
     def _check_timestamp(self, stamp):
         local = time.localtime(stamp)
-        new_stamp = (self._last_timestamp is None or
-                     local.tm_hour != self._last_timestamp.tm_hour or
-                     local.tm_min != self._last_timestamp.tm_min)
+        new_stamp = (
+            self._last_timestamp is None
+            or local.tm_hour != self._last_timestamp.tm_hour
+            or local.tm_min != self._last_timestamp.tm_min
+        )
         if new_stamp:
             self._last_timestamp = local
         return new_stamp
@@ -332,8 +354,10 @@ class ChattersViewParameters(QObject):
 
 
 class ChattersView:
-    def __init__(self, widget, chatter_layout, delegate, model, controller,
-                 event_filter, double_click_handler, view_parameters):
+    def __init__(
+        self, widget, chatter_layout, delegate, model, controller,
+        event_filter, double_click_handler, view_parameters,
+    ):
         self.chatter_layout = chatter_layout
         self.delegate = delegate
         self.model = model
@@ -349,7 +373,8 @@ class ChattersView:
         widget.chatter_list_resized.connect(self._at_chatter_list_resized)
         view_parameters.updated.connect(self._at_view_parameters_updated)
         self.event_filter.double_clicked.connect(
-            self._double_click_handler.handle)
+            self._double_click_handler.handle,
+        )
 
     def _at_chatter_list_resized(self, size):
         self.delegate.update_width(size)
@@ -360,22 +385,27 @@ class ChattersView:
     @classmethod
     def build(cls, channel, widget, controller, user_relations, **kwargs):
         model = ChatterModel.build(
-            channel, relation_trackers=user_relations.trackers, **kwargs)
+            channel, relation_trackers=user_relations.trackers, **kwargs
+        )
         sort_filter_model = ChatterSortFilterModel.build(
-            model, user_relations=user_relations.model, **kwargs)
+            model, user_relations=user_relations.model, **kwargs
+        )
 
         chatter_layout = ChatterLayout.build(**kwargs)
         chatter_menu = ChatterMenu.build(**kwargs)
         delegate = ChatterItemDelegate.build(chatter_layout, **kwargs)
-        event_filter = ChatterEventFilter.build(chatter_layout, delegate,
-                                                chatter_menu, **kwargs)
-        double_click_handler = ChatterDoubleClickHandler.build(controller,
-                                                               **kwargs)
+        event_filter = ChatterEventFilter.build(
+            chatter_layout, delegate, chatter_menu, **kwargs
+        )
+        double_click_handler = ChatterDoubleClickHandler.build(
+            controller, **kwargs
+        )
         view_parameters = ChattersViewParameters.build(**kwargs)
 
-        return cls(widget, chatter_layout, delegate, sort_filter_model,
-                   controller, event_filter, double_click_handler,
-                   view_parameters)
+        return cls(
+            widget, chatter_layout, delegate, sort_filter_model,
+            controller, event_filter, double_click_handler, view_parameters,
+        )
 
 
 class ChatterDoubleClickHandler:

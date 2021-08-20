@@ -62,8 +62,9 @@ class ChatConfig(QtCore.QObject):
         self.soundeffects = (s.value("chat/soundeffects", "true") == "true")
         self.joinsparts = (s.value("chat/joinsparts", "false") == "true")
         self.friendsontop = (s.value("chat/friendsontop", "false") == "true")
-        self.newbies_channel = (s.value("chat/newbiesChannel", "true") ==
-                                "true")
+        self.newbies_channel = (
+            s.value("chat/newbiesChannel", "true") == "true"
+        )
         self.ignore_foes = (s.value("chat/ignoreFoes", "true") == "true")
 
         items = s.value("chat/hide_chatter_items", "")

@@ -42,6 +42,6 @@ class ModelItem(QObject):
         return hash(self.id_key)
 
     def __eq__(self, other):
-        if type(self) is not type(other):
+        if not isinstance(self, type(other)):
             return False
         return self.id_key == other.id_key

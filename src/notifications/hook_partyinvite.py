@@ -17,7 +17,10 @@ class NsHookPartyInvite(NsHook):
         self.dialog = PartyInviteDialog(self, self.eventType)
         self.button.clicked.connect(self.dialog.show)
 
-FormClass, BaseClass = util.THEME.loadUiType("notification_system/party_invite.ui")
+
+FormClass, BaseClass = util.THEME.loadUiType(
+    "notification_system/party_invite.ui",
+)
 
 
 class PartyInviteDialog(FormClass, BaseClass):
@@ -29,12 +32,14 @@ class PartyInviteDialog(FormClass, BaseClass):
         self.setupUi(self)
 
         # remove help button
-        self.setWindowFlags(self.windowFlags() & (~QtCore.Qt.WindowContextHelpButtonHint))
+        self.setWindowFlags(
+            self.windowFlags() & (~QtCore.Qt.WindowContextHelpButtonHint),
+        )
 
         self.loadSettings()
 
     def loadSettings(self):
-        self.mode = Settings.get(self._settings_key+'/mode', 'friends')
+        self.mode = Settings.get(self._settings_key + '/mode', 'friends')
 
         if self.mode == 'friends':
             self.radioButtonFriends.setChecked(True)
@@ -43,7 +48,7 @@ class PartyInviteDialog(FormClass, BaseClass):
         self.parent.mode = self.mode
 
     def saveSettings(self):
-        Settings.set(self._settings_key+'/mode', self.mode)
+        Settings.set(self._settings_key + '/mode', self.mode)
         self.parent.mode = self.mode
 
     @QtCore.pyqtSlot()

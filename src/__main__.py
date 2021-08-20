@@ -5,17 +5,16 @@ Created on Dec 1, 2011
 @author: thygrrr
 """
 
-# CRUCIAL: This must remain on top.
-#import sip
-
-#sip.setapi('QString', 2)
-#sip.setapi('QVariant', 2)
-#sip.setapi('QStringList', 2)
-#sip.setapi('QList', 2)
-#sip.setapi('QProcess', 2)
-
 import os
 import sys
+
+# According to PyQt5 docs we need to import QtWebEngineWidgets before we create
+# QApplication
+from PyQt5 import QtWebEngineWidgets, QtWidgets, uic
+from PyQt5.QtCore import Qt
+
+import util
+import util.crash
 
 # Some linux distros (like Gentoo) make package scripts available
 # by copying and modifying them. This breaks path to our modules.
@@ -32,29 +31,31 @@ if __package__ is None and not hasattr(sys, 'frozen'):
 
 import argparse
 
-cmd_parser = argparse.ArgumentParser(description='FAF client commandline arguments.')
-cmd_parser.add_argument('--qt-angle-workaround',
-                        action='store_true',
-                        help='Use Qt5 ANGLE backend. Enable if some client tabs appear frozen. On by default.')
-cmd_parser.add_argument('--no-qt-angle-workaround',
-                        action='store_true',
-                        help='Do not use Qt5 ANGLE backend.')
+cmd_parser = argparse.ArgumentParser(
+    description='FAF client commandline arguments.',
+)
+cmd_parser.add_argument(
+    '--qt-angle-workaround',
+    action='store_true',
+    help=(
+        'Use Qt5 ANGLE backend. Enable if some client '
+        'tabs appear frozen. On by default.'
+    ),
+)
+cmd_parser.add_argument(
+    '--no-qt-angle-workaround',
+    action='store_true',
+    help='Do not use Qt5 ANGLE backend.',
+)
 
 args, trailing_args = cmd_parser.parse_known_args()
 if sys.platform == 'win32' and not args.no_qt_angle_workaround:
     os.environ.setdefault('QT_OPENGL', 'angle')
     os.environ.setdefault('QT_ANGLE_PLATFORM', 'd3d9')
 
-from PyQt5 import QtWidgets, uic
-from PyQt5.QtCore import Qt
 
 path = os.path.join(os.path.dirname(sys.argv[0]), "PyQt5.uic.widget-plugins")
 uic.widgetPluginPath.append(path)
-
-# According to PyQt5 docs we need to import this before we create QApplication
-from PyQt5 import QtWebEngineWidgets
-
-import util
 
 # Set up crash reporting
 excepthook_original = sys.excepthook
@@ -62,15 +63,22 @@ excepthook_original = sys.excepthook
 
 def excepthook(exc_type, exc_value, traceback_object):
     """
-    This exception hook will stop the app if an uncaught error occurred, regardless where in the QApplication.
+    This exception hook will stop the app if an uncaught error occurred,
+    regardless where in the QApplication.
     """
     sys.excepthook = excepthook_original
     if exc_type is KeyboardInterrupt:
         raise exc_value
 
-    logger.error("Uncaught exception", exc_info=(exc_type, exc_value, traceback_object))
-    logger.error("Runtime Info:\n%s", util.runtime_info())
-    dialog = util.CrashDialog((exc_type, exc_value, traceback_object))
+    logger.error(
+        "Uncaught exception",
+        exc_info=(
+            exc_type, exc_value,
+            traceback_object,
+        ),
+    )
+    logger.error("Runtime Info:\n{}".format(util.crash.runtime_info()))
+    dialog = util.crash.CrashDialog((exc_type, exc_value, traceback_object))
     answer = dialog.exec_()
 
     if answer == QtWidgets.QDialog.Rejected:
@@ -84,9 +92,14 @@ def admin_user_error_dialog():
     ignore_admin = Settings.get("client/ignore_admin", False, bool)
     if not ignore_admin:
         box = QtWidgets.QMessageBox()
-        box.setText("FAF should not be run as an administrator!<br><br>This probably means you need "
-                    "to fix the file permissions in C:\\ProgramData.<br>Proceed at your own risk.")
-        box.setStandardButtons(QtWidgets.QMessageBox.Ignore | QtWidgets.QMessageBox.Close)
+        box.setText(
+            "FAF should not be run as an administrator!<br><br>This "
+            "probably means you need to fix the file permissions in "
+            "C:\\ProgramData.<br>Proceed at your own risk.",
+        )
+        box.setStandardButtons(
+            QtWidgets.QMessageBox.Ignore | QtWidgets.QMessageBox.Close,
+        )
         box.setIcon(QtWidgets.QMessageBox.Critical)
         box.setWindowTitle("FAF privilege error")
         if box.exec_() == QtWidgets.QMessageBox.Ignore:
@@ -111,21 +124,29 @@ def run_faf():
 
 if __name__ == '__main__':
     import logging
+
     import config
 
     QtWidgets.QApplication.setAttribute(Qt.AA_ShareOpenGLContexts)
     app = QtWidgets.QApplication(trailing_args)
 
     if sys.platform == 'win32':
-        import platform
         import ctypes
+        import platform
         if platform.release() != "XP":  # legacy special :-)
             if config.admin.isUserAdmin():
                 admin_user_error_dialog()
 
-        if getattr(ctypes.windll.shell32, "SetCurrentProcessExplicitAppUserModelID", None) is not None:
+        attribute = getattr(
+            ctypes.windll.shell32,
+            "SetCurrentProcessExplicitAppUserModelID",
+            None,
+        )
+        if attribute is not None:
             myappid = 'com.faforever.lobby'
-            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(
+                myappid,
+            )
 
     logger = logging.getLogger(__name__)
     logger.info(">>> --------------------------- Application Launch")
@@ -142,7 +163,10 @@ if __name__ == '__main__':
         run_faf()
     else:
         # Try to interpret the argument as a replay.
-        if trailing_args[0].lower().endswith(".fafreplay") or trailing_args[0].lower().endswith(".scfareplay"):
+        if (
+            trailing_args[0].lower().endswith(".fafreplay")
+            or trailing_args[0].lower().endswith(".scfareplay")
+        ):
             import fa
             fa.replay(trailing_args[0], True)  # Launch as detached process
 

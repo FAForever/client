@@ -13,11 +13,12 @@ FormClass, BaseClass = util.THEME.loadUiType("stats/leaderboard.ui")
 
 DATE_FORMAT = QtCore.Qt.ISODate
 
+
 class LeaderboardWidget(BaseClass, FormClass):
 
     def __init__(self, client, parent, leaderboardName, *args, **kwargs):
         super(BaseClass, self).__init__()
-        
+
         self.setupUi(self)
 
         self.model = None
@@ -25,36 +26,52 @@ class LeaderboardWidget(BaseClass, FormClass):
         self.client = client
         self.parent = parent
         self.leaderboardName = leaderboardName
-        self.apiConnector = LeaderboardRatingApiConnector(self.client.lobby_dispatch, self.leaderboardName)
-        self.playerApiConnector = PlayerApiConnector(self.client.lobby_dispatch)
+        self.apiConnector = LeaderboardRatingApiConnector(
+            self.client.lobby_dispatch, self.leaderboardName,
+        )
+        self.playerApiConnector = PlayerApiConnector(
+            self.client.lobby_dispatch,
+        )
         self.onlyActive = True
         self.pageNumber = 1
         self.totalPages = 1
         self.pageSize = 1000
         self.query = dict(
-            include = "player,leaderboard",
-            sort = "-rating",
-            filter = self.prepareFilters(),
+            include="player,leaderboard",
+            sort="-rating",
+            filter=self.prepareFilters(),
         )
 
-        self.onlyActiveCheckBox.stateChanged.connect(self.onlyActiveCheckBoxChange)
+        self.onlyActiveCheckBox.stateChanged.connect(
+            self.onlyActiveCheckBoxChange,
+        )
         self.onlyActiveCheckBox.setChecked(True)
 
-        self.nextButton.clicked.connect(lambda: self.getPage(self.pageNumber + 1))
-        self.previousButton.clicked.connect(lambda: self.getPage(self.pageNumber - 1))
+        self.nextButton.clicked.connect(
+            lambda: self.getPage(self.pageNumber + 1),
+        )
+        self.previousButton.clicked.connect(
+            lambda: self.getPage(self.pageNumber - 1),
+        )
         self.lastButton.clicked.connect(lambda: self.getPage(self.totalPages))
         self.firstButton.clicked.connect(lambda: self.getPage(1))
-        self.goToPageButton.clicked.connect(lambda: self.getPage(self.pageBox.value()))
+        self.goToPageButton.clicked.connect(
+            lambda: self.getPage(self.pageBox.value()),
+        )
         self.pageBox.setValue(self.pageNumber)
         self.pageBox.valueChanged.connect(self.checkTotalPages)
         self.refreshButton.clicked.connect(self.refreshLeaderboard)
 
         self.client.lobby_info.statsInfo.connect(self.processStatsInfos)
         self.findInPageLine.textChanged.connect(self.findEntry)
-        self.findInPageLine.returnPressed.connect(lambda: self.findEntry(self.findInPageLine.text()))
+        self.findInPageLine.returnPressed.connect(
+            lambda: self.findEntry(self.findInPageLine.text()),
+        )
 
         self.searchPlayerLine.textEdited.connect(self.searchPlayer)
-        self.searchPlayerLine.returnPressed.connect(self.searchPlayerInLeaderboard)
+        self.searchPlayerLine.returnPressed.connect(
+            self.searchPlayerInLeaderboard,
+        )
         self.searchPlayerButton.clicked.connect(self.searchPlayerInLeaderboard)
 
         self.timer = QtCore.QTimer()
@@ -75,14 +92,14 @@ class LeaderboardWidget(BaseClass, FormClass):
 
         self.shownColumns = Settings.get(
             "leaderboards/shownColumns",
-            default = [True for i in range(len(self.showColumnCheckBoxes))],
-            type = bool
+            default=[True for i in range(len(self.showColumnCheckBoxes))],
+            type=bool,
         )
 
         self.showAllColumns = Settings.get(
             "leaderboards/showAllColumns",
-            default = True,
-            type = bool
+            default=True,
+            type=bool,
         )
 
         self.showAllCheckBox.setChecked(self.showAllColumns)
@@ -97,7 +114,9 @@ class LeaderboardWidget(BaseClass, FormClass):
                 checkbox.setEnabled(True)
             checkbox.stateChanged.connect(self.setShownColumns)
 
-        self.tableView.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
+        self.tableView.horizontalHeader().setSectionResizeMode(
+            QtWidgets.QHeaderView.Stretch,
+        )
         self.tableView.horizontalHeader().setFixedHeight(30)
         self.tableView.horizontalHeader().setHighlightSections(False)
         self.tableView.horizontalHeader().setSortIndicatorShown(True)
@@ -108,7 +127,7 @@ class LeaderboardWidget(BaseClass, FormClass):
         Settings.set("leaderboards/showAllColumns", self.showAllColumns)
         self.showColumns()
 
-    def setShownColumns(self):        
+    def setShownColumns(self):
         for i in range(len(self.showColumnCheckBoxes)):
             self.shownColumns[i] = self.showColumnCheckBoxes[i].isChecked()
         Settings.set("leaderboards/shownColumns", self.shownColumns)
@@ -132,7 +151,7 @@ class LeaderboardWidget(BaseClass, FormClass):
                 self.tableView.setColumnHidden(index, not isShown)
                 self.showColumnCheckBoxes[index].setEnabled(True)
                 self.showColumnCheckBoxes[index].setChecked(isShown)
-            
+
             self.showColumnCheckBoxes[index].blockSignals(False)
 
     def processStatsInfos(self, message):
@@ -155,9 +174,13 @@ class LeaderboardWidget(BaseClass, FormClass):
         self.tableView.setModel(proxyModel)
         self.tableView.setItemDelegate(LeaderboardItemDelegate(self))
 
-        completer = QtWidgets.QCompleter(sorted(self.model.logins, key=lambda login: login.lower()))
+        completer = QtWidgets.QCompleter(
+            sorted(self.model.logins, key=lambda login: login.lower()),
+        )
         completer.setCaseSensitivity(QtCore.Qt.CaseInsensitive)
-        completer.popup().setStyleSheet("background: rgb(32, 32, 37); color: orange;")
+        completer.popup().setStyleSheet(
+            "background: rgb(32, 32, 37); color: orange;",
+        )
         self.findInPageLine.setCompleter(completer)
 
         self.showColumns()
@@ -184,10 +207,12 @@ class LeaderboardWidget(BaseClass, FormClass):
 
     def searchPlayer(self):
         query = {
-             "filter": 'login=="{}*"'.format(self.searchPlayerLine.text())
-            ,"page[size]": 10
+            "filter": 'login=="{}*"'.format(self.searchPlayerLine.text()),
+            "page[size]": 10,
         }
-        self.playerApiConnector.requestDataForLeaderboard(self.leaderboardName, query)
+        self.playerApiConnector.requestDataForLeaderboard(
+            self.leaderboardName, query,
+        )
 
     def createPlayerCompleter(self, message):
         logins = []
@@ -195,12 +220,15 @@ class LeaderboardWidget(BaseClass, FormClass):
             logins.append(value["login"])
 
         self.searchPlayerLine.set_completion_list(logins)
-        completer = QtWidgets.QCompleter(sorted(logins, key=lambda login: login.lower()))
+        completer = QtWidgets.QCompleter(
+            sorted(logins, key=lambda login: login.lower()),
+        )
         completer.setCaseSensitivity(QtCore.Qt.CaseInsensitive)
-        completer.popup().setStyleSheet("background: rgb(32, 32, 37); color: orange;")
+        completer.popup().setStyleSheet(
+            "background: rgb(32, 32, 37); color: orange;",
+        )
         self.searchPlayerLine.setCompleter(completer)
         completer.complete()
-
 
     def onlyActiveCheckBoxChange(self, state):
         self.onlyActive = state
@@ -210,19 +238,42 @@ class LeaderboardWidget(BaseClass, FormClass):
         else:
             self.dateEditStart.setEnabled(True)
             self.dateEditEnd.setEnabled(True)
-            
+
             date = QtCore.QDate.currentDate()
             self.dateEditStart.setDate(date)
             self.dateEditEnd.setDate(date)
-        
+
     def prepareFilters(self):
-        filters = ['leaderboard.technicalName=="{}"'.format(self.leaderboardName)]
+        filters = [
+            'leaderboard.technicalName=="{}"'.format(self.leaderboardName),
+        ]
 
         if self.onlyActive:
-            filters.append('updateTime=ge="{}"'.format(QtCore.QDateTime.currentDateTimeUtc().addMonths(-1).toString(DATE_FORMAT)))
+            filters.append(
+                'updateTime=ge="{}"'.format(
+                    QtCore.QDateTime
+                    .currentDateTimeUtc()
+                    .addMonths(-1)
+                    .toString(DATE_FORMAT),
+                ),
+            )
         else:
-            filters.append('updateTime=ge="{}"'.format(self.dateEditStart.dateTime().toUTC().toString(DATE_FORMAT)))
-            filters.append('updateTime=le="{}"'.format(self.dateEditEnd.dateTime().toUTC().toString(DATE_FORMAT)))
+            filters.append(
+                'updateTime=ge="{}"'.format(
+                    self.dateEditStart
+                    .dateTime()
+                    .toUTC()
+                    .toString(DATE_FORMAT),
+                ),
+            )
+            filters.append(
+                'updateTime=le="{}"'.format(
+                    self.dateEditEnd
+                    .dateTime()
+                    .toUTC()
+                    .toString(DATE_FORMAT),
+                ),
+            )
 
         return "({})".format(";".join(filters))
 
@@ -234,23 +285,29 @@ class LeaderboardWidget(BaseClass, FormClass):
         self.getPage(1)
 
     def searchPlayerInLeaderboard(self, player=None):
-        filters = ['leaderboard.technicalName=="{}"'.format(self.leaderboardName)]
+        filters = [
+            'leaderboard.technicalName=="{}"'.format(self.leaderboardName),
+        ]
         if player:
             self.searchPlayerLine.setText(player.login)
         if self.searchPlayerLine.text() != "":
-            filters.append('player.login=="{}"'.format(self.searchPlayerLine.text()))
+            filters.append(
+                'player.login=="{}"'.format(self.searchPlayerLine.text()),
+            )
             self.query["filter"] = "({})".format(";".join(filters))
             self.getPage(1)
-
 
     def checkTotalPages(self):
         if self.pageBox.value() > self.totalPages:
             self.pageBox.setValue(self.totalPages)
 
-
     def getPage(self, number):
         if self.loading:
-            QtWidgets.QMessageBox.critical(None, "Leaderboards", "Please, wait for previous request to finish.")
+            QtWidgets.QMessageBox.critical(
+                self.client,
+                "Leaderboards",
+                "Please, wait for previous request to finish.",
+            )
             return
 
         if 1 <= number <= self.totalPages:
@@ -269,13 +326,13 @@ class LeaderboardWidget(BaseClass, FormClass):
 
         self.shownColumns = Settings.get(
             "leaderboards/shownColumns",
-            default = [True for i in range(len(self.showColumnCheckBoxes))],
-            type = bool
+            default=[True for i in range(len(self.showColumnCheckBoxes))],
+            type=bool,
         )
         self.showAllColumns = Settings.get(
             "leaderboards/showAllColumns",
-            default = True,
-            type = bool
+            default=True,
+            type=bool,
         )
 
         self.showColumns()

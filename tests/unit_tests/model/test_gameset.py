@@ -4,19 +4,19 @@ import copy
 from model import gameset, game
 
 DEFAULT_DICT = {
-    "uid":  1,
+    "uid": 1,
     "state": game.GameState.OPEN,
     "launched_at": 10000,
     "num_players": 3,
     "max_players": 8,
     "title": "Sentons sucks",
-    "host":  "IllIIIlIlIIIlI",
+    "host": "IllIIIlIlIIIlI",
     "mapname": "Sentons Ultimate 6v6",
     "map_file_path": "xrca_co_000001.scfamap",
     "teams": {
         1: ["IllIIIlIlIIIlI", "TableNoob"],
-        2: ["Kraut"]
-        },
+        2: ["Kraut"],
+    },
     "featured_mod": "faf",
     "sim_mods": {},
     "password_protected": False,

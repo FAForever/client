@@ -30,8 +30,10 @@ class ChatterMenuItems(Enum):
 
 
 class ChatterMenu:
-    def __init__(self, me, power_tools, parent_widget, avatar_widget_builder,
-                 alias_viewer, client_window, game_runner):
+    def __init__(
+        self, me, power_tools, parent_widget, avatar_widget_builder,
+        alias_viewer, client_window, game_runner,
+    ):
         self._me = me
         self._power_tools = power_tools
         self._parent_widget = parent_widget
@@ -41,10 +43,14 @@ class ChatterMenu:
         self._game_runner = game_runner
 
     @classmethod
-    def build(cls, me, power_tools, parent_widget, avatar_widget_builder,
-              alias_viewer, client_window, game_runner, **kwargs):
-        return cls(me, power_tools, parent_widget, avatar_widget_builder,
-                   alias_viewer, client_window, game_runner)
+    def build(
+        cls, me, power_tools, parent_widget, avatar_widget_builder,
+        alias_viewer, client_window, game_runner, **kwargs
+    ):
+        return cls(
+            me, power_tools, parent_widget, avatar_widget_builder,
+            alias_viewer, client_window, game_runner,
+        )
 
     def actions(self, cc):
         chatter = cc.chatter
@@ -122,8 +128,8 @@ class ChatterMenu:
         else:
             if player.id in self._client_window.games.party.memberIds:
                 if (
-                        self._me.player.id ==
-                        self._client_window.games.party.owner_id
+                    self._me.player.id
+                    == self._client_window.games.party.owner_id
                 ):
                     yield ChatterMenuItems.KICK_FROM_PARTY
             elif player.currentGame is not None:
@@ -171,8 +177,10 @@ class ChatterMenu:
             self._power_tools.view.kick_dialog(chatter.name)
         elif kind == Items.SELECT_AVATAR:
             self._avatar_widget_builder().show()
-        elif kind in [Items.ADD_FRIEND, Items.ADD_FOE, Items.REMOVE_FRIEND,
-                      Items.REMOVE_FOE]:
+        elif kind in [
+            Items.ADD_FRIEND, Items.ADD_FOE, Items.REMOVE_FRIEND,
+            Items.REMOVE_FOE,
+        ]:
             self._handle_friends(chatter, player, kind)
         elif kind in [Items.ADD_CHATTERBOX, Items.REMOVE_CHATTERBOX]:
             self._handle_chatterboxes(chatter, player, kind)

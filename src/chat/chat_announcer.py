@@ -3,8 +3,9 @@ from model.chat.chatline import ChatLine, ChatLineType
 
 
 class ChatAnnouncer:
-    def __init__(self, model, chat_config, game_announcer,
-                 line_metadata_builder):
+    def __init__(
+        self, model, chat_config, game_announcer, line_metadata_builder,
+    ):
         self._model = model
         self._chat_config = chat_config
         self._game_announcer = game_announcer
@@ -28,5 +29,8 @@ class ChatAnnouncer:
 
     def _at_chat_disconnected(self):
         self._announce(
-            ("Disconnected from chat! Right-click on the FAF icon "
-             "in the top-left to reconnect."))
+            (
+                "Disconnected from chat! Right-click on the FAF icon "
+                "in the top-left to reconnect."
+            ),
+        )

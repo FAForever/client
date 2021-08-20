@@ -6,19 +6,19 @@ from model.playerset import Playerset
 from model.player import Player
 
 GAME_DICT = {
-    "uid":  1,
+    "uid": 1,
     "state": GameState.OPEN,
     "launched_at": 10000,
     "num_players": 3,
     "max_players": 8,
     "title": "Sentons sucks",
-    "host":  "Guy",
+    "host": "Guy",
     "mapname": "Sentons Ultimate 6v6",
     "map_file_path": "xrca_co_000001.scfamap",
     "teams": {
         1: ["Guy", "TableNoob"],
-        2: ["Kraut"]
-        },
+        2: ["Kraut"],
+    },
     "featured_mod": "faf",
     "sim_mods": {},
     "password_protected": False,
@@ -275,32 +275,48 @@ def test_game_doesnt_override_lobby():
 
 
 def test_later_game_overrides_earlier_game():
-    g1 = {"state": GameState.PLAYING,
-          "launched_at": 1000}
-    g2 = {"state": GameState.PLAYING,
-          "launched_at": 1200}
+    g1 = {
+        "state": GameState.PLAYING,
+        "launched_at": 1000,
+    }
+    g2 = {
+        "state": GameState.PLAYING,
+        "launched_at": 1200,
+    }
     override_tests(g1, g2, True)
 
 
 def test_earlier_game_doesnt_override_later_game():
-    g1 = {"state": GameState.PLAYING,
-          "launched_at": 1200}
-    g2 = {"state": GameState.PLAYING,
-          "launched_at": 1000}
+    g1 = {
+        "state": GameState.PLAYING,
+        "launched_at": 1200,
+    }
+    g2 = {
+        "state": GameState.PLAYING,
+        "launched_at": 1000,
+    }
     override_tests(g1, g2, False)
 
 
 def test_launchtime_overrides_no_launchtime():
-    g1 = {"state": GameState.PLAYING,
-          "launched_at": None}
-    g2 = {"state": GameState.PLAYING,
-          "launched_at": 1000}
+    g1 = {
+        "state": GameState.PLAYING,
+        "launched_at": None,
+    }
+    g2 = {
+        "state": GameState.PLAYING,
+        "launched_at": 1000,
+    }
     override_tests(g1, g2, True)
 
 
 def test_no_launchtime_doesnt_override_launchtime():
-    g1 = {"state": GameState.PLAYING,
-          "launched_at": 1000}
-    g2 = {"state": GameState.PLAYING,
-          "launched_at": None}
+    g1 = {
+        "state": GameState.PLAYING,
+        "launched_at": 1000,
+    }
+    g2 = {
+        "state": GameState.PLAYING,
+        "launched_at": None,
+    }
     override_tests(g1, g2, False)

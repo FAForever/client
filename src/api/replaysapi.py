@@ -4,6 +4,7 @@ from .ApiBase import ApiBase
 
 logger = logging.getLogger(__name__)
 
+
 class ReplaysApiConnector(ApiBase):
     def __init__(self, dispatch):
         ApiBase.__init__(self, '/data/game')
@@ -13,14 +14,16 @@ class ReplaysApiConnector(ApiBase):
         self.request(args, self.handleData)
 
     def handleData(self, message, meta):
-        preparedData = dict(command = "replay_vault", 
-                            action = "search_result",
-                            replays = {},
-                            featuredMods = {},
-                            maps = {},
-                            players = {},
-                            playerStats = {})
+        preparedData = dict(
+            command="replay_vault",
+            action="search_result",
+            replays={},
+            featuredMods={},
+            maps={},
+            players={},
+            playerStats={},
+        )
 
         preparedData['replays'] = message
 
-        self.dispatch.dispatch(preparedData) 
+        self.dispatch.dispatch(preparedData)

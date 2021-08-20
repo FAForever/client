@@ -4,6 +4,7 @@ from .UpdaterBase import UpdaterBase
 
 logger = logging.getLogger(__name__)
 
+
 class SimModFiles(UpdaterBase):
     def __init__(self):
         UpdaterBase.__init__(self, '/data/modVersion')

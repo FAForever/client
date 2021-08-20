@@ -36,9 +36,13 @@ class JsonRpcTcpClient(QObject):
         if (error == QAbstractSocket.ConnectionRefusedError):
             self.socket.connectToHost(self.host, self.port)
             self.connectionAttempts += 1
-            #self._logger.info("reconnecting to JSONRPC server {}".format(self.connectionAttempts))
+            # self._logger.info("Reconnecting to JSONRPC server {}"
+            #                   .format(self.connectionAttempts))
         else:
-            raise RuntimeError("Connection error to JSON RPC server: {} ({})".format(self.socket.errorString(), error))
+            raise RuntimeError(
+                "Connection error to JSON RPC server: {} ({})"
+                .format(self.socket.errorString(), error),
+            )
 
     def close(self):
         self.socket.close()
@@ -51,22 +55,27 @@ class JsonRpcTcpClient(QObject):
             else:
                 result = m()
 
-            # we do not only have a notification, but a request which awaits a response
+            # we do not only have a notification,
+            # but a request which awaits a response
             if "id" in request:
                 responseObject = {
                     "id": request["id"],
                     "result": result,
-                    "jsonrpc": "2.0"
+                    "jsonrpc": "2.0",
                 }
-                self.socket.write(json.dumps(responseObject).encode('utf8') + b'\n')
+                self.socket.write(
+                    json.dumps(responseObject).encode('utf8') + b'\n',
+                )
         except AttributeError:
             if "id" in request:
                 responseObject = {
                     "id": request["id"],
                     "error": "no such method",
-                    "jsonrpc": "2.0"
+                    "jsonrpc": "2.0",
                 }
-                self.socket.write(json.dumps(responseObject).encode('utf8') + b'\n')
+                self.socket.write(
+                    json.dumps(responseObject).encode('utf8') + b'\n',
+                )
 
     def parseResponse(self, response):
         if "error" in response:
@@ -88,21 +97,28 @@ class JsonRpcTcpClient(QObject):
         while self.socket.bytesAvailable():
             newData += bytes(self.socket.readAll())
 
-        # this seems to be a new notification, which invalidates out buffer. This may happen on malformed JSON data
+        # this seems to be a new notification, which invalidates out buffer.
+        # This may happen on malformed JSON data
         if newData.startswith(b"{\"jsonrpc\":\"2.0\""):
             if len(self.buffer) > 0:
-                self._logger.error("parse error: discarding old possibly malformed buffer data {}".format(self.buffer))
+                self._logger.error(
+                    "parse error: discarding old possibly "
+                    "malformed buffer data {}".format(self.buffer),
+                )
             self.buffer = newData
         else:
             self.buffer += newData
         self.buffer = self.processBuffer(self.buffer.strip())
 
-    #from https://github.com/joncol/jcon-cpp/blob/master/src/jcon/json_rpc_endpoint.cpp#L107
+    # from https://github.com/joncol/jcon-cpp/blob/master/src/jcon/
+    # json_rpc_endpoint.cpp#L107
     def processBuffer(self, buf):
         if len(buf) == 0:
             return b''
         if not buf.startswith(b'{'):
-            self._logger.error("parse error: buffer expected to start {{: {}".format(buf))
+            self._logger.error(
+                "parse error: buffer expected to start: {}".format(buf),
+            )
             return b''
         in_string = False
         brace_nesting_level = 0
@@ -116,15 +132,23 @@ class JsonRpcTcpClient(QObject):
                 if c == ord('}'):
                     brace_nesting_level -= 1
                     if brace_nesting_level < 0:
-                        self._logger.error("parse error: brace_nesting_level < 0: {}".format(buf))
+                        self._logger.error(
+                            "parse error: brace_nesting_level "
+                            "< 0: {}".format(buf),
+                        )
                         return b''
                     if brace_nesting_level == 0:
-                        complete_json_buf = buf[:i+1]
-                        remaining_buf = buf[i+1:]
+                        complete_json_buf = buf[:i + 1]
+                        remaining_buf = buf[i + 1:]
                         try:
-                            request = json.loads(complete_json_buf.decode('utf-8'))
+                            request = json.loads(
+                                complete_json_buf.decode('utf-8'),
+                            )
                         except ValueError:
-                            self._logger.error("json.loads failed for {}".format(complete_json_buf))
+                            self._logger.error(
+                                "json.loads failed for {}"
+                                .format(complete_json_buf),
+                            )
                             return b''
                         # is this a request?
                         if "method" in request:
@@ -135,13 +159,20 @@ class JsonRpcTcpClient(QObject):
                         return self.processBuffer(remaining_buf.strip())
         return buf
 
-    def call(self, method, args=[], callback_result=None, callback_error=None, blocking=False):
+    def call(
+        self,
+        method,
+        args=[],
+        callback_result=None,
+        callback_error=None,
+        blocking=False,
+    ):
         if self.socket.state() != QAbstractSocket.ConnectedState:
             raise RuntimeError("Not connected to the JSONRPC server.")
         rpcObject = {
             "method": method,
             "params": args,
-            "jsonrpc": "2.0"
+            "jsonrpc": "2.0",
         }
         if callback_result:
             rpcObject["id"] = self.nextid

@@ -15,7 +15,9 @@ class IceServersPoller(QObject):
         self._dispatcher["ice_servers"] = self.handle_ice_servers
         self._valid_until = datetime.now()
         self.request_ice_servers()
-        self.min_valid_seconds = 10*3600  # credentials need to be valid for 10h, usual ttl for each request is 24h
+        # credentials need to be valid for 10h,
+        # usual ttlfor each request is 24h
+        self.min_valid_seconds = 10 * 3600
         self._last_received_ice_servers = None
         self._last_relayed_ice_servers = None
 
@@ -30,21 +32,32 @@ class IceServersPoller(QObject):
             self.request_ice_servers()
 
         # check if we have a list not sent to the ice-adapter
-        if not self._last_relayed_ice_servers and \
-           self._last_received_ice_servers and \
-           self._ice_adapter_client.connected:
-            self._ice_adapter_client.call("setIceServers", [self._last_received_ice_servers])
+        if (
+            not self._last_relayed_ice_servers
+            and self._last_received_ice_servers
+            and self._ice_adapter_client.connected
+        ):
+            self._ice_adapter_client.call(
+                "setIceServers", [self._last_received_ice_servers],
+            )
             self._last_relayed_ice_servers = self._last_received_ice_servers
 
     def request_ice_servers(self):
         self._server_connection.send({'command': 'ice_servers'})
 
     def handle_ice_servers(self, message):
-        self._valid_until = datetime.now() + timedelta(seconds=int(message['ttl']))
-        self._logger.debug("ice_servers valid until {}".format(self._valid_until))
+        ttl = int(message['ttl'])
+        self._valid_until = datetime.now() + timedelta(seconds=ttl)
+        self._logger.debug(
+            "ice_servers valid until {}".format(self._valid_until),
+        )
         self._last_received_ice_servers = message['ice_servers']
         if self._ice_adapter_client.connected:
-            self._ice_adapter_client.call("setIceServers", [self._last_received_ice_servers])
+            self._ice_adapter_client.call(
+                "setIceServers", [self._last_received_ice_servers],
+            )
             self._last_relayed_ice_servers = self._last_received_ice_servers
         else:
-            self._logger.warn("ICE servers received, but not connected to ice-adapter")
+            self._logger.warn(
+                "ICE servers received, but not connected to ice-adapter",
+            )

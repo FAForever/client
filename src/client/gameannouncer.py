@@ -23,8 +23,10 @@ class GameAnnouncer(QObject):
         self._delayed_host_list = []
 
     def _is_friend_host(self, game):
-        return (game.host_player is not None
-                and self._me.relations.model.is_friend(game.host_player.id))
+        return (
+            game.host_player is not None
+            and self._me.relations.model.is_friend(game.host_player.id)
+        )
 
     def _announce_hosting(self, game):
         if not self._is_friend_host(game) or not self.announce_games:
@@ -39,9 +41,11 @@ class GameAnnouncer(QObject):
     def _delayed_announce_hosting(self):
         timer, game = self._delayed_host_list.pop(0)
 
-        if (not self._is_friend_host(game) or
-           not self.announce_games or
-           game.state != GameState.OPEN):
+        if (
+            not self._is_friend_host(game)
+            or not self.announce_games
+            or game.state != GameState.OPEN
+        ):
             return
         self._announce(game, "hosting")
 

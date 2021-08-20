@@ -7,14 +7,14 @@ import client
 from config import setup_file_handler
 from fa.game_process import instance as game_process_instance
 
+from connectivity.IceAdapterClient import IceAdapterClient
+from connectivity.IceAdapterProcess import IceAdapterProcess
+from connectivity.IceServersPoller import IceServersPoller
+
 logger = logging.getLogger(__name__)
 # Log to a separate file to not pollute normal log with huge json dumps
 logger.propagate = False
 logger.addHandler(setup_file_handler('gamesession.log'))
-
-from connectivity.IceAdapterClient import IceAdapterClient
-from connectivity.IceAdapterProcess import IceAdapterProcess
-from connectivity.IceServersPoller import IceServersPoller
 
 
 class GameSessionState(IntEnum):
@@ -46,11 +46,13 @@ class GameSession(QObject):
         self.game_password = None
         self.player_id = player_id
         self.player_login = player_login
-        client.instance.lobby_dispatch.subscribe_to('game', self.handle_message)
+        client.instance.lobby_dispatch.subscribe_to(
+            'game', self.handle_message,
+        )
 
         self._joins, self._connects = [], []
 
-        self._process = game_process_instance  # type: GameProcess
+        self._process = game_process_instance  # type - GameProcess
         self._process.started.connect(self._launched)
         self._process.finished.connect(self._exited)
 
@@ -63,22 +65,32 @@ class GameSession(QObject):
         self.ice_servers_poller = None
 
     def startIceAdapter(self):
-        self.ice_adapter_process = IceAdapterProcess(player_id=self.player_id,
-                                                     player_login=self.player_login)
+        self.ice_adapter_process = IceAdapterProcess(
+            player_id=self.player_id,
+            player_login=self.player_login,
+        )
         self.ice_adapter_client = IceAdapterClient(game_session=self)
         self.ice_adapter_client.statusChanged.connect(self.onIceAdapterStarted)
-        self.ice_adapter_client.connect_("127.0.0.1", self.ice_adapter_process.rpc_port())
-        while self._relay_port is 0:
+        self.ice_adapter_client.connect_(
+            "127.0.0.1", self.ice_adapter_process.rpc_port(),
+        )
+        while self._relay_port == 0:
             QCoreApplication.processEvents()
-
 
     def onIceAdapterStarted(self, status):
         self._relay_port = status["gpgnet"]["local_port"]
-        logger.info("ICE adapter started an listening on port {} for GPGNet connections".format(self._relay_port))
-        self.ice_adapter_client.statusChanged.disconnect(self.onIceAdapterStarted)
-        self.ice_servers_poller = IceServersPoller(dispatcher=client.instance.lobby_dispatch,
-                                                   ice_adapter_client=self.ice_adapter_client,
-                                                   lobby_connection=client.instance.lobby_connection)
+        logger.info(
+            "ICE adapter started an listening on port {} for GPGNet "
+            "connections".format(self._relay_port),
+        )
+        self.ice_adapter_client.statusChanged.disconnect(
+            self.onIceAdapterStarted,
+        )
+        self.ice_servers_poller = IceServersPoller(
+            dispatcher=client.instance.lobby_dispatch,
+            ice_adapter_client=self.ice_adapter_client,
+            lobby_connection=client.instance.lobby_connection,
+        )
 
     def closeIceAdapter(self):
         if self.ice_adapter_client:
@@ -108,10 +120,10 @@ class GameSession(QObject):
     def handle_message(self, message):
         command, args = message.get('command'), message.get('args', [])
         if command == 'SendNatPacket':
-            #we ignore that for now with the ICE Adapter
+            # we ignore that for now with the ICE Adapter
             pass
         elif command == 'CreatePermission':
-            #we ignore that for now with the ICE Adapter
+            # we ignore that for now with the ICE Adapter
             pass
         elif command == 'JoinGame':
             login, peer_id = args
@@ -120,14 +132,18 @@ class GameSession(QObject):
             self.ice_adapter_client.call("hostGame", [args[0]])
         elif command == 'ConnectToPeer':
             login, peer_id, offer = args
-            self.ice_adapter_client.call("connectToPeer", [login, peer_id, offer])
+            self.ice_adapter_client.call(
+                "connectToPeer", [login, peer_id, offer],
+            )
         elif command == 'DisconnectFromPeer':
             self.ice_adapter_client.call("disconnectFromPeer", [args[0]])
         elif command == "IceMsg":
             peer_id, ice_msg = args
             self.ice_adapter_client.call("iceMsg", [peer_id, ice_msg])
         else:
-            logger.warning("sending unhandled GPGNet message {} {}".format(command, args))
+            logger.warning(
+                "sending unhandled GPGNet message {} {}".format(command, args),
+            )
             self.ice_adapter_client.call("sendToGpgNet", [command, args])
 
     def send(self, command_id, args):
@@ -135,14 +151,21 @@ class GameSession(QObject):
         client.instance.lobby_connection.send({
             'command': command_id,
             'target': 'game',
-            'args': args or []
+            'args': args or [],
         })
 
     def setLobbyInitMode(self, lobby_init_mode):
-        # to do: make this call synchronous/blocking, because init_mode must be set before game_launch.
+        # to do: make this call synchronous/blocking, because init_mode must be
+        # set before game_launch.
         # See ClientWindow.handle_game_launch()
-        if not self.ice_adapter_client or not self.ice_adapter_client.connected:
-            logger.error("ICE adapter client not connected when calling setLobbyInitMode")
+        if (
+            not self.ice_adapter_client
+            or not self.ice_adapter_client.connected
+        ):
+            logger.error(
+                "ICE adapter client not connected when calling "
+                "setLobbyInitMode",
+            )
             return
         self.ice_adapter_client.call("setLobbyInitMode", [lobby_init_mode])
 
@@ -170,12 +193,14 @@ class GameSession(QObject):
         client.instance.lobby_reconnector.keepalive = False
 
         if self._rehost:
-            client.instance.host_game(title=self.game_name,
-                                      mod=self.game_mod,
-                                      visibility=self.game_visibility,
-                                      mapname=self.game_map,
-                                      password=self.game_password,
-                                      is_rehost=True)
+            client.instance.host_game(
+                title=self.game_name,
+                mod=self.game_mod,
+                visibility=self.game_visibility,
+                mapname=self.game_map,
+                password=self.game_password,
+                is_rehost=True,
+            )
 
         self._rehost = False
         self.game_uid = None

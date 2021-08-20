@@ -13,16 +13,22 @@ class UpgradePage(QtWidgets.QWizardPage):
         super(UpgradePage, self).__init__(parent)
 
         self.setTitle("Specify Forged Alliance folder")
-        self.setPixmap(QtWidgets.QWizard.WatermarkPixmap, util.THEME.pixmap("fa/updater/forged_alliance_watermark.png"))
+        self.setPixmap(
+            QtWidgets.QWizard.WatermarkPixmap,
+            util.THEME.pixmap("fa/updater/forged_alliance_watermark.png"),
+        )
 
         layout = QtWidgets.QVBoxLayout()
 
-        self.label = QtWidgets.QLabel("FAF needs a version of Supreme Commander: Forged Alliance to launch games and "
-                                      "replays. <br/><br/><b>Please choose the installation you wish to use.</b><br/>"
-                                      "<br/>The following versions are <u>equally</u> supported:<ul><li>3596(Retail "
-                                      "version)</li><li>3599 (Retail patch)</li><li>3603beta (GPGnet beta patch)</li>"
-                                      "<li>1.6.6 (Steam Version)</li></ul>FAF doesn't modify your existing files.<br/>"
-                                      "<br/>Select folder:")
+        self.label = QtWidgets.QLabel(
+            "FAF needs a version of Supreme Commander: Forged Alliance to "
+            "launch games and replays. <br/><br/><b>Please choose the "
+            "installation you wish to use.</b><br/><br/>The following versions"
+            " are <u>equally</u> supported:<ul><li>3596(Retail version)</li>"
+            "<li>3599 (Retail patch)</li><li>3603beta (GPGnet beta patch)</li>"
+            "<li>1.6.6 (Steam Version)</li></ul>FAF doesn't modify your "
+            "existing files.<br/><br/>Select folder:",
+        )
         self.label.setWordWrap(True)
         layout.addWidget(self.label)
 
@@ -54,10 +60,15 @@ class UpgradePage(QtWidgets.QWizardPage):
 
     @QtCore.pyqtSlot()
     def showChooser(self):
-        path = QtWidgets.QFileDialog.getExistingDirectory(self, "Select Forged Alliance folder",
-                                                          self.comboBox.currentText(),
-                                                          QtWidgets.QFileDialog.DontResolveSymlinks |
-                                                          QtWidgets.QFileDialog.ShowDirsOnly)
+        path = QtWidgets.QFileDialog.getExistingDirectory(
+            self,
+            "Select Forged Alliance folder",
+            self.comboBox.currentText(),
+            (
+                QtWidgets.QFileDialog.DontResolveSymlinks
+                | QtWidgets.QFileDialog.ShowDirsOnly
+            ),
+        )
         if path:
             self.comboBox.insertItem(0, path)
             self.comboBox.setCurrentIndex(0)
@@ -77,18 +88,23 @@ class Wizard(QtWidgets.QWizard):
 
     def __init__(self, client, *args, **kwargs):
         QtWidgets.QWizard.__init__(self, client, *args, **kwargs)
-        self.client = client  # type: ClientWindow
+        self.client = client  # type - ClientWindow
         self.upgrade = UpgradePage()
         self.addPage(self.upgrade)
 
         self.setWizardStyle(QtWidgets.QWizard.ModernStyle)
         self.setWindowTitle("Forged Alliance Game Path")
-        self.setPixmap(QtWidgets.QWizard.WatermarkPixmap, util.THEME.pixmap("fa/updater/forged_alliance_watermark.png"))
+        self.setPixmap(
+            QtWidgets.QWizard.WatermarkPixmap,
+            util.THEME.pixmap("fa/updater/forged_alliance_watermark.png"),
+        )
 
         self.setOption(QtWidgets.QWizard.NoBackButtonOnStartPage, True)
 
     def accept(self):
-        util.settings.setValue("ForgedAlliance/app/path", self.upgrade.comboBox.currentText())
+        util.settings.setValue(
+            "ForgedAlliance/app/path", self.upgrade.comboBox.currentText(),
+        )
         QtWidgets.QWizard.accept(self)
 
 
@@ -98,5 +114,5 @@ def constructPathChoices(combobox, validated_choices):
     """
     combobox.clear()
     for path in validated_choices:
-            if combobox.findText(path, QtCore.Qt.MatchFixedString) == -1:
-                combobox.addItem(path)
+        if combobox.findText(path, QtCore.Qt.MatchFixedString) == -1:
+            combobox.addItem(path)

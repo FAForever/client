@@ -1,7 +1,5 @@
 import logging
 
-from PyQt5 import QtCore
+from ._tournamentswidget import TournamentsWidget
 
 logger = logging.getLogger(__name__)
-
-from ._tournamentswidget import TournamentsWidget

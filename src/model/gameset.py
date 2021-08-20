@@ -63,8 +63,9 @@ class Gameset(ModelItemSet):
             self._new_state(new, _transaction)
 
     def _new_state(self, g, _transaction=None):
-        self._logger.debug("New game state {}, uid {}".format(g.state,
-                                                              g.id_key))
+        self._logger.debug(
+            "New game state {}, uid {}".format(g.state, g.id_key),
+        )
         if g.state == game.GameState.OPEN:
             _transaction.emit(self.newLobby, g)
         elif g.state == game.GameState.PLAYING:

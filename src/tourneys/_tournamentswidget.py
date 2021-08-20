@@ -19,7 +19,9 @@ class TournamentsWidget(FormClass, BaseClass):
         self.client = client
 
         # tournament server
-        self.tourneyServer = secondaryServer.SecondaryServer("Tournament", 11001, self)
+        self.tourneyServer = secondaryServer.SecondaryServer(
+            "Tournament", 11001, self,
+        )
         self.tourneyServer.setInvisible()
 
         # Dictionary containing our actual tournaments.
@@ -39,7 +41,9 @@ class TournamentsWidget(FormClass, BaseClass):
         self.updateTimer.start(600000)
 
     def load_stylesheet(self):
-        self.setStyleSheet(util.THEME.readstylesheet("tournaments/formatters/style.css"))
+        self.setStyleSheet(
+            util.THEME.readstylesheet("tournaments/formatters/style.css"),
+        )
 
     def showEvent(self, event):
         self.updateTournaments()
@@ -54,24 +58,42 @@ class TournamentsWidget(FormClass, BaseClass):
         Slot that attempts to join or leave a tournament.
         """
         if self.client.login not in item.playersname:
-            reply = QtWidgets.QMessageBox.question(self.client, "Register",
-                                                   "Do you want to register to this tournament ?",
-                                                   QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+            reply = QtWidgets.QMessageBox.question(
+                self.client,
+                "Register",
+                "Do you want to register to this tournament ?",
+                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+            )
             if reply == QtWidgets.QMessageBox.Yes:
-                self.tourneyServer.send(dict(command="add_participant", uid=item.uid, login=self.client.login))
+                self.tourneyServer.send(
+                    dict(
+                        command="add_participant",
+                        uid=item.uid,
+                        login=self.client.login,
+                    ),
+                )
 
         else:
-            reply = QtWidgets.QMessageBox.question(self.client, "Register",
-                                                   "Do you want to leave this tournament ?",
-                                                   QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+            reply = QtWidgets.QMessageBox.question(
+                self.client,
+                "Register",
+                "Do you want to leave this tournament ?",
+                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+            )
             if reply == QtWidgets.QMessageBox.Yes:
-                self.tourneyServer.send(dict(command="remove_participant", uid=item.uid, login=self.client.login)) 
+                self.tourneyServer.send(
+                    dict(
+                        command="remove_participant",
+                        uid=item.uid,
+                        login=self.client.login,
+                    ),
+                )
 
     def handle_tournaments_info(self, message):
-        #self.tourneyList.clear()
+        # self.tourneyList.clear()
         tournaments = message["data"]
-        for uid in tournaments :
-            if not uid in self.tourneys :
+        for uid in tournaments:
+            if uid not in self.tourneys:
                 self.tourneys[uid] = TourneyItem(self, uid)
                 self.tourneyList.addItem(self.tourneys[uid])
                 self.tourneys[uid].update(tournaments[uid], self.client)

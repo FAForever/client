@@ -54,6 +54,7 @@ class ServerReconnecter(QtCore.QObject):
     @property
     def keepalive(self):
         return self._keepalive
+
     @keepalive.setter
     def keepalive(self, value):
         self._keepalive = value
@@ -115,7 +116,10 @@ class ServerReconnecter(QtCore.QObject):
 
     def _ping_connection(self):
         # If we're disconnected, we're already trying to reconnect often
-        if not self._enabled or self._connection.state != ConnectionState.CONNECTED:
+        if (
+            not self._enabled
+            or self._connection.state != ConnectionState.CONNECTED
+        ):
             self._waiting_for_pong = False
             return
 
@@ -139,7 +143,8 @@ class ServerReconnecter(QtCore.QObject):
 
 class ServerConnection(QtCore.QObject):
 
-    # These signals are emitted when the client is connected or disconnected from FAF
+    # These signals are emitted when the client is connected or disconnected
+    # from FAF
     state_changed = QtCore.pyqtSignal(object)
     connected = QtCore.pyqtSignal()
     disconnected = QtCore.pyqtSignal()
@@ -166,7 +171,10 @@ class ServerConnection(QtCore.QObject):
         my_state = None
         if state == states.UnconnectedState or state == states.BoundState:
             my_state = ConnectionState.DISCONNECTED
-        elif state == states.HostLookupState or state == states.ConnectingState:
+        elif (
+            state == states.HostLookupState
+            or state == states.ConnectingState
+        ):
             my_state = ConnectionState.CONNECTING
         elif state == states.ConnectedState or state == states.ClosingState:
             my_state = ConnectionState.CONNECTED
@@ -201,7 +209,7 @@ class ServerConnection(QtCore.QObject):
     @property
     def port(self):
         return self._port
-    
+
     @port.setter
     def port(self, value):
         self._port = value
@@ -231,7 +239,9 @@ class ServerConnection(QtCore.QObject):
         self.socket.disconnectFromHost()
 
     def set_upnp(self, port):
-        fa.upnp.createPortMapping(self.socket.localAddress().toString(), port, "UDP")
+        fa.upnp.createPortMapping(
+            self.socket.localAddress().toString(), port, "UDP",
+        )
 
     def processDataFromServer(self, data):
         self._data = ""
@@ -247,10 +257,10 @@ class ServerConnection(QtCore.QObject):
             else:
                 try:
                     self._dispatch(action)
-                except Exception:
+                except BaseException:
                     logger.error(
                         "Error dispatching JSON: " + line,
-                        exc_info=sys.exc_info()
+                        exc_info=sys.exc_info(),
                     )
 
     @QtCore.pyqtSlot()
@@ -275,9 +285,12 @@ class ServerConnection(QtCore.QObject):
     def send(self, message):
         data = json.dumps(message)
         if message.get("command") == "auth":
-            logger.info("Logging in with {}".format({
-                k: v for k, v in list(message.items())
-                if k not in ["token", "unique_id"]}))
+            logger.info(
+                "Logging in with {}".format({
+                    k: v for k, v in list(message.items())
+                    if k not in ["token", "unique_id"]
+                }),
+            )
         elif message.get("command") in ("ping", "pong"):
             logger.debug("Outgoing message: {}".format(message.get("command")))
         else:
@@ -295,13 +308,19 @@ class ServerConnection(QtCore.QObject):
 
     @QtCore.pyqtSlot(QtNetwork.QAbstractSocket.SocketError)
     def socketError(self, error):
-        if (error == QtNetwork.QAbstractSocket.SocketTimeoutError
-                or error == QtNetwork.QAbstractSocket.NetworkError
-                or error == QtNetwork.QAbstractSocket.ConnectionRefusedError
-                or error == QtNetwork.QAbstractSocket.RemoteHostClosedError):
-            logger.info("Timeout/network error: {}".format(self.socket.errorString()))
+        if (
+            error == QtNetwork.QAbstractSocket.SocketTimeoutError
+            or error == QtNetwork.QAbstractSocket.NetworkError
+            or error == QtNetwork.QAbstractSocket.ConnectionRefusedError
+            or error == QtNetwork.QAbstractSocket.RemoteHostClosedError
+        ):
+            logger.info(
+                "Timeout/network error: {}".format(self.socket.errorString()),
+            )
         else:
-            logger.error("Fatal TCP Socket Error: " + self.socket.errorString())
+            logger.error(
+                "Fatal TCP Socket Error: {}".format(self.socket.errorString()),
+            )
 
 
 class Dispatcher():
@@ -329,7 +348,8 @@ class Dispatcher():
         cmd = message['command']
         if "target" in message:
             fn = self._receivers.get((message['target'], cmd))
-            fn = self._receivers.get((message['target'], None)) if fn is None else fn
+            if fn is None:
+                fn = self._receivers.get((message['target'], None))
             if fn is not None:
                 fn(message)
             else:
@@ -339,7 +359,9 @@ class Dispatcher():
             if fn is not None:
                 fn(message)
             else:
-                logger.error("Unknown JSON command: %s" % message['command'])
+                logger.error(
+                    "Unknown JSON command: {}".format(message['command']),
+                )
                 raise ValueError
 
 
@@ -364,24 +386,34 @@ class LobbyInfo(QtCore.QObject):
         QtCore.QObject.__init__(self)
 
         self._dispatcher = dispatcher
-        self._dispatcher["updated_achievements"] = self.handle_updated_achievements
         self._dispatcher["stats"] = self._simple_emit(self.statsInfo)
         self._dispatcher["coop_info"] = self._simple_emit(self.coopInfo)
-        self._dispatcher["tutorials_info"] = self._simple_emit(self.tutorialsInfo)
         self._dispatcher["mod_info_api"] = self._simple_emit(self.modInfo)
         self._dispatcher["mod_info"] = lambda _: None
         self._dispatcher["game_info"] = self.handle_game_info
-        self._dispatcher["modvault_list_info"] = self.handle_modvault_list_info
-        self._dispatcher["modvault_info"] = self._simple_emit(self.modVaultInfo)
         self._dispatcher["replay_vault"] = self._simple_emit(self.replayVault)
-        self._dispatcher["coop_leaderboard"] = self._simple_emit(self.coopLeaderBoard)
         self._dispatcher["avatar"] = self.handle_avatar
         self._dispatcher["admin"] = self.handle_admin
         self._dispatcher["social"] = self._simple_emit(self.social)
         self._dispatcher["session"] = self._simple_emit(self.serverSession)
-        self._dispatcher["mapvault_info"] = self._simple_emit(self.mapVaultInfo)
         self._dispatcher["vault_meta"] = self._simple_emit(self.vaultMeta)
         self._dispatcher["alias_info"] = self._simple_emit(self.aliasInfo)
+        self._dispatcher["modvault_list_info"] = self.handle_modvault_list_info
+        self._dispatcher["modvault_info"] = self._simple_emit(
+            self.modVaultInfo,
+        )
+        self._dispatcher["mapvault_info"] = self._simple_emit(
+            self.mapVaultInfo,
+        )
+        self._dispatcher["updated_achievements"] = (
+            self.handle_updated_achievements
+        )
+        self._dispatcher["coop_leaderboard"] = self._simple_emit(
+            self.coopLeaderBoard,
+        )
+        self._dispatcher["tutorials_info"] = self._simple_emit(
+            self.tutorialsInfo,
+        )
 
         self._gameset = gameset
         self._playerset = playerset
@@ -395,7 +427,7 @@ class LobbyInfo(QtCore.QObject):
         pass
 
     def handle_game_info(self, message):
-        if 'games' in message:  # initial bunch of games from server after client start
+        if 'games' in message:  # initial games from server after client start
             for game in message['games']:
                 self._update_game(game)
         else:

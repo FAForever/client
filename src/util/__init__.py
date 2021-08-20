@@ -1,7 +1,6 @@
 import datetime
 import getpass
 import hashlib
-import locale
 import logging
 import os
 import re
@@ -13,17 +12,15 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import QStandardPaths, QUrl
 from PyQt5.QtGui import QDesktopServices
 from PyQt5.QtWidgets import QMessageBox
-from PyQt5.uic import *
 
 import fafpath
 from config import VERSION as VERSION_STRING
+from config import _settings  # Stolen from Config because reasons
 from config import Settings
 from mapGenerator import mapgenUtils
 from util.theme import Theme, ThemeSet
 
 if sys.platform == 'win32':
-    import ctypes
-
     import win32service
     import win32serviceutil
 
@@ -31,7 +28,9 @@ logger = logging.getLogger(__name__)
 
 LOGFILE_MAX_SIZE = 256 * 1024  # 256kb should be enough for anyone
 
-UNITS_PREVIEW_ROOT = "{}/faf/unitsDB/icons/big/".format(Settings.get('content/host'))
+UNITS_PREVIEW_ROOT = (
+    "{}/faf/unitsDB/icons/big/".format(Settings.get('content/host'))
+)
 
 COMMON_DIR = fafpath.get_resdir()
 
@@ -45,7 +44,7 @@ LUA_DIR = os.path.join(APPDATA_DIR, "lua")
 # This contains the themes
 THEME_DIR = os.path.join(APPDATA_DIR, "themes")
 
-# This contains cached data downloaded while communicating with the lobby - at the moment, mostly map preview pngs.
+# This contains cached data downloaded while communicating with the lobby
 CACHE_DIR = os.path.join(APPDATA_DIR, "cache")
 
 # Use one cache with Java client (maps/small and maps/large)
@@ -69,7 +68,8 @@ LOG_FILE_GAME = LOG_FILE_GAME_PREFIX + ".log"
 LOG_FILE_GAME_INFIX = ".uid."
 LOG_FILE_REPLAY = os.path.join(LOG_DIR, 'replay.log')
 
-# This contains the game binaries (old binFAF folder) and the game mods (.faf files)
+# This contains the game binaries (old binFAF folder) and the game mods
+# (.faf files)
 BIN_DIR = os.path.join(APPDATA_DIR, "bin")
 GAMEDATA_DIR = os.path.join(APPDATA_DIR, "gamedata")
 REPO_DIR = os.path.join(APPDATA_DIR, "repo")
@@ -79,10 +79,6 @@ MAPGEN_DIR = os.path.join(APPDATA_DIR, "map_generator")
 
 if not os.path.exists(REPO_DIR):
     os.makedirs(REPO_DIR)
-
-# Public settings object
-# Stolen from Config because reasons
-from config import _settings
 
 settings = _settings
 
@@ -95,14 +91,25 @@ if sys.platform != 'win32':
     else:
         wine_prefix = os.path.join(os.path.expanduser("~"), ".wine")
 
-LOCALFOLDER = os.path.join(os.path.expandvars("%LOCALAPPDATA%"), "Gas Powered Games",
-                           "Supreme Commander Forged Alliance")
+LOCALFOLDER = os.path.join(
+    os.path.expandvars("%LOCALAPPDATA%"),
+    "Gas Powered Games",
+    "Supreme Commander Forged Alliance",
+)
 if not os.path.exists(LOCALFOLDER):
-    LOCALFOLDER = os.path.join(os.path.expandvars("%USERPROFILE%"), "Local Settings", "Application Data",
-                               "Gas Powered Games", "Supreme Commander Forged Alliance")
+    LOCALFOLDER = os.path.join(
+        os.path.expandvars("%USERPROFILE%"),
+        "Local Settings", "Application Data",
+        "Gas Powered Games",
+        "Supreme Commander Forged Alliance",
+    )
 if not os.path.exists(LOCALFOLDER) and sys.platform != 'win32':
-    LOCALFOLDER = os.path.join(wine_prefix, "drive_c", "users", getpass.getuser(), "Local Settings", "Application Data",
-                               "Gas Powered Games", "Supreme Commander Forged Alliance")
+    LOCALFOLDER = os.path.join(
+        wine_prefix, "drive_c", "users",
+        getpass.getuser(), "Local Settings",
+        "Application Data", "Gas Powered Games",
+        "Supreme Commander Forged Alliance",
+    )
 
 PREFSFILENAME = os.path.join(LOCALFOLDER, "game.prefs")
 if not os.path.exists(PREFSFILENAME):
@@ -111,36 +118,47 @@ if not os.path.exists(PREFSFILENAME):
 DOWNLOADED_RES_PIX = {}
 DOWNLOADING_RES_PIX = {}
 
+
 def getPersonalDir():
     fallback = Settings.get('vault/fallback', type=bool, default=False)
     if fallback:
         dir_ = os.path.join(APPDATA_DIR, "user")
     else:
-        dir_ = str(QStandardPaths.standardLocations(QStandardPaths.DocumentsLocation)[0])
+        dir_ = str(
+            QStandardPaths.standardLocations(
+                QStandardPaths.DocumentsLocation,
+            )[0],
+        )
         try:
             dir_.encode("ascii")
 
             if not os.path.isdir(dir_):
-                raise Exception('No documents location. Will use APPDATA instead.')
-        except:
+                raise Exception(
+                    'No documents location. Will use APPDATA instead.',
+                )
+        except BaseException:
             logger.exception('PERSONAL_DIR not ok, falling back.')
             dir_ = os.path.join(APPDATA_DIR, "user")
     return dir_
+
 
 def setPersonalDir():
     global PERSONAL_DIR
     PERSONAL_DIR = getPersonalDir()
     logger.info('PERSONAL_DIR set to: ' + PERSONAL_DIR)
 
-setPersonalDir()
+
+PERSONAL_DIR = getPersonalDir()
 
 logger.info('PERSONAL_DIR final: ' + PERSONAL_DIR)
 
 # Ensure Application data directories exist
 
-for data_dir in [APPDATA_DIR, PERSONAL_DIR, LUA_DIR, CACHE_DIR,
-                 MAP_PREVIEW_SMALL_DIR, MAP_PREVIEW_LARGE_DIR, MOD_PREVIEW_DIR, THEME_DIR, 
-                 REPLAY_DIR, LOG_DIR, EXTRA_DIR]:
+for data_dir in [
+    APPDATA_DIR, PERSONAL_DIR, LUA_DIR, CACHE_DIR,
+    MAP_PREVIEW_SMALL_DIR, MAP_PREVIEW_LARGE_DIR, MOD_PREVIEW_DIR,
+    THEME_DIR, REPLAY_DIR, LOG_DIR, EXTRA_DIR,
+]:
     if not os.path.isdir(data_dir):
         os.makedirs(data_dir)
 
@@ -178,8 +196,9 @@ try:
         if os.path.getsize(LOG_FILE_MAPGEN) > LOGFILE_MAX_SIZE:
             os.remove(LOG_FILE_MAPGEN)
     remove_obsolete_logs(LOG_DIR, LOG_FILE_GAME_INFIX, 30)
-except:
+except BaseException:
     pass
+
 
 # Ensure that access time is modified (needed for cache system)
 def setAccessTime(file):
@@ -188,13 +207,16 @@ def setAccessTime(file):
         mtime = os.stat(file).st_mtime
         os.utime(file, times=(curr_time, mtime))
 
+
 # Get rid of cached files that are stored for too long
 def clearGameCache():
     fmod_dir = os.path.join(CACHE_DIR, 'featured_mod')
     if os.path.exists(fmod_dir):
         curr_time = datetime.datetime.now()
-        max_storage_time = Settings.get('cache/number_of_days', type=int, default=0)
-        if max_storage_time > -1: # -1 stands for keeping files forever
+        max_storage_time = Settings.get(
+            'cache/number_of_days', type=int, default=0,
+        )
+        if max_storage_time > -1:  # -1 stands for keeping files forever
             for _dir in ['bin', 'gamedata']:
                 dir_to_check = os.path.join(fmod_dir, _dir)
                 if os.path.exists(dir_to_check):
@@ -202,32 +224,42 @@ def clearGameCache():
                     for dir, _, files in os.walk(dir_to_check):
                         files_to_check = files
                     for _file in files_to_check:
-                        access_time = os.path.getatime(os.path.join(dir_to_check, _file))
-                        access_time = datetime.datetime.fromtimestamp(access_time)
+                        access_time = os.path.getatime(
+                            os.path.join(dir_to_check, _file),
+                        )
+                        access_time = datetime.datetime.fromtimestamp(
+                            access_time,
+                        )
                         if (curr_time - access_time).days >= max_storage_time:
                             os.remove(os.path.join(dir_to_check, _file))
 
-#Get rid of generated maps
+
+# Get rid of generated maps
 def clearGeneratedMaps():
     map_dir = os.path.join(
-         PERSONAL_DIR
-        ,"My Games"
-        ,"Gas Powered Games"
-        ,"Supreme Commander Forged Alliance"
-        ,"Maps")
+        PERSONAL_DIR, "My Games", "Gas Powered Games",
+        "Supreme Commander Forged Alliance", "Maps",
+    )
     if os.path.exists(map_dir):
         for entry in os.scandir(map_dir):
             if re.match(mapgenUtils.generatedMapPattern, entry.name):
                 if entry.is_dir():
                     shutil.rmtree(os.path.join(map_dir, entry.name))
 
+
 def clearDirectory(directory, confirm=True):
     if os.path.isdir(directory):
         if (confirm):
-            result = QtWidgets.QMessageBox.question(None, "Clear Directory", "Are you sure you wish to clear the "
-                                                                             "following directory:<br/><b>&nbsp;&nbsp;"
-                                                    + directory + "</b>",
-                                                    QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
+            result = QtWidgets.QMessageBox.question(
+                None,
+                "Clear Directory",
+                (
+                    "Are you sure you wish to clear the following directory:"
+                    "<br/><b>&nbsp;&nbsp;{}</b>".format(directory)
+                ),
+                QtWidgets.QMessageBox.Yes,
+                QtWidgets.QMessageBox.No,
+            )
         else:
             result = QtWidgets.QMessageBox.Yes
 
@@ -265,7 +297,8 @@ def __downloadPreviewFromWeb(unitname):
     Downloads a preview image from the web for the given unit name
     """
     # This is done so generated previews always have a lower case name.
-    # This doesn't solve the underlying problem (case folding Windows vs. Unix vs. FAF)
+    # This doesn't solve the underlying problem
+    # (case folding Windows vs. Unix vs. FAF)
     import urllib.error
     import urllib.parse
     import urllib.request
@@ -280,7 +313,7 @@ def __downloadPreviewFromWeb(unitname):
     with open(img, 'wb') as fp:
         shutil.copyfileobj(req, fp)
         fp.flush()
-        os.fsync(fp.fileno())  # probably works fine without the flush and fsync
+        os.fsync(fp.fileno())  # probably works without the flush and fsync
         fp.close()
     return img
 
@@ -322,7 +355,7 @@ html_escape_table = {
     '"': "&quot;",
     "'": "&apos;",
     ">": "&gt;",
-    "<": "&lt;"
+    "<": "&lt;",
 }
 
 
@@ -338,21 +371,38 @@ def irc_escape(text):
     # taken from django and adapted
     url_re = re.compile(
         r'^((https?|faflive|fafgame|fafmap|ftp|ts3server)://)?'  # protocols
-        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+'  # domain name, then TLDs
-        r'(?:ac|ad|ae|aero|af|ag|ai|al|am|an|ao|aq|ar|arpa|as|asia|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|biz|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cat|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|com|coop|cr|cu|cv|cw|cx|cy|cz|de|dj|dk|dm|do|dz|ec|edu|ee|eg|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gov|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|info|int|io|iq|ir|is|it|je|jm|jo|jobs|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mil|mk|ml|mm|mn|mo|mobi|mp|mq|mr|ms|mt|mu|museum|mv|mw|mx|my|mz|na|name|nc|ne|net|nf|ng|ni|nl|no|np|nr|nu|nz|om|org|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|pro|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|st|su|sv|sx|sy|sz|tc|td|tel|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|travel|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|xxx|ye|yt|za|zm|zw)'
+        # domain name, then TLDs
+        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+'
+        r'(?:ac|ad|ae|aero|af|ag|ai|al|am|an|ao|aq|ar|arpa|as|asia|at|au|aw|'
+        r'ax|az|ba|bb|bd|be|bf|bg|bh|bi|biz|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|'
+        r'ca|cat|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|com|coop|cr|cu|cv|cw|cx|cy|'
+        r'cz|de|dj|dk|dm|do|dz|ec|edu|ee|eg|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|'
+        r'gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gov|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|'
+        r'hr|ht|hu|id|ie|il|im|in|info|int|io|iq|ir|is|it|je|jm|jo|jobs|jp|'
+        r'ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|'
+        r'ma|mc|md|me|mg|mh|mil|mk|ml|mm|mn|mo|mobi|mp|mq|mr|ms|mt|mu|museum|'
+        r'mv|mw|mx|my|mz|na|name|nc|ne|net|nf|ng|ni|nl|no|np|nr|nu|nz|om|org|'
+        r'pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|pro|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|'
+        r'sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|st|su|sv|sx|sy|sz|tc|td|'
+        r'tel|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|travel|tt|tv|tw|tz|ua|ug|uk|'
+        r'us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|xxx|ye|yt|za|zm|zw)'
         r'|localhost'  # localhost...
         r'|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
         r'(?::\d+)?'  # optional port
-        r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+        r'(?:/?|[/?]\S+)$', re.IGNORECASE,
+    )
 
     # Tired of bothering with end-of-word cases in this regex
-    # I'm splitting the whole string and matching each fragment start-to-end as a whole
+    # I'm splitting the whole string and matching each fragment start-to-end
+    # as a whole
     strings = text.split(" ")
     result = []
     for fragment in strings:
         match = url_re.match(fragment)
         if match:
-            if "://" in fragment:  # slight hack to get those protocol-less URLs on board. Better: With groups!
+            # slight hack to get those protocol-less URLs on board.
+            # Better: With groups!
+            if "://" in fragment:
                 rpl = '<a href="{0}">{0}</a>'.format(fragment)
             else:
                 rpl = '<a href="http://{0}">{0}</a>'.format(fragment)
@@ -408,14 +458,14 @@ def uniqueID(session):
                     "service for smurf protection to be running. Please run "
                     "'service.msc', open the 'Windows Management "
                     "Instrumentation' service, set the startup type to "
-                    "automatic and restart FAF."
+                    "automatic and restart FAF.",
                 )
-        except Exception as e:
+        except BaseException:
             QMessageBox.critical(
                 None,
                 "WMI service missing",
                 "FAF requires the 'Windows Management Instrumentation' service"
-                " for smurf protection. This service could not be found."
+                " for smurf protection. This service could not be found.",
             )
 
     if sys.platform == 'win32':
@@ -426,7 +476,7 @@ def uniqueID(session):
         uid_p = subprocess.Popen(
             [exe_path, session],
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
+            stderr=subprocess.PIPE,
         )
         out, err = uid_p.communicate()
         if uid_p.returncode != 0:
@@ -449,8 +499,7 @@ def datetostr(d):
     return d.strftime("%Y-%m-%d %H:%M:%S")
 
 
-from .crash import CrashDialog, runtime_info
-
-
 def getJavaPath():
-    return os.path.join(fafpath.get_libdir(), "ice-adapter", "jre", "bin", "java.exe")
+    return os.path.join(
+        fafpath.get_libdir(), "ice-adapter", "jre", "bin", "java.exe",
+    )

@@ -58,19 +58,21 @@ class ChatWidget(QObject):
             self.base.addTab(widget.base, tab_name)
             return
         try:
-            last_public_tab = max([self.base.indexOf(w.base)
-                                   for cid, w in self._channels.items()
-                                   if cid.type == ChannelType.PUBLIC
-                                   and cid != key])
+            last_public_tab = max([
+                self.base.indexOf(w.base)
+                for cid, w in self._channels.items()
+                if cid.type == ChannelType.PUBLIC and cid != key
+            ])
             self.base.insertTab(last_public_tab + 1, widget.base, tab_name)
             return
         except ValueError:
             pass
         try:
-            first_private_tab = min([self.base.indexOf(w.base)
-                                     for cid, w in self._channels.items()
-                                     if cid.type == ChannelType.PRIVATE
-                                     and cid != key])
+            first_private_tab = min([
+                self.base.indexOf(w.base)
+                for cid, w in self._channels.items()
+                if cid.type == ChannelType.PRIVATE and cid != key
+            ])
             self.base.insertTab(first_private_tab, widget.base, tab_name)
             return
         except ValueError:

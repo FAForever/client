@@ -51,7 +51,7 @@ class ApiBase(QtCore.QObject):
 
     def onRequestFinished(self, reply):
         if reply.error() != QtNetwork.QNetworkReply.NoError:
-            logger.error("API request error: %s", reply.error())
+            logger.error("API request error: {}".format(reply.error()))
         else:
             message_bytes = reply.readAll().data()
             message = json.loads(message_bytes.decode('utf-8'))
@@ -73,12 +73,16 @@ class ApiBase(QtCore.QObject):
                 if not inc_item["type"] in result:
                     result[inc_item["type"]] = {}
                 if "attributes" in inc_item:
-                    result[inc_item["type"]][inc_item["id"]] = inc_item["attributes"]
+                    type_ = inc_item["type"]
+                    id_ = inc_item["id"]
+                    result[type_][id_] = inc_item["attributes"]
                 if "relationships" in inc_item:
                     for key, value in inc_item["relationships"].items():
-                        relationships.append((inc_item["type"], inc_item["id"], key, value))
+                        relationships.append((
+                            inc_item["type"], inc_item["id"], key, value,
+                        ))
             message.pop('included')
-        #resolve relationships
+        # resolve relationships
         for r in relationships:
             result[r[0]][r[1]][r[2]] = self.parseData(r[3], result)
         return result
@@ -101,7 +105,10 @@ class ApiBase(QtCore.QObject):
     def parseSingleData(self, data, included):
         result = {}
         try:
-            if data["type"] in included and data["id"] in included[data["type"]]:
+            if (
+                data["type"] in included
+                and data["id"] in included[data["type"]]
+            ):
                 result = included[data["type"]][data["id"]]
             result["id"] = data["id"]
             if "type" not in result:
@@ -112,7 +119,7 @@ class ApiBase(QtCore.QObject):
             if "relationships" in data:
                 for key, value in data["relationships"].items():
                     result[key] = self.parseData(value, included)
-        except:
+        except BaseException:
             logger.error("error parsing ", data)
         return result
 

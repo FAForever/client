@@ -33,7 +33,7 @@ class PowerActions:
         self._lobby_connection.send({
             "command": "admin",
             "action": "closeFA",
-            "user_id": player.id
+            "user_id": player.id,
         })
         return True
 
@@ -45,7 +45,7 @@ class PowerActions:
         self._lobby_connection.send({
             "command": "admin",
             "action": "closelobby",
-            "user_id": player.id
+            "user_id": player.id,
         })
         return True
 
@@ -59,9 +59,9 @@ class PowerActions:
             "ban": {
                 "reason": reason,
                 "duration": duration,
-                "period": period
+                "period": period,
             },
-            "user_id": player.id
+            "user_id": player.id,
         }
         self._lobby_connection.send(message)
         return True

@@ -36,8 +36,11 @@ from subprocess import check_output
 
 from semantic_version import Version
 
-__all__ = ["is_development_version", "is_prerelease_version",
-           "get_git_version", "build_version", "get_release_version", "write_version_file"]
+__all__ = [
+    "is_development_version", "is_prerelease_version",
+    "get_git_version", "build_version", "get_release_version",
+    "write_version_file",
+]
 
 
 def is_development_version(version):
@@ -71,7 +74,7 @@ def read_version_file(dir):
 
 def write_version_file(version, dir):
     with open(version_filename(dir), "w") as f:
-        f.write("%s\n" % version)
+        f.write("{}\n".format(version))
 
 
 def get_git_version(git_dir=None):
@@ -96,15 +99,18 @@ def get_git_version(git_dir=None):
 
         return tag, commit_tag
 
-    except Exception as e:
+    except BaseException as e:
         sys.stderr.write("Error grabbing git version: {}".format(e))
         return None
 
 
 def build_version(version, revision, build=None):
-    return version + '+' + \
-           (revision + '.' if revision else '') + \
-           (build if build else '')
+    return (
+        version
+        + '+'
+        + (revision + '.' if revision else '')
+        + (build if build else '')
+    )
 
 
 # Distutils expect an x.y.z (non-semver) format
@@ -127,7 +133,10 @@ def get_release_version(dir=None, git_dir=None):
     else:
         # If we still don't have anything, that's an error.
         sys.stderr.write("Could not get git version" + os.linesep)
-        raise ValueError("Cannot find the version number! Please provide RELEASE-VERSION file or run from git.")
+        raise ValueError(
+            "Cannot find the version number! Please provide "
+            "RELEASE-VERSION file or run from git.",
+        )
 
 
 if __name__ == "__main__":

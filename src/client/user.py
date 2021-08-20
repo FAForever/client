@@ -175,6 +175,7 @@ class UserRelationModel:
             return name in self.irc.chatterboxes
         return False
 
+
 class IrcRelationController:
     def __init__(self, keyname, set_, me, settings):
         self._keyname = keyname
@@ -240,8 +241,9 @@ class FafRelationController:
         self._lobby_connection = lobby_connection
 
     @classmethod
-    def build(cls, msg_in, msg_out, set_, lobby_info, lobby_connection,
-              **kwargs):
+    def build(
+        cls, msg_in, msg_out, set_, lobby_info, lobby_connection, **kwargs
+    ):
         return cls(msg_in, msg_out, set_, lobby_info, lobby_connection)
 
     def _handle_social(self, message):
@@ -254,7 +256,7 @@ class FafRelationController:
     def _send_message(self, action, pid):
         self._lobby_connection.send({
             "command": action,
-            self._msg_out: pid
+            self._msg_out: pid,
         })
 
     def add(self, pid):
@@ -276,12 +278,15 @@ class IrcFriendFoeController:
 
     @classmethod
     def build(cls, irc_relations, **kwargs):
-        friends = IrcRelationController.build("irc_friends", irc_relations.friends,
-                                              **kwargs)
-        foes = IrcRelationController.build("irc_foes", irc_relations.foes,
-                                           **kwargs)
-        chatterboxes = IrcRelationController.build("irc_chatterboxes", irc_relations.chatterboxes,
-                                           **kwargs)
+        friends = IrcRelationController.build(
+            "irc_friends", irc_relations.friends, **kwargs
+        )
+        foes = IrcRelationController.build(
+            "irc_foes", irc_relations.foes, **kwargs
+        )
+        chatterboxes = IrcRelationController.build(
+            "irc_chatterboxes", irc_relations.chatterboxes, **kwargs
+        )
         return cls(friends, foes, chatterboxes)
 
 
@@ -293,12 +298,15 @@ class FafFriendFoeController:
 
     @classmethod
     def build(cls, faf_relations, **kwargs):
-        friends = FafRelationController.build("friends", "friend",
-                                              faf_relations.friends, **kwargs)
-        foes = FafRelationController.build("foes", "foe",
-                                           faf_relations.foes, **kwargs)
-        chatterboxes = IrcRelationController.build("chatterboxes",
-                                           faf_relations.chatterboxes, **kwargs)
+        friends = FafRelationController.build(
+            "friends", "friend", faf_relations.friends, **kwargs
+        )
+        foes = FafRelationController.build(
+            "foes", "foe", faf_relations.foes, **kwargs
+        )
+        chatterboxes = IrcRelationController.build(
+            "chatterboxes", faf_relations.chatterboxes, **kwargs
+        )
         return cls(friends, foes, chatterboxes)
 
 
@@ -309,10 +317,12 @@ class UserRelationController:
 
     @classmethod
     def build(cls, user_relations, **kwargs):
-        player_controller = FafFriendFoeController.build(user_relations.faf,
-                                                         **kwargs)
-        irc_controller = IrcFriendFoeController.build(user_relations.irc,
-                                                      **kwargs)
+        player_controller = FafFriendFoeController.build(
+            user_relations.faf, **kwargs
+        )
+        irc_controller = IrcFriendFoeController.build(
+            user_relations.irc, **kwargs
+        )
         return cls(player_controller, irc_controller)
 
 
@@ -373,7 +383,11 @@ class FriendFoeTracker(RelationshipTracker):
     def __init__(self, friendfoes, item_set):
         RelationshipTracker.__init__(self, item_set)
         self._friendfoes = friendfoes
-        for s in [friendfoes.friends, friendfoes.foes, friendfoes.chatterboxes]:
+        for s in [
+            friendfoes.friends,
+            friendfoes.foes,
+            friendfoes.chatterboxes,
+        ]:
             for sig in [s.added, s.removed]:
                 sig.connect(self._at_relation_updated)
 
@@ -394,9 +408,11 @@ class UserRelationTrackers:
     @classmethod
     def build(cls, relation_model, **kwargs):
         chatter_tracker = FriendFoeTracker.build_for_chatters(
-                relation_model.irc, **kwargs)
+            relation_model.irc, **kwargs
+        )
         player_tracker = FriendFoeTracker.build_for_players(
-                relation_model.faf, **kwargs)
+            relation_model.faf, **kwargs
+        )
         return cls(chatter_tracker, player_tracker)
 
 

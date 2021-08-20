@@ -86,8 +86,10 @@ class ChatterSortFilterModel(QSortFilterProxyModel):
     def _lt_me(self, left, right):
         if self._me.login is None:
             return False
-        return (left.chatter.name == self._me.login and
-                right.chatter.name != self._me.login)
+        return (
+            left.chatter.name == self._me.login
+            and right.chatter.name != self._me.login
+        )
 
     def _lt_rank(self, left, right):
         left_rank = self._get_user_rank(left)
@@ -249,8 +251,10 @@ class ChatterItemFormatter:
         tooltip_str = formatting.format(*tooltip_info_list)
         league = player.league
         if league is not None and "division" in league:
-            tooltip_str = "Division : {}\n{}".format(league["division"],
-                                                     tooltip_str)
+            tooltip_str = "Division : {}\n{}".format(
+                league["division"],
+                tooltip_str,
+            )
         return tooltip_str.strip()
 
     def status_tooltip(self, data):
@@ -280,19 +284,24 @@ class ChatterItemFormatter:
                 head_str = "In{private} Lobby</b> (host {host})"
         elif game.state == GameState.PLAYING:
             head_str = "Playing</b>{delay}"
-        header = head_str.format(private=private_str, delay=delay_str,
-                                 host=game.host)
+        header = head_str.format(
+            private=private_str, delay=delay_str,
+            host=game.host,
+        )
 
-        formatting = ("<b>{}<br/>"
-                      "title: {}<br/>"
-                      "mod: {}<br/>"
-                      "map: {}<br/>"
-                      "players: {} / {}<br/>"
-                      "id: {}")
+        formatting = (
+            "<b>{}<br/>"
+            "title: {}<br/>"
+            "mod: {}<br/>"
+            "map: {}<br/>"
+            "players: {} / {}<br/>"
+            "id: {}"
+        )
 
-        game_str = formatting.format(header, game_title, game.featured_mod,
-                                     game_map, game.num_players - len(game.observers),
-                                     game.max_players, game.uid)
+        game_str = formatting.format(
+            header, game_title, game.featured_mod, game_map,
+            game.num_players - len(game.observers), game.max_players, game.uid,
+        )
         return game_str
 
     def avatar_tooltip(self, data):
@@ -349,7 +358,7 @@ class ChatterItemDelegate(QtWidgets.QStyledItemDelegate):
             Elems.MAP: self._draw_map,
             Elems.RANK: self._draw_rank,
             Elems.AVATAR: self._draw_avatar,
-            Elems.COUNTRY: self._draw_country
+            Elems.COUNTRY: self._draw_country,
         }
         for item in self.layout.visible_items():
             draw[item](painter, data)
@@ -359,8 +368,9 @@ class ChatterItemDelegate(QtWidgets.QStyledItemDelegate):
     def _draw_clear_option(self, painter, option):
         option.icon = QtGui.QIcon()
         option.text = ""
-        option.widget.style().drawControl(QtWidgets.QStyle.CE_ItemViewItem,
-                                          option, painter, option.widget)
+        option.widget.style().drawControl(
+            QtWidgets.QStyle.CE_ItemViewItem, option, painter, option.widget,
+        )
 
     def _handle_highlight(self, painter, option):
         if option.state & QtWidgets.QStyle.State_Selected:

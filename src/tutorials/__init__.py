@@ -1,8 +1,6 @@
 
 import logging
 
-from PyQt5 import QtCore
+from ._tutorialswidget import TutorialsWidget
 
 logger = logging.getLogger(__name__)
-
-from ._tutorialswidget import TutorialsWidget
