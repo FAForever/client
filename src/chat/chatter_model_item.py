@@ -38,8 +38,9 @@ class ChatterModelItem(QObject):
         self.player = self.chatter.player
 
     @classmethod
-    def builder(cls, map_preview_dler, avatar_dler, relation_trackers,
-                **kwargs):
+    def builder(
+        cls, map_preview_dler, avatar_dler, relation_trackers, **kwargs
+    ):
         def make(cc):
             return cls(cc, map_preview_dler, avatar_dler, relation_trackers)
         return make

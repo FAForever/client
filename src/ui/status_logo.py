@@ -2,7 +2,7 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QAction, QLabel, QMenu
 
 import util
-from client import ClientState
+from client.clientstate import ClientState
 
 
 class StatusLogo(QLabel):
@@ -20,11 +20,15 @@ class StatusLogo(QLabel):
         self.setScaledContents(True)
         self.setMargin(3)
 
-        normal, yellow, red = list(map(util.THEME.pixmap, [
-            'window_icon.png',
-            'window_icon_yellow.png',
-            'window_icon_red.png'
-        ]))
+        normal, yellow, red = list(
+            map(
+                util.THEME.pixmap, [
+                    'window_icon.png',
+                    'window_icon_yellow.png',
+                    'window_icon_red.png',
+                ],
+            ),
+        )
 
         self._pixmaps = {
             ClientState.SHUTDOWN: red,
@@ -63,7 +67,8 @@ class StatusLogo(QLabel):
         if self.state not in [
                 ClientState.CONNECTING,
                 ClientState.CONNECTED,
-                ClientState.LOGGED_IN]:
+                ClientState.LOGGED_IN,
+        ]:
             menu.addAction(rc)
 
         menu.addAction(conn)

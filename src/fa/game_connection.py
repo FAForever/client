@@ -42,9 +42,11 @@ class GPGNetConnection(QObject):
         if isinstance(val, int):
             return pack("=bi", 0, val)
         elif isinstance(val, str) or isinstance(val, str):
-            return pack("=bi%ds" % len(val), 1, len(val), val.encode())
+            return pack("=bi{}s".format(len(val)), 1, len(val), val.encode())
         else:
-            raise Exception("Unknown GameConnection Field Type: %s" % type(val))
+            raise Exception(
+                "Unknown GameConnection Field Type: {}".format(type(val)),
+            )
 
     def _readLuaVal(self, ds):
         if self._socket.bytesAvailable() < 5:
@@ -62,11 +64,13 @@ class GPGNetConnection(QObject):
             ds.readRawData(5)
 
             datastring = ds.readRawData(fieldSize).decode('utf-8')
-            fixedStr = datastring.replace("/t","\t").replace("/n","\n")
+            fixedStr = datastring.replace("/t", "\t").replace("/n", "\n")
 
             return str(fixedStr)
         else:
-            raise Exception("Unknown GameConnection Field Type: %d" % fieldType)
+            raise Exception(
+                "Unknown GameConnection Field Type: {}".format(fieldType),
+            )
 
     # Non-reentrant
     def _onReadyRead(self):
@@ -101,7 +105,9 @@ class GPGNetConnection(QObject):
                     self.chunks.append(chunk)
 
                 # Packet pair reading done.
-                self._logger.info("GC >> : %s : %s", self.header, self.chunks)
+                self._logger.info(
+                    "GC >> : {} : {}".format(self.header, self.chunks),
+                )
                 self.messageReceived.emit(self.header, self.chunks)
                 self.header = None
                 self.nchunks = -1

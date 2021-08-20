@@ -50,9 +50,12 @@ class GameLauncher:
             featured_mod=main_mod,
             sim_mods={},
             password_protected=False,   # Filled in later
-            visibility=(GameVisibility.FRIENDS if friends_only
-                        else GameVisibility.PUBLIC)
-            )
+            visibility=(
+                GameVisibility.FRIENDS
+                if friends_only
+                else GameVisibility.PUBLIC
+            ),
+        )
 
     def host_game(self, title, main_mod, mapname=None):
         game = self._build_hosted_game(main_mod, mapname)
@@ -65,24 +68,30 @@ class GameLauncher:
         return self._game_widget.exec_()
 
     def _launch_game(self, game, password, mods):
-        # Make sure the binaries are all up to date, and abort if the update fails or is cancelled.
+        # Make sure the binaries are all up to date, and abort if the update
+        # fails or is cancelled.
         if not fa.check.game(self._client):
             return
 
-        # Ensure all mods are up-to-date, and abort if the update process fails.
+        # Ensure all mods are up-to-date, and abort if the update process
+        # fails.
         if not fa.check.check(game.featured_mod):
             return
-        if (game.featured_mod == "coop"
-           and not fa.check.map_(game.mapname, force=True)):
+        if (
+            game.featured_mod == "coop"
+            and not fa.check.map_(game.mapname, force=True)
+        ):
             return
 
         modvault.utils.setActiveMods(mods, True, False)
 
-        self._client.host_game(title=game.title,
-                               mod=game.featured_mod,
-                               visibility=game.visibility.value,
-                               mapname=game.mapname,
-                               password=password)
+        self._client.host_game(
+            title=game.title,
+            mod=game.featured_mod,
+            visibility=game.visibility.value,
+            mapname=game.mapname,
+            password=password,
+        )
 
 
 class HostGameWidget(FormClass, BaseClass):
@@ -92,11 +101,12 @@ class HostGameWidget(FormClass, BaseClass):
         BaseClass.__init__(self, client)
 
         self.setupUi(self)
-        self.client = client  # type: ClientWindow
+        self.client = client  # type - ClientWindow
         self.game = None
         self._preview_model = preview_model
-        self.game_preview_logic = gameview_builder(preview_model,
-                                                   self.gamePreview)
+        self.game_preview_logic = gameview_builder(
+            preview_model, self.gamePreview,
+        )
         self.mods = {}
 
         util.THEME.stylesheets_reloaded.connect(self.load_stylesheet)
@@ -122,7 +132,8 @@ class HostGameWidget(FormClass, BaseClass):
         self.passEdit.setText(self.password)
         self.passCheck.setChecked(self.game.password_protected)
         self.radioFriends.setChecked(
-            self.game.visibility == GameVisibility.FRIENDS)
+            self.game.visibility == GameVisibility.FRIENDS,
+        )
 
         self._preview_model.add_game(self.game)
 
@@ -135,11 +146,17 @@ class HostGameWidget(FormClass, BaseClass):
             self.mods[mod.totalname] = mod
             self.modList.addItem(mod.totalname)
 
-        names = [mod.totalname for mod in modvault.utils.getActiveMods(uimods=False, temporary=False)]
-        logger.debug("Active Mods detected: %s" % str(names))
+        names = [
+            mod.totalname
+            for mod in modvault.utils.getActiveMods(
+                uimods=False,
+                temporary=False,
+            )
+        ]
+        logger.debug("Active Mods detected: {}".format(str(names)))
         for name in names:
             ml = self.modList.findItems(name, QtCore.Qt.MatchExactly)
-            logger.debug("found item: %s" % ml[0].text())
+            logger.debug("found item: {}".format(ml[0].text()))
             if ml:
                 ml[0].setSelected(True)
 
@@ -162,14 +179,17 @@ class HostGameWidget(FormClass, BaseClass):
             allmaps = {}
             for map_ in list(maps.maps.keys()) + maps.getUserMaps():
                 allmaps[map_] = maps.getDisplayName(map_)
-            for (map_, name) in sorted(iter(allmaps.items()), key=lambda x: x[1]):
+            for (map_, name) in sorted(
+                iter(allmaps.items()),
+                key=lambda x: x[1],
+            ):
                 if map_ == game.mapname:
                     index = i
                 self.mapList.addItem(name, map_)
                 i = i + 1
             self.mapList.setCurrentIndex(index)
         else:
-            self.mapList.hide()   
+            self.mapList.hide()
 
     def set_map(self, mapname):
         for i in range(self.mapList.count()):
@@ -184,8 +204,13 @@ class HostGameWidget(FormClass, BaseClass):
         self.game.update(password_protected=checked)
 
     def update_visibility(self, friends):
-        self.game.update(visibility=(GameVisibility.FRIENDS if friends
-                                     else GameVisibility.PUBLIC))
+        self.game.update(
+            visibility=(
+                GameVisibility.FRIENDS
+                if friends
+                else GameVisibility.PUBLIC
+            ),
+        )
 
     def map_changed(self, index):
         mapname = self.mapList.itemData(index)
@@ -202,7 +227,10 @@ class HostGameWidget(FormClass, BaseClass):
 
         self.save_last_hosted_settings(password)
 
-        modnames = [str(moditem.text()) for moditem in self.modList.selectedItems()]
+        modnames = [
+            str(moditem.text())
+            for moditem in self.modList.selectedItems()
+        ]
         mods = [self.mods[modstr] for modstr in modnames]
         modvault.utils.setActiveMods(mods, True, False)
 
@@ -225,6 +253,7 @@ class HostGameWidget(FormClass, BaseClass):
     def generateMap(self):
         dialog = MapGenDialog.MapGenDialog(self)
         dialog.exec_()
+
 
 def build_launcher(playerset, me, client, view_builder, map_preview_dler):
     model = GameModel(me, map_preview_dler)

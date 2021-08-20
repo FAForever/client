@@ -1,5 +1,4 @@
 
-import datetime
 import os
 import urllib.error
 import urllib.parse
@@ -9,7 +8,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 import util
 from modvault import utils
-from util import datetostr, strtodate
+from util import strtodate
 
 FormClass, BaseClass = util.THEME.loadUiType("modvault/mod.ui")
 
@@ -33,21 +32,26 @@ class ModWidget(FormClass, BaseClass):
         self.Title.setText(mod.name)
         self.Description.setText(mod.description)
         modtext = ""
-        if mod.isuimod: modtext = "UI mod\n"
-        self.Info.setText(modtext + "By %s\nUploaded %s" % (mod.author, str(mod.date)))
-        mod.thumbnail = utils.getIcon(os.path.basename(urllib.parse.unquote(mod.thumbstr)))
+        if mod.isuimod:
+            modtext = "UI mod\n"
+        self.Info.setText(
+            modtext + "By {}\nUploaded {}".format(mod.author, str(mod.date)),
+        )
+        mod.thumbnail = utils.getIcon(
+            os.path.basename(urllib.parse.unquote(mod.thumbstr)),
+        )
         if mod.thumbnail is None:
             self.Picture.setPixmap(util.THEME.pixmap("games/unknown_map.png"))
         else:
             pixmap = util.THEME.pixmap(mod.thumbnail, False)
             self.Picture.setPixmap(pixmap.scaled(self.ICONSIZE))
-        
-        #ensure that pixmap is set
+
+        # ensure that pixmap is set
         if self.Picture.pixmap() is None or self.Picture.pixmap().isNull():
             self.Picture.setPixmap(util.THEME.pixmap("games/unknown_map.png"))
 
-        #self.Comments.setItemDelegate(CommentItemDelegate(self))
-        #self.BugReports.setItemDelegate(CommentItemDelegate(self))
+        # self.Comments.setItemDelegate(CommentItemDelegate(self))
+        # self.BugReports.setItemDelegate(CommentItemDelegate(self))
 
         self.tabWidget.setEnabled(False)
 
@@ -55,18 +59,18 @@ class ModWidget(FormClass, BaseClass):
             self.DownloadButton.setText("Remove Mod")
         self.DownloadButton.clicked.connect(self.download)
 
-        #self.likeButton.clicked.connect(self.like)
-        #self.LineComment.returnPressed.connect(self.addComment)
-        #self.LineBugReport.returnPressed.connect(self.addBugReport)
+        # self.likeButton.clicked.connect(self.like)
+        # self.LineComment.returnPressed.connect(self.addComment)
+        # self.LineBugReport.returnPressed.connect(self.addBugReport)
 
-        #for item in mod.comments:
-        #    comment = CommentItem(self,item["uid"])
-        #    comment.update(item)
-        #    self.Comments.addItem(comment)
-        #for item in mod.bugreports:
-        #    comment = CommentItem(self,item["uid"])
-        #    comment.update(item)
-        #    self.BugReports.addItem(comment)
+        # for item in mod.comments:
+        #     comment = CommentItem(self,item["uid"])
+        #     comment.update(item)
+        #     self.Comments.addItem(comment)
+        # for item in mod.bugreports:
+        #     comment = CommentItem(self,item["uid"])
+        #     comment.update(item)
+        #     self.BugReports.addItem(comment)
 
         self.likeButton.setEnabled(False)
         self.LineComment.setEnabled(False)
@@ -81,53 +85,31 @@ class ModWidget(FormClass, BaseClass):
             self.parent.downloadMod(self.mod)
             self.done(1)
         else:
-            show = QtWidgets.QMessageBox.question(self.parent.client, "Delete Mod",
-                                                  "Are you sure you want to delete this mod?",
-                                                  QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
+            show = QtWidgets.QMessageBox.question(
+                self.parent.client,
+                "Delete Mod",
+                "Are you sure you want to delete this mod?",
+                QtWidgets.QMessageBox.Yes,
+                QtWidgets.QMessageBox.No,
+            )
             if show == QtWidgets.QMessageBox.Yes:
                 self.parent.removeMod(self.mod)
                 self.done(1)
 
     @QtCore.pyqtSlot()
     def addComment(self):
-        if self.LineComment.text() == "":
-            return
-        comment = {"author": self.parent.client.login,
-                   "text": self.LineComment.text(),
-                   "date": datetostr(datetime.now()),
-                   "uid": "%s-%s" % (self.mod.uid, str(len(self.mod.bugreports) +
-                                                       len(self.mod.comments)).zfill(3))}
-
-        self.parent.client.lobby_connection.send(dict(command="modvault", type="addcomment", moduid=self.mod.uid,
-                                                      comment=comment))
-        c = CommentItem(self, comment["uid"])
-        c.update(comment)
-        self.Comments.addItem(c)
-        self.mod.comments.append(comment)
-        self.LineComment.setText("")
+        # TODO: implement this with the use of API
+        ...
 
     @QtCore.pyqtSlot()
     def addBugReport(self):
-        if self.LineBugReport.text() == "":
-            return
-        bugreport = {"author": self.parent.client.login,
-                     "text": self.LineBugReport.text(),
-                     "date": datetostr(datetime.now()),
-                     "uid": "%s-%s" % (self.mod.uid, str(len(self.mod.bugreports) +
-                                                         len(self.mod.comments)).zfill(3))}
-
-        self.parent.client.lobby_connection.send(dict(command="modvault", type="addbugreport", moduid=self.mod.uid,
-                                                      bugreport=bugreport))
-        c = CommentItem(self, bugreport["uid"])
-        c.update(bugreport)
-        self.BugReports.addItem(c)
-        self.mod.bugreports.append(bugreport)
-        self.LineBugReport.setText("")
+        # TODO: implement this with the use of API (if possible)
+        ...
 
     @QtCore.pyqtSlot()
-    def like(self):  # the server should determine if the user hasn't already clicked the like button for this mod.
-        self.parent.client.lobby_connection.send(dict(command="modvault", type="like", uid=self.mod.uid))
-        self.likeButton.setEnabled(False)
+    def like(self):
+        # TODO: implement this with the use of API
+        ...
 
 
 class CommentItemDelegate(QtWidgets.QStyledItemDelegate):
@@ -145,11 +127,13 @@ class CommentItemDelegate(QtWidgets.QStyledItemDelegate):
         html = QtGui.QTextDocument()
         html.setHtml(option.text)
 
-        option.text = ""  
-        option.widget.style().drawControl(QtWidgets.QStyle.CE_ItemViewItem, option, painter, option.widget)
+        option.text = ""
+        option.widget.style().drawControl(
+            QtWidgets.QStyle.CE_ItemViewItem, option, painter, option.widget,
+        )
 
         # Description
-        painter.translate(option.rect.left() + 10, option.rect.top()+10)
+        painter.translate(option.rect.left() + 10, option.rect.top() + 10)
         clip = QtCore.QRectF(0, 0, option.rect.width(), option.rect.height())
         html.drawContents(painter, clip)
 
@@ -180,7 +164,13 @@ class CommentItem(QtWidgets.QListWidgetItem):
         self.text = dic["text"]
         self.author = dic["author"]
         self.date = strtodate(dic["date"])
-        self.setText(self.FORMATTER_COMMENT.format(text=self.text, author=self.author, date=str(self.date)))
+        self.setText(
+            self.FORMATTER_COMMENT.format(
+                text=self.text,
+                author=self.author,
+                date=str(self.date),
+            ),
+        )
 
     def __ge__(self, other):
         return self.date > other.date

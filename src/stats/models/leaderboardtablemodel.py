@@ -24,9 +24,17 @@ class LeaderboardTableModel(QAbstractTableModel):
     def headerData(self, section, orientation, role):
         if role == Qt.DisplayRole:
             if orientation == Qt.Horizontal:
-                return ("Name", "Rating", "Mean", "Deviation", "Games", "Won", "Win rate", "Updated", "Player Id")[section]
+                return (
+                    "Name", "Rating", "Mean", "Deviation", "Games", "Won",
+                    "Win rate", "Updated", "Player Id",
+                )[section]
             else:
-                return "{}".format(int(self.meta["page"]["number"] - 1) * int(self.meta["page"]["limit"]) + section + 1)
+                return "{}".format(
+                    int(self.meta["page"]["number"] - 1)
+                    * int(self.meta["page"]["limit"])
+                    + section
+                    + 1,
+                )
         elif role == Qt.TextAlignmentRole:
             return Qt.AlignCenter
 
@@ -51,9 +59,15 @@ class LeaderboardTableModel(QAbstractTableModel):
                 if self.values[row]["totalGames"] == 0:
                     return "{:.2f}%".format(0)
                 else:
-                    return "{:.2f}%".format(100 * self.values[row]["wonGames"]/self.values[row]["totalGames"])
+                    return "{:.2f}%".format(
+                        100
+                        * self.values[row]["wonGames"]
+                        / self.values[row]["totalGames"],
+                    )
             elif column == 7:
-                dateUTC = QDateTime.fromString(self.values[row]["updateTime"], Qt.ISODate)
+                dateUTC = QDateTime.fromString(
+                    self.values[row]["updateTime"], Qt.ISODate,
+                )
                 dateLocal = dateUTC.toLocalTime().toString("yyyy-MM-dd")
                 return "{}".format(dateLocal)
             elif column == 8:

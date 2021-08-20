@@ -11,17 +11,20 @@ class Player(ModelItem):
     """
     Represents a player the client knows about.
     """
-    def __init__(self,
-                 id_,
-                 login,
-                 ratings={},
-                 global_rating=(1500, 500),
-                 ladder_rating=(1500, 500),
-                 number_of_games=0,
-                 avatar=None,
-                 country=None,
-                 clan=None,
-                 league=None):
+
+    def __init__(
+        self,
+        id_,
+        login,
+        ratings={},
+        global_rating=(1500, 500),
+        ladder_rating=(1500, 500),
+        number_of_games=0,
+        avatar=None,
+        country=None,
+        clan=None,
+        league=None,
+    ):
         ModelItem.__init__(self)
         """
         Initialize a Player
@@ -98,37 +101,38 @@ class Player(ModelItem):
             mean = self.ratings[rating_type]["rating"][0]
             deviation = self.ratings[rating_type]["rating"][1]
             return int(max(0, (mean - 3 * deviation)))
-        except Exception:
+        except BaseException:
             return 0
 
     def rating_mean(self, rating_type=RatingType.GLOBAL.value):
         try:
             return round(self.ratings[rating_type]["rating"][0])
-        except Exception:
+        except BaseException:
             return 1500
 
     def rating_deviation(self, rating_type=RatingType.GLOBAL.value):
         try:
             return round(self.ratings[rating_type]["rating"][1])
-        except Exception:
+        except BaseException:
             return 500
 
     def quantity_of_games(self, rating_type=RatingType.GLOBAL.value):
         try:
             return int(self.ratings[rating_type]["number_of_games"])
-        except Exception:
+        except BaseException:
             return 0
 
     def __repr__(self):
         return self.__str__()
 
     def __str__(self):
-        return ("Player(id={}, login={}, global_rating={}, "
-                "ladder_rating={})").format(
+        return (
+            "Player(id={}, login={}, global_rating={}, ladder_rating={})"
+        ).format(
             self.id,
             self.login,
             self.global_rating,
-            self.ladder_rating
+            self.ladder_rating,
         )
 
     @property

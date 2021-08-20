@@ -19,7 +19,6 @@ class GameUrl:
         self.mods = mods
         self.uid = uid
         self.player = player    # Can be both name and uid
-        pass
 
     def to_url(self):
         url = QUrl()
@@ -35,8 +34,9 @@ class GameUrl:
             url.setPath("/{}".format(self.player))
             query.addQueryItem("uid", str(self.uid))
         else:
-            url.setPath("/{}/{}{}".format(
-                    self.uid, self.player, self.REPLAY_SUFFIX))
+            url.setPath(
+                "/{}/{}{}".format(self.uid, self.player, self.REPLAY_SUFFIX),
+            )
 
         url.setQuery(query)
         return url

@@ -12,40 +12,45 @@ the 2nd parameter is a dictionary of default values
 
 *** IMPORTANT ***
 All the parsed lua item names are lower case (not the values)
-If there were more than one occurrences found, only the last matched is returned
-If there is default value for a search entry, error will not be generated. Default value will be returned instead
+If there were more than one occurrences found, only the last matched is
+returned
+If there is default value for a search entry, error will not be generated.
+Default value will be returned instead
 *** IMPORTANT ***
 
     'parent>name:command'
     you can use * character here
     parent - item parent
-        you can specify multiple parents (parent1>parent2>...>name)
-        you should explicitly specify parents (you cannot drop in-between parents and expect it will find desired items)
-        you can drop parents at all
+        * you can specify multiple parents (parent1>parent2>...>name)
+        * you should explicitly specify parents (you cannot drop in-between
+          parents and expect it will find desired items)
+        * you can drop parents at all
     name - name of desired parameter in lua in lower case
         special characters, like ' [ ] " are pulled down
     command - an instruction to the parser (only 1 supported command so far)
-        count - counts all matched elements if they are strings, and size of lists or dicts otherwise
-        
+        count - counts all matched elements if they are strings, and size of
+        lists or dicts otherwise
+
     'destination:alias'
     alias - a name under which matched item will be returned
         you can use any of following patterns:
         __self__ - returns item name as it is in lua
         __parent__ - returns item parent
-    destination - you can specify a dictionary for matched items in the resulting array
+    destination - you can specify a dictionary for matched items in the
+    resulting array
 """
 import os
 import re
 
 
 class luaParser:
-    
+
     def __init__(self, luaPath):
         self.iszip = False
         self.zip = None
         self.__path = luaPath
-        self.__keyFilter = re.compile("[\[\],'\"]")
-        self.__valFilter = re.compile("[\[\]]")
+        self.__keyFilter = re.compile(r"[\[\],'\"]")
+        self.__valFilter = re.compile(r"[\[\]]")
         self.__searchResult = dict()
         self.__searchPattern = dict()
         self.__foundItemsCount = dict()
@@ -62,7 +67,7 @@ class luaParser:
         self.warning = False
         self.errorMsg = ""
         self.loweringKeys = True
-    
+
     def __checkUninterruptibleStr(self, char):
         if char == "\"" or char == "'":
             if not self.__inString:
@@ -73,21 +78,21 @@ class luaParser:
         elif not self.__inString and char == "(":
             self.__inString = True
             self.__stringChar = ")"
-    
+
     def __processLine(self, parent=""):
-        # initialize item counter
         counter = 0
-        # initialize empty array
         lua = dict()
-        # initialize value
         value = ""
+        key = ""
+        prevkey = ""
         # start cycle
         while len(self.__stream):
             # get a line from the list or read next line from the file
             if len(self.__lines) == 0:
                 line = self.__stream.pop(0)
-                # cut commentary section (either start whit '#' or is a '--[[  ]]--' section
-                comment = re.compile("((#.*))$|((--\[\[).*(\]\]--)$)")
+                # cut commentary section (either start whit '#' or is a
+                # '--[[  ]]--' section
+                comment = re.compile(r"((#.*))$|((--\[\[).*(\]\]--)$)")
                 line = comment.sub("", line)
                 # process line to see if it one command or a stack of them
                 newLine = 0
@@ -144,7 +149,6 @@ class luaParser:
                 # if value is '}' - which is end of lua array, stop parsing
                 if value == "}":
                     break
-                unfinished = False
                 if len(value) != 0:
                     # remove finishing comma if there is one
                     if value[-1] == ",":
@@ -158,9 +162,11 @@ class luaParser:
                         # add new item into the array: recursive function call
                         if self.__prevUnfinished:
                             self.__prevUnfinished = False
-                            lua[prevkey] = self.__processLine(parent+">"+prevkey)
+                            lua[prevkey] = self.__processLine(
+                                parent + ">" + prevkey,
+                            )
                         else:
-                            lua[key] = self.__processLine(parent+">"+key)
+                            lua[key] = self.__processLine(parent + ">" + key)
                     else:
                         # add new item into the array: value itself
                         if value[0] == "\"" or value[0] == "'":
@@ -168,17 +174,17 @@ class luaParser:
                         if value[-1] == "\"" or value[-1] == "'":
                             value = value[:-1]
                         lua[key] = value
-                elif len(value) != 0:
-                    # add new item into the array: value itself
-                    lua[key] = value
                 elif len(key) != 0:
                     self.__prevUnfinished = True
                     prevkey = key
             # checking line if it suits searchPattern, and adding if so
                 for searchKey in self.__searchPattern:
-                    # regkey = re.compile(".*("+searchKey.split(":")[-1].replace("*", ".*")+")$")
+                    # regkey = re.compile(
+                    #    ".*("+searchKey.split(":")[-1].replace("*", ".*")+")$"
+                    # )
                     # if regkey.match(parent+">"+key):
-                    if re.match(".*>("+searchKey.split(":")[-1].replace("*", ".*")+")$", parent+">"+key):
+                    matchKey = searchKey.split(":")[-1].replace("*", ".*")
+                    if re.match(".*>(" + matchKey + ")$", parent + ">" + key):
                         # get command from key
                         valcmd = searchKey.split(":")
                         valcmd = valcmd[0] if len(valcmd) == 2 else "none"
@@ -193,13 +199,17 @@ class luaParser:
                             else:
                                 count = 0
                             if resultKey in self.__searchResult:
-                                resultVal = self.__searchResult[resultKey] + count
+                                resultVal = (
+                                    self.__searchResult[resultKey] + count
+                                )
                             else:
                                 resultVal = count
                         else:
                             resultVal = lua[key]
                         resultKey = resultKey.replace("__self__", key)
-                        resultKey = resultKey.replace("__parent__", parent.split(">")[-1])
+                        resultKey = resultKey.replace(
+                            "__parent__", parent.split(">")[-1],
+                        )
                         keycmd = resultKey.split(":")
                         # unpack command from search key
                         if len(keycmd) == 2:
@@ -212,15 +222,25 @@ class luaParser:
                             self.__searchResult[resultKey] = resultVal
                         else:
                             if keydst in self.__searchResult:
-                                if isinstance(self.__searchResult[keydst], dict):
-                                    self.__searchResult[keydst][resultKey] = resultVal
+                                if isinstance(
+                                    self.__searchResult[keydst], dict,
+                                ):
+                                    self.__searchResult[keydst][resultKey] = (
+                                        resultVal
+                                    )
                             else:
                                 self.__searchResult[keydst] = dict()
-                                self.__searchResult[keydst][resultKey] = resultVal
+                                self.__searchResult[keydst][resultKey] = (
+                                    resultVal
+                                )
                         if isinstance(resultVal, int):
-                            self.__foundItemsCount[searchKey] = self.__foundItemsCount[searchKey] + resultVal
+                            self.__foundItemsCount[searchKey] = (
+                                self.__foundItemsCount[searchKey] + resultVal
+                            )
                         else:
-                            self.__foundItemsCount[searchKey] = self.__foundItemsCount[searchKey] + 1
+                            self.__foundItemsCount[searchKey] = (
+                                self.__foundItemsCount[searchKey] + 1
+                            )
             # increase counter
             counter = counter + 1
         # return resulting array
@@ -232,7 +252,7 @@ class luaParser:
             f = open(self.__path, "r")
         else:
             if self.zip.testzip() is None:
-                for member in self.zip.namelist() :
+                for member in self.zip.namelist():
                     filename = os.path.basename(member)
                     if not filename:
                         continue
@@ -244,8 +264,9 @@ class luaParser:
 
         self.__stream = f.readlines()
         if self.__stream[-1][-1] != "\n":  # file doesn't end in a newline
-            # needed to prevent a bug happening when a file doesn't end with a newline.
-                        self.__stream[-1] += "\n"
+            # needed to prevent a bug happening when a file doesn't end with a
+            # newline.
+            self.__stream[-1] += "\n"
         f.close()
         # call recursive function
         result = self.__processLine()
@@ -257,28 +278,43 @@ class luaParser:
             if len(key.split(":")) == 2 or key.find("*") != -1:
                 if self.__foundItemsCount[key] == 0:
                     if resultKey in self.__defaultValues:
-                        self.__searchResult[resultKey] = self.__defaultValues[resultKey]
+                        self.__searchResult[resultKey] = (
+                            self.__defaultValues[resultKey]
+                        )
                     else:
                         self.error = True
-                        self.errors = self.errors + 1
-                        self.errorMsg = self.errorMsg + "Error: no matches for '" + key + "' were found\n"
+                        self.errors += 1
+                        self.errorMsg += (
+                            "Error: no matches for '{}' were "
+                            "found\n".format(key)
+                        )
             else:
                 if self.__foundItemsCount[key] == 0:
                     if resultKey in self.__defaultValues:
-                        self.__searchResult[resultKey] = self.__defaultValues[resultKey]
+                        self.__searchResult[resultKey] = (
+                            self.__defaultValues[resultKey]
+                        )
                     else:
                         self.error = True
-                        self.errors = self.errors + 1
-                        self.errorMsg = self.errorMsg + "Error: no matches for '" + key + "' were found\n"
+                        self.errors += 1
+                        self.errorMsg += (
+                            "Error: no matches for '{}' were "
+                            "found\n".format(key)
+                        )
                 elif self.__foundItemsCount[key] > 1:
                     self.warning = True
-                    self.warnings = self.warnings + 1
-                    self.errorMsg = self.errorMsg + "Warning: there were duplicate occurrences for '" + key + "'\n"
+                    self.warnings += 1
+                    self.errorMsg += (
+                        "Warning: there were duplicate "
+                        "occurrences for '{}'\n".format(key)
+                    )
 
     def parse(self, luaSearch, defValues=dict()):
         self.__searchPattern.update(luaSearch)
         self.__defaultValues.update(defValues)
-        self.__foundItemsCount = {}.fromkeys(list(self.__searchPattern.keys()), 0)
+        self.__foundItemsCount = (
+            {}.fromkeys(list(self.__searchPattern.keys()), 0)
+        )
         self.__parsedData = self.__parseLua()
         self.__checkErrors()
         return self.__searchResult

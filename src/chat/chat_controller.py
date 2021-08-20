@@ -11,8 +11,10 @@ from model.chat.chatter import Chatter
 class ChatController(QObject):
     join_requested = pyqtSignal(object)
 
-    def __init__(self, connection, model, user_relations, chat_config,
-                 line_metadata_builder):
+    def __init__(
+        self, connection, model, user_relations, chat_config,
+        line_metadata_builder,
+    ):
         QObject.__init__(self)
         self._connection = connection
         self._model = model
@@ -36,10 +38,14 @@ class ChatController(QObject):
         c.new_server_message.connect(self._at_new_server_message)
 
     @classmethod
-    def build(cls, connection, model, user_relations, chat_config,
-              line_metadata_builder, **kwargs):
-        return cls(connection, model, user_relations, chat_config,
-                   line_metadata_builder)
+    def build(
+        cls, connection, model, user_relations, chat_config,
+        line_metadata_builder, **kwargs
+    ):
+        return cls(
+            connection, model, user_relations, chat_config,
+            line_metadata_builder,
+        )
 
     @property
     def _channels(self):
@@ -173,8 +179,10 @@ class ChatController(QObject):
         self._announce_chatter(channel, chatter, "left the channel.")
 
     def _announce_quit(self, cid, chatter, message):
-        if (not self._chat_config.joinsparts
-                and cid.type != ChannelType.PRIVATE):
+        if (
+            not self._chat_config.joinsparts
+            and cid.type != ChannelType.PRIVATE
+        ):
             return
         if self._should_ignore_chatter(cid, chatter.name):
             return
@@ -259,8 +267,13 @@ class ChatController(QObject):
                     self._at_new_line(cid, None, self._user_chat_line(msg))
             elif action == MessageAction.ME:
                 if self._connection.send_action(cid.name, msg):
-                    self._at_new_line(cid, None, self._user_chat_line(
-                        msg, ChatLineType.ACTION))
+                    self._at_new_line(
+                        cid,
+                        None,
+                        self._user_chat_line(
+                            msg, ChatLineType.ACTION,
+                        ),
+                    )
             elif action == MessageAction.SEEN:
                 self._connection.send_action("nickserv", "info {}".format(msg))
             elif action == MessageAction.TOPIC:
@@ -270,14 +283,21 @@ class ChatController(QObject):
             else:
                 pass    # TODO - raise 'Sending failed' error back to the view?
         except ValueError:
-            self._announce(self._channels[cid], "Sending failed. Message is too long or contains invalid character.")
-        except Exception:
-            self._announce(self._channels[cid], "Sending failed. Check your connection.")
+            notice = (
+                "Sending failed. Message is too long or contains invalid"
+                " character."
+            )
+            self._announce(self._channels[cid], notice)
+        except BaseException:
+            notice = "Sending failed. Check your connection."
+            self._announce(self._channels[cid], notice)
 
     def join_channel(self, cid):
         # Don't join a private channel with ourselves
-        if (cid.type == ChannelType.PRIVATE and
-                cid.name == self._connection.nickname):
+        if (
+            cid.type == ChannelType.PRIVATE
+            and cid.name == self._connection.nickname
+        ):
             return
 
         self.join_requested.emit(cid)

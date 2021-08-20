@@ -15,9 +15,11 @@ class UpdateChannel(Enum):
     Unstable = 2
 
     def to_reltype(self):
-        d = {UpdateChannel.Stable: ReleaseType.STABLE,
-             UpdateChannel.Prerelease: ReleaseType.PRERELEASE,
-             UpdateChannel.Unstable: ReleaseType.UNSTABLE}
+        d = {
+            UpdateChannel.Stable: ReleaseType.STABLE,
+            UpdateChannel.Prerelease: ReleaseType.PRERELEASE,
+            UpdateChannel.Unstable: ReleaseType.UNSTABLE,
+        }
         return d[self]
 
 
@@ -53,10 +55,12 @@ class ReleaseType(Enum):
         return cls.STABLE
 
     def included_channels(self):
-        order = [ReleaseType.MINIMUM,
-                 ReleaseType.STABLE,
-                 ReleaseType.PRERELEASE,
-                 ReleaseType.UNSTABLE]
+        order = [
+            ReleaseType.MINIMUM,
+            ReleaseType.STABLE,
+            ReleaseType.PRERELEASE,
+            ReleaseType.UNSTABLE,
+        ]
         for item in order:
             yield item
             if item == self:
@@ -103,7 +107,8 @@ class Releases:
         else:
             versions = filter(
                 lambda r: r.version > current or r.version < current,
-                versions)
+                versions,
+            )
         versions = list(versions)
         versions.sort(reverse=True)
         return versions
@@ -118,18 +123,26 @@ class Releases:
 
 class UpdateSettings:
     _updater_branch = Settings.persisted_property(
-        'updater/branch', type=str,
-        default_value=UpdateChannel.Prerelease.name)
+        'updater/branch',
+        type=str,
+        default_value=UpdateChannel.Prerelease.name,
+    )
     updater_downgrade = Settings.persisted_property(
-        'updater/downgrade', type=bool, default_value=False)
+        'updater/downgrade', type=bool, default_value=False,
+    )
     gh_releases_url = Settings.persisted_property(
         'updater/gh_release_url',
         type=str,
-        default_value=('https://api.github.com/repos/FAForever/'
-                       'client/releases?per_page=20'))
+        default_value=(
+            'https://api.github.com/repos/FAForever/'
+            'client/releases?per_page=20'
+        ),
+    )
     changelog_url = Settings.persisted_property(
-        'updater/changelog_url', type=str,
-        default_value='https://github.com/FAForever/client/releases/tag')
+        'updater/changelog_url',
+        type=str,
+        default_value='https://github.com/FAForever/client/releases/tag',
+    )
 
     def __init__(self):
         pass
@@ -179,9 +192,10 @@ class GithubUpdateChecker(QObject):
         release_data = bytes(self._rep.readAll())
         try:
             releases = json.loads(release_data.decode('utf-8'))
-        except (UnicodeError, json.JSONDecodeError) as e:
+        except (UnicodeError, json.JSONDecodeError):
             self._logger.exception(
-                "Error parsing network reply: {}".format(repr(release_data)))
+                "Error parsing network reply: {}".format(repr(release_data)),
+            )
             return None
         return list(self._parse_releases(releases))
 
@@ -252,5 +266,6 @@ class UpdateNotifier(QObject):
         elif releases.mandatory_update():
             self.update.emit(releases, True)
         elif releases.optional_update(
-                self._settings.updater_branch.to_reltype()):
+                self._settings.updater_branch.to_reltype(),
+        ):
             self.update.emit(releases, False)

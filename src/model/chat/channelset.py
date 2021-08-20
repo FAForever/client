@@ -15,8 +15,10 @@ class Channelset(ModelItemSet):
 
     @transactional
     def set_item(self, key, value, _transaction=None):
-        value.is_base = (key.type == ChannelType.PUBLIC
-                         and key.name in self.base_channels)
+        value.is_base = (
+            key.type == ChannelType.PUBLIC
+            and key.name in self.base_channels
+        )
         ModelItemSet.set_item(self, key, value, _transaction)
         self.emit_added(value, _transaction)
 

@@ -3,15 +3,15 @@ from semantic_version import Version
 from util import Theme
 
 THEME_FILE_FUNS = [
-        "pixmap",
-        "loadUi",
-        "loadUiType",
-        "readlines",
-        "readstylesheet",
-        "themeurl",
-        "readfile",
-        "sound",
-        ]
+    "pixmap",
+    "loadUi",
+    "loadUiType",
+    "readlines",
+    "readstylesheet",
+    "themeurl",
+    "readfile",
+    "sound",
+]
 
 
 def test_theme_with_empty_dir_keeps_filename(tmpdir):
@@ -34,30 +34,30 @@ def test_missing_files_return_none(tmpdir):
 
     theme = Theme(str(themedir), "")
     for fun in THEME_FILE_FUNS:
-        assert getattr(theme, fun)("file") == None
+        assert getattr(theme, fun)("file") is None
 
     theme = Theme(None, "")
     for fun in THEME_FILE_FUNS:
-        assert getattr(theme, fun)(str(themedir.join("file"))) == None
+        assert getattr(theme, fun)(str(themedir.join("file"))) is None
 
 
 def test_missing_version_returns_none(tmpdir):
     themedir = tmpdir.mkdir("theme")
     theme = Theme(str(themedir), "")
-    assert theme.version() == None
+    assert theme.version() is None
 
 
 def test_empty_dir_theme_version_returns_none(tmpdir):
-    themedir = tmpdir.mkdir("theme")
+    tmpdir.mkdir("theme")
     theme = Theme(None, "")
-    assert theme.version() == None
+    assert theme.version() is None
 
 
 def test_malformed_version_returns_none(tmpdir):
     themedir = tmpdir.mkdir("theme")
     themedir.join("version").write("1.0blergh")
     theme = Theme(str(themedir), "")
-    assert theme.version() == None
+    assert theme.version() is None
 
 
 def test_version_correctly_read(tmpdir):
@@ -70,7 +70,7 @@ def test_version_correctly_read(tmpdir):
 
 
 def test_pixmap_cache_caches(tmpdir, mocker):
-    mocker.patch('PyQt5.QtGui.QPixmap', side_effect = [1, 2])
+    mocker.patch('PyQt5.QtGui.QPixmap', side_effect=[1, 2])
     themedir = tmpdir.mkdir("theme")
     themedir.join("file").write("content")
     themedir.join("second_file").write("content")

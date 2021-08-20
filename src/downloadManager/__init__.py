@@ -3,14 +3,11 @@ import os
 import urllib.error
 import urllib.parse
 import urllib.request
-import warnings
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QObject, QUrl, pyqtSignal
-from PyQt5.QtNetwork import (QNetworkAccessManager, QNetworkReply,
-                             QNetworkRequest)
+from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest
 
-import util
 from config import Settings
 
 logger = logging.getLogger(__name__)
@@ -60,9 +57,13 @@ class FileDownload(QObject):
 
     def _finish(self):
         # check status code
-        statusCode = self._dfile.attribute(QNetworkRequest.HttpStatusCodeAttribute)
+        statusCode = self._dfile.attribute(
+            QNetworkRequest.HttpStatusCodeAttribute,
+        )
         if statusCode != 200:
-            logger.debug('Download failed: %s -> %s', self.addr, statusCode)
+            logger.debug(
+                'Download failed: {} -> {}'.format(self.addr, statusCode),
+            )
             self.error = True
         self.finished.emit(self)
 
@@ -101,14 +102,17 @@ class FileDownload(QObject):
         while self._dfile.bytesAvailable() > 0 and self._running:
             self._readloop()
         if self._sock_finished:
-            # Sock can be marked as finished either before read or inside readloop
-            # Either way we've read everything after it was marked
+            # Sock can be marked as finished either before read or inside
+            # readloop. Either way we've read everything after it was marked
             self._stop()
 
     def _readloop(self):
-            bs = self.blocksize if self.blocksize is not None else self._dfile.bytesAvailable()
-            self.dest.write(self._dfile.read(bs))
-            self.progress.emit(self)
+        if self.blocksize is None:
+            bs = self._dfile.bytesAvailable()
+        else:
+            bs = self.blocksize
+        self.dest.write(self._dfile.read(bs))
+        self.progress.emit(self)
 
     def succeeded(self):
         return not self.error and not self.canceled
@@ -228,13 +232,17 @@ class PreviewDownloader(QtCore.QObject):
         self._route = route
         self._default_url_prefix = None
         self._downloads = {}
-        self._timeouts = DownloadTimeouts(self.PREVIEW_REDOWNLOAD_TIMEOUT,
-                                          self.PREVIEW_DOWN_FAILS_TO_TIMEOUT)
+        self._timeouts = DownloadTimeouts(
+            self.PREVIEW_REDOWNLOAD_TIMEOUT,
+            self.PREVIEW_DOWN_FAILS_TO_TIMEOUT,
+        )
         self.update_url_prefix()
 
     def update_url_prefix(self):
         if self._route:
-            self._default_url_prefix = self._route.format(Settings.get('content/host'))
+            self._default_url_prefix = self._route.format(
+                Settings.get('content/host'),
+            )
 
     def download_preview(self, name, req, url=None, large=None):
         target_url = self._target_url(name, url)
@@ -261,7 +269,7 @@ class PreviewDownloader(QtCore.QObject):
             delay = self._timeouts.timer
         else:
             delay = None
-            
+
         targetDir = self._target_dir
         if large:
             targetDir = self._target_dir_large

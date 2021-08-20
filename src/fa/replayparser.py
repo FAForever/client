@@ -6,11 +6,11 @@ class replayParser:
     def __init__(self, filepath):
         self.file = filepath
 
-    def __readLine(self, offset, bin):
+    def __readLine(self, offset, bin_):
         line = b''
         while True:
 
-            char = struct.unpack("s", bin[offset:offset+1])
+            char = struct.unpack("s", bin_[offset:offset + 1])
 
             offset = offset + 1
             if char[0] == b'\r':
@@ -28,22 +28,20 @@ class replayParser:
         return offset, line
 
     def getVersion(self):
-        f = open(self.file, 'rb')
-        bin = f.read() 
-        offset = 0
-        offset, supcomVersion = self.__readLine(offset, bin)  
-        f.close()
+        with open(self.file, 'rb') as f:
+            bin_ = f.read()
+            offset = 0
+            offset, supcomVersion = self.__readLine(offset, bin_)
         if not supcomVersion.startswith("Supreme Commander v1"):
             return None
         else:
             return supcomVersion.split(".")[-1]
 
     def getMapName(self):
-        f = open(self.file, 'rb')
-        bin = f.read()
-        offset = 45
-        offset, mapname = self.__readLine(offset, bin)
-        f.close()
+        with open(self.file, 'rb') as f:
+            bin_ = f.read()
+            offset = 45
+            offset, mapname = self.__readLine(offset, bin_)
         if not mapname.strip().startswith("/maps/"):
             return 'None'
         else:

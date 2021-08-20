@@ -44,8 +44,8 @@ class Party:
 
     def __eq__(self, other):
         if (
-            sorted(self.memberIds) == sorted(other.memberIds) and
-            self.owner_id == other.owner_id
+            sorted(self.memberIds) == sorted(other.memberIds)
+            and self.owner_id == other.owner_id
         ):
             return True
         else:
@@ -61,21 +61,34 @@ class PartyMember:
 class GamesWidget(FormClass, BaseClass):
 
     hide_private_games = Settings.persisted_property(
-        "play/hidePrivateGames", default_value=False, type=bool)
+        "play/hidePrivateGames",
+        default_value=False,
+        type=bool,
+    )
     sort_games_index = Settings.persisted_property(
-        "play/sortGames", default_value=0, type=int)  # Default is by player count
+        "play/sortGames",
+        default_value=0,
+        type=int,
+    )
 
     matchmaker_search_info = pyqtSignal(dict)
     match_found_message = pyqtSignal(dict)
     stop_search_ranked_game = pyqtSignal()
     party_updated = pyqtSignal()
 
-    def __init__(self, client, game_model, me, gameview_builder, game_launcher):
+    def __init__(
+        self,
+        client,
+        game_model,
+        me,
+        gameview_builder,
+        game_launcher,
+    ):
         BaseClass.__init__(self, client)
         self.setupUi(self)
 
         self._me = me
-        self.client = client  # type: ClientWindow
+        self.client = client  # type - ClientWindow
         self.mods = {}
         self._game_model = CustomGameFilterModel(self._me, game_model)
         self._game_launcher = game_launcher
@@ -96,8 +109,16 @@ class GamesWidget(FormClass, BaseClass):
         self.client.viewing_replay.connect(self.stopSearch)
         self.client.authorized.connect(self.onAuthorized)
 
-        self.sortGamesComboBox.addItems(['By Players', 'By avg. Player Rating', 'By Map', 'By Host', 'By Age'])
-        self.sortGamesComboBox.currentIndexChanged.connect(self.sortGamesComboChanged)
+        self.sortGamesComboBox.addItems([
+            'By Players',
+            'By avg. Player Rating',
+            'By Map',
+            'By Host',
+            'By Age',
+        ])
+        self.sortGamesComboBox.currentIndexChanged.connect(
+            self.sortGamesComboChanged,
+        )
         try:
             CustomGameFilterModel.SortType(self.sort_games_index)
             safe_sort_index = self.sort_games_index
@@ -195,8 +216,9 @@ class GamesWidget(FormClass, BaseClass):
             return
 
         if (
-                self.party is not None and
-                self.party.memberCount > 1 and not self.leave_party()
+            self.party is not None
+            and self.party.memberCount > 1
+            and not self.leave_party()
         ):
             return
         self.stopSearch()
@@ -204,10 +226,18 @@ class GamesWidget(FormClass, BaseClass):
         if not fa.check.game(self.client):
             return
 
-        if fa.check.check(game.featured_mod, mapname=game.mapname, version=None, sim_mods=game.sim_mods):
+        if fa.check.check(
+            game.featured_mod, mapname=game.mapname,
+            version=None, sim_mods=game.sim_mods,
+        ):
             if game.password_protected:
                 passw, ok = QtWidgets.QInputDialog.getText(
-                    self.client, "Passworded game", "Enter password :", QtWidgets.QLineEdit.Normal, "")
+                    self.client,
+                    "Passworded game",
+                    "Enter password :",
+                    QtWidgets.QLineEdit.Normal,
+                    "",
+                )
                 if ok:
                     self.client.join_game(uid=game.uid, password=passw)
             else:
@@ -222,8 +252,9 @@ class GamesWidget(FormClass, BaseClass):
             return
 
         if (
-                self.party is not None and
-                self.party.memberCount > 1 and not self.leave_party()
+            self.party is not None
+            and self.party.memberCount > 1
+            and not self.leave_party()
         ):
             return
         self.stopSearch()
@@ -239,8 +270,8 @@ class GamesWidget(FormClass, BaseClass):
             item.setSelected(False)
 
         if (
-            QtWidgets.QApplication.mouseButtons() == Qt.RightButton and
-            self.party.owner_id == self._me.id
+            QtWidgets.QApplication.mouseButtons() == Qt.RightButton
+            and self.party.owner_id == self._me.id
         ):
             self.teamList.setCurrentItem(item)
             playerLogin = item.data(0)
@@ -248,7 +279,7 @@ class GamesWidget(FormClass, BaseClass):
             menu = QtWidgets.QMenu(self)
             actionKick = QtWidgets.QAction("Kick from party", menu)
             actionKick.triggered.connect(
-                lambda: self.kickPlayerFromParty(playerId)
+                lambda: self.kickPlayerFromParty(playerId),
             )
             menu.addAction(actionKick)
             menu.popup(QCursor.pos())
@@ -261,12 +292,12 @@ class GamesWidget(FormClass, BaseClass):
         old_owner = self.client.players[self.party.owner_id]
         new_owner = self.client.players[message["owner"]]
         if (
-            old_owner.id != new_owner.id or
-            self._me.id not in players_ids or
-            len(message["members"]) < 2
+            old_owner.id != new_owner.id
+            or self._me.id not in players_ids
+            or len(message["members"]) < 2
         ):
             self.client._chatMVC.connection.part(
-                "#{}{}".format(old_owner.login, PARTY_CHANNEL_SUFFIX)
+                "#{}{}".format(old_owner.login, PARTY_CHANNEL_SUFFIX),
             )
 
         new_party = Party()
@@ -275,7 +306,7 @@ class GamesWidget(FormClass, BaseClass):
             for member in message["members"]:
                 players_id = member["player"]
                 new_party.addMember(
-                    PartyMember(id_=players_id, factions=member["factions"])
+                    PartyMember(id_=players_id, factions=member["factions"]),
                 )
         else:
             new_party.owner_id = self._me.id
@@ -286,7 +317,7 @@ class GamesWidget(FormClass, BaseClass):
             self.party = new_party
             if self.party.memberCount > 1:
                 self.client._chatMVC.connection.join(
-                    "#{}{}".format(new_owner.login, PARTY_CHANNEL_SUFFIX)
+                    "#{}{}".format(new_owner.login, PARTY_CHANNEL_SUFFIX),
                 )
             self.updateTeamList()
 
@@ -310,7 +341,7 @@ class GamesWidget(FormClass, BaseClass):
         for member_id in self.party.memberIds:
             if member_id != self._me.id:
                 item = QtWidgets.QListWidgetItem(
-                    self.client.players[member_id].login
+                    self.client.players[member_id].login,
                 )
                 if member_id == self.party.owner_id:
                     item.setIcon(util.THEME.icon("chat/rank/partyleader.png"))
@@ -332,7 +363,7 @@ class GamesWidget(FormClass, BaseClass):
         result = QtWidgets.QMessageBox.question(
             self, "Kick Player: {}".format(login),
             "Are you sure you want to kick {} from party?".format(login),
-            QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No
+            QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No,
         )
         if result == QtWidgets.QMessageBox.Yes:
             self.stopSearch()
@@ -345,11 +376,11 @@ class GamesWidget(FormClass, BaseClass):
     def leave_party(self):
         result = QtWidgets.QMessageBox.question(
             self, "Leaving Party", "Are you sure you want to leave party?",
-            QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No
+            QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No,
         )
         if result == QtWidgets.QMessageBox.Yes:
             msg = {
-                'command': 'leave_party'
+                'command': 'leave_party',
             }
             self.client.lobby_connection.send(msg)
 
@@ -385,8 +416,8 @@ class GamesWidget(FormClass, BaseClass):
         # fully hardcoded when everything comes out, but for now just
         # need to be sure that there are at least 2 queues in message
         if (
-            not self.matchmakerFramesInitialized and
-            len(message.get("queues", {})) > 1
+            not self.matchmakerFramesInitialized
+            and len(message.get("queues", {})) > 1
         ):
             logger.info("Initializing matchmaker queue frames")
             queues = message.get("queues", {})
@@ -396,14 +427,14 @@ class GamesWidget(FormClass, BaseClass):
                     index,
                     MatchmakerQueue(
                         self, self.client,
-                        queue["queue_name"], queue["team_size"]
+                        queue["queue_name"], queue["team_size"],
                     ),
                     "&{teamSize} vs {teamSize}".format(
-                        teamSize=queue["team_size"]
-                    )
+                        teamSize=queue["team_size"],
+                    ),
                 )
             for index in range(self.matchmakerQueues.tabBar().count()):
                 self.matchmakerQueues.tabBar().setTabTextColor(
-                    index, QColor("silver")
+                    index, QColor("silver"),
                 )
             self.matchmakerFramesInitialized = True

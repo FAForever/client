@@ -25,7 +25,7 @@ class MatchmakerQueue(FormClass, BaseClass):
         self.subFactions = Settings.get(
             "play/{}Factions".format(self.queueName),
             default=[False] * 4,
-            type=bool
+            type=bool,
         )
         self.games = games
         self.client = client
@@ -44,10 +44,10 @@ class MatchmakerQueue(FormClass, BaseClass):
         self.rankedUEF.setIcon(util.THEME.icon("games/automatch/uef.png"))
         self.rankedAeon.setIcon(util.THEME.icon("games/automatch/aeon.png"))
         self.rankedCybran.setIcon(
-            util.THEME.icon("games/automatch/cybran.png")
+            util.THEME.icon("games/automatch/cybran.png"),
         )
         self.rankedSeraphim.setIcon(
-            util.THEME.icon("games/automatch/seraphim.png")
+            util.THEME.icon("games/automatch/seraphim.png"),
         )
 
         self.searching = False
@@ -60,12 +60,12 @@ class MatchmakerQueue(FormClass, BaseClass):
         self.setFactionIcons(self.subFactions)
 
         keys = (
-            QtCore.Qt.Key_1, QtCore.Qt.Key_2, QtCore.Qt.Key_3, QtCore.Qt.Key_4
+            QtCore.Qt.Key_1, QtCore.Qt.Key_2, QtCore.Qt.Key_3, QtCore.Qt.Key_4,
         )
         self.shortcut = QtWidgets.QShortcut(
-            QtGui.QKeySequence(QtCore.Qt.CTRL + keys[self.teamSize-1]),
+            QtGui.QKeySequence(QtCore.Qt.CTRL + keys[self.teamSize - 1]),
             self.client,
-            self.startSearchRanked
+            self.startSearchRanked,
         )
         self.games.matchmakerShortcuts.append(self.shortcut)
 
@@ -79,16 +79,16 @@ class MatchmakerQueue(FormClass, BaseClass):
                 icon.clicked.disconnect()
             except TypeError:
                 pass
-            icon.setChecked(subFactions[faction.value-1])
+            icon.setChecked(subFactions[faction.value - 1])
             icon.clicked.connect(
-                partial(self.selectFaction, factionID=faction.value)
+                partial(self.selectFaction, factionID=faction.value),
             )
 
     def handleQueueInfo(self, message):
         for queue in message.get("queues", {}):
             if queue["queue_name"] == self.queueName:
                 self.labelInQueue.setText(
-                    "In Queue: {}".format(queue["num_players"])
+                    "In Queue: {}".format(queue["num_players"]),
                 )
                 self.secondsToAutomatch = int(queue["queue_pop_time_delta"])
                 self.updateLabelMatchingIn()
@@ -115,13 +115,13 @@ class MatchmakerQueue(FormClass, BaseClass):
     def updateLabelMatchingIn(self):
         minutes, seconds = divmod(self.secondsToAutomatch, 60)
         self.labelMatchingIn.setText(
-            "Matching In: {:02}:{:02}".format(int(minutes), int(seconds))
+            "Matching In: {:02}:{:02}".format(int(minutes), int(seconds)),
         )
 
     def startSearchRanked(self):
         if (
-            self.games.party.memberCount > self.teamSize or
-            self.games.party.owner_id != self.client.me.id
+            self.games.party.memberCount > self.teamSize
+            or self.games.party.owner_id != self.client.me.id
         ):
             return
 
@@ -133,7 +133,7 @@ class MatchmakerQueue(FormClass, BaseClass):
             if fa.instance.running():
                 QtWidgets.QMessageBox.information(
                     self.client, "ForgedAllianceForever.exe",
-                    "FA is already running."
+                    "FA is already running.",
                 )
                 self.stopSearchRanked()
                 return
@@ -142,12 +142,12 @@ class MatchmakerQueue(FormClass, BaseClass):
                 self.stopSearchRanked()
                 logger.error(
                     "Can't play ranked without successfully "
-                    "updating Forged Alliance."
+                    "updating Forged Alliance.",
                 )
                 return
 
         logger.debug(
-            "Starting Ranked Search. Queue: {}".format(self.queueName)
+            "Starting Ranked Search. Queue: {}".format(self.queueName),
         )
         self.client.search_ranked(queue_name=self.queueName)
 
@@ -158,8 +158,8 @@ class MatchmakerQueue(FormClass, BaseClass):
                 dict(
                     command="game_matchmaking",
                     queue_name=self.queueName,
-                    state="stop"
-                )
+                    state="stop",
+                ),
             )
             self.searching = False
             self.games.searching[self.queueName] = False
@@ -167,8 +167,8 @@ class MatchmakerQueue(FormClass, BaseClass):
 
     def handlePartyUpdate(self):
         if (
-            self.games.party.memberCount > self.teamSize or
-            self.games.party.owner_id != self.client.me.id
+            self.games.party.memberCount > self.teamSize
+            or self.games.party.owner_id != self.client.me.id
         ):
             self.rankedPlay.setEnabled(False)
         else:
@@ -180,7 +180,7 @@ class MatchmakerQueue(FormClass, BaseClass):
             s = "Stop search"
             self.searchProgress.show()
             self.games.matchmakerQueues.tabBar().setTabTextColor(
-                index, QtGui.QColor("orange")
+                index, QtGui.QColor("orange"),
             )
         else:
             c = self.subFactions.count(True)
@@ -190,29 +190,29 @@ class MatchmakerQueue(FormClass, BaseClass):
                 s = "Play!"
             self.searchProgress.hide()
             self.games.matchmakerQueues.tabBar().setTabTextColor(
-                index, QtGui.QColor("silver")
+                index, QtGui.QColor("silver"),
             )
         self.rankedPlay.setText(s)
 
     def startViewMapsPool(self):
         if self.client.me.id is None:
             QtGui.QDesktopServices.openUrl(
-                QtCore.QUrl(Settings.get("MAPPOOL_URL"))
+                QtCore.QUrl(Settings.get("MAPPOOL_URL")),
             )
         else:
             ratingType = RatingType.fromMatchmakerQueue(self.queueName)
             rating = self.client.me.player.rating_mean(ratingType)
             self.client.mapvault.requestMapPool(self.queueName, rating)
             self.client.mainTabs.setCurrentIndex(
-                self.client.mainTabs.indexOf(self.client.vaultsTab)
+                self.client.mainTabs.indexOf(self.client.vaultsTab),
             )
             self.client.topTabs.setCurrentIndex(0)
 
     def selectFaction(self, enabled, factionID=0):
         if len(self.subFactions) < factionID:
             return
-        self.subFactions[factionID-1] = enabled
+        self.subFactions[factionID - 1] = enabled
         Settings.set(
-            "play/{}Factions".format(self.queueName), self.subFactions
+            "play/{}Factions".format(self.queueName), self.subFactions,
         )
         self.updatePlayButton()

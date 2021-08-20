@@ -3,6 +3,7 @@ class ModelTransaction:
     Allows model classes to postpone side effects of a model update (such as
     emitting signals) until after the model is in a consistent state.
     """
+
     def __init__(self):
         self._signals = []
 

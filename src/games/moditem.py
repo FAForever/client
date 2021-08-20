@@ -25,7 +25,7 @@ class ModItem(QtWidgets.QListWidgetItem):
         self.name = message["fullname"]
         # Load Icon and Tooltip
 
-        tip = message["desc"]      
+        tip = message["desc"]
         self.setToolTip(tip)
 
         icon = util.THEME.icon(os.path.join("games/mods/", self.mod + ".png"))
@@ -37,7 +37,7 @@ class ModItem(QtWidgets.QListWidgetItem):
             color = client.instance.player_colors.get_color("self")
         else:
             color = client.instance.player_colors.get_color("player")
-            
+
         self.setForeground(QtGui.QColor(color))
         self.setText(self.name)
 

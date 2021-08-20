@@ -6,8 +6,9 @@ from downloadManager import DownloadRequest
 
 
 class AvatarWidget(QObject):
-    def __init__(self, parent_widget, lobby_connection, lobby_info,
-                 avatar_dler, theme):
+    def __init__(
+        self, parent_widget, lobby_connection, lobby_info, avatar_dler, theme,
+    ):
         QObject.__init__(self, parent_widget)
 
         self._parent_widget = parent_widget
@@ -25,10 +26,13 @@ class AvatarWidget(QObject):
         self.base.finished.connect(self.clean)
 
     @classmethod
-    def builder(cls, parent_widget, lobby_connection, lobby_info, avatar_dler,
-                theme, **kwargs):
-        return lambda: cls(parent_widget, lobby_connection, lobby_info,
-                           avatar_dler, theme)
+    def builder(
+        cls, parent_widget, lobby_connection, lobby_info, avatar_dler,
+        theme, **kwargs
+    ):
+        return lambda: cls(
+            parent_widget, lobby_connection, lobby_info, avatar_dler, theme,
+        )
 
     def set_theme(self, theme):
         formc, basec = theme.loadUiType("dialogs/avatar.ui")
@@ -43,7 +47,7 @@ class AvatarWidget(QObject):
     def show(self):
         self._lobby_connection.send({
             "command": "avatar",
-            "action": "list_avatar"
+            "action": "list_avatar",
         })
         self.base.show()
 
@@ -51,7 +55,7 @@ class AvatarWidget(QObject):
         self._lobby_connection.send({
             "command": "avatar",
             "action": "select",
-            "avatar": val
+            "avatar": val,
         })
         self.base.close()
 

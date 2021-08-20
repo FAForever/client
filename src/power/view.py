@@ -60,8 +60,10 @@ class KickDialog(QObject):
         self.form.cbPeriod.setEnabled(checked)
 
     def _warning(self, title, text):
-        msg = QMessageBox(QMessageBox.Warning, title, text,
-                          parent=self._parent_widget)
+        msg = QMessageBox(
+            QMessageBox.Warning, title, text,
+            parent=self._parent_widget,
+        )
         msg.show()
 
     def accepted(self):
@@ -72,12 +74,15 @@ class KickDialog(QObject):
             reason = self.form.cbReason.currentText()
             duration = self.form.sbDuration.value()
             period = [e for e in BanPeriod][self.form.cbPeriod.currentIndex()]
-            result = self._mod_actions.ban_player(username, reason, duration,
-                                                  period)
+            result = self._mod_actions.ban_player(
+                username, reason, duration, period,
+            )
 
         if not result:
-            self._warning("Player not found",
-                          'Player "{}" was not found.'.format(username))
+            self._warning(
+                "Player not found",
+                'Player "{}" was not found.'.format(username),
+            )
         self.setParent(None)    # Let ourselves get GC'd
 
     def rejected(self):

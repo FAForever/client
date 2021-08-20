@@ -23,7 +23,8 @@ class LanguageChannelConfig:
 
     def _setup_widget(self):
         formc, basec = self._theme.loadUiType(
-            "chat/language_channel_config.ui")
+            "chat/language_channel_config.ui",
+        )
         self._form = formc()
         self._base = basec(self._parent_widget)
         self._form.setupUi(self._base)

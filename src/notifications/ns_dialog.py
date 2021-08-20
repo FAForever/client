@@ -20,7 +20,9 @@ class NotificationDialog(FormClass, BaseClass):
         self.setupUi(self)
         self.client = client
 
-        self.labelIcon.setPixmap(util.THEME.icon("client/tray_icon.png", pix=True).scaled(32, 32))
+        self.labelIcon.setPixmap(
+            util.THEME.icon("client/tray_icon.png", pix=True).scaled(32, 32),
+        )
         self.standardIcon = util.THEME.icon("client/comment.png", pix=True)
 
         self.settings = settings
@@ -34,13 +36,25 @@ class NotificationDialog(FormClass, BaseClass):
         self.baseWidth = 375
 
         self.sender_id = None
-        self.acceptButton.clicked.connect(lambda: self.acceptPartyInvite(sender_id=self.sender_id))
+        self.acceptButton.clicked.connect(
+            lambda: self.acceptPartyInvite(sender_id=self.sender_id),
+        )
 
         # TODO: integrate into client.css
         # self.setStyleSheet(self.client.styleSheet())
 
     @QtCore.pyqtSlot()
-    def newEvent(self, pixmap, text, lifetime, sound, height = None, width = None, hide_accept = True, sender_id = None):
+    def newEvent(
+        self,
+        pixmap,
+        text,
+        lifetime,
+        sound,
+        height=None,
+        width=None,
+        hide_accept_button=True,
+        sender_id=None,
+    ):
         """ Called to display a new popup
         Keyword arguments:
         pixmap -- Icon for the event (displayed left)
@@ -60,7 +74,7 @@ class NotificationDialog(FormClass, BaseClass):
         self.setFixedHeight(height or self.baseHeight)
         self.setFixedWidth(width or self.baseWidth)
 
-        if hide_accept:
+        if hide_accept_button:
             self.acceptButton.hide()
         else:
             self.sender_id = sender_id
@@ -83,7 +97,8 @@ class NotificationDialog(FormClass, BaseClass):
     def updatePosition(self):
         screen = QtWidgets.QDesktopWidget().screenGeometry()
         dialog_size = self.geometry()
-        position = self.settings.popup_position  # self.client.notificationSystem.settings.popup_position
+        # self.client.notificationSystem.settings.popup_position
+        position = self.settings.popup_position
 
         if position == NotificationPosition.TOP_LEFT:
             self.move(0, 0)
@@ -92,7 +107,10 @@ class NotificationDialog(FormClass, BaseClass):
         elif position == NotificationPosition.BOTTOM_LEFT:
             self.move(0, screen.height() - dialog_size.height())
         else:
-            self.move(screen.width() - dialog_size.width(), screen.height() - dialog_size.height())
+            self.move(
+                screen.width() - dialog_size.width(),
+                screen.height() - dialog_size.height(),
+            )
 
     @QtCore.pyqtSlot()
     def acceptPartyInvite(self, sender_id):

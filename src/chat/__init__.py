@@ -1,11 +1,14 @@
-# CAVEAT: DO NOT REMOVE! These are promoted widgets and py2exe wouldn't include them otherwise
+# CAVEAT: DO NOT REMOVE! These are promoted widgets and py2exe wouldn't
+# include them otherwise
 from chat.chatlineedit import ChatLineEdit
 from chat.chatterlistview import ChatterListView
 
 
 class ChatMVC:
-    def __init__(self, model, line_metadata_builder, connection, controller,
-                 autojoiner, restorer, greeter, announcer, view):
+    def __init__(
+        self, model, line_metadata_builder, connection, controller,
+        autojoiner, restorer, greeter, announcer, view,
+    ):
         self.model = model
         self.line_metadata_builder = line_metadata_builder
         self.connection = connection

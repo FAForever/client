@@ -11,6 +11,9 @@ from PyQt5 import QtCore
 import fafpath
 
 from . import version
+from .develop import default_values as develop_defaults
+from .production import default_values as production_defaults
+from .testing import default_values as testing_defaults
 
 if sys.platform == 'win32':
     import ctypes
@@ -21,9 +24,12 @@ if sys.platform == 'win32':
 
     from . import admin
 
-_settings = QtCore.QSettings(QtCore.QSettings.IniFormat,
-                             QtCore.QSettings.UserScope,
-                             "ForgedAllianceForever", "FA Lobby")
+_settings = QtCore.QSettings(
+    QtCore.QSettings.IniFormat,
+    QtCore.QSettings.UserScope,
+    "ForgedAllianceForever",
+    "FA Lobby",
+)
 _unpersisted_settings = {}
 
 CONFIG_PATH = os.path.dirname(_settings.fileName())
@@ -65,8 +71,12 @@ class Settings:
             _settings.remove(key)
 
     @staticmethod
-    def persisted_property(key, default_value=None,
-                           persist_if=lambda self: True, type=str):
+    def persisted_property(
+        key,
+        default_value=None,
+        persist_if=lambda self: True,
+        type=str,
+    ):
         """
         Create a magically persisted property
 
@@ -80,7 +90,10 @@ class Settings:
         return property(
             lambda s: Settings.get(key, default=default_value, type=type),
             lambda s, v: Settings.set(key, v, persist=persist_if(s)),
-            doc='Persisted property: {}. Default: '.format(key, default_value))
+            doc='Persisted property: {}. Default: {}'.format(
+                key, default_value,
+            ),
+        )
 
     @staticmethod
     def sync():
@@ -97,14 +110,17 @@ class Settings:
 
 def set_data_path_permissions():
     """
-    Set the owner of C:\ProgramData\FAForever recursively to the current user
+    Set the owner of C:\\ProgramData\\FAForever recursively to the current user
     """
     if not admin.isUserAdmin():
         win32api.MessageBox(
             0,
-            ("FA Forever needs to fix folder permissions due to user change. "
-             "Please confirm the following two admin prompts."),
-            "User changed")
+            (
+                "FA Forever needs to fix folder permissions due to user "
+                "change. Please confirm the following two admin prompts."
+            ),
+            "User changed",
+        )
     if sys.platform == 'win32' and ('CI' not in os.environ):
         data_path = Settings.get('client/data_path')
         if os.path.exists(data_path):
@@ -115,7 +131,7 @@ def set_data_path_permissions():
 
 def check_data_path_permissions():
     """
-    Checks if the current user is owner of C:\ProgramData\FAForever
+    Checks if the current user is owner of C:\\ProgramData\\FAForever
     Fixes the permissions in case that FAF was run as different user before
     """
     if sys.platform == 'win32' and ('CI' not in os.environ):
@@ -124,15 +140,17 @@ def check_data_path_permissions():
             try:
                 my_user = win32api.GetUserNameEx(win32con.NameSamCompatible)
                 sd = win32security.GetFileSecurity(
-                    data_path, win32security.OWNER_SECURITY_INFORMATION)
+                    data_path, win32security.OWNER_SECURITY_INFORMATION,
+                )
                 owner_sid = sd.GetSecurityDescriptorOwner()
                 name, domain, type = win32security.LookupAccountSid(
-                    None, owner_sid)
-                data_path_owner = "%s\\%s" % (domain, name)
+                    None, owner_sid,
+                )
+                data_path_owner = "{}\\{}".format(domain, name)
 
                 if my_user != data_path_owner:
                     set_data_path_permissions()
-            except Exception as e:
+            except BaseException as e:
                 # we encountered error 1332 in win32security.LookupAccountSid
                 # here: http://forums.faforever.com/viewtopic.php?f=3&t=13728
                 # msdn.microsoft.com/en-us/library/windows/desktop/aa379166.aspx
@@ -148,13 +166,14 @@ def check_data_path_permissions():
                     "If you get this popup more than one time, please report "
                     "a screenshot of this popup to tech support forum. "
                     "Full stacktrace:\n{}".format(e, traceback.format_exc()),
-                    "Permission check exception")
+                    "Permission check exception",
+                )
                 set_data_path_permissions()
 
 
 def make_dirs():
     check_data_path_permissions()
-    for dir in [
+    for dir_ in [
         'client/data_path',
         'game/logs/path',
         'game/bin/path',
@@ -162,19 +181,21 @@ def make_dirs():
         'game/engine/path',
         'game/maps/path',
     ]:
-        path = Settings.get(dir)
+        path = Settings.get(dir_)
         if path is None:
-            raise Exception("Missing configured path for {}".format(dir))
+            raise Exception("Missing configured path for {}".format(dir_))
         if not os.path.isdir(path):
             try:
                 os.makedirs(path)
-            except IOError as e:
+            except IOError:
                 set_data_path_permissions()
                 os.makedirs(path)
 
 
-VERSION = version.get_release_version(dir=fafpath.get_resdir(),
-                                      git_dir=fafpath.get_srcdir())
+VERSION = version.get_release_version(
+    dir=fafpath.get_resdir(),
+    git_dir=fafpath.get_srcdir(),
+)
 
 
 def is_development_version():
@@ -196,10 +217,6 @@ def is_beta():
 if _settings.contains('client/force_environment'):
     environment = _settings.value('client/force_environment', 'development')
 
-from .develop import default_values as develop_defaults
-from .production import default_values as production_defaults
-from .testing import default_values as testing_defaults
-
 for defaults in [production_defaults, develop_defaults, testing_defaults]:
     for key, value in defaults.items():
         if isinstance(value, str):
@@ -211,6 +228,7 @@ elif environment == 'development':
     defaults = develop_defaults
 elif environment == 'test':
     defaults = testing_defaults
+
 
 def os_language():
     # locale is unreliable on Windows
@@ -247,16 +265,22 @@ def setup_file_handler(filename):
     try:
         with open(log_file, "a"):
             pass
-    except IOError as e:
+    except IOError:
         set_data_path_permissions()
     rotate = RotatingFileHandler(
         os.path.join(Settings.get('client/logs/path'), filename),
         maxBytes=int(Settings.get('client/logs/max_size')),
-        backupCount=1)
-    rotate.setFormatter(logging.Formatter(
-        '%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))
-    return MemoryHandler(int(Settings.get('client/logs/buffer_size')),
-                         target=rotate)
+        backupCount=1,
+    )
+    rotate.setFormatter(
+        logging.Formatter(
+            '%(asctime)s %(levelname)-8s %(name)-30s %(message)s',
+        ),
+    )
+    return MemoryHandler(
+        int(Settings.get('client/logs/buffer_size')),
+        target=rotate,
+    )
 
 
 client_handler = setup_file_handler('forever.log')
@@ -267,13 +291,17 @@ logging.getLogger().setLevel(Settings.get('client/logs/level', type=int))
 if Settings.get('client/logs/console', False, type=bool):
     # Setup logging output to console
     devh = logging.StreamHandler()
-    devh.setFormatter(logging.Formatter(
-        '%(asctime)s %(levelname)-8s %(name)-30s %(message)s'))
+    devh.setFormatter(
+        logging.Formatter(
+            '%(asctime)s %(levelname)-8s %(name)-30s %(message)s',
+        ),
+    )
     logging.getLogger().addHandler(devh)
     logging.getLogger().setLevel(Settings.get('client/logs/level', type=int))
 
-logging.getLogger().info("FAF version: {} Environment: {}".format(
-    VERSION, environment))
+logging.getLogger().info(
+    "FAF version: {} Environment: {}".format(VERSION, environment),
+)
 
 
 def qt_log_handler(type_, context, text):
@@ -306,7 +334,8 @@ def setup_fault_handler():
         rotate = RotatingFileHandler(
             log_path,
             maxBytes=max_sz,
-            backupCount=1)
+            backupCount=1,
+        )
         # Rollover does it unconditionally, not looking at max size,
         # so we need to check it manually
         try:
@@ -322,7 +351,8 @@ def setup_fault_handler():
         fault_handler_file = open(log_path, 'a')
     except IOError as e:
         logging.getLogger().error(
-            'Failed to setup crash.log for the fault handler: ' + e.strerror)
+            'Failed to setup crash.log for the fault handler: ' + e.strerror,
+        )
         return
 
     faulthandler.enable(fault_handler_file)

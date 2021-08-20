@@ -74,21 +74,26 @@ class GameItemDelegate(QtWidgets.QStyledItemDelegate):
     def _draw_clear_option(self, painter, option):
         option.icon = QtGui.QIcon()
         option.text = ""
-        option.widget.style().drawControl(QtWidgets.QStyle.CE_ItemViewItem,
-                                          option, painter, option.widget)
+        option.widget.style().drawControl(
+            QtWidgets.QStyle.CE_ItemViewItem, option, painter, option.widget,
+        )
 
     def _draw_icon_shadow(self, painter, option):
-        painter.fillRect(option.rect.left() + self.ICON_SHADOW_OFFSET,
-                         option.rect.top() + self.ICON_SHADOW_OFFSET,
-                         self.ICON_RECT,
-                         self.ICON_RECT,
-                         self.SHADOW_COLOR)
+        painter.fillRect(
+            option.rect.left() + self.ICON_SHADOW_OFFSET,
+            option.rect.top() + self.ICON_SHADOW_OFFSET,
+            self.ICON_RECT,
+            self.ICON_RECT,
+            self.SHADOW_COLOR,
+        )
 
     def _draw_icon(self, painter, option, icon):
-        rect = option.rect.adjusted(self.ICON_CLIP_TOP_LEFT,
-                                    self.ICON_CLIP_TOP_LEFT,
-                                    self.ICON_CLIP_BOTTOM_RIGHT,
-                                    self.ICON_CLIP_BOTTOM_RIGHT)
+        rect = option.rect.adjusted(
+            self.ICON_CLIP_TOP_LEFT,
+            self.ICON_CLIP_TOP_LEFT,
+            self.ICON_CLIP_BOTTOM_RIGHT,
+            self.ICON_CLIP_BOTTOM_RIGHT,
+        )
         icon.paint(painter, rect, QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
 
     def _draw_frame(self, painter, option):
@@ -97,29 +102,37 @@ class GameItemDelegate(QtWidgets.QStyledItemDelegate):
         pen.setBrush(self.FRAME_COLOR)
         pen.setCapStyle(QtCore.Qt.RoundCap)
         painter.setPen(pen)
-        painter.drawRect(option.rect.left() + self.ICON_CLIP_TOP_LEFT,
-                         option.rect.top() + self.ICON_CLIP_TOP_LEFT,
-                         self.ICON_RECT,
-                         self.ICON_RECT)
+        painter.drawRect(
+            option.rect.left() + self.ICON_CLIP_TOP_LEFT,
+            option.rect.top() + self.ICON_CLIP_TOP_LEFT,
+            self.ICON_RECT,
+            self.ICON_RECT,
+        )
 
     def _draw_text(self, painter, option, text):
         left_off = self.ICON_RECT + self.TEXT_OFFSET
         top_off = self.TEXT_OFFSET
         right_off = self.TEXT_RIGHT_MARGIN
         bottom_off = 0
-        painter.translate(option.rect.left() + left_off,
-                          option.rect.top() + top_off)
-        clip = QtCore.QRectF(0,
-                             0,
-                             option.rect.width() - left_off - right_off,
-                             option.rect.height() - top_off - bottom_off)
+        painter.translate(
+            option.rect.left() + left_off,
+            option.rect.top() + top_off,
+        )
+        clip = QtCore.QRectF(
+            0,
+            0,
+            option.rect.width() - left_off - right_off,
+            option.rect.height() - top_off - bottom_off,
+        )
         html = QtGui.QTextDocument()
         html.setHtml(text)
         html.drawContents(painter, clip)
 
     def sizeHint(self, option, index):
-        return QtCore.QSize(self.ICON_SIZE + self.TEXT_WIDTH + self.PADDING,
-                            self.ICON_SIZE)
+        return QtCore.QSize(
+            self.ICON_SIZE + self.TEXT_WIDTH + self.PADDING,
+            self.ICON_SIZE,
+        )
 
 
 class GameTooltipFilter(QtCore.QObject):
@@ -171,7 +184,7 @@ class GameItemFormatter:
             "host": html.escape(game.host),
             "players": players,
             "playerstring": "player" if players == 1 else "players",
-            "avgrating": int(game.average_rating)
+            "avgrating": int(game.average_rating),
         }
         if self._featured_mod(game):
             return self.FORMATTER_FAF.format(**formatting)
@@ -199,20 +212,28 @@ class GameItemFormatter:
         return name
 
     def _game_teams(self, game):
-        teams = {index: [game.to_player(name) if game.is_connected(name)
-                         else name for name in team]
-                 for index, team in game.playing_teams.items()}
+        teams = {
+            index: [
+                game.to_player(name)
+                if game.is_connected(name)
+                else name
+                for name in team
+            ]
+            for index, team in game.playing_teams.items()
+        }
 
         # Sort teams into a list
         # TODO - I believe there's a convention where team 1 is 'no team'
-        teamlist = [indexed_team for indexed_team in teams.items()]
-        teamlist.sort()
+        teamlist = sorted([indexed_team for indexed_team in teams.items()])
         teamlist = [team for index, team in teamlist]
         return teamlist
 
     def _game_observers(self, game):
-        return [game.to_player(name) for name in game.observers
-                if game.is_connected(name)]
+        return [
+            game.to_player(name)
+            for name in game.observers
+            if game.is_connected(name)
+        ]
 
     def tooltip(self, data):
         game = data.game
@@ -221,21 +242,30 @@ class GameItemFormatter:
         title = game.title
         title = title.replace("<", "&lt;")
         title = title.replace(">", "&gt;")
-        return self._tooltip_formatter.format(title, teams, observers, game.sim_mods)
+        return self._tooltip_formatter.format(
+            title, teams, observers, game.sim_mods,
+        )
 
 
 class GameTooltipFormatter:
 
     def __init__(self, me):
         self._me = me
-        template_abs_path = os.path.join(util.COMMON_DIR, "games", "gameitem.qthtml")
+        template_abs_path = os.path.join(
+            util.COMMON_DIR, "games", "gameitem.qthtml",
+        )
         with open(template_abs_path, "r") as templatefile:
             self._template = jinja2.Template(templatefile.read())
 
     def format(self, title, teams, observers, mods):
         icon_path = os.path.join("chat", "countries/")
         icon_abs_path = os.path.join(util.COMMON_DIR, icon_path)
-        return self._template.render(title=title, teams=teams, mods=mods.values(), observers=observers, me=self._me.player, iconpath=icon_abs_path)
+        return self._template.render(
+            title=title, teams=teams,
+            mods=mods.values(), observers=observers,
+            me=self._me.player,
+            iconpath=icon_abs_path,
+        )
 
 
 class GameViewBuilder:

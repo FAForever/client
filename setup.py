@@ -28,7 +28,7 @@ if sys.platform == 'win32':
     root_dir = os.path.dirname(os.path.abspath(__file__))
     res_dir = os.path.join(root_dir, "res")
     build_version = os.getenv('BUILD_VERSION')
-    build_version = build_version.replace(' ','')
+    build_version = build_version.replace(' ', '')
     version.write_version_file(build_version, res_dir)
 
     msi_version = version.msi_version(build_version)
@@ -42,25 +42,35 @@ for module in ["invoke.py", "load_plugin.py"]:
     except OSError:
         pass
 
+
 def get_jsonschema_includes():
     schemas = os.path.join(site.getsitepackages()[1], "jsonschema", "schemas")
-    onlyfiles = [f for f in os.listdir(schemas) if os.path.isfile(os.path.join(schemas, f))]
-    return [(os.path.join(schemas, f), os.path.join("jsonschema", "schemas", f)) for f in onlyfiles]
+    onlyfiles = [
+        f
+        for f in os.listdir(schemas)
+        if os.path.isfile(os.path.join(schemas, f))
+    ]
+    return [
+        (os.path.join(schemas, f), os.path.join("jsonschema", "schemas", f))
+        for f in onlyfiles
+    ]
+
 
 shortcut_table = [
-    ('DesktopShortcut',           # Shortcut
-     'DesktopFolder',             # Directory_
-     'FA Forever',                # Name
-     'TARGETDIR',                 # Component_
-     '[TARGETDIR]FAForever.exe',  # Target
-     None,                        # Arguments
-     None,                        # Description
-     None,                        # Hotkey
-     None,                        # Icon
-     None,                        # IconIndex
-     None,                        # ShowCmd
-     'TARGETDIR'                  # WkDir
-     )
+    (
+        'DesktopShortcut',           # Shortcut
+        'DesktopFolder',             # Directory_
+        'FA Forever',                # Name
+        'TARGETDIR',                 # Component_
+        '[TARGETDIR]FAForever.exe',  # Target
+        None,                        # Arguments
+        None,                        # Description
+        None,                        # Hotkey
+        None,                        # Icon
+        None,                        # IconIndex
+        None,                        # ShowCmd
+        'TARGETDIR',                  # WkDir
+    ),
 ]
 
 target_dir = '[ProgramFilesFolder][ProductName]'
@@ -86,63 +96,75 @@ if sys.platform == 'win32':
 if sys.platform == 'win32':
     # Dependencies are automatically detected, but it might need fine tuning.
     build_exe_options = {
-        'include_files': ['res',
-                          'imageformats',
-                          'platforms',
-                          'audio',
-                          'libeay32.dll',
-                          'ssleay32.dll',
-                          'libEGL.dll', # For QtWebEngine
-                          'libGLESv2.dll', # ditto
-                          'icudtl.dat', #ditto
-                          'qtwebengine_resources.pak', # ditto
-                          'QtWebEngineProcess.exe', # ditto
-                          ('lib/faf-uid.exe', 'lib/faf-uid.exe'),
-                          ('lib/ice-adapter', 'lib/ice-adapter'),
-                          ('lib/qt.conf', 'qt.conf'),
-                          ('lib/xdelta3.exe', 'lib/xdelta3.exe')],
+        'include_files': [
+            'res',
+            'imageformats',
+            'platforms',
+            'audio',
+            'libeay32.dll',
+            'ssleay32.dll',
+            'libEGL.dll',  # For QtWebEngine
+            'libGLESv2.dll',  # ditto
+            'icudtl.dat',  # ditto
+            'qtwebengine_resources.pak',  # ditto
+            'QtWebEngineProcess.exe',  # ditto
+            ('lib/faf-uid.exe', 'lib/faf-uid.exe'),
+            ('lib/ice-adapter', 'lib/ice-adapter'),
+            ('lib/qt.conf', 'qt.conf'),
+            ('lib/xdelta3.exe', 'lib/xdelta3.exe'),
+        ],
         'zip_includes': get_jsonschema_includes(),
         'include_msvcr': True,
         'optimize': 2,
         # cx_freeze >5.0.0 fails to add idna, we'll remove it once they fix it
         # jinja2 dies with 'cannot import compat' without asyncio
-        'packages': ['asyncio', 'PyQt5', 'PyQt5.uic', 'idna',
-                     'PyQt5.QtWidgets', 'PyQt5.QtNetwork', 'win32com', 'win32com.client',
-                     'pkg_resources._vendor'],
+        'packages': [
+            'asyncio', 'PyQt5', 'PyQt5.uic', 'idna',
+            'PyQt5.QtWidgets', 'PyQt5.QtNetwork', 'win32com',
+            'win32com.client', 'pkg_resources._vendor',
+        ],
         'silent': True,
         'excludes': ['numpy', 'scipy', 'matplotlib', 'tcl', 'tkinter'],
 
-        'zip_include_packages': ["*"],     # Place source files in zip archive, like in cx_freeze 4.3.4
+        # Place source files in zip archive, like in cx_freeze 4.3.4
+        'zip_include_packages': ["*"],
         'zip_exclude_packages': [],
     }
 
     platform_options = {
-        'executables': [Executable(
-                          'src/__main__.py',
-                          base=base,
-                          targetName='FAForever.exe',
-                          icon='res/faf.ico'
-                      )],
+        'executables': [
+            Executable(
+                'src/__main__.py',
+                base=base,
+                targetName='FAForever.exe',
+                icon='res/faf.ico',
+            ),
+        ],
         'requires': ['sip', 'PyQt5', 'cx_Freeze'],
-        'options': {'build_exe': build_exe_options,
-                 'bdist_msi': bdist_msi_options},
+        'options': {
+            'build_exe': build_exe_options,
+            'bdist_msi': bdist_msi_options,
+        },
         'version': msi_version,
-                 }
-        
+    }
+
 else:
     from setuptools import find_packages
     platform_options = {
         'packages': find_packages(),
         'version': os.getenv('FAFCLIENT_VERSION'),
-        }
+    }
 
 setup(
     name=product_name,
     description='Forged Alliance Forever - Lobby Client',
-    long_description='FA Forever is a community project that allows you to play \
-Supreme Commander and Supreme Commander: Forged Alliance online \
-with people across the globe. Provides new game play modes, including cooperative play, \
-ranked ladder play, and featured mods.',
+    long_description=(
+        'FA Forever is a community project that allows you to '
+        'play Supreme Commander and Supreme Commander: Forged '
+        'Alliance online with people across the globe. '
+        'Provides new game play modes, including cooperative '
+        'play, ranked ladder play, and featured mods.'
+    ),
     author='FA Forever Community',
     maintainer='Sheeo',
     url='http://www.faforever.com',

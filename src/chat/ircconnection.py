@@ -123,8 +123,11 @@ class IrcConnection(IrcSignals, irc.client.SimpleIRCClient):
             self._notifier = None
 
     def connect_(self, nick, username, password):
-        logger.info("Connecting to IRC at: {}:{}. TLS: {}".format(
-            self.host, self.port, self.use_ssl))
+        logger.info(
+            "Connecting to IRC at: {}:{}. TLS: {}".format(
+                self.host, self.port, self.use_ssl,
+            ),
+        )
 
         self._nick = nick
         self._username = username
@@ -132,18 +135,16 @@ class IrcConnection(IrcSignals, irc.client.SimpleIRCClient):
 
         try:
             self.connect(
-                    self.host,
-                    self.port,
-                    nick,
-                    connect_factory=self.factory,
-                    ircname=nick,
-                    username=username,
-                    password=password,
+                self.host,
+                self.port,
+                nick,
+                connect_factory=self.factory,
+                ircname=nick,
+                username=username,
+                password=password,
             )
             self._notifier = QSocketNotifier(
-                    self.connection.socket.fileno(),
-                    QSocketNotifier.Read,
-                    self
+                self.connection.socket.fileno(), QSocketNotifier.Read, self,
             )
             self._notifier.activated.connect(self.reactor.process_once)
             self._timer.start(PONG_INTERVAL)
@@ -190,10 +191,9 @@ class IrcConnection(IrcSignals, irc.client.SimpleIRCClient):
 
     def _log_event(self, e):
         text = '  |  '.join(e.arguments)
-        self.new_server_message.emit("[{}: {}->{}] {}".format(e.type,
-                                                              e.source,
-                                                              e.target,
-                                                              text))
+        self.new_server_message.emit(
+            "[{}: {}->{}] {}".format(e.type, e.source, e.target, text),
+        )
 
     def _log_client_message(self, text):
         self.new_server_message.emit(text)
@@ -202,8 +202,12 @@ class IrcConnection(IrcSignals, irc.client.SimpleIRCClient):
         self._log_event(e)
 
     def _send_nickserv_creds(self, fmt):
-        self._log_client_message(fmt.format(nick=self._nick,
-                                            password='[password_hash]'))
+        self._log_client_message(
+            fmt.format(
+                nick=self._nick,
+                password='[password_hash]',
+            ),
+        )
 
         msg = fmt.format(
             nick=self._nick,
@@ -218,7 +222,8 @@ class IrcConnection(IrcSignals, irc.client.SimpleIRCClient):
         if self._nickserv_registered:
             return
         self._send_nickserv_creds(
-            'register {password} {nick}@users.faforever.com')
+            'register {password} {nick}@users.faforever.com',
+        )
         self._nickserv_registered = True
 
     def _nickserv_recover_if_needed(self):
@@ -296,12 +301,13 @@ class IrcConnection(IrcSignals, irc.client.SimpleIRCClient):
         modes = e.arguments[0]
         channel = ChannelID(ChannelType.PUBLIC, e.target)
         added, removed = self._parse_elevation(modes)
-        self.new_chatter_elevation.emit(channel, chatter,
-                                        added, removed)
+        self.new_chatter_elevation.emit(
+            channel, chatter, added, removed,
+        )
 
     def _parse_elevation(self, modes):
-        add = re.compile(".*\+([a-z]+)")
-        remove = re.compile(".*\-([a-z]+)")
+        add = re.compile(r".*\+([a-z]+)")
+        remove = re.compile(r".*\-([a-z]+)")
         mode_to_elevation = {"o": "@", "q": "~", "v": "+"}
 
         def get_elevations(expr):
@@ -338,8 +344,9 @@ class IrcConnection(IrcSignals, irc.client.SimpleIRCClient):
     def on_bannedfromchan(self, c, e):
         self._log_event(e)
 
-    def _emit_line(self, chatter, target, channel_type, text,
-                   type_=ChatLineType.MESSAGE):
+    def _emit_line(
+        self, chatter, target, channel_type, text, type_=ChatLineType.MESSAGE,
+    ):
         if channel_type == ChannelType.PUBLIC:
             channel_name = target
         else:
@@ -372,15 +379,16 @@ class IrcConnection(IrcSignals, irc.client.SimpleIRCClient):
             channel_type = ChannelType.PUBLIC
         else:
             channel_type = ChannelType.PRIVATE
-        self._emit_line(chatter, msg_target, channel_type, text,
-                        ChatLineType.NOTICE)
+        self._emit_line(
+            chatter, msg_target, channel_type, text, ChatLineType.NOTICE,
+        )
 
     # Parsing message to get target channel instead is non-standard.  To limit
     # abuse potential, we match the pattern used by bots as closely as
     # possible, and mark the line as notice so views can display them
     # differently.
     def _parse_target_from_privnotice_message(self, text):
-        if re.match('\[[^ ]+\] ', text) is None:
+        if re.match(r'\[[^ ]+\] ', text) is None:
             return None, text
         prefix, rest = text.split(" ", 1)
         prefix = prefix[1:-1]
@@ -422,8 +430,10 @@ class IrcConnection(IrcSignals, irc.client.SimpleIRCClient):
         chatter = self._event_to_chatter(e)
         target = e.target
         text = "\n".join(e.arguments)
-        chtype = (ChannelType.PUBLIC if irc.client.is_channel(target)
-                  else ChannelType.PRIVATE)
+        if irc.client.is_channel(target):
+            chtype = ChannelType.PUBLIC
+        else:
+            chtype = ChannelType.PRIVATE
         self._emit_line(chatter, target, chtype, text, ChatLineType.ACTION)
 
     def on_nosuchnick(self, c, e):

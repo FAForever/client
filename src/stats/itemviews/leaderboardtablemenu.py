@@ -12,6 +12,7 @@ class LeaderboardTableMenuItems(Enum):
     REMOVE_FOE = "Remove foe"
     COPY_USERNAME = "Copy username"
 
+
 class LeaderboardTableMenu:
     def __init__(self, parent, client, leaderboardName):
         self.parent = parent
@@ -78,10 +79,12 @@ class LeaderboardTableMenu:
             return lambda: self.viewAliases(name)
         elif kind == Items.VIEW_REPLAYS:
             return lambda: self.viewReplays(name)
-        elif kind in [Items.ADD_FRIEND, Items.ADD_FOE, Items.REMOVE_FRIEND,
-                      Items.REMOVE_FOE]:
+        elif kind in [
+            Items.ADD_FRIEND, Items.ADD_FOE, Items.REMOVE_FRIEND,
+            Items.REMOVE_FOE,
+        ]:
             return lambda: self.handleFriends(uid, kind)
-    
+
     def copyUsername(self, name):
         QtWidgets.QApplication.clipboard().setText(name)
 

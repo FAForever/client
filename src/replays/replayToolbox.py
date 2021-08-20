@@ -69,14 +69,15 @@ filtersSettings = {
         values=[
             "VALID", "TOO_MANY_DESYNCS", "WRONG_VICTORY_CONDITION",
             "NO_FOG_OF_WAR", "CHEATS_ENABLED", "PREBUILT_ENABLED",
-            "NORUSH_ENABLED", "BAD_UNIT_RESTRICTIONS", "BAD_MAP", "TOO_SHORT"
+            "NORUSH_ENABLED", "BAD_UNIT_RESTRICTIONS", "BAD_MAP", "TOO_SHORT",
         ],
     ),
     "Victory condition": dict(
         filterString="victoryCondition",
         operators=["is", "is not"],
         values=[
-            "DEMORALIZATION", "DOMINATION", "ERADICATION", "SANDBOX", "UNKNOWN"
+            "DEMORALIZATION", "DOMINATION", "ERADICATION",
+            "SANDBOX", "UNKNOWN",
         ],
     ),
 }
@@ -100,7 +101,7 @@ class ReplayToolboxHandler(object):
         dispatcher,
         client,
         gameset,
-        playerset
+        playerset,
     ):
         self._w = widget
         self._dispatcher = dispatcher
@@ -148,7 +149,7 @@ class ReplayToolboxHandler(object):
 
         # make our empty page invisible
         children[-1].setStyleSheet(
-            "background-color: transparent; border-width: 0px"
+            "background-color: transparent; border-width: 0px",
         )
         children[-2].setStyleSheet("max-height: 0px")
 
@@ -205,11 +206,11 @@ class ReplayToolboxHandler(object):
         for n in range(1, self.numOfFiltersLines + 1):
             filterComboBox = getattr(self._w, "filter{}".format(n))
             filterComboBox.operatorBox = getattr(
-                self._w, "operator{}".format(n)
+                self._w, "operator{}".format(n),
             )
             filterComboBox.valueBox = getattr(self._w, "value{}".format(n))
             filterComboBox.layout = getattr(
-                self._w, "filterHorizontal{}".format(n)
+                self._w, "filterHorizontal{}".format(n),
             )
             filterComboBox.dateEdit = None
             filterComboBox.dateIsActive = False
@@ -260,7 +261,7 @@ class ReplayToolboxHandler(object):
 
     def createDateEdit(self, filterWidget, valueBox):
         filterWidget.dateEdit = QtWidgets.QDateEdit(
-            QtCore.QDate.currentDate(), valueBox
+            QtCore.QDate.currentDate(), valueBox,
         )
         filterWidget.dateEdit.setCalendarPopup(True)
         filterWidget.layout.addWidget(filterWidget.dateEdit)
@@ -303,25 +304,25 @@ class ReplayToolboxHandler(object):
 
                 if filterName == "Start time":
                     startDate = filterBox.dateEdit.dateTime().toUTC().toString(
-                        QtCore.Qt.ISODate
+                        QtCore.Qt.ISODate,
                     )
                     if opName == ">":
                         finalFilters.append(
-                            filterString + operators[opName].format(startDate)
+                            filterString + operators[opName].format(startDate),
                         )
                     else:
                         finalFilters.append(
-                            filterString + operators[opName].format(startDate)
+                            filterString + operators[opName].format(startDate),
                         )
                 elif filterName == "One of ratings":
                     finalFilters.append(
                         filterString + operators[opName].format(
-                            int(value) + 300
-                        )
+                            int(value) + 300,
+                        ),
                     )
                 elif value:
                     finalFilters.append(
-                        filterString + operators[opName].format(value)
+                        filterString + operators[opName].format(value),
                     )
 
         if len(finalFilters) > 0:
@@ -341,11 +342,11 @@ class ReplayToolboxHandler(object):
         if selectedReplay and hasattr(selectedReplay, "mapname"):
             preview = self._w.mapPreviewLabel
             if (
-                    selectedReplay.mapname.lower() != "unknown" and
-                    selectedReplay.mapname != preview.currentMap
+                selectedReplay.mapname.lower() != "unknown"
+                and selectedReplay.mapname != preview.currentMap
             ):
                 imgPath = os.path.join(
-                    MAP_PREVIEW_LARGE_DIR, selectedReplay.mapname + ".png"
+                    MAP_PREVIEW_LARGE_DIR, selectedReplay.mapname + ".png",
                 )
 
                 if os.path.isfile(imgPath):

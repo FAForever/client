@@ -1,10 +1,11 @@
 import logging
 
-from PyQt5 import QtCore, QtWidgets
-
-logger = logging.getLogger(__name__)
+from PyQt5 import QtWidgets
+from PyQt5.QtCore import QDateTime, QTimer, Qt
 
 from api.player_api import PlayerApiConnector
+
+logger = logging.getLogger(__name__)
 
 
 class AliasViewer:
@@ -15,7 +16,7 @@ class AliasViewer:
         self.client.lobby_info.aliasInfo.connect(self.process_alias_info)
         self.name_to_find = ""
         self.searching = False
-        self.timer = QtCore.QTimer()
+        self.timer = QTimer()
         self.timer.timeout.connect(self.stop_alias_search)
 
     def find_aliases(self, login):
@@ -36,13 +37,20 @@ class AliasViewer:
         player_aliases, other_users = [], []
         for player in message["values"]:
             if player["login"].lower() == self.name_to_find.lower():
-                player_aliases.append({"name" : player["login"], "changeTime" : None})
+                player_aliases.append({
+                    "name": player["login"],
+                    "changeTime": None,
+                })
                 for name_record in player["names"]:
                     player_aliases.append(name_record)
             else:
                 for name_record in player["names"]:
-                    if name_record["name"].lower() == self.name_to_find.lower():
-                        other_users.append({"name" : player["login"], "changeTime" : name_record["changeTime"]})
+                    name = name_record["name"]
+                    if name.lower() == self.name_to_find.lower():
+                        other_users.append({
+                            "name": player["login"],
+                            "changeTime": name_record["changeTime"],
+                        })
 
         self.show_aliases(player_aliases, other_users)
 
@@ -50,36 +58,55 @@ class AliasViewer:
         QtWidgets.QMessageBox.about(
             self.client,
             "Aliases : {}".format(self.name_to_find),
-            self.formatter.format_aliases(player_aliases, other_users)
+            self.formatter.format_aliases(player_aliases, other_users),
         )
+
 
 class AliasFormatter:
     def __init__(self):
         pass
 
     def nick_times(self, name_records):
-        past_records = [record for record in name_records if record["changeTime"] is not None]
-        current_records = [record for record in name_records if record["changeTime"] is None]
+        past_records = [
+            record
+            for record in name_records
+            if record["changeTime"] is not None
+        ]
+        current_records = [
+            record
+            for record in name_records
+            if record["changeTime"] is None
+        ]
 
         for record in past_records:
-            record["changeTime"] = QtCore.QDateTime.fromString(record["changeTime"], QtCore.Qt.ISODate).toLocalTime()
+            isoTime = QDateTime.fromString(record["changeTime"], Qt.ISODate)
+            record["changeTime"] = isoTime.toLocalTime()
 
         past_records.sort(key=lambda record: record["changeTime"])
 
         for record in past_records:
-            record["changeTime"] = QtCore.QDateTime.toString(record["changeTime"], "yyyy-MM-dd '&nbsp;' hh:mm")
+            record["changeTime"] = QDateTime.toString(
+                record["changeTime"], "yyyy-MM-dd '&nbsp;' hh:mm",
+            )
         for record in current_records:
             record["changeTime"] = "now"
 
         return past_records + current_records
 
     def nick_time_table(self, nicks):
-        table = '<br/><table border="0" cellpadding="0" cellspacing="1" width="220"><tbody>' \
-                '{}' \
-                '</tbody></table>'
-        head = '<tr><th align="left"> Name</th><th align="center"> used until</th></tr>'
+        table = (
+            '<br/><table border="0" cellpadding="0" cellspacing="1" '
+            'width="220"><tbody> {} </tbody></table>'
+        )
+        head = (
+            '<tr><th align="left"> Name</th><th align="center"> used until'
+            '</th></tr>'
+        )
         line_fmt = '<tr><td>{}</td><td align="right">{}</td></tr>'
-        lines = [line_fmt.format(nick["name"], nick["changeTime"]) for nick in nicks]
+        lines = [
+            line_fmt.format(nick["name"], nick["changeTime"])
+            for nick in nicks
+        ]
         return table.format(head + "".join(lines))
 
     def name_used_by_others(self, player_aliases, other_users):
@@ -88,8 +115,9 @@ class AliasFormatter:
         elif len(other_users) == 0:
             return 'The name has never been used by anyone else.'
 
-        return 'The name has previously been used by:{}'.format(
-                self.nick_time_table(self.nick_times(other_users))
+        return (
+            'The name has previously been used by:{}'
+            .format(self.nick_time_table(self.nick_times(other_users)))
         )
 
     def names_previously_known(self, player_aliases):
@@ -98,8 +126,9 @@ class AliasFormatter:
         elif len(player_aliases) == 1:
             return 'The user has never changed their name.'
 
-        return 'The player has previously been known as:{}'.format(
-                self.nick_time_table(self.nick_times(player_aliases))
+        return (
+            'The player has previously been known as:{}'
+            .format(self.nick_time_table(self.nick_times(player_aliases)))
         )
 
     def format_aliases(self, player_aliases, other_users):
@@ -107,6 +136,7 @@ class AliasFormatter:
         others_format = self.name_used_by_others(player_aliases, other_users)
         result = '{}<br/><br/>{}'.format(alias_format, others_format)
         return result
+
 
 class AliasWindow:
     def __init__(self, parent_widget, alias_viewer):
@@ -120,6 +150,7 @@ class AliasWindow:
 
     def view_aliases(self, name):
         self._alias_viewer.find_aliases(name)
+
 
 class AliasSearchWindow:
     def __init__(self, parent_widget, alias_window):

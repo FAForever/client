@@ -37,9 +37,11 @@ class ClientUpdater(QObject):
 
     def _prepare_download(self, url):
         self._logger.debug('_prepare_download')
-        self._tmp = tempfile.NamedTemporaryFile(mode='w+b',
-                                                suffix=".msi",
-                                                delete=False)
+        self._tmp = tempfile.NamedTemporaryFile(
+            mode='w+b',
+            suffix=".msi",
+            delete=False,
+        )
         self._req = QNetworkRequest(QUrl(url))
         self._rep = self._network_manager.get(self._req)
         self._rep.setReadBufferSize(0)
@@ -71,7 +73,8 @@ class ClientUpdater(QObject):
         self._tmp.close()
 
         redirected = self._rep.attribute(
-            QNetworkRequest.RedirectionTargetAttribute)
+            QNetworkRequest.RedirectionTargetAttribute,
+        )
         if redirected is not None:
             self._logger.debug('redirected to {}'.format(redirected))
             os.remove(self._tmp.name)
@@ -85,14 +88,15 @@ class ClientUpdater(QObject):
 
     def _run_installer(self):
         command = 'msiexec /i "{msiname}" & del "{msiname}"'.format(
-            msiname=self._tmp.name)
+            msiname=self._tmp.name,
+        )
         self._logger.debug(r'Running msi installation command: ' + command)
         subprocess.Popen(command, shell=True)
         client.instance.close()
 
     def _on_progress(self, bytesReceived, bytesTotal):
         # only show for "real" download, i.e. bytesTotal > 5MB
-        if (bytesTotal > 5*1024**2):
+        if (bytesTotal > 5 * 1024**2):
             self._progress_bar.setMaximum(bytesTotal)
             self._progress_bar.setValue(bytesReceived)
 

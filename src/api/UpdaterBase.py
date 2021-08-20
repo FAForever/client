@@ -7,6 +7,7 @@ from config import Settings
 
 logger = logging.getLogger(__name__)
 
+
 class UpdaterBase:
     def __init__(self, route):
         self.route = route
@@ -16,7 +17,7 @@ class UpdaterBase:
     def request(self, queryDict, responseHandler):
         url = urllib.parse.urlparse(Settings.get('api') + self.route)
         query = urllib.parse.urlencode(queryDict)
-        url = url._replace(query = query)
+        url = url._replace(query=query)
         url = urllib.parse.urlunparse(url)
 
         request = urllib.request.Request(url)
@@ -36,7 +37,7 @@ class UpdaterBase:
 
     def onRequestFinished(self, reply):
         if reply.status != 200:
-            logger.error("API request error: %s", reply.status)
+            logger.error("API request error: {}".format(reply.status))
         else:
             message_bytes = reply.read()
             message = json.loads(message_bytes.decode('utf-8'))
@@ -51,12 +52,16 @@ class UpdaterBase:
                 if not inc_item["type"] in result:
                     result[inc_item["type"]] = {}
                 if "attributes" in inc_item:
-                    result[inc_item["type"]][inc_item["id"]] = inc_item["attributes"]
+                    type_ = inc_item["type"]
+                    id_ = inc_item["id"]
+                    result[type_][id_] = inc_item["attributes"]
                 if "relationships" in inc_item:
                     for key, value in inc_item["relationships"].items():
-                        relationships.append((inc_item["type"], inc_item["id"], key, value))
+                        relationships.append((
+                            inc_item["type"], inc_item["id"], key, value,
+                        ))
             message.pop('included')
-        #resolve relationships
+        # resolve relationships
         for r in relationships:
             result[r[0]][r[1]][r[2]] = self.parseData(r[3], result)
         return result
@@ -79,7 +84,10 @@ class UpdaterBase:
     def parseSingleData(self, data, included):
         result = {}
         try:
-            if data["type"] in included and data["id"] in included[data["type"]]:
+            if (
+                data["type"] in included
+                and data["id"] in included[data["type"]]
+            ):
                 result = included[data["type"]][data["id"]]
             result["id"] = data["id"]
             result["type"] = data["type"]
@@ -89,6 +97,6 @@ class UpdaterBase:
             if "relationships" in data:
                 for key, value in data["relationships"].items():
                     result[key] = self.parseData(value, included)
-        except:
+        except BaseException:
             logger.error("error parsing ", data)
         return result

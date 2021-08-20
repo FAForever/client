@@ -56,5 +56,8 @@ class Chatter(ModelItem):
         _transaction.emit(self.removed_channel, cc)
 
     def is_base_channel_mod(self):
-        return any(cc.is_mod() for cc in self.channels.values()
-                   if cc.channel.is_base)
+        return any(
+            cc.is_mod()
+            for cc in self.channels.values()
+            if cc.channel.is_base
+        )

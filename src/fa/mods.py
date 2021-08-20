@@ -14,7 +14,7 @@ def checkMods(mods):  # mods is a dictionary of uid-name pairs
     Assures that the specified mods are available in FA, or returns False.
     Also sets the correct active mods in the ingame mod manager.
     """
-    logger.info("Updating FA for mods %s" % ", ".join(mods))
+    logger.info("Updating FA for mods {}".format(", ".join(mods)))
     to_download = []
     inst = modvault.getInstalledMods()
     uids = [mod.uid for mod in inst]
@@ -27,9 +27,19 @@ def checkMods(mods):  # mods is a dictionary of uid-name pairs
         mod_names = ", ".join([mods[uid] for uid in mods])
         msgbox = QtWidgets.QMessageBox()
         msgbox.setWindowTitle("Download Mod")
-        msgbox.setText("Seems that you don't have mods used in this game. Do you want to download them?<br/><b>" + mod_names + "</b>")
-        msgbox.setInformativeText("If you respond 'Yes to All' mods will be downloaded automatically in the future")
-        msgbox.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.YesToAll | QtWidgets.QMessageBox.No)
+        msgbox.setText(
+            "Seems that you don't have mods used in this game. Do "
+            "you want to download them?<br/><b>{}</b>".format(mod_names),
+        )
+        msgbox.setInformativeText(
+            "If you respond 'Yes to All' mods will be "
+            "downloaded automatically in the future",
+        )
+        msgbox.setStandardButtons(
+            QtWidgets.QMessageBox.Yes
+            | QtWidgets.QMessageBox.YesToAll
+            | QtWidgets.QMessageBox.No,
+        )
         result = msgbox.exec_()
         if result == QtWidgets.QMessageBox.No:
             return False
@@ -51,8 +61,14 @@ def checkMods(mods):  # mods is a dictionary of uid-name pairs
         uids[mod.uid] = mod
     for uid in mods:
         if uid not in uids:
-            QtWidgets.QMessageBox.warning(None, "Mod not Found",
-                                      "%s was apparently not installed correctly. Please check this." % mods[uid])
+            QtWidgets.QMessageBox.warning(
+                None,
+                "Mod not Found",
+                (
+                    "{} was apparently not installed correctly. Please check "
+                    "this.".format(mods[uid])
+                ),
+            )
             return
         actual_mods.append(uids[uid])
     if not modvault.setActiveMods(actual_mods):

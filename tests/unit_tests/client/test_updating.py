@@ -1,5 +1,7 @@
 import pytest
 
+from PyQt5 import QtWebEngineWidgets
+
 import config
 
 
@@ -17,10 +19,15 @@ def test_client_sends_current_version(qtbot, mocker):
 
 
 # TODO: bad test, should be rewritten
-@pytest.mark.skipif(True, reason="Run this manually to test client update downloading")
+@pytest.mark.skipif(
+    True,
+    reason="Run this manually to test client update downloading",
+)
 def test_client_updater(qtbot):
     from client.updater import ClientUpdater
 
-    updater = ClientUpdater("http://content.faforever.com/FAForever-0.10.125.msi")
+    updater = ClientUpdater(
+        "http://content.faforever.com/FAForever-0.10.125.msi",
+    )
     updater.exec_()
     qtbot.stop()

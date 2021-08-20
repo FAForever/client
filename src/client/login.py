@@ -18,8 +18,8 @@ class LoginWidget(FormClass, BaseClass):
     request_quit = QtCore.pyqtSignal()
     remember = QtCore.pyqtSignal(bool)
     environments = dict(
-        main = main_environment,
-        test = testing_environment,
+        main=main_environment,
+        test=testing_environment,
     )
 
     def __init__(self, remember=False):
@@ -54,12 +54,22 @@ class LoginWidget(FormClass, BaseClass):
     @QtCore.pyqtSlot()
     def on_fill_extra_options(self):
         env = self.environmentBox.currentData()
+
         self.serverHostField.setText(self.environments[env]["lobby/host"])
         self.serverPortField.setText(str(self.environments[env]["lobby/port"]))
-        self.replayServerHostField.setText(self.environments[env]["replay_server/host"])
-        self.replayServerPortField.setText(str(self.environments[env]["replay_server/port"]))
+
+        self.replayServerHostField.setText(
+            self.environments[env]["replay_server/host"],
+        )
+        self.replayServerPortField.setText(
+            str(self.environments[env]["replay_server/port"]),
+        )
+
         self.ircServerHostField.setText(self.environments[env]["chat/host"])
-        self.ircServerPortField.setText(str(self.environments[env]["chat/port"]))
+        self.ircServerPortField.setText(
+            str(self.environments[env]["chat/port"]),
+        )
+
         self.apiURLField.setText(self.environments[env]["api"])
 
     @QtCore.pyqtSlot()
@@ -76,8 +86,8 @@ class LoginWidget(FormClass, BaseClass):
             "Setting connection options: [server: {}:{}, IRC: {}:{}, "
             "replay_server: {}:{}, api_url: {}]".format(
                 host, port, irc_host, irc_port,
-                replay_host, replay_port, api_url
-            )
+                replay_host, replay_port, api_url,
+            ),
         )
 
         Settings.set('lobby/host', host, persist=False)
@@ -103,19 +113,27 @@ class LoginWidget(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def on_new_account(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(Settings.get("CREATE_ACCOUNT_URL")))
+        QtGui.QDesktopServices.openUrl(
+            QtCore.QUrl(Settings.get("CREATE_ACCOUNT_URL")),
+        )
 
     @QtCore.pyqtSlot()
     def on_rename_account(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(Settings.get("NAME_CHANGE_URL")))
+        QtGui.QDesktopServices.openUrl(
+            QtCore.QUrl(Settings.get("NAME_CHANGE_URL")),
+        )
 
     @QtCore.pyqtSlot()
     def on_steamlink_account(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(Settings.get("STEAMLINK_URL")))
+        QtGui.QDesktopServices.openUrl(
+            QtCore.QUrl(Settings.get("STEAMLINK_URL")),
+        )
 
     @QtCore.pyqtSlot()
     def on_forgot_password(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(Settings.get("PASSWORD_RECOVERY_URL")))
+        QtGui.QDesktopServices.openUrl(
+            QtCore.QUrl(Settings.get("PASSWORD_RECOVERY_URL")),
+        )
 
     @QtCore.pyqtSlot()
     def on_bugreport(self):

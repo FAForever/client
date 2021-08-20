@@ -1,22 +1,19 @@
 import logging
 import os
-import re
 import shutil
 import urllib.error
 import urllib.parse
 import urllib.request
-from stat import *
+from stat import S_IWRITE
 
-from PyQt5 import QtCore, QtGui, QtWebChannel, QtWebEngineWidgets, QtWidgets
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 import util
 from api.vaults_api import MapApiConnector, MapPoolApiConnector
-from config import Settings
 from downloadManager import DownloadRequest
 from fa import maps
 from mapGenerator import mapgenUtils
 from ui.busy_widget import BusyWidget
-from util.qt import injectWebviewCSS
 from vault import luaparser
 
 from .mapwidget import MapWidget
@@ -24,14 +21,8 @@ from .mapwidget import MapWidget
 logger = logging.getLogger(__name__)
 
 
-class FAFPage(QtWebEngineWidgets.QWebEnginePage):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def userAgentForUrl(self, url):
-        return "FAForever"
-
 FormClass, BaseClass = util.THEME.loadUiType("vault/mapvault.ui")
+
 
 class MapVault(FormClass, BaseClass, BusyWidget):
     def __init__(self, client, *args, **kwargs):
@@ -59,28 +50,38 @@ class MapVault(FormClass, BaseClass, BusyWidget):
         self.sortType = "alphabetical"
         self.showType = "all"
         self.searchString = ""
-        self.searchQuery = dict(include = 'latestVersion,reviewsSummary')
+        self.searchQuery = dict(include='latestVersion,reviewsSummary')
 
         self.pageSize = self.quantityBox.value()
         self.pageNumber = 1
 
-        self.goToPageButton.clicked.connect(lambda: self.goToPage(self.pageBox.value()))
+        self.goToPageButton.clicked.connect(
+            lambda: self.goToPage(self.pageBox.value()),
+        )
         self.pageBox.setValue(self.pageNumber)
         self.pageBox.valueChanged.connect(self.checkTotalPages)
         self.totalPages = None
         self.totalRecords = None
         self.quantityBox.valueChanged.connect(self.checkPageSize)
-        self.nextButton.clicked.connect(lambda: self.goToPage(self.pageBox.value() + 1))
-        self.previousButton.clicked.connect(lambda: self.goToPage(self.pageBox.value() - 1))
+        self.nextButton.clicked.connect(
+            lambda: self.goToPage(self.pageBox.value() + 1),
+        )
+        self.previousButton.clicked.connect(
+            lambda: self.goToPage(self.pageBox.value() - 1),
+        )
         self.firstButton.clicked.connect(lambda: self.goToPage(1))
-        self.lastButton.clicked.connect(lambda: self.goToPage(self.totalPages))
+        self.lastButton.clicked.connect(
+            lambda: self.goToPage(self.totalPages),
+        )
         self.resetButton.clicked.connect(self.resetSearch)
 
         self._maps = {}
         self.installed_maps = maps.getUserMaps()
 
         self.mapApiConnector = MapApiConnector(self.client.lobby_dispatch)
-        self.mapPoolApiConnector = MapPoolApiConnector(self.client.lobby_dispatch)
+        self.mapPoolApiConnector = MapPoolApiConnector(
+            self.client.lobby_dispatch,
+        )
 
         self.apiConnector = self.mapApiConnector
         self.busy_entered()
@@ -125,14 +126,14 @@ class MapVault(FormClass, BaseClass, BusyWidget):
         self.apiConnector = self.mapApiConnector
         self.searchString = ''
         self.searchInput.clear()
-        self.searchQuery = dict(include = 'latestVersion,reviewsSummary')
+        self.searchQuery = dict(include='latestVersion,reviewsSummary')
         self.goToPage(1)
 
     @QtCore.pyqtSlot(dict)
     def mapInfo(self, message):
         for value in message["values"]:
             folderName = value["folderName"]
-            if not folderName in self._maps:
+            if folderName not in self._maps:
                 _map = MapItem(self, folderName)
                 self._maps[folderName] = _map
                 self.mapList.addItem(_map)
@@ -178,21 +179,26 @@ class MapVault(FormClass, BaseClass, BusyWidget):
         else:
             self.apiConnector = self.mapApiConnector
             self.searchString = self.searchString.strip()
-            self.searchQuery = dict(include = 'latestVersion,reviewsSummary', filter = 'displayName==' + '"*' + self.searchString + '*"')
+            self.searchQuery = dict(
+                include='latestVersion,reviewsSummary',
+                filter='displayName=="*{}*"'.format(self.searchString),
+            )
             self.goToPage(1)
-    
+
     def requestMapPool(self, queueName, minRating):
         self.apiConnector = MapPoolApiConnector(self.client.lobby_dispatch)
         self.searchQuery = dict(
-            include='mapVersion,mapVersion.map.latestVersion,'
-                    'mapVersion.reviewsSummary',
+            include=(
+                'mapVersion,mapVersion.map.latestVersion,'
+                'mapVersion.reviewsSummary'
+            ),
             filter=(
                 'mapPool.matchmakerQueueMapPool.matchmakerQueue.'
                 'technicalName=="{}";'
                 '(mapPool.matchmakerQueueMapPool.minRating=le="{}",'
                 'mapPool.matchmakerQueueMapPool.minRating=isnull="true")'
                 .format(queueName, minRating)
-            )
+            ),
         )
         self.goToPage(1)
 
@@ -202,7 +208,10 @@ class MapVault(FormClass, BaseClass, BusyWidget):
             self.goToPage(self.pageNumber)
 
     def updateVisibilities(self):
-        logger.debug("Updating visibilities with sort '%s' and visibility '%s'" % (self.sortType, self.showType))
+        logger.debug(
+            "Updating visibilities with sort '{}' and visibility '{}'"
+            .format(self.sortType, self.showType),
+        )
         for _map in self._maps:
             self._maps[_map].updateVisibility()
         self.mapList.sortItems(1)
@@ -213,89 +222,112 @@ class MapVault(FormClass, BaseClass, BusyWidget):
             self.client,
             "Select the map directory to upload",
             maps.getUserMapsFolder(),
-            QtWidgets.QFileDialog.ShowDirsOnly)
+            QtWidgets.QFileDialog.ShowDirsOnly,
+        )
         logger.debug("Uploading map from: " + mapDir)
         if mapDir != "":
             if maps.isMapFolderValid(mapDir):
                 os.chmod(mapDir, S_IWRITE)
                 mapName = os.path.basename(mapDir)
-                zipName = mapName.lower()+".zip"
+                # zipName = mapName.lower() + ".zip"
 
-                scenariolua = luaparser.luaParser(os.path.join(
-                    mapDir,
-                    maps.getScenarioFile(mapDir)))
-                scenarioInfos = scenariolua.parse({
-                    'scenarioinfo>name':'name', 'size':'map_size',
-                    'description':'description',
-                    'count:armies':'max_players',
-                    'map_version':'version',
-                    'type':'map_type',
-                    'teams>0>name':'battle_type'
-                    }, {'version':'1'})
+                scenariolua = luaparser.luaParser(
+                    os.path.join(mapDir, maps.getScenarioFile(mapDir)),
+                )
+                scenarioInfos = scenariolua.parse(
+                    {
+                        'scenarioinfo>name': 'name',
+                        'size': 'map_size',
+                        'description': 'description',
+                        'count:armies': 'max_players',
+                        'map_version': 'version',
+                        'type': 'map_type',
+                        'teams>0>name': 'battle_type',
+                    },
+                    {'version': '1'},
+                )
 
                 if scenariolua.error:
-                    logger.debug("There were {} errors and {} warnings".format(
-                        scenariolua.errors,
-                        scenariolua.warnings
-                        ))
+                    logger.debug(
+                        "There were {} errors and {} warnings".format(
+                            scenariolua.errors,
+                            scenariolua.warnings,
+                        ),
+                    )
                     logger.debug(scenariolua.errorMsg)
                     QtWidgets.QMessageBox.critical(
                         self.client,
                         "Lua parsing error",
-                        "{}\nMap uploading cancelled.".format(
-                            scenariolua.errorMsg))
+                        (
+                            "{}\nMap uploading cancelled."
+                            .format(scenariolua.errorMsg)
+                        ),
+                    )
                 else:
                     if scenariolua.warning:
                         uploadmap = QtWidgets.QMessageBox.question(
                             self.client,
                             "Lua parsing warning",
-                            "{}\nDo you want to upload the map?".format(
-                                scenariolua.errorMsg),
+                            (
+                                "{}\nDo you want to upload the map?"
+                                .format(scenariolua.errorMsg)
+                            ),
                             QtWidgets.QMessageBox.Yes,
-                            QtWidgets.QMessageBox.No)
+                            QtWidgets.QMessageBox.No,
+                        )
                     else:
                         uploadmap = QtWidgets.QMessageBox.Yes
                     if uploadmap == QtWidgets.QMessageBox.Yes:
-                        savelua = luaparser.luaParser(os.path.join(
-                            mapDir,
-                            maps.getSaveFile(mapDir)
-                            ))
+                        savelua = luaparser.luaParser(
+                            os.path.join(mapDir, maps.getSaveFile(mapDir)),
+                        )
                         saveInfos = savelua.parse({
-                            'markers>mass*>position':'mass:__parent__',
-                            'markers>hydro*>position':'hydro:__parent__',
-                            'markers>army*>position':'army:__parent__'})
+                            'markers>mass*>position': 'mass:__parent__',
+                            'markers>hydro*>position': 'hydro:__parent__',
+                            'markers>army*>position': 'army:__parent__',
+                        })
                         if savelua.error or savelua.warning:
-                            logger.debug("There were {} errors and {} warnings".format(
-                                scenariolua.errors,
-                                scenariolua.warnings
-                                ))
+                            logger.debug(
+                                "There were {} errors and {} warnings"
+                                .format(
+                                    scenariolua.errors,
+                                    scenariolua.warnings,
+                                ),
+                            )
                             logger.debug(scenariolua.errorMsg)
 
                         self.__preparePositions(
                             saveInfos,
-                            scenarioInfos["map_size"])
+                            scenarioInfos["map_size"],
+                        )
 
                         tmpFile = maps.processMapFolderForUpload(
                             mapDir,
-                            saveInfos)
+                            saveInfos,
+                        )
                         if not tmpFile:
                             QtWidgets.QMessageBox.critical(
                                 self.client,
                                 "Map uploading error",
-                                "Couldn't make previews for {}\n"
-                                "Map uploading cancelled.".format(mapName))
+                                (
+                                    "Couldn't make previews for {}\n"
+                                    "Map uploading cancelled.".format(mapName)
+                                ),
+                            )
                             return None
 
                         qfile = QtCore.QFile(tmpFile.name)
-                        self.client.lobby_connection.writeToServer("UPLOAD_MAP", zipName, scenarioInfos, qfile)
 
-                        #removing temporary files
+                        # TODO: implement uploading via API
+                        ...
+                        # removing temporary files
                         qfile.remove()
             else:
                 QtWidgets.QMessageBox.information(
                     self.client,
                     "Map selection",
-                    "This folder doesn't contain valid map data.")
+                    "This folder doesn't contain valid map data.",
+                )
 
     @QtCore.pyqtSlot(str)
     def downloadMap(self, link):
@@ -315,9 +347,13 @@ class MapVault(FormClass, BaseClass, BusyWidget):
             show = QtWidgets.QMessageBox.question(
                 self.client,
                 "Already got the Map",
-                "Seems like you already have that map!<br/><b>Would you like to see it?</b>",
+                (
+                    "Seems like you already have that map!<br/><b>Would you "
+                    "like to see it?</b>"
+                ),
                 QtWidgets.QMessageBox.Yes,
-                QtWidgets.QMessageBox.No)
+                QtWidgets.QMessageBox.No,
+            )
             if show == QtWidgets.QMessageBox.Yes:
                 util.showDirInFileBrowser(maps.folderForMap(avail_name))
 
@@ -328,6 +364,7 @@ class MapVault(FormClass, BaseClass, BusyWidget):
             shutil.rmtree(maps_folder)
             self.installed_maps.remove(folder)
             self.updateVisibilities()
+
 
 class MapItemDelegate(QtWidgets.QStyledItemDelegate):
 
@@ -345,30 +382,45 @@ class MapItemDelegate(QtWidgets.QStyledItemDelegate):
         icon = QtGui.QIcon(option.icon)
         iconsize = QtCore.QSize(MapItem.ICONSIZE, MapItem.ICONSIZE)
 
-        # clear icon and text before letting the control draw itself because we're rendering these parts ourselves
+        # clear icon and text before letting the control draw itself because
+        # we're rendering these parts ourselves
         option.icon = QtGui.QIcon()
-        option.text = ""  
-        option.widget.style().drawControl(QtWidgets.QStyle.CE_ItemViewItem, option, painter, option.widget)
+        option.text = ""
+        option.widget.style().drawControl(
+            QtWidgets.QStyle.CE_ItemViewItem, option, painter, option.widget,
+        )
 
         # Shadow
-        painter.fillRect(option.rect.left()+8-1, option.rect.top()+8-1, iconsize.width(), iconsize.height(), QtGui.QColor("#202020"))
+        painter.fillRect(
+            option.rect.left() + 7, option.rect.top() + 7,
+            iconsize.width(), iconsize.height(), QtGui.QColor("#202020"),
+        )
 
-        iconrect = QtCore.QRect(option.rect.adjusted(3,3,0,0))
+        iconrect = QtCore.QRect(option.rect.adjusted(3, 3, 0, 0))
         iconrect.setSize(iconsize)
         # Icon
-        icon.paint(painter, iconrect, QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
+        icon.paint(
+            painter, iconrect, QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter,
+        )
 
         # Frame around the icon
         pen = QtGui.QPen()
         pen.setWidth(1)
-        pen.setBrush(QtGui.QColor("#303030"))  # FIXME: This needs to come from theme.
+        # FIXME: This needs to come from theme.
+        pen.setBrush(QtGui.QColor("#303030"))
+
         pen.setCapStyle(QtCore.Qt.RoundCap)
         painter.setPen(pen)
         painter.drawRect(iconrect)
 
         # Description
-        painter.translate(option.rect.left() + iconsize.width() + 10, option.rect.top()+4)
-        clip = QtCore.QRectF(0, 0, option.rect.width()-iconsize.width() - 10 - 5, option.rect.height())
+        painter.translate(
+            option.rect.left() + iconsize.width() + 10, option.rect.top() + 4,
+        )
+        clip = QtCore.QRectF(
+            0, 0, option.rect.width() - iconsize.width() - 15,
+            option.rect.height(),
+        )
         html.drawContents(painter, clip)
 
         painter.restore()
@@ -379,19 +431,24 @@ class MapItemDelegate(QtWidgets.QStyledItemDelegate):
         html = QtGui.QTextDocument()
         html.setHtml(option.text)
         html.setTextWidth(MapItem.TEXTWIDTH)
-        return QtCore.QSize(MapItem.ICONSIZE + MapItem.TEXTWIDTH + MapItem.PADDING, MapItem.ICONSIZE + MapItem.PADDING)   
+        return QtCore.QSize(
+            MapItem.ICONSIZE
+            + MapItem.TEXTWIDTH
+            + MapItem.PADDING,
+            MapItem.ICONSIZE + MapItem.PADDING,
+        )
 
 
 class MapItem(QtWidgets.QListWidgetItem):
     TEXTWIDTH = 230
     ICONSIZE = 100
     PADDING = 10
-    
+
     WIDTH = ICONSIZE + TEXTWIDTH
-    #DATA_PLAYERS = 32
+    # DATA_PLAYERS = 32
 
     FORMATTER_MAP = str(util.THEME.readfile("vault/mapinfo.qthtml"))
-    #FORMATTER_MAP_UI = str(util.THEME.readfile("vault/mapnfoui.qthtml"))
+    # FORMATTER_MAP_UI = str(util.THEME.readfile("vault/mapnfoui.qthtml"))
 
     def __init__(self, parent, folderName, *args, **kwargs):
         QtWidgets.QListWidgetItem.__init__(self, *args, **kwargs)
@@ -422,14 +479,15 @@ class MapItem(QtWidgets.QListWidgetItem):
         self.rating = dic["rating"]
         self.reviews = dic["reviews"]
 
-        self.height = int(dic["height"]/51.2) #in km (51.2 pixels (or w/e) per km)
-        self.width = int(dic["width"]/51.2) #in km (51.2 pixels (or w/e) per km)
+        # in km 51.2 pixels (or w/e) per km
+        self.height = int(dic["height"] / 51.2)
+        self.width = int(dic["width"] / 51.2)
 
         self.folderName = dic["folderName"]
         self.date = dic['date'][:10]
         self.unranked = not dic["ranked"]
         self.link = dic["link"]  # Direct link to the zip file.
-        self.thumbstrSmall = dic["thumbnailSmall"]  # direct url to the thumbnail file.
+        self.thumbstrSmall = dic["thumbnailSmall"]
         self.thumbnailLarge = dic["thumbnailLarge"]
 
         self.thumbnail = maps.preview(self.folderName)
@@ -442,9 +500,11 @@ class MapItem(QtWidgets.QListWidgetItem):
                 else:
                     self.setItemIcon("games/unknown_map.png")
             else:
-                self.parent.client.map_downloader.download_preview(self.folderName, self._map_dl_request, self.thumbstrSmall)
+                self.parent.client.map_downloader.download_preview(
+                    self.folderName, self._map_dl_request, self.thumbstrSmall,
+                )
 
-        #ensure that the icon is set
+        # Ensure that the icon is set
         self.ensureIcon()
 
         self.updateVisibility()
@@ -454,7 +514,11 @@ class MapItem(QtWidgets.QListWidgetItem):
         if not themed:
             pixmap = QtGui.QPixmap(filename)
             if not pixmap.isNull():
-                icon.addPixmap(pixmap.scaled(QtCore.QSize(self.ICONSIZE, self.ICONSIZE)))
+                icon.addPixmap(
+                    pixmap.scaled(
+                        QtCore.QSize(self.ICONSIZE, self.ICONSIZE),
+                    ),
+                )
         self.setIcon(icon)
 
     def ensureIcon(self):
@@ -469,8 +533,13 @@ class MapItem(QtWidgets.QListWidgetItem):
     def shouldBeVisible(self):
         p = self.parent
         if p.searchString != "":
-            if not (self.name.lower().find(p.searchString) != -1 or
-                            self.description.lower().find(" " + p.searchString + " ") != -1):
+            if not (
+                self.name.lower().find(p.searchString) != -1
+                or (
+                    self.description.lower().find(" " + p.searchString + " ")
+                    != -1
+                )
+            ):
                 return False
         if p.showType == "all":
             return True
@@ -498,12 +567,22 @@ class MapItem(QtWidgets.QListWidgetItem):
         else:
             color = "white"
 
-        self.setText(self.FORMATTER_MAP.format(color=color, version=str(self.version), title=self.name,
-                                               description=descr, height=str(self.height), width=str(self.width),
-                                               rating=str(self.rating), reviews=str(self.reviews), date=str(self.date),
-                                               modtype=maptype))
+        self.setText(
+            self.FORMATTER_MAP.format(
+                color=color,
+                version=str(self.version),
+                title=self.name,
+                description=descr,
+                height=str(self.height),
+                width=str(self.width),
+                rating=str(self.rating),
+                reviews=str(self.reviews),
+                date=str(self.date),
+                modtype=maptype,
+            ),
+        )
 
-        self.setToolTip('<p width="230">%s</p>' % self.description)
+        self.setToolTip('<p width="230">{}</p>'.format(self.description))
 
     def __ge__(self, other):
         return not self.__lt__(self, other)

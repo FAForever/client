@@ -15,6 +15,7 @@ CRASH_REPORT_USER = "pre-login"
 
 FormClass, BaseClass = util.THEME.loadUiType("client/crash.ui")
 
+
 def runtime_info():
     try:
         desc = []
@@ -22,19 +23,22 @@ def runtime_info():
         desc.append(("FAF Version", VERSION_STRING))
         desc.append(("FAF Environment", config.environment))
         desc.append(("FAF Directory", APPDATA_DIR))
-        fa_path = util.settings.value("ForgedAlliance/app/path",
-                                      "Unknown",
-                                      type=str)
+        fa_path = util.settings.value(
+            "ForgedAlliance/app/path",
+            "Unknown",
+            type=str,
+        )
         desc.append(("FA Path: ", fa_path))
         desc.append(("Home Directory", PERSONAL_DIR))
         desc.append(("Platform", platform.platform()))
         desc.append(("Uname", str(platform.uname())))
 
         desc = "".join(["{}: {}\n".format(n, d) for n, d in desc])
-    except Exception:
+    except BaseException:
         desc = "(Exception raised while writing runtime info)\n"
 
     return desc
+
 
 class CrashDialog(FormClass, BaseClass):
     def __init__(self, exc_info, *args, **kwargs):
@@ -59,10 +63,12 @@ class CrashDialog(FormClass, BaseClass):
         text = self.infoBlurb.text()
         try:
             config_loc = "(located at {}) ".format(util.Settings.fileName())
-        except Exception:
+        except BaseException:
             config_loc = ""
-        text += ("<br><br><b>If you're seeing this message after overiding "
-                 "an obsolete theme, go to the client config file {}and "
-                 "remove the [theme_version_override] section.</b>").format(
-                    config_loc)
+        text += (
+            "<br><br><b>If you're seeing this message after overiding "
+            "an obsolete theme, go to the client config file {}and "
+            "remove the [theme_version_override] section.</b>"
+            .format(config_loc)
+        )
         self.infoBlurb.setText(text)

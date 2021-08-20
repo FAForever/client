@@ -10,8 +10,9 @@ FormClass, BaseClass = util.THEME.loadUiType("client/update.ui")
 
 @with_logger
 class UpdateDialog(FormClass, BaseClass):
-    def __init__(self, settings, parent_widget, current_version,
-                 updater_builder):
+    def __init__(
+        self, settings, parent_widget, current_version, updater_builder,
+    ):
         BaseClass.__init__(self, parent_widget)
         self._settings = settings
         self._current_version = current_version
@@ -47,15 +48,16 @@ class UpdateDialog(FormClass, BaseClass):
             text = 'Client releases were found.'
         self.lblUpdatesFound.setText(text)
 
-        versions = self._releases.versions(branch,
-                                           self._settings.updater_downgrade)
+        versions = self._releases.versions(
+            branch, self._settings.updater_downgrade,
+        )
         newest_version = self._releases.newest(branch)
 
         labels = {
             ReleaseType.MINIMUM: 'Server Version',
             ReleaseType.STABLE: 'Stable Version',
             ReleaseType.PRERELEASE: 'Stable Prerelease',
-            ReleaseType.UNSTABLE: 'Unstable'
+            ReleaseType.UNSTABLE: 'Unstable',
         }
 
         self.cbReleases.blockSignals(True)
@@ -80,7 +82,8 @@ class UpdateDialog(FormClass, BaseClass):
     def _format_changelog(self, version):
         if version is not None:
             return "<a href=\"{}/{}\">Release Info</a>".format(
-                self._settings.changelog_url, version)
+                self._settings.changelog_url, version,
+            )
         else:
             return 'Not available'
 
@@ -90,8 +93,10 @@ class UpdateDialog(FormClass, BaseClass):
         self.btnStart.setEnabled(False)
         self.btnAbort.setEnabled(False)
         client_updater = self._updater_builder(
-            parent=self, progress_bar=self.pbDownload,
-            cancel_btn=self.btnCancel)
+            parent=self,
+            progress_bar=self.pbDownload,
+            cancel_btn=self.btnCancel,
+        )
         client_updater.finished.connect(self.finishUpdate)
         client_updater.exec_(url)
 

@@ -44,23 +44,25 @@ class Game(ModelItem):
     OBSERVER_TEAMS = ['-1', 'null']
     LIVE_REPLAY_DELAY_SECS = 60 * 5
 
-    def __init__(self,
-                 playerset,
-                 uid,
-                 state,
-                 launched_at,
-                 num_players,
-                 max_players,
-                 title,
-                 host,
-                 mapname,
-                 map_file_path,
-                 teams,
-                 featured_mod,
-                 sim_mods,
-                 password_protected,
-                 visibility,
-                 **kwargs):
+    def __init__(
+        self,
+        playerset,
+        uid,
+        state,
+        launched_at,
+        num_players,
+        max_players,
+        title,
+        host,
+        mapname,
+        map_file_path,
+        teams,
+        featured_mod,
+        sim_mods,
+        password_protected,
+        visibility,
+        **kwargs
+    ):
 
         ModelItem.__init__(self)
 
@@ -111,9 +113,11 @@ class Game(ModelItem):
         self.emit_update(old, _transaction)
 
     def _check_live_replay_timer(self):
-        if (self.state != GameState.PLAYING or
-           self._live_replay_timer.isActive() or
-           self.launched_at is None):
+        if (
+            self.state != GameState.PLAYING
+            or self._live_replay_timer.isActive()
+            or self.launched_at is None
+        ):
             return
 
         if self.has_live_replay:
@@ -161,8 +165,9 @@ class Game(ModelItem):
         else:
             gtype = GameUrlType.LIVE_REPLAY
 
-        return GameUrl(gtype, self.mapname, self.featured_mod,
-                       self.uid, player_id)
+        return GameUrl(
+            gtype, self.mapname, self.featured_mod, self.uid, player_id,
+        )
 
     # Utility functions start here.
 
@@ -170,9 +175,11 @@ class Game(ModelItem):
         return name in self._playerset
 
     def is_ingame(self, name):
-        return (not self.closed()
-                and self.is_connected(name)
-                and self._playerset[name].currentGame == self)
+        return (
+            not self.closed()
+            and self.is_connected(name)
+            and self._playerset[name].currentGame == self
+        )
 
     def to_player(self, name):
         if not self.is_connected(name):
@@ -189,16 +196,22 @@ class Game(ModelItem):
     def observers(self):
         if self.teams is None:
             return []
-        return [name for tname, team in self.teams.items()
-                if tname in self.OBSERVER_TEAMS
-                for name in team]
+        return [
+            name
+            for tname, team in self.teams.items()
+            if tname in self.OBSERVER_TEAMS
+            for name in team
+        ]
 
     @property
     def playing_teams(self):
         if self.teams is None:
             return {}
-        return {n: t for n, t in self.teams.items()
-                if n not in self.OBSERVER_TEAMS}
+        return {
+            n: t
+            for n, t in self.teams.items()
+            if n not in self.OBSERVER_TEAMS
+        }
 
     @property
     def playing_players(self):
@@ -221,10 +234,16 @@ class Game(ModelItem):
 
     @property
     def average_rating(self):
-        players = [name for team in self.playing_teams.values()
-                   for name in team]
-        players = [self.to_player(name) for name in players
-                   if self.is_connected(name)]
+        players = [
+            name
+            for team in self.playing_teams.values()
+            for name in team
+        ]
+        players = [
+            self.to_player(name)
+            for name in players
+            if self.is_connected(name)
+        ]
         if not players:
             return 0
         else:

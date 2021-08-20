@@ -16,20 +16,20 @@ class NewsManager(QObject):
     def __init__(self, client):
         QObject.__init__(self)
         self.widget = client
-#        self.newsContent = []
-#        self.newsFrames = []
-#        self.selectedFrame = None
-#        self.page = 0
-#
-#        for i in range(self.FRAMES):
-#            frame = NewsFrame()
-#            self.newsFrames.append(frame)
-#            client.newsAreaLayout.addWidget(frame)
-#            frame.clicked.connect(self.frameClicked)
-#
-#        client.nextPageButton.clicked.connect(self.nextPage)
-#        client.prevPageButton.clicked.connect(self.prevPage)
-#        client.pageBox.currentIndexChanged.connect(self.selectPage)
+        # self.newsContent = []
+        # self.newsFrames = []
+        # self.selectedFrame = None
+        # self.page = 0
+
+        # for i in range(self.FRAMES):
+        #     frame = NewsFrame()
+        #     self.newsFrames.append(frame)
+        #     client.newsAreaLayout.addWidget(frame)
+        #     frame.clicked.connect(self.frameClicked)
+
+        # client.nextPageButton.clicked.connect(self.nextPage)
+        # client.prevPageButton.clicked.connect(self.prevPage)
+        # client.pageBox.currentIndexChanged.connect(self.selectPage)
 
         self.WpApi = WPAPI(client)
         self.WpApi.newsDone.connect(self.on_wpapi_done)
@@ -38,7 +38,8 @@ class NewsManager(QObject):
     @QtCore.pyqtSlot(list)
     def on_wpapi_done(self, items):
         """
-        Reinitialize the whole news conglomerate after downloading the news from the api.
+        Reinitialize the whole news conglomerate after downloading the news
+        from the api.
 
         items is a list of (title, content) tuples.
 
@@ -50,18 +51,26 @@ class NewsManager(QObject):
         self.widget.updateNewsFilter()
         for i in range(0, 10):
             if not self.widget.newsList.item(i).isHidden():
-                self.widget.newsList.setCurrentItem(self.widget.newsList.item(i))
+                self.widget.newsList.setCurrentItem(
+                    self.widget.newsList.item(i),
+                )
                 break
-#        self.newsContent = self.newsContent + items
-#
-#        self.npages = int(math.ceil(len(self.newsContent) / self.FRAMES))
-#
-##        origpage = self.page
-#
-#        pb = client.instance.pageBox
-#        pb.insertItems(pb.count(), ['Page {: >2}'.format(x + 1) for x in range(pb.count(), self.npages)])
-#
-#        self.selectPage(self.page)
+        # self.newsContent = self.newsContent + items
+
+        # self.npages = int(math.ceil(len(self.newsContent) / self.FRAMES))
+
+        # origpage = self.page
+
+        # pb = client.instance.pageBox
+        # pb.insertItems(
+        #     pb.count(),
+        #     [
+        #         'Page {: >2}'.format(x + 1)
+        #         for x in range(pb.count(), self.npages)
+        #     ],
+        # )
+
+        # self.selectPage(self.page)
 
     @QtCore.pyqtSlot()
     def frameClicked(self):
@@ -115,7 +124,7 @@ class NewsManager(QObject):
         elif idx == self.npages - 1:
             client.instance.nextPageButton.setEnabled(False)
             # download next page
-            self.WpApi.download(page=self.npages+1, perpage=self.FRAMES)
+            self.WpApi.download(page=self.npages + 1, perpage=self.FRAMES)
 
         firstNewsIdx = idx * self.FRAMES
 

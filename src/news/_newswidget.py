@@ -19,6 +19,7 @@ class Hider(QtCore.QObject):
     widget is in a layout that you do not want to change when the
     widget is hidden.
     """
+
     def __init__(self, parent=None):
         super(Hider, self).__init__(parent)
 
@@ -36,6 +37,7 @@ class Hider(QtCore.QObject):
     def hideWidget(self, sender):
         if sender.isWidgetType():
             self.hide(sender)
+
 
 FormClass, BaseClass = util.THEME.loadUiType("news/news.ui")
 
@@ -76,12 +78,20 @@ class NewsWidget(FormClass, BaseClass):
         newsItem = NewsItem(newsPost, self.newsList)
         self.newsItems.append(newsItem)
 
-    # QtWebEngine has no user CSS support yet, so let's just prepend it to the HTML
+    # QtWebEngine has no user CSS support yet, so let's just prepend it to the
+    # HTML
     def _injectCSS(self, body, link, img):
-        img = '<div style="float:left;"><p style="float:left;"><img src=' + img + ' border="1px" hspace=20></p>'
+        img = (
+            '<div style="float:left;"><p style="float:left;"><img src={} '
+            'border="1px" hspace=20></p>'.format(img)
+        )
         body = body + '</div>'
-        link = '<div style="clear:left;"><a href=' + link + ' style="margin: 0px 0px 0px 20px">Open in your Web browser</a></div>'
-        return '<style type="text/css">{}</style>'.format(self.CSS) + img + body + link
+        link = (
+            '<div style="clear:left;"><a href={} style="margin: 0px 0px '
+            '0px 20px">Open in your Web browser</a></div>'.format(link)
+        )
+        css = '<style type="text/css">{}</style>'.format(self.CSS)
+        return css + img + body + link
 
     def updateNews(self):
         self.hider.hide(self.newsWebView)
@@ -95,12 +105,14 @@ class NewsWidget(FormClass, BaseClass):
                 link = current.newsPost['link']
             else:
                 link = current.newsPost['external_link']
-            self.newsWebView.page().setHtml(self.HTML.format(title=current.newsPost['title'],
-                                                             content=self._injectCSS(current.newsPost['excerpt'],
-                                                                                     link,
-                                                                                     current.newsPost['img_url']
-                                                             )
-                                            )
+            self.newsWebView.page().setHtml(
+                self.HTML.format(
+                    title=current.newsPost['title'],
+                    content=self._injectCSS(
+                        current.newsPost['excerpt'], link,
+                        current.newsPost['img_url'],
+                    ),
+                ),
             )
 
     def linkClicked(self, url):
@@ -116,10 +128,17 @@ class NewsWidget(FormClass, BaseClass):
         self.updateLabel(0)
 
     def showEditToolTip(self):
-        """Default tooltips are too slow and disappear when user starts typing"""
+        """
+        Default tooltips are too slow and disappear when user starts typing
+        """
         widget = self.hideNewsEdit
-        position = widget.mapToGlobal(QtCore.QPoint(0 + widget.width(), 0 - widget.height() / 2))
-        QtWidgets.QToolTip.showText(position, "To separate multiple words use commas: nomads,server,dev")
+        position = widget.mapToGlobal(
+            QtCore.QPoint(0 + widget.width(), 0 - widget.height() / 2),
+        )
+        QtWidgets.QToolTip.showText(
+            position,
+            "To separate multiple words use commas: nomads,server,dev",
+        )
 
     def showSettings(self):
         if self.settingsFrame.isHidden():

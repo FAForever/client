@@ -15,8 +15,9 @@ from vault.dialogs import downloadFile
 
 logger = logging.getLogger(__name__)
 
-releaseUrl = "https://github.com/FAForever/Neroxis-Map-Generator/releases/"
-generatorJarName = "MapGenerator_{}.jar"
+RELEASE_URL = "https://github.com/FAForever/Neroxis-Map-Generator/releases/"
+RELEASE_VERSION_PATH = "download/{version}/NeroxisGen_{version}.jar"
+GENERATOR_JAR_NAME = "MapGenerator_{}.jar"
 
 
 class MapGeneratorManager(object):
@@ -34,42 +35,63 @@ class MapGeneratorManager(object):
             if self.currentVersion == "0" or not self.latestVersion:
                 self.checkUpdates()
 
-                if self.latestVersion and self.versionController(self.latestVersion):
-                    self.currentVersion = self.latestVersion   # mapgen is up-to-date
+                if (
+                    self.latestVersion
+                    and self.versionController(self.latestVersion)
+                ):
+                    # mapgen is up-to-date
+                    self.currentVersion = self.latestVersion
                     Settings.set('mapGenerator/version', self.currentVersion)
-                elif self.currentVersion == "0":               # if not "0", use older version
-                    return False                               # otherwise we don't have any generator at all
+
+                # if not "0", use older version, otherwise we don't have any
+                # generator at all
+                elif self.currentVersion == "0":
+                    return False
             version = self.currentVersion
             args = args
         else:
             matcher = generatedMapPattern.match(mapname)
             version = matcher.group(1)
-            seed = matcher.group(2) #not used here because often it is not numeric
             args = ['--map-name', mapname]
-        
+
         actualPath = self.versionController(version)
 
         if actualPath:
-            auto = Settings.get('mapGenerator/autostart', default=False, type=bool)
+            auto = Settings.get(
+                'mapGenerator/autostart', default=False, type=bool,
+            )
             if not auto and mapname is not None:
                 msgbox = QtWidgets.QMessageBox()
                 msgbox.setWindowTitle("Generate map")
-                msgbox.setText("It looks like you don't have the map being used by this lobby. Do you want to generate it? <br/><b>" + mapname + "</b>")
-                msgbox.setInformativeText("Map generation is a CPU intensive task and may take some time.")
-                msgbox.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.YesToAll | QtWidgets.QMessageBox.No)
+                msgbox.setText(
+                    "It looks like you don't have the map being used by this "
+                    "lobby. Do you want to generate it? <br/><b>{}</b>"
+                    .format(mapname),
+                )
+                msgbox.setInformativeText(
+                    "Map generation is a CPU intensive task and may take some "
+                    "time.",
+                )
+                msgbox.setStandardButtons(
+                    QtWidgets.QMessageBox.Yes
+                    | QtWidgets.QMessageBox.YesToAll
+                    | QtWidgets.QMessageBox.No,
+                )
                 result = msgbox.exec_()
                 if result == QtWidgets.QMessageBox.No:
                     return False
                 elif result == QtWidgets.QMessageBox.YesToAll:
                     Settings.set('mapGenerator/autostart', True)
-            
+
             mapsFolder = getUserMapsFolder()
             if not os.path.exists(mapsFolder):
                 os.makedirs(mapsFolder)
 
             # Start generator with progress bar
-            self.generatorProcess = MapGeneratorProcess(actualPath, mapsFolder, args)
-            
+            self.generatorProcess = MapGeneratorProcess(
+                actualPath, mapsFolder, args,
+            )
+
             map_ = self.generatorProcess.mapname
             # Check if map exists or generator failed
             if os.path.isdir(os.path.join(mapsFolder, map_)):
@@ -78,9 +100,9 @@ class MapGeneratorManager(object):
                 return False
         else:
             return False
-            
+
     def generateRandomMap(self):
-        ''' 
+        '''
         Called when user click "generate map" in host widget.
         Prepares seed and requests latest version once per session
         '''
@@ -88,30 +110,41 @@ class MapGeneratorManager(object):
         if self.currentVersion == "0" or not self.latestVersion:
             self.checkUpdates()
 
-            if self.latestVersion and self.versionController(self.latestVersion):
-                self.currentVersion = self.latestVersion   # mapgen is up-to-date
+            if (
+                self.latestVersion
+                and self.versionController(self.latestVersion)
+            ):
+                # mapgen is up-to-date
+                self.currentVersion = self.latestVersion
                 Settings.set('mapGenerator/version', self.currentVersion)
-            elif self.currentVersion == "0":               # if not "0", use older version
-                return False                               # otherwise we don't have any generator at all
+
+            # if not "0", use older version, otherwise we don't have any
+            # generator at all
+            elif self.currentVersion == "0":
+                return False
 
         seed = random.randint(-9223372036854775808, 9223372036854775807)
-        mapName = "neroxis_map_generator_{}_{}".format(self.currentVersion, seed)
+        mapName = "neroxis_map_generator_{}_{}".format(
+            self.currentVersion, seed,
+        )
 
         return self.generateMap(mapName)
-   
+
     def versionController(self, version):
-        name = generatorJarName.format(version)
+        name = GENERATOR_JAR_NAME.format(version)
         filePath = os.path.join(util.MAPGEN_DIR, name)
-        
+
         # Check if required version is already in folder
         if os.path.isdir(util.MAPGEN_DIR):
             for infile in os.listdir(util.MAPGEN_DIR):
                 if infile.lower() == name.lower():
                     return filePath
 
-        # Download from github if not            
-        url = releaseUrl + "download/{}/NeroxisGen_{}.jar".format(version,version)
-        return downloadFile(url, filePath, name, "map generator", silent = False)
+        # Download from github if not
+        url = RELEASE_URL + RELEASE_VERSION_PATH.format(version=version)
+        return downloadFile(
+            url, filePath, name, "map generator", silent=False,
+        )
 
     def checkUpdates(self):
         '''
@@ -121,12 +154,16 @@ class MapGeneratorManager(object):
         self.manager = QtNetwork.QNetworkAccessManager()
         self.manager.finished.connect(self.onRequestFinished)
 
-        request = QtNetwork.QNetworkRequest(QtCore.QUrl(releaseUrl + "latest"))
+        request = QtNetwork.QNetworkRequest(
+            QtCore.QUrl(RELEASE_URL + "latest"),
+        )
         self.manager.get(request)
-        
+
         progress = QtWidgets.QProgressDialog()
         progress.setCancelButtonText("Cancel")
-        progress.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
+        progress.setWindowFlags(
+            QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint,
+        )
         progress.setAutoClose(False)
         progress.setAutoReset(False)
         progress.setMinimum(0)

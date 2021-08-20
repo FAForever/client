@@ -2,8 +2,9 @@ import logging
 import os
 
 from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtNetwork import (QNetworkAccessManager, QNetworkReply,
-                             QNetworkRequest)
+from PyQt5.QtNetwork import (
+    QNetworkAccessManager, QNetworkReply, QNetworkRequest,
+)
 
 import fa
 import util
@@ -16,7 +17,7 @@ FormClass, BaseClass = util.THEME.loadUiType("tutorials/tutorials.ui")
 
 class TutorialsWidget(FormClass, BaseClass):
     def __init__(self, client, *args, **kwargs):
-        BaseClass.__init__(self, *args, **kwargs)        
+        BaseClass.__init__(self, *args, **kwargs)
 
         self.setupUi(self)
 
@@ -31,7 +32,9 @@ class TutorialsWidget(FormClass, BaseClass):
 
     def finishReplay(self, reply):
         if reply.error() != QNetworkReply.NoError:
-            QtWidgets.QMessageBox.warning(self, "Network Error", reply.errorString())
+            QtWidgets.QMessageBox.warning(
+                self, "Network Error", reply.errorString(),
+            )
         else:
             filename = os.path.join(util.CACHE_DIR, str("tutorial.fafreplay"))
             replay = QtCore.QFile(filename)
@@ -45,7 +48,7 @@ class TutorialsWidget(FormClass, BaseClass):
 
         self.nam = QNetworkAccessManager()
         self.nam.finished.connect(self.finishReplay)
-        self.nam.get(QNetworkRequest(QtCore.QUrl(item.url)))            
+        self.nam.get(QNetworkRequest(QtCore.QUrl(item.url)))
 
     def processTutorialInfo(self, message):
         """
@@ -60,7 +63,7 @@ class TutorialsWidget(FormClass, BaseClass):
             desc = message["description"]
 
             area = util.THEME.loadUi("tutorials/tutorialarea.ui")
-            tabIndex = self.addTab(area, section)      
+            tabIndex = self.addTab(area, section)
             self.setTabToolTip(tabIndex, desc)
 
             # Set up the List that contains the tutorial items

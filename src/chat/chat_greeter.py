@@ -33,8 +33,9 @@ class ChatGreeter:
         for line in self._greeting:
             text, color, size = line
             text = irc_escape(text)
-            msg = self._greeting_format.format(text=text, color=color,
-                                               size=size)
+            msg = self._greeting_format.format(
+                text=text, color=color, size=size,
+            )
             line = ChatLine(None, msg, ChatLineType.RAW)
             data = self._line_metadata_builder.get_meta(channel, line)
             channel.lines.add_line(data)

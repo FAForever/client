@@ -10,17 +10,20 @@ from util import getJavaPath
 from . import mapgenUtils
 
 logger = logging.getLogger(__name__)
-#Separate log file for map generator
+# Separate log file for map generator
 generatorLogger = logging.getLogger(__name__)
 generatorLogger.propagate = False
 generatorLogger.addHandler(setup_file_handler('map_generator.log'))
+
 
 class MapGeneratorProcess(object):
     def __init__(self, gen_path, out_path, args):
         self._progress = QProgressDialog()
         self._progress.setWindowTitle("Generating map, please wait...")
         self._progress.setCancelButtonText("Cancel")
-        self._progress.setWindowFlags(Qt.CustomizeWindowHint | Qt.WindowTitleHint)
+        self._progress.setWindowFlags(
+            Qt.CustomizeWindowHint | Qt.WindowTitleHint,
+        )
         self._progress.setAutoReset(False)
         self._progress.setModal(1)
         self._progress.setMinimum(0)
@@ -30,8 +33,12 @@ class MapGeneratorProcess(object):
 
         self.map_generator_process = QProcess()
         self.map_generator_process.setWorkingDirectory(out_path)
-        self.map_generator_process.readyReadStandardOutput.connect(self.on_log_ready)
-        self.map_generator_process.readyReadStandardError.connect(self.on_error_ready)
+        self.map_generator_process.readyReadStandardOutput.connect(
+            self.on_log_ready,
+        )
+        self.map_generator_process.readyReadStandardError.connect(
+            self.on_error_ready,
+        )
         self.map_generator_process.finished.connect(self.on_exit)
         self.map_name = None
 
@@ -39,14 +46,20 @@ class MapGeneratorProcess(object):
         self.args = ["-jar", gen_path]
         self.args.extend(args)
 
-        logger.info("Starting map generator with {} {}".format(self.java_path, " ".join(self.args)))
-        generatorLogger.info(">>> --------------------------- MapGenerator Launch")
+        logger.info(
+            "Starting map generator with {} {}"
+            .format(self.java_path, " ".join(self.args)),
+        )
+        generatorLogger.info(">>> --------------------- MapGenerator Launch")
 
         self.map_generator_process.start(self.java_path, self.args)
 
         if not self.map_generator_process.waitForStarted(5000):
             logger.error("error starting the map generator process")
-            QMessageBox.critical(None, "Map generator error", "The map generator did not start.")
+            QMessageBox.critical(
+                None, "Map generator error",
+                "The map generator did not start.",
+            )
         else:
             self._progress.show()
             self._running = True
@@ -55,11 +68,15 @@ class MapGeneratorProcess(object):
     @property
     def mapname(self):
         return str(self.map_name)
-    
+
     def on_log_ready(self):
-        data = self.map_generator_process.readAllStandardOutput().data().decode('utf8').split('\n')
+        standard_output = self.map_generator_process.readAllStandardOutput()
+        data = standard_output.data().decode('utf8').split('\n')
         for line in data:
-            if re.match(mapgenUtils.generatedMapPattern, line) and self.map_name is None:
+            if (
+                re.match(mapgenUtils.generatedMapPattern, line)
+                and self.map_name is None
+            ):
                 self.map_name = line.strip()
             if line != '':
                 generatorLogger.info(line.strip())
@@ -70,13 +87,14 @@ class MapGeneratorProcess(object):
                 self._progress.setValue(self.progressCounter)
 
     def on_error_ready(self):
-        for line in str(self.map_generator_process.readAllStandardError()).splitlines():
+        standard_error = str(self.map_generator_process.readAllStandardError())
+        for line in standard_error.splitlines():
             logger.debug("MapGenERROR: " + line)
 
     def on_exit(self, code, status):
         self._progress.reset()
         self._running = False
-        generatorLogger.info("<<< --------------------------- MapGenerator Shutdown")
+        generatorLogger.info("<<< --------------------- MapGenerator Shutdown")
 
     def close(self):
         if self.map_generator_process.state() == QProcess.Running:
@@ -93,4 +111,4 @@ class MapGeneratorProcess(object):
         '''Copied from downloadManager. I hope it's ok :)'''
         waitFlag = QEventLoop.WaitForMoreEvents
         while self._running:
-            QApplication.processEvents(waitFlag) 
+            QApplication.processEvents(waitFlag)
