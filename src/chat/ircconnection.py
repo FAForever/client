@@ -205,7 +205,10 @@ class IrcConnection(IrcSignals, irc.client.SimpleIRCClient):
         self._log_client_message(fmt.format(nick=self._nick,
                                             password='[password_hash]'))
 
-        msg = fmt.format(nick=self._nick, password=self._password)
+        msg = fmt.format(
+            nick=self._nick,
+            password=util.md5text(self._password),
+        )
         self.connection.privmsg('NickServ', msg)
 
     def _nickserv_identify(self):
