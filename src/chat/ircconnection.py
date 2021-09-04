@@ -96,7 +96,7 @@ class IrcConnection(IrcSignals, irc.client.SimpleIRCClient):
         self._timer.timeout.connect(self.reactor.process_once)
 
         self._nickserv_registered = False
-        self._identified = False
+        self._connected = False
 
     @classmethod
     def build(cls, settings, use_ssl=True, **kwargs):
@@ -212,8 +212,6 @@ class IrcConnection(IrcSignals, irc.client.SimpleIRCClient):
         self.connection.privmsg('NickServ', msg)
 
     def _nickserv_identify(self):
-        if self._identified:
-            return
         self._send_nickserv_creds('identify {nick} {password}')
 
     def _nickserv_register(self):
@@ -223,9 +221,12 @@ class IrcConnection(IrcSignals, irc.client.SimpleIRCClient):
             'register {password} {nick}@users.faforever.com')
         self._nickserv_registered = True
 
-    def on_identified(self):
+    def _nickserv_recover_if_needed(self):
         if self.connection.get_nickname() != self._nick:
             self._send_nickserv_creds('recover {nick} {password}')
+
+    def on_connected(self):
+        self._nickserv_recover_if_needed()
         self.connected.emit()
 
     def on_version(self, c, e):
@@ -234,10 +235,11 @@ class IrcConnection(IrcSignals, irc.client.SimpleIRCClient):
 
     def on_motd(self, c, e):
         self._log_event(e)
-        self._nickserv_register()
 
     def on_endofmotd(self, c, e):
         self._log_event(e)
+        self.connection.whois(self._nick)
+        self._nickserv_identify()
 
     def on_namreply(self, c, e):
         channel = ChannelID(ChannelType.PUBLIC, e.arguments[1])
@@ -253,7 +255,10 @@ class IrcConnection(IrcSignals, irc.client.SimpleIRCClient):
         self.new_channel_chatters.emit(channel, chatters)
 
     def on_whoisuser(self, c, e):
-        self._log_event(e)
+        if e.arguments[-1] == self._nick:
+            if not self._connected:
+                self._connected = True
+                self.on_connected()
 
     def _event_to_chatter(self, e):
         name, _id, elevation, hostname = parse_irc_source(e.source)
@@ -385,25 +390,26 @@ class IrcConnection(IrcSignals, irc.client.SimpleIRCClient):
         return target, rest
 
     def _handle_nickserv_message(self, notice):
-        ident_strings = [
-            "registered under your account", "Password accepted",
-            "You are already identified.", "choose a different nick"
-        ]
-        if any(s in notice for s in ident_strings):
-            if not self._identified:
-                self._identified = True
-                self.on_identified()
+        if (
+            "registered under your account" in notice
+            or "You are already identified" in notice
+        ):
+            if not self._connected:
+                self._connected = True
+                self.on_connected()
         elif "isn't registered" in notice:
             self._nickserv_register()
-        elif "registered." in notice:
+        elif "choose a different nick" in notice or "registered." in notice:
             self._nickserv_identify()
+        elif "you are now recognized" in notice:
+            self._nickserv_recover_if_needed()
         elif "RELEASE" in notice:
             self.connection.privmsg('release {} {}')
-        elif "hold on" in notice:
+        elif "hold on" in notice or "You have regained control" in notice:
             self.connection.nick(self._nick)
 
     def on_disconnect(self, c, e):
-        self._identified = False
+        self._connected = False
         self._timer.stop()
         self.disconnected.emit()
 
