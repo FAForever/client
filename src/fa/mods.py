@@ -4,7 +4,7 @@ from PyQt5 import QtWidgets
 
 import config
 import fa
-import modvault
+import vaults.modvault.utils
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +16,7 @@ def checkMods(mods):  # mods is a dictionary of uid-name pairs
     """
     logger.info("Updating FA for mods {}".format(", ".join(mods)))
     to_download = []
-    inst = modvault.getInstalledMods()
+    inst = vaults.modvault.utils.getInstalledMods()
     uids = [mod.uid for mod in inst]
     for uid in mods:
         if uid not in uids:
@@ -55,7 +55,7 @@ def checkMods(mods):  # mods is a dictionary of uid-name pairs
             return False
 
     actual_mods = []
-    inst = modvault.getInstalledMods()
+    inst = vaults.modvault.utils.getInstalledMods()
     uids = {}
     for mod in inst:
         uids[mod.uid] = mod
@@ -71,7 +71,7 @@ def checkMods(mods):  # mods is a dictionary of uid-name pairs
             )
             return
         actual_mods.append(uids[uid])
-    if not modvault.setActiveMods(actual_mods):
+    if not vaults.modvault.utils.setActiveMods(actual_mods):
         logger.warning("Couldn't set the active mods in the game.prefs file")
         return False
 

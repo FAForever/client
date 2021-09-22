@@ -10,10 +10,7 @@ class ModApiConnector(ApiBase):
         ApiBase.__init__(self, '/data/mod')
         self.dispatch = dispatch
 
-    def requestData(self):
-        self.request({}, self.handleData)
-
-    def requestMod(self, query={}):
+    def requestData(self, query={}):
         self.request(query, self.handleData)
 
     def handleData(self, message, meta):

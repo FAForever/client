@@ -60,8 +60,6 @@ from model.gameset import Gameset, PlayerGameIndex
 from model.player import Player
 from model.playerset import Playerset
 from model.rating import MatchmakerQueueType, RatingType
-from modvault import ModVault
-from modvault.utils import getModFolder, setModFolder
 from news import NewsWidget
 from power import PowerTools
 from replays import ReplaysWidget
@@ -71,7 +69,9 @@ from ui.busy_widget import BusyWidget
 from ui.status_logo import StatusLogo
 from unitdb import unitdbtab
 from updater import ClientUpdateTools
-from vault import MapVault
+from vaults.mapvault.mapvault import MapVault
+from vaults.modvault.modvault import ModVault
+from vaults.modvault.utils import getModFolder, setModFolder
 
 from .mouse_position import MousePosition
 from .oauth_dialog import OAuthWidget

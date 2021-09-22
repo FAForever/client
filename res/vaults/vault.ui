@@ -93,7 +93,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="SortType">
+      <widget class="QComboBox" name="SortTypeList">
        <property name="minimumSize">
         <size>
          <width>110</width>
@@ -111,21 +111,6 @@
          <string>Alphabetic</string>
         </property>
        </item>
-       <item>
-        <property name="text">
-         <string>Upload Date</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Rating</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Size</string>
-        </property>
-       </item>
       </widget>
      </item>
      <item>
@@ -136,7 +121,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="ShowType">
+      <widget class="QComboBox" name="ShowTypeList">
        <property name="minimumSize">
         <size>
          <width>110</width>
@@ -152,21 +137,6 @@
        <item>
         <property name="text">
          <string>All</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Unranked only</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Ranked Only</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Installed</string>
         </property>
        </item>
       </widget>
@@ -185,6 +155,19 @@
       </spacer>
      </item>
      <item>
+      <widget class="QPushButton" name="UIButton">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Manage UI Mods</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="uploadButton">
        <property name="minimumSize">
         <size>
@@ -193,14 +176,14 @@
         </size>
        </property>
        <property name="text">
-        <string>Upload Map</string>
+        <string>Upload</string>
        </property>
       </widget>
      </item>
     </layout>
    </item>
    <item>
-    <widget class="QListWidget" name="mapList">
+    <widget class="QListWidget" name="itemList">
      <property name="focusPolicy">
       <enum>Qt::NoFocus</enum>
      </property>

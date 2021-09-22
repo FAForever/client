@@ -1,16 +1,15 @@
 
 import os
-import urllib.error
 import urllib.parse
-import urllib.request
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 import util
-from modvault import utils
 from util import strtodate
 
-FormClass, BaseClass = util.THEME.loadUiType("modvault/mod.ui")
+from .modvault import utils
+
+FormClass, BaseClass = util.THEME.loadUiType("vaults/modvault/mod.ui")
 
 
 class ModWidget(FormClass, BaseClass):
@@ -149,7 +148,9 @@ class CommentItemDelegate(QtWidgets.QStyledItemDelegate):
 
 
 class CommentItem(QtWidgets.QListWidgetItem):
-    FORMATTER_COMMENT = str(util.THEME.readfile("modvault/comment.qthtml"))
+    FORMATTER_COMMENT = str(
+        util.THEME.readfile("vaults/modvault/comment.qthtml"),
+    )
 
     def __init__(self, parent, uid, *args, **kwargs):
         QtWidgets.QListWidgetItem.__init__(self, *args, **kwargs)
