@@ -9,8 +9,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 import util
 from config import Settings
 from util import PREFSFILENAME
-from vault import luaparser
-from vault.dialogs import downloadVaultAsset
+from vaults import luaparser
+from vaults.dialogs import downloadVaultAsset
 
 logger = logging.getLogger(__name__)
 

@@ -22,7 +22,7 @@ import urllib.request
 from PyQt5 import QtCore, QtWidgets
 
 import config
-import modvault
+import vaults.modvault.modvault
 import util
 from api.featured_mod_updater import FeaturedModFiles, FeaturedModId
 from api.sim_mod_updater import SimModFiles
@@ -445,7 +445,7 @@ class Updater(QtCore.QObject):
         """ The core function that does most of the actual update work."""
         try:
             if self.sim:
-                if modvault.downloadMod(
+                if vaults.modvault.modvault.downloadMod(
                     self.requestSimPath(self.featured_mod),
                 ):
                     self.result = self.RESULT_SUCCESS

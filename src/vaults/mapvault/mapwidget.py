@@ -8,7 +8,7 @@ import util
 from fa import maps
 from mapGenerator import mapgenUtils
 
-FormClass, BaseClass = util.THEME.loadUiType("vault/map.ui")
+FormClass, BaseClass = util.THEME.loadUiType("vaults/mapvault/map.ui")
 
 
 class MapWidget(FormClass, BaseClass):

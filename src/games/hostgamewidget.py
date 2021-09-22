@@ -4,7 +4,7 @@ from PyQt5 import QtCore
 
 import fa.check
 import games.mapgenoptionsdialog as MapGenDialog
-import modvault
+import vaults.modvault.utils
 import util
 from fa import maps
 from games.gamemodel import GameModel
@@ -83,7 +83,7 @@ class GameLauncher:
         ):
             return
 
-        modvault.utils.setActiveMods(mods, True, False)
+        vaults.modvault.utils.setActiveMods(mods, True, False)
 
         self._client.host_game(
             title=game.title,
@@ -140,7 +140,7 @@ class HostGameWidget(FormClass, BaseClass):
         self.setupMapList()
 
         # this makes it so you can select every non-ui_only mod
-        for mod in modvault.utils.getInstalledMods():
+        for mod in vaults.modvault.utils.getInstalledMods():
             if mod.ui_only:
                 continue
             self.mods[mod.totalname] = mod
@@ -148,7 +148,7 @@ class HostGameWidget(FormClass, BaseClass):
 
         names = [
             mod.totalname
-            for mod in modvault.utils.getActiveMods(
+            for mod in vaults.modvault.utils.getActiveMods(
                 uimods=False,
                 temporary=False,
             )
@@ -232,7 +232,7 @@ class HostGameWidget(FormClass, BaseClass):
             for moditem in self.modList.selectedItems()
         ]
         mods = [self.mods[modstr] for modstr in modnames]
-        modvault.utils.setActiveMods(mods, True, False)
+        vaults.modvault.utils.setActiveMods(mods, True, False)
 
         self.launch.emit(self.game, password, mods)
         self.done(1)

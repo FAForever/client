@@ -11,7 +11,7 @@ from config import Settings
 from fa.maps import getUserMapsFolder
 from mapGenerator.mapgenProcess import MapGeneratorProcess
 from mapGenerator.mapgenUtils import generatedMapPattern
-from vault.dialogs import downloadFile
+from vaults.dialogs import downloadFile
 
 logger = logging.getLogger(__name__)
 

@@ -20,7 +20,7 @@ import util
 from config import Settings
 from mapGenerator.mapgenUtils import isGeneratedMap
 from model.game import OFFICIAL_MAPS as maps
-from vault.dialogs import downloadVaultAssetNoMsg
+from vaults.dialogs import downloadVaultAssetNoMsg
 
 logger = logging.getLogger(__name__)
 
@@ -359,9 +359,9 @@ def exportPreviewFromMap(mapname, positions=None):
         try:
             genPrevFromDDS(previewddsname, previewlargename, small=False)
             mapimage = util.THEME.pixmap(previewlargename)
-            armypixmap = util.THEME.pixmap("vault/map_icons/army.png")
-            masspixmap = util.THEME.pixmap("vault/map_icons/mass.png")
-            hydropixmap = util.THEME.pixmap("vault/map_icons/hydro.png")
+            armypixmap = util.THEME.pixmap("vaults/map_icons/army.png")
+            masspixmap = util.THEME.pixmap("vaults/map_icons/mass.png")
+            hydropixmap = util.THEME.pixmap("vaults/map_icons/hydro.png")
             massicon = masspixmap.scaled(8, 8, 1, 1)
             armyicon = armypixmap.scaled(8, 9, 1, 1)
             hydroicon = hydropixmap.scaled(10, 10, 1, 1)

@@ -5,9 +5,9 @@ import zipfile
 from PyQt5 import QtCore, QtWidgets
 
 import util
-from modvault import utils
+from vaults.modvault import utils
 
-FormClass, BaseClass = util.THEME.loadUiType("modvault/upload.ui")
+FormClass, BaseClass = util.THEME.loadUiType("vaults/modvault/upload.ui")
 
 
 class UploadModWidget(FormClass, BaseClass):
