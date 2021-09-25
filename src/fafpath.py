@@ -57,3 +57,7 @@ def get_libdir():
     else:
         # We are most likely running from source
         return os.path.join(get_srcdir(), "lib")
+
+
+def get_java_path():
+    return os.path.join(get_libdir(), "ice-adapter", "jre", "bin", "java.exe")
