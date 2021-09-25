@@ -497,9 +497,3 @@ def strtodate(s):
 
 def datetostr(d):
     return d.strftime("%Y-%m-%d %H:%M:%S")
-
-
-def getJavaPath():
-    return os.path.join(
-        fafpath.get_libdir(), "ice-adapter", "jre", "bin", "java.exe",
-    )

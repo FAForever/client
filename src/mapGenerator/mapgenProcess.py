@@ -4,8 +4,8 @@ import re
 from PyQt5.QtCore import QEventLoop, QProcess, Qt
 from PyQt5.QtWidgets import QApplication, QMessageBox, QProgressDialog
 
+import fafpath
 from config import setup_file_handler
-from util import getJavaPath
 
 from . import mapgenUtils
 
@@ -42,7 +42,7 @@ class MapGeneratorProcess(object):
         self.map_generator_process.finished.connect(self.on_exit)
         self.map_name = None
 
-        self.java_path = getJavaPath()
+        self.java_path = fafpath.get_java_path()
         self.args = ["-jar", gen_path]
         self.args.extend(args)
 

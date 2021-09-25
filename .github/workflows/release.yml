@@ -52,6 +52,11 @@ jobs:
           Invoke-WebRequest -Uri "https://github.com/FAForever/uid/releases/download/$($env:UID_VERSION)/faf-uid.exe" -OutFile ".\\lib\\faf-uid.exe"
           Invoke-WebRequest -Uri "https://github.com/FAForever/java-ice-adapter/releases/download/v1.0.0/faf-ice-adapter-jre-base.7z" -OutFile ".\\faf-ice-adapter-jre-base.7z"
           7z x faf-ice-adapter-jre-base.7z -olib
+          Remove-Item .\lib\ice-adapter\jre -Force -Recurse
+          Remove-Item .\lib\ice-adapter\LICENSE.txt -Force -Recurse
+          Invoke-WebRequest -Uri "https://content.faforever.com/jre/windows-amd64-15.0.1.tar.gz" -OutFile ".\\windows-amd64-15.0.1.tar.gz"
+          7z x windows-amd64-15.0.1.tar.gz
+          7z x windows-amd64-15.0.1.tar -olib/ice-adapter/jre
           Invoke-WebRequest -Uri "https://github.com/FAForever/java-ice-adapter/releases/download/$($env:ICE_ADAPTER_VERSION)/faf-ice-adapter.jar" -OutFile ".\\lib\\ice-adapter\\faf-ice-adapter.jar"
 
       - name: Test with pytest
