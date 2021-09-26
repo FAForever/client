@@ -1,7 +1,8 @@
-import pytest
 import copy
 
-from model import gameset, game
+import pytest
+
+from model import game, gameset
 
 DEFAULT_DICT = {
     "uid": 1,

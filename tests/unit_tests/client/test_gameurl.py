@@ -1,4 +1,5 @@
 import pytest
+
 from util.gameurl import GameUrl, GameUrlType
 
 # NOTE - any time url format gets updated, fix below URLs to be correct

@@ -2,8 +2,8 @@ import copy
 
 from model.game import Game, GameState, GameVisibility
 from model.gameset import Gameset, PlayerGameIndex
-from model.playerset import Playerset
 from model.player import Player
+from model.playerset import Playerset
 
 GAME_DICT = {
     "uid": 1,
@@ -66,7 +66,7 @@ def test_setup():
 def test_player_at_game_change(mocker):
     ps = Playerset()
     gs = Gameset(ps)
-    pgr = PlayerGameIndex(gs, ps)
+    pgr = PlayerGameIndex(gs, ps)  # noqa: F841
 
     p = Player(**{"id_": 1, "login": "Guy"})
     ps[p.id] = p
@@ -126,7 +126,7 @@ def test_player_at_another_game(mocker):
 def test_game_at_missing_player(mocker):
     ps = Playerset()
     gs = Gameset(ps)
-    pgr = PlayerGameIndex(gs, ps)
+    pgr = PlayerGameIndex(gs, ps)  # noqa: F841
 
     p = Player(**{"id_": 1, "login": "Guy"})
     ps[p.id] = p

@@ -6,7 +6,9 @@ import time
 import jsonschema
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtNetwork import (
-    QNetworkAccessManager, QNetworkReply, QNetworkRequest,
+    QNetworkAccessManager,
+    QNetworkReply,
+    QNetworkRequest,
 )
 
 import client

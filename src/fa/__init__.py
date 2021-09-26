@@ -8,4 +8,17 @@ from .game_process import instance
 from .play import run
 from .replay import replay
 
+__all__ = (
+    "check",
+    "factions",
+    "maps",
+    "mods",
+    "replayserver",
+    "updater",
+    "wizards",
+    "instance",
+    "run",
+    "replay",
+)
+
 logger = logging.getLogger(__name__)

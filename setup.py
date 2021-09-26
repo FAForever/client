@@ -1,9 +1,10 @@
 import os
-import sys
 import site
-
-import sip
+import sys
 from pathlib import Path
+
+import PyQt5.uic
+import sip
 
 sip.setapi('QString', 2)
 sip.setapi('QVariant', 2)
@@ -11,9 +12,8 @@ sip.setapi('QStringList', 2)
 sip.setapi('QList', 2)
 sip.setapi('QProcess', 2)
 
-import PyQt5.uic
 if sys.platform == 'win32':
-    from cx_Freeze import setup, Executable
+    from cx_Freeze import Executable, setup
 else:
     from distutils.core import setup
 
@@ -169,5 +169,5 @@ setup(
     maintainer='Sheeo',
     url='http://www.faforever.com',
     license='GNU General Public License, Version 3',
-    **platform_options
+    **platform_options,
 )

@@ -39,7 +39,7 @@ Contributors:
  * Fix basic searching in vaults
  * Implement somewhat of a cache system like in the Java client
  * Online replay vault: fix downloading replays
- 
+
 Contributors:
  - Gatsik
 
@@ -92,7 +92,7 @@ Contributors:
 Contributors:
  - Strogo
  - muellni
- 
+
 0.18.3
 =====
  * ICE adapter debug window fixes
@@ -100,7 +100,7 @@ Contributors:
 Contributors:
  - Geosearchef
  - muellni
- 
+
 0.18.2
 =====
  * ICE adapter integration
@@ -662,7 +662,7 @@ Bugfixes
 - Fixed colouring problem with certain names
 - Automatic login will now get disabled if login fails
 - Fixed exceptions popping up related to corrupted replays
-- Logs will no longer fill to unreasonable sizes	
+- Logs will no longer fill to unreasonable sizes
 - Many other small issues fixed
 
 

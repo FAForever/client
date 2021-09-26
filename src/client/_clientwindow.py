@@ -24,25 +24,33 @@ from chat.chatter_model import ChatterLayoutElements
 from chat.ircconnection import IrcConnection
 from chat.language_channel_config import LanguageChannelConfig
 from chat.line_restorer import ChatLineRestorer
-from client.clientstate import ClientState
 from client.aliasviewer import AliasSearchWindow, AliasWindow
 from client.chat_config import ChatConfig
+from client.clientstate import ClientState
 from client.connection import (
-    ConnectionState, Dispatcher, LobbyInfo,
-    ServerConnection, ServerReconnecter,
+    ConnectionState,
+    Dispatcher,
+    LobbyInfo,
+    ServerConnection,
+    ServerReconnecter,
 )
 from client.gameannouncer import GameAnnouncer
 from client.login import LoginWidget
 from client.playercolors import PlayerColors
 from client.theme_menu import ThemeMenu
 from client.user import (
-    User, UserRelationController, UserRelationModel,
-    UserRelations, UserRelationTrackers,
+    User,
+    UserRelationController,
+    UserRelationModel,
+    UserRelations,
+    UserRelationTrackers,
 )
 from connectivity.ConnectivityDialog import ConnectivityDialog
 from coop import CoopWidget
 from downloadManager import (
-    MAP_PREVIEW_ROOT, AvatarDownloader, PreviewDownloader,
+    MAP_PREVIEW_ROOT,
+    AvatarDownloader,
+    PreviewDownloader,
 )
 from fa.factions import Factions
 from fa.game_runner import GameRunner

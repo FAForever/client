@@ -13,8 +13,7 @@ from api.vaults_api import MapApiConnector, MapPoolApiConnector
 from fa import maps
 from mapGenerator import mapgenUtils
 from vaults import luaparser
-from vaults.vault import Vault
-from vaults.vault import VaultItem
+from vaults.vault import Vault, VaultItem
 
 from .mapwidget import MapWidget
 

@@ -1,3 +1,7 @@
+"""
+The UI of the Notification System Settings Frame.
+Each module/hook for the notification system must be registered here.
+"""
 from enum import Enum
 
 from PyQt5 import QtCore, QtWidgets
@@ -9,11 +13,6 @@ from notifications.hook_gamefull import NsHookGameFull
 from notifications.hook_newgame import NsHookNewGame
 from notifications.hook_partyinvite import NsHookPartyInvite
 from notifications.hook_useronline import NsHookUserOnline
-
-"""
-The UI of the Notification System Settings Frame.
-Each module/hook for the notification system must be registered here.
-"""
 
 
 class IngameNotification(Enum):
@@ -147,13 +146,12 @@ class NsSettingsDialog(FormClass2, BaseClass2):
         return None
 
 
-"""
-Model Class for notification type table.
-Needs an NsHook.
-"""
-
-
 class NotificationHooks(QtCore.QAbstractTableModel):
+    """
+    Model Class for notification type table.
+    Needs an NsHook.
+    """
+
     POPUP = 1
     SOUND = 2
     SETTINGS = 3

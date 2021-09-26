@@ -22,8 +22,8 @@ import urllib.request
 from PyQt5 import QtCore, QtWidgets
 
 import config
-import vaults.modvault.modvault
 import util
+import vaults.modvault.modvault
 from api.featured_mod_updater import FeaturedModFiles, FeaturedModId
 from api.sim_mod_updater import SimModFiles
 from config import Settings

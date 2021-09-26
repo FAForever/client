@@ -14,7 +14,7 @@ QTabWidget::pane
  }
 
 /* Style the tab using the tab sub-control. Note that it reads QTabBar _not_ QTabWidget */
-QTabWidget > QTabBar::tab 
+QTabWidget > QTabBar::tab
 {
     background-color:#383838;
     color: silver;
@@ -27,7 +27,7 @@ QTabWidget > QTabBar::tab:!selected
     background-color: #203040;
 }
 
-QTabWidget > QTabBar::tab:hover 
+QTabWidget > QTabBar::tab:hover
 {
     color:white;
     background-color: #606060;

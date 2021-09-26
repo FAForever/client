@@ -1,4 +1,5 @@
 import pytest
+
 from model.chat.channel import Lines
 
 

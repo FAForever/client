@@ -3,7 +3,9 @@ import os
 
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtNetwork import (
-    QNetworkAccessManager, QNetworkReply, QNetworkRequest,
+    QNetworkAccessManager,
+    QNetworkReply,
+    QNetworkRequest,
 )
 
 import fa

@@ -9,9 +9,12 @@ from chat.channel_tab import TabInfo
 from chat.channel_widget import ChannelWidget
 from chat.chatter_menu import ChatterMenu
 from chat.chatter_model import (
-    ChatterEventFilter, ChatterFormat,
-    ChatterItemDelegate, ChatterLayout,
-    ChatterLayoutElements, ChatterModel,
+    ChatterEventFilter,
+    ChatterFormat,
+    ChatterItemDelegate,
+    ChatterLayout,
+    ChatterLayoutElements,
+    ChatterModel,
     ChatterSortFilterModel,
 )
 from downloadManager import DownloadRequest
