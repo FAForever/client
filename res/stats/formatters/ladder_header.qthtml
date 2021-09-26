@@ -3,4 +3,3 @@
     <th width="100%">{name}</th>
     <th align="center" width="50">{score}</th>
 </tr>
-

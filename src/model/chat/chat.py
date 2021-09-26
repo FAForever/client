@@ -1,7 +1,8 @@
 from PyQt5.QtCore import QObject, pyqtSignal
 
 from model.chat.channelchatterset import (
-    ChannelChatterRelation, ChannelChatterset,
+    ChannelChatterRelation,
+    ChannelChatterset,
 )
 from model.chat.channelset import Channelset
 from model.chat.chatterset import Chatterset

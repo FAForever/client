@@ -10,7 +10,6 @@ import fa
 import util
 from config import Settings
 
-
 GPGNET_HOST = "lobby.faforever.com"
 GPGNET_PORT = 8000
 

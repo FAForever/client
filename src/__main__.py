@@ -10,7 +10,8 @@ import sys
 
 # According to PyQt5 docs we need to import QtWebEngineWidgets before we create
 # QApplication
-from PyQt5 import QtWebEngineWidgets, QtWidgets, uic
+from PyQt5 import QtWebEngineWidgets  # noqa: F401
+from PyQt5 import QtWidgets, uic
 from PyQt5.QtCore import Qt
 
 import util

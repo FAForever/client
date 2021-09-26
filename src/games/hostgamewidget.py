@@ -4,8 +4,8 @@ from PyQt5 import QtCore
 
 import fa.check
 import games.mapgenoptionsdialog as MapGenDialog
-import vaults.modvault.utils
 import util
+import vaults.modvault.utils
 from fa import maps
 from games.gamemodel import GameModel
 from model.game import Game, GameState, GameVisibility

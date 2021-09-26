@@ -3,6 +3,11 @@
 from chat.chatlineedit import ChatLineEdit
 from chat.chatterlistview import ChatterListView
 
+__all__ = (
+    "ChatLineEdit",
+    "ChatterListView",
+)
+
 
 class ChatMVC:
     def __init__(

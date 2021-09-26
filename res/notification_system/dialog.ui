@@ -15,7 +15,7 @@
   </property>
   <property name="styleSheet">
    <string notr="true">QDialog {
-	
+
 	background-color: #272b30;
 }
 
@@ -56,7 +56,7 @@ QPushButton:hover {
 	background-color: rgba(0,0,0,0);
 	width: 18px;
 	height: 18px;
-	
+
 }</string>
   </property>
   <layout class="QVBoxLayout">
@@ -118,7 +118,7 @@ QPushButton:hover {
          <string notr="true">QLabel {
 	color: rgb(255, 255, 255);
     font-weight: bold;
-    font-family: Verdana; 
+    font-family: Verdana;
     font-size:13pt;
 }
 

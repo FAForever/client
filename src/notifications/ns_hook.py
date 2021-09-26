@@ -1,7 +1,3 @@
-from PyQt5 import QtWidgets
-
-from config import Settings
-
 """
 Setting Model class.
 All Event Types (Notifications) are customizable.
@@ -11,6 +7,9 @@ connect on clicked event some actions, e.g.
 
 self.button.clicked.connect(self.dialog.show)
 """
+from PyQt5 import QtWidgets
+
+from config import Settings
 
 
 class NsHook():

@@ -7,7 +7,6 @@ from PyQt5 import QtCore, QtWidgets
 
 import config
 import util
-
 from model.game import GameState
 
 logger = logging.getLogger(__name__)

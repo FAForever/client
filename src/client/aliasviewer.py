@@ -1,7 +1,7 @@
 import logging
 
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import QDateTime, QTimer, Qt
+from PyQt5.QtCore import QDateTime, Qt, QTimer
 
 from api.player_api import PlayerApiConnector
 

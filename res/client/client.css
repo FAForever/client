@@ -259,12 +259,12 @@ QSplitter::handle:hover
      background-color: #353535;
      color: orange;
  }
- 
+
  QDateEdit:disabled
  {
      color: #8D8B85;
  }
- 
+
  QDateEdit::down-arrow
  {
      color: orange;
@@ -297,7 +297,7 @@ QSpinBox#minRating::disabled
     background-color: #4b4b4b;
 }
 
-QComboBox#filter1, #filter2, #filter3, #filter4, #filter5, #filter6, 
+QComboBox#filter1, #filter2, #filter3, #filter4, #filter5, #filter6,
 #operator1, #operator2, #operator3, #operator4, #operator5, #operator6
 {
     background-color: #353535;
@@ -310,7 +310,7 @@ QToolBox#replayToolBox::tab
     color: silver;
     border-radius: 3px;
     padding-left: 145px; /* "alignment: center" doesn't work with toolboxes :| */
-} 
+}
 
 #advancedSearch, #mapPreview
 {
@@ -374,7 +374,7 @@ QHeaderView::section
     background-color: #4b4b4b;
     font: bold;
     border-left: 1 solid;
-    
+
 }
 
 QHeaderView::down-arrow
@@ -671,7 +671,7 @@ QCheckBox#spoilerCheckbox, #automaticCheckbox, #showLatestCheckbox, #hideUnrChec
 {
     color: silver;
 }
-QCheckBox#spoilerCheckbox::indicator:unchecked, #automaticCheckbox::indicator:unchecked, #showLatestCheckbox::indicator:unchecked, 
+QCheckBox#spoilerCheckbox::indicator:unchecked, #automaticCheckbox::indicator:unchecked, #showLatestCheckbox::indicator:unchecked,
 #hideUnrCheckbox::indicator:unchecked
 ,#landRandomDensity::indicator::unchecked, #plateausRandomDensity::indicator::unchecked, #mountainsRandomDensity::indicator::unchecked
 ,#rampsRandomDensity::indicator::unchecked, #mexRandomDensity::indicator::unchecked ,#reclaimRandomDensity::indicator::unchecked
@@ -679,7 +679,7 @@ QCheckBox#spoilerCheckbox::indicator:unchecked, #automaticCheckbox::indicator:un
     image: url('%THEMEPATH%/client/chboxUncheked.png');
  }
 
-QCheckBox#spoilerCheckbox::indicator:checked, #automaticCheckbox::indicator:checked, #showLatestCheckbox::indicator:checked, 
+QCheckBox#spoilerCheckbox::indicator:checked, #automaticCheckbox::indicator:checked, #showLatestCheckbox::indicator:checked,
 #hideUnrCheckbox::indicator:checked
 ,#landRandomDensity::indicator::checked, #plateausRandomDensity::indicator::checked, #mountainsRandomDensity::indicator::checked
 ,#rampsRandomDensity::indicator::checked, #mexRandomDensity::indicator::checked ,#reclaimRandomDensity::indicator::checked
@@ -759,7 +759,7 @@ QToolButton::checked
     background-color:#C0C0C0;
     border-radius : 5px;
  }
- 
+
 QPushButton#refreshButton, #nextButton, #previousButton, #goToPageButton, #firstButton, #lastButton,
 #resetButton, #searchPlayerButton, #UIButton, #uploadButton, #kickButton, #leaveButton
 {

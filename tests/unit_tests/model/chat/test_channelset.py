@@ -1,7 +1,7 @@
 import pytest
 
-from model.chat.channelset import Channelset
 from model.chat.channel import ChannelID, ChannelType
+from model.chat.channelset import Channelset
 
 
 class MockChannels():

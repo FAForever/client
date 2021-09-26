@@ -33,7 +33,7 @@ QTabWidget::pane
 
 
 /* Style the tab using the tab sub-control. Note that it reads QTabBar _not_ QTabWidget */
-QTabWidget > QTabBar::tab 
+QTabWidget > QTabBar::tab
 {
     background-color:#383838;
     color: silver;
@@ -42,21 +42,21 @@ QTabWidget > QTabBar::tab
 }
 
 
-QTabWidget > QTabBar::tab:!selected 
+QTabWidget > QTabBar::tab:!selected
 {
 
     background-color: #203040;
 }
 
 
-QTabWidget > QTabBar::tab:hover 
+QTabWidget > QTabBar::tab:hover
 {
     color:white;
     background-color: #606060;
 }
 
 
-QTabWidget > QTabBar::tab:selected 
+QTabWidget > QTabBar::tab:selected
 {
     color:white;
     background-color: #303030;
@@ -106,4 +106,3 @@ body {background-color: #2f2f2f; overflow: hidden;}
     .pages .current_page {color: black;}
 
 .search_form {float: left;}
-

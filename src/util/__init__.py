@@ -277,7 +277,6 @@ THEME = None
 
 def _setup_theme():
     global THEME
-    global VERSION_STRING
 
     default = Theme(COMMON_DIR, None)
     themes = []

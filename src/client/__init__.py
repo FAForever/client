@@ -5,6 +5,10 @@ from client.theme_menu import ThemeMenu
 
 from ._clientwindow import ClientWindow
 
+__all__ = (
+    "ThemeMenu",
+)
+
 logger = logging.getLogger(__name__)
 
 instance = ClientWindow()

@@ -1,3 +1,6 @@
+"""
+The UI popup of the notification system
+"""
 import time
 
 from PyQt5 import QtCore, QtWidgets
@@ -6,9 +9,6 @@ import util
 
 from .ns_settings import NotificationPosition
 
-"""
-The UI popup of the notification system
-"""
 FormClass, BaseClass = util.THEME.loadUiType("notification_system/dialog.ui")
 
 

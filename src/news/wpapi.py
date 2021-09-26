@@ -3,7 +3,9 @@ import logging
 
 from PyQt5 import QtCore
 from PyQt5.QtNetwork import (
-    QNetworkAccessManager, QNetworkReply, QNetworkRequest,
+    QNetworkAccessManager,
+    QNetworkReply,
+    QNetworkRequest,
 )
 
 from config import Settings

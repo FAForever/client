@@ -1,6 +1,5 @@
 import pytest
-
-from PyQt5 import QtWebEngineWidgets
+from PyQt5 import QtWebEngineWidgets  # noqa: F401
 
 import config
 

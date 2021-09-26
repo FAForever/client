@@ -1,5 +1,4 @@
 import pytest
-
 from PyQt5.QtCore import QPoint
 
 

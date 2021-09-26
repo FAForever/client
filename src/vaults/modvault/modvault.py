@@ -49,14 +49,11 @@ from PyQt5 import QtCore, QtWidgets
 import util
 from api.vaults_api import ModApiConnector
 from vaults.modvault import utils
+from vaults.vault import Vault, VaultItem
 
 from .modwidget import ModWidget
 from .uimodwidget import UIModWidget
 from .uploadwidget import UploadModWidget
-
-from vaults.vault import Vault
-from vaults.vault import VaultItem
-
 
 logger = logging.getLogger(__name__)
 

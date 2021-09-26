@@ -1,9 +1,11 @@
 __author__ = 'Thygrrr'
 
-from fa import updater
-from PyQt5 import QtWidgets, QtCore
-import pytest
 import collections
+
+import pytest
+from PyQt5 import QtCore, QtWidgets
+
+from fa import updater
 
 
 class _TestObjectWithoutIsFinished(QtCore.QObject):
@@ -69,7 +71,7 @@ def test_updater_add_watch_raises_error_on_watch_without_signal_finished(
         updater.UpdaterProgressDialog(None).addWatch(QtCore.QObject())
 
 
-def test_updater_watch_finished_raises_error_on_watch_without_method_is_finished(
+def test_updater_watch_finished_raises_error_on_watch_without_method_finished(
     application,
 ):
     u = updater.UpdaterProgressDialog(None)
