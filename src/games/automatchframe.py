@@ -73,6 +73,9 @@ class MatchmakerQueue(FormClass, BaseClass):
         self.matchmakerTimer.timeout.connect(self.updateMatchmakerTimer)
         self.secondsToAutomatch = 0
 
+        title = self.queueName.replace("_", " ").capitalize()
+        self.automatchTitle.setText(title)
+
     def setFactionIcons(self, subFactions):
         for faction, icon in self._rankedIcons.items():
             try:
@@ -132,7 +135,8 @@ class MatchmakerQueue(FormClass, BaseClass):
         if not any(self.games.searching.values()):
             if fa.instance.running():
                 QtWidgets.QMessageBox.information(
-                    self.client, "ForgedAllianceForever.exe",
+                    self.client,
+                    "ForgedAllianceForever.exe",
                     "FA is already running.",
                 )
                 self.stopSearchRanked()
