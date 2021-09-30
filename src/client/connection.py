@@ -381,6 +381,7 @@ class LobbyInfo(QtCore.QObject):
     mapVaultInfo = QtCore.pyqtSignal(dict)
     vaultMeta = QtCore.pyqtSignal(dict)
     aliasInfo = QtCore.pyqtSignal(dict)
+    matchmakerQueueInfo = QtCore.pyqtSignal(dict)
 
     def __init__(self, dispatcher, gameset, playerset):
         QtCore.QObject.__init__(self)
@@ -413,6 +414,9 @@ class LobbyInfo(QtCore.QObject):
         )
         self._dispatcher["tutorials_info"] = self._simple_emit(
             self.tutorialsInfo,
+        )
+        self._dispatcher["matchmaker_queue_info"] = self._simple_emit(
+            self.matchmakerQueueInfo,
         )
 
         self._gameset = gameset
