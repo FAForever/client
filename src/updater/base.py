@@ -48,10 +48,11 @@ class ReleaseType(Enum):
 
     @classmethod
     def new_versioning(cls, version):
-        if any(p in version.prerelease for p in ['alpha', 'beta']):
-            return cls.UNSTABLE
-        if any(p in version.prerelease for p in ['pre', 'rc']):
-            return cls.PRERELEASE
+        for tuple_value in version.prerelease:
+            if any(p in tuple_value for p in ['alpha', 'beta']):
+                return cls.UNSTABLE
+            if any(p in tuple_value for p in ['pre', 'rc']):
+                return cls.PRERELEASE
         return cls.STABLE
 
     def included_channels(self):
