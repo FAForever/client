@@ -22,7 +22,6 @@ def build_argument_list(
     invocation methods. Extends a potentially pre-existing argument list
     to allow for injection of special parameters
     """
-    import client
     arguments = arguments or []
 
     if '/init' in arguments:
@@ -32,10 +31,6 @@ def build_argument_list(
     arguments.append('/init')
     arguments.append(
         'init_{}.lua'.format(game_info.get('featured_mod', 'faf')),
-    )
-
-    arguments.append(
-        '/numgames {}'.format(client.instance.me.player.number_of_games),
     )
 
     # log file
