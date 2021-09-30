@@ -5,9 +5,9 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 import fa
 import util
+from api.matchmaker_queue_api import matchmakerQueueApiConnector
 from config import Settings
 from fa.factions import Factions
-from model.rating import RatingType
 
 FormClass, BaseClass = util.THEME.loadUiType("games/automatchframe.ui")
 
@@ -73,6 +73,15 @@ class MatchmakerQueue(FormClass, BaseClass):
         self.matchmakerTimer.timeout.connect(self.updateMatchmakerTimer)
         self.secondsToAutomatch = 0
 
+        self.ratingType = ""
+        self.client.lobby_info.matchmakerQueueInfo.connect(
+            self.handleApiQueueInfo,
+        )
+        self.apiConnector = matchmakerQueueApiConnector(
+            self.client.lobby_dispatch,
+        )
+        self.apiConnector.requestData(queryDict=dict(include="leaderboard"))
+
         title = self.queueName.replace("_", " ").capitalize()
         self.automatchTitle.setText(title)
 
@@ -86,6 +95,11 @@ class MatchmakerQueue(FormClass, BaseClass):
             icon.clicked.connect(
                 partial(self.selectFaction, factionID=faction.value),
             )
+
+    def handleApiQueueInfo(self, message):
+        for queue in message.get("values", {}):
+            if queue["technicalName"] == self.queueName:
+                self.ratingType = queue["ratingType"]
 
     def handleQueueInfo(self, message):
         for queue in message.get("queues", {}):
@@ -204,8 +218,7 @@ class MatchmakerQueue(FormClass, BaseClass):
                 QtCore.QUrl(Settings.get("MAPPOOL_URL")),
             )
         else:
-            ratingType = RatingType.fromMatchmakerQueue(self.queueName)
-            rating = self.client.me.player.rating_mean(ratingType)
+            rating = self.client.me.player.rating_mean(self.ratingType)
             self.client.mapvault.requestMapPool(self.queueName, rating)
             self.client.mainTabs.setCurrentIndex(
                 self.client.mainTabs.indexOf(self.client.vaultsTab),
