@@ -1929,14 +1929,16 @@ class ClientWindow(FormClass, BaseClass):
                 str(self.me.player.rating_deviation(ratingType)),
             )
 
-            arguments.append('/numgames')
-            arguments.append(str(message["args"][1]))
             arguments.append('/players')
             arguments.append(str(message["expected_players"]))
             arguments.append('/team')
             arguments.append(str(message["team"]))
             arguments.append('/startspot')
             arguments.append(str(message["map_position"]))
+            if message.get("game_options"):
+                arguments.append('/gameoptions')
+                for key, value in message["game_options"].items():
+                    arguments.append('{}:{}'.format(key, value))
 
             # Launch the auto lobby
             self.game_session.setLobbyInitMode("auto")
@@ -1952,6 +1954,9 @@ class ClientWindow(FormClass, BaseClass):
 
             # Launch the normal lobby
             self.game_session.setLobbyInitMode("normal")
+
+        arguments.append('/numgames')
+        arguments.append(str(message["args"][1]))
 
         if self.me.player.clan is not None:
             arguments.append('/clan')
