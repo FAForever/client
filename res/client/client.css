@@ -836,7 +836,7 @@ QPushButton#showAllButton
     border-radius: 2px;
 }
 
-QComboBox, QComboBox:selected
+QComboBox, QComboBox:selected, QDoubleSpinBox#mapSize
 {
     color:orange;
     selection-color:orange;
@@ -844,7 +844,13 @@ QComboBox, QComboBox:selected
     selection-background-color: #575656;
 }
 
-
+QDoubleSpinBox#mapSize
+{
+    border: 1 solid;
+    border-color: #555450;
+    selection-color: white;
+    selection-background-color: slateblue;
+}
 
 QComboBox QAbstractItemView {
     border: 2px solid darkgray;

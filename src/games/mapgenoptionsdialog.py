@@ -1,6 +1,6 @@
 from enum import Enum
 
-from PyQt5 import QtCore
+from PyQt5 import QtCore, QtWidgets
 
 import config
 import util
@@ -44,7 +44,7 @@ class MapGenDialog(FormClass, BaseClass):
         self.numberOfSpawns.currentIndexChanged.connect(
             self.numberOfSpawnsChanged,
         )
-        self.mapSize.currentIndexChanged.connect(self.mapSizeChanged)
+        self.mapSize.valueChanged.connect(self.mapSizeChanged)
         self.mapStyle.currentIndexChanged.connect(self.mapStyleChanged)
         self.generateMapButton.clicked.connect(self.generateMap)
         self.saveMapGenSettingsButton.clicked.connect(self.saveMapGenPrefs)
@@ -109,9 +109,9 @@ class MapGenDialog(FormClass, BaseClass):
                 "mapGenerator/numberOfSpawnsIndex", type=int, default=0,
             ),
         )
-        self.mapSize.setCurrentIndex(
+        self.mapSize.setValue(
             config.Settings.get(
-                "mapGenerator/mapSizeIndex", type=int, default=0,
+                "mapGenerator/mapSize", type=float, default=5.0,
             ),
         )
         self.mapStyle.setCurrentIndex(
@@ -125,18 +125,27 @@ class MapGenDialog(FormClass, BaseClass):
     def load_stylesheet(self):
         self.setStyleSheet(util.THEME.readstylesheet("client/client.css"))
 
+    def keyPressEvent(self, event):
+        if (
+            event.key() == QtCore.Qt.Key_Enter
+            or event.key() == QtCore.Qt.Key_Return
+        ):
+            return
+        QtWidgets.QDialog.keyPressEvent(self, event)
+
     @QtCore.pyqtSlot(int)
     def numberOfSpawnsChanged(self, index):
         self.number_of_spawns = 2 * (index + 1)
 
-    @QtCore.pyqtSlot(int)
-    def mapSizeChanged(self, index):
-        if index == -1 or index == 0:
-            self.map_size = 256
-        elif index == 1:
-            self.map_size = 512
-        elif index == 2:
-            self.map_size = 1024
+    @QtCore.pyqtSlot(float)
+    def mapSizeChanged(self, value):
+        if (value % 1.25):
+            # nearest to multiple of 1.25
+            value = ((value + 0.625) // 1.25) * 1.25
+            self.mapSize.blockSignals(True)
+            self.mapSize.setValue(value)
+            self.mapSize.blockSignals(False)
+        self.map_size = int(value * 51.2)
 
     @QtCore.pyqtSlot(int)
     def generationTypeChanged(self, index):
@@ -208,8 +217,8 @@ class MapGenDialog(FormClass, BaseClass):
             self.generationType.currentIndex(),
         )
         config.Settings.set(
-            "mapGenerator/mapSizeIndex",
-            self.mapSize.currentIndex(),
+            "mapGenerator/mapSize",
+            self.mapSize.value(),
         )
         config.Settings.set(
             "mapGenerator/numberOfSpawnsIndex",
@@ -233,7 +242,7 @@ class MapGenDialog(FormClass, BaseClass):
     @QtCore.pyqtSlot()
     def resetMapGenPrefs(self):
         self.generationType.setCurrentIndex(0)
-        self.mapSize.setCurrentIndex(0)
+        self.mapSize.setValue(5.0)
         self.numberOfSpawns.setCurrentIndex(0)
         self.mapStyle.setCurrentIndex(0)
 
