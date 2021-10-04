@@ -668,6 +668,9 @@ class ReplayVaultWidgetHandler(object):
     hide_unranked = Settings.persisted_property(
         "replay/hideUnranked", default_value=False, type=bool,
     )
+    match_username = Settings.persisted_property(
+        "replay/matchUsername", default_value=True, type=bool,
+    )
 
     def __init__(self, widget, dispatcher, client, gameset, playerset):
         self._w = widget
@@ -708,6 +711,9 @@ class ReplayVaultWidgetHandler(object):
         _w.playerName.returnPressed.connect(self.searchVault)
         _w.mapName.returnPressed.connect(self.searchVault)
         _w.automaticCheckbox.stateChanged.connect(self.automaticCheckboxchange)
+        _w.matchUsernameCheckbox.stateChanged.connect(
+            self.matchUsernameCheckboxChange,
+        )
         _w.showLatestCheckbox.stateChanged.connect(
             self.showLatestCheckboxchange,
         )
@@ -716,6 +722,7 @@ class ReplayVaultWidgetHandler(object):
         _w.RefreshResetButton.pressed.connect(self.resetRefreshPressed)
 
         # restore persistent checkbox settings
+        _w.matchUsernameCheckbox.setChecked(self.match_username)
         _w.automaticCheckbox.setChecked(self.automatic)
         _w.spoilerCheckbox.setChecked(self.spoiler_free)
         _w.hideUnrCheckbox.setChecked(self.hide_unranked)
@@ -879,7 +886,7 @@ class ReplayVaultWidgetHandler(object):
             )
 
         if playerName:
-            if exactPlayerName:
+            if self.match_username or exactPlayerName:
                 filters.append(
                     'playerStats.player.login=="{}"'.format(playerName),
                 )
@@ -1003,6 +1010,9 @@ class ReplayVaultWidgetHandler(object):
         if not player.currentGame:
             return
         replay(player.currentGame.url(player.id))
+
+    def matchUsernameCheckboxChange(self, state):
+        self.match_username = state
 
     def automaticCheckboxchange(self, state):
         self.automatic = state
