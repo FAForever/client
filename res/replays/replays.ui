@@ -325,7 +325,7 @@
            </layout>
           </item>
           <item row="0" column="0">
-           <widget class="QCheckBox" name="spoilerCheckbox">
+           <widget class="QCheckBox" name="matchUsernameCheckbox">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -338,8 +338,11 @@
               <height>20</height>
              </size>
             </property>
+            <property name="toolTip">
+             <string>Search for the exact name of the player</string>
+            </property>
             <property name="text">
-             <string>Spoiler Free</string>
+             <string>Match Whole Name</string>
             </property>
             <property name="checked">
              <bool>true</bool>
@@ -392,7 +395,7 @@
            </layout>
           </item>
           <item row="1" column="0">
-           <widget class="QCheckBox" name="automaticCheckbox">
+           <widget class="QCheckBox" name="spoilerCheckbox">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -405,14 +408,11 @@
               <height>20</height>
              </size>
             </property>
-            <property name="toolTip">
-             <string>reloads recent Replays on Tab reentry&lt;br&gt;'...same as it ever was ... same as it ever was'</string>
-            </property>
             <property name="text">
-             <string>Automatic Refresh</string>
+             <string>Spoiler Free</string>
             </property>
             <property name="checked">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -683,6 +683,31 @@
             </item>
            </layout>
           </item>
+          <item row="2" column="0">
+           <widget class="QCheckBox" name="automaticCheckbox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>80</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>reloads recent Replays on Tab reentry&lt;br&gt;'...same as it ever was ... same as it ever was'</string>
+            </property>
+            <property name="text">
+             <string>Automatic Refresh</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
           <item row="2" column="1">
            <layout class="QHBoxLayout" name="horizontalLayout_9">
             <item>
@@ -721,7 +746,7 @@
             </item>
            </layout>
           </item>
-          <item row="3" column="0">
+          <item row="6" column="0">
            <widget class="QLabel" name="searchInfoLabel">
             <property name="text">
              <string/>
