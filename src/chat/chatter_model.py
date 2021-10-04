@@ -243,7 +243,7 @@ class ChatterItemFormatter:
             tooltip_info_list.extend([
                 rating_name,
                 player.rating_estimate(rating_type),
-                player.quantity_of_games(rating_type),
+                player.game_count(rating_type),
                 player.rating_mean(rating_type),
                 player.rating_deviation(rating_type),
             ])

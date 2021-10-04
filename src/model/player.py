@@ -17,13 +17,11 @@ class Player(ModelItem):
         id_,
         login,
         ratings={},
-        global_rating=(1500, 500),
-        ladder_rating=(1500, 500),
-        number_of_games=0,
         avatar=None,
         country=None,
         clan=None,
         league=None,
+        **kwargs
     ):
         ModelItem.__init__(self)
         """
@@ -34,9 +32,6 @@ class Player(ModelItem):
         self.id = int(id_)
         self.login = login
 
-        self.add_field("global_rating", global_rating)
-        self.add_field("ladder_rating", ladder_rating)
-        self.add_field("number_of_games", number_of_games)
         self.add_field("avatar", avatar)
         self.add_field("country", country)
         self.add_field("clan", clan)
@@ -68,58 +63,62 @@ class Player(ModelItem):
 
     @property
     def global_estimate(self):
-        """
-        Get the conservative estimate of the players global trueskill rating
-        """
-        return int(max(0, (self.global_rating[0] - 3 * self.global_rating[1])))
+        return self.rating_estimate()
 
     @property
     def ladder_estimate(self):
-        """
-        Get the conservative estimate of the players ladder trueskill rating
-        """
-        return int(max(0, (self.ladder_rating[0] - 3 * self.ladder_rating[1])))
+        return self.rating_estimate(RatingType.LADDER.value)
 
     @property
     def global_rating_mean(self):
-        return round(self.global_rating[0])
+        return self.rating_mean()
 
     @property
     def global_rating_deviation(self):
-        return round(self.global_rating[1])
+        return self.rating_deviation()
 
     @property
     def ladder_rating_mean(self):
-        return round(self.ladder_rating[0])
+        return self.rating_mean(RatingType.LADDER.value)
 
     @property
     def ladder_rating_deviation(self):
-        return round(self.ladder_rating[1])
+        return self.rating_deviation(RatingType.LADDER.value)
+
+    @property
+    def number_of_games(self):
+        count = 0
+        for rating_type in self.ratings:
+            count += self.ratings[rating_type].get("number_of_games", 0)
+        return count
 
     def rating_estimate(self, rating_type=RatingType.GLOBAL.value):
+        """
+        Get the conservative estimate of the player's trueskill rating
+        """
         try:
             mean = self.ratings[rating_type]["rating"][0]
             deviation = self.ratings[rating_type]["rating"][1]
             return int(max(0, (mean - 3 * deviation)))
-        except BaseException:
+        except (KeyError, IndexError):
             return 0
 
     def rating_mean(self, rating_type=RatingType.GLOBAL.value):
         try:
             return round(self.ratings[rating_type]["rating"][0])
-        except BaseException:
+        except (KeyError, IndexError):
             return 1500
 
     def rating_deviation(self, rating_type=RatingType.GLOBAL.value):
         try:
             return round(self.ratings[rating_type]["rating"][1])
-        except BaseException:
+        except (KeyError, IndexError):
             return 500
 
-    def quantity_of_games(self, rating_type=RatingType.GLOBAL.value):
+    def game_count(self, rating_type=RatingType.GLOBAL.value):
         try:
             return int(self.ratings[rating_type]["number_of_games"])
-        except BaseException:
+        except KeyError:
             return 0
 
     def __repr__(self):
@@ -131,8 +130,8 @@ class Player(ModelItem):
         ).format(
             self.id,
             self.login,
-            self.global_rating,
-            self.ladder_rating,
+            (self.global_rating_mean, self.global_rating_deviation),
+            (self.ladder_rating_mean, self.ladder_rating_deviation),
         )
 
     @property
