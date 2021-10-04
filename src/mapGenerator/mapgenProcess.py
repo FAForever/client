@@ -89,7 +89,14 @@ class MapGeneratorProcess(object):
     def on_error_ready(self):
         standard_error = str(self.map_generator_process.readAllStandardError())
         for line in standard_error.splitlines():
-            logger.debug("MapGenERROR: " + line)
+            generatorLogger.error("Error: " + line)
+        self.close()
+        QMessageBox.critical(
+            None,
+            "Map generator error",
+            "Something went wrong. Probably because of bad combination of "
+            "generator options. Please retry with different options",
+        )
 
     def on_exit(self, code, status):
         self._progress.reset()
