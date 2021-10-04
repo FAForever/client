@@ -6,9 +6,20 @@ from model.playerset import Playerset
 DEFAULT_DICT = {
     "id_": 17,
     "login": "TesterNoob",
-    "global_rating": (1455, 160),
-    "ladder_rating": (1192, 216),
-    "number_of_games": 374,
+    "ratings": {
+        "global": {
+            "rating": (1455, 160),
+            "number_of_games": 374,
+        },
+        "ladder_1v1": {
+            "rating": (1192, 216),
+            "number_of_games": 374,
+        },
+        "tmm_2v2": {
+            "rating": (888, 88),
+            "number_of_games": 88,
+        },
+    },
     "avatar": {
         'url': 'http://content.faforever.com/faf/avatars/GW_Cybran.png',
         'tooltip': 'Liberate !',
