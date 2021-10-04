@@ -306,32 +306,35 @@
           </font>
          </property>
          <property name="text">
-          <string>Map Size</string>
+          <string>Map Size (km)</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="mapSize">
+        <widget class="QDoubleSpinBox" name="mapSize">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="font">
           <font>
            <pointsize>10</pointsize>
           </font>
          </property>
-         <item>
-          <property name="text">
-           <string>5 km</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>10 km</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>20 km</string>
-          </property>
-         </item>
+         <property name="keyboardTracking">
+          <bool>false</bool>
+         </property>
+         <property name="minimum">
+          <double>2.500000000000000</double>
+         </property>
+         <property name="maximum">
+          <double>40.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>1.250000000000000</double>
+         </property>
         </widget>
        </item>
       </layout>
