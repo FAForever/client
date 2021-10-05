@@ -1,6 +1,20 @@
 0.x.x
 =====
 
+0.20.1
+=====
+* Fixes
+   * Connect to chat faster
+   * Fix throwing an exception in chat when someone renames
+   * Fix map generator not being able to generate some maps
+   * Fix pre-release being recognised as stable release
+* Features
+   * Add ability to set generator map size in 1.25km increments
+   * Display technical names of matchmaker queues
+* Other
+   * Add support for game options in matchmaker queues
+   * Update ICE adapter to v3.1.2
+
 0.20.0
 =====
  * Features:
