@@ -13,7 +13,7 @@ jobs:
     runs-on: windows-latest
     env:
       UID_VERSION: v4.0.4
-      ICE_ADAPTER_VERSION: v3.1.1
+      ICE_ADAPTER_VERSION: v3.1.2
       PYWHEEL_INFIX: "cp36"
       BUILD_VERSION: ${{ github.event.inputs.version }}
 
