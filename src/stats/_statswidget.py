@@ -33,6 +33,7 @@ class StatsWidget(BaseClass, FormClass, BusyWidget):
 
         self.webview = QtWebEngineWidgets.QWebEngineView()
         self.webpage = WebEnginePage()
+        self.webpage.profile().setHttpUserAgent("FAF Client")
 
         self.websiteTab.layout().addWidget(self.webview)
 
@@ -341,23 +342,10 @@ class StatsWidget(BaseClass, FormClass, BusyWidget):
 
 
 class WebEnginePage(QtWebEngineWidgets.QWebEnginePage):
-    def __init__(self):
-        super().__init__()
-        self.valid_urls = [
-            QtCore.QUrl("https://faforever.com/competitive/leaderboards/1v1"),
-            QtCore.QUrl(
-                "https://faforever.com/competitive/leaderboards/global",
-            ),
-            QtCore.QUrl(
-                "https://faforever.com/competitive/leaderboards/leagues",
-            ),
-            QtCore.QUrl("https://faforever.com/competitive/tournaments"),
-        ]
-
     def acceptNavigationRequest(self, url, type, isMainFrame):
         if (
-            url in self.valid_urls
-            or url.url()[:22] == "https://challonge.com/"
+            url.url().startswith("https://faforever.com/competitive/")
+            or url.url().startswith("https://challonge.com/")
         ):
             return True
         else:
