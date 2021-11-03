@@ -1860,6 +1860,7 @@ class ClientWindow(FormClass, BaseClass):
         self.labelAutomatchInfo.setText("Match found! Pending game launch...")
         self.labelAutomatchInfo.show()
         self.games.handleMatchFound(message)
+        self.lobby_connection.send(dict(command="match_ready"))
 
     def handle_match_cancelled(self, message):
         logger.info("Received match_cancelled via JSON {}".format(message))
