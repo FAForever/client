@@ -109,7 +109,7 @@
          <enum>Qt::ElideMiddle</enum>
         </property>
         <property name="usesScrollButtons">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="tabBarAutoHide">
          <bool>true</bool>
