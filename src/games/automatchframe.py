@@ -218,7 +218,7 @@ class MatchmakerQueue(FormClass, BaseClass):
                 QtCore.QUrl(Settings.get("MAPPOOL_URL")),
             )
         else:
-            rating = self.client.me.player.rating_mean(self.ratingType)
+            rating = self.client.me.player.rating_estimate(self.ratingType)
             self.client.mapvault.requestMapPool(self.queueName, rating)
             self.client.mainTabs.setCurrentIndex(
                 self.client.mainTabs.indexOf(self.client.vaultsTab),
