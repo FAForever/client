@@ -1136,16 +1136,10 @@ class ReplaysWidget(BaseClass, FormClass):
     def set_player(self, name, leaderboardName=None):
         self.setCurrentIndex(2)  # focus on Online Fault
         if leaderboardName is not None:
-            if leaderboardName == "ladder_1v1":
-                modListIndex = self.modList.findText("ladder1v1")
-                self.vaultManager.searchVault(
-                    0, "", name, 0, modListIndex, 100, exactPlayerName=True,
-                )
-            else:
-                leaderboardId = self.leaderboardList.findText(leaderboardName)
-                self.vaultManager.searchVault(
-                    0, "", name, leaderboardId, 0, 100, exactPlayerName=True,
-                )
+            leaderboardId = self.leaderboardList.findText(leaderboardName)
+            self.vaultManager.searchVault(
+                0, "", name, leaderboardId, 0, 100, exactPlayerName=True,
+            )
         else:
             self.vaultManager.searchVault(
                 0, "", name, 0, 0, 100, exactPlayerName=True,
