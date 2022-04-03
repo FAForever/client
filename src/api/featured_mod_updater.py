@@ -1,30 +1,47 @@
 import logging
 
-from .UpdaterBase import UpdaterBase
+from .ApiBase import ApiBase
 
 logger = logging.getLogger(__name__)
 
 
-class FeaturedModFiles(UpdaterBase):
-    def __init__(self, id, version):
-        UpdaterBase.__init__(
+class FeaturedModFiles(ApiBase):
+
+    def __init__(self, mod_id, version):
+        ApiBase.__init__(
             self,
-            '/featuredMods/{}/files/{}'.format(id, version),
+            '/featuredMods/{}/files/{}'.format(mod_id, version),
         )
+        self.featuredModFiles = []
 
     def requestData(self):
-        return self.request({}, self.handleData)
+        self.request({}, self.handleData)
 
     def handleData(self, message):
-        return message
+        self.featuredModFiles = message
+
+    def getFiles(self):
+        self.requestData()
+        self.waitForCompletion()
+        return self.featuredModFiles
 
 
-class FeaturedModId(UpdaterBase):
+class FeaturedModId(ApiBase):
     def __init__(self):
-        UpdaterBase.__init__(self, '/data/featuredMod')
+        ApiBase.__init__(self, '/data/featuredMod')
+        self.featuredModId = 0
 
-    def requestData(self, queryDict):
-        return self.request(queryDict, self.handleData)
+    def requestData(self, queryDict={}):
+        self.request(queryDict, self.handleData)
 
-    def handleData(self, message):
-        return message[0]['id']
+    def handleFeaturedModId(self, message):
+        self.featuredModId = message[0]['id']
+
+    def requestFeaturedModIdByName(self, technicalName):
+        queryDict = dict(filter='technicalName=={}'.format(technicalName))
+        self.request(queryDict, self.handleFeaturedModId)
+
+    def requestAndGetFeaturedModIdByName(self, technicalName):
+        self.requestFeaturedModIdByName(technicalName)
+        self.waitForCompletion()
+        return self.featuredModId
