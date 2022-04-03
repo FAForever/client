@@ -2,7 +2,7 @@ import json
 import logging
 import time
 
-from PyQt5 import QtCore, QtNetwork
+from PyQt5 import QtCore, QtNetwork, QtWidgets
 
 from config import Settings
 
@@ -19,11 +19,13 @@ class ApiBase(QtCore.QObject):
         self.route = route
         self.manager = QtNetwork.QNetworkAccessManager()
         self.manager.finished.connect(self.onRequestFinished)
+        self._running = False
 
         self.handlers = {}
 
     # query arguments like filter=login==Rhyza
     def request(self, queryDict, responseHandler):
+        self._running = True
         query = QtCore.QUrlQuery()
         for key, value in queryDict.items():
             query.addQueryItem(key, str(value))
@@ -50,6 +52,7 @@ class ApiBase(QtCore.QObject):
         self.handlers[reply] = responseHandler
 
     def onRequestFinished(self, reply):
+        self._running = False
         if reply.error() != QtNetwork.QNetworkReply.NoError:
             logger.error("API request error: {}".format(reply.error()))
         else:
@@ -128,3 +131,8 @@ class ApiBase(QtCore.QObject):
         if "meta" in message:
             result["meta"] = message["meta"]
         return result
+
+    def waitForCompletion(self):
+        waitFlag = QtCore.QEventLoop.WaitForMoreEvents
+        while self._running:
+            QtWidgets.QApplication.processEvents(waitFlag)

@@ -12,12 +12,7 @@ import logging
 import os
 import shutil
 import stat
-import sys
-import tempfile
 import time
-import urllib.error
-import urllib.parse
-import urllib.request
 
 from PyQt5 import QtCore, QtWidgets
 
@@ -26,6 +21,7 @@ import util
 from api.featured_mod_updater import FeaturedModFiles, FeaturedModId
 from api.sim_mod_updater import SimModFiles
 from config import Settings
+from vaults.dialogs import downloadFile
 from vaults.modvault import utils
 
 logger = logging.getLogger(__name__)
@@ -196,94 +192,37 @@ class Updater(QtCore.QObject):
         return self.result
 
     def getFilesToUpdate(self, id_, version):
-        return FeaturedModFiles(id_, version).requestData()
+        return FeaturedModFiles(id_, version).getFiles()
 
-    def getFeaturedModId(self, technicalName):
-        queryDict = dict(filter='technicalName=={}'.format(technicalName))
-        return FeaturedModId().requestData(queryDict)
+    def getFeaturedModIdByName(self, technicalName):
+        return FeaturedModId().requestAndGetFeaturedModIdByName(technicalName)
 
-    def requestSimPath(self, uid):
-        queryDict = dict(filter='uid=={}'.format(uid))
-        return SimModFiles().requestData(queryDict)
+    def requestSimUrlByUid(self, uid):
+        return SimModFiles().requestAndGetSimModUrlByUid(uid)
 
-    def fetchFile(self, url, toFile):
-        try:
-            logger.info('Updater: Downloading {}'.format(url))
-            progress = QtWidgets.QProgressDialog()
-            progress.setCancelButtonText("Cancel")
-            progress.setWindowFlags(
-                QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint,
+    def fetchFile(self, _file, filegroup):
+        name = _file['name']
+        targetDir = os.path.join(util.APPDATA_DIR, filegroup, name)
+
+        logger.info('Updater: Downloading {}'.format(_file['url']))
+
+        downloaded = downloadFile(
+            url=_file['url'],
+            target_dir=targetDir,
+            name=(
+                'Downloading FA file : <a href="{url}">{url}</a><p> '
+                .format(url=_file['url'])
+            ),
+            category='Update',
+            silent=False,
+        )
+
+        if not downloaded:
+            # FIXME: the information about the reason is already given in the
+            # dowloadFile function, need to come up with better way probably
+            raise UpdaterCancellation(
+                "Operation aborted while waiting for data.",
             )
-            progress.setAutoClose(True)
-            progress.setAutoReset(False)
-
-            downloadedfile = urllib.request.urlopen(url)
-            meta = downloadedfile.info()
-
-            # Fix for #241, sometimes the server sends an error and no
-            # content-length.
-            file_size = int(meta.get_all("Content-Length")[0])
-            progress.setMinimum(0)
-            progress.setMaximum(file_size)
-            progress.setModal(1)
-            progress.setWindowTitle("Downloading Update")
-            label = QtWidgets.QLabel()
-            label.setOpenExternalLinks(True)
-            progress.setLabel(label)
-            progress.setLabelText(
-                'Downloading FA file : <a href="{url}">{url}</a><br/>'
-                'File size: {size} MiB'.format(
-                    url=url,
-                    size=int(file_size / 1024 / 1024),
-                ),
-            )
-            progress.show()
-
-            # Download the file as a series of up to 4 KiB chunks, then
-            # uncompress it.
-
-            output = tempfile.NamedTemporaryFile(mode='w+b', delete=False)
-
-            file_size_dl = 0
-            block_sz = 4096
-
-            while progress.isVisible():
-                QtWidgets.QApplication.processEvents()
-                if not progress.isVisible():
-                    break
-                read_buffer = downloadedfile.read(block_sz)
-                if not read_buffer:
-                    break
-                file_size_dl += len(read_buffer)
-                output.write(read_buffer)
-                progress.setValue(file_size_dl)
-
-            output.flush()
-            os.fsync(output.fileno())
-            output.close()
-
-            shutil.move(output.name, toFile)
-
-            if (progress.value() == file_size) or progress.value() == -1:
-                logger.debug("File downloaded successfully.")
-                return True
-            else:
-                QtWidgets.QMessageBox.information(
-                    None, "Aborted", "Download not complete.",
-                )
-                logger.warning("File download not complete.")
-                return False
-        except BaseException:
-            logger.error("Updater error: ", exc_info=sys.exc_info())
-            QtWidgets.QMessageBox.information(
-                None,
-                "Download Failed",
-                (
-                    "The file wasn't properly sent by the server. <br/><b>Try "
-                    "again later.</b>"
-                ),
-            )
-            return False
 
     def moveFromCache(self, files, filegroup):
         src_dir = os.path.join(util.APPDATA_DIR, filegroup)
@@ -352,12 +291,7 @@ class Updater(QtCore.QObject):
                 if self.keep_cache or self.in_session_cache:
                     files_to_check.append(_file)
                 else:
-                    self.fetchFile(
-                        _file['url'],
-                        os.path.join(
-                            util.APPDATA_DIR, filegroup, _file['name'],
-                        ),
-                    )
+                    self.fetchFile(_file, filegroup)
                     self.filesToUpdate.remove(_file)
                     self.updatedFiles.append(_file['name'])
 
@@ -368,10 +302,7 @@ class Updater(QtCore.QObject):
             self.replaceFromCache(replaceable_files, filegroup)
             for _file in need_to_download:
                 self.moveToCache([_file], filegroup)
-                self.fetchFile(
-                    _file['url'],
-                    os.path.join(util.APPDATA_DIR, filegroup, _file['name']),
-                )
+                self.fetchFile(_file, filegroup)
                 self.filesToUpdate.remove(_file)
                 self.updatedFiles.append(_file['name'])
 
@@ -446,7 +377,7 @@ class Updater(QtCore.QObject):
         try:
             if self.sim:
                 if utils.downloadMod(
-                    self.requestSimPath(self.featured_mod),
+                    self.requestSimUrlByUid(self.featured_mod),
                 ):
                     self.result = self.RESULT_SUCCESS
                 else:
@@ -487,7 +418,7 @@ class Updater(QtCore.QObject):
                     or self.featured_mod == 'fafdevelop'
                 ):
                     # no need to update faf first for these mods
-                    id_ = self.getFeaturedModId(self.featured_mod)
+                    id_ = self.getFeaturedModIdByName(self.featured_mod)
                     if self.modversions:
                         modversion = sorted(
                             self.modversions.items(),
@@ -558,7 +489,7 @@ class Updater(QtCore.QObject):
                     filesToUpdateInGamedata.clear()
 
                     # update featuredMod then
-                    id_ = self.getFeaturedModId(self.featured_mod)
+                    id_ = self.getFeaturedModIdByName(self.featured_mod)
                     if self.modversions:
                         modversion = sorted(
                             self.modversions.items(),
