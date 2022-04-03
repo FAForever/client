@@ -29,7 +29,8 @@ class VaultDownloadDialog(object):
 
         self._progress = QtWidgets.QProgressDialog()
         self._progress.setWindowTitle(title)
-        self._progress.setLabelText(label)
+        self.label = label
+        self._progress.setLabelText(self.label)
         if not self._silent:
             self._progress.setCancelButtonText("Cancel")
         else:
@@ -41,7 +42,36 @@ class VaultDownloadDialog(object):
         self._progress.setModal(1)
         self._progress.canceled.connect(self._dler.cancel)
 
+        progressBar = QtWidgets.QProgressBar(self._progress)
+        progressBar.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self._progress.setBar(progressBar)
+
+        self.timer = QtCore.QTimer()
+        self.timer.setInterval(500)
+        self.timer.timeout.connect(self.updateLabel)
+        self.bytes_prev = 0
+
+    def updateLabel(self):
+        self._progress.setLabelText(
+            '{label}\n\n{downloaded} MiB ({speed} MiB/s)'
+            .format(
+                label=self.label,
+                downloaded=self.getDownloadProgressMiB(),
+                speed=self.getDownloadSpeed(),
+            ),
+        )
+
+    def getDownloadSpeed(self):
+        bytes_diff = self._dler.bytes_progress - self.bytes_prev
+        self.bytes_prev = self._dler.bytes_progress
+        return round(bytes_diff * 2 / 1024 / 1024, 2)
+
+    def getDownloadProgressMiB(self):
+        return round(self._dler.bytes_progress / 1024 / 1024, 2)
+
     def run(self):
+        self.updateLabel()
+        self.timer.start()
         self._progress.show()
         self._dler.run()
         self._dler.waitForCompletion()
@@ -49,14 +79,20 @@ class VaultDownloadDialog(object):
 
     def _start(self, dler):
         self._progress.setMinimum(0)
-        self._progress.setMaximum(dler.bytes_total)
+        if dler.bytes_total > 0:
+            self._progress.setMaximum(dler.bytes_total)
+        else:
+            self._progress.setMaximum(0)
 
     def _cont(self, dler):
-        self._progress.setValue(dler.bytes_progress)
-        self._progress.setMaximum(dler.bytes_total)
+        if dler.bytes_total > 0:
+            self._progress.setValue(dler.bytes_progress)
+            self._progress.setMaximum(dler.bytes_total)
+
         QtWidgets.QApplication.processEvents()
 
     def _finished(self, dler):
+        self.timer.stop()
         self._progress.reset()
 
         if not dler.succeeded():
@@ -68,7 +104,7 @@ class VaultDownloadDialog(object):
                 self._result = self.DL_ERROR
                 return
             else:
-                print("Unknown error")
+                logger.error('Unknown download error')
                 self._result = self.UNKNOWN_ERROR
                 return
 
@@ -102,8 +138,6 @@ def downloadVaultAssetNoMsg(
 
     if result == VaultDownloadDialog.CANCELED:
         logger.warning("{} Download canceled for: {}".format(capitCat, url))
-        msg_title = "{} has not been downloaded".format(capitCat)
-        msg_text = "{} download has been cancelled.".format(capitCat)
 
     if result in [
         VaultDownloadDialog.DL_ERROR,
