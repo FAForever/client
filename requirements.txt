@@ -6,7 +6,7 @@ pytest
 pytest-cov
 pytest-mock
 pytest-qt==3.3.0
-semantic_version
+semantic_version==2.8.5
 idna
 jsonschema==2.6.0
 jinja2
