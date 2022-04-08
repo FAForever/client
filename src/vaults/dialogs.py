@@ -43,7 +43,7 @@ class VaultDownloadDialog(object):
         self._progress.canceled.connect(self._dler.cancel)
 
         progressBar = QtWidgets.QProgressBar(self._progress)
-        progressBar.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        progressBar.setAlignment(QtCore.Qt.AlignCenter)
         self._progress.setBar(progressBar)
 
         self.timer = QtCore.QTimer()
