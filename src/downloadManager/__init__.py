@@ -4,6 +4,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
+from urllib.parse import urlparse, parse_qs
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QObject, QUrl, pyqtSignal
 from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest
@@ -69,7 +70,16 @@ class FileDownload(QObject):
 
     def run(self):
         self._running = True
+        token = Settings.get("oauth/token")['access_token']
+
+        o = urlparse(self.addr)
+        query = parse_qs(o.query)
+
         req = QNetworkRequest(QUrl(self.addr))
+        if 'verify' in query:
+            req = QNetworkRequest(QUrl(o._replace(query=None).geturl()))
+            req.setRawHeader(b'Verify', query['verify'][0].encode())
+            req.setRawHeader(b'Authorization', b'Bearer ' + token.encode())
         req.setRawHeader(b'User-Agent', b"FAF Client")
         req.setAttribute(QNetworkRequest.FollowRedirectsAttribute, True)
         req.setMaximumRedirectsAllowed(3)
