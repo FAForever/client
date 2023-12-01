@@ -526,7 +526,7 @@ class ReplayItem(QtWidgets.QTreeWidgetItem):
 
     def permutations(self, items):
         """  Yields all permutations of the items. """
-        if items is []:
+        if items == []:
             yield []
         else:
             for i in range(len(items)):
