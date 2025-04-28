@@ -1,4 +1,4 @@
-from typing import Any
+from itertools import product
 
 import numpy as np
 import pyqtgraph as pg
@@ -6,12 +6,14 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QGridLayout
 from PyQt6.QtWidgets import QLabel
 from PyQt6.QtWidgets import QScrollArea
+from PyQt6.QtWidgets import QStackedWidget
 from PyQt6.QtWidgets import QTabWidget
 from PyQt6.QtWidgets import QVBoxLayout
 from PyQt6.QtWidgets import QWidget
 
 from src.qt.graphics.labeledbargraphitem import LabeledBarGraphItem
 from src.replays.replaydetails.replayreader import ReplayParser
+from src.replays.replaydetails.tabs.gamestats_types import GameStats
 
 UNIT_TYPES = {
     "land": "Land",
@@ -31,58 +33,28 @@ UNIT_TYPES = {
 BAR_GROUP_WIDTH = 0.8
 
 
-class StatsVisualizer(QWidget):
-    def __init__(self) -> None:
-        QWidget.__init__(self)
-        self.main_layout = QVBoxLayout()
-        self.setLayout(self.main_layout)
-        self.stats = {}
-
-    def initialize(self, replay: ReplayParser) -> None:
-        self.draw_stats(replay.game_stats)
-
-    def _remove_old_widgets(self) -> None:
-        while (item := self.main_layout.takeAt(0)) is not None:
-            if (widget := item.widget()) is not None:
-                widget.deleteLater()
-
-    def _draw_no_data(self) -> None:
-        label = QLabel("No game stats found")
-        label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        font = label.font()
-        font.setBold(True)
-        font.setPointSize(20)
-        label.setFont(font)
-        self.main_layout.addWidget(label)
-
-    def draw_stats(self, data: dict[str, Any]) -> None:
-        self._remove_old_widgets()
-
-        if not data:
-            self._draw_no_data()
-            return
-
-        self.stats = data["stats"]
-
-        tabs = QTabWidget()
-        self.main_layout.addWidget(tabs)
+class PlotsUI:
+    def setupUi(self, widget: QWidget) -> None:
+        main_layout = QVBoxLayout(widget)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        self.tabs = QTabWidget()
 
         score_tab = QWidget()
-        score_layout = QVBoxLayout(score_tab)
-        score_layout.setContentsMargins(0, 0, 0, 0)
-        tabs.addTab(score_tab, "Scores")
+        self.scoreLayout = QVBoxLayout(score_tab)
+        self.scoreLayout.setContentsMargins(0, 0, 0, 0)
+        self.tabs.addTab(score_tab, "Scores")
 
         resource_tab = QWidget()
-        resource_layout = QGridLayout(resource_tab)
-        resource_layout.setContentsMargins(0, 0, 0, 0)
-        tabs.addTab(resource_tab, "Resources")
+        self.resourceLayout = QGridLayout(resource_tab)
+        self.resourceLayout.setContentsMargins(0, 0, 0, 0)
+        self.tabs.addTab(resource_tab, "Resources")
 
-        unit_tabs = QTabWidget()
+        self.unitsTab = QTabWidget()
 
         general_units_tab = QWidget()
-        units_layout = QGridLayout(general_units_tab)
-        units_layout.setContentsMargins(0, 0, 0, 0)
-        unit_tabs.addTab(general_units_tab, "General")
+        self.unitsLayout = QGridLayout(general_units_tab)
+        self.unitsLayout.setContentsMargins(0, 0, 0, 0)
+        self.unitsTab.addTab(general_units_tab, "General")
 
         units_breakdown_tab = QWidget()
         units_scroll_layout = QVBoxLayout(units_breakdown_tab)
@@ -93,27 +65,69 @@ class StatsVisualizer(QWidget):
         units_scroll.setWidgetResizable(True)
         units_scroll_layout.addWidget(units_scroll)
 
-        units_breakdown_widget = QWidget()
-        units_breakdown_widget.setContentsMargins(0, 0, 0, 0)
-        units_breakdown_layout = QGridLayout(units_breakdown_widget)
-        units_breakdown_layout.setContentsMargins(0, 0, 0, 0)
-        units_breakdown_widget.setObjectName("statisticsChartsScrollArea")
-        units_scroll.setWidget(units_breakdown_widget)
-        unit_tabs.addTab(units_breakdown_tab, "Breakdown")
-        tabs.addTab(unit_tabs, "Units")
+        self.unitsBreakdownWidget = QWidget()
+        self.unitsBreakdownWidget.setContentsMargins(0, 0, 0, 0)
+        self.unitsBreakdownLayout = QGridLayout(self.unitsBreakdownWidget)
+        self.unitsBreakdownLayout.setContentsMargins(0, 0, 0, 0)
+        self.unitsBreakdownWidget.setObjectName("statisticsChartsScrollArea")
+        units_scroll.setWidget(self.unitsBreakdownWidget)
+        self.unitsTab.addTab(units_breakdown_tab, "Breakdown")
+        self.tabs.addTab(self.unitsTab, "Units")
 
         balance_tab = QWidget()
-        balance_layout = QGridLayout(balance_tab)
-        balance_layout.setContentsMargins(0, 0, 0, 0)
-        tabs.addTab(balance_tab, "Build vs Loss")
+        self.balanceLayout = QGridLayout(balance_tab)
+        self.balanceLayout.setContentsMargins(0, 0, 0, 0)
+        self.tabs.addTab(balance_tab, "Build vs Loss")
+        main_layout.addWidget(self.tabs)
 
-        self.add_resource_plots(resource_layout)
-        self.add_unit_plots(units_layout)
-        self.add_balance_plots(balance_layout)
-        self.add_score_plot(score_layout)
-        self.add_units_breakdown_plot(units_breakdown_layout)
 
-    def add_units_breakdown_plot(self, layout: QGridLayout) -> None:
+def bar_shift(index: int, total_bars: int, bar_width: float) -> float:
+    return (index - total_bars / 2 + 0.5) * bar_width
+
+
+class PlotsWidget(QWidget):
+    def __init__(self) -> None:
+        QWidget.__init__(self)
+        self.ui = PlotsUI()
+        self.ui.setupUi(self)
+        self.ui.tabs.currentChanged.connect(self.on_main_tab_changed)
+        self.ui.unitsTab.currentChanged.connect(self.on_units_tab_changed)
+
+        self.stats: GameStats = []
+
+        self.tab_history = set()
+        self.units_tab_history = set()
+
+        self.tab_fillers = (
+            self.add_score_plot,
+            self.add_resource_plots,
+            self.add_unit_plots,
+            self.add_balance_plots,
+        )
+        self.units_tab_fillers = (
+            lambda: None,  # placeholder
+            self.add_unit_breakdown_plots,
+        )
+
+    def initialize(self, data: dict[str, GameStats]) -> None:
+        self.stats = data["stats"]
+        self.add_score_plot()
+        self.tab_history.add(0)
+
+    def on_units_tab_changed(self, index: int) -> None:
+        if index in self.units_tab_history:
+            return
+        self.units_tab_history.add(index)
+        self.units_tab_fillers[index]()
+
+    def on_main_tab_changed(self, index: int) -> None:
+        if index in self.tab_history:
+            return
+        self.tab_history.add(index)
+        self.tab_fillers[index]()
+
+    def add_unit_breakdown_plots(self) -> None:
+        self.ui.unitsBreakdownWidget.hide()
         bar_width = BAR_GROUP_WIDTH / 3
         player_names = [player["name"] for player in self.stats]
         x_pos = np.arange(len(self.stats))
@@ -131,7 +145,7 @@ class StatsVisualizer(QWidget):
                 values = [player["units"][unit_type][stat] for player in self.stats]
                 bar = LabeledBarGraphItem(
                     categories=player_names,
-                    x=x_pos + (i - 1) * bar_width,
+                    x=x_pos + bar_shift(i, 3, bar_width),
                     height=values,
                     width=bar_width,
                     brush=color,
@@ -141,7 +155,8 @@ class StatsVisualizer(QWidget):
             plot.getAxis("bottom").setTicks(
                 [[(i, name) for i, name in enumerate(player_names)]],
             )
-            layout.addWidget(plot, index // 2, index % 2)
+            self.ui.unitsBreakdownLayout.addWidget(plot, index // 2, index % 2)
+        self.ui.unitsBreakdownWidget.show()
 
     def _create_income_plots(self) -> list[pg.PlotWidget]:
         plots = []
@@ -167,7 +182,7 @@ class StatsVisualizer(QWidget):
                 values = [player["resources"][category][metric] for player in self.stats]
                 bar = LabeledBarGraphItem(
                     categories=player_names,
-                    x=x_pos + (i - len(metrics)/2 + 0.5) * bar_width,
+                    x=x_pos + bar_shift(i, len(metrics), bar_width),
                     height=values,
                     width=bar_width,
                     brush=colors[resource][i],
@@ -183,7 +198,7 @@ class StatsVisualizer(QWidget):
 
         player_names = [player["name"] for player in self.stats]
         x_pos = np.arange(len(player_names))
-        bar_width = 0.4
+        bar_width = BAR_GROUP_WIDTH / 2
 
         colors = {
             "mass": ("b", "c"),
@@ -204,7 +219,7 @@ class StatsVisualizer(QWidget):
             for i, (name, val) in enumerate(zip(("Produced", "Reclaimed"), (produced, reclaimed))):
                 bar = LabeledBarGraphItem(
                     categories=player_names,
-                    x=x_pos + (i - 0.5) * bar_width,
+                    x=x_pos + bar_shift(i, 2, bar_width),
                     height=val,
                     width=bar_width,
                     brush=colors[resource][i],
@@ -217,22 +232,26 @@ class StatsVisualizer(QWidget):
             plots.append(plot)
         return plots
 
-    def add_resource_plots(self, layout: QGridLayout) -> None:
+    def add_resource_plots(self) -> None:
         income_plots = self._create_income_plots()
         breakdown_plots = self._create_income_breakdown_plots()
         for index, plot in enumerate(income_plots + breakdown_plots):
-            layout.addWidget(plot, index // 2, index % 2)
+            self.ui.resourceLayout.addWidget(plot, index // 2, index % 2)
 
-    def add_unit_plots(self, layout: QGridLayout) -> None:
-        unit_types = [
-            "land",
-            "air",
-            "naval",
-            "tech1",
-            "tech2",
-            "tech3",
-            "experimental",
-        ]
+    def add_unit_plots(self) -> None:
+        unit_kinds = {
+            "category": (
+                "land",
+                "air",
+                "naval",
+            ),
+            "tech": (
+                "tech1",
+                "tech2",
+                "tech3",
+                "experimental",
+            ),
+        }
         colors = {
             "land": (0, 255, 0),            # Green
             "air": (100, 100, 255),         # Light Blue
@@ -246,26 +265,27 @@ class StatsVisualizer(QWidget):
         player_names = [player["name"] for player in self.stats]
         plot_types = ["built", "lost", "kills"]
         x_pos = np.arange(len(player_names))
-        bar_width = BAR_GROUP_WIDTH / len(unit_types)
 
-        for index, plot_type in enumerate(plot_types):
-            plot = pg.PlotWidget(title=f"Units {plot_type.capitalize()}")
+        enumerator = enumerate(product(plot_types, unit_kinds.items()))
+        for index, (plot_type, (subtype, unit_cats)) in enumerator:
+            bar_width = BAR_GROUP_WIDTH / len(unit_cats)
+            plot = pg.PlotWidget(title=f"Units {plot_type.capitalize()} ({subtype})")
             plot.addLegend()
             plot.setLabel("left", "Units")
 
-            for i, unit_type in enumerate(unit_types):
-                values = [player["units"][unit_type][plot_type] for player in self.stats]
+            for i, unit_cat in enumerate(unit_cats):
+                values = [player["units"][unit_cat][plot_type] for player in self.stats]
                 bar = LabeledBarGraphItem(
                     categories=player_names,
-                    x=x_pos + (i - len(unit_types)/2 + 0.5) * bar_width,
+                    x=x_pos + bar_shift(i, len(unit_cats), bar_width),
                     height=values,
                     width=bar_width,
-                    brush=colors[unit_type],
-                    name=unit_type,
+                    brush=colors[unit_cat],
+                    name=unit_cat,
                 )
                 plot.addItem(bar)
             plot.getAxis("bottom").setTicks([[(i, name) for i, name in enumerate(player_names)]])
-            layout.addWidget(plot, index // 2, index % 2)
+            self.ui.unitsLayout.addWidget(plot, index // 2, index % 2)
 
     def _create_kd_plot(self) -> pg.PlotWidget:
         player_names = [player["name"] for player in self.stats]
@@ -299,7 +319,7 @@ class StatsVisualizer(QWidget):
         kd_plot.addItem(line)
         return kd_plot
 
-    def add_balance_plots(self, layout: QGridLayout) -> None:
+    def add_balance_plots(self) -> None:
         player_names = [player["name"] for player in self.stats]
         x_pos = np.arange(len(player_names))
 
@@ -315,7 +335,7 @@ class StatsVisualizer(QWidget):
                 values = [player["general"][stat][category] for player in self.stats]
                 bar = LabeledBarGraphItem(
                     categories=player_names,
-                    x=x_pos + (i - len(categories)/2 + 0.5) * width,
+                    x=x_pos + bar_shift(i, len(categories), width),
                     height=values,
                     width=width,
                     brush=color,
@@ -325,10 +345,10 @@ class StatsVisualizer(QWidget):
             plot.getAxis("bottom").setTicks(
                 [[(i, name) for i, name in enumerate(player_names)]],
             )
-            layout.addWidget(plot, index // 2, index % 2)
-        layout.addWidget(self._create_kd_plot(), 1, 1)
+            self.ui.balanceLayout.addWidget(plot, index // 2, index % 2)
+        self.ui.balanceLayout.addWidget(self._create_kd_plot(), 1, 1)
 
-    def add_score_plot(self, layout: QVBoxLayout) -> None:
+    def add_score_plot(self) -> None:
         score_plot = pg.PlotWidget(title="Player Scores")
         score_plot.setLabel("left", "Score")
 
@@ -346,4 +366,48 @@ class StatsVisualizer(QWidget):
         )
         score_plot.addItem(score_bar)
         score_plot.getAxis("bottom").setTicks([[(i, name) for i, name in enumerate(player_names)]])
-        layout.addWidget(score_plot)
+        self.ui.scoreLayout.addWidget(score_plot)
+
+
+class GameStatsUI:
+    def _no_data(self) -> QLabel:
+        label = QLabel("No game stats found")
+        label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        font = label.font()
+        font.setBold(True)
+        font.setPointSize(20)
+        label.setFont(font)
+        return label
+
+    def setupUi(self, widget: QWidget) -> None:
+        layout = QVBoxLayout(widget)
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.stack = QStackedWidget()
+        layout.addWidget(self.stack)
+        self.stack.addWidget(self._no_data())
+
+
+class GameStatsWidget(QWidget):
+    def __init__(self) -> None:
+        QWidget.__init__(self)
+        self.ui = GameStatsUI()
+        self.ui.setupUi(self)
+
+    def initialize(self, replay: ReplayParser) -> None:
+        self._remove_old_plots()
+        self.draw_stats(replay.game_stats)
+
+    def _remove_old_plots(self) -> None:
+        while self.ui.stack.count() > 1:
+            w = self.ui.stack.widget(1)
+            assert w is not None
+            self.ui.stack.removeWidget(w)
+            w.deleteLater()
+
+    def draw_stats(self, data: dict[str, GameStats]) -> None:
+        if not data:
+            return
+        plots = PlotsWidget()
+        self.ui.stack.addWidget(plots)
+        plots.initialize(data)
+        self.ui.stack.setCurrentIndex(1)

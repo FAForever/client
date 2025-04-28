@@ -38,7 +38,7 @@ from src.replays.replaydetails.replayreader import ReplayException
 from src.replays.replaydetails.replayreader import ReplayParser
 from src.replays.replaydetails.tabs.charttab import ChartsTab
 from src.replays.replaydetails.tabs.chattab import ChatTab
-from src.replays.replaydetails.tabs.gamestats import StatsVisualizer
+from src.replays.replaydetails.tabs.gamestats import GameStatsWidget
 from src.replays.replaydetails.tabs.heatmap import Heatmap
 from src.replays.replaydetails.tabs.maintab import ReplayInfoTab
 
@@ -125,7 +125,7 @@ class ReplayDetailsCard(QtWidgets.QDialog):
         self.chat_tab = ChatTab()
         self.heatmap_tab = Heatmap()
         self.charts_tab = ChartsTab()
-        self.game_stats_tab = StatsVisualizer()
+        self.game_stats_tab = GameStatsWidget()
 
         self.replayTabs = QtWidgets.QTabWidget()
         self.replayTabs.addTab(self.replay_info_tab, "Info")
@@ -177,7 +177,7 @@ class ReplayDetailsCard(QtWidgets.QDialog):
 
         self.tab_history.add(index)
         widget = self.replayTabs.widget(index)
-        assert isinstance(widget, (ReplayInfoTab, ChatTab, ChartsTab, StatsVisualizer, Heatmap))
+        assert isinstance(widget, (ReplayInfoTab, ChatTab, ChartsTab, GameStatsWidget, Heatmap))
         widget.initialize(self.loader.replay)
 
     def show_replay_exception_msg(self, msg: str) -> None:
@@ -235,6 +235,7 @@ class ReplayDetailsCard(QtWidgets.QDialog):
             reply.error() == reply.NetworkError.NoError
             and reply.header(QtNetwork.QNetworkRequest.KnownHeaders.ContentLengthHeader) != 0
         ):
+            self.replayTabs.setCurrentIndex(0)
             self.statusBar.showMessage("Parsing the replay file..")
             self.loader.load_data(reply)
             self.setWindowTitle(reply.url().url())

@@ -45,6 +45,7 @@ from src.replays.replaydetails.helpers import seconds_to_human
 from src.replays.replaydetails.replayformat import LUA_TYPE
 from src.replays.replaydetails.replayformat import STITARGET
 from src.replays.replaydetails.replayformat import ECmdStreamOp
+from src.replays.replaydetails.tabs.gamestats_types import GameStats
 from src.replays.replaydetails.utils import PLAYER_COLORS
 from src.util import COMMON_DIR
 
@@ -123,7 +124,7 @@ class ReplayParser(QObject):
 
         self.cpmChart = defaultdict(list)
         self.commands = defaultdict(list)
-        self.game_stats = {}
+        self.game_stats: dict[str, GameStats] = {}
 
     def set_file(self, file: str) -> None:
         self.filename = file
