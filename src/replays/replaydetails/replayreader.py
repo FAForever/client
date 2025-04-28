@@ -518,7 +518,7 @@ class ReplayParser(QObject):
             f"<center><h2>{self.map_display_name()}</h2><h4>"
             f"{self.actual_map_size()}</h4></center><table>"
         )
-        for k, v in self.luaScenarioInfo["Options"].items():
+        for k, v in sorted(self.luaScenarioInfo["Options"].items()):
             if k not in ["Ratings", "ScenarioFile", "ReplayID"]:
                 if not isinstance(v, dict):
                     yield (
