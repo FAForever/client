@@ -269,6 +269,7 @@ class HostGameWidget(FormClass, BaseClass):
     def generateMap(self) -> None:
         dialog = MapGenDialog(self.client.map_generator)
         dialog.map_generated.connect(self.on_map_generated)
+        dialog.load_cmd_options()
         dialog.exec()
         dialog.deleteLater()
 

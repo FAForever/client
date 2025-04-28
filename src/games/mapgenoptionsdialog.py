@@ -137,8 +137,6 @@ class MapGenDialog(FormClass, BaseClass):
 
         self.options_path = os.path.join(util.MAPGEN_DIR, "mapgen_options.json")
 
-        self.load_cmd_options()
-
     def get_dynamic_options(self) -> dict[str, ComboBoxOption]:
         return {
             "symmetries": ComboBoxOption(
