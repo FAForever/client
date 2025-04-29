@@ -60,6 +60,7 @@ class ReplayInfoTabUI:
         self.mapPreview.setMinimumHeight(256)
         self.mapPreview.setMinimumWidth(256)
         self.mapPreview.setMaximumWidth(256)
+        self.mapPreview.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.mapDescription = QLabel()
         self.mapDescription.setWordWrap(True)
@@ -140,7 +141,7 @@ class ReplayInfoTab(QWidget):
         self.update_get_map_button()
 
     def map_preview_pixmap(self, *, scale: int = 1) -> QPixmap:
-        nomap = QPixmap(os.path.join(util.COMMON_DIR, "replays", "nomap.png"))
+        nomap = QPixmap(os.path.join(util.COMMON_DIR, "games", "unknown_map.png"))
         folder_path = folderForMap(self.replay.map_folder_name())
         if folder_path is None or not os.path.exists(folder_path):
             return nomap
