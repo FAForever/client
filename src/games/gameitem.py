@@ -98,9 +98,10 @@ class GameItemDelegate(StyledItemDelegate):
     ICON_CLIP_TOP_LEFT = 3
     ICON_CLIP_BOTTOM_RIGHT = -7
     ICON_SHADOW_OFFSET = 8
+    BACKGROUND_COLOR = QtGui.QColor("#202020")
     SHADOW_COLOR = QtGui.QColor("#202020")
     FRAME_THICKNESS = 1
-    FRAME_COLOR = QtGui.QColor("#303030")
+    FRAME_COLOR = QtGui.QColor("#0f0f0f")
     TEXT_OFFSET = 10
     TEXT_RIGHT_MARGIN = 5
 
@@ -113,7 +114,15 @@ class GameItemDelegate(StyledItemDelegate):
         self._formatter = formatter
         self.tooltip_filter = GameTooltipFilter(self._formatter)
 
-    def paint(self, painter, option, index):
+    def paint(
+            self,
+            painter: QtGui.QPainter | None,
+            option: QtWidgets.QStyleOptionViewItem,
+            index: QtCore.QModelIndex,
+    ) -> None:
+        if painter is None:
+            return
+
         painter.save()
 
         data = index.data()
@@ -122,11 +131,25 @@ class GameItemDelegate(StyledItemDelegate):
 
         self._draw_clear_option(painter, option)
         self._draw_icon_shadow(painter, option)
+        self._draw_background(painter, option)
         self._draw_icon(painter, option, icon)
         self._draw_frame(painter, option)
         self._draw_text(painter, option, text)
 
         painter.restore()
+
+    def _draw_background(
+            self,
+            painter: QtGui.QPainter,
+            option: QtWidgets.QStyleOptionViewItem,
+    ) -> None:
+        painter.fillRect(
+            option.rect.left() + self.ICON_CLIP_TOP_LEFT,
+            option.rect.top() + self.ICON_CLIP_TOP_LEFT,
+            self.ICON_RECT,
+            self.ICON_RECT,
+            self.BACKGROUND_COLOR,
+        )
 
     def _draw_icon_shadow(self, painter, option):
         painter.fillRect(
@@ -137,15 +160,19 @@ class GameItemDelegate(StyledItemDelegate):
             self.SHADOW_COLOR,
         )
 
-    def _draw_icon(self, painter, option, icon):
-        rect = option.rect.adjusted(
-            self.ICON_CLIP_TOP_LEFT,
-            self.ICON_CLIP_TOP_LEFT,
-            self.ICON_CLIP_BOTTOM_RIGHT,
-            self.ICON_CLIP_BOTTOM_RIGHT,
+    def _draw_icon(
+            self,
+            painter: QtGui.QPainter,
+            option: QtWidgets.QStyleOptionViewItem,
+            icon: QtGui.QIcon,
+    ) -> None:
+        rect = QtCore.QRect(
+            option.rect.left() + self.ICON_CLIP_TOP_LEFT,
+            option.rect.top() + self.ICON_CLIP_TOP_LEFT,
+            self.ICON_RECT,
+            self.ICON_RECT,
         )
-        alignment_flags = QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignTop
-        icon.paint(painter, rect, alignment_flags)
+        icon.paint(painter, rect, QtCore.Qt.AlignmentFlag.AlignCenter)
 
     def _draw_frame(self, painter, option):
         pen = QtGui.QPen()
