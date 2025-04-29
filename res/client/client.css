@@ -149,8 +149,8 @@ QTabWidget#matchmakerQueues > QTabBar::tab::selected
 
 QTabWidget #lobbyTab,#gamesTab,#ladderTab,#tournamentTab,#coopTab,#replaysTab,#vaultsTab,#mapsTab,#modsTab
 { /* sets background color for every widget under a tab */
-        background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(15, 15, 15, 200), stop:1 #2f2f2f);
-        border-radius: 10px;
+    background-color: rgba(15, 15, 15, 200);
+    border-radius: 10px;
 }
 
 QTabWidget#mainTabs::tab-bar
@@ -163,11 +163,8 @@ QTabWidget#mainTabs::tab-bar
 /* Central area background */
 QWidget#centralwidget, QProgressDialog, QWindow, QWizard
 {
-    color: silver;
-    background-image: url('%THEMEPATH%/client/stripe.png');
-    background-position: top left;
-    background-repeat:repeat-x;
-    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #FFFFFF, stop:0.1 #000000, stop:1 #1F1F1F);
+    background-color: #1F1F1F;
+    border: 1px solid #353535;
 }
 
 QWidget#replayScore
@@ -195,15 +192,15 @@ QWidget#statisticsChartsScrollArea,#achievementsScrollArea
 QTabWidget#mainTabs::pane
 { /* The tab widget frame */
 
-    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(15, 15, 15, 200), stop:1 #2f2f2f);
-    border-radius: 5px;
+    background-color: #2f2f2f;
+    border-radius: 10px;
 
 }
 
 /* Style the tab using the tab sub-control. Note that it reads QTabBar _not_ QTabWidget */
 QTabWidget#mainTabs > QTabBar::tab
 {
-    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:1 #555555, stop:0 #333333);
+    background-color: #333333;
     color: silver;
     min-width: 80px;
     padding:2px;
@@ -237,10 +234,11 @@ QTabWidget#mainTabs > QTabBar::tab:!selected
 
 QTabWidget#topTabs::pane
 {
-     /* The tab widget frame */
-     border: none;
-     background-color: #2f2f2f;
- }
+    /* The tab widget frame */
+    border: none;
+    background-color: #2f2f2f;
+    border-radius: 10px;
+}
 
 
  QTabWidget#topTabs::tab-bar
@@ -287,7 +285,7 @@ QTabWidget#topTabs > QTabBar::tab:selected
 
 QSplitter::handle
 {
-    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #0F0F0F, stop:1 #2f2f2f);
+    background-color: #2f2f2f;
 }
 
 
@@ -608,10 +606,6 @@ QListWidget#teamList::item::selected:!active
 /* for tournament*/
 QListWidget#tourneyList
 {
-    background-image: url('%THEMEPATH%/client/stripe.png');
-    background-position: top left;
-    background-repeat:repeat-x;
-
     border-style:solid;
     border-width:1px;
     border-color:#353535;
@@ -761,7 +755,7 @@ QScrollBar::sub-page
 QCheckBox#hideGamesWithPw,#hideGamesWithMods,#applyFilters
 {
     color:white;
-    background-color: #111111;
+    background-color: rgba(15, 15, 15, 200);
 }
 
 QLabel#labelSortGames,#labelJoinGame,#labelHostGame,#labelAutomatch,#labelMyReplays,#labelLiveReplays,#labelHostTournament,#labelJoinTournament,#joinLabel,#labelTeamManagement,#labelTMM
