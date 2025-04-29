@@ -73,7 +73,7 @@ def excepthook(
             traceback_object,
         ),
     )
-    logger.error("Runtime Info:\n{}".format(util.crash.runtime_info()))
+    logger.error(f"Runtime Info:\n{crash.runtime_info()}")
     dialog = crash.CrashDialog((exc_type, exc_value, traceback_object))
     answer = dialog.exec()
 
