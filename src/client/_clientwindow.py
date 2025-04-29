@@ -1,6 +1,7 @@
 import logging
 import time
 from functools import partial
+from operator import itemgetter
 from typing import Any
 
 from PyQt6 import QtCore
@@ -1192,6 +1193,29 @@ class ClientWindow(FormClass, BaseClass):
         for action in self._chat_vis_actions.values():
             action.triggered.connect(self.update_options)
 
+    def _setup_log_settings(self) -> None:
+        self.menuOptions.addSeparator()
+        logLevelMenu = QtWidgets.QMenu("Set Log Level...", self.menuOptions)
+        self.menuOptions.addMenu(logLevelMenu)
+        logLevelActionGroup = QtGui.QActionGroup(self)
+        current_level = config.Settings.get("client/logs/level", type=int, default=logging.INFO)
+
+        levels = logging.getLevelNamesMapping()
+        for name, level in sorted(levels.items(), key=itemgetter(1), reverse=True):
+            action = QtGui.QAction(name.title(), logLevelMenu)
+            action.setCheckable(True)
+            action.setData(level)
+            logLevelMenu.addAction(action)
+            logLevelActionGroup.addAction(action)
+            if level == current_level:
+                action.setChecked(True)
+
+        logLevelActionGroup.triggered.connect(self._set_log_level)
+
+    def _set_log_level(self, action: QtGui.QAction) -> None:
+        logging.getLogger().setLevel(action.data())
+        config.Settings.set("client/logs/level", action.data())
+
     @QtCore.pyqtSlot()
     def update_options(self):
         chat_config = self._chat_config
@@ -1450,9 +1474,9 @@ class ClientWindow(FormClass, BaseClass):
         util.settings.endGroup()
         self._chat_config.save_settings()
 
-    def load_settings(self):
+    def load_settings(self) -> None:
+        self._setup_log_settings()
         self.load_chat()
-        # Load settings
         util.settings.beginGroup("window")
         geometry = util.settings.value("geometry", None)
         # FIXME: looks like bug in Qt: restoring from maximized geometry doesn't work

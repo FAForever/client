@@ -53,7 +53,7 @@ class Settings:
             _settings.endGroup()
 
     @staticmethod
-    def get(key, default=None, type=str):
+    def get[T](key: str, default: T = None, type: type[T] = str) -> T:
         # Get from a local dict cache before hitting QSettings
         # this is for properties such as client.login which we
         # don't necessarily want to persist
@@ -303,6 +303,7 @@ def setup_file_handler(filename):
 
 client_handler = setup_file_handler('forever.log')
 
+logging.addLevelName(5, "TRACE")
 logging.getLogger().addHandler(client_handler)
 logging.getLogger().setLevel(Settings.get('client/logs/level', type=int))
 

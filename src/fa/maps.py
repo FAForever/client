@@ -209,7 +209,7 @@ def export_preview_from_map(
     elif os.path.isdir(os.path.join(getBaseMapsFolder(), mapname)):
         mapdir = os.path.join(getBaseMapsFolder(), mapname)
     else:
-        logger.debug("Can't find mapname in file system: " + mapname)
+        logger.log(5, f"Can't find mapname in file system: {mapname}")
         return previews
 
     mapname = os.path.basename(mapdir).lower()
