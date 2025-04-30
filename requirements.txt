@@ -1,13 +1,12 @@
 cx_Freeze
 idna
 ipaddress
-irc==20.4.0
+irc
 jinja2
 pathlib
 pydantic
-pyqt6
-pyqt6-charts
-pyqt6-networkauth
+pyqt6==6.8.1
+pyqt6-networkauth==6.8.0
 pyqtgraph
 pytest
 pytest-cov
