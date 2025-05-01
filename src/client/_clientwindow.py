@@ -1976,7 +1976,6 @@ class ClientWindow(FormClass, BaseClass):
             player["id_"] = player.pop("id")
 
             id_ = int(player["id_"])
-            logger.debug("Received update about player %d", id_)
             if id_ in self.players:
                 self.players[id_].update(**player)
             else:

@@ -433,7 +433,6 @@ class LobbyInfo(QtCore.QObject):
             self._update_game(message)
 
     def _update_game(self, m: dict) -> None:
-        logger.debug("Received info about game %s", m.get("uid", None))
         if not message_to_game_args(m):
             return
 
