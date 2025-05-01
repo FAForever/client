@@ -49,7 +49,7 @@ class SecondaryServer(QtCore.QObject):
 
         self.name = name
 
-        logger = logging.getLogger("faf.secondaryServer.%s", self.name)
+        logger = logging.getLogger(f"faf.secondaryServer.{self.name}")
         logger.info("Instantiating secondary server.")
         self.logger = logger
 
