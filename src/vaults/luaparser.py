@@ -85,6 +85,21 @@ class luaParser:
         value = ""
         key = ""
         prevkey = ""
+
+        comment = re.compile(r"((#.*))$|((--\[\[).*(\]\]--)$)")
+        inline_comment = re.compile(
+            r"""
+            --(?!\[(=*)\[)      # Don't match multiline comment starters
+            (?=                 # Lookahead to ensure we're not inside a string
+                ([^"'\\]|\\.)*
+                (?!\\)
+                $
+            )
+            .*$
+            """,
+            re.VERBOSE,
+        )
+
         # start cycle
         while len(self.__stream):
             # get a line from the list or read next line from the file
@@ -92,8 +107,8 @@ class luaParser:
                 line = self.__stream.pop(0)
                 # cut commentary section (either start whit '#' or is a
                 # '--[[  ]]--' section
-                comment = re.compile(r"((#.*))$|((--\[\[).*(\]\]--)$)")
                 line = comment.sub("", line)
+                line = inline_comment.sub("", line)
                 # process line to see if it one command or a stack of them
                 newLine = 0
                 pos = 0
