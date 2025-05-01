@@ -18,7 +18,7 @@ default_values = {
     'client/data_path': APPDATA_DIR,
     'client/logs/path': join(APPDATA_DIR, 'logs'),
     'client/logs/level': logging.INFO,
-    'client/logs/max_size': 512 * 1024,
+    'client/logs/max_size': 10 * 1024 * 1024,
     'client/logs/buffer_size': 8 * 1024,
     'client/logs/console': False,
     'content/host': 'https://content.{host}',

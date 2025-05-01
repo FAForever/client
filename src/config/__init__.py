@@ -288,7 +288,7 @@ def setup_file_handler(filename):
     rotate = RotatingFileHandler(
         os.path.join(Settings.get('client/logs/path'), filename),
         maxBytes=int(Settings.get('client/logs/max_size')),
-        backupCount=1,
+        backupCount=5,
     )
     rotate.setFormatter(
         logging.Formatter(
