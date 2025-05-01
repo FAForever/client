@@ -36,7 +36,7 @@ class Gameset(ModelItemSet):
         value.before_updated.connect(self._at_game_update)
         value.before_replay_available.connect(self._at_live_replay)
         self._at_game_update(value, None, _transaction)
-        self._logger.debug("Added game, uid %d", value.id_key)
+        self._logger.log(5, "Added game, uid %d", value.id_key)
         self.emit_added(value, _transaction)
 
     @transactional
@@ -47,7 +47,7 @@ class Gameset(ModelItemSet):
 
         g.before_updated.disconnect(self._at_game_update)
         g.before_replay_available.disconnect(self._at_live_replay)
-        self._logger.debug("Removed game, uid %d", g.id_key)
+        self._logger.log(5, "Removed game, uid %d", g.id_key)
         self.emit_removed(g, _transaction)
 
     @transactional
@@ -63,7 +63,7 @@ class Gameset(ModelItemSet):
             self._new_state(new, _transaction)
 
     def _new_state(self, g, _transaction=None):
-        self._logger.debug("New game state %s, uid %d", g.state, g.id_key)
+        self._logger.log(5, "New game state %s, uid %d", g.state, g.id_key)
         if g.state == game.GameState.OPEN:
             _transaction.emit(self.newLobby, g)
         elif g.state == game.GameState.PLAYING:

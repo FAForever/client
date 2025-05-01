@@ -303,7 +303,8 @@ def setup_file_handler(filename):
 
 client_handler = setup_file_handler('forever.log')
 
-logging.addLevelName(5, "TRACE")
+logging.addLevelName(9, "TRACE")
+logging.addLevelName(5, "TRACE_PLUS")
 logging.getLogger().addHandler(client_handler)
 logging.getLogger().setLevel(Settings.get('client/logs/level', type=int))
 
