@@ -32,7 +32,7 @@ class IceServersPoller(QObject):
 
     def set_ice_servers(self, servers: list[dict]) -> None:
         if self._ice_adapter_client.connected:
-            self._logger.debug(f"Settings IceServers to: {servers}")
+            self._logger.debug("Settings IceServers to: %s", servers)
             self._ice_adapter_client.call("setIceServers", [servers])
         else:
             self._logger.warn("ICE servers received, but not connected to ice-adapter")

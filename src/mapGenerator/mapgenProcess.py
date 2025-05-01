@@ -56,10 +56,7 @@ class MapGeneratorProcess(object):
         self.args = ["-jar", gen_path]
         self.args.extend(args)
 
-        logger.info(
-            "Starting map generator with {} {}"
-            .format(self.java_path, " ".join(self.args)),
-        )
+        logger.info("Starting map generator with %s", " ".join((self.java_path, *self.args)))
         generatorLogger.info(">>> --------------------- MapGenerator Launch")
 
         self.map_generator_process.start(self.java_path, self.args)

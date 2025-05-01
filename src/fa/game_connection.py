@@ -27,7 +27,7 @@ class GPGNetConnection(QObject):
         self.chunks = None
 
     def send(self, command, *args):
-        self._logger.info("GC<<: {}:{}".format(command, args))
+        self._logger.info("GC<<: %s:%s", command, args)
         ds = QDataStream(self._socket)
         ds.setByteOrder(QDataStream.LittleEndian)
 
@@ -108,9 +108,7 @@ class GPGNetConnection(QObject):
                     self.chunks.append(chunk)
 
                 # Packet pair reading done.
-                self._logger.info(
-                    "GC >> : {} : {}".format(self.header, self.chunks),
-                )
+                self._logger.info("GC >> : %s : %s", self.header, self.chunks)
                 self.messageReceived.emit(self.header, self.chunks)
                 self.header = None
                 self.nchunks = -1

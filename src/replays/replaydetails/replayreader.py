@@ -336,7 +336,7 @@ class ReplayParser(QObject):
             try:
                 self.game_stats = json.loads(lua["Message"][46:-2])
             except json.JSONDecodeError as e:
-                logger.exception(f"Error while parsing game stats: {e}, lua: {lua}")
+                logger.exception("Error while parsing game stats: %s, lua: %s", e, lua)
 
     def append_chatline(self, function: str, lua: dict) -> None:
         if function != "GiveResourcesToPlayer" or "Msg" not in lua:

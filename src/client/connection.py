@@ -121,7 +121,7 @@ class ServerReconnecter(QtCore.QObject):
             else:
                 t = self._connection_attempts * 10000
             self._reconnect_timer.start(t)
-            logger.info("Scheduling reconnect in {}".format(t / 1000))
+            logger.info("Scheduling reconnect in %.2f", t / 1000)
 
     def _ping_connection(self):
         # If we're disconnected, we're already trying to reconnect often
@@ -253,7 +253,7 @@ class ServerConnection(QtCore.QObject):
 
     def handle_lobby_access_api_response(self, data: dict) -> None:
         url = self.extract_url_from_api_response(data)
-        logger.debug(f"Opening WebSocket url: {url}")
+        logger.debug("Opening WebSocket url: %s", url)
         self.socket.open(url)
 
     def on_connecting(self):
@@ -296,7 +296,7 @@ class ServerConnection(QtCore.QObject):
     @QtCore.pyqtSlot(QByteArray)
     def on_binary_message_received(self, message: QByteArray) -> None:
         data = message.data().decode()
-        logger.debug("Server: '{}'".format(data))
+        logger.debug("Server: '%s'", data)
         self._data += data
         if self._data.endswith("\n"):
             self.processDataFromServer(self._data)
@@ -312,15 +312,16 @@ class ServerConnection(QtCore.QObject):
         data = json.dumps(message)
         if message.get("command") == "auth":
             logger.info(
-                "Logging in with {}".format({
-                    k: v for k, v in list(message.items())
+                "Logging in with %s",
+                {
+                    k: v for k, v in message.items()
                     if k not in ["token", "unique_id"]
-                }),
+                },
             )
         elif message.get("command") in ("ping", "pong"):
-            logger.debug("Outgoing message: {}".format(message.get("command")))
+            logger.debug("Outgoing message: %s", message.get("command"))
         else:
-            logger.info("Outgoing JSON Message: " + data)
+            logger.debug("Outgoing JSON Message: %s", data)
 
         self.writeToServer(data)
 
@@ -340,13 +341,9 @@ class ServerConnection(QtCore.QObject):
             or error == QtNetwork.QAbstractSocket.SocketError.ConnectionRefusedError
             or error == QtNetwork.QAbstractSocket.SocketError.RemoteHostClosedError
         ):
-            logger.info(
-                "Timeout/network error: {}".format(self.socket.errorString()),
-            )
+            logger.error("Timeout/network error: %s", self.socket.errorString())
         else:
-            logger.error(
-                "Fatal TCP Socket Error: {}".format(self.socket.errorString()),
-            )
+            logger.error("Fatal TCP Socket Error: %s", self.socket.errorString())
 
 
 class Dispatcher():
@@ -379,15 +376,13 @@ class Dispatcher():
             if fn is not None:
                 fn(message)
             else:
-                logger.warning("No receiver for message {}".format(message))
+                logger.warning("No receiver for message %s", message)
         else:
             fn = self._dispatchees.get(cmd)
             if fn is not None:
                 fn(message)
             else:
-                logger.error(
-                    "Unknown JSON command: {}".format(message['command']),
-                )
+                logger.error("Unknown JSON command: %s", message['command'])
                 raise ValueError
 
 
@@ -437,8 +432,8 @@ class LobbyInfo(QtCore.QObject):
         else:
             self._update_game(message)
 
-    def _update_game(self, m):
-        logger.debug('Received info about game {}'.format(m.get("uid", None)))
+    def _update_game(self, m: dict) -> None:
+        logger.debug("Received info about game %s", m.get("uid", None))
         if not message_to_game_args(m):
             return
 

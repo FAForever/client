@@ -96,7 +96,7 @@ def getInstalledMods():
                 continue
         if m:
             installedMods.append(m)
-    logger.debug("Getting installed mods. Count:{}".format(len(installedMods)))
+    logger.debug("Getting installed mods. Count: %d", len(installedMods))
     return installedMods
 
 
@@ -116,7 +116,7 @@ def iconPathToFull(path):
     ...Forged Alliance\\Mods\\modname\\data\\icons\\icon.dds"
     """
     if not (path.startswith("/mods") or path.startswith("mods")):
-        logger.info("Something went wrong parsing the path {}".format(path))
+        logger.info("Something went wrong parsing the path %s", path)
         return ""
 
     # yay for dirty hacks
@@ -133,7 +133,7 @@ def fullPathToIcon(path):
 def getIcon(name):
     img = os.path.join(util.MOD_PREVIEW_DIR, name)
     if os.path.isfile(img):
-        logger.log(5, "Using cached preview image for: {}".format(name))
+        logger.log(5, "Using cached preview image for: %s", name)
         return img
     return None
 
@@ -159,19 +159,17 @@ def getModInfo(modinfofile):
     )
     modinfo["ui_only"] = (modinfo["ui_only"] == 'true')
     if "uid" not in modinfo:
-        logger.warning("Couldn't find uid for mod {}".format(modinfo["name"]))
+        logger.warning("Couldn't find uid for mod %s", modinfo["name"])
         return None
     # modinfo["uid"] = modinfo["uid"].lower()
     try:
         modinfo["version"] = int(modinfo["version"])
-    except BaseException:
+    except Exception:
         try:
             modinfo["version"] = float(modinfo["version"])
-        except BaseException:
+        except Exception:
             modinfo["version"] = 0
-            logger.warning(
-                "Couldn't find version for mod {}".format(modinfo["name"]),
-            )
+            logger.exception("Couldn't find version for mod %s", modinfo["name"])
     return modinfofile, modinfo
 
 
@@ -206,11 +204,11 @@ def getModInfoFromZip(zfile):
                     modinfofile.zip = zip_
                     r = getModInfo(modinfofile)
     if r is None:
-        logger.debug("mod_info.lua not found in zip file {}".format(zfile))
+        logger.warning("mod_info.lua not found in zip file %s", zfile)
         return None
     f, info = r
     if f.error:
-        logger.debug("Error in parsing mod_info.lua in {}".format(zfile))
+        logger.error("Error in parsing mod_info.lua in %s", zfile)
         return None
     m = ModInfo(**info)
     m.setFolder(zfile)
@@ -225,11 +223,11 @@ def getModInfoFromFolder(modfolder):  # modfolder must be local to MODFOLDER
 
     r = parseModInfo(os.path.join(MODFOLDER, modfolder))
     if r is None:
-        logger.debug("mod_info.lua not found in {} folder".format(modfolder))
+        logger.warning("mod_info.lua not found in %s folder", modfolder)
         return None
     f, info = r
     if f.error:
-        logger.debug("Error in parsing {}/mod_info.lua".format(modfolder))
+        logger.error("Error in parsing %s/mod_info.lua", modfolder)
         return None
     m = ModInfo(**info)
     m.setFolder(modfolder)
@@ -305,12 +303,7 @@ def setActiveMods(mods, keepuimods=True, temporary=True):
     else:
         keepTheseMods = []
     allmods = keepTheseMods + mods
-    logger.debug(
-        'Setting active Mods: {}'.format([
-            mod.uid
-            for mod in allmods
-        ]),
-    )
+    logger.debug("Setting active Mods: %s", [mod.uid for mod in allmods])
     s = "active_mods = {\n"
     for mod in allmods:
         s += "['{}'] = true,\n".format(str(mod.uid))
@@ -318,19 +311,17 @@ def setActiveMods(mods, keepuimods=True, temporary=True):
 
     if not temporary:
         global selectedMods
-        logger.debug('selectedMods was: {}'.format(Settings.get('play/mods')))
+        logger.debug("selectedMods was: %s", Settings.get("play/mods"))
         selectedMods = [str(mod.uid) for mod in allmods]
-        logger.debug('Writing selectedMods: {}'.format(selectedMods))
+        logger.debug("Writing selectedMods: %s", selectedMods)
         Settings.set('play/mods', selectedMods)
-        logger.debug(
-            'selectedMods written: {}'.format(Settings.get('play/mods')),
-        )
+        logger.debug("selectedMods written: %s", Settings.get("play/mods"))
 
     try:
         with open(PREFSFILENAME, 'r') as f:
             data = f.read()
-    except BaseException:
-        logger.info("Couldn't read the game.prefs file")
+    except Exception:
+        logger.exception("Couldn't read the game.prefs file")
         return False
 
     if re.search(r"active_mods\s*=\s*{.*?}", data, re.S):
@@ -341,8 +332,8 @@ def setActiveMods(mods, keepuimods=True, temporary=True):
     try:
         with open(PREFSFILENAME, 'w') as f:
             f.write(data)
-    except BaseException:
-        logger.info("Cound't write to the game.prefs file")
+    except Exception:
+        logger.exception("Cound't write to the game.prefs file")
         return False
 
     return True
@@ -360,8 +351,8 @@ def updateModInfo(mod, info):  # should probably not be used.
     try:
         with open(fname, 'r') as f:
             data = f.read()
-    except BaseException:
-        logger.info("Something went wrong reading {}".format(fname))
+    except Exception:
+        logger.exception("Something went wrong reading %s", fname)
         return False
 
     for k, v in list(info.items()):
@@ -381,8 +372,8 @@ def updateModInfo(mod, info):  # should probably not be used.
     try:
         with open(fname, 'w') as f:
             f.write(data)
-    except BaseException:
-        logger.info("Something went wrong writing to {}".format(fname))
+    except Exception:
+        logger.exception("Something went wrong writing to %s", fname)
         return False
 
     return True
@@ -393,9 +384,7 @@ def generateThumbnail(sourcename, destname):
     Given a dds file, generates a png file (or whatever the extension
     of dest is
     """
-    logger.debug(
-        "Creating png thumnail for {} to {}".format(sourcename, destname),
-    )
+    logger.debug("Creating png thumnail for %s to %s", sourcename, destname)
 
     try:
         img = bytearray()
@@ -421,7 +410,7 @@ def generateThumbnail(sourcename, destname):
 
 
 def downloadMod(link: str, name: str) -> bool:
-    logger.debug(f"Getting mod from: {link}")
+    logger.debug("Getting mod from: %s", link)
 
     def handle_exist(path: str, modname: str) -> bool:
         modpath = os.path.join(path, modname)
@@ -450,7 +439,7 @@ def downloadMod(link: str, name: str) -> bool:
 
 
 def removeMod(mod):
-    logger.debug("removing mod {}".format(mod.name))
+    logger.debug("Removing mod %s", mod.name)
     real = None
     for m in installedMods:
         if m.uid == mod.uid:

@@ -143,12 +143,12 @@ def _download_asset(
     result = ddialog.run()
 
     if result == VaultDownloadResult.CANCELED:
-        logger.warning(f"{category} Download canceled for: {dler.addr}")
+        logger.warning("%s Download canceled for: %s", category, dler.addr)
     if result in [
         VaultDownloadResult.DL_ERROR,
         VaultDownloadResult.UNKNOWN_ERROR,
     ]:
-        logger.warning(f"Download failed. {dler.addr}")
+        logger.warning("Download failed. %s", dler.addr)
     return result
 
 
@@ -184,7 +184,7 @@ def downloadVaultAssetNoMsg(
         VaultDownloadResult.DL_ERROR,
         VaultDownloadResult.UNKNOWN_ERROR,
     ]:
-        logger.warning(f"Vault download failed, {category} is probably not in vault (or broken).")
+        logger.warning("Vault download failed, %s is probably not in vault (or broken).", category)
         msg_title = "{} not downloadable".format(capit_cat)
         msg_text = (
             f"<b>This {category} was not found in the vault (or is broken).</b>"

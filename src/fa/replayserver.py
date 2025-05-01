@@ -58,10 +58,9 @@ class ReplayRecorder(QtCore.QObject):
             # Maybe make this asynchronous
             if self.relaySocket.waitForConnected(1000):
                 self.__logger.debug(
-                    "internet replay server {}:{}".format(
-                        self.relaySocket.peerName(),
-                        self.relaySocket.peerPort(),
-                    ),
+                    "internet replay server %s:%d",
+                    self.relaySocket.peerName(),
+                    self.relaySocket.peerPort(),
                 )
             else:
                 self.__logger.error("no connection to internet replay server")
@@ -78,9 +77,7 @@ class ReplayRecorder(QtCore.QObject):
         read = self.inputSocket.read(self.inputSocket.bytesAvailable())
 
         if not isinstance(read, bytes):
-            self.__logger.warning(
-                "Read failure on inputSocket: {}".format(bytes.decode()),
-            )
+            self.__logger.warning("Read failure on inputSocket: %s", bytes.decode())
             return
 
         # Convert data into a bytearray for easier processing
@@ -93,8 +90,8 @@ class ReplayRecorder(QtCore.QObject):
             if data.startsWith(b"P/"):
                 rest = data.indexOf(b"\x00") + 1
                 self.__logger.info(
-                    "Stripping prefix '{}' from replay."
-                    .format(data.left(rest - 1)),
+                    "Stripping prefix '%s' from replay.",
+                    data.left(rest - 1),
                 )
                 self.replayData.append(data.right(data.size() - rest))
             else:
@@ -118,18 +115,15 @@ class ReplayRecorder(QtCore.QObject):
         # Part of the hardening - ensure all buffered local replay data is read
         # and relayed
         if self.inputSocket.bytesAvailable():
-            self.__logger.info(
-                "Relaying remaining bytes: {}"
-                .format(self.inputSocket.bytesAvailable()),
-            )
+            self.__logger.info("Relaying remaining bytes: %d", self.inputSocket.bytesAvailable())
             self.readDatas()
 
         # Part of the hardening - ensure successful sending of the rest of the
         # replay to the server
         if self.relaySocket.bytesToWrite():
             self.__logger.info(
-                "Waiting for replay transmission to finish: {} "
-                "bytes".format(self.relaySocket.bytesToWrite()),
+                "Waiting for replay transmission to finish: %s bytes",
+                self.relaySocket.bytesToWrite(),
             )
 
             progress = QtWidgets.QProgressDialog(
@@ -168,8 +162,8 @@ class ReplayRecorder(QtCore.QObject):
         )
         filename = os.path.join(util.REPLAY_DIR, basename)
         self.__logger.info(
-            "Writing local replay as {}, containing {} bytes "
-            "of replay data.".format(filename, self.replayData.size()),
+            "Writing local replay as %s, containing %d bytes of replay data.",
+            filename, self.replayData.size(),
         )
 
         replay = QtCore.QFile(filename)
@@ -200,15 +194,14 @@ class ReplayServer(QtNetwork.QTcpServer):
             self.listen(QtNetwork.QHostAddress.SpecialAddress.LocalHost, 0)
             if self.isListening():
                 self.__logger.info(
-                    "listening on address {}:{}".format(
-                        self.serverAddress().toString(),
-                        self.serverPort(),
-                    ),
+                    "listening on address %s:%d",
+                    self.serverAddress().toString(),
+                    self.serverPort(),
                 )
             else:
                 self.__logger.error(
-                    "cannot listen, port probably used by "
-                    "another application: {}".format(self.serverPort()),
+                    "cannot listen, port probably used by another application: %d",
+                    self.serverPort(),
                 )
                 answer = QtWidgets.QMessageBox.warning(
                     None,

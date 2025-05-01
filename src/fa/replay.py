@@ -56,11 +56,11 @@ def replay(source, detach=False):
                     try:
                         binary = decompressReplayData(replay, compression_type)
                     except Exception as e:
-                        logger.error(f"Could not decompress replay: {e}")
+                        logger.error("Could not decompress replay: %s", e)
                         binary = QtCore.QByteArray()
                     logger.info(
-                        "Extracted {} bytes of binary data from "
-                        ".fafreplay.".format(binary.size()),
+                        "Extracted %d bytes of binary data from "
+                        ".fafreplay.", binary.size(),
                     )
 
                     if binary.size() == 0:
@@ -98,9 +98,7 @@ def replay(source, detach=False):
                 filename = os.path.basename(source)
                 if len(filename.split(".")) > 2:
                     mod = filename.rsplit(".", 2)[1]
-                    logger.info(
-                        "mod guessed from {} is {}".format(source, mod),
-                    )
+                    logger.info("mod guessed from %s is %s", source, mod)
                 else:
                     # TODO: maybe offer a list of mods for the user.
                     mod = "faf"
@@ -125,10 +123,7 @@ def replay(source, detach=False):
                     ),
                 )
 
-            logger.info(
-                "Replaying {} with mod {} on map {}"
-                .format(arg_string, mod, mapname),
-            )
+            logger.info("Replaying %s with mod %s on map %s", arg_string, mod, mapname)
 
             # Wrap up file path in "" to ensure proper parsing by FA.exe
             arg_string = '"' + arg_string + '"'
@@ -206,5 +201,5 @@ def replay(source, detach=False):
         logger.info("Viewing Replay.")
         return True
     else:
-        logger.error("Replaying failed. Guru meditation: {}".format(arguments))
+        logger.error("Replaying failed. Guru meditation: %s", arguments)
         return False

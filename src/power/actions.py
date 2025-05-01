@@ -29,7 +29,7 @@ class PowerActions:
         player = self._playerset.get(username, None)
         if player is None:
             return False
-        logger.info('Closing FA for {}'.format(player.login))
+        logger.info("Closing FA for %s", player.login)
         self._lobby_connection.send({
             "command": "admin",
             "action": "closeFA",
@@ -41,7 +41,7 @@ class PowerActions:
         player = self._playerset.get(username, None)
         if player is None:
             return False
-        logger.info('Closing lobby for {}'.format(player.login))
+        logger.info("Closing lobby for %s", player.login)
         self._lobby_connection.send({
             "command": "admin",
             "action": "closelobby",

@@ -197,9 +197,7 @@ class GithubUpdateChecker(QObject):
         try:
             releases = json.loads(release_data.decode('utf-8'))
         except (UnicodeError, json.JSONDecodeError):
-            self._logger.exception(
-                "Error parsing network reply: {}".format(repr(release_data)),
-            )
+            self._logger.exception("Error parsing network reply: %s", repr(release_data))
             return None
         return list(self._parse_releases(releases))
 

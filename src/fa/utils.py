@@ -14,7 +14,7 @@ def crc32(filepath: str) -> int | None:
         with open(filepath, "rb") as stream:
             return binascii.crc32(stream.read())
     except Exception as e:
-        logger.exception(f"CRC check for {filepath!r} fail! Details: {e}")
+        logger.exception("CRC check for %s failed: %s", filepath, e)
         return None
 
 
@@ -34,7 +34,7 @@ def unpack_movies_and_sounds(file: FeaturedModFile) -> None:
         try:
             zf = zipfile.ZipFile(origpath)
         except Exception as e:
-            logger.exception(f"Failed to open Game File {origpath!r}: {e}")
+            logger.exception("Failed to open Game File '%s': %s", origpath, e)
             return
 
         for zi in zf.infolist():

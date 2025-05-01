@@ -240,75 +240,64 @@ def export_preview_from_map(
     previewddsname = plausible_mapname_preview_name(".dds")
     cachepngname = os.path.join(util.MAP_PREVIEW_SMALL_DIR, mapname + ".png")
 
-    logger.debug("Generating preview from user maps for: " + mapname)
-    logger.debug("Using directory: " + mapdir)
+    logger.debug("Generating preview from user maps for: '%s'. Directory: '%s'", mapname, mapdir)
 
-    # Unknown / Unavailable mapname?
     if not os.path.isfile(mapfilename):
         logger.warning(
-            "Unable to find the .scmap for: {}, was looking here: "
-            "{}".format(mapname, mapfilename),
+            "Unable to find the .scmap for: '%s', was looking here: '%s'",
+            mapname,
+            mapfilename,
         )
         return previews
 
-    # Small preview already exists?
     if os.path.isfile(previewsmallname):
-        logger.debug(mapname + " already has small preview")
         previews["tozip"].append(previewsmallname)
         smallExists = True
-        # save it in cache folder
         shutil.copyfile(previewsmallname, cachepngname)
-        # checking if file was copied correctly, just in case
         if os.path.isfile(cachepngname):
             previews["cache"] = cachepngname
         else:
-            logger.debug("Couldn't copy preview into cache folder")
+            logger.warning("Couldn't copy preview into cache folder")
             return previews
 
-    # Large preview already exists?
     if os.path.isfile(previewlargename):
-        logger.debug(mapname + " already has large preview")
         previews["tozip"].append(previewlargename)
         largeExists = True
 
-    # Preview DDS already exists?
     if os.path.isfile(previewddsname):
-        logger.debug(mapname + " already has DDS extracted")
         previews["tozip"].append(previewddsname)
         ddsExists = True
 
     if not ddsExists:
-        logger.debug(f"Extracting preview DDS from .scmap for: {mapname!r}")
+        logger.debug("Extracting preview DDS from .scmap for: '%s'", mapname)
         try:
             if extract_dds(mapfilename, previewddsname):
                 previews["tozip"].append(previewddsname)
             else:
-                logger.debug(f"Failed to make DDS for: {mapname!r}")
+                logger.debug("Failed to make DDS for: '%s'", mapname)
                 return previews
         except IOError:
             pass
 
     if not smallExists:
-        logger.debug("Making small preview from DDS for: {}".format(mapname))
+        logger.debug("Making small preview from DDS for: '%s'", mapname)
         try:
             gen_prev_from_dds(previewddsname, previewsmallname, small=True)
             previews["tozip"].append(previewsmallname)
             shutil.copyfile(previewsmallname, cachepngname)
             previews["cache"] = cachepngname
         except IOError:
-            logger.debug(
-                "Failed to make small preview for: {}".format(mapname),
-            )
+            logger.debug("Failed to make small preview for: '%s'", mapname)
             return previews
 
     if not largeExists:
-        logger.debug(f"Making large preview from DDS for: {mapname!r}")
+        logger.debug("Making large preview from DDS for: '%s'", mapname)
         try:
             mappixmap = create_large_preview(mapdir)
             mappixmap.save(previewlargename)
             previews["tozip"].append(previewlargename)
         except IOError:
-            logger.debug(f"Failed to make large preview for: {mapname!r}")
+            logger.debug("Failed to make large preview for: '%s'", mapname)
 
     return previews
 
@@ -348,7 +337,7 @@ def preview(mapname: str, *, pixmap: bool = False) -> QtGui.QIcon | QtGui.QPixma
             logger.debug("Using fresh preview image for: " + mapname)
             return util.THEME.icon(img['cache'], False, pixmap)
     except Exception:
-        logger.debug(f"Map Preview Exception ({mapname!r})", exc_info=sys.exc_info())
+        logger.debug("Map Preview Exception ('%s')", mapname, exc_info=sys.exc_info())
     return None
 
 
@@ -368,7 +357,7 @@ def downloadMap(name: str, silent: bool = False) -> bool:
 
 
 def _doDownloadMap(name: str, link: str, silent: bool) -> tuple[bool, Callable[[], None] | None]:
-    logger.debug(f"Getting map from: {link}")
+    logger.debug("Getting map from: %s", link)
     return downloadVaultAssetNoMsg(
         url=link,
         target_dir=getUserMapsFolder(),

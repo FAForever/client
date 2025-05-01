@@ -37,10 +37,10 @@ class WebSocketToSocket(QObject):
         self._close_intended = False
 
     def on_socket_error(self, error: QAbstractSocket.SocketError) -> None:
-        logger.error(f"SocketAdapter error: {error}. Details: {self.socket.errorString()}")
+        logger.error("SocketAdapter error: %s. Details: %s", error, self.socket.errorString())
 
     def on_socket_state_changed(self, state: QAbstractSocket.SocketState) -> None:
-        logger.debug(f"SocketAdapter state changed: {state}")
+        logger.debug("SocketAdapter state changed: %s", state)
         # socket state can change without errors, that's why we emit `error_occurred` signal
         # here and not in the `on_socket_error` method
         if state == QAbstractSocket.SocketState.UnconnectedState and not self._close_intended:

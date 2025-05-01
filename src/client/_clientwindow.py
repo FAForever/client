@@ -1633,11 +1633,9 @@ class ClientWindow(FormClass, BaseClass):
         It will notify other modules through the signal gameExit().
         """
         if not exit_code:
-            logger.info("FA has finished with exit code: {}".format(exit_code))
+            logger.info("FA has finished with exit code: %d", exit_code)
         else:
-            logger.warning(
-                "FA has finished with exit code: {}".format(exit_code),
-            )
+            logger.warning("FA has finished with exit code: %d", exit_code)
         self.game_exit.emit()
 
     @QtCore.pyqtSlot(QtCore.QProcess.ProcessError)
@@ -1789,8 +1787,8 @@ class ClientWindow(FormClass, BaseClass):
         }
         self.lobby_connection.send(msg)
 
-    def handle_match_found_message(self, message):
-        logger.info("Handling match_found via JSON {}".format(message))
+    def handle_match_found_message(self, message: ServerMessage) -> None:
+        logger.info("Handling match_found via JSON %s", message)
         self.warningHide()
         self.labelAutomatchInfo.setText("Match found! Pending game launch...")
         self.labelAutomatchInfo.show()
@@ -1798,7 +1796,7 @@ class ClientWindow(FormClass, BaseClass):
         self.lobby_connection.send(dict(command="match_ready"))
 
     def handle_match_cancelled(self, message: ServerMessage) -> None:
-        logger.info(f"Received match_cancelled via JSON {message}")
+        logger.info("Received match_cancelled via JSON %s", message)
 
         if self.game_session is None or message["game_id"] != self.game_session.game_uid:
             return
@@ -1842,7 +1840,7 @@ class ClientWindow(FormClass, BaseClass):
         self.game_session.game_uid = message['uid']
         self.game_session.startIceAdapter()
 
-        logger.info("Handling game_launch via JSON {}".format(message))
+        logger.info("Handling game_launch via JSON %s", message)
 
         silent = False
         # Do some special things depending of the reason of the game launch.
@@ -1931,10 +1929,8 @@ class ClientWindow(FormClass, BaseClass):
             self.game_session.game_name = game.title
             self.game_session.game_visibility = game.visibility.value
 
-    def handle_matchmaker_info(self, message):
-        logger.debug(
-            "Handling matchmaker info with message {}".format(message),
-        )
+    def handle_matchmaker_info(self, message: ServerMessage) -> None:
+        logger.debug("Handling matchmaker info with message %s", message)
         if not self.me.player:
             return
         self.matchmaker_info.emit(message)
@@ -1980,7 +1976,7 @@ class ClientWindow(FormClass, BaseClass):
             player["id_"] = player.pop("id")
 
             id_ = int(player["id_"])
-            logger.debug(f"Received update about player {id_}")
+            logger.debug("Received update about player %d", id_)
             if id_ in self.players:
                 self.players[id_].update(**player)
             else:
@@ -1998,20 +1994,11 @@ class ClientWindow(FormClass, BaseClass):
         if "text" in message:
             style = message.get('style', None)
             if style == "error":
-                logger.error(
-                    "Received an error message from server: {}"
-                    .format(message),
-                )
-                QtWidgets.QMessageBox.critical(
-                    self, "Error from Server", message["text"],
-                )
+                logger.error("Received an error message from server: %s", message)
+                QtWidgets.QMessageBox.critical(self, "Error from Server", message["text"])
             elif style == "warning":
-                logger.warning(
-                    "Received warning message from server: {}".format(message),
-                )
-                QtWidgets.QMessageBox.warning(
-                    self, "Warning from Server", message["text"],
-                )
+                logger.warning("Received warning message from server: %s", message)
+                QtWidgets.QMessageBox.warning(self, "Warning from Server", message["text"])
             elif style == "scores":
                 self.tray.showMessage(
                     "Scores", message["text"],
@@ -2054,12 +2041,12 @@ class ClientWindow(FormClass, BaseClass):
         }
         self.lobby_connection.send(msg)
 
-    def handle_party_invite(self, message):
-        logger.info("Handling party_invite via JSON {}".format(message))
+    def handle_party_invite(self, message: ServerMessage) -> None:
+        logger.info("Handling party_invite via JSON %s", message)
         self.party_invite.emit(message)
 
-    def handle_update_party(self, message):
-        logger.info("Handling update_party via JSON {}".format(message))
+    def handle_update_party(self, message: ServerMessage) -> None:
+        logger.info("Handling update_party via JSON %s", message)
         self.games.updateParty(message)
 
     def handle_kicked_from_party(self, message):
@@ -2078,16 +2065,16 @@ class ClientWindow(FormClass, BaseClass):
         }
         self.games.updateParty(msg)
 
-    def set_faction(self, faction):
-        logger.info("Setting party factions to {}".format(faction))
+    def set_faction(self, faction: str) -> None:
+        logger.info("Setting party factions to %s", faction)
         msg = {
             'command': 'set_party_factions',
             'factions': faction,
         }
         self.lobby_connection.send(msg)
 
-    def handle_search_info(self, message):
-        logger.info("Handling search_info via JSON: {}".format(message))
+    def handle_search_info(self, message: ServerMessage) -> None:
+        logger.info("Handling search_info via JSON: %s", message)
         self.games.handleMatchmakerSearchInfo(message)
 
     def handle_search_violation(self, message: ServerMessage) -> None:

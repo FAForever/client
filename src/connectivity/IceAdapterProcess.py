@@ -42,13 +42,9 @@ class IceAdapterProcess(object):
         if show_adapter_window:
             args.extend(["--info-window", "--delay-ui", str(delay_adapter_ui)])
         if Settings.contains('iceadapter/args'):
-            args.extend(
-                Settings.get('iceadapter/args', "", type=str).split(" "),
-            )
+            args.extend(Settings.get('iceadapter/args', "", type=str).split(" "))
 
-        self._logger.debug(
-            "running ice adapter with {} {}".format(exe_path, " ".join(args)),
-        )
+        self._logger.debug("Running ice adapter with '%s'", " ".join((exe_path, *args)))
 
         # set log directory via ENV
         env = QProcessEnvironment.systemEnvironment()
@@ -80,15 +76,14 @@ class IceAdapterProcess(object):
         )
         self.ice_adapter_process.finished.connect(self.on_exit)
 
-    def on_log_ready(self):
+    def on_log_ready(self) -> None:
         standard_output = str(self.ice_adapter_process.readAllStandardOutput())
         for line in standard_output.splitlines():
-            self._logger.debug("ICE: " + line)
+            self._logger.log(5, "ICE: %s", line)
 
-    def on_error_ready(self):
-        standard_error = str(self.ice_adapter_process.readAllStandardError())
-        for line in standard_error.splitlines():
-            self._logger.debug("ICEERROR: " + line)
+    def on_error_ready(self) -> None:
+        standard_error = self.ice_adapter_process.readAllStandardError()
+        self._logger.log(5, "ICEERROR: %", standard_error.data().decode())
 
     def on_exit(self, code: int, status: QProcess.ExitStatus) -> None:
         if status == QProcess.ExitStatus.CrashExit:
@@ -99,14 +94,11 @@ class IceAdapterProcess(object):
             )
             return
         if code != 0:
-            self._logger.error("The ICE adapter closed with error code", code)
+            self._logger.error("The ICE adapter closed with error code %d", code)
             QMessageBox.critical(
                 None,
                 "ICE adapter error",
-                (
-                    "The ICE adapter closed with error code {}. Please refaf."
-                    .format(code)
-                ),
+                f"The ICE adapter closed with error code {code}. Please refaf.",
             )
             return
         else:

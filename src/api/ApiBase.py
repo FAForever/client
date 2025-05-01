@@ -94,7 +94,7 @@ class ApiBase(QObject):
             error_handler: Callable = __do_nothing,
     ) -> None:
         self._running = True
-        logger.debug("Sending API request with URL: {}".format(url.toString()))
+        logger.debug("Sending API request with URL: %s", url.toString())
         reply = self.manager.get(self.prepare_request(url))
         self.handlers[reply] = response_handler
         self.error_handlers[reply] = error_handler
@@ -105,7 +105,7 @@ class ApiBase(QObject):
     def onRequestFinished(self, reply: QNetworkReply) -> None:
         self._running = False
         if reply.error() != QNetworkReply.NetworkError.NoError:
-            logger.error(f"API request error: {reply.error()}")
+            logger.error("API request error: %s", reply.error())
             self.error_handlers[reply](reply)
         else:
             message_bytes = reply.readAll().data()

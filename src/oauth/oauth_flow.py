@@ -64,18 +64,18 @@ class OAuth2Flow(QOAuth2AuthorizationCodeFlow):
             self.refreshAccessToken()
 
     def on_expiration_at_changed(self, expiration_at: QDateTime) -> None:
-        self._logger.debug(f"Token expiration at changed to: {expiration_at}")
+        self._logger.info("Token expiration at changed to: %s", expiration_at)
         self._expires_in = QDateTime.currentDateTime().msecsTo(expiration_at)
 
     def on_token_changed(self, new_token: str) -> None:
-        self._logger.debug("Token changed")
+        self._logger.info("Token changed")
 
     def on_granted(self) -> None:
-        self._logger.debug("Token granted successfuly!")
+        self._logger.info("Token granted successfuly!")
         self.start_checking_expiration()
 
     def on_request_failed(self, error: QOAuth2AuthorizationCodeFlow.Error) -> None:
-        self._logger.debug(f"Request failed with an error: {error}")
+        self._logger.error("Request failed with an error: %s", error)
         self.stop_checking_expiration()
 
     def setup_credentials(self) -> None:

@@ -105,10 +105,9 @@ class MapVault(Vault):
 
                 if scenariolua.error:
                     logger.debug(
-                        "There were {} errors and {} warnings".format(
-                            scenariolua.errors,
-                            scenariolua.warnings,
-                        ),
+                        "There were %s errors and %s warnings",
+                        scenariolua.errors,
+                        scenariolua.warnings,
                     )
                     logger.debug(scenariolua.errorMsg)
                     QtWidgets.QMessageBox.critical(
@@ -142,11 +141,9 @@ class MapVault(Vault):
                         })
                         if savelua.error or savelua.warning:
                             logger.debug(
-                                "There were {} errors and {} warnings"
-                                .format(
-                                    scenariolua.errors,
-                                    scenariolua.warnings,
-                                ),
+                                "There were %s errors and %s warnings",
+                                scenariolua.errors,
+                                scenariolua.warnings,
                             )
                             logger.debug(scenariolua.errorMsg)
 

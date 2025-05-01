@@ -34,7 +34,7 @@ class ClientUpdater(QObject):
         return build
 
     def exec_(self, url):
-        self._logger.info('Downloading {}'.format(url))
+        self._logger.info("Downloading %s", url)
         self._setup_progress()
         self._prepare_download(url)
 
@@ -56,7 +56,7 @@ class ClientUpdater(QObject):
 
     def ssl_error(self, errors):
         estrings = [e.errorString() for e in errors]
-        self._logger.error('ssl errors: {}'.format(estrings))
+        self._logger.error("ssl errors: %s", estrings)
         self._rep.ignoreSslErrors()
 
     def error(self, code):
@@ -77,7 +77,7 @@ class ClientUpdater(QObject):
 
         redirected = self._rep.attribute(QNetworkRequest.Attribute.RedirectionTargetAttribute)
         if redirected is not None:
-            self._logger.debug('redirected to {}'.format(redirected))
+            self._logger.debug("redirected to %s", redirected)
             os.remove(self._tmp.name)
             if redirected.isRelative():
                 url = self._rep.url().resolved(redirected)

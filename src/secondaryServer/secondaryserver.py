@@ -49,7 +49,7 @@ class SecondaryServer(QtCore.QObject):
 
         self.name = name
 
-        logger = logging.getLogger("faf.secondaryServer.{}".format(self.name))
+        logger = logging.getLogger("faf.secondaryServer.%s", self.name)
         logger.info("Instantiating secondary server.")
         self.logger = logger
 
@@ -78,16 +78,12 @@ class SecondaryServer(QtCore.QObject):
             'args': args,
             'kwargs': kwargs,
         }])
-        self.logger.info("Pending requests: {}".format(len(self._requests)))
+        self.logger.info("Pending requests: %s", len(self._requests))
         if not (
             self.serverSocket.state()
             == QtNetwork.QAbstractSocket.SocketState.ConnectedState
         ):
-            self.logger.info(
-                "Connecting to {} {}:{}".format(
-                    self.name, self.HOST, self.socketPort,
-                ),
-            )
+            self.logger.info("Connecting to %s %s:%d", self.name, self.HOST, self.socketPort)
             self.serverSocket.connectToHost(self.HOST, self.socketPort)
         else:
             self.send_pending()
@@ -179,8 +175,4 @@ class SecondaryServer(QtCore.QObject):
         elif socketError == QtNetwork.QAbstractSocket.SocketError.ConnectionRefusedError:
             log("The connection was refused by the peer.")
         else:
-            log(
-                "The following error occurred: {}.".format(
-                    self.serverSocket.errorString(),
-                ),
-            )
+            log("The following error occurred: %s", self.serverSocket.errorString())

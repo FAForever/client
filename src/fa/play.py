@@ -70,7 +70,7 @@ def run(game_info, port, replayPort, arguments=None, log_suffix=None):
     """
     Launches Forged Alliance with the given arguments
     """
-    logger.info("Play received arguments: {}".format(arguments))
+    logger.info("Play received arguments: %s", arguments)
     arguments = build_argument_list(
         game_info, port, replayPort, arguments, log_suffix,
     )

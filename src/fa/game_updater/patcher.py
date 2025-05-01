@@ -26,5 +26,5 @@ class FAPatcher:
             for address in FAPatcher.version_addresses:
                 file.seek(address)
                 file.write(version.to_bytes(4, "little"))
-        logger.info(f"Patched {path!r} to version {version!r}")
+        logger.info("Patched %s to version %d", path, version)
         return True

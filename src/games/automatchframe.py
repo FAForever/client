@@ -175,9 +175,7 @@ class MatchmakerQueue(FormClass, BaseClass):
                 )
                 return
 
-        logger.debug(
-            "Starting Ranked Search. Queue: {}".format(self.queueName),
-        )
+        logger.debug("Starting Ranked Search. Queue: %s", self.queueName)
         self.client.search_ranked(queue_name=self.queueName)
 
     def stopSearchRanked(self):

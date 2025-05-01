@@ -16,7 +16,7 @@ def checkMods(mods: dict[str, str]) -> bool:  # mods is a dictionary of uid-name
     Assures that the specified mods are available in FA, or returns False.
     Also sets the correct active mods in the ingame mod manager.
     """
-    logger.info("Updating FA for mods {}".format(", ".join(mods)))
+    logger.info("Updating FA for mods %s", ", ".join(mods))
 
     inst = set(mod.uid for mod in getInstalledMods())
     to_download = {uid: name for uid, name in mods.items() if uid not in inst}
@@ -49,7 +49,7 @@ def checkMods(mods: dict[str, str]) -> bool:  # mods is a dictionary of uid-name
     for uid, name in to_download.items():
         url = api_accessor.request_and_get_sim_mod_url_by_id(uid)
         if not downloadMod(url, name):
-            logger.warning(f"Failure getting {name!r} with uid {uid!r}")
+            logger.warning("Failure getting '%s' with uid '%s'", name, uid)
             return False
 
     actual_mods = []

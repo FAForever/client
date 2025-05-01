@@ -83,9 +83,7 @@ def path(parent: ClientWindow) -> bool:
         ),
     ):
         logger.warning(
-            "Invalid game path: {}".format(
-                util.settings.value("ForgedAlliance/app/path", "", type=str),
-            ),
+            "Invalid game path: %s", util.settings.value("ForgedAlliance/app/path", "", type=str),
         )
         wizard = Wizard(parent)
         result = wizard.exec()
@@ -113,7 +111,7 @@ def check(
     This checks whether the mods are properly updated and player has the
     correct map.
     """
-    logger.info("Checking FA for: {} and map {}".format(featured_mod, mapname))
+    logger.info("Checking FA for: %s and map %s", featured_mod, mapname)
 
     assert featured_mod
 
@@ -121,9 +119,7 @@ def check(
         logger.info("Version unknown, assuming latest")
 
     # Perform the actual comparisons and updating
-    logger.info(
-        "Updating FA for mod: {}, version {}".format(featured_mod, version),
-    )
+    logger.info("Updating FA for mod: %s, version %s", featured_mod, version)
     from src import client  # FIXME: forced by circular imports
     if not path(client.instance):
         return False

@@ -80,7 +80,7 @@ class JsonRpcTcpClient(QObject):
 
     def parseResponse(self, response):
         if "error" in response:
-            self._logger.error("response error {}".format(response))
+            self._logger.error("Response error %s", response)
             if "id" in response:
                 if response["id"] in self.callbacks_error:
                     self.callbacks_error[response["id"]](response["error"])
@@ -103,8 +103,8 @@ class JsonRpcTcpClient(QObject):
         if newData.startswith(b"{\"jsonrpc\":\"2.0\""):
             if len(self.buffer) > 0:
                 self._logger.error(
-                    "parse error: discarding old possibly "
-                    "malformed buffer data {}".format(self.buffer),
+                    "Rarse error: discarding old possibly malformed buffer data: %s",
+                    self.buffer,
                 )
             self.buffer = newData
         else:
@@ -117,9 +117,7 @@ class JsonRpcTcpClient(QObject):
         if len(buf) == 0:
             return b''
         if not buf.startswith(b'{'):
-            self._logger.error(
-                "parse error: buffer expected to start: {}".format(buf),
-            )
+            self._logger.error("parse error: buffer expected to start: %s", buf)
             return b''
         in_string = False
         brace_nesting_level = 0
@@ -133,10 +131,7 @@ class JsonRpcTcpClient(QObject):
                 if c == ord('}'):
                     brace_nesting_level -= 1
                     if brace_nesting_level < 0:
-                        self._logger.error(
-                            "parse error: brace_nesting_level "
-                            "< 0: {}".format(buf),
-                        )
+                        self._logger.error("parse error: brace_nesting_level < 0: %s", buf)
                         return b''
                     if brace_nesting_level == 0:
                         complete_json_buf = buf[:i + 1]
@@ -146,10 +141,7 @@ class JsonRpcTcpClient(QObject):
                                 complete_json_buf.decode('utf-8'),
                             )
                         except ValueError:
-                            self._logger.error(
-                                "json.loads failed for {}"
-                                .format(complete_json_buf),
-                            )
+                            self._logger.error("json.loads failed for %s", complete_json_buf)
                             return b''
                         # is this a request?
                         if "method" in request:
@@ -181,7 +173,7 @@ class JsonRpcTcpClient(QObject):
             if callback_error:
                 self.callbacks_error[self.nextid] = callback_error
             self.nextid += 1
-        self._logger.debug("sending JSONRPC object {}".format(rpcObject))
+        self._logger.debug("Sending JSONRPC object %s", rpcObject)
         self.socket.write(json.dumps(rpcObject).encode('utf8') + b'\n')
         if blocking:
             self.socket.waitForBytesWritten()

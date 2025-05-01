@@ -111,7 +111,7 @@ class Reconnector(QObject):
         else:
             t = self.failures * 10_000
             self.timer.start(t)
-            logger.info(f"Scheduling chat reconnect in {t / 1000}")
+            logger.info("Scheduling chat reconnect in %.2f", t / 1000)
 
 
 class IrcConnection(SimpleIRCClient, IrcSignals):
@@ -169,7 +169,7 @@ class IrcConnection(SimpleIRCClient, IrcSignals):
             self.reconnector.reconnect()
 
     def connect_(self, nick: str, username: str, password: str) -> bool:
-        logger.info(f"Connecting to IRC at: {self.host}:{self.port}")
+        logger.info("Connecting to IRC at: %s:%d", self.host, self.port)
 
         self._nick = nick
         self._username = username
@@ -457,7 +457,7 @@ class IrcConnection(SimpleIRCClient, IrcSignals):
         self._connected = False
         self.disconnected.emit()
         message = e.arguments[0]
-        logger.info(f"Disconnected from chat: {message}")
+        logger.info("Disconnected from chat: %s", message)
 
     def on_privmsg(self, c, e):
         chatter = self._event_to_chatter(e)

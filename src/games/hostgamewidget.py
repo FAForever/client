@@ -169,10 +169,10 @@ class HostGameWidget(FormClass, BaseClass):
             mod.totalname
             for mod in getActiveMods(uimods=False, temporary=False)
         ]
-        logger.debug("Active Mods detected: {}".format(str(names)))
+        logger.debug("Active Mods detected: %s", str(names))
         for name in names:
             ml = self.modList.findItems(name, QtCore.Qt.MatchFlag.MatchExactly.MatchExactly)
-            logger.debug("found item: {}".format(ml[0].text()))
+            logger.debug("found item: %s", ml[0].text())
             if ml:
                 ml[0].setSelected(True)
 

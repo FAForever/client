@@ -82,8 +82,8 @@ class GameSession(QObject):
     def onIceAdapterStarted(self, status: dict) -> None:
         self._relay_port = status["gpgnet"]["local_port"]
         logger.info(
-            "ICE adapter started an listening on port {} for GPGNet "
-            "connections".format(self._relay_port),
+            "ICE adapter started an listening on port %d for GPGNet connections",
+            self._relay_port,
         )
         self.ice_adapter_client.statusChanged.disconnect(self.onIceAdapterStarted)
         self.ice_servers_poller = IceServersPoller(self.ice_adapter_client, self.game_uid)
@@ -137,13 +137,11 @@ class GameSession(QObject):
             peer_id, ice_msg = args
             self.ice_adapter_client.call("iceMsg", [peer_id, ice_msg])
         else:
-            logger.warning(
-                "sending unhandled GPGNet message {} {}".format(command, args),
-            )
+            logger.warning("sending unhandled GPGNet message %s %s", command, args)
             self.ice_adapter_client.call("sendToGpgNet", [command, args])
 
     def send(self, command_id, args):
-        logger.info("Outgoing relay message {} {}".format(command_id, args))
+        logger.info("Outgoing relay message %s %s", command_id, args)
         client.instance.lobby_connection.send({
             'command': command_id,
             'target': 'game',
@@ -171,7 +169,7 @@ class GameSession(QObject):
         self.ready.emit()
 
     def _on_game_message(self, command, args):
-        logger.info("Incoming GPGNet: {} {}".format(command, args))
+        logger.info("Incoming GPGNet: %s %s", command, args)
         if command == 'Rehost':
             self._rehost = True
         elif command == 'GameFull':
@@ -184,7 +182,7 @@ class GameSession(QObject):
 
     def _exited(self, status):
         self.state = GameSessionState.OFF
-        logger.info("Game has exited with status code: {}".format(status))
+        logger.info("Game has exited with status code: %d", status)
         self.send('GameState', ['Ended'])
         client.instance.lobby_reconnector.keepalive = False
 

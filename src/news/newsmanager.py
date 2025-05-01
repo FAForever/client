@@ -76,8 +76,8 @@ class NewsManager(QObject):
     @QtCore.pyqtSlot()
     def frameClicked(self):
         sender = self.sender()
-        logger.info("Sender: {}".format(sender))
-        logger.info("Clicked '{}'".format(sender.content[0]))
+        logger.info("Sender: %s", sender)
+        logger.info("Clicked '%s'", sender.content[0])
         # unexpanded frame - expand
         if self.selectedFrame != sender:
             self.expandFrame(sender)

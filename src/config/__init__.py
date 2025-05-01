@@ -318,9 +318,7 @@ if Settings.get('client/logs/console', False, type=bool):
     logging.getLogger().addHandler(devh)
     logging.getLogger().setLevel(Settings.get('client/logs/level', type=int))
 
-logging.getLogger().info(
-    "FAF version: {} Environment: {}".format(VERSION, environment),
-)
+logging.getLogger().info("FAF version: %s Environment: %s", VERSION, environment)
 
 
 def qt_log_handler(type_, context, text):

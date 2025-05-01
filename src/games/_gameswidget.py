@@ -312,7 +312,7 @@ class GamesWidget(FormClass, BaseClass):
 
     def accept_party_invite(self, sender_id):
         self.stopSearch()
-        logger.info("Accepting paryt invite from {}".format(sender_id))
+        logger.info("Accepting party invite from %d", sender_id)
         msg = {
             'command': 'accept_party_invite',
             'sender_id': sender_id,
@@ -369,7 +369,7 @@ class GamesWidget(FormClass, BaseClass):
             insert_to = queue["team_size"] - 1
             existing_queue = self.matchmakerQueues.widget(insert_to)
             if existing_queue is None or existing_queue.teamSize != queue["team_size"]:
-                logger.info(f"Adding matchmaker queue {queue['queue_name']}...")
+                logger.info("Adding matchmaker queue %s", queue["queue_name"])
                 mqueue = MatchmakerQueue(self, self.client, queue["queue_name"], queue["team_size"])
                 mqueue.handleQueueInfo(message)
                 tab_name = "&{teamSize} vs {teamSize}".format(teamSize=queue["team_size"])

@@ -85,10 +85,9 @@ class ModVault(Vault):
                 modinfofile, modinfo = utils.parseModInfo(modDir)
                 if modinfofile.error:
                     logger.debug(
-                        "There were {} errors and {} warnings.".format(
-                            modinfofile.error,
-                            modinfofile.warnings,
-                        ),
+                        "There were %s errors and %s warnings.",
+                        modinfofile.error,
+                        modinfofile.warnings,
                     )
                     logger.debug(modinfofile.errorMsg)
                     QtWidgets.QMessageBox.critical(

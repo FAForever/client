@@ -31,7 +31,7 @@ class WPAPI(QtCore.QObject):
         # mark reply for collection by Qt
         reply.deleteLater()
 
-        logger.info('Received {}'.format(reply.url().toString()))
+        logger.info("Received %s", reply.url().toString())
 
         try:
             content = reply.readAll()

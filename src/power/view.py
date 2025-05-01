@@ -80,10 +80,7 @@ class KickDialog(QObject):
             )
 
         if not result:
-            self._warning(
-                "Player not found",
-                'Player "{}" was not found.'.format(username),
-            )
+            self._warning("Player '%s' not found.", username)
         self.setParent(None)    # Let ourselves get GC'd
 
     def rejected(self):

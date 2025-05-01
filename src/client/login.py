@@ -84,11 +84,10 @@ class LoginWidget(FormClass, BaseClass):
         api_url = self.apiURLField.text()
 
         logger.info(
-            "Setting connection options: [server: {}:{}, IRC: {}:{}, "
-            "replay_server: {}:{}, api_url: {}]".format(
-                host, port, irc_host, irc_port,
-                replay_host, replay_port, api_url,
-            ),
+            "Setting connection options: [server: %s:%d, IRC: %s:%d, "
+            "replay_server: %s:%d, api_url: %s]",
+            host, port, irc_host, irc_port,
+            replay_host, replay_port, api_url,
         )
 
         Settings.set('lobby/host', host, persist=False)

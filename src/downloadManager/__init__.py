@@ -84,7 +84,7 @@ class BaseDownload(QObject):
         # check status code
         statusCode = self._dfile.attribute(QNetworkRequest.Attribute.HttpStatusCodeAttribute)
         if statusCode != 200:
-            logger.debug(f"Download failed: {self.addr} -> {statusCode}")
+            logger.debug("Download failed: %s -> %d", self.addr, statusCode)
             self.error = True
 
     def _about_to_finish(self) -> None:
@@ -192,9 +192,9 @@ class FileDownload(BaseDownload):
             try:
                 os.unlink(self._cache_path)
             except OSError as e:
-                logger.warning(f"Couldn't remove {self._cache_path}: {e}")
+                logger.warning("Couldn't remove %s: %s", self._cache_path, e)
         else:
-            logger.debug(f"Finished download from {self.addr}")
+            logger.debug("Finished download from %s", self.addr)
             self._output.rename(self._target_path)
 
 
@@ -228,7 +228,7 @@ class ZipDownloadExtract(BaseDownload):
             destpath = os.path.join(self._target_dir, dirname)
             if os.path.exists(destpath):
                 if not self._exist_ok:
-                    logger.warning(f"Cannot extract: {destpath!r} already exists")
+                    logger.warning("Cannot extract: '%s' already exists", destpath)
                     self.error = True
                     return
             try:
@@ -237,7 +237,7 @@ class ZipDownloadExtract(BaseDownload):
                     f"Successfully downloaded and extracted to {destpath!r} from: {self.addr!r}",
                 )
             except Exception as e:
-                logger.error(f"Extract error: {e}")
+                logger.error("Extract error: %s", e)
                 self.error = True
 
     def cleanup(self) -> None:

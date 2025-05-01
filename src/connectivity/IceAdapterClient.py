@@ -25,33 +25,23 @@ class IceAdapterClient(JsonRpcTcpClient):
         )
 
     def onIceMsg(self, localId, remoteId, iceMsg):
-        self._logger.debug(
-            "onIceMsg {} {} {}".format(
-                localId, remoteId,
-                iceMsg,
-            ),
-        )
+        self._logger.debug("onIceMsg %s %s %s", localId, remoteId, iceMsg)
         if client.instance.lobby_connection.state == ConnectionState.CONNECTED:
             self.game_session.send("IceMsg", [remoteId, iceMsg])
         elif isinstance(iceMsg, dict) and "type" in iceMsg:
             if iceMsg["type"] != "candidate":
                 self.iceMsgCache.clear()
             self.iceMsgCache.append((remoteId, iceMsg))
-            self._logger.debug(
-                "lobby disconnected, caching ICE message {}"
-                .format(len(self.iceMsgCache)),
-            )
+            self._logger.debug("lobby disconnected, caching ICE message %d", len(self.iceMsgCache))
 
     def onConnectionStateChanged(self, newState):
-        self._logger.debug("onConnectionStateChanged {}".format(newState))
+        self._logger.debug("onConnectionStateChanged %s", newState)
         if self.game_session and newState == "Connected":
             self.game_session._new_game_connection()
         self.call("status", callback_result=self.onStatus)
 
     def onGpgNetMessageReceived(self, header, chunks):
-        self._logger.debug(
-            "onGpgNetMessageReceived {} {}".format(header, chunks),
-        )
+        self._logger.debug("onGpgNetMessageReceived %s %s", header, chunks)
         self.game_session._on_game_message(header, chunks)
         self.gpgnetmessageReceived.emit(header, chunks)
 
@@ -65,13 +55,9 @@ class IceAdapterClient(JsonRpcTcpClient):
 
     def onConnected(self, localId, remoteId, connected):
         if connected:
-            self._logger.debug(
-                "ice-adapter connected to player {}".format(remoteId),
-            )
+            self._logger.debug("ice-adapter connected to player %s", remoteId)
         else:
-            self._logger.debug(
-                "ice-adapter disconnected from player {}".format(remoteId),
-            )
+            self._logger.debug("ice-adapter disconnected from player %s", remoteId)
         self.call("status", callback_result=self.onStatus)
 
     def onStatus(self, status):
@@ -83,9 +69,7 @@ class IceAdapterClient(JsonRpcTcpClient):
 
     def onLobbyConnected(self):
         if len(self.iceMsgCache) > 0:
-            self._logger.debug(
-                "sending {} cached ICE messages".format(len(self.iceMsgCache)),
-            )
+            self._logger.debug("sending %d cached ICE messages", len(self.iceMsgCache))
         for remoteId, iceMsg in self.iceMsgCache:
             self.game_session.send("IceMsg", [remoteId, iceMsg])
         self.iceMsgCache.clear()

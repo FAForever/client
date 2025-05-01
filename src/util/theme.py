@@ -201,8 +201,8 @@ class ThemeSet(QtCore.QObject):
 
         if version >= override_version:
             logger.info(
-                "New version {} of theme {}, removing override {}"
-                .format(str(version), theme, override_version_str),
+                "New version %s of theme %s, removing override %s",
+                str(version), theme, override_version_str,
             )
             self._settings.remove(override_config)
             return version
@@ -239,18 +239,15 @@ class ThemeSet(QtCore.QObject):
                 ),
             )
             logger.error(
-                "Error reading theme version: {} in directory {}"
-                .format(str(new_theme), new_theme.themedir),
+                "Error reading theme version: %s in directory %s",
+                new_theme, new_theme.themedir,
             )
             return theme_changed()
 
         outdated = self._checkThemeOutdated(theme_version)
 
         if not outdated:
-            logger.info(
-                "Using theme: {} in directory {}"
-                .format(new_theme, new_theme.themedir),
-            )
+            logger.info("Using theme: %s in directory %s", new_theme, new_theme.themedir)
             self._theme = new_theme
         else:
             box = QtWidgets.QMessageBox(QtWidgets.QApplication.activeWindow())
@@ -289,17 +286,14 @@ class ThemeSet(QtCore.QObject):
                     ),
                 )
                 logger.info(
-                    "Overriding version of theme {} with {}"
-                    .format(str(new_theme), self._client_version),
+                    "Overriding version of theme '%s' with '%s'",
+                    new_theme, self._client_version,
                 )
                 override_config = "theme_version_override/" + str(new_theme)
                 self._settings.set(override_config, self._client_version)
 
             if result == b_always or result == b_yes:
-                logger.info(
-                    "Using theme: {} in directory {}"
-                    .format(new_theme, new_theme.themedir),
-                )
+                logger.info("Using theme: %s in directory %s", new_theme, new_theme.themedir)
                 self._theme = new_theme
             elif result == b_default:
                 self._theme = self._default_theme
@@ -325,10 +319,7 @@ class ThemeSet(QtCore.QObject):
         def _nullcheck(self, filename, themed=True):
             ret = fn(self, filename, themed)
             if ret is None:
-                logger.warning(
-                    "Failed to load resource '{}' in theme. {}"
-                    .format(filename, fn.__name__),
-                )
+                logger.warning("Failed to load resource '%s' in theme. %s", filename, fn.__name__)
             return ret
         return _nullcheck
 

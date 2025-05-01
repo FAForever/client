@@ -85,7 +85,7 @@ class DataApiAccessor(ApiAccessor):
                 for key, value in data["relationships"].items():
                     result[key] = self.parseData(value, included)
         except Exception as e:
-            logger.error(f"Erorr parsing {data}: {e}")
+            logger.error("Erorr parsing %s: %s", data, e)
         return result
 
     def parseMeta(self, message: dict) -> dict:

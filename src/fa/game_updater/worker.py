@@ -211,7 +211,7 @@ class UpdaterWorker(QObject):
                 self.game_progress.emit(ProgressInfo(index, total_files, file))
 
     def _download(self, target_path: str, url: str, params: dict) -> None:
-        logger.info(f"Updater: Downloading {url}")
+        logger.info("Updater: Downloading %s", url)
         dler = FileDownload(target_path, self.nam, url, params)
         dler.blocksize = None
         dler.progress.connect(self.download_progress.emit)
@@ -235,7 +235,7 @@ class UpdaterWorker(QObject):
         for attempt in range(10):  # after download antimalware can interfere in our update process
             if self.fa_patcher.patch(exe_path, version):
                 return
-            logger.warning(f"Could not open fa exe for patching. Attempt #{attempt + 1}")
+            logger.warning("Could not open fa exe for patching. Attempt #%d", attempt + 1)
             self.thread().msleep(500)
         else:
             raise UpdaterFailure("Could not update FA exe to the correct version")
@@ -286,7 +286,7 @@ class UpdaterWorker(QObject):
             self.result = UpdaterResult.CANCEL
         except Exception as e:
             log(f"EXCEPTION: {e}", logger)
-            logger.exception(f"EXCEPTION: {e}")
+            logger.exception("EXCEPTION: %s", e)
             self.result = UpdaterResult.FAILURE
         else:
             self.result = UpdaterResult.SUCCESS
