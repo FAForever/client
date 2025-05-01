@@ -34,6 +34,7 @@ from src.client.connection import LobbyInfo
 from src.client.connection import ServerConnection
 from src.client.connection import ServerReconnecter
 from src.client.gameannouncer import GameAnnouncer
+from src.client.lobbyprotocol import GameJoinFailedCommand
 from src.client.login import LoginWidget
 from src.client.playercolors import PlayerColors
 from src.client.theme_menu import ThemeMenu
@@ -275,6 +276,7 @@ class ClientWindow(FormClass, BaseClass):
         self.lobby_dispatch["match_cancelled"] = self.handle_match_cancelled
         self.lobby_dispatch["search_info"] = self.handle_search_info
         self.lobby_dispatch["search_violation"] = self.handle_search_violation
+        self.lobby_dispatch["game_join_failed"] = self.handle_game_join_failed
         self.lobby_info.social.connect(self.handle_social)
 
         # Process used to run Forged Alliance (managed in module fa)
@@ -2007,9 +2009,14 @@ class ClientWindow(FormClass, BaseClass):
             elif "You are using an unofficial client" in message["text"]:
                 self.unofficial_client.emit(message["text"])
             else:
-                QtWidgets.QMessageBox.information(
-                    self, "Notice from Server", message["text"],
+                # TODO: remove these when server stops sending them
+                deprecated = (
+                    "The game you are trying to join is not ready.",
+                    "The host has left the game.",
+                    "Bad password (it's case sensitive).",
                 )
+                if message["text"] not in deprecated:
+                    QtWidgets.QMessageBox.information(self, "Notice from Server", message["text"])
 
         if message["style"] == "kill":
             logger.info("Server has killed your Forged Alliance Process.")
@@ -2081,3 +2088,16 @@ class ClientWindow(FormClass, BaseClass):
         # in addition to this message (which contains count and time)
         # and currently there's no apparent reason to handle it
         pass
+
+    def handle_game_join_failed(self, message: GameJoinFailedCommand) -> None:
+        pretty_reasons = {
+            "game_not_ready": "The game you are trying to join is not ready.",
+            "host_left_game": "The host has left the game.",
+            "bad_password": "Bad password (it's case sensitive).",
+        }
+        pretty_reason = pretty_reasons.get(message["reason"], message["reason"])
+        QtWidgets.QMessageBox.critical(
+            self,
+            "Game join failed",
+            f"Failed to join game {message['uid']}: {pretty_reason}",
+        )
