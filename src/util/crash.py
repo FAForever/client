@@ -35,7 +35,7 @@ def runtime_info():
         desc.append(("Uname", str(platform.uname())))
 
         desc = "".join(["{}: {}\n".format(n, d) for n, d in desc])
-    except BaseException:
+    except Exception:
         desc = "(Exception raised while writing runtime info)\n"
 
     return desc
@@ -64,7 +64,7 @@ class CrashDialog(FormClass, BaseClass):
         text = self.infoBlurb.text()
         try:
             config_loc = "(located at {}) ".format(util.Settings.fileName())
-        except BaseException:
+        except Exception:
             config_loc = ""
         text += (
             "<br><br><b>If you're seeing this message after overiding "

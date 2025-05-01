@@ -160,7 +160,7 @@ def check_data_path_permissions():
 
                 if my_user != data_path_owner:
                     set_data_path_permissions()
-            except BaseException as e:
+            except Exception as e:
                 # we encountered error 1332 in win32security.LookupAccountSid
                 # here: http://forums.faforever.com/viewtopic.php?f=3&t=13728
                 # msdn.microsoft.com/en-us/library/windows/desktop/aa379166.aspx

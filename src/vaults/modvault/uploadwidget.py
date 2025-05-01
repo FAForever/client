@@ -91,7 +91,7 @@ class UploadModWidget(FormClass, BaseClass):
             zipdir(self.modDir, zipped, os.path.basename(self.modDir))
             zipped.close()
             temp.flush()
-        except BaseException:
+        except Exception:
             QtWidgets.QMessageBox.critical(
                 self.client,
                 "Mod uploading error",
@@ -126,7 +126,7 @@ class UploadModWidget(FormClass, BaseClass):
                 return False
         try:
             self.Thumbnail.setPixmap(util.THEME.pixmap(iconfilename, False))
-        except BaseException:
+        except Exception:
             QtWidgets.QMessageBox.information(
                 self.client,
                 "Invalid Icon File",

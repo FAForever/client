@@ -287,7 +287,7 @@ class ServerConnection(QtCore.QObject):
             else:
                 try:
                     self._dispatch(action)
-                except BaseException:
+                except Exception:
                     logger.error(
                         "Error dispatching JSON: " + line,
                         exc_info=sys.exc_info(),

@@ -58,8 +58,8 @@ class WPAPI(QtCore.QObject):
                 posts.append(content)
 
             self.newsDone.emit(posts)
-        except BaseException:
-            logger.exception('Error handling wp data')
+        except Exception:
+            logger.exception("Error handling wp data")
 
     def download(self, page=1, perpage=10):
         url = QtCore.QUrl(

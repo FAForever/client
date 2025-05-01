@@ -19,7 +19,7 @@ def steamPath():
         )
         query_value = winreg.QueryValueEx(steam_key, "SteamPath")
         return query_value[0].replace("/", "\\")
-    except BaseException:
+    except Exception:
         return None
 
 
@@ -107,7 +107,7 @@ def validatePath(path):
             return False
 
         return True
-    except BaseException:
+    except Exception:
         _, value, _ = sys.exc_info()
-        logger.error("Path validation failed: " + str(value))
+        logger.exception("Path validation failed: %s", value)
         return False

@@ -45,7 +45,7 @@ class ChatController(QObject):
     @classmethod
     def build(
         cls, connection, model, user_relations, chat_config,
-        line_metadata_builder, **kwargs
+        line_metadata_builder, **kwargs,
     ):
         return cls(
             connection, model, user_relations, chat_config,
@@ -293,7 +293,7 @@ class ChatController(QObject):
                 " character."
             )
             self._announce(self._channels[cid], notice)
-        except BaseException:
+        except Exception:
             notice = "Sending failed. Check your connection."
             self._announce(self._channels[cid], notice)
 

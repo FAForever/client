@@ -156,8 +156,8 @@ def getPersonalDir():
                 raise Exception(
                     'No documents location. Will use APPDATA instead.',
                 )
-        except BaseException:
-            logger.exception('PERSONAL_DIR not ok, falling back.')
+        except Exception:
+            logger.exception("PERSONAL_DIR not ok, falling back.")
             dir_ = os.path.join(APPDATA_DIR, "user")
     return dir_
 
@@ -218,7 +218,7 @@ try:
         if os.path.getsize(LOG_FILE_MAPGEN) > LOGFILE_MAX_SIZE:
             os.remove(LOG_FILE_MAPGEN)
     remove_obsolete_logs(LOG_DIR, LOG_FILE_GAME_INFIX, 30)
-except BaseException:
+except Exception:
     pass
 
 
@@ -481,7 +481,7 @@ def uniqueID(session):
                     "Instrumentation' service, set the startup type to "
                     "automatic and restart FAF.",
                 )
-        except BaseException:
+        except Exception:
             QMessageBox.critical(
                 None,
                 "WMI service missing",

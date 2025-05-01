@@ -1523,7 +1523,7 @@ class ClientWindow(FormClass, BaseClass):
             self.actionSetJoinsParts.setChecked(cc.joinsparts)
             self.actionSetNewbiesChannel.setChecked(cc.newbies_channel)
             self.actionIgnoreFoes.setChecked(cc.ignore_foes)
-        except BaseException:
+        except Exception:
             pass
 
     def save_refresh_token(self) -> None:
@@ -1773,7 +1773,7 @@ class ClientWindow(FormClass, BaseClass):
             self.games.matchmakerQueues.widget(0).subFactions = subFactions
             self.games.matchmakerQueues.widget(0).setFactionIcons(subFactions)
             self.games.matchmakerQueues.widget(0).startSearchRanked()
-        except BaseException:
+        except Exception:
             QtWidgets.QMessageBox.information(
                 self, "Starting search failed",
                 "Something went wrong, please retry",

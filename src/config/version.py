@@ -99,7 +99,7 @@ def get_git_version(git_dir=None):
 
         return tag, commit_tag
 
-    except BaseException as e:
+    except Exception as e:
         sys.stderr.write("Error grabbing git version: {}".format(e))
         return None
 

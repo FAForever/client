@@ -87,12 +87,12 @@ def getInstalledMods():
         if os.path.isdir(os.path.join(MODFOLDER, f)):
             try:
                 m = getModInfoFromFolder(f)
-            except BaseException:
+            except Exception:
                 continue
         else:
             try:
                 m = getModInfoFromZip(f)
-            except BaseException:
+            except Exception:
                 continue
         if m:
             installedMods.append(m)
@@ -281,7 +281,7 @@ def getActiveMods(uimods=None, temporary=True):
         #             ", ".join([mod.uid for mod in allmods]))
         # )
         return active_mods
-    except BaseException:
+    except Exception:
         return []
 
 
