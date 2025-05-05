@@ -166,8 +166,6 @@ def downloadVaultAssetNoMsg(
     Download and unpack a zip from the vault, interacting with the user and
     logging things.
     """
-    global _global_nam
-
     msg = None
     capit_cat = capitalize(category)
 
