@@ -83,8 +83,6 @@ class ApiBase(QObject):
         request = QNetworkRequest(url) if url else QNetworkRequest()
         # last 2 args are unused, but for some reason they are required
         ApiBase.oauth.prepareRequest(request, QByteArray(), QByteArray())
-        # FIXME: remove when https://bugreports.qt.io/browse/QTBUG-123891 is deployed
-        request.setAttribute(QNetworkRequest.Attribute.Http2AllowedAttribute, False)
         return request
 
     def get(
