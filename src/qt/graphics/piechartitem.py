@@ -28,7 +28,7 @@ class PieChartItem(pg.GraphicsObject):
     ) -> None:
         pg.GraphicsObject.__init__(self, parent_item)
         self.values = values
-        self.total = sum(values)
+        self.total = sum(values) or len(values) or 1
         self.labels = labels if labels is not None else [f"Slice {i}" for i in range(len(values))]
 
         if colors is None:
@@ -39,11 +39,11 @@ class PieChartItem(pg.GraphicsObject):
         self.radius = radius
         self.startAngle = start_angle
 
-        self.sectors = []
+        self.sectors: list[QGraphicsEllipseItem] = []
         self.create_sectors()
 
-        self.legend_items = []
-        self.legend_labels = []
+        self.legend_items: list[QGraphicsRectItem] = []
+        self.legend_labels: list[pg.TextItem] = []
         self.create_legend()
 
     def create_sectors(self) -> None:
