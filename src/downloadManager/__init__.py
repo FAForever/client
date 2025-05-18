@@ -84,7 +84,7 @@ class BaseDownload(QObject):
         # check status code
         statusCode = self._dfile.attribute(QNetworkRequest.Attribute.HttpStatusCodeAttribute)
         if statusCode != 200:
-            logger.debug("Download failed: %s -> %d", self.addr, statusCode)
+            logger.debug("Download failed: %s -> %s", self.addr, statusCode)
             self.error = True
 
     def _about_to_finish(self) -> None:
