@@ -501,7 +501,7 @@ class ReplayParser(QObject):
                     text = seconds_to_human(elem // 10)
                 else:
                     text = elem
-                yield f"<td style='color: silver;'>{text}</td>"
+                yield f"<td>{text}</td>"
             yield "</tr>"
         yield "</table>"
 
