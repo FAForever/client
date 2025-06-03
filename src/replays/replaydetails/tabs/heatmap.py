@@ -15,6 +15,7 @@ from PyQt6.QtWidgets import QPushButton
 from PyQt6.QtWidgets import QSpinBox
 from PyQt6.QtWidgets import QVBoxLayout
 from PyQt6.QtWidgets import QWidget
+from scipy.ndimage import gaussian_filter
 
 from src.config import Settings
 from src.replays.replaydetails.helpers import seconds_to_human
@@ -163,7 +164,7 @@ class Heatmap(QWidget):
         img = self.return_heatmap(lowtick, hightick)
 
         if self.smooth_check_box.isChecked() and not self.debounce_timer.isActive():
-            img = pg.gaussianFilter(img, (self.x_sigma.value(), self.y_sigma.value(), 0))
+            img = gaussian_filter(img, (self.x_sigma.value(), self.y_sigma.value()))
 
         self.heatmap.setImage(img)
         self.heatmapSliderText.setText(

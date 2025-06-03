@@ -12,5 +12,6 @@ pytest
 pytest-cov
 pytest-mock
 pytest-qt
+scipy
 semantic_version
 zstandard
