@@ -69,6 +69,11 @@ jobs:
           zig build-lib -dynamic -lc -lpython3 -I"$INCLUDEPY" -L"$LIBPY" -O ReleaseSafe --name zigfafreplay src/replays/zigparser/zigfafreplay.zig
           move zigfafreplay.dll zigfafreplay.pyd
 
+
+      - name: Shrink scipy dependency
+        run: |
+          python minimize_scipy.py -d scipy_ndimage
+
       - name: Build application
         run: |
           python setup.py bdist_msi
@@ -157,6 +162,10 @@ jobs:
           echo "INCLUDEPY=$INCLUDEPY"
           zig build-lib -dynamic -lc -lpython3.12 -I$INCLUDEPY -L$LIBPY -O ReleaseSafe --name zigfafreplay src/replays/zigparser/zigfafreplay.zig
           mv libzigfafreplay.so zigfafreplay.so
+
+      - name: Shrink scipy dependency
+        run: |
+          python3 minimize_scipy.py -d scipy_ndimage
 
       - name: Build application
         run: |

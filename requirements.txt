@@ -12,6 +12,6 @@ pytest
 pytest-cov
 pytest-mock
 pytest-qt
-scipy
+scipy==1.15.3
 semantic_version
 zstandard

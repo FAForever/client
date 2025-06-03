@@ -15,12 +15,16 @@ from PyQt6.QtWidgets import QPushButton
 from PyQt6.QtWidgets import QSpinBox
 from PyQt6.QtWidgets import QVBoxLayout
 from PyQt6.QtWidgets import QWidget
-from scipy.ndimage import gaussian_filter
 
 from src.config import Settings
 from src.replays.replaydetails.helpers import seconds_to_human
 from src.replays.replaydetails.rangeslider import RangeSlider
 from src.replays.replaydetails.replayreader import ReplayParser
+
+try:
+    from scipy_ndimage.ndimage._filters import gaussian_filter
+except ImportError:
+    from scipy.ndimage import gaussian_filter
 
 
 def create_colorbar_hist() -> pg.HistogramLUTWidget:
