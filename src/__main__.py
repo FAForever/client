@@ -181,7 +181,6 @@ if __name__ == '__main__':
 
     from src import config
 
-    QApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts)
     app = QApplication(["FAF Python Client"] + trailing_args)
 
     splash = create_splash_screen()
