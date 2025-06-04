@@ -141,6 +141,17 @@ def set_style(app: QApplication) -> None:
         app.setStyle(QStyleFactory.create(preferred_style))
 
 
+def setup_windows_stuff() -> None:
+    """Check admin and set AppUserModelID"""
+    import ctypes
+    if config.admin.isUserAdmin():
+        admin_user_error_dialog()
+
+    attribute = getattr(ctypes.windll.shell32, "SetCurrentProcessExplicitAppUserModelID", None)
+    if attribute is not None:
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("com.faforever.lobby")
+
+
 def draw_version_on_splash_screen(pixmap: QPixmap) -> None:
     painter = QPainter(pixmap)
 
@@ -189,22 +200,7 @@ if __name__ == '__main__':
     set_style(app)
 
     if sys.platform == 'win32':
-        import ctypes
-        import platform
-        if platform.release() != "XP":  # legacy special :-)
-            if config.admin.isUserAdmin():
-                admin_user_error_dialog()
-
-        attribute = getattr(
-            ctypes.windll.shell32,
-            "SetCurrentProcessExplicitAppUserModelID",
-            None,
-        )
-        if attribute is not None:
-            myappid = 'com.faforever.lobby'
-            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(
-                myappid,
-            )
+        setup_windows_stuff()
 
     logger = logging.getLogger(__name__)
     logger.info(">>> --------------------------- Application Launch")
