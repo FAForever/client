@@ -86,7 +86,7 @@ class Heatmap(QWidget):
         self.debounce_check_box.setChecked(debounce)
         self.debounce_check_box.checkStateChanged.connect(
             lambda state: Settings.set(
-                "replaycard.heatmap/smoothing",
+                "replaycard.heatmap/debounce",
                 state == Qt.CheckState.Checked,
             ),
         )
