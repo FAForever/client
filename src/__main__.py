@@ -113,7 +113,7 @@ def show_splash_screen_message(splash: QSplashScreen, message: str) -> None:
     )
 
 
-def run_faf(app: QApplication, splash: QSplashScreen) -> None:
+def run_faf(splash: QSplashScreen) -> None:
     # Load theme from settings (one of the first things to be done)
     util.THEME.loadTheme()
 
@@ -212,7 +212,7 @@ if __name__ == '__main__':
     sys.excepthook = excepthook
 
     if len(trailing_args) == 0:
-        run_faf(app, splash)
+        run_faf(splash)
     else:
         # Try to interpret the argument as a replay.
         if (
