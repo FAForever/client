@@ -10,14 +10,20 @@ import sys
 from types import TracebackType
 
 from PyQt6 import uic
+from PyQt6.QtCore import QPointF
+from PyQt6.QtCore import QRectF
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QPainter
+from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtWidgets import QDialog
 from PyQt6.QtWidgets import QMessageBox
+from PyQt6.QtWidgets import QSplashScreen
 from PyQt6.QtWidgets import QStyleFactory
 
 from src import util
 from src.config import Settings
+from src.config.version import get_release_version
 from src.util import crash
 
 if os.getenv("XDG_SESSION_TYPE") == "wayland":
@@ -99,16 +105,29 @@ def admin_user_error_dialog() -> None:
             Settings.set("client/ignore_admin", True)
 
 
-def run_faf():
+def show_splash_screen_message(splash: QSplashScreen, message: str) -> None:
+    splash.showMessage(
+        message,
+        Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignBottom,
+        Qt.GlobalColor.darkYellow,
+    )
+
+
+def run_faf(app: QApplication, splash: QSplashScreen) -> None:
     # Load theme from settings (one of the first things to be done)
     util.THEME.loadTheme()
 
     # Create client singleton and connect
+    show_splash_screen_message(splash, "Loading required modules...")
     from src import client
 
     faf_client = client.instance
+
+    show_splash_screen_message(splash, "Initializing...")
     faf_client.setup()
     faf_client.show()
+    splash.finish(faf_client)
+
     faf_client.try_to_auto_login()
 
     # Main update loop
@@ -122,6 +141,41 @@ def set_style(app: QApplication) -> None:
         app.setStyle(QStyleFactory.create(preferred_style))
 
 
+def draw_version_on_splash_screen(pixmap: QPixmap) -> None:
+    painter = QPainter(pixmap)
+
+    font = painter.font()
+    font.setPointSize(11)
+    font.setBold(True)
+    painter.setFont(font)
+
+    painter.setPen(Qt.GlobalColor.darkYellow)
+
+    version = get_release_version(util.THEME.theme.themedir)
+
+    font_metrics = painter.fontMetrics()
+    version_rect = QRectF(0, 0, font_metrics.horizontalAdvance(version), font_metrics.height())
+    bottom_right = QPointF(pixmap.width() - 10, pixmap.height() - 5)
+    version_rect.moveBottomRight(bottom_right)
+
+    painter.drawText(version_rect, version)
+
+
+def get_splash_screen_pixmap() -> QPixmap:
+    pixmap = util.THEME.pixmap("splash_screen.png")
+    # makes this function 2x slower, but nice to have
+    draw_version_on_splash_screen(pixmap)
+    return pixmap
+
+
+def create_splash_screen() -> QSplashScreen:
+    splash = QSplashScreen(get_splash_screen_pixmap())
+    splash_font = splash.font()
+    splash_font.setPointSize(11)
+    splash.setFont(splash_font)
+    return splash
+
+
 if __name__ == '__main__':
     import logging
 
@@ -129,6 +183,10 @@ if __name__ == '__main__':
 
     QApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts)
     app = QApplication(["FAF Python Client"] + trailing_args)
+
+    splash = create_splash_screen()
+    splash.show()
+
     set_style(app)
 
     if sys.platform == 'win32':
@@ -159,7 +217,7 @@ if __name__ == '__main__':
     sys.excepthook = excepthook
 
     if len(trailing_args) == 0:
-        run_faf()
+        run_faf(app, splash)
     else:
         # Try to interpret the argument as a replay.
         if (

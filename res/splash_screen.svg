@@ -1,0 +1,13 @@
+<!-- <svg width="800" height="600" xmlns="http://www.w3.org/2000/svg"> -->
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="600" rx="10" ry="10" fill="#161616"/>
+
+  <!-- Logo -->
+  <image x="335" y="115" height="130" width="130" href="faf.ico"/>
+
+  <!-- Main title -->
+  <text x="400" y="320" font-family="Arial, sans-serif" font-size="48" font-weight="300" fill="#4CAF50" text-anchor="middle">FAF Python Client</text>
+
+  <!-- Subtitle -->
+  <text x="400" y="360" font-family="Arial, sans-serif" font-size="18" font-weight="300" fill="#888888" text-anchor="middle">Forged Alliance Forever</text>
+</svg>
