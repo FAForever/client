@@ -33,6 +33,7 @@ from src.model.player import Player
 from src.util import camel_case
 from src.vaults.detailswidgetui import DetailsWidgetUI
 from src.vaults.reviewwidget import CommentWidget
+from src.vaults.reviewwidget import MyCommentWidget
 from src.vaults.reviewwidget import RatingBarWidget
 from src.vaults.reviewwidget import RatingDistribution
 from src.vaults.reviewwidget import ReviewDialog
@@ -68,7 +69,7 @@ class DetailsWidget(QWidget):
 
         self.player = player
 
-        self.my_comment = CommentWidget(self.player)
+        self.my_comment = MyCommentWidget(self.player)
         self.my_comment.delete_request.connect(self.delete_review)
         self.my_comment.edit_request.connect(self.add_review)
 
@@ -152,7 +153,7 @@ class DetailsWidget(QWidget):
         review.player = ApiPlayer.model_construct(**player_dct)
 
         self.my_comment.set_review(review)
-        self.my_comment.fill_ui()
+        self.my_comment.fill_review_info()
         self.my_comment.show()
 
     def add_review(self) -> None:
@@ -180,7 +181,7 @@ class DetailsWidget(QWidget):
         self.reviews_api.patch_review(review, payload, self.on_patch_success, self.on_patch_failure)
 
     def on_patch_success(self, _: PreProcessedApiResponse) -> None:
-        self.my_comment.fill_ui()
+        self.my_comment.fill_review_info()
 
     def on_patch_failure(self, reply: QNetworkReply) -> None:
         text = reply.readAll().data().decode()
@@ -336,11 +337,12 @@ class DetailsWidget(QWidget):
             assert review.player is not None
             if review.player.xd == str(self.player.id):
                 self.my_comment.set_review(review)
-                self.my_comment.fill_ui()
+                self.my_comment.fill_review_info()
                 self.my_comment.show()
                 continue
 
             comment_widget = CommentWidget(self.player, review)
+            comment_widget.fill_review_info()
             if int(review.player.xd) == self.player.id:
                 self.ui.detailedReviews.commentsContainer.insertWidget(0, comment_widget)
             else:

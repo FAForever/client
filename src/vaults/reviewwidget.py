@@ -76,7 +76,9 @@ class CommentWidgetUI:
         self.nameLabel.setFont(name_font)
 
         self.deleteButton = QPushButton("Delete")
+        self.deleteButton.hide()
         self.editButton = QPushButton("Edit")
+        self.editButton.hide()
         title_layout.addWidget(self.nameLabel)
         title_layout.addStretch()
         title_layout.addWidget(self.editButton)
@@ -109,9 +111,6 @@ class CommentWidgetUI:
 
 
 class CommentWidget(QWidget):
-    delete_request = pyqtSignal()
-    edit_request = pyqtSignal()
-
     def __init__(
             self,
             player: Player,
@@ -123,26 +122,8 @@ class CommentWidget(QWidget):
         self.review = review
         self.ui = CommentWidgetUI()
         self.ui.setupUi(self)
-        if self.review is None:
-            self.connect_signals()
-        else:
-            self.fill_ui()
 
-    def is_own(self) -> bool:
-        return (
-            self.review is not None
-            and self.review.player is not None
-            and self.player.id == int(self.review.player.xd)
-        )
-
-    def connect_signals(self) -> None:
-        self.ui.deleteButton.clicked.connect(self.delete_request.emit)
-        self.ui.editButton.clicked.connect(self.edit_request.emit)
-
-    def set_review(self, review: VersionReview) -> None:
-        self.review = review
-
-    def fill_ui(self) -> None:
+    def fill_review_info(self) -> None:
         assert self.review is not None
         self.ui.nameLabel.setText(self.review.player.login if self.review.player else "Anonymous")
         self.ui.dateLabel.setText(utctolocal(self.review.create_time, "MMMM dd, yyyy hh:mm"))
@@ -151,15 +132,33 @@ class CommentWidget(QWidget):
         self.ui.scoreLabel.setText(self.get_star_rating())
         self.ui.reviewText.setText(self.review.text)
 
-        can_edit = self.is_own()
-        self.ui.editButton.setVisible(can_edit)
-        self.ui.deleteButton.setVisible(can_edit)
-
     def get_star_rating(self) -> str:
         assert self.review is not None
         full_stars = "★" * self.review.score
         empty_stars = "☆" * (5 - self.review.score)
         return f"{full_stars}{empty_stars} ({self.review.score}/5)"
+
+
+class MyCommentWidget(CommentWidget):
+    delete_request = pyqtSignal()
+    edit_request = pyqtSignal()
+
+    def __init__(
+            self,
+            player: Player,
+            parent: QWidget | None = None,
+    ) -> None:
+        super().__init__(player, None, parent)
+        self.ui.deleteButton.clicked.connect(self.delete_request.emit)
+        self.ui.editButton.clicked.connect(self.edit_request.emit)
+
+    def set_review(self, review: VersionReview) -> None:
+        self.review = review
+
+    def fill_review_info(self) -> None:
+        super().fill_review_info()
+        self.ui.editButton.show()
+        self.ui.deleteButton.show()
 
 
 class RatingBarWidgetUI:
