@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from enum import Enum
-from typing import Iterable
+from typing import cast
 
 from PyQt6.QtCore import QModelIndex
 from PyQt6.QtCore import Qt
@@ -57,14 +58,16 @@ class Scoreboard(QWidget):
         self.game = game
 
         self.main_layout = QVBoxLayout()
-        if self.num_teams == 2:
-            self.teams_layout = QHBoxLayout()
-        else:
-            self.teams_layout = QVBoxLayout()
+        self.teams_layout = self._get_teams_layout(self.num_teams)
         self.setLayout(self.main_layout)
         self.mod = mod
         self._height = 0
-        self._team_heights = []
+        self._team_heights: list[int] = []
+
+    def _get_teams_layout(self, num_teams: int) -> QVBoxLayout | QHBoxLayout:
+        if num_teams == 2:
+            return QHBoxLayout()
+        return QVBoxLayout()
 
     def create_teamlist_view(self) -> ScoreboardListView:
         team_view = ScoreboardListView()
@@ -87,14 +90,14 @@ class Scoreboard(QWidget):
         layout.addWidget(result_label)
 
     def teamview_rows(self, view: QListView) -> int:
-        model: ScoreboardModel = view.model()
+        model = cast(ScoreboardModel, view.model())
         if self.num_teams == 2:
             return self.biggest_team
         return model.rowCount(QModelIndex())
 
     def teamview_height(self, view: QListView) -> int:
         row_count = self.teamview_rows(view)
-        delegate: ScoreboardItemDelegate = view.itemDelegate()
+        delegate = cast(ScoreboardItemDelegate, view.itemDelegate())
         return row_count * delegate.row_height()
 
     def adjust_teamview_height(self, view: QListView, height: int) -> None:

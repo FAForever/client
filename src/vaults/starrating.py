@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 import math
@@ -79,6 +78,6 @@ class StarRatingWidget(QWidget):
             painter.drawPolygon(star_polygon)
             painter.setClipping(False)
 
-    def set_rating(self, rating):
+    def set_rating(self, rating: float) -> None:
         self.rating = max(0, min(rating, self.max_rating))
         self.update()

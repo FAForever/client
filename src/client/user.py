@@ -4,6 +4,8 @@ from PyQt6 import QtCore
 from PyQt6.QtCore import QObject
 from PyQt6.QtCore import pyqtSignal
 
+from src.model.player import Player
+
 
 class User(QtCore.QObject):
     """
@@ -26,11 +28,11 @@ class User(QtCore.QObject):
         self._players.removed.connect(self._on_player_change)
 
     @property
-    def player(self):
+    def player(self) -> Player | None:
         return self._player
 
     @player.setter
-    def player(self, value):
+    def player(self, value: Player) -> None:
         new = value
         old = self._player
         if old is not None:
@@ -219,7 +221,7 @@ class IrcRelationController:
     def _irc_key(self, player):
         if player is None:
             return None
-        return "chat.{}/{}".format(self._keyname, player.id)
+        return f"chat.{self._keyname}/{player.id}"
 
     def add(self, item):
         self._set.add(item)
@@ -241,7 +243,7 @@ class FafRelationController:
 
     @classmethod
     def build(
-        cls, msg_in, msg_out, set_, lobby_info, lobby_connection, **kwargs
+        cls, msg_in, msg_out, set_, lobby_info, lobby_connection, **kwargs,
     ):
         return cls(msg_in, msg_out, set_, lobby_info, lobby_connection)
 
@@ -278,13 +280,13 @@ class IrcFriendFoeController:
     @classmethod
     def build(cls, irc_relations, **kwargs):
         friends = IrcRelationController.build(
-            "irc_friends", irc_relations.friends, **kwargs
+            "irc_friends", irc_relations.friends, **kwargs,
         )
         foes = IrcRelationController.build(
-            "irc_foes", irc_relations.foes, **kwargs
+            "irc_foes", irc_relations.foes, **kwargs,
         )
         chatterboxes = IrcRelationController.build(
-            "irc_chatterboxes", irc_relations.chatterboxes, **kwargs
+            "irc_chatterboxes", irc_relations.chatterboxes, **kwargs,
         )
         return cls(friends, foes, chatterboxes)
 
@@ -298,13 +300,13 @@ class FafFriendFoeController:
     @classmethod
     def build(cls, faf_relations, **kwargs):
         friends = FafRelationController.build(
-            "friends", "friend", faf_relations.friends, **kwargs
+            "friends", "friend", faf_relations.friends, **kwargs,
         )
         foes = FafRelationController.build(
-            "foes", "foe", faf_relations.foes, **kwargs
+            "foes", "foe", faf_relations.foes, **kwargs,
         )
         chatterboxes = IrcRelationController.build(
-            "chatterboxes", faf_relations.chatterboxes, **kwargs
+            "chatterboxes", faf_relations.chatterboxes, **kwargs,
         )
         return cls(friends, foes, chatterboxes)
 
@@ -317,10 +319,10 @@ class UserRelationController:
     @classmethod
     def build(cls, user_relations, **kwargs):
         player_controller = FafFriendFoeController.build(
-            user_relations.faf, **kwargs
+            user_relations.faf, **kwargs,
         )
         irc_controller = IrcFriendFoeController.build(
-            user_relations.irc, **kwargs
+            user_relations.irc, **kwargs,
         )
         return cls(player_controller, irc_controller)
 
@@ -407,10 +409,10 @@ class UserRelationTrackers:
     @classmethod
     def build(cls, relation_model, **kwargs):
         chatter_tracker = FriendFoeTracker.build_for_chatters(
-            relation_model.irc, **kwargs
+            relation_model.irc, **kwargs,
         )
         player_tracker = FriendFoeTracker.build_for_players(
-            relation_model.faf, **kwargs
+            relation_model.faf, **kwargs,
         )
         return cls(chatter_tracker, player_tracker)
 

@@ -8,4 +8,4 @@ class AvatarAssignment(AbstractEntity):
     expires_at: str | None    = Field(alias="expiresAt")
     selected:   bool
 
-    avatar:     Avatar        = Field(None)
+    avatar:     Avatar | None = Field(None)

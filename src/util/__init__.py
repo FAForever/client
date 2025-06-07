@@ -21,6 +21,7 @@ from src import fafpath
 from src.config import VERSION as VERSION_STRING
 from src.config import Settings
 from src.config import _settings  # Stolen from Config because reasons
+from src.config.production import APPDATA_DIR as _APPDATA_DIR
 from src.mapGenerator import mapgenUtils
 from src.util.theme import Theme
 from src.util.theme import ThemeSet
@@ -41,7 +42,7 @@ COMMON_DIR = fafpath.get_resdir()
 
 stylesheets = {}  # map [qt obj] ->  filename of stylesheet
 
-APPDATA_DIR = Settings.get('client/data_path')
+APPDATA_DIR = Settings.get('client/data_path', default=_APPDATA_DIR)
 
 # This is used to store init_*.lua files
 LUA_DIR = os.path.join(APPDATA_DIR, "lua")
@@ -293,13 +294,7 @@ def clearDirectory(directory, confirm=True):
 
 
 # Theme and settings
-
-THEME = None
-
-
-def _setup_theme():
-    global THEME
-
+def _setup_theme() -> ThemeSet:
     default = Theme(COMMON_DIR, None)
     themes = []
     if os.path.isdir(THEME_DIR):
@@ -307,10 +302,10 @@ def _setup_theme():
             theme_path = os.path.join(THEME_DIR, infile)
             if os.path.isdir(os.path.join(THEME_DIR, infile)):
                 themes.append(Theme(theme_path, infile))
-    THEME = ThemeSet(themes, default, Settings, VERSION_STRING)
+    return ThemeSet(themes, default, Settings, VERSION_STRING)
 
 
-_setup_theme()
+THEME = _setup_theme()
 
 
 def __downloadPreviewFromWeb(unitname):
@@ -359,7 +354,7 @@ def showFileInFileBrowser(location):
 
         if os.path.exists(location):
             # Open the directory and highlight the picked file
-            subprocess.Popen('explorer /select,"{}"'.format(location))
+            subprocess.Popen(f'explorer /select,"{location}"')
         else:
             wrongPathNotice()
     else:

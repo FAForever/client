@@ -1,6 +1,6 @@
 import types
+from collections.abc import Generator
 from contextlib import contextmanager
-from typing import Generator
 
 from PyQt6.QtCore import QFile
 from PyQt6.QtCore import QObject
@@ -18,8 +18,8 @@ def monkeypatch_method(obj, name, fn):
 
 @contextmanager
 def qopen(path: str, flags: QFile.OpenModeFlag) -> Generator[QFile, None, None]:
+    file = QFile(path)
     try:
-        file = QFile(path)
         file.open(flags)
         yield file
     finally:
@@ -36,7 +36,7 @@ def qpainter(painter: QPainter) -> Generator[QPainter, None, None]:
 
 
 @contextmanager
-def block_signals(obj: QObject, /) -> Generator[QObject, None, None]:
+def block_signals[T: QObject](obj: T, /) -> Generator[T]:
     try:
         obj.blockSignals(True)
         yield obj

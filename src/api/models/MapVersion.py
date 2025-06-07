@@ -13,11 +13,11 @@ class MapSize:
     width_px: int
 
     @property
-    def width_km(self) -> int:
+    def width_km(self) -> float:
         return self.width_px / 51.2
 
     @property
-    def height_km(self) -> int:
+    def height_km(self) -> float:
         return self.height_px / 51.2
 
     def __lt__(self, other: MapSize) -> bool:
