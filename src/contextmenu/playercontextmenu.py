@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Callable
 from collections.abc import Generator
 from enum import Enum
 from typing import TYPE_CHECKING
-from typing import Callable
 
 from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import QApplication
@@ -44,7 +44,7 @@ class PlayerMenuItem(Enum):
     COPY_USERNAME = "Copy username"
     INVITE_TO_PARTY = "Invite to party"
     KICK_FROM_PARTY = "Kick from party"
-    SHOW_USER_INFO = "Show user info"
+    SHOW_PLAYER_INFO = "Show player info"
 
 
 class PlayerContextMenu:
@@ -66,7 +66,7 @@ class PlayerContextMenu:
         self._client_window = client_window
         self._game_runner = game_runner
 
-    def actions(self, login: str, player_id: int) -> Generator[list[PlayerMenuItem], None, None]:
+    def actions(self, login: str, player_id: int) -> Generator[list[PlayerMenuItem]]:
         if player_id == -1 or self._me.player is None:
             is_me = False
         else:
@@ -81,20 +81,20 @@ class PlayerContextMenu:
         yield list(self.ignore_actions(player_id, login, is_me=is_me))
         yield list(self.party_actions(player_id, is_me=is_me))
 
-    def user_actions(self, player_id: int) -> Generator[PlayerMenuItem, None, None]:
+    def user_actions(self, player_id: int) -> Generator[PlayerMenuItem]:
         if player_id != -1:
-            yield PlayerMenuItem.SHOW_USER_INFO
+            yield PlayerMenuItem.SHOW_PLAYER_INFO
 
-    def chatter_actions(self, player_id: int) -> Generator[PlayerMenuItem, None, None]:
+    def chatter_actions(self, player_id: int) -> Generator[PlayerMenuItem]:
         yield PlayerMenuItem.COPY_USERNAME
         if player_id != -1:
             yield PlayerMenuItem.VIEW_ALIASES
 
-    def me_actions(self, *, is_me: bool) -> Generator[PlayerMenuItem, None, None]:
+    def me_actions(self, *, is_me: bool) -> Generator[PlayerMenuItem]:
         if is_me:
             yield PlayerMenuItem.SELECT_AVATAR
 
-    def power_actions(self, power: int) -> Generator[PlayerMenuItem, None, None]:
+    def power_actions(self, power: int) -> Generator[PlayerMenuItem]:
         if power == 2:
             yield PlayerMenuItem.SEND_ORCS
             yield PlayerMenuItem.CLOSE_GAME
@@ -111,7 +111,7 @@ class PlayerContextMenu:
             player_id: int,
             *,
             is_me: bool,
-    ) -> Generator[PlayerMenuItem, None, None]:
+    ) -> Generator[PlayerMenuItem]:
         if player_id != -1:
             yield PlayerMenuItem.VIEW_REPLAYS
 
@@ -134,7 +134,7 @@ class PlayerContextMenu:
             login: str,
             *,
             is_me: bool,
-    ) -> Generator[PlayerMenuItem, None, None]:
+    ) -> Generator[PlayerMenuItem]:
         if is_me:
             return
         if self._client_window.user_relations.model.is_friend(player_id, login):
@@ -151,7 +151,7 @@ class PlayerContextMenu:
             login: str,
             *,
             is_me: bool,
-    ) -> Generator[PlayerMenuItem, None, None]:
+    ) -> Generator[PlayerMenuItem]:
         if is_me:
             return
         if self._client_window.user_relations.model.is_chatterbox(player_id, login):
@@ -164,7 +164,7 @@ class PlayerContextMenu:
             player_id: int,
             *,
             is_me: bool,
-    ) -> Generator[PlayerMenuItem, None, None]:
+    ) -> Generator[PlayerMenuItem]:
         if is_me:
             return
 
@@ -221,8 +221,8 @@ class PlayerContextMenu:
             self._handle_social(login, player_id, kind)
         elif kind == Items.VIEW_ALIASES:
             self._view_aliases(login)
-        elif kind == Items.SHOW_USER_INFO:
-            self._show_user_info(player_id)
+        elif kind == Items.SHOW_PLAYER_INFO:
+            self._show_player_info(player_id)
         elif kind == Items.VIEW_REPLAYS:
             self._client_window.view_replays(login)
         elif kind in [Items.JOIN_GAME, Items.VIEW_LIVEREPLAY]:
@@ -273,6 +273,6 @@ class PlayerContextMenu:
     def _view_aliases(self, login: str) -> None:
         self._alias_viewer.view_aliases(login)
 
-    def _show_user_info(self, player_id: int) -> None:
+    def _show_player_info(self, player_id: int) -> None:
         dialog = PlayerInfoDialog(self._client_window.avatar_downloader, str(player_id))
         dialog.run()
