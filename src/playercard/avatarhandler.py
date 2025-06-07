@@ -15,6 +15,7 @@ from src.downloadManager import DownloadRequest
 class AvatarHandler:
     def __init__(self, avatar_list: QListWidget, avatar_downloader: CachedImageDownloader) -> None:
         self.avatar_list = avatar_list
+        self.avatar_list.setVerticalScrollMode(self.avatar_list.ScrollMode.ScrollPerPixel)
         self.avatar_dler = avatar_downloader
         self.requests = {}
 
