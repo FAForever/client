@@ -59,7 +59,8 @@ class ModVault(Vault):
         return ModListItem(self.itemList, data)
 
     def create_details_widget(self, data: Map | Mod) -> ModDetailsWidget:
-        return ModDetailsWidget(data)
+        assert self.client.me.player is not None
+        return ModDetailsWidget(data, self.client.me.player)
 
     def on_item_availability_changed(self) -> None:
         current_item = self.itemList.currentItem()

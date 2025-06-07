@@ -928,6 +928,17 @@ QPushButton
     background: #453939;
 }
 
+QPushButton:disabled
+{
+    color: #777777;
+    background: #302828;
+}
+
+QPushButton:hover
+{
+    border: 1px solid #888;
+}
+
 QPushButton#refreshButton, #nextButton, #previousButton, #goToPageButton, #firstButton, #lastButton,
 #resetButton, #searchPlayerButton, #UIButton, #uploadButton, #kickButton, #leaveButton
 {

@@ -56,7 +56,8 @@ class MapVault(Vault):
 
     def create_details_widget(self, data: Map | Mod) -> MapDetailsWidget:
         assert isinstance(data, Map)
-        return MapDetailsWidget(data)
+        assert self.client.me.player is not None
+        return MapDetailsWidget(data, self.client.me.player)
 
     def requestMapPool(self, queueName, minRating):
         self.apiConnector = self.mapPoolApiConnector

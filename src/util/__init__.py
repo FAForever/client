@@ -534,3 +534,7 @@ def pretty_decoded_basename(path: str) -> str:
     """Decode percent-encoded characters in the path and return the base name"""
     filename = QUrl(path).fileName(QUrl.ComponentFormattingOption.PrettyDecoded)
     return QFileInfo(filename).completeBaseName()
+
+
+def camel_case(s: str, /) -> str:
+    return s[0].lower() + s[1:]

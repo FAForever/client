@@ -80,6 +80,16 @@ class DetailsWidgetUI:
         self.reviewsLayout = QVBoxLayout()
         self.reviewsForm = QFormLayout()
         self.reviewsLayout.addLayout(self.reviewsForm)
+
+        self.noReviewsLabel = QLabel("No reviews available")
+        self.reviewsLayout.addWidget(self.noReviewsLabel)
+
+        self.viewReviewsButton = QPushButton("View All Reviews")
+        self.reviewsLayout.addWidget(self.viewReviewsButton)
+
+        self.addReviewButton = QPushButton("Add Review")
+        self.reviewsLayout.addWidget(self.addReviewButton)
+
         reviews_box.setLayout(self.reviewsLayout)
         content_layout.addWidget(reviews_box, 1, 1)
 
@@ -174,6 +184,8 @@ class ReviewsWidgetUI(QScrollArea):
         content_layout.addWidget(separator2)
 
         content_layout.addWidget(QLabel("Comments"))
+        self.addCommentButton = QPushButton("Add Comment")
+        content_layout.addWidget(self.addCommentButton)
         self.commentsContainer = QVBoxLayout()
         content_layout.addLayout(self.commentsContainer)
         contentWidget.setLayout(content_layout)

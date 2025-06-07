@@ -5,10 +5,13 @@ from PyQt6.QtWidgets import QLabel
 from PyQt6.QtWidgets import QWidget
 
 from src import util
+from src.api.ApiAccessors import DataApiAccessor
+from src.api.ApiBase import ApiResponse
 from src.api.models.Map import Map
 from src.fa import maps
 from src.fa.maps_.preview import create_largest_preview
 from src.fa.maps_.previewdialog import MapPreviewDialog
+from src.model.player import Player
 from src.vaults.detailswidget import DetailsWidget
 
 STYLESHEET = util.THEME.readstylesheet("client/client.css")
@@ -18,13 +21,35 @@ class MapDetailsWidget(DetailsWidget):
     def __init__(
             self,
             item_data: Map,
+            player: Player,
             parent: QWidget | None = None,
     ) -> None:
-        DetailsWidget.__init__(self, item_data, util.MAP_PREVIEW_LARGE_DIR, parent)
+        DetailsWidget.__init__(self, item_data, util.MAP_PREVIEW_LARGE_DIR, player, parent)
         self.item_data = item_data
         assert item_data.version is not None
         self.item_version = item_data.version
         self.ui.thumbnailLabel.clicked.connect(self.preview_map_large)
+
+        self.games_api = DataApiAccessor("/data/game")
+        self.games_api.data_ready.connect(self.allow_review)
+
+    def _ask_if_played_map(self) -> None:
+        self.games_api.requestData({
+            "include": "playerStats",
+            "filter": (
+                f"playerStats.player.id=={self.player.id};"
+                f"mapVersion.id=={self.item_version.xd}"
+            ),
+            "page[size]": 1,
+        })
+
+    def ask_review(self) -> None:
+        self._ask_if_played_map()
+
+    def allow_review(self, response: ApiResponse) -> None:
+        map_played = len(response["data"]) > 0
+        self.ui.addReviewButton.setEnabled(map_played)
+        self.ui.detailedReviews.addCommentButton.setEnabled(map_played)
 
     def preview_map_large(self) -> None:
         if not self.is_installed():

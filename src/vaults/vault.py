@@ -183,6 +183,7 @@ class Vault(FormClass, BaseClass, BusyWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         widget = self.create_details_widget(item.item_data)
         widget.item_availability_changed.connect(self.on_item_availability_changed)
+        widget.ask_review()
         layout.addWidget(widget)
         dialog.setLayout(layout)
         dialog.setWindowTitle(f"Details - {item.item_data.display_name}")
@@ -201,6 +202,7 @@ class Vault(FormClass, BaseClass, BusyWidget):
             return
         details_widget = self.create_details_widget(current.item_data)
         details_widget.item_availability_changed.connect(self.on_item_availability_changed)
+        details_widget.ask_review()
         self.show_details_widget(details_widget)
 
     def show_details_widget(self, widget: DetailsWidget) -> None:
@@ -220,7 +222,8 @@ class Vault(FormClass, BaseClass, BusyWidget):
         return VaultListItem(self.itemList, data)
 
     def create_details_widget(self, data: Map | Mod) -> DetailsWidget:
-        return DetailsWidget(data, util.CACHE_DIR)
+        assert self.client.me.player is not None
+        return DetailsWidget(data, util.CACHE_DIR, self.client.me.player)
 
     @QtCore.pyqtSlot(dict)
     def items_info(self, message: dict) -> None:

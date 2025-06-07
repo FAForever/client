@@ -1,6 +1,11 @@
+from __future__ import annotations
+
 import json
 import logging
-from typing import Callable
+from collections.abc import Callable
+from typing import Any
+from typing import NotRequired
+from typing import TypedDict
 
 from PyQt6 import QtWidgets
 from PyQt6.QtCore import QByteArray
@@ -18,14 +23,35 @@ from src.oauth.oauth_flow import OAuth2FlowInstance
 
 logger = logging.getLogger(__name__)
 
-DO_NOT_ENCODE = QByteArray()
-DO_NOT_ENCODE.append(b":/?&=.,")
+
+class ApiResourceObject(TypedDict):
+    id: str
+    type: str
+    attributes: NotRequired[dict[str, Any]]
+    relationships: NotRequired[dict[str, ApiResponse]]
+
+
+class ApiResponse(TypedDict):
+    data: ApiResourceObject | list[ApiResourceObject]
+    included: NotRequired[list[ApiResourceObject]]
+    meta: NotRequired[dict[str, float]]
+
+
+class PreParsedApiResponse(TypedDict):
+    data: dict[str, Any] | list[dict[str, Any]]
+    meta: NotRequired[dict[str, float]]
+
+
+type PreProcessedApiResponse = ApiResponse | PreParsedApiResponse
+type QueryOptions = dict[str, str | float]
+
+DO_NOT_ENCODE = QByteArray(b":/?&=.,")
 
 
 class ApiBase(QObject):
     oauth: OAuth2Flow = OAuth2FlowInstance
 
-    def __do_nothing(*args, **kwargs) -> None:
+    def __do_nothing(*args: Any, **kwargs: Any) -> None:
         pass
 
     def __init__(self, route: str = "") -> None:
@@ -35,14 +61,20 @@ class ApiBase(QObject):
         self.manager = QNetworkAccessManager()
         self.manager.finished.connect(self.onRequestFinished)
         self._running = False
-        self.handlers: dict[QNetworkReply | None, Callable] = {}
-        self.error_handlers: dict[QNetworkReply | None, Callable] = {}
+        self.handlers: dict[QNetworkReply, Callable[[PreProcessedApiResponse], Any]] = {}
+        self.error_handlers: dict[QNetworkReply, Callable[[QNetworkReply], Any]] = {}
+
+    def set_route(self, route: str) -> None:
+        self.route = route
+
+    def set_host_config_key(self, host_config_key: str) -> None:
+        self.host_config_key = host_config_key
 
     @classmethod
     def set_oauth(cls, oauth: OAuth2Flow) -> None:
         cls.oauth = oauth
 
-    def build_query_url(self, query_dict: dict) -> QUrl:
+    def build_query_url(self, query_dict: QueryOptions) -> QUrl:
         query = QUrlQuery()
         for key, value in query_dict.items():
             query.addQueryItem(key, str(value))
@@ -62,9 +94,9 @@ class ApiBase(QObject):
     # query arguments like filter=login==Rhyza
     def get_by_query(
             self,
-            query_dict: dict,
-            response_handler: Callable,
-            error_handler: Callable = __do_nothing,
+            query_dict: QueryOptions,
+            response_handler: Callable[[PreProcessedApiResponse], None],
+            error_handler: Callable[[QNetworkReply], None] = __do_nothing,
     ) -> None:
         url = self.build_query_url(query_dict)
         self.get(url, response_handler, error_handler)
@@ -72,8 +104,8 @@ class ApiBase(QObject):
     def get_by_endpoint(
             self,
             endpoint: str,
-            response_handler: Callable,
-            error_handler: Callable = __do_nothing,
+            response_handler: Callable[[PreProcessedApiResponse], None],
+            error_handler: Callable[[QNetworkReply], None] = __do_nothing,
     ) -> None:
         url = self._get_host_url().resolved(QUrl(endpoint))
         self.get(url, response_handler, error_handler)
@@ -88,16 +120,79 @@ class ApiBase(QObject):
     def get(
             self,
             url: QUrl,
-            response_handler: Callable,
-            error_handler: Callable = __do_nothing,
+            response_handler: Callable[[PreProcessedApiResponse], None],
+            error_handler: Callable[[QNetworkReply], None] = __do_nothing,
     ) -> None:
         self._running = True
-        logger.debug("Sending API request with URL: %s", url.toString())
+        logger.debug("Sending GET API request with URL: %s", url.toString())
         reply = self.manager.get(self.prepare_request(url))
+        if reply is None:
+            # in C++ this case is not even possible
+            # but PyQt decided, that `get` returns an optional (maybe it still never happens)
+            logger.error("Error sending GET request to: '%s'", url.toString())
+            self._running = False
+            return
         self.handlers[reply] = response_handler
         self.error_handlers[reply] = error_handler
 
-    def parse_message(self, message: dict) -> dict:
+    def post(
+            self,
+            url: QUrl,
+            data: QByteArray,
+            response_handler: Callable[[PreProcessedApiResponse], None] = __do_nothing,
+            error_handler: Callable[[QNetworkReply], None] = __do_nothing,
+    ) -> None:
+        self._running = True
+        logger.debug("Sending POST API request with URL: %s", url.toString())
+        request = self.prepare_request(url)
+        request.setRawHeader(b"Content-Type", b"application/vnd.api+json;charset=utf-8")
+        reply = self.manager.post(request, data)
+        if reply is None:
+            logger.error("Error sending POST request to: '%s' with %s", url.toString(), data.data())
+            self._running = False
+            return
+        self.handlers[reply] = response_handler
+        self.error_handlers[reply] = error_handler
+
+    def delete(
+            self,
+            url: QUrl,
+            response_handler: Callable[[PreProcessedApiResponse], None] = __do_nothing,
+            error_handler: Callable[[QNetworkReply], None] = __do_nothing,
+    ) -> None:
+        self._running = True
+        logger.debug("Sending DELETE API request with URL: %s", url.toString())
+        request = self.prepare_request(url)
+        reply = self.manager.deleteResource(request)
+        if reply is None:
+            self._running = False
+            logger.error("Error sending DELETE request to: %s", url.toString())
+            return
+        self.handlers[reply] = response_handler
+        self.error_handlers[reply] = error_handler
+
+    def patch(
+            self,
+            url: QUrl,
+            data: QByteArray,
+            response_handler: Callable[[PreProcessedApiResponse], None] = __do_nothing,
+            error_handler: Callable[[QNetworkReply], None] = __do_nothing,
+    ) -> None:
+        self._running = True
+        logger.debug("Sending PATCH API request with URL: %s", url.toString())
+        request = self.prepare_request(url)
+        request.setRawHeader(b"Content-Type", b"application/vnd.api+json;charset=utf-8")
+        reply = self.manager.sendCustomRequest(request, b"PATCH", data)
+
+        if reply is None:
+            logger.error("Error sending PATCH request to: %s", url.toString())
+            self._running = False
+            return
+
+        self.handlers[reply] = response_handler
+        self.error_handlers[reply] = error_handler
+
+    def parse_message(self, message: ApiResponse) -> ApiResponse | PreParsedApiResponse:
         return message
 
     def onRequestFinished(self, reply: QNetworkReply) -> None:
@@ -105,11 +200,18 @@ class ApiBase(QObject):
         if reply.error() != QNetworkReply.NetworkError.NoError:
             logger.error("API request error: %s", reply.error())
             self.error_handlers[reply](reply)
+        elif reply.operation() == self.manager.Operation.DeleteOperation:
+            logger.debug("DELETE operation succeeded: %s", reply.request().url().toString())
+            self.handlers[reply]({"data": {}})
+        elif reply.operation() == self.manager.Operation.CustomOperation:
+            logger.debug("PATCH operation succeeded: %s", reply.request().url().toString())
+            self.handlers[reply]({"data": {}})
         else:
             message_bytes = reply.readAll().data()
             message = json.loads(message_bytes.decode('utf-8'))
             result = self.parse_message(message)
             self.handlers[reply](result)
+
         self.handlers.pop(reply)
         self.error_handlers.pop(reply)
         reply.deleteLater()
@@ -121,5 +223,4 @@ class ApiBase(QObject):
 
     def abort(self) -> None:
         for reply in self.handlers.copy():
-            if reply is not None:
-                reply.abort()
+            reply.abort()

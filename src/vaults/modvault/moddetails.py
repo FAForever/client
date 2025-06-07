@@ -5,6 +5,7 @@ from PyQt6.QtWidgets import QWidget
 
 from src import util
 from src.api.models.Mod import Mod
+from src.model.player import Player
 from src.vaults.detailswidget import DetailsWidget
 from src.vaults.modvault import utils
 
@@ -13,12 +14,23 @@ class ModDetailsWidget(DetailsWidget):
     def __init__(
             self,
             item_data: Mod,
+            player: Player,
             parent: QWidget | None = None,
     ) -> None:
-        DetailsWidget.__init__(self, item_data, util.MOD_PREVIEW_DIR, parent)
+        DetailsWidget.__init__(self, item_data, util.MOD_PREVIEW_DIR, player, parent)
         self.item_data = item_data
         assert item_data.version is not None
         self.item_version = item_data.version
+
+    def can_review(self) -> bool:
+        return (
+            self.is_installed()
+            and self.item_data.author != self.player.login
+            and (
+                self.item_data.uploader is None
+                or self.item_data.uploader.login != self.player.login
+            )
+        )
 
     def is_installed(self) -> bool:
         return self.item_version.uid in [mod.uid for mod in utils.installedMods]

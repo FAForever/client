@@ -1,15 +1,8 @@
-from __future__ import annotations
-
 from pydantic import Field
 
-from src.api.models.AbstractEntity import AbstractEntity
 from src.api.models.ModVersion import ModVersion
-from src.api.models.Player import Player
+from src.api.models.Review import Review
 
 
-class ModVersionReview(AbstractEntity):
-    score:       int
-    text:        str
-
-    player:      Player | None     = Field(None)
-    version:     ModVersion | None = Field(alias="modVersion")
+class ModVersionReview(Review):
+    version:     ModVersion | None = Field(None, alias="modVersion")
