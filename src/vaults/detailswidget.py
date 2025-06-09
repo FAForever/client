@@ -69,6 +69,8 @@ class DetailsWidget(QWidget):
 
         self.rating_bar_widget = RatingBarWidget(RatingDistribution([]))
 
+        self._comments_initialized = False
+
         self.my_comment = MyCommentWidget(self.player)
         self.my_comment.delete_request.connect(self.delete_review)
         self.my_comment.edit_request.connect(self.add_review)
@@ -108,7 +110,6 @@ class DetailsWidget(QWidget):
     def configure_review_buttons(self) -> None:
         self.ui.noReviewsLabel.setVisible(self.item_data.reviews_summary is None)
 
-        self.ui.viewReviewsButton.setVisible(self.item_data.reviews_summary is not None)
         self.ui.viewReviewsButton.clicked.connect(lambda: self.ui.tabs.setCurrentIndex(2))
 
         self.ui.addReviewButton.setEnabled(self.can_review())
@@ -359,6 +360,7 @@ class DetailsWidget(QWidget):
         self.update_download_buttons_layout()
 
     def on_reviews_data(self, message: PreParsedApiResponse) -> None:
+        self._comments_initialized = True
         item_info = message["data"]
 
         reviews = []
@@ -396,11 +398,8 @@ class DetailsWidget(QWidget):
         self.reviews_api.request_data({"filter": f"id=={self.item_data.xd}"})
 
     def on_tab_changed(self, index: int) -> None:
-        if index != 2:
+        if index != 2 or self._comments_initialized:
             return
 
-        if self.item_data.reviews_summary is None:
-            self.ui.detailedReviews.show_no_reviews()
-        elif self.ui.detailedReviews.commentsContainer.count() == 1:
-            self.ui.detailedReviews.show_loading()
-            self.reviews_api.request_reviews(self.item_data)
+        self.ui.detailedReviews.show_loading()
+        self.reviews_api.request_reviews(self.item_data)

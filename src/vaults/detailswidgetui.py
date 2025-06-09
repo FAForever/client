@@ -76,18 +76,18 @@ class DetailsWidgetUI:
         author_box.setLayout(self.authorLayout)
         content_layout.addWidget(author_box, 0, 1)
 
-        reviews_box = QGroupBox("Reviews")
+        reviews_box = QGroupBox("Reviews Summary")
         self.reviewsLayout = QVBoxLayout()
         self.reviewsForm = QFormLayout()
         self.reviewsLayout.addLayout(self.reviewsForm)
 
-        self.noReviewsLabel = QLabel("No reviews available")
+        self.noReviewsLabel = QLabel("No summary available")
         self.reviewsLayout.addWidget(self.noReviewsLabel)
 
         self.viewReviewsButton = QPushButton("View All Reviews")
         self.reviewsLayout.addWidget(self.viewReviewsButton)
 
-        self.addReviewButton = QPushButton("Add Review")
+        self.addReviewButton = QPushButton("Add/Edit Review")
         self.reviewsLayout.addWidget(self.addReviewButton)
 
         reviews_box.setLayout(self.reviewsLayout)
