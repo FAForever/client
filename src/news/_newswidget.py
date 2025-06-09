@@ -69,7 +69,7 @@ class NewsWidget(FormClass, BaseClass):
         if doc.resource(QTextDocument.ResourceType.ImageResource, QUrl(image_name)):
             return
         img = QImage(image_path)
-        scaled = img.scaled(QSize(900, 500))
+        scaled = img.scaled(QSize(600, 338))
         doc.addResource(QTextDocument.ResourceType.ImageResource, QUrl(image_name), scaled)
 
     def item_image_downloaded(self, image_name: str, result: tuple[str, bool]) -> None:
