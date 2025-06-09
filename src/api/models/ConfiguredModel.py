@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from pydantic import ConfigDict
 from pydantic import field_validator
 
-from src.util import camel_case
+from src.util import decapitalize
 
 
 class BareJSONAPIRelationship(TypedDict):
@@ -47,7 +47,7 @@ class ConfiguredModel(BaseModel):
     def to_jsonapi_relationship(cls, id: str | int = "") -> BareJSONAPIRelationship:
         return {
             "data": {
-                "type": camel_case(cls.__name__),
+                "type": decapitalize(cls.__name__),
                 "id": str(id),
             },
         }
@@ -63,7 +63,7 @@ class ConfiguredModel(BaseModel):
         attributes = {}
         relationships = {}
         doc["data"]["id"] = ""
-        doc["data"]["type"] = camel_case(cls.__name__)
+        doc["data"]["type"] = decapitalize(cls.__name__)
         for name, field in cls.model_fields.items():
             if {name, field.alias} & _exclude_fields:
                 continue

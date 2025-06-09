@@ -20,7 +20,7 @@ from src.api.parsers.MapParser import MapParser
 from src.api.parsers.MapPoolAssignmentParser import MapPoolAssignmentParser
 from src.api.parsers.ModParser import ModParser
 from src.model.player import Player
-from src.util import camel_case
+from src.util import decapitalize
 
 logger = logging.getLogger(__name__)
 
@@ -147,7 +147,7 @@ class ReviewsApiConnector(VaultsApiConnector):
             player: Player,
     ) -> None:
         assert item.version is not None
-        json_api_name = camel_case(item.version.__class__.__name__)
+        json_api_name = decapitalize(item.version.__class__.__name__)
         self.route = f"/data/{json_api_name}Review"
         query = {
             "filter": (
@@ -165,7 +165,7 @@ class ReviewsApiConnector(VaultsApiConnector):
             handler: Callable[[PreProcessedApiResponse], None],
             error_handler: Callable[[QNetworkReply], None],
     ) -> None:
-        json_api_name = camel_case(version.__class__.__name__)
+        json_api_name = decapitalize(version.__class__.__name__)
         endpoint = f"/data/{json_api_name}/{version.xd}/reviews"
         self.post(endpoint, payload, handler, error_handler)
 
@@ -175,7 +175,7 @@ class ReviewsApiConnector(VaultsApiConnector):
             handler: Callable[[QNetworkReply], None],
             error_handler: Callable[[QNetworkReply], None],
     ) -> None:
-        json_api_name = camel_case(review.__class__.__name__)
+        json_api_name = decapitalize(review.__class__.__name__)
         endpoint = f"/data/{json_api_name}/{review.xd}"
         self.delete(endpoint, handler, error_handler)
 
@@ -186,6 +186,6 @@ class ReviewsApiConnector(VaultsApiConnector):
             handler: Callable[[QNetworkReply], None],
             error_handler: Callable[[QNetworkReply], None],
     ) -> None:
-        json_api_name = camel_case(review.__class__.__name__)
+        json_api_name = decapitalize(review.__class__.__name__)
         endpoint = f"/data/{json_api_name}/{review.xd}"
         self.patch(endpoint, payload, handler, error_handler, review)

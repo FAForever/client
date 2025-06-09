@@ -531,5 +531,5 @@ def pretty_decoded_basename(path: str) -> str:
     return QFileInfo(filename).completeBaseName()
 
 
-def camel_case(s: str, /) -> str:
+def decapitalize(s: str, /) -> str:
     return s[0].lower() + s[1:]

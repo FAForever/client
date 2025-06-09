@@ -29,7 +29,7 @@ from src.api.vaults_api import ReviewsApiConnector
 from src.downloadManager import DownloadRequest
 from src.downloadManager import ImageDownloader
 from src.model.player import Player
-from src.util import camel_case
+from src.util import decapitalize
 from src.vaults.detailswidgetui import DetailsWidgetUI
 from src.vaults.reviewwidget import CommentWidget
 from src.vaults.reviewwidget import MyCommentWidget
@@ -147,7 +147,7 @@ class DetailsWidget(QWidget):
 
     def on_review_submitted(self, response: PreProcessedApiResponse) -> None:
         data = response["data"]
-        if data["type"] == camel_case(MapVersionReview.__name__):
+        if data["type"] == decapitalize(MapVersionReview.__name__):
             review = MapVersionReview(**data)
             assert isinstance(self.item_version, MapVersion)
             review.version = self.item_version
