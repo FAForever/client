@@ -62,6 +62,7 @@ class ApiBase(QObject):
         self.manager.finished.connect(self.onRequestFinished)
         self._running = False
         self.handlers: dict[QNetworkReply, Callable[[PreProcessedApiResponse], Any]] = {}
+        self.non_get_handlers: dict[QNetworkReply, Callable[[QNetworkReply], Any]] = {}
         self.error_handlers: dict[QNetworkReply, Callable[[QNetworkReply], Any]] = {}
 
     def set_route(self, route: str) -> None:
@@ -91,6 +92,9 @@ class ApiBase(QObject):
     def _get_host_url(self) -> QUrl:
         return QUrl(Settings.get(self.host_config_key))
 
+    def _url_from_endpoint(self, endpoint: str) -> QUrl:
+        return self._get_host_url().resolved(QUrl(endpoint))
+
     # query arguments like filter=login==Rhyza
     def get_by_query(
             self,
@@ -107,7 +111,7 @@ class ApiBase(QObject):
             response_handler: Callable[[PreProcessedApiResponse], None],
             error_handler: Callable[[QNetworkReply], None] = __do_nothing,
     ) -> None:
-        url = self._get_host_url().resolved(QUrl(endpoint))
+        url = self._url_from_endpoint(endpoint)
         self.get(url, response_handler, error_handler)
 
     @staticmethod
@@ -137,12 +141,13 @@ class ApiBase(QObject):
 
     def post(
             self,
-            url: QUrl,
+            endpoint: str,
             data: QByteArray,
             response_handler: Callable[[PreProcessedApiResponse], None] = __do_nothing,
             error_handler: Callable[[QNetworkReply], None] = __do_nothing,
     ) -> None:
         self._running = True
+        url = self._url_from_endpoint(endpoint)
         logger.debug("Sending POST API request with URL: %s", url.toString())
         request = self.prepare_request(url)
         request.setRawHeader(b"Content-Type", b"application/vnd.api+json;charset=utf-8")
@@ -156,11 +161,12 @@ class ApiBase(QObject):
 
     def delete(
             self,
-            url: QUrl,
-            response_handler: Callable[[PreProcessedApiResponse], None] = __do_nothing,
+            endpoint: str,
+            response_handler: Callable[[QNetworkReply], None] = __do_nothing,
             error_handler: Callable[[QNetworkReply], None] = __do_nothing,
     ) -> None:
         self._running = True
+        url = self._url_from_endpoint(endpoint)
         logger.debug("Sending DELETE API request with URL: %s", url.toString())
         request = self.prepare_request(url)
         reply = self.manager.deleteResource(request)
@@ -168,17 +174,19 @@ class ApiBase(QObject):
             self._running = False
             logger.error("Error sending DELETE request to: %s", url.toString())
             return
-        self.handlers[reply] = response_handler
+        self.non_get_handlers[reply] = response_handler
         self.error_handlers[reply] = error_handler
 
     def patch(
             self,
-            url: QUrl,
+            endpoint: str,
             data: QByteArray,
-            response_handler: Callable[[PreProcessedApiResponse], None] = __do_nothing,
+            response_handler: Callable[[QNetworkReply], None] = __do_nothing,
             error_handler: Callable[[QNetworkReply], None] = __do_nothing,
+            patch_property: Any | None = None,
     ) -> None:
         self._running = True
+        url = self._url_from_endpoint(endpoint)
         logger.debug("Sending PATCH API request with URL: %s", url.toString())
         request = self.prepare_request(url)
         request.setRawHeader(b"Content-Type", b"application/vnd.api+json;charset=utf-8")
@@ -189,7 +197,8 @@ class ApiBase(QObject):
             self._running = False
             return
 
-        self.handlers[reply] = response_handler
+        reply.setProperty("patch_property", patch_property)
+        self.non_get_handlers[reply] = response_handler
         self.error_handlers[reply] = error_handler
 
     def parse_message(self, message: ApiResponse) -> ApiResponse | PreParsedApiResponse:
@@ -200,19 +209,23 @@ class ApiBase(QObject):
         if reply.error() != QNetworkReply.NetworkError.NoError:
             logger.error("API request error: %s", reply.error())
             self.error_handlers[reply](reply)
-        elif reply.operation() == self.manager.Operation.DeleteOperation:
-            logger.debug("DELETE operation succeeded: %s", reply.request().url().toString())
-            self.handlers[reply]({"data": {}})
-        elif reply.operation() == self.manager.Operation.CustomOperation:
-            logger.debug("PATCH operation succeeded: %s", reply.request().url().toString())
-            self.handlers[reply]({"data": {}})
+        elif (
+                reply.operation() in (
+                    self.manager.Operation.DeleteOperation,
+                    self.manager.Operation.CustomOperation,
+                )
+        ):
+            url = reply.request().url().toString()
+            logger.debug("%s operation succeeded: %s", reply.operation(), url)
+            self.non_get_handlers[reply](reply)
+            self.non_get_handlers.pop(reply)
         else:
             message_bytes = reply.readAll().data()
             message = json.loads(message_bytes.decode('utf-8'))
             result = self.parse_message(message)
             self.handlers[reply](result)
+            self.handlers.pop(reply)
 
-        self.handlers.pop(reply)
         self.error_handlers.pop(reply)
         reply.deleteLater()
 

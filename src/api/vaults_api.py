@@ -5,8 +5,6 @@ from typing import Any
 from typing import cast
 
 from PyQt6.QtCore import QByteArray
-from PyQt6.QtCore import QUrl
-from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtNetwork import QNetworkReply
 
 from src.api.ApiAccessors import DataApiAccessor
@@ -123,12 +121,9 @@ class MapPoolApiConnector(VaultsApiConnector):
 
 
 class ReviewsApiConnector(VaultsApiConnector):
-    review_posted = pyqtSignal(dict)
-
     def __init__(self) -> None:
         super().__init__("")
         self._includes: tuple[str, ...] = tuple()
-        # = ("versions", "versions.reviews", "versions.reviews.player")
         self._filters: tuple[str, ...] = tuple()
 
     def request_reviews(self, item: Map | Mod) -> None:
@@ -163,29 +158,34 @@ class ReviewsApiConnector(VaultsApiConnector):
         }
         self.request_data(cast(QueryOptions, query))
 
-    def on_post_finished(self, response: PreProcessedApiResponse) -> None:
-        self.review_posted.emit(response)
-
-    def on_post_error(self, reply: QNetworkReply) -> None:
-        logger.error("Error sending POST request (%s): %s", reply.errorString(), reply.readAll())
-
-    def submit_review(self, version: MapVersion | ModVersion, payload: QByteArray) -> None:
+    def submit_review(
+            self,
+            version: MapVersion | ModVersion,
+            payload: QByteArray,
+            handler: Callable[[PreProcessedApiResponse], None],
+            error_handler: Callable[[QNetworkReply], None],
+    ) -> None:
         json_api_name = camel_case(version.__class__.__name__)
-        url = QUrl(f"https://api.faforever.com/data/{json_api_name}/{version.xd}/reviews")
-        self.post(url, payload, self.on_post_finished, self.on_post_error)
+        endpoint = f"/data/{json_api_name}/{version.xd}/reviews"
+        self.post(endpoint, payload, handler, error_handler)
 
-    def delete_review(self, review: MapVersionReview | ModVersionReview) -> None:
+    def delete_review(
+            self,
+            review: MapVersionReview | ModVersionReview,
+            handler: Callable[[QNetworkReply], None],
+            error_handler: Callable[[QNetworkReply], None],
+    ) -> None:
         json_api_name = camel_case(review.__class__.__name__)
-        url = QUrl(f"https://api.faforever.com/data/{json_api_name}/{review.xd}")
-        self.delete(url)
+        endpoint = f"/data/{json_api_name}/{review.xd}"
+        self.delete(endpoint, handler, error_handler)
 
     def patch_review(
             self,
             review: MapVersionReview | ModVersionReview,
             payload: QByteArray,
-            handler: Callable[[PreProcessedApiResponse], None],
+            handler: Callable[[QNetworkReply], None],
             error_handler: Callable[[QNetworkReply], None],
     ) -> None:
         json_api_name = camel_case(review.__class__.__name__)
-        url = QUrl(f"https://api.faforever.com/data/{json_api_name}/{review.xd}")
-        self.patch(url, payload, handler, error_handler)
+        endpoint = f"/data/{json_api_name}/{review.xd}"
+        self.patch(endpoint, payload, handler, error_handler, review)

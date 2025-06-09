@@ -43,6 +43,14 @@ class RatingDistribution:
         self.num_reviews = len(reviews)
         self.counts = Counter(review.score for review in reviews)
 
+    def add_score(self, score: int) -> None:
+        self.num_reviews += 1
+        self.counts[score] += 1
+
+    def remove_score(self, score: int) -> None:
+        self.counts[score] -= 1
+        self.num_reviews -= 1
+
     def get_percentage(self, score: int) -> float:
         if self.num_reviews == 0:
             return 0
@@ -152,7 +160,7 @@ class MyCommentWidget(CommentWidget):
         self.ui.deleteButton.clicked.connect(self.delete_request.emit)
         self.ui.editButton.clicked.connect(self.edit_request.emit)
 
-    def set_review(self, review: VersionReview) -> None:
+    def set_review(self, review: VersionReview | None) -> None:
         self.review = review
 
     def fill_review_info(self) -> None:
@@ -176,6 +184,14 @@ class RatingBarWidgetUI:
         self.averageLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.averageLabel.setObjectName("averageReviewRatingLabel")
         self.summaryLayout.addWidget(self.averageLabel)
+
+        self.star_rating = StarRatingWidget(
+            rating=0,
+            max_rating=5,
+            star_size=20,
+            star_color_filled=QColor("#4CAF50"),
+        )
+        self.summaryLayout.addWidget(self.star_rating)
 
         self.reviewsCountLabel = QLabel()
         self.reviewsCountLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -222,21 +238,29 @@ class RatingBarWidget(QWidget):
     def __init__(self, distribution: RatingDistribution, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.distribution = distribution
+        self._reviews: set[str] = set()
         self.ui = RatingBarWidgetUI()
         self.ui.setupUi(self)
-        self.fill_ui()
 
-    def fill_ui(self) -> None:
+    def add_review(self, review: VersionReview) -> None:
+        if review.xd in self._reviews:
+            return
+        self._reviews.add(review.xd)
+        self.distribution.add_score(review.score)
+
+    def remove_review(self, review: VersionReview) -> None:
+        self._reviews.discard(review.xd)
+        self.distribution.remove_score(review.score)
+
+    def change_review(self, old: VersionReview, new: VersionReview) -> None:
+        self.remove_review(old)
+        self.add_review(new)
+
+    def update_ui(self) -> None:
         average = self.distribution.average_score()
         self.ui.averageLabel.setText(f"{average:.1f}")
         self.ui.reviewsCountLabel.setText(f"{self.distribution.num_reviews} reviews")
-        star_rating = StarRatingWidget(
-            rating=average,
-            max_rating=5,
-            star_size=20,
-            star_color_filled=QColor("#4CAF50"),
-        )
-        self.ui.summaryLayout.insertWidget(1, star_rating)
+        self.ui.star_rating.set_rating(average)
 
         for score, (bar, count) in self.ui.bars.items():
             bar.setValue(int(self.distribution.get_percentage(score)))
@@ -290,6 +314,7 @@ class ReviewDialog(QDialog):
             self.review = klass.model_construct(id="null", score=0, text="", version=item.version)
         else:
             self.review = review
+        self._rating = 0
         self._hovered_rating = 0
 
         self.star_rating = StarRatingWidget(self.review.score)
@@ -308,6 +333,7 @@ class ReviewDialog(QDialog):
             return
         assert isinstance(data, list)
         self.review = convert_review(type(self.item), data[0])
+        self._rating = self.review.score
         self.update_appearance()
 
     def start(self) -> None:
@@ -320,6 +346,7 @@ class ReviewDialog(QDialog):
         self.ui.setupUi(self)
         self.ui.ratingLayout.addWidget(self.star_rating)
         self.ui.submitButton.clicked.connect(self.submit_review)
+        self.ui.submitButton.setEnabled(self.review.score > 0)
         self.update_appearance()
 
     def update_appearance(self) -> None:
@@ -341,9 +368,10 @@ class ReviewDialog(QDialog):
             case QEvent.Type.MouseButtonRelease:
                 assert isinstance(event, QMouseEvent)
                 if event.button() == Qt.MouseButton.LeftButton:
-                    self.review.score = self._hovered_rating
+                    self._rating = self._hovered_rating
+                    self.ui.submitButton.setEnabled(self._rating > 0)
             case QEvent.Type.Leave:
-                self.star_rating.set_rating(self.review.score)
+                self.star_rating.set_rating(self._rating)
             case _:
                 ...
 
@@ -353,5 +381,7 @@ class ReviewDialog(QDialog):
         return super().eventFilter(obj, event)
 
     def submit_review(self) -> None:
-        self.review.text = self.ui.commentTextEdit.toPlainText()
-        self.review_submitted.emit(self.review)
+        new_review = self.review.model_copy(deep=True)
+        new_review.score = self._rating
+        new_review.text = self.ui.commentTextEdit.toPlainText()
+        self.review_submitted.emit(new_review)

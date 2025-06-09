@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from operator import attrgetter
-from typing import Any
 
 from PyQt6.QtCore import QByteArray
 from PyQt6.QtCore import QDateTime
@@ -65,9 +64,10 @@ class DetailsWidget(QWidget):
 
         self.reviews_api = ReviewsApiConnector()
         self.reviews_api.data_ready.connect(self.on_reviews_data)
-        self.reviews_api.review_posted.connect(self.on_review_submitted)
 
         self.player = player
+
+        self.rating_bar_widget = RatingBarWidget(RatingDistribution([]))
 
         self.my_comment = MyCommentWidget(self.player)
         self.my_comment.delete_request.connect(self.delete_review)
@@ -137,24 +137,38 @@ class DetailsWidget(QWidget):
         )
         string = str(data).replace("'", '\"')
         payload = QByteArray(bytearray(string, "utf-8"))
-        self.reviews_api.submit_review(self.item_version, payload)
+        self.reviews_api.submit_review(
+            self.item_version,
+            payload,
+            self.on_review_submitted,
+            self.on_submit_error,
+        )
 
-    def on_review_submitted(self, response: dict[str, Any]) -> None:
-        if response["data"]["type"] == camel_case(MapVersionReview.__name__):
-            review = MapVersionReview(**response["data"])
+    def on_review_submitted(self, response: PreProcessedApiResponse) -> None:
+        data = response["data"]
+        if data["type"] == camel_case(MapVersionReview.__name__):
+            review = MapVersionReview(**data)
             assert isinstance(self.item_version, MapVersion)
             review.version = self.item_version
         else:
-            review = ModVersionReview(**response["data"])
+            review = ModVersionReview(**data)
             assert isinstance(self.item_version, ModVersion)
             review.version = self.item_version
-        player_dct = response["data"]["player"]
+        player_dct = data["player"]
         player_dct["login"] = self.player.login
         review.player = ApiPlayer.model_construct(**player_dct)
+
+        self.rating_bar_widget.add_review(review)
+        self.rating_bar_widget.update_ui()
 
         self.my_comment.set_review(review)
         self.my_comment.fill_review_info()
         self.my_comment.show()
+
+    def on_submit_error(self, reply: QNetworkReply) -> None:
+        error_body = reply.readAll().data().decode()
+        message = f"Failed to POST due to {reply.errorString()}: {error_body}"
+        QMessageBox.warning(self, "API request failed", message)
 
     def add_review(self) -> None:
         dialog = ReviewDialog(self.item_data, self.player, self.my_comment.review, self)
@@ -162,10 +176,27 @@ class DetailsWidget(QWidget):
         dialog.review_submitted.connect(dialog.close)
         dialog.start()
 
+    def on_delete_success(self, _: QNetworkReply) -> None:
+        if self.my_comment.review is None:
+            return
+        self.rating_bar_widget.remove_review(self.my_comment.review)
+        self.rating_bar_widget.update_ui()
+        self.my_comment.set_review(None)
+
+    def on_delete_failure(self, reply: QNetworkReply) -> None:
+        error_body = reply.readAll().data().decode()
+        message = f"Failed to DELETE due to {reply.errorString()}: {error_body}"
+        QMessageBox.warning(self, "API request failed", message)
+        self.my_comment.show()
+
     def delete_review(self) -> None:
         if self.my_comment.review is None:
             return
-        self.reviews_api.delete_review(self.my_comment.review)
+        self.reviews_api.delete_review(
+            self.my_comment.review,
+            self.on_delete_success,
+            self.on_delete_failure,
+        )
         self.my_comment.hide()
 
     def patch_review(self, review: VersionReview) -> None:
@@ -180,18 +211,26 @@ class DetailsWidget(QWidget):
         payload = QByteArray(bytearray(string, "utf-8"))
         self.reviews_api.patch_review(review, payload, self.on_patch_success, self.on_patch_failure)
 
-    def on_patch_success(self, _: PreProcessedApiResponse) -> None:
+    def on_patch_success(self, reply: QNetworkReply) -> None:
+        review = reply.property("patch_property")
+        if review is None or self.my_comment.review is None:
+            return
+
+        self.rating_bar_widget.change_review(self.my_comment.review, review)
+        self.rating_bar_widget.update_ui()
+
+        self.my_comment.set_review(review)
         self.my_comment.fill_review_info()
 
     def on_patch_failure(self, reply: QNetworkReply) -> None:
-        text = reply.readAll().data().decode()
-        QMessageBox.warning(self, "Failed to patch", text)
+        error_body = reply.readAll().data().decode()
+        message = f"Failed to PATCH due to {reply.errorString()}: {error_body}"
+        QMessageBox.warning(self, "API request failed", message)
 
     def submit_or_patch_review(self, review: VersionReview) -> None:
         if review.xd == "null":
             self.submit_review(review)
         else:
-            self.my_comment.set_review(review)
             self.patch_review(review)
 
     def version_info(self) -> list[tuple[str, str]]:
@@ -240,6 +279,8 @@ class DetailsWidget(QWidget):
             self.ui.versionLayout.addRow(QLabel(label), QLabel(field))
 
         self.ui.descriptionLabel.setText(self.item_version.description)
+
+        self.ui.detailedReviews.ratingBarsLayout.addWidget(self.rating_bar_widget)
 
         tech_info = self.technical_info()
         self.ui.techTable.setRowCount(len(tech_info))
@@ -331,9 +372,8 @@ class DetailsWidget(QWidget):
         self.set_reviews_and_comments(reviews)
 
     def set_reviews_and_comments(self, reviews: list[VersionReview]) -> None:
-        rating_distribution = RatingDistribution(reviews)
-        self.ui.detailedReviews.ratingBarsLayout.addWidget(RatingBarWidget(rating_distribution))
         for review in reviews:
+            self.rating_bar_widget.add_review(review)
             assert review.player is not None
             if review.player.xd == str(self.player.id):
                 self.my_comment.set_review(review)
@@ -349,6 +389,7 @@ class DetailsWidget(QWidget):
                 self.ui.detailedReviews.commentsContainer.addWidget(comment_widget)
         self.ui.detailedReviews.commentsContainer.addStretch()
 
+        self.rating_bar_widget.update_ui()
         self.ui.detailedReviews.show_reviews()
 
     def show_comments(self) -> None:
