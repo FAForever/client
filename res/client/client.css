@@ -752,12 +752,6 @@ QScrollBar::sub-page
     background-color: #1f1f1f;
 }
 
-QCheckBox#hideGamesWithPw,#hideGamesWithMods,#applyFilters
-{
-    color:white;
-    background-color: rgba(15, 15, 15, 200);
-}
-
 QLabel#labelSortGames,#labelJoinGame,#labelHostGame,#labelAutomatch,#labelMyReplays,#labelLiveReplays,#labelHostTournament,#labelJoinTournament,#joinLabel,#labelTeamManagement,#labelTMM
 {
     color:white;
@@ -824,44 +818,30 @@ QDialog#MapGenOptionsDialog
     alternate-background-color: #303035;
 }
 
-QCheckBox#spoilerCheckbox, #automaticCheckbox, #showLatestCheckbox, #hideUnrCheckbox, #landRandomDensity::enabled, #plateausRandomDensity::enabled,
-         #mountainsRandomDensity::enabled, #rampsRandomDensity::enabled, #mexRandomDensity::enabled, #reclaimRandomDensity::enabled,
-         #matchUsernameCheckbox
-{
-    color: silver;
-}
-
-QCheckBox#spoilerCheckbox::indicator:unchecked, #automaticCheckbox::indicator:unchecked, #showLatestCheckbox::indicator:unchecked,
-#hideUnrCheckbox::indicator:unchecked, #matchUsernameCheckbox::indicator:unchecked,
-#landRandomDensity::indicator::unchecked, #resourceRandomGenerator::indicator::unchecked, #mountainsRandomDensity::indicator::unchecked,
-#rampsRandomDensity::indicator::unchecked, #mexRandomDensity::indicator::unchecked ,#reclaimRandomDensity::indicator::unchecked,
-#useCustomStyleCheckBox::indicator::unchecked
-{
-    image: url('%THEMEPATH%/client/chboxUncheked.png');
-}
-
- QCheckBox#spoilerCheckbox::indicator:checked, #automaticCheckbox::indicator:checked, #showLatestCheckbox::indicator:checked,
- #hideUnrCheckbox::indicator:checked, #matchUsernameCheckbox::indicator:checked,
- #landRandomDensity::indicator::checked, #plateausRandomDensity::indicator::checked, #mountainsRandomDensity::indicator::checked,
- #rampsRandomDensity::indicator::checked, #mexRandomDensity::indicator::checked ,#reclaimRandomDensity::indicator::checked,
- #useCustomStyleCheckBox::indicator::checked
-{
-    image: url('%THEMEPATH%/client/chboxCheked.png');
-}
-
 QCheckBox::enabled
 {
     color: silver;
 }
 
+QCheckBox::indicator
+{
+    width: 13px;
+    height: 13px;
+    border: 1px solid black;
+}
+
 QCheckBox::indicator:unchecked
 {
-    image: url('%THEMEPATH%/client/chboxUnchecked.png');
+    background: #303035;
 }
 
 QCheckBox::indicator:checked
 {
     image: url('%THEMEPATH%/client/chboxChecked.png');
+}
+
+QCheckBox::indicator:hover {
+    border-color: gray;
 }
 
 /* Used for Ranked Buttons only at the moment*/
