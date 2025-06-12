@@ -24,6 +24,7 @@ from __future__ import annotations
 import os
 
 from PyQt6.QtCore import Qt
+from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtGui import QMouseEvent
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import QGridLayout
@@ -88,6 +89,8 @@ class ReplayInfoTabUI:
 
 
 class ReplayInfoTab(QWidget):
+    map_obtained = pyqtSignal(object)
+
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.setObjectName("replay_info_tab")
@@ -139,6 +142,7 @@ class ReplayInfoTab(QWidget):
             downloadMap(map_folder)
         self.update_map_pixmap()
         self.update_get_map_button()
+        self.map_obtained.emit(self.replay)
 
     def map_preview_pixmap(self, *, scale: int = 1) -> QPixmap:
         nomap = QPixmap(os.path.join(util.COMMON_DIR, "games", "unknown_map.png"))

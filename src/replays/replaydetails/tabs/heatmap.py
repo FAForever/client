@@ -1,24 +1,33 @@
+import os
 from collections import Counter
-from operator import itemgetter
-from typing import Any
+from functools import partial
 from typing import NamedTuple
 
-import numpy as np
 import pyqtgraph as pg
+from PyQt6.QtCore import QSize
 from PyQt6.QtCore import Qt
 from PyQt6.QtCore import QTimer
+from PyQt6.QtGui import QPixmap
+from PyQt6.QtGui import QTransform
 from PyQt6.QtWidgets import QCheckBox
+from PyQt6.QtWidgets import QDoubleSpinBox
 from PyQt6.QtWidgets import QGridLayout
 from PyQt6.QtWidgets import QHBoxLayout
 from PyQt6.QtWidgets import QLabel
 from PyQt6.QtWidgets import QPushButton
+from PyQt6.QtWidgets import QScrollArea
+from PyQt6.QtWidgets import QSlider
 from PyQt6.QtWidgets import QSpinBox
 from PyQt6.QtWidgets import QVBoxLayout
 from PyQt6.QtWidgets import QWidget
 
 from src.config import Settings
+from src.fa.maps import folderForMap
+from src.fa.maps_.preview import create_large_preview
+from src.qt.utils import block_signals
 from src.replays.replaydetails.helpers import seconds_to_human
 from src.replays.replaydetails.rangeslider import RangeSlider
+from src.replays.replaydetails.replayformat import cmdTypeToString
 from src.replays.replaydetails.replayreader import ReplayParser
 
 try:
@@ -43,27 +52,115 @@ def create_colorbar_hist() -> pg.HistogramLUTWidget:
 
 
 class HeatmapProperties(NamedTuple):
-    height: int = 1024
-    width: int = 1024
+    # it is what it is: in a replay with a map size of 1024 x and y values
+    # can vary in closed interval [0, 1024]
+    height: int = 1025
+    width: int = 1025
+
+    def size(self) -> QSize:
+        return QSize(self.width, self.height)
+
+    def get_scale(self) -> int:
+        """Relative size to the standard 256x256 dds pixmap"""
+        return (self.height - 1) // 256
 
 
 class Heatmap(QWidget):
     def __init__(self) -> None:
         QWidget.__init__(self)
-        _viewbox = pg.ViewBox()
+        self.viewbox = pg.ViewBox()
         self.heatmap = pg.ImageItem()
-        _viewbox.addItem(self.heatmap)
+        self.viewbox.addItem(self.heatmap)
 
         _graphics_layout = QGridLayout()
         _graphics_layout.setSpacing(6)
         _graphics_view = pg.GraphicsView()
-        _graphics_view.setCentralItem(_viewbox)
+        _graphics_view.setCentralItem(self.viewbox)
 
         _graphics_layout.addWidget(_graphics_view, 0, 0, 7, 1)
 
         self.hist = create_colorbar_hist()
         self.hist.setImageItem(self.heatmap)
         _graphics_layout.addWidget(self.hist, 0, 1)
+
+        self.commands_filter_scroll = QScrollArea()
+        self.commands_filter_scroll.setWidgetResizable(True)
+        self.commands_filter_scroll.setContentsMargins(0, 0, 0, 0)
+
+        commands_filter_widget = QWidget()
+        commands_filter_widget.setObjectName("overview_widget")
+        commands_filter_layout = QVBoxLayout(commands_filter_widget)
+        commands_filter_layout.addWidget(QLabel("Commands filter:"))
+
+        self.visible_commands = Settings.get(
+            "replaycard.heatmap/visible_commands",
+            default=[1] * len(cmdTypeToString),
+            type=list,
+        )
+
+        self.all_cmds_checkbox = QCheckBox("Select All")
+        self.all_cmds_checkbox.setChecked(all(self.visible_commands))
+        self.all_cmds_checkbox.checkStateChanged.connect(self.on_select_all_cmds)
+
+        commands_filter_layout.addWidget(self.all_cmds_checkbox)
+        commands_filter_layout.addSpacing(6)
+
+        self.commands_filter_scroll.setWidget(commands_filter_widget)
+        self.commands_filter_scroll.setMaximumWidth(250)
+
+        self.cmds_checkboxes: dict[str, QCheckBox] = {}
+        for index, cmd_type in enumerate(cmdTypeToString):
+            if index == 0:
+                continue
+            checkbox = QCheckBox(cmd_type)
+            checkbox.setObjectName(str(index))
+            checkbox.setChecked(bool(self.visible_commands[index]))
+            self.cmds_checkboxes[cmd_type] = checkbox
+            checkbox.checkStateChanged.connect(partial(self.on_cmd_type_changed, box=checkbox))
+        for _, box in sorted(self.cmds_checkboxes.items()):
+            commands_filter_layout.addWidget(box)
+
+        _graphics_layout.addWidget(self.commands_filter_scroll, 0, 2)
+
+        self.foreground_control = QCheckBox("Foreground (map layer)")
+        show_foreground = Settings.get("replaycard.heatmap/foreground", True, type=bool)
+        self.foreground_control.setChecked(show_foreground)
+        self.foreground_control.checkStateChanged.connect(self.on_foreground_checked)
+        _graphics_layout.addWidget(self.foreground_control, 1, 2)
+
+        _graphics_layout.addWidget(QLabel("Foreground opacity: "), 2, 2)
+
+        foreground_opacity_layout = QHBoxLayout()
+
+        self.opacity_spin_box = QDoubleSpinBox()
+        self.opacity_spin_box.setMinimum(0)
+        self.opacity_spin_box.setMaximum(1)
+        self.opacity_spin_box.setSingleStep(0.01)
+        self.opacity_spin_box.setMaximumWidth(50)
+        opacity = Settings.get("replaycard.heatmap/foreground_opacity", 20, type=int)
+        self.opacity_spin_box.setValue(opacity / 100)
+        self.opacity_spin_box.valueChanged.connect(self.on_spinbox_opacity_changed)
+        self.opacity_spin_box.setEnabled(show_foreground)
+
+        self.opacity_slider = QSlider(Qt.Orientation.Horizontal)
+        self.opacity_slider.setMinimum(0)
+        self.opacity_slider.setMaximum(100)
+        self.opacity_slider.setValue(opacity)
+        self.opacity_slider.setMaximumWidth(194)
+        self.opacity_slider.valueChanged.connect(self.on_opacity_slider_changed)
+        self.opacity_slider.setEnabled(show_foreground)
+        foreground_opacity_layout.addWidget(self.opacity_slider, 3)
+        foreground_opacity_layout.addWidget(self.opacity_spin_box)
+        foreground_opacity_layout.setContentsMargins(0, 0, 0, 0)
+        _graphics_layout.addLayout(foreground_opacity_layout, 3, 2)
+
+        self.foreground_image = pg.QtWidgets.QGraphicsPixmapItem()
+        self.foreground_image.setZValue(1)
+        self.foreground_image.setOpacity(self.opacity_spin_box.value())
+        visible = Settings.get("replaycard.heatmap/foreground", default=True, type=bool)
+        self.foreground_image.setVisible(visible)
+        self.rotate_transform = QTransform().scale(1, -1)
+        self.viewbox.addItem(self.foreground_image)
 
         self.smooth_check_box = QCheckBox("Smoothing")
         smoothing = Settings.get("replaycard.heatmap/smoothing", True, type=bool)
@@ -156,8 +253,47 @@ class Heatmap(QWidget):
         self.pts_norm = []
 
     def initialize(self, replay: ReplayParser) -> None:
-        self.set_pts(replay.pts)
+        self.set_pts(replay)
         self.create_heatmap(replay.ticks)
+        self.set_map_foreground(replay)
+
+    def on_cmd_type_changed(self, state: Qt.CheckState, box: QCheckBox) -> None:
+        show = state == Qt.CheckState.Checked
+        self.visible_commands[int(box.objectName())] = show
+        if not show:
+            with block_signals(self.all_cmds_checkbox) as b:
+                b.setChecked(False)
+        self.generate_new_heatmap()
+
+    def on_select_all_cmds(self, state: Qt.CheckState) -> None:
+        show = state == Qt.CheckState.Checked
+        for box in self.cmds_checkboxes.values():
+            with block_signals(box) as b:
+                b.setChecked(show)
+                self.visible_commands[int(b.objectName())] = show
+        self.generate_new_heatmap()
+
+    def save_settings(self) -> None:
+        with Settings.group("replaycard.heatmap") as group:
+            group.setValue("foreground", self.foreground_control.isChecked())
+            group.setValue("foreground_opacity", self.opacity_slider.value())
+            group.setValue("visible_commands", self.visible_commands)
+
+    def on_foreground_checked(self, state: Qt.CheckState) -> None:
+        show = state == Qt.CheckState.Checked
+        self.foreground_image.setVisible(show)
+        self.opacity_spin_box.setEnabled(show)
+        self.opacity_slider.setEnabled(show)
+
+    def on_spinbox_opacity_changed(self, value: float) -> None:
+        self.foreground_image.setOpacity(value)
+        with block_signals(self.opacity_slider) as slider:
+            slider.setValue(int(value * 100))
+
+    def on_opacity_slider_changed(self, value: int) -> None:
+        self.foreground_image.setOpacity(value / 100)
+        with block_signals(self.opacity_spin_box) as box:
+            box.setValue(value / 100)
 
     def generate_new_heatmap(self) -> None:
         if len(self.pts_norm) == 0:
@@ -165,12 +301,16 @@ class Heatmap(QWidget):
 
         lowtick = self.heatmapRangeSlider.low()
         hightick = self.heatmapRangeSlider.high()
-        img = self.return_heatmap(lowtick, hightick)
+        filtered_pts = self.filter_points(lowtick, hightick)
+        img = self.make_image_data(filtered_pts)
 
         if self.smooth_check_box.isChecked() and not self.debounce_timer.isActive():
             img = gaussian_filter(img, (self.x_sigma.value(), self.y_sigma.value()))
+            self.heatmap.setImage(img)
+        else:
+            mx = max(filtered_pts.values() or [255])
+            self.heatmap.setImage(img, levels=[0, mx])
 
-        self.heatmap.setImage(img)
         self.heatmapSliderText.setText(
             f"{seconds_to_human(lowtick // 10)}"
             f"({lowtick})"
@@ -183,33 +323,34 @@ class Heatmap(QWidget):
         if self.debounce_check_box.isChecked():
             self.debounce_timer.start(self.debounce_spin_box.value())
 
-    def set_pts(self, pts: list) -> None:
-        self.pts_norm = self.points_normalized(pts)
-        max_sigma = (len(pts) + 1) // 6
+    def set_pts(self, replay: ReplayParser) -> None:
+        map_size = replay.map_pixel_size()
+        self.pts_norm = self.points_normalized(replay.pts, map_size.width(), map_size.height())
+        max_sigma = (len(replay.pts) + 1) // 6
         self.x_sigma.setMaximum(max_sigma)
         self.y_sigma.setMaximum(max_sigma)
 
-    def points_normalized(self, pts: list[tuple[int, int, int]]) -> list[tuple[int, int, int]]:
+    def points_normalized(
+            self,
+            pts: list[tuple[int, float, float, int]],
+            max_x: float,
+            max_y: float,
+    ) -> list[tuple[int, int, int, int]]:
         pts.sort(key=lambda elem: elem[0])
-
-        min_x = min(pts, key=itemgetter(1))[1] if pts else 0
-        min_y = min(pts, key=itemgetter(2))[2] if pts else 0
-        max_x = max(pts, key=itemgetter(1))[1] if pts else 0
-        max_y = max(pts, key=itemgetter(2))[2] if pts else 0
 
         w = self.heatmap_properties.width - 1
         h = self.heatmap_properties.height - 1
 
-        if max_x == min_x and max_y == min_y:
-            return [(tick, 0, 0) for tick, _, _ in pts]
-
         return [
             (
                 tick,
-                round(((x - min_x) / (max_x - min_x)) * w),
-                round((1 - ((y - min_y) / (max_y - min_y))) * h),
+                # minmaxing, because negative values were spotted (maybe offmapping)
+                # example replay: 25037207
+                min(max(0, round((x / max_x) * w)), w),
+                min(max(0, round((1 - (y / max_y)) * h)), h),
+                cmd_type,
             )
-            for tick, x, y in pts
+            for tick, x, y, cmd_type in pts
         ]
 
     def create_heatmap(self, ticks: int) -> None:
@@ -219,17 +360,25 @@ class Heatmap(QWidget):
         self.heatmapRangeSlider.setHigh(ticks)
         self.generate_new_heatmap()
 
-    def return_heatmap(self, fromTick: int = 0, toTick: int = -1) -> np.ndarray | None:
-        pts = self.return_pts(fromTick, toTick)
-        if len(pts) != 0:
-            pixels = pg.numpy.zeros((self.heatmap_properties.width, self.heatmap_properties.height))
-            for (x, y), count in pts.items():
-                pixels[x][y] += count
-            return pixels
+    def set_map_foreground(self, replay: ReplayParser) -> None:
+        folder = folderForMap(replay.map_folder_name())
+        if folder is None or not os.path.exists(folder):
+            self.foreground_image.setPixmap(QPixmap())
+            return
+        scale = self.heatmap_properties.get_scale()
+        pixmap = create_large_preview(folder, scale=scale).scaled(self.heatmap_properties.size())
+        trans_mode = Qt.TransformationMode.SmoothTransformation
+        self.foreground_image.setPixmap(pixmap.transformed(self.rotate_transform, trans_mode))
 
-    def return_pts(self, fromTick: int, toTick: int) -> Any:
+    def make_image_data(self, pts: Counter[tuple[int, int]]) -> pg.numpy.ndarray:
+        pixels = pg.numpy.zeros((self.heatmap_properties.width, self.heatmap_properties.height))
+        for (x, y), count in pts.items():
+            pixels[x][y] += count
+        return pixels
+
+    def filter_points(self, fromTick: int, toTick: int) -> Counter[tuple[int, int]]:
         return Counter(
             (x, y)
-            for (tick, x, y) in self.pts_norm
-            if (fromTick < tick < toTick) or (toTick == -1)
+            for (tick, x, y, cmd_type) in self.pts_norm
+            if self.visible_commands[cmd_type] and ((fromTick < tick < toTick) or (toTick == -1))
         )

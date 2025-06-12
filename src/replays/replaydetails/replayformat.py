@@ -28,6 +28,7 @@ SOFTWARE."""
 #   uint16 - length of message (including header)
 #   ... - op specific data
 # }
+from enum import Enum
 
 
 class ECmdStreamOp:
@@ -173,7 +174,8 @@ class ECmdStreamOp:
 
 # this is guessing from FA.exe
 
-class EUnitCommandType:
+
+class EUnitCommandType(Enum):
     (
         NONE,
         Stop,
@@ -215,7 +217,9 @@ class EUnitCommandType:
         AssistMove,
         SpecialAction,
         Dock,
-    ) = range(40)
+        # artificially made up
+        MovePreviouslyIssuedCommand,
+    ) = range(41)
 
 
 class STITARGET:
@@ -278,4 +282,5 @@ cmdTypeToString = [
     "AssistMove",
     "SpecialAction",
     "Dock",
+    "MovePreviouslyIssuedCommand",
 ]

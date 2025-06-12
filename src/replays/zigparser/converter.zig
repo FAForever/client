@@ -91,7 +91,7 @@ pub fn convert_points(replay_parser: parser.Parser) [*c]py.PyObject {
     const size: isize = @intCast(replay_parser.body_data.points.items.len);
     const my_list = py.PyList_New(size);
     for (0.., replay_parser.body_data.points.items) |i, item| {
-        const tuple = py.Py_BuildValue("(iff)", item.tick, item.x, item.y);
+        const tuple = py.Py_BuildValue("(iffi)", item.tick, item.x, item.y, item.cmd_type);
         _ = py.PyList_SetItem(my_list, @as(isize, @intCast(i)), tuple);
     }
     return my_list;

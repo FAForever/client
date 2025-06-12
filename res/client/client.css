@@ -1259,3 +1259,39 @@ QLabel#searchInfoLabel,#advSearchInfoLabel
     color: gold;
     font-weight: bold;
 }
+
+QSlider::groove:horizontal {
+    border: 1px solid #444444;
+    height: 8px;
+    background: #333333;
+    margin: 2px 0;
+}
+
+QSlider::groove:horizontal:disabled {
+    background: gray;
+}
+
+QSlider::handle:horizontal {
+    background: #1A7BFF;
+    border: 1px solid #1E3D59;
+    width: 10px;
+    margin: -6px 0;
+}
+
+QSlider::handle:horizontal:disabled {
+    background: gray;
+}
+
+QSlider::sub-page:horizontal {
+    background: #1A7BFF;
+    height: 6px;
+}
+
+QSlider::sub-page:horizontal:disabled {
+    background: gray;
+}
+
+QSlider::add-page:horizontal {
+    background: #444444;
+    height: 6px;
+}

@@ -103,6 +103,7 @@ pub const Point = struct {
     tick: u32,
     x: f32,
     y: f32,
+    cmd_type: u8,
 };
 
 pub const ReplayMetadata = struct {

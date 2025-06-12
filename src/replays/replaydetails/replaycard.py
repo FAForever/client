@@ -126,6 +126,7 @@ class ReplayDetailsCard(QtWidgets.QDialog):
         self.heatmap_tab = Heatmap()
         self.charts_tab = ChartsTab()
         self.game_stats_tab = GameStatsWidget()
+        self.replay_info_tab.map_obtained.connect(self.heatmap_tab.set_map_foreground)
 
         self.replayTabs = QtWidgets.QTabWidget()
         self.replayTabs.addTab(self.replay_info_tab, "Info")
@@ -167,8 +168,9 @@ class ReplayDetailsCard(QtWidgets.QDialog):
         with Settings.group("replaycard") as settings:
             settings.setValue("geometry", self.saveGeometry())
 
-    def closeEvent(self, event: QtGui.QCloseEvent | None) -> None:
+    def closeEvent(self, event: QtGui.QCloseEvent | None) -> None:  # pyright: ignore[reportIncompatibleMethodOverride]  # noqa: E501
         self._save_geometry_to_settings()
+        self.heatmap_tab.save_settings()
         super().closeEvent(event)
 
     def on_tab_changed(self, index: int) -> None:

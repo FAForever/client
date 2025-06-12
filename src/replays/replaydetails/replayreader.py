@@ -36,6 +36,7 @@ import zstandard
 from PyQt6.QtCore import QByteArray
 from PyQt6.QtCore import QDataStream
 from PyQt6.QtCore import QObject
+from PyQt6.QtCore import QSizeF
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtCore import qUncompress
 from PyQt6.QtNetwork import QNetworkReply
@@ -45,6 +46,7 @@ from src.replays.replaydetails.helpers import seconds_to_human
 from src.replays.replaydetails.replayformat import LUA_TYPE
 from src.replays.replaydetails.replayformat import STITARGET
 from src.replays.replaydetails.replayformat import ECmdStreamOp
+from src.replays.replaydetails.replayformat import EUnitCommandType
 from src.replays.replaydetails.tabs.gamestats_types import GameStats
 from src.replays.replaydetails.utils import PLAYER_COLORS
 from src.util import COMMON_DIR
@@ -174,7 +176,7 @@ class ReplayParser(QObject):
         raise ReplayException("Error in parsing the lua table")
 
     def check_sum(self) -> str:
-        return "".join((f"{i:x}" for i in self.binary.readRawData(16)))
+        return "".join(f"{i:x}" for i in self.binary.readRawData(16))
 
     def map_folder_name(self) -> str:
         return self.map.split("/")[2].lower()
@@ -228,6 +230,8 @@ class ReplayParser(QObject):
         prev_tick = -1
         prev_digest = None
 
+        move_prev_command = EUnitCommandType.MovePreviouslyIssuedCommand.value
+
         while not self.binary.atEnd():
             message_op = self.binary.readUInt8()
             message_len = self.binary.readUInt16()
@@ -261,7 +265,9 @@ class ReplayParser(QObject):
                         self.binary.readUInt32()
                     elif stitarget == STITARGET.Position:
                         (x, _, z) = (self.binary.readFloat() for _ in range(3))
-                        self.pts.append((self.ticks, x, z))
+                        # although it is possible to track which command was moved
+                        # it's nice to be able to handle those separately
+                        self.pts.append((self.ticks, x, z, move_prev_command))
                     else:
                         raise ReplayException("Not valid stitarget", stitarget)
 
@@ -297,7 +303,7 @@ class ReplayParser(QObject):
                         self.binary.readUInt32()
                     elif stitarget == STITARGET.Position:
                         (x, _, z) = (self.binary.readFloat() for _ in range(3))
-                        self.pts.append((self.ticks, x, z))
+                        self.pts.append((self.ticks, x, z, command_type))
 
                     self.binary.skipRawData(1)  # 0x00
                     formation = self.binary.readInt32()
@@ -407,7 +413,7 @@ class ReplayParser(QObject):
         else:
             return self._non_coop_teams()
 
-    def _gen_info(self) -> Generator[str, None, None]:
+    def _gen_info(self) -> Generator[str]:
         teams = self.get_teams()
         yield (
             f"<center><h2>{self.faf_info['title']}</h2>"
@@ -471,6 +477,9 @@ class ReplayParser(QObject):
     def get_info(self) -> str:
         return "".join(self._gen_info())
 
+    def map_pixel_size(self) -> QSizeF:
+        return QSizeF(self.luaScenarioInfo["size"][1], self.luaScenarioInfo["size"][2])
+
     def generated_map_size(self) -> str:
         desc = self.luaScenarioInfo["description"].split("\r\n")
         for line in desc:
@@ -491,7 +500,7 @@ class ReplayParser(QObject):
     def map_display_name(self) -> str:
         return self.luaScenarioInfo["name"]
 
-    def _gen_chat(self) -> Generator[str, None, None]:
+    def _gen_chat(self) -> Generator[str]:
         yield "<table width=100%>"
         for index, line in enumerate(self.chatLine):
             bgcolor = ("#202025", "#303035")[index % 2]
@@ -513,7 +522,7 @@ class ReplayParser(QObject):
             return value
         return html.escape(value)
 
-    def _gen_settings(self) -> Generator[str, None, None]:
+    def _gen_settings(self) -> Generator[str]:
         yield (
             f"<center><h2>{self.map_display_name()}</h2><h4>"
             f"{self.actual_map_size()}</h4></center><table>"

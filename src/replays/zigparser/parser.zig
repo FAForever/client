@@ -17,6 +17,7 @@ const ParseErorr = structs.ParseError;
 
 const LUA_TYPE = @import("replayformat.zig").LUA_TYPE;
 const STITARGET = @import("replayformat.zig").STITARGET;
+const CommandType = @import("replayformat.zig").UnitCommandType;
 const Operation = @import("replayformat.zig").Operation;
 
 const SliceIterator = @import("sliceiterator.zig").SliceIterator;
@@ -146,7 +147,7 @@ pub const Parser = struct {
         try self.body_data.lastticks.put(player, self.body_data.ticks);
     }
 
-    pub fn process_command_target(self: *Self) ParseError!void {
+    pub fn process_command_target(self: *Self, command_type: u8) ParseError!void {
         self.replay_buf.ignoreMany(4);
         const stitarget: STITARGET = @enumFromInt(self.replay_buf.next().?);
 
@@ -159,6 +160,7 @@ pub const Parser = struct {
                     .tick = self.body_data.ticks,
                     .x = x,
                     .y = y,
+                    .cmd_type = command_type,
                 });
             },
             STITARGET.Entity => {
@@ -190,7 +192,7 @@ pub const Parser = struct {
         self.replay_buf.ignoreMany(4 * (units_num + 3));
         const cmd_type = self.replay_buf.next().?;
 
-        try self.process_command_target();
+        try self.process_command_target(cmd_type);
         self.replay_buf.ignoreNext();
         self.process_formation();
 
@@ -296,6 +298,7 @@ pub const Parser = struct {
             const list = std.ArrayList(Command).init(self.allocator);
             try self.body_data.commands.put(@as(u8, @intCast(i)), list);
         }
+        const moved_cmd = @intFromEnum(CommandType.MovePreviouslyIssuedCommand);
         while (self.replay_buf.len > 0) {
             const message_op: Operation = @enumFromInt(self.replay_buf.next().?);
             const message_len = self.replay_buf.read_int(u16);
@@ -311,7 +314,7 @@ pub const Parser = struct {
                     try self.pin_lasttick(self.player_source.?);
                 },
                 .CMDST_SetCommandTarget => {
-                    try self.process_command_target();
+                    try self.process_command_target(moved_cmd);
                 },
                 .CMDST_IssueCommand, .CMDST_IssueFactoryCommand => {
                     const player = self.player_source.?;
