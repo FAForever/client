@@ -41,8 +41,8 @@ class RangeSlider(QtWidgets.QSlider):
     def __init__(self, *args):
         QtWidgets.QSlider.__init__(self, *args)
 
-        self._low = self.minimum()
-        self._high = self.maximum()
+        self._low: int = self.minimum()
+        self._high: int = self.maximum()
 
         self.pressed_control = QtWidgets.QStyle.SubControl.SC_None
         self.hover_control = QtWidgets.QStyle.SubControl.SC_None
@@ -51,17 +51,17 @@ class RangeSlider(QtWidgets.QSlider):
         # 0 for the low, 1 for the high, -1 for both
         self.active_slider = 0
 
-    def low(self):
+    def low(self) -> int:
         return self._low
 
-    def setLow(self, low):
+    def setLow(self, low: int) -> None:
         self._low = low
         self.update()
 
-    def high(self):
+    def high(self) -> int:
         return self._high
 
-    def setHigh(self, high):
+    def setHigh(self, high: int) -> None:
         self._high = high
         self.update()
 
