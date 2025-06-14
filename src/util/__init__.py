@@ -10,6 +10,7 @@ import sys
 
 from PyQt6 import QtWidgets
 from PyQt6.QtCore import QDateTime
+from PyQt6.QtCore import QDir
 from PyQt6.QtCore import QFileInfo
 from PyQt6.QtCore import QStandardPaths
 from PyQt6.QtCore import Qt
@@ -145,11 +146,8 @@ def getPersonalDir():
     if fallback:
         dir_ = os.path.join(APPDATA_DIR, "user")
     else:
-        dir_ = str(
-            QStandardPaths.standardLocations(
-                QStandardPaths.StandardLocation.DocumentsLocation,
-            )[0],
-        )
+        loc_type = QStandardPaths.StandardLocation.DocumentsLocation
+        dir_ = QDir.toNativeSeparators(QStandardPaths.standardLocations(loc_type)[0])
         try:
             dir_.encode("ascii")
 

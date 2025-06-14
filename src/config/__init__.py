@@ -8,6 +8,7 @@ from collections.abc import Generator
 from contextlib import contextmanager
 from logging.handlers import MemoryHandler
 from logging.handlers import RotatingFileHandler
+from typing import Any
 
 from PyQt6 import QtCore
 
@@ -156,7 +157,7 @@ def check_data_path_permissions():
                 name, domain, type = win32security.LookupAccountSid(
                     None, owner_sid,
                 )
-                data_path_owner = "{}\\{}".format(domain, name)
+                data_path_owner = f"{domain}\\{name}"
 
                 if my_user != data_path_owner:
                     set_data_path_permissions()
@@ -193,11 +194,11 @@ def make_dirs():
     ]:
         path = Settings.get(dir_)
         if path is None:
-            raise Exception("Missing configured path for {}".format(dir_))
+            raise Exception(f"Missing configured path for {dir_}")
         if not os.path.isdir(path):
             try:
                 os.makedirs(path)
-            except IOError:
+            except OSError:
                 set_data_path_permissions()
                 os.makedirs(path)
 
@@ -276,6 +277,18 @@ if not Settings.contains('client/language'):
 make_dirs()
 
 
+class SanitizedFormatter(logging.Formatter):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self.user_profile = os.environ.get("USERPROFILE") or os.environ.get("HOME")
+
+    def format(self, record: logging.LogRecord) -> str:
+        message = super().format(record)
+        if self.user_profile and self.user_profile in message:
+            message = message.replace(self.user_profile, "%USERPROFILE%")
+        return message
+
+
 def setup_file_handler(filename):
     # check permissions of writing the log file first
     # (which fails when changing users)
@@ -283,18 +296,14 @@ def setup_file_handler(filename):
     try:
         with open(log_file, "a"):
             pass
-    except IOError:
+    except OSError:
         set_data_path_permissions()
     rotate = RotatingFileHandler(
         os.path.join(Settings.get('client/logs/path'), filename),
         maxBytes=int(Settings.get('client/logs/max_size')),
         backupCount=5,
     )
-    rotate.setFormatter(
-        logging.Formatter(
-            '%(asctime)s %(levelname)-8s %(name)-30s %(message)s',
-        ),
-    )
+    rotate.setFormatter(SanitizedFormatter("%(asctime)s %(levelname)-8s %(name)-30s %(message)s"))
     return MemoryHandler(
         int(Settings.get('client/logs/buffer_size')),
         target=rotate,
@@ -367,7 +376,7 @@ def setup_fault_handler():
         # This file must be kept open so that faulthandler can write to the
         # same file descriptor no matter the circumstances
         fault_handler_file = open(log_path, 'a')
-    except IOError as e:
+    except OSError as e:
         logging.getLogger().error(
             'Failed to setup crash.log for the fault handler: ' + e.strerror,
         )
@@ -380,7 +389,7 @@ setup_fault_handler()
 
 
 def clear_logging_handlers():
-    global fault_handler_file
     QtCore.qInstallMessageHandler(None)
     faulthandler.disable()
-    fault_handler_file.close()
+    if fault_handler_file is not None:
+        fault_handler_file.close()

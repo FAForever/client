@@ -9,6 +9,7 @@ from irc.client import ServerConnection
 from irc.client import ServerConnectionError
 from irc.client import SimpleIRCClient
 from irc.client import is_channel
+from irc.client import log
 from PyQt6.QtCore import QObject
 from PyQt6.QtCore import QTimer
 from PyQt6.QtCore import pyqtSignal
@@ -26,6 +27,18 @@ from src.model.chat.chatline import ChatLineType
 
 logger = logging.getLogger(__name__)
 IRC_ELEVATION = '%@~%+&'
+
+
+class IrcLogFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        if record.msg.startswith("TO SERVER"):
+            string = record.args[0]  # type: ignore
+            if isinstance(string, str) and string.startswith("AUTHENTICATE") and len(string) > 20:
+                record.args = ("AUTHENTICATE ******",)
+        return True
+
+
+log.addFilter(IrcLogFilter())
 
 
 def user2name(user):
@@ -229,7 +242,7 @@ class IrcConnection(SimpleIRCClient, IrcSignals):
     def _log_event(self, e):
         text = '  |  '.join(e.arguments)
         self.new_server_message.emit(
-            "[{}: {}->{}] {}".format(e.type, e.source, e.target, text),
+            f"[{e.type}: {e.source}->{e.target}] {text}",
         )
 
     def _log_client_message(self, text):
