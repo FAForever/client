@@ -305,22 +305,23 @@ QSplitter::handle:hover
      background-color: #606060;
  }
 
- QDateEdit
- {
-     margin: 0;
-     background-color: #353535;
-     color: orange;
- }
+QDateEdit
+{
+    background-color: #353535;
+    color:orange;
+    border: 1px solid;
+    border-color: #555450;
+}
 
- QDateEdit:disabled
- {
-     color: #8D8B85;
- }
+QDateEdit:disabled
+{
+    color: #8D8B85;
+}
 
- QDateEdit::down-arrow
- {
-     color: orange;
- }
+QDateEdit::down-arrow
+{
+    color: orange;
+}
 
 QSpinBox#minRating, QLineEdit#mapName, #playerName, QSpinBox#quantity, #advQuantity,
 QComboBox#modList, #value1, #value2, #value3, #value4, #value5, #value6, #leaderboardList
@@ -346,7 +347,6 @@ QSpinBox#minRating, QSpinBox#quantity, #advQuantity
 QSpinBox#minRating::disabled
 {
     color: #8D8B85;
-    background-color: #4b4b4b;
 }
 
 QComboBox#filter1, #filter2, #filter3, #filter4, #filter5, #filter6,
@@ -399,6 +399,17 @@ QTextEdit, QPlainTextEdit, QLineEdit, QListWidget, QListView, QTableWidget, QTre
     border-top-left-radius : 5px;
     border-bottom-left-radius : 5px;
     border-bottom-right-radius : 5px;
+}
+
+QLineEdit:disabled {
+    color: #606060;
+    background-color: #18181D;
+    border: 1px solid #2A2A2A;
+    padding: 5px;
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
 }
 
 QFrame#rankedFrame
@@ -955,7 +966,7 @@ QPushButton#RefreshResetButton, #advResetButton
     background-color: rgb(39, 39, 45);
 }
 
-QPushButton#generateMapButton
+QPushButton#generateMapButton, #hostGameButton
 {
     color: silver;
 	border-radius: 2px;
@@ -964,13 +975,15 @@ QPushButton#generateMapButton
     min-height: 30px;
     background-color: rgb(39, 39, 45);
 }
-QPushButton#saveMapGenSettingsButton, #resetMapGenSettingsButton
+QPushButton#saveMapGenSettingsButton, #resetMapGenSettingsButton, #saveHostGameSettingsButton
 {
     color: silver;
     border: 0.5px solid rgb(70, 70, 70);
     background-color: rgb(39, 39, 45);
+    padding: 5px;
 }
-QPushButton#saveMapGenSettingsButton::hover, #resetMapGenSettingsButton::hover,#generateMapButton::hover
+QPushButton#saveMapGenSettingsButton::hover, #resetMapGenSettingsButton::hover,#generateMapButton::hover,
+#hostGameButton::hover, #saveHostGameSettingsButton:hover
 {
     border: none;
 
@@ -978,7 +991,14 @@ QPushButton#saveMapGenSettingsButton::hover, #resetMapGenSettingsButton::hover,#
     padding:5px;
     background-color:#808080;
     border-radius : 5px;
- }
+}
+
+QPushButton#hostGameButton:disabled {
+    color: rgb(100, 100, 100);
+    background-color: rgb(30, 30, 35);
+    border: 0.5px solid rgb(50, 50, 50);
+}
+
 QPushButton#newsSettings
 {
     qproperty-icon: url('%THEMEPATH%/client/settings.png');
@@ -1004,23 +1024,14 @@ QPushButton#manageGameFiltersButton:hover
 QSpinBox, QDoubleSpinBox
 {
     color:orange;
-    selection-color:orange;
-    background-color: #575656;
-    selection-background-color: #575656;
+    background-color: #353535;
     border: 1 solid;
     border-color: #555450;
-
 }
 
 QSpinBox::disabled, QDoubleSpinBox::disabled
 {
-    color:gray;
-    selection-color:gray;
-    background-color: #575656;
-    selection-background-color: #575656;
-    border: 1 solid;
-    border-color: #555450;
-
+    color: #8D8B85;
 }
 
 
@@ -1274,4 +1285,54 @@ QSlider::sub-page:horizontal:disabled {
 QSlider::add-page:horizontal {
     background: #444444;
     height: 6px;
+}
+
+QRadioButton {
+    color: silver;
+    spacing: 5px;
+}
+
+QRadioButton::indicator {
+    width: 13px;
+    height: 13px;
+    border: 1px solid #353535;
+    border-radius: 7px;
+    background: #303035;
+}
+
+QRadioButton::indicator:hover {
+    border: 1px solid #606060;
+}
+
+QRadioButton::indicator:checked {
+    border: 1px solid #1A7BFF;
+    background: #1A7BFF;
+    image: none;
+}
+
+QRadioButton::indicator:checked:hover {
+    background: #3A9BFF;
+    border: 1px solid #3A9BFF;
+}
+
+QRadioButton:disabled {
+    color: gray;
+}
+
+QRadioButton::indicator:disabled {
+    background: #4b4b4b;
+    border: 1px solid #555450;
+}
+
+
+QDialog#hostGameDialog {
+    background: rgba(15, 15, 15, 200);
+}
+
+QLabel[bordered="true"] {
+    border: 2px solid #404040;
+    border-radius: 8px;
+    background-color: #252525;
+    color: #a0a0a0;
+    padding: 2px;
 }

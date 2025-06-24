@@ -485,12 +485,12 @@ class ReplayParser(QObject):
         for line in desc:
             if "Map Size" in line:
                 size = int(line.split(":")[-1])
-                return f"{size/51.2:.2f}x{size/51.2:.2f}"
+                return f"{size/51.2:g}x{size/51.2:.g}"
         return ""
 
     def map_display_size(self) -> str:
         (a, b) = self.luaScenarioInfo["size"][1.0], self.luaScenarioInfo["size"][2.0]
-        return f"{int(a/51.2)}x{int(b/51.2)}"
+        return f"{a/51.2:g}x{b/51.2:g}"
 
     def actual_map_size(self) -> str:
         if isGeneratedMap(self.map_folder_name()):

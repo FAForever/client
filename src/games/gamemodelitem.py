@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Callable
+from collections.abc import Callable
 
 from PyQt6.QtCore import QObject
 from PyQt6.QtCore import pyqtSignal
@@ -8,7 +8,7 @@ from PyQt6.QtCore import pyqtSignal
 from src.client.user import User
 from src.client.user import UserRelations
 from src.downloadManager import DownloadRequest
-from src.downloadManager import MapPreviewDownloader
+from src.downloadManager import MapSmallPreviewDownloader
 from src.fa import maps
 from src.model.game import Game
 from src.util import pretty_decoded_basename
@@ -26,7 +26,7 @@ class GameModelItem(QObject):
             game: Game,
             relations: UserRelations,
             me: User,
-            preview_dler: MapPreviewDownloader,
+            preview_dler: MapSmallPreviewDownloader,
     ) -> None:
         QObject.__init__(self)
 
@@ -45,7 +45,7 @@ class GameModelItem(QObject):
             cls,
             relations: UserRelations,
             me: User,
-            preview_dler: MapPreviewDownloader,
+            preview_dler: MapSmallPreviewDownloader,
     ) -> Callable[[Game], GameModelItem]:
         def build(game: Game) -> GameModelItem:
             return cls(game, relations, me, preview_dler)

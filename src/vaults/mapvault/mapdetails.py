@@ -81,7 +81,7 @@ class MapDetailsWidget(DetailsWidget):
         width = self.item_version.size.width_km
         return [
             ("Version:", str(self.item_version.version)),
-            ("Dimensions (km):", f"{width} x {height}"),
+            ("Dimensions (km):", f"{width:g} x {height:g}"),
             ("Max Players:", str(self.item_version.max_players)),
             ("Games Played:", str(self.item_version.games_played)),
             ("Ranked:", "Yes" if self.item_version.ranked else "No"),

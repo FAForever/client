@@ -1,5 +1,8 @@
+from typing import Any
 from typing import Literal
 from typing import TypedDict
+
+type ServerMessage = dict[str, Any]
 
 
 class GameJoinFailedCommand(TypedDict):

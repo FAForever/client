@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import shutil
@@ -6,7 +7,7 @@ import string
 import sys
 import tempfile
 import zipfile
-from typing import Callable
+from collections.abc import Callable
 
 from PyQt6 import QtCore
 from PyQt6 import QtGui
@@ -20,6 +21,7 @@ from src.fa.maps_.preview import image_from_dds
 from src.mapGenerator.mapgenUtils import isGeneratedMap
 from src.model.game import OFFICIAL_MAPS as maps
 from src.vaults.dialogs import downloadVaultAssetNoMsg
+from src.vaults.luaparser import luaParser
 
 logger = logging.getLogger(__name__)
 
@@ -35,15 +37,15 @@ def isBase(mapname: str) -> bool:
     return mapname.lower() in maps
 
 
-def getUserMaps():
-    maps = []
+def getUserMaps() -> list[str]:
+    maps: list[str] = []
     if os.path.isdir(getUserMapsFolder()):
         for _dir in os.listdir(getUserMapsFolder()):
             maps.append(_dir.lower())
     return maps
 
 
-def getDisplayName(filename):
+def getDisplayName(filename: str) -> str:
     """
     Tries to return a pretty name for the map (for official maps, it looks up
     the name) For nonofficial maps, it tries to clean up the filename
@@ -130,7 +132,7 @@ def isMapAvailable(mapname):
     return False
 
 
-def folderForMap(mapname):
+def folderForMap(mapname: str) -> str | None:
     """
     Returns the folder where the application could find the map
     """
@@ -184,7 +186,7 @@ def gen_prev_from_dds(sourcename: str, destname: str, small: bool = False) -> No
                 transformMode=QtCore.Qt.TransformationMode.SmoothTransformation,
             )
         image.save(destname)
-    except IOError:
+    except OSError:
         logger.debug('IOError exception in genPrevFromDDS', exc_info=True)
         raise
 
@@ -200,7 +202,7 @@ def export_preview_from_map(
     smallExists = False
     largeExists = False
     ddsExists = False
-    previews = {"cache": None, "tozip": list()}
+    previews = {"cache": None, "cache_large": None, "tozip": list()}
 
     if os.path.isdir(mapname):
         mapdir = mapname
@@ -238,7 +240,8 @@ def export_preview_from_map(
     previewsmallname = plausible_mapname_preview_name(".small.png")
     previewlargename = plausible_mapname_preview_name(".large.png")
     previewddsname = plausible_mapname_preview_name(".dds")
-    cachepngname = os.path.join(util.MAP_PREVIEW_SMALL_DIR, mapname + ".png")
+    cache_small = os.path.join(util.MAP_PREVIEW_SMALL_DIR, mapname + ".png")
+    cache_large = os.path.join(util.MAP_PREVIEW_LARGE_DIR, mapname + ".png")
 
     logger.debug("Generating preview from user maps for: '%s'. Directory: '%s'", mapname, mapdir)
 
@@ -253,9 +256,9 @@ def export_preview_from_map(
     if os.path.isfile(previewsmallname):
         previews["tozip"].append(previewsmallname)
         smallExists = True
-        shutil.copyfile(previewsmallname, cachepngname)
-        if os.path.isfile(cachepngname):
-            previews["cache"] = cachepngname
+        shutil.copyfile(previewsmallname, cache_small)
+        if os.path.isfile(cache_small):
+            previews["cache"] = cache_small
         else:
             logger.warning("Couldn't copy preview into cache folder")
             return previews
@@ -263,6 +266,11 @@ def export_preview_from_map(
     if os.path.isfile(previewlargename):
         previews["tozip"].append(previewlargename)
         largeExists = True
+        shutil.copyfile(previewlargename, cache_large)
+        if os.path.isfile(cache_large):
+            previews["cache_large"] = cache_large
+        else:
+            logger.warning("Couldn't copy large preview %s into cache folder", previewlargename)
 
     if os.path.isfile(previewddsname):
         previews["tozip"].append(previewddsname)
@@ -276,7 +284,7 @@ def export_preview_from_map(
             else:
                 logger.debug("Failed to make DDS for: '%s'", mapname)
                 return previews
-        except IOError:
+        except OSError:
             pass
 
     if not smallExists:
@@ -284,9 +292,9 @@ def export_preview_from_map(
         try:
             gen_prev_from_dds(previewddsname, previewsmallname, small=True)
             previews["tozip"].append(previewsmallname)
-            shutil.copyfile(previewsmallname, cachepngname)
-            previews["cache"] = cachepngname
-        except IOError:
+            shutil.copyfile(previewsmallname, cache_small)
+            previews["cache"] = cache_small
+        except OSError:
             logger.debug("Failed to make small preview for: '%s'", mapname)
             return previews
 
@@ -295,8 +303,10 @@ def export_preview_from_map(
         try:
             mappixmap = create_large_preview(mapdir)
             mappixmap.save(previewlargename)
+            mappixmap.save(cache_large)
             previews["tozip"].append(previewlargename)
-        except IOError:
+            previews["cache_large"] = cache_large
+        except OSError:
             logger.debug("Failed to make large preview for: '%s'", mapname)
 
     return previews
@@ -313,23 +323,41 @@ def get_preview_for_generated_map(mapname: str) -> QtGui.QIcon:
     return util.THEME.icon("games/generated_map.png")
 
 
-def preview(mapname: str, *, pixmap: bool = False) -> QtGui.QIcon | QtGui.QPixmap | None:
+def preview(
+        mapname: str,
+        *,
+        pixmap: bool = False,
+        large: bool = False,
+) -> QtGui.QIcon | QtGui.QPixmap | None:
     if isGeneratedMap(mapname):
         return get_preview_for_generated_map(mapname)
     try:
         # Try to load directly from cache
         encode_option = QtCore.QUrl.ComponentFormattingOption.EncodeSpaces
         encoded = QtCore.QUrl(mapname).fileName(encode_option)
-        img = os.path.join(util.MAP_PREVIEW_SMALL_DIR, f"{encoded}.png")
+        if large:
+            img = os.path.join(util.MAP_PREVIEW_LARGE_DIR, f"{encoded}.png")
+        else:
+            img = os.path.join(util.MAP_PREVIEW_SMALL_DIR, f"{encoded}.png")
         if os.path.isfile(img):
             logger.log(5, f"Using cached preview image for: {mapname}")
             return util.THEME.icon(img, False, pixmap)
 
         # Try to find in local map folder
         img = export_preview_from_map(mapname)
+        if not img:
+            return None
 
         if (
-            img
+            large
+            and "cache_large" in img
+            and img["cache_large"]
+            and os.path.isfile(img["cache_large"])
+        ):
+            return util.THEME.icon(img["cache_large"], False, pixmap)
+
+        if (
+            not large
             and 'cache' in img
             and img['cache']
             and os.path.isfile(img['cache'])
@@ -407,3 +435,76 @@ def processMapFolderForUpload(mapDir: str) -> None:
     temp.flush()
 
     return temp
+
+
+class InstalledMapsCache:
+    def __init__(self, path: str) -> None:
+        self.path = path
+        self.installed_maps = self.load()
+
+    def parse_metadata(self, folder: str) -> dict[str, str]:
+        for file in os.listdir(folder):
+            if file.endswith("scenario.lua"):
+                parser = luaParser(os.path.join(folder, file))
+                return parser.parse(
+                    {
+                        "scenarioinfo>name": "name",
+                        "size": "map_size",
+                        "description": "description",
+                        "count:armies": "max_players",
+                        "map_version": "version",
+                        "type": "map_type",
+                        "teams>0>name": "battle_type",
+                    },
+                    {
+                        "name": "",
+                        "map_size": {"0": "-", "1": "-"},
+                        "description": "-",
+                        "max_players": 0,
+                        "version": "-",
+                        "map_type": "-",
+                        "battle_type": "-",
+                    },
+                )
+        logger.warning("Could not extract map info from %s", folder)
+        return {}
+
+    def get_installed_maps(self) -> dict[str, dict[str, str]]:
+        user_folder = getUserMapsFolder()
+        base_folder = getBaseMapsFolder()
+        for root in (user_folder, base_folder):
+            for dr in os.listdir(root):
+                if root == base_folder and dr.lower() not in maps:
+                    continue
+                if dr.lower() in self.installed_maps:
+                    continue
+                map_path = os.path.join(root, dr)
+                map_info = self.parse_metadata(map_path)
+                map_info["folder_name"] = dr.lower()
+                self.installed_maps[dr.lower()] = map_info
+                logger.debug("Loaded %s into maps cached metadata", map_path)
+        return self.installed_maps
+
+    def sanitize(self) -> None:
+        current = getUserMaps() + list(maps)
+        for folder in tuple(self.installed_maps):
+            if folder not in current:
+                logger.debug("Removing %s from cached maps metadata...", folder)
+                self.installed_maps.pop(folder, None)
+
+    def load(self) -> dict[str, dict[str, str]]:
+        if not os.path.exists(self.path):
+            return {}
+
+        with open(self.path) as f:
+            try:
+                return json.load(f)
+            except json.JSONDecodeError:
+                return {}
+
+    def save(self) -> None:
+        with open(self.path, "w") as fd:
+            json.dump(self.installed_maps, fd, indent=2)
+
+
+CachedMapsMetadata = InstalledMapsCache(os.path.join(util.MAP_CACHE_DIR, "mapscenarios.json"))

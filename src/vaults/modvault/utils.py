@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 import os
 import re
@@ -32,7 +34,7 @@ def setModFolder():
 setModFolder()
 MODVAULT_DOWNLOAD_ROOT = "{}/faf/vault/".format(Settings.get('content/host'))
 
-installedMods = []  # This is a global list that should be kept intact.
+installedMods: list[ModInfo] = []  # This is a global list that should be kept intact.
 # So it should be cleared using installedMods[:] = []
 
 # mods selected by user, are not overwritten by temporary mods selected when
@@ -40,11 +42,15 @@ installedMods = []  # This is a global list that should be kept intact.
 selectedMods = Settings.get('play/mods', default=[])
 
 
-class ModInfo(object):
+class ModInfo:
     def __init__(self, **kwargs):
         self.name = "Not filled in"
+        self.uid = ""
+        self.author = "Uknown author"
         self.version = 0
         self.folder = ""
+        self.description = ""
+        self.ui_only = False
         self.__dict__.update(kwargs)
 
     def setFolder(self, localfolder):
@@ -55,10 +61,10 @@ class ModInfo(object):
     def update(self):
         self.setFolder(self.localfolder)
         if isinstance(self.version, int):
-            self.totalname = "{} v{}".format(self.name, self.version)
+            self.totalname = f"{self.name} v{self.version}"
         elif isinstance(self.version, float):
             s = str(self.version).rstrip("0")
-            self.totalname = "{} v{}".format(self.name, s)
+            self.totalname = f"{self.name} v{s}"
         else:
             raise TypeError("version is not an int or float")
 
@@ -70,7 +76,7 @@ class ModInfo(object):
         return out
 
     def __str__(self):
-        return '{} in "{}"'.format(self.totalname, self.localfolder)
+        return f'{self.totalname} in "{self.localfolder}"'
 
 
 def getAllModFolders():  # returns a list of names of installed mods
@@ -237,7 +243,7 @@ def getModInfoFromFolder(modfolder):  # modfolder must be local to MODFOLDER
 
 
 # returns a list of ModInfo's containing information of the mods
-def getActiveMods(uimods=None, temporary=True):
+def getActiveMods(uimods: bool | None = None, temporary: bool = True) -> list[ModInfo]:
     """uimods:
         None - return all active mods
         True - only return active UI Mods
@@ -266,7 +272,7 @@ def getActiveMods(uimods=None, temporary=True):
         else:
             uids = selectedMods[:]
 
-        allmods = []
+        allmods: list[ModInfo] = []
         for m in installedMods:
             if (
                 (uimods and m.ui_only)
@@ -306,7 +312,7 @@ def setActiveMods(mods, keepuimods=True, temporary=True):
     logger.debug("Setting active Mods: %s", [mod.uid for mod in allmods])
     s = "active_mods = {\n"
     for mod in allmods:
-        s += "['{}'] = true,\n".format(str(mod.uid))
+        s += f"['{str(mod.uid)}'] = true,\n"
     s += "}"
 
     if not temporary:
@@ -318,7 +324,7 @@ def setActiveMods(mods, keepuimods=True, temporary=True):
         logger.debug("selectedMods written: %s", Settings.get("play/mods"))
 
     try:
-        with open(PREFSFILENAME, 'r') as f:
+        with open(PREFSFILENAME) as f:
             data = f.read()
     except Exception:
         logger.exception("Couldn't read the game.prefs file")
@@ -349,7 +355,7 @@ def updateModInfo(mod, info):  # should probably not be used.
     logger.warning("updateModInfo called. Probably not a good idea")
     fname = mod.mod_info
     try:
-        with open(fname, 'r') as f:
+        with open(fname) as f:
             data = f.read()
     except Exception:
         logger.exception("Something went wrong reading %s", fname)
@@ -362,13 +368,13 @@ def updateModInfo(mod, info):  # should probably not be used.
             val = '"' + v.replace('"', '\\"') + '"'
         if re.search(r'^\s*' + k, data, re.M):
             data = re.sub(
-                r'^\s*' + k + r'\s*=.*$', "{} = {}".format(k, val),
+                r'^\s*' + k + r'\s*=.*$', f"{k} = {val}",
                 data, 1, re.M,
             )
         else:
             if data[-1] != '\n':
                 data += '\n'
-            data += "{} = {}".format(k, val)
+            data += f"{k} = {val}"
     try:
         with open(fname, 'w') as f:
             f.write(data)
@@ -400,7 +406,7 @@ def generateThumbnail(sourcename, destname):
             100, 100, transformMode=QtCore.Qt.TransformationMode.SmoothTransformation,
         )
         imageFile.save(destname)
-    except IOError:
+    except OSError:
         return False
 
     if os.path.isfile(destname):

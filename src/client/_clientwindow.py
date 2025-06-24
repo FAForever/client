@@ -2,7 +2,6 @@ import logging
 import time
 from functools import partial
 from operator import itemgetter
-from typing import Any
 
 from PyQt6 import QtCore
 from PyQt6 import QtGui
@@ -35,6 +34,7 @@ from src.client.connection import ServerConnection
 from src.client.connection import ServerReconnecter
 from src.client.gameannouncer import GameAnnouncer
 from src.client.lobbyprotocol import GameJoinFailedCommand
+from src.client.lobbyprotocol import ServerMessage
 from src.client.login import LoginWidget
 from src.client.playercolors import PlayerColors
 from src.client.theme_menu import ThemeMenu
@@ -51,6 +51,7 @@ from src.downloadManager import MapSmallPreviewDownloader
 from src.fa.factions import Factions
 from src.fa.game_runner import GameRunner
 from src.fa.game_session import GameSession
+from src.fa.maps import CachedMapsMetadata
 from src.fa.maps import getUserMapsFolder
 from src.games import GamesWidget
 from src.games.gameitem import GameViewBuilder
@@ -88,8 +89,6 @@ from .mouse_position import MousePosition
 logger = logging.getLogger(__name__)
 
 FormClass, BaseClass = util.THEME.loadUiType("client/client.ui")
-
-ServerMessage = dict[str, Any]
 
 
 class ClientWindow(FormClass, BaseClass):
@@ -136,7 +135,7 @@ class ClientWindow(FormClass, BaseClass):
     )
 
     def __init__(self, *args, **kwargs):
-        super(ClientWindow, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         logger.debug("Client instantiating")
 
@@ -301,7 +300,7 @@ class ClientWindow(FormClass, BaseClass):
         util.THEME.stylesheets_reloaded.connect(self.load_stylesheet)
         self.load_stylesheet()
 
-        self.setWindowTitle("FA Forever {}".format(util.VERSION_STRING))
+        self.setWindowTitle(f"FA Forever {util.VERSION_STRING}")
 
         # Frameless
         self.setWindowFlags(
@@ -700,11 +699,7 @@ class ClientWindow(FormClass, BaseClass):
         ]
 
         self.gameview_builder = GameViewBuilder(self.me, self.player_colors)
-        self.game_launcher = build_launcher(
-            self.players, self.me,
-            self, self.gameview_builder,
-            self.map_preview_downloader,
-        )
+        self.game_launcher = build_launcher(self.players, self.me, self)
         self._avatar_widget_builder = AvatarWidget.builder(
             parent_widget=self,
             lobby_connection=self.lobby_connection,
@@ -857,7 +852,7 @@ class ClientWindow(FormClass, BaseClass):
             button.setMaximumSize(25, 25)
             button.setIcon(
                 util.THEME.icon(
-                    "games/automatch/{}.png".format(faction.to_name()),
+                    f"games/automatch/{faction.to_name()}.png",
                 ),
             )
             button.clicked.connect(partial(self.ladderWarningClicked, faction))
@@ -974,6 +969,9 @@ class ClientWindow(FormClass, BaseClass):
 
         # Get rid of generated maps
         util.clearGeneratedMaps()
+
+        CachedMapsMetadata.sanitize()
+        CachedMapsMetadata.save()
 
         # Get rid of the Tray icon
         if self.tray:
@@ -1362,7 +1360,7 @@ class ClientWindow(FormClass, BaseClass):
     @QtCore.pyqtSlot()
     def linkAbout(self):
         dialog = util.THEME.loadUi("client/about.ui")
-        dialog.version_label.setText("Version: {}".format(util.VERSION_STRING))
+        dialog.version_label.setText(f"Version: {util.VERSION_STRING}")
         dialog.exec()
 
     @QtCore.pyqtSlot()
@@ -1768,7 +1766,7 @@ class ClientWindow(FormClass, BaseClass):
         if faction != Factions.RANDOM:
             subFactions[faction.value - 1] = True
         config.Settings.set(
-            "play/{}Factions".format(MatchmakerQueueType.LADDER.value),
+            f"play/{MatchmakerQueueType.LADDER.value}Factions",
             subFactions,
         )
         try:
@@ -1810,22 +1808,29 @@ class ClientWindow(FormClass, BaseClass):
 
     def host_game(
         self,
-        title,
-        mod,
-        visibility,
-        mapname,
-        password,
-        is_rehost=False,
+        title: str,
+        mod: str,
+        visibility: str,
+        mapname: str,
+        password: str,
+        enforce_rating_range: bool = False,
+        rating_min: float | None = None,
+        rating_max: float | None = None,
     ):
-        msg = {
-            'command': 'game_host',
-            'title': title,
-            'mod': mod,
-            'visibility': visibility,
-            'mapname': mapname,
-            'password': password,
-            'is_rehost': is_rehost,
+        msg: dict[str, str | bool | float] = {
+            "command": "game_host",
+            "title": title,
+            "mod": mod,
+            "visibility": visibility,
+            "mapname": mapname,
+            "password": password,
         }
+        if enforce_rating_range:
+            if rating_min is not None:
+                msg.update(rating_min=rating_min)
+            if rating_max is not None:
+                msg.update(rating_max=rating_max)
+
         self.lobby_connection.send(msg)
 
     def join_game(self, uid, password=None):
@@ -1854,7 +1859,7 @@ class ClientWindow(FormClass, BaseClass):
             self.labelAutomatchInfo.setText("Launching the game...")
             ratingType = message.get("rating_type", RatingType.GLOBAL.value)
             factionSubset = config.Settings.get(
-                "play/{}Factions".format(self.games.matchFoundQueueName),
+                f"play/{self.games.matchFoundQueueName}Factions",
                 default=[False] * 4,
                 type=bool,
             )
@@ -1879,7 +1884,7 @@ class ClientWindow(FormClass, BaseClass):
             if message.get("game_options"):
                 arguments.append('/gameoptions')
                 for key, value in message["game_options"].items():
-                    arguments.append('{}:{}'.format(key, value))
+                    arguments.append(f'{key}:{value}')
 
             # Launch the auto lobby
             self.game_session.setLobbyInitMode("auto")

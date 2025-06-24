@@ -67,7 +67,8 @@ class DetailsWidgetUI:
 
         self.thumbnailLabel = ClickableLabel("Loading thumbnail...")
         self.thumbnailLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.thumbnailLabel.setMinimumSize(200, 150)
+        self.thumbnailLabel.setProperty("bordered", "true")
+        self.thumbnailLabel.setFixedSize(256, 256)
         content_layout.addWidget(self.thumbnailLabel, 0, 0, 3, 1)
 
         author_box = QGroupBox("Author")

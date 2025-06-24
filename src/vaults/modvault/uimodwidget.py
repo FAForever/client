@@ -1,4 +1,3 @@
-
 from PyQt6 import QtCore
 from PyQt6 import QtWidgets
 
@@ -51,7 +50,7 @@ class UIModWidget(FormClass, BaseClass):
             self.uimods[str(item.text())]
             for item in self.modList.selectedItems()
         ]
-        succes = utils.setActiveMods(selected_mods, False)
+        succes = utils.setActiveMods(selected_mods, False, False)
         if not succes:
             QtWidgets.QMessageBox.information(
                 None,

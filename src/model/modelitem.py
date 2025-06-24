@@ -1,6 +1,8 @@
+from typing import Any
+
+from PyQt6.QtCore import QObject
 from PyQt6.QtCore import pyqtSignal
 
-from src.model.qobjectmapping import QObject
 from src.model.transaction import transactional
 
 
@@ -10,9 +12,9 @@ class ModelItem(QObject):
 
     def __init__(self):
         QObject.__init__(self)
-        self._data_fields = []
+        self._data_fields: list[str] = []
 
-    def add_field(self, name, default):
+    def add_field(self, name: str, default: Any) -> None:
         self._data_fields.append(name)
         setattr(self, name, default)
 

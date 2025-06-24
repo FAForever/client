@@ -143,25 +143,19 @@ class luaParser:
             line = line.strip()
             # if the string is not empty, proceed
             if line != "":
-                # split it by '=' -- actually, by ' = ', because
-                # there can be values with '=' inside, e.g. '=============',
-                lineArray = line.split(" = ")
-                # if result is one element list
-                if len(lineArray) == 1:
-                    # this element is value
-                    value = lineArray[0].strip()
-                    # assign counter value to key
-                    key = str(counter)
-                else:
-                    # first is key
+                # split it by '='
+                key, _, value = line.partition("=")
+                if value:
                     if self.loweringKeys:
-                        key = lineArray[0].lower()
-                    else:
-                        key = lineArray[0]
+                        key = key.lower()
                     # get rid of redundant chars in key
                     key = self.__keyFilter.sub("", key).strip()
-                    # second is value
-                    value = lineArray[1].strip()
+                    value = value.strip()
+                else:
+                    # the key is the value
+                    value = key.strip()
+                    # assign counter value to key
+                    key = str(counter)
                 # if value is '}' - which is end of lua array, stop parsing
                 if value == "}":
                     break
@@ -251,7 +245,7 @@ class luaParser:
     def __parseLua(self):
         # open file
         if not self.iszip:
-            f = open(self.__path, "r")
+            f = open(self.__path)
         else:
             if self.zip.testzip() is None:
                 for member in self.zip.namelist():

@@ -14,6 +14,7 @@ from PyQt6.QtWebSockets import QWebSocket
 
 from src import fa
 from src.api.ApiAccessors import UserApiAccessor
+from src.client.lobbyprotocol import ServerMessage
 from src.config import Settings
 from src.model.game import Game
 from src.model.game import message_to_game_args
@@ -301,14 +302,14 @@ class ServerConnection(QtCore.QObject):
         if self._data.endswith("\n"):
             self.processDataFromServer(self._data)
 
-    def writeToServer(self, action, *args, **kw):
+    def write_to_server(self, action: str) -> None:
         message = (action + "\n").encode()
         # it looks like there's a crash in Qt
         # when sending to an unconnected socket
         if self.socket.state() == QtNetwork.QAbstractSocket.SocketState.ConnectedState:
             self.socket.sendBinaryMessage(message)
 
-    def send(self, message):
+    def send(self, message: ServerMessage) -> None:
         data = json.dumps(message)
         if message.get("command") == "auth":
             logger.info(
@@ -323,7 +324,7 @@ class ServerConnection(QtCore.QObject):
         else:
             logger.debug("Outgoing JSON Message: %s", data)
 
-        self.writeToServer(data)
+        self.write_to_server(data)
 
     def on_disconnect(self):
         logger.warning("Disconnected from lobby server.")

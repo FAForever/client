@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import logging
 from typing import TYPE_CHECKING
-from typing import Any
 from typing import Self
 
 from PyQt6 import QtWidgets
@@ -16,6 +15,7 @@ from PyQt6.QtGui import QCursor
 from src import fa
 from src import util
 from src.api.featured_mod_api import FeaturedModApiConnector
+from src.client.lobbyprotocol import ServerMessage
 from src.client.user import User
 from src.games.automatchframe import MatchmakerQueue
 from src.games.filters.controller import GamesSortFilterController
@@ -32,7 +32,6 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-ServerMessage = dict[str, Any]
 
 FormClass, BaseClass = util.THEME.loadUiType("games/games.ui")
 
@@ -260,7 +259,7 @@ class GamesWidget(FormClass, BaseClass):
             or len(message["members"]) < 2
         ):
             self.client._chatMVC.connection.part(
-                "#{}{}".format(old_owner.login, PARTY_CHANNEL_SUFFIX),
+                f"#{old_owner.login}{PARTY_CHANNEL_SUFFIX}",
             )
 
         new_party = Party()
@@ -278,7 +277,7 @@ class GamesWidget(FormClass, BaseClass):
             self.party = new_party
             if self.party.member_count > 1:
                 self.client._chatMVC.connection.join(
-                    "#{}{}".format(new_owner.login, PARTY_CHANNEL_SUFFIX),
+                    f"#{new_owner.login}{PARTY_CHANNEL_SUFFIX}",
                 )
             self.updateTeamList()
 
@@ -322,8 +321,8 @@ class GamesWidget(FormClass, BaseClass):
     def kickPlayerFromParty(self, playerId):
         login = self.client.players[playerId].login
         result = QtWidgets.QMessageBox.question(
-            self, "Kick Player: {}".format(login),
-            "Are you sure you want to kick {} from party?".format(login),
+            self, f"Kick Player: {login}",
+            f"Are you sure you want to kick {login} from party?",
             QtWidgets.QMessageBox.StandardButton.Yes, QtWidgets.QMessageBox.StandardButton.No,
         )
         if result == QtWidgets.QMessageBox.StandardButton.Yes:

@@ -54,9 +54,9 @@ THEME_DIR = os.path.join(APPDATA_DIR, "themes")
 # This contains cached data downloaded while communicating with the lobby
 CACHE_DIR = os.path.join(APPDATA_DIR, "cache")
 
-# Use one cache with Java client (maps/small and maps/large)
-MAP_PREVIEW_SMALL_DIR = os.path.join(CACHE_DIR, "maps", "small")
-MAP_PREVIEW_LARGE_DIR = os.path.join(CACHE_DIR, "maps", "large")
+MAP_CACHE_DIR = os.path.join(CACHE_DIR, "maps")
+MAP_PREVIEW_SMALL_DIR = os.path.join(MAP_CACHE_DIR, "small")
+MAP_PREVIEW_LARGE_DIR = os.path.join(MAP_CACHE_DIR, "large")
 
 MOD_PREVIEW_DIR = os.path.join(CACHE_DIR, "mods")
 
