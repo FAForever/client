@@ -242,6 +242,7 @@ class MapGenDialog(FormClass, BaseClass):
             *self.dynamic_options.values(),
             SpinBoxOption("spawn-count", self.numberOfSpawns, int, 2),
             SpinBoxOption("num-teams", self.numberOfTeams, int, 2),
+            SpinBoxOption("num-to-generate", self.numberOfMaps, int, 1),
             SpinBoxOption("map-size", self.mapSize, float, 5),
             RangeOption(
                 "resource-density",
