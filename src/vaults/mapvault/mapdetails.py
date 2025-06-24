@@ -106,11 +106,13 @@ class MapDetailsWidget(DetailsWidget):
         ]
 
     def download_item(self) -> None:
-        maps._doDownloadMap(
+        ret, msg = maps._doDownloadMap(
             self.item_version.folder_name,
             self.item_version.download_url,
             silent=False,
         )
+        if not ret and msg is not None:
+            msg()
 
     def remove_item(self) -> None:
         full_path = os.path.join(maps.getUserMapsFolder(), self.item_version.folder_name)
