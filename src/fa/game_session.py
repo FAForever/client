@@ -76,6 +76,7 @@ class GameSession(QObject):
         self.ice_adapter_client.connect_(
             "127.0.0.1", self.ice_adapter_process.rpc_port(),
         )
+        self._relay_port = self.ice_adapter_process.gpg_port()
         while self._relay_port == 0:
             QCoreApplication.processEvents()
 

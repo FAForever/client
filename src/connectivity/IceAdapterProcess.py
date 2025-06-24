@@ -12,15 +12,21 @@ from src.decorators import with_logger
 
 
 @with_logger
-class IceAdapterProcess(object):
+class IceAdapterProcess:
     def __init__(self, player_id: int, player_login: str, game_id: int) -> None:
 
         # determine free listen port for the RPC server inside the ice adapter
         # process
-        s = QTcpServer()
-        s.listen(QHostAddress.SpecialAddress.LocalHost, 0)
-        self._rpc_server_port = s.serverPort()
-        s.close()
+        s_rpc = QTcpServer()
+        s_rpc.listen(QHostAddress.SpecialAddress.LocalHost, 0)
+        self._rpc_server_port = s_rpc.serverPort()
+        s_rpc.close()
+
+        # same for GPG
+        s_gpg = QTcpServer()
+        s_gpg.listen(QHostAddress.SpecialAddress.LocalHost, 0)
+        self._gpgnet_port = s_gpg.serverPort()
+        s_gpg.close()
 
         exe_path = fafpath.get_java_path()
         args = [
@@ -38,6 +44,7 @@ class IceAdapterProcess(object):
             "--login", player_login,
             "--game-id", str(game_id),
             "--rpc-port", str(self._rpc_server_port),
+            "--gpgnet-port", str(self._gpgnet_port),
         ])
         if show_adapter_window:
             args.extend(["--info-window", "--delay-ui", str(delay_adapter_ui)])
@@ -106,6 +113,9 @@ class IceAdapterProcess(object):
 
     def rpc_port(self):
         return self._rpc_server_port
+
+    def gpg_port(self) -> int:
+        return self._gpgnet_port
 
     def close(self):
         if self.ice_adapter_process.state() == QProcess.ProcessState.Running:
