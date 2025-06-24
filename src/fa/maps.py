@@ -437,8 +437,11 @@ def processMapFolderForUpload(mapDir: str) -> None:
     return temp
 
 
-class InstalledMapsCache:
+class InstalledMapsCache(QtCore.QObject):
+    maps_parsed = QtCore.pyqtSignal()
+
     def __init__(self, path: str) -> None:
+        super().__init__()
         self.path = path
         self.installed_maps = self.load()
 
@@ -468,6 +471,10 @@ class InstalledMapsCache:
                 )
         logger.warning("Could not extract map info from %s", folder)
         return {}
+
+    def initial_parse(self) -> None:
+        self.get_installed_maps()
+        self.maps_parsed.emit()
 
     def get_installed_maps(self) -> dict[str, dict[str, str]]:
         user_folder = getUserMapsFolder()

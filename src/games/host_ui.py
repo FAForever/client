@@ -150,9 +150,17 @@ class HostGameDialogUi:
         self.mapList.setAlternatingRowColors(True)
         maps_layout.addWidget(self.mapList)
 
+        maps_bottom_layout = QHBoxLayout()
         self.generateButton = QPushButton("Map Generator")
         self.generateButton.setMaximumWidth(120)
-        maps_layout.addWidget(self.generateButton)
+        self.generateButton.setMinimumWidth(100)
+        self.mapsLoadingLabel = QLabel("Loading maps...")
+        self.mapsLoadingLabel.setAlignment(Qt.AlignmentFlag.AlignRight)
+        self.mapsLoadingLabel.setObjectName("labelLoading")
+        maps_bottom_layout.addWidget(self.generateButton)
+        maps_bottom_layout.addStretch()
+        maps_bottom_layout.addWidget(self.mapsLoadingLabel)
+        maps_layout.addLayout(maps_bottom_layout)
 
         self.previewGroup = QGroupBox("Map Preview")
         self.previewGroup.setFont(QFont("Segoe UI", 10, QFont.Weight.Bold))

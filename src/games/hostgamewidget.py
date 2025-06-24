@@ -7,6 +7,7 @@ from functools import partial
 from typing import TYPE_CHECKING
 
 from PyQt6 import QtCore
+from PyQt6.QtCore import QThread
 from PyQt6.QtGui import QIcon
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import QAbstractButton
@@ -156,6 +157,15 @@ class HostGameWidget(QDialog):
         self.load_stylesheet()
         self.connect_signals()
         self.ui.mapFiltersWidget.hide()
+
+        self.maps_metadata_parser_thread = QThread()
+        self.maps_metadata_parser = maps.CachedMapsMetadata
+        self.maps_metadata_parser.moveToThread(self.maps_metadata_parser_thread)
+        self.maps_metadata_parser.maps_parsed.connect(self.setup_maplist)
+        self.maps_metadata_parser.maps_parsed.connect(self.maps_metadata_parser_thread.quit)
+        self.maps_metadata_parser_thread.started.connect(self.maps_metadata_parser.initial_parse)
+        self.maps_metadata_parser_thread.started.connect(self.ui.mapsLoadingLabel.show)
+        self.maps_metadata_parser_thread.finished.connect(self.ui.mapsLoadingLabel.hide)
 
     def connect_signals(self) -> None:
         self.ui.mapList.currentRowChanged.connect(self.map_changed)
@@ -367,7 +377,7 @@ class HostGameWidget(QDialog):
         if self.game.rating_max is not None:
             self.ui.ratingMaxSpinBox.setValue(self.game.rating_max)
 
-        self.setup_maplist()
+        self.maps_metadata_parser_thread.start()
 
         for mod in getInstalledMods():
             self.mods[mod.totalname] = mod
