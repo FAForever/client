@@ -400,9 +400,10 @@ class HostGameWidget(QDialog):
         self.ui.mapList.clear()
 
         game = self.game
+        current_map_item = None
         if game.featured_mod != "coop":
             allmaps = maps.CachedMapsMetadata.get_installed_maps()
-            for index, (folder_name, map_info) in enumerate(allmaps.items()):
+            for folder_name, map_info in allmaps.items():
                 if map_info["map_type"].lower().startswith("campaign"):
                     continue
                 name = maps.getDisplayName(folder_name.lower())
@@ -410,10 +411,14 @@ class HostGameWidget(QDialog):
                 item.setData(QtCore.Qt.ItemDataRole.UserRole, map_info)
                 self.ui.mapList.addItem(item)
                 if folder_name == game.mapname:
-                    self.ui.mapList.setCurrentRow(index)
+                    current_map_item = item
             self.ui.mapList.sortItems()
             self.ui.mapsGroup.show()
             self.ui.previewGroup.show()
+            if current_map_item is not None:
+                self.ui.mapList.setCurrentItem(current_map_item)
+            else:
+                self.ui.mapList.setCurrentRow(0)
         else:
             self.ui.mapsGroup.hide()
             self.ui.previewGroup.hide()
