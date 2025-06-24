@@ -263,8 +263,8 @@ class HostGameDialogUi:
         self.hostButton.setObjectName("hostGameButton")
         self.hostButton.setMinimumSize(120, 35)
 
-        bottom_layout.addWidget(self.saveAndCloseButton)
         bottom_layout.addStretch()
+        bottom_layout.addWidget(self.saveAndCloseButton)
         bottom_layout.addWidget(self.hostButton)
 
         main_layout.addWidget(top_section)
