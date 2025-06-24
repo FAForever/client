@@ -10,6 +10,7 @@ from PyQt6 import QtWidgets
 from PyQt6.QtNetwork import QNetworkAccessManager
 from PyQt6.QtNetwork import QNetworkReply
 from PyQt6.QtNetwork import QNetworkRequest
+from PyQt6.QtWidgets import QTreeWidget
 from PyQt6.QtWidgets import QTreeWidgetItem
 
 from src import client
@@ -86,7 +87,7 @@ class LiveReplayItem(QtWidgets.QTreeWidgetItem):
         info = game.to_dict()
         tip = ""
         for key in list(info.keys()):
-            tip += "'{}' : '{}'<br/>".format(key, info[key])
+            tip += f"'{key}' : '{info[key]}'<br/>"
         self.setToolTip(1, tip)
 
     def _set_game_map_icon(self, game):
@@ -189,7 +190,7 @@ class LiveReplayItem(QtWidgets.QTreeWidgetItem):
         return self.launch_time >= other.launch_time
 
 
-class LiveReplaysWidgetHandler(object):
+class LiveReplaysWidgetHandler:
     def __init__(self, liveTree, client, gameset):
         self.liveTree = liveTree
         self.liveTree.itemDoubleClicked.connect(self.liveTreeDoubleClicked)
@@ -430,7 +431,7 @@ class LocalReplayBucketItem(QtWidgets.QTreeWidgetItem):
 
         self.setIcon(0, util.THEME.icon("replays/bucket.png"))
         self.setText(0, kind)
-        self.setText(3, "{} replays".format(len(children)))
+        self.setText(3, f"{len(children)} replays")
         self.setForeground(
             3,
             QtGui.QColor(client.instance.player_colors.get_color("default")),
@@ -477,11 +478,11 @@ class LocalReplayBucketItem(QtWidgets.QTreeWidgetItem):
         )
 
 
-class LocalReplaysWidgetHandler(object):
-    def __init__(self, myTree):
+class LocalReplaysWidgetHandler:
+    def __init__(self, myTree: QTreeWidget) -> None:
         self.myTree = myTree
         self.myTree.itemDoubleClicked.connect(self.myTreeDoubleClicked)
-        self.myTree.itemPressed.connect(self.myTreePressed)
+        self.myTree.itemPressed.connect(self.my_tree_pressed)
         self.myTree.header().setSectionResizeMode(
             0, QtWidgets.QHeaderView.ResizeMode.ResizeToContents,
         )
@@ -501,7 +502,7 @@ class LocalReplaysWidgetHandler(object):
             util.REPLAY_DIR, replay_cache,
         )
 
-    def myTreePressed(self, item):
+    def my_tree_pressed(self, item: LocalReplayItem) -> None:
         if QtWidgets.QApplication.mouseButtons() != QtCore.Qt.MouseButton.RightButton:
             return
 
@@ -516,23 +517,28 @@ class LocalReplaysWidgetHandler(object):
         # Actions for Games and Replays
         actionReplay = QtGui.QAction("Replay", menu)
         actionExplorer = QtGui.QAction("Show in Explorer", menu)
+        actionDetails = QtGui.QAction("Details", menu)
 
         # Adding to menu
         menu.addAction(actionReplay)
         menu.addAction(actionExplorer)
+        menu.addAction(actionDetails)
 
         # Triggers
         actionReplay.triggered.connect(lambda: self.myTreeDoubleClicked(item))
         actionExplorer.triggered.connect(
             lambda: util.showFileInFileBrowser(item.replay_path()),
         )
-
-        # Adding to menu
-        menu.addAction(actionReplay)
-        menu.addAction(actionExplorer)
+        actionDetails.triggered.connect(lambda: self.show_replay_details(item.replay_path()))
 
         # Finally: Show the popup
         menu.popup(QtGui.QCursor.pos())
+
+    def show_replay_details(self, replay_path: str) -> None:
+        replay_details = ReplayDetailsCard()
+        replay_details.replay(replay_path)
+        replay_details.exec()
+        replay_details.deleteLater()
 
     def myTreeDoubleClicked(self, item):
         if item.isDisabled():
@@ -589,7 +595,7 @@ class LocalReplayMetadataCache:
 
     def load_cache(self):
         if os.path.exists(self._cache_file):
-            with open(self._cache_file, "rt") as fh:
+            with open(self._cache_file) as fh:
                 for line in fh:
                     filename, metadata = line.split(':', 1)
                     self._cache[filename] = ReplayMetadata(metadata)
@@ -598,7 +604,7 @@ class LocalReplayMetadataCache:
     def save_cache(self):
         if not self._cache_differs_much_from_files():
             return
-        with open(self._cache_file, "wt") as fh:
+        with open(self._cache_file, "w") as fh:
             for filename in self._used_cache_entries:
                 fh.write(filename + ":" + self._cache[filename].raw_data)
 
@@ -613,18 +619,18 @@ class LocalReplayMetadataCache:
         if filename not in self._cache:
             try:
                 target_file = os.path.join(self._cache_dir, filename)
-                with open(target_file, "rt") as fh:
+                with open(target_file) as fh:
                     metadata = fh.readline()
                     self._cache[filename] = ReplayMetadata(metadata)
                 self._new_cache_entries.add(filename)
-            except IOError:
+            except OSError:
                 raise KeyError
 
         self._used_cache_entries.add(filename)
         return self._cache[filename]
 
 
-class ReplayVaultWidgetHandler(object):
+class ReplayVaultWidgetHandler:
     # connect to save/restore persistence settings for checkboxes & search
     # parameters
     automatic = Settings.persisted_property(
@@ -851,27 +857,27 @@ class ReplayVaultWidgetHandler(object):
 
         if mapName:
             filters.append(
-                'mapVersion.map.displayName=="*{}*"'.format(mapName),
+                f'mapVersion.map.displayName=="*{mapName}*"',
             )
 
         if playerName:
             if self.match_username or exactPlayerName:
                 filters.append(
-                    'playerStats.player.login=="{}"'.format(playerName),
+                    f'playerStats.player.login=="{playerName}"',
                 )
             else:
                 filters.append(
-                    'playerStats.player.login=="*{}*"'.format(playerName),
+                    f'playerStats.player.login=="*{playerName}*"',
                 )
 
         if modListIndex and modListIndex != "All":
             filters.append(
-                'featuredMod.technicalName=="{}"'.format(modListIndex),
+                f'featuredMod.technicalName=="{modListIndex}"',
             )
 
         if timePeriod:
-            filters.append('startTime=ge="{}"'.format(timePeriod[0]))
-            filters.append('startTime=le="{}"'.format(timePeriod[1]))
+            filters.append(f'startTime=ge="{timePeriod[0]}"')
+            filters.append(f'startTime=le="{timePeriod[1]}"')
         elif len(filters) > 0:
             months = 3
             if playerName:
@@ -882,7 +888,7 @@ class ReplayVaultWidgetHandler(object):
                 .addMonths(-months)
                 .toString(QtCore.Qt.DateFormat.ISODate)
             )
-            filters.append('startTime=ge="{}"'.format(startTime))
+            filters.append(f'startTime=ge="{startTime}"')
 
         if len(filters) > 0:
             return "({})".format(";".join(filters))
@@ -1081,11 +1087,11 @@ class ReplayVaultWidgetHandler(object):
 
             bucket_item.setIcon(0, util.THEME.icon("replays/bucket.png"))
             bucket_item.setText(
-                0, "<font color='white'>{}</font>".format(bucket),
+                0, f"<font color='white'>{bucket}</font>",
             )
             bucket_len = len(buckets[bucket])
             bucket_item.setText(
-                1, "<font color='white'>{} replays</font>".format(bucket_len),
+                1, f"<font color='white'>{bucket_len} replays</font>",
             )
 
             for replay_item in buckets[bucket]:
