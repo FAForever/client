@@ -64,9 +64,9 @@ class GameLauncher:
         else:
             host = "Unknown"
 
-        friends_only = Settings.get("friends_only", False, type=bool)
         with Settings.group("fa.games") as g:
             title = g.value("gamename", f"{host}'s game")
+            friends_only = g.value("friends_only", False, type=bool)
             enforce_rating = g.value("enforce_rating_range", False, type=bool)
             rating_min = g.value("rating_min", None, type=int)
             rating_max = g.value("rating_max", None, type=int)
