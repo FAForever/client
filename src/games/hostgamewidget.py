@@ -40,8 +40,6 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-FormClass, BaseClass = util.THEME.loadUiType("games/host.ui")
-
 
 class GameLauncher:
     def __init__(
