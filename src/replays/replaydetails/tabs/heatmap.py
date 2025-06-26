@@ -18,6 +18,7 @@ from PyQt6.QtWidgets import QPushButton
 from PyQt6.QtWidgets import QScrollArea
 from PyQt6.QtWidgets import QSlider
 from PyQt6.QtWidgets import QSpinBox
+from PyQt6.QtWidgets import QTabWidget
 from PyQt6.QtWidgets import QVBoxLayout
 from PyQt6.QtWidgets import QWidget
 
@@ -83,14 +84,18 @@ class Heatmap(QWidget):
         self.hist.setImageItem(self.heatmap)
         _graphics_layout.addWidget(self.hist, 0, 1)
 
-        self.commands_filter_scroll = QScrollArea()
-        self.commands_filter_scroll.setWidgetResizable(True)
-        self.commands_filter_scroll.setContentsMargins(0, 0, 0, 0)
+        self.filter_tab_widget = QTabWidget()
+        self.filter_tab_widget.setMaximumWidth(270)
 
-        commands_filter_widget = QWidget()
-        commands_filter_widget.setObjectName("overview_widget")
-        commands_filter_layout = QVBoxLayout(commands_filter_widget)
-        commands_filter_layout.addWidget(QLabel("Commands filter:"))
+        self.commands_scroll_area = QScrollArea()
+        self.commands_scroll_area.setWidgetResizable(True)
+        self.commands_scroll_area.setContentsMargins(0, 0, 0, 0)
+
+        self.commands_tab = QWidget()
+        self.commands_tab.setObjectName("overview_widget")
+        commands_layout = QVBoxLayout(self.commands_tab)
+
+        self.commands_scroll_area.setWidget(self.commands_tab)
 
         self.visible_commands = Settings.get(
             "replaycard.heatmap/visible_commands",
@@ -102,11 +107,8 @@ class Heatmap(QWidget):
         self.all_cmds_checkbox.setChecked(all(self.visible_commands))
         self.all_cmds_checkbox.checkStateChanged.connect(self.on_select_all_cmds)
 
-        commands_filter_layout.addWidget(self.all_cmds_checkbox)
-        commands_filter_layout.addSpacing(6)
-
-        self.commands_filter_scroll.setWidget(commands_filter_widget)
-        self.commands_filter_scroll.setMaximumWidth(250)
+        commands_layout.addWidget(self.all_cmds_checkbox)
+        commands_layout.addSpacing(6)
 
         self.cmds_checkboxes: dict[str, QCheckBox] = {}
         for index, cmd_type in enumerate(cmdTypeToString):
@@ -118,9 +120,40 @@ class Heatmap(QWidget):
             self.cmds_checkboxes[cmd_type] = checkbox
             checkbox.checkStateChanged.connect(partial(self.on_cmd_type_changed, box=checkbox))
         for _, box in sorted(self.cmds_checkboxes.items()):
-            commands_filter_layout.addWidget(box)
+            commands_layout.addWidget(box)
 
-        _graphics_layout.addWidget(self.commands_filter_scroll, 0, 2)
+        self.players_scroll_area = QScrollArea()
+        self.players_scroll_area.setWidgetResizable(True)
+        self.players_scroll_area.setContentsMargins(0, 0, 0, 0)
+
+        self.players_tab = QWidget()
+        self.players_tab.setObjectName("overview_widget")
+        players_layout = QVBoxLayout(self.players_tab)
+
+        self.players_scroll_area.setWidget(self.players_tab)
+
+        self.visible_players = [1] * 16
+
+        self.all_players_checkbox = QCheckBox("Select All")
+        self.all_players_checkbox.checkStateChanged.connect(self.on_select_all_players)
+
+        players_layout.addWidget(self.all_players_checkbox)
+        players_layout.addSpacing(6)
+
+        self.players_checkboxes: dict[int, QCheckBox] = {}
+        for i in range(16):
+            checkbox = QCheckBox(str(i))
+            checkbox.setObjectName(str(i))
+            checkbox.setChecked(True)
+            self.players_checkboxes[i] = checkbox
+            checkbox.checkStateChanged.connect(partial(self.on_player_changed, box=checkbox))
+            players_layout.addWidget(checkbox)
+        players_layout.addStretch()
+
+        self.filter_tab_widget.addTab(self.players_scroll_area, "Players")
+        self.filter_tab_widget.addTab(self.commands_scroll_area, "Commands")
+
+        _graphics_layout.addWidget(self.filter_tab_widget, 0, 2)
 
         self.foreground_control = QCheckBox("Foreground (map layer)")
         show_foreground = Settings.get("replaycard.heatmap/foreground", True, type=bool)
@@ -235,6 +268,7 @@ class Heatmap(QWidget):
         _graphics_layout.addWidget(self.regen_button, 6, 1)
 
         self.heatmapRangeSlider = RangeSlider()
+        self.heatmapRangeSlider.set_page_step(1000)
         self.heatmapRangeSlider.setOrientation(Qt.Orientation.Horizontal)
         self.heatmapRangeSlider.sliderMoved.connect(self.debounce)
         self.heatmapSliderText = QLabel()
@@ -254,8 +288,18 @@ class Heatmap(QWidget):
 
     def initialize(self, replay: ReplayParser) -> None:
         self.set_pts(replay)
+        self.setup_players_filter(replay)
         self.create_heatmap(replay.ticks)
         self.set_map_foreground(replay)
+
+    def setup_players_filter(self, replay: ReplayParser) -> None:
+        self.all_players_checkbox.setChecked(True)
+        for index, checkbox in self.players_checkboxes.items():
+            try:
+                checkbox.setText(replay.players[index])
+                checkbox.show()
+            except KeyError:
+                checkbox.hide()
 
     def on_cmd_type_changed(self, state: Qt.CheckState, box: QCheckBox) -> None:
         show = state == Qt.CheckState.Checked
@@ -271,6 +315,22 @@ class Heatmap(QWidget):
             with block_signals(box) as b:
                 b.setChecked(show)
                 self.visible_commands[int(b.objectName())] = show
+        self.generate_new_heatmap()
+
+    def on_player_changed(self, state: Qt.CheckState, box: QCheckBox) -> None:
+        show = state == Qt.CheckState.Checked
+        self.visible_players[int(box.objectName())] = show
+        if not show:
+            with block_signals(self.all_players_checkbox) as b:
+                b.setChecked(False)
+        self.generate_new_heatmap()
+
+    def on_select_all_players(self, state: Qt.CheckState) -> None:
+        show = state == Qt.CheckState.Checked
+        for box in self.players_checkboxes.values():
+            with block_signals(box) as b:
+                b.setChecked(show)
+                self.visible_players[int(b.objectName())] = show
         self.generate_new_heatmap()
 
     def save_settings(self) -> None:
@@ -327,15 +387,16 @@ class Heatmap(QWidget):
         map_size = replay.map_pixel_size()
         self.pts_norm = self.points_normalized(replay.pts, map_size.width(), map_size.height())
         max_sigma = (len(replay.pts) + 1) // 6
-        self.x_sigma.setMaximum(max_sigma)
-        self.y_sigma.setMaximum(max_sigma)
+        with block_signals(self.x_sigma) as x, block_signals(self.y_sigma) as y:
+            x.setMaximum(max_sigma)
+            y.setMaximum(max_sigma)
 
     def points_normalized(
             self,
-            pts: list[tuple[int, float, float, int]],
+            pts: list[tuple[int, float, float, int, int]],
             max_x: float,
             max_y: float,
-    ) -> list[tuple[int, int, int, int]]:
+    ) -> list[tuple[int, int, int, int, int]]:
         pts.sort(key=lambda elem: elem[0])
 
         w = self.heatmap_properties.width - 1
@@ -349,8 +410,9 @@ class Heatmap(QWidget):
                 min(max(0, round((x / max_x) * w)), w),
                 min(max(0, round((1 - (y / max_y)) * h)), h),
                 cmd_type,
+                source,
             )
-            for tick, x, y, cmd_type in pts
+            for tick, x, y, cmd_type, source in pts
         ]
 
     def create_heatmap(self, ticks: int) -> None:
@@ -379,6 +441,10 @@ class Heatmap(QWidget):
     def filter_points(self, fromTick: int, toTick: int) -> Counter[tuple[int, int]]:
         return Counter(
             (x, y)
-            for (tick, x, y, cmd_type) in self.pts_norm
-            if self.visible_commands[cmd_type] and ((fromTick < tick < toTick) or (toTick == -1))
+            for (tick, x, y, cmd_type, source) in self.pts_norm
+            if (
+                self.visible_commands[cmd_type]
+                and self.visible_players[source]
+                and fromTick < tick < toTick
+            )
         )

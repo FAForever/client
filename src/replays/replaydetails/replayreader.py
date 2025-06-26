@@ -195,7 +195,7 @@ class ReplayParser(QObject):
 
         self.numOfSources = self.binary.readUInt8()
 
-        self.players = {}
+        self.players: dict[int, str] = {}
         self.observers = {}
         for i in range(self.numOfSources):
             name = self.return_next_string()
@@ -267,7 +267,7 @@ class ReplayParser(QObject):
                         (x, _, z) = (self.binary.readFloat() for _ in range(3))
                         # although it is possible to track which command was moved
                         # it's nice to be able to handle those separately
-                        self.pts.append((self.ticks, x, z, move_prev_command))
+                        self.pts.append((self.ticks, x, z, move_prev_command, player))
                     else:
                         raise ReplayException("Not valid stitarget", stitarget)
 
@@ -303,7 +303,7 @@ class ReplayParser(QObject):
                         self.binary.readUInt32()
                     elif stitarget == STITARGET.Position:
                         (x, _, z) = (self.binary.readFloat() for _ in range(3))
-                        self.pts.append((self.ticks, x, z, command_type))
+                        self.pts.append((self.ticks, x, z, command_type, player))
 
                     self.binary.skipRawData(1)  # 0x00
                     formation = self.binary.readInt32()

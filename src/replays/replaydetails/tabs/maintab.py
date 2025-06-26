@@ -81,11 +81,15 @@ class ReplayInfoTabUI:
         self.getMapButton = QPushButton("Generate map")
         self.getMapButton.setVisible(False)
 
+        caveat_label = QLabel("CAVEAT: start spots may be wrong when TeamSpawn is not 'fixed'")
+        caveat_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
         main_layout = QGridLayout(widget)
         main_layout.addWidget(self.replayInfo, 0, 0, 4, 1)
-        main_layout.addLayout(map_layout, 0, 1)
-        main_layout.addWidget(self.getMapButton, 1, 1)
-        main_layout.addWidget(self.lobbyOptions, 2, 1)
+        main_layout.addWidget(caveat_label, 0, 1)
+        main_layout.addLayout(map_layout, 1, 1)
+        main_layout.addWidget(self.getMapButton, 2, 1)
+        main_layout.addWidget(self.lobbyOptions, 3, 1)
 
 
 class ReplayInfoTab(QWidget):

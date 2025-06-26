@@ -161,6 +161,7 @@ pub const Parser = struct {
                     .x = x,
                     .y = y,
                     .cmd_type = command_type,
+                    .source = self.player_source.?,
                 });
             },
             STITARGET.Entity => {
