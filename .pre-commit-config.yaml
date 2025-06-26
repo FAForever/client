@@ -21,4 +21,4 @@ repos:
     rev: v3.20.0
     hooks:
     -   id: pyupgrade
-        args: [--py312-plus]
+        args: [--py313-plus]

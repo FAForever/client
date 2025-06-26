@@ -10,6 +10,7 @@ env:
   UID_VERSION: v4.0.6
   ICE_ADAPTER_VERSION: 3.3.12
   BUILD_VERSION: ${{ github.event.inputs.version }}
+  PYTHON_VERSION: 3.13
 
 jobs:
   build-windows:
@@ -23,7 +24,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.12
+          python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
 
       - name: Install dependencies
@@ -59,10 +60,7 @@ jobs:
 
       - name: Build zig library
         run: |
-          # python3.12 does not have LIBDIR in its sysconfig for some reason
-          # and cx_Freeze does not support bdist_msi for python3.13
-          # therefore, we use HACKS
-          $LIBPY = $(python -c "import sysconfig; print(sysconfig.get_config_var('BINDIR') + '\\libs')")
+          $LIBPY = $(python -c "import sysconfig; print(sysconfig.get_config_var('LIBDIR'))")
           Write-Host "LIBPY=$LIBPY"
           $INCLUDEPY = $(python -c "import sysconfig; print(sysconfig.get_config_var('INCLUDEPY'))")
           Write-Host "INCLUDEPY=$INCLUDEPY"
@@ -76,7 +74,11 @@ jobs:
 
       - name: Build application
         run: |
-          python setup.py bdist_msi
+          python setup.py build
+
+      - name: Create installer
+        run: |
+          ISCC /DWORKING_DIR="build" /DBUILD_VERSION="$env:BUILD_VERSION" win-installer.iss
 
       - name: Calculate checksum
         id: checksum
@@ -103,7 +105,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.12
+          python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
 
       - name: Install dependencies
@@ -160,7 +162,7 @@ jobs:
           echo "LIBPY=$LIBPY"
           INCLUDEPY=$(python3 -c "import sysconfig; print(sysconfig.get_config_var('INCLUDEPY'))")
           echo "INCLUDEPY=$INCLUDEPY"
-          zig build-lib -dynamic -lc -lpython3.12 -I$INCLUDEPY -L$LIBPY -O ReleaseSafe --name zigfafreplay src/replays/zigparser/zigfafreplay.zig
+          zig build-lib -dynamic -lc -lpython$PYTHON_VERSION -I$INCLUDEPY -L$LIBPY -O ReleaseSafe --name zigfafreplay src/replays/zigparser/zigfafreplay.zig
           mv libzigfafreplay.so zigfafreplay.so
 
       - name: Shrink scipy dependency
