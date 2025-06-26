@@ -1,5 +1,5 @@
 from collections.abc import Generator
-from typing import Iterable
+from collections.abc import Iterable
 
 import numpy as np
 import pyqtgraph as pg
@@ -36,7 +36,7 @@ class StatsCharts:
             categories.append(metric.name)
         x_pos = np.arange(len(categories))
         bar_width = BAR_GROUP_WIDTH / 3
-        colors = ("g", "b", "r")
+        colors = ("b", "g", "r")
         sets = (set0, set1, set2)
         names = ("Total", *set_names)
         for i, (color, name, metric) in enumerate(zip(colors, names, sets)):
