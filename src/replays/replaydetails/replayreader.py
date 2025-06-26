@@ -485,7 +485,7 @@ class ReplayParser(QObject):
         for line in desc:
             if "Map Size" in line:
                 size = int(line.split(":")[-1])
-                return f"{size/51.2:g}x{size/51.2:.g}"
+                return f"{size/51.2:g}x{size/51.2:g}"
         return ""
 
     def map_display_size(self) -> str:
