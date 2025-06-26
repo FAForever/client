@@ -28,6 +28,9 @@ GAME_DICT = {
     "visibility": GameVisibility.PUBLIC,
     "hosted_at": 123,
     "game_type": "custom",
+    "enforce_rating_range": True,
+    "rating_min": 2300,
+    "rating_max": None,
 }
 
 

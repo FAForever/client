@@ -15,7 +15,6 @@ from PyQt6.QtGui import QCursor
 from src import fa
 from src import util
 from src.api.featured_mod_api import FeaturedModApiConnector
-from src.client.lobbyprotocol import ServerMessage
 from src.client.user import User
 from src.games.automatchframe import MatchmakerQueue
 from src.games.filters.controller import GamesSortFilterController
@@ -26,6 +25,7 @@ from src.games.hostgamewidget import GameLauncher
 from src.games.moditem import ModItem
 from src.games.moditem import mod_invisible
 from src.model.chat.channel import PARTY_CHANNEL_SUFFIX
+from src.protocol.lobbyprotocol import ServerMessage
 
 if TYPE_CHECKING:
     from src.client._clientwindow import ClientWindow

@@ -25,6 +25,9 @@ DEFAULT_DICT = {
     "visibility": game.GameVisibility.PUBLIC,
     "hosted_at": 345,
     "game_type": "coop",
+    "enforce_rating_range": True,
+    "rating_min": None,
+    "rating_max": 1200,
 }
 
 

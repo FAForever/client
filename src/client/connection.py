@@ -14,10 +14,10 @@ from PyQt6.QtWebSockets import QWebSocket
 
 from src import fa
 from src.api.ApiAccessors import UserApiAccessor
-from src.client.lobbyprotocol import ServerMessage
 from src.config import Settings
 from src.model.game import Game
 from src.model.game import message_to_game_args
+from src.protocol.lobbyprotocol import ServerMessage
 
 logger = logging.getLogger(__name__)
 

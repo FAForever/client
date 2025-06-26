@@ -33,8 +33,6 @@ from src.client.connection import LobbyInfo
 from src.client.connection import ServerConnection
 from src.client.connection import ServerReconnecter
 from src.client.gameannouncer import GameAnnouncer
-from src.client.lobbyprotocol import GameJoinFailedCommand
-from src.client.lobbyprotocol import ServerMessage
 from src.client.login import LoginWidget
 from src.client.playercolors import PlayerColors
 from src.client.theme_menu import ThemeMenu
@@ -71,6 +69,8 @@ from src.model.rating import RatingType
 from src.news import NewsWidget
 from src.oauth.oauth_flow import OAuth2FlowInstance
 from src.power import PowerTools
+from src.protocol.lobbyprotocol import GameJoinFailedCommand
+from src.protocol.lobbyprotocol import ServerMessage
 from src.replays import ReplaysWidget
 from src.secondaryServer import SecondaryServer
 from src.stats import StatsWidget

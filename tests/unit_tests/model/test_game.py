@@ -24,6 +24,9 @@ DEFAULT_DICT = {
     "visibility": game.GameVisibility.PUBLIC,
     "hosted_at": 123,
     "game_type": "custom",
+    "enforce_rating_range": False,
+    "rating_min": None,
+    "rating_max": None,
 }
 
 

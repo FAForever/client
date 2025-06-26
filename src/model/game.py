@@ -7,10 +7,10 @@ from typing import Any
 from PyQt6.QtCore import QTimer
 from PyQt6.QtCore import pyqtSignal
 
-from src.client.lobbyprotocol import ServerMessage
 from src.decorators import with_logger
 from src.model.modelitem import ModelItem
 from src.model.transaction import transactional
+from src.protocol.lobbyprotocol import ServerMessage
 from src.util.gameurl import GameUrl
 from src.util.gameurl import GameUrlType
 
