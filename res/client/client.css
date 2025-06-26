@@ -1095,6 +1095,7 @@ QWidget#tech_widget,#overview_content,#overview_widget
     background-color: #202025;
     background: #202025;
     padding: 0px;
+    border: none;
 }
 
 QFrame[frameShape="4"]
@@ -1335,4 +1336,25 @@ QLabel[bordered="true"] {
     background-color: #252525;
     color: #a0a0a0;
     padding: 2px;
+}
+
+
+QFrame#clanMember {
+    border: 1px solid #404040;
+    border-radius: 8px;
+    background-color: #252525;
+}
+
+QFrame#clanMember:hover {
+    border-color: #606060;
+    border-radius:8px;
+}
+
+QListWidget#clanMembersList::item:selected {
+    border: 1px solid #1A7BFF;
+    border-radius: 8px;
+}
+
+QListWidget#clanMembersList::item:hover {
+    border-radius: 8px;
 }

@@ -3,6 +3,9 @@ import logging
 from PyQt6.QtCore import pyqtSignal
 
 from src.api.ApiAccessors import DataApiAccessor
+from src.api.ApiBase import PreProcessedApiResponse
+from src.api.models.Player import Clan
+from src.api.models.Player import ClanMembership
 from src.api.models.Player import Player
 
 logger = logging.getLogger(__name__)
@@ -31,11 +34,17 @@ class PlayerApiConnector(DataApiAccessor):
 
     def request_player(self, player_id: str) -> None:
         query = {
-            "include": "avatarAssignments.avatar,names",
+            "include": "avatarAssignments.avatar,names,clanMembership.clan.memberships.player",
             "filter": f"id=={player_id}",
         }
         self.get_by_query(query, self.handle_player)
 
-    def handle_player(self, message: dict) -> None:
-        player, = message["data"]
-        self.player_ready.emit(Player(**player))
+    def handle_player(self, message: PreProcessedApiResponse) -> None:
+        player_dict, = message["data"]
+        player = Player(**player_dict)
+        if "clan" in player_dict["clanMembership"]:
+            clan = Clan(**player_dict["clanMembership"]["clan"])
+            clan_membership = ClanMembership(**player_dict["clanMembership"])
+            clan_membership.custom_clan = clan
+            player.custom_clan_membership = clan_membership
+        self.player_ready.emit(player)

@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QCloseEvent
 from PyQt6.QtWidgets import QTableWidgetItem
+from PyQt6.QtWidgets import QWidget
 
 from src import util
 from src.api.models.AvatarAssignment import AvatarAssignment
@@ -18,26 +21,42 @@ from src.config import Settings
 from src.downloadManager import CachedImageDownloader
 from src.playercard.achievements import AchievementsHandler
 from src.playercard.avatarhandler import AvatarHandler
+from src.playercard.clantab import ClanMembershipTab
 from src.playercard.leagueformatter import league_formatter_factory
 from src.playercard.ratingtabwidget import RatingTabWidgetController
 from src.playercard.statistics import StatsCharts
 from src.qt.utils import center_widget_on_screen
 
+if TYPE_CHECKING:
+    from src.contextmenu.playercontextmenu import PlayerContextMenu
+
 FormClass, BaseClass = util.THEME.loadUiType("player_card/playercard.ui")
 
 
 class PlayerInfoDialog(FormClass, BaseClass):
-    def __init__(self, avatar_dler: CachedImageDownloader, player_id: str) -> None:
-        BaseClass.__init__(self)
+    def __init__(
+            self,
+            avatar_dler: CachedImageDownloader,
+            player_id: str,
+            ctx_menu: PlayerContextMenu,
+            parent: QWidget | None = None,
+    ) -> None:
+        BaseClass.__init__(self, parent)
         self.setupUi(self)
         window_flags = (
-            Qt.WindowType.WindowTitleHint
+            self.windowFlags()
             | Qt.WindowType.WindowMaximizeButtonHint
             | Qt.WindowType.WindowCloseButtonHint
         )
         self.setWindowFlags(window_flags)
         self.load_stylesheet()
 
+        self.clan_tab = ClanMembershipTab(ctx_menu)
+        self.mainTabWidget.addTab(self.clan_tab, "Clan")
+        clan_tab_index = self.mainTabWidget.indexOf(self.clan_tab)
+        self.viewClanButton.clicked.connect(
+            lambda: self.mainTabWidget.setCurrentIndex(clan_tab_index),
+        )
         self.mainTabWidget.currentChanged.connect(self.on_tab_changed)
         self.tab_widget_ctrl = RatingTabWidgetController(player_id, self.ratingsTabWidget)
         self.avatar_handler = AvatarHandler(self.avatarList, avatar_dler)
@@ -92,8 +111,17 @@ class PlayerInfoDialog(FormClass, BaseClass):
         self.idLabel.setText(player.xd)
         self.registeredLabel.setText(util.utctolocal(player.create_time))
         self.lastLoginLabel.setText(util.utctolocal(player.update_time))
+        self.userAgentLabel.setText(player.user_agent)
         self.add_avatars(player.avatar_assignments)
         self.add_names(player.names)
+        self.viewClanButton.setEnabled(player.custom_clan_membership is not None)
+        if player.custom_clan_membership is not None:
+            assert player.custom_clan_membership.custom_clan is not None
+            tag = player.custom_clan_membership.custom_clan.tag
+            name = player.custom_clan_membership.custom_clan.name
+            self.clanNameLabel.setText(f"[{tag}] ({name})")
+            self.clanJoinedLabel.setText(util.utctolocal(player.custom_clan_membership.create_time))
+        self.clan_tab.set_membership(player.custom_clan_membership)
 
     def add_names(self, names: list[NameRecord] | None) -> None:
         if names is None:
