@@ -481,9 +481,10 @@ class InstalledMapsCache(QtCore.QObject):
         base_folder = getBaseMapsFolder()
         for root in (user_folder, base_folder):
             for dr in os.listdir(root):
-                if root == base_folder and dr.lower() not in maps:
-                    continue
-                if dr.lower() in self.installed_maps:
+                if (
+                        (root == base_folder and dr.lower() not in maps)
+                        or dr.lower() in self.installed_maps
+                ):
                     continue
                 map_path = os.path.join(root, dr)
                 map_info = self.parse_metadata(map_path)
@@ -494,7 +495,7 @@ class InstalledMapsCache(QtCore.QObject):
 
     def sanitize(self) -> None:
         current = getUserMaps() + list(maps)
-        for folder in tuple(self.installed_maps):
+        for folder in self.installed_maps:
             if folder not in current:
                 logger.debug("Removing %s from cached maps metadata...", folder)
                 self.installed_maps.pop(folder, None)

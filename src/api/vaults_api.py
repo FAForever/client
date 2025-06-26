@@ -37,7 +37,7 @@ class VaultsApiConnector(DataApiAccessor):
         return query_options
 
     def _copy_query_options(self, query_options: QueryOptions | None) -> QueryOptions:
-        query_options = query_options or {}  # cast(QueryOptions, {})
+        query_options = query_options or {}
         return query_options.copy()
 
     def request_data(self, query_options: QueryOptions | None = None) -> None:

@@ -281,3 +281,4 @@ class PlayerContextMenu:
             self._client_window,
         )
         dialog.run()
+        dialog.deleteLater()

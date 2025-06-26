@@ -206,7 +206,6 @@ class HostGameWidget(QDialog):
             return
         map_info = cur_item.data(QtCore.Qt.ItemDataRole.UserRole)
         if map_info["map_type"].lower().startswith("campaign"):
-            # TODO: handle coop maps? they have fake .scmap files
             return
         map_path = maps.folderForMap(map_info["folder_name"])
         if map_path is None:
@@ -533,7 +532,6 @@ class HostGameWidget(QDialog):
         self.ui.mapSizeLabel.setText(f"⛶ {w/51.2:g} x {h/51.2:g} km")
 
         self.ui.mapPlayersLabel.setText(f"🧑‍🤝‍🧑 {map_info['max_players']}")
-        # self.ui.mapTypeLabel.setText(f"🏷️ {map_info['map_type']}")
 
         desc_no_loc = re.sub(r"<LOC.*[D|d]escription>", "", map_info["description"])
         desc = re.sub(r"(\\r)?\\n", "\n", desc_no_loc)

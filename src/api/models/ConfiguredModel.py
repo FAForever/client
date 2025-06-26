@@ -88,7 +88,7 @@ class ConfiguredModel(BaseModel):
                     if relation is None:
                         continue
                     relation_id = relation.get("id")
-                    assert relation_id is not None, "Relationship id can't be emtpy."
+                    assert relation_id is not None, "Relationship id can't be empty."
                     klass = field.annotation.__args__[0]
                     relationships[field_name] = klass.to_jsonapi_relationship(relation_id)
         doc["data"]["attributes"] = attributes
