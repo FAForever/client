@@ -44,7 +44,7 @@ class PlayerMenuItem(Enum):
     COPY_USERNAME = "Copy username"
     INVITE_TO_PARTY = "Invite to party"
     KICK_FROM_PARTY = "Kick from party"
-    SHOW_PLAYER_INFO = "Show player info"
+    VIEW_PROFILE = "View profile"
 
 
 class PlayerContextMenu:
@@ -83,7 +83,7 @@ class PlayerContextMenu:
 
     def user_actions(self, player_id: int) -> Generator[PlayerMenuItem]:
         if player_id != -1:
-            yield PlayerMenuItem.SHOW_PLAYER_INFO
+            yield PlayerMenuItem.VIEW_PROFILE
 
     def chatter_actions(self, player_id: int) -> Generator[PlayerMenuItem]:
         yield PlayerMenuItem.COPY_USERNAME
@@ -221,8 +221,8 @@ class PlayerContextMenu:
             self._handle_social(login, player_id, kind)
         elif kind == Items.VIEW_ALIASES:
             self._view_aliases(login)
-        elif kind == Items.SHOW_PLAYER_INFO:
-            self._show_player_info(player_id)
+        elif kind == Items.VIEW_PROFILE:
+            self._view_profile(player_id)
         elif kind == Items.VIEW_REPLAYS:
             self._client_window.view_replays(login)
         elif kind in [Items.JOIN_GAME, Items.VIEW_LIVEREPLAY]:
