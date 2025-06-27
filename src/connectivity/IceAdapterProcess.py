@@ -18,14 +18,15 @@ class IceAdapterProcess:
         # determine free listen port for the RPC server inside the ice adapter
         # process
         s_rpc = QTcpServer()
-        s_rpc.listen(QHostAddress.SpecialAddress.LocalHost, 0)
+        s_rpc.listen(QHostAddress.SpecialAddress.LocalHost)
         self._rpc_server_port = s_rpc.serverPort()
-        s_rpc.close()
 
         # same for GPG
         s_gpg = QTcpServer()
-        s_gpg.listen(QHostAddress.SpecialAddress.LocalHost, 0)
+        s_gpg.listen(QHostAddress.SpecialAddress.LocalHost)
         self._gpgnet_port = s_gpg.serverPort()
+
+        s_rpc.close()
         s_gpg.close()
 
         exe_path = fafpath.get_java_path()
