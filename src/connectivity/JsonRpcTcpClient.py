@@ -103,7 +103,7 @@ class JsonRpcTcpClient(QObject):
         if newData.startswith(b"{\"jsonrpc\":\"2.0\""):
             if len(self.buffer) > 0:
                 self._logger.error(
-                    "Rarse error: discarding old possibly malformed buffer data: %s",
+                    "Parse error: discarding old possibly malformed buffer data: %s",
                     self.buffer,
                 )
             self.buffer = newData
@@ -113,7 +113,7 @@ class JsonRpcTcpClient(QObject):
 
     # from https://github.com/joncol/jcon-cpp/blob/master/src/jcon/
     # json_rpc_endpoint.cpp#L107
-    def processBuffer(self, buf):
+    def processBuffer(self, buf: bytes) -> bytes:
         if len(buf) == 0:
             return b''
         if not buf.startswith(b'{'):
