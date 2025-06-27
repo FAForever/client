@@ -46,7 +46,7 @@ class Settings:
 
     @contextmanager
     @staticmethod
-    def group(name: str) -> Generator[QtCore.QSettings, None, None]:
+    def group(name: str) -> Generator[QtCore.QSettings]:
         try:
             _settings.beginGroup(name)
             yield _settings
@@ -301,7 +301,7 @@ def setup_file_handler(filename):
     rotate = RotatingFileHandler(
         os.path.join(Settings.get('client/logs/path'), filename),
         maxBytes=int(Settings.get('client/logs/max_size')),
-        backupCount=5,
+        backupCount=Settings.get("client/logs/backup_count", type=int),
     )
     rotate.setFormatter(SanitizedFormatter("%(asctime)s %(levelname)-8s %(name)-30s %(message)s"))
     return MemoryHandler(

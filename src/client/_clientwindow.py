@@ -1195,6 +1195,10 @@ class ClientWindow(FormClass, BaseClass):
 
     def _setup_log_settings(self) -> None:
         self.menuOptions.addSeparator()
+        self._setup_log_level_menu()
+        self._setup_log_filesize_menu()
+
+    def _setup_log_level_menu(self) -> None:
         logLevelMenu = QtWidgets.QMenu("Set Log Level...", self.menuOptions)
         self.menuOptions.addMenu(logLevelMenu)
         logLevelActionGroup = QtGui.QActionGroup(self)
@@ -1215,6 +1219,56 @@ class ClientWindow(FormClass, BaseClass):
     def _set_log_level(self, action: QtGui.QAction) -> None:
         logging.getLogger().setLevel(action.data())
         config.Settings.set("client/logs/level", action.data())
+
+    def _setup_log_filesize_menu(self) -> None:
+        menu = QtWidgets.QMenu("Log File Settings...", self.menuOptions)
+
+        filesize_action = QtGui.QAction("Set log file size...", menu)
+        filesize_action.setCheckable(False)
+        filesize_action.triggered.connect(self._set_log_file_size)
+        menu.addAction(filesize_action)
+
+        filecount_action = QtGui.QAction("Set log file backup count...", menu)
+        filecount_action.setCheckable(False)
+        filecount_action.triggered.connect(self._set_log_file_backup_count)
+        menu.addAction(filecount_action)
+
+        self.menuOptions.addMenu(menu)
+
+    def _set_log_file_size(self) -> None:
+        newsize, ok = QtWidgets.QInputDialog.getDouble(
+            self,
+            "Set size",
+            "New log file size (MiB):",
+            config.Settings.get("client/logs/max_size", default=0.5, type=float) / 1024 / 1024,
+            min=0.5,
+            max=100,
+            step=0.5,
+        )
+        if ok:
+            bytes_size = newsize * 1024 * 1024
+            config.Settings.set("client/logs/max_size", int(bytes_size))
+            QtWidgets.QMessageBox.warning(
+                self,
+                "",
+                "Changes will take effect after restarting the client",
+            )
+
+    def _set_log_file_backup_count(self) -> None:
+        newcount, ok = QtWidgets.QInputDialog.getInt(
+            self,
+            "Set count",
+            "New backup count:",
+            config.Settings.get("client/logs/backup_count", default=1, type=int),
+            min=1,
+        )
+        if ok:
+            config.Settings.set("client/logs/backup_count", newcount)
+            QtWidgets.QMessageBox.warning(
+                self,
+                "",
+                "Changes will take effect after restarting the client",
+            )
 
     @QtCore.pyqtSlot()
     def update_options(self):
