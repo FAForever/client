@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from operator import attrgetter
 from typing import TYPE_CHECKING
 
 from PyQt6.QtCore import Qt
@@ -200,7 +201,7 @@ class ClanMembershipTab(QWidget):
     def populate_members_list(self, memberships: list[ClanMembership]) -> None:
         self.ui.membersList.clear()
 
-        for membership in memberships:
+        for membership in sorted(memberships, key=attrgetter("create_time")):
             item = QListWidgetItem()
 
             member_widget = self.create_member_card(membership)
