@@ -90,7 +90,7 @@ class IceAdapterProcess:
 
     def on_error_ready(self) -> None:
         standard_error = self.ice_adapter_process.readAllStandardError()
-        self._logger.log(5, "ICEERROR: %", standard_error.data().decode())
+        self._logger.log(5, "ICEERROR: %s", standard_error.data())
 
     def on_exit(self, code: int, status: QProcess.ExitStatus) -> None:
         if status == QProcess.ExitStatus.CrashExit:
