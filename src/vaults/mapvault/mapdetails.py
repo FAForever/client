@@ -44,7 +44,11 @@ class MapDetailsWidget(DetailsWidget):
         })
 
     def ask_review(self) -> None:
-        self._ask_if_played_map()
+        if self.item_data.author is not None and self.item_data.author.login == self.player.login:
+            self.ui.addReviewButton.setEnabled(False)
+            self.ui.detailedReviews.addCommentButton.setEnabled(False)
+        else:
+            self._ask_if_played_map()
 
     def allow_review(self, response: ApiResponse) -> None:
         map_played = len(response["data"]) > 0
