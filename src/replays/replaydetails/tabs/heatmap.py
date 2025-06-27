@@ -53,17 +53,15 @@ def create_colorbar_hist() -> pg.HistogramLUTWidget:
 
 
 class HeatmapProperties(NamedTuple):
-    # it is what it is: in a replay with a map size of 1024 x and y values
-    # can vary in closed interval [0, 1024]
-    height: int = 1025
-    width: int = 1025
+    width: int = 1024
+    height: int = 1024
 
     def size(self) -> QSize:
         return QSize(self.width, self.height)
 
     def get_scale(self) -> int:
         """Relative size to the standard 256x256 dds pixmap"""
-        return (self.height - 1) // 256
+        return (self.height) // 256
 
 
 class Heatmap(QWidget):
@@ -428,9 +426,12 @@ class Heatmap(QWidget):
             self.foreground_image.setPixmap(QPixmap())
             return
         scale = self.heatmap_properties.get_scale()
-        pixmap = create_large_preview(folder, scale=scale).scaled(self.heatmap_properties.size())
-        trans_mode = Qt.TransformationMode.SmoothTransformation
-        self.foreground_image.setPixmap(pixmap.transformed(self.rotate_transform, trans_mode))
+        pixmap = create_large_preview(folder, scale=scale).scaled(
+            self.heatmap_properties.size(),
+            Qt.AspectRatioMode.KeepAspectRatio,
+            Qt.TransformationMode.SmoothTransformation,
+        )
+        self.foreground_image.setPixmap(pixmap.transformed(self.rotate_transform))
 
     def make_image_data(self, pts: Counter[tuple[int, int]]) -> pg.numpy.ndarray:
         pixels = pg.numpy.zeros((self.heatmap_properties.width, self.heatmap_properties.height))
