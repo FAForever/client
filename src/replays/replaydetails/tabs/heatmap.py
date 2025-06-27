@@ -2,6 +2,7 @@ import os
 from collections import Counter
 from functools import partial
 from typing import NamedTuple
+from typing import Self
 
 import pyqtgraph as pg
 from PyQt6.QtCore import QSize
@@ -62,6 +63,12 @@ class HeatmapProperties(NamedTuple):
     def get_scale(self) -> int:
         """Relative size to the standard 256x256 dds pixmap"""
         return (self.height) // 256
+
+    def resize(self, newsize: QSize) -> Self:
+        return self._replace(width=newsize.width(), height=newsize.height())
+
+    def smaller_than(self, size: QSize) -> bool:
+        return max(self.width, self.height) < max(size.width(), size.height())
 
 
 class Heatmap(QWidget):
@@ -383,6 +390,8 @@ class Heatmap(QWidget):
 
     def set_pts(self, replay: ReplayParser) -> None:
         map_size = replay.map_pixel_size()
+        if self.heatmap_properties.smaller_than(map_size):
+            self.heatmap_properties = self.heatmap_properties.resize(map_size)
         self.pts_norm = self.points_normalized(replay.pts, map_size.width(), map_size.height())
         max_sigma = (len(replay.pts) + 1) // 6
         with block_signals(self.x_sigma) as x, block_signals(self.y_sigma) as y:

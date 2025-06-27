@@ -36,7 +36,7 @@ import zstandard
 from PyQt6.QtCore import QByteArray
 from PyQt6.QtCore import QDataStream
 from PyQt6.QtCore import QObject
-from PyQt6.QtCore import QSizeF
+from PyQt6.QtCore import QSize
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtCore import qUncompress
 from PyQt6.QtNetwork import QNetworkReply
@@ -477,8 +477,8 @@ class ReplayParser(QObject):
     def get_info(self) -> str:
         return "".join(self._gen_info())
 
-    def map_pixel_size(self) -> QSizeF:
-        return QSizeF(self.luaScenarioInfo["size"][1], self.luaScenarioInfo["size"][2])
+    def map_pixel_size(self) -> QSize:
+        return QSize(int(self.luaScenarioInfo["size"][1]), int(self.luaScenarioInfo["size"][2]))
 
     def generated_map_size(self) -> str:
         desc = self.luaScenarioInfo["description"].split("\r\n")
