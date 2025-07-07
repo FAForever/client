@@ -23,8 +23,8 @@ class FeaturedModApiConnector(DataApiAccessor):
         queryDict = {"filter": f"technicalName=={technical_name}"}
         self.get_by_query(queryDict, self.handle_featured_mod)
 
-    def request_and_get_fmod_by_name(self, technicalName) -> FeaturedMod:
-        self.request_fmod_by_name(technicalName)
+    def request_and_get_fmod_by_name(self, technical_name: str) -> FeaturedMod:
+        self.request_fmod_by_name(technical_name)
         self.waitForCompletion()
         return self.featured_mod
 

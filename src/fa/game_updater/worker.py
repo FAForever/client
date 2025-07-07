@@ -4,7 +4,9 @@ import logging
 import os
 import shutil
 import stat
+from collections.abc import Callable
 from functools import wraps
+from typing import Concatenate
 
 from PyQt6.QtCore import QObject
 from PyQt6.QtCore import pyqtSignal
@@ -28,6 +30,17 @@ from src.fa.utils import unpack_movies_and_sounds
 logger = logging.getLogger(__name__)
 
 
+def check_interruption[**P, R](
+        fn: Callable[Concatenate[UpdaterWorker, P], R],
+) -> Callable[Concatenate[UpdaterWorker, P], R]:
+    @wraps(fn)
+    def inner(self: UpdaterWorker, *args: P.args, **kwargs: P.kwargs) -> R:
+        if self.interruption_requested:
+            raise UpdaterCancellation("User aborted the update")
+        return fn(self, *args, **kwargs)
+    return inner
+
+
 class UpdaterWorker(QObject):
     done = pyqtSignal(UpdaterResult)
 
@@ -45,7 +58,7 @@ class UpdaterWorker(QObject):
             self,
             featured_mod: str,
             version: int | None,
-            modversions: dict | None,
+            modversions: dict[str, int] | None,
             silent: bool = False,
     ) -> None:
         super().__init__()
@@ -62,18 +75,10 @@ class UpdaterWorker(QObject):
         self.cache_enabled = keep_cache or in_session_cache
 
         self.dlers: list[FileDownload] = []
-        self._interruption_requested = False
+        self.interruption_requested = False
         self.fa_patcher = FAPatcher()
 
-    def _check_interruption(fn):
-        @wraps(fn)
-        def wrapper(self, *args, **kwargs):
-            if self._interruption_requested:
-                raise UpdaterCancellation("User aborted the update")
-            return fn(self, *args, **kwargs)
-        return wrapper
-
-    def get_files_to_update(self, mod_id: str, version: str) -> list[dict]:
+    def get_files_to_update(self, mod_id: str, version: str) -> list[FeaturedModFile]:
         return FeaturedModFilesApiConnector(mod_id, version).get_files()
 
     def get_featured_mod_by_name(self, technical_name: str) -> FeaturedMod:
@@ -86,10 +91,10 @@ class UpdaterWorker(QObject):
     ) -> list[FeaturedModFile]:
         return [file for file in files if precalculated_md5s[file.md5] != file.md5]
 
-    @_check_interruption
+    @check_interruption
     def _calculate_md5s(self, files: list[FeaturedModFile]) -> dict[str, str]:
         total = len(files)
-        result = {}
+        result: dict[str, str] = {}
         for index, file in enumerate(files, start=1):
             filepath = os.path.join(util.APPDATA_DIR, file.group, file.name)
             result[file.md5] = util.md5(filepath)
@@ -137,7 +142,7 @@ class UpdaterWorker(QObject):
             os.makedirs(cache, exist_ok=True)
             os.makedirs(util.GAMEDATA_DIR, exist_ok=True)
 
-    @_check_interruption
+    @check_interruption
     def update_file(
             self,
             file: FeaturedModFile,
@@ -149,7 +154,7 @@ class UpdaterWorker(QObject):
         else:
             self.fetch_fmod_file(file)
 
-    @_check_interruption
+    @check_interruption
     def update_files(self, files: list[FeaturedModFile]) -> None:
         """
         Updates the files in the destination
@@ -171,7 +176,7 @@ class UpdaterWorker(QObject):
         self.unpack_movies_and_sounds(files)
         self.patch_fa_exe_if_needed(files)
 
-    @_check_interruption
+    @check_interruption
     def unpack_movies_and_sounds(self, files: list[FeaturedModFile]) -> None:
         logger.info("Checking files for movies and sounds")
 
@@ -187,7 +192,9 @@ class UpdaterWorker(QObject):
         Forged Alliance
         """
         # now we check if we've got a binFAF folder
-        FABindir = os.path.join(Settings.get("ForgedAlliance/app/path"), "bin")
+        faf_path = Settings.get("ForgedAlliance/app/path")
+        assert faf_path is not None
+        FABindir = os.path.join(faf_path, "bin")
         FAFdir = util.BIN_DIR
 
         # Try to copy without overwriting, but fill in any missing files,
@@ -210,7 +217,7 @@ class UpdaterWorker(QObject):
                 os.chmod(dst_file, st.st_mode | stat.S_IWRITE)
                 self.game_progress.emit(ProgressInfo(index, total_files, file))
 
-    def _download(self, target_path: str, url: str, params: dict) -> None:
+    def _download(self, target_path: str, url: str, params: dict[str, str]) -> None:
         logger.info("Updater: Downloading %s", url)
         dler = FileDownload(target_path, self.nam, url, params)
         dler.blocksize = None
@@ -223,7 +230,7 @@ class UpdaterWorker(QObject):
         if dler.canceled:
             raise UpdaterCancellation(dler.error_string())
         elif dler.failed():
-            raise UpdaterFailure(f"Update failed: {dler.error_sring()}")
+            raise UpdaterFailure(f"Update failed: {dler.error_string()}")
 
     def patch_fa_executable(self, exe_info: FeaturedModFile) -> None:
         exe_path = os.path.join(util.BIN_DIR, exe_info.name)
@@ -236,7 +243,9 @@ class UpdaterWorker(QObject):
             if self.fa_patcher.patch(exe_path, version):
                 return
             logger.warning("Could not open fa exe for patching. Attempt #%d", attempt + 1)
-            self.thread().msleep(500)
+            thread = self.thread()
+            assert thread is not None
+            thread.msleep(500)
         else:
             raise UpdaterFailure("Could not update FA exe to the correct version")
 
@@ -246,7 +255,7 @@ class UpdaterWorker(QObject):
                 self.patch_fa_executable(file)
                 return
 
-    @_check_interruption
+    @check_interruption
     def update_featured_mod(self, modname: str, modversion: str) -> list[FeaturedModFile]:
         fmod = self.get_featured_mod_by_name(modname)
         files = self.get_files_to_update(fmod.xd, modversion)
@@ -295,4 +304,4 @@ class UpdaterWorker(QObject):
     def abort(self) -> None:
         for dler in self.dlers:
             dler.cancel()
-        self._interruption_requested = True
+        self.interruption_requested = True

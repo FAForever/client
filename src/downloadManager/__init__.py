@@ -41,7 +41,7 @@ class BaseDownload(QObject):
             addr: str,
             dest: QFile | BytesIO,
             destpath: str | None = None,
-            request_params: dict | None = None,
+            request_params: dict[str, str] | None = None,
     ) -> None:
         QObject.__init__(self)
         self._nam = nam
@@ -53,7 +53,7 @@ class BaseDownload(QObject):
         self.canceled = False
         self.error = False
 
-        self.blocksize = 8192
+        self.blocksize: int | None = 8192
         self.bytes_total = 0
         self.bytes_progress = 0
 
@@ -173,7 +173,7 @@ class FileDownload(BaseDownload):
             target_path: str,
             nam: QNetworkAccessManager,
             addr: str,
-            request_params: dict | None = None,
+            request_params: dict[str, str] | None = None,
     ) -> None:
         self._target_path = target_path
         self._cache_path = f"{target_path}.part"

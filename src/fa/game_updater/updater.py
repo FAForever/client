@@ -1,4 +1,3 @@
-
 """
 This is the FORGED ALLIANCE updater.
 
@@ -39,7 +38,7 @@ FormClass, BaseClass = util.THEME.loadUiType("fa/updater/updater.ui")
 class UpdaterProgressDialog(FormClass, BaseClass):
     aborted = pyqtSignal()
 
-    def __init__(self, parent: QObject, silent: bool = False) -> None:
+    def __init__(self, parent: QObject | None, silent: bool = False) -> None:
         BaseClass.__init__(self, parent)
         self.setupUi(self)
         self.setModal(True)
@@ -162,15 +161,13 @@ class Updater(QObject):
             self,
             featured_mod: str,
             version: int | None = None,
-            modversions: dict | None = None,
+            modversions: dict[str, int] | None = None,
             silent: bool = False,
-            *args,
-            **kwargs,
-    ):
+    ) -> None:
         """
         Constructor
         """
-        super().__init__(*args, **kwargs)
+        super().__init__()
 
         self.progress = UpdaterProgressDialog(None, silent)
         self.progress.aborted.connect(self.abort)

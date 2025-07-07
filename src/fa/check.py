@@ -103,7 +103,7 @@ def check(
         featured_mod: str,
         mapname: str | None = None,
         version: int | None = None,
-        modVersions: dict | None = None,
+        mod_versions: dict[str, int] | None = None,
         sim_mods: dict[str, str] | None = None,
         silent: bool = False,
 ):
@@ -125,7 +125,7 @@ def check(
         return False
 
     # Spawn an update for the required mod
-    game_updater = Updater(featured_mod, version, modVersions, silent=silent)
+    game_updater = Updater(featured_mod, version, mod_versions, silent=silent)
     result = game_updater.run()
 
     if result != UpdaterResult.SUCCESS:
