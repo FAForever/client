@@ -1,16 +1,34 @@
+from __future__ import annotations
+
+from collections.abc import Callable
+from typing import TYPE_CHECKING
+from typing import Self
+
 from PyQt6.QtCore import QObject
 from PyQt6.QtCore import QSize
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QListWidgetItem
 from PyQt6.QtWidgets import QPushButton
 
+from src.client.connection import LobbyInfo
+from src.client.connection import ServerConnection
+from src.downloadManager import CachedImageDownloader
 from src.downloadManager import DownloadRequest
+from src.util.theme import ThemeSet
+
+if TYPE_CHECKING:
+    from src.client._clientwindow import ClientWindow
 
 
 class AvatarWidget(QObject):
     def __init__(
-        self, parent_widget, lobby_connection, lobby_info, avatar_dler, theme,
-    ):
+        self,
+        parent_widget: ClientWindow,
+        lobby_connection: ServerConnection,
+        lobby_info: LobbyInfo,
+        avatar_dler: CachedImageDownloader,
+        theme: ThemeSet,
+    ) -> None:
         QObject.__init__(self, parent_widget)
 
         self._parent_widget = parent_widget
@@ -29,12 +47,14 @@ class AvatarWidget(QObject):
 
     @classmethod
     def builder(
-        cls, parent_widget, lobby_connection, lobby_info, avatar_dler,
-        theme, **kwargs,
-    ):
-        return lambda: cls(
-            parent_widget, lobby_connection, lobby_info, avatar_dler, theme,
-        )
+        cls,
+        parent_widget: ClientWindow,
+        lobby_connection: ServerConnection,
+        lobby_info: LobbyInfo,
+        avatar_dler: CachedImageDownloader,
+        theme: ThemeSet,
+    ) -> Callable[[], Self]:
+        return lambda: cls(parent_widget, lobby_connection, lobby_info, avatar_dler, theme)
 
     def set_theme(self, theme):
         formc, basec = theme.loadUiType("dialogs/avatar.ui")

@@ -1,15 +1,19 @@
+from typing import Any
+from typing import Self
+
 from PyQt6.QtCore import QObject
 
+from src.client.user import User
 from src.model.game import GameState
 
 
 class SensitiveMapInfoChecker(QObject):
-    def __init__(self, me):
+    def __init__(self, me: User) -> None:
         QObject.__init__(self)
         self._me = me
 
     @classmethod
-    def build(cls, me, **kwargs):
+    def build(cls, me: User, **kwargs: Any) -> Self:
         return cls(me)
 
     def has_sensitive_data(self, game):

@@ -1,14 +1,21 @@
 from enum import Enum
+from typing import Any
+from typing import Self
 
 from PyQt6.QtCore import QObject
 from PyQt6.QtCore import pyqtSignal
 
+from src.chat.ircconnection import IrcConnection
+from src.client.chat_config import ChatConfig
+from src.client.user import UserRelationModel
 from src.model.chat.channel import Channel
 from src.model.chat.channel import ChannelID
 from src.model.chat.channel import ChannelType
 from src.model.chat.channel import Lines
 from src.model.chat.channelchatter import ChannelChatter
+from src.model.chat.chat import Chat
 from src.model.chat.chatline import ChatLine
+from src.model.chat.chatline import ChatLineMetadataBuilder
 from src.model.chat.chatline import ChatLineType
 from src.model.chat.chatter import Chatter
 
@@ -17,9 +24,13 @@ class ChatController(QObject):
     join_requested = pyqtSignal(object)
 
     def __init__(
-        self, connection, model, user_relations, chat_config,
-        line_metadata_builder,
-    ):
+        self,
+        connection: IrcConnection,
+        model: Chat,
+        user_relations: UserRelationModel,
+        chat_config: ChatConfig,
+        line_metadata_builder: ChatLineMetadataBuilder,
+    ) -> None:
         QObject.__init__(self)
         self._connection = connection
         self._model = model
@@ -44,13 +55,15 @@ class ChatController(QObject):
 
     @classmethod
     def build(
-        cls, connection, model, user_relations, chat_config,
-        line_metadata_builder, **kwargs,
-    ):
-        return cls(
-            connection, model, user_relations, chat_config,
-            line_metadata_builder,
-        )
+        cls,
+        connection: IrcConnection,
+        model: Chat,
+        user_relations: UserRelationModel,
+        chat_config: ChatConfig,
+        line_metadata_builder: ChatLineMetadataBuilder,
+        **kwargs: Any,
+    ) -> Self:
+        return cls(connection, model, user_relations, chat_config, line_metadata_builder)
 
     @property
     def _channels(self):
@@ -196,9 +209,9 @@ class ChatController(QObject):
             return
         prefix = "quit"
         if chatter.name in message:     # Silence default messages
-            message = "{}.".format(prefix)
+            message = f"{prefix}."
         else:
-            message = "{}: {}".format(prefix, message)
+            message = f"{prefix}: {message}"
         self._announce_chatter(channel, chatter, message)
 
     def _at_quit_channel(self, cid):
@@ -280,7 +293,7 @@ class ChatController(QObject):
                         ),
                     )
             elif action == MessageAction.SEEN:
-                self._connection.send_action("nickserv", "info {}".format(msg))
+                self._connection.send_action("nickserv", f"info {msg}")
             elif action == MessageAction.TOPIC:
                 self._connection.set_topic(cid.name, msg)
             elif action == MessageAction.JOIN:
@@ -297,7 +310,7 @@ class ChatController(QObject):
             notice = "Sending failed. Check your connection."
             self._announce(self._channels[cid], notice)
 
-    def join_channel(self, cid):
+    def join_channel(self, cid: ChannelID) -> None:
         # Don't join a private channel with ourselves
         if (
             cid.type == ChannelType.PRIVATE
@@ -311,7 +324,7 @@ class ChatController(QObject):
         else:
             self._check_add_new_channel(cid)
 
-    def join_public_channel(self, name):
+    def join_public_channel(self, name: str) -> None:
         self.join_channel(ChannelID(ChannelType.PUBLIC, name))
 
     def join_private_channel(self, name):

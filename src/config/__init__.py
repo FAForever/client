@@ -67,7 +67,11 @@ class Settings:
         return defaults.get(key, default)
 
     @staticmethod
-    def set(key, value, persist=True):
+    def set(
+        key: QtCore.QByteArray | bytes | memoryview | str | None,
+        value: Any,
+        persist: bool = True,
+    ) -> None:
         _unpersisted_settings[key] = value
         if not persist:
             _settings.remove(key)
@@ -115,7 +119,7 @@ class Settings:
         return _settings.fileName()
 
     @staticmethod
-    def contains(key):
+    def contains(key: QtCore.QByteArray | bytes | memoryview | str | None) -> bool:
         return key in _unpersisted_settings or _settings.contains(key)
 
 

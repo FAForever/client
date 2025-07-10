@@ -1,9 +1,21 @@
+from __future__ import annotations
+
+from collections.abc import Callable
 from enum import IntEnum
+from typing import TYPE_CHECKING
+from typing import Any
+from typing import Self
 
 from PyQt6.QtCore import QTimer
 from PyQt6.QtMultimedia import QSoundEffect
 
 from src.chat.chat_widget import TabIcon
+from src.client.chat_config import ChatConfig
+from src.model.chat.channel import ChannelID
+from src.util.theme import ThemeSet
+
+if TYPE_CHECKING:
+    from src.chat.channel_widget import ChannelWidget
 
 
 class TabInfo(IntEnum):
@@ -13,7 +25,13 @@ class TabInfo(IntEnum):
 
 
 class ChannelTab:
-    def __init__(self, cid, widget, theme, chat_config):
+    def __init__(
+        self,
+        cid: ChannelID,
+        widget: ChannelWidget,
+        theme: ThemeSet,
+        chat_config: ChatConfig,
+    ) -> None:
         self._cid = cid
         self._widget = widget
         self._theme = theme
@@ -41,8 +59,13 @@ class ChannelTab:
             self._ping_timer.setInterval(c.channel_ping_timeout)
 
     @classmethod
-    def builder(cls, theme, chat_config, **kwargs):
-        def make(cid, widget):
+    def builder(
+        cls,
+        theme: ThemeSet,
+        chat_config: ChatConfig,
+        **kwargs: Any,
+    ) -> Callable[[ChannelID, ChannelWidget], Self]:
+        def make(cid: ChannelID, widget: ChannelWidget) -> Self:
             return cls(cid, widget, theme, chat_config)
         return make
 

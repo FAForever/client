@@ -1,14 +1,28 @@
+from collections.abc import Callable
+from typing import Any
+from typing import Self
+
 from src.chat.channel_tab import ChannelTab
 from src.chat.channel_view import ChannelView
+from src.chat.channel_widget import ChannelWidget
+from src.chat.chat_controller import ChatController
 from src.chat.chat_widget import ChatWidget
+from src.model.chat.channel import Channel
+from src.model.chat.channel import ChannelID
 from src.model.chat.channel import ChannelType
+from src.model.chat.chat import Chat
 
 
 class ChatView:
     def __init__(
-        self, target_viewed_channel, model, controller, widget,
-        channel_view_builder, channel_tab_builder,
-    ):
+        self,
+        target_viewed_channel: ChannelID,
+        model: Chat,
+        controller: ChatController,
+        widget: ChatWidget,
+        channel_view_builder: Callable[[Channel, ChannelTab], ChannelView],
+        channel_tab_builder: Callable[[ChannelID, ChannelWidget], ChannelTab],
+    ) -> None:
         self._target_viewed_channel = None
         self._model = model
         self._controller = controller
@@ -16,7 +30,7 @@ class ChatView:
         self.widget = widget
         self._channel_view_builder = channel_view_builder
         self._channel_tab_builder = channel_tab_builder
-        self._channels = {}
+        self._channels: dict[ChannelID, ChannelView] = {}
         self._model.channels.added.connect(self._add_channel)
         self._model.channels.removed.connect(self._remove_channel)
         self._model.new_server_message.connect(self._new_server_message)
@@ -27,10 +41,16 @@ class ChatView:
         self.target_viewed_channel = target_viewed_channel
 
     @classmethod
-    def build(cls, target_viewed_channel, model, controller, **kwargs):
+    def build(
+        cls,
+        target_viewed_channel: ChannelID,
+        model: Chat,
+        controller: ChatController,
+        **kwargs: Any,
+    ) -> Self:
         chat_widget = ChatWidget.build(**kwargs)
         channel_view_builder = ChannelView.builder(
-            controller, channelchatterset=model.channelchatters, **kwargs
+            controller, channelchatterset=model.channelchatters, **kwargs,
         )
         channel_tab_builder = ChannelTab.builder(**kwargs)
         return cls(
@@ -42,7 +62,7 @@ class ChatView:
         for channel in self._model.channels.values():
             self._add_channel(channel)
 
-    def _add_channel(self, channel):
+    def _add_channel(self, channel: Channel) -> None:
         if channel.id_key in self._channels:
             return
         tab = self._channel_tab_builder(channel.id_key, self.widget)

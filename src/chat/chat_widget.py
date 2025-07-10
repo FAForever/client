@@ -1,4 +1,6 @@
 from enum import Enum
+from typing import Any
+from typing import Self
 
 from PyQt6.QtCore import QObject
 from PyQt6.QtCore import pyqtSignal
@@ -7,6 +9,7 @@ from PyQt6.QtWidgets import QTabBar
 
 from src.model.chat.channel import PARTY_CHANNEL_SUFFIX
 from src.model.chat.channel import ChannelType
+from src.util.theme import ThemeSet
 
 
 class TabIcon(Enum):
@@ -20,14 +23,14 @@ class ChatWidget(QObject):
     channel_quit_request = pyqtSignal(object)
     tab_changed = pyqtSignal(object)
 
-    def __init__(self, theme):
+    def __init__(self, theme: ThemeSet) -> None:
         QObject.__init__(self)
         self._channels = {}
         self._theme = theme
         self.set_theme()
 
     @classmethod
-    def build(cls, theme, **kwargs):
+    def build(cls, theme: ThemeSet, **kwargs: Any) -> Self:
         return cls(theme)
 
     def set_theme(self):
@@ -101,7 +104,7 @@ class ChatWidget(QObject):
         self.base.setCurrentIndex(self.base.indexOf(widget.base))
 
     def set_tab_icon(self, key, name):
-        icon = self._theme.icon("chat/tabicon/{}.png".format(name.value))
+        icon = self._theme.icon(f"chat/tabicon/{name.value}.png")
         widget = self._channels.get(key, None)
         if widget is None:
             return

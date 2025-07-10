@@ -1,5 +1,10 @@
+from __future__ import annotations
+
 import logging
 import re
+from typing import TYPE_CHECKING
+from typing import Any
+from typing import Self
 
 from PyQt6.QtCore import QObject
 from PyQt6.QtCore import Qt
@@ -8,7 +13,13 @@ from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtGui import QTextCursor
 from PyQt6.QtGui import QTextDocument
 
+from src.client.chat_config import ChatConfig
+from src.model.chat.channel import Channel
 from src.qt.utils import monkeypatch_method
+from src.util.theme import ThemeSet
+
+if TYPE_CHECKING:
+    from src.chat.channel_view import ChatLineCssTemplate
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +30,13 @@ class ChannelWidget(QObject):
     url_clicked = pyqtSignal(QUrl)
     css_reloaded = pyqtSignal()
 
-    def __init__(self, channel, chat_area_css, theme, chat_config):
+    def __init__(
+        self,
+        channel: Channel,
+        chat_area_css: ChatLineCssTemplate,
+        theme: ThemeSet,
+        chat_config: ChatConfig,
+    ) -> None:
         QObject.__init__(self)
         self.channel = channel
         self._chat_area_css = chat_area_css
@@ -28,7 +45,14 @@ class ChannelWidget(QObject):
         self.set_theme(theme)
 
     @classmethod
-    def build(cls, channel, chat_area_css, theme, chat_config, **kwargs):
+    def build(
+        cls,
+        channel: Channel,
+        chat_area_css: ChatLineCssTemplate,
+        theme: ThemeSet,
+        chat_config: ChatConfig,
+        **kwargs: Any,
+    ) -> Self:
         return cls(channel, chat_area_css, theme, chat_config)
 
     @property
@@ -55,7 +79,7 @@ class ChannelWidget(QObject):
     def announce_line(self):
         return self.form.announceLine
 
-    def set_theme(self, theme):
+    def set_theme(self, theme: ThemeSet) -> None:
         formc, basec = theme.loadUiType("chat/channel.ui")
         self.form = formc()
         self.base = basec()

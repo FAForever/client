@@ -35,11 +35,11 @@ class Chat(QObject):
 
     # Does not affect model contents, only tells if the user is connected.
     @property
-    def connected(self):
+    def connected(self) -> bool:
         return self._connected
 
     @connected.setter
-    def connected(self, value):
+    def connected(self, value: bool) -> None:
         self._connected = value
         if self._connected:
             self.connect_event.emit()

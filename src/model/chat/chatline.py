@@ -1,6 +1,13 @@
+from __future__ import annotations
+
 import time
 from enum import Enum
+from typing import Any
+from typing import Self
 
+from src.client.user import User
+from src.client.user import UserRelationModel
+from src.model.chat.channel import Channel
 from src.util.magic_dict import MagicDict
 
 
@@ -27,21 +34,21 @@ class ChatLine:
 
 
 class ChatLineMetadata:
-    def __init__(self, line, meta):
+    def __init__(self, line: ChatLine, meta: ChatLineMetadata) -> None:
         self.line = line
         self.meta = meta
 
 
 class ChatLineMetadataBuilder:
-    def __init__(self, me, user_relations):
+    def __init__(self, me: User, user_relations: UserRelationModel) -> None:
         self._me = me
         self._user_relations = user_relations
 
     @classmethod
-    def build(cls, me, user_relations, **kwargs):
+    def build(cls, me: User, user_relations: UserRelationModel, **kwargs: Any) -> Self:
         return cls(me, user_relations)
 
-    def get_meta(self, channel, line):
+    def get_meta(self, channel: Channel, line: ChatLine) -> ChatLineMetadata:
         if line.sender is None:
             cc = None
         else:

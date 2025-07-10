@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Callable
 from typing import TYPE_CHECKING
-from typing import Callable
+from typing import Any
 
 from PyQt6.QtWidgets import QWidget
 
@@ -44,7 +45,7 @@ class ChatterMenu(PlayerContextMenu):
         alias_viewer: AliasWindow,
         client_window: ClientWindow,
         game_runner: GameRunner,
-        **kwargs,
+        **kwargs: Any,
     ):
         return cls(
             me, power_tools, parent_widget, avatar_widget_builder,

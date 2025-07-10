@@ -1,10 +1,18 @@
+from collections.abc import Callable
+from typing import Any
+from typing import Self
 from urllib import parse
 
 from PyQt6.QtCore import QObject
 from PyQt6.QtCore import pyqtSignal
 
+from src.client.user import UserRelations
+from src.downloadManager import CachedImageDownloader
 from src.downloadManager import DownloadRequest
+from src.downloadManager import MapSmallPreviewDownloader
 from src.fa import maps
+from src.model.chat.channelchatter import ChannelChatter
+from src.model.chat.chatter import Chatter
 
 
 class ChatterModelItem(QObject):
@@ -13,7 +21,13 @@ class ChatterModelItem(QObject):
     """
     updated = pyqtSignal(object)
 
-    def __init__(self, cc, map_preview_dler, avatar_dler, relation_trackers):
+    def __init__(
+        self,
+        cc: ChannelChatter,
+        map_preview_dler: MapSmallPreviewDownloader,
+        avatar_dler: CachedImageDownloader,
+        relation_trackers: UserRelations,
+    ) -> None:
         QObject.__init__(self)
 
         self._preview_dler = map_preview_dler
@@ -40,9 +54,13 @@ class ChatterModelItem(QObject):
 
     @classmethod
     def builder(
-        cls, map_preview_dler, avatar_dler, relation_trackers, **kwargs,
-    ):
-        def make(cc):
+        cls,
+        map_preview_dler: MapSmallPreviewDownloader,
+        avatar_dler: CachedImageDownloader,
+        relation_trackers: UserRelations,
+        **kwargs: Any,
+    ) -> Callable[[ChannelChatter], Self]:
+        def make(cc: ChannelChatter) -> Self:
             return cls(cc, map_preview_dler, avatar_dler, relation_trackers)
         return make
 
@@ -50,7 +68,7 @@ class ChatterModelItem(QObject):
         self.updated.emit(self)
 
     @property
-    def chatter(self):
+    def chatter(self) -> Chatter:
         return self.cc.chatter
 
     def _set_player(self, chatter, new_player, old_player):

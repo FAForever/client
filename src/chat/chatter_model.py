@@ -1,12 +1,19 @@
+from __future__ import annotations
+
+from collections.abc import Callable
 from enum import Enum
 from enum import IntEnum
+from typing import TYPE_CHECKING
 from typing import Any
+from typing import Self
 
 from PyQt6 import QtCore
 from PyQt6 import QtGui
 from PyQt6 import QtWidgets
 from PyQt6.QtCore import QObject
+from PyQt6.QtCore import QPoint
 from PyQt6.QtCore import QRect
+from PyQt6.QtCore import QSize
 from PyQt6.QtCore import QSortFilterProxyModel
 from PyQt6.QtCore import Qt
 from PyQt6.QtCore import pyqtSignal
@@ -14,30 +21,44 @@ from PyQt6.QtGui import QColor
 from PyQt6.QtGui import QIcon
 
 from src import util
+from src.chat.chatter_menu import ChatterMenu
 from src.chat.chatter_model_item import ChatterModelItem
 from src.chat.chatterlistview import ChatterListView
 from src.chat.gameinfo import SensitiveMapInfoChecker
+from src.client.playercolors import PlayerColors
+from src.client.user import User
+from src.client.user import UserRelationModel
+from src.downloadManager import CachedImageDownloader
 from src.fa import maps
+from src.model.chat.channel import Channel
+from src.model.chat.channelchatter import ChannelChatter
 from src.model.game import GameState
 from src.model.rating import RatingType
 from src.qt.itemviews.styleditemdelegate import StyledItemDelegate
 from src.qt.models.qtlistmodel import QtListModel
+from src.util.theme import ThemeSet
+
+if TYPE_CHECKING:
+    from src.client.chat_config import ChatConfig
 
 
 class ChatterModel(QtListModel):
-    def __init__(self, channel, item_builder):
+    def __init__(
+        self,
+        channel: Channel,
+        item_builder: Callable[[ChannelChatter], ChatterModelItem],
+    ) -> None:
         QtListModel.__init__(self, item_builder)
         self._channel = channel
 
-        if self._channel is not None:
-            self._channel.added_chatter.connect(self.add_chatter)
-            self._channel.removed_chatter.connect(self.remove_chatter)
+        self._channel.added_chatter.connect(self.add_chatter)
+        self._channel.removed_chatter.connect(self.remove_chatter)
 
         for chatter in self._channel.chatters:
             self.add_chatter(chatter)
 
     @classmethod
-    def build(cls, channel, **kwargs):
+    def build(cls, channel: Channel, **kwargs: Any) -> Self:
         builder = ChatterModelItem.builder(**kwargs)
         return cls(channel, builder)
 
@@ -68,7 +89,13 @@ class ChatterRank(IntEnum):
 
 
 class ChatterSortFilterModel(QSortFilterProxyModel):
-    def __init__(self, model, me, user_relations, chat_config):
+    def __init__(
+        self,
+        model: ChatterModel,
+        me: User,
+        user_relations: UserRelationModel,
+        chat_config: ChatConfig,
+    ) -> None:
         QSortFilterProxyModel.__init__(self)
         self._me = me
         self._user_relations = user_relations
@@ -78,7 +105,14 @@ class ChatterSortFilterModel(QSortFilterProxyModel):
         self.sort(0)
 
     @classmethod
-    def build(cls, model, me, user_relations, chat_config, **kwargs):
+    def build(
+        cls,
+        model: ChatterModel,
+        me: User,
+        user_relations: UserRelationModel,
+        chat_config: ChatConfig,
+        **kwargs: Any,
+    ) -> Self:
         return cls(model, me, user_relations, chat_config)
 
     def lessThan(self, leftIndex, rightIndex):
@@ -152,7 +186,7 @@ class ChatterFormat:
     @classmethod
     def name(cls, chatter, clan):
         if clan is not None:
-            return "[{}]{}".format(clan, chatter)
+            return f"[{clan}]{chatter}"
         else:
             return chatter
 
@@ -163,13 +197,23 @@ class ChatterFormat:
 
 
 class ChatterItemFormatter:
-    def __init__(self, avatars, player_colors, info_hider):
+    def __init__(
+        self,
+        avatars: CachedImageDownloader,
+        player_colors: PlayerColors,
+        info_hider: SensitiveMapInfoChecker,
+    ) -> None:
         self._avatars = avatars
         self._player_colors = player_colors
         self._info_hider = info_hider
 
     @classmethod
-    def build(cls, avatar_dler, player_colors, **kwargs):
+    def build(
+        cls,
+        avatar_dler: CachedImageDownloader,
+        player_colors: PlayerColors,
+        **kwargs: Any,
+    ) -> Self:
         info_hider = SensitiveMapInfoChecker.build(**kwargs)
         return cls(avatar_dler, player_colors, info_hider)
 
@@ -211,10 +255,10 @@ class ChatterItemFormatter:
             return "playing5"
         return "unknown"
 
-    def chatter_rank(self, data):
+    def chatter_rank(self, data: ChatterModelItem) -> str:
         if data.player is None:
             return "civilian"
-        league = data.player.league
+        league = None  # FIXME: remove/handle this deprecated field
         if league is None or "league" not in league:
             return "newplayer"
         return league["league"]
@@ -335,13 +379,13 @@ class ChatterItemFormatter:
 
 
 class ChatterItemDelegate(StyledItemDelegate):
-    def __init__(self, layout, formatter):
+    def __init__(self, layout: ChatterLayout, formatter: ChatterItemFormatter) -> None:
         StyledItemDelegate.__init__(self)
         self.layout = layout
         self._formatter = formatter
 
     @classmethod
-    def build(cls, layout, **kwargs):
+    def build(cls, layout: ChatterLayout, **kwargs: Any) -> Self:
         formatter = ChatterItemFormatter.build(**kwargs)
         return cls(layout, formatter)
 
@@ -400,7 +444,7 @@ class ChatterItemDelegate(StyledItemDelegate):
 
     def _draw_status(self, painter, data):
         status = self._formatter.chatter_status(data)
-        icon = util.THEME.icon("chat/status/{}.png".format(status))
+        icon = util.THEME.icon(f"chat/status/{status}.png")
         self._draw_icon(painter, icon, ChatterLayoutElements.STATUS)
 
     # TODO - handle optionality of maps
@@ -412,7 +456,7 @@ class ChatterItemDelegate(StyledItemDelegate):
 
     def _draw_rank(self, painter, data):
         rank = self._formatter.chatter_rank(data)
-        icon = util.THEME.icon("chat/rank/{}.png".format(rank))
+        icon = util.THEME.icon(f"chat/rank/{rank}.png")
         self._draw_icon(painter, icon, ChatterLayoutElements.RANK)
 
     def _draw_avatar(self, painter, data):
@@ -425,7 +469,7 @@ class ChatterItemDelegate(StyledItemDelegate):
         country = self._formatter.chatter_country(data)
         if country is None:
             return
-        icon = util.THEME.icon("chat/countries/{}.png".format(country.lower()))
+        icon = util.THEME.icon(f"chat/countries/{country.lower()}.png")
         self._draw_icon(painter, icon, ChatterLayoutElements.COUNTRY)
 
     def _draw_icon(self, painter, icon, element):
@@ -468,54 +512,54 @@ class ChatterLayout(QObject):
     """Provides layout info for delegate using Qt widget layouts."""
     LAYOUT_FILE = "chat/chatter.ui"
 
-    def __init__(self, theme, chat_config):
+    def __init__(self, theme: ThemeSet, chat_config: ChatConfig) -> None:
         QObject.__init__(self)
         self._theme = theme
         self._chat_config = chat_config
-        self.sizes = {}
+        self.sizes: dict[ChatterLayoutElements, QRect] = {}
         self.load_layout()
         self._chat_config.updated.connect(self._at_chat_config_updated)
         self._set_visibility()
 
     @classmethod
-    def build(cls, theme, chat_config, **kwargs):
+    def build(cls, theme: ThemeSet, chat_config: ChatConfig, **kwargs: Any) -> Self:
         return cls(theme, chat_config)
 
-    def load_layout(self):
+    def load_layout(self) -> None:
         formc, basec = self._theme.loadUiType(self.LAYOUT_FILE)
         self._form = formc()
         self._base = basec()
         self._form.setupUi(self._base)
         self._size = self._base.size()
 
-    def _at_chat_config_updated(self, setting):
+    def _at_chat_config_updated(self, setting: str) -> None:
         if setting == "hide_chatter_items":
             self._set_visibility()
 
-    def _set_visibility(self):
+    def _set_visibility(self) -> None:
         for item in ChatterLayoutElements:
             self._set_visible(item)
         self._update_layout()
 
-    def _set_visible(self, item):
+    def _set_visible(self, item: ChatterLayoutElements) -> None:
         getattr(self._form, item.value).setVisible(self.is_visible(item))
 
-    def is_visible(self, item):
+    def is_visible(self, item: ChatterLayoutElements) -> bool:
         return item not in self._chat_config.hide_chatter_items
 
-    def visible_items(self):
+    def visible_items(self) -> list[ChatterLayoutElements]:
         return [i for i in ChatterLayoutElements if self.is_visible(i)]
 
     @property
-    def size(self):
+    def size(self) -> QSize:
         return self._base.size()
 
     @size.setter
-    def size(self, size):
+    def size(self, size: QSize) -> None:
         self._size = size
         self._update_layout()
 
-    def element_at_point(self, point):
+    def element_at_point(self, point: QPoint) -> ChatterLayoutElements | None:
         for elem in ChatterLayoutElements:
             if self.sizes[elem].contains(point) and self.is_visible(elem):
                 return elem
@@ -532,7 +576,7 @@ class ChatterLayout(QObject):
         layout.update()
         layout.activate()
 
-    def _get_widget_position(self, name):
+    def _get_widget_position(self, name: str) -> QRect:
         widget = getattr(self._form, name)
         size = widget.rect()
         top_left = widget.mapTo(self._base, size.topLeft())
@@ -543,14 +587,25 @@ class ChatterLayout(QObject):
 class ChatterEventFilter(QObject):
     double_clicked = pyqtSignal(object, object)
 
-    def __init__(self, chatter_layout, tooltip_handler, menu_handler):
+    def __init__(
+        self,
+        chatter_layout: ChatterLayout,
+        tooltip_handler: ChatterItemDelegate,
+        menu_handler: ChatterMenu,
+    ) -> None:
         QObject.__init__(self)
         self._chatter_layout = chatter_layout
         self._tooltip_handler = tooltip_handler
         self._menu_handler = menu_handler
 
     @classmethod
-    def build(cls, chatter_layout, tooltip_handler, menu_handler, **kwargs):
+    def build(
+        cls,
+        chatter_layout: ChatterLayout,
+        tooltip_handler: ChatterItemDelegate,
+        menu_handler: ChatterMenu,
+        **kwargs: Any,
+    ) -> Self:
         return cls(chatter_layout, tooltip_handler, menu_handler)
 
     def eventFilter(self, obj, event):

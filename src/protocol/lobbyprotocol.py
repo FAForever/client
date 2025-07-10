@@ -33,3 +33,12 @@ class GameLaunchCommand(TypedDict):
 class MatchFoundCommand(TypedDict):
     command: Literal["match_found"]
     queue_name: str
+
+
+class SocialCommand(TypedDict):
+    command: Literal["social"]
+    autojoin: list[str]
+    channels: NotRequired[list[str]]
+    friends: NotRequired[list[int]]
+    foes: NotRequired[list[int]]
+    power: NotRequired[int]

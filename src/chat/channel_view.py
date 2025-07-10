@@ -1,5 +1,12 @@
+from __future__ import annotations
+
 import html
 import time
+from collections.abc import Callable
+from collections.abc import Generator
+from typing import TYPE_CHECKING
+from typing import Any
+from typing import Self
 
 import jinja2
 from PyQt6.QtCore import QObject
@@ -8,6 +15,7 @@ from PyQt6.QtGui import QDesktopServices
 
 from src.chat.channel_tab import TabInfo
 from src.chat.channel_widget import ChannelWidget
+from src.chat.chat_controller import ChatController
 from src.chat.chatter_menu import ChatterMenu
 from src.chat.chatter_model import ChatterEventFilter
 from src.chat.chatter_model import ChatterFormat
@@ -16,18 +24,34 @@ from src.chat.chatter_model import ChatterLayout
 from src.chat.chatter_model import ChatterLayoutElements
 from src.chat.chatter_model import ChatterModel
 from src.chat.chatter_model import ChatterSortFilterModel
+from src.client.playercolors import PlayerColors
+from src.client.user import User
+from src.client.user import UserRelations
+from src.downloadManager import CachedImageDownloader
 from src.downloadManager import DownloadRequest
+from src.fa.game_runner import GameRunner
+from src.model.chat.channel import Channel
 from src.model.chat.channel import ChannelType
+from src.model.chat.chatline import ChatLineMetadata
 from src.model.chat.chatline import ChatLineType
 from src.util import irc_escape
 from src.util.gameurl import GameUrl
+from src.util.theme import ThemeSet
+
+if TYPE_CHECKING:
+    from src.chat.channel_tab import ChannelTab
 
 
 class ChannelView:
     def __init__(
-        self, channel, controller, widget, channel_tab,
-        chatter_list_view, lines_view,
-    ):
+        self,
+        channel: Channel,
+        controller: ChatController,
+        widget: ChannelWidget,
+        channel_tab: ChannelTab,
+        chatter_list_view: ChattersView,
+        lines_view: ChatAreaView,
+    ) -> None:
         self._channel = channel
         self._controller = controller
         self._chatter_list_view = chatter_list_view
@@ -44,25 +68,33 @@ class ChannelView:
         self._update_chatter_count()
 
     def _update_chatter_count(self):
-        text = "{} users (type to filter)".format(len(self._channel.chatters))
+        text = f"{len(self._channel.chatters)} users (type to filter)"
         self.widget.set_nick_edit_label(text)
 
     @classmethod
-    def build(cls, channel, controller, channel_tab, **kwargs):
+    def build(
+        cls,
+        channel: Channel,
+        controller: ChatController,
+        channel_tab: ChannelTab,
+        **kwargs: Any,
+    ) -> Self:
         chat_css_template = ChatLineCssTemplate.build(**kwargs)
         widget = ChannelWidget.build(channel, chat_css_template, **kwargs)
         lines_view = ChatAreaView.build(channel, widget, channel_tab, **kwargs)
-        chatter_list_view = ChattersView.build(
-            channel, widget, controller, **kwargs
-        )
+        chatter_list_view = ChattersView.build(channel, widget, controller, **kwargs)
         return cls(
             channel, controller, widget, channel_tab, chatter_list_view,
             lines_view,
         )
 
     @classmethod
-    def builder(cls, controller, **kwargs):
-        def make(channel, channel_tab):
+    def builder(
+        cls,
+        controller: ChatController,
+        **kwargs: Any,
+    ) -> Callable[[Channel, ChannelTab], Self]:
+        def make(channel: Channel, channel_tab: ChannelTab) -> Self:
             return cls.build(channel, controller, channel_tab, **kwargs)
         return make
 
@@ -75,9 +107,14 @@ class ChannelView:
 
 class ChatAreaView:
     def __init__(
-        self, channel, widget, widget_tab, game_runner, avatar_adder,
-        formatter,
-    ):
+        self,
+        channel: Channel,
+        widget: ChannelWidget,
+        widget_tab: ChannelTab,
+        game_runner: GameRunner,
+        avatar_adder: ChatAvatarPixAdder,
+        formatter: ChatLineFormatter,
+    ) -> None:
         self._channel = channel
         self._widget = widget
         self._widget_tab = widget_tab
@@ -93,7 +130,14 @@ class ChatAreaView:
         self._set_topic(self._channel.topic)
 
     @classmethod
-    def build(cls, channel, widget, widget_tab, game_runner, **kwargs):
+    def build(
+        cls,
+        channel: Channel,
+        widget: ChannelWidget,
+        widget_tab: ChannelTab,
+        game_runner: GameRunner,
+        **kwargs: Any,
+    ) -> Self:
         avatar_adder = ChatAvatarPixAdder.build(widget, **kwargs)
         formatter = ChatLineFormatter.build(**kwargs)
         return cls(
@@ -165,13 +209,18 @@ class ChatAreaView:
 
 
 class ChatAvatarPixAdder:
-    def __init__(self, widget, avatar_dler):
+    def __init__(self, widget: ChannelWidget, avatar_dler: CachedImageDownloader) -> None:
         self._avatar_dler = avatar_dler
         self._widget = widget
         self._requests = {}
 
     @classmethod
-    def build(cls, widget, avatar_dler, **kwargs):
+    def build(
+        cls,
+        widget: ChannelWidget,
+        avatar_dler: CachedImageDownloader,
+        **kwargs: Any,
+    ) -> Self:
         return cls(widget, avatar_dler)
 
     def add_avatar(self, url: str) -> None:
@@ -182,7 +231,7 @@ class ChatAvatarPixAdder:
             req = DownloadRequest()
             req.done.connect(self._add_avatar_resource)
             self._requests[url] = req
-            self._avatar_dler.download_avatar(url, req)
+            self._avatar_dler.download_image(url, req)
 
     def _add_avatar_resource(self, url, pix):
         if url in self._requests:
@@ -193,7 +242,7 @@ class ChatAvatarPixAdder:
 class ChatLineCssTemplate(QObject):
     changed = pyqtSignal()
 
-    def __init__(self, theme, player_colors):
+    def __init__(self, theme: ThemeSet, player_colors: PlayerColors) -> None:
         QObject.__init__(self)
         self._player_colors = player_colors
         self._theme = theme
@@ -202,7 +251,7 @@ class ChatLineCssTemplate(QObject):
         self._load_template()
 
     @classmethod
-    def build(cls, theme, player_colors, **kwargs):
+    def build(cls, theme: ThemeSet, player_colors: PlayerColors, **kwargs: Any) -> Self:
         return cls(theme, player_colors)
 
     def _load_template(self):
@@ -225,20 +274,20 @@ class ChatLineCssTemplate(QObject):
 
 
 class ChatLineFormatter:
-    def __init__(self, theme, player_colors):
+    def __init__(self, theme: ThemeSet, player_colors: PlayerColors) -> None:
         self._set_theme(theme)
         self._player_colors = player_colors
         self._last_timestamp = None
 
     @classmethod
-    def build(cls, theme, player_colors, **kwargs):
+    def build(cls, theme: ThemeSet, player_colors: PlayerColors, **kwargs: Any) -> Self:
         return cls(theme, player_colors)
 
-    def _set_theme(self, theme):
+    def _set_theme(self, theme: ThemeSet) -> None:
         self._chatline_template = theme.readfile("chat/chatline.qhtml")
         self._avatar_template = theme.readfile("chat/chatline_avatar.qhtml")
 
-    def _line_tags(self, data):
+    def _line_tags(self, data: ChatLineMetadata) -> Generator[str]:
         line = data.line
         meta = data.meta
         if line.type == ChatLineType.NOTICE:
@@ -339,7 +388,7 @@ class ChatLineFormatter:
 class ChattersViewParameters(QObject):
     updated = pyqtSignal()
 
-    def __init__(self, me, player_colors):
+    def __init__(self, me: User, player_colors: PlayerColors) -> None:
         QObject.__init__(self)
         self._me = me
         self._me.playerChanged.connect(self._updated)
@@ -351,15 +400,22 @@ class ChattersViewParameters(QObject):
         self.updated.emit()
 
     @classmethod
-    def build(cls, me, player_colors, **kwargs):
+    def build(cls, me: User, player_colors: PlayerColors, **kwargs: Any) -> Self:
         return cls(me, player_colors)
 
 
 class ChattersView:
     def __init__(
-        self, widget, chatter_layout, delegate, model, controller,
-        event_filter, double_click_handler, view_parameters,
-    ):
+        self,
+        widget: ChannelWidget,
+        chatter_layout: ChatterLayout,
+        delegate: ChatterItemDelegate,
+        model: ChatterSortFilterModel,
+        controller: ChatController,
+        event_filter: ChatterEventFilter,
+        double_click_handler: ChatterDoubleClickHandler,
+        view_parameters: ChattersViewParameters,
+    ) -> None:
         self.chatter_layout = chatter_layout
         self.delegate = delegate
         self.model = model
@@ -385,23 +441,28 @@ class ChattersView:
         self.model.invalidate_items()
 
     @classmethod
-    def build(cls, channel, widget, controller, user_relations, **kwargs):
+    def build(
+        cls,
+        channel: Channel,
+        widget: ChannelWidget,
+        controller: ChatController,
+        user_relations: UserRelations,
+        **kwargs: Any,
+    ) -> Self:
         model = ChatterModel.build(
-            channel, relation_trackers=user_relations.trackers, **kwargs
+            channel, relation_trackers=user_relations.trackers, **kwargs,
         )
         sort_filter_model = ChatterSortFilterModel.build(
-            model, user_relations=user_relations.model, **kwargs
+            model, user_relations=user_relations.model, **kwargs,
         )
 
         chatter_layout = ChatterLayout.build(**kwargs)
         chatter_menu = ChatterMenu.build(**kwargs)
         delegate = ChatterItemDelegate.build(chatter_layout, **kwargs)
         event_filter = ChatterEventFilter.build(
-            chatter_layout, delegate, chatter_menu, **kwargs
+            chatter_layout, delegate, chatter_menu, **kwargs,
         )
-        double_click_handler = ChatterDoubleClickHandler.build(
-            controller, **kwargs
-        )
+        double_click_handler = ChatterDoubleClickHandler.build(controller, **kwargs)
         view_parameters = ChattersViewParameters.build(**kwargs)
 
         return cls(
@@ -411,12 +472,12 @@ class ChattersView:
 
 
 class ChatterDoubleClickHandler:
-    def __init__(self, controller, game_runner):
+    def __init__(self, controller: ChatController, game_runner: GameRunner) -> None:
         self._controller = controller
         self._game_runner = game_runner
 
     @classmethod
-    def build(cls, controller, game_runner, **kwargs):
+    def build(cls, controller: ChatController, game_runner: GameRunner, **kwargs: Any) -> Self:
         return cls(controller, game_runner)
 
     def handle(self, data, elem):

@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import re
 import sys
+from typing import cast
 
 from irc.client import Event
 from irc.client import ServerConnection
@@ -132,7 +133,7 @@ class Reconnector(QObject):
 class IrcConnection(SimpleIRCClient, IrcSignals):
     reactor_class = ReactorForSocketAdapter
 
-    def __init__(self, host: int, port: int) -> None:
+    def __init__(self, host: str, port: int) -> None:
         IrcSignals.__init__(self)
         SimpleIRCClient.__init__(self)
 
@@ -151,9 +152,9 @@ class IrcConnection(SimpleIRCClient, IrcSignals):
         self.reactor.socket_error.connect(self.reconnector.reconnect)
 
     @classmethod
-    def build(cls, settings: config.Settings, **kwargs) -> IrcConnection:
+    def build(cls, settings: type[config.Settings]) -> IrcConnection:
         port = settings.get("chat/port", 443, int)
-        host = settings.get("chat/host", "chat." + config.defaults["host"], str)
+        host = settings.get("chat/host", "chat." + cast(str, config.defaults["host"]), str)
         return cls(host, port)
 
     def setPortFromConfig(self) -> None:

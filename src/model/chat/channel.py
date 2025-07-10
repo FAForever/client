@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Self
 
 from PyQt6.QtCore import QObject
 from PyQt6.QtCore import pyqtSignal
@@ -15,18 +16,20 @@ class ChannelType(Enum):
 
 
 class ChannelID:
-    def __init__(self, type_, name):
+    def __init__(self, type_: ChannelType, name: str) -> None:
         self.type = type_
         self.name = name
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ChannelID):
+            return NotImplemented
         return self.type == other.type and self.name == other.name
 
     def __hash__(self):
         return hash((self.name, self.type))
 
     @classmethod
-    def private_cid(cls, name):
+    def private_cid(cls, name: str) -> Self:
         return cls(ChannelType.PRIVATE, name)
 
 

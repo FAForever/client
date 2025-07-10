@@ -5,7 +5,7 @@ from src.client.user import SignallingSet  # TODO - move to util
 
 
 def signal_property(public):
-    private = "_{}".format(public)
+    private = f"_{public}"
 
     def get(self):
         return getattr(self, private)
@@ -31,7 +31,7 @@ class ChatConfig(QtCore.QObject):
     max_chat_lines = signal_property("max_chat_lines")
     ignore_foes = signal_property("ignore_foes")
 
-    def __init__(self, settings):
+    def __init__(self, settings: QtCore.QSettings) -> None:
         QtCore.QObject.__init__(self)
         self._settings = settings
         self._soundeffects = None
@@ -57,15 +57,15 @@ class ChatConfig(QtCore.QObject):
     def _emit_hidden_items(self):
         self.updated.emit("hide_chatter_items")
 
-    def load_settings(self):
+    def load_settings(self) -> None:
         s = self._settings
-        self.soundeffects = (s.value("chat/soundeffects", "true") == "true")
-        self.joinsparts = (s.value("chat/joinsparts", "false") == "true")
-        self.friendsontop = (s.value("chat/friendsontop", "false") == "true")
-        self.newbies_channel = (
-            s.value("chat/newbiesChannel", "true") == "true"
+        self.soundeffects = bool(s.value("chat/soundeffects", "true") == "true")
+        self.joinsparts = bool(s.value("chat/joinsparts", "false") == "true")
+        self.friendsontop = bool(s.value("chat/friendsontop", "false") == "true")
+        self.newbies_channel = bool(
+            s.value("chat/newbiesChannel", "true") == "true",
         )
-        self.ignore_foes = (s.value("chat/ignoreFoes", "true") == "true")
+        self.ignore_foes = bool(s.value("chat/ignoreFoes", "true") == "true")
 
         items = s.value("chat/hide_chatter_items", "")
         items = items.split()
