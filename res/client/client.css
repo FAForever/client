@@ -841,6 +841,10 @@ QCheckBox::indicator
     border: 1px solid black;
 }
 
+QCheckBox::indicator:disabled {
+    border-color: #202025;
+}
+
 QCheckBox::indicator:unchecked
 {
     background: #303035;
