@@ -373,7 +373,7 @@ class SanitizedFormatter(logging.Formatter):
         return message
 
 
-def setup_file_handler(filename):
+def setup_file_handler(filename: str) -> MemoryHandler:
     # check permissions of writing the log file first
     # (which fails when changing users)
     log_file = os.path.join(Settings.get('client/logs/path'), filename)
@@ -386,6 +386,7 @@ def setup_file_handler(filename):
         os.path.join(Settings.get('client/logs/path'), filename),
         maxBytes=int(Settings.get('client/logs/max_size')),
         backupCount=Settings.get("client/logs/backup_count", type=int),
+        encoding="utf-8",
     )
     rotate.setFormatter(SanitizedFormatter("%(asctime)s %(levelname)-8s %(name)-30s %(message)s"))
     return MemoryHandler(
@@ -446,6 +447,7 @@ def setup_fault_handler():
             log_path,
             maxBytes=max_sz,
             backupCount=1,
+            encoding="utf-8",
         )
         # Rollover does it unconditionally, not looking at max size,
         # so we need to check it manually
