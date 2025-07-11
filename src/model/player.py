@@ -1,9 +1,14 @@
+from typing import Any
+
+from PyQt6.QtCore import pyqtBoundSignal
 from PyQt6.QtCore import pyqtSignal
 
+from src.model.game import Game
 from src.model.modelitem import ModelItem
 from src.model.rating import Rating
 from src.model.rating import RatingType
 from src.model.transaction import transactional
+from src.protocol.lobbyprotocol import PlayerRatings
 
 
 class Player(ModelItem):
@@ -15,15 +20,14 @@ class Player(ModelItem):
 
     def __init__(
         self,
-        id_,
-        login,
-        ratings={},
-        avatar=None,
-        country=None,
-        clan=None,
-        league=None,
-        **kwargs
-    ):
+        id_: int,
+        login: str,
+        ratings: PlayerRatings = {},
+        avatar: dict[str, str] | None = None,
+        country: str | None = None,
+        clan: str | None = None,
+        **kwargs: Any,
+    ) -> None:
         ModelItem.__init__(self)
         """
         Initialize a Player
@@ -32,15 +36,19 @@ class Player(ModelItem):
         # Login should be mutable, but we look up things by login right now
         self.id = int(id_)
         self.login = login
+        self.ratings = ratings
+        self.avatar = avatar
+        self.country = country
+        self.clan = clan
 
-        self.add_field("avatar", avatar)
-        self.add_field("country", country)
-        self.add_field("clan", clan)
-        self.add_field("league", league)
-        self.add_field("ratings", ratings)
-
+        self._data_fields.extend((
+            "avatar",
+            "country",
+            "clan",
+            "ratings",
+        ))
         # The game the player is currently playing
-        self._currentGame = None
+        self._currentGame: Game | None = None
 
     @property
     def id_key(self):
@@ -71,7 +79,7 @@ class Player(ModelItem):
         return self.rating_estimate(RatingType.LADDER.value)
 
     @property
-    def global_rating_mean(self):
+    def global_rating_mean(self) -> int:
         return self.rating_mean()
 
     @property
@@ -87,7 +95,7 @@ class Player(ModelItem):
         return self.rating_deviation(RatingType.LADDER.value)
 
     @property
-    def number_of_games(self):
+    def number_of_games(self) -> int:
         count = 0
         for rating_type in self.ratings:
             count += self.ratings[rating_type].get("number_of_games", 0)
@@ -105,19 +113,19 @@ class Player(ModelItem):
         except (KeyError, IndexError):
             return 0
 
-    def rating_mean(self, rating_type=RatingType.GLOBAL.value):
+    def rating_mean(self, rating_type: str = RatingType.GLOBAL.value) -> int:
         try:
             return round(self.ratings[rating_type]["rating"][0])
         except (KeyError, IndexError):
             return 1500
 
-    def rating_deviation(self, rating_type=RatingType.GLOBAL.value):
+    def rating_deviation(self, rating_type: str = RatingType.GLOBAL.value) -> int:
         try:
             return round(self.ratings[rating_type]["rating"][1])
         except (KeyError, IndexError):
             return 500
 
-    def game_count(self, rating_type=RatingType.GLOBAL.value):
+    def game_count(self, rating_type: str = RatingType.GLOBAL.value) -> int:
         try:
             return int(self.ratings[rating_type]["number_of_games"])
         except KeyError:
@@ -137,11 +145,11 @@ class Player(ModelItem):
         )
 
     @property
-    def currentGame(self):
+    def currentGame(self) -> Game:
         return self._currentGame
 
     @transactional
-    def set_currentGame(self, game, _transaction=None):
+    def set_currentGame(self, game: Game, _transaction: pyqtBoundSignal | None = None) -> None:
         if self.currentGame == game:
             return
         old = self._currentGame

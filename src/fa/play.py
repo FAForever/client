@@ -11,12 +11,12 @@ logger = logging.getLogger(__name__)
 
 
 def build_argument_list(
-    game_info,
-    port,
-    replayPort,
-    arguments=None,
-    log_suffix=None,
-):
+    game_info: dict[str, str | int],
+    port: int,
+    replayPort: int,
+    arguments: list[str] | None = None,
+    log_suffix: str | None = None,
+) -> list[str]:
     """
     Compiles an argument list to run the game with POpen style process
     invocation methods. Extends a potentially pre-existing argument list
@@ -42,10 +42,10 @@ def build_argument_list(
             log_file = (
                 util.LOG_FILE_GAME_PREFIX
                 + util.LOG_FILE_GAME_INFIX
-                + "{}".format(log_suffix)
+                + f"{log_suffix}"
                 + ".log"
             )
-        arguments.append('"{}"'.format(log_file))
+        arguments.append(f'"{log_file}"')
 
     # Disable defunct bug reporter
     arguments.append('/nobugreport')
@@ -66,7 +66,13 @@ def build_argument_list(
     return arguments
 
 
-def run(game_info, port, replayPort, arguments=None, log_suffix=None):
+def run(
+    game_info: dict[str, str | int],
+    port: int,
+    replayPort: int,
+    arguments: list[str] | None = None,
+    log_suffix: str | None = None,
+) -> bool:
     """
     Launches Forged Alliance with the given arguments
     """

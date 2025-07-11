@@ -20,8 +20,8 @@ class GameArguments:
 
 
 class GameProcess(QtCore.QProcess):
-    def __init__(self, *args, **kwargs):
-        QtCore.QProcess.__init__(self, *args, **kwargs)
+    def __init__(self) -> None:
+        super().__init__()
         self._info = None
         self._game = None
         self.gameset = None
@@ -64,7 +64,13 @@ class GameProcess(QtCore.QProcess):
         self.game = None
         logger.info("Game Info Complete: " + str(self._info))
 
-    def run(self, info, arguments, detach=False, init_file=None):
+    def run(
+        self,
+        info: dict[str, str | int] | None,
+        arguments: list[str],
+        detach: bool = False,
+        init_file: str | None = None,
+    ) -> bool:
         """
         Performs the actual running of ForgedAlliance.exe
         in an attached process.
@@ -83,11 +89,11 @@ class GameProcess(QtCore.QProcess):
                 except KeyError:
                     pass
 
-        executable = os.path.join(
-            config.Settings.get('game/bin/path'), "ForgedAlliance.exe",
-        )
+        game_path = config.Settings.get("game/bin/path")
+        assert game_path is not None
+        executable = os.path.join(game_path, "ForgedAlliance.exe")
         if sys.platform == 'win32':
-            command = '"{}" '.format(executable)
+            command = f'"{executable}" '
             command += " ".join(arguments)
         else:
             command = '{} {} "{}" '.format(
@@ -98,9 +104,9 @@ class GameProcess(QtCore.QProcess):
                 wine_env = QtCore.QProcessEnvironment.systemEnvironment()
                 wine_env.insert("WINEPREFIX", util.wine_prefix)
                 QtCore.QProcess.setProcessEnvironment(self, wine_env)
-        logger.info("Running FA with info: " + str(info))
-        logger.info("Running FA via command: " + command)
-        logger.info("Running FA via executable: " + executable)
+        logger.info("Running FA with info: %s", info)
+        logger.info("Running FA via command: %s", command)
+        logger.info("Running FA via executable: %s", executable)
 
         # Launch the game as a stand alone process
         if not instance.running():
@@ -115,9 +121,7 @@ class GameProcess(QtCore.QProcess):
                     re.sub('(^"|"$)', '', element)
                     for element in arguments
                 ]
-                self.startDetached(
-                    executable, arguments, os.path.dirname(executable),
-                )
+                self.startDetached(executable, arguments, os.path.dirname(executable))
             return True
         else:
             QtWidgets.QMessageBox.warning(
@@ -127,7 +131,7 @@ class GameProcess(QtCore.QProcess):
             )
             return False
 
-    def running(self):
+    def running(self) -> bool:
         return self.state() == QtCore.QProcess.ProcessState.Running
 
     def available(self):

@@ -223,7 +223,7 @@ except Exception:
 
 
 # Ensure that access time is modified (needed for cache system)
-def setAccessTime(file):
+def setAccessTime(file: str) -> None:
     if os.path.exists(file):
         curr_time = datetime.datetime.timestamp(datetime.datetime.now())
         mtime = os.stat(file).st_mtime
@@ -438,7 +438,7 @@ def md5text(text):
     return m.hexdigest()
 
 
-def md5(file_name):
+def md5(file_name: str) -> str:
     """
     Compute md5 hash of the specified file.
     IOErrors raised here are handled in doUpdate.

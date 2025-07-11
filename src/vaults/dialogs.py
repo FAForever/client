@@ -1,8 +1,8 @@
 import logging
 import os
+from collections.abc import Callable
 from enum import Enum
 from enum import auto
-from typing import Callable
 
 from PyQt6 import QtCore
 from PyQt6 import QtNetwork
@@ -22,7 +22,7 @@ class VaultDownloadResult(Enum):
     UNKNOWN_ERROR = auto()
 
 
-class VaultDownloadDialog(object):
+class VaultDownloadDialog:
 
     def __init__(
             self,
@@ -183,7 +183,7 @@ def downloadVaultAssetNoMsg(
         VaultDownloadResult.UNKNOWN_ERROR,
     ]:
         logger.warning("Vault download failed, %s is probably not in vault (or broken).", category)
-        msg_title = "{} not downloadable".format(capit_cat)
+        msg_title = f"{capit_cat} not downloadable"
         msg_text = (
             f"<b>This {category} was not found in the vault (or is broken).</b>"
             f"<br/>You need to get it from somewhere else in order to "
@@ -215,8 +215,9 @@ def download_file(
         target_dir: str,
         name: str,
         category: str,
+        *,
         silent: bool,
-        request_params: dict | None = None,
+        request_params: dict[str, str] | None = None,
         label: str = "",
 ) -> bool:
     """

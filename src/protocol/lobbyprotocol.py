@@ -47,3 +47,36 @@ class SocialCommand(TypedDict):
 class GPGCommand(TypedDict):
     command: str
     args: list[str | int | bool]
+
+
+class PlayerRating(TypedDict):
+    rating: list[int]
+    number_of_games: int
+
+
+type PlayerRatings = dict[str, PlayerRating]
+
+
+class _Player(TypedDict):
+    id: int
+    login: str
+    avatar: dict[str, str] | None
+    country: str | None
+    clan: str | None
+    state: str | None
+    ratings: PlayerRatings
+
+    # deprecated
+    global_rating: NotRequired[int]
+    ladder_rating: NotRequired[int]
+    number_of_games: NotRequired[int]
+
+
+class WelcomeCommand(TypedDict):
+    command: Literal["welcome"]
+    me: _Player
+    current_time: str
+
+    # deprecated
+    id: NotRequired[int]
+    login: NotRequired[str]

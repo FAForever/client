@@ -76,6 +76,7 @@ from src.protocol.lobbyprotocol import GameJoinFailedCommand
 from src.protocol.lobbyprotocol import GameLaunchCommand
 from src.protocol.lobbyprotocol import MatchFoundCommand
 from src.protocol.lobbyprotocol import ServerMessage
+from src.protocol.lobbyprotocol import WelcomeCommand
 from src.replays import ReplaysWidget
 from src.secondaryServer import SecondaryServer
 from src.stats import StatsWidget
@@ -1782,7 +1783,7 @@ class ClientWindow(FormClass, BaseClass):
         self.session = str(message['session'])
         self.get_creds_and_login()
 
-    def handle_welcome(self, message):
+    def handle_welcome(self, message: WelcomeCommand) -> None:
         self.state = ClientState.LOGGED_IN
         self._auto_relogin = True
         self.id = message["me"]["id"]
@@ -1879,7 +1880,7 @@ class ClientWindow(FormClass, BaseClass):
         enforce_rating_range: bool = False,
         rating_min: float | None = None,
         rating_max: float | None = None,
-    ):
+    ) -> None:
         msg: dict[str, str | bool | float] = {
             "command": "game_host",
             "title": title,
