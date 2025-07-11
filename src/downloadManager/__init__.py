@@ -186,16 +186,27 @@ class FileDownload(BaseDownload):
         super()._about_to_finish()
         self.cleanup()
 
+    def _unlink_temp_file(self) -> None:
+        try:
+            os.unlink(self._cache_path)
+        except OSError as e:
+            logger.warning("Couldn't remove %s: %s", self._cache_path, e)
+
     def cleanup(self) -> None:
         self._output.close()
         if self.failed():
-            try:
-                os.unlink(self._cache_path)
-            except OSError as e:
-                logger.warning("Couldn't remove %s: %s", self._cache_path, e)
+            self._unlink_temp_file()
         else:
             logger.debug("Finished download from %s", self.addr)
-            self._output.rename(self._target_path)
+            if self._output.rename(self._target_path):
+                return
+
+            logger.warning(
+                "Couldn't rename %s to %s. Target already exists",
+                self._cache_path,
+                self._target_path,
+            )
+            self._unlink_temp_file()
 
 
 class ZipDownloadExtract(BaseDownload):
