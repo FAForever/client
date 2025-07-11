@@ -98,6 +98,7 @@ REPO_DIR = os.path.join(APPDATA_DIR, "repo")
 
 # This contains java executables of map generators
 MAPGEN_DIR = os.path.join(APPDATA_DIR, "map_generator")
+ICE_ADAPTER_DIR = os.path.join(APPDATA_DIR, "ice_adapter")
 
 if not os.path.exists(REPO_DIR):
     os.makedirs(REPO_DIR)

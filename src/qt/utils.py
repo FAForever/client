@@ -5,6 +5,8 @@ from contextlib import contextmanager
 from PyQt6.QtCore import QFile
 from PyQt6.QtCore import QObject
 from PyQt6.QtGui import QPainter
+from PyQt6.QtNetwork import QHostAddress
+from PyQt6.QtNetwork import QTcpServer
 from PyQt6.QtWidgets import QWidget
 
 
@@ -17,7 +19,7 @@ def monkeypatch_method(obj, name, fn):
 
 
 @contextmanager
-def qopen(path: str, flags: QFile.OpenModeFlag) -> Generator[QFile, None, None]:
+def qopen(path: str, flags: QFile.OpenModeFlag) -> Generator[QFile]:
     file = QFile(path)
     try:
         file.open(flags)
@@ -27,7 +29,7 @@ def qopen(path: str, flags: QFile.OpenModeFlag) -> Generator[QFile, None, None]:
 
 
 @contextmanager
-def qpainter(painter: QPainter) -> Generator[QPainter, None, None]:
+def qpainter(painter: QPainter) -> Generator[QPainter]:
     try:
         painter.save()
         yield painter
@@ -50,3 +52,13 @@ def center_widget_on_screen(widget: QWidget) -> None:
     assert screen is not None
     rect.moveCenter(screen.availableGeometry().center())
     widget.move(rect.topLeft())
+
+
+@contextmanager
+def tcp_server() -> Generator[QTcpServer]:
+    server = QTcpServer()
+    try:
+        server.listen(QHostAddress.SpecialAddress.LocalHost)
+        yield server
+    finally:
+        server.close()

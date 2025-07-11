@@ -42,3 +42,8 @@ class SocialCommand(TypedDict):
     friends: NotRequired[list[int]]
     foes: NotRequired[list[int]]
     power: NotRequired[int]
+
+
+class GPGCommand(TypedDict):
+    command: str
+    args: list[str | int | bool]

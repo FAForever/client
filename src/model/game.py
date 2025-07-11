@@ -178,7 +178,7 @@ class Game(ModelItem):
         data["command"] = "game_info"   # For compatibility
         return data
 
-    def url(self, player_id):
+    def url(self, player_id: int) -> GameUrl | None:
         if self.state == GameState.CLOSED:
             return None
         if self.state == GameState.OPEN:

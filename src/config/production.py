@@ -55,6 +55,7 @@ default_values = {
     'relay_server/port': 8000,
     'vault/map_preview_url': 'https://content.{host}/maps/previews/{size}/{name}.png',
     'vault/map_download_url': "https://content.{host}/maps/{name}.zip",
+    'ICE_ADAPTER_RELEASE_URL': 'https://api.github.com/repos/faforever/faf-pioneer/releases',
     'FORUMS_URL': 'https://forums.faforever.com/',
     'WEBSITE_URL': 'https://www.{host}',
     # FIXME - temporary address below

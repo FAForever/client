@@ -42,14 +42,15 @@ from src.client.user import UserRelationModel
 from src.client.user import UserRelations
 from src.client.user import UserRelationTrackers
 from src.connectivity.ConnectivityDialog import ConnectivityDialog
+from src.connectivity.relay.GPGProtocol import LobbyInitMode
 from src.contextmenu.playercontextmenu import PlayerContextMenu
 from src.coop import CoopWidget
 from src.downloadManager import CachedImageDownloader
 from src.downloadManager import MapSmallPreviewDownloader
 from src.fa.factions import Factions
+from src.fa.game_runner import GameLaunchArguments
 from src.fa.game_runner import GameRunner
 from src.fa.game_session import GameSession
-from src.fa.game_session import LobbyInitMode
 from src.fa.maps import CachedMapsMetadata
 from src.fa.maps import getUserMapsFolder
 from src.games import GamesWidget
@@ -954,7 +955,7 @@ class ClientWindow(FormClass, BaseClass):
             self.connectivity_dialog = None
         # Close game session (and stop faf-ice-adapter.exe)
         if self.game_session is not None:
-            self.game_session.closeIceAdapter()
+            self.game_session.close_ice_adapter()
             self.game_session = None
 
         # Terminate local ReplayServer
@@ -1809,6 +1810,7 @@ class ClientWindow(FormClass, BaseClass):
 
         self.game_session.gameFullSignal.connect(self.game_full.emit)
         self.game_session.game_launched.connect(self.game_launched.emit)
+        self.game_session.ready.connect(self.launch_game)
 
     def handle_irc_password(self, message: dict) -> None:
         # DEPRECATED: this command is meaningless and can be removed at any time
@@ -1910,7 +1912,8 @@ class ClientWindow(FormClass, BaseClass):
         silent = False
         # Do some special things depending of the reason of the game launch.
 
-        arguments = []
+        assert self.me.player is not None
+        arguments: list[str] = []
         if message["game_type"] == GameType.MATCHMAKER.value:
             self.labelAutomatchInfo.setText("Launching the game...")
             rating_type = message.get("rating_type", RatingType.GLOBAL.value)
@@ -1934,10 +1937,9 @@ class ClientWindow(FormClass, BaseClass):
             arguments.append(str(message["team"]))
             arguments.append('/startspot')
             arguments.append(str(message["map_position"]))
-            if message.get("game_options"):
-                arguments.append('/gameoptions')
-                for key, value in message["game_options"].items():
-                    arguments.append(f'{key}:{value}')
+            if options := message.get("game_options"):
+                arguments.append("/gameoptions")
+                arguments.extend(f"{name}:{option}" for name, option in options.items())
 
             # Launch the auto lobby
             lobby_mode = LobbyInitMode.AUTO
@@ -1954,9 +1956,6 @@ class ClientWindow(FormClass, BaseClass):
             # Launch the normal lobby
             lobby_mode = LobbyInitMode.NORMAL
 
-        self.game_session.game_uid = message["uid"]
-        self.game_session.start_ice_adapter(lobby_mode)
-
         arguments.append('/numgames')
         arguments.append(str(message["args"][1]))
 
@@ -1968,19 +1967,26 @@ class ClientWindow(FormClass, BaseClass):
         if "mapname" in message:
             fa.check.map_(message['mapname'], force=True, silent=silent)
 
-        if "sim_mods" in message:
-            fa.mods.checkMods(message['sim_mods'])
+        assert self.login is not None
+        info = {
+            "uid": message['uid'],
+            "recorder": self.login,
+            "featured_mod": message['mod'],
+        }
 
-        info = dict(
-            uid=message['uid'],
-            recorder=self.login,
-            featured_mod=message['mod'],
-            launched_at=time.time(),
-        )
+        assert self.game_session is not None
+        self.game_session.game_uid = message["uid"]
+        args = GameLaunchArguments(info, arguments)
+        self._game_runner.set_launch_args(args)
+        self.game_session.start_ice_adapter(lobby_mode)
 
-        fa.run(
-            info, self.game_session.relay_port, self.replayServer.serverPort(),
-            arguments, self.game_session.game_uid,
+    def launch_game(self, gpg_port: int) -> None:
+        assert self.game_session is not None
+        assert self.replayServer is not None
+        self._game_runner.run_game_with_arguments(
+            gpg_port,
+            self.replayServer.serverPort(),
+            str(self.game_session.game_uid),
         )
 
     def fill_in_session_info(self, game):

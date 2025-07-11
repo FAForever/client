@@ -1,7 +1,7 @@
 import logging
 
 
-def with_logger(cls):
+def with_logger[T](cls: type[T]) -> type[T]:
     attr_name = '_logger'
     cls_name = cls.__name__
     module = cls.__module__
