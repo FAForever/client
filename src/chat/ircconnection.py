@@ -156,7 +156,7 @@ class IrcConnection(SimpleIRCClient, IrcSignals):
     @classmethod
     def build(cls, settings: type[config.Settings]) -> IrcConnection:
         port = settings.get("chat/port", 443, int)
-        host = settings.get("chat/host", "chat." + cast(str, config.defaults["host"]), str)
+        host = settings.get("chat/host", "chat." + cast(str, config.defaults["main"]["host"]), str)
         return cls(host, port)
 
     def setPortFromConfig(self) -> None:

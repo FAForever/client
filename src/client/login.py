@@ -23,7 +23,7 @@ class LoginWidget(FormClass, BaseClass):
         test=testing_environment,
     )
 
-    def __init__(self, remember=False):
+    def __init__(self, remember: bool = False) -> None:
         # TODO - init with the parent to inherit the stylesheet
         # once we make some of our own css to go with it
         BaseClass.__init__(self)
@@ -36,14 +36,17 @@ class LoginWidget(FormClass, BaseClass):
         self.serverPortField.setValidator(QtGui.QIntValidator(1, 65535))
         self.replayServerPortField.setValidator(QtGui.QIntValidator(1, 65535))
         self.ircServerPortField.setValidator(QtGui.QIntValidator(1, 65535))
-        self.populateEnvironments()
+        self.populate_environments()
 
     def load_stylesheet(self):
         self.setStyleSheet(util.THEME.readstylesheet("client/login.css"))
 
-    def populateEnvironments(self):
-        for key, env in self.environments.items():
+    def populate_environments(self) -> None:
+        chosen_env = Settings.get("lobby/env", "main", type=str)
+        for index, (key, env) in enumerate(self.environments.items()):
             self.environmentBox.addItem(env["display_name"], key)
+            if key == chosen_env:
+                self.environmentBox.setCurrentIndex(index)
 
     @QtCore.pyqtSlot()
     def on_toggle_extra_options(self):
@@ -98,7 +101,11 @@ class LoginWidget(FormClass, BaseClass):
         Settings.set('replay_server/port', replay_port, persist=False)
         api_changed = Settings.get('api') != api_url
         Settings.set('api', api_url, persist=False)
-        config.defaults = self.environments[self.environmentBox.currentData()]
+
+        env: str = self.environmentBox.currentData()
+        Settings.set("lobby/env", env)
+        config.environment = env
+
         self.accept()
         self.finished.emit(api_changed)
 

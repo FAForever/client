@@ -9,6 +9,8 @@ from contextlib import contextmanager
 from logging.handlers import MemoryHandler
 from logging.handlers import RotatingFileHandler
 from typing import Any
+from typing import cast
+from typing import overload
 
 from PyQt6 import QtCore
 
@@ -64,7 +66,89 @@ class Settings:
         if _settings.contains(key):
             return _settings.value(key, type=type)
         # Try out our defaults for the current environment
-        return defaults.get(key, default)
+        return cast(T, defaults[environment].get(key, default))
+
+    @overload
+    @staticmethod
+    def get_list[T, U](
+        key: str,
+        default: list[T],
+        type: type[U] = str,
+    ) -> list[T] | list[U]: ...
+
+    @overload
+    @staticmethod
+    def get_list[T](
+        key: str,
+        default: None = None,
+        type: type[T] = str,
+    ) -> list[T] | None: ...
+
+    @staticmethod
+    def get_list[T, U](
+        key: str,
+        default: list[T] | None = None,
+        type: type[U] = str,
+    ) -> list[T] | list[U] | None:
+        # separate function for lists because annotating common
+        # case is impossible (or a skill issue)
+        #
+        # NB: PySide and PyQt behaviour for lists differ
+        # (we don't use PySide, but one may want to read its
+        # docs and apply them to PyQt)
+        #
+        # empirical behaviour for PyQt:
+        # 1. get value -- if separated by commas -- it is a list
+        # 2-1 (not list). return `type(value)`
+        # 2-2 (list). map type over values of list
+        # (e.g. `map(type, list_value)`) and return list[type]
+        # but it will not map type `list` over values of list
+        # conversion errors are thrown into your face (which is good)
+        #
+        # examples (s = QSettings object):
+        # ```option=12```
+        # s.value("option")  # "12"
+        # s.value("option", type=float)  # 12.0
+        # s.value("option", type=list)  # error!
+        #
+        # ```option=false```
+        # s.value("option")  # "false"
+        # s.value("option", type=int)  # error!
+        # s.value("option", type=bool)  # False
+        # s.value("option", type=list)  # ["f", "a", "l", "s", "e"]
+        #
+        # ```option=1, 2```
+        # s.value("option")  # ["1", "2"]
+        # s.value("option", type=float)  # [1.0, 2.0]
+        #
+        # while PySide tries to take value of type `type`
+        # directly from settings and if it encounters any error
+        # it falls back to default (e.g. `False` for bools,
+        # `0` for int, `""` for str)
+        # `list` handling is the following:
+        # 1. separated by commas -- return list of strings
+        # 2. single value -- return list with 1 element of value
+        #
+        # examples (s = QSettings object):
+        # ```option=12```
+        # s.value("option")  # "12"
+        # s.value("option", type=float)  # 12.0
+        # s.value("option", type=list)  # ["12"]
+        #
+        # ```option=false```
+        # s.value("option")  # "false"
+        # s.value("option", type=int)  # 0
+        # s.value("option", type=bool)  # False
+        # s.value("option", type=list)  # ["false"]
+        #
+        # ```option=1, 2```
+        # s.value("option")  # ["1", "2"]
+        # s.value("option", type=float)  # 0.0
+        if key in _unpersisted_settings:
+            return _unpersisted_settings[key]
+        if _settings.contains(key):
+            return _settings.value(key, type=type)
+        return cast(list[T], defaults[environment].get(key, default))
 
     @staticmethod
     def set(
@@ -229,10 +313,6 @@ def is_beta():
 # TODO: move stuff below to Settings __init__ once we make it an actual object
 
 
-if _settings.contains('client/force_environment'):
-    environment = _settings.value('client/force_environment', 'development')
-
-
 class FormatDefault(dict):
     def __missing__(self, key: str) -> str:
         # if key wasn't formatted leave it to format later
@@ -240,17 +320,17 @@ class FormatDefault(dict):
         return f"{{{key}}}"
 
 
-for defaults in [production_defaults, develop_defaults, testing_defaults]:
-    for key, value in defaults.items():
+for config_defaults in [production_defaults, develop_defaults, testing_defaults]:
+    for key, value in config_defaults.items():
         if isinstance(value, str):
-            defaults[key] = value.format_map(FormatDefault(host=Settings.get("host")))
+            config_defaults[key] = value.format_map(FormatDefault(host=config_defaults["host"]))
 
-if environment == 'production':
-    defaults = production_defaults
-elif environment == 'development':
-    defaults = develop_defaults
-elif environment == 'test':
-    defaults = testing_defaults
+environment: str = _settings.value("lobby/env", "main", str)
+defaults = {
+    "main": production_defaults,
+    "test": testing_defaults,
+    "development": develop_defaults,
+}
 
 
 def os_language():
