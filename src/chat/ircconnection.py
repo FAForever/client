@@ -42,6 +42,8 @@ class IrcLogFilter(logging.Filter):
 
 
 log.addFilter(IrcLogFilter())
+log.propagate = False
+log.addHandler(config.setup_file_handler("irc"))
 
 
 def user2name(user):
