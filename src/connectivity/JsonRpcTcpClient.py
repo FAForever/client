@@ -1,28 +1,42 @@
+from __future__ import annotations
+
 import json
+import logging
+from collections.abc import Callable
+from typing import Any
+from typing import Literal
+from typing import NotRequired
+from typing import TypedDict
 
 from PyQt6 import QtCore
 from PyQt6.QtCore import QObject
 from PyQt6.QtNetwork import QAbstractSocket
 from PyQt6.QtNetwork import QTcpSocket
 
-from src.decorators import with_logger
+type RpcParams = list[str | int | bool]
 
 
-@with_logger
+class RpcObject(TypedDict):
+    method: str
+    params: RpcParams
+    jsonrpc: Literal["2.0"]
+    id: NotRequired[int]
+
+
 class JsonRpcTcpClient(QObject):
-    def __init__(self, request_handler_instance):
+    def __init__(self, logger: logging.Logger) -> None:
         QObject.__init__(self)
+        self._logger = logger
         self.socket = QTcpSocket(self)
         self.connectionAttempts = 1
         self.socket.readyRead.connect(self.onData)
         self.socket.errorOccurred.connect(self.onSocketError)
-        self.request_handler_instance = request_handler_instance
         self.nextid = 1
-        self.callbacks_result = {}
-        self.callbacks_error = {}
+        self.callbacks_result: dict[int, Callable[..., None]] = {}
+        self.callbacks_error: dict[int, Callable[..., None]] = {}
         self.buffer = b''
 
-    def connect_(self, host, port, blocking=False):
+    def connect_(self, host: str, port: int, *, blocking: bool = False) -> None:
         self.host = host
         self.port = port
         self.socket.connectToHost(host, port)
@@ -33,7 +47,7 @@ class JsonRpcTcpClient(QObject):
         return self.socket.state() == QAbstractSocket.SocketState.ConnectedState
 
     @QtCore.pyqtSlot(QAbstractSocket.SocketError)
-    def onSocketError(self, error):
+    def onSocketError(self, error: QAbstractSocket.SocketError) -> None:
         if (error == QAbstractSocket.SocketError.ConnectionRefusedError):
             self.socket.connectToHost(self.host, self.port)
             self.connectionAttempts += 1
@@ -48,9 +62,9 @@ class JsonRpcTcpClient(QObject):
     def close(self):
         self.socket.close()
 
-    def parseRequest(self, request):
+    def parseRequest(self, request: dict[str, Any]) -> None:
         try:
-            m = getattr(self.request_handler_instance, request["method"])
+            m = getattr(self, request["method"])
             if "params" in request and len(request["params"]) > 0:
                 result = m(*request["params"])
             else:
@@ -78,7 +92,7 @@ class JsonRpcTcpClient(QObject):
                     json.dumps(responseObject).encode('utf8') + b'\n',
                 )
 
-    def parseResponse(self, response):
+    def parseResponse(self, response: dict[str, Any]) -> None:
         if "error" in response:
             self._logger.error("Response error %s", response)
             if "id" in response:
@@ -93,7 +107,7 @@ class JsonRpcTcpClient(QObject):
             self.callbacks_result.pop(response["id"], None)
 
     @QtCore.pyqtSlot()
-    def onData(self):
+    def onData(self) -> None:
         newData = b''
         while self.socket.bytesAvailable():
             newData += bytes(self.socket.readAll())
@@ -154,15 +168,16 @@ class JsonRpcTcpClient(QObject):
 
     def call(
         self,
-        method,
-        args=[],
-        callback_result=None,
-        callback_error=None,
-        blocking=False,
-    ):
+        method: str,
+        args: list[str | int | bool] = [],
+        callback_result: Callable[..., None] | None = None,
+        callback_error: Callable[..., None] | None = None,
+        *,
+        blocking: bool = False,
+    ) -> None:
         if self.socket.state() != QAbstractSocket.SocketState.ConnectedState:
             raise RuntimeError("Not connected to the JSONRPC server.")
-        rpcObject = {
+        rpcObject: RpcObject = {
             "method": method,
             "params": args,
             "jsonrpc": "2.0",

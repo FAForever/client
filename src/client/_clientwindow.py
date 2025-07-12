@@ -1153,6 +1153,35 @@ class ClientWindow(FormClass, BaseClass):
             self.set_ice_adapter_window_launch_delay,
         )
 
+        self.selectIceAdapterActionGroup = QtGui.QActionGroup(self.menuICE_Adapter)
+        self.selectJavaIceAdapterAction = QtGui.QAction(
+            "Use Java ICE Adapter",
+            self.menuICE_Adapter,
+        )
+        self.selectJavaIceAdapterAction.setCheckable(True)
+        self.selectJavaIceAdapterAction.setData("java")
+        self.selectGoIceAdapterAction = QtGui.QAction(
+            "Use faf-pioneer (Go) ICE Adapter",
+            self.menuICE_Adapter,
+        )
+        self.selectGoIceAdapterAction.setCheckable(True)
+        self.selectGoIceAdapterAction.setData("go")
+        self.selectIceAdapterActionGroup.addAction(self.selectJavaIceAdapterAction)
+        self.selectIceAdapterActionGroup.addAction(self.selectGoIceAdapterAction)
+        self.menuICE_Adapter.addSeparator()
+        self.menuICE_Adapter.addAction(self.selectJavaIceAdapterAction)
+        self.menuICE_Adapter.addAction(self.selectGoIceAdapterAction)
+
+        self.selectJavaIceAdapterAction.setChecked(
+            config.Settings.get("iceadapter/kind", "java") == "java",
+        )
+        self.selectGoIceAdapterAction.setChecked(
+            config.Settings.get("iceadapter/kind", "java") == "go",
+        )
+        self.selectIceAdapterActionGroup.triggered.connect(
+            lambda action: config.Settings.set("iceadapter/kind", action.data()),
+        )
+
         self.actionDoNotKeep.setChecked(
             config.Settings.get('cache/do_not_keep', type=bool, default=True),
         )

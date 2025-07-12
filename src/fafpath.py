@@ -24,14 +24,14 @@ def run_from_unix_install():
     return not run_from_frozen() and not run_from_source()
 
 
-def get_srcdir():
+def get_srcdir() -> str | None:
     if not run_from_source():
         return None
     else:
         return os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 
-def get_resdir():
+def get_resdir() -> str:
     if run_from_frozen():
         # On Windows the res dir is relative to the executable
         return os.path.join(os.path.dirname(sys.executable), "res")
@@ -39,10 +39,12 @@ def get_resdir():
         return UNIX_SHARE_PATH
     else:
         # We are most likely running from source
-        return os.path.join(get_srcdir(), "res")
+        src = get_srcdir()
+        assert src is not None
+        return os.path.join(src, "res")
 
 
-def get_libdir():
+def get_libdir() -> str | None:
     """
     Get the directory where our own additional executables live. Returns None
     if there is no such directory (ex. we run on linux and have everything
@@ -56,11 +58,15 @@ def get_libdir():
         return None
     else:
         # We are most likely running from source
-        return os.path.join(get_srcdir(), "natives")
+        src = get_srcdir()
+        assert src is not None
+        return os.path.join(src, "natives")
 
 
-def get_java_path():
+def get_java_path() -> str:
     exe = "java"
     if sys.platform == "win32":
         exe += ".exe"
-    return os.path.join(get_libdir(), "ice-adapter", "jre", "bin", exe)
+    libdir = get_libdir()
+    assert libdir is not None
+    return os.path.join(libdir, "ice-adapter", "jre", "bin", exe)
