@@ -303,7 +303,7 @@ class ChatterItemFormatter:
             ])
 
         tooltip_str = formatting.format(*tooltip_info_list)
-        league = player.league
+        league = None
         if league is not None and "division" in league:
             tooltip_str = "Division : {}\n{}".format(
                 league["division"],
