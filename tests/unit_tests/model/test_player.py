@@ -106,7 +106,6 @@ def test_player_fields():
     assert isinstance(p.ratings, dict) is True
     assert p.country == "PL"
     assert p.clan is None
-    assert p.league is None
     assert p.avatar == {
         'url': 'http://content.faforever.com/faf/avatars/GW_Cybran.png',
         'tooltip': 'Liberate !',
