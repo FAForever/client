@@ -7,7 +7,6 @@ from PyQt6.QtCore import QProcess
 from PyQt6.QtCore import pyqtSignal
 
 from src import client
-from src.config import Settings
 from src.config import setup_file_handler
 from src.connectivity.IceAdapterClient import IceAdapterClient
 from src.connectivity.IceAdapterManager import IceAdapterManager
@@ -84,7 +83,7 @@ class GameSession(QObject):
         self.ice_adapter_manager.get_releases()
 
     def on_ice_version_set(self) -> None:
-        if Settings.get("iceadapter/kind", "java") == "java":
+        if self.ice_adapter_manager.adapter_kind == "java":
             self.start_java_process()
         else:
             self.start_go_process()

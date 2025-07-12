@@ -1,5 +1,6 @@
 import logging
 import os
+import textwrap
 from abc import ABC
 from abc import abstractmethod
 from dataclasses import dataclass
@@ -41,7 +42,10 @@ class IceProcessArguments(ABC):
         options = self.platform_options()
         platform = options.name()
         kind = Settings.get("iceadapter/kind", "java")
-        version = Settings.get(f"iceadapter/{kind}_version", "")
+        version = (
+            Settings.get(f"iceadapter/{kind}_version", "")
+            or Settings.get(f"iceadapter/{kind}_latest", "")
+        )
         if version:
             ext = options.extension()
             return os.path.join(ICE_ADAPTER_DIR, f"{self.exe_prefix()}-{version}-{platform}{ext}")
@@ -166,11 +170,16 @@ class IceAdapterProcess:
         self._logger.error("Ice adapter process error: %s", error)
 
     def on_exit(self, code: int, status: QProcess.ExitStatus) -> None:
+        advice = textwrap.dedent("""
+        Please check that you are using the correct ICE adapter (Options -> ICE Adapter...)
+        Or refaf
+        Or try selecting different ICE Adapter version (Options -> ICE Adapter -> Use specific versions...)
+        """)  # noqa: E501
         if status == QProcess.ExitStatus.CrashExit:
             self._logger.error("the ICE crashed")
             QMessageBox.critical(
                 None, "ICE adapter error",
-                "The ICE adapter crashed. Please refaf.",
+                f"The ICE adapter crashed.\n{advice}",
             )
             return
         if code != 0:
@@ -178,7 +187,7 @@ class IceAdapterProcess:
             QMessageBox.critical(
                 None,
                 "ICE adapter error",
-                f"The ICE adapter closed with error code {code}. Please refaf.",
+                f"The ICE adapter closed with error code {code}.\n{advice}",
             )
             return
         else:

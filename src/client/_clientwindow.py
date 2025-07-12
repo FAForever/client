@@ -42,6 +42,7 @@ from src.client.user import UserRelationModel
 from src.client.user import UserRelations
 from src.client.user import UserRelationTrackers
 from src.connectivity.ConnectivityDialog import ConnectivityDialog
+from src.connectivity.IceAdapterVersionSelector import IceAdapterVersionSettingsDialog
 from src.connectivity.relay.GPGProtocol import LobbyInitMode
 from src.contextmenu.playercontextmenu import PlayerContextMenu
 from src.coop import CoopWidget
@@ -1180,6 +1181,16 @@ class ClientWindow(FormClass, BaseClass):
         )
         self.selectIceAdapterActionGroup.triggered.connect(
             lambda action: config.Settings.set("iceadapter/kind", action.data()),
+        )
+
+        self.menuICE_Adapter.addSeparator()
+        self.setIceAdapterVersionsAction = QtGui.QAction(
+            "Use specific versions...",
+            self.menuICE_Adapter,
+        )
+        self.menuICE_Adapter.addAction(self.setIceAdapterVersionsAction)
+        self.setIceAdapterVersionsAction.triggered.connect(
+            lambda: IceAdapterVersionSettingsDialog(self).exec(),
         )
 
         self.actionDoNotKeep.setChecked(
