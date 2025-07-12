@@ -158,7 +158,7 @@ class ClientWindow(FormClass, BaseClass):
         self.oauth_flow.setParent(self)
         self.oauth_flow.granted.connect(self.do_connect)
         self.oauth_flow.granted.connect(self.save_refresh_token)
-        self.oauth_flow.requestFailed.connect(self.show_login_widget)
+        self.oauth_flow.requestFailed.connect(self.on_login_attempt_failed)
 
         self.unique_id = None
         self._chat_config = ChatConfig(util.settings)
@@ -1655,12 +1655,17 @@ class ClientWindow(FormClass, BaseClass):
         else:
             self.show_login_widget()
 
+    def on_login_attempt_failed(self) -> None:
+        self.state = ClientState.DISCONNECTED
+        self.show_login_widget()
+
     def get_creds_and_login(self) -> None:
         if self.send_token(self.oauth_flow.token()):
             return
         QtWidgets.QMessageBox.warning(
             self, "Log In", "OAuth token verification failed, please relogin",
         )
+        self.state = ClientState.DISCONNECTED
         self.show_login_widget()
 
     def show_login_widget(self):
