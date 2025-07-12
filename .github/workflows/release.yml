@@ -38,9 +38,10 @@ jobs:
 
       - name: Download ICE adapter and UID calculator
         run: |
-          mkdir build_setup\ice-adapter
+          mkdir build_setup
+          mkdir setup_helpers
           Invoke-WebRequest -Uri "https://github.com/FAForever/uid/releases/download/$($env:UID_VERSION)/faf-uid.exe" -OutFile ".\\build_setup\\faf-uid.exe"
-          Invoke-WebRequest -Uri "https://github.com/FAForever/java-ice-adapter/releases/download/$($env:ICE_ADAPTER_VERSION)/faf-ice-adapter-$($env:ICE_ADAPTER_VERSION)-win.jar" -OutFile ".\\build_setup\\ice-adapter\\faf-ice-adapter.jar"
+          Invoke-WebRequest -Uri "https://github.com/FAForever/java-ice-adapter/releases/download/$($env:ICE_ADAPTER_VERSION)/faf-ice-adapter-$($env:ICE_ADAPTER_VERSION)-win.jar" -OutFile ".\\setup_helpers\\faf-ice-adapter.jar"
 
       - name: Download JDK and create JRE
         run: |
@@ -50,8 +51,8 @@ jobs:
           mv $(ls) jdk
           popd
 
-          $ICE_ADAPTER_JAVA_MODULES=((jdk/jdk/bin/jdeps.exe -s "build_setup/ice-adapter/faf-ice-adapter.jar" | findstr "java" | ForEach-Object { $_.split(" ")[2] }) -join ",")
-          jdk/jdk/bin/jlink.exe --add-modules "$ICE_ADAPTER_JAVA_MODULES,jdk.crypto.ec,jdk.unsupported" --strip-debug --no-man-pages --no-header-files --compress "zip-6" --output "build_setup/ice-adapter/jre"
+          $ICE_ADAPTER_JAVA_MODULES=((jdk/jdk/bin/jdeps.exe -s "setup_helpers/faf-ice-adapter.jar" | findstr "java" | ForEach-Object { $_.split(" ")[2] }) -join ",")
+          jdk/jdk/bin/jlink.exe --add-modules "$ICE_ADAPTER_JAVA_MODULES,jdk.crypto.ec,jdk.unsupported" --strip-debug --no-man-pages --no-header-files --compress "zip-6" --output "build_setup/jre"
 
       - name: Install Zig
         uses: mlugg/setup-zig@v1
@@ -141,10 +142,11 @@ jobs:
 
       - name: Download ICE adapter and UID calculator
         run: |
-          mkdir -p build_setup/ice-adapter
+          mkdir -p build_setup
           wget -O build_setup/faf-uid "https://github.com/FAForever/uid/releases/download/$UID_VERSION/faf-uid"
           chmod +x build_setup/faf-uid
-          wget "https://github.com//FAForever/java-ice-adapter/releases/download/$ICE_ADAPTER_VERSION/faf-ice-adapter-$ICE_ADAPTER_VERSION-win.jar" -O "build_setup/ice-adapter/faf-ice-adapter.jar"
+          mkdir -p setup_helpers
+          wget "https://github.com//FAForever/java-ice-adapter/releases/download/$ICE_ADAPTER_VERSION/faf-ice-adapter-$ICE_ADAPTER_VERSION-win.jar" -O "setup_helpers/faf-ice-adapter.jar"
 
       - name: Download JDK and create JRE
         run: |
@@ -153,8 +155,8 @@ jobs:
           mkdir jdk
           tar -xzvf jdk.tar.gz -C jdk --strip-components=1
 
-          ICE_ADAPTER_JAVA_MODULES=$(jdk/bin/jdeps -s build_setup/ice-adapter/faf-ice-adapter.jar | cut -d' ' -f 3 | grep java | xargs echo | tr ' ' ',')
-          jdk/bin/jlink --add-modules "$ICE_ADAPTER_JAVA_MODULES,jdk.crypto.ec,jdk.unsupported" --strip-debug --no-man-pages --no-header-files --compress "zip-6" --output "build_setup/ice-adapter/jre"
+          ICE_ADAPTER_JAVA_MODULES=$(jdk/bin/jdeps -s setup_helpers/faf-ice-adapter.jar | cut -d' ' -f 3 | grep java | xargs echo | tr ' ' ',')
+          jdk/bin/jlink --add-modules "$ICE_ADAPTER_JAVA_MODULES,jdk.crypto.ec,jdk.unsupported" --strip-debug --no-man-pages --no-header-files --compress "zip-6" --output "build_setup/jre"
 
       - name: Install Zig
         uses: mlugg/setup-zig@v1

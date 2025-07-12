@@ -69,4 +69,4 @@ def get_java_path() -> str:
         exe += ".exe"
     libdir = get_libdir()
     assert libdir is not None
-    return os.path.join(libdir, "ice-adapter", "jre", "bin", exe)
+    return os.path.join(libdir, "jre", "bin", exe)
