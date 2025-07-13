@@ -14,7 +14,6 @@ class IceAdapterVersionSettingsDialog(QDialog):
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.setWindowTitle("Select Tool Versions")
-        self.setFixedSize(300, 150)
 
         layout = QVBoxLayout()
         form_layout = QFormLayout()
