@@ -189,7 +189,7 @@ class GameItemDelegate(StyledItemDelegate):
 
     def _draw_text(self, painter, option, text):
         left_off = self.ICON_RECT + self.TEXT_OFFSET
-        top_off = self.TEXT_OFFSET
+        top_off = 0
         right_off = self.TEXT_RIGHT_MARGIN
         bottom_off = 0
         painter.translate(
@@ -346,7 +346,7 @@ class GameTooltipFormatter:
         template_abs_path = os.path.join(
             util.COMMON_DIR, "games", "gameitem.qthtml",
         )
-        with open(template_abs_path, "r") as templatefile:
+        with open(template_abs_path) as templatefile:
             self._template = jinja2.Template(templatefile.read())
 
     def format(self, title, teams, observers, mods):
