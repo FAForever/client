@@ -51,6 +51,9 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Source: "{#WORKING_DIR}\faf_python_client\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
+[InstallDelete]
+Type: filesandordirs; Name: "{app}\natives\ice-adapter"
+
 [Icons]
 Name: "{autoprograms}\FA Forever"; Filename: "{app}\{#FAF_EXE}"
 Name: "{autodesktop}\FA Forever"; Filename: "{app}\{#FAF_EXE}"; Tasks: desktopicon
