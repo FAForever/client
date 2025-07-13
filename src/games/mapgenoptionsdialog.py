@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 from enum import Enum
 from enum import auto
+from typing import ClassVar
 from typing import TypedDict
 
 from PyQt6 import QtCore
@@ -13,6 +15,7 @@ from PyQt6 import QtWidgets
 from src import config
 from src import fafpath
 from src import util
+from src.decorators import with_logger
 from src.games.mapgenoptions import ComboBoxOption
 from src.games.mapgenoptions import RangeOption
 from src.games.mapgenoptions import SpinBoxOption
@@ -35,7 +38,10 @@ class MapGenDynamicConfig(TypedDict):
     options: dict[str, list[str]]
 
 
+@with_logger
 class OptionsExtractor(QtCore.QObject):
+    _logger: ClassVar[logging.Logger]
+
     class State(Enum):
         IDLE = auto()
         EXTRACTING = auto()
@@ -54,19 +60,18 @@ class OptionsExtractor(QtCore.QObject):
         self.mapgen_manager = mapgen_manager
         self.process = QtCore.QProcess()
         self.process.finished.connect(self.process_finished)
+        self.process.started.connect(self.process_started)
+        self.process.errorOccurred.connect(self.on_error)
         self.exe_path = fafpath.get_java_path()
 
-        self.mapgen_path = os.path.join(
-            util.MAPGEN_DIR,
-            f"MapGenerator_{self.mapgen_manager.currentVersion}.jar",
-        )
-
-    def extract_all(self) -> None:
+    def extract_all(self, gen_path: str) -> None:
+        self.mapgen_path = gen_path
         self.extract_next()
 
-    def extract_next(self) -> None:
+    def process_started(self) -> None:
         self.state = self.State.EXTRACTING
 
+    def extract_next(self) -> None:
         if len(self.to_extract) == 0:
             self.state = self.State.FINISHED
             self.options_extracted.emit(self.extracted_options)
@@ -74,12 +79,30 @@ class OptionsExtractor(QtCore.QObject):
 
         option = self.to_extract.pop(0)
         self.progress.emit(option)
-        self.process.start(self.exe_path, ["-jar", self.mapgen_path, option])
+        args = ["-jar", self.mapgen_path, option]
+        self._logger.info(
+            "Starting MapGenOptionsExtractor with: %s",
+            " ".join((self.exe_path, *args)),
+        )
+        self.process.start(self.exe_path, args)
+
+    def on_error(self, error: QtCore.QProcess.ProcessError) -> None:
+        QtWidgets.QMessageBox.critical(
+            None,
+            "Map Generator Options Extractor",
+            f"Map Generator Options Extractor error: {error} ({self.process.errorString()})",
+        )
+        self._logger.error(
+            "Map Generator Options Extractor error: %s (%s)",
+            error,
+            self.process.errorString(),
+        )
+        self.state = self.State.FINISHED
+        self.error_occured.emit()
 
     def process_finished(self, code: int, status: QtCore.QProcess.ExitStatus) -> None:
         if code != 0:
-            self.state = self.State.FINISHED
-            self.error_occured.emit()
+            self.on_error(self.process.ProcessError.UnknownError)
             return
 
         *_, option_name = self.process.arguments()
@@ -221,8 +244,8 @@ class MapGenDialog(FormClass, BaseClass):
             self.setWindowTitle("Loading Mapgen Options...")
             self.setEnabled(False)
             self.mapgen_manager.checkUpdates()
-            self.mapgen_manager.versionController(self.mapgen_manager.latestVersion)
-            self.options_extractor.extract_all()
+            gen_path = self.mapgen_manager.versionController(self.mapgen_manager.latestVersion)
+            self.options_extractor.extract_all(gen_path)
         else:
             self.set_cmd_options(dynamic_options["options"])
 
