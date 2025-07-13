@@ -504,6 +504,9 @@ class InstalledMapsCache(QtCore.QObject):
         user_folder = getUserMapsFolder()
         base_folder = getBaseMapsFolder()
         for root in (user_folder, base_folder):
+            if not os.path.isdir(root):
+                logger.warning("Could not find maps folder to parse metadata from: %s", root)
+                continue
             for dr in os.listdir(root):
                 if (
                         (root == base_folder and dr.lower() not in maps)
