@@ -1,4 +1,9 @@
+from __future__ import annotations
+
+from collections import defaultdict
+from collections.abc import Iterator
 from enum import Enum
+from typing import TYPE_CHECKING
 from typing import Self
 
 from PyQt6.QtCore import QObject
@@ -6,6 +11,9 @@ from PyQt6.QtCore import pyqtSignal
 
 from src.model.modelitem import ModelItem
 from src.model.transaction import transactional
+
+if TYPE_CHECKING:
+    from src.model.chat.chatline import ChatLineMetadata
 
 PARTY_CHANNEL_SUFFIX = "'sParty"
 
@@ -37,31 +45,39 @@ class Lines(QObject):
     added = pyqtSignal()
     removed = pyqtSignal(int)
 
-    def __init__(self):
-        QObject.__init__(self)
-        self._lines = []
+    # FIXME: this is hacky, but was quick to implement
+    _lines: dict[str, list[ChatLineMetadata]] = defaultdict(list)
 
-    def add_line(self, line):
-        self._lines.append(line)
+    def __init__(self, channel_name: str) -> None:
+        super().__init__()
+        self.channel_name = channel_name
+
+    def add_line(self, line: ChatLineMetadata) -> None:
+        if line in self._lines[self.channel_name]:
+            return
+        self._lines[self.channel_name].append(line)
         self.added.emit()
 
-    def remove_lines(self, number):
+    def remove_lines(self, number: int) -> None:
         number = min(number, len(self))
         if number < 0:
             raise ValueError
         if number == 0:
             return
-        del self._lines[0:number]
+        del self._lines[self.channel_name][0:number]
         self.removed.emit(number)
 
-    def __getitem__(self, n):
-        return self._lines[n]
+    def __getitem__(self, n: int) -> ChatLineMetadata:
+        return self._lines[self.channel_name][n]
 
-    def __iter__(self):
-        return iter(self._lines)
+    def __iter__(self) -> Iterator[ChatLineMetadata]:
+        return iter(self._lines[self.channel_name])
 
-    def __len__(self):
-        return len(self._lines)
+    def __len__(self) -> int:
+        return len(self._lines[self.channel_name])
+
+    def clear(self) -> None:
+        self._lines[self.channel_name].clear()
 
 
 class Channel(ModelItem):

@@ -3,17 +3,24 @@ import pytest
 from src.model.chat.channel import Lines
 
 
+@pytest.fixture(autouse=True)
+def hacky_lines():
+    yield
+    Lines("a").clear()
+
+
 def test_lines_dont_care_about_line_internals():
     o = object()
 
     for item in [1, "a", o]:
-        lines = Lines()
+        lines = Lines("a")
         lines.add_line(item)
         assert [i for i in lines] == [item]
+        lines.clear()
 
 
 def test_lines_add_latest_last():
-    lines = Lines()
+    lines = Lines("a")
     for item in range(5):
         lines.add_line(item)
 
@@ -21,7 +28,7 @@ def test_lines_add_latest_last():
 
 
 def test_lines_emit_add_remove_signals(mocker):
-    lines = Lines()
+    lines = Lines("a")
     added = mocker.Mock()
     removed = mocker.Mock()
     lines.added.connect(added)
@@ -38,7 +45,7 @@ def test_lines_emit_add_remove_signals(mocker):
 
 
 def test_lines_remove_acts_like_queue():
-    lines = Lines()
+    lines = Lines("a")
     for item in range(5):
         lines.add_line(item)
 
@@ -47,7 +54,7 @@ def test_lines_remove_acts_like_queue():
 
 
 def test_lines_len():
-    lines = Lines()
+    lines = Lines("a")
     for item in range(5):
         lines.add_line(item)
     lines.remove_lines(2)
@@ -55,7 +62,7 @@ def test_lines_len():
 
 
 def test_remove_more_lines_than_len_removes_len_lines(mocker):
-    lines = Lines()
+    lines = Lines("a")
     removed = mocker.Mock()
     lines.removed.connect(removed)
 
@@ -69,7 +76,7 @@ def test_remove_more_lines_than_len_removes_len_lines(mocker):
 
 
 def test_lines_zero_remove_does_nothing(mocker):
-    lines = Lines()
+    lines = Lines("a")
     removed = mocker.Mock()
     lines.removed.connect(removed)
 
@@ -82,7 +89,7 @@ def test_lines_zero_remove_does_nothing(mocker):
 
 
 def test_remove_on_empty_list_does_nothing(mocker):
-    lines = Lines()
+    lines = Lines("a")
     removed = mocker.Mock()
     lines.removed.connect(removed)
 
@@ -92,6 +99,6 @@ def test_remove_on_empty_list_does_nothing(mocker):
 
 
 def test_negative_remove_number_is_value_error():
-    lines = Lines()
+    lines = Lines("a")
     with pytest.raises(ValueError):
         lines.remove_lines(-5)
