@@ -3,7 +3,9 @@ from __future__ import annotations
 import json
 import logging
 import sys
+from collections.abc import Callable
 from enum import IntEnum
+from typing import Any
 
 from PyQt6 import QtCore
 from PyQt6 import QtNetwork
@@ -347,24 +349,29 @@ class ServerConnection(QtCore.QObject):
             logger.error("Fatal TCP Socket Error: %s", self.socket.errorString())
 
 
-class Dispatcher():
+class Dispatcher:
     def __init__(self):
-        self._receivers = {}
-        self._dispatchees = {}
+        self._receivers: dict[tuple[str, str | None], Callable[[ServerMessage], Any]] = {}
+        self._dispatchees: dict[str, Callable[[ServerMessage], Any]] = {}
 
-    def __setitem__(self, key, fn):
+    def __setitem__(self, key: str, fn: Callable[[ServerMessage], Any]) -> None:
         self._dispatchees[key] = fn
 
-    def __delitem__(self, key):
+    def __delitem__(self, key: str) -> None:
         del self._dispatchees[key]
 
-    def subscribe_to(self, target, fn, msg=None):
+    def subscribe_to(
+        self,
+        target: str,
+        fn: Callable[[ServerMessage], Any],
+        msg: str | None = None,
+    ) -> None:
         self._receivers[(target, msg)] = fn
 
-    def unsubscribe(self, target, msg=None):
-        del self._receivers[(target, msg)]
+    def unsubscribe(self, target: str, msg: str | None = None) -> None:  # assume 'msg' is str
+        self._receivers.pop((target, msg), None)
 
-    def dispatch(self, message):
+    def dispatch(self, message: ServerMessage) -> None:
         if "command" not in message:
             logger.debug("No command in message.")
             return

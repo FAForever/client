@@ -110,15 +110,15 @@ class GameSession(QObject):
         self._start_ice_process(ice_port)
         assert self.ice_adapter_process is not None
         self.ice_adapter_client = IceAdapterClient(game_session=self, logger=logger)
-        self.ice_adapter_client.statusChanged.connect(self.on_ice_adapter_started)
+        self.ice_adapter_client.statusChanged.connect(self.on_java_process_started)
         self.ice_adapter_client.connect_("127.0.0.1", self.ice_adapter_process.port())
 
-    def on_ice_adapter_started(self, status: dict[str, Any]) -> None:
+    def on_java_process_started(self, status: dict[str, Any]) -> None:
         logger.info(
             "ICE adapter started an listening on port %d for GPGNet connections",
             self._relay_port,
         )
-        self.ice_adapter_client.statusChanged.disconnect(self.on_ice_adapter_started)
+        self.ice_adapter_client.statusChanged.disconnect(self.on_java_process_started)
         assert self.ice_adapter_client is not None
         assert self.game_uid is not None
         self.ice_servers_poller = IceServersPoller(self.ice_adapter_client, self.game_uid)

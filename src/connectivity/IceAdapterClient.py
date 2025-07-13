@@ -67,7 +67,7 @@ class IceAdapterClient(JsonRpcTcpClient):
             self._logger.debug("ice-adapter disconnected from player %s", remoteId)
         self.call("status", callback_result=self.onStatus)
 
-    def onStatus(self, status):
+    def onStatus(self, status: dict[str, Any]) -> None:
         if isinstance(status, str):
             status = json.loads(status)
         if "gpgpnet" in status:  # issue in current java-ice-adapter
@@ -82,24 +82,22 @@ class IceAdapterClient(JsonRpcTcpClient):
         self.iceMsgCache.clear()
 
     def handle_message(self, message: GPGCommand) -> None:
-        command, args = message.get('command'), message.get('args', [])
-        if command == 'SendNatPacket':
+        command, args = message.get("command"), message.get("args", [])
+        if command == "SendNatPacket":
             # we ignore that for now with the ICE Adapter
             pass
-        elif command == 'CreatePermission':
+        elif command == "CreatePermission":
             # we ignore that for now with the ICE Adapter
             pass
-        elif command == 'JoinGame':
+        elif command == "JoinGame":
             login, peer_id = args
             self.call("joinGame", [login, peer_id])
-        elif command == 'HostGame':
+        elif command == "HostGame":
             self.call("hostGame", [args[0]])
-        elif command == 'ConnectToPeer':
+        elif command == "ConnectToPeer":
             login, peer_id, offer = args
-            self.call(
-                "connectToPeer", [login, peer_id, offer],
-            )
-        elif command == 'DisconnectFromPeer':
+            self.call("connectToPeer", [login, peer_id, offer])
+        elif command == "DisconnectFromPeer":
             self.call("disconnectFromPeer", [args[0]])
         elif command == "IceMsg":
             peer_id, ice_msg = args

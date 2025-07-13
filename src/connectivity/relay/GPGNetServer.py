@@ -177,10 +177,10 @@ class GPGNetServer(QObject):
         self.write_stream.writeInt(len(args))
         for arg in args:
             if isinstance(arg, int):
-                self.write_stream.writeUInt8(0)
+                self.write_stream.writeUInt8(GPGFieldType.INT.value)
                 self.write_stream.writeInt(arg)
             else:
-                self.write_stream.writeUInt8(1)
+                self.write_stream.writeUInt8(GPGFieldType.STRING.value)
                 self.write_string(arg)
 
     def send_gpg_message(self, message: GPGMessage) -> None:
@@ -207,3 +207,4 @@ class GPGNetServer(QObject):
         if self.socket is not None:
             self.socket.close()
         self.server.close()
+        client.instance.lobby_dispatch.unsubscribe("game")

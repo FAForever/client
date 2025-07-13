@@ -43,7 +43,7 @@ class ChatConfig(QtCore.QObject):
         self._max_chat_lines = None
         self._ignore_foes = None
 
-        self.hide_chatter_items = SignallingSet()
+        self.hide_chatter_items = SignallingSet[ChatterLayoutElements]()
         self.hide_chatter_items.added.connect(self._emit_hidden_items)
         self.hide_chatter_items.removed.connect(self._emit_hidden_items)
 
@@ -59,13 +59,11 @@ class ChatConfig(QtCore.QObject):
 
     def load_settings(self) -> None:
         s = self._settings
-        self.soundeffects = bool(s.value("chat/soundeffects", "true") == "true")
-        self.joinsparts = bool(s.value("chat/joinsparts", "false") == "true")
-        self.friendsontop = bool(s.value("chat/friendsontop", "false") == "true")
-        self.newbies_channel = bool(
-            s.value("chat/newbiesChannel", "true") == "true",
-        )
-        self.ignore_foes = bool(s.value("chat/ignoreFoes", "true") == "true")
+        self.soundeffects: bool = s.value("chat/soundeffects", True, type=bool)
+        self.joinsparts: bool = s.value("chat/joinsparts", False, type=bool)
+        self.friendsontop: bool = s.value("chat/friendsontop", False, type=bool)
+        self.newbies_channel: bool = s.value("chat/newbiesChannel", True, type=bool)
+        self.ignore_foes: bool = s.value("chat/ignoreFoes", True, type=bool)
 
         items = s.value("chat/hide_chatter_items", "")
         items = items.split()

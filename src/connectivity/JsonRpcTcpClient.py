@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import logging
 from collections.abc import Callable
+from collections.abc import Sequence
 from typing import Any
 from typing import Literal
 from typing import NotRequired
@@ -21,6 +22,9 @@ class RpcObject(TypedDict):
     params: RpcParams
     jsonrpc: Literal["2.0"]
     id: NotRequired[int]
+
+
+type IceCommandArgs = Sequence[str | int | bool | IceCommandArgs]
 
 
 class JsonRpcTcpClient(QObject):
@@ -169,7 +173,7 @@ class JsonRpcTcpClient(QObject):
     def call(
         self,
         method: str,
-        args: list[str | int | bool] = [],
+        args: IceCommandArgs = [],
         callback_result: Callable[..., None] | None = None,
         callback_error: Callable[..., None] | None = None,
         *,

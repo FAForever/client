@@ -1,9 +1,10 @@
+from collections.abc import Mapping
 from typing import Any
 from typing import Literal
 from typing import NotRequired
 from typing import TypedDict
 
-type ServerMessage = dict[str, Any]
+type ServerMessage = Mapping[str, Any]
 
 
 class GameJoinFailedCommand(TypedDict):
@@ -80,3 +81,18 @@ class WelcomeCommand(TypedDict):
     # deprecated
     id: NotRequired[int]
     login: NotRequired[str]
+
+
+class NoticeCommand(TypedDict):
+    command: Literal["notice"]
+    style: Literal["info", "error", "kill", "kick"]
+    text: str
+
+
+class AuthenticationFailedCommand(TypedDict):
+    command: Literal["authentication_failed"]
+    text: str
+
+
+class InvalidCommand(TypedDict):
+    command: Literal["invalid"]

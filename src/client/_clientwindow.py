@@ -73,10 +73,14 @@ from src.model.rating import RatingType
 from src.news import NewsWidget
 from src.oauth.oauth_flow import OAuth2FlowInstance
 from src.power import PowerTools
+from src.protocol.lobbyprotocol import AuthenticationFailedCommand
 from src.protocol.lobbyprotocol import GameJoinFailedCommand
 from src.protocol.lobbyprotocol import GameLaunchCommand
+from src.protocol.lobbyprotocol import InvalidCommand
 from src.protocol.lobbyprotocol import MatchFoundCommand
+from src.protocol.lobbyprotocol import NoticeCommand
 from src.protocol.lobbyprotocol import ServerMessage
+from src.protocol.lobbyprotocol import SocialCommand
 from src.protocol.lobbyprotocol import WelcomeCommand
 from src.replays import ReplaysWidget
 from src.secondaryServer import SecondaryServer
@@ -261,29 +265,23 @@ class ClientWindow(FormClass, BaseClass):
         self.gameset.added.connect(self.fill_in_session_info)
 
         self.lobby_info.serverSession.connect(self.handle_session)
-        self.lobby_dispatch["registration_response"] = (
-            self.handle_registration_response
-        )
-        self.lobby_dispatch["game_launch"] = self.handle_game_launch
+        # FIXME: fix ignorance
+        self.lobby_dispatch["game_launch"] = self.handle_game_launch  # type: ignore
         self.lobby_dispatch["matchmaker_info"] = self.handle_matchmaker_info
         self.lobby_dispatch["player_info"] = self.handle_player_info
-        self.lobby_dispatch["notice"] = self.handle_notice
-        self.lobby_dispatch["invalid"] = self.handle_invalid
-        self.lobby_dispatch["welcome"] = self.handle_welcome
-        self.lobby_dispatch["authentication_failed"] = (
-            self.handle_authentication_failed
-        )
+        self.lobby_dispatch["notice"] = self.handle_notice  # type: ignore
+        self.lobby_dispatch["invalid"] = self.handle_invalid  # type: ignore
+        self.lobby_dispatch["welcome"] = self.handle_welcome  # type: ignore
+        self.lobby_dispatch["authentication_failed"] = self.handle_authentication_failed  # type: ignore # noqa: E501
         self.lobby_dispatch["irc_password"] = self.handle_irc_password
         self.lobby_dispatch["update_party"] = self.handle_update_party
-        self.lobby_dispatch["kicked_from_party"] = (
-            self.handle_kicked_from_party
-        )
+        self.lobby_dispatch["kicked_from_party"] = self.handle_kicked_from_party
         self.lobby_dispatch["party_invite"] = self.handle_party_invite
-        self.lobby_dispatch["match_found"] = self.handle_match_found_message
+        self.lobby_dispatch["match_found"] = self.handle_match_found_message  # type: ignore
         self.lobby_dispatch["match_cancelled"] = self.handle_match_cancelled
         self.lobby_dispatch["search_info"] = self.handle_search_info
         self.lobby_dispatch["search_violation"] = self.handle_search_violation
-        self.lobby_dispatch["game_join_failed"] = self.handle_game_join_failed
+        self.lobby_dispatch["game_join_failed"] = self.handle_game_join_failed  # type: ignore
         self.lobby_info.social.connect(self.handle_social)
 
         # Process used to run Forged Alliance (managed in module fa)
@@ -1318,7 +1316,7 @@ class ClientWindow(FormClass, BaseClass):
             )
 
     @QtCore.pyqtSlot()
-    def update_options(self):
+    def update_options(self) -> None:
         chat_config = self._chat_config
 
         self.remember = self.actionSetAutoLogin.isChecked()
@@ -1334,7 +1332,7 @@ class ClientWindow(FormClass, BaseClass):
             i for i, a in self._chat_vis_actions.items() if a.isChecked()
         ]
         chat_config.hide_chatter_items.clear()
-        chat_config.hide_chatter_items |= invisible_items
+        chat_config.hide_chatter_items |= invisible_items  # type: ignore
 
         announce_games = self.actionSetOpenGames.isChecked()
         self.game_announcer.announce_games = announce_games
@@ -1858,16 +1856,10 @@ class ClientWindow(FormClass, BaseClass):
         self.game_session.game_launched.connect(self.game_launched.emit)
         self.game_session.ready.connect(self.launch_game)
 
-    def handle_irc_password(self, message: dict) -> None:
+    def handle_irc_password(self, message: ServerMessage) -> None:
         # DEPRECATED: this command is meaningless and can be removed at any time
         # see https://github.com/FAForever/server/issues/977
         ...
-
-    def handle_registration_response(self, message):
-        if message["result"] == "SUCCESS":
-            return
-
-        self.handle_notice({"style": "notice", "text": message["error"]})
 
     def ladderWarningClicked(self, faction=Factions.RANDOM):
         subFactions = [False] * 4
@@ -1964,7 +1956,7 @@ class ClientWindow(FormClass, BaseClass):
             self.labelAutomatchInfo.setText("Launching the game...")
             rating_type = message.get("rating_type", RatingType.GLOBAL.value)
             queue_name = MatchmakerQueueType.from_rating_type(rating_type)
-            factionSubset = config.Settings.get(
+            factionSubset = config.Settings.get_list(
                 f"play/{queue_name}Factions",
                 default=[False] * 4,
                 type=bool,
@@ -1977,6 +1969,9 @@ class ClientWindow(FormClass, BaseClass):
             arguments.append('/deviation')
             arguments.append(str(self.me.player.rating_deviation(rating_type)))
 
+            assert "expected_players" in message
+            assert "team" in message
+            assert "map_position" in message
             arguments.append('/players')
             arguments.append(str(message["expected_players"]))
             arguments.append('/team')
@@ -2015,9 +2010,9 @@ class ClientWindow(FormClass, BaseClass):
 
         assert self.login is not None
         info = {
-            "uid": message['uid'],
+            "uid": message["uid"],
             "recorder": self.login,
-            "featured_mod": message['mod'],
+            "featured_mod": message["mod"],
         }
 
         assert self.game_session is not None
@@ -2073,7 +2068,7 @@ class ClientWindow(FormClass, BaseClass):
                 else:
                     self.warningHide()
 
-    def handle_social(self, message):
+    def handle_social(self, message: SocialCommand) -> None:
         if "channels" in message:
             # Add a delay to the notification system (insane cargo cult)
             self.notificationSystem.disabledStartup = False
@@ -2096,29 +2091,18 @@ class ClientWindow(FormClass, BaseClass):
             else:
                 self.players[id_] = Player(**player)
 
-    def handle_authentication_failed(self, message):
-        QtWidgets.QMessageBox.warning(
-            self, "Authentication failed", message["text"],
-        )
+    def handle_authentication_failed(self, message: AuthenticationFailedCommand) -> None:
+        QtWidgets.QMessageBox.warning(self, "Authentication failed", message["text"])
         self._auto_relogin = False
         self.disconnect_()
         self.show_login_widget()
 
-    def handle_notice(self, message):
+    def handle_notice(self, message: NoticeCommand) -> None:
         if "text" in message:
             style = message.get('style', None)
             if style == "error":
                 logger.error("Received an error message from server: %s", message)
                 QtWidgets.QMessageBox.critical(self, "Error from Server", message["text"])
-            elif style == "warning":
-                logger.warning("Received warning message from server: %s", message)
-                QtWidgets.QMessageBox.warning(self, "Warning from Server", message["text"])
-            elif style == "scores":
-                self.tray.showMessage(
-                    "Scores", message["text"],
-                    QtWidgets.QSystemTrayIcon.Information, 3500,
-                )
-                self.local_broadcast.emit("Scores", message["text"])
             elif "You are using an unofficial client" in message["text"]:
                 self.unofficial_client.emit(message["text"])
             else:
@@ -2143,7 +2127,7 @@ class ClientWindow(FormClass, BaseClass):
         if message["style"] in ["error", "kick"]:
             self._auto_relogin = False
 
-    def handle_invalid(self, message):
+    def handle_invalid(self, message: InvalidCommand) -> None:
         # We did something wrong and the server will disconnect, let's not
         # reconnect and potentially cause the same error again and again
         self.lobby_reconnector.enabled = False
@@ -2165,7 +2149,7 @@ class ClientWindow(FormClass, BaseClass):
         logger.info("Handling update_party via JSON %s", message)
         self.games.updateParty(message)
 
-    def handle_kicked_from_party(self, message):
+    def handle_kicked_from_party(self, message: ServerMessage) -> None:
         if self.me.player and self.me.player.currentGame is None:
             QtWidgets.QMessageBox.information(
                 self, "Kicked", "You were kicked from party",

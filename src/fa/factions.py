@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import random
-from enum import Enum, unique
+from enum import Enum
+from enum import unique
 
 
 @unique
@@ -26,9 +29,9 @@ class Factions(Enum):
         return random.choice(possibilities)
 
     @staticmethod
-    def set_faction(sub_factions=[]):
+    def set_faction(sub_factions: list[bool] = []) -> Factions:
         if any(sub_factions):
-            possibilities = []
+            possibilities: list[Factions] = []
             for faction, selected in zip(list(Factions)[:-1], sub_factions):
                 if selected:
                     possibilities.append(faction)
@@ -50,7 +53,7 @@ class Factions(Enum):
         elif name == "random":
             return Factions.RANDOM
 
-        raise ValueError("Invalid faction name provided: {}".format(name))
+        raise ValueError(f"Invalid faction name provided: {name}")
 
     def to_name(self):
         if self == Factions.UEF:
@@ -64,4 +67,4 @@ class Factions(Enum):
         elif self == Factions.RANDOM:
             return "random"
 
-        raise ValueError("Invalid faction id provided: {}".format(self))
+        raise ValueError(f"Invalid faction id provided: {self}")

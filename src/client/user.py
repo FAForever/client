@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Iterator
 from collections.abc import MutableSet
 from typing import Any
 from typing import Self
@@ -7,6 +8,7 @@ from typing import Self
 from irc.client import ServerConnection
 from PyQt6 import QtCore
 from PyQt6.QtCore import QObject
+from PyQt6.QtCore import pyqtBoundSignal
 from PyQt6.QtCore import pyqtSignal
 
 from src.client.connection import LobbyInfo
@@ -102,39 +104,36 @@ class SetSignals(QObject):
     added = pyqtSignal(object)
     removed = pyqtSignal(object)
 
-    def __init__(self):
-        QObject.__init__(self)
 
-
-class SignallingSet(MutableSet):
-    def __init__(self):
-        MutableSet.__init__(self)
-        self._set = set()
+class SignallingSet[T](MutableSet[T]):
+    def __init__(self) -> None:
+        super().__init__()
+        self._set: set[T] = set()
         self._signals = SetSignals()
 
     @property
-    def added(self):
+    def added(self) -> pyqtBoundSignal:
         return self._signals.added
 
     @property
-    def removed(self):
+    def removed(self) -> pyqtBoundSignal:
         return self._signals.removed
 
-    def __contains__(self, value):
+    def __contains__(self, value: object) -> bool:
         return value in self._set
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[T]:
         return iter(self._set)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._set)
 
-    def add(self, value):
+    def add(self, value: T) -> None:
         if value not in self._set:
             self._set.add(value)
             self.added.emit(value)
 
-    def discard(self, value):
+    def discard(self, value: T) -> None:
         if value in self._set:
             self._set.discard(value)
             self.removed.emit(value)
@@ -143,9 +142,9 @@ class SignallingSet(MutableSet):
 class FriendFoeModel:
     def __init__(
         self,
-        friends: SignallingSet,
-        foes: SignallingSet,
-        chatterboxes: SignallingSet,
+        friends: SignallingSet[int],
+        foes: SignallingSet[int],
+        chatterboxes: SignallingSet[int],
     ) -> None:
         self.friends = friends
         self.foes = foes
@@ -153,9 +152,9 @@ class FriendFoeModel:
 
     @classmethod
     def build(cls) -> Self:
-        friends = SignallingSet()
-        foes = SignallingSet()
-        chatterboxes = SignallingSet()
+        friends = SignallingSet[int]()
+        foes = SignallingSet[int]()
+        chatterboxes = SignallingSet[int]()
         return cls(friends, foes, chatterboxes)
 
 
@@ -193,7 +192,13 @@ class UserRelationModel:
 
 
 class IrcRelationController:
-    def __init__(self, keyname: str, set_: SignallingSet, me: User, settings: Settings) -> None:
+    def __init__(
+        self,
+        keyname: str,
+        set_: SignallingSet[int],
+        me: User,
+        settings: type[Settings],
+    ) -> None:
         self._keyname = keyname
         self._set = set_
         self._me = me
@@ -206,7 +211,7 @@ class IrcRelationController:
     def build(
         cls,
         keyname: str,
-        set_: SignallingSet,
+        set_: SignallingSet[int],
         me: User,
         settings: Settings,
         **kwargs: Any,
@@ -259,7 +264,7 @@ class FafRelationController:
         self,
         msg_in: str,
         msg_out: str,
-        set_: SignallingSet,
+        set_: SignallingSet[int],
         lobby_info: LobbyInfo,
         lobby_connection: ServerConnection,
     ) -> None:
@@ -275,7 +280,7 @@ class FafRelationController:
         cls,
         msg_in: str,
         msg_out: str,
-        set_: SignallingSet,
+        set_: SignallingSet[int],
         lobby_info: LobbyInfo,
         lobby_connection: ServerConnection,
         **kwargs: Any,
