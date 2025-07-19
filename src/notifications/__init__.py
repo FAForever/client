@@ -15,6 +15,7 @@ from src.model.player import Player
 from src.notifications.ns_dialog import NotificationDialog
 from src.notifications.ns_settings import IngameNotification
 from src.notifications.ns_settings import NsSettingsDialog
+from src.protocol.lobbyprotocol import GameLaunchCommand
 
 
 class Notifications:
@@ -23,6 +24,7 @@ class Notifications:
     GAME_FULL = 'game_full'
     CUSTOM_GAME_LAUNCHED = "game_launched_custom"
     LADDER_GAME_LAUNCHED = "game_launched_ladder"
+    LAUNCHING_LADDER = "launching_ladder"
     UNOFFICIAL_CLIENT = 'unofficial_client'
     PARTY_INVITE = 'party_invite'
 
@@ -43,6 +45,7 @@ class Notifications:
         client.game_exit.connect(self.gameExit)
         client.game_full.connect(self._gamefull)
         client.game_launched.connect(self.game_launched)
+        client.launching_ladder.connect(self.launching_ladder)
         client.unofficial_client.connect(self.unofficialClient)
         client.party_invite.connect(self.partyInvite)
         gameset.newLobby.connect(self._newLobby)
@@ -85,6 +88,14 @@ class Notifications:
             return
         if (self.GAME_FULL, None) not in self.events:
             self.events.append((self.GAME_FULL, None))
+        self.checkEvent()
+
+    def launching_ladder(self, message: GameLaunchCommand) -> None:
+        if self.is_disabled(self.LAUNCHING_LADDER):
+            return
+        event_data = (self.LAUNCHING_LADDER, message["name"])
+        if event_data not in self.events:
+            self.events.append(event_data)
         self.checkEvent()
 
     def game_launched(self, mode: LobbyInitMode) -> None:
@@ -226,6 +237,8 @@ class Notifications:
             )
         elif eventType in (self.CUSTOM_GAME_LAUNCHED, self.LADDER_GAME_LAUNCHED):
             text = "Game Launched"
+        elif eventType == self.LAUNCHING_LADDER:
+            text = f"<font size='-2'>Launching game:</font><br>{data}"
         elif eventType == self.UNOFFICIAL_CLIENT:
             pixmap = self.user
             text = (

@@ -120,6 +120,7 @@ class ClientWindow(FormClass, BaseClass):
     game_enter = QtCore.pyqtSignal()
     game_exit = QtCore.pyqtSignal()
     game_full = QtCore.pyqtSignal()
+    launching_ladder = QtCore.pyqtSignal(dict)
     game_launched = QtCore.pyqtSignal(object)
 
     # These signals propagate important client state changes to other modules
@@ -177,6 +178,8 @@ class ClientWindow(FormClass, BaseClass):
         self.tray.activated.connect(self.handle_tray_icon_activation)
         tray_menu = QtWidgets.QMenu()
         tray_menu.addAction("Open Client", self.show_normal)
+        tray_menu.addSeparator()
+        tray_menu.addAction("Kill FA process", fa.instance.kill_if_running)
         tray_menu.addAction("Quit Client", self.close)
         self.tray.setContextMenu(tray_menu)
         # Mouse down on tray icon deactivates the application.
@@ -1952,6 +1955,7 @@ class ClientWindow(FormClass, BaseClass):
         assert self.me.player is not None
         arguments: list[str] = []
         if message["game_type"] == GameType.MATCHMAKER.value:
+            self.launching_ladder.emit(message)
             self.labelAutomatchInfo.setText("Launching the game...")
             rating_type = message.get("rating_type", RatingType.GLOBAL.value)
             queue_name = MatchmakerQueueType.from_rating_type(rating_type)

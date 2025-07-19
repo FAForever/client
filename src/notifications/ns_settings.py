@@ -17,6 +17,7 @@ from src.notifications.hook_gamefull import NsHookGameFull
 from src.notifications.hook_newgame import NsHookNewGame
 from src.notifications.hook_partyinvite import NsHookPartyInvite
 from src.notifications.hook_useronline import NsHookUserOnline
+from src.notifications.ns_hook import NsHook
 
 
 class IngameNotification(Enum):
@@ -69,6 +70,7 @@ class NsSettingsDialog(FormClass2, BaseClass2):
         self.hooks[ns.Notifications.PARTY_INVITE] = NsHookPartyInvite()
         self.hooks[ns.Notifications.CUSTOM_GAME_LAUNCHED] = NsHookGameLaunchedCustom()
         self.hooks[ns.Notifications.LADDER_GAME_LAUNCHED] = NsHookGameLaunchedLadder()
+        self.hooks[ns.Notifications.LAUNCHING_LADDER] = NsHook(ns.Notifications.LAUNCHING_LADDER)
 
         model = NotificationHooks(self, list(self.hooks.values()))
         self.tableView.setModel(model)
