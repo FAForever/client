@@ -8,6 +8,7 @@ from PyQt6 import QtCore
 
 from src import util
 from src.config import Settings
+from src.connectivity.relay.GPGProtocol import LobbyInitMode
 from src.fa import maps
 from src.model.game import Game
 from src.model.player import Player
@@ -20,7 +21,8 @@ class Notifications:
     USER_ONLINE = 'user_online'
     NEW_GAME = 'new_game'
     GAME_FULL = 'game_full'
-    GAME_LAUNCHED = "game_launched"
+    CUSTOM_GAME_LAUNCHED = "game_launched_custom"
+    LADDER_GAME_LAUNCHED = "game_launched_ladder"
     UNOFFICIAL_CLIENT = 'unofficial_client'
     PARTY_INVITE = 'party_invite'
 
@@ -85,11 +87,12 @@ class Notifications:
             self.events.append((self.GAME_FULL, None))
         self.checkEvent()
 
-    def game_launched(self) -> None:
-        if self.is_disabled(self.GAME_LAUNCHED):
+    def game_launched(self, mode: LobbyInitMode) -> None:
+        ev = self.LADDER_GAME_LAUNCHED if mode is LobbyInitMode.AUTO else self.CUSTOM_GAME_LAUNCHED
+        if self.is_disabled(ev):
             return
-        if (self.GAME_LAUNCHED, None) not in self.events:
-            self.events.append((self.GAME_LAUNCHED, None))
+        if (ev, None) not in self.events:
+            self.events.append((ev, None))
         self.checkEvent()
 
     def unofficialClient(self, msg):
@@ -221,7 +224,7 @@ class Notifications:
                 '<html><br><font color="silver" size="-2">Game is full.'
                 '</font></html>'
             )
-        elif eventType == self.GAME_LAUNCHED:
+        elif eventType in (self.CUSTOM_GAME_LAUNCHED, self.LADDER_GAME_LAUNCHED):
             text = "Game Launched"
         elif eventType == self.UNOFFICIAL_CLIENT:
             pixmap = self.user

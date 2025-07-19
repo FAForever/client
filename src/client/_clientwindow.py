@@ -120,7 +120,7 @@ class ClientWindow(FormClass, BaseClass):
     game_enter = QtCore.pyqtSignal()
     game_exit = QtCore.pyqtSignal()
     game_full = QtCore.pyqtSignal()
-    game_launched = QtCore.pyqtSignal()
+    game_launched = QtCore.pyqtSignal(object)
 
     # These signals propagate important client state changes to other modules
     local_broadcast = QtCore.pyqtSignal(str, str)
@@ -1847,7 +1847,7 @@ class ClientWindow(FormClass, BaseClass):
                 player_login=self.login,
             )
             self.game_session.gameFullSignal.connect(self.game_full.emit)
-            self.game_session.game_launched.connect(self.game_launched.emit)
+            self.game_session.game_launched.connect(lambda mode: self.game_launched.emit(mode))
             self.game_session.ready.connect(self.launch_game)
         elif self.game_session.game_uid is not None:
             self.lobby_connection.send({

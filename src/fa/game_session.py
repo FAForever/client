@@ -39,7 +39,7 @@ class GameSessionState(IntEnum):
 class GameSession(QObject):
     ready = pyqtSignal(int)
     gameFullSignal = pyqtSignal()
-    game_launched = pyqtSignal()
+    game_launched = pyqtSignal(object)
 
     def __init__(self, player_id: int, player_login: str) -> None:
         QObject.__init__(self)
@@ -63,11 +63,12 @@ class GameSession(QObject):
         self.state = GameSessionState.LISTENING
 
         self._relay_port = 0
+        self.lobby_mode = LobbyInitMode.NORMAL
 
         self.gpg_server = GPGNetServer(player_id, player_login, logger)
         self.gpg_server.game_connected.connect(self.new_game_connection)
         self.gpg_server.game_full.connect(self.gameFullSignal.emit)
-        self.gpg_server.game_launched.connect(self.game_launched.emit)
+        self.gpg_server.game_launched.connect(lambda: self.game_launched.emit(self.lobby_mode))
 
         self.ice_adapter_process = None
         self.ice_adapter_client = None
@@ -75,8 +76,6 @@ class GameSession(QObject):
 
         self.ice_adapter_manager = IceAdapterManager(self)
         self.ice_adapter_manager.done.connect(self.on_ice_version_set)
-
-        self.lobby_mode = LobbyInitMode.NORMAL
 
     def start_ice_adapter(self, init_mode: LobbyInitMode = LobbyInitMode.NORMAL) -> None:
         self.lobby_mode = init_mode
@@ -206,5 +205,5 @@ class GameSession(QObject):
         elif command == "GameFull":
             self.gameFullSignal.emit()
         elif command == "GameState" and len(args) > 0:
-            if args[0] == "Launching" and self.lobby_mode is LobbyInitMode.NORMAL:
-                self.game_launched.emit()
+            if args[0] == "Launching":
+                self.game_launched.emit(self.lobby_mode)

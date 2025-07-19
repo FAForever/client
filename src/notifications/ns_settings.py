@@ -11,7 +11,8 @@ from PyQt6 import QtWidgets
 import src.notifications as ns
 from src import util
 from src.config import Settings
-from src.notifications.hook_game_launched import NsHookGameLaunched
+from src.notifications.hook_game_launched import NsHookGameLaunchedCustom
+from src.notifications.hook_game_launched import NsHookGameLaunchedLadder
 from src.notifications.hook_gamefull import NsHookGameFull
 from src.notifications.hook_newgame import NsHookNewGame
 from src.notifications.hook_partyinvite import NsHookPartyInvite
@@ -66,7 +67,8 @@ class NsSettingsDialog(FormClass2, BaseClass2):
         self.hooks[ns.Notifications.NEW_GAME] = NsHookNewGame()
         self.hooks[ns.Notifications.GAME_FULL] = NsHookGameFull()
         self.hooks[ns.Notifications.PARTY_INVITE] = NsHookPartyInvite()
-        self.hooks[ns.Notifications.GAME_LAUNCHED] = NsHookGameLaunched()
+        self.hooks[ns.Notifications.CUSTOM_GAME_LAUNCHED] = NsHookGameLaunchedCustom()
+        self.hooks[ns.Notifications.LADDER_GAME_LAUNCHED] = NsHookGameLaunchedLadder()
 
         model = NotificationHooks(self, list(self.hooks.values()))
         self.tableView.setModel(model)
