@@ -41,7 +41,7 @@ default_values = {
     'news/host': 'https://direct.{host}',
     'turn/host': '{host}',
     'turn/port': 3478,
-    'oauth/client_id': 'faf-python-client',
+    'oauth/client_id': '95ecec08-29c1-4c48-ae0a-b000ff349cb8',
     'oauth/host': "https://hydra.{host}",
     'oauth/redirect_uri': "http://localhost",
     'oauth/scope': ["openid", "offline", "public_profile", "lobby"],
