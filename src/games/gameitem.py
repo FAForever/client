@@ -237,7 +237,7 @@ class GameTooltipFilter(QtCore.QObject):
 
 class GameItemFormatter:
     FORMATTER_FAF = str(util.THEME.readfile("games/formatters/faf.html"))
-    FORMATTER_MOD = str(util.THEME.readfile("games/formatters/mod.qthtml"))
+    FORMATTER_MOD = str(util.THEME.readfile("games/formatters/mod.html"))
 
     def __init__(self, playercolors, me):
         self._colors = playercolors
@@ -267,6 +267,7 @@ class GameItemFormatter:
             "host": html.escape(game.host),
             "players": players,
             "playerstring": "player" if players == 1 else "players",
+            "simmods": "modded" if game.sim_mods else "",
             "avgrating": int(game.average_rating),
             # HACK/FIXME: we don't use separate timer to update items periodically, because
             # gameswidget has automatch frames, each of which has timer to update its 'Matching In'
