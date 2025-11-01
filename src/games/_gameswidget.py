@@ -18,6 +18,7 @@ from src import fa
 from src import util
 from src.api.featured_mod_api import FeaturedModApiConnector
 from src.client.user import User
+from src.config import Settings
 from src.games.automatchframe import MatchmakerQueue
 from src.games.filters.controller import GamesSortFilterController
 from src.games.filters.sortfiltermodel import CustomGameFilterModel
@@ -71,6 +72,12 @@ class GamesWidget(FormClass, BaseClass):
     match_found_message = pyqtSignal(dict)
     stop_search_ranked_game = pyqtSignal()
     party_updated = pyqtSignal()
+
+    show_game_panel = Settings.persisted_property(
+        "play/showGamePanel",
+        default_value=False,
+        type=bool,
+    )
 
     def __init__(
             self,
@@ -134,8 +141,9 @@ class GamesWidget(FormClass, BaseClass):
         scroll_width = self.gamePanelScrollArea.verticalScrollBar().sizeHint().width()
         self.gamePanelScrollArea.setFixedWidth(self.gamePanelWidget.width() + scroll_width * 2)
         self.gamePanelScrollArea.hide()
-        self.gamePanelButton.clicked.connect(self.on_game_panel_toggled)
         self.gamePanelButton.setCheckable(True)
+        self.gamePanelButton.toggled.connect(self.on_game_panel_toggled)
+        self.gamePanelButton.setChecked(self.show_game_panel)
 
     def refreshMods(self):
         self.apiConnector.requestData()
@@ -226,10 +234,10 @@ class GamesWidget(FormClass, BaseClass):
             else:
                 self.client.join_game(uid=game.uid)
 
-    def on_game_panel_toggled(self) -> None:
-        show_panel = self.gamePanelButton.isChecked()
-        self.gamePanelScrollArea.setVisible(show_panel)
-        arrow = Qt.ArrowType.RightArrow if show_panel else Qt.ArrowType.LeftArrow
+    def on_game_panel_toggled(self, checked: bool) -> None:
+        self.show_game_panel = checked
+        self.gamePanelScrollArea.setVisible(checked)
+        arrow = Qt.ArrowType.RightArrow if checked else Qt.ArrowType.LeftArrow
         self.gamePanelButton.setArrowType(arrow)
 
     def game_clicked(self, index: QModelIndex) -> None:
