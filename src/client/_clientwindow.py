@@ -2072,6 +2072,11 @@ class ClientWindow(FormClass, BaseClass):
             player["id_"] = player.pop("id")
 
             id_ = int(player["id_"])
+
+            if player.get("state") == "offline":
+                self.players.del_item(id_)
+                continue
+
             if id_ in self.players:
                 self.players[id_].update(**player)
             else:
