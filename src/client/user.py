@@ -435,6 +435,9 @@ class RelationshipTracker[KT, VT: ModelItem](QObject):
         self._item_set.removed.connect(self._at_item_removed)
         self._trackers: dict[KT, UserRelationship] = {}
 
+    def add_tracker(self, key: KT, /) -> None:
+        self._trackers[key] = self._create_tracker(key)
+
     # Since users of this class might listen to addition and removal of
     # chatters or players and the add / remove signal slots are
     # executed in an unspecified order, we can't just create trackers
@@ -443,7 +446,7 @@ class RelationshipTracker[KT, VT: ModelItem](QObject):
         if key not in self._trackers:
             if key not in self._item_set:
                 raise KeyError
-            self._trackers[key] = self._create_tracker(key)
+            self.add_tracker(key)
         return self._trackers[key]
 
     def _create_tracker(self, key: KT, /) -> UserRelationship:

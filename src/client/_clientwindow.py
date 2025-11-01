@@ -2075,6 +2075,7 @@ class ClientWindow(FormClass, BaseClass):
             if id_ in self.players:
                 self.players[id_].update(**player)
             else:
+                self.user_relations.trackers.players.add_tracker(id_)
                 self.players[id_] = Player(**player)
 
     def handle_authentication_failed(self, message: AuthenticationFailedCommand) -> None:
