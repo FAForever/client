@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 from typing import Self
 
 from PyQt6 import QtWidgets
+from PyQt6.QtCore import QModelIndex
 from PyQt6.QtCore import Qt
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtCore import pyqtSlot
@@ -22,6 +23,7 @@ from src.games.filters.controller import GamesSortFilterController
 from src.games.filters.sortfiltermodel import CustomGameFilterModel
 from src.games.gameitem import GameViewBuilder
 from src.games.gamemodel import GameModel
+from src.games.gamepanelwidget import GamePanelWidget
 from src.games.hostgamewidget import GameLauncher
 from src.games.moditem import ModItem
 from src.games.moditem import mod_invisible
@@ -101,6 +103,7 @@ class GamesWidget(FormClass, BaseClass):
 
         self.gameview = gameview_builder(self._game_filter_model, self.gameList)
         self.gameview.game_double_clicked.connect(self.gameDoubleClicked)
+        self.gameList.pressed.connect(self.game_clicked)
 
         self.ispassworded = False
         self.party = None
@@ -120,6 +123,19 @@ class GamesWidget(FormClass, BaseClass):
 
         self.searching = {"ladder1v1": False}
         self.matchmakerShortcuts = []
+
+        self.gamePanelWidget = GamePanelWidget(
+            self,
+            self.client.player_colors,
+            self.client.player_ctx_menu,
+        )
+        self.gamePanelWidget.join_requested.connect(self.gameDoubleClicked)
+        self.gamePanelScrollArea.setWidget(self.gamePanelWidget)
+        scroll_width = self.gamePanelScrollArea.verticalScrollBar().sizeHint().width()
+        self.gamePanelScrollArea.setFixedWidth(self.gamePanelWidget.width() + scroll_width * 2)
+        self.gamePanelScrollArea.hide()
+        self.gamePanelButton.clicked.connect(self.on_game_panel_toggled)
+        self.gamePanelButton.setCheckable(True)
 
     def refreshMods(self):
         self.apiConnector.requestData()
@@ -209,6 +225,15 @@ class GamesWidget(FormClass, BaseClass):
                     self.client.join_game(uid=game.uid, password=passw)
             else:
                 self.client.join_game(uid=game.uid)
+
+    def on_game_panel_toggled(self) -> None:
+        show_panel = self.gamePanelButton.isChecked()
+        self.gamePanelScrollArea.setVisible(show_panel)
+        arrow = Qt.ArrowType.RightArrow if show_panel else Qt.ArrowType.LeftArrow
+        self.gamePanelButton.setArrowType(arrow)
+
+    def game_clicked(self, index: QModelIndex) -> None:
+        self.gamePanelWidget.set_game(index.data().game)
 
     @pyqtSlot(QtWidgets.QListWidgetItem)
     def hostGameClicked(self, item):

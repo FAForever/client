@@ -673,6 +673,11 @@ QScrollArea#replayScoreScrollArea
     padding: 0px;
 }
 
+QScrollArea#gamePanelScrollArea
+{
+    background-color: #1f1f1f;
+}
+
 /* Scrollbars*/
 QScrollBar:horizontal {
     background-color: grey;
@@ -918,6 +923,25 @@ QToolButton::checked
     border-radius : 5px;
 }
 
+QToolButton#gamePanelButton
+{
+    color: #C0C0C0;
+    background: #453939;
+    padding: 2px;
+    border-radius: 2px;
+}
+
+QToolButton#gamePanelButton::checked
+{
+    border: none;
+    padding: 2px;
+}
+
+QToolButton#gamePanelButton::hover
+{
+    background: #808080;
+}
+
 QPushButton
 {
     color: silver;
@@ -1026,6 +1050,13 @@ QPushButton#manageGameFiltersButton:hover
     background-color: #808080;
 }
 
+QPushButton#joinGameButton
+{
+    height: 18px;
+    font-weight: bold;
+    font-size: 11pt;
+}
+
 QSpinBox, QDoubleSpinBox
 {
     color:orange;
@@ -1101,6 +1132,11 @@ QWidget#tech_widget,#overview_content,#overview_widget
     background: #202025;
     padding: 0px;
     border: none;
+}
+
+QWidget#gamePanelWidget
+{
+    background-color: #1f1f1f;
 }
 
 QFrame[frameShape="4"]

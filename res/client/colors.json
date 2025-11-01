@@ -15,4 +15,5 @@
  , "clan_chatterbox" : "darkgreen"
  , "mod" : "white"
  , "chatterbox" : "darkgoldenrod"
+ , "game_host": "gold"
 }
