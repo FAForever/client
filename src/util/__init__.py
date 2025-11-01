@@ -270,9 +270,7 @@ def clear_unused_ice_adapters() -> None:
             if options.name() in entry.name and entry.name.endswith(options.extension())
         ]
         adapters.sort(key=attrgetter("name"))
-        if not version:
-            adapters.pop()
-        for entry in adapters:
+        for entry in (adapters if version else adapters[:-1]):
             if version and version in entry.name:
                 continue
             delta = (datetime.now() - datetime.fromtimestamp(entry.stat().st_atime))
