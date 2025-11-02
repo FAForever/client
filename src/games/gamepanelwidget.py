@@ -129,6 +129,7 @@ class GamePanelUI:
 
         self.mapNameLabel = QLabel()
         self.mapNameLabel.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+        self.mapNameLabel.setCursor(Qt.CursorShape.IBeamCursor)
 
         self.hostLabel = QLabel()
         self.numPlayersLabel = QLabel()
