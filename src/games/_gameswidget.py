@@ -135,6 +135,7 @@ class GamesWidget(FormClass, BaseClass):
             self,
             self.client.player_colors,
             self.client.player_ctx_menu,
+            self.client.user_relations,
         )
         self.gamePanelWidget.join_requested.connect(self.gameDoubleClicked)
         self.gamePanelScrollArea.setWidget(self.gamePanelWidget)
@@ -144,10 +145,6 @@ class GamesWidget(FormClass, BaseClass):
         self.gamePanelButton.setCheckable(True)
         self.gamePanelButton.toggled.connect(self.on_game_panel_toggled)
         self.gamePanelButton.setChecked(self.show_game_panel)
-        self.client.user_relations.trackers.players.updated.connect(self.player_relation_changed)
-
-    def player_relation_changed(self, pid: int) -> None:
-        self.gamePanelWidget.refresh_ui()
 
     def refreshMods(self):
         self.apiConnector.requestData()

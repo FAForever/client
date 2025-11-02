@@ -23,6 +23,7 @@ from PyQt6.QtWidgets import QWidget
 from src import fa
 from src import util
 from src.client.playercolors import PlayerColors
+from src.client.user import UserRelations
 from src.contextmenu.playercontextmenu import PlayerContextMenu
 from src.fa.maps_.preview import create_largest_preview
 from src.fa.maps_.previewdialog import MapPreviewDialog
@@ -182,11 +183,14 @@ class GamePanelWidget(QWidget):
         parent: QWidget,
         player_colors: PlayerColors,
         ctx_menu: PlayerContextMenu,
+        user_relations: UserRelations,
     ) -> None:
         super().__init__(parent)
         self.setObjectName("gamePanelWidget")
         self.player_colors = player_colors
         self.event_filter = TeamListEventFilter(ctx_menu)
+        self.user_relations = user_relations
+        self.user_relations.trackers.players.updated.connect(self.refresh_ui)
         self._mapgen_manager = MapGeneratorManager()
         self.ui = GamePanelUI()
         self.ui.setupUi(self)
