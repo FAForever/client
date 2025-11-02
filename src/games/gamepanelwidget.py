@@ -143,6 +143,7 @@ class GamePanelUI:
         layout.addWidget(self.joinGameButton)
 
         self.summaryGroup = QGroupBox("Game Information")
+        self.summaryGroup.setObjectName("gamePanelGameSummary")
         self.summaryGroup.hide()
         summary_form = QFormLayout(self.summaryGroup)
         summary_form.addRow("<b>Mod:</b>", self.featuredModLabel)
