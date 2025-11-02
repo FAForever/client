@@ -131,14 +131,24 @@ class GamesWidget(FormClass, BaseClass):
         self.searching = {"ladder1v1": False}
         self.matchmakerShortcuts = []
 
+        self.gamePanelStack = QtWidgets.QStackedWidget(self)
+        self.gamePanelStack.setObjectName("gamePanelStack")
+        placeholder = QtWidgets.QLabel("<h1>Select a game to view details</h1>")
+        placeholder.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        placeholder.setWordWrap(True)
+
         self.gamePanelWidget = GamePanelWidget(
             self,
             self.client.player_colors,
             self.client.player_ctx_menu,
             self.client.user_relations,
         )
+
+        self.gamePanelStack.addWidget(placeholder)
+        self.gamePanelStack.addWidget(self.gamePanelWidget)
+
         self.gamePanelWidget.join_requested.connect(self.gameDoubleClicked)
-        self.gamePanelScrollArea.setWidget(self.gamePanelWidget)
+        self.gamePanelScrollArea.setWidget(self.gamePanelStack)
         scroll_width = self.gamePanelScrollArea.verticalScrollBar().sizeHint().width()
         self.gamePanelScrollArea.setFixedWidth(self.gamePanelWidget.width() + scroll_width * 2)
         self.gamePanelScrollArea.hide()
@@ -242,6 +252,7 @@ class GamesWidget(FormClass, BaseClass):
         self.gamePanelButton.setArrowType(arrow)
 
     def game_clicked(self, index: QModelIndex) -> None:
+        self.gamePanelStack.setCurrentIndex(1)
         self.gamePanelWidget.set_game(index.data().game)
 
     @pyqtSlot(QtWidgets.QListWidgetItem)

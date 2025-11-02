@@ -1134,7 +1134,7 @@ QWidget#tech_widget,#overview_content,#overview_widget
     border: none;
 }
 
-QWidget#gamePanelWidget
+QWidget#gamePanelStack
 {
     background-color: #1f1f1f;
 }

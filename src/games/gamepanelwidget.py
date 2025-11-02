@@ -187,7 +187,6 @@ class GamePanelWidget(QWidget):
         user_relations: UserRelations,
     ) -> None:
         super().__init__(parent)
-        self.setObjectName("gamePanelWidget")
         self.player_colors = player_colors
         self.event_filter = TeamListEventFilter(ctx_menu)
         self.user_relations = user_relations
