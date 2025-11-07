@@ -34,7 +34,7 @@ def build_argument_list(
     )
 
     # log file
-    if Settings.get("game/logs", False, type=bool):
+    if Settings.get("game/logs", True, type=bool):
         arguments.append("/log")
         if log_suffix is None:
             log_file = util.LOG_FILE_GAME

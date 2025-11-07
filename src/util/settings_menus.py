@@ -318,7 +318,7 @@ class GameSettings(QDialog):
     def setup(self) -> None:
         self.ui.gamePathInput.setText(Settings.get("ForgedAlliance/app/path", ""))
         self.ui.vaultPathInput.setText(util.VAULTS_BASE_DIR)
-        self.ui.gameLogsCheckBox.setChecked(Settings.get("game/logs", False, type=bool))
+        self.ui.gameLogsCheckBox.setChecked(Settings.get("game/logs", True, type=bool))
         self.ui.browseGameButton.clicked.connect(
             lambda: self.browse_directory(self.ui.gamePathInput),
         )
