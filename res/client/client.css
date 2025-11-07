@@ -813,7 +813,7 @@ QGroupBox
     padding-top: 15px;
 }
 
-QGroupBox#gamePanelGameSummary
+QGroupBox#gamePanelGameSummary,#vaultSettingsGroupBox
 {
     margin: 0px;
 }

@@ -79,10 +79,18 @@ def typicalForgedAlliancePaths():
             ),
         )
 
-    return list(filter(validatePath, pathlist))
+    return list(filter(validate_game_path, pathlist))
 
 
-def validatePath(path):
+def validate_game_path(path: str) -> bool:
+    # We check whether the gamedata/lua.scd file exists.
+    # This is a mildly naive check, but should suffice
+    if not os.path.isfile(os.path.join(path, r"gamedata", r"lua.scd")):
+        return False
+    return validate_path(path)
+
+
+def validate_path(path: str) -> bool:
     try:
         # Supcom only supports Ascii Paths
         try:
@@ -90,11 +98,7 @@ def validatePath(path):
         except UnicodeEncodeError:
             return False
 
-        # We check whether the base path and a gamedata/lua.scd file exists.
-        # This is a mildly naive check, but should suffice
         if not os.path.isdir(path):
-            return False
-        if not os.path.isfile(os.path.join(path, r'gamedata', r'lua.scd')):
             return False
 
         # Reject or fix paths that end with a slash.

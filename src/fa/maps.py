@@ -164,13 +164,7 @@ def getUserMapsFolder() -> str:
     """
     Returns to folder where the downloaded maps of the user are stored.
     """
-    return os.path.join(
-        util.PERSONAL_DIR,
-        "My Games",
-        "Gas Powered Games",
-        "Supreme Commander Forged Alliance",
-        "Maps",
-    )
+    return os.path.join(util.VAULTS_BASE_DIR, "maps")
 
 
 def gen_prev_from_dds(sourcename: str, destname: str, small: bool = False) -> None:

@@ -143,44 +143,50 @@ DOWNLOADED_RES_PIX = {}
 DOWNLOADING_RES_PIX = {}
 
 
-def getPersonalDir():
-    fallback = Settings.get('vault/fallback', type=bool, default=False)
-    if fallback:
-        dir_ = os.path.join(APPDATA_DIR, "user")
-    else:
-        loc_type = QStandardPaths.StandardLocation.DocumentsLocation
-        dir_ = QDir.toNativeSeparators(QStandardPaths.standardLocations(loc_type)[0])
-        try:
-            dir_.encode("ascii")
-
-            if not os.path.isdir(dir_):
-                raise Exception(
-                    'No documents location. Will use APPDATA instead.',
-                )
-        except Exception:
-            logger.exception("PERSONAL_DIR not ok, falling back.")
-            dir_ = os.path.join(APPDATA_DIR, "user")
-    return dir_
+def get_personal_dir() -> str:
+    loc_type = QStandardPaths.StandardLocation.DocumentsLocation
+    doc_dir = QDir.toNativeSeparators(QStandardPaths.standardLocations(loc_type)[0])
+    try:
+        doc_dir.encode("ascii")
+        if not os.path.isdir(doc_dir):
+            raise OSError("No documents location. Will use APPDATA instead.")
+    except (OSError, UnicodeEncodeError) as e:
+        logger.exception("PERSONAL_DIR not ok, falling back: '%s'", e)
+        doc_dir = os.path.join(APPDATA_DIR, "user")
+    return doc_dir
 
 
-def setPersonalDir():
-    global PERSONAL_DIR
-    PERSONAL_DIR = getPersonalDir()
-    logger.info('PERSONAL_DIR set to: ' + PERSONAL_DIR)
+PERSONAL_DIR = get_personal_dir()
+logger.info("PERSONAL_DIR final: %s", PERSONAL_DIR)
 
 
-PERSONAL_DIR = getPersonalDir()
+def get_vaults_base_dir() -> str:
+    return Settings.get("vault/custom_path", "") or os.path.join(
+        PERSONAL_DIR,
+        "My Games",
+        "Gas Powered Games",
+        "Supreme Commander Forged Alliance",
+    )
 
-logger.info('PERSONAL_DIR final: ' + PERSONAL_DIR)
+
+VAULTS_BASE_DIR = get_vaults_base_dir()
+
+
+# TODO: make a class to manage dirs and make __init__ empty?
+def change_vaults_base_dir(target: str) -> None:
+    global VAULTS_BASE_DIR
+    Settings.set("vault/custom_path", target)
+    VAULTS_BASE_DIR = target
+    print(VAULTS_BASE_DIR)
+
 
 # Ensure Application data directories exist
-
 for data_dir in [
     APPDATA_DIR, PERSONAL_DIR, LUA_DIR, CACHE_DIR,
     MAP_PREVIEW_SMALL_DIR, MAP_PREVIEW_LARGE_DIR, MOD_PREVIEW_DIR,
     THEME_DIR, REPLAY_DIR, LOG_DIR, EXTRA_DIR, NEWS_CACHE_DIR,
     GAME_CACHE_DIR, GAMEDATA_DIR, BIN_DIR, REPLAY_DIR, AVATARS_CACHE_DIR,
-    DIVISIONS_CACHE_DIR, ACHIEVEMENTS_CACHE_DIR,
+    DIVISIONS_CACHE_DIR, ACHIEVEMENTS_CACHE_DIR, VAULTS_BASE_DIR,
 ]:
     if not os.path.isdir(data_dir):
         os.makedirs(data_dir)
@@ -242,16 +248,13 @@ def clear_game_cache() -> None:
 
 
 # Get rid of generated maps
-def clearGeneratedMaps():
-    map_dir = os.path.join(
-        PERSONAL_DIR, "My Games", "Gas Powered Games",
-        "Supreme Commander Forged Alliance", "Maps",
-    )
-    if os.path.exists(map_dir):
-        for entry in os.scandir(map_dir):
-            if re.match(mapgenUtils.generatedMapPattern, entry.name):
-                if entry.is_dir():
-                    shutil.rmtree(os.path.join(map_dir, entry.name))
+def clearGeneratedMaps() -> None:
+    map_dir = os.path.join(VAULTS_BASE_DIR, "maps")
+    if not os.path.exists(map_dir):
+        return
+    for entry in os.scandir(map_dir):
+        if entry.is_dir() and re.match(mapgenUtils.generatedMapPattern, entry.name):
+            shutil.rmtree(entry.path)
 
 
 def clear_unused_ice_adapters() -> None:

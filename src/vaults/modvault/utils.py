@@ -20,19 +20,17 @@ from src.vaults.dialogs import downloadVaultAsset
 logger = logging.getLogger(__name__)
 
 
-def getModFolder():
-    return os.path.join(
-        util.PERSONAL_DIR, "My Games", "Gas Powered Games",
-        "Supreme Commander Forged Alliance", "Mods",
-    )
+def getModFolder() -> str:
+    return os.path.join(util.VAULTS_BASE_DIR, "mods")
 
 
 def setModFolder():
     global MODFOLDER
     MODFOLDER = getModFolder()
+    if installedMods:
+        getInstalledMods()
 
 
-setModFolder()
 MODVAULT_DOWNLOAD_ROOT = "{}/faf/vault/".format(Settings.get('content/host'))
 
 installedMods: list[ModInfo] = []  # This is a global list that should be kept intact.
@@ -41,6 +39,8 @@ installedMods: list[ModInfo] = []  # This is a global list that should be kept i
 # mods selected by user, are not overwritten by temporary mods selected when
 # joining game
 selectedMods = Settings.get('play/mods', default=[])
+
+setModFolder()
 
 
 class ModInfo:

@@ -8,7 +8,7 @@ from PyQt6 import QtWidgets
 
 from src import util
 from src.fa.path import typicalForgedAlliancePaths
-from src.fa.path import validatePath
+from src.fa.path import validate_game_path
 
 if TYPE_CHECKING:
     from src.client._clientwindow import ClientWindow
@@ -19,8 +19,7 @@ __author__ = 'Thygrrr'
 
 class UpgradePage(QtWidgets.QWizardPage):
     def __init__(self, parent: QtWidgets.QWidget | None = None) -> None:
-        super(UpgradePage, self).__init__(parent)
-
+        super().__init__(parent)
         self.setTitle("Specify Forged Alliance folder")
         self.setPixmap(
             QtWidgets.QWizard.WizardPixmap.WatermarkPixmap,
@@ -60,10 +59,10 @@ class UpgradePage(QtWidgets.QWizardPage):
 
     def comboChanged(self):
         tgt_dir = self.comboBox.currentText()
-        if not validatePath(tgt_dir):
+        if not validate_game_path(tgt_dir):
             # User picked some subdirectory (most likely bin)
             parent = os.path.dirname(tgt_dir)
-            if validatePath(parent):
+            if validate_game_path(parent):
                 self.comboBox.setCurrentText(parent)
         self.completeChanged.emit()
 
@@ -84,10 +83,10 @@ class UpgradePage(QtWidgets.QWizardPage):
             self.completeChanged.emit()
 
     def isComplete(self, *args, **kwargs):
-        return validatePath(self.comboBox.currentText())
+        return validate_game_path(self.comboBox.currentText())
 
     def validatePage(self, *args, **kwargs):
-        return validatePath(self.comboBox.currentText())
+        return validate_game_path(self.comboBox.currentText())
 
 
 class Wizard(QtWidgets.QWizard):
@@ -95,9 +94,8 @@ class Wizard(QtWidgets.QWizard):
     The actual Wizard which walks the user through the install.
     """
 
-    def __init__(self, client: ClientWindow, *args, **kwargs) -> None:
-        QtWidgets.QWizard.__init__(self, client, *args, **kwargs)
-        self.client = client  # type - ClientWindow
+    def __init__(self, client: ClientWindow) -> None:
+        super().__init__(client)
         self.upgrade = UpgradePage()
         self.addPage(self.upgrade)
 

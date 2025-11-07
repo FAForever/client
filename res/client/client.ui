@@ -29,7 +29,7 @@
    <string notr="true"/>
   </property>
   <property name="toolButtonStyle">
-   <enum>Qt::ToolButtonIconOnly</enum>
+   <enum>Qt::ToolButtonStyle::ToolButtonIconOnly</enum>
   </property>
   <property name="unifiedTitleAndToolBarOnMac">
    <bool>false</bool>
@@ -73,16 +73,16 @@
        </sizepolicy>
       </property>
       <property name="focusPolicy">
-       <enum>Qt::NoFocus</enum>
+       <enum>Qt::FocusPolicy::NoFocus</enum>
       </property>
       <property name="styleSheet">
        <string notr="true"/>
       </property>
       <property name="tabPosition">
-       <enum>QTabWidget::South</enum>
+       <enum>QTabWidget::TabPosition::South</enum>
       </property>
       <property name="tabShape">
-       <enum>QTabWidget::Rounded</enum>
+       <enum>QTabWidget::TabShape::Rounded</enum>
       </property>
       <property name="currentIndex">
        <number>7</number>
@@ -337,7 +337,7 @@
        <string/>
       </property>
       <property name="alignment">
-       <set>Qt::AlignCenter</set>
+       <set>Qt::AlignmentFlag::AlignCenter</set>
       </property>
      </widget>
     </item>
@@ -368,9 +368,6 @@
      <addaction name="actionLink_account_to_Steam"/>
      <addaction name="separator"/>
      <addaction name="actionSetGamePath"/>
-     <addaction name="actionSaveGamelogs"/>
-     <addaction name="separator"/>
-     <addaction name="actionVaultFallback"/>
     </widget>
     <widget class="QMenu" name="menuTheme">
      <property name="tearOffEnabled">
@@ -457,6 +454,7 @@
     <addaction name="menuICE_Adapter"/>
     <addaction name="separator"/>
     <addaction name="actionCacheSettings"/>
+    <addaction name="actionGameSettings"/>
     <addaction name="separator"/>
     <addaction name="menuLocalPath"/>
     <addaction name="menuClear"/>
@@ -616,11 +614,6 @@
     <string>&amp;Sound Effects</string>
    </property>
   </action>
-  <action name="actionMessages">
-   <property name="text">
-    <string>Messages</string>
-   </property>
-  </action>
   <action name="actionJoin_Part_Messages">
    <property name="checkable">
     <bool>true</bool>
@@ -670,14 +663,6 @@
    </property>
    <property name="text">
     <string>Friend &amp;Replays</string>
-   </property>
-  </action>
-  <action name="actionSaveGamelogs">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>&amp;Save game logs</string>
    </property>
   </action>
   <action name="actionColoredNicknames">
@@ -750,11 +735,6 @@
   <action name="actionShowMapsDir">
    <property name="text">
     <string>&amp;Show maps folder</string>
-   </property>
-  </action>
-  <action name="actionPath">
-   <property name="text">
-    <string>&amp;Path...</string>
    </property>
   </action>
   <action name="actionShowGamePrefs">
@@ -856,65 +836,6 @@
     <string>Language channels</string>
    </property>
   </action>
-  <action name="actionDoNotKeep">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Do not keep</string>
-   </property>
-  </action>
-  <action name="action15Days">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>15 days</string>
-   </property>
-  </action>
-  <action name="action30Days">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>30 days</string>
-   </property>
-  </action>
-  <action name="action60Days">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>60 days</string>
-   </property>
-  </action>
-  <action name="actionForever">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Forever</string>
-   </property>
-  </action>
-  <action name="actionSetYourOwnTimeInterval">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Set your own time interval</string>
-   </property>
-  </action>
-  <action name="actionKeepCacheWhileInSession">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Keep cache while in session</string>
-   </property>
-  </action>
   <action name="actionSetAutoGenerateMaps">
    <property name="checkable">
     <bool>true</bool>
@@ -926,17 +847,6 @@
   <action name="actionClearMapGenerators">
    <property name="text">
     <string>Map Generators</string>
-   </property>
-  </action>
-  <action name="actionVaultFallback">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Vault fallback location</string>
-   </property>
-   <property name="toolTip">
-    <string>Sets &quot;ProgramData/FAForever/user&quot; instead of &quot;User/Documents&quot; folder as personal directory</string>
    </property>
   </action>
   <action name="actionEnableIceAdapterInfoWindow">
@@ -961,6 +871,11 @@
   <action name="actionCacheSettings">
    <property name="text">
     <string>Cache Settings</string>
+   </property>
+  </action>
+  <action name="actionGameSettings">
+   <property name="text">
+    <string>Game Settings</string>
    </property>
   </action>
  </widget>

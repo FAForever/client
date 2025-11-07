@@ -93,10 +93,10 @@ from src.updater import ClientUpdateTools
 from src.util import crash
 from src.util.gameurl import GameUrl
 from src.util.settings_menus import show_cache_settings
+from src.util.settings_menus import show_game_settings
 from src.vaults.mapvault.mapvault import MapVault
 from src.vaults.modvault.modvault import ModVault
 from src.vaults.modvault.utils import getModFolder
-from src.vaults.modvault.utils import setModFolder
 
 from .mouse_position import MousePosition
 
@@ -140,10 +140,6 @@ class ClientWindow(FormClass, BaseClass):
     )
     refresh_token = config.Settings.persisted_property(
         'user/refreshToken', persist_if=lambda self: self.remember,
-    )
-
-    game_logs = config.Settings.persisted_property(
-        'game/logs', type=bool, default_value=True,
     )
 
     use_chat = config.Settings.persisted_property(
@@ -1131,20 +1127,10 @@ class ClientWindow(FormClass, BaseClass):
         self.actionSetNewbiesChannel.triggered.connect(self.update_options)
         self.actionIgnoreFoes.triggered.connect(self.update_options)
         self.actionSetLiveReplays.triggered.connect(self.update_options)
-        self.actionSaveGamelogs.setChecked(self.game_logs)
         self.actionColoredNicknames.triggered.connect(self.update_options)
         self.actionFriendsOnTop.triggered.connect(self.update_options)
         self.actionSetAutoJoinChannels.triggered.connect(
             self.show_autojoin_settings_dialog,
-        )
-        self.actionSaveGamelogs.toggled.connect(
-            self.on_action_save_game_logs_toggled,
-        )
-        self.actionVaultFallback.toggled.connect(
-            self.on_action_fault_fallback_toggled,
-        )
-        self.actionVaultFallback.setChecked(
-            config.Settings.get('vault/fallback', type=bool, default=False),
         )
         self.actionLanguageChannels.triggered.connect(
             self._language_channel_config.run,
@@ -1248,6 +1234,7 @@ class ClientWindow(FormClass, BaseClass):
         )
 
         self.actionCacheSettings.triggered.connect(lambda: show_cache_settings(self))
+        self.actionGameSettings.triggered.connect(lambda: show_game_settings(self))
 
         self.actionCheckPlayerAliases.triggered.connect(
             self.checkPlayerAliases,
@@ -1371,15 +1358,10 @@ class ClientWindow(FormClass, BaseClass):
         announce_replays = self.actionSetLiveReplays.isChecked()
         self.game_announcer.announce_replays = announce_replays
 
-        self.game_logs = self.actionSaveGamelogs.isChecked()
         colored_nicknames = self.actionColoredNicknames.isChecked()
         self.player_colors.colored_nicknames = colored_nicknames
 
         self.saveChat()
-
-    @QtCore.pyqtSlot(bool)
-    def on_action_save_game_logs_toggled(self, value):
-        self.game_logs = value
 
     @QtCore.pyqtSlot(bool)
     def on_action_auto_download_mods_toggled(self, value):
@@ -1392,12 +1374,6 @@ class ClientWindow(FormClass, BaseClass):
     @QtCore.pyqtSlot(bool)
     def on_action_auto_generate_maps_toggled(self, value):
         config.Settings.set('mapGenerator/autostart', value is True)
-
-    @QtCore.pyqtSlot(bool)
-    def on_action_fault_fallback_toggled(self, value):
-        config.Settings.set('vault/fallback', value is True)
-        util.setPersonalDir()
-        setModFolder()
 
     @QtCore.pyqtSlot(bool)
     def on_action_enable_ice_adapter_info_window(self, value):

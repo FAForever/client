@@ -4,20 +4,25 @@ import os
 from typing import TYPE_CHECKING
 
 from PyQt6.QtWidgets import QButtonGroup
+from PyQt6.QtWidgets import QCheckBox
 from PyQt6.QtWidgets import QDialog
+from PyQt6.QtWidgets import QDialogButtonBox
+from PyQt6.QtWidgets import QFileDialog
 from PyQt6.QtWidgets import QGroupBox
 from PyQt6.QtWidgets import QHBoxLayout
+from PyQt6.QtWidgets import QLineEdit
+from PyQt6.QtWidgets import QMessageBox
 from PyQt6.QtWidgets import QPushButton
 from PyQt6.QtWidgets import QRadioButton
 from PyQt6.QtWidgets import QSpinBox
 from PyQt6.QtWidgets import QVBoxLayout
 from PyQt6.QtWidgets import QWidget
 
+from src import util
 from src.config import Settings
-from src.util import CACHE_DIR
-from src.util import ICE_ADAPTER_DIR
-from src.util import MAPGEN_DIR
-from src.util import showDirInFileBrowser
+from src.fa.path import validate_game_path
+from src.fa.path import validate_path
+from src.vaults.modvault.utils import setModFolder
 
 if TYPE_CHECKING:
     from src.client._clientwindow import ClientWindow
@@ -173,10 +178,14 @@ class CacheSetting(QDialog):
         self.ui.iceCustomRadio.toggled.connect(self.ui.iceDaysSpinbox.setEnabled)
         self.ui.mapgenCustomRadio.toggled.connect(self.ui.mapgenDaysSpinbox.setEnabled)
 
-        game_cache_folder = os.path.join(CACHE_DIR, "featured_mod")
-        self.ui.showGameCacheFolder.clicked.connect(lambda: showDirInFileBrowser(game_cache_folder))
-        self.ui.showIceAdapterFolder.clicked.connect(lambda: showDirInFileBrowser(ICE_ADAPTER_DIR))
-        self.ui.showMapGenFolder.clicked.connect(lambda: showDirInFileBrowser(MAPGEN_DIR))
+        game_cache_folder = os.path.join(util.CACHE_DIR, "featured_mod")
+        self.ui.showGameCacheFolder.clicked.connect(
+            lambda: util.showDirInFileBrowser(game_cache_folder),
+        )
+        self.ui.showIceAdapterFolder.clicked.connect(
+            lambda: util.showDirInFileBrowser(util.ICE_ADAPTER_DIR),
+        )
+        self.ui.showMapGenFolder.clicked.connect(lambda: util.showDirInFileBrowser(util.MAPGEN_DIR))
 
         self.ui.okButton.clicked.connect(self.save_settings_and_quit)
         self.ui.cancelButton.clicked.connect(self.reject)
@@ -250,3 +259,125 @@ def show_cache_settings(client: ClientWindow) -> None:
     dialog = CacheSetting(client)
     dialog.load_settings()
     dialog.exec()
+
+
+class GameSettingsUI:
+    def setupUi(self, widget: QWidget) -> None:
+        layout = QVBoxLayout(widget)
+        layout.setSpacing(15)
+
+        game_path_group = QGroupBox("Game Location")
+        game_path_group.setObjectName("vaultSettingsGroupBox")
+        game_path_layout = QHBoxLayout(game_path_group)
+
+        self.gamePathInput = QLineEdit()
+        self.browseGameButton = QPushButton("Browse")
+
+        game_path_layout.addWidget(self.gamePathInput)
+        game_path_layout.addWidget(self.browseGameButton)
+
+        vault_path_group = QGroupBox("Maps and Mods Location")
+        vault_path_group.setObjectName("vaultSettingsGroupBox")
+        vault_path_layout = QHBoxLayout(vault_path_group)
+
+        self.vaultPathInput = QLineEdit()
+        self.browseVaultButton = QPushButton("Browse")
+
+        vault_path_layout.addWidget(self.vaultPathInput)
+        vault_path_layout.addWidget(self.browseVaultButton)
+
+        game_logs_group = QGroupBox("Game Logs")
+        game_logs_group.setObjectName("vaultSettingsGroupBox")
+        game_logs_layout = QHBoxLayout(game_logs_group)
+
+        self.gameLogsCheckBox = QCheckBox("Save Game Logs")
+        game_logs_layout.addWidget(self.gameLogsCheckBox)
+
+        self.buttons = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel,
+        )
+
+        layout.addWidget(game_path_group)
+        layout.addWidget(vault_path_group)
+        layout.addWidget(game_logs_group)
+        # layout.addWidget(self.gameLogsCheckBox)
+        layout.addStretch()
+        layout.addWidget(self.buttons)
+
+
+class GameSettings(QDialog):
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self.setWindowTitle("Forged Alliance Settings")
+        self.ui = GameSettingsUI()
+        self.ui.setupUi(self)
+        self.setMinimumWidth(600)
+        self.ui.buttons.accepted.connect(self.save_settings)
+        self.ui.buttons.rejected.connect(self.reject)
+
+    def setup(self) -> None:
+        self.ui.gamePathInput.setText(Settings.get("ForgedAlliance/app/path", ""))
+        self.ui.vaultPathInput.setText(util.VAULTS_BASE_DIR)
+        self.ui.gameLogsCheckBox.setChecked(Settings.get("game/logs", False, type=bool))
+        self.ui.browseGameButton.clicked.connect(
+            lambda: self.browse_directory(self.ui.gamePathInput),
+        )
+        self.ui.browseVaultButton.clicked.connect(
+            lambda: self.browse_directory(self.ui.vaultPathInput),
+        )
+
+    def browse_directory(self, line_edit: QLineEdit) -> None:
+        directory = QFileDialog.getExistingDirectory(
+            self,
+            "Select Directory",
+            line_edit.text() or "",
+            QFileDialog.Option.ShowDirsOnly,
+        )
+        if directory:
+            line_edit.setText(directory)
+
+    def save_settings(self) -> None:
+        game_path = self.ui.gamePathInput.text()
+        vault_path = self.ui.vaultPathInput.text()
+        suggestion = """{path_type} Path is invalid. Make sure:
+            1. It exists
+            2. It doesn't contain any non-ASCII characters
+            3. It doesn't end with slash ('/') or ('\\')
+
+        {path}
+        """
+        if not validate_game_path(game_path):
+            QMessageBox.critical(
+                self,
+                "Invalid Path",
+                suggestion.format(path_type="Game", path=game_path),
+            )
+            return
+        if not validate_path(vault_path):
+            QMessageBox.critical(
+                self,
+                "Invalid Path",
+                suggestion.format(path_type="Vault", path=vault_path),
+            )
+            return
+        Settings.set("ForgedAlliance/app/path", game_path)
+        if vault_path != util.VAULTS_BASE_DIR:
+            # TODO: change without restart (or make sure that restart is not needed)
+            util.change_vaults_base_dir(vault_path)
+            setModFolder()
+            QMessageBox.information(
+                self,
+                "Restart",
+                (
+                    "Vault path has been changed. Please restart the client in order to properly "
+                    "load Maps and Mods from the new Vault Location"
+                ),
+            )
+        self.accept()
+
+
+def show_game_settings(client: ClientWindow) -> None:
+    dialog = GameSettings(client)
+    dialog.setup()
+    dialog.exec()
+    dialog.deleteLater()

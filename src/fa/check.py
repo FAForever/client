@@ -11,7 +11,7 @@ from src import util
 from src.fa.game_updater.misc import UpdaterResult
 from src.fa.game_updater.updater import Updater
 from src.fa.mods import checkMods
-from src.fa.path import validatePath
+from src.fa.path import validate_game_path
 from src.fa.path import writeFAPathLua
 from src.fa.wizards import Wizard
 from src.mapGenerator.mapgenUtils import isGeneratedMap
@@ -67,16 +67,8 @@ def map_(mapname: str, force: bool = False, silent: bool = False) -> bool:
     return bool(fa.maps.downloadMap(mapname, silent=silent))
 
 
-def featured_mod(featured_mod, version):
-    pass
-
-
-def sim_mod(sim_mod, version):
-    pass
-
-
 def path(parent: ClientWindow) -> bool:
-    while not validatePath(
+    while not validate_game_path(
         util.settings.value(
             "ForgedAlliance/app/path", "",
             type=str,
@@ -95,10 +87,6 @@ def path(parent: ClientWindow) -> bool:
     return True
 
 
-def game(parent):
-    return True
-
-
 def check(
         featured_mod: str,
         mapname: str | None = None,
@@ -106,7 +94,7 @@ def check(
         mod_versions: dict[str, int] | None = None,
         sim_mods: dict[str, str] | None = None,
         silent: bool = False,
-):
+) -> bool:
     """
     This checks whether the mods are properly updated and player has the
     correct map.

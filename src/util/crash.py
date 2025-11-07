@@ -8,35 +8,33 @@ from PyQt6.QtGui import QDesktopServices
 from src import config
 from src import util
 from src.config import Settings
-from src.util import APPDATA_DIR
-from src.util import PERSONAL_DIR
-from src.util import VERSION_STRING
 
 CRASH_REPORT_USER = "pre-login"
 
 FormClass, BaseClass = util.THEME.loadUiType("client/crash.ui")
 
 
-def runtime_info():
+def runtime_info() -> str:
     try:
         desc = []
         desc.append(("FAF Username", CRASH_REPORT_USER))
-        desc.append(("FAF Version", VERSION_STRING))
+        desc.append(("FAF Version", util.VERSION_STRING))
         desc.append(("FAF Environment", config.environment))
-        desc.append(("FAF Directory", APPDATA_DIR))
+        desc.append(("FAF Directory", util.APPDATA_DIR))
         fa_path = util.settings.value(
             "ForgedAlliance/app/path",
             "Unknown",
             type=str,
         )
         desc.append(("FA Path: ", fa_path))
-        desc.append(("Home Directory", PERSONAL_DIR))
+        desc.append(("Home Directory", util.PERSONAL_DIR))
+        desc.append(("Vaults Directory", util.VAULTS_BASE_DIR))
         desc.append(("Platform", platform.platform()))
         desc.append(("Uname", str(platform.uname())))
 
-        desc = "".join(["{}: {}\n".format(n, d) for n, d in desc])
-    except Exception:
-        desc = "(Exception raised while writing runtime info)\n"
+        desc = "".join([f"{n}: {d}\n" for n, d in desc])
+    except Exception as e:
+        desc = f"(Exception raised while writing runtime info: {e})\n"
 
     return desc
 
@@ -50,7 +48,7 @@ class CrashDialog(FormClass, BaseClass):
 
         desc = runtime_info()
 
-        self.logField.setText("{}\nRuntime info:\n\n{}".format(trace, desc))
+        self.logField.setText(f"{trace}\nRuntime info:\n\n{desc}")
 
         self.helpButton.clicked.connect(self.tech_support)
         self.continueButton.clicked.connect(self.accept)
@@ -63,7 +61,7 @@ class CrashDialog(FormClass, BaseClass):
     def add_theme_caveat(self):
         text = self.infoBlurb.text()
         try:
-            config_loc = "(located at {}) ".format(util.Settings.fileName())
+            config_loc = f"(located at {util.Settings.fileName()}) "
         except Exception:
             config_loc = ""
         text += (
