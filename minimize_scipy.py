@@ -25,6 +25,7 @@ MINIMAL_STRUCTURE = Directory(
                 "__init__.py",
                 "_array_api.py",
                 "_docscrape.py",
+                "_sparse.py",
                 "_util.py",
                 "doccer.py",
             ),
@@ -38,6 +39,7 @@ MINIMAL_STRUCTURE = Directory(
                             files=(
                                 "__init__.py",
                                 "_helpers.py",
+                                "_typing.py",
                             ),
                         ),
                         Directory(
