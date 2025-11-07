@@ -99,7 +99,7 @@ def replace_imports(module_name: str, root: str, dr: Directory) -> None:
         if file in ("_util.py", "_filters.py", "_array_api.py", "_ni_docstrings.py"):
             path = os.path.join(root, file)
             print(f"Replacing imports in {path!r}...")
-            with fileinput.input(path, inplace=True) as fi:
+            with fileinput.input(path, inplace=True, encoding="utf-8") as fi:
                 for line in fi:
                     if line.startswith("from scipy"):
                         print(line.replace("from scipy", f"from {module_name}"), end="")
