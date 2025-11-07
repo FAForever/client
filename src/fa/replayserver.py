@@ -12,6 +12,7 @@ import zstandard
 from PyQt6 import QtCore
 from PyQt6 import QtNetwork
 from PyQt6 import QtWidgets
+from PyQt6.QtNetwork import QAbstractSocket
 from PyQt6.QtWebSockets import QWebSocket
 
 from src import fa
@@ -66,6 +67,7 @@ class ReplayRecorder(QtCore.QObject):
         self.relay_socket.connected.connect(self.on_relay_connected)
         self.relay_socket.errorOccurred.connect(self.on_relay_error)
         self.relay_socket.binaryMessageReceived.connect(self.on_server_message)
+        self.relay_socket.stateChanged.connect(self.on_relay_state_changed)
 
         self.api = UserApiAccessor()
         self.api.get_by_endpoint("/replay/access", self.on_replay_access_url, self.on_api_error)  # type: ignore[arg-type] # noqa: E501
@@ -95,6 +97,9 @@ class ReplayRecorder(QtCore.QObject):
             error,
             self.relay_socket.errorString(),
         )
+
+    def on_relay_state_changed(self, state: QAbstractSocket.SocketState) -> None:
+        self._logger.debug("Connection state to replay server changed: %s", state)
 
     def on_server_message(self, message: QtCore.QByteArray) -> None:
         self.input_socket.write(message.data())
@@ -168,7 +173,7 @@ class ReplayRecorder(QtCore.QObject):
 
             progress.close()
 
-        self.relay_socket.disconnect()
+        self.relay_socket.close()
 
         if self.operation is self.Operation.POST:
             self.write_replay_file()
