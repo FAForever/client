@@ -160,16 +160,12 @@ PERSONAL_DIR = get_personal_dir()
 logger.info("PERSONAL_DIR final: %s", PERSONAL_DIR)
 
 
-def get_vaults_base_dir() -> str:
-    return Settings.get("vault/custom_path", "") or os.path.join(
-        PERSONAL_DIR,
-        "My Games",
-        "Gas Powered Games",
-        "Supreme Commander Forged Alliance",
-    )
-
-
-VAULTS_BASE_DIR = get_vaults_base_dir()
+VAULTS_BASE_DIR = Settings.get("vault/custom_path", "") or os.path.join(
+    PERSONAL_DIR,
+    "My Games",
+    "Gas Powered Games",
+    "Supreme Commander Forged Alliance",
+)
 
 
 # TODO: make a class to manage dirs and make __init__ empty?
@@ -177,7 +173,6 @@ def change_vaults_base_dir(target: str) -> None:
     global VAULTS_BASE_DIR
     Settings.set("vault/custom_path", target)
     VAULTS_BASE_DIR = target
-    print(VAULTS_BASE_DIR)
 
 
 # Ensure Application data directories exist

@@ -300,7 +300,6 @@ class GameSettingsUI:
         layout.addWidget(game_path_group)
         layout.addWidget(vault_path_group)
         layout.addWidget(game_logs_group)
-        # layout.addWidget(self.gameLogsCheckBox)
         layout.addStretch()
         layout.addWidget(self.buttons)
 
