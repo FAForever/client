@@ -55,14 +55,18 @@ class MapVault(Vault[Map]):
         assert self.client.me.player is not None
         return MapDetailsWidget(data, self.client.me.player)
 
-    def requestMapPool(self, queueName, minRating):
+    def requestMapPool(self, queue_name: str, rating: int) -> None:
         self.apiConnector = self.mapPoolApiConnector
         self.searchQuery = {
             "filter": ";".join((
-                f"mapPool.matchmakerQueueMapPool.matchmakerQueue.technicalName=={queueName}",
+                f"mapPool.matchmakerQueueMapPool.matchmakerQueue.technicalName=={queue_name}",
                 (
-                    f"(mapPool.matchmakerQueueMapPool.minRating=le={minRating!r},"
+                    f"(mapPool.matchmakerQueueMapPool.minRating=le={rating!r},"
                     "mapPool.matchmakerQueueMapPool.minRating=isnull='true')"
+                ),
+                (
+                    f"(mapPool.matchmakerQueueMapPool.maxRating=gt={rating!r},"
+                    "mapPool.matchmakerQueueMapPool.maxRating=isnull='true')"
                 ),
             )),
         }
