@@ -67,7 +67,7 @@ def map_(mapname: str, force: bool = False, silent: bool = False) -> bool:
     return bool(fa.maps.downloadMap(mapname, silent=silent))
 
 
-def path(parent: ClientWindow) -> bool:
+def path(parent: ClientWindow, mod: str, version: int) -> bool:
     while not validate_game_path(
         util.settings.value(
             "ForgedAlliance/app/path", "",
@@ -83,7 +83,7 @@ def path(parent: ClientWindow) -> bool:
             return False
 
     logger.info("Writing fa_path.lua config file.")
-    writeFAPathLua()
+    writeFAPathLua(mod, version)
     return True
 
 
@@ -109,7 +109,7 @@ def check(
     # Perform the actual comparisons and updating
     logger.info("Updating FA for mod: %s, version %s", featured_mod, version)
     from src import client  # FIXME: forced by circular imports
-    if not path(client.instance):
+    if not path(client.instance, featured_mod, version):
         return False
 
     # Spawn an update for the required mod

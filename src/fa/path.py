@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+import textwrap
 
 from src import config
 from src import util
@@ -23,7 +24,7 @@ def steamPath():
         return None
 
 
-def writeFAPathLua():
+def writeFAPathLua(mod: str, version: int) -> None:
     """
     Writes a small lua file to disk that helps the new
     SupComDataPath.lua find the actual install of the game
@@ -31,10 +32,16 @@ def writeFAPathLua():
     name = os.path.join(util.APPDATA_DIR, "fa_path.lua")
     gamepath_fa = config.Settings.get("ForgedAlliance/app/path", type=str)
 
-    code = 'fa_path = "' + gamepath_fa.replace("\\", "\\\\") + '"' + "\n"
+    code = f"""\
+        fa_path = "{gamepath_fa.replace("\\", "/")}"
+        custom_vault_path = "{util.VAULTS_BASE_DIR.replace("\\", "/")}"
+        GameType = "{mod}"
+        GameVersion = "{version}"
+        ClientVersion = "{config.VERSION}"
+    """
 
     with open(name, "w+", encoding='utf-8') as lua:
-        lua.write(code)
+        lua.write(textwrap.dedent(code))
         lua.flush()
         # Ensuring the file is absolutely, positively on disk.
         os.fsync(lua.fileno())
