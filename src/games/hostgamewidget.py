@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import random
 import re
 import time
 from functools import partial
@@ -170,6 +171,7 @@ class HostGameWidget(QDialog):
         self.ui.mapList.currentRowChanged.connect(self.map_changed)
         self.ui.hostButton.released.connect(self.hosting)
         self.ui.generateButton.released.connect(self.generateMap)
+        self.ui.selectRandomMapButton.clicked.connect(self.select_random_map)
         self.ui.titleEdit.textChanged.connect(self.update_text)
 
         self.ui.saveAndCloseButton.clicked.connect(self.save_and_quit)
@@ -427,6 +429,9 @@ class HostGameWidget(QDialog):
             if item is not None and item.data(QtCore.Qt.ItemDataRole.UserRole)["name"] == mapname:
                 self.ui.mapList.setCurrentRow(i)
                 return
+
+    def select_random_map(self) -> None:
+        self.ui.mapList.setCurrentRow(random.randint(0, max(0, self.ui.mapList.count() - 1)))
 
     def update_text(self, text: str) -> None:
         self.game.update(title=text.strip())
