@@ -225,7 +225,7 @@ class GamePanelWidget(QWidget):
         if pixmap is None:
             self.ui.mapLabel.setPixmap(util.THEME.pixmap("games/unknown_map.png").scaled(256, 256))
         else:
-            self.ui.mapLabel.setPixmap(pixmap)
+            self.ui.mapLabel.setPixmap(pixmap.scaled(256, 256))
         self.ui.getMapButton.setEnabled(not fa.maps.isMapAvailable(self.game.mapname))
 
     def refresh_ui(self) -> None:
