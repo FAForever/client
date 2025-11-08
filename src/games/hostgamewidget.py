@@ -111,13 +111,8 @@ class GameLauncher:
         return self._game_widget.exec()
 
     def _launch_game(self, game: Game, password: str) -> None:
-        # Make sure the binaries are all up to date, and abort if the update
-        # fails or is cancelled.
-        if not fa.check.game(self._client):
-            return
-
-        # Ensure all mods are up-to-date, and abort if the update process
-        # fails.
+        # Make sure the binaries and mods are all up to date,
+        # and abort if the update fails or is cancelled.
         if not fa.check.check(game.featured_mod):
             return
         if (
