@@ -675,7 +675,7 @@ QScrollArea#replayScoreScrollArea
 
 QScrollArea#gamePanelScrollArea
 {
-    background-color: #1f1f1f;
+    background-color: #161616;
 }
 
 /* Scrollbars*/
@@ -1141,7 +1141,7 @@ QWidget#tech_widget,#overview_content,#overview_widget
 
 QWidget#gamePanelStack
 {
-    background-color: #1f1f1f;
+    background-color: #161616;
 }
 
 QFrame[frameShape="4"]
