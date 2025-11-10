@@ -266,7 +266,7 @@ def getActiveMods(uimods: bool | None = None, temporary: bool = True) -> list[Mo
                 data = f.read()
             if matched := ACTIVE_MODS_SECTION_PATTERN.search(data):
                 pat = r"\['(.*?)']\s*=\s*(true|false)"
-                uids = [uid for uid, b in re.findall(pat, matched.group()) if b == "true"]
+                uids = [uid for uid, b in re.findall(pat, matched[0]) if b == "true"]
             else:
                 logger.warning("No 'active_mods' section found in game.prefs file")
                 return []

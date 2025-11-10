@@ -417,7 +417,7 @@ def irc_escape(text):
             else:
                 rpl = '<a href="http://{0}">{0}</a>'.format(fragment)
 
-            fragment = fragment.replace(match.group(0), rpl)
+            fragment = fragment.replace(match[0], rpl)
 
         result.append(fragment)
     return " ".join(result)

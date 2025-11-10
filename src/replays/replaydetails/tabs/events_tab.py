@@ -409,7 +409,7 @@ class EventsTab(QWidget):
                 )
 
             faction = Factions(self.armies[sender]["Faction"]).name.lower()
-            enh_name = found.group(1).strip()
+            enh_name = found[1].strip()
 
             notice = self.identify_notice(faction, enh_name.replace("upgrade", "").strip())
             if notice is None:
@@ -422,7 +422,7 @@ class EventsTab(QWidget):
                 notice.picture_name,
                 tick,
                 login,
-                f"{enh_name}{found.group(3) or ''}",
+                f"{enh_name}{found[3] or ''}",
                 faction,
                 color,
                 team,

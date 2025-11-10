@@ -347,7 +347,7 @@ class LocalReplayItem(QtWidgets.QTreeWidgetItem):
     @property
     def uid(self) -> int:
         if found := re.match(r"\d+", self._replay_file):
-            return int(found.group())
+            return int(found[0])
         try:
             return self._metadata.model.uid  # type: ignore[attr-defined]
         except AttributeError:

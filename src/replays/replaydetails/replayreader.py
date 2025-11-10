@@ -525,7 +525,7 @@ class ReplayParser(QObject):
         for *_, text, sender in (line for line in self.chatLine if line[2] == "notify"):
             faction = Factions(self.army[sender]["Faction"]).name.lower()
             if (found := pattern.match(text)) is not None:
-                enh_desc = found.group(1).strip()
+                enh_desc = found[1].strip()
                 try:
                     picname, slot = ACU_UPGRADE_NOTIFIERS[faction][enh_desc]
                 except KeyError:

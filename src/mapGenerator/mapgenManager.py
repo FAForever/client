@@ -54,7 +54,7 @@ class MapGeneratorManager(QObject):
         else:
             matcher = generatedMapPattern.match(mapname)
             assert matcher is not None
-            version = matcher.group(1)
+            version = matcher[1]
             args = ['--map-name', mapname]
             if version > self.currentVersion:
                 self.set_current_version_number(version)
