@@ -233,20 +233,20 @@ class UpdaterWorker(QObject):
 
     def patch_fa_executable(self, exe_info: FeaturedModFile) -> None:
         exe_path = os.path.join(util.BIN_DIR, exe_info.name)
-        version = int(self._resolve_base_version(exe_info))
+        self.version = int(self._resolve_base_version(exe_info))
 
-        if version == self.fa_patcher.read_version(exe_path):
+        if self.version == self.fa_patcher.read_version(exe_path):
             return
 
         for attempt in range(10):  # after download antimalware can interfere in our update process
-            if self.fa_patcher.patch(exe_path, version):
+            if self.fa_patcher.patch(exe_path, self.version):
                 return
             logger.warning("Could not open fa exe for patching. Attempt #%d", attempt + 1)
             thread = self.thread()
             assert thread is not None
             thread.msleep(500)
         else:
-            raise UpdaterFailure("Could not update FA exe to the correct version")
+            raise UpdaterFailure("Could not update FA exe to version '%d'", self.version)
 
     def patch_fa_exe_if_needed(self, files: list[FeaturedModFile]) -> None:
         for file in files:

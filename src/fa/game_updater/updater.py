@@ -222,3 +222,7 @@ class Updater(QObject):
     def stop_thread(self) -> None:
         self.worker_thread.quit()
         self.worker_thread.wait(1000)
+
+    @property
+    def game_version(self) -> int:
+        return self.worker.version or -1

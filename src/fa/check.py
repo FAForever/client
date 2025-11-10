@@ -67,7 +67,7 @@ def map_(mapname: str, force: bool = False, silent: bool = False) -> bool:
     return bool(fa.maps.downloadMap(mapname, silent=silent))
 
 
-def path(parent: ClientWindow, mod: str, version: int) -> bool:
+def path(parent: ClientWindow) -> bool:
     while not validate_game_path(
         util.settings.value(
             "ForgedAlliance/app/path", "",
@@ -81,9 +81,6 @@ def path(parent: ClientWindow, mod: str, version: int) -> bool:
         result = wizard.exec()
         if result == QtWidgets.QWizard.DialogCode.Rejected:
             return False
-
-    logger.info("Writing fa_path.lua config file.")
-    writeFAPathLua(mod, version)
     return True
 
 
@@ -106,11 +103,12 @@ def check(
     if version is None:
         logger.info("Version unknown, assuming latest")
 
+    from src import client  # FIXME: forced by circular imports
+    if not path(client.instance):
+        return False
+
     # Perform the actual comparisons and updating
     logger.info("Updating FA for mod: %s, version %s", featured_mod, version)
-    from src import client  # FIXME: forced by circular imports
-    if not path(client.instance, featured_mod, version):
-        return False
 
     # Spawn an update for the required mod
     game_updater = Updater(featured_mod, version, mod_versions, silent=silent)
@@ -119,10 +117,15 @@ def check(
     if result != UpdaterResult.SUCCESS:
         return False
 
+    if version is None:
+        logger.info("Latest version resolved to: %d", game_updater.game_version)
+
+    logger.info("Writing fa_path.lua config file.")
+    writeFAPathLua(featured_mod, game_updater.game_version)
+
     # Now it's down to having the right map
-    if mapname:
-        if not map_(mapname, silent=silent):
-            return False
+    if mapname and not map_(mapname, silent=silent):
+        return False
 
     if sim_mods:
         return checkMods(sim_mods)
