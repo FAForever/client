@@ -59,6 +59,7 @@ class ReplayRecorder(QtCore.QObject):
         # Create a file to write the replay data into
         self.replay_data = QtCore.QByteArray()
         self.replayInfo = fa.instance._info or {}
+        self.replay_prefix = QtCore.QByteArray()
 
         self._host = Settings.get('replay_server/host')
         self._port = Settings.get('replay_server/port', type=int)
@@ -70,9 +71,13 @@ class ReplayRecorder(QtCore.QObject):
         self.relay_socket.stateChanged.connect(self.on_relay_state_changed)
 
         self.api = UserApiAccessor()
-        self.api.get_by_endpoint("/replay/access", self.on_replay_access_url, self.on_api_error)  # type: ignore[arg-type] # noqa: E501
 
         self.input_buffer = QtCore.QByteArray()
+        self._close_intended = False
+        self._conn_drops = 0
+
+    def request_access_url(self) -> None:
+        self.api.get_by_endpoint("/replay/access", self.on_replay_access_url, self.on_api_error)  # type: ignore[arg-type] # noqa: E501
 
     def on_replay_access_url(self, data: dict[Literal["accessUrl"], str]) -> None:
         url = QtCore.QUrl(data["accessUrl"])
@@ -87,6 +92,12 @@ class ReplayRecorder(QtCore.QObject):
             self.relay_socket.peerName(),
             self.relay_socket.peerPort(),
         )
+        if self.operation is self.Operation.POST and self._conn_drops > 0:
+            # Resend replay data asap if connection was dropped
+            # see https://github.com/FAForever/faf-rust-replayserver/blob/38e67297123bf45655ce0b03be1300e580826c89/docs/architecture.rst?plain=1#L37-L41  # noqa: E501
+            self.relay_socket.sendBinaryMessage(self.replay_prefix)
+            self.relay_socket.sendBinaryMessage(self.replay_data)
+            self.input_buffer.clear()
         if not self.input_buffer.isEmpty():
             self.relay_socket.sendBinaryMessage(self.input_buffer)
             self.input_buffer.clear()
@@ -100,6 +111,9 @@ class ReplayRecorder(QtCore.QObject):
 
     def on_relay_state_changed(self, state: QAbstractSocket.SocketState) -> None:
         self._logger.debug("Connection state to replay server changed: %s", state)
+        if state is QAbstractSocket.SocketState.UnconnectedState and not self._close_intended:
+            self._conn_drops += 1
+            self.request_access_url()
 
     def on_server_message(self, message: QtCore.QByteArray) -> None:
         self.input_socket.write(message.data())
@@ -120,9 +134,10 @@ class ReplayRecorder(QtCore.QObject):
             # FA, this needs to be stripped from the local file
             if data.startsWith(b"P/"):
                 self.operation = self.Operation.POST
-                rest = data.indexOf(b"\x00") + 1
-                self._logger.info("Stripping prefix '%s' from replay.", data.left(rest - 1))
-                self.replay_data.append(data.right(data.size() - rest))
+                prefix_len = data.indexOf(b"\x00") + 1
+                self.replay_prefix = data.first(prefix_len)
+                self._logger.info("Stripping prefix '%s' from replay.", self.replay_prefix.data())
+                self.replay_data.append(data.sliced(prefix_len))
             elif data.startsWith(b"G/"):
                 self.operation = self.Operation.GET
                 self.replay_data.append(data)
@@ -173,12 +188,16 @@ class ReplayRecorder(QtCore.QObject):
 
             progress.close()
 
-        self.relay_socket.close()
+        self.close_relay()
 
         if self.operation is self.Operation.POST:
             self.write_replay_file()
 
         self.done()
+
+    def close_relay(self) -> None:
+        self._close_intended = True
+        self.relay_socket.close()
 
     def write_replay_file(self) -> None:
         # Update info block if possible.
@@ -270,4 +289,6 @@ class ReplayServer(QtNetwork.QTcpServer):
             self._logger.warning("error accepting connection: no pending connections")
             return
         self._logger.debug("incoming connection...")
-        self.recorders.append(ReplayRecorder(self, socket))
+        recorder = ReplayRecorder(self, socket)
+        recorder.request_access_url()
+        self.recorders.append(recorder)
