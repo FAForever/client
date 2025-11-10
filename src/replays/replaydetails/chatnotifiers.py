@@ -122,6 +122,7 @@ UNIT_NOTIFIERS = {
         "Monkeylord": "url0402",
         "Novax Satellite Station": "xeb2402",
         "Paragon": "xab1401",
+        "Salvation": "xab2307",
         "Scathis": "url0401",
         "Soulripper": "ura0401",
         "Tempest": "uas0401",
