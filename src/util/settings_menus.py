@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import textwrap
 from typing import TYPE_CHECKING
 
 from PyQt6.QtWidgets import QButtonGroup
@@ -286,12 +287,22 @@ class GameSettingsUI:
         vault_path_layout.addWidget(self.vaultPathInput)
         vault_path_layout.addWidget(self.browseVaultButton)
 
-        game_logs_group = QGroupBox("Game Logs")
-        game_logs_group.setObjectName("vaultSettingsGroupBox")
-        game_logs_layout = QHBoxLayout(game_logs_group)
+        misc_settings_group = QGroupBox("Other")
+        misc_settings_group.setObjectName("vaultSettingsGroupBox")
+        misc_settings_layout = QVBoxLayout(misc_settings_group)
 
         self.gameLogsCheckBox = QCheckBox("Save Game Logs")
-        game_logs_layout.addWidget(self.gameLogsCheckBox)
+        self.runReplaysSeparatelyCheckBox = QCheckBox("Run replay as its own process")
+        tooltip = textwrap.dedent(
+            """\
+            Allows to run replays alongside running game process.
+            All necessary game files will be downloaded into a separate
+            dedicated directory, which will require additional disk space.
+            """,
+        )
+        self.runReplaysSeparatelyCheckBox.setToolTip(tooltip)
+        misc_settings_layout.addWidget(self.gameLogsCheckBox)
+        misc_settings_layout.addWidget(self.runReplaysSeparatelyCheckBox)
 
         self.buttons = QDialogButtonBox(
             QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel,
@@ -299,7 +310,7 @@ class GameSettingsUI:
 
         layout.addWidget(game_path_group)
         layout.addWidget(vault_path_group)
-        layout.addWidget(game_logs_group)
+        layout.addWidget(misc_settings_group)
         layout.addStretch()
         layout.addWidget(self.buttons)
 
@@ -318,6 +329,9 @@ class GameSettings(QDialog):
         self.ui.gamePathInput.setText(Settings.get("ForgedAlliance/app/path", ""))
         self.ui.vaultPathInput.setText(util.VAULTS_BASE_DIR)
         self.ui.gameLogsCheckBox.setChecked(Settings.get("game/logs", True, type=bool))
+        self.ui.runReplaysSeparatelyCheckBox.setChecked(
+            Settings.get("game/replay_process", True, type=bool),
+        )
         self.ui.browseGameButton.clicked.connect(
             lambda: self.browse_directory(self.ui.gamePathInput),
         )
@@ -361,6 +375,7 @@ class GameSettings(QDialog):
             return
         Settings.set("ForgedAlliance/app/path", game_path)
         Settings.set("game/logs", self.ui.gameLogsCheckBox.isChecked())
+        Settings.set("game/replay_process", self.ui.runReplaysSeparatelyCheckBox.isChecked())
         if vault_path != util.VAULTS_BASE_DIR:
             # TODO: change without restart (or make sure that restart is not needed)
             util.change_vaults_base_dir(vault_path)

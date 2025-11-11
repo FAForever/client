@@ -8,6 +8,7 @@ from PyQt6 import QtWidgets
 
 from src import fa
 from src import util
+from src.config import Settings
 from src.fa.check import check
 from src.fa.replayparser import ReplayParser
 from src.qt.utils import qopen
@@ -37,7 +38,14 @@ def replay(source, detach=False):
     """
     logger.info("fa.exe.replay(" + str(source) + ", detach = " + str(detach))
 
-    if not fa.replay_instance.available():
+    if Settings.get("game/replay_process", True, type=bool):
+        runner = fa.replay_instance
+        game_dir = util.REPLAYDATA_DIR
+    else:
+        runner = fa.instance
+        game_dir = util.APPDATA_DIR
+
+    if not runner.available():
         return False
 
     version = None
@@ -193,12 +201,12 @@ def replay(source, detach=False):
         WatchedReplaysTracker.add(replay_id)
 
     # Update the game appropriately
-    if not check(mod, mapname, version, featured_mod_versions, sim_mods, util.REPLAYDATA_DIR):
+    if not check(mod, mapname, version, featured_mod_versions, sim_mods, game_dir):
         msg = "Can't watch replays without an updated Forged Alliance game!"
         logger.error(msg)
         return False
 
-    if fa.replay_instance.run(None, arguments, detach):
+    if runner.run(None, arguments, detach):
         logger.info("Viewing Replay.")
         return True
     else:
