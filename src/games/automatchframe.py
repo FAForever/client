@@ -38,7 +38,7 @@ class MatchmakerQueue(FormClass, BaseClass):
         self.queueName = queueName
         self.teamSize = teamSize
         self.subFactions = Settings.get(
-            "play/{}Factions".format(self.queueName),
+            f"play/{self.queueName}Factions",
             default=[False] * 4,
             type=bool,
         )
@@ -147,9 +147,7 @@ class MatchmakerQueue(FormClass, BaseClass):
 
     def updateLabelMatchingIn(self):
         minutes, seconds = divmod(self.secondsToAutomatch, 60)
-        self.labelMatchingIn.setText(
-            "Matching In: {:02}:{:02}".format(int(minutes), int(seconds)),
-        )
+        self.labelMatchingIn.setText(f"Matching In: {int(minutes):02}:{int(seconds):02}")
 
     def startSearchRanked(self):
         if (
@@ -243,7 +241,5 @@ class MatchmakerQueue(FormClass, BaseClass):
         if len(self.subFactions) < factionID:
             return
         self.subFactions[factionID - 1] = enabled
-        Settings.set(
-            "play/{}Factions".format(self.queueName), self.subFactions,
-        )
+        Settings.set(f"play/{self.queueName}Factions", self.subFactions)
         self.updatePlayButton()
