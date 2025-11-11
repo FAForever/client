@@ -360,6 +360,7 @@ class GameSettings(QDialog):
             )
             return
         Settings.set("ForgedAlliance/app/path", game_path)
+        Settings.set("game/logs", self.ui.gameLogsCheckBox.isChecked())
         if vault_path != util.VAULTS_BASE_DIR:
             # TODO: change without restart (or make sure that restart is not needed)
             util.change_vaults_base_dir(vault_path)
