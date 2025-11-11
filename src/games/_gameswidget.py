@@ -129,7 +129,6 @@ class GamesWidget(FormClass, BaseClass):
         self.apiConnector.requestData()
 
         self.searching = {"ladder1v1": False}
-        self.matchmakerShortcuts = []
 
         self.gamePanelStack = QtWidgets.QStackedWidget(self)
         self.gamePanelStack.setObjectName("gamePanelStack")
@@ -169,13 +168,11 @@ class GamesWidget(FormClass, BaseClass):
     def on_logout(self) -> None:
         self.stopSearch()
         self.party = None
-        while self.matchmakerQueues.widget(0) is not None:
-            self.matchmakerQueues.widget(0).deleteLater()
+        while (queue := self.matchmakerQueues.widget(0)) is not None:
+            queue.shortcut.setEnabled(False)
+            queue.shortcut.deleteLater()
+            queue.deleteLater()
             self.matchmakerQueues.removeTab(0)
-        for shortcut in self.matchmakerShortcuts:
-            shortcut.setEnabled(False)
-            shortcut.deleteLater()
-        self.matchmakerShortcuts.clear()
 
     @pyqtSlot(dict)
     def process_mod_info(self, message: dict) -> None:

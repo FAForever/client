@@ -74,15 +74,20 @@ class MatchmakerQueue(FormClass, BaseClass):
 
         self.setFactionIcons(self.subFactions)
 
-        keys = (
-            QtCore.Qt.Key.Key_1, QtCore.Qt.Key.Key_2, QtCore.Qt.Key.Key_3, QtCore.Qt.Key.Key_4,
+        key_combination = QtCore.QKeyCombination(
+            QtCore.Qt.KeyboardModifier.ControlModifier,
+            (
+                QtCore.Qt.Key.Key_1,
+                QtCore.Qt.Key.Key_2,
+                QtCore.Qt.Key.Key_3,
+                QtCore.Qt.Key.Key_4,
+            )[self.teamSize - 1],
         )
         self.shortcut = QtGui.QShortcut(
-            QtGui.QKeySequence(QtCore.Qt.Key.Key_Control + keys[self.teamSize - 1]),
+            QtGui.QKeySequence(key_combination),
             self.client,
             self.startSearchRanked,
         )
-        self.games.matchmakerShortcuts.append(self.shortcut)
 
         self.matchmakerTimer = QtCore.QTimer()
         self.matchmakerTimer.timeout.connect(self.updateMatchmakerTimer)
