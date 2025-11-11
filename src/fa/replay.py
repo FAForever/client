@@ -37,7 +37,7 @@ def replay(source, detach=False):
     """
     logger.info("fa.exe.replay(" + str(source) + ", detach = " + str(detach))
 
-    if not fa.instance.available():
+    if not fa.replay_instance.available():
         return False
 
     version = None
@@ -193,12 +193,12 @@ def replay(source, detach=False):
         WatchedReplaysTracker.add(replay_id)
 
     # Update the game appropriately
-    if not check(mod, mapname, version, featured_mod_versions, sim_mods):
+    if not check(mod, mapname, version, featured_mod_versions, sim_mods, util.REPLAYDATA_DIR):
         msg = "Can't watch replays without an updated Forged Alliance game!"
         logger.error(msg)
         return False
 
-    if fa.instance.run(None, arguments, detach):
+    if fa.replay_instance.run(None, arguments, detach):
         logger.info("Viewing Replay.")
         return True
     else:

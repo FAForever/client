@@ -25,6 +25,7 @@ class GameProcess(QtCore.QProcess):
         self._info = None
         self._game = None
         self.gameset = None
+        self.game_path = util.BIN_DIR
 
     # Game which we track to update game info
     @property
@@ -89,9 +90,8 @@ class GameProcess(QtCore.QProcess):
                 except KeyError:
                     pass
 
-        game_path = config.Settings.get("game/bin/path")
-        assert game_path is not None
-        executable = os.path.join(game_path, "ForgedAlliance.exe")
+        exe_name = config.Settings.get("game/exe-name", "ForgedAlliance.exe")
+        executable = os.path.join(self.game_path, exe_name)
         if sys.platform == 'win32':
             command = f'"{executable}" '
             command += " ".join(arguments)
@@ -109,9 +109,9 @@ class GameProcess(QtCore.QProcess):
         logger.info("Running FA via executable: %s", executable)
 
         # Launch the game as a stand alone process
-        if not instance.running():
+        if not self.running():
 
-            self.setWorkingDirectory(os.path.dirname(executable))
+            self.setWorkingDirectory(self.game_path)
             if not detach:
                 self.startCommand(command)
             else:
@@ -121,7 +121,7 @@ class GameProcess(QtCore.QProcess):
                     re.sub('(^"|"$)', '', element)
                     for element in arguments
                 ]
-                self.startDetached(executable, arguments, os.path.dirname(executable))
+                self.startDetached(executable, arguments, self.game_path)
             return True
         else:
             QtWidgets.QMessageBox.warning(
@@ -185,4 +185,11 @@ class GameProcess(QtCore.QProcess):
             self.kill()
 
 
+class ReplayProcess(GameProcess):
+    def __init__(self) -> None:
+        super().__init__()
+        self.game_path = os.path.join(util.REPLAYDATA_DIR, "bin")
+
+
 instance = GameProcess()
+replay_instance = ReplayProcess()

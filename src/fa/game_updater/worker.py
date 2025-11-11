@@ -55,17 +55,16 @@ class UpdaterWorker(QObject):
     download_finished = pyqtSignal(FileDownload)
 
     def __init__(
-            self,
-            featured_mod: str,
-            version: int | None,
-            modversions: dict[str, int] | None,
-            silent: bool = False,
+        self,
+        target_base_dir: str,
+        featured_mod: str,
+        version: int | None,
+        modversions: dict[str, int] | None,
     ) -> None:
         super().__init__()
         self.featured_mod = featured_mod
         self.version = version
         self.modversions = modversions
-        self.silent = silent
 
         self.nam = QNetworkAccessManager(self)
         self.result = UpdaterResult.NONE
@@ -75,6 +74,10 @@ class UpdaterWorker(QObject):
         self.dlers: list[FileDownload] = []
         self.interruption_requested = False
         self.fa_patcher = FAPatcher()
+
+        self.base_dir = target_base_dir
+        self.bin_dir = os.path.join(self.base_dir, "bin")
+        self.gamedata_dir = os.path.join(self.base_dir, "gamedata")
 
     def get_files_to_update(self, mod_id: str, version: str) -> list[FeaturedModFile]:
         return FeaturedModFilesApiConnector(mod_id, version).get_files()
@@ -94,18 +97,18 @@ class UpdaterWorker(QObject):
         total = len(files)
         result: dict[str, str] = {}
         for index, file in enumerate(files, start=1):
-            filepath = os.path.join(util.APPDATA_DIR, file.group, file.name)
+            filepath = os.path.join(self.base_dir, file.group, file.name)
             result[file.md5] = util.md5(filepath)
             self.hash_progress.emit(ProgressInfo(index, total, file.name))
         return result
 
     def fetch_fmod_file(self, file: FeaturedModFile) -> None:
-        target_path = os.path.join(util.APPDATA_DIR, file.group, file.name)
+        target_path = os.path.join(self.base_dir, file.group, file.name)
         url = file.cacheable_url
         self._download(target_path, url, {file.hmac_parameter: file.hmac_token})
 
     def move_from_cache(self, file: FeaturedModFile) -> None:
-        src_dir = os.path.join(util.APPDATA_DIR, file.group)
+        src_dir = os.path.join(self.base_dir, file.group)
         cache_dir = os.path.join(util.GAME_CACHE_DIR, file.group)
         if os.path.exists(os.path.join(cache_dir, file.md5)):
             shutil.move(
@@ -119,7 +122,7 @@ class UpdaterWorker(QObject):
             precalculated_md5s: dict[str, str] | None = None,
     ) -> None:
         precalculated_md5s = precalculated_md5s or {}
-        src_dir = os.path.join(util.APPDATA_DIR, file.group)
+        src_dir = os.path.join(self.base_dir, file.group)
         cache_dir = os.path.join(util.GAME_CACHE_DIR, file.group)
         if os.path.exists(os.path.join(src_dir, file.name)):
             md5 = precalculated_md5s.get(file.md5, util.md5(os.path.join(src_dir, file.name)))
@@ -138,7 +141,7 @@ class UpdaterWorker(QObject):
         for file in files:
             cache = os.path.join(util.GAME_CACHE_DIR, file.group)
             os.makedirs(cache, exist_ok=True)
-            os.makedirs(util.GAMEDATA_DIR, exist_ok=True)
+            os.makedirs(self.gamedata_dir, exist_ok=True)
 
     @check_interruption
     def update_file(
@@ -194,7 +197,7 @@ class UpdaterWorker(QObject):
         faf_path = Settings.get("ForgedAlliance/app/path")
         assert faf_path is not None
         FABindir = os.path.join(faf_path, "bin")
-        FAFdir = util.BIN_DIR
+        FAFdir = self.bin_dir
 
         # Try to copy without overwriting, but fill in any missing files,
         # otherwise it might miss some files to update
@@ -232,7 +235,7 @@ class UpdaterWorker(QObject):
             raise UpdaterFailure(f"Update failed: {dler.error_string()}")
 
     def patch_fa_executable(self, exe_info: FeaturedModFile) -> None:
-        exe_path = os.path.join(util.BIN_DIR, exe_info.name)
+        exe_path = os.path.join(self.bin_dir, exe_info.name)
         self.version = int(self._resolve_base_version(exe_info))
 
         if self.version == self.fa_patcher.read_version(exe_path):

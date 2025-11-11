@@ -11,20 +11,22 @@ from . import mods
 from . import replayserver
 from . import wizards
 from .game_process import instance
+from .game_process import replay_instance
 from .play import run
 from .replay import replay
 
 __all__ = (
     "check",
     "factions",
+    "game_updater",
+    "instance",
     "maps",
     "mods",
-    "replayserver",
-    "game_updater",
-    "wizards",
-    "instance",
-    "run",
     "replay",
+    "replay_instance",
+    "replayserver",
+    "run",
+    "wizards",
 )
 
 logger = logging.getLogger(__name__)

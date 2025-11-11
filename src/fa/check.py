@@ -10,6 +10,7 @@ from src import fa
 from src import util
 from src.fa.game_updater.misc import UpdaterResult
 from src.fa.game_updater.updater import Updater
+from src.fa.game_updater.worker import UpdaterWorker
 from src.fa.mods import checkMods
 from src.fa.path import validate_game_path
 from src.fa.path import writeFAPathLua
@@ -85,12 +86,14 @@ def path(parent: ClientWindow) -> bool:
 
 
 def check(
-        featured_mod: str,
-        mapname: str | None = None,
-        version: int | None = None,
-        mod_versions: dict[str, int] | None = None,
-        sim_mods: dict[str, str] | None = None,
-        silent: bool = False,
+    featured_mod: str,
+    mapname: str | None = None,
+    version: int | None = None,
+    mod_versions: dict[str, int] | None = None,
+    sim_mods: dict[str, str] | None = None,
+    target_dir: str = util.APPDATA_DIR,
+    *,
+    silent: bool = False,
 ) -> bool:
     """
     This checks whether the mods are properly updated and player has the
@@ -108,10 +111,16 @@ def check(
         return False
 
     # Perform the actual comparisons and updating
-    logger.info("Updating FA for mod: %s, version %s", featured_mod, version)
+    logger.info(
+        "Updating FA for mod: %s, version %s, target directory: %s",
+        featured_mod,
+        version,
+        target_dir,
+    )
 
     # Spawn an update for the required mod
-    game_updater = Updater(featured_mod, version, mod_versions, silent=silent)
+    worker = UpdaterWorker(target_dir, featured_mod, version, mod_versions)
+    game_updater = Updater(client.instance, worker)
     result = game_updater.run()
 
     if result != UpdaterResult.SUCCESS:
@@ -121,7 +130,7 @@ def check(
         logger.info("Latest version resolved to: %d", game_updater.game_version)
 
     logger.info("Writing fa_path.lua config file.")
-    writeFAPathLua(featured_mod, game_updater.game_version)
+    writeFAPathLua(target_dir, featured_mod, game_updater.game_version)
 
     # Now it's down to having the right map
     if mapname and not map_(mapname, silent=silent):

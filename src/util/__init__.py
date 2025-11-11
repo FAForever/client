@@ -96,6 +96,7 @@ LOG_FILE_REPLAY = os.path.join(LOG_DIR, 'replay.log')
 BIN_DIR = os.path.join(APPDATA_DIR, "bin")
 GAMEDATA_DIR = os.path.join(APPDATA_DIR, "gamedata")
 REPO_DIR = os.path.join(APPDATA_DIR, "repo")
+REPLAYDATA_DIR = os.path.join(APPDATA_DIR, "replaydata")
 
 # This contains java executables of map generators
 MAPGEN_DIR = os.path.join(APPDATA_DIR, "map_generator")
@@ -182,6 +183,7 @@ for data_dir in [
     THEME_DIR, REPLAY_DIR, LOG_DIR, EXTRA_DIR, NEWS_CACHE_DIR,
     GAME_CACHE_DIR, GAMEDATA_DIR, BIN_DIR, REPLAY_DIR, AVATARS_CACHE_DIR,
     DIVISIONS_CACHE_DIR, ACHIEVEMENTS_CACHE_DIR, VAULTS_BASE_DIR,
+    REPLAYDATA_DIR,
 ]:
     if not os.path.isdir(data_dir):
         os.makedirs(data_dir)

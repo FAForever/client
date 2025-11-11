@@ -24,12 +24,12 @@ def steamPath():
         return None
 
 
-def writeFAPathLua(mod: str, version: int) -> None:
+def writeFAPathLua(directory: str, mod: str, version: int) -> None:
     """
     Writes a small lua file to disk that helps the new
     SupComDataPath.lua find the actual install of the game
     """
-    name = os.path.join(util.APPDATA_DIR, "fa_path.lua")
+    name = os.path.join(directory, "fa_path.lua")
     gamepath_fa = config.Settings.get("ForgedAlliance/app/path", type=str)
 
     code = f"""\

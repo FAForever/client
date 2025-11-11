@@ -38,7 +38,7 @@ FormClass, BaseClass = util.THEME.loadUiType("fa/updater/updater.ui")
 class UpdaterProgressDialog(FormClass, BaseClass):
     aborted = pyqtSignal()
 
-    def __init__(self, parent: QObject | None, silent: bool = False) -> None:
+    def __init__(self, parent: QObject | None) -> None:
         BaseClass.__init__(self, parent)
         self.setupUi(self)
         self.setModal(True)
@@ -46,9 +46,6 @@ class UpdaterProgressDialog(FormClass, BaseClass):
         self.logFrame.setVisible(False)
         self.adjustSize()
         self.watches = []
-
-        if silent:
-            self.abortButton.hide()
 
         self.rejected.connect(self.abort)
         self.abortButton.clicked.connect(self.reject)
@@ -157,23 +154,17 @@ class Updater(QObject):
 
     finished = pyqtSignal()
 
-    def __init__(
-            self,
-            featured_mod: str,
-            version: int | None = None,
-            modversions: dict[str, int] | None = None,
-            silent: bool = False,
-    ) -> None:
+    def __init__(self, parent: QObject, worker: UpdaterWorker) -> None:
         """
         Constructor
         """
         super().__init__()
 
-        self.progress = UpdaterProgressDialog(None, silent)
+        self.progress = UpdaterProgressDialog(parent)
         self.progress.aborted.connect(self.abort)
 
         self.worker_thread = QThread()
-        self.worker = UpdaterWorker(featured_mod, version, modversions, silent)
+        self.worker = worker
         self.worker.moveToThread(self.worker_thread)
 
         self.worker.done.connect(self.on_update_done)
