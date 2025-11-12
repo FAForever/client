@@ -183,10 +183,9 @@ for data_dir in [
     THEME_DIR, REPLAY_DIR, LOG_DIR, EXTRA_DIR, NEWS_CACHE_DIR,
     GAME_CACHE_DIR, GAMEDATA_DIR, BIN_DIR, REPLAY_DIR, AVATARS_CACHE_DIR,
     DIVISIONS_CACHE_DIR, ACHIEVEMENTS_CACHE_DIR, VAULTS_BASE_DIR,
-    REPLAYDATA_DIR,
+    REPLAYDATA_DIR, ICE_ADAPTER_DIR, MAPGEN_DIR,
 ]:
-    if not os.path.isdir(data_dir):
-        os.makedirs(data_dir)
+    os.makedirs(data_dir, exist_ok=True)
 
 
 def get_files_by_mod_date(location):
@@ -256,7 +255,7 @@ def clearGeneratedMaps() -> None:
 
 def clear_unused_ice_adapters() -> None:
     store_duration = Settings.get("iceadapter/store_duration", 30, type=int)
-    if store_duration >= 9999:
+    if store_duration >= 9999 or not os.path.isdir(ICE_ADAPTER_DIR):
         return
 
     java_version = Settings.get("iceadapter/java_version", "")
@@ -281,7 +280,7 @@ def clear_unused_ice_adapters() -> None:
 
 def clear_unused_map_generators() -> None:
     store_duration = Settings.get("mapGenerator/store_duration", 30, type=int)
-    if store_duration >= 9999:
+    if store_duration >= 9999 or not os.path.isdir(MAPGEN_DIR):
         return
 
     generators = [entry for entry in os.scandir(MAPGEN_DIR) if entry.name.endswith(".jar")]
