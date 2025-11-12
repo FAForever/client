@@ -32,12 +32,14 @@ def writeFAPathLua(directory: str, mod: str, version: int) -> None:
     name = os.path.join(directory, "fa_path.lua")
     gamepath_fa = config.Settings.get("ForgedAlliance/app/path", type=str)
 
+    force_affinity = config.Settings.get("game/force_affinity", True, type=bool)
     code = f"""\
         fa_path = "{gamepath_fa.replace("\\", "/")}"
         custom_vault_path = "{util.VAULTS_BASE_DIR.replace("\\", "/")}"
         GameType = "{mod}"
         GameVersion = "{version}"
         ClientVersion = "{config.VERSION}"
+        ForceAffinity = {str(force_affinity).lower()}
     """
 
     with open(name, "w+", encoding='utf-8') as lua:

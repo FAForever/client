@@ -301,8 +301,11 @@ class GameSettingsUI:
             """,
         )
         self.runReplaysSeparatelyCheckBox.setToolTip(tooltip)
+        self.forceAffinityCheckBox = QCheckBox("Force Affinity")
+        self.forceAffinityCheckBox.setToolTip("Allow the game to adjust process affinity")
         misc_settings_layout.addWidget(self.gameLogsCheckBox)
         misc_settings_layout.addWidget(self.runReplaysSeparatelyCheckBox)
+        misc_settings_layout.addWidget(self.forceAffinityCheckBox)
 
         self.buttons = QDialogButtonBox(
             QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel,
@@ -331,6 +334,9 @@ class GameSettings(QDialog):
         self.ui.gameLogsCheckBox.setChecked(Settings.get("game/logs", True, type=bool))
         self.ui.runReplaysSeparatelyCheckBox.setChecked(
             Settings.get("game/replay_process", True, type=bool),
+        )
+        self.ui.forceAffinityCheckBox.setChecked(
+            Settings.get("game/force_affinity", True, type=bool),
         )
         self.ui.browseGameButton.clicked.connect(
             lambda: self.browse_directory(self.ui.gamePathInput),
@@ -376,6 +382,7 @@ class GameSettings(QDialog):
         Settings.set("ForgedAlliance/app/path", game_path)
         Settings.set("game/logs", self.ui.gameLogsCheckBox.isChecked())
         Settings.set("game/replay_process", self.ui.runReplaysSeparatelyCheckBox.isChecked())
+        Settings.set("game/force_affinity", self.ui.forceAffinityCheckBox.isChecked())
         if vault_path != util.VAULTS_BASE_DIR:
             # TODO: change without restart (or make sure that restart is not needed)
             util.change_vaults_base_dir(vault_path)
