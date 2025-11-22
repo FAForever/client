@@ -706,7 +706,7 @@ class LocalReplayMetadataCache:
     def save_cache(self) -> None:
         if not self._cache_differs_much_from_files():
             return
-        with open(self._cache_file, "w") as fh:
+        with open(self._cache_file, "w", newline="\n") as fh:
             for filename in self._used_cache_entries:
                 fh.write(filename + ":" + self._cache[filename].raw_data)
 
