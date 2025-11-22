@@ -392,7 +392,7 @@ class ReplayParser(QObject):
             else:
                 start_str = self.to_readable_date(start)
                 end_str = self.to_readable_date(end)
-            duration = seconds_to_human(end - start, sep=" ", full=False)
+            duration = seconds_to_human(round(end - start), sep=" ", full=False)
             return f"{start_str} - {end_str} <br/> ({duration})"
         except Exception:  # sometimes theres no such info
             return ""
