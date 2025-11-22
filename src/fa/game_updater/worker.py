@@ -249,7 +249,7 @@ class UpdaterWorker(QObject):
             assert thread is not None
             thread.msleep(500)
         else:
-            raise UpdaterFailure("Could not update FA exe to version '%d'", self.version)
+            raise UpdaterFailure(f"Could not update FA exe to version '{self.version}'")
 
     def patch_fa_exe_if_needed(self, files: list[FeaturedModFile]) -> None:
         for file in files:
