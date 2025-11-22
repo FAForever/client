@@ -10,7 +10,6 @@ from PyQt6 import QtWidgets
 
 from src.api.models.Map import Map
 from src.api.vaults_api import MapApiConnector
-from src.api.vaults_api import MapPoolApiConnector
 from src.fa import maps
 from src.fa.maps_.map_utils import get_save_file
 from src.vaults import luaparser
@@ -39,9 +38,7 @@ class MapVault(Vault[Map]):
             self.ShowTypeList.addItem(display_type.value)
 
         self.mapApiConnector = MapApiConnector()
-        self.mapPoolApiConnector = MapPoolApiConnector()
         self.mapApiConnector.data_ready.connect(self.items_info)
-        self.mapPoolApiConnector.data_ready.connect(self.items_info)
 
         self.apiConnector = self.mapApiConnector
 
@@ -54,24 +51,6 @@ class MapVault(Vault[Map]):
     def create_details_widget(self, data: Map) -> MapDetailsWidget:
         assert self.client.me.player is not None
         return MapDetailsWidget(data, self.client.me.player)
-
-    def requestMapPool(self, queue_name: str, rating: int) -> None:
-        self.apiConnector = self.mapPoolApiConnector
-        self.searchQuery = {
-            "filter": ";".join((
-                f"mapPool.matchmakerQueueMapPool.matchmakerQueue.technicalName=={queue_name}",
-                (
-                    f"(mapPool.matchmakerQueueMapPool.minRating=le={rating!r},"
-                    "mapPool.matchmakerQueueMapPool.minRating=isnull='true')"
-                ),
-                (
-                    f"(mapPool.matchmakerQueueMapPool.maxRating=gt={rating!r},"
-                    "mapPool.matchmakerQueueMapPool.maxRating=isnull='true')"
-                ),
-            )),
-        }
-        self.goToPage(1)
-        self.apiConnector = self.mapApiConnector
 
     @QtCore.pyqtSlot()
     def uploadMap(self):

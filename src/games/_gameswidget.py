@@ -1,6 +1,10 @@
 from __future__ import annotations
 
+import json
 import logging
+import os
+from collections import Counter
+from collections import defaultdict
 from operator import itemgetter
 from typing import TYPE_CHECKING
 from typing import Self
@@ -31,6 +35,7 @@ from src.games.moditem import mod_invisible
 from src.model.chat.channel import PARTY_CHANNEL_SUFFIX
 from src.protocol.lobbyprotocol import MatchFoundCommand
 from src.protocol.lobbyprotocol import ServerMessage
+from src.protocol.lobbyprotocol import VetoesCommand
 
 if TYPE_CHECKING:
     from src.client._clientwindow import ClientWindow
@@ -155,6 +160,45 @@ class GamesWidget(FormClass, BaseClass):
         self.gamePanelButton.toggled.connect(self.on_game_panel_toggled)
         self.gamePanelButton.setChecked(self.show_game_panel)
 
+        # FIXME: remove ignore
+        self.client.lobby_dispatch["vetoes_info"] = self.handle_vetoes_info  # type: ignore
+        self.local_vetoes_file = os.path.join(util.USER_DIR, "matchmaker_vetoes")
+        self.vetoes: dict[str, Counter[str]] = {}
+
+    def load_local_vetoes(self) -> None:
+        try:
+            with open(self.local_vetoes_file) as fp:
+                self.vetoes = dict(json.load(fp, object_hook=Counter))
+        except (OSError, json.JSONDecodeError) as e:
+            logger.error("Error loading local vetoes from '%s': %s", self.local_vetoes_file, e)
+            self.vetoes = {}
+
+    def save_local_vetoes(self) -> None:
+        if self.vetoes:
+            with open(self.local_vetoes_file, "w") as fp:
+                json.dump(self.vetoes, fp)
+
+    def send_matchmaker_vetoes(self) -> None:
+        vetoes_list = [
+            {
+                "matchmaker_queue_map_pool_id": int(pool_id),
+                "map_pool_map_version_id": int(assignment_id),
+                "veto_tokens_applied": token_count,
+            }
+            for pool_id, vetoes_mapping in self.vetoes.items()
+            for assignment_id, token_count in vetoes_mapping.items()
+            if token_count > 0
+        ]
+        self.client.lobby_connection.send({
+            "command": "set_player_vetoes",
+            "vetoes": vetoes_list,
+        })
+
+    def update_matchmaker_vetoes(self, other: dict[str, Counter[str]]) -> None:
+        self.vetoes |= other
+        self.send_matchmaker_vetoes()
+        self.save_local_vetoes()
+
     def refreshMods(self):
         self.apiConnector.requestData()
 
@@ -164,6 +208,8 @@ class GamesWidget(FormClass, BaseClass):
         if self.party is None:
             self.party = Party(me.id, PartyMember(me.id))
         self.client.lobby_connection.send({"command": "matchmaker_info"})
+        self.load_local_vetoes()
+        self.send_matchmaker_vetoes()
 
     def on_logout(self) -> None:
         self.stopSearch()
@@ -414,3 +460,28 @@ class GamesWidget(FormClass, BaseClass):
                 tab_name = "&{teamSize} vs {teamSize}".format(teamSize=queue["team_size"])
                 self.matchmakerQueues.insertTab(insert_to, mqueue, tab_name)
                 self.matchmakerQueues.tabBar().setTabTextColor(insert_to, QColor("silver"))
+
+    def handle_vetoes_info(self, message: VetoesCommand) -> None:
+        vetoes: dict[str, Counter[str]] = defaultdict(Counter)
+        for map_veto in message["vetoes"]:
+            pool_id, assignment_id, tokens = (
+                map_veto["matchmaker_queue_map_pool_id"],
+                map_veto["map_pool_map_version_id"],
+                map_veto["veto_tokens_applied"],
+            )
+            vetoes[str(pool_id)][str(assignment_id)] = tokens
+        self.vetoes = dict(vetoes)
+        self.save_local_vetoes()
+        if message["forced"]:
+            QtWidgets.QMessageBox.information(
+                self,
+                "Vetoes Updated!",
+                "Server-side vetoes parameters have been changed. "
+                "Your vetoes were adjusted accordingly",
+            )
+        else:
+            QtWidgets.QMessageBox.information(
+                self,
+                "Vetoes Updated!",
+                "Server has adjusted your vetoes",
+            )

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from copy import deepcopy
 from functools import partial
 from typing import TYPE_CHECKING
 
@@ -13,6 +14,7 @@ from src import util
 from src.api.matchmaker_queue_api import MatchmakerQueueApiConnector
 from src.config import Settings
 from src.fa.factions import Factions
+from src.games.mappoolwidget import MapPoolDialog
 
 FormClass, BaseClass = util.THEME.loadUiType("games/automatchframe.ui")
 
@@ -70,7 +72,7 @@ class MatchmakerQueue(FormClass, BaseClass):
 
         self.rankedPlay.clicked.connect(self.startSearchRanked)
         self.rankedPlay.show()
-        self.mapsPool.clicked.connect(self.startViewMapsPool)
+        self.mapsPool.clicked.connect(self.view_map_pool)
 
         self.setFactionIcons(self.subFactions)
 
@@ -224,18 +226,18 @@ class MatchmakerQueue(FormClass, BaseClass):
             )
         self.rankedPlay.setText(s)
 
-    def startViewMapsPool(self):
-        if self.client.me.id is None:
-            QtGui.QDesktopServices.openUrl(
-                QtCore.QUrl(Settings.get("MAPPOOL_URL")),
-            )
+    def view_map_pool(self) -> None:
+        if self.client.me.player is None:
+            QtGui.QDesktopServices.openUrl(QtCore.QUrl(Settings.get("MAPPOOL_URL")))
         else:
             rating = self.client.me.player.rating_estimate(self.ratingType)
-            self.client.mapvault.requestMapPool(self.queueName, rating)
-            self.client.mainTabs.setCurrentIndex(
-                self.client.mainTabs.indexOf(self.client.vaultsTab),
-            )
-            self.client.topTabs.setCurrentIndex(0)
+            current_vetoes = deepcopy(self.games.vetoes)
+            dialog = MapPoolDialog(self.queueName, rating, current_vetoes, self.client)
+            dialog.request_pool_info()
+            if dialog.exec() == dialog.DialogCode.Accepted:
+                vetoes = dialog.applied_vetoes()
+                self.games.update_matchmaker_vetoes(vetoes)
+            dialog.deleteLater()
 
     def selectFaction(self, enabled, factionID=0):
         if len(self.subFactions) < factionID:

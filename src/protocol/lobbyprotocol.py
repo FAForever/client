@@ -99,3 +99,15 @@ class AuthenticationFailedCommand(TypedDict):
 
 class InvalidCommand(TypedDict):
     command: Literal["invalid"]
+
+
+class _MapVeto(TypedDict):
+    matchmaker_queue_map_pool_id: int
+    map_pool_map_version_id: int
+    veto_tokens_applied: int
+
+
+class VetoesCommand(TypedDict):
+    command: Literal["vetoes_info"]
+    forced: bool
+    vetoes: list[_MapVeto]

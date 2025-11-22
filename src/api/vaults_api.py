@@ -2,6 +2,7 @@ import logging
 from collections.abc import Callable
 from collections.abc import Sequence
 from typing import Any
+from typing import Literal
 from typing import cast
 
 from PyQt6.QtCore import QByteArray
@@ -13,11 +14,11 @@ from src.api.ApiBase import QueryOptions
 from src.api.models.Map import Map
 from src.api.models.MapVersion import MapVersion
 from src.api.models.MapVersionReview import MapVersionReview
+from src.api.models.MatchmakerQueueMapPool import MatchmakerQueueMapPool
 from src.api.models.Mod import Mod
 from src.api.models.ModVersion import ModVersion
 from src.api.models.ModVersionReview import ModVersionReview
 from src.api.parsers.MapParser import MapParser
-from src.api.parsers.MapPoolAssignmentParser import MapPoolAssignmentParser
 from src.api.parsers.ModParser import ModParser
 from src.model.player import Player
 from src.util import decapitalize
@@ -101,22 +102,25 @@ class MapApiConnector(VaultsApiConnector):
 
 class MapPoolApiConnector(VaultsApiConnector):
     def __init__(self) -> None:
-        super().__init__("/data/mapPoolAssignment")
+        super().__init__("/data/matchmakerQueueMapPool")
         self._includes = (
-            "mapVersion",
-            "mapVersion.map",
-            "mapVersion.map.author",
-            "mapVersion.map.reviewsSummary",
+            "mapPool.mapPoolAssignments",
+            "mapPool.mapVersions",
+            "mapPool.mapVersions.map",
+            "matchmakerQueue",
         )
+        self._filters: tuple[str, ...] = ()
 
-    def _extend_query_options(self, query_options: QueryOptions) -> QueryOptions:
-        self._add_default_includes(query_options)
-        return query_options
+    def request_pool_for_queue(self, name: str) -> None:
+        self._filters = (f"matchmakerQueue.technicalName=={name!r}",)
+        self.request_data()
 
-    def prepare_data(self, message: PreProcessedApiResponse) -> dict[str, Any]:
+    def prepare_data(
+        self,
+        message: PreProcessedApiResponse,
+    ) -> dict[Literal["values"], list[MatchmakerQueueMapPool]]:
         return {
-            "values": MapPoolAssignmentParser.parse_many_to_maps(message["data"]),
-            "meta": message["meta"],
+            "values": [MatchmakerQueueMapPool(**pool_data) for pool_data in message["data"]],
         }
 
 

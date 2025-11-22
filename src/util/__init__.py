@@ -102,6 +102,8 @@ REPLAYDATA_DIR = os.path.join(APPDATA_DIR, "replaydata")
 MAPGEN_DIR = os.path.join(APPDATA_DIR, "map_generator")
 ICE_ADAPTER_DIR = os.path.join(APPDATA_DIR, "ice_adapter")
 
+USER_DIR = os.path.join(APPDATA_DIR, "user")
+
 if not os.path.exists(REPO_DIR):
     os.makedirs(REPO_DIR)
 
@@ -151,10 +153,10 @@ def get_personal_dir() -> str:
         doc_dir.encode("ascii")
         if not os.path.isdir(doc_dir):
             raise OSError("No documents location. Will use APPDATA instead.")
+        return doc_dir
     except (OSError, UnicodeEncodeError) as e:
         logger.exception("PERSONAL_DIR not ok, falling back: '%s'", e)
-        doc_dir = os.path.join(APPDATA_DIR, "user")
-    return doc_dir
+        return USER_DIR
 
 
 PERSONAL_DIR = get_personal_dir()
@@ -183,7 +185,7 @@ for data_dir in [
     THEME_DIR, REPLAY_DIR, LOG_DIR, EXTRA_DIR, NEWS_CACHE_DIR,
     GAME_CACHE_DIR, GAMEDATA_DIR, BIN_DIR, REPLAY_DIR, AVATARS_CACHE_DIR,
     DIVISIONS_CACHE_DIR, ACHIEVEMENTS_CACHE_DIR, VAULTS_BASE_DIR,
-    REPLAYDATA_DIR, ICE_ADAPTER_DIR, MAPGEN_DIR,
+    REPLAYDATA_DIR, ICE_ADAPTER_DIR, MAPGEN_DIR, USER_DIR,
 ]:
     os.makedirs(data_dir, exist_ok=True)
 

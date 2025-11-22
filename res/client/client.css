@@ -678,6 +678,11 @@ QScrollArea#gamePanelScrollArea
     background-color: #161616;
 }
 
+QScrollArea#mapPoolWidgetScrollArea
+{
+    padding: 0px;
+}
+
 /* Scrollbars*/
 QScrollBar:horizontal {
     background-color: grey;
@@ -1062,6 +1067,11 @@ QPushButton#joinGameButton
     font-size: 11pt;
 }
 
+QPushButton#vetoButton
+{
+    border-radius: 2px;
+}
+
 QSpinBox, QDoubleSpinBox
 {
     color:orange;
@@ -1185,6 +1195,26 @@ QLabel#replayEventTime
 {
     border-radius: 4px;
     background: #202025;
+}
+
+QLabel#iconOverlay
+{
+    background: rgba(0, 0, 0, 130);
+}
+
+QLabel#vetoOverlay
+{
+    font-size: 12pt;
+    font-weight: bold;
+    color: white;
+    max-height: 20px;
+    background: rgba(0, 0, 0, 130);
+}
+
+QLabel#vetoTokens
+{
+    color: orange;
+    font-size: 11pt;
 }
 
 QTextEdit#reviewText
@@ -1409,4 +1439,8 @@ QListWidget#clanMembersList::item:selected {
 
 QListWidget#clanMembersList::item:hover {
     border-radius: 8px;
+}
+
+QFrame#vetoFrame:hover {
+    background: #101010;
 }
