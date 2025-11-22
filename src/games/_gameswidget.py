@@ -420,7 +420,7 @@ class GamesWidget(FormClass, BaseClass):
             }
             self.client.lobby_connection.send(msg)
 
-    def leave_party(self):
+    def leave_party(self) -> bool:
         result = QtWidgets.QMessageBox.question(
             self, "Leaving Party", "Are you sure you want to leave party?",
             QtWidgets.QMessageBox.StandardButton.Yes, QtWidgets.QMessageBox.StandardButton.No,
@@ -431,8 +431,8 @@ class GamesWidget(FormClass, BaseClass):
             }
             self.client.lobby_connection.send(msg)
 
-            if self.isInGame(self._me.id):
-                self.client.players[self._me.id]._currentGame = None
+            if self._me.player and self._me.player.currentGame is not None:
+                self._me.player.set_currentGame(None)
             return True
         else:
             return False
@@ -442,12 +442,6 @@ class GamesWidget(FormClass, BaseClass):
 
     def handle_match_found(self, message: MatchFoundCommand):
         self.match_found_message.emit(message)
-
-    def isInGame(self, player_id):
-        if self.client.players[player_id].currentGame is None:
-            return False
-        else:
-            return True
 
     def handle_matchmaker_info(self, message: ServerMessage) -> None:
         for queue in sorted(message.get("queues", {}), key=itemgetter("team_size")):
