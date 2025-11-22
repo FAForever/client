@@ -231,8 +231,13 @@ class MatchmakerQueue(FormClass, BaseClass):
             QtGui.QDesktopServices.openUrl(QtCore.QUrl(Settings.get("MAPPOOL_URL")))
         else:
             rating = self.client.me.player.rating_estimate(self.ratingType)
-            current_vetoes = deepcopy(self.games.vetoes)
-            dialog = MapPoolDialog(self.queueName, rating, current_vetoes, self.client)
+            dialog = MapPoolDialog(
+                self.queueName,
+                rating,
+                self.client.me.player,
+                deepcopy(self.games.vetoes),
+                self.client,
+            )
             dialog.request_pool_info()
             if dialog.exec() == dialog.DialogCode.Accepted:
                 vetoes = dialog.applied_vetoes()

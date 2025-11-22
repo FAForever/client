@@ -8,9 +8,14 @@ from PyQt6 import QtCore
 from PyQt6 import QtNetwork
 from PyQt6 import QtWidgets
 
+from src.api.models.Map import Map
+from src.api.models.Mod import Mod
+from src.config import Settings
 from src.downloadManager import FileDownload
 from src.downloadManager import ZipDownloadExtract
+from src.qt.utils import center_widget_on_screen
 from src.util import capitalize
+from src.vaults.detailswidget import DetailsWidget
 
 logger = logging.getLogger(__name__)
 
@@ -241,3 +246,28 @@ def download_file(
             f"<b>Failed to download {category} from</b><br/>{url}",
         )
     return result == VaultDownloadResult.SUCCESS
+
+
+def show_item_details_dialog[T: Map | Mod](
+        widget: DetailsWidget[T],
+        parent: QtWidgets.QWidget | None,
+) -> None:
+    dialog = QtWidgets.QDialog(parent)
+    layout = QtWidgets.QVBoxLayout(dialog)
+    buttons = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.StandardButton.Ok)
+    buttons.accepted.connect(dialog.accept)
+    layout.setContentsMargins(0, 0, 9, 9)
+    widget.ask_review()
+    widget.ask_file_size()
+    layout.addWidget(widget)
+    layout.addWidget(buttons)
+    dialog.setWindowTitle(f"Details - {widget.item_data.display_name}")
+    dialog.resize(800, 600)
+    with Settings.group("vaults") as settings:
+        dialog.restoreGeometry(settings.value("item_widget_geometry", dialog.saveGeometry()))
+        center_widget_on_screen(dialog)
+    dialog.exec()
+    with Settings.group("vaults") as settings:
+        settings.setValue("item_widget_geometry", dialog.saveGeometry())
+    widget.disconnect()
+    dialog.deleteLater()

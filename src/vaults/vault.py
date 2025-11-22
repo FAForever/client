@@ -6,18 +6,16 @@ from typing import TYPE_CHECKING
 from PyQt6 import QtCore
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QShowEvent
-from PyQt6.QtWidgets import QDialog
 from PyQt6.QtWidgets import QLabel
-from PyQt6.QtWidgets import QVBoxLayout
 
 from src import util
 from src.api.models.Map import Map
 from src.api.models.Mod import Mod
 from src.config import Settings
 from src.qt.utils import block_signals
-from src.qt.utils import center_widget_on_screen
 from src.ui.busy_widget import BusyWidget
 from src.vaults.detailswidget import DetailsWidget
+from src.vaults.dialogs import show_item_details_dialog
 from src.vaults.listitem import VaultListItem
 from src.vaults.listwidget import VaultListWidget
 
@@ -178,25 +176,10 @@ class Vault[T: Map | Mod](FormClass, BaseClass, BusyWidget):
         self.update_visibilities()
 
     def on_item_double_clicked(self, item: VaultListItem[T]) -> None:
-        dialog = QDialog(self)
-        layout = QVBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
         widget = self.create_details_widget(item.item_data)
         widget.item_availability_changed.connect(self.on_item_availability_changed)
-        widget.ask_review()
-        widget.ask_file_size()
-        layout.addWidget(widget)
-        dialog.setLayout(layout)
-        dialog.setWindowTitle(f"Details - {item.item_data.display_name}")
-        dialog.resize(800, 600)
-        with Settings.group("vaults") as settings:
-            dialog.restoreGeometry(settings.value("item_widget_geometry", dialog.saveGeometry()))
-            center_widget_on_screen(dialog)
-        dialog.exec()
-        with Settings.group("vaults") as settings:
-            settings.setValue("item_widget_geometry", dialog.saveGeometry())
-        widget.disconnect()
-        dialog.deleteLater()
+        show_item_details_dialog(widget, self)
+        widget.deleteLater()
 
     def on_item_selected(self, current: VaultListItem[T], previous: VaultListItem[T]) -> None:
         if not current or self.splitter.sizes()[1] == 0:

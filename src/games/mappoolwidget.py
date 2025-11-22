@@ -6,6 +6,7 @@ from typing import cast
 from PyQt6.QtCore import Qt
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtGui import QFont
+from PyQt6.QtGui import QMouseEvent
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import QComboBox
 from PyQt6.QtWidgets import QDialog
@@ -19,11 +20,17 @@ from PyQt6.QtWidgets import QTabWidget
 from PyQt6.QtWidgets import QVBoxLayout
 from PyQt6.QtWidgets import QWidget
 
+from src.api.models.Map import Map
 from src.api.models.MapPoolAssignment import MapPoolAssignment
+from src.api.models.MapVersion import Map as HackyMap
 from src.api.models.MapVersion import MapVersion
 from src.api.models.MatchmakerQueueMapPool import MatchmakerQueueMapPool
 from src.api.vaults_api import MapPoolApiConnector
 from src.fa import maps
+from src.model.player import Player
+from src.qt.widgets.clickablelabel import ClickableLabel
+from src.vaults.dialogs import show_item_details_dialog
+from src.vaults.mapvault.mapdetails import MapDetailsWidget
 
 
 class TokenTracker:
@@ -61,12 +68,13 @@ class TokenTracker:
 
 class MapCardUI:
     ICON_WIDTH = 128
+    SPACING = 6
 
     def setupUi(self, widget: QWidget) -> None:
         main_layout = QGridLayout(widget)
-        main_layout.setSpacing(6)
+        main_layout.setSpacing(self.SPACING)
 
-        self.mapIconLabel = QLabel()
+        self.mapIconLabel = ClickableLabel()
         self.mapIconLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.mapIconLabel.setObjectName("vetoMapIcon")
 
@@ -133,6 +141,7 @@ class MapCardUI:
 
 class MapCard(QFrame):
     tokens_changed = pyqtSignal()
+    map_clicked = pyqtSignal(HackyMap)
 
     def __init__(
         self,
@@ -153,17 +162,27 @@ class MapCard(QFrame):
         self.xd = assignment.xd
 
         if assignment.map_params is not None:
-            mapgen_map = assignment.map_params.to_map()
-            self.map_version = cast(MapVersion, mapgen_map.version)
-            self.map_name = mapgen_map.display_name
+            self.map = assignment.map_params.to_map()
+            self.map_version = cast(MapVersion, self.map.version)
         elif assignment.map_version is not None:
             self.map_version = assignment.map_version
             assert self.map_version.map is not None
-            self.map_name = self.map_version.map.display_name
+            self.map = self.map_version.map
+            self.map.version = self.map_version
         else:
             raise
+        self.map_name = self.map.display_name
 
         self.tokens = tokens
+
+    def mousePressEvent(self, ev: QMouseEvent | None) -> None:  # type: ignore[override]
+        if (
+            ev is None
+            or self.assignment.map_version is None
+            or ev.position().y() > self.ui.ICON_WIDTH + self.ui.SPACING
+        ):
+            return
+        self.map_clicked.emit(self.map)
 
     def fill_ui(self) -> None:
         self.ui.mapNameLabel.setText(f"<b>{self.map_name}</b>")
@@ -251,11 +270,13 @@ class MapPoolWidget(QWidget):
     def __init__(
         self,
         pool: MatchmakerQueueMapPool,
+        player: Player,
         current_vetoes: dict[str, Counter[str]],
     ) -> None:
         super().__init__()
         self.xd = pool.xd
         self.pool = pool
+        self.player = player
 
         self.total_tokens = pool.tokens
         self.tokens_per_map = pool.max_map_tokens or self.total_tokens + 1
@@ -284,6 +305,7 @@ class MapPoolWidget(QWidget):
         for idx, assignment in enumerate(self.pool.map_pool.assignments):
             card = MapCard(assignment, self.tokens)
             card.tokens_changed.connect(self.update_appearance)
+            card.map_clicked.connect(self.show_map_details)
             card.fill_ui()
             self.map_cards[assignment.xd] = card
             self.ui.mapCardsLayout.addWidget(card, idx // cols, idx % cols)
@@ -303,6 +325,11 @@ class MapPoolWidget(QWidget):
 
     def to_dict(self) -> dict[str, Counter[str]]:
         return {self.xd: self.tokens.counter}
+
+    def show_map_details(self, map_model: HackyMap) -> None:
+        widget = MapDetailsWidget(cast(Map, map_model), self.player)
+        show_item_details_dialog(widget, self)
+        widget.deleteLater()
 
 
 class MapPoolDialogUI:
@@ -338,12 +365,16 @@ class MapPoolDialog(QDialog):
         self,
         queue_name: str,
         rating: int,
+        player: Player,
         current_vetoes: dict[str, Counter[str]],
         parent: QWidget | None = None,
     ) -> None:
         super().__init__(parent)
         self.setObjectName("mapVetoDialog")
         self.queue_name = queue_name
+        self.rating = rating
+        self.player = player
+        self.current_vetoes = current_vetoes
 
         self.ui = MapPoolDialogUI()
         self.ui.setupUi(self)
@@ -360,16 +391,13 @@ class MapPoolDialog(QDialog):
         self.api_connector = MapPoolApiConnector()
         self.api_connector.data_ready.connect(self.on_data)
 
-        self.rating = rating
-        self.current_vetoes = current_vetoes
-
     def request_pool_info(self) -> None:
         self.api_connector.request_pool_for_queue(self.queue_name)
 
     def on_data(self, pools: dict[Literal["values"], list[MatchmakerQueueMapPool]]) -> None:
         for index, pool in enumerate(pools["values"]):
             assert pool.map_pool is not None
-            pool_widget = MapPoolWidget(pool, self.current_vetoes)
+            pool_widget = MapPoolWidget(pool, self.player, self.current_vetoes)
             self.ui.poolTabs.addTab(pool_widget, self.pool_tab_name(pool))
             if (pool.min_rating or -inf) <= self.rating < (pool.max_rating or inf):
                 self.ui.poolTabs.setCurrentIndex(index)
