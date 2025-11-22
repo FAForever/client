@@ -170,7 +170,8 @@ class MapCard(QFrame):
             self.map = self.map_version.map
             self.map.version = self.map_version
         else:
-            raise
+            msg = f"MapPoolAssignment {self.xd} must have either map_params or map_version set"
+            raise ValueError(msg)
         self.map_name = self.map.display_name
 
         self.tokens = tokens
