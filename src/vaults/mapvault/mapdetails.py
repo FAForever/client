@@ -78,7 +78,7 @@ class MapDetailsWidget(DetailsWidget[Map]):
         self.ui.typeLabel.setText(f"Type: {self.item_data.map_type}")
 
     def set_additional_info(self) -> None:
-        self.ui.additionalInfoLabel.setText(f"🎮 {self.item_data.games_played} games played")
+        self.ui.additionalInfoLabel.setText(f"{self.item_data.games_played} games played")
 
     def version_info(self) -> list[tuple[str, str]]:
         height = self.item_version.size.height_km
