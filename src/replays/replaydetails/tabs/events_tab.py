@@ -222,7 +222,7 @@ class EventsTabUI:
 
         self.acuUpgradesCheckBox = QCheckBox("ACU Upgrade")
         self.factoryUpgradesCheckBox = QCheckBox("HQ Upgrade")
-        self.expCheckBox = QCheckBox("Experimental/Arty/Nuke")
+        self.expCheckBox = QCheckBox("Experimental / Arty / Nuke")
         self.lastCommandCheckBox = QCheckBox("Approximate Death (Last Command)")
 
         for btn in (
