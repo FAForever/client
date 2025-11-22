@@ -138,10 +138,10 @@ class UpdaterWorker(QObject):
         return os.path.isfile(cached_file)
 
     def ensure_subdirs(self, files: list[FeaturedModFile]) -> None:
-        for file in files:
-            cache = os.path.join(util.GAME_CACHE_DIR, file.group)
+        for group in {file.group for file in files}:
+            cache = os.path.join(util.GAME_CACHE_DIR, group)
             os.makedirs(cache, exist_ok=True)
-            os.makedirs(self.gamedata_dir, exist_ok=True)
+            os.makedirs(os.path.join(self.base_dir, group), exist_ok=True)
 
     @check_interruption
     def update_file(
