@@ -64,7 +64,6 @@ class ApiBase(QObject):
         self.handlers: dict[QNetworkReply, Callable[[PreProcessedApiResponse], Any]] = {}
         self.non_get_handlers: dict[QNetworkReply, Callable[[QNetworkReply], Any]] = {}
         self.error_handlers: dict[QNetworkReply, Callable[[QNetworkReply], Any]] = {}
-        self._allow_http2 = Settings.get("allow_http2", True, type=bool)
 
     def set_route(self, route: str) -> None:
         self.route = route
@@ -119,7 +118,6 @@ class ApiBase(QObject):
         request = QNetworkRequest(url) if url else QNetworkRequest()
         # last 2 args are unused, but for some reason they are required
         self.oauth.prepareRequest(request, QByteArray(), QByteArray())
-        request.setAttribute(QNetworkRequest.Attribute.Http2AllowedAttribute, self._allow_http2)
         return request
 
     def get(
@@ -216,9 +214,6 @@ class ApiBase(QObject):
                 reply.readAll().data().decode(),
             )
             self.error_handlers[reply](reply)
-            if reply.error() == QNetworkReply.NetworkError.UnknownContentError:
-                self._allow_http2 = False
-                Settings.set("allow_http2", False)
         elif (
                 reply.operation() in (
                     self.manager.Operation.DeleteOperation,
