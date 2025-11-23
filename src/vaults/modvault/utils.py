@@ -20,6 +20,9 @@ from src.vaults.dialogs import downloadVaultAsset
 logger = logging.getLogger(__name__)
 
 
+modCache: dict[str, ModInfo] = {}
+
+
 def getModFolder() -> str:
     return os.path.join(util.VAULTS_BASE_DIR, "mods")
 
@@ -28,6 +31,7 @@ def setModFolder():
     global MODFOLDER
     MODFOLDER = getModFolder()
     if installedMods:
+        modCache.clear()
         getInstalledMods()
 
 
@@ -184,9 +188,6 @@ def parseModInfo(folder):
         return None
     modinfofile = luaparser.luaParser(os.path.join(folder, "mod_info.lua"))
     return getModInfo(modinfofile)
-
-
-modCache: dict[str, ModInfo] = {}
 
 
 def getModInfoFromZip(zfile):
