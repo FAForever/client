@@ -3,8 +3,10 @@ from math import inf
 from typing import Literal
 from typing import cast
 
+from PyQt6.QtCore import QByteArray
 from PyQt6.QtCore import Qt
 from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtGui import QCloseEvent
 from PyQt6.QtGui import QFont
 from PyQt6.QtGui import QMouseEvent
 from PyQt6.QtGui import QPixmap
@@ -26,6 +28,7 @@ from src.api.models.MapVersion import Map as HackyMap
 from src.api.models.MapVersion import MapVersion
 from src.api.models.MatchmakerQueueMapPool import MatchmakerQueueMapPool
 from src.api.vaults_api import MapPoolApiConnector
+from src.config import Settings
 from src.fa import maps
 from src.model.player import Player
 from src.qt.widgets.clickablelabel import ClickableLabel
@@ -372,6 +375,8 @@ class MapPoolDialog(QDialog):
     ) -> None:
         super().__init__(parent)
         self.setObjectName("mapVetoDialog")
+        self.setWindowTitle("Map Pool")
+
         self.queue_name = queue_name
         self.rating = rating
         self.player = player
@@ -386,11 +391,22 @@ class MapPoolDialog(QDialog):
         self.ui.cancelButton.clicked.connect(self.reject)
         self.ui.poolTabs.currentChanged.connect(self.on_pool_tab_changed)
 
-        self.setWindowTitle("Map Pool")
-        self.resize(840, 710)
-
         self.api_connector = MapPoolApiConnector()
         self.api_connector.data_ready.connect(self.on_data)
+
+        self.restore_size()
+
+    def restore_size(self) -> None:
+        geometry = Settings.get("map_pool/geometry", type=QByteArray)
+        parent = cast(QWidget | None, self.parent())
+        if parent and geometry:
+            self.restoreGeometry(geometry)
+            # restoreGeometry also restores position, but we only want to restore size
+            new_geometry = self.geometry()
+            new_geometry.moveCenter(parent.geometry().center())
+            self.setGeometry(new_geometry)
+        else:
+            self.resize(840, 710)
 
     def request_pool_info(self) -> None:
         self.api_connector.request_pool_for_queue(self.queue_name)
@@ -430,3 +446,7 @@ class MapPoolDialog(QDialog):
             pool_widget = cast(MapPoolWidget, self.ui.poolTabs.widget(index))
             ret |= pool_widget.to_dict()
         return ret
+
+    def closeEvent(self, event: QCloseEvent) -> None:  # type: ignore[override]
+        Settings.set("map_pool/geometry", self.saveGeometry())
+        return super().closeEvent(event)
