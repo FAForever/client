@@ -174,8 +174,11 @@ class GamesWidget(FormClass, BaseClass):
             self.vetoes = {}
 
     def save_local_vetoes(self) -> None:
-        with open(self.local_vetoes_file, "w") as fp:
-            json.dump(self.vetoes, fp)
+        try:
+            with open(self.local_vetoes_file, "w") as fp:
+                json.dump(self.vetoes, fp)
+        except OSError:
+            logger.exception("Error saving local vetoes to '%s'", self.local_vetoes_file)
 
     def send_matchmaker_vetoes(self) -> None:
         vetoes_list = [
