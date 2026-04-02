@@ -83,7 +83,6 @@ class LiveReplayItem(QtWidgets.QTreeWidgetItem):
         self._map_dl_request.done.connect(self._map_preview_downloaded)
 
         self._game.updated.connect(self._update_game)
-        self._set_show_delay()
         self._update_game(self._game)
         self._filtered_out = False
 
@@ -91,7 +90,7 @@ class LiveReplayItem(QtWidgets.QTreeWidgetItem):
         self._filtered_out = filtered
         self.setHidden(filtered or self._delayed)
 
-    def _set_show_delay(self):
+    def set_show_delay(self) -> None:
         if time.time() - self.launch_time < self.LIVEREPLAY_DELAY:
             self.setHidden(True)
             # Wait until the replayserver makes the replay available
@@ -387,6 +386,7 @@ class LiveReplaysWidgetHandler:
         item = LiveReplayItem(game)
         self.games[game] = item
         self.liveTree.insertTopLevelItem(0, item)
+        item.set_show_delay()
         game.updated.connect(self._check_game_closed)
         self._filter_games(1)
 
