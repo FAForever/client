@@ -487,7 +487,7 @@ class HostGameWidget(QDialog):
 
         allmaps = maps.CachedMapsMetadata.get_installed_maps()
         for name in reversed(mapnames):
-            item = QListWidgetItem(name)
+            item = QListWidgetItem(maps.getDisplayName(name))
             item.setData(QtCore.Qt.ItemDataRole.UserRole, allmaps[name])
             item.setForeground(self._unseen_mapgen_brush)
             self.ui.mapList.addItem(item)
