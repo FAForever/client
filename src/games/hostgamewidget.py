@@ -480,6 +480,8 @@ class HostGameWidget(QDialog):
         if not mapnames:
             return
 
+        self.ui.showFavouritesOnlyCheck.setChecked(False)
+
         if len(mapnames) > 1:
             UnseenMapgenNames.update(set(mapnames))
 
