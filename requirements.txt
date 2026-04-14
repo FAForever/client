@@ -10,7 +10,7 @@ pyqtgraph==0.14.0
 pytest-cov==7.1.0
 pytest-mock==3.15.1
 pytest-qt==4.5.0
-pytest==9.0.2
+pytest==9.0.3
 pywin32==311 ; sys_platform == "win32"
 scipy==1.16.3
 semantic_version==2.10.0
