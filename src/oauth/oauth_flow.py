@@ -99,6 +99,7 @@ class OAuth2Flow(QOAuth2AuthorizationCodeFlow):
 
     def on_request_failed(self, error: QOAuth2AuthorizationCodeFlow.Error) -> None:
         self._logger.error("Request failed with an error: %s", error)
+        self.setToken("")
         self.stop_checking_expiration()
 
     def setup_credentials(self) -> None:

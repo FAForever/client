@@ -1210,7 +1210,9 @@ class ClientWindow(FormClass, BaseClass):
             self.show_login_widget()
 
     def on_login_attempt_failed(self) -> None:
+        self.disconnect_()
         self.state = ClientState.DISCONNECTED
+        self._auto_relogin = False
         self.show_login_widget()
 
     def get_creds_and_login(self) -> None:
