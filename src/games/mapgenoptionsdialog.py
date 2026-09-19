@@ -92,7 +92,7 @@ class OptionsExtractor(QtCore.QObject):
 
         option = self.to_extract.pop(0)
         self.progress.emit(option)
-        args = ["-jar", self.mapgen_path, option]
+        args = ["-jar", self.mapgen_path, f"--{option}"]
         self._logger.info(
             "Starting MapGenOptionsExtractor with: %s",
             " ".join((self.exe_path, *args)),
@@ -120,7 +120,7 @@ class OptionsExtractor(QtCore.QObject):
 
         *_, option_name = self.process.arguments()
         out = self.process.readAllStandardOutput()
-        self.extracted_options[option_name] = out.data().decode().splitlines()
+        self.extracted_options[option_name.removeprefix("--")] = out.data().decode().splitlines()
         if self.to_extract:
             self.extract_next()
         else:
@@ -387,6 +387,7 @@ class MapGenDialog(FormClass, BaseClass):
             self.setWindowTitle("Loading Mapgen Options...")
             self.setEnabled(False)
             gen_path = self.mapgen_manager.get_generator(self.mapgen_manager.currentVersion)
+            self.options_extractor.set_options_to_extract(list(self.dynamic_options))
             self.options_extractor.extract_all(gen_path)
         else:
             self.setWindowTitle(f"Map Generator Options - {self.mapgen_manager.currentVersion}")
