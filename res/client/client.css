@@ -1117,7 +1117,8 @@ QPushButton#generateMapButton, #hostGameButton
     min-height: 30px;
     background-color: rgb(39, 39, 45);
 }
-QPushButton#saveMapGenSettingsButton, #resetMapGenSettingsButton, #saveHostGameSettingsButton
+QPushButton#saveMapGenSettingsButton, #resetMapGenSettingsButton, #saveHostGameSettingsButton,
+QPushButton#buttonReloadOptions
 {
     color: silver;
     border: 0.5px solid rgb(70, 70, 70);
@@ -1125,7 +1126,7 @@ QPushButton#saveMapGenSettingsButton, #resetMapGenSettingsButton, #saveHostGameS
     padding: 5px;
 }
 QPushButton#saveMapGenSettingsButton:hover, #resetMapGenSettingsButton::hover,#generateMapButton::hover,
-#hostGameButton:hover, #saveHostGameSettingsButton:hover
+#hostGameButton:hover, #saveHostGameSettingsButton:hover, QPushButton#buttonReloadOptions:hover
 {
     border: none;
 
