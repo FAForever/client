@@ -347,7 +347,8 @@ class MapGenDialog(FormClass, BaseClass):
             self.mapgen_manager.get_generator(self.mapgen_manager.latestVersion)
             self.mapgen_manager.set_current_version_number(self.mapgen_manager.latestVersion)
         self.releases.add(Version(self.mapgen_manager.latestVersion))
-        self.comboVersion.insertItem(1, self.mapgen_manager.latestVersion)
+        if self.comboVersion.findText(self.mapgen_manager.latestVersion) == -1:
+            self.comboVersion.insertItem(1, self.mapgen_manager.latestVersion)
         self.save_release_tags()
 
     def load_release_tags(self) -> None:
