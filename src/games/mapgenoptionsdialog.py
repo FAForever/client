@@ -397,6 +397,8 @@ class MapGenDialog(FormClass, BaseClass):
             self.set_cmd_options(dynamic_options[self.mapgen_manager.currentVersion])
 
     def reload_cmd_options(self) -> None:
+        if Version(self.mapgen_manager.currentVersion) < Version("1.12.0"):
+            return
         self.setEnabled(False)
         self.options_extractor.set_options_to_extract(list(self.dynamic_options))
         gen_path = self.mapgen_manager.get_generator(self.mapgen_manager.currentVersion)
