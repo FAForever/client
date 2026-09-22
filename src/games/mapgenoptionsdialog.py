@@ -78,6 +78,7 @@ class OptionsExtractor(QtCore.QObject):
         self.exe_path = fafpath.get_java_path()
 
     def extract_all(self, gen_path: str) -> None:
+        self.extracted_options.clear()
         self.mapgen_path = gen_path
         self.extract_next()
 
@@ -182,6 +183,7 @@ class MapGenDialog(FormClass, BaseClass):
         self.groupCLI.toggled.connect(self.on_cli_toggled)
         self.checkCLIMapFolder.toggled.connect(self.on_cli_map_folder_toggled)
         self.comboVersion.currentTextChanged.connect(self.on_version_selection_changed)
+        self.buttonReloadOptions.clicked.connect(self.reload_cmd_options)
 
     def get_dynamic_options(self) -> dict[str, CheckableComboBoxOption]:
         return {
@@ -392,6 +394,12 @@ class MapGenDialog(FormClass, BaseClass):
         else:
             self.setWindowTitle(f"Map Generator Options - {self.mapgen_manager.currentVersion}")
             self.set_cmd_options(dynamic_options[self.mapgen_manager.currentVersion])
+
+    def reload_cmd_options(self) -> None:
+        self.setEnabled(False)
+        self.options_extractor.set_options_to_extract(list(self.dynamic_options))
+        gen_path = self.mapgen_manager.get_generator(self.mapgen_manager.currentVersion)
+        self.options_extractor.extract_all(gen_path)
 
     def set_cmd_options(self, dynamic_options: dict[str, list[str]]) -> None:
         self.statusBar.showMessage("")

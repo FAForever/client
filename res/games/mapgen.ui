@@ -933,6 +933,19 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="buttonReloadOptions">
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Reload Options</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="horizontalSpacer">
        <property name="font">
         <font>
