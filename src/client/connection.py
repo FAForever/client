@@ -315,11 +315,10 @@ class ServerConnection(QObject):
             self.processDataFromServer(self._data)
 
     def write_to_server(self, action: str) -> None:
-        message = (action + "\n").encode()
         # it looks like there's a crash in Qt
         # when sending to an unconnected socket
         if self.socket.state() == QAbstractSocket.SocketState.ConnectedState:
-            self.socket.sendBinaryMessage(message)
+            self.socket.sendTextMessage(action + "\n")
 
     def send(self, message: dict[str, Any]) -> None:
         data = json.dumps(message)
