@@ -22,10 +22,10 @@ jobs:
     outputs:
       MSI_SUM: ${{ steps.checksum.outputs.MSI_SUM }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
@@ -46,7 +46,7 @@ jobs:
           Invoke-WebRequest -Uri "https://github.com/FAForever/java-ice-adapter/releases/download/$($env:ICE_ADAPTER_VERSION)/faf-ice-adapter-$($env:ICE_ADAPTER_VERSION)-win.jar" -OutFile ".\\setup_helpers\\faf-ice-adapter.jar"
 
       - name: Setup Java
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v6
         with:
           distribution: ${{ env.JAVA_DISTRIBUTION }}
           java-version: ${{ env.JAVA_VERSION }}
@@ -95,7 +95,7 @@ jobs:
           echo "MSI_SUM=$MSI_SUM" >> "$env:GITHUB_OUTPUT"
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: client-windows
           path: dist/*
@@ -107,10 +107,10 @@ jobs:
       TAR_SUM: ${{ steps.checksum.outputs.TAR_SUM }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
@@ -149,7 +149,7 @@ jobs:
           wget "https://github.com//FAForever/java-ice-adapter/releases/download/$ICE_ADAPTER_VERSION/faf-ice-adapter-$ICE_ADAPTER_VERSION-win.jar" -O "setup_helpers/faf-ice-adapter.jar"
 
       - name: Setup Java
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v6
         with:
           distribution: ${{ env.JAVA_DISTRIBUTION }}
           java-version: ${{ env.JAVA_VERSION }}
@@ -193,7 +193,7 @@ jobs:
           echo "TAR_SUM=$TAR_SUM" >> "$GITHUB_OUTPUT"
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: client-linux
           path: faforever.tar.gz
@@ -203,23 +203,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Download Windows artifact
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: client-windows
           path: release-artifacts/
 
       - name: Download Linux artifact
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: client-linux
           path: release-artifacts/
 
       - name: Create draft release
         id: create_release
-        uses: ncipollo/release-action@v1.20.0
+        uses: ncipollo/release-action@v1.21.0
         with:
           commit: ${{ github.sha }}
           tag: ${{ github.event.inputs.version }}
