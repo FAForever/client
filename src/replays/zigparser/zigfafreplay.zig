@@ -1,6 +1,6 @@
 const std = @import("std");
 
-const py = @import("cimport.zig").py;
+const py = @import("py");
 const converter = @import("converter.zig");
 const decompressor = @import("decompressor.zig");
 const parser = @import("parser.zig");
@@ -206,10 +206,8 @@ var Methods = [_]py.PyMethodDef{
 
 var module = py.PyModuleDef{
     .m_base = py.PyModuleDef_Base{
-        .ob_base = py.PyObject{
-            .unnamed_0 = .{
-                .unnamed_0 = .{ .ob_refcnt = 1 },
-            },
+        .ob_base = .{
+            .unnamed_0 = .{ .ob_refcnt_full = 1 },
             .ob_type = null,
         },
         .m_init = null,

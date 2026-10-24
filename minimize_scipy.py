@@ -1,12 +1,13 @@
-from __future__ import annotations
-
 import argparse
 import fileinput
 import os
+import re
 import shutil
 from typing import NamedTuple
 
 import scipy
+
+SCIPY_IMPORT_RE = re.compile(r"(\s+)?(from|import) scipy")
 
 
 class Directory(NamedTuple):
@@ -24,33 +25,78 @@ MINIMAL_STRUCTURE = Directory(
             files=(
                 "__init__.py",
                 "_array_api.py",
+                "_array_api_override.py",
                 "_docscrape.py",
                 "_sparse.py",
                 "_util.py",
                 "doccer.py",
             ),
+            empty_init=True,
+        ),
+        Directory(
+            name="_external",
+            files=("_array_api_compat_vendor.py",),
             subdirs=(
                 Directory(
                     name="array_api_compat",
-                    files=("__init__.py",),
+                    files=(
+                        "__init__.py",
+                        "_internal.py",
+                    ),
                     subdirs=(
                         Directory(
                             name="common",
                             files=(
                                 "__init__.py",
+                                "_aliases.py",
+                                "_fft.py",
                                 "_helpers.py",
+                                "_linalg.py",
                                 "_typing.py",
                             ),
                         ),
                         Directory(
                             name="numpy",
-                            files=("__init__.py",),
+                            files=(
+                                "__init__.py",
+                                "_aliases.py",
+                                "_info.py",
+                                "_typing.py",
+                                "fft.py",
+                                "linalg.py",
+                            ),
                             empty_init=True,
                         ),
                     ),
                 ),
+                Directory(
+                    name="array_api_extra",
+                    files=(
+                        "__init__.py",
+                        "testing.py",
+                    ),
+                    empty_init=True,
+                    subdirs=(
+                        Directory(
+                            name="_lib",
+                            files=("__init__.py",),
+                            empty_init=True,
+                            subdirs=(
+                                Directory(
+                                    name="_utils",
+                                    files=(
+                                        "__init__.py",
+                                        "_compat.py",
+                                        "_helpers.py",
+                                        "_typing.py",
+                                    ),
+                                    empty_init=True,
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
             ),
-            empty_init=True,
         ),
         Directory(
             name="ndimage",
@@ -98,13 +144,20 @@ def copy_dir(src: str, dr: Directory, dst: str) -> None:
 
 def replace_imports(module_name: str, root: str, dr: Directory) -> None:
     for file in dr.files:
-        if file in ("_util.py", "_filters.py", "_array_api.py", "_ni_docstrings.py"):
+        if file in (
+            "_util.py",
+            "_filters.py",
+            "_ni_docstrings.py",
+            "_array_api.py",
+            "_array_api_compat_vendor.py",
+            "_array_api_override.py",
+        ):
             path = os.path.join(root, file)
             print(f"Replacing imports in {path!r}...")
             with fileinput.input(path, inplace=True, encoding="utf-8") as fi:
                 for line in fi:
-                    if line.startswith("from scipy"):
-                        print(line.replace("from scipy", f"from {module_name}"), end="")
+                    if m := SCIPY_IMPORT_RE.search(line):
+                        print(line.replace(f"{m[2]} scipy", f"{m[2]} {module_name}"), end="")
                     else:
                         print(line, end="")
     for subdir in dr.subdirs:

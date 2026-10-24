@@ -1,16 +1,16 @@
-cx_Freeze==8.6.3
-idna==3.15
+cx_Freeze==8.7.2
+idna==3.20
 irc==20.4.0
 jinja2==3.1.6
-numpy==2.4.4
-pydantic==2.12.5
+numpy==2.5.4
+pydantic==2.14.1
 pyqt6==6.11.0
 pyqt6-networkauth==6.11.0
 pyqtgraph==0.14.0
 pytest-cov==7.1.0
-pytest-mock==3.15.1
+pytest-mock==3.17.0
 pytest-qt==4.5.0
-pytest==9.0.3
-pywin32==311 ; sys_platform == "win32"
-scipy==1.16.3
+pytest==9.1.1
+pywin32==312 ; sys_platform == "win32"
+scipy==1.18.1
 semantic_version==2.10.0
