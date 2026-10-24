@@ -27,6 +27,7 @@ from src.contextmenu.playercontextmenu import PlayerContextMenu
 from src.fa.maps_.preview import create_largest_preview
 from src.fa.maps_.previewdialog import MapPreviewDialog
 from src.mapGenerator.mapgenManager import MapGeneratorManager
+from src.mapGenerator.mapgenUtils import isGeneratedMap
 from src.model.game import Game
 from src.model.game import GameState
 from src.model.player import Player
@@ -346,6 +347,10 @@ class GamePanelWidget(QWidget):
         self.set_map_size()
 
     def set_map_size(self) -> None:
+        if self.game is not None and isGeneratedMap(self.game.mapname):
+            size = MapSize.from_generated_map_name(self.game.mapname)
+            self.ui.mapSizeLabel.setText(str(size))
+            return
         if (
             self.game is None
             or (map_info := fa.maps.CachedMapsMetadata.get_map(self.game.mapname)) is None

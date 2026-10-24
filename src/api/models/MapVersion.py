@@ -1,3 +1,5 @@
+import base64
+import binascii
 from dataclasses import dataclass
 from typing import Self
 
@@ -17,6 +19,18 @@ class MapSize:
     @classmethod
     def from_side_km(cls, s: float, /) -> Self:
         return cls(int(s * 51.2), int(s * 51.2))
+
+    @classmethod
+    def from_generated_map_name(cls, s: str, /) -> Self:
+        args = s.split("_")
+        try:
+            options = args[5]
+            padded_options = options.upper() + "=" * (-len(options) % 8)
+            side = base64.b32decode(padded_options)[1] * 64
+        except (IndexError, binascii.Error):
+            return cls(512, 512)
+        else:
+            return cls(side, side)
 
     @property
     def width_km(self) -> float:
