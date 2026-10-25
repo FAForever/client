@@ -1,6 +1,11 @@
 0.x.x
 =====
 
+0.28.0
+* Fix compatibility with server
+* Update dependencies and GitHub actions
+* Infer mapgen size from its name
+
 0.27.4
 * Fix compatibility with server
 
