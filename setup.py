@@ -82,6 +82,7 @@ build_exe_options = {
 
     "includes": [
         "pyqtgraph",
+        "pydoc",
         "scipy_ndimage.ndimage._filters",
     ],
 

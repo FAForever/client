@@ -68,7 +68,6 @@ default_values = {
     # The base64 settings string disables expensive loading of all previews
     'UNITDB_URL': 'https://unitdb.faforever.com?settings64=eyJwcmV2aWV3Q29ybmVyIjoiTm9uZSJ9',
     'UNITDB_SPOOKY_URL': 'https://spooky.github.io/unitdb/',
-    'UNITDB_ETFREEMAN_URL': 'https://faforever.github.io/etfreeman-db',
     'MAPPOOL_URL': 'https://forum.faforever.com/topic/148/matchmaker-pools-thread',
     'GITHUB_URL': 'https://www.github.com/FAForever',
     'WIKI_URL': 'https://wiki.faforever.com',

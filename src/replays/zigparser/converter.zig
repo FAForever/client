@@ -1,6 +1,6 @@
 const std = @import("std");
 
-const py = @import("cimport.zig").py;
+const py = @import("py");
 const decoder = @import("decoder.zig");
 const parser = @import("parser.zig");
 const structs = @import("structs.zig");
@@ -33,9 +33,10 @@ pub fn convert_object(some_obj: anytype) [*c]py.PyObject {
     switch (@typeInfo(@TypeOf(some_obj))) {
         .@"struct" => {
             const dict = py.PyDict_New();
-            inline for (std.meta.fields(@TypeOf(some_obj))) |field| {
-                const value = convert_object(@field(some_obj, field.name));
-                _ = py.PyDict_SetItemString(dict, field.name, value);
+            const type_info = @typeInfo(@TypeOf(some_obj)).@"struct";
+            inline for (type_info.field_names) |name| {
+                const value = convert_object(@field(some_obj, name));
+                _ = py.PyDict_SetItemString(dict, name, value);
                 py.Py_DecRef(value);
             }
             return dict;

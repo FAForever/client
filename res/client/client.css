@@ -1077,7 +1077,7 @@ QPushButton#buttonManageInstalled:hover
 }
 
 QPushButton#searchButton, QPushButton#advSearchButton, QPushButton#fafDbButton,
-QPushButton#spookyDbButton, QPushButton#etfreemanDbButton
+QPushButton#spookyDbButton
 {
 	color: silver;
 	border-radius: 5px;
@@ -1088,7 +1088,7 @@ QPushButton#spookyDbButton, QPushButton#etfreemanDbButton
 }
 
 QPushButton#searchButton::hover, QPushButton#advSearchButton::hover, QPushButton#fafDbButton::hover,
-QPushButton#spookyDbButton::hover, QPushButton#etfreemanDbButton::hover
+QPushButton#spookyDbButton::hover
 {
     background-color: #808080;
 }

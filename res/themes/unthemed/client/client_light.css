@@ -383,7 +383,7 @@ QPushButton#refreshButton, #nextButton, #previousButton, #goToPageButton, #first
 }
 
 QPushButton#searchButton, QPushButton#advSearchButton, QPushButton#fafDbButton,
-QPushButton#spookyDbButton, QPushButton#etfreemanDbButton
+QPushButton#spookyDbButton
 {
 	border-radius: 5px;
 	border: 2px solid;
