@@ -5,7 +5,7 @@ const Translator = @import("translate_c").Translator;
 pub fn build(b: *std.Build) void {
     const includepy = b.option([]const u8, "includepy", "Python API source").?;
     const libpy = b.option([]const u8, "libpy", "Python libdir").?;
-    const syslilbpy = b.option([]const u8, "syslibpy", "Python system lib name").?;
+    const syslibpy = b.option([]const u8, "syslibpy", "Python system lib name").?;
 
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{ .preferred_optimize_mode = .fast });
@@ -16,7 +16,7 @@ pub fn build(b: *std.Build) void {
         .target = target,
         .optimize = optimize,
         .link_system_libs = &.{
-            .{ .name = syslilbpy },
+            .{ .name = syslibpy },
         },
     });
     translator.addIncludePath(.{ .cwd_relative = includepy });
